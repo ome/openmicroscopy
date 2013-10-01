@@ -1605,11 +1605,13 @@ public class UIUtilities
     {
     	return round(value, 2);
     }
-    
+
     /**
-     * Returns the decimal value.
-     * 
+     * Returns the maximum number of decimal places which still result in a
+     * non-zero rounded value.
+     *
      * @param value The value to handle.
+     * @param decimal The starting number of decimal places to test.
      * @return See above.
      */
     public static final int findDecimal(double value, int decimal)
@@ -1619,7 +1621,7 @@ public class UIUtilities
     	decimal++;
     	return findDecimal(value, decimal);
     }
-    
+
     /**
      * Rounds the passed value to the specified number of decimals.
      * 
