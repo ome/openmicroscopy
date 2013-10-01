@@ -909,10 +909,9 @@ class LocationDialog extends JDialog implements ActionListener,
 	 */
 	private void switchToSelectedUser()
 	{
-		populateLocationComboBoxes();
-		//setInputsEnabled(false);
-		//firePropertyChange(ImportDialog.REFRESH_LOCATION_PROPERTY, null,
-		//		new ImportLocationDetails(dataType, getSelectedUser().getId()));
+		setInputsEnabled(false);
+		firePropertyChange(ImportDialog.REFRESH_LOCATION_PROPERTY, null,
+				new ImportLocationDetails(dataType, getSelectedUser().getId()));
 	}
 
 	/**
@@ -945,7 +944,12 @@ class LocationDialog extends JDialog implements ActionListener,
 	 */
 	private ExperimenterData getSelectedUser()
 	{
-		return getUser(usersBox.getSelectedIndex());
+	    Selectable<ExperimenterDisplay> selectedItem =
+	            (Selectable<ExperimenterDisplay>) usersBox.getSelectedItem();
+	    if (selectedItem != null)
+	        return selectedItem.getObject().getData();
+
+	    return null;
 	}
 
 	/**
@@ -1066,20 +1070,21 @@ class LocationDialog extends JDialog implements ActionListener,
 	private boolean canLink(DataObject node, long userID, GroupData group,
 			long loggedUserID)
 	{
-		if (userID == loggedUserID || node.getOwner().getId() == userID)
-			return true;
-		PermissionData permissions = group.getPermissions();
-		if (permissions.isGroupWrite()) return true;
-		Set leaders = group.getLeaders();
-		if (leaders != null) {
-			Iterator i = leaders.iterator();
-			ExperimenterData exp;
-			while (i.hasNext()) {
-				exp = (ExperimenterData) i.next();
-				if (exp.getId() == userID) return true;
-			}
-		}
-		return node.canLink();
+		if (userID == loggedUserID) return true;
+		if (!node.canLink()) return false;
+
+        PermissionData permissions = group.getPermissions();
+        if (permissions.isGroupWrite()) return true;
+        Set leaders = group.getLeaders();
+        if (leaders != null) {
+            Iterator i = leaders.iterator();
+            ExperimenterData exp;
+            while (i.hasNext()) {
+                exp = (ExperimenterData) i.next();
+                if (exp.getId() == userID) return true;
+            }
+        }
+        return node.getOwner().getId() == userID;
 	}
 	
 	/**
@@ -1629,19 +1634,25 @@ class LocationDialog extends JDialog implements ActionListener,
 				DataNode node = getSelectedItem(projectsBox);
 				datasetsBox.setEnabled(true);
 				newDatasetButton.setEnabled(true);
-				if (node == null) {
-					projectsBox.setSelectedIndex(0);
-					return;
-				} else if (node.isDefaultProject()) {
-					newDatasetButton.setEnabled(true);
-				}
+				if (node.isDefaultProject()) {
+                    newDatasetButton.setEnabled(true);
+                } else if (!node.getDataObject().canLink()) {
+                    projectsBox.setSelectedIndex(0);
+                    return;
+                }
 				populateDatasetsBox();
 			} else if (source == datasetsBox) {
 				DataNode node = getSelectedItem(datasetsBox);
-				if (node == null) datasetsBox.setSelectedIndex(0);
+				if (!node.isDefaultNode()) {
+                    if (!node.getDataObject().canLink())
+                        datasetsBox.setSelectedIndex(0);
+                }
 			} else if (source == screensBox) {
 				DataNode node =  getSelectedItem(screensBox);
-				if (node == null) screensBox.setSelectedIndex(0);
+				if (!node.isDefaultNode()) {
+                    if (!node.getDataObject().canLink())
+                        screensBox.setSelectedIndex(0);
+                }
 			}
 		}
 	}
