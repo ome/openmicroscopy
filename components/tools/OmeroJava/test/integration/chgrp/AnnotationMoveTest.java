@@ -64,7 +64,7 @@ public class AnnotationMoveTest extends AbstractServerTest {
         EventContext ctx2 = newUserInGroup(ctx);
         init(ctx2);
         List<Long> annotationIdsUser2 = createNonSharableAnnotation(img, null);
-        disconnect();
+        omero.client clientUser2 = disconnect();
 
         List<Long> users = new ArrayList<Long>();
         users.add(ctx.userId);
@@ -100,7 +100,6 @@ public class AnnotationMoveTest extends AbstractServerTest {
                 annotationIdsUser1.size());
         n = 0;
         if (src.equals("rwrw--")) n = annotationIdsUser2.size();
-        
         param = new ParametersI();
         param.addIds(annotationIdsUser2);
         assertEquals("#9496? anns", iQuery.findAllByQuery(sb.toString(), param)
@@ -262,6 +261,21 @@ public class AnnotationMoveTest extends AbstractServerTest {
     
     /**
      * Test to move an image with annotation. Context: - 2 users annotate the
+     * image with non sharable annotations. - Owner move the image to a RW----
+     * group. - The annotation of the second user should be deleted and not
+     * moved to the destination group.
+     *
+     * @throws Exception
+     *             Thrown if an error occurred.
+     */
+    @Test
+    public void testMoveImageAnnotatedByUsersInDestinationGroupRWRAtoRW()
+            throws Exception {
+        moveImageWithNonSharedAnnotation("rwra--", "rw----", true);
+    }
+    
+    /**
+     * Test to move an image with annotation. Context: - 2 users annotate the
      * image with non sharable annotations. - Owner move the image to a RWRW--
      * group. - The annotation of the second user should be moved to the
      * destination group.
@@ -288,6 +302,21 @@ public class AnnotationMoveTest extends AbstractServerTest {
     public void testMoveImageAnnotatedByUsersInDestinationGroupRWRWtoRWRA()
             throws Exception {
         moveImageWithNonSharedAnnotation("rwrw--", "rwra--", true);
+    }
+    
+    /**
+     * Test to move an image with annotation. Context: - 2 users annotate the
+     * image with non sharable annotations. - Owner move the image to a RW----
+     * group. - The annotation of the second user should be moved to the
+     * destination group.
+     *
+     * @throws Exception
+     *             Thrown if an error occurred.
+     */
+    @Test(groups = "broken")
+    public void testMoveImageAnnotatedByUsersInDestinationGroupRWRWtoRW()
+            throws Exception {
+        moveImageWithNonSharedAnnotation("rwrw--", "rw----", true);
     }
     
     /**
@@ -350,6 +379,70 @@ public class AnnotationMoveTest extends AbstractServerTest {
     public void testMoveImageAnnotatedByUsersOneNotInDestinationGroupDestinationGroupRWRWtoRWRA()
             throws Exception {
         moveImageWithNonSharedAnnotation("rwrw--", "rwra--", false);
+    }
+    
+    /**
+     * Test to move an image with annotation. Context: - 2 users annotate the
+     * image with non sharable annotations. - Owner move the image to a RWR---
+     * group. - The annotation of the second user should be deleted and not
+     * moved to the destination group b/c the second user is not a member of the
+     * destination group.
+     *
+     * @throws Exception
+     *             Thrown if an error occurred.
+     */
+    @Test
+    public void testMoveImageAnnotatedByUsersOneNotInDestinationGroupDestinationGroupRWRWtoRWR()
+            throws Exception {
+        moveImageWithNonSharedAnnotation("rwrw--", "rwr---", false);
+    }
+    
+    /**
+     * Test to move an image with annotation. Context: - 2 users annotate the
+     * image with non sharable annotations. - Owner move the image to a RWRA--
+     * group. - The annotation of the second user should be deleted and not
+     * moved to the destination group b/c the second user is not a member of the
+     * destination group.
+     *
+     * @throws Exception
+     *             Thrown if an error occurred.
+     */
+    @Test(groups = "broken")
+    public void testMoveImageAnnotatedByUsersOneNotInDestinationGroupDestinationGroupRWRWtoRW()
+            throws Exception {
+        moveImageWithNonSharedAnnotation("rwrw--", "rw----", false);
+    }
+    
+    /**
+     * Test to move an image with annotation. Context: - 2 users annotate the
+     * image with non sharable annotations. - Owner move the image to a RW----
+     * group. - The annotation of the second user should be deleted and not
+     * moved to the destination group b/c the second user is not a member of the
+     * destination group.
+     *
+     * @throws Exception
+     *             Thrown if an error occurred.
+     */
+    @Test
+    public void testMoveImageAnnotatedByUsersOneNotInDestinationGroupDestinationGroupRWRAtoRW()
+            throws Exception {
+        moveImageWithNonSharedAnnotation("rwra--", "rw----", false);
+    }
+    
+    /**
+     * Test to move an image with annotation. Context: - 2 users annotate the
+     * image with non sharable annotations. - Owner move the image to a RWR---
+     * group. - The annotation of the second user should be deleted and not
+     * moved to the destination group b/c the second user is not a member of the
+     * destination group.
+     *
+     * @throws Exception
+     *             Thrown if an error occurred.
+     */
+    @Test
+    public void testMoveImageAnnotatedByUsersOneNotInDestinationGroupDestinationGroupRWRAtoRWR()
+            throws Exception {
+        moveImageWithNonSharedAnnotation("rwra--", "rwr---", false);
     }
     
     /**
