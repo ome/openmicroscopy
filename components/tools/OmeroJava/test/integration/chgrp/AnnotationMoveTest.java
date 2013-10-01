@@ -432,12 +432,12 @@ public class AnnotationMoveTest extends AbstractServerTest {
 
     /**
      * Test to move a tagged image, the tag is also used to tag another image.
-     * The image will be moved and the tag.
+     * The image will be moved and the tag should not be moved.
      *
      * @throws Exception
      *             Thrown if an error occurred.
      */
-    @Test(groups = "broken")
+    @Test
     public void testMoveTaggedImage() throws Exception {
         String perms = "rw----";
         EventContext ctx = newUserAndGroup(perms);
@@ -484,17 +484,7 @@ public class AnnotationMoveTest extends AbstractServerTest {
         sb.append("where i.parent.id = :id");
         List<IObject> results = iQuery.findAllByQuery(sb.toString(), param);
 
-        assertTrue("#9496? anns", results.size() > 0);
-        Iterator<IObject> j = results.iterator();
-        while (j.hasNext()) {
-            link = (ImageAnnotationLink) j.next();
-            Annotation a = link.getChild();
-            if (a instanceof TagAnnotation) {
-                assertEquals(((TagAnnotation) a).getTextValue().getValue(), c
-                        .getTextValue().getValue());
-            }
-        }
-
+        assertEquals("#9496? anns", results.size(), 0);
     }
 
 }
