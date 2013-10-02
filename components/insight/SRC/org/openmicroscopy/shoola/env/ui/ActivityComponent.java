@@ -623,7 +623,7 @@ public abstract class ActivityComponent
 		JFrame f = registry.getTaskBar().getFrame();
 		FileChooser chooser = new FileChooser(f, FileChooser.SAVE, 
 				"Download", "Select where to download the file.", null, 
-				true);
+				true, true);
 		IconManager icons = IconManager.getInstance(registry);
 		chooser.setTitleIcon(icons.getIcon(IconManager.DOWNLOAD_48));
 		chooser.setSelectedFileFull(name);
