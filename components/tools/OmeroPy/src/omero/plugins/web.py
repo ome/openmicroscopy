@@ -33,9 +33,8 @@ HELP = """OMERO.web configuration/deployment tools
 
 Configuration:
 
-    Configuration for OMERO.web takes place via the
-    omero config commands. The configuration values
-    which are checked are as below:
+    Configuration for OMERO.web takes place via the omero config commands. The
+    configuration values which are checked are as below:
 
 %s
 
@@ -103,7 +102,7 @@ class WebControl(BaseControl):
 
         call = parser.add(
             sub, self.call,
-            """Developer use: call appname "[executable] scriptname" args """)
+            """Developer use: call appname "[executable] scriptname" args""")
         call.add_argument("appname")
         call.add_argument("scriptname")
         call.add_argument("arg", nargs="*")

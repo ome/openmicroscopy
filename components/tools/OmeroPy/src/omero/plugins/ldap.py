@@ -12,10 +12,9 @@ import sys
 
 from omero.cli import BaseControl, CLI, ExceptionHandler
 
-HELP = """Administrative support for managing users' LDAP settings.
+HELP = """Administrative support for managing users' LDAP settings
 
-Most of these commands should be run as an OMERO administrator such
-as root.
+Most of these commands should be run as an OMERO administrator such as root.
 
 Examples:
 

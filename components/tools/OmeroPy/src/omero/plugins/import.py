@@ -18,12 +18,12 @@ TEST_CLASS = "ome.formats.test.util.TestEngine"
 
 HELP = """Run the Java-based command-line importer
 
-This is a Python wrapper around the Java importer. Login is handled
-by Python OmeroCli. To see more options, use "--javahelp".
+This is a Python wrapper around the Java importer. Login is handled by Python
+OmeroCli. To see more options, use "--javahelp".
 
-Options marked with "**" are passed strictly to Java. If they interfere
-with any of the Python arguments, you may need to end precede your arguments
-with a "--".
+Options marked with "**" are passed strictly to Java. If they interfere with
+any of the Python arguments, you may need to end precede your arguments with a
+"--".
 
 Examples:
 

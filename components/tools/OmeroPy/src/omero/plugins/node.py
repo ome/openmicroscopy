@@ -20,6 +20,7 @@ import signal
 from path import path
 
 HELP = """Control icegridnode.
+
            start       -- Start the node via icegridnode. With sync doesn't \
 return until reachable.
            stop        -- Stop the node via icegridadmin. With sync doesn't \

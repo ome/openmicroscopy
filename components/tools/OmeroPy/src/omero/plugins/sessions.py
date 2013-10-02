@@ -36,44 +36,44 @@ for a single invocation of bin/omero.
 """
 
 LONGHELP = """
-    Uses the login parameters from %(prog)s to login.
+Uses the login parameters from %(prog)s to login.
 
-    To list these options, use "%(prog)s -h"
+To list these options, use "%(prog)s -h"
 
-    Sample session:
-        $ bin/omero -s localhost sessions login
-        Username:
-        Password:
-        $ bin/omero -s localhost -u john sessions login
-        Password
-        $ bin/omero -s localhost -k 8afe443f-19fc-4cc4-bf4a-850ec94f4650 \
-sessions login
-        $ bin/omero sessions login
-        Server:
-        Username:
-        Password:
-        $ bin/omero sessions login user@omero.example.com
-        Password:
-        $ bin/omero sessions login user@omero.example.com:24064
-        Password:
-        $ bin/omero sessions logout
-        $ bin/omero sessions login
-        Reuse current session? [Y/n]
-        $ bin/omero sessions list
-        $ bin/omero sessions logout
-        $ bin/omero sessions login omero.example.com
-        Username:
-        Password:
-        $ bin/omero sessions logout
-        $ bin/omero -p 24064 sessions login
-        Server:
-        Username:
-        Password:
-        $ bin/omero sessions login my.email@example.com@omero.example.com
-        Password:
-        $ bin/omero -k 8afe443f-19fc-4cc4-bf4a-850ec94f4650 sessions login
-        $ bin/omero sessions clear
-        $ bin/omero sessions list --session-dir=/tmp
+Sample session:
+    $ bin/omero -s localhost sessions login
+    Username:
+    Password:
+    $ bin/omero -s localhost -u john sessions login
+    Password
+    $ bin/omero -s localhost -k 8afe443f-19fc-4cc4-bf4a-850ec94f4650 \
+    sessions login
+    $ bin/omero sessions login
+    Server:
+    Username:
+    Password:
+    $ bin/omero sessions login user@omero.example.com
+    Password:
+    $ bin/omero sessions login user@omero.example.com:24064
+    Password:
+    $ bin/omero sessions logout
+    $ bin/omero sessions login
+    Reuse current session? [Y/n]
+    $ bin/omero sessions list
+    $ bin/omero sessions logout
+    $ bin/omero sessions login omero.example.com
+    Username:
+    Password:
+    $ bin/omero sessions logout
+    $ bin/omero -p 24064 sessions login
+    Server:
+    Username:
+    Password:
+    $ bin/omero sessions login my.email@example.com@omero.example.com
+    Password:
+    $ bin/omero -k 8afe443f-19fc-4cc4-bf4a-850ec94f4650 sessions login
+    $ bin/omero sessions clear
+    $ bin/omero sessions list --session-dir=/tmp
 """
 
 
