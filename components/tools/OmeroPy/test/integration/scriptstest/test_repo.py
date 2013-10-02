@@ -10,8 +10,8 @@
 
 """
 
-import unittest
 import test.integration.library as lib
+import pytest
 import omero
 import omero.all
 from omero_model_ScriptJobI import ScriptJobI
@@ -48,6 +48,7 @@ class TestScriptRepo(lib.ITest):
         myUserScripts = prx.getUserScripts([omero.model.ExperimenterI(oid, False)])
         assert sid in [x.id.val for x in myUserScripts]
 
+    @pytest.mark.xfail(reason="ticket 11494")
     def testGetGroupScripts(self):
         prx = self.scriptPrx()
         admin = self.client.sf.getAdminService()

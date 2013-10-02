@@ -27,6 +27,7 @@ from omero_sys_ParametersI import ParametersI
 
 class TestTickets2000(lib.ITest):
 
+    @pytest.mark.xfail(reason="ticket 11494")
     def test1018CreationDestructionClosing(self):
         c1 = None
         c2 = None
