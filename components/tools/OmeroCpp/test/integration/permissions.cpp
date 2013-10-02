@@ -114,8 +114,11 @@ TEST( PermissionsTest, testAdjustPermissions ) {
     assertPerms("creator can ann/edit", f.client, c, true, true);
     f.login(user2);
     assertPerms("group member can't ann/edit", f.client, c, false, false);
-    
+
     // Search all groups for the annotation
-    f.root->getImplicitContext()->put("omero.group", "-1");
+    std::stringstream groupId;
+    groupId << group->getId()->getValue();
+    std::string gid = groupId.str();
+    f.root->getImplicitContext()->put("omero.group", gid);
     assertPerms("root can ann/edit", f.root, c, true, true);
 }
