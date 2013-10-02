@@ -228,10 +228,11 @@ public class AnnotationMoveTest extends AbstractServerTest {
     }
 
     /**
-     * Test to move an image with annotation. Context: - 2 users annotate the
-     * image with non sharable annotations. - Owner move the image to a RWR---
-     * group. - The annotation of the second user should be deleted and not
-     * moved to the destination group.
+     * Test to move an image with annotation. Context:
+     * - 2 users annotate the image with non sharable annotations.
+     * - Owner move the image from a RWRW-- to a RWR--- group.
+     * - The annotation of the second user should be moved to the
+     * destination group.
      *
      * @throws Exception
      *             Thrown if an error occurred.
@@ -243,10 +244,11 @@ public class AnnotationMoveTest extends AbstractServerTest {
     }
 
     /**
-     * Test to move an image with annotation. Context: - 2 users annotate the
-     * image with non sharable annotations. - Owner move the image to a RWR---
-     * group. - The annotation of the second user should be deleted and not
-     * moved to the destination group.
+     * Test to move an image with annotation. Context:
+     * - 2 users annotate the image with non sharable annotations.
+     * - Owner move the image from a RWRA-- to a RWR--- group.
+     * - The annotation of the second user should be moved to the
+     * destination group.
      *
      * @throws Exception
      *             Thrown if an error occurred.
@@ -258,10 +260,11 @@ public class AnnotationMoveTest extends AbstractServerTest {
     }
 
     /**
-     * Test to move an image with annotation. Context: - 2 users annotate the
-     * image with non sharable annotations. - Owner move the image to a RW----
-     * group. - The annotation of the second user should be deleted and not
-     * moved to the destination group.
+     * Test to move an image with annotation. Context:
+     * - 2 users annotate the image with non sharable annotations.
+     * - Owner move the image from a RWRA-- to a RW---- group.
+     * - The annotation of the second user should be moved to the
+     * destination group.
      *
      * @throws Exception
      *             Thrown if an error occurred.
@@ -273,9 +276,10 @@ public class AnnotationMoveTest extends AbstractServerTest {
     }
 
     /**
-     * Test to move an image with annotation. Context: - 2 users annotate the
-     * image with non sharable annotations. - Owner move the image to a RWRW--
-     * group. - The annotation of the second user should be moved to the
+     * Test to move an image with annotation. Context:
+     * - 2 users annotate the image with non sharable annotations.
+     * - Owner move the image from a RWRW-- to a RWRW-- group.
+     * - The annotation of the second user should be moved to the
      * destination group.
      *
      * @throws Exception
@@ -288,9 +292,10 @@ public class AnnotationMoveTest extends AbstractServerTest {
     }
 
     /**
-     * Test to move an image with annotation. Context: - 2 users annotate the
-     * image with non sharable annotations. - Owner move the image to a RWRA--
-     * group. - The annotation of the second user should be moved to the
+     * Test to move an image with annotation. Context:
+     * - 2 users annotate the image with non sharable annotations.
+     * - Owner move the image from a RWRW-- to a RWRA-- group.
+     * - The annotation of the second user should be moved to the
      * destination group.
      *
      * @throws Exception
@@ -303,9 +308,10 @@ public class AnnotationMoveTest extends AbstractServerTest {
     }
 
     /**
-     * Test to move an image with annotation. Context: - 2 users annotate the
-     * image with non sharable annotations. - Owner move the image to a RW----
-     * group. - The annotation of the second user should be moved to the
+     * Test to move an image with annotation. Context:
+     * - 2 users annotate the image with non sharable annotations.
+     * - Owner move the image from a RWRW-- to a RW---- group.
+     * - The annotation of the second user should be moved to the
      * destination group.
      *
      * @throws Exception
@@ -318,9 +324,10 @@ public class AnnotationMoveTest extends AbstractServerTest {
     }
 
     /**
-     * Test to move an image with annotation. Context: - 2 users annotate the
-     * image with non sharable annotations. - Owner move the image to a RWRA--
-     * group. - The annotation of the second user should be moved to the
+     * Test to move an image with annotation. Context: 
+     * - 2 users annotate the image with non sharable annotations.
+     * - Owner move the image from a RWRA-- to a RWRA-- group.
+     * - The annotation of the second user should be moved to the
      * destination group.
      *
      * @throws Exception
@@ -333,9 +340,10 @@ public class AnnotationMoveTest extends AbstractServerTest {
     }
 
     /**
-     * Test to move an image with annotation. Context: - 2 users annotate the
-     * image with non sharable annotations. - Owner move the image to a RWRA--
-     * group. - The annotation of the second user should be moved to the
+     * Test to move an image with annotation. Context:
+     * - 2 users annotate the image with non sharable annotations.
+     * - Owner move the image from a RWRA-- to a RWRW-- group.
+     * - The annotation of the second user should be moved to the
      * destination group.
      *
      * @throws Exception
@@ -348,9 +356,10 @@ public class AnnotationMoveTest extends AbstractServerTest {
     }
 
     /**
-     * Test to move an image with annotation. Context: - 2 users annotate the
-     * image with non sharable annotations. - Owner move the image to a RWRW--
-     * group. - The annotation of the second user should be deleted and not
+     * Test to move an image with annotation. Context:
+     * - 2 users annotate the image with non sharable annotations.
+     * - Owner move the image to from a RWRW-- to a RWRW-- group.
+     * - The annotation of the second user should be deleted and not
      * moved to the destination group b/c the second user is not a member of the
      * destination group.
      *
@@ -364,9 +373,10 @@ public class AnnotationMoveTest extends AbstractServerTest {
     }
 
     /**
-     * Test to move an image with annotation. Context: - 2 users annotate the
-     * image with non sharable annotations. - Owner move the image to a RWRA--
-     * group. - The annotation of the second user should be deleted and not
+     * Test to move an image with annotation. Context:
+     * - 2 users annotate the image with non sharable annotations.
+     * - Owner move the image to from a RWRW-- to a RWRA-- group.
+     * - The annotation of the second user should be deleted and not
      * moved to the destination group b/c the second user is not a member of the
      * destination group.
      *
@@ -380,9 +390,10 @@ public class AnnotationMoveTest extends AbstractServerTest {
     }
 
     /**
-     * Test to move an image with annotation. Context: - 2 users annotate the
-     * image with non sharable annotations. - Owner move the image to a RWR---
-     * group. - The annotation of the second user should be deleted and not
+     * Test to move an image with annotation. Context:
+     * - 2 users annotate the image with non sharable annotations.
+     * - Owner move the image to from a RWRA-- to a RWR--- group.
+     * - The annotation of the second user should be deleted and not
      * moved to the destination group b/c the second user is not a member of the
      * destination group.
      *
@@ -396,9 +407,10 @@ public class AnnotationMoveTest extends AbstractServerTest {
     }
 
     /**
-     * Test to move an image with annotation. Context: - 2 users annotate the
-     * image with non sharable annotations. - Owner move the image to a RWRA--
-     * group. - The annotation of the second user should be deleted and not
+     * Test to move an image with annotation. Context:
+     * - 2 users annotate the image with non sharable annotations.
+     * - Owner move the image to from a RWRW-- to a RW---- group.
+     * - The annotation of the second user should be deleted and not
      * moved to the destination group b/c the second user is not a member of the
      * destination group.
      *
@@ -412,9 +424,10 @@ public class AnnotationMoveTest extends AbstractServerTest {
     }
 
     /**
-     * Test to move an image with annotation. Context: - 2 users annotate the
-     * image with non sharable annotations. - Owner move the image to a RW----
-     * group. - The annotation of the second user should be deleted and not
+     * Test to move an image with annotation. Context:
+     * - 2 users annotate the image with non sharable annotations.
+     * - Owner move the image to from a RWRA-- to a RW---- group.
+     * - The annotation of the second user should be deleted and not
      * moved to the destination group b/c the second user is not a member of the
      * destination group.
      *
@@ -428,9 +441,10 @@ public class AnnotationMoveTest extends AbstractServerTest {
     }
 
     /**
-     * Test to move an image with annotation. Context: - 2 users annotate the
-     * image with non sharable annotations. - Owner move the image to a RWR---
-     * group. - The annotation of the second user should be deleted and not
+     * Test to move an image with annotation. Context:
+     * - 2 users annotate the image with non sharable annotations.
+     * - Owner move the image to from a RWRA-- to a RWR--- group.
+     * - The annotation of the second user should be deleted and not
      * moved to the destination group b/c the second user is not a member of the
      * destination group.
      *
@@ -444,9 +458,10 @@ public class AnnotationMoveTest extends AbstractServerTest {
     }
 
     /**
-     * Test to move an image with annotation. Context: - 2 users annotate the
-     * image with non sharable annotations. - Owner move the image to a RWRA--
-     * group. - The annotation of the second user should be deleted and not
+     * Test to move an image with annotation. Context:
+     * - 2 users annotate the image with non sharable annotations.
+     * - Owner move the image to from a RWRA-- to a RWRA-- group.
+     * - The annotation of the second user should be deleted and not
      * moved to the destination group b/c the second user is not a member of the
      * destination group.
      *
@@ -460,9 +475,10 @@ public class AnnotationMoveTest extends AbstractServerTest {
     }
 
     /**
-     * Test to move an image with annotation. Context: - 2 users annotate the
-     * image with non sharable annotations. - Owner move the image to a RWRA--
-     * group. - The annotation of the second user should be deleted and not
+     * Test to move an image with annotation. Context:
+     * - 2 users annotate the image with non sharable annotations.
+     * - Owner move the image to from a RWRA-- to a RWRW-- group.
+     * - The annotation of the second user should be deleted and not
      * moved to the destination group b/c the second user is not a member of the
      * destination group.
      *
