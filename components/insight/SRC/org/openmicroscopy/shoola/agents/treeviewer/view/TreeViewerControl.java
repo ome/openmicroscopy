@@ -725,6 +725,19 @@ class TreeViewerControl
 	}
 
 	/**
+	 * Returns the type of the selected browser or <code>-1</code> if
+	 * no browser selected.
+	 * 
+	 * @return See above.
+	 */
+	int getSelectedBrowserType()
+	{
+	    Browser browser = model.getSelectedBrowser();
+	    if (browser == null) return -1;
+	    return browser.getBrowserType();
+	}
+
+	/**
 	 * Returns the collections of actions identifying the viewers used
 	 * for the type of images.
 	 * 
