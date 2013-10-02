@@ -20,602 +20,602 @@ namespace omero {
 
     namespace rtypes {
 
-	// Omitting rtype() for the moment since it seems of less
-	// value in C++
+        // Omitting rtype() for the moment since it seems of less
+        // value in C++
 
-	// Static factory methods (primitives)
-	// =========================================================================
+        // Static factory methods (primitives)
+        // =========================================================================
 
-	const omero::RBoolPtr rbool(bool val) {
-	    if (val) {
-		return rtrue;
-	    } else {
-		return rfalse;
-	    }
-	}
-
-	const omero::RDoublePtr rdouble(Ice::Double val) {
-	    return new RDoubleI(val);
-	}
-
-	const omero::RFloatPtr rfloat(Ice::Float val) {
-	    return new RFloatI(val);
-	}
-
-	const omero::RIntPtr rint(Ice::Int val) {
-	    if (val == 0) {
-		return rint0;
-	    }
-	    return new RIntI(val);
-	}
-
-	const omero::RLongPtr rlong(Ice::Long val) {
-	    if (val == 0) {
-		return rlong0;
-	    }
-	    return new RLongI(val);
-	}
-
-	const omero::RTimePtr rtime(Ice::Long val){
-	    return new RTimeI(val);
-	}
-
-	// Static factory methods (objects)
-	// =========================================================================
-
-	const omero::RInternalPtr rinternal(const omero::InternalPtr& val) {
-	    if (! val) {
-		return rnullinternal;
-	    }
-	    return new RInternalI(val);
-	}
-
-	const omero::RObjectPtr robject(const omero::model::IObjectPtr& val) {
-	    if (! val) {
-		return rnullobject;
-	    }
-	    return new RObjectI(val);
-	}
-
-	const omero::RClassPtr rclass(const std::string& val) {
-	    if (val.empty()) {
-		return remptyclass;
-	    }
-	    return new RClassI(val);
-	}
-
-	const omero::RStringPtr rstring(const std::string& val) {
-	    if (val.empty()) {
-		return remptystr;
-	    }
-	    return new RStringI(val);
-	}
-
-	// Static factory methods (collections)
-	// =========================================================================
-
-	const omero::RArrayPtr rarray() {
-	    return new RArrayI();
-	}
-
-	const omero::RListPtr rlist() {
-	    return new RListI();
-	}
-
-	const omero::RSetPtr rset() {
-	    return new RSetI();
-	}
-
-	const omero::RMapPtr rmap() {
-	    return new RMapI();
-	}
-
-
-	// Implementations (primitives)
-	// =========================================================================
-        
-    template<typename T, typename P>
-    Ice::Int compareRTypes(T* lhs, omero::RTypePtr rhs) {
-        if (lhs == rhs.get())
-            return 0;
-        
-        T* rhsCasted = dynamic_cast<T*>(rhs.get());
-        if (!rhsCasted) {
-            throw std::bad_cast();
+        const omero::RBoolPtr rbool(bool val) {
+            if (val) {
+                return rtrue;
+            } else {
+                return rfalse;
+            }
         }
-        
-        P val = lhs->getValue();
-        P valR = rhsCasted->getValue();
-        
-        if (val < valR)
-            return -1;
-        
-        return val > valR? 1 : 0;
-    }
 
-	// RBOOL
+        const omero::RDoublePtr rdouble(Ice::Double val) {
+            return new RDoubleI(val);
+        }
 
-	RBoolI::RBoolI(bool val) : omero::RBool() {
-	    this->val = val;
-	}
+        const omero::RFloatPtr rfloat(Ice::Float val) {
+            return new RFloatI(val);
+        }
 
-	RBoolI::~RBoolI() { }
+        const omero::RIntPtr rint(Ice::Int val) {
+            if (val == 0) {
+                return rint0;
+            }
+            return new RIntI(val);
+        }
 
-	bool RBoolI::getValue(const Ice::Current& current) { return this->val; }
+        const omero::RLongPtr rlong(Ice::Long val) {
+            if (val == 0) {
+                return rlong0;
+            }
+            return new RLongI(val);
+        }
 
-	Ice::Int RBoolI::compare(const omero::RTypePtr& rhs, const Ice::Current& current) {
+        const omero::RTimePtr rtime(Ice::Long val){
+            return new RTimeI(val);
+        }
+
+        // Static factory methods (objects)
+        // =========================================================================
+
+        const omero::RInternalPtr rinternal(const omero::InternalPtr& val) {
+            if (! val) {
+                return rnullinternal;
+            }
+            return new RInternalI(val);
+        }
+
+        const omero::RObjectPtr robject(const omero::model::IObjectPtr& val) {
+            if (! val) {
+                return rnullobject;
+            }
+            return new RObjectI(val);
+        }
+
+        const omero::RClassPtr rclass(const std::string& val) {
+            if (val.empty()) {
+                return remptyclass;
+            }
+            return new RClassI(val);
+        }
+
+        const omero::RStringPtr rstring(const std::string& val) {
+            if (val.empty()) {
+                return remptystr;
+            }
+            return new RStringI(val);
+        }
+
+        // Static factory methods (collections)
+        // =========================================================================
+
+        const omero::RArrayPtr rarray() {
+            return new RArrayI();
+        }
+
+        const omero::RListPtr rlist() {
+            return new RListI();
+        }
+
+        const omero::RSetPtr rset() {
+            return new RSetI();
+        }
+
+        const omero::RMapPtr rmap() {
+            return new RMapI();
+        }
+
+
+        // Implementations (primitives)
+        // =========================================================================
+
+        template<typename T, typename P>
+        Ice::Int compareRTypes(T* lhs, omero::RTypePtr rhs) {
+            if (lhs == rhs.get())
+                return 0;
+
+            T* rhsCasted = dynamic_cast<T*>(rhs.get());
+            if (!rhsCasted) {
+                throw std::bad_cast();
+            }
+
+            P val = lhs->getValue();
+            P valR = rhsCasted->getValue();
+
+            if (val < valR)
+                return -1;
+
+            return val > valR? 1 : 0;
+        }
+
+        // RBOOL
+
+        RBoolI::RBoolI(bool val) : omero::RBool() {
+            this->val = val;
+        }
+
+        RBoolI::~RBoolI() { }
+
+        bool RBoolI::getValue(const Ice::Current& current) { return this->val; }
+
+        Ice::Int RBoolI::compare(const omero::RTypePtr& rhs, const Ice::Current& current) {
         return compareRTypes<RBoolI, bool>(this, rhs);
-	}
+        }
 
-	// RDOUBLE
+        // RDOUBLE
 
-	RDoubleI::RDoubleI(Ice::Double val) {
-	this->val = val;
-	}
+        RDoubleI::RDoubleI(Ice::Double val) {
+        this->val = val;
+        }
 
-	RDoubleI::~RDoubleI() {}
+        RDoubleI::~RDoubleI() {}
 
-	Ice::Double RDoubleI::getValue(const Ice::Current& current) { return this->val; }
+        Ice::Double RDoubleI::getValue(const Ice::Current& current) { return this->val; }
 
-	Ice::Int RDoubleI::compare(const omero::RTypePtr& rhs, const Ice::Current& current) {
+        Ice::Int RDoubleI::compare(const omero::RTypePtr& rhs, const Ice::Current& current) {
         return compareRTypes<RDoubleI, Ice::Double>(this, rhs);
-	}
+        }
 
-	// RFLOAT
+        // RFLOAT
 
-	RFloatI::~RFloatI() {}
+        RFloatI::~RFloatI() {}
 
-	RFloatI::RFloatI(Ice::Float val) {
-	    this->val = val;
-	}
+        RFloatI::RFloatI(Ice::Float val) {
+            this->val = val;
+        }
 
-	Ice::Float RFloatI::getValue(const Ice::Current& current) { return this->val; }
+        Ice::Float RFloatI::getValue(const Ice::Current& current) { return this->val; }
 
-	Ice::Int RFloatI::compare(const omero::RTypePtr& rhs, const Ice::Current& current) {
-	    return compareRTypes<RFloatI, Ice::Float>(this, rhs);
-	}
+        Ice::Int RFloatI::compare(const omero::RTypePtr& rhs, const Ice::Current& current) {
+            return compareRTypes<RFloatI, Ice::Float>(this, rhs);
+        }
 
-	// RINT
+        // RINT
 
-	RIntI::RIntI(Ice::Int val) {
-	    this->val = val;
-	}
+        RIntI::RIntI(Ice::Int val) {
+            this->val = val;
+        }
 
-	RIntI::~RIntI() {}
+        RIntI::~RIntI() {}
 
-	Ice::Int RIntI::getValue(const Ice::Current& current) { return this->val; }
+        Ice::Int RIntI::getValue(const Ice::Current& current) { return this->val; }
 
-	Ice::Int RIntI::compare(const omero::RTypePtr& rhs, const Ice::Current& current) {
-	    return compareRTypes<RIntI, Ice::Int>(this, rhs);
-	}
+        Ice::Int RIntI::compare(const omero::RTypePtr& rhs, const Ice::Current& current) {
+            return compareRTypes<RIntI, Ice::Int>(this, rhs);
+        }
 
-	// RLONG
+        // RLONG
 
-	RLongI::RLongI(Ice::Long val) {
-	    this->val = val;
-	}
+        RLongI::RLongI(Ice::Long val) {
+            this->val = val;
+        }
 
-	RLongI::~RLongI() {}
+        RLongI::~RLongI() {}
 
-	Ice::Long RLongI::getValue(const Ice::Current& current) { return this->val; }
+        Ice::Long RLongI::getValue(const Ice::Current& current) { return this->val; }
 
-	Ice::Int RLongI::compare(const omero::RTypePtr& rhs, const Ice::Current& current) {
-	    return compareRTypes<RLongI, Ice::Long>(this, rhs);
-	}
+        Ice::Int RLongI::compare(const omero::RTypePtr& rhs, const Ice::Current& current) {
+            return compareRTypes<RLongI, Ice::Long>(this, rhs);
+        }
 
-	// RTIME
+        // RTIME
 
-	RTimeI::RTimeI(Ice::Long val) {
-	    this->val = val;
-	}
+        RTimeI::RTimeI(Ice::Long val) {
+            this->val = val;
+        }
 
-	RTimeI::~RTimeI() {}
+        RTimeI::~RTimeI() {}
 
-	Ice::Long RTimeI::getValue(const Ice::Current& current) { return this->val; }
+        Ice::Long RTimeI::getValue(const Ice::Current& current) { return this->val; }
 
-	Ice::Int RTimeI::compare(const omero::RTypePtr& rhs, const Ice::Current& current) {
-	    return compareRTypes<RTimeI, Ice::Long>(this, rhs);
-	}
+        Ice::Int RTimeI::compare(const omero::RTypePtr& rhs, const Ice::Current& current) {
+            return compareRTypes<RTimeI, Ice::Long>(this, rhs);
+        }
 
-	// Implementations (objects)
-	// =========================================================================
+        // Implementations (objects)
+        // =========================================================================
 
-	// RINTERNAL
+        // RINTERNAL
 
-	RInternalI::RInternalI(const omero::InternalPtr& val) {
-	    this->val = val;
-	}
+        RInternalI::RInternalI(const omero::InternalPtr& val) {
+            this->val = val;
+        }
 
-	RInternalI::~RInternalI() {}
+        RInternalI::~RInternalI() {}
 
-	omero::InternalPtr RInternalI::getValue(const Ice::Current& current) { return this->val; }
+        omero::InternalPtr RInternalI::getValue(const Ice::Current& current) { return this->val; }
 
-	Ice::Int RInternalI::compare(const omero::RTypePtr& rhs, const Ice::Current& current) {
-	    throw omero::ClientError(__FILE__,__LINE__,"Not implemented");
-	}
+        Ice::Int RInternalI::compare(const omero::RTypePtr& rhs, const Ice::Current& current) {
+            throw omero::ClientError(__FILE__,__LINE__,"Not implemented");
+        }
 
-	// RObject
+        // RObject
 
-	RObjectI::RObjectI(const omero::model::IObjectPtr& val) {
-	    this->val = val;
-	}
+        RObjectI::RObjectI(const omero::model::IObjectPtr& val) {
+            this->val = val;
+        }
 
-	RObjectI::~RObjectI() {}
+        RObjectI::~RObjectI() {}
 
-	omero::model::IObjectPtr RObjectI::getValue(const Ice::Current& current) { return this->val; }
+        omero::model::IObjectPtr RObjectI::getValue(const Ice::Current& current) { return this->val; }
 
-	Ice::Int RObjectI::compare(const omero::RTypePtr& rhs, const Ice::Current& current) {
-	    throw omero::ClientError(__FILE__,__LINE__,"Not implemented");
-	}
+        Ice::Int RObjectI::compare(const omero::RTypePtr& rhs, const Ice::Current& current) {
+            throw omero::ClientError(__FILE__,__LINE__,"Not implemented");
+        }
 
-	// RSTRING
+        // RSTRING
 
-	RStringI::RStringI(const std::string& val) {
-	    this->val = val;
-	}
+        RStringI::RStringI(const std::string& val) {
+            this->val = val;
+        }
 
-	RStringI::~RStringI() {}
+        RStringI::~RStringI() {}
 
-	std::string RStringI::getValue(const Ice::Current& current) { return this->val; }
+        std::string RStringI::getValue(const Ice::Current& current) { return this->val; }
 
-	Ice::Int RStringI::compare(const omero::RTypePtr& rhs, const Ice::Current& current) {
-	    return compareRTypes<RStringI, std::string>(this, rhs);
-	}
+        Ice::Int RStringI::compare(const omero::RTypePtr& rhs, const Ice::Current& current) {
+            return compareRTypes<RStringI, std::string>(this, rhs);
+        }
 
-	// RCLASS
+        // RCLASS
 
-	RClassI::RClassI(const std::string& val) {
-	    this->val = val;
-	}
+        RClassI::RClassI(const std::string& val) {
+            this->val = val;
+        }
 
-	RClassI::~RClassI() {}
+        RClassI::~RClassI() {}
 
-	std::string RClassI::getValue(const Ice::Current& current) { return this->val; }
+        std::string RClassI::getValue(const Ice::Current& current) { return this->val; }
 
-	Ice::Int RClassI::compare(const omero::RTypePtr& rhs, const Ice::Current& current) {
-	    throw omero::ClientError(__FILE__,__LINE__,"Not implemented");
-	}
+        Ice::Int RClassI::compare(const omero::RTypePtr& rhs, const Ice::Current& current) {
+            throw omero::ClientError(__FILE__,__LINE__,"Not implemented");
+        }
 
 
-	// Implementations (collections)
-	// =========================================================================
+        // Implementations (collections)
+        // =========================================================================
 
-	// RARRAY
+        // RARRAY
 
-	RArrayI::RArrayI(const omero::RTypePtr& value) {
-	    this->val = omero::RTypeSeq();
-	    this->val.push_back(value);
-	}
+        RArrayI::RArrayI(const omero::RTypePtr& value) {
+            this->val = omero::RTypeSeq();
+            this->val.push_back(value);
+        }
 
-	RArrayI::RArrayI(const omero::RTypeSeq& values) {
-	    this->val = values;
-	}
+        RArrayI::RArrayI(const omero::RTypeSeq& values) {
+            this->val = values;
+        }
 
-	RArrayI::~RArrayI() {}
+        RArrayI::~RArrayI() {}
 
-	RTypeSeq RArrayI::getValue(const Ice::Current& current) { return this->val; }
+        RTypeSeq RArrayI::getValue(const Ice::Current& current) { return this->val; }
 
-	Ice::Int RArrayI::compare(const omero::RTypePtr& rhs, const Ice::Current& current) {
-	    return compareRTypes<RArrayI, RTypeSeq>(this, rhs);
-	}
+        Ice::Int RArrayI::compare(const omero::RTypePtr& rhs, const Ice::Current& current) {
+            return compareRTypes<RArrayI, RTypeSeq>(this, rhs);
+        }
 
-	// Collection methods
-	omero::RTypePtr RArrayI::get(Ice::Int idx, const Ice::Current& current) {
-	    return this->val[idx];
-	}
+        // Collection methods
+        omero::RTypePtr RArrayI::get(Ice::Int idx, const Ice::Current& current) {
+            return this->val[idx];
+        }
 
-	Ice::Int RArrayI::size(const Ice::Current& current) {
-	    return this->val.size();
-	}
+        Ice::Int RArrayI::size(const Ice::Current& current) {
+            return this->val.size();
+        }
 
-	void RArrayI::add(const omero::RTypePtr& val, const Ice::Current& current) {
-	    this->val.push_back(val);
-	}
+        void RArrayI::add(const omero::RTypePtr& val, const Ice::Current& current) {
+            this->val.push_back(val);
+        }
 
-	void RArrayI::addAll(const omero::RTypeSeq& values, const Ice::Current& current) {
-	    omero::RTypeSeq::const_iterator itr;
-	    for (itr = values.begin(); itr != values.end(); itr++) {
-		this->val.push_back(*itr);
-	    }
-	}
+        void RArrayI::addAll(const omero::RTypeSeq& values, const Ice::Current& current) {
+            omero::RTypeSeq::const_iterator itr;
+            for (itr = values.begin(); itr != values.end(); itr++) {
+                this->val.push_back(*itr);
+            }
+        }
 
-	// RLIST
+        // RLIST
 
-	RListI::RListI(const omero::RTypePtr& value)  {
-	    this->val = omero::RTypeSeq();
-	    this->val.push_back(value);
-	}
+        RListI::RListI(const omero::RTypePtr& value)  {
+            this->val = omero::RTypeSeq();
+            this->val.push_back(value);
+        }
 
-	RListI::RListI(const omero::RTypeSeq& values) {
-	    this->val = values;
-	}
+        RListI::RListI(const omero::RTypeSeq& values) {
+            this->val = values;
+        }
 
-	RListI::~RListI() {}
+        RListI::~RListI() {}
 
-	RTypeSeq RListI::getValue(const Ice::Current& current) { return this->val; }
+        RTypeSeq RListI::getValue(const Ice::Current& current) { return this->val; }
 
-	Ice::Int RListI::compare(const omero::RTypePtr& rhs, const Ice::Current& current) {
+        Ice::Int RListI::compare(const omero::RTypePtr& rhs, const Ice::Current& current) {
         return compareRTypes<RListI, RTypeSeq>(this, rhs);
-	}
+        }
 
-	// Collection methods
-	omero::RTypePtr RListI::get(Ice::Int idx, const Ice::Current& current) {
-	    return this->val[idx];
-	}
+        // Collection methods
+        omero::RTypePtr RListI::get(Ice::Int idx, const Ice::Current& current) {
+            return this->val[idx];
+        }
 
-	Ice::Int RListI::size(const Ice::Current& current) {
-	    return this->val.size();
-	}
+        Ice::Int RListI::size(const Ice::Current& current) {
+            return this->val.size();
+        }
 
-	void RListI::add(const omero::RTypePtr& val, const Ice::Current& current) {
-	    this->val.push_back(val);
-	}
+        void RListI::add(const omero::RTypePtr& val, const Ice::Current& current) {
+            this->val.push_back(val);
+        }
 
-	void RListI::addAll(const omero::RTypeSeq& values, const Ice::Current& current) {
-	    omero::RTypeSeq::const_iterator itr;
-	    for (itr = values.begin(); itr != values.end(); itr++) {
-		this->val.push_back(*itr);
-	    }
-	}
+        void RListI::addAll(const omero::RTypeSeq& values, const Ice::Current& current) {
+            omero::RTypeSeq::const_iterator itr;
+            for (itr = values.begin(); itr != values.end(); itr++) {
+                this->val.push_back(*itr);
+            }
+        }
 
-	// RSET
+        // RSET
 
-	RSetI::RSetI(const omero::RTypePtr& value) {
-	    this->val = omero::RTypeSeq();
-	    this->val.push_back(value);
-	}
+        RSetI::RSetI(const omero::RTypePtr& value) {
+            this->val = omero::RTypeSeq();
+            this->val.push_back(value);
+        }
 
-	RSetI::RSetI(const omero::RTypeSeq& values) {
-	    this->val = values;
-	}
+        RSetI::RSetI(const omero::RTypeSeq& values) {
+            this->val = values;
+        }
 
-	RSetI::~RSetI() {}
+        RSetI::~RSetI() {}
 
-	RTypeSeq RSetI::getValue(const Ice::Current& current) { return this->val; }
+        RTypeSeq RSetI::getValue(const Ice::Current& current) { return this->val; }
 
-	Ice::Int RSetI::compare(const omero::RTypePtr& rhs, const Ice::Current& current) {
-	    return compareRTypes<RSetI, RTypeSeq>(this, rhs);
-	}
+        Ice::Int RSetI::compare(const omero::RTypePtr& rhs, const Ice::Current& current) {
+            return compareRTypes<RSetI, RTypeSeq>(this, rhs);
+        }
 
-	// Collection methods
-	omero::RTypePtr RSetI::get(Ice::Int idx, const Ice::Current& current) {
-	    return this->val[idx];
-	}
+        // Collection methods
+        omero::RTypePtr RSetI::get(Ice::Int idx, const Ice::Current& current) {
+            return this->val[idx];
+        }
 
-	Ice::Int RSetI::size(const Ice::Current& current) {
-	    return this->val.size();
-	}
+        Ice::Int RSetI::size(const Ice::Current& current) {
+            return this->val.size();
+        }
 
-	void RSetI::add(const omero::RTypePtr& val, const Ice::Current& current) {
-	    this->val.push_back(val);
-	}
+        void RSetI::add(const omero::RTypePtr& val, const Ice::Current& current) {
+            this->val.push_back(val);
+        }
 
-	void RSetI::addAll(const omero::RTypeSeq& values, const Ice::Current& current) {
-	    omero::RTypeSeq::const_iterator itr;
-	    for (itr = values.begin(); itr != values.end(); itr++) {
-		this->val.push_back(*itr);
-	    }
-	}
+        void RSetI::addAll(const omero::RTypeSeq& values, const Ice::Current& current) {
+            omero::RTypeSeq::const_iterator itr;
+            for (itr = values.begin(); itr != values.end(); itr++) {
+                this->val.push_back(*itr);
+            }
+        }
 
-	// RMAP
+        // RMAP
 
-	RMapI::RMapI(const std::string& key, const omero::RTypePtr& value) {
-	    this->val = omero::RTypeDict();
-	    this->val[key] = value;
-	}
+        RMapI::RMapI(const std::string& key, const omero::RTypePtr& value) {
+            this->val = omero::RTypeDict();
+            this->val[key] = value;
+        }
 
-	RMapI::RMapI(const omero::RTypeDict& values) {
-	    this->val = values;
-	}
+        RMapI::RMapI(const omero::RTypeDict& values) {
+            this->val = values;
+        }
 
-	RMapI::~RMapI() {}
+        RMapI::~RMapI() {}
 
-	RTypeDict RMapI::getValue(const Ice::Current& current) { return this->val; }
+        RTypeDict RMapI::getValue(const Ice::Current& current) { return this->val; }
 
-	Ice::Int RMapI::compare(const omero::RTypePtr& rhs, const Ice::Current& current) {
-	    return compareRTypes<RMapI, RTypeDict>(this, rhs);
-	}
+        Ice::Int RMapI::compare(const omero::RTypePtr& rhs, const Ice::Current& current) {
+            return compareRTypes<RMapI, RTypeDict>(this, rhs);
+        }
 
-	// Collection methods
-	omero::RTypePtr RMapI::get(const std::string& key, const Ice::Current& current) {
-	    return this->val[key];
-	}
+        // Collection methods
+        omero::RTypePtr RMapI::get(const std::string& key, const Ice::Current& current) {
+            return this->val[key];
+        }
 
-	void RMapI::put(const std::string& key, const omero::RTypePtr& value, const Ice::Current& current) {
-	    this->val[key] = value;
-	}
+        void RMapI::put(const std::string& key, const omero::RTypePtr& value, const Ice::Current& current) {
+            this->val[key] = value;
+        }
 
-	Ice::Int RMapI::size(const Ice::Current& current) {
-	    return this->val.size();
-	}
+        Ice::Int RMapI::size(const Ice::Current& current) {
+            return this->val.size();
+        }
 
-	// Helpers
-	// ========================================================================
+        // Helpers
+        // ========================================================================
 
-	// Conversion classes are for omero.model <--> ome.model only (no C++)
+        // Conversion classes are for omero.model <--> ome.model only (no C++)
 
-	void ObjectFactory::register_(const Ice::CommunicatorPtr& ic) {
-	    ic->addObjectFactory(this, this->id);
-	}
+        void ObjectFactory::register_(const Ice::CommunicatorPtr& ic) {
+            ic->addObjectFactory(this, this->id);
+        }
 
-	ObjectFactory::~ObjectFactory() {}
+        ObjectFactory::~ObjectFactory() {}
 
-	class RBoolIFactory : virtual public ObjectFactory {
-	protected:
-	    ~RBoolIFactory() {}
-	public:
-	    RBoolIFactory() {
-		this->id = RBoolI::ice_staticId();
-	    }
-	    Ice::ObjectPtr create(const std::string& id) {
-		return new RBoolI(false);
-	    }
-	};
+        class RBoolIFactory : virtual public ObjectFactory {
+        protected:
+            ~RBoolIFactory() {}
+        public:
+            RBoolIFactory() {
+                this->id = RBoolI::ice_staticId();
+            }
+            Ice::ObjectPtr create(const std::string& id) {
+                return new RBoolI(false);
+            }
+        };
 
-	class RDoubleIFactory : virtual public ObjectFactory {
-	protected:
-	    ~RDoubleIFactory() {}
-	public:
-	    RDoubleIFactory() {
-		this->id = RDoubleI::ice_staticId();
-	    }
-	    Ice::ObjectPtr create(const std::string& id) {
-		return new RDoubleI(0.0);
-	    }
-	};
+        class RDoubleIFactory : virtual public ObjectFactory {
+        protected:
+            ~RDoubleIFactory() {}
+        public:
+            RDoubleIFactory() {
+                this->id = RDoubleI::ice_staticId();
+            }
+            Ice::ObjectPtr create(const std::string& id) {
+                return new RDoubleI(0.0);
+            }
+        };
 
-	class RFloatIFactory : virtual public ObjectFactory {
-	protected:
-	    ~RFloatIFactory() {}
-	public:
-	    RFloatIFactory() {
-		this->id = RFloatI::ice_staticId();
-	    }
-	    Ice::ObjectPtr create(const std::string& id) {
-		return new RFloatI(0.0);
-	    }
-	};
+        class RFloatIFactory : virtual public ObjectFactory {
+        protected:
+            ~RFloatIFactory() {}
+        public:
+            RFloatIFactory() {
+                this->id = RFloatI::ice_staticId();
+            }
+            Ice::ObjectPtr create(const std::string& id) {
+                return new RFloatI(0.0);
+            }
+        };
 
-	class RLongIFactory : virtual public ObjectFactory {
-	protected:
-	    ~RLongIFactory() {}
-	public:
-	    RLongIFactory() {
-		this->id = RLongI::ice_staticId();
-	    }
-	    Ice::ObjectPtr create(const std::string& id) {
-		return new RLongI(0);
-	    }
-	};
+        class RLongIFactory : virtual public ObjectFactory {
+        protected:
+            ~RLongIFactory() {}
+        public:
+            RLongIFactory() {
+                this->id = RLongI::ice_staticId();
+            }
+            Ice::ObjectPtr create(const std::string& id) {
+                return new RLongI(0);
+            }
+        };
 
-	class RIntIFactory : virtual public ObjectFactory {
-	protected:
-	    ~RIntIFactory() {}
-	public:
-	    RIntIFactory() {
-		this->id = RIntI::ice_staticId();
-	    }
-	    Ice::ObjectPtr create(const std::string& id) {
-		return new RIntI(0);
-	    }
-	};
+        class RIntIFactory : virtual public ObjectFactory {
+        protected:
+            ~RIntIFactory() {}
+        public:
+            RIntIFactory() {
+                this->id = RIntI::ice_staticId();
+            }
+            Ice::ObjectPtr create(const std::string& id) {
+                return new RIntI(0);
+            }
+        };
 
-	class RTimeIFactory : virtual public ObjectFactory {
-	protected:
-	    ~RTimeIFactory() {}
-	public:
-	    RTimeIFactory() {
-		this->id = RTimeI::ice_staticId();
-	    }
-	    Ice::ObjectPtr create(const std::string& id) {
-		return new RTimeI(0);
-	    }
-	};
+        class RTimeIFactory : virtual public ObjectFactory {
+        protected:
+            ~RTimeIFactory() {}
+        public:
+            RTimeIFactory() {
+                this->id = RTimeI::ice_staticId();
+            }
+            Ice::ObjectPtr create(const std::string& id) {
+                return new RTimeI(0);
+            }
+        };
 
-	class RStringIFactory : virtual public ObjectFactory {
-	protected:
-	    ~RStringIFactory() {}
-	public:
-	    RStringIFactory() {
-		this->id = RStringI::ice_staticId();
-	    }
-	    Ice::ObjectPtr create(const std::string& id) {
-		return new RStringI("");
-	    }
-	};
+        class RStringIFactory : virtual public ObjectFactory {
+        protected:
+            ~RStringIFactory() {}
+        public:
+            RStringIFactory() {
+                this->id = RStringI::ice_staticId();
+            }
+            Ice::ObjectPtr create(const std::string& id) {
+                return new RStringI("");
+            }
+        };
 
-	class RClassIFactory : virtual public ObjectFactory {
-	protected:
-	    ~RClassIFactory() {}
-	public:
-	    RClassIFactory() {
-		this->id = RClassI::ice_staticId();
-	    }
-	    Ice::ObjectPtr create(const std::string& id) {
-		return new RClassI("");
-	    }
-	};
+        class RClassIFactory : virtual public ObjectFactory {
+        protected:
+            ~RClassIFactory() {}
+        public:
+            RClassIFactory() {
+                this->id = RClassI::ice_staticId();
+            }
+            Ice::ObjectPtr create(const std::string& id) {
+                return new RClassI("");
+            }
+        };
 
-	class RInternalIFactory : virtual public ObjectFactory {
-	protected:
-	    ~RInternalIFactory() {}
-	public:
-	    RInternalIFactory() {
-		this->id = RInternalI::ice_staticId();
-	    }
-	    Ice::ObjectPtr create(const std::string& id) {
-		return new RInternalI(omero::InternalPtr());
-	    }
-	};
+        class RInternalIFactory : virtual public ObjectFactory {
+        protected:
+            ~RInternalIFactory() {}
+        public:
+            RInternalIFactory() {
+                this->id = RInternalI::ice_staticId();
+            }
+            Ice::ObjectPtr create(const std::string& id) {
+                return new RInternalI(omero::InternalPtr());
+            }
+        };
 
-	class RObjectIFactory : virtual public ObjectFactory {
-	protected:
-	    ~RObjectIFactory() {}
-	public:
-	    RObjectIFactory() {
-		this->id = RObjectI::ice_staticId();
-	    }
-	    Ice::ObjectPtr create(const std::string& id) {
-		return new RObjectI(omero::model::IObjectPtr());
-	    }
-	};
+        class RObjectIFactory : virtual public ObjectFactory {
+        protected:
+            ~RObjectIFactory() {}
+        public:
+            RObjectIFactory() {
+                this->id = RObjectI::ice_staticId();
+            }
+            Ice::ObjectPtr create(const std::string& id) {
+                return new RObjectI(omero::model::IObjectPtr());
+            }
+        };
 
-	class RArrayIFactory : virtual public ObjectFactory {
-	protected:
-	    ~RArrayIFactory() {}
-	public:
-	    RArrayIFactory() {
-		this->id = RArrayI::ice_staticId();
-	    }
-	    Ice::ObjectPtr create(const std::string& id) {
-		return new RArrayI();
-	    }
-	};
+        class RArrayIFactory : virtual public ObjectFactory {
+        protected:
+            ~RArrayIFactory() {}
+        public:
+            RArrayIFactory() {
+                this->id = RArrayI::ice_staticId();
+            }
+            Ice::ObjectPtr create(const std::string& id) {
+                return new RArrayI();
+            }
+        };
 
-	class RListIFactory : virtual public ObjectFactory {
-	protected:
-	    ~RListIFactory() {}
-	public:
-	    RListIFactory() {
-		this->id = RListI::ice_staticId();
-	    }
-	    Ice::ObjectPtr create(const std::string& id) {
-		return new RListI();
-	    }
-	};
+        class RListIFactory : virtual public ObjectFactory {
+        protected:
+            ~RListIFactory() {}
+        public:
+            RListIFactory() {
+                this->id = RListI::ice_staticId();
+            }
+            Ice::ObjectPtr create(const std::string& id) {
+                return new RListI();
+            }
+        };
 
-	class RSetIFactory : virtual public ObjectFactory {
-	protected:
-	    ~RSetIFactory() {}
-	public:
-	    RSetIFactory() {
-		this->id = RSetI::ice_staticId();
-	    }
-	    Ice::ObjectPtr create(const std::string& id) {
-		return new RSetI();
-	    }
-	};
+        class RSetIFactory : virtual public ObjectFactory {
+        protected:
+            ~RSetIFactory() {}
+        public:
+            RSetIFactory() {
+                this->id = RSetI::ice_staticId();
+            }
+            Ice::ObjectPtr create(const std::string& id) {
+                return new RSetI();
+            }
+        };
 
-	class RMapIFactory : virtual public ObjectFactory {
-	protected:
-	    ~RMapIFactory() {}
-	public:
-	    RMapIFactory() {
-		this->id = RMapI::ice_staticId();
-	    }
-	    Ice::ObjectPtr create(const std::string& id) {
-		return new RMapI();
-	    }
-	};
+        class RMapIFactory : virtual public ObjectFactory {
+        protected:
+            ~RMapIFactory() {}
+        public:
+            RMapIFactory() {
+                this->id = RMapI::ice_staticId();
+            }
+            Ice::ObjectPtr create(const std::string& id) {
+                return new RMapI();
+            }
+        };
 
 
-	// Shared state (flyweight)
-	// =========================================================================
+        // Shared state (flyweight)
+        // =========================================================================
 
-	// Defined in header
+        // Defined in header
 
-	// Object factories
-	// =========================================================================
+        // Object factories
+        // =========================================================================
 
         void registerObjectFactory(const Ice::CommunicatorPtr ic) {
             omero::conditionalAdd(RBoolI::ice_staticId(), ic, new RBoolIFactory());
