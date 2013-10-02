@@ -1066,20 +1066,22 @@ class LocationDialog extends JDialog implements ActionListener,
 	private boolean canLink(DataObject node, long userID, GroupData group,
 			long loggedUserID)
 	{
-		if (userID == loggedUserID || node.getOwner().getId() == userID)
-			return true;
-		PermissionData permissions = group.getPermissions();
-		if (permissions.isGroupWrite()) return true;
-		Set leaders = group.getLeaders();
-		if (leaders != null) {
-			Iterator i = leaders.iterator();
-			ExperimenterData exp;
-			while (i.hasNext()) {
-				exp = (ExperimenterData) i.next();
-				if (exp.getId() == userID) return true;
-			}
-		}
-		return node.canLink();
+	    //data owner
+		if (node.getOwner().getId() == userID) return true;
+		if (!node.canLink()) return false;
+        PermissionData permissions = group.getPermissions();
+        if (permissions.isGroupWrite() || permissions.isGroupAnnotate())
+            return true;
+        Set leaders = group.getLeaders();
+        if (leaders != null) {
+            Iterator i = leaders.iterator();
+            ExperimenterData exp;
+            while (i.hasNext()) {
+                exp = (ExperimenterData) i.next();
+                if (exp.getId() == userID) return true;
+            }
+        }
+        return userID == loggedUserID;
 	}
 	
 	/**
