@@ -31,9 +31,8 @@ public class BlockSizeTest extends TestCase {
 
     @Test
     public void testBlockSize1MB() throws Exception {
-        omero.client c = new omero.client(
-            new String[]{"--omero.host=localhost",
-                "--omero.block_size=1000000"});
+        omero.client c = new omero.client(new String[] {
+                "--omero.host=localhost", "--omero.block_size=1000000" });
         assertEquals(1000000, c.getDefaultBlockSize());
     }
 }

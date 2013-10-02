@@ -7,18 +7,16 @@
 package integration;
 
 import static omero.rtypes.rstring;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
-
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Test;
-import static org.testng.AssertJUnit.*;
 
 import omero.api.IAdminPrx;
 import omero.api.IMetadataPrx;
@@ -95,6 +93,10 @@ import omero.model.XmlAnnotation;
 import omero.model.XmlAnnotationI;
 import omero.sys.Parameters;
 import omero.sys.ParametersI;
+
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
+
 import pojos.BooleanAnnotationData;
 import pojos.ChannelAcquisitionData;
 import pojos.DoubleAnnotationData;

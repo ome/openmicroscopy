@@ -7,6 +7,9 @@
  */
 package integration;
 
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -21,7 +24,6 @@ import omero.sys.EventContext;
 import omero.sys.ParametersI;
 
 import org.testng.annotations.Test;
-import static org.testng.AssertJUnit.*;
 
 /**
  * Tests copy/paste of rendering settings depending on the group's permissions.

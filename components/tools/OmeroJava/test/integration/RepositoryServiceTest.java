@@ -6,18 +6,15 @@
  */
 package integration;
 
-//Java imports
+import static org.testng.AssertJUnit.assertTrue;
 
-//Third-party libraries
-import org.testng.annotations.Test;
-import static org.testng.AssertJUnit.*;
-
-//Application-internal dependencies
 import omero.InternalException;
 import omero.api.IRepositoryInfoPrx;
 
-/** 
- *  Collections of tests for the <code>Repository</code> service.
+import org.testng.annotations.Test;
+
+/**
+ * Collections of tests for the <code>Repository</code> service.
  *
  * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

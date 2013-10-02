@@ -6,20 +6,19 @@
  */
 package integration;
 
-//Java imports
+import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.AssertJUnit.assertTrue;
+
 import java.util.Iterator;
 import java.util.List;
 
-//Third-party libraries
-import org.testng.annotations.Test;
-import static org.testng.AssertJUnit.*;
-
-//Application-internal dependencies
 import omero.api.IScriptPrx;
 import omero.api.RawFileStorePrx;
 import omero.model.OriginalFile;
 
-/** 
+import org.testng.annotations.Test;
+
+/**
  * Collections of tests for the <code>RawFileStore</code> service.
  *
  * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp; <a

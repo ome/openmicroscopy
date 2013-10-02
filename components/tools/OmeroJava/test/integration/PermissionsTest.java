@@ -4,10 +4,8 @@
  */
 package integration;
 
-
-import org.testng.annotations.Test;
-import static org.testng.AssertJUnit.*;
-
+import static org.testng.AssertJUnit.assertTrue;
+import static org.testng.AssertJUnit.fail;
 import omero.model.CommentAnnotationI;
 import omero.model.DetailsI;
 import omero.model.PermissionsI;

@@ -8,6 +8,11 @@ package integration;
 
 import static omero.rtypes.rdouble;
 import static omero.rtypes.rint;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.AssertJUnit.assertNull;
+import static org.testng.AssertJUnit.assertTrue;
+import static org.testng.AssertJUnit.fail;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -22,6 +27,8 @@ import java.util.UUID;
 
 import junit.framework.AssertionFailedError;
 import ome.formats.OMEROMetadataStoreClient;
+import ome.specification.XMLMockObjects;
+import ome.specification.XMLWriter;
 import omero.ApiUsageException;
 import omero.ServerError;
 import omero.api.IMetadataPrx;
@@ -108,12 +115,8 @@ import omero.sys.ParametersI;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
-import static org.testng.AssertJUnit.*;
 
 import pojos.FileAnnotationData;
-
-import ome.specification.XMLMockObjects;
-import ome.specification.XMLWriter;
 
 /**
  * Collections of tests for the <code>Delete</code> service.
@@ -128,30 +131,30 @@ import ome.specification.XMLWriter;
  */
 public class DeleteServiceTest extends AbstractServerTest {
 
-	/** The namespace. */
-	public static final String NAMESPACE = "omero.test.namespace";
-	
-	/** The namespace. */
-	public static final String NAMESPACE_2 = "omero.test.namespace2";
-	
-	/** Identifies the fileset as root. */
-	public static final String REF_FILESET = "/Fileset";
-	
-	/** Identifies the image as root. */
-	public static final String REF_IMAGE = "/Image";
-	
-	/** Identifies the dataset as root. */
-	public static final String REF_DATASET = "/Dataset";
-	
-	/** Identifies the project as root. */
-	public static final String REF_PROJECT = "/Project";
-	
-	/** Identifies the screen as root. */
-	public static final String REF_SCREEN = "/Screen";
-	
-	/** Identifies the plate as root. */
-	public static final String REF_PLATE = "/Plate";
-	
+    /** The namespace. */
+    public static final String NAMESPACE = "omero.test.namespace";
+
+    /** The namespace. */
+    public static final String NAMESPACE_2 = "omero.test.namespace2";
+
+    /** Identifies the fileset as root. */
+    public static final String REF_FILESET = "/Fileset";
+
+    /** Identifies the image as root. */
+    public static final String REF_IMAGE = "/Image";
+
+    /** Identifies the dataset as root. */
+    public static final String REF_DATASET = "/Dataset";
+
+    /** Identifies the project as root. */
+    public static final String REF_PROJECT = "/Project";
+
+    /** Identifies the screen as root. */
+    public static final String REF_SCREEN = "/Screen";
+
+    /** Identifies the plate as root. */
+    public static final String REF_PLATE = "/Plate";
+
     /** Identifies the ROI as root. */
     public static final String REF_ROI = "/Roi";
 

@@ -6,6 +6,11 @@
  */
 package integration;
 
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.AssertJUnit.assertTrue;
+import static org.testng.AssertJUnit.fail;
+
 import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
@@ -16,16 +21,14 @@ import java.awt.image.SinglePixelPackedSampleModel;
 import java.awt.image.WritableRaster;
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
 import javax.imageio.ImageIO;
 
-import org.testng.annotations.Test;
-import static org.testng.AssertJUnit.*;
-
+import ome.specification.XMLMockObjects;
+import ome.specification.XMLWriter;
 import omero.api.IPixelsPrx;
 import omero.api.RenderingEnginePrx;
 import omero.model.ChannelBinding;
@@ -40,10 +43,10 @@ import omero.romio.PlaneDef;
 import omero.romio.RGBBuffer;
 import omero.romio.RegionDef;
 import omero.sys.EventContext;
-import sun.awt.image.IntegerInterleavedRaster;
 
-import ome.specification.XMLMockObjects;
-import ome.specification.XMLWriter;
+import org.testng.annotations.Test;
+
+import sun.awt.image.IntegerInterleavedRaster;
 
 /**
  * Collection of tests for the <code>RenderingEngine</code>.

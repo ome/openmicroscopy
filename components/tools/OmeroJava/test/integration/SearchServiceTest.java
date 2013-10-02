@@ -6,18 +6,15 @@
  */
 package integration;
 
-//Java imports
+import static org.testng.AssertJUnit.assertFalse;
 
-//Third-party libraries
-import org.testng.annotations.Test;
-import static org.testng.AssertJUnit.*;
-
-//Application-internal dependencies
 import omero.api.SearchPrx;
 import omero.model.Image;
 import omero.model.Project;
 
-/** 
+import org.testng.annotations.Test;
+
+/**
  * Collection of tests for the <code>Search</code> service.
  *
  * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp; <a

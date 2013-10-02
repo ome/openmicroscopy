@@ -6,11 +6,13 @@
  */
 package integration;
 
+import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.AssertJUnit.assertTrue;
+import static org.testng.AssertJUnit.fail;
 import omero.api.IConfigPrx;
 
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import static org.testng.AssertJUnit.*;
 
 /**
  * Collections of tests for the <code>IConfig</code> service.

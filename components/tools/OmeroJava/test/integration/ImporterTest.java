@@ -6,6 +6,12 @@
  */
 package integration;
 
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.AssertJUnit.assertTrue;
+import static org.testng.AssertJUnit.fail;
+
 import java.io.File;
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -14,21 +20,16 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Test;
-import static org.testng.AssertJUnit.*;
-
+import ome.specification.XMLMockObjects;
+import ome.specification.XMLWriter;
 import ome.xml.model.OME;
 import ome.xml.model.primitives.Color;
 import omero.api.IRoiPrx;
 import omero.api.RoiOptions;
 import omero.api.RoiResult;
-import omero.cmd.Delete;
 import omero.model.Annotation;
 import omero.model.Arc;
 import omero.model.BooleanAnnotation;
@@ -83,8 +84,10 @@ import omero.model.WellSample;
 import omero.sys.EventContext;
 import omero.sys.ParametersI;
 
-import ome.specification.XMLMockObjects;
-import ome.specification.XMLWriter;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 /**
  * Collection of tests to import images. The imported images are not currently
@@ -106,324 +109,308 @@ public class ImporterTest extends AbstractServerTest {
     /** {@link EventContext} that is set on {@link #loginMethod()} */
     private EventContext ownerEc;
 
-	/**
-	 * Validates if the inserted object corresponds to the XML object.
-	 * 
-	 * @param objective The objective to check.
-	 * @param xml The XML version.
-	 */
-	private void validateObjective(Objective objective, 
-			ome.xml.model.Objective xml)
-	{
-		assertEquals(objective.getManufacturer().getValue(),
-				xml.getManufacturer());
-		assertEquals(objective.getModel().getValue(), 
-				xml.getModel());
-		assertEquals(objective.getSerialNumber().getValue(), 
-				xml.getSerialNumber());
-		assertEquals(objective.getLotNumber().getValue(), 
-				xml.getLotNumber());
-		assertEquals(objective.getCalibratedMagnification().getValue(), 
-				xml.getCalibratedMagnification().doubleValue());
-		assertEquals(objective.getCorrection().getValue().getValue(), 
-				xml.getCorrection().getValue());
-		assertEquals(objective.getImmersion().getValue().getValue(),
-				xml.getImmersion().getValue());
-		assertEquals(objective.getIris().getValue(), 
-				xml.getIris().booleanValue());
-		assertEquals(objective.getLensNA().getValue(),
-				xml.getLensNA().doubleValue());
-		assertEquals(objective.getNominalMagnification().getValue(),
-				xml.getNominalMagnification());
-		assertEquals(objective.getWorkingDistance().getValue(), 
-				xml.getWorkingDistance());
-	}
-	
-	/**
-	 * Validates if the inserted object corresponds to the XML object.
-	 * 
-	 * @param detector The detector to check.
-	 * @param xml The XML version.
-	 */
-	private void validateDetector(Detector detector, 
-			ome.xml.model.Detector xml)
-	{
-		assertEquals(detector.getManufacturer().getValue(), 
-				xml.getManufacturer());
-		assertEquals(detector.getModel().getValue(), 
-				xml.getModel());
-		assertEquals(detector.getSerialNumber().getValue(), 
-				xml.getSerialNumber());
-		assertEquals(detector.getLotNumber().getValue(), 
-				xml.getLotNumber());
-		assertEquals(detector.getAmplificationGain().getValue(), 
-				xml.getAmplificationGain().doubleValue());
-		assertEquals(detector.getGain().getValue(), 
-				xml.getGain());
-	}
-	
-	/**
-	 * Validates if the inserted object corresponds to the XML object.
-	 * 
-	 * @param arc The arc to check.
-	 * @param xml The XML version.
-	 */
-	private void validateArc(Arc arc, ome.xml.model.Arc xml)
-	{
-		assertEquals(arc.getManufacturer().getValue(), 
-				xml.getManufacturer());
-		assertEquals(arc.getModel().getValue(), 
-				xml.getModel());
-		assertEquals(arc.getSerialNumber().getValue(), 
-				xml.getSerialNumber());
-		assertEquals(arc.getLotNumber().getValue(), 
-				xml.getLotNumber());
-		assertEquals(arc.getPower().getValue(), xml.getPower());
-		assertEquals(arc.getType().getValue().getValue(),
-				XMLMockObjects.ARC_TYPE.getValue());
-	}
-	
-	/**
-	 * Validates if the inserted object corresponds to the XML object.
-	 * 
-	 * @param laser The laser to check.
-	 * @param xml The XML version.
-	 */
-	private void validateLaser(Laser laser, ome.xml.model.Laser xml)
-	{
-		assertEquals(laser.getManufacturer().getValue(), 
-				xml.getManufacturer());
-		assertEquals(laser.getModel().getValue(), xml.getModel());
-		assertEquals(laser.getSerialNumber().getValue(), 
-				xml.getSerialNumber());
-		assertEquals(laser.getLotNumber().getValue(), xml.getLotNumber());
-		assertEquals(laser.getPower().getValue(), xml.getPower());
-		assertEquals(laser.getType().getValue().getValue(),
-				XMLMockObjects.LASER_TYPE.getValue());
-	}
-	
-	/**
-	 * Validates if the inserted object corresponds to the XML object.
-	 * 
-	 * @param filament The filament to check.
-	 * @param xml The XML version.
-	 */
-	private void validateFilament(Filament filament, ome.xml.model.Filament xml)
-	{
-		assertEquals(filament.getManufacturer().getValue(), 
-				xml.getManufacturer());
-		assertEquals(filament.getModel().getValue(), 
-				xml.getModel());
-		assertEquals(filament.getSerialNumber().getValue(), 
-				xml.getSerialNumber());
-		assertEquals(filament.getLotNumber().getValue(), 
-				xml.getLotNumber());
-		assertEquals(filament.getPower().getValue(), xml.getPower());
-		assertEquals(filament.getType().getValue().getValue(),
-				XMLMockObjects.FILAMENT_TYPE.getValue());
-	}
-	
-	/**
-	 * Validates if the inserted object corresponds to the XML object.
-	 * 
-	 * @param filter The filter to check.
-	 * @param xml The XML version.
-	 */
-	private void validateFilter(Filter filter, 
-			ome.xml.model.Filter xml)
-	{
-		assertEquals(filter.getManufacturer().getValue(), 
-				xml.getManufacturer());
-		assertEquals(filter.getModel().getValue(), 
-				xml.getModel());
-		assertEquals(filter.getLotNumber().getValue(), 
-				xml.getLotNumber());
-		assertEquals(filter.getSerialNumber().getValue(), 
-				xml.getSerialNumber());
-		assertEquals(filter.getType().getValue().getValue(),
-				xml.getType().getValue());
-		TransmittanceRange tr = filter.getTransmittanceRange();
-		ome.xml.model.TransmittanceRange xmlTr = xml.getTransmittanceRange();
-		assertEquals(tr.getCutIn().getValue(), 
-				xmlTr.getCutIn().getValue().intValue());
-		assertEquals(tr.getCutOut().getValue(), 
-				xmlTr.getCutOut().getValue().intValue());
-		assertEquals(tr.getCutInTolerance().getValue(), 
-				xmlTr.getCutInTolerance().getValue().intValue());
-		assertEquals(tr.getCutOutTolerance().getValue(), 
-				xmlTr.getCutOutTolerance().getValue().intValue());
-	}
-	
-	/**
-	 * Validates if the inserted object corresponds to the XML object.
-	 * 
-	 * @param dichroic The dichroic to check.
-	 * @param xml The XML version.
-	 */
-	private void validateDichroic(Dichroic dichroic, 
-			ome.xml.model.Dichroic xml)
-	{
-		assertEquals(dichroic.getManufacturer().getValue(), 
-				xml.getManufacturer());
-		assertEquals(dichroic.getModel().getValue(), 
-				xml.getModel());
-		assertEquals(dichroic.getLotNumber().getValue(), 
-				xml.getLotNumber());
-		assertEquals(dichroic.getSerialNumber().getValue(), 
-				xml.getSerialNumber());
-	}
-	
-	/**
-	 * Validates if the inserted object corresponds to the XML object.
-	 * 
-	 * @param diode The light emitting diode to check.
-	 * @param xml The XML version.
-	 */
-	private void validateLightEmittingDiode(LightEmittingDiode diode, 
-			ome.xml.model.LightEmittingDiode xml)
-	{
-		assertEquals(diode.getManufacturer().getValue(), 
-				xml.getManufacturer());
-		assertEquals(diode.getModel().getValue(), 
-				xml.getModel());
-		assertEquals(diode.getSerialNumber().getValue(), 
-				xml.getSerialNumber());
-		assertEquals(diode.getLotNumber().getValue(), 
-				xml.getLotNumber());
-		assertEquals(diode.getPower().getValue(), xml.getPower());
-	}
-	
-	/**
-	 * Validates if the inserted object corresponds to the XML object.
-	 * 
-	 * @param settings The settings to check.
-	 * @param xml The XML version.
-	 */
-	private void validateDetectorSettings(DetectorSettings settings, 
-			ome.xml.model.DetectorSettings xml)
-	{
-		assertEquals(settings.getBinning().getValue().getValue(), 
-				xml.getBinning().getValue());
-		assertEquals(settings.getGain().getValue(), xml.getGain());
-		assertEquals(settings.getOffsetValue().getValue(), xml.getOffset());
-		assertEquals(settings.getReadOutRate().getValue(), 
-				xml.getReadOutRate());
-		assertEquals(settings.getVoltage().getValue(), 
-				xml.getVoltage());
-	}
-	
-	/**
-	 * Validates if the inserted object corresponds to the XML object.
-	 * 
-	 * @param settings The settings to check.
-	 * @param xml The XML version.
-	 */
-	private void validateObjectiveSettings(ObjectiveSettings settings, 
-			ome.xml.model.ObjectiveSettings xml)
-	{
-		assertEquals(settings.getCorrectionCollar().getValue(), 
-				xml.getCorrectionCollar().doubleValue());
-		assertEquals(settings.getRefractiveIndex().getValue(), 
-				xml.getRefractiveIndex().doubleValue());
-		assertEquals(settings.getMedium().getValue().getValue(), 
-				xml.getMedium().getValue());
-	}
-	
-	/**
-	 * Validates if the inserted object corresponds to the XML object.
-	 * 
-	 * @param settings The settings to check.
-	 * @param xml The XML version.
-	 */
-	private void validateLightSourceSettings(LightSettings settings, 
-			ome.xml.model.LightSourceSettings xml)
-	{
-		assertEquals(settings.getAttenuation().getValue(), 
-				xml.getAttenuation().getValue().doubleValue());
-		assertEquals(settings.getWavelength().getValue(), 
-				xml.getWavelength().getValue().intValue());
-	}
-	
-	/**
-	 * Validates if the inserted object corresponds to the XML object.
-	 * 
-	 * @param env The environment to check.
-	 * @param xml The XML version.
-	 */
-	private void validateImagingEnvironment(ImagingEnvironment env, 
-			ome.xml.model.ImagingEnvironment xml)
-	{
-		assertEquals(env.getAirPressure().getValue(), 
-				xml.getAirPressure().doubleValue());
-		assertEquals(env.getCo2percent().getValue(), 
-				xml.getCO2Percent().getValue().doubleValue());
-		assertEquals(env.getHumidity().getValue(), 
-				xml.getHumidity().getValue().doubleValue());
-		assertEquals(env.getTemperature().getValue(), 
-				xml.getTemperature().doubleValue());
-	}
-	
-	/**
-	 * Validates if the inserted object corresponds to the XML object.
-	 * 
-	 * @param label The label to check.
-	 * @param xml The XML version.
-	 */
-	private void validateStageLabel(StageLabel label, 
-			ome.xml.model.StageLabel xml)
-	{
-		assertEquals(label.getName().getValue(), xml.getName());
-		assertEquals(label.getPositionX().getValue(), xml.getX().doubleValue());
-		assertEquals(label.getPositionY().getValue(), xml.getY().doubleValue());
-		assertEquals(label.getPositionZ().getValue(), xml.getZ().doubleValue());
-	}
-	
-	/**
-	 * Validates if the inserted object corresponds to the XML object.
-	 * 
-	 * @param microscope The microscope to check.
-	 * @param xml The XML version.
-	 */
-	private void validateMicroscope(Microscope microscope, 
-			ome.xml.model.Microscope xml)
-	{
-		assertEquals(microscope.getManufacturer().getValue(), 
-				xml.getManufacturer());
-		assertEquals(microscope.getModel().getValue(), 
-				xml.getModel());
-		assertEquals(microscope.getSerialNumber().getValue(), 
-				xml.getSerialNumber());
-		assertEquals(microscope.getLotNumber().getValue(), 
-				xml.getLotNumber());
-		assertEquals(microscope.getType().getValue().getValue(), 
-				xml.getType().getValue());
-	}
-	
-	/**
-	 * Validates if the inserted object corresponds to the XML object.
-	 * 
-	 * @param lc The logical channel to check.
-	 * @param xml The XML version.
-	 */
-	private void validateChannel(LogicalChannel lc, 
-			ome.xml.model.Channel xml)
-	{
-		assertEquals(lc.getName().getValue(), xml.getName());
-		assertEquals(lc.getIllumination().getValue().getValue(), 
-				xml.getIlluminationType().getValue());
-		assertEquals(lc.getMode().getValue().getValue(), 
-				xml.getAcquisitionMode().getValue());
-		assertEquals(lc.getContrastMethod().getValue().getValue(), 
-				xml.getContrastMethod().getValue());
-		assertEquals(lc.getEmissionWave().getValue(), 
-				xml.getEmissionWavelength().getValue().intValue());
-		assertEquals(lc.getExcitationWave().getValue(), 
-				xml.getExcitationWavelength().getValue().intValue());
-		assertEquals(lc.getFluor().getValue(), xml.getFluor());
-		assertEquals(lc.getNdFilter().getValue(), xml.getNDFilter());
-		assertEquals(lc.getPockelCellSetting().getValue(), 
-				xml.getPockelCellSetting().intValue());
-	}
+    /**
+     * Validates if the inserted object corresponds to the XML object.
+     *
+     * @param objective
+     *            The objective to check.
+     * @param xml
+     *            The XML version.
+     */
+    private void validateObjective(Objective objective,
+            ome.xml.model.Objective xml) {
+        assertEquals(objective.getManufacturer().getValue(),
+                xml.getManufacturer());
+        assertEquals(objective.getModel().getValue(), xml.getModel());
+        assertEquals(objective.getSerialNumber().getValue(),
+                xml.getSerialNumber());
+        assertEquals(objective.getLotNumber().getValue(), xml.getLotNumber());
+        assertEquals(objective.getCalibratedMagnification().getValue(), xml
+                .getCalibratedMagnification().doubleValue());
+        assertEquals(objective.getCorrection().getValue().getValue(), xml
+                .getCorrection().getValue());
+        assertEquals(objective.getImmersion().getValue().getValue(), xml
+                .getImmersion().getValue());
+        assertEquals(objective.getIris().getValue(), xml.getIris()
+                .booleanValue());
+        assertEquals(objective.getLensNA().getValue(), xml.getLensNA()
+                .doubleValue());
+        assertEquals(objective.getNominalMagnification().getValue(),
+                xml.getNominalMagnification());
+        assertEquals(objective.getWorkingDistance().getValue(),
+                xml.getWorkingDistance());
+    }
+
+    /**
+     * Validates if the inserted object corresponds to the XML object.
+     *
+     * @param detector
+     *            The detector to check.
+     * @param xml
+     *            The XML version.
+     */
+    private void validateDetector(Detector detector, ome.xml.model.Detector xml) {
+        assertEquals(detector.getManufacturer().getValue(),
+                xml.getManufacturer());
+        assertEquals(detector.getModel().getValue(), xml.getModel());
+        assertEquals(detector.getSerialNumber().getValue(),
+                xml.getSerialNumber());
+        assertEquals(detector.getLotNumber().getValue(), xml.getLotNumber());
+        assertEquals(detector.getAmplificationGain().getValue(), xml
+                .getAmplificationGain().doubleValue());
+        assertEquals(detector.getGain().getValue(), xml.getGain());
+    }
+
+    /**
+     * Validates if the inserted object corresponds to the XML object.
+     *
+     * @param arc
+     *            The arc to check.
+     * @param xml
+     *            The XML version.
+     */
+    private void validateArc(Arc arc, ome.xml.model.Arc xml) {
+        assertEquals(arc.getManufacturer().getValue(), xml.getManufacturer());
+        assertEquals(arc.getModel().getValue(), xml.getModel());
+        assertEquals(arc.getSerialNumber().getValue(), xml.getSerialNumber());
+        assertEquals(arc.getLotNumber().getValue(), xml.getLotNumber());
+        assertEquals(arc.getPower().getValue(), xml.getPower());
+        assertEquals(arc.getType().getValue().getValue(),
+                XMLMockObjects.ARC_TYPE.getValue());
+    }
+
+    /**
+     * Validates if the inserted object corresponds to the XML object.
+     *
+     * @param laser
+     *            The laser to check.
+     * @param xml
+     *            The XML version.
+     */
+    private void validateLaser(Laser laser, ome.xml.model.Laser xml) {
+        assertEquals(laser.getManufacturer().getValue(), xml.getManufacturer());
+        assertEquals(laser.getModel().getValue(), xml.getModel());
+        assertEquals(laser.getSerialNumber().getValue(), xml.getSerialNumber());
+        assertEquals(laser.getLotNumber().getValue(), xml.getLotNumber());
+        assertEquals(laser.getPower().getValue(), xml.getPower());
+        assertEquals(laser.getType().getValue().getValue(),
+                XMLMockObjects.LASER_TYPE.getValue());
+    }
+
+    /**
+     * Validates if the inserted object corresponds to the XML object.
+     *
+     * @param filament
+     *            The filament to check.
+     * @param xml
+     *            The XML version.
+     */
+    private void validateFilament(Filament filament, ome.xml.model.Filament xml) {
+        assertEquals(filament.getManufacturer().getValue(),
+                xml.getManufacturer());
+        assertEquals(filament.getModel().getValue(), xml.getModel());
+        assertEquals(filament.getSerialNumber().getValue(),
+                xml.getSerialNumber());
+        assertEquals(filament.getLotNumber().getValue(), xml.getLotNumber());
+        assertEquals(filament.getPower().getValue(), xml.getPower());
+        assertEquals(filament.getType().getValue().getValue(),
+                XMLMockObjects.FILAMENT_TYPE.getValue());
+    }
+
+    /**
+     * Validates if the inserted object corresponds to the XML object.
+     *
+     * @param filter
+     *            The filter to check.
+     * @param xml
+     *            The XML version.
+     */
+    private void validateFilter(Filter filter, ome.xml.model.Filter xml) {
+        assertEquals(filter.getManufacturer().getValue(), xml.getManufacturer());
+        assertEquals(filter.getModel().getValue(), xml.getModel());
+        assertEquals(filter.getLotNumber().getValue(), xml.getLotNumber());
+        assertEquals(filter.getSerialNumber().getValue(), xml.getSerialNumber());
+        assertEquals(filter.getType().getValue().getValue(), xml.getType()
+                .getValue());
+        TransmittanceRange tr = filter.getTransmittanceRange();
+        ome.xml.model.TransmittanceRange xmlTr = xml.getTransmittanceRange();
+        assertEquals(tr.getCutIn().getValue(), xmlTr.getCutIn().getValue()
+                .intValue());
+        assertEquals(tr.getCutOut().getValue(), xmlTr.getCutOut().getValue()
+                .intValue());
+        assertEquals(tr.getCutInTolerance().getValue(), xmlTr
+                .getCutInTolerance().getValue().intValue());
+        assertEquals(tr.getCutOutTolerance().getValue(), xmlTr
+                .getCutOutTolerance().getValue().intValue());
+    }
+
+    /**
+     * Validates if the inserted object corresponds to the XML object.
+     *
+     * @param dichroic
+     *            The dichroic to check.
+     * @param xml
+     *            The XML version.
+     */
+    private void validateDichroic(Dichroic dichroic, ome.xml.model.Dichroic xml) {
+        assertEquals(dichroic.getManufacturer().getValue(),
+                xml.getManufacturer());
+        assertEquals(dichroic.getModel().getValue(), xml.getModel());
+        assertEquals(dichroic.getLotNumber().getValue(), xml.getLotNumber());
+        assertEquals(dichroic.getSerialNumber().getValue(),
+                xml.getSerialNumber());
+    }
+
+    /**
+     * Validates if the inserted object corresponds to the XML object.
+     *
+     * @param diode
+     *            The light emitting diode to check.
+     * @param xml
+     *            The XML version.
+     */
+    private void validateLightEmittingDiode(LightEmittingDiode diode,
+            ome.xml.model.LightEmittingDiode xml) {
+        assertEquals(diode.getManufacturer().getValue(), xml.getManufacturer());
+        assertEquals(diode.getModel().getValue(), xml.getModel());
+        assertEquals(diode.getSerialNumber().getValue(), xml.getSerialNumber());
+        assertEquals(diode.getLotNumber().getValue(), xml.getLotNumber());
+        assertEquals(diode.getPower().getValue(), xml.getPower());
+    }
+
+    /**
+     * Validates if the inserted object corresponds to the XML object.
+     *
+     * @param settings
+     *            The settings to check.
+     * @param xml
+     *            The XML version.
+     */
+    private void validateDetectorSettings(DetectorSettings settings,
+            ome.xml.model.DetectorSettings xml) {
+        assertEquals(settings.getBinning().getValue().getValue(), xml
+                .getBinning().getValue());
+        assertEquals(settings.getGain().getValue(), xml.getGain());
+        assertEquals(settings.getOffsetValue().getValue(), xml.getOffset());
+        assertEquals(settings.getReadOutRate().getValue(), xml.getReadOutRate());
+        assertEquals(settings.getVoltage().getValue(), xml.getVoltage());
+    }
+
+    /**
+     * Validates if the inserted object corresponds to the XML object.
+     *
+     * @param settings
+     *            The settings to check.
+     * @param xml
+     *            The XML version.
+     */
+    private void validateObjectiveSettings(ObjectiveSettings settings,
+            ome.xml.model.ObjectiveSettings xml) {
+        assertEquals(settings.getCorrectionCollar().getValue(), xml
+                .getCorrectionCollar().doubleValue());
+        assertEquals(settings.getRefractiveIndex().getValue(), xml
+                .getRefractiveIndex().doubleValue());
+        assertEquals(settings.getMedium().getValue().getValue(), xml
+                .getMedium().getValue());
+    }
+
+    /**
+     * Validates if the inserted object corresponds to the XML object.
+     *
+     * @param settings
+     *            The settings to check.
+     * @param xml
+     *            The XML version.
+     */
+    private void validateLightSourceSettings(LightSettings settings,
+            ome.xml.model.LightSourceSettings xml) {
+        assertEquals(settings.getAttenuation().getValue(), xml.getAttenuation()
+                .getValue().doubleValue());
+        assertEquals(settings.getWavelength().getValue(), xml.getWavelength()
+                .getValue().intValue());
+    }
+
+    /**
+     * Validates if the inserted object corresponds to the XML object.
+     *
+     * @param env
+     *            The environment to check.
+     * @param xml
+     *            The XML version.
+     */
+    private void validateImagingEnvironment(ImagingEnvironment env,
+            ome.xml.model.ImagingEnvironment xml) {
+        assertEquals(env.getAirPressure().getValue(), xml.getAirPressure()
+                .doubleValue());
+        assertEquals(env.getCo2percent().getValue(), xml.getCO2Percent()
+                .getValue().doubleValue());
+        assertEquals(env.getHumidity().getValue(), xml.getHumidity().getValue()
+                .doubleValue());
+        assertEquals(env.getTemperature().getValue(), xml.getTemperature()
+                .doubleValue());
+    }
+
+    /**
+     * Validates if the inserted object corresponds to the XML object.
+     *
+     * @param label
+     *            The label to check.
+     * @param xml
+     *            The XML version.
+     */
+    private void validateStageLabel(StageLabel label,
+            ome.xml.model.StageLabel xml) {
+        assertEquals(label.getName().getValue(), xml.getName());
+        assertEquals(label.getPositionX().getValue(), xml.getX().doubleValue());
+        assertEquals(label.getPositionY().getValue(), xml.getY().doubleValue());
+        assertEquals(label.getPositionZ().getValue(), xml.getZ().doubleValue());
+    }
+
+    /**
+     * Validates if the inserted object corresponds to the XML object.
+     *
+     * @param microscope
+     *            The microscope to check.
+     * @param xml
+     *            The XML version.
+     */
+    private void validateMicroscope(Microscope microscope,
+            ome.xml.model.Microscope xml) {
+        assertEquals(microscope.getManufacturer().getValue(),
+                xml.getManufacturer());
+        assertEquals(microscope.getModel().getValue(), xml.getModel());
+        assertEquals(microscope.getSerialNumber().getValue(),
+                xml.getSerialNumber());
+        assertEquals(microscope.getLotNumber().getValue(), xml.getLotNumber());
+        assertEquals(microscope.getType().getValue().getValue(), xml.getType()
+                .getValue());
+    }
+
+    /**
+     * Validates if the inserted object corresponds to the XML object.
+     *
+     * @param lc
+     *            The logical channel to check.
+     * @param xml
+     *            The XML version.
+     */
+    private void validateChannel(LogicalChannel lc, ome.xml.model.Channel xml) {
+        assertEquals(lc.getName().getValue(), xml.getName());
+        assertEquals(lc.getIllumination().getValue().getValue(), xml
+                .getIlluminationType().getValue());
+        assertEquals(lc.getMode().getValue().getValue(), xml
+                .getAcquisitionMode().getValue());
+        assertEquals(lc.getContrastMethod().getValue().getValue(), xml
+                .getContrastMethod().getValue());
+        assertEquals(lc.getEmissionWave().getValue(), xml
+                .getEmissionWavelength().getValue().intValue());
+        assertEquals(lc.getExcitationWave().getValue(), xml
+                .getExcitationWavelength().getValue().intValue());
+        assertEquals(lc.getFluor().getValue(), xml.getFluor());
+        assertEquals(lc.getNdFilter().getValue(), xml.getNDFilter());
+        assertEquals(lc.getPockelCellSetting().getValue(), xml
+                .getPockelCellSetting().intValue());
+    }
 
     /**
      * Validates if the inserted object corresponds to the XML object.
@@ -507,43 +494,42 @@ public class ImporterTest extends AbstractServerTest {
         assertEquals(well.getBlue().getValue(), xmlColor.getBlue());
     }
 
-	/**
-	 * Validates if the inserted object corresponds to the XML object.
-	 * 
-	 * @param ws The well sample to check.
-	 * @param xml The XML version.
-	 */
-	private void validateWellSample(WellSample ws, ome.xml.model.WellSample xml)
-	{
-		assertEquals(ws.getPosX().getValue(), 
-				xml.getPositionX().doubleValue());
-		assertEquals(ws.getPosY().getValue(), 
-				xml.getPositionY().doubleValue());
-		Timestamp ts = new Timestamp(xml.getTimepoint().asInstant().getMillis());
-		assertEquals(ws.getTimepoint().getValue(), ts.getTime());
-	}
+    /**
+     * Validates if the inserted object corresponds to the XML object.
+     *
+     * @param ws
+     *            The well sample to check.
+     * @param xml
+     *            The XML version.
+     */
+    private void validateWellSample(WellSample ws, ome.xml.model.WellSample xml) {
+        assertEquals(ws.getPosX().getValue(), xml.getPositionX().doubleValue());
+        assertEquals(ws.getPosY().getValue(), xml.getPositionY().doubleValue());
+        Timestamp ts = new Timestamp(xml.getTimepoint().asInstant().getMillis());
+        assertEquals(ws.getTimepoint().getValue(), ts.getTime());
+    }
 
-	/**
-	 * Validates if the inserted object corresponds to the XML object.
-	 * 
-	 * @param pa The plate acquisition to check.
-	 * @param xml The XML version.
-	 */
-	private void validatePlateAcquisition(PlateAcquisition pa, 
-			ome.xml.model.PlateAcquisition xml)
-	{
-		assertEquals(pa.getName().getValue(), xml.getName());
-		assertEquals(pa.getDescription().getValue(), 
-				xml.getDescription());
-		Timestamp ts = new Timestamp(xml.getEndTime().asInstant().getMillis());
-		assertNotNull(ts);
-		assertNotNull(pa.getEndTime());
-		assertEquals(pa.getEndTime().getValue(), ts.getTime());
-		ts = new Timestamp(xml.getStartTime().asInstant().getMillis());
-		assertNotNull(ts);
-		assertNotNull(pa.getStartTime());
-		assertEquals(pa.getStartTime().getValue(), ts.getTime());
-	}
+    /**
+     * Validates if the inserted object corresponds to the XML object.
+     *
+     * @param pa
+     *            The plate acquisition to check.
+     * @param xml
+     *            The XML version.
+     */
+    private void validatePlateAcquisition(PlateAcquisition pa,
+            ome.xml.model.PlateAcquisition xml) {
+        assertEquals(pa.getName().getValue(), xml.getName());
+        assertEquals(pa.getDescription().getValue(), xml.getDescription());
+        Timestamp ts = new Timestamp(xml.getEndTime().asInstant().getMillis());
+        assertNotNull(ts);
+        assertNotNull(pa.getEndTime());
+        assertEquals(pa.getEndTime().getValue(), ts.getTime());
+        ts = new Timestamp(xml.getStartTime().asInstant().getMillis());
+        assertNotNull(ts);
+        assertNotNull(pa.getStartTime());
+        assertEquals(pa.getStartTime().getValue(), ts.getTime());
+    }
 
     /**
      * Validates if the inserted object corresponds to the XML object.
@@ -816,176 +802,175 @@ public class ImporterTest extends AbstractServerTest {
      * @throws Exception
      *             Thrown if an error occurred.
      */
-	@Test
-	public void testImportImageWithAcquisitionData()
-		throws Exception
-	{
-		File f = File.createTempFile("testImportImageWithAcquisitionData", 
-				"."+OME_FORMAT);
-		files.add(f);
-		XMLMockObjects xml = new XMLMockObjects();
-		XMLWriter writer = new XMLWriter();
-		OME ome = xml.createImageWithAcquisitionData();
-		writer.writeFile(f, ome, true);
-		List<Pixels> pixels = null;
-		try {
-			pixels = importFile(f, OME_FORMAT);
-		} catch (Throwable e) {
-			throw new Exception("cannot import image", e);
-		}
-		Pixels p = pixels.get(0);
-		long id = p.getImage().getId().getValue();
-		//Method already tested in PojosServiceTest
-		ParametersI po = new ParametersI();
-		po.acquisitionData();
-		List<Long> ids = new ArrayList<Long>(1);
-		ids.add(id);
-		List images = factory.getContainerService().getImages(
-				Image.class.getName(), ids, po);
-		assertEquals(1, images.size());
-		Image image = (Image) images.get(0);
-		//load the image and make we have everything
-		assertNotNull(image.getImagingEnvironment());
-		validateImagingEnvironment(image.getImagingEnvironment(), 
-				xml.createImageEnvironment());
-		assertNotNull(image.getStageLabel());
-		validateStageLabel(image.getStageLabel(), 
-				xml.createStageLabel());
-		
-		ObjectiveSettings settings = image.getObjectiveSettings();
-		assertNotNull(settings);
-		validateObjectiveSettings(image.getObjectiveSettings(), 
-				xml.createObjectiveSettings(0));
-		
-		Instrument instrument = image.getInstrument();
-		assertNotNull(instrument);
-		//check the instrument
-		instrument = factory.getMetadataService().loadInstrument(
-				instrument.getId().getValue());
-		assertNotNull(instrument);
-    	ome.xml.model.Laser xmlLaser = (ome.xml.model.Laser) 
-    		xml.createLightSource(ome.xml.model.Laser.class.getName(), 0);
-    	ome.xml.model.Arc xmlArc = (ome.xml.model.Arc) 
-			xml.createLightSource(ome.xml.model.Arc.class.getName(), 0);
-    	ome.xml.model.Filament xmlFilament = (ome.xml.model.Filament) 
-			xml.createLightSource(ome.xml.model.Filament.class.getName(), 0);
-    	ome.xml.model.LightEmittingDiode xmlDiode = 
-    		(ome.xml.model.LightEmittingDiode) 
-		xml.createLightSource(ome.xml.model.LightEmittingDiode.class.getName(), 
-				0);
-    	
-    	ome.xml.model.Objective xmlObjective = xml.createObjective(0);
-    	ome.xml.model.Detector xmlDetector = xml.createDetector(0);
-    	ome.xml.model.Filter xmlFilter = xml.createFilter(0, 
-    			XMLMockObjects.CUT_IN, XMLMockObjects.CUT_OUT);
-    	ome.xml.model.Dichroic xmlDichroic = xml.createDichroic(0);
-    	assertEquals(XMLMockObjects.NUMBER_OF_OBJECTIVES, 
-    			instrument.sizeOfObjective());
-    	assertEquals(XMLMockObjects.NUMBER_OF_DECTECTORS, 
-    			instrument.sizeOfDetector());
-    	assertEquals(XMLMockObjects.NUMBER_OF_DICHROICS, 
-    			instrument.sizeOfDichroic());
-    	assertEquals(XMLMockObjects.NUMBER_OF_FILTERS, 
-    			instrument.sizeOfFilter());
-    	assertEquals(1, instrument.sizeOfFilterSet());
-    	// assertEquals(1, instrument.sizeOfOtf()); DISABLED
-    	
-    	List<Detector> detectors = instrument.copyDetector();
-    	List<Long> detectorIds = new ArrayList<Long>();
-    	Detector de;
-    	Iterator j = detectors.iterator();
-    	while (j.hasNext()) {
-    		de = (Detector) j.next();
-    		detectorIds.add(de.getId().getValue());
-    		validateDetector(de, xmlDetector);
-		}
-    	List<Objective> objectives = instrument.copyObjective();
-    	j = objectives.iterator();
-    	while (j.hasNext()) {
-    		validateObjective((Objective) j.next(), xmlObjective);
-		}
-    	List<Filter> filters = instrument.copyFilter();
-    	j = filters.iterator();
-    	while (j.hasNext()) {
-    		validateFilter((Filter) j.next(), xmlFilter);
-		}
-    	List<Dichroic> dichroics = instrument.copyDichroic();
-    	j = dichroics.iterator();
-    	while (j.hasNext()) {
-    		validateDichroic((Dichroic) j.next(), xmlDichroic);
-		}
-    	
-    	List<LightSource> lights = instrument.copyLightSource();
-    	j = lights.iterator();
-    	List<Long> lightIds = new ArrayList<Long>();
-    	LightSource src;
-    	while (j.hasNext()) {
-    		src = (LightSource) j.next();
-    		if (src instanceof Laser)
-    			validateLaser((Laser) src, xmlLaser);
-    		else if (src instanceof Arc)
-    			validateArc((Arc) src, xmlArc);
-    		else if (src instanceof Filament)
-    			validateFilament((Filament) src, xmlFilament);
-    		
-    		lightIds.add(src.getId().getValue());	
-		}
-    	
-    	p = factory.getPixelsService().retrievePixDescription(
-    			p.getId().getValue());
-    	
-    	ids.clear();
-    	
-    	ome.xml.model.Channel xmlChannel = xml.createChannel(0);
-    	Channel channel;
-    	List<Channel> channels = p.copyChannels();
-    	Iterator<Channel> i = channels.iterator();
-    	//assertEquals(xmlChannel.getColor().intValue() == 
-    	//	XMLMockObjects.DEFAULT_COLOR.getRGB());
-    	Color c;
-    	while (i.hasNext()) {
-			channel = i.next();
-			assertEquals(channel.getAlpha().getValue(), 
-					XMLMockObjects.DEFAULT_COLOR.getAlpha());
-			assertEquals(channel.getRed().getValue(), 
-					XMLMockObjects.DEFAULT_COLOR.getRed());
-			assertEquals(channel.getGreen().getValue(), 
-					XMLMockObjects.DEFAULT_COLOR.getGreen());
-			assertEquals(channel.getBlue().getValue(), 
-					XMLMockObjects.DEFAULT_COLOR.getBlue());
-			ids.add(channel.getLogicalChannel().getId().getValue());
-		}
-    	List<LogicalChannel> l = 
-    		factory.getMetadataService().loadChannelAcquisitionData(ids);
-    	assertEquals(channels.size(), l.size());
-    	
-    	LogicalChannel lc;
-    	DetectorSettings ds;
-    	LightSettings ls;
-    	ome.xml.model.DetectorSettings xmlDs = xml.createDetectorSettings(0);
-    	ome.xml.model.LightSourceSettings xmlLs = 
-    		xml.createLightSourceSettings(0);
-    	
-    	ome.xml.model.MicrobeamManipulation xmlMM = 
-    		xml.createMicrobeamManipulation(0);
-    	ome.xml.model.Experiment xmlExp = ome.getExperiment(0);
-    	
-    	// Validate experiment (initial checks)
-    	assertNotNull(image.getExperiment());
-    	Experiment exp = (Experiment) factory.getQueryService().findByQuery(
-    			"select e from Experiment as e " +
-    			"join fetch e.type " +
-    			"left outer join fetch e.microbeamManipulation as mm " +
-    			"join fetch mm.type " +
-    			"left outer join fetch mm.lightSourceSettings as lss " +
-    			"left outer join fetch lss.lightSource " +
-    			"where e.id = :id", new ParametersI().addId(
-    					image.getExperiment().getId().getValue()));
-    	assertNotNull(exp);
-    	assertEquals(1, exp.sizeOfMicrobeamManipulation());
-    	MicrobeamManipulation mm = exp.copyMicrobeamManipulation().get(0);
-    	validateExperiment(exp, xmlExp);
-    	validateMicrobeamManipulation(mm, xmlMM);
+    @Test
+    public void testImportImageWithAcquisitionData() throws Exception {
+        File f = File.createTempFile("testImportImageWithAcquisitionData", "."
+                + OME_FORMAT);
+        files.add(f);
+        XMLMockObjects xml = new XMLMockObjects();
+        XMLWriter writer = new XMLWriter();
+        OME ome = xml.createImageWithAcquisitionData();
+        writer.writeFile(f, ome, true);
+        List<Pixels> pixels = null;
+        try {
+            pixels = importFile(f, OME_FORMAT);
+        } catch (Throwable e) {
+            throw new Exception("cannot import image", e);
+        }
+        Pixels p = pixels.get(0);
+        long id = p.getImage().getId().getValue();
+        // Method already tested in PojosServiceTest
+        ParametersI po = new ParametersI();
+        po.acquisitionData();
+        List<Long> ids = new ArrayList<Long>(1);
+        ids.add(id);
+        List images = factory.getContainerService().getImages(
+                Image.class.getName(), ids, po);
+        assertEquals(1, images.size());
+        Image image = (Image) images.get(0);
+        // load the image and make we have everything
+        assertNotNull(image.getImagingEnvironment());
+        validateImagingEnvironment(image.getImagingEnvironment(),
+                xml.createImageEnvironment());
+        assertNotNull(image.getStageLabel());
+        validateStageLabel(image.getStageLabel(), xml.createStageLabel());
+
+        ObjectiveSettings settings = image.getObjectiveSettings();
+        assertNotNull(settings);
+        validateObjectiveSettings(image.getObjectiveSettings(),
+                xml.createObjectiveSettings(0));
+
+        Instrument instrument = image.getInstrument();
+        assertNotNull(instrument);
+        // check the instrument
+        instrument = factory.getMetadataService().loadInstrument(
+                instrument.getId().getValue());
+        assertNotNull(instrument);
+        ome.xml.model.Laser xmlLaser = (ome.xml.model.Laser) xml
+                .createLightSource(ome.xml.model.Laser.class.getName(), 0);
+        ome.xml.model.Arc xmlArc = (ome.xml.model.Arc) xml.createLightSource(
+                ome.xml.model.Arc.class.getName(), 0);
+        ome.xml.model.Filament xmlFilament = (ome.xml.model.Filament) xml
+                .createLightSource(ome.xml.model.Filament.class.getName(), 0);
+        ome.xml.model.LightEmittingDiode xmlDiode = (ome.xml.model.LightEmittingDiode) xml
+                .createLightSource(
+                        ome.xml.model.LightEmittingDiode.class.getName(), 0);
+
+        ome.xml.model.Objective xmlObjective = xml.createObjective(0);
+        ome.xml.model.Detector xmlDetector = xml.createDetector(0);
+        ome.xml.model.Filter xmlFilter = xml.createFilter(0,
+                XMLMockObjects.CUT_IN, XMLMockObjects.CUT_OUT);
+        ome.xml.model.Dichroic xmlDichroic = xml.createDichroic(0);
+        assertEquals(XMLMockObjects.NUMBER_OF_OBJECTIVES,
+                instrument.sizeOfObjective());
+        assertEquals(XMLMockObjects.NUMBER_OF_DECTECTORS,
+                instrument.sizeOfDetector());
+        assertEquals(XMLMockObjects.NUMBER_OF_DICHROICS,
+                instrument.sizeOfDichroic());
+        assertEquals(XMLMockObjects.NUMBER_OF_FILTERS,
+                instrument.sizeOfFilter());
+        assertEquals(1, instrument.sizeOfFilterSet());
+        // assertEquals(1, instrument.sizeOfOtf()); DISABLED
+
+        List<Detector> detectors = instrument.copyDetector();
+        List<Long> detectorIds = new ArrayList<Long>();
+        Detector de;
+        Iterator j = detectors.iterator();
+        while (j.hasNext()) {
+            de = (Detector) j.next();
+            detectorIds.add(de.getId().getValue());
+            validateDetector(de, xmlDetector);
+        }
+        List<Objective> objectives = instrument.copyObjective();
+        j = objectives.iterator();
+        while (j.hasNext()) {
+            validateObjective((Objective) j.next(), xmlObjective);
+        }
+        List<Filter> filters = instrument.copyFilter();
+        j = filters.iterator();
+        while (j.hasNext()) {
+            validateFilter((Filter) j.next(), xmlFilter);
+        }
+        List<Dichroic> dichroics = instrument.copyDichroic();
+        j = dichroics.iterator();
+        while (j.hasNext()) {
+            validateDichroic((Dichroic) j.next(), xmlDichroic);
+        }
+
+        List<LightSource> lights = instrument.copyLightSource();
+        j = lights.iterator();
+        List<Long> lightIds = new ArrayList<Long>();
+        LightSource src;
+        while (j.hasNext()) {
+            src = (LightSource) j.next();
+            if (src instanceof Laser)
+                validateLaser((Laser) src, xmlLaser);
+            else if (src instanceof Arc)
+                validateArc((Arc) src, xmlArc);
+            else if (src instanceof Filament)
+                validateFilament((Filament) src, xmlFilament);
+
+            lightIds.add(src.getId().getValue());
+        }
+
+        p = factory.getPixelsService().retrievePixDescription(
+                p.getId().getValue());
+
+        ids.clear();
+
+        ome.xml.model.Channel xmlChannel = xml.createChannel(0);
+        Channel channel;
+        List<Channel> channels = p.copyChannels();
+        Iterator<Channel> i = channels.iterator();
+        // assertEquals(xmlChannel.getColor().intValue() ==
+        // XMLMockObjects.DEFAULT_COLOR.getRGB());
+        Color c;
+        while (i.hasNext()) {
+            channel = i.next();
+            assertEquals(channel.getAlpha().getValue(),
+                    XMLMockObjects.DEFAULT_COLOR.getAlpha());
+            assertEquals(channel.getRed().getValue(),
+                    XMLMockObjects.DEFAULT_COLOR.getRed());
+            assertEquals(channel.getGreen().getValue(),
+                    XMLMockObjects.DEFAULT_COLOR.getGreen());
+            assertEquals(channel.getBlue().getValue(),
+                    XMLMockObjects.DEFAULT_COLOR.getBlue());
+            ids.add(channel.getLogicalChannel().getId().getValue());
+        }
+        List<LogicalChannel> l = factory.getMetadataService()
+                .loadChannelAcquisitionData(ids);
+        assertEquals(channels.size(), l.size());
+
+        LogicalChannel lc;
+        DetectorSettings ds;
+        LightSettings ls;
+        ome.xml.model.DetectorSettings xmlDs = xml.createDetectorSettings(0);
+        ome.xml.model.LightSourceSettings xmlLs = xml
+                .createLightSourceSettings(0);
+
+        ome.xml.model.MicrobeamManipulation xmlMM = xml
+                .createMicrobeamManipulation(0);
+        ome.xml.model.Experiment xmlExp = ome.getExperiment(0);
+
+        // Validate experiment (initial checks)
+        assertNotNull(image.getExperiment());
+        Experiment exp = (Experiment) factory
+                .getQueryService()
+                .findByQuery(
+                        "select e from Experiment as e "
+                                + "join fetch e.type "
+                                + "left outer join fetch e.microbeamManipulation as mm "
+                                + "join fetch mm.type "
+                                + "left outer join fetch mm.lightSourceSettings as lss "
+                                + "left outer join fetch lss.lightSource "
+                                + "where e.id = :id",
+                        new ParametersI().addId(image.getExperiment().getId()
+                                .getValue()));
+        assertNotNull(exp);
+        assertEquals(1, exp.sizeOfMicrobeamManipulation());
+        MicrobeamManipulation mm = exp.copyMicrobeamManipulation().get(0);
+        validateExperiment(exp, xmlExp);
+        validateMicrobeamManipulation(mm, xmlMM);
 
         LightPath path;
         Iterator<LogicalChannel> k = l.iterator();
@@ -1299,41 +1284,39 @@ public class ImporterTest extends AbstractServerTest {
      * @throws Exception
      *             Thrown if an error occurred.
      */
-	@Test
-	public void testImportPlateOnePlateAcquisition()
-		throws Exception
-	{
-		File f = File.createTempFile("testImportPlateOnePlateAcquisition", 
-				"."+OME_FORMAT);
-		files.add(f);
-		XMLMockObjects xml = new XMLMockObjects();
-		XMLWriter writer = new XMLWriter();
-		OME ome =  xml.createPopulatedPlate(1);
-		writer.writeFile(f, ome, true);
-		List<Pixels> pixels = null;
-		try {
-			pixels = importFile(f, OME_FORMAT);
-		} catch (Throwable e) {
-			throw new Exception("cannot import the plate", e);
-		}
-		Pixels p = pixels.get(0);
-		long id = p.getImage().getId().getValue();
-		String sql = "select ws from WellSample as ws ";
-		sql += "join fetch ws.plateAcquisition as pa ";
-		sql += "join fetch ws.well as w ";
-		sql += "join fetch w.plate as p ";
-		sql += "where ws.image.id = :id";
-		ParametersI param = new ParametersI();
-		param.addId(id);
-		List<IObject> results = iQuery.findAllByQuery(sql, param);
-		assertEquals(results.size(), 1);
-		WellSample ws = (WellSample) results.get(0);
-		assertNotNull(ws.getWell());
-		assertNotNull(ws.getWell().getPlate());
-		PlateAcquisition pa = ws.getPlateAcquisition();
-		assertNotNull(pa);
-		validatePlateAcquisition(pa, ome.getPlate(0).getPlateAcquisition(0));
-	}
+    @Test
+    public void testImportPlateOnePlateAcquisition() throws Exception {
+        File f = File.createTempFile("testImportPlateOnePlateAcquisition", "."
+                + OME_FORMAT);
+        files.add(f);
+        XMLMockObjects xml = new XMLMockObjects();
+        XMLWriter writer = new XMLWriter();
+        OME ome = xml.createPopulatedPlate(1);
+        writer.writeFile(f, ome, true);
+        List<Pixels> pixels = null;
+        try {
+            pixels = importFile(f, OME_FORMAT);
+        } catch (Throwable e) {
+            throw new Exception("cannot import the plate", e);
+        }
+        Pixels p = pixels.get(0);
+        long id = p.getImage().getId().getValue();
+        String sql = "select ws from WellSample as ws ";
+        sql += "join fetch ws.plateAcquisition as pa ";
+        sql += "join fetch ws.well as w ";
+        sql += "join fetch w.plate as p ";
+        sql += "where ws.image.id = :id";
+        ParametersI param = new ParametersI();
+        param.addId(id);
+        List<IObject> results = iQuery.findAllByQuery(sql, param);
+        assertEquals(results.size(), 1);
+        WellSample ws = (WellSample) results.get(0);
+        assertNotNull(ws.getWell());
+        assertNotNull(ws.getWell().getPlate());
+        PlateAcquisition pa = ws.getPlateAcquisition();
+        assertNotNull(pa);
+        validatePlateAcquisition(pa, ome.getPlate(0).getPlateAcquisition(0));
+    }
 
     /**
      * Tests the import of an OME-XML file with a fully populated plate with a
@@ -1561,17 +1544,17 @@ public class ImporterTest extends AbstractServerTest {
         assertTrue(group.getId().getValue() != ownerEc.groupId);
         // newUserInGroup(ownerEc);
 
-    	File f = File.createTempFile("testImportImageIntoDataset", 
-				"."+OME_FORMAT);
-		files.add(f);
-		XMLMockObjects xml = new XMLMockObjects();
-		XMLWriter writer = new XMLWriter();
-		writer.writeFile(f, xml.createImage(), true);
-		try {
-			importFile(f, OME_FORMAT, d);
-			fail("An exception should have been thrown");
-		} catch (Throwable e) {
-		}
-	}
+        File f = File.createTempFile("testImportImageIntoDataset", "."
+                + OME_FORMAT);
+        files.add(f);
+        XMLMockObjects xml = new XMLMockObjects();
+        XMLWriter writer = new XMLWriter();
+        writer.writeFile(f, xml.createImage(), true);
+        try {
+            importFile(f, OME_FORMAT, d);
+            fail("An exception should have been thrown");
+        } catch (Throwable e) {
+        }
+    }
 
 }

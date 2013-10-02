@@ -7,6 +7,10 @@
 package integration;
 
 import static omero.rtypes.rstring;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertTrue;
+import static org.testng.AssertJUnit.fail;
 
 import java.util.List;
 import java.util.UUID;
@@ -23,7 +27,6 @@ import omero.model.ExperimenterI;
 import omero.model.PermissionsI;
 
 import org.testng.annotations.Test;
-import static org.testng.AssertJUnit.*;
 
 /**
  * Various uses of the {@link omero.client} object. All configuration comes from

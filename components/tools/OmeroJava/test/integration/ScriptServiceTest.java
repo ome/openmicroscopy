@@ -1,5 +1,5 @@
 /*
- * integration.ScriptServiceTest 
+ * integration.ScriptServiceTest
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
@@ -13,7 +13,7 @@
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  *  GNU General Public License for more details.
- *  
+ *
  *  You should have received a copy of the GNU General Public License along
  *  with this program; if not, write to the Free Software Foundation, Inc.,
  *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -22,20 +22,20 @@
  */
 package integration;
 
-//Java imports
+import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.AssertJUnit.assertTrue;
+import static org.testng.AssertJUnit.fail;
+
 import java.util.Iterator;
 import java.util.List;
 
-//Third-party libraries
-import org.testng.annotations.Test;
-import static org.testng.AssertJUnit.*;
-
-//Application-internal dependencies
 import omero.api.IScriptPrx;
 import omero.grid.JobParams;
 import omero.model.OriginalFile;
 
-/** 
+import org.testng.annotations.Test;
+
+/**
  * Collections of tests for the <code>Script</code> service.
  *
  * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp; <a

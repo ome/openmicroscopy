@@ -6,6 +6,10 @@
  */
 package integration;
 
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertTrue;
+import static org.testng.AssertJUnit.fail;
+
 import java.io.File;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
@@ -16,7 +20,6 @@ import java.util.UUID;
 import loci.formats.ImageReader;
 import ome.io.bioformats.BfPixelBuffer;
 import ome.io.nio.DimensionsOutOfBoundsException;
-import ome.io.nio.PixelBuffer;
 import ome.io.nio.RomioPixelBuffer;
 import omero.ServerError;
 import omero.api.RawPixelsStorePrx;
@@ -25,14 +28,11 @@ import omero.model.Pixels;
 import org.apache.commons.io.FileUtils;
 import org.springframework.util.ResourceUtils;
 import org.testng.annotations.Test;
-import static org.testng.AssertJUnit.*;
 
 @Test
 public class BfPixelBufferTest extends AbstractServerTest {
 
     private BfPixelBuffer bf;
-
-    private PixelBuffer pb;
 
     private RawPixelsStorePrx rps;
 

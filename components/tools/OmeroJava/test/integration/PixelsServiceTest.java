@@ -6,18 +6,16 @@
  */
 package integration;
 
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.AssertJUnit.assertNull;
+import static org.testng.AssertJUnit.assertTrue;
 
-//Java imports
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
-//Third-party libraries
-import org.testng.annotations.Test;
-import static org.testng.AssertJUnit.*;
-
-//Application-internal dependencies
 import omero.RLong;
 import omero.api.IPixelsPrx;
 import omero.api.IRenderingSettingsPrx;
@@ -52,7 +50,9 @@ import omero.model.RenderingDef;
 import omero.model.RenderingModel;
 import omero.sys.ParametersI;
 
-/** 
+import org.testng.annotations.Test;
+
+/**
  * Collections of tests for the <code>Pixels</code> service.
  *
  * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp; <a

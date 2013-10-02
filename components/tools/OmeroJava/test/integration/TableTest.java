@@ -6,27 +6,24 @@
  */
 package integration;
 
-//Java imports
+import static org.testng.AssertJUnit.assertTrue;
+
 import java.util.Date;
 import java.util.UUID;
 
-//Third-party libraries
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Test;
-import static org.testng.AssertJUnit.*;
-
-//Application-internal dependencies
 import omero.ApiUsageException;
 import omero.ServerError;
 import omero.grid.Column;
+import omero.grid.Data;
 import omero.grid.LongColumn;
 import omero.grid.StringColumn;
-import omero.grid.Data;
 import omero.grid.TablePrx;
 
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
-/** 
+/**
  * Collections of tests for the <code>IUpdate</code> service.
  *
  * @author Brian loranger &nbsp;&nbsp;&nbsp;&nbsp;

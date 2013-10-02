@@ -17,6 +17,11 @@
  */
 package integration;
 
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertTrue;
+import static org.testng.AssertJUnit.fail;
+
 import java.util.Arrays;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -34,7 +39,6 @@ import omero.cmd.Timing;
 import omero.sys.EventContext;
 
 import org.testng.annotations.Test;
-import static org.testng.AssertJUnit.*;
 
 import Ice.Current;
 

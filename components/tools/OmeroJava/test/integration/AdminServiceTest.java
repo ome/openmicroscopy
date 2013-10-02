@@ -6,8 +6,12 @@
  */
 package integration;
 
-//Java imports
 import static omero.rtypes.rstring;
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.AssertJUnit.assertNull;
+import static org.testng.AssertJUnit.assertTrue;
+import static org.testng.AssertJUnit.fail;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -15,15 +19,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 
-//Third-party libraries
-import org.testng.annotations.Test;
-import static org.testng.AssertJUnit.*;
-
-//Application-internal dependencies
 import omero.api.IAdminPrx;
 import omero.api.IQueryPrx;
 import omero.cmd.Chmod;
-import omero.cmd.graphs.ChmodI;
 import omero.model.Experimenter;
 import omero.model.ExperimenterGroup;
 import omero.model.ExperimenterGroupI;
@@ -33,7 +31,6 @@ import omero.model.Permissions;
 import omero.model.PermissionsI;
 import omero.sys.ParametersI;
 
-//Third-party libraries
 import org.testng.annotations.Test;
 
 import pojos.ExperimenterData;

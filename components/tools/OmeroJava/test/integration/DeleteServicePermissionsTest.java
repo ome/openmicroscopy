@@ -6,22 +6,17 @@
  */
 package integration;
 
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertTrue;
+
 import java.util.Arrays;
 import java.util.List;
 
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.Test;
-import static org.testng.AssertJUnit.*;
-
-import omero.ApiUsageException;
-import omero.api.IAdminPrx;
 import omero.api.IRenderingSettingsPrx;
 import omero.cmd.Delete;
 import omero.model.Dataset;
 import omero.model.DatasetImageLink;
 import omero.model.DatasetImageLinkI;
-import omero.model.Experimenter;
-import omero.model.ExperimenterGroup;
 import omero.model.IObject;
 import omero.model.Image;
 import omero.model.ImageAnnotationLink;

@@ -1,5 +1,5 @@
 /*
- * integration.ImporterTest 
+ * integration.ImporterTest
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
@@ -13,7 +13,7 @@
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  *  GNU General Public License for more details.
- *  
+ *
  *  You should have received a copy of the GNU General Public License along
  *  with this program; if not, write to the Free Software Foundation, Inc.,
  *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -21,6 +21,8 @@
  *------------------------------------------------------------------------------
  */
 package integration;
+
+import static org.testng.AssertJUnit.fail;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -38,7 +40,6 @@ import omero.model.StatsInfo;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import static org.testng.AssertJUnit.*;
 
 /**
  * Collection of tests to import "big" images and check min/max values.

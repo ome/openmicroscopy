@@ -1,5 +1,5 @@
 /*
- * integration.ThumbnailStoreTest 
+ * integration.ThumbnailStoreTest
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
@@ -13,7 +13,7 @@
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  *  GNU General Public License for more details.
- *  
+ *
  *  You should have received a copy of the GNU General Public License along
  *  with this program; if not, write to the Free Software Foundation, Inc.,
  *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -22,22 +22,25 @@
  */
 package integration;
 
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.AssertJUnit.assertTrue;
+
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Iterator;
-import java.util.ArrayList;
-
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Test;
-import static org.testng.AssertJUnit.*;
 
 import ome.formats.OMEROMetadataStoreClient;
 import omero.api.IRenderingSettingsPrx;
 import omero.api.ThumbnailStorePrx;
 import omero.model.Pixels;
 
-/** 
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
+
+/**
  * Collections of tests for the <code>ThumbnailStore</code> service.
  *
  * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp; <a

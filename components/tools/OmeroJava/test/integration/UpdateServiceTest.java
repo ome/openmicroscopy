@@ -8,6 +8,11 @@ package integration;
 
 import static omero.rtypes.rstring;
 import static omero.rtypes.rtime;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.AssertJUnit.assertNull;
+import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -89,7 +94,6 @@ import omero.model.XmlAnnotationI;
 import omero.sys.ParametersI;
 
 import org.testng.annotations.Test;
-import static org.testng.AssertJUnit.*;
 
 import pojos.BooleanAnnotationData;
 import pojos.DatasetData;

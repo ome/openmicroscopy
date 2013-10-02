@@ -7,6 +7,13 @@
 
 package integration;
 
+import static omero.rtypes.rlong;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.AssertJUnit.assertNull;
+import static org.testng.AssertJUnit.assertTrue;
+import static org.testng.AssertJUnit.fail;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -17,14 +24,9 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.UUID;
-import java.util.Map.Entry;
-
-import org.testng.Assert;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Test;
-import static org.testng.AssertJUnit.*;
 
 import omero.RType;
 import omero.api.IAdminPrx;
@@ -63,14 +65,18 @@ import omero.model.ScreenAnnotationLinkI;
 import omero.model.ScreenPlateLink;
 import omero.model.ScreenPlateLinkI;
 import omero.model.StageLabel;
-import static omero.rtypes.rlong;
 import omero.sys.Parameters;
 import omero.sys.ParametersI;
+
+import org.testng.Assert;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
+
 import pojos.DatasetData;
 import pojos.ImageData;
 import pojos.PixelsData;
-import pojos.PlateData;
 import pojos.PlateAcquisitionData;
+import pojos.PlateData;
 import pojos.ProjectData;
 import pojos.ScreenData;
 
@@ -754,37 +760,51 @@ public class PojosServiceTest extends AbstractServerTest {
 
     /**
      * Tests that the pagination works correctly for
-     * {@link ome.api.IContainer#getImages(Class, Set, ome.parameters.Parameters)}.
-     * @throws Exception unexpected
+     * {@link ome.api.IContainer#getImages(Class, Set, ome.parameters.Parameters)}
+     * .
+     *
+     * @throws Exception
+     *             unexpected
      */
     @Test(groups = "ticket:9934")
     public void testGetImagesPaged() throws Exception {
         final int totalNumberOfImages = 12;
         /* create a new dataset containing new images */
-        final long datasetId = iUpdate.saveAndReturnObject(mmFactory.simpleDatasetData().asIObject()).getId().getValue();
-        final List<Long> datasetIdList = Collections.<Long>singletonList(datasetId);
+        final long datasetId = iUpdate
+                .saveAndReturnObject(mmFactory.simpleDatasetData().asIObject())
+                .getId().getValue();
+        final List<Long> datasetIdList = Collections
+                .<Long> singletonList(datasetId);
         final Set<Long> imageIds = new HashSet<Long>(totalNumberOfImages);
         for (int i = 0; i < totalNumberOfImages; i++) {
-            final Image image = (Image) iUpdate.saveAndReturnObject(mmFactory.createImage());
+            final Image image = (Image) iUpdate.saveAndReturnObject(mmFactory
+                    .createImage());
             imageIds.add(image.getId().getValue());
             final DatasetImageLink dil = new DatasetImageLinkI();
-            dil.setParent((Dataset) iQuery.find(Dataset.class.getName(), datasetId));
+            dil.setParent((Dataset) iQuery.find(Dataset.class.getName(),
+                    datasetId));
             dil.setChild(image);
             iUpdate.saveObject(dil);
         }
         /* check that the resulting image IDs are unique */
         Assert.assertEquals(imageIds.size(), totalNumberOfImages,
                 "image IDs should be unique");
-        /* try various page sizes, make sure the total results set is as expected */
+        /*
+         * try various page sizes, make sure the total results set is as
+         * expected
+         */
         for (int pageSize = 1; pageSize < totalNumberOfImages + 2; pageSize++) {
             /* note the IDs found by this set of pages */
-            final Set<Long> imageIdsPaged = new HashSet<Long>(totalNumberOfImages);
+            final Set<Long> imageIdsPaged = new HashSet<Long>(
+                    totalNumberOfImages);
             boolean nextIsEmpty = false;
             int startImageIndex = 0;
             while (true) {
                 /* per page */
-                final ParametersI parameters = new ParametersI().page(startImageIndex, pageSize);
-                final List<Image> pageOfImages = iContainer.getImages(Dataset.class.getName(), datasetIdList, parameters);
+                final ParametersI parameters = new ParametersI().page(
+                        startImageIndex, pageSize);
+                final List<Image> pageOfImages = iContainer.getImages(
+                        Dataset.class.getName(), datasetIdList, parameters);
                 if (nextIsEmpty) {
                     Assert.assertTrue(pageOfImages.isEmpty(),
                             "expected empty pages after an undersized page");
@@ -795,7 +815,8 @@ public class PojosServiceTest extends AbstractServerTest {
                     break;
                 }
                 for (final Image image : pageOfImages) {
-                    Assert.assertTrue(imageIdsPaged.add(image.getId().getValue()),
+                    Assert.assertTrue(
+                            imageIdsPaged.add(image.getId().getValue()),
                             "paged query should not return duplicates");
                 }
                 startImageIndex += pageSize;
@@ -1437,597 +1458,595 @@ public class PojosServiceTest extends AbstractServerTest {
             assertEquals(plate.getId(), p.getId().getValue());
         }
     }
-    
+
     /**
      * Test the <code>getImagesBySplitFilesets</code> Image as root.
-     * @throws Exception Thrown if an error occurred.
+     *
+     * @throws Exception
+     *             Thrown if an error occurred.
      */
     @Test
-    public void testGetImagesBySplitFilesetsImageAsRoot()
-    	throws Exception 
-    {
-    	//first create a project
-    	Image i1 = (Image) iUpdate.saveAndReturnObject(
-    			mmFactory.simpleImage(0));
-    	Image i2 = (Image) iUpdate.saveAndReturnObject(
-    			mmFactory.simpleImage(0));
-    	Fileset fileset = newFileset();
-    	fileset.addImage(i1);
-    	fileset.addImage(i2);
-    	fileset = (Fileset) iUpdate.saveAndReturnObject(fileset);
-    	//Check that 2 images are linked
-    	assertEquals(fileset.copyImages().size(), 2);
+    public void testGetImagesBySplitFilesetsImageAsRoot() throws Exception {
+        // first create a project
+        Image i1 = (Image) iUpdate
+                .saveAndReturnObject(mmFactory.simpleImage(0));
+        Image i2 = (Image) iUpdate
+                .saveAndReturnObject(mmFactory.simpleImage(0));
+        Fileset fileset = newFileset();
+        fileset.addImage(i1);
+        fileset.addImage(i2);
+        fileset = (Fileset) iUpdate.saveAndReturnObject(fileset);
+        // Check that 2 images are linked
+        assertEquals(fileset.copyImages().size(), 2);
 
-    	Parameters param = new ParametersI();
-    	Map<String, List<Long>> map = new HashMap<String, List<Long>>(1);
-    	map.put(Image.class.getName(), Arrays.asList(i1.getId().getValue()));
-    	Map<Long, Map<Boolean, List<Long>>>
-    	results = iContainer.getImagesBySplitFilesets(map, param);
-    	assertEquals(results.size(), 1);
-    	Entry<Long, Map<Boolean, List<Long>>> e;
-    	Entry<Boolean, List<Long>> entry;
-    	Iterator< Entry<Boolean, List<Long>>> j;
-    	Iterator<Entry<Long, Map<Boolean, List<Long>>>>
-    	i = results.entrySet().iterator();
-    	while (i.hasNext()) {
-    		e = i.next();
-    		assertEquals(e.getKey().longValue(), fileset.getId().getValue());
-    		j = e.getValue().entrySet().iterator();
-    		while (i.hasNext()) {
-    			entry = j.next();
-    			assertEquals(entry.getValue().size(), 1);
-    			if (entry.getKey().booleanValue()) {
-    				assertTrue(entry.getValue().contains(i1.getId().getValue()));
-    			} else 
-    				assertTrue(entry.getValue().contains(i2.getId().getValue()));
-    		}
-    	}
+        Parameters param = new ParametersI();
+        Map<String, List<Long>> map = new HashMap<String, List<Long>>(1);
+        map.put(Image.class.getName(), Arrays.asList(i1.getId().getValue()));
+        Map<Long, Map<Boolean, List<Long>>> results = iContainer
+                .getImagesBySplitFilesets(map, param);
+        assertEquals(results.size(), 1);
+        Entry<Long, Map<Boolean, List<Long>>> e;
+        Entry<Boolean, List<Long>> entry;
+        Iterator<Entry<Boolean, List<Long>>> j;
+        Iterator<Entry<Long, Map<Boolean, List<Long>>>> i = results.entrySet()
+                .iterator();
+        while (i.hasNext()) {
+            e = i.next();
+            assertEquals(e.getKey().longValue(), fileset.getId().getValue());
+            j = e.getValue().entrySet().iterator();
+            while (i.hasNext()) {
+                entry = j.next();
+                assertEquals(entry.getValue().size(), 1);
+                if (entry.getKey().booleanValue()) {
+                    assertTrue(entry.getValue().contains(i1.getId().getValue()));
+                } else
+                    assertTrue(entry.getValue().contains(i2.getId().getValue()));
+            }
+        }
     }
-    
+
     /**
      * Test the <code>getImagesBySplitFilesets</code> Image as root.
-     * @throws Exception Thrown if an error occurred.
+     *
+     * @throws Exception
+     *             Thrown if an error occurred.
      */
     @Test
-    public void testGetImagesBySplitFilesetsImageAsRootAll()
-    	throws Exception 
-    {
-    	//first create a project
-    	Image i1 = (Image) iUpdate.saveAndReturnObject(
-    			mmFactory.simpleImage(0));
-    	Image i2 = (Image) iUpdate.saveAndReturnObject(
-    			mmFactory.simpleImage(0));
-    	Fileset fileset = newFileset();
-    	fileset.addImage(i1);
-    	fileset.addImage(i2);
-    	fileset = (Fileset) iUpdate.saveAndReturnObject(fileset);
-    	//Check that 2 images are linked
-    	assertEquals(fileset.copyImages().size(), 2);
+    public void testGetImagesBySplitFilesetsImageAsRootAll() throws Exception {
+        // first create a project
+        Image i1 = (Image) iUpdate
+                .saveAndReturnObject(mmFactory.simpleImage(0));
+        Image i2 = (Image) iUpdate
+                .saveAndReturnObject(mmFactory.simpleImage(0));
+        Fileset fileset = newFileset();
+        fileset.addImage(i1);
+        fileset.addImage(i2);
+        fileset = (Fileset) iUpdate.saveAndReturnObject(fileset);
+        // Check that 2 images are linked
+        assertEquals(fileset.copyImages().size(), 2);
 
-    	Parameters param = new ParametersI();
-    	List<Long> ids = new ArrayList<Long>();
-    	ids.add(i1.getId().getValue());
-    	ids.add(i2.getId().getValue());
-    	Map<String, List<Long>> map = new HashMap<String, List<Long>>(1);
-    	map.put(Image.class.getName(), ids);
-    	Map<Long, Map<Boolean, List<Long>>>
-    	results = iContainer.getImagesBySplitFilesets(map, param);
-    	assertEquals(results.size(), 0);
+        Parameters param = new ParametersI();
+        List<Long> ids = new ArrayList<Long>();
+        ids.add(i1.getId().getValue());
+        ids.add(i2.getId().getValue());
+        Map<String, List<Long>> map = new HashMap<String, List<Long>>(1);
+        map.put(Image.class.getName(), ids);
+        Map<Long, Map<Boolean, List<Long>>> results = iContainer
+                .getImagesBySplitFilesets(map, param);
+        assertEquals(results.size(), 0);
     }
-    
+
     /**
      * Test the <code>getImagesBySplitFilesets</code> Dataset as root.
-     * @throws Exception Thrown if an error occurred.
+     *
+     * @throws Exception
+     *             Thrown if an error occurred.
      */
     @Test
-    public void testGetImagesBySplitFilesetsDatasetAsRoot()
-    	throws Exception 
-    {
-    	//first create a project
-    	Image i1 = (Image) iUpdate.saveAndReturnObject(
-    			mmFactory.simpleImage(0));
-    	Image i2 = (Image) iUpdate.saveAndReturnObject(
-    			mmFactory.simpleImage(0));
-    	Fileset fileset = newFileset();
-    	fileset.addImage(i1);
-    	fileset.addImage(i2);
-    	fileset = (Fileset) iUpdate.saveAndReturnObject(fileset);
-    	assertEquals(fileset.copyImages().size(), 2);
+    public void testGetImagesBySplitFilesetsDatasetAsRoot() throws Exception {
+        // first create a project
+        Image i1 = (Image) iUpdate
+                .saveAndReturnObject(mmFactory.simpleImage(0));
+        Image i2 = (Image) iUpdate
+                .saveAndReturnObject(mmFactory.simpleImage(0));
+        Fileset fileset = newFileset();
+        fileset.addImage(i1);
+        fileset.addImage(i2);
+        fileset = (Fileset) iUpdate.saveAndReturnObject(fileset);
+        assertEquals(fileset.copyImages().size(), 2);
 
-    	Dataset d = (Dataset) iUpdate.saveAndReturnObject(
-    			mmFactory.simpleDatasetData().asIObject());
-    	//link the 2
-    	DatasetImageLink link = new DatasetImageLinkI();
-    	link.setParent(d);
-    	link.setChild((Image) i1.proxy());
-    	iUpdate.saveAndReturnObject(link);
+        Dataset d = (Dataset) iUpdate.saveAndReturnObject(mmFactory
+                .simpleDatasetData().asIObject());
+        // link the 2
+        DatasetImageLink link = new DatasetImageLinkI();
+        link.setParent(d);
+        link.setChild((Image) i1.proxy());
+        iUpdate.saveAndReturnObject(link);
 
-    	Parameters param = new ParametersI();
-    	Map<String, List<Long>> map = new HashMap<String, List<Long>>(1);
-    	map.put(Dataset.class.getName(), Arrays.asList(d.getId().getValue()));
-    	Map<Long, Map<Boolean, List<Long>>>
-    	results = iContainer.getImagesBySplitFilesets(map, param);
-    	assertEquals(results.size(), 1);
-    	Entry<Long, Map<Boolean, List<Long>>> e;
-    	Entry<Boolean, List<Long>> entry;
-    	Iterator< Entry<Boolean, List<Long>>> j;
-    	Iterator<Entry<Long, Map<Boolean, List<Long>>>>
-    	i = results.entrySet().iterator();
-    	while (i.hasNext()) {
-    		e = i.next();
-    		assertEquals(e.getKey().longValue(), fileset.getId().getValue());
-    		j = e.getValue().entrySet().iterator();
-    		while (i.hasNext()) {
-    			entry = j.next();
-    			assertEquals(entry.getValue().size(), 1);
-    			if (entry.getKey().booleanValue()) {
-    				assertTrue(entry.getValue().contains(i1.getId().getValue()));
-    			} else 
-    				assertTrue(entry.getValue().contains(i2.getId().getValue()));
-    		}
-    	}
+        Parameters param = new ParametersI();
+        Map<String, List<Long>> map = new HashMap<String, List<Long>>(1);
+        map.put(Dataset.class.getName(), Arrays.asList(d.getId().getValue()));
+        Map<Long, Map<Boolean, List<Long>>> results = iContainer
+                .getImagesBySplitFilesets(map, param);
+        assertEquals(results.size(), 1);
+        Entry<Long, Map<Boolean, List<Long>>> e;
+        Entry<Boolean, List<Long>> entry;
+        Iterator<Entry<Boolean, List<Long>>> j;
+        Iterator<Entry<Long, Map<Boolean, List<Long>>>> i = results.entrySet()
+                .iterator();
+        while (i.hasNext()) {
+            e = i.next();
+            assertEquals(e.getKey().longValue(), fileset.getId().getValue());
+            j = e.getValue().entrySet().iterator();
+            while (i.hasNext()) {
+                entry = j.next();
+                assertEquals(entry.getValue().size(), 1);
+                if (entry.getKey().booleanValue()) {
+                    assertTrue(entry.getValue().contains(i1.getId().getValue()));
+                } else
+                    assertTrue(entry.getValue().contains(i2.getId().getValue()));
+            }
+        }
     }
 
     /**
      * Test the <code>getImagesBySplitFilesets</code> Project as root.
-     * @throws Exception Thrown if an error occurred.
+     *
+     * @throws Exception
+     *             Thrown if an error occurred.
      */
     @Test
-    public void testGetImagesBySplitFilesetsProjectAsRoot()
-    	throws Exception 
-    {
-    	//first create a project
-    	Image i1 = (Image) iUpdate.saveAndReturnObject(
-    			mmFactory.simpleImage(0));
-    	Image i2 = (Image) iUpdate.saveAndReturnObject(
-    			mmFactory.simpleImage(0));
-    	Fileset fileset = newFileset();
-    	fileset.addImage(i1);
-    	fileset.addImage(i2);
-    	fileset = (Fileset) iUpdate.saveAndReturnObject(fileset);
-    	assertEquals(fileset.copyImages().size(), 2);
+    public void testGetImagesBySplitFilesetsProjectAsRoot() throws Exception {
+        // first create a project
+        Image i1 = (Image) iUpdate
+                .saveAndReturnObject(mmFactory.simpleImage(0));
+        Image i2 = (Image) iUpdate
+                .saveAndReturnObject(mmFactory.simpleImage(0));
+        Fileset fileset = newFileset();
+        fileset.addImage(i1);
+        fileset.addImage(i2);
+        fileset = (Fileset) iUpdate.saveAndReturnObject(fileset);
+        assertEquals(fileset.copyImages().size(), 2);
 
+        Dataset d = (Dataset) iUpdate.saveAndReturnObject(mmFactory
+                .simpleDatasetData().asIObject());
+        // link the 2
+        DatasetImageLink link = new DatasetImageLinkI();
+        link.setParent(d);
+        link.setChild((Image) i1.proxy());
+        iUpdate.saveAndReturnObject(link);
 
-    	Dataset d = (Dataset) iUpdate.saveAndReturnObject(
-    			mmFactory.simpleDatasetData().asIObject());
-    	//link the 2
-    	DatasetImageLink link = new DatasetImageLinkI();
-    	link.setParent(d);
-    	link.setChild((Image) i1.proxy());
-    	iUpdate.saveAndReturnObject(link);
+        Project p = (Project) iUpdate.saveAndReturnObject(mmFactory
+                .simpleProjectData().asIObject());
 
-    	Project p = (Project) iUpdate.saveAndReturnObject(
-    			mmFactory.simpleProjectData().asIObject());
+        ProjectDatasetLink lp = new ProjectDatasetLinkI();
+        lp.setParent(p);
+        lp.setChild((Dataset) d.proxy());
 
-    	ProjectDatasetLink lp = new ProjectDatasetLinkI();
-    	lp.setParent(p);
-    	lp.setChild((Dataset) d.proxy());
+        iUpdate.saveAndReturnObject(lp);
 
-    	iUpdate.saveAndReturnObject(lp);
-
-    	Parameters param = new ParametersI();
-    	Map<String, List<Long>> map = new HashMap<String, List<Long>>(1);
-    	map.put(Project.class.getName(), Arrays.asList(p.getId().getValue()));
-    	Map<Long, Map<Boolean, List<Long>>>
-    	results = iContainer.getImagesBySplitFilesets(map, param);
-    	assertEquals(results.size(), 1);
-    	Entry<Long, Map<Boolean, List<Long>>> e;
-    	Entry<Boolean, List<Long>> entry;
-    	Iterator< Entry<Boolean, List<Long>>> j;
-    	Iterator<Entry<Long, Map<Boolean, List<Long>>>>
-    	i = results.entrySet().iterator();
-    	while (i.hasNext()) {
-    		e = i.next();
-    		assertEquals(e.getKey().longValue(), fileset.getId().getValue());
-    		j = e.getValue().entrySet().iterator();
-    		while (i.hasNext()) {
-    			entry = j.next();
-    			assertEquals(entry.getValue().size(), 1);
-    			if (entry.getKey().booleanValue()) {
-    				assertTrue(entry.getValue().contains(i1.getId().getValue()));
-    			} else 
-    				assertTrue(entry.getValue().contains(i2.getId().getValue()));
-    		}
-    	}
+        Parameters param = new ParametersI();
+        Map<String, List<Long>> map = new HashMap<String, List<Long>>(1);
+        map.put(Project.class.getName(), Arrays.asList(p.getId().getValue()));
+        Map<Long, Map<Boolean, List<Long>>> results = iContainer
+                .getImagesBySplitFilesets(map, param);
+        assertEquals(results.size(), 1);
+        Entry<Long, Map<Boolean, List<Long>>> e;
+        Entry<Boolean, List<Long>> entry;
+        Iterator<Entry<Boolean, List<Long>>> j;
+        Iterator<Entry<Long, Map<Boolean, List<Long>>>> i = results.entrySet()
+                .iterator();
+        while (i.hasNext()) {
+            e = i.next();
+            assertEquals(e.getKey().longValue(), fileset.getId().getValue());
+            j = e.getValue().entrySet().iterator();
+            while (i.hasNext()) {
+                entry = j.next();
+                assertEquals(entry.getValue().size(), 1);
+                if (entry.getKey().booleanValue()) {
+                    assertTrue(entry.getValue().contains(i1.getId().getValue()));
+                } else
+                    assertTrue(entry.getValue().contains(i2.getId().getValue()));
+            }
+        }
     }
-    
+
     /**
-     * Test the <code>getImagesBySplitFilesets</code> Dataset as root.
-     * The fileset is split between 2 datasets. Both datasets are specified.
-     * @throws Exception Thrown if an error occurred.
+     * Test the <code>getImagesBySplitFilesets</code> Dataset as root. The
+     * fileset is split between 2 datasets. Both datasets are specified.
+     *
+     * @throws Exception
+     *             Thrown if an error occurred.
      */
     @Test
     public void testGetImagesBySplitFilesetsMixedDatasetAsRoot()
-    	throws Exception 
-    {
-    	//first create a project
-    	Image i1 = (Image) iUpdate.saveAndReturnObject(
-    			mmFactory.simpleImage(0));
-    	Image i2 = (Image) iUpdate.saveAndReturnObject(
-    			mmFactory.simpleImage(0));
-    	Fileset fileset = newFileset();
-    	fileset.addImage(i1);
-    	fileset.addImage(i2);
-    	fileset = (Fileset) iUpdate.saveAndReturnObject(fileset);
-    	assertEquals(fileset.copyImages().size(), 2);
+            throws Exception {
+        // first create a project
+        Image i1 = (Image) iUpdate
+                .saveAndReturnObject(mmFactory.simpleImage(0));
+        Image i2 = (Image) iUpdate
+                .saveAndReturnObject(mmFactory.simpleImage(0));
+        Fileset fileset = newFileset();
+        fileset.addImage(i1);
+        fileset.addImage(i2);
+        fileset = (Fileset) iUpdate.saveAndReturnObject(fileset);
+        assertEquals(fileset.copyImages().size(), 2);
 
-    	Dataset d1 = (Dataset) iUpdate.saveAndReturnObject(
-    			mmFactory.simpleDatasetData().asIObject());
-    	//link the 2
-    	DatasetImageLink link = new DatasetImageLinkI();
-    	link.setParent(d1);
-    	link.setChild((Image) i1.proxy());
-    	iUpdate.saveAndReturnObject(link);
+        Dataset d1 = (Dataset) iUpdate.saveAndReturnObject(mmFactory
+                .simpleDatasetData().asIObject());
+        // link the 2
+        DatasetImageLink link = new DatasetImageLinkI();
+        link.setParent(d1);
+        link.setChild((Image) i1.proxy());
+        iUpdate.saveAndReturnObject(link);
 
-    	Dataset d2 = (Dataset) iUpdate.saveAndReturnObject(
-    			mmFactory.simpleDatasetData().asIObject());
-    	//link the 2
-    	link = new DatasetImageLinkI();
-    	link.setParent(d2);
-    	link.setChild((Image) i2.proxy());
-    	iUpdate.saveAndReturnObject(link);
+        Dataset d2 = (Dataset) iUpdate.saveAndReturnObject(mmFactory
+                .simpleDatasetData().asIObject());
+        // link the 2
+        link = new DatasetImageLinkI();
+        link.setParent(d2);
+        link.setChild((Image) i2.proxy());
+        iUpdate.saveAndReturnObject(link);
 
-    	Parameters param = new ParametersI();
-    	List<Long> ids = new ArrayList<Long>();
-    	ids.add(d1.getId().getValue());
-    	ids.add(d2.getId().getValue());
-    	Map<String, List<Long>> map = new HashMap<String, List<Long>>(1);
-    	map.put(Dataset.class.getName(), ids);
-    	Map<Long, Map<Boolean, List<Long>>>
-    	results = iContainer.getImagesBySplitFilesets(map, param);
-    	assertEquals(results.size(), 0);
+        Parameters param = new ParametersI();
+        List<Long> ids = new ArrayList<Long>();
+        ids.add(d1.getId().getValue());
+        ids.add(d2.getId().getValue());
+        Map<String, List<Long>> map = new HashMap<String, List<Long>>(1);
+        map.put(Dataset.class.getName(), ids);
+        Map<Long, Map<Boolean, List<Long>>> results = iContainer
+                .getImagesBySplitFilesets(map, param);
+        assertEquals(results.size(), 0);
     }
-    
+
     /**
-     * Test the <code>getImagesBySplitFilesets</code> Project as root.
-     * The fileset is split between 2 datasets contained into 2 projects.
-     * Both projects are specified.
-     * @throws Exception Thrown if an error occurred.
+     * Test the <code>getImagesBySplitFilesets</code> Project as root. The
+     * fileset is split between 2 datasets contained into 2 projects. Both
+     * projects are specified.
+     *
+     * @throws Exception
+     *             Thrown if an error occurred.
      */
     @Test
     public void testGetImagesBySplitFilesetsMixedProjectAsRoot()
-    	throws Exception 
-    {
-    	//first create a project
-    	Image i1 = (Image) iUpdate.saveAndReturnObject(
-    			mmFactory.simpleImage(0));
-    	Image i2 = (Image) iUpdate.saveAndReturnObject(
-    			mmFactory.simpleImage(0));
-    	Fileset fileset = newFileset();
-    	fileset.addImage(i1);
-    	fileset.addImage(i2);
-    	fileset = (Fileset) iUpdate.saveAndReturnObject(fileset);
-    	assertEquals(fileset.copyImages().size(), 2);
+            throws Exception {
+        // first create a project
+        Image i1 = (Image) iUpdate
+                .saveAndReturnObject(mmFactory.simpleImage(0));
+        Image i2 = (Image) iUpdate
+                .saveAndReturnObject(mmFactory.simpleImage(0));
+        Fileset fileset = newFileset();
+        fileset.addImage(i1);
+        fileset.addImage(i2);
+        fileset = (Fileset) iUpdate.saveAndReturnObject(fileset);
+        assertEquals(fileset.copyImages().size(), 2);
 
+        Dataset d1 = (Dataset) iUpdate.saveAndReturnObject(mmFactory
+                .simpleDatasetData().asIObject());
 
-    	Dataset d1 = (Dataset) iUpdate.saveAndReturnObject(
-    			mmFactory.simpleDatasetData().asIObject());
+        Dataset d2 = (Dataset) iUpdate.saveAndReturnObject(mmFactory
+                .simpleDatasetData().asIObject());
 
-    	Dataset d2 = (Dataset) iUpdate.saveAndReturnObject(
-    			mmFactory.simpleDatasetData().asIObject());
+        // link the 2
+        DatasetImageLink link = new DatasetImageLinkI();
+        link.setParent(d1);
+        link.setChild((Image) i1.proxy());
+        iUpdate.saveAndReturnObject(link);
 
-    	//link the 2
-    	DatasetImageLink link = new DatasetImageLinkI();
-    	link.setParent(d1);
-    	link.setChild((Image) i1.proxy());
-    	iUpdate.saveAndReturnObject(link);
+        link = new DatasetImageLinkI();
+        link.setParent(d2);
+        link.setChild((Image) i2.proxy());
+        iUpdate.saveAndReturnObject(link);
 
-    	link = new DatasetImageLinkI();
-    	link.setParent(d2);
-    	link.setChild((Image) i2.proxy());
-    	iUpdate.saveAndReturnObject(link);
+        Project p1 = (Project) iUpdate.saveAndReturnObject(mmFactory
+                .simpleProjectData().asIObject());
 
+        ProjectDatasetLink lp = new ProjectDatasetLinkI();
+        lp.setParent(p1);
+        lp.setChild((Dataset) d1.proxy());
 
-    	Project p1 = (Project) iUpdate.saveAndReturnObject(
-    			mmFactory.simpleProjectData().asIObject());
+        iUpdate.saveAndReturnObject(lp);
 
-    	ProjectDatasetLink lp = new ProjectDatasetLinkI();
-    	lp.setParent(p1);
-    	lp.setChild((Dataset) d1.proxy());
+        Project p2 = (Project) iUpdate.saveAndReturnObject(mmFactory
+                .simpleProjectData().asIObject());
 
-    	iUpdate.saveAndReturnObject(lp);
+        lp = new ProjectDatasetLinkI();
+        lp.setParent(p2);
+        lp.setChild((Dataset) d2.proxy());
 
-    	Project p2 = (Project) iUpdate.saveAndReturnObject(
-    			mmFactory.simpleProjectData().asIObject());
+        iUpdate.saveAndReturnObject(lp);
 
-    	lp = new ProjectDatasetLinkI();
-    	lp.setParent(p2);
-    	lp.setChild((Dataset) d2.proxy());
-
-    	iUpdate.saveAndReturnObject(lp);
-
-
-    	Parameters param = new ParametersI();
-    	List<Long> ids = new ArrayList<Long>();
-    	ids.add(p1.getId().getValue());
-    	ids.add(p2.getId().getValue());
-    	Map<String, List<Long>> map = new HashMap<String, List<Long>>(1);
-    	map.put(Project.class.getName(), ids);
-    	Map<Long, Map<Boolean, List<Long>>>
-    	results = iContainer.getImagesBySplitFilesets(map, param);
-    	assertEquals(results.size(), 0);
+        Parameters param = new ParametersI();
+        List<Long> ids = new ArrayList<Long>();
+        ids.add(p1.getId().getValue());
+        ids.add(p2.getId().getValue());
+        Map<String, List<Long>> map = new HashMap<String, List<Long>>(1);
+        map.put(Project.class.getName(), ids);
+        Map<Long, Map<Boolean, List<Long>>> results = iContainer
+                .getImagesBySplitFilesets(map, param);
+        assertEquals(results.size(), 0);
     }
 
     /**
      * Test the <code>getImagesBySplitFilesets</code> with image/dataset and
      * project as root.
-     * @throws Exception Thrown if an error occurred.
+     *
+     * @throws Exception
+     *             Thrown if an error occurred.
      */
     @Test
-    public void testGetImagesBySplitFilesetsMixedRoot()
-    	throws Exception 
-    {
-    	//first create a project
-    	Image i1 = (Image) iUpdate.saveAndReturnObject(
-    			mmFactory.simpleImage(0));
-    	Image i2 = (Image) iUpdate.saveAndReturnObject(
-    			mmFactory.simpleImage(0));
-    	Image i3 = (Image) iUpdate.saveAndReturnObject(
-    			mmFactory.simpleImage(0));
+    public void testGetImagesBySplitFilesetsMixedRoot() throws Exception {
+        // first create a project
+        Image i1 = (Image) iUpdate
+                .saveAndReturnObject(mmFactory.simpleImage(0));
+        Image i2 = (Image) iUpdate
+                .saveAndReturnObject(mmFactory.simpleImage(0));
+        Image i3 = (Image) iUpdate
+                .saveAndReturnObject(mmFactory.simpleImage(0));
 
-    	Fileset fileset = newFileset();
-    	fileset.addImage(i1);
-    	fileset.addImage(i2);
-    	fileset.addImage(i3);
-    	fileset = (Fileset) iUpdate.saveAndReturnObject(fileset);
-    	assertEquals(fileset.copyImages().size(), 3);
+        Fileset fileset = newFileset();
+        fileset.addImage(i1);
+        fileset.addImage(i2);
+        fileset.addImage(i3);
+        fileset = (Fileset) iUpdate.saveAndReturnObject(fileset);
+        assertEquals(fileset.copyImages().size(), 3);
 
+        Dataset d1 = (Dataset) iUpdate.saveAndReturnObject(mmFactory
+                .simpleDatasetData().asIObject());
 
-    	Dataset d1 = (Dataset) iUpdate.saveAndReturnObject(
-    			mmFactory.simpleDatasetData().asIObject());
+        Dataset d2 = (Dataset) iUpdate.saveAndReturnObject(mmFactory
+                .simpleDatasetData().asIObject());
 
-    	Dataset d2 = (Dataset) iUpdate.saveAndReturnObject(
-    			mmFactory.simpleDatasetData().asIObject());
+        // link the 2
+        DatasetImageLink link = new DatasetImageLinkI();
+        link.setParent(d1);
+        link.setChild((Image) i1.proxy());
+        iUpdate.saveAndReturnObject(link);
 
-    	//link the 2
-    	DatasetImageLink link = new DatasetImageLinkI();
-    	link.setParent(d1);
-    	link.setChild((Image) i1.proxy());
-    	iUpdate.saveAndReturnObject(link);
+        link = new DatasetImageLinkI();
+        link.setParent(d2);
+        link.setChild((Image) i2.proxy());
+        iUpdate.saveAndReturnObject(link);
 
-    	link = new DatasetImageLinkI();
-    	link.setParent(d2);
-    	link.setChild((Image) i2.proxy());
-    	iUpdate.saveAndReturnObject(link);
+        Project p1 = (Project) iUpdate.saveAndReturnObject(mmFactory
+                .simpleProjectData().asIObject());
 
+        ProjectDatasetLink lp = new ProjectDatasetLinkI();
+        lp.setParent(p1);
+        lp.setChild((Dataset) d1.proxy());
 
-    	Project p1 = (Project) iUpdate.saveAndReturnObject(
-    			mmFactory.simpleProjectData().asIObject());
+        iUpdate.saveAndReturnObject(lp);
 
-    	ProjectDatasetLink lp = new ProjectDatasetLinkI();
-    	lp.setParent(p1);
-    	lp.setChild((Dataset) d1.proxy());
-
-    	iUpdate.saveAndReturnObject(lp);
-
-    	Parameters param = new ParametersI();
-    	Map<String, List<Long>> map = new HashMap<String, List<Long>>();
-    	map.put(Project.class.getName(), Arrays.asList(p1.getId().getValue()));
-    	map.put(Dataset.class.getName(), Arrays.asList(d2.getId().getValue()));
-    	map.put(Image.class.getName(), Arrays.asList(i3.getId().getValue()));
-    	Map<Long, Map<Boolean, List<Long>>>
-    	results = iContainer.getImagesBySplitFilesets(map, param);
-    	assertEquals(results.size(), 0);
+        Parameters param = new ParametersI();
+        Map<String, List<Long>> map = new HashMap<String, List<Long>>();
+        map.put(Project.class.getName(), Arrays.asList(p1.getId().getValue()));
+        map.put(Dataset.class.getName(), Arrays.asList(d2.getId().getValue()));
+        map.put(Image.class.getName(), Arrays.asList(i3.getId().getValue()));
+        Map<Long, Map<Boolean, List<Long>>> results = iContainer
+                .getImagesBySplitFilesets(map, param);
+        assertEquals(results.size(), 0);
     }
-    
+
     /**
-     * Test the <code>getImagesBySplitFilesets</code> with dataset and
-     * project as root. One image missing.
-     * @throws Exception Thrown if an error occurred.
+     * Test the <code>getImagesBySplitFilesets</code> with dataset and project
+     * as root. One image missing.
+     *
+     * @throws Exception
+     *             Thrown if an error occurred.
      */
     @Test
     public void testGetImagesBySplitFilesetsMixedRootMissingImage()
-    	throws Exception 
-    {
-    	//first create a project
-    	Image i1 = (Image) iUpdate.saveAndReturnObject(
-    			mmFactory.simpleImage(0));
-    	Image i2 = (Image) iUpdate.saveAndReturnObject(
-    			mmFactory.simpleImage(0));
-    	Image i3 = (Image) iUpdate.saveAndReturnObject(
-    			mmFactory.simpleImage(0));
+            throws Exception {
+        // first create a project
+        Image i1 = (Image) iUpdate
+                .saveAndReturnObject(mmFactory.simpleImage(0));
+        Image i2 = (Image) iUpdate
+                .saveAndReturnObject(mmFactory.simpleImage(0));
+        Image i3 = (Image) iUpdate
+                .saveAndReturnObject(mmFactory.simpleImage(0));
 
-    	Fileset fileset = newFileset();
-    	fileset.addImage(i1);
-    	fileset.addImage(i2);
-    	fileset.addImage(i3);
-    	fileset = (Fileset) iUpdate.saveAndReturnObject(fileset);
-    	assertEquals(fileset.copyImages().size(), 3);
+        Fileset fileset = newFileset();
+        fileset.addImage(i1);
+        fileset.addImage(i2);
+        fileset.addImage(i3);
+        fileset = (Fileset) iUpdate.saveAndReturnObject(fileset);
+        assertEquals(fileset.copyImages().size(), 3);
 
+        Dataset d1 = (Dataset) iUpdate.saveAndReturnObject(mmFactory
+                .simpleDatasetData().asIObject());
 
-    	Dataset d1 = (Dataset) iUpdate.saveAndReturnObject(
-    			mmFactory.simpleDatasetData().asIObject());
+        Dataset d2 = (Dataset) iUpdate.saveAndReturnObject(mmFactory
+                .simpleDatasetData().asIObject());
 
-    	Dataset d2 = (Dataset) iUpdate.saveAndReturnObject(
-    			mmFactory.simpleDatasetData().asIObject());
+        // link the 2
+        DatasetImageLink link = new DatasetImageLinkI();
+        link.setParent(d1);
+        link.setChild((Image) i1.proxy());
+        iUpdate.saveAndReturnObject(link);
 
-    	//link the 2
-    	DatasetImageLink link = new DatasetImageLinkI();
-    	link.setParent(d1);
-    	link.setChild((Image) i1.proxy());
-    	iUpdate.saveAndReturnObject(link);
+        link = new DatasetImageLinkI();
+        link.setParent(d2);
+        link.setChild((Image) i2.proxy());
+        iUpdate.saveAndReturnObject(link);
 
-    	link = new DatasetImageLinkI();
-    	link.setParent(d2);
-    	link.setChild((Image) i2.proxy());
-    	iUpdate.saveAndReturnObject(link);
+        Project p1 = (Project) iUpdate.saveAndReturnObject(mmFactory
+                .simpleProjectData().asIObject());
 
+        ProjectDatasetLink lp = new ProjectDatasetLinkI();
+        lp.setParent(p1);
+        lp.setChild((Dataset) d1.proxy());
 
-    	Project p1 = (Project) iUpdate.saveAndReturnObject(
-    			mmFactory.simpleProjectData().asIObject());
+        iUpdate.saveAndReturnObject(lp);
 
-    	ProjectDatasetLink lp = new ProjectDatasetLinkI();
-    	lp.setParent(p1);
-    	lp.setChild((Dataset) d1.proxy());
-
-    	iUpdate.saveAndReturnObject(lp);
-
-    	Parameters param = new ParametersI();
-    	Map<String, List<Long>> map = new HashMap<String, List<Long>>();
-    	map.put(Project.class.getName(), Arrays.asList(p1.getId().getValue()));
-    	map.put(Dataset.class.getName(), Arrays.asList(d2.getId().getValue()));
-    	Map<Long, Map<Boolean, List<Long>>>
-    	results = iContainer.getImagesBySplitFilesets(map, param);
-    	assertEquals(results.size(), 1);
-    	Entry<Long, Map<Boolean, List<Long>>> e;
-    	Entry<Boolean, List<Long>> entry;
-    	Iterator< Entry<Boolean, List<Long>>> j;
-    	Iterator<Entry<Long, Map<Boolean, List<Long>>>>
-    	i = results.entrySet().iterator();
-    	while (i.hasNext()) {
-    		e = i.next();
-    		assertEquals(e.getKey().longValue(), fileset.getId().getValue());
-    		j = e.getValue().entrySet().iterator();
-    		List<Long> l;
-    		while (i.hasNext()) {
-    			entry = j.next();
-    			assertEquals(entry.getValue().size(), 1);
-    			l = entry.getValue();
-    			if (entry.getKey().booleanValue()) {
-    				assertEquals(l.size(), 2);
-    				assertTrue(l.contains(i1.getId().getValue()));
-    				assertTrue(l.contains(i2.getId().getValue()));
-    			} else {
-    				assertEquals(l.size(), 1);
-    				assertTrue(l.contains(i3.getId().getValue()));
-    			}
-    		}
-    	}
+        Parameters param = new ParametersI();
+        Map<String, List<Long>> map = new HashMap<String, List<Long>>();
+        map.put(Project.class.getName(), Arrays.asList(p1.getId().getValue()));
+        map.put(Dataset.class.getName(), Arrays.asList(d2.getId().getValue()));
+        Map<Long, Map<Boolean, List<Long>>> results = iContainer
+                .getImagesBySplitFilesets(map, param);
+        assertEquals(results.size(), 1);
+        Entry<Long, Map<Boolean, List<Long>>> e;
+        Entry<Boolean, List<Long>> entry;
+        Iterator<Entry<Boolean, List<Long>>> j;
+        Iterator<Entry<Long, Map<Boolean, List<Long>>>> i = results.entrySet()
+                .iterator();
+        while (i.hasNext()) {
+            e = i.next();
+            assertEquals(e.getKey().longValue(), fileset.getId().getValue());
+            j = e.getValue().entrySet().iterator();
+            List<Long> l;
+            while (i.hasNext()) {
+                entry = j.next();
+                assertEquals(entry.getValue().size(), 1);
+                l = entry.getValue();
+                if (entry.getKey().booleanValue()) {
+                    assertEquals(l.size(), 2);
+                    assertTrue(l.contains(i1.getId().getValue()));
+                    assertTrue(l.contains(i2.getId().getValue()));
+                } else {
+                    assertEquals(l.size(), 1);
+                    assertTrue(l.contains(i3.getId().getValue()));
+                }
+            }
+        }
     }
-    
+
     /**
-     * Test the <code>getImagesBySplitFilesets</code> Dataset as root.
-     * One image is not part of a file set.
-     * @throws Exception Thrown if an error occurred.
+     * Test the <code>getImagesBySplitFilesets</code> Dataset as root. One image
+     * is not part of a file set.
+     *
+     * @throws Exception
+     *             Thrown if an error occurred.
      */
     @Test
     public void testGetImagesBySplitFilesetsDatasetAsRootWithNonFSdata()
-    	throws Exception 
-    {
-    	//first create a project
-    	Image i1 = (Image) iUpdate.saveAndReturnObject(
-    			mmFactory.simpleImage(0));
-    	Image i2 = (Image) iUpdate.saveAndReturnObject(
-    			mmFactory.simpleImage(0));
-    	Image i3 = (Image) iUpdate.saveAndReturnObject(
-    			mmFactory.simpleImage(0));
+            throws Exception {
+        // first create a project
+        Image i1 = (Image) iUpdate
+                .saveAndReturnObject(mmFactory.simpleImage(0));
+        Image i2 = (Image) iUpdate
+                .saveAndReturnObject(mmFactory.simpleImage(0));
+        Image i3 = (Image) iUpdate
+                .saveAndReturnObject(mmFactory.simpleImage(0));
 
-    	Fileset fileset = newFileset();
-    	fileset.addImage(i1);
-    	fileset.addImage(i2);
-    	fileset = (Fileset) iUpdate.saveAndReturnObject(fileset);
-    	assertEquals(fileset.copyImages().size(), 2);
+        Fileset fileset = newFileset();
+        fileset.addImage(i1);
+        fileset.addImage(i2);
+        fileset = (Fileset) iUpdate.saveAndReturnObject(fileset);
+        assertEquals(fileset.copyImages().size(), 2);
 
-    	Dataset d1 = (Dataset) iUpdate.saveAndReturnObject(
-    			mmFactory.simpleDatasetData().asIObject());
-    	//link the 2
-    	DatasetImageLink link = new DatasetImageLinkI();
-    	link.setParent(d1);
-    	link.setChild((Image) i1.proxy());
-    	iUpdate.saveAndReturnObject(link);
+        Dataset d1 = (Dataset) iUpdate.saveAndReturnObject(mmFactory
+                .simpleDatasetData().asIObject());
+        // link the 2
+        DatasetImageLink link = new DatasetImageLinkI();
+        link.setParent(d1);
+        link.setChild((Image) i1.proxy());
+        iUpdate.saveAndReturnObject(link);
 
-    	link = new DatasetImageLinkI();
-    	link.setParent((Dataset) d1.proxy());
-    	link.setChild((Image) i2.proxy());
-    	iUpdate.saveAndReturnObject(link);
+        link = new DatasetImageLinkI();
+        link.setParent((Dataset) d1.proxy());
+        link.setChild((Image) i2.proxy());
+        iUpdate.saveAndReturnObject(link);
 
-    	link = new DatasetImageLinkI();
-    	link.setParent((Dataset) d1.proxy());
-    	link.setChild((Image) i3.proxy());
-    	iUpdate.saveAndReturnObject(link);
+        link = new DatasetImageLinkI();
+        link.setParent((Dataset) d1.proxy());
+        link.setChild((Image) i3.proxy());
+        iUpdate.saveAndReturnObject(link);
 
-    	Parameters param = new ParametersI();
-    	List<Long> ids = new ArrayList<Long>();
-    	ids.add(d1.getId().getValue());
-    	Map<String, List<Long>> map = new HashMap<String, List<Long>>(1);
-    	map.put(Dataset.class.getName(), ids);
-    	Map<Long, Map<Boolean, List<Long>>>
-    	results = iContainer.getImagesBySplitFilesets(map, param);
-    	assertEquals(results.size(), 0);
+        Parameters param = new ParametersI();
+        List<Long> ids = new ArrayList<Long>();
+        ids.add(d1.getId().getValue());
+        Map<String, List<Long>> map = new HashMap<String, List<Long>>(1);
+        map.put(Dataset.class.getName(), ids);
+        Map<Long, Map<Boolean, List<Long>>> results = iContainer
+                .getImagesBySplitFilesets(map, param);
+        assertEquals(results.size(), 0);
     }
-    
+
     /**
-     * Test the <code>getImagesBySplitFilesets</code> Dataset as root.
-     * One image is not part of a file set.
-     * @throws Exception Thrown if an error occurred.
+     * Test the <code>getImagesBySplitFilesets</code> Dataset as root. One image
+     * is not part of a file set.
+     *
+     * @throws Exception
+     *             Thrown if an error occurred.
      */
     @Test
     public void testGetImagesBySplitFilesetsImageAsRootWithNonFSdata()
-    	throws Exception 
-    {
-    	//first create a project
-    	Image i1 = (Image) iUpdate.saveAndReturnObject(
-    			mmFactory.simpleImage(0));
-    	Image i2 = (Image) iUpdate.saveAndReturnObject(
-    			mmFactory.simpleImage(0));
-    	Image i3 = (Image) iUpdate.saveAndReturnObject(
-    			mmFactory.simpleImage(0));
+            throws Exception {
+        // first create a project
+        Image i1 = (Image) iUpdate
+                .saveAndReturnObject(mmFactory.simpleImage(0));
+        Image i2 = (Image) iUpdate
+                .saveAndReturnObject(mmFactory.simpleImage(0));
+        Image i3 = (Image) iUpdate
+                .saveAndReturnObject(mmFactory.simpleImage(0));
 
-    	Fileset fileset = newFileset();
-    	fileset.addImage(i1);
-    	fileset.addImage(i2);
-    	fileset = (Fileset) iUpdate.saveAndReturnObject(fileset);
-    	assertEquals(fileset.copyImages().size(), 2);
-    	Parameters param = new ParametersI();
-    	Map<String, List<Long>> map = new HashMap<String, List<Long>>(1);
-    	map.put(Image.class.getName(), Arrays.asList(i3.getId().getValue()));
-    	Map<Long, Map<Boolean, List<Long>>>
-    	results = iContainer.getImagesBySplitFilesets(map, param);
-    	assertEquals(results.size(), 0);
+        Fileset fileset = newFileset();
+        fileset.addImage(i1);
+        fileset.addImage(i2);
+        fileset = (Fileset) iUpdate.saveAndReturnObject(fileset);
+        assertEquals(fileset.copyImages().size(), 2);
+        Parameters param = new ParametersI();
+        Map<String, List<Long>> map = new HashMap<String, List<Long>>(1);
+        map.put(Image.class.getName(), Arrays.asList(i3.getId().getValue()));
+        Map<Long, Map<Boolean, List<Long>>> results = iContainer
+                .getImagesBySplitFilesets(map, param);
+        assertEquals(results.size(), 0);
     }
-    
+
     /**
-     * Test the <code>getImagesBySplitFilesets</code> Image as root.
-     * One image is not part of a file set.
-     * @throws Exception Thrown if an error occurred.
+     * Test the <code>getImagesBySplitFilesets</code> Image as root. One image
+     * is not part of a file set.
+     *
+     * @throws Exception
+     *             Thrown if an error occurred.
      */
     @Test
     public void testGetImagesBySplitFilesetsImageAsRootMixFSNonFSdata()
-    	throws Exception 
-    {
-    	//first create a project
-    	Image i1 = (Image) iUpdate.saveAndReturnObject(
-    			mmFactory.simpleImage(0));
-    	Image i2 = (Image) iUpdate.saveAndReturnObject(
-    			mmFactory.simpleImage(0));
-    	Image i3 = (Image) iUpdate.saveAndReturnObject(
-    			mmFactory.simpleImage(0));
+            throws Exception {
+        // first create a project
+        Image i1 = (Image) iUpdate
+                .saveAndReturnObject(mmFactory.simpleImage(0));
+        Image i2 = (Image) iUpdate
+                .saveAndReturnObject(mmFactory.simpleImage(0));
+        Image i3 = (Image) iUpdate
+                .saveAndReturnObject(mmFactory.simpleImage(0));
 
-    	Fileset fileset = newFileset();
-    	fileset.addImage(i1);
-    	fileset.addImage(i2);
-    	fileset = (Fileset) iUpdate.saveAndReturnObject(fileset);
-    	assertEquals(fileset.copyImages().size(), 2);
-    	Parameters param = new ParametersI();
-    	Map<String, List<Long>> map = new HashMap<String, List<Long>>(1);
-    	List<Long> ids = new ArrayList<Long>();
-    	ids.add(i1.getId().getValue());
-    	ids.add(i3.getId().getValue());
-    	map.put(Image.class.getName(), ids);
-    	Map<Long, Map<Boolean, List<Long>>>
-    	results = iContainer.getImagesBySplitFilesets(map, param);
-    	assertEquals(results.size(), 1);
-    	Entry<Long, Map<Boolean, List<Long>>> e;
-    	Entry<Boolean, List<Long>> entry;
-    	Iterator< Entry<Boolean, List<Long>>> j;
-    	Iterator<Entry<Long, Map<Boolean, List<Long>>>> 
-    	i = results.entrySet().iterator();
-    	while (i.hasNext()) {
-    		e = i.next();
-    		assertEquals(e.getKey().longValue(), fileset.getId().getValue());
-    		j = e.getValue().entrySet().iterator();
-    		List<Long> l;
-    		while (i.hasNext()) {
-    			entry = j.next();
-    			assertEquals(entry.getValue().size(), 1);
-    			l = entry.getValue();
-    			assertEquals(l.size(), 1);
-    			if (entry.getKey().booleanValue()) {
-    				assertTrue(l.contains(i1.getId().getValue()));
-    			} else {
-    				assertTrue(l.contains(i2.getId().getValue()));
-    			}
-    		}
-    	}
+        Fileset fileset = newFileset();
+        fileset.addImage(i1);
+        fileset.addImage(i2);
+        fileset = (Fileset) iUpdate.saveAndReturnObject(fileset);
+        assertEquals(fileset.copyImages().size(), 2);
+        Parameters param = new ParametersI();
+        Map<String, List<Long>> map = new HashMap<String, List<Long>>(1);
+        List<Long> ids = new ArrayList<Long>();
+        ids.add(i1.getId().getValue());
+        ids.add(i3.getId().getValue());
+        map.put(Image.class.getName(), ids);
+        Map<Long, Map<Boolean, List<Long>>> results = iContainer
+                .getImagesBySplitFilesets(map, param);
+        assertEquals(results.size(), 1);
+        Entry<Long, Map<Boolean, List<Long>>> e;
+        Entry<Boolean, List<Long>> entry;
+        Iterator<Entry<Boolean, List<Long>>> j;
+        Iterator<Entry<Long, Map<Boolean, List<Long>>>> i = results.entrySet()
+                .iterator();
+        while (i.hasNext()) {
+            e = i.next();
+            assertEquals(e.getKey().longValue(), fileset.getId().getValue());
+            j = e.getValue().entrySet().iterator();
+            List<Long> l;
+            while (i.hasNext()) {
+                entry = j.next();
+                assertEquals(entry.getValue().size(), 1);
+                l = entry.getValue();
+                assertEquals(l.size(), 1);
+                if (entry.getKey().booleanValue()) {
+                    assertTrue(l.contains(i1.getId().getValue()));
+                } else {
+                    assertTrue(l.contains(i2.getId().getValue()));
+                }
+            }
+        }
     }
 }

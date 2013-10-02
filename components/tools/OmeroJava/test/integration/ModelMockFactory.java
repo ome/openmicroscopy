@@ -287,16 +287,14 @@ public class ModelMockFactory {
      * @throws Exception
      *             Thrown if an error occurred.
      */
-    public OriginalFile createOriginalFile()
-    	throws Exception
-    {
-    	OriginalFileI oFile = new OriginalFileI();
-		oFile.setName(omero.rtypes.rstring("of1"));
-		oFile.setPath(omero.rtypes.rstring("/omero"));
-		oFile.setSize(omero.rtypes.rlong(0));
-		oFile.setHash(omero.rtypes.rstring("pending"));
-		oFile.setMimetype(omero.rtypes.rstring("application/octet-stream"));
-		return oFile;
+    public OriginalFile createOriginalFile() throws Exception {
+        OriginalFileI oFile = new OriginalFileI();
+        oFile.setName(omero.rtypes.rstring("of1"));
+        oFile.setPath(omero.rtypes.rstring("/omero"));
+        oFile.setSize(omero.rtypes.rlong(0));
+        oFile.setHash(omero.rtypes.rstring("pending"));
+        oFile.setMimetype(omero.rtypes.rstring("application/octet-stream"));
+        return oFile;
     }
 
     /**
@@ -434,29 +432,27 @@ public class ModelMockFactory {
      * @throws Exception
      *             Thrown if an error occurred.
      */
-    public Objective createObjective()
-    	throws Exception
-    {
-    	Objective objective = new ObjectiveI();
-    	objective.setManufacturer(omero.rtypes.rstring("manufacturer"));
-    	objective.setModel(omero.rtypes.rstring("model"));
-    	objective.setSerialNumber(omero.rtypes.rstring("serial number"));
-    	objective.setLotNumber(omero.rtypes.rstring("lot number"));
-    	objective.setCalibratedMagnification(omero.rtypes.rdouble(1));
-    	//correction
-    	//already tested see PixelsService enumeration.
-    	List<IObject> types = pixelsService.getAllEnumerations(
-    			Correction.class.getName());
-    	objective.setCorrection((Correction) types.get(0));
-    	//immersion
-    	types = pixelsService.getAllEnumerations(Immersion.class.getName());
-    	objective.setImmersion((Immersion) types.get(0));
-    	
-    	objective.setIris(omero.rtypes.rbool(true));
-    	objective.setLensNA(omero.rtypes.rdouble(0.5));
-    	objective.setNominalMagnification(omero.rtypes.rdouble(1));
-    	objective.setWorkingDistance(omero.rtypes.rdouble(1));
-    	return objective;
+    public Objective createObjective() throws Exception {
+        Objective objective = new ObjectiveI();
+        objective.setManufacturer(omero.rtypes.rstring("manufacturer"));
+        objective.setModel(omero.rtypes.rstring("model"));
+        objective.setSerialNumber(omero.rtypes.rstring("serial number"));
+        objective.setLotNumber(omero.rtypes.rstring("lot number"));
+        objective.setCalibratedMagnification(omero.rtypes.rdouble(1));
+        // correction
+        // already tested see PixelsService enumeration.
+        List<IObject> types = pixelsService.getAllEnumerations(Correction.class
+                .getName());
+        objective.setCorrection((Correction) types.get(0));
+        // immersion
+        types = pixelsService.getAllEnumerations(Immersion.class.getName());
+        objective.setImmersion((Immersion) types.get(0));
+
+        objective.setIris(omero.rtypes.rbool(true));
+        objective.setLensNA(omero.rtypes.rdouble(0.5));
+        objective.setNominalMagnification(omero.rtypes.rdouble(1));
+        objective.setWorkingDistance(omero.rtypes.rdouble(1));
+        return objective;
     }
 
     /**

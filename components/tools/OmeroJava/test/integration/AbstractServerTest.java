@@ -6,6 +6,12 @@
  */
 package integration;
 
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.AssertJUnit.assertNull;
+import static org.testng.AssertJUnit.assertTrue;
+import static org.testng.AssertJUnit.fail;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -102,8 +108,6 @@ import omero.sys.ParametersI;
 
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Test;
-import static org.testng.AssertJUnit.*;
 
 import spec.AbstractTest;
 
@@ -159,7 +163,7 @@ public class AbstractServerTest extends AbstractTest {
     /** Helper class creating mock object. */
     protected ModelMockFactory mmFactory;
 
-    /* the managed repository directory for the user from test class setup */
+    /** the managed repository directory for the user from test class setup **/
     private String userFsDir = null;
 
     /**
@@ -528,13 +532,16 @@ public class AbstractServerTest extends AbstractTest {
     }
 
     /**
-     * Create a fileset with a template prefix appropriate for the user created by {@link #setUp()}.
-     * Does not access the OMERO API or persist the new fileset.
+     * Create a fileset with a template prefix appropriate for the user created
+     * by {@link #setUp()}. Does not access the OMERO API or persist the new
+     * fileset.
+     *
      * @return a new fileset
      */
     protected Fileset newFileset() {
         final Fileset fileset = new FilesetI();
-        fileset.setTemplatePrefix(omero.rtypes.rstring(this.userFsDir + System.currentTimeMillis() + FsFile.separatorChar));
+        fileset.setTemplatePrefix(omero.rtypes.rstring(this.userFsDir
+                + System.currentTimeMillis() + FsFile.separatorChar));
         return fileset;
     }
 
@@ -930,64 +937,71 @@ public class AbstractServerTest extends AbstractTest {
         return importFile(importer, file, format, false, target);
     }
 
-	/**
-	 * Imports the specified OME-XML file and returns the pixels set
-	 * if successfully imported.
-	 * 
-	 * @param importer The metadataStore to use.
-	 * @param file The file to import.
-	 * @param format The format of the file to import.
-	 * @param metadata Pass <code>true</code> to only import the metadata,
-	 *                 <code>false</code> otherwise.
-	 * @return The collection of imported pixels set.
-	 * @throws Throwable Thrown if an error occurred while encoding the image.
-	 */
-	protected List<Pixels> importFile(OMEROMetadataStoreClient importer,
-			File file, String format, boolean metadata)
-		throws Throwable
-	{
-		return importFile(importer, file, format, metadata, null);
-	}
-	
-	/**
-	 * Imports the specified OME-XML file and returns the pixels set
-	 * if successfully imported.
-	 * 
-	 * @param importer The metadataStore to use.
-	 * @param file The file to import.
-	 * @param format The format of the file to import.
-	 * @param metadata Pass <code>true</code> to only import the metadata,
-	 *                 <code>false</code> otherwise.
-	 * @return The collection of imported pixels set.
-	 * @throws Throwable Thrown if an error occurred while encoding the image.
-	 */
-	protected List<Pixels> importFile(OMEROMetadataStoreClient importer,
-			File file, String format, boolean metadata, IObject target)
-		throws Throwable
-	{
-		String[] paths = new String[1];
-		paths[0] = file.getAbsolutePath();
-		ImportConfig config = new ImportConfig();
-		OMEROWrapper reader = new OMEROWrapper(config);
-		IObserver o = new IObserver() {
-	        public void update(IObservable importLibrary, ImportEvent event) {
-	            
-	        }
-	    };
-		ImportCandidates candidates = new ImportCandidates(reader, paths, o);
-		
-		ImportLibrary library = new ImportLibrary(importer, reader);
-		ImportContainer ic = candidates.getContainers().get(0);
-		//new ImportContainer(
-        //        file, null, target, false, null, null, null, null);
-		ic.setUserSpecifiedName(format);
-		ic.setTarget(target);
-		//ic = library.uploadFilesToRepository(ic);
-		List<Pixels> pixels = library.importImage(ic, 0, 0, 1);
-		assertNotNull(pixels);
-		assertTrue(pixels.size() > 0);
-		return pixels;
-	} 
+    /**
+     * Imports the specified OME-XML file and returns the pixels set if
+     * successfully imported.
+     *
+     * @param importer
+     *            The metadataStore to use.
+     * @param file
+     *            The file to import.
+     * @param format
+     *            The format of the file to import.
+     * @param metadata
+     *            Pass <code>true</code> to only import the metadata,
+     *            <code>false</code> otherwise.
+     * @return The collection of imported pixels set.
+     * @throws Throwable
+     *             Thrown if an error occurred while encoding the image.
+     */
+    protected List<Pixels> importFile(OMEROMetadataStoreClient importer,
+            File file, String format, boolean metadata) throws Throwable {
+        return importFile(importer, file, format, metadata, null);
+    }
+
+    /**
+     * Imports the specified OME-XML file and returns the pixels set if
+     * successfully imported.
+     *
+     * @param importer
+     *            The metadataStore to use.
+     * @param file
+     *            The file to import.
+     * @param format
+     *            The format of the file to import.
+     * @param metadata
+     *            Pass <code>true</code> to only import the metadata,
+     *            <code>false</code> otherwise.
+     * @return The collection of imported pixels set.
+     * @throws Throwable
+     *             Thrown if an error occurred while encoding the image.
+     */
+    protected List<Pixels> importFile(OMEROMetadataStoreClient importer,
+            File file, String format, boolean metadata, IObject target)
+            throws Throwable {
+        String[] paths = new String[1];
+        paths[0] = file.getAbsolutePath();
+        ImportConfig config = new ImportConfig();
+        OMEROWrapper reader = new OMEROWrapper(config);
+        IObserver o = new IObserver() {
+            public void update(IObservable importLibrary, ImportEvent event) {
+
+            }
+        };
+        ImportCandidates candidates = new ImportCandidates(reader, paths, o);
+
+        ImportLibrary library = new ImportLibrary(importer, reader);
+        ImportContainer ic = candidates.getContainers().get(0);
+        // new ImportContainer(
+        // file, null, target, false, null, null, null, null);
+        ic.setUserSpecifiedName(format);
+        ic.setTarget(target);
+        // ic = library.uploadFilesToRepository(ic);
+        List<Pixels> pixels = library.importImage(ic, 0, 0, 1);
+        assertNotNull(pixels);
+        assertTrue(pixels.size() > 0);
+        return pixels;
+    }
 
     /**
      * Basic asynchronous delete command. Used in order to reduce the number of
@@ -1096,7 +1110,7 @@ public class AbstractServerTest extends AbstractTest {
      */
     protected Image createBinaryImage(Image image) throws Exception {
         Pixels pixels = image.getPrimaryPixels();
-        //Image
+        // Image
         List<Long> ids = new ArrayList<Long>();
         ids.add(image.getId().getValue());
         // method already tested
@@ -1558,37 +1572,35 @@ public class AbstractServerTest extends AbstractTest {
         return doChange(c, f, change, pass, null);
     }
 
-	protected Response doAllChanges(omero.client c, ServiceFactoryPrx f,
-	        boolean pass, Request...changes) throws Exception {
-	    DoAll all = new DoAll();
-	    all.requests = new ArrayList<Request>();
-	    all.requests.addAll(Arrays.asList(changes));
-	    return doChange(c, f, all, pass);
-	}
+    protected Response doAllChanges(omero.client c, ServiceFactoryPrx f,
+            boolean pass, Request... changes) throws Exception {
+        DoAll all = new DoAll();
+        all.requests = new ArrayList<Request>();
+        all.requests.addAll(Arrays.asList(changes));
+        return doChange(c, f, all, pass);
+    }
 
-	/**
-	 * 
-	 * @param c
-	 * @param f
-	 * @param change
-	 * @param pass
-	 * @return
-	 * @throws Exception
-	 */
-	protected Response doChange(omero.client c, ServiceFactoryPrx f,
-			Request change, boolean pass, Long groupID)
-		throws Exception
-	{
-		final Map<String, String> callContext = new HashMap<String, String>();
-		if (groupID != null) {
-			callContext.put("omero.group", ""+groupID);
-		}
-		final HandlePrx prx = f.submit(change, callContext);
-		//assertFalse(prx.getStatus().flags.contains(State.FAILURE));
-		CmdCallbackI cb = new CmdCallbackI(c, prx);
-		cb.loop(20, 500);
-		return assertCmd(cb, pass);
-	}
+    /**
+     *
+     * @param c
+     * @param f
+     * @param change
+     * @param pass
+     * @return
+     * @throws Exception
+     */
+    protected Response doChange(omero.client c, ServiceFactoryPrx f,
+            Request change, boolean pass, Long groupID) throws Exception {
+        final Map<String, String> callContext = new HashMap<String, String>();
+        if (groupID != null) {
+            callContext.put("omero.group", "" + groupID);
+        }
+        final HandlePrx prx = f.submit(change, callContext);
+        // assertFalse(prx.getStatus().flags.contains(State.FAILURE));
+        CmdCallbackI cb = new CmdCallbackI(c, prx);
+        cb.loop(20, 500);
+        return assertCmd(cb, pass);
+    }
 
     protected CmdCallbackI callback(boolean passes, omero.client c,
             omero.cmd.Request... reqs) throws ApiUsageException, ServerError,
@@ -1608,45 +1620,47 @@ public class AbstractServerTest extends AbstractTest {
     protected Response assertCmd(CmdCallbackI cb, boolean pass) {
         assertNotNull(cb.getResponse());
 
-		Status status = cb.getStatus();
-		Response rsp = cb.getResponse();
-		assertNotNull(rsp);
-		if (pass) {
-		    if (rsp instanceof ERR) {
-		        ERR err = (ERR) rsp;
-		        String name = err.getClass().getSimpleName();
-		        fail(String.format("Found %s when pass==true: %s (%s) params=%s",
-		                name, err.category, err.name, err.parameters));
-		    }
-		    assertFalse(status.flags.contains(State.FAILURE));
-		} else {
-		    if (rsp instanceof OK) {
-		        OK ok = (OK) rsp;
-		        fail(String.format("Found OK when pass==false: %s", ok));
-		    }
-		    assertTrue(status.flags.contains(State.FAILURE));
-		}
-		return rsp;
-	}
+        Status status = cb.getStatus();
+        Response rsp = cb.getResponse();
+        assertNotNull(rsp);
+        if (pass) {
+            if (rsp instanceof ERR) {
+                ERR err = (ERR) rsp;
+                String name = err.getClass().getSimpleName();
+                fail(String.format(
+                        "Found %s when pass==true: %s (%s) params=%s", name,
+                        err.category, err.name, err.parameters));
+            }
+            assertFalse(status.flags.contains(State.FAILURE));
+        } else {
+            if (rsp instanceof OK) {
+                OK ok = (OK) rsp;
+                fail(String.format("Found OK when pass==false: %s", ok));
+            }
+            assertTrue(status.flags.contains(State.FAILURE));
+        }
+        return rsp;
+    }
 
     /**
-     * Creates a new group with the specified permissions and sets the role
-     * of the user.
-     * 
-     * @param permissions The permissions of the group.
-     * @param userRole The role of the user e.g. group owner.
-     * @throws Exception Thrown if an error occurred.
+     * Creates a new group with the specified permissions and sets the role of
+     * the user.
+     *
+     * @param permissions
+     *            The permissions of the group.
+     * @param userRole
+     *            The role of the user e.g. group owner.
+     * @throws Exception
+     *             Thrown if an error occurred.
      */
-    protected void login(String permissions, int userRole)
-    throws Exception
-    {
-    	newUserAndGroup(permissions);
-    	switch (userRole) {
-			case GROUP_OWNER:
-				makeGroupOwner();
-				break;
-			case ADMIN:
-				logRootIntoGroup();
-		}
+    protected void login(String permissions, int userRole) throws Exception {
+        newUserAndGroup(permissions);
+        switch (userRole) {
+            case GROUP_OWNER:
+                makeGroupOwner();
+                break;
+            case ADMIN:
+                logRootIntoGroup();
+        }
     }
 }

@@ -6,6 +6,11 @@
  */
 package integration;
 
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.AssertJUnit.assertTrue;
+import static org.testng.AssertJUnit.fail;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -47,7 +52,6 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
-import static org.testng.AssertJUnit.*;
 
 import pojos.FileAnnotationData;
 
@@ -149,16 +153,19 @@ public class DeleteServiceFilesTest extends AbstractServerTest {
             path = getPath(REF_PIXELS, pix.getId().getValue());
             // FIXME: legacy.create(path);
         }
-		if(pyramid) {
-		    path = getOtherPixelsPath(pix.getId().getValue(), PyramidFileType.PYRAMID);
+        if (pyramid) {
+            path = getOtherPixelsPath(pix.getId().getValue(),
+                    PyramidFileType.PYRAMID);
             // FIXME: legacy.create(path);
         }
-		if(lock) {
-		    path = getOtherPixelsPath(pix.getId().getValue(), PyramidFileType.PYRAMID_LOCK);
+        if (lock) {
+            path = getOtherPixelsPath(pix.getId().getValue(),
+                    PyramidFileType.PYRAMID_LOCK);
             // FIXME: legacy.create(path);
         }
-		if(tmp) {
-		    path = getOtherPixelsPath(pix.getId().getValue(), PyramidFileType.PYRAMID_TMP);
+        if (tmp) {
+            path = getOtherPixelsPath(pix.getId().getValue(),
+                    PyramidFileType.PYRAMID_TMP);
             // FIXME: legacy.create(path);
         }
         return img;
@@ -394,26 +401,24 @@ public class DeleteServiceFilesTest extends AbstractServerTest {
         assertTrue(path + " does not exist!", legacy.fileExists(path));
     }
 
-	/**
-	 * Forcibly delete a file.
-	 *
-	 * @param id
-	 * @param klass
-	 * @throws Exception
-	 * @see ticket:3140
-	 */
-	void removeFile(Long id, String klass)
-	throws Exception
-	{
-	    String path = getPath(klass, id);
-	    RepositoryPrx legacy = getLegacyRepository();
-	    // For admins only. Primarily a test feature.
-	    RawAccessRequest raw = new RawAccessRequest();
-	    raw.repoUuid = legacy.root().getHash().getValue();
-	    raw.command = "rm";
-	    raw.args = Arrays.asList(path);
-	    doChange(client, factory, raw, true);
-	}
+    /**
+     * Forcibly delete a file.
+     *
+     * @param id
+     * @param klass
+     * @throws Exception
+     * @see ticket:3140
+     */
+    void removeFile(Long id, String klass) throws Exception {
+        String path = getPath(klass, id);
+        RepositoryPrx legacy = getLegacyRepository();
+        // For admins only. Primarily a test feature.
+        RawAccessRequest raw = new RawAccessRequest();
+        raw.repoUuid = legacy.root().getHash().getValue();
+        raw.command = "rm";
+        raw.args = Arrays.asList(path);
+        doChange(client, factory, raw, true);
+    }
 
     /**
      * Makes sure that the OMERO file exists of the given type and id
