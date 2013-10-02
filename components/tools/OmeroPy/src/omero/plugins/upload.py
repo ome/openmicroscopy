@@ -11,19 +11,14 @@
 
 """
 
-import sys, re
+import sys
+import re
 
 from omero.cli import BaseControl, CLI
 
 import omero
 import omero.rtypes
 import omero.util.originalfileutils
-
-from omero.rtypes import rlong
-from omero.rtypes import rint
-from omero.rtypes import rstring
-from omero.rtypes import rdouble
-from omero.rtypes import rfloat
 
 
 try:
@@ -36,11 +31,13 @@ except:
 HELP = """Upload local files to the OMERO server"""
 RE = re.compile("\s*upload\s*")
 
+
 class UploadControl(BaseControl):
 
     def _complete(self, text, line, begidx, endidx):
         """
-        Returns a file after "upload" and otherwise delegates to the BaseControl
+        Returns a file after "upload" and otherwise delegates to the
+        BaseControl
         """
         m = RE.match(line)
         if m:
@@ -49,7 +46,10 @@ class UploadControl(BaseControl):
             return BaseControl._complete(self, text, line, begidx, endidx)
 
     def _configure(self, parser):
-        parser.add_argument("--pytable", action="store_true", help="If set, the following files are interpreted as pytable files" )
+        parser.add_argument(
+            "--pytable", action="store_true",
+            help="If set, the following files are interpreted as pytable"
+            " files")
         parser.add_argument("file", nargs="+")
         parser.set_defaults(func=self.upload)
         parser.add_login_arguments()
@@ -57,9 +57,11 @@ class UploadControl(BaseControl):
     def upload(self, args):
         client = self.ctx.conn(args)
         for file in args.file:
-            is_importer, omero_format = omero.util.originalfileutils.getFormat(file)
+            is_importer, omero_format = \
+                omero.util.originalfileutils.getFormat(file)
             if (is_importer == omero.util.originalfileutils.IMPORTER):
-                self.ctx.dir(493, "This file should be imported using omero import")
+                self.ctx.dir(493, "This file should be imported using omero"
+                             " import")
             else:
                 obj = client.upload(file, type=omero_format)
                 self.ctx.out("Uploaded %s as " % file + str(obj.id.val))
