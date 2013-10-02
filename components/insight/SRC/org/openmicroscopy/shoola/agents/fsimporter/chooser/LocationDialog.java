@@ -644,8 +644,13 @@ class LocationDialog extends JDialog implements ActionListener,
 		
 		JComboBoxImageObject selectedGroupItem = null;
 		JComboBoxImageObject item;
+		List<String> tooltips = new ArrayList<String>(availableGroups.size());
+        List<String> lines;
 		for (GroupData group : availableGroups) {
 			item = new JComboBoxImageObject(group, getGroupIcon(group));
+			lines = new ArrayList<String>();
+            lines.addAll(UIUtilities.wrapStyleWord(group.getName()));
+            tooltips.add(UIUtilities.formatToolTipText(lines));
 			groupsBox.addItem(item);
 			if (selectedGroup != null && selectedGroup.getId() == group.getId())
 				selectedGroupItem = item;
@@ -657,6 +662,7 @@ class LocationDialog extends JDialog implements ActionListener,
 			displayUsers(usersBox, selectedGroup, this, userID);
 		}
 		JComboBoxImageRenderer renderer = new JComboBoxImageRenderer();
+		renderer.setTooltips(tooltips);
 		renderer.setPreferredSize(SELECTION_BOX_SIZE);
 		groupsBox.setRenderer(renderer);
 		
