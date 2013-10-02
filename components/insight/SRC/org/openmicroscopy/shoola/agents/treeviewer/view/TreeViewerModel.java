@@ -364,6 +364,7 @@ class TreeViewerModel
 		initialize();
 		this.experimenter = exp;
 		selectedGroupId = exp.getDefaultGroup().getId();
+		System.err.println(selectedGroupId);
 	}
 
 	/**
@@ -1368,14 +1369,7 @@ class TreeViewerModel
 	 * 
 	 * @return See above
 	 */
-	SecurityContext getSecurityContext()
-	{
-		Browser browser = getSelectedBrowser();
-		if (browser == null) 
-			return new SecurityContext(
-					TreeViewerAgent.getUserDetails().getDefaultGroup().getId());
-		return browser.getSecurityContext(browser.getLastSelectedDisplay());
-	}
+	SecurityContext getSecurityContext() { return getSecurityContext(null); }
 	
 	/**
 	 * Returns the security context.
@@ -1384,10 +1378,10 @@ class TreeViewerModel
 	 */
 	SecurityContext getSecurityContext(TreeImageDisplay node)
 	{
-		Browser browser = getSelectedBrowser();
-		if (browser == null) 
-			return new SecurityContext(
-					TreeViewerAgent.getUserDetails().getDefaultGroup().getId());
+	    Browser browser = getSelectedBrowser();
+		if (browser == null) return new SecurityContext(selectedGroupId);
+		if (node == null) node = browser.getLastSelectedDisplay();
+		if (node == null) return new SecurityContext(selectedGroupId);
 		return browser.getSecurityContext(node);
 	}
 
