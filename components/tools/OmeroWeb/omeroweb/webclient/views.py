@@ -2318,7 +2318,6 @@ def list_scripts (request, conn=None, **kwargs):
         if fullpath in settings.SCRIPTS_TO_IGNORE:
             logger.info('Ignoring script %r' % fullpath)
             continue
-        displayName = name.replace("_", " ").replace(".py", "")
 
         # We want to build a hierarchical <ul> <li> structure
         # Each <ul> is a {}, each <li> is either a script 'name': <id> or directory 'name': {ul}
@@ -2341,8 +2340,6 @@ def list_scripts (request, conn=None, **kwargs):
     def ul_to_list(ul):
         dir_list = []
         for name, value in ul.items():
-            if name == 'omero':     # For display purposes...
-                name = 'OMERO'
             if isinstance(value, dict):
                 # value is a directory
                 dir_list.append({'name': name, 'ul': ul_to_list(value)})
