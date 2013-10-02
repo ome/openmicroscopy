@@ -15,9 +15,11 @@ from omero.cli import BaseControl, CLI
 import time
 import sys
 
-HELP = """Executes an HQL statement with the given parameters.
-If no query is given, then a shell is opened which
-will run any entered query with the current parameters."""
+HELP = """Executes an HQL statement with the given parameters
+
+If no query is given, then a shell is opened which will run any entered query
+with the current parameters.
+"""
 
 
 class HqlControl(BaseControl):

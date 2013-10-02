@@ -39,9 +39,8 @@ can see data but not annotate or modify it. In read-annotate groups,
 annotation is permitted by group members.
 
 More information is available at:
-
-    https://www.openmicroscopy.org/site/support/omero4/sysadmins/\
-    server-permissions.html
+https://www.openmicroscopy.org/site/support/omero4/sysadmins/\
+server-permissions.html
         """
 
         parser.add_login_arguments()

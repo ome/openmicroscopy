@@ -26,16 +26,14 @@ from omero.util import edit_path, get_user_dir
 from omero.util.decorators import wraps
 import omero.java
 
-HELP = """Commands for server configuration.
+HELP = """Commands for server configuration
 
-A config.xml file will be modified under your etc/grid
-directory. If you do not have one, "upgrade" will create
-a new 4.2 configuration file.
+A config.xml file will be modified under your etc/grid directory. If you do
+not have one, "upgrade" will create a new 4.2 configuration file.
 
-The configuration values are used by bin/omero admin {start,deploy}
-to set properties on launch. See etc/grid/(win)default.xml. The "Profile"
-block contains a reference to "__ACTIVE__" which is the current value
-in config.xml
+The configuration values are used by bin/omero admin {start,deploy} to set
+properties on launch. See etc/grid/(win)default.xml. The "Profile" block
+contains a reference to "__ACTIVE__" which is the current value in config.xml
 
 Environment variables:
     OMERO_CONFIG - Changes the active profile
@@ -90,12 +88,12 @@ def with_rw_config(func):
 class PrefsControl(BaseControl):
 
     def _configure(self, parser):
-        parser.add_argument("--source", help="""
-            Which configuration file should be used. By default, OMERO.grid
-            will use the file in etc/grid/config.xml. If you would like to
-            configure your system to use $HOME/omero/config.xml, you will
-            need to modify the application descriptor.
-        """)
+        parser.add_argument(
+            "--source", help="Which configuration file should be used. "
+            "By default, OMERO.grid will use the file in etc/grid/config.xml."
+            " If you would like to configure your system to use "
+            "$HOME/omero/config.xml, you will need to modify the application "
+            " descriptor")
 
         sub = parser.sub()
 

@@ -93,38 +93,39 @@ class AdminControl(BaseControl):
 
         Action(
             "start",
-            """
-Start icegridnode daemon and waits for required components to come up, i.e.
-status == 0
+            """Start icegridnode daemon and waits for required components to \
+come up, i.e. status == 0
 
 If the first argument can be found as a file, it will be deployed as the
 application descriptor rather than etc/grid/default.xml. All other arguments
 will be used as targets to enable optional sections of the descriptor""",
             wait=True)
 
-        Action("startasync",
-               """The same as start but returns immediately.""",)
+        Action("startasync", "The same as start but returns immediately",)
 
-        Action("restart", """stop && start""", wait=True)
+        Action("restart", "stop && start", wait=True)
 
-        Action("restartasync", """The same as restart but returns as soon as
-                starting has begun.""", wait=True)
+        Action(
+            "restartasync", """The same as restart but returns as soon as \
+starting has begun.""",
+            wait=True)
 
-        Action("status", """Status of server.
-             Returns with 0 status if a node ping is successful
-             and if some SessionManager returns an OMERO-specific exception on
-             a bad login. This can be used in shell scripts, e.g.:
+        Action("status", """Status of server
 
-                 omero admin status && echo "server started"
+Returns with 0 status if a node ping is successful and if some SessionManager
+returns an OMERO-specific exception on a bad login. This can be used in shell
+scripts, e.g.:
+
+    $ omero admin status && echo "server started"
             """)
 
         Action(
             "stop",
-            """
-Initiates node shutdown and waits for status to return a non-0 value""",
+            """Initiates node shutdown and waits for status to return a \
+non-0 value""",
             wait=True)
 
-        Action("stopasync", """The same as stop but returns immediately.""")
+        Action("stopasync", "The same as stop but returns immediately")
 
         Action(
             "deploy",
@@ -135,34 +136,31 @@ deployed by default. Same functionality as start, but requires that the node
 already be running. This may automatically restart some server components.""")
 
         Action(
-            "ice",
-            """Drop user into icegridadmin console or execute \
-arguments""")
+            "ice", "Drop user into icegridadmin console or execute arguments")
 
         fixpyramids = Action(
-            "fixpyramids", """Remove empty pyramid pixels files""").parser
+            "fixpyramids", "Remove empty pyramid pixels files").parser
         # See cleanse options below
 
         Action(
             "diagnostics",
-            """Run a set of checks on the current, preferably active \
-server""")
+            "Run a set of checks on the current, preferably active server")
 
         Action(
             "waitup",
-            """Used by start after calling startasync to wait on status==0""",
+            "Used by start after calling startasync to wait on status==0",
             wait=True)
 
         Action(
             "waitdown",
-            """Used by stop after calling stopasync to wait on status!=0""",
+            "Used by stop after calling stopasync to wait on status!=0",
             wait=True)
 
         reindex = Action(
             "reindex",
             """Re-index the Lucene index
 
-Command-line tool for re-index the database. This command must be run on the \
+Command-line tool for re-index the database. This command must be run on the
 machine where /OMERO/FullText is located.
 
 Examples:
@@ -200,20 +198,20 @@ LIMITATION: omero.db.pass values do not currently get passed to the Java
             "ports",
             """Allows modifying the ports from a standard OMERO install
 
-To have two OMERO's running on the same machine, several ports must be \
+To have two OMERO's running on the same machine, several ports must be
 modified from their default values.
-Internally, this command uses the omero.install.change_ports module. \
-Changing  the ports on a running server is usually not what you want and \
+Internally, this command uses the omero.install.change_ports module.
+Changing  the ports on a running server is usually not what you want and
 will be prevented. Use --skipcheck to change the ports anyway.
 
 Examples:
 
     %(prog)s --prefix=1                             # sets ports to: 14061, \
-    14063, 14064
+14063, 14064
     %(prog)s --prefix=1 --revert                    # sets ports back to: \
-    4061, 4063, 4064
+4061, 4063, 4064
     %(prog)s --registry=4444 --tcp=5555 --ssl=6666  # sets ports to: 4444 \
-    5555  6666
+5555  6666
 
 """).parser
         ports.add_argument(
@@ -236,28 +234,28 @@ Examples:
             help="Skips the check if the server is already running")
 
         sessionlist = Action(
-            "sessionlist", """List currently running sessions""").parser
+            "sessionlist", "List currently running sessions").parser
         sessionlist.add_login_arguments()
 
-        cleanse = Action("cleanse", """Remove binary data files from OMERO.
+        cleanse = Action("cleanse", """Remove binary data files from OMERO
 
-Deleting an object from OMERO currently does not remove the binary data. Use \
-this command either manually or in a cron job periodically to remove Pixels \
+Deleting an object from OMERO currently does not remove the binary data. Use
+this command either manually or in a cron job periodically to remove Pixels
 and other data.
 
-This is done by checking that for all the files in the given directory, a \
-matching entry exists on the server. THE /OMERO DIRECTORY MUST MATCH THE \
+This is done by checking that for all the files in the given directory, a
+matching entry exists on the server. THE /OMERO DIRECTORY MUST MATCH THE
 DATABASE YOU ARE RUNNING AGAINST.
 
-This command must be run on the machine where, for example, /OMERO/ is \
+This command must be run on the machine where, for example, /OMERO/ is
 located.
 
 Examples:
   bin/omero admin cleanse --dry-run /OMERO      # Lists files that will be \
-  deleted
+deleted
   bin/omero admin cleanse /OMERO                # Actually delete them.
   bin/omero admin cleanse /volumes/data/OMERO   # Delete from a standard \
-  location.
+location.
 
 """).parser
 
@@ -270,43 +268,43 @@ Examples:
                 help="omero.data.dir directory value (e.g. /OMERO")
             x.add_login_arguments()
 
-        Action("checkwindows", """Run simple check of the local installation \
-               (Windows-only)""")
-        Action("checkice", """Run simple check of the Ice installation""")
+        Action("checkwindows", "Run simple check of the local installation "
+               "(Windows-only)")
+        Action("checkice", "Run simple check of the Ice installation")
 
-        Action("events", """Print event log (Windows-only)""")
+        Action("events", "Print event log (Windows-only)")
 
         self.actions["ice"].add_argument(
             "argument", nargs="*",
-            help="""Arguments joined together to make an Ice command.
-            If not present, the user will enter a console""")
+            help="""Arguments joined together to make an Ice command. If not \
+present, the user will enter a console""")
 
         self.actions["status"].add_argument(
             "node", nargs="?", default="master")
         self.actions["status"].add_argument(
             "--nodeonly", action="store_true",
-            help="""If set, then only tests if the icegridnode is running""")
+            help="If set, then only tests if the icegridnode is running")
 
         for name in ("start", "startasync"):
             self.actions[name].add_argument(
                 "-u", "--user",
-                help="Service Log On As user name. If none given, the value \
-                of  omero.windows.user will be used. (Windows-only)")
+                help="Service Log On As user name. If none given, the value"
+                " of omero.windows.user will be used. (Windows-only)")
             self.actions[name].add_argument(
                 "-w", "--password",
-                help="Service Log On As user password. If none given, the \
-                value of omero.windows.pass will be used. (Windows-only)")
+                help="Service Log On As user password. If none given, the"
+                " value of omero.windows.pass will be used. (Windows-only)")
 
         for k in ("start", "startasync", "deploy", "restart", "restartasync"):
             self.actions[k].add_argument(
                 "file", nargs="?",
-                help="""Application descriptor. If not provided, a default \
-                will be used""")
+                help="Application descriptor. If not provided, a default"
+                " will be used")
             self.actions[k].add_argument(
                 "targets", nargs="*",
-                help="""Targets within the application descriptor which \
-                should be activated.
-                        Common values are: "debug", "trace" """)
+                help="Targets within the application descriptor which "
+                " should  be activated. Common values are: \"debug\", "
+                "\"trace\" ")
 
         # DISABLED = """ see: http://www.zeroc.com/forums/bug-reports/\
         # 4237-sporadic-freeze-errors-concurrent-icegridnode-access.html
