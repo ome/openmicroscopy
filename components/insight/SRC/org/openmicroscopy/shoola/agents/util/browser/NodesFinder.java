@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.util.browser.NodesFinder 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.agents.util.browser;
 //Java imports
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -70,23 +71,23 @@ public class NodesFinder
 
 	/** The identifier of the data object to find. */
 	private List<Long> ids;
-	
+
 	/** The type of object to handle. */
-	private Class type;
-	
+	private Class<?> type;
+
     /** Set of <code>TreeImageDisplay</code>s */
     private Set<TreeImageDisplay> nodes;
-    
+
     /** The collection of nodes to find. */
     private Collection<DataObject> refObjects;
-    
+
     /** Flag indicating to find the node by name. */
     private boolean byName;
-    
+
     /**
      * Returns the name of the node.
      * 
-     * @param obj The objetc to handle.
+     * @param obj The object to handle.
      * @return See above.
      */
     private String getNodeName(Object obj)
@@ -119,7 +120,7 @@ public class NodesFinder
         else if (obj instanceof String) return (String) obj;
         return "";
     }
-    
+
 	/**
 	 * Checks if the node is of the desired type.
 	 * 
@@ -132,7 +133,7 @@ public class NodesFinder
 			if (userObject != null) {
 				Iterator<DataObject> i = refObjects.iterator();
 				DataObject object;
-				Class k = userObject.getClass();
+				Class<?> k = userObject.getClass();
 				DataObject uo;
 				String n = getNodeName(userObject);
 				while (i.hasNext()) {
@@ -163,7 +164,7 @@ public class NodesFinder
 						if (ids.contains(data.getId())) nodes.add(node);
 					}
 				}
-			} 	
+			}
 		}
 	}
 	
@@ -172,7 +173,7 @@ public class NodesFinder
 	 * 
 	 * @param type The type to data object.
 	 */
-	public NodesFinder(Class type)
+	public NodesFinder(Class<?> type)
 	{
 		this.type = type;
 		this.ids = null;
@@ -183,9 +184,9 @@ public class NodesFinder
 	 * Creates a new instance.
 	 * 
 	 * @param type The type to data object.
-	 * @param ids   The identifiers of the data object.
+	 * @param ids The identifiers of the data object.
 	 */
-	public NodesFinder(Class type, List<Long> id)
+	public NodesFinder(Class<?> type, List<Long> id)
 	{
 		this.type = type;
 		this.ids = id;
@@ -198,14 +199,14 @@ public class NodesFinder
 	 * @param type The type to data object.
 	 * @param id   The identifier of the data object.
 	 */
-	public NodesFinder(Class type, long id)
+	public NodesFinder(Class<?> type, long id)
 	{
 		this.type = type;
 		ids = new ArrayList<Long>(1);
 		ids.add(id);
 		nodes = new HashSet<TreeImageDisplay>();
 	}
-	
+
 	/**
 	 * Creates a new instance.
 	 * 
@@ -217,7 +218,7 @@ public class NodesFinder
 		this.refObjects = refObjects;
 		nodes = new HashSet<TreeImageDisplay>();
 	}
-	
+
 	/**
 	 * Creates a new instance.
 	 * 
@@ -233,14 +234,14 @@ public class NodesFinder
 		refObjects.add(refObject);
 		nodes = new HashSet<TreeImageDisplay>();
 	}
-	
+
 	/**
 	 * Returns the collection of nodes found.
 	 * 
 	 * @return See above.
 	 */
 	public Set<TreeImageDisplay> getNodes() { return nodes; }
-	
+
 	/**
 	 * Finds the nodes.
 	 * @see TreeImageDisplayVisitor#visit(TreeImageNode)
