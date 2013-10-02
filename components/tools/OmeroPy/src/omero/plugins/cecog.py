@@ -12,13 +12,12 @@ import os
 import re
 import sys
 
-from omero.cli import BaseControl, CLI, OMERODIR
-from omero_ext.argparse import FileType
+from omero.cli import BaseControl, CLI
 
 import omero
 import omero.constants
 
-from omero.rtypes import *
+from omero.rtypes import rstring
 
 
 class CecogControl(BaseControl):
@@ -45,8 +44,11 @@ script.
         merge.add_argument("path", help="Path to image files")
 
         rois = parser.add(sub, self.rois, self.rois.__doc__)
-        rois.add_argument("-f", "--file", required=True, help="Details file to be parsed")
-        rois.add_argument("-i", "--image", required=True, help="Image id which should have ids attached")
+        rois.add_argument(
+            "-f", "--file", required=True, help="Details file to be parsed")
+        rois.add_argument(
+            "-i", "--image", required=True,
+            help="Image id which should have ids attached")
 
         for x in (merge, rois):
             x.add_login_arguments()
@@ -57,28 +59,36 @@ script.
     def merge(self, args):
         """Uses PIL to read multiple planes from a local folder.
 
-Planes are combined and uploaded to OMERO as new images with additional T, C, Z dimensions.
+Planes are combined and uploaded to OMERO as new images with additional \
+T, C, Z dimensions.
 
-It should be run as a local script (not via scripting service) in order that it has
-access to the local users file system. Therefore need EMAN2 or PIL installed locally.
+It should be run as a local script (not via scripting service) in order that \
+it has access to the local users file system. Therefore need EMAN2 or PIL \
+installed locally.
 
 Example usage:
 will$ bin/omero cecog merge /Applications/CecogPackage/Data/Demo_data/0037/
 
-Since this dir does not contain folders, this will upload images in '0037' into a Dataset called Demo_data
-in a Project called 'Data'.
+Since this dir does not contain folders, this will upload images in '0037' \
+into a Dataset called Demo_data in a Project called 'Data'.
 
 will$ bin/omero cecog merge /Applications/CecogPackage/Data/Demo_data/
 
-Since this dir does contain folders, this will look for images in all subdirectories of 'Demo_data' and
-upload images into a Dataset called Demo_data in a Project called 'Data'.
+Since this dir does contain folders, this will look for images in all \
+subdirectories of 'Demo_data' and upload images into a Dataset called \
+Demo_data in a Project called 'Data'.
 
-Images will be combined in Z, C and T according to the MetaMorph_PlateScanPackage naming convention.
-E.g. tubulin_P0037_T00005_Cgfp_Z1_S1.tiff is Point 37, Timepoint 5, Channel gfp, Z 1. S?
-see /Applications/CecogPackage/CecogAnalyzer.app/Contents/Resources/resources/naming_schemes.conf
+Images will be combined in Z, C and T according to the \
+MetaMorph_PlateScanPackage naming convention.
+E.g. tubulin_P0037_T00005_Cgfp_Z1_S1.tiff is Point 37, Timepoint 5, Channel \
+gfp, Z 1. S?
+see \
+/Applications/CecogPackage/CecogAnalyzer.app/Contents/Resources/resources/\
+naming_schemes.conf
 """
         """
-        Processes the command args, makes project and dataset then calls uploadDirAsImages() to process and
+        Processes the command args, makes project and dataset then calls
+        uploadDirAsImages() to process and
         upload the images to OMERO.
         """
         from omero.rtypes import unwrap
@@ -90,7 +100,8 @@ see /Applications/CecogPackage/CecogAnalyzer.app/Contents/Resources/resources/na
         updateService = client.sf.getUpdateService()
         pixelsService = client.sf.getPixelsService()
 
-        # if we don't have any folders in the 'dir' E.g. CecogPackage/Data/Demo_data/0037/
+        # if we don't have any folders in the 'dir' E.g.
+        # CecogPackage/Data/Demo_data/0037/
         # then 'Demo_data' becomes a dataset
         subDirs = []
         for f in os.listdir(path):
@@ -111,7 +122,8 @@ see /Applications/CecogPackage/CecogAnalyzer.app/Contents/Resources/resources/na
         p = p[:-1]
         p = os.path.dirname(p)
         projectName = os.path.basename(p)   # e.g. Data
-        self.ctx.err("Putting images in Project: %s  Dataset: %s" % (projectName, datasetName))
+        self.ctx.err("Putting images in Project: %s  Dataset: %s"
+                     % (projectName, datasetName))
 
         # create dataset
         dataset = omero.model.DatasetI()
@@ -130,35 +142,42 @@ see /Applications/CecogPackage/CecogAnalyzer.app/Contents/Resources/resources/na
         if len(subDirs) > 0:
             for subDir in subDirs:
                 self.ctx.err("Processing images in %s" % subDir)
-                rv = uploadDirAsImages(client.sf, queryService, updateService, pixelsService, subDir, dataset)
+                rv = uploadDirAsImages(client.sf, queryService, updateService,
+                                       pixelsService, subDir, dataset)
                 self.ctx.out("%s" % unwrap(rv))
 
         # if there are no sub-directories, just put all the images in the dir
         else:
             self.ctx.err("Processing images in %s" % path)
-            rv = uploadDirAsImages(client.sf, queryService, updateService, pixelsService, path, dataset)
+            rv = uploadDirAsImages(client.sf, queryService, updateService,
+                                   pixelsService, path, dataset)
             self.ctx.out("%s" % unwrap(rv))
 
     def rois(self, args):
-        """Parses an object_details text file, as generated by CeCog Analyzer and saves the data as ROIs on an Image in OMERO.
+        """Parses an object_details text file, as generated by CeCog Analyzer
+and saves the data as ROIs on an Image in OMERO.
 
 Text file is of the form:
 
 frame	objID	classLabel	className	centerX	centerY	mean	        sd
-1	    10  	6       	lateana	    1119	41	    76.8253796095	54.9305640673
+1	    10  	6       	lateana	    1119	41	    76.8253796095 \
+54.9305640673
 
 
 Example usage:
-bin/omero cecog rois -f Data/Demo_output/analyzed/0037/statistics/P0037__object_details.txt -i 502
+bin/omero cecog rois -f \
+Data/Demo_output/analyzed/0037/statistics/P0037__object_details.txt -i 502
 """
         """
-        Processes the command args, parses the object_details.txt file and creates ROIs on the image specified in OMERO
+        Processes the command args, parses the object_details.txt file and
+        creates ROIs on the image specified in OMERO
         """
         from omero.util.script_utils import uploadCecogObjectDetails
         filePath = args.file
         imageId = args.image
         if not os.path.exists(filePath):
-            self.ctx.die(654, "Could find the object_details file at %s" % filePath)
+            self.ctx.die(654, "Could find the object_details file at %s"
+                         % filePath)
 
         client = self.ctx.conn(args)
         updateService = client.sf.getUpdateService()
