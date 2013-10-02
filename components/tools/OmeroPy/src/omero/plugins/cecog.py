@@ -23,9 +23,8 @@ from omero.rtypes import rstring
 class CecogControl(BaseControl):
     """CeCog integration plugin.
 
-Provides actions for prepairing data and otherwise
-integrating with Cecog. See the Run_Cecog_4.1.py
-script.
+Provides actions for prepairing data and otherwise integrating with Cecog. See
+the Run_Cecog_4.1.py script.
     """
 
     # [MetaMorph_PlateScanPackage]
@@ -59,24 +58,24 @@ script.
     def merge(self, args):
         """Uses PIL to read multiple planes from a local folder.
 
-Planes are combined and uploaded to OMERO as new images with additional \
-T, C, Z dimensions.
+Planes are combined and uploaded to OMERO as new images with additional T, C,
+Z dimensions.
 
-It should be run as a local script (not via scripting service) in order that \
-it has access to the local users file system. Therefore need EMAN2 or PIL \
+It should be run as a local script (not via scripting service) in order that
+it has access to the local users file system. Therefore need EMAN2 or PIL
 installed locally.
 
 Example usage:
-will$ bin/omero cecog merge /Applications/CecogPackage/Data/Demo_data/0037/
+    $ bin/omero cecog merge /Applications/CecogPackage/Data/Demo_data/0037/
 
-Since this dir does not contain folders, this will upload images in '0037' \
-into a Dataset called Demo_data in a Project called 'Data'.
+    Since this dir does not contain folders, this will upload images in '0037'
+    into a Dataset called Demo_data in a Project called 'Data'.
 
-will$ bin/omero cecog merge /Applications/CecogPackage/Data/Demo_data/
+    $ bin/omero cecog merge /Applications/CecogPackage/Data/Demo_data/
 
-Since this dir does contain folders, this will look for images in all \
-subdirectories of 'Demo_data' and upload images into a Dataset called \
-Demo_data in a Project called 'Data'.
+    Since this dir does contain folders, this will look for images in all
+    subdirectories of 'Demo_data' and upload images into a Dataset called
+    Demo_data in a Project called 'Data'.
 
 Images will be combined in Z, C and T according to the \
 MetaMorph_PlateScanPackage naming convention.

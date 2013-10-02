@@ -14,8 +14,7 @@ from omero.cli import CLI, GraphControl
 
 HELP = """Delete OMERO data.
 
-Remove entire graphs of data based on the ID
-of the top-node.
+Remove entire graphs of data based on the ID of the top-node.
 
 Examples:
 

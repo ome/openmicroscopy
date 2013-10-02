@@ -149,8 +149,9 @@ Available commands:
 Other help topics:
 %(topics)s
 
-For additional information, see \
-http://trac.openmicroscopy.org.uk/ome/wiki/OmeroCli
+For additional information, see:
+http://www.openmicroscopy.org/site/support/omero4/users/\
+command-line-interface.html
 Report bugs to <ome-users@lists.openmicroscopy.org.uk>
 """ % key_list
 
