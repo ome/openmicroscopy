@@ -1121,17 +1121,24 @@ class LocationDialog extends JDialog implements ActionListener,
 		List<ExperimenterData> members = sort(group.getExperimenters());
 		boolean canImportAs;
 		Selectable<ExperimenterDisplay> item;
+		List<String> tooltips = new ArrayList<String>(members.size());
+		List<String> lines;
 		for (ExperimenterData user : members) {
 			canImportAs = canImportForUserInGroup(user, group);
 			item = new Selectable<ExperimenterDisplay>(
 					new ExperimenterDisplay(user), canImportAs);
 			if (user.getId() == userID)
 				selected = item;
-			
+			lines = new ArrayList<String>();
+            lines.addAll(UIUtilities.wrapStyleWord(
+                    EditorUtil.formatExperimenter(user)));
+            tooltips.add(UIUtilities.formatToolTipText(lines));
 			model.addElement(item);
 		}
+		ComboBoxToolTipRenderer renderer = createComboboxRenderer();
+		renderer.setTooltips(tooltips);
 		comboBox.setModel(model);
-		comboBox.setRenderer(createComboboxRenderer());
+		comboBox.setRenderer(renderer);
 		
 		if (selected != null)
 			comboBox.setSelectedItem(selected);
