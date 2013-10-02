@@ -438,7 +438,6 @@ class WebAdminTest(WebTest):
         self.assertEquals(params['permissions'], permissions)
         
         
-    @pytest.mark.xfail(reason="ticket 11465")
     def test_badUpdateGroup(self):
         conn = self.rootconn
         uuid = conn._sessionUuid
@@ -480,7 +479,12 @@ class WebAdminTest(WebTest):
         # remove user from the group
         params["members"] = [0]
         request = fakeRequest(method="post", params=params)
-        _updateGroup(request, conn, gid)
+        
+        try:
+            _updateGroup(request, conn, gid)
+            self.fail("Can't remove user from the group members if this it's hs default group")
+        except omero.ValidationException, ve:
+            pass
         
         # check if group updated
         group = conn.getObject("ExperimenterGroup", gid)
