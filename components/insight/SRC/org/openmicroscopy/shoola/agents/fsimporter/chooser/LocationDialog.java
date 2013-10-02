@@ -995,6 +995,32 @@ class LocationDialog extends JDialog implements ActionListener,
 	}
 	
 	/**
+	 * Returns <code>true</code> if the specified user is an administrator,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @param userID The identifier of the user.
+	 * @return See above.
+	 */
+	private boolean isAdmin(long userID)
+	{
+	    Iterator<GroupData> i = groups.iterator();
+	    GroupData g;
+	    Set<ExperimenterData> experimenters;
+	    while (i.hasNext()) {
+            g = i.next();
+            if (GroupData.SYSTEM.equals(g.getName())) {
+                experimenters = g.getExperimenters();
+                Iterator<ExperimenterData> j = experimenters.iterator();
+                while (j.hasNext()) {
+                    if (j.next().getId() == userID)
+                        return true;
+                }
+            }
+        }
+	    return false;
+	}
+	
+	/**
 	 * Populates the JComboBox with the items provided adding hover tooltips,
 	 * selecting the specified item and attaching the listener.
 	 * 
@@ -1024,6 +1050,7 @@ class LocationDialog extends JDialog implements ActionListener,
 		ExperimenterData loggedIn = ImporterAgent.getUserDetails();
 		boolean isAdmin = ImporterAgent.isAdministrator();
 		long loggedInID = loggedIn.getId();
+		boolean userIsAdmin = isAdmin(userID);
 		for (DataNode node : listItems) {
 			exp = getExperimenter(node.getOwner());
 			lines = new ArrayList<String>();
@@ -1036,7 +1063,7 @@ class LocationDialog extends JDialog implements ActionListener,
 			boolean selectable = true;
 			if (!node.isDefaultNode()) {
 				selectable = canLink(node.getDataObject(), userID, group,
-						loggedInID, isAdmin);
+						loggedInID, isAdmin, userIsAdmin);
 			}
 			
 			Selectable<DataNode> comboBoxItem =
@@ -1070,10 +1097,12 @@ class LocationDialog extends JDialog implements ActionListener,
 	 * @param loggedUserID the if of the user currently logged in.
 	 * @param isAdmin Returns <code>true</code> if the logged in user is an
 	 *                administrator, <code>false</code> otherwise.
+	 * @param userIsAdmin Returns <code>true</code> if the selected user is an
+     *                administrator, <code>false</code> otherwise.
 	 * @return See above.
 	 */
 	private boolean canLink(DataObject node, long userID, GroupData group,
-			long loggedUserID, boolean isAdmin)
+			long loggedUserID, boolean isAdmin, boolean userIsAdmin)
 	{
 	    //data owner
 		if (userID == loggedUserID ||
@@ -1082,7 +1111,7 @@ class LocationDialog extends JDialog implements ActionListener,
         PermissionData permissions = group.getPermissions();
         if (permissions.getPermissionsLevel() == GroupData.PERMISSIONS_PRIVATE)
             return false;
-        if (permissions.isGroupWrite()) return true;
+        if (permissions.isGroupWrite() || userIsAdmin) return true;
         //read-only group and higher
         //is the selected user a group owner.
         Set leaders = group.getLeaders();
