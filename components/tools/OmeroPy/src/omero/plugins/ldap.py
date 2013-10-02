@@ -8,11 +8,9 @@
 
 """
 
-import os
 import sys
 
 from omero.cli import BaseControl, CLI, ExceptionHandler
-from omero.rtypes import unwrap as _
 
 HELP = """Administrative support for managing users' LDAP settings.
 
@@ -42,13 +40,18 @@ class LdapControl(BaseControl):
 
         sub = parser.sub()
 
-        active = parser.add(sub, self.active, \
-                help = "Return code shows if LDAP is configured (admins-only)")
+        active = parser.add(
+            sub, self.active,
+            help="Return code shows if LDAP is configured (admins-only)")
 
-        list = parser.add(sub, self.list, help = "List all OMERO users with DNs")
+        list = parser.add(
+            sub, self.list,
+            help="List all OMERO users with DNs")
 
-        getdn = parser.add(sub, self.getdn, help = "Get DN for user on stdout")
-        setdn = parser.add(sub, self.setdn, help = """Set DN for user (admins only)
+        getdn = parser.add(sub, self.getdn, help="Get DN for user on stdout")
+        setdn = parser.add(
+            sub, self.setdn,
+            help="""Set DN for user (admins only)
 
 Once the DN is set for a user, the password set via OMERO is
 ignored, and any attempt to change it will result in an error. When
@@ -56,13 +59,21 @@ you remove the DN, the previous password will be in effect, but if the
 user never had a password, one will need to be set!""")
 
         for x in (getdn, setdn):
-            x.add_argument("username", help = "User's OMERO login name")
-        setdn.add_argument("dn", help = "User's LDAP distinguished name. If empty, LDAP will be disabled for the user")
+            x.add_argument("username", help="User's OMERO login name")
+        setdn.add_argument(
+            "dn", help="User's LDAP distinguished name. If empty, LDAP will"
+            " be disabled for the user")
 
-        discover = parser.add(sub, self.discover, help = "Discover distinguished names for existing OMERO users")
-        discover.add_argument("--commands", action="store_true", default=False, help = "Print setdn commands on standard out")
-        discover.add_argument("--urls", help = "Override OMERO omero.ldap.urls setting")
-        discover.add_argument("--base", help = "Override OMERO omero.ldap.base setting")
+        discover = parser.add(
+            sub, self.discover,
+            help="Discover distinguished names for existing OMERO users")
+        discover.add_argument(
+            "--commands", action="store_true", default=False,
+            help="Print setdn commands on standard out")
+        discover.add_argument(
+            "--urls", help="Override OMERO omero.ldap.urls setting")
+        discover.add_argument(
+            "--base", help="Override OMERO omero.ldap.base setting")
 
         for x in (active, list, getdn, setdn, discover):
             x.add_login_arguments()
@@ -76,7 +87,7 @@ user never had a password, one will need to be set!""")
 
     def active(self, args):
         c = self.ctx.conn(args)
-        ildap= c.sf.getLdapService()
+        ildap = c.sf.getLdapService()
 
         import omero
         try:
@@ -84,7 +95,7 @@ user never had a password, one will need to be set!""")
                 self.ctx.out("Yes")
             else:
                 self.ctx.die(1, "No")
-        except omero.SecurityViolation, sv:
+        except omero.SecurityViolation:
             self.ctx.die(111, "SecurityViolation: Admins only!")
 
     def list(self, args):
@@ -114,8 +125,9 @@ user never had a password, one will need to be set!""")
                     count += 1
             self.ctx.out(str(tb.build()))
 
-        except omero.SecurityViolation, sv:
-            self.ctx.die(131, "SecurityViolation: Must be an admin to lists DNs")
+        except omero.SecurityViolation:
+            self.ctx.die(131,
+                         "SecurityViolation: Must be an admin to lists DNs")
 
     def getdn(self, args):
         c = self.ctx.conn(args)
@@ -145,7 +157,7 @@ user never had a password, one will need to be set!""")
         import omero
         try:
             ildap.setDN(exp.id, args.dn)
-        except omero.SecurityViolation, sv:
+        except omero.SecurityViolation:
             self.ctx.die(135, "SecurityViolation: Admins only!")
 
     def discover(self, args):
@@ -156,7 +168,6 @@ user never had a password, one will need to be set!""")
         c = self.ctx.conn(args)
         iconfig = c.sf.getConfigService()
         iadmin = c.sf.getAdminService()
-        ildap = c.sf.getLdapService()
 
         LDAP_PROPERTIES = """
         omero.ldap.urls
@@ -173,7 +184,6 @@ user never had a password, one will need to be set!""")
         cfg = dict()
         for key in LDAP_PROPERTIES:
             cfg[key.split(".")[-1]] = iconfig.getConfigValue(key)
-
 
         urls = args.urls and args.urls or cfg["urls"]
         basedn = args.base and args.base or cfg["base"]
@@ -206,18 +216,22 @@ user never had a password, one will need to be set!""")
                     exp = iadmin.lookupExperimenter(omeName)
                     olddn = iadmin.lookupLdapAuthExperimenter(exp.id.val)
                 except omero.ApiUsageException:
-                    continue # Unknown user
+                    continue  # Unknown user
 
                 if olddn:
                     if olddn != dn:
-                        self.ctx.err("Found different DN for %s: %s" % (omeName, olddn))
+                        self.ctx.err("Found different DN for %s: %s"
+                                     % (omeName, olddn))
                     else:
-                        self.ctx.dbg("DN already set for %s: %s" % (omeName, olddn))
+                        self.ctx.dbg("DN already set for %s: %s"
+                                     % (omeName, olddn))
                 else:
                     if args.commands:
-                        self.ctx.out("%s ldap setdn %s %s" % (sys.argv[0], omeName, dn))
+                        self.ctx.out("%s ldap setdn %s %s"
+                                     % (sys.argv[0], omeName, dn))
                     else:
-                        self.ctx.out("Experimenter:%s\tomeName=%s\t%s" % (exp.id.val, omeName, dn))
+                        self.ctx.out("Experimenter:%s\tomeName=%s\t%s"
+                                     % (exp.id.val, omeName, dn))
 
 
 try:
