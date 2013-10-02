@@ -489,19 +489,19 @@ class PopupMenu
 	 */
 	private JMenu buildCreateNewMenu()
 	{
-		JMenu menu = new JMenu();
-		initMenuItem(menu, TreeViewerWin.CREATE_NEW_MENU);
-		//Check the context
-		int type = controller.getSelectedBrowserType();
-		if (type == Browser.TAGS_EXPLORER) {
-		    menu.add(createTagSet);
+	    JMenu menu = new JMenu();
+	    initMenuItem(menu, TreeViewerWin.CREATE_NEW_MENU);
+	    //Check the context
+	    int type = controller.getSelectedBrowserType();
+	    if (type == Browser.TAGS_EXPLORER) {
+	        menu.add(createTagSet);
 	        menu.add(createTag);
-		} else if (type == Browser.SCREENS_EXPLORER) {
+	    } else if (type == Browser.SCREENS_EXPLORER) {
 	        menu.add(createScreen);
-		} else {
-		    menu.add(createProject);
+	    } else {
+	        menu.add(createProject);
 	        menu.add(createDataset);
-		}
+	    }
 		return menu;
 	}
 	
