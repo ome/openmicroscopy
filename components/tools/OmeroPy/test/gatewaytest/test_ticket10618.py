@@ -80,7 +80,7 @@ for perms, testertype, direct, grpctx, size in generate_parameters():
             conn.SERVICE_OPTS.setOmeroGroup(str(-1))
 
         img = conn.getObject("Image", image.id)
-        self.assertTrue(img.getThumbnail(size=size, direct=direct))
+        assert img.getThumbnail(size=size, direct=direct)
 
     test_name = "test_%s_%s_dir%s_grp%s_%s" % \
                 (perms, testertype, direct, grpctx, size)
