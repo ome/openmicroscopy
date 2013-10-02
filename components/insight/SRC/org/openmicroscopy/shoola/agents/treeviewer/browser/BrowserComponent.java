@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.treeviewer.browser.BrowserComponent
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -47,6 +47,7 @@ import javax.swing.tree.TreePath;
 //Third-party libraries
 import com.google.common.collect.Sets;
 
+import org.apache.commons.collections.CollectionUtils;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.treeviewer.ExperimenterLoadedDataEvent;
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
@@ -286,7 +287,8 @@ class BrowserComponent
 		TreeImageSet node;
 		while (i.hasNext()) {
 			node = i.next();
-			if (node.getUserObject() instanceof ExperimenterData)
+			if (node.getUserObject() instanceof ExperimenterData
+			        && node.isExpanded())
 				countExperimenterImages(node);
 		}
     }
@@ -772,15 +774,16 @@ class BrowserComponent
      * Implemented as specified by the {@link Browser} interface.
      * @see Browser#setContainerCountValue(int, long, Set)
      */
-    public void setContainerCountValue(long containerID, long value, 
+    public void setContainerCountValue(long containerID, long value,
     		Set<TreeImageSet> nodes)
     {
-        //int state = model.getState();
-        boolean b = model.setContainerCountValue(view.getTreeDisplay(), 
+        int state = model.getState();
+        if (state == DISCARDED) return;
+        boolean b = model.setContainerCountValue(view.getTreeDisplay(),
 									containerID, value, nodes);
-        if (b) 
+        if (b) {
         	view.getTreeDisplay().repaint();
-        
+        }
         model.getParentModel().setStatus(false, "", true);
     }
     
@@ -1374,6 +1377,7 @@ class BrowserComponent
 					    	def = new RefreshExperimenterDef(expNode, 
 					    			v.getFoundNodes(),
 									v.getExpandedTopNodes());
+					    	
 					    	ctx = new SecurityContext(gid);
 					    	if (model.getDisplayMode() ==
 					    			TreeViewer.EXPERIMENTER_DISPLAY)
@@ -1398,7 +1402,7 @@ class BrowserComponent
 							    	//reset the flag 
 							    	if (type == Browser.IMAGES_EXPLORER)
 							    		countExperimenterImages(expNode);
-							    	def = new RefreshExperimenterDef(expNode, 
+							    	def = new RefreshExperimenterDef(expNode,
 							    			v.getFoundNodes(),
 											v.getExpandedTopNodes());
 							    	ctx = new SecurityContext(gid);
@@ -1488,6 +1492,10 @@ class BrowserComponent
 				view.setExperimenterData(convertedNodes, expNode);
 			}
 		}
+		
+		
+		
+		
 		//expand the nodes.
 		i = nodes.entrySet().iterator();
 		Map m;
@@ -1496,7 +1504,7 @@ class BrowserComponent
 		NodesFinder finder;
 		if (type == null) {
 			List l;
-			Iterator k;
+			Iterator<TreeImageDisplay> k;
 			Set<TreeImageDisplay> found;
 			while (i.hasNext()) {
 				entry = i.next();
@@ -1504,23 +1512,41 @@ class BrowserComponent
 				expNode = node.getExperimenterNode();
 				if (expNode.isExpanded()) {
 					m = node.getExpandedTopNodes();
-					if (m != null && m.size() > 0 && 
-							node.getExpandedNodes().size() == 0) {
+					List expandedNodes = node.getExpandedNodes();
+					boolean b = expandedNodes.size() == 0;
+					if (model.getBrowserType() == TAGS_EXPLORER)
+						b = expandedNodes.size() > 0;
+					if (m != null && m.size() > 0 && b) {
 						j = m.entrySet().iterator();
 						while (j.hasNext()) {
 							e = (Entry) j.next();
-							finder = new NodesFinder((Class) e.getKey(), 
+							finder = new NodesFinder((Class) e.getKey(),
 									(List) e.getValue());
 							accept(finder);
 							found = finder.getNodes();
 							if (found.size() > 0) {
 								k = found.iterator();
+								TreeImageDisplay n, c;
 								while (k.hasNext()) {
-									view.expandNode((TreeImageDisplay) k.next());
+								    n = k.next();
+								    if (n.isExpanded()) view.expandNode(n);
+								    if (n.getUserObject() instanceof
+								            ProjectData) {
+								        List ll = n.getChildrenDisplay();
+								        if (!CollectionUtils.isEmpty(ll)) {
+								            Iterator w = ll.iterator();
+								            while (w.hasNext()) {
+								                c = (TreeImageDisplay) w.next();
+								                if (c.isExpanded())
+								                    view.expandNode(c);
+								            }
+								        }
+
+								    }
 								}
 							}
 						}
-					} else view.expandNode(expNode);
+					}
 				}
 			}
 		}
@@ -1547,7 +1573,7 @@ class BrowserComponent
 						countItems(null, groupNode);
 					}
 				}
-		}	
+		}
 		model.getParentModel().setStatus(false, "", true);
 		PartialNameVisitor v = new PartialNameVisitor(view.isPartialName());
 		accept(v, TreeImageDisplayVisitor.TREEIMAGE_NODE_ONLY);

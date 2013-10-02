@@ -62,9 +62,6 @@ public class TagsLoader
      * 
      * @param ctx The security context.
      * @param id The id of the tag or <code>-1</code>.
-     * @param dataObject Pass <code>true</code> to load the
-     *                   <code>DataObject</code> related to the tags,
-     *                   <code>false</code> otherwise.
      * @param topLevel Pass <code>true</code> to load <code>Tag Set</code>,
      *                 <code>false</code> to load <code>Tag</code>.
      *                 This will be taken into account if the Id is negative.
@@ -73,15 +70,14 @@ public class TagsLoader
      * @return The {@link BatchCall}.
      */
     private BatchCall loadTagsCall(final SecurityContext ctx,
-    	final Long id, final boolean dataObject, final boolean topLevel,
+    	final Long id, final boolean topLevel,
     	final long userID, final long groupID)
     {
         return new BatchCall("Loading tags.") {
             public void doCall() throws Exception
             {
             	OmeroMetadataService os = context.getMetadataService();
-            	result = os.loadTags(ctx, id, dataObject, topLevel, userID,
-            			groupID);
+            	result = os.loadTags(ctx, id, topLevel, userID, groupID);
             }
         };
     }
@@ -114,7 +110,7 @@ public class TagsLoader
 	public TagsLoader(SecurityContext ctx, Long id, boolean withObjects,
 			boolean topLevel, long userID, long groupID)
 	{
-		loadCall = loadTagsCall(ctx, id, withObjects, topLevel, userID, groupID);
+		loadCall = loadTagsCall(ctx, id, topLevel, userID, groupID);
 	}
 
 }
