@@ -12,18 +12,20 @@
 
 """
 
-import subprocess, optparse, os, sys, signal, time
+import os
+import sys
 from omero.cli import BaseControl, CLI
 import omero.java
 
 HELP = """Start commands for server components"""
 
+
 class ServerControl(BaseControl):
 
     def _configure(self, parser):
         sub = parser.sub()
-        blitz = parser.add(sub, self.blitz, help = "Start OMERO.blitz")
-        indexer = parser.add(sub, self.indexer, help = "Start OMERO.indexer")
+        parser.add(sub, self.blitz, help="Start OMERO.blitz")
+        parser.add(sub, self.indexer, help="Start OMERO.indexer")
         #web = parser.add(sub, self.web, help = "Start OMERO.web")
         #web.add_argument("arg", nargs="*")
 
@@ -42,7 +44,7 @@ class ServerControl(BaseControl):
                 pre.append(arg)
             else:
                 post.append(arg)
-        return pre,post
+        return pre, post
 
     def _xargsAndDebug(self, component, xargs_default):
         component = str(component)
@@ -57,21 +59,23 @@ class ServerControl(BaseControl):
             debug = False
         return xargs, debug
 
-    def help(self, args = None):
-        self.ctx.out("Start the blitz server -- Reads properties via omero prefs")
+    def help(self, args=None):
+        self.ctx.out(
+            "Start the blitz server -- Reads properties via omero prefs")
 
     def blitz(self, args):
         pre, post = self._checkIceConfig(args)
         xargs, debug = self._xargsAndDebug("blitz", ["-Xmx400M"])
-        blitz_jar = os.path.join("lib","server","blitz.jar")
-        command = pre+["-jar",blitz_jar]+post
-        omero.java.run(command, debug=debug, xargs=xargs, use_exec = True)
+        blitz_jar = os.path.join("lib", "server", "blitz.jar")
+        command = pre+["-jar", blitz_jar]+post
+        omero.java.run(command, debug=debug, xargs=xargs, use_exec=True)
 
     def indexer(self, args):
         pre, post = self._checkIceConfig(args)
         xargs, debug = self._xargsAndDebug("indexer", ["-Xmx256M"])
-        blitz_jar = os.path.join("lib","server","blitz.jar")
-        omero.java.run(pre+["-jar",blitz_jar,"ome.fulltext"]+post, debug=debug, xargs=xargs, use_exec = True)
+        blitz_jar = os.path.join("lib", "server", "blitz.jar")
+        omero.java.run(pre+["-jar", blitz_jar, "ome.fulltext"]+post,
+                       debug=debug, xargs=xargs, use_exec=True)
 
     #def web(self, args):
     #    sys.stderr.write("Starting django... \n")
@@ -86,10 +90,11 @@ class ServerControl(BaseControl):
     #        cmd += " maxchildren=5 minspare=1 maxspare=5 maxrequests=400"
     #        django = (cmd % {'base': self.ctx.dir}).split()+list(args.arg)
     #    else:
-    #        django = [sys.executable, "manage.py","runserver","--noreload"]+list(args.arg)
+    #        django = [sys.executable,
+    # "manage.py","runserver","--noreload"]+list(args.arg)
     #    sys.stderr.write(str(django) + '\n')
     #    os.execvpe(sys.executable, django, os.environ)
-    
+
 try:
     register("server", ServerControl, HELP)
 except NameError:
