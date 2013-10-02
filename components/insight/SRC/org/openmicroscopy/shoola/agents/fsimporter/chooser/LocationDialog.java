@@ -1022,6 +1022,7 @@ class LocationDialog extends JDialog implements ActionListener,
 		GroupData group = getSelectedGroup();
 		long userID = getSelectedUser().getId();
 		ExperimenterData loggedIn = ImporterAgent.getUserDetails();
+		boolean isAdmin = ImporterAgent.isAdministrator();
 		long loggedInID = loggedIn.getId();
 		for (DataNode node : listItems) {
 			exp = getExperimenter(node.getOwner());
@@ -1035,7 +1036,7 @@ class LocationDialog extends JDialog implements ActionListener,
 			boolean selectable = true;
 			if (!node.isDefaultNode()) {
 				selectable = canLink(node.getDataObject(), userID, group,
-						loggedInID);
+						loggedInID, isAdmin);
 			}
 			
 			Selectable<DataNode> comboBoxItem =
@@ -1067,17 +1068,23 @@ class LocationDialog extends JDialog implements ActionListener,
 	 * @param userID The id of the selected user.
 	 * @param group The selected group.
 	 * @param loggedUserID the if of the user currently logged in.
+	 * @param isAdmin Returns <code>true</code> if the logged in user is an
+	 *                administrator, <code>false</code> otherwise.
 	 * @return See above.
 	 */
 	private boolean canLink(DataObject node, long userID, GroupData group,
-			long loggedUserID)
+			long loggedUserID, boolean isAdmin)
 	{
 	    //data owner
-		if (node.getOwner().getId() == userID) return true;
-		if (!node.canLink()) return false;
+		if (userID == loggedUserID ||
+		        node.getOwner().getId() == userID) return true;
+		if (!node.canLink()) return false; //handle private group case.
         PermissionData permissions = group.getPermissions();
-        if (permissions.isGroupWrite() || permissions.isGroupAnnotate())
-            return true;
+        if (permissions.getPermissionsLevel() == GroupData.PERMISSIONS_PRIVATE)
+            return false;
+        if (permissions.isGroupWrite()) return true;
+        //read-only group and higher
+        //is the selected user a group owner.
         Set leaders = group.getLeaders();
         if (leaders != null) {
             Iterator i = leaders.iterator();
@@ -1087,7 +1094,9 @@ class LocationDialog extends JDialog implements ActionListener,
                 if (exp.getId() == userID) return true;
             }
         }
-        return userID == loggedUserID;
+        if (userID != loggedUserID)
+            return false;
+        return isAdmin;
 	}
 	
 	/**
