@@ -209,7 +209,11 @@ public class AbstractServerTest extends AbstractTest {
         newUserAndGroup("rw----");
 
         SimpleBackOff backOff = new SimpleBackOff();
-        scalingFactor = (long) backOff.getScalingFactor() * backOff.getCount();
+        long newScalingFactor = (long) backOff.getScalingFactor()
+                * backOff.getCount();
+        if (newScalingFactor > scalingFactor) {
+            scalingFactor = newScalingFactor;
+        }
     }
 
     /**
