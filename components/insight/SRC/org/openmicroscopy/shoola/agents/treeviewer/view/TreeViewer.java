@@ -341,7 +341,7 @@ public interface TreeViewer
 	 * 
 	 * @return See above.
 	 */
-	public Map getBrowsers();
+	public Map<Integer, Browser> getBrowsers();
 
 	/**
 	 * Transitions the viewer to the {@link #DISCARDED} state.
