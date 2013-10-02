@@ -12,13 +12,11 @@
 """
 
 
-import os
 import sys
-import Ice, IceImport
+import Ice
+import IceImport
 import time
 import traceback
-import subprocess
-import getpass
 import omero.java
 
 IceImport.load("Glacier2_Router_ice")
@@ -28,7 +26,6 @@ from Glacier2 import PermissionDeniedException
 from omero.util import get_user
 from omero.util.sessions import SessionsStore
 from omero.cli import BaseControl, CLI
-from path import path
 
 HELP = """Control and create user sessions
 
@@ -49,7 +46,8 @@ LONGHELP = """
         Password:
         $ bin/omero -s localhost -u john sessions login
         Password
-        $ bin/omero -s localhost -k 8afe443f-19fc-4cc4-bf4a-850ec94f4650 sessions login
+        $ bin/omero -s localhost -k 8afe443f-19fc-4cc4-bf4a-850ec94f4650 \
+sessions login
         $ bin/omero sessions login
         Server:
         Username:
@@ -78,6 +76,7 @@ LONGHELP = """
         $ bin/omero sessions list --session-dir=/tmp
 """
 
+
 class SessionsControl(BaseControl):
 
     FACTORY = SessionsStore
@@ -93,60 +92,86 @@ class SessionsControl(BaseControl):
     def _configure(self, parser):
         parser.add_login_arguments()
         sub = parser.sub()
-        help = parser.add(sub, self.help, "Extended help")
-        login = parser.add(sub, self.login, "Login to a given server, and store session key locally")
-        logout = parser.add(sub, self.logout, "Logout and remove current session key")
+        parser.add(sub, self.help, "Extended help")
+        login = parser.add(
+            sub, self.login,
+            "Login to a given server, and store session key locally")
+        logout = parser.add(
+            sub, self.logout, "Logout and remove current session key")
         self._configure_login(login)
 
-        group = parser.add(sub, self.group, "Set the group of the current session by id or name")
-        group.add_argument("target", help="Id or name of the group to switch this session to")
+        group = parser.add(
+            sub, self.group,
+            "Set the group of the current session by id or name")
+        group.add_argument(
+            "target",
+            help="Id or name of the group to switch this session to")
 
         list = parser.add(sub, self.list, "List all locally stored sessions")
         purge = list.add_mutually_exclusive_group()
-        purge.add_argument("--purge", action="store_true", default = True, help="Remove inactive sessions")
-        purge.add_argument("--no-purge", dest="purge", action="store_false", help="Do not remove inactive sessions")
+        purge.add_argument(
+            "--purge", action="store_true", default=True,
+            help="Remove inactive sessions")
+        purge.add_argument(
+            "--no-purge", dest="purge", action="store_false",
+            help="Do not remove inactive sessions")
 
-        keepalive = parser.add(sub, self.keepalive, "Keeps the current session alive")
-        keepalive.add_argument("-f", "--frequency", type=int, default=60, help="Time in seconds between keep alive calls", metavar="SECS")
+        keepalive = parser.add(
+            sub, self.keepalive, "Keeps the current session alive")
+        keepalive.add_argument(
+            "-f", "--frequency", type=int, default=60,
+            help="Time in seconds between keep alive calls", metavar="SECS")
 
-        clear = parser.add(sub, self.clear, "Close and remove locally stored sessions")
-        clear.add_argument("--all", action="store_true", help="Remove all locally stored sessions not just inactive ones")
+        clear = parser.add(
+            sub, self.clear, "Close and remove locally stored sessions")
+        clear.add_argument(
+            "--all", action="store_true",
+            help="Remove all locally stored sessions not just inactive ones")
 
-        file = parser.add(sub, self.file, "Print the path to the current session file")
+        file = parser.add(
+            sub, self.file, "Print the path to the current session file")
 
         for x in (file, logout, keepalive, list, clear, group):
             self._configure_dir(x)
 
     def _configure_login(self, login):
         login.add_login_arguments()
-        login.add_argument("-t", "--timeout", help="Timeout for session. After this many inactive seconds, the session will be closed")
-        login.add_argument("connection", nargs="?", help="Connection string. See extended help for examples")
+        login.add_argument(
+            "-t", "--timeout",
+            help="Timeout for session. After this many inactive seconds, the"
+            " session will be closed")
+        login.add_argument(
+            "connection", nargs="?",
+            help="Connection string. See extended help for examples")
         self._configure_dir(login)
 
     def _configure_dir(self, parser):
-        parser.add_argument("--session-dir", help="Use a different sessions directory (Default: $HOME/omero/sessions)")
+        parser.add_argument("--session-dir", help="Use a different sessions"
+                            " directory (Default: $HOME/omero/sessions)")
 
     def help(self, args):
-        self.ctx.err(LONGHELP % {"prog":args.prog})
+        self.ctx.err(LONGHELP % {"prog": args.prog})
 
     def login(self, args):
         """
         Goals:
         If server and key, then don't ask any questions.
-        If nothing requested, and something's active, use it. (i.e. don't require port number)
+        If nothing requested, and something's active, use it. (i.e. don't
+        require port number)
         Reconnect if possible (assuming parameters are the same)
         """
 
         if self.ctx.conn():
             self.ctx.err("Active client found")
-            return # EARLY EXIT
+            return  # EARLY EXIT
 
         create = getattr(args, "create", None)
         store = self.store(args)
         previous = store.get_current()
         try:
             previous_props = store.get(*previous)
-            previous_port = previous_props.get("omero.port", str(omero.constants.GLACIER2PORT))
+            previous_port = previous_props.get(
+                "omero.port", str(omero.constants.GLACIER2PORT))
         except:
             previous_port = str(omero.constants.GLACIER2PORT)
 
@@ -160,27 +185,32 @@ class SessionsControl(BaseControl):
         # If these are set and different from the current
         # connection, then a new one may be created.
         #
-        server = getattr(args, "connection", None) # May be called by another plugin
+        server = getattr(args, "connection", None)  # May be called by another
+                                                    # plugin
         name = None
         port = None
 
         if args.server:
             if server:
-                self.ctx.die(3, "Server specified twice: %s and %s" % (server, args.server))
+                self.ctx.die(3, "Server specified twice: %s and %s"
+                             % (server, args.server))
             else:
                 server = args.server
 
-        if server: server, name, port = self._parse_conn(server, name)
+        if server:
+            server, name, port = self._parse_conn(server, name)
 
         if args.user:
             if name:
-                self.ctx.die(4, "Username specified twice: %s and %s" % (name, args.user))
+                self.ctx.die(4, "Username specified twice: %s and %s"
+                             % (name, args.user))
             else:
                 name = args.user
 
         if args.port:
             if port:
-                self.ctx.die(5, "Port specified twice: %s and %s" % (port, args.port))
+                self.ctx.die(5, "Port specified twice: %s and %s"
+                             % (port, args.port))
             else:
                 port = args.port
 
@@ -209,36 +239,49 @@ class SessionsControl(BaseControl):
                 name_differs = (name is not None and name != previous[1])
                 port_differs = (port is not None and port != previous_port)
 
-                if not create and not server_differs and not name_differs and not port_differs:
+                if not create and not server_differs and not name_differs \
+                        and not port_differs:
                     try:
-                        if previous[2] is not None: # Missing session uuid file. Deleted? See #4199
-                            conflicts = store.conflicts(previous[0], previous[1], previous[2], props, True)
+                        if previous[2] is not None:
+                            # Missing session uuid file. Deleted? See #4199
+                            conflicts = store.conflicts(
+                                previous[0], previous[1], previous[2], props,
+                                True)
                             if conflicts:
-                                self.ctx.dbg("Not attaching because of conflicts: %s" % conflicts)
+                                self.ctx.dbg("Not attaching because of"
+                                             " conflicts: %s" % conflicts)
                             else:
                                 rv = store.attach(*previous)
                                 return self.handle(rv, "Using")
-                        self.ctx.out("Previously logged in to %s:%s as %s" % (previous[0], previous_port, previous[1]))
+                        self.ctx.out("Previously logged in to %s:%s as %s"
+                                     % (previous[0], previous_port,
+                                        previous[1]))
                     except Exception, e:
-                        self.ctx.out("Previous session expired for %s on %s:%s" % (previous[1], previous[0], previous_port))
-                        self.ctx.dbg("Exception on attach: %s" % traceback.format_exc(e))
+                        self.ctx.out("Previous session expired for %s on"
+                                     " %s:%s" % (previous[1], previous[0],
+                                                 previous_port))
+                        self.ctx.dbg("Exception on attach: %s"
+                                     % traceback.format_exc(e))
                         try:
                             store.remove(*previous)
                         except OSError, ose:
                             self.ctx.dbg("Session file missing: %s" % ose)
                         except:
-                            self.ctx.dbg("Exception on remove: %s" % traceback.format_exc(e))
-                            # Could tell user to manually clear here and then self.ctx.die()
+                            self.ctx.dbg("Exception on remove: %s"
+                                         % traceback.format_exc(e))
+                            # Could tell user to manually clear here and then
+                            # self.ctx.die()
                             self.ctx.err("Failed to remove session: %s" % e)
-
 
         #
         # If we've reached here, then the user either does not have
         # an active session or has requested another (different options)
         # If they've omitted some required value, we must ask for it.
         #
-        if not server: server, name, prt = self._get_server(store, name)
-        if not name: name = self._get_username(previous[1])
+        if not server:
+            server, name, prt = self._get_server(store, name)
+        if not name:
+            name = self._get_username(previous[1])
 
         props["omero.host"] = server
         props["omero.user"] = name
@@ -259,10 +302,11 @@ class SessionsControl(BaseControl):
                 # did not come from a CLI login, and so we're not going to
                 # modify the value returned by store.get_current()
                 self.ctx.dbg("No name found for %s." % args.key)
-                rv = self.attach(store, server, args.key, args.key, props,\
-                        False, set_current = False)
+                rv = self.attach(store, server, args.key, args.key, props,
+                                 False, set_current=False)
             else:
-                rv = self.check_and_attach(store, server, stored_name, args.key, props)
+                rv = self.check_and_attach(store, server, stored_name,
+                                           args.key, props)
             action = "Joined"
             if not rv:
                 self.ctx.die(523, "Bad session key")
@@ -277,7 +321,8 @@ class SessionsControl(BaseControl):
             while True:
                 try:
                     if not pasw:
-                        pasw = self.ctx.input("Password:", hidden = True, required = True)
+                        pasw = self.ctx.input("Password:", hidden=True,
+                                              required=True)
                     rv = store.create(name, pasw, props)
                     break
                 except PermissionDeniedException, pde:
@@ -289,15 +334,19 @@ class SessionsControl(BaseControl):
                         pasw = None
                 except Ice.ConnectionRefusedException:
                     if port:
-                        self.ctx.die(554, "Ice.ConnectionRefusedException: %s:%s isn't running" % (server, port))
+                        self.ctx.die(554, "Ice.ConnectionRefusedException:"
+                                     " %s:%s isn't running" % (server, port))
                     else:
-                        self.ctx.die(554, "Ice.ConnectionRefusedException: %s isn't running" % server)
+                        self.ctx.die(554, "Ice.ConnectionRefusedException: %s"
+                                     " isn't running" % server)
                 except Ice.DNSException:
-                    self.ctx.die(555, "Ice.DNSException: bad host name: '%s'" % server)
+                    self.ctx.die(555, "Ice.DNSException: bad host name: '%s'"
+                                 % server)
                 except Exception, e:
                     exc = traceback.format_exc()
                     self.ctx.dbg(exc)
-                    self.ctx.die(556, "InternalException: Failed to connect: %s" % e)
+                    self.ctx.die(556, "InternalException: Failed to connect:"
+                                 " %s" % e)
             action = "Created"
 
         return self.handle(rv, action)
@@ -314,18 +363,20 @@ class SessionsControl(BaseControl):
         if exists:
             conflicts = store.conflicts(server, name, uuid, props)
             if conflicts:
-                self.ctx.dbg("Skipping %s due to conflicts: %s" % (uuid, conflicts))
+                self.ctx.dbg("Skipping %s due to conflicts: %s"
+                             % (uuid, conflicts))
                 return None
 
         return self.attach(store, server, name, uuid, props, exists)
 
-    def attach(self, store, server, name, uuid, props, exists, set_current = True):
+    def attach(self, store, server, name, uuid, props, exists,
+               set_current=True):
         rv = None
         try:
             if exists:
-                rv = store.attach(server, name, uuid, set_current = set_current)
+                rv = store.attach(server, name, uuid, set_current=set_current)
             else:
-                rv = store.create(name, name, props, set_current = set_current)
+                rv = store.create(name, name, props, set_current=set_current)
         except Exception, e:
             self.ctx.dbg("Removing %s: %s" % (uuid, e))
             store.clear(server, name, uuid)
@@ -347,7 +398,8 @@ class SessionsControl(BaseControl):
         host = client.getProperty("omero.host")
         port = client.getProperty("omero.port")
 
-        msg = "%s session %s (%s@%s:%s)." % (action, uuid, ec.userName, host, port)
+        msg = "%s session %s (%s@%s:%s)." \
+            % (action, uuid, ec.userName, host, port)
         if idle:
             msg = msg + " Idle timeout: %s min." % (float(idle)/60/1000)
         if live:
@@ -371,7 +423,6 @@ class SessionsControl(BaseControl):
         # store.set_current("", "", "")
 
     def group(self, args):
-        store = self.store(args)
         client = self.ctx.conn(args)
         sf = client.sf
         admin = sf.getAdminService()
@@ -379,18 +430,21 @@ class SessionsControl(BaseControl):
         try:
             group_id = long(args.target)
             group_name = admin.getGroup(group_id).name.val
-        except ValueError, ve:
+        except ValueError:
             group_name = args.target
             group_id = admin.lookupGroup(group_name).id.val
 
-        ec = self.ctx._event_context # 5711
+        ec = self.ctx._event_context  # 5711
         old_id = ec.groupId
         old_name = ec.groupName
         if old_id == group_id:
-            self.ctx.err("Group '%s' (id=%s) is already active" % (group_name, group_id))
+            self.ctx.err("Group '%s' (id=%s) is already active"
+                         % (group_name, group_id))
         else:
-            sf.setSecurityContext(omero.model.ExperimenterGroupI(group_id, False))
-            self.ctx.out("Group '%s' (id=%s) switched to '%s' (id=%s)" % (old_name, old_id, group_name, group_id))
+            sf.setSecurityContext(omero.model.ExperimenterGroupI(group_id,
+                                                                 False))
+            self.ctx.out("Group '%s' (id=%s) switched to '%s' (id=%s)"
+                         % (old_name, old_id, group_name, group_id))
 
     def list(self, args):
         store = self.store(args)
@@ -398,10 +452,11 @@ class SessionsControl(BaseControl):
         previous = store.get_current()
 
         #fmt = "%-16.16s\t%-12.12s\t%-12.12s\t%-40.40s\t%-30.30s\t%s"
-        #self.ctx.out(fmt % ("Server","User","Group", "Session","Active", "Started"))
+        #self.ctx.out(fmt % ("Server","User","Group", "Session","Active",
+        # "Started"))
         #self.ctx.out("-"*136)
         headers = ("Server", "User", "Group", "Session", "Active", "Started")
-        results = dict([(x,[]) for x in headers])
+        results = dict([(x, []) for x in headers])
         for server, names in s.items():
             for name, sessions in names.items():
                 for uuid, props in sessions.items():
@@ -411,11 +466,14 @@ class SessionsControl(BaseControl):
                     started = "Unknown"
                     port = None
                     try:
-                        if props: port = props.get("omero.port", port)
+                        if props:
+                            port = props.get("omero.port", port)
                         rv = store.attach(server, name, uuid)
                         try:
-                            grp = rv[0].sf.getAdminService().getEventContext().groupName
-                            started = rv[0].sf.getSessionService().getSession(uuid).started.val
+                            a_s = rv[0].sf.getAdminService()
+                            grp = a_s.getEventContext().groupName
+                            s_s = rv[0].sf.getSessionService()
+                            started = s_s.getSession(uuid).started.val
                             started = time.ctime(started / 1000.0)
                         finally:
                             if rv:
@@ -427,11 +485,13 @@ class SessionsControl(BaseControl):
                         msg = "Unknown exception"
 
                     if rv is None and args.purge:
-                        self.ctx.dbg("Purging %s / %s / %s" % (server, name, uuid))
+                        self.ctx.dbg("Purging %s / %s / %s"
+                                     % (server, name, uuid))
                         store.remove(server, name, uuid)
 
-                    if server == previous[0] and name == previous[1] and uuid == previous[2]:
-                            msg = "Logged in"
+                    if server == previous[0] and name == previous[1] and \
+                            uuid == previous[2]:
+                        msg = "Logged in"
 
                     if port:
                         results["Server"].append("%s:%s" % (server, port))
@@ -457,6 +517,7 @@ class SessionsControl(BaseControl):
     def keepalive(self, args):
         import threading
         from omero.util.concurrency import get_event as get_event
+
         class T(threading.Thread):
             def run(self):
                 while self.client:
@@ -471,7 +532,8 @@ class SessionsControl(BaseControl):
         t.event = get_event(name="keepalive")
         t.start()
         try:
-            self.ctx.out("Running keep alive every %s seconds" % args.frequency)
+            self.ctx.out("Running keep alive every %s seconds"
+                         % args.frequency)
             self.ctx.input("Press enter to cancel.")
         finally:
             t.client = None
@@ -489,7 +551,8 @@ class SessionsControl(BaseControl):
         Uses the comm() method with the same signature.
         """
 
-        if properties is None: properties = {}
+        if properties is None:
+            properties = {}
 
         if self._client:
             return self._client
@@ -497,11 +560,11 @@ class SessionsControl(BaseControl):
         import omero
         try:
             data = self.initData(properties)
-            self._client = omero.client(sys.argv, id = data)
+            self._client = omero.client(sys.argv, id=data)
             self._client.setAgent("OMERO.cli")
             self._client.createSession()
             return self._client
-        except Exception, exc:
+        except Exception:
             self._client = None
             raise
 
@@ -512,8 +575,8 @@ class SessionsControl(BaseControl):
     def _parse_conn(self, server, name):
         try:
             idx = server.rindex("@")
-            name = server[0:idx] # user which may also contain an @
-            server = server[idx+1:] # server which may also contain the port
+            name = server[0:idx]  # user which may also contain an @
+            server = server[idx+1:]  # server which may also contain the port
         except ValueError:
             pass
 
