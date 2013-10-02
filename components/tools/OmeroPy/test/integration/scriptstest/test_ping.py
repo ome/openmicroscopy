@@ -175,6 +175,7 @@ class TestPing(lib.ITest):
         process = p.execute(rmap({}))
         output = self.assertSuccess(p, process)
 
+    @pytest.mark.xfail(reason="ticket 11494")
     def testProcessCallback(self):
 
         callback = CallbackI()

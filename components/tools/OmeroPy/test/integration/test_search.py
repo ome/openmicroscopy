@@ -10,6 +10,7 @@
 """
 
 import test.integration.library as lib
+import pytest
 import omero
 import datetime, time
 
@@ -155,6 +156,7 @@ class TestSearch(lib.ITest):
         if msg:
             assert False, "%s\n" % msg
 
+    @pytest.mark.xfail(reason="ticket 11494")
     def test8692(self):
         # Test that group admin and system admins can
         # find items in non-private groups.
