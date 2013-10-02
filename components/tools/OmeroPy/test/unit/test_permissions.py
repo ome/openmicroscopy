@@ -9,61 +9,60 @@
    Use is subject to license terms supplied in LICENSE.txt
 
 """
+import omero.model, omero_model_PermissionsI
 
-import unittest, omero.model, omero_model_PermissionsI
+class TestPermissions(object):
 
-class TestPermissions(unittest.TestCase):
-
-    def setUp(self):
+    def setup_method(self, method):
         self.p = omero.model.PermissionsI()
 
     def testperm1(self):
         # The default
-        self.assert_( self.p.isUserRead() )
-        self.assert_( self.p.isUserAnnotate() )
-        self.assert_( self.p.isUserWrite() )
-        self.assert_( self.p.isGroupRead() )
-        self.assert_( self.p.isGroupAnnotate() )
-        self.assert_( self.p.isGroupWrite() )
-        self.assert_( self.p.isWorldRead() )
-        self.assert_( self.p.isWorldAnnotate() )
-        self.assert_( self.p.isWorldWrite() )
+        assert self.p.isUserRead()
+        assert self.p.isUserAnnotate()
+        assert self.p.isUserWrite()
+        assert self.p.isGroupRead()
+        assert self.p.isGroupAnnotate()
+        assert self.p.isGroupWrite()
+        assert self.p.isWorldRead()
+        assert self.p.isWorldAnnotate()
+        assert self.p.isWorldWrite()
 
         # All off
         self.p._perm1 = 0L
-        self.assert_( not  self.p.isUserRead() )
-        self.assert_( not  self.p.isUserAnnotate() )
-        self.assert_( not  self.p.isUserWrite() )
-        self.assert_( not  self.p.isGroupRead() )
-        self.assert_( not  self.p.isGroupAnnotate() )
-        self.assert_( not  self.p.isGroupWrite() )
-        self.assert_( not  self.p.isWorldRead() )
-        self.assert_( not  self.p.isWorldAnnotate() )
-        self.assert_( not  self.p.isWorldWrite() )
+        assert not  self.p.isUserRead()
+        assert not  self.p.isUserAnnotate()
+        assert not  self.p.isUserWrite()
+        assert not  self.p.isGroupRead()
+        assert not  self.p.isGroupAnnotate()
+        assert not  self.p.isGroupWrite()
+        assert not  self.p.isWorldRead()
+        assert not  self.p.isWorldAnnotate()
+        assert not  self.p.isWorldWrite()
 
         # All on
         self.p._perm1 = -1L
-        self.assert_( self.p.isUserRead() )
-        self.assert_( self.p.isUserAnnotate() )
-        self.assert_( self.p.isUserWrite() )
-        self.assert_( self.p.isGroupRead() )
-        self.assert_( self.p.isGroupAnnotate() )
-        self.assert_( self.p.isGroupWrite() )
-        self.assert_( self.p.isWorldRead() )
-        self.assert_( self.p.isWorldAnnotate() )
-        self.assert_( self.p.isWorldWrite() )
+        assert self.p.isUserRead()
+        assert self.p.isUserAnnotate()
+        assert self.p.isUserWrite()
+        assert self.p.isGroupRead()
+        assert self.p.isGroupAnnotate()
+        assert self.p.isGroupWrite()
+        assert self.p.isWorldRead()
+        assert self.p.isWorldAnnotate()
+        assert self.p.isWorldWrite()
 
         # Various swaps
         self.p.setUserRead(False)
-        self.assert_( not self.p.isUserRead() )
+        assert not self.p.isUserRead()
         self.p.setGroupWrite(True)
-        self.assert_( self.p.isGroupWrite() )
+        assert self.p.isGroupWrite()
 
         # Now reverse each of the above
         self.p.setUserRead(True)
-        self.assert_( self.p.isUserRead() )
+        assert self.p.isUserRead()
         self.p.setGroupWrite(False)
-        self.assert_( not self.p.isGroupWrite() )
+        assert not self.p.isGroupWrite()
 
     def testPermissionsSetters(self):
         # start with everythin false
@@ -72,99 +71,99 @@ class TestPermissions(unittest.TestCase):
         ## read flags are easy, straight binary
         ## user flags
         p.setUserRead(True)
-        self.assert_( p.isUserRead() )
-        self.assertEquals('r', str(p)[0])
+        assert p.isUserRead()
+        assert 'r' == str(p)[0]
         p.setUserRead(False)
-        self.assert_( not p.isUserRead() )
-        self.assertEquals('-', str(p)[0])
+        assert not p.isUserRead()
+        assert '-' == str(p)[0]
 
         ## group flags
         p.setGroupRead(True)
-        self.assert_( p.isGroupRead() )
-        self.assertEquals('r', str(p)[2])
+        assert p.isGroupRead()
+        assert 'r' == str(p)[2]
         p.setGroupRead(False)
-        self.assert_( not p.isGroupRead() )
-        self.assertEquals('-', str(p)[2])
+        assert not p.isGroupRead()
+        assert '-' == str(p)[2]
 
         ## world flags
         p.setWorldRead(True)
-        self.assert_( p.isWorldRead() )
-        self.assertEquals('r', str(p)[4])
+        assert p.isWorldRead()
+        assert 'r' == str(p)[4]
         p.setWorldRead(False)
-        self.assert_( not p.isWorldRead() )
-        self.assertEquals('-', str(p)[4])
+        assert not p.isWorldRead()
+        assert '-' == str(p)[4]
 
         ## write flags are trickier as the string
         ## representation is ternary
         ## user flags
         p.setUserAnnotate(True)
-        self.assert_( p.isUserAnnotate() )
-        self.assert_( not p.isUserWrite() )
-        self.assertEquals('a', str(p)[1])
+        assert p.isUserAnnotate()
+        assert not p.isUserWrite()
+        assert 'a' == str(p)[1]
         p.setUserWrite(True)
-        self.assert_( p.isUserAnnotate() )
-        self.assert_( p.isUserWrite() )
-        self.assertEquals('w', str(p)[1])
+        assert p.isUserAnnotate()
+        assert p.isUserWrite()
+        assert 'w' == str(p)[1]
         p.setUserWrite(False)
-        self.assert_( p.isUserAnnotate() )
-        self.assert_( not p.isUserWrite() )
-        self.assertEquals('a', str(p)[1])
+        assert p.isUserAnnotate()
+        assert not p.isUserWrite()
+        assert 'a' == str(p)[1]
         p.setUserAnnotate(False)
-        self.assert_( not p.isUserAnnotate() )
-        self.assert_( not p.isUserWrite() )
-        self.assertEquals('-', str(p)[1])
+        assert not p.isUserAnnotate()
+        assert not p.isUserWrite()
+        assert '-' == str(p)[1]
 
         ## group flags
         p.setGroupAnnotate(True)
-        self.assert_( p.isGroupAnnotate() )
-        self.assert_( not p.isGroupWrite() )
-        self.assertEquals('a', str(p)[3])
+        assert p.isGroupAnnotate()
+        assert not p.isGroupWrite()
+        assert 'a' == str(p)[3]
         p.setGroupWrite(True)
-        self.assert_( p.isGroupAnnotate() )
-        self.assert_( p.isGroupWrite() )
-        self.assertEquals('w', str(p)[3])
+        assert p.isGroupAnnotate()
+        assert p.isGroupWrite()
+        assert 'w' == str(p)[3]
         p.setGroupWrite(False)
-        self.assert_( p.isGroupAnnotate() )
-        self.assert_( not p.isGroupWrite() )
-        self.assertEquals('a', str(p)[3])
+        assert p.isGroupAnnotate()
+        assert not p.isGroupWrite()
+        assert 'a' == str(p)[3]
         p.setGroupAnnotate(False)
-        self.assert_( not p.isGroupAnnotate() )
-        self.assert_( not p.isGroupWrite() )
-        self.assertEquals('-', str(p)[3])
+        assert not p.isGroupAnnotate()
+        assert not p.isGroupWrite()
+        assert '-' == str(p)[3]
 
         ## world flags
         p.setWorldAnnotate(True)
-        self.assert_( p.isWorldAnnotate() )
-        self.assert_( not p.isWorldWrite() )
-        self.assertEquals('a', str(p)[5])
+        assert p.isWorldAnnotate()
+        assert not p.isWorldWrite()
+        assert 'a' == str(p)[5]
         p.setWorldWrite(True)
-        self.assert_( p.isWorldAnnotate() )
-        self.assert_( p.isWorldWrite() )
-        self.assertEquals('w', str(p)[5])
+        assert p.isWorldAnnotate()
+        assert p.isWorldWrite()
+        assert 'w' == str(p)[5]
         p.setWorldWrite(False)
-        self.assert_( p.isWorldAnnotate() )
-        self.assert_( not p.isWorldWrite() )
-        self.assertEquals('a', str(p)[5])
+        assert p.isWorldAnnotate()
+        assert not p.isWorldWrite()
+        assert 'a' == str(p)[5]
         p.setWorldAnnotate(False)
-        self.assert_( not p.isWorldAnnotate() )
-        self.assert_( not p.isWorldWrite() )
-        self.assertEquals('-', str(p)[5])
+        assert not p.isWorldAnnotate()
+        assert not p.isWorldWrite()
+        assert '-' == str(p)[5]
 
     def test8564(self):
 
         p = omero.model.PermissionsI("rwrwrw")
         self.assertRW(p, "User", "Group", "World")
-        self.assertEquals("rwrwrw", str(p))
+        assert "rwrwrw" == str(p)
 
         p = omero.model.PermissionsI("rarara")
         self.assertRA(p, "User", "Group", "World")
-        self.assertEquals("rarara", str(p))
+        assert "rarara" == str(p)
 
         p = omero.model.PermissionsI("rwrar-")
         self.assertRW(p, "User")
         self.assertRA(p, "Group")
         self.assertRO(p, "World")
-        self.assertEquals("rwrar-", str(p))
+        assert "rwrar-" == str(p)
 
     # Helpers
 
@@ -191,9 +190,7 @@ class TestPermissions(unittest.TestCase):
           Expected EDIT: %s \t Found: %s""" % \
                   (p, role, read, isRead, annotate, isAnno, edit, isEdit)
 
-        self.assertEquals(read, isRead, msg)
-        self.assertEquals(annotate, isAnno, msg)
-        self.assertEquals(edit, isEdit, msg)
+        assert read == isRead, msg
+        assert annotate == isAnno, msg
+        assert edit == isEdit, msg
 
-if __name__ == '__main__':
-    unittest.main()

@@ -13,57 +13,56 @@ import logging
 logging.basicConfig(level=0)
 
 import os
-import unittest
 import omero.util.temp_files as t_f
 
 from path import path
 from portalocker import lock, LockException, LOCK_NB, LOCK_EX
 
 
-class TestTemps(unittest.TestCase):
+class TestTemps(object):
 
     def testBasicUsage(self):
         p = t_f.create_path("foo",".bar")
-        self.assertTrue(p.exists())
+        assert p.exists()
         t_f.remove_path(p)
-        self.assertFalse(p.exists())
+        assert not p.exists()
 
     def testBasicUsagePassString(self):
         p = t_f.create_path("foo",".bar")
-        self.assertTrue(p.exists())
+        assert p.exists()
         t_f.remove_path(str(p))
-        self.assertFalse(p.exists())
+        assert not p.exists()
 
     def testNoCleanUp(self):
         p = t_f.create_path("foo",".bar")
-        self.assertTrue(p.exists())
+        assert p.exists()
         # Logger should print out one file
 
     def testLocking(self):
         pass
-        #self.assertRaises(LockException, lock, f, LOCK_NB)
+        #pytest.raises(LockException, lock, f, LOCK_NB)
 
     def testUsingThePath(self):
         p = t_f.create_path("write", ".txt")
         p.write_text("hi")
-        self.assertEquals(["hi"], p.lines())
+        assert ["hi"] == p.lines()
 
     def testUsingThePath2(self):
         p = t_f.create_path("write2", ".txt")
         p.write_text("hi2")
-        self.assertEquals(["hi2"], p.lines())
+        assert ["hi2"] == p.lines()
 
     def testUsingThePathAndAFile(self):
         p = t_f.create_path("write", ".txt")
         p.write_text("hi")
         f = open(str(p), "r")
-        self.assertEquals(["hi"], f.readlines())
+        assert ["hi"] == f.readlines()
         f.close()
 
     def testFolderSimple(self):
         p = t_f.create_path("close", ".dir", folder = True)
-        self.assertTrue(p.exists())
-        self.assertTrue(p.isdir())
+        assert p.exists()
+        assert p.isdir()
         return p
 
     def testFolderWrite(self):
@@ -91,12 +90,10 @@ class TestTemps(unittest.TestCase):
         mgr = t_f.TempFileManager(prefix="omero_temp_files_test")
         dir = mgr.gettempdir()
         mgr.clean_tempdir() # start with a blank dir
-        self.assertFalse(dir.exists())
+        assert not dir.exists()
         p = mgr.create_path("test",".tmp")
-        self.assertTrue(dir.exists())
+        assert dir.exists()
         mgr.clean_tempdir()
         # There should still be one file lock
-        self.assertTrue(dir.exists())
+        assert dir.exists()
 
-if __name__ == '__main__':
-    unittest.main()
