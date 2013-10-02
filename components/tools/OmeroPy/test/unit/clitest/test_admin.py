@@ -9,8 +9,8 @@
 
 """
 
-import unittest
 import os
+import pytest
 
 from path import path
 
@@ -26,9 +26,9 @@ from mocks import MockCLI
 
 omeroDir = path(os.getcwd()) / "build"
 
-class TestAdmin(unittest.TestCase):
+class TestAdmin(object):
 
-    def setUp(self):
+    def setup_method(self, method):
         # Non-temp directories
         build_dir = path() / "build"
         top_dir = path() / ".." / ".." / ".."
@@ -59,13 +59,13 @@ class TestAdmin(unittest.TestCase):
         self.cli.register("a", AdminControl, "TEST")
         self.cli.register("config", PrefsControl, "TEST")
 
-    def tearDown(self):
-        self.cli.tearDown()
+    def teardown_method(self, method):
+        self.cli.teardown_method(method)
 
     def invoke(self, string, fails=False):
         try:
             self.cli.invoke(string, strict=True)
-            if fails: self.fail("Failed to fail")
+            if fails: assert False, "Failed to fail"
         except:
             if not fails: raise
 
@@ -122,7 +122,7 @@ class TestAdmin(unittest.TestCase):
         popen.wait().AndReturn(1)
 
         self.cli.mox.ReplayAll()
-        self.assertRaises(NonZeroReturnCode, self.invoke, "a status")
+        pytest.raises(NonZeroReturnCode, self.invoke, "a status")
 
     def testStatusSMFails(self):
 
@@ -138,7 +138,7 @@ class TestAdmin(unittest.TestCase):
         control.session_manager = sm
 
         self.cli.mox.ReplayAll()
-        self.assertRaises(NonZeroReturnCode, self.invoke, "a status")
+        pytest.raises(NonZeroReturnCode, self.invoke, "a status")
 
     def testStatusPasses(self):
 
@@ -157,7 +157,5 @@ class TestAdmin(unittest.TestCase):
 
         self.cli.mox.ReplayAll()
         self.invoke("a status")
-        self.assertEquals(0, self.cli.rv)
+        assert 0 == self.cli.rv
 
-if __name__ == '__main__':
-    unittest.main()

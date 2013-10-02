@@ -9,7 +9,8 @@
 
 """
 
-import unittest, os
+import os
+import pytest
 from omero.cli import Context, BaseControl, CLI, NonZeroReturnCode
 from omero.config import ConfigXml
 from omero.plugins.prefs import PrefsControl, HELP
@@ -29,10 +30,9 @@ class MockCLI(CLI):
     def err(self, *args):
         self.ERROR.append(args[0])
 
-class TestPrefs(unittest.TestCase):
+class TestPrefs(object):
 
-    def setUp(self):
-        unittest.TestCase.setUp(self)
+    def setup_method(self, method):
         self.cli = MockCLI()
         self.p = create_path()
 
@@ -40,11 +40,11 @@ class TestPrefs(unittest.TestCase):
         return ConfigXml(filename=str(self.p))
 
     def assertStdout(self, args):
-        self.assertEquals(set(args), set(self.cli.OUTPUT))
+        assert set(args) == set(self.cli.OUTPUT)
         self.cli.OUTPUT = []
 
     def assertStderr(self, args):
-        self.assertEquals(set(args), set(self.cli.ERROR))
+        assert set(args) == set(self.cli.ERROR)
         self.cli.ERROR = []
 
     def invoke(self, s):
@@ -55,7 +55,7 @@ class TestPrefs(unittest.TestCase):
             self.cli.invoke("config -h")
         except SystemExit:
             pass
-        self.assertEquals(0, self.cli.rv)
+        assert 0 == self.cli.rv
 
     def testAll(self):
         config = self.config()
@@ -128,7 +128,7 @@ class TestPrefs(unittest.TestCase):
         try:
             # Different property/value pair should fail
             self.invoke("load %s" % to_load)
-            self.fail("No NZRC")
+            assert False, "No NZRC"
         except NonZeroReturnCode:
             self.assertStderr(["Duplicate property: A ('B' => 'C')"])
             pass
@@ -141,7 +141,7 @@ class TestPrefs(unittest.TestCase):
 
     def testLoadDoesNotExist(self):
         # ticket:7273
-        self.assertRaises(NonZeroReturnCode, self.invoke, "load THIS_FILE_SHOULD_NOT_EXIST")
+        pytest.raises(NonZeroReturnCode, self.invoke, "load THIS_FILE_SHOULD_NOT_EXIST")
 
     def testDrop(self):
         self.invoke("def x")
@@ -182,5 +182,3 @@ class TestPrefs(unittest.TestCase):
         self.invoke("get")
         self.assertStdout(["A=B"])
 
-if __name__ == '__main__':
-    unittest.main()

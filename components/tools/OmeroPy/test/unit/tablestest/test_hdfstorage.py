@@ -9,7 +9,8 @@
 
 """
 
-import unittest, os, tempfile, time
+import os, tempfile, time
+import pytest
 import omero.columns
 import omero.tables
 import portalocker
@@ -31,7 +32,8 @@ class MockAdapter(object):
 
 class TestHdfStorage(TestCase):
 
-    def setUp(self):
+    def setup_method(self, method):
+        TestCase.setup_method(self, method)
         self.ic = Ice.initialize()
         self.current = Ice.Current()
         self.current.adapter = MockAdapter(self.ic)
@@ -66,10 +68,10 @@ class TestHdfStorage(TestCase):
         return path(tmpdir) / "test.h5"
 
     def testInvalidFile(self):
-        self.assertRaises(omero.ApiUsageException, omero.tables.HdfStorage, None)
-        self.assertRaises(omero.ApiUsageException, omero.tables.HdfStorage, '')
+        pytest.raises(omero.ApiUsageException, omero.tables.HdfStorage, None)
+        pytest.raises(omero.ApiUsageException, omero.tables.HdfStorage, '')
         bad = path(self.tmpdir()) / "doesntexist" / "test.h5"
-        self.assertRaises(omero.ApiUsageException, omero.tables.HdfStorage, bad)
+        pytest.raises(omero.ApiUsageException, omero.tables.HdfStorage, bad)
 
     def testValidFile(self):
         omero.tables.HdfStorage(self.hdfpath())
@@ -79,7 +81,7 @@ class TestHdfStorage(TestCase):
         hdf1 = omero.tables.HdfStorage(tmp)
         try:
             hdf2 = omero.tables.HdfStorage(tmp)
-            self.fail("should be locked")
+            assert False, "should be locked"
         except omero.LockTimeout, lt:
             pass
         hdf1.cleanup()
@@ -144,7 +146,7 @@ class TestHdfStorage(TestCase):
         hdf = omero.tables.HdfStorage(p)
         try:
             self.init(hdf, True)
-            self.fail()
+            assert False
         except omero.ApiUsageException:
             pass
         hdf.cleanup()
@@ -152,19 +154,19 @@ class TestHdfStorage(TestCase):
     """
     Hard fails disabled. See #2067
     def testAddColumn(self):
-        self.fail("NYI")
+        assert False, "NYI"
 
     def testMergeFiles(self):
-        self.fail("NYI")
+        assert False, "NYI"
 
     def testVersion(self):
-        self.fail("NYI")
+        assert False, "NYI"
     """
 
     def testHandlesExistingDirectory(self):
         t = path(self.tmpdir())
         h = t / "test.h5"
-        self.assertTrue(t.exists())
+        assert t.exists()
         hdf = omero.tables.HdfStorage(h)
         hdf.cleanup()
 
@@ -177,8 +179,8 @@ class TestHdfStorage(TestCase):
         cols[0].values = ["foo"]
         hdf.append(cols)
         rows = hdf.getWhereList(time.time(), '(name=="foo")', None, 'b', None, None, None)
-        self.assertEquals(1, len(rows))
-        self.assertEquals(16, hdf.readCoordinates(time.time(), [0], self.current).columns[0].size)
+        assert 1 == len(rows)
+        assert 16 == hdf.readCoordinates(time.time(), [0], self.current).columns[0].size
         # Doesn't work yet.
         hdf.cleanup()
 
@@ -202,27 +204,21 @@ class TestHdfStorage(TestCase):
         hdf.append([mask])
         data = hdf.readCoordinates(hdf._stamp, [0,1], self.current)
         test = data.columns[0]
-        self.assertEquals(1, test.imageId[0])
-        self.assertEquals(2, test.theZ[0])
-        self.assertEquals(3, test.theT[0])
-        self.assertEquals(4, test.x[0])
-        self.assertEquals(5, test.y[0])
-        self.assertEquals(6, test.w[0])
-        self.assertEquals(7, test.h[0])
-        self.assertEquals([0], test.bytes[0])
+        assert 1 == test.imageId[0]
+        assert 2 == test.theZ[0]
+        assert 3 == test.theT[0]
+        assert 4 == test.x[0]
+        assert 5 == test.y[0]
+        assert 6 == test.w[0]
+        assert 7 == test.h[0]
+        assert [0] == test.bytes[0]
 
-        self.assertEquals(2, test.imageId[1])
-        self.assertEquals(2, test.theZ[1])
-        self.assertEquals(3, test.theT[1])
-        self.assertEquals(4, test.x[1])
-        self.assertEquals(5, test.y[1])
-        self.assertEquals(6, test.w[1])
-        self.assertEquals(7, test.h[1])
-        self.assertEquals([0,1,2,3,4], test.bytes[1])
+        assert 2 == test.imageId[1]
+        assert 2 == test.theZ[1]
+        assert 3 == test.theT[1]
+        assert 4 == test.x[1]
+        assert 5 == test.y[1]
+        assert 6 == test.w[1]
+        assert 7 == test.h[1]
+        assert [0 == 1,2,3,4], test.bytes[1]
         hdf.cleanup()
-
-def test_suite():
-    return 1
-
-if __name__ == '__main__':
-    unittest.main()

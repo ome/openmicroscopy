@@ -21,7 +21,6 @@ Module documentation
 import Ice
 import logging
 import threading
-import unittest
 import omero.clients as base
 
 class MockCommunicator(object):
@@ -87,7 +86,7 @@ class MockClient(base.BaseClient):
         self._BaseClient__sf = object()
 
 
-class TestKeepAlive(unittest.TestCase):
+class TestKeepAlive(object):
     """
     Test that keep alives and resources only exist
     at the proper times (i.e. when a session is active)
@@ -95,10 +94,10 @@ class TestKeepAlive(unittest.TestCase):
     See #7747
     """
 
-    def setUp(self):
+    def setup_method(self, method):
         self.mc = MockClient()
 
-    def tearDown(self):
+    def teardown_method(self, method):
         self.mc.__del__()
 
     def testStartsWithout(self):
@@ -139,5 +138,3 @@ class TestKeepAlive(unittest.TestCase):
         self.mc.assertNoResources()
 
 
-if __name__ == '__main__':
-    unittest.main()
