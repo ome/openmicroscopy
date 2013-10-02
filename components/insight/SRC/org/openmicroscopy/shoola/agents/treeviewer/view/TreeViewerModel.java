@@ -366,7 +366,6 @@ class TreeViewerModel
 		initialize();
 		this.experimenter = exp;
 		selectedGroupId = exp.getDefaultGroup().getId();
-		System.err.println(selectedGroupId);
 	}
 
 	/**
