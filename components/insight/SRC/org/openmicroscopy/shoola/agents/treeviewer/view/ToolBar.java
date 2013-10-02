@@ -68,6 +68,7 @@ import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 
 
+import org.apache.commons.io.FilenameUtils;
 //Third-party libraries
 import org.jdesktop.swingx.JXBusyLabel;
 
@@ -1015,11 +1016,11 @@ class ToolBar
                 value = "";
                 path = so.getPath();
                 if (path != null) {
-                    sep = UIUtilities.getStringSeparator(path);
+                    sep = FilenameUtils.getPrefix(path);
                     if (path.startsWith(sep))
                         path = path.substring(1, path.length());
                     values = UIUtilities.splitString(path);
-                    value = values[0];
+                    if (values != null && values.length > 0) value = values[0];
                 }
 
                 if (refString == null) {
@@ -1036,27 +1037,29 @@ class ToolBar
                 so = i.next();
                 path = so.getPath();
                 if (path != null) {
-                    sep = UIUtilities.getStringSeparator(path);
+                    sep = FilenameUtils.getPrefix(path);
                     if (path.startsWith(sep))
                         path = path.substring(1, path.length());
                     values = UIUtilities.splitString(path);
-                    for (int j = index; j < values.length; j++) {
-                        value = values[j];
-                        JMenu v;
-                        String text = name+value;
-                        if (menus.containsKey(text)) {
-                            v = menus.get(text);
-                        } else {
-                            value = value.replace(
-                                    ScriptObject.PARAMETER_SEPARATOR,
-                                    ScriptObject.PARAMETER_UI_SEPARATOR);
-                            v = new JMenu(value);
+                    if (values != null) {
+                        for (int j = index; j < values.length; j++) {
+                            value = values[j];
+                            JMenu v;
+                            String text = name+value;
+                            if (menus.containsKey(text)) {
+                                v = menus.get(text);
+                            } else {
+                                value = value.replace(
+                                        ScriptObject.PARAMETER_SEPARATOR,
+                                        ScriptObject.PARAMETER_UI_SEPARATOR);
+                                v = new JMenu(value);
+                            }
+                            if (ref == null) topMenus.add(v);
+                            else ref.add(v);
+                            ref = v;
+                            name+=values[j];
+                            menus.put(name, v);
                         }
-                        if (ref == null) topMenus.add(v);
-                        else ref.add(v);
-                        ref = v;
-                        name+=values[j];
-                        menus.put(name, v);
                     }
                 }
                 ScriptMenuItem item = new ScriptMenuItem(so);
