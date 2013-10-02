@@ -47,7 +47,7 @@ public class ExperimenterDisplay  {
 	public String toString()
 	{
 	    String value = EditorUtil.formatExperimenter(data);
-	    return EditorUtil.truncate(value, 48);
+	    return EditorUtil.truncate(value);
 	}
 
 	/**
