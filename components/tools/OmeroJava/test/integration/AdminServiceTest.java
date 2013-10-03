@@ -975,21 +975,21 @@ public class AdminServiceTest extends AbstractServerTest {
 
         final String userName1 = UUID.randomUUID().toString();
         Experimenter experimenter1 = createExperimenterI(userName1, "1", "user");
-        final long experimenterId1 = proxy.createUser(experimenter1, roles.userGroupName);
+        final long experimenterId1 = proxy.createUser(experimenter1, normalGroupName);
         experimenter1 = proxy.getExperimenter(experimenterId1);
         proxy.addGroups(experimenter1, ImmutableList.of(userGroup, systemGroup, normalGroup));
         experimenter1 = proxy.getExperimenter(experimenterId1);
 
         final String userName2 = UUID.randomUUID().toString();
         Experimenter experimenter2 = createExperimenterI(userName2, "2", "user");
-        final long experimenterId2 = proxy.createUser(experimenter2, roles.userGroupName);
+        final long experimenterId2 = proxy.createUser(experimenter2, normalGroupName);
         experimenter2 = proxy.getExperimenter(experimenterId2);
         proxy.addGroups(experimenter2, ImmutableList.of(userGroup, systemGroup, normalGroup));
         experimenter2 = proxy.getExperimenter(experimenterId2);
 
         final omero.client client = newOmeroClient();
 
-        client.createSession(userName1, roles.userGroupName);
+        client.createSession(userName1, normalGroupName);
         proxy = client.getSession().getAdminService();
 
         try {
@@ -1038,21 +1038,21 @@ public class AdminServiceTest extends AbstractServerTest {
 
         final String userName1 = UUID.randomUUID().toString();
         Experimenter experimenter1 = createExperimenterI(userName1, "1", "user");
-        final long experimenterId1 = proxy.createUser(experimenter1, roles.userGroupName);
+        final long experimenterId1 = proxy.createUser(experimenter1, normalGroupName);
         experimenter1 = proxy.getExperimenter(experimenterId1);
         proxy.addGroups(experimenter1, ImmutableList.of(userGroup, systemGroup, normalGroup));
         experimenter1 = proxy.getExperimenter(experimenterId1);
 
         final String userName2 = UUID.randomUUID().toString();
         Experimenter experimenter2 = createExperimenterI(userName2, "2", "user");
-        final long experimenterId2 = proxy.createUser(experimenter2, roles.userGroupName);
+        final long experimenterId2 = proxy.createUser(experimenter2, normalGroupName);
         experimenter2 = proxy.getExperimenter(experimenterId2);
         proxy.addGroups(experimenter2, ImmutableList.of(userGroup, systemGroup, normalGroup));
         experimenter2 = proxy.getExperimenter(experimenterId2);
 
         final omero.client client = newOmeroClient();
 
-        client.createSession(userName1, roles.userGroupName);
+        client.createSession(userName1, normalGroupName);
         proxy = client.getSession().getAdminService();
 
         try {
@@ -1101,14 +1101,14 @@ public class AdminServiceTest extends AbstractServerTest {
 
         final String userName1 = UUID.randomUUID().toString();
         Experimenter experimenter1 = createExperimenterI(userName1, "1", "user");
-        final long experimenterId1 = proxy.createUser(experimenter1, roles.userGroupName);
+        final long experimenterId1 = proxy.createUser(experimenter1, normalGroupName);
         experimenter1 = proxy.getExperimenter(experimenterId1);
         proxy.addGroups(experimenter1, ImmutableList.of(userGroup, normalGroup));
         experimenter1 = proxy.getExperimenter(experimenterId1);
 
         final String userName2 = UUID.randomUUID().toString();
         Experimenter experimenter2 = createExperimenterI(userName2, "2", "user");
-        final long experimenterId2 = proxy.createUser(experimenter2, roles.userGroupName);
+        final long experimenterId2 = proxy.createUser(experimenter2, normalGroupName);
         experimenter2 = proxy.getExperimenter(experimenterId2);
         proxy.addGroups(experimenter2, ImmutableList.of(userGroup, normalGroup));
         experimenter2 = proxy.getExperimenter(experimenterId2);
@@ -1150,7 +1150,7 @@ public class AdminServiceTest extends AbstractServerTest {
 
         final String userName1 = UUID.randomUUID().toString();
         Experimenter experimenter1 = createExperimenterI(userName1, "1", "user");
-        final long experimenterId1 = proxy.createUser(experimenter1, roles.userGroupName);
+        final long experimenterId1 = proxy.createUser(experimenter1, normalGroupName1);
         experimenter1 = proxy.getExperimenter(experimenterId1);
         proxy.addGroups(experimenter1, ImmutableList.of(userGroup, normalGroup1, normalGroup2));
         experimenter1 = proxy.getExperimenter(experimenterId1);
