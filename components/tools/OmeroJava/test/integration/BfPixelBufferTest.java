@@ -16,7 +16,6 @@ import java.util.UUID;
 import loci.formats.ImageReader;
 import ome.io.bioformats.BfPixelBuffer;
 import ome.io.nio.DimensionsOutOfBoundsException;
-import ome.io.nio.PixelBuffer;
 import ome.io.nio.RomioPixelBuffer;
 import omero.ServerError;
 import omero.api.RawPixelsStorePrx;
@@ -30,8 +29,6 @@ import org.testng.annotations.Test;
 public class BfPixelBufferTest extends AbstractServerTest {
 
     private BfPixelBuffer bf;
-
-    private PixelBuffer pb;
 
     private RawPixelsStorePrx rps;
 
