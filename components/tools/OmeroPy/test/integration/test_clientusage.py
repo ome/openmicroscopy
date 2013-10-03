@@ -23,18 +23,21 @@ class TestClientUsage(lib.ITest):
 
     def testClientClosedAutomatically(self):
         client = omero.client()
-        client.createSession();
+        user = self.new_user()
+        client.createSession(user.omeName.val, "ome");
         client.getSession().closeOnDestroy()
 
     def testClientClosedManually(self):
         client = omero.client()
-        client.createSession();
+        user = self.new_user()
+        client.createSession(user.omeName.val, "ome");
         client.getSession().closeOnDestroy();
         client.closeSession();
 
     def testUseSharedMemory(self):
         client = omero.client()
-        client.createSession();
+        user = self.new_user()
+        client.createSession(user.omeName.val, "ome");
 
         assert 0 ==  len(client.getInputKeys())
         client.setInput("a", rstring("b"));
@@ -48,7 +51,8 @@ class TestClientUsage(lib.ITest):
         secure = omero.client();
         assert secure.isSecure()
         try:
-            secure.createSession().getAdminService().getEventContext();
+            user = self.new_user()
+            secure.createSession(user.omeName.val, "ome").getAdminService().getEventContext();
             insecure = secure.createClient(False);
             try:
                 insecure.getSession().getAdminService().getEventContext();

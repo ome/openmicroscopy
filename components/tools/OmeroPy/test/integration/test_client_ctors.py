@@ -10,20 +10,20 @@
 """
 
 import os
+import test.integration.library as lib
 import omero, Ice
 
 here = os.path.abspath( os.path.dirname(__file__) )
 
-class TestClientConstructors(object):
+class TestClientConstructors(lib.ITest):
 
     def setup_method(self, method):
+        lib.ITest.setup_method(self, method)
         c = omero.client(pmap=['--Ice.Config='+(os.environ.get("ICE_CONFIG"))])
         try:
             self.host = c.ic.getProperties().getProperty('omero.host')
             self.port = int(c.ic.getProperties().getProperty('omero.port'))
             self.rootpasswd = c.ic.getProperties().getProperty('omero.rootpass')
-            self.user = c.ic.getProperties().getProperty('omero.user')
-            self.passwd = c.ic.getProperties().getProperty('omero.pass')
         finally:
             c.__del__()
 
@@ -110,7 +110,8 @@ class TestClientConstructors(object):
 
         c2 = omero.client(host=self.host, port=self.port)
         try:
-            c2.createSession(self.user, self.passwd)
+            user = self.new_user()
+            c2.createSession(user.omeName.val, "ome")
             c2.closeSession()
         finally:
             c2.__del__()

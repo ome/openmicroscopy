@@ -97,7 +97,8 @@ class TestISession(lib.ITest):
         c1, c2, c3, c4 = None, None, None, None
         try:
             c1 = omero.client() # ok rather than new_client since has __del__
-            s1 = c1.createSession()
+            user = self.new_user()
+            s1 = c1.createSession(user.omeName.val, "ome")
             s1.detachOnDestroy()
             uuid = s1.ice_getIdentity().name
 
@@ -132,7 +133,8 @@ class TestISession(lib.ITest):
         c = omero.client() # ok rather than new_client since has __del__
         try:
             c.ic.getImplicitContext().put(omero.constants.CLIENTUUID,"SimpleDestruction")
-            s = c.createSession()
+            user = self.new_user()
+            s = c.createSession(user.omeName.val, "ome")
             s.closeOnDestroy()
             c.closeSession()
         finally:
