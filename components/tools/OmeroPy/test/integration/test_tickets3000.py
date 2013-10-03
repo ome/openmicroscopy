@@ -66,6 +66,11 @@ class TestTickets3000(lib.ITest):
         l_ia.setChild(fa)
         self.update.saveObject(l_ia)
 
+    # This test is no longer valid as it shpuld not be possible to remove
+    # users from their only remaining group. It would be easy to may the
+    # test pass by adding extra groups but that would defeat the purpose
+    # of this test. Marking as xfail until the test has been reviewed.
+    @pytest.mark.xfail(reason="Is this test still valid? See #11465")
     def test2547(self):
         admin = self.root.sf.getAdminService()
         user = self.new_user()

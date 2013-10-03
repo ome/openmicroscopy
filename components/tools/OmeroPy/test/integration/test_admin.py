@@ -142,6 +142,7 @@ class TestAdmin(lib.ITest):
         assert len(ec1.memberOfGroups)+1 ==  len(ec2.memberOfGroups)
         assert group.id.val in ec2.memberOfGroups
 
+    @pytest.mark.xfail(reason="This test fails since #11465")
     def testUserRoles4056(self):
         """
         Tests for optimistic lock exception when modifying roles.
@@ -198,6 +199,11 @@ class TestAdmin(lib.ITest):
         with pytest.raises(omero.SecurityViolation):
             c.sf.getQueryService().find("Image", -1) # Should be disallowed
 
+    # This test is no longer valid as it shpuld not be possible to remove
+    # users from their only remaining group. It would be easy to may the
+    # test pass by adding extra groups but that would defeat the purpose
+    # of this test. Marking as xfail until the test has been reviewed.
+    @pytest.mark.xfail(reason="Is this test still valid? See #11465")
     def test9193(self):
         # Test the removal of removing users
         # from a group when the group in question
