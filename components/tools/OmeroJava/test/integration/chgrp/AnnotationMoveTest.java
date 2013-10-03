@@ -236,7 +236,7 @@ public class AnnotationMoveTest extends AbstractServerTest {
      * @throws Exception
      *             Thrown if an error occurred.
      */
-    @Test(groups = "broken")
+    @Test
     public void testMoveImageAnnotatedByUsersInDestinationGroupRWRWtoRWR()
             throws Exception {
         moveImageWithNonSharedAnnotation("rwrw--", "rwr---", true);
