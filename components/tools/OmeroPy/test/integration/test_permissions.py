@@ -461,6 +461,7 @@ class TestPermissions(lib.ITest):
         # If the user tries that, there will be an exception
         get_tag(query, {"omero.group": "-1"})
 
+    @pytest.mark.xfail(reason="ticket 11494")
     def test3136(self):
         """
         Calls to updateGroup were taking too long
