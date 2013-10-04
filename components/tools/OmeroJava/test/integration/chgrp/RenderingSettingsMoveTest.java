@@ -658,7 +658,7 @@ public class RenderingSettingsMoveTest extends AbstractServerTest {
         moveImage("rwrw--", "rw----", AbstractServerTest.MEMBER, -1);
     }
 
-  //member viewed the image, move by admin
+    //member viewed the image, move by admin
     /**
      * Test to move an image viewed only by the member between a
      * RWR--- group to a RWRW-- group. The admin moves the image.
@@ -801,5 +801,295 @@ public class RenderingSettingsMoveTest extends AbstractServerTest {
     @Test
     public void testSettingByMemberMoveImageByAdminRWRWtoRW() throws Exception {
         moveImage("rwrw--", "rw----", AbstractServerTest.MEMBER, AbstractServerTest.ADMIN);
+    }
+
+    //admin viewed the image, move by admin
+    /**
+     * Test to move an image viewed only by the admin between a
+     * RWR--- group to a RWRW-- group. The admin moves the image.
+     *
+     * @throws Exception
+     *             Thrown if an error occurred.
+     */
+    @Test
+    public void testSettingByAdminMoveImageByAdminRWRtoRWRW() throws Exception {
+        moveImage("rwr---", "rwrw--", AbstractServerTest.ADMIN, AbstractServerTest.ADMIN);
+    }
+
+    /**
+     * Test to move an image viewed only by the admin between a
+     * RWR--- group to a RWRA-- group. The admin moves the image.
+     *
+     * @throws Exception
+     *             Thrown if an error occurred.
+     */
+    @Test
+    public void testSettingByAdminMoveImageByAdminRWRtoRWRA() throws Exception {
+        moveImage("rwr---", "rwrw--", AbstractServerTest.ADMIN, AbstractServerTest.ADMIN);
+    }
+
+    /**
+     * Test to move an image viewed only by the admin between a
+     * RWR--- group to a RWR--- group. The admin moves the image.
+     *
+     * @throws Exception
+     *             Thrown if an error occurred.
+     */
+    @Test
+    public void testSettingByAdminMoveImageByAdminRWRtoRWR() throws Exception {
+        moveImage("rwr---", "rwr---", AbstractServerTest.ADMIN, AbstractServerTest.ADMIN);
+    }
+
+    /**
+     * Test to move an image viewed only by the admin between a
+     * RWR--- group to a RW---- group. The admin moves the image.
+     *
+     * @throws Exception
+     *             Thrown if an error occurred.
+     */
+    @Test
+    public void testSettingByAdminMoveImageByAdminRWRtoRW() throws Exception {
+        moveImage("rwr---", "rw----", AbstractServerTest.ADMIN, AbstractServerTest.ADMIN);
+    }
+
+    /**
+     * Test to move an image viewed only by the admin between a
+     * RWRA-- group to a RW---- group. The admin moves the image.
+     *
+     * @throws Exception
+     *             Thrown if an error occurred.
+     */
+    @Test
+    public void testSettingByAdminMoveImageByAdminRWRAtoRW() throws Exception {
+        moveImage("rwr---", "rw----", AbstractServerTest.ADMIN, AbstractServerTest.ADMIN);
+    }
+
+    /**
+     * Test to move an image viewed only by the admin between a
+     * RWRA-- group to a RWR--- group. The admin moves the image.
+     *
+     * @throws Exception
+     *             Thrown if an error occurred.
+     */
+    @Test
+    public void testSettingByAdminMoveImageByAdminRWRAtoRWR() throws Exception {
+        moveImage("rwra--", "rwr---", AbstractServerTest.ADMIN, AbstractServerTest.ADMIN);
+    }
+
+    /**
+     * Test to move an image viewed only by the admin between a
+     * RWRA-- group to a RWRA-- group. The admin moves the image.
+     *
+     * @throws Exception
+     *             Thrown if an error occurred.
+     */
+    @Test
+    public void testSettingByAdminMoveImageByAdminRWRAtoRWRA() throws Exception {
+        moveImage("rwra--", "rwra--", AbstractServerTest.ADMIN, AbstractServerTest.ADMIN);
+    }
+
+    /**
+     * Test to move an image viewed only by the admin between a
+     * RWRA-- group to a RWRW-- group. The admin moves the image.
+     *
+     * @throws Exception
+     *             Thrown if an error occurred.
+     */
+    @Test
+    public void testSettingByAdminMoveImageByAdminRWRAtoRWRW() throws Exception {
+        moveImage("rwra--", "rwrw--", AbstractServerTest.ADMIN, AbstractServerTest.ADMIN);
+    }
+
+    /**
+     * Test to move an image viewed only by the admin between a
+     * RWRW-- group to a RWRW-- group. The admin moves the image.
+     *
+     * @throws Exception
+     *             Thrown if an error occurred.
+     */
+    @Test
+    public void testSettingByAdminMoveImageByAdminRWRWtoRWRW() throws Exception {
+        moveImage("rwrw--", "rwrw--", AbstractServerTest.ADMIN, AbstractServerTest.ADMIN);
+    }
+
+    /**
+     * Test to move an image viewed only by the admin between a
+     * RWRW-- group to a RWRA-- group. The admin moves the image.
+     *
+     * @throws Exception
+     *             Thrown if an error occurred.
+     */
+    @Test
+    public void testSettingByAdminMoveImageByAdminRWRWtoRWRA() throws Exception {
+        moveImage("rwrw--", "rwra--", AbstractServerTest.ADMIN, AbstractServerTest.ADMIN);
+    }
+
+    /**
+     * Test to move an image viewed only by the admin between a
+     * RWRW-- group to a RWR--- group. The admin moves the image.
+     *
+     * @throws Exception
+     *             Thrown if an error occurred.
+     */
+    @Test
+    public void testSettingByAdminMoveImageByAdminRWRWtoRWR() throws Exception {
+        moveImage("rwrw--", "rwr---", AbstractServerTest.ADMIN, AbstractServerTest.ADMIN);
+    }
+
+    /**
+     * Test to move an image viewed only by the admin between a
+     * RWRW-- group to a RW---- group. The admin moves the image.
+     *
+     * @throws Exception
+     *             Thrown if an error occurred.
+     */
+    @Test
+    public void testSettingByAdminMoveImageByAdminRWRWtoRW() throws Exception {
+        moveImage("rwrw--", "rw----", AbstractServerTest.ADMIN, AbstractServerTest.ADMIN);
+    }
+
+    //view by admin, move by owner
+    /**
+     * Test to move an image viewed only by the owner between a
+     * RWR--- group to a RWRW-- group. The admin moves the image.
+     *
+     * @throws Exception
+     *             Thrown if an error occurred.
+     */
+    @Test
+    public void testSettingByAdminMoveImageByOwnerRWRtoRWRW() throws Exception {
+        moveImage("rwr---", "rwrw--", AbstractServerTest.ADMIN, -1);
+    }
+
+    /**
+     * Test to move an image viewed only by the owner between a
+     * RWR--- group to a RWRA-- group. The admin moves the image.
+     *
+     * @throws Exception
+     *             Thrown if an error occurred.
+     */
+    @Test
+    public void testSettingByAdminMoveImageByOwnerRWRtoRWRA() throws Exception {
+        moveImage("rwr---", "rwrw--", AbstractServerTest.ADMIN, -1);
+    }
+
+    /**
+     * Test to move an image viewed only by the owner between a
+     * RWR--- group to a RWR--- group. The admin moves the image.
+     *
+     * @throws Exception
+     *             Thrown if an error occurred.
+     */
+    @Test
+    public void testSettingByAdminMoveImageByOwnerRWRtoRWR() throws Exception {
+        moveImage("rwr---", "rwr---", AbstractServerTest.ADMIN, -1);
+    }
+
+    /**
+     * Test to move an image viewed only by the onwer between a
+     * RWR--- group to a RW---- group. The admin moves the image.
+     *
+     * @throws Exception
+     *             Thrown if an error occurred.
+     */
+    @Test
+    public void testSettingByAdminMoveImageByOwnerRWRtoRW() throws Exception {
+        moveImage("rwr---", "rw----", AbstractServerTest.ADMIN, -1);
+    }
+
+    /**
+     * Test to move an image viewed only by the owner between a
+     * RWRA-- group to a RW---- group. The admin moves the image.
+     *
+     * @throws Exception
+     *             Thrown if an error occurred.
+     */
+    @Test
+    public void testSettingByAdminMoveImageByOwnerRWRAtoRW() throws Exception {
+        moveImage("rwr---", "rw----", AbstractServerTest.ADMIN, -1);
+    }
+
+    /**
+     * Test to move an image viewed only by the owner between a
+     * RWRA-- group to a RWR--- group. The admin moves the image.
+     *
+     * @throws Exception
+     *             Thrown if an error occurred.
+     */
+    @Test
+    public void testSettingByAdminMoveImageByOwnerRWRAtoRWR() throws Exception {
+        moveImage("rwra--", "rwr---", AbstractServerTest.ADMIN, -1);
+    }
+
+    /**
+     * Test to move an image viewed only by the owner between a
+     * RWRA-- group to a RWRA-- group. The admin moves the image.
+     *
+     * @throws Exception
+     *             Thrown if an error occurred.
+     */
+    @Test
+    public void testSettingByAdminMoveImageByOwnerRWRAtoRWRA() throws Exception {
+        moveImage("rwra--", "rwra--", AbstractServerTest.ADMIN, -1);
+    }
+
+    /**
+     * Test to move an image viewed only by the owner between a
+     * RWRA-- group to a RWRW-- group. The admin moves the image.
+     *
+     * @throws Exception
+     *             Thrown if an error occurred.
+     */
+    @Test
+    public void testSettingByAdminMoveImageByOwnerRWRAtoRWRW() throws Exception {
+        moveImage("rwra--", "rwrw--", AbstractServerTest.ADMIN, -1);
+    }
+
+    /**
+     * Test to move an image viewed only by the owner between a
+     * RWRW-- group to a RWRW-- group. The admin moves the image.
+     *
+     * @throws Exception
+     *             Thrown if an error occurred.
+     */
+    @Test
+    public void testSettingByAdminMoveImageByOwnerRWRWtoRWRW() throws Exception {
+        moveImage("rwrw--", "rwrw--", AbstractServerTest.ADMIN, -1);
+    }
+
+    /**
+     * Test to move an image viewed only by the owner between a
+     * RWRW-- group to a RWRA-- group. The admin moves the image.
+     *
+     * @throws Exception
+     *             Thrown if an error occurred.
+     */
+    @Test
+    public void testSettingByAdminMoveImageByOwnerRWRWtoRWRA() throws Exception {
+        moveImage("rwrw--", "rwra--", AbstractServerTest.ADMIN, -1);
+    }
+
+    /**
+     * Test to move an image viewed only by the admin between a
+     * RWRW-- group to a RWR--- group. The owner moves the image.
+     *
+     * @throws Exception
+     *             Thrown if an error occurred.
+     */
+    @Test
+    public void testSettingByAdminMoveImageByOwnerRWRWtoRWR() throws Exception {
+        moveImage("rwrw--", "rwr---", AbstractServerTest.ADMIN, -1);
+    }
+
+    /**
+     * Test to move an image viewed only by the admin between a
+     * RWRW-- group to a RW---- group. The owner moves the image.
+     *
+     * @throws Exception
+     *             Thrown if an error occurred.
+     */
+    @Test
+    public void testSettingByAdminMoveImageByOwnerRWRWtoRW() throws Exception {
+        moveImage("rwrw--", "rw----", AbstractServerTest.ADMIN, -1);
     }
 }
