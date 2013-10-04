@@ -167,7 +167,7 @@ public class OneGroupSecurityFilter extends AbstractSecurityFilter {
         final Long shareId = ec.getCurrentShareId();
         int share01 = shareId != null ? 1 : 0; // non-final; "ticket:3529" below
 
-        final int admin01 = (ec.isCurrentUserAdmin() ||
+        final int adminOrPi01 = (ec.isCurrentUserAdmin() ||
                 ec.getLeaderOfGroupsList().contains(ec.getCurrentGroupId()))
                 ? 1 : 0;
 
@@ -180,11 +180,11 @@ public class OneGroupSecurityFilter extends AbstractSecurityFilter {
         }
 
         filter.setParameter(SecurityFilter.is_share, share01); // ticket:2219, not checking -1 here.
-        filter.setParameter(SecurityFilter.is_adminorpi, admin01);
+        filter.setParameter(SecurityFilter.is_adminorpi, adminOrPi01);
         filter.setParameter(SecurityFilter.is_nonprivate, nonpriv01);
         filter.setParameter(SecurityFilter.current_user, ec.getCurrentUserId());
         filter.setParameter(current_group, groupId);
-
+        enableBaseFilters(sess, ec.isCurrentUserAdmin() ? 1 : 0, ec.getCurrentUserId());
     }
 
     private void throwNegOne() {
