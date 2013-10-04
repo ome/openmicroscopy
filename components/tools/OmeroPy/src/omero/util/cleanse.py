@@ -139,7 +139,7 @@ class Cleanser(object):
                         object_id = omero.rtypes.rlong(-1)
                 except ValueError:
                     object_id = omero.rtypes.rlong(-1)
-            object_ids.append(object_id)    
+            object_ids.append(object_id)
 
         parameters = omero.sys.Parameters()
         parameters.map = {'ids': omero.rtypes.rlist(object_ids)}
@@ -147,7 +147,7 @@ class Cleanser(object):
             "select o.id from %s as o where o.id in (:ids)" % self.object_type,
             parameters, {"omero.group":"-1"})
         existing_ids = [cols[0].val for cols in rows]
-        
+
         for i, object_id in enumerate(object_ids):
             path = self.deferred_paths[i]
             if object_id.val not in existing_ids:
@@ -182,13 +182,14 @@ class Cleanser(object):
         return "Cleansing context: %d files (%d bytes)" % \
             (len(self.cleansed), self.bytes_cleansed)
 
-def cleanse(data_dir, query_service, dry_run = False, config_service = None):
 
+def initial_check(config_service):
     #
     # Compare server versions. See ticket #3123
     #
     if config_service is None:
-        print "No config service provided! Waiting 10 seconds to allow cancellation"
+        print ("No config service provided! "
+               "Waiting 10 seconds to allow cancellation")
         from threading import Event
         Event().wait(10)
 
@@ -198,6 +199,9 @@ def cleanse(data_dir, query_service, dry_run = False, config_service = None):
         print "Server version is too old! (%s) Aborting..." % server_version
         sys.exit(3)
 
+
+def cleanse(data_dir, query_service, dry_run=False, config_service=None):
+    initial_check(config_service)
     try:
         cleanser = ""
         for directory in SEARCH_DIRECTORIES:
@@ -212,6 +216,35 @@ def cleanse(data_dir, query_service, dry_run = False, config_service = None):
     finally:
         if dry_run:
             print cleanser
+
+
+def fixpyramids(data_dir, query_service, dry_run=False, config_service=None):
+    initial_check(config_service)
+
+    # look for any pyramid files with length 0
+    # if there is no matching .*.tmp or .*.pyr_lock file, then
+    # the pyramid file will be removed
+
+    pixels_dir = os.path.join(data_dir, "Pixels")
+    for f in os.listdir(pixels_dir):
+        pixels_file = os.path.join(pixels_dir, f)
+        length = os.path.getsize(pixels_file)
+        if length == 0 and f.endswith("_pyramid"):
+            delete_pyramid = True
+            for lockfile in os.listdir(pixels_dir):
+                if lockfile.startswith("." + f) and \
+                   (lockfile.endswith(".tmp") or
+                        lockfile.endswith(".pyr_lock")):
+                    delete_pyramid = False
+                    break
+
+            if delete_pyramid:
+                if dry_run:
+                    print "Would remove %s" % f
+                else:
+                    print "Removing %s" % f
+                    os.remove(pixels_file)
+
 
 def main():
     """

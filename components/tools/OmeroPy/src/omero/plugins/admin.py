@@ -121,7 +121,8 @@ class AdminControl(BaseControl):
 
         Action("ice", """Drop user into icegridadmin console or execute arguments""")
 
-        Action("fixpyramids", """Remove empty pyramid pixels files""")
+        fixpyramids = Action("fixpyramids", """Remove empty pyramid pixels files""").parser
+        # See cleanse options below
 
         Action("diagnostics", """Run a set of checks on the current, preferably active server""")
 
@@ -194,9 +195,11 @@ Examples:
   bin/omero admin cleanse /volumes/data/OMERO                                      # Delete from a standard location.
 
 """).parser
-        cleanse.add_argument("--dry-run", action = "store_true", help = "Print out which files would be deleted")
-        cleanse.add_argument("data_dir", type=DirectoryType(), help = "omero.data.dir directory value (e.g. /OMERO")
-        cleanse.add_login_arguments()
+
+        for x in (cleanse, fixpyramids):
+            x.add_argument("--dry-run", action = "store_true", help = "Print out which files would be deleted")
+            x.add_argument("data_dir", type=DirectoryType(), help = "omero.data.dir directory value (e.g. /OMERO")
+            x.add_login_arguments()
 
         Action("checkwindows", """Run simple check of the local installation (Windows-only)""")
         Action("checkice", """Run simple check of the Ice installation""")
@@ -632,32 +635,13 @@ Examples:
 
     @with_config
     def fixpyramids(self, args, config):
-        self.check_access();
-        config = config.as_map()
-        omero_data_dir = '/OMERO'
-        try:
-            omero_data_dir = config['omero.data.dir']
-        except KeyError:
-            pass
-
-        # look for any pyramid files with length 0
-        # if there is no matching .*.tmp or .*.pyr_lock file, then
-        # the pyramid file will be removed
-
-        pixels_dir = os.path.join(omero_data_dir, "Pixels")
-        for f in os.listdir(pixels_dir):
-            pixels_file = os.path.join(pixels_dir, f)
-            length = os.path.getsize(pixels_file)
-            if length == 0 and f.endswith("_pyramid"):
-                delete_pyramid = True
-                for lockfile in os.listdir(pixels_dir):
-                    if lockfile.startswith("." + f) and (lockfile.endswith(".tmp") or lockfile.endswith(".pyr_lock")):
-                        delete_pyramid = False
-                        break
-
-                if delete_pyramid:
-                    self.ctx.out("Removing %s" % f)
-                    os.remove(pixels_file)
+        self.check_access()
+        from omero.util.cleanse import fixpyramids
+        client = self.ctx.conn(args)
+        key = client.getSessionId()
+        fixpyramids(data_dir=args.data_dir, dry_run=args.dry_run, \
+            query_service=client.sf.getQueryService(), \
+            config_service=client.sf.getConfigService())
 
     @with_config
     def diagnostics(self, args, config):
@@ -714,7 +698,7 @@ OMERO Diagnostics %s
                         lcl = l.lower()
                         found_err = lcl.find("error") >= 0
                         found_warn = lcl.find("warn") >= 0
-                        
+
                         if found_err:
                             err += 1
                         elif found_warn:
