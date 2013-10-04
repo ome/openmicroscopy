@@ -71,15 +71,14 @@ public class DeleteProjectedImageTest  extends AbstractServerTest {
      * or by another user.
      * 
      * @param src The permissions of the source group.
-     * @param target The permissions of the source group.
      * @param memberRole The role of the other group member projecting the
      * image or <code>-1</code> if the owner projects the image.
-     * @param deleteMemberRole The role of the member moving the image
+     * @param deleteMemberRole The role of the member deleting the image
      * image or <code>-1</code> if the owner projects the image.
      * @param action One of the constants defined by this class.
      * @throws Exception Thrown if an error occurred.
      */
-    private void deleteImage(String src, String target, int memberRole,
+    private void deleteImage(String src, int memberRole,
             int deleteMemberRole, int action)
             throws Exception
     {
@@ -127,7 +126,7 @@ public class DeleteProjectedImageTest  extends AbstractServerTest {
         //Check the result
         ParametersI param = new ParametersI();
         StringBuilder sb = new StringBuilder();
-        sb.append("select i from Image i ");
+        sb.append("select i in Image i ");
         sb.append("where i.id in (:ids)");
         List<Long> ids = new ArrayList<Long>();
         List<IObject> images;
@@ -168,1984 +167,502 @@ public class DeleteProjectedImageTest  extends AbstractServerTest {
     }
 
     /**
-     * Test the delete of the image that has been projected from a
-     * RW---- to a RW---- group. The source image is deleted.
+     * Test the delete of the image that has been projected in a
+     * RW---- group. The source image is deleted.
      * The projection is done by the owner of the data and deleted by the owner.
      *
      * @throws Exception Thrown if an error occurred.
      */
     @Test
-    public void testSourceImageByOwnerdeleteByOwnerRWtoRW() throws Exception {
-        deleteImage("rw----", "rw----", -1, -1, SOURCE_IMAGE);
+    public void testSourceImageByOwnerdeleteByOwnerRW() throws Exception {
+        deleteImage("rw----", -1, -1, SOURCE_IMAGE);
     }
 
     /**
-     * Test the delete of the image that has been projected from a
-     * RW---- to a RW---- group. The projected image is deleted.
+     * Test the delete of the image that has been projected in a
+     * RW---- group. The projected image is deleted.
      * The projection is done by the owner of the data and deleted by the owner.
      *
      * @throws Exception Thrown if an error occurred.
      */
     @Test
-    public void testProjectedImageByOwnerdeleteByOwnerRWtoRW() throws Exception {
-        deleteImage("rw----", "rw----", -1, -1, PROJECTED_IMAGE);
+    public void testProjectedImageByOwnerdeleteByOwnerRW() throws Exception {
+        deleteImage("rw----",  -1, -1, PROJECTED_IMAGE);
     }
 
     /**
-     * Test the delete of the image that has been projected from a
-     * RW---- to a RW---- group. Both images are deleted.
+     * Test the delete of the image that has been projected in a
+     * RW---- group. Both images are deleted.
      * The projection is done by the owner of the data and deleted by the owner.
      *
      * @throws Exception Thrown if an error occurred.
      */
     @Test
-    public void testBothImagesByOwnerdeleteByOwnerRWtoRW() throws Exception {
-        deleteImage("rw----", "rw----", -1, -1, BOTH_IMAGES);
+    public void testBothImagesByOwnerdeleteByOwnerRW() throws Exception {
+        deleteImage("rw----", -1, -1, BOTH_IMAGES);
     }
 
     /**
-     * Test the delete of the image that has been projected from a
-     * RW---- to a RWR--- group. The source image is deleted.
+     * Test the delete of the image that has been projected in a
+     * RWR--- group. The source image is deleted.
      * The projection is done by the owner of the data and deleted by the owner.
      *
      * @throws Exception Thrown if an error occurred.
      */
     @Test
-    public void testSourceImageByOwnerdeleteByOwnerRWtoRWR() throws Exception {
-        deleteImage("rw----", "rwr---", -1, -1, SOURCE_IMAGE);
+    public void testSourceImageByOwnerdeleteByOwnerRWR() throws Exception {
+        deleteImage("rwr---", -1, -1, SOURCE_IMAGE);
     }
 
     /**
-     * Test the delete of the image that has been projected from a
-     * RW---- to a RWR--- group. The projected image is deleted.
+     * Test the delete of the image that has been projected in a
+     * RWR--- group. The projected image is deleted.
      * The projection is done by the owner of the data and deleted by the owner.
      *
      * @throws Exception Thrown if an error occurred.
      */
     @Test
-    public void testProjectedImageByOwnerdeleteByOwnerRWtoRWR() throws Exception {
-        deleteImage("rw----", "rwr---", -1, -1, PROJECTED_IMAGE);
+    public void testProjectedImageByOwnerdeleteByOwnerRWR() throws Exception {
+        deleteImage("rwr---", -1, -1, PROJECTED_IMAGE);
     }
 
     /**
-     * Test the delete of the image that has been projected from a
-     * RW---- to a RWR--- group. Both images are deleted.
+     * Test the delete of the image that has been projected in a
+     * RWR---- group. Both images are deleted.
      * The projection is done by the owner of the data and deleted by the owner.
      *
      * @throws Exception Thrown if an error occurred.
      */
     @Test
-    public void testBothImagesByOwnerdeleteByOwnerRWtoRWR() throws Exception {
-        deleteImage("rw----", "rwr---", -1, -1, BOTH_IMAGES);
+    public void testBothImagesByOwnerdeleteByOwnerRWR() throws Exception {
+        deleteImage("rwr---", -1, -1, BOTH_IMAGES);
     }
 
     /**
-     * Test the delete of the image that has been projected from a
-     * RW---- to a RWRA-- group. The source image is deleted.
+     * Test the delete of the image that has been projected in a
+     * RWRA-- group. The source image is deleted.
      * The projection is done by the owner of the data and deleted by the owner.
      *
      * @throws Exception Thrown if an error occurred.
      */
     @Test
-    public void testSourceImageByOwnerdeleteByOwnerRWtoRWRA() throws Exception {
-        deleteImage("rw----", "rwra--", -1, -1, SOURCE_IMAGE);
+    public void testSourceImageByOwnerdeleteByOwnerRWRA() throws Exception {
+        deleteImage("rwra--", -1, -1, SOURCE_IMAGE);
     }
 
     /**
-     * Test the delete of the image that has been projected from a
-     * RW---- to a RWRA-- group. The projected image is deleted.
+     * Test the delete of the image that has been projected in a
+     * RWRA-- group. The projected image is deleted.
      * The projection is done by the owner of the data and deleted by the owner.
      *
      * @throws Exception Thrown if an error occurred.
      */
     @Test
-    public void testProjectedImageByOwnerdeleteByOwnerRWtoRWRA() throws Exception {
-        deleteImage("rw----", "rwra--", -1, -1, PROJECTED_IMAGE);
+    public void testProjectedImageByOwnerdeleteByOwnerRWRA() throws Exception {
+        deleteImage("rwra--", -1, -1, PROJECTED_IMAGE);
     }
 
     /**
-     * Test the delete of the image that has been projected from a
-     * RW---- to a RWRA-- group. Both images are deleted.
+     * Test the delete of the image that has been projected in a
+     * RWRA-- group. Both images are deleted.
      * The projection is done by the owner of the data and deleted by the owner.
      *
      * @throws Exception Thrown if an error occurred.
      */
     @Test
-    public void testBothImagesByOwnerdeleteByOwnerRWtoRWRA() throws Exception {
-        deleteImage("rw----", "rwra--", -1, -1, BOTH_IMAGES);
+    public void testBothImagesByOwnerdeleteByOwnerRWRA() throws Exception {
+        deleteImage("rwra--", -1, -1, BOTH_IMAGES);
     }
 
     /**
-     * Test the delete of the image that has been projected from a
-     * RW---- to a RWRW-- group. The source image is deleted.
+     * Test the delete of the image that has been projected in a
+     * RWRW-- group. The source image is deleted.
      * The projection is done by the owner of the data and deleted by the owner.
      *
      * @throws Exception Thrown if an error occurred.
      */
     @Test
-    public void testSourceImageByOwnerdeleteByOwnerRWtoRWRW() throws Exception {
-        deleteImage("rw----", "rwrw--", -1, -1, SOURCE_IMAGE);
+    public void testSourceImageByOwnerdeleteByOwnerRWRW() throws Exception {
+        deleteImage("rwrw--", -1, -1, SOURCE_IMAGE);
     }
 
     /**
-     * Test the delete of the image that has been projected from a
-     * RW---- to a RWRW-- group. The projected image is deleted.
+     * Test the delete of the image that has been projected in a
+     * RWRW-- group. The projected image is deleted.
      * The projection is done by the owner of the data and deleted by the owner.
      *
      * @throws Exception Thrown if an error occurred.
      */
     @Test
-    public void testProjectedImageByOwnerdeleteByOwnerRWtoRWRW() throws Exception {
-        deleteImage("rw----", "rwrw--", -1, -1, PROJECTED_IMAGE);
+    public void testProjectedImageByOwnerdeleteByOwnerRWRW() throws Exception {
+        deleteImage("rwrw--", -1, -1, PROJECTED_IMAGE);
     }
 
     /**
-     * Test the delete of the image that has been projected from a
-     * RW---- to a RWRW-- group. Both images are deleted.
+     * Test the delete of the image that has been projected in a
+     * RWRW-- group. Both images are deleted.
      * The projection is done by the owner of the data and deleted by the owner.
      *
      * @throws Exception Thrown if an error occurred.
      */
     @Test
-    public void testBothImagesByOwnerdeleteByOwnerRWtoRWRW() throws Exception {
-        deleteImage("rw----", "rwrw--", -1, -1, BOTH_IMAGES);
-    }
-
-    /**
-     * Test the delete of the image that has been projected from a
-     * RWR--- to a RWRW-- group. The source image is deleted.
-     * The projection is done by the owner of the data and deleted by the owner.
-     *
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testSourceImageByOwnerdeleteByOwnerRWRtoRWRW() throws Exception {
-        deleteImage("rwr---", "rwrw--", -1, -1, SOURCE_IMAGE);
-    }
-
-    /**
-     * Test the delete of the image that has been projected from a
-     * RWR--- to a RWRW-- group. The projected image is deleted.
-     * The projection is done by the owner of the data and deleted by the owner.
-     *
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testProjectedImageByOwnerdeleteByOwnerRWRtoRWRW() throws Exception {
-        deleteImage("rwr---", "rwrw--", -1, -1, PROJECTED_IMAGE);
-    }
-
-    /**
-     * Test the delete of the image that has been projected from a
-     * RW---- to a RWRW-- group. Both images are deleted.
-     * The projection is done by the owner of the data and deleted by the owner.
-     *
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testBothImagesByOwnerdeleteByOwnerRWRtoRWRW() throws Exception {
-        deleteImage("rwr---", "rwrw--", -1, -1, BOTH_IMAGES);
-    }
-
-    /**
-     * Test the delete of the image that has been projected from a
-     * RWR--- to a RWRA-- group. The source image is deleted.
-     * The projection is done by the owner of the data and deleted by the owner.
-     *
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testSourceImageByOwnerdeleteByOwnerRWRtoRWRA() throws Exception {
-        deleteImage("rwr---", "rwra--", -1, -1, SOURCE_IMAGE);
-    }
-
-    /**
-     * Test the delete of the image that has been projected from a
-     * RWR--- to a RWRA-- group. The projected image is deleted.
-     * The projection is done by the owner of the data and deleted by the owner.
-     *
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testProjectedImageByOwnerdeleteByOwnerRWRtoRWRA() throws Exception {
-        deleteImage("rwr---", "rwra--", -1, -1, PROJECTED_IMAGE);
-    }
-
-    /**
-     * Test the delete of the image that has been projected from a
-     * RW---- to a RWRA-- group. Both images are deleted.
-     * The projection is done by the owner of the data and deleted by the owner.
-     *
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testBothImagesByOwnerdeleteByOwnerRWRtoRWRA() throws Exception {
-        deleteImage("rwr---", "rwra--", -1, -1, BOTH_IMAGES);
-    }
-
-    /**
-     * Test the delete of the image that has been projected from a
-     * RWR--- to a RWR--- group. The source image is deleted.
-     * The projection is done by the owner of the data and deleted by the owner.
-     *
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testSourceImageByOwnerdeleteByOwnerRWRtoRWR() throws Exception {
-        deleteImage("rwr---", "rwra--", -1, -1, SOURCE_IMAGE);
-    }
-
-    /**
-     * Test the delete of the image that has been projected from a
-     * RWR--- to a RWR--- group. The projected image is deleted.
-     * The projection is done by the owner of the data and deleted by the owner.
-     *
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testProjectedImageByOwnerdeleteByOwnerRWRtoRWR() throws Exception {
-        deleteImage("rwr---", "rwr---", -1, -1, PROJECTED_IMAGE);
-    }
-
-    /**
-     * Test the delete of the image that has been projected from a
-     * RW---- to a RWR--- group. Both images are deleted.
-     * The projection is done by the owner of the data and deleted by the owner.
-     *
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testBothImagesByOwnerdeleteByOwnerRWRtoRWR() throws Exception {
-        deleteImage("rwr---", "rwr---", -1, -1, BOTH_IMAGES);
-    }
-
-    /**
-     * Test the delete of the image that has been projected from a
-     * RWR--- to a RW---- group. The source image is deleted.
-     * The projection is done by the owner of the data and deleted by the owner.
-     *
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testSourceImageByOwnerdeleteByOwnerRWRtoRW() throws Exception {
-        deleteImage("rwr---", "rwra--", -1, -1, SOURCE_IMAGE);
-    }
-
-    /**
-     * Test the delete of the image that has been projected from a
-     * RWR--- to a RW---- group. The projected image is deleted.
-     * The projection is done by the owner of the data and deleted by the owner.
-     *
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testProjectedImageByOwnerdeleteByOwnerRWRtoRW() throws Exception {
-        deleteImage("rwr---", "rw----", -1, -1, PROJECTED_IMAGE);
-    }
-
-    /**
-     * Test the delete of the image that has been projected from a
-     * RW---- to a RW---- group. Both images are deleted.
-     * The projection is done by the owner of the data and deleted by the owner.
-     *
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testBothImagesByOwnerdeleteByOwnerRWRtoRW() throws Exception {
-        deleteImage("rwr---", "rw----", -1, -1, BOTH_IMAGES);
-    }
-
-    /**
-     * Test the delete of the image that has been projected from a
-     * RWRA-- to a RW---- group. The source image is deleted.
-     * The projection is done by the owner of the data and deleted by the owner.
-     *
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testSourceImageByOwnerdeleteByOwnerRWRAtoRW() throws Exception {
-        deleteImage("rwra--", "rwra--", -1, -1, SOURCE_IMAGE);
-    }
-
-    /**
-     * Test the delete of the image that has been projected from a
-     * RWR--- to a RW---- group. The projected image is deleted.
-     * The projection is done by the owner of the data and deleted by the owner.
-     *
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testProjectedImageByOwnerdeleteByOwnerRWRAtoRW() throws Exception {
-        deleteImage("rwra--", "rw----", -1, -1, PROJECTED_IMAGE);
-    }
-
-    /**
-     * Test the delete of the image that has been projected from a
-     * RWRA-- to a RW---- group. Both images are deleted.
-     * The projection is done by the owner of the data and deleted by the owner.
-     *
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testBothImagesByOwnerdeleteByOwnerRWRAtoRW() throws Exception {
-        deleteImage("rwra--", "rw----", -1, -1, BOTH_IMAGES);
-    }
-
-    /**
-     * Test the delete of the image that has been projected from a
-     * RWRA-- to a RWR--- group. The source image is deleted.
-     * The projection is done by the owner of the data and deleted by the owner.
-     *
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testSourceImageByOwnerdeleteByOwnerRWRAtoRWR() throws Exception {
-        deleteImage("rwra--", "rwr--", -1, -1, SOURCE_IMAGE);
-    }
-
-    /**
-     * Test the delete of the image that has been projected from a
-     * RWRA-- to a RWR--- group. The projected image is deleted.
-     * The projection is done by the owner of the data and deleted by the owner.
-     *
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testProjectedImageByOwnerdeleteByOwnerRWRAtoRWR() throws Exception {
-        deleteImage("rwra--", "rwr---", -1, -1, PROJECTED_IMAGE);
-    }
-
-    /**
-     * Test the delete of the image that has been projected from a
-     * RWRA-- to a RWR--- group. Both images are deleted.
-     * The projection is done by the owner of the data and deleted by the owner.
-     *
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testBothImagesByOwnerdeleteByOwnerRWRAtoRWR() throws Exception {
-        deleteImage("rwra--", "rwr---", -1, -1, BOTH_IMAGES);
-    }
-
-    /**
-     * Test the delete of the image that has been projected from a
-     * RWRA-- to a RWRA-- group. The source image is deleted.
-     * The projection is done by the owner of the data and deleted by the owner.
-     *
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testSourceImageByOwnerdeleteByOwnerRWRAtoRWRA() throws Exception {
-        deleteImage("rwra--", "rwra--", -1, -1, SOURCE_IMAGE);
-    }
-
-    /**
-     * Test the delete of the image that has been projected from a
-     * RWR--- to a RWRA-- group. The projected image is deleted.
-     * The projection is done by the owner of the data and deleted by the owner.
-     *
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testProjectedImageByOwnerdeleteByOwnerRWRAtoRWRA() throws Exception {
-        deleteImage("rwra--", "rwr---", -1, -1, PROJECTED_IMAGE);
-    }
-
-    /**
-     * Test the delete of the image that has been projected from a
-     * RWRA-- to a RWRA-- group. Both images are deleted.
-     * The projection is done by the owner of the data and deleted by the owner.
-     *
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testBothImagesByOwnerdeleteByOwnerRWRAtoRWRA() throws Exception {
-        deleteImage("rwra--", "rwra--", -1, -1, BOTH_IMAGES);
-    }
-    /**
-     * Test the delete of the image that has been projected from a
-     * RWRA-- to a RWRW-- group. The source image is deleted.
-     * The projection is done by the owner of the data and deleted by the owner.
-     *
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testSourceImageByOwnerdeleteByOwnerRWRAtoRWRW() throws Exception {
-        deleteImage("rwra--", "rwrw--", -1, -1, SOURCE_IMAGE);
-    }
-
-    /**
-     * Test the delete of the image that has been projected from a
-     * RWR--- to a RWRW-- group. The projected image is deleted.
-     * The projection is done by the owner of the data and deleted by the owner.
-     *
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testProjectedImageByOwnerdeleteByOwnerRWRAtoRWRW() throws Exception {
-        deleteImage("rwra--", "rwrw--", -1, -1, PROJECTED_IMAGE);
-    }
-
-    /**
-     * Test the delete of the image that has been projected from a
-     * RWRA-- to a RWRW-- group. Both images are deleted.
-     * The projection is done by the owner of the data and deleted by the owner.
-     *
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testBothImagesByOwnerdeleteByOwnerRWRAtoRWRW() throws Exception {
-        deleteImage("rwra--", "rwrw--", -1, -1, BOTH_IMAGES);
-    }
-
-    /**
-     * Test the delete of the image that has been projected from a
-     * RWRW-- to a RWRW-- group. The source image is deleted.
-     * The projection is done by the owner of the data and deleted by the owner.
-     *
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testSourceImageByOwnerdeleteByOwnerRWRWtoRWRW() throws Exception {
-        deleteImage("rwrw--", "rwrw--", -1, -1, SOURCE_IMAGE);
-    }
-
-    /**
-     * Test the delete of the image that has been projected from a
-     * RWRW-- to a RWRW-- group. The projected image is deleted.
-     * The projection is done by the owner of the data and deleted by the owner.
-     *
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testProjectedImageByOwnerdeleteByOwnerRWRWtoRWRW() throws Exception {
-        deleteImage("rwrw--", "rwrw--", -1, -1, PROJECTED_IMAGE);
-    }
-
-    /**
-     * Test the delete of the image that has been projected from a
-     * RWRW-- to a RWRW-- group. Both images are deleted.
-     * The projection is done by the owner of the data and deleted by the owner.
-     *
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testBothImagesByOwnerdeleteByOwnerRWRWtoRWRW() throws Exception {
-        deleteImage("rwrw--", "rwrw--", -1, -1, BOTH_IMAGES);
-    }
-
-    /**
-     * Test the delete of the image that has been projected from a
-     * RWRW-- to a RWRA-- group. The source image is deleted.
-     * The projection is done by the owner of the data and deleted by the owner.
-     *
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testSourceImageByOwnerdeleteByOwnerRWRWtoRWRA() throws Exception {
-        deleteImage("rwrw--", "rwrw--", -1, -1, SOURCE_IMAGE);
-    }
-
-    /**
-     * Test the delete of the image that has been projected from a
-     * RWRW-- to a RWRA-- group. The projected image is deleted.
-     * The projection is done by the owner of the data and deleted by the owner.
-     *
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testProjectedImageByOwnerdeleteByOwnerRWRWtoRWRA() throws Exception {
-        deleteImage("rwrw--", "rwra--", -1, -1, PROJECTED_IMAGE);
-    }
-
-    /**
-     * Test the delete of the image that has been projected from a
-     * RWRW-- to a RWRW-- group. Both images are deleted.
-     * The projection is done by the owner of the data and deleted by the owner.
-     *
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testBothImagesByOwnerdeleteByOwnerRWRWtoRWRA() throws Exception {
-        deleteImage("rwrw--", "rwra--", -1, -1, BOTH_IMAGES);
-    }
-
-    /**
-     * Test the delete of the image that has been projected from a
-     * RWRW-- to a RWR--- group. The source image is deleted.
-     * The projection is done by the owner of the data and deleted by the owner.
-     *
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testSourceImageByOwnerdeleteByOwnerRWRWtoRWR() throws Exception {
-        deleteImage("rwrw--", "rwr---", -1, -1, SOURCE_IMAGE);
-    }
-
-    /**
-     * Test the delete of the image that has been projected from a
-     * RWRW-- to a RWR--- group. The projected image is deleted.
-     * The projection is done by the owner of the data and deleted by the owner.
-     *
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testProjectedImageByOwnerdeleteByOwnerRWRWtoRWR() throws Exception {
-        deleteImage("rwrw--", "rwr--", -1, -1, PROJECTED_IMAGE);
-    }
-
-    /**
-     * Test the delete of the image that has been projected from a
-     * RWRW-- to a RWR--- group. Both images are deleted.
-     * The projection is done by the owner of the data and deleted by the owner.
-     *
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testBothImagesByOwnerdeleteByOwnerRWRWtoRWR() throws Exception {
-        deleteImage("rwrw--", "rwr---", -1, -1, BOTH_IMAGES);
-    }
-
-    /**
-     * Test the delete of the image that has been projected from a
-     * RWRW-- to a RW---- group. The source image is deleted.
-     * The projection is done by the owner of the data and deleted by the owner.
-     *
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testSourceImageByOwnerdeleteByOwnerRWRWtoRW() throws Exception {
-        deleteImage("rwrw--", "rwr---", -1, -1, SOURCE_IMAGE);
-    }
-
-    /**
-     * Test the delete of the image that has been projected from a
-     * RWRW-- to a RW---- group. The projected image is deleted.
-     * The projection is done by the owner of the data and deleted by the owner.
-     *
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testProjectedImageByOwnerdeleteByOwnerRWRWtoRW() throws Exception {
-        deleteImage("rwrw--", "rw---", -1, -1, PROJECTED_IMAGE);
-    }
-
-    /**
-     * Test the delete of the image that has been projected from a
-     * RWRW-- to a RW---- group. Both images are deleted.
-     * The projection is done by the owner of the data and deleted by the owner.
-     *
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testBothImagesByOwnerdeleteByOwnerRWRWtoRW() throws Exception {
-        deleteImage("rwrw--", "rw----", -1, -1, BOTH_IMAGES);
+    public void testBothImagesByOwnerdeleteByOwnerRWRW() throws Exception {
+        deleteImage("rwrw--", -1, -1, BOTH_IMAGES);
     }
 
     //Project by another member delete by Admin.
     /**
-     * Test the delete of the image that has been projected from a
-     * RW---- to a RW---- group. The source image is deleted.
+     * Test the delete of the image that has been projected in a
+     * RW---- group. The source image is deleted.
      * The projection is done by a member and deleted by the admin.
      *
      * @throws Exception Thrown if an error occurred.
      */
     @Test
-    public void testSourceImageByMemberdeleteByAdminRWtoRW() throws Exception {
-        deleteImage("rw----", "rw----", AbstractServerTest.MEMBER,
+    public void testSourceImageByMemberdeleteByAdminRW() throws Exception {
+        deleteImage("rw----", AbstractServerTest.MEMBER,
                 AbstractServerTest.ADMIN, SOURCE_IMAGE);
     }
 
     /**
-     * Test the delete of the image that has been projected from a
-     * RW---- to a RW---- group. The projected image is deleted.
+     * Test the delete of the image that has been projected in a
+     * RW---- group. The projected image is deleted.
      * The projection is done by a member and deleted by the admin.
      *
      * @throws Exception Thrown if an error occurred.
      */
     @Test
-    public void testProjectedImageByMemberdeleteByAdminRWtoRW() throws Exception {
-        deleteImage("rw----", "rw----", AbstractServerTest.MEMBER,
+    public void testProjectedImageByMemberdeleteByAdminRW() throws Exception {
+        deleteImage("rw----", AbstractServerTest.MEMBER,
                 AbstractServerTest.ADMIN, PROJECTED_IMAGE);
     }
 
     /**
-     * Test the delete of the image that has been projected from a
-     * RW---- to a RW---- group. Both images are deleted.
+     * Test the delete of the image that has been projected in a
+     * RW---- group. Both images are deleted.
      * The projection is done by a member and deleted by the admin.
      *
      * @throws Exception Thrown if an error occurred.
      */
     @Test
-    public void testBothImagesByMemberdeleteByAdminRWtoRW() throws Exception {
-        deleteImage("rw----", "rw----", AbstractServerTest.MEMBER,
+    public void testBothImagesByMemberdeleteByAdminRW() throws Exception {
+        deleteImage("rw----", AbstractServerTest.MEMBER,
                 AbstractServerTest.ADMIN, BOTH_IMAGES);
     }
 
     /**
-     * Test the delete of the image that has been projected from a
-     * RW---- to a RWR--- group. The source image is deleted.
+     * Test the delete of the image that has been projected in a
+     * RWR--- group. The source image is deleted.
      * The projection is done by a member and deleted by the admin.
      *
      * @throws Exception Thrown if an error occurred.
      */
     @Test
-    public void testSourceImageByMemberdeleteByAdminRWtoRWR() throws Exception {
-        deleteImage("rw----", "rwr---", AbstractServerTest.MEMBER,
+    public void testSourceImageByMemberdeleteByAdminRWR() throws Exception {
+        deleteImage("rwr---", AbstractServerTest.MEMBER,
                 AbstractServerTest.ADMIN, SOURCE_IMAGE);
     }
 
     /**
-     * Test the delete of the image that has been projected from a
-     * RW---- to a RWR--- group. The projected image is deleted.
+     * Test the delete of the image that has been projected in a
+     * RWR--- group. The projected image is deleted.
      * The projection is done by a member and deleted by the admin.
      *
      * @throws Exception Thrown if an error occurred.
      */
     @Test
-    public void testProjectedImageByMemberdeleteByAdminRWtoRWR() throws Exception {
-        deleteImage("rw----", "rwr---", AbstractServerTest.MEMBER,
+    public void testProjectedImageByMemberdeleteByAdminRWR() throws Exception {
+        deleteImage("rwr---", AbstractServerTest.MEMBER,
                 AbstractServerTest.ADMIN, PROJECTED_IMAGE);
     }
 
     /**
-     * Test the delete of the image that has been projected from a
-     * RW---- to a RWR--- group. Both images are deleted.
+     * Test the delete of the image that has been projected in a
+     * RWR--- group. Both images are deleted.
      * The projection is done by a member and deleted by the admin.
      *
      * @throws Exception Thrown if an error occurred.
      */
     @Test
-    public void testBothImagesByMemberdeleteByAdminRWtoRWR() throws Exception {
-        deleteImage("rw----", "rwr---", AbstractServerTest.MEMBER,
+    public void testBothImagesByMemberdeleteByAdminRWR() throws Exception {
+        deleteImage("rwr---", AbstractServerTest.MEMBER,
                 AbstractServerTest.ADMIN, BOTH_IMAGES);
     }
 
     /**
-     * Test the delete of the image that has been projected from a
-     * RW---- to a RWRA-- group. The source image is deleted.
+     * Test the delete of the image that has been projected in a
+     * RWRA-- group. The source image is deleted.
      * The projection is done by a member and deleted by the admin.
      *
      * @throws Exception Thrown if an error occurred.
      */
     @Test
-    public void testSourceImageByMemberdeleteByAdminRWtoRWRA() throws Exception {
-        deleteImage("rw----", "rwra--", AbstractServerTest.MEMBER,
+    public void testSourceImageByMemberdeleteByAdminRWRA() throws Exception {
+        deleteImage("rwra--", AbstractServerTest.MEMBER,
                 AbstractServerTest.ADMIN, SOURCE_IMAGE);
     }
 
     /**
-     * Test the delete of the image that has been projected from a
-     * RW---- to a RWRA-- group. The projected image is deleted.
+     * Test the delete of the image that has been projected in a
+     * RWRA--  group. The projected image is deleted.
      * The projection is done by a member and deleted by the admin.
      *
      * @throws Exception Thrown if an error occurred.
      */
     @Test
-    public void testProjectedImageByMemberdeleteByAdminRWtoRWRA() throws Exception {
-        deleteImage("rw----", "rwra--", AbstractServerTest.MEMBER,
+    public void testProjectedImageByMemberdeleteByAdminRWRA() throws Exception {
+        deleteImage("rwra--", AbstractServerTest.MEMBER,
                 AbstractServerTest.ADMIN, PROJECTED_IMAGE);
     }
 
     /**
-     * Test the delete of the image that has been projected from a
-     * RW---- to a RWRA-- group. Both images are deleted.
+     * Test the delete of the image that has been projected in a
+     * RWRA-- group. Both images are deleted.
      * The projection is done by a member and deleted by the admin.
      *
      * @throws Exception Thrown if an error occurred.
      */
     @Test
-    public void testBothImagesByMemberdeleteByAdminRWtoRWRA() throws Exception {
-        deleteImage("rw----", "rwra--", AbstractServerTest.MEMBER,
+    public void testBothImagesByMemberdeleteByAdminRWRA() throws Exception {
+        deleteImage("rwra--", AbstractServerTest.MEMBER,
                 AbstractServerTest.ADMIN, BOTH_IMAGES);
     }
 
     /**
-     * Test the delete of the image that has been projected from a
-     * RW---- to a RWRW-- group. The source image is deleted.
+     * Test the delete of the image that has been projected in a
+     * RWRW-- group. The source image is deleted.
      * The projection is done by a member and deleted by the admin.
      *
      * @throws Exception Thrown if an error occurred.
      */
     @Test
-    public void testSourceImageByMemberdeleteByAdminRWtoRWRW() throws Exception {
-        deleteImage("rw----", "rwrw--", AbstractServerTest.MEMBER,
+    public void testSourceImageByMemberdeleteByAdminRWRW() throws Exception {
+        deleteImage("rwrw--", AbstractServerTest.MEMBER,
                 AbstractServerTest.ADMIN, SOURCE_IMAGE);
     }
 
     /**
-     * Test the delete of the image that has been projected from a
-     * RW---- to a RWRW-- group. The projected image is deleted.
+     * Test the delete of the image that has been projected in a
+     * RWRW-- group. The projected image is deleted.
      * The projection is done by a member and deleted by the admin.
      *
      * @throws Exception Thrown if an error occurred.
      */
     @Test
-    public void testProjectedImageByMemberdeleteByAdminRWtoRWRW() throws Exception {
-        deleteImage("rw----", "rwrw--", AbstractServerTest.MEMBER,
+    public void testProjectedImageByMemberdeleteByAdminRWRW() throws Exception {
+        deleteImage("rwrw--", AbstractServerTest.MEMBER,
                 AbstractServerTest.ADMIN, PROJECTED_IMAGE);
     }
 
     /**
-     * Test the delete of the image that has been projected from a
-     * RW---- to a RWRW-- group. Both images are deleted.
-     * The projection is done by a member and deleted by the admin.
-     *
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testBothImagesByMemberdeleteByAdminRWtoRWRW() throws Exception {
-        deleteImage("rw----", "rwrw--", AbstractServerTest.MEMBER,
-                AbstractServerTest.ADMIN, BOTH_IMAGES);
-    }
-
-    /**
-     * Test the delete of the image that has been projected from a
-     * RWR--- to a RWRW-- group. The source image is deleted.
-     * The projection is done by a member and deleted by the admin.
-     *
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testSourceImageByMemberdeleteByAdminRWRtoRWRW() throws Exception {
-        deleteImage("rwr---", "rwrw--", AbstractServerTest.MEMBER,
-                AbstractServerTest.ADMIN, SOURCE_IMAGE);
-    }
-
-    /**
-     * Test the delete of the image that has been projected from a
-     * RWR--- to a RWRW-- group. The projected image is deleted.
-     * The projection is done by a member and deleted by the admin.
-     *
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testProjectedImageByMemberdeleteByAdminRWRtoRWRW() throws Exception {
-        deleteImage("rwr---", "rwrw--", AbstractServerTest.MEMBER,
-                AbstractServerTest.ADMIN, PROJECTED_IMAGE);
-    }
-
-    /**
-     * Test the delete of the image that has been projected from a
-     * RW---- to a RWRW-- group. Both images are deleted.
-     * The projection is done by a member and deleted by the admin.
-     *
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testBothImagesByMemberdeleteByAdminRWRtoRWRW() throws Exception {
-        deleteImage("rwr---", "rwrw--", AbstractServerTest.MEMBER,
-                AbstractServerTest.ADMIN, BOTH_IMAGES);
-    }
-
-    /**
-     * Test the delete of the image that has been projected from a
-     * RWR--- to a RWRA-- group. The source image is deleted.
-     * The projection is done by a member and deleted by the admin.
-     *
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testSourceImageByMemberdeleteByAdminRWRtoRWRA() throws Exception {
-        deleteImage("rwr---", "rwra--", AbstractServerTest.MEMBER,
-                AbstractServerTest.ADMIN, SOURCE_IMAGE);
-    }
-
-    /**
-     * Test the delete of the image that has been projected from a
-     * RWR--- to a RWRA-- group. The projected image is deleted.
-     * The projection is done by a member and deleted by the admin.
-     *
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testProjectedImageByMemberdeleteByAdminRWRtoRWRA() throws Exception {
-        deleteImage("rwr---", "rwra--", AbstractServerTest.MEMBER,
-                AbstractServerTest.ADMIN, PROJECTED_IMAGE);
-    }
-
-    /**
-     * Test the delete of the image that has been projected from a
-     * RW---- to a RWRA-- group. Both images are deleted.
-     * The projection is done by a member and deleted by the admin.
-     *
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testBothImagesByMemberdeleteByAdminRWRtoRWRA() throws Exception {
-        deleteImage("rwr---", "rwra--", AbstractServerTest.MEMBER,
-                AbstractServerTest.ADMIN, BOTH_IMAGES);
-    }
-
-    /**
-     * Test the delete of the image that has been projected from a
-     * RWR--- to a RWR--- group. The source image is deleted.
-     * The projection is done by a member and deleted by the admin.
-     *
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testSourceImageByMemberdeleteByAdminRWRtoRWR() throws Exception {
-        deleteImage("rwr---", "rwra--", AbstractServerTest.MEMBER,
-                AbstractServerTest.ADMIN, SOURCE_IMAGE);
-    }
-
-    /**
-     * Test the delete of the image that has been projected from a
-     * RWR--- to a RWR--- group. The projected image is deleted.
-     * The projection is done by a member and deleted by the admin.
-     *
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testProjectedImageByMemberdeleteByAdminRWRtoRWR() throws Exception {
-        deleteImage("rwr---", "rwr---", AbstractServerTest.MEMBER,
-                AbstractServerTest.ADMIN, PROJECTED_IMAGE);
-    }
-
-    /**
-     * Test the delete of the image that has been projected from a
-     * RW---- to a RWR--- group. Both images are deleted.
-     * The projection is done by a member and deleted by the admin.
-     *
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testBothImagesByMemberdeleteByAdminRWRtoRWR() throws Exception {
-        deleteImage("rwr---", "rwr---", AbstractServerTest.MEMBER,
-                AbstractServerTest.ADMIN, BOTH_IMAGES);
-    }
-
-    /**
-     * Test the delete of the image that has been projected from a
-     * RWR--- to a RW---- group. The source image is deleted.
-     * The projection is done by a member and deleted by the admin.
-     *
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testSourceImageByMemberdeleteByAdminRWRtoRW() throws Exception {
-        deleteImage("rwr---", "rwra--", AbstractServerTest.MEMBER,
-                AbstractServerTest.ADMIN, SOURCE_IMAGE);
-    }
-
-    /**
-     * Test the delete of the image that has been projected from a
-     * RWR--- to a RW---- group. The projected image is deleted.
-     * The projection is done by a member and deleted by the admin.
-     *
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testProjectedImageByMemberdeleteByAdminRWRtoRW() throws Exception {
-        deleteImage("rwr---", "rw----", AbstractServerTest.MEMBER,
-                AbstractServerTest.ADMIN, PROJECTED_IMAGE);
-    }
-
-    /**
-     * Test the delete of the image that has been projected from a
-     * RW---- to a RW---- group. Both images are deleted.
-     * The projection is done by a member and deleted by the admin.
-     *
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testBothImagesByMemberdeleteByAdminRWRtoRW() throws Exception {
-        deleteImage("rwr---", "rw----", AbstractServerTest.MEMBER,
-                AbstractServerTest.ADMIN, BOTH_IMAGES);
-    }
-
-    /**
-     * Test the delete of the image that has been projected from a
-     * RWRA-- to a RW---- group. The source image is deleted.
-     * The projection is done by a member and deleted by the admin.
-     *
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testSourceImageByMemberdeleteByAdminRWRAtoRW() throws Exception {
-        deleteImage("rwra--", "rwra--", AbstractServerTest.MEMBER,
-                AbstractServerTest.ADMIN, SOURCE_IMAGE);
-    }
-
-    /**
-     * Test the delete of the image that has been projected from a
-     * RWR--- to a RW---- group. The projected image is deleted.
-     * The projection is done by a member and deleted by the admin.
-     *
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testProjectedImageByMemberdeleteByAdminRWRAtoRW() throws Exception {
-        deleteImage("rwra--", "rw----", AbstractServerTest.MEMBER,
-                AbstractServerTest.ADMIN, PROJECTED_IMAGE);
-    }
-
-    /**
-     * Test the delete of the image that has been projected from a
-     * RWRA-- to a RW---- group. Both images are deleted.
-     * The projection is done by a member and deleted by the admin.
-     *
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testBothImagesByMemberdeleteByAdminRWRAtoRW() throws Exception {
-        deleteImage("rwra--", "rw----", AbstractServerTest.MEMBER,
-                AbstractServerTest.ADMIN, BOTH_IMAGES);
-    }
-
-    /**
-     * Test the delete of the image that has been projected from a
-     * RWRA-- to a RWR--- group. The source image is deleted.
-     * The projection is done by a member and deleted by the admin.
-     *
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testSourceImageByMemberdeleteByAdminRWRAtoRWR() throws Exception {
-        deleteImage("rwra--", "rwr--", AbstractServerTest.MEMBER,
-                AbstractServerTest.ADMIN, SOURCE_IMAGE);
-    }
-
-    /**
-     * Test the delete of the image that has been projected from a
-     * RWRA-- to a RWR--- group. The projected image is deleted.
-     * The projection is done by a member and deleted by the admin.
-     *
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testProjectedImageByMemberdeleteByAdminRWRAtoRWR() throws Exception {
-        deleteImage("rwra--", "rwr---", AbstractServerTest.MEMBER,
-                AbstractServerTest.ADMIN, PROJECTED_IMAGE);
-    }
-
-    /**
-     * Test the delete of the image that has been projected from a
-     * RWRA-- to a RWR--- group. Both images are deleted.
-     * The projection is done by a member and deleted by the admin.
-     *
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testBothImagesByMemberdeleteByAdminRWRAtoRWR() throws Exception {
-        deleteImage("rwra--", "rwr---", AbstractServerTest.MEMBER,
-                AbstractServerTest.ADMIN, BOTH_IMAGES);
-    }
-
-    /**
-     * Test the delete of the image that has been projected from a
-     * RWRA-- to a RWRA-- group. The source image is deleted.
-     * The projection is done by a member and deleted by the admin.
-     *
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testSourceImageByMemberdeleteByAdminRWRAtoRWRA() throws Exception {
-        deleteImage("rwra--", "rwra--", AbstractServerTest.MEMBER,
-                AbstractServerTest.ADMIN, SOURCE_IMAGE);
-    }
-
-    /**
-     * Test the delete of the image that has been projected from a
-     * RWR--- to a RWRA-- group. The projected image is deleted.
-     * The projection is done by a member and deleted by the admin.
-     *
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testProjectedImageByMemberdeleteByAdminRWRAtoRWRA() throws Exception {
-        deleteImage("rwra--", "rwr---", AbstractServerTest.MEMBER,
-                AbstractServerTest.ADMIN, PROJECTED_IMAGE);
-    }
-
-    /**
-     * Test the delete of the image that has been projected from a
-     * RWRA-- to a RWRA-- group. Both images are deleted.
-     * The projection is done by a member and deleted by the admin.
-     *
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testBothImagesByMemberdeleteByAdminRWRAtoRWRA() throws Exception {
-        deleteImage("rwra--", "rwra--", AbstractServerTest.MEMBER,
-                AbstractServerTest.ADMIN, BOTH_IMAGES);
-    }
-    /**
-     * Test the delete of the image that has been projected from a
-     * RWRA-- to a RWRW-- group. The source image is deleted.
-     * The projection is done by a member and deleted by the admin.
-     *
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testSourceImageByMemberdeleteByAdminRWRAtoRWRW() throws Exception {
-        deleteImage("rwra--", "rwrw--", AbstractServerTest.MEMBER,
-                AbstractServerTest.ADMIN, SOURCE_IMAGE);
-    }
-
-    /**
-     * Test the delete of the image that has been projected from a
-     * RWR--- to a RWRW-- group. The projected image is deleted.
-     * The projection is done by a member and deleted by the admin.
-     *
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testProjectedImageByMemberdeleteByAdminRWRAtoRWRW() throws Exception {
-        deleteImage("rwra--", "rwrw--", AbstractServerTest.MEMBER,
-                AbstractServerTest.ADMIN, PROJECTED_IMAGE);
-    }
-
-    /**
-     * Test the delete of the image that has been projected from a
-     * RWRA-- to a RWRW-- group. Both images are deleted.
-     * The projection is done by a member and deleted by the admin.
-     *
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testBothImagesByMemberdeleteByAdminRWRAtoRWRW() throws Exception {
-        deleteImage("rwra--", "rwrw--", AbstractServerTest.MEMBER,
-                AbstractServerTest.ADMIN, BOTH_IMAGES);
-    }
-
-    /**
-     * Test the delete of the image that has been projected from a
-     * RWRW-- to a RWRW-- group. The source image is deleted.
-     * The projection is done by a member and deleted by the admin.
-     *
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testSourceImageByMemberdeleteByAdminRWRWtoRWRW() throws Exception {
-        deleteImage("rwrw--", "rwrw--", AbstractServerTest.MEMBER,
-                AbstractServerTest.ADMIN, SOURCE_IMAGE);
-    }
-
-    /**
-     * Test the delete of the image that has been projected from a
-     * RWRW-- to a RWRW-- group. The projected image is deleted.
-     * The projection is done by a member and deleted by the admin.
-     *
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testProjectedImageByMemberdeleteByAdminRWRWtoRWRW() throws Exception {
-        deleteImage("rwrw--", "rwrw--", AbstractServerTest.MEMBER,
-                AbstractServerTest.ADMIN, PROJECTED_IMAGE);
-    }
-
-    /**
-     * Test the delete of the image that has been projected from a
-     * RWRW-- to a RWRW-- group. Both images are deleted.
+     * Test the delete of the image that has been projected in a
+     * RWRW-- group. Both images are deleted.
      * The projection is done by the owner of the data and deleted by the admin.
      *
      * @throws Exception Thrown if an error occurred.
      */
     @Test
-    public void testBothImagesByMemberdeleteByAdminRWRWtoRWRW() throws Exception {
-        deleteImage("rwrw--", "rwrw--", AbstractServerTest.MEMBER,
+    public void testBothImagesByMemberdeleteByAdminRWRW() throws Exception {
+        deleteImage("rwrw--", AbstractServerTest.MEMBER,
                 AbstractServerTest.ADMIN, BOTH_IMAGES);
-    }
-
-    /**
-     * Test the delete of the image that has been projected from a
-     * RWRW-- to a RWRA-- group. The source image is deleted.
-     * The projection is done by a member and deleted by the admin.
-     *
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testSourceImageByMemberdeleteByAdminRWRWtoRWRA() throws Exception {
-        deleteImage("rwrw--", "rwrw--", AbstractServerTest.MEMBER,
-                AbstractServerTest.ADMIN, SOURCE_IMAGE);
-    }
-
-    /**
-     * Test the delete of the image that has been projected from a
-     * RWRW-- to a RWRA-- group. The projected image is deleted.
-     * The projection is done by a member and deleted by the admin.
-     *
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testProjectedImageByMemberdeleteByAdminRWRWtoRWRA() throws Exception {
-        deleteImage("rwrw--", "rwra--", AbstractServerTest.MEMBER,
-                AbstractServerTest.ADMIN, PROJECTED_IMAGE);
-    }
-
-    /**
-     * Test the delete of the image that has been projected from a
-     * RWRW-- to a RWRW-- group. Both images are deleted.
-     * The projection is done by a member and deleted by the admin.
-     *
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testBothImagesByMemberdeleteByAdminRWRWtoRWRA() throws Exception {
-        deleteImage("rwrw--", "rwra--", AbstractServerTest.MEMBER,
-                AbstractServerTest.ADMIN, BOTH_IMAGES);
-    }
-
-    /**
-     * Test the delete of the image that has been projected from a
-     * RWRW-- to a RWR--- group. The source image is deleted.
-     * The projection is done by a member and deleted by the admin.
-     *
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testSourceImageByMemberdeleteByAdminRWRWtoRWR() throws Exception {
-        deleteImage("rwrw--", "rwr---", AbstractServerTest.MEMBER,
-                AbstractServerTest.ADMIN, SOURCE_IMAGE);
-    }
-
-    /**
-     * Test the delete of the image that has been projected from a
-     * RWRW-- to a RWR--- group. The projected image is deleted.
-     * The projection is done by the owner of the data and deleted by the admin.
-     *
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testProjectedImageByMemberdeleteByAdminRWRWtoRWR() throws Exception {
-        deleteImage("rwrw--", "rwr--", AbstractServerTest.MEMBER,
-                AbstractServerTest.ADMIN, PROJECTED_IMAGE);
-    }
-
-    /**
-     * Test the delete of the image that has been projected from a
-     * RWRW-- to a RWR--- group. Both images are deleted.
-     * The projection is done by a member and deleted by the admin.
-     *
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testBothImagesByMemberdeleteByAdminRWRWtoRWR() throws Exception {
-        deleteImage("rwrw--", "rwr---", AbstractServerTest.MEMBER,
-                AbstractServerTest.ADMIN, BOTH_IMAGES);
-    }
-
-    /**
-     * Test the delete of the image that has been projected from a
-     * RWRW-- to a RW---- group. The source image is deleted.
-     * The projection is done by the owner of the data and deleted by the admin.
-     *
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testSourceImageByMemberdeleteByAdminRWRWtoRW() throws Exception {
-        deleteImage("rwrw--", "rwr---", AbstractServerTest.MEMBER, AbstractServerTest.ADMIN, SOURCE_IMAGE);
-    }
-
-    /**
-     * Test the delete of the image that has been projected from a
-     * RWRW-- to a RW---- group. The projected image is deleted.
-     * The projection is done by a member and deleted by the admin.
-     *
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testProjectedImageByMemberdeleteByAdminRWRWtoRW() throws Exception {
-        deleteImage("rwrw--", "rw---", AbstractServerTest.MEMBER,
-                AbstractServerTest.ADMIN, PROJECTED_IMAGE);
-    }
-
-    /**
-     * Test the delete of the image that has been projected from a
-     * RWRW-- to a RW---- group. Both images are deleted.
-     * The projection is done by a member and deleted by the admin.
-     *
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testBothImagesByMemberdeleteByAdminRWRWtoRW() throws Exception {
-        deleteImage("rwrw--", "rw----", AbstractServerTest.MEMBER, AbstractServerTest.ADMIN, BOTH_IMAGES);
     }
 
     //delete by admin
     /**
-     * Test the delete of the image that has been projected from a
-     * RW---- to a RW---- group. The source image is deleted.
+     * Test the delete of the image that has been projected in a
+     * RW---- group. The source image is deleted.
      * The projection is done by the owner of the data and deleted by the admin.
      *
      * @throws Exception Thrown if an error occurred.
      */
     @Test
-    public void testSourceImageByOwnerdeleteByAdminRWtoRW() throws Exception {
-        deleteImage("rw----", "rw----", -1, AbstractServerTest.ADMIN, SOURCE_IMAGE);
+    public void testSourceImageByOwnerdeleteByAdminRW() throws Exception {
+        deleteImage("rw----", -1, AbstractServerTest.ADMIN, SOURCE_IMAGE);
     }
 
     /**
-     * Test the delete of the image that has been projected from a
-     * RW---- to a RW---- group. The projected image is deleted.
+     * Test the delete of the image that has been projected in a
+     * RW---- group. The projected image is deleted.
      * The projection is done by the owner of the data and deleted by the admin.
      *
      * @throws Exception Thrown if an error occurred.
      */
     @Test
-    public void testProjectedImageByOwnerdeleteByAdminRWtoRW() throws Exception {
-        deleteImage("rw----", "rw----", -1, AbstractServerTest.ADMIN, PROJECTED_IMAGE);
+    public void testProjectedImageByOwnerdeleteByAdminRW() throws Exception {
+        deleteImage("rw----", -1, AbstractServerTest.ADMIN, PROJECTED_IMAGE);
     }
 
     /**
-     * Test the delete of the image that has been projected from a
-     * RW---- to a RW---- group. Both images are deleted.
+     * Test the delete of the image that has been projected in a
+     * RW---- group. Both images are deleted.
      * The projection is done by the owner of the data and deleted by the admin.
      *
      * @throws Exception Thrown if an error occurred.
      */
     @Test
-    public void testBothImagesByOwnerdeleteByAdminRWtoRW() throws Exception {
-        deleteImage("rw----", "rw----", -1, AbstractServerTest.ADMIN, BOTH_IMAGES);
+    public void testBothImagesByOwnerdeleteByAdminRW() throws Exception {
+        deleteImage("rw----", -1, AbstractServerTest.ADMIN, BOTH_IMAGES);
     }
 
     /**
-     * Test the delete of the image that has been projected from a
-     * RW---- to a RWR--- group. The source image is deleted.
+     * Test the delete of the image that has been projected in a
+     * RWR--- group. The source image is deleted.
      * The projection is done by the owner of the data and deleted by the admin.
      *
      * @throws Exception Thrown if an error occurred.
      */
     @Test
-    public void testSourceImageByOwnerdeleteByAdminRWtoRWR() throws Exception {
-        deleteImage("rw----", "rwr---", -1, AbstractServerTest.ADMIN, SOURCE_IMAGE);
+    public void testSourceImageByOwnerdeleteByAdminRWR() throws Exception {
+        deleteImage("rwr---", -1, AbstractServerTest.ADMIN, SOURCE_IMAGE);
     }
 
     /**
-     * Test the delete of the image that has been projected from a
-     * RW---- to a RWR--- group. The projected image is deleted.
+     * Test the delete of the image that has been projected in a
+     * RWR--- group. The projected image is deleted.
      * The projection is done by the owner of the data and deleted by the admin.
      *
      * @throws Exception Thrown if an error occurred.
      */
     @Test
-    public void testProjectedImageByOwnerdeleteByAdminRWtoRWR() throws Exception {
-        deleteImage("rw----", "rwr---", -1, AbstractServerTest.ADMIN, PROJECTED_IMAGE);
+    public void testProjectedImageByOwnerdeleteByAdminRWR() throws Exception {
+        deleteImage("rwr---", -1, AbstractServerTest.ADMIN, PROJECTED_IMAGE);
     }
 
     /**
-     * Test the delete of the image that has been projected from a
-     * RW---- to a RWR--- group. Both images are deleted.
+     * Test the delete of the image that has been projected in a
+     * RWR--- group. Both images are deleted.
      * The projection is done by the owner of the data and deleted by the admin.
      *
      * @throws Exception Thrown if an error occurred.
      */
     @Test
-    public void testBothImagesByOwnerdeleteByAdminRWtoRWR() throws Exception {
-        deleteImage("rw----", "rwr---", -1, AbstractServerTest.ADMIN, BOTH_IMAGES);
+    public void testBothImagesByOwnerdeleteByAdminRWR() throws Exception {
+        deleteImage("rwr---", -1, AbstractServerTest.ADMIN, BOTH_IMAGES);
     }
 
     /**
-     * Test the delete of the image that has been projected from a
-     * RW---- to a RWRA-- group. The source image is deleted.
+     * Test the delete of the image that has been projected in a
+     * RWRA-- group. The source image is deleted.
      * The projection is done by the owner of the data and deleted by the admin.
      *
      * @throws Exception Thrown if an error occurred.
      */
     @Test
-    public void testSourceImageByOwnerdeleteByAdminRWtoRWRA() throws Exception {
-        deleteImage("rw----", "rwra--", -1, AbstractServerTest.ADMIN, SOURCE_IMAGE);
+    public void testSourceImageByOwnerdeleteByAdminRWRA() throws Exception {
+        deleteImage("rwra--", -1, AbstractServerTest.ADMIN, SOURCE_IMAGE);
     }
 
     /**
-     * Test the delete of the image that has been projected from a
-     * RW---- to a RWRA-- group. The projected image is deleted.
+     * Test the delete of the image that has been projected in a
+     * RWRA-- group. The projected image is deleted.
      * The projection is done by the owner of the data and deleted by the admin.
      *
      * @throws Exception Thrown if an error occurred.
      */
     @Test
-    public void testProjectedImageByOwnerdeleteByAdminRWtoRWRA() throws Exception {
-        deleteImage("rw----", "rwra--", -1, AbstractServerTest.ADMIN, PROJECTED_IMAGE);
+    public void testProjectedImageByOwnerdeleteByAdminRWRA() throws Exception {
+        deleteImage("rwra--", -1, AbstractServerTest.ADMIN, PROJECTED_IMAGE);
     }
 
     /**
-     * Test the delete of the image that has been projected from a
-     * RW---- to a RWRA-- group. Both images are deleted.
+     * Test the delete of the image that has been projected in a
+     * RWRA-- group. Both images are deleted.
      * The projection is done by the owner of the data and deleted by the admin.
      *
      * @throws Exception Thrown if an error occurred.
      */
     @Test
-    public void testBothImagesByOwnerdeleteByAdminRWtoRWRA() throws Exception {
-        deleteImage("rw----", "rwra--", -1, AbstractServerTest.ADMIN, BOTH_IMAGES);
+    public void testBothImagesByOwnerdeleteByAdminRWRA() throws Exception {
+        deleteImage("rwra--", -1, AbstractServerTest.ADMIN, BOTH_IMAGES);
+    }
+
+
+    /**
+     * Test the delete of the image that has been projected in a
+     * RWRW-- group. The source image is deleted.
+     * The projection is done by the owner of the data and deleted by the admin.
+     *
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testSourceImageByOwnerdeleteByAdminRWRW() throws Exception {
+        deleteImage("rwrw--", -1, AbstractServerTest.ADMIN, SOURCE_IMAGE);
     }
 
     /**
-     * Test the delete of the image that has been projected from a
-     * RW---- to a RWRW-- group. The source image is deleted.
+     * Test the delete of the image that has been projected in a
+     * RWRW-- group. The projected image is deleted.
      * The projection is done by the owner of the data and deleted by the admin.
      *
      * @throws Exception Thrown if an error occurred.
      */
     @Test
-    public void testSourceImageByOwnerdeleteByAdminRWtoRWRW() throws Exception {
-        deleteImage("rw----", "rwrw--", -1, AbstractServerTest.ADMIN, SOURCE_IMAGE);
+    public void testProjectedImageByOwnerdeleteByAdminRWRW() throws Exception {
+        deleteImage("rwrw--", -1, AbstractServerTest.ADMIN, PROJECTED_IMAGE);
     }
 
     /**
-     * Test the delete of the image that has been projected from a
-     * RW---- to a RWRW-- group. The projected image is deleted.
+     * Test the delete of the image that has been projected in a
+     * RWRW-- group. Both images are deleted.
      * The projection is done by the owner of the data and deleted by the admin.
      *
      * @throws Exception Thrown if an error occurred.
      */
     @Test
-    public void testProjectedImageByOwnerdeleteByAdminRWtoRWRW() throws Exception {
-        deleteImage("rw----", "rwrw--", -1, AbstractServerTest.ADMIN, PROJECTED_IMAGE);
+    public void testBothImagesByOwnerdeleteByAdminRWRW() throws Exception {
+        deleteImage("rwrw--", -1, AbstractServerTest.ADMIN, BOTH_IMAGES);
     }
 
-    /**
-     * Test the delete of the image that has been projected from a
-     * RW---- to a RWRW-- group. Both images are deleted.
-     * The projection is done by the owner of the data and deleted by the admin.
-     *
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testBothImagesByOwnerdeleteByAdminRWtoRWRW() throws Exception {
-        deleteImage("rw----", "rwrw--", -1, AbstractServerTest.ADMIN, BOTH_IMAGES);
-    }
-
-    /**
-     * Test the delete of the image that has been projected from a
-     * RWR--- to a RWRW-- group. The source image is deleted.
-     * The projection is done by the owner of the data and deleted by the admin.
-     *
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testSourceImageByOwnerdeleteByAdminRWRtoRWRW() throws Exception {
-        deleteImage("rwr---", "rwrw--", -1, AbstractServerTest.ADMIN, SOURCE_IMAGE);
-    }
-
-    /**
-     * Test the delete of the image that has been projected from a
-     * RWR--- to a RWRW-- group. The projected image is deleted.
-     * The projection is done by the owner of the data and deleted by the admin.
-     *
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testProjectedImageByOwnerdeleteByAdminRWRtoRWRW() throws Exception {
-        deleteImage("rwr---", "rwrw--", -1, AbstractServerTest.ADMIN, PROJECTED_IMAGE);
-    }
-
-    /**
-     * Test the delete of the image that has been projected from a
-     * RW---- to a RWRW-- group. Both images are deleted.
-     * The projection is done by the owner of the data and deleted by the admin.
-     *
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testBothImagesByOwnerdeleteByAdminRWRtoRWRW() throws Exception {
-        deleteImage("rwr---", "rwrw--", -1, AbstractServerTest.ADMIN, BOTH_IMAGES);
-    }
-
-    /**
-     * Test the delete of the image that has been projected from a
-     * RWR--- to a RWRA-- group. The source image is deleted.
-     * The projection is done by the owner of the data and deleted by the admin.
-     *
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testSourceImageByOwnerdeleteByAdminRWRtoRWRA() throws Exception {
-        deleteImage("rwr---", "rwra--", -1, AbstractServerTest.ADMIN, SOURCE_IMAGE);
-    }
-
-    /**
-     * Test the delete of the image that has been projected from a
-     * RWR--- to a RWRA-- group. The projected image is deleted.
-     * The projection is done by the owner of the data and deleted by the admin.
-     *
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testProjectedImageByOwnerdeleteByAdminRWRtoRWRA() throws Exception {
-        deleteImage("rwr---", "rwra--", -1, AbstractServerTest.ADMIN, PROJECTED_IMAGE);
-    }
-
-    /**
-     * Test the delete of the image that has been projected from a
-     * RW---- to a RWRA-- group. Both images are deleted.
-     * The projection is done by the owner of the data and deleted by the admin.
-     *
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testBothImagesByOwnerdeleteByAdminRWRtoRWRA() throws Exception {
-        deleteImage("rwr---", "rwra--", -1, AbstractServerTest.ADMIN, BOTH_IMAGES);
-    }
-
-    /**
-     * Test the delete of the image that has been projected from a
-     * RWR--- to a RWR--- group. The source image is deleted.
-     * The projection is done by the owner of the data and deleted by the admin.
-     *
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testSourceImageByOwnerdeleteByAdminRWRtoRWR() throws Exception {
-        deleteImage("rwr---", "rwra--", -1, AbstractServerTest.ADMIN, SOURCE_IMAGE);
-    }
-
-    /**
-     * Test the delete of the image that has been projected from a
-     * RWR--- to a RWR--- group. The projected image is deleted.
-     * The projection is done by the owner of the data and deleted by the admin.
-     *
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testProjectedImageByOwnerdeleteByAdminRWRtoRWR() throws Exception {
-        deleteImage("rwr---", "rwr---", -1, AbstractServerTest.ADMIN, PROJECTED_IMAGE);
-    }
-
-    /**
-     * Test the delete of the image that has been projected from a
-     * RW---- to a RWR--- group. Both images are deleted.
-     * The projection is done by the owner of the data and deleted by the admin.
-     *
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testBothImagesByOwnerdeleteByAdminRWRtoRWR() throws Exception {
-        deleteImage("rwr---", "rwr---", -1, AbstractServerTest.ADMIN, BOTH_IMAGES);
-    }
-
-    /**
-     * Test the delete of the image that has been projected from a
-     * RWR--- to a RW---- group. The source image is deleted.
-     * The projection is done by the owner of the data and deleted by the admin.
-     *
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testSourceImageByOwnerdeleteByAdminRWRtoRW() throws Exception {
-        deleteImage("rwr---", "rwra--", -1, AbstractServerTest.ADMIN, SOURCE_IMAGE);
-    }
-
-    /**
-     * Test the delete of the image that has been projected from a
-     * RWR--- to a RW---- group. The projected image is deleted.
-     * The projection is done by the owner of the data and deleted by the admin.
-     *
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testProjectedImageByOwnerdeleteByAdminRWRtoRW() throws Exception {
-        deleteImage("rwr---", "rw----", -1, AbstractServerTest.ADMIN, PROJECTED_IMAGE);
-    }
-
-    /**
-     * Test the delete of the image that has been projected from a
-     * RW---- to a RW---- group. Both images are deleted.
-     * The projection is done by the owner of the data and deleted by the admin.
-     *
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testBothImagesByOwnerdeleteByAdminRWRtoRW() throws Exception {
-        deleteImage("rwr---", "rw----", -1, AbstractServerTest.ADMIN, BOTH_IMAGES);
-    }
-
-    /**
-     * Test the delete of the image that has been projected from a
-     * RWRA-- to a RW---- group. The source image is deleted.
-     * The projection is done by the owner of the data and deleted by the admin.
-     *
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testSourceImageByOwnerdeleteByAdminRWRAtoRW() throws Exception {
-        deleteImage("rwra--", "rwra--", -1, AbstractServerTest.ADMIN, SOURCE_IMAGE);
-    }
-
-    /**
-     * Test the delete of the image that has been projected from a
-     * RWR--- to a RW---- group. The projected image is deleted.
-     * The projection is done by the owner of the data and deleted by the admin.
-     *
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testProjectedImageByOwnerdeleteByAdminRWRAtoRW() throws Exception {
-        deleteImage("rwra--", "rw----", -1, AbstractServerTest.ADMIN, PROJECTED_IMAGE);
-    }
-
-    /**
-     * Test the delete of the image that has been projected from a
-     * RWRA-- to a RW---- group. Both images are deleted.
-     * The projection is done by the owner of the data and deleted by the admin.
-     *
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testBothImagesByOwnerdeleteByAdminRWRAtoRW() throws Exception {
-        deleteImage("rwra--", "rw----", -1, AbstractServerTest.ADMIN, BOTH_IMAGES);
-    }
-
-    /**
-     * Test the delete of the image that has been projected from a
-     * RWRA-- to a RWR--- group. The source image is deleted.
-     * The projection is done by the owner of the data and deleted by the admin.
-     *
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testSourceImageByOwnerdeleteByAdminRWRAtoRWR() throws Exception {
-        deleteImage("rwra--", "rwr--", -1, AbstractServerTest.ADMIN, SOURCE_IMAGE);
-    }
-
-    /**
-     * Test the delete of the image that has been projected from a
-     * RWRA-- to a RWR--- group. The projected image is deleted.
-     * The projection is done by the owner of the data and deleted by the admin.
-     *
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testProjectedImageByOwnerdeleteByAdminRWRAtoRWR() throws Exception {
-        deleteImage("rwra--", "rwr---", -1, AbstractServerTest.ADMIN, PROJECTED_IMAGE);
-    }
-
-    /**
-     * Test the delete of the image that has been projected from a
-     * RWRA-- to a RWR--- group. Both images are deleted.
-     * The projection is done by the owner of the data and deleted by the admin.
-     *
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testBothImagesByOwnerdeleteByAdminRWRAtoRWR() throws Exception {
-        deleteImage("rwra--", "rwr---", -1, AbstractServerTest.ADMIN, BOTH_IMAGES);
-    }
-
-    /**
-     * Test the delete of the image that has been projected from a
-     * RWRA-- to a RWRA-- group. The source image is deleted.
-     * The projection is done by the owner of the data and deleted by the admin.
-     *
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testSourceImageByOwnerdeleteByAdminRWRAtoRWRA() throws Exception {
-        deleteImage("rwra--", "rwra--", -1, AbstractServerTest.ADMIN, SOURCE_IMAGE);
-    }
-
-    /**
-     * Test the delete of the image that has been projected from a
-     * RWR--- to a RWRA-- group. The projected image is deleted.
-     * The projection is done by the owner of the data and deleted by the admin.
-     *
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testProjectedImageByOwnerdeleteByAdminRWRAtoRWRA() throws Exception {
-        deleteImage("rwra--", "rwr---", -1, AbstractServerTest.ADMIN, PROJECTED_IMAGE);
-    }
-
-    /**
-     * Test the delete of the image that has been projected from a
-     * RWRA-- to a RWRA-- group. Both images are deleted.
-     * The projection is done by the owner of the data and deleted by the admin.
-     *
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testBothImagesByOwnerdeleteByAdminRWRAtoRWRA() throws Exception {
-        deleteImage("rwra--", "rwra--", -1, AbstractServerTest.ADMIN, BOTH_IMAGES);
-    }
-    /**
-     * Test the delete of the image that has been projected from a
-     * RWRA-- to a RWRW-- group. The source image is deleted.
-     * The projection is done by the owner of the data and deleted by the admin.
-     *
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testSourceImageByOwnerdeleteByAdminRWRAtoRWRW() throws Exception {
-        deleteImage("rwra--", "rwrw--", -1, AbstractServerTest.ADMIN, SOURCE_IMAGE);
-    }
-
-    /**
-     * Test the delete of the image that has been projected from a
-     * RWR--- to a RWRW-- group. The projected image is deleted.
-     * The projection is done by the owner of the data and deleted by the admin.
-     *
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testProjectedImageByOwnerdeleteByAdminRWRAtoRWRW() throws Exception {
-        deleteImage("rwra--", "rwrw--", -1, AbstractServerTest.ADMIN, PROJECTED_IMAGE);
-    }
-
-    /**
-     * Test the delete of the image that has been projected from a
-     * RWRA-- to a RWRW-- group. Both images are deleted.
-     * The projection is done by the owner of the data and deleted by the admin.
-     *
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testBothImagesByOwnerdeleteByAdminRWRAtoRWRW() throws Exception {
-        deleteImage("rwra--", "rwrw--", -1, AbstractServerTest.ADMIN, BOTH_IMAGES);
-    }
-
-    /**
-     * Test the delete of the image that has been projected from a
-     * RWRW-- to a RWRW-- group. The source image is deleted.
-     * The projection is done by the owner of the data and deleted by the admin.
-     *
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testSourceImageByOwnerdeleteByAdminRWRWtoRWRW() throws Exception {
-        deleteImage("rwrw--", "rwrw--", -1, AbstractServerTest.ADMIN, SOURCE_IMAGE);
-    }
-
-    /**
-     * Test the delete of the image that has been projected from a
-     * RWRW-- to a RWRW-- group. The projected image is deleted.
-     * The projection is done by the owner of the data and deleted by the admin.
-     *
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testProjectedImageByOwnerdeleteByAdminRWRWtoRWRW() throws Exception {
-        deleteImage("rwrw--", "rwrw--", -1, AbstractServerTest.ADMIN, PROJECTED_IMAGE);
-    }
-
-    /**
-     * Test the delete of the image that has been projected from a
-     * RWRW-- to a RWRW-- group. Both images are deleted.
-     * The projection is done by the owner of the data and deleted by the admin.
-     *
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testBothImagesByOwnerdeleteByAdminRWRWtoRWRW() throws Exception {
-        deleteImage("rwrw--", "rwrw--", -1, AbstractServerTest.ADMIN, BOTH_IMAGES);
-    }
-
-    /**
-     * Test the delete of the image that has been projected from a
-     * RWRW-- to a RWRA-- group. The source image is deleted.
-     * The projection is done by the owner of the data and deleted by the admin.
-     *
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testSourceImageByOwnerdeleteByAdminRWRWtoRWRA() throws Exception {
-        deleteImage("rwrw--", "rwrw--", -1, AbstractServerTest.ADMIN, SOURCE_IMAGE);
-    }
-
-    /**
-     * Test the delete of the image that has been projected from a
-     * RWRW-- to a RWRA-- group. The projected image is deleted.
-     * The projection is done by the owner of the data and deleted by the admin.
-     *
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testProjectedImageByOwnerdeleteByAdminRWRWtoRWRA() throws Exception {
-        deleteImage("rwrw--", "rwra--", -1, AbstractServerTest.ADMIN, PROJECTED_IMAGE);
-    }
-
-    /**
-     * Test the delete of the image that has been projected from a
-     * RWRW-- to a RWRW-- group. Both images are deleted.
-     * The projection is done by the owner of the data and deleted by the admin.
-     *
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testBothImagesByOwnerdeleteByAdminRWRWtoRWRA() throws Exception {
-        deleteImage("rwrw--", "rwra--", -1, AbstractServerTest.ADMIN, BOTH_IMAGES);
-    }
-
-    /**
-     * Test the delete of the image that has been projected from a
-     * RWRW-- to a RWR--- group. The source image is deleted.
-     * The projection is done by the owner of the data and deleted by the admin.
-     *
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testSourceImageByOwnerdeleteByAdminRWRWtoRWR() throws Exception {
-        deleteImage("rwrw--", "rwr---", -1, AbstractServerTest.ADMIN, SOURCE_IMAGE);
-    }
-
-    /**
-     * Test the delete of the image that has been projected from a
-     * RWRW-- to a RWR--- group. The projected image is deleted.
-     * The projection is done by the owner of the data and deleted by the admin.
-     *
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testProjectedImageByOwnerdeleteByAdminRWRWtoRWR() throws Exception {
-        deleteImage("rwrw--", "rwr--", -1, AbstractServerTest.ADMIN, PROJECTED_IMAGE);
-    }
-
-    /**
-     * Test the delete of the image that has been projected from a
-     * RWRW-- to a RWR--- group. Both images are deleted.
-     * The projection is done by the owner of the data and deleted by the admin.
-     *
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testBothImagesByOwnerdeleteByAdminRWRWtoRWR() throws Exception {
-        deleteImage("rwrw--", "rwr---", -1, AbstractServerTest.ADMIN, BOTH_IMAGES);
-    }
-
-    /**
-     * Test the delete of the image that has been projected from a
-     * RWRW-- to a RW---- group. The source image is deleted.
-     * The projection is done by the owner of the data and deleted by the admin.
-     *
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testSourceImageByOwnerdeleteByAdminRWRWtoRW() throws Exception {
-        deleteImage("rwrw--", "rwr---", -1, AbstractServerTest.ADMIN, SOURCE_IMAGE);
-    }
-
-    /**
-     * Test the delete of the image that has been projected from a
-     * RWRW-- to a RW---- group. The projected image is deleted.
-     * The projection is done by the owner of the data and deleted by the admin.
-     *
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testProjectedImageByOwnerdeleteByAdminRWRWtoRW() throws Exception {
-        deleteImage("rwrw--", "rw---", -1, AbstractServerTest.ADMIN, PROJECTED_IMAGE);
-    }
-
-    /**
-     * Test the delete of the image that has been projected from a
-     * RWRW-- to a RW---- group. Both images are deleted.
-     * The projection is done by the owner of the data and deleted by the admin.
-     *
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testBothImagesByOwnerdeleteByAdminRWRWtoRW() throws Exception {
-        deleteImage("rwrw--", "rw----", -1, AbstractServerTest.ADMIN, BOTH_IMAGES);
-    }
-    
     //Projected by another member delete by data owner.
     /**
-     * Test the delete of the image that has been projected from a
-     * RW---- to a RW---- group. The source image is deleted.
+     * Test the delete of the image that has been projected in a
+     * RW---- group. The source image is deleted.
      * The projection is done by a member and deleted by the owner.
      *
      * @throws Exception Thrown if an error occurred.
      */
     @Test
-    public void testSourceImageByMemberdeleteByOwnerRWtoRW() throws Exception {
-        deleteImage("rw----", "rw----", AbstractServerTest.MEMBER,
+    public void testSourceImageByMemberdeleteByOwnerRW() throws Exception {
+        deleteImage("rw----", AbstractServerTest.MEMBER,
                 -1, SOURCE_IMAGE);
     }
 
     /**
-     * Test the delete of the image that has been projected from a
-     * RW---- to a RWR--- group. The source image is deleted.
+     * Test the delete of the image that has been projected in a
+     * RWR--- group. The source image is deleted.
      * The projection is done by a member and deleted by the owner.
      *
      * @throws Exception Thrown if an error occurred.
      */
     @Test
-    public void testSourceImageByMemberdeleteByOwnerRWtoRWR() throws Exception {
-        deleteImage("rw----", "rwr---", AbstractServerTest.MEMBER,
+    public void testSourceImageByMemberdeleteByOwnerRWR() throws Exception {
+        deleteImage("rwr---", AbstractServerTest.MEMBER,
                 -1, SOURCE_IMAGE);
     }
 
     /**
-     * Test the delete of the image that has been projected from a
-     * RW---- to a RWRA-- group. The source image is deleted.
+     * Test the delete of the image that has been projected in a
+     * RWRA-- group. The source image is deleted.
      * The projection is done by a member and deleted by the admin.
      *
      * @throws Exception Thrown if an error occurred.
      */
     @Test
-    public void testSourceImageByMemberdeleteByOwnerRWtoRWRA() throws Exception {
-        deleteImage("rw----", "rwra--", AbstractServerTest.MEMBER,
+    public void testSourceImageByMemberdeleteByOwnerRWRA() throws Exception {
+        deleteImage("rwra--", AbstractServerTest.MEMBER,
                 -1, SOURCE_IMAGE);
     }
 
     /**
-     * Test the delete of the image that has been projected from a
-     * RW---- to a RWRW-- group. The source image is deleted.
-     * The projection is done by a member and deleted by the admin.
-     *
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testSourceImageByMemberdeleteByOwnerRWtoRWRW() throws Exception {
-        deleteImage("rw----", "rwrw--", AbstractServerTest.MEMBER,
-                -1, SOURCE_IMAGE);
-    }
-
-    /**
-     * Test the delete of the image that has been projected from a
-     * RWR--- to a RWRW-- group. The source image is deleted.
+     * Test the delete of the image that has been projected in a
+     * RWRW-- group. The source image is deleted.
      * The projection is done by a member and deleted by the owner.
      *
      * @throws Exception Thrown if an error occurred.
      */
     @Test
-    public void testSourceImageByMemberdeleteByOwnerRWRtoRWRW() throws Exception {
-        deleteImage("rwr---", "rwrw--", AbstractServerTest.MEMBER,
-                -1, SOURCE_IMAGE);
-    }
-
-    /**
-     * Test the delete of the image that has been projected from a
-     * RWR--- to a RWRA-- group. The source image is deleted.
-     * The projection is done by a member and deleted by the owner.
-     *
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testSourceImageByMemberdeleteByOwnerRWRtoRWRA() throws Exception {
-        deleteImage("rwr---", "rwra--", AbstractServerTest.MEMBER,
-                -1, SOURCE_IMAGE);
-    }
-
-    /**
-     * Test the delete of the image that has been projected from a
-     * RWR--- to a RWR--- group. The source image is deleted.
-     * The projection is done by a member and deleted by the owner.
-     *
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testSourceImageByMemberdeleteByOwnerRWRtoRWR() throws Exception {
-        deleteImage("rwr---", "rwra--", AbstractServerTest.MEMBER,
-                -1, SOURCE_IMAGE);
-    }
-
-    /**
-     * Test the delete of the image that has been projected from a
-     * RWR--- to a RW---- group. The source image is deleted.
-     * The projection is done by a member and deleted by the admin.
-     *
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testSourceImageByMemberdeleteByOwnerRWRtoRW() throws Exception {
-        deleteImage("rwr---", "rwra--", AbstractServerTest.MEMBER,
-                -1, SOURCE_IMAGE);
-    }
-
-    /**
-     * Test the delete of the image that has been projected from a
-     * RWRA-- to a RW---- group. The source image is deleted.
-     * The projection is done by a member and deleted by the admin.
-     *
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testSourceImageByMemberdeleteByOwnerRWRAtoRW() throws Exception {
-        deleteImage("rwra--", "rwra--", AbstractServerTest.MEMBER,
-                -1, SOURCE_IMAGE);
-    }
-
-    /**
-     * Test the delete of the image that has been projected from a
-     * RWRA-- to a RWR--- group. The source image is deleted.
-     * The projection is done by a member and deleted by the owner.
-     *
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testSourceImageByMemberdeleteByOwnerRWRAtoRWR() throws Exception {
-        deleteImage("rwra--", "rwr--", AbstractServerTest.MEMBER,
-                -1, SOURCE_IMAGE);
-    }
-
-    /**
-     * Test the delete of the image that has been projected from a
-     * RWRA-- to a RWRA-- group. The source image is deleted.
-     * The projection is done by a member and deleted by the owner.
-     *
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testSourceImageByMemberdeleteByOwnerRWRAtoRWRA() throws Exception {
-        deleteImage("rwra--", "rwra--", AbstractServerTest.MEMBER,
-                -1, SOURCE_IMAGE);
-    }
-
-    /**
-     * Test the delete of the image that has been projected from a
-     * RWRA-- to a RWRW-- group. The source image is deleted.
-     * The projection is done by a member and deleted by the owner.
-     *
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testSourceImageByMemberdeleteByOwnerRWRAtoRWRW() throws Exception {
-        deleteImage("rwra--", "rwrw--", AbstractServerTest.MEMBER,
-                -1, SOURCE_IMAGE);
-    }
-
-    /**
-     * Test the delete of the image that has been projected from a
-     * RWRW-- to a RWRW-- group. The source image is deleted.
-     * The projection is done by a member and deleted by the owner.
-     *
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testSourceImageByMemberdeleteByOwnerRWRWtoRWRW() throws Exception {
-        deleteImage("rwrw--", "rwrw--", AbstractServerTest.MEMBER,
-                -1, SOURCE_IMAGE);
-    }
-
-    /**
-     * Test the delete of the image that has been projected from a
-     * RWRW-- to a RWRA-- group. The source image is deleted.
-     * The projection is done by a member and deleted by the owner.
-     *
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testSourceImageByMemberdeleteByOwnerRWRWtoRWRA() throws Exception {
-        deleteImage("rwrw--", "rwrw--", AbstractServerTest.MEMBER,
-                -1, SOURCE_IMAGE);
-    }
-
-    /**
-     * Test the delete of the image that has been projected from a
-     * RWRW-- to a RWR--- group. The source image is deleted.
-     * The projection is done by a member and deleted by the owner.
-     *
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testSourceImageByMemberdeleteByOwnerRWRWtoRWR() throws Exception {
-        deleteImage("rwrw--", "rwr---", AbstractServerTest.MEMBER,
-                -1, SOURCE_IMAGE);
-    }
-
-    /**
-     * Test the delete of the image that has been projected from a
-     * RWRW-- to a RW---- group. The source image is deleted.
-     * The projection is done by a member and deleted by the owner.
-     *
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testSourceImageByMemberdeleteByOwnerRWRWtoRW() throws Exception {
-        deleteImage("rwrw--", "rwr---", AbstractServerTest.MEMBER,
+    public void testSourceImageByMemberdeleteByOwnerRWRW() throws Exception {
+        deleteImage("rwrw--", AbstractServerTest.MEMBER,
                 -1, SOURCE_IMAGE);
     }
 
