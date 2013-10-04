@@ -365,12 +365,6 @@ public class ProjectionBean extends AbstractLevel2Service implements IProjection
      */
     private void zIntervalBoundsCheck(int start, int end, Integer maxZ)
     {
-        if (end < start) {
-            int v = start;
-            start = end;
-            end = v;
-        }
-
         if (start < 0 || end < 0)
             throw new ValidationException("Z interval value cannot be negative.");
         if (start >= maxZ || end >= maxZ)
