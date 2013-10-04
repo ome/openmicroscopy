@@ -226,24 +226,25 @@ def fixpyramids(data_dir, query_service, dry_run=False, config_service=None):
     # the pyramid file will be removed
 
     pixels_dir = os.path.join(data_dir, "Pixels")
-    for f in os.listdir(pixels_dir):
-        pixels_file = os.path.join(pixels_dir, f)
-        length = os.path.getsize(pixels_file)
-        if length == 0 and f.endswith("_pyramid"):
-            delete_pyramid = True
-            for lockfile in os.listdir(pixels_dir):
-                if lockfile.startswith("." + f) and \
-                   (lockfile.endswith(".tmp") or
-                        lockfile.endswith(".pyr_lock")):
-                    delete_pyramid = False
-                    break
+    for root, dirs, files in os.walk(pixels_dir):
+        for f in files:
+            pixels_file = os.path.join(root, f)
+            length = os.path.getsize(pixels_file)
+            if length == 0 and f.endswith("_pyramid"):
+                delete_pyramid = True
+                for lockfile in os.listdir(pixels_dir):
+                    if lockfile.startswith("." + f) and \
+                    (lockfile.endswith(".tmp") or
+                            lockfile.endswith(".pyr_lock")):
+                        delete_pyramid = False
+                        break
 
-            if delete_pyramid:
-                if dry_run:
-                    print "Would remove %s" % f
-                else:
-                    print "Removing %s" % f
-                    os.remove(pixels_file)
+                if delete_pyramid:
+                    if dry_run:
+                        print "Would remove %s" % f
+                    else:
+                        print "Removing %s" % f
+                        os.remove(pixels_file)
 
 
 def main():
