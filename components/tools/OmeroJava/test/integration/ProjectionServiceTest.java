@@ -142,7 +142,7 @@ public class ProjectionServiceTest extends AbstractServerTest
         byte[] value = svc.projectStack(pixelsID, pixelsType, prjType,
                 timepoint, channelIndex, stepping, startZ, endZ);
         assertTrue(value.length > 0);
-        //more check to be added
+        //TODO: more check to be added
     }
     
     /**
