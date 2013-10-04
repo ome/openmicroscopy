@@ -1669,34 +1669,22 @@ class LocationDialog extends JDialog implements ActionListener,
 	 */
 	public void itemStateChanged(ItemEvent ie)
 	{
-		Object source = ie.getSource();
-		
-		if (ie.getStateChange() == ItemEvent.SELECTED)
-		{
-			if (source == groupsBox) {
-				storeCurrentSelections();
-				switchToSelectedGroup();
-			} else if (source == usersBox) {
-				switchToSelectedUser();
-			} else if (source == projectsBox) {
-				DataNode node = getSelectedItem(projectsBox);
-				datasetsBox.setEnabled(true);
-				newDatasetButton.setEnabled(true);
-				if (node == null) {
-					projectsBox.setSelectedIndex(0);
-					return;
-				} else if (node.isDefaultProject()) {
-					newDatasetButton.setEnabled(true);
-				}
-				populateDatasetsBox();
-			} else if (source == datasetsBox) {
-				DataNode node = getSelectedItem(datasetsBox);
-				if (node == null) datasetsBox.setSelectedIndex(0);
-			} else if (source == screensBox) {
-				DataNode node =  getSelectedItem(screensBox);
-				if (node == null) screensBox.setSelectedIndex(0);
-			}
-		}
+	    Object source = ie.getSource();
+	    if (ie.getStateChange() == ItemEvent.SELECTED) {
+	        if (source == groupsBox) {
+	            storeCurrentSelections();
+	            switchToSelectedGroup();
+	        } else if (source == usersBox) {
+	            switchToSelectedUser();
+	        } else if (source == projectsBox) {
+	            DataNode node = getSelectedItem(projectsBox);
+	            datasetsBox.setEnabled(true);
+	            newDatasetButton.setEnabled(true);
+	            if (node.isDefaultProject())
+	                newDatasetButton.setEnabled(true);
+	            populateDatasetsBox();
+	        }
+	    }
 	}
 
 	/**
