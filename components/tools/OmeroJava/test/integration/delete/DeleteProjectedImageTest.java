@@ -612,7 +612,7 @@ public class DeleteProjectedImageTest  extends AbstractServerTest {
      *
      * @throws Exception Thrown if an error occurred.
      */
-    @Test
+    @Test(groups = "broken")
     public void testSourceImageByMemberdeleteByOwnerRWR() throws Exception {
         deleteImage("rwr---", AbstractServerTest.MEMBER,
                 -1, SOURCE_IMAGE);
@@ -625,7 +625,7 @@ public class DeleteProjectedImageTest  extends AbstractServerTest {
      *
      * @throws Exception Thrown if an error occurred.
      */
-    @Test
+    @Test(groups = "broken")
     public void testSourceImageByMemberdeleteByOwnerRWRA() throws Exception {
         deleteImage("rwra--", AbstractServerTest.MEMBER,
                 -1, SOURCE_IMAGE);
