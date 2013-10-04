@@ -100,6 +100,8 @@ public class DeleteProjectedImageTest  extends AbstractServerTest {
                 ProjectionType.MAXIMUMINTENSITY, 0, 1, channels, 1, 0, 1,
                 "projectedImage");
 
+        disconnect();
+        init(ctx);
         //login is as root
         if (deleteMemberRole == AbstractServerTest.ADMIN)
             logRootIntoGroup(ctx);
