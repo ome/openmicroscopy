@@ -49,6 +49,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.actions.MoveToAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.SwitchUserAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.TreeViewerAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ViewOtherAction;
+import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import pojos.ExperimenterData;
 
@@ -343,6 +344,13 @@ class PopupMenu
 						TreeViewerControl.CREATE_TOP_SCREEN);
 				createScreen = new JMenuItem(a);
 				initMenuItem(createScreen, a.getActionName());
+				a = controller.getAction(TreeViewerControl.CREATE_TOP_TAG_SET);
+				createTagSet = new JMenuItem(a);
+                initMenuItem(createTagSet, a.getActionName());
+                a = controller.getAction(TreeViewerControl.CREATE_TOP_TAG);
+                createTag = new JMenuItem(a);
+                initMenuItem(createTag, a.getActionName());
+                a = controller.getAction(TreeViewerControl.CREATE_TOP_GROUP);
 				break;
 			case TreeViewer.PARTIAL_POP_UP_MENU:
 				a = controller.getAction(TreeViewerControl.REFRESH_TREE);
@@ -481,11 +489,19 @@ class PopupMenu
 	 */
 	private JMenu buildCreateNewMenu()
 	{
-		JMenu menu = new JMenu();
-		initMenuItem(menu, TreeViewerWin.CREATE_NEW_MENU);
-		menu.add(createProject);
-		menu.add(createDataset);
-		menu.add(createScreen);
+	    JMenu menu = new JMenu();
+	    initMenuItem(menu, TreeViewerWin.CREATE_NEW_MENU);
+	    //Check the context
+	    int type = controller.getSelectedBrowserType();
+	    if (type == Browser.TAGS_EXPLORER) {
+	        menu.add(createTagSet);
+	        menu.add(createTag);
+	    } else if (type == Browser.SCREENS_EXPLORER) {
+	        menu.add(createScreen);
+	    } else {
+	        menu.add(createProject);
+	        menu.add(createDataset);
+	    }
 		return menu;
 	}
 	
