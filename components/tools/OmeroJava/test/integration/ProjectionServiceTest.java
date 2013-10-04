@@ -66,6 +66,7 @@ public class ProjectionServiceTest extends AbstractServerTest
             throws Exception
     {
         EventContext ctx = newUserAndGroup(perms);
+        long ownerID = ctx.userId;
         if (memberRole > 0) { //create a second user in the group.
             EventContext ctx2 = newUserInGroup(ctx);
             switch (memberRole) {
@@ -75,12 +76,15 @@ public class ProjectionServiceTest extends AbstractServerTest
             case AbstractServerTest.GROUP_OWNER:
                 makeGroupOwner();
             }
+            ctx2 = iAdmin.getEventContext();
+            ownerID = ctx2.userId;
         }
         Pixels pixels = importImage();
         List<Integer> channels = Arrays.asList(0);
-        projectImage(pixels, 0, pixels.getSizeT().getValue()-1, 0,
+        Image img = projectImage(pixels, 0, pixels.getSizeT().getValue()-1, 0,
                 pixels.getSizeZ().getValue()-1, 1,
                 ProjectionType.MAXIMUMINTENSITY, null, channels);
+        assertEquals(ownerID, img.getDetails().getOwner().getId().getValue());
     }
 
     /**
@@ -95,9 +99,10 @@ public class ProjectionServiceTest extends AbstractServerTest
      * @param prjType The type of projection to perform.
      * @param pixelsType The type of pixels to generate.
      * @param channels The list of channels' indexes.
+     * @return The projected image.
      * @throws Exception Thrown if an error occurred.
      */
-    private void projectImage(Pixels pixels, int startT, int endT, int startZ,
+    private Image projectImage(Pixels pixels, int startT, int endT, int startZ,
             int endZ, int stepping, ProjectionType prjType,
             PixelsType pixelsType, List<Integer> channels)
             throws Exception
@@ -118,6 +123,7 @@ public class ProjectionServiceTest extends AbstractServerTest
         if (pixelsType == null) pixelsType = pixels.getPixelsType();
         assertEquals(p.getPixelsType().getValue().getValue(),
                 pixelsType.getValue().getValue());
+        return images.get(0);
     }
 
     /**
