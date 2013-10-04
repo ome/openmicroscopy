@@ -15,6 +15,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
+import loci.common.Location;
 import loci.formats.FormatException;
 import loci.formats.FormatTools;
 import loci.formats.IFormatReader;
@@ -70,7 +71,14 @@ public class BfPixelBuffer implements PixelBuffer, Serializable {
                 }
             } catch (FormatException fe) {
                 log.debug("FormatException: " + filePath, fe);
-                throw new ResourceError("FormatException: " + filePath + "\n" + fe.getMessage());
+                Location pixelsFile = new Location(filePath);
+                if (filePath.endsWith("_pyramid") && pixelsFile.length() == 0) {
+                  // empty pixels file; delete it so that it can be regenerated
+                  pixelsFile.delete();
+                }
+                else {
+                  throw new ResourceError("FormatException: " + filePath + "\n" + fe.getMessage());
+                }
             } catch (Exception e) {
                 log.error("Failed to instantiate BfPixelsWrapper with " + filePath);
                 throw new RuntimeException(e);
