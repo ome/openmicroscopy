@@ -19,6 +19,7 @@ import omero.cmd.DoAll;
 import omero.cmd.Request;
 import omero.constants.projection.ProjectionType;
 import omero.model.IObject;
+import omero.model.Image;
 import omero.model.Pixels;
 
 import omero.sys.EventContext;
@@ -125,45 +126,20 @@ public class DeleteProjectedImageTest  extends AbstractServerTest {
         }
 
         //Check the result
-        ParametersI param = new ParametersI();
-        StringBuilder sb = new StringBuilder();
-        sb.append("select i in Image i ");
-        sb.append("where i.id in (:ids)");
-        List<Long> ids = new ArrayList<Long>();
-        List<IObject> images;
         switch (action) {
         case SOURCE_IMAGE:
-            ids.add(id);
-            param.addIds(ids);
-            images = iQuery.findAllByQuery(sb.toString(), param);
-            assertEquals(images.size(), 0);
+            assertNull(iQuery.find(Image.class.getSimpleName(), id));
             //check that the projected image is still there
-            param = new ParametersI();
-            ids.clear();
-            ids.add(projectedID);
-            param.addIds(ids);
-            images = iQuery.findAllByQuery(sb.toString(), param);
-            assertEquals(images.size(), 1);
+            assertNotNull(iQuery.find(Image.class.getSimpleName(), projectedID));
             break;
         case PROJECTED_IMAGE:
-            ids.add(projectedID);
-            param.addIds(ids);
-            images = iQuery.findAllByQuery(sb.toString(), param);
-            assertEquals(images.size(), 0);
+            assertNull(iQuery.find(Image.class.getSimpleName(), projectedID));
            //check that the original image is still there
-            param = new ParametersI();
-            ids.clear();
-            ids.add(id);
-            param.addIds(ids);
-            images = iQuery.findAllByQuery(sb.toString(), param);
-            assertEquals(images.size(), 1);
+            assertNotNull(iQuery.find(Image.class.getSimpleName(), id));
             break;
         case BOTH_IMAGES:
-            ids.add(id);
-            ids.add(projectedID);
-            param.addIds(ids);
-            images = iQuery.findAllByQuery(sb.toString(), param);
-            assertEquals(images.size(), 0);
+            assertNull(iQuery.find(Image.class.getSimpleName(), projectedID));
+            assertNull(iQuery.find(Image.class.getSimpleName(), id));
         }
     }
 
