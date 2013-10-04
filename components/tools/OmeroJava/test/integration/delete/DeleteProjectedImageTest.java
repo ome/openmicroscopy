@@ -13,6 +13,7 @@ import java.util.List;
 
 import integration.AbstractServerTest;
 import integration.DeleteServiceTest;
+import omero.SecurityViolation;
 import omero.api.IProjectionPrx;
 import omero.cmd.Delete;
 import omero.cmd.DoAll;
@@ -598,7 +599,7 @@ public class DeleteProjectedImageTest  extends AbstractServerTest {
      *
      * @throws Exception Thrown if an error occurred.
      */
-    @Test
+    @Test(expectedExceptions = SecurityViolation.class)
     public void testSourceImageByMemberdeleteByOwnerRW() throws Exception {
         deleteImage("rw----", AbstractServerTest.MEMBER,
                 -1, SOURCE_IMAGE);
