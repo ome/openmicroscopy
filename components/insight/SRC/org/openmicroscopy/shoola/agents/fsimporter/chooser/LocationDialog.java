@@ -1583,41 +1583,24 @@ class LocationDialog extends JDialog implements ActionListener,
 	 * Listener for Group and Project JComboBox selection events
 	 * @see ItemChangeListener
 	 */
-	public void itemStateChanged(ItemEvent ie) {
-		Object source = ie.getSource();
-		
-		if (ie.getStateChange() == ItemEvent.SELECTED)
-		{
-			if (source == groupsBox) {
-				storeCurrentSelections();
-				switchToSelectedGroup();
-			} else if(source == usersBox) {
-				switchToSelectedUser();
-			} else if (source == projectsBox) {
-				DataNode node = getSelectedItem(projectsBox);
-				datasetsBox.setEnabled(true);
-				newDatasetButton.setEnabled(true);
-				if (node.isDefaultProject()) {
-					newDatasetButton.setEnabled(true);
-				} else if (!node.getDataObject().canLink()) {
-					projectsBox.setSelectedIndex(0);
-					return;
-				}
-				populateDatasetsBox();
-			} else if (source == datasetsBox) {
-				DataNode node = getSelectedItem(datasetsBox);
-				if (!node.isDefaultNode()) {
-					if (!node.getDataObject().canLink())
-						datasetsBox.setSelectedIndex(0);
-				}
-			} else if (source == screensBox) {
-				DataNode node =  getSelectedItem(screensBox);
-				if (!node.isDefaultNode()) {
-					if (!node.getDataObject().canLink())
-						screensBox.setSelectedIndex(0);
-				}
-			}
-		}
+	public void itemStateChanged(ItemEvent ie)
+	{
+	    Object source = ie.getSource();
+	    if (ie.getStateChange() == ItemEvent.SELECTED) {
+	        if (source == groupsBox) {
+	            storeCurrentSelections();
+	            switchToSelectedGroup();
+	        } else if (source == usersBox) {
+	            switchToSelectedUser();
+	        } else if (source == projectsBox) {
+	            DataNode node = getSelectedItem(projectsBox);
+	            datasetsBox.setEnabled(true);
+	            newDatasetButton.setEnabled(true);
+	            if (node.isDefaultProject())
+	                newDatasetButton.setEnabled(true);
+	            populateDatasetsBox();
+	        }
+	    }
 	}
 
 	/**
