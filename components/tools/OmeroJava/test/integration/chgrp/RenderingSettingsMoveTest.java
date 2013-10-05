@@ -47,10 +47,8 @@ public class RenderingSettingsMoveTest extends AbstractServerTest {
     private void moveImage(String src, String target, int memberRole, int
             moveMemberRole) throws Exception
     {
-        //Create 2 users in the source group.
+        //Create one user in the source group.
         EventContext ctx = newUserAndGroup(src);
-        
-
         //Create an image
         Image img = mmFactory.createImage();
         img = (Image) iUpdate.saveAndReturnObject(img);
@@ -111,8 +109,10 @@ public class RenderingSettingsMoveTest extends AbstractServerTest {
 
         disconnect();
         // Log in to other group
-        loginUser(ctx); //require if log as root.
-        disconnect();
+        if (moveMemberRole == AbstractServerTest.ADMIN) {
+            loginUser(ctx); //require if log as root.
+            disconnect();
+        }
         loginUser(g);
 
         //Check that image has been moved.
