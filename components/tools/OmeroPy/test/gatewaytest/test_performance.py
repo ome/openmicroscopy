@@ -16,6 +16,7 @@
 
 """
 
+import pytest
 import omero
 import time
 
@@ -23,6 +24,8 @@ import time
 from omero.rtypes import rstring, rlong
 
 class TestPerformance (object):
+
+    @pytest.mark.xfail(reason="ticket 11494")
     def testListFileAnnotations(self, gatewaywrapper):
         """ testListFileAnnotations: test speed of getObjects('FileAnnotation') vv listFileAnnotations() """
         gatewaywrapper.loginAsAuthor()

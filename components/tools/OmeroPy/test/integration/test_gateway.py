@@ -8,7 +8,6 @@
    Use is subject to license terms supplied in LICENSE.txt
 
 """
-import unittest
 import test.integration.library as lib
 import omero
 from omero_model_PixelsI import PixelsI
@@ -53,5 +52,3 @@ class TestGateway(lib.ITest):
         gateway.close()
         
         
-if __name__ == '__main__':
-    unittest.main()

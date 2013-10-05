@@ -10,18 +10,17 @@
 
 """
 
-import unittest
 import omero
 from omero.rtypes import *
 from omero_sys_ParametersI import ParametersI
 
-class TestParameters(unittest.TestCase):
+class TestParameters(object):
 
     def assertNull(self, arg):
-        self.assertEquals(None, arg)
+        assert None == arg
 
     def assertNotNull(self, arg):
-        self.assertTrue( arg != None )
+        assert arg != None
 
     #
     # From PojoOptionsTest
@@ -35,29 +34,29 @@ class TestParameters(unittest.TestCase):
 
     def testDefaults(self):
         p = ParametersI()
-        # Removed: self.assertFalse(p.isLeaves())
-        self.assertFalse(p.isGroup())
-        self.assertFalse(p.isExperimenter())
-        self.assertFalse(p.isEndTime())
-        self.assertFalse(p.isStartTime())
-        self.assertFalse(p.isPagination())
-        self.assertFalse(p.getUnique())
+        # Removed: assert not p.isLeaves()
+        assert not p.isGroup()
+        assert not p.isExperimenter()
+        assert not p.isEndTime()
+        assert not p.isStartTime()
+        assert not p.isPagination()
+        assert not p.getUnique()
 
     def testExperimenter(self):
         p = ParametersI()
         p.exp(rlong(1))
-        self.assertTrue(p.isExperimenter())
-        self.assertEquals(p.getExperimenter().getValue(), 1L)
+        assert p.isExperimenter()
+        assert p.getExperimenter().getValue() == 1L
         p.allExps()
-        self.assertFalse(p.isExperimenter())
+        assert not p.isExperimenter()
 
     def testGroup(self):
         p = ParametersI()
         p.grp(rlong(1))
-        self.assert_(p.isGroup())
-        self.assertEquals(p.getGroup().getValue(), 1L)
+        assert p.isGroup()
+        assert p.getGroup().getValue() == 1L
         p.allGrps()
-        self.assertFalse(p.isGroup())
+        assert not p.isGroup()
 
     #
     # Parameters.theFilter.limit, offset
@@ -66,23 +65,23 @@ class TestParameters(unittest.TestCase):
     def testFilter(self):
         p = ParametersI()
         p.noPage()
-        self.assertEquals(None, p.theFilter)
+        assert None == p.theFilter
         p.page(2,3)
-        self.assert_(p.isPagination())
-        self.assertEquals( rint(2), p.theFilter.offset )
-        self.assertEquals( rint(3), p.theFilter.limit )
+        assert p.isPagination()
+        assert rint(2) == p.theFilter.offset
+        assert rint(3) == p.theFilter.limit
         p.noPage()
-        self.assertFalse(p.isPagination())
-        self.assertEquals(None, p.theFilter.offset)
-        self.assertEquals(None, p.theFilter.limit)
-        self.assertEquals(None, p.getLimit())
-        self.assertEquals(None, p.getOffset())
+        assert not p.isPagination()
+        assert None == p.theFilter.offset
+        assert None == p.theFilter.limit
+        assert None == p.getLimit()
+        assert None == p.getOffset()
 
     def testUnique(self):
         p = ParametersI()
         self.assertNull(p.getUnique())
-        self.assertEquals(rbool(True), p.unique().getUnique())
-        self.assertEquals(rbool(False), p.noUnique().getUnique())
+        assert rbool(True) == p.unique().getUnique()
+        assert rbool(False) == p.noUnique().getUnique()
         self.assertNotNull(p.getUnique())
 
     #
@@ -95,7 +94,7 @@ class TestParameters(unittest.TestCase):
         p.exp(rlong(1))
         self.assertNotNull(p.theFilter)
         self.assertNotNull(p.theFilter.ownerId)
-        self.assertEquals(rlong(1), p.getExperimenter())
+        assert rlong(1) == p.getExperimenter()
         self.assertNull(p.allExps().getExperimenter())
         self.assertNotNull(p.theFilter)
 
@@ -105,7 +104,7 @@ class TestParameters(unittest.TestCase):
         p.grp(rlong(1))
         self.assertNotNull(p.theFilter)
         self.assertNotNull(p.theFilter.groupId)
-        self.assertEquals(rlong(1), p.getGroup())
+        assert rlong(1) == p.getGroup()
         self.assertNull(p.allGrps().getGroup())
         self.assertNotNull(p.theFilter)
 
@@ -133,22 +132,22 @@ class TestParameters(unittest.TestCase):
     def testOptionsAcquisitionData(self):
         p = ParametersI()
         self.assertNull(p.getAcquisitionData())
-        self.assertEquals(rbool(True), p.acquisitionData().getAcquisitionData())
-        self.assertEquals(rbool(False), p.noAcquisitionData().getAcquisitionData())
+        assert rbool(True) == p.acquisitionData().getAcquisitionData()
+        assert rbool(False) == p.noAcquisitionData().getAcquisitionData()
         self.assertNotNull(p.getAcquisitionData())
 
     def testOptionsOrphan(self):
         p = ParametersI()
         self.assertNull(p.getOrphan())
-        self.assertEquals(rbool(True), p.orphan().getOrphan())
-        self.assertEquals(rbool(False), p.noOrphan().getOrphan())
+        assert rbool(True) == p.orphan().getOrphan()
+        assert rbool(False) == p.noOrphan().getOrphan()
         self.assertNotNull(p.getOrphan())
 
     def testOptionsLeaves(self):
         p = ParametersI()
         self.assertNull(p.getLeaves())
-        self.assertEquals(rbool(True), p.leaves().getLeaves())
-        self.assertEquals(rbool(False), p.noLeaves().getLeaves())
+        assert rbool(True) == p.leaves().getLeaves()
+        assert rbool(False) == p.noLeaves().getLeaves()
         self.assertNotNull(p.getLeaves())
 
 
@@ -159,43 +158,43 @@ class TestParameters(unittest.TestCase):
     def testDistinctMaps(self):
         p1 = ParametersI()
         p2 = ParametersI()
-        self.assertFalse(p1.map is p2.map)
-        
+        assert not p1.map is p2.map
+
     def testSameMap(self):
         m = {'key':0}
         p1 = ParametersI(parammap=m)
         p2 = ParametersI(parammap=m)
-        self.assertTrue(p1.map is p2.map)
-        
+        assert p1.map is p2.map
+
     def testAddBasicString(self):
         p = ParametersI()
         p.add("string", rstring("a"))
-        self.assertEquals( rstring("a"), p.map["string"])
+        assert rstring("a") == p.map["string"]
 
     def testAddBasicInt(self):
         p = ParametersI()
         p.add("int", rint(1))
-        self.assertEquals(rint(1), p.map["int"])
+        assert rint(1) == p.map["int"]
 
     def testAddIdRaw(self):
         p = ParametersI()
         p.addId(1)
-        self.assertEquals(rlong(1), p.map["id"])
+        assert rlong(1) == p.map["id"]
 
     def testAddIdRType(self):
         p = ParametersI()
         p.addId(rlong(1))
-        self.assertEquals(rlong(1), p.map["id"])
+        assert rlong(1) == p.map["id"]
 
     def testAddLongRaw(self):
         p = ParametersI()
         p.addLong("long",1)
-        self.assertEquals(rlong(1), p.map["long"])
+        assert rlong(1) == p.map["long"]
 
     def testAddLongRType(self):
         p = ParametersI()
         p.addLong("long", rlong(1))
-        self.assertEquals(rlong(1), p.map["long"])
+        assert rlong(1) == p.map["long"]
 
     def testAddIds(self):
         p = ParametersI()
@@ -209,5 +208,3 @@ class TestParameters(unittest.TestCase):
         p.map["longs"].val.index(rlong(1))
         p.map["longs"].val.index(rlong(2))
 
-if __name__ == '__main__':
-    unittest.main()

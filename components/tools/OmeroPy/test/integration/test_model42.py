@@ -9,7 +9,6 @@
 
 """
 
-import unittest
 import test.integration.library as lib
 from omero.rtypes import *
 
@@ -84,5 +83,3 @@ class TestTicket2290(lib.ITest):
         roi.addShape(rect)
         roi = self.update.saveAndReturnObject(roi)
 
-if __name__ == '__main__':
-    unittest.main()

@@ -10,7 +10,8 @@
 """
 
 import test.integration.library as lib
-import omero, tempfile, unittest
+import pytest
+import omero
 from omero_sys_ParametersI import ParametersI
 from omero.rtypes import *
 
@@ -29,14 +30,11 @@ class TestTicket1000(lib.ITest):
         exp = omero.model.ExperimenterI()
         exp.omeName = rstring("root")
         list = self.client.sf.getQueryService().findAllByExample(exp, None)
-        self.assertEquals(1, len(list))
+        assert 1 ==  len(list)
 
     def test843(self):
-        try:
+        with pytest.raises(omero.ValidationException):
             self.client.sf.getQueryService().get("Experimenter",-1)
-            self.fail("should throw an exception")
-        except omero.ValidationException, ve:
-            pass
 
     # This test is overridden by the next but would fail anyway due to null params
     def test880(self):
@@ -51,9 +49,9 @@ class TestTicket1000(lib.ITest):
         try:
             createTestImage(self.client.sf)
             i = self.client.sf.getQueryService().findAll("Image", params.theFilter)[0]
-            self.assert_(i != None)
-            self.assert_(i.id != None)
-            self.assert_(i.details != None)
+            assert i != None
+            assert i.id != None
+            assert i.details != None
         except omero.ValidationException, ve:
             print " test880 - createTestImage has failed. This fixture method needs to be fixed."
         except IndexError, ie:
@@ -102,13 +100,8 @@ class TestTicket1000(lib.ITest):
         except omero.ValidationException, ve:
             print " test985 - query has failed. Should this query pass? "
             
-        try: 
+        with pytest.raises(omero.ValidationException):
             self.client.sf.getQueryService().findAllByQuery(TestTicket1000.failing, prms)
-            self.fail("should throw an exception")
-        except omero.ValidationException, ve:
-            pass
 
     ## removed def test989(self):
 
-if __name__ == '__main__':
-    unittest.main()

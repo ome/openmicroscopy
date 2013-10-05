@@ -80,19 +80,15 @@ class MockCLI(CLI):
     def expect(self, key, value):
         self.__expect.append((key, value))
 
-    def assertEquals(self, a, b):
-        if a != b:
-            raise AssertionError("%s!=%s" % (a, b))
-
     def assertStdout(self, args):
         try:
-            self.assertEquals(set(args), set(self.__output))
+            assert set(args) == set(self.__output)
         finally:
             self.__output = []
 
     def assertStderr(self, args):
         try:
-            self.assertEquals(set(args), set(self.__error))
+            assert set(args) == set(self.__error)
         finally:
             self.__error = []
 
@@ -100,7 +96,7 @@ class MockCLI(CLI):
         self.__call.append(rv)
 
     def assertCalled(self):
-        self.assertEquals(0, len(self.__call))
+        assert 0 == len(self.__call)
 
     def createPopen(self):
         popen = self.mox.CreateMock(subprocess.Popen)
@@ -118,12 +114,12 @@ class MockCLI(CLI):
         self.replay(popen)
 
     def assertPopened(self):
-        self.assertEquals(0, len(self.__popen))
+        assert 0 == len(self.__popen)
 
     def replay(self, mock):
         mox.Replay(mock)
 
-    def tearDown(self):
+    def teardown_method(self, method):
         try:
             self.mox.VerifyAll()
         finally:
