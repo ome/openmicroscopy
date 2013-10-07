@@ -438,29 +438,31 @@ public class UserNotifierImpl implements UserNotifier, PropertyChangeListener {
 			    Iterable<String> args= data.getCommandLineArguments();
 			    String uuid = null;
 			    try {
-	                uuid = svc.createNewSession(ctx);
-	            } catch (Exception e) {
-	                Logger logger = manager.getRegistry().getLogger();
-	                LogMessage msg = new LogMessage();
-	                msg.append("could not create a session");
-	                msg.print(e);
-	                logger.error(this, msg);
-	            }
+			        uuid = svc.createNewSession(ctx);
+			    } catch (Exception e) {
+			        Logger logger = manager.getRegistry().getLogger();
+			        LogMessage msg = new LogMessage();
+			        msg.append("could not create a session");
+			        msg.print(e);
+			        logger.error(this, msg);
+			    }
 			    StringBuffer buffer = new StringBuffer();
 			    if (uuid == null) { //no session pass user credentials
 			        UserCredentials lc = (UserCredentials)
 			                manager.getRegistry().lookup(
-			                LookupNames.USER_CREDENTIALS);
+			                        LookupNames.USER_CREDENTIALS);
 			        buffer.append("-s ");
 			        buffer.append(lc.getHostName());
-		            buffer.append(" -u ");
-		            buffer.append(lc.getUserName());
-		            buffer.append(" -p ");
-		            buffer.append(lc.getPort());
-		            buffer.append(" -g ");
-		            buffer.append(ctx.getGroupID());
+			        buffer.append(" -u ");
+			        buffer.append(lc.getUserName());
+			        buffer.append(" -w ");
+			        buffer.append(lc.getPassword());
+			        buffer.append(" -p ");
+			        buffer.append(lc.getPort());
+			        buffer.append(" -g ");
+			        buffer.append(ctx.getGroupID());
 			    } else buffer.append("-k "+uuid);
-			    
+
 			    //now data type
 			    DataObject object = p.getObject();
 			    String name = object.asIObject().getClass().getSimpleName();
@@ -471,14 +473,13 @@ public class UserNotifierImpl implements UserNotifier, PropertyChangeListener {
 			    commands.add(buffer.toString());
 			    for (String arg : args) {
 			        commands.add(arg);
-		        }
+			    }
 			    data.setCommandLineArguments(commands);
 			    openApplication(data, null);
 			} else {
 			    comp = new OpenObjectActivity(this, manager.getRegistry(), ctx,
 			            p);
 			}
-			
 		} else if (activity instanceof DownloadAndZipParam) {
 			DownloadAndZipParam p = (DownloadAndZipParam) activity;
 			if (!canWriteInFolder(p.getFolder()))
