@@ -139,6 +139,7 @@ import org.openmicroscopy.shoola.env.data.model.FigureParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptActivityParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.JXTaskPaneContainerSingle;
 import org.openmicroscopy.shoola.util.ui.LoadingWindow;
@@ -1448,8 +1449,19 @@ class TreeViewerControl
 				downloadScript(p);
 			}
 		} else if (OpenWithDialog.OPEN_DOCUMENT_PROPERTY.equals(name)) {
-			ApplicationData data = (ApplicationData) pce.getNewValue();
-			//Register 
+		    File file = (File) pce.getNewValue();
+		    if (file == null) return;
+		    //Now create the application data.
+		    ApplicationData data = null;
+		    try {
+		        data = new ApplicationData(file);
+            } catch (Exception e) {
+                LogMessage msg = new LogMessage();
+                msg.print("An error occurred while creating " +
+                        "the application file.");
+                msg.print(e);
+                TreeViewerAgent.getRegistry().getLogger().error(this, msg);
+            }
 			if (data == null) return;
 			String format = view.getObjectMimeType();
 			//if (format == null) return;
