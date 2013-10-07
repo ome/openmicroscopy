@@ -41,6 +41,7 @@ import org.apache.commons.lang.StringUtils;
 import org.openmicroscopy.shoola.env.Container;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.AdminService;
+import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.model.AnalysisActivityParam;
 import org.openmicroscopy.shoola.env.data.model.ApplicationData;
@@ -422,9 +423,10 @@ public class UserNotifierImpl implements UserNotifier, PropertyChangeListener {
 			OpenActivityParam p = (OpenActivityParam) activity;
 			ApplicationData data = p.getApplication();
 			AdminService svc = manager.getRegistry().getAdminService();
+			OmeroImageService prx = manager.getRegistry().getImageService();
 			boolean registeredApplication = false;
 			try {
-			    registeredApplication = svc.isApplicationRegistered(ctx,
+			    registeredApplication = prx.isApplicationRegistered(ctx,
 			            data.getApplicationName());
             } catch (Exception e) {
                 Logger logger = manager.getRegistry().getLogger();

@@ -858,14 +858,5 @@ class AdminServiceImpl
 	{
 	    return gateway.createSession(ctx);
 	}
-	
-	/**
-	 * Implemented as specified by {@link AdminService}.
-	 * @see AdminService#isApplicationRegistered(SecurityContext, name)
-	 */
-	public boolean isApplicationRegistered(SecurityContext ctx, String name)
-	{
-	    return true;
-	}
 
 }

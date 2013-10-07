@@ -8357,5 +8357,28 @@ class OMEROGateway
             handleException(e, "Cannot find split images.");
         }
         return session;
+	}
+
+	/**
+     * Returns all the registered 3rd party applications
+     *
+     * @param ctx The security context.
+     * @return See above.
+     * @throws DSOutOfServiceException  If the connection is broken, or logged
+     *                                  in.
+     * @throws DSAccessException        If an error occurred while trying to
+     *                                  retrieve data from OMEDS service.
+     */
+    List<ScriptObject> loadApplications(SecurityContext ctx)
+        throws DSOutOfServiceException, DSAccessException
+    {
+        IScriptPrx svc = getScriptService(ctx);
+        List<ScriptObject> scripts = new ArrayList<ScriptObject>();
+        try {
+            
+        } catch (Exception e) {
+            handleException(e, "Cannot load the plugins. ");
+        }
+        return scripts;
     }
 }

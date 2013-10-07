@@ -898,4 +898,17 @@ public interface OmeroImageService
 	Long getRenderingDef(SecurityContext ctx, long pixelsID, long userID)
 		throws DSOutOfServiceException, DSAccessException;
 
+    /**
+     * Checks if the specified application is a known-registered application
+     * e.g. FLIMfit.
+     * 
+     * @param ctx The security context.
+     * @param name The name of the application.
+     * @return See above.
+     * @throws DSOutOfServiceException If the connection is broken, or logged in
+     * @throws DSAccessException If an error occurred while trying to 
+     * retrieve data from OMERO service.
+     */
+    boolean isApplicationRegistered(SecurityContext ctx, String name)
+            throws DSOutOfServiceException, DSAccessException;
 }

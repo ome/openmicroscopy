@@ -565,4 +565,11 @@ public class NullRenderingService
 		return null;
 	}
 
+    @Override
+    public boolean isApplicationRegistered(SecurityContext ctx, String name)
+            throws DSOutOfServiceException, DSAccessException {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
 }

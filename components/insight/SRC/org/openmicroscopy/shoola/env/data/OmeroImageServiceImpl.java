@@ -1889,7 +1889,7 @@ class OmeroImageServiceImpl
 	{
 		if (ctx == null) return null;
 		Connector c = gateway.getConnector(ctx, true, false);
-		// Pass close responsiblity off to the caller.
+		// Pass close responsibility off to the caller.
 		return c.getThumbnailService();
 	}
 	
@@ -1905,5 +1905,24 @@ class OmeroImageServiceImpl
 		if (def == null) return -1L;
 		return def.getId().getValue();
 	}
+    
+	/**
+	 * Implemented as specified by {@link OmeroImageService}.
+	 * @see OmeroImageService#getRenderingDef(SecurityContext, long, long)
+	 */
+    public boolean isApplicationRegistered(SecurityContext ctx, String name)
+            throws DSOutOfServiceException, DSAccessException
+    {
+        List<ScriptObject> apps = gateway.loadApplications(ctx);
+        if (CollectionUtils.isEmpty(apps)) return false;
+        Iterator<ScriptObject> i = apps.iterator();
+        ScriptObject app;
+        while (i.hasNext()) {
+            app = i.next();
+            if (app.getName().equals(name))
+                return true;
+        }
+        return false;
+    }
 
 }
