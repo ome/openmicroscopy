@@ -463,13 +463,11 @@ public class UserNotifierImpl implements UserNotifier, PropertyChangeListener {
 	 */
 	public void openApplication(ApplicationData data, String path) {
 
-		if (data == null && path == null)
-			return;
-		
+		if (data == null && path == null) return;
+		if (data == null) data = new ApplicationData();
 		Logger logger = manager.getRegistry().getLogger();
 		try {
-			String[] commandLineElements = ApplicationData.buildCommand(data,
-					new File(path));
+			String[] commandLineElements = data.buildCommand(new File(path));
 
 			logger.info(this, "Executing command & args: " + 
 					Arrays.toString(commandLineElements));
