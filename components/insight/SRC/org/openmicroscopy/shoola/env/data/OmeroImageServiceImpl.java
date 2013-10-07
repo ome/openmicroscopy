@@ -1915,18 +1915,16 @@ class OmeroImageServiceImpl
             throws DSOutOfServiceException, DSAccessException
     {
         List<ScriptObject> apps = gateway.loadApplications(ctx);
-        System.err.println(name);
         if (CollectionUtils.isEmpty(apps) || StringUtils.isEmpty(name))
             return false;
         Iterator<ScriptObject> i = apps.iterator();
         ScriptObject app;
         while (i.hasNext()) {
             app = i.next();
-            System.err.println("app: "+app.getName());
             if (name.startsWith(app.getName()))
                 return true;
         }
-        return true;
+        return false;
     }
 
 }

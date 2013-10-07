@@ -306,6 +306,7 @@ public interface AdminService
      * @throws DSOutOfServiceException If the connection is broken, or logged in
      * @throws DSAccessException If an error occurred while trying to 
      * retrieve data from OMERO service.
+<<<<<<< HEAD
      */
     public Map<Long, Long> countExperimenters(SecurityContext ctx,
             List<Long> ids)
