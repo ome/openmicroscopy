@@ -50,7 +50,7 @@ import org.springframework.transaction.annotation.Transactional;
  * Simple action which can be done in an asynchronous thread in order to index
  * Hibernate entities. Attempts to index each {@link EventLog} passed from the
  * {@link EventLogLoader} multiple times on failure. Eventually
- * 
+ *
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta3
  */
@@ -232,7 +232,7 @@ public class FullTextIndexer extends SimpleWork {
      * Default implementation suggests doing more if fewer than {@link #reps}
      * runs have been made and if there are still more than
      * {@link EventLogLoader#batchSize} x 100 backlog entries.
-     * 
+     *
      * This is based on the assumption that indexing runs roughly 120 times an
      * hour, so if there are more than an hours worth of batches, do extra work
      * to catch up.
