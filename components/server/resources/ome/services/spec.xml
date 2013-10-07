@@ -280,13 +280,21 @@
         </constructor-arg>
     </bean>
 
-    <bean parent="delSpec" name="/Well">
+    <bean parent="delSpec" name="/Well+WithSamples">
         <constructor-arg>
             <list>
                 <value>/Well/WellSample/WellSampleAnnotationLink;FORCE</value>
                 <value>/Annotation;SOFT;/Well/WellSample/WellSampleAnnotationLink</value>
                 <value>/Well/WellSample</value>
                 <value>/Image;;/Well/WellSample</value>
+                <value>/Well</value>
+            </list>
+        </constructor-arg>
+    </bean>
+
+    <bean parent="delSpec" name="/Well">
+        <constructor-arg>
+            <list>
                 <value>/Well/WellAnnotationLink;FORCE</value>
                 <value>/Annotation;SOFT;/Well/WellAnnotationLink</value>
                 <value>/Well/WellReagentLink;FORCE</value>
@@ -307,7 +315,7 @@
     <bean parent="delSpec" name="/Plate+Only">
         <constructor-arg>
             <list>
-                <value>/Well;;/Plate</value>
+                <value>/Well+WithSamples;;/Plate</value>
                 <value>/Plate/PlateAcquisition/PlateAcquisitionAnnotationLink;FORCE</value>
                 <value>/Annotation;SOFT;/Plate/PlateAcquisition/PlateAcquisitionAnnotationLink</value>
                 <value>/Plate/PlateAcquisition</value>
@@ -326,7 +334,8 @@
                 <value>/PlateAcquisition/WellSample/WellSampleAnnotationLink;FORCE</value>
                 <value>/Annotation;SOFT;/PlateAcquisition/WellSample/WellSampleAnnotationLink</value>
                 <value>/PlateAcquisition/WellSample</value>
-                 <value>/Image;;/PlateAcquisition/WellSample</value>
+                <value>/Image;;/PlateAcquisition/WellSample</value>
+                <value>/Well;SOFT;/PlateAcquisition/WellSample</value>
                 <value>/PlateAcquisition</value>
             </list>
         </constructor-arg>
@@ -341,6 +350,7 @@
                 <value>/Annotation;SOFT;/Screen/ScreenAnnotationLink</value>
                 <value>/Screen/Reagent/ReagentAnnotationLink;FORCE</value>
                 <value>/Annotation;SOFT;/Screen/Reagent/ReagentAnnotationLink</value>
+                <value>/Screen/Reagent/WellReagentLink;FORCE</value>
                 <value>/Screen/Reagent</value>
                 <value>/Screen</value>
             </list>
