@@ -383,9 +383,7 @@ public class DataNode
 	 */
 	public String toString()
 	{
-		//space added at the end otherwise does not show on linux if
-		//name ends up with "v".
-		return EditorUtil.truncate(getFullName(), 48);
+		return EditorUtil.truncate(getFullName());
 	}
 	
 	/**
@@ -395,6 +393,8 @@ public class DataNode
 	 */
 	public String getFullName()
 	{
+	    //space added at the end otherwise does not show on linux if
+	    //name ends up with "v".
 		if (data instanceof DatasetData)
 			return ((DatasetData) data).getName() + " ";
 		else if (data instanceof ProjectData)
