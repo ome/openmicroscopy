@@ -9,7 +9,7 @@
 
 """
 
-import unittest, os, sys, logging, subprocess
+import os, sys, logging, subprocess
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -73,13 +73,13 @@ def with_process(func, Popen = MockPopen):
             self.process.cleanup()
     return wraps(func)(handler)
 
-class TestProcess(unittest.TestCase):
+class TestProcess(object):
 
-    def setUp(self):
+    def setup_method(self, method):
         self.log = logging.getLogger("TestProcess")
         self.ctx = omero.util.ServerContext(server_id='mock', communicator=None, stop_event=omero.util.concurrency.get_event())
 
-    def tearDown(self):
+    def teardown_method(self, method):
         self.log.info("stop_event")
         self.ctx.stop_event.set()
 
@@ -116,31 +116,31 @@ class TestProcess(unittest.TestCase):
     @with_process
     def testMockPopenPoll(self):
         self.process.activate()
-        self.assertEquals(None, self.process.poll())
+        assert None == self.process.poll()
         self.process.popen.rcode = 1
-        self.assertEquals(1, self.process.poll().val)
+        assert 1 == self.process.poll().val
         # Now wait should return too
-        self.assertEquals(1, self.process.wait())
+        assert 1 == self.process.wait()
 
     @with_process
     def testMockPopenWait(self):
         self.process.activate()
-        self.assertEquals(True, self.process.isActive())
+        assert True == self.process.isActive()
         self.process.popen.rcode = 1
-        self.assertEquals(1, self.process.wait())
-        self.assertEquals(1, self.process.poll().val)
+        assert 1 == self.process.wait()
+        assert 1 == self.process.poll().val
 
     @with_process
     def testMockPopenAlreadyDone(self):
-        self.assertFalse(self.process.isActive())
+        assert not self.process.isActive()
         self.process.activate()
-        self.assertTrue(self.process.isActive())
-        self.assertFalse(self.process.isFinished())
-        self.assertFalse(self.process.alreadyDone())
+        assert self.process.isActive()
+        assert not self.process.isFinished()
+        assert not self.process.alreadyDone()
         self.process.deactivate()
-        self.assertFalse(self.process.isActive())
-        self.assertTrue(self.process.isFinished())
-        self.assertTrue(self.process.alreadyDone())
+        assert not self.process.isActive()
+        assert self.process.isFinished()
+        assert self.process.alreadyDone()
 
     @with_process
     def testCallback(self):
@@ -148,7 +148,7 @@ class TestProcess(unittest.TestCase):
         self.process.activate()
         self.process.registerCallback(callback)
         self.process.allcallbacks("processCancelled", True)
-        self.assert_( callback._cancelled )
+        assert callback._cancelled
 
     #
     # Real calls
@@ -161,8 +161,8 @@ print "Hello"
         """)
         f.close()
         self.process.activate()
-        self.assert_( None != self.process.wait() )
-        self.assert_( None != self.process.poll() )
+        assert None != self.process.wait()
+        assert None != self.process.poll()
     testPopen = with_process(testPopen, subprocess.Popen)
 
     def testParameters(self):
@@ -176,7 +176,7 @@ client = s.client("name","description",s.Long("l"))
         f.close()
         self.process.activate()
         self.process.wait()
-        self.assert_( self.process.poll() )
+        assert self.process.poll()
     testParameters = with_process(testParameters, subprocess.Popen)
 
     def testKillProcess(self):
@@ -185,9 +185,7 @@ client = s.client("name","description",s.Long("l"))
         f.write("time.sleep(100)\n")
         f.close()
         self.process.activate()
-        self.assertFalse(self.process.poll())
+        assert not self.process.poll()
         self.process.cleanup()
     testKillProcess = with_process(testKillProcess, subprocess.Popen)
 
-if __name__ == '__main__':
-    unittest.main()

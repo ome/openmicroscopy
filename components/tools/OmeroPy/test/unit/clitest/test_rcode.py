@@ -9,13 +9,13 @@
 
 """
 
-import unittest, os, subprocess, StringIO
+import os, subprocess, StringIO
 from path import path
 from omero.cli import Context, BaseControl, CLI
 
 omeroDir = path(os.getcwd()) / "build"
 
-class TestRCode(unittest.TestCase):
+class TestRCode(object):
 
     class T(BaseControl):
         def __call__(self, *args):
@@ -25,6 +25,4 @@ class TestRCode(unittest.TestCase):
         cli = CLI()
         cli.register("t", TestRCode.T, "TEST")
         cli.invoke(["t"])
-        self.assert_(cli.rv == 1, cli.rv)
-if __name__ == '__main__':
-    unittest.main()
+        assert cli.rv == 1, cli.rv

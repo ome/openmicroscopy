@@ -10,7 +10,7 @@
 Integration tests for tickets between 4000 and 4999
 """
 
-import unittest, time
+import time
 import test.integration.library as lib
 import Glacier2
 
@@ -27,5 +27,3 @@ class TestTickets5000(lib.ITest):
         tag = self.update.saveAndReturnObject(tag)
         self.update.deleteObject(tag)
 
-if __name__ == '__main__':
-    unittest.main()

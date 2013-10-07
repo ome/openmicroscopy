@@ -10,7 +10,6 @@
 """
 
 import omero
-import unittest
 import test.integration.library as lib
 
 from omero.rtypes import rstring, rlong
@@ -30,8 +29,8 @@ class TestRFS(lib.ITest):
 
     def check_file(self, ofile):
         ofile = self.query.get("OriginalFile", ofile.id.val)
-        self.assert_(ofile.size.val != -1)
-        self.assert_(ofile.sha1.val != "")
+        assert ofile.size.val != -1
+        assert ofile.sha1.val != ""
 
     def testTicket1961Basic(self):
         ofile = self.file()
@@ -66,7 +65,5 @@ class TestRFS(lib.ITest):
         self.check_file(ofile)
         rfs.close()
         ofile2 = self.query.get("OriginalFile", ofile.id.val)
-        self.assertEquals(ofile.details.updateEvent.id.val, ofile2.details.updateEvent.id.val)
+        assert ofile.details.updateEvent.id.val ==  ofile2.details.updateEvent.id.val
 
-if __name__ == '__main__':
-    unittest.main()

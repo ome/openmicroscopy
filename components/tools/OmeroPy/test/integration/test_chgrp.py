@@ -9,7 +9,6 @@
 
 import omero, omero.gateway
 import test.integration.library as lib
-import unittest
 from omero.rtypes import *
 from omero.cmd import Chgrp, DoAll
 from omero.api import Save
@@ -53,7 +52,7 @@ class TestChgrp(lib.ITest):
         self.set_context(client, gid)
         # ...check image
         img = client.sf.getQueryService().get("Image", imageId)
-        self.assertEqual(img.details.group.id.val, gid)
+        assert img.details.group.id.val ==  gid
 
 
     def testChgrpImage(self):
@@ -103,12 +102,12 @@ class TestChgrp(lib.ITest):
 
         # ...check image
         img = client.sf.getQueryService().get("Image", img.id.val)
-        self.assertEqual(img.details.group.id.val, first_gid)
+        assert img.details.group.id.val ==  first_gid
         # check Dataset
         query = "select link from DatasetImageLink link where link.child.id=%s" % img.id.val
         l = client.sf.getQueryService().findByQuery(query, None)
-        self.assertTrue(l is not None, "New DatasetImageLink on image not found")
-        self.assertEqual(l.details.group.id.val, first_gid, "Link Created in same group as Image target")
+        assert l is not None, "New DatasetImageLink on image not found"
+        assert l.details.group.id.val ==  first_gid, "Link Created in same group as Image target"
         
 
     def testChgrpPDI(self):
@@ -153,10 +152,10 @@ class TestChgrp(lib.ITest):
         self.set_context(client, gid)
         # ...check image
         img = client.sf.getQueryService().get("Image", img.id.val)
-        self.assertEqual(img.details.group.id.val, gid)
+        assert img.details.group.id.val ==  gid
         # check Project
         prj = client.sf.getQueryService().get("Project", project.id.val)
-        self.assertEqual(prj.details.group.id.val, gid)
+        assert prj.details.group.id.val ==  gid
 
     def testChgrpRdef7825(self):
 
@@ -195,5 +194,3 @@ class TestChgrp(lib.ITest):
         self.waitOnCmd(owner_g.c, handle)
 
 
-if __name__ == '__main__':
-    unittest.main()

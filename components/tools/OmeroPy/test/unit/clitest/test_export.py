@@ -9,7 +9,7 @@
 
 """
 
-import unittest, os, subprocess, StringIO
+import os, subprocess, StringIO
 from path import path
 from omero.cli import Context, BaseControl, CLI, NonZeroReturnCode
 from omero.plugins.sessions import SessionsControl
@@ -49,9 +49,9 @@ class MockExporter(object):
     def generateTiff(self, *args):
         return 1
 
-class TestExport(unittest.TestCase):
+class TestExport(object):
 
-    def setUp(self):
+    def setup_method(self, method):
         self.cli = MockCLI()
         self.cli.register("x", ExportControl, "TEST")
         self.p = create_path()
@@ -72,9 +72,7 @@ class TestExport(unittest.TestCase):
     def testNoStdOutExportForDatasets(self):
         try:
             self.invoke("x -f - --iterate Dataset:3")
-            self.fail("ZeroReturnCode??")
+            assert False, "ZeroReturnCode??"
         except NonZeroReturnCode:
             pass
 
-if __name__ == '__main__':
-    unittest.main()

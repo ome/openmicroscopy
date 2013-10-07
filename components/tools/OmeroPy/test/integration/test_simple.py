@@ -10,7 +10,6 @@
 
 """
 
-import unittest
 import test.integration.library as lib
 import omero
 from omero_model_PixelsI import PixelsI
@@ -26,7 +25,5 @@ class TestSimple(lib.ITest):
     def testCurrentUser(self):
         admin = self.client.sf.getAdminService()
         ec = admin.getEventContext()
-        self.assert_(ec)
+        assert ec
 
-if __name__ == '__main__':
-    unittest.main()

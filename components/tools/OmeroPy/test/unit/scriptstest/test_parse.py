@@ -10,9 +10,9 @@
 """
 
 import os
+import pytest
 import sys
 import logging
-import unittest
 
 from path import path
 
@@ -24,7 +24,7 @@ from omero.util.temp_files import create_path
 
 SCRIPTS = path(".") / "scripts" / "omero"
 
-class TestParse(unittest.TestCase):
+class TestParse(object):
 
     def testParse(self):
         try:
@@ -41,7 +41,7 @@ class TestParse(unittest.TestCase):
                     pass
             script_client = client("testParse", "simple ping script", Long("a").inout(), String("b").inout(), client = mock())
             print "IN CLIENT: " + script_client.getProperty("omero.scripts.parse")
-            self.fail("Should have raised ParseExit")
+            assert False, "Should have raised ParseExit"
         except ParseExit, pe:
             pass
 
@@ -51,8 +51,8 @@ class TestParse(unittest.TestCase):
              param = paramClass(name, optional, description=description, min=min, max=max, values=values)
              return param
         p = makeParam(Long, "thumbSize", "The dimension of each thumbnail. Default is 100", True, 10, 250)
-        self.assertEquals(10, p.min.val)
-        self.assertEquals(250, p.max.val)
+        assert 10 == p.min.val
+        assert 250 == p.max.val
 
     def testTicket2323(self):
         SCRIPT = """if True:
@@ -64,9 +64,9 @@ class TestParse(unittest.TestCase):
             client.setOutput('returnMessage', rstring('Script ran OK!'))"""
         params = parse_text(SCRIPT)
         longParam = params.inputs["longParam"]
-        self.assertEquals(1, unwrap(longParam.min), str(longParam.min))
-        self.assertEquals(10, unwrap(longParam.max), str(longParam.max))
-        self.assertEquals([5], unwrap(longParam.values), str(longParam.values))
+        assert 1 == unwrap(longParam.min), str(longParam.min)
+        assert 10 == unwrap(longParam.max), str(longParam.max)
+        assert [5] == unwrap(longParam.values), str(longParam.values)
 
     def testObjectType(self):
         SCRIPT = """if True:
@@ -79,12 +79,12 @@ class TestParse(unittest.TestCase):
             scripts.Object('objParam', True, description='theDesc'))"""
         params = parse_text(SCRIPT)
         objParam = params.inputs["objParam"]
-        self.assertTrue(isinstance(objParam.prototype, omero.RObject))
-        self.assertTrue(objParam.prototype.val is None)
+        assert isinstance(objParam.prototype, omero.RObject)
+        assert objParam.prototype.val is None
 
         rv = parse_inputs(["objParam=OriginalFile:1"], params)
-        self.assertEquals(rv["objParam"].val.__class__, omero.model.OriginalFileI)
-        self.assertEquals(rv["objParam"].val.id.val, 1)
+        assert rv["objParam"].val.__class__ == omero.model.OriginalFileI
+        assert rv["objParam"].val.id.val == 1
 
     def testObjectTypeWithDefault(self):
         SCRIPT = """if True:
@@ -97,8 +97,8 @@ class TestParse(unittest.TestCase):
             scripts.Object('objParam', True, description='theDesc', default=omero.model.ImageI()))"""
         params = parse_text(SCRIPT)
         objParam = params.inputs["objParam"]
-        self.assertTrue(isinstance(objParam.prototype, omero.RObject))
-        self.assertTrue(isinstance(objParam.prototype.val, omero.model.ImageI))
+        assert isinstance(objParam.prototype, omero.RObject)
+        assert isinstance(objParam.prototype.val, omero.model.ImageI)
 
     def testListOfType(self):
         SCRIPT = """if True:
@@ -111,7 +111,7 @@ class TestParse(unittest.TestCase):
             client.setOutput('returnMessage', rstring('Script ran OK!'))"""
         params = parse_text(SCRIPT)
         listParam = params.inputs["Image_List"]
-        self.assertTrue(isinstance(listParam.prototype.val[0].val, omero.model.Image))
+        assert isinstance(listParam.prototype.val[0].val, omero.model.Image)
 
     def testGrouping(self):
         SCRIPT = """if True:
@@ -123,9 +123,9 @@ class TestParse(unittest.TestCase):
         params = parse_text(SCRIPT)
 
         groupings = group_params(params)
-        self.assertEquals("these", groupings["A"]["1"], str(groupings))
-        self.assertEquals("belong", groupings["A"]["2"], str(groupings))
-        self.assertEquals("together", groupings["A"]["3"], str(groupings))
+        assert "these" == groupings["A"]["1"], str(groupings)
+        assert "belong" == groupings["A"]["2"], str(groupings)
+        assert "together" == groupings["A"]["3"], str(groupings)
 
     def testGroupingWithMain(self):
         SCRIPT = """if True:
@@ -139,12 +139,12 @@ class TestParse(unittest.TestCase):
 
         groupings = group_params(params)
         try:
-            self.assertEquals("checkbox", groupings["A"][""], str(groupings))
-            self.assertEquals("these", groupings["A"]["1"], str(groupings))
-            self.assertEquals("belong", groupings["A"]["2"], str(groupings))
-            self.assertEquals("together", groupings["A"]["3"], str(groupings))
+            assert "checkbox" == groupings["A"][""], str(groupings)
+            assert "these" == groupings["A"]["1"], str(groupings)
+            assert "belong" == groupings["A"]["2"], str(groupings)
+            assert "together" == groupings["A"]["3"], str(groupings)
         except KeyError:
-            self.fail(str(groupings))
+            assert False, str(groupings)
 
     def testGroupingWithMainExtraDot(self):
         SCRIPT = """if True:
@@ -157,17 +157,17 @@ class TestParse(unittest.TestCase):
         params = parse_text(SCRIPT)
 
         groupings = group_params(params)
-        self.assertEquals("checkbox", groupings["A"][""], str(groupings))
-        self.assertEquals("these", groupings["A"]["1"], str(groupings))
-        self.assertEquals("belong", groupings["A"]["2"], str(groupings))
-        self.assertEquals("together", groupings["A"]["3"], str(groupings))
+        assert "checkbox" == groupings["A"][""], str(groupings)
+        assert "these" == groupings["A"]["1"], str(groupings)
+        assert "belong" == groupings["A"]["2"], str(groupings)
+        assert "together" == groupings["A"]["3"], str(groupings)
 
     def testParseAllOfficialScripts(self):
         for script in SCRIPTS.walk("*.py"):
             try:
                 params = parse_file(str(script))
             except Exception, e:
-                self.fail("%s\n%s" % (script, e))
+                assert False, "%s\n%s" % (script, e)
 
     def testValidateRoiMovieCall(self):
         script = SCRIPTS / "figure_scripts" / "Movie_ROI_Figure.py"
@@ -179,7 +179,7 @@ class TestParse(unittest.TestCase):
             "IDs": wrap([long(1)])
         }
         errors = validate_inputs(params, inputs)
-        self.assertEquals("", errors, errors)
+        assert "" == errors, errors
 
     def test2340(self):
         SCRIPT = """if True:
@@ -188,7 +188,7 @@ class TestParse(unittest.TestCase):
                 Long('l', default=10))"""
         params = parse_text(SCRIPT)
         l = params.inputs["l"]
-        self.assertNotEqual(None, l.prototype, str(l))
+        assert None !=  l.prototype, str(l)
 
         # Copied from testUploadOfficialScript
         scriptLines = [
@@ -201,13 +201,13 @@ class TestParse(unittest.TestCase):
         "    client.setOutput('returnMessage', rstring('Script ran OK!'))"]
         params = parse_text("\n".join(scriptLines))
         l = params.inputs["longParam"]
-        self.assertNotEqual(None, l.prototype, str(l))
+        assert None !=  l.prototype, str(l)
 
     def parse_list(self, SCRIPT):
         params = parse_text(SCRIPT)
         l = params.inputs["l"]
-        self.assertTrue(l.useDefault, str(l))
-        self.assertEqual(["a"], unwrap(l.prototype))
+        assert l.useDefault, str(l)
+        assert ["a"] == unwrap(l.prototype)
 
     def test2405_String(self):
         SCRIPT = """if True:
@@ -253,7 +253,7 @@ class TestParse(unittest.TestCase):
             c = client('2405', List("Channel_Colours", grouping="7",
                      description="List of Colours for channels.", default="White").ofType(rint(0))) """
 
-        self.assertRaises(ValueError, parse_text, SCRIPT)
+        pytest.raises(ValueError, parse_text, SCRIPT)
 
     def test2405BadMixOfValues(self):
         SCRIPT = """if True:
@@ -264,38 +264,38 @@ class TestParse(unittest.TestCase):
             c = client('2405', List("Channel_Colours", grouping="7",
                      description="List of Colours for channels.", default="White", values=cOptions))"""
 
-        self.assertRaises(ValueError, parse_text, SCRIPT)
+        pytest.raises(ValueError, parse_text, SCRIPT)
 
     def testParseInputsSimple(self):
         params = JobParams()
         params.inputs = {"a": Long("a", optional=False)}
         rv = parse_inputs(["a=1"], params)
-        self.assertTrue(isinstance(rv["a"], omero.RLong))
-        self.assertEquals(1, rv["a"].val)
+        assert isinstance(rv["a"], omero.RLong)
+        assert 1 == rv["a"].val
         try:
             parse_inputs(["b=1"], params)
         except MissingInputs, mi:
-            self.assertEquals(["a"], mi.keys)
+            assert ["a"] == mi.keys
 
     def testParseInputsLongList(self):
         params = JobParams()
         params.inputs = {"a": List("a", optional=False).ofType(rlong(0))}
         # List of one
         rv = parse_inputs(["a=1"], params)
-        self.assertTrue(isinstance(rv["a"], omero.RList))
-        self.assertEquals(1, rv["a"].val[0].val)
+        assert isinstance(rv["a"], omero.RList)
+        assert 1 == rv["a"].val[0].val
         # List of two
         rv = parse_inputs(["a=1,2"], params)
-        self.assertTrue(isinstance(rv["a"], omero.RList))
-        self.assertEquals(1, rv["a"].val[0].val)
-        self.assertEquals(2, rv["a"].val[1].val)
+        assert isinstance(rv["a"], omero.RList)
+        assert 1 == rv["a"].val[0].val
+        assert 2 == rv["a"].val[1].val
 
     def testParseInputsStringListIsDefault(self):
         params = JobParams()
         params.inputs = {"a": List("a", optional=False)}
         rv = parse_inputs(["a=1"], params)
-        self.assertTrue(isinstance(rv["a"], omero.RList))
-        self.assertEquals("1", rv["a"].val[0].val)
+        assert isinstance(rv["a"], omero.RList)
+        assert "1" == rv["a"].val[0].val
 
     def testParseBool(self):
         """ see ticket:7003 """
@@ -303,28 +303,28 @@ class TestParse(unittest.TestCase):
         params.inputs = {"a": Bool("a", default=True)}
 
         rv = parse_inputs(["a=False"], params)
-        self.assertEquals(False, rv["a"].val)
+        assert False == rv["a"].val
 
         rv = parse_inputs(["a=false"], params)
-        self.assertEquals(False, rv["a"].val)
+        assert False == rv["a"].val
 
         rv = parse_inputs(["a=0"], params)
-        self.assertEquals(False, rv["a"].val)
+        assert False == rv["a"].val
 
         rv = parse_inputs(["a="], params)
-        self.assertEquals(False, rv["a"].val)
+        assert False == rv["a"].val
 
         rv = parse_inputs(["a=True"], params)
-        self.assertEquals(True, rv["a"].val)
+        assert True == rv["a"].val
 
         rv = parse_inputs(["a=true"], params)
-        self.assertEquals(True, rv["a"].val)
+        assert True == rv["a"].val
 
         rv = parse_inputs(["a=1"], params)
-        self.assertEquals(True, rv["a"].val)
+        assert True == rv["a"].val
 
         rv = parse_inputs(["a=xxxanytextxxx"], params)
-        self.assertEquals(True, rv["a"].val)
+        assert True == rv["a"].val
 
     def testParseIntList(self):
         """
@@ -336,10 +336,6 @@ class TestParse(unittest.TestCase):
 
         rv = parse_inputs(["a=1,2"], params)["a"].val
         for x in rv:
-            self.assertTrue(isinstance(x, omero.RInt))
-        self.assertEquals(1, rv[0].val)
-        self.assertEquals(2, rv[1].val)
-
-if __name__ == '__main__':
-    logging.basicConfig()
-    unittest.main()
+            assert isinstance(x, omero.RInt)
+        assert 1 == rv[0].val
+        assert 2 == rv[1].val

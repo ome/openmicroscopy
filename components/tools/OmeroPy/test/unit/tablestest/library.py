@@ -9,7 +9,7 @@
 
 """
 
-import unittest, os, tempfile
+import os, tempfile
 import omero.tables
 import portalocker
 import tables
@@ -17,10 +17,9 @@ import tables
 from path import path
 from omero.util.temp_files import create_path
 
-class TestCase(unittest.TestCase):
+class TestCase(object):
 
-    def setUp (self):
-        unittest.TestCase.setUp(self)
+    def setup_method(self, method):
         self.dir = self.tmpdir()
 
     def tmpdir(self):

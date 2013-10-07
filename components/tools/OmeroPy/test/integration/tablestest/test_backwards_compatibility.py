@@ -32,10 +32,10 @@ import omero
 import omero.clients
 import omero.columns
 import omero.grid
-from test.integration import library as lib
+import test.integration.library as lib
 
 
-class BackwardsCompatibilityTest(lib.ITest):
+class TestBackwardsCompatibility(lib.ITest):
 
     #def setUp(self):
     #    super(BackwardsCompatibilityTest, self).setUp()
@@ -80,27 +80,27 @@ class BackwardsCompatibilityTest(lib.ITest):
             import tables
             return numpy.fromstring(x, count=len(x), dtype=tables.UInt8Atom())
 
-        self.assertEquals(1, test.imageId[0])
-        self.assertEquals(3, test.theZ[0])
-        self.assertEquals(5, test.theT[0])
-        self.assertEquals(7, test.x[0])
-        self.assertEquals(9, test.y[0])
-        self.assertEquals(11, test.w[0])
-        self.assertEquals(13, test.h[0])
-        self.assertEquals([15], arr(test.bytes[0]))
+        assert 1 == test.imageId[0]
+        assert 3 == test.theZ[0]
+        assert 5 == test.theT[0]
+        assert 7 == test.x[0]
+        assert 9 == test.y[0]
+        assert 11 == test.w[0]
+        assert 13 == test.h[0]
+        assert [15] == arr(test.bytes[0])
 
-        self.assertEquals(2, test.imageId[1])
-        self.assertEquals(4, test.theZ[1])
-        self.assertEquals(6, test.theT[1])
-        self.assertEquals(8, test.x[1])
-        self.assertEquals(10, test.y[1])
-        self.assertEquals(12, test.w[1])
-        self.assertEquals(14, test.h[1])
+        assert 2 == test.imageId[1]
+        assert 4 == test.theZ[1]
+        assert 6 == test.theT[1]
+        assert 8 == test.x[1]
+        assert 10 == test.y[1]
+        assert 12 == test.w[1]
+        assert 14 == test.h[1]
 
         x = [16,17,18,19,20]
         y = arr(test.bytes[1])
         for i in range(len(x)):
-            self.assertEquals(x[i], y[i])
+            assert x[i] == y[i]
 
 
     def createAllColumns_4_4_5(self):
@@ -116,7 +116,7 @@ class BackwardsCompatibilityTest(lib.ITest):
         repoMap = grid.repositories()
         repoObj = repoMap.descriptions[0]
         table = grid.newTable(repoObj.id.val, "/test")
-        self.assert_( table )
+        assert table
 
         fcol = omero.columns.FileColumnI('filecol', 'file col')
         fcol.values = [10, 20]
@@ -157,44 +157,44 @@ class BackwardsCompatibilityTest(lib.ITest):
         data = table.readCoordinates([0,1])
 
         testf = data.columns[0].values
-        self.assertEquals(10, testf[0])
-        self.assertEquals(20, testf[1])
+        assert 10 == testf[0]
+        assert 20 == testf[1]
         testi = data.columns[1].values
-        self.assertEquals(30, testi[0])
-        self.assertEquals(40, testi[1])
+        assert 30 == testi[0]
+        assert 40 == testi[1]
         testr = data.columns[2].values
-        self.assertEquals(50, testr[0])
-        self.assertEquals(60, testr[1])
+        assert 50 == testr[0]
+        assert 60 == testr[1]
         testw = data.columns[3].values
-        self.assertEquals(70, testw[0])
-        self.assertEquals(80, testw[1])
+        assert 70 == testw[0]
+        assert 80 == testw[1]
         testp = data.columns[4].values
-        self.assertEquals(90, testp[0])
-        self.assertEquals(100, testp[1])
+        assert 90 == testp[0]
+        assert 100 == testp[1]
 
         testb = data.columns[5].values
-        self.assertEquals(True, testb[0])
-        self.assertEquals(False, testb[1])
+        assert testb[0]
+        assert not testb[1]
         testd = data.columns[6].values
-        self.assertEquals(0.25, testd[0])
-        self.assertEquals(0.5, testd[1])
+        assert 0.25 == testd[0]
+        assert 0.5 == testd[1]
         testl = data.columns[7].values
-        self.assertEquals(-1, testl[0])
-        self.assertEquals(-2, testl[1])
+        assert -1 == testl[0]
+        assert -2 == testl[1]
 
         tests = data.columns[8].values
-        self.assertEquals("abc", tests[0])
-        self.assertEquals("de", tests[1])
+        assert "abc" == tests[0]
+        assert "de" == tests[1]
 
         testm = data.columns[9]
         self.checkMaskCol(testm)
 
         #testla = data.columns[10].values
-        #self.assertEquals([-2, -1], testla[0])
-        #self.assertEquals([1, 2], testla[1])
+        #assert [-2, -1] == testla[0]
+        #assert [1, 2] == testla[1]
         #testda = data.columns[11].values
-        #self.assertEquals([-0.25, -0.5], testda[0])
-        #self.assertEquals([0.125, 0.0625], testda[1])
+        #assert [-0.25, -0.5] == testda[0]
+        #assert [0.125, 0.0625] == testda[1]
 
         ofile = table.getOriginalFile()
         print "Created OriginalFile:", ofile.getId().val
@@ -209,7 +209,7 @@ class BackwardsCompatibilityTest(lib.ITest):
 
         grid = self.client.sf.sharedResources()
         table = grid.openTable(ofile)
-        self.assert_(table)
+        assert table
 
         expectedTypes = [
             omero.grid.FileColumn,
@@ -244,52 +244,52 @@ class BackwardsCompatibilityTest(lib.ITest):
         #'doublearr'
 
         headers = table.getHeaders()
-        self.assertEquals([type(x) for x in headers], expectedTypes)
-        self.assertEquals([x.name for x in headers], expectedNames)
+        assert [type(x) for x in headers] == expectedTypes
+        assert [x.name for x in headers] == expectedNames
 
-        self.assertEquals(table.getNumberOfRows(), 2)
+        assert table.getNumberOfRows() == 2
 
         data = table.readCoordinates([0,1])
 
         testf = data.columns[0].values
-        self.assertEquals(10, testf[0])
-        self.assertEquals(20, testf[1])
+        assert 10 == testf[0]
+        assert 20 == testf[1]
         testi = data.columns[1].values
-        self.assertEquals(30, testi[0])
-        self.assertEquals(40, testi[1])
+        assert 30 == testi[0]
+        assert 40 == testi[1]
         testr = data.columns[2].values
-        self.assertEquals(50, testr[0])
-        self.assertEquals(60, testr[1])
+        assert 50 == testr[0]
+        assert 60 == testr[1]
         testw = data.columns[3].values
-        self.assertEquals(70, testw[0])
-        self.assertEquals(80, testw[1])
+        assert 70 == testw[0]
+        assert 80 == testw[1]
         testp = data.columns[4].values
-        self.assertEquals(90, testp[0])
-        self.assertEquals(100, testp[1])
+        assert 90 == testp[0]
+        assert 100 == testp[1]
 
         testb = data.columns[5].values
-        self.assertEquals(True, testb[0])
-        self.assertEquals(False, testb[1])
+        assert testb[0]
+        assert not testb[1]
         testd = data.columns[6].values
-        self.assertEquals(0.25, testd[0])
-        self.assertEquals(0.5, testd[1])
+        assert 0.25 == testd[0]
+        assert 0.5 == testd[1]
         testl = data.columns[7].values
-        self.assertEquals(-1, testl[0])
-        self.assertEquals(-2, testl[1])
+        assert -1 == testl[0]
+        assert -2 == testl[1]
 
         tests = data.columns[8].values
-        self.assertEquals("abc", tests[0])
-        self.assertEquals("de", tests[1])
+        assert "abc" == tests[0]
+        assert "de" == tests[1]
 
         testm = data.columns[9]
         self.checkMaskCol(testm)
 
         #testla = data.columns[10].values
-        #self.assertEquals([-2, -1], testla[0])
-        #self.assertEquals([1, 2], testla[1])
+        #assert [-2, -1] == testla[0]
+        #assert [1, 2] == testla[1]
         #testda = data.columns[11].values
-        #self.assertEquals([-0.25, -0.5], testda[0])
-        #self.assertEquals([0.125, 0.0625], testda[1])
+        #assert [-0.25, -0.5] == testda[0]
+        #assert [0.125, 0.0625] == testda[1]
 
 
         # Now try an update
@@ -297,19 +297,13 @@ class BackwardsCompatibilityTest(lib.ITest):
         updateData = omero.grid.Data(rowNumbers = [1], columns = [updatel])
         table.update(updateData)
 
-        self.assertEquals(table.getNumberOfRows(), 2)
+        assert table.getNumberOfRows() == 2
         data2 = table.readCoordinates([0,1])
 
         for n in [0, 1, 2, 3, 4, 5, 6, 8]:
-            self.assertEquals(data.columns[n].values, data2.columns[n].values)
+            assert data.columns[n].values == data2.columns[n].values
         self.checkMaskCol(data2.columns[9])
 
         testl2 = data2.columns[7].values
-        self.assertEquals(-1, testl2[0])
-        self.assertEquals(12345, testl2[1])
-
-
-if __name__ == '__main__':
-    unittest.main()
-
-
+        assert -1 == testl2[0]
+        assert 12345 == testl2[1]

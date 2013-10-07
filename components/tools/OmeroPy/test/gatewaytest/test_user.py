@@ -97,7 +97,6 @@ class TestUser (object):
             admin = gatewaywrapper.gateway.getAdminService()
             # Revert group permissions and remove user from group
             admin.changePermissions(g._obj, omero.model.PermissionsI(perms))
-            admin.removeGroups(omero.model.ExperimenterI(uid, False), [g._obj])
 
     def testCrossGroupRead (self, gatewaywrapper):
         gatewaywrapper.loginAsAuthor()

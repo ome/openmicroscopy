@@ -10,8 +10,8 @@
 
 """
 
-import integration.library as lib
-import omero, tempfile, unittest
+import test.integration.library as lib
+import omero
 import omero.processor
 import omero.scripts
 from omero.rtypes import *
@@ -74,11 +74,8 @@ class TestRand(lib.ITest):
             cb.close()
             try:
                 output = process.getResults(0)
-                self.assert_( output["x"].val == 3)
+                assert output["x"].val == 3
             except KeyError:
                 print "Key is not in returned dictionary. Is this a fail?"
         finally:
             impl.cleanup()
-
-if __name__ == '__main__':
-    unittest.main()
