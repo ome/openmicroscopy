@@ -306,13 +306,21 @@
         </constructor-arg>
     </bean>
 
-    <bean parent="graphSpec" name="/Well">
+    <bean parent="graphSpec" name="/Well+WithSamples">
         <constructor-arg>
             <list>
                 <value>/Well/WellSample/WellSampleAnnotationLink;FORCE</value>
                 <value>/Annotation;SOFT;/Well/WellSample/WellSampleAnnotationLink</value>
                 <value>/Well/WellSample</value>
                 <value>/Image;;/Well/WellSample</value>
+                <value>/Well</value>
+            </list>
+        </constructor-arg>
+    </bean>
+
+    <bean parent="graphSpec" name="/Well">
+        <constructor-arg>
+            <list>
                 <value>/Well/WellAnnotationLink;FORCE</value>
                 <value>/Annotation;SOFT;/Well/WellAnnotationLink</value>
                 <value>/Well/WellReagentLink;FORCE</value>
@@ -333,7 +341,7 @@
     <bean parent="graphSpec" name="/Plate+Only">
         <constructor-arg>
             <list>
-                <value>/Well;;/Plate</value>
+                <value>/Well+WithSamples;;/Plate</value>
                 <value>/Plate/PlateAcquisition/PlateAcquisitionAnnotationLink;FORCE</value>
                 <value>/Annotation;SOFT;/Plate/PlateAcquisition/PlateAcquisitionAnnotationLink</value>
                 <value>/Plate/PlateAcquisition</value>
@@ -352,7 +360,8 @@
                 <value>/PlateAcquisition/WellSample/WellSampleAnnotationLink;FORCE</value>
                 <value>/Annotation;SOFT;/PlateAcquisition/WellSample/WellSampleAnnotationLink</value>
                 <value>/PlateAcquisition/WellSample</value>
-                 <value>/Image;;/PlateAcquisition/WellSample</value>
+                <value>/Image;;/PlateAcquisition/WellSample</value>
+                <value>/Well;SOFT;/PlateAcquisition/WellSample</value>
                 <value>/PlateAcquisition</value>
             </list>
         </constructor-arg>
