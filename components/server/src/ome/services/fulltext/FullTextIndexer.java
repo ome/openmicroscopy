@@ -205,7 +205,10 @@ public class FullTextIndexer extends SimpleWork {
                             action = new Index(obj);
                         }
                     } else {
-                        log.error("Unknown action type: " + act);
+                        // Likely CHGRP-VALIDATION, PIXELDATA or similar.
+                        if (log.isDebugEnabled()) {
+                            log.debug("Unknown action type: " + act);
+                        }
                     }
 
                     if (action != null) {
