@@ -893,8 +893,7 @@ public class AdminServiceTest extends AbstractServerTest {
 
         final Roles roles = proxy.getSecurityRoles();
         final Experimenter rootExperimenter  = proxy.getExperimenter(roles.rootId);
-        /* TODO: in OMERO 5 add guestId, guestName, guestGroupId to omero.sys.Roles */
-        final Experimenter guestExperimenter = proxy.getExperimenter(new ome.system.Roles().getGuestId());
+        final Experimenter guestExperimenter = proxy.getExperimenter(roles.guestId);
 
         final String userName = UUID.randomUUID().toString();
         Experimenter normalExperimenter = createExperimenterI(userName, "a", "user");
@@ -926,8 +925,7 @@ public class AdminServiceTest extends AbstractServerTest {
         final Roles roles = proxy.getSecurityRoles();
         final ExperimenterGroup userGroup   = proxy.getGroup(roles.userGroupId);
         final ExperimenterGroup systemGroup = proxy.getGroup(roles.systemGroupId);
-        /* TODO: in OMERO 5 add guestId, guestName, guestGroupId to omero.sys.Roles */
-        final ExperimenterGroup guestGroup  = proxy.getGroup(new ome.system.Roles().getGuestGroupId());
+        final ExperimenterGroup guestGroup  = proxy.getGroup(roles.guestGroupId);
 
         final String groupName = UUID.randomUUID().toString();
         ExperimenterGroup normalGroup = new ExperimenterGroupI();
