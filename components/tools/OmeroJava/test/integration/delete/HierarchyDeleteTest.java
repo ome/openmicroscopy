@@ -40,9 +40,11 @@ public class HierarchyDeleteTest extends AbstractServerTest {
     private final static omero.RString t3031 = omero.rtypes.rstring("#3031");
 
     /**
-     * Test to delete a dataset containing an image also contained in another 
+     * Test to delete a dataset containing an image also contained in another
      * dataset. The second dataset and the image should not be deleted.
-     * @throws Exception Thrown if an error occurred.
+     *
+     * @throws Exception
+     *             Thrown if an error occurred.
      */
     @Test(groups = "ticket:3031")
     public void testDeletingDataset() throws Exception {
@@ -72,8 +74,8 @@ public class HierarchyDeleteTest extends AbstractServerTest {
         ds2.linkImage(i2);
         ds2 = (Dataset) iUpdate.saveAndReturnObject(ds2);
 
-        delete(client, new Delete(DeleteServiceTest.REF_DATASET, 
-        		ds2.getId().getValue(), null));
+        delete(client, new Delete(DeleteServiceTest.REF_DATASET, ds2.getId()
+                .getValue(), null));
 
         assertDoesNotExist(ds2);
         assertDoesNotExist(i2);
@@ -83,13 +85,16 @@ public class HierarchyDeleteTest extends AbstractServerTest {
     }
 
     /**
-     * Test to delete a dataset containing an image also contained in another 
-     * dataset. The second dataset and the image with an annotation
-     * should not be deleted.
-     * @throws Exception Thrown if an error occurred.
+     * Test to delete a dataset containing an image also contained in another
+     * dataset. The second dataset and the image with an annotation should not
+     * be deleted.
+     *
+     * @throws Exception
+     *             Thrown if an error occurred.
      */
     @Test(groups = "ticket:3031")
-    public void testDeletingDatasetDoesntRemoveImageAnnotation() throws Exception {
+    public void testDeletingDatasetDoesntRemoveImageAnnotation()
+            throws Exception {
 
         newUserAndGroup("rwrw--");
 
@@ -107,16 +112,16 @@ public class HierarchyDeleteTest extends AbstractServerTest {
         ds2.linkImage(i);
         ds2 = (Dataset) iUpdate.saveAndReturnObject(ds2);
 
-        Annotation a = (Annotation) iUpdate.saveAndReturnObject(
-        		new CommentAnnotationI());
+        Annotation a = (Annotation) iUpdate
+                .saveAndReturnObject(new CommentAnnotationI());
 
         ImageAnnotationLink link = new ImageAnnotationLinkI();
         link.setChild((Annotation) a.proxy());
         link.setParent((Image) i.proxy());
         iUpdate.saveAndReturnObject(link);
-        
-        delete(client, new Delete(DeleteServiceTest.REF_DATASET, 
-        		ds2.getId().getValue(), null));
+
+        delete(client, new Delete(DeleteServiceTest.REF_DATASET, ds2.getId()
+                .getValue(), null));
 
         assertDoesNotExist(ds2);
         assertExists(ds1);
@@ -125,12 +130,13 @@ public class HierarchyDeleteTest extends AbstractServerTest {
     }
 
     /**
-     * Test to delete a dataset containing an image also contained in another 
-     * dataset. The second dataset and the image with ROI
-     * should not be deleted.
-     * @throws Exception Thrown if an error occurred.
+     * Test to delete a dataset containing an image also contained in another
+     * dataset. The second dataset and the image with ROI should not be deleted.
+     *
+     * @throws Exception
+     *             Thrown if an error occurred.
      */
-    @Test(groups = {"ticket:3031", "ticket:3032"})
+    @Test(groups = { "ticket:3031", "ticket:3032" })
     public void testDeletingDatasetDoesntRemoveImageRoi() throws Exception {
 
         newUserAndGroup("rwrw--");
@@ -141,8 +147,8 @@ public class HierarchyDeleteTest extends AbstractServerTest {
         Dataset ds2 = new DatasetI();
         ds2.setName(t3031);
 
-        Image i = (Image) iUpdate.saveAndReturnObject(
-        		mmFactory.createImageWithRoi());
+        Image i = (Image) iUpdate.saveAndReturnObject(mmFactory
+                .createImageWithRoi());
         Roi roi = i.copyRois().get(0);
         i.unload();
 
@@ -151,8 +157,8 @@ public class HierarchyDeleteTest extends AbstractServerTest {
         ds2.linkImage(i);
         ds2 = (Dataset) iUpdate.saveAndReturnObject(ds2);
 
-        delete(client, new Delete(DeleteServiceTest.REF_DATASET, 
-        		ds2.getId().getValue(),  null));
+        delete(client, new Delete(DeleteServiceTest.REF_DATASET, ds2.getId()
+                .getValue(), null));
 
         assertDoesNotExist(ds2);
         assertExists(ds1);
@@ -161,9 +167,11 @@ public class HierarchyDeleteTest extends AbstractServerTest {
     }
 
     /**
-     * Test to delete a project containing a dataset also contained in another 
+     * Test to delete a project containing a dataset also contained in another
      * project. The second project and the dataset should not be deleted.
-     * @throws Exception Thrown if an error occurred.
+     *
+     * @throws Exception
+     *             Thrown if an error occurred.
      */
     @Test(groups = "ticket:3031")
     public void testDeletingProject() throws Exception {
@@ -186,8 +194,8 @@ public class HierarchyDeleteTest extends AbstractServerTest {
         p2.linkDataset(d);
         p2 = (Project) iUpdate.saveAndReturnObject(p2);
 
-        delete(client, new Delete(DeleteServiceTest.REF_PROJECT, 
-        		p2.getId().getValue(), null));
+        delete(client, new Delete(DeleteServiceTest.REF_PROJECT, p2.getId()
+                .getValue(), null));
 
         assertDoesNotExist(p2);
         assertExists(p1);
@@ -195,9 +203,11 @@ public class HierarchyDeleteTest extends AbstractServerTest {
     }
 
     /**
-     * Test to delete a screen containing a plate also contained in another 
+     * Test to delete a screen containing a plate also contained in another
      * screen. The second screen and the plate should not be deleted.
-     * @throws Exception Thrown if an error occurred.
+     *
+     * @throws Exception
+     *             Thrown if an error occurred.
      */
     @Test(groups = "ticket:3031")
     public void testDeletingScreen() throws Exception {
@@ -220,9 +230,8 @@ public class HierarchyDeleteTest extends AbstractServerTest {
         s2.linkPlate(p);
         s2 = (Screen) iUpdate.saveAndReturnObject(s2);
 
-        delete(client, new Delete(DeleteServiceTest.REF_SCREEN, 
-        		s2.getId().getValue(),
-                null));
+        delete(client, new Delete(DeleteServiceTest.REF_SCREEN, s2.getId()
+                .getValue(), null));
 
         assertDoesNotExist(s2);
         assertExists(s1);

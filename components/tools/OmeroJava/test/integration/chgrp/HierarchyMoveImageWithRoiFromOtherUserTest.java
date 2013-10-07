@@ -47,8 +47,8 @@ import org.testng.annotations.Test;
 import static org.testng.AssertJUnit.*;
 
 /**
- * 
- * 
+ *
+ *
  * @author Scott Littlewood, <a
  *         href="mailto:sylittlewood@dundee.ac.uk">sylittlewood@dundee.ac.uk</a>
  * @since Beta4.4
@@ -59,7 +59,7 @@ public class HierarchyMoveImageWithRoiFromOtherUserTest extends
     /**
      * Performs the changing of group for an image with an ROI owned by the same
      * user
-     * 
+     *
      * @param sourceGroupPermissions
      * @param targetGroupPermissions
      * @throws Exception
@@ -149,7 +149,7 @@ public class HierarchyMoveImageWithRoiFromOtherUserTest extends
     /**
      * Test moving data as the data owner from a read-write to a read-write
      * group
-     * 
+     *
      * @throws Exception
      */
     @Test
@@ -160,7 +160,7 @@ public class HierarchyMoveImageWithRoiFromOtherUserTest extends
     /**
      * Test moving data as the data owner from a read-write to a read-write
      * group where the Roi User is not in the target group
-     * 
+     *
      * @throws Exception
      */
     @Test
@@ -171,7 +171,7 @@ public class HierarchyMoveImageWithRoiFromOtherUserTest extends
     /**
      * Test moving data as the data owner from a read-annotate to a read-only
      * group
-     * 
+     *
      * @throws Exception
      */
     @Test
@@ -182,7 +182,7 @@ public class HierarchyMoveImageWithRoiFromOtherUserTest extends
     /**
      * Test moving data as the data owner from a read-annotate to a read-only
      * group where Roi user is not in the target group group
-     * 
+     *
      * @throws Exception
      */
     @Test
@@ -193,7 +193,7 @@ public class HierarchyMoveImageWithRoiFromOtherUserTest extends
     /**
      * Test moving data as the data owner from a read-annotate to a
      * read-annotate group
-     * 
+     *
      * @throws Exception
      */
     @Test
@@ -204,7 +204,7 @@ public class HierarchyMoveImageWithRoiFromOtherUserTest extends
     /**
      * Test moving data as the data owner from a read-annotate to a
      * read-annotate group where Roi user is not in the target group group
-     * 
+     *
      * @throws Exception
      */
     @Test
@@ -215,7 +215,7 @@ public class HierarchyMoveImageWithRoiFromOtherUserTest extends
     /**
      * Test moving data as the data owner from a read-annotate to a read-write
      * group
-     * 
+     *
      * @throws Exception
      */
     @Test
@@ -226,7 +226,7 @@ public class HierarchyMoveImageWithRoiFromOtherUserTest extends
     /**
      * Test moving data as the data owner from a read-annotate to a read-write
      * group where Roi user is not in the target group group
-     * 
+     *
      * @throws Exception
      */
     @Test
@@ -236,7 +236,7 @@ public class HierarchyMoveImageWithRoiFromOtherUserTest extends
 
     /**
      * Test moving data as the data owner from a read-write to a read-only group
-     * 
+     *
      * @throws Exception
      */
     @Test
@@ -247,7 +247,7 @@ public class HierarchyMoveImageWithRoiFromOtherUserTest extends
     /**
      * Test moving data as the data owner from a read-write to a read-only group
      * where Roi user is not in the target group group
-     * 
+     *
      * @throws Exception
      */
     @Test
@@ -258,7 +258,7 @@ public class HierarchyMoveImageWithRoiFromOtherUserTest extends
     /**
      * Test moving data as the data owner from a read-write to a read-annotate
      * group
-     * 
+     *
      * @throws Exception
      */
     @Test
@@ -269,7 +269,7 @@ public class HierarchyMoveImageWithRoiFromOtherUserTest extends
     /**
      * Test moving data as the data owner from a read-write to a read-annotate
      * group where Roi user is not in the target group group
-     * 
+     *
      * @throws Exception
      */
     @Test
@@ -279,7 +279,7 @@ public class HierarchyMoveImageWithRoiFromOtherUserTest extends
 
     /**
      * Adds the user to the group, no context switching
-     * 
+     *
      * @param userId
      * @param targetGroup
      * @throws Exception
@@ -291,7 +291,7 @@ public class HierarchyMoveImageWithRoiFromOtherUserTest extends
 
     /**
      * Creates a new private group for the currently logged in user
-     * 
+     *
      * @return
      * @throws Exception
      */
@@ -302,7 +302,7 @@ public class HierarchyMoveImageWithRoiFromOtherUserTest extends
 
     /**
      * Creates a new group for the user with the permissions detailed
-     * 
+     *
      * @param userId
      * @param permissions
      * @return
@@ -316,7 +316,7 @@ public class HierarchyMoveImageWithRoiFromOtherUserTest extends
     /**
      * Queries the server for the Image with the id provided under the current
      * user/group security context
-     * 
+     *
      * @param imageId
      * @return
      * @throws ServerError
@@ -331,7 +331,7 @@ public class HierarchyMoveImageWithRoiFromOtherUserTest extends
     /**
      * Queries the server for the ROI with the id provided under the current
      * user/group security context
-     * 
+     *
      * @param roiId
      * @return
      * @throws ServerError
@@ -346,7 +346,7 @@ public class HierarchyMoveImageWithRoiFromOtherUserTest extends
     /**
      * Queries the server for all the shapes with matching ids under the current
      * user/group security context
-     * 
+     *
      * @param shapeIds
      * @return
      * @throws ServerError
@@ -362,7 +362,7 @@ public class HierarchyMoveImageWithRoiFromOtherUserTest extends
     /**
      * Creates and returns a server created ROI on an image under the current
      * user/group security context
-     * 
+     *
      * @param image
      * @return
      * @throws ServerError
@@ -388,7 +388,7 @@ public class HierarchyMoveImageWithRoiFromOtherUserTest extends
     /**
      * Creates and returns an image on the server under the current user/group
      * security context
-     * 
+     *
      * @return
      * @throws ServerError
      */

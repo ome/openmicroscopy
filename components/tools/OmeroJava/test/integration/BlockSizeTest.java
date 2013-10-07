@@ -15,7 +15,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
-package unit;
+package integration;
 
 import junit.framework.TestCase;
 
@@ -31,9 +31,8 @@ public class BlockSizeTest extends TestCase {
 
     @Test
     public void testBlockSize1MB() throws Exception {
-        omero.client c = new omero.client(
-            new String[]{"--omero.host=localhost",
-                "--omero.block_size=1000000"});
+        omero.client c = new omero.client(new String[] {
+                "--omero.host=localhost", "--omero.block_size=1000000" });
         assertEquals(1000000, c.getDefaultBlockSize());
     }
 }
