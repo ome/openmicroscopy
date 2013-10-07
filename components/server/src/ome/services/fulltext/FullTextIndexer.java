@@ -181,7 +181,11 @@ public class FullTextIndexer extends SimpleWork {
                     } else if ("REINDEX".equals(act) || "UPDATE".equals(act) || "INSERT".equals(act)) {
                         IObject obj = get(session, type, id);
                         if (obj == null) {
-                            log.error(String.format("Null returned! Purging "
+                            // This object was deleted before the indexer caught up with
+                            // the INSERT/UDPDATE log. Though this isn't a problem itself,
+                            // this does mean that the indexer is likely going too slow and
+                            // therefore this is at WARN.
+                            log.warn(String.format("Null returned! Purging "
                                     + "since cannot index %s:Id_%s for %s", type
                                     .getName(), id, eventLog));
                             action = new Purge(type, id);
