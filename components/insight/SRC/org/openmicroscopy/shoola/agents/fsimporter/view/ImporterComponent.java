@@ -35,6 +35,7 @@ import java.util.Set;
 
 import javax.swing.JFrame;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.openmicroscopy.shoola.agents.events.importer.ImportStatusEvent;
 import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
 import org.openmicroscopy.shoola.agents.fsimporter.chooser.ImportDialog;
@@ -229,6 +230,7 @@ class ImporterComponent
 			Collection<TreeImageDisplay> objects)
 	{
 		if (model.getState() == DISCARDED) return;
+		boolean reactivate = chooser != null;
 		if (chooser == null) {
 			chooser = new ImportDialog(view, model.getSupportedFormats(), 
 					selectedContainer, objects, type);
@@ -242,7 +244,7 @@ class ImporterComponent
 			view.selectChooser();
 		}
 		chooser.setSelectedGroup(getSelectedGroup());
-		if (model.isMaster() || objects == null || objects.size() == 0)
+		if (model.isMaster() || CollectionUtils.isEmpty(objects) || !reactivate)
 			refreshContainers(new ImportLocationDetails(type));
 		//load available disk space
 		model.fireDiskSpaceLoading();
