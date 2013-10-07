@@ -138,7 +138,8 @@ already be running. This may automatically restart some server components.""")
         Action(
             "ice", "Drop user into icegridadmin console or execute arguments")
 
-        fixpyramids = Action("fixpyramids", """Remove empty pyramid pixels files""").parser
+        fixpyramids = Action(
+            "fixpyramids", "Remove empty pyramid pixels files").parser
         # See cleanse options below
 
         Action(
@@ -259,8 +260,12 @@ location.
 """).parser
 
         for x in (cleanse, fixpyramids):
-            x.add_argument("--dry-run", action = "store_true", help = "Print out which files would be deleted")
-            x.add_argument("data_dir", type=DirectoryType(), help = "omero.data.dir directory value (e.g. /OMERO")
+            x.add_argument(
+                "--dry-run", action="store_true",
+                help="Print out which files would be deleted")
+            x.add_argument(
+                "data_dir", type=DirectoryType(),
+                help="omero.data.dir directory value (e.g. /OMERO")
             x.add_login_arguments()
 
         Action("checkwindows", "Run simple check of the local installation "
@@ -754,10 +759,10 @@ present, the user will enter a console""")
         self.check_access()
         from omero.util.cleanse import fixpyramids
         client = self.ctx.conn(args)
-        key = client.getSessionId()
-        fixpyramids(data_dir=args.data_dir, dry_run=args.dry_run, \
-            query_service=client.sf.getQueryService(), \
-            config_service=client.sf.getConfigService())
+        client.getSessionId()
+        fixpyramids(data_dir=args.data_dir, dry_run=args.dry_run,
+                    query_service=client.sf.getQueryService(),
+                    config_service=client.sf.getConfigService())
 
     @with_config
     def diagnostics(self, args, config):
