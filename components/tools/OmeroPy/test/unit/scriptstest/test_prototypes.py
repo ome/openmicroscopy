@@ -12,13 +12,12 @@
 from path import path
 
 import sys
-import unittest
 
 import omero
 from omero.scripts import *
 from omero.rtypes import *
 
-class TestPrototypes(unittest.TestCase):
+class TestPrototypes(object):
 
     # Nested lists
 
@@ -30,7 +29,7 @@ class TestPrototypes(unittest.TestCase):
 
         input = rlist(rint(1))
         inputs = {"a":input}
-        self.assertEquals("", validate_inputs(params, inputs))
+        assert "" == validate_inputs(params, inputs)
 
     def testRListRList(self):
         params = omero.grid.JobParams()
@@ -40,7 +39,7 @@ class TestPrototypes(unittest.TestCase):
 
         input = rlist(rlist(rint(1), rstring("a")))
         inputs = {"a":input}
-        self.assertEquals("", validate_inputs(params, inputs))
+        assert "" == validate_inputs(params, inputs)
 
     def testRListRListRString(self):
         params = omero.grid.JobParams()
@@ -50,10 +49,10 @@ class TestPrototypes(unittest.TestCase):
 
         input = rlist(rlist(rstring("a")))
         inputs = {"a":input}
-        self.assertEquals("", validate_inputs(params, inputs))
+        assert "" == validate_inputs(params, inputs)
 
         input.val[0].val.insert(0, rint(1))
-        self.assertFalse( "" == validate_inputs(params, inputs) )
+        assert not  "" == validate_inputs(params, inputs)
 
     # Nested maps
 
@@ -65,7 +64,7 @@ class TestPrototypes(unittest.TestCase):
 
         input = rmap({"b":rint(1)})
         inputs = {"a":input}
-        self.assertEquals("", validate_inputs(params, inputs))
+        assert "" == validate_inputs(params, inputs)
 
     def testRMapRMap(self):
         params = omero.grid.JobParams()
@@ -75,7 +74,7 @@ class TestPrototypes(unittest.TestCase):
 
         input = rmap({"b":rmap({"l":rlong(0)})})
         inputs = {"a":input}
-        self.assertEquals("", validate_inputs(params, inputs))
+        assert "" == validate_inputs(params, inputs)
 
     def testRMapRMapRInt(self):
         params = omero.grid.JobParams()
@@ -85,7 +84,7 @@ class TestPrototypes(unittest.TestCase):
 
         input = rmap({"b":rmap({"c":rint(1)})})
         inputs = {"a":input}
-        self.assertEquals("", validate_inputs(params, inputs))
+        assert "" == validate_inputs(params, inputs)
 
     # Other
 
@@ -97,7 +96,7 @@ class TestPrototypes(unittest.TestCase):
 
         input = rlist(rstring("foo"), rint(1))
         inputs = {"a":input}
-        self.assertFalse("" == validate_inputs(params, inputs))
+        assert not "" == validate_inputs(params, inputs)
 
     # Bugs
 
@@ -105,18 +104,16 @@ class TestPrototypes(unittest.TestCase):
         params = omero.grid.JobParams()
         # Copied from integration/scripts.py:testUploadOfficialScripts
         param = Long('longParam', True, description='theDesc', min=long(1), max=long(10), values=[rlong(5)])
-        self.assertEquals(1, param.min.getValue(), "Min value not correct:" + str(param.min))
-        self.assertEquals(10, param.max.getValue(), "Max value not correct:" + str(param.max))
-        self.assertEquals(5, param.values.getValue()[0].getValue(), "First option value not correct:" + str(param.values))
+        assert 1 == param.min.getValue(), "Min value not correct:" + str(param.min)
+        assert 10 == param.max.getValue(), "Max value not correct:" + str(param.max)
+        assert 5 == param.values.getValue()[0].getValue(), "First option value not correct:" + str(param.values)
 
         params.inputs = {"a": param}
         inputs = {"a": rlong(5)}
         errors = validate_inputs(params, inputs)
-        self.assertTrue("" == errors, errors)
+        assert "" == errors, errors
 
     def testTicket2323List(self):
         param = List('listParam', True, description='theDesc', values=[rlong(5)])
-        self.assertEquals([5], unwrap(param.values), str(param.values))
+        assert [5] == unwrap(param.values), str(param.values)
 
-if __name__ == '__main__':
-    unittest.main()

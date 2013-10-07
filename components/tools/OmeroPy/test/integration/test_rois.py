@@ -8,7 +8,6 @@
    Use is subject to license terms supplied in LICENSE.txt
 
 """
-import unittest
 import test.integration.library as lib
 import omero
 from omero.rtypes import *
@@ -50,7 +49,7 @@ class TestRois(lib.ITest):
 
         # Test no ROI count
         wrapper = ImageWrapper(conn, img)
-        self.assertEqual(wrapper.getROICount(),0)
+        assert wrapper.getROICount() == 0
 
         # Test ROI shape
         roi1 = omero.model.RoiI()
@@ -66,41 +65,41 @@ class TestRois(lib.ITest):
         roi2  = owner.sf.getUpdateService().saveAndReturnObject(roi2)
         
         wrapper = ImageWrapper(conn, img)        
-        self.assertEqual(wrapper.getROICount(),2)
-        self.assertEqual(wrapper.getROICount("Rect"),2)
-        self.assertEqual(wrapper.getROICount("Ellipse"),1)
-        self.assertEqual(wrapper.getROICount("Line"),0)
-        self.assertEqual(wrapper.getROICount(["Rect","Ellipse"]),2)
+        assert wrapper.getROICount() == 2
+        assert wrapper.getROICount("Rect") == 2
+        assert wrapper.getROICount("Ellipse") == 1
+        assert wrapper.getROICount("Line") == 0
+        assert wrapper.getROICount(["Rect", "Ellipse"]) == 2
         
         # Test ROI permissions
         roi3 = omero.model.RoiI()
         roi3.addShape(omero.model.EllipseI())
         roi3.setImage(img)
         roi3  = member.sf.getUpdateService().saveAndReturnObject(roi3)
-        self.assertEqual(wrapper.getROICount(),3)
-        self.assertEqual(wrapper.getROICount(filterByCurrentUser=True),2)
-        self.assertEqual(wrapper.getROICount("Ellipse"),2)
-        self.assertEqual(wrapper.getROICount("Ellipse",None),2)
-        self.assertEqual(wrapper.getROICount("Ellipse",1),1)
-        self.assertEqual(wrapper.getROICount("Ellipse",True),1)
-        self.assertEqual(wrapper.getROICount("Rect"),2)
-        self.assertEqual(wrapper.getROICount("Rect",None),2)
-        self.assertEqual(wrapper.getROICount("Rect",1),2)
-        self.assertEqual(wrapper.getROICount("Rect",True),2)
+        assert wrapper.getROICount() == 3
+        assert wrapper.getROICount(filterByCurrentUser=True) == 2
+        assert wrapper.getROICount("Ellipse") == 2
+        assert wrapper.getROICount("Ellipse", None) == 2
+        assert wrapper.getROICount("Ellipse", 1) == 1
+        assert wrapper.getROICount("Ellipse", True) == 1
+        assert wrapper.getROICount("Rect") == 2
+        assert wrapper.getROICount("Rect", None) == 2
+        assert wrapper.getROICount("Rect", 1) == 2
+        assert wrapper.getROICount("Rect", True) == 2
         
         # Member gateway
         conn = BlitzGateway(client_obj = member)
         wrapper = ImageWrapper(conn, img)            
-        self.assertEqual(wrapper.getROICount(),3)
-        self.assertEqual(wrapper.getROICount(filterByCurrentUser=True),1)
-        self.assertEqual(wrapper.getROICount("Ellipse"),2)
-        self.assertEqual(wrapper.getROICount("Ellipse",None),2)
-        self.assertEqual(wrapper.getROICount("Ellipse",1),1)
-        self.assertEqual(wrapper.getROICount("Ellipse",True),1)
-        self.assertEqual(wrapper.getROICount("Rect"),2)
-        self.assertEqual(wrapper.getROICount("Rect",None),2)
-        self.assertEqual(wrapper.getROICount("Rect",1),0)
-        self.assertEqual(wrapper.getROICount("Rect",True),0)
+        assert wrapper.getROICount() == 3
+        assert wrapper.getROICount(filterByCurrentUser=True) == 1
+        assert wrapper.getROICount("Ellipse") == 2
+        assert wrapper.getROICount("Ellipse", None) == 2
+        assert wrapper.getROICount("Ellipse", 1) == 1
+        assert wrapper.getROICount("Ellipse", True) == 1
+        assert wrapper.getROICount("Rect") == 2
+        assert wrapper.getROICount("Rect", None) == 2
+        assert wrapper.getROICount("Rect", 1) == 0
+        assert wrapper.getROICount("Rect", True) == 0
     
 
     def test8990(self):
@@ -157,16 +156,16 @@ class TestRois(lib.ITest):
                 svc = fix.roi
 
                 r = svc.findByImage(iid, roiOptions)
-                self.assertEquals(byimage, len(r.rois))
+                assert byimage ==  len(r.rois)
 
                 count = 0
                 for r in (r1, r2, r3, r4):
                     r = svc.findByRoi(r.id, roiOptions)
                     count += len(r.rois)
-                self.assertEquals(byrois, count)
+                assert byrois ==  count
 
                 r = svc.findByPlane(iid, z, t, roiOptions)
-                self.assertEquals(byplane, len(r.rois))
+                assert byplane ==  len(r.rois)
 
         for x, y in ((fix1, fix1), (fix1, fix2), (fix2, fix1), (fix2, fix2)):
             assertRois(x, y.userid, None, 0, 0,   2, 2, 2, 1)
@@ -183,5 +182,3 @@ class TestRois(lib.ITest):
 
 
 
-if __name__ == '__main__':
-    unittest.main()

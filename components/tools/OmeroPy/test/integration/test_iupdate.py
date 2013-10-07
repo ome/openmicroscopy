@@ -10,7 +10,6 @@
 Integration test focused on the omero.api.IUpdate interface.
 """
 
-import unittest
 import test.integration.library as lib
 import omero
 
@@ -37,5 +36,3 @@ class TestIUpdate(lib.ITest):
         tags = self.tags()
         self.update.saveCollection(tags)
 
-if __name__ == '__main__':
-    unittest.main()

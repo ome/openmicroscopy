@@ -9,7 +9,6 @@
     </groups>
     <packages>
       <package name="integration.*"/>
-      <package name="unit.*"/>
     </packages>
   </test>
   <test name="broken">
@@ -20,7 +19,6 @@
     </groups>
     <packages>
       <package name="integration.*"/>
-      <package name="unit.*"/>
     </packages>
   </test>
 </suite>

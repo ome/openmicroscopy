@@ -22,6 +22,11 @@
   Registers the cron job for background pixeldata handling.
   </description>
 
+  <bean id="jvmSettingsCheck"
+     class="ome.services.util.JvmSettingsCheck"
+     lazy-init="false">
+  </bean>
+
   <bean id="adapterName" class="java.lang.String">
     <constructor-arg value="PixelDataAdapter"/>
   </bean>

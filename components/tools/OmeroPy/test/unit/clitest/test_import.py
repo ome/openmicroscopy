@@ -9,7 +9,7 @@
 
 """
 
-import unittest, os, subprocess, StringIO
+import os, subprocess, StringIO
 from path import path
 from omero.cli import Context, CLI, NonZeroReturnCode
 
@@ -26,16 +26,16 @@ loc = {"register": register}
 execfile( str(pluginDir/"import.py"), loc)
 ImportControl = map["import"]
 
-class TestImport(unittest.TestCase):
+class TestImport(object):
 
     def testDropBoxArgs(self):
         class MockImportControl(ImportControl):
             def importer(this, args):
-                self.assertEquals(args.server, "localhost")
-                self.assertEquals(args.port, "4064")
-                self.assertEquals(args.key, "b0742975-03a1-4f6d-b0ac-639943f1a147")
-                self.assertEquals(args.errs, "/Users/cblackburn/omero/tmp/omero_cblackburn/6915/dropboxuUGl5rerr")
-                self.assertEquals(args.file, "/Users/cblackburn/omero/tmp/omero_cblackburn/6915/dropboxaDCjQlout")
+                assert args.server == "localhost"
+                assert args.port == "4064"
+                assert args.key == "b0742975-03a1-4f6d-b0ac-639943f1a147"
+                assert args.errs == "/Users/cblackburn/omero/tmp/omero_cblackburn/6915/dropboxuUGl5rerr"
+                assert args.file == "/Users/cblackburn/omero/tmp/omero_cblackburn/6915/dropboxaDCjQlout"
 
         cmd = ['-s', 'localhost', '-p', '4064', '-k', 'b0742975-03a1-4f6d-b0ac-639943f1a147']
         cmd += ['import', '---errs=/Users/cblackburn/omero/tmp/omero_cblackburn/6915/dropboxuUGl5rerr']
@@ -46,5 +46,3 @@ class TestImport(unittest.TestCase):
         cli.register("import", MockImportControl, "HELP")
         cli.invoke(cmd)
 
-if __name__ == '__main__':
-    unittest.main()

@@ -9,8 +9,8 @@
 
 """
 
-import unittest
 import test.integration.library as lib
+import pytest
 import omero
 import datetime, time
 
@@ -30,7 +30,7 @@ class TestSearch(lib.ITest):
         self.root.sf.getUpdateService().indexObject(tag)
         q = searcher.sf.getQueryService()
         r = q.findAllByFullText("TagAnnotation", uuid, None)
-        self.assertEquals(0, len(r))
+        assert 0 ==  len(r)
 
     def test3164Private(self):
         group = self.new_group(perms="rw----")
@@ -84,21 +84,21 @@ class TestSearch(lib.ITest):
         for tag in tags:
             search.byFullText(tag)
             res = search.results()
-            self.assertEquals(tag, res[0].ns.val)
+            assert tag ==  res[0].ns.val
 
         boost_query = "%s^10 OR %s^1"
 
         # Boosted
         search.byFullText(boost_query % tuple(tags))
         res = search.results()
-        self.assertEquals(tags[0], res[0].ns.val)
-        self.assertEquals(tags[1], res[1].ns.val)
+        assert tags[0] ==  res[0].ns.val
+        assert tags[1] ==  res[1].ns.val
 
         # Reversed
         search.byFullText(boost_query % tuple(reversed(tags)))
         res = search.results()
-        self.assertEquals(tags[0], res[1].ns.val)
-        self.assertEquals(tags[1], res[0].ns.val)
+        assert tags[0] ==  res[1].ns.val
+        assert tags[1] ==  res[0].ns.val
 
     #
     # Helpers
@@ -125,7 +125,7 @@ class TestSearch(lib.ITest):
                 "where im.id in (:oids) " \
                 "order by im.id asc"
         res = owner.sf.getQueryService().findAllByQuery(sql, p)
-        self.assertEquals(5, len(res))
+        assert 5 ==  len(res)
 
         #Searching
         texts = ("*earch", "*h", "search tif", "search",\
@@ -154,8 +154,9 @@ class TestSearch(lib.ITest):
             msg += """\nFAILED: `%s` returned %s""" % (k, failed[k])
 
         if msg:
-            self.fail("%s\n" % msg)
+            assert False, "%s\n" % msg
 
+    @pytest.mark.xfail(reason="ticket 11494")
     def test8692(self):
         # Test that group admin and system admins can
         # find items in non-private groups.
@@ -185,7 +186,7 @@ class TestSearch(lib.ITest):
                 q = sf.getQueryService()
                 t = q.findAllByFullText("CommentAnnotation", uuid, None, all)
                 if not t or len(t) != 1:
-                    self.fail(msg % ("IQueryPrx", uuid, who, x))
+                    assert False, msg % ("IQueryPrx", uuid, who, x)
 
                 # Then see if search also works via SearchPrx
                 # Note: it's necessary to pass {"omero.group":"-1"}
@@ -194,7 +195,7 @@ class TestSearch(lib.ITest):
                 s.onlyType("CommentAnnotation")
                 s.byFullText(uuid)
                 if not s.hasNext(all) or len(s.results(all)) != 1:
-                    self.fail(msg % ("SearchPrx", uuid, who, x))
+                    assert False, msg % ("SearchPrx", uuid, who, x)
 
     def test8846(self):
         # Wildcard search
@@ -212,8 +213,6 @@ class TestSearch(lib.ITest):
         rv = query.findAllByFullText( \
                 "CommentAnnotation", "%s" % uuid, None)
         #"CommentAnnotation", "%s*" % uuid[0:6], None)
-        self.assertEquals(cann.id.val, rv[0].id.val)
+        assert cann.id.val ==  rv[0].id.val
 
 
-if __name__ == '__main__':
-    unittest.main()

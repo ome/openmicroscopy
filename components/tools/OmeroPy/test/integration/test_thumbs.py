@@ -10,13 +10,14 @@
 """
 
 import omero
-import unittest
+import pytest
 import test.integration.library as lib
 
 from omero.rtypes import rstring, rlong, rint, unwrap
 from omero.util.concurrency import get_event
 from binascii import hexlify as hex
 
+@pytest.mark.long_running
 class TestThumbs(lib.ITest):
 
     def assertTb(self, buf, x=64, y=64):
@@ -28,8 +29,8 @@ class TestThumbs(lib.ITest):
                 except ImportError:
                     print "PIL not installed"
             thumb = self.open_jpeg_buffer(buf)
-            self.assertEquals(unwrap(x), thumb.size[0])
-            self.assertEquals(unwrap(y), thumb.size[1])
+            assert unwrap(x) ==  thumb.size[0]
+            assert unwrap(y) ==  thumb.size[1]
 
     #
     # MissingPyramid tests
@@ -74,7 +75,7 @@ class TestThumbs(lib.ITest):
     def testThumbnailExists(self):
         tb = self.pyr_tb()
         try:
-            self.assertFalse(tb.thumbnailExists(rint(64), rint(64)))
+            assert not tb.thumbnailExists(rint(64), rint(64))
         finally:
             tb.close()
 
@@ -130,5 +131,3 @@ make_test_set("getThumbnailSet", 64, 64, rint(64), rint(64))
 make_test_set("getThumbnailByLongestSideSet", 64, 64, rint(64))
 
 
-if __name__ == '__main__':
-    unittest.main()

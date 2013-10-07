@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.treemng.browser.BrowserModel
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -411,7 +411,7 @@ class BrowserModel
      * 
      * @param tree The component hosting the node.
      * @param containerID The ID of the container.
-     * @param value	The number of items.
+     * @param value The number of items.
      * @param nodes The collection of nodes.
      * @return See above.
      */

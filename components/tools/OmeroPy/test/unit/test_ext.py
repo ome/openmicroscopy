@@ -9,13 +9,12 @@
  */
 """
 
-import unittest
 import omero_ext.uuid as uuid # see ticket:3774
 
 DUMMY = object()
 
 
-class TestExt(unittest.TestCase):
+class TestExt(object):
 
     def testUuid4(self):
         """
@@ -37,10 +36,8 @@ class TestExt(unittest.TestCase):
                 U = uuid.__uuid__
                 U._uuid_generate_random = U._uuid_generate_time = DUMMY
                 reload(uuid)
-                self.assertEquals(None, U._uuid_generate_random)
-                self.assertEquals(None, U._uuid_generate_time)
-        self.assertTrue(uuid.uuid4())
+                assert None == U._uuid_generate_random
+                assert None == U._uuid_generate_time
+        assert uuid.uuid4()
 
 
-if __name__ == '__main__':
-    unittest.main()

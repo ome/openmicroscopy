@@ -201,7 +201,7 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
         depends="clean,init,build-default,test-compile,build-eclipse"/>
 
     <target name="build-all-dev" description="build-all, then test-compile and build-eclipse"
-        depends="clean,init,build-default,test-compile,build-eclipse"/>
+        depends="clean,init,build-all,test-compile-all,build-eclipse"/>
 
     <target name="build-blitz" description="Alias for 'build-server'" depends="build-server"/>
 

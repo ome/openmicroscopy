@@ -10,7 +10,6 @@
 Integration tests for tickets between 5000 and 5999
 """
 
-import unittest
 import test.integration.library as lib
 
 from omero.rtypes import rstring
@@ -47,5 +46,3 @@ class TestTickets6000(lib.ITest):
         print uuid
 
 
-if __name__ == '__main__':
-    unittest.main()

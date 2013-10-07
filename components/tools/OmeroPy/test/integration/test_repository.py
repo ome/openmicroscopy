@@ -8,7 +8,7 @@
    Use is subject to license terms supplied in LICENSE.txt
 
 """
-import unittest, time
+import time
 import test.integration.library as lib
 import omero
 from omero.rtypes import *
@@ -18,9 +18,9 @@ class TestRepository(lib.ITest):
     def testRepositoryAcquisition(self):
 
         repoMap = self.client.sf.sharedResources().repositories()
-        self.assert_( len(repoMap.proxies) > 1 )
+        assert  len(repoMap.proxies) > 1
         repoPrx = repoMap.proxies[0]
-        self.assert_( repoPrx )
+        assert  repoPrx
 
     # Not all repository methods are implemented in 4.4
     # and so the test below is inavlid
@@ -32,7 +32,7 @@ class TestRepository(lib.ITest):
         write_start = time.time()
 
         repoMap = self.client.sf.sharedResources().repositories()
-        self.assert_( len(repoMap.proxies) > 1 )
+        assert  len(repoMap.proxies) > 1
 
         repoPrx = repoMap.proxies[0]
         self.assert_( repoPrx ) # Could be None
@@ -63,7 +63,7 @@ class TestRepository(lib.ITest):
         sha1_local = self.client.sha1(test_file)
 
 
-        self.fail("HOW ARE WE CHECKING SHA1 HERE")
+        assert False, "HOW ARE WE CHECKING SHA1 HERE"
 
 
         read_start = time.time()
@@ -100,5 +100,3 @@ class TestRepository(lib.ITest):
         repoPrx.delete(remote_file + ".old")
 
 
-if __name__ == '__main__':
-    unittest.main()

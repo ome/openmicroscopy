@@ -4,7 +4,7 @@
 """
    Integration test for adding annotations to Project. 
 """
-import unittest, time
+import time
 import test.integration.library as lib
 import omero
 import omero.scripts
@@ -52,23 +52,23 @@ class TestFigureExportScripts(lib.ITest):
                     "test/omero/long/ns":[123456, "getLongValue"],
                     "test/omero/term/ns":["Metaphase", "getTermValue"],
                     "test/omero/timestamp/ns":[timeVal, "getTimeValue"]}
-        
-        # retrieve the annotations and check values. 
+
+        # retrieve the annotations and check values.
         p = omero.sys.Parameters()
         p.map = {}
-        p.map["pid"] = parent.getId()     
+        p.map["pid"] = parent.getId()
         query = "select l from ProjectAnnotationLink as l join fetch l.child as a where l.parent.id=:pid and a.ns=:ns"
         for ns, values in annValues.items():
             p.map["ns"] = rstring(ns)
             link = queryService.findByQuery(query, p)     # only 1 of each namespace
             valueMethod = getattr(link.child, values[1])
-            self.assertEqual(values[0], valueMethod().getValue(), 
-                    "Annotation %s value %s not equal to set value %s" % (link.child.__class__, valueMethod().getValue(), values[0]) )
-            
-            
+            assert values[0] == valueMethod().getValue(),\
+                    "Annotation %s value %s not equal to set value %s" % (link.child.__class__, valueMethod().getValue(), values[0])
+
+
 def saveAndLinkAnnotation(updateService, parent, annotation, ns=None, description=None):
     """ Saves the Annotation and Links it to a Project, Dataset or Image """
-    
+
     if ns:
         annotation.setNs(rstring(ns))
     if description:
@@ -137,5 +137,3 @@ def addTimestampAnnotation(updateService, parent, timeValue, ns=None, descriptio
     child.setTimeValue(rtime(timeValue))
     saveAndLinkAnnotation(updateService, parent, child, ns, description)
 
-if __name__ == '__main__':
-    unittest.main()

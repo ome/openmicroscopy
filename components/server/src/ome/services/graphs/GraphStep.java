@@ -312,7 +312,7 @@ public abstract class GraphStep {
 
         // If this is the last map, i.e. the truly processed ones, then
         // raise the EventLogMessage
-        if (cb.size() == 0) {
+        if (cb.size() == 1) {
             for (Map.Entry<String, Set<Long>> entry : cb.entrySet()) {
                 String key = entry.getKey();
                 Class<IObject> k = cb.getClass(key);
