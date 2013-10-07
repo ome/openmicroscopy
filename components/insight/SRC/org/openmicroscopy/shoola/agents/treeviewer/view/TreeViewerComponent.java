@@ -3639,9 +3639,8 @@ class TreeViewerComponent
 			SecurityContext ctx = model.getSecurityContext();
 			while (i.hasNext()) {
 				object = i.next();
-				if (object instanceof ImageData || 
-					object instanceof FileAnnotationData) {
-					activity = new OpenActivityParam(data, (DataObject) object, 
+				if (object instanceof DataObject) {
+					activity = new OpenActivityParam(data, (DataObject) object,
 							dir);
 					un.notifyActivity(ctx, activity);
 				}

@@ -29,6 +29,7 @@ import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -38,6 +39,9 @@ import javax.swing.JFrame;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.openmicroscopy.shoola.env.Container;
+import org.openmicroscopy.shoola.env.LookupNames;
+import org.openmicroscopy.shoola.env.data.AdminService;
+import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.model.AnalysisActivityParam;
 import org.openmicroscopy.shoola.env.data.model.ApplicationData;
 import org.openmicroscopy.shoola.env.data.model.DeleteActivityParam;
@@ -53,12 +57,14 @@ import org.openmicroscopy.shoola.env.data.model.SaveAsParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptActivityParam;
 import org.openmicroscopy.shoola.env.data.model.TransferableActivityParam;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.log.Logger;
 import org.openmicroscopy.shoola.util.file.ImportErrorObject;
 import org.openmicroscopy.shoola.util.ui.MessengerDialog;
 import org.openmicroscopy.shoola.util.ui.NotificationDialog;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
+import pojos.DataObject;
 import pojos.ExperimenterData;
 
 /**
@@ -414,7 +420,65 @@ public class UserNotifierImpl implements UserNotifier, PropertyChangeListener {
 			uiRegister = p.isUIRegister();
 		} else if (activity instanceof OpenActivityParam) {
 			OpenActivityParam p = (OpenActivityParam) activity;
-			comp = new OpenObjectActivity(this, manager.getRegistry(), ctx, p);
+			ApplicationData data = p.getApplication();
+			AdminService svc = manager.getRegistry().getAdminService();
+			boolean registeredApplication = false;
+			try {
+			    registeredApplication = svc.isApplicationRegistered(ctx,
+			            data.getApplicationName());
+            } catch (Exception e) {
+                Logger logger = manager.getRegistry().getLogger();
+                LogMessage msg = new LogMessage();
+                msg.append("Could not check if the application is registered");
+                msg.print(e);
+                logger.error(this, msg);
+            }
+			if (registeredApplication) { //specified some arguments
+			    List<String> commands = new ArrayList<String>();
+			    Iterable<String> args= data.getCommandLineArguments();
+			    String uuid = null;
+			    try {
+	                uuid = svc.createNewSession(ctx);
+	            } catch (Exception e) {
+	                Logger logger = manager.getRegistry().getLogger();
+	                LogMessage msg = new LogMessage();
+	                msg.append("could not create a session");
+	                msg.print(e);
+	                logger.error(this, msg);
+	            }
+			    StringBuffer buffer = new StringBuffer();
+			    if (uuid == null) { //no session pass user credentials
+			        UserCredentials lc = (UserCredentials)
+			                manager.getRegistry().lookup(
+			                LookupNames.USER_CREDENTIALS);
+			        buffer.append("-s ");
+			        buffer.append(lc.getHostName());
+		            buffer.append(" -u ");
+		            buffer.append(lc.getUserName());
+		            buffer.append(" -p ");
+		            buffer.append(lc.getPort());
+		            buffer.append(" -g ");
+		            buffer.append(ctx.getGroupID());
+			    } else buffer.append("-k "+uuid);
+			    
+			    //now data type
+			    DataObject object = p.getObject();
+			    String name = object.asIObject().getClass().getSimpleName();
+			    if (name.endsWith("I"))
+			        name = name.substring(0, name.length()-1);
+			    buffer.append(" data_type="+name.toLowerCase());
+			    buffer.append(" nids="+object.getId());
+			    commands.add(buffer.toString());
+			    for (String arg : args) {
+			        commands.add(arg);
+		        }
+			    data.setCommandLineArguments(commands);
+			    openApplication(data, null);
+			} else {
+			    comp = new OpenObjectActivity(this, manager.getRegistry(), ctx,
+			            p);
+			}
+			
 		} else if (activity instanceof DownloadAndZipParam) {
 			DownloadAndZipParam p = (DownloadAndZipParam) activity;
 			if (!canWriteInFolder(p.getFolder()))
@@ -467,7 +531,9 @@ public class UserNotifierImpl implements UserNotifier, PropertyChangeListener {
 		if (data == null) data = new ApplicationData();
 		Logger logger = manager.getRegistry().getLogger();
 		try {
-			String[] commandLineElements = data.buildCommand(new File(path));
+		    File f = null;
+		    if (path != null) f = new File(path);
+			String[] commandLineElements = data.buildCommand(f);
 
 			logger.info(this, "Executing command & args: " + 
 					Arrays.toString(commandLineElements));

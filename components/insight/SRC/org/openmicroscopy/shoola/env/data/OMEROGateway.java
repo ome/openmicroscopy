@@ -8316,6 +8316,7 @@ class OMEROGateway
 	}
 
 	/**
+<<<<<<< HEAD
 	 * Returns the system groups and users
 	 * 
 	 * @param ctx The security context.
@@ -8336,4 +8337,25 @@ class OMEROGateway
         }
         return null;
      }
+
+    /** Create a new session.
+     * 
+     * @param ctx The security context, necessary to determine the service.
+     * @return See above.
+     * @throws DSOutOfServiceException If the connection is broken, or logged in
+     * @throws DSAccessException If an error occurred while trying to
+     * retrieve data from OMERO service.
+     */
+    String createSession(SecurityContext ctx)
+            throws DSOutOfServiceException, DSAccessException
+    {
+        Connector c = getConnector(ctx, true, false);
+        String session = null;
+        try {
+            session = c.createSession();
+        } catch (Throwable e) {
+            handleException(e, "Cannot find split images.");
+        }
+        return session;
+    }
 }

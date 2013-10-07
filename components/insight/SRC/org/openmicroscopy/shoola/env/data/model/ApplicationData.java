@@ -215,7 +215,7 @@ public class ApplicationData {
 			commandLine.add(commandArg);
 		}
 
-		commandLine.add(file.getAbsolutePath());
+		if (file != null) commandLine.add(file.getAbsolutePath());
 
 		return commandLine.toArray(new String[0]);
 	}

@@ -74,9 +74,9 @@ public class OpenWithDialog
 	/** Opens the document with the selected application. */
 	private void open()
 	{
-	    firePropertyChange(OPEN_DOCUMENT_PROPERTY, null,
-	            chooser.getSelectedFile());
+	    File f = chooser.getSelectedFile();
 	    close();
+	    firePropertyChange(OPEN_DOCUMENT_PROPERTY, null, f);
 	}
 
 	/** Closes and disposes. */
