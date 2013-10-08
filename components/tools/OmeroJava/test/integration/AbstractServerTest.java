@@ -35,6 +35,7 @@ import ome.formats.importer.OMEROWrapper;
 import ome.services.blitz.repo.path.FsFile;
 import omero.ApiUsageException;
 import omero.ServerError;
+import omero.rtypes;
 import omero.api.IAdminPrx;
 import omero.api.IQueryPrx;
 import omero.api.IUpdatePrx;
@@ -1541,6 +1542,21 @@ public class AbstractServerTest extends AbstractTest {
         if (links.size() > 0)
             iUpdate.saveAndReturnArray(links);
         return ids;
+    }
+
+    /**
+     * Create a new unpersisted experimenter with the given field values.
+     * @param omeName an OME name
+     * @param firstName a first name
+     * @param lastName a last time
+     * @return the new experimenter
+     */
+    protected Experimenter createExperimenterI(String omeName, String firstName, String lastName) {
+        final Experimenter experimenter = new ExperimenterI();
+        experimenter.setOmeName(rtypes.rstring(omeName));
+        experimenter.setFirstName(rtypes.rstring(firstName));
+        experimenter.setLastName(rtypes.rstring(lastName));
+        return experimenter;
     }
 
     /**
