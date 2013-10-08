@@ -30,6 +30,7 @@ import java.util.List;
 
 import javax.swing.Icon;
 
+import org.apache.commons.lang.StringUtils;
 import org.openmicroscopy.shoola.env.data.model.appdata.ApplicationDataExtractor;
 import org.openmicroscopy.shoola.env.data.model.appdata.LinuxApplicationDataExtractor;
 import org.openmicroscopy.shoola.env.data.model.appdata.MacApplicationDataExtractor;
@@ -141,6 +142,7 @@ public class ApplicationData {
 	 * @return See above.
 	 */
 	public String getApplicationName() {
+	    if (StringUtils.isEmpty(applicationName)) return executable;
 		return applicationName;
 	}
 
