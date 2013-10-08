@@ -8375,7 +8375,7 @@ class OMEROGateway
         IScriptPrx svc = getScriptService(ctx);
         List<ScriptObject> scripts = new ArrayList<ScriptObject>();
         try {
-            
+            scripts.add(new ScriptObject(-1, "", "FLIMfit"));
         } catch (Exception e) {
             handleException(e, "Cannot load the plugins. ");
         }

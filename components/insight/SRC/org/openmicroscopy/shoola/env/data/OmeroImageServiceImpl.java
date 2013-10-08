@@ -78,6 +78,7 @@ import omero.sys.Parameters;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.RandomStringUtils;
+import org.apache.commons.lang.StringUtils;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
@@ -1914,15 +1915,18 @@ class OmeroImageServiceImpl
             throws DSOutOfServiceException, DSAccessException
     {
         List<ScriptObject> apps = gateway.loadApplications(ctx);
-        if (CollectionUtils.isEmpty(apps)) return false;
+        System.err.println(name);
+        if (CollectionUtils.isEmpty(apps) || StringUtils.isEmpty(name))
+            return false;
         Iterator<ScriptObject> i = apps.iterator();
         ScriptObject app;
         while (i.hasNext()) {
             app = i.next();
-            if (app.getName().equals(name))
+            System.err.println("app: "+app.getName());
+            if (name.startsWith(app.getName()))
                 return true;
         }
-        return false;
+        return true;
     }
 
 }
