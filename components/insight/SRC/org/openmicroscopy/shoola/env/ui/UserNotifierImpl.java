@@ -453,17 +453,17 @@ public class UserNotifierImpl implements UserNotifier, PropertyChangeListener {
 			        UserCredentials lc = (UserCredentials)
 			                manager.getRegistry().lookup(
 			                        LookupNames.USER_CREDENTIALS);
-			        buffer.append("-s ");
+			        buffer.append("server=");
 			        buffer.append(lc.getHostName());
-			        buffer.append(" -u ");
+			        buffer.append(" user=");
 			        buffer.append(lc.getUserName());
-			        buffer.append(" -w ");
+			        buffer.append(" password=");
 			        buffer.append(lc.getPassword());
-			        buffer.append(" -p ");
+			        buffer.append(" port=");
 			        buffer.append(lc.getPort());
-			        buffer.append(" -g ");
+			        buffer.append(" group=");
 			        buffer.append(ctx.getGroupID());
-			    } else buffer.append("-k "+uuid);
+			    } else buffer.append("key="+uuid);
 
 			    //now data type
 			    DataObject object = p.getObject();
