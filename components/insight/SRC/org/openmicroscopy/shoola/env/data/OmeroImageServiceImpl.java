@@ -1918,10 +1918,8 @@ class OmeroImageServiceImpl
         if (CollectionUtils.isEmpty(apps) || StringUtils.isEmpty(name))
             return false;
         Iterator<ScriptObject> i = apps.iterator();
-        ScriptObject app;
         while (i.hasNext()) {
-            app = i.next();
-            if (name.startsWith(app.getName()))
+            if (name.startsWith(i.next().getName()))
                 return true;
         }
         return true;

@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.data.util.Parser 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -31,7 +31,8 @@ import java.util.Map;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-
+import org.xml.sax.EntityResolver;
+import org.xml.sax.InputSource;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -46,10 +47,6 @@ import org.w3c.dom.NodeList;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
- * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since 3.0-Beta4
  */
 public class Parser
@@ -57,28 +54,28 @@ public class Parser
 
 	/** Identifies the path to the executable. */
 	public static final String EXECUTABLE_PATH = "executablePath";
-	
+
 	/** Identifies the icon associated to the executable. */
 	public static final String EXECUTABLE_ICON = "executableIcon";
-	
+
 	/** Identifies the name of the executable. */
 	public static final String EXECUTABLE_NAME = "executableName";
-	
+
 	/** Tag identifying the executable. */
 	private static final String EXECUTABLE_TAG_MAC = "CFBundleExecutable";
-	
+
 	/** Tag identifying the icon associated to the application. */
 	private static final String ICON_TAG_MAC = "CFBundleIconFile";
-	
+
 	/** Tag identifying the name of the application. */
 	private static final String NAME_TAG_MAC = "CFBundleName";
 
 	/** Path to the resources of the application on MAC. */
 	public static final String RESOURCES_MAC = "/Contents/Resources/";
-	
+
 	/** Path to the resources of the application on MAC. */
 	public static final String EXECUTABLE_MAC = "/Contents/MacOS/";
-	
+
 	/** The file to look to retrieve the information. */
 	private static final String INFO_FILE_MAC = "/Contents/Info.plist";
 
@@ -94,6 +91,9 @@ public class Parser
 	{
 		Map<String, Object> map = new HashMap<String, Object>();
 		DocumentBuilderFactory f = DocumentBuilderFactory.newInstance();
+		f.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+		f.setValidating(false);
+		f.setNamespaceAware(false);
 		DocumentBuilder builder = f.newDocumentBuilder();
 		Document doc = builder.parse(new File(path+INFO_FILE_MAC));
 		//Extract the info
@@ -116,20 +116,20 @@ public class Parser
 								s = child.getNextSibling().getNextSibling();
 								r = path+EXECUTABLE_MAC
 									+s.getTextContent().trim();
-								map.put(EXECUTABLE_PATH, r);	
+								map.put(EXECUTABLE_PATH, r);
 							}
 						} else if (ICON_TAG_MAC.equals(value)) {
 							if (child.getNextSibling() != null) {
 								s = child.getNextSibling().getNextSibling();
 								r = path+RESOURCES_MAC
 								+s.getTextContent().trim();
-								map.put(EXECUTABLE_ICON, r);	
+								map.put(EXECUTABLE_ICON, r);
 							}
 						} else if (NAME_TAG_MAC.equals(value)) {
 							if (child.getNextSibling() != null) {
 								s = child.getNextSibling().getNextSibling();
-								map.put(EXECUTABLE_NAME, 
-										s.getTextContent().trim());	
+								map.put(EXECUTABLE_NAME,
+										s.getTextContent().trim());
 							}
 						}
 					}
@@ -138,5 +138,5 @@ public class Parser
 		}
 		return map;
 	}
-	
+
 }

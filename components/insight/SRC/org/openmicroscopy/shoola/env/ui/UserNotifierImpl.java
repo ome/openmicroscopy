@@ -427,7 +427,7 @@ public class UserNotifierImpl implements UserNotifier, PropertyChangeListener {
 			boolean registeredApplication = false;
 			try {
 			    registeredApplication = prx.isApplicationRegistered(ctx,
-			            data.getApplicationName());
+			            (new File(data.getApplicationName()).getName()));
             } catch (Exception e) {
                 Logger logger = manager.getRegistry().getLogger();
                 LogMessage msg = new LogMessage();
