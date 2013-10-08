@@ -1,7 +1,7 @@
     /*
  *   $Id$
  *
- *   Copyright 2006 University of Dundee. All rights reserved.
+ *   Copyright 2006-2013 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -9,7 +9,7 @@ package ome.logic;
 
 import java.sql.SQLException;
 import java.util.Arrays;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -19,11 +19,15 @@ import java.util.Set;
 import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
 
-import org.slf4j.Logger;
+import com.google.common.base.Predicates;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Iterators;
+
 import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.criterion.Restrictions;
+import org.slf4j.Logger;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -35,17 +39,13 @@ import org.springframework.util.Assert;
 
 import ome.annotations.NotNull;
 import ome.annotations.PermitAll;
-import ome.annotations.RevisionDate;
-import ome.annotations.RevisionNumber;
 import ome.annotations.RolesAllowed;
 import ome.api.IAdmin;
 import ome.api.RawFileStore;
 import ome.api.ServiceInterface;
 import ome.api.local.LocalAdmin;
-import ome.api.local.LocalUpdate;
 import ome.conditions.ApiUsageException;
 import ome.conditions.AuthenticationException;
-import ome.conditions.GroupSecurityViolation;
 import ome.conditions.InternalException;
 import ome.conditions.SecurityViolation;
 import ome.conditions.ValidationException;
@@ -58,8 +58,6 @@ import ome.model.core.OriginalFile;
 import ome.model.core.Pixels;
 import ome.model.enums.ChecksumAlgorithm;
 import ome.model.internal.Permissions;
-import ome.model.internal.Permissions.Right;
-import ome.model.internal.Permissions.Role;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.model.meta.GroupExperimenterMap;
@@ -99,14 +97,11 @@ import ome.util.checksum.ChecksumType;
  * while developing services. Misuse could circumvent security or auditing.
  *
  * @author Josh Moore, josh.moore at gmx.de
- * @version $Revision:1754 $, $Date:2007-08-20 10:36:07 +0100 (Mon, 20 Aug 2007) $
  * @see SecuritySystem
  * @see Permissions
  * @since 3.0-M3
  */
 @Transactional(readOnly = true)
-@RevisionDate("$Date:2007-08-20 10:36:07 +0100 (Mon, 20 Aug 2007) $")
-@RevisionNumber("$Revision:1754 $")
 public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
         ApplicationContextAware {
 
@@ -230,11 +225,11 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
         qb.and("m.child.id = :id");
         qb.param("id", e.getId());
 
-        List<Long> groupIds = iQuery.execute(new HibernateCallback() {
-            public Object doInHibernate(Session session)
+        List<Long> groupIds = iQuery.execute(new HibernateCallback<List<Long>>() {
+            public List<Long> doInHibernate(Session session)
                     throws HibernateException, SQLException {
                 org.hibernate.Query q = qb.query(session);
-                return q.list();
+                return (List<Long>) q.list();
             }
         });
         return groupIds;
@@ -559,7 +554,19 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
      */
     private void copyAndSaveExperimenter(final Experimenter experimenter) {
         final Experimenter orig = userProxy(experimenter.getId());
-        orig.setOmeName(experimenter.getOmeName());
+        final String origOmeName = orig.getOmeName();
+        final String newOmeName = experimenter.getOmeName();
+        if (!origOmeName.equals(newOmeName)) {
+            final Roles roles = getSecurityRoles();
+            final Set<String> fixedExperimenterNames =
+                    ImmutableSet.of(roles.getRootName(), roles.getGuestName());
+            if (fixedExperimenterNames.contains(origOmeName)) {
+                throw new ValidationException("cannot change name of special experimenter '" + origOmeName + "'");
+            } else if (fixedExperimenterNames.contains(newOmeName)) {
+                throw new ValidationException("cannot change name to special experimenter '" + newOmeName + "'");
+            }
+        }
+        orig.setOmeName(newOmeName);
         orig.setEmail(experimenter.getEmail());
         orig.setFirstName(experimenter.getFirstName());
         orig.setMiddleName(experimenter.getMiddleName());
@@ -581,7 +588,19 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
             changePermissions(group, p); // ticket:1776 WORKAROUND
         }
         final ExperimenterGroup orig = getGroup(group.getId());
-        orig.setName(group.getName());
+        final String origName = orig.getName();
+        final String newName = group.getName();
+        if (!origName.equals(newName)) {
+            final Roles roles = getSecurityRoles();
+            final Set<String> fixedGroupNames =
+                    ImmutableSet.of(roles.getGuestGroupName(), roles.getSystemGroupName(), roles.getUserGroupName());
+            if (fixedGroupNames.contains(origName)) {
+                throw new ValidationException("cannot change name of special group '" + origName + "'");
+            } else if (fixedGroupNames.contains(newName)) {
+                throw new ValidationException("cannot change name to special group '" + newName + "'");
+            }
+        }
+        orig.setName(newName);
         orig.setDescription(group.getDescription());
 
         reallySafeSave(orig);
@@ -611,7 +630,6 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
 
     @RolesAllowed("user")
     @Transactional(readOnly = false)
-    @SuppressWarnings("unchecked")
     public long createExperimenter(final Experimenter experimenter,
             ExperimenterGroup defaultGroup, ExperimenterGroup... otherGroups) {
 
@@ -684,6 +702,33 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
         }
 
         adminOrPiOfGroups(null, groups);
+
+        final Roles roles = getSecurityRoles();
+        final boolean removeSystemOrUser =
+                Iterators.any(Iterators.forArray(groups),Predicates.or(roles.IS_SYSTEM_GROUP, roles.IS_USER_GROUP));
+        if (removeSystemOrUser && roles.isRootUser(user)) {
+            throw new ValidationException("experimenter '" + roles.getRootName() + "' may not be removed from the '" +
+                roles.getSystemGroupName() + "' or '" + roles.getUserGroupName() + "' group");
+        }
+        final EventContext eventContext = getEventContext();
+        final boolean userOperatingOnThemself = eventContext.getCurrentUserId().equals(user.getId());
+        if (removeSystemOrUser && userOperatingOnThemself) {
+            throw new ValidationException("experimenters may not remove themselves from the '" +
+                roles.getSystemGroupName() + "' or '" + roles.getUserGroupName() + "' group");
+        }
+        final Set<Long> resultingGroupIds = new HashSet<Long>();
+        for (final GroupExperimenterMap map : user.<GroupExperimenterMap>collectGroupExperimenterMap(null)) {
+            resultingGroupIds.add(map.parent().getId());
+        }
+        for (final ExperimenterGroup group : groups) {
+            resultingGroupIds.remove(group.getId());
+        }
+        if (resultingGroupIds.isEmpty()) {
+            throw new ValidationException("experimenter must remain a member of some group");
+        } else if (resultingGroupIds.equals(Collections.singleton(roles.getUserGroupId()))) {
+            throw new ValidationException("experimenter cannot be a member of only the '" +
+                roles.getUserGroupName() + "' group, a different default group is also required");
+        }
         roleProvider.removeGroups(user, groups);
 
         getBeanHelper().getLogger().info(
@@ -878,7 +923,6 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
     @RolesAllowed("user")
     @Transactional(readOnly = false)
     public void changeGroup(IObject iObject, String groupName) {
-        final LocalUpdate update = iUpdate;
         // should take a group
         final IObject copy = iQuery.get(iObject.getClass(), iObject.getId());
         final ExperimenterGroup group = groupProxy(groupName);
@@ -1274,7 +1318,6 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
     // ~ group permissions
     // =========================================================================
 
-    @SuppressWarnings("unchecked")
     private Set<String> classes() {
         return getExtendedMetadata().getClasses();
     }

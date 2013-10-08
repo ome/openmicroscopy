@@ -178,7 +178,12 @@ module omero {
       long   userGroupId;
       string userGroupName;
 
+      // the guest user
+      long   guestId;
+      string guestName;
+
       // "guest" group. Can log in and use some methods.
+      long   guestGroupId;
       string guestGroupName;
     };
 
