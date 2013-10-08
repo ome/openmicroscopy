@@ -3375,6 +3375,7 @@ class EditorModel
 		} else {
 			renderer = RendererFactory.createRenderer(getSecurityContext(),
 					rndControl, getImage(), getRndIndex());
+			renderer.setXMLAnnotations(getXMLAnnotations());
 		}
 	}
 	
