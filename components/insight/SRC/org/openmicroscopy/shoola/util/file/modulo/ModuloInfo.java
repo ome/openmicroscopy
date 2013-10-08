@@ -1,0 +1,205 @@
+/*
+ *------------------------------------------------------------------------------
+ *  Copyright (C) 2013 University of Dundee. All rights reserved.
+ *
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License along
+ *  with this program; if not, write to the Free Software Foundation, Inc.,
+ *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ *------------------------------------------------------------------------------
+ */
+package org.openmicroscopy.shoola.util.file.modulo;
+
+import org.apache.commons.lang.StringUtils;
+
+//Java imports
+
+/**
+ * Holds information about the modulo tag.
+ *
+ * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
+ * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+ * @since 5.0
+ */
+public class ModuloInfo {
+
+    /** Identifies modulo along C.*/
+    public final int C = 0;
+
+    /** Identifies modulo along Z.*/
+    public final int Z = 1;
+
+    /** Identifies modulo along T.*/
+    public final int T = 2;
+
+    /** Identifies the <code>ModuloAlongT</code>.*/
+    static final String MODULO_T = "ModuloAlongT";
+
+    /** Identifies the <code>ModuloAlongZ</code>.*/
+    static final String MODULO_Z = "ModuloAlongZ";
+
+    /** Identifies the <code>ModuloAlongC</code>.*/
+    static final String MODULO_C = "ModuloAlongC";
+
+    /** Identifies the <code>End</code>.*/
+    static final String END = "End";
+
+    /** Identifies the <code>Start</code>.*/
+    static final String START = "Start";
+
+    /** Identifies the <code>Step</code>.*/
+    static final String STEP = "Step";
+
+    /** Identifies the <code>Type</code>.*/
+    static final String TYPE = "Type";
+
+    /** Identifies the <code>TypeDescription</code>.*/
+    static final String TYPE_DESCRIPTION = "TypeDescription";
+
+    /** Identifies the <code>Unit</code>.*/
+    static final String UNIT = "Unit";
+
+    /** The value of the <code>End</code> tag.*/
+    private String end;
+
+    /** The value of the <code>Start</code> tag.*/
+    private String start;
+
+    /** The value of the <code>Unit</code> tag.*/
+    private String unit;
+
+    /** The value of the <code>Type</code> tag.*/
+    private String type;
+
+    /** The value of the <code>Step</code> tag.*/
+    private String step;
+
+    /** The value of the <code>TypeDescription</code> tag.*/
+    private String typeDescription;
+
+    /** Indicates along which dimension the modulo applies./*/
+    private int modulo;
+
+    /** 
+     * Creates a new instance and determines the dimension the modulo property
+     * applies to.
+     *
+     * @param moduloAlong
+     */
+    ModuloInfo(String moduloAlong)
+    {
+        if (StringUtils.isEmpty(moduloAlong))
+            throw new IllegalArgumentException("Dimension not supported.");
+        modulo = -1;
+        if (MODULO_C.equals(moduloAlong))
+            modulo = C;
+        else if (MODULO_Z.equals(moduloAlong))
+            modulo = Z;
+        else if (MODULO_T.equals(moduloAlong))
+            modulo = T;
+        if (modulo == -1)
+            throw new IllegalArgumentException("Dimension not supported.");
+    }
+
+    /**
+     * Returns the direction along which the modulo applies.
+     *
+     * @return See above.
+     */
+    public int getModuloIndex() { return modulo; }
+
+    /**
+     * Sets the value of the <code>End</code> tag.
+     *
+     * @param value The value to set.
+     */
+    public void setEnd(String value) { end = value; }
+
+    /**
+     * Sets the value of the <code>Start</code> tag.
+     *
+     * @param value The value to set.
+     */
+    public void setStart(String value) { start = value; }
+
+    /**
+     * Sets the value of the <code>Type</code> tag.
+     *
+     * @param value The value to set.
+     */
+    public void setType(String value) { type = value; }
+
+    /**
+     * Sets the value of the <code>TypeDescription</code> tag.
+     *
+     * @param value The value to set.
+     */
+    public void setTypeDescription(String value) { typeDescription = value; }
+
+    /**
+     * Sets the value of the <code>Unit</code> tag.
+     *
+     * @param value The value to set.
+     */
+    public void setUnit(String value) { unit = value; }
+
+    /**
+     * Sets the value of the <code>Step</code> tag.
+     *
+     * @param value The value to set.
+     */
+    public void setStep(String value) { step = value; }
+    
+    /**
+     * Returns value of the <code>End</code> tag.
+     *
+     * @return See above.
+     */
+    public String getEnd() { return end; }
+
+    /**
+     * Returns value of the <code>Start</code> tag.
+     *
+     * @return See above.
+     */
+    public String getStart() { return start; }
+
+    /**
+     * Returns value of the <code>Unit</code> tag.
+     *
+     * @return See above.
+     */
+    public String getUnit() { return unit; }
+
+    /**
+     * Returns value of the <code>Step</code> tag.
+     *
+     * @return See above.
+     */
+    public String getStep() { return step; }
+
+    /**
+     * Returns value of the <code>Type</code> tag.
+     *
+     * @return See above.
+     */
+    public String getType() { return type; }
+
+    /**
+     * Returns value of the <code>TypeDescription</code> tag.
+     *
+     * @return See above.
+     */
+    public String getTypeDescription() { return typeDescription; }
+
+}
