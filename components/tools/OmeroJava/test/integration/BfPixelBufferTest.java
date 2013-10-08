@@ -11,7 +11,6 @@ import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.List;
-import java.util.UUID;
 
 import loci.formats.ImageReader;
 import ome.io.bioformats.BfPixelBuffer;
@@ -39,16 +38,7 @@ public class BfPixelBufferTest extends AbstractServerTest {
     private void setUpTestFile(String fileName) throws Throwable,
             NoSuchAlgorithmException {
         File srcFile = ResourceUtils.getFile("classpath:" + fileName);
-        String dataDirName = root.getSession().getConfigService()
-                .getConfigValue("omero.data.dir");
-        String destPathName = UUID.randomUUID().toString();
-        File dataDir = new File(dataDirName);
-        destPath = new File(dataDir, destPathName);
-        File destFile = new File(destPath, fileName);
-        destPath.mkdir();
 
-        // Copy file into repo
-        FileUtils.copyFile(srcFile, destFile);
         // Import file
         List<Pixels> pixList = importFile(srcFile, fileName);
         log.debug(String.format("Imported: %s, pixid: %d", srcFile, pixList
@@ -59,7 +49,7 @@ public class BfPixelBufferTest extends AbstractServerTest {
         rps.setPixelsId(pixList.get(0).getId().getValue(), false);
 
         // Access the data from file via BfPixelBuffer
-        destFileName = destFile.getCanonicalPath();
+        destFileName = srcFile.getCanonicalPath();
         bf = new BfPixelBuffer(destFileName, new ImageReader());
     }
 
@@ -219,10 +209,6 @@ public class BfPixelBufferTest extends AbstractServerTest {
         bf.getTimepointDirect(midT, buff1);
         buff2 = rps.getTimepoint(midT);
         assertEquals(sha1(buff1), sha1(buff2));
-    }
-
-    private void testMessageDigest() throws IOException, ServerError {
-        assertEquals(bf.calculateMessageDigest(), rps.calculateMessageDigest());
     }
 
     private void testOtherGetters() {
