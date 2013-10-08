@@ -98,11 +98,11 @@ public class ModuloParser
         for (int i = 0; i < attributes.getLength(); ++i) {
             attribute = attributes.item(i);
             if (ModuloInfo.START.equals(attribute.getNodeName()))
-                info.setStart(attribute.getNodeValue());
+                info.setStart(Double.parseDouble(attribute.getNodeValue()));
             else if (ModuloInfo.END.equals(attribute.getNodeName()))
-                info.setEnd(attribute.getNodeValue());
+                info.setEnd(Double.parseDouble(attribute.getNodeValue()));
             else if (ModuloInfo.STEP.equals(attribute.getNodeName()))
-                info.setStep(attribute.getNodeValue());
+                info.setStep(Double.parseDouble(attribute.getNodeValue()));
             else if (ModuloInfo.TYPE.equals(attribute.getNodeName()))
                 info.setType(attribute.getNodeValue());
             else if (ModuloInfo.TYPE_DESCRIPTION.equals(

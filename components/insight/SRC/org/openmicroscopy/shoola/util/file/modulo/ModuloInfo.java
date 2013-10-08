@@ -34,13 +34,13 @@ import org.apache.commons.lang.StringUtils;
 public class ModuloInfo {
 
     /** Identifies modulo along C.*/
-    public final int C = 0;
+    public static final int C = 0;
 
     /** Identifies modulo along Z.*/
-    public final int Z = 1;
+    public static final int Z = 1;
 
     /** Identifies modulo along T.*/
-    public final int T = 2;
+    public static final int T = 2;
 
     /** Identifies the <code>ModuloAlongT</code>.*/
     static final String MODULO_T = "ModuloAlongT";
@@ -70,10 +70,10 @@ public class ModuloInfo {
     static final String UNIT = "Unit";
 
     /** The value of the <code>End</code> tag.*/
-    private String end;
+    private double end;
 
     /** The value of the <code>Start</code> tag.*/
-    private String start;
+    private double start;
 
     /** The value of the <code>Unit</code> tag.*/
     private String unit;
@@ -82,7 +82,7 @@ public class ModuloInfo {
     private String type;
 
     /** The value of the <code>Step</code> tag.*/
-    private String step;
+    private double step;
 
     /** The value of the <code>TypeDescription</code> tag.*/
     private String typeDescription;
@@ -123,14 +123,14 @@ public class ModuloInfo {
      *
      * @param value The value to set.
      */
-    public void setEnd(String value) { end = value; }
+    public void setEnd(double value) { end = value; }
 
     /**
      * Sets the value of the <code>Start</code> tag.
      *
      * @param value The value to set.
      */
-    public void setStart(String value) { start = value; }
+    public void setStart(double value) { start = value; }
 
     /**
      * Sets the value of the <code>Type</code> tag.
@@ -158,21 +158,21 @@ public class ModuloInfo {
      *
      * @param value The value to set.
      */
-    public void setStep(String value) { step = value; }
+    public void setStep(double value) { step = value; }
     
     /**
      * Returns value of the <code>End</code> tag.
      *
      * @return See above.
      */
-    public String getEnd() { return end; }
+    public double getEnd() { return end; }
 
     /**
      * Returns value of the <code>Start</code> tag.
      *
      * @return See above.
      */
-    public String getStart() { return start; }
+    public double getStart() { return start; }
 
     /**
      * Returns value of the <code>Unit</code> tag.
@@ -186,7 +186,7 @@ public class ModuloInfo {
      *
      * @return See above.
      */
-    public String getStep() { return step; }
+    public double getStep() { return step; }
 
     /**
      * Returns value of the <code>Type</code> tag.
@@ -202,4 +202,14 @@ public class ModuloInfo {
      */
     public String getTypeDescription() { return typeDescription; }
 
+    /**
+     * Determines the modulo size.
+     * 
+     * @return See above.
+     */
+    public int getSize()
+    {
+        if (step == 0) step = 1;
+        return (int) ((end-start)/step);
+    }
 }

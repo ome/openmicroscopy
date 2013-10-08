@@ -1397,6 +1397,10 @@ class RendererModel
 	 */
 	int getMaxLifetimeBin()
 	{
+	    if (modulos != null && modulos.containsKey(ModuloInfo.T)) {
+	        ModuloInfo info = modulos.get(ModuloInfo.T);
+	        return info.getSize();
+	    }
 		if (isLifetimeImage()) return getMaxC();
 		return 0;
 	}
@@ -1409,13 +1413,16 @@ class RendererModel
 	 * @return See above.
 	 */
 	boolean isLifetimeImage()
-	{ 
+	{
+	    //Check if the image has a modulo along annotation
+	    if (modulos != null && modulos.containsKey(ModuloInfo.T))
+	        return true;
 		if (getMaxC() >= Renderer.MAX_CHANNELS) return true;
-		return image.isLifetime(); 
+		return false;
 	}
 	
 	/**
-	 * Returns the selected bin.
+	 * Returns the selected bin for lifetime image.
 	 * 
 	 * @return See above.
 	 */
