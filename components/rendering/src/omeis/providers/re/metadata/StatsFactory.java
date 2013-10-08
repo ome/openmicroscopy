@@ -334,8 +334,8 @@ public class StatsFactory {
             locationStats = new double[NB_BIN];
         }
         //value will be reset when calculating data.
-        inputStart = gMax;
-        inputEnd = gMin;
+        inputEnd = gMax;
+        inputStart = gMin;
         final double globalMin = gMin;
         Utils.forEachTile(new TileLoopIteration() {
             public void run(int z, int c, int t, int x, int y, int tileWidth,
