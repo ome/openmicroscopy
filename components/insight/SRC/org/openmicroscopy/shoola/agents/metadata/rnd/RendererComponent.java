@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.metadata.rnd.RendererComponent 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2009 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -30,6 +30,7 @@ import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -47,7 +48,6 @@ import omero.romio.PlaneDef;
 
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImageObject;
-import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
@@ -65,6 +65,7 @@ import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 import pojos.ChannelData;
 import pojos.ImageData;
 import pojos.PixelsData;
+import pojos.XMLAnnotationData;
 
 /** 
  * Implements the {@link RendererComponent} interface to provide the 
@@ -1101,7 +1102,7 @@ class RendererComponent
 	}
 	
 	/** 
-	 * Implemented as specified by the {@link ImViewer} interface.
+	 * Implemented as specified by the {@link Renderer} interface.
 	 * @see Renderer#retrieveRelatedSettings(Component, Point)
 	 */
 	public void retrieveRelatedSettings(Component source, Point location)
@@ -1113,7 +1114,7 @@ class RendererComponent
 	}
 
 	/** 
-	 * Implemented as specified by the {@link ImViewer} interface.
+	 * Implemented as specified by the {@link Renderer} interface.
 	 * @see Renderer#loadRndSettings(boolean, List)
 	 */
 	public void loadRndSettings(boolean loading, List results)
@@ -1124,7 +1125,7 @@ class RendererComponent
 	}
 
 	/** 
-	 * Implemented as specified by the {@link ImViewer} interface.
+	 * Implemented as specified by the {@link Renderer} interface.
 	 * @see Renderer#getTileSize()
 	 */
 	public Dimension getTileSize()
@@ -1138,13 +1139,13 @@ class RendererComponent
 	}
 
 	/** 
-	 * Implemented as specified by the {@link ImViewer} interface.
+	 * Implemented as specified by the {@link Renderer} interface.
 	 * @see Renderer#getResolutionLevels()
 	 */
 	public int getResolutionLevels() { return model.getResolutionLevels(); }
 
 	/** 
-	 * Implemented as specified by the {@link ImViewer} interface.
+	 * Implemented as specified by the {@link Renderer} interface.
 	 * @see Renderer#getResolutionLevels()
 	 */
 	public int getSelectedResolutionLevel()
@@ -1153,7 +1154,7 @@ class RendererComponent
 	}
 
 	/** 
-	 * Implemented as specified by the {@link ImViewer} interface.
+	 * Implemented as specified by the {@link Renderer} interface.
 	 * @see Renderer#setSelectedResolutionLevel(int)
 	 */
 	public void setSelectedResolutionLevel(int level)
@@ -1166,13 +1167,13 @@ class RendererComponent
 	}
 	
 	/** 
-	 * Implemented as specified by the {@link ImViewer} interface.
+	 * Implemented as specified by the {@link Renderer} interface.
 	 * @see Renderer#isBigImage()
 	 */
 	public boolean isBigImage() { return model.isBigImage(); }
 
 	/** 
-	 * Implemented as specified by the {@link ImViewer} interface.
+	 * Implemented as specified by the {@link Renderer} interface.
 	 * @see Renderer#viewImage()
 	 */
 	public void viewImage()
@@ -1190,7 +1191,7 @@ class RendererComponent
 	}
 
 	/** 
-	 * Implemented as specified by the {@link ImViewer} interface.
+	 * Implemented as specified by the {@link Renderer} interface.
 	 * @see Renderer#onUpdatedChannels(List)
 	 */
 	public void onUpdatedChannels(List<ChannelData> channels)
@@ -1199,13 +1200,13 @@ class RendererComponent
 	}
 
 	/** 
-	 * Implemented as specified by the {@link ImViewer} interface.
+	 * Implemented as specified by the {@link Renderer} interface.
 	 * @see Renderer#onUpdatedChannels(List)
 	 */
 	public boolean canAnnotate() { return model.canAnnotate(); }
 
 	/** 
-	 * Implemented as specified by the {@link ImViewer} interface.
+	 * Implemented as specified by the {@link Renderer} interface.
 	 * @see Renderer#getRenderingControls()
 	 */
 	public List<RenderingControl> getRenderingControls()
@@ -1214,7 +1215,7 @@ class RendererComponent
 	}
 
 	/** 
-	 * Implemented as specified by the {@link ImViewer} interface.
+	 * Implemented as specified by the {@link Renderer} interface.
 	 * @see Renderer#getResolutionDescriptions()
 	 */
 	public List<ResolutionLevel> getResolutionDescriptions()
@@ -1226,6 +1227,15 @@ class RendererComponent
 					"Cannot retrieve the resolution levels");
 		}
 		return null;
+	}
+
+	/**
+	 * Implemented as specified by the {@link Renderer} interface.
+	 * @see Renderer#setXMLAnnotations(Collection)
+	 */
+	public void setXMLAnnotations(Collection<XMLAnnotationData> annotations)
+	{
+	    model.setXMLAnnotations(annotations);
 	}
 
 }

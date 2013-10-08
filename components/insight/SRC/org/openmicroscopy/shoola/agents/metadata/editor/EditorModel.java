@@ -1914,7 +1914,44 @@ class EditorModel
 		}
 		return (Collection<AnnotationData>) sorter.sort(results);
 	}
-	
+
+	/**
+     * Returns the collection of XML annotations linked to the 
+     * <code>DataObject</code>.
+     * 
+     * @return See above.
+     */
+    Collection<XMLAnnotationData> getXMLAnnotations()
+    {
+        Map<DataObject, StructuredDataResults>
+        r = parent.getAllStructuredData();
+        if (r == null) return new ArrayList<XMLAnnotationData>();
+        Entry<DataObject, StructuredDataResults> e;
+        Iterator<Entry<DataObject, StructuredDataResults>>
+        i = r.entrySet().iterator();
+
+        Collection<XMLAnnotationData> files;
+        List<AnnotationData> results = new ArrayList<AnnotationData>();
+        List<Long> ids = new ArrayList<Long>();
+        Iterator<XMLAnnotationData> j;
+        XMLAnnotationData file;
+        while (i.hasNext()) {
+            e = i.next();
+            files = e.getValue().getXMLAnnotations();
+            if (files != null) {
+                j = files.iterator();
+                while (j.hasNext()) {
+                    file = j.next();
+                    if (!ids.contains(file.getId())) {
+                        results.add(file);
+                        ids.add(file.getId());
+                    }
+                }
+            }
+        }
+        return (Collection<XMLAnnotationData>) sorter.sort(results);
+    }
+
 	/**
 	 * Returns the collection of the other annotations that are linked to all
 	 * the selected objects.

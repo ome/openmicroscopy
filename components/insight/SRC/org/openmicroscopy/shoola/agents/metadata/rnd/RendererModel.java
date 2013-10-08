@@ -28,7 +28,9 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -38,20 +40,27 @@ import com.sun.opengl.util.texture.TextureData;
 
 //Application-internal dependencies
 import omero.romio.PlaneDef;
+
+import org.apache.commons.collections.CollectionUtils;
+import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.RenderingControlShutDown;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.env.rnd.data.ResolutionLevel;
+import org.openmicroscopy.shoola.util.file.modulo.ModuloInfo;
+import org.openmicroscopy.shoola.util.file.modulo.ModuloParser;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.ChannelData;
 import pojos.ImageData;
 import pojos.PixelsData;
+import pojos.XMLAnnotationData;
 
 /** 
  * The Model component in the <code>Renderer</code> MVC triad.
@@ -164,6 +173,9 @@ class RendererModel
 
     /** The security context.*/
     private SecurityContext ctx;
+
+    /** Map hosting the extra dimension if available.*/
+    private Map<Integer, ModuloInfo> modulos;
     
 	/**
 	 * Creates a new instance.
@@ -1533,5 +1545,39 @@ class RendererModel
 		if (rndControl == null) return null;
 		return rndControl.getResolutionDescriptions();
 	}
-	
+
+	/**
+	 * Sets the annotations and parses the content.
+	 * 
+	 * @param annotations The annotations to parse.
+	 */
+	void setXMLAnnotations(Collection<XMLAnnotationData> annotations)
+    {
+	    modulos = new HashMap<Integer, ModuloInfo>();
+	    if (CollectionUtils.isEmpty(annotations)) return;
+        ModuloParser parser;
+        Iterator<XMLAnnotationData> i = annotations.iterator();
+        XMLAnnotationData data;
+        List<ModuloInfo> infos;
+        Iterator<ModuloInfo> j;
+        ModuloInfo info;
+        while (i.hasNext()) {
+            data = i.next();
+            parser = new ModuloParser(data.getText());
+            try {
+                parser.parse();
+                infos = parser.getModulos();
+                j = infos.iterator();
+                while (j.hasNext()) {
+                   info = j.next();
+                    modulos.put(info.getModuloIndex(), info);
+                }
+            } catch (Exception e) {
+                LogMessage msg = new LogMessage();
+                msg.append("Error while reading modulo annotation.");
+                msg.print(e);
+                MetadataViewerAgent.getRegistry().getLogger().error(this, msg);
+            }
+        }
+    }
 }
