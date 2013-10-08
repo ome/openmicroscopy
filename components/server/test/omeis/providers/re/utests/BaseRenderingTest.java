@@ -128,9 +128,7 @@ public class BaseRenderingTest extends TestCase
 	protected byte[] getPlane()
 	{
 		byte[] plane = new byte[getSizeX() * getSizeY() * getBytesPerPixel()];
-		// FIXME: causes "Interval not supported"
-		// random.nextBytes(plane);
-		// See https://trac.openmicroscopy.org.uk/ome/ticket/10894
+		random.nextBytes(plane);
 		return plane;
 	}
 	
