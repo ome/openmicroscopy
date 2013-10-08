@@ -91,7 +91,6 @@ public class Parser
 	{
 		Map<String, Object> map = new HashMap<String, Object>();
 		DocumentBuilderFactory f = DocumentBuilderFactory.newInstance();
-		f.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
 		f.setValidating(false);
 		f.setNamespaceAware(false);
 		DocumentBuilder builder = f.newDocumentBuilder();
