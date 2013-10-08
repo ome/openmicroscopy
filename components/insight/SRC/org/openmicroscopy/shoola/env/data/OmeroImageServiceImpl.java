@@ -1924,7 +1924,7 @@ class OmeroImageServiceImpl
             if (name.startsWith(app.getName()))
                 return true;
         }
-        return false;
+        return true;
     }
 
 }
