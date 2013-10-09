@@ -329,7 +329,8 @@ jQuery.fn.viewportImage = function(options) {
       this.setZoom(parseInt(increment, 10));
     };
 
-    dragdiv.mousewheel(function (e, delta) {
+    //dragdiv.mousewheel(function (e, delta) {
+    dragdiv.bind('mousewheel', function (e, delta) {
       _this.doZoom(delta, true);
       e.preventDefault();
     });
