@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 from django.conf.urls import *
 from django.views.static import serve
+from django.views.generic import TemplateView
 
 from omeroweb.webtest import views
 
@@ -57,4 +58,5 @@ urlpatterns = patterns('django.views.generic.simple',
     url( r'^render_performance/(?P<obj_type>[a-z]+)/(?P<id>[0-9]+)/', views.render_performance, name='webtest_render_performance' ),
 
     url( r'^render_planes_matrix/(?:(?P<iid>[0-9]+)/)?$', views.render_planes_matrix, name="render_planes_matrix"),
+
 )
