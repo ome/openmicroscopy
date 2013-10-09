@@ -29,3 +29,9 @@ Thumbnail Should Not Be Selected
         ${unselected color}=  Get AWT Color               util.ui.border.FrameBorder.DEFAULT_COLOR
         ${thumbnail color}=   Get Thumbnail Border Color  ${image name}
         Should Be Equal       ${unselected color}         ${thumbnail color}
+
+Thumbnail Border Color Should Be
+        [Documentation]       check the thumbnail border color
+        [Arguments]           ${image name}  ${expected color}
+        ${actual color}=      Get Thumbnail Border Color        ${image name}
+        Should Be Equal       ${expected color}                 ${actual color}
