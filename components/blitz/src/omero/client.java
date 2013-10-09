@@ -140,7 +140,7 @@ public class client {
      * Single session for this {@link omero.client}. Nullness is used as a test
      * of what state the client is in, like {@link #__ic}, therefore all access
      * is synchronized by {@link #lock}
-     * 
+     *
      */
     private volatile ServiceFactoryPrx __sf;
 
@@ -310,6 +310,15 @@ public class client {
         if (blockSize == null || blockSize.length() == 0) {
             id.properties.setProperty("omero.block_size", Integer
                     .toString(omero.constants.DEFAULTBLOCKSIZE.value));
+        }
+
+        // Set the default encoding if this is Ice 3.5 or later
+        // and none is set.
+        if (Ice.Util.intVersion() > 30500) {
+            String encoding = id.properties.getProperty("Ice.Default.EncodingVersion");
+            if (encoding == null || encoding.length() == 0) {
+                id.properties.setProperty("Ice.Default.EncodingVersion", "1.0");
+            }
         }
 
         // Setting MessageSizeMax
@@ -592,7 +601,7 @@ public class client {
     /**
      * Uses the given session uuid as name and password to rejoin a running
      * session.
-     * 
+     *
      * @throws PermissionDeniedException
      * @throws CannotCreateSessionException
      */
@@ -616,7 +625,7 @@ public class client {
      * {@link #getRouter()}. Disallows an extant {@link ServiceFactoryPrx}, and
      * tries to re-create a null {@link Ice.Communicator}. A null or empty
      * username will throw an exception, but an empty password is allowed.
-     * 
+     *
      * @param username
      * @param password
      * @return
@@ -965,7 +974,7 @@ public class client {
 
     /**
      * Utility method to upload a file to the server
-     * 
+     *
      * @param file
      *            Cannot be null.
      * @param fileObject
