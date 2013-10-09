@@ -55,6 +55,14 @@ namespace omero {
         id.properties->setProperty("IceSSL.Ciphers" , "ADH");
         id.properties->setProperty("IceSSL.VerifyPeer" , "0");
 
+        // Set the default encoding if this is Ice 3.5 or later
+        // and none is set.
+#if ICE_INT_VERSION / 100 >= 305
+        if (id.properties->getProperty("Ice.Default.EncodingVersion").empty()) {
+            id.properties->setProperty("Ice.Default.EncodingVersion", "1.0");
+        }
+#endif
+
         // C++ only
         std::string gcInterval = id.properties->getProperty("Ice.GC.Interval");
         if ( gcInterval.length() == 0 ) {
