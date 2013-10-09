@@ -302,6 +302,15 @@ public class client {
         id.properties.setProperty("IceSSL.Ciphers", "NONE (DH_anon)");
         id.properties.setProperty("IceSSL.VerifyPeer", "0");
 
+        // Set the default encoding if this is Ice 3.5 or later
+        // and none is set.
+        if (Ice.Util.intVersion() > 30500) {
+            String encoding = id.properties.getProperty("Ice.Default.EncodingVersion");
+            if (encoding == null || encoding.length() == 0) {
+                id.properties.setProperty("Ice.Default.EncodingVersion", "1.0");
+            }
+        }
+
         // Setting MessageSizeMax
         String messageSize = id.properties.getProperty("Ice.MessageSizeMax");
         if (messageSize == null || messageSize.length() == 0) {
