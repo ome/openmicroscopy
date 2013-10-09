@@ -19,7 +19,6 @@ import ome.logic.RenderingSettingsImpl;
 import ome.model.core.Channel;
 import ome.model.core.Pixels;
 import ome.model.display.RenderingDef;
-import ome.model.enums.Family;
 import ome.model.enums.PixelsType;
 import ome.model.enums.RenderingModel;
 import ome.model.stats.StatsInfo;
@@ -64,7 +63,7 @@ public class BaseRenderingTest extends TestCase
 		data = new PixelData(pixelsType.getValue(), ByteBuffer.wrap(plane));
 
 		pixels = createDummyPixels(pixelsType, data);
-		pixelsService = new TestPixelsService();
+		pixelsService = new TestPixelsService(pixels);
 		pixelsService.setDummyPlane(plane);
 		pixelsMetadataService = new TestPixelsMetadataService();
 		settingsService = new RenderingSettingsImpl();
@@ -76,8 +75,6 @@ public class BaseRenderingTest extends TestCase
 		pixelBuffer = pixelsService.getPixelBuffer(pixels, false);
 		List<RenderingModel> renderingModels =
 			pixelsMetadataService.getAllEnumerations(RenderingModel.class);
-		List<Family> families =
-			pixelsMetadataService.getAllEnumerations(Family.class);
 		quantumFactory = createQuantumFactory();
 		renderer = new Renderer(quantumFactory, renderingModels,
 				                pixels, settings, pixelBuffer);
@@ -128,9 +125,7 @@ public class BaseRenderingTest extends TestCase
 	protected byte[] getPlane()
 	{
 		byte[] plane = new byte[getSizeX() * getSizeY() * getBytesPerPixel()];
-		// FIXME: causes "Interval not supported"
-		// random.nextBytes(plane);
-		// See https://trac.openmicroscopy.org.uk/ome/ticket/10894
+		random.nextBytes(plane);
 		return plane;
 	}
 	
