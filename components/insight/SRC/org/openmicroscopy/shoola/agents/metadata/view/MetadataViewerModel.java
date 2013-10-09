@@ -434,6 +434,9 @@ class MetadataViewerModel
 				}*/
 			}
 			loaderID++;
+			if (node instanceof WellSampleData) {
+			    node = ((WellSampleData) node).getImage();
+			}
 			StructuredDataLoader loader = new StructuredDataLoader(component,
 					ctx, Arrays.asList((DataObject) node), loaderID);
 			loaders.put(loaderID, loader);
