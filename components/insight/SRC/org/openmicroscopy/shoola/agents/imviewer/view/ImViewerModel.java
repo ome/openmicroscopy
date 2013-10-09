@@ -811,6 +811,18 @@ class ImViewerModel
 	}
 
 	/**
+	 * Returns the maximum number of timepoints.
+	 * 
+	 * @return See above.
+	 */
+	int getRealSizeT()
+	{
+	    Renderer rnd = metadataViewer.getRenderer();
+	    if (rnd == null) return 0;
+	    return rnd.getPixelsDimensionsT()-1;
+	}
+    
+	/**
 	 * Returns the currently selected z-section.
 	 * 
 	 * @return See above.

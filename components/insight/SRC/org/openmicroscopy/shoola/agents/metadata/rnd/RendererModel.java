@@ -175,7 +175,7 @@ class RendererModel
     private SecurityContext ctx;
 
     /** Map hosting the extra dimension if available.*/
-    private Map<Integer, ModuloInfo> modulos;
+    private Map<Integer, ModuloInfo> modulo;
     
 	/**
 	 * Creates a new instance.
@@ -978,7 +978,21 @@ class RendererModel
 	int getMaxT()
 	{ 
 		if (rndControl == null) return -1;
-		return rndControl.getPixelsDimensionsT(); 
+		return rndControl.getPixelsDimensionsT();
+	}
+	
+	/**
+	 * Returns the number of time points if modulo available.
+	 * 
+	 * @return See above.
+	 */
+	int getRealT()
+	{
+	    if (modulo != null && modulo.containsKey(ModuloInfo.T)) {
+	        int sizeBin = modulo.get(ModuloInfo.T).getSize();
+	        return getMaxT()/sizeBin;
+	    }
+	    return getMaxT();
 	}
 	
 	/**
@@ -1397,14 +1411,25 @@ class RendererModel
 	 */
 	int getMaxLifetimeBin()
 	{
-	    if (modulos != null && modulos.containsKey(ModuloInfo.T)) {
-	        ModuloInfo info = modulos.get(ModuloInfo.T);
+	    if (modulo != null && modulo.containsKey(ModuloInfo.T)) {
+	        ModuloInfo info = modulo.get(ModuloInfo.T);
 	        return info.getSize();
 	    }
-		if (isLifetimeImage()) return getMaxC();
+		if (isLifetimeImage()) return getMaxC()-1;
 		return 0;
 	}
 	
+	/**
+	 * Returns <code>true</code> if the image has extra dimension along T.
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean hasModuloT()
+	{
+	    //Check if the image has a modulo along annotation
+	    return (modulo != null && modulo.containsKey(ModuloInfo.T));
+	}
 	
 	/**
 	 * Returns <code>true</code> if the image is a lifetime image,
@@ -1415,8 +1440,7 @@ class RendererModel
 	boolean isLifetimeImage()
 	{
 	    //Check if the image has a modulo along annotation
-	    if (modulos != null && modulos.containsKey(ModuloInfo.T))
-	        return true;
+	    if (hasModuloT()) return true;
 		if (getMaxC() >= Renderer.MAX_CHANNELS) return true;
 		return false;
 	}
@@ -1428,9 +1452,14 @@ class RendererModel
 	 */
 	int getSelectedBin()
 	{
-		List<Integer> active = getActiveChannels();
-		if (active == null || active.size() != 1) return 0;
-		return active.get(0);
+	    if (hasModuloT()) {
+	        int binSize = getMaxLifetimeBin();
+	        int t = getDefaultT()/binSize; //timepoint
+	        return getDefaultT()-t*binSize;
+	    }
+	    List<Integer> active = getActiveChannels();
+	    if (active == null || active.size() != 1) return 0;
+	    return active.get(0);
 	}
 	
 	/**
@@ -1441,6 +1470,13 @@ class RendererModel
 	void setSelectedBin(int bin)
 		throws RenderingServiceException, DSOutOfServiceException
 	{
+	    if (modulo != null && modulo.containsKey(ModuloInfo.T)) {
+	        int binSize = getMaxLifetimeBin();
+	        int t = getDefaultT()/binSize;
+	        int v = bin + t * binSize;
+	        setSelectedXYPlane(getDefaultZ(), v);
+	        return;
+	    }
 		List<ChannelData> channels = getChannelData();
 		ChannelData channel;
 		Iterator<ChannelData> i = channels.iterator();
@@ -1560,7 +1596,7 @@ class RendererModel
 	 */
 	void setXMLAnnotations(Collection<XMLAnnotationData> annotations)
     {
-	    modulos = new HashMap<Integer, ModuloInfo>();
+	    modulo = new HashMap<Integer, ModuloInfo>();
 	    if (CollectionUtils.isEmpty(annotations)) return;
         ModuloParser parser;
         Iterator<XMLAnnotationData> i = annotations.iterator();
@@ -1577,7 +1613,7 @@ class RendererModel
                 j = infos.iterator();
                 while (j.hasNext()) {
                    info = j.next();
-                    modulos.put(info.getModuloIndex(), info);
+                    modulo.put(info.getModuloIndex(), info);
                 }
             } catch (Exception e) {
                 LogMessage msg = new LogMessage();

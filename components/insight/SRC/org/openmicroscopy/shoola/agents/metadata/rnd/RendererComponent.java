@@ -30,7 +30,6 @@ import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -65,7 +64,6 @@ import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 import pojos.ChannelData;
 import pojos.ImageData;
 import pojos.PixelsData;
-import pojos.XMLAnnotationData;
 
 /** 
  * Implements the {@link RendererComponent} interface to provide the 
@@ -1227,15 +1225,6 @@ class RendererComponent
 					"Cannot retrieve the resolution levels");
 		}
 		return null;
-	}
-
-	/**
-	 * Implemented as specified by the {@link Renderer} interface.
-	 * @see Renderer#setXMLAnnotations(Collection)
-	 */
-	public void setXMLAnnotations(Collection<XMLAnnotationData> annotations)
-	{
-	    model.setXMLAnnotations(annotations);
 	}
 
 }

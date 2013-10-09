@@ -29,7 +29,6 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import javax.swing.JComponent;
@@ -48,7 +47,6 @@ import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 import pojos.ChannelData;
 import pojos.ImageData;
 import pojos.PixelsData;
-import pojos.XMLAnnotationData;
 
 /** 
  * Defines the interface provided by the renderer component. 
@@ -725,13 +723,5 @@ public interface Renderer
 	 * @return See above.
 	 */
 	List<ResolutionLevel> getResolutionDescriptions();
-
-	/**
-	 * Sets the XML Annotations for parsing to allow support for
-	 * extra dimensions.
-	 * 
-	 * @param annotations The annotations to parse.
-	 */
-    void setXMLAnnotations(Collection<XMLAnnotationData> annotations);
 
 }

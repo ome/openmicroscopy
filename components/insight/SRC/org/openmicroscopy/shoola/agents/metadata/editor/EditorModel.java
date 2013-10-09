@@ -3373,12 +3373,11 @@ class EditorModel
 		if (renderer != null) {
 			renderer.onSettingsApplied(rndControl);
 		} else {
-			renderer = RendererFactory.createRenderer(getSecurityContext(),
-					rndControl, getImage(), getRndIndex());
-			renderer.setXMLAnnotations(getXMLAnnotations());
+		    renderer = RendererFactory.createRenderer(getSecurityContext(),
+                    rndControl, getImage(), getRndIndex(), getXMLAnnotations());
 		}
 	}
-	
+
 	/**
 	 * Returns the renderer.
 	 * 

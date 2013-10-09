@@ -117,12 +117,11 @@ class PreviewToolBar
     void setSelectedPlane()
     {
     	String s = "Z="+(model.getDefaultZ()+1)+"/"+model.getMaxZ();
-    	s += " T="+(model.getDefaultT()+1)+"/"+model.getMaxT();
+    	s += " T="+(model.getDefaultT()+1)+"/"+model.getRealT();
     	if (model.isLifetimeImage()) {
-			s += " L="+(model.getSelectedBin()+1);
+			s += " t="+(model.getSelectedBin()+1);
 			s += "/"+(model.getMaxLifetimeBin());
 		}
-    	
     	selectedPlane.setText(s);
     }
     

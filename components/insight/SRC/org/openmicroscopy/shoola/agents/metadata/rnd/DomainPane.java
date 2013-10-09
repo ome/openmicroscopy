@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.metadata.rnd.DomainPane 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2009 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -96,127 +96,124 @@ public class DomainPane
 	extends ControlPane
     implements ActionListener, ChangeListener, MouseWheelListener
 {
-    
+
     /** 
-     * For slider control only. The minimum value for the curve coefficient. 
+     * For slider control only. The minimum value for the curve coefficient.
      * The real value is divided by 10.
      */
-    static final int            	MIN_GAMMA = 1;
-    
+    static final int MIN_GAMMA = 1;
+
     /** 
-     * For slider control only. The maximum value for the curve coefficient. 
+     * For slider control only. The maximum value for the curve coefficient.
      * The real value is divided by 10.
      */
-    static final int            	MAX_GAMMA = 40;
-    
+    static final int MAX_GAMMA = 40;
+
     /** 
-     * For slider control only. The default value for the curve coefficient. 
+     * For slider control only. The default value for the curve coefficient.
      * The real value is divided by 10.
      */
-    static final int            	DEFAULT_GAMMA = 10;
+    static final int DEFAULT_GAMMA = 10;
  
-    /** The minimum value of the bit resolution. */ 
-    static final int            	MIN_BIT_DEPTH = 1;
-    
-    /** The maximum value of the bit resolution. */ 
-    static final int            	MAX_BIT_DEPTH = 8;
-    
-    /** The default value of the bit resolution. */ 
-    static final int            	DEFAULT_BIT_DEPTH = 8;
-    
+    /** The minimum value of the bit resolution. */
+    static final int MIN_BIT_DEPTH = 1;
+
+    /** The maximum value of the bit resolution. */
+    static final int MAX_BIT_DEPTH = 8;
+
+    /** The default value of the bit resolution. */
+    static final int DEFAULT_BIT_DEPTH = 8;
+
     /** The border of the selected channel. */
-    private static final Border		SELECTION_BORDER = 
-    	BorderFactory.createLineBorder(Color.BLACK, 3);
-    
+    private static final Border SELECTION_BORDER =
+            BorderFactory.createLineBorder(Color.BLACK, 3);
+
     /** The factor .*/
-    private static final int    	FACTOR = 10;
-    
+    private static final int FACTOR = 10;
+
     /** Identifies the <code>Family</code> selection. */
-    private static final int    	FAMILY = 0;
-   
+    private static final int FAMILY = 0;
+
     /** Identifies the <code>Channels</code> selection. */
-    private static final int    	CHANNEL = 1;
-    
+    private static final int CHANNEL = 1;
+
     /** Dimension of the box between the channel buttons. */
-    private static final Dimension 	VBOX = new Dimension(1, 10);
-       
+    private static final Dimension VBOX = new Dimension(1, 10);
+
     /** Title of the advanced options. */
-    private static final String		ADVANCED_OPTIONS = "Advanced"; 
-    
+    private static final String ADVANCED_OPTIONS = "Advanced"; 
+
     /** The description of a z-sections selection slider. */
-    private static final String 	Z_SLIDER_DESCRIPTION = 
-    								"Select a z-section.";
+    private static final String Z_SLIDER_DESCRIPTION = "Select a z-section.";
 
     /** The description of a time-point selection slider. */
-    private static final String 	T_SLIDER_DESCRIPTION = 
-    								"Select a timepoint.";
-    
+    private static final String T_SLIDER_DESCRIPTION = "Select a timepoint.";
+
     /** The description of a bin selection slider. */
-    private static final String 	LITEIME_SLIDER_DESCRIPTION = 
-    								"Select a bin.";
-    
+    private static final String LITEIME_SLIDER_DESCRIPTION = "Select a bin.";
+
     /** The tipString of the {@link #zSlider}. */
-    private static final String 	Z_SLIDER_TIPSTRING = "Z";
+    private static final String Z_SLIDER_TIPSTRING = "Z";
 
     /** The tipString of the {@link #tSlider}. */
-    private static final String 	T_SLIDER_TIPSTRING = "T";
-    
+    private static final String T_SLIDER_TIPSTRING = "T";
+
     /** The tipString of the {@link #lifetimeSlider}. */
-    private static final String 	LIFETIME_SLIDER_TIPSTRING = "L";
-    
+    private static final String LIFETIME_SLIDER_TIPSTRING = "t";
+
     /** Box to select the family used in the mapping process. */
-    private JComboBox       			familyBox;
+    private JComboBox familyBox;
 
     /** 
      * A collection of ColourButtons which represent the channel selected 
      * in the mapping process. 
      */
-    private List<ChannelButton>			channelList;
-    
+    private List<ChannelButton> channelList;
+
     /** A panel containing the channel buttons. */
-    private JPanel						channelButtonPanel;
-    
+    private JPanel channelButtonPanel;
+
     /** Slider to select a curve in the family. */
-    private OneKnobSlider         		gammaSlider;
-    
+    private OneKnobSlider gammaSlider;
+
     /** Slider to select the bit resolution of the rendered image. */
-    private OneKnobSlider        	 	bitDepthSlider;
-    
+    private OneKnobSlider bitDepthSlider;
+
     /** Field displaying the <code>Gamma</code> value. */
-    private JTextField      			gammaLabel;
-    
+    private JTextField gammaLabel;
+
     /** Field displaying the <code>Bit Depth</code> value. */
-    private JTextField      			bitDepthLabel;
-    
+    private JTextField bitDepthLabel;
+
     /** Box to select the mapping algorithm. */
-    private JCheckBox       			noiseReduction;
-    
+    private JCheckBox noiseReduction;
+
     /** Button to bring up the histogram widget on screen. */
-    private JButton         			histogramButton;
-    
+    private JButton histogramButton;
+
     /** The UI component hosting the interval selections. */
-    private GraphicsPane    			graphicsPane;
-      
+    private GraphicsPane graphicsPane;
+
     /** The component hosting the various options. */
-    private JXTaskPane					taskPane;
-    
+    private JXTaskPane taskPane;
+
     /** Button to modify the color model. */
-    private JButton						colorModel;
-    
+    private JButton colorModel;
+
     /** Select the lifetime bin. */
-    private OneKnobSlider				lifetimeSlider;
-    
+    private OneKnobSlider lifetimeSlider;
+
     /** Selects the z-section. */
-    private OneKnobSlider				zSlider;
-    
+    private OneKnobSlider zSlider;
+
     /** Selects the time-point. */
-    private OneKnobSlider				tSlider;
+    private OneKnobSlider tSlider;
 
     /** The component displaying the preview image. */
-    private PreviewCanvas				canvas;
-    
+    private PreviewCanvas canvas;
+
     /** The box hosting the channels. */
-    private JComboBox					channelsBox;
+    private JComboBox channelsBox;
 
     /**
      * Attaches listener to the passed slider and sets the default values.
@@ -396,19 +393,27 @@ public class DomainPane
         		}
         	});
         }
-        
-        if (!model.isLifetimeImage())
-        	channelButtonPanel = createChannelButtons();
-        else {
-        	lifetimeSlider = new OneKnobSlider(OneKnobSlider.HORIZONTAL, 
-        			0, 1, 0);
-        	lifetimeSlider.setEnabled(false);
-        	int maxBin = model.getMaxLifetimeBin()-1;
-    		initSlider(lifetimeSlider, maxBin, model.getSelectedBin(), 
-         			LITEIME_SLIDER_DESCRIPTION, LIFETIME_SLIDER_TIPSTRING);
-    		lifetimeSlider.setPaintTicks(false);
-        	channelButtonPanel = new JPanel();
-        	channelButtonPanel.setBackground(UIUtilities.BACKGROUND_COLOR);
+        if (model.hasModuloT()) {
+            lifetimeSlider = new OneKnobSlider(OneKnobSlider.HORIZONTAL,
+                    0, 1, 0);
+            lifetimeSlider.setEnabled(false);
+            int maxBin = model.getMaxLifetimeBin();
+            initSlider(lifetimeSlider, maxBin, model.getSelectedBin(), 
+                    LITEIME_SLIDER_DESCRIPTION, LIFETIME_SLIDER_TIPSTRING);
+            lifetimeSlider.setPaintTicks(false);
+            channelButtonPanel = createChannelButtons();
+        } else {
+            if (model.isLifetimeImage()) {
+                lifetimeSlider = new OneKnobSlider(OneKnobSlider.HORIZONTAL,
+                        0, 1, 0);
+                lifetimeSlider.setEnabled(false);
+                int maxBin = model.getMaxLifetimeBin()-1;
+                initSlider(lifetimeSlider, maxBin, model.getSelectedBin(),
+                        LITEIME_SLIDER_DESCRIPTION, LIFETIME_SLIDER_TIPSTRING);
+                lifetimeSlider.setPaintTicks(false);
+                channelButtonPanel = new JPanel();
+                channelButtonPanel.setBackground(UIUtilities.BACKGROUND_COLOR);
+            } else channelButtonPanel = createChannelButtons();
         }
         graphicsPane.setSelectedPlane();
    
@@ -580,8 +585,10 @@ public class DomainPane
 		p.add(canvas, c);
 		c.gridy++;
 		if (tSlider.isVisible()) p.add(tSlider, c);
-		if (lifetimeSlider != null && lifetimeSlider.isVisible())
-			p.add(lifetimeSlider, c);
+		if (lifetimeSlider != null) {
+		    c.gridy++;
+		    p.add(lifetimeSlider, c);
+		}
     	return p;
     }
     
@@ -619,17 +626,17 @@ public class DomainPane
     /**
      * Adds the specified component to the passed <code>Panel</code>.
      * 
-     * @param c		The layout constraints for the component to be added.
-     * @param l		The text corresponding to the component to be added.
-     * @param comp	The component to be added.
-     * @param p		The panel the component is added to.
+     * @param c The layout constraints for the component to be added.
+     * @param l The text corresponding to the component to be added.
+     * @param comp The component to be added.
+     * @param p The panel the component is added to.
      */
     private void addComponent(GridBagConstraints c, String l, JComponent comp,
     						JPanel p)
     {
     	c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
 		c.fill = GridBagConstraints.NONE;
-		c.weightx = 0.0; 
+		c.weightx = 0.0;
 		c.gridx = 0;
 		
 		if (l != null && l.length() > 0) {
@@ -642,7 +649,7 @@ public class DomainPane
 		c.gridwidth = GridBagConstraints.REMAINDER;     //end row
 		c.fill = GridBagConstraints.HORIZONTAL;
 		c.weightx = 1.0;
-		p.add(comp, c);  
+		p.add(comp, c);
     }
     
     /**
@@ -710,7 +717,7 @@ public class DomainPane
     {
         switch (uiValue) {
             case 1: return RendererModel.DEPTH_1BIT;
-            case 2: return RendererModel.DEPTH_2BIT;  
+            case 2: return RendererModel.DEPTH_2BIT;
             case 3: return RendererModel.DEPTH_3BIT;
             case 4: return RendererModel.DEPTH_4BIT;
             case 5: return RendererModel.DEPTH_5BIT;

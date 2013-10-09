@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.metadata.rnd.RendererFactory 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2009 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -24,6 +24,7 @@ package org.openmicroscopy.shoola.agents.metadata.rnd;
 
 
 //Java imports
+import java.util.Collection;
 
 //Third-party libraries
 
@@ -31,6 +32,7 @@ package org.openmicroscopy.shoola.agents.metadata.rnd;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import pojos.ImageData;
+import pojos.XMLAnnotationData;
 
 /** 
  * Factory to create the {@link Renderer} components.
@@ -41,10 +43,6 @@ import pojos.ImageData;
  * 				<a href="mailto:a.falconi@dundee.ac.uk">a.falconi@dundee.ac.uk</a>
  * @author	Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
- * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since 3.0-Beta4
  */
 public class RendererFactory
@@ -53,21 +51,23 @@ public class RendererFactory
     /**
      * Creates a new {@link Renderer}.
      * 
-     * @param rndControl    Reference to the component that controls the
-     *                      rendering settings. Mustn't be <code>null</code>.
-     * @param image			The image the component is for.                    
-     * @param rndIndex		The index of the renderer.
+     * @param rndControl Reference to the component that controls the
+     *                   rendering settings. Mustn't be <code>null</code>.
+     * @param image The image the component is for.
+     * @param rndIndex The index of the renderer.
+     * @param modulo The modulo annotations if any.
      * @return See above.
      */
-    public static Renderer createRenderer(SecurityContext ctx, 
-    		RenderingControl rndControl, 
-    		ImageData image, int rndIndex)
+    public static Renderer createRenderer(SecurityContext ctx,
+    		RenderingControl rndControl, ImageData image, int rndIndex,
+    		Collection<XMLAnnotationData> modulo)
     {
         RendererModel model = new RendererModel(ctx, rndControl, rndIndex);
         model.setImage(image);
+        model.setXMLAnnotations(modulo);
         RendererComponent rnd = new RendererComponent(model);
         rnd.initialize();
         return rnd;
     }
-    
+
 }

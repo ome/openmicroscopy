@@ -272,8 +272,6 @@ class EditorComponent
 		view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 		view.layoutUI();
 		view.setStatus(false);
-		if (model.getRenderer() != null)
-		    model.getRenderer().setXMLAnnotations(model.getXMLAnnotations());
 	}
 
 	/** 
