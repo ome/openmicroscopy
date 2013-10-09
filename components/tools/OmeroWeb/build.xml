@@ -56,6 +56,16 @@
                 <touch>
                     <fileset dir="${basedir}/../target/lib/python/django"/>
                 </touch>
+                <untar compression="gzip" src="${lib.dir}/repository/django-pipeline-1.1.27.tar.gz" dest="${basedir}/../target/lib/python">
+                    <patternset>
+                        <include name="django-pipeline-1.1.27/pipeline/**"/>
+                    </patternset>
+                    <mapper>
+                        <filtermapper>
+                            <replacestring from="django-pipeline-1.1.27/" to=""/>
+                        </filtermapper>
+                    </mapper>
+                </untar>
             </then>
         </if>
         <if><not><available file="${basedir}/../target/lib/python/flup"/></not>

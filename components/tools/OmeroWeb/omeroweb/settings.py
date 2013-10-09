@@ -298,7 +298,10 @@ CUSTOM_SETTINGS_MAPPINGS = {
     # Allowed hosts: https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
     "omero.web.allowed_hosts": ["ALLOWED_HOSTS", '["*"]', json.loads],
     
-    #PIPELINE
+    # PIPELINE 1.1.27
+    # Pipeline is an asset packaging library for Django, providing both CSS and JavaScript 
+    # concatenation and compression, built-in JavaScript template support, and optional 
+    # data-URI image and font embedding.
     "omero.web.pipeline": ["PIPELINE", "false", parse_boolean],
     "omero.web.pipeline_js_compressor": ["PIPELINE_JS_COMPRESSOR", None, leave_none_unset],
     "omero.web.pipeline_css_compressor": ["PIPELINE_CSS_COMPRESSOR", None, leave_none_unset],
