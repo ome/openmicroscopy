@@ -1,5 +1,6 @@
 *** Settings ***
 
+Library  Collections
 Library  SwingLibrary
 
 
@@ -31,7 +32,16 @@ Thumbnail Should Not Be Selected
         Should Be Equal       ${unselected color}         ${thumbnail color}
 
 Thumbnail Border Color Should Be
-        [Documentation]       check the thumbnail border color
-        [Arguments]           ${image name}  ${expected color}
-        ${actual color}=      Get Thumbnail Border Color        ${image name}
-        Should Be Equal       ${expected color}                 ${actual color}
+        [Documentation]   check the thumbnail border color
+        [Arguments]       ${image name}  ${expected color}
+        ${actual color}=  Get Thumbnail Border Color        ${image name}
+        Should Be Equal   ${expected color}                 ${actual color}
+
+Thumbnail Images Should Differ
+        [Documentation]      check that the thumbnails render different images
+        [Arguments]          @{image names}
+        @{hashes}=           Create List
+        :FOR  ${image name}  IN                  @{image names}
+        \  ${hash}=          Get Thumbnail Hash  ${image name}
+        \  Append To List    ${hashes}           ${hash}
+        List Should Not Contain Duplicates       ${hashes}
