@@ -303,8 +303,6 @@ CUSTOM_SETTINGS_MAPPINGS = {
     # concatenation and compression, built-in JavaScript template support, and optional 
     # data-URI image and font embedding.
     "omero.web.pipeline": ["PIPELINE", "false", parse_boolean],
-    "omero.web.pipeline_js_compressor": ["PIPELINE_JS_COMPRESSOR", None, leave_none_unset],
-    "omero.web.pipeline_css_compressor": ["PIPELINE_CSS_COMPRESSOR", None, leave_none_unset],
 
 }
 
