@@ -56,6 +56,10 @@
                 <touch>
                     <fileset dir="${basedir}/../target/lib/python/django"/>
                 </touch>
+            </then>
+        </if>
+        <if><not><available file="${basedir}/../target/lib/python/pipeline"/></not>
+            <then>
                 <untar compression="gzip" src="${lib.dir}/repository/django-pipeline-1.1.27.tar.gz" dest="${basedir}/../target/lib/python">
                     <patternset>
                         <include name="django-pipeline-1.1.27/pipeline/**"/>
