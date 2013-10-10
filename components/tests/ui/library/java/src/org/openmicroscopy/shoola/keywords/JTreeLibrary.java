@@ -278,14 +278,14 @@ public class JTreeLibrary
      * Test if the tree node popup menu item is enabled.
      * (For motivation, see <a href="http://trac.openmicroscopy.org.uk/ome/ticket/11326">trac #11326</a>.)
      * This initial version detects only first-level menu items, not paths to submenus.
-     * @param menuItemText the text of the menu item
+     * @param menuItemPath the path of the menu item
      * @param treePath the path to the node whose popup is to be queried
      * @param treeName the name of the tree that has the node of interest
      * @return if the specified menu item is enabled
      * @throws MultipleComponentsFoundException if multiple suitable components could be found
      * @throws ComponentNotFoundException if no suitable components could be found
      */
-    private boolean isTreeNodeMenuItemEnabled(final String menuItemText, final String treePath, final String treeName)
+    private boolean isTreeNodeMenuItemEnabled(final String menuItemPath, final String treePath, final String treeName)
             throws ComponentNotFoundException, MultipleComponentsFoundException {
         final JTree tree = (JTree) new BasicFinder().find(new Matcher() {
             public boolean matches(Component component) {
@@ -299,11 +299,18 @@ public class JTreeLibrary
             }});
         final JMenuItem menuItem = (JMenuItem) new BasicFinder().find(new Matcher() {
             public boolean matches(Component component) {
-                if (!(component instanceof JMenuItem)) {
-                    return false;
+                final List<String> menuItemText = new ArrayList<String>();
+                while (component instanceof JMenuItem) {
+                    menuItemText.add(0, ((JMenuItem) component).getText());
+                    component = component.getParent();
+                    if (component instanceof JPopupMenu) {
+                        final Component invoker = ((JPopupMenu) component).getInvoker();
+                        if (invoker instanceof JMenuItem) {
+                            component = invoker;
+                        }
+                    }
                 }
-                final JMenuItem menuItem = (JMenuItem) component;
-                return menuItemText.equals(menuItem.getText()) && menuItem.getParent() == menu;
+                return component == menu && Joiner.on('|').join(menuItemText).equals(menuItemPath);
             }});
         final boolean isEnabled = menuItem.isEnabled();
         new JTreeTester().actionKeyStroke(KeyEvent.VK_ESCAPE);  /* to close the popup menu */
@@ -317,16 +324,16 @@ public class JTreeLibrary
      *   <td>the path to the tree node</td>
      *   <td><code>JTree</code> component name</td>
      * </table>
-     * @param menuItemText the text of the menu item
+     * @param menuItemPath the path of the menu item
      * @param treePath the path to the node whose popup is to be queried
      * @param treeName the name of the tree that has the node of interest
      * @throws MultipleComponentsFoundException if multiple suitable components could be found
      * @throws ComponentNotFoundException if no suitable components could be found
      */
-    public void treeNodeMenuItemShouldBeEnabled(final String menuItemText, final String treePath, final String treeName)
+    public void treeNodeMenuItemShouldBeEnabled(final String menuItemPath, final String treePath, final String treeName)
             throws ComponentNotFoundException, MultipleComponentsFoundException {
-        if (!isTreeNodeMenuItemEnabled(menuItemText, treePath, treeName)) {
-            throw new RuntimeException("Menu item '" + menuItemText + "' was disabled");
+        if (!isTreeNodeMenuItemEnabled(menuItemPath, treePath, treeName)) {
+            throw new RuntimeException("Menu item '" + menuItemPath + "' was disabled");
         }
     }
 
@@ -337,16 +344,16 @@ public class JTreeLibrary
      *   <td>the path to the tree node</td>
      *   <td><code>JTree</code> component name</td>
      * </table>
-     * @param menuItemText the text of the menu item
+     * @param menuItemPath the path of the menu item
      * @param treePath the path to the node whose popup is to be queried
      * @param treeName the name of the tree that has the node of interest
      * @throws MultipleComponentsFoundException if multiple suitable components could be found
      * @throws ComponentNotFoundException if no suitable components could be found
      */
-    public void treeNodeMenuItemShouldBeDisabled(final String menuItemText, final String treePath, final String treeName)
+    public void treeNodeMenuItemShouldBeDisabled(final String menuItemPath, final String treePath, final String treeName)
             throws ComponentNotFoundException, MultipleComponentsFoundException {
-        if (isTreeNodeMenuItemEnabled(menuItemText, treePath, treeName)) {
-            throw new RuntimeException("Menu item '" + menuItemText + "' was enabled");
+        if (isTreeNodeMenuItemEnabled(menuItemPath, treePath, treeName)) {
+            throw new RuntimeException("Menu item '" + menuItemPath + "' was enabled");
         }
     }
 }
