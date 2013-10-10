@@ -69,7 +69,7 @@ public class DeleteServicePermissionsTest extends AbstractServerTest {
      *             Group changed from RWRW to RWRA for 4.4 FIXME: is this
      *             incorrectly named?
      */
-    @Test
+    @Test(groups = "broken")
     public void testDeleteObjectOwnedByOtherRW() throws Exception {
 
         EventContext user1Ctx = newUserAndGroup("rwra--");
@@ -544,7 +544,7 @@ public class DeleteServicePermissionsTest extends AbstractServerTest {
      *
      *             Group changed from RWRW to RWRA for 4.4
      */
-    @Test(groups = "ticket:3119")
+    @Test(groups = {"ticket:3119", "broken"})
     public void testDeleteDatasetImagesGraphRWRA() throws Exception {
         EventContext ctx = newUserAndGroup("rwra--");
         Dataset dataset = (Dataset) iUpdate.saveAndReturnObject(mmFactory
@@ -784,7 +784,7 @@ public class DeleteServicePermissionsTest extends AbstractServerTest {
      * @throws Exception
      *             Thrown if an error occurred.
      */
-    @Test(groups = "ticket:3119")
+    @Test(groups = {"ticket:3119", "broken"})
     public void testDeleteDatasetWithInOtherUserDatasetRWRW() throws Exception {
         EventContext ctx = newUserAndGroup("rwrw--");
         Dataset dataset = (Dataset) iUpdate.saveAndReturnObject(mmFactory
@@ -909,7 +909,7 @@ public class DeleteServicePermissionsTest extends AbstractServerTest {
      * @throws Exception
      *             Thrown if an error occurred.
      */
-    @Test
+    @Test(groups = "broken")
     public void testDeleteObjectByMemberRWR() throws Exception {
         EventContext ownerEc = newUserAndGroup("rwr---");
 
@@ -933,7 +933,7 @@ public class DeleteServicePermissionsTest extends AbstractServerTest {
      * @throws Exception
      *             Thrown if an error occurred.
      */
-    @Test
+    @Test(groups = "broken")
     public void testDeleteObjectByMemberRWRA() throws Exception {
         EventContext ownerEc = newUserAndGroup("rwra--");
 

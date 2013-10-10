@@ -110,7 +110,7 @@ public class HierarchyMoveImageWithAcquisitionDataTest extends
      *
      * @throws Exception
      */
-    @Test
+    @Test(groups = "broken")
     public void moveImageRWtoRW() throws Exception {
         moveImageBetweenPermissionGroups("rw----", "rw----");
     }

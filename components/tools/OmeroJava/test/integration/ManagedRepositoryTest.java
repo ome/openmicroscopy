@@ -461,7 +461,7 @@ public class ManagedRepositoryTest extends AbstractServerTest {
      * @throws Exception
      *             Thrown if an error occurred.
      */
-    @Test
+    @Test(groups = "broken")
     public void testDeleteUploadedFileSimple() throws Exception {
         final File uniquePath = tempFileManager.createPath(UUID.randomUUID()
                 .toString(), null, true);
@@ -492,7 +492,7 @@ public class ManagedRepositoryTest extends AbstractServerTest {
      * @throws Exception
      *             Thrown if an error occurred.
      */
-    @Test
+    @Test(groups = "broken")
     public void testDeleteUploadedMultipleFilesSimple() throws Exception {
         final File uniquePath = tempFileManager.createPath(UUID.randomUUID()
                 .toString(), null, true);
@@ -526,7 +526,7 @@ public class ManagedRepositoryTest extends AbstractServerTest {
      * @throws Exception
      *             Thrown if an error occurred.
      */
-    @Test
+    @Test(groups = "broken")
     public void testDeleteUploadedPartialFiles() throws Exception {
         final File uniquePath = tempFileManager.createPath(UUID.randomUUID()
                 .toString(), null, true);
@@ -562,7 +562,7 @@ public class ManagedRepositoryTest extends AbstractServerTest {
      * @throws Exception
      *             Thrown if an error occurred.
      */
-    @Test
+    @Test(groups = "broken")
     public void testDeleteUploadedMultipleFilesNested() throws Exception {
         final File uniquePath = tempFileManager.createPath(UUID.randomUUID()
                 .toString(), null, true);
@@ -606,7 +606,7 @@ public class ManagedRepositoryTest extends AbstractServerTest {
      * @throws Exception
      *             Thrown if an error occurred.
      */
-    @Test
+    @Test(groups = "broken")
     public void testDeleteUploadedMultipleSetsDeleteOneSet() throws Exception {
         final File uniquePath = tempFileManager.createPath(UUID.randomUUID()
                 .toString(), null, true);
