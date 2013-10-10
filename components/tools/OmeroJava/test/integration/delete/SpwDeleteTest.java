@@ -38,7 +38,7 @@ import ome.specification.XMLWriter;
 @Test(groups = "ticket:2615")
 public class SpwDeleteTest extends AbstractServerTest {
 
-    @Test(groups = {"ticket:3102", "broken"})
+    @Test(groups = "ticket:3102")
     public void testScreen() throws Exception {
 
         newUserAndGroup("rw----");
