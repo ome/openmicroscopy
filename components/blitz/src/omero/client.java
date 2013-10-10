@@ -314,7 +314,7 @@ public class client {
 
         // Set the default encoding if this is Ice 3.5 or later
         // and none is set.
-        if (Ice.Util.intVersion() > 30500) {
+        if (Ice.Util.intVersion() >= 30500) {
             String encoding = id.properties.getProperty("Ice.Default.EncodingVersion");
             if (encoding == null || encoding.length() == 0) {
                 id.properties.setProperty("Ice.Default.EncodingVersion", "1.0");

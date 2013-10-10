@@ -194,7 +194,7 @@ class BaseClient(object):
 
         # Set the default encoding if this is Ice 3.5 or later
         # and none is set.
-        if Ice.intVersion() > 30500:
+        if Ice.intVersion() >= 30500:
             if not id.properties.getProperty("Ice.Default.EncodingVersion"):
                 id.properties.setProperty("Ice.Default.EncodingVersion", "1.0")
 
