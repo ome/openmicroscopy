@@ -459,7 +459,7 @@ public class DeleteServiceFilesTest extends AbstractServerTest {
      * @throws Exception
      *             Thrown if an error occurred.
      */
-    @Test(groups = "ticket:2880")
+    @Test(groups = {"ticket:2880", "broken"})
     public void testDeleteImageWithPixelsOnDisk() throws Exception {
         Image img = makeImageWithPixelsFile();
         Pixels pix = img.getPrimaryPixels();
@@ -479,7 +479,7 @@ public class DeleteServiceFilesTest extends AbstractServerTest {
      * @throws Exception
      *             Thrown if an error occurred.
      */
-    @Test
+    @Test(groups = "broken")
     public void testDeleteImageWithPyramidOnDisk() throws Exception {
         Image img = makeImageWithPixelsFile(false, true, false, false);
         Pixels pix = img.getPrimaryPixels();
@@ -502,7 +502,7 @@ public class DeleteServiceFilesTest extends AbstractServerTest {
      * @throws Exception
      *             Thrown if an error occurred.
      */
-    @Test
+    @Test(groups = "broken")
     public void testDeleteImageWithPixelsAndPyramidOnDisk() throws Exception {
         Image img = makeImageWithPixelsFile(true, true, false, false);
         Pixels pix = img.getPrimaryPixels();
@@ -527,7 +527,7 @@ public class DeleteServiceFilesTest extends AbstractServerTest {
      * @throws Exception
      *             Thrown if an error occurred.
      */
-    @Test
+    @Test(groups = "broken")
     public void testDeleteImageWithAllPyramidOnDisk() throws Exception {
         Image img = makeImageWithPixelsFile(false, true, true, true);
         Pixels pix = img.getPrimaryPixels();
@@ -557,7 +557,7 @@ public class DeleteServiceFilesTest extends AbstractServerTest {
      * @throws Exception
      *             Thrown if an error occurred.
      */
-    @Test(groups = "ticket:2880")
+    @Test(groups = {"ticket:2880", "broken"})
     public void testDeleteImageWithOriginalFileOnDisk() throws Exception {
         Image img = (Image) iUpdate
                 .saveAndReturnObject(mmFactory.createImage());
@@ -630,7 +630,7 @@ public class DeleteServiceFilesTest extends AbstractServerTest {
      * @throws Exception
      *             Thrown if an error occurred.
      */
-    @Test(groups = "ticket:2880")
+    @Test(groups = {"ticket:2880", "broken"})
     public void testDeleteImageWithThumbnailOnDisk() throws Exception {
         File f = File.createTempFile("testDeleteImageWithThumbnailOnDisk"
                 + ModelMockFactory.FORMATS[0], "."
@@ -772,7 +772,7 @@ public class DeleteServiceFilesTest extends AbstractServerTest {
      * @throws Exception
      *             Thrown if an error occurred.
      */
-    @Test(groups = "ticket:3031")
+    @Test(groups = {"ticket:3031", "broken"})
     public void testDeletingDatasetWithPixelsFiles() throws Exception {
 
         Dataset ds1 = new DatasetI();
@@ -807,7 +807,7 @@ public class DeleteServiceFilesTest extends AbstractServerTest {
      * @throws Exception
      *             Thrown if an error occurred.
      */
-    @Test(groups = "ticket:3130")
+    @Test(groups = {"ticket:3130", "broken"})
     public void testDeletingDatasetWithSeveralPixelsFiles() throws Exception {
 
         Dataset ds = new DatasetI();
@@ -845,7 +845,7 @@ public class DeleteServiceFilesTest extends AbstractServerTest {
      * @throws Exception
      *             Thrown if an error occurred.
      */
-    @Test(groups = "ticket:3148")
+    @Test(groups = {"ticket:3148", "broken"})
     public void testDeletingImageWithSeveralOriginalFiles() throws Exception {
         Image img = (Image) iUpdate
                 .saveAndReturnObject(mmFactory.createImage()).proxy();
@@ -895,7 +895,7 @@ public class DeleteServiceFilesTest extends AbstractServerTest {
      * @throws Exception
      *             Thrown if an error occurred.
      */
-    @Test(groups = "ticket:2946")
+    @Test(groups = {"ticket:2946", "broken"})
     public void testDeleteDatasetThatContainsImageFromAWell() throws Exception {
         Image img = makeImageWithPixelsFile();
         Pixels pix = img.getPrimaryPixels();
@@ -931,7 +931,7 @@ public class DeleteServiceFilesTest extends AbstractServerTest {
      * @throws Exception
      *             Thrown if an error occurred.
      */
-    @Test(groups = "ticket:2946")
+    @Test(groups = {"ticket:2946", "broken"})
     public void testDeleteImagePixelsFileOwnedByOtherRWR() throws Exception {
         // set up collaborative group and one user, "the owner"
         newUserAndGroup("rwr---");
@@ -960,7 +960,8 @@ public class DeleteServiceFilesTest extends AbstractServerTest {
      * @throws Exception
      *             Thrown if an error occurred.
      */
-    @Test(groups = "ticket:3140", expectedExceptions = ResourceError.class)
+    @Test(groups = {"ticket:3140", "broken"},
+            expectedExceptions = ResourceError.class)
     public void testSaveThrowsResourceErrorIfDeleted() throws Exception {
         OriginalFile of = makeFile();
         RawFileStorePrx rfs = factory.createRawFileStore();
@@ -982,7 +983,8 @@ public class DeleteServiceFilesTest extends AbstractServerTest {
      * @throws Exception
      *             Thrown if an error occurred.
      */
-    @Test(groups = "ticket:3140", expectedExceptions = ResourceError.class)
+    @Test(groups = {"ticket:3140", "broken"},
+            expectedExceptions = ResourceError.class)
     public void testCloseThrowsResourceErrorIfDeleted() throws Exception {
         OriginalFile of = makeFile();
         RawFileStorePrx rfs = factory.createRawFileStore();

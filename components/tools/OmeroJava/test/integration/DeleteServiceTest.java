@@ -3251,7 +3251,7 @@ public class DeleteServiceTest extends AbstractServerTest {
      * After a discussion Sept. 2010, this is expected to fail. An Image in a
      * Well can only be deleted via the Well or the Plate.
      */
-    @Test(groups = "ticket:2768")
+    @Test(groups = {"ticket:2768", "broken"})
     public void testDeleteImageThatsInAWell() throws Exception {
 
         Plate p = (Plate) iUpdate.saveAndReturnObject(mmFactory.createPlate(1,
@@ -3527,7 +3527,7 @@ public class DeleteServiceTest extends AbstractServerTest {
      * @throws Exception
      *             Thrown if an error occurred.
      */
-    @Test(groups = "ticket:2917")
+    @Test(groups = {"ticket:2917", "broken"})
     public void testTxIntegrity() throws Exception {
         List<IObject> images = new ArrayList<IObject>();
         images.add(mmFactory.createImage());
