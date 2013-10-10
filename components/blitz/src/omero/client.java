@@ -137,7 +137,7 @@ public class client {
      * Single session for this {@link omero.client}. Nullness is used as a test
      * of what state the client is in, like {@link #__ic}, therefore all access
      * is synchronized by {@link #lock}
-     * 
+     *
      */
     private volatile ServiceFactoryPrx __sf;
 
@@ -579,7 +579,7 @@ public class client {
     /**
      * Uses the given session uuid as name and password to rejoin a running
      * session.
-     * 
+     *
      * @throws PermissionDeniedException
      * @throws CannotCreateSessionException
      */
@@ -603,7 +603,7 @@ public class client {
      * {@link #getRouter()}. Disallows an extant {@link ServiceFactoryPrx}, and
      * tries to re-create a null {@link Ice.Communicator}. A null or empty
      * username will throw an exception, but an empty password is allowed.
-     * 
+     *
      * @param username
      * @param password
      * @return
@@ -952,7 +952,7 @@ public class client {
 
     /**
      * Utility method to upload a file to the server
-     * 
+     *
      * @param file
      *            Cannot be null.
      * @param fileObject
