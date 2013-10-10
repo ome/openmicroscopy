@@ -133,7 +133,7 @@ public class CmdCallbackTest extends AbstractServerTest {
     @Test
     public void testTimingFinishesOnLoop() throws Exception {
         TestCB cb = timing(25, 4 * 10); // Runs 1 second
-        cb.loop(3, 500);
+        cb.loop(3, scalingFactor);
         cb.assertFinished(10); // Modulus-10
     }
 
@@ -162,14 +162,14 @@ public class CmdCallbackTest extends AbstractServerTest {
     @Test
     public void testDoNothingFinishesOnLoop() throws Exception {
         TestCB cb = doAllOfNothing();
-        cb.loop(5, 1000);
+        cb.loop(5, scalingFactor);
         cb.assertCancelled();
     }
 
     @Test
     public void testDoAllTimingFinishesOnLoop() throws Exception {
         TestCB cb = doAllTiming(5);
-        cb.loop(5, 1000);
+        cb.loop(5, scalingFactor);
         cb.assertFinished();
         // For some reason the number of steps is varying between 10 and 15
     }
