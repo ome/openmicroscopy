@@ -439,11 +439,11 @@ OME.login_dialog = function(login_url, callback) {
 
                 // update enabled & selected state
                 if(!supported) {
-                    $("#annotation_tabs").tabs("disable", plugin_tab_index);
                     if (plugin_tab_index == select_tab) {
                         // if we're currently selected - switch to first tab
                         $("#annotation_tabs").tabs("select", 0);
                     }
+                    $("#annotation_tabs").tabs("disable", plugin_tab_index);
                 } else {
                     $("#annotation_tabs").tabs("enable", plugin_tab_index);
                     // update tab content
