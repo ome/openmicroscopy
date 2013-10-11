@@ -48,7 +48,7 @@ except ImportError:
 
 DEFAULT_WAIT = 300
 
-HELP="""Administrative tools including starting/stopping OMERO.
+HELP = """Administrative tools including starting/stopping OMERO.
 
 Environment variables:
  OMERO_MASTER
@@ -82,164 +82,249 @@ class AdminControl(BaseControl):
 
         class Action(object):
             def __init__(this, name, help, wait=False):
-                this.parser = sub.add_parser(name, help=help, description=help)
+                this.parser = sub.add_parser(name, help=help,
+                                             description=help)
                 this.parser.set_defaults(func=getattr(self, name))
                 self.actions[name] = this.parser
                 if wait:
-                    this.parser.add_argument("--wait", type=float, default=DEFAULT_WAIT, help="Seconds to wait for operation")
+                    this.parser.add_argument(
+                        "--wait", type=float, default=DEFAULT_WAIT,
+                        help="Seconds to wait for operation")
 
-        Action("start", """Start icegridnode daemon and waits for required components to come up, i.e. status == 0
+        Action(
+            "start",
+            """Start icegridnode daemon and waits for required components to \
+come up, i.e. status == 0
 
-             If the first argument can be found as a file, it will
-             be deployed as the application descriptor rather than
-             etc/grid/default.xml. All other arguments will be used
-             as targets to enable optional sections of the descriptor""", wait=True)
+If the first argument can be found as a file, it will be deployed as the
+application descriptor rather than etc/grid/default.xml. All other arguments
+will be used as targets to enable optional sections of the descriptor""",
+            wait=True)
 
-        Action("startasync", """The same as start but returns immediately.""",)
+        Action("startasync", "The same as start but returns immediately",)
 
-        Action("restart", """stop && start""", wait=True)
+        Action("restart", "stop && start", wait=True)
 
-        Action("restartasync", """The same as restart but returns as soon as starting has begun.""", wait=True)
+        Action(
+            "restartasync", """The same as restart but returns as soon as \
+starting has begun.""",
+            wait=True)
 
-        Action("status", """Status of server.
-             Returns with 0 status if a node ping is successful
-             and if some SessionManager returns an OMERO-specific exception on
-             a bad login. This can be used in shell scripts, e.g.:
+        Action("status", """Status of server
 
-                 omero admin status && echo "server started"
+Returns with 0 status if a node ping is successful and if some SessionManager
+returns an OMERO-specific exception on a bad login. This can be used in shell
+scripts, e.g.:
+
+    $ omero admin status && echo "server started"
             """)
 
-        Action("stop", """Initiates node shutdown and waits for status to return a non-0 value""", wait=True)
+        Action(
+            "stop",
+            """Initiates node shutdown and waits for status to return a \
+non-0 value""",
+            wait=True)
 
-        Action("stopasync", """The same as stop but returns immediately.""")
+        Action("stopasync", "The same as stop but returns immediately")
 
-        Action("deploy", """Deploy the given deployment descriptor. See etc/grid/*.xml
-             If the first argument is not a file path, etc/grid/default.xml
-             will be deployed by default. Same functionality as start, but
-             requires that the node already be running. This may automatically
-             restart some server components.""")
+        Action(
+            "deploy",
+            """Deploy the given deployment descriptor. See etc/grid/*.xml
 
-        Action("ice", """Drop user into icegridadmin console or execute arguments""")
+If the first argument is not a file path, etc/grid/default.xml will be
+deployed by default. Same functionality as start, but requires that the node
+already be running. This may automatically restart some server components.""")
 
-        fixpyramids = Action("fixpyramids", """Remove empty pyramid pixels files""").parser
+        Action(
+            "ice", "Drop user into icegridadmin console or execute arguments")
+
+        fixpyramids = Action(
+            "fixpyramids", "Remove empty pyramid pixels files").parser
         # See cleanse options below
 
-        Action("diagnostics", """Run a set of checks on the current, preferably active server""")
+        Action(
+            "diagnostics",
+            "Run a set of checks on the current, preferably active server")
 
-        Action("waitup", """Used by start after calling startasync to wait on status==0""", wait=True)
+        Action(
+            "waitup",
+            "Used by start after calling startasync to wait on status==0",
+            wait=True)
 
-        Action("waitdown", """Used by stop after calling stopasync to wait on status!=0""", wait=True)
+        Action(
+            "waitdown",
+            "Used by stop after calling stopasync to wait on status!=0",
+            wait=True)
 
-        reindex = Action("reindex", """Re-index the Lucene index
+        reindex = Action(
+            "reindex",
+            """Re-index the Lucene index
 
-Command-line tool for re-index the database. This command must be run on the machine where
-/OMERO/FullText is located.
+Command-line tool for re-index the database. This command must be run on the
+machine where /OMERO/FullText is located.
 
 Examples:
-  bin/omero admin reindex --full                                                # All objects
-  bin/omero admin reindex --class ome.model.core.Image                          # Only images
-  JAVA_OPTS="-Dlog4j.configuration=stderr.xml" bin/omero admin reindex --full   # Passing arguments to Java
+  bin/omero admin reindex --full                                             \
+  # All objects
+  bin/omero admin reindex --class ome.model.core.Image                       \
+  # Only images
+  JAVA_OPTS="-Dlog4j.configuration=stderr.xml" bin/omero admin reindex --full\
+  # Passing arguments to Java
 
 
-LIMITATION: omero.db.pass values do not currently get passed to the Java process. You will
-            need to all passwordless login to PostgreSQL. In fact, only the following properties
-	    are passed:
+LIMITATION: omero.db.pass values do not currently get passed to the Java
+            process. You will need to all passwordless login to PostgreSQL. In
+            fact, only the following properties are passed:
 
-	    omero.data.dir
-	    omero.search.*
-	    omero.db.* (excluding pass)
+            omero.data.dir
+            omero.search.*
+            omero.db.* (excluding pass)
 
 """).parser
-        reindex.add_argument("--jdwp", help = "Activate remote debugging")
+        reindex.add_argument(
+            "--jdwp", help="Activate remote debugging")
         group = reindex.add_mutually_exclusive_group()
-        group.add_argument("--full", action="store_true", help = "Reindexes all non-excluded tables sequentially")
-        group.add_argument("--events", action="store_true", help = "Reindexes all non-excluded event logs chronologically")
-        group.add_argument("--class", nargs="+", help = "Reindexes the given classes sequentially")
+        group.add_argument(
+            "--full", action="store_true",
+            help="Reindexes all non-excluded tables sequentially")
+        group.add_argument(
+            "--events", action="store_true",
+            help="Reindexes all non-excluded event logs chronologically")
+        group.add_argument(
+            "--class", nargs="+",
+            help="Reindexes the given classes sequentially")
 
-        ports = Action("ports", """Allows modifying the ports from a standard OMERO install
+        ports = Action(
+            "ports",
+            """Allows modifying the ports from a standard OMERO install
 
-To have two OMERO's running on the same machine, several ports must be modified from their default values.
-Internally, this command uses the omero.install.change_ports module. Changing the ports on a running server
-is usually not what you want and will be prevented. Use --skipcheck to change the ports anyway.
+To have two OMERO's running on the same machine, several ports must be
+modified from their default values.
+Internally, this command uses the omero.install.change_ports module.
+Changing  the ports on a running server is usually not what you want and
+will be prevented. Use --skipcheck to change the ports anyway.
 
 Examples:
 
-    %(prog)s --prefix=1                             # sets ports to: 14061, 14063, 14064
-    %(prog)s --prefix=1 --revert                    # sets ports back to: 4061, 4063, 4064
-    %(prog)s --registry=4444 --tcp=5555 --ssl=6666  # sets ports to: 4444 5555 6666
+    %(prog)s --prefix=1                             # sets ports to: 14061, \
+14063, 14064
+    %(prog)s --prefix=1 --revert                    # sets ports back to: \
+4061, 4063, 4064
+    %(prog)s --registry=4444 --tcp=5555 --ssl=6666  # sets ports to: 4444 \
+5555  6666
 
 """).parser
-        ports.add_argument("--prefix", help = "Adds a prefix to each port ON TOP OF any other settings")
-        ports.add_argument("--registry", help = "Registry port. (default: %(default)s)", default = "4061")
-        ports.add_argument("--tcp", help = "The tcp port to be used by Glacier2 (default: %(default)s)", default = "4063")
-        ports.add_argument("--ssl", help = "The ssl port to be used by Glacier2 (default: %(default)s)", default = "4064")
-        ports.add_argument("--revert", action="store_true", help = "Used to rollback from the given settings to the defaults")
-        ports.add_argument("--skipcheck", action="store_true", help = "Skips the check if the server is already running")
+        ports.add_argument(
+            "--prefix",
+            help="Adds a prefix to each port ON TOP OF any other settings")
+        ports.add_argument(
+            "--registry", default="4061",
+            help="Registry port. (default: %(default)s)")
+        ports.add_argument(
+            "--tcp", default="4063",
+            help="The tcp port to be used by Glacier2 (default: %(default)s)")
+        ports.add_argument(
+            "--ssl", default="4064",
+            help="The ssl port to be used by Glacier2 (default: %(default)s)")
+        ports.add_argument(
+            "--revert", action="store_true",
+            help="Used to rollback from the given settings to the defaults")
+        ports.add_argument(
+            "--skipcheck", action="store_true",
+            help="Skips the check if the server is already running")
 
-        sessionlist = Action("sessionlist", """List currently running sessions""").parser
+        sessionlist = Action(
+            "sessionlist", "List currently running sessions").parser
         sessionlist.add_login_arguments()
 
-        cleanse = Action("cleanse", """Remove binary data files from OMERO.
+        cleanse = Action("cleanse", """Remove binary data files from OMERO
 
-Deleting an object from OMERO currently does not remove the binary data. Use this
-command either manually or in a cron job periodically to remove Pixels and other data.
+Deleting an object from OMERO currently does not remove the binary data. Use
+this command either manually or in a cron job periodically to remove Pixels
+and other data.
 
-This is done by checking that for all the files in the given directory, a matching entry
-exists on the server. THE /OMERO DIRECTORY MUST MATCH THE DATABASE YOU ARE RUNNING AGAINST.
+This is done by checking that for all the files in the given directory, a
+matching entry exists on the server. THE /OMERO DIRECTORY MUST MATCH THE
+DATABASE YOU ARE RUNNING AGAINST.
 
-This command must be run on the machine where, for example, /OMERO/ is located.
+This command must be run on the machine where, for example, /OMERO/ is
+located.
 
 Examples:
-  bin/omero admin cleanse --dry-run /OMERO                                         # Lists files that will be deleted
-  bin/omero admin cleanse /OMERO                                                   # Actually delete them.
-  bin/omero admin cleanse /volumes/data/OMERO                                      # Delete from a standard location.
+  bin/omero admin cleanse --dry-run /OMERO      # Lists files that will be \
+deleted
+  bin/omero admin cleanse /OMERO                # Actually delete them.
+  bin/omero admin cleanse /volumes/data/OMERO   # Delete from a standard \
+location.
 
 """).parser
 
         for x in (cleanse, fixpyramids):
-            x.add_argument("--dry-run", action = "store_true", help = "Print out which files would be deleted")
-            x.add_argument("data_dir", type=DirectoryType(), help = "omero.data.dir directory value (e.g. /OMERO")
+            x.add_argument(
+                "--dry-run", action="store_true",
+                help="Print out which files would be deleted")
+            x.add_argument(
+                "data_dir", type=DirectoryType(),
+                help="omero.data.dir directory value (e.g. /OMERO")
             x.add_login_arguments()
 
-        Action("checkwindows", """Run simple check of the local installation (Windows-only)""")
-        Action("checkice", """Run simple check of the Ice installation""")
+        Action("checkwindows", "Run simple check of the local installation "
+               "(Windows-only)")
+        Action("checkice", "Run simple check of the Ice installation")
 
-        Action("events", """Print event log (Windows-only)""")
+        Action("events", "Print event log (Windows-only)")
 
-        self.actions["ice"].add_argument("argument", nargs="*", help="""Arguments joined together to make an Ice command.
-        If not present, the user will enter a console""")
+        self.actions["ice"].add_argument(
+            "argument", nargs="*",
+            help="""Arguments joined together to make an Ice command. If not \
+present, the user will enter a console""")
 
-        self.actions["status"].add_argument("node", nargs="?", default="master")
-        self.actions["status"].add_argument("--nodeonly", action="store_true",
-            help="""If set, then only tests if the icegridnode is running""")
+        self.actions["status"].add_argument(
+            "node", nargs="?", default="master")
+        self.actions["status"].add_argument(
+            "--nodeonly", action="store_true",
+            help="If set, then only tests if the icegridnode is running")
 
         for name in ("start", "startasync"):
-            self.actions[name].add_argument("-u","--user",
-                help="Service Log On As user name. If none given, the value of omero.windows.user will be used. (Windows-only)")
-            self.actions[name].add_argument("-w","--password",
-                help="Service Log On As user password. If none given, the value of omero.windows.pass will be used. (Windows-only)")
+            self.actions[name].add_argument(
+                "-u", "--user",
+                help="Service Log On As user name. If none given, the value"
+                " of omero.windows.user will be used. (Windows-only)")
+            self.actions[name].add_argument(
+                "-w", "--password",
+                help="Service Log On As user password. If none given, the"
+                " value of omero.windows.pass will be used. (Windows-only)")
 
         for k in ("start", "startasync", "deploy", "restart", "restartasync"):
-            self.actions[k].add_argument("file", nargs="?",
-                help="""Application descriptor. If not provided, a default will be used""")
-            self.actions[k].add_argument("targets", nargs="*",
-                help="""Targets within the application descriptor which should be activated.
-                        Common values are: "debug", "trace" """)
+            self.actions[k].add_argument(
+                "file", nargs="?",
+                help="Application descriptor. If not provided, a default"
+                " will be used")
+            self.actions[k].add_argument(
+                "targets", nargs="*",
+                help="Targets within the application descriptor which "
+                " should  be activated. Common values are: \"debug\", "
+                "\"trace\" ")
 
-        DISABLED = """ see: http://www.zeroc.com/forums/bug-reports/4237-sporadic-freeze-errors-concurrent-icegridnode-access.html
-           restart [filename] [targets]      : Calls stop followed by start args
-           restartasync [filename] [targets] : Calls stop followed by startasync args
-        """
+        # DISABLED = """ see: http://www.zeroc.com/forums/bug-reports/\
+        # 4237-sporadic-freeze-errors-concurrent-icegridnode-access.html
+        #   restart [filename] [targets]      : Calls stop followed by start \
+        #   args
+        #   restartasync [filename] [targets] : Calls stop followed by \
+        #   startasync args
+        # """
 
     #
     # Windows utility methods
     #
     if has_win32:
         def _query_service(unused, svc_name):
-            hscm = win32service.OpenSCManager(None, None, win32service.SC_MANAGER_ALL_ACCESS)
+            hscm = win32service.OpenSCManager(
+                None, None, win32service.SC_MANAGER_ALL_ACCESS)
             try:
                 try:
-                    hs = win32service.OpenService(hscm, svc_name, win32service.SERVICE_ALL_ACCESS)
+                    hs = win32service.OpenService(
+                        hscm, svc_name, win32service.SERVICE_ALL_ACCESS)
                 except:
                     return "DOESNOTEXIST"
                 try:
@@ -267,21 +352,26 @@ Examples:
     else:
 
         def events(self, svc_name):
-            self.ctx.die(666, "Could not import win32service and/or win32evtlogutil")
+            self.ctx.die(
+                666, "Could not import win32service and/or win32evtlogutil")
 
         def _query_service(self, svc_name):
-            self.ctx.die(666, "Could not import win32service and/or win32evtlogutil")
+            self.ctx.die(
+                666, "Could not import win32service and/or win32evtlogutil")
 
     #
     # End Windows Methods
     #
 
-    def _node(self, omero_node = None):
-        """ Overrides the regular node() logic to return the value of OMERO_MASTER or "master" """
-        if omero_node != None:
+    def _node(self, omero_node=None):
+        """
+        Overrides the regular node() logic to return the value of
+        OMERO_MASTER or "master"
+        """
+        if omero_node is not None:
             os.environ["OMERO_MASTER"] = omero_node
 
-        if os.environ.has_key("OMERO_MASTER"):
+        if "OMERO_MASTER" in os.environ:
             return os.environ["OMERO_MASTER"]
         else:
             return "master"
@@ -290,12 +380,12 @@ Examples:
         """
         Used to generate an icegridadmin command line argument list
         """
-        command = ["icegridadmin", self._intcfg() ]
+        command = ["icegridadmin", self._intcfg()]
         command.extend(command_arguments)
         return command
 
     def _descript(self, args):
-        if args.file != None:
+        if args.file is not None:
             # Relative to cwd
             descript = path(args.file).abspath()
             if not descript.exists():
@@ -305,12 +395,13 @@ Examples:
         else:
             descript = None
 
-        if descript == None:
+        if descript is None:
             __d__ = "default.xml"
             if self._isWindows():
                 __d__ = "windefault.xml"
             descript = self.ctx.dir / "etc" / "grid" / __d__
-            self.ctx.err("No descriptor given. Using %s" % os.path.sep.join(["etc","grid",__d__]))
+            self.ctx.err("No descriptor given. Using %s"
+                         % os.path.sep.join(["etc", "grid", __d__]))
         return descript
 
     def checkwindows(self, args):
@@ -327,7 +418,8 @@ Examples:
         properties = Ice.createProperties([self._icecfg()])
         nodedata = properties.getProperty(key)
         if not nodedata:
-            self.ctx.die(300, "Bad configuration: No IceGrid.Node.Data property")
+            self.ctx.die(300,
+                         "Bad configuration: No IceGrid.Node.Data property")
         nodepath = path(nodedata)
         pp = nodepath.parpath(self.ctx.dir)
         if pp:
@@ -336,7 +428,7 @@ Examples:
             self.ctx.out("Found default value: %s" % nodepath)
             self.ctx.out("Attempting to correct...")
             from omero.install.win_set_path import win_set_path
-            count = win_set_path(dir = self.ctx.dir)
+            count = win_set_path(dir=self.ctx.dir)
             if count:
                 return
         self.ctx.die(400, """
@@ -371,7 +463,6 @@ Examples:
             self.ctx.die(876, "Server already running")
 
         self._initDir()
-        props = self._properties()
         # Do a check to see if we've started before.
         self._regdata()
         self.check([])
@@ -386,7 +477,8 @@ Examples:
 
             # Now check if the server exists
             if 0 <= output.find("DOESNOTEXIST"):
-                binpath = """icegridnode.exe "%s" --deploy "%s" --service %s""" % (self._icecfg(), descript, svc_name)
+                binpath = """icegridnode.exe "%s" --deploy "%s" --service\
+                %s""" % (self._icecfg(), descript, svc_name)
 
                 # By default: "NT Authority\Local System"
                 if not user:
@@ -399,46 +491,63 @@ Examples:
                         computername = win32api.GetComputerName()
                         user = "\\".join([computername, user])
                     try:
-                        # See #9967, code based on http://mail.python.org/pipermail/python-win32/2010-October/010791.html
-                        self.ctx.out("Granting SeServiceLogonRight to service user \"%s\"" % user)
-                        policy_handle = win32security.LsaOpenPolicy(None, win32security.POLICY_ALL_ACCESS)
-                        sid_obj, domain, tmp = win32security.LookupAccountName(None, user)
-                        win32security.LsaAddAccountRights(policy_handle, sid_obj, ('SeServiceLogonRight',))
+                        # See #9967, code based on http://mail.python.org/\
+                        # pipermail/python-win32/2010-October/010791.html
+                        self.ctx.out("Granting SeServiceLogonRight to service"
+                                     " user \"%s\"" % user)
+                        policy_handle = win32security.LsaOpenPolicy(
+                            None, win32security.POLICY_ALL_ACCESS)
+                        sid_obj, domain, tmp = \
+                            win32security.LookupAccountName(None, user)
+                        win32security.LsaAddAccountRights(
+                            policy_handle, sid_obj, ('SeServiceLogonRight',))
                         win32security.LsaClose(policy_handle)
                     except pywintypes.error, details:
-                        self.ctx.die(200, "Error during service user set up: (%s) %s" % (details[0], details[2]))
+                        self.ctx.die(200, "Error during service user set up:"
+                                     " (%s) %s" % (details[0], details[2]))
                     if not pasw:
                         try:
                             pasw = config.as_map()["omero.windows.pass"]
                         except KeyError:
-                            pasw = self._ask_for_password(" for service user \"%s\"" % user)
+                            pasw = self._ask_for_password(
+                                " for service user \"%s\"" % user)
                 else:
                     pasw = None
 
-                hscm = win32service.OpenSCManager(None, None, win32service.SC_MANAGER_ALL_ACCESS)
+                hscm = win32service.OpenSCManager(
+                    None, None, win32service.SC_MANAGER_ALL_ACCESS)
                 try:
                     self.ctx.out("Installing %s Windows service." % svc_name)
-                    hs = win32service.CreateService(hscm, svc_name, svc_name, win32service.SERVICE_ALL_ACCESS,
-                            win32service.SERVICE_WIN32_OWN_PROCESS, win32service.SERVICE_AUTO_START,
-                            win32service.SERVICE_ERROR_NORMAL, binpath, None, 0, None, user, pasw)
-                    self.ctx.out("Successfully installed %s Windows service." % svc_name)
+                    hs = win32service.CreateService(
+                        hscm, svc_name, svc_name,
+                        win32service.SERVICE_ALL_ACCESS,
+                        win32service.SERVICE_WIN32_OWN_PROCESS,
+                        win32service.SERVICE_AUTO_START,
+                        win32service.SERVICE_ERROR_NORMAL, binpath, None, 0,
+                        None, user, pasw)
+                    self.ctx.out("Successfully installed %s Windows service."
+                                 % svc_name)
                     win32service.CloseServiceHandle(hs)
                 finally:
                     win32service.CloseServiceHandle(hscm)
 
             # Then check if the server is already running
             if 0 <= output.find("RUNNING"):
-                self.ctx.die(201, "%s is already running. Use stop first" % svc_name)
+                self.ctx.die(201, "%s is already running. Use stop first"
+                             % svc_name)
 
             # Finally, try to start the service - delete if startup fails
-            hscm = win32service.OpenSCManager(None, None, win32service.SC_MANAGER_ALL_ACCESS)
+            hscm = win32service.OpenSCManager(
+                None, None, win32service.SC_MANAGER_ALL_ACCESS)
             try:
                 try:
-                    hs = win32service.OpenService(hscm, svc_name, win32service.SC_MANAGER_ALL_ACCESS)
+                    hs = win32service.OpenService(
+                        hscm, svc_name, win32service.SC_MANAGER_ALL_ACCESS)
                     win32service.StartService(hs, None)
                     self.ctx.out("Starting %s Windows service." % svc_name)
                 except pywintypes.error, details:
-                    self.ctx.out("%s service startup failed: (%s) %s" % (svc_name, details[0], details[2]))
+                    self.ctx.out("%s service startup failed: (%s) %s"
+                                 % (svc_name, details[0], details[2]))
                     win32service.DeleteService(hs)
                     self.ctx.die(202, "%s service deleted." % svc_name)
             finally:
@@ -446,7 +555,10 @@ Examples:
                 win32service.CloseServiceHandle(hscm)
 
         else:
-            command = ["icegridnode","--daemon","--pidfile",str(self._pid()),"--nochdir",self._icecfg(),"--deploy",str(descript)] + args.targets
+            command = [
+                "icegridnode", "--daemon", "--pidfile", str(self._pid()),
+                "--nochdir", self._icecfg(), "--deploy", str(descript)
+                ] + args.targets
             self.ctx.rv = self.ctx.call(command)
 
     @with_config
@@ -471,13 +583,15 @@ Examples:
         # TODO : Doesn't properly handle whitespace
         # Though users can workaround with something like:
         # bin/omero admin deploy etc/grid/a\\\\ b.xml
-        command = ["icegridadmin",self._intcfg(),"-e"," ".join(["application","update", str(descript)] + args.targets)]
+        command = ["icegridadmin", self._intcfg(), "-e",
+                   " ".join(["application", "update", str(descript)] +
+                            args.targets)]
         self.ctx.call(command)
 
-    def status(self, args, node_only = False):
+    def status(self, args, node_only=False):
         self.check_node(args)
-        command = self._cmd("-e","node ping %s" % self._node())
-        self.ctx.rv = self.ctx.popen(command).wait() # popen
+        command = self._cmd("-e", "node ping %s" % self._node())
+        self.ctx.rv = self.ctx.popen(command).wait()  # popen
 
         # node_only implies that "up" need not check for all
         # of blitz to be accessible but just that if the node
@@ -492,8 +606,9 @@ Examples:
                 try:
                     sm = self.session_manager(ic)
                     try:
-                        sm.create("####### STATUS CHECK ########", None) # Not adding "omero.client.uuid"
-                    except omero.WrappedCreateSessionException, wcse:
+                        sm.create("####### STATUS CHECK ########", None)
+                        # Not adding "omero.client.uuid"
+                    except omero.WrappedCreateSessionException:
                         # Only the server will throw one of these
                         self.ctx.dbg("Server reachable")
                         self.ctx.rv = 0
@@ -539,11 +654,12 @@ Examples:
         while True:
             count = count - 1
             if count == 0:
-                self.ctx.die(43, "\nFailed to startup some components after %s" % time_msg)
-            elif 0 == self.status(args, node_only = False):
+                self.ctx.die(43, "\nFailed to startup some components after"
+                             " %s" % time_msg)
+            elif 0 == self.status(args, node_only=False):
                 break
             else:
-                self.ctx.out(".", newline = False)
+                self.ctx.out(".", newline=False)
                 self.ctx.sleep(loop_secs)
 
     def waitdown(self, args):
@@ -556,12 +672,13 @@ Examples:
         while True:
             count = count - 1
             if count == 0:
-                self.ctx.die(44, "\nFailed to shutdown some components after %s" % time_msg)
+                self.ctx.die(44, "\nFailed to shutdown some components after"
+                             " %s" % time_msg)
                 return False
-            elif 0 != self.status(args, node_only = True):
+            elif 0 != self.status(args, node_only=True):
                 break
             else:
-                self.ctx.out(".", newline = False)
+                self.ctx.out(".", newline=False)
                 self.ctx.sleep(loop_secs)
         self.ctx.rv = 0
         return True
@@ -596,18 +713,22 @@ Examples:
             svc_name = "OMERO.%s" % args.node
             output = self._query_service(svc_name)
             if 0 <= output.find("DOESNOTEXIST"):
-                self.ctx.die(203, "%s does not exist. Use 'start' first." % svc_name)
-            hscm = win32service.OpenSCManager(None, None, win32service.SC_MANAGER_ALL_ACCESS)
+                self.ctx.die(203, "%s does not exist. Use 'start' first."
+                             % svc_name)
+            hscm = win32service.OpenSCManager(
+                None, None, win32service.SC_MANAGER_ALL_ACCESS)
             try:
-                hs = win32service.OpenService(hscm, svc_name, win32service.SC_MANAGER_ALL_ACCESS)
-                win32service.ControlService(hs, win32service.SERVICE_CONTROL_STOP)
+                hs = win32service.OpenService(
+                    hscm, svc_name, win32service.SC_MANAGER_ALL_ACCESS)
+                win32service.ControlService(
+                    hs, win32service.SERVICE_CONTROL_STOP)
                 win32service.DeleteService(hs)
                 self.ctx.out("%s service deleted." % svc_name)
             finally:
                 win32service.CloseServiceHandle(hs)
                 win32service.CloseServiceHandle(hscm)
         else:
-            command = self._cmd("-e","node shutdown %s" % self._node())
+            command = self._cmd("-e", "node shutdown %s" % self._node())
             try:
                 self.ctx.call(command)
             except NonZeroReturnCode, nzrc:
@@ -631,17 +752,17 @@ Examples:
             command.extend(["-e", " ".join(args.argument)])
             return self.ctx.call(command)
         else:
-            rv = self.ctx.call(command)
+            self.ctx.call(command)
 
     @with_config
     def fixpyramids(self, args, config):
         self.check_access()
         from omero.util.cleanse import fixpyramids
         client = self.ctx.conn(args)
-        key = client.getSessionId()
-        fixpyramids(data_dir=args.data_dir, dry_run=args.dry_run, \
-            query_service=client.sf.getQueryService(), \
-            config_service=client.sf.getConfigService())
+        client.getSessionId()
+        fixpyramids(data_dir=args.data_dir, dry_run=args.dry_run,
+                    query_service=client.sf.getQueryService(),
+                    config_service=client.sf.getConfigService())
 
     @with_config
     def diagnostics(self, args, config):
@@ -658,7 +779,8 @@ Examples:
         # To find something more generally useful for calculating
         # size, we go up two directories
         omero_temp_dir = gettempdir()
-        omero_temp_dir = os.path.abspath(os.path.join(omero_temp_dir, os.path.pardir, os.path.pardir))
+        omero_temp_dir = os.path.abspath(
+            os.path.join(omero_temp_dir, os.path.pardir, os.path.pardir))
 
         self.ctx.out("""
 %s
@@ -713,14 +835,14 @@ OMERO Diagnostics %s
             Returns a true response only
             if a valid version was found.
             """
-            item("Commands","%s" % " ".join(cmd))
+            item("Commands", "%s" % " ".join(cmd))
             try:
                 p = self.ctx.popen(cmd)
             except OSError:
                 self.ctx.err("not found")
                 return False
 
-            rv = p.wait()
+            p.wait()
             io = p.communicate()
             try:
                 v = io[0].split()
@@ -747,7 +869,6 @@ OMERO Diagnostics %s
                 self.ctx.err("error:%s" % e)
                 return False
 
-
         import logging
         logging.basicConfig()
         from omero.util.upgrade_check import UpgradeCheck
@@ -762,9 +883,9 @@ OMERO Diagnostics %s
         iga = version(["icegridadmin", "--version"])
         version(["psql",         "--version"])
 
-
         def get_ports(input):
-            router_lines = [line for line in input.split("\n") if line.find("ROUTER") >= 0]
+            router_lines = [line for line in input.split("\n")
+                            if line.find("ROUTER") >= 0]
 
             ssl_port = None
             tcp_port = None
@@ -782,10 +903,11 @@ OMERO Diagnostics %s
 
         self.ctx.out("")
         if not iga:
-            self.ctx.out("No icegridadmin available: Cannot check server list")
+            self.ctx.out(
+                "No icegridadmin available: Cannot check server list")
         else:
             item("Server", "icegridnode")
-            p = self.ctx.popen(self._cmd("-e", "server list")) # popen
+            p = self.ctx.popen(self._cmd("-e", "server list"))  # popen
             rv = p.wait()
             io = p.communicate()
             if rv != 0:
@@ -800,8 +922,9 @@ OMERO Diagnostics %s
                 servers.sort()
                 for s in servers:
                     item("Server", "%s" % s)
-                    p2 = self.ctx.popen(self._cmd("-e", "server state %s" % s)) # popen
-                    rv2 = p2.wait()
+                    p2 = self.ctx.popen(
+                        self._cmd("-e", "server state %s" % s))  # popen
+                    p2.wait()
                     io2 = p2.communicate()
                     if io2[1]:
                         self.ctx.err(io2[1].strip())
@@ -811,14 +934,18 @@ OMERO Diagnostics %s
                         self.ctx.err("UNKNOWN!")
             if self._isWindows():
                 # Print the OMERO server Windows service details
-                hscm = win32service.OpenSCManager(None, None, win32service.SC_MANAGER_ALL_ACCESS)
+                hscm = win32service.OpenSCManager(
+                    None, None, win32service.SC_MANAGER_ALL_ACCESS)
                 services = win32service.EnumServicesStatus(hscm)
-                omesvcs = tuple((sname, fname) for sname,fname,status in services if "OMERO" in fname)
-                for sname,fname in omesvcs:
+                omesvcs = tuple((sname, fname) for sname, fname, status
+                                in services if "OMERO" in fname)
+                for sname, fname in omesvcs:
                     item("Server", fname)
-                    hsc = win32service.OpenService(hscm, sname, win32service.SC_MANAGER_ALL_ACCESS)
+                    hsc = win32service.OpenService(
+                        hscm, sname, win32service.SC_MANAGER_ALL_ACCESS)
                     logonuser = win32service.QueryServiceConfig(hsc)[7]
-                    if win32service.QueryServiceStatus(hsc)[1] == win32service.SERVICE_RUNNING:
+                    if win32service.QueryServiceStatus(hsc)[1] == \
+                            win32service.SERVICE_RUNNING:
                         self.ctx.out("active (running as %s)" % logonuser)
                     else:
                         self.ctx.out("inactive")
@@ -827,7 +954,7 @@ OMERO Diagnostics %s
 
             # List SSL & TCP ports of deployed applications
             self.ctx.out("")
-            p = self.ctx.popen(self._cmd("-e", "application list")) # popen
+            p = self.ctx.popen(self._cmd("-e", "application list"))  # popen
             rv = p.wait()
             io = p.communicate()
             if rv != 0:
@@ -840,7 +967,8 @@ OMERO Diagnostics %s
                 applications = io[0].split()
                 applications.sort()
                 for s in applications:
-                    p2 = self.ctx.popen(self._cmd("-e", "application describe %s" % s)) # popen
+                    p2 = self.ctx.popen(
+                        self._cmd("-e", "application describe %s" % s))
                     io2 = p2.communicate()
                     if io2[1]:
                         self.ctx.err(io2[1].strip())
@@ -883,24 +1011,29 @@ OMERO Diagnostics %s
                     sz += x.size
                 self.ctx.out("%-.2f MB" % (float(sz)/1000000.0))
 
-        log_dir(self.ctx.dir / "var" / "log", "Log dir", "Log files",\
-            ["Blitz-0.log", "Tables-0.log", "Processor-0.log", "Indexer-0.log", "FileServer.log", "MonitorServer.log", "DropBox.log", "TestDropBox.log", "OMEROweb.log"])
+        log_dir(self.ctx.dir / "var" / "log", "Log dir", "Log files",
+                ["Blitz-0.log", "Tables-0.log", "Processor-0.log",
+                 "Indexer-0.log", "FileServer.log", "MonitorServer.log",
+                 "DropBox.log", "TestDropBox.log", "OMEROweb.log"])
 
         # Parsing well known issues
         self.ctx.out("")
-        ready = re.compile(".*?ome.services.util.ServerVersionCheck.*OMERO.Version.*Ready..*?")
+        ready = re.compile(".*?ome.services.util.ServerVersionCheck\
+        .*OMERO.Version.*Ready..*?")
         db_ready = re.compile(".*?Did.you.create.your.database[?].*?")
         data_dir = re.compile(".*?Unable.to.initialize:.FullText.*?")
-        pg_password = re.compile(".*?org.postgresql.util.PSQLException:.FATAL:.password.*?authentication.failed.for.user.*?")
-        pg_user = re.compile(""".*?org.postgresql.util.PSQLException:.FATAL:.role.".*?".does.not.exist.*?""")
-        pg_conn = re.compile(""".*?org.postgresql.util.PSQLException:.Connection.refused.""")
-
+        pg_password = re.compile(".*?org.postgresql.util.PSQLException:\
+        .FATAL:.password.*?authentication.failed.for.user.*?")
+        pg_user = re.compile(""".*?org.postgresql.util.PSQLException:\
+        .FATAL:.role.".*?".does.not.exist.*?""")
+        pg_conn = re.compile(""".*?org.postgresql.util.PSQLException:\
+        .Connection.refused.""")
 
         issues = {
-            ready : "=> Server restarted <=",
-            db_ready : "Your database configuration is invalid",
-            data_dir : "Did you create your omero.data.dir? E.g. /OMERO",
-            pg_password : "Your postgres password seems to be invalid",
+            ready: "=> Server restarted <=",
+            db_ready: "Your database configuration is invalid",
+            data_dir: "Did you create your omero.data.dir? E.g. /OMERO",
+            pg_password: "Your postgres password seems to be invalid",
             pg_user: "Your postgres user is invalid",
             pg_conn: "Your postgres hostname and/or port is invalid"
         }
@@ -914,7 +1047,8 @@ OMERO Diagnostics %s
                     lno = fileinput.filelineno()
                     for k, v in issues.items():
                         if k.match(line):
-                            item('Parsing %s' % file, "[line:%s] %s" % (lno, v))
+                            item('Parsing %s' % file, "[line:%s] %s"
+                                 % (lno, v))
                             self.ctx.out("")
                             break
         except:
@@ -923,7 +1057,8 @@ OMERO Diagnostics %s
         self.ctx.out("")
 
         def env_val(val):
-            item("Environment","%s=%s" % (val, os.environ.get(val, "(unset)")))
+            item("Environment", "%s=%s"
+                 % (val, os.environ.get(val, "(unset)")))
             self.ctx.out("")
         env_val("OMERO_HOME")
         env_val("OMERO_NODE")
@@ -938,13 +1073,13 @@ OMERO Diagnostics %s
         for dir_name, dir_path, dir_size in (
                 ("data", omero_data_dir, ""),
                 ("temp", omero_temp_dir, True)):
-            exists = os.path.exists(dir_path)
-            is_writable = os.access(dir_path, os.R_OK|os.W_OK)
-            if dir_size and exists:
+            dir_path_exists = os.path.exists(dir_path)
+            is_writable = os.access(dir_path, os.R_OK | os.W_OK)
+            if dir_size and dir_path_exists:
                 dir_size = self.getdirsize(omero_temp_dir)
                 dir_size = "   (Size: %s)" % dir_size
-            self.ctx.out("OMERO %s dir: '%s'\tExists? %s\tIs writable? %s%s" % \
-                (dir_name, dir_path, exists, is_writable, dir_size))
+            self.ctx.out("OMERO %s dir: '%s'\tExists? %s\tIs writable? %s%s" %
+                         (dir_name, dir_path, exists, is_writable, dir_size))
 
         from omero.plugins.web import WebControl
         try:
@@ -960,14 +1095,15 @@ OMERO Diagnostics %s
         return total
 
     def session_manager(self, communicator):
-        import IceGrid, Glacier2
+        import IceGrid
+        import Glacier2
         iq = communicator.stringToProxy("IceGrid/Query")
         iq = IceGrid.QueryPrx.checkedCast(iq)
         sm = iq.findAllObjectsByType("::Glacier2::SessionManager")[0]
         sm = Glacier2.SessionManagerPrx.checkedCast(sm)
         return sm
 
-    def can_access(self, filepath, mask=os.R_OK|os.W_OK):
+    def can_access(self, filepath, mask=os.R_OK | os.W_OK):
         """
         Check that the given path belongs to
         or is accessible by the current user
@@ -980,19 +1116,23 @@ OMERO Diagnostics %s
         pathobj = path(filepath)
 
         if not pathobj.exists():
-            self.ctx.die(8, "FATAL: OMERO directory does not exist: %s" % pathobj)
+            self.ctx.die(8, "FATAL: OMERO directory does not exist: %s"
+                         % pathobj)
 
         owner = os.stat(filepath)[stat.ST_UID]
         if owner == 0:
             msg = ""
-            msg += "FATAL: OMERO directory which needs to be writeable belongs to root: %s\n" % filepath
-            msg += "Please use \"chown -R NEWUSER %s\" and run as then run %s as NEWUSER" % (filepath, sys.argv[0])
+            msg += "FATAL: OMERO directory which needs to be writeable"\
+                " belongs to root: %s\n" % filepath
+            msg += "Please use \"chown -R NEWUSER %s\" and run as then"\
+                " run %s as NEWUSER" % (filepath, sys.argv[0])
             self.ctx.die(9, msg)
         else:
             if not os.access(filepath, mask):
-                self.ctx.die(10, "FATAL: Cannot access %s, a required file/directory for OMERO" % filepath)
+                self.ctx.die(10, "FATAL: Cannot access %s, a required"
+                             " file/directory for OMERO" % filepath)
 
-    def check_access(self, mask=os.R_OK|os.W_OK, config=None):
+    def check_access(self, mask=os.R_OK | os.W_OK, config=None):
         """Check that 'var' is accessible by the current user."""
 
         var = self.ctx.dir / 'var'
@@ -1034,8 +1174,8 @@ OMERO Diagnostics %s
             compat = ice_compatibility.split(".")
             vers = vers.split(".")
             if compat[0:2] != vers[0:2]:
-                self.ctx.die(164, "%s is not compatible with %s: %s" % \
-                        (msg, ".".join(compat), ".".join(vers)))
+                self.ctx.die(164, "%s is not compatible with %s: %s"
+                             % (msg, ".".join(compat), ".".join(vers)))
 
         import Ice
         vers = Ice.stringVersion()
@@ -1089,12 +1229,13 @@ OMERO Diagnostics %s
         import omero.java
         server_dir = self.ctx.dir / "lib" / "server"
         log4j = "-Dlog4j.configuration=log4j-cli.properties"
-        classpath = [ file.abspath() for file in server_dir.files("*.jar") ]
-        xargs = [ log4j, "-Xmx1024M", "-cp", os.pathsep.join(classpath) ]
+        classpath = [file.abspath() for file in server_dir.files("*.jar")]
+        xargs = [log4j, "-Xmx1024M", "-cp", os.pathsep.join(classpath)]
 
         cfg = config.as_map()
         config.close()  # Early close. See #9800
-        for x in ("name", "user", "host", "port"): # NOT passing password on command-line
+        for x in ("name", "user", "host", "port"):
+            # NOT passing password on command-line
             k = "omero.db.%s" % x
             if k in cfg:
                 v = cfg[k]
@@ -1121,8 +1262,11 @@ OMERO Diagnostics %s
         if getattr(args, "jdwp"):
             debug = True
 
-        self.ctx.dbg("Launching Java: %s, debug=%s, xargs=%s" % (cmd, debug, xargs))
-        p = omero.java.popen(cmd, debug=debug, xargs=xargs, stdout=sys.stdout, stderr=sys.stderr) # FIXME. Shouldn't use std{out,err}
+        self.ctx.dbg(
+            "Launching Java: %s, debug=%s, xargs=%s" % (cmd, debug, xargs))
+        p = omero.java.popen(
+            cmd, debug=debug, xargs=xargs, stdout=sys.stdout,
+            stderr=sys.stderr)  # FIXME. Shouldn't use std{out,err}
         self.ctx.rv = p.wait()
 
     def ports(self, args):
@@ -1130,7 +1274,8 @@ OMERO Diagnostics %s
         from omero.install.change_ports import change_ports
         if not args.skipcheck:
             if 0 == self.status(args, node_only=True):
-                self.ctx.die(100, "Can't change ports while the server is running!")
+                self.ctx.die(
+                    100, "Can't change ports while the server is running!")
 
             # Resetting return value.
             self.ctx.rv = 0
@@ -1138,22 +1283,23 @@ OMERO Diagnostics %s
         if args.prefix:
             for x in ("registry", "tcp", "ssl"):
                 setattr(args, x, "%s%s" % (args.prefix, getattr(args, x)))
-        change_ports(args.ssl, args.tcp, args.registry, args.revert, dir=self.ctx.dir)
+        change_ports(
+            args.ssl, args.tcp, args.registry, args.revert, dir=self.ctx.dir)
 
     def cleanse(self, args):
         self.check_access()
         from omero.util.cleanse import cleanse
         client = self.ctx.conn(args)
-        key = client.getSessionId()
-        cleanse(data_dir=args.data_dir, dry_run=args.dry_run, \
-            query_service=client.sf.getQueryService(), \
-            config_service=client.sf.getConfigService())
+        cleanse(data_dir=args.data_dir, dry_run=args.dry_run,
+                query_service=client.sf.getQueryService(),
+                config_service=client.sf.getConfigService())
 
     def sessionlist(self, args):
         client = self.ctx.conn(args)
         service = client.sf.getQueryService()
         params = omero.sys.ParametersI()
-        query = "select s from Session s join fetch s.node n join fetch s.owner o where s.closed is null and n.id != 0"
+        query = "select s from Session s join fetch s.node n join fetch"\
+            " s.owner o where s.closed is null and n.id != 0"
         results = service.findAllByQuery(query, params)
         mapped = list()
         for s in results:
@@ -1179,7 +1325,8 @@ OMERO Diagnostics %s
                     rv.append("current session")
                 else:
                     rv.append("")
-        self.ctx.controls["hql"].display(mapped, ("node", "session", "started", "owner", "agent", "notes"))
+        self.ctx.controls["hql"].display(
+            mapped, ("node", "session", "started", "owner", "agent", "notes"))
 try:
     register("admin", AdminControl, HELP)
 except NameError:

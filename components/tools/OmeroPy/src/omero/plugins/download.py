@@ -16,11 +16,13 @@ from omero.cli import BaseControl, CLI
 
 HELP = """Download the given file id to the given filename"""
 
+
 class DownloadControl(BaseControl):
 
     def _configure(self, parser):
         parser.add_argument("id", help="OriginalFile id")
-        parser.add_argument("filename", help="Local filename to be saved to. '-' for stdout")
+        parser.add_argument(
+            "filename", help="Local filename to be saved to. '-' for stdout")
         parser.set_defaults(func=self.__call__)
         parser.add_login_arguments()
 
@@ -31,7 +33,7 @@ class DownloadControl(BaseControl):
         target_file = str(args.filename)
         client = self.ctx.conn(args)
         if target_file == "-":
-            client.download(orig_file, filehandle = sys.stdout)
+            client.download(orig_file, filehandle=sys.stdout)
             sys.stdout.flush()
         else:
             client.download(orig_file, target_file)
