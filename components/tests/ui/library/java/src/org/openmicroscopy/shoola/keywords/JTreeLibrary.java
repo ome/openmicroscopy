@@ -100,6 +100,22 @@ public class JTreeLibrary
     }
 
     /**
+     * A matcher for tree nodes.
+     * @author m.t.b.carroll@dundee.ac.uk
+     * @since 4.4.9
+     */
+    private interface TreeNodeMatcher {
+        /**
+         * Check if the sought tree node is the given one.
+         * @param treePath the tree path to the node
+         * @param component the component used in rendering the tree cell
+         * @param node the tree node
+         * @return if the tree node matches
+         */
+        public boolean matches(TreePath treePath, Component component, Object node);
+    }
+
+    /**
      * Wraps the <code>Get Matching Tree Path</code> keyword for Robot Framework
      * in a Jemmy {@link org.robotframework.org.netbeans.jemmy.Waiter}.
      * @author m.t.b.carroll@dundee.ac.uk
@@ -220,45 +236,53 @@ public class JTreeLibrary
     }
 
     /**
-     * <table>
-     *   <td>Get Tree Path With Image Icon</td>
-     *   <td>the name of the sought path's icon</td>
-     *   <td><code>JTree</code> component name</td>
-     * <table>
-     * @param iconName the name of the icon sought among the tree nodes
+     * Find the path to a specific node in a tree, expanding nodes during the hunt.
+     * @param matcher to identify the sought node
      * @param treeName the name of the tree among whose nodes to search
-     * @return a tree path from the tree whose node bears the given icon
-     * @throws MultipleComponentsFoundException if multiple suitable components have the given name
-     * @throws ComponentNotFoundException if no suitable components have the given name
+     * @return the path to a matching tree node
+     * @throws MultipleComponentsFoundException if multiple suitable trees have the given name
+     * @throws ComponentNotFoundException if no suitable trees nodes have the given name or no nodes match
      */
-    public String getTreePathWithImageIcon(final String iconName, final String treeName)
+    public String findInTree(TreeNodeMatcher matcher, final String treeName)
             throws ComponentNotFoundException, MultipleComponentsFoundException {
-        final Set<TreePath> wrongIconPaths = new HashSet<TreePath>();
-        final Set<TreePath> pathsToExpand = new HashSet<TreePath>();
         final JTree tree = (JTree) new BasicFinder().find(new Matcher() {
             public boolean matches(Component component) {
                 return component instanceof JTree && treeName.equals(component.getName());
             }});
+        return findInTree(matcher, tree);
+    }
+
+    /**
+     * Find the path to a specific node in a tree, expanding nodes during the hunt.
+     * @param matcher to identify the sought node
+     * @param tree the tree among whose nodes to search
+     * @return the path to a matching tree node
+     * @throws ComponentNotFoundException if no nodes match
+     */
+    private String findInTree(TreeNodeMatcher matcher, final JTree tree)
+            throws ComponentNotFoundException {
+        final Set<TreePath> wrongTreePaths = new HashSet<TreePath>();
+        final Set<TreePath> pathsToExpand = new HashSet<TreePath>();
         final TreeModel model = tree.getModel();
         final TreeCellRenderer renderer = tree.getCellRenderer();
         while (true) {
             final int rowCount = tree.getRowCount();
             for (int rowIndex = 0; rowIndex < rowCount; rowIndex++) {
                 final TreePath path = tree.getPathForRow(rowIndex);
-                if (path == null || wrongIconPaths.contains(path)) {
+                if (path == null || wrongTreePaths.contains(path)) {
                     continue;
                 }
                 final Object node = path.getLastPathComponent();
                 final Component rowComponent =
                         renderer.getTreeCellRendererComponent(tree, node, false, false, false, rowIndex, false);
-                if (iconName.equals(IconCheckLibrary.getIconNameMaybe(rowComponent))) {
+                if (matcher.matches(path, rowComponent, node)) {
                     tree.setSelectionRow(rowIndex);
                     return new TreePathGetter(tree).getTreeNodePath(path);
                 }
                 if (!(pathsToExpand.contains(path) || model.isLeaf(path.getLastPathComponent()) || tree.isExpanded(rowIndex))) {
                     pathsToExpand.add(path);
                 }
-                wrongIconPaths.add(path);
+                wrongTreePaths.add(path);
             }
             final Iterator<TreePath> pathIterator = pathsToExpand.iterator();
             if (pathIterator.hasNext()) {
@@ -269,9 +293,62 @@ public class JTreeLibrary
                     Thread.sleep(2000);
                 } catch (InterruptedException e) { }
             } else {
-                throw new RuntimeException("no tree paths with ImageIcon " + iconName);
+                throw new ComponentNotFoundException();
             }
         }
+    }
+
+    /**
+     * <table>
+     *   <td>Get Tree Path With Image Icon</td>
+     *   <td>name of the sought path's icon</td>
+     *   <td><code>JTree</code> component name</td>
+     * <table>
+     * @param iconName the name of the icon sought among the tree nodes
+     * @param treeName the name of the tree among whose nodes to search
+     * @return a tree path from the tree whose node bears the given icon
+     * @throws MultipleComponentsFoundException if multiple suitable components have the given name
+     * @throws ComponentNotFoundException if no suitable components have the given name
+     */
+    public String getTreePathWithImageIcon(final String iconName, final String treeName)
+            throws ComponentNotFoundException, MultipleComponentsFoundException {
+        final TreeNodeMatcher matcher = new TreeNodeMatcher() {
+            @Override
+            public boolean matches(TreePath treepath, Component component, Object node) {
+                return iconName.equals(IconCheckLibrary.getIconNameMaybe(component));
+            }};
+        return findInTree(matcher, treeName);
+    }
+
+    /**
+     * <table>
+     *   <td>Get Tree Path With Icon And Suffix</td>
+     *   <td>name of the sought node's image icon</td>
+     *   <td>required suffix of the sought node's text</td>
+     *   <td><code>JTree</code> component name</td>
+     * <table>
+     * @param iconName the name of the icon sought among the tree nodes
+     * @param nodeSuffix the suffix of the sought node's text
+     * @param treeName the name of the tree among whose nodes to search
+     * @return a tree path from the tree whose node matches the given criteria
+     * @throws MultipleComponentsFoundException if multiple suitable components have the given name
+     * @throws ComponentNotFoundException if no suitable components have the given name or no suitable node can be found
+     */
+    public String getTreePathWithIconAndSuffix(final String iconName, final String nodeSuffix, final String treeName)
+            throws ComponentNotFoundException, MultipleComponentsFoundException {
+        final JTree tree = (JTree) new BasicFinder().find(new Matcher() {
+            public boolean matches(Component component) {
+                return component instanceof JTree && treeName.equals(component.getName());
+            }});
+        final NodeTextExtractor treeNodeTextExtractor = new NodeTextExtractor(tree);
+        final TreeNodeMatcher matcher = new TreeNodeMatcher() {
+            @Override
+            public boolean matches(TreePath treePath, Component component, Object node) {
+                final String nodeText = treeNodeTextExtractor.getText(node, treePath);
+                return nodeText != null && nodeText.endsWith(nodeSuffix) &&
+                        iconName.equals(IconCheckLibrary.getIconNameMaybe(component));
+            }};
+        return findInTree(matcher, tree);
     }
 
     /**
