@@ -19,7 +19,7 @@
 
 package ome.util.checksum;
 
-import java.util.zip.Adler32;
+import com.google.common.hash.Hashing;
 
 /**
  * An implementation of the {@link ChecksumProvider} interface using Adler32
@@ -33,7 +33,8 @@ import java.util.zip.Adler32;
 public final class Adler32ChecksumProviderImpl extends AbstractChecksumProvider {
 
     public Adler32ChecksumProviderImpl() {
-        super(new NonGuavaHashFunctionImpl(new Adler32()));
+        super(Hashing.adler32());
+        this.convertToBigEndian = true;
     }
 
 }
