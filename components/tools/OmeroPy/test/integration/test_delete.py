@@ -99,7 +99,7 @@ class TestDelete(lib.ITest):
         handle = self.client.sf.submit(dc)
         cb = self.waitOnCmd(self.client, handle)
 
-        assert None ==  query.find('Project', project.id.val)
+        assert not query.find('Project', project.id.val)
         assert dataset.id.val ==  query.find('Dataset', dataset.id.val).id.val
 
         p = omero.sys.Parameters()
@@ -139,7 +139,7 @@ class TestDelete(lib.ITest):
 
         callback.close(True) # Don't close handle
 
-        assert None ==  query.find("Image", iid)
+        assert not query.find("Image", iid)
 
         # create new session and double check
         import os
@@ -364,7 +364,7 @@ class TestDelete(lib.ITest):
 
         if len(failure) > 0:
             assert False, ";".join(failure)
-        assert None ==  query_o.find('Dataset', dataset.id.val)
+        assert not query_o.find('Dataset', dataset.id.val)
 
     def test5793(self):
         uuid = self.client.sf.getAdminService().getEventContext().sessionUuid
@@ -391,7 +391,7 @@ class TestDelete(lib.ITest):
         handle = self.client.sf.submit(command)
         callback = self.waitOnCmd(self.client, handle)
 
-        assert None ==  query.find("TagAnnotation", tagset.id.val)
+        assert not query.find("TagAnnotation", tagset.id.val)
         assert tag.id.val ==  query.find("TagAnnotation", tag.id.val).id.val
 
     def test7314(self):
@@ -440,15 +440,15 @@ class TestDelete(lib.ITest):
         # since fileset cleanup is happening at the end of the transaction
         # disabling and marking in ticket.
         # The delete should fail due to the fileset
-        ### self.assertTrue('Fileset' in rsp.constraints, "delete should fail due to 'Fileset' constraints")
+        ### assert 'Fileset' in rsp.constraints,  "delete should fail due to 'Fileset' constraints"
         ### failedFilesets = rsp.constraints['Fileset']
-        ### self.assertEqual(len(failedFilesets), 1, "delete should fail due to a single Fileset")
-        ### self.assertEqual(failedFilesets[0], filesetId, "delete should fail due to this Fileset")
+        ### assert len(failedFilesets) ==  1,  "delete should fail due to a single Fileset"
+        ### assert failedFilesets[0] ==  filesetId,  "delete should fail due to this Fileset"
 
         # Neither image or the dataset should be deleted.
-        self.assertEquals(datasets[0].id.val, query.find("Dataset", datasets[0].id.val).id.val)
-        self.assertEquals(images[0].id.val, query.find("Image", images[0].id.val).id.val)
-        self.assertEquals(images[1].id.val, query.find("Image", images[1].id.val).id.val)
+        assert datasets[0].id.val ==  query.find("Dataset", datasets[0].id.val).id.val
+        assert images[0].id.val ==  query.find("Image", images[0].id.val).id.val
+        assert images[1].id.val ==  query.find("Image", images[1].id.val).id.val
 
     def testDeleteOneImageFilesetErr(self):
         """
@@ -474,14 +474,14 @@ class TestDelete(lib.ITest):
         # since fileset cleanup is happening at the end of the transaction
         # disabling and marking in ticket.
         ### # The delete should fail due to the fileset
-        ### self.assertTrue('Fileset' in rsp.constraints, "delete should fail due to 'Fileset' constraints")
+        ### assert 'Fileset' in rsp.constraints,  "delete should fail due to 'Fileset' constraints"
         ### failedFilesets = rsp.constraints['Fileset']
-        ### self.assertEqual(len(failedFilesets), 1, "delete should fail due to a single Fileset")
-        ### self.assertEqual(failedFilesets[0], filesetId, "delete should fail due to this Fileset")
+        ### assert len(failedFilesets) ==  1,  "delete should fail due to a single Fileset"
+        ### assert failedFilesets[0] ==  filesetId,  "delete should fail due to this Fileset"
 
         # Neither image should be deleted.
-        self.assertEquals(images[0].id.val, query.find("Image", images[0].id.val).id.val)
-        self.assertEquals(images[1].id.val, query.find("Image", images[1].id.val).id.val)
+        assert images[0].id.val ==  query.find("Image", images[0].id.val).id.val
+        assert images[1].id.val ==  query.find("Image", images[1].id.val).id.val
 
     def testDeleteDatasetFilesetOK(self):
         """
@@ -508,10 +508,10 @@ class TestDelete(lib.ITest):
         self.doAllSubmit([delete], client)
 
         # The dataset, fileset and both images should be deleted.
-        self.assertEquals(None, query.find("Dataset", ds.id.val))
-        self.assertEquals(None, query.find("Fileset", fsId))
-        self.assertEquals(None, query.find("Image", images[0].id.val))
-        self.assertEquals(None, query.find("Image", images[1].id.val))
+        assert not query.find("Dataset", ds.id.val)
+        assert not query.find("Fileset", fsId)
+        assert not query.find("Image", images[0].id.val)
+        assert not query.find("Image", images[1].id.val)
 
     def testDeleteAllDatasetsFilesetOK(self):
         """
@@ -537,11 +537,11 @@ class TestDelete(lib.ITest):
         self.doAllSubmit([delete1,delete2], client)
 
         # Both datasets, the fileset and both images should be deleted.
-        self.assertEquals(None, query.find("Dataset", datasets[0].id.val))
-        self.assertEquals(None, query.find("Dataset", datasets[1].id.val))
-        self.assertEquals(None, query.find("Fileset", fsId))
-        self.assertEquals(None, query.find("Image", images[0].id.val))
-        self.assertEquals(None, query.find("Image", images[1].id.val))
+        assert not query.find("Dataset", datasets[0].id.val)
+        assert not query.find("Dataset", datasets[1].id.val)
+        assert not query.find("Fileset", fsId)
+        assert not query.find("Image", images[0].id.val)
+        assert not query.find("Image", images[1].id.val)
 
     def testDeleteAllImagesFilesetOK(self):
         """
@@ -561,9 +561,9 @@ class TestDelete(lib.ITest):
         self.doAllSubmit([delete1,delete2], client)
 
         # The fileset and both images should be deleted.
-        self.assertEquals(None, query.find("Fileset", fsId))
-        self.assertEquals(None, query.find("Image", images[0].id.val))
-        self.assertEquals(None, query.find("Image", images[1].id.val))
+        assert not query.find("Fileset", fsId)
+        assert not query.find("Image", images[0].id.val)
+        assert not query.find("Image", images[1].id.val)
 
     def testDeleteFilesetOK(self):
         """
@@ -581,9 +581,9 @@ class TestDelete(lib.ITest):
         self.doAllSubmit([delete], client)
 
         # The dataset, fileset and both images should be deleted.
-        self.assertEquals(None, query.find("Fileset", fsId))
-        self.assertEquals(None, query.find("Image", images[0].id.val))
-        self.assertEquals(None, query.find("Image", images[1].id.val))
+        assert not query.find("Fileset", fsId)
+        assert not query.find("Image", images[0].id.val)
+        assert not query.find("Image", images[1].id.val)
 
     def testDeleteImagesTwoFilesetsErr(self):
         """
@@ -610,11 +610,11 @@ class TestDelete(lib.ITest):
         # since fileset cleanup is happening at the end of the transaction
         # disabling and marking in ticket.
         # ...due to the filesets
-        ### self.assertTrue('Fileset' in rsp.constraints, "Delete should fail due to 'Fileset' constraints")
+        ### assert 'Fileset' in rsp.constraints,  "Delete should fail due to 'Fileset' constraints"
         ### failedFilesets = rsp.constraints['Fileset']
-        ### self.assertEqual(len(failedFilesets), 2, "Delete should fail due to a Two Filesets")
-        ### self.assertTrue(filesetOneId in failedFilesets)
-        ### self.assertTrue(filesetTwoId in failedFilesets)
+        ### assert len(failedFilesets) ==  2,  "Delete should fail due to a Two Filesets"
+        ### assert filesetOneId in failedFilesets
+        ### assert filesetTwoId in failedFilesets
 
     def testDeleteDatasetTwoFilesetsErr(self):
         """
@@ -652,11 +652,11 @@ class TestDelete(lib.ITest):
         # since fileset cleanup is happening at the end of the transaction
         # disabling and marking in ticket.
         # ...due to the filesets
-        ### self.assertTrue('Fileset' in rsp.constraints, "Delete should fail due to 'Fileset' constraints")
+        ### assert 'Fileset' in rsp.constraints,  "Delete should fail due to 'Fileset' constraints"
         ### failedFilesets = rsp.constraints['Fileset']
-        ### self.assertEqual(len(failedFilesets), 2, "Delete should fail due to a Two Filesets")
-        ### self.assertTrue(filesetOneId in failedFilesets)
-        ### self.assertTrue(filesetTwoId in failedFilesets)
+        ### assert len(failedFilesets) ==  2,  "Delete should fail due to a Two Filesets"
+        ### assert filesetOneId in failedFilesets
+        ### assert filesetTwoId in failedFilesets
 
 if __name__ == '__main__':
     if "TRACE" in os.environ:

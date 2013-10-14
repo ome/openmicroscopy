@@ -134,12 +134,12 @@ class TestClientConstructors(lib.ITest):
     def testBlockSize(self):
         c = omero.client("localhost")
         try:
-            self.assertEquals(5000000, c.getDefaultBlockSize())
+            assert 5000000 == c.getDefaultBlockSize()
         finally:
             c.__del__()
         c = omero.client("localhost",["--omero.block_size=1000000"])
         try:
-            self.assertEquals(1000000, c.getDefaultBlockSize())
+            assert 1000000 == c.getDefaultBlockSize()
         finally:
             c.__del__()
 

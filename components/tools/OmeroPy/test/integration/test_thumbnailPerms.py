@@ -17,8 +17,9 @@
    
    
 """
-import unittest, time
+import time
 import test.integration.library as lib
+import pytest
 import omero
 from omero.rtypes import rtime, rlong, rstring, rlist, rint
 from omero_model_ExperimenterI import ExperimenterI
@@ -54,7 +55,7 @@ class TestThumbnailPerms(lib.ITest):
         new_gr1.details.permissions = p
         gid = admin.createGroup(new_gr1)
         privateGroup = admin.getGroup(gid)
-        self.assertEquals('rw----', str(privateGroup.details.permissions))
+        assert 'rw----' ==  str(privateGroup.details.permissions)
         listOfGroups.append(privateGroup)
         
         #group2 - read-only
@@ -64,7 +65,7 @@ class TestThumbnailPerms(lib.ITest):
         new_gr2.details.permissions = p2
         gid2 = admin.createGroup(new_gr2)
         readOnlyGroup = admin.getGroup(gid2)
-        self.assertEquals('rwr---', str(readOnlyGroup.details.permissions))
+        assert 'rwr---' ==  str(readOnlyGroup.details.permissions)
         listOfGroups.append(readOnlyGroup)
         
         #group3 - read-annotate
@@ -74,7 +75,7 @@ class TestThumbnailPerms(lib.ITest):
         new_gr3.details.permissions = p
         gid3 = admin.createGroup(new_gr3)
         collaborativeGroup = admin.getGroup(gid3)
-        self.assertEquals('rwra--', str(collaborativeGroup.details.permissions))
+        assert 'rwra--' ==  str(collaborativeGroup.details.permissions)
         listOfGroups.append(collaborativeGroup)
         
         #new user (group owner)

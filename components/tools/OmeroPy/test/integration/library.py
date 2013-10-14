@@ -217,7 +217,7 @@ class ITest(object):
         query = client.sf.getQueryService()
         fake = create_path(name, "&series=%d.fake" % seriesCount)
         pixelIds = self.import_image(filename=fake.abspath(), client=client)
-        self.assertEqual(seriesCount, len(pixelIds))
+        assert seriesCount == len(pixelIds)
 
         images = []
         for pixIdStr in pixelIds:

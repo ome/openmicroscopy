@@ -157,10 +157,10 @@ class TestSplitFilesets(lib.ITest):
             return True
 
         # compare result with expected...
-        self.assertEqual(set(result.keys()), set(expected.keys()), "Result should have expected Fileset IDs")
+        assert set(result.keys()) ==  set(expected.keys()),  "Result should have expected Fileset IDs"
         for fsId, expectedDict in expected.items():
-            self.assertTrue(cmpLists(expectedDict[True], result[fsId][True]), "True ImageIDs should match")
-            self.assertTrue(cmpLists(expectedDict[False], result[fsId][False]), "False ImageIDs should match")
+            assert cmpLists(expectedDict[True],  result[fsId][True]), "True ImageIDs should match"
+            assert cmpLists(expectedDict[False],  result[fsId][False]), "False ImageIDs should match"
 
     def testFilesetSplitByImage(self):
         """
@@ -457,6 +457,3 @@ class TestSplitFilesets(lib.ITest):
                     expected[fileset_id][included] = [ images[image_index].id.val for image_index in image_indices[included] ]
             if ipojo.getImagesBySplitFilesets(referenced, None) != expected:
                 raise Exception('for referenced ' + str(named_indices) + ' expected ' + str(fileset_split))
-
-if __name__ == '__main__':
-    unittest.main()

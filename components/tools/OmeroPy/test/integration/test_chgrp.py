@@ -9,6 +9,7 @@
 
 import omero, omero.gateway
 import test.integration.library as lib
+import pytest
 from omero.rtypes import *
 from omero.api import Save
 
@@ -42,7 +43,7 @@ class TestChgrp(lib.ITest):
         admin.setDefaultGroup(exp, omero.model.ExperimenterGroupI(gid, False))
         self.set_context(client, gid)
         # ...check image
-        img = client.sf.getQueryService().get("Image", imageId)
+        img = client.sf.getQueryService().get("Image", image.id.val)
         assert img.details.group.id.val ==  gid
 
 
@@ -214,10 +215,10 @@ class TestChgrp(lib.ITest):
         # disabling and marking in ticket.
         # The delete should fail due to the fileset
         # The chgrp should fail due to the fileset
-        ### self.assertTrue('Fileset' in rsp.constraints, "chgrp should fail due to 'Fileset' constraints")
+        ### assert 'Fileset' in rsp.constraints,  "chgrp should fail due to 'Fileset' constraints"
         ### failedFilesets = rsp.constraints['Fileset']
-        ### self.assertEqual(len(failedFilesets), 1, "chgrp should fail due to a single Fileset")
-        ### self.assertEqual(failedFilesets[0], filesetId, "chgrp should fail due to this Fileset")
+        ### assert len(failedFilesets) ==  1,  "chgrp should fail due to a single Fileset"
+        ### assert failedFilesets[0] ==  filesetId,  "chgrp should fail due to this Fileset"
 
 
     def testChgrpAllImagesFilesetOK(self):
@@ -245,7 +246,7 @@ class TestChgrp(lib.ITest):
         for i in images:
             image = queryService.get('Image', i.id.val, ctx)
             img_gid = image.details.group.id.val
-            self.assertEqual(target_gid, img_gid, "Image should be in group: %s, NOT %s" % (target_gid, img_gid))
+            assert target_gid ==  img_gid, "Image should be in group: %s, NOT %s" % (target_gid,  img_gid)
 
 
     def testChgrpOneDatasetFilesetErr(self):
@@ -284,10 +285,10 @@ class TestChgrp(lib.ITest):
         # disabling and marking in ticket.
         # The delete should fail due to the fileset
         # ...due to the fileset
-        ### self.assertTrue('Fileset' in rsp.constraints, "chgrp should fail due to 'Fileset' constraints")
+        ### assert 'Fileset' in rsp.constraints,  "chgrp should fail due to 'Fileset' constraints"
         ### failedFilesets = rsp.constraints['Fileset']
-        ### self.assertEqual(len(failedFilesets), 1, "chgrp should fail due to a single Fileset")
-        ### self.assertEqual(failedFilesets[0], filesetId, "chgrp should fail due to this Fileset")
+        ### assert len(failedFilesets) ==  1,  "chgrp should fail due to a single Fileset"
+        ### assert failedFilesets[0] ==  filesetId,  "chgrp should fail due to this Fileset"
 
 
     def testChgrpAllDatasetsFilesetOK(self):
@@ -322,8 +323,8 @@ class TestChgrp(lib.ITest):
         for i in range(2):
             dataset = queryService.get('Dataset', datasets[i].id.val, ctx)
             image = queryService.get('Image', images[i].id.val, ctx)
-            self.assertEqual(target_gid, dataset.details.group.id.val, "Dataset should be in group: %s" % target_gid)
-            self.assertEqual(target_gid, image.details.group.id.val, "Image should be in group: %s" % target_gid)
+            assert target_gid ==  dataset.details.group.id.val,  "Dataset should be in group: %s" % target_gid
+            assert target_gid ==  image.details.group.id.val,  "Image should be in group: %s" % target_gid
 
 
     def testChgrpOneDatasetFilesetOK(self):
@@ -357,11 +358,11 @@ class TestChgrp(lib.ITest):
         queryService = client.sf.getQueryService()
         ctx = {'omero.group': '-1'}      # query across groups
         dataset = queryService.get('Dataset', ds.id.val, ctx)
-        self.assertEqual(target_gid, dataset.details.group.id.val, "Dataset should be in group: %s" % target_gid)
+        assert target_gid ==  dataset.details.group.id.val,  "Dataset should be in group: %s" % target_gid
         for i in range(2):
             image = queryService.get('Image', images[i].id.val, ctx)
             img_gid = image.details.group.id.val
-            self.assertEqual(target_gid, img_gid, "Image should be in group: %s, NOT %s" % (target_gid, img_gid))
+            assert target_gid ==  img_gid, "Image should be in group: %s, NOT %s" % (target_gid,  img_gid)
 
 
     def testChgrpImagesTwoFilesetsErr(self):
@@ -394,9 +395,9 @@ class TestChgrp(lib.ITest):
         # disabling and marking in ticket.
         # The delete should fail due to the fileset
         # ...due to the filesets
-        ### self.assertTrue('Fileset' in rsp.constraints, "chgrp should fail due to 'Fileset' constraints")
+        ### assert 'Fileset' in rsp.constraints,  "chgrp should fail due to 'Fileset' constraints"
         ### failedFilesets = rsp.constraints['Fileset']
-        ### self.assertEqual(len(failedFilesets), 2, "chgrp should fail due to a Two Filesets")
+        ### assert len(failedFilesets) ==  2,  "chgrp should fail due to a Two Filesets"
         ### self.assertTrue(filesetOneId in failedFilesets)
         ### self.assertTrue(filesetTwoId in failedFilesets)
 
@@ -441,9 +442,9 @@ class TestChgrp(lib.ITest):
         # disabling and marking in ticket.
         # The delete should fail due to the fileset
         # ...due to the filesets
-        ### self.assertTrue('Fileset' in rsp.constraints, "chgrp should fail due to 'Fileset' constraints")
+        ### assert 'Fileset' in rsp.constraints,  "chgrp should fail due to 'Fileset' constraints"
         ### failedFilesets = rsp.constraints['Fileset']
-        ### self.assertEqual(len(failedFilesets), 2, "chgrp should fail due to a Two Filesets")
+        ### assert len(failedFilesets) ==  2,  "chgrp should fail due to a Two Filesets"
         ### self.assertTrue(filesetOneId in failedFilesets)
         ### self.assertTrue(filesetTwoId in failedFilesets)
 
@@ -482,7 +483,7 @@ class TestChgrp(lib.ITest):
         fsId = image1.fileset.id.val
         image_gid = image1.details.group.id.val
         fileset_gid = qs.get("Fileset", fsId, ctx).details.group.id.val
-        self.assertEqual(image_gid, fileset_gid, "Image group: %s and Fileset group: %s don't match" % (image_gid, fileset_gid))
+        assert image_gid ==  fileset_gid, "Image group: %s and Fileset group: %s don't match" % (image_gid,  fileset_gid)
 
     def testChgrpFilesetOK(self):
         """
@@ -507,11 +508,11 @@ class TestChgrp(lib.ITest):
         # Check Fileset and both Images moved and thus the Fileset is in sync with Images.
         ctx = {'omero.group': '-1'}      # query across groups
         fileset = query.get('Fileset', fsId, ctx)
-        self.assertEqual(target_gid, fileset.details.group.id.val, "Fileset should be in group: %s" % target_gid)
+        assert target_gid ==  fileset.details.group.id.val,  "Fileset should be in group: %s" % target_gid
         for i in range(2):
             image = query.get('Image', images[i].id.val, ctx)
             img_gid = image.details.group.id.val
-            self.assertEqual(target_gid, img_gid, "Image should be in group: %s, NOT %s" % (target_gid, img_gid))
+            assert target_gid ==  img_gid, "Image should be in group: %s, NOT %s" % (target_gid,  img_gid)
 
     def testChgrp11000(self):
         """
@@ -579,21 +580,21 @@ class TestChgrp(lib.ITest):
 
         # Check that the links have been destroyed
         query = client.sf.getQueryService()
-        self.assertRaises(omero.ValidationException,
-                          query.get, "ScreenPlateLink", link.id.val, {"omero.group":"-1"})
+        with pytest.raises(omero.ValidationException):
+            query.get("ScreenPlateLink", link.id.val, {"omero.group":"-1"})
 
 
 class TestChgrpTarget(lib.ITest):
 
     def createDSInGroup(self, gid, name=None, client=None):
         if name is None:
-            name = self.id()
+            name = self.uuid()
         if client is None:
             client = self.client
         ctx = {'omero.group': str(gid)}
         update = client.sf.getUpdateService()
         ds = omero.model.DatasetI()
-        ds.name = rstring(self.id())
+        ds.name = rstring(name)
         return update.saveAndReturnObject(ds, ctx)
 
     def chgrpImagesToTargetDataset(self, imgCount):
@@ -631,10 +632,10 @@ class TestChgrpTarget(lib.ITest):
         for i in images:
             image = queryService.get('Image', i.id.val, ctx)
             img_gid = image.details.group.id.val
-            self.assertEqual(target_gid, img_gid, "Image should be in group: %s, NOT %s" % (target_gid, img_gid))
+            assert target_gid ==  img_gid, "Image should be in group: %s, NOT %s" % (target_gid,  img_gid)
         # Check Dataset has images linked
         dsImgs = client.sf.getContainerService().getImages('Dataset', [ds.id.val], None, ctx)
-        self.assertEqual(len(dsImgs), len(images), "All Images should be in target Dataset")
+        assert len(dsImgs) ==  len(images),  "All Images should be in target Dataset"
 
         previous_gid = admin.getEventContext().groupId
         return (ds, images, client, user, previous_gid, target_gid)
@@ -677,8 +678,4 @@ class TestChgrpTarget(lib.ITest):
         dils = client.sf.getQueryService().findAllByQuery(
             "select dil from DatasetImageLink dil where dil.child.id = :id",
             omero.sys.ParametersI().addId(images[0].id.val), {"omero.group": "-1"})
-        self.assertEquals(1, len(dils))
-
-
-if __name__ == '__main__':
-    unittest.main()
+        assert 1 ==  len(dils)
