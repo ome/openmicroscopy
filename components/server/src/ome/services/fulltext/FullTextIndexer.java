@@ -1,8 +1,20 @@
 /*
- *   $Id$
+ * Copyright (C) 2008-2013 University of Dundee & Open Microscopy Environment.
+ * All rights reserved.
  *
- *   Copyright 2008 Glencoe Software, Inc. All rights reserved.
- *   Use is subject to license terms supplied in LICENSE.txt
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
 package ome.services.fulltext;
@@ -38,7 +50,7 @@ import org.springframework.transaction.annotation.Transactional;
  * Simple action which can be done in an asynchronous thread in order to index
  * Hibernate entities. Attempts to index each {@link EventLog} passed from the
  * {@link EventLogLoader} multiple times on failure. Eventually
- * 
+ *
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta3
  */
@@ -181,7 +193,11 @@ public class FullTextIndexer extends SimpleWork {
                     } else if ("REINDEX".equals(act) || "UPDATE".equals(act) || "INSERT".equals(act)) {
                         IObject obj = get(session, type, id);
                         if (obj == null) {
-                            log.error(String.format("Null returned! Purging "
+                            // This object was deleted before the indexer caught up with
+                            // the INSERT/UDPDATE log. Though this isn't a problem itself,
+                            // this does mean that the indexer is likely going too slow and
+                            // therefore this is at WARN.
+                            log.warn(String.format("Null returned! Purging "
                                     + "since cannot index %s:Id_%s for %s", type
                                     .getName(), id, eventLog));
                             action = new Purge(type, id);
@@ -189,7 +205,10 @@ public class FullTextIndexer extends SimpleWork {
                             action = new Index(obj);
                         }
                     } else {
-                        log.error("Unknown action type: " + act);
+                        // Likely CHGRP-VALIDATION, PIXELDATA or similar.
+                        if (log.isDebugEnabled()) {
+                            log.debug("Unknown action type: " + act);
+                        }
                     }
 
                     if (action != null) {
@@ -216,7 +235,7 @@ public class FullTextIndexer extends SimpleWork {
      * Default implementation suggests doing more if fewer than {@link #reps}
      * runs have been made and if there are still more than
      * {@link EventLogLoader#batchSize} x 100 backlog entries.
-     * 
+     *
      * This is based on the assumption that indexing runs roughly 120 times an
      * hour, so if there are more than an hours worth of batches, do extra work
      * to catch up.
