@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.fsimporter.chooser.LocationDialog 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2011 University of Dundee & Open Microscopy Environment.
+ *  Copyright (C) 2006-2013 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
  *
  *
@@ -635,8 +635,13 @@ class LocationDialog extends JDialog implements ActionListener,
 		
 		JComboBoxImageObject selectedGroupItem = null;
 		JComboBoxImageObject item;
+		List<String> tooltips = new ArrayList<String>(availableGroups.size());
+        List<String> lines;
 		for (GroupData group : availableGroups) {
 			item = new JComboBoxImageObject(group, getGroupIcon(group));
+			lines = new ArrayList<String>();
+            lines.addAll(UIUtilities.wrapStyleWord(group.getName()));
+            tooltips.add(UIUtilities.formatToolTipText(lines));
 			groupsBox.addItem(item);
 			if (selectedGroup != null && selectedGroup.getId() == group.getId())
 				selectedGroupItem = item;
@@ -648,6 +653,7 @@ class LocationDialog extends JDialog implements ActionListener,
 			displayUsers(usersBox, selectedGroup, this, userID);
 		}
 		JComboBoxImageRenderer renderer = new JComboBoxImageRenderer();
+		renderer.setTooltips(tooltips);
 		renderer.setPreferredSize(SELECTION_BOX_SIZE);
 		groupsBox.setRenderer(renderer);
 		
@@ -954,6 +960,32 @@ class LocationDialog extends JDialog implements ActionListener,
 	}
 	
 	/**
+	 * Returns <code>true</code> if the specified user is an administrator,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @param userID The identifier of the user.
+	 * @return See above.
+	 */
+	private boolean isAdmin(long userID)
+	{
+	    Iterator<GroupData> i = groups.iterator();
+	    GroupData g;
+	    Set<ExperimenterData> experimenters;
+	    while (i.hasNext()) {
+            g = i.next();
+            if (GroupData.SYSTEM.equals(g.getName())) {
+                experimenters = g.getExperimenters();
+                Iterator<ExperimenterData> j = experimenters.iterator();
+                while (j.hasNext()) {
+                    if (j.next().getId() == userID)
+                        return true;
+                }
+            }
+        }
+	    return false;
+	}
+	
+	/**
 	 * Populates the JComboBox with the items provided adding hover tooltips,
 	 * selecting the specified item and attaching the listener.
 	 * 
@@ -981,7 +1013,9 @@ class LocationDialog extends JDialog implements ActionListener,
 		GroupData group = getSelectedGroup();
 		long userID = getSelectedUser().getId();
 		ExperimenterData loggedIn = ImporterAgent.getUserDetails();
+		boolean isAdmin = ImporterAgent.isAdministrator();
 		long loggedInID = loggedIn.getId();
+		boolean userIsAdmin = isAdmin(userID);
 		for (DataNode node : listItems) {
 			exp = getExperimenter(node.getOwner());
 			lines = new ArrayList<String>();
@@ -994,7 +1028,7 @@ class LocationDialog extends JDialog implements ActionListener,
 			boolean selectable = true;
 			if (!node.isDefaultNode()) {
 				selectable = canLink(node.getDataObject(), userID, group,
-						loggedInID);
+						loggedInID, isAdmin, userIsAdmin);
 			}
 			
 			Selectable<DataNode> comboBoxItem =
@@ -1026,26 +1060,37 @@ class LocationDialog extends JDialog implements ActionListener,
 	 * @param userID The id of the selected user.
 	 * @param group The selected group.
 	 * @param loggedUserID the if of the user currently logged in.
+	 * @param isAdmin Returns <code>true</code> if the logged in user is an
+	 *                administrator, <code>false</code> otherwise.
+	 * @param userIsAdmin Returns <code>true</code> if the selected user is an
+     *                administrator, <code>false</code> otherwise.
 	 * @return See above.
 	 */
 	private boolean canLink(DataObject node, long userID, GroupData group,
-			long loggedUserID)
+			long loggedUserID, boolean isAdmin, boolean userIsAdmin)
 	{
-		if (userID == loggedUserID) return true;
-		if (!node.canLink()) return false;
-
-		PermissionData permissions = group.getPermissions();
-		if (permissions.isGroupWrite()) return true;
-		Set leaders = group.getLeaders();
-		if (leaders != null) {
-			Iterator i = leaders.iterator();
-			ExperimenterData exp;
-			while (i.hasNext()) {
-				exp = (ExperimenterData) i.next();
-				if (exp.getId() == userID) return true;
-			}
-		}
-		return node.getOwner().getId() == userID;
+	    //data owner
+		if (userID == loggedUserID ||
+		        node.getOwner().getId() == userID) return true;
+		if (!node.canLink()) return false; //handle private group case.
+        PermissionData permissions = group.getPermissions();
+        if (permissions.getPermissionsLevel() == GroupData.PERMISSIONS_PRIVATE)
+            return false;
+        if (permissions.isGroupWrite() || userIsAdmin) return true;
+        //read-only group and higher
+        //is the selected user a group owner.
+        Set leaders = group.getLeaders();
+        if (leaders != null) {
+            Iterator i = leaders.iterator();
+            ExperimenterData exp;
+            while (i.hasNext()) {
+                exp = (ExperimenterData) i.next();
+                if (exp.getId() == userID) return true;
+            }
+        }
+        if (userID != loggedUserID)
+            return false;
+        return isAdmin;
 	}
 	
 	/**
@@ -1085,17 +1130,24 @@ class LocationDialog extends JDialog implements ActionListener,
 		List<ExperimenterData> members = sort(group.getExperimenters());
 		boolean canImportAs;
 		Selectable<ExperimenterDisplay> item;
+		List<String> tooltips = new ArrayList<String>(members.size());
+		List<String> lines;
 		for (ExperimenterData user : members) {
 			canImportAs = canImportForUserInGroup(user, group);
 			item = new Selectable<ExperimenterDisplay>(
 					new ExperimenterDisplay(user), canImportAs);
 			if (user.getId() == userID)
 				selected = item;
-			
+			lines = new ArrayList<String>();
+            lines.addAll(UIUtilities.wrapStyleWord(
+                    EditorUtil.formatExperimenter(user)));
+            tooltips.add(UIUtilities.formatToolTipText(lines));
 			model.addElement(item);
 		}
+		ComboBoxToolTipRenderer renderer = createComboboxRenderer();
+		renderer.setTooltips(tooltips);
 		comboBox.setModel(model);
-		comboBox.setRenderer(createComboboxRenderer());
+		comboBox.setRenderer(renderer);
 		
 		if (selected != null)
 			comboBox.setSelectedItem(selected);
@@ -1531,41 +1583,24 @@ class LocationDialog extends JDialog implements ActionListener,
 	 * Listener for Group and Project JComboBox selection events
 	 * @see ItemChangeListener
 	 */
-	public void itemStateChanged(ItemEvent ie) {
-		Object source = ie.getSource();
-		
-		if (ie.getStateChange() == ItemEvent.SELECTED)
-		{
-			if (source == groupsBox) {
-				storeCurrentSelections();
-				switchToSelectedGroup();
-			} else if(source == usersBox) {
-				switchToSelectedUser();
-			} else if (source == projectsBox) {
-				DataNode node = getSelectedItem(projectsBox);
-				datasetsBox.setEnabled(true);
-				newDatasetButton.setEnabled(true);
-				if (node.isDefaultProject()) {
-					newDatasetButton.setEnabled(true);
-				} else if (!node.getDataObject().canLink()) {
-					projectsBox.setSelectedIndex(0);
-					return;
-				}
-				populateDatasetsBox();
-			} else if (source == datasetsBox) {
-				DataNode node = getSelectedItem(datasetsBox);
-				if (!node.isDefaultNode()) {
-					if (!node.getDataObject().canLink())
-						datasetsBox.setSelectedIndex(0);
-				}
-			} else if (source == screensBox) {
-				DataNode node =  getSelectedItem(screensBox);
-				if (!node.isDefaultNode()) {
-					if (!node.getDataObject().canLink())
-						screensBox.setSelectedIndex(0);
-				}
-			}
-		}
+	public void itemStateChanged(ItemEvent ie)
+	{
+	    Object source = ie.getSource();
+	    if (ie.getStateChange() == ItemEvent.SELECTED) {
+	        if (source == groupsBox) {
+	            storeCurrentSelections();
+	            switchToSelectedGroup();
+	        } else if (source == usersBox) {
+	            switchToSelectedUser();
+	        } else if (source == projectsBox) {
+	            DataNode node = getSelectedItem(projectsBox);
+	            datasetsBox.setEnabled(true);
+	            newDatasetButton.setEnabled(true);
+	            if (node.isDefaultProject())
+	                newDatasetButton.setEnabled(true);
+	            populateDatasetsBox();
+	        }
+	    }
 	}
 
 	/**

@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.fsimporter.DataLoader 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2011 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -31,7 +31,6 @@ import java.util.Collection;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.fsimporter.view.Importer;
 import org.openmicroscopy.shoola.agents.treeviewer.DataBrowserLoader;
-import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import pojos.ProjectData;
@@ -104,10 +103,8 @@ public class DataLoader
 	 */
 	public void load()
 	{
-		long id = userID;
-		if (viewer.getDisplayMode() == LookupNames.GROUP_DISPLAY) id = -1;
 		handle = dmView.loadContainerHierarchy(ctx, rootType, null, false,
-				id, this);
+				-1, this);
 	}
 	
 	/** 
