@@ -58,6 +58,10 @@ public class MeasurementAttributes
 	public static final AttributeKey<Boolean> SHOWID = 
 		new AttributeKey<Boolean>("ShowID", false);
 	
+	/** Should the figure's size be changed while keeping proportions. */
+	public static final AttributeKey<Boolean> SCALE_PROPORTIONALLY =
+		new AttributeKey<Boolean>("ScaleProportionally", false);
+	
 	/** The colour of the measurement text. */
 	public static final AttributeKey<Color> MEASUREMENTTEXT_COLOUR = 
 		new AttributeKey<Color>("MeasurementTextColour", 
