@@ -47,6 +47,7 @@
         <ivy pattern="http://repository.springsource.com/ivy/bundles/external/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]" />
         <artifact pattern="http://repository.springsource.com/ivy/bundles/external/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]" />
       </url>
+      <ibiblio name="ibiblio" m2compatible="true"/>
    </chain>
 
    <!-- Optional resolver which can be modified for using non-SCM jars -->
