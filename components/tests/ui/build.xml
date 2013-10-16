@@ -27,7 +27,7 @@
         <attribute name="output"/>
         <sequential>
             <exec executable="jybot" failonerror="@{failonerror}" dir="${reports.insight}">
-                <env key="CLASSPATH" value="${insight.dir}/app/libs/*:${insight.dir}/dist/omero.insight.jar:${target.dir}/java-ui-libraries-${omero.version}.jar:${lib.dir}/repository/swinglibrary-${versions.robotframework.swinglibrary}.jar"/>
+                <env key="CLASSPATH" value="${insight.dir}/app/libs/*:${insight.dir}/dist/omero.insight.jar:${target.dir}/java-ui-libraries-${omero.version}.jar:${lib.dir}/repository/swinglibrary-${versions.robotframework.swinglibrary}.jar:${lib.dir}/repository/xercesImpl-${versions.xercesImpl}.jar"/>
                     <arg value="-d"/>
                     <arg value="@{output}"/>
                     <arg value="--loglevel"/>
