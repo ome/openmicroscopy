@@ -426,6 +426,7 @@ class TestTickets2000(lib.ITest):
                 """ % ( copied_id, got_id, exp.id.val, [ x.parent.id.val for x in m.copyGroupExperimenterMap() ], [ y.id.val for y in contained ] )
                 # print "exp: id=", m.id.val, "; GEM[0]: ", type(m.copyGroupExperimenterMap()[0].parent), m.copyGroupExperimenterMap()[0].parent.id.val
 
+    @pytest.mark.xfail(reason="See ticket #11539")
     def test1163(self):
         uuid = self.uuid()
         new_gr1 = self.new_group(perms="rw----")

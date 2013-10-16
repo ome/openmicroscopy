@@ -819,6 +819,7 @@ class TestPermissions(lib.ITest):
         self.assertValidScript(lambda v: {'omero.group':
                 str(v.details.group.id.val)})
 
+    @pytest.mark.xfail(reason="See ticket #11539")
     def testUseOfRawFileBeanScriptReadCorrectGroupAndUser(self):
         self.assertValidScript(lambda v: {
             'omero.group': str(v.details.group.id.val),
