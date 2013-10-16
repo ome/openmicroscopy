@@ -450,6 +450,7 @@ class TestTickets2000(lib.ITest):
         res = search1.results()
         assert 1 ==  len(res)
 
+    @pytest.mark.xfail(reason="ticket 11543")
     def test1184(self):
         uuid = self.uuid()
         client = self.new_client(perms="rw----")
