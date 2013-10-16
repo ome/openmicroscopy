@@ -95,6 +95,8 @@ public class AnnotationDescription
 														"Measurement Colour");
 		annotationDescription.put(MeasurementAttributes.SHOWMEASUREMENT,
 														"Show Measurement");
+		annotationDescription.put(MeasurementAttributes.SCALE_PROPORTIONALLY,
+				"Scale Proportionally");
 
 		annotationDescription.put(AnnotationKeys.NAMESPACE,
 														"Workflow");
