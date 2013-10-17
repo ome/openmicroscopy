@@ -45,7 +45,7 @@ from omero_version import omero_version
 
 from django.conf import settings
 from django.contrib.sessions.backends.cache import SessionStore
-from django.core import template_loader
+from django.template import loader as template_loader
 from django.core.cache import cache
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpRequest, HttpResponseRedirect, Http404
