@@ -26,6 +26,7 @@
 import os.path
 
 from django.conf.urls.defaults import *
+from django.views.generic import TemplateView
 
 from omeroweb.webclient import views
 from omeroweb.webgateway import views as webgateway
@@ -127,7 +128,7 @@ urlpatterns = patterns('django.views.generic.simple',
     url( r'^image_as_map/8bit/(?P<imageId>[0-9]+)\.map$', views.image_as_map, {'8bit':True}, name='webclient_image_as_map_8bit' ), # convert image to map
     url( r'^image_as_map/8bit/(?P<imageId>[0-9]+)/(?P<maxSize>[0-9]+)\.map$', views.image_as_map, {'8bit':True}, name='webclient_image_as_map_8bit' ), # image to map
     
-    url( r'^help_search/$', 'direct_to_template', {'template': 'webclient/help/help_search.html'}, name="help_search" ),
+    url( r'^help_search/$', TemplateView.as_view(template_name='webclient/help/help_search.html'), name="help_search" ),
     
     url( r'^avatar/(?P<oid>[0-9]+)/$', views.avatar, name="avatar"),
     
