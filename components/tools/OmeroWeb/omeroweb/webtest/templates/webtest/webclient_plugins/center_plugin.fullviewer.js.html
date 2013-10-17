@@ -57,12 +57,12 @@ $(document).ready(function() {
         //var full_viewer_url;
         if ($full_viewer_panel.is(":visible") && $full_viewer_panel.is(":empty")) {
             // if image(s) selected, show typical full viewer directly
-            full_viewer_url = '{% url webtest_index %}img_detail/'+ oid.split("-")[1] + "/";
+            full_viewer_url = '{% url 'webtest_index' %}img_detail/'+ oid.split("-")[1] + "/";
             $full_viewer_panel.load(full_viewer_url);
             
             // example of loading viewer directly
             //$('<div class="miniview" id="full-viewport"></div>').appendTo($full_viewer_panel);
-            //var viewport = $.WeblitzViewport($("#full-viewport"), "{% url webindex %}", {'mediaroot': '{{ STATIC_URL }}' } );
+            //var viewport = $.WeblitzViewport($("#full-viewport"), "{% url 'webindex' %}", {'mediaroot': '{{ STATIC_URL }}' } );
             //viewport.load(oid.split("-")[1]);
             
         };

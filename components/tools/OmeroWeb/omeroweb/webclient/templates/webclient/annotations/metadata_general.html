@@ -48,12 +48,12 @@
                     idx = "?index=" + idx;
                 }
                 $( "#{{ manager.obj_type }}name-{{ manager.obj_id }} button" )      // E.g. imagename-123 button
-                    .editable('{% url manage_action_containers "editname" manager.obj_type manager.obj_id %}'+idx,
-                        '{% url manage_action_containers "savename" manager.obj_type manager.obj_id %}'+idx,
+                    .editable('{% url 'manage_action_containers' "editname" manager.obj_type manager.obj_id %}'+idx,
+                        '{% url 'manage_action_containers' "savename" manager.obj_type manager.obj_id %}'+idx,
                         "{{ manager.obj_type }}name-{{ manager.obj_id }}" );
                 $( "#{{ manager.obj_type }}description-{{ manager.obj_id }} button" )
-                    .editable('{% url manage_action_containers "editdescription" manager.obj_type manager.obj_id %}'+idx,
-                        '{% url manage_action_containers "savedescription" manager.obj_type manager.obj_id %}'+idx,
+                    .editable('{% url 'manage_action_containers' "editdescription" manager.obj_type manager.obj_id %}'+idx,
+                        '{% url 'manage_action_containers' "savedescription" manager.obj_type manager.obj_id %}'+idx,
                         "{{ manager.obj_type }}description-{{ manager.obj_id }}", { post_save: linkify });
                 linkify_element($( "#{{ manager.obj_type }}description-{{ manager.obj_id }} > p > span" ));
                 {% else %}
@@ -142,7 +142,7 @@
                 $("#show_fs_files_btn").click(function(){
                     $("#fs_paths_popup").show();
                     var fs_input = $("#fs_paths_popup textarea");
-                    $.getJSON("{% url original_file_paths manager.image.id %}",
+                    $.getJSON("{% url 'original_file_paths' manager.image.id %}",
                         function(data) {
                             fs_input.val(data.join("\n"));
                             fs_input.attr("cols", 150);
@@ -207,7 +207,7 @@
 
                 // Choose to add tags...
                 if ($("#add_tags_form").length === 0) {
-                    $("<form id='add_tags_form' title='Tags Selection' action='{% url annotate_tags %}' method='post'></form>")
+                    $("<form id='add_tags_form' title='Tags Selection' action='{% url 'annotate_tags' %}' method='post'></form>")
                         .hide().appendTo('body');
                 }
                 $("#launch_tags_form").click(function(event) {
@@ -248,7 +248,7 @@
 
                 // set-up the attachment selection form to use AJAX. (requires jquery.form.js plugin)
                 if ($("#choose_attachments_form").length === 0) {
-                    $("<form id='choose_attachments_form' title='Choose Attachments' action='{% url annotate_file %}' method='post'></form>")
+                    $("<form id='choose_attachments_form' title='Choose Attachments' action='{% url 'annotate_file' %}' method='post'></form>")
                         .hide().appendTo('body');
                 }
                 $('#choose_attachments_form').ajaxForm({
@@ -308,7 +308,7 @@
                     $("#download_dropdown ul").css('visibility', 'hidden');// hide dropdown menu
                     var dialog_opts = ['Cancel', 'Create'];
                     $.ajax({
-                        url: "{% url ome_tiff_info manager.obj_id %}",
+                        url: "{% url 'ome_tiff_info' manager.obj_id %}",
                         cache: false,
                         dataType: 'json',
                         success: function(data) {
@@ -467,7 +467,7 @@
                 </h2>
 
                 <button class="btn silver btn_text" href="#" style="float:right"
-                        onclick="return OME.openPopup('{% url web_image_viewer manager.image.id %}')"
+                        onclick="return OME.openPopup('{% url 'web_image_viewer' manager.image.id %}')"
                         title="Open full image viewer in new window">
                     <span>
                          {% trans "Full viewer" %} 
@@ -496,7 +496,7 @@
 
                 {% if manager.openAstexViewerCompatible %}
                 
-                <button style="float:right; margin-right:5px" class="btn silver btn_text" href="#" onclick="return OME.openPopup('{% url open_astex_viewer 'image_8bit' manager.image.id %}')"
+                <button style="float:right; margin-right:5px" class="btn silver btn_text" href="#" onclick="return OME.openPopup('{% url 'open_astex_viewer' 'image_8bit' manager.image.id %}')"
                         title="Open with Open Astex Viewer">
                     <span>
                     {% trans "Volume viewer" %} 
@@ -619,7 +619,7 @@
             </h2>
             
             <button class="btn silver btn_text" href="#" style="float:right"
-                onclick="return OME.openPopup('{% url web_image_viewer manager.well.getWellSample.image.id %}')" alt="View" title="Open full viewer">
+                onclick="return OME.openPopup('{% url 'web_image_viewer' manager.well.getWellSample.image.id %}')" alt="View" title="Open full viewer">
                 <span>
                 {% trans "Launch full viewer" %} 
                 </span>
@@ -818,7 +818,7 @@
                 
                 {% if manager.canAnnotate %}
                     <div>
-                        <a id="launch_tags_form" href="{% url annotate_tags %}?{{manager.obj_type}}={{ manager.obj_id }}&index={{ index }}" class="btn silver btn_add"><span></span></a>
+                        <a id="launch_tags_form" href="{% url 'annotate_tags' %}?{{manager.obj_type}}={{ manager.obj_id }}&index={{ index }}" class="btn silver btn_add"><span></span></a>
                     </div>
                 {% endif %}
 
@@ -843,7 +843,7 @@
                 <h2>{% trans "Attachments" %}</h2>
 
                     {% if manager.canAnnotate %}
-                        <a id="choose_file_anns" href="{% url annotate_file %}?{{manager.obj_type}}={{ manager.obj_id }}&index={{ index }}" class="btn silver btn_add">
+                        <a id="choose_file_anns" href="{% url 'annotate_file' %}?{{manager.obj_type}}={{ manager.obj_id }}&index={{ index }}" class="btn silver btn_add">
                             <span></span>
                         </a>
                     {% endif %}
@@ -953,7 +953,7 @@
                 <h2>{% trans "Comment:" %}</h2>
                 
                     {% if manager.canAnnotate %}
-                    <form id="add_comment_form" action="{% url annotate_comment %}" method="post">
+                    <form id="add_comment_form" action="{% url 'annotate_comment' %}" method="post">
                     <table>
                         <tr class="hiddenField"><td>{{ form_comment.image }}</td></tr>
                         <tr class="hiddenField"><td>{{ form_comment.dataset }}</td></tr>
@@ -991,7 +991,7 @@
                 <h2>Image Contained in:</h2>
                 <div id="hierarchy-pane">
                     <!-- content is loaded by ajax when this tab is first displayed -->
-                    <a id="hierarchy-link" href="{% url load_metadata_hierarchy 'image' manager.image.id %}">Load hierarchy...</a>
+                    <a id="hierarchy-link" href="{% url 'load_metadata_hierarchy' 'image' manager.image.id %}">Load hierarchy...</a>
                     <img id="hierarchy-spinner" style="display:none" src="{% static "webgateway/img/spinner.gif" %}" />
                 </div>
                 {% endif %}

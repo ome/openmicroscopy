@@ -41,7 +41,7 @@ $(document).ready(function() {
         $("#basket_panel").toggle();
         if ($("#basket_content").is(":visible")) {
 
-            $("#basket_content").load("{% url basket_content %}", function(data) {
+            $("#basket_content").load("{% url 'basket_content' %}", function(data) {
                 $('#basket_spinner').hide();
                 $('#basket_content table').alternateRowColors();
             });
@@ -85,7 +85,7 @@ $(document).ready(function() {
 	        <div id="basket_panel" class="info_panel">
 			    <div class="info_panel_title">
 					<h3>Basket<img id='basket_spinner' src="{% static "webgateway/img/spinner.gif" %}"/></h3>
-					<a id="basket_panel_link" href="{% url basket_action %}" title="Go to basket page to Share basket images etc">{% trans "Manage Basket" %}</a>
+					<a id="basket_panel_link" href="{% url 'basket_action' %}" title="Go to basket page to Share basket images etc">{% trans "Manage Basket" %}</a>
 				</div>
 				<div id="basket_content"></div>
 			</div>

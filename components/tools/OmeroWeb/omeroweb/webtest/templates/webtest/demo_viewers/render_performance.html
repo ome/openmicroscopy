@@ -122,7 +122,7 @@ Per Plane: <span id="secsPerPlane">0</span> secs.
     {% for zct in zctList %}
         <img id="{{ forloop.counter0 }}" class="plane"
             src="{% static 'webtest/img/background.png' %}"
-            plane="{% url webgateway.views.render_image imageId zct.z zct.t %}?c={{ zct.c }}"/>
+            plane="{% url 'webgateway.views.render_image' imageId zct.z zct.t %}?c={{ zct.c }}"/>
     {% endfor %}
 
 {% else %}
@@ -133,8 +133,8 @@ Per Plane: <span id="secsPerPlane">0</span> secs.
         {% for iid in imageIds %}
         <img id="{{ forloop.counter0 }}" class="plane"
             src="{% static 'webtest/img/background.png' %}"
-            plane="{% url webgateway.views.render_image iid %}"
-            thumb="{% url webgateway.views.render_thumbnail iid %}"/>
+            plane="{% url 'webgateway.views.render_image' iid %}"
+            thumb="{% url 'webgateway.views.render_thumbnail' iid %}"/>
         {% endfor %}
 
     {% else %}
@@ -145,7 +145,7 @@ Per Plane: <span id="secsPerPlane">0</span> secs.
             {% for tile in tileList %}
             <img id="{{ forloop.counter0 }}" class="plane"
                 src="{% static 'webtest/img/background.png' %}"
-                plane="{% url webgateway.views.render_image_region imageId 0 0 %}?tile=0,{{ tile.col }},{{ tile.row }}"/>
+                plane="{% url 'webgateway.views.render_image_region' imageId 0 0 %}?tile=0,{{ tile.col }},{{ tile.row }}"/>
             {% endfor %}
 
         {% endif %}

@@ -81,7 +81,7 @@
                             var li = script_data[i],   // dict of 'name' and 'ul' for menu items OR 'id' for scripts
                                 name = format_script_name(li.name);
                             if (li.id) {
-                                html += "<li><a href='{% url webindex %}script_ui/"+ li.id + "/'>" + name + "</a></li>";
+                                html += "<li><a href='{% url 'webindex' %}script_ui/"+ li.id + "/'>" + name + "</a></li>";
                             } else {
                                 html += "<li class='menuItem'><a href='#'>" + name + "</a>";
                                 // sub-menus have a 'BACK' button at the top

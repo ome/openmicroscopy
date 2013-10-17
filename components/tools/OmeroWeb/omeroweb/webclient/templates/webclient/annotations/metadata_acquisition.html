@@ -86,7 +86,7 @@
                 <div>
                     {% for fileann in manager.companion_files %}
                     <p>
-                        <a href="{% url download_annotation fileann.id %}">
+                        <a href="{% url 'download_annotation' fileann.id %}">
                             {{ fileann.getFileName|shortening:40 }}
                         </a>
                         ({{ fileann.getFileSize|default:0|filesizeformat }})
@@ -100,11 +100,11 @@
                 <div>
                     {% if manager.image %}
                     <input type="button" value="Download" style="padding: 1px 15px; position:absolute; right:3px"
-                        onClick="document.location.href='{% url download_orig_metadata manager.image.id %}';"/>
+                        onClick="document.location.href='{% url 'download_orig_metadata' manager.image.id %}';"/>
                     {% endif %}
                     {% if manager.well %}
                     <input type="button" value="Download" style="padding: 1px 15px; position:absolute; right:3px"
-                        onClick="document.location.href='{% url download_orig_metadata manager.well.getWellSample.image.id %}';"/>
+                        onClick="document.location.href='{% url 'download_orig_metadata' manager.well.getWellSample.image.id %}';"/>
                     {% endif %}
                     {% if manager.global_metadata %}
                     <h1>Global Metadata</h1>

@@ -177,7 +177,7 @@
             while (usage){ 
                 $.ajax({  
                     type: "GET",  
-                    url: "{% url waloaddrivespace %}",  
+                    url: "{% url 'waloaddrivespace' %}",  
                     contentType: "application/json; charset=utf-8",  
                     data: offsetQuery,
                     dataType: "json",
@@ -283,7 +283,7 @@
                         
                         if (!drivespace_loaded) {
                             drivespace_loaded = true;
-                            $.getJSON("{% url wadrivespace %}", function(data){
+                            $.getJSON("{% url 'wadrivespace' %}", function(data){
                                 load_drivespace(data.free);
                                 $("#drivespace_free").text(parseInt(data.free).filesizeformat());
                             });
@@ -320,19 +320,19 @@
     <div id="personal_settings" class="settings_content">
 
 
-       <form class="standard_form settings_form" action="{% url wamyaccount "save" %}" method="POST">
+       <form class="standard_form settings_form" action="{% url 'wamyaccount' "save" %}" method="POST">
 
            <p>{% trans "Fields marked in red are mandatory." %}</p>
            <br/>
            
            <div id="avatar">
-               <img src="{% url wamyphoto %}" class="imgzoom"/>                 
-               <a class="btn btn_text silver" href="{% url wamanageavatar ome.eventContext.userId %}">
+               <img src="{% url 'wamyphoto' %}" class="imgzoom"/>                 
+               <a class="btn btn_text silver" href="{% url 'wamanageavatar' ome.eventContext.userId %}">
                    <span>Change</span>
                </a> 
 
                {% if myaccount.hasAvatar %} 
-               <a class="btn btn_text silver" href="{% url wamanageavatar ome.eventContext.userId "deletephoto" %}">
+               <a class="btn btn_text silver" href="{% url 'wamanageavatar' ome.eventContext.userId "deletephoto" %}">
                    <span>Delete</span>
                </a>
                {% endif %}
@@ -376,7 +376,7 @@
            <!-- hidden dialog for password change -->
            <div id="password_change_dialog" title="Change Password">
 
-               <form id="change_password_form" action="{% url wamanagechangepasswordid ome.eventContext.userId %}" method="POST">
+               <form id="change_password_form" action="{% url 'wamanagechangepasswordid' ome.eventContext.userId %}" method="POST">
 
                    <table>
                        <tbody>
@@ -432,7 +432,7 @@
                     <td>{{ group.getPermissions }} ({{ group.details.permissions }})</td>
                     <td>{{ group.description|default:"-"|truncatewords:"5" }}</td>
                     <td class="table_settings">
-                        <a href="{% url wamanagegroupownerid "edit" group.id %}" alt="Edit Group" title="Edit Group" class="btn silver">
+                        <a href="{% url 'wamanagegroupownerid' "edit" group.id %}" alt="Edit Group" title="Edit Group" class="btn silver">
                             <span>Edit</span>
                         </a>
                     </td>

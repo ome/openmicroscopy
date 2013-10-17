@@ -37,7 +37,7 @@ $(function () {
 
         var selected = $("body").data("selected_objects.ome");
 
-        var prefix = '{% url webindex %}';
+        var prefix = '{% url 'webindex' %}';
         
         if(selected.length == 0) {
             return
@@ -54,7 +54,7 @@ $(function () {
                 productListQuery[i] = selected[i]["id"].replace("-","=");
                 well_index = well_index || selected[i]["index"];
             }
-            var query = '{% url batch_annotate %}'+"?"+productListQuery.join("&");
+            var query = '{% url 'batch_annotate' %}'+"?"+productListQuery.join("&");
             if (well_index) {
                 query += "&index=" + well_index;
             }
@@ -110,7 +110,7 @@ $(function () {
                         }
                     } else if(orel=="well"){
                         var well_index = selected[0]["index"];
-                        url = '{% url load_metadata_details %}well/'+oid.split('-')[1]+'/?index='+ well_index;
+                        url = '{% url 'load_metadata_details' %}well/'+oid.split('-')[1]+'/?index='+ well_index;
                     } else {
                         url = prefix+'metadata_details/'+orel+'/'+oid.split("-")[1]+'/';
                     }

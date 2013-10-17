@@ -88,7 +88,7 @@ $(document).ready(function() {
         if (!oid) return;
         
         var update = {'url': null, 'rel': null, 'empty':false };
-        var prefix = "{% url webindex %}";
+        var prefix = "{% url 'webindex' %}";
         
         // Show nothing for Experimenter, Project or Screen...
         if ($.inArray(orel, ["experimenter", "project", "screen"])>-1) {

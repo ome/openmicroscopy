@@ -25,7 +25,7 @@ $(document).ready(function() {
     $("#image_roi_tab").omeroweb_right_plugin({
         plugin_index:{{ forloop.counter }},
         load_plugin_content: function(selected, obj_dtype, obj_id) {    // Url based on selected object(s)
-            var url = '{% url webtest_index %}image_rois/'+obj_id +'/';
+            var url = '{% url 'webtest_index' %}image_rois/'+obj_id +'/';
             $(this).load(url);
         },
         supported_obj_types: ['image']

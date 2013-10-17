@@ -94,7 +94,7 @@
                     var annId = parseInt(removeId);
                     // /webclient/action/remove/comment/461/?parent=image-257
                     var parentId = $.trim($("#parent-id").text());
-                    var url = '{% url manage_action_containers "delete" %}'+ dType +'/'+ annId +'/';
+                    var url = '{% url 'manage_action_containers' "delete" %}'+ dType +'/'+ annId +'/';
                     var $parent = $(event.target).parents("."+domClass);
                     var $annContainer = $parent.parent();
                     var confirm_remove = OME.confirm_dialog('Remove '+ dType + '?',
@@ -204,7 +204,7 @@
             <h2 class="data_heading_id">Image ID: <strong>{{ manager.image.id }}</strong></h2>    
             <!-- open-image link -->
 			
-			<button class="btn silver btn_text" href="#" onclick="return OME.openPopup('{% if share_id %}{% url web_image_viewer share_id manager.image.id %}{% else %}{% url web_image_viewer manager.image.id %}{% endif %}')" alt="View" title="Open full viewer">
+			<button class="btn silver btn_text" href="#" onclick="return OME.openPopup('{% if share_id %}{% url 'web_image_viewer' share_id manager.image.id %}{% else %}{% url 'web_image_viewer' manager.image.id %}{% endif %}')" alt="View" title="Open full viewer">
 				<span>
                 {% trans "Launch full viewer" %} 
 				</span>
@@ -265,7 +265,7 @@
             {% if manager.share %}
                 <h2>{{ manager.share.getShareType }} <strong>{{ manager.share.id }}</strong>
                     {% if manager.share.isOwned %}
-                        <a id="edit_share" href="{% url manage_action_containers 'edit' 'share' manager.share.id %}">
+                        <a id="edit_share" href="{% url 'manage_action_containers' 'edit' 'share' manager.share.id %}">
                             <img src="{% static 'webclient/image/color_line16.png' %}" alt="e" title="Edit Share"/>
                         </a>
                     {% endif %}</h2>
@@ -325,7 +325,7 @@
                         {% if manager.share.isExpired %}
                             This {{ manager.share.getShareType|lower }} has expired and you no longer can make any comments.
                         {% else %}
-                        <form id="add_share_comment_form" action="{% url annotate_comment %}" method="post">
+                        <form id="add_share_comment_form" action="{% url 'annotate_comment' %}" method="post">
                         <table>
                             <tr class="hiddenField"><td>{{ form_comment.share }}</td></tr>
                             <tr>

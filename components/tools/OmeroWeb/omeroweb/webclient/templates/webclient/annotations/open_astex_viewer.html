@@ -331,23 +331,23 @@
                 <div>
                     <input type="radio" name="sizeMap" checked="true" value="small" />
                     {{ sizeOptions.small.x|floatformat:0 }} x {{ sizeOptions.small.y|floatformat:0 }} x {{ sizeOptions.small.z|floatformat:0 }}
-                    <a href="{% url webclient_image_as_map_8bit image.id sizeOptions.small.size %}" id="small_compressed"></a>
-                    <a href="{% url webclient_image_as_map image.id sizeOptions.small.size %}" id="small_raw"></a>
+                    <a href="{% url 'webclient_image_as_map_8bit' image.id sizeOptions.small.size %}" id="small_compressed"></a>
+                    <a href="{% url 'webclient_image_as_map' image.id sizeOptions.small.size %}" id="small_raw"></a>
                 </div>
                 {% endif %}
                 {% if sizeOptions.medium %}
                 <div>
                     <input type="radio" name="sizeMap" value="medium" />
                     {{ sizeOptions.medium.x|floatformat:0 }} x {{ sizeOptions.medium.y|floatformat:0 }} x {{ sizeOptions.medium.z|floatformat:0 }}
-                    <a href="{% url webclient_image_as_map_8bit image.id sizeOptions.medium.size %}" id="medium_compressed"></a>
-                    <a href="{% url webclient_image_as_map image.id sizeOptions.medium.size %}" id="medium_raw"></a>
+                    <a href="{% url 'webclient_image_as_map_8bit' image.id sizeOptions.medium.size %}" id="medium_compressed"></a>
+                    <a href="{% url 'webclient_image_as_map' image.id sizeOptions.medium.size %}" id="medium_raw"></a>
                 </div>
                 {% endif %}
                 <div {% if not sizeOptions.full %}title="Image too large to view in browser. Try downloading below"{% endif %}>
                     <input type="radio" name="sizeMap" value="full" {% if not sizeOptions.full %}disabled="true"{% endif %} {% if not sizeOptions.small %}checked="true"{% endif %} />
                     {{ image.getSizeX }} x {{ image.getSizeY }} x {{ image.getSizeZ }} (full size)
-                    <a href="{% url webclient_image_as_map_8bit image.id %}" id="full_compressed"></a>
-                    <a href="{% url webclient_image_as_map image.id %}" id="full_raw"></a>
+                    <a href="{% url 'webclient_image_as_map_8bit' image.id %}" id="full_compressed"></a>
+                    <a href="{% url 'webclient_image_as_map' image.id %}" id="full_raw"></a>
                 </div>
             </div>
             <div>
@@ -363,7 +363,7 @@
             </div>
             <input style="float:right" type="submit" id="reloadMap" value="Reload"></input>
             <div style="clear:both"></div>
-            <a href="{% url webclient_image_as_map image.id %}">Download full map</a>
+            <a href="{% url 'webclient_image_as_map' image.id %}">Download full map</a>
         </form>
         <div style="clear:both"></div>
         <hr />
