@@ -29,6 +29,7 @@ from django.conf import settings
 from django.conf.urls.defaults import *
 from django.views.static import serve
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
+from django.shortcuts import redirect
 
 from django.core.urlresolvers import reverse
 from django.utils.functional import lazy
@@ -55,7 +56,7 @@ def redirect_urlpatterns():
 
 urlpatterns = patterns('',
     
-    (r'^favicon\.ico$', 'django.views.generic.simple.redirect_to', {'url': '%swebgateway/img/ome.ico' % settings.STATIC_URL}),
+    (r'^favicon\.ico$', lambda request: redirect('%swebgateway/img/ome.ico' % settings.STATIC_URL)),
     
     (r'(?i)^webgateway/', include('omeroweb.webgateway.urls')),
     (r'(?i)^webadmin/', include('omeroweb.webadmin.urls')),
