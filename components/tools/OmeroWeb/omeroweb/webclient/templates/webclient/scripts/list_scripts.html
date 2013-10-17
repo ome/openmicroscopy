@@ -31,7 +31,7 @@
         <a href="#" title="{{ folder.path }}">{{ folder.name }}</a>
         <ul>
             {% for script in folder.scripts %}
-            <li><a href="{% url script_ui script.0 %}">{{ script.1 }}...</a></li>
+            <li><a href="{% url 'script_ui' script.0 %}">{{ script.1 }}...</a></li>
             {% endfor %}
         </ul>
     </li>

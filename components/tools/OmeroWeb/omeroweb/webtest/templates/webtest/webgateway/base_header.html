@@ -47,13 +47,13 @@ Extends "webgateway/base/base_header.html"
 
 {% block middle_header_left %}
 <ul>
-    <li><a href="{% url webgateway_templates 'base_html' %}">base_html</a></li>
-    <li><a href="{% url webgateway_templates 'base_frame' %}">base_frame</a></li>
-    <li><a href="{% url webgateway_templates 'base_header' %}">base_header</a></li>
-    <li><a href="{% url webgateway_templates 'base_main' %}">base_main</a></li>
-    <li><a href="{% url webgateway_templates 'container2' %}">container2</a></li>
-    <li><a href="{% url webgateway_templates 'container3' %}">container3</a></li>
-    <li><a href="{% url webclient_templates 'webclient_base_container' %}">webclient_base_container</a></li>
+    <li><a href="{% url 'webgateway_templates' 'base_html' %}">base_html</a></li>
+    <li><a href="{% url 'webgateway_templates' 'base_frame' %}">base_frame</a></li>
+    <li><a href="{% url 'webgateway_templates' 'base_header' %}">base_header</a></li>
+    <li><a href="{% url 'webgateway_templates' 'base_main' %}">base_main</a></li>
+    <li><a href="{% url 'webgateway_templates' 'container2' %}">container2</a></li>
+    <li><a href="{% url 'webgateway_templates' 'container3' %}">container3</a></li>
+    <li><a href="{% url 'webclient_templates' 'webclient_base_container' %}">webclient_base_container</a></li>
 </ul>
 {% endblock %}
 

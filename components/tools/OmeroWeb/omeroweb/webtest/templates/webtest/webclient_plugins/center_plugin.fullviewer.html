@@ -57,7 +57,7 @@
 
         // if image(s) selected, show typical full viewer directly
         
-        var viewport = $.WeblitzViewport($("#full-viewport"), "{% url webindex %}", {'mediaroot': '{{ STATIC_URL }}' } );
+        var viewport = $.WeblitzViewport($("#full-viewport"), "{% url 'webindex' %}", {'mediaroot': '{{ STATIC_URL }}' } );
 
         var calcResize = function () {
               var dim = { height: $full_viewer_panel.parent().height(),

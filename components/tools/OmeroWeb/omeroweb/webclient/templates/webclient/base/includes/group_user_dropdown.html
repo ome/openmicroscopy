@@ -132,7 +132,7 @@
         <ul id="groupList" class="submenu dropdown">
             {% for grp in groups %}
                 <li title="Click to switch Group" {% ifequal grp.id eContext.context.groupId %}class="current_group"{% endifequal %}>
-                    <a href="{% url change_active_group %}?active_group={{grp.id}}&url={{ current_url }}" class="switch_to_group">
+                    <a href="{% url 'change_active_group' %}?active_group={{grp.id}}&url={{ current_url }}" class="switch_to_group">
                         <img
                         {% if grp.getDetails.getPermissions.isGroupWrite %} src="{% static 'webclient/image/group_green16.png' %}"
                         {% else %}
@@ -153,7 +153,7 @@
 	                            <a href="{{ current_url }}?experimenter=-1">
 	                                <!-- otherwise we switch group too -->
 	                            {% else %}
-	                            <a href="{% url change_active_group %}?active_group={{grp.id}}&url={{ current_url }}?experimenter=-1">
+	                            <a href="{% url 'change_active_group' %}?active_group={{grp.id}}&url={{ current_url }}?experimenter=-1">
 	                            {% endifequal %}
 	                                {% setting UI_MENU_DROPDOWN.ALL %}
 	                            </a>
@@ -169,7 +169,7 @@
                                     <a href="{{ current_url }}?experimenter={{user.id}}">
                                     <!-- otherwise we switch group too -->
                                     {% else %}
-                                    <a href="{% url change_active_group %}?active_group={{grp.id}}&url={{ current_url }}?experimenter={{user.id}}">
+                                    <a href="{% url 'change_active_group' %}?active_group={{grp.id}}&url={{ current_url }}?experimenter={{user.id}}">
                                     {% endifequal %}
                                         {{ user.getFullName }}
                                     </a>
@@ -184,7 +184,7 @@
                                     {% ifequal grp.id active_group.id %}
                                     <a href="{{ current_url }}?experimenter={{user.id}}">
                                     {% else %}
-                                    <a href="{% url change_active_group %}?active_group={{grp.id}}&url={{ current_url }}?experimenter={{user.id}}">
+                                    <a href="{% url 'change_active_group' %}?active_group={{grp.id}}&url={{ current_url }}?experimenter={{user.id}}">
                                     {% endifequal %}
                                         {{ user.getFullName }}
                                     </a>

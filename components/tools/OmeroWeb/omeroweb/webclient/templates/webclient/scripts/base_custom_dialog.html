@@ -42,7 +42,7 @@
 
     <script>
         $(function(){
-            OME.setupAjaxError("{% url fsend %}");      // just in case!
+            OME.setupAjaxError("{% url 'fsend' %}");      // just in case!
 
             $('#script_form').ajaxForm({
                 beforeSubmit: function() {
@@ -149,7 +149,7 @@
 
 <div id="script_content">
 
-<form id="script_form" method="post" action="{% url script_run scriptId %}">
+<form id="script_form" method="post" action="{% url 'script_run' scriptId %}">
 
     <div style="margin-left:auto; margin-right:auto; width:500px">
     {% block script_form %}
@@ -197,7 +197,7 @@
             <a href="#" onClick="self.close()">Cancel</a>
             <input id="submit" type="submit" value="Create Figure" />
         </div>
-        <a href="#" onClick="return OME.openPopup('{% url get_original_file scriptId %}');">View Script</a>
+        <a href="#" onClick="return OME.openPopup('{% url 'get_original_file' scriptId %}');">View Script</a>
 
         <div id="img_size_slider" title="Zoom Preview Figure"></div>
     </div>

@@ -78,13 +78,13 @@
     <h1>{% trans "Add group" %}</h1>
 {% endif %}
 
-<h1><a href="{% url wagroups %}" style="position:relative; top:-38px; float:right" title="Go Back to Groups">Cancel</a></h1>
+<h1><a href="{% url 'wagroups' %}" style="position:relative; top:-38px; float:right" title="Go Back to Groups">Cancel</a></h1>
 
 
 {% if gid %}
-    <form action="{% url wamanagegroupid "save" gid %}"  class="standard_form settings_form" method="POST">
+    <form action="{% url 'wamanagegroupid' "save" gid %}"  class="standard_form settings_form" method="POST">
 {% else %}
-    <form action="{% url wamanagegroupid "create" %}" class="standard_form settings_form" method="POST">
+    <form action="{% url 'wamanagegroupid' "create" %}" class="standard_form settings_form" method="POST">
 {% endif %}
 
         <p>{% trans "Fields marked in red are mandatory." %}</p>
