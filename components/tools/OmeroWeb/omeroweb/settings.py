@@ -287,6 +287,9 @@ CUSTOM_SETTINGS_MAPPINGS = {
     "omero.web.webstart_vendor": ["WEBSTART_VENDOR", "The Open Microscopy Environment", str],
     "omero.web.webstart_homepage": ["WEBSTART_HOMEPAGE", "http://www.openmicroscopy.org", str],
     "omero.web.nanoxml_jar": ["NANOXML_JAR", "nanoxml.jar", str],
+
+    # Allowed hosts: https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
+    "omero.web.allowed_hosts": ["ALLOWED_HOSTS", '["*"]', json.loads],
 }
 
 
