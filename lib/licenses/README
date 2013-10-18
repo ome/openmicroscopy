@@ -627,13 +627,6 @@
   License File: iconsweets_license.txt
 
 
-  Artifacts:    components/tools/OmeroCpp/test/gtest
-  Project:      Google's framework for writing C++ tests on a variety of platforms
-  Web Site:     https://code.google.com/p/googletest/
-  License:      BSD
-  License File: gtest.txt
-
-
   Artifacts:    components/tools/OmeroPy/src/omero_ext/argparse.py
   Project:      argparse: Python command line parser
   Web Site:     http://code.google.com/p/argparse/
