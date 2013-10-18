@@ -40,6 +40,8 @@ import ome.formats.importer.ImportContainer;
 import ome.formats.importer.ImportLibrary;
 import ome.formats.importer.ImportLibrary.ImportCallback;
 import ome.formats.importer.OMEROWrapper;
+import ome.formats.importer.util.TimeEstimator;
+import ome.formats.importer.util.TimeEstimatorImpl;
 import ome.services.blitz.repo.path.ClientFilePathTransformer;
 import ome.services.blitz.repo.path.FilePathRestrictionInstance;
 import ome.services.blitz.repo.path.FilePathRestrictions;
@@ -186,9 +188,12 @@ public class ManagedRepositoryTest extends AbstractServerTest {
         final List<String> checksums = new ArrayList<String>();
         final byte[] buf = new byte[client.getDefaultBlockSize()];
         final ChecksumProviderFactory cpf = new ChecksumProviderFactoryImpl();
+        final TimeEstimator estimator = new TimeEstimatorImpl(
+                container.getUsedFilesTotalSize(), 10);
 
         for (int i = 0; i < numberToUpload; i++) {
-            checksums.add(lib.uploadFile(proc, srcFiles, i, cpf, buf));
+            checksums.add(lib.uploadFile(proc, srcFiles, i, cpf, estimator,
+                    buf));
         }
 
         // At this point the import is running, check handle for number of

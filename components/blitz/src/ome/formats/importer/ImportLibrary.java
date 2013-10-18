@@ -284,7 +284,8 @@ public class ImportLibrary implements IObservable
         final byte[] buf = new byte[store.getDefaultBlockSize()];
         final int fileTotal = srcFiles.length;
         final List<String> checksums = new ArrayList<String>(fileTotal);
-        final TimeEstimator estimator = new TimeEstimatorImpl(5);
+        // TODO Fix with proper code instead of 10000L
+        final TimeEstimator estimator = new TimeEstimatorImpl(10000L, 10);
 
         log.debug("Used files created:");
         for (int i = 0; i < fileTotal; i++) {
@@ -331,12 +332,6 @@ public class ImportLibrary implements IObservable
             int rlen = 0;
             long offset = 0;
 
-            // Fields used for timing measurements
-            long start, timeLeft;
-            float alpha, chunkTime;
-            int sampleSize = 5;
-            Buffer samples = new CircularFifoBuffer(sampleSize);
-
             notifyObservers(new ImportEvent.FILE_UPLOAD_STARTED(
                     file.getAbsolutePath(), index, srcFiles.length,
                     null, length, null));
@@ -348,8 +343,7 @@ public class ImportLibrary implements IObservable
                     offset, length, null, null));
 
             while (true) {
-                chunkTime = 0;
-                start = System.currentTimeMillis();
+                estimator.start();
                 rlen = stream.read(buf);
                 if (rlen == -1) {
                     break;
@@ -357,16 +351,10 @@ public class ImportLibrary implements IObservable
                 cp.putBytes(buf, 0, rlen);
                 rawFileStore.write(buf, offset, rlen);
                 offset += rlen;
-                samples.add(System.currentTimeMillis() - start);
-                alpha = 2f / (samples.size() + 1);
-                for (int i = 0; i < samples.size(); i++) {
-                    chunkTime = alpha * (Long) samples.get()
-                            + (1 - alpha) * chunkTime;
-                }
-                timeLeft = rlen == 0 ? 0 : (long) chunkTime * ((length-offset)/rlen);
+                estimator.stop();
                 notifyObservers(new ImportEvent.FILE_UPLOAD_BYTES(
                         file.getAbsolutePath(), index, srcFiles.length, offset,
-                        length, timeLeft, null));
+                        length, estimator.getUploadTimeLeft(offset, rlen), null));
             }
 
             digestString = cp.checksumAsString();
@@ -450,7 +438,8 @@ public class ImportLibrary implements IObservable
         final String[] srcFiles = container.getUsedFiles();
         final List<String> checksums = new ArrayList<String>();
         final byte[] buf = new byte[store.getDefaultBlockSize()];
-        final TimeEstimator estimator = new TimeEstimatorImpl(5);
+        final TimeEstimator estimator = new TimeEstimatorImpl(
+                container.getUsedFilesTotalSize(), 10);
         Map<Integer, String> failingChecksums = new HashMap<Integer, String>();
 
         notifyObservers(new ImportEvent.FILESET_UPLOAD_START(
