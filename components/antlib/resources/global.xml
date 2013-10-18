@@ -67,7 +67,6 @@
 	<property name="bioformats.comp"     value="${components.dir}/bioformats"/>
 	<property name="tools.comp"     value="${components.dir}/tools"/>
 	<property name="insight.comp"   value="${components.dir}/insight"/>
-	<property name="OmeroCpp.comp"     value="${tools.comp}/OmeroCpp"/>
 	<property name="OmeroJava.comp"     value="${tools.comp}/OmeroJava"/>
 	<property name="OmeroWeb.comp"     value="${tools.comp}/OmeroWeb"/>
 	<property name="OmeroPy.comp"     value="${tools.comp}/OmeroPy"/>
@@ -95,9 +94,6 @@
 	</path>
 	<path id="OmeroWeb.buildpath">
 	  <pathelement location="${OmeroWeb.comp}/build.xml"/>
-	</path>
-	<path id="OmeroCpp.buildpath">
-	  <pathelement location="${OmeroCpp.comp}/build.xml"/>
 	</path>
 	<path id="OmeroJava.buildpath">
 	  <pathelement location="${OmeroJava.comp}/build.xml"/>
