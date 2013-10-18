@@ -48,9 +48,9 @@ public interface TimeEstimator {
      * {@link TimeEstimator#start(long) start} and
      * {@link TimeEstimator#stop(long) stop} methods.
      *
-     * @param bytesUploaded Total size of uploaded resource bytes.
-     * @param bytesTotal Total size of resource.
+     * @param uploadedChunk Number of bytes uploaded in a single iteration.
+     * @param uploadedBytes Size in bytes of all chunks uploaded until now.
      * @return The estimated time remaining.
      */
-    long getUploadTimeLeft(long bytesUploaded, long bytesTotal);
+    long getUploadTimeLeft(long uploadedChunk, long uploadedBytes);
 }

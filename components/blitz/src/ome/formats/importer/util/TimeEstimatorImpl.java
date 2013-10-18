@@ -24,14 +24,15 @@ import org.apache.commons.collections.buffer.CircularFifoBuffer;
 
 public class TimeEstimatorImpl implements TimeEstimator {
 
-    private long start, stop, uploadTimeLeft;
+    private long start, stop, imageContainerSize, imageContainerUploadedBytes;
 
-    private Buffer samples;
+    private Buffer timeSamples;
 
     private float alpha, chunkTime;
 
-    public TimeEstimatorImpl(int sampleSize) {
-        samples = new CircularFifoBuffer(sampleSize);
+    public TimeEstimatorImpl(long imageContainerSize, int sampleSize) {
+        timeSamples = new CircularFifoBuffer(sampleSize);
+        this.imageContainerSize = imageContainerSize;
     }
 
     public void start() {
@@ -45,16 +46,22 @@ public class TimeEstimatorImpl implements TimeEstimator {
             throw new IllegalStateException("Calling stop() before start().");
         }
         stop = System.currentTimeMillis();
-        samples.add(stop - start);
-        alpha = 2f / (samples.size() + 1);
+        timeSamples.add(stop - start);
+        alpha = 2f / (timeSamples.size() + 1);
     }
 
-    public long getUploadTimeLeft(long bytesUploaded, long bytesTotal) {
-        for (int i = 0; i < samples.size(); i++) {
-            chunkTime = alpha * (Long) samples.get()
-                    + (1 - alpha) * chunkTime;
+    public long getUploadTimeLeft(long uploadedChunk, long uploadedBytes) {
+        if (uploadedChunk == 0) {
+            return 0;
         }
-        uploadTimeLeft = (long) chunkTime * ((bytesTotal-bytesUploaded)/rlen);
+        imageContainerUploadedBytes += uploadedChunk;
+        for (int i = 0; i < timeSamples.size(); i++) {
+            chunkTime = alpha * (Long) timeSamples.get() + (1 - alpha)
+                    * chunkTime;
+        }
+        return (long) chunkTime
+                * ((imageContainerSize - imageContainerUploadedBytes)
+                        / uploadedChunk);
     }
 
 }
