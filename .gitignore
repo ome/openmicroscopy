@@ -1,7 +1,5 @@
 .gitignore
 .classpath
-components/tools/OmeroCpp/compiler.log
-components/tools/OmeroCpp/scons.log
 .hg
 .hgignore
 .DS_Store
@@ -48,7 +46,6 @@ test-output
 temp-testng-customsuite.xml
 .settings
 .springBeans
-/components/tools/OmeroCpp/compiler.log
 /components/tools/OmeroWeb/omeroweb/media/webtest
 # Scons output files
 .sconsign.dblite
