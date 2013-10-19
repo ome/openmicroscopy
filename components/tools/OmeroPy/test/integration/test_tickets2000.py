@@ -27,46 +27,6 @@ from omero_sys_ParametersI import ParametersI
 
 class TestTickets2000(lib.ITest):
 
-    @pytest.mark.xfail(reason="ticket 11494")
-    def test1018CreationDestructionClosing(self):
-        c1 = None
-        c2 = None
-        c3 = None
-        c4 = None
-
-        try:
-            c1 = omero.client() # ok with __del__
-            s1 = c1.createSession()
-            s1.detachOnDestroy()
-            uuid = s1.ice_getIdentity().name
-
-            # Intermediate "disrupter"
-            c2 = omero.client() # ok with __del__
-            s2 = c2.createSession(uuid, uuid)
-            s2.getAdminService().getEventContext()
-            c2.closeSession()
-
-            # 1 should still be able to continue
-            s1.getAdminService().getEventContext()
-
-            # Now if s1 exists another session should be able to connect
-            c1.closeSession()
-            c3 = omero.client() # ok with __del__
-            s3 = c3.createSession(uuid, uuid)
-            s3.getAdminService().getEventContext()
-            c3.closeSession()
-
-            # Now a connection should not be possible
-            import Glacier2
-            c4 = omero.client() # ok with __del__
-            with pytest.raises(Glacier2.PermissionDeniedException):
-                c4.joinSession(uuid)
-        finally:
-            c1.__del__()
-            c2.__del__()
-            c3.__del__()
-            c4.__del__()
-
     def test1064(self):
         share = self.client.sf.getShareService()
         search = self.client.sf.createSearchService()
