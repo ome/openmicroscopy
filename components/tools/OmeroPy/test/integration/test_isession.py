@@ -93,8 +93,8 @@ class TestISession(lib.ITest):
 ##        guest_sess = guest_client.createSession("guest",sess.uuid)
 ##        guest_client.closeSession()
 
-    @pytest.mark.xfail(reason="See ticket #11542")
-    def testCreationDestructionClosing(self):
+    @pytest.mark.xfail(reason="See tickets #11494 and #11542")
+    def test1018CreationDestructionClosing(self):
         c1, c2, c3, c4 = None, None, None, None
         try:
             c1 = omero.client() # ok rather than new_client since has __del__
