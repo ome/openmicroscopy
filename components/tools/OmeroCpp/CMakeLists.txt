@@ -47,6 +47,8 @@ include(CheckIncludeFileCXX)
 include(CheckCXXCompilerFlag)
 include(CheckCXXSourceCompiles)
 
+find_package(Threads REQUIRED)
+
 # Unit tests
 find_package(GTest)
 set(BUILD_TESTS OFF)
