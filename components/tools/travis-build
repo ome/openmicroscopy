@@ -21,7 +21,7 @@ build_all()
 
 build_default()
 {
-    TEST="-py test -Dtest.with.fail=true" ./build.py build-default
+    TEST="-py test -Dtest.with.fail=true" ./build.py build-default test-compile
 }
 
 build_cpp()
