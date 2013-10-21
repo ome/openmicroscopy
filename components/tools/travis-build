@@ -49,6 +49,26 @@ build_python()
     test $? = 0
 }
 
+build_cpp()
+{
+    (
+        cd components/tools/OmeroCpp
+        mkdir build
+        cd build
+        (
+            mkdir gtest
+            cd gtest
+            cmake /usr/src/gtest
+            make
+        )
+        GTEST_ROOT=$(pwd)/gtest cmake ..
+        make
+#        make test
+        make DESTDIR=../install install
+#        make doc
+    )
+}
+
 for arg in "$@"
 do
     case $arg in
@@ -58,6 +78,8 @@ do
             build_java ;;
         build-python)
             build_python ;;
+        build-cpp)
+            build_cpp ;;
         *)
             echo "Invalid argument: \"$arg\"" >&2
             exit 1
