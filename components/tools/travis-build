@@ -1,0 +1,65 @@
+#!/bin/sh
+# This script is used for testing the build, primarily for use
+# with travis, but may be used by hand as well.
+
+set -e
+
+if [ -z "$ICE_HOME" ]; then
+  export ICE_HOME=/usr/share/Ice
+fi
+
+# Clean up
+clean()
+{
+    ./build.py clean
+}
+
+build_all()
+{
+    TEST="-p" ./build.py build-all
+}
+
+build_default()
+{
+    TEST="-py test -Dtest.with.fail=true" ./build.py build-default
+}
+
+build_cpp()
+{
+    (
+        cd components/tools/OmeroCpp
+        mkdir build
+        cd build
+        (
+            mkdir gtest
+            cd gtest
+            cmake /usr/src/gtest
+            make
+        )
+        GTEST_ROOT=$(pwd)/gtest cmake ..
+        make
+#        make test
+        make DESTDIR=../install install
+#        make doc
+    )
+}
+
+for arg in "$@"
+do
+    case $arg in
+        clean)
+            clean ;;
+        build-all)
+            build_all ;;
+        build-default)
+            build_default ;;
+        build-cpp)
+            build_cpp ;;
+        *)
+            echo "Invalid argument: \"$arg\"" >&2
+            exit 1
+            ;;
+    esac
+done
+
+exit 0
