@@ -10,6 +10,7 @@
 """
 
 import os
+import pytest
 import test.integration.library as lib
 import omero, Ice
 
@@ -36,6 +37,7 @@ class TestClientConstructors(lib.ITest):
         except:
             c.__del__()
 
+    @pytest.mark.xfail(reason="See ticket #11541")
     def testInitializationDataConstructor(self):
         id = Ice.InitializationData()
         id.properties = Ice.createProperties()
