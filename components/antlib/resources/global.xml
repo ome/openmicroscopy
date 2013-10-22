@@ -182,6 +182,7 @@
 			<include name="**/*.dv"/>
 			<include name="**/*.bmp"/>
 			<include name="**/*.jpg"/>
+			<include name="**/*.png"/>
 			<include name="**/*.xml"/>
 			<include name="**/*.ldif"/>
 			<exclude name="**/.svn"/>
@@ -192,7 +193,7 @@
 
 	<macrodef name="copyResources">
 		<sequential>
-		<!-- Ignoring missining resources directories -->
+		<!-- Ignoring missing resources directories -->
 		<if><available file="${resrc.dir}"></available><then>
 			<copyResourceDir todir="${classes.dir}" fromdir="${resrc.dir}"/>
 		</then></if>

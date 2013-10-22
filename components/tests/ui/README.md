@@ -12,8 +12,8 @@ Before installing please visit
 https://code.google.com/p/robotframework/wiki/Installation
 
 Requirements:
- * Install firefox version 21. It does not work with more recent versions
- * Install Python. Mininum is 2.5. Python 3.x not supported.
+ * Install Firefox version 21. It does not work with more recent versions.
+ * Install Python. Minimum is 2.5. Python 3.x not supported.
 
 If you are planning to run the OMERO.insight and OMERO.web tests, 
 you will have to run robotframework with python and with jython.
@@ -62,7 +62,7 @@ https://github.com/robotframework/SwingLibrary/issues?state=open and
 watch issues like #41 and #47 whose resolution may suggest changes to
 our code.
 
-To actually run a tests in a given folder,
+To run the tests from a given folder,
 
 Replace ${omero.version} by the current version e.g. 4.4.8-DEV-ice34
 
@@ -70,7 +70,7 @@ export OMERO_CHECKOUT=~/src/openmicroscopy
 CLASSPATH="$OMERO_CHECKOUT"/components/insight/OUT/app/libs/*:"$OMERO_CHECKOUT"/components/insight/OUT/dist/omero.insight.jar:"$OMERO_CHECKOUT"/lib/repository/swinglibrary-1.6.0a.jar:"$OMERO_CHECKOUT"/target/repository/java-ui-libraries-${omero.version} jybot "$OMERO_CHECKOUT"/components/tests/ui/testcases/insight/menus
 
 
-To run all the insight tests, from the top level
+To run all the Insight tests, from the top level
 
 ./build.py -f components/tests/ui/build.xml ui-test-insight
 
@@ -109,7 +109,7 @@ If you are running the tests on Mac OS X, you can install install with the follo
 brew install chromedriver
 
 
-To run all the web tests on both firefox and chrom, from the top level
+To run all the web tests on both Firefox and Chrome, from the top level
 
 ./build.py -f components/tests/ui/build.xml ui-test-web
 
