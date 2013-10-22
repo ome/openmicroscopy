@@ -20,7 +20,9 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 """
-   Integration test for adding annotations to Project.
+   Integration test for adding annotations to Project using
+   various permissions.
+
 """
 import test.integration.library as lib
 import pytest
