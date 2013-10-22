@@ -22,8 +22,6 @@
 """
    Integration test for rendering engine, particularly rendering a 'region' of big images. 
 
-   PYTHONPATH=$PYTHONPATH:/opt/Ice-3.3.1/python:.:test:build/lib ICE_CONFIG=/Users/will/Desktop/OMERO/etc/ice.config python test/integration/thumbnailPerms.py
-
 """
 
 import omero
