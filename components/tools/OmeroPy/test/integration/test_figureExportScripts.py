@@ -20,8 +20,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 """
-   Integration test for getting thumbnails between members of groups.
-   Testing permissions and thumbnail service on a running server.
+   Integration test for figure export scripts.
 
 """
 import time
