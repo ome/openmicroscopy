@@ -187,7 +187,7 @@ class OmeroImageServiceImpl
 	throws DSAccessException, DSOutOfServiceException
 	{
 		if (status.isMarkedAsCancel()) {
-			if (close) gateway.closeImport(ctx);
+			if (close) gateway.closeImport(ctx, userName);
 			return Boolean.valueOf(false);
 		}
 		Entry<File, StatusLabel> entry;
@@ -242,7 +242,7 @@ class OmeroImageServiceImpl
 				label.setCallback(Boolean.valueOf(false));
 			}
 		}
-		if (close) gateway.closeImport(ctx);
+		if (close) gateway.closeImport(ctx, userName);
 		return null;
 	}
 
@@ -969,11 +969,6 @@ class OmeroImageServiceImpl
 			throw new IllegalArgumentException("No images to import.");
 		StatusLabel status = importable.getStatus();
 		SecurityContext ctx = new SecurityContext(importable.getGroup().getId());
-
-		if (status.isMarkedAsCancel()) {
-			if (close) gateway.closeImport(ctx);
-			return Boolean.valueOf(false);
-		}
 		//If import as.
 		ExperimenterData loggedIn = context.getAdminService().getUserDetails();
 		long userID = loggedIn.getId();
@@ -984,6 +979,10 @@ class OmeroImageServiceImpl
 			if (exp.getId() != loggedIn.getId())
 				userName = exp.getUserName();
 		}
+	      if (status.isMarkedAsCancel()) {
+	            if (close) gateway.closeImport(ctx, userName);
+	            return Boolean.valueOf(false);
+	        }
 		Collection<TagAnnotationData> tags = object.getTags();
 		List<Annotation> customAnnotationList = new ArrayList<Annotation>();
 		List<IObject> l;
@@ -1048,7 +1047,7 @@ class OmeroImageServiceImpl
 							String value = candidates.get(0);
 							if (!file.getAbsolutePath().equals(value) && 
 								object.isFileinQueue(value)) {
-								if (close) gateway.closeImport(ctx);
+								if (close) gateway.closeImport(ctx, userName);
 								status.markedAsDuplicate();
 								return Boolean.valueOf(true);
 							}
@@ -1144,7 +1143,7 @@ class OmeroImageServiceImpl
 					String value = candidates.get(0);
 					if (!file.getAbsolutePath().equals(value) && 
 						object.isFileinQueue(value)) {
-						if (close) gateway.closeImport(ctx);
+						if (close) gateway.closeImport(ctx, userName);
 						status.markedAsDuplicate();
 						return Boolean.valueOf(true);
 					}
