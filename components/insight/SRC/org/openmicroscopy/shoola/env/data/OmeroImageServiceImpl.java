@@ -1012,7 +1012,12 @@ class OmeroImageServiceImpl
 					customAnnotationList.add(a); // THIS!
 				}
 				object.setTags(values);
-			} catch (Exception e) {}
+			} catch (Exception e) {
+			    LogMessage msg = new LogMessage();
+			    msg.print("Cannot create the tags.");
+			    msg.print(e);
+			    context.getLogger().error(this, msg);
+			}
 		}
 		IObject link;
 		//prepare the container.
