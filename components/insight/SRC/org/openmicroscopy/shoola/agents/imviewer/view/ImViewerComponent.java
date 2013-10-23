@@ -804,29 +804,29 @@ class ImViewerComponent
 	public void setSelectedXYPlane(int z, int t, int bin)
 	{
 		if (z < 0) z = model.getDefaultZ();
-		if (t < 0) t = model.getDefaultT();
+		if (t < 0) t = model.getRealSelectedT();
 		switch (model.getState()) {
 			case NEW:
 			case DISCARDED:
 				return;
 		}
 		int defaultZ = model.getDefaultZ();
-		int defaultT = model.getDefaultT();
+		int defaultT = model.getRealSelectedT();
 		if (bin >= 0) { //lifetime
-			model.setSelectedBin(bin);
+			model.setSelectedXYPlane(z, t, bin);
 			renderXYPlane();
 		} else {
 			if (defaultZ == z && defaultT == t) return;
 			if (defaultZ != z) {
-				firePropertyChange(ImViewer.Z_SELECTED_PROPERTY, 
+				firePropertyChange(ImViewer.Z_SELECTED_PROPERTY,
 						Integer.valueOf(defaultZ), Integer.valueOf(z));
 			}
 			if (defaultT != t) {
-				firePropertyChange(ImViewer.T_SELECTED_PROPERTY, 
+				firePropertyChange(ImViewer.T_SELECTED_PROPERTY,
 						Integer.valueOf(defaultT), Integer.valueOf(t));
 			}
 			newPlane = true;
-			model.setSelectedXYPlane(z, t);
+			model.setSelectedXYPlane(z, t, -1);
 		}
 	}
 	
@@ -837,7 +837,7 @@ class ImViewerComponent
 	public void setSelectedRegion(int z, int t, Rectangle region)
 	{
 		if (z < 0) z = model.getDefaultZ();
-		if (t < 0) t = model.getDefaultT();
+		if (t < 0) t = model.getRealSelectedT();
 		if (region == null || !model.isBigImage()) {
 			setSelectedXYPlane(z, t);
 			return;
@@ -848,7 +848,7 @@ class ImViewerComponent
 				return;
 		}
 		int defaultZ = model.getDefaultZ();
-		int defaultT = model.getDefaultT();
+		int defaultT = model.getRealSelectedT();
 		boolean reset = false;
 		if (defaultZ != z) {
 			reset = true;

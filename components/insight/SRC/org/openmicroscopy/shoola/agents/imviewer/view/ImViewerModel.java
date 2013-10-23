@@ -1150,12 +1150,13 @@ class ImViewerModel
 	 * 
 	 * @param z The z-section to set.
 	 * @param t The timepoint to set.
+	 * @param bin The selected small t.
 	 */
-	void setSelectedXYPlane(int z, int t)
+	void setSelectedXYPlane(int z, int t, int bin)
 	{
 		Renderer rnd = metadataViewer.getRenderer();
 		if (rnd == null) return;
-		rnd.setSelectedXYPlane(z, t, -1);
+		rnd.setSelectedXYPlane(z, t, bin);
 	}
 
 	/**
@@ -2317,46 +2318,7 @@ class ImViewerModel
 		metadataViewer.makeMovie((int) getUnitInRefUnits(),
 				getBrowser().getUnitBarColor());
 	}
-	
-	/**
-	 * Sets the selected lifetime bin.
-	 * 
-	 * @param bin The selected bin.
-	 */
-	void setSelectedBin(int bin)
-	{
-		Renderer rnd = metadataViewer.getRenderer();
-		if (rnd == null) return;
-		List<ChannelData> channels = getChannelData();
-		ChannelData channel;
-		Iterator<ChannelData> i = channels.iterator();
-		int index;
-		while (i.hasNext()) {
-			channel = i.next();
-			index = channel.getIndex();
-			rnd.setActive(index, index == bin);
-		}
-	}
-	
-	/** Sets the rendering engine to handle lifetime image. */
-	void setForLifetime()
-	{
-		if (!isLifetimeImage()) return;
-		Renderer rnd = metadataViewer.getRenderer();
-		if (rnd == null) return;
-		setColorModel(ImViewer.GREY_SCALE_MODEL, true);
-		List<ChannelData> channels = getChannelData();
-		ChannelData c;
-		Iterator<ChannelData> i = channels.iterator();
-		int index;
-		while (i.hasNext()) {
-			c = i.next();
-			index = c.getIndex();
-			rnd.setChannelWindow(index, c.getGlobalMin(), c.getGlobalMax());
-			rnd.setActive(index, index == 0);
-		}
-	}
-	
+
 	/**
 	 * Returns the selected bin.
 	 * 

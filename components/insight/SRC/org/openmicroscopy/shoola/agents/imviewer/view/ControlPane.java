@@ -286,10 +286,10 @@ class ControlPane
             int v = model.getDefaultZ()-e.getWheelRotation();
             if (up) {
                 if (v <= model.getMaxZ())
-                    setSelectedXYPlane(v,  model.getDefaultT());
+                    setSelectedXYPlane(v, model.getRealSelectedT());
             } else { //moving down
                 if (v >= 0)
-                    setSelectedXYPlane(v,  model.getDefaultT());
+                    setSelectedXYPlane(v,  model.getRealSelectedT());
             }
         }
     }
@@ -1430,351 +1430,351 @@ class ControlPane
 
     /**
      * Sets the specified channel to active.
-     * 
+     *
      * @param index The channel's index.
-     * @param uiIndex One of the following constants 
-     * 				  {@link ImViewerUI#GRID_ONLY} and 
+     * @param uiIndex One of the following constants
+     * 				  {@link ImViewerUI#GRID_ONLY} and
 	 * 				  {@link ImViewerUI#ALL_VIEW}.
      */
     void setChannelActive(int index, int uiIndex)
     {
-    	Iterator<ChannelButton> i;
+        Iterator<ChannelButton> i;
         ChannelButton button;
         switch (uiIndex) {
-			case ImViewerUI.GRID_ONLY:
-				 i = channelButtonsGrid.iterator();
-			        while (i.hasNext()) {
-			            button = i.next();
-			            if (index == button.getChannelIndex())
-			                button.setSelected(true);
-			        }
-				break;
-			case ImViewerUI.ALL_VIEW:
-				i = channelButtons.iterator();
-				while (i.hasNext()) {
-					button = i.next();
-					if (index == button.getChannelIndex())
-						button.setSelected(true);
-				}
-				i = channelButtonsGrid.iterator();
-				while (i.hasNext()) {
-					button = i.next();
-					if (index == button.getChannelIndex())
-						button.setSelected(true);
-				}
-				i = channelButtonsProjection.iterator();
-				while (i.hasNext()) {
-					button = i.next();
-					if (index == button.getChannelIndex())
-						button.setSelected(true);
-				}
-		}
-	}
+        case ImViewerUI.GRID_ONLY:
+            i = channelButtonsGrid.iterator();
+            while (i.hasNext()) {
+                button = i.next();
+                if (index == button.getChannelIndex())
+                    button.setSelected(true);
+            }
+            break;
+        case ImViewerUI.ALL_VIEW:
+            i = channelButtons.iterator();
+            while (i.hasNext()) {
+                button = i.next();
+                if (index == button.getChannelIndex())
+                    button.setSelected(true);
+            }
+            i = channelButtonsGrid.iterator();
+            while (i.hasNext()) {
+                button = i.next();
+                if (index == button.getChannelIndex())
+                    button.setSelected(true);
+            }
+            i = channelButtonsProjection.iterator();
+            while (i.hasNext()) {
+                button = i.next();
+                if (index == button.getChannelIndex())
+                    button.setSelected(true);
+            }
+        }
+    }
 
     /**
      * Returns the collection of active channels in the grid view.
-     * 
+     *
      * @return See above.
      */
     List getActiveChannelsInGrid()
     {
-    	List<Integer> active = new ArrayList<Integer>();
-    	Iterator<ChannelButton> i = channelButtonsGrid.iterator();
-    	ChannelButton button;
+        List<Integer> active = new ArrayList<Integer>();
+        Iterator<ChannelButton> i = channelButtonsGrid.iterator();
+        ChannelButton button;
         while (i.hasNext()) {
             button = i.next();
             if (button.isSelected()) active.add(button.getChannelIndex());
         }
         return active;
     }
-    
+
     /**
      * Returns the collection of active channels in the projection view.
-     * 
+     *
      * @return See above.
      */
     List getActiveChannelsInProjection()
     {
-    	List<Integer> active = new ArrayList<Integer>();
-    	Iterator<ChannelButton> i = channelButtonsProjection.iterator();
-    	ChannelButton button;
+        List<Integer> active = new ArrayList<Integer>();
+        Iterator<ChannelButton> i = channelButtonsProjection.iterator();
+        ChannelButton button;
         while (i.hasNext()) {
             button = i.next();
             if (button.isSelected()) active.add(button.getChannelIndex());
         }
         return active;
     }
-    
+
     /**
      * Updates UI components when a zooming factor is selected.
-     * 
+     *
      * @param zoomIndex The index of the selected zoomFactor.
      */
     void setZoomFactor(int zoomIndex)
     {
-    	if (ratioSlider.getMinimum() > zoomIndex ||
-    		ratioSlider.getMaximum() < zoomIndex)
-    		return;
-    	ratioSlider.removeChangeListener(this);
-    	ratioSlider.setValue(zoomIndex);
-    	ratioSlider.addChangeListener(this);
-    	projectionRatioSlider.removeChangeListener(this);
-    	projectionRatioSlider.setValue(zoomIndex);
-    	projectionRatioSlider.addChangeListener(this);
+        if (ratioSlider.getMinimum() > zoomIndex ||
+                ratioSlider.getMaximum() < zoomIndex)
+            return;
+        ratioSlider.removeChangeListener(this);
+        ratioSlider.setValue(zoomIndex);
+        ratioSlider.addChangeListener(this);
+        projectionRatioSlider.removeChangeListener(this);
+        projectionRatioSlider.setValue(zoomIndex);
+        projectionRatioSlider.addChangeListener(this);
     }
-    
+
     /**
-	 * Returns the lower bound of the z-section to project.
-	 * 
-	 * @return See above.
-	 */
-	int getProjectionStartZ() { return projectionRange.getStartValue()-1; }
-	
-	/**
-	 * Returns the lower bound of the z-section to project.
-	 * 
-	 * @return See above.
-	 */
-	int getProjectionEndZ() { return projectionRange.getEndValue()-1; }
-	
+     * Returns the lower bound of the z-section to project.
+     *
+     * @return See above.
+     */
+    int getProjectionStartZ() { return projectionRange.getStartValue()-1; }
+
+    /**
+     * Returns the lower bound of the z-section to project.
+     *
+     * @return See above.
+     */
+    int getProjectionEndZ() { return projectionRange.getEndValue()-1; }
+
     /**
      * Updates UI components when a zooming factor for the grid
      * is selected.
-     * 
+     *
      * @param zoomIndex The index of the selected zoomFactor.
      */
     void setGridMagnificationFactor(int zoomIndex)
     {
-    	if (gridRatioSlider.getMinimum() > zoomIndex ||
-    			gridRatioSlider.getMaximum() < zoomIndex)
-    		return;
-    	gridRatioSlider.removeChangeListener(this);
-    	gridRatioSlider.setValue(zoomIndex);
-    	gridRatioSlider.addChangeListener(this);
+        if (gridRatioSlider.getMinimum() > zoomIndex ||
+                gridRatioSlider.getMaximum() < zoomIndex)
+            return;
+        gridRatioSlider.removeChangeListener(this);
+        gridRatioSlider.setValue(zoomIndex);
+        gridRatioSlider.addChangeListener(this);
     }
-    
-    /**
-	 * Returns the stepping used for the projection.
-	 * 
-	 * @return See above.
-	 */
-	int getProjectionStepping()
-	{
-		return (Integer) projectionFrequency.getValue();
-	}
 
-	/**
-	 * Returns the type of projection.
-	 * 
-	 * @return See above.
-	 */
-	int getProjectionType()
-	{
-		int index = projectionTypesBox.getSelectedIndex();
-		return projectionTypes.get(index);
-	}
-    
-	/** Resets the zoom values when the image is large. */
-	void resetZoomValues()
-	{
-		//ratioSlider.setMaximum(ZoomAction.ZOOM_100);
-	}
-	
-	/**
-	 * Returns a textual version of the type of projection.
-	 * 
-	 * @return See above.
-	 */
-	String getProjectionTypeName()
-	{
-		int index = projectionTypesBox.getSelectedIndex();
-		return ProjectionParam.PROJECTIONS.get(index);
-	}
-	
-	/**
-	 * Shows or hides a busy label indicating the on-going creation of the
-	 * grid image.
-	 * 
-	 * @param busy  Pass <code>true</code> to indicate the on-going creation,
-	 * 				<code>false</code> when it is finished.
-	 */
-	void createGridImage(boolean busy)
-	{
-		gridImageLabel.setVisible(busy);
-		gridImageLabel.setBusy(busy);
-	}
-	
-	/**
-	 * Returns <code>true</code> if the passed object is one of the
-	 * channel buttons, <code>false</code> otherwise.
-	 * 
-	 * @param source The object to handle.
-	 * @return See above.
-	 */
-	boolean isSourceDisplayed(Object source)
-	{
-		Iterator<ChannelButton> i = channelButtons.iterator();
-		while (i.hasNext()) {
-			if (i.next() == source) return true;
-		}
-		i = channelButtonsGrid.iterator();
-		while (i.hasNext()) {
-			if (i.next() == source) return true;
-		}
-		i = channelButtonsProjection.iterator();
-		while (i.hasNext()) {
-			if (i.next() == source) return true;
-		}
-		return false;
-	}
-	
-	/** Removes the overlays. */
-	void onColorModelChanged() 
-	{
-		String colorModel = model.getColorModel();
-		if (overlays == null) return;
-		if (ImViewer.GREY_SCALE_MODEL.equals(colorModel)) {
-			overlays.removeActionListener(overlaysListener);
-			overlays.setSelected(false);
-			overlays.addActionListener(overlaysListener);
-			overlays.setEnabled(false);
-			Iterator<ChannelButton> i = overlayButtons.iterator();
-			while (i.hasNext()) 
-				 i.next().setEnabled(false);
-		} else {
-			boolean ready = model.getState() == ImViewer.READY;
-			overlays.setEnabled(ready);
-			Iterator<ChannelButton> i = overlayButtons.iterator();
-			while (i.hasNext()) 
-				 i.next().setEnabled(ready);
-		}
-	}
-	
-	/** Builds the overlays. */
-	void buildOverlays()
-	{
-		Map m = model.getOverLays();
-		if (m == null || m.size() == 0) return;
-		overlays = new JCheckBox("Overlays");
-		overlaysListener = new ActionListener() {
-			
-			public void actionPerformed(ActionEvent e) {
-				controller.renderOverlays(overlays.isSelected());
-			}
-		};
-		overlays.addActionListener(overlaysListener);
-		TableLayout layout = (TableLayout) controls.getLayout();
-		int row = layout.getNumRow()-1;
-		overlayButtons = new ArrayList<ChannelButton>();
-		Iterator i = m.entrySet().iterator();
-		Entry entry;
-		int index;
-		ChannelButton button;
-		Color c;
-		JPanel p = new JPanel();
+    /**
+     * Returns the stepping used for the projection.
+     * 
+     * @return See above.
+     */
+    int getProjectionStepping()
+    {
+        return (Integer) projectionFrequency.getValue();
+    }
+
+    /**
+     * Returns the type of projection.
+     * 
+     * @return See above.
+     */
+    int getProjectionType()
+    {
+        int index = projectionTypesBox.getSelectedIndex();
+        return projectionTypes.get(index);
+    }
+
+    /** Resets the zoom values when the image is large. */
+    void resetZoomValues()
+    {
+        //ratioSlider.setMaximum(ZoomAction.ZOOM_100);
+    }
+
+    /**
+     * Returns a textual version of the type of projection.
+     * 
+     * @return See above.
+     */
+    String getProjectionTypeName()
+    {
+        int index = projectionTypesBox.getSelectedIndex();
+        return ProjectionParam.PROJECTIONS.get(index);
+    }
+
+    /**
+     * Shows or hides a busy label indicating the on-going creation of the
+     * grid image.
+     * 
+     * @param busy  Pass <code>true</code> to indicate the on-going creation,
+     * 				<code>false</code> when it is finished.
+     */
+    void createGridImage(boolean busy)
+    {
+        gridImageLabel.setVisible(busy);
+        gridImageLabel.setBusy(busy);
+    }
+
+    /**
+     * Returns <code>true</code> if the passed object is one of the
+     * channel buttons, <code>false</code> otherwise.
+     * 
+     * @param source The object to handle.
+     * @return See above.
+     */
+    boolean isSourceDisplayed(Object source)
+    {
+        Iterator<ChannelButton> i = channelButtons.iterator();
+        while (i.hasNext()) {
+            if (i.next() == source) return true;
+        }
+        i = channelButtonsGrid.iterator();
+        while (i.hasNext()) {
+            if (i.next() == source) return true;
+        }
+        i = channelButtonsProjection.iterator();
+        while (i.hasNext()) {
+            if (i.next() == source) return true;
+        }
+        return false;
+    }
+
+    /** Removes the overlays. */
+    void onColorModelChanged() 
+    {
+        String colorModel = model.getColorModel();
+        if (overlays == null) return;
+        if (ImViewer.GREY_SCALE_MODEL.equals(colorModel)) {
+            overlays.removeActionListener(overlaysListener);
+            overlays.setSelected(false);
+            overlays.addActionListener(overlaysListener);
+            overlays.setEnabled(false);
+            Iterator<ChannelButton> i = overlayButtons.iterator();
+            while (i.hasNext()) 
+                i.next().setEnabled(false);
+        } else {
+            boolean ready = model.getState() == ImViewer.READY;
+            overlays.setEnabled(ready);
+            Iterator<ChannelButton> i = overlayButtons.iterator();
+            while (i.hasNext()) 
+                i.next().setEnabled(ready);
+        }
+    }
+
+    /** Builds the overlays. */
+    void buildOverlays()
+    {
+        Map m = model.getOverLays();
+        if (m == null || m.size() == 0) return;
+        overlays = new JCheckBox("Overlays");
+        overlaysListener = new ActionListener() {
+
+            public void actionPerformed(ActionEvent e) {
+                controller.renderOverlays(overlays.isSelected());
+            }
+        };
+        overlays.addActionListener(overlaysListener);
+        TableLayout layout = (TableLayout) controls.getLayout();
+        int row = layout.getNumRow()-1;
+        overlayButtons = new ArrayList<ChannelButton>();
+        Iterator i = m.entrySet().iterator();
+        Entry entry;
+        int index;
+        ChannelButton button;
+        Color c;
+        JPanel p = new JPanel();
         p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
         int j = 0;
         int w = 0;
         int h = 0;
-		while (i.hasNext()) {
-			entry = (Entry) i.next();
-			index = (Integer) entry.getKey();
-			c = new Color((Integer) entry.getValue());
-			button = new ChannelButton(""+j, c, index, true);
-			button.setOverlay(true);
-			button.addPropertyChangeListener(controller);
-			overlayButtons.add(button);
-			p.add(button);
+        while (i.hasNext()) {
+            entry = (Entry) i.next();
+            index = (Integer) entry.getKey();
+            c = new Color((Integer) entry.getValue());
+            button = new ChannelButton(""+j, c, index, true);
+            button.setOverlay(true);
+            button.addPropertyChangeListener(controller);
+            overlayButtons.add(button);
+            p.add(button);
             p.add(Box.createRigidArea(VBOX));
             w = button.getPreferredSize().width;
             h = button.getPreferredSize().height;
             j++;
-		}
+        }
 
-		JPanel pane = new JPanel();
-		double size[][] = {{TableLayout.PREFERRED}, 
-				{TableLayout.PREFERRED, TableLayout.PREFERRED}};
-		pane.setLayout(new TableLayout(size));
-		pane.add(overlays, "0, 0, CENTER, CENTER");
-		if (overlayButtons.size() > ImViewer.MAX_OVERLAYS) {
-        	JScrollPane sp = new JScrollPane(p);
-        	Dimension d = new Dimension(2*w, h*ImViewer.MAX_OVERLAYS);
-        	sp.setPreferredSize(d);
-        	pane.add(sp, "0, 1, CENTER, CENTER");
+        JPanel pane = new JPanel();
+        double size[][] = {{TableLayout.PREFERRED}, 
+                {TableLayout.PREFERRED, TableLayout.PREFERRED}};
+        pane.setLayout(new TableLayout(size));
+        pane.add(overlays, "0, 0, CENTER, CENTER");
+        if (overlayButtons.size() > ImViewer.MAX_OVERLAYS) {
+            JScrollPane sp = new JScrollPane(p);
+            Dimension d = new Dimension(2*w, h*ImViewer.MAX_OVERLAYS);
+            sp.setPreferredSize(d);
+            pane.add(sp, "0, 1, CENTER, CENTER");
         } else pane.add(p, "0, 1, CENTER, CENTER");
-		
-		controls.add(pane, "0, "+row+", LEFT, CENTER");
-	}
-	
-	/**
-	 * Turns on or off the selected overlay.
-	 * 
-	 * @param index     The index of the overlay.
-	 * @param selected  Pass <code>true</code> to turn the overlay on,
-	 * 					<code>false</code> to turn it off.
-	 */
-	void renderOverlays(int index, boolean selected)
-	{
-		if (index == -1) return;
-		Iterator<ChannelButton> i = overlayButtons.iterator();
-		ChannelButton b;
-		while (i.hasNext()) {
-			b = i.next();
-			if (b.getChannelIndex() == index) {
-				b.setSelected(selected);
-				break;
-			}
-		}
-	}
-	
-	/**
-	 * Returns the selected overlays if displayed otherwise returns 
-	 * <code>null</code>.
-	 * 
-	 * @return See above.
-	 */
-	Map<Long, Integer> getSelectedOverlays()
-	{
-		Map<Long, Integer> m = new HashMap<Long, Integer>();
-		Iterator<ChannelButton> i = overlayButtons.iterator();
-		ChannelButton b;
-		Color c;
-		while (i.hasNext()) {
-			b = i.next();
-			c = b.getColor();
-			if (b.isSelected() && c != null) {
-				m.put((long) b.getChannelIndex(), c.getRGB() & 0x00ffffff);
-			}
-		}
-		return m;
-	}
 
-	/**
-	 * Returns <code>true</code> if the overlays are turned on,
-	 * <code>false</code> otherwise.
-	 * 
-	 * @return See above.
-	 */
-	boolean isOverlayActive() { return overlays.isSelected(); }
-	
-	/**
-	 * Returns the color model of the pane currently selected.
-	 * 
-	 * @return See above.
-	 */
-	String getSelectedPaneColorModel()
-	{
-		switch (view.getTabbedIndex()) {
-			case ImViewer.GRID_INDEX:
-				return getColorModelFromIcon(colorModelButtonGrid);
-			case ImViewer.PROJECTION_INDEX:
-				return getColorModelFromIcon(colorModelButtonProjection);
-			case ImViewer.VIEW_INDEX:
-				default:
-				return getColorModelFromIcon(colorModelButton);
-		}
-	}
-	
+        controls.add(pane, "0, "+row+", LEFT, CENTER");
+    }
+
+    /**
+     * Turns on or off the selected overlay.
+     * 
+     * @param index     The index of the overlay.
+     * @param selected  Pass <code>true</code> to turn the overlay on,
+     * 					<code>false</code> to turn it off.
+     */
+    void renderOverlays(int index, boolean selected)
+    {
+        if (index == -1) return;
+        Iterator<ChannelButton> i = overlayButtons.iterator();
+        ChannelButton b;
+        while (i.hasNext()) {
+            b = i.next();
+            if (b.getChannelIndex() == index) {
+                b.setSelected(selected);
+                break;
+            }
+        }
+    }
+
+    /**
+     * Returns the selected overlays if displayed otherwise returns 
+     * <code>null</code>.
+     * 
+     * @return See above.
+     */
+    Map<Long, Integer> getSelectedOverlays()
+    {
+        Map<Long, Integer> m = new HashMap<Long, Integer>();
+        Iterator<ChannelButton> i = overlayButtons.iterator();
+        ChannelButton b;
+        Color c;
+        while (i.hasNext()) {
+            b = i.next();
+            c = b.getColor();
+            if (b.isSelected() && c != null) {
+                m.put((long) b.getChannelIndex(), c.getRGB() & 0x00ffffff);
+            }
+        }
+        return m;
+    }
+
+    /**
+     * Returns <code>true</code> if the overlays are turned on,
+     * <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
+    boolean isOverlayActive() { return overlays.isSelected(); }
+
+    /**
+     * Returns the color model of the pane currently selected.
+     * 
+     * @return See above.
+     */
+    String getSelectedPaneColorModel()
+    {
+        switch (view.getTabbedIndex()) {
+        case ImViewer.GRID_INDEX:
+            return getColorModelFromIcon(colorModelButtonGrid);
+        case ImViewer.PROJECTION_INDEX:
+            return getColorModelFromIcon(colorModelButtonProjection);
+        case ImViewer.VIEW_INDEX:
+        default:
+            return getColorModelFromIcon(colorModelButton);
+        }
+    }
+
     /**
      * Sets the tool tip of the specified slider.
      * 
@@ -1783,63 +1783,63 @@ class ControlPane
      */
     void setRangeSliderToolTip(int start, int end)
     {
-    	String tip = "Selected Range Z="+(start+1)+"-"+(end+1)+
-    	"/"+(model.getMaxZ()+1);
-    	projectionRange.setToolTipText(tip);
+        String tip = "Selected Range Z="+(start+1)+"-"+(end+1)+
+                "/"+(model.getMaxZ()+1);
+        projectionRange.setToolTipText(tip);
     }
-    
+
     /**
      * Updates the component displaying the channels' details after update.
      */
     void onChannelUpdated()
     {
-    	Iterator<ChannelButton> i = channelButtons.iterator();
-    	ChannelData data;
-    	ChannelButton cb;
-    	while (i.hasNext()) {
-			cb = i.next();
-			data = model.getChannelData(cb.getChannelIndex());
-			cb.setText(data.getChannelLabeling());
-		}
+        Iterator<ChannelButton> i = channelButtons.iterator();
+        ChannelData data;
+        ChannelButton cb;
+        while (i.hasNext()) {
+            cb = i.next();
+            data = model.getChannelData(cb.getChannelIndex());
+            cb.setText(data.getChannelLabeling());
+        }
         i = channelButtonsGrid.iterator();
         while (i.hasNext()) {
-			cb = i.next();
-			data = model.getChannelData(cb.getChannelIndex());
-			cb.setText(data.getChannelLabeling());
-		}
+            cb = i.next();
+            data = model.getChannelData(cb.getChannelIndex());
+            cb.setText(data.getChannelLabeling());
+        }
         i = channelButtonsProjection.iterator();
         while (i.hasNext()) {
-			cb = i.next();
-			data = model.getChannelData(cb.getChannelIndex());
-			cb.setText(data.getChannelLabeling());
-		}
+            cb = i.next();
+            data = model.getChannelData(cb.getChannelIndex());
+            cb.setText(data.getChannelLabeling());
+        }
         repaint();
     }
-    
+
     /**
      * Reacts to the selection of an item in the projection box
      * @see ActionListener#actionPerformed(ActionEvent)
      */
     public void actionPerformed(ActionEvent e)
     {
-    	int index = Integer.parseInt(e.getActionCommand());
-    	if (index == FREQUENCY) {
-    		JComponent comp = projectionFrequency.getEditor();
-    	    if (comp instanceof JSpinner.NumberEditor) {
-    	    	JFormattedTextField field = 
-    	    		((JSpinner.NumberEditor) comp).getTextField();
-    	    	String value = field.getText();
-    	    	int v = -1;
-    	    	try {
-					v = Integer.parseInt(value);
-				} catch (Exception ex) {}
-				if (v == -1 || v > model.getMaxZ() || v < 1) return;
-				projectionFrequency.setValue(v);
-    	    }
-    	}
+        int index = Integer.parseInt(e.getActionCommand());
+        if (index == FREQUENCY) {
+            JComponent comp = projectionFrequency.getEditor();
+            if (comp instanceof JSpinner.NumberEditor) {
+                JFormattedTextField field =
+                        ((JSpinner.NumberEditor) comp).getTextField();
+                String value = field.getText();
+                int v = -1;
+                try {
+                    v = Integer.parseInt(value);
+                } catch (Exception ex) {}
+                if (v == -1 || v > model.getMaxZ() || v < 1) return;
+                projectionFrequency.setValue(v);
+            }
+        }
         controller.setProjectionRange(true);
     }
-    
+
     /**
      * Reacts to selection of a new plane.
      * @see ChangeListener#stateChanged(ChangeEvent)
@@ -1848,39 +1848,41 @@ class ControlPane
     {
         Object object = e.getSource();
         if (object instanceof JSlider) {
-        	if (object == gridRatioSlider) {
-        		double r = (double) gridRatioSlider.getValue()/10;
-        		controller.setGridMagnificationFactor(r);
-        		return;
-        	} else if (object == ratioSlider) {
-        		if (model.isBigImage()) {
-        			if (!ratioSlider.isDragging())
-            			controller.setZoomFactor(ratioSlider.getValue());
-        		} else {
-        			controller.setZoomFactor(ratioSlider.getValue());
-        		}
-        	} else if (object == projectionRatioSlider) {
-        		controller.setZoomFactor(projectionRatioSlider.getValue());
-        	}
-        	if (object == zSlider || object == tSlider || 
-        			object == lifetimeSlider)
-        		setSelectedXYPlane(zSlider.getValue(), tSlider.getValue());
-        	else if (object == zSliderGrid || object == tSliderGrid)
-        		setSelectedXYPlane(zSliderGrid.getValue(), 
+            if (object.equals(gridRatioSlider)) {
+                double r = (double) gridRatioSlider.getValue()/10;
+                controller.setGridMagnificationFactor(r);
+                return;
+            } else if (object.equals(ratioSlider)) {
+                if (model.isBigImage()) {
+                    if (!ratioSlider.isDragging())
+                        controller.setZoomFactor(ratioSlider.getValue());
+                } else {
+                    controller.setZoomFactor(ratioSlider.getValue());
+                }
+            } else if (object.equals(projectionRatioSlider)) {
+                controller.setZoomFactor(projectionRatioSlider.getValue());
+            }
+            if (object.equals(zSlider) || object.equals(tSlider))
+                setSelectedXYPlane(zSlider.getValue(), tSlider.getValue());
+            else if (object.equals(lifetimeSlider)) {
+                controller.setSelectedXYPlane(model.getDefaultZ(),
+                        model.getRealSelectedT(), lifetimeSlider.getValue());
+            } else if (object.equals(zSliderGrid) || object.equals(tSliderGrid))
+                setSelectedXYPlane(zSliderGrid.getValue(),
                         tSliderGrid.getValue());
-        	else if (object == tSliderProjection) {
-        		//Only if knob is released.
-        		if (!tSliderProjection.getValueIsAdjusting()) {
-        			try {
-        				setSelectedXYPlane(-1, tSliderProjection.getValue());
-        				controller.setProjectionRange(true);
-					} catch (Exception ex) {}
-        		}
-        	} 
-        } else if (object == projectionFrequency)
-			controller.setProjectionRange(true);
+            else if (object.equals(tSliderProjection)) {
+                //Only if knob is released.
+                if (!tSliderProjection.getValueIsAdjusting()) {
+                    try {
+                        setSelectedXYPlane(-1, tSliderProjection.getValue());
+                        controller.setProjectionRange(true);
+                    } catch (Exception ex) {}
+                }
+            } 
+        } else if (object.equals(projectionFrequency))
+            controller.setProjectionRange(true);
     }
-    
+
     /**
      * Reacts to wheels moved event related to the {@link #zSlider},
      * {@link #tSlider}, {@link #zSliderGrid} and {@link #zSliderGrid}.
@@ -1892,8 +1894,8 @@ class ControlPane
         if (source == zSlider && zSlider.isEnabled()) mouseWheelMovedZ(e);
         else if (source == tSlider && tSlider.isEnabled())
             mouseWheelMovedT(e);
-        else if (source == zSliderGrid && zSliderGrid.isEnabled()) 
-        	mouseWheelMovedZ(e);
+        else if (source == zSliderGrid && zSliderGrid.isEnabled())
+            mouseWheelMovedZ(e);
         else if (source == tSliderGrid && tSliderGrid.isEnabled())
             mouseWheelMovedT(e);
         else if (source == lifetimeSlider && lifetimeSlider.isEnabled())
@@ -1904,17 +1906,17 @@ class ControlPane
      * Notifies that the projection range has been modified.
      * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
      */
-	public void propertyChange(PropertyChangeEvent evt)
-	{
-		String name = evt.getPropertyName();
-		if (TwoKnobsSlider.RIGHT_MOVED_PROPERTY.equals(name) ||
-			TwoKnobsSlider.LEFT_MOVED_PROPERTY.equals(name))
-			controller.setProjectionRange(false);
-		else if (TwoKnobsSlider.KNOB_RELEASED_PROPERTY.equals(name))
-			controller.setProjectionRange(true);
-		else if (OneKnobSlider.ONE_KNOB_RELEASED_PROPERTY.equals(name)) {
-			controller.setZoomFactor(ratioSlider.getValue());
-		}
-	}
+    public void propertyChange(PropertyChangeEvent evt)
+    {
+        String name = evt.getPropertyName();
+        if (TwoKnobsSlider.RIGHT_MOVED_PROPERTY.equals(name) ||
+                TwoKnobsSlider.LEFT_MOVED_PROPERTY.equals(name))
+            controller.setProjectionRange(false);
+        else if (TwoKnobsSlider.KNOB_RELEASED_PROPERTY.equals(name))
+            controller.setProjectionRange(true);
+        else if (OneKnobSlider.ONE_KNOB_RELEASED_PROPERTY.equals(name)) {
+            controller.setZoomFactor(ratioSlider.getValue());
+        }
+    }
 
 }
