@@ -1,5 +1,6 @@
 *** Settings ***
-Documentation     Test creation of Projects and Datasets
+Documentation     Tests creation of Projects and Datasets
+...               and enabled status of create P/D/S options
 ...
 ...               This test requires P/D/I in hierarchy.
 
@@ -31,25 +32,25 @@ Test Container Creation Enabled
     Create Button Should Be Enabled             project
     Create Button Should Be Enabled             dataset
     Create Button Should Be Enabled             screen
-    Node Popup Menu Item Should Be Disabled     Project
+    Node Popup Menu Item Should Be Enabled      Project
     Node Popup Menu Item Should Be Enabled      Dataset
-    Node Popup Menu Item Should Be Disabled     Screen
+    Node Popup Menu Item Should Be Enabled      Screen
     Node Popup Menu Item Should Be Enabled      Delete
     Select And Expand Dataset
-    Create Button Should Be Disabled            project
-    Create Button Should Be Disabled            dataset
-    Create Button Should Be Disabled            screen
-    Node Popup Menu Item Should Be Disabled     Project
-    Node Popup Menu Item Should Be Disabled     Dataset
-    Node Popup Menu Item Should Be Disabled     Screen
+    Create Button Should Be Enabled             project
+    Create Button Should Be Enabled             dataset
+    Create Button Should Be Enabled             screen
+    Node Popup Menu Item Should Be Enabled      Project
+    Node Popup Menu Item Should Be Enabled      Dataset
+    Node Popup Menu Item Should Be Enabled      Screen
     Node Popup Menu Item Should Be Enabled      Delete
     ${imageId}=    Select And Expand Image
-    Create Button Should Be Disabled            project
-    Create Button Should Be Disabled            dataset
-    Create Button Should Be Disabled            screen
-    Node Popup Menu Item Should Be Disabled     Project
-    Node Popup Menu Item Should Be Disabled     Dataset
-    Node Popup Menu Item Should Be Disabled     Screen
+    Create Button Should Be Enabled             project
+    Create Button Should Be Enabled             dataset
+    Create Button Should Be Enabled             screen
+    Node Popup Menu Item Should Be Enabled      Project
+    Node Popup Menu Item Should Be Enabled      Dataset
+    Node Popup Menu Item Should Be Enabled      Screen
     Node Popup Menu Item Should Be Enabled      Delete
 
     Thumbnail Should Be Selected                ${imageId}
