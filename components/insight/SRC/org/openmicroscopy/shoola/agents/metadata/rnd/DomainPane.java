@@ -365,12 +365,11 @@ public class DomainPane
         
         if (model.isGeneralIndex()) {
         	int maxZ = model.getMaxZ()-1;
-        	int maxT = model.getMaxT()-1;
         	zSlider = new OneKnobSlider(OneKnobSlider.VERTICAL, 0, 1, 0);
         	zSlider.setEnabled(false);
         	tSlider = new OneKnobSlider(OneKnobSlider.HORIZONTAL, 0, 1, 0);
         	tSlider.setEnabled(false);
-        	initSlider(tSlider, maxT, model.getDefaultT(), 
+        	initSlider(tSlider, model.getRealT()-1, model.getRealSelectedT(),
         			T_SLIDER_DESCRIPTION, T_SLIDER_TIPSTRING);
 
         	initSlider(zSlider, maxZ, model.getDefaultZ(), 
@@ -397,8 +396,8 @@ public class DomainPane
             lifetimeSlider = new OneKnobSlider(OneKnobSlider.HORIZONTAL,
                     0, 1, 0);
             lifetimeSlider.setEnabled(false);
-            int maxBin = model.getMaxLifetimeBin();
-            initSlider(lifetimeSlider, maxBin, model.getSelectedBin(), 
+            int maxBin = model.getMaxLifetimeBin()-1;
+            initSlider(lifetimeSlider, maxBin, model.getSelectedBin(),
                     LITEIME_SLIDER_DESCRIPTION, LIFETIME_SLIDER_TIPSTRING);
             lifetimeSlider.setPaintTicks(false);
             channelButtonPanel = createChannelButtons();
@@ -773,17 +772,17 @@ public class DomainPane
         boolean up = true;
         if (e.getWheelRotation() > 0) up = false;
         if (e.getScrollType() == MouseWheelEvent.WHEEL_UNIT_SCROLL) {
-            int v = model.getDefaultT()-e.getWheelRotation();
+            int v = model.getRealSelectedT()-e.getWheelRotation();
             int bin = lifetimeSlider.getValue();
             if (up) {
                 if (v <= model.getMaxLifetimeBin()) {
-                	controller.setSelectedXYPlane(model.getDefaultZ(), 
-                			model.getDefaultT(), bin);
+                	controller.setSelectedXYPlane(model.getDefaultZ(),
+                			model.getRealSelectedT(), bin);
                 }
             } else { //moving down
                 if (v >= 0)
-                	controller.setSelectedXYPlane(model.getDefaultZ(), 
-                			model.getDefaultT(), bin);
+                	controller.setSelectedXYPlane(model.getDefaultZ(),
+                			model.getRealSelectedT(), bin);
             }
         } else {
             
@@ -1074,11 +1073,12 @@ public class DomainPane
             bitDepthLabel.setText(""+
             		convertUIBitResolution(bitDepthSlider.getValue()));
         } else if (source.equals(tSlider) || source.equals(zSlider)) {
-        	controller.setSelectedXYPlane(zSlider.getValue(), 
+        	controller.setSelectedXYPlane(zSlider.getValue(),
                     tSlider.getValue());
         } else if (source.equals(lifetimeSlider)) {
-        	controller.setSelectedXYPlane(model.getDefaultZ(), 
-                    model.getDefaultT(), lifetimeSlider.getValue());
+        	controller.setSelectedXYPlane(model.getDefaultZ(),
+                    model.getRealSelectedT(), lifetimeSlider.getValue());
+        	graphicsPane.setSelectedPlane();
         }
     }
     

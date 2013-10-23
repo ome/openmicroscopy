@@ -988,7 +988,7 @@ class RendererModel
 	 */
 	int getRealT()
 	{
-	    if (modulo != null && modulo.containsKey(ModuloInfo.T)) {
+	    if (hasModuloT()) {
 	        int sizeBin = modulo.get(ModuloInfo.T).getSize();
 	        return getMaxT()/sizeBin;
 	    }
@@ -1017,6 +1017,20 @@ class RendererModel
 		return rndControl.getDefaultT();
 	}
 	
+	/**
+	 * Returns the currently selected time-point.
+	 * 
+	 * @return See above.
+	 */
+    int getRealSelectedT()
+    { 
+        if (rndControl == null) return -1;
+        if (hasModuloT()) {
+            return rndControl.getDefaultT() / getMaxLifetimeBin();
+        }
+        return rndControl.getDefaultT();
+    }
+    
 	/**
 	 * Sets the selected plane.
 	 * 
@@ -1411,7 +1425,7 @@ class RendererModel
 	 */
 	int getMaxLifetimeBin()
 	{
-	    if (modulo != null && modulo.containsKey(ModuloInfo.T)) {
+	    if (hasModuloT()) {
 	        ModuloInfo info = modulo.get(ModuloInfo.T);
 	        return info.getSize();
 	    }
@@ -1453,9 +1467,7 @@ class RendererModel
 	int getSelectedBin()
 	{
 	    if (hasModuloT()) {
-	        int binSize = getMaxLifetimeBin();
-	        int t = getDefaultT()/binSize; //timepoint
-	        return getDefaultT()-t*binSize;
+	        return getDefaultT()-getRealSelectedT()*getMaxLifetimeBin();
 	    }
 	    List<Integer> active = getActiveChannels();
 	    if (active == null || active.size() != 1) return 0;
@@ -1470,9 +1482,9 @@ class RendererModel
 	void setSelectedBin(int bin)
 		throws RenderingServiceException, DSOutOfServiceException
 	{
-	    if (modulo != null && modulo.containsKey(ModuloInfo.T)) {
+	    if (hasModuloT()) {
 	        int binSize = getMaxLifetimeBin();
-	        int t = getDefaultT()/binSize;
+	        int t = getRealSelectedT();
 	        int v = bin + t * binSize;
 	        setSelectedXYPlane(getDefaultZ(), v);
 	        return;

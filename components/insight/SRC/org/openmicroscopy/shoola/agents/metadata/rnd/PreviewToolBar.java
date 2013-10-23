@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.metadata.rnd.PreviewToolBar 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -46,37 +46,34 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since 3.0-Beta4
  */
-class PreviewToolBar 
+class PreviewToolBar
 	extends JPanel
 {
 
-	/** Space between buttons. */
-	static final int SPACE = 3;
-	
-	/** Reference to the control. */
+    /** Space between buttons. */
+    static final int SPACE = 3;
+
+    /** Reference to the control. */
     private RendererControl control;
-    
+
     /** Reference to the model. */
     private RendererModel model;
- 
+
     /** Label indicating the selected plane. */
     private JLabel selectedPlane;
-    
+
     /** Initializes the component. */
     private void initComponents()
     {
     	 selectedPlane = new JLabel();
          Font font = selectedPlane.getFont();
-         selectedPlane.setFont(font.deriveFont(font.getStyle(), 
+         selectedPlane.setFont(font.deriveFont(font.getStyle(),
          		font.getSize()-2));
          setSelectedPlane();
     }
-    
+
     /** Builds and lays out the UI. */
     private void buildGUI()
     {
@@ -98,10 +95,10 @@ class PreviewToolBar
         p.setBackground(UIUtilities.BACKGROUND_COLOR);
         add(p);
     }
-    
+
     /**
      * Creates a new instance.
-     * 
+     *
      * @param control Reference to the control.
      * @param model Reference to the model.
      */
@@ -112,17 +109,17 @@ class PreviewToolBar
     	initComponents();
     	buildGUI();
     }
-    
+
     /** Indicates the selected plane. */
     void setSelectedPlane()
     {
     	String s = "Z="+(model.getDefaultZ()+1)+"/"+model.getMaxZ();
-    	s += " T="+(model.getDefaultT()+1)+"/"+model.getRealT();
+    	s += " T="+(model.getRealSelectedT()+1)+"/"+model.getRealT();
     	if (model.isLifetimeImage()) {
 			s += " t="+(model.getSelectedBin()+1);
 			s += "/"+(model.getMaxLifetimeBin());
 		}
     	selectedPlane.setText(s);
     }
-    
+
 }
