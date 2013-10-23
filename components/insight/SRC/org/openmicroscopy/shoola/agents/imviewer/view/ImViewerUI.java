@@ -1351,7 +1351,7 @@ class ImViewerUI
 		if (model.isLifetimeImage()) {
 		    buffer.append(" ");
 			buffer.append(EditorUtil.SMALL_T_VARIABLE+"="+
-		    (model.getSelectedBin()+1));
+		    model.getSelectedBin());
 			buffer.append("/"+(model.getMaxLifetimeBin()));
 		}
 		setLeftStatus(buffer.toString());
