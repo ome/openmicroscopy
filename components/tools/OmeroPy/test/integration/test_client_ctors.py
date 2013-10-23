@@ -9,22 +9,21 @@
 
 """
 
-import unittest, os
+import os
 import test.integration.library as lib
 import omero, Ice
 
 here = os.path.abspath( os.path.dirname(__file__) )
 
-class TestClientConstructors(unittest.TestCase):
+class TestClientConstructors(lib.ITest):
 
-    def setUp(self):
+    def setup_method(self, method):
+        lib.ITest.setup_method(self, method)
         c = omero.client(pmap=['--Ice.Config='+(os.environ.get("ICE_CONFIG"))])
         try:
             self.host = c.ic.getProperties().getProperty('omero.host')
             self.port = int(c.ic.getProperties().getProperty('omero.port'))
             self.rootpasswd = c.ic.getProperties().getProperty('omero.rootpass')
-            self.user = c.ic.getProperties().getProperty('omero.user')
-            self.passwd = c.ic.getProperties().getProperty('omero.pass')
         finally:
             c.__del__()
 
@@ -83,7 +82,7 @@ class TestClientConstructors(unittest.TestCase):
         c = omero.client(args)
         try:
             c.createSession()
-            self.assertEquals("10", c.getProperty("Ice.MessageSizeMax"))
+            assert "10" ==  c.getProperty("Ice.MessageSizeMax")
             c.closeSession()
         finally:
             c.__del__()
@@ -91,11 +90,11 @@ class TestClientConstructors(unittest.TestCase):
     def testMainArgsGetsIceConfig(self):
         cfg = os.path.join(here, "client_ctors.cfg")
         if not os.path.exists(cfg):
-            self.fail(cfg + " does not exist")
+            assert False, cfg + " does not exist"
         args = ["--Ice.Config=" + cfg,"--omero.host=unimportant"]
         c = omero.client(args)
         try:
-            self.assertEquals("true",c.getProperty("in.ice.config"))
+            assert "true" == c.getProperty("in.ice.config")
             #c.createSession()
             #c.closeSession()
         finally:
@@ -111,7 +110,8 @@ class TestClientConstructors(unittest.TestCase):
 
         c2 = omero.client(host=self.host, port=self.port)
         try:
-            c2.createSession(self.user, self.passwd)
+            user = self.new_user()
+            c2.createSession(user.omeName.val, "ome")
             c2.closeSession()
         finally:
             c2.__del__()
@@ -119,27 +119,27 @@ class TestClientConstructors(unittest.TestCase):
     def testPorts(self):
         c = omero.client("localhost", 1111)
         try:
-            self.assertEquals("1111",c.ic.getProperties().getProperty("omero.port"))
+            assert "1111" == c.ic.getProperties().getProperty("omero.port")
         finally:
             c.__del__()
 
         c = omero.client("localhost",["--omero.port=2222"])
         try:
-            self.assertEquals("2222",c.ic.getProperties().getProperty("omero.port"))
+            assert "2222" == c.ic.getProperties().getProperty("omero.port")
         finally:
             c.__del__()
         #c = omero.client("localhost")
-        #self.assertEquals(str(omero.constants.GLACIER2PORT),c.ic.getProperties().getProperty("omero.port"))
+        #assert str(omero.constants.GLACIER2PORT) == c.ic.getProperties().getProperty("omero.port")
 
     def testBlockSize(self):
         c = omero.client("localhost")
         try:
-            self.assertEquals(5000000, c.getDefaultBlockSize())
+            assert 5000000 == c.getDefaultBlockSize()
         finally:
             c.__del__()
         c = omero.client("localhost",["--omero.block_size=1000000"])
         try:
-            self.assertEquals(1000000, c.getDefaultBlockSize())
+            assert 1000000 == c.getDefaultBlockSize()
         finally:
             c.__del__()
 
@@ -152,5 +152,3 @@ class TestClientConstructors(unittest.TestCase):
         finally:
             c.__del__()
 
-if __name__ == '__main__':
-    unittest.main()

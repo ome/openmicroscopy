@@ -10,8 +10,8 @@
 """
 
 import omero
-import unittest
 import test.integration.library as lib
+import pytest
 
 from omero.rtypes import rstring, rlong
 from omero.util.concurrency import get_event
@@ -36,9 +36,10 @@ class TestRFS(lib.ITest):
             client = self.client
         query = client.sf.getQueryService()
         ofile = query.get("OriginalFile", ofile.id.val)
-        self.assert_(ofile.size.val != -1)
-        self.assert_(ofile.hash.val != "")
+        assert ofile.size.val != -1
+        assert ofile.hash.val != ""
 
+    @pytest.mark.xfail(reason="see ticket 11534")
     def testTicket1961Basic(self):
         ofile = self.file()
         rfs = self.client.sf.createRawFileStore()
@@ -47,6 +48,7 @@ class TestRFS(lib.ITest):
         rfs.close()
         self.check_file(ofile)
 
+    @pytest.mark.xfail(reason="see ticket 11534")
     def testTicket1961WithKillSession(self):
         ofile = self.file()
         grp = self.client.sf.getAdminService().getEventContext().groupName
@@ -63,6 +65,7 @@ class TestRFS(lib.ITest):
         c.killSession()
         self.check_file(ofile)
 
+    @pytest.mark.xfail(reason="see ticket 11534")
     def testTicket2161Save(self):
         ofile = self.file()
         rfs = self.client.sf.createRawFileStore()
@@ -72,8 +75,9 @@ class TestRFS(lib.ITest):
         self.check_file(ofile)
         rfs.close()
         ofile2 = self.query.get("OriginalFile", ofile.id.val)
-        self.assertEquals(ofile.details.updateEvent.id.val, ofile2.details.updateEvent.id.val)
+        assert ofile.details.updateEvent.id.val ==  ofile2.details.updateEvent.id.val
 
+    @pytest.mark.xfail(reason="see ticket 11534")
     def testNoWrite(self):
 
         group = self.new_group(perms="rwr---")
@@ -91,7 +95,7 @@ class TestRFS(lib.ITest):
         rfs.setFileId(ofile.id.val)
         try:
             rfs.write("3210", 0, 4)
-            fail("Require security vio")
+            assert False, "Require security vio"
         except:
             pass
         rfs.close()
@@ -101,8 +105,4 @@ class TestRFS(lib.ITest):
         rfs.setFileId(ofile.id.val)
         buf = rfs.read(0, 4)
         rfs.close()
-        self.assertEquals("0123", buf)
-
-
-if __name__ == '__main__':
-    unittest.main()
+        assert "0123" == buf

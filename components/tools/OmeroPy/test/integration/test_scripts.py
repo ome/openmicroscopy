@@ -12,7 +12,6 @@
 import os
 import time
 import pytest
-import unittest
 import test.integration.library as lib
 import omero
 import omero.all
@@ -57,7 +56,7 @@ class TestScripts(lib.ITest):
         try:
             svc = self.client.sf.getScriptService()
             jp = svc.getParams(file.id.val)
-            self.assert_(jp, "Non-zero params")
+            assert jp, "Non-zero params"
         finally:
             impl.cleanup()
 
@@ -67,14 +66,14 @@ class TestScripts(lib.ITest):
         svc = self.root.sf.getScriptService()
         id = svc.uploadOfficialScript("../%s.py" % uuid, f.text())
         ofile = self.query.get("OriginalFile", id)
-        self.assertEquals("/", ofile.path.val)
-        self.assertEquals("%s.py" % uuid, ofile.name.val)
+        assert "/" ==  ofile.path.val
+        assert "%s.py" % uuid ==  ofile.name.val
 
         uuid = self.uuid() # New uuid is need because /test/../ --> /
         id = svc.uploadOfficialScript("/test/../%s.py" % uuid, f.text())
         ofile = self.query.get("OriginalFile", id)
-        self.assertEquals("/", ofile.path.val)
-        self.assertEquals("%s.py" % uuid, ofile.name.val)
+        assert "/" ==  ofile.path.val
+        assert "%s.py" % uuid ==  ofile.name.val
         return svc, ofile
 
     def testDelete6905(self):
@@ -103,15 +102,15 @@ class TestScripts(lib.ITest):
             f = self.pingfile()
             ids.append(svc.uploadOfficialScript("/%s/%s.py" % (dirUuid, uuid), f.text()))
             ofile = self.query.get("OriginalFile", ids[x])
-            self.assertEquals("/%s/" % dirUuid, ofile.path.val)
-            self.assertEquals("%s.py" % uuid, ofile.name.val)
+            assert "/%s/" % dirUuid ==  ofile.path.val
+            assert "%s.py" % uuid ==  ofile.name.val
         # There should now be five more
-        self.assertEqual(scrCount+noOfScripts, len(svc.getScripts()))
+        assert scrCount+noOfScripts ==  len(svc.getScripts())
 
         # Now delete just one script
         svc.deleteScript(ids[0])
         # There should now be one fewer
-        self.assertEqual(scrCount+noOfScripts-1, len(svc.getScripts()))
+        assert scrCount+noOfScripts-1 ==  len(svc.getScripts())
 
 
     def testParseErrorTicket2185(self):
@@ -122,7 +121,7 @@ class TestScripts(lib.ITest):
                 script_id = svc.uploadScript('testpath', "THIS STINKS")
                 svc.getParams(script_id)
             except omero.ValidationException, ve:
-                self.assertTrue("THIS STINKS" in str(ve), str(ve))
+                assert "THIS STINKS" in str(ve), str(ve)
         finally:
             impl.cleanup()
 
@@ -147,12 +146,12 @@ class TestScripts(lib.ITest):
             # force the server to parse the file enough to get params (checks syntax etc)
             params = scriptService.getParams(id)
             for key, param in params.inputs.items():
-                self.assertEquals("longParam", key)
-                self.assertNotEqual(param.prototype, None, "Parameter prototype is 'None'")
-                self.assertEquals("theDesc", param.description)
-                self.assertEquals(1, param.min.getValue(), "Min value not correct")
-                self.assertEquals(10, param.max.getValue(), "Max value not correct")
-                self.assertEquals(5, param.values.getValue()[0].getValue(), "First option value not correct")
+                assert "longParam" ==  key
+                assert param.prototype !=  None, "Parameter prototype is 'None'"
+                assert "theDesc" ==  param.description
+                assert 1 ==  param.min.getValue(), "Min value not correct"
+                assert 10 ==  param.max.getValue(), "Max value not correct"
+                assert 5 ==  param.values.getValue()[0].getValue(), "First option value not correct"
         finally:
             impl.cleanup()
         
@@ -178,7 +177,7 @@ class TestScripts(lib.ITest):
         # Also ticket:2304
         # should be OK for root to upload as official script (unique path) and run
         officialScriptId = scriptService.uploadOfficialScript("offical/test/script%s.py" % uuid, script)
-        self.assertTrue(scriptService.canRunScript(officialScriptId)) # ticket:2341
+        assert scriptService.canRunScript(officialScriptId) # ticket:2341
 
         impl = omero.processor.usermode_processor(self.root)
         try:
@@ -194,7 +193,7 @@ class TestScripts(lib.ITest):
         finally:
             impl.cleanup()
 
-        self.assertTrue("returnMessage" in results, "Script should have run as Official script")
+        assert "returnMessage" in results, "Script should have run as Official script"
 
         # should fail if we try to upload as 'user' script and run (no user processor)
         userScriptId = scriptService.uploadScript("/user/test/script%s.py" % (self.uuid()), script)
@@ -213,15 +212,15 @@ class TestScripts(lib.ITest):
                 results = proc.getResults(0)    # ms
             finally:
                 proc.close(False)
-            self.fail("ticket:2309 - should not run without processor")
+            assert False, "ticket:2309 - should not run without processor"
         except:
             pass
 
-        self.assertFalse("returnMessage" in results, "Script should not have run. No user processor!")
+        assert not "returnMessage" in results, "Script should not have run. No user processor!"
 
         impl = omero.processor.usermode_processor(self.root)
         try:
-            self.assertTrue(scriptService.canRunScript(userScriptId)) # ticket:2341
+            assert scriptService.canRunScript(userScriptId) # ticket:2341
         finally:
             impl.cleanup()
 
@@ -262,16 +261,16 @@ client.closeSession()
         scriptService.editScript(scriptFile, editedScript)
 
         editedText = scriptService.getScriptText(scriptId)
-        self.assertEquals(editedScript, editedText)
+        assert editedScript ==  editedText
 
         paramsAfter = scriptService.getParams(scriptId)
 
-        self.assertTrue("message" in paramsBefore.inputs)
-        self.assertEquals(0, len(paramsBefore.outputs))
+        assert "message" in paramsBefore.inputs
+        assert 0 ==  len(paramsBefore.outputs)
 
         for x in ("a", "b"):
-            self.assertTrue(x in paramsAfter.inputs)
-            self.assertTrue(x in paramsAfter.outputs)
+            assert x in paramsAfter.inputs
+            assert x in paramsAfter.outputs
 
     def testScriptValidation(self):
         scriptService = self.root.sf.getScriptService()
@@ -287,16 +286,16 @@ client.closeSession()
         try:
             # this should throw, since the script is invalid
             invalidId = scriptService.uploadOfficialScript(invalidPath, invalidScript)
-            self.fail("uploadOfficialScript() uploaded invalid script")
+            assert False, "uploadOfficialScript() uploaded invalid script"
         except omero.ValidationException, ve:
             pass
             
         getId = scriptService.getScriptID(invalidPath)  
-        self.assertEqual(-1, getId, "getScriptID() didn't return '-1' for invalid script")
+        assert -1 ==  getId, "getScriptID() didn't return '-1' for invalid script"
         scripts = scriptService.getScripts()   
         for s in scripts:
-            self.assertEquals(s.mimetype.val, "text/x-python")
-            self.assertNotEqual(s.path.val + s.name.val, invalidPath, "getScripts() returns invalid script")
+            assert s.mimetype.val ==  "text/x-python"
+            assert s.path.val + s.name.val !=  invalidPath, "getScripts() returns invalid script"
 
         # upload a valid script - then edit
         scriptLines = [
@@ -314,16 +313,16 @@ client.closeSession()
         try:
             # this should throw, since the script is invalid
             scriptService.editScript(omero.model.OriginalFileI(validId, False), invalidScript)
-            self.fail("editScript() failed to throw with invalid script")
+            assert False, "editScript() failed to throw with invalid script"
         except omero.ValidationException, ve:
             pass
         
         getId = scriptService.getScriptID(validPath) 
-        self.assertEqual(-1, getId, "getScriptID() didn't return 'None' for invalid script")
+        assert -1 ==  getId, "getScriptID() didn't return 'None' for invalid script"
         scripts = scriptService.getScripts()   
         for s in scripts:
-            self.assertEquals(s.mimetype.val, "text/x-python")
-            self.assertNotEqual(s.path.val + s.name.val, validPath, "getScripts() returns invalid script")
+            assert s.mimetype.val ==  "text/x-python"
+            assert s.path.val + s.name.val !=  validPath, "getScripts() returns invalid script"
 
 
     def testAutoFillTicket2326(self):
@@ -349,10 +348,10 @@ client.closeSession()
             downloaded = create_path()
             self.client.download(ofile=stdout, filename=str(downloaded))
             text = downloaded.text().strip()
-            self.assertEquals("None", text)
-            self.assertTrue(results["widthIsNull"].val)
-            self.assertTrue(results["noWidthKey"].val)
-            self.assertTrue("stderr" not in results)
+            assert "None" ==  text
+            assert results["widthIsNull"].val
+            assert results["noWidthKey"].val
+            assert "stderr" not in results
         finally:
             impl.cleanup()
 
@@ -371,8 +370,8 @@ client.closeSession()
         impl = omero.processor.usermode_processor(self.root)
         try:
             params_time, params = self.timeit(svc.getParams, scriptID)
-            self.assertTrue(params_time < (upload_time/10), "upload_time(%s) <= 10 * params_time(%s)!" % (upload_time, params_time))
-            self.assertTrue(params_time < 0.1, "params_time(%s) >= 0.01 !" % params_time)
+            assert params_time < (upload_time/10), "upload_time(%s) <= 10 * params_time(%s)!" % (upload_time, params_time)
+            assert params_time < 0.1, "params_time(%s) >= 0.01 !" % params_time
     
             run_time, process = self.timeit(svc.runScript, scriptID, wrap({"a":long(5)}).val, None)
             def wait():
@@ -382,7 +381,7 @@ client.closeSession()
                     pass
             wait_time, ignore = self.timeit(wait)
             results_time, ignore = self.timeit(process.getResults, 0)
-            self.assertTrue(5 > (run_time+results_time+wait_time), "run(%s)+wait(%s)+results(%s) > 5" % (run_time, wait_time, results_time))
+            assert 5 > (run_time+results_time+wait_time), "run(%s)+wait(%s)+results(%s) > 5" % (run_time, wait_time, results_time)
         finally:
             impl.cleanup()
 
@@ -390,17 +389,17 @@ client.closeSession()
         svc = self.client.sf.getScriptService()
         scriptID = svc.getScriptID("/omero/figure_scripts/Thumbnail_Figure.py")
         if scriptID == -1:
-            self.fail("Script not found")
+            assert False, "Script not found"
         pixID = self.import_image()[0]
         process = svc.runScript(scriptID, wrap({"Data_Type":"Image", "IDs": [long(pixID)]}).val, None)
         wait_time, ignore = self.timeit(omero.scripts.wait, self.client, process)
-        self.assertTrue(wait_time < 60, "wait_time over 1 min for TbFig!")
+        assert wait_time < 60, "wait_time over 1 min for TbFig!"
         results = process.getResults(0)
         results = omero.scripts.unwrap(results)
         # Test passes for me locally (Will) but not on hudson.
         # Script fails on hudson. Only get returned Original Files (stderr, stdout) but not the text of these.
         # commenting out for now to get Hudson green. 
-        #self.assertEquals("Thumbnail-Figure Created", results["Message"])
+        #assert "Thumbnail-Figure Created" ==  results["Message"]
 
     def test6066(self):
 
@@ -442,7 +441,7 @@ client.closeSession()
             while cb.block(500) is None:
                 count -= 1
                 if not count:
-                    self.fail("Took too long")
+                    assert False, "Took too long"
             """
 
         assertUploadAndReplace(clientA)
@@ -471,9 +470,7 @@ client.closeSession()
                 pass
             results = process.getResults(0)
             gid = self.client.sf.getAdminService().getEventContext().groupId
-            self.assertEquals(gid, results["gid"].val)
+            assert gid ==  results["gid"].val
         finally:
             impl.cleanup()
 
-if __name__ == '__main__':
-    unittest.main()

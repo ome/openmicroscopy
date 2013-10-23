@@ -8,8 +8,9 @@
    Use is subject to license terms supplied in LICENSE.txt
 
 """
-import unittest, time
+import time
 import test.integration.library as lib
+import pytest
 
 from omero.rtypes import *
 
@@ -34,7 +35,7 @@ class TestTickets4000(lib.ITest):
     def testChangeActiveGroup(self):
         admin = self.client.sf.getAdminService()
 
-        self.assertEquals(2, len(admin.getEventContext().memberOfGroups))
+        assert 2 ==  len(admin.getEventContext().memberOfGroups)
 
         # AS ROOT: adding user to extra group
         admin_root = self.root.sf.getAdminService()
@@ -42,7 +43,7 @@ class TestTickets4000(lib.ITest):
         grp = self.new_group()
         admin_root.addGroups(exp, [grp])
 
-        self.assertEquals(3, len(admin.getEventContext().memberOfGroups))
+        assert 3 ==  len(admin.getEventContext().memberOfGroups)
 
         proxies = dict()
         # creating stateful services
@@ -59,13 +60,13 @@ class TestTickets4000(lib.ITest):
 
         self.client.sf.setSecurityContext(omero.model.ExperimenterGroupI(grp.id.val, False))
         admin.setDefaultGroup(admin.getExperimenter(admin.getEventContext().userId), omero.model.ExperimenterGroupI(grp.id.val, False))
-        self.assertEquals(grp.id.val, self.client.sf.getAdminService().getEventContext().groupId)
+        assert grp.id.val ==  self.client.sf.getAdminService().getEventContext().groupId
 
     def testChageActiveGroupWhenConnectionLost(self):
         import os
         admin = self.client.sf.getAdminService()
         uuid = self.client.sf.getAdminService().getEventContext().sessionUuid
-        self.assertEquals(2, len(admin.getEventContext().memberOfGroups))
+        assert 2 ==  len(admin.getEventContext().memberOfGroups)
 
         # AS ROOT: adding user to extra group
         admin_root = self.root.sf.getAdminService()
@@ -73,7 +74,7 @@ class TestTickets4000(lib.ITest):
         grp = self.new_group()
         admin_root.addGroups(exp, [grp])
 
-        self.assertEquals(3, len(admin.getEventContext().memberOfGroups))
+        assert 3 ==  len(admin.getEventContext().memberOfGroups)
 
         proxies = dict()
         # creating stateful services
@@ -104,15 +105,13 @@ class TestTickets4000(lib.ITest):
             if isinstance(prx, omero.api.StatefulServiceInterfacePrx):
                 prx.close()
 
-        try:
-            sf.setSecurityContext(omero.model.ExperimenterGroupI(grp.id.val, False))
-            self.fail("""
+        """
             A security violation must be thrown here because the first instances
             which are stored in proxies (#1A and #1B) are never closed since #2A
             and #2B overwrite them. Using the copy instance, we can close them.
-            """)
-        except omero.SecurityViolation, sv:
-            pass
+        """
+        with pytest.raises(omero.SecurityViolation):
+            sf.setSecurityContext(omero.model.ExperimenterGroupI(grp.id.val, False))
 
 
         for k in copy.keys():
@@ -124,7 +123,7 @@ class TestTickets4000(lib.ITest):
 
         ec = admin.getEventContext()
         sf.getAdminService().setDefaultGroup(sf.getAdminService().getExperimenter(ec.userId), omero.model.ExperimenterGroupI(grp.id.val, False))
-        self.assertEquals(grp.id.val, ec.groupId)
+        assert grp.id.val ==  ec.groupId
 
     def test3201(self):
         import Glacier2
@@ -153,7 +152,8 @@ class TestTickets4000(lib.ITest):
         # change password as root
         admin_root.changeUserPassword(omeName, rstring("ome"))
 
-        self.assertRaises(Glacier2.PermissionDeniedException, testLogin, omeName, "aaa")
+        with pytest.raises(Glacier2.PermissionDeniedException):
+            testLogin(omeName, "aaa")
         
         testLogin(omeName, "ome")
         
@@ -170,7 +170,5 @@ class TestTickets4000(lib.ITest):
         la = self.update.saveAndReturnObject(la)
         la.ns = _(self.uuid())
         la = self.update.saveAndReturnObject(la)
-        self.assertEquals(-1, la.details.updateEvent.session.sizeOfEvents())
+        assert -1 ==  la.details.updateEvent.session.sizeOfEvents()
 
-if __name__ == '__main__':
-    unittest.main()

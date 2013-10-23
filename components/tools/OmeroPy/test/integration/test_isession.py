@@ -9,8 +9,8 @@
    Use is subject to license terms supplied in LICENSE.txt
 
 """
-import unittest
 import test.integration.library as lib
+import pytest
 import omero
 from omero_model_PixelsI import PixelsI
 from omero_model_ImageI import ImageI
@@ -49,7 +49,7 @@ class TestISession(lib.ITest):
         try:
             user_sess = client.createSession(sess.uuid,sess.uuid)
             new_uuid   = user_sess.getAdminService().getEventContext().sessionUuid
-            self.assert_( sess.uuid.val == new_uuid )
+            assert  sess.uuid.val == new_uuid
             client.closeSession()
         finally:
             client.__del__()
@@ -74,11 +74,11 @@ class TestISession(lib.ITest):
             sf1 = c1.joinSession(suuid)
             a1 = sf1.getAdminService()
             s1uuid = a1.getEventContext().sessionUuid
-            self.assert_( s1uuid == suuid )
+            assert  s1uuid == suuid
         finally:
             c1.__del__()
 
-## Removing test for 'guest' user. 
+## Removing test for 'guest' user.
 ## This currently fails but there is some question
 ## as to whether we should have a guest user.
 ##
@@ -97,7 +97,8 @@ class TestISession(lib.ITest):
         c1, c2, c3, c4 = None, None, None, None
         try:
             c1 = omero.client() # ok rather than new_client since has __del__
-            s1 = c1.createSession()
+            user = self.new_user()
+            s1 = c1.createSession(user.omeName.val, "ome")
             s1.detachOnDestroy()
             uuid = s1.ice_getIdentity().name
 
@@ -122,7 +123,8 @@ class TestISession(lib.ITest):
             # Now a connection should not be possible
             c4 = omero.client() # ok rather than new_client since has __del__
             import Glacier2
-            self.assertRaises(Glacier2.PermissionDeniedException, c4.createSession, uuid, uuid);
+            with pytest.raises(Glacier2.PermissionDeniedException):
+                c4.createSession(uuid, uuid)
         finally:
             for c in (c1, c2, c3, c4):
                 if c: c.__del__()
@@ -131,7 +133,8 @@ class TestISession(lib.ITest):
         c = omero.client() # ok rather than new_client since has __del__
         try:
             c.ic.getImplicitContext().put(omero.constants.CLIENTUUID,"SimpleDestruction")
-            s = c.createSession()
+            user = self.new_user()
+            s = c.createSession(user.omeName.val, "ome")
             s.closeOnDestroy()
             c.closeSession()
         finally:
@@ -155,11 +158,8 @@ class TestISession(lib.ITest):
 
         # Make a stateful service, and change again
         rfs = self.client.sf.createRawFileStore()
-        try:
+        with pytest.raises(omero.SecurityViolation):
             self.client.sf.setSecurityContext(grp0)
-            self.fail("sec vio")
-        except omero.SecurityViolation, sv:
-            pass # Good
         rfs.close()
 
         # Service is now closed, should be ok
@@ -206,10 +206,8 @@ class TestISession(lib.ITest):
                         cc.__del__()
 
             for s in svc.getMyOpenSessions():
-                self.assertNotEquals(s.uuid.val, newConnId.getUuid().val)
+                assert s.uuid.val != newConnId.getUuid().val
         finally:
             c1.__del__()
 
 
-if __name__ == '__main__':
-    unittest.main()

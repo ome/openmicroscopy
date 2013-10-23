@@ -8,13 +8,14 @@
    Use is subject to license terms supplied in LICENSE.txt
 
 """
-import unittest, os, subprocess, StringIO
+
+import os, subprocess, StringIO
 from path import path
 from omero.cli import Context, BaseControl, CLI
 
 omeroDir = path(os.getcwd()) / "build"
 
-class TestCli(unittest.TestCase):
+class TestCli(object):
 
     def testMultipleLoad(self):
         """
@@ -45,9 +46,7 @@ class TestCli(unittest.TestCase):
         for t in threads:
             t.join()
 
-        self.assertEquals(len(threads), len(set([t.cli for t in threads])))
-        self.assertEquals(len(threads), len(set([t.con for t in threads])))
-        self.assertEquals(len(threads), len(set([t.cmp for t in threads])))
+        assert len(threads) == len(set([t.cli for t in threads]))
+        assert len(threads) == len(set([t.con for t in threads]))
+        assert len(threads) == len(set([t.cmp for t in threads]))
 
-if __name__ == '__main__':
-    unittest.main()

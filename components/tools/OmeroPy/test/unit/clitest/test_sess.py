@@ -9,7 +9,7 @@
 
 """
 
-import unittest, os, subprocess, StringIO
+import os, subprocess, StringIO
 import Ice
 import Glacier2
 import omero
@@ -143,7 +143,7 @@ class MyCLI(CLI):
         return len(self.REQRESP)
 
     def assertReqSize(self, test, size):
-        test.assertEquals(size, self.requests_size(), "size!=%s: %s" % (size, self.REQRESP))
+        assert size == self.requests_size(), "size!=%s: %s" % (size, self.REQRESP)
 
     def input(self, prompt, hidden=False, required=False):
         if prompt not in self.REQRESP:
@@ -154,7 +154,7 @@ class MyCLI(CLI):
         CLI.invoke(self, *args, strict = True)
 
 
-class TestStore(unittest.TestCase):
+class TestStore(object):
 
     def store(self):
         p = create_path(folder=True)
@@ -167,42 +167,42 @@ class TestStore(unittest.TestCase):
     def testAdd(self):
         s = self.store()
         s.add("srv", "usr", "uuid", {})
-        self.assertEquals(1, len(s.available("srv", "usr")))
+        assert 1 == len(s.available("srv", "usr"))
 
     def testDefaults(self):
         s = self.store()
-        self.assertEquals("localhost", s.last_host())
+        assert "localhost" == s.last_host()
 
     def testCurrent(self):
         s = self.store()
         s.set_current("srv", "usr", "uuid")
         # Using last_* methods
-        self.assertEquals("srv", s.last_host())
+        assert "srv" == s.last_host()
         # Using helprs
-        self.assertEquals("uuid", s.sess_file("srv", "usr").text().strip())
-        self.assertEquals("usr", s.user_file("srv").text().strip())
-        self.assertEquals("srv", s.host_file().text().strip())
+        assert "uuid" == s.sess_file("srv", "usr").text().strip()
+        assert "usr" == s.user_file("srv").text().strip()
+        assert "srv" == s.host_file().text().strip()
 
     def testContents(self):
         s = self.store()
         s.add("a", "a", "a", {})
         s.add("b", "b", "b", {})
         rv = s.contents()
-        self.assertEquals(2, len(rv))
-        self.assertTrue("a" in rv)
-        self.assertTrue("a" in rv["a"])
-        self.assertTrue("a" in rv["a"]["a"])
-        self.assertTrue("b" in rv)
-        self.assertTrue("b" in rv["b"])
-        self.assertTrue("b" in rv["b"]["b"])
+        assert 2 == len(rv)
+        assert "a" in rv
+        assert "a" in rv["a"]
+        assert "a" in rv["a"]["a"]
+        assert "b" in rv
+        assert "b" in rv["b"]
+        assert "b" in rv["b"]["b"]
 
     def testCount(self):
         s = self.store()
-        self.assertEquals(0, s.count())
+        assert 0 == s.count()
         s.add("a","a","a",{})
-        self.assertEquals(1, s.count())
+        assert 1 == s.count()
         s.remove("a","a","a")
-        self.assertEquals(0, s.count())
+        assert 0 == s.count()
 
     def testGet(self):
         s = self.store()
@@ -214,18 +214,18 @@ class TestStore(unittest.TestCase):
             "omero.user":"b",
             "omero.sess":"c"
         }
-        self.assertEquals(expect, rv)
+        assert expect == rv
 
     def testConflicts(self):
         s = self.store()
         s.add("a", "b", "c", {"omero.group":"1"})
         conflicts = s.conflicts("a", "b", "c", {})
-        self.assertNotEqual("", conflicts)
+        assert "" !=  conflicts
         conflicts = s.conflicts("a", "b", "c", {"omero.group":"2"})
-        self.assertNotEqual("", conflicts)
+        assert "" !=  conflicts
 
 
-class TestSessions(unittest.TestCase):
+class TestSessions(object):
 
     def testLoginWithNoArgumentsRequests(self):
         cli = MyCLI()
@@ -234,34 +234,34 @@ class TestSessions(unittest.TestCase):
         cli.requests_pass()
         cli.creates_client()
         cli.invoke(["s","login"])
-        self.assertEquals(0, cli.rv)
+        assert 0 == cli.rv
 
     def test2(self):
         cli = MyCLI()
         cli.requests_pass()
         cli.creates_client(name="user")
         cli.invoke(["s","login","user@host"])
-        self.assertEquals(0, cli.rv)
+        assert 0 == cli.rv
 
     def test3(self):
         cli = MyCLI()
         cli.creates_client(name="user")
         cli.invoke(["-s", "localhost","-u", "user", "-w", "pasw", "s", "login"])
-        self.assertEquals(0, cli.rv)
+        assert 0 == cli.rv
 
     def test4(self):
         cli = MyCLI()
         cli.STORE.add("testhost","testuser","key", {})
         cli.creates_client(sess="key", new=False)
         cli.invoke(["-s", "testuser@testhost","-k", "key", "s", "login"])
-        self.assertEquals(0, cli.rv)
+        assert 0 == cli.rv
 
     def testReuseWorks(self):
         cli = MyCLI()
         cli.STORE.add("testhost","testuser","testsessid", {})
         cli.creates_client(new=False)
         cli.invoke("-s testhost -u testuser s login".split())
-        self.assert_(cli._client is not None)
+        assert cli._client is not None
 
     def testReuseFromDifferentGroupDoesntWork(self):
         cli = MyCLI()
@@ -362,7 +362,7 @@ class TestSessions(unittest.TestCase):
         cli.throw_on_create(Glacier2.PermissionDeniedException("MOCKKEY EXPIRED"))
         try:
             cli.invoke(key_login)
-            self.fail("This must throw 'Bad session key'")
+            assert False, "This must throw 'Bad session key'"
         except NonZeroReturnCode:
             pass
         cli._client = None # Forcing new instance
@@ -387,7 +387,7 @@ class TestSessions(unittest.TestCase):
 
     def assert5975(self, key, cli):
         host, name, uuid = cli.STORE.get_current()
-        self.assert_(key != name)
+        assert key != name
 
     def test5975(self):
         """
@@ -404,5 +404,3 @@ class TestSessions(unittest.TestCase):
         cli.invoke("s logout")
         self.assert5975(key, cli)
 
-if __name__ == '__main__':
-    unittest.main()

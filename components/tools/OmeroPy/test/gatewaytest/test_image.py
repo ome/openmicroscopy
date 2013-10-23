@@ -225,7 +225,6 @@ class TestImage (object):
         finally:
             gatewaywrapper.loginAsAdmin()
             admin = gatewaywrapper.gateway.getAdminService()
-            admin.removeGroups(omero.model.ExperimenterI(uid, False), [g])
             
         
         

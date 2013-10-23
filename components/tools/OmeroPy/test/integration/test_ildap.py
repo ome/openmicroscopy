@@ -8,7 +8,6 @@
    Use is subject to license terms supplied in LICENSE.txt
 
 """
-import unittest
 import test.integration.library as lib
 import omero
 
@@ -18,5 +17,3 @@ class TestILdap(lib.ITest):
         admin = self.client.sf.getAdminService()
         admin.lookupLdapAuthExperimenters()
 
-if __name__ == '__main__':
-    unittest.main()

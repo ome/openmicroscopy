@@ -9,8 +9,9 @@
    Use is subject to license terms supplied in LICENSE.txt
 
 """
-import unittest, time
+import time
 import test.integration.library as lib
+import pytest
 from omero.rtypes import *
 
 class TestTickets3000(lib.ITest):
@@ -65,11 +66,16 @@ class TestTickets3000(lib.ITest):
         l_ia.setChild(fa)
         self.update.saveObject(l_ia)
 
+    # This test is no longer valid as it shpuld not be possible to remove
+    # users from their only remaining group. It would be easy to may the
+    # test pass by adding extra groups but that would defeat the purpose
+    # of this test. Marking as xfail until the test has been reviewed.
+    @pytest.mark.xfail(reason="Is this test still valid? See #11465")
     def test2547(self):
         admin = self.root.sf.getAdminService()
         user = self.new_user()
         grps = admin.containedGroups(user.id.val)
-        self.assertEquals(2, len(grps))
+        assert 2 ==  len(grps)
         non_user = [x for x in grps if x.id.val != 1][0]
         grp = self.new_group()
         admin.addGroups(user, [grp])
@@ -90,7 +96,8 @@ class TestTickets3000(lib.ITest):
         }
         """
         # This was never supported
-        self.assertRaises(Ice.UnmarshalOutOfBoundsException, q.findAllByQuery, sql, None)
+        with pytest.raises(Ice.UnmarshalOutOfBoundsException):
+            q.findAllByQuery(sql, None)
 
         """
           File "/Users/ola/Dev/omero/dist/lib/python/omero_api_IQuery_ice.py", line 138, in findAllByQuery
@@ -106,7 +113,8 @@ class TestTickets3000(lib.ITest):
         p1.theFilter = f1
 
         # Nor was this
-        self.assertRaises(Ice.UnknownUserException, q.findAllByQuery, sql, p1)
+        with pytest.raises(Ice.UnknownUserException):
+            q.findAllByQuery(sql, p1)
 
         # Only IQuery.projection can return non-IObject types
         q.projection(sql, p1)
@@ -124,7 +132,7 @@ class TestTickets3000(lib.ITest):
         search.byFullText(s)
         res = search.results()
 
-        self.assert_( la.id.val in [x.id.val for x in res] )
+        assert  la.id.val in [x.id.val for x in res]
 
     def test2762(self):
         """
@@ -142,13 +150,11 @@ class TestTickets3000(lib.ITest):
             self.root.sf.getUpdateService().indexObject(ta)
 
         results = self.query.findAllByFullText("TagAnnotation", uuid, None)
-        self.assertEquals(len(tas), len(results))
+        assert len(tas) ==  len(results)
 
         params = omero.sys.ParametersI()
         params.page(0, 10)
         results = self.query.findAllByFullText("TagAnnotation", uuid, params)
-        self.assertEquals(10, len(results))
+        assert 10 ==  len(results)
 
 
-if __name__ == '__main__':
-    unittest.main()

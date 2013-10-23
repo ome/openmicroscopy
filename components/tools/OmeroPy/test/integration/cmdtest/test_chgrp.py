@@ -11,13 +11,12 @@
 """
 
 import omero
-import unittest
+import test.integration.library as lib
 
-from integration.library import ITest
 from omero.callbacks import CmdCallbackI
 
 
-class ChgrpTest(ITest):
+class ChgrpTest(lib.ITest):
 
     def testChgrpImage(self):
 
@@ -39,6 +38,3 @@ class ChgrpTest(ITest):
 
         # Check Data
         query.get("Image", img.id.val)
-
-if __name__ == '__main__':
-    unittest.main()

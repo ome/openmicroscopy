@@ -9,10 +9,11 @@
 
 """
 
+import pytest
 import Ice
 import omero, omero.tables
 import omero_ext.uuid as uuid # see ticket:3774
-import unittest, sys, os, logging
+import sys, os, logging
 import library as lib
 
 from omero.columns import *
@@ -137,8 +138,8 @@ class mock_storage(object):
 
 class TestTables(lib.TestCase):
 
-    def setUp(self):
-        lib.TestCase.setUp(self)
+    def setup_method(self, method):
+        lib.TestCase.setup_method(self, method)
 
         # Session
         self.sf_provider = mocked_internal_service_factory()
@@ -155,7 +156,7 @@ class TestTables(lib.TestCase):
         self.current = mock_current(self.communicator)
         self.__tables = []
 
-    def tearDown(self):
+    def teardown_method(self, method):
         """
         To prevent cleanup from taking place, we hold on to all the tables until the end.
         This is caused by the reuse of TableI instances after the Tables go out of scope.
@@ -198,25 +199,25 @@ class TestTables(lib.TestCase):
 
     def testTablesIGetDirNoRepoSet(self):
         self.sf.return_values.append(self.tmpdir())
-        self.assertRaises(omero.ResourceError, omero.tables.TablesI, self.ctx)
+        pytest.raises(omero.ResourceError, omero.tables.TablesI, self.ctx)
 
     def testTablesIGetDirNoRepoCreated(self):
         self.repodir(False)
-        self.assertRaises(omero.ResourceError, omero.tables.TablesI, self.ctx)
+        pytest.raises(omero.ResourceError, omero.tables.TablesI, self.ctx)
 
     def testTablesIGetDirGetsRepoThenNoSF(self):
         self.repodir()
         omero.util.internal_service_factory = mocked_internal_service_factory(None)
-        self.assertRaises(Exception, omero.tables.TablesI, self.ctx)
+        pytest.raises(Exception, omero.tables.TablesI, self.ctx)
 
     def testTablesIGetDirGetsRepoGetsSFCantFindRepoFile(self):
         self.repodir()
-        self.assertRaises(IOError, omero.tables.TablesI, self.ctx)
+        pytest.raises(IOError, omero.tables.TablesI, self.ctx)
 
     def testTablesIGetDirGetsRepoGetsSFCantFindRepoObject(self):
         self.repofile(self.sf.db_uuid)
-        self.sf.return_values.append( omero.ApiUsageException(None, None, "Cant Find") )
-        self.assertRaises(omero.ApiUsageException, omero.tables.TablesI, self.ctx)
+        self.sf.return_values.append( omero.ApiUsageException(None, None, "Can't Find") )
+        pytest.raises(omero.ApiUsageException, omero.tables.TablesI, self.ctx)
 
     def testTablesIGetDirGetsRepoGetsSFGetsRepo(self):
         self.repofile(self.sf.db_uuid)
@@ -230,17 +231,17 @@ class TestTables(lib.TestCase):
         self.sf.return_values.append( f )
         tables = self.tablesI()
         table = tables.getTable(f, self.sf, self.current)
-        self.assert_( table )
-        self.assert_( table.table )
-        self.assert_( table.table.storage )
+        assert table
+        assert table.table
+        assert table.table.storage
         return table
 
     def testTableIncrDecr(self):
         storage = mock_storage()
         table = omero.tables.TableI(self.ctx, omero.model.OriginalFileI(1,None), self.sf, storage)
-        self.assertTrue(storage.up)
+        assert storage.up
         table.cleanup()
-        self.assertTrue(storage.down)
+        assert storage.down
 
     def testTablePreInitialized(self):
         mocktable = self.testTables()
@@ -256,9 +257,9 @@ class TestTables(lib.TestCase):
         table = mocktable.table
         storage = table.storage
         storage.initialize([LongColumnI("a",None,[])])
-        self.assertTrue(storage.uptodate(table.stamp))
+        assert storage.uptodate(table.stamp)
         storage._stamp += 1 # Not really allowed
-        self.assertFalse(storage.uptodate(table.stamp))
+        assert not storage.uptodate(table.stamp)
         table.cleanup()
 
     def testTableModifications(self):
@@ -266,16 +267,16 @@ class TestTables(lib.TestCase):
         table = mocktable.table
         storage = table.storage
         storage.initialize([LongColumnI("a",None,[])])
-        self.assertTrue(storage.uptodate(table.stamp))
+        assert storage.uptodate(table.stamp)
         storage._stamp += 1 # Not really allowed
-        self.assertFalse(storage.uptodate(table.stamp))
+        assert not storage.uptodate(table.stamp)
         table.cleanup()
 
     def testTableAddData(self, newfile = True, cleanup = True):
         mocktable = self.testTables(newfile)
         table = mocktable.table
         storage = table.storage
-        self.assert_(storage)
+        assert storage
 
         table.initialize([LongColumnI("a", None,[]), DoubleColumnI("b", None, [])])
         template = table.getHeaders(self.current)
@@ -289,12 +290,12 @@ class TestTables(lib.TestCase):
     def testTableSearch(self):
         table = self.testTableAddData(True, False)
         rv = list(table.getWhereList('(a==1)',None,None,None,None,None))
-        self.assertEquals(range(5), rv)
+        assert range(5) == rv
         data = table.readCoordinates(rv, self.current)
-        self.assertEquals(2, len(data.columns))
+        assert 2 == len(data.columns)
         for i in range(5):
-            self.assertEquals(1, data.columns[0].values[i])
-            self.assertEquals(2.0, data.columns[1].values[i])
+            assert 1 == data.columns[0].values[i]
+            assert 2.0 == data.columns[1].values[i]
         table.cleanup()
 
     def testErrorInStorage(self):
@@ -308,7 +309,7 @@ class TestTables(lib.TestCase):
         f.close()
 
         tables = self.tablesI(internal_repo)
-        self.assertRaises(omero.ValidationException, tables.getTable, of, self.sf, self.current)
+        pytest.raises(omero.ValidationException, tables.getTable, of, self.sf, self.current)
 
     def testErrorInGet(self):
         self.repofile(self.sf.db_uuid)
@@ -321,15 +322,3 @@ class TestTables(lib.TestCase):
         cols[0].values = [1,2,3,4]
         table.addData(cols)
         table.getWhereList('(name==1)',None,0,0,0,self.current)
-
-def test_suite():
-    return 1
-
-if __name__ == '__main__':
-    if "profile" in sys.argv:
-        sys.argv.remove("profile")
-        import cProfile
-        cProfile.run("unittest.main()", sort=3)
-        # stats.strip_dirs().sort_stats('time').print_stats(20)
-    else:
-        unittest.main()
