@@ -65,13 +65,13 @@ public class PlayMovieAction
 
 	/** Helper reference to the icon manager. */
     private IconManager icons;
-    
+
     /** One of the constants defined by this class. */
-    private int			index;
-    
+    private int index;
+
     /**
      * Checks if the passed index is valid.
-     * 
+     *
      * @param index The value to handle.
      */
     private void checkIndex(int index)
@@ -84,8 +84,8 @@ public class PlayMovieAction
 				throw new IllegalArgumentException("Index not valid.");
 		}
     }
-    
-    /** 
+
+    /**
      * Overridden to make sure that the movie player is not enabled when 
      * there is only one channel.
      * @see ViewerAction#onStateChange(ChangeEvent)
@@ -113,10 +113,10 @@ public class PlayMovieAction
 				}
 		}
     }
-    
+
     /**
      * Creates a new instance.
-     * 
+     *
      * @param model Reference to the model. Mustn't be <code>null</code>.
      * @param index	One of the constants defined by this class.
      */
@@ -128,17 +128,17 @@ public class PlayMovieAction
         icons = IconManager.getInstance();
         switch (index) {
 			case ACROSS_T:
-				putValue(Action.SHORT_DESCRIPTION, 
+				putValue(Action.SHORT_DESCRIPTION,
 		                UIUtilities.formatToolTipText(DESCRIPTION_ACROSS_T));
 			break;
 			case ACROSS_Z:
-				putValue(Action.SHORT_DESCRIPTION, 
+				putValue(Action.SHORT_DESCRIPTION,
 		                UIUtilities.formatToolTipText(DESCRIPTION_ACROSS_Z));
 		}
-        
+
         putValue(Action.SMALL_ICON, icons.getIcon(IconManager.PLAY));
     }
-	
+
 	/**
 	 * Sets the icon of the action.
 	 * 
@@ -152,8 +152,8 @@ public class PlayMovieAction
 		else 
 			putValue(Action.SMALL_ICON, icons.getIcon(IconManager.PAUSE));
 	}
-	
-	/** 
+
+	/**
      * Plays movie across z-sections or time-points.
      * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
      */
@@ -164,5 +164,5 @@ public class PlayMovieAction
     	setActionIcon(!b);
     	model.playMovie(b, false, index);
     }
-	
+
 }
