@@ -2,7 +2,7 @@
  * ome.services.blitz.repo.PublicRepositoryI
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2011 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -34,6 +34,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableList.Builder;
+
 import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
 import org.apache.commons.io.filefilter.NameFileFilter;
@@ -62,6 +65,7 @@ import ome.services.blitz.repo.path.FsFile;
 import ome.services.blitz.repo.path.MakePathComponentSafe;
 import ome.services.blitz.repo.path.ServerFilePathTransformer;
 import ome.services.blitz.util.BlitzExecutor;
+import ome.services.blitz.util.ChecksumAlgorithmMapper;
 import ome.services.blitz.util.FindServiceFactoryMessage;
 import ome.services.blitz.util.RegisterServantMessage;
 import ome.services.util.Executor;
@@ -93,7 +97,6 @@ import omero.cmd.Request;
 import omero.grid._RepositoryOperations;
 import omero.grid._RepositoryTie;
 import omero.model.ChecksumAlgorithm;
-import omero.model.Fileset;
 import omero.model.OriginalFile;
 import omero.model.OriginalFileI;
 import omero.model.enums.ChecksumAlgorithmSHA1160;
@@ -104,6 +107,7 @@ import omero.util.IceMapper;
  *
  * @author Colin Blackburn <cblackburn at dundee dot ac dot uk>
  * @author Josh Moore, josh at glencoesoftware.com
+ * @author m.t.b.carroll@dundee.ac.uk
  */
 public class PublicRepositoryI implements _RepositoryOperations, ApplicationContextAware {
 
@@ -143,7 +147,8 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
 
     protected final ChecksumProviderFactory checksumProviderFactory;
 
-    protected final omero.model.ChecksumAlgorithm checksumAlgorithm;
+    /* in descending order of preference */
+    protected final ImmutableList<ChecksumAlgorithm> checksumAlgorithms;
 
     protected /*final*/ FilePathRestrictions filePathRestrictions;
 
@@ -153,12 +158,22 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
 
     public PublicRepositoryI(RepositoryDao repositoryDao,
             ChecksumProviderFactory checksumProviderFactory,
-            omero.model.ChecksumAlgorithm checksumAlgorithm,
+            String checksumAlgorithmSupported,
             String pathRules) throws Exception {
         this.repositoryDao = repositoryDao;
         this.checksumProviderFactory = checksumProviderFactory;
-        this.checksumAlgorithm = checksumAlgorithm;
         this.repoUuid = null;
+
+        final Builder<ChecksumAlgorithm> checksumAlgorithmsBuilder = ImmutableList.builder();
+        for (final String term : checksumAlgorithmSupported.split(",")) {
+            if (StringUtils.isNotBlank(term)) {
+                checksumAlgorithmsBuilder.add(ChecksumAlgorithmMapper.getChecksumAlgorithm(term.trim()));
+            }
+        }
+        this.checksumAlgorithms = checksumAlgorithmsBuilder.build();
+        if (this.checksumAlgorithms.isEmpty()) {
+            throw new IllegalArgumentException("a checksum algorithm must be supported");
+        }
 
         final Set<String> terms = new HashSet<String>();
         for (final String term : pathRules.split(",")) {
@@ -420,7 +435,7 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
     }
 
     /* TODO: The server should not have any hard-coded preference for the SHA-1 algorithm
-     * (which may not be the setting of omero.checksum.default) in such a generic code path.
+     * (which may not be the setting of omero.checksum.supported) in such a generic code path.
      * Clients wishing to assume SHA-1 for checksumming files created using this method should
      * somehow specify this to the server via the API. This method can then be removed.
      */

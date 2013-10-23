@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Glencoe Software, Inc. All rights reserved.
+ * Copyright (C) 2012-2013 Glencoe Software, Inc. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,9 +25,11 @@ import java.text.DateFormatSymbols;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import loci.formats.FormatReader;
 
@@ -71,6 +73,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Function;
+import com.google.common.base.Joiner;
+import com.google.common.collect.Collections2;
+import com.google.common.collect.Lists;
 
 import Ice.Current;
 
@@ -105,6 +110,11 @@ public class ManagedRepositoryI extends PublicRepositoryI
     /* used for generating %monthname% for path templates */
     private static final DateFormatSymbols DATE_FORMAT = new DateFormatSymbols();
 
+    /* referenced by only the bare-bones ManagedRepositoryI constructor used in testing */
+    private static final String ALL_CHECKSUM_ALGORITHMS =
+            Joiner.on(',').join(Collections2.transform(ChecksumAlgorithmMapper.getAllChecksumAlgorithms(),
+                    ChecksumAlgorithmMapper.CHECKSUM_ALGORITHM_NAMER));
+
     private final FilePathNamingValidator filePathNamingValidator;
 
     private final String template;
@@ -119,15 +129,15 @@ public class ManagedRepositoryI extends PublicRepositoryI
      */
     public ManagedRepositoryI(String template, RepositoryDao dao) throws Exception {
         this(template, dao, new ProcessContainer(), new ChecksumProviderFactoryImpl(),
-                null, FilePathRestrictionInstance.UNIX_REQUIRED.name);
+                ALL_CHECKSUM_ALGORITHMS, FilePathRestrictionInstance.UNIX_REQUIRED.name);
     }
 
     public ManagedRepositoryI(String template, RepositoryDao dao,
             ProcessContainer processes,
             ChecksumProviderFactory checksumProviderFactory,
-            omero.model.ChecksumAlgorithm checksumAlgorithm,
+            String checksumAlgorithmSupported,
             String pathRules) throws Exception {
-        super(dao, checksumProviderFactory, checksumAlgorithm, pathRules);
+        super(dao, checksumProviderFactory, checksumAlgorithmSupported, pathRules);
         this.template = template;
         this.processes = processes;
         this.filePathNamingValidator = new FilePathNamingValidator(this.filePathRestrictions);
@@ -158,7 +168,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
             settings = new ImportSettings(); // All defaults.
         }
         if (settings.checksumAlgorithm == null) {
-            settings.checksumAlgorithm = this.checksumAlgorithm;
+            throw new omero.ApiUsageException(null, null, "must specify checksum algorithm");
         }
 
         final List<FsFile> paths = new ArrayList<FsFile>();
@@ -203,6 +213,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
         final Fileset fs = new FilesetI();
         try {
             container.fillData(new ImportConfig(), settings, fs, nopClientTransformer);
+            settings.checksumAlgorithm = this.checksumAlgorithms.get(0);
         } catch (IOException e) {
             // impossible
             ServiceUtilities.handleException(e, "IO exception from operation without IO");
@@ -242,7 +253,18 @@ public class ManagedRepositoryI extends PublicRepositoryI
     }
 
     public List<ChecksumAlgorithm> listChecksumAlgorithms(Current __current) {
-        return ChecksumAlgorithmMapper.getAllChecksumAlgorithms();
+        return this.checksumAlgorithms;
+    }
+
+    public ChecksumAlgorithm suggestChecksumAlgorithm(List<ChecksumAlgorithm> supported, Current __current) {
+        final Set<String> supportedNames =
+                new HashSet<String>(Lists.transform(supported, ChecksumAlgorithmMapper.CHECKSUM_ALGORITHM_NAMER));
+        for (final ChecksumAlgorithm configured : listChecksumAlgorithms(__current)) {
+            if (supportedNames.contains(ChecksumAlgorithmMapper.CHECKSUM_ALGORITHM_NAMER.apply(configured))) {
+                return configured;
+            }
+        }
+        return null;
     }
 
     //
