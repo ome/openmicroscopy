@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.ui.TaskBarImpl
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -47,6 +47,7 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JSeparator;
 import javax.swing.JToolBar;
 import javax.swing.event.MenuKeyListener;
 import javax.swing.event.MenuListener;
@@ -210,6 +211,8 @@ class TaskBarView
                 menu.add(copyItemsFromMenu((JMenu) comps[i]));
             else if (comps[i] instanceof JMenuItem) 
                 menu.add(copyItem((JMenuItem) comps[i]));
+            else if (comps[i] instanceof JSeparator)
+                menu.add(new JSeparator(JSeparator.HORIZONTAL));
         }
         helpMenus.add(menu);
         return menu;
@@ -286,7 +289,7 @@ class TaskBarView
         for (int j = 0; j < mkl.length; j++)
             menu.addMenuKeyListener(mkl[j]);
         
-        MenuListener[] ml = original.getMenuListeners() ; 
+        MenuListener[] ml = original.getMenuListeners();
         for (int j = 0; j < ml.length; j++)
             menu.addMenuListener(ml[j]);
         for (int i = 0; i < comps.length; i++) {
@@ -294,6 +297,8 @@ class TaskBarView
                 menu.add(copyItemsFromMenu((JMenu) comps[i]));
             } else if (comps[i] instanceof JMenuItem) {
                 menu.add(copyItem((JMenuItem) comps[i]));
+            } else if (comps[i] instanceof JSeparator) {
+                menu.add(new JSeparator(JSeparator.HORIZONTAL));
             }
         }
         return menu;
@@ -378,15 +383,12 @@ class TaskBarView
 	{
 		JMenu help = new JMenu("Help");
 		help.setMnemonic(KeyEvent.VK_H);
-		//help.add(buttons[WELCOME_MI]);
-		help.add(buttons[COMMENT_MI]);
 		help.add(buttons[HELP_MI]);
 		help.add(buttons[FORUM_MI]);
+		help.add(buttons[COMMENT_MI]);
+		help.add(new JSeparator(JSeparator.HORIZONTAL));
 		help.add(buttons[LOG_FILE_MI]);
-		//help.add(buttons[HOWTO_MI]);
 		help.add(buttons[UPDATES_MI]);
-		//help.add(new JSeparator());
-		//help.add(buttons[ABOUT_MI]);
 		return help;
 	}
 	
