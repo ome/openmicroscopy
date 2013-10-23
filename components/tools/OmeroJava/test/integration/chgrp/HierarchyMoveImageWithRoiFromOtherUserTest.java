@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2012 University of Dundee & Open Microscopy Environment.
+ *  Copyright (C) 2006-2013 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
  *
  *
@@ -287,30 +287,6 @@ public class HierarchyMoveImageWithRoiFromOtherUserTest extends
     private void addUserToGroup(long userId, ExperimenterGroup targetGroup)
             throws Exception {
         addUsers(targetGroup, Arrays.asList(userId), false);
-    }
-
-    /**
-     * Creates a new private group for the currently logged in user
-     *
-     * @return
-     * @throws Exception
-     */
-    private EventContext createPrivateGroup() throws Exception {
-        String privateGroupPermissions = "rw----";
-        return newUserAndGroup(privateGroupPermissions);
-    }
-
-    /**
-     * Creates a new group for the user with the permissions detailed
-     *
-     * @param userId
-     * @param permissions
-     * @return
-     * @throws Exception
-     */
-    private ExperimenterGroup createGroupWithMember(long userId,
-            String permissions) throws Exception {
-        return newGroupAddUser(permissions, userId);
     }
 
     /**

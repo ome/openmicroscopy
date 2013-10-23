@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2012 University of Dundee & Open Microscopy Environment.
+ *  Copyright (C) 2006-2013 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
  *
  *
@@ -68,11 +68,11 @@ public class HierarchyMoveImageWithRoiTest extends AbstractServerTest {
 
         long userId = iAdmin.getEventContext().userId;
 
-        ExperimenterGroup sourceGroup = createGroupWithMember(userId,
-                sourceGroupPermissions);
+        ExperimenterGroup sourceGroup = newGroupAddUser(sourceGroupPermissions,
+                userId);
 
-        ExperimenterGroup targetGroup = createGroupWithMember(userId,
-                targetGroupPermissions);
+        ExperimenterGroup targetGroup = newGroupAddUser(targetGroupPermissions,
+                        userId);
         long rwGroupId = targetGroup.getId().getValue();
 
         // force a refresh of the user's group membership
@@ -284,30 +284,6 @@ public class HierarchyMoveImageWithRoiTest extends AbstractServerTest {
     @Test
     public void moveImageRWRWtoRWRW() throws Exception {
         moveImageBetweenPermissionGroups("rwrw--", "rwrw--");
-    }
-
-    /**
-     * Creates a new private group for the currently logged in user
-     *
-     * @return
-     * @throws Exception
-     */
-    private EventContext createPrivateGroup() throws Exception {
-        String privateGroupPermissions = "rw----";
-        return newUserAndGroup(privateGroupPermissions);
-    }
-
-    /**
-     * Creates a new group for the user with the permissions detailed
-     *
-     * @param userId
-     * @param permissions
-     * @return
-     * @throws Exception
-     */
-    private ExperimenterGroup createGroupWithMember(long userId,
-            String permissions) throws Exception {
-        return newGroupAddUser(permissions, userId);
     }
 
     /**
