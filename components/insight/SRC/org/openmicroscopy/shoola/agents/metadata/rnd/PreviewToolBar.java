@@ -36,6 +36,7 @@ import javax.swing.JToolBar;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.actions.ManageRndSettingsAction;
+import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
@@ -116,7 +117,7 @@ class PreviewToolBar
     	String s = "Z="+(model.getDefaultZ()+1)+"/"+model.getMaxZ();
     	s += " T="+(model.getRealSelectedT()+1)+"/"+model.getRealT();
     	if (model.isLifetimeImage()) {
-			s += " t="+(model.getSelectedBin()+1);
+			s += " "+EditorUtil.SMALL_T_VARIABLE+"="+(model.getSelectedBin()+1);
 			s += "/"+(model.getMaxLifetimeBin());
 		}
     	selectedPlane.setText(s);

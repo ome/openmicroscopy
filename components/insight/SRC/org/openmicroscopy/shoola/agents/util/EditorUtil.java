@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.util.EditorUtil 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -257,6 +257,9 @@ public class EditorUtil
     /** Identifies the <code>Z-sections/Timepoints</code> field. */
     public static final String  Z_T_FIELDS = "z-sections/timepoints";
     
+    /** Identifies the <code>Lifetime</code> field. */
+    public static final String  SMALL_T_VARIABLE = "t";
+
     /** Identifies the <code>Emission</code> field. */
     public static final String  EMISSION = "Emission";
     

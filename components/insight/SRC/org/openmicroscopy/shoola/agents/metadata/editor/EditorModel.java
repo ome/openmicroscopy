@@ -48,6 +48,8 @@ import javax.swing.JFrame;
 //Application-internal dependencies
 import omero.model.OriginalFile;
 import omero.model.PlaneInfo;
+
+import org.apache.commons.collections.CollectionUtils;
 import org.openmicroscopy.shoola.agents.metadata.AcquisitionDataLoader;
 import org.openmicroscopy.shoola.agents.metadata.AnalysisResultsFileLoader;
 import org.openmicroscopy.shoola.agents.metadata.AttachmentsLoader;
@@ -97,8 +99,11 @@ import org.openmicroscopy.shoola.env.data.model.SaveAsParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
+import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
+import org.openmicroscopy.shoola.util.file.modulo.ModuloInfo;
+import org.openmicroscopy.shoola.util.file.modulo.ModuloParser;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 import pojos.AnnotationData;
 import pojos.BooleanAnnotationData;
@@ -1913,6 +1918,43 @@ class EditorModel
 			}
 		}
 		return (Collection<AnnotationData>) sorter.sort(results);
+	}
+
+	/**
+	 * Returns the modulo information if any associated to a given image.
+	 *
+	 * @return See above.
+	 */
+	Map<Integer, ModuloInfo> getModulo()
+	{
+	    Collection<XMLAnnotationData> annotations = getXMLAnnotations();
+	    Map<Integer, ModuloInfo> modulo = new HashMap<Integer, ModuloInfo>();
+        if (CollectionUtils.isEmpty(annotations)) return modulo;
+        ModuloParser parser;
+        Iterator<XMLAnnotationData> i = annotations.iterator();
+        XMLAnnotationData data;
+        List<ModuloInfo> infos;
+        Iterator<ModuloInfo> j;
+        ModuloInfo info;
+        while (i.hasNext()) {
+            data = i.next();
+            parser = new ModuloParser(data.getText());
+            try {
+                parser.parse();
+                infos = parser.getModulos();
+                j = infos.iterator();
+                while (j.hasNext()) {
+                   info = j.next();
+                    modulo.put(info.getModuloIndex(), info);
+                }
+            } catch (Exception e) {
+                LogMessage msg = new LogMessage();
+                msg.append("Error while reading modulo annotation.");
+                msg.print(e);
+                MetadataViewerAgent.getRegistry().getLogger().error(this, msg);
+            }
+        }
+        return modulo;
 	}
 
 	/**
