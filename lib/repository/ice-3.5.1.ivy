@@ -1,12 +1,12 @@
 <ivy-module version="1.0">
   <info
     organisation="zeroc"
-    module="ice-gridgui"
+    module="ice"
     status="integration"
-    revision="3.5.0"
+    revision="3.5.1"
   />
   <publications>
-    <artifact name="ice-gridgui" type="jar"/>
+    <artifact name="ice" type="jar"/>
   </publications>
 </ivy-module>
 
