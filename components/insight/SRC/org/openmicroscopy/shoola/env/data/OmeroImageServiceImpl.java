@@ -194,7 +194,7 @@ class OmeroImageServiceImpl
 	throws DSAccessException, DSOutOfServiceException
 	{
 		if (status.isMarkedAsCancel()) {
-			if (close) gateway.closeImport(ctx);
+			if (close) gateway.closeImport(ctx, userName);
 			return Boolean.valueOf(false);
 		}
 		boolean thumbnail = object.isLoadThumbnail();
@@ -263,7 +263,7 @@ class OmeroImageServiceImpl
 			}
 		}
 		annotatedImportedImage(ctx, list, images, userName);
-		if (close) gateway.closeImport(ctx);
+		if (close) gateway.closeImport(ctx, userName);
 		return null;
 	}
 	
@@ -1123,7 +1123,7 @@ class OmeroImageServiceImpl
 			new SecurityContext(importable.getGroup().getId());
 
 		if (status.isMarkedAsCancel()) {
-			if (close) gateway.closeImport(ctx);
+			if (close) gateway.closeImport(ctx, userName);
 			return Boolean.valueOf(false);
 		}
 		Object result = null;
@@ -1191,7 +1191,7 @@ class OmeroImageServiceImpl
 							String value = candidates.get(0);
 							if (!file.getAbsolutePath().equals(value) && 
 								object.isFileinQueue(value)) {
-								if (close) gateway.closeImport(ctx);
+								if (close) gateway.closeImport(ctx, userName);
 								status.markedAsDuplicate();
 								return Boolean.valueOf(true);
 							}
@@ -1298,7 +1298,7 @@ class OmeroImageServiceImpl
 					String value = candidates.get(0);
 					if (!file.getAbsolutePath().equals(value) && 
 						object.isFileinQueue(value)) {
-						if (close) gateway.closeImport(ctx);
+						if (close) gateway.closeImport(ctx, userName);
 						status.markedAsDuplicate();
 						return Boolean.valueOf(true);
 					}

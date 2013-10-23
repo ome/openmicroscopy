@@ -6419,14 +6419,14 @@ class OMEROGateway
 			} catch (Exception ex) {}
 
 			handleConnectionException(e);
-			if (close) closeImport(ctx);
+			if (close) closeImport(ctx, userName);
 			throw new ImportException(e);
 		} finally {
 			try {
 				if (reader != null) reader.close();
 			} catch (Exception ex) {}
 			if (omsc != null && close)
-				closeImport(ctx);
+				closeImport(ctx, userName);
 		}
 		return null;
 	}
@@ -7984,13 +7984,15 @@ class OMEROGateway
 	 * Closes the services initialized by the importer.
 	 *
 	 * @param ctx The security context.
+	 * @param userName The name of the user or <code>null</code>.
 	 */
-	void closeImport(SecurityContext ctx)
+	void closeImport(SecurityContext ctx, String userName)
 	{
 		try {
 			Connector c = getConnector(ctx, false, true);
+			c = c.getConnector(userName);
 			if (c != null) c.closeImport();
-		} catch (Exception e) {
+		} catch (Throwable e) {
 		    log("Failed to close import: " + e);
 		}
 	}
