@@ -7,11 +7,4 @@
     <bean id="checksumProviderFactory"
         class="ome.util.checksum.ChecksumProviderFactoryImpl" />
 
-    <bean id="checksumAlgorithm"
-        class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
-        <property name="targetClass" value="ome.services.blitz.util.ChecksumAlgorithmMapper"/>
-        <property name="targetMethod" value="getChecksumAlgorithm"/>
-        <property name="arguments" value="${omero.checksum.default}"/>
-    </bean>
-
 </beans>

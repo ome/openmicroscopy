@@ -32,7 +32,7 @@
           <bean class="ome.services.blitz.repo.PublicRepositoryI">
               <constructor-arg ref="repositoryDao"/>
               <constructor-arg ref="checksumProviderFactory"/>
-              <constructor-arg ref="checksumAlgorithm"/>
+              <constructor-arg value="${omero.checksum.supported}"/>
               <constructor-arg value="${omero.fs.repo.path_rules}"/>
           </bean>
       </constructor-arg>
@@ -65,7 +65,7 @@
               <constructor-arg ref="repositoryDao"/>
               <constructor-arg ref="processContainer"/>
               <constructor-arg ref="checksumProviderFactory"/>
-              <constructor-arg ref="checksumAlgorithm"/>
+              <constructor-arg value="${omero.checksum.supported}"/>
               <constructor-arg value="${omero.fs.repo.path_rules}"/>
           </bean>
       </constructor-arg>
@@ -100,7 +100,7 @@
           <bean class="ome.services.blitz.repo.PublicRepositoryI">
               <constructor-arg ref="repositoryDao"/>
               <constructor-arg ref="checksumProviderFactory"/>
-              <constructor-arg ref="checksumAlgorithm"/>
+              <constructor-arg value="${omero.checksum.supported}"/>
               <constructor-arg value="${omero.fs.repo.path_rules}"/>
           </bean>
       </constructor-arg>
