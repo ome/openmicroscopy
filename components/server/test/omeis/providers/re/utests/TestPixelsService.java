@@ -14,7 +14,7 @@ public class TestPixelsService extends PixelsService
 {
 	private byte[] dummyPlane;
 	
-	public TestPixelsService()
+	public TestPixelsService(Pixels pixels)
 	{
 		super("/tmp");
 	}
@@ -27,6 +27,6 @@ public class TestPixelsService extends PixelsService
 	@Override
 	public PixelBuffer getPixelBuffer(Pixels pixels, boolean write)
 	{
-		return new TestPixelBuffer(pixels.getPixelsType(), dummyPlane);
+		return new TestPixelBuffer(pixels, dummyPlane);
 	}
 }
