@@ -289,24 +289,41 @@ CUSTOM_SETTINGS_MAPPINGS = {
     "omero.web.nanoxml_jar": ["NANOXML_JAR", "nanoxml.jar", str],
 }
 
+def process_custom_settings(module=None):
+    if module:
+        logging.info('Processing custom settings for module %s' % module.__name__)
+        custom_settings_mappings = getattr(module, 'CUSTOM_SETTINGS_MAPPINGS', None)
+        if not custom_settings_mappings:
+            return
+    else:
+        custom_settings_mappings = CUSTOM_SETTINGS_MAPPINGS
+    for key, values in custom_settings_mappings.items():
+        # Django may import settings.py more than once, see:
+        # http://blog.dscpl.com.au/2010/03/improved-wsgi-script-for-use-with.html
+        # In that case, the custom settings have already been processed.
+        if len(values) == 4:
+            continue
 
-for key, values in CUSTOM_SETTINGS_MAPPINGS.items():
+        global_name, default_value, mapping = values
 
-    global_name, default_value, mapping = values
+        try:
+            global_value = CUSTOM_SETTINGS[key]
+            values.append(False)
+        except KeyError:
+            global_value = default_value
+            values.append(True)
 
-    try:
-        global_value = CUSTOM_SETTINGS[key]
-        values.append(False)
-    except KeyError:
-        global_value = default_value
-        values.append(True)
+        try:
+            if module:
+                setattr(module, global_name, mapping(global_value))
+            else:
+                globals()[global_name] = mapping(global_value)
+        except ValueError:
+            raise ValueError("Invalid %s JSON: %r" % (global_name, global_value))
+        except LeaveUnset:
+            pass
 
-    try:
-        globals()[global_name] = mapping(global_value)
-    except ValueError:
-        raise ValueError("Invalid %s JSON: %r" % (global_name, global_value))
-    except LeaveUnset:
-        pass
+process_custom_settings()
 
 
 if not DEBUG:
@@ -445,12 +462,13 @@ INSTALLED_APPS = (
     
 )
 
-
 # ADDITONAL_APPS: We import any settings.py from apps. This allows them to modify settings.
+# We're also processing any CUSTOM_SETTINGS_MAPPINGS defined there.
 for app in ADDITIONAL_APPS:
     INSTALLED_APPS += ('omeroweb.%s' % app,)
     try:
-        a = __import__('%s.settings' % app)
+        module = __import__('%s.settings' % app)
+        process_custom_settings(module.settings)
     except ImportError:
         logger.debug("Couldn't import settings from app: %s" % app)
 
