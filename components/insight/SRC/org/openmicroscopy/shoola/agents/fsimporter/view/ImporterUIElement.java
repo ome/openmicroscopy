@@ -995,6 +995,7 @@ class ImporterUIElement
 	 */
 	void setImportLogFile(Collection<FileAnnotationData> data, long id)
 	{
+	    if (CollectionUtils.isEmpty(data)) return;
 		Entry<String, FileImportComponent> entry;
 		Iterator<Entry<String, FileImportComponent>>
 		i = components.entrySet().iterator();
