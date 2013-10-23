@@ -131,10 +131,7 @@ class ControlPane
 
     /** The tipString of the {@link #tSlider}. */
     private static final String 	T_SLIDER_TIPSTRING = "T";
-    
-    /** The tipString of the {@link #lifetimeSlider}. */
-    private static final String 	LIFETIME_SLIDER_TIPSTRING = "L";
-    
+
     /** The maximum height of a magnification slider. */
     private static final int		SLIDER_HEIGHT = 100;
     
@@ -280,7 +277,7 @@ class ControlPane
     private void setSelectedXYPlane(int z, int t)
     {
     	int bin = -1;
-    	if (model.isNumerousChannel()) bin = lifetimeSlider.getValue();
+    	if (model.isLifetimeImage()) bin = lifetimeSlider.getValue();
     	controller.setSelectedXYPlane(z, t, bin);
     }
     
@@ -319,9 +316,9 @@ class ControlPane
         boolean up = true;
         if (e.getWheelRotation() > 0) up = false;
         if (e.getScrollType() == MouseWheelEvent.WHEEL_UNIT_SCROLL) {
-            int v = model.getDefaultT()-e.getWheelRotation();
+            int v = model.getRealSelectedT()-e.getWheelRotation();
             if (up) {
-                if (v <= model.getMaxT())
+                if (v <= model.getRealT())
                     setSelectedXYPlane(model.getDefaultZ(), v);
             } else { //moving down
                 if (v >= 0)
@@ -343,14 +340,14 @@ class ControlPane
         boolean up = true;
         if (e.getWheelRotation() > 0) up = false;
         if (e.getScrollType() == MouseWheelEvent.WHEEL_UNIT_SCROLL) {
-            int v = model.getDefaultT()-e.getWheelRotation();
+            int v = model.getRealSelectedT()-e.getWheelRotation();
             if (up) {
                 if (v <= model.getMaxLifetimeBin())
-                    setSelectedXYPlane(model.getDefaultZ(), 
+                    setSelectedXYPlane(model.getDefaultZ(),
                     		model.getDefaultT());
             } else { //moving down
                 if (v >= 0)
-                    setSelectedXYPlane(model.getDefaultZ(), 
+                    setSelectedXYPlane(model.getDefaultZ(),
                     		model.getDefaultT());
             }
         } else {
@@ -577,7 +574,7 @@ class ControlPane
         slider.setEndLabel(endLabel);
         slider.setShowEndLabel(true);
         slider.setShowTipLabel(true);
-        if (max > 0  && max <= MAX_NO_TICKS) {
+        if (max > 1  && max <= MAX_NO_TICKS) {
         	slider.setPaintTicks(true);
         	slider.setMajorTickSpacing(1);
         }
@@ -593,7 +590,7 @@ class ControlPane
     {
     	String tip;
     	if (z) tip = "Selected Plane Z="+(v+1)+"/"+(model.getMaxZ()+1);
-    	else tip = "Selected Timepoint T="+(v+1)+"/"+(model.getMaxT()+1);
+    	else tip = "Selected Timepoint T="+(v+1)+"/"+model.getRealT();
     	slider.setToolTipText(tip);
     }
     
@@ -604,31 +601,31 @@ class ControlPane
     private void initializeValues()
     {
         int maxZ = model.getMaxZ();
-        int maxT = model.getMaxT();
+        int maxT = model.getRealT();
         projectionRange.setValues(maxZ+1, 1, maxZ+1, 1, 1, maxZ+1);
         projectionRange.addPropertyChangeListener(this);
         projectionRange.addMouseWheelListener(this);
         projectionRange.setToolTipText(PROJECTION_SLIDER_DESCRIPTION);
         setRangeSliderToolTip(0, maxZ);
         
-        initSlider(tSliderProjection, maxT, model.getDefaultT(), 
+        initSlider(tSliderProjection, maxT, model.getRealSelectedT(),
         		T_SLIDER_DESCRIPTION, T_SLIDER_TIPSTRING);
-        setSliderToolTip(model.getDefaultT(), tSliderProjection, false);
+        setSliderToolTip(model.getRealSelectedT(), tSliderProjection, false);
         
-        initSlider(zSlider, maxZ, model.getDefaultZ(), 
+        initSlider(zSlider, maxZ, model.getDefaultZ(),
         			Z_SLIDER_DESCRIPTION, Z_SLIDER_TIPSTRING);
-        initSlider(zSliderGrid, maxZ, model.getDefaultZ(), 
+        initSlider(zSliderGrid, maxZ, model.getDefaultZ(),
     			Z_SLIDER_DESCRIPTION, Z_SLIDER_TIPSTRING);
        
         setSliderToolTip(model.getDefaultZ(), zSlider, true);
         setSliderToolTip(model.getDefaultZ(), zSliderGrid, true);
-        initSlider(tSlider, maxT, model.getDefaultT(), 
+        initSlider(tSlider, maxT, model.getRealSelectedT(),
         		T_SLIDER_DESCRIPTION, T_SLIDER_TIPSTRING);
-        initSlider(tSliderGrid, maxT, model.getDefaultT(), 
+        initSlider(tSliderGrid, maxT, model.getRealSelectedT(),
         		T_SLIDER_DESCRIPTION, T_SLIDER_TIPSTRING);
         
-        setSliderToolTip(model.getDefaultT(), tSlider, false);
-        setSliderToolTip(model.getDefaultT(), tSliderGrid, false);
+        setSliderToolTip(model.getRealSelectedT(), tSlider, false);
+        setSliderToolTip(model.getRealSelectedT(), tSliderGrid, false);
         if (model.isBigImage()) {
         	ratioSlider.addPropertyChangeListener(this);
         	ratioSlider.setMaximum(model.getResolutionLevels()-1);
@@ -643,8 +640,8 @@ class ControlPane
         gridRatioSlider.addChangeListener(this);
         projectionRatioSlider.addChangeListener(this);
         
-        playTMovie.setVisible(maxT != 0);
-        playTMovieGrid.setVisible(maxT != 0);
+        playTMovie.setVisible(maxT > 0);
+        playTMovieGrid.setVisible(maxT > 0);
         playZMovie.setVisible(maxZ != 0);
         playZMovieGrid.setVisible(maxZ != 0);
         colorModelButton.setIcon(getColorModelIcon(model.getColorModel()));
@@ -665,7 +662,7 @@ class ControlPane
 		//Lifetime for now
 		int maxBin = model.getMaxLifetimeBin()-1;
 		initSlider(lifetimeSlider, maxBin, model.getSelectedBin(), 
-     			LITEIME_SLIDER_DESCRIPTION, LIFETIME_SLIDER_TIPSTRING);
+     			LITEIME_SLIDER_DESCRIPTION, EditorUtil.SMALL_T_VARIABLE);
 		lifetimeSlider.setPaintTicks(false);
 		if (model.isBigImage()) resetZoom.setVisible(true);
     }
@@ -745,7 +742,7 @@ class ControlPane
      */
     private JComponent buildToolBar()
     {
-        if (!model.isNumerousChannel()) {
+        if (!model.isLifetimeImage()) {
         	JToolBar bar = createBar();
             bar.add(colorModelButton);
             bar.add(Box.createRigidArea(VBOX));
@@ -810,7 +807,7 @@ class ControlPane
         ChannelButton button;
         Dimension d;
         int w = 0, h = 0;
-        if (!model.isNumerousChannel()) {
+        if (!model.isLifetimeImage()) {
         	p.add(Box.createRigidArea(VBOX));
             channelButtons = createChannelButtons();
             Iterator<ChannelButton> i = channelButtons.iterator();
@@ -838,7 +835,7 @@ class ControlPane
         	controls.add(sp, "0, "+k+", RIGHT, CENTER");
         } else controls.add(p, "0, "+k);
         k++;
-        if (!model.isNumerousChannel()) {
+        if (!model.isLifetimeImage()) {
         	controls.add(createButtonToolBar(channelMovieButton), 
         			"0, "+k+", CENTER, CENTER");
         }
@@ -958,7 +955,7 @@ class ControlPane
      */
     JPanel buildGridComponent()
     {
-    	if (model.isNumerousChannel()) return new JPanel();
+    	if (model.isLifetimeImage()) return new JPanel();
     	JPanel p = createZGridSliderPane();
         JPanel buttons = new JPanel();
         buttons.setLayout(new BoxLayout(buttons, BoxLayout.Y_AXIS));
@@ -1034,7 +1031,7 @@ class ControlPane
      */
     JPanel buildProjectionComponent()
     {
-    	if (model.isNumerousChannel()) return new JPanel();
+    	if (model.isLifetimeImage()) return new JPanel();
     	JPanel p = layoutSlider(projectionRange);
         JPanel buttons = new JPanel();
         buttons.setLayout(new BoxLayout(buttons, BoxLayout.Y_AXIS));
@@ -1362,7 +1359,6 @@ class ControlPane
 			case ImViewer.GRID_INDEX:
 				JPanel p = new JPanel();
 	        	p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
-	        	//p.add(createMovieButtonBar(playTMovieGrid));
 	        	p.add(createButtonToolBar(playTMovieGrid));
 	        	p.add(tSliderGrid);
 	        	return p;
@@ -1372,7 +1368,6 @@ class ControlPane
 			default:
 				JPanel pane = new JPanel();
 	        	pane.setLayout(new BoxLayout(pane, BoxLayout.X_AXIS));
-	        	//pane.add(createMovieButtonBar(playTMovie));
 	        	pane.add(createButtonToolBar(playTMovie));
 	        	pane.add(tSlider);
 	        	return pane;
@@ -1416,7 +1411,7 @@ class ControlPane
     
     /**
      * Sets the <code>enable</code> flag of the slider used to select
-     * the current z-section and timepoint.
+     * the current z-section.
      * 
      * @param b Pass <code>true</code> to enable the sliders,
      * 			<code>false</code> otherwise.
@@ -1436,7 +1431,7 @@ class ControlPane
     
     /**
      * Sets the <code>enable</code> flag of the slider used to select
-     * the current z-section and timepoint.
+     * the current timepoint.
      * 
      * @param b Pass <code>true</code> to enable the sliders,
      * 			<code>false</code> otherwise.
@@ -1444,9 +1439,9 @@ class ControlPane
     void enableTSliders(boolean b)
     {
     	if (b) {
-            tSlider.setEnabled(model.getMaxT() != 0);
-            tSliderGrid.setEnabled(model.getMaxT() != 0);
-            tSliderProjection.setEnabled(model.getMaxT() != 0);
+            tSlider.setEnabled(model.getRealT() > 1);
+            tSliderGrid.setEnabled(model.getRealT() > 1);
+            tSliderProjection.setEnabled(model.getRealT() > 1);
         } else {
             tSlider.setEnabled(b);
             tSliderGrid.setEnabled(b);
@@ -1464,39 +1459,39 @@ class ControlPane
      */
     void setChannelActive(int index, int uiIndex)
     {
-    	Iterator i;
+    	Iterator<ChannelButton> i;
         ChannelButton button;
         switch (uiIndex) {
 			case ImViewerUI.GRID_ONLY:
 				 i = channelButtonsGrid.iterator();
 			        while (i.hasNext()) {
-			            button = (ChannelButton) i.next();
-			            if (index == button.getChannelIndex()) 
+			            button = i.next();
+			            if (index == button.getChannelIndex())
 			                button.setSelected(true);
 			        }
 				break;
 			case ImViewerUI.ALL_VIEW:
 				i = channelButtons.iterator();
 				while (i.hasNext()) {
-					button = (ChannelButton) i.next();
-					if (index == button.getChannelIndex()) 
+					button = i.next();
+					if (index == button.getChannelIndex())
 						button.setSelected(true);
 				}
 				i = channelButtonsGrid.iterator();
 				while (i.hasNext()) {
-					button = (ChannelButton) i.next();
-					if (index == button.getChannelIndex()) 
+					button = i.next();
+					if (index == button.getChannelIndex())
 						button.setSelected(true);
 				}
 				i = channelButtonsProjection.iterator();
 				while (i.hasNext()) {
-					button = (ChannelButton) i.next();
-					if (index == button.getChannelIndex()) 
+					button = i.next();
+					if (index == button.getChannelIndex())
 						button.setSelected(true);
 				}
-		}       
+		}
 	}
-    
+
     /**
      * Returns the collection of active channels in the grid view.
      * 
@@ -1505,10 +1500,10 @@ class ControlPane
     List getActiveChannelsInGrid()
     {
     	List<Integer> active = new ArrayList<Integer>();
-    	Iterator i = channelButtonsGrid.iterator();
+    	Iterator<ChannelButton> i = channelButtonsGrid.iterator();
     	ChannelButton button;
         while (i.hasNext()) {
-            button = (ChannelButton) i.next();
+            button = i.next();
             if (button.isSelected()) active.add(button.getChannelIndex());
         }
         return active;
@@ -1522,10 +1517,10 @@ class ControlPane
     List getActiveChannelsInProjection()
     {
     	List<Integer> active = new ArrayList<Integer>();
-    	Iterator i = channelButtonsProjection.iterator();
+    	Iterator<ChannelButton> i = channelButtonsProjection.iterator();
     	ChannelButton button;
         while (i.hasNext()) {
-            button = (ChannelButton) i.next();
+            button = i.next();
             if (button.isSelected()) active.add(button.getChannelIndex());
         }
         return active;
@@ -1538,7 +1533,7 @@ class ControlPane
      */
     void setZoomFactor(int zoomIndex)
     {
-    	if (ratioSlider.getMinimum() > zoomIndex || 
+    	if (ratioSlider.getMinimum() > zoomIndex ||
     		ratioSlider.getMaximum() < zoomIndex)
     		return;
     	ratioSlider.removeChangeListener(this);
@@ -1571,7 +1566,7 @@ class ControlPane
      */
     void setGridMagnificationFactor(int zoomIndex)
     {
-    	if (gridRatioSlider.getMinimum() > zoomIndex || 
+    	if (gridRatioSlider.getMinimum() > zoomIndex ||
     			gridRatioSlider.getMaximum() < zoomIndex)
     		return;
     	gridRatioSlider.removeChangeListener(this);

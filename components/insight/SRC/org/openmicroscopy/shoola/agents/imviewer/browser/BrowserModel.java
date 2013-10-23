@@ -647,7 +647,7 @@ class BrowserModel
      * 
      * @return See above.
      */
-    int getMaxT() { return parent.getMaxT(); }
+    int getMaxT() { return parent.getRealT(); }
     
     /**
      * The size in microns of a pixel along the X-axis.

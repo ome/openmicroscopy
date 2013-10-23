@@ -805,21 +805,9 @@ class ImViewerModel
 	{
 		Renderer rnd = metadataViewer.getRenderer();
 		if (rnd == null) return 0;
-		return rnd.getPixelsDimensionsT()-1;
+		return rnd.getPixelsDimensionsT();
 	}
 
-	/**
-	 * Returns the maximum number of timepoints.
-	 * 
-	 * @return See above.
-	 */
-	int getRealSizeT()
-	{
-	    Renderer rnd = metadataViewer.getRenderer();
-	    if (rnd == null) return 0;
-	    return rnd.getPixelsDimensionsT()-1;
-	}
-    
 	/**
 	 * Returns the currently selected z-section.
 	 * 
@@ -841,8 +829,32 @@ class ImViewerModel
 	{
 		Renderer rnd = metadataViewer.getRenderer();
 		if (rnd == null) return 0;
-		return rnd.getDefaultT(); 
+		return rnd.getDefaultT();
 	}
+
+	/**
+	 * Returns the currently selected time-point.
+	 * 
+	 * @return See above.
+	 */
+    int getRealSelectedT()
+    {
+        Renderer rnd = metadataViewer.getRenderer();
+        if (rnd == null) return 0;
+        return rnd.getRealSelectedT();
+    }
+
+    /**
+     * Returns the number of time points if modulo available.
+     *
+     * @return See above.
+     */
+    int getRealT()
+    {
+        Renderer rnd = metadataViewer.getRenderer();
+        if (rnd == null) return 0;
+        return rnd.getRealT();
+    }
 
 	/**
 	 * Returns the currently selected color model.
@@ -1180,8 +1192,9 @@ class ImViewerModel
 	 */
 	int getMaxLifetimeBin()
 	{
-		if (isNumerousChannel()) return getMaxC();
-		return 0;
+	    Renderer rnd = metadataViewer.getRenderer();
+	    if (rnd == null) return 0;
+	    return rnd.getMaxLifetimeBin();
 	}
 	
 	/**
@@ -1190,10 +1203,11 @@ class ImViewerModel
 	 * 
 	 * @return See above.
 	 */
-	boolean isNumerousChannel()
+	boolean isLifetimeImage()
 	{
-		if (getMaxC() >= Renderer.MAX_CHANNELS) return true;
-		return getImage().isLifetime(); 
+	    Renderer rnd = metadataViewer.getRenderer();
+        if (rnd == null) return false;
+        return rnd.isLifetimeImage();
 	}
 	
 	/**
@@ -1206,7 +1220,7 @@ class ImViewerModel
 	{
 		if (isBigImage()) return false;
 		if (getMaxC() <= 1) return false;
-		if (isNumerousChannel()) return false;
+		if (isLifetimeImage()) return false;
 		return true;
 	}
 	
@@ -2327,7 +2341,7 @@ class ImViewerModel
 	/** Sets the rendering engine to handle lifetime image. */
 	void setForLifetime()
 	{
-		if (!isNumerousChannel()) return;
+		if (!isLifetimeImage()) return;
 		Renderer rnd = metadataViewer.getRenderer();
 		if (rnd == null) return;
 		setColorModel(ImViewer.GREY_SCALE_MODEL, true);
@@ -2350,12 +2364,12 @@ class ImViewerModel
 	 */
 	int getSelectedBin()
 	{
-		List<Integer> active = getActiveChannels();
-		if (active == null || active.size() != 1) return 0;
-		return active.get(0);
+	    Renderer rnd = metadataViewer.getRenderer();
+        if (rnd == null) return 0;
+        return rnd.getSelectedBin();
 	}
 
-	/** 
+	/**
 	 * Sets the selected channel.
 	 * 
 	 * @param index The index of the channel.

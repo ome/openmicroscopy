@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.imviewer.actions.PlayMovieAction 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -45,9 +45,6 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since OME3.0
  */
 public class PlayMovieAction
@@ -56,16 +53,16 @@ public class PlayMovieAction
 
 	/** Indicates to play the movie across Z. */
 	public static final int		ACROSS_Z = MoviePlayerDialog.ACROSS_Z;
-	
+
 	/** Indicates to play the movie across Z. */
 	public static final int		ACROSS_T = MoviePlayerDialog.ACROSS_T;
-	
+
 	/** The description of the action. */
     private static final String DESCRIPTION_ACROSS_Z = "Play movie across Z.";
-    
+
     /** The description of the action. */
     private static final String DESCRIPTION_ACROSS_T = "Play movie across T.";
-    
+
 	/** Helper reference to the icon manager. */
     private IconManager icons;
     
@@ -109,7 +106,7 @@ public class PlayMovieAction
 						setEnabled(model.getMovieIndex() == index);
 					} else {
 						if (index == ACROSS_T)
-							setEnabled(model.getMaxT() != 0);
+							setEnabled(model.getRealT() > 1);
 						else if (index == ACROSS_Z)
 							setEnabled(model.getMaxZ() != 0);
 					}

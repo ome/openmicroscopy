@@ -409,7 +409,7 @@ public interface ImViewer
 	 * 
 	 * @return See above.
 	 */
-	public int getMaxT();
+	public int getRealT();
 
 	/**
 	 * Returns the number of z-sections.

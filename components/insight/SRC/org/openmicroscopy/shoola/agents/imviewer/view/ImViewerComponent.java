@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.iviewer.view.ImViewerComponent
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -204,19 +204,19 @@ class ImViewerComponent
 	private void showProjectionDialog()
 	{
 		if (projDialog == null) {
-			projDialog = new ProjSavingDialog(view, model.getParent(), 
+			projDialog = new ProjSavingDialog(view, model.getParent(),
 					model.getGrandParent());
-			projDialog.initialize(view.getProjectionType(), model.getMaxT()+1, 
+			projDialog.initialize(view.getProjectionType(), model.getRealT()+1,
 					model.getPixelsType(), model.getImageName(), 
 					model.getContainers(), model.getMaxZ()+1, 
 					view.getProjectionStartZ()+1, view.getProjectionEndZ()+1);
 			projDialog.addPropertyChangeListener(controller);
 			projDialog.pack();
-			Dimension minimumSize = new Dimension(projDialog.getWidth(), 
+			Dimension minimumSize = new Dimension(projDialog.getWidth(),
 					projDialog.getHeight());
 			projDialog.setMinimumSize(minimumSize);
 		} else {
-			projDialog.setProjectionInterval(view.getProjectionStartZ()+1, 
+			projDialog.setProjectionInterval(view.getProjectionStartZ()+1,
 					view.getProjectionEndZ()+1);
 		}
 		UIUtilities.centerAndShow(projDialog);
@@ -483,10 +483,10 @@ class ImViewerComponent
 			model.getZoomFactor()*model.getOriginalRatio();
 		if (model.isBigImage()) f = view.getBigImageMagnificationFactor();
 		MeasurementTool request = new MeasurementTool(
-				model.getSecurityContext(), model.getImageID(), 
-				model.getPixelsData(), model.getImageName(), 
+				model.getSecurityContext(), model.getImageID(),
+				model.getPixelsData(), model.getImageName(),
 				model.getDefaultZ(), model.getDefaultT(),
-				model.getActiveChannelsColorMap(),f, 
+				model.getActiveChannelsColorMap(),f,
 				view.getBounds(), model.getChannelData());
 		if (model.isBigImage()) {
 			request.setSize(model.getTiledImageSizeX(),
@@ -1199,9 +1199,9 @@ class ImViewerComponent
 
 	/** 
 	 * Implemented as specified by the {@link ImViewer} interface.
-	 * @see ImViewer#getMaxT()
+	 * @see ImViewer#getRealT()
 	 */
-	public int getMaxT()
+	public int getRealT()
 	{
 		switch (model.getState()) {
 			case NEW:
@@ -1210,7 +1210,7 @@ class ImViewerComponent
 					"This method can't be invoked in the DISCARDED, NEW or" +
 					"LOADING_RENDERING_CONTROL state.");
 		}
-		return model.getMaxT();
+		return model.getRealT();
 	}
 
 	/** 
@@ -1934,7 +1934,7 @@ class ImViewerComponent
 				}
 				doClick = true;
 				if (index != -1) d.setMovieIndex(index);
-				d.setTimeRange(model.getDefaultT(), model.getMaxT());
+				d.setTimeRange(model.getRealSelectedT(), model.getRealT());
 			}
 		}
 		
@@ -2870,7 +2870,7 @@ class ImViewerComponent
 	 * Implemented as specified by the {@link ImViewer} interface.
 	 * @see ImViewer#isNumerousChannel()
 	 */
-	public boolean isNumerousChannel() { return model.isNumerousChannel(); }
+	public boolean isNumerousChannel() { return model.isLifetimeImage(); }
 
 	/** Build the view.*/
 	private void buildView()

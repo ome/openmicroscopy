@@ -1227,4 +1227,33 @@ class RendererComponent
 		return null;
 	}
 
+	/**
+	 * Implemented as specified by the {@link Renderer} interface.
+	 * @see Renderer#getRealSelectedT()
+	 */
+	public int getRealSelectedT() { return model.getRealSelectedT(); }
+
+	/**
+	 * Implemented as specified by the {@link Renderer} interface.
+	 * @see Renderer#getRealT()
+	 */
+	public int getRealT() { return model.getRealT(); }
+
+	/**
+	 * Implemented as specified by the {@link Renderer} interface.
+	 * @see Renderer#getMaxLifetimeBin()
+	 */
+	public int getMaxLifetimeBin() { return model.getMaxLifetimeBin(); }
+
+	/**
+	 * Implemented as specified by the {@link Renderer} interface.
+	 * @see Renderer#getSelectedBin()
+	 */
+	public int getSelectedBin() { return model.getSelectedBin(); }
+
+	/**
+	 * Implemented as specified by the {@link Renderer} interface.
+	 * @see Renderer#getSelectedBin()
+	 */
+	public boolean isLifetimeImage() { return model.isLifetimeImage(); }
 }

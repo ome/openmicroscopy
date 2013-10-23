@@ -75,6 +75,8 @@ import com.sun.opengl.util.texture.TextureData;
 
 //Application-internal dependencies
 import omero.model.PlaneInfo;
+
+import org.apache.commons.collections.CollectionUtils;
 import org.openmicroscopy.shoola.agents.imviewer.IconManager;
 import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ColorModelAction;
@@ -789,7 +791,7 @@ class ImViewerUI
 		menu.setMnemonic(KeyEvent.VK_S);
 		JMenuItem item = new JMenuItem(
 			controller.getAction(ImViewerControl.TAB_GRID));
-		if (model.isBigImage() || model.isNumerousChannel())
+		if (model.isBigImage() || model.isLifetimeImage())
 			item.setEnabled(false);
 		else item.setEnabled(model.getMaxC() > 1);
 		menu.add(item);
@@ -806,79 +808,69 @@ class ImViewerUI
 		Browser browser = model.getBrowser();
 		int sizeX = model.getTiledImageSizeX();
 		int sizeY = model.getTiledImageSizeY();
-		/*
-		
-		double f = model.getZoomFactor();
-		if (f > 0) {
-			sizeX = (int) (sizeX*f);
-			sizeY = (int) (sizeY*f);
-			double factor = Math.round(f*100)/100.0;
-			setZoomFactor(factor, ZoomCmd.getZoomIndex(f));
-			setMagnificationStatus(factor);
-		}
-		*/
+
 		browser.setComponentsSize(sizeX, sizeY);
 		tabs = new ClosableTabbedPane(JTabbedPane.TOP, 
 									JTabbedPane.WRAP_TAB_LAYOUT);
 		tabs.setAlignmentX(LEFT_ALIGNMENT);
 
-		viewPanel = new ClosableTabbedPaneComponent(ImViewer.VIEW_INDEX, 
+		viewPanel = new ClosableTabbedPaneComponent(ImViewer.VIEW_INDEX,
 							browser.getTitle(), browser.getIcon(), "");
 		viewPanel.setClosable(false);
-		double[][] tl = {{TableLayout.PREFERRED, TableLayout.FILL}, 
+		double[][] tl = {{TableLayout.PREFERRED, TableLayout.FILL},
 				{TableLayout.FILL, TableLayout.PREFERRED, 
 			TableLayout.PREFERRED}};
 		viewPanel.setLayout(new TableLayout(tl));
 		viewPanel.add(controlPane, "0, 0");
 		viewPanel.add(browser.getUI(), "1, 0");
-		viewPanel.add(controlPane.getTimeSliderPane(ImViewer.VIEW_INDEX), 
+		viewPanel.add(controlPane.getTimeSliderPane(ImViewer.VIEW_INDEX),
 						"1, 1");
-		if (model.isNumerousChannel()) {
+		if (model.isLifetimeImage()) {
 			viewPanel.add(
-					controlPane.getLifetimeSliderPane(ImViewer.VIEW_INDEX), 
+					controlPane.getLifetimeSliderPane(ImViewer.VIEW_INDEX),
 			"1, 2");
 		}
 		tabbedIconHeight = browser.getIcon().getIconHeight()+ICON_EXTRA;
 		
-		tabs.insertTab(browser.getTitle(), browser.getIcon(), viewPanel, "", 
+		tabs.insertTab(browser.getTitle(), browser.getIcon(), viewPanel, "",
 				ImViewer.VIEW_INDEX);
-		gridViewPanel = new ClosableTabbedPaneComponent(ImViewer.GRID_INDEX, 
+		gridViewPanel = new ClosableTabbedPaneComponent(ImViewer.GRID_INDEX,
 				browser.getGridViewTitle(),  browser.getGridViewIcon(), "");
 		gridViewPanel.setLayout(new TableLayout(tl));
 
 		gridViewPanel.add(controlPane.buildGridComponent(), "0, 0");
 		gridViewPanel.add(browser.getGridView(), "1, 0");
-		gridViewPanel.add(controlPane.getTimeSliderPane(ImViewer.GRID_INDEX), 
+		gridViewPanel.add(controlPane.getTimeSliderPane(ImViewer.GRID_INDEX),
 						"1, 1");
 		if (model.allowSplitView() && !model.isBigImage()) {
 			tabs.insertTab(browser.getGridViewTitle(), 
-					browser.getGridViewIcon(), gridViewPanel, "", 
+					browser.getGridViewIcon(), gridViewPanel, "",
 					ImViewer.GRID_INDEX);
 		}
 		
-		double[][] tl2 = {{TableLayout.PREFERRED, TableLayout.FILL}, 
+		double[][] tl2 = {{TableLayout.PREFERRED, TableLayout.FILL},
 				{TableLayout.PREFERRED, TableLayout.FILL, 
 			TableLayout.PREFERRED}};
 		
 		projectionViewPanel = new ClosableTabbedPaneComponent(
-				ImViewer.PROJECTION_INDEX, browser.getProjectionViewTitle(),  
+				ImViewer.PROJECTION_INDEX, browser.getProjectionViewTitle(),
 				browser.getProjectionViewIcon(), "");
 		
 		projectionViewPanel.setLayout(new TableLayout(tl2));
-		projectionViewPanel.add(controlPane.buildProjectionToolBar(), 
+		projectionViewPanel.add(controlPane.buildProjectionToolBar(),
 				"0, 0, 1, 0");
 		projectionViewPanel.add(controlPane.buildProjectionComponent(), "0, 1");
 		projectionViewPanel.add(browser.getProjectionView(), "1, 1");
 		projectionViewPanel.add(
-				controlPane.getTimeSliderPane(ImViewer.PROJECTION_INDEX), 
+				controlPane.getTimeSliderPane(ImViewer.PROJECTION_INDEX),
 						"1, 2");
 		if (model.getMaxZ() > 0 && !model.isBigImage()) {
-			tabs.insertTab(browser.getProjectionViewTitle(), 
-					browser.getProjectionViewIcon(), 
+			tabs.insertTab(browser.getProjectionViewTitle(),
+					browser.getProjectionViewIcon(),
 					projectionViewPanel, "", ImViewer.PROJECTION_INDEX);
 		}
 		
-		tabs.addChangeListener(controller);	
+		tabs.addChangeListener(controller);
 		
 		//mainComponent = tabs;
 		rendererSplit.setLeftComponent(tabs);
@@ -1354,9 +1346,12 @@ class ImViewerUI
 				
 			buffer.append("/"+(model.getMaxZ()+1));
 		}
-		buffer.append(" T="+(model.getDefaultT()+1)+"/"+(model.getMaxT()+1));
-		if (model.isNumerousChannel()) {
-			buffer.append(" L="+(model.getSelectedBin()+1));
+		buffer.append(" T="+(
+		        model.getRealSelectedT()+1)+"/"+model.getRealT());
+		if (model.isLifetimeImage()) {
+		    buffer.append(" ");
+			buffer.append(EditorUtil.SMALL_T_VARIABLE+"="+
+		    (model.getSelectedBin()+1));
 			buffer.append("/"+(model.getMaxLifetimeBin()));
 		}
 		setLeftStatus(buffer.toString());
@@ -1383,13 +1378,13 @@ class ImViewerUI
 			return;
 		}
 		List<Integer> indexes = model.getActiveChannels();
-		if (indexes == null || indexes.size() == 0) {
+		if (CollectionUtils.isEmpty(indexes)) {
 			statusBar.setCenterStatus(new JLabel());
 			return;
 		}
 			
 		int z = model.getDefaultZ();
-		int t = model.getDefaultT();
+		int t = model.getRealSelectedT();
 		
 			
 		PlaneInfo info;
@@ -1415,7 +1410,7 @@ class ImViewerUI
 			comp = planes.get(index);
 			if (info != null) {
 				details = EditorUtil.transformPlaneInfo(info);
-				notSet = (List<String> )details.get(EditorUtil.NOT_SET);
+				notSet = (List<String>) details.get(EditorUtil.NOT_SET);
 				comp.setColor(colors.get(index));
 				if (!notSet.contains(EditorUtil.DELTA_T)) {
 					s += EditorUtil.formatTimeInSeconds(
@@ -1444,7 +1439,6 @@ class ImViewerUI
 					panel.add(comp);
 				}
 			}
-			//}
 		}
 		statusBar.setCenterStatus(panel);
 	}
@@ -1459,7 +1453,7 @@ class ImViewerUI
 	 */
 	void setChannelsSelection(int index)
 	{ 
-		controlPane.setChannelsSelection(index); 
+		controlPane.setChannelsSelection(index);
 	}
 
 	/**
@@ -1469,7 +1463,7 @@ class ImViewerUI
 	 */
 	void setChannelsSelection(List channels)
 	{
-		controlPane.setChannelsSelection(channels); 
+		controlPane.setChannelsSelection(channels);
 	}
 	/** 
 	 * Sets whether or not the tabbed pane is enabled.

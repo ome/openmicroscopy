@@ -327,7 +327,7 @@ class MoviePlayer
      * 
      * @return See above.
      */
-    int getMaxT() { return model.getMaxT(); }
+    int getMaxT() { return model.getRealT(); }
     
     /**
      * Returns the maximum number of z-sections minus 1.

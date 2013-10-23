@@ -724,4 +724,39 @@ public interface Renderer
 	 */
 	List<ResolutionLevel> getResolutionDescriptions();
 
+	/**
+	 * Returns the currently selected time-point.
+	 * 
+	 * @return See above.
+	 */
+    int getRealSelectedT();
+
+    /**
+     * Returns the number of time points if modulo available.
+     *
+     * @return See above.
+     */
+    int getRealT();
+
+    /**
+     * Returns the number of bins per time interval.
+     * 
+     * @return See above
+     */
+    int getMaxLifetimeBin();
+
+    /**
+     * Returns the selected bin for lifetime image.
+     * 
+     * @return See above.
+     */
+    int getSelectedBin();
+
+    /**
+     * Returns <code>true</code> if the image is a lifetime image,
+     * <code>false</code> otherwise.
+     *
+     * @return See above.
+     */
+    boolean isLifetimeImage();
 }
