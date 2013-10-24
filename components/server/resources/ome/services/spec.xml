@@ -263,9 +263,7 @@
                 <value>/OriginalFile;HARD;/Fileset/FilesetEntry</value>
                 <value>/Fileset/FilesetJobLink</value>
                 <value>/Fileset/FilesetJobLink/Job;NULL</value>
-                <!-- TODO: currently not working. Relies on NULL logic.
                 <value>/Fileset/FilesetJobLink/Job/FilesetVersionInfo</value>
-                -->
                 <value>/Fileset/FilesetAnnotationLink</value>
                 <value>/Annotation;SOFT;/Fileset/FilesetAnnotationLink</value>
                 <value>/Fileset+Only</value>
