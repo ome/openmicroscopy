@@ -1108,8 +1108,7 @@ class LocationDialog extends JDialog implements ActionListener,
 			long loggedUserID, boolean isAdmin, boolean userIsAdmin)
 	{
 	    //data owner
-		if (userID == loggedUserID ||
-		        node.getOwner().getId() == userID) return true;
+		if (node.getOwner().getId() == userID) return true;
 		if (!node.canLink()) return false; //handle private group case.
         PermissionData permissions = group.getPermissions();
         if (permissions.getPermissionsLevel() == GroupData.PERMISSIONS_PRIVATE)
