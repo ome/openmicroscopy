@@ -811,7 +811,7 @@ class ControlPane
         ChannelButton button;
         Dimension d;
         int w = 0, h = 0;
-        if (!model.isLifetimeImage()) {
+        if (!model.isLifetimeImage() || model.getModuloT() != null) {
             p.add(Box.createRigidArea(VBOX));
             channelButtons = createChannelButtons();
             Iterator<ChannelButton> i = channelButtons.iterator();
@@ -837,7 +837,7 @@ class ControlPane
             controls.add(sp, "0, "+k+", RIGHT, CENTER");
         } else controls.add(p, "0, "+k);
         k++;
-        if (!model.isLifetimeImage()) {
+        if (!model.isLifetimeImage() || model.getModuloT() != null) {
             controls.add(createButtonToolBar(channelMovieButton),
                     "0, "+k+", CENTER, CENTER");
         }
