@@ -77,6 +77,7 @@ import com.sun.opengl.util.texture.TextureData;
 import omero.model.PlaneInfo;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
 import org.openmicroscopy.shoola.agents.imviewer.IconManager;
 import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ColorModelAction;
@@ -1372,81 +1373,77 @@ class ImViewerUI
 	{
 		statusBar.setLeftStatus(description);
 	}
-	
+
 	/**
 	 * Displays the plane information.
 	 * 
 	 */
 	void setPlaneInfoStatus()
 	{
-		if (model.getTabbedIndex() == ImViewer.PROJECTION_INDEX) {
-			statusBar.setCenterStatus(new JLabel());
-			return;
-		}
-		List<Integer> indexes = model.getActiveChannels();
-		if (CollectionUtils.isEmpty(indexes)) {
-			statusBar.setCenterStatus(new JLabel());
-			return;
-		}
-			
-		int z = model.getDefaultZ();
-		int t = model.getRealSelectedT();
-		
-			
-		PlaneInfo info;
-		String s, toolTipText;
-		Map<Integer, Color> colors = model.getChannelsColorMap();
-		JPanel panel = new JPanel();
-		panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
-		Map<String, Object> details;
-		List<String> tips;
-		PlaneInfoComponent comp;
-		
-		List<ChannelData> metadata = model.getChannelData();
-		Iterator<ChannelData> c = metadata.iterator();
-		int index;
-		List<String> notSet;
-		while (c.hasNext()) {
-			index = c.next().getIndex();
-			//if (indexes.contains(index)) {
-			s = "";
-			toolTipText = "";
-			tips = new ArrayList<String>();
-			info = model.getPlane(z, index, t);
-			comp = planes.get(index);
-			if (info != null) {
-				details = EditorUtil.transformPlaneInfo(info);
-				notSet = (List<String>) details.get(EditorUtil.NOT_SET);
-				comp.setColor(colors.get(index));
-				if (!notSet.contains(EditorUtil.DELTA_T)) {
-					s += EditorUtil.formatTimeInSeconds(
-							(Double) details.get(EditorUtil.DELTA_T));
-				}
-				if (!notSet.contains(EditorUtil.EXPOSURE_TIME)) {
-					toolTipText += EditorUtil.EXPOSURE_TIME+": ";
-					toolTipText += details.get(EditorUtil.EXPOSURE_TIME);
-					toolTipText += EditorUtil.TIME_UNIT;
-					tips.add(toolTipText);
-				}
-				toolTipText = "";
-				toolTipText += "Stage coordinates: ";
-				if (!notSet.contains(EditorUtil.POSITION_X))
-					toolTipText += 
-						"x="+details.get(EditorUtil.POSITION_X)+" ";
-				if (!notSet.contains(EditorUtil.POSITION_Y)) 
-					toolTipText += "y="+
-					details.get(EditorUtil.POSITION_Y)+" ";
-				if (!notSet.contains(EditorUtil.POSITION_Z)) 
-					toolTipText += "z="+details.get(EditorUtil.POSITION_Z);
-				tips.add(toolTipText);
-				comp.setToolTipText(UIUtilities.formatToolTipText(tips));
-				if (s.trim().length() != 0) {
-					comp.setText(s);
-					panel.add(comp);
-				}
-			}
-		}
-		statusBar.setCenterStatus(panel);
+	    if (model.getTabbedIndex() == ImViewer.PROJECTION_INDEX) {
+	        statusBar.setCenterStatus(new JLabel());
+	        return;
+	    }
+	    List<Integer> indexes = model.getActiveChannels();
+	    if (CollectionUtils.isEmpty(indexes)) {
+	        statusBar.setCenterStatus(new JLabel());
+	        return;
+	    }
+
+	    int z = model.getDefaultZ();
+	    int t = model.getRealSelectedT();
+	    PlaneInfo info;
+	    String s, toolTipText;
+	    Map<Integer, Color> colors = model.getChannelsColorMap();
+	    JPanel panel = new JPanel();
+	    panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
+	    Map<String, Object> details;
+	    List<String> tips;
+	    PlaneInfoComponent comp;
+
+	    List<ChannelData> metadata = model.getChannelData();
+	    Iterator<ChannelData> c = metadata.iterator();
+	    int index;
+	    List<String> notSet;
+	    while (c.hasNext()) {
+	        index = c.next().getIndex();
+	        s = "";
+	        toolTipText = "";
+	        tips = new ArrayList<String>();
+	        info = model.getPlane(z, index, t);
+	        comp = planes.get(index);
+	        if (info != null) {
+	            details = EditorUtil.transformPlaneInfo(info);
+	            notSet = (List<String>) details.get(EditorUtil.NOT_SET);
+	            comp.setColor(colors.get(index));
+	            if (!notSet.contains(EditorUtil.DELTA_T)) {
+	                s += EditorUtil.formatTimeInSeconds(
+	                        (Double) details.get(EditorUtil.DELTA_T));
+	            }
+	            if (!notSet.contains(EditorUtil.EXPOSURE_TIME)) {
+	                toolTipText += EditorUtil.EXPOSURE_TIME+": ";
+	                toolTipText += details.get(EditorUtil.EXPOSURE_TIME);
+	                toolTipText += EditorUtil.TIME_UNIT;
+	                tips.add(toolTipText);
+	            }
+	            toolTipText = "";
+	            toolTipText += "Stage coordinates: ";
+	            if (!notSet.contains(EditorUtil.POSITION_X))
+	                toolTipText += 
+	                "x="+details.get(EditorUtil.POSITION_X)+" ";
+	            if (!notSet.contains(EditorUtil.POSITION_Y)) 
+	                toolTipText += "y="+
+	                        details.get(EditorUtil.POSITION_Y)+" ";
+	            if (!notSet.contains(EditorUtil.POSITION_Z)) 
+	                toolTipText += "z="+details.get(EditorUtil.POSITION_Z);
+	            tips.add(toolTipText);
+	            comp.setToolTipText(UIUtilities.formatToolTipText(tips));
+	            if (StringUtils.isEmpty(s)) s = "0s";
+	            comp.setText(s);
+	            panel.add(comp);
+	        }
+	    }
+	    statusBar.setCenterStatus(panel);
 	}
 	
 	/**
