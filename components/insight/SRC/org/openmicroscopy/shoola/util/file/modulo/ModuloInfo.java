@@ -210,6 +210,6 @@ public class ModuloInfo {
     public int getSize()
     {
         if (step == 0) step = 1;
-        return (int) ((end-start)/step);
+        return (int) ((end-start)/step)+1;
     }
 }
