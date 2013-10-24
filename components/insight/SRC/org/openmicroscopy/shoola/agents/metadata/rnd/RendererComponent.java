@@ -360,33 +360,14 @@ class RendererComponent
 							if (setIndex >= 0) selectedIndex = setIndex;
 						}
 					}
-					/*
-					if (!selected && model.isChannelActive(index) &&
-							model.getSelectedChannel() != index) {
-						selectedIndex = index;
-						render = false;
-					} else {
-						model.setChannelActive(index, selected);
-						List<Integer> active = model.getActiveChannels();
-						if (!active.contains(index) && active.size() > 0) {
-							int oldSelected = model.getSelectedChannel();
-							if (active.contains(oldSelected)) 
-								selectedIndex = oldSelected;
-							else {
-								int setIndex = model.createSelectedChannel();
-								if (setIndex >= 0) selectedIndex = setIndex;
-							}
-						}
-					}
-					*/
 				}
 			}
 			model.setSelectedChannel(selectedIndex);
 			view.setSelectedChannel();
         	if (render)
-        		firePropertyChange(RENDER_PLANE_PROPERTY, 
+        		firePropertyChange(RENDER_PLANE_PROPERTY,
         				Boolean.valueOf(false), Boolean.valueOf(true));
-        	firePropertyChange(SELECTED_CHANNEL_PROPERTY, -1, 
+        	firePropertyChange(SELECTED_CHANNEL_PROPERTY, -1,
         			selectedIndex);
 		} catch (Exception ex) {
 			handleException(ex);

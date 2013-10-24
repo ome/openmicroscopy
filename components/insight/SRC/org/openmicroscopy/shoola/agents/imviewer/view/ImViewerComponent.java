@@ -1097,7 +1097,7 @@ class ImViewerComponent
 	 */
 	public void renderXYPlane()
 	{
-		switch (model.getState()) {
+	    switch (model.getState()) {
 			case NEW:
 				throw new IllegalStateException(
 						"This method can't be invoked in the NEW state.");
