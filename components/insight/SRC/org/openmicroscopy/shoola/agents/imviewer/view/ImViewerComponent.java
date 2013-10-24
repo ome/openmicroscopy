@@ -814,10 +814,8 @@ class ImViewerComponent
 	    int defaultT = model.getRealSelectedT();
 	    if (bin >= 0) { //lifetime
 	        int v = model.getSelectedBin();
-	        model.setSelectedXYPlane(z, t, bin);
 	        firePropertyChange(ImViewer.BIN_SELECTED_PROPERTY,
 	                Integer.valueOf(v), Integer.valueOf(bin));
-	        renderXYPlane();
 	    } else {
 	        if (defaultZ == z && defaultT == t) return;
 	        if (defaultZ != z) {
@@ -829,8 +827,8 @@ class ImViewerComponent
 	                    Integer.valueOf(defaultT), Integer.valueOf(t));
 	        }
 	        newPlane = true;
-	        model.setSelectedXYPlane(z, t, -1);
 	    }
+	    model.setSelectedXYPlane(z, t, bin);
 	}
 	
 	/** 
@@ -1099,6 +1097,7 @@ class ImViewerComponent
 	 */
 	public void renderXYPlane()
 	{
+	    System.err.println("render");
 		switch (model.getState()) {
 			case NEW:
 				throw new IllegalStateException(
@@ -1930,7 +1929,7 @@ class ImViewerComponent
 	                break;
 	            case PlayMovieAction.ACROSS_LIFETIME:
 	                d.setBinRange(model.getSelectedBin(),
-	                        model.getMaxLifetimeBin());
+	                        model.getMaxLifetimeBin()-1);
 	                controller.getAction(
 	                        ImViewerControl.PLAY_LIFETIME_MOVIE).setEnabled(!play);
 	                break;
@@ -1943,7 +1942,7 @@ class ImViewerComponent
 	            }
 	            doClick = true;
 	            if (index != -1) d.setMovieIndex(index);
-	            d.setTimeRange(model.getRealSelectedT(), model.getRealT());
+	            d.setTimeRange(model.getRealSelectedT(), model.getRealT()-1);
 	        }
 	    }
 
