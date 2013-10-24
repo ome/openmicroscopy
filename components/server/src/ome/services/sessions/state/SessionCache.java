@@ -137,6 +137,8 @@ public class SessionCache implements ApplicationContextAware {
             this.sessionContext = sc;
             this.lastAccessTime = last;
             this.hitCount = count;
+            // clear context
+            sc.getSession().getDetails().setContexts(null);
         }
 
     }

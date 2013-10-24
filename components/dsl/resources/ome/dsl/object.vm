@@ -77,6 +77,26 @@ import ome.model.*;
     @org.hibernate.annotations.Filter(name="OneGroupSecurityFilter"),
     @org.hibernate.annotations.Filter(name="AllGroupsSecurityFilter")
 })
+#elseif($type.id.equals("ome.model.meta.Session"))
+@org.hibernate.annotations.FilterDefs({
+    @org.hibernate.annotations.FilterDef(name="owner_or_admin",
+            parameters={
+                @org.hibernate.annotations.ParamDef( name="current_user", type="java.lang.Long" ),
+                @org.hibernate.annotations.ParamDef( name="is_admin", type="java.lang.Integer" )})
+})
+@org.hibernate.annotations.Filters({
+    @org.hibernate.annotations.Filter(name="owner_or_admin", condition="(1 = :is_admin or owner = :current_user)")
+})
+#elseif($type.id.equals("ome.model.meta.Node"))
+@org.hibernate.annotations.FilterDefs({
+    @org.hibernate.annotations.FilterDef(name="owner_or_admin",
+            parameters={
+                @org.hibernate.annotations.ParamDef( name="current_user", type="java.lang.Long" ),
+                @org.hibernate.annotations.ParamDef( name="is_admin", type="java.lang.Integer" )})
+})
+@org.hibernate.annotations.Filters({
+    @org.hibernate.annotations.Filter(name="owner_or_admin", condition="(1 = :is_admin)")
+})
 #end
 @javax.persistence.Entity
 ##
