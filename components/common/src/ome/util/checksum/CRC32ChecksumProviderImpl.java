@@ -19,7 +19,7 @@
 
 package ome.util.checksum;
 
-import java.util.zip.CRC32;
+import com.google.common.hash.Hashing;
 
 /**
  * An implementation of the {@link ChecksumProvider} interface using
@@ -32,7 +32,8 @@ import java.util.zip.CRC32;
 public final class CRC32ChecksumProviderImpl extends AbstractChecksumProvider {
 
     protected CRC32ChecksumProviderImpl() {
-        super(new NonGuavaHashFunctionImpl(new CRC32()));
+        super(Hashing.crc32());
+        this.convertToBigEndian = true;
     }
 
 }

@@ -27,6 +27,7 @@ import com.google.common.base.Optional;
 import com.google.common.hash.HashCode;
 import com.google.common.hash.HashFunction;
 import com.google.common.hash.Hasher;
+import com.google.common.io.BaseEncoding;
 import com.google.common.io.Files;
 
 /**
@@ -50,6 +51,8 @@ public class AbstractChecksumProvider implements ChecksumProvider {
     private Optional<byte[]> hashBytes = Optional.absent();
 
     private Optional<String> hashString = Optional.absent();
+
+    protected boolean convertToBigEndian = false;
 
     /**
      * Protected ctor. There should not be an instance of this class.
@@ -108,7 +111,9 @@ public class AbstractChecksumProvider implements ChecksumProvider {
      * @see ChecksumProvider#checksumAsBytes()
      */
     public byte[] checksumAsBytes() {
-        this.hashBytes = Optional.of(this.pickChecksum().asBytes());
+        this.hashBytes = Optional.of(convertToBigEndian ?
+                toBigEndian(this.pickChecksum().asBytes()) :
+                            this.pickChecksum().asBytes());
         return this.hashBytes.get();
     }
 
@@ -116,8 +121,30 @@ public class AbstractChecksumProvider implements ChecksumProvider {
      * @see ChecksumProvider#checksumAsString()
      */
     public String checksumAsString() {
-        this.hashString = Optional.of(this.pickChecksum().toString());
+        this.hashString = Optional.of(toHexString(checksumAsBytes()));
         return this.hashString.get();
+    }
+
+    /**
+     * Reverses the order of bytes in the input array. If input is in
+     * little-endian order, it will be changed to big-endian by means
+     * of reversing the array.
+     * @param bytes The input array.
+     * @return bytes The input array after an in-place reverse operation.
+     */
+    private byte[] toBigEndian(byte[] bytes) {
+        int inputSize = bytes.length;
+        byte tmpValue;
+        for (int i = 0; i < Math.floor(inputSize / 2); i++) {
+            tmpValue = bytes[i];
+            bytes[i] = bytes[inputSize - 1 - i];
+            bytes[inputSize - 1 - i] = tmpValue;
+        }
+        return bytes;
+    }
+
+    private String toHexString(byte[] bytes) {
+        return BaseEncoding.base16().encode(bytes).toLowerCase();
     }
 
     private HashCode pickChecksum() {

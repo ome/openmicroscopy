@@ -87,7 +87,12 @@ public interface ChecksumProvider {
     ChecksumProvider putFile(String filePath);
 
     /**
-     * Returns a byte array representation of the calculated checksum.
+     * Returns a byte array representation of the calculated checksum. The byte
+     * order is always <b>big-endian</b>, even if some hash algorithms use
+     * little-endian internally.
+     * <br/>
+     * It is the caller's responsibility to format the bytes into
+     * a human-readable form (e.g. hexadecimal encoding).
      * Subsequent calls to this method will return the same object state. After
      * calling this method any invocation of the mutating methods
      * (<code>put*</code>) will cause it to throw IllegalStateException.
@@ -97,7 +102,10 @@ public interface ChecksumProvider {
     byte[] checksumAsBytes();
 
     /**
-     * Returns a <code>String</code> representing the checksum in hex form.
+     * Returns a <code>String</code> representing the checksum in hexadecimal
+     * encoded form. The byte order is always <b>big-endian</b>, even if some
+     * hash algorithms use little-endian internally.
+     * <br/>
      * Subsequent calls to this method will return the same object state. After
      * calling this method any invocation of the mutating methods
      * (<code>put*</code>) will cause it to throw IllegalStateException.
