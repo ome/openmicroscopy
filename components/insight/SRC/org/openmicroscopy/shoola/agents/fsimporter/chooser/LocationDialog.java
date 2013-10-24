@@ -681,6 +681,10 @@ class LocationDialog extends JDialog implements ActionListener,
 	private boolean canImportForUserInGroup(ExperimenterData user,
 			GroupData selectedGroup) {
 		ExperimenterData loggedInUser = ImporterAgent.getUserDetails();
+		if (user.getId() == loggedInUser.getId()) return true;
+		if (selectedGroup.getPermissions().getPermissionsLevel()
+		        == GroupData.PERMISSIONS_PRIVATE)
+		    return false;
 		boolean isGroupOwner = false;
 		Set<ExperimenterData> leaders =
 				(Set<ExperimenterData>) selectedGroup.getLeaders();
@@ -688,8 +692,7 @@ class LocationDialog extends JDialog implements ActionListener,
 			if (leader.getId() == loggedInUser.getId())
 				isGroupOwner = true;
 		}
-		return user.getId() == loggedInUser.getId() ||
-				ImporterAgent.isAdministrator() || isGroupOwner;
+		return ImporterAgent.isAdministrator() || isGroupOwner;
 	}
 
 	/**
