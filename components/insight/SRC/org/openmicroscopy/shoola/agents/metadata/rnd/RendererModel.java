@@ -1441,7 +1441,18 @@ class RendererModel
 	{
 	    return (modulo != null && modulo.containsKey(ModuloInfo.T));
 	}
-	
+
+	/**
+	 * Returns the modulo info if it exists.
+	 *
+	 * @return See above.
+	 */
+	ModuloInfo getModuloT()
+	{
+	    if (!hasModuloT()) return null;
+	    return modulo.get(ModuloInfo.T);
+	}
+
 	/**
 	 * Returns <code>true</code> if the image is a lifetime image,
 	 * <code>false</code> otherwise.

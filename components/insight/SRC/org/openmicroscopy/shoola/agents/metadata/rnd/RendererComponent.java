@@ -59,6 +59,7 @@ import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.env.rnd.data.ResolutionLevel;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
+import org.openmicroscopy.shoola.util.file.modulo.ModuloInfo;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 import pojos.ChannelData;
@@ -1251,7 +1252,13 @@ class RendererComponent
 
 	/**
 	 * Implemented as specified by the {@link Renderer} interface.
-	 * @see Renderer#getSelectedBin()
+	 * @see Renderer#isLifetimeImage()
 	 */
 	public boolean isLifetimeImage() { return model.isLifetimeImage(); }
+
+	/**
+	 * Implemented as specified by the {@link Renderer} interface.
+	 * @see Renderer#getModuloT()
+	 */
+	public ModuloInfo getModuloT() { return model.getModuloT(); }
 }

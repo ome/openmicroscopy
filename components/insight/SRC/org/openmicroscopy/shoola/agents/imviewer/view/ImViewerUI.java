@@ -97,6 +97,7 @@ import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
 import org.openmicroscopy.shoola.env.rnd.data.ResolutionLevel;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
+import org.openmicroscopy.shoola.util.file.modulo.ModuloInfo;
 import org.openmicroscopy.shoola.util.ui.ClosableTabbedPane;
 import org.openmicroscopy.shoola.util.ui.ClosableTabbedPaneComponent;
 import org.openmicroscopy.shoola.util.ui.ColorCheckBoxMenuItem;
@@ -1335,7 +1336,6 @@ class ImViewerUI
 				o = EditorUtil.transformSize(n*d);
 				units = o.getUnits();
 				buffer.append(" ("+UIUtilities.roundTwoDecimals(o.getValue()));
-				buffer.append("-");
 				o = EditorUtil.transformSize(m*d);
 				buffer.append(UIUtilities.roundTwoDecimals(o.getValue()));
 				buffer.append(" "+units+")");
@@ -1357,9 +1357,15 @@ class ImViewerUI
 		buffer.append(" T="+(
 		        model.getRealSelectedT()+1)+"/"+model.getRealT());
 		if (model.isLifetimeImage()) {
+		    int bin = model.getSelectedBin();
 		    buffer.append(" ");
-			buffer.append(EditorUtil.SMALL_T_VARIABLE+"="+(model.getSelectedBin()+1));
-			buffer.append("/"+(model.getMaxLifetimeBin()));
+		    buffer.append(EditorUtil.SMALL_T_VARIABLE+"="+(bin+1));
+		    buffer.append("/"+(model.getMaxLifetimeBin()));
+		    //format the result
+		    ModuloInfo info = model.getModuloT();
+		    buffer.append(" (");
+		    buffer.append(UIUtilities.roundTwoDecimals(info.getRealValue(bin)));
+		    buffer.append(" "+info.getUnit()+")");
 		}
 		setLeftStatus(buffer.toString());
 	}

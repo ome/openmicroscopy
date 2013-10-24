@@ -86,6 +86,7 @@ import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.env.rnd.data.Region;
 import org.openmicroscopy.shoola.env.rnd.data.ResolutionLevel;
 import org.openmicroscopy.shoola.env.rnd.data.Tile;
+import org.openmicroscopy.shoola.util.file.modulo.ModuloInfo;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.UnitsObject;
@@ -2981,5 +2982,17 @@ class ImViewerModel
 		tileLoadedCount += count;
 		return tileLoadedCount == tileTotalCount;
 	}
+
+    /**
+     * Returns the modulo info if it exists.
+     *
+     * @return See above.
+     */
+    ModuloInfo getModuloT()
+    {
+        Renderer rnd = metadataViewer.getRenderer();
+        if (rnd == null) return null;
+        return rnd.getModuloT();
+    }
 
 }

@@ -203,6 +203,17 @@ public class ModuloInfo {
     public String getTypeDescription() { return typeDescription; }
 
     /**
+     * Returns the real value corresponding to the specified bin.
+     * 
+     * @param bin The selected bin.
+     * @return See above.
+     */
+    public double getRealValue(int bin)
+    {
+        return start+bin*step;
+    }
+
+    /**
      * Determines the modulo size.
      * 
      * @return See above.
