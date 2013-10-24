@@ -1338,7 +1338,7 @@ class ImViewerUI
 				buffer.append(" ("+UIUtilities.roundTwoDecimals(o.getValue()));
 				o = EditorUtil.transformSize(m*d);
 				buffer.append(UIUtilities.roundTwoDecimals(o.getValue()));
-				buffer.append(" "+units+")");
+				buffer.append(units+")");
 			}
 			buffer.append("/"+(model.getMaxZ()+1));
 			controlPane.setRangeSliderToolTip(n, m);
@@ -1365,7 +1365,7 @@ class ImViewerUI
 		    ModuloInfo info = model.getModuloT();
 		    buffer.append(" (");
 		    buffer.append(UIUtilities.roundTwoDecimals(info.getRealValue(bin)));
-		    buffer.append(" "+info.getUnit()+")");
+		    buffer.append(info.getUnit()+")");
 		}
 		setLeftStatus(buffer.toString());
 	}
