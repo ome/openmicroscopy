@@ -1286,6 +1286,13 @@ class ImViewerUI
 	void setTimepoint(int t) { controlPane.setTimepoint(t); }
 
 	/**
+	 * Updates UI components when a new bin is selected.
+	 * 
+	 * @param bin The selected bin.
+	 */
+	void setBin(int t) { controlPane.setBin(t); }
+
+	/**
 	 * Returns the {@link #loadingWindow}.
 	 * 
 	 * @return See above.

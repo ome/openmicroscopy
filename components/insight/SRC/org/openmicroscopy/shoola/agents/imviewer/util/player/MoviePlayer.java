@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.imviewer.util.player.MoviePlayer
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -114,20 +114,32 @@ class MoviePlayer
     /** Reference to the frame hosting this movie player. */
     private MoviePlayerDialog   parent;
     
+    /** The selected bin.*/
+    private int frameNumberBin;
+
+    /** The start bin. */
+    private int startBin;
+
+    /** The end bin. */
+    private int endBin;
+    
     /** Initializes the default values. */
     private void initialize()
     {
         up = true;
         movieType = FORWARD;
         timerDelay = FPS_INIT;
-        startT = model.getDefaultT();//getMinT();
+        startT = model.getDefaultT();
         endT = getMaxT();
-        startZ = model.getDefaultZ();//getMinZ();
+        startZ = model.getDefaultZ();
         endZ = getMaxZ();
+        startBin = model.getSelectedBin();
+        endBin = model.getMaxLifetimeBin();
         if (timerDelay > getMaximumTimer()) timerDelay = getMaximumTimer();
         setTimerDelay(timerDelay);
-        if (getMaxT() != 0) index = MoviePlayerDialog.ACROSS_T;
+        if (getMaxT() > 1) index = MoviePlayerDialog.ACROSS_T;
         else if (getMaxZ() != 0) index = MoviePlayerDialog.ACROSS_Z;
+        else if (getMaxBin() > 1) index = MoviePlayerDialog.ACROSS_BIN;
     }
     
     /** Resets the frame number depending on the movie type. */
@@ -138,14 +150,52 @@ class MoviePlayer
 			case LOOP_BACKWARD:
 				frameNumberZ = endZ;
 	            frameNumberT = endT;
+	            frameNumberBin = endBin;
 				break;
-
 			default:
+			    frameNumberBin = startBin;
 				frameNumberZ = startZ;
             	frameNumberT = startT;
 		}
     }
-    
+
+    /** Plays movie across bins. */
+    private void playMovieAcrossBin()
+    {
+        switch (movieType) {
+            case LOOP:
+                if (frameNumberBin == endBin) frameNumberBin = startBin;
+                else frameNumberBin++;
+                break;
+            case LOOP_BACKWARD:
+                if (frameNumberBin == startZ) frameNumberBin = endBin;
+                else frameNumberBin--;
+                break;
+            case BACKWARD:
+                if (frameNumberBin == startBin) {
+                    frameNumberBin = endBin;
+                    setPlayerState(Player.STOP);
+                } else frameNumberBin--;
+                break;
+            case FORWARD:
+                if (frameNumberBin == endBin) {
+                    frameNumberBin = startBin; 
+                    setPlayerState(Player.STOP);
+                } else frameNumberBin++;
+                break;
+            case PINGPONG:
+                if (frameNumberBin < endBin && up) frameNumberBin++;
+                else if (frameNumberBin > startBin && !up) frameNumberBin--;
+                else if (frameNumberBin == endBin && up) {
+                    frameNumberBin--;
+                    up = false;
+                } else if (frameNumberBin == startBin && !up) {
+                    frameNumberBin++;
+                    up = true;
+                }
+        }
+    }
+
     /** Plays movie across z-sections. */
     private void playMovieAcrossZ()
     {
@@ -179,10 +229,10 @@ class MoviePlayer
                 } else if (frameNumberZ == startZ && !up) {
                     frameNumberZ++;
                     up = true;
-                }   
+                }
         }
     }
-    
+
     /** Plays movie across timepoints. */
     private void playMovieAcrossT()
     {
@@ -216,10 +266,10 @@ class MoviePlayer
                 } else if (frameNumberT == startT && !up) {
                     frameNumberT++;
                     up = true;
-                }   
+                }
         }
     }
-    
+
     /** Plays movie across z-sections and timepoints. */
     private void playMovieAcrossZT()
     {
@@ -256,7 +306,7 @@ class MoviePlayer
                         frameNumberT = startT; 
                         setPlayerState(Player.STOP);
                     } else frameNumberT++;
-                } else frameNumberZ++;                        
+                } else frameNumberZ++;
                 break;
             case PINGPONG: 
                 if (up) {
@@ -282,14 +332,14 @@ class MoviePlayer
                 }
         }
     }
-    
+
     /**
      * Creates a new instance.
      * 
-     * @param model     Reference to the {@link ImViewer}.
-     *                  Mustn't be <code>null</code>.
-     * @param parent    Reference to frame hosting this movie player.
-     *                  Mustn't be <code>null</code>.
+     * @param model Reference to the {@link ImViewer}.
+     *              Mustn't be <code>null</code>.
+     * @param parent Reference to frame hosting this movie player.
+     *              Mustn't be <code>null</code>.
      */
     MoviePlayer(ImViewer model, MoviePlayerDialog parent)
     {
@@ -298,58 +348,72 @@ class MoviePlayer
         initialize();
         setFrameNumbers();
     }
-    
+
     /**
      * Returns the timer's delay.
-     * 
+     *
      * @return See above.
      */
     int getTimerDelay() { return timerDelay; }
     
     /**
      * The maximum value of the timer.
-     * 
+     *
      * @return See above.
      */
     int getMaximumTimer() { return Math.max(getMaxZ(), getMaxT()); }
-    
+
     /**
-     * Returns the type of movie currently played. One of the following 
-     * constants: {@link #LOOP}, {@link #BACKWARD}, {@link #FORWARD} or 
+     * Returns the type of movie currently played. One of the following
+     * constants: {@link #LOOP}, {@link #BACKWARD}, {@link #FORWARD} or
      * {@link #PINGPONG}.
-     * 
+     *
      * @return See above.
      */
     int getMovieType() { return movieType; }
-    
+
     /**
-     * Returns the maximum number of timepoints minus 1.
+     * Returns the maximum number of timepoints.
      * 
      * @return See above.
      */
     int getMaxT() { return model.getRealT(); }
-    
+
     /**
      * Returns the maximum number of z-sections minus 1.
      * 
      * @return See above.
      */
     int getMaxZ() { return model.getMaxZ(); }
-    
+
+    /**
+     * Returns the maximum number of bins.
+     * 
+     * @return See above.
+     */
+    int getMaxBin() { return model.getMaxLifetimeBin(); }
+
+    /**
+     * Returns the minimum value of bin.
+     * 
+     * @return See above.
+     */
+    int getMinBin() { return 0; }
+
     /**
      * Returns the minimum value of z-sections.
      * 
      * @return See above.
      */
     int getMinZ() { return 0; }
-    
+
     /**
      * Returns the minimum value of timepoints.
      * 
      * @return See above.
      */
     int getMinT() { return 0; }
-    
+
     /**
      * Sets the start timepoint.
      * 
@@ -361,7 +425,7 @@ class MoviePlayer
         setPlayerState(Player.STOP);
         setFrameNumbers();
     }
-    
+
     /**
      * Sets the start z-section.
      * 
@@ -373,7 +437,19 @@ class MoviePlayer
     	setPlayerState(Player.STOP);
     	setFrameNumbers();
     }
-    
+
+    /**
+     * Sets the start bin.
+     * 
+     * @param v The value to set.
+     */
+    void setStartBin(int v)
+    {
+        startBin = v;
+        setPlayerState(Player.STOP);
+        setFrameNumbers();
+    }
+
     /**
      * Sets the end timepoint.
      * 
@@ -385,7 +461,7 @@ class MoviePlayer
         setPlayerState(Player.STOP);
         setFrameNumbers();
     }
-    
+
     /**
      * Sets the end z-section.
      * 
@@ -397,7 +473,19 @@ class MoviePlayer
         setPlayerState(Player.STOP);
         setFrameNumbers();
     }
-    
+
+    /**
+     * Sets the end bin.
+     * 
+     * @param v The value to set.
+     */
+    void setEndBin(int v)
+    {
+        endBin = v;
+        setPlayerState(Player.STOP);
+        setFrameNumbers();
+    }
+
     /**
      * Sets the delay of the timer.
      * 
@@ -409,7 +497,7 @@ class MoviePlayer
         timerDelay = delay;
         setDelay(delay);
     }
-    
+
     /**
      * Sets the type of movie to play.
      * 
@@ -420,7 +508,7 @@ class MoviePlayer
        setPlayerState(Player.STOP);
        movieType = type;
     }
-    
+
     /**
      * Returns the starting timepoint.
      * 
@@ -469,7 +557,14 @@ class MoviePlayer
         setPlayerState(Player.STOP);
         this.index = index;
     }
-    
+
+    /**
+     * Returns the current bin.
+     * 
+     * @return See above.
+     */
+    int getFrameNumberBin() { return frameNumberBin; }
+
     /**
      * Returns the current z-section.
      * 
@@ -492,20 +587,6 @@ class MoviePlayer
     {
         switch (state) {
             case START:
-                /*
-                if (historyState == Player.PAUSE) {
-                    switch (index) {
-                        case ACROSS_Z:
-                            //if (movieType == BACKWARD) frameNumberZ = endZ;
-                            //else frameNumberZ = startZ;
-                            break;
-                        case ACROSS_T:
-                            //if (movieType == BACKWARD) frameNumberT = endT;
-                           // else frameNumberT = startT;
-                            break;
-                    }
-                }
-                */
                 parent.setMoviePlay(true);
                 timer.start();
                 break;
@@ -518,10 +599,9 @@ class MoviePlayer
             case PAUSE:
                 parent.setMoviePlay(false);
                 timer.stop();
-        }  
-        
+        }
     }
-    
+
     /**
      * Plays movie depending on the movie index.
      * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
@@ -543,11 +623,18 @@ class MoviePlayer
                     playMovieAcrossT();
                 }
                 break;
+            case MoviePlayerDialog.ACROSS_BIN:
+                if (frameNumberBin <= getMaxBin() && frameNumberBin >= startBin
+                        && frameNumberBin <= endBin && state == Player.START) {
+                    parent.renderImage();
+                    playMovieAcrossBin();
+                }
+                break;
             case MoviePlayerDialog.ACROSS_ZT:
                 parent.renderImage();
                 playMovieAcrossZT();
                 break;
         }
     }
-    
+
 }

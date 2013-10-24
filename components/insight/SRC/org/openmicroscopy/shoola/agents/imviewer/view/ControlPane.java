@@ -643,10 +643,12 @@ class ControlPane
         projectionFrequency.addChangeListener(this);
 
         //Lifetime for now
-        int maxBin = model.getMaxLifetimeBin()-1;
-        initSlider(lifetimeSlider, maxBin, model.getSelectedBin(), 
+        int maxBin = model.getMaxLifetimeBin();
+        initSlider(lifetimeSlider, maxBin-1, model.getSelectedBin(),
                 LITEIME_SLIDER_DESCRIPTION, EditorUtil.SMALL_T_VARIABLE);
         lifetimeSlider.setPaintTicks(false);
+        playLifetimeMovie.setVisible(maxBin > 1);
+        playLifetimeMovie.setEnabled(maxBin > 1);
         if (model.isBigImage()) resetZoom.setVisible(true);
     }
 
@@ -1069,6 +1071,18 @@ class ControlPane
     }
 
     /**
+     * Updates UI components when a new bin is selected.
+     *
+     * @param v The selected bin.
+     */
+    void setBin(int v)
+    {
+        if (lifetimeSlider == null) return;
+        setSliderToolTip(v, lifetimeSlider, false);
+        updateSlider(lifetimeSlider, v);
+    }
+
+    /**
      * Updates UI components when a new z-section is selected.
      * 
      * @param z The selected z-section.
@@ -1265,6 +1279,7 @@ class ControlPane
         colorModelButtonProjection.setToolTipText(tip);
         setZSection(model.getDefaultZ());
         setTimepoint(model.getDefaultT());
+        setBin(model.getSelectedBin());
         ProjectionParam ref = model.getLastProjRef();
         if (ref != null)
             projectionRange.setInterval(ref.getStartZ(), ref.getEndZ());
@@ -1366,7 +1381,7 @@ class ControlPane
         default:
             JPanel pane = new JPanel();
             pane.setLayout(new BoxLayout(pane, BoxLayout.X_AXIS));
-            //pane.add(createMovieButtonBar(playLifetimeMovie));
+            pane.add(createButtonToolBar(playLifetimeMovie));
             pane.add(lifetimeSlider);
             return pane;
         }

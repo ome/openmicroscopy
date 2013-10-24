@@ -803,31 +803,34 @@ class ImViewerComponent
 	 */
 	public void setSelectedXYPlane(int z, int t, int bin)
 	{
-		if (z < 0) z = model.getDefaultZ();
-		if (t < 0) t = model.getRealSelectedT();
-		switch (model.getState()) {
-			case NEW:
-			case DISCARDED:
-				return;
-		}
-		int defaultZ = model.getDefaultZ();
-		int defaultT = model.getRealSelectedT();
-		if (bin >= 0) { //lifetime
-			model.setSelectedXYPlane(z, t, bin);
-			renderXYPlane();
-		} else {
-			if (defaultZ == z && defaultT == t) return;
-			if (defaultZ != z) {
-				firePropertyChange(ImViewer.Z_SELECTED_PROPERTY,
-						Integer.valueOf(defaultZ), Integer.valueOf(z));
-			}
-			if (defaultT != t) {
-				firePropertyChange(ImViewer.T_SELECTED_PROPERTY,
-						Integer.valueOf(defaultT), Integer.valueOf(t));
-			}
-			newPlane = true;
-			model.setSelectedXYPlane(z, t, -1);
-		}
+	    if (z < 0) z = model.getDefaultZ();
+	    if (t < 0) t = model.getRealSelectedT();
+	    switch (model.getState()) {
+	    case NEW:
+	    case DISCARDED:
+	        return;
+	    }
+	    int defaultZ = model.getDefaultZ();
+	    int defaultT = model.getRealSelectedT();
+	    if (bin >= 0) { //lifetime
+	        int v = model.getSelectedBin();
+	        model.setSelectedXYPlane(z, t, bin);
+	        firePropertyChange(ImViewer.BIN_SELECTED_PROPERTY,
+	                Integer.valueOf(v), Integer.valueOf(bin));
+	        renderXYPlane();
+	    } else {
+	        if (defaultZ == z && defaultT == t) return;
+	        if (defaultZ != z) {
+	            firePropertyChange(ImViewer.Z_SELECTED_PROPERTY,
+	                    Integer.valueOf(defaultZ), Integer.valueOf(z));
+	        }
+	        if (defaultT != t) {
+	            firePropertyChange(ImViewer.T_SELECTED_PROPERTY,
+	                    Integer.valueOf(defaultT), Integer.valueOf(t));
+	        }
+	        newPlane = true;
+	        model.setSelectedXYPlane(z, t, -1);
+	    }
 	}
 	
 	/** 
@@ -1889,88 +1892,94 @@ class ImViewerComponent
 	 */
 	public void playMovie(boolean play, boolean visible, int index)
 	{
-		switch (model.getState()) {
-			case NEW:
-			case LOADING_METADATA:
-			case DISCARDED:
-				return;
-		}
-		MoviePlayerDialog d = controller.getMoviePlayer();
-		boolean doClick = false;
-		if (visible) { // we have to play the movie
-			if (!d.isVisible()) {
-				controller.getAction(
-						ImViewerControl.PLAY_MOVIE_T).setEnabled(false);
-				controller.getAction(
-						ImViewerControl.PLAY_MOVIE_Z).setEnabled(false);
-				play = true;
-				UIUtilities.setLocationRelativeToAndShow(view, d);
-			}
-		} else {
-			if (d.isVisible()) {
-				controller.getAction(
-						ImViewerControl.PLAY_MOVIE_T).setEnabled(true);
-				controller.getAction(
-						ImViewerControl.PLAY_MOVIE_Z).setEnabled(true);
-				play = false;
-				d.setVisible(false);
-			} else {
-				switch (index) {
-					case PlayMovieAction.ACROSS_Z:
-						d.setZRange(model.getDefaultZ(), model.getMaxZ());
-						controller.getAction(
-								ImViewerControl.PLAY_MOVIE_T).setEnabled(!play);
-						break;
-					case PlayMovieAction.ACROSS_T:
-						controller.getAction(
-								ImViewerControl.PLAY_MOVIE_Z).setEnabled(!play);
-						break;
-					default:
-						controller.getAction(
-								ImViewerControl.PLAY_MOVIE_T).setEnabled(true);
-						controller.getAction(
-								ImViewerControl.PLAY_MOVIE_Z).setEnabled(true);
-						
-				}
-				doClick = true;
-				if (index != -1) d.setMovieIndex(index);
-				d.setTimeRange(model.getRealSelectedT(), model.getRealT());
-			}
-		}
-		
-		model.setPlayingMovie(play, index);
-		view.enableSliders(!play);
-		controller.getAction(ImViewerControl.CHANNEL_MOVIE).setEnabled(!play);
-		if (doClick) {
-			if (play) {
-				d.addPropertyChangeListener(
-						MoviePlayerDialog.MOVIE_STATE_CHANGED_PROPERTY,
-						controller);
-				d.doClick(MoviePlayerDialog.DO_CLICK_PLAY);
-			} else {
-				d.removePropertyChangeListener(
-						MoviePlayerDialog.MOVIE_STATE_CHANGED_PROPERTY,
-						controller);
-				d.doClick(MoviePlayerDialog.DO_CLICK_PAUSE);
-			}
-		} else {
-			d.removePropertyChangeListener(
-					MoviePlayerDialog.MOVIE_STATE_CHANGED_PROPERTY,
-					controller);
-		}
-		if (!play) {
-			if (view.isLensVisible()) view.setLensPlaneImage();
-			switch (view.getTabbedIndex()) {
-				case ImViewer.VIEW_INDEX:
-					view.createHistoryItem(null);
-					break;
-				case ImViewer.PROJECTION_INDEX:
-					view.createHistoryItem(view.getLastProjRef());
-			}
-			if (model.getState() != LOADING_IMAGE)
-				model.setState(READY);
-			fireStateChange();
-		}
+	    switch (model.getState()) {
+	    case NEW:
+	    case LOADING_METADATA:
+	    case DISCARDED:
+	        return;
+	    }
+	    MoviePlayerDialog d = controller.getMoviePlayer();
+	    boolean doClick = false;
+	    if (visible) { // we have to play the movie
+	        if (!d.isVisible()) {
+	            controller.getAction(
+	                    ImViewerControl.PLAY_MOVIE_T).setEnabled(false);
+	            controller.getAction(
+	                    ImViewerControl.PLAY_MOVIE_Z).setEnabled(false);
+	            play = true;
+	            UIUtilities.setLocationRelativeToAndShow(view, d);
+	        }
+	    } else {
+	        if (d.isVisible()) {
+	            controller.getAction(
+	                    ImViewerControl.PLAY_MOVIE_T).setEnabled(true);
+	            controller.getAction(
+	                    ImViewerControl.PLAY_MOVIE_Z).setEnabled(true);
+	            play = false;
+	            d.setVisible(false);
+	        } else {
+	            switch (index) {
+	            case PlayMovieAction.ACROSS_Z:
+	                d.setZRange(model.getDefaultZ(), model.getMaxZ());
+	                controller.getAction(
+	                        ImViewerControl.PLAY_MOVIE_T).setEnabled(!play);
+	                break;
+	            case PlayMovieAction.ACROSS_T:
+	                controller.getAction(
+	                        ImViewerControl.PLAY_MOVIE_Z).setEnabled(!play);
+	                break;
+	            case PlayMovieAction.ACROSS_LIFETIME:
+	                d.setBinRange(model.getSelectedBin(),
+	                        model.getMaxLifetimeBin());
+	                controller.getAction(
+	                        ImViewerControl.PLAY_LIFETIME_MOVIE).setEnabled(!play);
+	                break;
+	            default:
+	                controller.getAction(
+	                        ImViewerControl.PLAY_MOVIE_T).setEnabled(true);
+	                controller.getAction(
+	                        ImViewerControl.PLAY_MOVIE_Z).setEnabled(true);
+
+	            }
+	            doClick = true;
+	            if (index != -1) d.setMovieIndex(index);
+	            d.setTimeRange(model.getRealSelectedT(), model.getRealT());
+	        }
+	    }
+
+	    model.setPlayingMovie(play, index);
+	    view.enableSliders(!play);
+	    controller.getAction(ImViewerControl.CHANNEL_MOVIE).setEnabled(!play);
+	    if (doClick) {
+	        if (play) {
+	            d.addPropertyChangeListener(
+	                    MoviePlayerDialog.MOVIE_STATE_CHANGED_PROPERTY,
+	                    controller);
+	            d.doClick(MoviePlayerDialog.DO_CLICK_PLAY);
+	        } else {
+	            d.removePropertyChangeListener(
+	                    MoviePlayerDialog.MOVIE_STATE_CHANGED_PROPERTY,
+	                    controller);
+	            d.doClick(MoviePlayerDialog.DO_CLICK_PAUSE);
+	        }
+	    } else {
+	        d.removePropertyChangeListener(
+	                MoviePlayerDialog.MOVIE_STATE_CHANGED_PROPERTY,
+	                controller);
+	    }
+	    if (!play) {
+	        if (view.isLensVisible()) view.setLensPlaneImage();
+	        switch (view.getTabbedIndex()) {
+	        case ImViewer.VIEW_INDEX:
+	            view.createHistoryItem(null);
+	            break;
+	        case ImViewer.PROJECTION_INDEX:
+	            view.createHistoryItem(view.getLastProjRef());
+	        }
+	        if (model.getState() != LOADING_IMAGE)
+	            model.setState(READY);
+	        fireStateChange();
+	    }
 	}
 
 	/** 
@@ -3475,7 +3484,19 @@ class ImViewerComponent
 	{
 		return model.getResolutionLevels();
 	}
-	
+
+	/**
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see ImViewer#getResolutionLevels()
+	 */
+	public int getSelectedBin() { return model.getSelectedBin(); }
+
+	/**
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see ImViewer#getMaxLifetimeBin()
+	 */
+	public int getMaxLifetimeBin() { return model.getMaxLifetimeBin(); }
+
 	/** 
 	 * Overridden to return the name of the instance to save. 
 	 * @see #toString()

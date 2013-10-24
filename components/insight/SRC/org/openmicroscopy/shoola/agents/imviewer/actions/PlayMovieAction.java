@@ -51,17 +51,23 @@ public class PlayMovieAction
 	extends ViewerAction
 {
 
-	/** Indicates to play the movie across Z. */
-	public static final int		ACROSS_Z = MoviePlayerDialog.ACROSS_Z;
+    /** Indicates to play the movie across Z. */
+    public static final int ACROSS_Z = MoviePlayerDialog.ACROSS_Z;
 
-	/** Indicates to play the movie across Z. */
-	public static final int		ACROSS_T = MoviePlayerDialog.ACROSS_T;
+    /** Indicates to play the movie across T. */
+    public static final int ACROSS_T = MoviePlayerDialog.ACROSS_T;
 
-	/** The description of the action. */
+    /** Indicates to play the movie across t. */
+    public static final int ACROSS_LIFETIME = MoviePlayerDialog.ACROSS_BIN;
+
+    /** The description of the action. */
     private static final String DESCRIPTION_ACROSS_Z = "Play movie across Z.";
 
     /** The description of the action. */
     private static final String DESCRIPTION_ACROSS_T = "Play movie across T.";
+
+    /** The description of the action. */
+    private static final String DESCRIPTION_ACROSS_BIN = "Play movie across t.";
 
 	/** Helper reference to the icon manager. */
     private IconManager icons;
@@ -79,6 +85,7 @@ public class PlayMovieAction
     	switch (index) {
 			case ACROSS_Z:
 			case ACROSS_T:
+			case ACROSS_LIFETIME:
 				break;
 			default:
 				throw new IllegalArgumentException("Index not valid.");
@@ -92,26 +99,32 @@ public class PlayMovieAction
      */
     protected void onStateChange(ChangeEvent e)
     {
-    	switch (model.getState()) {
-			case ImViewer.DISCARDED:
-				break;
-			case ImViewer.CHANNEL_MOVIE:
-				setEnabled(false);
-				break;
-			case ImViewer.READY:
-				if (model.isBigImage()) {
-					setEnabled(false);
-				} else {
-					if (model.isPlayingMovie()) {
-						setEnabled(model.getMovieIndex() == index);
-					} else {
-						if (index == ACROSS_T)
-							setEnabled(model.getRealT() > 1);
-						else if (index == ACROSS_Z)
-							setEnabled(model.getMaxZ() != 0);
-					}
-				}
-		}
+        switch (model.getState()) {
+        case ImViewer.DISCARDED:
+            break;
+        case ImViewer.CHANNEL_MOVIE:
+            setEnabled(false);
+            break;
+        case ImViewer.READY:
+            if (model.isBigImage()) {
+                setEnabled(false);
+            } else {
+                if (model.isPlayingMovie()) {
+                    setEnabled(model.getMovieIndex() == index);
+                } else {
+                    switch (index) {
+                    case ACROSS_LIFETIME:
+
+                        break;
+                    case ACROSS_T:
+                        setEnabled(model.getRealT() > 1);
+                        break;
+                    case ACROSS_Z:
+                        setEnabled(model.getMaxZ() != 0);
+                    }
+                }
+            }
+        }
     }
 
     /**
@@ -121,20 +134,24 @@ public class PlayMovieAction
      * @param index	One of the constants defined by this class.
      */
 	public PlayMovieAction(ImViewer model, int index)
-    {
-        super(model);
-        checkIndex(index);
-        this.index = index;
-        icons = IconManager.getInstance();
-        switch (index) {
-			case ACROSS_T:
-				putValue(Action.SHORT_DESCRIPTION,
-		                UIUtilities.formatToolTipText(DESCRIPTION_ACROSS_T));
-			break;
-			case ACROSS_Z:
-				putValue(Action.SHORT_DESCRIPTION,
-		                UIUtilities.formatToolTipText(DESCRIPTION_ACROSS_Z));
-		}
+	{
+	    super(model);
+	    checkIndex(index);
+	    this.index = index;
+	    icons = IconManager.getInstance();
+	    switch (index) {
+	    case ACROSS_T:
+	        putValue(Action.SHORT_DESCRIPTION,
+	                UIUtilities.formatToolTipText(DESCRIPTION_ACROSS_T));
+	        break;
+	    case ACROSS_Z:
+	        putValue(Action.SHORT_DESCRIPTION,
+	                UIUtilities.formatToolTipText(DESCRIPTION_ACROSS_Z));
+	        break;
+	    case ACROSS_LIFETIME:
+            putValue(Action.SHORT_DESCRIPTION,
+                    UIUtilities.formatToolTipText(DESCRIPTION_ACROSS_BIN));
+	    }
 
         putValue(Action.SMALL_ICON, icons.getIcon(IconManager.PLAY));
     }

@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.imviewer.util.player.MoviePlayerDialog
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -48,9 +48,6 @@ import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
  * @author	Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $ $Date: $)
- * </small>
  * @since OME2.2
  */
 public class MoviePlayerDialog
@@ -59,44 +56,47 @@ public class MoviePlayerDialog
 
 	/** Bound property indicating that the dialog is closed. */
 	public static final String CLOSE_PROPERTY = "close";
-	
+
 	/** 
 	 * Bounds property indicating that the state of the player has changed.
 	 */
-	public static final String	MOVIE_STATE_CHANGED_PROPERTY = 
-		"movieStateChanged";
+	public static final String MOVIE_STATE_CHANGED_PROPERTY =
+	        "movieStateChanged";
 	
 	/** Indicates to play movie across z-sections only. */
-	public static final int    ACROSS_Z = 300;
+	public static final int ACROSS_Z = 300;
     
     /** Indicates to play movie across timepoints only. */
-	public static final int 	ACROSS_T = 301;
-    
+	public static final int ACROSS_T = 301;
+
+	/** Indicates to play movie across small t only (lifetime). */
+    public static final int ACROSS_BIN = 303;
+
     /** Indicates to play movie across z-sections and timepoint.s */
-	public static final int		ACROSS_ZT = 302;
-    
+	public static final int ACROSS_ZT = 302;
+
 	/** Indicates to perform a click to play the movie. */
-	public static final int		DO_CLICK_PLAY = 0;
-	
+	public static final int DO_CLICK_PLAY = 0;
+
 	/** Indicates to perform a click to stop playing the movie. */
-	public static final int		DO_CLICK_PAUSE = 1;
-	
+	public static final int DO_CLICK_PAUSE = 1;
+
     /** Reference to the component controlling the timer. */
-    private MoviePlayer     player;
-    
+    private MoviePlayer player;
+
     /** The UI delegate. */
-    private MoviePlayerUI   uiDelegate;
-    
+    private MoviePlayerUI uiDelegate;
+
     /** Reference to the parent model. */
-    private ImViewer        model;
-    
+    private ImViewer model;
+
     /** Builds and lays out the GUI. */
     private void buildGUI()
     {
         getContentPane().add(uiDelegate);
         pack();
     }
-    
+
     /** Adds a window listener to stop timer if the window is closed. */
     private void initListeners()
     {
@@ -107,10 +107,10 @@ public class MoviePlayerDialog
                firePropertyChange(CLOSE_PROPERTY, Boolean.FALSE, Boolean.TRUE);
             }});
     }
-    
+
     /**
      * Creates a new instance.
-     * 
+     *
      * @param owner The owner of the this dialog.
      * @param model Reference to the {@link ImViewer}.
      *              Mustn't be <code>null</code>.
@@ -131,30 +131,31 @@ public class MoviePlayerDialog
     }
 
     /**
-     * Swaps the <code>Play</code> and <code>Pause</code> icons depending on the 
+     * Swaps the <code>Play</code> and <code>Pause</code> icons depending on the
      * specified flag.
-     * 
+     *
      * @param b Pass <code>true</code> to set the <code>Pause</code> icon
      *          <code>false</code> to set the <code>Play</code> icon.
      */
     void setMoviePlay(boolean b)
     { 
-    	if (b) 
-    		firePropertyChange(MOVIE_STATE_CHANGED_PROPERTY, 
+    	if (b)
+    		firePropertyChange(MOVIE_STATE_CHANGED_PROPERTY,
     						Boolean.FALSE, Boolean.TRUE);
-    	else firePropertyChange(MOVIE_STATE_CHANGED_PROPERTY, 
+    	else firePropertyChange(MOVIE_STATE_CHANGED_PROPERTY,
 				Boolean.TRUE, Boolean.FALSE);
-        if (uiDelegate != null) uiDelegate.setMoviePlay(b); 
+        if (uiDelegate != null) uiDelegate.setMoviePlay(b);
     }
-    
-    /** 
-     * Fires an event to render the plane specified by the z-section and 
-     * timepoint.
+
+    /**
+     * Fires an event to render the plane specified by the z-section, 
+     * timepoint and bin.
      */
     void renderImage()
     {
         int z = -1;
         int t = -1;
+        int bin = -1;
         switch (player.getMovieIndex()) {
             case ACROSS_T:
                 z = model.getDefaultZ();
@@ -164,21 +165,21 @@ public class MoviePlayerDialog
                 t = model.getDefaultT();
                 z = player.getFrameNumberZ();
                 break;
+            case ACROSS_BIN:
+                t = model.getDefaultT();
+                z = model.getDefaultZ();
+                bin = player.getFrameNumberBin();
+                break;
             case ACROSS_ZT:
                 z = player.getFrameNumberZ();
                 t = player.getFrameNumberT();
         }
-        //if (z == -1 || t == -1) return;
-        model.setSelectedXYPlane(z, t);
+        model.setSelectedXYPlane(z, t, bin);
     }
-    
+
     /** Notifies that the state has changed. */
-    void notifyPlayerStateChange()
-    {
-		
-		
-	}
-    
+    void notifyPlayerStateChange() {}
+
     /**
      * Sets the index of the movie player.
      * 
@@ -235,6 +236,22 @@ public class MoviePlayerDialog
     		uiDelegate.setStartZ(start);
     	}
 	}
+
+    /** 
+     * Sets the start and end bin value.
+     * 
+     * @param start The starting point.
+     * @param end   The end point.
+     */
+    public void setBinRange(int start, int end)
+    {
+        if (start < player.getMinBin() || start >= end ||
+            end > player.getMaxBin())
+            return;
+        player.setEndBin(end);
+        player.setStartBin(start);
+    }
+
     /**
      * Performs a click on the button corresponding to the passed index.
      * 

@@ -184,6 +184,9 @@ public interface ImViewer
 	/** Bound property name indicating that a new timepoint is selected. */
 	public final static String  T_SELECTED_PROPERTY = "tSelected";
 
+	/** Bound property name indicating that a new bin is selected. */
+    public final static String  BIN_SELECTED_PROPERTY = "binSelected";
+    
 	/** Bound property name indicating that a channel is activated. */
 	public final static String  CHANNEL_ACTIVE_PROPERTY = "channelActive";
 
@@ -1306,4 +1309,17 @@ public interface ImViewer
 	 */
 	int getResolutionLevels();
 
+	/** 
+	 * Returns the selected bin.
+	 * 
+	 * @return See above.
+	 */
+    int getSelectedBin();
+
+    /**
+     * Returns the number of bins per time interval
+     * 
+     * @return See above
+     */
+    int getMaxLifetimeBin();
 }
