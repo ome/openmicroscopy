@@ -1033,14 +1033,6 @@ public interface ImViewer
 
 	/** Makes a movie. */
 	public void makeMovie();
-	
-	/**
-	 * Returns <code>true</code> if it is an image with a lot of channels.
-	 * <code>false</code> otherwise.
-	 * 
-	 * @return See above.
-	 */
-	boolean isNumerousChannel();
 
 	/**
 	 * Notifies the component that the rendering control is loaded.

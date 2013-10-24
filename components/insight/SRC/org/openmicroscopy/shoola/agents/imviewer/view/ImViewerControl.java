@@ -943,15 +943,10 @@ class ImViewerControl
 			if (map == null) return;
 			if (map.size() != 1) return;
 			Set set = map.entrySet();
-			Entry entry;
-			Iterator i = set.iterator();
-			Integer index;
-			while (i.hasNext()) {
-				entry = (Entry) i.next();
-				index = (Integer) entry.getKey();
-				model.setChannelSelection(index.intValue(),
-						(Boolean) entry.getValue());
-			}
+			Entry entry = (Entry) map.entrySet().iterator().next();
+			Integer index = (Integer) entry.getKey();
+            model.setChannelSelection(index.intValue(),
+                    (Boolean) entry.getValue());
 		}  else if (ChannelButton.CHANNEL_OVERLAY_PROPERTY.equals(pName)) {
 			Map map = (Map) pce.getNewValue();
 			if (map == null) return;

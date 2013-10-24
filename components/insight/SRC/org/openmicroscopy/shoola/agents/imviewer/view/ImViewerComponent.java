@@ -2872,12 +2872,6 @@ class ImViewerComponent
 		if (model.getState() == DISCARDED) return;
 		model.makeMovie();
 	}
-	
-	/** 
-	 * Implemented as specified by the {@link ImViewer} interface.
-	 * @see ImViewer#isNumerousChannel()
-	 */
-	public boolean isNumerousChannel() { return model.isLifetimeImage(); }
 
 	/** Build the view.*/
 	private void buildView()
