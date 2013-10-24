@@ -1097,7 +1097,6 @@ class ImViewerComponent
 	 */
 	public void renderXYPlane()
 	{
-	    System.err.println("render");
 		switch (model.getState()) {
 			case NEW:
 				throw new IllegalStateException(

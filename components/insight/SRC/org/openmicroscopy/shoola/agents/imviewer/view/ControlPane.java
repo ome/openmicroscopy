@@ -94,6 +94,15 @@ class ControlPane
     PropertyChangeListener
 {
 
+    /** Identifies the T sliders.*/
+    private static final int T = 0;
+
+    /** Identifies the Z sliders.*/
+    private static final int Z = 1;
+
+    /** Identifies the lifetime sliders.*/
+    private static final int BIN = 2;
+    
 	/** The default size of the busy label. */
 	private static final Dimension	DIMENSION = new Dimension(16, 16);
 
@@ -566,14 +575,23 @@ class ControlPane
     /**
      * Sets the tool tip of the specified slider.
      *
-     * @param v The selected z-section or timepoint.
+     * @param v The selected z-section, timepoint, bin, etc.
      * @param slider The slider to handle.
+     * @
      */
-    private void setSliderToolTip(int v, OneKnobSlider slider, boolean z)
+    private void setSliderToolTip(int v, OneKnobSlider slider, int index)
     {
-    	String tip;
-    	if (z) tip = "Selected Plane Z="+(v+1)+"/"+(model.getMaxZ()+1);
-    	else tip = "Selected Timepoint T="+(v+1)+"/"+model.getRealT();
+    	String tip = "";
+    	switch (index) {
+            case T:
+                tip = "T="+(v+1)+"/"+model.getRealT();
+                break;
+            case Z:
+                tip = "Z="+(v+1)+"/"+(model.getMaxZ()+1);
+                break;
+            case BIN:
+                tip = "t="+(v+1)+"/"+model.getMaxLifetimeBin();
+        }
     	slider.setToolTipText(tip);
     }
 
@@ -593,22 +611,22 @@ class ControlPane
 
         initSlider(tSliderProjection, maxT-1, model.getRealSelectedT(),
                 T_SLIDER_DESCRIPTION, T_SLIDER_TIPSTRING);
-        setSliderToolTip(model.getRealSelectedT(), tSliderProjection, false);
+        setSliderToolTip(model.getRealSelectedT(), tSliderProjection, T);
 
         initSlider(zSlider, maxZ, model.getDefaultZ(),
                 Z_SLIDER_DESCRIPTION, Z_SLIDER_TIPSTRING);
         initSlider(zSliderGrid, maxZ, model.getDefaultZ(),
                 Z_SLIDER_DESCRIPTION, Z_SLIDER_TIPSTRING);
 
-        setSliderToolTip(model.getDefaultZ(), zSlider, true);
-        setSliderToolTip(model.getDefaultZ(), zSliderGrid, true);
+        setSliderToolTip(model.getDefaultZ(), zSlider, Z);
+        setSliderToolTip(model.getDefaultZ(), zSliderGrid, Z);
         initSlider(tSlider, maxT-1, model.getRealSelectedT(),
                 T_SLIDER_DESCRIPTION, T_SLIDER_TIPSTRING);
         initSlider(tSliderGrid, maxT-1, model.getRealSelectedT(),
                 T_SLIDER_DESCRIPTION, T_SLIDER_TIPSTRING);
 
-        setSliderToolTip(model.getRealSelectedT(), tSlider, false);
-        setSliderToolTip(model.getRealSelectedT(), tSliderGrid, false);
+        setSliderToolTip(model.getRealSelectedT(), tSlider, T);
+        setSliderToolTip(model.getRealSelectedT(), tSliderGrid, T);
         if (model.isBigImage()) {
             ratioSlider.addPropertyChangeListener(this);
             ratioSlider.setMaximum(model.getResolutionLevels()-1);
@@ -637,7 +655,7 @@ class ControlPane
                 getColorModelIcon(model.getColorModel()));
         colorModelButtonProjection.setToolTipText(
                 getColorModelDescription(model.getColorModel()));
-        SpinnerNumberModel m = 
+        SpinnerNumberModel m =
                 (SpinnerNumberModel) projectionFrequency.getModel();
         m.setMaximum(view.getMaxZ()+1);
         projectionFrequency.addChangeListener(this);
@@ -646,6 +664,7 @@ class ControlPane
         int maxBin = model.getMaxLifetimeBin();
         initSlider(lifetimeSlider, maxBin-1, model.getSelectedBin(),
                 LITEIME_SLIDER_DESCRIPTION, EditorUtil.SMALL_T_VARIABLE);
+        setSliderToolTip(model.getSelectedBin(), lifetimeSlider, BIN);
         lifetimeSlider.setPaintTicks(false);
         playLifetimeMovie.setVisible(maxBin > 1);
         playLifetimeMovie.setEnabled(maxBin > 1);
@@ -1063,8 +1082,8 @@ class ControlPane
      */
     void setTimepoint(int t)
     {
-        setSliderToolTip(t, tSlider, false);
-        setSliderToolTip(t, tSliderGrid, false);
+        setSliderToolTip(t, tSlider, T);
+        setSliderToolTip(t, tSliderGrid, T);
         updateSlider(tSlider, t);
         updateSlider(tSliderGrid, t);
         updateSlider(tSliderProjection, t);
@@ -1078,7 +1097,7 @@ class ControlPane
     void setBin(int v)
     {
         if (lifetimeSlider == null) return;
-        setSliderToolTip(v, lifetimeSlider, false);
+        setSliderToolTip(v, lifetimeSlider, BIN);
         updateSlider(lifetimeSlider, v);
     }
 
@@ -1089,8 +1108,8 @@ class ControlPane
      */
     void setZSection(int z)
     {
-        setSliderToolTip(z, zSlider, true);
-        setSliderToolTip(z, zSliderGrid, true);
+        setSliderToolTip(z, zSlider, Z);
+        setSliderToolTip(z, zSliderGrid, Z);
         updateSlider(zSlider, z);
         updateSlider(zSliderGrid, z);
     }

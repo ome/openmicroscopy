@@ -1354,7 +1354,7 @@ class ImViewerUI
 			buffer.append("/"+(model.getMaxZ()+1));
 		}
 		buffer.append(" T="+(
-		        model.getRealSelectedT())+"/"+model.getRealT());
+		        model.getRealSelectedT()+1)+"/"+model.getRealT());
 		if (model.isLifetimeImage()) {
 		    buffer.append(" ");
 			buffer.append(EditorUtil.SMALL_T_VARIABLE+"="+(model.getSelectedBin()+1));
