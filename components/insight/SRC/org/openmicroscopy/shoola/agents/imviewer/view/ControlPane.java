@@ -591,7 +591,7 @@ class ControlPane
         projectionRange.setToolTipText(PROJECTION_SLIDER_DESCRIPTION);
         setRangeSliderToolTip(0, maxZ);
 
-        initSlider(tSliderProjection, maxT, model.getRealSelectedT(),
+        initSlider(tSliderProjection, maxT-1, model.getRealSelectedT(),
                 T_SLIDER_DESCRIPTION, T_SLIDER_TIPSTRING);
         setSliderToolTip(model.getRealSelectedT(), tSliderProjection, false);
 
@@ -602,9 +602,9 @@ class ControlPane
 
         setSliderToolTip(model.getDefaultZ(), zSlider, true);
         setSliderToolTip(model.getDefaultZ(), zSliderGrid, true);
-        initSlider(tSlider, maxT, model.getRealSelectedT(),
+        initSlider(tSlider, maxT-1, model.getRealSelectedT(),
                 T_SLIDER_DESCRIPTION, T_SLIDER_TIPSTRING);
-        initSlider(tSliderGrid, maxT, model.getRealSelectedT(),
+        initSlider(tSliderGrid, maxT-1, model.getRealSelectedT(),
                 T_SLIDER_DESCRIPTION, T_SLIDER_TIPSTRING);
 
         setSliderToolTip(model.getRealSelectedT(), tSlider, false);
@@ -623,8 +623,8 @@ class ControlPane
         gridRatioSlider.addChangeListener(this);
         projectionRatioSlider.addChangeListener(this);
 
-        playTMovie.setVisible(maxT > 0);
-        playTMovieGrid.setVisible(maxT > 0);
+        playTMovie.setVisible(maxT > 1);
+        playTMovieGrid.setVisible(maxT > 1);
         playZMovie.setVisible(maxZ != 0);
         playZMovieGrid.setVisible(maxZ != 0);
         colorModelButton.setIcon(getColorModelIcon(model.getColorModel()));
