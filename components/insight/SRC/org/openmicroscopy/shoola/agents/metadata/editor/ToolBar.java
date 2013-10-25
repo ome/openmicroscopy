@@ -261,7 +261,7 @@ class ToolBar
     		menu.setIcon(icons.getIcon(IconManager.SAVE_AS));
     		menu.setText("Save as...");
     		menu.setToolTipText("Save the images at full size as JPEG. PNG or" +
-    				"Tiff.");
+    				"TIFF.");
     		ActionListener l = new ActionListener() {
 				
 				
