@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.metadata.editor.ToolBar 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -61,7 +61,6 @@ import javax.swing.SwingUtilities;
 
 //Third-party libraries
 import org.jdesktop.swingx.JXBusyLabel;
-import org.jdesktop.swingx.JXLoginPane.SaveMode;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
