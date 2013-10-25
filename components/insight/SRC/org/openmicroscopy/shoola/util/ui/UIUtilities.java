@@ -276,7 +276,7 @@ public class UIUtilities
     public static final int					INCREMENT = 15;
 
     /** The number of bytes in megabyte, used when working with memory methods.*/
-	public static final long		MEGABYTE = 1048567;
+	public static final long		MEGABYTE = 1048576;
     
 	/** Key value for the default folder. */
     private static final String 			DEFAULT_FOLDER = "defaultFolder";
@@ -1605,21 +1605,24 @@ public class UIUtilities
     {
     	return round(value, 2);
     }
-    
+
     /**
-     * Returns the decimal value.
-     * 
+     * Returns the maximum number of decimal places which still result in a
+     * non-zero rounded value.
+     *
      * @param value The value to handle.
+     * @param decimal The starting number of decimal places to test.
      * @return See above.
      */
     public static final int findDecimal(double value, int decimal)
     {
-    	double v = round(value, decimal);
+    	double testValue = Math.abs(value);
+    	double v = round(testValue, decimal);
     	if (v > 0) return decimal;
     	decimal++;
-    	return findDecimal(value, decimal);
+    	return findDecimal(testValue, decimal);
     }
-    
+
     /**
      * Rounds the passed value to the specified number of decimals.
      * 

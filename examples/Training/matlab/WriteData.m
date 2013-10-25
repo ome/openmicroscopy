@@ -124,8 +124,9 @@ try
     fprintf(1, 'Found %g tag annotation(s)\n', numel(tas));
     
 catch err
-    disp(err.message);
+    client.closeSession();
+    throw(err);
 end
 
-%Close the session
+% Close the session
 client.closeSession();

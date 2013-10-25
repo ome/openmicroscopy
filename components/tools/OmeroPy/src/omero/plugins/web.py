@@ -16,6 +16,7 @@ import time
 import sys
 import os
 import re
+from subprocess import Popen, PIPE
 
 try:
     from omeroweb import settings
@@ -109,13 +110,20 @@ class WebControl(BaseControl):
         selenium.add_argument("hostname", help = "E.g. http://localhost:4080")
         selenium.add_argument("browser", help = "E.g. firefox")
 
-        unittest = parser.add(sub, self.unittest, "Developer use: Runs 'python -x manage.py test'")
-        unittest.add_argument("--config", action="store", help = "ice.config location")
-        unittest.add_argument("--test", action="store", help = "Specific test case(-s).")
-        unittest.add_argument("--path", action="store", help = "Path to Django-app. Must include '/'.")
-        unittest.add_argument("--texec", action="store", help = "Alternative executable.")
-
-
+        test = parser.add(sub, self.test, "Developer use: Runs omero web tests (py.test)\n--cov* options depend on pytest-cov plugin")
+        test.add_argument("--config", action="store", help = "ice.config location")
+        test.add_argument("--basepath", action="store", help = "Base omeroweb path (default lib/python/omeroweb)")
+        test.add_argument("--testpath", action="store", help = "Path for test collection (relative to basepath)")
+        test.add_argument("--string", action="store", help = "Only run tests including string.")
+        test.add_argument("--failfast", action="store_true", default=False, help = "Exit on first error")
+        test.add_argument("--verbose", action="store_true", default=False, help = "More verbose output")
+        test.add_argument("--quiet", action="store_true", default=False, help = "Less verbose output")
+        test.add_argument("--pdb", action="store_true", default=False, help = "Fallback to pdb on error")
+        test.add_argument('--cov', action='append', default=[],
+                            help='measure coverage for filesystem path (multi-allowed)')
+        test.add_argument('--cov-report', action='append', default=[],
+                            choices=['term', 'term-missing', 'annotate', 'html', 'xml'],
+                            help='type of report to generate: term, term-missing, annotate, html, xml (multi-allowed)')
     def config(self, args):
         if not args.type:
             self.ctx.out("Available configuration helpers:\n - nginx, apache\n")
@@ -268,39 +276,47 @@ Alias /omero "%(ROOT)s/var/omero.fcgi/"
         os.environ['DJANGO_SETTINGS_MODULE'] = os.environ.get('DJANGO_SETTINGS_MODULE', 'omeroweb.settings')
         rv = self.ctx.call(args, cwd = location)
 
-    def unittest(self, args):
+    def test(self, args):
         try:
-            ice_config = args.config
-            test = args.test
-            testpath = args.path
+            pass
         except:
-            self.ctx.die(121, "usage: unittest --config=/path/to/ice.config --test=appname.TestCase --path=/external/path/")
-            
-        if testpath is not None and testpath.find('/') >= 0:
-            path = testpath.split('/')
-            test = path[len(path)-1]
-            if testpath.startswith('/'):
-                location = "/".join(path[:(len(path)-1)])
-            else:
-                appbase = test.split('.')[0]
-                location = self.ctx.dir / "/".join(path[:(len(path)-1)])
-        
-        if testpath is None:
-            location = self.ctx.dir / "lib" / "python" / "omeroweb"
-                    
-        if testpath is not None and len(testpath) > 1:
-            cargs = [testpath]
+            self.ctx.die(121, 'test: wrong arguments, run test -h for a list')
+
+        cargs = ['py.test']
+
+        if args.config:
+            self.set_environ(ice_config=args.config)
         else:
-            if args.texec:
-                cargs = args.texec.split(' ')
-            else:
-                cargs = [sys.executable]
-        
-        cargs.extend([ "manage.py", "test"])
-        if test:
-            cargs.append(test)
-        self.set_environ(ice_config=ice_config)
-        rv = self.ctx.call(cargs, cwd = location)
+            self.set_environ(ice_config=self.ctx.dir / 'etc' / 'ice.config')
+
+        if args.basepath:
+            cwd = args.basepath
+        else:
+            cwd = self.ctx.dir / 'lib' / 'python' / 'omeroweb'    
+
+        if args.testpath:
+            cargs.extend(['-s', args.testpath])
+        if args.string:
+            cargs.extend(['-k', args.string])
+        if args.failfast:
+            cargs.append('-x')
+        if args.verbose:
+            cargs.append('-v')
+        if args.quiet:
+            cargs.append('-q')
+        if args.pdb:
+            cargs.append('--pdb')
+        for cov in args.cov:
+            cargs.extend(['--cov', cov])
+        for cov_rep in args.cov_report:
+            cargs.extend(['--cov-report', cov_rep])
+
+        os.environ['DJANGO_SETTINGS_MODULE'] = os.environ.get('DJANGO_SETTINGS_MODULE', 'omeroweb.settings')
+        # The following is needed so the cwd is included in the python path
+        # when using --testpath
+        os.environ['PYTHONPATH'] += ':.'
+
+        rv = self.ctx.call(cargs, cwd = cwd)
 
     def seleniumtest (self, args):
         try:

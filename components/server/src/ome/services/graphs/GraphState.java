@@ -26,6 +26,7 @@ import ome.system.OmeroContext;
 import ome.system.SimpleEventContext;
 import ome.util.SqlAction;
 
+import org.hibernate.Filter;
 import org.hibernate.Session;
 import org.hibernate.engine.LoadQueryInfluencers;
 import org.hibernate.engine.SessionImplementor;
@@ -113,18 +114,21 @@ public class GraphState implements GraphStep.Callback {
         final List<GraphStep> steps = new ArrayList<GraphStep>();
         final GraphTables tables = new GraphTables();
 
+        // Making use of an internal Hibernate API. The issue here is that we
+        // must temporarily remove all filters (whose names it isn't easy to
+        // find) and then replace them *without* starting from the raw
+        // definitions, since that requires re-setting the parameters. Longer
+        // term, it may be necessary to keep track with this state ourselves,
+        // and provide an enable/disable method.
         final LoadQueryInfluencers infl = ((SessionImplementor) session).getLoadQueryInfluencers();
         @SuppressWarnings("unchecked")
-        final Set<String> names = infl.getEnabledFilterNames();
+        final Map<String, Filter> filters = infl.getEnabledFilters();
+        final Map<String, Filter> copy = new HashMap<String, Filter>(filters);
         try {
-            for (String name: names) {
-                session.disableFilter(name);
-            }
+            filters.clear();
             descend(session, steps, spec, tables);
         } finally {
-            for (String name: names) {
-                session.enableFilter(name);
-            }
+            filters.putAll(copy);
         }
 
         final LinkedList<GraphStep> stack = new LinkedList<GraphStep>();

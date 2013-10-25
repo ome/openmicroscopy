@@ -1,0 +1,62 @@
+*** Settings ***
+
+Library  SwingLibrary
+Library  String
+
+
+*** Keywords ***
+
+Add New Server
+        [Documentation]            in the server dialog, add a new server
+        [Arguments]                ${server}
+        Button Should Be Enabled   add server button
+        Push Button                add server button
+        Type Into Text Field       server name field   ${server}
+
+Choose Server
+        [Documentation]            when the login window is shown, use the server dialog to select the given server
+        [Arguments]                ${server}
+        Push Button                config server button
+        Dialog Should Be Open      server dialog
+        Select Dialog              server dialog
+        Button Should Be Disabled  apply button
+        Button Should Be Enabled   cancel button
+        ${sought row}=             Find Table Row      server table         ${server}         host
+        Run Keyword If             ${sought row} >= 0  Click On Table Cell  server table      ${sought row}  0
+        Run Keyword Unless         ${sought row} >= 0  Add New Server       server=${server}
+        Button Should Be Enabled   apply button
+        Button Should Be Enabled   cancel button
+        Push Button                apply button
+        Select Window              login window
+
+First Login
+        [Documentation]            start up Insight and log in to an OMERO server
+        [Arguments]                ${user}                          ${pass}           ${host}         ${port}
+        Start Application          org.openmicroscopy.shoola.Main
+        Set Jemmy Timeouts         15
+        Select Window              login window
+        Button Should Be Enabled   config server button
+        ${previous host}=          Get Text Field Value             server name text pane
+        Run Keyword If             '${previous host}' != '${host}'  Choose Server     server=${host}
+        Clear Text Field           username field
+        Type Into Text Field       username field                   ${user}
+        Type Into Text Field       password field                   ${pass}
+        Push Button                login button
+        Sleep                      15s
+        Return To Login
+
+Log In As
+        [Documentation]            log in to an OMERO server to switch user
+        [Arguments]                ${user}                          ${pass}
+        Select Dialog              login dialog
+        Clear Text Field           username field
+        Type Into Text Field       username field                   ${user}
+        Type Into Text Field       password field                   ${pass}
+        Push Button                login button
+
+Return To Login
+        [Documentation]            return from current Insight session to login window
+        Select Window              tree viewer window
+        Select From Main Menu      File|Switch User...
+        Select Dialog              options dialog
+        Push Button                yes button

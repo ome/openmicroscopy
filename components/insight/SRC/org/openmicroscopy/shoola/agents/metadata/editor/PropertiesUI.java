@@ -324,6 +324,7 @@ class PropertiesUI
        	wellLabel.setBackground(UIUtilities.BACKGROUND_COLOR);
        	
        	idLabel = UIUtilities.setTextFont("");
+       	idLabel.setName("ID label");
        	ownerLabel = new JLabel();
        	ownerLabel.setBackground(UIUtilities.BACKGROUND_COLOR);
     	namePane = createTextPane();

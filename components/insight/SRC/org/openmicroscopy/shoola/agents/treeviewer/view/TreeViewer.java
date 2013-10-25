@@ -341,7 +341,7 @@ public interface TreeViewer
 	 * 
 	 * @return See above.
 	 */
-	public Map getBrowsers();
+	public Map<Integer, Browser> getBrowsers();
 
 	/**
 	 * Transitions the viewer to the {@link #DISCARDED} state.
@@ -1099,6 +1099,13 @@ public interface TreeViewer
 	 * @return See above.
 	 */
 	GroupData getSelectedGroup();
+	
+	/**
+	 * Returns the only group displayed if any.
+	 * 
+	 * @return See above.
+	 */
+	GroupData getSingleGroupDisplayed();
 
 	/** 
 	 * Removes group.

@@ -1149,6 +1149,7 @@ class ImViewerUI
 		ImageIcon icon = IconManager.getInstance().getImageIcon(
 				IconManager.VIEWER);
 		if (icon != null) setIconImage(icon.getImage());
+		setName("image viewer window");
 	}
 
 	/** 

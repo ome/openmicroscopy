@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.treeviewer.actions.TreeViewerAction
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -20,10 +20,7 @@
  *
  *------------------------------------------------------------------------------
  */
-
 package org.openmicroscopy.shoola.agents.treeviewer.actions;
-
-
 
 //Java imports
 import java.awt.event.ActionEvent;
@@ -38,6 +35,7 @@ import javax.swing.event.ChangeListener;
 
 //Third-party libraries
 
+import org.apache.commons.lang.StringUtils;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
@@ -60,14 +58,14 @@ public abstract class TreeViewerAction
 {
 
     /** A reference to the Model. */
-    protected TreeViewer    model;
-    
+    protected TreeViewer model;
+
     /** The name of the action. */
-    protected String        name;
-    
+    protected String name;
+
     /** The description of the action. */
-    protected String        description;
-      
+    protected String description;
+
     /**
      * Call-back to notify of a change in the currently selected display
      * in the {@link Browser}. Subclasses override the method.
@@ -75,7 +73,7 @@ public abstract class TreeViewerAction
      * @param selectedDisplay The newly selected display node.
      */
     protected void onDisplayChange(TreeImageDisplay selectedDisplay) {}
-    
+
     /** 
      * Call-back to notify a state change in the {@link Browser}. 
      * Subclasses override the method.
@@ -83,7 +81,7 @@ public abstract class TreeViewerAction
      * @param browser The browser which fired the state change.
      */
     protected void onBrowserStateChange(Browser browser) {}
-    
+
     /**
      * Call-back to notify that a new browser is selected.
      * Subclasses override the method.
@@ -91,13 +89,13 @@ public abstract class TreeViewerAction
      * @param browser The selected browser.
      */
     protected void onBrowserSelection(Browser browser) {}
-    
+
     /** Call-back to notify that the display mode has changed. */
     protected void onDisplayMode() {}
-    
+
     /** Call-back to notify any on-going image import. */
     protected void onDataImport() {}
-    
+
     /**
      * Creates a new instance.
      * 
@@ -110,19 +108,19 @@ public abstract class TreeViewerAction
         if (model == null) throw new IllegalArgumentException("no TreeViewer");
         this.model = model;
         //Attaches listener property change listener to each browser.
-       
+
         model.addPropertyChangeListener(this);
-        Map browsers = model.getBrowsers();
-        Iterator i = browsers.values().iterator();
+        Map<Integer, Browser> browsers = model.getBrowsers();
+        Iterator<Browser> i = browsers.values().iterator();
         Browser browser;
         while (i.hasNext()) {
-            browser = (Browser) i.next();
+            browser = i.next();
             browser.addPropertyChangeListener(
                     Browser.SELECTED_TREE_NODE_DISPLAY_PROPERTY, this);
             browser.addChangeListener(this);
-        }    
+        }
     }
-    
+
     /**
      * Returns the name of the action.
      * 
@@ -130,11 +128,10 @@ public abstract class TreeViewerAction
      */
     public String getActionName()
     { 
-        if (name == null || name.length() == 0)
-            return (String) getValue(Action.NAME);  
+        if (StringUtils.isEmpty(name)) return (String) getValue(Action.NAME);
         return name;
     }
-    
+
     /**
      * Returns the name of the action.
      * 
@@ -142,8 +139,8 @@ public abstract class TreeViewerAction
      */
     public String getActionDescription()
     { 
-        if (description == null || description.length() == 0)
-            return (String) getValue(Action.SHORT_DESCRIPTION); 
+        if (StringUtils.isEmpty(description))
+            return (String) getValue(Action.SHORT_DESCRIPTION);
         return description;
     }
     
@@ -154,7 +151,7 @@ public abstract class TreeViewerAction
     public void actionPerformed(ActionEvent e) {}
 
     /**
-     * Reacts to property changes 
+     * Reacts to property changes
      * {@link Browser#SELECTED_TREE_NODE_DISPLAY_PROPERTY}
      * event fired by the {@link Browser} and to
      * the {@link TreeViewer#SELECTED_BROWSER_PROPERTY} event.
@@ -166,54 +163,42 @@ public abstract class TreeViewerAction
         if (TreeViewer.SELECTED_BROWSER_PROPERTY.equals(name)) {
             onBrowserSelection((Browser) evt.getNewValue());
         } else if (TreeViewer.DISPLAY_MODE_PROPERTY.equals(name)) {
-        	int displayMode = ((Integer) evt.getNewValue()).intValue();
-        	switch (displayMode) {
-				case TreeViewer.SEARCH_MODE:
-					//setEnabled(false);
-					setEnabled(true);
-					break;
-				case TreeViewer.EXPLORER_MODE:
-					setEnabled(true);
-					Browser browser = model.getSelectedBrowser();
-					TreeImageDisplay v = null;
-					if (browser != null) v = browser.getLastSelectedDisplay();
-					onBrowserStateChange(browser);
-					onDisplayChange(v);
-					break;
-			}
-        	onDisplayMode();
+            int displayMode = ((Integer) evt.getNewValue()).intValue();
+            switch (displayMode) {
+            case TreeViewer.SEARCH_MODE:
+                setEnabled(true);
+                break;
+            case TreeViewer.EXPLORER_MODE:
+                setEnabled(true);
+                Browser browser = model.getSelectedBrowser();
+                TreeImageDisplay v = null;
+                if (browser != null) v = browser.getLastSelectedDisplay();
+                onBrowserStateChange(browser);
+                onDisplayChange(v);
+                break;
+            }
+            onDisplayMode();
         } else if (TreeViewer.ON_COMPONENT_STATE_CHANGED_PROPERTY.equals(
-        		name) || TreeViewer.GROUP_CHANGED_PROPERTY.equals(name) ||
-        		TreeViewer.SELECTION_PROPERTY.equals(name) ||
-        		Browser.SELECTED_TREE_NODE_DISPLAY_PROPERTY.equals(name)) {
+                name) || TreeViewer.GROUP_CHANGED_PROPERTY.equals(name) ||
+                TreeViewer.SELECTION_PROPERTY.equals(name) ||
+                Browser.SELECTED_TREE_NODE_DISPLAY_PROPERTY.equals(name)) {
             Browser browser = model.getSelectedBrowser();
             TreeImageDisplay v = null;
             if (browser != null) v = browser.getLastSelectedDisplay();
             onDisplayChange(v);
         } else if (TreeViewer.IMPORT_PROPERTY.equals(name)) {
-        	onDataImport();
+            onDataImport();
         }
-            
-        /*
-        Object newValue = evt.getNewValue();
-        if (newValue == null) {
-            onDisplayChange(null);
-            return;
-        }
-        if (newValue.equals(evt.getOldValue())) return;
-        onDisplayChange((TreeImageDisplay) newValue);
-        */
     }
-    
+
     /** 
-     * Reacts to state changes in the {@link Browser}. 
+     * Reacts to state changes in the {@link Browser}.
      * @see ChangeListener#stateChanged(ChangeEvent)
      */
     public void stateChanged(ChangeEvent e)
     {
         Object source = e.getSource();
-        if (source instanceof Browser) 
-            onBrowserStateChange((Browser) source);
+        if (source instanceof Browser) onBrowserStateChange((Browser) source);
     }
-    
+
 }

@@ -6,7 +6,7 @@
   Preamble
 
   The client software requires a J2SE Java Runtime Environment (JRE) to
-  run (version 1.5 or higher). 
+  run (version 1.6 or higher). 
   If you don't have one already, you can download the J2SE JRE install bundle 
   from:
 

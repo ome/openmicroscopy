@@ -194,6 +194,7 @@ class MetadataViewerUI
 		this.controller = controller;
 		this.model = model;
 		buildGUI();
+		setName("metadata viewer window");
 	}
 	
 	/** Updates display when the new root node is set. */

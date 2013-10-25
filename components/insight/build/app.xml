@@ -32,11 +32,9 @@
    *           within ${base.lib.dir}.  Note that jar files in sub-dirs are not
    *           included.
    *   + app.resources: All other resources needed by the app.  We consider a
-   *           resource any non-java file in ${base.src.dir}.  Obviously CVS 
-   *           dirs and files are excluded.
+   *           resource any non-java file in ${base.src.dir}.
    *   + app.config: All the configuration files required for the app to run.
-   *           These are the contents of ${base.config.dir}.  Obviously CVS 
-   *           dirs and files are excluded.
+   *           These are the contents of ${base.config.dir}.
    *   + app.compile.classpath: The classpath used to compile the app.  Set to
    *           include all required libraries.
    *   + app.run.classpath: The classpath used to run the app.  Set to include
@@ -132,8 +130,8 @@
   <target name="compile"
           depends="app-init"
           description="Compile the whole app.">
-    <javac srcdir="${base.src.dir}" target="1.5"
-           source="1.5"
+    <javac srcdir="${base.src.dir}" target="1.6"
+           source="1.6"
            destdir="${app.compiled.dir}"
            includeantruntime="no"
            deprecation="yes"
@@ -144,8 +142,8 @@
       <classpath refid="app.compile.classpath"/>
       <patternset refid="app.sources"/>
     </javac>
-    <javac srcdir="${base.src.util.dir}" target="1.5"
-           source="1.5"
+    <javac srcdir="${base.src.util.dir}" target="1.6"
+           source="1.6"
            destdir="${app.compiled.util.dir}"
            includeantruntime="no"
            deprecation="yes"
@@ -156,8 +154,8 @@
       <classpath refid="app.compile.classpath"/>
       <patternset refid="app.sources"/>
     </javac>
-    <javac srcdir="${base.src.svc.dir}" target="1.5"
-           source="1.5"
+    <javac srcdir="${base.src.svc.dir}" target="1.6"
+           source="1.6"
            destdir="${app.compiled.util.dir}"
            includeantruntime="no"
            deprecation="yes"

@@ -106,6 +106,7 @@ public class ServerListEditor
 		numericalcomponent = new NumericalTextField(ServerEditor.MIN_PORT, 
 				ServerEditor.MAX_PORT);
 		textComponent = new JTextField();
+		textComponent.setName("server name field");
 		textComponent.addActionListener(this);
 		textComponent.getDocument().addDocumentListener(this);
 		textComponent.addKeyListener(new KeyAdapter() {

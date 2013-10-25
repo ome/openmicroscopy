@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.metadata.util.UploadPictureDialog 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -89,14 +89,17 @@ public class UploadPictureDialog
     private static final Dimension	H_SPACER_SIZE = new Dimension(3, 10);
     
     /** The maximum size of the image. */
-    private static final int		MAX_SIZE = 204800;
-    
+    private static final int		MAX_SIZE_BYTES = 204800;
+
+    /** The maximum size of the image. */
+    private static final String MAX_SIZE_STRING = UIUtilities.formatFileSize(MAX_SIZE_BYTES);
+
 	/** The title of the dialog. */
 	private static final String TITLE = "Upload Photo";
 	
 	/** The text of the dialog. */
 	private static final String TEXT = "Select the photo (JPEG, GIF or PNG) " +
-			"to upload. Maximum size 200Kb.";
+			"to upload. Maximum size " + MAX_SIZE_STRING + ".";
 	
 	/** Action ID indicating to upload the script to the server. */
 	private static final int	SAVE = 0;
@@ -235,8 +238,8 @@ public class UploadPictureDialog
 					"can be uploaded.");
 			return;
 		}
-		if (f.length() > MAX_SIZE) {
-			un.notifyInfo(TITLE, "The file is too big, maximum size 200Kb");
+		if (f.length() > MAX_SIZE_BYTES) {
+			un.notifyInfo(TITLE, "The file is too big, maximum size " + MAX_SIZE_STRING);
 			return;
 		}
 		List<Object> l = new ArrayList<Object>();

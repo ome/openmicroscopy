@@ -25,29 +25,81 @@
 
         $('body').click(function(event) {
             if (event.target.id != 'scriptButton') {
-                $("#scriptList").css('visibility', 'hidden');
+                $("#scriptList").hide();
             }
         });
         // Loading Scripts with AJAX for drop-down menu, (only the first time we click)
-        // based on example at http://css-tricks.com/2282-simple-jquery-dropdowns/
+
+        // handles clicking on a script (if href is not '#')
+        $("#scriptList").on("click", ".sub_menu a", OME.openScriptWindow);
+
+        $("#scriptList").on("click", ".sub_menu a", function(event) {
+            var $a = $(event.target),
+                script_url = $a.attr('href');
+            if (script_url != "#") {
+                // Clicked on script - handled by OME.openScriptWindow above
+                $("#scriptList").hide();
+                return false;
+            }
+
+            // we have clicked on <a> within a <li>, with sibling <ul>
+            var $li = $a.parent(),
+                $ul = $li.children('ul');
+            if ($li.hasClass('menu_back')) {
+                $li.parent().parent().siblings().show();
+                $li.parent().hide();
+                $li.parent().siblings('a').show();
+            } else {
+                $ul.show();
+                $li.siblings().hide();
+                $a.hide();
+            }
+        });
+
+        // format script name by replacing '_' with ' '
+        var format_script_name = function(name) {
+            name = name.replace(/_/g, " ");
+            if (name.endsWith(".py")) {
+                name = name.slice(0,-2) + "..";
+            }
+            return name
+        }
+
         $("#scriptButton").click(function(e){
             // show menu - load if empty
-            $('#scriptList').css('visibility', 'visible');
+            // $('#scriptList').css('visibility', 'visible');
+            $('#scriptList').show();
             if ($("#scriptList li").length == 0){  // if none loaded yet...
                 var $scriptLink = $(this);
                 var $scriptSpinner = $("#scriptSpinner").show();
                 var script_list_url = $(this).attr('href');
-                $("#scriptList").load(script_list_url, function(){
-                    $("ul.sub_menu li:has(ul)").find("a:first").addClass("menuItem");
-                    // bind links to OME.openPopup
-                    $("#scriptList.sub_menu a").click(OME.openScriptWindow);
+                $.get(script_list_url, function(data) {
+
+                    var build_ul = function(script_data) {
+                        var html = "";
+                        for (var i=0; i<script_data.length; i++) {
+                            var li = script_data[i],   // dict of 'name' and 'ul' for menu items OR 'id' for scripts
+                                name = format_script_name(li.name);
+                            if (li.id) {
+                                html += "<li><a href='{% url webindex %}script_ui/"+ li.id + "/'>" + name + "</a></li>";
+                            } else {
+                                html += "<li class='menuItem'><a href='#'>" + name + "</a>";
+                                // sub-menus have a 'BACK' button at the top
+                                html += "<ul><li class='menu_back'><a href='#'>back</a></li>" + build_ul(li.ul) + "</ul>";
+                                html += "</li>";
+                            }
+                        }
+                        return html;
+                    }
+
+                    var html = "<ul class='menulist'>" + build_ul(data) + "</ul>";
+
+                    $('#scriptList').append($(html));
+
+                    $('#scriptList ul ul').hide();
                     $scriptSpinner.hide();
-                });
+              }, "json");
             }
-        });
-        // on hover-out, hide drop-down menus
-        $("#scriptList").hover(function(){}, function(){
-            $(this).css('visibility', 'hidden');
         });
 
     });

@@ -462,6 +462,7 @@ class MeasurementViewerUI
         	controller.getAction(MeasurementViewerControl.IN_MICRONS);
     	a.setRefUnits(EditorUtil.transformSize(
     			model.getPixelSizeX()).getUnits());
+        setName("measurement viewer window");
     }
     
     /** Builds and lays out the GUI. */

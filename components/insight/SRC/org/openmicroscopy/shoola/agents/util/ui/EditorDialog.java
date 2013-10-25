@@ -47,6 +47,7 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.text.JTextComponent;
 
 
 //Third-party libraries
@@ -118,7 +119,7 @@ public class EditorDialog
     private static final int		SAVE = 1;
     
     /** Area where to enter the name of the <code>DataObject</code>. */
-    private JTextArea          nameArea;
+    private JTextComponent nameArea;
      
     /** Area where to enter the description of the <code>DataObject</code>. */
     private JTextArea          	descriptionArea;
@@ -189,10 +190,11 @@ public class EditorDialog
         	nameArea = new MultilineLabel();
         	nameArea.setEditable(true);
         } else {
-        	nameArea = new JTextArea();
+        	nameArea = new JTextField();
         	nameArea.setBorder(BorderFactory.createEtchedBorder());
         }
-       
+        nameArea.setName("name field");
+
         descriptionArea = new MultilineLabel();
         descriptionArea.setEditable(true);
         originalText = "";
@@ -207,15 +209,18 @@ public class EditorDialog
         nameArea.getDocument().addDocumentListener(this);
         
         cancelButton = new JButton("Cancel");
+        cancelButton.setName("cancel button");
         cancelButton.setToolTipText("Close the dialog.");
         cancelButton.addActionListener(this);
         cancelButton.setActionCommand(""+CANCEL);
        
         if (type == EDIT_TYPE) {
         	saveButton = new JButton("Save");
+        	saveButton.setName("save button");
         	saveButton.setToolTipText("Edit the object.");
         } else {
         	saveButton = new JButton("Create");
+        	saveButton.setName("create button");
         	saveButton.setToolTipText("Create a new object.");
         }
         saveButton.addActionListener(this);
@@ -499,6 +504,7 @@ public class EditorDialog
     	this.withParent = withParent;
     	initComponents();
     	buildGUI();
+    	setName("editor dialog");
     	setSize(WIN_DIM);
     }
     

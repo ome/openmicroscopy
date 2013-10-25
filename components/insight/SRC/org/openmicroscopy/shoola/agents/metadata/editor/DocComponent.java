@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.metadata.editor.DocComponent 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -35,7 +35,6 @@ import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -55,7 +54,7 @@ import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
 
 //Third-party libraries
-
+import org.apache.commons.lang.StringUtils;
 
 //Application-internal dependencies
 import omero.model.OriginalFile;
@@ -81,6 +80,10 @@ import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
 import org.openmicroscopy.shoola.util.ui.tdialog.TinyDialog;
+
+import com.google.common.collect.ImmutableCollection;
+import com.google.common.collect.ImmutableList;
+
 import pojos.AnnotationData;
 import pojos.BooleanAnnotationData;
 import pojos.DataObject;
@@ -131,21 +134,14 @@ class DocComponent
 	
 	/** Action id to open the annotation. */
 	private static final int DELETE = 4;
-	
+
 	/** Collection of filters supported. */
-	private static final List<CustomizedFileFilter> FILTERS;
-	
+	private static final ImmutableCollection<CustomizedFileFilter> FILTERS =
+	        ImmutableList.of(new TIFFFilter(), new JPEGFilter(), new PNGFilter(), new BMPFilter());
+
 	/** The maximum length of the text to display.*/
 	private static final int TEXT_LENGTH = 10;
-	
-	static {
-		FILTERS = new ArrayList<CustomizedFileFilter>();
-		FILTERS.add(new TIFFFilter());
-		FILTERS.add(new JPEGFilter());
-		FILTERS.add(new PNGFilter());
-		FILTERS.add(new BMPFilter());
-	}
-	
+
 	/** The annotation hosted by this component. */
 	private Object		data;
 	
@@ -406,7 +402,7 @@ class DocComponent
 	 * @param name The full name.
 	 * @return See above.
 	 */
-	private String formatTootTip(AnnotationData annotation, String name)
+	private String formatToolTip(AnnotationData annotation, String name)
 	{
 		StringBuffer buf = new StringBuffer();
 		buf.append("<html><body>");
@@ -528,6 +524,13 @@ class DocComponent
 			buf.append(UIUtilities.formatFileSize(size));
 			buf.append("<br>");
 			checkAnnotators(buf, annotation);
+			if (!StringUtils.isBlank(ns)) {
+			    buf.append("<b>");
+			    buf.append("Namespace: ");
+			    buf.append("</b>");
+			    buf.append(ns);
+			    buf.append("<br>");
+			}
 		} else if (data instanceof TagAnnotationData || data instanceof
 				XMLAnnotationData || data instanceof TermAnnotationData ||
 				data instanceof LongAnnotationData ||
@@ -695,7 +698,7 @@ class DocComponent
 							EditorUtil.getPartialName(fileName)));
 				}
 						
-				label.setToolTipText(formatTootTip(f, s));
+				label.setToolTipText(formatToolTip(f, s));
 				Iterator<CustomizedFileFilter> i = FILTERS.iterator();
 				CustomizedFileFilter filter;
 				long id = f.getId();
@@ -728,35 +731,35 @@ class DocComponent
 			} else if (data instanceof TagAnnotationData) {
 				TagAnnotationData tag = (TagAnnotationData) data;
 				label.setText(tag.getTagValue());
-				label.setToolTipText(formatTootTip(tag, null));
+				label.setToolTipText(formatToolTip(tag, null));
 				if (tag.getId() < 0)
 					label.setForeground(
 						DataObjectListCellRenderer.NEW_FOREGROUND_COLOR);
 			} else if (data instanceof XMLAnnotationData) {
 				XMLAnnotationData tag = (XMLAnnotationData) data;
 				label.setText(EditorUtil.truncate(tag.getText(), TEXT_LENGTH));
-				label.setToolTipText(formatTootTip(tag, null));
+				label.setToolTipText(formatToolTip(tag, null));
 				if (tag.getId() < 0)
 					label.setForeground(
 						DataObjectListCellRenderer.NEW_FOREGROUND_COLOR);
 			} else if (data instanceof TermAnnotationData) {
 				TermAnnotationData tag = (TermAnnotationData) data;
 				label.setText(tag.getTerm());
-				label.setToolTipText(formatTootTip(tag, null));
+				label.setToolTipText(formatToolTip(tag, null));
 				if (tag.getId() < 0)
 					label.setForeground(
 						DataObjectListCellRenderer.NEW_FOREGROUND_COLOR);
 			} else if (data instanceof LongAnnotationData) {
 				LongAnnotationData tag = (LongAnnotationData) data;
 				label.setText(tag.getContentAsString());
-				label.setToolTipText(formatTootTip(tag, null));
+				label.setToolTipText(formatToolTip(tag, null));
 				if (tag.getId() < 0)
 					label.setForeground(
 						DataObjectListCellRenderer.NEW_FOREGROUND_COLOR);
 			} else if (data instanceof DoubleAnnotationData) {
 				DoubleAnnotationData tag = (DoubleAnnotationData) data;
 				label.setText(tag.getContentAsString());
-				label.setToolTipText(formatTootTip(tag, null));
+				label.setToolTipText(formatToolTip(tag, null));
 				if (tag.getId() < 0)
 					label.setForeground(
 						DataObjectListCellRenderer.NEW_FOREGROUND_COLOR);
@@ -844,8 +847,8 @@ class DocComponent
 		}
 		JFrame f = EditorAgent.getRegistry().getTaskBar().getFrame();
 		FileChooser chooser = new FileChooser(f, FileChooser.SAVE, 
-				"Download", "Select where to download the file.", null, true);
-		if (name != null && name.trim().length() > 0) 
+				"Download", "Select where to download the file.", null, true, true);
+		if (StringUtils.isNotBlank(name)) 
 			chooser.setSelectedFileFull(name);
 		IconManager icons = IconManager.getInstance();
 		chooser.setTitleIcon(icons.getIcon(IconManager.DOWNLOAD_48));
@@ -1018,7 +1021,7 @@ class DocComponent
 			description = model.getAnnotationDescription(annotation);
 			if (annotation == null) return;
 			label.setText(text);
-			label.setToolTipText(formatTootTip(annotation, null));
+			label.setToolTipText(formatToolTip(annotation, null));
 			originalName = text;
 			originalDescription = description;
 			firePropertyChange(AnnotationUI.EDIT_TAG_PROPERTY, null, this);
