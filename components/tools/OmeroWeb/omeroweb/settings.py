@@ -289,15 +289,9 @@ CUSTOM_SETTINGS_MAPPINGS = {
     "omero.web.nanoxml_jar": ["NANOXML_JAR", "nanoxml.jar", str],
 }
 
-def process_custom_settings(module=None):
-    if module:
-        logging.info('Processing custom settings for module %s' % module.__name__)
-        custom_settings_mappings = getattr(module, 'CUSTOM_SETTINGS_MAPPINGS', None)
-        if not custom_settings_mappings:
-            return
-    else:
-        custom_settings_mappings = CUSTOM_SETTINGS_MAPPINGS
-    for key, values in custom_settings_mappings.items():
+def process_custom_settings(module):
+    logging.info('Processing custom settings for module %s' % module.__name__)
+    for key, values in getattr(module, 'CUSTOM_SETTINGS_MAPPINGS', {}).items():
         # Django may import settings.py more than once, see:
         # http://blog.dscpl.com.au/2010/03/improved-wsgi-script-for-use-with.html
         # In that case, the custom settings have already been processed.
@@ -314,16 +308,13 @@ def process_custom_settings(module=None):
             values.append(True)
 
         try:
-            if module:
-                setattr(module, global_name, mapping(global_value))
-            else:
-                globals()[global_name] = mapping(global_value)
+            setattr(module, global_name, mapping(global_value))
         except ValueError:
             raise ValueError("Invalid %s JSON: %r" % (global_name, global_value))
         except LeaveUnset:
             pass
 
-process_custom_settings()
+process_custom_settings(sys.modules[__name__])
 
 
 if not DEBUG:
@@ -340,26 +331,18 @@ if not DEBUG:
 #    handler500 = "omeroweb.feedback.views.handler500"
 TEMPLATE_DEBUG = DEBUG
 
-def report_settings(module=None):
-    if module:
-        custom_settings_mappings = getattr(module, 'CUSTOM_SETTINGS_MAPPINGS', None)
-        if not custom_settings_mappings:
-            return
-    else:
-        custom_settings_mappings = CUSTOM_SETTINGS_MAPPINGS
+def report_settings(module):
     from django.views.debug import cleanse_setting
+    custom_settings_mappings = getattr(module, 'CUSTOM_SETTINGS_MAPPINGS', {})
     for key in sorted(custom_settings_mappings):
         values = custom_settings_mappings[key]
         global_name, default_value, mapping, using_default = values
         source = using_default and "default" or key
-        if module:
-            global_value = getattr(module, global_name, None)
-        else:
-            global_value = globals().get(global_name, None)
+        global_value = getattr(module, global_name, None)
         if global_name.isupper():
             logger.debug("%s = %r (source:%s)", global_name, cleanse_setting(global_name, global_value), source)
 
-report_settings()
+report_settings(sys.modules[__name__])
 
 SITE_ID = 1
 
