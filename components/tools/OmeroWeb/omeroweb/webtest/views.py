@@ -549,7 +549,7 @@ def image_dimensions (request, imageId, conn=None, **kwargs):
 def image_rois (request, imageId, conn=None, **kwargs):
     """ Simply shows a page of ROI thumbnails for the specified image """
     roiService = conn.getRoiService()
-    result = roiService.findByImage(long(imageId), None)
+    result = roiService.findByImage(long(imageId), None, conn.SERVICE_OPTS)
     roiIds = [r.getId().getValue() for r in result.rois]
     return render_to_response('webtest/demo_viewers/image_rois.html', {'roiIds':roiIds})
 

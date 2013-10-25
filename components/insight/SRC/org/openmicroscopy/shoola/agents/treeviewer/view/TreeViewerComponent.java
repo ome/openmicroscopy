@@ -1099,6 +1099,7 @@ class TreeViewerComponent
 		EventBus bus = TreeViewerAgent.getRegistry().getEventBus();
 		bus.post(new BrowserSelectionEvent(t));
 		view.updateMenuItems();
+		fireStateChange();
 	}
 
 	/**
@@ -1244,7 +1245,12 @@ class TreeViewerComponent
 		cancel();
 		if (TreeViewerFactory.isLastViewer()) {
 			EventBus bus = TreeViewerAgent.getRegistry().getEventBus();
-			bus.post(new ExitApplication(!(TreeViewerAgent.isRunAsPlugin())));
+			ExitApplication a = new ExitApplication(
+			        !TreeViewerAgent.isRunAsPlugin());
+			GroupData group = model.getSelectedGroup();
+	        if (group != null)
+	            a.setSecurityContext(new SecurityContext(group.getId()));
+			bus.post(a);
 		} else discard();
 
 	}
@@ -2042,8 +2048,8 @@ class TreeViewerComponent
 					"This method cannot be invoked in the DISCARDED state.");
 		switch (menuID) {
 			case MANAGER_MENU:
-			case CREATE_MENU_CONTAINERS:  
-			case CREATE_MENU_TAGS:  
+			case CREATE_MENU_CONTAINERS:
+			case CREATE_MENU_TAGS:
 			case CREATE_MENU_ADMIN:
 			case PERSONAL_MENU:
 			case CREATE_MENU_SCREENS:
@@ -4472,6 +4478,27 @@ class TreeViewerComponent
 	{ 
 		if (model.getState() == DISCARDED) return null;
 		return model.getSelectedGroup();
+	}
+
+	/** 
+	 * Implemented as specified by the {@link TreeViewer} interface.
+	 * @see TreeViewer#hasSingleGroupDisplayed()
+	 */
+	public GroupData getSingleGroupDisplayed()
+	{
+	    if (model.getState() == DISCARDED) return null;
+	    Collection<GroupData> groups = model.getAvailableGroups();
+	    if (groups != null && groups.size() == 1) return null;
+	    Browser browser = model.getSelectedBrowser();
+	    if (browser == null) return null;
+
+	    TreeImageDisplay node = null;
+	    ExperimenterVisitor v = new ExperimenterVisitor(browser, -1);
+	    browser.accept(v, ExperimenterVisitor.TREEIMAGE_SET_ONLY);
+	    List<TreeImageDisplay> nodes = v.getNodes();
+        if (nodes.size() == 1)
+            return (GroupData) nodes.get(0).getUserObject();
+        return null;
 	}
 
 	/** 

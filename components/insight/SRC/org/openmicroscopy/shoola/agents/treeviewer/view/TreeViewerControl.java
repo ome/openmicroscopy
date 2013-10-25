@@ -58,7 +58,6 @@ import javax.swing.event.MenuKeyEvent;
 import javax.swing.event.MenuKeyListener;
 import javax.swing.event.MenuListener;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.jdesktop.swingx.JXTaskPane;
 import org.jdesktop.swingx.JXTaskPaneContainer;
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
@@ -124,7 +123,6 @@ import org.openmicroscopy.shoola.agents.util.SelectionWizard;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.agents.util.browser.TreeFileSet;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
-import org.openmicroscopy.shoola.agents.util.browser.TreeImageTimeSet;
 import org.openmicroscopy.shoola.agents.util.finder.Finder;
 import org.openmicroscopy.shoola.agents.util.ui.EditorDialog;
 import org.openmicroscopy.shoola.agents.util.ui.GroupManagerDialog;
@@ -724,6 +722,19 @@ class TreeViewerControl
 		loadingWindow = new LoadingWindow(view);
 		loadingWindow.setAlwaysOnTop(false);
 		loadingWindow.setStatus("Saving changes");
+	}
+
+	/**
+	 * Returns the type of the selected browser or <code>-1</code> if
+	 * no browser selected.
+	 * 
+	 * @return See above.
+	 */
+	int getSelectedBrowserType()
+	{
+	    Browser browser = model.getSelectedBrowser();
+	    if (browser == null) return -1;
+	    return browser.getBrowserType();
 	}
 
 	/**

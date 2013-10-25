@@ -181,6 +181,13 @@
         <target name="Blitz-hprof">
             <option>-agentlib:hprof=cpu=samples,cutoff=0,thread=y,interval=1,depth=50,force=y,file=${OMERO_LOGS}Blitz-${index}.hprof</option>
         </target>
+        <target name="heap-dump">
+            <option>-XX:+HeapDumpOnOutOfMemoryError</option>
+        </target>
+        <target name="heap-dump-tmp">
+            <option>-XX:+HeapDumpOnOutOfMemoryError</option>
+            <option>-XX:HeapDumpPath=/tmp</option>
+        </target>
         <option>-Xmx512M</option>
         <!--
              MaxPermSize needs to be set for most operating systems using Hibernate 3.3+
@@ -227,6 +234,13 @@
       <parameter name="index"/>
       <parameter name="config" default="default"/>
       <server id="Indexer-${index}" exe="${JAVA}" activation="always" pwd="${OMERO_HOME}">
+        <target name="heap-dump">
+            <option>-XX:+HeapDumpOnOutOfMemoryError</option>
+        </target>
+        <target name="heap-dump-tmp">
+            <option>-XX:+HeapDumpOnOutOfMemoryError</option>
+            <option>-XX:HeapDumpPath=/tmp</option>
+        </target>
         <option>-Xmx256M</option>
         <option>-Djava.awt.headless=true</option>
         <option>-Dlogback.configurationFile=${OMERO_ETC}logback-indexing.xml</option>
@@ -251,6 +265,13 @@
       <parameter name="dir"/>
       <parameter name="config" default="default"/>
       <server id="PixelData-${index}" exe="${JAVA}" activation="always" pwd="${OMERO_HOME}">
+        <target name="heap-dump">
+            <option>-XX:+HeapDumpOnOutOfMemoryError</option>
+        </target>
+        <target name="heap-dump-tmp">
+            <option>-XX:+HeapDumpOnOutOfMemoryError</option>
+            <option>-XX:HeapDumpPath=/tmp</option>
+        </target>
         <option>-Xmx256M</option>
         <option>-Djava.awt.headless=true</option>
         <option>-Dlogback.configurationFile=${OMERO_ETC}logback-indexing.xml</option>
@@ -276,6 +297,13 @@
       <parameter name="dir"/>
       <parameter name="config" default="default"/>
       <server id="Repository-${index}" exe="${JAVA}" activation="always" pwd="${OMERO_HOME}">
+        <target name="heap-dump">
+            <option>-XX:+HeapDumpOnOutOfMemoryError</option>
+        </target>
+        <target name="heap-dump-tmp">
+            <option>-XX:+HeapDumpOnOutOfMemoryError</option>
+            <option>-XX:HeapDumpPath=/tmp</option>
+        </target>
         <option>-Xmx400M</option>
         <option>-Djava.awt.headless=true</option>
         <option>-Dlogback.configurationFile=${OMERO_ETC}logback.xml</option>

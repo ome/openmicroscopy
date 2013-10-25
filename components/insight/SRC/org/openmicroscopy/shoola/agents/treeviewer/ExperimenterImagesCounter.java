@@ -114,7 +114,7 @@ public class ExperimenterImagesCounter
      */
 	public void load()
 	{
-		Iterator i = nodes.iterator();
+		Iterator<TreeImageSet> i = nodes.iterator();
 		TimeRefObject ref;
 		long userID = -1;
 		if (expNode.getUserObject() instanceof ExperimenterData)
@@ -125,7 +125,7 @@ public class ExperimenterImagesCounter
 		TreeImageTimeSet time;
 		TreeFileSet file;
 		while (i.hasNext()) {
-			node = (TreeImageSet) i.next();
+			node = i.next();
 			if (node instanceof TreeImageTimeSet) {
 				time = (TreeImageTimeSet) node;
 				ref = new TimeRefObject(userID, TimeRefObject.TIME);
@@ -171,7 +171,7 @@ public class ExperimenterImagesCounter
         Iterator i = set.iterator();
         while (i.hasNext()) {
         	entry = (Entry) i.next();
-        	viewer.setExperimenterCount(expNode, (Integer) entry.getKey(), 
+        	viewer.setExperimenterCount(expNode, (Integer) entry.getKey(),
         			entry.getValue());
 		}
     }

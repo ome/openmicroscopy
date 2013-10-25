@@ -4,29 +4,24 @@
  */
 package integration;
 
-
-import org.testng.annotations.Test;
-import static org.testng.AssertJUnit.*;
-
+import static org.testng.AssertJUnit.assertTrue;
+import static org.testng.AssertJUnit.fail;
 import omero.model.CommentAnnotationI;
 import omero.model.DetailsI;
 import omero.model.PermissionsI;
 
 /**
- * Tests for the updated group permissions of
- * 4.3 and 4.4.
+ * Tests for the updated group permissions of 4.3 and 4.4.
  *
  * @since 4.4.0
  */
-public class PermissionsTest
-	extends AbstractServerTest {
+public class PermissionsTest extends AbstractServerTest {
 
     // chmod
     // ==============================================
 
     /*
-     * See #8277 permissions returned from the server
-     * should now be immutable.
+     * See #8277 permissions returned from the server should now be immutable.
      */
     public void testImmutablePermissions() throws Exception {
 
@@ -45,7 +40,7 @@ public class PermissionsTest
         c = (CommentAnnotationI) this.iUpdate.saveAndReturnObject(c);
         p = (PermissionsI) c.getDetails().getPermissions();
         try {
-                p.setPerm1(1);
+            p.setPerm1(1);
         } catch (omero.ClientError err) {
             // good
         }
@@ -61,10 +56,10 @@ public class PermissionsTest
         CommentAnnotationI c = new omero.model.CommentAnnotationI();
         c = (CommentAnnotationI) this.iUpdate.saveAndReturnObject(c);
         DetailsI d = (DetailsI) c.getDetails();
-        assertTrue( d.getClient() != null);
-        assertTrue( d.getSession() != null);
-        assertTrue( d.getCallContext() != null);
-        assertTrue( d.getEventContext() != null);
+        assertTrue(d.getClient() != null);
+        assertTrue(d.getSession() != null);
+        assertTrue(d.getCallContext() != null);
+        assertTrue(d.getEventContext() != null);
     }
 
 }

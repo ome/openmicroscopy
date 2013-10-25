@@ -242,4 +242,14 @@ class AdminViewImpl
 		return null;
 	}
 
+	/**
+	 * Implemented as specified by the {@link AdminView} interface.
+	 * @see AdminView#loadAdministrators(SecurityContext, AgentEventListener)
+	 */
+	public CallHandle changeGroup(SecurityContext ctx, GroupData group,
+            ExperimenterData experimenter, AgentEventListener observer)
+	{
+	    BatchCallTree cmd = new AdminLoader(ctx, group, experimenter);
+        return cmd.exec(observer);
+	}
 }

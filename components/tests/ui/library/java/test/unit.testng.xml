@@ -1,0 +1,19 @@
+<!DOCTYPE suite SYSTEM "http://beust.com/testng/testng-1.0.dtd" >
+
+<suite name="UI scripts unit tests" >
+
+  <test name="keyword tests">
+    <groups>
+      <run>
+        <exclude name="broken"/>
+        <exclude name="ignore"/>
+        <exclude name="manual"/>
+        <exclude name="integration"/>
+      </run>
+    </groups>
+    <packages>
+      <package name="org.openmicroscopy.shoola.keywords.*"/>
+    </packages>
+  </test>
+
+</suite>

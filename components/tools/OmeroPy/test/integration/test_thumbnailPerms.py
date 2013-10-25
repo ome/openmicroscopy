@@ -17,11 +17,22 @@
 
 
 """
+<<<<<<< HEAD
 
 import pytest
 
+||||||| merged common ancestors
+import unittest, time
+=======
+import time
+>>>>>>> origin/develop
 import test.integration.library as lib
+<<<<<<< HEAD
 
+||||||| merged common ancestors
+=======
+import pytest
+>>>>>>> origin/develop
 import omero
 
 from omero.rtypes import rint
@@ -33,10 +44,104 @@ class TestThumbnailPerms(lib.ITest):
 
     def testThumbs(self):
 
+<<<<<<< HEAD
         privateGroup = self.new_group(perms='rw----')
         readOnlyGroup = self.new_group(perms='rwr---')
         collaborativeGroup = self.new_group(perms='rwra--')
 
+||||||| merged common ancestors
+        # root session is root.sf
+        uuid = self.root.sf.getAdminService().getEventContext().sessionUuid
+        admin = self.root.sf.getAdminService()
+
+        group1name = "private_%s" % uuid
+        group2name = "read-only_%s" % uuid
+        group3name = "collaborative_%s" % uuid
+        ownerName = "owner_%s" % uuid
+        user1name = "user1_%s" % uuid
+        user2name = "user2_%s" % uuid
+
+        ### create three users in 3 groups
+        listOfGroups = list()
+        listOfGroups.append(admin.lookupGroup("user"))  # all users need to be in 'user' group to do anything!
+
+        #group1 - private
+        new_gr1 = ExperimenterGroupI()
+        new_gr1.name = rstring(group1name)
+        p = PermissionsI('rw----')
+        new_gr1.details.permissions = p
+        gid = admin.createGroup(new_gr1)
+        privateGroup = admin.getGroup(gid)
+        self.assertEquals('rw----', str(privateGroup.details.permissions))
+        listOfGroups.append(privateGroup)
+
+        #group2 - read-only
+        new_gr2 = ExperimenterGroupI()
+        new_gr2.name = rstring(group2name)
+        p2 = PermissionsI('rwr---')
+        new_gr2.details.permissions = p2
+        gid2 = admin.createGroup(new_gr2)
+        readOnlyGroup = admin.getGroup(gid2)
+        self.assertEquals('rwr---', str(readOnlyGroup.details.permissions))
+        listOfGroups.append(readOnlyGroup)
+
+        #group3 - read-annotate
+        new_gr3 = ExperimenterGroupI()
+        new_gr3.name = rstring(group3name)
+        p = PermissionsI('rwra--')
+        new_gr3.details.permissions = p
+        gid3 = admin.createGroup(new_gr3)
+        collaborativeGroup = admin.getGroup(gid3)
+        self.assertEquals('rwra--', str(collaborativeGroup.details.permissions))
+        listOfGroups.append(collaborativeGroup)
+
+=======
+        # root session is root.sf
+        uuid = self.root.sf.getAdminService().getEventContext().sessionUuid
+        admin = self.root.sf.getAdminService()
+
+        group1name = "private_%s" % uuid
+        group2name = "read-only_%s" % uuid
+        group3name = "collaborative_%s" % uuid
+        ownerName = "owner_%s" % uuid
+        user1name = "user1_%s" % uuid
+        user2name = "user2_%s" % uuid
+
+        ### create three users in 3 groups
+        listOfGroups = list()
+        listOfGroups.append(admin.lookupGroup("user"))  # all users need to be in 'user' group to do anything!
+
+        #group1 - private
+        new_gr1 = ExperimenterGroupI()
+        new_gr1.name = rstring(group1name)
+        p = PermissionsI('rw----')
+        new_gr1.details.permissions = p
+        gid = admin.createGroup(new_gr1)
+        privateGroup = admin.getGroup(gid)
+        assert 'rw----' ==  str(privateGroup.details.permissions)
+        listOfGroups.append(privateGroup)
+
+        #group2 - read-only
+        new_gr2 = ExperimenterGroupI()
+        new_gr2.name = rstring(group2name)
+        p2 = PermissionsI('rwr---')
+        new_gr2.details.permissions = p2
+        gid2 = admin.createGroup(new_gr2)
+        readOnlyGroup = admin.getGroup(gid2)
+        assert 'rwr---' ==  str(readOnlyGroup.details.permissions)
+        listOfGroups.append(readOnlyGroup)
+
+        #group3 - read-annotate
+        new_gr3 = ExperimenterGroupI()
+        new_gr3.name = rstring(group3name)
+        p = PermissionsI('rwra--')
+        new_gr3.details.permissions = p
+        gid3 = admin.createGroup(new_gr3)
+        collaborativeGroup = admin.getGroup(gid3)
+        assert 'rwra--' ==  str(collaborativeGroup.details.permissions)
+        listOfGroups.append(collaborativeGroup)
+
+>>>>>>> origin/develop
         #new user (group owner)
         newOwner = self.new_user(group=privateGroup)
         self.add_groups(newOwner, [readOnlyGroup, collaborativeGroup],
@@ -78,8 +183,8 @@ class TestThumbnailPerms(lib.ITest):
         self.getThumbnail(client_share1.sf, collaborativeImageId)
 
         # check that we can't get thumbnails for images in other groups
-        self.assertEquals(None, self.getThumbnail(client_share1.sf, privateImageId))
-        self.assertEquals(None, self.getThumbnail(client_share1.sf, readOnlyImageId))
+        assert self.getThumbnail(client_share1.sf, privateImageId) is None
+        assert self.getThumbnail(client_share1.sf, readOnlyImageId) is None
 
 
         # now check that the 'owner' of each group can see all 3 thumbnails.
@@ -89,8 +194,8 @@ class TestThumbnailPerms(lib.ITest):
         group_ctx = {"omero.group": str(privateGroup)}
         self.getThumbnail(owner_client.sf, privateImageId, *group_ctx)
         # check that we can't get thumbnails for images in other groups
-        self.assertEquals(None, self.getThumbnail(owner_client.sf, readOnlyImageId))
-        self.assertEquals(None, self.getThumbnail(owner_client.sf, collaborativeImageId))
+        assert self.getThumbnail(owner_client.sf, readOnlyImageId) is None
+        assert self.getThumbnail(owner_client.sf, collaborativeImageId) is None
 
         # change owner into read-only group.
         o = client_share1.sf.getAdminService()
@@ -100,8 +205,8 @@ class TestThumbnailPerms(lib.ITest):
 
         self.getThumbnail(owner_client.sf, readOnlyImageId)
         # check that we can't get thumbnails for images in other groups
-        self.assertEquals(None, self.getThumbnail(owner_client.sf, privateImageId))
-        self.assertEquals(None, self.getThumbnail(owner_client.sf, collaborativeImageId))
+        assert self.getThumbnail(owner_client.sf, privateImageId) is None
+        assert self.getThumbnail(owner_client.sf, collaborativeImageId) is None
 
         # change owner into collaborative group.
         o.setDefaultGroup(me, omero.model.ExperimenterGroupI(collaborativeGroup.id.val, False))
@@ -109,8 +214,8 @@ class TestThumbnailPerms(lib.ITest):
 
         self.getThumbnail(owner_client.sf, collaborativeImageId)
         # check that we can't get thumbnails for images in other groups
-        self.assertEquals(None, self.getThumbnail(owner_client.sf, privateImageId))
-        self.assertEquals(None, self.getThumbnail(owner_client.sf, readOnlyImageId))
+        assert self.getThumbnail(owner_client.sf, privateImageId) is None
+        assert self.getThumbnail(owner_client.sf, readOnlyImageId) is None
 
 
         # now check that the 'user2' of each group can see all thumbnails except private.
@@ -118,9 +223,9 @@ class TestThumbnailPerms(lib.ITest):
         user2_client = self.new_client(user=user2, password="ome")
 
         # check that we can't get thumbnails for any images in private group
-        self.assertEquals(None, self.getThumbnail(user2_client.sf, privateImageId))
-        self.assertEquals(None, self.getThumbnail(user2_client.sf, readOnlyImageId))
-        self.assertEquals(None, self.getThumbnail(user2_client.sf, collaborativeImageId))
+        assert self.getThumbnail(user2_client.sf, privateImageId) is None
+        assert self.getThumbnail(user2_client.sf, readOnlyImageId) is None
+        assert self.getThumbnail(user2_client.sf, collaborativeImageId) is None
 
         # change owner into read-only group.
         u = user2_client.sf.getAdminService()
@@ -130,8 +235,8 @@ class TestThumbnailPerms(lib.ITest):
 
         self.getThumbnail(user2_client.sf, readOnlyImageId)
         # check that we can't get thumbnails for images in other groups
-        self.assertEquals(None, self.getThumbnail(user2_client.sf, privateImageId))
-        self.assertEquals(None, self.getThumbnail(user2_client.sf, collaborativeImageId))
+        assert self.getThumbnail(user2_client.sf, privateImageId) is None
+        assert self.getThumbnail(user2_client.sf, collaborativeImageId) is None
 
         # change owner into collaborative group.
         u.setDefaultGroup(me, omero.model.ExperimenterGroupI(collaborativeGroup.id.val, False))
@@ -139,8 +244,8 @@ class TestThumbnailPerms(lib.ITest):
 
         self.getThumbnail(user2_client.sf, collaborativeImageId)
         # check that we can't get thumbnails for images in other groups
-        self.assertEquals(None, self.getThumbnail(user2_client.sf, privateImageId))
-        self.assertEquals(None, self.getThumbnail(user2_client.sf, readOnlyImageId))
+        assert self.getThumbnail(user2_client.sf, privateImageId) is None
+        assert self.getThumbnail(user2_client.sf, readOnlyImageId) is None
 
     def test9070(self):
 
@@ -154,10 +259,10 @@ class TestThumbnailPerms(lib.ITest):
         ## using owner session access thumbnailStore
         thumbnailStore = owner.sf.createThumbnailStore()
         s = thumbnailStore.getThumbnailByLongestSideSet(rint(16), [pId])
-        self.assertNotEqual(s[pId],'')
+        assert s[pId] != ''
 
         s = thumbnailStore.getThumbnailSet(rint(16), rint(16), [pId])
-        self.assertNotEqual(s[pId],'')
+        assert s[pId] != ''
 
     def getThumbnail(self, session, imageId, *ctx):
 
@@ -172,15 +277,15 @@ class TestThumbnailPerms(lib.ITest):
 
         pixelsIds = [pId]
         s = thumbnailStore.getThumbnailByLongestSideSet(rint(16), pixelsIds)
-        self.assertEqual(1, len(s))
+        assert 1 == len(s)
         s = thumbnailStore.getThumbnailSet(rint(16), rint(16), pixelsIds)
-        self.assertEqual(1, len(s))
+        assert 1 == len(s)
 
         thumbnailStore.setPixelsId(pId)
         t = thumbnailStore.getThumbnail(rint(16),rint(16), *ctx)
-        self.assertNotEqual(None, t)
+        assert t
         t = thumbnailStore.getThumbnailByLongestSide(rint(16))
-        self.assertNotEqual(None, t)
+        assert t
 
         thumbnailStore.close()
         return t
@@ -196,16 +301,16 @@ class TestThumbnailPerms(lib.ITest):
             # As the user, load the thumbnails
             owner_tb_prx = owner.sf.createThumbnailStore()
             s = owner_tb_prx.getThumbnailByLongestSideSet(rint(16), [pId])
-            self.assertNotEqual(s[pId], '')
+            assert s[pId] != ''
 
         # As the tester, try to get a thumbnail
         tb_prx = tester.sf.createThumbnailStore()
 
         s = tb_prx.getThumbnailByLongestSideSet(rint(16), [pId], *ctx)
-        self.assertNotEqual(s[pId], '')
+        assert s[pId] != ''
 
         s = tb_prx.getThumbnailSet(rint(16), rint(16), [pId], *ctx)
-        self.assertNotEqual(s[pId], '')
+        assert s[pId] != ''
 
     def testPrivate10618RootWithGrpCtx(self):
         group = self.new_group(perms="rw----")

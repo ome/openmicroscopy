@@ -547,7 +547,7 @@ def get_shape_thumbnail (request, conn, image, s, compress_quality):
     # we have our full-sized region. Need to resize to thumbnail. 
     current_w, current_h = img.size
     factor = float(MAX_WIDTH) / current_w
-    resizeH = current_h * factor
+    resizeH = int(current_h * factor)
     img = img.resize((MAX_WIDTH, resizeH))
     
     draw = ImageDraw.Draw(img)

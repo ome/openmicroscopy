@@ -9,9 +9,9 @@
 
 """
 
-import unittest
 import traceback
 import test.integration.library as lib
+import pytest
 import omero
 import omero.callbacks
 import Ice
@@ -99,8 +99,8 @@ class TestDelete(lib.ITest):
         handle = self.client.sf.submit(dc)
         cb = self.waitOnCmd(self.client, handle)
 
-        self.assertEquals(None, query.find('Project', project.id.val))
-        self.assertEquals(dataset.id.val, query.find('Dataset', dataset.id.val).id.val)
+        assert not query.find('Project', project.id.val)
+        assert dataset.id.val ==  query.find('Dataset', dataset.id.val).id.val
 
         p = omero.sys.Parameters()
         p.map = {}
@@ -112,7 +112,7 @@ class TestDelete(lib.ITest):
                 "where d.id = :oid " \
                 "order by im.id asc"
         res = query.findAllByQuery(sql, p)
-        self.assertEquals(5, len(res))       
+        assert 5 == len(res)
         for e in res:
             if e.id.val not in images:
                 self.assertRaises('Image %i is not in the [%s]' % (e.id.val, ",".join(images)))
@@ -139,7 +139,7 @@ class TestDelete(lib.ITest):
 
         callback.close(True) # Don't close handle
 
-        self.assertEquals(None, query.find("Image", iid))
+        assert not query.find("Image", iid)
 
         # create new session and double check
         import os
@@ -150,21 +150,15 @@ class TestDelete(lib.ITest):
         cl1 = omero.client(host=host, port=port)
         sf1 = cl1.createSession(userName,userName)
 
-        try:
+        with pytest.raises(Ice.ObjectNotExistException):
             handle1 = omero.cmd.HandlePrx.checkedCast(cl1.ic.stringToProxy(cbString))
-            self.fail("exception Ice.ObjectNotExistException was not thrown")
-        except Ice.ObjectNotExistException:
-            pass
 
         # join session and double check
         cl2 = omero.client(host=host, port=port)
         sf2 = cl2.joinSession(uuid)
 
-        try:
+        with pytest.raises(Ice.ObjectNotExistException):
             handle2 = omero.cmd.HandlePrx.checkedCast(cl2.ic.stringToProxy(cbString))
-            self.fail("exception Ice.ObjectNotExistException was not thrown")
-        except Ice.ObjectNotExistException:
-            pass
 
     def testCheckIfDeleted2(self):
         uuid = self.client.sf.getAdminService().getEventContext().sessionUuid
@@ -215,7 +209,7 @@ class TestDelete(lib.ITest):
                 "left outer join fetch dil.parent d " \
                 "where d.id = :oid " \
                 "order by im.id asc"
-        self.assertEquals(0, len(query.findAllByQuery(sql, p)))
+        assert 0 ==  len(query.findAllByQuery(sql, p))
 
     def testOddMessage(self):
         query = self.client.sf.getQueryService()
@@ -343,35 +337,34 @@ class TestDelete(lib.ITest):
         while(len(handlers)>0):
             for cbString in handlers:
                 try:
-                    handle = omero.cmd.HandlePrx.checkedCast(client_o.ic.stringToProxy(cbString))
-                    cb = omero.callbacks.CmdCallbackI(client_o, handle)
-                    if not cb.block(500): # ms.
-                        # No errors possible if in progress (since no response)
-                        print "in progress", _formatReport(handle)
-                        in_progress+=1
-                    else:
-                        rsp = cb.getResponse()
-                        if isinstance(rsp, omero.cmd.ERR):
-                            r = _formatReport(handle)
-                            if r is not None:
-                                failure.append(r)
-                            else:
-                                failure.append("No report!!!")
+                    with pytest.raises(Ice.ObjectNotExistException):
+                        handle = omero.cmd.HandlePrx.checkedCast(client_o.ic.stringToProxy(cbString))
+                        cb = omero.callbacks.CmdCallbackI(client_o, handle)
+                        if not cb.block(500): # ms.
+                            # No errors possible if in progress (since no response)
+                            print "in progress", _formatReport(handle)
+                            in_progress+=1
                         else:
-                            r = _formatReport(handle)
-                            if r is not None:
-                                failure.append(r)
-                            cb.close(True) # Close handle
-                        handlers.remove(cbString)
-                except Ice.ObjectNotExistException:
-                    pass
+                            rsp = cb.getResponse()
+                            if isinstance(rsp, omero.cmd.ERR):
+                                r = _formatReport(handle)
+                                if r is not None:
+                                    failure.append(r)
+                                else:
+                                    failure.append("No report!!!")
+                            else:
+                                r = _formatReport(handle)
+                                if r is not None:
+                                    failure.append(r)
+                                cb.close(True) # Close handle
+                            handlers.remove(cbString)
                 except Exception, x:
                     if r is not None:
                         failure.append(traceback.format_exc())
 
         if len(failure) > 0:
-            self.fail(";".join(failure))
-        self.assertEquals(None, query_o.find('Dataset', dataset.id.val))
+            assert False, ";".join(failure)
+        assert not query_o.find('Dataset', dataset.id.val)
 
     def test5793(self):
         uuid = self.client.sf.getAdminService().getEventContext().sessionUuid
@@ -398,8 +391,8 @@ class TestDelete(lib.ITest):
         handle = self.client.sf.submit(command)
         callback = self.waitOnCmd(self.client, handle)
 
-        self.assertEquals(None, query.find("TagAnnotation", tagset.id.val))
-        self.assertEquals(tag.id.val, query.find("TagAnnotation", tag.id.val).id.val)
+        assert not query.find("TagAnnotation", tagset.id.val)
+        assert tag.id.val ==  query.find("TagAnnotation", tag.id.val).id.val
 
     def test7314(self):
         """
@@ -413,8 +406,9 @@ class TestDelete(lib.ITest):
         command = omero.cmd.Delete("/OriginalFile", o.id.val, None)
         handle = self.client.sf.submit(command)
         self.waitOnCmd(self.client, handle)
-        self.assertRaises(omero.ServerError, \
-                self.client.sf.getQueryService().get, "FileAnnotation", fa.id.val)
+
+        with pytest.raises(omero.ServerError):
+            self.client.sf.getQueryService().get("FileAnnotation", fa.id.val)
 
     def testDeleteOneDatasetFilesetErr(self):
         """
@@ -446,15 +440,15 @@ class TestDelete(lib.ITest):
         # since fileset cleanup is happening at the end of the transaction
         # disabling and marking in ticket.
         # The delete should fail due to the fileset
-        ### self.assertTrue('Fileset' in rsp.constraints, "delete should fail due to 'Fileset' constraints")
+        ### assert 'Fileset' in rsp.constraints,  "delete should fail due to 'Fileset' constraints"
         ### failedFilesets = rsp.constraints['Fileset']
-        ### self.assertEqual(len(failedFilesets), 1, "delete should fail due to a single Fileset")
-        ### self.assertEqual(failedFilesets[0], filesetId, "delete should fail due to this Fileset")
+        ### assert len(failedFilesets) ==  1,  "delete should fail due to a single Fileset"
+        ### assert failedFilesets[0] ==  filesetId,  "delete should fail due to this Fileset"
 
         # Neither image or the dataset should be deleted.
-        self.assertEquals(datasets[0].id.val, query.find("Dataset", datasets[0].id.val).id.val)
-        self.assertEquals(images[0].id.val, query.find("Image", images[0].id.val).id.val)
-        self.assertEquals(images[1].id.val, query.find("Image", images[1].id.val).id.val)
+        assert datasets[0].id.val ==  query.find("Dataset", datasets[0].id.val).id.val
+        assert images[0].id.val ==  query.find("Image", images[0].id.val).id.val
+        assert images[1].id.val ==  query.find("Image", images[1].id.val).id.val
 
     def testDeleteOneImageFilesetErr(self):
         """
@@ -480,14 +474,14 @@ class TestDelete(lib.ITest):
         # since fileset cleanup is happening at the end of the transaction
         # disabling and marking in ticket.
         ### # The delete should fail due to the fileset
-        ### self.assertTrue('Fileset' in rsp.constraints, "delete should fail due to 'Fileset' constraints")
+        ### assert 'Fileset' in rsp.constraints,  "delete should fail due to 'Fileset' constraints"
         ### failedFilesets = rsp.constraints['Fileset']
-        ### self.assertEqual(len(failedFilesets), 1, "delete should fail due to a single Fileset")
-        ### self.assertEqual(failedFilesets[0], filesetId, "delete should fail due to this Fileset")
+        ### assert len(failedFilesets) ==  1,  "delete should fail due to a single Fileset"
+        ### assert failedFilesets[0] ==  filesetId,  "delete should fail due to this Fileset"
 
         # Neither image should be deleted.
-        self.assertEquals(images[0].id.val, query.find("Image", images[0].id.val).id.val)
-        self.assertEquals(images[1].id.val, query.find("Image", images[1].id.val).id.val)
+        assert images[0].id.val ==  query.find("Image", images[0].id.val).id.val
+        assert images[1].id.val ==  query.find("Image", images[1].id.val).id.val
 
     def testDeleteDatasetFilesetOK(self):
         """
@@ -514,10 +508,10 @@ class TestDelete(lib.ITest):
         self.doAllSubmit([delete], client)
 
         # The dataset, fileset and both images should be deleted.
-        self.assertEquals(None, query.find("Dataset", ds.id.val))
-        self.assertEquals(None, query.find("Fileset", fsId))
-        self.assertEquals(None, query.find("Image", images[0].id.val))
-        self.assertEquals(None, query.find("Image", images[1].id.val))
+        assert not query.find("Dataset", ds.id.val)
+        assert not query.find("Fileset", fsId)
+        assert not query.find("Image", images[0].id.val)
+        assert not query.find("Image", images[1].id.val)
 
     def testDeleteAllDatasetsFilesetOK(self):
         """
@@ -543,11 +537,11 @@ class TestDelete(lib.ITest):
         self.doAllSubmit([delete1,delete2], client)
 
         # Both datasets, the fileset and both images should be deleted.
-        self.assertEquals(None, query.find("Dataset", datasets[0].id.val))
-        self.assertEquals(None, query.find("Dataset", datasets[1].id.val))
-        self.assertEquals(None, query.find("Fileset", fsId))
-        self.assertEquals(None, query.find("Image", images[0].id.val))
-        self.assertEquals(None, query.find("Image", images[1].id.val))
+        assert not query.find("Dataset", datasets[0].id.val)
+        assert not query.find("Dataset", datasets[1].id.val)
+        assert not query.find("Fileset", fsId)
+        assert not query.find("Image", images[0].id.val)
+        assert not query.find("Image", images[1].id.val)
 
     def testDeleteAllImagesFilesetOK(self):
         """
@@ -567,9 +561,9 @@ class TestDelete(lib.ITest):
         self.doAllSubmit([delete1,delete2], client)
 
         # The fileset and both images should be deleted.
-        self.assertEquals(None, query.find("Fileset", fsId))
-        self.assertEquals(None, query.find("Image", images[0].id.val))
-        self.assertEquals(None, query.find("Image", images[1].id.val))
+        assert not query.find("Fileset", fsId)
+        assert not query.find("Image", images[0].id.val)
+        assert not query.find("Image", images[1].id.val)
 
     def testDeleteFilesetOK(self):
         """
@@ -587,9 +581,9 @@ class TestDelete(lib.ITest):
         self.doAllSubmit([delete], client)
 
         # The dataset, fileset and both images should be deleted.
-        self.assertEquals(None, query.find("Fileset", fsId))
-        self.assertEquals(None, query.find("Image", images[0].id.val))
-        self.assertEquals(None, query.find("Image", images[1].id.val))
+        assert not query.find("Fileset", fsId)
+        assert not query.find("Image", images[0].id.val)
+        assert not query.find("Image", images[1].id.val)
 
     def testDeleteImagesTwoFilesetsErr(self):
         """
@@ -616,11 +610,11 @@ class TestDelete(lib.ITest):
         # since fileset cleanup is happening at the end of the transaction
         # disabling and marking in ticket.
         # ...due to the filesets
-        ### self.assertTrue('Fileset' in rsp.constraints, "Delete should fail due to 'Fileset' constraints")
+        ### assert 'Fileset' in rsp.constraints,  "Delete should fail due to 'Fileset' constraints"
         ### failedFilesets = rsp.constraints['Fileset']
-        ### self.assertEqual(len(failedFilesets), 2, "Delete should fail due to a Two Filesets")
-        ### self.assertTrue(filesetOneId in failedFilesets)
-        ### self.assertTrue(filesetTwoId in failedFilesets)
+        ### assert len(failedFilesets) ==  2,  "Delete should fail due to a Two Filesets"
+        ### assert filesetOneId in failedFilesets
+        ### assert filesetTwoId in failedFilesets
 
     def testDeleteDatasetTwoFilesetsErr(self):
         """
@@ -658,16 +652,16 @@ class TestDelete(lib.ITest):
         # since fileset cleanup is happening at the end of the transaction
         # disabling and marking in ticket.
         # ...due to the filesets
-        ### self.assertTrue('Fileset' in rsp.constraints, "Delete should fail due to 'Fileset' constraints")
+        ### assert 'Fileset' in rsp.constraints,  "Delete should fail due to 'Fileset' constraints"
         ### failedFilesets = rsp.constraints['Fileset']
-        ### self.assertEqual(len(failedFilesets), 2, "Delete should fail due to a Two Filesets")
-        ### self.assertTrue(filesetOneId in failedFilesets)
-        ### self.assertTrue(filesetTwoId in failedFilesets)
+        ### assert len(failedFilesets) ==  2,  "Delete should fail due to a Two Filesets"
+        ### assert filesetOneId in failedFilesets
+        ### assert filesetTwoId in failedFilesets
 
 if __name__ == '__main__':
     if "TRACE" in os.environ:
         import trace
         tracer = trace.Trace(ignoredirs=[sys.prefix, sys.exec_prefix], trace=1)
-        tracer.runfunc(unittest.main)
+        tracer.runfunc(pytest.main)
     else:
-        unittest.main()
+        pytest.main()

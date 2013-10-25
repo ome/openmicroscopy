@@ -25,7 +25,6 @@ Test of the CmdCallbackI object
 
 import Ice
 import time
-import unittest
 import threading
 
 import test.integration.library as lib
@@ -37,9 +36,8 @@ from omero.util.concurrency import get_event
 
 class TestCB(omero.callbacks.CmdCallbackI):
 
-    def __init__(self, client, handle, test):
+    def __init__(self, client, handle):
         super(TestCB, self).__init__(client, handle)
-        self.t_test = test
         self.t_lock = threading.RLock()
         self.t_steps = 0
         self.t_finished = 0
@@ -63,24 +61,24 @@ class TestCB(omero.callbacks.CmdCallbackI):
     def assertSteps(self, expected):
         self.t_lock.acquire()
         try:
-            self.t_test.assertEquals(expected, self.t_steps)
+            assert expected == self.t_steps
         finally:
             self.t_lock.release()
 
     def assertFinished(self, expectedSteps = None):
         self.t_lock.acquire()
         try:
-            self.t_test.assert_(self.t_finished != 0)
-            self.t_test.assertFalse(self.isCancelled())
-            self.t_test.assertFalse(self.isFailure())
+            assert self.t_finished != 0
+            assert not self.isCancelled()
+            assert not self.isFailure()
             rsp = self.getResponse()
             if not rsp:
-                self.fail("null response")
+                assert False, "null response"
 
             elif isinstance(rsp, omero.cmd.ERR):
                 msg = "%s\ncat:%s\nname:%s\nparams:%s\n" % \
                         (err, err.category, err.name, err.parameters)
-                self.fail(msg)
+                assert False, msg
         finally:
             self.t_lock.release()
 
@@ -90,8 +88,8 @@ class TestCB(omero.callbacks.CmdCallbackI):
     def assertCancelled(self):
         self.t_lock.acquire()
         try:
-            self.t_test.assert_(self.t_finished != 0)
-            self.t_test.assert_(self.isCancelled())
+            assert self.t_finished != 0
+            assert self.isCancelled()
         finally:
             self.t_lock.release()
 
@@ -104,7 +102,7 @@ class CmdCallbackTest(lib.ITest):
         """
         client = self.new_client(perms="rw----")
         handle = client.getSession().submit(req)
-        return TestCB(client, handle, self)
+        return TestCB(client, handle)
 
     # Timing
     # =========================================================================
@@ -118,7 +116,7 @@ class CmdCallbackTest(lib.ITest):
     def testTimingFinishesOnLatch(self):
         cb = self.timing(25, 4 * 10)  # Runs 1 second
         cb.t_event.wait(1.500)
-        self.assertEquals(1, cb.t_finished)
+        assert 1 ==  cb.t_finished
         cb.assertFinished(10)  # Modulus-10
 
     def testTimingFinishesOnBlock(self):
@@ -159,5 +157,3 @@ class CmdCallbackTest(lib.ITest):
         # For some reason the number of steps is varying between 10 and 15
 
 
-if __name__ == '__main__':
-    unittest.main()

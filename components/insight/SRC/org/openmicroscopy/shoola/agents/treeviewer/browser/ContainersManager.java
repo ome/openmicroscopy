@@ -149,17 +149,15 @@ public class ContainersManager
         if (p != null) {
             Iterator i = p.iterator();
             TreeImageSet node;
-            DefaultTreeModel dtm = (DefaultTreeModel) tree.getModel();
+            DefaultTreeModel dtm = null;
+            if (tree != null)
+            	dtm = (DefaultTreeModel) tree.getModel();
             while (i.hasNext()) {
                 node = (TreeImageSet) i.next();
                 node.setNumberItems(value);
-                //remove the empty node if the container is empty.
-                /*
-                if (value == 0 && dtm.getChildCount(node) == 1) 
-                    dtm.removeNodeFromParent(
-                            (DefaultMutableTreeNode) dtm.getChild(node, 0));
-                            */
-                dtm.reload(node);
+                if (dtm != null && !node.isExpanded() &&
+                		!node.isChildrenLoaded())
+                		dtm.reload(node);
             }    
             processedIDs.add(id);
         } 

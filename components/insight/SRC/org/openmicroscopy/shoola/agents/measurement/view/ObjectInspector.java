@@ -22,8 +22,6 @@
  */
 package org.openmicroscopy.shoola.agents.measurement.view;
 
-
-//Java imports
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.event.MouseAdapter;
@@ -33,15 +31,14 @@ import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+
 import javax.swing.Icon;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.table.TableCellEditor;
 
-//Third-party libraries
-
-//Application-internal dependencies
+import org.jhotdraw.draw.AttributeKey;
 import org.openmicroscopy.shoola.agents.measurement.IconManager;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.agents.measurement.util.model.AnnotationDescription;
@@ -82,29 +79,32 @@ class ObjectInspector
 	/** Index to identify tab */
 	public final static int		INDEX = MeasurementViewerUI.INSPECTOR_INDEX;
 
-	/** The row hosting the fill color. */
-	static final int FILL_COLOR_ROW = 5;
-	
-	/** The row hosting the fill color. */
-	static final int LINE_COLOR_ROW = 6;
-	
 	/** Collection of column names. */
 	private static final List<String>			COLUMN_NAMES;
 	
 	/** The row indicating to show the text or not. */
 	private static final int TEXT_ROW = 0;
 	
-	/** The row indicating to show the text or not. */
-	private static final int WIDTH_ROW = 1;
+	/** The row indicating if to update the figure width and height together. */
+	private static final int SCALE_PROPORTIONALLY_ROW = 1;
+	
+	/** The row hosting the figure width. */
+	private static final int WIDTH_ROW = 2;
+	
+	/** The row hosting the figure height. */
+	private static final int HEIGHT_ROW = 3;
 	
 	/** The row indicating to show the text or not. */
-	private static final int HEIGHT_ROW = 2;
-	
-	/** The row indicating to show the text or not. */
-	private static final int SHOW_TEXT_ROW = 3;
+	private static final int SHOW_TEXT_ROW = 4;
 	
 	/** The row indicating to show the measurement or not. */
-	private static final int SHOW_MEASUREMENT_ROW = 4;
+	private static final int SHOW_MEASUREMENT_ROW = 5;
+	
+	/** The row hosting the fill color. */
+	static final int FILL_COLOR_ROW = 6;
+	
+	/** The row hosting the line color. */
+	static final int LINE_COLOR_ROW = 7;
 	
 	/** The name of the panel. */
 	private static final String			NAME = "Inspector";
@@ -130,31 +130,31 @@ class ObjectInspector
 		List<AttributeField> l = new ArrayList<AttributeField>();
 		l.add(new AttributeField(MeasurementAttributes.TEXT, 
 				AnnotationDescription.annotationDescription.get(
-				AnnotationKeys.TEXT), Boolean.valueOf(true)));
+				AnnotationKeys.TEXT), true));
+		l.add(new AttributeField(MeasurementAttributes.SCALE_PROPORTIONALLY,
+				AnnotationDescription.annotationDescription.get(
+						MeasurementAttributes.SCALE_PROPORTIONALLY),
+						false));
 		l.add(new AttributeField(MeasurementAttributes.WIDTH, 
 				AnnotationDescription.annotationDescription.get(
-				AnnotationKeys.WIDTH), Boolean.valueOf(true)));
+				AnnotationKeys.WIDTH), true));
 		l.add(new AttributeField(MeasurementAttributes.HEIGHT, 
 				AnnotationDescription.annotationDescription.get(
-				AnnotationKeys.HEIGHT), Boolean.valueOf(true)));
-		//l.add(new AttributeField(AnnotationKeys.NAMESPACE, "Workflow", false));
-		//l.add(new AttributeField(AnnotationKeys.KEYWORDS, "Keywords", false));
+				AnnotationKeys.HEIGHT), true));
 		l.add(new AttributeField(MeasurementAttributes.SHOWTEXT, "Show Text", 
-				Boolean.valueOf(false)));
+				false));
 		l.add(new AttributeField(MeasurementAttributes.SHOWMEASUREMENT, 
 				AnnotationDescription.annotationDescription.get(
 						MeasurementAttributes.SHOWMEASUREMENT), 
-						Boolean.valueOf(false))); 
-		//l.add(new AttributeField(MeasurementAttributes.SHOWID, 
-			//"Show ID", false)); 
+						false));
 		l.add(new AttributeField(MeasurementAttributes.FILL_COLOR, 
 				AnnotationDescription.annotationDescription.get(
 						MeasurementAttributes.FILL_COLOR), 
-						Boolean.valueOf(false)));
+						false));
 		l.add(new AttributeField(MeasurementAttributes.STROKE_COLOR, 
 				AnnotationDescription.annotationDescription.get(
 						MeasurementAttributes.STROKE_COLOR), 
-						Boolean.valueOf(false)));
+						false));
 		//create the table
 		fieldTable = new FigureTable(new FigureTableModel(l, COLUMN_NAMES));
 		fieldTable.getTableHeader().setReorderingAllowed(false);
@@ -227,77 +227,39 @@ class ObjectInspector
 			case WIDTH_ROW:
 				try {
 					double d = Double.parseDouble(text);
-					if (figure instanceof MeasureEllipseFigure){
-						figure.setAttribute(MeasurementAttributes.WIDTH, d);
-					} else if (figure instanceof MeasureRectangleFigure){
-						figure.setAttribute(MeasurementAttributes.WIDTH, d);
-					} else if (figure instanceof MeasureBezierFigure){
-						figure.setAttribute(MeasurementAttributes.WIDTH, d);
-					} else if (figure instanceof MeasureTextFigure){
-						figure.setAttribute(MeasurementAttributes.WIDTH, d);
-					} else if (figure instanceof MeasureLineConnectionFigure){
-						figure.setAttribute(MeasurementAttributes.WIDTH, d);
-					} else if (figure instanceof MeasureLineFigure){
-						figure.setAttribute(MeasurementAttributes.WIDTH, d);
+					setFigureDimension(figure, MeasurementAttributes.WIDTH, d);
+					if (isScaleProportionally()) {
+						setFigureDimension(figure, MeasurementAttributes.HEIGHT,
+								d);
 					}
 				} catch (Exception e) {
-					
 				}
+				break;
 			case HEIGHT_ROW:
 				try {
 					double d = Double.parseDouble(text);
-					if (figure instanceof MeasureEllipseFigure){
-						figure.setAttribute(MeasurementAttributes.HEIGHT, d);
-					} else if (figure instanceof MeasureRectangleFigure){
-						figure.setAttribute(MeasurementAttributes.HEIGHT, d);
-					} else if (figure instanceof MeasureBezierFigure){
-						figure.setAttribute(MeasurementAttributes.HEIGHT, d);
-					} else if (figure instanceof MeasureTextFigure){
-						figure.setAttribute(MeasurementAttributes.HEIGHT, d);
-					} else if (figure instanceof MeasureLineConnectionFigure){
-						figure.setAttribute(MeasurementAttributes.HEIGHT, d);
-					} else if (figure instanceof MeasureLineFigure){
-						figure.setAttribute(MeasurementAttributes.HEIGHT, d);
+					setFigureDimension(figure, MeasurementAttributes.HEIGHT, d);
+					if (isScaleProportionally()) {
+						setFigureDimension(figure, MeasurementAttributes.WIDTH,
+								d);
 					}
 				} catch (Exception e) {
-					
 				}
+				break;
 		}
 		model.getDrawingView().repaint();
 	}
 	
-	/**
-	 * Sets the range of values the stroke attribute may take. 
-	 * 
-	 * @return see above.
-	 */
-	private List<Double> strokeRange()
-	{
-		List<Double> sRange = new ArrayList<Double>();
-		sRange.add(new Double(0.5));
-		sRange.add(new Double(0.75));
-		sRange.add(new Double(1));
-		sRange.add(new Double(2));
-		sRange.add(new Double(3));
-		sRange.add(new Double(4));
-		return sRange;
-	}
-	
-	/**
-	 * Set the range of values the font attribute may take. 
-	 * 
-	 * @return see above.
-	 */
-	private List<Double> fontRange()
-	{
-		List<Double> fRange = new ArrayList<Double>();
-		fRange.add(new Double(4));
-		fRange.add(new Double(8));
-		fRange.add(new Double(10));
-		fRange.add(new Double(12));
-		fRange.add(new Double(16));
-		fRange.add(new Double(24));
-		return fRange;
+	private void setFigureDimension(ROIFigure figure, AttributeKey key,
+			double dimension) {
+		if (figure instanceof MeasureEllipseFigure ||
+			figure instanceof MeasureRectangleFigure ||
+			figure instanceof MeasureBezierFigure ||
+			figure instanceof MeasureTextFigure ||
+			figure instanceof MeasureLineConnectionFigure ||
+			figure instanceof MeasureLineFigure) {
+			figure.setAttribute(key, dimension);
+		}
 	}
 	
 	/** Toggles the value of the boolean under the current selection. */
@@ -381,7 +343,7 @@ class ObjectInspector
 	{
 		if (fieldTable == null) return false;
 		int n = fieldTable.getRowCount();
-		if (n > 3) {
+		if (n > 4) {
 			Object v = fieldTable.getModel().getValueAt(SHOW_TEXT_ROW, 1);
 			if (v == null) return false;
 			return (Boolean) v;
@@ -400,11 +362,10 @@ class ObjectInspector
 	{
 		if (fieldTable == null) return;
 		int n = fieldTable.getRowCount();
-		if (n > 3) {
+		if (n > 4) {
 			FigureTableModel ftm = (FigureTableModel) 
 			fieldTable.getModel();
 			ROIFigure f = ftm.getFigure();
-			//if (f != null && !f.isReadOnly() && f == figure)
 			if (f != null && f == figure)
 				fieldTable.getModel().setValueAt(show, SHOW_TEXT_ROW, 1);
 		}
@@ -420,7 +381,7 @@ class ObjectInspector
 	{
 		if (fieldTable == null) return false;
 		int n = fieldTable.getRowCount();
-		if (n > 4) {
+		if (n > 5) {
 			Object v = fieldTable.getModel().getValueAt(SHOW_MEASUREMENT_ROW, 
 					1);
 			if (v == null) return false;
@@ -429,6 +390,23 @@ class ObjectInspector
 		return false;
 	}
 	
+	/**
+	 * Returns <code>true</code> if the figure dimensions are to be scaled
+	 * proportionally, <code>false</code> otherwise.
+	 *
+	 * @return See above.
+	 */
+	boolean isScaleProportionally() {
+		if (fieldTable == null) return false;
+		int n = fieldTable.getRowCount();
+		if (n > 1) {
+			Object v = fieldTable.getModel().getValueAt(SCALE_PROPORTIONALLY_ROW,
+					1);
+			if (v == null) return false;
+			return (Boolean) v;
+		}
+		return false;
+	}
 	
 	/**
 	 * Sets the data.
@@ -439,7 +417,6 @@ class ObjectInspector
 	{
 		FigureTableModel tableModel = (FigureTableModel) fieldTable.getModel();
 		tableModel.setData(figure);
-		//fieldTable.setModel(tableModel);
 		fieldTable.repaint();
 	}
 	
@@ -496,7 +473,6 @@ class ObjectInspector
 			while (i.hasNext()) {
 				shape = i.next();
 				tableModel.setData(shape.getFigure());
-				//fieldTable.setModel(tableModel);
 				fieldTable.repaint();
 			}
 		} catch (Exception e) {

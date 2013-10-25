@@ -11,7 +11,7 @@
 """
 
 import test.integration.library as lib
-import omero, unittest
+import omero
 from omero_model_PixelsI import PixelsI
 from omero_model_ImageI import ImageI
 from omero_model_DatasetI import DatasetI
@@ -38,46 +38,46 @@ class TestIContainer(lib.ITest):
         update = self.root.sf.getUpdateService()
         admin = self.root.sf.getAdminService()
         ipojo = self.root.sf.getContainerService()
-        
+
         ### create new users
         #group1
         new_gr1 = ExperimenterGroupI()
         new_gr1.name = rstring("group1_%s" % uuid)
         gid = admin.createGroup(new_gr1)
-        
+
         #new user1
         new_exp = ExperimenterI()
         new_exp.omeName = rstring("user1_%s" % uuid)
         new_exp.firstName = rstring("New")
         new_exp.lastName = rstring("Test")
-        
+
         defaultGroup = admin.getGroup(gid)
         listOfGroups = list()
         listOfGroups.append(admin.lookupGroup("user"))
-        
+
         eid = admin.createExperimenterWithPassword(new_exp, rstring("ome"), defaultGroup, listOfGroups)
-        
+
         #new user2
         new_exp2 = ExperimenterI()
         new_exp2.omeName = rstring("user2_%s" % uuid)
         new_exp2.firstName = rstring("New2")
         new_exp2.lastName = rstring("Test2")
-        
+
         defaultGroup = admin.getGroup(gid)
         listOfGroups = list()
         listOfGroups.append(admin.lookupGroup("user"))
-        
+
         eid2 = admin.createExperimenterWithPassword(new_exp2, rstring("ome"), defaultGroup, listOfGroups)
-    
+
         ## get users
         user1 = admin.getExperimenter(eid)
         user2 = admin.getExperimenter(eid2)
-        
+
         ## login as user1
         cl1 = self.new_client(user=user1, password="ome")
         update1 = cl1.sf.getUpdateService()
         ipojo1 = cl1.sf.getContainerService()
-        
+
         # create image
         img = ImageI()
         img.setName(rstring('test1154-img-%s' % (uuid)))
@@ -96,36 +96,36 @@ class TestIContainer(lib.ITest):
 
         #user retrives the annotations for image
         coll_count = ipojo1.getCollectionCount("Image", "ome.model.containers.Image_annotationLinks", [img.id.val], None)
-        self.assertEquals(1, coll_count.get(img.id.val, []))
-        #self.assertEquals(1, len(ipojo1.findAnnotations("Image", [img.id.val], None, None).get(img.id.val, [])))
+        assert 1 ==  coll_count.get(img.id.val, [])
+        #assert 1 ==  len(ipojo1.findAnnotations("Image", [img.id.val], None, None).get(img.id.val, []))
 
         ## login as user2
         cl2 = self.new_client(user=user2, password="ome")
         update2 = cl1.sf.getUpdateService()
-        
+
         ann = CommentAnnotationI()
         ann.textValue = rstring("user2 comment - %s" % uuid)
         l_ann = ImageAnnotationLinkI()
         l_ann.setParent(img)
         l_ann.setChild(ann)
         update2.saveObject(l_ann)
-        
+
         #do they see the same vals?
         #print ipojo1.getCollectionCount("Image", "ome.model.containers.Image_annotationLinks", [img.id.val], None)
         #print ipojo.getCollectionCount("Image", "ome.model.containers.Image_annotationLinks", [img.id.val], None)
         #print len(ipojo1.findAnnotations("Image", [img.id.val], None, None).get(img.id.val, []))
         #print len(ipojo.findAnnotations("Image", [img.id.val], None, None).get(img.id.val, []))
         coll_count = ipojo1.getCollectionCount("Image", "ome.model.containers.Image_annotationLinks", [img.id.val], None)
-        self.assertEquals(2, coll_count.get(img.id.val, []))
+        assert 2 ==  coll_count.get(img.id.val, [])
         #anns = ipojo1.findAnnotations("Image", [img.id.val], None, None).get(img.id.val, [])
-        #self.assertEquals(2, len(anns))
-        
-        #self.assert_(anns[0].details.permissions == 'rw----')
-        #self.assert_(anns[1].details.permissions == 'rw----')
-        
+        #assert 2 ==  len(anns)
+
+        #assert anns[0].details.permissions == 'rw----'
+        #assert anns[1].details.permissions == 'rw----'
+
         cl1.sf.closeOnDestroy()
         cl2.sf.closeOnDestroy()
-    
+
     def testCreateAfterBlitzPort(self):
         ipojo = self.client.sf.getContainerService()
         i = ImageI()
@@ -133,7 +133,7 @@ class TestIContainer(lib.ITest):
         i.setAcquisitionDate(rtime(0))
         i = ipojo.createDataObject(i,None)
         o = i.getDetails().owner
-        self.assertEquals( -1, o.sizeOfGroupExperimenterMap() )
+        assert  -1 ==  o.sizeOfGroupExperimenterMap()
 
 
 class TestSplitFilesets(lib.ITest):
@@ -157,10 +157,10 @@ class TestSplitFilesets(lib.ITest):
             return True
 
         # compare result with expected...
-        self.assertEqual(set(result.keys()), set(expected.keys()), "Result should have expected Fileset IDs")
+        assert set(result.keys()) ==  set(expected.keys()),  "Result should have expected Fileset IDs"
         for fsId, expectedDict in expected.items():
-            self.assertTrue(cmpLists(expectedDict[True], result[fsId][True]), "True ImageIDs should match")
-            self.assertTrue(cmpLists(expectedDict[False], result[fsId][False]), "False ImageIDs should match")
+            assert cmpLists(expectedDict[True],  result[fsId][True]), "True ImageIDs should match"
+            assert cmpLists(expectedDict[False],  result[fsId][False]), "False ImageIDs should match"
 
     def testFilesetSplitByImage(self):
         """
@@ -457,6 +457,3 @@ class TestSplitFilesets(lib.ITest):
                     expected[fileset_id][included] = [ images[image_index].id.val for image_index in image_indices[included] ]
             if ipojo.getImagesBySplitFilesets(referenced, None) != expected:
                 raise Exception('for referenced ' + str(named_indices) + ' expected ' + str(fileset_split))
-
-if __name__ == '__main__':
-    unittest.main()

@@ -2325,27 +2325,43 @@ def list_scripts (request, conn=None, **kwargs):
         if fullpath in settings.SCRIPTS_TO_IGNORE:
             logger.info('Ignoring script %r' % fullpath)
             continue
-        displayName = name.replace("_", " ").replace(".py", "")
 
-        if path not in scriptMenu:
-            folder, name = os.path.split(path)
-            if len(name) == 0:      # path was /path/to/folderName/  - we want 'folderName'
-                folderName = os.path.basename(folder)
-            else:                   # path was /path/to/folderName  - we want 'folderName'
-                folderName = name
-            folderName = folderName.title().replace("_", " ")
-            scriptMenu[path] = {'name': folderName, 'scripts': []}
+        # We want to build a hierarchical <ul> <li> structure
+        # Each <ul> is a {}, each <li> is either a script 'name': <id> or directory 'name': {ul}
 
-        scriptMenu[path]['scripts'].append((scriptId, displayName))
+        ul = scriptMenu
+        dirs = fullpath.split("/");
+        for l, d in enumerate(dirs):
+            if len(d) == 0:
+                continue
+            if d not in ul:
+                # if last component in path:
+                if l+1 == len(dirs):
+                    ul[d] = scriptId
+                else:
+                    ul[d] = {}
+            ul = ul[d]
 
-    # convert map into list
-    scriptList = []
-    for path, sData in scriptMenu.items():
-        sData['path'] = path    # sData map has 'name', 'path', 'scripts'
-        sData['scripts'].sort(key=lambda x:x[1].lower())    # sort each script submenu by displayName
-        scriptList.append(sData)
-    scriptList.sort(key=lambda x:x['name'])
-    return {'template':"webclient/scripts/list_scripts.html", 'scriptMenu': scriptList}
+    # convert <ul> maps into lists and sort
+
+    def ul_to_list(ul):
+        dir_list = []
+        for name, value in ul.items():
+            if isinstance(value, dict):
+                # value is a directory
+                dir_list.append({'name': name, 'ul': ul_to_list(value)})
+            else:
+                dir_list.append({'name': name, 'id':value})
+        dir_list.sort(key=lambda x:x['name'].lower())
+        return dir_list
+
+    scriptList = ul_to_list(scriptMenu)
+
+    # If we have a single top-level directory, we can skip it
+    if len(scriptList) == 1:
+        scriptList = scriptList[0]['ul']
+
+    return scriptList
 
 
 @login_required()

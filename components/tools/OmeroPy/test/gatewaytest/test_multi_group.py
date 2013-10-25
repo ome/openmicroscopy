@@ -54,7 +54,7 @@ class TestHistory (object):
         assert typeCount ==  dataCount, "Period count should match number of objects"
         assert logCount ==  dataCount, "Logs count should match number of objects"
 
-
+    @pytest.mark.xfail(reason="ticket 11494")
     def testCreateHistory(self, gatewaywrapper):
         
         # Login as user...

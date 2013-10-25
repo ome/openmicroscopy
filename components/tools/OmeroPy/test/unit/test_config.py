@@ -10,9 +10,8 @@
 """
 
 import os
-import logging
-import unittest
 import portalocker
+import pytest
 from omero.config import *
 from omero.util.temp_files import create_path
 
@@ -22,7 +21,7 @@ except ImportError:
     from elementtree.ElementTree import XML, Element, SubElement, Comment, ElementTree, tostring, dump
 
 
-class TestConfig(unittest.TestCase):
+class TestConfig(object):
 
     def pair(self, x):
         key = x.get("id")
@@ -32,15 +31,15 @@ class TestConfig(unittest.TestCase):
 
     def assertXml(self, elementA, elementB):
 
-        self.assertEquals(elementA.tag, elementB.tag)
+        assert elementA.tag == elementB.tag
 
         A_attr = elementA.attrib
         B_attr = elementB.attrib
-        self.assertEquals(len(A_attr), len(B_attr))
+        assert len(A_attr) == len(B_attr)
         for k in A_attr:
-            self.assertEquals(A_attr[k], B_attr[k], self.cf(elementA, elementB))
+            assert A_attr[k] == B_attr[k], self.cf(elementA, elementB)
         for k in B_attr:
-            self.assertEquals(A_attr[k], B_attr[k], self.cf(elementA, elementB))
+            assert A_attr[k] == B_attr[k], self.cf(elementA, elementB)
 
         A_kids = dict([self.pair(x) for x in elementA.getchildren()])
         B_kids = dict([self.pair(x) for x in elementB.getchildren()])
@@ -104,20 +103,20 @@ class TestConfig(unittest.TestCase):
         p = create_path()
 
         current = os.environ.get("OMERO_CONFIG", "default")
-        self.assertTrue(current != "FOO") # Just in case.
+        assert current != "FOO" # Just in case.
 
         config = ConfigXml(filename=str(p))
         config.close()
-        self.assertEquals(current, get_profile_name(p))
+        assert current == get_profile_name(p)
 
         config = ConfigXml(filename=str(p), env_config="FOO")
         config.close()
-        self.assertEquals("FOO", get_profile_name(p))
+        assert "FOO" == get_profile_name(p)
 
         # Still foo
         config = ConfigXml(filename=str(p))
         config.close()
-        self.assertEquals("FOO", get_profile_name(p))
+        assert "FOO" == get_profile_name(p)
 
         # Re-setting with os.environ won't work
         try:
@@ -125,7 +124,7 @@ class TestConfig(unittest.TestCase):
             os.environ["OMERO_CONFIG"] = "ABC"
             config = ConfigXml(filename=str(p))
             config.close()
-            self.assertEquals("FOO", get_profile_name(p))
+            assert "FOO" == get_profile_name(p)
         finally:
             if old is None:
                 del os.environ["OMERO_CONFIG"]
@@ -135,13 +134,13 @@ class TestConfig(unittest.TestCase):
         # But we can reset it with env_config
         config = ConfigXml(filename=str(p), env_config="ABC")
         config.close()
-        self.assertEquals("ABC", get_profile_name(p))
+        assert "ABC" == get_profile_name(p)
 
         # or manually. ticket:7343
         config = ConfigXml(filename=str(p))
         config.default("XYZ")
         config.close()
-        self.assertEquals("XYZ", get_profile_name(p))
+        assert "XYZ" == get_profile_name(p)
 
     def testAsDict(self):
         p = create_path()
@@ -159,7 +158,7 @@ class TestConfig(unittest.TestCase):
         config1 = ConfigXml(filename=str(p))
         try:
             config2 = ConfigXml(filename=str(p))
-            self.fail("No exception")
+            assert False, "No exception"
         except portalocker.LockException:
             pass
         config1.close()
@@ -172,7 +171,7 @@ class TestConfig(unittest.TestCase):
         config = ConfigXml(filename=str(p))
         m = config.as_map()
         for k, v in m.items():
-            self.assertEquals("4.2.1", v)
+            assert "4.2.1" == v
 
     def testOldVersionDetected(self):
         p = create_path()
@@ -184,7 +183,7 @@ class TestConfig(unittest.TestCase):
 
         try:
             config = ConfigXml(filename=str(p))
-            self.fail("Should throw")
+            assert False, "Should throw"
         except:
             pass
 
@@ -211,8 +210,8 @@ class TestConfig(unittest.TestCase):
         config = ConfigXml(filename=str(p), env_config="default")
         try:
             m = config.as_map()
-            self.assertEquals("member=@{dn}", m["omero.ldap.new_user_group"])
-            self.assertEquals("member=@{dn}", m["omero.ldap.new_user_group_2"])
+            assert "member=@{dn}" == m["omero.ldap.new_user_group"]
+            assert "member=@{dn}" == m["omero.ldap.new_user_group_2"]
         finally:
             config.close()
 
@@ -225,7 +224,7 @@ class TestConfig(unittest.TestCase):
     def testReadOnlyConfigFailsOnEnv1(self):
         p = create_path()
         p.chmod(0444)  # r--r--r--
-        self.assertRaises(Exception, ConfigXml, filename=str(p), env_config="default")
+        pytest.raises(Exception, ConfigXml, filename=str(p), env_config="default")
 
     def testReadOnlyConfigFailsOnEnv2(self):
         old = os.environ.get("OMERO_CONFIG")
@@ -233,13 +232,9 @@ class TestConfig(unittest.TestCase):
         try:
             p = create_path()
             p.chmod(0444)  # r--r--r--
-            self.assertRaises(Exception, ConfigXml, filename=str(p))
+            pytest.raises(Exception, ConfigXml, filename=str(p))
         finally:
             if old is None:
                 del os.environ["OMERO_CONFIG"]
             else:
                 os.environ["OMERO_CONFIG"] = old
-
-if __name__ == '__main__':
-    logging.basicConfig()
-    unittest.main()

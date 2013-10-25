@@ -9,16 +9,17 @@
 
 """
 
-import unittest, os, subprocess, StringIO
+import os, subprocess, StringIO
+import pytest
 from path import path
 from omero.plugins.db import DatabaseControl
 from omero.util.temp_files import create_path
 from omero.cli import Context, CLI, NonZeroReturnCode
 from mocks import MockCLI
 
-class TestDatabase(unittest.TestCase):
+class TestDatabase(object):
 
-    def setUp(self):
+    def setup_method(self, method):
         self.cli = MockCLI()
         self.cli.register("db", DatabaseControl, "TEST")
 
@@ -38,7 +39,7 @@ class TestDatabase(unittest.TestCase):
 
         self.file = create_path()
 
-    def tearDown(self):
+    def teardown_method(self, method):
         self.file.remove()
 
     def script(self, string, strict=True):
@@ -51,7 +52,7 @@ class TestDatabase(unittest.TestCase):
     def testBadVersionDies(self):
         self.expectPassword("pw")
         self.expectConfirmation("pw")
-        self.assertRaises(NonZeroReturnCode, self.script, "NONE NONE pw")
+        pytest.raises(NonZeroReturnCode, self.script, "NONE NONE pw")
 
     def testPasswordIsAskedForAgainIfDiffer(self):
         self.expectPassword("ome")
@@ -113,5 +114,3 @@ class TestDatabase(unittest.TestCase):
         self.cli.expect("Please enter omero.db.patch [%s]: " % \
                 self.data["patch"], patch)
 
-if __name__ == '__main__':
-    unittest.main()

@@ -38,8 +38,8 @@ public class RelatedToTest extends AbstractServerTest {
         p2 = (Pixels) iUpdate.saveAndReturnObject(p2);
         assertEquals(p1.getId(), p2.getRelatedTo().getId());
 
-        delete(client, new Delete(DeleteServiceTest.REF_IMAGE, i1
-                .getId().getValue(), null));
+        delete(client, new Delete(DeleteServiceTest.REF_IMAGE, i1.getId()
+                .getValue(), null));
 
         assertDoesNotExist(i1);
         assertDoesNotExist(p1);
@@ -68,8 +68,8 @@ public class RelatedToTest extends AbstractServerTest {
         Pixels pixels = pixels1.getRelatedTo();
         assertNotNull(pixels);
         assertTrue(pixels.getId().getValue() == pixels2.getId().getValue());
-        delete(client, new Delete(DeleteServiceTest.REF_IMAGE, img2
-                .getId().getValue(), null));
+        delete(client, new Delete(DeleteServiceTest.REF_IMAGE, img2.getId()
+                .getValue(), null));
 
         String sql = "select i from Image i where i.id = :id";
         ParametersI param = new ParametersI();
@@ -107,7 +107,8 @@ public class RelatedToTest extends AbstractServerTest {
         Pixels pixels = pixels1.getRelatedTo();
         assertNotNull(pixels);
         assertTrue(pixels.getId().getValue() == pixels2.getId().getValue());
-        iDelete.deleteImage(img2.getId().getValue(), true);
+        delete(client, new Delete(DeleteServiceTest.REF_IMAGE, img2.getId()
+                .getValue(), null));
 
         String sql = "select i from Image i where i.id = :id";
         ParametersI param = new ParametersI();

@@ -563,9 +563,6 @@ public interface OmeroMetadataService
 	 * 
 	 * @param ctx The security context.
 	 * @param id The id if specified.
-	 * @param dataObject Pass <code>true</code> to load the 
-	 * 					<code>DataObject</code>s linked to the <code>Tag</code>,
-	 * 					<code>false</code> otherwise.
 	 * @param topLevel  Pass <code>true</code> to indicate to load the 
 	 * 					<code>Tag Set</code> objects, <code>false</code> to 
 	 * 					load the <code>Tag</code> objects.
@@ -577,7 +574,7 @@ public interface OmeroMetadataService
 	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	public Collection loadTags(SecurityContext ctx, Long id, boolean dataObject,
+	public Collection loadTags(SecurityContext ctx, Long id,
 		boolean topLevel, long userID, long groupID)
 		throws DSOutOfServiceException, DSAccessException;
 	

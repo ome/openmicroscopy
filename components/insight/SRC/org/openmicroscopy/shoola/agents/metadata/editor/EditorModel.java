@@ -2845,7 +2845,8 @@ class EditorModel
 	 */
 	void fireAdminSaving(Object data, boolean asynch)
 	{
-		if ((data instanceof ExperimenterData) || (data instanceof AdminObject))
+		if (data instanceof ExperimenterData || data instanceof AdminObject ||
+		    data instanceof GroupData)
 			parent.updateAdminObject(data, asynch);
 	}
 	
@@ -4182,6 +4183,16 @@ class EditorModel
 		//FileAnnotationData fa = getOriginalMetadata();
 		//return fa != null;
 		return true;
+	}
+
+	/**
+	 * Returns the groups the user is member of.
+	 * 
+	 * @return See above.
+	 */
+	Collection<GroupData> getAvailableGroups()
+	{
+	    return MetadataViewerAgent.getAvailableUserGroups();
 	}
 
 }

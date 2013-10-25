@@ -2,7 +2,7 @@
  * training.ReadData 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2011 University of Dundee & Open Microscopy Environment.
+ *  Copyright (C) 2006-2013 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
  *
  *
@@ -39,6 +39,7 @@ import omero.api.IQueryPrx;
 import omero.model.Dataset;
 import omero.model.IObject;
 import omero.model.Image;
+import omero.model.Plate;
 import omero.model.Project;
 import omero.model.Screen;
 import omero.model.Well;
@@ -59,23 +60,34 @@ import pojos.WellData;
  * @since Beta4.3.2
  */
 public class ReadData
-	extends ConnectToOMERO
 {
+
+	//The value used if the configuration file is not used. To edit*/
+	/** The server address.*/
+	private String hostName = "serverName";
+
+	/** The username.*/
+	private String userName = "userName";
 	
-	/** Information to edit.*/
+	/** The password.*/
+	private String password = "password";
 	
 	/** The id of a dataset.*/
-	private long datasetId = 2651;
+	private long datasetId = 1;
 	
 	/** The id of an image.*/
-	private long imageId = 27544;
+	private long imageId = 1;
 	
 	/** The id of a plate.*/
-	private long plateId = 1007;
+	private long plateId = 1;
 	
 	/** The id of the plate acquisition corresponding to the plate.*/
-	private long plateAcquisitionId = 0;
+	private long plateAcquisitionId = 1;
+	//end edit
 
+	/** Reference to the connector.*/
+	private Connector connector;
+	
 	/** 
 	 * Retrieve the projects owned by the user currently logged in.
 	 * 
@@ -84,9 +96,9 @@ public class ReadData
 	private void loadProjects()
 		throws Exception
 	{
-		IContainerPrx proxy = entryUnencrypted.getContainerService();
+		IContainerPrx proxy = connector.getContainerService();
 		ParametersI param = new ParametersI();
-		long userId = entryUnencrypted.getAdminService().getEventContext().userId;
+		long userId = connector.getAdminService().getEventContext().userId;
 		param.exp(omero.rtypes.rlong(userId));
 		param.leaves(); //indicate to load the images
 		//param.noLeaves(); //no images loaded, this is the default value.
@@ -121,9 +133,9 @@ public class ReadData
 	private void loadDatasets()
 		throws Exception
 	{
-		IContainerPrx proxy = entryUnencrypted.getContainerService();
+		IContainerPrx proxy = connector.getContainerService();
 		ParametersI param = new ParametersI();
-		long userId = entryUnencrypted.getAdminService().getEventContext().userId;
+		long userId = connector.getAdminService().getEventContext().userId;
 		param.exp(omero.rtypes.rlong(userId));
 		param.leaves(); //indicate to load the images
 		//param.noLeaves(); //no images loaded, this is the default value.
@@ -151,16 +163,18 @@ public class ReadData
 	 * Retrieve the images contained in a dataset.
 	 * 
 	 * In that case, we specify the dataset's id.
+	 * @param info The configuration information.
 	 */
 	@SuppressWarnings("unchecked")
-	private void loadImagesInDataset()
+	private void loadImagesInDataset(ConfigurationInfo info)
 		throws Exception
 	{
-		IContainerPrx proxy = entryUnencrypted.getContainerService();
+		IContainerPrx proxy = connector.getContainerService();
 		ParametersI param = new ParametersI();
 		param.leaves(); //indicate to load the images
 		List<IObject> results = proxy.loadContainerHierarchy(
-				Dataset.class.getName(), Arrays.asList(datasetId), param);
+				Dataset.class.getName(), Arrays.asList(info.getDatasetId()),
+				param);
 		
 		if (results.size() == 0)
 			throw new Exception("Dataset does not exist. Check ID");
@@ -181,12 +195,12 @@ public class ReadData
 	/** 
 	 * Retrieve an image if the identifier is known.
 	 */
-	private void loadImage()
+	private void loadImage(ConfigurationInfo info)
 		throws Exception
 	{
-		IContainerPrx proxy = entryUnencrypted.getContainerService();
+		IContainerPrx proxy = connector.getContainerService();
 		List<Image> results = proxy.getImages(Image.class.getName(),
-				Arrays.asList(imageId), new ParametersI());
+				Arrays.asList(info.getImageId()), new ParametersI());
 		if (results.size() == 0)
 			throw new Exception("Image does not exist. Check ID.");
 		//You can directly interact with the IObject or the Pojos object.
@@ -209,9 +223,9 @@ public class ReadData
 	private void loadScreens()
 		throws Exception
 	{
-		IContainerPrx proxy = entryUnencrypted.getContainerService();
+		IContainerPrx proxy = connector.getContainerService();
 		ParametersI param = new ParametersI();
-		long userId = entryUnencrypted.getAdminService().getEventContext().userId;
+		long userId = connector.getAdminService().getEventContext().userId;
 		param.exp(omero.rtypes.rlong(userId));
 		
 		List<IObject> results = proxy.loadContainerHierarchy(
@@ -241,13 +255,13 @@ public class ReadData
 	 * To learn about the model go to ScreenPlateWell.
 	 * Note that the wells are not loaded.
 	 */
-	private void loadWells()
+	private void loadWells(ConfigurationInfo info)
 		throws Exception
 	{
-		IQueryPrx proxy = entryUnencrypted.getQueryService();
+		IQueryPrx proxy = connector.getQueryService();
 		StringBuilder sb = new StringBuilder();
 		ParametersI param = new ParametersI();
-		param.addLong("plateID", plateId);
+		param.addLong("plateID", info.getPlateId());
 		sb.append("select well from Well as well ");
 		sb.append("left outer join fetch well.plate as pt ");
 		sb.append("left outer join fetch well.wellSamples as ws ");
@@ -256,9 +270,9 @@ public class ReadData
 		sb.append("left outer join fetch img.pixels as pix ");
         sb.append("left outer join fetch pix.pixelsType as pt ");
         sb.append("where well.plate.id = :plateID");
-        if (plateAcquisitionId > 0) {
+        if (info.getPlateAcquisitionId() > 0) {
         	 sb.append(" and pa.id = :acquisitionID");
-        	 param.addLong("acquisitionID", plateAcquisitionId);
+        	 param.addLong("acquisitionID", info.getPlateAcquisitionId());
         }
         List<IObject> results = proxy.findAllByQuery(sb.toString(), param);
         Iterator<IObject> i = results.iterator();
@@ -269,33 +283,85 @@ public class ReadData
 		}
 	}
 	
+	/** 
+	 * Retrieve Screening data owned by the user currently logged in.
+	 * 
+	 * To learn about the model go to ScreenPlateWell.
+	 * Note that the wells are not loaded.
+	 */
+	private void loadPlate(ConfigurationInfo info)
+		throws Exception
+	{
+		IQueryPrx proxy = connector.getQueryService();
+		StringBuilder sb = new StringBuilder();
+		ParametersI param = new ParametersI();
+		param.addLong("plateID", info.getPlateId());
+		sb.append("select plate from Plate as plate ");
+		sb.append("left outer join fetch plate.wells as well ");
+		sb.append("left outer join fetch well.wellSamples as ws ");
+		sb.append("left outer join fetch ws.plateAcquisition as pa ");
+		sb.append("left outer join fetch ws.image as img ");
+		sb.append("left outer join fetch img.pixels as pix ");
+		sb.append("left outer join fetch pix.pixelsType as pt ");
+        sb.append("where plate.id = :plateID");
+        if (info.getPlateAcquisitionId() > 0) {
+        	 sb.append(" and pa.id = :acquisitionID");
+        	 param.addLong("acquisitionID", info.getPlateAcquisitionId());
+        }
+        List<IObject> results = proxy.findAllByQuery(sb.toString(), param);
+        Iterator<IObject> i = results.iterator();
+        PlateData plate;
+        while (i.hasNext()) {
+        	plate = new PlateData((Plate) i.next());
+		}
+	}
+	
 	/**
 	 * Connects and invokes the various methods.
+	 * 
+	 * @param info The configuration information.
 	 */
-	ReadData()
+	ReadData(ConfigurationInfo info)
 	{
+		if (info == null) {
+			info = new ConfigurationInfo();
+			info.setHostName(hostName);
+			info.setPassword(password);
+			info.setUserName(userName);
+			info.setImageId(imageId);
+			info.setDatasetId(datasetId);
+			info.setPlateAcquisitionId(plateAcquisitionId);
+			info.setPlateId(plateId);
+		}
+		connector = new Connector(info);
 		try {
-			connect(); //First connect.
+			connector.connect(); //First connect.
 			loadProjects();
 			loadDatasets();
-			loadImagesInDataset();
-			loadImage();
+			loadImagesInDataset(info);
+			loadImage(info);
 			loadScreens();
-			loadWells();
+			loadWells(info);
+			loadPlate(info);
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
 			try {
-				disconnect(); // Be sure to disconnect
+				connector.disconnect(); // Be sure to disconnect
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
 	}
 
+	/**
+	 * Runs the script without configuration options.
+	 * 
+	 * @param args
+	 */
 	public static void main(String[] args)
 	{
-		new ReadData();
+		new ReadData(null);
 		System.exit(0);
 	}
 
