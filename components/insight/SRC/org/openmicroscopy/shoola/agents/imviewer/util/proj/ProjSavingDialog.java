@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.imviewer.util.proj.ProjSavingDialog 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2009 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -562,7 +562,7 @@ public class ProjSavingDialog
 			ref.setDatasets(Arrays.asList(selectedDataset));
 			if (selectedDataset.getId() <= 0) {
 				DataNode node = (DataNode) parentsBox.getSelectedItem();
-				if (!node.isDefaultNode()) 
+				if (node != null && !node.isDefaultNode())
 					ref.setProject((ProjectData) node.getDataObject());
 			}
 		}
