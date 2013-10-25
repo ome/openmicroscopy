@@ -227,12 +227,14 @@ public class ThumbnailLoader
         			if (image instanceof ImageData) {
         			    pxd = ((ImageData) image).getDefaultPixels();
         			    imageID = image.getId();
-        			} else pxd = (PixelsData) image;
+        			} else {
+        			    pxd = (PixelsData) image;
+        			    if (pxd != null) imageID = pxd.getImage().getId();
+        			}
         			description = "Loading thumbnail";
         			final PixelsData index = pxd;
         			final boolean last = size == k;
         			k++;
-        			if (pxd != null) imageID = pxd.getImage().getId();
         			final long iid = imageID;
         			add(new BatchCall(description) {
         				public void doCall() {
