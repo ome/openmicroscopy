@@ -5,7 +5,7 @@
  *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -27,7 +27,7 @@ package org.openmicroscopy.shoola.env.ui;
 import java.io.File;
 
 //Third-party libraries
-
+import org.apache.commons.io.FilenameUtils;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.SaveAsParam;
@@ -51,17 +51,31 @@ public class SaveAsActivity
 {
 
 	/** The description of the activity. */
-	private static final String		DESCRIPTION_CREATION = "Saving Images as ";
+	private static final String DESCRIPTION_CREATION = "Saving Images as ";
 	
 	/** The description of the activity when finished. */
-	private static final String		DESCRIPTION_CREATED = "Images saved in";
-	
+	private static final String DESCRIPTION_CREATED = "Images saved in";
+
 	/** The description of the activity when cancelled. */
-	private static final String		DESCRIPTION_CANCEL = 
-		"Images saving cancelled";
-	
+	private static final String DESCRIPTION_CANCEL = "Images saving cancelled";
+
 	/** The parameters hosting information about the images to save. */
     private SaveAsParam	parameters;
+
+    /**
+     * Returns the name of the file.
+     *
+     * @param name The name to handle.
+     * @return See above.
+     */
+    private String getFileName(String name)
+    {
+        File directory = parameters.getFolder();
+        File[] files = directory.listFiles();
+        String dirPath = directory.getAbsolutePath() + File.separator;
+        String extension = "."+FilenameUtils.getExtension(name);
+        return getFileName(files, name, name, dirPath, 1, extension);
+    }
 
     /**
      * Creates a new instance.
@@ -79,7 +93,7 @@ public class SaveAsActivity
 		if (parameters == null)
 			throw new IllegalArgumentException("Parameters not valid.");
 		this.parameters = parameters;
-		initialize(DESCRIPTION_CREATION+parameters.getIndexAsString(), 
+		initialize(DESCRIPTION_CREATION+parameters.getIndexAsString(),
 				parameters.getIcon());
 		File folder = parameters.getFolder();
 		messageLabel.setText("in "+folder.getName());
@@ -108,6 +122,7 @@ public class SaveAsActivity
 			String name = "";
 			if (data.isLoaded()) name = data.getFileName();
 			else name = "Annotation_"+data.getId();
+			name = getFileName(name);
 			download("", result, new File(parameters.getFolder(), name));
 		}
 		
