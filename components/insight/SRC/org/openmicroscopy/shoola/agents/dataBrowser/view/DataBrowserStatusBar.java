@@ -104,6 +104,8 @@ class DataBrowserStatusBar
 		zoomSlider.addChangeListener(this);
 		zoomSlider.setToolTipText("Magnifies the thumbnails.");
 		fieldsZoomSlider.addChangeListener(this);
+		addPropertyChangeListener(
+		        MagnificationComponent.MAGNIFICATION_UPDATE_PROPERTY, mag);
 		refSlider = zoomSlider;
 		progressBar = new JProgressBar();
         status = new JLabel();
@@ -204,6 +206,9 @@ class DataBrowserStatusBar
 			int v = zoomSlider.getValue();
 	    	double f = (double) v/FACTOR;
 			view.setMagnificationFactor(f);
+			firePropertyChange(
+			        MagnificationComponent.MAGNIFICATION_UPDATE_PROPERTY,
+			        null, f);
 		}
 	}
 

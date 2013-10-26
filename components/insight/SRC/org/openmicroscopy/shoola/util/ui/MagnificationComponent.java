@@ -26,6 +26,8 @@ package org.openmicroscopy.shoola.util.ui;
 //Java imports
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 
 import javax.swing.Box;
 import javax.swing.Icon;
@@ -49,12 +51,16 @@ import javax.swing.JToolBar;
  */
 public class MagnificationComponent
 	extends JPanel
-	implements ActionListener
+	implements ActionListener, PropertyChangeListener
 {
 
 	/** Bound property indicating that the magnification has been changed. */
 	public static final String MAGNIFICATION_PROPERTY = "magnification";
 	
+	/** Bound property indicating that the magnification has been changed. */
+    public static final String MAGNIFICATION_UPDATE_PROPERTY =
+            "magnificationUpdate";
+    
 	/** Default minimum value. */
 	public static final double MINIMUM = 0.1;
 	
@@ -257,5 +263,16 @@ public class MagnificationComponent
 				firePropertyChange(MAGNIFICATION_PROPERTY, v, currentValue);
 		}
 	}
+
+    /**
+     * Updates the current value if modified by another component.
+     * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
+     */
+    public void propertyChange(PropertyChangeEvent evt) {
+        String name = evt.getPropertyName();
+        if (MAGNIFICATION_UPDATE_PROPERTY.equals(name)) {
+            currentValue = (Double) evt.getNewValue();
+        }
+    }
 
 }
