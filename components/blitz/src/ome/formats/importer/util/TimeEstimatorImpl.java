@@ -19,49 +19,52 @@
 
 package ome.formats.importer.util;
 
+import java.util.Iterator;
+
 import org.apache.commons.collections.Buffer;
 import org.apache.commons.collections.buffer.CircularFifoBuffer;
+import org.apache.commons.lang.time.StopWatch;
 
 public class TimeEstimatorImpl implements TimeEstimator {
 
-    private long start, stop, imageContainerSize, imageContainerUploadedBytes;
+    private static int DEFAULT_BUFFER_SIZE = 10;
+
+    private long imageContainerSize = 0;
+
+    private float alpha = 0, chunkTime = 0;
 
     private Buffer timeSamples;
 
-    private float alpha, chunkTime;
+    private StopWatch sw;
+
+    public TimeEstimatorImpl(long imageContainerSize) {
+        this(imageContainerSize, DEFAULT_BUFFER_SIZE);
+    }    
 
     public TimeEstimatorImpl(long imageContainerSize, int sampleSize) {
         timeSamples = new CircularFifoBuffer(sampleSize);
+        sw = new StopWatch();
         this.imageContainerSize = imageContainerSize;
     }
 
     public void start() {
-        // Due to weirdness with System.nanoTime() on multi-core
-        // CPUs, falling back to currentTimeMillis()
-        start = System.currentTimeMillis();
+        sw.reset();
+        sw.start();
     }
 
     public void stop() {
-        if (start == 0) {
-            throw new IllegalStateException("Calling stop() before start().");
-        }
-        stop = System.currentTimeMillis();
-        timeSamples.add(stop - start);
+        sw.stop();
+        timeSamples.add(sw.getTime());
         alpha = 2f / (timeSamples.size() + 1);
     }
 
-    public long getUploadTimeLeft(long uploadedChunk, long uploadedBytes) {
-        if (uploadedChunk == 0) {
-            return 0;
+    public long getUploadTimeLeft(long uploadedBytes) {
+        imageContainerSize -= uploadedBytes;
+        Iterator<Long> i = timeSamples.iterator();
+        while (i.hasNext()) {
+            chunkTime = alpha * i.next() + (1 - alpha) * chunkTime;
         }
-        imageContainerUploadedBytes += uploadedChunk;
-        for (int i = 0; i < timeSamples.size(); i++) {
-            chunkTime = alpha * (Long) timeSamples.get() + (1 - alpha)
-                    * chunkTime;
-        }
-        return (long) chunkTime
-                * ((imageContainerSize - imageContainerUploadedBytes)
-                        / uploadedChunk);
+        return (long) chunkTime * (imageContainerSize / uploadedBytes);
     }
 
 }

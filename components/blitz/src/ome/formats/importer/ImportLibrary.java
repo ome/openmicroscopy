@@ -354,7 +354,7 @@ public class ImportLibrary implements IObservable
                 estimator.stop();
                 notifyObservers(new ImportEvent.FILE_UPLOAD_BYTES(
                         file.getAbsolutePath(), index, srcFiles.length, offset,
-                        length, estimator.getUploadTimeLeft(offset, rlen), null));
+                        length, estimator.getUploadTimeLeft(rlen), null));
             }
 
             digestString = cp.checksumAsString();
