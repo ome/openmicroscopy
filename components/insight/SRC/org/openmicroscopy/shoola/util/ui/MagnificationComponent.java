@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.util.ui.MagnificationComponent 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2009 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -45,12 +45,9 @@ import javax.swing.JToolBar;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since 3.0-Beta4
  */
-public class MagnificationComponent 
+public class MagnificationComponent
 	extends JPanel
 	implements ActionListener
 {
@@ -157,19 +154,18 @@ public class MagnificationComponent
 		bar.setFloatable(false);
 		bar.add(zoomOut);
 		bar.add(zoomIn);
-		
 		bar.add(Box.createHorizontalStrut(5));
 		bar.add(actualSize);
-		
+
 		add(bar);
 	}
-	
+
 	/** Creates a default instance. */
 	public MagnificationComponent()
 	{
 		this(MINIMUM, MAXIMUM, DEFAULT);
 	}
-	
+
 	/**
 	 * Creates a new instance.
 	 * 
@@ -180,7 +176,7 @@ public class MagnificationComponent
 	{
 		this(min, max, DEFAULT);
 	}
-	
+
 	/**
 	 * Creates a new instance.
 	 * 
@@ -197,8 +193,8 @@ public class MagnificationComponent
 		setOriginal(value);
 		initComponents();
 		buildGUI();
- 	}
-	
+	}
+
 	/**
 	 * Sets the original value.
 	 * 
@@ -211,7 +207,7 @@ public class MagnificationComponent
 		originalValue = value;
 		currentValue = originalValue;
 	}
-	
+
 	/** 
 	 * Returns the current magnification factor.
 	 * 
@@ -240,7 +236,7 @@ public class MagnificationComponent
 				zoomOut.setIcon(icon);
 		}
 	}
-	
+
 	/** 
 	 * Sets the magnification factor.
 	 * @see ActionListener#actionPerformed(ActionEvent)
@@ -259,8 +255,7 @@ public class MagnificationComponent
 				double v = currentValue;
 				currentValue = originalValue;
 				firePropertyChange(MAGNIFICATION_PROPERTY, v, currentValue);
-				
 		}
 	}
-	
+
 }
