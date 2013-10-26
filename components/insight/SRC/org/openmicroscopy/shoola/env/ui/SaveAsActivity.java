@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.ui.SaveAsActivity 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2011 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -28,11 +28,8 @@ import java.io.File;
 
 //Third-party libraries
 
-import omero.model.OriginalFile;
-
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.config.Registry;
-import org.openmicroscopy.shoola.env.data.model.DownloadActivityParam;
 import org.openmicroscopy.shoola.env.data.model.SaveAsParam;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 
@@ -47,9 +44,6 @@ import pojos.FileAnnotationData;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since 3.0-Beta4
  */
 public class SaveAsActivity
@@ -71,12 +65,12 @@ public class SaveAsActivity
 
     /**
      * Creates a new instance.
-     * 
-     * @param viewer		The viewer this data loader is for.
-     *               		Mustn't be <code>null</code>.
-     * @param registry		Convenience reference for subclasses.
+     *
+     * @param viewer The viewer this data loader is for.
+     *               Mustn't be <code>null</code>.
+     * @param registry Convenience reference for subclasses.
      * @param ctx The security context.
-     * @param parameters	The parameters used to save the collection of images.
+     * @param parameters The parameters used to save the collection of images.
      */
 	public SaveAsActivity(UserNotifier viewer,  Registry registry,
 			SecurityContext ctx, SaveAsParam parameters)
@@ -103,7 +97,7 @@ public class SaveAsActivity
 	}
 
 	/**
-	 * Modifies the text of the component. 
+	 * Modifies the text of the component.
 	 * @see ActivityComponent#notifyActivityEnd()
 	 */
 	protected void notifyActivityEnd()
@@ -119,20 +113,20 @@ public class SaveAsActivity
 		
 		type.setText(DESCRIPTION_CREATED+" "+parameters.getFolder().getName());
 	}
-	
+
 	/**
-	 * Modifies the text of the component. 
+	 * Modifies the text of the component.
 	 * @see ActivityComponent#notifyActivityCancelled()
 	 */
 	protected void notifyActivityCancelled()
 	{
 		type.setText(DESCRIPTION_CANCEL);
 	}
-	
+
 	/** 
 	 * No-operation in this case.
 	 * @see ActivityComponent#notifyActivityError()
 	 */
 	protected void notifyActivityError() {}
-	
+
 }
