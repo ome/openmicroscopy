@@ -2,10 +2,10 @@
  * org.openmicroscopy.shoola.agents.treemng.browser.BrowserControl
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -438,7 +438,7 @@ class BrowserControl
     	}
     	
     	if (toRemove.size() > 0) {
-    		String text = "";
+    		String text = null;
         	if (ImageData.class.equals(ref)) text = "Images.";
         	else if (ProjectData.class.equals(ref)) text = "Projects.";
         	else if (DatasetData.class.equals(ref)) text = "Datasets.";
@@ -455,6 +455,8 @@ class BrowserControl
         	else if (FileData.class.equals(ref)) text = "Files.";
         	else if (ExperimenterData.class.equals(ref)) text = "Experimenters";
         	else if (GroupData.class.equals(ref)) text = "User Groups";
+        	//smart folder selected
+        	if (text == null) text = "nodes of the same type.";
         	UserNotifier un = 
         		TreeViewerAgent.getRegistry().getUserNotifier();
         	un.notifyInfo("Tree selection", "You can only select "+text);
