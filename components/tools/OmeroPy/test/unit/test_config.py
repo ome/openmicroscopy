@@ -15,10 +15,7 @@ import pytest
 from omero.config import *
 from omero.util.temp_files import create_path
 
-try:
-    from xml.etree.ElementTree import XML, Element, SubElement, Comment, ElementTree, tostring, dump
-except ImportError:
-    from elementtree.ElementTree import XML, Element, SubElement, Comment, ElementTree, tostring, dump
+from xml.etree.ElementTree import XML, Element, SubElement, Comment, ElementTree, tostring, dump
 
 
 class TestConfig(object):
