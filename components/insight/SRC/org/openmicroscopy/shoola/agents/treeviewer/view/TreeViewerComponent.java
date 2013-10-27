@@ -3855,7 +3855,7 @@ class TreeViewerComponent
 		//remove thumbnails browser
 		view.removeAllFromWorkingPane();
 		model.setDataViewer(null);
-		
+		model.setAvailableScripts(null);
 		model.clearImportResult();
 		view.onImport();
 		//reset metadata
