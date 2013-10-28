@@ -1315,6 +1315,7 @@ public interface ImViewer
      */
 
     int getMaxLifetimeBin();
+
     /**
      * Returns the currently selected time-point.
      * 
