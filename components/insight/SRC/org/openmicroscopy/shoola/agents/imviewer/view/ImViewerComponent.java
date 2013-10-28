@@ -3489,6 +3489,12 @@ class ImViewerComponent
 	 */
 	public int getMaxLifetimeBin() { return model.getMaxLifetimeBin(); }
 
+	/**
+     * Implemented as specified by the {@link ImViewer} interface.
+     * @see ImViewer#getRealSelectedT()()
+     */
+    public int getRealSelectedT() { return model.getRealSelectedT(); }
+
 	/** 
 	 * Overridden to return the name of the instance to save. 
 	 * @see #toString()

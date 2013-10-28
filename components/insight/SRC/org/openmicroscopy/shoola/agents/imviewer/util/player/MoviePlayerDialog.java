@@ -124,7 +124,7 @@ public class MoviePlayerDialog
         this.model = model;
         player = new MoviePlayer(model, this);
         uiDelegate = new MoviePlayerUI(player);
-        player.setStartT(model.getDefaultT());
+        player.setStartT(model.getRealSelectedT());
         new MoviePlayerControl(player, uiDelegate);
         initListeners();
         buildGUI();
@@ -162,11 +162,11 @@ public class MoviePlayerDialog
                 t = player.getFrameNumberT();
                 break;
             case ACROSS_Z:
-                t = model.getDefaultT();
+                t = model.getRealSelectedT();
                 z = player.getFrameNumberZ();
                 break;
             case ACROSS_BIN:
-                t = model.getDefaultT();
+                t = model.getRealSelectedT();
                 z = model.getDefaultZ();
                 bin = player.getFrameNumberBin();
                 break;

@@ -129,7 +129,7 @@ class MoviePlayer
         up = true;
         movieType = FORWARD;
         timerDelay = FPS_INIT;
-        startT = model.getDefaultT();
+        startT = model.getRealSelectedT();
         endT = getMaxT();
         startZ = model.getDefaultZ();
         endZ = getMaxZ();

@@ -1313,5 +1313,12 @@ public interface ImViewer
      * 
      * @return See above
      */
+
     int getMaxLifetimeBin();
+    /**
+     * Returns the currently selected time-point.
+     * 
+     * @return See above.
+     */
+    int getRealSelectedT();
 }
