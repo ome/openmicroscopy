@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.util.ui.MagnificationComponent 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2009 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -26,6 +26,8 @@ package org.openmicroscopy.shoola.util.ui;
 //Java imports
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 
 import javax.swing.Box;
 import javax.swing.Icon;
@@ -45,19 +47,20 @@ import javax.swing.JToolBar;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since 3.0-Beta4
  */
-public class MagnificationComponent 
+public class MagnificationComponent
 	extends JPanel
-	implements ActionListener
+	implements ActionListener, PropertyChangeListener
 {
 
 	/** Bound property indicating that the magnification has been changed. */
 	public static final String MAGNIFICATION_PROPERTY = "magnification";
 	
+	/** Bound property indicating that the magnification has been changed. */
+    public static final String MAGNIFICATION_UPDATE_PROPERTY =
+            "magnificationUpdate";
+    
 	/** Default minimum value. */
 	public static final double MINIMUM = 0.1;
 	
@@ -157,19 +160,18 @@ public class MagnificationComponent
 		bar.setFloatable(false);
 		bar.add(zoomOut);
 		bar.add(zoomIn);
-		
 		bar.add(Box.createHorizontalStrut(5));
 		bar.add(actualSize);
-		
+
 		add(bar);
 	}
-	
+
 	/** Creates a default instance. */
 	public MagnificationComponent()
 	{
 		this(MINIMUM, MAXIMUM, DEFAULT);
 	}
-	
+
 	/**
 	 * Creates a new instance.
 	 * 
@@ -180,7 +182,7 @@ public class MagnificationComponent
 	{
 		this(min, max, DEFAULT);
 	}
-	
+
 	/**
 	 * Creates a new instance.
 	 * 
@@ -197,8 +199,8 @@ public class MagnificationComponent
 		setOriginal(value);
 		initComponents();
 		buildGUI();
- 	}
-	
+	}
+
 	/**
 	 * Sets the original value.
 	 * 
@@ -211,7 +213,7 @@ public class MagnificationComponent
 		originalValue = value;
 		currentValue = originalValue;
 	}
-	
+
 	/** 
 	 * Returns the current magnification factor.
 	 * 
@@ -240,7 +242,7 @@ public class MagnificationComponent
 				zoomOut.setIcon(icon);
 		}
 	}
-	
+
 	/** 
 	 * Sets the magnification factor.
 	 * @see ActionListener#actionPerformed(ActionEvent)
@@ -259,8 +261,18 @@ public class MagnificationComponent
 				double v = currentValue;
 				currentValue = originalValue;
 				firePropertyChange(MAGNIFICATION_PROPERTY, v, currentValue);
-				
 		}
 	}
-	
+
+    /**
+     * Updates the current value if modified by another component.
+     * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
+     */
+    public void propertyChange(PropertyChangeEvent evt) {
+        String name = evt.getPropertyName();
+        if (MAGNIFICATION_UPDATE_PROPERTY.equals(name)) {
+            currentValue = (Double) evt.getNewValue();
+        }
+    }
+
 }
