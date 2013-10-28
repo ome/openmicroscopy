@@ -143,6 +143,13 @@ class TestPrefs(object):
         # ticket:7273
         pytest.raises(NonZeroReturnCode, self.invoke, "load THIS_FILE_SHOULD_NOT_EXIST")
 
+    def testLoadMultiLine(self):
+        to_load = create_path()
+        to_load.write_text("A=B\\\nC")
+        self.invoke("load %s" % to_load)
+        self.invoke("get")
+        self.assertStdout(["A=BC"])
+
     def testDrop(self):
         self.invoke("def x")
         self.invoke("def")
