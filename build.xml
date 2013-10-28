@@ -22,8 +22,6 @@ build-* targets.
     <description>
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Top-level OMERO build. "./build.py" alone will suffice for most builds.
-If you need OmeroCpp (the C++ bindings for OMERO) run the C++ cmake build in
-components/tools/OmeroCpp after this initial build.
 
 Relative paths
 --------------
@@ -242,6 +240,23 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
         <!-- Parts of build-dist -->
         <antcall target="copy-etc" inheritRefs="true" inheritAll="true"/>
         <antcall target="update-version" inheritRefs="true" inheritAll="true"/>
+    </target>
+
+    <target name="build-cpp" description="Build OmeroCpp bindings (no longer used)">
+        <fail>build-cpp is no longer used
+
+This target no longer builds the OmeroCpp C++ bindings.  The C++ build
+has been converted to use CMake.  To build OmeroCpp, run cmake using
+components/tools/OmeroCpp as the source directory.  For example, to
+build on Linux/Unix:
+
+export ICE_HOME=/path/to/ice
+mkdir build
+cd build
+[GTEST_ROOT=/path/to/gtest] [CXX=g++-4.8] cmake [cmake options] /path/to/openmicroscopy/components/tools/OmeroCpp
+make
+make [DESTDIR=/path/to/staging/directory] install
+        </fail>
     </target>
 
     <target name="build-schema" description="Build new DB schema and copy to sql/" depends="init">
