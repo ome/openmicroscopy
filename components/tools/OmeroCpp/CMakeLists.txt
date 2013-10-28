@@ -58,9 +58,21 @@ endif(GTEST_FOUND)
 option(test "Enable unit tests (requires gtest)" ${BUILD_TESTS})
 set(BUILD_TESTS ${test})
 
+# Run build.py to generate C++ and Ice sources.
 if(NOT EXISTS ${PROJECT_SOURCE_DIR}/../../blitz/generated/omero/model/Image.ice)
-  execute_process(COMMAND python build.py
+  execute_process(COMMAND python build.py build-default
+                  RESULT_VARIABLE build_py_fail
                   WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/../../..)
+  if(build_py_fail)
+    # On failure we must clean to ensure that we don't leave the
+    # sources half-generated since this just leads to build failures
+    # later on.
+    message(STATUS "Failed to run build.py to generate C++ and Ice sources; cleaning.")
+    execute_process(COMMAND python build.py clean
+                    RESULT_VARIABLE build_py_fail2
+                    WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/../../..)
+    message(FATAL_ERROR "Failed to run build.py to generate C++ and Ice sources.")
+  endif(build_py_fail)
 endif(NOT EXISTS ${PROJECT_SOURCE_DIR}/../../blitz/generated/omero/model/Image.ice)
 
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/gen)
