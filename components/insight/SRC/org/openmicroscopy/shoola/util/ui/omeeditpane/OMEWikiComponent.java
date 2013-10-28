@@ -330,8 +330,9 @@ public class OMEWikiComponent
 	{
 		if (action == null) return;
 		int ref = 2;
+		System.err.println(count +" "+allowOneClick);
 		if (!isEnabled()) {
-			if ((action instanceof URLLaunchAction) && count == 1) {
+			if (action instanceof URLLaunchAction && count == 1) {
 				action.onSelection(text);
 			} else {
 				if ((action instanceof ElementSelectionAction)) {
@@ -361,7 +362,7 @@ public class OMEWikiComponent
 				}
 			}
 		} else {
-			if ((action instanceof ElementSelectionAction) && count == ref) {
+			if (action instanceof ElementSelectionAction && count == ref) {
 				action.onSelection(text);
 				ElementSelectionAction a = (ElementSelectionAction) action;
 				int index = a.getWikiDataObjectIndex();
@@ -370,8 +371,9 @@ public class OMEWikiComponent
 					WikiDataObject object = new WikiDataObject(index, id);
 					firePropertyChange(WIKI_DATA_OBJECT_PROPERTY, null, object);
 				}
-			} else if ((action instanceof URLLaunchAction) && count == ref) {
-				action.onSelection(text);
+			} else if (action instanceof URLLaunchAction) {
+			    if (allowOneClick) ref = 1;
+			    if (count == ref) action.onSelection(text);
 			}
 		}
 	}
