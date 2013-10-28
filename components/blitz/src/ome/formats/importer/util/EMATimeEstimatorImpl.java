@@ -25,9 +25,19 @@ import org.apache.commons.collections.Buffer;
 import org.apache.commons.collections.buffer.CircularFifoBuffer;
 import org.apache.commons.lang.time.StopWatch;
 
-public class TimeEstimatorImpl implements TimeEstimator {
+/**
+ * Class implementing the {@link TimeEstimator} interface. Uses the Exponential
+ * Moving Average equation to provide an estimate of the remaining upload time
+ * of binary data. A correction factor is used for minimal overestimation.
+ *
+ * @author Blazej Pindelski, bpindelski at dundee.ac.uk
+ * @since 5.0
+ */
+public class EMATimeEstimatorImpl implements TimeEstimator {
 
     private static int DEFAULT_BUFFER_SIZE = 10;
+
+    private static long MILLISECOND_CORRECTION = 500;
 
     private long imageContainerSize = 0;
 
@@ -37,11 +47,11 @@ public class TimeEstimatorImpl implements TimeEstimator {
 
     private StopWatch sw;
 
-    public TimeEstimatorImpl(long imageContainerSize) {
+    public EMATimeEstimatorImpl(long imageContainerSize) {
         this(imageContainerSize, DEFAULT_BUFFER_SIZE);
-    }    
+    }
 
-    public TimeEstimatorImpl(long imageContainerSize, int sampleSize) {
+    public EMATimeEstimatorImpl(long imageContainerSize, int sampleSize) {
         timeSamples = new CircularFifoBuffer(sampleSize);
         sw = new StopWatch();
         this.imageContainerSize = imageContainerSize;
@@ -64,7 +74,8 @@ public class TimeEstimatorImpl implements TimeEstimator {
         while (i.hasNext()) {
             chunkTime = alpha * i.next() + (1 - alpha) * chunkTime;
         }
-        return (long) chunkTime * (imageContainerSize / uploadedBytes);
+        return (long) chunkTime * (imageContainerSize / uploadedBytes)
+                + MILLISECOND_CORRECTION;
     }
 
 }
