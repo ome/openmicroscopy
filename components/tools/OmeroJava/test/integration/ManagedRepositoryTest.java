@@ -189,7 +189,7 @@ public class ManagedRepositoryTest extends AbstractServerTest {
         final byte[] buf = new byte[client.getDefaultBlockSize()];
         final ChecksumProviderFactory cpf = new ChecksumProviderFactoryImpl();
         final TimeEstimator estimator = new TimeEstimatorImpl(
-                container.getUsedFilesTotalSize(), 10);
+                container.getUsedFilesTotalSize());
 
         for (int i = 0; i < numberToUpload; i++) {
             checksums.add(lib.uploadFile(proc, srcFiles, i, cpf, estimator,
