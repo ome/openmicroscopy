@@ -16,6 +16,10 @@ Library           ImageCheckLibrary
 Test Keywords
     User "${USERNAME}" logs in with password "${PASSWORD}"
 
+    ${Firefox}=     Is Browser Firefox
+    Log    ${Firefox}
+    Run Keyword If  ${Firefox}   Pass Execution    "Firefox screenshot fails on robotframework-stable job"
+
     ${imageId}=                     Select And Expand Image
 
     Capture Image Element           //li[@id='${imageId.replace('image', 'image_icon')}']//img    image_check_test.jpg
@@ -25,3 +29,10 @@ Test Keywords
 
 
     [Teardown]    Close Browser
+
+*** Keywords ***
+
+
+Is Browser Firefox
+    ${ff}=    Execute Javascript    return !!$.browser.mozilla
+    [Return]    ${ff}
