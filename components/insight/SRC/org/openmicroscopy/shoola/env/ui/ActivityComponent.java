@@ -57,7 +57,6 @@ import javax.swing.JToolBar;
 
 import omero.model.OriginalFile;
 
-import org.hibernate.tool.hbm2x.StringUtils;
 import org.jdesktop.swingx.JXBusyLabel;
 import org.openmicroscopy.shoola.env.Environment;
 import org.openmicroscopy.shoola.env.LookupNames;
