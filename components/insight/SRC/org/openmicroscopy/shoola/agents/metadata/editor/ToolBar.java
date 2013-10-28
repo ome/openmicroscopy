@@ -79,6 +79,7 @@ import org.openmicroscopy.shoola.util.ui.MultilineLabel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.tdialog.TinyDialog;
 
+import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
 import pojos.FilesetData;
@@ -273,12 +274,16 @@ class ToolBar
 			Entry<Integer, String> e;
 			Iterator<Entry<Integer, String>> i = formats.entrySet().iterator();
 			JMenuItem item;
+			Object ho = model.getRefObject();
+			boolean enabled = (ho instanceof ImageData ||
+			        ho instanceof WellSampleData || ho instanceof DatasetData);
 			while (i.hasNext()) {
 				e = i.next();
 				item = new JMenuItem();
 				item.setText(e.getValue());
 				item.addActionListener(l);
 				item.setActionCommand(""+e.getKey());
+				item.setEnabled(enabled);
 				menu.add(item);
 			}
     		saveAsMenu.add(menu);
