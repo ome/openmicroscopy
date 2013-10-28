@@ -48,6 +48,7 @@ class TestScripts(lib.ITest):
         self.client.setInput("a", rstring("a"));
         self.client.getInput("a");
 
+    @pytest.mark.xfail(reason="See ticket #11539")
     def testUploadAndPing(self):
         name = str(self.pingfile())
         file = self.client.upload(name, type="text/x-python")
