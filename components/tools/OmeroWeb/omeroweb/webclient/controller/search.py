@@ -72,16 +72,13 @@ class BaseSearch(BaseController):
         created = None
         if date is not None:
             p = str(date).split('_')
-            # only for python 2.5
-            # d1 = datetime.strptime(p[0]+" 00:00:00", "%Y-%m-%d %H:%M:%S") 
-            # d2 = datetime.strptime(p[1]+" 23:59:59", "%Y-%m-%d %H:%M:%S") 
             if len(p)>1:
-                d1 = datetime.datetime(*(time.strptime((p[0]+" 00:00:00"), "%Y-%m-%d %H:%M:%S")[0:6]))
-                d2 = datetime.datetime(*(time.strptime((p[1]+" 23:59:59"), "%Y-%m-%d %H:%M:%S")[0:6]))
+                d1 = datetime.datetime.strptime(p[0]+" 00:00:00", "%Y-%m-%d %H:%M:%S")
+                d2 = datetime.datetime.strptime(p[1]+" 23:59:59", "%Y-%m-%d %H:%M:%S")
             
                 created = [rtime(long(time.mktime(d1.timetuple())+1e-6*d1.microsecond)*1000), rtime(long(time.mktime(d2.timetuple())+1e-6*d2.microsecond)*1000)]
             else:
-                d1 = datetime.datetime(*(time.strptime((p[0]+" 00:00:00"), "%Y-%m-%d %H:%M:%S")[0:6]))
+                d1 = datetime.datetime.strptime(p[0]+" 00:00:00", "%Y-%m-%d %H:%M:%S")
             
         pr_list_with_counters = list()
         ds_list_with_counters = list()

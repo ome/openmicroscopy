@@ -24,10 +24,7 @@ import portalocker
 
 import xml.dom.minidom
 
-try:
-    from xml.etree.ElementTree import XML, Element, SubElement, Comment, ElementTree, tostring
-except ImportError:
-    from elementtree.ElementTree import XML, Element, SubElement, Comment, ElementTree, tostring
+from xml.etree.ElementTree import XML, Element, SubElement, Comment, ElementTree, tostring
 
 
 class Environment(object):

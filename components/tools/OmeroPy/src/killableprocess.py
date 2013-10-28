@@ -45,8 +45,7 @@ It also adds a timeout argument to Wait() for a limited period of time before
 forcefully killing the process.
 
 Note: On Windows, this module requires Windows 2000 or higher (no support for
-Windows 95, 98, or NT 4.0). It also requires ctypes, which is bundled with
-Python 2.5+ or available from http://python.net/crew/theller/ctypes/
+Windows 95, 98, or NT 4.0).
 """
 
 import subprocess
@@ -54,20 +53,7 @@ import sys
 import os
 import time
 import types
-
-try:
-    from subprocess import CalledProcessError
-except ImportError:
-    # Python 2.4 doesn't implement CalledProcessError
-    class CalledProcessError(Exception):
-        """This exception is raised when a process run by check_call() returns
-        a non-zero exit status. The exit status will be stored in the
-        returncode attribute."""
-        def __init__(self, returncode, cmd):
-            self.returncode = returncode
-            self.cmd = cmd
-        def __str__(self):
-            return "Command '%s' returned non-zero exit status %d" % (self.cmd, self.returncode)
+from subprocess import CalledProcessError
 
 mswindows = (sys.platform == "win32")
 

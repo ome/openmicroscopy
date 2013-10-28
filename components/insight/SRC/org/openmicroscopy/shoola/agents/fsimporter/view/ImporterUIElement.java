@@ -995,29 +995,30 @@ class ImporterUIElement
 	 */
 	void setImportLogFile(Collection<FileAnnotationData> data, long id)
 	{
-		Entry<String, FileImportComponent> entry;
-		Iterator<Entry<String, FileImportComponent>>
-		i = components.entrySet().iterator();
-		FileImportComponent fc;
-		Iterator<FileAnnotationData> j;
-		FileAnnotationData fa;
-		while (i.hasNext()) {
-			entry = i.next();
-			fc = entry.getValue();
-			if (fc.getIndex() == id) {
-				j = data.iterator();
-				while (j.hasNext()) {
-					fa = j.next();
-					if (FileAnnotationData.LOG_FILE_NS.equals(
-							fa.getNameSpace())) {
-						downloadLogFile(fa.getFileID());
-						break;
-					}
-				}
-			}
-		}
+	    if (CollectionUtils.isEmpty(data)) return;
+	    Entry<String, FileImportComponent> entry;
+	    Iterator<Entry<String, FileImportComponent>>
+	    i = components.entrySet().iterator();
+	    FileImportComponent fc;
+	    Iterator<FileAnnotationData> j;
+	    FileAnnotationData fa;
+	    while (i.hasNext()) {
+	        entry = i.next();
+	        fc = entry.getValue();
+	        if (fc.getIndex() == id) {
+	            j = data.iterator();
+	            while (j.hasNext()) {
+	                fa = j.next();
+	                if (FileAnnotationData.LOG_FILE_NS.equals(
+	                        fa.getNameSpace())) {
+	                    downloadLogFile(fa.getFileID());
+	                    break;
+	                }
+	            }
+	        }
+	    }
 	}
-	
+
 	/**
 	 * Returns <code>true</code> if errors to send, <code>false</code>
 	 * otherwise.
