@@ -150,6 +150,13 @@ class TestPrefs(object):
         self.invoke("get")
         self.assertStdout(["A=BC"])
 
+    def testSetFromFile(self):
+        to_load = create_path()
+        to_load.write_text("Test")
+        self.invoke("set -f %s A" % to_load)
+        self.invoke("get")
+        self.assertStdout(["A=Test"])
+
     def testDrop(self):
         self.invoke("def x")
         self.invoke("def")

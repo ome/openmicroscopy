@@ -112,6 +112,7 @@ class PrefsControl(BaseControl):
 
         set = sub.add_parser("set", help="""Set key-value pair in the current profile. Omit the value to remove the key.""")
         set.set_defaults(func=self.set)
+        set.add_argument("-f", "--file", type=ExistingFile('r'), help="Load value from file")
         set.add_argument("KEY")
         set.add_argument("VALUE", nargs="?", help="Value to be set. If it is missing, the key will be removed")
 
@@ -200,6 +201,17 @@ class PrefsControl(BaseControl):
         if "=" in args.KEY and args.VALUE is None:
             k, v = args.KEY.split("=", 1)
             self.ctx.err(""" "=" in key name. Did you mean "...set %s %s"?""" % (k, v))
+        elif args.file:
+            if args.file == "-":
+                # Read from standard input
+                import fileinput
+                f = fileinput.input(args.file)
+            else:
+                f = args.file
+            try:
+                config[args.KEY] = ''.join(f)
+            finally:
+                f.close()
         elif args.VALUE is None:
             del config[args.KEY]
         else:
