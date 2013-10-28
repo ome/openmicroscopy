@@ -2,8 +2,8 @@
 <html>
 <body>
 <p>
-OMERO is modern client-server software for visualising, managing,<br></br> 
-and annotating microscope images and metadata. 
+OMERO is modern client-server software for visualizing, managing,<br></br>
+and annotating microscope images and metadata.
 </p>
 <p>
 Version: @VERSION@<br></br>
@@ -17,7 +17,7 @@ Build: @DATE@<br></br>
 <p>
 This software is distributed under the terms of the GNU General Public License
 .<br></br>
-For more information, visit 
+For more information, visit
 <a href="http://www.openmicroscopy.org">http://www.openmicroscopy.org</a>
 </p>
 </body></html>
