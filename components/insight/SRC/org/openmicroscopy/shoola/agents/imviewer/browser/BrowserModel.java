@@ -809,6 +809,13 @@ class BrowserModel
     {
     	parent.setSelectedXYPlane(z, t);
     }
+
+    /**
+     * Returns the real timepoint.
+     * 
+     * @return See above.
+     */
+    int getRealSelectedT() { return parent.getRealSelectedT(); }
     
     /**
      * Returns the default timepoint.
