@@ -23,6 +23,10 @@
 package org.openmicroscopy.shoola.env.ui;
 
 
+// Temporary import to get build passing
+import org.apache.commons.lang.StringUtils;
+
+
 
 //Java imports
 import info.clearthought.layout.TableLayout;
