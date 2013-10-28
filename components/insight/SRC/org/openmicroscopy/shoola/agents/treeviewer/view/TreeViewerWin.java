@@ -894,7 +894,10 @@ class TreeViewerWin
         viewPort.validate();
         viewPort.repaint();
     }
-    
+
+    /** Clears the menus. */
+    void clearMenus() { toolBar.clearMenus(); }
+
     /**
      * Shows or hides the component depending on the stated of the frame.
      * 

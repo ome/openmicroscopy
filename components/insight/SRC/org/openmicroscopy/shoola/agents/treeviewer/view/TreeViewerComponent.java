@@ -3932,6 +3932,7 @@ class TreeViewerComponent
 		model.setAvailableScripts(null);
 		model.clearImportResult();
 		view.onImport();
+		view.clearMenus();
 		//reset metadata
 		MetadataViewer mv = view.resetMetadataViewer();
 		mv.addPropertyChangeListener(controller);
