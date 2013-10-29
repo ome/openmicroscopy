@@ -44,7 +44,7 @@ Test Container Creation Enabled
     Node Popup Menu Item Should Be Enabled      Dataset
     Node Popup Menu Item Should Be Enabled      Screen
     Node Popup Menu Item Should Be Enabled      Delete
-    ${imageId}=    Select And Expand Image
+    ${imageId}=                                 Select And Expand Image
     Create Button Should Be Enabled             project
     Create Button Should Be Enabled             dataset
     Create Button Should Be Enabled             screen
@@ -54,7 +54,7 @@ Test Container Creation Enabled
     Node Popup Menu Item Should Be Enabled      Delete
 
     Thumbnail Should Be Selected                ${imageId}
-    Key Down    40    # '40' is 'down' key    # Press Key    dataTree    /40
+    Key Down                                    40    # '40' is 'down' key    # Press Key    dataTree    /40
     Thumbnail Should Not Be Selected            ${imageId}
     Node Should Not Be Selected                 ${imageId}
     Click Thumbnail                             ${imageId}

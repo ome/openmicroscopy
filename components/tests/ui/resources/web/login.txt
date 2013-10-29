@@ -16,7 +16,7 @@ User "${username}" logs in with password "${password}"
     Welcome Page Should Be Open
 
 Open Browser To Login Page
-    Open Browser    ${LOGIN URL}    ${BROWSER}
+    Open Browser          ${LOGIN URL}    ${BROWSER}
     Set Selenium Speed    ${DELAY}
     Login Page Should Be Open
 
@@ -28,15 +28,15 @@ Go To Login Page
     Login Page Should Be Open
 
 Input Username
-    [Arguments]    ${username}
+    [Arguments]   ${username}
     Input Text    username    ${username}
 
 Input Password
-    [Arguments]    ${password}
+    [Arguments]   ${password}
     Input Text    password    ${password}
 
 Select Server
-    [Arguments]    ${server}
+    [Arguments]         ${server}
     Select From List    id_server    ${server}
 
 Submit Credentials
@@ -44,4 +44,4 @@ Submit Credentials
 
 Welcome Page Should Be Open
     Location Should Be    ${WELCOME URL}
-    Title Should Be    Webclient
+    Title Should Be       Webclient
