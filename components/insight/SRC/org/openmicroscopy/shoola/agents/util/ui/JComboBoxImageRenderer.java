@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.util.ui.JComboBoxImageRenderer 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2012 University of Dundee & Open Microscopy Environment.
+ *  Copyright (C) 2006-2013 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
  *
  *
@@ -27,6 +27,8 @@ package org.openmicroscopy.shoola.agents.util.ui;
 //Java imports
 import java.awt.Component;
 import java.awt.Dimension;
+import java.util.List;
+
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
@@ -48,6 +50,9 @@ public class JComboBoxImageRenderer
 	extends DefaultListCellRenderer
 {
 
+    /** The tool tips to set.*/
+    private List<String> tooltips;
+    
 	/**
 	 * Creates a new instance.
 	 */
@@ -55,6 +60,16 @@ public class JComboBoxImageRenderer
 	{
 	}
 	
+	/**
+	 * Populates the renderer with the tooltips provided
+	 * 
+	 * @param tooltips The value to set.
+	 */
+	public void setTooltips(List<String> tooltips)
+	{
+	    this.tooltips = tooltips;
+	}
+    
 	/**
 	 * Overridden to set icon and text.
 	 * @see DefaultListCellRenderer#getListCellRendererComponent(JList, Object, int, boolean, boolean)
@@ -64,6 +79,11 @@ public class JComboBoxImageRenderer
 	{
 		JLabel label = (JLabel) super.getListCellRendererComponent(list,
 			value, index, isSelected, cellHasFocus);
+
+		if (index > -1 && value != null && tooltips != null
+                && tooltips.size() > index) {
+            list.setToolTipText(tooltips.get(index));
+        }
 		if (isSelected) {
 			setBackground(list.getSelectionBackground());
 			setForeground(list.getSelectionForeground());

@@ -198,16 +198,7 @@ public class ImporterAgent
 						t = browserType;
 					else t = getDefaultBrowser();
 			}
-    		
-    		List<TreeImageDisplay> l = null;
-    		//Require if the ExperimenterLoadedDataEvent is posted after
-    		//LoadImporter event.
-    		if (objects != null) {
-    			Map<Long, List<TreeImageDisplay>> data = objects.get(groupId);
-            	if (data != null) l = data.get(getUserDetails().getId());
-    		}
-    		
-    		importer.activate(t, evt.getSelectedContainer(), l);
+    		importer.activate(t, evt.getSelectedContainer(), null);
     	}
     }
 

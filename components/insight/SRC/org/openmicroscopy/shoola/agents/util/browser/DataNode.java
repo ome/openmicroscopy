@@ -383,8 +383,6 @@ public class DataNode
 	 */
 	public String toString()
 	{
-		//space added at the end otherwise does not show on linux if
-		//name ends up with "v".
 		return EditorUtil.truncate(getFullName(), 48);
 	}
 	
