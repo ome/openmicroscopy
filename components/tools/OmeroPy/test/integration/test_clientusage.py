@@ -71,7 +71,7 @@ class TestClientUsage(lib.ITest):
         assert 1 ==  len(srvs)
         try:
             sf.setSecurityContext(omero.model.ExperimenterGroupI(1, False))
-            self.fail("Should not be allowed")
+            assert False, "Should not be allowed"
         except:
             pass # good
         srvs[0].close()

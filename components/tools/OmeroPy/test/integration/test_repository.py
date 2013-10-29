@@ -511,11 +511,9 @@ class TestManagedRepositoryMultiUser(AbstractRepoTest):
         self.assertRead(mrepo1, filename, ofile)
         self.assertRead(mrepo1, filename, ofile, self.all(client1))
 
-        try:
+        with pytest.raises(omero.SecurityViolation):
             self.assertRead(mrepo2, filename, ofile)
-            self.fail("secvio")
-        except omero.SecurityViolation:
-            pass
+
         self.assertRead(mrepo2, filename, ofile, self.all(client2))
 
 
@@ -598,7 +596,7 @@ class TestDbSync(AbstractRepoTest):
         # If we try to create such a file, we should receive an exception
         try:
             self.createFile(mrepo, fooname)
-            self.fail("Should have thrown")
+            assert False, "Should have thrown"
         except omero.grid.UnregisteredFileException, ufe:
             file = mrepo.register(fooname, None)
             assert file.path ==  ufe.file.path
@@ -609,7 +607,7 @@ class TestDbSync(AbstractRepoTest):
         self.assertPasses(self.raw("mkdir", ["-p", mydir], client=self.root))
         try:
             self.createFile(mrepo, mydir)
-            self.fail("Should have thrown")
+            assert False, "Should have thrown"
         except omero.grid.UnregisteredFileException, ufe:
             file = mrepo.register(mydir, None)
             assert file.mimetype ==  ufe.file.mimetype
