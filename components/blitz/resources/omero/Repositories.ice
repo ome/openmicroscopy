@@ -1,7 +1,7 @@
 /*
 *   $Id$
 *
-*   Copyright 2009 Glencoe Software, Inc. All rights reserved.
+*   Copyright 2009-2013 Glencoe Software, Inc. All rights reserved.
 *   Use is subject to license terms supplied in LICENSE.txt
 *
 */
@@ -466,11 +466,21 @@ module omero {
              * integer being the bit width of the resulting hash code.
              * It is possible for the same algorithm to be offered with
              * different bit widths.
-             * They are listed in no particular order and any of them may be
-             * specified for [ImportSettings::checksumAlgorithm].
+             * They are listed in descending order of preference,
+             * as set by the server administrator, and any of them may
+             * be specified for [ImportSettings::checksumAlgorithm].
              */
-             omero::api::ChecksumAlgorithmList listChecksumAlgorithms();
+            omero::api::ChecksumAlgorithmList listChecksumAlgorithms();
 
+            /**
+             * Suggest a checksum algorithm to use for
+             * [ImportSettings::checksumAlgorithm] according to the
+             * preferences set by the server administrator. Provide a
+             * list of the algorithms supported by the client, and the
+             * server will report which of them is most preferred by
+             * the server, or return null if none of them are supported.
+             */
+            omero::model::ChecksumAlgorithm suggestChecksumAlgorithm(omero::api::ChecksumAlgorithmList supported);
         };
 
         /**
