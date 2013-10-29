@@ -23,6 +23,7 @@ import omero
 from omero.plugins.tag import TagControl
 from test.integration.clitest.cli import CLITest
 from omero.rtypes import rstring, rlong
+from omero.util.temp_files import create_path
 
 
 class TestTag(CLITest):
@@ -107,6 +108,22 @@ class TestTag(CLITest):
         tag = self.get_tag_by_name(tag_name)
         assert tag.description.val == tag_desc
 
+    def testLoadTag(self):
+        tag_name = self.uuid()
+        tag_desc = self.uuid()
+        p = create_path(suffix=".json")
+        p.write_text("""
+[{
+    "name" : "%s",
+    "desc" : "%s"}]""" % (tag_name, tag_desc))
+        args = self.login_args()
+        args += ["tag", "load", str(p)]
+        self.cli.invoke(args, strict=True)
+
+        # Check tag is created
+        tag = self.get_tag_by_name(tag_name)
+        assert tag.description.val == tag_desc
+
     def testCreateTagset(self):
         ts_name = self.uuid()
         ts_desc = self.uuid()
@@ -129,3 +146,31 @@ class TestTag(CLITest):
         tags = self.get_tags_in_tagset(tagset.id.val)
         tag_ids = [x.id.val for x in tags]
         assert sorted(tag_ids) == sorted([tag1.id.val, tag2.id.val])
+
+    def testLoadTagset(self):
+        ts_name = self.uuid()
+        ts_desc = self.uuid()
+        tag_names = ["tagset %s - %s" % (ts_name, x) for x in [1, 2]]
+        p = create_path(suffix=".json")
+        p.write_text("""
+[{
+    "name" : "%s",
+    "desc" : "%s",
+    "set" : [{
+             "name" : "%s",
+             "desc" : ""},
+             {
+             "name" : "%s",
+             "desc" : ""}]
+}]""" % (ts_name, ts_desc, tag_names[0], tag_names[1]))
+        args = self.login_args()
+        args += ["tag", "load", str(p)]
+        self.cli.invoke(args, strict=True)
+
+        # Check tagset is created
+        tagset = self.get_tag_by_name(ts_name)
+        assert tagset.description.val == ts_desc
+
+        # Check all tags are linked to the tagset
+        tags = self.get_tags_in_tagset(tagset.id.val)
+        assert sorted([x.textValue.val for x in tags]) == sorted(tag_names)
