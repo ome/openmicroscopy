@@ -2,10 +2,10 @@
  * org.openmicroscopy.shoola.env.ui.SaveAsActivity 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2011 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -27,12 +27,9 @@ package org.openmicroscopy.shoola.env.ui;
 import java.io.File;
 
 //Third-party libraries
-
-import omero.model.OriginalFile;
-
+import org.apache.commons.io.FilenameUtils;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.config.Registry;
-import org.openmicroscopy.shoola.env.data.model.DownloadActivityParam;
 import org.openmicroscopy.shoola.env.data.model.SaveAsParam;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 
@@ -47,9 +44,6 @@ import pojos.FileAnnotationData;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since 3.0-Beta4
  */
 public class SaveAsActivity
@@ -57,26 +51,40 @@ public class SaveAsActivity
 {
 
 	/** The description of the activity. */
-	private static final String		DESCRIPTION_CREATION = "Saving Images as ";
+	private static final String DESCRIPTION_CREATION = "Saving Images as ";
 	
 	/** The description of the activity when finished. */
-	private static final String		DESCRIPTION_CREATED = "Images saved in";
-	
+	private static final String DESCRIPTION_CREATED = "Images saved in";
+
 	/** The description of the activity when cancelled. */
-	private static final String		DESCRIPTION_CANCEL = 
-		"Images saving cancelled";
-	
+	private static final String DESCRIPTION_CANCEL = "Images saving cancelled";
+
 	/** The parameters hosting information about the images to save. */
     private SaveAsParam	parameters;
 
     /**
+     * Returns the name of the file.
+     *
+     * @param name The name to handle.
+     * @return See above.
+     */
+    private String getFileName(String name)
+    {
+        File directory = parameters.getFolder();
+        File[] files = directory.listFiles();
+        String dirPath = directory.getAbsolutePath() + File.separator;
+        String extension = "."+FilenameUtils.getExtension(name);
+        return getFileName(files, name, name, dirPath, 1, extension);
+    }
+
+    /**
      * Creates a new instance.
-     * 
-     * @param viewer		The viewer this data loader is for.
-     *               		Mustn't be <code>null</code>.
-     * @param registry		Convenience reference for subclasses.
+     *
+     * @param viewer The viewer this data loader is for.
+     *               Mustn't be <code>null</code>.
+     * @param registry Convenience reference for subclasses.
      * @param ctx The security context.
-     * @param parameters	The parameters used to save the collection of images.
+     * @param parameters The parameters used to save the collection of images.
      */
 	public SaveAsActivity(UserNotifier viewer,  Registry registry,
 			SecurityContext ctx, SaveAsParam parameters)
@@ -85,7 +93,7 @@ public class SaveAsActivity
 		if (parameters == null)
 			throw new IllegalArgumentException("Parameters not valid.");
 		this.parameters = parameters;
-		initialize(DESCRIPTION_CREATION+parameters.getIndexAsString(), 
+		initialize(DESCRIPTION_CREATION+parameters.getIndexAsString(),
 				parameters.getIcon());
 		File folder = parameters.getFolder();
 		messageLabel.setText("in "+folder.getName());
@@ -103,7 +111,7 @@ public class SaveAsActivity
 	}
 
 	/**
-	 * Modifies the text of the component. 
+	 * Modifies the text of the component.
 	 * @see ActivityComponent#notifyActivityEnd()
 	 */
 	protected void notifyActivityEnd()
@@ -114,25 +122,26 @@ public class SaveAsActivity
 			String name = "";
 			if (data.isLoaded()) name = data.getFileName();
 			else name = "Annotation_"+data.getId();
+			name = getFileName(name);
 			download("", result, new File(parameters.getFolder(), name));
 		}
 		
 		type.setText(DESCRIPTION_CREATED+" "+parameters.getFolder().getName());
 	}
-	
+
 	/**
-	 * Modifies the text of the component. 
+	 * Modifies the text of the component.
 	 * @see ActivityComponent#notifyActivityCancelled()
 	 */
 	protected void notifyActivityCancelled()
 	{
 		type.setText(DESCRIPTION_CANCEL);
 	}
-	
+
 	/** 
 	 * No-operation in this case.
 	 * @see ActivityComponent#notifyActivityError()
 	 */
 	protected void notifyActivityError() {}
-	
+
 }
