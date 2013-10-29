@@ -1219,4 +1219,9 @@ class ToolBar
 		repaint();
 	}
 
+	/** Clears the menus. */
+	void clearMenus()
+	{
+	    scriptsMenu = null; //reset the menu.
+	}
 }
