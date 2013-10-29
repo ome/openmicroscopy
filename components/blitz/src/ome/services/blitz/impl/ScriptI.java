@@ -279,7 +279,7 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
 
                 // Removing update event
                 // to prevent optimistic locking
-                file.setMimetype("text/x-python");
+                scripts.setMimetype(file);
                 file = updateFile(file, __current);
 
                 OriginalFile official = scripts.load(file.getId(), true);
@@ -551,7 +551,7 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
     private boolean parseAcceptsList(final QueryBuilder qb,
             final List<IObject> acceptsList) {
         qb.where();
-        qb.and("o.mimetype = '" + ParamsHelper.PYTHONSCRIPT + "'");
+        scripts.buildQuery(qb);
 
         if (acceptsList != null && acceptsList.size() > 0) {
             for (IObject object : acceptsList) {
@@ -585,10 +585,10 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
         OriginalFile file = new OriginalFile();
         file.setName(FilenameUtils.getName(path));
         file.setPath(FilenameUtils.getFullPath(path));
-        file.setMimetype(ParamsHelper.PYTHONSCRIPT);
         file.setSize((long) script.getBytes().length);
         file.setHash(cpf.getProvider(ChecksumType.SHA1)
                 .putBytes(script.getBytes()).checksumAsString());
+        scripts.setMimetype(file);
         return updateFile(file, current);
     }
 
@@ -681,16 +681,20 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
     private OriginalFile getOriginalFileOrNull(long id, final Ice.Current current) {
 
         try {
-            final String queryString = "from OriginalFile as o where o.mimetype = '"
-                    + ParamsHelper.PYTHONSCRIPT + "' and o.id = " + id;
+            final QueryBuilder qb = new QueryBuilder();
+            qb.select("o").from("OriginalFile", "o");
+            qb.where();
+            scripts.buildQuery(qb);
+            qb.and("o.id = :id");
+            qb.param("id", id);
+
             OriginalFile file = (OriginalFile) factory.executor.execute(
                     current.ctx, factory.principal, new Executor.SimpleWork(this,
                             "getOriginalFileOrNull", id) {
 
                         @Transactional(readOnly = true)
                         public Object doWork(Session session, ServiceFactory sf) {
-                            return sf.getQueryService().findByQuery(
-                                    queryString, null);
+                            return qb.query(session).uniqueResult();
                         }
                     });
             return file;

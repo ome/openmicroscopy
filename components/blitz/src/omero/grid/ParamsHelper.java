@@ -39,11 +39,6 @@ public class ParamsHelper {
 
     private final static Logger log = LoggerFactory.getLogger(ParamsHelper.class);
 
-    /** The text representation of the format in a python script. */
-    public final static String PYTHONSCRIPT = "text/x-python";
-
-    public final static String OCTETSTREAM = "application/octet-stream";
-
     private final Acquirer acq;
 
     private final Executor ex;

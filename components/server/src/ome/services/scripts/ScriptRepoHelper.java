@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -33,6 +34,8 @@ import ome.system.EventContext;
 import ome.system.Principal;
 import ome.system.Roles;
 import ome.system.ServiceFactory;
+import ome.tools.hibernate.QueryBuilder;
+import ome.tools.spring.OnContextRefreshedEventListener;
 import ome.util.SqlAction;
 // import omero.util.TempFileManager;
 // Note: This cannot be imported because
@@ -44,11 +47,13 @@ import org.apache.commons.io.filefilter.CanReadFileFilter;
 import org.apache.commons.io.filefilter.EmptyFileFilter;
 import org.apache.commons.io.filefilter.HiddenFileFilter;
 import org.apache.commons.io.filefilter.IOFileFilter;
+import org.apache.commons.io.filefilter.OrFileFilter;
 import org.apache.commons.io.filefilter.TrueFileFilter;
 import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.hibernate.Session;
+import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -58,7 +63,7 @@ import org.springframework.transaction.annotation.Transactional;
  *
  * @since Beta4.2
  */
-public class ScriptRepoHelper {
+public class ScriptRepoHelper extends OnContextRefreshedEventListener {
 
     /**
      * Id used by all script repositories. Having a well defined string allows
@@ -70,10 +75,19 @@ public class ScriptRepoHelper {
      * {@link IOFileFilter} instance used during {@link #iterate()} to find the
      * matching scripts in the given directory.
      */
-    public final static IOFileFilter SCRIPT_FILTER = new AndFileFilter(Arrays
+    public final static IOFileFilter BASE_SCRIPT_FILTER = new AndFileFilter(Arrays
             .asList(new FileFilter[] { EmptyFileFilter.NOT_EMPTY,
-                    HiddenFileFilter.VISIBLE, CanReadFileFilter.CAN_READ,
-                    new WildcardFileFilter("*.py") }));
+                    HiddenFileFilter.VISIBLE, CanReadFileFilter.CAN_READ }));
+
+    private final Map<String, ScriptFileType> types =
+        new HashMap<String, ScriptFileType>();
+
+    /**
+     * {@link Set} of mimetypes from each of the {@link ScriptFileType} instances
+     * in {@link #types}. Not final since the value needs to be made immutable since
+     * the collection is frequently passed out.
+     */
+    private/* final */ Set<String> mimetypes = new HashSet<String>();
 
     private final String uuid;
 
@@ -85,6 +99,11 @@ public class ScriptRepoHelper {
 
     private final Roles roles;
 
+    /**
+     * {@link IOFileFilter} set on {@link #handleContextRefreshedEvent(ContextRefreshedEvent).
+     */
+    private/* final */IOFileFilter scriptFilter;
+
     protected final Logger log = LoggerFactory.getLogger(getClass());
 
     /**
@@ -93,11 +112,6 @@ public class ScriptRepoHelper {
     public ScriptRepoHelper(Executor ex, String sessionUuid, Roles roles) {
         this(new File(getDefaultScriptDir()), ex, new Principal(sessionUuid),
                 roles);
-        try {
-            loadAll(true);
-        } catch (RemovedSessionException rse) {
-            log.error("Script failure!!! RemovedSession on startup: are we testing?");
-        }
     }
 
     /**
@@ -126,6 +140,66 @@ public class ScriptRepoHelper {
         this.dir = sanityCheck(log, dir);
         this.ex = ex;
         this.p = p;
+    }
+
+    /**
+     * Loads all {@link ScriptFileType} instances from the context,
+     * and uses them to initialize all scripts in the repo.
+     */
+    @Override
+    public void handleContextRefreshedEvent(ContextRefreshedEvent event) {
+        types.putAll(
+                event.getApplicationContext()
+                    .getBeansOfType(ScriptFileType.class));
+
+        final List<FileFilter> andFilters = new ArrayList<FileFilter>();
+        final List<FileFilter> orFilters= new ArrayList<FileFilter>();
+        for (Map.Entry<String, ScriptFileType> entry : types.entrySet()) {
+            IOFileFilter found = entry.getValue().getFileFilter();
+            log.info("Registering {}: {}", entry.getKey(), found);
+            orFilters.add(found);
+            mimetypes.add(entry.getValue().getMimetype());
+        }
+        mimetypes = Collections.unmodifiableSet(mimetypes);
+
+        andFilters.add(BASE_SCRIPT_FILTER);
+        andFilters.add(new OrFileFilter(orFilters));
+        this.scriptFilter = new AndFileFilter(andFilters);
+        try {
+            loadAll(true);
+        } catch (RemovedSessionException rse) {
+            log.error("Script failure!!! RemovedSession on startup: are we testing?");
+        }
+    }
+
+    /**
+     * Adds a single clause of the form "AND (A OR B ...)" where each
+     * {@link ScriptFileType} A, B, etc. is given a chance to define
+     * its own clause.
+     */
+    public void buildQuery(QueryBuilder qb) {
+        boolean first = true;
+        qb.and(" ("); // will prepend "AND" if not first clause.
+        for (String mimetype : mimetypes) {
+            if (first) {
+                first = false;
+            } else {
+                qb.append(" OR ");
+            }
+            qb.append("o.mimetype = '" + mimetype + "'");
+        }
+        qb.append(") ");
+    }
+
+    public void setMimetype(OriginalFile ofile) {
+        for (Map.Entry<String, ScriptFileType> entry : types.entrySet()) {
+            if (entry.getValue().setMimetype(ofile)) {
+                log.debug("Mimetype set by {} for {}",
+                        entry.getKey(), ofile.getName());
+                return; // EARLY EXIT.
+            }
+        }
+        log.warn("No mimetype set for {}", ofile.getName());
     }
 
     /**
@@ -215,7 +289,7 @@ public class ScriptRepoHelper {
     }
 
     /**
-     * Returns the number of files which match {@link #SCRIPT_FILTER} in
+     * Returns the number of files which match {@link #scriptFilter} in
      * {@link #dir}. Uses {@link #iterate()} internally.
      */
     public int countOnDisk() {
@@ -241,7 +315,7 @@ public class ScriptRepoHelper {
     }
 
     public int countInDb(SqlAction sql) {
-        return sql.repoScriptCount(uuid);
+        return sql.repoScriptCount(uuid, mimetypes);
     }
 
     @SuppressWarnings("unchecked")
@@ -258,7 +332,7 @@ public class ScriptRepoHelper {
 
     public List<Long> idsInDb(SqlAction sql) {
         try {
-            return sql.fileIdsInDb(uuid);
+            return sql.fileIdsInDb(uuid, mimetypes);
         } catch (EmptyResultDataAccessException e) {
             return Collections.emptyList();
         }
@@ -276,7 +350,7 @@ public class ScriptRepoHelper {
 
     public boolean isInRepo(SqlAction sql, final long id) {
         try {
-            int count = sql.isFileInRepo(uuid, id);
+            int count = sql.isFileInRepo(uuid, id, mimetypes);
             return count > 0;
         } catch (EmptyResultDataAccessException e) {
             return false;
@@ -303,12 +377,12 @@ public class ScriptRepoHelper {
      */
     public Long findInDb(SqlAction sql, RepoFile repoFile, boolean scriptsOnly) {
         return sql.findRepoFile(uuid, repoFile.dirname(), repoFile.basename(),
-                scriptsOnly ? "text/x-python" : null);
+                scriptsOnly ? mimetypes : null);
     }
 
     @SuppressWarnings("unchecked")
     public Iterator<File> iterate() {
-        return FileUtils.iterateFiles(dir, SCRIPT_FILTER, TrueFileFilter.TRUE);
+        return FileUtils.iterateFiles(dir, scriptFilter, TrueFileFilter.TRUE);
     }
 
     /**
@@ -466,9 +540,9 @@ public class ScriptRepoHelper {
         ofile.setHasher(hasher);
         ofile.setHash(repoFile.hash());
         ofile.setSize(repoFile.length());
-        ofile.setMimetype("text/x-python");
         ofile.getDetails().setGroup(group);
         ofile = sf.getUpdateService().saveAndReturnObject(ofile);
+        setMimetype(ofile);
 
         sqlAction.setFileRepo(ofile.getId(), uuid);
 
@@ -502,7 +576,7 @@ public class ScriptRepoHelper {
 
     public OriginalFile load(final long id, Session s, SqlAction sqlAction, boolean check) {
         if (check) {
-            String repo = sqlAction.scriptRepo(id);
+            String repo = sqlAction.scriptRepo(id, mimetypes);
             if (!uuid.equals(repo)) {
                 return null;
             }

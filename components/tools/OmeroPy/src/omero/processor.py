@@ -128,9 +128,17 @@ class ProcessI(omero.grid.Process, omero.util.SimpleServant):
     #
 
     def make_env(self):
-        self.env = omero.util.Environment("PATH", "PYTHONPATH",\
-            "DYLD_LIBRARY_PATH", "LD_LIBRARY_PATH", "MLABRAW_CMD_STR", "HOME",\
-            "DISPLAY")
+        self.env = omero.util.Environment(
+            "CLASSPATH",
+            "DISPLAY",
+            "DYLD_LIBRARY_PATH",
+            "HOME",
+            "JYTHON_HOME",
+            "LD_LIBRARY_PATH",
+            "MLABRAW_CMD_STR",
+            "PATH",
+            "PYTHONPATH",
+        )
         # WORKAROUND
         # Currently duplicating the logic here as in the PYTHONPATH
         # setting of the grid application descriptor (see etc/grid/*.xml)
@@ -140,6 +148,10 @@ class ProcessI(omero.grid.Process, omero.util.SimpleServant):
         # see 39.17.2 "node.datadir).
         self.env.append("PYTHONPATH", str(self.omero_home / "lib" / "python"))
         self.env.set("ICE_CONFIG", str(self.config_path))
+        # Also actively adding all jars under lib/server to the CLASSPATH
+        lib_server = self.omero_home / "lib" / "server"
+        for jar_file in lib_server.walk("*.jar"):
+            self.env.append("CLASSPATH", str(jar_file))
 
     def make_files(self):
         self.dir = create_path("process", ".dir", folder = True)
@@ -868,7 +880,12 @@ class ProcessorI(omero.grid.Processor, omero.util.Servant):
             properties["omero.pass"] = session
             properties["Ice.Default.Router"] = client.getProperty("Ice.Default.Router")
 
-            process = ProcessI(self.ctx, sys.executable, properties, params, iskill, omero_home = self.omero_home)
+            ending = file.name.val.split(".")[-1]
+            if ending == "jy":
+                process = ProcessI(self.ctx, "jython", properties, params, iskill, omero_home = self.omero_home)
+            else:
+                process = ProcessI(self.ctx, sys.executable, properties, params, iskill, omero_home = self.omero_home)
+
             self.resources.add(process)
 
             # client.download(file, str(process.script_path))
