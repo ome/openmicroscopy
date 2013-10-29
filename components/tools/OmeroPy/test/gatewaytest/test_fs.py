@@ -39,6 +39,7 @@ class TestFileset(object):
         gatewaywrapper.loginAsAuthor()
         self.TESTIMG = gatewaywrapper.getTestImage()
 
+    @pytest.mark.xfail(reason="ticket 11610")
     def testFileset(self):
         image = self.TESTIMG
 

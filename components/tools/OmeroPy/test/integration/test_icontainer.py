@@ -11,6 +11,7 @@
 """
 
 import test.integration.library as lib
+import pytest
 import omero
 from omero_model_PixelsI import PixelsI
 from omero_model_ImageI import ImageI
@@ -280,6 +281,7 @@ class TestSplitFilesets(lib.ITest):
         expected = {filesetId: {True: [imgId], False: [images[1].id.val]}}
         self.checkSplitFilesets(client, {'Dataset': [datasets[0].id.val]}, expected)
 
+    @pytest.mark.xfail(reason="ticket 11610")
     def testGetImagesBySplitFilesetsManyCases(self):
         query = self.client.sf.getQueryService()
         update = self.client.sf.getUpdateService()

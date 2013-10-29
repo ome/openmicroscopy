@@ -119,6 +119,7 @@ class TestScript (object):
         dbhelpers.bootstrap(onlyUsers=True)
 
 
+    @pytest.mark.xfail(reason="ticket 11610")
     def testRunScript(self, gatewaywrapper):
         # Login as user...
         gatewaywrapper.doLogin(dbhelpers.USERS['script_test_user'])

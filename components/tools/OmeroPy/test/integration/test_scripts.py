@@ -113,6 +113,7 @@ class TestScripts(lib.ITest):
         assert scrCount+noOfScripts-1 ==  len(svc.getScripts())
 
 
+    @pytest.mark.xfail(reason="ticket 11610")
     def testParseErrorTicket2185(self):
         svc = self.root.sf.getScriptService()
         impl = omero.processor.usermode_processor(self.root)
@@ -450,6 +451,7 @@ client.closeSession()
     # omero.group support in scripts
     # See story ticket:3527. The permission
 
+    @pytest.mark.xfail(reason="ticket 11610")
     def test3527(self):
         SCRIPT = """if True:
         import omero.scripts
