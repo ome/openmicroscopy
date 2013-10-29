@@ -48,23 +48,21 @@ class TestTag(CLITest):
         # Query
         params = omero.sys.Parameters()
         params.map = {}
-        iquery = self.client.sf.getQueryService()
         query = "select t from TagAnnotation as t"
         params.map["val"] = rstring(tag_name)
         query += " where t.textValue=:val"
-        tags = iquery.findByQuery(query, params)
+        tags = self.query.findByQuery(query, params)
         return tags
 
     def get_tags_in_tagset(self, tagset_id):
         params = omero.sys.Parameters()
         params.map = {}
-        iquery = self.client.sf.getQueryService()
         query = "select t from TagAnnotation as t"
         params.map["tid"] = rlong(tagset_id)
         query += " where exists ("
         query += " select aal from AnnotationAnnotationLink as aal"
         query += " where aal.child=t.id and aal.parent.id=:tid) "
-        tags = iquery.findAllByQuery(query, params)
+        tags = self.query.findAllByQuery(query, params)
         return tags
 
     # Help subcommands
@@ -130,11 +128,11 @@ class TestTag(CLITest):
 
         tag1 = omero.model.TagAnnotationI()
         tag1.textValue = omero.rtypes.rstring("tagset %s - 1" % ts_name)
-        tag1 = self.client.sf.getUpdateService().saveAndReturnObject(tag1)
+        tag1 = self.update.saveAndReturnObject(tag1)
 
         tag2 = omero.model.TagAnnotationI()
         tag2.textValue = omero.rtypes.rstring("tagset %s - 1" % ts_name)
-        tag2 = self.client.sf.getUpdateService().saveAndReturnObject(tag2)
+        tag2 = self.update.saveAndReturnObject(tag2)
 
         self.create_tagset([tag1.id.val, tag2.id.val], ts_name, ts_desc)
 
@@ -174,3 +172,29 @@ class TestTag(CLITest):
         # Check all tags are linked to the tagset
         tags = self.get_tags_in_tagset(tagset.id.val)
         assert sorted([x.textValue.val for x in tags]) == sorted(tag_names)
+
+    # Tag linking commands
+    # ========================================================================
+    def testLinkImage(self):
+        # Create a tag and an image
+        tag = omero.model.TagAnnotationI()
+        tag.textValue = omero.rtypes.rstring("%s" % self.uuid())
+        tag = self.update.saveAndReturnObject(tag)
+        img = self.new_image()
+        img = self.update.saveAndReturnObject(img)
+        iid = img.getId().getValue()
+
+        #  Call tag link subcommand
+        args = self.login_args()
+        args += ["tag", "link", "Image:%s" % iid, "%s" % tag.id.val]
+        self.cli.invoke(args, strict=True)
+
+        # Check link
+        params = omero.sys.Parameters()
+        params.map = {}
+        params.map["iid"] = rlong(iid)
+        query = "select l from ImageAnnotationLink as l"
+        query += " join fetch l.child as a where l.parent.id=:iid"
+        link = self.query.findByQuery(query, params)
+
+        assert link.child.id.val == tag.id.val
