@@ -565,7 +565,7 @@ public interface SqlAction {
         /**
          * Returns the "and_mimetype" clause which must be appended to a given
          * query. Note: the rest of the SQL statement to which this clause is
-         * appended must used named SQL parameters otherwise "Can't infer the
+         * appended must use named SQL parameters otherwise "Can't infer the
          * SQL type to use" will be raised.
          *
          * @param mimetypes If null, then "" will be returned.
