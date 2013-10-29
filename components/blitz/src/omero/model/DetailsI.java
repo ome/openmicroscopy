@@ -128,6 +128,13 @@ public class DetailsI extends Details implements ome.model.ModelBased {
 
     }
 
+    private void ellideEventUuid(Event evt) {
+        if (evt != null && evt.session != null) {
+            evt.session.uuid = omero.rtypes.rstring("********");
+        }
+
+    }
+
     @SuppressWarnings("unchecked")
     public void copyObject(ome.util.Filterable model,
             ome.util.ModelMapper _mapper) {
@@ -142,6 +149,10 @@ public class DetailsI extends Details implements ome.model.ModelBased {
                     .getCreationEvent()));
             this.setUpdateEvent((omero.model.EventI) mapper.findTarget(source
                     .getUpdateEvent()));
+
+            ellideEventUuid(creationEvent);
+            ellideEventUuid(updateEvent);
+
             this.setExternalInfo((omero.model.ExternalInfoI) mapper
                     .findTarget(source.getExternalInfo()));
 
