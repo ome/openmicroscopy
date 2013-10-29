@@ -143,24 +143,6 @@ class TestPrefs(object):
         # ticket:7273
         pytest.raises(NonZeroReturnCode, self.invoke, "load THIS_FILE_SHOULD_NOT_EXIST")
 
-    def testLoadMultiLine(self):
-        to_load = create_path()
-        to_load.write_text("A=B\\\nC")
-        self.invoke("load %s" % to_load)
-        self.invoke("get")
-        self.assertStdout(["A=BC"])
-
-    def testSetFromFile(self):
-        to_load = create_path()
-        to_load.write_text("Test")
-        self.invoke("set -f %s A" % to_load)
-        self.invoke("get")
-        self.assertStdout(["A=Test"])
-        to_load.write_text("Placeholder %s")
-        self.invoke("set -f %s A" % to_load)
-        self.invoke("get")
-        self.assertStdout(["A=Placeholder %s"])
-
     def testDrop(self):
         self.invoke("def x")
         self.invoke("def")
