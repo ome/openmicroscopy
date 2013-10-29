@@ -138,6 +138,14 @@ class ITest(object):
                 user, name = self.user_and_name(exp)
                 admin.addGroups(user, [group])
 
+    def add_groups(self, experimenter, groups, owner=False):
+        admin = self.root.sf.getAdminService()
+        for group in groups:
+            user, name = self.user_and_name(experimenter)
+            admin.addGroups(user, [group])
+            if owner:
+                admin.setGroupOwner(group, user)
+
     def remove_experimenters(self, group, experimenters):
         admin = self.root.sf.getAdminService()
         if experimenters:

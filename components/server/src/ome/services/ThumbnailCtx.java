@@ -1,7 +1,7 @@
 /*
  *   $Id$
  *
- *   Copyright 2010 University of Dundee. All rights reserved.
+ *   Copyright 2010-2013 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -49,6 +49,22 @@ import ome.system.EventContext;
  */
 public class ThumbnailCtx
 {
+
+    /**
+     * Marker exception which is thrown by all methods which wish to tell
+     * their callers that for whatever reason the desired Thumbnail is not
+     * available, in which case the caller can use a *Direct method instead.
+     *
+     * See ticket:10618
+     */
+    public static class NoThumbnail extends Exception {
+
+        public NoThumbnail(String message) {
+            super(message);
+        }
+
+    }
+
     /** Logger for this class. */
     private static final Logger log = LoggerFactory.getLogger(ThumbnailCtx.class);
 
@@ -80,7 +96,7 @@ public class ThumbnailCtx
     private Map<Long, Pixels> pixelsIdPixelsMap =
         new HashMap<Long, Pixels>();
 
-    /** 
+    /**
      * Pixels ID vs. owner ID map. We don't access these RenderingDef object
      * properties directly due to load/unload issues with Hibernate
      * (ObjectUnloadedExceptions) when multiple objects were created with or
@@ -129,7 +145,7 @@ public class ThumbnailCtx
      * @param queryService OMERO query service to use.
      * @param updateService OMERO update service to use.
      * @param pixelsService OMERO pixels service to use.
-     * @param settingsService OMERO rendering settings service to use. 
+     * @param settingsService OMERO rendering settings service to use.
      * @param thumbnailService OMERO thumbnail service to use.
      * @param securitySystem OMERO security system for this session.
      * @param userId Current user ID.
@@ -225,7 +241,7 @@ public class ThumbnailCtx
         }
 
         // Locate the Pixels sets we have no settings for this user for.
-        Set<Long> pixelsIdsWithoutSettings = 
+        Set<Long> pixelsIdsWithoutSettings =
             getPixelsIdsWithoutSettings(pixelsIds);
 
         // For dimension pooling and checks of graph criticality to work
@@ -239,7 +255,7 @@ public class ThumbnailCtx
         if (pixelsIdsWithoutSettings.size() > 0
             && isExtendedGraphCritical(pixelsIdsWithoutSettings))
         {
-            settingsList = 
+            settingsList =
                 bulkLoadOwnerRenderingSettings(pixelsIdsWithoutSettings);
             for (RenderingDef settings : settingsList)
             {
@@ -286,7 +302,7 @@ public class ThumbnailCtx
         // metadata based on our dimension pools above. To save significant
         // time later we're also going to pre-create thumbnail metadata where
         // it is missing.
-        Map<Dimension, Set<Long>> dimensionPools = 
+        Map<Dimension, Set<Long>> dimensionPools =
             createDimensionPools(longestSide);
         loadMetadataByDimensionPool(dimensionPools);
         createMissingThumbnailMetadata(dimensionPools);
@@ -306,7 +322,7 @@ public class ThumbnailCtx
         // metadata based on our dimension pools above. To save significant
         // time later we're also going to pre-create thumbnail metadata where
         // it is missing.
-        Map<Dimension, Set<Long>> dimensionPools = 
+        Map<Dimension, Set<Long>> dimensionPools =
             new HashMap<Dimension, Set<Long>>();
         dimensionPools.put(dimensions, pixelsIds);
         loadMetadataByDimensionPool(dimensionPools);
@@ -338,7 +354,7 @@ public class ThumbnailCtx
     /**
      * Resets a given set of Pixels rendering settings to the default
      * effectively creating any which do not exist.
-     * @param pixelsIds Pixels IDs 
+     * @param pixelsIds Pixels IDs
      */
     public void createAndPrepareMissingRenderingSettings(Set<Long> pixelsIds)
     {
@@ -351,7 +367,7 @@ public class ThumbnailCtx
         }
         StopWatch s1 = new Slf4JStopWatch(
                 "omero.createAndPrepareMissingRenderingSettings");
-        Set<Long> pixelsIdsWithoutSettings = 
+        Set<Long> pixelsIdsWithoutSettings =
             getPixelsIdsWithoutSettings(pixelsIds);
         int count = pixelsIdsWithoutSettings.size();
         if (count > 0)
@@ -425,7 +441,7 @@ public class ThumbnailCtx
      * @param pixelsId Pixels ID to retrieve the Thumbnail object for.
      * @return See above.
      */
-    public Thumbnail getMetadata(long pixelsId)
+    public Thumbnail getMetadata(long pixelsId) throws NoThumbnail
     {
         Thumbnail thumbnail = pixelsIdMetadataMap.get(pixelsId);
         if (thumbnail == null && securitySystem.isGraphCritical(null)) // maythrow
@@ -439,7 +455,7 @@ public class ThumbnailCtx
         }
         else if (thumbnail == null)
         {
-            throw new InternalException(
+            throw new NoThumbnail(
                     "Fatal error retrieving thumbnail metadata for Pixels " +
                     "set id:" + pixelsId);
         }
@@ -455,7 +471,7 @@ public class ThumbnailCtx
      */
     public boolean dirtyMetadata(long pixelsId)
     {
-        Timestamp metadataLastUpdated = 
+        Timestamp metadataLastUpdated =
             pixelsIdMetadataLastModifiedTimeMap.get(pixelsId);
         Timestamp settingsLastUpdated =
             pixelsIdSettingsLastModifiedTimeMap.get(pixelsId);
@@ -469,7 +485,7 @@ public class ThumbnailCtx
 
     /**
      * Checks to see if a thumbnail is in the on disk cache or not.
-     * 
+     *
      * @param pixelsId The Pixels set the thumbnail is for.
      * @return Whether or not the thumbnail is in the on disk cache.
      */
@@ -479,9 +495,9 @@ public class ThumbnailCtx
         try
         {
             boolean dirtyMetadata = dirtyMetadata(pixelsId);
-            boolean thumbnailExists = 
+            boolean thumbnailExists =
                 thumbnailService.getThumbnailExists(metadata);
-            boolean isExtendedGraphCritical = 
+            boolean isExtendedGraphCritical =
                 isExtendedGraphCritical(Collections.singleton(pixelsId));
             Long metadataOwnerId = metadata.getDetails().getOwner().getId();
             Long sessionUserId = securitySystem.getEffectiveUID();
@@ -533,7 +549,7 @@ public class ThumbnailCtx
     /**
      * Calculates the ratio of the two sides of a Pixel set and returns the
      * X and Y widths based on the longest side maintaining aspect ratio.
-     * 
+     *
      * @param pixels The Pixels set to calculate against.
      * @param longestSide The size of the longest side of the thumbnail
      * requested.
@@ -648,7 +664,7 @@ public class ThumbnailCtx
 
     /**
      * Creates X-Y dimension pools based on a requested longest side.
-     * @param longestSide Requested longest side of the thumbnail. 
+     * @param longestSide Requested longest side of the thumbnail.
      * @return Map of X-Y dimension vs. Pixels ID (a set of dimension pools).
      */
     private Map<Dimension, Set<Long>> createDimensionPools(int longestSide)
@@ -665,9 +681,9 @@ public class ThumbnailCtx
     }
 
     /**
-     * Adds the Id of a particular set of Pixels to the correct dimension pool 
+     * Adds the Id of a particular set of Pixels to the correct dimension pool
      * based on the requested longest side.
-     * 
+     *
      * @param pools Map of the current dimension pools.
      * @param pixels Pixels set to add to the correct dimension pool.
      * @param dimensions Dimensions pool to add to.
@@ -720,7 +736,7 @@ public class ThumbnailCtx
                 pixelsIdsWithoutMetadata.add(pixelsId);
             }
         }
-        return pixelsIdsWithoutMetadata; 
+        return pixelsIdsWithoutMetadata;
     }
 
     /**
@@ -833,7 +849,7 @@ public class ThumbnailCtx
         StopWatch s1 = new Slf4JStopWatch("omero.bulkLoadOwnerMetadata");
         List<Thumbnail> toReturn = queryService.findAllByQuery(
                 "select t from Thumbnail as t " +
-                "join t.pixels as p " + 
+                "join t.pixels as p " +
                 "join fetch t.details.updateEvent " +
                 "where t.sizeX = :x and t.sizeY = :y " +
                 "and t.details.owner.id = p.details.owner.id " +
@@ -845,7 +861,7 @@ public class ThumbnailCtx
     /**
      * Attempts to efficiently retrieve the thumbnail metadata based on a set
      * of dimension pools. At worst, the result of maintaining the aspect ratio
-     * (calculating the new XY widths) is that we have to retrieve each 
+     * (calculating the new XY widths) is that we have to retrieve each
      * thumbnail object separately.
      * @param dimensionPools Dimension pools to query based upon.
      * @param metadataMap Dictionary of Pixels ID vs. thumbnail metadata. Will
@@ -877,7 +893,7 @@ public class ThumbnailCtx
                 && isExtendedGraphCritical(pixelsIdsWithoutMetadata))
             {
                 thumbnailList = bulkLoadOwnerMetadata(
-                        dimensions, pixelsIdsWithoutMetadata); 
+                        dimensions, pixelsIdsWithoutMetadata);
                 for (Thumbnail metadata : thumbnailList)
                 {
                     prepareMetadata(metadata, metadata.getPixels().getId());
@@ -966,7 +982,7 @@ public class ThumbnailCtx
         StopWatch s1 = new Slf4JStopWatch(
                 "omero.createMissingThumbnailMetadata");
         List<Thumbnail> toSave = new ArrayList<Thumbnail>();
-        Map<Dimension, Set<Long>> temporaryDimensionPools = 
+        Map<Dimension, Set<Long>> temporaryDimensionPools =
             new HashMap<Dimension, Set<Long>>();
         Set<Long> pixelsIdsWithoutMetadata =
             getPixelsIdsWithoutMetadata(pixelsIdPixelsMap.keySet());
@@ -999,10 +1015,10 @@ public class ThumbnailCtx
     /**
      * Creates metadata for a thumbnail of a given set of pixels set and X-Y
      * dimensions.
-     * 
+     *
      * @param pixels The Pixels set to create thumbnail metadata for.
      * @param dimensions The dimensions of the thumbnail.
-     * 
+     *
      * @return the thumbnail metadata as created.
      * @see getThumbnailMetadata()
      */
