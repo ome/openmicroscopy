@@ -121,10 +121,13 @@ ThumbnailControl.prototype.createDOMElements = function() {
     this.dom_image = document.createElement('img');
     this.dom_element.appendChild(this.dom_image); 
 
-    this.dom_surface.onmousedown = callback (this, this.onmousedown );
-    this.dom_surface.onmouseup   = callback (this, this.onmouseup );
-    this.dom_surface.onmousemove = callback (this, this.onmousemove );
-    this.dom_surface.onmouseout  = callback (this, this.onmouseout ); 
+    // Using dom_element instead of dom_surface as IE gets the mouse events on the
+    // dom_image element and bubbles up from there, making dom_surface never
+    // see them.
+    this.dom_element.onmousedown = callback (this, this.onmousedown );
+    this.dom_element.onmouseup   = callback (this, this.onmouseup );
+    this.dom_element.onmousemove = callback (this, this.onmousemove );
+    this.dom_element.onmouseout  = callback (this, this.onmouseout ); 
     
     if (PanoJS.CONTROL_THUMBNAIL_SHOW_MINIMIZE) {
         var style = PanoJS.CONTROL_THUMBNAIL_STYLE + " bottom: 16px; right: 1px; width: 16px;"
@@ -238,7 +241,15 @@ ThumbnailControl.prototype.moveViewerNow = function (e) {
 ThumbnailControl.prototype.queueMove = function (e) {
   this.movePreview(e);
   if (this.move_timeout) clearTimeout (this.move_timeout);
-  this.move_timeout = setTimeout(callback(this, 'moveViewerNow', e), this.move_delay_ms);
+  // IE8 releases references in the event object before the timer ticks
+  // leading to "member not found" errors. Making a shallow copy of
+  // members we are interested in.
+  var x = {};
+  x.offsetX = e.offsetX;
+  x.offsetY = e.offsetY;
+  x.layerX = e.layerX;
+  x.layerY = e.layerY;
+  this.move_timeout = setTimeout(callback(this, 'moveViewerNow', x), this.move_delay_ms);
 }
 
 ThumbnailControl.prototype.blockPropagation = function (e) {
@@ -276,6 +287,12 @@ ThumbnailControl.prototype.onmousemove = function (e) {
     this.blockPropagation(e);        
 
     if (!this.mouse_pressed) return false;
+    if ((e.offsetX + ',' + e.offsetY) == this.mousemoveoffset) {
+        // IE keeps firing mousemove events after a mouse button is pressed
+        // resulting in weird errors
+        return false;
+    }
+    this.mousemoveoffset = e.offsetX + ',' + e.offsetY;
     if (this.move_delay_ms<=0)
       this.moveViewer(e);
     else      
