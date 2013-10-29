@@ -209,7 +209,7 @@ class PrefsControl(BaseControl):
             else:
                 f = args.file
             try:
-                config[args.KEY] = ''.join(f)
+                config[args.KEY] = (''.join(f)).rstrip()
             finally:
                 f.close()
         elif args.VALUE is None:
