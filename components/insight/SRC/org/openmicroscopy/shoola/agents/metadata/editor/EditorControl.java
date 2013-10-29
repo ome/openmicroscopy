@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.metadata.editor.EditorControl 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -53,6 +53,7 @@ import javax.swing.filechooser.FileFilter;
 //Third-party libraries
 import org.jdesktop.swingx.JXTaskPane;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang.StringUtils;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.editor.EditFileEvent;
@@ -439,7 +440,7 @@ class EditorControl
 				if (FileChooser.APPROVE_SELECTION_PROPERTY.equals(name)) {
 					String value = (String) evt.getNewValue();
 					File folder = null;
-					if (value == null || value.trim().length() == 0)
+					if (StringUtils.isEmpty(value))
 						folder = UIUtilities.getDefaultFolder();
 					else folder = new File(value);
 					Object src = evt.getSource();
