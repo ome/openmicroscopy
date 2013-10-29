@@ -151,6 +151,9 @@ public class DetailsI extends Details implements ome.model.ModelBased {
             // Note: call context will frequently be null.
             this.event = omero.util.IceMapper.convert(
                     (EventContext) source.contextAt(0));
+            if (this.event != null) {
+                this.event.sessionUuid = "*********";
+            }
             this.call = (Map<String, String>) source.contextAt(1);
 
             ome.model.internal.Permissions sourceP = source.getPermissions();
