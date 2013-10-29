@@ -192,6 +192,12 @@ class BaseClient(object):
         if not blockSize or len(blockSize) == 0:
             id.properties.setProperty("omero.block_size", str(omero.constants.DEFAULTBLOCKSIZE))
 
+        # Set the default encoding if this is Ice 3.5 or later
+        # and none is set.
+        if Ice.intVersion() >= 30500:
+            if not id.properties.getProperty("Ice.Default.EncodingVersion"):
+                id.properties.setProperty("Ice.Default.EncodingVersion", "1.0")
+
         # Setting MessageSizeMax
         messageSize = id.properties.getProperty("Ice.MessageSizeMax")
         if not messageSize or len(messageSize) == 0:
