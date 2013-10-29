@@ -17,22 +17,11 @@
 
 
 """
-<<<<<<< HEAD
 
 import pytest
 
-||||||| merged common ancestors
-import unittest, time
-=======
-import time
->>>>>>> origin/develop
 import test.integration.library as lib
-<<<<<<< HEAD
 
-||||||| merged common ancestors
-=======
-import pytest
->>>>>>> origin/develop
 import omero
 
 from omero.rtypes import rint
@@ -44,104 +33,10 @@ class TestThumbnailPerms(lib.ITest):
 
     def testThumbs(self):
 
-<<<<<<< HEAD
         privateGroup = self.new_group(perms='rw----')
         readOnlyGroup = self.new_group(perms='rwr---')
         collaborativeGroup = self.new_group(perms='rwra--')
 
-||||||| merged common ancestors
-        # root session is root.sf
-        uuid = self.root.sf.getAdminService().getEventContext().sessionUuid
-        admin = self.root.sf.getAdminService()
-
-        group1name = "private_%s" % uuid
-        group2name = "read-only_%s" % uuid
-        group3name = "collaborative_%s" % uuid
-        ownerName = "owner_%s" % uuid
-        user1name = "user1_%s" % uuid
-        user2name = "user2_%s" % uuid
-
-        ### create three users in 3 groups
-        listOfGroups = list()
-        listOfGroups.append(admin.lookupGroup("user"))  # all users need to be in 'user' group to do anything!
-
-        #group1 - private
-        new_gr1 = ExperimenterGroupI()
-        new_gr1.name = rstring(group1name)
-        p = PermissionsI('rw----')
-        new_gr1.details.permissions = p
-        gid = admin.createGroup(new_gr1)
-        privateGroup = admin.getGroup(gid)
-        self.assertEquals('rw----', str(privateGroup.details.permissions))
-        listOfGroups.append(privateGroup)
-
-        #group2 - read-only
-        new_gr2 = ExperimenterGroupI()
-        new_gr2.name = rstring(group2name)
-        p2 = PermissionsI('rwr---')
-        new_gr2.details.permissions = p2
-        gid2 = admin.createGroup(new_gr2)
-        readOnlyGroup = admin.getGroup(gid2)
-        self.assertEquals('rwr---', str(readOnlyGroup.details.permissions))
-        listOfGroups.append(readOnlyGroup)
-
-        #group3 - read-annotate
-        new_gr3 = ExperimenterGroupI()
-        new_gr3.name = rstring(group3name)
-        p = PermissionsI('rwra--')
-        new_gr3.details.permissions = p
-        gid3 = admin.createGroup(new_gr3)
-        collaborativeGroup = admin.getGroup(gid3)
-        self.assertEquals('rwra--', str(collaborativeGroup.details.permissions))
-        listOfGroups.append(collaborativeGroup)
-
-=======
-        # root session is root.sf
-        uuid = self.root.sf.getAdminService().getEventContext().sessionUuid
-        admin = self.root.sf.getAdminService()
-
-        group1name = "private_%s" % uuid
-        group2name = "read-only_%s" % uuid
-        group3name = "collaborative_%s" % uuid
-        ownerName = "owner_%s" % uuid
-        user1name = "user1_%s" % uuid
-        user2name = "user2_%s" % uuid
-
-        ### create three users in 3 groups
-        listOfGroups = list()
-        listOfGroups.append(admin.lookupGroup("user"))  # all users need to be in 'user' group to do anything!
-
-        #group1 - private
-        new_gr1 = ExperimenterGroupI()
-        new_gr1.name = rstring(group1name)
-        p = PermissionsI('rw----')
-        new_gr1.details.permissions = p
-        gid = admin.createGroup(new_gr1)
-        privateGroup = admin.getGroup(gid)
-        assert 'rw----' ==  str(privateGroup.details.permissions)
-        listOfGroups.append(privateGroup)
-
-        #group2 - read-only
-        new_gr2 = ExperimenterGroupI()
-        new_gr2.name = rstring(group2name)
-        p2 = PermissionsI('rwr---')
-        new_gr2.details.permissions = p2
-        gid2 = admin.createGroup(new_gr2)
-        readOnlyGroup = admin.getGroup(gid2)
-        assert 'rwr---' ==  str(readOnlyGroup.details.permissions)
-        listOfGroups.append(readOnlyGroup)
-
-        #group3 - read-annotate
-        new_gr3 = ExperimenterGroupI()
-        new_gr3.name = rstring(group3name)
-        p = PermissionsI('rwra--')
-        new_gr3.details.permissions = p
-        gid3 = admin.createGroup(new_gr3)
-        collaborativeGroup = admin.getGroup(gid3)
-        assert 'rwra--' ==  str(collaborativeGroup.details.permissions)
-        listOfGroups.append(collaborativeGroup)
-
->>>>>>> origin/develop
         #new user (group owner)
         newOwner = self.new_user(group=privateGroup)
         self.add_groups(newOwner, [readOnlyGroup, collaborativeGroup],
