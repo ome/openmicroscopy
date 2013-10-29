@@ -22,6 +22,9 @@ from path import path
 from omero.rtypes import *
 from test.integration.test_repository import AbstractRepoTest
 
+# Module level marker
+pytestmark = pytest.mark.fs_suite
+
 class TestRepoRawFileStore(AbstractRepoTest):
 
     def setup_method(self, method):

@@ -29,6 +29,9 @@
 
 import pytest
 
+# Module level marker
+pytestmark = pytest.mark.fs_suite
+
 class TestFileset(object):
 
     @pytest.fixture(autouse=True)
