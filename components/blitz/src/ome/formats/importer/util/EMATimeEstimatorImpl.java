@@ -47,27 +47,50 @@ public class EMATimeEstimatorImpl implements TimeEstimator {
 
     private StopWatch sw;
 
+    /**
+     * Creates a new object of this class with the default internal buffer size.
+     *
+     * @param imageContainerSize
+     *            The total size in bytes of the data container for which upload
+     *            time is being estimated.
+     */
     public EMATimeEstimatorImpl(long imageContainerSize) {
         this(imageContainerSize, DEFAULT_BUFFER_SIZE);
     }
 
+    /**
+     * Creates a new object of this class with a defined internal buffer size.
+     * @param imageContainerSize
+     *            The total size in bytes of the data container for which upload
+     *            time is being estimated.
+     * @param sampleSize The size of the internal buffer.
+     */
     public EMATimeEstimatorImpl(long imageContainerSize, int sampleSize) {
         timeSamples = new CircularFifoBuffer(sampleSize);
         sw = new StopWatch();
         this.imageContainerSize = imageContainerSize;
     }
 
+    /**
+     * @see TimeEstimator#start()
+     */
     public void start() {
         sw.reset();
         sw.start();
     }
 
+    /**
+     * @see TimeEstimator#stop()
+     */
     public void stop() {
         sw.stop();
         timeSamples.add(sw.getTime());
         alpha = 2f / (timeSamples.size() + 1);
     }
 
+    /**
+     * @see TimeEstimator#getUploadTimeLeft(long)
+     */
     public long getUploadTimeLeft(long uploadedBytes) {
         imageContainerSize -= uploadedBytes;
         Iterator<Long> i = timeSamples.iterator();

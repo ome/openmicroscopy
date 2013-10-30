@@ -212,7 +212,7 @@ public class ImportContainer
     /**
      * Set true if the import container is filled in with a Screen/Plate/Well
      * image structure. False otherwise.
-     * @param isSPW boolean True if container contains S/P/W, false otherwise.
+     * @param isSPW True if container contains S/P/W, false otherwise.
      */
     public void setIsSPW(Boolean isSPW) {
         this.isSPW = isSPW;

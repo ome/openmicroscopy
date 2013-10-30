@@ -44,7 +44,7 @@ public interface TimeEstimator {
     void stop();
 
     /**
-     * Return the estimated time left based on the calls to
+     * Return the estimated time left in milliseconds based on the calls to
      * {@link TimeEstimator#start(long) start} and
      * {@link TimeEstimator#stop(long) stop} methods.
      *
