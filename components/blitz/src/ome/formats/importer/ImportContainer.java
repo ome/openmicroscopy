@@ -45,11 +45,11 @@ import omero.model.IObject;
 
 public class ImportContainer
 {
-	private String reader;
+    private String reader;
     private String[] usedFiles;
     private long usedFilesTotalSize;
     private Boolean isSPW;
-	private File file;
+    private File file;
     private Double[] userPixels;
     private String userSpecifiedName;
     private String userSpecifiedDescription;
@@ -57,19 +57,17 @@ public class ImportContainer
     private List<Annotation> customAnnotationList;
     private IObject target;
 
-	public ImportContainer(File file,
-            IObject target,
-            Double[] userPixels, String reader, String[] usedFiles, Boolean isSPW)
-	{
-		this.file = file;
-		this.target = target;
-		this.userPixels = userPixels;
-		this.reader = reader;
-		this.usedFiles = usedFiles;
-		this.isSPW = isSPW;
-	}
+    public ImportContainer(File file, IObject target, Double[] userPixels,
+            String reader, String[] usedFiles, Boolean isSPW) {
+        this.file = file;
+        this.target = target;
+        this.userPixels = userPixels;
+        this.reader = reader;
+        this.usedFiles = usedFiles;
+        this.isSPW = isSPW;
+    }
 
-	// Various Getters and Setters //
+    // Various Getters and Setters //
 
     /**
      * Retrieves whether or not we are performing thumbnail creation upon
@@ -160,62 +158,58 @@ public class ImportContainer
     }
 
     public String getReader() {
-		return reader;
-	}
+        return reader;
+    }
 
-	public void setReader(String reader) {
-		this.reader = reader;
-	}
+    public void setReader(String reader) {
+        this.reader = reader;
+    }
 
-	public String[] getUsedFiles() {
-		return usedFiles;
-	}
+    public String[] getUsedFiles() {
+        return usedFiles;
+    }
 
-	public void setUsedFiles(String[] usedFiles) {
-		this.usedFiles = usedFiles;
-	}
-	
-	
-	public long getUsedFilesTotalSize() {
-            return usedFilesTotalSize;
-        }
+    public void setUsedFiles(String[] usedFiles) {
+        this.usedFiles = usedFiles;
+    }
 
-	public Boolean getIsSPW() {
-		return isSPW;
-	}
+    public long getUsedFilesTotalSize() {
+        return usedFilesTotalSize;
+    }
 
-	public void setIsSPW(Boolean isSPW) {
-		this.isSPW = isSPW;
-	}
+    public Boolean getIsSPW() {
+        return isSPW;
+    }
 
-	/**
-	 * @return the File
-	 */
-	public File getFile() {
-		return file;
-	}
+    public void setIsSPW(Boolean isSPW) {
+        this.isSPW = isSPW;
+    }
 
-	/**
-	 * Package-private setter added during the 4.1 release to fix name ordering.
-	 * A better solution would be to have a copy-constructor which also takes
-	 * a chosen file.
-	 */
-	void setFile(File file)
-	{
-	    this.file = file;
-	}
+    /**
+     * @return the File
+     */
+    public File getFile() {
+        return file;
+    }
 
-	public IObject getTarget()
-	{
-	    return target;
-	}
+    /**
+     * Package-private setter added during the 4.1 release to fix name ordering.
+     * A better solution would be to have a copy-constructor which also takes a
+     * chosen file.
+     */
+    void setFile(File file) {
+        this.file = file;
+    }
 
-	public void setTarget(IObject obj) {
-	    this.target = obj;
-	}
+    public IObject getTarget() {
+        return target;
+    }
 
-	public Double[] getUserPixels()
-	{
+    public void setTarget(IObject obj) {
+        this.target = obj;
+    }
+
+    public Double[] getUserPixels() {
         return userPixels;
     }
 
