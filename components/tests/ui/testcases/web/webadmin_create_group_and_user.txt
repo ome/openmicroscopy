@@ -71,35 +71,35 @@ Check User Form
 Create Group
     [Documentation]     Tests group creation
     
-    Go To    ${USERS URL}
-    Page Should Be Open    ${USERS URL}
-    Click Link    link=Groups
-    Click Link    link=Add new Group
+    Go To                   ${USERS URL}
+    Page Should Be Open     ${USERS URL}
+    Click Link              link=Groups
+    Click Link              link=Add new Group
     
-    ${group_name}    Unique name    test_group
+    ${group_name}           Unique name     test_group
     
-    Input Text    name    ${group_name}
-    Input Text    description    This is test group
-    Select Radio Button    permissions    1
+    Input Text              name    ${group_name}
+    Input Text              description     This is test group
+    Select Radio Button     permissions     1
     
-    Click Button    Save
+    Click Button            Save
     
-    Click Link    link=Users
+    Click Link              link=Users
     
-    Click Link    link=Add new User
+    Click Link              link=Add new User
     
-    ${user_name}    Unique name    test_user
-    Input Text    omename    ${user_name}
-    Input Text    password    ${user_name}
-    Input Text    confirmation    ${user_name}
-    Input Text    first_name    ${user_name}
-    Input Text    middle_name    ${user_name}
-    Input Text    last_name    ${user_name}
-    Input Text    institution    ${user_name}
+    ${user_name}            Unique name     test_user
+    Input Text              omename         ${user_name}
+    Input Text              password        ${user_name}
+    Input Text              confirmation    ${user_name}
+    Input Text              first_name      ${user_name}
+    Input Text              middle_name     ${user_name}
+    Input Text              last_name       ${user_name}
+    Input Text              institution     ${user_name}
     
-    Click Element    xpath=//ul[@class='chzn-choices']
-    Page Should Contain Element    xpath=//ul[@class='chzn-results']
-    Click Element    xpath=//ul[@class='chzn-results']/li[contains(text(),'${group_name}')]
+    Click Element           xpath=//ul[@class='chzn-choices']
+    Page Should Contain Element             xpath=//ul[@class='chzn-results']
+    Click Element           xpath=//ul[@class='chzn-results']/li[contains(text(),'${group_name}')]
     
     Click Button    Save
 

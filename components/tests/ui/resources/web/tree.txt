@@ -27,11 +27,13 @@ Node Popup Menu Item Should Be Enabled
     [Arguments]       ${menuItem}              ${nodeText}=${None}
     Run Keyword If    '${nodeText}'!='None'    Select And Expand Node    ${nodeText}
     Popup Menu Item Should Be Enabled          ${menuItem}    ${true}
+    Run Keyword If    '${nodeText}'!='None'    Select And Expand Node    ${nodeText}
 
 Node Popup Menu Item Should Be Disabled
     [Arguments]       ${menuItem}              ${nodeText}=${None}
     Run Keyword If    '${nodeText}'!='None'    Select And Expand Node    ${nodeText}
     Popup Menu Item Should Be Enabled          ${menuItem}    ${false}
+    Run Keyword If    '${nodeText}'!='None'    Select And Expand Node    ${nodeText}
 
 Select And Expand Node
     [Arguments]     ${nodeText}
