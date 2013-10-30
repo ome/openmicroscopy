@@ -501,7 +501,7 @@ using bin\omero web start on Windows with FastCGI.
             rv = self.ctx.popen(args=django, cwd=location)  # popen
         else:
             django = [sys.executable, "manage.py", "runserver", link,
-                      "--noreload"]
+                      "--noreload", "--nothreading"]
             rv = self.ctx.call(django, cwd=location)
         self.ctx.out("[OK]")
         return rv
