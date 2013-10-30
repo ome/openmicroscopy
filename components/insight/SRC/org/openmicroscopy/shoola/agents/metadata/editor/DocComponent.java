@@ -248,6 +248,9 @@ class DocComponent
 		boolean b = false;
 		if (unlinkButton != null) {
 			b = model.canDeleteLink(data);
+			if (b && model.isModulo(data)) { //check if it is a modulo annotation. Do not remove.
+			   b = false;
+			}
 			unlinkButton.setEnabled(b);
 			unlinkButton.setVisible(b);
 			if (b) count++;

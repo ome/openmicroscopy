@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.metadata.editor.EditorModel 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -149,9 +149,6 @@ import pojos.XMLAnnotationData;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since OME3.0
  */
 class EditorModel 
@@ -953,6 +950,31 @@ class EditorModel
 		}
 		return false;
 	}
+
+	/**
+	 * Returns <code>true</code> if the object is a modulo annotation,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @param data The data to handle.
+	 * @return See above.
+	 */
+    boolean isModulo(Object data)
+    {
+        if (!(data instanceof XMLAnnotationData)) return false;
+        //parse the annotation.
+        XMLAnnotationData d = (XMLAnnotationData) data;
+        ModuloParser parser = new ModuloParser(d.getText());
+        try {
+            parser.parse();
+            return !CollectionUtils.isEmpty(parser.getModulos());
+        } catch (Exception e) {
+            LogMessage msg = new LogMessage();
+            msg.append("Error while reading modulo annotation.");
+            msg.print(e);
+            MetadataViewerAgent.getRegistry().getLogger().error(this, msg);
+        }
+        return false;
+    }
 	
 	/**
 	 * Returns <code>true</code> if the selected objects belong to several
