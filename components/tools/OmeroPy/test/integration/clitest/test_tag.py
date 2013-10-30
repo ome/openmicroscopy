@@ -24,6 +24,8 @@ from omero.plugins.tag import TagControl
 from test.integration.clitest.cli import CLITest
 from omero.rtypes import rstring, rlong
 from omero.util.temp_files import create_path
+from omero_ext import mox
+import __builtin__
 
 
 class TestTag(CLITest):
@@ -32,16 +34,41 @@ class TestTag(CLITest):
         super(TestTag, self).setup_method(method)
         self.cli.register("tag", TagControl, "TEST")
 
+    def setup_mock(self):
+        self.mox = mox.Mox()
+
+    def teardown_mock(self):
+        self.mox.UnsetStubs()
+        self.mox.VerifyAll()
+
+    def create_tags(self, ntags, name):
+        tag_ids = []
+        for i in list(xrange(ntags)):
+            tag = omero.model.TagAnnotationI()
+            tag.textValue = omero.rtypes.rstring("%s - %s" % (name, i))
+            tag = self.update.saveAndReturnObject(tag)
+            tag_ids.append(tag.id.val)
+        return tag_ids
+
     def create_tag(self, tag_name, tag_desc):
         args = self.login_args()
-        args += ["tag", "create", "--name", tag_name, "--desc", tag_desc]
+        args += ["tag", "create"]
+        if tag_name:
+            args += ["--name", tag_name]
+        if tag_desc:
+            args += ["--desc", tag_desc]
         self.cli.invoke(args, strict=True)
 
     def create_tagset(self, tag_ids, tag_name, tag_desc):
         args = self.login_args()
-        args += ["tag", "createset", "--name", tag_name, "--desc", tag_desc]
+        args += ["tag", "createset"]
         args += ["--tag"]
         args += ["%s" % tag_id for tag_id in tag_ids]
+        if tag_name:
+            args += ["--name", tag_name]
+        if tag_desc:
+            args += ["--desc", tag_desc]
+
         self.cli.invoke(args, strict=True)
 
     def get_tag_by_name(self, tag_name):
@@ -106,6 +133,39 @@ class TestTag(CLITest):
         tag = self.get_tag_by_name(tag_name)
         assert tag.description.val == tag_desc
 
+    def testCreateTagNoDesc(self):
+        tag_name = self.uuid()
+        tag_desc = self.uuid()
+
+        self.setup_mock()
+        self.mox.StubOutWithMock(__builtin__, "raw_input")
+        raw_input(mox.IgnoreArg()).AndReturn(tag_desc)
+        self.mox.ReplayAll()
+
+        self.create_tag(tag_name, None)
+        self.teardown_mock()
+
+        # Check tag is created
+        tag = self.get_tag_by_name(tag_name)
+        assert tag.description.val == tag_desc
+
+    def testCreateTagNoNameNoDesc(self):
+        tag_name = self.uuid()
+        tag_desc = self.uuid()
+
+        self.setup_mock()
+        self.mox.StubOutWithMock(__builtin__, "raw_input")
+        raw_input(mox.IgnoreArg()).AndReturn(tag_name)
+        raw_input(mox.IgnoreArg()).AndReturn(tag_desc)
+        self.mox.ReplayAll()
+
+        self.create_tag(None, None)
+        self.teardown_mock()
+
+        # Check tag is created
+        tag = self.get_tag_by_name(tag_name)
+        assert tag.description.val == tag_desc
+
     def testLoadTag(self):
         tag_name = self.uuid()
         tag_desc = self.uuid()
@@ -125,16 +185,9 @@ class TestTag(CLITest):
     def testCreateTagset(self):
         ts_name = self.uuid()
         ts_desc = self.uuid()
+        tag_ids = self.create_tags(2, ts_name)
 
-        tag1 = omero.model.TagAnnotationI()
-        tag1.textValue = omero.rtypes.rstring("tagset %s - 1" % ts_name)
-        tag1 = self.update.saveAndReturnObject(tag1)
-
-        tag2 = omero.model.TagAnnotationI()
-        tag2.textValue = omero.rtypes.rstring("tagset %s - 1" % ts_name)
-        tag2 = self.update.saveAndReturnObject(tag2)
-
-        self.create_tagset([tag1.id.val, tag2.id.val], ts_name, ts_desc)
+        self.create_tagset(tag_ids, ts_name, ts_desc)
 
         # Check tagset is created
         tagset = self.get_tag_by_name(ts_name)
@@ -142,8 +195,48 @@ class TestTag(CLITest):
 
         # Check all tags are linked to the tagset
         tags = self.get_tags_in_tagset(tagset.id.val)
-        tag_ids = [x.id.val for x in tags]
-        assert sorted(tag_ids) == sorted([tag1.id.val, tag2.id.val])
+        assert sorted([x.id.val for x in tags]) == sorted(tag_ids)
+
+    def testCreateTagsetNoDesc(self):
+        ts_name = self.uuid()
+        ts_desc = self.uuid()
+        tag_ids = self.create_tags(2, ts_name)
+
+        self.setup_mock()
+        self.mox.StubOutWithMock(__builtin__, "raw_input")
+        raw_input(mox.IgnoreArg()).AndReturn(ts_desc)
+        self.mox.ReplayAll()
+        self.create_tagset(tag_ids, ts_name, None)
+        self.teardown_mock()
+
+        # Check tagset is created
+        tagset = self.get_tag_by_name(ts_name)
+        assert tagset.description.val == ts_desc
+
+        # Check all tags are linked to the tagset
+        tags = self.get_tags_in_tagset(tagset.id.val)
+        assert sorted([x.id.val for x in tags]) == sorted(tag_ids)
+
+    def testCreateTagsetNoNameNoDesc(self):
+        ts_name = self.uuid()
+        ts_desc = self.uuid()
+        tag_ids = self.create_tags(2, ts_name)
+
+        self.setup_mock()
+        self.mox.StubOutWithMock(__builtin__, "raw_input")
+        raw_input(mox.IgnoreArg()).AndReturn(ts_name)
+        raw_input(mox.IgnoreArg()).AndReturn(ts_desc)
+        self.mox.ReplayAll()
+        self.create_tagset(tag_ids, None, None)
+        self.teardown_mock()
+
+        # Check tagset is created
+        tagset = self.get_tag_by_name(ts_name)
+        assert tagset.description.val == ts_desc
+
+        # Check all tags are linked to the tagset
+        tags = self.get_tags_in_tagset(tagset.id.val)
+        assert sorted([x.id.val for x in tags]) == sorted(tag_ids)
 
     def testLoadTagset(self):
         ts_name = self.uuid()
