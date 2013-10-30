@@ -26,9 +26,9 @@ import java.util.Map;
 import loci.formats.FormatException;
 import loci.formats.FormatReader;
 import ome.formats.OMEROMetadataStoreClient;
+import ome.formats.importer.util.EMATimeEstimatorImpl;
 import ome.formats.importer.util.ErrorHandler;
 import ome.formats.importer.util.TimeEstimator;
-import ome.formats.importer.util.EMATimeEstimatorImpl;
 import ome.services.blitz.repo.path.ClientFilePathTransformer;
 import ome.services.blitz.repo.path.FilePathRestrictionInstance;
 import ome.services.blitz.repo.path.FilePathRestrictions;
@@ -67,8 +67,6 @@ import omero.model.Screen;
 import omero.sys.Parameters;
 import omero.sys.ParametersI;
 
-import org.apache.commons.collections.Buffer;
-import org.apache.commons.collections.buffer.CircularFifoBuffer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
