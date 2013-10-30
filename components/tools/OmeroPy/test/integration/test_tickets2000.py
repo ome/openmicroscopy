@@ -60,6 +60,7 @@ class TestTickets2000(lib.ITest):
         uuid = self.client.sf.getAdminService().getEventContext().sessionUuid
         self.client.sf.getAdminService().lookupLdapAuthExperimenters()
 
+    @pytest.mark.xfail(reason="See ticket #11539")
     def test1069(self):
         unique = rstring(self.uuid())
         project = ProjectI()

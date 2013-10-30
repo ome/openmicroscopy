@@ -202,6 +202,7 @@ class TestSearch(lib.ITest):
                 if not s.hasNext(all) or len(s.results(all)) != 1:
                     assert False, msg % ("SearchPrx", uuid, who, x)
 
+    @pytest.mark.xfail(reason="See ticket #11539")
     def test8846(self):
         # Wildcard search
 
