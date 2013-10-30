@@ -470,8 +470,6 @@ CREATE TRIGGER filesetjoblink_parent_index_trigger
     FOR EACH ROW EXECUTE PROCEDURE filesetjoblink_parent_index_move();
 
 -- Prevent the deletion of mimetype = "Directory" objects
--- TODO: also evaluate preventing the change of mimetype
--- for Directory objects.
 CREATE FUNCTION _fs_dir_delete() RETURNS "trigger" AS $_fs_dir_delete$
     BEGIN
         IF OLD.repo IS NOT NULL THEN
