@@ -338,7 +338,7 @@ public class ImportLibrary implements IObservable
             rawFileStore.write(new byte[0], offset, 0);
             notifyObservers(new ImportEvent.FILE_UPLOAD_BYTES(
                     file.getAbsolutePath(), index, srcFiles.length,
-                    offset, length, null, null));
+                    offset, length, estimator.getUploadTimeLeft(), null));
 
             while (true) {
                 estimator.start();
@@ -349,10 +349,10 @@ public class ImportLibrary implements IObservable
                 cp.putBytes(buf, 0, rlen);
                 rawFileStore.write(buf, offset, rlen);
                 offset += rlen;
-                estimator.stop();
+                estimator.stop(rlen);
                 notifyObservers(new ImportEvent.FILE_UPLOAD_BYTES(
                         file.getAbsolutePath(), index, srcFiles.length, offset,
-                        length, estimator.getUploadTimeLeft(rlen), null));
+                        length, estimator.getUploadTimeLeft(), null));
             }
 
             digestString = cp.checksumAsString();

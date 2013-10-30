@@ -34,22 +34,27 @@ package ome.formats.importer.util;
 public interface TimeEstimator {
 
     /**
-     * Starts the time sampling.
+     * Starts the time counting.
      */
     void start();
 
     /**
-     * Stops the time sampling.
+     * Stops the time counting.
+     *
+     * @param uploadedBytes
+     *            Number of bytes uploaded in a single time frame that is being
+     *            sampled.
      */
-    void stop();
+    void stop(long uploadedBytes);
 
     /**
      * Return the estimated time left in milliseconds based on the calls to
-     * {@link TimeEstimator#start(long) start} and
-     * {@link TimeEstimator#stop(long) stop} methods.
+     * {@link TimeEstimator#start() start} and {@link TimeEstimator#stop(long)
+     * stop} methods.
      *
-     * @param uploadedBytes Number of bytes uploaded in a single iteration.
-     * @return The estimated time remaining.
+     * @return The estimated time remaining. The value 0 is returned if
+     *         {@link TimeEstimator#stop(long) stop} hasn't been called before
+     *         calling this method.
      */
-    long getUploadTimeLeft(long uploadedBytes);
+    long getUploadTimeLeft();
 }

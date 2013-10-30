@@ -35,13 +35,13 @@ import org.apache.commons.lang.time.StopWatch;
  */
 public class EMATimeEstimatorImpl implements TimeEstimator {
 
-    private static int DEFAULT_BUFFER_SIZE = 10;
+    private static int DEFAULT_BUFFER_SIZE = 50;
 
     private static long MILLISECOND_CORRECTION = 500;
 
-    private long imageContainerSize = 0;
+    private long imageContainerSize = 0, timeLeft = 0;
 
-    private float alpha = 0, chunkTime = 0;
+    private float alpha = 0;
 
     private Buffer timeSamples;
 
@@ -80,25 +80,29 @@ public class EMATimeEstimatorImpl implements TimeEstimator {
     }
 
     /**
-     * @see TimeEstimator#stop()
+     * @see TimeEstimator#stop(long)
      */
-    public void stop() {
+    public void stop(long uploadedBytes) {
         sw.stop();
         timeSamples.add(sw.getTime());
         alpha = 2f / (timeSamples.size() + 1);
+
+        imageContainerSize -= uploadedBytes;
+        Iterator<Long> i = timeSamples.iterator();
+        float averageChunkTime = 0;
+        while (i.hasNext()) {
+            averageChunkTime = alpha * i.next() + (1 - alpha)
+                    * averageChunkTime;
+        }
+        timeLeft = (long) (averageChunkTime * imageContainerSize)
+                / uploadedBytes + MILLISECOND_CORRECTION;
     }
 
     /**
-     * @see TimeEstimator#getUploadTimeLeft(long)
+     * @see TimeEstimator#getUploadTimeLeft()
      */
-    public long getUploadTimeLeft(long uploadedBytes) {
-        imageContainerSize -= uploadedBytes;
-        Iterator<Long> i = timeSamples.iterator();
-        while (i.hasNext()) {
-            chunkTime = alpha * i.next() + (1 - alpha) * chunkTime;
-        }
-        return (long) chunkTime * (imageContainerSize / uploadedBytes)
-                + MILLISECOND_CORRECTION;
+    public long getUploadTimeLeft() {
+        return timeLeft;
     }
 
 }
