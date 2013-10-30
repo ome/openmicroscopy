@@ -740,7 +740,8 @@ class DocComponent
 						DataObjectListCellRenderer.NEW_FOREGROUND_COLOR);
 			} else if (data instanceof XMLAnnotationData) {
 				XMLAnnotationData tag = (XMLAnnotationData) data;
-				label.setText(EditorUtil.truncate(tag.getText(), TEXT_LENGTH));
+				label.setText(EditorUtil.truncate(tag.getText(), TEXT_LENGTH,
+				        false));
 				label.setToolTipText(formatToolTip(tag, null));
 				if (tag.getId() < 0)
 					label.setForeground(

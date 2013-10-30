@@ -5,7 +5,7 @@
  *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -1062,18 +1062,34 @@ public class EditorUtil
      * 
      * @param name The name to truncate.
      * @param maxLength The maximum length.
+     * @param start Pass <code>true</code> to truncate the start of the word,
+     *              <code>false</code> to truncate the end.
+     * @return See above.
+     */
+    public static String truncate(String name, int maxLength, boolean start)
+    {
+        if (name == null) return "";
+        int v = maxLength+UIUtilities.DOTS.length();
+        int n = name.length();
+        if (n > v) {
+            n = n-1;
+            if (start) return UIUtilities.DOTS+name.substring(n-maxLength, n);
+            return name.substring(0, maxLength)+UIUtilities.DOTS;
+        }
+        return name;
+    }
+    
+    /**
+     * Returns the last characters of the name when the name is longer that the
+     * specified value.
+     * 
+     * @param name The name to truncate.
+     * @param maxLength The maximum length.
      * @return See above.
      */
     public static String truncate(String name, int maxLength)
     {
-    	if (name == null) return "";
-    	int v = maxLength+UIUtilities.DOTS.length();
-    	int n = name.length();
-    	if (n > v) {
-    		n = n-1;
-    		return UIUtilities.DOTS+name.substring(n-maxLength, n);
-    	}
-    	return name;
+        return truncate(name, maxLength, true);
     }
     
     /**
