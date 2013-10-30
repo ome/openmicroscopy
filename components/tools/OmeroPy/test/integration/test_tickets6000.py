@@ -10,6 +10,7 @@
 Integration tests for tickets between 5000 and 5999
 """
 
+import pytest
 import test.integration.library as lib
 
 from omero.rtypes import rstring
@@ -17,6 +18,7 @@ from omero.rtypes import rstring
 
 class TestTickets6000(lib.ITest):
 
+    @pytest.mark.xfail(reason="See ticket #11539")
     def test5684(self):
         """
         Similar to integration.tickets4000.TestTickets4000.test3138
