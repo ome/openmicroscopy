@@ -5,7 +5,7 @@
  *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -793,7 +793,8 @@ class ImViewerUI
 		menu.setMnemonic(KeyEvent.VK_S);
 		JMenuItem item = new JMenuItem(
 			controller.getAction(ImViewerControl.TAB_GRID));
-		if (model.isBigImage() || model.isLifetimeImage())
+		if (model.isBigImage() || (model.isLifetimeImage() &&
+		        model.getModuloT() == null))
 			item.setEnabled(false);
 		else item.setEnabled(model.getMaxC() > 1);
 		menu.add(item);
@@ -828,8 +829,7 @@ class ImViewerUI
 		viewPanel.add(controlPane.getTimeSliderPane(ImViewer.VIEW_INDEX),
 						"1, 1");
 		if (model.isLifetimeImage()) {
-			viewPanel.add(
-					controlPane.getLifetimeSliderPane(ImViewer.VIEW_INDEX),
+			viewPanel.add(controlPane.getLifetimeSliderPane(ImViewer.VIEW_INDEX),
 			"1, 2");
 		}
 		tabbedIconHeight = browser.getIcon().getIconHeight()+ICON_EXTRA;
@@ -844,6 +844,10 @@ class ImViewerUI
 		gridViewPanel.add(browser.getGridView(), "1, 0");
 		gridViewPanel.add(controlPane.getTimeSliderPane(ImViewer.GRID_INDEX),
 						"1, 1");
+		if (model.isLifetimeImage()) {
+		    gridViewPanel.add(controlPane.getLifetimeSliderPane(ImViewer.GRID_INDEX),
+		            "1, 2");
+		}
 		if (model.allowSplitView() && !model.isBigImage()) {
 			tabs.insertTab(browser.getGridViewTitle(), 
 					browser.getGridViewIcon(), gridViewPanel, "",

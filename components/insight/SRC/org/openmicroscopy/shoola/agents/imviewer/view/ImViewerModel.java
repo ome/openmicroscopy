@@ -1222,6 +1222,7 @@ class ImViewerModel
 	{
 		if (isBigImage()) return false;
 		if (getMaxC() <= 1) return false;
+		if (getModuloT() != null) return true;
 		if (isLifetimeImage()) return false;
 		return true;
 	}

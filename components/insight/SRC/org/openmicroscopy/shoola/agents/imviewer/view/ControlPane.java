@@ -5,7 +5,7 @@
  *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -165,6 +165,9 @@ class ControlPane
     /** Slider to select the lifetime bin. */
     private OneKnobSlider lifetimeSlider;
 
+    /** Slider to select the lifetime bin. */
+    private OneKnobSlider lifetimeSliderGrid;
+    
     /** Slider to select the z-section. */
     private OneKnobSlider zSlider;
 
@@ -228,6 +231,9 @@ class ControlPane
     /** Button to play movie across lifetime bin. */
     private JButton playLifetimeMovie;
 
+    /** Button to play movie across lifetime bin. */
+    private JButton playLifetimeMovieGrid;
+    
     /** Button to play movie across T displayed in the split view. */
     private JButton playTMovieGrid;
 
@@ -418,6 +424,9 @@ class ControlPane
         tSliderProjection.setEnabled(false);
         lifetimeSlider = new OneKnobSlider(OneKnobSlider.HORIZONTAL, 0, 1, 0);
         lifetimeSlider.setEnabled(false);
+        lifetimeSliderGrid = new OneKnobSlider(OneKnobSlider.HORIZONTAL, 0, 1,
+                0);
+        lifetimeSliderGrid.setEnabled(false);
 
         IconManager icons = IconManager.getInstance();
         gridRatioSlider = new OneKnobSlider(OneKnobSlider.VERTICAL, 1, 10, 5);
@@ -528,6 +537,9 @@ class ControlPane
                 controller.getAction(ImViewerControl.PLAY_LIFETIME_MOVIE));
         UIUtilities.unifiedButtonLookAndFeel(playLifetimeMovie);
 
+        playLifetimeMovieGrid = new JButton(
+                controller.getAction(ImViewerControl.PLAY_LIFETIME_MOVIE));
+        UIUtilities.unifiedButtonLookAndFeel(playLifetimeMovieGrid);
         Icon icon = textVisibleButton.getIcon();
         Dimension d = DIMENSION;
         if (icon != null) {
@@ -666,8 +678,13 @@ class ControlPane
                 LITEIME_SLIDER_DESCRIPTION, EditorUtil.SMALL_T_VARIABLE);
         setSliderToolTip(model.getSelectedBin(), lifetimeSlider, BIN);
         lifetimeSlider.setPaintTicks(false);
+        initSlider(lifetimeSliderGrid, maxBin-1, model.getSelectedBin(),
+                LITEIME_SLIDER_DESCRIPTION, EditorUtil.SMALL_T_VARIABLE);
+        setSliderToolTip(model.getSelectedBin(), lifetimeSliderGrid, BIN);
         playLifetimeMovie.setVisible(maxBin > 1);
         playLifetimeMovie.setEnabled(maxBin > 1);
+        playLifetimeMovieGrid.setVisible(maxBin > 1);
+        playLifetimeMovieGrid.setEnabled(maxBin > 1);
         if (model.isBigImage()) resetZoom.setVisible(true);
     }
 
@@ -746,7 +763,7 @@ class ControlPane
      */
     private JComponent buildToolBar()
     {
-        if (!model.isLifetimeImage()) {
+        if (!model.isLifetimeImage() || model.getModuloT() != null) {
         	JToolBar bar = createBar();
             bar.add(colorModelButton);
             bar.add(Box.createRigidArea(VBOX));
@@ -954,7 +971,8 @@ class ControlPane
      */
     JPanel buildGridComponent()
     {
-        if (model.isLifetimeImage()) return new JPanel();
+        if (model.getModuloT() == null &&
+           model.isLifetimeImage()) return new JPanel();
         JPanel p = createZGridSliderPane();
         JPanel buttons = new JPanel();
         buttons.setLayout(new BoxLayout(buttons, BoxLayout.Y_AXIS));
@@ -974,7 +992,7 @@ class ControlPane
             button.addPropertyChangeListener(controller);
         }
         JPanel controls = new JPanel();
-        double size[][] = {{TableLayout.PREFERRED}, 
+        double size[][] = {{TableLayout.PREFERRED},
                 {TableLayout.PREFERRED, TableLayout.PREFERRED,
             TableLayout.PREFERRED, TableLayout.PREFERRED, SLIDER_HEIGHT}};
 
@@ -983,8 +1001,6 @@ class ControlPane
         JToolBar bar = buildGridBar();
         bar.add(Box.createRigidArea(VBOX));
         controls.add(bar, "0, 1, CENTER, CENTER");
-        //bar = createBar();
-        //bar.add(textVisibleButton);
         controls.add(createButtonToolBar(textVisibleButton), "0, 2, " +
                 "CENTER, CENTER");
         if (channelButtonsGrid.size() > ImViewer.MAX_CHANNELS) {
@@ -1030,7 +1046,8 @@ class ControlPane
      */
     JPanel buildProjectionComponent()
     {
-        if (model.isLifetimeImage()) return new JPanel();
+        if (model.getModuloT() == null &&
+           model.isLifetimeImage()) return new JPanel();
         JPanel p = layoutSlider(projectionRange);
         JPanel buttons = new JPanel();
         buttons.setLayout(new BoxLayout(buttons, BoxLayout.Y_AXIS));
@@ -1099,6 +1116,8 @@ class ControlPane
         if (lifetimeSlider == null) return;
         setSliderToolTip(v, lifetimeSlider, BIN);
         updateSlider(lifetimeSlider, v);
+        setSliderToolTip(v, lifetimeSliderGrid, BIN);
+        updateSlider(lifetimeSliderGrid, v);
     }
 
     /**
@@ -1307,9 +1326,15 @@ class ControlPane
     /** Resets the UI when the user switches to a new rendering control. */
     void switchRndControl()
     {
-    	setSliderMax(zSlider, model.getMaxZ());
-    	setSliderMax(zSliderGrid, model.getMaxZ());
-    	resetRndSettings();
+        setSliderMax(zSlider, model.getMaxZ());
+        setSliderMax(zSliderGrid, model.getMaxZ());
+        setSliderMax(tSliderGrid, model.getRealT());
+        setSliderMax(tSlider, model.getRealT());
+        if (lifetimeSlider != null) {
+            setSliderMax(lifetimeSlider, model.getMaxLifetimeBin());
+            setSliderMax(lifetimeSliderGrid, model.getMaxLifetimeBin());
+        }
+        resetRndSettings();
     }
 
     /** 
@@ -1395,16 +1420,21 @@ class ControlPane
      */
     JPanel getLifetimeSliderPane(int index)
     {
+        JPanel pane = new JPanel();
+        pane.setLayout(new BoxLayout(pane, BoxLayout.X_AXIS));
         switch (index) {
         case ImViewer.VIEW_INDEX:
         default:
-            JPanel pane = new JPanel();
-            pane.setLayout(new BoxLayout(pane, BoxLayout.X_AXIS));
             pane.add(createButtonToolBar(playLifetimeMovie));
             pane.add(lifetimeSlider);
             return pane;
+        case ImViewer.GRID_INDEX:
+            pane.add(createButtonToolBar(playLifetimeMovieGrid));
+            pane.add(lifetimeSliderGrid);
+            return pane;
         }
     }
+
 
     /**
      * Sets the <code>enable</code> flag of the slider used to select
@@ -1417,8 +1447,14 @@ class ControlPane
     {
         enableZSliders(b);
         enableTSliders(b);
-        if (b) lifetimeSlider.setEnabled(model.getMaxLifetimeBin() > 1);
-        else lifetimeSlider.setEnabled(b);
+        if (b) {
+            boolean v = model.getMaxLifetimeBin() > 1;
+            lifetimeSlider.setEnabled(v);
+            lifetimeSliderGrid.setEnabled(v);
+        } else {
+            lifetimeSlider.setEnabled(b);
+            lifetimeSliderGrid.setEnabled(b);
+        }
     }
 
     /**
@@ -1900,6 +1936,10 @@ class ControlPane
             else if (object.equals(lifetimeSlider)) {
                 controller.setSelectedXYPlane(model.getDefaultZ(),
                         model.getRealSelectedT(), lifetimeSlider.getValue());
+            } else if (object.equals(lifetimeSliderGrid)) {
+                    controller.setSelectedXYPlane(model.getDefaultZ(),
+                            model.getRealSelectedT(),
+                            lifetimeSliderGrid.getValue());
             } else if (object.equals(zSliderGrid) || object.equals(tSliderGrid))
                 setSelectedXYPlane(zSliderGrid.getValue(),
                         tSliderGrid.getValue());
@@ -1932,6 +1972,8 @@ class ControlPane
         else if (source == tSliderGrid && tSliderGrid.isEnabled())
             mouseWheelMovedT(e);
         else if (source == lifetimeSlider && lifetimeSlider.isEnabled())
+            mouseWheelMovedLifetime(e);
+        else if (source == lifetimeSliderGrid && lifetimeSliderGrid.isEnabled())
             mouseWheelMovedLifetime(e);
     }
 
