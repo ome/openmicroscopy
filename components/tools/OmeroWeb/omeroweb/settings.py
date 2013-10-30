@@ -26,6 +26,17 @@
 # Version: 1.0
 #
 
+
+# Monkeypatch Django 1.5 development web server to always run in single thread
+# even if --nothreading is not specified on command line
+def force_nothreading(addr, port, wsgi_handler, ipv6=False, threading=False):
+    django_core_servers_basehttp_run(addr, port, wsgi_handler, ipv6, False)
+import django.core.servers.basehttp
+if django.core.servers.basehttp.run.__module__ != 'settings':
+    django_core_servers_basehttp_run = django.core.servers.basehttp.run
+    django.core.servers.basehttp.run = force_nothreading
+
+
 import os.path
 import sys
 import datetime
@@ -530,4 +541,3 @@ def load_server_list():
         Server(host=unicode(s[0]), port=int(s[1]), server=server)
     Server.freeze()
 load_server_list()
-
