@@ -410,7 +410,8 @@ OME.login_dialog = function(login_url, callback) {
             // 'load_plugin_content' was called 'load_tab_content' (4.4.9 and earlier). Support both...
             var load_plugin_content = settings['load_plugin_content'] || settings['load_tab_content'],
                 supported_obj_types = settings['supported_obj_types'],
-                tab_enabled = settings['tab_enabled'];      // only used if 'supported_obj_types' undefined
+                // only used if 'supported_obj_types' undefined. (was called 'tab_enabled' in 4.4.9)
+                plugin_enabled = settings['plugin_enabled'] || settings['tab_enabled'];
 
             var update_tab_content = function() {
                 // get the selected id etc
@@ -458,7 +459,7 @@ OME.login_dialog = function(login_url, callback) {
                 if (typeof supported_obj_types != 'undefined') {
                     supported = ($.inArray(orel, supported_obj_types) >-1) && (selected.length == 1);
                 } else {
-                    supported = tab_enabled(selected);
+                    supported = plugin_enabled ? plugin_enabled(selected) : true;
                 }
 
                 // update enabled & selected state
@@ -545,7 +546,7 @@ OME.login_dialog = function(login_url, callback) {
                     supported = ($.inArray(orel, supported_obj_types) >-1) && (selected.length == 1);
                 } else {
                     // OR use the user-specified function to check support
-                    supported = plugin_enabled(selected);
+                    supported = plugin_enabled ? plugin_enabled(selected) : true;
                 }
 
                 // update enabled state
