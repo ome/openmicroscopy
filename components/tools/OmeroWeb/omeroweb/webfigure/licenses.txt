@@ -1,0 +1,44 @@
+
+Licenses
+========
+
+Backbone.js
+===========
+http://backbonejs.org/
+License: MIT
+
+
+Underscore
+==========
+http://underscorejs.org/
+License: MIT
+
+
+Backbone.localStorage
+=====================
+https://github.com/jeromegn/Backbone.localStorage
+License: MIT
+
+
+Bootstrap
+=========
+http://getbootstrap.com/
+License: Apache
+
+
+json2js
+=======
+http://www.JSON.org/json2.js
+License: Public Domain
+
+
+mousetrap.js
+============
+craig.is/killing/mice
+License: Apache (version 2.0)
+
+
+backbone.mousetrap
+==================
+https://github.com/elasticsales/backbone.mousetrap
+License: MIT

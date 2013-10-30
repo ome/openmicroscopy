@@ -1,0 +1,966 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>OMERO.web Figure</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width">
+
+    <link rel="stylesheet" href="{% static 'webfigure/3rdparty/bootstrap3/css/bootstrap.css' %}">
+    <link rel="stylesheet" href="{% static 'webfigure/css/webfigure.css' %}">
+
+    {% include "webgateway/base/includes/script_src_jquery.html" %}
+    {% include "webgateway/base/includes/jquery-ui.html" %}
+    <link rel="stylesheet" href="{% static "3rdparty/jquery-ui-1.8.19/themes/base/jquery.ui.base.css" %}" type="text/css" />
+    <script>
+
+    // http://www.sitepoint.com/javascript-json-serialization/
+    JSON.stringify = JSON.stringify || function (obj) {
+        var t = typeof (obj);
+        if (t != "object" || obj === null) {
+            // simple data type
+            if (t == "string") obj = '"'+obj+'"';
+            return String(obj);
+        }
+        else {
+            // recurse array or object
+            var n, v, json = [], arr = (obj && obj.constructor == Array);
+            for (n in obj) {
+                v = obj[n]; t = typeof(v);
+                if (t == "string") v = '"'+v+'"';
+                else if (t == "object" && v !== null) v = JSON.stringify(v);
+                json.push((arr ? "" : '"' + n + '":') + String(v));
+            }
+            return (arr ? "[" : "{") + String(json) + (arr ? "]" : "}");
+        }
+    };
+
+    $(document).ready(function() {
+
+
+        var figureModel = new FigureModel( {'canvas_width': 10000, 'canvas_height': 6000,
+                'paper_width': 612, 'paper_height': 792});
+
+        // UI Model (not saved - just used to coordinate UI status)
+        // var uiState = new UiState( {model:figureModel} )
+
+        var view = new FigureView( {model: figureModel});   // uiState: uiState
+        var svgView = new SvgView( {model: figureModel});
+        new RightPanelView({model: figureModel});
+
+        $("#zoom_slider").slider({
+            max: 400,
+            min: 10,
+            value: 50,
+            slide: function(event, ui) {
+                figureModel.set('curr_zoom', ui.value);
+            }
+        });
+
+        // Do this after other setup above
+        figureModel.set('curr_zoom', 50);
+
+        // load Panels from localStorage (if any)
+        figureModel.panels.fetch();
+        figureModel.clearSelected();    // reset selection (all saved as 'true')
+
+        // Undo Model and View
+        var undoManager = new UndoManager({'figureModel':figureModel}),
+            undoView = new UndoView({model:undoManager});
+        // Finally, start listening for changes to panels
+        undoManager.listenToCollection(figureModel.panels);
+
+
+        $(".modal-dialog").draggable();
+
+        $('#previewInfoTabs a').click(function (e) {
+            e.preventDefault();
+            $(this).tab('show');
+        });
+
+        $('.btn-sm').tooltip({container: 'body', placement:'bottom', toggle:"tooltip"});
+
+
+        // Heavy lifting of PDF generation handled by OMERO.script...
+        $("#create_figure_pdf").click(function(){
+
+            // Status is indicated by showing / hiding 3 buttons
+            var $create_figure_pdf = $(this),
+                $pdf_inprogress = $("#pdf_inprogress"),
+                $pdf_download = $("#pdf_download");
+            $create_figure_pdf.hide();
+            $pdf_download.hide();
+            $pdf_inprogress.show();
+
+            // Turn panels into json
+            var p_json = [];
+            figureModel.panels.each(function(m) {
+                p_json.push(m.toJSON());
+            });
+
+            var url = "{% url make_web_figure %}",
+                data = {
+                pageWidth: figureModel.get('paper_width'),
+                pageHeight: figureModel.get('paper_height'),
+                panelsJSON: JSON.stringify(p_json)
+            }
+
+            // Start the Figure_To_Pdf.py script
+            $.post( url, data)
+                .done(function( data ) {
+
+                    // {"status": "in progress", "jobId": "ProcessCallback/64be7a9e-2abb-4a48-9c5e-6d0938e1a3e2 -t:tcp -h 192.168.1.64 -p 64592"}
+                    var jobId = data.jobId;
+
+                    // Now we keep polling for script completion, every second...
+
+                    var i = setInterval(function (){
+
+                        $.getJSON("{% url activities_json %}", function(act_data) {
+
+                                var pdf_job = act_data[jobId];
+
+                                // We're waiting for this flag...
+                                if (pdf_job.status == "finished") {
+                                    clearInterval(i);
+
+                                    // Update UI
+                                    $create_figure_pdf.show();
+                                    $pdf_inprogress.hide();
+                                    var fa_id = pdf_job.results.File_Annotation.id,
+                                        fa_download = "{% url webindex %}annotation/" + fa_id + "/";
+                                    $pdf_download.attr('href', fa_download).show();
+                                }
+
+                                if (act_data.inprogress == 0) {
+                                    clearInterval(i);
+                                }
+
+                            }).error(function() {
+                                clearInterval(i);
+                            });
+
+                    }, 1000);
+                });
+            return false;
+        });
+    });
+
+    </script>
+
+    <style type="text/css">
+
+        .pixel_size_div {
+            position: absolute;
+            top: -27px;
+            left: 100px;
+        }
+
+        .pixel_size_display {
+            cursor: pointer;
+        }
+
+        .new-label-form .input-group {
+            width:160px;
+            margin-right: 4px;
+        }
+
+        .scalebar_form .input-group {
+            width:50px;
+            margin-right: 4px;
+        }
+
+        .edit-label-form .input-group {
+            width:140px;
+            margin-right: 4px;
+        }
+
+        .form-inline button.close {
+            color: #FF0000;
+            left: 3px;
+            top: 2px;
+            margin-left: 4px;
+            opacity: 0.5;
+            position: relative;
+        }
+        .label_layout {
+            position:absolute;
+        }
+        .label_layout div {
+            margin: 2px 5px;
+            font-size: 12px;
+        }
+        .label_middle, .label_middle table, .label_middle td {
+            height:100%;
+            width:100%;
+        }
+        .label_middle td {
+            vertical-align: middle;
+        }
+
+        /* Classes here are generated in templates from 'top' etc See labelicon classes below */
+        .label_top {
+            bottom: 100%;
+            width: 100%;
+            text-align:center;
+        }
+        .label_bottom {
+            top: 100%;
+            width: 100%;
+            text-align:center;
+        }
+        .label_left {
+            right: 100%;
+            text-align: right;
+        }
+        .label_right {
+            left: 100%;
+            text-align: left;
+            width: 100%;
+        }
+        .label_topleft {
+            top: 0px;
+            left: 0px;
+            text-align: left;
+        }
+        .label_topright {
+            top: 0px;
+            right: 0px;
+            text-align: right;
+        }
+        .label_bottomleft {
+            bottom: 0px;
+            left: 0px;
+            text-align: left;
+        }
+        .label_bottomright {
+            bottom: 0px;
+            right: 0px;
+            text-align: right;
+        }
+
+        /* Transformation to font-based icons - These are split('-') to get position: 'top' etc */
+        .labelicon-topleft {
+            transform: rotate(-90deg)
+        }
+        .labelicon-bottomleft {
+            transform: rotate(-180deg);
+            position: relative;
+            top: 5px;
+        }
+        .labelicon-bottomright {
+            transform: rotate(90deg)
+        }
+        .labelicon-top {
+            transform: rotate(-90deg)
+        }
+        .labelicon-left {
+            position: relative;
+            top: 5px;
+            transform: rotate(-180deg)
+        }
+        .labelicon-right {
+        }
+        .labelicon-bottom {
+            transform: rotate(90deg)
+        }
+
+        .imageViewer {
+            height: 270px;
+        }
+        .vp_img {
+            position:absolute;
+        }
+        .vp_frame {
+            position: absolute;
+            left: 20px;
+            overflow: hidden;
+            border: solid black 1px;
+            background: #ddd;
+        }
+        #vp_z_label {
+            position:absolute;
+            top: 0px;
+            left: 0px;
+            padding: 0px 2px;
+        }
+        #vp_z_value {
+            position: absolute;
+            bottom: 20px;
+            right: 95%;
+        }
+        #vp_t_label {
+            position: absolute;
+            left: 20px;
+            bottom: 0px;
+        }
+        #vp_t_value {
+            position: absolute;
+            left: 240px;
+            bottom: 0px;
+        }
+        .no-padding {
+            padding: 0px;
+        }
+        .tab-footer {
+            border-top: solid #dddddd 1px;
+            margin-top:15px;
+        }
+        .tab-pane .ui-slider {
+            margin: 15px 5px 6px;
+            background: none repeat scroll 0 0 #BBBBBB;
+            border: 4px solid #fff;
+            cursor: pointer;
+        }
+        .tab-pane .ui-slider-handle {
+            background: none repeat scroll 0 0 #DDDDDD;
+            border: 1px solid #aaa;
+            height: 14px;
+        }
+        .tab-pane .ui-slider-horizontal {
+            height: 10px;
+            width: 150px;
+        }
+        .tab-pane .ui-slider-horizontal .ui-slider-handle {
+            top: -6px;
+        }
+        .tab-pane .ui-slider-vertical {
+            width: 10px;
+            height: 198px;
+            margin-right: 10px;
+            margin-top: 25px;
+        }
+        .tab-pane .ui-slider-vertical .ui-slider-handle {
+            left: -7px;
+        }
+        .ui-slider-disabled a {
+            display: none;
+        }
+        #vp_t_slider {
+            position: absolute;
+            bottom: -1px;
+            left: 35px;
+            width: 190px;
+        }
+        /* Over-riding Bootstrap Styles */
+        .modal-header {
+            padding: 10px;
+        }
+        .modal-body {
+            padding: 15px;
+        }
+        .non-modal-dialog {
+            position:relative;
+            left:auto;
+            margin-right:20px;
+            padding-top:0px;
+            top:55px;
+            width:375px;
+            z-index:50;
+        }
+        .tab-pane {
+            padding: 10px;
+        }
+        .btn-group > .btn.dropdown-toggle, .input-group-btn > .btn.dropdown-toggle {
+            padding-left: 3px;
+            padding-right: 3px;
+        }
+        .navbar-brand {
+            padding: 12px;
+        }
+        .navbar-nav > li > a {
+            padding-bottom: 12px;
+            padding-top: 12px;
+        }
+        .navbar-fixed-top {
+            z-index:100;
+        }
+        .navbar {
+            min-height: 40px;
+        }
+        .navbar>div.container {
+            max-width: 100%;
+        }
+        /** Add my class to boost size of font icons **/
+        .icon-buttons {
+            margin-right: 20px;
+        }
+        .icon-buttons .glyphicon {
+            font-size: 14px;
+        }
+        .icon-buttons .btn-sm {
+            padding: 4px 9px;
+        }
+        .rotate-font .glyphicon {
+            -webkit-transform: rotate(-90deg);
+            -moz-transform: rotate(-90deg);
+            -ms-transform: rotate(-90deg);
+            -o-transform: rotate(-90deg);
+            filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3);
+        }
+        .rotate-font.btn-sm {
+            padding: 6px 11px 2px 7px;
+        }
+    </style>
+
+</head>
+
+<body id="body">
+
+    <div class="navbar navbar-inverse navbar-fixed-top">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="#">OMERO</a>
+            </div>
+            <div class="navbar-collapse collapse">
+                <ul class="nav navbar-nav">
+                    <li class="active dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Figure <b class="caret"></b></a>
+                        <ul id="figure-actions" class="active dropdown-menu">
+                            <li><a href="#">Action</a></li>
+                            <li class="divider"></li>
+                            <!-- We add <a> to undo/redo to enable. See undo.js -->
+                            <li id="undo">
+                                <a href="#" class="undo">Undo ⌘Z</a>
+                            </li>
+                            <li id="redo">
+                                <a href="#" class="redo">Redo ⌘Y</a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li><a href="#about">About</a></li>
+                </ul>
+
+                <form class="navbar-form navbar-right">
+
+                    <!-- Buttons for Alignment of Panels. see AlignmentToolbarView -->
+                    <div id="alignment-toolbar" class="btn-group icon-buttons">
+                        <button type="button" class="aleft btn btn-default btn-sm" title="Align Left" disabled="disabled">
+                            <span class="glyphicon glyphicon-align-left"></span>
+                        </button>
+                        <button type="button" class="agrid btn btn-default btn-sm" title="Align To Grid" disabled="disabled">
+                            <span class="glyphicon glyphicon-th"></span>
+                        </button>
+                        <button type="button" class="atop btn btn-default btn-sm rotate-font" title="Align Top" disabled="disabled">
+                            <span class="glyphicon glyphicon-align-right"></span>
+                        </button>
+                        <button type="button" class="btn btn-default btn-sm dropdown-toggle" title="Align Sizes"
+                            disabled="disabled" data-toggle="dropdown">
+                            <span class="glyphicon glyphicon-fullscreen"></span>
+                            <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu" role="menu">
+                            <li><a href="#" class="awidth">
+                                <span class="glyphicon glyphicon-resize-horizontal"></span> Align Width</a>
+                            </li>
+                            <li><a href="#" class="aheight">
+                                <span class="glyphicon glyphicon-resize-vertical"></span> Align Height</a>
+                            </li>
+                            <li><a href="#" class="asize">
+                                <span class="glyphicon glyphicon-fullscreen"></span> Width &amp; Height</a>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Add a New Panel Button -->
+                    <div class="btn-group" style="margin-right:100px">
+                        <button type="button" class="btn btn-sm add_panel">Add Panel</button>
+<!--                         <button type="button" class="btn btn-sm">Middle</button>
+                        <button type="button" class="btn btn-sm">Right</button> -->
+                    </div>
+
+<!--                     <select id="paper_size_chooser">
+                        <option value="2000,3000">custom 2000 x 3000</option>
+                        <option value="612.0,792.0">letter (300 dpi)</option>
+                        <option value="595.27559055118104,841.88976377952747">A4 (300 dpi)</option>
+                    </select> -->
+
+                    <button id="pdf_inprogress" style="display:none" class="btn btn-primary btn-sm" title="Pdf generation in progress...">
+                        Creating Pdf...
+                    </button>
+
+                    <a id="pdf_download" href="/webclient/annotation/1058/" style="padding: 4px 10px; display:none"
+                            class="btn btn-primary btn-sm" title="Download pdf">
+                        <span class="glyphicon glyphicon-download-alt" style="font-size: 14px"></span>
+                    </a>
+
+                    <button id="create_figure_pdf" class="btn btn-success btn-sm" title="Generate pdf for download">
+                        Create Figure pdf
+                    </button>
+                </form>
+            </div><!--/.navbar-collapse -->
+        </div>
+    </div>
+
+    <main>
+        <div id="canvas_wrapper" class="canvas_wrapper">
+            <!-- <div id="canvas_overlay"></div> -->
+            <article id="canvas">
+                <div id="paper"></div>
+            </article>
+        </div>
+    </main>
+
+    <footer>
+        <div id="zoom_slider" title="Zoom"></div>
+        <input id="zoom_input" type="text" size="3" maxlength="3" disabled="disabled" title="zoom"/>
+    </footer>
+
+
+    <!-- Hacked Bootstrap's modal dialog to be non-modal -->
+    <div class="modal-dialog non-modal-dialog">
+        <div class="modal-content">
+
+            <ul class="nav nav-tabs" id="previewInfoTabs">
+                <li><a href="#infoTab">Info</a></li>
+                <li class="active"><a href="#previewTab">Preview</a></li>
+                <li><a href="#labelsTab">Labels</a></li>
+            </ul>
+
+            <div class="tab-content">
+                <div class="tab-pane" id="infoTab"></div>
+
+                <div class="tab-pane active" id="previewTab">
+                    <div class="col-lg-2 no-padding" id="channelToggle"></div>
+                    <div class="col-lg-10 no-padding" id="viewportContainer">
+                        <div id="vp_z_slider" class="pull-left"></div>
+                        <div id="vp_t_slider"></div>
+                    </div>
+                    <div class='clearfix'></div>
+                    <div class='tab-footer'>
+                        <div class="col-lg-2" style="padding:5px">Zoom:</div>
+                        <div class="col-lg-6 no-padding">
+                            <div id="vp_zoom_slider"></div>
+                        </div>
+                        <div id="vp_zoom_value" class="col-lg-4" style="padding:5px"></div>
+                        <div class='clearfix'></div>
+                    </div>
+                </div>
+
+
+                <div class="tab-pane" id="labelsTab">
+
+                    <h5>Scalebar</h5>
+                    <div id="scalebar_form"></div>
+
+                    <hr />
+
+                    <h5>Add Labels</h5>
+                    <form class="new-label-form form-inline" role="form">
+
+                    </form>
+
+                    <hr />
+
+                    <h5>Edit Labels</h5>
+                    <div id="selected_panels_labels"></div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+
+    <!-- Templates for Backbone Views -->
+
+    <script id="scalebar_panel_template" type="text/template">
+
+        <div class="scalebar label_<%= position %>" style="height: 2px; width: <%= width %>px; position: absolute; margin:5%; background-color: #<%= color %>"></div>
+
+    </script>
+
+    <script id="scalebar_form_template" type="text/template">
+
+        <div class="pixel_size_form" style="position:relative">
+            <div class="pixel_size_div">
+                Pixel Size:
+                <input class="input-sm form-control pixel_size_input" placeholder="Pixel Size (&#181;)"
+                        style="width:100px; display:none" value="<%= pixel_size %>">
+                <span class="pixel_size_display">
+                    <% if (pixel_size == 0)
+                        {print('<span style="color:red">NOT SET</span>')}
+                    else if (typeof pixel_size === 'number')
+                        {print(pixel_size.toFixed(3) + " &#181;m")}
+                    else
+                        {print(pixel_size + " &#181;m")} %>
+                </span>
+            </div>
+
+        </div>
+
+        <form class="scalebar_form form-inline">
+
+        <div class="input-group pull-left">
+            <input type="text" class="scalebar-length form-control input-sm" 
+                    placeholder="Length" value="<%= length %>" />
+        </div>
+
+        <div class="form-group"><div class="checkbox checkbox-inline">
+            <label>&#181;m</label>
+            </div>
+        </div>
+
+        <div class="btn-group">
+            <button type="button" class="label-position btn btn-default btn-sm dropdown-toggle" 
+                    title="Position" data-toggle="dropdown">
+                <span data-position="<%= position %>" class="labelicon-<%= position %> glyphicon 
+                    <% if (_.contains(['top','bottom','left','right'],position)) print('glyphicon-log-out'); else {print('glyphicon-new-window')} %>"></span>
+                <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu" role="menu">
+                <li role="presentation" class="dropdown-header">Inside Corners</li>
+                <li><a href="#">
+                    <span data-position="topleft" class="labelicon-topleft glyphicon glyphicon-new-window"></span>
+                    Top Left</a>
+                </li>
+                <li><a href="#">
+                    <span data-position="topright" class="labelicon-topright glyphicon glyphicon-new-window"></span>
+                    Top Right</a>
+                </li>
+                <li><a href="#">
+                    <span data-position="bottomleft" class="labelicon-bottomleft glyphicon glyphicon-new-window"></span>
+                    Bottom Left</a>
+                </li>
+                <li><a href="#">
+                    <span data-position="bottomright" class="labelicon-bottomright glyphicon glyphicon-new-window"></span>
+                    Bottom Right</a>
+                </li>
+            </ul>
+        </div>
+
+        <div class="btn-group">
+            <button type="button" class="label-color btn btn-default btn-sm dropdown-toggle" title="Label Color"
+                data-toggle="dropdown">
+                <span data-color="<%= color %>" style="background-color:#<%= color %>">&nbsp &nbsp &nbsp</span>
+                <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu" role="menu">
+                <li><a href="#">
+                    <span data-color="000000" style="background-color:#000">&nbsp &nbsp &nbsp</span>&nbsp Black
+                </a></li>
+                <li><a href="#">
+                    <span data-color="0000FF" style="background-color:#00f">&nbsp &nbsp &nbsp</span>&nbsp Blue
+                </a></li>
+                <li><a href="#">
+                    <span data-color="00FF00" style="background-color:#0f0">&nbsp &nbsp &nbsp</span>&nbsp Green
+                </a></li>
+                <li><a href="#">
+                    <span data-color="FF0000" style="background-color:#f00">&nbsp &nbsp &nbsp</span>&nbsp Red
+                </a></li>
+                <li><a href="#">
+                    <span data-color="FFFF00" style="background-color:#ff0">&nbsp &nbsp &nbsp</span>&nbsp Yellow
+                </a></li>
+                <li><a href="#">
+                    <span data-color="FFFFFF" style="background-color:#fff">&nbsp &nbsp &nbsp</span>&nbsp White
+                </a></li>
+                <li><a href="#">
+                    <span data-color="FF00FF" style="background-color:#f0f">&nbsp &nbsp &nbsp</span>&nbsp Magenta
+                </a></li>
+            </ul>
+        </div>
+
+        <% if (show){ %>
+            <button type="submit" class="show_scalebar btn btn-sm btn-success pull-right">Show</button>
+        <% } else { %>
+            <!-- hidden 'submit' so that 'enter' still submits form -->
+            <button type="submit" class="show_scalebar btn btn-sm btn-success pull-right" style="display:none">Show</button>
+            <button aria-hidden="true" class="close hide_scalebar delete-label" title="Remove Scalebar" type="button">×</button>
+        <% } %>
+        </form>
+
+    </script>
+
+
+    <script id="labels_form_inner_template" type="text/template">
+
+        <div class="input-group pull-left">
+            <input type="text" class="label-text form-control input-sm" 
+                    placeholder="Label" value="<%= l.text %>" />
+            <% if (!edit){ %>
+                <div class="input-group-btn">
+                    <button type="button" class="btn btn-default btn-sm dropdown-toggle"
+                            data-toggle="dropdown" title="Label from data...">
+                        <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu pull-right">
+                        <li role="presentation" class="dropdown-header">Create Label(s) From:</li>
+                        <li role="presentation" class="divider"></li>
+                        <li><a href="#" data-label="[image-name]">Image Name</a></li>
+                        <li><a href="#" data-label="[dataset-name]">Dataset Name</a></li>
+                        <li><a href="#" data-label="[channels]">Channels</a></li>
+                        <li><a href="#" data-label="[channels + colors]">Channels (with Colors)</a></li>
+                    </ul>
+                </div>
+            <% } %>
+        </div>
+
+        <div class="btn-group">
+            <button type="button" class="font-size btn btn-default btn-sm dropdown-toggle" title="Font Size"
+                data-toggle="dropdown" style="width:33px">
+                <span><%= l.size %></span>
+                <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu" role="menu">
+                <li><a href="#"><span>6</span></a></li>
+                <li><a href="#"><span>7</span></a></li>
+                <li><a href="#"><span>8</span></a></li>
+                <li><a href="#"><span>9</span></a></li>
+                <li><a href="#"><span>10</span></a></li>
+                <li><a href="#"><span>11</span></a></li>
+                <li><a href="#"><span>12</span></a></li>
+                <li><a href="#"><span>14</span></a></li>
+                <li><a href="#"><span>18</span></a></li>
+                <li><a href="#"><span>21</span></a></li>
+                <li><a href="#"><span>24</span></a></li>
+                <li><a href="#"><span>36</span></a></li>
+                <li><a href="#"><span>48</span></a></li>
+            </ul>
+        </div>
+
+        <div class="btn-group">
+            <button type="button" class="label-position btn btn-default btn-sm dropdown-toggle" 
+                    title="Position" data-toggle="dropdown">
+                <span data-position="<%= position %>" class="labelicon-<%= position %> glyphicon 
+                    <% if (_.contains(['top','bottom','left','right'],position)) print('glyphicon-log-out'); else {print('glyphicon-new-window')} %>"></span>
+                <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu" role="menu">
+                <li role="presentation" class="dropdown-header">Inside Corners</li>
+                <li><a href="#">
+                    <span data-position="topleft" class="labelicon-topleft glyphicon glyphicon-new-window"></span>
+                    Top Left</a>
+                </li>
+                <li><a href="#">
+                    <span data-position="topright" class="labelicon-topright glyphicon glyphicon-new-window"></span>
+                    Top Right</a>
+                </li>
+                <li><a href="#">
+                    <span data-position="bottomleft" class="labelicon-bottomleft glyphicon glyphicon-new-window"></span>
+                    Bottom Left</a>
+                </li>
+                <li><a href="#">
+                    <span data-position="bottomright" class="labelicon-bottomright glyphicon glyphicon-new-window"></span>
+                    Bottom Right</a>
+                </li>
+
+                <li role="presentation" class="divider"></li>
+                <li role="presentation" class="dropdown-header">Outside Edges</li>
+                <li><a href="#">
+                    <span data-position="left" class="labelicon-left glyphicon glyphicon-log-out"></span> Left</a>
+                </li>
+                <li><a href="#">
+                    <span data-position="top" class="labelicon-top glyphicon glyphicon-log-out"></span> Top</a>
+                </li>
+                <li><a href="#">
+                    <span data-position="right" class="labelicon-right glyphicon glyphicon-log-out"></span> Right</a>
+                </li>
+                <li><a href="#">
+                    <span data-position="bottom" class="labelicon-bottom glyphicon glyphicon-log-out"></span> Bottom</a>
+                </li>
+            </ul>
+        </div>
+
+        <div class="btn-group">
+            <button type="button" class="label-color btn btn-default btn-sm dropdown-toggle" title="Label Color"
+                data-toggle="dropdown">
+                <span data-color="<%= l.color %>" style="background-color:#<%= l.color %>">&nbsp &nbsp &nbsp</span>
+                <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu" role="menu">
+                <li><a href="#">
+                    <span data-color="000000" style="background-color:#000">&nbsp &nbsp &nbsp</span>&nbsp Black
+                </a></li>
+                <li><a href="#">
+                    <span data-color="0000FF" style="background-color:#00f">&nbsp &nbsp &nbsp</span>&nbsp Blue
+                </a></li>
+                <li><a href="#">
+                    <span data-color="00FF00" style="background-color:#0f0">&nbsp &nbsp &nbsp</span>&nbsp Green
+                </a></li>
+                <li><a href="#">
+                    <span data-color="FF0000" style="background-color:#f00">&nbsp &nbsp &nbsp</span>&nbsp Red
+                </a></li>
+                <li><a href="#">
+                    <span data-color="FFFF00" style="background-color:#ff0">&nbsp &nbsp &nbsp</span>&nbsp Yellow
+                </a></li>
+                <li><a href="#">
+                    <span data-color="FFFFFF" style="background-color:#fff">&nbsp &nbsp &nbsp</span>&nbsp White
+                </a></li>
+                <li><a href="#">
+                    <span data-color="FF00FF" style="background-color:#f0f">&nbsp &nbsp &nbsp</span>&nbsp Magenta
+                </a></li>
+            </ul>
+        </div>
+
+        <% if (edit){ %>
+            <button type="button" title="Delete Label" class="close delete-label" aria-hidden="true">&times;</button>
+        <% } else { %>
+
+            <button type="submit" class="btn btn-sm btn-success pull-right">Add</button>
+
+        <% } %>
+
+    </script>
+
+    <script id="labels_form_template" type="text/template">
+        <div class="">
+
+            <% _.each(labels, function(l, i) { %>
+
+                <form class="edit-label-form form-inline" role="form" data-key="<%= l.key %>">
+
+                    <%= inner_template({l:l, position:position, edit:true}) %>
+
+                </form>
+
+            <% }); %>
+        </div>
+    </script>
+
+    <script id="viewport_template" type="text/template">
+        <div id="vp_z_label">Z</div>
+        <div id="vp_z_value"><%= theZ %>/<%= sizeZ %></div>
+        <div id="vp_t_label">T</div>
+        <div id="vp_t_value"><%= theT %>/<%= sizeT %></div>
+        <div class="vp_frame" style="width:<%= frame_w %>px; height:<%= frame_h %>px">
+            <% _.each(imgs_css, function(css, i) { %>
+            <img class="vp_img"
+                style="opacity:<%= opacity %>; left:<%= css.left %>px; top:<%= css.top %>px; width:<%= css.width %>px; height:<%= css.height %>px;"
+                src="<%= css.src %>" />
+            <% }); %>
+        </div>
+    </script>
+
+    <script id="info_panel_template" type="text/template">
+        <p><%= name %></p>
+        <div class="clearfix"></div>
+
+        <table class="table">
+            <tbody>
+                <tr><td>Image</td></tr>
+                <tr><td>
+                    <div class="col-lg-6"><small><strong>Image ID</strong>:</small></div>
+                    <div class="col-lg-6"><small><%= imageId %></small></div>
+
+                    <div class="col-lg-6"><small><strong>Dimensions (XY)</strong>:</small></div>
+                    <div class="col-lg-6"><small><%= orig_width %> x <%= orig_height %></small></div>
+
+                    <div class="col-lg-6"><small><strong>Z-sections/Timepoints</strong>:</small></div>
+                    <div class="col-lg-6"><small><%= sizeZ %> x <%= sizeT %></small></div>
+                </td></tr>
+            </tbody>
+        </table>
+    </script>
+    <script id="xywh_panel_template" type="text/template">
+        <table id="xywh_table" class="table">
+            <tbody>
+                <tr><td>Panel</td></tr>
+                <tr><td>
+                    <div class="col-lg-3" style="text-align: right"><small><strong>X</strong>:</small></div>
+                    <div class="col-lg-3"><small><% print(x.toFixed(0)) %></small></div>
+
+                    <div class="col-lg-3" style="text-align: right"><small><strong>Width</strong>:</small></div>
+                    <div class="col-lg-3"><small><% print(width) %></small></div>
+
+                    <div class="col-lg-3" style="text-align: right"><small><strong>Y</strong>:</small></div>
+                    <div class="col-lg-3"><small><% print(y.toFixed(0)) %></small></div>
+
+                    <div class="col-lg-3" style="text-align: right"><small><strong>Height</strong>:</small></div>
+                    <div class="col-lg-3"><small><% print(height) %></small></div>
+                </td></tr>
+            </tbody>
+        </table>
+
+    </script>
+
+    <!-- The content of <div class='imagePanel'> for each panel -->
+    <script id="figure_panel_template" type="text/template">
+        <div style="overflow: hidden; width:100%; height:100%; position:absolute">
+            <img class="img_panel" />
+        </div>
+    </script>
+
+    <!-- One of these added to each position 'top', 'topleft' etc within Panel $el -->
+    <script id="label_template" type="text/template">
+        <div class="label_layout label_<%= position %>">
+            <% _.each(labels, function(l, i) { %>
+                <div style='color:#<%= l.color %>; font-size:<%= l.size %>px'><%= l.text %></div>
+            <% }); %>
+        </div>
+    </script>
+    <!-- Alternative label_template - uses table to valign middle for 'left' & 'right' labels -->
+    <script id="label_table_template" type="text/template">
+        <div class="label_layout label_middle label_<%= position %>">
+            <table>
+                <tr><td>
+                    <% _.each(labels, function(l, i) { %>
+                        <div style='color:#<%= l.color %>; font-size:<%= l.size %>px'><%= l.text %></div>
+                    <% }); %>
+                </td></tr>
+            </table>
+        </div>
+    </script>
+
+    <script id="channel_toggle_template" type="text/template">
+        <% _.each(channels, function(c, i) { %>
+            <div class="btn-group" style="padding:2px">
+                <button type="button"
+    class="btn btn-default channel-btn <% if(c.active) { %>ch-btn-down<% } else if (typeof c.active == 'boolean') { %>ch-btn-up<% } else { %>ch-btn-flat<% }%>"
+                        data-index="<%= i %>"
+                        style="background-color:#<%= c.color %>">
+                    &nbsp
+                </button>
+                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                    <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu" data-index="<%= i %>">
+                    <li class="dropdown-header">Channel Color</li>
+                    <li class="divider"></li>
+                    <li><a data-color="0000FF" href="#">
+                        <span style="background-color:#00f">&nbsp &nbsp &nbsp</span>&nbsp Blue
+                    </a></li>
+                    <li><a data-color="00FF00" href="#">
+                        <span style="background-color:#0f0">&nbsp &nbsp &nbsp</span>&nbsp Green
+                    </a></li>
+                    <li><a data-color="FF0000" href="#">
+                        <span style="background-color:#f00">&nbsp &nbsp &nbsp</span>&nbsp Red
+                    </a></li>
+                    <li><a data-color="FFFF00" href="#">
+                        <span style="background-color:#ff0">&nbsp &nbsp &nbsp</span>&nbsp Yellow
+                    </a></li>
+                    <li><a data-color="FFFFFF" href="#">
+                        <span style="background-color:#fff">&nbsp &nbsp &nbsp</span>&nbsp White
+                    </a></li>
+                    <li><a data-color="FF00FF" href="#">
+                        <span style="background-color:#f0f">&nbsp &nbsp &nbsp</span>&nbsp Magenta
+                    </a></li>
+                </ul>
+            </div><br>
+        <% }); %>
+    </script>
+
+
+    <script src="{% static 'webfigure/3rdparty/json2.js' %}"></script>
+    <script src="{% static 'webfigure/3rdparty/underscore.js' %}"></script>
+    <script src="{% static 'webfigure/3rdparty/backbone.js' %}"></script>
+    <script src="{% static 'webfigure/3rdparty/backbone-localstorage.js' %}"></script>
+    <script src="{% static 'webfigure/3rdparty/raphael-min.js' %}"></script>
+    <script src="{% static 'webfigure/3rdparty/mousetrap/mousetrap.min.js' %}"></script>
+    <script src="{% static 'webfigure/3rdparty/backbone.mousetrap/backbone.mousetrap.js' %}"></script>
+    <script src="{% static 'webfigure/3rdparty/bootstrap3/js/bootstrap.js' %}"></script>
+
+    <script type="text/javascript" src="{% static 'webfigure/js/webfigure.js' %}"></script>
+    <script type="text/javascript" src="{% static 'webfigure/js/undo.js' %}"></script>
+    <script type="text/javascript" src="{% static 'webfigure/js/raphael-rect.js' %}"></script>
+
+</body>
+
+</html>

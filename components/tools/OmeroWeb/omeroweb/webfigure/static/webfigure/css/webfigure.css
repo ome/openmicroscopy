@@ -1,0 +1,96 @@
+
+    body {
+        padding: 0;
+    }
+    header {
+        background: gray;
+        height: 30px;
+        width: 100%;
+        position: fixed;
+        top: 0;
+    }
+
+    main {
+        position: fixed;
+        top: 47px;
+        bottom: 30px;
+        width: 100%;
+        overflow: auto;
+        background-color: #bbb;
+    }
+
+    #canvas_wrapper {
+        overflow: hidden;
+        position: relative;
+        margin: auto;
+    }
+
+    #canvas_wrapper svg {
+        z-index: 10;
+    }
+
+    #canvas {
+        z-index: 1;
+        background-color: #EFF1F4;
+        position: absolute;
+        /*transform: scale(0.25, 0.25);*/
+    }
+
+    #paper {
+        position: absolute;
+        border: solid gray 2px;
+        background: white;
+    }
+
+    #paper .imagePanel {
+        position: absolute;
+        background: #ddd;
+    }
+
+    .img_panel{
+        position: absolute;
+    }
+
+    footer {
+        background: gray;
+        height: 30px;
+        width: 100%;
+        position: fixed;
+        bottom: 0;
+    }
+
+    footer input {
+        position: absolute;
+        left: 250px;
+        top: 3px;
+    }
+
+    footer .ui-slider {
+        border: 1px solid #aaa;
+        height: 6px;
+        left: 15px;
+        position: absolute;
+        top: 11px;
+        width: 220px;
+        background: #bbb;
+    }
+    #zoom_slider .ui-slider-handle {
+        background: #ddd;
+        border: 1px solid white;
+        height: 14px;
+        border-radius: 5px;
+    }
+    .toggle_channel {
+        border-radius: 6px 6px 6px 6px;
+        margin: 2px;
+        padding: 4px 4px 4px 6px;
+    }
+    .ch-btn-down {
+        background-image: url("../images/button-down.png")
+    }
+    .ch-btn-up {
+        background-image: url("../images/button-up.png")
+    }
+    .ch-btn-flat {
+        background-image: url("../images/button-flat.png")
+    }
