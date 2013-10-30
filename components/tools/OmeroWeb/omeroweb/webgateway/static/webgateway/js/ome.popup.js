@@ -391,7 +391,7 @@ OME.login_dialog = function(login_url, callback) {
     //
     //  $("#rotation_3d_tab").omeroweb_right_plugin({           // The tab content element
     //      plugin_index: 3,                                    // The tab index
-    //      load_tab_content: function(selected, obj_dtype, obj_id) {    // Url based on selected object(s)
+    //      load_plugin_content: function(selected, obj_dtype, obj_id) {    // Url based on selected object(s)
     //          $(this).load('{% url weblabs_index %}rotation_3d_viewer/'+obj_id);
     //      },
     //      supported_obj_types: ['image','dataset'],   // E.g. only support single image/dataset selected
@@ -407,7 +407,8 @@ OME.login_dialog = function(login_url, callback) {
 
             // store settings
             var plugin_tab_index = settings['plugin_index'],
-                load_tab_content = settings['load_tab_content'],
+                // 'load_plugin_content' was called 'load_tab_content' (4.4.9 and earlier). Support both...
+                load_plugin_content = settings['load_plugin_content'] || settings['load_tab_content'],
                 supported_obj_types = settings['supported_obj_types'],
                 tab_enabled = settings['tab_enabled'];      // only used if 'supported_obj_types' undefined
 
@@ -423,8 +424,8 @@ OME.login_dialog = function(login_url, callback) {
 
                 // if the tab is visible and not loaded yet...
                 if ($this.is(":visible") && $this.is(":empty")) {
-                    // we want the context of load_tab_content to be $this
-                    $.proxy(load_tab_content,$this)(selected, dtype, oid);
+                    // we want the context of load_plugin_content to be $this
+                    $.proxy(load_plugin_content, $this)(selected, dtype, oid);
                 }
             };
 
