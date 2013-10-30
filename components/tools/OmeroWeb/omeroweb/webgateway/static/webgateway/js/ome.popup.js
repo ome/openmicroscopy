@@ -403,12 +403,12 @@ OME.login_dialog = function(login_url, callback) {
         // Process each jQuery object in array
         this.each(function(i) {
             // 'this' is the element we're working with
-            var $this = $(this);
+            var $this = $(this),
+                plugin_tab_index = $this.index()-1;
 
             // store settings
-            var plugin_tab_index = settings['plugin_index'],
-                // 'load_plugin_content' was called 'load_tab_content' (4.4.9 and earlier). Support both...
-                load_plugin_content = settings['load_plugin_content'] || settings['load_tab_content'],
+            // 'load_plugin_content' was called 'load_tab_content' (4.4.9 and earlier). Support both...
+            var load_plugin_content = settings['load_plugin_content'] || settings['load_tab_content'],
                 supported_obj_types = settings['supported_obj_types'],
                 tab_enabled = settings['tab_enabled'];      // only used if 'supported_obj_types' undefined
 
@@ -489,11 +489,11 @@ OME.login_dialog = function(login_url, callback) {
         // Process each jQuery object in array
         this.each(function(i) {
             // 'this' is the element we're working with
-            var $this = $(this);
+            var $this = $(this),
+                plugin_index = $this.index() - 1;
 
             // store settings
-            var plugin_index = settings['plugin_index'],
-                load_plugin_content = settings['load_plugin_content'],
+            var load_plugin_content = settings['load_plugin_content'],
                 supported_obj_types = settings['supported_obj_types'],
                 plugin_enabled = settings['plugin_enabled'],      // only used if 'supported_obj_types' undefined
                 empty_on_sel_change = settings['empty_on_sel_change'];
