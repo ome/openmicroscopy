@@ -525,24 +525,6 @@ CREATE TRIGGER _fs_log_delete
     FOR EACH ROW EXECUTE PROCEDURE _fs_log_delete();
 
 --
--- Upgrade beyond OMERO5.0DEV__6. Break out into separate script once patch is bumped.
---
-
--- Prevent Directory entries in the originalfile table from having their mimetype changed.
-CREATE FUNCTION _fs_directory_mimetype() RETURNS "trigger" AS $$
-    BEGIN
-        IF OLD.mimetype = 'Directory' AND NEW.mimetype != 'Directory' THEN
-            RAISE EXCEPTION '%%', 'Directory('||OLD.id||')='||OLD.path||OLD.name||'/ must remain a Directory';
-        END IF;
-        RETURN NEW;
-    END;
-$$ LANGUAGE plpgsql;
-
-CREATE TRIGGER _fs_directory_mimetype
-    BEFORE UPDATE ON originalfile
-    FOR EACH ROW EXECUTE PROCEDURE _fs_directory_mimetype();
-
---
 -- FINISHED
 --
 
