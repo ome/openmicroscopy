@@ -82,6 +82,7 @@ class BaseClient(object):
 
         # Setting all protected values to prevent AttributeError
         self.__agent = "OMERO.py" #: See setAgent
+        self.__ip = None #: See setIP
         self.__insecure = False
         self.__previous = None
         self.__ic = None
@@ -280,7 +281,16 @@ class BaseClient(object):
         omero.api.ISessionPrx#getMyOpenAgentSessions(String).
         """
         self.__agent = agent
-
+    
+    def setIP(self, ip):
+        """
+        Sets the omero.model.Session#getUserIP() string for
+        this client. Every session creation will be passed this argument. Finding
+        open sesssions with the same IP can be done via
+        omero.api.ISessionPrx#getMyOpenIPSessions(ip).
+        """
+        self.__ip = ip
+    
     def isSecure(self):
         """
         Specifies whether or not this client was created via a call to
