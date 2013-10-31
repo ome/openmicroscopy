@@ -19,10 +19,6 @@
 
 package ome.formats.importer.util;
 
-import java.util.Iterator;
-
-import org.apache.commons.collections.Buffer;
-import org.apache.commons.collections.buffer.CircularFifoBuffer;
 import org.apache.commons.lang.time.StopWatch;
 
 /**
@@ -33,40 +29,24 @@ import org.apache.commons.lang.time.StopWatch;
  * @author Blazej Pindelski, bpindelski at dundee.ac.uk
  * @since 5.0
  */
-public class EMATimeEstimatorImpl implements TimeEstimator {
-
-    private static int DEFAULT_BUFFER_SIZE = 50;
-
-    private static long MILLISECOND_CORRECTION = 500;
+public class ProportionalTimeEstimatorImpl implements TimeEstimator {
 
     private long imageContainerSize = 0, timeLeft = 0;
 
-    private float alpha = 0;
+    private long totalBytes = 0;
 
-    private Buffer timeSamples;
+    private long totalTime = 0;
 
     private StopWatch sw;
 
     /**
-     * Creates a new object of this class with the default internal buffer size.
+     * Creates a new object of this class with a defined internal buffer size.
      *
      * @param imageContainerSize
      *            The total size in bytes of the data container for which upload
      *            time is being estimated.
      */
-    public EMATimeEstimatorImpl(long imageContainerSize) {
-        this(imageContainerSize, DEFAULT_BUFFER_SIZE);
-    }
-
-    /**
-     * Creates a new object of this class with a defined internal buffer size.
-     * @param imageContainerSize
-     *            The total size in bytes of the data container for which upload
-     *            time is being estimated.
-     * @param sampleSize The size of the internal buffer.
-     */
-    public EMATimeEstimatorImpl(long imageContainerSize, int sampleSize) {
-        timeSamples = new CircularFifoBuffer(sampleSize);
+    public ProportionalTimeEstimatorImpl(long imageContainerSize) {
         sw = new StopWatch();
         this.imageContainerSize = imageContainerSize;
     }
@@ -84,18 +64,15 @@ public class EMATimeEstimatorImpl implements TimeEstimator {
      */
     public void stop(long uploadedBytes) {
         sw.stop();
-        timeSamples.add(sw.getTime());
-        alpha = 2f / (timeSamples.size() + 1);
-
+        totalTime += sw.getTime();
+        totalBytes += uploadedBytes;
         imageContainerSize -= uploadedBytes;
-        Iterator<Long> i = timeSamples.iterator();
-        float averageChunkTime = 0;
-        while (i.hasNext()) {
-            averageChunkTime = alpha * i.next() + (1 - alpha)
-                    * averageChunkTime;
+
+        if (totalTime > 0) {
+            float averageBps = totalBytes / ((float) totalTime / 1000);
+            timeLeft = (long) Math
+                    .ceil((imageContainerSize / averageBps) * 1000);
         }
-        timeLeft = (long) (averageChunkTime * imageContainerSize)
-                / uploadedBytes + MILLISECOND_CORRECTION;
     }
 
     /**

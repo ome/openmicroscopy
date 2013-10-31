@@ -26,8 +26,8 @@ import java.util.Map;
 import loci.formats.FormatException;
 import loci.formats.FormatReader;
 import ome.formats.OMEROMetadataStoreClient;
-import ome.formats.importer.util.EMATimeEstimatorImpl;
 import ome.formats.importer.util.ErrorHandler;
+import ome.formats.importer.util.ProportionalTimeEstimatorImpl;
 import ome.formats.importer.util.TimeEstimator;
 import ome.services.blitz.repo.path.ClientFilePathTransformer;
 import ome.services.blitz.repo.path.FilePathRestrictionInstance;
@@ -283,7 +283,7 @@ public class ImportLibrary implements IObservable
         final int fileTotal = srcFiles.length;
         final List<String> checksums = new ArrayList<String>(fileTotal);
         // TODO Fix with proper code instead of 10000L
-        final TimeEstimator estimator = new EMATimeEstimatorImpl(10000L);
+        final TimeEstimator estimator = new ProportionalTimeEstimatorImpl(10000L);
 
         log.debug("Used files created:");
         for (int i = 0; i < fileTotal; i++) {
@@ -436,7 +436,7 @@ public class ImportLibrary implements IObservable
         final String[] srcFiles = container.getUsedFiles();
         final List<String> checksums = new ArrayList<String>();
         final byte[] buf = new byte[store.getDefaultBlockSize()];
-        final TimeEstimator estimator = new EMATimeEstimatorImpl(
+        final TimeEstimator estimator = new ProportionalTimeEstimatorImpl(
                 container.getUsedFilesTotalSize());
         Map<Integer, String> failingChecksums = new HashMap<Integer, String>();
 
