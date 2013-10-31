@@ -145,6 +145,22 @@ class TestTag(CLITest):
         tag = self.get_tag_by_name(tag_name)
         assert tag.description.val == tag_desc
 
+    def testCreateTagNoName(self):
+        tag_name = self.uuid()
+        tag_desc = self.uuid()
+
+        self.setup_mock()
+        self.mox.StubOutWithMock(__builtin__, "raw_input")
+        raw_input(IgnoreArg()).AndReturn(tag_name)
+        self.mox.ReplayAll()
+
+        self.create_tag(None, tag_desc)
+        self.teardown_mock()
+
+        # Check tag is created
+        tag = self.get_tag_by_name(tag_name)
+        assert tag.description.val == tag_desc
+
     def testCreateTagNoNameNoDesc(self):
         tag_name = self.uuid()
         tag_desc = self.uuid()
@@ -203,6 +219,26 @@ class TestTag(CLITest):
         raw_input(IgnoreArg()).AndReturn(ts_desc)
         self.mox.ReplayAll()
         self.create_tagset(tag_ids, ts_name, None)
+        self.teardown_mock()
+
+        # Check tagset is created
+        tagset = self.get_tag_by_name(ts_name)
+        assert tagset.description.val == ts_desc
+
+        # Check all tags are linked to the tagset
+        tags = self.get_tags_in_tagset(tagset.id.val)
+        assert sorted([x.id.val for x in tags]) == sorted(tag_ids)
+
+    def testCreateTagsetNoName(self):
+        ts_name = self.uuid()
+        ts_desc = self.uuid()
+        tag_ids = self.create_tags(2, ts_name)
+
+        self.setup_mock()
+        self.mox.StubOutWithMock(__builtin__, "raw_input")
+        raw_input(IgnoreArg()).AndReturn(ts_name)
+        self.mox.ReplayAll()
+        self.create_tagset(tag_ids, None, ts_desc)
         self.teardown_mock()
 
         # Check tagset is created
