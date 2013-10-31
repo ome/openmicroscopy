@@ -24,6 +24,7 @@ from omero.cli import CLI
 from omero.plugins.sessions import SessionsControl
 
 from test.integration.library import ITest
+from omero_ext.mox import Mox
 
 
 class CLITest (ITest):
@@ -32,3 +33,10 @@ class CLITest (ITest):
         super(CLITest, self).setup_method(method)
         self.cli = CLI()
         self.cli.register("sessions", SessionsControl, "TEST")
+
+    def setup_mock(self):
+        self.mox = Mox()
+
+    def teardown_mock(self):
+        self.mox.UnsetStubs()
+        self.mox.VerifyAll()

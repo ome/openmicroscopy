@@ -24,7 +24,7 @@ from omero.plugins.tag import TagControl
 from test.integration.clitest.cli import CLITest
 from omero.rtypes import rstring, rlong
 from omero.util.temp_files import create_path
-from omero_ext import mox
+from omero_ext.mox import IgnoreArg
 import __builtin__
 
 
@@ -33,13 +33,6 @@ class TestTag(CLITest):
     def setup_method(self, method):
         super(TestTag, self).setup_method(method)
         self.cli.register("tag", TagControl, "TEST")
-
-    def setup_mock(self):
-        self.mox = mox.Mox()
-
-    def teardown_mock(self):
-        self.mox.UnsetStubs()
-        self.mox.VerifyAll()
 
     def create_tags(self, ntags, name):
         tag_ids = []
@@ -139,7 +132,7 @@ class TestTag(CLITest):
 
         self.setup_mock()
         self.mox.StubOutWithMock(__builtin__, "raw_input")
-        raw_input(mox.IgnoreArg()).AndReturn(tag_desc)
+        raw_input(IgnoreArg()).AndReturn(tag_desc)
         self.mox.ReplayAll()
 
         self.create_tag(tag_name, None)
@@ -155,8 +148,8 @@ class TestTag(CLITest):
 
         self.setup_mock()
         self.mox.StubOutWithMock(__builtin__, "raw_input")
-        raw_input(mox.IgnoreArg()).AndReturn(tag_name)
-        raw_input(mox.IgnoreArg()).AndReturn(tag_desc)
+        raw_input(IgnoreArg()).AndReturn(tag_name)
+        raw_input(IgnoreArg()).AndReturn(tag_desc)
         self.mox.ReplayAll()
 
         self.create_tag(None, None)
@@ -204,7 +197,7 @@ class TestTag(CLITest):
 
         self.setup_mock()
         self.mox.StubOutWithMock(__builtin__, "raw_input")
-        raw_input(mox.IgnoreArg()).AndReturn(ts_desc)
+        raw_input(IgnoreArg()).AndReturn(ts_desc)
         self.mox.ReplayAll()
         self.create_tagset(tag_ids, ts_name, None)
         self.teardown_mock()
@@ -224,8 +217,8 @@ class TestTag(CLITest):
 
         self.setup_mock()
         self.mox.StubOutWithMock(__builtin__, "raw_input")
-        raw_input(mox.IgnoreArg()).AndReturn(ts_name)
-        raw_input(mox.IgnoreArg()).AndReturn(ts_desc)
+        raw_input(IgnoreArg()).AndReturn(ts_name)
+        raw_input(IgnoreArg()).AndReturn(ts_desc)
         self.mox.ReplayAll()
         self.create_tagset(tag_ids, None, None)
         self.teardown_mock()
