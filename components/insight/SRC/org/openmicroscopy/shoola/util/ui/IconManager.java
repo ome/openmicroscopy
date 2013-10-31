@@ -565,7 +565,7 @@ public class IconManager
     	relPaths[INFO] = "nuvola_messagebox_info16.png";
     	relPaths[PROGRESS] = "eclipse_progress_none16";
     	relPaths[CLASSIFICATION_48] = "nuvola_filenew48.png";
-    	relPaths[ERROR_ICON_64] = "nuvola_filetypes64.png";
+    	relPaths[ERROR_ICON_64] = "nuvola_important64.png";
     	relPaths[COMMENT_ICON_64] = "nuvola_mail_send64.png";
     	relPaths[SERVER_22] = "nuvola_server22.png";
     	relPaths[CONFIG_24] = "nuvola_configure24.png";
@@ -674,7 +674,7 @@ public class IconManager
         relPaths[MOVIE_48] = "crystal_video48.png";
         relPaths[COLOR_PICKER] = "nuvola_colorpicker16.png";
         relPaths[IMPORT_48] = "omeroImporter48.png";
-        relPaths[SUBMIT_ICON_64] = "nuvola_filetypes64.png";
+        relPaths[SUBMIT_ICON_64] = "nuvola_important64.png";
         relPaths[ACTUAL_SIZE] = "nuvola_viewmagfit16.png";
         relPaths[ZOOM_IN] = "nuvola_viewmag+16.png";
         relPaths[ZOOM_OUT] = "nuvola_viewmag-16.png";
