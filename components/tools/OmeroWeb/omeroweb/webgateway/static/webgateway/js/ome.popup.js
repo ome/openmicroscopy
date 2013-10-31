@@ -23,6 +23,31 @@ if (typeof OME === "undefined") {
     OME = {};
 }
 
+Number.prototype.filesizeformat = function () {
+    /*
+    Formats the value like a 'human-readable' file size (i.e. 13 KB, 4.1 MB,
+    102 bytes, etc).*/
+    
+    var bytes = this;
+    if (bytes < 1024) {
+        return bytes + ' B';
+    } else if (bytes < (1024*1024)) {
+        return (bytes / 1024).toFixed(2) + ' KB';
+    } else if (bytes < (1024*1024*1024)) {
+        return (bytes / (1024*1024)).toFixed(2) + ' MB';
+    } else if (bytes < (1024*1024*1024*1024)) {
+        return (bytes / (1024*1024*1024)).toFixed(2) + ' GB';
+    } else if (bytes < (1024*1024*1024*1024*1024)) {
+        return (bytes / (1024*1024*1024*1024)).toFixed(2) + ' TB';
+    } else if (bytes < (1024*1024*1024*1024*1024*1024)) {
+        return (bytes / (1024*1024*1024*1024*1024)).toFixed(2) + ' PB';
+    } else {
+        return bytes + ' B';
+    }
+    
+}
+
+
 String.prototype.capitalize = function() {
     return this.charAt(0).toUpperCase() + this.slice(1);
 };
