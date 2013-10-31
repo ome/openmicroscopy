@@ -129,6 +129,13 @@
             this.save_channel(cIndex, 'active', active);
         },
 
+        save_channel_window: function(cIndex, new_w) {
+            console.log("save_channel_window", cIndex, new_w);
+            var w = $.extend(true, {}, this.get('channels')[cIndex].window);
+            new_w = $.extend(true, w, new_w);
+            this.save_channel(cIndex, 'window', new_w);
+        },
+
         // When a multi-select rectangle is drawn around several Panels
         // a resize of the rectangle x1, y1, w1, h1 => x2, y2, w2, h2
         // will resize the Panels within it in proportion.
@@ -1027,7 +1034,7 @@
             }
 
             if (this.ctv) {
-                this.ctv.remove();
+                this.ctv.clear().remove();
             }
             if (selected.length > 0) {
                 this.ctv = new ChannelToggleView({models: selected});
@@ -1746,16 +1753,11 @@
 
         initialize: function(opts) {
             // This View may apply to a single PanelModel or a list
-            if (opts.models.length > 1) {
-                this.models = opts.models;
-                var self = this;
-                _.each(this.models, function(m){
-                    self.listenTo(m, 'change:channels', self.render);
-                });
-            } else if (opts.models.length == 1) {
-                this.model = opts.models[0];
-                this.listenTo(this.model, 'change:channels', this.render);
-            }
+            this.models = opts.models;
+            var self = this;
+            _.each(this.models, function(m){
+                self.listenTo(m, 'change:channels', self.render);
+            });
         },
 
         events: {
@@ -1793,13 +1795,16 @@
             }
         },
 
+        clear: function() {
+            $(".ch_slider").slider("destroy");
+            $("#channel_sliders").empty();
+            return this;
+        },
+
         render: function() {
-            var json, html;
-            if (this.model) {
-                json = {'channels': this.model.get('channels')};
-                html = this.template(json);
-                this.$el.html(html);
-            } else if (this.models) {
+            var json, html,
+                self = this;
+            if (this.models) {
 
                 // Comare channels from each Panel Model to see if they are
                 // compatible, and compile a summary json.
@@ -1826,14 +1831,45 @@
                                 if (json[i].active != c.active) {
                                     json[i].active = undefined;
                                 }
+                                // process the 'window' {min, max, start, end}
+                                var wdw = json[i].window,    // the window we're updating
+                                    w = c.window;
+                                wdw.min = Math.min(wdw.min, w.min);
+                                wdw.max = Math.max(wdw.max, w.max);
+                                wdw.start = wdw.start + w.start;    // average when done
+                                wdw.end = wdw.end + w.end;
                             });
                         }
                     }
-
                 });
+
                 if (compatible) {
                     html = this.template({'channels':json});
                     this.$el.html(html);
+
+
+                    var $channel_sliders = $("#channel_sliders");
+                    _.each(json, function(ch, idx) {
+                        // Turn 'start' and 'end' into average values
+                        var start = ch.window.start / self.models.length,
+                            end = ch.window.end / self.models.length,
+                            min = Math.min(ch.window.min, start),
+                            max = Math.max(ch.window.max, end);
+                        $("<div class='ch_slider' style='background-color:#"+ch.color+"'></div>").slider({
+                            min: min,
+                            max: max,
+                            values: [start, end],
+                            slide: function(event, ui) {
+                                console.log(ui.value);
+                            },
+                            stop: function(event, ui) {
+                                console.log("STOP", ui);
+                                _.each(self.models, function(m) {
+                                    m.save_channel_window(idx, {'start': ui.values[0], 'end': ui.values[1]});
+                                });
+                            }
+                        }).appendTo($channel_sliders);
+                    });
                 }
             }
             return this;
