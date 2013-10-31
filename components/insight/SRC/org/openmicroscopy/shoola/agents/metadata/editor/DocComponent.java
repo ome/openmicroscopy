@@ -205,6 +205,9 @@ class DocComponent
 	/** Flag indicating if the node can be deleted. */
 	private boolean		deletable;
 
+	/** Flag indicating if it is a XML modulo annotation.*/
+	private boolean isModulo;
+
 	/**
 	 * Enables or disables the various buttons depending on the passed value.
 	 * Returns <code>true</code> if some controls are visible, 
@@ -248,7 +251,7 @@ class DocComponent
 		boolean b = false;
 		if (unlinkButton != null) {
 			b = model.canDeleteLink(data);
-			if (b && model.isModulo(data)) { //check if it is a modulo annotation. Do not remove.
+			if (b && isModulo) { //check if it is a modulo annotation. Do not remove.
 			   b = false;
 			}
 			unlinkButton.setEnabled(b);
@@ -655,7 +658,8 @@ class DocComponent
 				data instanceof DoubleAnnotationData) {
 			unlinkButton.setToolTipText("Unlink the annotation.");
 			editButton = new JMenuItem(icons.getIcon(IconManager.EDIT_12));
-			editButton.setText("Edit");
+			if (isModulo) editButton.setText("View");
+			else editButton.setText("Edit");
 			editButton.setActionCommand(""+EDIT);
 			editButton.addActionListener(this);
 			editButton.addMouseListener(new MouseAdapter() {
@@ -676,6 +680,7 @@ class DocComponent
 	/** Initializes the components composing the display. */
 	private void initComponents()
 	{
+	    isModulo = model.isModulo(data);
 		imageToLoad = -1;
 		initButtons();
 		label = new JLabel();
@@ -831,8 +836,10 @@ class DocComponent
 		originalDescription = text;
 		SwingUtilities.convertPointToScreen(popupPoint, this);
 		JFrame f = MetadataViewerAgent.getRegistry().getTaskBar().getFrame();
-		EditorDialog d = new EditorDialog(f, (AnnotationData) data, false, 
-				EditorDialog.EDIT_TYPE);
+		int type = EditorDialog.EDIT_TYPE;
+		if (isModulo) type = EditorDialog.VIEW_TYPE;
+		EditorDialog d = new EditorDialog(f, (AnnotationData) data, false, type);
+		if (isModulo) d.allowEdit(false);
 		d.addPropertyChangeListener(this);
 		d.setOriginalDescription(originalDescription);
 		d.setSize(300, 250);

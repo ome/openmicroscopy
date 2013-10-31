@@ -87,79 +87,84 @@ public class EditorDialog
 {
 
 	/** Indicates that the dialog is to create object. */
-	public static final int			CREATE_TYPE = 0;
-	
+	public static final int CREATE_TYPE = 0;
+
 	/** Indicates that the dialog is to edit the object.*/
-	public static final int			EDIT_TYPE = 1;
-	
+	public static final int EDIT_TYPE = 1;
+
+	/** Indicates that the dialog is to view the object.*/
+	public static final int VIEW_TYPE = 2;
+
 	/** Bound property indicating to create an object. */
-	public static final String		CREATE_PROPERTY = "create";
-	
+	public static final String CREATE_PROPERTY = "create";
+
 	/** Bound property indicating to create an object. */
-	public static final String		CREATE_NO_PARENT_PROPERTY = 
-		"createNoParent";
-	
+	public static final String CREATE_NO_PARENT_PROPERTY = "createNoParent";
+
 	/** Bound property indicating to create an object. */
-	public static final String		CLOSE_EDITOR_DIALOG_PROPERTY = 
-		"closeEditorDialog";
-	
+	public static final String CLOSE_EDITOR_DIALOG_PROPERTY =
+	        "closeEditorDialog";
+
     /** The default size of the dialog. */
-    private static final Dimension 	WIN_DIM = new Dimension(600, 300);
-   
+    private static final Dimension WIN_DIM = new Dimension(600, 300);
+
     /** The default title of the window. */
-    private static final String		TITLE = "Create";
-    
+    private static final String TITLE = "Create";
+
     /** The default title of the window. */
-    private static final String		TITLE_EDIT = "Edit";
+    private static final String TITLE_EDIT = "Edit";
+
+    /** The default title of the window. */
+    private static final String TITLE_VIEW = "View";
 
     /** Action command ID to close the dialog. */
-    private static final int		CANCEL = 0;
-    
+    private static final int CANCEL = 0;
+
     /** Action command ID to create a new object. */
-    private static final int		SAVE = 1;
-    
+    private static final int SAVE = 1;
+
     /** Area where to enter the name of the <code>DataObject</code>. */
     private JTextComponent nameArea;
-     
+
     /** Area where to enter the description of the <code>DataObject</code>. */
-    private JTextArea          	descriptionArea;
-    
+    private JTextArea descriptionArea;
+
     /** Button to close the dialog. */
-    private JButton				cancelButton;
-    
+    private JButton cancelButton;
+
     /** Button to create a new item. */
-    private JButton				saveButton;
-    
+    private JButton saveButton;
+
     /** The object to create. */
-    private DataObject			data;
-    
+    private DataObject data;
+
     /** Box used to indicate that the new object will have public visibility. */
-    private JRadioButton		publicBox;
-    
+    private JRadioButton publicBox;
+
     /** Box used to indicate that the new object will have group visibility. */
-    private JRadioButton		groupBox;
-    
+    private JRadioButton groupBox;
+
     /** Box used to indicate that the new object will be private. */
-    private JRadioButton		privateBox;
-    
+    private JRadioButton privateBox;
+
     /** The type of object to create. */
-    private String				typeName;
-    
+    private String typeName;
+
     /** The original text when editing. */
-    private String				originalText;
-    
+    private String originalText;
+
     /** The original text when editing. */
-    private String				originalDescription;
-    
+    private String originalDescription;
+
     /** 
      * Sets to <code>true</code> if the object will have a parent,
      * <code>false</code> otherwise. 
      */ 
-    private boolean				withParent;
-    
+    private boolean withParent;
+
     /** The type of dialog, either create or edit. */
-    private int					type;
-    
+    private int type;
+
     /**
      * Builds and lays out the panel displaying the permissions of the edited
      * file.
@@ -169,12 +174,12 @@ public class EditorDialog
     private JPanel buildPermissions()
     {
         JPanel content = new JPanel();
-    	content.add(privateBox);
-    	content.add(groupBox);
-       	content.add(publicBox);
+        content.add(privateBox);
+        content.add(groupBox);
+        content.add(publicBox);
         return content;
     }
-    
+
     /** Initializes the components composing this display. */
     private void initComponents()
     {
@@ -199,12 +204,13 @@ public class EditorDialog
         descriptionArea.setEditable(true);
         originalText = "";
         originalDescription = "";
-        if (type == EDIT_TYPE) {
-        	originalText = getDataName();
-        	originalDescription = getDataDescription();
-        	nameArea.setText(originalText);
-        	descriptionArea.setText(originalDescription);
-        	descriptionArea.getDocument().addDocumentListener(this);
+        if (type == EDIT_TYPE || type == VIEW_TYPE) {
+            originalText = getDataName();
+            originalDescription = getDataDescription();
+            nameArea.setText(originalText);
+            descriptionArea.setText(originalDescription);
+            if (type == EDIT_TYPE)
+                descriptionArea.getDocument().addDocumentListener(this);
         }
         nameArea.getDocument().addDocumentListener(this);
         
@@ -214,14 +220,17 @@ public class EditorDialog
         cancelButton.addActionListener(this);
         cancelButton.setActionCommand(""+CANCEL);
        
-        if (type == EDIT_TYPE) {
-        	saveButton = new JButton("Save");
-        	saveButton.setName("save button");
-        	saveButton.setToolTipText("Edit the object.");
-        } else {
-        	saveButton = new JButton("Create");
-        	saveButton.setName("create button");
-        	saveButton.setToolTipText("Create a new object.");
+        saveButton = new JButton("Create");
+        saveButton.setName("create button");
+        saveButton.setToolTipText("Create a new object.");
+        switch (type) {
+        case EDIT_TYPE:
+            saveButton.setText("Save");
+            saveButton.setToolTipText("Edit the object.");
+            break;
+        case VIEW_TYPE:
+            cancelButton.setText("Close");
+            saveButton.setVisible(false);
         }
         saveButton.addActionListener(this);
         saveButton.setActionCommand(""+SAVE);
@@ -231,8 +240,8 @@ public class EditorDialog
         {
         	public void windowOpened(WindowEvent e) { nameArea.requestFocus(); }
         });
-    }   
-    
+    }
+
     /**
      * Builds the panel hosting the {@link #nameArea} and the
      * {@link #descriptionArea}. If the <code>DataOject</code>
@@ -293,36 +302,44 @@ public class EditorDialog
         TitlePanel tp = null;
         Icon icon = im.getIcon(IconManager.CREATE_48);
         if (data instanceof ProjectData) {
-        	typeName = "Project";
-        	icon = im.getIcon(IconManager.PROJECT_48);
+            typeName = "Project";
+            icon = im.getIcon(IconManager.PROJECT_48);
         } else if (data instanceof DatasetData) {
-        	typeName = "Dataset";
-        	icon = im.getIcon(IconManager.DATASET_48);
+            typeName = "Dataset";
+            icon = im.getIcon(IconManager.DATASET_48);
         } else if (data instanceof ScreenData) {
-        	typeName = "Screen";
-        	icon = im.getIcon(IconManager.SCREEN_48);
+            typeName = "Screen";
+            icon = im.getIcon(IconManager.SCREEN_48);
         } else if (data instanceof TagAnnotationData) {
-        	typeName = "Tag";
-        	icon = im.getIcon(IconManager.TAG_48);
-        	String ns = ((TagAnnotationData) data).getNameSpace();
-        	if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(ns)) {
-        		typeName = "Tag Set";
-        		icon = im.getIcon(IconManager.TAG_SET_48);
-        	}
+            typeName = "Tag";
+            icon = im.getIcon(IconManager.TAG_48);
+            String ns = ((TagAnnotationData) data).getNameSpace();
+            if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(ns)) {
+                typeName = "Tag Set";
+                icon = im.getIcon(IconManager.TAG_SET_48);
+            }
         } else if (data instanceof TermAnnotationData) {
-        	typeName = "Term";
+            typeName = "Term";
         } else if (data instanceof XMLAnnotationData) {
-        	typeName = "XML";
+            typeName = "XML";
         }
-        if (type == CREATE_TYPE)
-        	tp = new TitlePanel("Create "+typeName, 
-        			"Create a new "+typeName+".", icon);
-        else if (type == EDIT_TYPE)
-        	tp = new TitlePanel("Edit "+typeName, "Edit the "+typeName+".", 
-        			icon);
+        switch (type) {
+        case CREATE_TYPE:
+            tp = new TitlePanel("Create "+typeName,
+                    "Create a new "+typeName+".", icon);
+            break;
+        case EDIT_TYPE:
+            tp = new TitlePanel("Edit "+typeName, "Edit the "+typeName+".",
+                    icon);
+            break;
+        case VIEW_TYPE:
+            tp = new TitlePanel("View "+typeName, "View the "+typeName+".",
+                    icon);
+            break;
+        }
         return tp;
     }
-    
+
     /**
      * Builds the panel hosting the {@link #nameArea} and the
      * {@link #descriptionArea}.
@@ -331,69 +348,66 @@ public class EditorDialog
     {
         Container c = getContentPane();
         c.setLayout(new BorderLayout());
-        JPanel contentPanel = new JPanel();
-    	contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
-    	contentPanel.add(buildContentPanel());
-    	c.add(buildTitlePanel(), BorderLayout.NORTH);
+        c.add(buildTitlePanel(), BorderLayout.NORTH);
         c.add(buildContentPanel(), BorderLayout.CENTER);
         c.add(buildToolBar(), BorderLayout.SOUTH);
     }
-    
+
     /** Closes and disposes. */
     private void close()
     {
-    	firePropertyChange(CLOSE_EDITOR_DIALOG_PROPERTY, Boolean.valueOf(false),
-    			Boolean.valueOf(true));
+        firePropertyChange(CLOSE_EDITOR_DIALOG_PROPERTY, Boolean.valueOf(false),
+                Boolean.valueOf(true));
         setVisible(false);
         dispose();
     }
-    
+
     /** Creates a new item. */
     private void save()
     {
-    	String name = nameArea.getText();
-    	if (name == null) return;
-    	name = name.trim();
-    	if (name.length() == 0) return;
-    	if (data instanceof ProjectData) {
-    		ProjectData p  = (ProjectData) data;
-			p.setName(name);
-			p.setDescription(descriptionArea.getText().trim());
-			data = p;
-    	} else if (data instanceof DatasetData) {
-    		DatasetData d = (DatasetData) data;
-			d.setName(name);
-			d.setDescription(descriptionArea.getText().trim());
-			data = d;
-    	} else if (data instanceof ScreenData) {
-    		ScreenData d = (ScreenData) data;
-			d.setName(name);
-			d.setDescription(descriptionArea.getText().trim());
-			data = d;
-    	} else if (data instanceof TagAnnotationData) {
-    		TagAnnotationData d = (TagAnnotationData) data;
-    		d.setContent(name);
-    		String text = descriptionArea.getText().trim();
-    		if (text.length() > 0) d.setTagDescription(text);
-			data = d;
-    	} else if (data instanceof XMLAnnotationData) {
-    		XMLAnnotationData d = (XMLAnnotationData) data;
-    		d.setContent(name);
-    		String text = descriptionArea.getText().trim();
-    		if (text.length() > 0) d.setDescription(text);
-			data = d;
-    	} else if (data instanceof TermAnnotationData) {
-    		TermAnnotationData d = (TermAnnotationData) data;
-    		d.setContent(name);
-    		String text = descriptionArea.getText().trim();
-    		if (text.length() > 0) d.setTermDescription(text);
-			data = d;
-    	}
-    	if (withParent) firePropertyChange(CREATE_PROPERTY, null, data);
-    	else firePropertyChange(CREATE_NO_PARENT_PROPERTY, null, data);
-    	close();
+        String name = nameArea.getText();
+        if (name == null) return;
+        name = name.trim();
+        if (name.length() == 0) return;
+        if (data instanceof ProjectData) {
+            ProjectData p  = (ProjectData) data;
+            p.setName(name);
+            p.setDescription(descriptionArea.getText().trim());
+            data = p;
+        } else if (data instanceof DatasetData) {
+            DatasetData d = (DatasetData) data;
+            d.setName(name);
+            d.setDescription(descriptionArea.getText().trim());
+            data = d;
+        } else if (data instanceof ScreenData) {
+            ScreenData d = (ScreenData) data;
+            d.setName(name);
+            d.setDescription(descriptionArea.getText().trim());
+            data = d;
+        } else if (data instanceof TagAnnotationData) {
+            TagAnnotationData d = (TagAnnotationData) data;
+            d.setContent(name);
+            String text = descriptionArea.getText().trim();
+            if (text.length() > 0) d.setTagDescription(text);
+            data = d;
+        } else if (data instanceof XMLAnnotationData) {
+            XMLAnnotationData d = (XMLAnnotationData) data;
+            d.setContent(name);
+            String text = descriptionArea.getText().trim();
+            if (text.length() > 0) d.setDescription(text);
+            data = d;
+        } else if (data instanceof TermAnnotationData) {
+            TermAnnotationData d = (TermAnnotationData) data;
+            d.setContent(name);
+            String text = descriptionArea.getText().trim();
+            if (text.length() > 0) d.setTermDescription(text);
+            data = d;
+        }
+        if (withParent) firePropertyChange(CREATE_PROPERTY, null, data);
+        else firePropertyChange(CREATE_NO_PARENT_PROPERTY, null, data);
+        close();
     }
-    
+
     /**
      * Checks if the object is supported.
      * 
@@ -401,17 +415,17 @@ public class EditorDialog
      */
     private void checkData(DataObject object)
     {
-    	if (object == null)
-    		throw new IllegalArgumentException("No object to create.");
-    	if (object instanceof ProjectData ||
-    		object instanceof DatasetData ||
-    		object instanceof ScreenData ||
-    		object instanceof TagAnnotationData ||
-    		object instanceof TermAnnotationData ||
-    		object instanceof XMLAnnotationData) return;
-    	throw new IllegalArgumentException("Object not supported.");
+        if (object == null)
+            throw new IllegalArgumentException("No object to create.");
+        if (object instanceof ProjectData ||
+                object instanceof DatasetData ||
+                object instanceof ScreenData ||
+                object instanceof TagAnnotationData ||
+                object instanceof TermAnnotationData ||
+                object instanceof XMLAnnotationData) return;
+        throw new IllegalArgumentException("Object not supported.");
     }
-    
+
     /**
      * Returns the name of the data object.
      * 
@@ -419,19 +433,19 @@ public class EditorDialog
      */
     private String getDataName()
     {
-    	if (data instanceof ProjectData)
-    		return ((ProjectData) data).getName();
-    	if (data instanceof DatasetData)
-    		return ((DatasetData) data).getName();
-    	if (data instanceof ScreenData)
-    		return ((ScreenData) data).getName();
-    	if (data instanceof TagAnnotationData ||
-    		data instanceof TermAnnotationData ||
-    		data instanceof XMLAnnotationData)
-    		return ((AnnotationData) data).getContentAsString();
-    	return "";
+        if (data instanceof ProjectData)
+            return ((ProjectData) data).getName();
+        if (data instanceof DatasetData)
+            return ((DatasetData) data).getName();
+        if (data instanceof ScreenData)
+            return ((ScreenData) data).getName();
+        if (data instanceof TagAnnotationData ||
+                data instanceof TermAnnotationData ||
+                data instanceof XMLAnnotationData)
+            return ((AnnotationData) data).getContentAsString();
+        return "";
     }
-    
+
     /**
      * Returns the description of the data object.
      * 
@@ -439,118 +453,121 @@ public class EditorDialog
      */
     private String getDataDescription()
     {
-    	if (data instanceof ProjectData) 
-    		return ((ProjectData) data).getDescription();
-    	if (data instanceof DatasetData) 
-    		return ((DatasetData) data).getDescription();
-    	if (data instanceof ScreenData) 
-    		return ((ScreenData) data).getDescription();
-    	if (data instanceof TagAnnotationData)
-    		return ((TagAnnotationData) data).getTagDescription();
-    	if (data instanceof TermAnnotationData)
-    		return ((TermAnnotationData) data).getTermDescription();
-    	if (data instanceof XMLAnnotationData)
-    		return ((XMLAnnotationData) data).getDescription();
-    	return "";
+        if (data instanceof ProjectData) 
+            return ((ProjectData) data).getDescription();
+        if (data instanceof DatasetData) 
+            return ((DatasetData) data).getDescription();
+        if (data instanceof ScreenData) 
+            return ((ScreenData) data).getDescription();
+        if (data instanceof TagAnnotationData)
+            return ((TagAnnotationData) data).getTagDescription();
+        if (data instanceof TermAnnotationData)
+            return ((TermAnnotationData) data).getTermDescription();
+        if (data instanceof XMLAnnotationData)
+            return ((XMLAnnotationData) data).getDescription();
+        return "";
     }
-    
+
     /** Sets the enabled flag of the {@link #saveButton}. */
     private void enableSave()
     {
-    	String name = nameArea.getText();
-    	String desc = descriptionArea.getText();
-    	if (type == CREATE_TYPE) {
-    		if (name == null) saveButton.setEnabled(false);
-    		else {
-    			name = name.trim();
-            	int l = name.length();
-            	saveButton.setEnabled(l > 0);
-    		}
-    	} else {
-    		if (!originalText.equals(name)) {
-    			name = name.trim();
-            	int l = name.length();
-            	saveButton.setEnabled(l > 0);
-    		} else {
-    			desc = desc.trim();
-    			saveButton.setEnabled(!originalDescription.equals(desc));
-    		}
-    	}
+        String name = nameArea.getText();
+        String desc = descriptionArea.getText();
+        if (type == CREATE_TYPE) {
+            if (name == null) saveButton.setEnabled(false);
+            else {
+                name = name.trim();
+                int l = name.length();
+                saveButton.setEnabled(l > 0);
+            }
+        } else if (type == EDIT_TYPE) {
+            if (!originalText.equals(name)) {
+                name = name.trim();
+                int l = name.length();
+                saveButton.setEnabled(l > 0);
+            } else {
+                desc = desc.trim();
+                saveButton.setEnabled(!originalDescription.equals(desc));
+            }
+        }
     }
-    
+
     /**
      * Initializes.
      * 
-     * @param data 			The type of object to create.
-     * @param withParent 	Sets to <code>true</code> if the object will 
-     * 						have a parent, <code>false</code> otherwise.
-     * @param type			The type of the dialog. 
+     * @param data The type of object to create.
+     * @param withParent Sets to <code>true</code> if the object will
+     * have a parent, <code>false</code> otherwise.
+     * @param type The type of the dialog.
      */
-    private void init(DataObject data, boolean withParent, 
-    		int  type)
+    private void init(DataObject data, boolean withParent, int  type)
     {
-    	switch (type) {
-    	case EDIT_TYPE:
-    		this.type = type;
-    		setTitle(TITLE_EDIT);
-    		break;
-    	case CREATE_TYPE:
-    	default:
-    		this.type = CREATE_TYPE;
-    		setTitle(TITLE);
-    	}
-    	checkData(data);
-    	this.data = data;
-    	this.withParent = withParent;
-    	initComponents();
-    	buildGUI();
-    	setName("editor dialog");
-    	setSize(WIN_DIM);
+        switch (type) {
+        case EDIT_TYPE:
+            this.type = type;
+            setTitle(TITLE_EDIT);
+            break;
+        case VIEW_TYPE:
+            this.type = type;
+            setTitle(TITLE_VIEW);
+            break;
+        case CREATE_TYPE:
+        default:
+            this.type = CREATE_TYPE;
+            setTitle(TITLE);
+        }
+        checkData(data);
+        this.data = data;
+        this.withParent = withParent;
+        initComponents();
+        buildGUI();
+        setName("editor dialog");
+        setSize(WIN_DIM);
     }
-    
+
     /**
      * Creates a new instance.
      * 
-     * @param owner			The owner of the frame.
-     * @param data 			The type of object to create.
-     * @param withParent 	Sets to <code>true</code> if the object will 
-     * 						have a parent, <code>false</code> otherwise.
-     * @param type			The type of the dialog. 
+     * @param owner The owner of the frame.
+     * @param data The type of object to create.
+     * @param withParent Sets to <code>true</code> if the object will
+     * have a parent, <code>false</code> otherwise.
+     * @param type The type of the dialog.
      */
-    public EditorDialog(JFrame owner, DataObject data, boolean withParent, 
-    		int  type)
+    public EditorDialog(JFrame owner, DataObject data, boolean withParent,
+            int type)
     {
-    	super(owner);
-    	init(data, withParent, type);
+        super(owner);
+        init(data, withParent, type);
     }
-    
+
     /**
      * Creates a new instance.
      * 
-     * @param owner			The owner of the frame.
-     * @param data 			The type of object to create.
-     * @param withParent 	Sets to <code>true</code> if the object will 
-     * 						have a parent, <code>false</code> otherwise. 
+     * @param owner The owner of the frame.
+     * @param data  The type of object to create.
+     * @param withParent Sets to <code>true</code> if the object will
+     * have a parent, <code>false</code> otherwise.
      */
     public EditorDialog(JFrame owner, DataObject data, boolean withParent)
     {
         this(owner, data, withParent, CREATE_TYPE);
     }
-    
+
     /**
      * Creates a new instance.
      * 
-     * @param owner			The owner of the frame.
-     * @param data 			The type of object to create.
-     * @param withParent 	Sets to <code>true</code> if the object will 
-     * 						have a parent, <code>false</code> otherwise. 
+     * @param owner The owner of the frame.
+     * @param data The type of object to create.
+     * @param withParent Sets to <code>true</code> if the object will
+     * have a parent, <code>false</code> otherwise.
      */
     public EditorDialog(JDialog owner, DataObject data, boolean withParent)
     {
-    	super(owner);
+        super(owner);
         init(data, withParent, CREATE_TYPE);
     }
-    
+
     /**
      * Sets the description of the dialog.
      * 
@@ -558,46 +575,57 @@ public class EditorDialog
      */
     public void setOriginalDescription(String description)
     {
-    	if (description == null) return;
-    	originalDescription = description;
-    	descriptionArea.getDocument().removeDocumentListener(this);
-    	descriptionArea.setText(description);
-    	descriptionArea.getDocument().addDocumentListener(this);
+        if (description == null) return;
+        originalDescription = description;
+        descriptionArea.getDocument().removeDocumentListener(this);
+        descriptionArea.setText(description);
+        descriptionArea.getDocument().addDocumentListener(this);
     }
-    
+
+    /**
+     * Allows to edit or not the name.
+     * 
+     * @param edit Pass <code>true</code> to edit, <code>false</code>
+     * otherwise.
+     */
+    public void allowEdit(boolean edit)
+    {
+        nameArea.setEditable(edit);
+    }
+
     /**
      * Creates a new item or closes the dialog.
      * @see ActionListener#actionPerformed(ActionEvent)
      */
-	public void actionPerformed(ActionEvent e)
-	{
-		int index = Integer.parseInt(e.getActionCommand());
-		switch (index) {
-			case CANCEL:
-				close();
-				break;
-			case SAVE:
-				save();
-		}
-	}
+    public void actionPerformed(ActionEvent e)
+    {
+        int index = Integer.parseInt(e.getActionCommand());
+        switch (index) {
+        case CANCEL:
+            close();
+            break;
+        case SAVE:
+            save();
+        }
+    }
 
-	/**
-	 * Enables the save button depending on the value entered for the name.
-	 * @see DocumentListener#insertUpdate(DocumentEvent)
-	 */
-	public void insertUpdate(DocumentEvent e) { enableSave(); }
+    /**
+     * Enables the save button depending on the value entered for the name.
+     * @see DocumentListener#insertUpdate(DocumentEvent)
+     */
+    public void insertUpdate(DocumentEvent e) { enableSave(); }
 
-	/**
-	 * Enables the save button depending on the value entered for the name.
-	 * @see DocumentListener#removeUpdate(DocumentEvent)
-	 */
-	public void removeUpdate(DocumentEvent e) { enableSave(); }
-	
-	/**
-	 * Required by the {@link DocumentListener} I/F but no-op implementation
-	 * in our case.
-	 * @see DocumentListener#changedUpdate(DocumentEvent)
-	 */
-	public void changedUpdate(DocumentEvent e) {}
+    /**
+     * Enables the save button depending on the value entered for the name.
+     * @see DocumentListener#removeUpdate(DocumentEvent)
+     */
+    public void removeUpdate(DocumentEvent e) { enableSave(); }
+
+    /**
+     * Required by the {@link DocumentListener} I/F but no-op implementation
+     * in our case.
+     * @see DocumentListener#changedUpdate(DocumentEvent)
+     */
+    public void changedUpdate(DocumentEvent e) {}
 
 }
