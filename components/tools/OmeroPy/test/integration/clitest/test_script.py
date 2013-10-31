@@ -9,94 +9,72 @@
 
 """
 
-import os, subprocess, StringIO
+
+import os
 from path import path
-from omero.cli import Context, BaseControl, CLI
+from test.integration.clitest.cli import CLITest
 from omero.plugins.script import ScriptControl
-from omero.plugins.sessions import SessionsControl
-from omero.plugins.upload import UploadControl
 from omero.util.temp_files import create_path
-import test.integration.library as lib
 
 omeroDir = path(os.getcwd()) / "build"
 
+scriptText = """
+import omero, omero.scripts as s
+from omero.rtypes import *
 
-class TestScript(lib.ITest):
+client = s.client("testFullSession", "simple ping script", \
+s.Long("a").inout(), s.String("b").inout())
+client.setOutput("a", rlong(0))
+client.setOutput("b", rstring("c"))
+client.closeSession()
+"""
 
-    def cli(self):
-        cli = CLI()
-        cli.register("upload", UploadControl, "TEST")
-        cli.register("sessions", SessionsControl, "TEST")
-        cli.register("s", ScriptControl, "TEST")
-        return cli
 
-    def test1(self):
-        cli = self.cli()
-        cmd = self.login_args() + ["s", "list"]
-        cli.invoke(cmd, strict=True) # Throws NonZeroReturnCode
+class TestScript(CLITest):
+
+    def setup_method(self, method):
+        super(TestScript, self).setup_method(method)
+        self.cli.register("script", ScriptControl, "TEST")
+        self.args += ["script"]
+
+    def testList(self):
+        self.args += ["list"]
+        self.cli.invoke(self.args, strict=True)  # Throws NonZeroReturnCode
 
     def testFullSession(self):
-        cli = self.cli()
         p = create_path(suffix=".py")
-        p.write_text("""
-import omero, omero.scripts as s
-from omero.rtypes import *
+        p.write_text(scriptText)
+        # Sets current script
+        self.cli.invoke(self.args + ["upload", str(p)], strict=True)
+        self.cli.invoke(self.args + ["list", "user"], strict=True)
+        # cli.invoke(args + ["serve", "user", "requests=1", "timeout=1",
+        # "background=true"], strict=True)
+        # cli.invoke(args + ["launch"], strict=True) # Uses current script
 
-client = s.client("testFullSession", "simple ping script", s.Long("a").inout(), s.String("b").inout())
-client.setOutput("a", rlong(0))
-client.setOutput("b", rstring("c"))
-client.closeSession()
-""")
-        args = self.login_args() + ["s"]
-        cli.invoke(args + ["upload", str(p)], strict=True) # Sets current script
-        cli.invoke(args + ["list", "user"], strict=True)
-        #cli.invoke(args + ["serve", "user", "requests=1", "timeout=1", "background=true"], strict=True)
-        #cli.invoke(args + ["launch"], strict=True) # Uses current script
-        
-    
     def testReplace(self):
-        cli = self.cli()
         p = create_path(suffix=".py")
-        p.write_text("""
-import omero, omero.scripts as s
-from omero.rtypes import *
+        p.write_text(scriptText)
 
-client = s.client("testFullSession", "simple ping script", s.Long("a").inout(), s.String("b").inout())
-client.setOutput("a", rlong(0))
-client.setOutput("b", rstring("c"))
-client.closeSession()
-""")
-        args = self.login_args() + ["s"]
-        
         # test replace with user script (not official)
-        cli.invoke(args + ["upload", str(p)], strict=True) # Sets current script
-        newId = cli.get("script.file.id")
-        cli.invoke(args + ["list", "user"], strict=True)
-        replaceArgs = args + ["replace", str(newId), str(p)]
+        # Sets current script
+        self.cli.invoke(self.args + ["upload", str(p)], strict=True)
+        newId = self.cli.get("script.file.id")
+        self.cli.invoke(self.args + ["list", "user"], strict=True)
+        replaceArgs = self.args + ["replace", str(newId), str(p)]
         print replaceArgs
-        cli.invoke(replaceArgs, strict=True)
-        
-    
-    def testReplaceOfficial(self):
-        cli = self.cli()
-        p = create_path(suffix=".py")
-        p.write_text("""
-import omero, omero.scripts as s
-from omero.rtypes import *
+        self.cli.invoke(replaceArgs, strict=True)
 
-client = s.client("testFullSession", "simple ping script", s.Long("a").inout(), s.String("b").inout())
-client.setOutput("a", rlong(0))
-client.setOutput("b", rstring("c"))
-client.closeSession()
-""")
-        args = self.root_login_args() + ["s"]
-        
-        # test replace with official script 
-        uploadArgs = args + ["upload", str(p), "--official"]
+    def testReplaceOfficial(self):
+        p = create_path(suffix=".py")
+        p.write_text(scriptText)
+
+        # test replace with official script
+        self.args = self.root_login_args() + ["script"]
+        uploadArgs = self.args + ["upload", str(p), "--official"]
         # print uploadArgs
-        cli.invoke(uploadArgs, strict=True) # Sets current script
-        newId = cli.get("script.file.id")
-        cli.invoke(args + ["list"], strict=True)
-        replaceArgs = args + ["replace", str(newId), str(p)]
+        self.cli.invoke(uploadArgs, strict=True)  # Sets current script
+        newId = self.cli.get("script.file.id")
+        self.cli.invoke(self.args + ["list"], strict=True)
+        replaceArgs = self.args + ["replace", str(newId), str(p)]
         # print replaceArgs
-        cli.invoke(replaceArgs, strict=True)
+        self.cli.invoke(replaceArgs, strict=True)
