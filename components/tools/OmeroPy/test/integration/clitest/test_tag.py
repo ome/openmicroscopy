@@ -40,7 +40,10 @@ class TestTag(CLITest):
             tag = omero.model.TagAnnotationI()
             tag.textValue = omero.rtypes.rstring("%s - %s" % (name, i))
             tag = self.update.saveAndReturnObject(tag)
-            tag_ids.append(tag.id.val)
+            if ntags > 1:
+                tag_ids.append(tag.id.val)
+            else:
+                tag_ids = tag.id.val
         return tag_ids
 
     def create_tag(self, tag_name, tag_desc):
@@ -261,26 +264,96 @@ class TestTag(CLITest):
 
     # Tag linking commands
     # ========================================================================
+    def get_link(self, classname, object_id):
+        # Check link
+        params = omero.sys.Parameters()
+        params.map = {}
+        params.map["id"] = rlong(object_id)
+        query = "select l from %sAnnotationLink as l" % classname
+        query += " join fetch l.child as a where l.parent.id=:id"
+        link = self.query.findByQuery(query, params)
+        return link
+
     def testLinkImage(self):
         # Create a tag and an image
-        tag = omero.model.TagAnnotationI()
-        tag.textValue = omero.rtypes.rstring("%s" % self.uuid())
-        tag = self.update.saveAndReturnObject(tag)
+        tid = self.create_tags(1, "%s" % self.uuid())
         img = self.new_image()
         img = self.update.saveAndReturnObject(img)
         iid = img.getId().getValue()
 
-        #  Call tag link subcommand
+        # Call tag link subcommand
         args = self.login_args()
-        args += ["tag", "link", "Image:%s" % iid, "%s" % tag.id.val]
+        args += ["tag", "link", "Image:%s" % iid, "%s" % tid]
         self.cli.invoke(args, strict=True)
 
         # Check link
-        params = omero.sys.Parameters()
-        params.map = {}
-        params.map["iid"] = rlong(iid)
-        query = "select l from ImageAnnotationLink as l"
-        query += " join fetch l.child as a where l.parent.id=:iid"
-        link = self.query.findByQuery(query, params)
+        link = self.get_link("Image", iid)
+        assert link.child.id.val == tid
 
-        assert link.child.id.val == tag.id.val
+    def testLinkDataset(self):
+        # Create a tag and a dataset
+        tid = self.create_tags(1, "%s" % self.uuid())
+        ds = omero.model.DatasetI()
+        ds.name = rstring("%s" % self.uuid())
+        ds = self.update.saveAndReturnObject(ds)
+        did = ds.getId().getValue()
+
+        # Call tag link subcommand
+        args = self.login_args()
+        args += ["tag", "link", "Dataset:%s" % did, "%s" % tid]
+        self.cli.invoke(args, strict=True)
+
+        # Check link
+        link = self.get_link("Dataset", did)
+        assert link.child.id.val == tid
+
+    def testLinkProject(self):
+        # Create a tag and a project
+        tid = self.create_tags(1, "%s" % self.uuid())
+        p = omero.model.ProjectI()
+        p.name = rstring("%s" % self.uuid())
+        p = self.update.saveAndReturnObject(p)
+        pid = p.getId().getValue()
+
+        # Call tag link subcommand
+        args = self.login_args()
+        args += ["tag", "link", "Project:%s" % pid, "%s" % tid]
+        self.cli.invoke(args, strict=True)
+
+        # Check link
+        link = self.get_link("Project", pid)
+        assert link.child.id.val == tid
+
+    def testLinkScreen(self):
+        # Create a tag and a project
+        tid = self.create_tags(1, "%s" % self.uuid())
+        s = omero.model.ScreenI()
+        s.name = rstring("%s" % self.uuid())
+        s = self.update.saveAndReturnObject(s)
+        sid = s.getId().getValue()
+
+        # Call tag link subcommand
+        args = self.login_args()
+        args += ["tag", "link", "Screen:%s" % sid, "%s" % tid]
+        self.cli.invoke(args, strict=True)
+
+        # Check link
+        link = self.get_link("Screen", sid)
+        assert link.child.id.val == tid
+
+    def testLinkPlate(self):
+        # Create a tag and a project
+        tid = self.create_tags(1, "%s" % self.uuid())
+        p = omero.model.PlateI()
+        p.name = rstring("%s" % self.uuid())
+        p = self.update.saveAndReturnObject(p)
+        pid = p.getId().getValue()
+
+        # Call tag link subcommand
+        args = self.login_args()
+        args += ["tag", "link", "Plate:%s" % pid, "%s" % tid]
+        self.cli.invoke(args, strict=True)
+
+        # Check link
+        link = self.get_link("Plate", pid)
+        assert link.child.id.val == tid
