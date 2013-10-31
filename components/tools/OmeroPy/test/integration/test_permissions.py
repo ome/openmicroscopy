@@ -58,11 +58,8 @@ class CallContextFixture(object):
 
         # At this point, the fixture shouldn't be able
         # to load the image
-        try:
+        with pytest.raises(omero.SecurityViolation):
             self.sf.getQueryService().get("Image", self.img.id.val)
-            self.fail("secvio!")
-        except omero.SecurityViolation, sv:
-            pass
 
     def prepare(self):
         """

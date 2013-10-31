@@ -19,32 +19,34 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
+"""
+   gateway tests - Testing the gateway image wrapper
 
-import unittest
-import omero
-import time
+   pytest fixtures used as defined in conftest.py:
+   - gatewaywrapper
 
-import gatewaytest.library as lib
+"""
 
+import pytest
 
-class FilesetTest (lib.GTest):
+# Module level marker
+pytestmark = pytest.mark.fs_suite
 
-    def setUp(self):
-        super(FilesetTest, self).setUp()
-        self.loginAsAuthor()
-        self.TESTIMG = self.getTestImage()
+class TestFileset(object):
 
+    @pytest.fixture(autouse=True)
+    def setUp(self, gatewaywrapper):
+        gatewaywrapper.loginAsAuthor()
+        self.TESTIMG = gatewaywrapper.getTestImage()
+
+    @pytest.mark.xfail(reason="ticket 11610")
     def testFileset(self):
         image = self.TESTIMG
 
         # Assume image is not imported pre-FS
         filesCount = image.countFilesetFiles()
-        self.assertTrue(filesCount > 0, "Imported image should be linked to original files")
+        assert filesCount > 0, "Imported image should be linked to original files"
 
         # List the 'imported image files' (from fileset), check the number
         filesInFileset = list(image.getImportedImageFiles())
-        self.assertEqual(filesCount, len(filesInFileset))
-
-
-if __name__ == '__main__':
-    unittest.main()
+        assert filesCount == len(filesInFileset)
