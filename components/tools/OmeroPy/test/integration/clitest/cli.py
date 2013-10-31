@@ -33,6 +33,7 @@ class CLITest (ITest):
         super(CLITest, self).setup_method(method)
         self.cli = CLI()
         self.cli.register("sessions", SessionsControl, "TEST")
+        self.args = self.login_args()
 
     def setup_mock(self):
         self.mox = Mox()

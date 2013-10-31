@@ -33,6 +33,7 @@ class TestTag(CLITest):
     def setup_method(self, method):
         super(TestTag, self).setup_method(method)
         self.cli.register("tag", TagControl, "TEST")
+        self.args += ["tag"]
 
     def create_tags(self, ntags, name):
         tag_ids = []
@@ -47,25 +48,22 @@ class TestTag(CLITest):
         return tag_ids
 
     def create_tag(self, tag_name, tag_desc):
-        args = self.login_args()
-        args += ["tag", "create"]
+        self.args += ["create"]
         if tag_name:
-            args += ["--name", tag_name]
+            self.args += ["--name", tag_name]
         if tag_desc:
-            args += ["--desc", tag_desc]
-        self.cli.invoke(args, strict=True)
+            self.args += ["--desc", tag_desc]
+        self.cli.invoke(self.args, strict=True)
 
     def create_tagset(self, tag_ids, tag_name, tag_desc):
-        args = self.login_args()
-        args += ["tag", "createset"]
-        args += ["--tag"]
-        args += ["%s" % tag_id for tag_id in tag_ids]
+        self.args += ["createset", "--tag"]
+        self.args += ["%s" % tag_id for tag_id in tag_ids]
         if tag_name:
-            args += ["--name", tag_name]
+            self.args += ["--name", tag_name]
         if tag_desc:
-            args += ["--desc", tag_desc]
+            self.args += ["--desc", tag_desc]
 
-        self.cli.invoke(args, strict=True)
+        self.cli.invoke(self.args, strict=True)
 
     def get_tag_by_name(self, tag_name):
         # Query
@@ -91,32 +89,32 @@ class TestTag(CLITest):
     # Help subcommands
     # ========================================================================
     def testHelp(self):
-        args = self.login_args() + ["tag", "-h"]
-        self.cli.invoke(args, strict=True)
+        self.args += ["-h"]
+        self.cli.invoke(self.args, strict=True)
 
     def testCreateHelp(self):
-        args = self.login_args() + ["tag", "create", "-h"]
-        self.cli.invoke(args, strict=True)
+        self.args += ["create", "-h"]
+        self.cli.invoke(self.args, strict=True)
 
     def testCreateSetHelp(self):
-        args = self.login_args() + ["tag", "createset", "-h"]
-        self.cli.invoke(args, strict=True)
+        self.args += ["createset", "-h"]
+        self.cli.invoke(self.args, strict=True)
 
     def testListHelp(self):
-        args = self.login_args() + ["tag", "list", "-h"]
-        self.cli.invoke(args, strict=True)
+        self.args += ["list", "-h"]
+        self.cli.invoke(self.args, strict=True)
 
     def testListSetsHelp(self):
-        args = self.login_args() + ["tag", "listsets", "-h"]
-        self.cli.invoke(args, strict=True)
+        self.args += ["listsets", "-h"]
+        self.cli.invoke(self.args, strict=True)
 
     def testLinkHelp(self):
-        args = self.login_args() + ["tag", "link", "-h"]
-        self.cli.invoke(args, strict=True)
+        self.args += ["link", "-h"]
+        self.cli.invoke(self.args, strict=True)
 
     def testLoadHelp(self):
-        args = self.login_args() + ["tag", "load", "-h"]
-        self.cli.invoke(args, strict=True)
+        self.args += ["load", "-h"]
+        self.cli.invoke(self.args, strict=True)
 
     # Tag creation commands
     # ========================================================================
@@ -186,9 +184,8 @@ class TestTag(CLITest):
 [{
     "name" : "%s",
     "desc" : "%s"}]""" % (tag_name, tag_desc))
-        args = self.login_args()
-        args += ["tag", "load", str(p)]
-        self.cli.invoke(args, strict=True)
+        self.args += ["load", str(p)]
+        self.cli.invoke(self.args, strict=True)
 
         # Check tag is created
         tag = self.get_tag_by_name(tag_name)
@@ -286,9 +283,8 @@ class TestTag(CLITest):
              "name" : "%s",
              "desc" : ""}]
 }]""" % (ts_name, ts_desc, tag_names[0], tag_names[1]))
-        args = self.login_args()
-        args += ["tag", "load", str(p)]
-        self.cli.invoke(args, strict=True)
+        self.args += ["load", str(p)]
+        self.cli.invoke(self.args, strict=True)
 
         # Check tagset is created
         tagset = self.get_tag_by_name(ts_name)
@@ -318,9 +314,8 @@ class TestTag(CLITest):
         iid = img.getId().getValue()
 
         # Call tag link subcommand
-        args = self.login_args()
-        args += ["tag", "link", "Image:%s" % iid, "%s" % tid]
-        self.cli.invoke(args, strict=True)
+        self.args += ["link", "Image:%s" % iid, "%s" % tid]
+        self.cli.invoke(self.args, strict=True)
 
         # Check link
         link = self.get_link("Image", iid)
@@ -335,9 +330,8 @@ class TestTag(CLITest):
         did = ds.getId().getValue()
 
         # Call tag link subcommand
-        args = self.login_args()
-        args += ["tag", "link", "Dataset:%s" % did, "%s" % tid]
-        self.cli.invoke(args, strict=True)
+        self.args += ["link", "Dataset:%s" % did, "%s" % tid]
+        self.cli.invoke(self.args, strict=True)
 
         # Check link
         link = self.get_link("Dataset", did)
@@ -352,9 +346,8 @@ class TestTag(CLITest):
         pid = p.getId().getValue()
 
         # Call tag link subcommand
-        args = self.login_args()
-        args += ["tag", "link", "Project:%s" % pid, "%s" % tid]
-        self.cli.invoke(args, strict=True)
+        self.args += ["link", "Project:%s" % pid, "%s" % tid]
+        self.cli.invoke(self.args, strict=True)
 
         # Check link
         link = self.get_link("Project", pid)
@@ -369,9 +362,8 @@ class TestTag(CLITest):
         sid = s.getId().getValue()
 
         # Call tag link subcommand
-        args = self.login_args()
-        args += ["tag", "link", "Screen:%s" % sid, "%s" % tid]
-        self.cli.invoke(args, strict=True)
+        self.args += ["link", "Screen:%s" % sid, "%s" % tid]
+        self.cli.invoke(self.args, strict=True)
 
         # Check link
         link = self.get_link("Screen", sid)
@@ -386,9 +378,8 @@ class TestTag(CLITest):
         pid = p.getId().getValue()
 
         # Call tag link subcommand
-        args = self.login_args()
-        args += ["tag", "link", "Plate:%s" % pid, "%s" % tid]
-        self.cli.invoke(args, strict=True)
+        self.args += ["link", "Plate:%s" % pid, "%s" % tid]
+        self.cli.invoke(self.args, strict=True)
 
         # Check link
         link = self.get_link("Plate", pid)
