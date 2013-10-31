@@ -37,6 +37,68 @@ class TestScript(CLITest):
         self.cli.register("script", ScriptControl, "TEST")
         self.args += ["script"]
 
+    # Help subcommands
+    # ========================================================================
+    def testHelp(self):
+        self.args += ["-h"]
+        self.cli.invoke(self.args, strict=True)
+
+    def testDemoHelp(self):
+        self.args += ["demo", "-h"]
+        self.cli.invoke(self.args, strict=True)
+
+    def testListHelp(self):
+        self.args += ["list", "-h"]
+        self.cli.invoke(self.args, strict=True)
+
+    def testCatHelp(self):
+        self.args += ["cat", "-h"]
+        self.cli.invoke(self.args, strict=True)
+
+    def testEditHelp(self):
+        self.args += ["edit", "-h"]
+        self.cli.invoke(self.args, strict=True)
+
+    def testParamsHelp(self):
+        self.args += ["params", "-h"]
+        self.cli.invoke(self.args, strict=True)
+
+    def testLaunchHelp(self):
+        self.args += ["launch", "-h"]
+        self.cli.invoke(self.args, strict=True)
+
+    def testDisableHelp(self):
+        self.args += ["disable", "-h"]
+        self.cli.invoke(self.args, strict=True)
+
+    def testEnableHelp(self):
+        self.args += ["enable", "-h"]
+        self.cli.invoke(self.args, strict=True)
+
+    def testJobsHelp(self):
+        self.args += ["jobs", "-h"]
+        self.cli.invoke(self.args, strict=True)
+
+    def testServerHelp(self):
+        self.args += ["serve", "-h"]
+        self.cli.invoke(self.args, strict=True)
+
+    def testUploadHelp(self):
+        self.args += ["upload", "-h"]
+        self.cli.invoke(self.args, strict=True)
+
+    def testReplaceHelp(self):
+        self.args += ["replace", "-h"]
+        self.cli.invoke(self.args, strict=True)
+
+    def testDeleteHelp(self):
+        self.args += ["delete", "-h"]
+        self.cli.invoke(self.args, strict=True)
+
+    def testRunHelp(self):
+        self.args += ["run", "-h"]
+        self.cli.invoke(self.args, strict=True)
+
     def testList(self):
         self.args += ["list"]
         self.cli.invoke(self.args, strict=True)  # Throws NonZeroReturnCode
@@ -51,6 +113,8 @@ class TestScript(CLITest):
         # "background=true"], strict=True)
         # cli.invoke(args + ["launch"], strict=True) # Uses current script
 
+    # Replace subcommand
+    # ========================================================================
     def testReplace(self):
         p = create_path(suffix=".py")
         p.write_text(scriptText)
