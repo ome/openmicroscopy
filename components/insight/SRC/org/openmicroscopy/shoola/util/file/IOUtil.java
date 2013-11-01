@@ -47,10 +47,9 @@ import java.util.zip.ZipOutputStream;
 
 
 //Third-party libraries
-
-
 import org.apache.commons.io.FilenameUtils;
-import org.hibernate.tool.hbm2x.StringUtils;
+import org.apache.commons.lang.StringUtils;
+
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.filter.file.ExcelFilter;
 import org.openmicroscopy.shoola.util.filter.file.PDFFilter;
