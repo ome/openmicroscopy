@@ -25,20 +25,16 @@ package org.openmicroscopy.shoola.env.ui;
 
 
 //Java imports
+import java.io.File;
+import java.util.List;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import java.io.File;
-import java.util.Iterator;
-import java.util.List;
-
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.DownloadArchivedActivityParam;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
-import org.openmicroscopy.shoola.util.file.IOUtil;
 
 /** 
  * Downloads the archived image.
@@ -48,9 +44,6 @@ import org.openmicroscopy.shoola.util.file.IOUtil;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since 3.0-Beta4
  */
 public class DownloadArchivedActivity
