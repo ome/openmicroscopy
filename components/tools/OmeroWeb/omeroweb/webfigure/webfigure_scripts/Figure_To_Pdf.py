@@ -12,8 +12,12 @@ try:
 except ImportError:
     import Image
 
-from reportlab.pdfgen import canvas
-# from reportlab.lib.pagesizes import letter, A4
+try:
+    from reportlab.pdfgen import canvas
+    # from reportlab.lib.pagesizes import letter, A4
+    reportlabInstalled = True
+except ImportError:
+    reportlabInstalled = False
 
 
 from omero.gateway import BlitzGateway
@@ -341,13 +345,16 @@ def runScript():
                 scriptParams[key] = client.getInput(key, unwrap=True)
         print scriptParams
 
-        # call the main script - returns a file annotation wrapper
-        fileAnnotation = create_pdf(conn, scriptParams)
+        if not reportlabInstalled:
+            client.setOutput("Message", rstring("Need to install https://bitbucket.org/rptlab/reportlab"))
+        else:
+            # call the main script - returns a file annotation wrapper
+            fileAnnotation = create_pdf(conn, scriptParams)
 
-        # return this fileAnnotation to the client.
-        client.setOutput("Message", rstring("Pdf Figure created"))
-        if fileAnnotation is not None:
-            client.setOutput("File_Annotation", robject(fileAnnotation._obj))
+            # return this fileAnnotation to the client.
+            client.setOutput("Message", rstring("Pdf Figure created"))
+            if fileAnnotation is not None:
+                client.setOutput("File_Annotation", robject(fileAnnotation._obj))
 
     finally:
         client.closeSession()

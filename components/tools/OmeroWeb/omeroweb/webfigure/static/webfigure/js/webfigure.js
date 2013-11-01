@@ -130,7 +130,7 @@
         },
 
         save_channel_window: function(cIndex, new_w) {
-            console.log("save_channel_window", cIndex, new_w);
+            // save changes to the channel.window. Extend {} so save triggers change
             var w = $.extend(true, {}, this.get('channels')[cIndex].window);
             new_w = $.extend(true, w, new_w);
             this.save_channel(cIndex, 'window', new_w);
@@ -1847,28 +1847,31 @@
                     html = this.template({'channels':json});
                     this.$el.html(html);
 
-
-                    var $channel_sliders = $("#channel_sliders");
+                    $(".ch_slider").slider("destroy");
+                    var $channel_sliders = $("#channel_sliders").empty();
                     _.each(json, function(ch, idx) {
                         // Turn 'start' and 'end' into average values
-                        var start = ch.window.start / self.models.length,
-                            end = ch.window.end / self.models.length,
+                        var start = (ch.window.start / self.models.length) << 0,
+                            end = (ch.window.end / self.models.length) << 0,
                             min = Math.min(ch.window.min, start),
                             max = Math.max(ch.window.max, end);
-                        $("<div class='ch_slider' style='background-color:#"+ch.color+"'></div>").slider({
+                        var $div = $("<div><span class='ch_start'>" + start +"</span><div class='ch_slider' style='background-color:#"+ch.color+"'></div><span class='ch_end'>" + end +"</span></div>")
+                            .appendTo($channel_sliders);
+
+                        $div.find('.ch_slider').slider({
                             min: min,
                             max: max,
                             values: [start, end],
                             slide: function(event, ui) {
-                                console.log(ui.value);
+                                $div.children('.ch_start').text(ui.values[0]);
+                                $div.children('.ch_end').text(ui.values[1]);
                             },
                             stop: function(event, ui) {
-                                console.log("STOP", ui);
                                 _.each(self.models, function(m) {
                                     m.save_channel_window(idx, {'start': ui.values[0], 'end': ui.values[1]});
                                 });
                             }
-                        }).appendTo($channel_sliders);
+                        });
                     });
                 }
             }
