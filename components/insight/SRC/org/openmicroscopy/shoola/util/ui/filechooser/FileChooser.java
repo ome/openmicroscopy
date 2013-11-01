@@ -69,91 +69,91 @@ public class FileChooser
     public static final String DOWNLOAD_DESCRIPTION =
             "Select where to download the file(s).";
 
-	/** Bound property indicating that the cancel button is pressed. */
-	public static final String	APPROVE_SELECTION_PROPERTY = "approveSelection";
-	
-	/** Bound property indicating that the cancel button is pressed. */
-	public static final String	CANCEL_SELECTION_PROPERTY = "cancelSelection";
-	
-	/** 
-	 * Bound property indicating the directory where to save the original files.
-	 */
-	public static final String	LOCATION_PROPERTY = "location";
-	
-	/** Identifies the <code>Load</code> dialog. */
-	public static final int LOAD = 0;
-	
-	/** Identifies the <code>Save</code> dialog. */
-	public static final int SAVE = 1;
-	
-	/** Identifies the <code>Folder Chooser</code> dialog. */
-	public static final int FOLDER_CHOOSER = 2;
-	
-	/** Identifies the <code>Import</code> dialog. */
-	public static final int IMPORT = 3;
-	
-	/** Indicates to add the button to the left of the controls. */
-	public static final int LEFT = 100;
-	
-	/** Indicates to add the button to the center of the controls. */
-	public static final int CENTER = 101;
-	
-	/** Indicates to add the button to the right of the controls. */
-	public static final int RIGHT = 102;
-	
-	/** The approval option the user chose. */
-	private int option;
-	
+    /** Bound property indicating that the cancel button is pressed. */
+    public static final String	APPROVE_SELECTION_PROPERTY = "approveSelection";
+
+    /** Bound property indicating that the cancel button is pressed. */
+    public static final String	CANCEL_SELECTION_PROPERTY = "cancelSelection";
+
+    /** 
+     * Bound property indicating the directory where to save the original files.
+     */
+    public static final String	LOCATION_PROPERTY = "location";
+
+    /** Identifies the <code>Load</code> dialog. */
+    public static final int LOAD = 0;
+
+    /** Identifies the <code>Save</code> dialog. */
+    public static final int SAVE = 1;
+
+    /** Identifies the <code>Folder Chooser</code> dialog. */
+    public static final int FOLDER_CHOOSER = 2;
+
+    /** Identifies the <code>Import</code> dialog. */
+    public static final int IMPORT = 3;
+
+    /** Indicates to add the button to the left of the controls. */
+    public static final int LEFT = 100;
+
+    /** Indicates to add the button to the center of the controls. */
+    public static final int CENTER = 101;
+
+    /** Indicates to add the button to the right of the controls. */
+    public static final int RIGHT = 102;
+
+    /** The approval option the user chose. */
+    private int option;
+
     /** The UI delegate. */
     private FileSaverUI uiDelegate;
-       
+
     /** One of the constants defined by this class. */
     private int dialogType;
-    
+
     /** Title for the save dialog. */
     private String title;
-    
+
     /** Message at top of dialog window. */
     private String message;
-    
+
     /** Collection of supported filters. */
     private List<FileFilter> filters;
-    
+
     /** 
      * Path to the folder.
      * Only used when the type is {@link #FOLDER_CHOOSER}.
      */
     private String folderPath;
-    
+
     /** Ask if a file should be overridden. */
     private boolean checkOverride;
-    
+
     /** Sets the properties of the dialog. */
     private void setProperties()
     {
-    	setTitle(title);
+        setTitle(title);
         setModal(true);
         setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
         addWindowListener(new WindowAdapter() {
-		
-			/** 
-			 * Cancels the selection.
-			 * @see WindowAdapter#windowClosing(WindowEvent)
-			 */
-			public void windowClosing(WindowEvent e) {
-				cancelSelection();
-			}
-			
-			/**
-			 * Requests focus on name to enable the <code>Approve button</code>.
-			 * @see WindowAdapter#windowOpened(WindowEvent)
-			 */
-			public void windowOpened(WindowEvent e) {
-				uiDelegate.requestFocusOnName();
-			}
-		});
+
+            /** 
+             * Cancels the selection.
+             * @see WindowAdapter#windowClosing(WindowEvent)
+             */
+            public void windowClosing(WindowEvent e) {
+                cancelSelection();
+            }
+
+            /**
+             * Requests focus on name to enable the <code>Approve button</code>.
+             * @see WindowAdapter#windowOpened(WindowEvent)
+             */
+            public void windowOpened(WindowEvent e) {
+                uiDelegate.requestFocusOnName();
+            }
+        });
     }
-    
+
     /**
      * Controls if the passed window type is supported.
      * 
@@ -161,17 +161,17 @@ public class FileChooser
      */
     private void checkType(int v)
     {
-    	switch (v) {
-			case SAVE:
-			case LOAD:
-			case FOLDER_CHOOSER:
-			case IMPORT:
-				return;
-			default:
-				throw new IllegalArgumentException("Type not supported");
-		}
+        switch (v) {
+        case SAVE:
+        case LOAD:
+        case FOLDER_CHOOSER:
+        case IMPORT:
+            return;
+        default:
+            throw new IllegalArgumentException("Type not supported");
+        }
     }
-    
+
     /**
      * Returns the name of the image.
      * 
