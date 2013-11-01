@@ -26,6 +26,7 @@ from omero.rtypes import rstring, rlong
 from omero.util.temp_files import create_path
 from omero_ext.mox import IgnoreArg
 import __builtin__
+NSINSIGHTTAGSET = omero.constants.metadata.NSINSIGHTTAGSET
 
 
 class TestTag(CLITest):
@@ -65,13 +66,16 @@ class TestTag(CLITest):
 
         self.cli.invoke(self.args, strict=True)
 
-    def get_tag_by_name(self, tag_name):
+    def get_tag_by_name(self, tag_name, ns=None):
         # Query
         params = omero.sys.Parameters()
         params.map = {}
         query = "select t from TagAnnotation as t"
         params.map["val"] = rstring(tag_name)
         query += " where t.textValue=:val"
+        if ns:
+            params.map["ns"] = rstring(ns)
+            query += " and t.ns=:ns"
         tags = self.query.findByQuery(query, params)
         return tags
 
@@ -191,6 +195,8 @@ class TestTag(CLITest):
         tag = self.get_tag_by_name(tag_name)
         assert tag.description.val == tag_desc
 
+    # Tagset creation commands
+    # ========================================================================
     def testCreateTagset(self):
         ts_name = self.uuid()
         ts_desc = self.uuid()
@@ -199,7 +205,7 @@ class TestTag(CLITest):
         self.create_tagset(tag_ids, ts_name, ts_desc)
 
         # Check tagset is created
-        tagset = self.get_tag_by_name(ts_name)
+        tagset = self.get_tag_by_name(ts_name, NSINSIGHTTAGSET)
         assert tagset.description.val == ts_desc
 
         # Check all tags are linked to the tagset
@@ -219,7 +225,7 @@ class TestTag(CLITest):
         self.teardown_mock()
 
         # Check tagset is created
-        tagset = self.get_tag_by_name(ts_name)
+        tagset = self.get_tag_by_name(ts_name, NSINSIGHTTAGSET)
         assert tagset.description.val == ts_desc
 
         # Check all tags are linked to the tagset
@@ -239,7 +245,7 @@ class TestTag(CLITest):
         self.teardown_mock()
 
         # Check tagset is created
-        tagset = self.get_tag_by_name(ts_name)
+        tagset = self.get_tag_by_name(ts_name, NSINSIGHTTAGSET)
         assert tagset.description.val == ts_desc
 
         # Check all tags are linked to the tagset
@@ -260,7 +266,7 @@ class TestTag(CLITest):
         self.teardown_mock()
 
         # Check tagset is created
-        tagset = self.get_tag_by_name(ts_name)
+        tagset = self.get_tag_by_name(ts_name, NSINSIGHTTAGSET)
         assert tagset.description.val == ts_desc
 
         # Check all tags are linked to the tagset
@@ -287,7 +293,7 @@ class TestTag(CLITest):
         self.cli.invoke(self.args, strict=True)
 
         # Check tagset is created
-        tagset = self.get_tag_by_name(ts_name)
+        tagset = self.get_tag_by_name(ts_name, NSINSIGHTTAGSET)
         assert tagset.description.val == ts_desc
 
         # Check all tags are linked to the tagset
