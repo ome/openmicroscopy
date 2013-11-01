@@ -78,10 +78,8 @@ public class ArchivedImageLoader
     private File copyFile(File f, File folder)
             throws Exception
     {
-        FileUtils.copyFileToDirectory(f, folder, true);
-        String name = f.getName();
-        f.delete();
-        return new File(folder, name);
+        FileUtils.moveFileToDirectory(f, folder, false);
+        return new File(folder, f.getName());
     }
 
     /**
