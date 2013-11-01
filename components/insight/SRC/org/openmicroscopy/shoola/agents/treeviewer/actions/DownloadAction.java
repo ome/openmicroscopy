@@ -132,10 +132,20 @@ public class DownloadAction
 		FileChooser chooser = new FileChooser(f, FileChooser.SAVE,
 		        FileChooser.DOWNLOAD_TEXT, FileChooser.DOWNLOAD_DESCRIPTION,
 		        null, true);
-		chooser.setSelectedFileFull(name);
+		try {
+            File file = UIUtilities.getDefaultFolder();
+            if (file != null) chooser.setCurrentDirectory(file);
+        } catch (Exception ex) {}
+		String text = "";
+		Object ho = node.getUserObject();
+		if (ho instanceof ImageData) text = ((ImageData) ho).getName();
+		else if (ho instanceof FileAnnotationData)
+		    text = ((FileAnnotationData) ho).getFileName();
+		chooser.setSelectedFileFull(text);
+		chooser.setCheckOverride(true);
 		IconManager icons = IconManager.getInstance();
 		chooser.setTitleIcon(icons.getIcon(IconManager.DOWNLOAD_48));
-		chooser.setApproveButtonText("Download");
+		chooser.setApproveButtonText(FileChooser.DOWNLOAD_TEXT);
 		chooser.addPropertyChangeListener(new PropertyChangeListener() {
 		
 			public void propertyChange(PropertyChangeEvent evt) {

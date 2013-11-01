@@ -377,7 +377,7 @@ class EditorControl
 		if (image != null) chooser.setSelectedFileFull(image.getName());
 		IconManager icons = IconManager.getInstance();
 		chooser.setTitleIcon(icons.getIcon(IconManager.DOWNLOAD_48));
-		chooser.setApproveButtonText("Download");
+		chooser.setApproveButtonText(FileChooser.DOWNLOAD_TEXT);
 		chooser.setCheckOverride(true);
 		chooser.addPropertyChangeListener(new PropertyChangeListener() {
 		
