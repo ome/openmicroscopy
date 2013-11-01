@@ -62,9 +62,6 @@ def get_panel_region_xywh(panel):
     tile_w = orig_w / (zoom/100)
     tile_h = orig_h / (zoom/100)
 
-    print " ---------------- "
-    print "IMAGE", panel['imageId']
-
     print 'zoom', zoom
     print 'frame_w', frame_w, 'frame_h', frame_h, 'orig', orig_w, orig_h
     print "Initial tile w, h", tile_w, tile_h
@@ -304,6 +301,8 @@ def create_pdf(conn, scriptParams):
 
     for i, panel in enumerate(panels_json):
 
+        print "\n---------------- "
+        print "IMAGE", i
         drawPanel(conn, c, panel, pageHeight, i)
         drawLabels(conn, c, panel, pageHeight)
 
