@@ -104,7 +104,7 @@ By default, the tests are run using the default browser i.e. firefox
 If you want to run the tests on googlechrome, you need to install the chrome driver.
 See https://code.google.com/p/chromedriver/downloads/list
 
-If you are running the tests on Mac OS X, you can install install with the following command
+If you are running the tests on Mac OS X, you can install with the following command
 
 brew install chromedriver
 
@@ -117,14 +117,14 @@ you are running the lightweight development server, you will need to modify few 
 components/tests/ui/testcases
 
 Replace
-${LOGIN URL}            http://${WEB HOST}/webclient/login/
-${WELCOME URL}          http://${WEB HOST}/webclient/
-${WEBADMIN WELCOME URL} http://${WEB HOST}/webadmin/
+${LOGIN URL}              http://${WEB HOST}/webclient/login/
+${WELCOME URL}            http://${WEB HOST}/webclient/
+${WEBADMIN WELCOME URL}   http://${WEB HOST}/webadmin/
 
 by 
-${LOGIN URL}            http://${WEB HOST}:${WEB PORT}/webclient/login/
-${WELCOME URL}          http://${WEB HOST}:${WEB PORT}/webclient/
-${WEBADMIN WELCOME URL} http://${WEB HOST}:${WEB PORT}/webadmin/
+${LOGIN URL}              http://${WEB HOST}:${WEB PORT}/webclient/login/
+${WELCOME URL}            http://${WEB HOST}:${WEB PORT}/webclient/
+${WEBADMIN WELCOME URL}   http://${WEB HOST}:${WEB PORT}/webadmin/
 
 and modify the value of ${WEB PORT} if required.
 
