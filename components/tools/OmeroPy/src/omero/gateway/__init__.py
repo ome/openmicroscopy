@@ -6470,10 +6470,18 @@ class _ImageWrapper (BlitzObjectWrapper):
         Sets the active channels on the rendering engine.
         Also sets rendering windows and channel colors (for channels that are active)
         
+        Examples:
+        # Turn first channel ON, others OFF
+        image.setActiveChannels([1])
+        # First OFF, second ON, windows and colors for both
+        image.setActiveChannels([-1, 2], [[20, 300], [50, 500]], ['00FF00', 'FF0000'])
+        # Second Channel ON with windows. All others OFF
+        image.setActiveChannels([2], [[20, 300]])
+
         @param channels:    List of active channel indexes ** 1-based index **
         @type channels:     List of int
         @param windows:     Start and stop values for active channel rendering settings
-        @type windows:      List of tuples. [(20, 300), (None, None), (50, 500)]. Must be tuples for all channels
+        @type windows:      List of [start, stop]. [[20, 300], [None, None], [50, 500]]. Must be list for each channel
         @param colors:      List of colors. ['F00', None, '00FF00'].  Must be item for each channel
         """
         abs_channels = [abs(c) for c in channels]
@@ -6482,7 +6490,7 @@ class _ImageWrapper (BlitzObjectWrapper):
             self._re.setActive(c, (c+1) in channels, self._conn.SERVICE_OPTS)
             if (c+1) in channels:
                 if windows is not None and windows[idx][0] is not None and windows[idx][1] is not None:
-                    self._re.setChannelWindow(c, *(windows[idx] + [self._conn.SERVICE_OPTS]))
+                    self._re.setChannelWindow(c, float(windows[idx][0]), float(windows[idx][1]), self._conn.SERVICE_OPTS)
                 if colors is not None and colors[idx]:
                     rgba = splitHTMLColor(colors[idx])
                     if rgba:
