@@ -323,13 +323,11 @@ class RendererModel
 		throws RenderingServiceException, DSOutOfServiceException
 	{
 		if (rndControl == null) return;
-		if (getMaxC() > Renderer.MAX_CHANNELS) {
-			for (int i = 0; i < getMaxC(); i++) {
-				rndControl.setChannelWindow(i, start, end);
-			}
-		} else {
-			rndControl.setChannelWindow(index, start, end);
-		}
+		if (isLifetimeImage() && getModuloT() == null) {
+		    for (int i = 0; i < getMaxC(); i++) {
+                rndControl.setChannelWindow(i, start, end);
+            }
+		} else rndControl.setChannelWindow(index, start, end);
 	}
 
 	/**
