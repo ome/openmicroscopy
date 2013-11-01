@@ -95,7 +95,7 @@ public class DownloadArchivedActivity
 		this.parameters = parameters;
 		initialize("Downloading Original Image", parameters.getIcon());
 		File f = parameters.getLocation();
-		if (f.isFile()) f = f.getParentFile();
+		if (f.isFile() || !f.exists()) f = f.getParentFile();
 		messageLabel.setText("in "+f.getAbsolutePath());
 		this.parameters = parameters;
 	}
@@ -106,8 +106,14 @@ public class DownloadArchivedActivity
 	 */
 	protected UserNotifierLoader createLoader()
 	{
-		loader = new ArchivedLoader(viewer, registry, ctx, 
-				parameters.getImage(), parameters.getLocation(), this);
+	    File f = parameters.getLocation();
+	    String name = "";
+        if (f.isFile() || !f.exists()) {
+            name = FilenameUtils.removeExtension(f.getName());
+            f = f.getParentFile();
+        }
+		loader = new ArchivedLoader(viewer, registry, ctx,
+		        parameters.getImage(), name, f, this);
 		return loader;
 	}
 
@@ -136,45 +142,8 @@ public class DownloadArchivedActivity
 		type.setText(DESCRIPTION_CREATED);
 		StringBuffer buffer = new StringBuffer();
 		buffer.append("as ");
-		if (files.size() > 1) {//zip the result
-			try {
-				//Create a folder
-				File location = parameters.getLocation();
-				if (!location.isDirectory())
-					location = location.getParentFile();
-				String name = FilenameUtils.getName(
-						parameters.getImage().getName());
-				name = FilenameUtils.removeExtension(name);
-				File zipFolder = new File(location, name);
-				zipFolder.mkdir();
-				//copy file into the directory
-				Iterator<File> j = files.iterator();
-				File child;
-				while (j.hasNext()) {
-					child = j.next();
-					FileUtils.copyFileToDirectory(child, zipFolder, true);
-					child.delete();
-				}
-				
-				//rename 
-				IOUtil.zipDirectory(zipFolder, false);
-				messageLabel.setText(zipFolder.getAbsolutePath());
-				//empty folder.
-				File[] entries = zipFolder.listFiles();
-				for (int i = 0; i < entries.length; i++)
-					entries[i].delete();
-				
-				zipFolder.delete();
-				buffer.append(zipFolder.getAbsolutePath());
-				buffer.append(IOUtil.ZIP_EXTENSION);
-				messageLabel.setText(buffer.toString());
-			} catch (Exception e) {
-				registry.getLogger().debug(this, "Cannot create a zip");
-			}
-		} else {
-			buffer.append(files.get(0).getAbsolutePath());
-			messageLabel.setText(buffer.toString());
-		}
+		buffer.append(files.get(0).getAbsolutePath());
+        messageLabel.setText(buffer.toString());
 	}
     
 	/** 

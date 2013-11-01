@@ -433,20 +433,5 @@ public class IOUtil
 			}
 		}
 	}
-	
-	/**
-	 * Extracts the content of the specified jar.
-	 * 
-	 * @param name The jar file to handle..
-	 * @return See above.
-	 */
-	public static Map<String, InputStream> readJar(String name)
-	throws Exception
-	{
-		Map<String, InputStream> values = new HashMap<String, InputStream>();
-		if (name == null) return values;
-		readJar(values, new File(name));
-		return values;
-	}
 
 }
