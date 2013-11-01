@@ -36,8 +36,10 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -278,6 +280,19 @@ public class IOUtil
 	}
 	
 	/**
+	 * Closes the specified steam.
+	 * 
+	 * @param stream The stream to close.
+	 */
+	private static void closeStream(InputStream stream)
+	{
+	    if (stream == null) return;
+	    try {
+            stream.close();
+        } catch (Exception e) {}
+	}
+
+	/**
 	 * Makes the zip.
 	 * 
 	 * @param zipName The name of the zip.
@@ -302,15 +317,36 @@ public class IOUtil
                 !ZIP_EXTENSION.equals("."+extension)) {
             name += ZIP_EXTENSION;
         }
-        File file;
+        //First try to use the command line
+        
+        boolean error = true;
+        File file = new File(zip.getParentFile(), name);
+        Process p = null;
+        try {
+            List<String> cmds = new ArrayList<String>();
+            cmds.add("zip");
+            if (!compress) cmds.add("-0");
+            cmds.add(file.getAbsolutePath());
+            cmds.add("-r");
+            cmds.add(FilenameUtils.removeExtension(file.getAbsolutePath()));
+            ProcessBuilder pb = new ProcessBuilder(cmds);
+            p = pb.start();
+            if (p.waitFor() != 0) error = true;
+        } catch (Exception e) {
+            error = true;
+        } finally {
+            if (p != null) {
+                //just in case.
+                closeStream(p.getErrorStream());
+                closeStream(p.getInputStream());
+                p.destroy();
+            }
+        }
+        if (!error) return file;
         ZipOutputStream out = null;
         try {
-            file = new File(zip.getParentFile(), name);
             out = new ZipOutputStream(new FileOutputStream(file));
-            if (!compress) {
-                out.setMethod(ZipOutputStream.DEFLATED);
-                out.setLevel(0);
-            }
+            if (!compress) out.setLevel(ZipOutputStream.STORED);
             FileInputStream in;
             File f;
             for (int i = 0; i < entries.length; i++) {
@@ -413,4 +449,16 @@ public class IOUtil
 		return values;
 	}
 
+	/**
+     * Method for testing zipping and unzipping.
+     * @param args 
+     */
+    public static void main(String[] args) throws Exception
+    {
+        String path = "/Users/jburel/Desktop/ToCompress";
+        long start = System.currentTimeMillis();
+        File f = zipDirectory(new File(path), true);
+        System.err.println(f.getName()+" "+f.length());
+        System.err.println("time: "+(System.currentTimeMillis()-start));
+    }
 }
