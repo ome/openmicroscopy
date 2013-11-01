@@ -5,7 +5,7 @@
  *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -382,8 +382,19 @@ class MetadataHandlerViewImpl
 	public CallHandle loadFiles(SecurityContext ctx,
 		Map<FileAnnotationData, File> files, AgentEventListener observer)
 	{
-		BatchCallTree cmd = new FilesLoader(ctx, files);
-		return cmd.exec(observer);
+		return loadFiles(ctx, false, files,observer);
+	}
+
+	/**
+	 * Implemented as specified by the view interface.
+	 * @see MetadataHandlerView#loadFiles(SecurityContext, boolean, Map,
+	 * AgentEventListener)
+	 */
+	public CallHandle loadFiles(SecurityContext ctx, boolean zipDirectory,
+	        Map<FileAnnotationData, File> files, AgentEventListener observer)
+	{
+	    BatchCallTree cmd = new FilesLoader(ctx, files, zipDirectory);
+	    return cmd.exec(observer);
 	}
 
 	/**
