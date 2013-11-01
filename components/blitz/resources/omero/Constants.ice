@@ -114,6 +114,7 @@ module omero {
     const string GROUP    = "omero.group";
     const string EVENT    = "omero.event";
     const string AGENT    = "omero.agent";
+    const string IP       = "omero.ip";
 
     module cluster {
         // config string used by the ConfigRedirector
