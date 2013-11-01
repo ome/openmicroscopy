@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.ui.DownloadAndZipActivity 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -128,7 +128,7 @@ public class DownloadAndZipActivity
 	{
 		//resultButton.setVisible(false);
 		try {
-			IOUtil.zipDirectory(zipFolder);
+			IOUtil.zipDirectory(zipFolder, false);
 			messageLabel.setText(zipFolder.getAbsolutePath());
 			//empty folder.
 			File[] entries = zipFolder.listFiles();
