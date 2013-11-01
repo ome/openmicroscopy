@@ -26,14 +26,24 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 
 //Java imports
 import java.io.File;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 //Third-party libraries
 
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.OmeroDataService;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
+import org.openmicroscopy.shoola.util.file.IOUtil;
+
+import com.google.common.io.Files;
 
 /** 
  * Command to load the archived image.
@@ -57,23 +67,66 @@ public class ArchivedImageLoader
     
     /** Loads the specified tree. */
     private BatchCall   loadCall;
-    
+
+    /**
+     * Copies the specified file to the folder.
+     * 
+     * @param f The file to copy.
+     * @param folder The destination folder.
+     * @return The destination file.
+     * @throws Exception Thrown if an error occurred during the copy.
+     */
+    private File copyFile(File f, File folder)
+            throws Exception
+    {
+        FileUtils.copyFileToDirectory(f, folder, true);
+        String name = f.getName();
+        f.delete();
+        return new File(folder, name);
+    }
+
     /**
      * Creates a {@link BatchCall} to load the image.
      * 
      * @param ctx The security context.
      * @param imageID The ID of the image.
+     * @param name The name of the image.
      * @param folder The path to the folder where to save the image.
      * @return The {@link BatchCall}.
      */
     private BatchCall makeBatchCall(final SecurityContext ctx,
-    		final long imageID, final File folder) 
+    		final long imageID, final String name, final File folder)
     {
         return new BatchCall("Download the files. ") {
             public void doCall() throws Exception
             {
                 OmeroDataService os = context.getDataService();
-                result = os.getArchivedImage(ctx, folder, imageID);
+                //Create a tmp folder.
+                File tmpFolder = Files.createTempDir();
+                Map<Boolean, Object> r =
+                        os.getArchivedImage(ctx, tmpFolder, imageID);
+                List<File> files = (List<File>) r.get(Boolean.TRUE);
+                //format the result
+                if (!CollectionUtils.isEmpty(files)) {
+                    File f;
+                    //Copy the file to the destination folder.
+                    if (files.size() == 1) {
+                        f = files.get(0);
+                        //copy from tmp to destination folder.
+                        r.put(Boolean.TRUE, Arrays.asList(copyFile(f, folder)));
+                    } else {
+                        //zip the directory
+                        f = IOUtil.zipDirectory(tmpFolder, false);
+                        //move the zip
+                        f = copyFile(f, folder);
+                        File to = new File(f.getParentFile(),
+                                name+"."+FilenameUtils.getExtension(
+                                        f.getName()));
+                        Files.move(f, to);
+                        r.put(Boolean.TRUE, Arrays.asList(to));
+                    }
+                }
+                result = r;
             }
         };
     }
@@ -97,13 +150,14 @@ public class ArchivedImageLoader
 	 * 
 	 * @param ctx The security context.
      * @param imageID The Id of the image.
+     * @param name The name of the image.
      * @param folderPath The location where to download the archived image.
      */
-    public ArchivedImageLoader(SecurityContext ctx, long imageID,
+    public ArchivedImageLoader(SecurityContext ctx, long imageID, String name,
     		File folderPath)
     {
     	if (imageID < 0)
     		 throw new IllegalArgumentException("Image's ID not valid.");
-        loadCall = makeBatchCall(ctx, imageID, folderPath);
+        loadCall = makeBatchCall(ctx, imageID, name, folderPath);
     }
 }

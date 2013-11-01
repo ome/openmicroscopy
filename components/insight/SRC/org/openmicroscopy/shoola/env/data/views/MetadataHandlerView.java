@@ -304,11 +304,16 @@ public interface MetadataHandlerView
 	 * @param ctx The security context.
 	 * @param imageID The id of the pixels set related to the image.
 	 * @param location The location where to store the files.
+<<<<<<< HEAD
 	 * @param observer	Call-back handler.
+=======
+	 * @param name The name of the image.
+	 * @param observer Call-back handler.
+>>>>>>> 888bee0... Zip folder with the download images asynch.
      * @return A handle that can be used to cancel the call.
 	 */
 	public CallHandle loadArchivedImage(SecurityContext ctx, long imageID,
-		File location, AgentEventListener observer);
+		File location, String name, AgentEventListener observer);
 	
 	/**
 	 * Filters by annotation.
