@@ -275,6 +275,9 @@ ThumbnailControl.prototype.onmouseup = function (e) {
     if (e == null) return false; 
     this.blockPropagation(e);
 
+    // UE sends mouseup events even after mouseout
+    if (!this.mouse_pressed) return false;
+
     this.mouse_pressed = false; 
     if (this.dom_surface) this.dom_surface.style.cursor = 'default';
     this.moveViewer(e);
@@ -303,6 +306,13 @@ ThumbnailControl.prototype.onmousemove = function (e) {
 ThumbnailControl.prototype.onmouseout = function (e) {
     if (!e) e = window.event;  // IE event model  
     if (e == null) return false; 
+    // IE triggers mouseout events on both the image and the wrapping div,
+    // as well as on the ROI indicators, so we must filter out the unwanted
+    // ones.
+    if (e.offsetX >= 0 && e.offsetX < this.dom_image.width &&
+        e.offsetY >= 0 && e.offsetY < this.dom_image.height) {
+        return false;
+    }
     this.blockPropagation(e);    
  
     this.mouse_pressed = false;   
