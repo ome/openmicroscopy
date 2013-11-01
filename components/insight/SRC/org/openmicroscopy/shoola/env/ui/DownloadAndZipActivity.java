@@ -5,7 +5,7 @@
  *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -35,6 +35,7 @@ import java.util.Map;
 
 //Third-party libraries
 
+import org.apache.commons.io.FileUtils;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.DownloadAndZipParam;
@@ -70,7 +71,7 @@ public class DownloadAndZipActivity
     
     /** The name of the zip file. */
     private File zipFolder;
-    
+
 	/**
 	 * Creates a new instance.
 	 * 
@@ -121,27 +122,21 @@ public class DownloadAndZipActivity
 	}
 
 	/**
-	 * Modifies the text of the component. 
+	 * Modifies the text of the component.
 	 * @see ActivityComponent#notifyActivityEnd()
 	 */
 	protected void notifyActivityEnd()
 	{
-		//resultButton.setVisible(false);
-		try {
-			IOUtil.zipDirectory(zipFolder, false);
-			messageLabel.setText(zipFolder.getAbsolutePath());
-			//empty folder.
-			File[] entries = zipFolder.listFiles();
-			for (int i = 0; i < entries.length; i++) {
-				entries[i].delete();
-			}
-			zipFolder.delete();
-		} catch (Exception e) {
-			//Notify user
-		}
-		type.setText(DESCRIPTION); 
+	    try {
+	        messageLabel.setText(zipFolder.getAbsolutePath());
+	        FileUtils.deleteDirectory(zipFolder);
+	    } catch (Exception e) {
+	        registry.getLogger().error(this,
+	                "Error deleting folder:"+e.getMessage());
+	    }
+	    type.setText(DESCRIPTION);
 	}
-	
+
 	/**
 	 * Modifies the text of the component. 
 	 * @see ActivityComponent#notifyActivityCancelled()
