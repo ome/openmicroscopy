@@ -409,7 +409,7 @@ public class IOUtil
 		} catch (Exception e) {
 			throw new Exception("Cannot create the zip.", e);
 		}
-		return zipDirectory(zip, false);
+		return zipDirectory(zip, true);
 	}
 	
 	/**
@@ -482,16 +482,4 @@ public class IOUtil
 		return values;
 	}
 
-	/**
-     * Method for testing zipping and unzipping.
-     * @param args 
-     */
-    public static void main(String[] args) throws Exception
-    {
-        String path = "/Users/jburel/Desktop/ToCompress";
-        long start = System.currentTimeMillis();
-        File f = zipDirectory(new File(path), true);
-        System.err.println(f.getName()+" "+f.length());
-        System.err.println("time: "+(System.currentTimeMillis()-start));
-    }
 }
