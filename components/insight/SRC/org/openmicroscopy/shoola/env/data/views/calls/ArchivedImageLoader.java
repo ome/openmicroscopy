@@ -120,6 +120,7 @@ public class ArchivedImageLoader
                         r.put(Boolean.TRUE, Arrays.asList(to));
                     }
                 }
+                FileUtils.deleteDirectory(tmpFolder);
                 result = r;
             }
         };
