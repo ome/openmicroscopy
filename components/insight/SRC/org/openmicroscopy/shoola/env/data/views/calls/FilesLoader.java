@@ -56,9 +56,6 @@ import pojos.FileAnnotationData;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since OME3.0
  */
 public class FilesLoader
@@ -233,33 +230,34 @@ public class FilesLoader
     		}
     	};
     }
-    
+
     /**
      * Adds the {@link #loadCall} to the computation tree.
      * @see BatchCallTree#buildTree()
      */
     protected void buildTree()
     { 
-    	if (files == null && loadCall != null) add(loadCall);
-    	else if (files != null) {
-    		result = null;
-    		Iterator<Entry<FileAnnotationData, File>>
-    		i = files.entrySet().iterator();
-    		Entry<FileAnnotationData, File> entry;
-    		String description = "Loading file";
-    		int count = 0;
-    		int size = files.size();
-    		while (i.hasNext()) {
-    			entry = i.next();
-				final FileAnnotationData fa = entry.getKey();
-				final File f = entry.getValue();
-				directories.add(f.getParent());
-				final boolean b = count == size;
-				add(new BatchCall(description) {
-            		public void doCall() { loadFile(fa, f, b); }
-            	});
-			}
-    	}
+        if (files == null && loadCall != null) add(loadCall);
+        else if (files != null) {
+            result = null;
+            Iterator<Entry<FileAnnotationData, File>>
+            i = files.entrySet().iterator();
+            Entry<FileAnnotationData, File> entry;
+            String description = "Loading file";
+            int count = 1;
+            int size = files.size();
+            while (i.hasNext()) {
+                entry = i.next();
+                final FileAnnotationData fa = entry.getKey();
+                final File f = entry.getValue();
+                directories.add(f.getParent());
+                final boolean b = count == size;
+                add(new BatchCall(description) {
+                    public void doCall() { loadFile(fa, f, b); }
+                });
+                count++;
+            }
+        }
     }
 
     /**
