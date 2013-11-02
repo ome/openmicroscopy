@@ -104,37 +104,36 @@ public class ArchivedLoader
 		this.file = file;
 		this.name = name;
 	}
-	
+
 	/**
-     * Downloads the archived image.
-     * @see UserNotifierLoader#load()
-     */
-    public void load()
-    {
-        if (StringUtils.isEmpty(name)) name = image.getName();
-    	handle = mhView.loadArchivedImage(ctx, image.getId(), file, name, this);
-    }
-    
-    /**
-     * Cancels the ongoing data retrieval.
-     * @see UserNotifierLoader#cancel()
-     */
-    public void cancel()
-    {
-    	cancelled = true;
-    	if (handle != null) handle.cancel();
-    }
- 
-	
-    /**
-     * Notifies the user that no archived images were found.
-     * @see UserNotifierLoader#handleNullResult()
-     */
-    public void handleNullResult()
-    {
-    	activity.endActivity(new ArrayList<File>());
-    }
-    
+	 * Downloads the archived image.
+	 * @see UserNotifierLoader#load()
+	 */
+	public void load()
+	{
+	    if (StringUtils.isEmpty(name)) name = image.getName();
+	    handle = mhView.loadArchivedImage(ctx, image.getId(), file, name, this);
+	}
+
+	/**
+	 * Cancels the ongoing data retrieval.
+	 * @see UserNotifierLoader#cancel()
+	 */
+	public void cancel()
+	{
+	    cancelled = true;
+	    if (handle != null) handle.cancel();
+	}
+
+	/**
+	 * Notifies the user that no archived images were found.
+	 * @see UserNotifierLoader#handleNullResult()
+	 */
+	public void handleNullResult()
+	{
+	    activity.endActivity(new ArrayList<File>());
+	}
+
     /** 
      * Feeds the result back to the viewer. 
      * @see UserNotifierLoader#handleResult(Object)
@@ -147,7 +146,7 @@ public class ArchivedLoader
             List l = (List) m.get(Boolean.valueOf(false));
             if (!CollectionUtils.isEmpty(l)) {
                 if (!cancelled)
-                    onException("Missing "+l.size()+"files composing the image",
+                    onException("Missing "+l.size()+" files composing the image",
                             null);
             } else {
                 List<File> files = (List<File>) m.get(Boolean.valueOf(true));
