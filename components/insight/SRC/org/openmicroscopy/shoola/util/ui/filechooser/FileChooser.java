@@ -173,19 +173,6 @@ public class FileChooser
     }
 
     /**
-     * Returns the name of the image.
-     * 
-     * @param originalName The name to handle.
-     * @return See above.
-     */
-    private String getPartialName(String originalName)
-    {
-        //remove path info
-        String name = FilenameUtils.getName(originalName);
-        return FilenameUtils.removeExtension(name);
-    }
-
-    /**
      * Creates a new instance.
      * 
      * @param owner The owner of this dialog.
@@ -413,7 +400,7 @@ public class FileChooser
     {
         if (StringUtils.isBlank(name))
             throw new IllegalArgumentException("File name not valid.");
-        String s = getPartialName(name);
+        String s = FilenameUtils.getBaseName(name);
         if (StringUtils.isBlank(s)) s = name;
         uiDelegate.setSelectedFile(new File(s));
     }
