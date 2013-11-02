@@ -339,12 +339,12 @@ public class IOUtil
             out = new ZipOutputStream(new FileOutputStream(file));
             if (!compress) out.setLevel(ZipOutputStream.STORED);
             zipDir(zip, out, null);
-            return file;
         } catch (Exception e) {
             throw new Exception("Cannot create the zip.", e);
         } finally {
             if (out != null) out.close();
         }
+        return file;
 	}
 	
 	/**
@@ -413,14 +413,4 @@ public class IOUtil
 		}
 	}
 
-    /**
-     * Method for testing zipping and unzipping.
-     * @param args 
-     */
-    public static void main(String[] args) throws Exception {
-        String path = "/Users/jburel/Desktop/ToCompress";
-        long start = System.currentTimeMillis();
-        zipDirectory(new File(path), false);
-        System.err.println(System.currentTimeMillis()-start);
-    }
 }
