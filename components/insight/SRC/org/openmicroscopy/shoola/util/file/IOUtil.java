@@ -36,17 +36,13 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 
-
-import org.apache.commons.io.FileUtils;
 //Third-party libraries
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
@@ -277,19 +273,6 @@ public class IOUtil
 	public static boolean isJavaWebStart()
 	{
 		return System.getProperty("javawebstart.version", null) != null;
-	}
-	
-	/**
-	 * Closes the specified steam.
-	 * 
-	 * @param stream The stream to close.
-	 */
-	private static void closeStream(InputStream stream)
-	{
-	    if (stream == null) return;
-	    try {
-            stream.close();
-        } catch (Exception e) {}
 	}
 
 	/**
