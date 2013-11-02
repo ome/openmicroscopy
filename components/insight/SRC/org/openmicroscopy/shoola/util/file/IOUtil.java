@@ -46,6 +46,7 @@ import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 
 
+import org.apache.commons.io.FileUtils;
 //Third-party libraries
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
@@ -292,6 +293,43 @@ public class IOUtil
 	}
 
 	/**
+	 * Zips directory.
+	 * 
+	 * @param directory The directory to zip.
+	 * @param out The output stream.
+	 * @throws Exception Thrown if an error occurred during the operation.
+	 */
+	private static void zipDir(File directory, ZipOutputStream out,
+	        String parentDirectoryName)
+	        throws Exception
+	        {
+	    File[] entries = directory.listFiles();
+	    byte[] buffer = new byte[4096]; // Create a buffer for copying
+	    int bytesRead;
+	    FileInputStream in;
+	    File f;
+	    for (int i = 0; i < entries.length; i++) {
+	        f = entries[i];
+	        if (f.isHidden())
+	            continue;
+	        if (f.isDirectory()) {
+	            zipDir(f, out, f.getName());
+	            continue;
+	        }
+	        in = new FileInputStream(f); // Stream to read file
+	        String zipName = f.getName();
+	        if (!StringUtils.isEmpty(parentDirectoryName)) {
+	            zipName = FilenameUtils.concat(parentDirectoryName, zipName);
+	        }
+	        out.putNextEntry(new ZipEntry(zipName)); // Store entry
+	        while ((bytesRead = in.read(buffer)) != -1)
+	            out.write(buffer, 0, bytesRead);
+	        out.closeEntry();
+	        in.close();
+	    }
+	        }
+
+	/**
 	 * Makes the zip.
 	 * 
 	 * @param zipName The name of the zip.
@@ -303,12 +341,8 @@ public class IOUtil
 	{
 	    if (zip == null)
             throw new IllegalArgumentException("No name specified.");
-        if (!zip.isDirectory())
-            throw new IllegalArgumentException("Not a directory.");
-        File[] entries = zip.listFiles();
-        byte[] buffer = new byte[4096]; // Create a buffer for copying
-        int bytesRead;
-
+        if (!zip.isDirectory() || !zip.exists())
+            throw new IllegalArgumentException("Not a valid directory.");
         //Check if the name already has the extension
         String extension = FilenameUtils.getExtension(zip.getName());
         String name = zip.getName();
@@ -317,7 +351,10 @@ public class IOUtil
             name += ZIP_EXTENSION;
         }
         //First try to use the command line
+        
         boolean error = false;
+        
+        //Check if the 
         File file = new File(zip.getParentFile(), name);
         Process p = null;
         try {
@@ -345,19 +382,7 @@ public class IOUtil
         try {
             out = new ZipOutputStream(new FileOutputStream(file));
             if (!compress) out.setLevel(ZipOutputStream.STORED);
-            FileInputStream in;
-            File f;
-            for (int i = 0; i < entries.length; i++) {
-                f = entries[i];
-                if (f.isDirectory() && f.isHidden())
-                    continue;//Ignore directory TODO
-                in = new FileInputStream(f); // Stream to read file
-                out.putNextEntry(new ZipEntry(f.getName())); // Store entry
-                while ((bytesRead = in.read(buffer)) != -1)
-                    out.write(buffer, 0, bytesRead);
-                out.closeEntry();
-                in.close(); 
-            }
+            zipDir(zip, out, null);
             return file;
         } catch (Exception e) {
             throw new Exception("Cannot create the zip.", e);
@@ -432,4 +457,14 @@ public class IOUtil
 		}
 	}
 
+    /**
+     * Method for testing zipping and unzipping.
+     * @param args 
+     */
+    public static void main(String[] args) throws Exception {
+        String path = "/Users/jburel/Desktop/ToCompress";
+        long start = System.currentTimeMillis();
+        zipDirectory(new File(path), false);
+        System.err.println(System.currentTimeMillis()-start);
+    }
 }
