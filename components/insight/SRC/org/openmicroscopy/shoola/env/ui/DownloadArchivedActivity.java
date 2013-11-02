@@ -120,25 +120,25 @@ public class DownloadArchivedActivity
 	}
 
 	/**
-	 * Modifies the text of the component. 
+	 * Modifies the text of the component.
 	 * @see ActivityComponent#notifyActivityEnd()
 	 */
 	protected void notifyActivityEnd()
 	{
-		List<File> files = (List<File>) result;
-		//Handle no file returned.
-		if (files.size() == 0) {
-			type.setText(DESCRIPTION_NO_ARCHIVED);
-			messageLabel.setText(OPTION_NO_ARCHIVED);
-			return;
-		}
-		type.setText(DESCRIPTION_CREATED);
-		StringBuffer buffer = new StringBuffer();
-		buffer.append("as ");
-		buffer.append(files.get(0).getAbsolutePath());
-        messageLabel.setText(buffer.toString());
+	    List<File> files = (List<File>) result;
+	    //Handle no file returned.
+	    if (files.size() == 0) {
+	        type.setText(DESCRIPTION_NO_ARCHIVED);
+	        messageLabel.setText(OPTION_NO_ARCHIVED);
+	        return;
+	    }
+	    type.setText(DESCRIPTION_CREATED);
+	    StringBuffer buffer = new StringBuffer();
+	    buffer.append("as ");
+	    buffer.append(files.get(0).getAbsolutePath());
+	    messageLabel.setText(buffer.toString());
 	}
-    
+
 	/** 
 	 * No-operation in this case.
 	 * @see ActivityComponent#notifyActivityError()
