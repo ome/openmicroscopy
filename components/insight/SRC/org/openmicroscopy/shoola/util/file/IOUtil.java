@@ -317,8 +317,7 @@ public class IOUtil
             name += ZIP_EXTENSION;
         }
         //First try to use the command line
-        
-        boolean error = true;
+        boolean error = false;
         File file = new File(zip.getParentFile(), name);
         Process p = null;
         try {
