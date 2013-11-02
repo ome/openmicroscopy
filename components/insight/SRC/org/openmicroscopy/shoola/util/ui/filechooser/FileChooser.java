@@ -180,26 +180,9 @@ public class FileChooser
      */
     private String getPartialName(String originalName)
     {
-        String name = originalName;
-        String[] l = UIUtilities.splitString(originalName);
-        if (l != null) {
-            int n = l.length;
-            if (n >= 1) name = l[n-1];
-        }
-        if (Pattern.compile(".").matcher(name).find()) {
-            l = name.split("\\.");
-
-            if (l.length >= 1) {
-                StringBuffer buffer = new StringBuffer();
-                int n = l.length-1;
-                for (int i = 0; i < n; i++) {
-                    buffer.append(l[i]);
-                    if (i < (n-1)) buffer.append(".");
-                }
-                name = buffer.toString();
-            }
-        }
-        return name;
+        //remove path info
+        String name = FilenameUtils.getName(originalName);
+        return FilenameUtils.removeExtension(name);
     }
 
     /**
