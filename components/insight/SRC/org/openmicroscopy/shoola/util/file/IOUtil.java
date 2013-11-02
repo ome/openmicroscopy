@@ -350,34 +350,7 @@ public class IOUtil
                 !ZIP_EXTENSION.equals("."+extension)) {
             name += ZIP_EXTENSION;
         }
-        //First try to use the command line
-        
-        boolean error = false;
-        
-        //Check if the 
         File file = new File(zip.getParentFile(), name);
-        Process p = null;
-        try {
-            List<String> cmds = new ArrayList<String>();
-            cmds.add("zip");
-            if (!compress) cmds.add("-0");
-            cmds.add(file.getAbsolutePath());
-            cmds.add("-r");
-            cmds.add(FilenameUtils.removeExtension(file.getAbsolutePath()));
-            ProcessBuilder pb = new ProcessBuilder(cmds);
-            p = pb.start();
-            if (p.waitFor() != 0) error = true;
-        } catch (Exception e) {
-            error = true;
-        } finally {
-            if (p != null) {
-                //just in case.
-                closeStream(p.getErrorStream());
-                closeStream(p.getInputStream());
-                p.destroy();
-            }
-        }
-        if (!error) return file;
         ZipOutputStream out = null;
         try {
             out = new ZipOutputStream(new FileOutputStream(file));
