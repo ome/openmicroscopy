@@ -271,60 +271,61 @@ class FileSelectionTable
 	/** Formats the table model. */
 	private void formatTableModel()
 	{
-		TableColumnModel tcm = table.getColumnModel();
-		TableColumn tc = tcm.getColumn(FILE_INDEX);
-		tc.setCellRenderer(new FileTableRenderer());
+	    FileTableRenderer rnd = new FileTableRenderer(this);
+	    TableColumnModel tcm = table.getColumnModel();
+	    TableColumn tc = tcm.getColumn(FILE_INDEX);
+	    tc.setCellRenderer(rnd);
 
-		String[] tips;
+	    String[] tips;
 
-		boolean singleGroup = model.isSingleGroup();
+	    boolean singleGroup = model.isSingleGroup();
 
-		if (!singleGroup) {
+	    if (!singleGroup) {
 
-			if(model.canImportAs()) {
-				tc = tcm.getColumn(GROUP_INDEX);
-				tc.setCellRenderer(new FileTableRenderer());
-				tc = tcm.getColumn(OWNER_INDEX);
-				tc.setCellRenderer(new FileTableRenderer());
+	        if(model.canImportAs()) {
+	            tc = tcm.getColumn(GROUP_INDEX);
+	            tc.setCellRenderer(rnd);
+	            tc = tcm.getColumn(OWNER_INDEX);
+	            tc.setCellRenderer(rnd);
 
-				tc = tcm.getColumn(CONTAINER_INDEX);
-				tc.setCellRenderer(new FileTableRenderer());
-				tc = tcm.getColumn(FOLDER_AS_DATASET_INDEX);
-				setColumnAsBoolean(tc);
+	            tc = tcm.getColumn(CONTAINER_INDEX);
+	            tc.setCellRenderer(rnd);
+	            tc = tcm.getColumn(FOLDER_AS_DATASET_INDEX);
+	            setColumnAsBoolean(tc);
 
-				tips = COLUMNS_TOOLTIP;
-			} else {
-				tc = tcm.getColumn(GROUP_INDEX);
-				tc.setCellRenderer(new FileTableRenderer());
+	            tips = COLUMNS_TOOLTIP;
+	        } else {
+	            tc = tcm.getColumn(GROUP_INDEX);
+	            tc.setCellRenderer(rnd);
 
-				tc = tcm.getColumn(CONTAINER_INDEX-1);
-				tc.setCellRenderer(new FileTableRenderer());
-				tc = tcm.getColumn(FOLDER_AS_DATASET_INDEX-1);
-				setColumnAsBoolean(tc);
+	            tc = tcm.getColumn(CONTAINER_INDEX-1);
+	            tc.setCellRenderer(rnd);
+	            tc = tcm.getColumn(FOLDER_AS_DATASET_INDEX-1);
+	            setColumnAsBoolean(tc);
 
-				tips = COLUMNS_NO_USER_TOOLTIP;
-			}
-		} else {
-			if(model.canImportAs()) {
-				tc = tcm.getColumn(OWNER_INDEX-1);
-				tc.setCellRenderer(new FileTableRenderer());
+	            tips = COLUMNS_NO_USER_TOOLTIP;
+	        }
+	    } else {
+	        if(model.canImportAs()) {
+	            tc = tcm.getColumn(OWNER_INDEX-1);
+	            tc.setCellRenderer(rnd);
 
-				tc = tcm.getColumn(CONTAINER_INDEX-1);
-				tc.setCellRenderer(new FileTableRenderer());
-				tc = tcm.getColumn(FOLDER_AS_DATASET_INDEX-1);
-				setColumnAsBoolean(tc);
-				
-				tips = COLUMNS_NO_GROUP_TOOLTIP;
-			} else {
-				tc = tcm.getColumn(CONTAINER_INDEX-2);
-				tc.setCellRenderer(new FileTableRenderer());
+	            tc = tcm.getColumn(CONTAINER_INDEX-1);
+	            tc.setCellRenderer(rnd);
+	            tc = tcm.getColumn(FOLDER_AS_DATASET_INDEX-1);
+	            setColumnAsBoolean(tc);
 
-				tc = tcm.getColumn(FOLDER_AS_DATASET_INDEX-2);
-				setColumnAsBoolean(tc);
+	            tips = COLUMNS_NO_GROUP_TOOLTIP;
+	        } else {
+	            tc = tcm.getColumn(CONTAINER_INDEX-2);
+	            tc.setCellRenderer(rnd);
 
-				tips = COLUMNS_NO_GROUP_NO_USER_TOOLTIP;
-			}
-		}
+	            tc = tcm.getColumn(FOLDER_AS_DATASET_INDEX-2);
+	            setColumnAsBoolean(tc);
+
+	            tips = COLUMNS_NO_GROUP_NO_USER_TOOLTIP;
+	        }
+	    }
 
 		TooltipTableHeader header = new TooltipTableHeader(tcm, tips);
 		table.setTableHeader(header);
@@ -825,6 +826,25 @@ class FileSelectionTable
 	        }
 	    }
 	    table.repaint();
+	}
+
+	/**
+	 * Returns <code>true</code> if the passed index corresponds to the
+	 * container column, <code>false</code> otherwise.
+	 *
+	 * @param index The index to handle.
+	 * @return See above.
+	 */
+	boolean isContainerIndex(int index)
+	{
+	    if (model.isSingleGroup()) {
+	        return index == CONTAINER_INDEX-1;
+        } else {
+            if(model.canImportAs()) {
+                return index == CONTAINER_INDEX;
+            }
+            return index == CONTAINER_INDEX-1;
+        }
 	}
 
 	/**
