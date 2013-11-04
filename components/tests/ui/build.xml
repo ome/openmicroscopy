@@ -124,7 +124,7 @@
     <!--  run the web, insight and CLI tests -->
     <target name="test-all" unless="env.NOPYTHON">
         <antcall target="ui-test-insight" inheritRefs="true" inheritAll="true"/>
-        <!--<antcall target="ui-test-web" inheritRefs="true" inheritAll="true"/>-->
+        <antcall target="ui-test-web" inheritRefs="true" inheritAll="true"/>
         <antcall target="test-cli" inheritRefs="true" inheritAll="true"/>
     </target>
 
