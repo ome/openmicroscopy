@@ -59,10 +59,10 @@ public class ArchivedImageLoader
 {
 
 	/** The result of the query. */
-    private Object      result;
+    private Object result;
     
     /** Loads the specified tree. */
-    private BatchCall   loadCall;
+    private BatchCall loadCall;
 
     /**
      * Copies the specified file to the folder.
@@ -75,6 +75,28 @@ public class ArchivedImageLoader
     private File copyFile(File f, File folder)
             throws Exception
     {
+        //First check that the file exists
+        File[] files = folder.listFiles();
+        int count = 0;
+        String fname = f.getName();
+        String extension = FilenameUtils.getExtension(fname);
+        String baseName = FilenameUtils.getBaseName(
+                FilenameUtils.removeExtension(fname));
+        if (files != null) {
+            for (int i = 0; i < files.length; i++) {
+                String v = files[i].getName();
+                String value = baseName+"_("+count+")."+extension;
+                if (v.equals(fname) || v.equals(value)) {
+                    count++;
+                }
+            }
+        }
+        if (count > 0) { //rename the file first.
+            File to = new File(f.getParentFile(),
+                    baseName+"_("+count+")."+extension);
+            FileUtils.copyFile(f, to);
+            f = to;
+        }
         FileUtils.moveFileToDirectory(f, folder, false);
         return new File(folder, f.getName());
     }
