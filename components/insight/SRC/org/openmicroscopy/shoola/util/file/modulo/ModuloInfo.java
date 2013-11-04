@@ -20,7 +20,10 @@
  */
 package org.openmicroscopy.shoola.util.file.modulo;
 
+import java.util.List;
+
 import org.apache.commons.lang.StringUtils;
+import org.springframework.util.CollectionUtils;
 
 //Java imports
 
@@ -69,6 +72,9 @@ public class ModuloInfo {
     /** Identifies the <code>Unit</code>.*/
     static final String UNIT = "Unit";
 
+    /** Identifies the <code>Label</code>.*/
+    static final String LABEL = "Label";
+
     /** The value of the <code>End</code> tag.*/
     private double end;
 
@@ -90,6 +96,9 @@ public class ModuloInfo {
     /** Indicates along which dimension the modulo applies./*/
     private int modulo;
 
+    /** The value of the label tags.*/
+    private List<Double> labels;
+
     /** 
      * Creates a new instance and determines the dimension the modulo property
      * applies to.
@@ -109,6 +118,16 @@ public class ModuloInfo {
             modulo = T;
         if (modulo == -1)
             throw new IllegalArgumentException("Dimension not supported.");
+    }
+
+    /**
+     * Sets the labels.
+     *
+     * @param labels The value to set.
+     */
+    public void setLabels(List<Double> labels)
+    {
+        this.labels = labels;
     }
 
     /**
@@ -210,7 +229,10 @@ public class ModuloInfo {
      */
     public double getRealValue(int bin)
     {
-        return start+bin*step;
+        if (CollectionUtils.isEmpty(labels)) return start+bin*step;
+        if (bin < 0) bin = 0;
+        if (bin >= labels.size()) bin = labels.size()-1;
+        return start+labels.get(bin);
     }
 
     /**
@@ -220,6 +242,7 @@ public class ModuloInfo {
      */
     public int getSize()
     {
+        if (!CollectionUtils.isEmpty(labels)) return labels.size();
         if (step == 0) step = 1;
         return (int) ((end-start)/step)+1;
     }

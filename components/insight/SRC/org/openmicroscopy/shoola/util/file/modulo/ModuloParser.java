@@ -30,6 +30,8 @@ import java.util.List;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
@@ -111,6 +113,29 @@ public class ModuloParser
             else if (ModuloInfo.UNIT.equals(attribute.getNodeName()))
                 info.setUnit(attribute.getNodeValue());
         }
+        NodeList nodes = tag.getChildNodes();
+        Double min = Double.MAX_VALUE;
+        Double max = Double.MIN_VALUE;
+        Double v;
+        List<Double> labels = new ArrayList<Double>();
+        for (int i = 0; i < nodes.getLength(); i++) {
+            attribute = nodes.item(i);
+            if (attribute.getNodeType() == Node.ELEMENT_NODE) {
+                if (ModuloInfo.LABEL.equals(attribute.getNodeName())) {
+                    v = Double.parseDouble(
+                            attribute.getFirstChild().getNodeValue());
+                    if (v < min) min = v;
+                    if (v > max) max = v;
+                    labels.add(v);
+                }
+            }
+        }
+        if (!CollectionUtils.isEmpty(labels)) {
+            info.setStart(min);
+            info.setEnd(max);
+            info.setLabels(labels);
+        }
+        
         return info;
     }
 
