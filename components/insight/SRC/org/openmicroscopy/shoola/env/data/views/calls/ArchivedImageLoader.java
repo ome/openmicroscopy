@@ -120,7 +120,13 @@ public class ArchivedImageLoader
                         r.put(Boolean.TRUE, Arrays.asList(to));
                     }
                 }
-                FileUtils.deleteDirectory(tmpFolder);
+                //This should probably not block the call.
+                try {
+                    FileUtils.deleteDirectory(tmpFolder);
+                } catch (Exception e) {
+                    context.getLogger().debug(this,
+                            "Cannot delete tmp dir:"+e.getMessage());
+                }
                 result = r;
             }
         };
