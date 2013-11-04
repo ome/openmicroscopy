@@ -425,8 +425,9 @@ public class SharedResourcesI extends AbstractCloseableAmdServant implements
 
         InteractiveProcessorI ip = new InteractiveProcessorI(sf.principal,
                 sf.sessionManager, sf.executor, server, job, timeout,
-                sf.control, new ParamsHelper(this, sf.getExecutor(), sf.getPrincipal()),
-                current);
+                sf.control,
+                new ParamsHelper(this, sf.getExecutor(), sf.getPrincipal()),
+                helper, current);
         Ice.Identity procId = sessionedID("InteractiveProcessor");
         Ice.ObjectPrx rv = sf.registerServant(procId, new _InteractiveProcessorTie(ip));
         sf.allow(rv);

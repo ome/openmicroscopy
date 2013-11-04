@@ -54,7 +54,6 @@ import org.openmicroscopy.shoola.env.data.model.ThumbnailData;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.file.ImportErrorObject;
-import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 
 import pojos.DataObject;
@@ -289,6 +288,7 @@ class ImporterComponent
 			Collection<TreeImageDisplay> objects)
 	{
 		if (model.getState() == DISCARDED) return;
+		boolean reactivate = chooser != null;
 		if (chooser == null) {
 			chooser = new ImportDialog(view, model.getSupportedFormats(),
 					selectedContainer, objects, type,
@@ -303,7 +303,7 @@ class ImporterComponent
 			view.selectChooser();
 		}
 		chooser.setSelectedGroup(getSelectedGroup());
-		if (model.isMaster() || objects == null || objects.size() == 0)
+		if (model.isMaster() || CollectionUtils.isEmpty(objects) || !reactivate)
 			refreshContainers(new ImportLocationDetails(type));
 		//load available disk space
 		model.fireDiskSpaceLoading();

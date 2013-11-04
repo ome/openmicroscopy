@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.util.ui.omeeditpane.OMEWikiComponent 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -61,9 +61,6 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since 3.0-Beta4
  */
 public class OMEWikiComponent 
@@ -331,7 +328,7 @@ public class OMEWikiComponent
 		if (action == null) return;
 		int ref = 2;
 		if (!isEnabled()) {
-			if ((action instanceof URLLaunchAction) && count == 1) {
+			if (action instanceof URLLaunchAction && count == 1) {
 				action.onSelection(text);
 			} else {
 				if ((action instanceof ElementSelectionAction)) {
@@ -361,7 +358,7 @@ public class OMEWikiComponent
 				}
 			}
 		} else {
-			if ((action instanceof ElementSelectionAction) && count == ref) {
+			if (action instanceof ElementSelectionAction && count == ref) {
 				action.onSelection(text);
 				ElementSelectionAction a = (ElementSelectionAction) action;
 				int index = a.getWikiDataObjectIndex();
@@ -370,8 +367,9 @@ public class OMEWikiComponent
 					WikiDataObject object = new WikiDataObject(index, id);
 					firePropertyChange(WIKI_DATA_OBJECT_PROPERTY, null, object);
 				}
-			} else if ((action instanceof URLLaunchAction) && count == ref) {
-				action.onSelection(text);
+			} else if (action instanceof URLLaunchAction) {
+			    if (allowOneClick) ref = 1;
+			    if (count == ref) action.onSelection(text);
 			}
 		}
 	}

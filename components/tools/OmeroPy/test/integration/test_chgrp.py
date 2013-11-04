@@ -18,6 +18,9 @@ import pytest
 from omero.rtypes import *
 from omero.api import Save
 
+# Module level marker
+pytestmark = pytest.mark.fs_suite
+
 PRIVATE = 'rw----'
 READONLY = 'rwr---'
 COLLAB = 'rwrw--'

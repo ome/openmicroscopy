@@ -2230,8 +2230,11 @@ class TreeViewerComponent
 				}
 			}
 		}
-		MessageBox box = new MessageBox(view, "Change group", "Are you " +
-		"sure you want to move the selected items to another group?");
+		//Warn the user than the copy/paste not allowed between groups
+		MessageBox box = new MessageBox(view, "Copy data",
+				"Copying between groups is not yet supported.\n" +
+		"To continue and move the data to the new group, click 'Yes'.\n"+
+		"To leave the data in the current group, click 'No'.");
 		if (box.centerMsgBox() != MessageBox.YES_OPTION) return;
 		//if we are here moving data.
 		i = elements.keySet().iterator();
@@ -3929,9 +3932,10 @@ class TreeViewerComponent
 		//remove thumbnails browser
 		view.removeAllFromWorkingPane();
 		model.setDataViewer(null);
-		
+		model.setAvailableScripts(null);
 		model.clearImportResult();
 		view.onImport();
+		view.clearMenus();
 		//reset metadata
 		MetadataViewer mv = view.resetMetadataViewer();
 		mv.addPropertyChangeListener(controller);

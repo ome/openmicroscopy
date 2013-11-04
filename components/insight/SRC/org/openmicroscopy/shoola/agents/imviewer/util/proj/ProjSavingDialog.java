@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.imviewer.util.proj.ProjSavingDialog 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2009 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -194,15 +194,19 @@ public class ProjSavingDialog
 		setModal(true);
 	}
 	
-	/** Populates the datasets box depending on the selected project. */
-	private void populateDatasetsBox()
+	/**
+	 * Populates the datasets box depending on the selected project. 
+	 *
+	 * @param newDataset The newly dataset to add to the list.
+	 */
+	private void populateDatasetsBox(DataNode newDataset)
 	{
 		DataNode n = (DataNode) parentsBox.getSelectedItem();
 		List<DataNode> list = n.getUIDatasetNodes();
 		List<DataNode> l = new ArrayList<DataNode>();
-		l.add(new DataNode(DataNode.createDefaultDataset()));
+		if (newDataset != null) l.add(newDataset);
 		l.addAll(sorter.sort(list));
-		
+		datasetsBox.setVisible(l.size() > 0);
 		datasetsBox.removeItemListener(datasetsBoxListener);
 		datasetsBox.removeAllItems();
 		
@@ -258,7 +262,7 @@ public class ProjSavingDialog
 						selectedContainer = null;
 						parentsBox.setSelectedIndex(0);
 					}
-					populateDatasetsBox();
+					populateDatasetsBox(null);
 				}
 			}
 		};
@@ -527,6 +531,7 @@ public class ProjSavingDialog
 		DatasetData d = new DatasetData();
 		d.setName(name);
 		selectedDataset = d;
+		populateDatasetsBox(new DataNode(d));
 	}
 	
 	/** Closes and disposes. */
@@ -562,7 +567,7 @@ public class ProjSavingDialog
 			ref.setDatasets(Arrays.asList(selectedDataset));
 			if (selectedDataset.getId() <= 0) {
 				DataNode node = (DataNode) parentsBox.getSelectedItem();
-				if (!node.isDefaultNode()) 
+				if (node != null && !node.isDefaultNode())
 					ref.setProject((ProjectData) node.getDataObject());
 			}
 		}
@@ -740,7 +745,7 @@ public class ProjSavingDialog
 			}
 		}
 		parentsBox.addItemListener(parentsBoxListener);
-		populateDatasetsBox();
+		populateDatasetsBox(null);
 		buildLocationPane();
 	}
 	

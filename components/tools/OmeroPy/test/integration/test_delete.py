@@ -19,6 +19,7 @@ import sys
 import os
 from omero.cmd import DoAll
 
+@pytest.mark.fs_suite
 class TestDelete(lib.ITest):
 
     def testBasicUsage(self):

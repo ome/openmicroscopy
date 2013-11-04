@@ -60,14 +60,20 @@
     </macrodef>
 
 
+    <!-- The name of the output file. -->
+    <property name="reports.output" value="output.xml"/>
+
+    <!-- reports directory. -->
+    <property name="reports" value="${basedir}/target/reports"/>
+
     <!-- reports for the web tests. -->
-    <property name="reports.web" value="${basedir}/target/reports/web"/>
+    <property name="reports.web" value="${reports}/web"/>
 
     <!-- reports for the insight tests. -->
-    <property name="reports.insight" value="${basedir}/target/reports/insight"/>
+    <property name="reports.insight" value="${reports}/insight"/>
 
     <!-- reports for the cli tests. -->
-    <property name="reports.cli" value="${basedir}/target/reports/cli"/>
+    <property name="reports.cli" value="${reports}/cli"/>
 
     <!-- reports for the cli tests. -->
     <property name="target.images" value="${basedir}/target/images"/>
@@ -122,6 +128,23 @@
         <antcall target="test-cli" inheritRefs="true" inheritAll="true"/>
     </target>
 
+
+    <!-- aggregate the results to publish them -->
+    <target name="aggregate-results">
+        <if>
+            <available file="${reports}" type="dir"/>
+            <then>
+                <apply executable="rebot" dir="${reports}" parallel="true">
+                    <arg value="--output"/>
+                    <arg value="${reports.output}"/>
+                    <srcfile/> 
+                    <fileset id="reports.files" dir="${reports}/">
+                       <include name="**/${reports.output}"/>
+                    </fileset>
+                </apply>
+            </then>
+        </if>
+    </target>
 
     <!-- run the cli tests. -->
     <target name="test-cli">

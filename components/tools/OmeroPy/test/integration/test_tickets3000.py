@@ -134,6 +134,7 @@ class TestTickets3000(lib.ITest):
 
         assert  la.id.val in [x.id.val for x in res]
 
+    @pytest.mark.xfail(reason="See ticket #11539")
     def test2762(self):
         """
         Test that the page (limit/offset) settings on a ParametersI

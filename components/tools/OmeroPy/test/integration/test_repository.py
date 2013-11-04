@@ -25,6 +25,8 @@ from omero.rtypes import unwrap
 from omero.util.temp_files import create_path
 from omero_version import omero_version
 
+# Module level marker
+pytestmark = pytest.mark.fs_suite
 
 class AbstractRepoTest(lib.ITest):
 
@@ -400,6 +402,7 @@ class TestManagedRepositoryMultiUser(AbstractRepoTest):
         return self.Fixture(client1, mrepo1, testdir1), \
                 self.Fixture(client2, mrepo2, testdir2)
 
+    @pytest.mark.xfail(reason="ticket 11610")
     def testTopPrivateGroup(self):
         f1, f2 = self.setup2RepoUsers("rw----")
         filename = f1.testdir + "/file.txt"
@@ -415,6 +418,7 @@ class TestManagedRepositoryMultiUser(AbstractRepoTest):
 
         assert 0 ==  len(unwrap(f2.repo.treeList(".")))
 
+    @pytest.mark.xfail(reason="ticket 11610")
     def testDirPrivateGroup(self):
         f1, f2 = self.setup2RepoUsers("rw----")
         dirname = f1.testdir + "/b/c"
@@ -488,6 +492,7 @@ class TestManagedRepositoryMultiUser(AbstractRepoTest):
         self.assertNoWrite(f2.repo, filename, ofile)
         self.assertDirWrite(f2.repo, dirname)
 
+    @pytest.mark.xfail(reason="ticket 11610")
     def testMultiGroup(self):
         group1 = self.new_group(perms="rw----")
         client1, user = self.new_client_and_user(group=group1)
@@ -509,11 +514,9 @@ class TestManagedRepositoryMultiUser(AbstractRepoTest):
         self.assertRead(mrepo1, filename, ofile)
         self.assertRead(mrepo1, filename, ofile, self.all(client1))
 
-        try:
+        with pytest.raises(omero.SecurityViolation):
             self.assertRead(mrepo2, filename, ofile)
-            self.fail("secvio")
-        except omero.SecurityViolation:
-            pass
+
         self.assertRead(mrepo2, filename, ofile, self.all(client2))
 
 
@@ -596,7 +599,7 @@ class TestDbSync(AbstractRepoTest):
         # If we try to create such a file, we should receive an exception
         try:
             self.createFile(mrepo, fooname)
-            self.fail("Should have thrown")
+            assert False, "Should have thrown"
         except omero.grid.UnregisteredFileException, ufe:
             file = mrepo.register(fooname, None)
             assert file.path ==  ufe.file.path
@@ -607,7 +610,7 @@ class TestDbSync(AbstractRepoTest):
         self.assertPasses(self.raw("mkdir", ["-p", mydir], client=self.root))
         try:
             self.createFile(mrepo, mydir)
-            self.fail("Should have thrown")
+            assert False, "Should have thrown"
         except omero.grid.UnregisteredFileException, ufe:
             file = mrepo.register(mydir, None)
             assert file.mimetype ==  ufe.file.mimetype

@@ -2,10 +2,10 @@
  * org.openmicroscopy.shoola.env.ui.IconManager
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -56,9 +56,6 @@ import org.openmicroscopy.shoola.env.config.Registry;
  * 				<a href="mailto:a.falconi@dundee.ac.uk">
  * 					a.falconi@dundee.ac.uk</a>
  * @version 2.2 
- * <small>
- * (<b>Internal version:</b> $Revision$ $Date$)
- * </small>
  * @since OME2.2
  */
 public class IconManager
@@ -118,7 +115,7 @@ public class IconManager
 	 * use for notification dialogs. 
 	 */
 	private static final String		DEFAULT_ERROR_ICON_PATH = 
-												"graphx/nuvola_no32.png";
+												"graphx/nuvola_filetypes32.png";
 	
 	/** 
 	 * The pathname, relative to this class, of the default warning icon to
@@ -126,11 +123,11 @@ public class IconManager
 	 */
 	private static final String		DEFAULT_WARN_ICON_PATH = 
 									"graphx/nuvola_messagebox_warning32.png";
-													
+
 	/** 
 	 * The pathname, relative to this class, of the default info icon to
 	 * use for notification dialogs.
-	 */													
+	 */
 	private static final String		DEFAULT_INFO_ICON_PATH = 
 										"graphx/nuvola_messagebox_info32.png";
 	

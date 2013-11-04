@@ -336,12 +336,6 @@ class PropertiesUI
     	newFont = f.deriveFont(f.getStyle(), f.getSize()-2);
     	
     	descriptionWiki = new OMEWikiComponent(false);
-    	try {
-    		descriptionWiki.installObjectFormatters();
-		} catch (Exception e) {
-			//just to be on the save side.
-		}
-    	
     	descriptionWiki.setFont(newFont);
     	descriptionWiki.setEnabled(false);
     	descriptionWiki.setAllowOneClick(true);

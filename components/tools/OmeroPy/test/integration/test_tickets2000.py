@@ -27,46 +27,6 @@ from omero_sys_ParametersI import ParametersI
 
 class TestTickets2000(lib.ITest):
 
-    @pytest.mark.xfail(reason="ticket 11494")
-    def test1018CreationDestructionClosing(self):
-        c1 = None
-        c2 = None
-        c3 = None
-        c4 = None
-
-        try:
-            c1 = omero.client() # ok with __del__
-            s1 = c1.createSession()
-            s1.detachOnDestroy()
-            uuid = s1.ice_getIdentity().name
-
-            # Intermediate "disrupter"
-            c2 = omero.client() # ok with __del__
-            s2 = c2.createSession(uuid, uuid)
-            s2.getAdminService().getEventContext()
-            c2.closeSession()
-
-            # 1 should still be able to continue
-            s1.getAdminService().getEventContext()
-
-            # Now if s1 exists another session should be able to connect
-            c1.closeSession()
-            c3 = omero.client() # ok with __del__
-            s3 = c3.createSession(uuid, uuid)
-            s3.getAdminService().getEventContext()
-            c3.closeSession()
-
-            # Now a connection should not be possible
-            import Glacier2
-            c4 = omero.client() # ok with __del__
-            with pytest.raises(Glacier2.PermissionDeniedException):
-                c4.joinSession(uuid)
-        finally:
-            c1.__del__()
-            c2.__del__()
-            c3.__del__()
-            c4.__del__()
-
     def test1064(self):
         share = self.client.sf.getShareService()
         search = self.client.sf.createSearchService()
@@ -100,6 +60,7 @@ class TestTickets2000(lib.ITest):
         uuid = self.client.sf.getAdminService().getEventContext().sessionUuid
         self.client.sf.getAdminService().lookupLdapAuthExperimenters()
 
+    @pytest.mark.xfail(reason="See ticket #11539")
     def test1069(self):
         unique = rstring(self.uuid())
         project = ProjectI()
@@ -426,6 +387,7 @@ class TestTickets2000(lib.ITest):
                 """ % ( copied_id, got_id, exp.id.val, [ x.parent.id.val for x in m.copyGroupExperimenterMap() ], [ y.id.val for y in contained ] )
                 # print "exp: id=", m.id.val, "; GEM[0]: ", type(m.copyGroupExperimenterMap()[0].parent), m.copyGroupExperimenterMap()[0].parent.id.val
 
+    @pytest.mark.xfail(reason="See ticket #11539")
     def test1163(self):
         uuid = self.uuid()
         new_gr1 = self.new_group(perms="rw----")
@@ -449,6 +411,7 @@ class TestTickets2000(lib.ITest):
         res = search1.results()
         assert 1 ==  len(res)
 
+    @pytest.mark.xfail(reason="ticket 11543")
     def test1184(self):
         uuid = self.uuid()
         client = self.new_client(perms="rw----")

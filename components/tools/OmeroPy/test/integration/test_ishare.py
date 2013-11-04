@@ -375,6 +375,7 @@ class TestIShare(lib.ITest):
         except omero.SecurityViolation:
             assert False, "Pixels was not in share"
 
+    @pytest.mark.xfail(reason="See ticket #11537")
     def test1201(self):
         uuid = self.root.sf.getAdminService().getEventContext().sessionUuid
         share = self.client.sf.getShareService()
@@ -496,6 +497,7 @@ class TestIShare(lib.ITest):
         share.addComment(self.share_id2,"comment for share %i" % self.share_id2)
         assert 1 == share.getCommentCount([self.share_id, self.share_id2])[self.share_id2]
 
+    @pytest.mark.xfail(reason="See ticket #11537")
     def test2327(self):
 
         ### create two users in two groups
@@ -572,6 +574,7 @@ class TestIShare(lib.ITest):
         share2 = client_share2.sf.getShareService()
         share = share2.getShare(sid)
 
+    @pytest.mark.xfail(reason="See ticket #11537")
     def test2733Access(self):
         """
         The solution for getting test2733 was to
@@ -615,6 +618,7 @@ class TestIShare(lib.ITest):
         self.assertAccess(oowner, sid, False)
         self.assertAccess(self.root, sid)
 
+    @pytest.mark.xfail(reason="See ticket #11537")
     def test3214(self):
         """
         The solution for 2733 returned too many
@@ -723,6 +727,7 @@ class TestIShare(lib.ITest):
         with pytest.raises(IndexError):
             wrapper.__loadedHotSwap__()
 
+    @pytest.mark.xfail(reason="See ticket #11537")
     def test5851(self):
         """
         Expiration is being lost. This test tries to simulate
@@ -766,6 +771,7 @@ class TestIShare(lib.ITest):
             objects=None, experimenters=None, guests=None, enabled=True):
         return share.createShare(description, timeout, objects, experimenters, guests, enabled)
 
+    @pytest.mark.xfail(reason="See ticket #11537")
     def testOSRegularUser(self):
         # """ test regular user can activate a share """
 
@@ -793,6 +799,7 @@ class TestIShare(lib.ITest):
 
         return img, sid
 
+    @pytest.mark.xfail(reason="See ticket #11537")
     def testOSNonMember(self):
         # """ Non-members should not be able to use this method """
 
@@ -809,6 +816,7 @@ class TestIShare(lib.ITest):
         with pytest.raises(omero.SecurityViolation):
             non_member_query.get("Image", img.id.val, {"omero.share":"%s" % sid})
 
+    @pytest.mark.xfail(reason="See ticket #11537")
     def testOSAdminUser(self):
         # """ Admin should be able to log into any share
         img, sid = self.testOSRegularUser()
@@ -828,6 +836,7 @@ class TestIShare(lib.ITest):
         with pytest.raises(omero.SecurityViolation):
             self.client.sf.getQueryService().get("Image", -1, {"omero.share":"-100"})
 
+    @pytest.mark.xfail(reason="See ticket #11537")
     def test8513(self):
         owner, owner_obj = self.new_client_and_user(perms="rw----") # Owner of share
         member, member_obj = self.new_client_and_user(perms="rw----") # Different group!
@@ -892,6 +901,7 @@ class TestIShare(lib.ITest):
         ## rv = member_query.findAll("Image", None, {"omero.share":"%s" % sid})
         ## assert 0 ==  len(rv)
 
+    @pytest.mark.xfail(reason="See ticket #11537")
     def test8704(self):
         owner, owner_obj = self.new_client_and_user(perms="rw----") # Owner of share
         member, member_obj = self.new_client_and_user(perms="rw----") # Different group!

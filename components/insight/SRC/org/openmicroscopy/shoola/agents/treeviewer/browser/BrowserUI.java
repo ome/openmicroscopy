@@ -2253,8 +2253,9 @@ class BrowserUI
 	void setFoundNode(TreeImageDisplay[] newSelection)
 	{
 		//treeDisplay.removeTreeSelectionListener(selectionListener);
-		treeDisplay.clearSelection();
-		if (newSelection != null) {
+		if (newSelection == null) {
+		    treeDisplay.clearSelection();
+		} else {
 			TreePath[] paths = new TreePath[newSelection.length];
 			for (int i = 0; i < newSelection.length; i++) {
 				paths[i] = new TreePath(newSelection[i].getPath());

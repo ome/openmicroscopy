@@ -29,6 +29,8 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import Ice.Current;
+
 import ome.formats.importer.ImportConfig;
 import ome.formats.importer.ImportContainer;
 import ome.services.blitz.fire.Registry;
@@ -141,8 +143,10 @@ public class ManagedRepositoryITest extends AbstractServantTest {
         ImportSettings settings = new ImportSettings();
         Fileset fs = new FilesetI();
         ic.fillData(new ImportConfig(), settings, fs, clientPaths);
+        final Current curr = curr();
+        settings.checksumAlgorithm = repo.suggestChecksumAlgorithm(repo.listChecksumAlgorithms(curr), curr);
 
-        ImportProcessPrx i = repo.importFileset(fs, settings, curr());
+        ImportProcessPrx i = repo.importFileset(fs, settings, curr);
         assertNotNull(i);
 
         upload(i.getUploader(0));

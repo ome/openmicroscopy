@@ -292,7 +292,8 @@ class ScriptControl(BaseControl):
             self.ctx.err("Failed to clean processors: %s" % e)
 
         self.ctx.out("\nDeleting script from server...")
-        self.delete(args.for_pub(str(id)))
+        args.id = long(id)
+        self.delete(args)
 
     def cat(self, args):
         client = self.ctx.conn(args)

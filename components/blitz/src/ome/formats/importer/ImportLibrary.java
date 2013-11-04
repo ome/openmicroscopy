@@ -260,8 +260,8 @@ public class ImportLibrary implements IObservable
         // present and pass it into the settings object
         final Fileset fs = new FilesetI();
         container.fillData(new ImportConfig(), settings, fs, sanitizer);
+        settings.checksumAlgorithm = repo.suggestChecksumAlgorithm(repo.listChecksumAlgorithms());
         return repo.importFileset(fs, settings);
-
     }
 
     /**
