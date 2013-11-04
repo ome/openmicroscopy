@@ -48,6 +48,8 @@ import javax.swing.JFrame;
 //Application-internal dependencies
 import omero.model.OriginalFile;
 import omero.model.PlaneInfo;
+
+import org.apache.commons.collections.CollectionUtils;
 import org.openmicroscopy.shoola.agents.metadata.AcquisitionDataLoader;
 import org.openmicroscopy.shoola.agents.metadata.AnalysisResultsFileLoader;
 import org.openmicroscopy.shoola.agents.metadata.AttachmentsLoader;
@@ -333,23 +335,17 @@ class EditorModel
 	private void downloadImages(File file)
 	{
 		List<ImageData> images = new ArrayList<ImageData>();
-		Collection l = parent.getRelatedNodes();
-		ImageData img;
-		if (l != null) {
-			Iterator i = l.iterator();
-			Object o;
+		List<DataObject> l = getSelectedObjects();
+		if (!CollectionUtils.isEmpty(l)) {
+			Iterator<DataObject> i = l.iterator();
+			DataObject o;
 			while (i.hasNext()) {
-				o = (Object) i.next();
-				if (o instanceof ImageData) {
-					img = (ImageData) o;
-					images.add(img);
-				}
+			    o = i.next();
+			    if (isArchived(o))
+			        images.add((ImageData) o);
 			}
 		}
-		img = (ImageData) getRefObject();
-		images.add(img);
-		
-		if (images.size() > 0) {
+		if (!CollectionUtils.isEmpty(images)) {
 			Iterator<ImageData> i = images.iterator();
 			DownloadArchivedActivityParam p;
 			UserNotifier un =
@@ -829,7 +825,7 @@ class EditorModel
 	{
 		if (!isMultiSelection()) return getRefObject();
 		List list = parent.getRelatedNodes();
-		if (list == null || list.size() == 0) return getRefObject();
+		if (CollectionUtils.isEmpty(list)) return getRefObject();
 		return list.get(0);
 	}
 	
@@ -2856,11 +2852,24 @@ class EditorModel
 	 * 
 	 * @return See above.
 	 */
-	boolean isArchived()
+	boolean isArchived() { return isArchived(getImage()); }
+
+    /**
+     * Returns <code>true</code> if the imported set of pixels has been 
+     * archived, <code>false</code> otherwise.
+     * 
+     * @param ho The object to handle.
+     * @return See above.
+     */
+	boolean isArchived(DataObject ho)
 	{
-		ImageData img = getImage();
-		if (img == null) return false;
-		return img.isArchived();
+	    ImageData img = null;
+        if (ho instanceof WellSampleData)
+            img = ((WellSampleData) ho).getImage();
+        if (ho instanceof ImageData)
+            img = (ImageData) ho;
+        if (img == null) return false;
+        return img.isArchived();
 	}
 
 	/** 
@@ -2871,11 +2880,11 @@ class EditorModel
 	 */
 	void download(File file)
 	{
-		if (refObject instanceof ImageData) {
-			downloadImages(file);
-		} else if (refObject instanceof FileAnnotationData) {
-			downloadFiles(file);
-		}
+	    if (refObject instanceof ImageData) {
+	        downloadImages(file);
+	    } else if (refObject instanceof FileAnnotationData) {
+	        downloadFiles(file);
+	    }
 	}
 
 	/** 
@@ -3997,20 +4006,22 @@ class EditorModel
 	 */
 	List<DataObject> getSelectedObjects()
 	{
-		List<DataObject> objects = new ArrayList<DataObject>();
-		if (getRefObject() instanceof DataObject)
-			objects.add((DataObject) getRefObject());
-		Collection l = parent.getRelatedNodes();
-		if (l == null) return objects;
-		Iterator i = l.iterator();
-		Object o;
-		while (i.hasNext()) {
-			o = i.next();
-			if (o instanceof DataObject)
-				objects.add((DataObject) o);
-		}
-		
-		return objects;
+	    List<DataObject> objects = new ArrayList<DataObject>();
+	    Collection l = parent.getRelatedNodes();
+	    if (CollectionUtils.isEmpty(l)) {
+	        if (getRefObject() instanceof DataObject)
+	            objects.add((DataObject) getRefObject());
+	        return objects;
+	    }
+	    Iterator i = l.iterator();
+	    Object o;
+	    while (i.hasNext()) {
+	        o = i.next();
+	        if (o instanceof DataObject)
+	            objects.add((DataObject) o);
+	    }
+
+	    return objects;
 	}
 
 	/**

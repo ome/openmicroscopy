@@ -59,6 +59,7 @@ import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
 
 
+import org.apache.commons.collections.CollectionUtils;
 //Third-party libraries
 import org.jdesktop.swingx.JXBusyLabel;
 
@@ -79,6 +80,7 @@ import org.openmicroscopy.shoola.util.ui.MultilineLabel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.tdialog.TinyDialog;
 
+import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
@@ -219,7 +221,7 @@ class ToolBar
     /** Creates or recycles the save as menu. */
     private JPopupMenu createSaveAsMenu()
     {
-    	if (saveAsMenu == null) {
+    	//if (saveAsMenu == null) {
     		saveAsMenu = new JPopupMenu();
     		IconManager icons = IconManager.getInstance();
     		downloadItem = new JMenuItem(icons.getIcon(IconManager.DOWNLOAD));
@@ -228,7 +230,18 @@ class ToolBar
     		downloadItem.addActionListener(controller);
     		downloadItem.setActionCommand(""+EditorControl.DOWNLOAD);
     		downloadItem.setBackground(UIUtilities.BACKGROUND_COLOR);
-    		downloadItem.setEnabled(!model.isArchived());
+    		List<DataObject> nodes = model.getSelectedObjects();
+    		boolean b = false;
+    		if (!CollectionUtils.isEmpty(nodes)) {
+    		    Iterator<DataObject> i = nodes.iterator();
+    		    while (i.hasNext()) {
+                    if (model.isArchived(i.next())) {
+                        b = true;
+                        break;
+                    }
+                }
+    		}
+    		downloadItem.setEnabled(b);
     		saveAsMenu.add(downloadItem);
     		
     		downloadOriginalMetadataItem = new JMenuItem(
@@ -253,7 +266,7 @@ class ToolBar
     		exportAsOmeTiffItem.addActionListener(controller);
     		exportAsOmeTiffItem.setActionCommand(
     				""+EditorControl.EXPORT_AS_OMETIFF);
-    		boolean b = model.getRefObject() instanceof ImageData && 
+    		b = model.getRefObject() instanceof ImageData && 
     			!model.isLargeImage();
     		exportAsOmeTiffItem.setEnabled(b);
     		saveAsMenu.add(exportAsOmeTiffItem);
@@ -288,7 +301,7 @@ class ToolBar
 			}
     		saveAsMenu.add(menu);
     		setRootObject();
-    	}
+    	//}
     	return saveAsMenu;
     }
     
@@ -723,19 +736,16 @@ class ToolBar
 			exportAsOmeTiffButton.setEnabled(false);
     	if (downloadOriginalMetadataItem != null)
     		downloadOriginalMetadataItem.setEnabled(false);
-    	if (downloadItem != null)
-			downloadItem.setEnabled(false);
     	if (model.isSingleMode() && model.getImage() != null) {
     		if (exportAsOmeTiffItem != null)
 				exportAsOmeTiffButton.setEnabled(!model.isLargeImage());
-			if (downloadItem != null)
-				downloadItem.setEnabled(model.isArchived());
 			viewButton.setEnabled(true);
 			if (pathButton != null) pathButton.setEnabled(true);
 			if (downloadOriginalMetadataItem != null)
 				downloadOriginalMetadataItem.setEnabled(
 					model.hasOriginalMetadata());
     	}
+    	
 		publishingButton.setEnabled(true);
 		analysisButton.setEnabled(true);
 		scriptsButton.setEnabled(true);
