@@ -243,8 +243,17 @@ public class ImportContainer
         // Fill used paths
         for (String usedFile : getUsedFiles()) {
             final FilesetEntry entry = new FilesetEntryI();
-            final FsFile fsPath = sanitizer.getFsFileFromClientFile(new File(usedFile), Integer.MAX_VALUE);
-            entry.setClientPath(rstring(fsPath.toString()));
+            FsFile fsPath = sanitizer.getFsFileFromClientFile(new File(usedFile), Integer.MAX_VALUE);
+            String fsPathString;
+            while (true) {
+                fsPathString = fsPath.toString();
+                if (fsPathString.length() < 256) {
+                    break;
+                }
+                final List<String> components = fsPath.getComponents();
+                fsPath = new FsFile(components.subList(1, components.size()));
+            }
+            entry.setClientPath(rstring(fsPathString));
             fs.addFilesetEntry(entry);
         }
 
