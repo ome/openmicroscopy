@@ -6,7 +6,7 @@
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <title>OMERO.web Figure</title>
+    <title>OMERO Webfigure</title>
     <meta name="description" content="">
     <meta name="viewport" content="width=device-width">
 
@@ -82,7 +82,7 @@
             $(this).tab('show');
         });
 
-        $('.btn-sm').tooltip({container: 'body', placement:'bottom', toggle:"tooltip"});
+        $('.btn-sm, .navbar-header').tooltip({container: 'body', placement:'bottom', toggle:"tooltip"});
 
 
         // Heavy lifting of PDF generation handled by OMERO.script...
@@ -432,13 +432,8 @@
 
     <div class="navbar navbar-inverse navbar-fixed-top">
         <div class="container">
-            <div class="navbar-header">
-                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                </button>
-                <a class="navbar-brand" href="#">OMERO</a>
+            <div class="navbar-header" title="Back to OMERO.webclient">
+                <a class="navbar-brand" href="{% url webindex %}">OMERO</a>
             </div>
             <div class="navbar-collapse collapse">
                 <ul class="nav navbar-nav">
