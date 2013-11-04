@@ -95,39 +95,40 @@ public class ArchivedImageLoader
             public void doCall() throws Exception
             {
                 OmeroDataService os = context.getDataService();
-                //Create a tmp folder.
-                File tmpFolder = Files.createTempDir();
-                Map<Boolean, Object> r =
-                        os.getArchivedImage(ctx, tmpFolder, imageID);
-                List<File> files = (List<File>) r.get(Boolean.TRUE);
-                //format the result
-                if (!CollectionUtils.isEmpty(files)) {
-                    File f;
-                    //Copy the file to the destination folder.
-                    if (files.size() == 1) {
-                        f = files.get(0);
-                        //copy from tmp to destination folder.
-                        r.put(Boolean.TRUE, Arrays.asList(copyFile(f, folder)));
-                    } else {
-                        //zip the directory
-                        f = IOUtil.zipDirectory(tmpFolder, false);
-                        //move the zip
-                        f = copyFile(f, folder);
-                        File to = new File(f.getParentFile(),
-                                name+"."+FilenameUtils.getExtension(
-                                        f.getName()));
-                        Files.move(f, to);
-                        r.put(Boolean.TRUE, Arrays.asList(to));
-                    }
-                }
-                //This should probably not block the call.
+                File tmpFolder = null;
                 try {
-                    FileUtils.deleteDirectory(tmpFolder);
+                    tmpFolder = Files.createTempDir();
+                    Map<Boolean, Object> r =
+                            os.getArchivedImage(ctx, tmpFolder, imageID);
+                    List<File> files = (List<File>) r.get(Boolean.TRUE);
+                    //format the result
+                    if (!CollectionUtils.isEmpty(files)) {
+                        File f;
+                        //Copy the file to the destination folder.
+                        if (files.size() == 1) {
+                            f = files.get(0);
+                            //copy from tmp to destination folder.
+                            r.put(Boolean.TRUE,
+                                    Arrays.asList(copyFile(f, folder)));
+                        } else {
+                            //zip the directory
+                            f = IOUtil.zipDirectory(tmpFolder, false);
+                            //move the zip
+                            f = copyFile(f, folder);
+                            File to = new File(f.getParentFile(),
+                                    name+"."+FilenameUtils.getExtension(
+                                            f.getName()));
+                            Files.move(f, to);
+                            r.put(Boolean.TRUE, Arrays.asList(to));
+                        }
+                    }
+                    result = r;
                 } catch (Exception e) {
-                    context.getLogger().debug(this,
-                            "Cannot delete tmp dir:"+e.getMessage());
+                    throw new Exception(e);
+                } finally {
+                    if (tmpFolder != null)
+                        FileUtils.deleteDirectory(tmpFolder);
                 }
-                result = r;
             }
         };
     }
