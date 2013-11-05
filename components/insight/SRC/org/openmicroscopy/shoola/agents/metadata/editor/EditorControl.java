@@ -384,7 +384,7 @@ class EditorControl
 	        while (i.hasNext()) {
 	            data  = i.next();
 	            if (data instanceof ImageData) {
-	                paths.add(FilenameUtils.getBaseName(
+	                paths.add(FilenameUtils.getName(
 	                        ((ImageData) data).getName()));
 	            }
 	        }

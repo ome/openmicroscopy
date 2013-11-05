@@ -102,7 +102,6 @@ import org.openmicroscopy.shoola.agents.util.ui.UserManagerDialog;
 import org.openmicroscopy.shoola.env.Environment;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
-import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.events.ExitApplication;
 import org.openmicroscopy.shoola.env.data.events.RemoveGroupEvent;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
@@ -3536,7 +3535,7 @@ class TreeViewerComponent
 	 * Implemented as specified by the {@link TreeViewer} interface.
 	 * @see TreeViewer#download(File, boolean)
 	 */
-	public void download(File folder)
+	public void download(File folder, boolean override)
 	{
 	    if (model.getState() == DISCARDED) return;
 	    Browser browser = model.getSelectedBrowser();
@@ -3546,7 +3545,6 @@ class TreeViewerComponent
 	    Iterator i = l.iterator();
 	    Object object;
 	    List<ImageData> archived = new ArrayList<ImageData>();
-	    boolean override = l.size() > 1;
 	    ImageData image;
 	    while (i.hasNext()) {
 	        object = i.next();
@@ -3570,6 +3568,7 @@ class TreeViewerComponent
 	        SecurityContext ctx = getSecurityContext();
 	        while (j.hasNext()) {
 	            p = new DownloadArchivedActivityParam(folder, j.next(), icon);
+	            p.setOverride(override);
 	            un.notifyActivity(ctx, p);
 	        }
 	    }
