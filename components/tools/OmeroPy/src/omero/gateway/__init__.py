@@ -6759,10 +6759,10 @@ class _ImageWrapper (BlitzObjectWrapper):
         self._pd.t = long(t)
 
         regionDef = omero.romio.RegionDef()
-        regionDef.x = long(x)
-        regionDef.y = long(y)
-        regionDef.width = long(width)
-        regionDef.height = long(height)
+        regionDef.x = int(x)
+        regionDef.y = int(y)
+        regionDef.width = int(width)
+        regionDef.height = int(height)
         self._pd.region = regionDef
         try:
             if level is not None:
