@@ -438,40 +438,40 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
         </zip>
     </target>
 
-    <target name="release-src" description="Package the git source tree into openmicroscopy-${omero.version}.zip">
+    <target name="release-src" description="Package the git source tree into openmicroscopy-${omero.plainversion}.zip">
         <delete includeemptydirs="true">
-          <fileset dir="${target.dir}" includes="openmicroscopy-${omero.version}*.zip"/>
+          <fileset dir="${target.dir}" includes="openmicroscopy-${omero.plainversion}*.zip"/>
         </delete>
-        <delete dir="${target.dir}/openmicroscopy-${omero.version}" quiet="true"/>
+        <delete dir="${target.dir}/openmicroscopy-${omero.plainversion}" quiet="true"/>
         <git command="archive" output="release-src-command" failonerror="true">
             <args>
-                <arg value="--prefix=openmicroscopy-${omero.version}/"/>
+                <arg value="--prefix=openmicroscopy-${omero.plainversion}/"/>
                 <arg value="--format=zip"/>
                 <arg value="HEAD"/>
                 <arg value="-o"/>
-                <arg value="${target.dir}/openmicroscopy-${omero.version}.zip"/>
+                <arg value="${target.dir}/openmicroscopy-${omero.plainversion}.zip"/>
             </args>
         </git>
         <git command="submodule" output="release-src-submods" failonerror="true">
             <args>
                 <arg value="foreach"/>
                 <arg value="--recursive"/>
-                <arg value="zip=${target.dir}/openmicroscopy-${omero.version}-$(echo &quot;${path}.zip&quot; | sed -e &quot;s;/;_;g&quot;) ; git archive --prefix=openmicroscopy-${omero.version}/${path}/ --format=zip HEAD -o &quot;${zip}&quot;"/>
+                <arg value="zip=${target.dir}/openmicroscopy-${omero.plainversion}-$(echo &quot;${path}.zip&quot; | sed -e &quot;s;/;_;g&quot;) ; git archive --prefix=openmicroscopy-${omero.plainversion}/${path}/ --format=zip HEAD -o &quot;${zip}&quot;"/>
             </args>
         </git>
         <unzip dest="${target.dir}">
           <fileset dir="${target.dir}">
-            <include name="openmicroscopy-${omero.version}*.zip"/>
+            <include name="openmicroscopy-${omero.plainversion}*.zip"/>
           </fileset>
         </unzip>
         <delete includeemptydirs="true">
-          <fileset dir="${target.dir}" includes="openmicroscopy-${omero.version}*.zip"/>
+          <fileset dir="${target.dir}" includes="openmicroscopy-${omero.plainversion}*.zip"/>
         </delete>
-        <zip destfile="${target.dir}/openmicroscopy-${omero.version}.zip"
+        <zip destfile="${target.dir}/openmicroscopy-${omero.plainversion}.zip"
              basedir="${target.dir}"
-             includes="openmicroscopy-${omero.version}/**"
+             includes="openmicroscopy-${omero.plainversion}/**"
              />
-        <delete dir="${target.dir}/openmicroscopy-${omero.version}" quiet="true"/>
+        <delete dir="${target.dir}/openmicroscopy-${omero.plainversion}" quiet="true"/>
     </target>
 
     <target name="release-clients" description="Zip the Python, Java, and Matlab zips">
@@ -1068,6 +1068,12 @@ omero.version=${omero.version}
         <gitdescribe select="\2\3\5\6">
         </gitdescribe>
         <echo>${version.describe}-ice${versions.ice_lib}</echo>
+    </target>
+
+    <target name="plainversion">
+        <gitdescribe select="\2\3\5\6">
+        </gitdescribe>
+        <echo>${version.describe}</echo>
     </target>
 
     <target name="print-mem">
