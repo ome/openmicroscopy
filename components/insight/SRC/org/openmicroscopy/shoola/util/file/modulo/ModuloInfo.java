@@ -20,12 +20,12 @@
  */
 package org.openmicroscopy.shoola.util.file.modulo;
 
-import java.util.List;
-
-import org.apache.commons.lang.StringUtils;
-import org.springframework.util.CollectionUtils;
 
 //Java imports
+import java.util.List;
+
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * Holds information about the modulo tag.
