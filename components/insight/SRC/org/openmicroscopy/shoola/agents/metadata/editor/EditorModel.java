@@ -337,33 +337,43 @@ class EditorModel
 	 */
 	private void downloadImages(File file, boolean override)
 	{
-		List<ImageData> images = new ArrayList<ImageData>();
-		List<DataObject> l = getSelectedObjects();
-		if (!CollectionUtils.isEmpty(l)) {
-			Iterator<DataObject> i = l.iterator();
-			DataObject o;
-			while (i.hasNext()) {
-			    o = i.next();
-			    if (isArchived(o))
-			        images.add((ImageData) o);
-			}
-		}
-		if (!CollectionUtils.isEmpty(images)) {
-			Iterator<ImageData> i = images.iterator();
-			DownloadArchivedActivityParam p;
-			UserNotifier un =
-				MetadataViewerAgent.getRegistry().getUserNotifier();
-			IconManager icons = IconManager.getInstance();
-			Icon icon = icons.getIcon(IconManager.DOWNLOAD_22);
-			SecurityContext ctx = getSecurityContext();
-			while (i.hasNext()) {
-				p = new DownloadArchivedActivityParam(file, i.next(), icon);
-				p.setOverride(override);
-				un.notifyActivity(ctx, p);
-			}
-		}
+	    List<ImageData> images = new ArrayList<ImageData>();
+	    List<DataObject> l = getSelectedObjects();
+	    if (!CollectionUtils.isEmpty(l)) {
+	        Iterator<DataObject> i = l.iterator();
+	        DataObject o;
+	        List<Long> filesetIds = new ArrayList<Long>();
+	        long id;
+	        ImageData image;
+	        while (i.hasNext()) {
+	            o = i.next();
+	            if (isArchived(o)) {
+	                image = (ImageData) o;
+	                id = image.getFilesetId();
+	                if (id < 0) images.add(image);
+	                else if (!filesetIds.contains(id)) {
+	                    images.add(image);
+	                    filesetIds.add(id);
+	                }
+	            }
+	        }
+	    }
+	    if (!CollectionUtils.isEmpty(images)) {
+	        Iterator<ImageData> i = images.iterator();
+	        DownloadArchivedActivityParam p;
+	        UserNotifier un =
+	                MetadataViewerAgent.getRegistry().getUserNotifier();
+	        IconManager icons = IconManager.getInstance();
+	        Icon icon = icons.getIcon(IconManager.DOWNLOAD_22);
+	        SecurityContext ctx = getSecurityContext();
+	        while (i.hasNext()) {
+	            p = new DownloadArchivedActivityParam(file, i.next(), icon);
+	            p.setOverride(override);
+	            un.notifyActivity(ctx, p);
+	        }
+	    }
 	}
-	
+
     /** 
      * Sorts the passed collection of annotations by date starting with the
      * most recent.

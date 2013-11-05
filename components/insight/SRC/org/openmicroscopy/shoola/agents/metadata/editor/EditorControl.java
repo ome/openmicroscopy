@@ -52,7 +52,6 @@ import javax.swing.filechooser.FileFilter;
 
 //Third-party libraries
 import org.jdesktop.swingx.JXTaskPane;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 
