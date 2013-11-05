@@ -206,8 +206,8 @@ public class OriginalMetadataRequestI extends OriginalMetadataRequest implements
 		OriginalMetadataRequestI omr = new OriginalMetadataRequestI(null);
 		Map<String, RType> global = omr.wrap(null);
 		Map<String, RType> series = omr.wrap(null);
-		printMap("[Global metadata]", global);
-		printMap("[Series metadata]", series);
+		printMap("[GlobalMetadata]", global);
+		printMap("[SeriesMetadata]", series);
 	}
 
 	private static void printMap(String title, Map<String, RType> map) {
