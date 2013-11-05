@@ -182,8 +182,8 @@ module omero {
              * Returns a reference to a back-end manager. The [omero::grid::SharedResources]
              * service provides look ups for various facilities offered by OMERO:
              * <ul>
-             *   <li><a href="https://www.openmicroscopy.org/site/support/omero4/developers/Modules/Scripts.html">OMERO.scripts</a>
-             *   <li><a href="https://www.openmicroscopy.org/site/support/omero4/developers/Tables.html">OMERO.tables</a>
+             *   <li><a href="https://www.openmicroscopy.org/site/support/omero5/developers/Modules/Scripts.html">OMERO.scripts</a>
+             *   <li><a href="https://www.openmicroscopy.org/site/support/omero5/developers/Tables.html">OMERO.tables</a>
              * </ul>
              * These facilities may or may not be available on first request.
              *
