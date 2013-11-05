@@ -2,10 +2,10 @@
  * org.openmicroscopy.shoola.agents.metadata.view.MetadataViewerComponent 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -264,13 +264,15 @@ class MetadataViewerComponent
 	public void setMetadata(Map<DataObject, StructuredDataResults> results,
 			int loaderID)
 	{
+	    //load rnd.
+	    model.loadRnd();
 		if (results == null || results.size() == 0) return;
 		//Need to check the size of the results map.
 		Browser browser = model.getBrowser();
 		DataObject node;
 		StructuredDataResults data;
 		Entry<DataObject, StructuredDataResults> e;
-		Iterator<Entry<DataObject, StructuredDataResults>> 
+		Iterator<Entry<DataObject, StructuredDataResults>>
 		i = results.entrySet().iterator();
 		if (results.size() == 1) { //handle the single selection
 			while (i.hasNext()) {
