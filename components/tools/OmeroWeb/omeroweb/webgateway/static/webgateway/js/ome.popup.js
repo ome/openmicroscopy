@@ -39,10 +39,8 @@ Number.prototype.filesizeformat = function () {
         return (bytes / (1024*1024*1024)).toFixed(2) + ' GB';
     } else if (bytes < (1024*1024*1024*1024*1024)) {
         return (bytes / (1024*1024*1024*1024)).toFixed(2) + ' TB';
-    } else if (bytes < (1024*1024*1024*1024*1024*1024)) {
-        return (bytes / (1024*1024*1024*1024*1024)).toFixed(2) + ' PB';
     } else {
-        return bytes + ' B';
+        return (bytes / (1024*1024*1024*1024*1024)).toFixed(2) + ' PB';
     }
     
 }
