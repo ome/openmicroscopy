@@ -17,14 +17,21 @@
 
 package omero.cmd.fs;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.TreeMap;
 
 import loci.formats.IFormatReader;
+import ome.api.IQuery;
 import ome.io.nio.PixelsService;
 import ome.model.annotations.FileAnnotation;
 import ome.model.core.Image;
@@ -43,6 +50,8 @@ import omero.constants.annotation.file.ORIGINALMETADATA;
 import omero.constants.namespaces.NSCOMPANIONFILE;
 import omero.util.IceMapper;
 
+import com.google.common.collect.ImmutableMap;
+
 /**
  * Original metadata loader, handling both pre-FS and post-FS data.
  *
@@ -56,13 +65,13 @@ public class OriginalMetadataRequestI extends OriginalMetadataRequest implements
 
 	private final OriginalMetadataResponse rsp = new OriginalMetadataResponse();
 
-	private final PixelsService service;
+	private final PixelsService pixelsService;
 
 	private Helper helper;
 
-	public OriginalMetadataRequestI(PixelsService service) {
-		this.service = service;
-	}
+    public OriginalMetadataRequestI(PixelsService pixelsService) {
+        this.pixelsService = pixelsService;
+    }
 
 	//
 	// CMD API
@@ -121,7 +130,7 @@ public class OriginalMetadataRequestI extends OriginalMetadataRequest implements
 			final Pixels pixels = image.getPrimaryPixels();
 
 			try {
-				final IFormatReader reader = service.getBfReader(pixels);
+				final IFormatReader reader = pixelsService.getBfReader(pixels);
 				final Hashtable<String, Object> global = reader.getGlobalMetadata();
 				final Hashtable<String, Object> series = reader.getSeriesMetadata();
 				rsp.globalMetadata = wrap(global);
@@ -132,21 +141,23 @@ public class OriginalMetadataRequestI extends OriginalMetadataRequest implements
 		}
 	}
 
-	/**
-	 * Only called if {@link #loadFileset()} finds no {@link Fileset}. If any {@link FileAnnotation}
-	 * instances with the appropriate namespace and name are found, the first one is taken and
-	 * parsed into the {@link OriginalMetadataResponse}.
-	 */
-	protected void loadFileAnnotation() {
-		rsp.fileAnnotationId = firstIdOrNull(
-				"select a.id from Image i join i.annotationLinks l join l.child a " +
-				"where i.id = :id and a.ns = '" + ORIGINALMETADATA.value + "' " +
-				"and a.file.name = '" + NSCOMPANIONFILE.value + "'");
-		if (rsp.fileAnnotationId != null) {
-			// loadFile
-			// parseFile (from Python)
-		}
-	}
+    /**
+     * Only called if {@link #loadFileset()} finds no {@link Fileset}. If any {@link FileAnnotation}
+     * instances with the appropriate namespace and name are found, the first one is taken and
+     * parsed into the {@link OriginalMetadataResponse}.
+     */
+    protected void loadFileAnnotation() {
+        rsp.fileAnnotationId = firstIdOrNull(
+                "select a.id from Image i join i.annotationLinks l join l.child a " +
+                "where i.id = :id and a.file.name = '" + ORIGINALMETADATA.value + "' " +
+                "and a.ns = '" + NSCOMPANIONFILE.value + "'");
+        if (rsp.fileAnnotationId != null) {
+            final IQuery iQuery = helper.getServiceFactory().getQueryService();
+            final FileAnnotation fileAnnotation = iQuery.get(FileAnnotation.class, rsp.fileAnnotationId.getValue());
+            final String filePath = pixelsService.getFilesPath(fileAnnotation.getFile().getId());
+            parseOriginalMetadataTxt(new File(filePath));
+        }
+    }
 
 	//
 	// HELPERS
@@ -197,10 +208,48 @@ public class OriginalMetadataRequestI extends OriginalMetadataRequest implements
 		return rv;
 	}
 
-	protected static void parseOriginalMetadataTxt(File file,
-			Map<String, RType> global, Map<String, RType> series) {
-		// TBD: See #10703
-	}
+    /**
+     * Read the given INI-style file and populate the maps with the properties from the corresponding sections.
+     * @param file the file to read
+     * @param global the map in which to put the global metadata properties
+     * @param series the map in which to put the series metadata properties
+     */
+    protected void parseOriginalMetadataTxt(File file) {
+        final Pattern section  = Pattern.compile("\\s*\\[\\s*(.+?)\\s*\\]\\s*");
+        final Pattern keyValue = Pattern.compile("\\s*(.+?)\\s*=\\s*(.+?)\\s*");
+        rsp.globalMetadata = new TreeMap<String, RType>();
+        rsp.seriesMetadata = new TreeMap<String, RType>();
+        final ImmutableMap<String, Map<String, RType>> sections =
+                ImmutableMap.of("GlobalMetadata", rsp.globalMetadata, "SeriesMetadata", rsp.seriesMetadata);
+        Map<String, RType> currentSection = null;
+        BufferedReader in = null;
+        try {
+            in = new BufferedReader(new FileReader(file));
+            while (true) {
+                String line;
+                line = in.readLine();
+                if (line == null) {
+                    break;
+                }
+                Matcher matcher;
+                if ((matcher = section.matcher(line)).matches()) {
+                    currentSection = sections.get(matcher.group(1));
+                } else if (currentSection != null && (matcher = keyValue.matcher(line)).matches()) {
+                    currentSection.put(matcher.group(1), omero.rtypes.rstring(matcher.group(2)));
+                }
+            }
+        } catch (IOException e) {
+            if (helper != null) {
+                helper.cancel(new ERR(), e, "reader-failure", "original-metadata", file.getPath());
+            }
+        } finally {
+            if (in != null) {
+                try {
+                    in.close();
+                } catch (IOException e) { }
+            }
+        }
+    }
 
 	public static void main(String[] args) {
 		OriginalMetadataRequestI omr = new OriginalMetadataRequestI(null);
