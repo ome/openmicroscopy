@@ -354,8 +354,6 @@ class EditorModel
 			UserNotifier un =
 				MetadataViewerAgent.getRegistry().getUserNotifier();
 			IconManager icons = IconManager.getInstance();
-			if (images.size() > 1)
-				file = file.getParentFile();
 			Icon icon = icons.getIcon(IconManager.DOWNLOAD_22);
 			SecurityContext ctx = getSecurityContext();
 			while (i.hasNext()) {
