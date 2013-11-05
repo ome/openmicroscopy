@@ -210,8 +210,8 @@ var UndoView = Backbone.View.extend({
 
     // NB: requires backbone.mousetrap
     keyboardEvents: {
-        'command+z': 'undo',
-        'command+y': 'redo'
+        'mod+z': 'undo',
+        'mod+y': 'redo'
     },
     
     initialize: function() {

@@ -534,9 +534,10 @@
 
         keyboardEvents: {
             'backspace': 'deleteSelectedPanels',
-            'command+a': 'select_all',
-            'command+c': 'copy_selected_panels',
-            'command+v': 'paste_panels'
+            'del': 'deleteSelectedPanels',
+            'mod+a': 'select_all',
+            'mod+c': 'copy_selected_panels',
+            'mod+v': 'paste_panels'
         },
 
         copy_selected_panels: function() {
