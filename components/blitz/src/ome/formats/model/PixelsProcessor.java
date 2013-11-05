@@ -184,6 +184,9 @@ public class PixelsProcessor implements ModelProcessor
             {
                 saveName = image.getName().getValue();
             }
+            if (saveName != null && saveName.length() > 255) {
+                saveName = '…' + saveName.substring(saveName.length() - 254);
+            }
             image.setName(rstring(saveName));
 
             // Set the Image description if one was supplied by the user
