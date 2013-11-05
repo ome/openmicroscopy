@@ -145,14 +145,14 @@ public class OriginalMetadataParser
 			
 			value = writeMap(response.globalMetadata, separator);
 			if (value != null) {
-				buffer.append("[global Metadata]");
+				buffer.append("[GlobalMetadata]");
 				buffer.append(System.getProperty("line.separator"));
 				buffer.append(writeMap(response.globalMetadata, separator));
 				buffer.append(System.getProperty("line.separator"));
 			}
 			value = writeMap(response.seriesMetadata, separator);
 			if (value != null) {
-				buffer.append("[series Metadata]");
+				buffer.append("[SeriesMetadata]");
 				buffer.append(System.getProperty("line.separator"));
 				buffer.append(writeMap(response.seriesMetadata, separator));
 			}
