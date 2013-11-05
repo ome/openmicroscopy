@@ -384,7 +384,8 @@ class EditorControl
 	        while (i.hasNext()) {
 	            data  = i.next();
 	            if (data instanceof ImageData) {
-	                paths.add(((ImageData) data).getName());
+	                paths.add(FilenameUtils.getBaseName(
+	                        ((ImageData) data).getName()));
 	            }
 	        }
 	    }
@@ -396,33 +397,38 @@ class EditorControl
 	        File file = UIUtilities.getDefaultFolder();
 	        if (file != null) chooser.setCurrentDirectory(file);
 	    } catch (Exception ex) {}
-		if (type == FileChooser.SAVE)
-		    chooser.setSelectedFileFull(image.getName());
-		
-		IconManager icons = IconManager.getInstance();
-		chooser.setTitleIcon(icons.getIcon(IconManager.DOWNLOAD_48));
-		chooser.setApproveButtonText(FileChooser.DOWNLOAD_TEXT);
-		chooser.setCheckOverride(true);
-		chooser.setSelectedFiles(paths);
-		chooser.addPropertyChangeListener(new PropertyChangeListener() {
-		
-			public void propertyChange(PropertyChangeEvent evt) {
-				String name = evt.getPropertyName();
-				FileChooser src = (FileChooser) evt.getSource();
-				if (FileChooser.APPROVE_SELECTION_PROPERTY.equals(name)) {
-					File[] files = (File[]) evt.getNewValue();
-					if (files == null || files.length == 0) return;
-					File path = files[0];
-					if (path == null) {
-						path = UIUtilities.getDefaultFolder();
-					}
-					model.download(path, src.isOverride());
-				}
-			}
-		});
-		chooser.centerDialog();
+	    if (type == FileChooser.SAVE)
+	        chooser.setSelectedFileFull(image.getName());
+
+	    IconManager icons = IconManager.getInstance();
+	    chooser.setTitleIcon(icons.getIcon(IconManager.DOWNLOAD_48));
+	    chooser.setApproveButtonText(FileChooser.DOWNLOAD_TEXT);
+	    chooser.setCheckOverride(true);
+	    chooser.setSelectedFiles(paths);
+	    chooser.addPropertyChangeListener(new PropertyChangeListener() {
+
+	        public void propertyChange(PropertyChangeEvent evt) {
+	            String name = evt.getPropertyName();
+	            FileChooser src = (FileChooser) evt.getSource();
+	            if (FileChooser.APPROVE_SELECTION_PROPERTY.equals(name)) {
+	                File path = null;
+	                if (src.getChooserType() == FileChooser.FOLDER_CHOOSER) {
+	                    path = new File((String) evt.getNewValue());
+	                } else {
+	                    File[] files = (File[]) evt.getNewValue();
+	                    if (files == null || files.length == 0) return;
+	                    path = files[0];
+	                }
+	                if (path == null) {
+	                    path = UIUtilities.getDefaultFolder();
+	                }
+	                model.download(path, src.isOverride());
+	            }
+	        }
+	    });
+	    chooser.centerDialog();
 	}
-	
+
 	/** Brings up the folder chooser to select where to save the files. 
 	 * 
 	 * @param format One of the formats defined by <code>FigureParam</code>.

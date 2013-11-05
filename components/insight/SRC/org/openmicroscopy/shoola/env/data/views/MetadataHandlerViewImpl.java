@@ -235,16 +235,18 @@ class MetadataHandlerViewImpl
 
 	/**
 	 * Implemented as specified by the view interface.
-	 * @see MetadataHandlerView#loadOriginalImage(SecurityContext, long, File, String,
-	 * AgentEventListener)
+	 * @see MetadataHandlerView#loadOriginalImage(SecurityContext, long, File,
+	 * String, boolean, AgentEventListener)
 	 */
 	public CallHandle loadArchivedImage(SecurityContext ctx, long imageID,
-			File path, String name, AgentEventListener observer) 
+			File path, String name, boolean override,
+			AgentEventListener observer)
 	{
-		BatchCallTree cmd = new ArchivedImageLoader(ctx, imageID, name, path);
+		BatchCallTree cmd = new ArchivedImageLoader(ctx, imageID, name, path,
+		        override);
 		return cmd.exec(observer);
 	}
-	
+
 	/**
 	 * Implemented as specified by the view interface.
 	 * @see MetadataHandlerView#loadRatings(SecurityContext, Class, List, long,

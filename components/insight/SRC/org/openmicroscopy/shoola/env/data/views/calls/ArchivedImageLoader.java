@@ -64,6 +64,9 @@ public class ArchivedImageLoader
     /** Loads the specified tree. */
     private BatchCall loadCall;
 
+    /**Flag indicating to override or not the existing file if it exists.*/
+    private boolean override;
+
     /**
      * Copies the specified file to the folder.
      * 
@@ -92,10 +95,16 @@ public class ArchivedImageLoader
             }
         }
         if (count > 0) { //rename the file first.
-            File to = new File(f.getParentFile(),
-                    baseName+"_("+count+")."+extension);
-            FileUtils.copyFile(f, to);
-            f = to;
+            File to;
+            if (override) {
+                to = new File(folder, f.getName());
+                to.delete();
+            } else {
+                to = new File(f.getParentFile(),
+                        baseName+"_("+count+")."+extension);
+                FileUtils.copyFile(f, to);
+                f = to;
+            }
         }
         FileUtils.moveFileToDirectory(f, folder, false);
         return new File(folder, f.getName());
@@ -176,12 +185,15 @@ public class ArchivedImageLoader
      * @param imageID The Id of the image.
      * @param name The name of the image.
      * @param folderPath The location where to download the archived image.
+     * @param override Flag indicating to override the existing file if it
+     *                 exists, <code>false</code> otherwise.
      */
     public ArchivedImageLoader(SecurityContext ctx, long imageID, String name,
-    		File folderPath)
+    		File folderPath, boolean override)
     {
     	if (imageID < 0)
     		 throw new IllegalArgumentException("Image's ID not valid.");
+    	this.override = override;
         loadCall = makeBatchCall(ctx, imageID, name, folderPath);
     }
 }

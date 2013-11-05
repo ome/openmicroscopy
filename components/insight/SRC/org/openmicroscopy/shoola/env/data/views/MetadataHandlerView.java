@@ -303,11 +303,14 @@ public interface MetadataHandlerView
 	 * @param imageID The id of the pixels set related to the image.
 	 * @param location The location where to store the files.
 	 * @param name The name of the image.
+	 * @param override Flag indicating to override the existing file if it
+     *                 exists, <code>false</code> otherwise.
 	 * @param observer Call-back handler.
      * @return A handle that can be used to cancel the call.
 	 */
 	public CallHandle loadArchivedImage(SecurityContext ctx, long imageID,
-		File location, String name, AgentEventListener observer);
+		File location, String name, boolean override,
+		AgentEventListener observer);
 	
 	/**
 	 * Filters by annotation.

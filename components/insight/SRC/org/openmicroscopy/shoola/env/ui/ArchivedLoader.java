@@ -98,7 +98,7 @@ public class ArchivedLoader
      *                 exists, <code>false</code> otherwise.
      * @param activity The activity associated to this loader.
      */
-	public ArchivedLoader(UserNotifier viewer,  Registry registry,
+	public ArchivedLoader(UserNotifier viewer, Registry registry,
 			SecurityContext ctx, ImageData image, String name, File file,
 			boolean override, ActivityComponent activity)
 	{
@@ -118,7 +118,8 @@ public class ArchivedLoader
 	public void load()
 	{
 	    if (StringUtils.isEmpty(name)) name = image.getName();
-	    handle = mhView.loadArchivedImage(ctx, image.getId(), file, name, this);
+	    handle = mhView.loadArchivedImage(ctx, image.getId(), file, name,
+	            override, this);
 	}
 
 	/**
@@ -152,7 +153,7 @@ public class ArchivedLoader
             List l = (List) m.get(Boolean.valueOf(false));
             if (!CollectionUtils.isEmpty(l)) {
                 if (!cancelled)
-                    onException("Missing "+l.size()+" files composing the image",
+                    onException("Missing "+l.size()+" file(s) composing the image",
                             null);
             } else {
                 List<File> files = (List<File>) m.get(Boolean.valueOf(true));

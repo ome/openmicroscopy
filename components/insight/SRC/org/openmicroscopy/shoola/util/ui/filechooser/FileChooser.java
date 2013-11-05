@@ -322,15 +322,15 @@ public class FileChooser
                                 "Overwrite existing files.",
                                 "Do you wish to overwrite the existing files?");
                         int option = msg.centerMsgBox();
-                        if (option == MessageBox.NO_OPTION) 
-                            return;
-                        override = true;
+                        override = option == MessageBox.YES_OPTION;
                     }
                 }
                 String path = f.getAbsolutePath();
                 if (!path.endsWith(File.separator))
                     path += File.separator;
                 firePropertyChange(APPROVE_SELECTION_PROPERTY, null, path);
+                setVisible(false);
+                dispose();
             }
             return;
         } else {
