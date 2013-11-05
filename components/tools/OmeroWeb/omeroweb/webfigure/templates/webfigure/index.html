@@ -245,28 +245,34 @@
 
         /* Transformation to font-based icons - These are split('-') to get position: 'top' etc */
         .labelicon-topleft {
+            -webkit-transform: rotate(-90deg);
             transform: rotate(-90deg)
         }
         .labelicon-bottomleft {
+            -webkit-transform: rotate(-180deg);
             transform: rotate(-180deg);
             position: relative;
             top: 5px;
         }
         .labelicon-bottomright {
-            transform: rotate(90deg)
+            -webkit-transform: rotate(90deg);
+            transform: rotate(90deg);
         }
         .labelicon-top {
-            transform: rotate(-90deg)
+            -webkit-transform: rotate(-90deg);
+            transform: rotate(-90deg);
         }
         .labelicon-left {
             position: relative;
             top: 5px;
+            -webkit-transform: rotate(-180deg);
             transform: rotate(-180deg)
         }
         .labelicon-right {
         }
         .labelicon-bottom {
-            transform: rotate(90deg)
+            -webkit-transform: rotate(90deg);
+            transform: rotate(90deg);
         }
 
         .imageViewer {
