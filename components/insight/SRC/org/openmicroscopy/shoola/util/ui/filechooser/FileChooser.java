@@ -36,6 +36,7 @@ import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.filechooser.FileFilter;
 
+import org.apache.commons.collections.CollectionUtils;
 //Third-party libraries
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
@@ -119,6 +120,9 @@ public class FileChooser
     /** Collection of supported filters. */
     private List<FileFilter> filters;
 
+    /** The list of selected paths.*/
+    private List<String> paths;
+
     /** 
      * Path to the folder.
      * Only used when the type is {@link #FOLDER_CHOOSER}.
@@ -128,6 +132,9 @@ public class FileChooser
     /** Ask if a file should be overridden. */
     private boolean checkOverride;
 
+    /** Flag indicate to override the names when saving.*/
+    private boolean override;
+    
     /** Sets the properties of the dialog. */
     private void setProperties()
     {
@@ -298,9 +305,28 @@ public class FileChooser
     {
         option = JFileChooser.APPROVE_OPTION;
         File[] files;
+        override = false;
         if (getChooserType() == FOLDER_CHOOSER) {
             File f = uiDelegate.getCurrentDirectory();
             if (f != null) {
+                if (!CollectionUtils.isEmpty(paths) && checkOverride) {
+                    File[] entries = f.listFiles();
+                    boolean exist = false;
+                    for (int i = 0; i < entries.length; i++) {
+                        if (paths.contains(entries[i].getName())) {
+                            exist = true;
+                        }
+                    }
+                    if (exist) {
+                        MessageBox msg = new MessageBox(this,
+                                "Overwrite existing files.",
+                                "Do you wish to overwrite the existing files?");
+                        int option = msg.centerMsgBox();
+                        if (option == MessageBox.NO_OPTION) 
+                            return;
+                        override = true;
+                    }
+                }
                 String path = f.getAbsolutePath();
                 if (!path.endsWith(File.separator))
                     path += File.separator;
@@ -606,4 +632,22 @@ public class FileChooser
         this.checkOverride = checkOverride;
     }
 
+    /**
+     * Sets the list of selected files. This should only be used when
+     * several files are selected.
+     * 
+     * @param paths The collection of selected paths.
+     */
+    public void setSelectedFiles(List<String> paths)
+    {
+        this.paths = paths;
+    }
+
+    /**
+     * Returns <code>true</code> to override the files when saving,
+     * <code>false</code> otherwise. Default is <code>false</code>.
+     *
+     * @return
+     */
+    public boolean isOverride() { return override; }
 }

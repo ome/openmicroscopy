@@ -279,8 +279,10 @@ class EditorModel
 	 * Downloads the files.
 	 * 
 	 * @param folder The folder to save the file into.
+	 * @param override Flag indicating to override the existing file if it
+     * exists, <code>false</code> otherwise.
 	 */
-	private void downloadFiles(File folder)
+	private void downloadFiles(File folder, boolean override)
 	{
 		UserNotifier un = MetadataViewerAgent.getRegistry().getUserNotifier();
 		FileAnnotationData fa = (FileAnnotationData) getRefObject();
@@ -324,8 +326,10 @@ class EditorModel
 	 * Downloads the archived images. 
 	 * 
 	 * @param file The file where to download the content.
+	 * @param override Flag indicating to override the existing file if it
+     * exists, <code>false</code> otherwise.
 	 */
-	private void downloadImages(File file)
+	private void downloadImages(File file, boolean override)
 	{
 		List<ImageData> images = new ArrayList<ImageData>();
 		List<DataObject> l = getSelectedObjects();
@@ -350,6 +354,7 @@ class EditorModel
 			SecurityContext ctx = getSecurityContext();
 			while (i.hasNext()) {
 				p = new DownloadArchivedActivityParam(file, i.next(), icon);
+				p.setOverride(override);
 				un.notifyActivity(ctx, p);
 			}
 		}
@@ -2869,13 +2874,15 @@ class EditorModel
 	 * 
 	 * @param file The file where to download the content.
 	 * If it is a multi-images file a zip will be created.
+	 * @param override Flag indicating to override the existing file if it
+     * exists, <code>false</code> otherwise.
 	 */
-	void download(File file)
+	void download(File file, boolean override)
 	{
 	    if (refObject instanceof ImageData) {
-	        downloadImages(file);
+	        downloadImages(file, override);
 	    } else if (refObject instanceof FileAnnotationData) {
-	        downloadFiles(file);
+	        downloadFiles(file, override);
 	    }
 	}
 
