@@ -103,6 +103,10 @@ class TestScript(CLITest):
         self.args += ["list"]
         self.cli.invoke(self.args, strict=True)  # Throws NonZeroReturnCode
 
+    def testDemo(self):
+        self.args += ["demo"]
+        self.cli.invoke(self.args, strict=True)
+
     def testFullSession(self):
         p = create_path(suffix=".py")
         p.write_text(scriptText)
