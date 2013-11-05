@@ -52,6 +52,7 @@ import javax.swing.filechooser.FileFilter;
 
 //Third-party libraries
 import org.jdesktop.swingx.JXTaskPane;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 
@@ -378,8 +379,12 @@ class EditorControl
 			File file = UIUtilities.getDefaultFolder();
 			if (file != null) chooser.setCurrentDirectory(file);
 		} catch (Exception ex) {}
+		List<DataObject> list = view.getSelectedObjects();
 		ImageData image = view.getImage();
-		if (image != null) chooser.setSelectedFileFull(image.getName());
+		if (!CollectionUtils.isEmpty(list)){
+		    if (list.size() == 1)
+		        chooser.setSelectedFileFull(image.getName());
+		}
 		IconManager icons = IconManager.getInstance();
 		chooser.setTitleIcon(icons.getIcon(IconManager.DOWNLOAD_48));
 		chooser.setApproveButtonText(FileChooser.DOWNLOAD_TEXT);

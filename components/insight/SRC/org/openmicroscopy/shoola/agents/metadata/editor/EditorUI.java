@@ -1070,6 +1070,13 @@ class EditorUI
 	 * @return See above.
 	 */
 	ImageData getImage() { return model.getImage(); }
+
+	/**
+	 * Returns the selected objects.
+	 * 
+	 * @return See above.
+	 */
+	List<DataObject> getSelectedObjects() { return model.getSelectedObjects(); }
 	
 	/**
 	 * Returns the companion file generated while importing the file
