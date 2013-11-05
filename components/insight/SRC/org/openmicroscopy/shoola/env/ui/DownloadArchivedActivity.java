@@ -106,7 +106,7 @@ public class DownloadArchivedActivity
             f = f.getParentFile();
         }
 		loader = new ArchivedLoader(viewer, registry, ctx,
-		        parameters.getImage(), name, f, this);
+		        parameters.getImage(), name, f, parameters.isOverride(), this);
 		return loader;
 	}
 

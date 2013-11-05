@@ -634,12 +634,12 @@ class EditorComponent
 	
 	/** 
 	 * Implemented as specified by the {@link Editor} interface.
-	 * @see Editor#download(File)
+	 * @see Editor#download(File, boolean)
 	 */
-	public void download(File file)
+	public void download(File file, boolean override)
 	{
 		if (file == null) return;
-		model.download(file);
+		model.download(file, override);
 	}
 
 	/** 

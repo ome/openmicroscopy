@@ -371,28 +371,44 @@ class EditorControl
 	/** Brings up the folder chooser. */
 	private void download()
 	{
-		JFrame f = MetadataViewerAgent.getRegistry().getTaskBar().getFrame();
-		FileChooser chooser = new FileChooser(f, FileChooser.SAVE,
-			FileChooser.DOWNLOAD_TEXT, FileChooser.DOWNLOAD_DESCRIPTION, null,
-			true);
-		try {
-			File file = UIUtilities.getDefaultFolder();
-			if (file != null) chooser.setCurrentDirectory(file);
-		} catch (Exception ex) {}
-		List<DataObject> list = view.getSelectedObjects();
-		ImageData image = view.getImage();
-		if (!CollectionUtils.isEmpty(list)){
-		    if (list.size() == 1)
-		        chooser.setSelectedFileFull(image.getName());
-		}
+	    JFrame f = MetadataViewerAgent.getRegistry().getTaskBar().getFrame();
+
+	    List<DataObject> list = view.getSelectedObjects();
+	    ImageData image = view.getImage();
+	    int type = FileChooser.SAVE;
+	    List<String> paths = new ArrayList<String>();
+	    if (list != null && list.size() > 1) {
+	        type = FileChooser.FOLDER_CHOOSER;
+	        Iterator<DataObject> i = list.iterator();
+	        DataObject data;
+	        while (i.hasNext()) {
+	            data  = i.next();
+	            if (data instanceof ImageData) {
+	                paths.add(((ImageData) data).getName());
+	            }
+	        }
+	    }
+
+	    FileChooser chooser = new FileChooser(f, type,
+	            FileChooser.DOWNLOAD_TEXT, FileChooser.DOWNLOAD_DESCRIPTION,
+	            null, true);
+	    try {
+	        File file = UIUtilities.getDefaultFolder();
+	        if (file != null) chooser.setCurrentDirectory(file);
+	    } catch (Exception ex) {}
+		if (type == FileChooser.SAVE)
+		    chooser.setSelectedFileFull(image.getName());
+		
 		IconManager icons = IconManager.getInstance();
 		chooser.setTitleIcon(icons.getIcon(IconManager.DOWNLOAD_48));
 		chooser.setApproveButtonText(FileChooser.DOWNLOAD_TEXT);
 		chooser.setCheckOverride(true);
+		chooser.setSelectedFiles(paths);
 		chooser.addPropertyChangeListener(new PropertyChangeListener() {
 		
 			public void propertyChange(PropertyChangeEvent evt) {
 				String name = evt.getPropertyName();
+				FileChooser src = (FileChooser) evt.getSource();
 				if (FileChooser.APPROVE_SELECTION_PROPERTY.equals(name)) {
 					File[] files = (File[]) evt.getNewValue();
 					if (files == null || files.length == 0) return;
@@ -400,7 +416,7 @@ class EditorControl
 					if (path == null) {
 						path = UIUtilities.getDefaultFolder();
 					}
-					model.download(path);
+					model.download(path, src.isOverride());
 				}
 			}
 		});

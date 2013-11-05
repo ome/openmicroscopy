@@ -289,8 +289,10 @@ public interface Editor
 	 * 
 	 * @param file The file where to download the content.
 	 * If it is a multi-images file a zip will be created.
+	 * @param override Flag indicating to override the existing file if it
+	 * exists, <code>false</code> otherwise.
 	 */
-	public void download(File file);
+	public void download(File file, boolean override);
 
 	/**
 	 * Sets the parent of the root object. This will be taken into account

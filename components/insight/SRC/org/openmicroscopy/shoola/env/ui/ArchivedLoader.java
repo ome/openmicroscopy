@@ -56,21 +56,24 @@ public class ArchivedLoader
 	extends UserNotifierLoader
 {
 
-	/** Handle to the asynchronous call so that we can cancel it. */
+    /** Handle to the asynchronous call so that we can cancel it. */
     private CallHandle handle;
-    
+
     /** The archived image to load. */
     private ImageData image;
 
     /** The file where to download the content of the image. */
     private File file;
-    
+
     /** Flag indicating that the export has been marked to be cancel.*/
     private boolean cancelled;
-    
+
     /** The name of the saved image.*/
     private String name;
-    
+
+    /** Flag indicating to override or not the files when saving.*/
+    private boolean override;
+
     /**
      * Notifies that an error occurred.
      * @see UserNotifierLoader#onException(String, Throwable)
@@ -91,11 +94,13 @@ public class ArchivedLoader
      * @param image The image to export.
      * @param name The name of the saved image.
      * @param file The location where to download the image.
+     * @param override Flag indicating to override the existing file if it
+     *                 exists, <code>false</code> otherwise.
      * @param activity The activity associated to this loader.
      */
 	public ArchivedLoader(UserNotifier viewer,  Registry registry,
 			SecurityContext ctx, ImageData image, String name, File file,
-			ActivityComponent activity)
+			boolean override, ActivityComponent activity)
 	{
 		super(viewer, registry, ctx, activity);
 		if (image == null)
@@ -103,6 +108,7 @@ public class ArchivedLoader
 		this.image = image;
 		this.file = file;
 		this.name = name;
+		this.override = override;
 	}
 
 	/**
