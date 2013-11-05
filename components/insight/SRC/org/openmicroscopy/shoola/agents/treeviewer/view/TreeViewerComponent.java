@@ -3467,12 +3467,21 @@ class TreeViewerComponent
 	    Iterator i = l.iterator();
 	    Object object;
 	    List<ImageData> archived = new ArrayList<ImageData>();
+	    List<Long> filesetIds = new ArrayList<Long>();
 	    ImageData image;
+	    long id;
 	    while (i.hasNext()) {
 	        object = i.next();
 	        if (object instanceof ImageData) {
 	            image = (ImageData) object;
-	            if (image.isArchived()) archived.add(image);
+	            if (image.isArchived()) {
+	                id = image.getFilesetId();
+	                if (id < 0) archived.add(image);
+	                else if (!filesetIds.contains(id)) {
+	                    archived.add(image);
+	                    filesetIds.add(id);
+	                }
+	            }
 	        } else if (object instanceof FileAnnotationData) {
 	            downloadFile(folder, override, (FileAnnotationData) object,
 	                    null);
