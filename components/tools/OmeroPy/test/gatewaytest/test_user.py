@@ -13,6 +13,7 @@
 """
 
 import omero
+import pytest
 
 from omero.gateway.scripts import dbhelpers
 
@@ -98,6 +99,7 @@ class TestUser (object):
             # Revert group permissions and remove user from group
             admin.changePermissions(g._obj, omero.model.PermissionsI(perms))
 
+    @pytest.mark.xfail(reason="ticket 11545")
     def testCrossGroupRead (self, gatewaywrapper):
         gatewaywrapper.loginAsAuthor()
         u = gatewaywrapper.gateway.getUpdateService()

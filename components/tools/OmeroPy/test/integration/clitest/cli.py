@@ -20,31 +20,24 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 
-import unittest
-import omero
-import time
+from omero.cli import CLI
+from omero.plugins.sessions import SessionsControl
 
-import gatewaytest.library as lib
-
-
-class FilesetTest (lib.GTest):
-
-    def setUp(self):
-        super(FilesetTest, self).setUp()
-        self.loginAsAuthor()
-        self.TESTIMG = self.getTestImage()
-
-    def testFileset(self):
-        image = self.TESTIMG
-
-        # Assume image is not imported pre-FS
-        filesCount = image.countFilesetFiles()
-        self.assertTrue(filesCount > 0, "Imported image should be linked to original files")
-
-        # List the 'imported image files' (from fileset), check the number
-        filesInFileset = list(image.getImportedImageFiles())
-        self.assertEqual(filesCount, len(filesInFileset))
+from test.integration.library import ITest
+from omero_ext.mox import Mox
 
 
-if __name__ == '__main__':
-    unittest.main()
+class CLITest (ITest):
+
+    def setup_method(self, method):
+        super(CLITest, self).setup_method(method)
+        self.cli = CLI()
+        self.cli.register("sessions", SessionsControl, "TEST")
+        self.args = self.login_args()
+
+    def setup_mock(self):
+        self.mox = Mox()
+
+    def teardown_mock(self):
+        self.mox.UnsetStubs()
+        self.mox.VerifyAll()

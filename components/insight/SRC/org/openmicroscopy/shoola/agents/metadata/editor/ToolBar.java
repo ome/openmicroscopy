@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.metadata.editor.ToolBar 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -61,7 +61,6 @@ import javax.swing.SwingUtilities;
 
 //Third-party libraries
 import org.jdesktop.swingx.JXBusyLabel;
-import org.jdesktop.swingx.JXLoginPane.SaveMode;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
@@ -80,6 +79,7 @@ import org.openmicroscopy.shoola.util.ui.MultilineLabel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.tdialog.TinyDialog;
 
+import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
 import pojos.FilesetData;
@@ -261,7 +261,7 @@ class ToolBar
     		menu.setIcon(icons.getIcon(IconManager.SAVE_AS));
     		menu.setText("Save as...");
     		menu.setToolTipText("Save the images at full size as JPEG. PNG or" +
-    				"Tiff.");
+    				"TIFF.");
     		ActionListener l = new ActionListener() {
 				
 				
@@ -274,12 +274,16 @@ class ToolBar
 			Entry<Integer, String> e;
 			Iterator<Entry<Integer, String>> i = formats.entrySet().iterator();
 			JMenuItem item;
+			Object ho = model.getRefObject();
+			boolean enabled = (ho instanceof ImageData ||
+			        ho instanceof WellSampleData || ho instanceof DatasetData);
 			while (i.hasNext()) {
 				e = i.next();
 				item = new JMenuItem();
 				item.setText(e.getValue());
 				item.addActionListener(l);
 				item.setActionCommand(""+e.getKey());
+				item.setEnabled(enabled);
 				menu.add(item);
 			}
     		saveAsMenu.add(menu);

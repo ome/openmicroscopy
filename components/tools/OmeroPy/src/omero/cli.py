@@ -325,7 +325,7 @@ class Context:
         Prints text to a given string, capturing any exceptions.
         """
         try:
-            stream.write(str(text) % {"program_name": sys.argv[0]})
+            stream.write(str(text))
             if newline:
                 stream.write("\n")
             else:

@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.imviewer.util.ProjectionRef 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -114,11 +114,11 @@ public class ProjectionRef
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param startZ 	The first z-section to project.
-	 * @param endZ   	The last z-section to project.
-	 * @param frequence The freqence between each step. 
-	 * 					Default is <code>1</code>.
-	 * @param type 		The type of projection.
+	 * @param startZ The first z-section to project.
+	 * @param endZ The last z-section to project.
+	 * @param frequence The frequence between each step.
+	 *                  Default is <code>1</code>.
+	 * @param type The type of projection.
 	 */
 	ProjectionRef(int startZ, int endZ, int frequence, int type)
 	{
@@ -131,7 +131,7 @@ public class ProjectionRef
 	/**
 	 * Sets the stepping.
 	 * 
-	 * @param stepping The stepping between each step. 
+	 * @param stepping The stepping between each step.
 	 * 					Default is <code>1</code>.
 	 */
 	void setStepping(int stepping)
@@ -144,11 +144,11 @@ public class ProjectionRef
 	 * Sets the interval to project.
 	 * 
 	 * @param startZ The first z-section to project.
-	 * @param endZ	 The last z-section to project.
+	 * @param endZ The last z-section to project.
 	 */
 	void setZInterval(int startZ, int endZ)
 	{
-		if (startZ > endZ) 
+		if (startZ > endZ)
 			throw new IllegalArgumentException("Interval not valid.");
 		this.startZ = startZ;
 		this.endZ = endZ;
@@ -158,11 +158,11 @@ public class ProjectionRef
 	 * Sets the interval to project.
 	 * 
 	 * @param startT The first timepoint to project.
-	 * @param endT	 The last timepoint to project.
+	 * @param endT The last timepoint to project.
 	 */
 	void setTInterval(int startT, int endT)
 	{
-		if (startT > endT) 
+		if (startT > endT)
 			throw new IllegalArgumentException("Interval not valid.");
 		this.startT = startT;
 		this.endT = endT;
@@ -225,7 +225,7 @@ public class ProjectionRef
 	/**
 	 * Sets the collection of channels to project.
 	 * 
-	 * @param channels The value to set. 					  
+	 * @param channels The value to set.
 	 */
 	void setChannels(List<Integer> channels) { this.channels = channels; }
 	

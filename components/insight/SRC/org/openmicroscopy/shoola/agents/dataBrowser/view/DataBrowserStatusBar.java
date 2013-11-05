@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowserStatusBar 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -51,68 +51,67 @@ import org.openmicroscopy.shoola.util.ui.slider.OneKnobSlider;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since OME3.0
  */
-class DataBrowserStatusBar 
+class DataBrowserStatusBar
 	extends JPanel
 	implements ChangeListener, PropertyChangeListener
 {
 
 	/** The factor to use to set the magnification factor. */
-	private static final int	FACTOR = 10;
+	private static final int FACTOR = 10;
 
 	/** Reference to the view. */
-	private DataBrowserUI		view;
+	private DataBrowserUI view;
 	
 	/** Slider to zoom the fields . */
-	private OneKnobSlider		fieldsZoomSlider;
-	
+	private OneKnobSlider fieldsZoomSlider;
+
 	/** Slider to zoom the fields . */
-	private OneKnobSlider		zoomSlider;
-	
+	private OneKnobSlider zoomSlider;
+
     /** The bar notifying the user for the data retrieval progress. */
-    private JProgressBar        progressBar;
+    private JProgressBar progressBar;
 
     /** Displays the status message. */
-    private JLabel              status;
-    
+    private JLabel status;
+
     /** The component displaying the magnification factor. */
     private MagnificationComponent mag;
-    
+
     /** The displayed slider. */
-    private OneKnobSlider		 refSlider;
-    
+    private OneKnobSlider refSlider;
+
 	/** Initializes the components. */
 	private void initComponents()
 	{
-		mag = new MagnificationComponent(Thumbnail.MIN_SCALING_FACTOR, 
+		mag = new MagnificationComponent(Thumbnail.MIN_SCALING_FACTOR,
 				Thumbnail.MAX_SCALING_FACTOR, Thumbnail.SCALING_FACTOR);
 		mag.addPropertyChangeListener(
 				MagnificationComponent.MAGNIFICATION_PROPERTY, this);
-		fieldsZoomSlider = new OneKnobSlider(OneKnobSlider.HORIZONTAL, 
-				WellFieldsView.MAGNIFICATION_UNSCALED_MIN*FACTOR, 
-				WellFieldsView.MAGNIFICATION_UNSCALED_MAX*FACTOR, 
+		fieldsZoomSlider = new OneKnobSlider(OneKnobSlider.HORIZONTAL,
+				WellFieldsView.MAGNIFICATION_UNSCALED_MIN*FACTOR,
+				WellFieldsView.MAGNIFICATION_UNSCALED_MAX*FACTOR,
 				WellFieldsView.MAGNIFICATION_UNSCALED_MIN*FACTOR);
 		//fieldsZoomSlider.setEnabled(false);
 		fieldsZoomSlider.setToolTipText("Magnifies the thumbnails.");
 		
-		zoomSlider = new OneKnobSlider(OneKnobSlider.HORIZONTAL, 
-				(int) (Thumbnail.MIN_SCALING_FACTOR*FACTOR), 
-				(int) (Thumbnail.MAX_SCALING_FACTOR*FACTOR), 
+		zoomSlider = new OneKnobSlider(OneKnobSlider.HORIZONTAL,
+				(int) (Thumbnail.MIN_SCALING_FACTOR*FACTOR),
+				(int) (Thumbnail.MAX_SCALING_FACTOR*FACTOR),
 				(int) (Thumbnail.SCALING_FACTOR*FACTOR));
 		//zoomSlider.setEnabled(false);
 		zoomSlider.addChangeListener(this);
 		zoomSlider.setToolTipText("Magnifies the thumbnails.");
 		fieldsZoomSlider.addChangeListener(this);
+		addPropertyChangeListener(
+		        MagnificationComponent.MAGNIFICATION_UPDATE_PROPERTY, mag);
 		refSlider = zoomSlider;
 		progressBar = new JProgressBar();
         status = new JLabel();
 		progressBar.setVisible(false);
 	}
-	
+
 	/** Builds and lays out the UI. */
 	private void buildGUI()
 	{
@@ -159,20 +158,20 @@ class DataBrowserStatusBar
 		removeAll();
 		buildGUI();
 	}
-	
+
 	/** 
      * Sets the status message.
      * 
      * @param s The message to display.
      */
     void setStatus(String s) { status.setText(s); }
-    
+
     /**
      * Sets the value of the progress bar.
      * 
-     * @param hide  Pass <code>true</code> to hide the progress bar, 
+     * @param hide Pass <code>true</code> to hide the progress bar,
      *              <code>false</otherwise>.
-     * @param perc  The value to set.
+     * @param perc The value to set.
      */
     void setProgress(boolean hide, int perc)
     {
@@ -184,14 +183,14 @@ class DataBrowserStatusBar
             progressBar.setValue(perc);
         }
     }
-    
+
     /**
      * Returns the magnification factor.
      * 
      * @return See above.
      */
     double getMagnificationFactor() { return mag.getMagnification(); }
-    
+
 	/** 
 	 * Zooms in or out the thumbnails.
 	 * @see ChangeListener#stateChanged(ChangeEvent)
@@ -207,6 +206,9 @@ class DataBrowserStatusBar
 			int v = zoomSlider.getValue();
 	    	double f = (double) v/FACTOR;
 			view.setMagnificationFactor(f);
+			firePropertyChange(
+			        MagnificationComponent.MAGNIFICATION_UPDATE_PROPERTY,
+			        null, f);
 		}
 	}
 
@@ -226,5 +228,5 @@ class DataBrowserStatusBar
 			zoomSlider.addChangeListener(this);
 		}
 	}
-	
+
 }

@@ -13,28 +13,36 @@
    defined here will be added to the Cli class for later use.
 """
 
-from omero.cli import BaseControl, CLI, GraphControl, ExperimenterGroupArg
+from omero.cli import CLI, GraphControl, ExperimenterGroupArg
 import sys
 
-HELP="""Move data between groups
+HELP = """Move data between groups
 
 Example Usage:
 
-  omero chgrp 101 /Image:1                     # Move all of Image 1 to group 101
-  omero chgrp Group:101 /Image:1               # Move all of Image 1 to group 101
-  omero chgrp ExperimenterGroup:101 /Image:1   # Move all of Image 1 to group 101
-  omero chgrp "My Lab" /Image:1                # Move all of Image 1 to group "myLab"
+  omero chgrp 101 /Image:1                     # Move all of Image 1 to \
+group 101
+  omero chgrp Group:101 /Image:1               # Move all of Image 1 to \
+group 101
+  omero chgrp ExperimenterGroup:101 /Image:1   # Move all of Image 1 to \
+group 101
+  omero chgrp "My Lab" /Image:1                # Move all of Image 1 to \
+group "myLab"
 
-  omero chgrp --edit 101 /Image:1              # Open an editor with all the chgrp
-                                               # options filled out with defaults.
+  omero chgrp --edit 101 /Image:1              # Open an editor with all \
+the chgrp
+                                               # options filled out with \
+defaults.
 
-  omero chgrp --opt /Image:KEEP /Plate:1       # Calls chgrp on Plate, leaving all
+  omero chgrp --opt /Image:KEEP /Plate:1       # Calls chgrp on Plate, \
+leaving all
                                                # images in the previous group.
 
   What data is moved is the same as that which would be deleted by a similar
   call to "omero delete /Image:1"
 
 """
+
 
 class ChgrpControl(GraphControl):
 
@@ -44,7 +52,9 @@ class ChgrpControl(GraphControl):
         return omero.cmd.Chgrp
 
     def _pre_objects(self, parser):
-        parser.add_argument("grp", nargs="?", type=ExperimenterGroupArg, help="""Group to move objects to""")
+        parser.add_argument(
+            "grp", nargs="?", type=ExperimenterGroupArg,
+            help="""Group to move objects to""")
 
     def _process_request(self, req, args, client):
         req.grp = args.grp.lookup(client)
@@ -57,7 +67,9 @@ class ChgrpControl(GraphControl):
         if isinstance(rsp, omero.cmd.GraphConstraintERR):
             if "Fileset" in rsp.constraints:
                 fileset = rsp.constraints.get("Fileset")
-                return "You cannot move part of fileset %s; only complete filesets can be moved to another group.\n" % ", ".join(str(x) for x in fileset)
+                return "You cannot move part of fileset %s; only complete" \
+                    " filesets can be moved to another group.\n" % \
+                    ", ".join(str(x) for x in fileset)
             else:
                 return super(ChgrpControl, self).create_error_report(rsp)
         else:

@@ -14,13 +14,15 @@ ${FULL NAME}            root root
 # Web config
 ${WEB HOST}             localhost
 ${WEB PORT}             8080
+${SERVER_ID}            1
+
 ${BROWSER}              Firefox
 ${DELAY}                0
 
-${LOGIN URL}            http://${WEB HOST}:${WEB PORT}/webclient/login/
-${WELCOME URL}          http://${WEB HOST}:${WEB PORT}/webclient/
+${LOGIN URL}            http://${WEB HOST}/webclient/login/
+${WELCOME URL}          http://${WEB HOST}/webclient/
 
-${WEBADMIN WELCOME URL}     http://${WEB HOST}:${WEB PORT}/webadmin/
+${WEBADMIN WELCOME URL}     http://${WEB HOST}/webadmin/
 ${WEBADMIN LOGIN URL}       ${LOGIN URL}?url=%2Fwebadmin%2F
 
 ${USERS URL}            ${WEBADMIN WELCOME URL}experimenters/

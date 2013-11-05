@@ -467,13 +467,8 @@ public abstract class GraphStep {
             // NB: below we also prevent this from
             // being raised as an event. TODO: refactor out to Op
             //
-            nullOp = new QueryBuilder();
-            if (table.contains("Job")) {
-                nullOp.update("UploadJob");
-                nullOp.append("set versionInfo = null ");
-                nullOp.where();
-                nullOp.and("id = :id");
-            } else {
+            if (!table.contains("Job")) {
+                nullOp = new QueryBuilder();
                 nullOp.update(table);
                 nullOp.append("set relatedTo = null ");
                 nullOp.where();

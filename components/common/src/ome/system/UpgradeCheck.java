@@ -1,7 +1,7 @@
 /*
  *   $Id$
  *
- *   Copyright 2007 Glencoe Software, Inc. All rights reserved.
+ *   Copyright 2007-2013 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -15,6 +15,17 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.net.UnknownHostException;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.X509Certificate;
+
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 
 import ome.util.Utils;
 
@@ -36,6 +47,47 @@ public class UpgradeCheck implements Runnable {
      * Default timeout is 10 seconds.
      */
     public final static int DEFAULT_TIMEOUT = 10 * 1000;
+
+    private static final HostnameVerifier ACCEPT_ANY_HOSTNAME = new HostnameVerifier() {
+        @Override
+        public boolean verify(String hostname, SSLSession session) {
+            return true;
+        }};
+
+    private static final SSLSocketFactory TRUSTING_SSL_SOCKET_FACTORY;
+
+    static {
+        final TrustManager trustEverything = new X509TrustManager() {
+            private final X509Certificate[] acceptedIssuers = new X509Certificate[0];
+
+            @Override
+            public void checkClientTrusted(X509Certificate[] chain, String authType) { }
+
+            @Override
+            public void checkServerTrusted(X509Certificate[] chain, String authType) { }
+
+            @Override
+            public X509Certificate[] getAcceptedIssuers() {
+                return this.acceptedIssuers;
+            }
+        };
+
+        SSLContext trustingContext = null;
+
+        try {
+            trustingContext = SSLContext.getInstance("SSL");
+        } catch (NoSuchAlgorithmException e) {
+            // http://docs.oracle.com/javase/6/docs/technotes/guides/security/StandardNames.html#SSLContext
+        }
+
+        try {
+            trustingContext.init(null, new TrustManager[]{trustEverything}, null);
+        } catch (KeyManagementException e) {
+            // uses standard key manager
+        }
+
+        TRUSTING_SSL_SOCKET_FACTORY = trustingContext.getSocketFactory();
+    }
 
     final String url;
     final String version;
@@ -155,6 +207,11 @@ public class UpgradeCheck implements Runnable {
             conn.addRequestProperty("User-Agent", agent);
             conn.setConnectTimeout(timeout);
             conn.setReadTimeout(timeout);
+            if (conn instanceof HttpsURLConnection) {
+                final HttpsURLConnection httpsConnection = (HttpsURLConnection) conn;
+                httpsConnection.setHostnameVerifier(ACCEPT_ANY_HOSTNAME);
+                httpsConnection.setSSLSocketFactory(TRUSTING_SSL_SOCKET_FACTORY);
+            }
             conn.connect();
 
             log.debug("Attempting to connect to " + query);

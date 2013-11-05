@@ -2,10 +2,10 @@
  * org.openmicroscopy.shoola.agents.metadata.editor.EditorModel 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -537,7 +537,7 @@ class EditorModel
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Creates a new instance.
 	 * 
@@ -3935,9 +3935,26 @@ class EditorModel
 				l.add(f);
 			}
 		}
-		return l; 
+		return l;
 	}
 	
+	/**
+	 * Returns the object to save as.
+	 * 
+	 * @param ho The data object.
+	 * @return See above.
+	 */
+	private DataObject saveAsObject(Object ho)
+	{
+	    if (ho instanceof ImageData || ho instanceof DatasetData) {
+            return (DataObject) ho;
+        }
+	    if (ho instanceof WellSampleData) {
+	        return ((WellSampleData) ho).getImage();
+	    }
+	    return null;
+	}
+
 	/** 
 	 * Saves locally the images as <code>JPEG</code>, <code>PNG</code>
 	 * or <code>TIFF</code>.
@@ -3947,32 +3964,30 @@ class EditorModel
 	 */
 	void saveAs(File folder, int format)
 	{
-		Collection l = parent.getRelatedNodes();
-		List<DataObject> objects = new ArrayList<DataObject>();
-		Object o;
-		if (l != null) {
-			Iterator i = l.iterator();
-			while (i.hasNext()) {
-				o = (Object) i.next();
-				if (o instanceof ImageData || o instanceof DatasetData) {
-					objects.add((DataObject) o);
-				}
-			}
-		}
-		o = getRefObject();
-		if (o instanceof ImageData || o instanceof DatasetData) {
-			objects.add((DataObject) o);
-		}
-		
-		if (objects.size() > 0) {
-			IconManager icons = IconManager.getInstance();
-			SaveAsParam p = new SaveAsParam(folder, objects);
-			p.setIndex(format);
-			p.setIcon(icons.getIcon(IconManager.SAVE_AS_22));
-			UserNotifier un =
-				MetadataViewerAgent.getRegistry().getUserNotifier();
-			un.notifyActivity(getSecurityContext(), p);
-		}
+	    Collection l = parent.getRelatedNodes();
+	    List<DataObject> objects = new ArrayList<DataObject>();
+	    Object o;
+	    DataObject data;
+	    if (l != null) {
+	        Iterator i = l.iterator();
+	        while (i.hasNext()) {
+	            data = saveAsObject(i.next());
+	            if (data != null)
+	                objects.add(data);
+	        }
+	    }
+	    data = saveAsObject(getRefObject());
+	    if (data != null)
+	        objects.add(data);
+	    if (objects.size() > 0) {
+	        IconManager icons = IconManager.getInstance();
+	        SaveAsParam p = new SaveAsParam(folder, objects);
+	        p.setIndex(format);
+	        p.setIcon(icons.getIcon(IconManager.SAVE_AS_22));
+	        UserNotifier un =
+	                MetadataViewerAgent.getRegistry().getUserNotifier();
+	        un.notifyActivity(getSecurityContext(), p);
+	    }
 	}
 	
 	/**

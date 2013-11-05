@@ -759,20 +759,12 @@ public class UIUtilities
 	 * passed, in turn, to the <code>setToolTipText</code> method of a 
 	 * {@link javax.swing.JComponent}.
 	 *
-	 * @param toolTipText     The textual content of the tool tip.
-	 * @return An <i>HTML</i> formatted string to be passed to 
-	 * 			<code>setToolTipText()</code>.
+	 * @param toolTipText The textual content of the tool tip.
+	 * @return The String.
 	 */
 	public static String formatToolTipText(String toolTipText) 
 	{
-		if (toolTipText == null) toolTipText = "";
-		StringBuffer buf = new StringBuffer(90+toolTipText.length());
-		buf.append("<html><body bgcolor=#FFFCB7 text=#AD5B00>");
-		//TODO: change into platform independent font
-		buf.append("<font face=Arial size=2>");  
-		buf.append(toolTipText);
-		buf.append("</font></body></html>");
-		return buf.toString();
+	    return toolTipText;
 	}
 	
 	/**

@@ -30,7 +30,7 @@ from omero.cli import VERSION
 class QuitControl(BaseControl):
 
     def __call__(self, args):
-        self.ctx.exit("", newline = False)
+        self.ctx.exit("", newline=False)
 
 
 class VersionControl(BaseControl):
@@ -42,7 +42,8 @@ class VersionControl(BaseControl):
 class LoadControl(BaseControl):
 
     def _configure(self, parser):
-        parser.add_argument("infile", nargs="*", type=FileType("r"), default=[sys.stdin])
+        parser.add_argument("infile", nargs="*", type=FileType("r"),
+                            default=[sys.stdin])
         parser.set_defaults(func=self.__call__)
 
     def __call__(self, args):
@@ -55,7 +56,9 @@ class LoadControl(BaseControl):
 class ShellControl(BaseControl):
 
     def _configure(self, parser):
-        parser.add_argument("--login", action="store_true", help="Logins in and sets the 'client' variable")
+        parser.add_argument(
+            "--login", action="store_true",
+            help="Logins in and sets the 'client' variable")
         parser.add_argument("arg", nargs="*", help="Arguments for IPython.")
         parser.set_defaults(func=self.__call__)
 
@@ -75,13 +78,13 @@ class ShellControl(BaseControl):
         if args.login:
             import omero
             client = self.ctx.conn(args)
-            ns = {"client": client, "omero":omero}
+            ns = {"client": client, "omero": omero}
 
         try:
             # IPython 0.11 (see #7112)
             from IPython import embed
             embed(user_ns=ns)
-        except ImportError, ie:
+        except ImportError:
             from IPython.Shell import IPShellEmbed
             ipshell = IPShellEmbed(args.arg)
             ipshell(local_ns=ns)
@@ -94,10 +97,12 @@ class HelpControl(BaseControl):
     """
 
     def _configure(self, parser):
-        self.__parser__ = parser # For formatting later
+        self.__parser__ = parser  # For formatting later
         parser.set_defaults(func=self.__call__)
-        parser.add_argument("--all", action="store_true", help="Print help for all topics")
-        parser.add_argument("topic", nargs="?", help="Topic for more information")
+        parser.add_argument(
+            "--all", action="store_true", help="Print help for all topics")
+        parser.add_argument(
+            "topic", nargs="?", help="Topic for more information")
 
     def _complete(self, text, line, begidx, endidx):
         """
@@ -110,9 +115,12 @@ class HelpControl(BaseControl):
     def __call__(self, args):
 
         self.ctx.waitForPlugins()
-        #commands = "\n".join([" %s" % name for name in sorted(self.ctx.controls)])
+        #commands = "\n".join([" %s" % name for name in
+        #sorted(self.ctx.controls)])
         #topics = "\n".join([" %s" % topic for topic in self.ctx.topics])
-        commands, topics = [self.__parser__._format_list(x) for x in [sorted(self.ctx.controls), sorted(self.ctx.topics)]]
+        commands, topics = [
+            self.__parser__._format_list(x) for x in
+            [sorted(self.ctx.controls), sorted(self.ctx.topics)]]
 
         if args.all:
             for control in sorted(self.ctx.controls):
@@ -129,6 +137,8 @@ class HelpControl(BaseControl):
                 self.ctx.out("\n")
         elif not args.topic:
             #self.ctx.invoke("-h")
+            key_list = {"program_name": sys.argv[0], "version": VERSION,
+                        "commands": commands, "topics": topics}
             print """usage: %(program_name)s <command> [options] args
 See 'help <command>' or '<command> -h' for more information on syntax
 Type 'quit' to exit
@@ -139,15 +149,18 @@ Available commands:
 Other help topics:
 %(topics)s
 
-For additional information, see http://trac.openmicroscopy.org.uk/ome/wiki/OmeroCli
+For additional information, see:
+http://www.openmicroscopy.org/site/support/omero4/users/\
+command-line-interface.html
 Report bugs to <ome-users@lists.openmicroscopy.org.uk>
-""" % {"program_name":sys.argv[0],"version":VERSION, "commands":commands, "topics":topics}
+""" % key_list
 
         else:
             try:
-                c = self.ctx.controls[args.topic]
+                print 1
+                self.ctx.controls[args.topic]
                 self.ctx.invoke("%s -h" % args.topic)
-            except KeyError, ke:
+            except KeyError:
                 try:
                     self.ctx.out(self.ctx.topics[args.topic])
                 except KeyError:

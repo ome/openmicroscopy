@@ -86,7 +86,7 @@ public class JComboBoxImageObject {
 	public String getText()
 	{
 		if (data instanceof GroupData) {
-			return ((GroupData) data).getName();
+			return EditorUtil.truncate(((GroupData) data).getName());
 		} else if (data instanceof ExperimenterData) {
 			return EditorUtil.formatExperimenter((ExperimenterData) data);
 		}

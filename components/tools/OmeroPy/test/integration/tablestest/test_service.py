@@ -213,6 +213,7 @@ class TestTables(lib.ITest):
         with pytest.raises(omero.SecurityViolation):
             table.setAllMetadata({})
 
+    @pytest.mark.xfail(reason="ticket 11610")
     def testDelete(self):
         group = self.new_group(perms="rwr---")
         user1 = self.new_client(group)

@@ -496,8 +496,6 @@ insert into password values (1,'');
 --
 
 -- Prevent the deletion of mimetype = "Directory" objects
--- TODO: also evaluate preventing the change of mimetype
--- for Directory objects.
 create or replace function _fs_dir_delete() returns trigger AS $_fs_dir_delete$
     begin
         if OLD.repo is not null then
@@ -522,6 +520,20 @@ $_fs_dir_delete$ LANGUAGE plpgsql;
 create trigger _fs_dir_delete
 before delete on originalfile
     for each row execute procedure _fs_dir_delete();
+
+-- Prevent Directory entries in the originalfile table from having their mimetype changed.
+CREATE OR REPLACE FUNCTION _fs_directory_mimetype() RETURNS "trigger" AS $$
+    BEGIN
+        IF OLD.mimetype = 'Directory' AND NEW.mimetype != 'Directory' THEN
+            RAISE EXCEPTION '%%', 'Directory('||OLD.id||')='||OLD.path||OLD.name||'/ must remain a Directory';
+        END IF;
+        RETURN NEW;
+    END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER _fs_directory_mimetype
+    BEFORE UPDATE ON originalfile
+    FOR EACH ROW EXECUTE PROCEDURE _fs_directory_mimetype();
 
 create table _fs_deletelog (
     event_id bigint not null,
