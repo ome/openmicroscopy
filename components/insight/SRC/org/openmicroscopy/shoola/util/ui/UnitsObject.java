@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.util.UnitsObject 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2012 University of Dundee & Open Microscopy Environment.
+ *  Copyright (C) 2006-2013 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
  *
  *
@@ -52,7 +52,7 @@ public class UnitsObject
     public static final String NANOMETER = "nm";
     
 	/** String to represent the micron symbol. */
-    public static final String MICRONS = "Âµm";
+    public static final String MICRONS = "µm";
     
     /** String to represent the millimeter symbol. */
     public static final String MILLIMETER = "mm";
