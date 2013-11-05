@@ -176,7 +176,7 @@ module omero {
         const string NSVIEW = "openmicroscopy.org/omero/scripts/results/view";
         
         //
-        // modulo namespaces for <a href="https://www.openmicroscopy.org/site/support/file-formats/working-with-ome-xml/6d-7d-and-8d-storage">6d-7d-and-8d-storage</a>
+        // modulo namespaces for <a href="http://www.openmicroscopy.org/site/support/file-formats/working-with-ome-xml/6d-7d-and-8d-storage">6d-7d-and-8d-storage</a>
         //
         const string NSMODULO = "openmicroscopy.org/omero/dimension/modulo";
     };
