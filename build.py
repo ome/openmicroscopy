@@ -100,12 +100,30 @@ def choose_omero_version():
         if not omero_build:
             omero_version = re.sub("([-]DEV)?-\d+-[a-f0-9]+(-dirty)?",\
                     "-DEV", omero_version)
-        return [ "-Domero.version=%s%s" % (omero_version, omero_build) ]
     except:
         print "Error getting version for BUILD_NUMBER=%s" % omero_build
         if err:
             print err
         sys.exit(1)
+
+    command = [ find_java(), "omero",BUILD_PY,"-q","plainversion" ]
+    err = ""
+    try:
+        p = popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        omero_plain_version, err = p.communicate()
+        omero_plain_version = omero_plain_version.split()[1]
+        if not omero_build:
+            omero_plain_version = re.sub("([-]DEV)?-\d+-[a-f0-9]+(-dirty)?",\
+                    "-DEV", omero_plain_version)
+    except:
+        print "Error getting plain version for BUILD_NUMBER=%s" % omero_build
+        if err:
+            print err
+        sys.exit(1)
+
+
+    return [ "-Domero.version=%s%s" % (omero_version, omero_build),
+             "-Domero.plainversion=%s%s" % (omero_plain_version, omero_build) ]
 
 
 def handle_tools(args):
