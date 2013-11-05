@@ -44,12 +44,11 @@ import javax.swing.Icon;
 import javax.swing.JFrame;
 
 //Third-party libraries
+import org.apache.commons.collections.CollectionUtils;
 
 //Application-internal dependencies
 import omero.model.OriginalFile;
 import omero.model.PlaneInfo;
-
-import org.apache.commons.collections.CollectionUtils;
 import org.openmicroscopy.shoola.agents.metadata.AcquisitionDataLoader;
 import org.openmicroscopy.shoola.agents.metadata.AnalysisResultsFileLoader;
 import org.openmicroscopy.shoola.agents.metadata.AttachmentsLoader;
