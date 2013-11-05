@@ -59,8 +59,9 @@ import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
 
 
-import org.apache.commons.collections.CollectionUtils;
+
 //Third-party libraries
+import org.apache.commons.collections.CollectionUtils;
 import org.jdesktop.swingx.JXBusyLabel;
 
 //Application-internal dependencies
@@ -221,87 +222,85 @@ class ToolBar
     /** Creates or recycles the save as menu. */
     private JPopupMenu createSaveAsMenu()
     {
-    	//if (saveAsMenu == null) {
-    		saveAsMenu = new JPopupMenu();
-    		IconManager icons = IconManager.getInstance();
-    		downloadItem = new JMenuItem(icons.getIcon(IconManager.DOWNLOAD));
-    		downloadItem.setToolTipText("Download the Archived File(s).");
-    		downloadItem.setText("Download...");
-    		downloadItem.addActionListener(controller);
-    		downloadItem.setActionCommand(""+EditorControl.DOWNLOAD);
-    		downloadItem.setBackground(UIUtilities.BACKGROUND_COLOR);
-    		List<DataObject> nodes = model.getSelectedObjects();
-    		boolean b = false;
-    		if (!CollectionUtils.isEmpty(nodes)) {
-    		    Iterator<DataObject> i = nodes.iterator();
-    		    while (i.hasNext()) {
-                    if (model.isArchived(i.next())) {
-                        b = true;
-                        break;
-                    }
+        saveAsMenu = new JPopupMenu();
+        IconManager icons = IconManager.getInstance();
+        downloadItem = new JMenuItem(icons.getIcon(IconManager.DOWNLOAD));
+        downloadItem.setToolTipText("Download the Archived File(s).");
+        downloadItem.setText("Download...");
+        downloadItem.addActionListener(controller);
+        downloadItem.setActionCommand(""+EditorControl.DOWNLOAD);
+        downloadItem.setBackground(UIUtilities.BACKGROUND_COLOR);
+        List<DataObject> nodes = model.getSelectedObjects();
+        boolean b = false;
+        if (!CollectionUtils.isEmpty(nodes)) {
+            Iterator<DataObject> i = nodes.iterator();
+            while (i.hasNext()) {
+                if (model.isArchived(i.next())) {
+                    b = true;
+                    break;
                 }
-    		}
-    		downloadItem.setEnabled(b);
-    		saveAsMenu.add(downloadItem);
-    		
-    		downloadOriginalMetadataItem = new JMenuItem(
-    				icons.getIcon(IconManager.DOWNLOAD));
-    		downloadOriginalMetadataItem.setToolTipText("Download the " +
-    				"metadata read from the image files.");
-    		downloadOriginalMetadataItem.setText(
-    				"Download Original metadata...");
-    		downloadOriginalMetadataItem.addActionListener(controller);
-    		downloadOriginalMetadataItem.setActionCommand(
-    				""+EditorControl.DOWNLOAD_METADATA);
-    		downloadOriginalMetadataItem.setBackground(
-    				UIUtilities.BACKGROUND_COLOR);
-    		downloadOriginalMetadataItem.setEnabled(
-    				model.hasOriginalMetadata());
-    		saveAsMenu.add(downloadOriginalMetadataItem);
-    		
-    		exportAsOmeTiffItem = new JMenuItem(icons.getIcon(
-    				IconManager.EXPORT_AS_OMETIFF));
-    		exportAsOmeTiffItem.setText("Export as OME-TIFF...");
-    		exportAsOmeTiffItem.setToolTipText(EXPORT_AS_OME_TIFF_TOOLTIP);
-    		exportAsOmeTiffItem.addActionListener(controller);
-    		exportAsOmeTiffItem.setActionCommand(
-    				""+EditorControl.EXPORT_AS_OMETIFF);
-    		b = model.getRefObject() instanceof ImageData && 
-    			!model.isLargeImage();
-    		exportAsOmeTiffItem.setEnabled(b);
-    		saveAsMenu.add(exportAsOmeTiffItem);
-    		JMenu menu = new JMenu();
-    		menu.setIcon(icons.getIcon(IconManager.SAVE_AS));
-    		menu.setText("Save as...");
-    		menu.setToolTipText("Save the images at full size as JPEG. PNG or" +
-    				"TIFF.");
-    		ActionListener l = new ActionListener() {
-				
-				
-				public void actionPerformed(ActionEvent e) {
-					int index = Integer.parseInt(e.getActionCommand());
-					controller.saveAs(index);
-				}
-			};
-			Map<Integer, String> formats = FigureParam.FORMATS;
-			Entry<Integer, String> e;
-			Iterator<Entry<Integer, String>> i = formats.entrySet().iterator();
-			JMenuItem item;
-			Object ho = model.getRefObject();
-			boolean enabled = (ho instanceof ImageData ||
-			        ho instanceof WellSampleData || ho instanceof DatasetData);
-			while (i.hasNext()) {
-				e = i.next();
-				item = new JMenuItem();
-				item.setText(e.getValue());
-				item.addActionListener(l);
-				item.setActionCommand(""+e.getKey());
-				item.setEnabled(enabled);
-				menu.add(item);
-			}
-    		saveAsMenu.add(menu);
-    		setRootObject();
-    	//}
+            }
+        }
+        downloadItem.setEnabled(b);
+        saveAsMenu.add(downloadItem);
+
+        downloadOriginalMetadataItem = new JMenuItem(
+                icons.getIcon(IconManager.DOWNLOAD));
+        downloadOriginalMetadataItem.setToolTipText("Download the " +
+                "metadata read from the image files.");
+        downloadOriginalMetadataItem.setText(
+                "Download Original metadata...");
+        downloadOriginalMetadataItem.addActionListener(controller);
+        downloadOriginalMetadataItem.setActionCommand(
+                ""+EditorControl.DOWNLOAD_METADATA);
+        downloadOriginalMetadataItem.setBackground(
+                UIUtilities.BACKGROUND_COLOR);
+        downloadOriginalMetadataItem.setEnabled(
+                model.hasOriginalMetadata());
+        saveAsMenu.add(downloadOriginalMetadataItem);
+
+        exportAsOmeTiffItem = new JMenuItem(icons.getIcon(
+                IconManager.EXPORT_AS_OMETIFF));
+        exportAsOmeTiffItem.setText("Export as OME-TIFF...");
+        exportAsOmeTiffItem.setToolTipText(EXPORT_AS_OME_TIFF_TOOLTIP);
+        exportAsOmeTiffItem.addActionListener(controller);
+        exportAsOmeTiffItem.setActionCommand(
+                ""+EditorControl.EXPORT_AS_OMETIFF);
+        b = model.getRefObject() instanceof ImageData && 
+                !model.isLargeImage();
+        exportAsOmeTiffItem.setEnabled(b);
+        saveAsMenu.add(exportAsOmeTiffItem);
+        JMenu menu = new JMenu();
+        menu.setIcon(icons.getIcon(IconManager.SAVE_AS));
+        menu.setText("Save as...");
+        menu.setToolTipText("Save the images at full size as JPEG. PNG or" +
+                "TIFF.");
+        ActionListener l = new ActionListener() {
+
+
+            public void actionPerformed(ActionEvent e) {
+                int index = Integer.parseInt(e.getActionCommand());
+                controller.saveAs(index);
+            }
+        };
+        Map<Integer, String> formats = FigureParam.FORMATS;
+        Entry<Integer, String> e;
+        Iterator<Entry<Integer, String>> i = formats.entrySet().iterator();
+        JMenuItem item;
+        Object ho = model.getRefObject();
+        boolean enabled = (ho instanceof ImageData ||
+                ho instanceof WellSampleData || ho instanceof DatasetData);
+        while (i.hasNext()) {
+            e = i.next();
+            item = new JMenuItem();
+            item.setText(e.getValue());
+            item.addActionListener(l);
+            item.setActionCommand(""+e.getKey());
+            item.setEnabled(enabled);
+            menu.add(item);
+        }
+        saveAsMenu.add(menu);
+        setRootObject();
     	return saveAsMenu;
     }
     
