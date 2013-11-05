@@ -63,14 +63,10 @@
 	 background-image:-ms-linear-gradient(top, hsl(212,8%,49%) 0%,hsl(212,8%,34%) 100%); /* IE10+ */
 	 filter:progid:DXImageTransform.Microsoft.gradient( startColorstr='#73787d', endColorstr='#505357',GradientType=0 ); /* IE6-9 */
 	 background:linear-gradient(top, hsl(212,8%,49%) 0%,hsl(212,8%,34%) 100%); /* W3C */ 
-     behavior: url(../../3rdparty/pie/PIE.htc);
+     behavior: url(../../static/3rdparty/pie/PIE.htc);
 	 font-family: Helvetica,Arial,sans-serif;
  }
 	
-	
- 
- 
- 
 	
 	#middle_header_left a, #show_user_dropdown { 
 		color: hsl(210,20%,80%);
