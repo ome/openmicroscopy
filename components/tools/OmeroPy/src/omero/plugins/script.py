@@ -18,20 +18,21 @@
 
 """
 
-import subprocess, re, os, sys, signal, time, atexit
+import re
+import os
+import sys
+import signal
+import atexit
 
 from omero.cli import CLI
 from omero.cli import BaseControl
 
 from omero.util.sessions import SessionsStore
 
-from omero_ext.argparse import Action
-from omero_ext.strings import shlex
-from omero_ext.functional import wraps
-
 from path import path
 
-HELP = """Support for launching, uploading and otherwise managing OMERO.scripts"""
+HELP = """Support for launching, uploading and otherwise managing \
+OMERO.scripts"""
 
 DEMO_SCRIPT = """#!/usr/bin/env python
 import omero
@@ -68,18 +69,20 @@ print "Finished script"
 RE0 = re.compile("\s*script\s+upload\s*")
 RE1 = re.compile("\s*script\s+upload\s+--official\s*")
 
+
 class ScriptControl(BaseControl):
 
     def _complete(self, text, line, begidx, endidx):
         """
-        Returns a file after "upload" and otherwise delegates to the BaseControl
+        Returns a file after "upload" and otherwise delegates to the
+        BaseControl
         """
         for RE in (RE1, RE0):
             m = RE.match(line)
             if m:
                 replaced = RE.sub('', line)
                 suggestions = self._complete_file(replaced, os.getcwd())
-                if False: #line.find("--official") < 0:
+                if False:  # line.find("--official") < 0:
                     add = "--official"
                     parts = line.split(" ")
                     if "--official".startswith(parts[-1]):
@@ -92,58 +95,110 @@ class ScriptControl(BaseControl):
 
     def _configure(self, parser):
         def _who(parser):
-            return parser.add_argument("who", nargs="*", help="Who to execute for: user, group, user=1, group=5 (default=official)")
+            return parser.add_argument(
+                "who", nargs="*",
+                help="Who to execute for: user, group, user=1, group=5"
+                " (default=official)")
 
         parser.add_login_arguments()
         sub = parser.sub()
 
-        ## Disabling for 4.2 release. help = parser.add(sub, self.help, "Extended help")
+        ## Disabling for 4.2 release. help = parser.add(sub, self.help,
+        # "Extended help")
 
-        demo = parser.add(sub, self.demo, "Runs a short demo of the scripting system")
+        demo = parser.add(
+            sub, self.demo,
+            "Runs a short demo of the scripting system")
 
-        list = parser.add(sub, self.list, help = "List files for user or group")
+        list = parser.add(
+            sub, self.list, help="List files for user or group")
         _who(list)
 
         cat = parser.add(sub, self.cat, "Prints a script to standard out")
-        edit = parser.add(sub, self.edit, "Opens a script in $EDITOR and saves it back to the server")
-        params = parser.add(sub, self.params, help="Print the parameters for a given script")
-        launch = parser.add(sub, self.launch, help = "Launch a script with parameters")
-        disable = parser.add(sub, self.disable, help = "Makes script non-executable by setting the mimetype")
-        disable.add_argument("--mimetype", default="text/plain", help="Use a mimetype other than the default (%(default)s)")
-        enable = parser.add(sub, self.enable, help = "Makes a script non-executable (sets mimetype to text/x-python)")
-        enable.add_argument("--mimetype", default="text/x-python", help="Use a mimetype other than the default (%(default)s)")
+        edit = parser.add(
+            sub, self.edit,
+            "Opens a script in $EDITOR and saves it back to the server")
+        params = parser.add(
+            sub, self.params, help="Print the parameters for a given script")
+        launch = parser.add(
+            sub, self.launch, help="Launch a script with parameters")
+        disable = parser.add(
+            sub, self.disable,
+            help="Makes script non-executable by setting the mimetype")
+        disable.add_argument(
+            "--mimetype", default="text/plain",
+            help="Use a mimetype other than the default (%(default)s)")
+        enable = parser.add(
+            sub, self.enable, help="Makes a script non-executable (sets"
+            " mimetype to text/x-python)")
+        enable.add_argument(
+            "--mimetype", default="text/x-python",
+            help="Use a mimetype other than the default (%(default)s)")
 
         for x in (launch, params, cat, disable, enable, edit):
-            x.add_argument("original_file", help="Id or path of a script file stored in OMERO")
-        launch.add_argument("input", nargs="*", help="Inputs for the script of the form 'param=value'")
+            x.add_argument(
+                "original_file",
+                help="Id or path of a script file stored in OMERO")
+        launch.add_argument(
+            "input", nargs="*",
+            help="Inputs for the script of the form 'param=value'")
 
-        jobs = parser.add(sub, self.jobs, help = "List current jobs for user or group")
-        jobs.add_argument("--all", action="store_true", help="Show all jobs, not just running ones")
+        jobs = parser.add(
+            sub, self.jobs, help="List current jobs for user or group")
+        jobs.add_argument(
+            "--all", action="store_true",
+            help="Show all jobs, not just running ones")
         _who(jobs)
 
-        serve = parser.add(sub, self.serve, help = "Start a usermode processor for scripts")
-        serve.add_argument("--verbose", action="store_true", help="Enable debug logging on processor")
-        serve.add_argument("-b", "--background", action="store_true", help="Run processor in background. Used in demo")
-        serve.add_argument("-t", "--timeout", default=0, type=long, help="Seconds that the processor should run. 0 means no timeout")
+        serve = parser.add(
+            sub, self.serve,
+            help="Start a usermode processor for scripts")
+        serve.add_argument(
+            "--verbose", action="store_true",
+            help="Enable debug logging on processor")
+        serve.add_argument(
+            "-b", "--background", action="store_true",
+            help="Run processor in background. Used in demo")
+        serve.add_argument(
+            "-t", "--timeout", default=0, type=long,
+            help="Seconds that the processor should run. 0 means no timeout")
         _who(serve)
 
-        upload = parser.add(sub, self.upload, help = "Upload a script")
-        upload.add_argument("--official", action="store_true", help = "If set, creates a system script. Must be an admin")
-        upload.add_argument("file", help = "Local script file to upload to OMERO")
+        upload = parser.add(sub, self.upload, help="Upload a script")
+        upload.add_argument(
+            "--official", action="store_true",
+            help="If set, creates a system script. Must be an admin")
+        upload.add_argument(
+            "file", help="Local script file to upload to OMERO")
 
-        replace = parser.add(sub, self.replace, help = "Replace an existing script with a new value")
-        replace.add_argument("id", type=long, help = "Id of the original file which is to be replaced")
-        replace.add_argument("file", help = "Local script which should overwrite the existing one")
+        replace = parser.add(
+            sub, self.replace,
+            help="Replace an existing script with a new value")
+        replace.add_argument(
+            "id", type=long,
+            help="Id of the original file which is to be replaced")
+        replace.add_argument(
+            "file",
+            help="Local script which should overwrite the existing one")
 
-        delete = parser.add(sub, self.delete, help = "delete an existing script")
-        delete.add_argument("id", type=long, help = "Id of the original file which is to be deleted")
+        delete = parser.add(
+            sub, self.delete, help="delete an existing script")
+        delete.add_argument(
+            "id", type=long,
+            help="Id of the original file which is to be deleted")
 
-        run = parser.add(sub, self.run, help = "Run a script with the OMERO libraries loaded and current login")
-        run.add_argument("file", help = "Local script file to run")
-        run.add_argument("input", nargs="*", help="Inputs for the script of the form 'param=value'")
+        run = parser.add(
+            sub, self.run,
+            help="Run a script with the OMERO libraries loaded and current"
+            " login")
+        run.add_argument("file", help="Local script file to run")
+        run.add_argument(
+            "input", nargs="*",
+            help="Inputs for the script of the form 'param=value'")
 
         # log = parser.add(sub, self.log, help = "TBD", tbd="TRUE")
-        for x in (demo, cat, edit, params, launch, disable, enable, jobs, serve, upload, replace, delete, run):
+        for x in (demo, cat, edit, params, launch, disable, enable, jobs,
+                  serve, upload, replace, delete, run):
             x.add_login_arguments()
 
     def help(self, args):
@@ -226,7 +281,6 @@ class ScriptControl(BaseControl):
         run
         """)
 
-
     def demo(self, args):
         from omero.util.temp_files import create_path
         t = create_path("Demo_Script", ".py")
@@ -243,7 +297,7 @@ class ScriptControl(BaseControl):
         self.ctx.out("\nExample script writing session")
         self.ctx.out("="*80)
 
-        def msg(title, method = None, *arguments):
+        def msg(title, method=None, *arguments):
             self.ctx.out("\n")
             self.ctx.out("\t+" + ("-"*68) + "+")
             title = "\t| %-66.66s | " % title
@@ -256,16 +310,17 @@ class ScriptControl(BaseControl):
             self.ctx.out(" ")
             if method:
                 try:
-                    self.ctx.invoke(['script', method.__name__] + list(arguments))
+                    self.ctx.invoke(['script', method.__name__] +
+                                    list(arguments))
                 except Exception, e:
                     import traceback
                     self.ctx.out("\nEXECUTION FAILED: %s" % e)
                     self.ctx.dbg(traceback.format_exc())
 
         client = self.ctx.conn(args)
-        admin = client.sf.getAdminService()
         current_user = self.ctx._event_context.userId
-        query = "select o from OriginalFile o where o.hash = '%s' and o.details.owner.id = %s" % (sha1, current_user)
+        query = "select o from OriginalFile o where o.hash = '%s' and" \
+            " o.details.owner.id = %s" % (sha1, current_user)
         files = client.sf.getQueryService().findAllByQuery(query, None)
         if len(files) == 0:
             msg("Saving demo script to %s" % t)
@@ -279,11 +334,16 @@ class ScriptControl(BaseControl):
 
         msg("Listing available scripts for user", self.list, "user")
         msg("Printing script content for file %s" % id, self.cat, str(id))
-        msg("Serving file %s in background" % id, self.serve, "user", "--background")
-        msg("Printing script params for file %s" % id, self.params, "file=%s" % id)
-        msg("Launching script with parameters: a=bad-string (fails)", self.launch, "file=%s" % id, "a=bad-string")
-        msg("Launching script with parameters: a=bad-string opt=6 (fails)", self.launch, "file=%s" % id, "a=bad-string", "opt=6")
-        msg("Launching script with parameters: a=foo opt=1 (passes)", self.launch, "file=%s" % id, "a=foo", "opt=1")
+        msg("Serving file %s in background" % id, self.serve, "user",
+            "--background")
+        msg("Printing script params for file %s" % id, self.params,
+            "file=%s" % id)
+        msg("Launching script with parameters: a=bad-string (fails)",
+            self.launch, "file=%s" % id, "a=bad-string")
+        msg("Launching script with parameters: a=bad-string opt=6 (fails)",
+            self.launch, "file=%s" % id, "a=bad-string", "opt=6")
+        msg("Launching script with parameters: a=foo opt=1 (passes)",
+            self.launch, "file=%s" % id, "a=foo", "opt=1")
         try:
             for p in list(getattr(self, "_processors", [])):
                 p.cleanup()
@@ -324,9 +384,10 @@ class ScriptControl(BaseControl):
             self.ctx.err("Failed to find script: %s (%s)" % (script_id, e))
 
     def jobs(self, args):
-        client = self.ctx.conn(args)
+        self.ctx.conn(args)
         cols = ("username", "groupname", "started", "finished")
-        query = "select j, %s, s.value from Job j join j.status s" % (",".join(["j.%s" % j for j in cols]))
+        query = "select j, %s, s.value from Job j join j.status s" \
+            % (",".join(["j.%s" % j for j in cols]))
         if not args.all:
             query += " where j.finished is null"
 
@@ -356,14 +417,13 @@ class ScriptControl(BaseControl):
             job = proc.getJob()
         except omero.ValidationException, ve:
             self.ctx.err("Bad parameters:\n%s" % ve)
-            return # EARLY EXIT
+            return  # EARLY EXIT
 
         # Adding notification to wait on result
         cb = omero.scripts.ProcessCallbackI(client, proc)
         try:
             self.ctx.out("Job %s ready" % job.id.val)
             self.ctx.out("Waiting....")
-            count = 0
             while proc.poll() is None:
                 cb.block(1000)
             self.ctx.out("Callback received: %s" % cb.block(0))
@@ -375,14 +435,16 @@ class ScriptControl(BaseControl):
             class handle(object):
                 def write(this, val):
                     val = "\t* %s" % val
-                    val = val.replace("\n","\n\t* ")
+                    val = val.replace("\n", "\n\t* ")
                     self.ctx.out(val, newline=False)
+
                 def close(this):
                     pass
 
             f = rv.get(m, None)
             if f and f.val:
-                self.ctx.out("\n\t*** start %s (id=%s)***" % (m, f.val.id.val))
+                self.ctx.out("\n\t*** start %s (id=%s)***"
+                             % (m, f.val.id.val))
                 try:
                     client.download(ofile=f.val, filehandle=handle())
                 except:
@@ -401,7 +463,6 @@ class ScriptControl(BaseControl):
         client = self.ctx.conn(args)
         sf = client.sf
         svc = sf.getScriptService()
-        ec = self.ctx._event_context
         if args.who:
             who = [self._parse_who(w) for w in args.who]
             scripts = svc.getUserScripts(who)
@@ -432,17 +493,21 @@ class ScriptControl(BaseControl):
             self.ctx.out("name:  %s" % job_params.name)
             self.ctx.out("version:  %s" % job_params.version)
             self.ctx.out("authors:  %s" % ", ".join(job_params.authors))
-            self.ctx.out("institutions:  %s" % ", ".join(job_params.institutions))
+            self.ctx.out("institutions:  %s"
+                         % ", ".join(job_params.institutions))
             self.ctx.out("description:  %s" % job_params.description)
             self.ctx.out("namespaces:  %s" % ", ".join(job_params.namespaces))
             self.ctx.out("stdout:  %s" % job_params.stdoutFormat)
             self.ctx.out("stderr:  %s" % job_params.stderrFormat)
+
             def print_params(which, params):
                 import omero
                 self.ctx.out(which)
-                for k in sorted(params, key=lambda name: params.get(name).grouping):
+                for k in sorted(params,
+                                key=lambda name: params.get(name).grouping):
                     v = params.get(k)
-                    self.ctx.out("  %s - %s" % (k, (v.description and v.description or "(no description)")))
+                    self.ctx.out("  %s - %s" % (k, (v.description and
+                                 v.description or "(no description)")))
                     self.ctx.out("    Optional: %s" % v.optional)
                     self.ctx.out("    Type: %s" % v.prototype.ice_staticId())
                     if isinstance(v.prototype, omero.RCollection):
@@ -450,11 +515,13 @@ class ScriptControl(BaseControl):
                         if len(coll) == 0:
                             self.ctx.out("    Subtype: (empty)")
                         else:
-                            self.ctx.out("    Subtype: %s" % coll[0].ice_staticId())
+                            self.ctx.out("    Subtype: %s"
+                                         % coll[0].ice_staticId())
 
                     elif isinstance(v.prototype, omero.RMap):
                         try:
-                            proto_value = v.prototype.val.values[0].ice_staticId()
+                            proto_value = \
+                                v.prototype.val.values[0].ice_staticId()
                         except:
                             proto_value = None
 
@@ -462,7 +529,8 @@ class ScriptControl(BaseControl):
                     self.ctx.out("    Min: %s" % (v.min and v.min.val or ""))
                     self.ctx.out("    Max: %s" % (v.max and v.max.val or ""))
                     values = omero.rtypes.unwrap(v.values)
-                    self.ctx.out("    Values: %s" % (values and ", ".join(values) or ""))
+                    self.ctx.out("    Values: %s"
+                                 % (values and ", ".join(values) or ""))
             print_params("inputs:", job_params.inputs)
             print_params("outputs:", job_params.outputs)
 
@@ -476,10 +544,9 @@ class ScriptControl(BaseControl):
         background = args.background
         timeout = args.timeout
         client = self.ctx.conn(args)
-        sf = client.sf
         who = [self._parse_who(w) for w in args.who]
         if not who:
-            who = [] # Official scripts only
+            who = []  # Official scripts only
 
         # Similar to omero.util.Server starting here
         import logging
@@ -495,7 +562,9 @@ class ScriptControl(BaseControl):
 
         try:
             try:
-                impl = usermode_processor(client, serverid = "omero.scripts.serve", accepts_list = who, omero_home=self.ctx.dir)
+                impl = usermode_processor(
+                    client, serverid="omero.scripts.serve", accepts_list=who,
+                    omero_home=self.ctx.dir)
                 self._processors.append(impl)
             except Exception, e:
                 self.ctx.die(100, "Failed initialization: %s" % e)
@@ -540,7 +609,8 @@ class ScriptControl(BaseControl):
         """
         Note: currently simply fails.
         An implementation might be possible using msvcrt.
-        See: http://stackoverflow.com/questions/3471461/raw-input-and-timeout/3911560
+        See: \
+http://stackoverflow.com/questions/3471461/raw-input-and-timeout/3911560
         """
         try:
             if timeout != 0:
@@ -566,7 +636,8 @@ class ScriptControl(BaseControl):
                 id = scriptSvc.uploadOfficialScript(args.file, p.text())
             except omero.ApiUsageException, aue:
                 if "editScript" in aue.message:
-                    self.ctx.die(502, "%s already exists; use 'replace' instead" % args.file)
+                    self.ctx.die(502, "%s already exists; use 'replace'"
+                                 " instead" % args.file)
                 else:
                     self.ctx.die(504, "ApiUsageException: %s" % aue.message)
             except omero.SecurityViolation, sv:
@@ -574,7 +645,8 @@ class ScriptControl(BaseControl):
         else:
             id = scriptSvc.uploadScript(args.file, p.text())
 
-        self.ctx.out("Uploaded %sscript as original file #%s" % ((args.official and "official " or ""), id))
+        self.ctx.out("Uploaded %sscript as original file #%s"
+                     % ((args.official and "official " or ""), id))
         self.ctx.set("script.file.id", id)
 
     def replace(self, args):
@@ -601,11 +673,13 @@ class ScriptControl(BaseControl):
 
     def disable(self, args):
         ofile = self.setmimetype(args)
-        self.ctx.out("Disabled %s by setting mimetype to %s" % (ofile.id.val, args.mimetype))
+        self.ctx.out("Disabled %s by setting mimetype to %s"
+                     % (ofile.id.val, args.mimetype))
 
     def enable(self, args):
         ofile = self.setmimetype(args)
-        self.ctx.out("Enabled %s by setting mimetype to %s" % (ofile.id.val, args.mimetype))
+        self.ctx.out("Enabled %s by setting mimetype to %s"
+                     % (ofile.id.val, args.mimetype))
 
     def setmimetype(self, args):
         from omero.rtypes import rstring
@@ -642,8 +716,8 @@ omero.pass=%(omero.sess)s
                 if v is not None:
                     client.setInput(k, v)
 
-            p = self.ctx.popen([sys.executable, args.file], stdout=sys.stdout, stderr=sys.stderr,\
-                ICE_CONFIG = str(path))
+            p = self.ctx.popen([sys.executable, args.file], stdout=sys.stdout,
+                               stderr=sys.stderr, ICE_CONFIG=str(path))
             p.wait()
             if p.poll() != 0:
                 self.ctx.die(p.poll(), "Execution failed.")
@@ -658,7 +732,8 @@ omero.pass=%(omero.sess)s
         except MissingInputs, mi:
             rv = mi.inputs
             for key in mi.keys:
-                value = self.ctx.input("""Enter value for "%s": """ % key, required = True)
+                value = self.ctx.input("""Enter value for "%s": """ % key,
+                                       required=True)
                 rv.update(parse_input("%s=%s" % (key, value), params))
         return rv
 
@@ -673,7 +748,6 @@ omero.pass=%(omero.sess)s
         self.ctx.out(str(tb.build()))
 
     def _file(self, args, client):
-        import omero
         f = args.original_file
         q = client.sf.getQueryService()
         svc = client.sf.getScriptService()
@@ -698,9 +772,10 @@ omero.pass=%(omero.sess)s
         """
 
         import omero
-        WHO_FACTORY  = {"user":omero.model.ExperimenterI, "group":omero.model.ExperimenterGroupI}
-        WHO_CURRENT = { "user":lambda ec: ec.userId,
-                        "group":lambda ec: ec.groupId}
+        WHO_FACTORY = {"user": omero.model.ExperimenterI,
+                       "group": omero.model.ExperimenterGroupI}
+        WHO_CURRENT = {"user": lambda ec: ec.userId,
+                       "group": lambda ec: ec.groupId}
 
         for key, factory in WHO_FACTORY.items():
             if who.startswith(key):
