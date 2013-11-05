@@ -60,6 +60,14 @@ public class ProportionalTimeEstimatorImpl implements TimeEstimator {
     }
 
     /**
+     * @see TimeEstimator#stop()
+     */
+    public void stop() {
+        sw.stop();
+        totalTime += sw.getTime();
+    }
+
+    /**
      * @see TimeEstimator#stop(long)
      */
     public void stop(long uploadedBytes) {

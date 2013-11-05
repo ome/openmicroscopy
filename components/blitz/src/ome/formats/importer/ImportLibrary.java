@@ -315,7 +315,7 @@ public class ImportLibrary implements IObservable
             final ChecksumProviderFactory cpf, TimeEstimator estimator,
             final byte[] buf)
             throws ServerError, IOException {
-
+        estimator.start();
         ChecksumProvider cp = cpf.getProvider(
                 ChecksumAlgorithmMapper.getChecksumType(
                         proc.getImportSettings().checksumAlgorithm));
@@ -336,6 +336,7 @@ public class ImportLibrary implements IObservable
 
             // "touch" the file otherwise zero-length files
             rawFileStore.write(new byte[0], offset, 0);
+            estimator.stop();
             notifyObservers(new ImportEvent.FILE_UPLOAD_BYTES(
                     file.getAbsolutePath(), index, srcFiles.length,
                     offset, length, estimator.getUploadTimeLeft(), null));
@@ -354,7 +355,7 @@ public class ImportLibrary implements IObservable
                         file.getAbsolutePath(), index, srcFiles.length, offset,
                         length, estimator.getUploadTimeLeft(), null));
             }
-
+            estimator.start();
             digestString = cp.checksumAsString();
 
             OriginalFile ofile = rawFileStore.save();
@@ -366,6 +367,7 @@ public class ImportLibrary implements IObservable
                 log.debug(String.format("checksums: client=%s,server=%s",
                         digestString, ofile.getHash().getValue()));
             }
+            estimator.stop();
             notifyObservers(new ImportEvent.FILE_UPLOAD_COMPLETE(
                     file.getAbsolutePath(), index, srcFiles.length,
                     offset, length, null));

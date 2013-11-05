@@ -39,7 +39,14 @@ public interface TimeEstimator {
     void start();
 
     /**
-     * Stops the time counting.
+     * Stops the time counting and updates the internal time counter.
+     */
+    void stop();
+
+
+    /**
+     * Stops the time counting and updates the internal updates the internal
+     * time counter and counter of total number of transmitted bytes.
      *
      * @param uploadedBytes
      *            Number of bytes uploaded in a single time frame that is being
@@ -53,8 +60,8 @@ public interface TimeEstimator {
      * stop} methods.
      *
      * @return The estimated time remaining. The value 0 is returned if
-     *         {@link TimeEstimator#stop(long) stop} hasn't been called before
-     *         calling this method.
+     *         {@link TimeEstimator#stop(long) stop} hasn't been called at least
+     *         once before calling this method.
      */
     long getUploadTimeLeft();
 }

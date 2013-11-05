@@ -202,6 +202,9 @@ public class StatusLabel
 	/** The total size of uploaded files.*/
 	private long totalUploadedSize;
 	
+	/** Time [ms] left to finish uploading the files. */
+	private long uploadTimeLeft;
+	
 	/** The label displaying the general import information.*/
 	private JLabel generalLabel;
 	
@@ -299,6 +302,7 @@ public class StatusLabel
 		markedAsCancel = false;
 		cancellable = true;
 		totalUploadedSize = 0;
+		uploadTimeLeft = 0;
 		generalLabel = new JLabel(DEFAULT_TEXT);
 		Font f = generalLabel.getFont();
 		Font derived = f.deriveFont(f.getStyle(), f.getSize()-2);
