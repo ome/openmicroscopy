@@ -472,6 +472,16 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
              includes="openmicroscopy-${omero.plainversion}/**"
              />
         <delete dir="${target.dir}/openmicroscopy-${omero.plainversion}" quiet="true"/>
+
+        <git command="archive" output="release-src-command" failonerror="true">
+            <args>
+                <arg value="--prefix=OMERO.source-${omero.plainversion}/"/>
+                <arg value="--format=zip"/>
+                <arg value="HEAD"/>
+                <arg value="-o"/>
+                <arg value="${target.dir}/OMERO.source-${omero.plainversion}.zip"/>
+            </args>
+        </git>
     </target>
 
     <target name="release-clients" description="Zip the Python, Java, and Matlab zips">
