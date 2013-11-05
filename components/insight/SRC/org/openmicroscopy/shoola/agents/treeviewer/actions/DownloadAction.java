@@ -104,8 +104,19 @@ public class DownloadAction
         if (ho instanceof FileAnnotationData) {
             setEnabled(true);
         } else if (ho instanceof ImageData) {
-            ImageData img = (ImageData) ho;
-            setEnabled(img.isArchived());
+            Browser browser = model.getSelectedBrowser();
+            List<DataObject> list = browser.getSelectedDataObjects();
+            Iterator<DataObject> i = list.iterator();
+            DataObject data;
+            boolean enabled = false;
+            while (i.hasNext()) {
+                data = i.next();
+                if (data instanceof ImageData) {
+                    ImageData img = (ImageData) data;
+                    if (img.isArchived()) enabled = true;
+                }
+            }
+            setEnabled(enabled);
         }
     }
 
