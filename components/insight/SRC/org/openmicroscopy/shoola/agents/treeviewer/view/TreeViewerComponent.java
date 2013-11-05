@@ -3484,8 +3484,6 @@ class TreeViewerComponent
 	        UserNotifier un =
 	                MetadataViewerAgent.getRegistry().getUserNotifier();
 	        IconManager icons = IconManager.getInstance();
-	        if (archived.size() > 1)
-	            folder = folder.getParentFile();
 	        Icon icon = icons.getIcon(IconManager.DOWNLOAD_22);
 	        SecurityContext ctx = getSecurityContext();
 	        while (j.hasNext()) {
