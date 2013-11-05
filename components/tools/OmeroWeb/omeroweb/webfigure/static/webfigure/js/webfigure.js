@@ -515,6 +515,7 @@
 
             // respond to zoom changes
             this.listenTo(this.model, 'change:curr_zoom', this.setZoom);
+            this.listenTo(this.model, 'change:selection', this.renderSelectionChange);
 
             // refresh current UI
             this.setZoom();
@@ -522,11 +523,13 @@
 
             // 'Auto-render' on init.
             this.render();
+            this.renderSelectionChange();
 
         },
 
         events: {
-            "click .add_panel": "addPanel"
+            "click .add_panel": "addPanel",
+            "click .delete_panel": "deleteSelectedPanels"
         },
 
         keyboardEvents: {
@@ -769,6 +772,15 @@
         addOne: function(panel) {
             var view = new PanelView({model:panel});    // uiState:this.uiState
             this.$paper.append(view.render().el);
+        },
+
+        renderSelectionChange: function() {
+            var $delete_panel = $('.delete_panel', this.$el);
+            if (this.model.getSelected().length > 0) {
+                $delete_panel.removeAttr("disabled");
+            } else {
+                $delete_panel.attr("disabled", "disabled");
+            }
         },
 
         // Render is called on init()
