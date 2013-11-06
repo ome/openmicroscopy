@@ -291,7 +291,7 @@
     $('#wblitz-image-width').html(tmp.width);
     $('#wblitz-image-height').html(tmp.height);
     $('#wblitz-image-z-count').html(tmp.z);
-    $('#wblitz-image-t-count').html(tmp.t);
+    $('#wblitz-image-t-count').html(tmp.t.timeformat());
     tmp = viewport.getPixelSizes();
     $('#wblitz-image-pixel-size-x').html(tmp.x==0?'-':(tmp.x.lengthformat()));
     $('#wblitz-image-pixel-size-y').html(tmp.y==0?'-':(tmp.y.lengthformat()));
