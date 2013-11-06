@@ -75,8 +75,8 @@ public class ImporterAgent
 {
 
     /** Reference to the registry. */
-    private static Registry registry; 
-    
+    private static Registry registry;
+
     /** The selected browser type.*/
     private int browserType;
     
@@ -369,7 +369,7 @@ public class ImporterAgent
     }
 
     /**
-     * Implemented as specified by {@link Agent}. 
+     * Implemented as specified by {@link Agent}.
      * @see Agent#terminate()
      */
     public void terminate()
@@ -380,7 +380,7 @@ public class ImporterAgent
     }
 
     /** 
-     * Implemented as specified by {@link Agent}. 
+     * Implemented as specified by {@link Agent}.
      * @see Agent#setContext(Registry)
      */
     public void setContext(Registry ctx)
@@ -412,13 +412,13 @@ public class ImporterAgent
     }
 
     /**
-     * Implemented as specified by {@link Agent}. 
+     * Implemented as specified by {@link Agent}.
      * @see Agent#getDataToSave()
      */
     public AgentSaveInfo getDataToSave() { return null; }
 
     /**
-     * Implemented as specified by {@link Agent}. 
+     * Implemented as specified by {@link Agent}.
      * @see Agent#save(List)
      */
     public void save(List<Object> instances) {}
