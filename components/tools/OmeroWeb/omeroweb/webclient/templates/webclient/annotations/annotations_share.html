@@ -1,6 +1,7 @@
 {% extends "webgateway/core_html.html" %}
 {% load i18n %}
 {% load common_tags %}
+{% load common_filters %}
 {% load wikitags %}
 
 
@@ -241,11 +242,11 @@
                 <tr>
                     <th>Pixels Size (XYZ) (&#181m):</th>
                     <td id='pixels_size'>
-                        <div class='tooltip'>{{ manager.image.getPixelSizeX|floatformat:4 }} x {{ manager.image.getPixelSizeY|floatformat:4 }} 
-                            {% if manager.image.getPixelSizeZ %} x {{ manager.image.getPixelSizeZ|floatformat:4 }} {% endif %}
+                        <div class='tooltip'>{{ manager.image.getPixelSizeX|length_convertion|floatformat:2 }} x {{ manager.image.getPixelSizeY|length_convertion|floatformat:2 }} 
+                            {% if manager.image.getPixelSizeZ %} x {{ manager.image.getPixelSizeZ|length_convertion|floatformat:2 }} {% endif %}
                         </div>
                         <span style='display:none'>{{ manager.image.getPixelSizeX }} x {{ manager.image.getPixelSizeY }}
-                            {% if manager.image.getPixelSizeZ %} x {{ manager.image.getPixelSizeZ }} {% endif %}
+                            {% if manager.image.getPixelSizeZ %} x {{ manager.image.getPixelSizeZ }} {% endif %} (&#181m)
                         </span>
                     </td>
                 </tr>
