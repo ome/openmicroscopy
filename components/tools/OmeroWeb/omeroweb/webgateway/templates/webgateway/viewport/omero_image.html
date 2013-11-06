@@ -507,7 +507,7 @@
   var imageChange = function (ev, obj) {
     $('#wblitz-t-curr').html(viewport.getTPos());
     $('#wblitz-z-curr').html(viewport.getZPos());
-    $('#wblitz-t-count').html(viewport.getTCount());
+    $('#wblitz-t-count').html(viewport.getTCount().timeformat());
     $('#wblitz-z-count').html(viewport.getZCount());
 
     if(viewport.loadedImg.rdefs.invertAxis) {
