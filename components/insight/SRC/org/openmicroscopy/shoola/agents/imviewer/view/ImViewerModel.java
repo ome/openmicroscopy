@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.iviewer.view.ImViewerModel
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -33,8 +33,6 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
-import java.lang.management.ManagementFactory;
-import java.lang.management.MemoryUsage;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -88,6 +86,7 @@ import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.env.rnd.data.Region;
 import org.openmicroscopy.shoola.env.rnd.data.ResolutionLevel;
 import org.openmicroscopy.shoola.env.rnd.data.Tile;
+import org.openmicroscopy.shoola.util.file.modulo.ModuloInfo;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.UnitsObject;
@@ -807,7 +806,7 @@ class ImViewerModel
 	{
 		Renderer rnd = metadataViewer.getRenderer();
 		if (rnd == null) return 0;
-		return rnd.getPixelsDimensionsT()-1;
+		return rnd.getPixelsDimensionsT();
 	}
 
 	/**
@@ -831,8 +830,32 @@ class ImViewerModel
 	{
 		Renderer rnd = metadataViewer.getRenderer();
 		if (rnd == null) return 0;
-		return rnd.getDefaultT(); 
+		return rnd.getDefaultT();
 	}
+
+	/**
+	 * Returns the currently selected time-point.
+	 * 
+	 * @return See above.
+	 */
+    int getRealSelectedT()
+    {
+        Renderer rnd = metadataViewer.getRenderer();
+        if (rnd == null) return 0;
+        return rnd.getRealSelectedT();
+    }
+
+    /**
+     * Returns the number of time points if modulo available.
+     *
+     * @return See above.
+     */
+    int getRealT()
+    {
+        Renderer rnd = metadataViewer.getRenderer();
+        if (rnd == null) return 0;
+        return rnd.getRealT();
+    }
 
 	/**
 	 * Returns the currently selected color model.
@@ -1128,12 +1151,13 @@ class ImViewerModel
 	 * 
 	 * @param z The z-section to set.
 	 * @param t The timepoint to set.
+	 * @param bin The selected small t.
 	 */
-	void setSelectedXYPlane(int z, int t)
+	void setSelectedXYPlane(int z, int t, int bin)
 	{
 		Renderer rnd = metadataViewer.getRenderer();
 		if (rnd == null) return;
-		rnd.setSelectedXYPlane(z, t, -1);
+		rnd.setSelectedXYPlane(z, t, bin);
 	}
 
 	/**
@@ -1170,8 +1194,9 @@ class ImViewerModel
 	 */
 	int getMaxLifetimeBin()
 	{
-		if (isNumerousChannel()) return getMaxC();
-		return 0;
+	    Renderer rnd = metadataViewer.getRenderer();
+	    if (rnd == null) return 0;
+	    return rnd.getMaxLifetimeBin();
 	}
 	
 	/**
@@ -1180,10 +1205,11 @@ class ImViewerModel
 	 * 
 	 * @return See above.
 	 */
-	boolean isNumerousChannel()
+	boolean isLifetimeImage()
 	{
-		if (getMaxC() >= Renderer.MAX_CHANNELS) return true;
-		return getImage().isLifetime(); 
+	    Renderer rnd = metadataViewer.getRenderer();
+        if (rnd == null) return false;
+        return rnd.isLifetimeImage();
 	}
 	
 	/**
@@ -1196,7 +1222,8 @@ class ImViewerModel
 	{
 		if (isBigImage()) return false;
 		if (getMaxC() <= 1) return false;
-		if (isNumerousChannel()) return false;
+		if (getModuloT() != null) return true;
+		if (isLifetimeImage()) return false;
 		return true;
 	}
 	
@@ -2288,46 +2315,7 @@ class ImViewerModel
 		metadataViewer.makeMovie((int) getUnitInRefUnits(),
 				getBrowser().getUnitBarColor());
 	}
-	
-	/**
-	 * Sets the selected lifetime bin.
-	 * 
-	 * @param bin The selected bin.
-	 */
-	void setSelectedBin(int bin)
-	{
-		Renderer rnd = metadataViewer.getRenderer();
-		if (rnd == null) return;
-		List<ChannelData> channels = getChannelData();
-		ChannelData channel;
-		Iterator<ChannelData> i = channels.iterator();
-		int index;
-		while (i.hasNext()) {
-			channel = i.next();
-			index = channel.getIndex();
-			rnd.setActive(index, index == bin);
-		}
-	}
-	
-	/** Sets the rendering engine to handle lifetime image. */
-	void setForLifetime()
-	{
-		if (!isNumerousChannel()) return;
-		Renderer rnd = metadataViewer.getRenderer();
-		if (rnd == null) return;
-		setColorModel(ImViewer.GREY_SCALE_MODEL, true);
-		List<ChannelData> channels = getChannelData();
-		ChannelData c;
-		Iterator<ChannelData> i = channels.iterator();
-		int index;
-		while (i.hasNext()) {
-			c = i.next();
-			index = c.getIndex();
-			rnd.setChannelWindow(index, c.getGlobalMin(), c.getGlobalMax());
-			rnd.setActive(index, index == 0);
-		}
-	}
-	
+
 	/**
 	 * Returns the selected bin.
 	 * 
@@ -2335,12 +2323,12 @@ class ImViewerModel
 	 */
 	int getSelectedBin()
 	{
-		List<Integer> active = getActiveChannels();
-		if (active == null || active.size() != 1) return 0;
-		return active.get(0);
+	    Renderer rnd = metadataViewer.getRenderer();
+        if (rnd == null) return 0;
+        return rnd.getSelectedBin();
 	}
 
-	/** 
+	/**
 	 * Sets the selected channel.
 	 * 
 	 * @param index The index of the channel.
@@ -2990,5 +2978,17 @@ class ImViewerModel
 		tileLoadedCount += count;
 		return tileLoadedCount == tileTotalCount;
 	}
+
+    /**
+     * Returns the modulo info if it exists.
+     *
+     * @return See above.
+     */
+    ModuloInfo getModuloT()
+    {
+        Renderer rnd = metadataViewer.getRenderer();
+        if (rnd == null) return null;
+        return rnd.getModuloT();
+    }
 
 }

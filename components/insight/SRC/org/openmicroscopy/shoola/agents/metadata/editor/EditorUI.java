@@ -278,7 +278,7 @@ class EditorUI
     		groupUI.buildUI();
     		groupUI.repaint();
     		component = groupTabbedPane; 
-    	} else if (!(uo instanceof DataObject)) {	
+    	} else if (!(uo instanceof DataObject)) {
     		toolBar.buildUI();
     		component = defaultPane;
     	} else {

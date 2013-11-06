@@ -78,6 +78,7 @@ import org.openmicroscopy.shoola.agents.metadata.actions.ViewAction;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.editorpreview.PreviewPanel;
 import org.openmicroscopy.shoola.env.event.EventBus;
+import org.openmicroscopy.shoola.util.file.modulo.ModuloInfo;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.UnitsObject;
 import org.openmicroscopy.shoola.util.ui.omeeditpane.OMEWikiComponent;
@@ -744,19 +745,39 @@ class PropertiesUI
         	c.gridx = c.gridx+2;
         	content.add(value, c);
     	}
+    	//parse modulo T.
+    	Map<Integer, ModuloInfo> modulo = model.getModulo();
+    	ModuloInfo moduloT = modulo.get(ModuloInfo.T);
     	c.gridy++;
     	label = UIUtilities.setTextFont(EditorUtil.Z_T_FIELDS, Font.BOLD,
     			size);
     	value = UIUtilities.createComponent(null);
     	v = (String) details.get(EditorUtil.SECTIONS);
     	v += " x ";
-    	v += (String) details.get(EditorUtil.TIMEPOINTS);
+    	if (moduloT != null) {
+    	    String time = (String) details.get(EditorUtil.TIMEPOINTS);
+    	    int t = Integer.parseInt(time);
+    	    v += ""+(t/moduloT.getSize());
+    	} else {
+    	    v += (String) details.get(EditorUtil.TIMEPOINTS);
+    	}
     	value.setText(v);
     	c.gridx = 0;
     	content.add(label, c);
     	c.gridx = c.gridx+2;
     	content.add(value, c);
     	c.gridy++;
+    	if (moduloT != null) {
+    	    label = UIUtilities.setTextFont(EditorUtil.SMALL_T_VARIABLE,
+    	            Font.BOLD, size);
+            value = UIUtilities.createComponent(null);
+            value.setText(""+moduloT.getSize());
+            c.gridx = 0;
+            content.add(label, c);
+            c.gridx = c.gridx+2;
+            content.add(value, c);
+            c.gridy++;
+    	}
     	if (!model.isNumerousChannel() && model.getRefObjectID() > 0) {
     		label = UIUtilities.setTextFont(EditorUtil.CHANNELS,
     				Font.BOLD, size);

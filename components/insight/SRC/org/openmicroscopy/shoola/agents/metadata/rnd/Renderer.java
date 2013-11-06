@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.metadata.rnd.Renderer 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2009 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -43,6 +43,7 @@ import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.env.rnd.data.ResolutionLevel;
+import org.openmicroscopy.shoola.util.file.modulo.ModuloInfo;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 import pojos.ChannelData;
 import pojos.ImageData;
@@ -723,5 +724,47 @@ public interface Renderer
 	 * @return See above.
 	 */
 	List<ResolutionLevel> getResolutionDescriptions();
-	
+
+	/**
+	 * Returns the currently selected time-point.
+	 * 
+	 * @return See above.
+	 */
+    int getRealSelectedT();
+
+    /**
+     * Returns the number of time points if modulo available.
+     *
+     * @return See above.
+     */
+    int getRealT();
+
+    /**
+     * Returns the number of bins per time interval.
+     * 
+     * @return See above
+     */
+    int getMaxLifetimeBin();
+
+    /**
+     * Returns the selected bin for lifetime image.
+     * 
+     * @return See above.
+     */
+    int getSelectedBin();
+
+    /**
+     * Returns <code>true</code> if the image is a lifetime image,
+     * <code>false</code> otherwise.
+     *
+     * @return See above.
+     */
+    boolean isLifetimeImage();
+
+    /**
+     * Returns the modulo info if it exists.
+     *
+     * @return See above.
+     */
+    ModuloInfo getModuloT();
 }

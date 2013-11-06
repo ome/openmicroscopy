@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.metadata.rnd.RendererComponent 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2009 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -47,7 +47,6 @@ import omero.romio.PlaneDef;
 
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImageObject;
-import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
@@ -60,6 +59,7 @@ import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.env.rnd.data.ResolutionLevel;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
+import org.openmicroscopy.shoola.util.file.modulo.ModuloInfo;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 import pojos.ChannelData;
@@ -360,33 +360,14 @@ class RendererComponent
 							if (setIndex >= 0) selectedIndex = setIndex;
 						}
 					}
-					/*
-					if (!selected && model.isChannelActive(index) &&
-							model.getSelectedChannel() != index) {
-						selectedIndex = index;
-						render = false;
-					} else {
-						model.setChannelActive(index, selected);
-						List<Integer> active = model.getActiveChannels();
-						if (!active.contains(index) && active.size() > 0) {
-							int oldSelected = model.getSelectedChannel();
-							if (active.contains(oldSelected)) 
-								selectedIndex = oldSelected;
-							else {
-								int setIndex = model.createSelectedChannel();
-								if (setIndex >= 0) selectedIndex = setIndex;
-							}
-						}
-					}
-					*/
 				}
 			}
 			model.setSelectedChannel(selectedIndex);
 			view.setSelectedChannel();
         	if (render)
-        		firePropertyChange(RENDER_PLANE_PROPERTY, 
+        		firePropertyChange(RENDER_PLANE_PROPERTY,
         				Boolean.valueOf(false), Boolean.valueOf(true));
-        	firePropertyChange(SELECTED_CHANNEL_PROPERTY, -1, 
+        	firePropertyChange(SELECTED_CHANNEL_PROPERTY, -1,
         			selectedIndex);
 		} catch (Exception ex) {
 			handleException(ex);
@@ -623,24 +604,22 @@ class RendererComponent
      */
 	public void setSelectedXYPlane(int z, int t, int bin)
 	{
-		int defaultZ = model.getDefaultZ();
-		int defaultT = model.getDefaultT();
 		try {
-			if (bin > 0) {
-				model.setSelectedBin(bin);
-			} else {
-				if (defaultZ == z && defaultT == t) return;
+			if (bin < 0) {
+			    int defaultZ = model.getDefaultZ();
+		        int selectedT = model.getRealSelectedT();
+				if (defaultZ == z && selectedT == t) return;
 				model.setSelectedXYPlane(z, t);
 				if (defaultZ != z) {
-					firePropertyChange(Z_SELECTED_PROPERTY, 
+					firePropertyChange(Z_SELECTED_PROPERTY,
 							Integer.valueOf(defaultZ), Integer.valueOf(z));
 				}
-				if (defaultT != t) {
-					firePropertyChange(T_SELECTED_PROPERTY, 
-							Integer.valueOf(defaultT), Integer.valueOf(t));
+				if (selectedT != t) {
+					firePropertyChange(T_SELECTED_PROPERTY,
+							Integer.valueOf(selectedT), Integer.valueOf(t));
 				}
-			}
-			firePropertyChange(RENDER_PLANE_PROPERTY, 
+			} else model.setSelectedBin(bin);
+			firePropertyChange(RENDER_PLANE_PROPERTY,
 					Boolean.valueOf(false), Boolean.valueOf(true));
 		} catch (Exception ex) {
 			handleException(ex);
@@ -1101,7 +1080,7 @@ class RendererComponent
 	}
 	
 	/** 
-	 * Implemented as specified by the {@link ImViewer} interface.
+	 * Implemented as specified by the {@link Renderer} interface.
 	 * @see Renderer#retrieveRelatedSettings(Component, Point)
 	 */
 	public void retrieveRelatedSettings(Component source, Point location)
@@ -1113,7 +1092,7 @@ class RendererComponent
 	}
 
 	/** 
-	 * Implemented as specified by the {@link ImViewer} interface.
+	 * Implemented as specified by the {@link Renderer} interface.
 	 * @see Renderer#loadRndSettings(boolean, List)
 	 */
 	public void loadRndSettings(boolean loading, List results)
@@ -1124,7 +1103,7 @@ class RendererComponent
 	}
 
 	/** 
-	 * Implemented as specified by the {@link ImViewer} interface.
+	 * Implemented as specified by the {@link Renderer} interface.
 	 * @see Renderer#getTileSize()
 	 */
 	public Dimension getTileSize()
@@ -1138,13 +1117,13 @@ class RendererComponent
 	}
 
 	/** 
-	 * Implemented as specified by the {@link ImViewer} interface.
+	 * Implemented as specified by the {@link Renderer} interface.
 	 * @see Renderer#getResolutionLevels()
 	 */
 	public int getResolutionLevels() { return model.getResolutionLevels(); }
 
 	/** 
-	 * Implemented as specified by the {@link ImViewer} interface.
+	 * Implemented as specified by the {@link Renderer} interface.
 	 * @see Renderer#getResolutionLevels()
 	 */
 	public int getSelectedResolutionLevel()
@@ -1153,7 +1132,7 @@ class RendererComponent
 	}
 
 	/** 
-	 * Implemented as specified by the {@link ImViewer} interface.
+	 * Implemented as specified by the {@link Renderer} interface.
 	 * @see Renderer#setSelectedResolutionLevel(int)
 	 */
 	public void setSelectedResolutionLevel(int level)
@@ -1166,13 +1145,13 @@ class RendererComponent
 	}
 	
 	/** 
-	 * Implemented as specified by the {@link ImViewer} interface.
+	 * Implemented as specified by the {@link Renderer} interface.
 	 * @see Renderer#isBigImage()
 	 */
 	public boolean isBigImage() { return model.isBigImage(); }
 
 	/** 
-	 * Implemented as specified by the {@link ImViewer} interface.
+	 * Implemented as specified by the {@link Renderer} interface.
 	 * @see Renderer#viewImage()
 	 */
 	public void viewImage()
@@ -1190,7 +1169,7 @@ class RendererComponent
 	}
 
 	/** 
-	 * Implemented as specified by the {@link ImViewer} interface.
+	 * Implemented as specified by the {@link Renderer} interface.
 	 * @see Renderer#onUpdatedChannels(List)
 	 */
 	public void onUpdatedChannels(List<ChannelData> channels)
@@ -1199,13 +1178,13 @@ class RendererComponent
 	}
 
 	/** 
-	 * Implemented as specified by the {@link ImViewer} interface.
+	 * Implemented as specified by the {@link Renderer} interface.
 	 * @see Renderer#onUpdatedChannels(List)
 	 */
 	public boolean canAnnotate() { return model.canAnnotate(); }
 
 	/** 
-	 * Implemented as specified by the {@link ImViewer} interface.
+	 * Implemented as specified by the {@link Renderer} interface.
 	 * @see Renderer#getRenderingControls()
 	 */
 	public List<RenderingControl> getRenderingControls()
@@ -1214,7 +1193,7 @@ class RendererComponent
 	}
 
 	/** 
-	 * Implemented as specified by the {@link ImViewer} interface.
+	 * Implemented as specified by the {@link Renderer} interface.
 	 * @see Renderer#getResolutionDescriptions()
 	 */
 	public List<ResolutionLevel> getResolutionDescriptions()
@@ -1228,4 +1207,39 @@ class RendererComponent
 		return null;
 	}
 
+	/**
+	 * Implemented as specified by the {@link Renderer} interface.
+	 * @see Renderer#getRealSelectedT()
+	 */
+	public int getRealSelectedT() { return model.getRealSelectedT(); }
+
+	/**
+	 * Implemented as specified by the {@link Renderer} interface.
+	 * @see Renderer#getRealT()
+	 */
+	public int getRealT() { return model.getRealT(); }
+
+	/**
+	 * Implemented as specified by the {@link Renderer} interface.
+	 * @see Renderer#getMaxLifetimeBin()
+	 */
+	public int getMaxLifetimeBin() { return model.getMaxLifetimeBin(); }
+
+	/**
+	 * Implemented as specified by the {@link Renderer} interface.
+	 * @see Renderer#getSelectedBin()
+	 */
+	public int getSelectedBin() { return model.getSelectedBin(); }
+
+	/**
+	 * Implemented as specified by the {@link Renderer} interface.
+	 * @see Renderer#isLifetimeImage()
+	 */
+	public boolean isLifetimeImage() { return model.isLifetimeImage(); }
+
+	/**
+	 * Implemented as specified by the {@link Renderer} interface.
+	 * @see Renderer#getModuloT()
+	 */
+	public ModuloInfo getModuloT() { return model.getModuloT(); }
 }

@@ -2,10 +2,10 @@
  * org.openmicroscopy.shoola.agents.metadata.editor.Editor 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -49,7 +49,6 @@ import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 import pojos.AnnotationData;
 import pojos.ChannelAcquisitionData;
 import pojos.ChannelData;
-import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
 import pojos.FilesetData;
 import pojos.ImageAcquisitionData;
@@ -523,4 +522,10 @@ public interface Editor
 
 	/** Loads the file set associated to the image.*/
 	void loadFileset();
+
+	/**
+	 * Loads the rendering engine depending on the selected pane or component
+	 * usage.
+	 */
+	void loadRnd();
 }

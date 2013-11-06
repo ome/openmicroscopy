@@ -48,6 +48,8 @@ import javax.swing.JFrame;
 //Application-internal dependencies
 import omero.model.OriginalFile;
 import omero.model.PlaneInfo;
+
+import org.apache.commons.collections.CollectionUtils;
 import org.openmicroscopy.shoola.agents.metadata.AcquisitionDataLoader;
 import org.openmicroscopy.shoola.agents.metadata.AnalysisResultsFileLoader;
 import org.openmicroscopy.shoola.agents.metadata.AttachmentsLoader;
@@ -97,8 +99,11 @@ import org.openmicroscopy.shoola.env.data.model.SaveAsParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
+import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
+import org.openmicroscopy.shoola.util.file.modulo.ModuloInfo;
+import org.openmicroscopy.shoola.util.file.modulo.ModuloParser;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 import pojos.AnnotationData;
 import pojos.BooleanAnnotationData;
@@ -144,9 +149,6 @@ import pojos.XMLAnnotationData;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since OME3.0
  */
 class EditorModel 
@@ -948,6 +950,31 @@ class EditorModel
 		}
 		return false;
 	}
+
+	/**
+	 * Returns <code>true</code> if the object is a modulo annotation,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @param data The data to handle.
+	 * @return See above.
+	 */
+    boolean isModulo(Object data)
+    {
+        if (!(data instanceof XMLAnnotationData)) return false;
+        //parse the annotation.
+        XMLAnnotationData d = (XMLAnnotationData) data;
+        ModuloParser parser = new ModuloParser(d.getText());
+        try {
+            parser.parse();
+            return !CollectionUtils.isEmpty(parser.getModulos());
+        } catch (Exception e) {
+            LogMessage msg = new LogMessage();
+            msg.append("Error while reading modulo annotation.");
+            msg.print(e);
+            MetadataViewerAgent.getRegistry().getLogger().error(this, msg);
+        }
+        return false;
+    }
 	
 	/**
 	 * Returns <code>true</code> if the selected objects belong to several
@@ -1914,7 +1941,81 @@ class EditorModel
 		}
 		return (Collection<AnnotationData>) sorter.sort(results);
 	}
-	
+
+	/**
+	 * Returns the modulo information if any associated to a given image.
+	 *
+	 * @return See above.
+	 */
+	Map<Integer, ModuloInfo> getModulo()
+	{
+	    Collection<XMLAnnotationData> annotations = getXMLAnnotations();
+	    Map<Integer, ModuloInfo> modulo = new HashMap<Integer, ModuloInfo>();
+        if (CollectionUtils.isEmpty(annotations)) return modulo;
+        ModuloParser parser;
+        Iterator<XMLAnnotationData> i = annotations.iterator();
+        XMLAnnotationData data;
+        List<ModuloInfo> infos;
+        Iterator<ModuloInfo> j;
+        ModuloInfo info;
+        while (i.hasNext()) {
+            data = i.next();
+            parser = new ModuloParser(data.getText());
+            try {
+                parser.parse();
+                infos = parser.getModulos();
+                j = infos.iterator();
+                while (j.hasNext()) {
+                   info = j.next();
+                    modulo.put(info.getModuloIndex(), info);
+                }
+            } catch (Exception e) {
+                LogMessage msg = new LogMessage();
+                msg.append("Error while reading modulo annotation.");
+                msg.print(e);
+                MetadataViewerAgent.getRegistry().getLogger().error(this, msg);
+            }
+        }
+        return modulo;
+	}
+
+	/**
+     * Returns the collection of XML annotations linked to the 
+     * <code>DataObject</code>.
+     * 
+     * @return See above.
+     */
+    Collection<XMLAnnotationData> getXMLAnnotations()
+    {
+        Map<DataObject, StructuredDataResults>
+        r = parent.getAllStructuredData();
+        if (r == null) return new ArrayList<XMLAnnotationData>();
+        Entry<DataObject, StructuredDataResults> e;
+        Iterator<Entry<DataObject, StructuredDataResults>>
+        i = r.entrySet().iterator();
+
+        Collection<XMLAnnotationData> files;
+        List<AnnotationData> results = new ArrayList<AnnotationData>();
+        List<Long> ids = new ArrayList<Long>();
+        Iterator<XMLAnnotationData> j;
+        XMLAnnotationData file;
+        while (i.hasNext()) {
+            e = i.next();
+            files = e.getValue().getXMLAnnotations();
+            if (files != null) {
+                j = files.iterator();
+                while (j.hasNext()) {
+                    file = j.next();
+                    if (!ids.contains(file.getId())) {
+                        results.add(file);
+                        ids.add(file.getId());
+                    }
+                }
+            }
+        }
+        return (Collection<XMLAnnotationData>) sorter.sort(results);
+    }
+
 	/**
 	 * Returns the collection of the other annotations that are linked to all
 	 * the selected objects.
@@ -3336,11 +3437,11 @@ class EditorModel
 		if (renderer != null) {
 			renderer.onSettingsApplied(rndControl);
 		} else {
-			renderer = RendererFactory.createRenderer(getSecurityContext(),
-					rndControl, getImage(), getRndIndex());
+		    renderer = RendererFactory.createRenderer(getSecurityContext(),
+                    rndControl, getImage(), getRndIndex(), getXMLAnnotations());
 		}
 	}
-	
+
 	/**
 	 * Returns the renderer.
 	 * 

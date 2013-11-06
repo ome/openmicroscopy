@@ -2,10 +2,10 @@
  * org.openmicroscopy.shoola.agents.metadata.editor.EditorComponent 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -281,20 +281,12 @@ class EditorComponent
 	public void setRootObject(Object refObject)
 	{
 		if (refObject == null)
-			throw new IllegalArgumentException("Root object not valid.");	
+			throw new IllegalArgumentException("Root object not valid.");
 		Object oldObject = model.getRefObject();
 		
 		model.setRootObject(refObject);
 		view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 		view.setRootObject(oldObject);
-		if (model.getRndIndex() == MetadataViewer.RND_SPECIFIC) {
-			if (!model.isRendererLoaded()) {
-				loadRenderingControl(RenderingControlLoader.LOAD);
-			}
-		} else {
-			if (view.getSelectedTab() == EditorUI.RND_INDEX)
-				loadRenderingControl(RenderingControlLoader.LOAD);
-		}
 	}
 
 	/** 
@@ -1205,5 +1197,21 @@ class EditorComponent
 	public void loadFileset()
 	{
 		model.fireFilesetLoading();
+	}
+
+    /** 
+     * Implemented as specified by the {@link Editor} interface.
+     * @see Editor#loadRnd()
+     */
+	public void loadRnd()
+	{
+	    if (model.getRndIndex() == MetadataViewer.RND_SPECIFIC) {
+	        if (!model.isRendererLoaded()) {
+	            loadRenderingControl(RenderingControlLoader.LOAD);
+	        }
+	    } else {
+	        if (view.getSelectedTab() == EditorUI.RND_INDEX)
+	            loadRenderingControl(RenderingControlLoader.LOAD);
+	    }
 	}
 }

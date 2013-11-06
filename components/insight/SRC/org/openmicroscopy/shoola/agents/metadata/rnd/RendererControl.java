@@ -341,16 +341,9 @@ class RendererControl
             Map map = (Map) evt.getNewValue();
 			if (map == null) return;
 			if (map.size() != 1) return;
-			Set set = map.entrySet();
-			Entry entry;
-			Iterator i = set.iterator();
-			Integer index;
-			while (i.hasNext()) {
-				entry = (Entry) i.next();
-				index = (Integer) entry.getKey();
-				setChannelSelection(index.intValue(), 
-						(Boolean) entry.getValue());
-			}
+			Entry entry = (Entry) map.entrySet().iterator().next();
+			Integer index = (Integer) entry.getKey();
+			setChannelSelection(index.intValue(), (Boolean) entry.getValue());
         } else if (ChannelButton.CHANNEL_COLOUR_PROPERTY.equals(name)) {
         	showColorPicker(((Integer) evt.getNewValue()).intValue());
         } else if (Renderer.INPUT_INTERVAL_PROPERTY.equals(name)) {
