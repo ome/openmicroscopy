@@ -242,8 +242,8 @@
                 <tr>
                     <th>Pixels Size (XYZ) (&#181m):</th>
                     <td id='pixels_size'>
-                        <div class='tooltip'>{{ manager.image.getPixelSizeX|length_format|floatformat:2 }} x {{ manager.image.getPixelSizeY|length_format|floatformat:2 }} 
-                            {% if manager.image.getPixelSizeZ %} x {{ manager.image.getPixelSizeZ|length_format|floatformat:2 }} {% endif %}
+                        <div class='tooltip'>{{ manager.image.getPixelSizeX|lengthformat|floatformat:2 }} x {{ manager.image.getPixelSizeY|lengthformat|floatformat:2 }} 
+                            {% if manager.image.getPixelSizeZ %} x {{ manager.image.getPixelSizeZ|lengthformat|floatformat:2 }} {% endif %}
                         </div>
                         <span style='display:none'>{{ manager.image.getPixelSizeX }} x {{ manager.image.getPixelSizeY }}
                             {% if manager.image.getPixelSizeZ %} x {{ manager.image.getPixelSizeZ }} {% endif %} (&#181m)
@@ -252,7 +252,7 @@
                 </tr>
                 <tr>
                     <th>Z-sections/Timepoints:</th>
-                    <td id='dims_zt'>{{ manager.image.getSizeZ }} x {{ manager.image.getSizeT|time_format|floatformat:2 }}</td>
+                    <td id='dims_zt'>{{ manager.image.getSizeZ }} x {{ manager.image.getSizeT|timeformat|floatformat:2 }}</td>
                 </tr>
                 <tr>
                     <th>Channels:</th>
