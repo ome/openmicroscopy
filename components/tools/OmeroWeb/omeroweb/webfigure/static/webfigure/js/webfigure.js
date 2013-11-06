@@ -693,7 +693,7 @@
             var curr_centre = this.getCentre(true);
 
             // Scale canvas via css
-            this.$canvas.css({"transform": scale, "-webkit-transform": scale});
+            this.$canvas.css({"transform": scale, "-webkit-transform": scale, "-ms-transform": scale});
 
             // Scale canvas wrapper manually
             var canvas_w = this.model.get('canvas_width'),
