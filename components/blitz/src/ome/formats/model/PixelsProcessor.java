@@ -42,6 +42,7 @@ import omero.model.Annotation;
 import omero.model.Image;
 import omero.model.Pixels;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -157,32 +158,33 @@ public class PixelsProcessor implements ModelProcessor
 
             // Ensure that the Image name is set
             String userSpecifiedName = store.getUserSpecifiedName();
-            String saveName = "";
-            if (image.getName() == null
-                || image.getName().getValue().trim().length() == 0
-                || userSpecifiedName != null)
-            {
-                saveName = userSpecifiedName;
-
-                if (reader.getSeriesCount() > 1)
-                {
-                    if (image.getName() == null)
-                    {
-                        saveName += " [" + imageIndex + "]";
-                    }
-                    else if (image.getName().getValue().trim().length() != 0)
-                    {
-                        saveName += " [" + image.getName().getValue() + "]";
-                    }
-                    else
-                    {
-                        saveName += " [" + imageIndex + "]";
-                    }
+            if (userSpecifiedName != null) {
+                userSpecifiedName = userSpecifiedName.trim();
+                if (userSpecifiedName.isEmpty()) {
+                    userSpecifiedName = null;
                 }
             }
-            else
-            {
-                saveName = image.getName().getValue();
+            String saveName = "";
+            String imageName;
+            if (image.getName() != null && image.getName().getValue() != null) {
+                imageName = image.getName().getValue().trim();
+                if (imageName.isEmpty()) {
+                    imageName = null;
+                }
+            } else {
+                imageName = null;
+            }
+            if (userSpecifiedName != null) {
+                saveName = userSpecifiedName.trim();
+
+                if (reader.getSeriesCount() > 1) {
+                    if (imageName == null) { 
+                        imageName = Integer.toString(imageIndex);
+                    }
+                    saveName += " [" + imageName + "]";
+                }
+            } else {
+                saveName = imageName;
             }
             if (saveName != null && saveName.length() > 255) {
                 saveName = '…' + saveName.substring(saveName.length() - 254);
