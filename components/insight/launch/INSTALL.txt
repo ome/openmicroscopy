@@ -20,36 +20,33 @@
   _________________
   Install Procedure
 
-  Extract the downloaded bundle in any directory on your local file system.
-  After doing this, your directory should contain:
-
-    * A "config" directory.
-    * A "lib" directory.
-    * A "omeroclient.jar" file.
-    * A startup script for Windows, Unix and Mac OS X.
-    * A "LICENSE" file.
-    * This install file.
-
-  
-  If you are running on Unix or Mac OS X, make sure the provided startup script
-  is executable.
+  Extract the downloaded bundle in any directory on your local file system,
+  and check that the startup scripts are executable:
+    OMEROinsight_unix.sh
+    OMEROimporter_unix.sh
+    OMEROeditor_unix.sh
 
   If you are connecting to the internet through a web proxy, make sure you edit
-  the startup script accordingly (example configuration is provided within
-  shell script).
+  the startup scripts accordingly (example configuration is provided within
+  the scripts).
+
 
   ____________________
   Running The Software
 
-  Double-click on the startup script (for example "OMEROinsight_windows.bat") 
-  file within the installation directory. A splash screen will pop up. 
+  Run the script from a terminal:
+  $ ./OMEROinsight_unix.sh
+
+  You can also symlink these scripts into a location on your PATH. Some linux
+  distributions will allow you to run these scripts by double clicking them in
+  a file browser.
+
   Enter your OMERO user name, password and the name of the server then press
   the log in button. 
   You should not have to modify the port value. 
   Enjoy OMERO!
 
-  If you want to run the editor as a standalone application,
-  double-click on the startup script (for example "OMEROeditor_windows.bat") 
-  file within the installation directory. A splash screen will pop up. 
+  You can also run the importer and editor as standalone applications by
+  running OMEROimporter_unix.sh or OMEROeditor_unix.sh.
   
   
