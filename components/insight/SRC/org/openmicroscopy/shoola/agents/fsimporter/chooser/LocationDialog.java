@@ -1140,7 +1140,7 @@ class LocationDialog extends JDialog implements ActionListener,
 		if (exp != null) id = exp.getId();
 		return new ComboBoxToolTipRenderer(id);
 	}
-	
+
 	/**
 	 * Populates the JComboBox with the user details provided, 
 	 * selecting the logged in user and attaching the item listener.
@@ -1151,48 +1151,46 @@ class LocationDialog extends JDialog implements ActionListener,
 	 * @param userID The id of the user.
 	 */
 	private void displayUsers(JComboBox comboBox, GroupData group,
-			ItemListener itemListener, long userID) {
+	        ItemListener itemListener, long userID) {
 
-	    System.err.println(userID);
-		if (comboBox == null || group == null) return;
+	    if (comboBox == null || group == null) return;
 
-		if (itemListener != null)
-			comboBox.removeItemListener(itemListener);
-		comboBox.removeAllItems();
+	    if (itemListener != null)
+	        comboBox.removeItemListener(itemListener);
+	    comboBox.removeAllItems();
 
-		DefaultComboBoxModel model = new SelectableComboBoxModel();
-		Selectable<ExperimenterDisplay> selected = null;
-		
-		List<ExperimenterData> members = sort(group.getExperimenters());
-		boolean canImportAs;
-		Selectable<ExperimenterDisplay> item;
-		List<String> tooltips = new ArrayList<String>(members.size());
-		List<String> lines;
-		for (ExperimenterData user : members) {
-			canImportAs = canImportForUserInGroup(user, group);
-			System.err.println(user.getUserName()+" "+user.getId());
-			item = new Selectable<ExperimenterDisplay>(
-					new ExperimenterDisplay(user), canImportAs);
-			if (user.getId() == userID)
-				selected = item;
-			lines = new ArrayList<String>();
-            lines.addAll(UIUtilities.wrapStyleWord(
-                    EditorUtil.formatExperimenter(user)));
-            tooltips.add(UIUtilities.formatToolTipText(lines));
-			model.addElement(item);
-		}
-		ComboBoxToolTipRenderer renderer = createComboboxRenderer();
-		renderer.setTooltips(tooltips);
-		comboBox.setModel(model);
-		comboBox.setRenderer(renderer);
-		
-		if (selected != null)
-			comboBox.setSelectedItem(selected);
+	    DefaultComboBoxModel model = new SelectableComboBoxModel();
+	    Selectable<ExperimenterDisplay> selected = null;
 
-		if (itemListener != null)
-			comboBox.addItemListener(itemListener);
+	    List<ExperimenterData> members = sort(group.getExperimenters());
+	    boolean canImportAs;
+	    Selectable<ExperimenterDisplay> item;
+	    List<String> tooltips = new ArrayList<String>(members.size());
+	    List<String> lines;
+	    for (ExperimenterData user : members) {
+	        canImportAs = canImportForUserInGroup(user, group);
+	        item = new Selectable<ExperimenterDisplay>(
+	                new ExperimenterDisplay(user), canImportAs);
+	        if (user.getId() == userID)
+	            selected = item;
+	        lines = new ArrayList<String>();
+	        lines.addAll(UIUtilities.wrapStyleWord(
+	                EditorUtil.formatExperimenter(user)));
+	        tooltips.add(UIUtilities.formatToolTipText(lines));
+	        model.addElement(item);
+	    }
+	    ComboBoxToolTipRenderer renderer = createComboboxRenderer();
+	    renderer.setTooltips(tooltips);
+	    comboBox.setModel(model);
+	    comboBox.setRenderer(renderer);
+
+	    if (selected != null)
+	        comboBox.setSelectedItem(selected);
+
+	    if (itemListener != null)
+	        comboBox.addItemListener(itemListener);
 	}
-	
+
 	/**
 	 * Creates a project.
 	 * @param newProject The project to create.
