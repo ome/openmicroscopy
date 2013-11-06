@@ -175,17 +175,19 @@ public interface Renderer
     /**
      * Sets the family and updates the image.
      * 
+     * @param channel The channel to handle.
      * @param family The new family value.
      */
-    void setFamily(String family);
+    void setFamily(int channel, String family);
     
     /**
      * Sets the coefficient identifying a curve in the family
      * and updates the image.
      * 
+     * @param channel The channel to handle.
      * @param k The new curve coefficient.
      */
-    void setCurveCoefficient(double k);
+    void setCurveCoefficient(int channel, double k);
     
     /**
      * Sets the noise reduction flag to select the mapping algorithm

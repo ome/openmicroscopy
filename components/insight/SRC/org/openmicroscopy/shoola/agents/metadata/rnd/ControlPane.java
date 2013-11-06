@@ -2,10 +2,10 @@
  * org.openmicroscopy.shoola.agents.metadata.rnd.ControlPane 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2009 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -42,15 +42,12 @@ import org.openmicroscopy.shoola.util.ui.ScrollablePanel;
  * 				<a href="mailto:donald@lifesci.dundee.ac.uk">
  * 					donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since 3.0-Beta4
  */
-abstract class ControlPane 
+abstract class ControlPane
 	extends ScrollablePanel
 {
-    
+
     /** The index of the domain. */
     static final int    DOMAIN_PANE_INDEX = 0;
     
@@ -60,12 +57,6 @@ abstract class ControlPane
     /** The index of the codomain. */
     static final int    CODOMAIN_PANE_INDEX = 2;
 
-    /** Bounds property indicating that a family is selected. */
-    static final String FAMILY_PROPERTY = "family";
-    
-    /** Bounds property indicating that a family is selected. */
-    static final String GAMMA_PROPERTY = "gamma";
-    
     /** Bounds property indicating that a family is selected. */
     static final String BIT_RESOLUTION_PROPERTY = "bit_resolution";
 

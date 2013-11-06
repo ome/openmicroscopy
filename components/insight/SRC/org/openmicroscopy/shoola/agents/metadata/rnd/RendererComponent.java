@@ -398,9 +398,9 @@ class RendererComponent
 
     /** 
      * Implemented as specified by the {@link Renderer} interface.
-     * @see Renderer#setCurveCoefficient(double)
+     * @see Renderer#setCurveCoefficient(int, double)
      */
-	public void setCurveCoefficient(double k)
+	public void setCurveCoefficient(int channel, double k)
 	{
 		try {
         	model.setCurveCoefficient(k);
@@ -414,12 +414,12 @@ class RendererComponent
 
     /** 
      * Implemented as specified by the {@link Renderer} interface.
-     * @see Renderer#setFamily(String)
+     * @see Renderer#setFamily(int, String)
      */
-	public void setFamily(String family)
+	public void setFamily(int channel, String family)
 	{
 		try {
-        	model.setFamily(family);
+        	model.setFamily(channel, family);
         	//if (model.isGeneralIndex()) model.saveRndSettings();
             firePropertyChange(RENDER_PLANE_PROPERTY, Boolean.valueOf(false), 
             		Boolean.valueOf(true));

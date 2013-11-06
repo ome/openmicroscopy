@@ -391,21 +391,22 @@ class RendererModel
 	void setSelectedChannel(int index) { selectedChannelIndex = index; }
 
 	/**
-	 * Sets, for the currently selected channel, the family used during
-	 * the mapping process.
+	 * Sets the family used during the mapping process for the specified channel.
 	 * 
+	 * @param channel The selected channel.
 	 * @param family The family to set.
 	 * @throws RenderingServiceException If an error occurred while setting
 	 * 									the value.
 	 * @throws DSOutOfServiceException If the connection is broken.
 	 */
-	void setFamily(String family)
+	void setFamily(int channel, String family)
 		throws RenderingServiceException, DSOutOfServiceException
 	{
 		if (rndControl == null) return;
+		if (channel < 0 || channel > getMaxC()) channel = selectedChannelIndex;
 		boolean b = rndControl.getChannelNoiseReduction(selectedChannelIndex);
 		double k = rndControl.getChannelCurveCoefficient(selectedChannelIndex);
-		rndControl.setQuantizationMap(selectedChannelIndex, family, k, b);
+		rndControl.setQuantizationMap(channel, family, k, b);
 	}
 
 	/**
