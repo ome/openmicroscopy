@@ -219,8 +219,13 @@ class OmeroImageServiceImpl
 					ic = gateway.getImportCandidates(ctx, object, file, status);
 					icContainers = ic.getContainers();
 					if (icContainers.size() == 0) {
-						label.setCallback(new ImportException(
-								ImportException.FILE_NOT_VALID_TEXT));
+					    Object o = status.getImportResult();
+					    if (o instanceof ImportException) {
+					        label.setCallback(o);
+					    } else {
+					        label.setCallback(new ImportException(
+	                                ImportException.FILE_NOT_VALID_TEXT));
+					    }
 					} else {
 						//Check after scanning
 						if (label.isMarkedAsCancel())
@@ -1136,8 +1141,12 @@ class OmeroImageServiceImpl
 				candidates = ic.getPaths();
 				int size = candidates.size();
 				if (size == 0) {
-					return new ImportException(
-							ImportException.FILE_NOT_VALID_TEXT);
+				    Object o = status.getImportResult();
+                    if (o instanceof ImportException) {
+                        return o;
+                    }
+                    return new ImportException(
+                            ImportException.FILE_NOT_VALID_TEXT);
 				}
 				else if (size == 1) {
 					String value = candidates.get(0);
@@ -1185,6 +1194,10 @@ class OmeroImageServiceImpl
 				ic = gateway.getImportCandidates(ctx, object, file, status);
 				icContainers = ic.getContainers();
 				if (icContainers.size() == 0) {
+				    Object o = status.getImportResult();
+				    if (o instanceof ImportException) {
+				        return o;
+				    }
 					return new ImportException(
 							ImportException.FILE_NOT_VALID_TEXT);
 				}
@@ -1202,9 +1215,13 @@ class OmeroImageServiceImpl
 		//Checks folder import.
 		ic = gateway.getImportCandidates(ctx, object, file, status);
 		List<ImportContainer> lic = ic.getContainers();
-		if (lic.size() == 0)
-			return new ImportException(
-				ImportException.FILE_NOT_VALID_TEXT);
+		if (lic.size() == 0) {
+            Object o = status.getImportResult();
+            if (o instanceof ImportException) {
+                return o;
+            }
+            return new ImportException(ImportException.FILE_NOT_VALID_TEXT);
+		}
 		if (status.isMarkedAsCancel()) {
 			return Boolean.valueOf(false);
 		}
