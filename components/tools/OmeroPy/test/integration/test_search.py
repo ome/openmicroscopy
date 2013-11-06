@@ -4,7 +4,7 @@
 """
    Integration test for search testing
 
-   Copyright 2010 Glencoe Software, Inc. All rights reserved.
+   Copyright 2010-2013 Glencoe Software, Inc. All rights reserved.
    Use is subject to license terms supplied in LICENSE.txt
 
 """
@@ -65,6 +65,7 @@ class TestSearch(lib.ITest):
         searcher = self.new_client(group)
         self._3164(owner, searcher)
 
+    @pytest.mark.xfail(reason="See ticket #11539")
     def test3721Ordering(self):
         """
         Creates two tags and checks that boosting

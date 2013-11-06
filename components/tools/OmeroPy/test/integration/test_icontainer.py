@@ -2,10 +2,10 @@
 # -*- coding: utf-8 -*-
 
 """
-   Integration test focused on the omero.api.IPojos interface
+   Integration test focused on the omero.api.IContainer interface
    a running server.
 
-   Copyright 2008 Glencoe Software, Inc. All rights reserved.
+   Copyright 2008-2013 Glencoe Software, Inc. All rights reserved.
    Use is subject to license terms supplied in LICENSE.txt
 
 """
