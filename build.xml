@@ -472,6 +472,12 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
              basedir="${target.dir}"
              includes="openmicroscopy-${omero.plainversion}/**"
              />
+        <tar longfile="gnu"
+             compression="gzip"
+             destfile="${target.dir}/openmicroscopy-${omero.plainversion}.tar.gz"
+             basedir="${target.dir}"
+             includes="openmicroscopy-${omero.plainversion}/**"
+             />
         <delete dir="${target.dir}/openmicroscopy-${omero.plainversion}" quiet="true"/>
 
         <git command="archive" output="release-src-command" failonerror="true">
