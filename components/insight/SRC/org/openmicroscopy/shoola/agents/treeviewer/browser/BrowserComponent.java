@@ -1397,7 +1397,8 @@ class BrowserComponent
 					    	j = children.iterator();
 					    	while (j.hasNext()) {
 								expNode = (TreeImageSet) j.next();
-								if (expNode.isChildrenLoaded()) {
+								if (expNode.isChildrenLoaded() &&
+								        expNode.isExpanded()) {
 									v = new RefreshVisitor(this);
 									expNode.accept(v);
 							    	//reset the flag 
