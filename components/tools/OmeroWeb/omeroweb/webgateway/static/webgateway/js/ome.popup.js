@@ -64,15 +64,15 @@ Number.prototype.lengthformat = function () {
 Number.prototype.timeformat = function () {
     var time = this;
     if (time < 1 / 1000) {
-        return (time * 1000 * 1000).toFixed(2) + ' &#181s';
+        return (time * 1000 * 1000) + ' &#181s';
     } else if (time < 1) {
-        return (time * 1000).toFixed(2) + ' ms';
+        return (time * 1000) + ' ms';
     } else if (time < 60) {
-        return time.toFixed(2) + ' s';
+        return time + ' s';
     } else if (time < 60 * 60) {
-        return (time / 60).toFixed(2) + ' min';
+        return (time / 60).toFixed(0) + ' min ' + (time % 60) + ' s';
     } else {
-        return (time / 60 / 60).toFixed(2) + ' h';
+        return (time / 60 / 60).toFixed(0) + ' h ' + (time % 3600) + ' min';
     }
 }
 
