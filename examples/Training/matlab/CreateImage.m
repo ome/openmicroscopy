@@ -35,7 +35,6 @@ try
     sizeT = 5; % The number of timepoints.
     sizeC = 2; % The number of channels.
     type = 'uint16';
-    assert(sizeC > 1,'OMERO:CreateImage', 'Image must contain at least 2 channels');
     
     % Retrieve pixel type
     pixelsService = session.getPixelsService();
