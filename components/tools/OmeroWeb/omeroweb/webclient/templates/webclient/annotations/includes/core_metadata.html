@@ -44,8 +44,8 @@
     <tr>
         <th>Pixels Size (XYZ) ({{ image.getPixelSizeX|length_unit}}):</th>
         <td id='pixels_size'>
-            <div class='tooltip'>{{ image.getPixelSizeX|length_convertion|floatformat:2 }} x {{ image.getPixelSizeY|length_convertion|floatformat:2 }} 
-                {% if image.getPixelSizeZ %} x {{ image.getPixelSizeZ|length_convertion|floatformat:2 }} {% endif %}
+            <div class='tooltip'>{{ image.getPixelSizeX|length_format|floatformat:2 }} x {{ image.getPixelSizeY|length_format|floatformat:2 }} 
+                {% if image.getPixelSizeZ %} x {{ image.getPixelSizeZ|length_format|floatformat:2 }} {% endif %}
             </div>
             <span class="tooltip_html" style='display:none'>{{ image.getPixelSizeX }} x {{ image.getPixelSizeY }}
                 {% if image.getPixelSizeZ %} x {{ image.getPixelSizeZ }} {% endif %} (&#181m)
@@ -54,7 +54,7 @@
     </tr>
     <tr>
         <th>Z-sections/Timepoints:</th>
-        <td id='dims_zt'>{{ image.getSizeZ }} x {{ image.getSizeT }}</td>
+        <td id='dims_zt'>{{ image.getSizeZ }} x {{ image.getSizeT|time_format|floatformat:2 }}</td>
     </tr>
     <tr>
         <th>Channels:</th>
