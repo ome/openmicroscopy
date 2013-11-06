@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2011 University of Dundee. & Open Microscopy Environment.
+ * Copyright (c) 2008-2013 University of Dundee. & Open Microscopy Environment.
  * All rights reserved.
  *
  * This program is free software: you can redistribute it and/or modify
