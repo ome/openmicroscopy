@@ -151,3 +151,76 @@ def get_range( value ):
     Instead of 3 one may use the variable set in the views
   """
   return range( value )
+
+@register.filter
+def length_convertion( value ):
+    """
+    Filter - returns the converted value
+    all values are in micrometers
+    """
+    
+    if value < 1000:
+        return float(value)
+    elif value < 1000 * 100:
+        return float(value) / 1000
+    elif value < 1000 * 100 * 10:
+        return float(value) / 1000 / 100
+    elif value < 1000 * 100 * 10 * 100:
+        return float(value) / 1000 / 100 / 10
+    else:
+        return float(value) / 1000 / 100 / 10 / 1000
+
+@register.filter
+def time_convertion( value ):
+    """
+    Filter - returns the converted value
+    all values are in seconds
+    """
+    
+    if value < 1 / 1000 / 1000:
+        return float(value) * 1000 * 1000
+    elif value < 1 / 1000:
+        return float(value) * 1000
+    elif value < 1:
+        return float(value)
+    elif value < 1 * 60:
+        return float(value) / 60
+    else:
+        return float(value) / 60 / 60
+
+@register.filter
+def length_unit( value ):
+    """
+    Filter - returns th emost suitable length units
+    all values are in micrometers
+    """
+    
+    if value < 1000:
+        return "&#181m"
+    elif value < 1000 * 100:
+        return "mm"
+    elif value < 1000 * 100 * 10:
+        return "cm"
+    elif value < 1000 * 100 * 10 * 100:
+        return "m"
+    else:
+        return "km" 
+
+@register.filter
+def time_unit( value ):
+    """
+    Filter - returns th emost suitable time units
+    all values are in seconds
+    """
+    
+    if value < 1 / 1000 / 1000:
+        return "&#181s"
+    elif value < 1 / 1000:
+        return "ms"
+    elif value < 1:
+        return "s"
+    elif value < 1 * 60:
+        return "min"
+    else:
+        return "h"
+    
