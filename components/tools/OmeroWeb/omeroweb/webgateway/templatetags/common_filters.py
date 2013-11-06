@@ -159,17 +159,27 @@ def lengthformat( value ):
     Filter - returns the converted value
     all values are in micrometers
     """
+    try:
+        value = float(value)
+    except (TypeError,ValueError,UnicodeDecodeError):
+        return value
     
-    if value < 1000:
-        return float(value)
+    if value < 0.001:
+        return value * 1000 * 1000
+    elif value < 0.1:
+        return value * 1000 * 10
+    elif value < 1:
+        return value * 1000
+    elif value < 1000:
+        return value
     elif value < 1000 * 100:
-        return float(value) / 1000
+        return value / 1000
     elif value < 1000 * 100 * 10:
-        return float(value) / 1000 / 100
+        return value / 1000 / 100
     elif value < 1000 * 100 * 10 * 100:
-        return float(value) / 1000 / 100 / 10
+        return value / 1000 / 100 / 10
     else:
-        return float(value) / 1000 / 100 / 10 / 1000
+        return value / 1000 / 100 / 10 / 1000
 
 @register.filter
 def lengthunit( value ):
@@ -178,8 +188,16 @@ def lengthunit( value ):
     all values are in micrometers
     """
     
-    if value < 1000:
+    if value == 0:
         return u'µm'
+    if value < 0.001:
+        return u"pm"
+    elif value < 0.1:
+        return u"\u212B"
+    elif value < 1:
+        return u"nm"
+    elif value < 1000:
+        return u'\u00B5m'
     elif value < 1000 * 100:
         return "mm"
     elif value < 1000 * 100 * 10:
@@ -201,7 +219,7 @@ def timeformat( value ):
         return u'%s s' % str(value)
 
     if value < 1 / 1000 :
-        return u'%f µs' % (value * 1000 * 1000)
+        return u'%f \u00B5s' % (value * 1000 * 1000)
     elif value < 1 :
         return u'%f ms' % (value * 1000)
     elif value < 60:

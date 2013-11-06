@@ -47,7 +47,13 @@ Number.prototype.filesizeformat = function () {
 
 Number.prototype.lengthformat = function () {
     var length = this;
-    if (length < 1000) {
+    if (length < 0.001) {
+        return (length * 1000 * 1000).toFixed(2) + ' pm';
+    } else if (length < 0.1) {
+        return (length * 1000 * 10).toFixed(2) + ' &#8491;';
+    } else if (length < 1) {
+        return (length * 1000).toFixed(2) + ' nm';
+    } else if (length < 1000) {
         return length.toFixed(2) + ' &#181m';
     } else if (length < 1000 * 100) {
         return (length / 1000).toFixed(2) + ' mm';
