@@ -153,7 +153,7 @@ def get_range( value ):
   return range( value )
 
 @register.filter
-def length_convertion( value ):
+def length_format( value ):
     """
     Filter - returns the converted value
     all values are in micrometers
@@ -171,19 +171,19 @@ def length_convertion( value ):
         return float(value) / 1000 / 100 / 10 / 1000
 
 @register.filter
-def time_convertion( value ):
+def time_format( value ):
     """
     Filter - returns the converted value
     all values are in seconds
     """
     
-    if value < 1 / 1000 / 1000:
+    if value < 1 / 1000 :
         return float(value) * 1000 * 1000
-    elif value < 1 / 1000:
+    elif value < 1 :
         return float(value) * 1000
-    elif value < 1:
+    elif value < 60:
         return float(value)
-    elif value < 1 * 60:
+    elif value < 60 * 60:
         return float(value) / 60
     else:
         return float(value) / 60 / 60
@@ -196,7 +196,7 @@ def length_unit( value ):
     """
     
     if value < 1000:
-        return "&#181m"
+        return u'µm'
     elif value < 1000 * 100:
         return "mm"
     elif value < 1000 * 100 * 10:
@@ -213,13 +213,13 @@ def time_unit( value ):
     all values are in seconds
     """
     
-    if value < 1 / 1000 / 1000:
-        return "&#181s"
-    elif value < 1 / 1000:
+    if value < 1 / 1000 :
+        return u'µs'
+    elif value < 1 :
         return "ms"
-    elif value < 1:
+    elif value < 60:
         return "s"
-    elif value < 1 * 60:
+    elif value < 60 * 60:
         return "min"
     else:
         return "h"
