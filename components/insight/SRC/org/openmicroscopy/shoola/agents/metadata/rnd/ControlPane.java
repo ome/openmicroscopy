@@ -49,33 +49,31 @@ abstract class ControlPane
 {
 
     /** The index of the domain. */
-    static final int    DOMAIN_PANE_INDEX = 0;
-    
+    static final int DOMAIN_PANE_INDEX = 0;
+
     /** The index of the codomain. */
-    static final int    METADATA_PANE_INDEX = 1;
-    
+    static final int METADATA_PANE_INDEX = 1;
+
     /** The index of the codomain. */
-    static final int    CODOMAIN_PANE_INDEX = 2;
+    static final int CODOMAIN_PANE_INDEX = 2;
 
     /** Bounds property indicating that a family is selected. */
     static final String BIT_RESOLUTION_PROPERTY = "bit_resolution";
 
     /** Reference to the Model.*/
-    protected RendererModel     model;
-    
+    protected RendererModel model;
+
     /** Reference to the Control.*/
-    protected RendererControl   controller;
+    protected RendererControl controller;
 
     /** Reference to the View. */
-    protected RendererUI        view;
-    
+    protected RendererUI view;
+
     /**
      * Creates a new instance.
      * 
-     * @param model         Reference to the Model.
-     *                      Mustn't be <code>null</code>.
-     * @param controller    Reference to the Control.
-     *                      Mustn't be <code>null</code>.
+     * @param model Reference to the Model. Mustn't be <code>null</code>.
+     * @param controller Reference to the Control. Mustn't be <code>null</code>.
      */
     protected ControlPane(RendererModel model, RendererControl controller)
     {
@@ -84,28 +82,28 @@ abstract class ControlPane
         this.model = model;
         this.controller = controller;
     }
-    
+
     /**
      * Returns the name of the pane.
      * 
      * @return See above
      */
     protected abstract String getPaneName();
-    
+
     /**
      * Returns the icon attached to the pane.
      * 
      * @return See above.
      */
     protected abstract Icon getPaneIcon();
-    
+
     /**
      * Returns the description of the pane.
      * 
      * @return See above.
      */
     protected abstract String getPaneDescription();
-    
+
     /**
      * Returns the index of the component. One of the constants defined 
      * by this class.
@@ -116,10 +114,10 @@ abstract class ControlPane
 
     /** Resets the default rendering settings. */
     protected abstract void resetDefaultRndSettings();
-    
+
     /** Resets the UI when the user switches to a new rendering control. */
     protected abstract void switchRndControl();
-    
+
     /** 
      * Reacts to change events.
      * 
@@ -127,5 +125,5 @@ abstract class ControlPane
      *          <code>false</code> otherwise.
      */
     protected abstract void onStateChange(boolean b);
-    
+
 }
