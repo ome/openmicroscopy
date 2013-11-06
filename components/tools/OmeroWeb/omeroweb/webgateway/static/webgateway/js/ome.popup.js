@@ -61,6 +61,21 @@ Number.prototype.lengthformat = function () {
 }
 
 
+Number.prototype.timeformat = function () {
+    var time = this;
+    if (time < 1 / 1000) {
+        return (time * 1000 * 1000).toFixed(2) + ' &#181s';
+    } else if (time < 1) {
+        return (time * 1000).toFixed(2) + ' ms';
+    } else if (time < 60) {
+        return time.toFixed(2) + ' s';
+    } else if (time < 60 * 60) {
+        return (time / 60).toFixed(2) + ' min';
+    } else {
+        return (time / 60 / 60).toFixed(2) + ' h';
+    }
+}
+
 String.prototype.capitalize = function() {
     return this.charAt(0).toUpperCase() + this.slice(1);
 };
