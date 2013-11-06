@@ -144,13 +144,15 @@ public class ArchivedImageLoader
                         } else {
                             //zip the directory
                             f = IOUtil.zipDirectory(tmpFolder, false);
-                            //move the zip
-                            f = copyFile(f, folder);
+                            //rename the zip
+                            String baseName = FilenameUtils.getBaseName(
+                                    FilenameUtils.removeExtension(name));
                             File to = new File(f.getParentFile(),
-                                    name+"."+FilenameUtils.getExtension(
+                                    baseName+"."+FilenameUtils.getExtension(
                                             f.getName()));
                             Files.move(f, to);
-                            r.put(Boolean.TRUE, Arrays.asList(to));
+                            f = copyFile(to, folder);
+                            r.put(Boolean.TRUE, Arrays.asList(f));
                         }
                     }
                     result = r;
