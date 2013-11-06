@@ -45,6 +45,21 @@ Number.prototype.filesizeformat = function () {
     
 }
 
+Number.prototype.lengthformat = function () {
+    var length = this;
+    if (length < 1000) {
+        return length.toFixed(2) + ' &#181m';
+    } else if (length < 1000 * 100) {
+        return (length / 1000).toFixed(2) + ' mm';
+    } else if (length < 1000 * 100 * 10) {
+        return (length / 1000 / 100).toFixed(2) + ' cm';
+    } else if (length < 1000 * 100 * 10 * 100) {
+        return (length / 1000 / 100 / 10).toFixed(2) + ' m';
+    } else {
+        return (length / 1000 / 100 / 10 / 1000).toFixed(2) + ' km';
+    }
+}
+
 
 String.prototype.capitalize = function() {
     return this.charAt(0).toUpperCase() + this.slice(1);
