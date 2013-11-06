@@ -31,6 +31,7 @@ import logging
 
 from django.conf import settings
 from django import template
+from django.utils.translation import ugettext, ungettext
 
 register = template.Library()
 
@@ -194,15 +195,18 @@ def timeformat( value ):
     Filter - returns the converted value with units
     all values are in seconds
     """
-    
-    if value < 1 / 1000 :
-        return float(value) * 1000 * 1000 + u'µs'
-    elif value < 1 :
-        return float(value) * 1000 + "ms"
-    elif value < 60:
-        return float(value) + "s"
-    elif value < 60 * 60:
-        return float(value) / 60 + "min"
-    else:
-        return float(value) / 60 / 60 + "h"
+    try:
+        value = float(value)
+    except (TypeError,ValueError,UnicodeDecodeError):
+        return u'%s s' % str(value)
 
+    if value < 1 / 1000 :
+        return u'%f µs' % (value * 1000 * 1000)
+    elif value < 1 :
+        return u'%f ms' % (value * 1000)
+    elif value < 60:
+        return u'%d s' % value
+    elif value < 60 * 60:
+        return u'%d min %d s' % (value / 60, value%60)
+    else:
+        return u'%d h %d min' % (value / 3600, value%3600)
