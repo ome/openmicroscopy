@@ -1375,16 +1375,16 @@ class BrowserComponent
 	                    //reset the flag 
 	                    if (type == Browser.IMAGES_EXPLORER)
 	                        countExperimenterImages(expNode);
-	                    def = new RefreshExperimenterDef(expNode, 
-	                            v.getFoundNodes(),
-	                            v.getExpandedTopNodes());
-
+	                    def = new RefreshExperimenterDef(expNode,
+	                            v.getFoundNodes(), v.getExpandedTopNodes());
 	                    ctx = new SecurityContext(gid);
 	                    if (model.getDisplayMode() ==
 	                            TreeViewer.EXPERIMENTER_DISPLAY)
 	                        ctx.setExperimenter(
 	                                (ExperimenterData) expNode.getUserObject());
 	                    m.put(ctx, def);
+	                } else {
+	                    expNode.setChildrenLoaded(Boolean.FALSE);
 	                }
 	            }
 	        } else {
@@ -1411,6 +1411,8 @@ class BrowserComponent
 	                            ctx.setExperimenter(
 	                                    (ExperimenterData) expNode.getUserObject());
 	                            m.put(ctx, def);
+	                        } else {
+	                            expNode.setChildrenLoaded(Boolean.FALSE);
 	                        }
 	                    }
 	                }
@@ -1427,11 +1429,13 @@ class BrowserComponent
 	                //reset the flag 
 	                if (type == Browser.IMAGES_EXPLORER)
 	                    countExperimenterImages(groupNode);
-	                def = new RefreshExperimenterDef(groupNode, 
+	                def = new RefreshExperimenterDef(groupNode,
 	                        v.getFoundNodes(),
 	                        v.getExpandedTopNodes());
 	                m.put(new SecurityContext(gid), def);
-	            }
+	            } else {
+	                groupNode.setChildrenLoaded(Boolean.FALSE);
+                }
 	        }
 	    }
 
