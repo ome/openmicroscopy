@@ -125,7 +125,7 @@ public class DataLoader
     	if (ScreenData.class.equals(rootType))
     		type = Importer.SCREEN_TYPE;
     	viewer.setContainers((Collection) result, refreshImport, changeGroup,
-    			type, userID);
+    			type, viewer.getImportFor());
     }
     
 }

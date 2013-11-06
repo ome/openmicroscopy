@@ -345,10 +345,11 @@ class LocationDialog extends JDialog implements ActionListener,
 	 * @param objects The screens / projects to be shown.
 	 * @param groups The available groups to the user.
 	 * @param currentGroupId The id of the current user group.
+	 * @param userId The user to select when importing as.
 	 */
 	LocationDialog(JFrame parent, TreeImageDisplay selectedContainer,
 			int importDataType, Collection<TreeImageDisplay> objects,
-			Collection<GroupData> groups, long currentGroupId)
+			Collection<GroupData> groups, long currentGroupId, long userId)
 	{
 		super(parent);
 		this.container = selectedContainer;
@@ -360,9 +361,7 @@ class LocationDialog extends JDialog implements ActionListener,
 		
 		initUIComponents();
 		layoutUI();
-		ExperimenterData exp = ImporterAgent.getUserDetails();
-		populateUIWithDisplayData(findWithId(groups, currentGroupId),
-				exp.getId());
+		populateUIWithDisplayData(findWithId(groups, currentGroupId), userId);
 	}
 
 	/** 
@@ -641,7 +640,6 @@ class LocationDialog extends JDialog implements ActionListener,
 	{
 		groupsBox.removeItemListener(this);
 		groupsBox.removeAllItems();
-		
 		JComboBoxImageObject selectedGroupItem = null;
 		JComboBoxImageObject item;
 		List<String> tooltips = new ArrayList<String>(availableGroups.size());
@@ -1155,6 +1153,7 @@ class LocationDialog extends JDialog implements ActionListener,
 	private void displayUsers(JComboBox comboBox, GroupData group,
 			ItemListener itemListener, long userID) {
 
+	    System.err.println(userID);
 		if (comboBox == null || group == null) return;
 
 		if (itemListener != null)
@@ -1171,6 +1170,7 @@ class LocationDialog extends JDialog implements ActionListener,
 		List<String> lines;
 		for (ExperimenterData user : members) {
 			canImportAs = canImportForUserInGroup(user, group);
+			System.err.println(user.getUserName()+" "+user.getId());
 			item = new Selectable<ExperimenterDisplay>(
 					new ExperimenterDisplay(user), canImportAs);
 			if (user.getId() == userID)
@@ -1581,25 +1581,11 @@ class LocationDialog extends JDialog implements ActionListener,
 		this.dataType = type;
 		this.objects = objects;
 		this.container = container;
-		onReconnected(groups, currentGroupId, userID);
+        populateUIWithDisplayData(findWithId(groups, currentGroupId),
+                userID);
+        setInputsEnabled(true);
 	}
 
-	/**
-	 * Re-populates and resets the groups, screens, projects & dataset options.
-	 * 
-	 * @param availableGroups The list of available groups to this user.
-	 * @param currentGroupId The currently active user group's ID.
-	 * @param userID The id of the user.
-	 */
-	void onReconnected(Collection<GroupData> availableGroups,
-			long currentGroupId, long userID)
-	{
-		this.groups = availableGroups;
-		populateUIWithDisplayData(findWithId(availableGroups, currentGroupId),
-				userID);
-		setInputsEnabled(true);
-	}
-	
 	/**
 	 * Listener for the swapping of Screen / Project tabs
 	 * @see ChangeListener
