@@ -540,7 +540,7 @@
       if (!viewport.viewportimg.get(0).show_rois) {
           var options = {'width':{{ image.getSizeX }}, 
                      'height':{{ image.getSizeY }},
-                     'json_url':'{% url webgateway_get_rois_json image.id %}'};
+                     'json_url':'{% url webgateway_get_rois_json 000 %}'.replace('000', '{{ image.id }}')};
           if (viewport.loadedImg.tiles) {
               options['tiles'] = true;
               options['canvas_name'] = 'roi_canvas_big';
