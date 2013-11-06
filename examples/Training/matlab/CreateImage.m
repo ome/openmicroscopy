@@ -15,9 +15,7 @@
 % with this program; if not, write to the Free Software Foundation, Inc.,
 % 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-% Create an image from an existing image.
-%
-% The source image must have at least 2 channels.
+% Crate a new synthetic image and upload it to the server
 
 try
     % Create a connection
@@ -28,57 +26,31 @@ try
         char(session.getAdminService().getEventContext().groupName));
     
     % Information to edit
-    imageId = str2double(client.getProperty('image.id'));
     datasetId = str2double(client.getProperty('dataset.id'));
     
-    % First retrieve the image.
-    fprintf(1, 'Reading image: %g\n', imageId);
-    image = getImages(session, imageId);
-    assert(~isempty(image), 'OMERO:CreateImage', 'Image id not valid');
-    
     % Read the dimensions
-    pixels = image.getPrimaryPixels();
-    sizeX = pixels.getSizeX().getValue();
-    sizeY = pixels.getSizeY().getValue();
-    sizeZ = pixels.getSizeZ().getValue(); % The number of z-sections.
-    sizeT = pixels.getSizeT().getValue(); % The number of timepoints.
-    sizeC = pixels.getSizeC().getValue(); % The number of channels.
+    sizeX = 200;
+    sizeY = 100;
+    sizeZ = 1; % The number of z-sections.
+    sizeT = 5; % The number of timepoints.
+    sizeC = 2; % The number of channels.
+    type = 'uint16';
     assert(sizeC > 1,'OMERO:CreateImage', 'Image must contain at least 2 channels');
     
-    pixelsId = pixels.getId().getValue();
-    store = session.createRawPixelsStore();
-    store.setPixelsId(pixelsId, false);
-    
-    
-    linearize = @(z,t) sizeZ * t + z;
-    % Read the raw data
-    disp('Reading planes');
-    map = java.util.LinkedHashMap;
-    for z = 0:sizeZ-1,
-        for t = 0:sizeT-1,
-            planeC1 = store.getPlane(z, 0, t);
-            map.put(linearize(z, t), planeC1);
-        end
-    end
-    
-    % Close to free space.
-    store.close();
-    
+    % Retrieve pixel type
     pixelsService = session.getPixelsService();
-    l = pixelsService.getAllEnumerations(omero.model.PixelsType.class);
-    original = pixels.getPixelsType().getValue().getValue();
-    for j = 0:l.size()-1,
-        type = l.get(j);
-        if (type.getValue().getValue() == original)
-            break;
-        end
-    end
+    pixelTypes = toMatlabList(pixelsService.getAllEnumerations('omero.model.PixelsType'));
+    pixelTypeValues = arrayfun(@(x) char(x.getValue().getValue()),...
+        pixelTypes, 'Unif', false);
+    pixelType = pixelTypes(strcmp(pixelTypeValues, type));
     
     % Create a new image
-    disp('Uploading image onto the server');
-    description = char(['Source Image ID: ' int2str(image.getId().getValue())]);
-    name = char(['newImageFrom' int2str(image.getId().getValue())]);
-    idNew = pixelsService.createImage(sizeX, sizeY, sizeZ, sizeT, java.util.Arrays.asList(java.lang.Integer(0)), type, name, description);
+    disp('Uploading new image onto the server');
+    description = sprintf('Dimensions: %g x %g x %g x %g x %g',...
+        sizeX, sizeY, sizeZ, sizeC, sizeT);
+    name = 'New image';
+    idNew = pixelsService.createImage(sizeX, sizeY, sizeZ, sizeT,...
+        toJavaList(0:sizeC-1, 'java.lang.Integer'), pixelType, name, description);
     
     %load the image.
     disp('Checking the created image');
@@ -93,20 +65,28 @@ try
     % Link the new image to the dataset
     fprintf(1, 'Linking image %g to dataset %g\n', idNew.getValue(), datasetId);
     link = omero.model.DatasetImageLinkI;
-    link.setChild(omero.model.ImageI(imageNew.getId().getValue(), false));
+    link.setChild(omero.model.ImageI(idNew, false));
     link.setParent(omero.model.DatasetI(dataset.getId().getValue(), false));
     session.getUpdateService().saveAndReturnObject(link);
     
     % Copy the data.
     fprintf(1, 'Copying data to image %g\n', idNew.getValue());
-    pixelsNew = imageNew.getPrimaryPixels();
-    pixelsNewId = pixelsNew.getId().getValue();
+    pixels = imageNew.getPrimaryPixels();
     store = session.createRawPixelsStore();
-    store.setPixelsId(pixelsNewId, false);
+    store.setPixelsId(pixels.getId().getValue(), false);
     
-    for z = 0:sizeZ-1,
-        for t = 0:sizeT-1,
-            store.setPlane(map.get(linearize(z, t)), z, 0, t);
+    % Create template for upload
+    range =  cast(1: intmax(type) / sizeX  : intmax(type), type);
+    template = repmat(range', 1, sizeY);
+    byteArray = toByteArray(template, pixels);
+    
+    % Upload template for every plane in the image
+    for z = 1 : sizeZ,
+        for c = 1:sizeC
+            for t = 1: sizeT,
+                index = sub2ind([sizeZ sizeC sizeT], z, c, t);
+                store.setPlane(byteArray, z - 1, c - 1, t - 1);
+            end
         end
     end
     store.save(); %save the data
