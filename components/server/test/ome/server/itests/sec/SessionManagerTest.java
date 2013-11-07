@@ -45,7 +45,7 @@ public class SessionManagerTest extends AbstractManagedContextTest {
     public void testGetsEventAndBlocksOnNextCall() throws Exception {
         login("root", "user", "User");
         ApplicationEvent event = new UserGroupUpdateEvent(this);
-        Session s = sm.createWithAgent(new Principal("root", "user", "Test"), "Test");
+        Session s = sm.createWithAgent(new Principal("root", "user", "Test"), "Test", "127.0.0.1");
         long last1 = sc.getLastUpdated();
         sm.onApplicationEvent(event);
         Thread.sleep(2000L);
@@ -117,7 +117,7 @@ public class SessionManagerTest extends AbstractManagedContextTest {
     @Test
     public void testInputOutputEnvironments() throws Exception {
         login("root", "user", "User");
-        Session s = sm.createWithAgent(new Principal("root", "user", "Test"), "Test");
+        Session s = sm.createWithAgent(new Principal("root", "user", "Test"), "Test", "127.0.0.1");
         String uuid = s.getUuid();
 
         assertNull(sessionManager.getInput(uuid, "a"));
@@ -138,7 +138,7 @@ public class SessionManagerTest extends AbstractManagedContextTest {
     @Test
     public void testTimeouts() throws Exception {
         login("root", "user", "User");
-        Session s = sm.createWithAgent(new Principal("root", "user", "Test"), "Test");
+        Session s = sm.createWithAgent(new Principal("root", "user", "Test"), "Test", "127.0.0.1");
         String uuid = s.getUuid();
 
         // By default TTI is non-null, we're assuming this is the case here
@@ -156,7 +156,7 @@ public class SessionManagerTest extends AbstractManagedContextTest {
     @Test
     public void testTimeoutsWithNulls() throws Exception {
         login("root", "user", "User");
-        Session s = sm.createWithAgent(new Principal("root", "user", "Test"), "Test");
+        Session s = sm.createWithAgent(new Principal("root", "user", "Test"), "Test", "127.0.0.1");
         String uuid = s.getUuid();
 
         Session newSession = new Session();

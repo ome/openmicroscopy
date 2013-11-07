@@ -271,7 +271,7 @@ public class AbstractManagedContextTest extends TestCase {
     protected Principal login(String userName, String groupName,
             String eventType) {
         Principal p = new Principal(userName, groupName, eventType);
-        Session s = sessionManager.createWithAgent(p, "AbstractManagedContext");
+        Session s = sessionManager.createWithAgent(p, "AbstractManagedContext", "127.0.0.1");
         loginAop.p = new Principal(s.getUuid(), groupName, eventType);
         return loginAop.p;
     }

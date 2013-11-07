@@ -84,7 +84,7 @@ public class SessionBean implements ISession {
             final Principal principal = principal(defaultGroup, user);
             Future<Session> future = ex.submit(new Callable<Session>(){
                 public Session call() throws Exception {
-                    Session session = mgr.createWithAgent(principal, "createSession");
+                    Session session = mgr.createWithAgent(principal, "createSession", null);
                     session.setTimeToIdle(timeToIdleMs);
                     session.setTimeToLive(timeToLiveMs);
                     return mgr.update(session, false);
@@ -109,7 +109,7 @@ public class SessionBean implements ISession {
         try {
             Future<Session> future = ex.submit(new Callable<Session>(){
                 public Session call() throws Exception {
-                    Session session = mgr.createWithAgent(principal, "createSession");
+                    Session session = mgr.createWithAgent(principal, "createSession", null);
                     session.setTimeToIdle(timeToIdleMilliseconds);
                     session.setTimeToLive(timeToLiveMilliseconds);
                     return mgr.update(session, true);
@@ -127,7 +127,7 @@ public class SessionBean implements ISession {
 
         Session session = null;
         try {
-            session = mgr.createWithAgent(principal, credentials, "createSession");
+            session = mgr.createWithAgent(principal, credentials, "createSession", null);
         } catch (Exception e) {
             throw creationExceptionHandler(e);
         }

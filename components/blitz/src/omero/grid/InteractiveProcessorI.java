@@ -484,7 +484,7 @@ public class InteractiveProcessorI implements _InteractiveProcessorOperations,
         EventContext ec = getEventContext(__current);
         Session newSession = mgr.createWithAgent(
                 new Principal(ec.getCurrentUserName(),
-                ec.getCurrentGroupName(), "Processing"), "OMERO.scripts");
+                ec.getCurrentGroupName(), "Processing"), "OMERO.scripts", null);
         newSession.setTimeToIdle(0L);
         newSession.setTimeToLive(timeout);
         newSession = mgr.update(newSession, true);

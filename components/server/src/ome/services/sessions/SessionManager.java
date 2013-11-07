@@ -41,14 +41,14 @@ public interface SessionManager {
      * @param credentials
      * @return Not null. Instead an exception will be thrown.
      */
-    Session createWithAgent(Principal principal, String credentials, String agent);
+    Session createWithAgent(Principal principal, String credentials, String agent, String ip);
 
     /**
      * 
      * @param principal
      * @return Not null. Instead an exception will be thrown.
      */
-    Session createWithAgent(Principal principal, String agent);
+    Session createWithAgent(Principal principal, String agent, String ip);
 
     /**
      * 

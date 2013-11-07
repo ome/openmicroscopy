@@ -49,7 +49,7 @@ public class PersistentEventLogLoaderTest extends AbstractManagedContextTest {
     protected <T> T call(String msg, final Callable<T> call) throws Throwable {
 
         ome.model.meta.Session s = sm.createWithAgent(new Principal("root",
-                "system", "Test"), "Test");
+                "system", "Test"), "Test", "127.0.0.1");
 
         final Throwable exc[] = new Throwable[1];
         @SuppressWarnings("unchecked")

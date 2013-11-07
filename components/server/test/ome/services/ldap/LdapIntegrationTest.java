@@ -98,7 +98,7 @@ public class LdapIntegrationTest extends LdapTest {
 
         Principal tmp = new Principal(username, group, "Test");
         Session s = sessionManager.createWithAgent(tmp,
-                "AbstractManagedContext");
+                "AbstractManagedContext", "127.0.0.1");
         return new Principal(s.getUuid(), group, "Test");
     }
 

@@ -77,7 +77,7 @@ public abstract class ExecutionThread implements Runnable {
         }
 
         if (sessionPrincipal == null) {
-            session = this.manager.createWithAgent(principal, "ExecutionThread");
+            session = this.manager.createWithAgent(principal, "ExecutionThread", null);
             sessionPrincipal = new Principal(session.getUuid(), principal
                     .getGroup(), principal.getEventType());
         }
