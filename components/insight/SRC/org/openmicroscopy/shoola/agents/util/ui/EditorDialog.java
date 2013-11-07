@@ -136,7 +136,7 @@ public class EditorDialog
     private JButton saveButton;
 
     /** The object to create. */
-    private DataObject data;
+    private Object data;
 
     /** Box used to indicate that the new object will have public visibility. */
     private JRadioButton publicBox;
@@ -191,7 +191,7 @@ public class EditorDialog
         privateBox.setSelected(true);
         privateBox.setEnabled(false);
         
-        if (data instanceof XMLAnnotationData) {
+        if (data instanceof XMLAnnotationData || data instanceof String) {
         	nameArea = new MultilineLabel();
         	nameArea.setEditable(true);
         } else {
@@ -263,6 +263,8 @@ public class EditorDialog
         if (data instanceof XMLAnnotationData) {
             content.add(UIUtilities.setTextFont("Content"), "0, 2"+value);
             content.add(new JScrollPane(nameArea), "1, 2");
+        } else if (data instanceof String) {
+            content.add(new JScrollPane(nameArea), "1, 2");
         } else {
         	content.add(UIUtilities.setTextFont("Name"), "0, 0"+value);
             content.add(nameArea, "1, 0");
@@ -322,6 +324,8 @@ public class EditorDialog
             typeName = "Term";
         } else if (data instanceof XMLAnnotationData) {
             typeName = "XML";
+        } else if (data instanceof String) {
+            typeName = "Error";
         }
         switch (type) {
         case CREATE_TYPE:
@@ -413,7 +417,7 @@ public class EditorDialog
      * 
      * @param object The type of object to create.
      */
-    private void checkData(DataObject object)
+    private void checkData(Object object)
     {
         if (object == null)
             throw new IllegalArgumentException("No object to create.");
@@ -422,7 +426,8 @@ public class EditorDialog
                 object instanceof ScreenData ||
                 object instanceof TagAnnotationData ||
                 object instanceof TermAnnotationData ||
-                object instanceof XMLAnnotationData) return;
+                object instanceof XMLAnnotationData ||
+                object instanceof String) return;
         throw new IllegalArgumentException("Object not supported.");
     }
 
@@ -443,6 +448,7 @@ public class EditorDialog
                 data instanceof TermAnnotationData ||
                 data instanceof XMLAnnotationData)
             return ((AnnotationData) data).getContentAsString();
+        if (data instanceof String) return data.toString();
         return "";
     }
 
@@ -453,7 +459,7 @@ public class EditorDialog
      */
     private String getDataDescription()
     {
-        if (data instanceof ProjectData) 
+        if (data instanceof ProjectData)
             return ((ProjectData) data).getDescription();
         if (data instanceof DatasetData) 
             return ((DatasetData) data).getDescription();
@@ -465,6 +471,7 @@ public class EditorDialog
             return ((TermAnnotationData) data).getTermDescription();
         if (data instanceof XMLAnnotationData)
             return ((XMLAnnotationData) data).getDescription();
+        if (data instanceof String) data.toString();
         return "";
     }
 
@@ -500,7 +507,7 @@ public class EditorDialog
      * have a parent, <code>false</code> otherwise.
      * @param type The type of the dialog.
      */
-    private void init(DataObject data, boolean withParent, int  type)
+    private void init(Object data, boolean withParent, int  type)
     {
         switch (type) {
         case EDIT_TYPE:
@@ -541,6 +548,21 @@ public class EditorDialog
         init(data, withParent, type);
     }
 
+    /**
+     * Creates a new instance.
+     * 
+     * @param owner The owner of the frame.
+     * @param data The type of object to create.
+     * @param withParent Sets to <code>true</code> if the object will
+     * have a parent, <code>false</code> otherwise.
+     * @param type The type of the dialog.
+     */
+    public EditorDialog(JFrame owner, String data, int type)
+    {
+        super(owner);
+        init(data, withParent, type);
+    }
+    
     /**
      * Creates a new instance.
      * 

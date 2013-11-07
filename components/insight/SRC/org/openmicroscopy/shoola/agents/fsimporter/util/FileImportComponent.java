@@ -5,7 +5,7 @@
  *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -52,6 +52,7 @@ import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.Icon;
 import javax.swing.JButton;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
@@ -74,6 +75,7 @@ import org.openmicroscopy.shoola.agents.fsimporter.IconManager;
 import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
+import org.openmicroscopy.shoola.agents.util.ui.EditorDialog;
 import org.openmicroscopy.shoola.agents.util.ui.ThumbnailLabel;
 import org.openmicroscopy.shoola.env.data.ImportException;
 import org.openmicroscopy.shoola.env.data.model.ImportableFile;
@@ -104,9 +106,6 @@ import pojos.TagAnnotationData;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @author Blazej Pindelski, bpindelski at dundee.ac.uk
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since 3.0-Beta4
  */
 public class FileImportComponent
@@ -285,67 +284,80 @@ public class FileImportComponent
 	 */
 	private JPopupMenu createActionMenu()
 	{
-		if (menu != null) return menu;
-		menu = new JPopupMenu();
-		JMenuItem item;
-		String logText = "View Import Log";
-		String checksumText = "View Checksum";
-		Object result = statusLabel.getImportResult();
-		switch (resultIndex) {
-			case FAILURE:
-				menu.add(new JMenuItem(new AbstractAction("Submit") {
-					public void actionPerformed(ActionEvent e) {
-						submitError();
-					}
-				}));
-				break;
-			case UPLOAD_FAILURE:
-				menu.add(new JMenuItem(new AbstractAction("Retry") {
-					public void actionPerformed(ActionEvent e) {
-						retry();
-					}
-				}));
-				break;
-			case SUCCESS:
-				logText = "Import Log";
-				checksumText = "Checksum";
-				item = new JMenuItem(new AbstractAction("In Full Viewer") {
-					public void actionPerformed(ActionEvent e) {
-						launchFullViewer();
-					}
-				});
-				boolean b = false;
-				if (result instanceof Collection)
-					b = ((Collection) result).size() == 1;
-				item.setEnabled(b && !statusLabel.isHCS());
-				menu.add(item);
-				item = new JMenuItem(new AbstractAction("In Data Browser") {
-					public void actionPerformed(ActionEvent e) {
-						browse();
-					}
-				});
-				item.setEnabled(browsable);
-				menu.add(item);
-		}
-		item = new JMenuItem(new AbstractAction(logText) {
-            public void actionPerformed(ActionEvent e) {
-            	displayLogFile();
-            }
-        });
-		item.setEnabled(statusLabel.getLogFileID() > 0 ||
-				statusLabel.getFileset() != null);
-		menu.add(item);
-        
-		item = new JMenuItem(new AbstractAction(checksumText) {
-            public void actionPerformed(ActionEvent e) {
-            	showChecksumDetails();
-            }
-		});
-		item.setEnabled(statusLabel.hasChecksum());
-		menu.add(item);
-		return menu;
+	    if (menu != null) return menu;
+	    menu = new JPopupMenu();
+	    JMenuItem item;
+	    String logText = "View Import Log";
+	    String checksumText = "View Checksum";
+	    String exceptionText = "View Exception";
+	    Object result = statusLabel.getImportResult();
+	    switch (resultIndex) {
+	    case FAILURE_LIBRARY:
+	        menu.add(new JMenuItem(new AbstractAction(exceptionText) {
+                public void actionPerformed(ActionEvent e) {
+                    viewError();
+                }
+            }));
+	        break;
+	    case FAILURE:
+	        menu.add(new JMenuItem(new AbstractAction("Submit") {
+	            public void actionPerformed(ActionEvent e) {
+	                submitError();
+	            }
+	        }));
+	        menu.add(new JMenuItem(new AbstractAction(exceptionText) {
+                public void actionPerformed(ActionEvent e) {
+                    viewError();
+                }
+            }));
+	        break;
+	    case UPLOAD_FAILURE:
+	        menu.add(new JMenuItem(new AbstractAction("Retry") {
+	            public void actionPerformed(ActionEvent e) {
+	                retry();
+	            }
+	        }));
+	        break;
+	    case SUCCESS:
+	        logText = "Import Log";
+	        checksumText = "Checksum";
+	        item = new JMenuItem(new AbstractAction("In Full Viewer") {
+	            public void actionPerformed(ActionEvent e) {
+	                launchFullViewer();
+	            }
+	        });
+	        boolean b = false;
+	        if (result instanceof Collection)
+	            b = ((Collection) result).size() == 1;
+	        item.setEnabled(b && !statusLabel.isHCS());
+	        menu.add(item);
+	        item = new JMenuItem(new AbstractAction("In Data Browser") {
+	            public void actionPerformed(ActionEvent e) {
+	                browse();
+	            }
+	        });
+	        item.setEnabled(browsable);
+	        menu.add(item);
+	    }
+	    item = new JMenuItem(new AbstractAction(logText) {
+	        public void actionPerformed(ActionEvent e) {
+	            displayLogFile();
+	        }
+	    });
+	    item.setEnabled(statusLabel.getLogFileID() > 0 ||
+	            statusLabel.getFileset() != null);
+	    menu.add(item);
+
+	    item = new JMenuItem(new AbstractAction(checksumText) {
+	        public void actionPerformed(ActionEvent e) {
+	            showChecksumDetails();
+	        }
+	    });
+	    item.setEnabled(statusLabel.hasChecksum());
+	    menu.add(item);
+	    return menu;
 	}
-	
+
 	/** Displays or loads the log file.*/
 	private void displayLogFile()
 	{
@@ -470,6 +482,8 @@ public class FileImportComponent
 			int status = e.getStatus();
 			if (status == ImportException.CHECKSUM_MISMATCH)
 				resultIndex = ImportStatus.UPLOAD_FAILURE;
+			else if (status == ImportException.MISSING_LIBRARY)
+			    resultIndex = ImportStatus.FAILURE_LIBRARY;
 			else resultIndex = ImportStatus.FAILURE;
 			statusLabel.setText("");
 		} else if (result instanceof CmdCallback) {
@@ -490,6 +504,19 @@ public class FileImportComponent
 		Object o = statusLabel.getImportResult();
 		if (o instanceof Exception)
 			firePropertyChange(SUBMIT_ERROR_PROPERTY, null, this);
+	}
+
+	/** Views the error.*/
+	private void viewError()
+	{
+	    Object o = statusLabel.getImportResult();
+	    if (o instanceof ImportException) {
+	        String v = UIUtilities.printErrorText((ImportException) o);
+	        JFrame f = ImporterAgent.getRegistry().getTaskBar().getFrame();
+	        EditorDialog d = new EditorDialog(f, v, EditorDialog.VIEW_TYPE);
+	        d.allowEdit(false);
+	        UIUtilities.centerAndShow(d);
+	    }
 	}
 
 	/** Browses the node or the data object. */
