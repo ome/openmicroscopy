@@ -1091,10 +1091,20 @@ public class DomainPane
                 controller.setChannelFamily(v, f);
                 break;
             case CHANNEL:
-                List<ChannelData> channels = model.getChannelData();
-                ChannelData data = channels.get(v);
-                controller.setChannelSelection(data.getIndex(),
-                        model.isChannelActive(data.getIndex()));
+                //Set the family
+                String family = model.getFamily(v);
+                double coefficient = model.getCurveCoefficient(v);
+                familyBox.removeActionListener(this);
+                familyBox.setSelectedItem(family);
+                familyBox.addActionListener(this);
+                //set the gamma.
+                gammaSlider.removeChangeListener(this);
+                gammaSlider.setValue((int) (coefficient*FACTOR));
+                gammaSlider.setEnabled(family.equals(RendererModel.EXPONENTIAL) ||
+                        family.equals(RendererModel.POLYNOMIAL));
+                gammaSlider.addChangeListener(this);
+                gammaLabel.setText(""+coefficient);
+                controller.setChannelSelection(v, true);
             }
         } catch(NumberFormatException nfe) {  
             throw new Error("Invalid Action ID "+index, nfe);
