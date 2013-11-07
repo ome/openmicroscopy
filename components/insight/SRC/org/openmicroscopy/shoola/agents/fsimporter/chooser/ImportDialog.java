@@ -343,6 +343,9 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 	/** Stores the currently active file filter */
 	private FileFilter currentFilter;
 
+	/** Reference to the model.*/
+	private Importer model;
+
 	/**
 	 * Adds the files to the selection.
 	 * 
@@ -518,10 +521,8 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 	/**
 	 * Initializes the components composing the display.
 	 * 
-	 * @param filters
-	 *            The filters to handle.
-	 * @param importerAction
-	 *            The cancel-all-imports action.
+	 * @param filters The filters to handle.
+	 * @param importerAction The cancel-all-imports action.
 	 */
 	private void initComponents(FileFilter[] filters,
 	        ImporterAction importerAction) {
@@ -548,10 +549,14 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 
 		if (!isFastConnection()) // slow connection
 			showThumbnails.setSelected(false);
+		long groupId = -1;
+		if (model.getSelectedGroup() != null)
+		    groupId = model.getSelectedGroup().getGroupId();
+		if (groupId < 0) groupId = ImporterAgent.getUserDetails().getGroupId();
 		
-		Collection<GroupData> groups = ImporterAgent.getAvailableUserGroups();
 		locationDialog = new LocationDialog(owner, selectedContainer, type, 
-				objects, groups, ImporterAgent.getUserDetails().getGroupId());
+				objects, ImporterAgent.getAvailableUserGroups(), groupId,
+				model.getImportFor());
 		locationDialog.addPropertyChangeListener(this);
 		
 		tagSelectionListener = new ActionListener() {
@@ -1161,15 +1166,14 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 	public ImportDialog(JFrame owner, FileFilter[] filters,
 			TreeImageDisplay selectedContainer,
 			Collection<TreeImageDisplay> objects, int type,
-			 ImporterAction importerAction)
+			ImporterAction importerAction, Importer model)
 	{
 		super(0, TITLE, TITLE);
-		
 		this.owner = owner;
 		this.objects = objects;
 		this.type = type;
+		this.model = model;
 		this.selectedContainer = checkContainer(selectedContainer);
-		
 		setClosable(false);
 		setCloseVisible(false);
 		initComponents(filters, importerAction);
@@ -1200,10 +1204,7 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 	 * 
 	 * @return See above.
 	 */
-	boolean canImportAs()
-	{
-		return ImporterAgent.isAdministrator();
-	}
+	boolean canImportAs() { return model.canImportAs(); }
 	
 	/** Display the size of files to add. */
 	void onSelectionChanged() {

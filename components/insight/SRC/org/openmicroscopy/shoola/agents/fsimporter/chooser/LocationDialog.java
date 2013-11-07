@@ -345,10 +345,11 @@ class LocationDialog extends JDialog implements ActionListener,
 	 * @param objects The screens / projects to be shown.
 	 * @param groups The available groups to the user.
 	 * @param currentGroupId The id of the current user group.
+	 * @param userId The user to select when importing as.
 	 */
 	LocationDialog(JFrame parent, TreeImageDisplay selectedContainer,
 			int importDataType, Collection<TreeImageDisplay> objects,
-			Collection<GroupData> groups, long currentGroupId)
+			Collection<GroupData> groups, long currentGroupId, long userId)
 	{
 		super(parent);
 		this.container = selectedContainer;
@@ -360,9 +361,7 @@ class LocationDialog extends JDialog implements ActionListener,
 		
 		initUIComponents();
 		layoutUI();
-		ExperimenterData exp = ImporterAgent.getUserDetails();
-		populateUIWithDisplayData(findWithId(groups, currentGroupId),
-				exp.getId());
+		populateUIWithDisplayData(findWithId(groups, currentGroupId), userId);
 	}
 
 	/** 
@@ -641,7 +640,6 @@ class LocationDialog extends JDialog implements ActionListener,
 	{
 		groupsBox.removeItemListener(this);
 		groupsBox.removeAllItems();
-		
 		JComboBoxImageObject selectedGroupItem = null;
 		JComboBoxImageObject item;
 		List<String> tooltips = new ArrayList<String>(availableGroups.size());
@@ -1142,7 +1140,7 @@ class LocationDialog extends JDialog implements ActionListener,
 		if (exp != null) id = exp.getId();
 		return new ComboBoxToolTipRenderer(id);
 	}
-	
+
 	/**
 	 * Populates the JComboBox with the user details provided, 
 	 * selecting the logged in user and attaching the item listener.
@@ -1153,46 +1151,46 @@ class LocationDialog extends JDialog implements ActionListener,
 	 * @param userID The id of the user.
 	 */
 	private void displayUsers(JComboBox comboBox, GroupData group,
-			ItemListener itemListener, long userID) {
+	        ItemListener itemListener, long userID) {
 
-		if (comboBox == null || group == null) return;
+	    if (comboBox == null || group == null) return;
 
-		if (itemListener != null)
-			comboBox.removeItemListener(itemListener);
-		comboBox.removeAllItems();
+	    if (itemListener != null)
+	        comboBox.removeItemListener(itemListener);
+	    comboBox.removeAllItems();
 
-		DefaultComboBoxModel model = new SelectableComboBoxModel();
-		Selectable<ExperimenterDisplay> selected = null;
-		
-		List<ExperimenterData> members = sort(group.getExperimenters());
-		boolean canImportAs;
-		Selectable<ExperimenterDisplay> item;
-		List<String> tooltips = new ArrayList<String>(members.size());
-		List<String> lines;
-		for (ExperimenterData user : members) {
-			canImportAs = canImportForUserInGroup(user, group);
-			item = new Selectable<ExperimenterDisplay>(
-					new ExperimenterDisplay(user), canImportAs);
-			if (user.getId() == userID)
-				selected = item;
-			lines = new ArrayList<String>();
-            lines.addAll(UIUtilities.wrapStyleWord(
-                    EditorUtil.formatExperimenter(user)));
-            tooltips.add(UIUtilities.formatToolTipText(lines));
-			model.addElement(item);
-		}
-		ComboBoxToolTipRenderer renderer = createComboboxRenderer();
-		renderer.setTooltips(tooltips);
-		comboBox.setModel(model);
-		comboBox.setRenderer(renderer);
-		
-		if (selected != null)
-			comboBox.setSelectedItem(selected);
+	    DefaultComboBoxModel model = new SelectableComboBoxModel();
+	    Selectable<ExperimenterDisplay> selected = null;
 
-		if (itemListener != null)
-			comboBox.addItemListener(itemListener);
+	    List<ExperimenterData> members = sort(group.getExperimenters());
+	    boolean canImportAs;
+	    Selectable<ExperimenterDisplay> item;
+	    List<String> tooltips = new ArrayList<String>(members.size());
+	    List<String> lines;
+	    for (ExperimenterData user : members) {
+	        canImportAs = canImportForUserInGroup(user, group);
+	        item = new Selectable<ExperimenterDisplay>(
+	                new ExperimenterDisplay(user), canImportAs);
+	        if (user.getId() == userID)
+	            selected = item;
+	        lines = new ArrayList<String>();
+	        lines.addAll(UIUtilities.wrapStyleWord(
+	                EditorUtil.formatExperimenter(user)));
+	        tooltips.add(UIUtilities.formatToolTipText(lines));
+	        model.addElement(item);
+	    }
+	    ComboBoxToolTipRenderer renderer = createComboboxRenderer();
+	    renderer.setTooltips(tooltips);
+	    comboBox.setModel(model);
+	    comboBox.setRenderer(renderer);
+
+	    if (selected != null)
+	        comboBox.setSelectedItem(selected);
+
+	    if (itemListener != null)
+	        comboBox.addItemListener(itemListener);
 	}
-	
+
 	/**
 	 * Creates a project.
 	 * @param newProject The project to create.
@@ -1581,25 +1579,11 @@ class LocationDialog extends JDialog implements ActionListener,
 		this.dataType = type;
 		this.objects = objects;
 		this.container = container;
-		onReconnected(groups, currentGroupId, userID);
+        populateUIWithDisplayData(findWithId(groups, currentGroupId),
+                userID);
+        setInputsEnabled(true);
 	}
 
-	/**
-	 * Re-populates and resets the groups, screens, projects & dataset options.
-	 * 
-	 * @param availableGroups The list of available groups to this user.
-	 * @param currentGroupId The currently active user group's ID.
-	 * @param userID The id of the user.
-	 */
-	void onReconnected(Collection<GroupData> availableGroups,
-			long currentGroupId, long userID)
-	{
-		this.groups = availableGroups;
-		populateUIWithDisplayData(findWithId(availableGroups, currentGroupId),
-				userID);
-		setInputsEnabled(true);
-	}
-	
 	/**
 	 * Listener for the swapping of Screen / Project tabs
 	 * @see ChangeListener
