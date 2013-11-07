@@ -17,8 +17,6 @@ from omero.plugins.script import ScriptControl
 from omero.util.temp_files import create_path
 import pytest
 
-omeroDir = path(os.getcwd()) / "build"
-
 scriptText = """
 import omero, omero.scripts as s
 from omero.rtypes import *
