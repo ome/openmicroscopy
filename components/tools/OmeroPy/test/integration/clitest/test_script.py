@@ -88,10 +88,8 @@ class TestScript(CLITest):
         # test replace with official script
         self.args = self.root_login_args() + ["script"]
         uploadArgs = self.args + ["upload", str(p), "--official"]
-        # print uploadArgs
         self.cli.invoke(uploadArgs, strict=True)  # Sets current script
         newId = self.cli.get("script.file.id")
         self.cli.invoke(self.args + ["list"], strict=True)
         replaceArgs = self.args + ["replace", str(newId), str(p)]
-        # print replaceArgs
         self.cli.invoke(replaceArgs, strict=True)
