@@ -408,13 +408,11 @@ public class DomainPane
             } else channelButtonPanel = createChannelButtons();
         }
         graphicsPane.setSelectedPlane();
-   
-        if (model.getChannelData().size() > 1) {
-        	channelsBox = new JComboBox();
-            populateChannels();
-    		channelsBox.setRenderer(new ColorListRenderer());
-            channelsBox.setActionCommand(""+CHANNEL);
-        }
+        channelsBox = new JComboBox();
+        populateChannels();
+        channelsBox.setRenderer(new ColorListRenderer());
+        channelsBox.setActionCommand(""+CHANNEL);
+        channelsBox.setVisible(model.getMaxC() > 1);
     }
     
     /** Populates the channels. */
