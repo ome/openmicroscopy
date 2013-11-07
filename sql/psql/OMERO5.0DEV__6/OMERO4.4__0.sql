@@ -165,22 +165,6 @@ CREATE TABLE filesetversioninfo (
     CONSTRAINT fkfilesetversioninfo_update_id_event            FOREIGN KEY (update_id)   REFERENCES event
 );
 
--- CREATE TABLE count_fileset_annotationlinks_by_owner (
---     fileset_id INT8 NOT NULL,
---     "count" INT8 NOT NULL,
---     owner_id INT8 NOT NULL,
---     CONSTRAINT count_fileset_annotationlinks_by_owner_pkey PRIMARY KEY (fileset_id, owner_id),
---     CONSTRAINT fk_count_to_fileset_annotationLinks FOREIGN KEY (fileset_id) REFERENCES fileset
--- );
-
--- CREATE TABLE count_fileset_joblinks_by_owner (
---     fileset_id INT8 NOT NULL,
---     "count" INT8 NOT NULL,
---     owner_id INT8 NOT NULL,
---     CONSTRAINT count_fileset_joblinks_by_owner_pkey PRIMARY KEY (fileset_id, owner_id),
---     CONSTRAINT fk_count_to_fileset_jobLinks FOREIGN KEY (fileset_id) REFERENCES fileset
--- );
-
 CREATE VIEW count_fileset_annotationlinks_by_owner (fileset_id, owner_id, "count") AS
     SELECT parent, owner_id, count(*) FROM filesetannotationlink
     GROUP BY parent, owner_id ORDER BY parent;
