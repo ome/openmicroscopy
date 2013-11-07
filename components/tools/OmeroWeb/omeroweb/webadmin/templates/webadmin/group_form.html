@@ -44,6 +44,15 @@
         $(document).ready(function() 
             {
                 
+                // Since we want to disable removal of 'system' group (id=0) from chosen, this hides the 'X'
+                var hideSystemUserX = function() {
+                    for (i=0; i<2; i++) {
+                        var optText = $("#id_members").find("option[value=" + i + "]").text(),
+                            $system_li = $("#id_members_chzn").find("span:contains('"+optText+"')").parent();
+                        $system_li.find('a').hide();
+                    }
+                }
+                
                 $("#id_owners").chosen({placeholder_text:'Choose one or more owners'});
                 $("#id_members").chosen({placeholder_text:'Choose one or more members'}).change(function(evt, data) {
                     if (data && data.deselected) {
@@ -53,9 +62,11 @@
                                 $("#id_owners").trigger("liszt:updated");
                             }
                         });
-                        
                     }
+                    hideSystemUserX();
                 });
+                
+                hideSystemUserX();
                 
                 $('#id_permissions_0').click(function(){
                     OME.confirm_dialog("Changing group to Private will remove any Annotations etc added under Read-Annotate permissions",
