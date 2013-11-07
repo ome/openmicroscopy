@@ -100,7 +100,8 @@ class TestPixels (object):
         # See whether a 2x2 tile is the same as the same region of a Plane. See #11315
         testTile = pixels.getTile(0,0,0, tile=(0,0,2,2))
         croppedPlane = pixels.getPlane(0,0,0)[0:2,0:2]
-        self.assertEqual(str(testTile), str(croppedPlane), "Tile and croppedPlane not equal")
+
+        assert str(testTile) ==  str(croppedPlane), "Tile and croppedPlane not equal"
 
     def testGetPlane(self):
         image = self.image
