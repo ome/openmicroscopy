@@ -16,6 +16,9 @@ var RectView = Backbone.View.extend({
 
         var self = this;
         this.paper = options.paper;
+        this.handle_wh = options.handle_wh || this.handle_wh;
+        this.handles_toFront = options.handles_toFront || false;
+        this.disable_handles = options.disable_handles || false;
         // this.manager = options.manager;
 
         // Set up our 'view' attributes (for rendering without updating model)
@@ -39,6 +42,7 @@ var RectView = Backbone.View.extend({
         self.handles = this.paper.set();
         var _handle_drag = function() {
             return function (dx, dy, mouseX, mouseY, event) {
+                if (self.disable_handles) return false;
                 // on DRAG...
 
                 // If drag on corner handle, retain aspect ratio. dx/dy = aspect
@@ -82,6 +86,7 @@ var RectView = Backbone.View.extend({
         };
         var _handle_drag_start = function() {
             return function () {
+                if (self.disable_handles) return false;
                 // START drag: simply note the location we started
                 this.ox = this.attr("x");
                 this.oy = this.attr("y");
@@ -93,6 +98,7 @@ var RectView = Backbone.View.extend({
         };
         var _handle_drag_end = function() {
             return function() {
+                if (self.disable_handles) return false;
                 this.rect.model.trigger('drag_resize_stop', [this.rect.x, this.rect.y,
                     this.rect.width, this.rect.height]);
                 return false;
@@ -194,7 +200,16 @@ var RectView = Backbone.View.extend({
         // if (this.manager.selected_shape_id === this.model.get("id")) {
         if (this.model.get('selected')) {
             this.element.attr( this.selected_line_attrs );  //.toFront();
-            this.handles.show().toFront();
+            var self = this;
+            // If several Rects get selected at the same time, one with handles_toFront will
+            // end up with the handles at the top
+            if (this.handles_toFront) {
+                setTimeout(function(){
+                    self.handles.show().toFront();
+                },50);
+            } else {
+                this.handles.show().toFront();
+            }
         } else {
             this.element.attr( this.default_line_attrs );    // this should be the shapes OWN line / fill colour etc.
             this.handles.hide();

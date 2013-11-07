@@ -2063,7 +2063,7 @@
                 min_y = 100000, max_y = -10000;
 
             var selected = this.figureModel.getSelected();
-            if (selected.length < 2){
+            if (selected.length < 1){
 
                 this.set({
                     'x': 0,
@@ -2209,7 +2209,8 @@
             this.listenTo(this.model, 'change:curr_zoom', this.setZoom);
 
             var multiSelectRect = new MultiSelectRectModel({figureModel: this.model}),
-                rv = new RectView({'model':multiSelectRect, 'paper':this.raphael_paper});
+                rv = new RectView({'model':multiSelectRect, 'paper':this.raphael_paper,
+                        'handle_wh':7, 'handles_toFront': true});
             rv.selected_line_attrs = {'stroke-width': 1, 'stroke':'#4b80f9'};
         },
 
@@ -2217,7 +2218,8 @@
         addOne: function(m) {
 
             var rectModel = new ProxyRectModel({panel: m, figure:this.model});
-            new RectView({'model':rectModel, 'paper':this.raphael_paper});
+            new RectView({'model':rectModel, 'paper':this.raphael_paper, 
+                    'handle_wh':5, 'disable_handles': true});
         },
 
         // TODO
