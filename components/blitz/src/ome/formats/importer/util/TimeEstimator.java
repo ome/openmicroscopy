@@ -43,7 +43,6 @@ public interface TimeEstimator {
      */
     void stop();
 
-
     /**
      * Stops the time counting and updates the internal updates the internal
      * time counter and counter of total number of transmitted bytes.
