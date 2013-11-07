@@ -15,6 +15,7 @@ from path import path
 from test.integration.clitest.cli import CLITest
 from omero.plugins.script import ScriptControl
 from omero.util.temp_files import create_path
+import pytest
 
 omeroDir = path(os.getcwd()) / "build"
 
@@ -28,6 +29,10 @@ client.setOutput("a", rlong(0))
 client.setOutput("b", rstring("c"))
 client.closeSession()
 """
+
+subcommands = [
+    "demo", "list", "cat", "edit", "params", "launch", "disable", "enable",
+    "jobs", "serve", "upload", "replace", "delete", "run"]
 
 
 class TestScript(CLITest):
@@ -43,60 +48,9 @@ class TestScript(CLITest):
         self.args += ["-h"]
         self.cli.invoke(self.args, strict=True)
 
-    def testDemoHelp(self):
-        self.args += ["demo", "-h"]
-        self.cli.invoke(self.args, strict=True)
-
-    def testListHelp(self):
-        self.args += ["list", "-h"]
-        self.cli.invoke(self.args, strict=True)
-
-    def testCatHelp(self):
-        self.args += ["cat", "-h"]
-        self.cli.invoke(self.args, strict=True)
-
-    def testEditHelp(self):
-        self.args += ["edit", "-h"]
-        self.cli.invoke(self.args, strict=True)
-
-    def testParamsHelp(self):
-        self.args += ["params", "-h"]
-        self.cli.invoke(self.args, strict=True)
-
-    def testLaunchHelp(self):
-        self.args += ["launch", "-h"]
-        self.cli.invoke(self.args, strict=True)
-
-    def testDisableHelp(self):
-        self.args += ["disable", "-h"]
-        self.cli.invoke(self.args, strict=True)
-
-    def testEnableHelp(self):
-        self.args += ["enable", "-h"]
-        self.cli.invoke(self.args, strict=True)
-
-    def testJobsHelp(self):
-        self.args += ["jobs", "-h"]
-        self.cli.invoke(self.args, strict=True)
-
-    def testServerHelp(self):
-        self.args += ["serve", "-h"]
-        self.cli.invoke(self.args, strict=True)
-
-    def testUploadHelp(self):
-        self.args += ["upload", "-h"]
-        self.cli.invoke(self.args, strict=True)
-
-    def testReplaceHelp(self):
-        self.args += ["replace", "-h"]
-        self.cli.invoke(self.args, strict=True)
-
-    def testDeleteHelp(self):
-        self.args += ["delete", "-h"]
-        self.cli.invoke(self.args, strict=True)
-
-    def testRunHelp(self):
-        self.args += ["run", "-h"]
+    @pytest.mark.parametrize("subcommand", subcommands)
+    def testSubcommandHelp(self, subcommand):
+        self.args += [subcommand, "-h"]
         self.cli.invoke(self.args, strict=True)
 
     def testList(self):
