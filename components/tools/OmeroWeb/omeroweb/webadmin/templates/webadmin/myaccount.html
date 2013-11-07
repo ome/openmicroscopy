@@ -3,7 +3,7 @@
 
 {% comment %}
 <!--
-  Copyright (C) 2011 University of Dundee & Open Microscopy Environment.
+  Copyright (C) 2011-2013 University of Dundee & Open Microscopy Environment.
   All rights reserved.
 
   This program is free software: you can redistribute it and/or modify
@@ -46,6 +46,9 @@
     <script type="text/javascript" src="{% static "webclient/javascript/jquery.form.js" %}"></script>
     <script type="text/javascript" src="{% static "3rdparty/jquery.flot/jquery.flot.js" %}"></script>
     <script type="text/javascript" src="{% static "3rdparty/jquery.flot/jquery.flot.pie.js" %}"></script>
+    
+    <!--[if lte IE 8]><script language="javascript" type="text/javascript" src="{% static "3rdparty/jquery.flot/excanvas.js" %}"></script><![endif]-->
+    
     <script type="text/javascript" src="{% static "3rdparty/jquery.chosen/chosen.jquery.js" %}"></script>
     
     <script type="text/javascript">
