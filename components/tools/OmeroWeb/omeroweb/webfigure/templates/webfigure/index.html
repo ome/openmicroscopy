@@ -42,7 +42,7 @@
     $(document).ready(function() {
 
 
-        var figureModel = new FigureModel( {'canvas_width': 10000, 'canvas_height': 6000,
+        var figureModel = new FigureModel( {'canvas_width': 2000, 'canvas_height': 2000,
                 'paper_width': 612, 'paper_height': 792});
 
         // UI Model (not saved - just used to coordinate UI status)
@@ -54,15 +54,15 @@
 
         $("#zoom_slider").slider({
             max: 400,
-            min: 10,
-            value: 50,
+            min: 40,
+            value: 75,
             slide: function(event, ui) {
                 figureModel.set('curr_zoom', ui.value);
             }
         });
 
         // Do this after other setup above
-        figureModel.set('curr_zoom', 50);
+        figureModel.set('curr_zoom', 75);
 
         // load Panels from localStorage (if any)
         figureModel.panels.fetch();
