@@ -65,9 +65,6 @@ class TestScript(CLITest):
         # Sets current script
         self.cli.invoke(self.args + ["upload", str(p)], strict=True)
         self.cli.invoke(self.args + ["list", "user"], strict=True)
-        # cli.invoke(args + ["serve", "user", "requests=1", "timeout=1",
-        # "background=true"], strict=True)
-        # cli.invoke(args + ["launch"], strict=True) # Uses current script
 
     # Replace subcommand
     # ========================================================================
