@@ -109,8 +109,8 @@ If you are running the tests on Mac OS X, you can install with the following com
 brew install chromedriver
 
 To run the tests locally, you will first need to start OMERO.web.
-Please check either https://www.openmicroscopy.org/site/support/omero4/sysadmins/unix/install-web.html
-or https://www.openmicroscopy.org/site/support/omero4/sysadmins/windows/install-web.html for more information.
+Please check either http://www.openmicroscopy.org/site/support/omero5/sysadmins/unix/install-web.html
+or http://www.openmicroscopy.org/site/support/omero5/sysadmins/windows/install-web.html for more information.
 
 If you need to specify the port used for OMERO.web e.g.
 you are running the lightweight development server, you will need to modify few values in config.txt located under
