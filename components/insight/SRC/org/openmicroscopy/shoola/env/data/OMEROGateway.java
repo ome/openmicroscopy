@@ -49,6 +49,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 //Third-party libraries
 
+import org.apache.commons.collections.CollectionUtils;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
@@ -3652,7 +3653,7 @@ class OMEROGateway
 		}
 
 		Map<Boolean, Object> result = new HashMap<Boolean, Object>();
-		if (files == null || files.size() == 0) return null;
+		if (CollectionUtils.isEmpty(files)) return result;
 		Iterator<?> i;
 		List<OriginalFile> values = new ArrayList<OriginalFile>();
 		if (image.isFSImage()) {
@@ -3680,10 +3681,7 @@ class OMEROGateway
 		List<File> results = new ArrayList<File>();
 		List<String> notDownloaded = new ArrayList<String>();
 		String folderPath = null;
-		if (values.size() > 1) {
-			if (file.isDirectory()) folderPath = file.getAbsolutePath();
-			else folderPath = file.getParent();
-		}
+		folderPath = file.getAbsolutePath();
 		i = values.iterator();
 
 		while (i.hasNext()) {

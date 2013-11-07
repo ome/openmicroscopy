@@ -5,7 +5,7 @@
  *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -62,6 +62,7 @@ import org.openmicroscopy.shoola.agents.events.treeviewer.ChangeUserGroupEvent;
 import org.openmicroscopy.shoola.agents.events.treeviewer.CopyItems;
 import org.openmicroscopy.shoola.agents.events.treeviewer.DeleteObjectEvent;
 import org.openmicroscopy.shoola.agents.events.treeviewer.DisplayModeEvent;
+import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewerFactory;
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
@@ -101,7 +102,6 @@ import org.openmicroscopy.shoola.agents.util.ui.UserManagerDialog;
 import org.openmicroscopy.shoola.env.Environment;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
-import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.events.ExitApplication;
 import org.openmicroscopy.shoola.env.data.events.RemoveGroupEvent;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
@@ -110,6 +110,7 @@ import org.openmicroscopy.shoola.env.data.model.ApplicationData;
 import org.openmicroscopy.shoola.env.data.model.DeletableObject;
 import org.openmicroscopy.shoola.env.data.model.DeleteActivityParam;
 import org.openmicroscopy.shoola.env.data.model.DownloadActivityParam;
+import org.openmicroscopy.shoola.env.data.model.DownloadArchivedActivityParam;
 import org.openmicroscopy.shoola.env.data.model.MIFResultObject;
 import org.openmicroscopy.shoola.env.data.model.OpenActivityParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
@@ -120,7 +121,6 @@ import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.ui.ActivityComponent;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
-import org.openmicroscopy.shoola.util.filter.file.OMETIFFFilter;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
@@ -3534,86 +3534,52 @@ class TreeViewerComponent
 	 * Implemented as specified by the {@link TreeViewer} interface.
 	 * @see TreeViewer#download(File, boolean)
 	 */
-	public void download(File folder)
+	public void download(File folder, boolean override)
 	{
-		if (model.getState() == DISCARDED) return;
-		Browser browser = model.getSelectedBrowser();
-		if (browser == null) return;
-		List l = browser.getSelectedDataObjects();
-		if (l == null) return;
-		Iterator i = l.iterator();
-		Object object;
-		List<ImageData> archived = new ArrayList<ImageData>();
-		boolean override = l.size() > 1;
-		ImageData image;
-		while (i.hasNext()) {
-			object = i.next();
-			if (object instanceof ImageData) {
-				image = (ImageData) object;
-				if (image.isArchived()) archived.add(image);
-			} else if (object instanceof FileAnnotationData) {
-				downloadFile(folder, override, (FileAnnotationData) object, 
-						null);
-			}
-		}
-		if (archived.size() > 0) {
-			model.downloadImages(archived, folder, null);
-		}
+	    if (model.getState() == DISCARDED) return;
+	    Browser browser = model.getSelectedBrowser();
+	    if (browser == null) return;
+	    List l = browser.getSelectedDataObjects();
+	    if (l == null) return;
+	    Iterator i = l.iterator();
+	    Object object;
+	    List<ImageData> archived = new ArrayList<ImageData>();
+	    List<Long> filesetIds = new ArrayList<Long>();
+	    ImageData image;
+	    long id;
+	    while (i.hasNext()) {
+	        object = i.next();
+	        if (object instanceof ImageData) {
+	            image = (ImageData) object;
+	            if (image.isArchived()) {
+	                id = image.getFilesetId();
+	                if (id < 0) archived.add(image);
+	                else if (!filesetIds.contains(id)) {
+	                    archived.add(image);
+	                    filesetIds.add(id);
+	                }
+	            }
+	        } else if (object instanceof FileAnnotationData) {
+	            downloadFile(folder, override, (FileAnnotationData) object,
+	                    null);
+	        }
+	    }
+	    if (archived.size() > 0) {
+	        Iterator<ImageData> j = archived.iterator();
+	        DownloadArchivedActivityParam p;
+	        UserNotifier un =
+	                MetadataViewerAgent.getRegistry().getUserNotifier();
+	        IconManager icons = IconManager.getInstance();
+	        Icon icon = icons.getIcon(IconManager.DOWNLOAD_22);
+	        SecurityContext ctx = getSecurityContext();
+	        while (j.hasNext()) {
+	            p = new DownloadArchivedActivityParam(folder, j.next(), icon);
+	            p.setOverride(override);
+	            un.notifyActivity(ctx, p);
+	        }
+	    }
 	}
 
-	/**
-	 * Downloads the documents.
-	 * 
-	 * @param folder The folder where to download the file.
-	 * @param data	 The application to open the document with or 
-	 * 				 <code>null</code>.
-	 */
-	private void download(File folder, ApplicationData data)
-	{
-		Browser browser = model.getSelectedBrowser();
-		if (browser == null) return;
-		List l = browser.getSelectedDataObjects();
-		if (l == null) return;
-		Iterator i = l.iterator();
-		Object object;
-		List<ImageData> archived = new ArrayList<ImageData>();
-		List<ImageData> notArchived = new ArrayList<ImageData>();
-		boolean override = l.size() > 1;
-		ImageData image;
-		while (i.hasNext()) {
-			object = i.next();
-			if (object instanceof ImageData) {
-				image = (ImageData) object;
-				if (image.isArchived()) archived.add(image);
-				else notArchived.add(image);
-			} else if (object instanceof FileAnnotationData) {
-				downloadFile(folder, override, (FileAnnotationData) object, 
-						data);
-			}
-		}
-		if (archived.size() > 0) {
-			model.downloadImages(archived, folder, data);
-		}
-		if (notArchived.size() > 0) {
-			image = notArchived.get(0);
-			try {
-				//TODO: review
-				
-				File f = new File(
-						folder.getAbsolutePath()+File.separator+
-						image.getName()+OMETIFFFilter.OME_TIFF);
-				OmeroImageService svc =
-					TreeViewerAgent.getRegistry().getImageService();
-				svc.exportImageAsOMEFormat(model.getSecurityContext(), 
-						OmeroImageService.EXPORT_AS_OMETIFF,
-						image.getId(), f, null);
-				TreeViewerAgent.getRegistry().getUserNotifier().openApplication(
-						data, f.getAbsolutePath());
-			} catch (Exception e) {
-			}
-		}
-	}
-	
 	/** 
 	 * Implemented as specified by the {@link TreeViewer} interface.
 	 * @see TreeViewer#setDownloadedFiles(File, ApplicationData, Collection)

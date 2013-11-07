@@ -2,10 +2,10 @@
  * org.openmicroscopy.shoola.util.ui.filechooser.CustomizedFileChooser 
  *
   *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -36,6 +36,7 @@ import javax.swing.event.DocumentListener;
 import javax.swing.filechooser.FileFilter;
 
 //Third-party libraries
+import org.apache.commons.lang.StringUtils;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.filter.file.CustomizedFileFilter;
@@ -50,36 +51,33 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * @author	Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since OME3.0
  */
 class CustomizedFileChooser
-	extends GenericFileChooser 
+	extends GenericFileChooser
 	implements DocumentListener, KeyListener
 {
 	
 	/** This is the default text for the file name when loading a file. */
-	private final static String LOAD_LABEL	= "Load:";
+	private final static String LOAD_LABEL = "Load:";
 		
 	/** This is the default text for the file name when selecting a folder. */
 	private final static String FOLDER_LABEL = "Save in:";
 	
 	/** Reference to the model. */
-	private FileChooser			model;
+	private FileChooser model;
 
 	/** Reference to the View. */
-	private FileSaverUI			view;
+	private FileSaverUI view;
 	
 	/** The text area where to enter the name of the file to save. */
-	private JTextField			nameArea;
+	private JTextField nameArea;
 	
 	/** User defined file filter. */
-	private RegExFileFilter 	filter;
+	private RegExFileFilter filter;
 	
 	/** The original file name if any. */
-	private String 				originalName; 
+	private String originalName; 
 	
 	/** 
 	 * Initializes the components composing the display. 
@@ -96,8 +94,6 @@ class CustomizedFileChooser
 		if (nameArea != null) {
 			nameArea.setVisible(true);
 			nameArea.getDocument().addDocumentListener(this);
-			//if (model.getChooserType() == FileChooser.LOAD)
-				//nameArea.addKeyListener(this);
 		}
 	}
 		
@@ -135,34 +131,11 @@ class CustomizedFileChooser
 				setFileSelectionMode(FILES_ONLY);
 				break;
 			case FileChooser.FOLDER_CHOOSER:
-				
-				/*
-				List boxes = UIUtilities.findComponents(this, JComboBox.class);
-				if (boxes != null) {
-					JComboBox box = (JComboBox) boxes.get(boxes.size()-1);
-					if (box.getParent() != null) 
-						box.getParent().setVisible(false);
-				}*/
-				
 				label = (JLabel) UIUtilities.findComponent(this, JLabel.class);
 				if (label != null)
 					label.setText(FOLDER_LABEL);
 				setFileSelectionMode(DIRECTORIES_ONLY);
 				setCurrentDirectory(getFileSystemView().getHomeDirectory());
-				/*
-				String s = UIUtilities.getDefaultFolderAsString();
-		        if (s == null) return;
-		        if (s == null || s.equals("") || !(new File(s).exists()))
-		            setCurrentDirectory(getFileSystemView().getHomeDirectory());
-		        else {
-		        	//setSelectedFile(new File(s));
-		        	if (nameArea != null) {
-		        		String[] n = UIUtilities.splitString(s);
-		        		if (n.length > 0) nameArea.setText(n[n.length-1]);
-		        	}
-		        }
-		        */
-		       	return;
 		}
 	}
 	
@@ -211,8 +184,7 @@ class CustomizedFileChooser
 		if (nameArea == null) return; //should happen
 		String text = nameArea.getText();
 		originalName = text;
-		boolean b = (text == null || text.trim().length() == 0);
-		view.setControlsEnabled(!b);
+		view.setControlsEnabled(!StringUtils.isEmpty(text));
 	}
 	
 	/**
@@ -288,8 +260,7 @@ class CustomizedFileChooser
     void createFolder(String name)
     {
     	File dir = getCurrentDirectory();
-    	String n = dir.getAbsolutePath()+File.separator+name;
-    	new File(n).mkdir();
+    	new File(dir.getAbsolutePath(), name).mkdir();
     }
     
     /**
@@ -302,7 +273,7 @@ class CustomizedFileChooser
 		File f = getSelectedFile();
 		if (f != null) {
 			String format = getExtension(getFileFilter());
-			if (format == null || format.trim().length() == 0)
+			if (StringUtils.isEmpty(format))
 				return f;
 			
 			String fileName = f.getAbsolutePath();
@@ -389,13 +360,9 @@ class CustomizedFileChooser
 	public void approveSelection()
 	{
 		if (model.getChooserType() == FileChooser.FOLDER_CHOOSER) {
-			//if (nameArea != null) {
-				//String name = nameArea.getText();
-				File f = getCurrentDirectory();//getSelectedFile();
-				//if (name != null) name = name.trim();
+				File f = getCurrentDirectory();
 				if (f != null) {
 					setSelectedFile(null);
-					//model.setFolderPath(f.getPath());
 					model.acceptSelection();
 				}
 		} else {
@@ -422,7 +389,7 @@ class CustomizedFileChooser
 			return super.getSelectedFile();
 		if (nameArea == null) return super.getSelectedFile();
 		String name = nameArea.getText();
-		if (name == null || name.trim().length() == 0)
+		if (StringUtils.isEmpty(name))
 			return super.getSelectedFile();
 		return new File(getCurrentDirectory().toString(), name);
 	}

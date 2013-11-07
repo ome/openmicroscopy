@@ -44,6 +44,7 @@ import javax.swing.Icon;
 import javax.swing.JFrame;
 
 //Third-party libraries
+import org.apache.commons.collections.CollectionUtils;
 
 //Application-internal dependencies
 import omero.model.OriginalFile;
@@ -286,8 +287,10 @@ class EditorModel
 	 * Downloads the files.
 	 * 
 	 * @param folder The folder to save the file into.
+	 * @param override Flag indicating to override the existing file if it
+     * exists, <code>false</code> otherwise.
 	 */
-	private void downloadFiles(File folder)
+	private void downloadFiles(File folder, boolean override)
 	{
 		UserNotifier un = MetadataViewerAgent.getRegistry().getUserNotifier();
 		FileAnnotationData fa = (FileAnnotationData) getRefObject();
@@ -331,43 +334,48 @@ class EditorModel
 	 * Downloads the archived images. 
 	 * 
 	 * @param file The file where to download the content.
+	 * @param override Flag indicating to override the existing file if it
+     * exists, <code>false</code> otherwise.
 	 */
-	private void downloadImages(File file)
+	private void downloadImages(File file, boolean override)
 	{
-		List<ImageData> images = new ArrayList<ImageData>();
-		Collection l = parent.getRelatedNodes();
-		ImageData img;
-		if (l != null) {
-			Iterator i = l.iterator();
-			Object o;
-			while (i.hasNext()) {
-				o = (Object) i.next();
-				if (o instanceof ImageData) {
-					img = (ImageData) o;
-					images.add(img);
-				}
-			}
-		}
-		img = (ImageData) getRefObject();
-		images.add(img);
-		
-		if (images.size() > 0) {
-			Iterator<ImageData> i = images.iterator();
-			DownloadArchivedActivityParam p;
-			UserNotifier un =
-				MetadataViewerAgent.getRegistry().getUserNotifier();
-			IconManager icons = IconManager.getInstance();
-			if (images.size() > 1)
-				file = file.getParentFile();
-			Icon icon = icons.getIcon(IconManager.DOWNLOAD_22);
-			SecurityContext ctx = getSecurityContext();
-			while (i.hasNext()) {
-				p = new DownloadArchivedActivityParam(file, i.next(), icon);
-				un.notifyActivity(ctx, p);
-			}
-		}
+	    List<ImageData> images = new ArrayList<ImageData>();
+	    List<DataObject> l = getSelectedObjects();
+	    if (!CollectionUtils.isEmpty(l)) {
+	        Iterator<DataObject> i = l.iterator();
+	        DataObject o;
+	        List<Long> filesetIds = new ArrayList<Long>();
+	        long id;
+	        ImageData image;
+	        while (i.hasNext()) {
+	            o = i.next();
+	            if (isArchived(o)) {
+	                image = (ImageData) o;
+	                id = image.getFilesetId();
+	                if (id < 0) images.add(image);
+	                else if (!filesetIds.contains(id)) {
+	                    images.add(image);
+	                    filesetIds.add(id);
+	                }
+	            }
+	        }
+	    }
+	    if (!CollectionUtils.isEmpty(images)) {
+	        Iterator<ImageData> i = images.iterator();
+	        DownloadArchivedActivityParam p;
+	        UserNotifier un =
+	                MetadataViewerAgent.getRegistry().getUserNotifier();
+	        IconManager icons = IconManager.getInstance();
+	        Icon icon = icons.getIcon(IconManager.DOWNLOAD_22);
+	        SecurityContext ctx = getSecurityContext();
+	        while (i.hasNext()) {
+	            p = new DownloadArchivedActivityParam(file, i.next(), icon);
+	            p.setOverride(override);
+	            un.notifyActivity(ctx, p);
+	        }
+	    }
 	}
-	
+
     /** 
      * Sorts the passed collection of annotations by date starting with the
      * most recent.
@@ -831,7 +839,7 @@ class EditorModel
 	{
 		if (!isMultiSelection()) return getRefObject();
 		List list = parent.getRelatedNodes();
-		if (list == null || list.size() == 0) return getRefObject();
+		if (CollectionUtils.isEmpty(list)) return getRefObject();
 		return list.get(0);
 	}
 	
@@ -2957,11 +2965,24 @@ class EditorModel
 	 * 
 	 * @return See above.
 	 */
-	boolean isArchived()
+	boolean isArchived() { return isArchived(getImage()); }
+
+    /**
+     * Returns <code>true</code> if the imported set of pixels has been 
+     * archived, <code>false</code> otherwise.
+     * 
+     * @param ho The object to handle.
+     * @return See above.
+     */
+	boolean isArchived(DataObject ho)
 	{
-		ImageData img = getImage();
-		if (img == null) return false;
-		return img.isArchived();
+	    ImageData img = null;
+        if (ho instanceof WellSampleData)
+            img = ((WellSampleData) ho).getImage();
+        if (ho instanceof ImageData)
+            img = (ImageData) ho;
+        if (img == null) return false;
+        return img.isArchived();
 	}
 
 	/** 
@@ -2969,14 +2990,16 @@ class EditorModel
 	 * 
 	 * @param file The file where to download the content.
 	 * If it is a multi-images file a zip will be created.
+	 * @param override Flag indicating to override the existing file if it
+     * exists, <code>false</code> otherwise.
 	 */
-	void download(File file)
+	void download(File file, boolean override)
 	{
-		if (refObject instanceof ImageData) {
-			downloadImages(file);
-		} else if (refObject instanceof FileAnnotationData) {
-			downloadFiles(file);
-		}
+	    if (refObject instanceof ImageData) {
+	        downloadImages(file, override);
+	    } else if (refObject instanceof FileAnnotationData) {
+	        downloadFiles(file, override);
+	    }
 	}
 
 	/** 
@@ -4098,20 +4121,22 @@ class EditorModel
 	 */
 	List<DataObject> getSelectedObjects()
 	{
-		List<DataObject> objects = new ArrayList<DataObject>();
-		if (getRefObject() instanceof DataObject)
-			objects.add((DataObject) getRefObject());
-		Collection l = parent.getRelatedNodes();
-		if (l == null) return objects;
-		Iterator i = l.iterator();
-		Object o;
-		while (i.hasNext()) {
-			o = i.next();
-			if (o instanceof DataObject)
-				objects.add((DataObject) o);
-		}
-		
-		return objects;
+	    List<DataObject> objects = new ArrayList<DataObject>();
+	    Collection l = parent.getRelatedNodes();
+	    if (CollectionUtils.isEmpty(l)) {
+	        if (getRefObject() instanceof DataObject)
+	            objects.add((DataObject) getRefObject());
+	        return objects;
+	    }
+	    Iterator i = l.iterator();
+	    Object o;
+	    while (i.hasNext()) {
+	        o = i.next();
+	        if (o instanceof DataObject)
+	            objects.add((DataObject) o);
+	    }
+
+	    return objects;
 	}
 
 	/**

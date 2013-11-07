@@ -5,7 +5,7 @@
  *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -26,20 +26,25 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 //Java imports
 import java.io.File;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import omero.model.FileAnnotation;
 import omero.model.OriginalFile;
+
+import org.apache.commons.collections.CollectionUtils;
 import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
 import org.openmicroscopy.shoola.env.data.RequestCallback;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
+import org.openmicroscopy.shoola.util.file.IOUtil;
 
 import pojos.FileAnnotationData;
 
@@ -51,39 +56,39 @@ import pojos.FileAnnotationData;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since OME3.0
  */
-public class FilesLoader 
+public class FilesLoader
 	extends BatchCallTree
 {
 
 	/** Indicates to load the original file if original file is not set.*/
 	public static final int ORIGINAL_FILE = 0;
-	
+
 	/** Indicates to load the file annotation if original file is not set.*/
 	public static final int FILE_ANNOTATION = 1;
-	
+
 	/** Indicates to load the metadata from the image ID.*/
 	public static final int METADATA_FROM_IMAGE = 2;
-	
+
 	/** Loads the specified annotations. */
     private BatchCall loadCall;
-    
+
     /** The result of the call. */
     private Object result;
-    
+
     /** The result of the call. */
     private Object currentFile;
-    
+
     /** The files to load. */
     private Map<FileAnnotationData, File> files;
-    
+
     /** The security context.*/
     private SecurityContext ctx;
-    
+
+    /** The list of directories to zip when download is finished.*/
+    private Set<String> directories;
+
     /**
      * Creates a {@link BatchCall} to download a file previously loaded.
      *
@@ -114,7 +119,7 @@ public class FilesLoader
     		public void doCall() throws Exception
     		{
     			OmeroMetadataService service = context.getMetadataService();
-    			FileAnnotationData fa = (FileAnnotationData) 
+    			FileAnnotationData fa = (FileAnnotationData)
     					service.loadAnnotation(ctx, id);
     			result = service.downloadFile(ctx, new File(fa.getFileName()),
     					fa.getFileID());
@@ -158,7 +163,7 @@ public class FilesLoader
     			OmeroMetadataService service = context.getMetadataService();
     			FileAnnotationData fa = (FileAnnotationData) 
     					service.loadAnnotation(ctx, fileAnnotationID);
-    			Map<FileAnnotationData, File> m = 
+    			Map<FileAnnotationData, File> m =
     					new HashMap<FileAnnotationData, File>();
     			File f = service.downloadFile(ctx, new File(fa.getFileName()),
     					fa.getFileID());
@@ -172,24 +177,38 @@ public class FilesLoader
      * Loads the specified file.
      *
      * @param fa The file annotation to handle.
-     * @param f  The file to load.
+     * @param f The file to load.
+     * @param zip Pass <code>true</code> to zip the result, <code>false</code>
+     * otherwise.
      */
-    private void loadFile(final FileAnnotationData fa, final File f)
+    private void loadFile(final FileAnnotationData fa, final File f,
+            boolean zip)
     {
     	OmeroMetadataService service = context.getMetadataService();
-    	Map<FileAnnotationData, File> m = 
+    	Map<FileAnnotationData, File> m =
     			new HashMap<FileAnnotationData, File>();
     	OriginalFile of;
     	of = ((FileAnnotation) fa.asAnnotation()).getFile();
     	try {
     		service.downloadFile(ctx, f, of.getId().getValue());
     		m.put(fa, f);
-    		currentFile = m;
     	} catch (Exception e) {
     		m.put(fa, null);
     		context.getLogger().error(this,
     				"Cannot retrieve file: "+e.getMessage());
     	}
+    	if (zip && !CollectionUtils.isEmpty(directories)) {
+            Iterator<String> i = directories.iterator();
+            while (i.hasNext()) {
+                try {
+                    IOUtil.zipDirectory(new File(i.next()), false);
+                } catch (Exception e) {
+                    context.getLogger().error(this,
+                            "Cannot zip parent: "+e.getMessage());
+                }
+            }
+        }
+        currentFile = m;
     }
     
     
@@ -211,29 +230,34 @@ public class FilesLoader
     		}
     	};
     }
-    
+
     /**
      * Adds the {@link #loadCall} to the computation tree.
      * @see BatchCallTree#buildTree()
      */
     protected void buildTree()
     { 
-    	if (files == null && loadCall != null) add(loadCall);
-    	else if (files != null) {
-    		result = null;
-    		Iterator<Entry<FileAnnotationData, File>>
-    		i = files.entrySet().iterator();
-    		Entry<FileAnnotationData, File> entry;
-    		String description = "Loading file";
-    		while (i.hasNext()) {
-    			entry = i.next();
-				final FileAnnotationData fa = entry.getKey();
-				final File f = entry.getValue();
-				add(new BatchCall(description) {
-            		public void doCall() { loadFile(fa, f); }
-            	});
-			}
-    	}
+        if (files == null && loadCall != null) add(loadCall);
+        else if (files != null) {
+            result = null;
+            Iterator<Entry<FileAnnotationData, File>>
+            i = files.entrySet().iterator();
+            Entry<FileAnnotationData, File> entry;
+            String description = "Loading file";
+            int count = 1;
+            int size = files.size();
+            while (i.hasNext()) {
+                entry = i.next();
+                final FileAnnotationData fa = entry.getKey();
+                final File f = entry.getValue();
+                directories.add(f.getParent());
+                final boolean b = count == size;
+                add(new BatchCall(description) {
+                    public void doCall() { loadFile(fa, f, b); }
+                });
+                count++;
+            }
+        }
     }
 
     /**
@@ -276,7 +300,7 @@ public class FilesLoader
     public FilesLoader(SecurityContext ctx, File file, long fileID, int index)
     {
     	this.ctx = ctx;
-    	if (file == null || index == FILE_ANNOTATION) 
+    	if (file == null || index == FILE_ANNOTATION)
     		loadCall = makeFileBatchCall(fileID);
     	else {
     		if (index == METADATA_FROM_IMAGE)
@@ -290,13 +314,17 @@ public class FilesLoader
      * 
      * @param ctx The security context.
      * @param files The files to load.
+     * @param zipDirectory Pass <code>true</code> to zip the directory,
+     * <code>false</code> otherwise.
      */
-    public FilesLoader(SecurityContext ctx, Map<FileAnnotationData, File> files)
+    public FilesLoader(SecurityContext ctx, Map<FileAnnotationData, File> files,
+            boolean zipDirectory)
     {
     	this.ctx = ctx;
     	if (files == null) 
     		throw new IllegalArgumentException("No files to load.");
     	this.files = files;
+    	if (zipDirectory) directories = new HashSet<String>();
     }
     
     /**
