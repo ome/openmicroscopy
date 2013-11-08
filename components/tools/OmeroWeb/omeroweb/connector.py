@@ -137,11 +137,11 @@ class Connector(object):
             server = Server.find(server=self.server_id)[0]
         return (server.host, server.port)
 
-    def create_gateway(self, useragent, username=None, password=None):
+    def create_gateway(self, useragent, username=None, password=None, userip=None):
         host, port = self.lookup_host_and_port()
         return client_wrapper(
                 username, password, host=host, port=port, secure=self.is_secure,
-                useragent=useragent, anonymous=self.is_public)
+                useragent=useragent, anonymous=self.is_public, userip=userip )
 
     def prepare_gateway(self, connection):
         connection.server_id = self.server_id
@@ -157,10 +157,10 @@ class Connector(object):
                 self.omero_session_key)
         # TODO: Properly handle activating the weblitz_cache
 
-    def create_connection(self, useragent, username, password, is_public=False):
+    def create_connection(self, useragent, username, password, is_public=False, userip=None):
         self.is_public = is_public
         try:
-            connection = self.create_gateway(useragent, username, password)
+            connection = self.create_gateway(useragent, username, password, userip)
             if connection.connect():
                 logger.debug('Successfully created connection for: %s' % \
                         username)
@@ -174,7 +174,7 @@ class Connector(object):
         connection = None
         guest = 'guest'
         try:
-            connection = self.create_gateway(useragent, guest, guest)
+            connection = self.create_gateway(useragent, guest, guest, None)
             if connection.connect():
                 logger.debug('Successfully created a guest connection.')
             else:
@@ -183,9 +183,9 @@ class Connector(object):
             logger.error('Cannot create a guest connection.', exc_info=True)
         return connection
 
-    def join_connection(self, useragent):
+    def join_connection(self, useragent, userip=None):
         try:
-            connection = self.create_gateway(useragent)
+            connection = self.create_gateway(useragent, userip=userip)
             if connection.connect(sUuid=self.omero_session_key):
                 logger.debug('Successfully joined connection: %s' % \
                         self.omero_session_key)
