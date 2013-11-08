@@ -343,12 +343,7 @@ class EditorModel
 	            o = i.next();
 	            if (isArchived(o)) {
 	                image = (ImageData) o;
-	                id = image.getFilesetId();
-	                if (id < 0) images.add(image);
-	                else if (!filesetIds.contains(id)) {
-	                    images.add(image);
-	                    filesetIds.add(id);
-	                }
+	                images.add(image);
 	            }
 	        }
 	    }

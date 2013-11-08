@@ -3475,12 +3475,7 @@ class TreeViewerComponent
 	        if (object instanceof ImageData) {
 	            image = (ImageData) object;
 	            if (image.isArchived()) {
-	                id = image.getFilesetId();
-	                if (id < 0) archived.add(image);
-	                else if (!filesetIds.contains(id)) {
-	                    archived.add(image);
-	                    filesetIds.add(id);
-	                }
+	                archived.add(image);
 	            }
 	        } else if (object instanceof FileAnnotationData) {
 	            downloadFile(folder, override, (FileAnnotationData) object,
