@@ -9,6 +9,7 @@
    Use is subject to license terms supplied in LICENSE.txt
 
 """
+import os
 import test.integration.library as lib
 import pytest
 import omero
@@ -167,7 +168,6 @@ class TestISession(lib.ITest):
         self.client.sf.setSecurityContext(grp1)
 
     def testManageMySessions(self):
-        import os
         adminCtx = self.client.sf.getAdminService().getEventContext()
         username = adminCtx.userName
         group = adminCtx.groupName
@@ -211,4 +211,30 @@ class TestISession(lib.ITest):
         finally:
             c1.__del__()
 
+    def testSessionWithIP(self):
+        c1 = omero.client(pmap=['--Ice.Config='+(os.environ.get("ICE_CONFIG"))])
+        try:
+            host = c1.ic.getProperties().getProperty('omero.host')
+            port = int(c1.ic.getProperties().getProperty('omero.port'))
+            rootpass = c1.ic.getProperties().getProperty('omero.rootpass')
+        finally:
+            c1.__del__() 
+        
+        c = omero.client(host=host, port=port)
+        try:
+            c.setAgent("aaa")
+            c.setIP("127.0.0.1")
+            s = c.createSession("ola","ome")
+
+            p = omero.sys.ParametersI()
+            p.map = {}
+            p.map["uuid"] = rstring(s.getAdminService().getEventContext().sessionUuid)
+            res = s.getQueryService().findByQuery("from Session where uuid=:uuid", p)
+                        
+            assert "127.0.0.1" == res.getUserIP().val
+            
+            s.closeOnDestroy()
+            c.closeSession()
+        finally:
+            c.__del__()
 
