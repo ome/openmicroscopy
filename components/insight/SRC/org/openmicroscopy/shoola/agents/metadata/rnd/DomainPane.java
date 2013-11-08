@@ -1015,7 +1015,6 @@ public class DomainPane
 	{
 		if (canvas == null) return;
 		BufferedImage img = model.renderImage();
-		System.err.println(img);
 		if (img == null) return;
 		Dimension d = model.getPreviewDimension();
 		img = Factory.scaleBufferedImage(img, d.width, d.height);
