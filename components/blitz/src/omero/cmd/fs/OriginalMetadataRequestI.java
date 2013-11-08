@@ -51,6 +51,7 @@ import omero.constants.namespaces.NSCOMPANIONFILE;
 import omero.util.IceMapper;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Maps;
 
 /**
  * Original metadata loader, handling both pre-FS and post-FS data.
@@ -209,6 +210,45 @@ public class OriginalMetadataRequestI extends OriginalMetadataRequest implements
 	}
 
     /**
+     * Split the given string at the rightmost '=' character among those that are the least enclosed by some kind of bracket.
+     * @param keyValue the key = value string
+     * @return the extracted key and value, or <code>null</code> if there is no '=' character
+     */
+    private static Map.Entry<String, String> splitOnEquals(String keyValue) {
+        Integer equalsIndex = null;
+        Integer equalsSmallestDepth = null;
+        int currentIndex = 0;
+        int currentDepth = 0;
+        while (currentIndex < keyValue.length()) {
+            switch (keyValue.charAt(currentIndex)) {
+            case '(':
+            case '[':
+            case '{':
+                currentDepth++;
+                break;
+            case ')':
+            case ']':
+            case '}':
+                currentDepth--;
+                break;
+            case '=':
+                if (equalsSmallestDepth == null || currentDepth <= equalsSmallestDepth) {
+                    equalsIndex = currentIndex;
+                    equalsSmallestDepth = currentDepth;
+                }
+                break;
+            }
+            currentIndex++;
+        }
+        if (equalsIndex == null) {
+            return null;
+        } else {
+            return Maps.immutableEntry(keyValue.substring(0, equalsIndex).trim(),
+                                       keyValue.substring(equalsIndex + 1).trim());
+        }
+    }
+
+    /**
      * Read the given INI-style file and populate the maps with the properties from the corresponding sections.
      * @param file the file to read
      * @param global the map in which to put the global metadata properties
@@ -216,7 +256,6 @@ public class OriginalMetadataRequestI extends OriginalMetadataRequest implements
      */
     protected void parseOriginalMetadataTxt(File file) {
         final Pattern section  = Pattern.compile("\\s*\\[\\s*(.+?)\\s*\\]\\s*");
-        final Pattern keyValue = Pattern.compile("\\s*(.+?)\\s*=\\s*(.+?)\\s*");
         rsp.globalMetadata = new TreeMap<String, RType>();
         rsp.seriesMetadata = new TreeMap<String, RType>();
         final ImmutableMap<String, Map<String, RType>> sections =
@@ -234,8 +273,11 @@ public class OriginalMetadataRequestI extends OriginalMetadataRequest implements
                 Matcher matcher;
                 if ((matcher = section.matcher(line)).matches()) {
                     currentSection = sections.get(matcher.group(1));
-                } else if (currentSection != null && (matcher = keyValue.matcher(line)).matches()) {
-                    currentSection.put(matcher.group(1), omero.rtypes.rstring(matcher.group(2)));
+                } else if (currentSection != null) {
+                    final Entry<String, String> keyValue = splitOnEquals(line);
+                    if (keyValue != null) {
+                        currentSection.put(keyValue.getKey(), omero.rtypes.rstring(keyValue.getValue()));
+                    }
                 }
             }
         } catch (IOException e) {
