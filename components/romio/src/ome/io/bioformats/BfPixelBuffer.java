@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
@@ -447,8 +448,18 @@ public class BfPixelBuffer implements PixelBuffer, Serializable {
         final BfPixelsWrapper reader = reader();
         byte[] buffer = new byte[
                 w * h * FormatTools.getBytesPerPixel(reader.getPixelsType())];
-        getTileDirect(z, c, t, x, y, w, h, buffer);
-        return new PixelData(reader.getPixelsType(), ByteBuffer.wrap(buffer));
+        try {
+            // Call getTile on reader() rather than on this
+            // so as not to swap the bytes twice.
+            reader().getTile(z, c, t, x, y, w, h, buffer);
+            PixelData d = new PixelData(
+                    reader.getPixelsType(), ByteBuffer.wrap(buffer));
+            d.setOrder(isLittleEndian()?
+                    ByteOrder.LITTLE_ENDIAN : ByteOrder.BIG_ENDIAN);
+            return d;
+        } catch (FormatException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /* (non-Javadoc)
