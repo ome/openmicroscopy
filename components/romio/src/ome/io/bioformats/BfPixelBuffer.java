@@ -485,7 +485,9 @@ public class BfPixelBuffer implements PixelBuffer, Serializable {
     {
         try
         {
-            return reader().getTile(z, c, t, x, y, w, h, buffer);
+            reader().getTile(z, c, t, x, y, w, h, buffer);
+            reader().swapIfRequired(buffer);
+            return buffer;
         }
         catch (FormatException e)
         {
