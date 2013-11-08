@@ -315,11 +315,39 @@ def process_custom_settings(module):
             values.append(True)
 
         try:
-            setattr(module, global_name, mapping(global_value))
+            mapped_global_value = mapping(global_value)
         except ValueError:
             raise ValueError("Invalid %s JSON: %r" % (global_name, global_value))
         except LeaveUnset:
-            pass
+            continue
+
+        try:
+            extend_value = CUSTOM_SETTINGS[key + '[extend]']
+        except KeyError:
+            extend_value = None
+
+        if extend_value:
+            try:
+                mapped_extend_value = mapping(extend_value)
+            except ValueError:
+                raise ValueError("Invalid %s[extend] JSON: %r" % (key, extend_value))
+
+            if type(mapped_extend_value) == type(mapped_global_value):
+                if isinstance(mapped_extend_value, list):
+                    mapped_global_value.extend(mapped_extend_value)
+                elif isinstance(mapped_extend_value, dict):
+                    mapped_global_value.update(mapped_extend_value)
+                else:
+                    raise TypeError("Cannot extend %s, unsupported type %s" %
+                                    (global_name, type(mapped_extend_value).__name__))
+                values[-1] = 'extend'
+            else:
+                raise TypeError("Cannot extend %s %s with a %s" %
+                                (type(mapped_global_value).__name__,
+                                 global_name,
+                                 type(mapped_extend_value).__name__))
+
+        setattr(module, global_name, mapped_global_value)
 
 process_custom_settings(sys.modules[__name__])
 
@@ -344,7 +372,7 @@ def report_settings(module):
     for key in sorted(custom_settings_mappings):
         values = custom_settings_mappings[key]
         global_name, default_value, mapping, using_default = values
-        source = using_default and "default" or key
+        source = key if not using_default else ("default" if using_default == True else using_default)
         global_value = getattr(module, global_name, None)
         if global_name.isupper():
             logger.debug("%s = %r (source:%s)", global_name, cleanse_setting(global_name, global_value), source)
