@@ -217,6 +217,8 @@ class AbstractRepoTest(lib.ITest):
         settings.userSpecifiedDescription = None
         settings.userSpecifiedAnnotationList = None
         settings.userSpecifiedPixels = None
+        settings.checksumAlgorithm = omero.model.ChecksumAlgorithmI()
+        settings.checksumAlgorithm.value = omero.rtypes.rstring("SHA1-160")
         return settings
 
     def upload_folder(self, proc, folder):
