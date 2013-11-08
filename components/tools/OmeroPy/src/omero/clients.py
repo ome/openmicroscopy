@@ -506,6 +506,8 @@ class BaseClient(object):
                 try:
                     ctx = dict(self.getImplicitContext().getContext())
                     ctx[omero.constants.AGENT] = self.__agent
+                    if self.__ip is not None:
+                        ctx[omero.constants.IP] = self.__ip
                     rtr = self.getRouter(self.__ic)
                     prx = rtr.createSession(username, password, ctx)
 
