@@ -102,7 +102,7 @@ from omeroweb.http import HttpJsonResponse
 from omeroweb.webclient.decorators import login_required
 from omeroweb.webclient.decorators import render_response
 from omeroweb.connector import Connector
-from omeroweb.decorators import ConnCleaningHttpResponse, parse_url
+from omeroweb.decorators import ConnCleaningHttpResponse, parse_url, get_client_ip
 
 logger = logging.getLogger(__name__)
 
@@ -149,7 +149,7 @@ def login(request):
         # TODO: version check should be done on the low level, see #5983
         if server_id is not None and username is not None and password is not None \
                 and connector.check_version(useragent):
-            conn = connector.create_connection(useragent, username, password)
+            conn = connector.create_connection(useragent, username, password, userip=get_client_ip(request))
             if conn is not None:
                 # Check if user is in "user" group
                 userGroupId = conn.getAdminService().getSecurityRoles().userGroupId
