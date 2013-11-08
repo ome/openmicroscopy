@@ -567,8 +567,7 @@ public class ImportCandidates extends DirectoryWalker
      * @param depth - depth of scan
      * @param collection
      */
-    @SuppressWarnings("unchecked")
-	@Override
+    @Override
     public void handleFile(File file, int depth, Collection collection) {
 
         count++;
