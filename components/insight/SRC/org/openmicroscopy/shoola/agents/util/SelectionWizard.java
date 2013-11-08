@@ -269,13 +269,14 @@ public class SelectionWizard
     {
         if (TagAnnotationData.class.equals(type)) {
             String text = addField.getText();
-            if (text == null || text.trim().length() == 0) return;
+            if (StringUtils.isEmpty(text)) return;
             String[] names = text.split(SearchUtil.COMMA_SEPARATOR);
-            TagAnnotationData data;
             List<DataObject> objects = new ArrayList<DataObject>();
+            String v;
             for (int i = 0; i < names.length; i++) {
-                if (names[i] != null && names[i].length() > 0) {	
-                    objects.add(new TagAnnotationData(names[i].trim()));
+                v = names[i];
+                if (v != null && v.trim().length() != 0) {
+                    objects.add(new TagAnnotationData(v.trim()));
                 }
             }
             uiDelegate.addObjects(objects);
