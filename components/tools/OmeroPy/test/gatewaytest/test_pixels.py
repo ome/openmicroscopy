@@ -97,10 +97,20 @@ class TestPixels (object):
         stacked = hstack((tile1, tile2))
         assert str(tile3) == str(stacked)  # bit of a hacked way to compare arrays, but seems to work
 
+        # See whether a the first row and a tile of the first row
+        # are equal (without using gateway)
+        rfs = self.gateway.c.sf.createRawPixelsStore()
+        try:
+            rfs.setPixelsId(pixels.id, False)
+            directRow = rfs.getRow(0, 0, 0, 0)
+            directTile = rfs.getTile(0, 0, 0, 0, 0, sizeX, 1)
+            assert directRow == directTile
+        finally:
+            rfs.close()
+
         # See whether a 2x2 tile is the same as the same region of a Plane. See #11315
         testTile = pixels.getTile(0,0,0, tile=(0,0,2,2))
         croppedPlane = pixels.getPlane(0,0,0)[0:2,0:2]
-
         assert str(testTile) ==  str(croppedPlane), "Tile and croppedPlane not equal"
 
     def testGetPlane(self):
