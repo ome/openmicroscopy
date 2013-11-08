@@ -256,7 +256,7 @@ public class OriginalMetadataRequestI extends OriginalMetadataRequest implements
      * @param series the map in which to put the series metadata properties
      */
     protected void parseOriginalMetadataTxt(File file) {
-        final Pattern section  = Pattern.compile("\\s*\\[\\s*(.+?)\\s*\\]\\s*");
+        final Pattern section = Pattern.compile("\\s*\\[\\s*(.+?)\\s*\\]\\s*");
         rsp.globalMetadata = new TreeMap<String, RType>();
         rsp.seriesMetadata = new TreeMap<String, RType>();
         final ImmutableMap<String, Map<String, RType>> sections =
