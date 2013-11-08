@@ -424,7 +424,7 @@ public class ImportCandidates extends DirectoryWalker
                 String configImageName = config.userSpecifiedName.get();
                 if (configImageName == null)
                 {
-                    ic.setUserSpecifiedName(path);
+                    ic.setUserSpecifiedName(file.getName());
                 }
                 else
                 {
