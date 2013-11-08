@@ -32,7 +32,7 @@ from django.utils.http import urlencode
 from django.utils.functional import wraps
 from django.utils import simplejson
 from django.core.urlresolvers import reverse
-from django.core import template_loader
+from django.template import loader as template_loader
 from django.template import RequestContext
 from django.core.cache import cache
 

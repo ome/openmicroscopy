@@ -33,7 +33,7 @@
         <tbody>
         {% for cm in controller.mostRecentSharesComments %}
             <tr><td>
-                <img src="{% static "webgateway/img/knotes16.png" %}" title="comment" alt="comment"/> {{ cm.getComment.getOwner.getFullName }}</a> {% trans "commented the" %} <a href="{% url load_template "public" %}">{% trans "share" %} {{ cm.link.id }}</a> on {{ cm.getComment.creationEventDate|date:"Y-m-d H:i:s" }}
+                <img src="{% static "webgateway/img/knotes16.png" %}" title="comment" alt="comment"/> {{ cm.getComment.getOwner.getFullName }}</a> {% trans "commented the" %} <a href="{% url 'load_template' "public" %}">{% trans "share" %} {{ cm.link.id }}</a> on {{ cm.getComment.creationEventDate|date:"Y-m-d H:i:s" }}
             </td></tr>
         {% endfor %}
         </tbody>
@@ -53,7 +53,7 @@
         <tbody>
         {% for sh in controller.mostRecentShares %}
             <tr><td>
-                <a href="{% url load_template "public" %}">{% trans "share" %} {{ sh.id }}</a> owned by {{ sh.getOwner.getFullName }}
+                <a href="{% url 'load_template' "public" %}">{% trans "share" %} {{ sh.id }}</a> owned by {{ sh.getOwner.getFullName }}
             </td></tr>
         {% endfor %}
         </tbody>

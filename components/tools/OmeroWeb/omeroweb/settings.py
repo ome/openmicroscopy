@@ -26,6 +26,17 @@
 # Version: 1.0
 #
 
+
+# Monkeypatch Django 1.5 development web server to always run in single thread
+# even if --nothreading is not specified on command line
+def force_nothreading(addr, port, wsgi_handler, ipv6=False, threading=False):
+    django_core_servers_basehttp_run(addr, port, wsgi_handler, ipv6, False)
+import django.core.servers.basehttp
+if django.core.servers.basehttp.run.__module__ != 'settings':
+    django_core_servers_basehttp_run = django.core.servers.basehttp.run
+    django.core.servers.basehttp.run = force_nothreading
+
+
 import os.path
 import sys
 import datetime
@@ -229,7 +240,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
     "omero.web.static_url": ["STATIC_URL", "/static/", str],
     "omero.web.staticfile_dirs": ["STATICFILES_DIRS", '[]', json.loads],
     "omero.web.index_template": ["INDEX_TEMPLATE", None, identity],
-    "omero.web.caches": ["CACHES", '{}', json.loads],
+    "omero.web.caches": ["CACHES", '{"default": {"BACKEND": "django.core.cache.backends.dummy.DummyCache"}}', json.loads],
     "omero.web.webgateway_cache": ["WEBGATEWAY_CACHE", None, leave_none_unset],
     "omero.web.session_engine": ["SESSION_ENGINE", DEFAULT_SESSION_ENGINE, check_session_engine],
     "omero.web.debug": ["DEBUG", "false", parse_boolean],
@@ -287,6 +298,9 @@ CUSTOM_SETTINGS_MAPPINGS = {
     "omero.web.webstart_vendor": ["WEBSTART_VENDOR", "The Open Microscopy Environment", str],
     "omero.web.webstart_homepage": ["WEBSTART_HOMEPAGE", "http://www.openmicroscopy.org", str],
     "omero.web.nanoxml_jar": ["NANOXML_JAR", "nanoxml.jar", str],
+
+    # Allowed hosts: https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
+    "omero.web.allowed_hosts": ["ALLOWED_HOSTS", '["*"]', json.loads],
 }
 
 
@@ -527,4 +541,3 @@ def load_server_list():
         Server(host=unicode(s[0]), port=int(s[1]), server=server)
     Server.freeze()
 load_server_list()
-

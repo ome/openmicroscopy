@@ -44,7 +44,7 @@
     <script type="text/javascript">
         $(document).ready(function() 
             { 
-                $.getJSON("{% url wadrivespace %}", function(data){
+                $.getJSON("{% url 'wadrivespace' %}", function(data){
                     load_drivespace(data.free);
                 });
                 
@@ -71,7 +71,7 @@
             while (usage){ 
                 $.ajax({  
                     type: "GET",  
-                    url: "{% url waloaddrivespace %}",  
+                    url: "{% url 'waloaddrivespace' %}",  
                     contentType: "application/json; charset=utf-8",  
                     data: offsetQuery,
                     dataType: "json",
@@ -179,8 +179,8 @@
 <div id="admin_tabs">
 
     <ul id="webadmin_main_tabs">
-        <li id="experimenters_tab"><a href='{% url waexperimenters %}' title="Edit Users">{% trans "Users" %}</a></li>
-        <li id="groups_tab"><a href="{% url wagroups %}" title="Edit Groups">{% trans "Groups" %}</a></li>
+        <li id="experimenters_tab"><a href='{% url 'waexperimenters' %}' title="Edit Users">{% trans "Users" %}</a></li>
+        <li id="groups_tab"><a href="{% url 'wagroups' %}" title="Edit Groups">{% trans "Groups" %}</a></li>
         <li id="drivespace_tab"><a href="#drivespace_content" title="Statistics">{% trans "Statistics" %}</a></li>
     </ul>
 

@@ -43,8 +43,8 @@ form dir {
     
 <!-- top elements span page -->
 <div id="top-nav">
-    <a href="{% url webtest_index %}">Home</a> |
-    <a href="{% url weblogout %}">Logout</a>
+    <a href="{% url 'webtest_index' %}">Home</a> |
+    <a href="{% url 'weblogout' %}">Logout</a>
 </div>
 
 <div>
@@ -113,7 +113,7 @@ form dir {
             {% endif %}
             
             <td> 
-                <img class='img_panel' izct='{{ cell }}' src="{% url webgateway.views.render_image cell.0 cell.1 cell.3 %}?{% if cell.2 %}c={{ cell.2 }}&{% endif %}m={{ mode }}" />
+                <img class='img_panel' izct='{{ cell }}' src="{% url 'webgateway.views.render_image' cell.0 cell.1 cell.3 %}?{% if cell.2 %}c={{ cell.2 }}&{% endif %}m={{ mode }}" />
             </td>
         {% endfor %}
     </tr>

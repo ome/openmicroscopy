@@ -34,10 +34,10 @@ $(document).ready(function() {
                         iids.push(selected[i]['id'].split("-")[1]);
                     };
                 }
-                split_view_url = '{% url webtest_split_view_figure_plugin %}?imageIds='+ iids.join(",") + "&width=120";
+                split_view_url = '{% url 'webtest_split_view_figure_plugin' %}?imageIds='+ iids.join(",") + "&width=120";
             // if it's a dataset, show 2 rendering settings side by side.
             } else if (dtype=="dataset") {
-                split_view_url = '{% url webtest_index %}dataset_split_view/'+oid+'/';
+                split_view_url = '{% url 'webtest_index' %}dataset_split_view/'+oid+'/';
             }
             $(this).load(split_view_url);
         },

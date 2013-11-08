@@ -34,7 +34,7 @@
         $(document).ready(function() 
             {
                 var h = $(window).height()-200;
-                $("div#help_search").html('<iframe width="370" height="'+(h+11)+'" src="{% url help_search %}" id="help_search" name="help_search"></iframe>');
+                $("div#help_search").html('<iframe width="370" height="'+(h+11)+'" src="{% url 'help_search' %}" id="help_search" name="help_search"></iframe>');
                 $('iframe#help_search').load();
                 
                 $("#right_panel").show();
@@ -47,7 +47,7 @@
 
 
 {% block thin_header_right %}
-    <a href="{% url csend %}" title="Contact">{% trans "Contact" %}</a>
+    <a href="{% url 'csend' %}" title="Contact">{% trans "Contact" %}</a>
 {% endblock %}
 
 

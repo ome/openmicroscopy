@@ -114,7 +114,7 @@
             {% for c in manager.containers.images %}
                 <tr id="image-{{ c.id }}" class="{{ c.getPermsCss }}">
                     <td class="image">
-                        <img id="{{ c.id }}" src="{% url render_thumbnail_resize 32 c.id  %}" alt="image" title="{{ c.name }}"/>
+                        <img id="{{ c.id }}" src="{% url 'render_thumbnail_resize' 32 c.id  %}" alt="image" title="{{ c.name }}"/>
                     </td>
                     <td class="desc"><a>{{ c.name|truncatebefor:"65" }}</a></td>
                     <td class="date">{{ c.getDate }}</td>                    

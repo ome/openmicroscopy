@@ -29,13 +29,13 @@
     <tr>
         <td align="center">
             {% for image in images %}
-                <img class="img_panel" src="{% url web_render_image image.id image.z 0 %}?c={{c_left}}" />
+                <img class="img_panel" src="{% url 'web_render_image' image.id image.z 0 %}?c={{c_left}}" />
             {% endfor %}
         </td>
 
         <td align="center">
             {% for image in images %}
-                <img class="img_panel" src="{% url web_render_image image.id image.z 0 %}?c={{c_right}}" />
+                <img class="img_panel" src="{% url 'web_render_image' image.id image.z 0 %}?c={{c_right}}" />
             {% endfor %}
         </td>
     </tr>
