@@ -75,7 +75,7 @@ import pojos.TagAnnotationData;
  * @version 3.0
  * @since OME3.0
  */
-public class SelectionWizard 
+public class SelectionWizard
 	extends JDialog 
 	implements ActionListener, DocumentListener, PropertyChangeListener
 {
