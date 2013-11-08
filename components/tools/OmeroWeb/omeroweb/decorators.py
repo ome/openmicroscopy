@@ -42,7 +42,6 @@ from omeroweb.connector import Connector
 
 logger = logging.getLogger(__name__)
 
-
 def parse_url(lookup_view):
     url = None
     try:
@@ -63,6 +62,14 @@ def parse_url(lookup_view):
         logger.error("Reverse for '%s' not found." % lookup_view)
         raise NoReverseMatch("Reverse for '%s' not found." % lookup_view)
     return url
+
+def get_client_ip(request):
+    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+    if x_forwarded_for:
+        ip = x_forwarded_for.split(',')[-1].strip()
+    else:
+        ip = request.META.get('REMOTE_ADDR')
+    return ip
 
 
 class ConnCleaningHttpResponse(HttpResponse):
@@ -281,7 +288,7 @@ class login_required(object):
             # given.
             connector = Connector(server_id, is_secure)
             connection = connector.create_connection(
-                    self.useragent, username, password, is_public=True)
+                    self.useragent, username, password, is_public=True, userip=get_client_ip(request))
             request.session['connector'] = connector
             self.set_public_user_connector(connector)
         elif connection is not None:
@@ -298,13 +305,16 @@ class login_required(object):
         """
         # TODO: Handle previous try_super logic; is it still needed?
 
+        userip = get_client_ip(request)
         session = request.session
         request = request.REQUEST
         is_secure = request.get('ssl', False)
         logger.debug('Is SSL? %s' % is_secure)
         connector = session.get('connector', None)
         logger.debug('Connector: %s' % connector)
-
+        
+        
+        
         if server_id is None:
             # If no server id is passed, the db entry will not be used and
             # instead we'll depend on the request.session and request.REQUEST
@@ -333,7 +343,7 @@ class login_required(object):
                     omero_session_key)
             connector.user_id = None
             connector.omero_session_key = omero_session_key
-            connection = connector.join_connection(self.useragent)
+            connection = connector.join_connection(self.useragent, userip)
             session['connector'] = connector
             return connection
 
@@ -360,7 +370,7 @@ class login_required(object):
             logger.debug('Creating connection with username and password...')
             connector = Connector(server_id, is_secure)
             connection = connector.create_connection(
-                    self.useragent, username, password)
+                    self.useragent, username, password, userip=userip)
             session['connector'] = connector
             return connection
 
@@ -368,7 +378,7 @@ class login_required(object):
         if connector is not None:
             # We have a connector, attempt to use it to join an existing
             # connection / OMERO session.
-            connection = connector.join_connection(self.useragent)
+            connection = connector.join_connection(self.useragent, userip)
             if connection is not None:
                 logger.debug('Connector valid, session successfully joined.')
                 return connection
