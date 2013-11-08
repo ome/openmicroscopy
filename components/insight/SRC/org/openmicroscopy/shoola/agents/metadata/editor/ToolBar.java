@@ -192,6 +192,21 @@ class ToolBar
         List<DataObject> nodes = model.getSelectedObjects();
         boolean b = false;
 
+        if (!CollectionUtils.isEmpty(nodes)) {
+            Iterator<DataObject> j = nodes.iterator();
+            DataObject data;
+            while (j.hasNext()) {
+                data = j.next();
+                if (data instanceof ImageData) {
+                    ImageData img = (ImageData) data;
+                    if (img.isArchived()) {
+                        b = true;
+                        break;
+                    }
+                }
+            }
+        }
+        
         downloadItem.setEnabled(b);
         saveAsMenu.add(downloadItem);
 
