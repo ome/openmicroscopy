@@ -25,9 +25,10 @@ import java.util.Map;
 
 import loci.formats.FormatException;
 import loci.formats.FormatReader;
-
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.util.ErrorHandler;
+import ome.formats.importer.util.ProportionalTimeEstimatorImpl;
+import ome.formats.importer.util.TimeEstimator;
 import ome.services.blitz.repo.path.ClientFilePathTransformer;
 import ome.services.blitz.repo.path.FilePathRestrictionInstance;
 import ome.services.blitz.repo.path.FilePathRestrictions;
@@ -66,8 +67,6 @@ import omero.model.Screen;
 import omero.sys.Parameters;
 import omero.sys.ParametersI;
 
-import org.apache.commons.collections.Buffer;
-import org.apache.commons.collections.buffer.CircularFifoBuffer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -283,11 +282,14 @@ public class ImportLibrary implements IObservable
         final byte[] buf = new byte[store.getDefaultBlockSize()];
         final int fileTotal = srcFiles.length;
         final List<String> checksums = new ArrayList<String>(fileTotal);
+        // TODO Fix with proper code instead of 10000L
+        final TimeEstimator estimator = new ProportionalTimeEstimatorImpl(10000L);
 
         log.debug("Used files created:");
         for (int i = 0; i < fileTotal; i++) {
             try {
-                checksums.add(uploadFile(proc, srcFiles, i, checksumProviderFactory, buf));
+                checksums.add(uploadFile(proc, srcFiles, i,
+                        checksumProviderFactory, estimator, buf));
             } catch (ServerError e) {
                 log.error("Server error uploading file.", e);
                 break;
@@ -300,17 +302,20 @@ public class ImportLibrary implements IObservable
     }
 
     public String uploadFile(final ImportProcessPrx proc,
-            final String[] srcFiles, int index) throws ServerError, IOException
+            final String[] srcFiles, int index, TimeEstimator estimator)
+                    throws ServerError, IOException
     {
         final byte[] buf = new byte[store.getDefaultBlockSize()];
-        return uploadFile(proc, srcFiles, index, checksumProviderFactory, buf);
+        return uploadFile(proc, srcFiles, index, checksumProviderFactory,
+                estimator, buf);
     }
 
     public String uploadFile(final ImportProcessPrx proc,
             final String[] srcFiles, final int index,
-            final ChecksumProviderFactory cpf, final byte[] buf)
+            final ChecksumProviderFactory cpf, TimeEstimator estimator,
+            final byte[] buf)
             throws ServerError, IOException {
-
+        estimator.start();
         ChecksumProvider cp = cpf.getProvider(
                 ChecksumAlgorithmMapper.getChecksumType(
                         proc.getImportSettings().checksumAlgorithm));
@@ -325,27 +330,19 @@ public class ImportLibrary implements IObservable
             int rlen = 0;
             long offset = 0;
 
-            // Fields used for timing measurements
-            long start, timeLeft = 0L;
-            float alpha, chunkTime;
-            int sampleSize = 5;
-            Buffer samples = new CircularFifoBuffer(sampleSize);
-
             notifyObservers(new ImportEvent.FILE_UPLOAD_STARTED(
                     file.getAbsolutePath(), index, srcFiles.length,
                     null, length, null));
 
             // "touch" the file otherwise zero-length files
             rawFileStore.write(new byte[0], offset, 0);
+            estimator.stop();
             notifyObservers(new ImportEvent.FILE_UPLOAD_BYTES(
                     file.getAbsolutePath(), index, srcFiles.length,
-                    offset, length, timeLeft, null));
+                    offset, length, estimator.getUploadTimeLeft(), null));
 
             while (true) {
-                // Due to weirdness with System.nanoTime() on multi-core
-                // CPUs, falling back to currentTimeMillis()
-                chunkTime = 0;
-                start = System.currentTimeMillis();
+                estimator.start();
                 rlen = stream.read(buf);
                 if (rlen == -1) {
                     break;
@@ -353,18 +350,12 @@ public class ImportLibrary implements IObservable
                 cp.putBytes(buf, 0, rlen);
                 rawFileStore.write(buf, offset, rlen);
                 offset += rlen;
-                samples.add(System.currentTimeMillis() - start);
-                alpha = 2f / (samples.size() + 1);
-                for (int i = 0; i < samples.size(); i++) {
-                    chunkTime = alpha * (Long) samples.get()
-                            + (1 - alpha) * chunkTime;
-                }
-                timeLeft = rlen == 0 ? 0 : (long) chunkTime * ((length-offset)/rlen);
+                estimator.stop(rlen);
                 notifyObservers(new ImportEvent.FILE_UPLOAD_BYTES(
                         file.getAbsolutePath(), index, srcFiles.length, offset,
-                        length, timeLeft, null));
+                        length, estimator.getUploadTimeLeft(), null));
             }
-
+            estimator.start();
             digestString = cp.checksumAsString();
 
             OriginalFile ofile = rawFileStore.save();
@@ -376,6 +367,7 @@ public class ImportLibrary implements IObservable
                 log.debug(String.format("checksums: client=%s,server=%s",
                         digestString, ofile.getHash().getValue()));
             }
+            estimator.stop();
             notifyObservers(new ImportEvent.FILE_UPLOAD_COMPLETE(
                     file.getAbsolutePath(), index, srcFiles.length,
                     offset, length, null));
@@ -446,6 +438,8 @@ public class ImportLibrary implements IObservable
         final String[] srcFiles = container.getUsedFiles();
         final List<String> checksums = new ArrayList<String>();
         final byte[] buf = new byte[store.getDefaultBlockSize()];
+        final TimeEstimator estimator = new ProportionalTimeEstimatorImpl(
+                container.getUsedFilesTotalSize());
         Map<Integer, String> failingChecksums = new HashMap<Integer, String>();
 
         notifyObservers(new ImportEvent.FILESET_UPLOAD_START(
@@ -453,7 +447,7 @@ public class ImportLibrary implements IObservable
 
         for (int i = 0; i < srcFiles.length; i++) {
             checksums.add(uploadFile(proc, srcFiles, i, checksumProviderFactory,
-                    buf));
+                    estimator, buf));
         }
 
         try {

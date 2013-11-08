@@ -85,6 +85,8 @@ import ome.formats.importer.ImportContainer;
 import ome.formats.importer.ImportEvent;
 import ome.formats.importer.ImportLibrary;
 import ome.formats.importer.OMEROWrapper;
+import ome.formats.importer.util.ProportionalTimeEstimatorImpl;
+import ome.formats.importer.util.TimeEstimator;
 import ome.system.UpgradeCheck;
 import ome.util.checksum.ChecksumProvider;
 import ome.util.checksum.ChecksumProviderFactory;
@@ -6397,6 +6399,8 @@ class OMEROGateway
 	        final List<String> checksums = new ArrayList<String>();
 	        final byte[] buf = new byte[omsc.getDefaultBlockSize()];
 	        Map<Integer, String> failingChecksums = new HashMap<Integer, String>();
+	        final TimeEstimator estimator = new ProportionalTimeEstimatorImpl(
+	                    ic.getUsedFilesTotalSize());
 
 	        if (status.isMarkedAsCancel()) return Boolean.valueOf(false);
 	        library.notifyObservers(new ImportEvent.FILESET_UPLOAD_START(
@@ -6404,7 +6408,7 @@ class OMEROGateway
 
 	        for (int i = 0; i < srcFiles.length; i++) {
 	            checksums.add(library. uploadFile(proc, srcFiles, i,
-	            		checksumProviderFactory,
+	                    checksumProviderFactory, estimator,
 	                    buf));
 	        }
 
