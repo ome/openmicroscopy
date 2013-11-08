@@ -67,6 +67,7 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.Document;
 
+import org.apache.commons.lang.StringUtils;
 import org.jdesktop.swingx.JXTaskPane;
 import org.openmicroscopy.shoola.agents.events.editor.EditFileEvent;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
@@ -1171,17 +1172,14 @@ class PropertiesUI
 		if (ownerName != null && ownerName.length() > 0)
 			ownerLabel.setText(OWNER_TEXT+ownerName);
 		originalDescription = model.getRefObjectDescription();
-		if (originalDescription == null || originalDescription.length() == 0)
+		if (StringUtils.isEmpty(originalDescription))
 			originalDescription = DEFAULT_DESCRIPTION_TEXT;
 		descriptionWiki.setText(originalDescription);
 		//wrap();
 		descriptionWiki.setCaretPosition(0);
 		descriptionWiki.setBackground(UIUtilities.BACKGROUND_COLOR);
     	descriptionWiki.setForeground(UIUtilities.DEFAULT_FONT_COLOR);
-    	
-		
-        if (refObject instanceof WellSampleData) b = false;
-        
+
         namePane.setEnabled(b);
         if (!(refObject instanceof FileData)) editName.setEnabled(b);
         

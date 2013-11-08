@@ -45,12 +45,11 @@ import javax.swing.JFrame;
 
 //Third-party libraries
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
 
 //Application-internal dependencies
 import omero.model.OriginalFile;
 import omero.model.PlaneInfo;
-
-import org.apache.commons.collections.CollectionUtils;
 import org.openmicroscopy.shoola.agents.metadata.AcquisitionDataLoader;
 import org.openmicroscopy.shoola.agents.metadata.AnalysisResultsFileLoader;
 import org.openmicroscopy.shoola.agents.metadata.AttachmentsLoader;
@@ -747,7 +746,7 @@ class EditorModel
 	 * 
 	 * @return See above.
 	 */
-	String getRefObjectDescription() 
+	String getRefObjectDescription()
 	{
 		String description = "";
 		Object ref = getPrimarySelect();
@@ -770,6 +769,9 @@ class EditorModel
 				WellData ws = (WellData) parentRefObject;
 				description = ws.getWellType();
 			}
+			ImageData img = ((WellSampleData) ref).getImage();
+			if (!StringUtils.isEmpty(img.getDescription()))
+			    description = img.getDescription();
 		} else if (ref instanceof FileData) 
 			description = null;//((FileData) ref).getDescription();
 		if (description == null) return "";
