@@ -25,4 +25,5 @@ install: python build.py $BUILD_TARGET
 # Running python tests as script, since there's no compile step.
 script:
     - if [[ $BUILD == 'py' ]]; then flake8 -v components/tools/OmeroPy/src/omero/plugins;  fi
+    - if [[ $BUILD == 'py' ]]; then flake8 -v components/tools/OmeroPy/test/integration/clitest;  fi
     - python build.py $TEST_TARGET
