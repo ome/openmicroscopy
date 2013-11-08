@@ -115,7 +115,7 @@
   <logger name="org.hibernate.cfg" level="ERROR"/>
   <logger name="org.hibernate.engine" level="ERROR"/>
   <logger name="org.hibernate.hql" level="WARN"/> <!-- for first/max in memory -->
-  <logger name="org.hibernate.hql.PARSER" level="ERROR"/>
+  <logger name="org.hibernate.hql.PARSER" level="OFF" additivity="false"/>
   <logger name="org.hibernate.loader" level="ERROR"/>
   <logger name="org.hibernate.persister" level="ERROR"/>
   <logger name="org.hibernate.pretty" level="ERROR"/>
