@@ -1405,6 +1405,7 @@ class PropertiesUI
 	 */
 	protected void clearData(Object oldObject)
 	{
+	    editableName = false;
 		originalName = model.getRefObjectName();
 		originalDisplayedName = originalName;
 		originalDescription = model.getRefObjectDescription();
@@ -1417,9 +1418,10 @@ class PropertiesUI
 		namePane.getDocument().addDocumentListener(this);
 		descriptionWiki.addDocumentListener(this);
 		channelEditPane = null;
+		editChannel.setEnabled(false);
+		editNames();
 		if (oldObject == null) return;
 		if (!model.isSameObject(oldObject)) {
-			editChannel.setEnabled(false);
 			channelsArea.setText("");
 			idLabel.setText("");
 			ownerLabel.setText("");
