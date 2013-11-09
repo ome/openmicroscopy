@@ -217,19 +217,13 @@ class PropertiesUI
 	
 	/** The text associated to the data object. */
 	private String				text;
-	
-	/** Flag indicating to build the UI once. */
-	private boolean 			init;
-	
+
 	/** ScrollPane hosting the {@link #descriptionWiki} component.*/
 	private JScrollPane			descriptionScrollPane;
 
 	/** The menu displaying the view options.*/
 	private JPopupMenu			viewMenu;
 
-	/** The visible width.*/
-	private int width = 0;
-	
 	/** Flag indicating that the name is editable mode or not.*/
 	private boolean editableName;
 	
@@ -1125,7 +1119,6 @@ class PropertiesUI
        this.controller = controller;
        title = TITLE;
        initComponents();
-       init = false;
     }
 
     /** Allows to edit or not the name and description.*/
