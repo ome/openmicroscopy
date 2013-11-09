@@ -1419,6 +1419,7 @@ class PropertiesUI
 		descriptionWiki.addDocumentListener(this);
 		channelEditPane = null;
 		editChannel.setEnabled(false);
+		descriptionWiki.setEnabled(false);
 		editNames();
 		if (oldObject == null) return;
 		if (!model.isSameObject(oldObject)) {
