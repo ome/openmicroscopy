@@ -239,7 +239,7 @@ class PropertiesUI
 	/** Builds and lays out the components displaying the channel information.*/
 	private void buildChannelsPane()
 	{
-		editChannel.setVisible(true);
+		editChannel.setVisible(model.canEdit());
 		channelsPane = channelsArea;
 	}
 	
