@@ -2,10 +2,10 @@
  * org.openmicroscopy.shoola.agents.dataBrowser.actions.ViewOtherAction 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -47,77 +47,72 @@ import pojos.ImageData;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since 3.0-Beta4
  */
 public class ViewOtherAction
 	extends DataBrowserAction
 {
 
-	/** Name of the action. */
+    /** Name of the action. */
     private static final String NAME = "Other..."; 
-    
-	/** Description of the action. */
+
+    /** Description of the action. */
     private static final String DESCRIPTION = "Open the document with the " +
-    		"selected application.";
-    
+            "selected application.";
+
     /** Description of the action. */
     private static final String DESCRIPTION_GENERAL = "Select the application" +
-    		" to open the document.";
-    
+            " to open the document.";
+
     /** The application or <code>null</code>. */
     private ApplicationData data;
-    
+
     /**
      * Sets the action enabled depending on the currently selected display
      * @see DataBrowserAction#onDisplayChange(ImageDisplay)
      */
     protected void onDisplayChange(ImageDisplay node)
     {
-    	Browser browser = model.getBrowser();
-    	if (node == null || browser == null) {
+        Browser browser = model.getBrowser();
+        if (node == null || browser == null) {
             setEnabled(false);
             return;
         }
-    	Collection l = browser.getSelectedDisplays();
-    	if (l.size() > 1) {
-    		 setEnabled(false);
-             return;
-    	}
-    	Object ho = node.getHierarchyObject();
-        setEnabled(ho instanceof ImageData || 
-        		ho instanceof FileAnnotationData);
+        if (browser.getSelectedDisplays().size() > 1) {
+            setEnabled(false);
+            return;
+        }
+        Object ho = node.getHierarchyObject();
+        setEnabled(ho instanceof ImageData || ho instanceof FileAnnotationData);
     }
-    
-	/**
-	 * Creates a new instance.
-	 * 
-	 * @param model Reference to the Model. Mustn't be <code>null</code>.
-     * @param data  The component identifying the external application.
-	 */
-	public ViewOtherAction(DataBrowser model, ApplicationData data)
-	{
-		super(model);
+
+    /**
+     * Creates a new instance.
+     * 
+     * @param model Reference to the Model. Mustn't be <code>null</code>.
+     * @param data The component identifying the external application.
+     */
+    public ViewOtherAction(DataBrowser model, ApplicationData data)
+    {
+        super(model);
         this.data = data;
         if (data == null) {
-        	putValue(Action.NAME, NAME);
-        	putValue(Action.SHORT_DESCRIPTION, 
+            putValue(Action.NAME, NAME);
+            putValue(Action.SHORT_DESCRIPTION,
                     UIUtilities.formatToolTipText(DESCRIPTION_GENERAL));
         } else {
-        	putValue(Action.NAME, data.getApplicationName());
+            putValue(Action.NAME, data.getApplicationName());
             putValue(Action.SHORT_DESCRIPTION, 
-	                UIUtilities.formatToolTipText(DESCRIPTION));
-        	putValue(Action.SMALL_ICON, data.getApplicationIcon());
+                    UIUtilities.formatToolTipText(DESCRIPTION));
+            putValue(Action.SMALL_ICON, data.getApplicationIcon());
         }
         onDisplayChange(model.getBrowser().getLastSelectedDisplay());
-	}
-	
-	/**
+    }
+
+    /**
      * Views the selected images.
      * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
      */
     public void actionPerformed(ActionEvent e) { model.openWith(data); }
-    
+
 }

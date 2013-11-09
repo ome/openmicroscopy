@@ -2,10 +2,10 @@
  * org.openmicroscopy.shoola.agents.dataBrowser.actions.DataBrowserAction 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -27,6 +27,8 @@ package org.openmicroscopy.shoola.agents.dataBrowser.actions;
 import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.List;
+
 import javax.swing.AbstractAction;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -47,19 +49,16 @@ import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since OME3.0
  */
-public class DataBrowserAction 
+public class DataBrowserAction
 	extends AbstractAction
 	implements ChangeListener, PropertyChangeListener
 {
 
-	 /** A reference to the Model. */
+    /** A reference to the Model. */
     protected DataBrowser      model;
-    
+
     /**
      * Call-back to notify of a change in the currently selected display
      * in the {@link Browser}. Subclasses override the method.
@@ -105,18 +104,23 @@ public class DataBrowserAction
      */
     public void propertyChange(PropertyChangeEvent evt)
     {
-    	String name = evt.getPropertyName();
-    	if (Browser.SELECTED_DATA_BROWSER_NODE_DISPLAY_PROPERTY.equals(name)) {
-    		Object node = evt.getNewValue();
-    		
-    		if (node instanceof ImageDisplay)
-    			onDisplayChange((ImageDisplay) node);
-    		else onDisplayChange(null);
-    	} else if (DataBrowser.SELECTION_UPDATED_PROPERTY.equals(name)) {
-    		Browser browser = model.getBrowser();
-        	if (browser != null)
-        		onDisplayChange(browser.getLastSelectedDisplay());
-    	}
+        String name = evt.getPropertyName();
+        if (Browser.SELECTED_DATA_BROWSER_NODE_DISPLAY_PROPERTY.equals(name) ||
+          Browser.SELECTED_DATA_BROWSER_NODES_DISPLAY_PROPERTY.equals(name)) {
+            Object node = evt.getNewValue();
+            if (node instanceof ImageDisplay)
+                onDisplayChange((ImageDisplay) node);
+            else if (node instanceof List) {
+                if (model.getBrowser() != null) {
+                    onDisplayChange(model.getBrowser().getLastSelectedDisplay());
+                }
+            }
+            else onDisplayChange(null);
+        } else if (DataBrowser.SELECTION_UPDATED_PROPERTY.equals(name)) {
+            Browser browser = model.getBrowser();
+            if (browser != null)
+                onDisplayChange(browser.getLastSelectedDisplay());
+        } 
     }
 
     /** 
