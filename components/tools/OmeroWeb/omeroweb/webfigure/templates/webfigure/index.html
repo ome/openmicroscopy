@@ -65,7 +65,13 @@
         figureModel.set('curr_zoom', 75);
 
         // load Panels from localStorage (if any)
-        figureModel.panels.fetch();
+        figureModel.panels.fetch({
+            success: function(model, rsp, options) {
+                if (model.length == 0) {
+                    $('#addImagesModal').modal();
+                }
+            }
+        });
         figureModel.clearSelected();    // reset selection (all saved as 'true')
 
         // Undo Model and View
@@ -372,6 +378,9 @@
             width: 190px;
         }
         /* Over-riding Bootstrap Styles */
+        .modal-dialog {
+            left: 0px;
+        }
         .modal-header {
             padding: 10px;
         }
@@ -436,6 +445,33 @@
 
 <body id="body">
 
+    <!-- Modal -->
+    <div class="modal" id="addImagesModal" tabindex="-1" role="dialog" aria-labelledby="addImagesLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title" id="addImagesLabel">Add Images</h4>
+                </div>
+                <form class="addImagesForm" role="form">
+                    <div class="modal-body">
+                        <p>Add images to the figure by entering their IDs, separated by commas.<br>
+                            Hint: You can also select images in the webclient, click the link in right panel,
+                            copy the URL and paste it here:
+                        </p>
+                        <div class="form-group" style="margin-top: 15px; margin-bottom: 0px">
+                            <input type="text" class="form-control imgIds" placeholder="Image IDs or URL">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary" data-dismiss="modal" disabled="disabled">Add Images</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div><!-- /.modal -->
+
     <div class="navbar navbar-inverse navbar-fixed-top">
         <div class="container">
             <div class="navbar-header" title="Back to OMERO.webclient">
@@ -459,6 +495,16 @@
                 </ul>
 
                 <form class="navbar-form navbar-right">
+
+                    <!-- Add a New Panel Button -->
+                    <div class="btn-group" style="margin-right:20px">
+                        <button type="button" class="btn btn-sm btn-default" data-toggle="modal" data-target="#addImagesModal" title="Add images to figure">
+                            Add Image
+                        </button>
+                        <button type="button" class="btn btn-sm btn-default delete_panel" title="Delete selected panels">
+                            Delete
+                        </button>
+                    </div>
 
                     <!-- Buttons for Alignment of Panels. see AlignmentToolbarView -->
                     <div id="alignment-toolbar" class="btn-group icon-buttons">
@@ -489,11 +535,6 @@
                         </ul>
                     </div>
 
-                    <!-- Add a New Panel Button -->
-                    <div class="btn-group" style="margin-right:20px">
-                        <button type="button" class="btn btn-sm btn-default add_panel" title="Add new panels to figure">Add Panel</button>
-                        <button type="button" class="btn btn-sm btn-default delete_panel" title="Delete selected panels">Delete</button>
-                    </div>
 
 <!--                     <select id="paper_size_chooser">
                         <option value="2000,3000">custom 2000 x 3000</option>
