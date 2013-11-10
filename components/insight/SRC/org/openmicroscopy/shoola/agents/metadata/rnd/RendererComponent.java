@@ -5,7 +5,7 @@
  *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -79,9 +79,6 @@ import pojos.PixelsData;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since 3.0-Beta4
  */
 class RendererComponent 
@@ -90,7 +87,7 @@ class RendererComponent
 {
 
     /** The default error message. */
-    private static final String ERROR = " An error occurred while modifying  " +
+    private static final String ERROR = " An error occurred while modifying " +
     		"the rendering settings.";
     
     /** The number of attempts to reload the rendering control. */
@@ -398,9 +395,9 @@ class RendererComponent
 
     /** 
      * Implemented as specified by the {@link Renderer} interface.
-     * @see Renderer#setCurveCoefficient(double)
+     * @see Renderer#setCurveCoefficient(int, double)
      */
-	public void setCurveCoefficient(double k)
+	public void setCurveCoefficient(int channel, double k)
 	{
 		try {
         	model.setCurveCoefficient(k);
@@ -414,12 +411,12 @@ class RendererComponent
 
     /** 
      * Implemented as specified by the {@link Renderer} interface.
-     * @see Renderer#setFamily(String)
+     * @see Renderer#setFamily(int, String)
      */
-	public void setFamily(String family)
+	public void setFamily(int channel, String family)
 	{
 		try {
-        	model.setFamily(family);
+        	model.setFamily(channel, family);
         	//if (model.isGeneralIndex()) model.saveRndSettings();
             firePropertyChange(RENDER_PLANE_PROPERTY, Boolean.valueOf(false), 
             		Boolean.valueOf(true));

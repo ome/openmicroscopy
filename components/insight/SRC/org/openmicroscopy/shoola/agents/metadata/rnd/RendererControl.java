@@ -2,10 +2,10 @@
  * org.openmicroscopy.shoola.agents.metadata.rnd.RendererControl 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2009 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -29,9 +29,7 @@ import java.awt.Color;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
 import javax.swing.Action;
 import javax.swing.JFrame;
@@ -63,9 +61,6 @@ import org.openmicroscopy.shoola.util.ui.colourpicker.ColourPicker;
  * @author	Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since 3.0-Beta4
  */
 class RendererControl 
@@ -298,7 +293,7 @@ class RendererControl
 	/**
 	 * Indicates that a channel has been selected using the channel button.
 	 * 
-	 * @param index	 The index of the channel.
+	 * @param index The index of the channel.
 	 * @param active Pass <code>true</code> to indicate that the channel is
 	 * 				 active, <code>false</code> otherwise.
 	 */
@@ -306,7 +301,32 @@ class RendererControl
 	{
 		model.setChannelSelection(index, active);
 	}
-	
+
+	/**
+	 * Sets the family.
+	 * 
+	 * @param channel The index of the channel.
+	 * @param family The family to set.
+	 */
+	void setChannelFamily(int channel, String family)
+	{
+	    model.setFamily(channel, family);
+	    view.onCurveChange();
+	}
+
+    /**
+     * Sets the coefficient identifying a curve in the family
+     * and updates the image.
+     * 
+     * @param channel The channel to handle.
+     * @param k The new curve coefficient.
+     */
+	void setCurveCoefficient(int channel, double k)
+	{
+	    model.setCurveCoefficient(channel, k);
+	    view.onCurveChange();
+	}
+    
     /**
      * Reacts to property change events.
      * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
@@ -320,19 +340,7 @@ class RendererControl
             CodomainMapContext ctx = (CodomainMapContext)  evt.getNewValue();
             model.updateCodomainMap(ctx);
         */
-        if (ControlPane.FAMILY_PROPERTY.equals(name)) {
-            String oldValue = (String) evt.getOldValue();
-            String newValue = (String) evt.getNewValue();
-            if (newValue.equals(oldValue)) return;
-            model.setFamily(newValue);
-            view.onCurveChange();
-        } else if (ControlPane.GAMMA_PROPERTY.equals(name)) {
-            Double oldValue = (Double) evt.getOldValue();
-            Double newValue = (Double) evt.getNewValue();
-            if (newValue.equals(oldValue)) return;
-            model.setCurveCoefficient(newValue.doubleValue());
-            view.onCurveChange();
-        } else if (ControlPane.BIT_RESOLUTION_PROPERTY.equals(name)) {
+        if (ControlPane.BIT_RESOLUTION_PROPERTY.equals(name)) {
             Integer oldValue = (Integer) evt.getOldValue();
             Integer newValue = (Integer) evt.getNewValue();
             if (newValue.equals(oldValue)) return;

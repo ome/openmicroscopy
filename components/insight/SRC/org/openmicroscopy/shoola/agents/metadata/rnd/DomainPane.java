@@ -5,7 +5,7 @@
  *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -21,8 +21,6 @@
  *------------------------------------------------------------------------------
  */
 package org.openmicroscopy.shoola.agents.metadata.rnd;
-
-
 
 
 //Java imports
@@ -87,9 +85,6 @@ import pojos.ChannelData;
  * 				<a href="mailto:donald@lifesci.dundee.ac.uk">
  * donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since 3.0-Beta4
  */
 public class DomainPane
@@ -313,16 +308,14 @@ public class DomainPane
                 family.equals(RendererModel.POLYNOMIAL));
         gammaSlider.addChangeListener(this);
         gammaSlider.addMouseListener(new MouseAdapter() {
-    		
-			public void mouseReleased(MouseEvent e) {
-				double v = (double) gammaSlider.getValue()/FACTOR;
-	            gammaLabel.setText(""+v);
-	            firePropertyChange(GAMMA_PROPERTY, 
-	            			new Double(model.getCurveCoefficient()),
-	                        new Double(v));
-			}
-		
-		});
+
+            public void mouseReleased(MouseEvent e) {
+                double v = (double) gammaSlider.getValue()/FACTOR;
+                gammaLabel.setText(""+v);
+                int channel = channelsBox.getSelectedIndex();
+                controller.setCurveCoefficient(channel, v);
+            }
+        });
         gammaLabel = new JTextField(""+k);
         gammaLabel.setBackground(UIUtilities.BACKGROUND_COLOR);
         gammaLabel.setEnabled(false);
@@ -415,13 +408,11 @@ public class DomainPane
             } else channelButtonPanel = createChannelButtons();
         }
         graphicsPane.setSelectedPlane();
-   
-        if (model.getChannelData().size() > 1) {
-        	channelsBox = new JComboBox();
-            populateChannels();
-    		channelsBox.setRenderer(new ColorListRenderer());
-            channelsBox.setActionCommand(""+CHANNEL);
-        }
+        channelsBox = new JComboBox();
+        populateChannels();
+        channelsBox.setRenderer(new ColorListRenderer());
+        channelsBox.setActionCommand(""+CHANNEL);
+        channelsBox.setVisible(model.getMaxC() > 1);
     }
     
     /** Populates the channels. */
@@ -682,7 +673,7 @@ public class DomainPane
 		p.add(comp, c);
 		c.gridy++;
 		
-		if (channelsBox != null) {
+		if (channelsBox.isVisible()) {
 			comp = UIUtilities.buildComponentPanel(channelsBox);
 			comp.setBackground(UIUtilities.BACKGROUND_COLOR);
 			addComponent(c, "Channels", comp, p);
@@ -1090,19 +1081,29 @@ public class DomainPane
     {
         int index = -1;
         index = Integer.parseInt(e.getActionCommand());
+        int v = channelsBox.getSelectedIndex();
         try {
             switch (index) {
-                case FAMILY:
-                    String f = (String) 
-                            ((JComboBox) e.getSource()).getSelectedItem();
-                    firePropertyChange(FAMILY_PROPERTY, model.getFamily(), f);
-                    break;
-                case CHANNEL:
-                	int v = channelsBox.getSelectedIndex();
-                	List<ChannelData> channels = model.getChannelData();
-                	ChannelData data = channels.get(v);
-                	controller.setChannelSelection(data.getIndex(),
-                			model.isChannelActive(data.getIndex()));
+            case FAMILY:
+                String f = (String) 
+                ((JComboBox) e.getSource()).getSelectedItem();
+                controller.setChannelFamily(v, f);
+                break;
+            case CHANNEL:
+                //Set the family
+                String family = model.getFamily(v);
+                double coefficient = model.getCurveCoefficient(v);
+                familyBox.removeActionListener(this);
+                familyBox.setSelectedItem(family);
+                familyBox.addActionListener(this);
+                //set the gamma.
+                gammaSlider.removeChangeListener(this);
+                gammaSlider.setValue((int) (coefficient*FACTOR));
+                gammaSlider.setEnabled(family.equals(RendererModel.EXPONENTIAL) ||
+                        family.equals(RendererModel.POLYNOMIAL));
+                gammaSlider.addChangeListener(this);
+                gammaLabel.setText(""+coefficient);
+                controller.setChannelSelection(v, true);
             }
         } catch(NumberFormatException nfe) {  
             throw new Error("Invalid Action ID "+index, nfe);

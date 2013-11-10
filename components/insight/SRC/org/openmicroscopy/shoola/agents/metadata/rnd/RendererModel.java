@@ -5,7 +5,7 @@
  *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -391,21 +391,22 @@ class RendererModel
 	void setSelectedChannel(int index) { selectedChannelIndex = index; }
 
 	/**
-	 * Sets, for the currently selected channel, the family used during
-	 * the mapping process.
+	 * Sets the family used during the mapping process for the specified channel.
 	 * 
+	 * @param channel The selected channel.
 	 * @param family The family to set.
 	 * @throws RenderingServiceException If an error occurred while setting
 	 * 									the value.
 	 * @throws DSOutOfServiceException If the connection is broken.
 	 */
-	void setFamily(String family)
+	void setFamily(int channel, String family)
 		throws RenderingServiceException, DSOutOfServiceException
 	{
 		if (rndControl == null) return;
+		if (channel < 0 || channel > getMaxC()) channel = selectedChannelIndex;
 		boolean b = rndControl.getChannelNoiseReduction(selectedChannelIndex);
 		double k = rndControl.getChannelCurveCoefficient(selectedChannelIndex);
-		rndControl.setQuantizationMap(selectedChannelIndex, family, k, b);
+		rndControl.setQuantizationMap(channel, family, k, b);
 	}
 
 	/**
@@ -559,10 +560,18 @@ class RendererModel
 	 *
 	 * @return See above.
 	 */
-	String getFamily()
+	String getFamily() { return getFamily(selectedChannelIndex); }
+
+	/**
+	 * Returns the mapping family used for to map the selected channel.
+	 *
+	 * @param channel The selected channel.
+	 * @return See above.
+	 */
+	String getFamily(int channel)
 	{
-		if (rndControl == null) return "";
-		return rndControl.getChannelFamily(selectedChannelIndex);
+	    if (rndControl == null) return "";
+	    return rndControl.getChannelFamily(channel);
 	}
 
 	/**
@@ -572,10 +581,21 @@ class RendererModel
 	 */
 	double getCurveCoefficient()
 	{
-		if (rndControl == null) return -1;
-		return rndControl.getChannelCurveCoefficient(selectedChannelIndex);
+		return getCurveCoefficient(selectedChannelIndex);
 	}
 
+	/**
+	 * Returns the map selected in the family for the selected channel.
+	 *
+	 * @param channel The selected channel.
+	 * @return See above.
+	 */
+	double getCurveCoefficient(int channel)
+	{
+	    if (rndControl == null) return -1;
+	    return rndControl.getChannelCurveCoefficient(channel);
+	}
+    
 	/**
 	 * Returns the bit resolution value.
 	 * 
