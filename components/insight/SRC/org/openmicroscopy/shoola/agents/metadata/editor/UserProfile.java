@@ -720,7 +720,7 @@ class UserProfile
         content.add(Box.createHorizontalStrut(5), c); 
         c.gridx++;
         c.gridwidth = GridBagConstraints.REMAINDER;     //end row
-        c.fill = GridBagConstraints.HORIZONTAL;
+        c.fill = GridBagConstraints.NONE;
         c.weightx = 1.0;
         content.add(ownerBox, c); 
         if (activeBox.isVisible()) {
@@ -735,7 +735,7 @@ class UserProfile
             content.add(Box.createHorizontalStrut(5), c);
             c.gridx++;
             c.gridwidth = GridBagConstraints.REMAINDER;
-            c.fill = GridBagConstraints.HORIZONTAL;
+            c.fill = GridBagConstraints.NONE;
             c.weightx = 1.0;
             content.add(activeBox, c);
         }
@@ -751,7 +751,7 @@ class UserProfile
             content.add(Box.createHorizontalStrut(5), c);
             c.gridx++;
             c.gridwidth = GridBagConstraints.REMAINDER;
-            c.fill = GridBagConstraints.HORIZONTAL;
+            c.fill = GridBagConstraints.NONE;
             c.weightx = 1.0;
             content.add(adminBox, c);
         }
@@ -888,7 +888,7 @@ class UserProfile
         c.gridx = 0;
         c.gridy = 0;
         c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
-        c.weightx = 1.0;  
+        c.weightx = 1.0;
         add(buildContentPanel(), c);
         if (model.isUserOwner(model.getRefObject()) ||
                 MetadataViewerAgent.isAdministrator()) {
