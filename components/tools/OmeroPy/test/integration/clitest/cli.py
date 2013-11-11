@@ -26,14 +26,12 @@ from omero.plugins.sessions import SessionsControl
 from test.integration.library import ITest
 from omero_ext.mox import Mox
 
-
-class CLITest (ITest):
+class AbstractCLITest(ITest):
 
     def setup_method(self, method):
-        super(CLITest, self).setup_method(method)
+        super(AbstractCLITest, self).setup_method(method)
         self.cli = CLI()
         self.cli.register("sessions", SessionsControl, "TEST")
-        self.args = self.login_args()
 
     def setup_mock(self):
         self.mox = Mox()
@@ -41,3 +39,15 @@ class CLITest (ITest):
     def teardown_mock(self):
         self.mox.UnsetStubs()
         self.mox.VerifyAll()
+
+class CLITest(AbstractCLITest):
+
+    def setup_method(self, method):
+        super(CLITest, self).setup_method(method)
+        self.args = self.login_args()
+
+class RootCLITest(AbstractCLITest):
+
+    def setup_method(self, method):
+        super(CLITest, self).setup_method(method)
+        self.args = self.root_login_args()
