@@ -27,6 +27,7 @@ import pytest
 
 object_types = ["Image", "Dataset", "Project", "Plate", "Screen"]
 permissions = ["rw----", "rwr---", "rwra--", "rwrw--"]
+group_prefixes = ["Group", "ExperimenterGroup"]
 
 
 class TestChgrp(CLITest):
@@ -48,17 +49,14 @@ class TestChgrp(CLITest):
             new_object = omero.model.ScreenI()
         elif object_type == 'Image':
             new_object = self.new_image()
-        new_object.name = omero.rtypes.rstring(self.name)
-        self.update.saveObject(new_object)
+        new_object.name = rstring("")
+        new_object = self.update.saveAndReturnObject(new_object)
+        
+        # check object has been created
+        found_object = self.query.get(object_type, new_object.id.val)
+        assert found_object.id.val == new_object.id.val
 
-    def get_object_by_name(self, object_type):
-        # Query
-        params = omero.sys.Parameters()
-        params.map = {}
-        query = "select o from %s as o" % object_type
-        params.map["val"] = rstring(self.name)
-        query += " where o.name = :val"
-        return self.query.findByQuery(query, params)
+        return new_object.id.val
 
     def add_new_group(self, perms=None):
         admin = self.sf.getAdminService()
@@ -72,65 +70,77 @@ class TestChgrp(CLITest):
 
     @pytest.mark.parametrize("object_type", object_types)
     def testObject(self, object_type):
-        self.name = self.uuid()
-        self.create_object(object_type)
-
-        # check object has been created
-        new_object = self.get_object_by_name(object_type)
-        assert new_object.name.val == self.name
+        oid = self.create_object(object_type)
 
         # create a new group and move the object to the new group
         group = self.add_new_group()
-        self.args += ['%s' % group.id.val,
-                      '/%s:%s' % (object_type, new_object.id.val)]
+        self.args += ['%s' % group.id.val, '/%s:%s' % (object_type, oid)]
         self.cli.invoke(self.args, strict=True)
-
-        # check the object cannot be queried in the current session
-        new_object = self.get_object_by_name(object_type)
-        assert new_object is None
 
         # change the session context and check the object has been moved
         self.set_context(self.client, group.id.val)
-        new_object = self.get_object_by_name(object_type)
-        assert new_object.name.val == self.name
+        new_object = self.query.get(object_type, oid)
+        assert new_object.id.val == oid
 
     @pytest.mark.parametrize("perms", permissions)
     def testPermission(self, perms):
-        self.name = self.uuid()
-        self.create_object("Image")
-
-        # check image has been created
-        new_object = self.get_object_by_name("Image")
-        assert new_object.name.val == self.name
+        iid = self.create_object("Image")
 
         # create a new group and move the image to the new group
         group = self.add_new_group(perms=perms)
-        self.args += ['%s' % group.id.val, '/Image:%s' % new_object.id.val]
+        self.args += ['%s' % group.id.val, '/Image:%s' % iid]
         self.cli.invoke(self.args, strict=True)
-
-        # check the image cannot be queried in the current session
-        new_object = self.get_object_by_name("Image")
-        assert new_object is None
 
         # change the session context and check the image has been moved
         self.set_context(self.client, group.id.val)
-        new_object = self.get_object_by_name("Image")
-        assert new_object.name.val == self.name
+        new_img = self.query.get("Image", iid)
+        assert new_img.id.val == iid
 
     def testNonMember(self):
-        new_image = self.new_image()
-        new_image = self.update.saveAndReturnObject(new_image)
+        iid = self.create_object("Image")
 
         # create a new group which the current user is not member of
         group = self.new_group()
 
         # try to move the image to the new group
-        self.args += ['%s' % group.id.val, '/Image:%s' % new_image.id.val]
+        self.args += ['%s' % group.id.val, '/Image:%s' % iid]
         self.cli.invoke(self.args, strict=True)
 
         # check the image has not been moved
-        img = self.query.get("Image", new_image.id.val)
-        assert img.id.val == new_image.id.val
+        img = self.query.get("Image", iid)
+        assert img.id.val == iid
+
+    def testGroupName(self):
+        iid = self.create_object("Image")
+
+        # create a new group which the current user is not member of
+        group = self.add_new_group()
+
+        # try to move the image to the new group
+        self.args += ['%s' % group.name.val, '/Image:%s' % iid]
+        self.cli.invoke(self.args, strict=True)
+
+        # change the session context and check the image has been moved
+        self.set_context(self.client, group.id.val)
+        img = self.query.get("Image", iid)
+        assert img.id.val == iid
+
+    @pytest.mark.parametrize("group_prefix", group_prefixes)
+    def testGroupPrefix(self, group_prefix):
+        iid = self.create_object("Image")
+
+        # create a new group which the current user is not member of
+        group = self.add_new_group()
+
+        # try to move the image to the new group
+        self.args += ['%s:%s' % (group_prefix, group.id.val),
+                      '/Image:%s' % iid]
+        self.cli.invoke(self.args, strict=True)
+
+        # change the session context and check the image has been moved
+        self.set_context(self.client, group.id.val)
+        img = self.query.get("Image", iid)
+        assert img.id.val == iid
 
     def testFileset(self):
         # 2 images sharing a fileset
