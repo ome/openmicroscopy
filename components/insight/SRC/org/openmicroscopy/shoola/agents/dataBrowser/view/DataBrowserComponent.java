@@ -40,6 +40,7 @@ import javax.swing.JComponent;
 
 //Third-party libraries
 
+import org.apache.commons.collections.CollectionUtils;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent;
 import org.openmicroscopy.shoola.agents.dataBrowser.IconManager;
@@ -290,7 +291,7 @@ class DataBrowserComponent
 	 */
 	public void setSelectedDisplays(List<ImageDisplay> nodes)
 	{
-		if (nodes == null || nodes.size() == 0) {
+		if (CollectionUtils.isEmpty(nodes)) {
 			if (model instanceof WellsModel) {
 				((WellsModel) model).setSelectedWells(null);
 				view.onSelectedWell();

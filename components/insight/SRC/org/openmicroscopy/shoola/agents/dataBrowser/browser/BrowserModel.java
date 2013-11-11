@@ -838,8 +838,8 @@ class BrowserModel
 			accept(visitor);
 			thumbSelected = false;
 		    this.multiSelection = true;
-		    Set<ImageDisplay> oldValue = 
-		    	new HashSet<ImageDisplay>(selectedDisplays);
+		    Set<ImageDisplay> oldValue =
+		            new HashSet<ImageDisplay>(selectedDisplays);
 		    selectedDisplays = nodes;
 		    firePropertyChange(SELECTED_DATA_BROWSER_NODES_DISPLAY_PROPERTY,
 	    			oldValue, nodes);
