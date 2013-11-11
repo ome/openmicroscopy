@@ -21,13 +21,12 @@
 
 import omero
 from omero.plugins.chgrp import ChgrpControl
-from test.integration.clitest.cli import CLITest
+from test.integration.clitest.cli import CLITest, RootCLITest
 from omero.rtypes import rstring
 import pytest
 
 object_types = ["Image", "Dataset", "Project", "Plate", "Screen"]
 permissions = ["rw----", "rwr---", "rwra--", "rwrw--"]
-
 
 class TestChgrp(CLITest):
 
@@ -117,24 +116,20 @@ class TestChgrp(CLITest):
         new_object = self.get_object_by_name("Image")
         assert new_object.name.val == self.name
 
-    def testNonAdminNonMember(self):
-        self.name = self.uuid()
-        self.create_object("Image")
-
-        # check image has been created
-        img = self.get_object_by_name("Image")
-        assert img.name.val == self.name
+    def testNonMember(self):
+        new_image = self.new_image()
+        new_image = self.update.saveAndReturnObject(new_image)
 
         # create a new group which the current user is not member of
         group = self.new_group()
 
         # try to move the image to the new group
-        self.args += ['%s' % group.id.val, '/Image:%s' % img.id.val]
+        self.args += ['%s' % group.id.val, '/Image:%s' % new_image.id.val]
         self.cli.invoke(self.args, strict=True)
 
         # check the image has not been moved
-        img = self.get_object_by_name("Image")
-        assert img.name.val == self.name
+        img = self.query.get("Image", new_image.id.val)
+        assert img.id.val == new_image.id.val
 
     def testFileset(self):
         # 2 images sharing a fileset
@@ -174,3 +169,30 @@ class TestChgrp(CLITest):
         # check the image is still in the current group
         img = self.query.get('Image', images[0].id.val)
         assert img.id.val == images[0].id.val
+
+
+class TestChgrpRoot(RootCLITest):
+
+    def setup_method(self, method):
+        super(TestChgrpRoot, self).setup_method(method)
+        self.cli.register("chgrp", ChgrpControl, "TEST")
+        self.args += ["chgrp"]
+
+    def testHelp(self):
+        self.args += ["-h"]
+        self.cli.invoke(self.args, strict=True)
+
+    def testNonMember(self):
+        new_image = self.new_image()
+        new_image = self.update.saveAndReturnObject(new_image)
+
+        # create a new group which the current root user is not member of
+        group = self.new_group()
+
+        # try to move the image to the new group
+        self.args += ['%s' % group.id.val, '/Image:%s' % new_image.id.val]
+        self.cli.invoke(self.args, strict=True)
+
+        # check the image has not been moved
+        img = self.query.get('Image', new_image.id.val)
+        assert img.id.val == new_image.id.val

@@ -49,5 +49,5 @@ class CLITest(AbstractCLITest):
 class RootCLITest(AbstractCLITest):
 
     def setup_method(self, method):
-        super(CLITest, self).setup_method(method)
+        super(RootCLITest, self).setup_method(method)
         self.args = self.root_login_args()
