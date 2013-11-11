@@ -949,14 +949,10 @@ class UserProfile
                 field = items.get(key);
                 if (field != null) {
                     v = field.getText();
-                    if (v != null) {
-                        v = v.trim();
+                    if (v != null && v.trim().length() == 0) {
                         if (EditorUtil.FIRST_NAME.equals(key) ||
                                 EditorUtil.LAST_NAME.equals(key)) {
-                            if (v.length() == 0) {
-                                saveButton.setEnabled(false);
-                                return false;
-                            }
+                            return false;
                         }
                     }
                 }
@@ -972,7 +968,8 @@ class UserProfile
                     if (v != null) {
                         v = v.trim();
                         value = (String) entry.getValue();
-                        if (value != null && !v.equals(value)) {
+                        if (value == null) value = "";
+                        if (!v.equals(value)) {
                             saveButton.setEnabled(true);
                             return true;
                         }
