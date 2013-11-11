@@ -174,7 +174,7 @@ public class PixelsProcessor implements ModelProcessor
                 imageName = null;
             }
             if (userSpecifiedName != null) {
-                saveName = userSpecifiedName.trim();
+                saveName = userSpecifiedName;
 
                 if (reader.getSeriesCount() > 1) {
                     if (imageName == null) { 
