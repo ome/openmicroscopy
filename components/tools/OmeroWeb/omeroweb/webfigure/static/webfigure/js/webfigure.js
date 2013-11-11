@@ -497,6 +497,8 @@
             this.$canvas = $("#canvas");
             this.$canvas_wrapper = $("#canvas_wrapper");
             this.$paper = $("#paper");
+            this.$copyBtn = $(".copy.btn");
+            this.$pasteBtn = $(".paste.btn");
 
             var self = this;
 
@@ -530,7 +532,9 @@
 
         events: {
             "click .add_panel": "addPanel",
-            "click .delete_panel": "deleteSelectedPanels"
+            "click .delete_panel": "deleteSelectedPanels",
+            "click .copy.btn": "copy_selected_panels",
+            "click .paste.btn": "paste_panels",
         },
 
         keyboardEvents: {
@@ -549,6 +553,7 @@
                 delete copy.id;
                 cd.push(copy);
             });
+            this.$pasteBtn.removeAttr("disabled");
         },
 
         paste_panels: function() {
@@ -707,8 +712,10 @@
             var $delete_panel = $('.delete_panel', this.$el);
             if (this.model.getSelected().length > 0) {
                 $delete_panel.removeAttr("disabled");
+                this.$copyBtn.removeAttr("disabled");
             } else {
                 $delete_panel.attr("disabled", "disabled");
+                this.$copyBtn.attr("disabled", "disabled");
             }
         },
 
