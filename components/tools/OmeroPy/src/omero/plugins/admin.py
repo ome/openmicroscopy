@@ -1079,7 +1079,8 @@ OMERO Diagnostics %s
                 dir_size = self.getdirsize(omero_temp_dir)
                 dir_size = "   (Size: %s)" % dir_size
             self.ctx.out("OMERO %s dir: '%s'\tExists? %s\tIs writable? %s%s" %
-                         (dir_name, dir_path, exists, is_writable, dir_size))
+                         (dir_name, dir_path, dir_path_exists, is_writable,
+                          dir_size))
 
         from omero.plugins.web import WebControl
         try:
