@@ -24,8 +24,8 @@ Tree Thumbnail Synchronization
         Select Window                     tree viewer window
         Expand Browser                    project
         ${image icon name}=               Get Insight Image Icon Name         treeviewer                            IMAGE
-        ${first tree path}=               Get Tree Path With Icon And Suffix  ${image icon name}  /${first image}   project tree
-        ${second tree path}=              Get Tree Path With Icon And Suffix  ${image icon name}  /${second image}  project tree
+        ${first tree path}=               Get Tree Path With Icon And Name    ${image icon name}  ${first image}   project tree
+        ${second tree path}=              Get Tree Path With Icon And Name    ${image icon name}  ${second image}  project tree
         Click On Tree Node                project tree                        ${first tree path}
         ${selected border color}=         Get Thumbnail Border Color          ${first image}
         ${unselected border color}=       Get AWT Color                       util.ui.border.FrameBorder.DEFAULT_COLOR
