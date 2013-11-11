@@ -79,7 +79,7 @@ class TestChgrp(CLITest):
         new_object = self.get_object_by_name(object_type)
         assert new_object.name.val == self.name
 
-        # create a new group and change the object group
+        # create a new group and move the object to the new group
         group = self.add_new_group()
         self.args += ['%s' % group.id.val,
                       '/%s:%s' % (object_type, new_object.id.val)]
@@ -99,20 +99,59 @@ class TestChgrp(CLITest):
         self.name = self.uuid()
         self.create_object("Image")
 
-        # check object has been created
+        # check image has been created
         new_object = self.get_object_by_name("Image")
         assert new_object.name.val == self.name
 
-        # create a new group and change the object group
+        # create a new group and move the image to the new group
         group = self.add_new_group(perms=perms)
         self.args += ['%s' % group.id.val, '/Image:%s' % new_object.id.val]
         self.cli.invoke(self.args, strict=True)
 
-        # check the object cannot be queried in the current session
+        # check the image cannot be queried in the current session
         new_object = self.get_object_by_name("Image")
         assert new_object is None
 
-        # change the session context and check the object has been moved
+        # change the session context and check the image has been moved
         self.set_context(self.client, group.id.val)
         new_object = self.get_object_by_name("Image")
         assert new_object.name.val == self.name
+
+    def testFileset(self):
+        # 2 images sharing a fileset
+        images = self.importMIF(2)
+        img = self.query.get('Image', images[0].id.val)
+        filesetId = img.fileset.id.val
+        fileset = self.query.get('Fileset', filesetId)
+        assert fileset is not None
+
+        # create a new group and move the fileset to the new group
+        group = self.add_new_group()
+        self.args += ['%s' % group.id.val, '/Fileset:%s' % filesetId]
+        self.cli.invoke(self.args, strict=True)
+
+        # # check the image cannot be queried in the current session
+        # image = self.query.get('Image', images[0].id.val)
+        # assert img is None
+
+        # change the session context and check the image has been moved
+        self.set_context(self.client, group.id.val)
+        img = self.query.get('Image', images[0].id.val)
+        assert img.id.val == images[0].id.val
+
+    def testFilesetOneImg(self):
+        # 2 images sharing a fileset
+        images = self.importMIF(2)
+        img = self.query.get('Image', images[0].id.val)
+        filesetId = img.fileset.id.val
+        fileset = self.query.get('Fileset', filesetId)
+        assert fileset is not None
+
+        # create a new group and try to move only one image to the new group
+        group = self.add_new_group()
+        self.args += ['%s' % group.id.val, '/Image:%s' % images[0].id.val]
+        self.cli.invoke(self.args, strict=True)
+
+        # check the image is still in the current group
+        img = self.query.get('Image', images[0].id.val)
+        assert img.id.val == images[0].id.val
