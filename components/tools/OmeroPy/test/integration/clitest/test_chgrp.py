@@ -25,7 +25,7 @@ from test.integration.clitest.cli import CLITest
 from omero.rtypes import rstring
 import pytest
 
-object_types = ["Dataset", "Project", "Plate", "Screen"]
+object_types = ["Image", "Dataset", "Project", "Plate", "Screen"]
 permissions = ["rw----", "rwr---", "rwra--", "rwrw--"]
 
 
@@ -46,6 +46,8 @@ class TestChgrp(CLITest):
             new_object = omero.model.PlateI()
         elif object_type == 'Screen':
             new_object = omero.model.ScreenI()
+        elif object_type == 'Image':
+            new_object = self.new_image()
         new_object.name = omero.rtypes.rstring(self.name)
         self.update.saveObject(new_object)
 
@@ -94,25 +96,23 @@ class TestChgrp(CLITest):
 
     @pytest.mark.parametrize("perms", permissions)
     def testPermission(self, perms):
-        object_type = "Dataset"
         self.name = self.uuid()
-        self.create_object(object_type)
+        self.create_object("Image")
 
         # check object has been created
-        new_object = self.get_object_by_name(object_type)
+        new_object = self.get_object_by_name("Image")
         assert new_object.name.val == self.name
 
         # create a new group and change the object group
         group = self.add_new_group(perms=perms)
-        self.args += ['%s' % group.id.val,
-                      '/%s:%s' % (object_type, new_object.id.val)]
+        self.args += ['%s' % group.id.val, '/Image:%s' % new_object.id.val]
         self.cli.invoke(self.args, strict=True)
 
         # check the object cannot be queried in the current session
-        new_object = self.get_object_by_name(object_type)
+        new_object = self.get_object_by_name("Image")
         assert new_object is None
 
         # change the session context and check the object has been moved
         self.set_context(self.client, group.id.val)
-        new_object = self.get_object_by_name(object_type)
+        new_object = self.get_object_by_name("Image")
         assert new_object.name.val == self.name
