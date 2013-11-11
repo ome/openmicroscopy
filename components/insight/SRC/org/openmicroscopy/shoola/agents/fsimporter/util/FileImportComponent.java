@@ -643,6 +643,7 @@ public class FileImportComponent
 				label.setFont(f.deriveFont(f.getStyle(), f.getSize()-2));
 			}
 			label.setVisible(false);
+			label.addPropertyChangeListener(this);
 			imageLabels.add(label);
 		}
 		fileNameLabel = new JLabel(getFile().getName());
