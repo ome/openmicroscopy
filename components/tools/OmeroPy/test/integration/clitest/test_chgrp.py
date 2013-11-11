@@ -105,11 +105,8 @@ class TestChgrp(CLITest):
 
         # try to move the image to the new group
         self.args += ['%s' % group.id.val, '/Image:%s' % iid]
-        self.cli.invoke(self.args, strict=True)
-
-        # check the image has not been moved
-        img = self.query.get("Image", iid)
-        assert img.id.val == iid
+        with pytest.raises(NonZeroReturnCode):
+            self.cli.invoke(self.args, strict=True)
 
     def testGroupName(self):
         iid = self.create_object("Image")
@@ -184,14 +181,14 @@ class TestChgrp(CLITest):
 
     @pytest.mark.parametrize("group_prefix", group_prefixes)
     def testNonExistingGroupId(self, group_prefix):
+        self.args += ['%s-1' % group_prefix, '/Image:1']
         with pytest.raises(NonZeroReturnCode):
-            self.args += ['%s-1' % group_prefix, '/Image:1']
             self.cli.invoke(self.args, strict=True)
 
     def testNonExistingGroupName(self):
+        self.args += [self.uuid(), '/Image:1']
         with pytest.raises(NonZeroReturnCode):
-            self.args += [self.uuid(), '/Image:1']
-            self.cli.invoke(self.args, strict=True)
+                self.cli.invoke(self.args, strict=True)
 
 
 class TestChgrpRoot(RootCLITest):
@@ -214,8 +211,5 @@ class TestChgrpRoot(RootCLITest):
 
         # try to move the image to the new group
         self.args += ['%s' % group.id.val, '/Image:%s' % new_image.id.val]
-        self.cli.invoke(self.args, strict=True)
-
-        # check the image has not been moved
-        img = self.query.get('Image', new_image.id.val)
-        assert img.id.val == new_image.id.val
+        with pytest.raises(NonZeroReturnCode):
+            self.cli.invoke(self.args, strict=True)
