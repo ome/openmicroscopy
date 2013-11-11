@@ -26,6 +26,7 @@ from omero.plugins.sessions import SessionsControl
 from test.integration.library import ITest
 from omero_ext.mox import Mox
 
+
 class AbstractCLITest(ITest):
 
     def setup_method(self, method):
@@ -40,11 +41,13 @@ class AbstractCLITest(ITest):
         self.mox.UnsetStubs()
         self.mox.VerifyAll()
 
+
 class CLITest(AbstractCLITest):
 
     def setup_method(self, method):
         super(CLITest, self).setup_method(method)
         self.args = self.login_args()
+
 
 class RootCLITest(AbstractCLITest):
 

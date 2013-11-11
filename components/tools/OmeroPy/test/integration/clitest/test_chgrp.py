@@ -28,6 +28,7 @@ import pytest
 object_types = ["Image", "Dataset", "Project", "Plate", "Screen"]
 permissions = ["rw----", "rwr---", "rwra--", "rwrw--"]
 
+
 class TestChgrp(CLITest):
 
     def setup_method(self, method):
