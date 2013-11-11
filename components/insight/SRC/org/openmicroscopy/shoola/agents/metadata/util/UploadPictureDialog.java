@@ -38,6 +38,7 @@ import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRootPane;
 import javax.swing.JTextField;
@@ -161,12 +162,15 @@ public class UploadPictureDialog
                 UIUtilities.formatToolTipText("Closes the dialog."));
         cancelButton.addActionListener(this);
         cancelButton.setActionCommand(""+CANCEL);
-        scriptArea = (JTextField) UIUtilities.findComponent(chooser, 
+        scriptArea = (JTextField) UIUtilities.findComponent(chooser,
                 JTextField.class);
         if (scriptArea != null) {
             scriptArea.getDocument().addDocumentListener(this);
             saveButton.setEnabled(false);
         }
+        JLabel label = (JLabel) UIUtilities.findComponent(chooser, JLabel.class);
+        if (label != null)
+            label.setText("Photo to Upload:");
     }
 
     /** Closes and disposes. */
