@@ -20,6 +20,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 import omero
+from omero.cli import NonZeroReturnCode
 from omero.plugins.chgrp import ChgrpControl
 from test.integration.clitest.cli import CLITest, RootCLITest
 from omero.rtypes import rstring
@@ -27,7 +28,7 @@ import pytest
 
 object_types = ["Image", "Dataset", "Project", "Plate", "Screen"]
 permissions = ["rw----", "rwr---", "rwra--", "rwrw--"]
-group_prefixes = ["Group", "ExperimenterGroup"]
+group_prefixes = ["", "Group:", "ExperimenterGroup:"]
 
 
 class TestChgrp(CLITest):
@@ -51,7 +52,7 @@ class TestChgrp(CLITest):
             new_object = self.new_image()
         new_object.name = rstring("")
         new_object = self.update.saveAndReturnObject(new_object)
-        
+
         # check object has been created
         found_object = self.query.get(object_type, new_object.id.val)
         assert found_object.id.val == new_object.id.val
@@ -133,7 +134,7 @@ class TestChgrp(CLITest):
         group = self.add_new_group()
 
         # try to move the image to the new group
-        self.args += ['%s:%s' % (group_prefix, group.id.val),
+        self.args += ['%s%s' % (group_prefix, group.id.val),
                       '/Image:%s' % iid]
         self.cli.invoke(self.args, strict=True)
 
@@ -180,6 +181,17 @@ class TestChgrp(CLITest):
         # check the image is still in the current group
         img = self.query.get('Image', images[0].id.val)
         assert img.id.val == images[0].id.val
+
+    @pytest.mark.parametrize("group_prefix", group_prefixes)
+    def testNonExistingGroupId(self, group_prefix):
+        with pytest.raises(NonZeroReturnCode):
+            self.args += ['%s-1' % group_prefix, '/Image:1']
+            self.cli.invoke(self.args, strict=True)
+
+    def testNonExistingGroupName(self):
+        with pytest.raises(NonZeroReturnCode):
+            self.args += [self.uuid(), '/Image:1']
+            self.cli.invoke(self.args, strict=True)
 
 
 class TestChgrpRoot(RootCLITest):
