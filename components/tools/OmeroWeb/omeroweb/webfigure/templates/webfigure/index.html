@@ -459,6 +459,10 @@
             filter: FlipH;
             -ms-filter: "FlipH";
         }
+
+        .colorpicker span, .label-color span:first-child {
+            border: solid 1px #bbb;
+        }
     </style>
 
 </head>
@@ -737,7 +741,7 @@
                 <span data-color="<%= color %>" style="background-color:#<%= color %>">&nbsp &nbsp &nbsp</span>
                 <span class="caret"></span>
             </button>
-            <ul class="dropdown-menu" role="menu">
+            <ul class="dropdown-menu colorpicker" role="menu">
                 <li><a href="#">
                     <span data-color="000000" style="background-color:#000">&nbsp &nbsp &nbsp</span>&nbsp Black
                 </a></li>
@@ -869,7 +873,7 @@
                 <span data-color="<%= l.color %>" style="background-color:#<%= l.color %>">&nbsp &nbsp &nbsp</span>
                 <span class="caret"></span>
             </button>
-            <ul class="dropdown-menu" role="menu">
+            <ul class="dropdown-menu colorpicker" role="menu">
                 <li><a href="#">
                     <span data-color="000000" style="background-color:#000">&nbsp &nbsp &nbsp</span>&nbsp Black
                 </a></li>
@@ -1015,7 +1019,7 @@
                 <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
                     <span class="caret"></span>
                 </button>
-                <ul class="dropdown-menu" data-index="<%= i %>">
+                <ul class="dropdown-menu colorpicker" data-index="<%= i %>">
                     <li class="dropdown-header">Channel Color</li>
                     <li class="divider"></li>
                     <li><a data-color="0000FF" href="#">
