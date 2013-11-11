@@ -536,11 +536,12 @@
       var theT = viewport.getTPos();
         var theZ = viewport.getZPos();
         
+      {% if image %}
         // if the ROI plugin has not been initialised (method not available...) init and load ROIs...
       if (!viewport.viewportimg.get(0).show_rois) {
           var options = {'width':{{ image.getSizeX }}, 
                      'height':{{ image.getSizeY }},
-                     'json_url':'{% url webgateway_get_rois_json 000 %}'.replace('000', '{{ image.id }}')};
+                     'json_url':'{% url webgateway_get_rois_json image.id %}'};
           if (viewport.loadedImg.tiles) {
               options['tiles'] = true;
               options['canvas_name'] = 'roi_canvas_big';
@@ -548,6 +549,7 @@
           viewport.viewportimg.roi_display(options);
           viewport.viewportimg.get(0).setRoiZoom(viewport.viewportimg.get(0).getZoom());
       }
+      {% endif %}
       
       // Show postit. Table will be built on callback from loading
       $("#roi_table_postit").show();
