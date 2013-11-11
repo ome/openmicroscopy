@@ -88,8 +88,15 @@
             $(this).tab('show');
         });
 
-        $('.btn-sm, .navbar-header').tooltip({container: 'body', placement:'bottom', toggle:"tooltip"});
-
+        // If we're on Windows, update tool-tips for keyboard short cuts:
+        if (navigator.platform.toUpperCase().indexOf('WIN') > -1) {
+            $('.btn-sm').each(function(){
+                var $this = $(this);
+                    $this.attr('data-original-title', $this.attr('data-original-title').replace("⌘", "Ctrl+"));
+            });
+        }
+        // refresh tooltips
+       $('.btn-sm, .navbar-header').tooltip({container: 'body', placement:'bottom', toggle:"tooltip"});
 
         // Heavy lifting of PDF generation handled by OMERO.script...
         $("#create_figure_pdf").click(function(){
