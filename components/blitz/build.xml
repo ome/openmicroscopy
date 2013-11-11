@@ -213,6 +213,16 @@
 		</scons_py>
 	</target>
 
+    <target name="test-compile" depends="lifecycle.test-compile"
+        description="Unjars test dependencies and then calls lifecycle.test-compile">
+        <unjar src="${target.dir}/libs/test/common-test.jar"
+            dest="${classes.dir}">
+            <patternset>
+                <include name="original_metadata.txt"/>
+            </patternset>
+        </unjar>
+    </target>
+
 	<target name="dist" depends="package,install" unless="skip.compile"><!-- install for standalone -->
 	  <copy todir="${dist.dir}/include">
 	    <fileset dir="${resrc.dir}"  includes="**/*.ice,**/*.h"/>
