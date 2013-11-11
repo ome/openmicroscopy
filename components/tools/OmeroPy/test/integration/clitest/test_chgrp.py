@@ -117,6 +117,25 @@ class TestChgrp(CLITest):
         new_object = self.get_object_by_name("Image")
         assert new_object.name.val == self.name
 
+    def testNonAdminNonMember(self):
+        self.name = self.uuid()
+        self.create_object("Image")
+
+        # check image has been created
+        img = self.get_object_by_name("Image")
+        assert img.name.val == self.name
+
+        # create a new group which the current user is not member of
+        group = self.new_group()
+
+        # try to move the image to the new group
+        self.args += ['%s' % group.id.val, '/Image:%s' % img.id.val]
+        self.cli.invoke(self.args, strict=True)
+
+        # check the image has not been moved
+        img = self.get_object_by_name("Image")
+        assert img.name.val == self.name
+
     def testFileset(self):
         # 2 images sharing a fileset
         images = self.importMIF(2)
@@ -131,7 +150,7 @@ class TestChgrp(CLITest):
         self.cli.invoke(self.args, strict=True)
 
         # # check the image cannot be queried in the current session
-        # image = self.query.get('Image', images[0].id.val)
+        # img = self.query.get('Image', images[0].id.val)
         # assert img is None
 
         # change the session context and check the image has been moved
