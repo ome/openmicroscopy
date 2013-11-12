@@ -24,13 +24,15 @@
 
     <script type="text/javascript">
         $(document).ready(function(){
+                var unset = function() {
+                    var v = $(this).val();
+                    return (v.length == 0 || v == 'N/A');
+                }
                 // hide any unset fields. 
-                var invalidRows = $(".metadata_details input:not([value])").parent().parent();
+                var invalidRows = $(".metadata_details").find("input, select")
+                    .filter(unset)
+                    .parent().parent();
                 invalidRows.hide();
-                var naRows = $(".metadata_details input[value='N/A']").parent().parent();
-                naRows.hide();
-                var invalidSelects = $(".metadata_details select option[selected][value='']").parent().parent().parent();
-                invalidSelects.hide();
                 // set up toggling... add click button
                 var show_text = "Show unset fields";
                 var hide_text = "Hide unset fields";
@@ -43,12 +45,10 @@
                         if ($target.text() == show_text) $target.text(hide_text);
                         else $target.text(show_text);
                         // toggle fields
-                        var invalidRows = $(this).find("input:not([value])").parent().parent();
+                        var invalidRows = $(this).find("input, select")
+                            .filter(unset)
+                            .parent().parent();
                         invalidRows.toggle();
-                        var naRows = $(this).find("input[value='N/A']").parent().parent();
-                        naRows.toggle();
-                        var invalidSelects = $(this).find("select option[selected][value='']").parent().parent().parent();
-                        invalidSelects.toggle();
                         return false;
                     };
                 };
@@ -68,9 +68,7 @@
                   $(this).toggleClass('closed').next().slideToggle();
                 });
 
-                $('.can-collapse.defclose').each(function () {
-                  $(this).removeClass('defclose').toggleClass('closed').next().hide();
-                });
+                $('.can-collapse.defclose').removeClass('defclose').addClass('closed').next().hide();
 
             });
     </script>

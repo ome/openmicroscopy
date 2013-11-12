@@ -225,6 +225,11 @@
 				border-right:solid 1px rgba(255,255,255,.5);
 				background:#A1AAB3;
 			}
+
+			/* seems this doesn't work in ome.table_ie.css */
+			.tablesorter tbody tr.ui-selected {
+				background-color: #9CB2C9;
+			}
         
 		
 
