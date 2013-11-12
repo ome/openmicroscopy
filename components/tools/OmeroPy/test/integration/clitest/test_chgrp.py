@@ -70,32 +70,21 @@ class TestChgrp(CLITest):
         self.cli.invoke(self.args, strict=True)
 
     @pytest.mark.parametrize("object_type", object_types)
-    def testObject(self, object_type):
+    @pytest.mark.parametrize("target_group_perms", permissions)
+    @pytest.mark.parametrize("group_prefix", group_prefixes)
+    def testChgrpMyData(self, object_type, target_group_perms, group_prefix):
         oid = self.create_object(object_type)
 
         # create a new group and move the object to the new group
-        group = self.add_new_group()
-        self.args += ['%s' % group.id.val, '/%s:%s' % (object_type, oid)]
+        group = self.add_new_group(perms=target_group_perms)
+        self.args += ['%s%s' % (group_prefix, group.id.val),
+                      '/%s:%s' % (object_type, oid)]
         self.cli.invoke(self.args, strict=True)
 
         # change the session context and check the object has been moved
         self.set_context(self.client, group.id.val)
         new_object = self.query.get(object_type, oid)
         assert new_object.id.val == oid
-
-    @pytest.mark.parametrize("perms", permissions)
-    def testPermission(self, perms):
-        iid = self.create_object("Image")
-
-        # create a new group and move the image to the new group
-        group = self.add_new_group(perms=perms)
-        self.args += ['%s' % group.id.val, '/Image:%s' % iid]
-        self.cli.invoke(self.args, strict=True)
-
-        # change the session context and check the image has been moved
-        self.set_context(self.client, group.id.val)
-        new_img = self.query.get("Image", iid)
-        assert new_img.id.val == iid
 
     def testNonMember(self):
         iid = self.create_object("Image")
@@ -116,23 +105,6 @@ class TestChgrp(CLITest):
 
         # try to move the image to the new group
         self.args += ['%s' % group.name.val, '/Image:%s' % iid]
-        self.cli.invoke(self.args, strict=True)
-
-        # change the session context and check the image has been moved
-        self.set_context(self.client, group.id.val)
-        img = self.query.get("Image", iid)
-        assert img.id.val == iid
-
-    @pytest.mark.parametrize("group_prefix", group_prefixes)
-    def testGroupPrefix(self, group_prefix):
-        iid = self.create_object("Image")
-
-        # create a new group which the current user is not member of
-        group = self.add_new_group()
-
-        # try to move the image to the new group
-        self.args += ['%s%s' % (group_prefix, group.id.val),
-                      '/Image:%s' % iid]
         self.cli.invoke(self.args, strict=True)
 
         # change the session context and check the image has been moved
