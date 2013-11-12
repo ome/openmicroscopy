@@ -837,7 +837,7 @@ class BlitzObjectWrapper (object):
         """
         return self._linkObject(ann, "%sAnnotationLinkI" % self.OMERO_CLASS)
 
-    def linkAnnotation (self, ann, sameOwner=True):
+    def linkAnnotation (self, ann, sameOwner=False):
         """
         Link the annotation to this object.
         
@@ -3821,7 +3821,7 @@ class AnnotationWrapper (BlitzObjectWrapper):
             return None
 
     @classmethod
-    def createAndLink (klass, target, ns, val=None):
+    def createAndLink (klass, target, ns, val=None, sameOwner=False):
         """
         Class method for creating an instance of this AnnotationWrapper, setting ns and value
         and linking to the target. 
@@ -3837,7 +3837,7 @@ class AnnotationWrapper (BlitzObjectWrapper):
         this.setNs(ns)
         if val is not None:
             this.setValue(val)
-        target.linkAnnotation(this)
+        target.linkAnnotation(this, sameOwner=sameOwner)
 
     def getNs (self):
         """
