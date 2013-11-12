@@ -384,6 +384,7 @@ class UserProfile
         if (parentRootObject instanceof GroupData) {
             owner = setGroupOwner((GroupData) parentRootObject);
         }
+        ExperimenterData logUser = MetadataViewerAgent.getUserDetails();
         if (MetadataViewerAgent.isAdministrator()) {
             //Check that the user is not the one currently logged.
             oldPassword.setVisible(false);
@@ -398,6 +399,7 @@ class UserProfile
             //indicate if the user is an administrator.a
             admin = isUserAdministrator();
             adminBox.setSelected(admin);
+            adminBox.setEnabled(user.getId() != logUser.getId());
             ownerBox.addChangeListener(this);
         } else {
             ownerBox.setEnabled(false);
@@ -462,7 +464,6 @@ class UserProfile
                      */
                     public void changedUpdate(DocumentEvent e) {}
                 });
-        ExperimenterData logUser = MetadataViewerAgent.getUserDetails();
         if (user.getId() == logUser.getId()) {
             MouseAdapter adapter = new MouseAdapter() {
 
