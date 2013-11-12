@@ -128,6 +128,8 @@ public class InputStrategy
 				Boolean.valueOf(false));
 		defaultAttributes.put(MeasurementAttributes.SHOWTEXT, 
 				Boolean.valueOf(false));
+		defaultAttributes.put(MeasurementAttributes.SCALE_PROPORTIONALLY,
+				Boolean.valueOf(false));
 	}
 	
 	/**

@@ -11,6 +11,7 @@ import ome.parameters.Parameters;
 import ome.security.AdminAction;
 import ome.security.SecuritySystem;
 import ome.services.util.Executor;
+import ome.services.util.IceUtil;
 import ome.system.Principal;
 import ome.system.ServiceFactory;
 import omero.InternalException;
@@ -37,11 +38,6 @@ import Ice.UnmarshalOutOfBoundsException;
 public class ParamsHelper {
 
     private final static Logger log = LoggerFactory.getLogger(ParamsHelper.class);
-
-    /** The text representation of the format in a python script. */
-    public final static String PYTHONSCRIPT = "text/x-python";
-
-    public final static String OCTETSTREAM = "application/octet-stream";
 
     private final Acquirer acq;
 
@@ -167,8 +163,8 @@ public class ParamsHelper {
     }
 
     byte[] parse(JobParams params, Ice.Current current) {
-        Ice.OutputStream os = Ice.Util.createOutputStream(current.adapter
-                .getCommunicator());
+        Ice.OutputStream os = IceUtil.createSafeOutputStream(
+                current.adapter.getCommunicator());
         byte[] bytes = null;
         try {
             os.writeObject(params);
@@ -186,8 +182,8 @@ public class ParamsHelper {
             return null; // EARLY EXIT!
         }
 
-        Ice.InputStream is = Ice.Util.createInputStream(current.adapter
-                .getCommunicator(), data);
+        Ice.InputStream is = IceUtil.createSafeInputStream(
+                current.adapter.getCommunicator(), data);
         final JobParams[] params = new JobParams[1];
         try {
             is.readObject(new ReadObjectCallback() {

@@ -5,7 +5,7 @@
 #
 # $Id$
 #
-# Copyright 2006 University of Dundee. All rights reserved.
+# Copyright 2006-2013 University of Dundee. All rights reserved.
 # Use is subject to license terms supplied in LICENSE.txt
 #
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -73,6 +73,9 @@
 	<property name="OmeroPy.comp"     value="${tools.comp}/OmeroPy"/>
 	<property name="OmeroFs.comp"     value="${tools.comp}/OmeroFS"/>
 	<property name="OmeroMatlab.comp"     value="${tools.comp}/OmeroM"/>
+	<property name="uiLibrary.comp"     value="${tests.comp}/ui/library/java"/>
+	<property name="tests.comp"     value="${components.dir}/tests"/>
+
 
 	<!-- Build Path References -->
 	<path id="blitz.buildpath">
@@ -115,11 +118,24 @@
 	  <pathelement location="${tools.comp}/build.xml"/>
 	</path>
 
+	<path id="tests.buildpath">
+	  <pathelement location="${tests.comp}/build.xml"/>
+	</path>
+
+	<path id="uiLibrary.buildpath">
+	  <pathelement location="${uiLibrary.comp}/build.xml"/>
+	</path>
+
 	<!-- Tools -->
 	<property name="tools.comp"    value="${components.dir}/tools"/>
 	<property name="tools.dest"    value="${components.dir}/tools/target"/>
 	<property name="tools.jars"    value="${components.dir}/tools/target/jars"/>
 	<property name="tools.classes" value="${components.dir}/tools/target/service-classes"/>
+
+    <!-- Tests -->
+	<property name="tests.dest"    value="${components.dir}/tests/target"/>
+	<property name="tests.jars"    value="${components.dir}/tests/target/jars"/>
+	<property name="tests.classes" value="${components.dir}/tests/target/service-classes"/>
 
 	<!-- Relative paths -->
 	<property name="target.rel"    value="target"/>
@@ -166,6 +182,7 @@
 			<include name="**/*.dv"/>
 			<include name="**/*.bmp"/>
 			<include name="**/*.jpg"/>
+			<include name="**/*.png"/>
 			<include name="**/*.xml"/>
 			<include name="**/*.ldif"/>
 			<exclude name="**/.svn"/>
@@ -176,7 +193,7 @@
 
 	<macrodef name="copyResources">
 		<sequential>
-		<!-- Ignoring missining resources directories -->
+		<!-- Ignoring missing resources directories -->
 		<if><available file="${resrc.dir}"></available><then>
 			<copyResourceDir todir="${classes.dir}" fromdir="${resrc.dir}"/>
 		</then></if>
@@ -209,7 +226,6 @@
         <taskdef resource="net/sf/antcontrib/antlib.xml"
                  classpath="${lib.dir}/repository/ant-contrib-1.0b3.jar"/>
 
-        <available property="jdk1.5+" classname="java.net.Proxy"/>
         <available property="jdk1.6+" classname="java.util.ServiceLoader"/>
 
         <if>
@@ -269,6 +285,21 @@ with OMERO.
         <condition property="ice.home" value="${env.ICE_HOME}">
             <isset property="env.ICE_HOME"/>
         </condition>
+        <condition property="ice.slice2java" value="${env.SLICE2JAVA}">
+            <isset property="env.SLICE2JAVA"/>
+        </condition>
+        <condition property="ice.slice2py" value="${env.SLICE2PY}">
+            <isset property="env.SLICE2PY"/>
+        </condition>
+        <condition property="ice.slice2cpp" value="${env.SLICE2CPP}">
+            <isset property="env.SLICE2CPP"/>
+        </condition>
+        <condition property="ice.slice2html" value="${env.SLICE2HTML}">
+            <isset property="env.SLICE2HTML"/>
+        </condition>
+        <condition property="ice.slicepath" value="${env.SLICEPATH}">
+            <isset property="env.SLICEPATH"/>
+        </condition>
 
         <!-- See reading of etc/local.properties above -->
         <property file="${root.dir}/etc/local.properties.example" />
@@ -289,33 +320,39 @@ with OMERO.
         <!-- Post-import properties -->
         <property name="sql.dir"  value="${omero.home}/sql/${omero.db.profile}/${omero.db.version}__${omero.db.patch}"/>
 
-        <!-- Now we've taken from the environment, and from the files
-             try to find ICE_HOME ourselves -->
-        <condition property="ice.home" value="C:\Ice-3.3.1">
-            <available file="C:\Ice-3.3.1"/>
+	<!-- Fall back to unset if not set in environment explicitly -->
+	<condition property="ice.home" value="/usr/share/Ice">
+	    <available file="/usr/share/Ice" type="dir"/>
         </condition>
-        <condition property="ice.home" value="C:\Ice-3.3.1-VC90">
-            <available file="C:\Ice-3.3.1-VC90"/>
+	<property name="ice.home" value=""/>
+
+	<condition property="ice.slicepath" value="${ice.home}/slice">
+	    <available file="${ice.home}/slice" type="dir"/>
         </condition>
-        <condition property="ice.home" value="C:\Ice-3.3.0">
-            <available file="C:\Ice-3.3.0"/>
+	<property name="ice.slicepath" value="/ice_home_is_unset_or_invalid"/>
+
+	<condition property="ice.slice2java" value="${ice.home}/bin/slice2java">
+	    <available file="${ice.home}/bin/slice2java"/>
         </condition>
-        <condition property="ice.home" value="C:\Ice-3.3.0-VC90">
-            <available file="C:\Ice-3.3.0-VC90"/>
+	<property name="ice.slice2java" value="slice2java"/>
+
+	<condition property="ice.slice2py" value="${ice.home}/bin/slice2py">
+	    <available file="${ice.home}/bin/slice2py"/>
         </condition>
-        <condition property="ice.home" value="/opt/Ice-3.3">
-            <available file="/opt/Ice-3.3"/>
+	<property name="ice.slice2py" value="slice2py"/>
+
+	<condition property="ice.slice2cpp" value="${ice.home}/bin/slice2cpp">
+	    <available file="${ice.home}/bin/slice2cpp"/>
         </condition>
-        <condition property="ice.home" value="/opt/Ice-3.3.1">
-            <available file="/opt/Ice-3.3.1"/>
+	<property name="ice.slice2cpp" value="slice2cpp"/>
+
+	<condition property="ice.slice2html" value="${ice.home}/bin/slice2html">
+	    <available file="${ice.home}/bin/slice2html"/>
         </condition>
-        <condition property="ice.home" value="/opt/Ice-3.3.0">
-            <available file="/opt/Ice-3.3.0"/>
-        </condition>
-        <property name="ice.home" value="/usr/share/Ice"/>
+	<property name="ice.slice2html" value="slice2html"/>
 
         <!-- Checking the slice2* version before continuing. See #1185 -->
-        <exec outputproperty="executable.ice.version" executable="slice2java"
+        <exec outputproperty="executable.ice.version" executable="${ice.slice2java}"
             failifexecutionfails="false" failonerror="false" resultproperty="slice2java.result">
             <arg value="--version"/>
         </exec>
@@ -345,6 +382,12 @@ with OMERO.
                         <property name="versions.ice_lib" value="${versions.ice34_lib}"/>
                     </then>
                 </if>
+                <if><matches string="${executable.ice.version}" pattern="^3[.]5"/>
+                    <then>
+                        <property name="versions.ice" value="${versions.ice35}"/>
+                        <property name="versions.ice_lib" value="${versions.ice35_lib}"/>
+                    </then>
+                </if>
             </then>
             <elseif>
                 <equals arg1="3.3" arg2="${ice.compatibility}"/>
@@ -358,6 +401,13 @@ with OMERO.
                 <then>
                     <property name="versions.ice" value="${versions.ice34}"/>
                     <property name="versions.ice_lib" value="${versions.ice34_lib}"/>
+                </then>
+            </elseif>
+            <elseif>
+                <equals arg1="3.5" arg2="${ice.compatibility}"/>
+                <then>
+                    <property name="versions.ice" value="${versions.ice35}"/>
+                    <property name="versions.ice_lib" value="${versions.ice35_lib}"/>
                 </then>
             </elseif>
             <else>
@@ -513,9 +563,19 @@ with OMERO.
                 <property name="env.ARCH" value="detect"/>
                 <property name="env.RELEASE" value="debug"/>
                 <echo>Building with ICE_HOME=${ice.home}</echo>
+                <echo>Building with SLICE2JAVA=${ice.slice2java}</echo>
+                <echo>Building with SLICE2PY=${ice.slice2py}</echo>
+                <echo>Building with SLICE2CPP=${ice.slice2cpp}</echo>
+                <echo>Building with SLICE2HTML=${ice.slice2html}</echo>
+                <echo>Building with SLICEPATH=${ice.slicepath}</echo>
                 <exec executable="python" dir="@{dir}" failonerror="@{failonerror}">
                     <env key="PYTHONPATH" value="@{pythonpath}"/>
                     <env key="ICE_HOME" value="${ice.home}"/>
+                    <env key="SLICE2JAVA" value="${ice.slice2java}"/>
+                    <env key="SLICE2PY" value="${ice.slice2py}"/>
+                    <env key="SLICE2CPP" value="${ice.slice2cpp}"/>
+                    <env key="SLICE2HTML" value="${ice.slice2html}"/>
+                    <env key="SLICEPATH" value="${ice.slicepath}"/>
                     <arg value="${omero.home}/target/scons/scons.py"/>
                     <arg value="-Q"/>
                     <arg value="-j"/>

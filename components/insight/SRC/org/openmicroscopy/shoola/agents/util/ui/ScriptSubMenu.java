@@ -49,19 +49,19 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * </small>
  * @since 3.0-Beta4
  */
-public class ScriptSubMenu 
+public class ScriptSubMenu
 	extends JMenu
 {
 
 	/** The default name of the menu. */
 	private static final String NAME = "";
-	
+
 	/** The full path to the directory. */
 	private String path;
-	
+
 	/** The text before being formatted. */
 	private String unformattedText;
-	
+
 	/**
 	 * Moves up in the path if the name is already taken.
 	 * 
@@ -72,12 +72,12 @@ public class ScriptSubMenu
 	 * @param value The value to handle.
 	 * @return See above.
 	 */
-	private String getValue(String[] values, int index, String sep, 
+	private String getValue(String[] values, int index, String sep,
 			List<String> names, String value)
 	{
 		if (value == null || value.length() == 0) return value;
 		if (names.contains(value)) {
-			int n = values.length-1; 
+			int n = values.length-1;
 			if (n-index >= 0) {
 				String v = values[n-index]+sep+value;
 				return v;
@@ -86,9 +86,9 @@ public class ScriptSubMenu
 		}
 		return value;
 	}
-	
+
 	/** 
-	 * Formats the name of the menu. 
+	 * Formats the name of the menu.
 	 * 
 	 * @param names The collection of formatted names already taken.
 	 * @return See above.
@@ -101,15 +101,15 @@ public class ScriptSubMenu
 		if (values == null || sep == null) return path;
 		int index = 0;
 		if (path.endsWith(sep)) index = 1;
-		String value = getValue(values, index, sep, names, 
+		String value = getValue(values, index, sep, names,
 				values[values.length-1]);
 		if (value == null || value.trim().length() == 0) return NAME;
 		unformattedText = value;
-		value = value.replace(ScriptObject.PARAMETER_SEPARATOR, 
+		value = value.replace(ScriptObject.PARAMETER_SEPARATOR,
 				ScriptObject.PARAMETER_UI_SEPARATOR);
 		return WordUtils.capitalize(value);
 	}
-	
+
 	/**
 	 * Creates a new instance.
 	 * 
@@ -122,7 +122,7 @@ public class ScriptSubMenu
 		setText(formatName(names));
 		setToolTipText(path);
 	}
-	
+
 	/**
 	 * Adds the passed script to the menu.
 	 * 
@@ -135,7 +135,7 @@ public class ScriptSubMenu
 		add(item);
 		return item;
 	}
-	
+
 	/** 
 	 * Returns the text before being formatted.
 	 * 

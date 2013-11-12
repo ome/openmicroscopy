@@ -7,8 +7,7 @@
       <run>
         <exclude name="broken"/>
         <exclude name="ignore"/>
-        <exclude name="integration"/>
-      </run>        
+      </run>
     </groups>
     <packages>
       <package name="ome.dsl.*"/>

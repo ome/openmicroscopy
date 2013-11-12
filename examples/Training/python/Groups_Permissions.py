@@ -45,9 +45,9 @@ print "Permissions: %s (%s)" % (permission_names[perm_string], perm_string)
 
 # By default, any query applies to ALL data that we can access in our Current group.
 # =================================================================
-# This will be determined by group permissions.
-# E.g. in Read-Only or Read-Annotate groups, this will include other users' data
-# See http://www.openmicroscopy.org/site/support/omero4/server/permissions/
+# This will be determined by group permissions. E.g. in Read-Only or
+# Read-Annotate groups, this will include other users' data See
+# :doc:`/sysadmins/server-permissions`.
 
 projects = conn.listProjects()      # may include other users' data
 for p in projects:
@@ -78,5 +78,5 @@ print "Image: ", image,
 
 # Close connection:
 # =================================================================
-# When you're done, close the session to free up server resources.
+# When you are done, close the session to free up server resources.
 conn._closeSession()

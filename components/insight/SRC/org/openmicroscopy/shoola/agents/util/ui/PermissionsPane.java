@@ -354,6 +354,20 @@ public class PermissionsPane
 	}
 	
 	/**
+	 * Resets the permissions level.
+	 * 
+	 * @param permissions The level to handle.
+	 */
+	public void resetPermissions(PermissionData permissions)
+	{
+	    if (permissions == null) return;
+	    removeAll();
+	    initialize(permissions.getPermissionsLevel(), getBackground());
+	    revalidate();
+	    repaint();
+	}
+	
+	/**
 	 * Returns the selected permissions level i.e. one of the constants defined
 	 * by <code>AdminObject</code>.
 	 * 

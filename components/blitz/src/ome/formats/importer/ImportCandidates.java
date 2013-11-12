@@ -723,6 +723,7 @@ public class ImportCandidates extends DirectoryWalker
             // getUsedFiles.
             for (ImportContainer c : containers) {
                 c.setFile(new File(c.getUsedFiles()[0]));
+                c.updateUsedFilesTotalSize();
             }
             return this;
         }

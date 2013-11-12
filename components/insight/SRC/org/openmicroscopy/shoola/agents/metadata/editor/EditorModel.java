@@ -2,10 +2,10 @@
  * org.openmicroscopy.shoola.agents.metadata.editor.EditorModel 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -44,6 +44,8 @@ import javax.swing.Icon;
 import javax.swing.JFrame;
 
 //Third-party libraries
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
 
 //Application-internal dependencies
 import omero.model.OriginalFile;
@@ -97,8 +99,11 @@ import org.openmicroscopy.shoola.env.data.model.SaveAsParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
+import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
+import org.openmicroscopy.shoola.util.file.modulo.ModuloInfo;
+import org.openmicroscopy.shoola.util.file.modulo.ModuloParser;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 import pojos.AnnotationData;
 import pojos.BooleanAnnotationData;
@@ -144,9 +149,6 @@ import pojos.XMLAnnotationData;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since OME3.0
  */
 class EditorModel 
@@ -284,8 +286,10 @@ class EditorModel
 	 * Downloads the files.
 	 * 
 	 * @param folder The folder to save the file into.
+	 * @param override Flag indicating to override the existing file if it
+     * exists, <code>false</code> otherwise.
 	 */
-	private void downloadFiles(File folder)
+	private void downloadFiles(File folder, boolean override)
 	{
 		UserNotifier un = MetadataViewerAgent.getRegistry().getUserNotifier();
 		FileAnnotationData fa = (FileAnnotationData) getRefObject();
@@ -329,43 +333,48 @@ class EditorModel
 	 * Downloads the archived images. 
 	 * 
 	 * @param file The file where to download the content.
+	 * @param override Flag indicating to override the existing file if it
+     * exists, <code>false</code> otherwise.
 	 */
-	private void downloadImages(File file)
+	private void downloadImages(File file, boolean override)
 	{
-		List<ImageData> images = new ArrayList<ImageData>();
-		Collection l = parent.getRelatedNodes();
-		ImageData img;
-		if (l != null) {
-			Iterator i = l.iterator();
-			Object o;
-			while (i.hasNext()) {
-				o = (Object) i.next();
-				if (o instanceof ImageData) {
-					img = (ImageData) o;
-					images.add(img);
-				}
-			}
-		}
-		img = (ImageData) getRefObject();
-		images.add(img);
-		
-		if (images.size() > 0) {
-			Iterator<ImageData> i = images.iterator();
-			DownloadArchivedActivityParam p;
-			UserNotifier un =
-				MetadataViewerAgent.getRegistry().getUserNotifier();
-			IconManager icons = IconManager.getInstance();
-			if (images.size() > 1)
-				file = file.getParentFile();
-			Icon icon = icons.getIcon(IconManager.DOWNLOAD_22);
-			SecurityContext ctx = getSecurityContext();
-			while (i.hasNext()) {
-				p = new DownloadArchivedActivityParam(file, i.next(), icon);
-				un.notifyActivity(ctx, p);
-			}
-		}
+	    List<ImageData> images = new ArrayList<ImageData>();
+	    List<DataObject> l = getSelectedObjects();
+	    if (!CollectionUtils.isEmpty(l)) {
+	        Iterator<DataObject> i = l.iterator();
+	        DataObject o;
+	        List<Long> filesetIds = new ArrayList<Long>();
+	        long id;
+	        ImageData image;
+	        while (i.hasNext()) {
+	            o = i.next();
+	            if (isArchived(o)) {
+	                image = (ImageData) o;
+	                id = image.getFilesetId();
+	                if (id < 0) images.add(image);
+	                else if (!filesetIds.contains(id)) {
+	                    images.add(image);
+	                    filesetIds.add(id);
+	                }
+	            }
+	        }
+	    }
+	    if (!CollectionUtils.isEmpty(images)) {
+	        Iterator<ImageData> i = images.iterator();
+	        DownloadArchivedActivityParam p;
+	        UserNotifier un =
+	                MetadataViewerAgent.getRegistry().getUserNotifier();
+	        IconManager icons = IconManager.getInstance();
+	        Icon icon = icons.getIcon(IconManager.DOWNLOAD_22);
+	        SecurityContext ctx = getSecurityContext();
+	        while (i.hasNext()) {
+	            p = new DownloadArchivedActivityParam(file, i.next(), icon);
+	            p.setOverride(override);
+	            un.notifyActivity(ctx, p);
+	        }
+	    }
 	}
-	
+
     /** 
      * Sorts the passed collection of annotations by date starting with the
      * most recent.
@@ -537,7 +546,7 @@ class EditorModel
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Creates a new instance.
 	 * 
@@ -737,7 +746,7 @@ class EditorModel
 	 * 
 	 * @return See above.
 	 */
-	String getRefObjectDescription() 
+	String getRefObjectDescription()
 	{
 		String description = "";
 		Object ref = getPrimarySelect();
@@ -760,6 +769,9 @@ class EditorModel
 				WellData ws = (WellData) parentRefObject;
 				description = ws.getWellType();
 			}
+			ImageData img = ((WellSampleData) ref).getImage();
+			if (!StringUtils.isEmpty(img.getDescription()))
+			    description = img.getDescription();
 		} else if (ref instanceof FileData) 
 			description = null;//((FileData) ref).getDescription();
 		if (description == null) return "";
@@ -829,7 +841,7 @@ class EditorModel
 	{
 		if (!isMultiSelection()) return getRefObject();
 		List list = parent.getRelatedNodes();
-		if (list == null || list.size() == 0) return getRefObject();
+		if (CollectionUtils.isEmpty(list)) return getRefObject();
 		return list.get(0);
 	}
 	
@@ -948,6 +960,31 @@ class EditorModel
 		}
 		return false;
 	}
+
+	/**
+	 * Returns <code>true</code> if the object is a modulo annotation,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @param data The data to handle.
+	 * @return See above.
+	 */
+    boolean isModulo(Object data)
+    {
+        if (!(data instanceof XMLAnnotationData)) return false;
+        //parse the annotation.
+        XMLAnnotationData d = (XMLAnnotationData) data;
+        ModuloParser parser = new ModuloParser(d.getText());
+        try {
+            parser.parse();
+            return !CollectionUtils.isEmpty(parser.getModulos());
+        } catch (Exception e) {
+            LogMessage msg = new LogMessage();
+            msg.append("Error while reading modulo annotation.");
+            msg.print(e);
+            MetadataViewerAgent.getRegistry().getLogger().error(this, msg);
+        }
+        return false;
+    }
 	
 	/**
 	 * Returns <code>true</code> if the selected objects belong to several
@@ -1651,9 +1688,9 @@ class EditorModel
 		StructuredDataResults data = parent.getStructuredData();
 		List<FileAnnotationData> list = new ArrayList<FileAnnotationData>();
 		if (data == null) return list;
-		Collection<FileAnnotationData> attachements = data.getAttachments();
-		if (attachements == null) return list;
-		Iterator<FileAnnotationData> i = attachements.iterator();
+		Collection<FileAnnotationData> attachments = data.getAttachments();
+		if (attachments == null) return list;
+		Iterator<FileAnnotationData> i = attachments.iterator();
 		FileAnnotationData f;
 		String ns;
 		while (i.hasNext()) {
@@ -1667,8 +1704,8 @@ class EditorModel
 		if (refObject instanceof WellSampleData) {
 			data = parent.getParentStructuredData();
 			if (data != null) {
-				attachements = data.getAttachments();
-				if (attachements != null) {
+				attachments = data.getAttachments();
+				if (attachments != null) {
 					while (i.hasNext()) {
 						f = i.next();
 						ns = f.getNameSpace();
@@ -1694,9 +1731,9 @@ class EditorModel
 		StructuredDataResults data = parent.getStructuredData();
 		List<FileAnnotationData> l = new ArrayList<FileAnnotationData>();
 		if (data == null) return l;
-		Collection<FileAnnotationData> attachements = data.getAttachments(); 
-		if (attachements == null) return l;
-		Iterator<FileAnnotationData> i = attachements.iterator();
+		Collection<FileAnnotationData> attachments = data.getAttachments(); 
+		if (attachments == null) return l;
+		Iterator<FileAnnotationData> i = attachments.iterator();
 		FileAnnotationData f;
 		String ns;
 		while (i.hasNext()) {
@@ -1715,9 +1752,9 @@ class EditorModel
 		if (getRefObject() instanceof WellSampleData) {
 			data = parent.getParentStructuredData();
 			if (data != null) {
-				attachements = data.getAttachments();
-				if (attachements != null) {
-					i = attachements.iterator();
+				attachments = data.getAttachments();
+				if (attachments != null) {
+					i = attachments.iterator();
 					while (i.hasNext()) {
 						f = i.next();
 						ns = f.getNameSpace();
@@ -1914,7 +1951,81 @@ class EditorModel
 		}
 		return (Collection<AnnotationData>) sorter.sort(results);
 	}
-	
+
+	/**
+	 * Returns the modulo information if any associated to a given image.
+	 *
+	 * @return See above.
+	 */
+	Map<Integer, ModuloInfo> getModulo()
+	{
+	    Collection<XMLAnnotationData> annotations = getXMLAnnotations();
+	    Map<Integer, ModuloInfo> modulo = new HashMap<Integer, ModuloInfo>();
+        if (CollectionUtils.isEmpty(annotations)) return modulo;
+        ModuloParser parser;
+        Iterator<XMLAnnotationData> i = annotations.iterator();
+        XMLAnnotationData data;
+        List<ModuloInfo> infos;
+        Iterator<ModuloInfo> j;
+        ModuloInfo info;
+        while (i.hasNext()) {
+            data = i.next();
+            parser = new ModuloParser(data.getText());
+            try {
+                parser.parse();
+                infos = parser.getModulos();
+                j = infos.iterator();
+                while (j.hasNext()) {
+                   info = j.next();
+                    modulo.put(info.getModuloIndex(), info);
+                }
+            } catch (Exception e) {
+                LogMessage msg = new LogMessage();
+                msg.append("Error while reading modulo annotation.");
+                msg.print(e);
+                MetadataViewerAgent.getRegistry().getLogger().error(this, msg);
+            }
+        }
+        return modulo;
+	}
+
+	/**
+     * Returns the collection of XML annotations linked to the 
+     * <code>DataObject</code>.
+     * 
+     * @return See above.
+     */
+    Collection<XMLAnnotationData> getXMLAnnotations()
+    {
+        Map<DataObject, StructuredDataResults>
+        r = parent.getAllStructuredData();
+        if (r == null) return new ArrayList<XMLAnnotationData>();
+        Entry<DataObject, StructuredDataResults> e;
+        Iterator<Entry<DataObject, StructuredDataResults>>
+        i = r.entrySet().iterator();
+
+        Collection<XMLAnnotationData> files;
+        List<AnnotationData> results = new ArrayList<AnnotationData>();
+        List<Long> ids = new ArrayList<Long>();
+        Iterator<XMLAnnotationData> j;
+        XMLAnnotationData file;
+        while (i.hasNext()) {
+            e = i.next();
+            files = e.getValue().getXMLAnnotations();
+            if (files != null) {
+                j = files.iterator();
+                while (j.hasNext()) {
+                    file = j.next();
+                    if (!ids.contains(file.getId())) {
+                        results.add(file);
+                        ids.add(file.getId());
+                    }
+                }
+            }
+        }
+        return (Collection<XMLAnnotationData>) sorter.sort(results);
+    }
+
 	/**
 	 * Returns the collection of the other annotations that are linked to all
 	 * the selected objects.
@@ -2845,7 +2956,8 @@ class EditorModel
 	 */
 	void fireAdminSaving(Object data, boolean asynch)
 	{
-		if ((data instanceof ExperimenterData) || (data instanceof AdminObject))
+		if (data instanceof ExperimenterData || data instanceof AdminObject ||
+		    data instanceof GroupData)
 			parent.updateAdminObject(data, asynch);
 	}
 	
@@ -2855,11 +2967,24 @@ class EditorModel
 	 * 
 	 * @return See above.
 	 */
-	boolean isArchived()
+	boolean isArchived() { return isArchived(getImage()); }
+
+    /**
+     * Returns <code>true</code> if the imported set of pixels has been 
+     * archived, <code>false</code> otherwise.
+     * 
+     * @param ho The object to handle.
+     * @return See above.
+     */
+	boolean isArchived(DataObject ho)
 	{
-		ImageData img = getImage();
-		if (img == null) return false;
-		return img.isArchived();
+	    ImageData img = null;
+        if (ho instanceof WellSampleData)
+            img = ((WellSampleData) ho).getImage();
+        if (ho instanceof ImageData)
+            img = (ImageData) ho;
+        if (img == null) return false;
+        return img.isArchived();
 	}
 
 	/** 
@@ -2867,14 +2992,16 @@ class EditorModel
 	 * 
 	 * @param file The file where to download the content.
 	 * If it is a multi-images file a zip will be created.
+	 * @param override Flag indicating to override the existing file if it
+     * exists, <code>false</code> otherwise.
 	 */
-	void download(File file)
+	void download(File file, boolean override)
 	{
-		if (refObject instanceof ImageData) {
-			downloadImages(file);
-		} else if (refObject instanceof FileAnnotationData) {
-			downloadFiles(file);
-		}
+	    if (refObject instanceof ImageData) {
+	        downloadImages(file, override);
+	    } else if (refObject instanceof FileAnnotationData) {
+	        downloadFiles(file, override);
+	    }
 	}
 
 	/** 
@@ -3335,11 +3462,11 @@ class EditorModel
 		if (renderer != null) {
 			renderer.onSettingsApplied(rndControl);
 		} else {
-			renderer = RendererFactory.createRenderer(getSecurityContext(),
-					rndControl, getImage(), getRndIndex());
+		    renderer = RendererFactory.createRenderer(getSecurityContext(),
+                    rndControl, getImage(), getRndIndex(), getXMLAnnotations());
 		}
 	}
-	
+
 	/**
 	 * Returns the renderer.
 	 * 
@@ -3922,9 +4049,9 @@ class EditorModel
 		StructuredDataResults data = parent.getStructuredData();
 		List<FileAnnotationData> l = new ArrayList<FileAnnotationData>();
 		if (data == null) return l;
-		Collection<FileAnnotationData> attachements = data.getAttachments(); 
-		if (attachements == null) return l;
-		Iterator<FileAnnotationData> i = attachements.iterator();
+		Collection<FileAnnotationData> attachments = data.getAttachments(); 
+		if (attachments == null) return l;
+		Iterator<FileAnnotationData> i = attachments.iterator();
 		FileAnnotationData f;
 		String ns;
 		while (i.hasNext()) {
@@ -3934,9 +4061,26 @@ class EditorModel
 				l.add(f);
 			}
 		}
-		return l; 
+		return l;
 	}
 	
+	/**
+	 * Returns the object to save as.
+	 * 
+	 * @param ho The data object.
+	 * @return See above.
+	 */
+	private DataObject saveAsObject(Object ho)
+	{
+	    if (ho instanceof ImageData || ho instanceof DatasetData) {
+            return (DataObject) ho;
+        }
+	    if (ho instanceof WellSampleData) {
+	        return ((WellSampleData) ho).getImage();
+	    }
+	    return null;
+	}
+
 	/** 
 	 * Saves locally the images as <code>JPEG</code>, <code>PNG</code>
 	 * or <code>TIFF</code>.
@@ -3946,32 +4090,30 @@ class EditorModel
 	 */
 	void saveAs(File folder, int format)
 	{
-		Collection l = parent.getRelatedNodes();
-		List<DataObject> objects = new ArrayList<DataObject>();
-		Object o;
-		if (l != null) {
-			Iterator i = l.iterator();
-			while (i.hasNext()) {
-				o = (Object) i.next();
-				if (o instanceof ImageData || o instanceof DatasetData) {
-					objects.add((DataObject) o);
-				}
-			}
-		}
-		o = getRefObject();
-		if (o instanceof ImageData || o instanceof DatasetData) {
-			objects.add((DataObject) o);
-		}
-		
-		if (objects.size() > 0) {
-			IconManager icons = IconManager.getInstance();
-			SaveAsParam p = new SaveAsParam(folder, objects);
-			p.setIndex(format);
-			p.setIcon(icons.getIcon(IconManager.SAVE_AS_22));
-			UserNotifier un =
-				MetadataViewerAgent.getRegistry().getUserNotifier();
-			un.notifyActivity(getSecurityContext(), p);
-		}
+	    Collection l = parent.getRelatedNodes();
+	    List<DataObject> objects = new ArrayList<DataObject>();
+	    Object o;
+	    DataObject data;
+	    if (l != null) {
+	        Iterator i = l.iterator();
+	        while (i.hasNext()) {
+	            data = saveAsObject(i.next());
+	            if (data != null)
+	                objects.add(data);
+	        }
+	    }
+	    data = saveAsObject(getRefObject());
+	    if (data != null)
+	        objects.add(data);
+	    if (objects.size() > 0) {
+	        IconManager icons = IconManager.getInstance();
+	        SaveAsParam p = new SaveAsParam(folder, objects);
+	        p.setIndex(format);
+	        p.setIcon(icons.getIcon(IconManager.SAVE_AS_22));
+	        UserNotifier un =
+	                MetadataViewerAgent.getRegistry().getUserNotifier();
+	        un.notifyActivity(getSecurityContext(), p);
+	    }
 	}
 	
 	/**
@@ -3981,20 +4123,22 @@ class EditorModel
 	 */
 	List<DataObject> getSelectedObjects()
 	{
-		List<DataObject> objects = new ArrayList<DataObject>();
-		if (getRefObject() instanceof DataObject)
-			objects.add((DataObject) getRefObject());
-		Collection l = parent.getRelatedNodes();
-		if (l == null) return objects;
-		Iterator i = l.iterator();
-		Object o;
-		while (i.hasNext()) {
-			o = i.next();
-			if (o instanceof DataObject)
-				objects.add((DataObject) o);
-		}
-		
-		return objects;
+	    List<DataObject> objects = new ArrayList<DataObject>();
+	    Collection l = parent.getRelatedNodes();
+	    if (CollectionUtils.isEmpty(l)) {
+	        if (getRefObject() instanceof DataObject)
+	            objects.add((DataObject) getRefObject());
+	        return objects;
+	    }
+	    Iterator i = l.iterator();
+	    Object o;
+	    while (i.hasNext()) {
+	        o = i.next();
+	        if (o instanceof DataObject)
+	            objects.add((DataObject) o);
+	    }
+
+	    return objects;
 	}
 
 	/**
@@ -4182,6 +4326,16 @@ class EditorModel
 		//FileAnnotationData fa = getOriginalMetadata();
 		//return fa != null;
 		return true;
+	}
+
+	/**
+	 * Returns the groups the user is member of.
+	 * 
+	 * @return See above.
+	 */
+	Collection<GroupData> getAvailableGroups()
+	{
+	    return MetadataViewerAgent.getAvailableUserGroups();
 	}
 
 }

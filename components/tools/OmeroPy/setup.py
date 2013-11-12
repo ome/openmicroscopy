@@ -3,21 +3,23 @@
 """
    setuptools entry point
 
-   This script is used by the ant build (build.xml) to
-   package and test the OmeroPy bindings. For most uses,
-   see ant.
+   Tests run by default using the OmeroPy/dist egg as the omero python lib but you can override
+   that by using the --test-pythonpath flag to ./setup.py test.
 
-   Testing specific portions of OmeroPy, however, is easier
-   from this script after "ant tools-build" has been invoked.
+   For testing that require a running Omero server, the ice.config file must exist and hold
+   the proper configuration either at the same directory as this file or in some place
+   pointed to by the --test-ice-config flag to ./setup.py test.
 
    For example:
 
-      ./setup.py test -s test.pkg # Be careful of non test scripts
-      ./setup.py test -s test.pkg.module
-      ./setup.py test -s test.pkg.module.Class
-      ./setup.py test -s test.pkg.module.Class:function
+      ./setup.py test # this will run all tests under OmeroPy/test/
+      ./setup.py test -s test/gatewaytest # run all tests under OmeroPy/test/gatewaytest
+      ./setup.py test -k TopLevelObjects # run all tests that include TopLevelObjects in the name
+      ./setup.py test -x # exit on first failure
+      ./setup.py test --pdb # drop to the pdb debugger on failure
 
-   Copyright 2007 Glencoe Software, Inc. All rights reserved.
+
+   Copyright 2007-2013 Glencoe Software, Inc. All rights reserved.
    Use is subject to license terms supplied in LICENSE.txt
 
 """
@@ -25,6 +27,9 @@
 import glob
 import sys
 import os
+
+sys.path.append("..")
+from test_setup import PyTest
 
 for tools in glob.glob("../../../lib/repository/setuptools*.egg"):
     if tools.find(".".join(map(str, sys.version_info[0:2]))) > 0:
@@ -53,6 +58,9 @@ Python bindings to the OMERO.blitz server.
       package_dir = {"": "target"},
       packages=packages,
       package_data={'omero.gateway':['pilfonts/*'], 'omero.gateway.scripts':['imgs/*']},
-      test_suite='test.suite'
+      cmdclass = {'test': PyTest},
+      tests_require=['pytest'],
 )
+
+
 

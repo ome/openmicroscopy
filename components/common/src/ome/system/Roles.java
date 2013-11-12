@@ -1,7 +1,7 @@
 /*
  * ome.system.Roles
  *
- *   Copyright 2006 University of Dundee. All rights reserved.
+ *   Copyright 2006-2013 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -10,8 +10,8 @@ package ome.system;
 // Java imports
 import java.io.Serializable;
 
-import ome.annotations.RevisionDate;
-import ome.annotations.RevisionNumber;
+import com.google.common.base.Predicate;
+
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 
@@ -21,16 +21,34 @@ import ome.model.meta.ExperimenterGroup;
  * These values are also used during install to initialize the database.
  * 
  * @author Josh Moore, josh.moore at gmx.de
- * @version $Revision$, $Date$
  * @see ome.model.meta.Experimenter
  * @see ome.model.meta.ExperimenterGroup
  * @since 3.0-M3
  */
-@RevisionDate("$Date$")
-@RevisionNumber("$Revision$")
 public final class Roles implements Serializable {
 
-    private static final long serialVersionUID = -7130017567693194759L;
+    private static final long serialVersionUID = -2488864989534638213L;
+
+    public final Predicate<Experimenter> IS_ROOT_USER = new Predicate<Experimenter>() {
+        @Override
+        public boolean apply(Experimenter experimenter) {
+            return isRootUser(experimenter);
+        }
+    };
+
+    public final Predicate<ExperimenterGroup> IS_USER_GROUP = new Predicate<ExperimenterGroup>() {
+        @Override
+        public boolean apply(ExperimenterGroup group) {
+            return isUserGroup(group);
+        }
+    };
+
+    public final Predicate<ExperimenterGroup> IS_SYSTEM_GROUP = new Predicate<ExperimenterGroup>() {
+        @Override
+        public boolean apply(ExperimenterGroup group) {
+            return isSystemGroup(group);
+        }
+    };
 
     private final long rId;
 
@@ -44,29 +62,45 @@ public final class Roles implements Serializable {
 
     private final String ugName;
 
+    private final long guestId;
+
     private final String guestName;
+
+    private final long ggId;
+
+    private final String ggName;
 
     /** default constructor which assigns hard-coded values to all roles */
     public Roles() {
-        this.rId = 0L;
+        long nextUserId = 0;
+        long nextGroupId = 0;
+        /* these must be defined in the same order as in psql-footer.vm */
+        this.rId = nextUserId++;
         this.rName = "root";
-        this.sgId = 0L;
+        this.sgId = nextGroupId++;
         this.sgName = "system";
-        this.ugId = 1L;
+        this.ugId = nextGroupId++;
         this.ugName = "user";
+        this.guestId = nextUserId++;
         this.guestName = "guest";
+        this.ggId = nextGroupId++;
+        this.ggName = "guest";
     }
 
     /** constructor which allows full specification of all roles */
-    public Roles(long rootId, String rootName, long systemGroupId,
-            String systemGroupName, long userGroupId, String userGroupName) {
-        this.rId = rootId;
-        this.rName = rootName;
+    public Roles(long rootUserId, String rootUserName,
+            long systemGroupId, String systemGroupName, long userGroupId, String userGroupName,
+            long guestUserId, String guestUserName, long guestGroupId, String guestGroupName) {
+        this.rId = rootUserId;
+        this.rName = rootUserName;
         this.sgId = systemGroupId;
         this.sgName = systemGroupName;
         this.ugId = userGroupId;
         this.ugName = userGroupName;
-        this.guestName = "guest";
+        this.guestId = guestUserId;
+        this.guestName = guestUserName;
+        this.ggId = guestGroupId;
+        this.ggName = guestGroupName;
     }
 
     // ~ Checks
@@ -105,6 +139,20 @@ public final class Roles implements Serializable {
     }
 
     /**
+     * @return the id of the guest user
+     */
+    public long getGuestId() {
+        return guestId;
+    }
+
+    /**
+     * @return the {@link Experimenter#getOmeName()} of the guest user
+     */
+    public String getGuestName() {
+        return guestName;
+    }
+
+    /**
      * @return the id of the system group
      */
     public long getSystemGroupId() {
@@ -132,8 +180,17 @@ public final class Roles implements Serializable {
         return ugName;
     }
 
-    public String getGuestGroupName() {
-        return guestName;
+    /**
+     * @return the id of the guest group
+     */
+    public long getGuestGroupId() {
+        return ggId;
     }
 
+    /**
+     * @return the {@link ExperimenterGroup#getName()} of the guest group
+     */
+    public String getGuestGroupName() {
+        return ggName;
+    }
 }

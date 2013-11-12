@@ -135,11 +135,24 @@ public interface SqlAction {
      * which are also scripts. Null may be returned
      *
      * @param fileId
+     * @param mimetypes null implies all files are checked
      * @return
      */
-    String scriptRepo(long fileId);
+    String scriptRepo(long fileId, Set<String> mimetypes);
 
     int synchronizeJobs(List<Long> ids);
+
+    /**
+     * Calls {@link #findRepoFile(String, String, String, Set<String>)}
+     * passing null.
+     */
+    Long findRepoFile(String uuid, String dirname, String basename);
+
+    /**
+     * Calls {@link #findRepoFile(String, String, String, Set<String>)}
+     */
+    Long findRepoFile(String uuid, String dirname, String basename,
+            String mimetype);
 
     /**
      * Lookup the id of an {@link OriginalFile} in a given repository or
@@ -152,7 +165,7 @@ public interface SqlAction {
      * @return null if no {@link OriginalFile} is found, otherwise the id.
      */
     Long findRepoFile(String uuid, String dirname, String basename,
-            String mimetype);
+            Set<String> mimetypes);
 
     /**
      * Return a list of original file ids that all have a path value matching
@@ -255,18 +268,25 @@ public interface SqlAction {
      * @return the repository root
      */
     String findRepoRootPath(String uuid);
-    
+
     String findRepoFilePath(String uuid, long id);
 
     List<Long> findRepoPixels(String uuid, String dirname, String basename);
 
     Long findRepoImageFromPixels(long id);
 
-    int repoScriptCount(String uuid);
+    /**
+     * @param uuid repository identifier
+     * @param mimetypes file mimetypes to check; if null, all files;
+     */
+    int repoScriptCount(String uuid, Set<String> mimetypes);
 
     Long nextSessionId();
 
-    List<Long> fileIdsInDb(String uuid);
+    /**
+     * Return all IDs matching the given mimetypes, or all IDs if mimetypes is null.
+     */
+    List<Long> fileIdsInDb(String uuid, Set<String> mimetypes);
 
     Map<String, Object> repoFile(long value);
 
@@ -297,7 +317,12 @@ public interface SqlAction {
 
     Long sessionId(String uuid);
 
-    int isFileInRepo(String uuid, long id);
+    /**
+     * @param uuid Repository identifier
+     * @param id file identifier
+     * @param mimetypes Set of mimetypes to check; if null, all files.
+     */
+    int isFileInRepo(String uuid, long id, Set<String> mimetypes);
 
     int removePassword(Long id);
 
@@ -534,26 +559,82 @@ public interface SqlAction {
         }
 
         //
-        // FILES
+        // FILE & MIMETYPE METHODS
         //
+
+        /**
+         * Returns the "and_mimetype" clause which must be appended to a given
+         * query. Note: the rest of the SQL statement to which this clause is
+         * appended must use named SQL parameters otherwise "Can't infer the
+         * SQL type to use" will be raised.
+         *
+         * @param mimetypes If null, then "" will be returned.
+         * @param params sql parameter source to be passed to JDBC methods.
+         * @return Possibly empty String, but never null.
+         */
+        protected String addMimetypes(Collection<String> mimetypes, Map<String, Object> params) {
+            if (mimetypes != null) {
+                params.put("mimetypes", mimetypes);
+                return _lookup("and_mimetype"); //$NON-NLS-1$
+            }
+            return "";
+        }
+
+        public Long findRepoFile(String uuid, String dirname, String basename) {
+            return findRepoFile(uuid, dirname, basename, (Set<String>) null);
+        }
 
         public Long findRepoFile(String uuid, String dirname, String basename,
                 String mimetype) {
+            return findRepoFile(uuid, dirname, basename,
+                    mimetype == null ? null : Collections.singleton(mimetype));
+        }
+
+        public Long findRepoFile(String uuid, String dirname, String basename,
+                Set<String> mimetypes) {
 
             String findRepoFileSql = _lookup("find_repo_file"); //$NON-NLS-1$
-
+            Map<String, Object> params = new HashMap<String, Object>();
+            params.put("repo", uuid);
+            params.put("path", dirname);
+            params.put("name", basename);
+            findRepoFileSql += addMimetypes(mimetypes, params);
             try {
-                if (mimetype != null) {
-                    return _jdbc().queryForLong(
-                            findRepoFileSql + _lookup("and_mimetype"), //$NON-NLS-1$
-                            uuid, dirname, basename, mimetype);
-                } else {
-                    return _jdbc().queryForLong(findRepoFileSql, uuid, dirname, basename);
-                }
+                return _jdbc().queryForLong(findRepoFileSql, params);
             } catch (EmptyResultDataAccessException e) {
                 return null;
             }
         }
+
+        public int repoScriptCount(String uuid, Set<String> mimetypes) {
+            String query = _lookup("repo_script_count"); //$NON-NLS-1$
+            Map<String, Object> params = new HashMap<String, Object>();
+            params.put("repo", uuid);
+            query += addMimetypes(mimetypes, params);
+            return _jdbc().queryForInt(query, params);
+        }
+
+
+        public int isFileInRepo(String uuid, long id, Set<String> mimetypes) {
+            String query = _lookup("is_file_in_repo"); //$NON-NLS-1$
+            Map<String, Object> params = new HashMap<String, Object>();
+            params.put("repo", uuid);
+            params.put("file", id);
+            query += addMimetypes(mimetypes, params);
+            return _jdbc().queryForInt(query, params);
+        }
+
+        public List<Long> fileIdsInDb(String uuid, Set<String> mimetypes) {
+            String query = _lookup("file_id_in_db"); //$NON-NLS-1$
+            Map<String, Object> params = new HashMap<String, Object>();
+            params.put("repo", uuid);
+            query += addMimetypes(mimetypes, params);
+            return _jdbc().query(query, new IdRowMapper(), params);
+        }
+
+        //
+        // OTHER FILE METHODS
+        //
 
         public List<Long> findRepoFiles(String uuid, String dirname) {
             try {
@@ -655,11 +736,15 @@ public interface SqlAction {
                     fileId);
         }
 
-        public String scriptRepo(long fileId) {
+        public String scriptRepo(long fileId, Set<String> mimetypes) {
+
+            String query = _lookup("file_repo_of_script"); //$NON-NLS-1$
+            Map<String, Object> params = new HashMap<String, Object>();
+            params.put("file", fileId);
+            query += addMimetypes(mimetypes, params);
+
             try {
-                return _jdbc().queryForObject(
-                    _lookup("file_repo_of_script"), String.class, //$NON-NLS-1$
-                    fileId);
+                return _jdbc().queryForObject(query, String.class, params);
             } catch (EmptyResultDataAccessException erdae) {
                 return null;
             }

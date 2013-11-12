@@ -442,9 +442,10 @@ public class SessionI implements _SessionOperations {
                         __curr.ctx.put(CLIENTUUID.value, clientId);
                         CloseableServant cs = (CloseableServant) servant;
                         cs.close(__curr);
-                    } else {
-                        log.error("Unknown servant type: " + servant);
                     }
+                    // Now ignoring all non-CloseableServants, since
+                    // that is *the* interface that should be used
+                    // for any cleanup. See #11378
                 } catch (Exception e) {
                     log.error("Error destroying servant: " + idName + "="
                             + servant, e);

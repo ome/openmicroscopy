@@ -2186,6 +2186,46 @@ class _BlitzGateway (object):
 
         return self.getObjects("Screen", params=params)
     
+    def listOrphans (self, obj_type, eid=None, params=None): 
+        """
+        List orphaned Datasets, Images, Plates controlled by the security system, 
+        Optionally filter by experimenter 'eid'
+
+        @param obj_type:    'Dataset', 'Image', 'Plate'
+        @param eid:         experimenter id
+        @type eid:          Long
+        @param params:      omero.sys.ParametersI, can be used for pagination, filtering etc.
+        @param attributes:  Map of key-value pairs to filter results by. Key must be attribute of obj_type. E.g. 'name', 'ns'
+        @return:            Generator yielding Datasets
+        @rtype:             L{DatasetWrapper} generator
+
+        """
+
+        links = {'Dataset':('ProjectDatasetLink', DatasetWrapper), 
+                'Image':('DatasetImageLink', ImageWrapper),
+                'Plate':('ScreenPlateLink', PlateWrapper)}
+
+        if params is None:
+            params = omero.sys.ParametersI()
+
+        if eid is not None:
+            params.exp(eid)
+
+        query, params, wrapper = self.buildQuery(obj_type, params=params)
+        query += "where" not in query and " where " or " and "
+        query += " not exists (select obl from %s as obl where " \
+                 "obl.child=obj.id) " % ( links[obj_type][0])
+
+        if obj_type == 'Image':
+            query += " and not exists ( select ws from WellSample as ws "\
+                     "where ws.image=obj.id "
+            if eid is not None:
+                query += " and ws.details.owner.id=:eid "
+            query += ")"
+
+        result = self.getQueryService().findAllByQuery(query, params, self.SERVICE_OPTS)
+        for r in result:
+            yield wrapper(self, r)
     #################################################
     ## IAdmin
     
@@ -2723,7 +2763,7 @@ class _BlitzGateway (object):
         for e in q.findAllByQuery(sql,p,self.SERVICE_OPTS):
             yield AnnotationWrapper._wrap(self, e)
 
-    def createImageFromNumpySeq (self, zctPlanes, imageName, sizeZ=1, sizeC=1, sizeT=1, description=None, dataset=None):
+    def createImageFromNumpySeq (self, zctPlanes, imageName, sizeZ=1, sizeC=1, sizeT=1, description=None, dataset=None, sourceImageId=None, channelList=None):
         """
         Creates a new multi-dimensional image from the sequence of 2D numpy arrays in zctPlanes.
         zctPlanes should be a generator of numpy 2D arrays of shape (sizeY, sizeX) ordered
@@ -2733,9 +2773,10 @@ class _BlitzGateway (object):
         sizeZ = original.getSizeZ()
         sizeC = original.getSizeC()
         sizeT = original.getSizeT()
+        clist = range(sizeC)
         zctList = []
         for z in range(sizeZ):
-            for c in range(sizeC):
+            for c in clist:
                 for t in range(sizeT):
                     zctList.append( (z,c,t) )
         def planeGen():
@@ -2743,48 +2784,71 @@ class _BlitzGateway (object):
             for p in planes:
                 # perform some manipulation on each plane
                 yield p
-        createImageFromNumpySeq (planeGen(), imageName, sizeZ=sizeZ, sizeC=sizeC, sizeT=sizeT
+        createImageFromNumpySeq (planeGen(), imageName, sizeZ=sizeZ, sizeC=sizeC, sizeT=sizeT, sourceImageId=1, channelList=clist)
 
         @param session          An OMERO service factory or equivalent with getQueryService() etc.
         @param zctPlanes        A generator of numpy 2D arrays, corresponding to Z-planes of new image.
         @param imageName        Name of new image
         @param description      Description for the new image
         @param dataset          If specified, put the image in this dataset. omero.model.Dataset object
-
+        @param sourceImageId    If specified, copy this image with metadata, then add pixel data
+        @param channelList      Copies metadata from these channels in source image (if specified). E.g. [0,2]
         @return The new OMERO image: omero.model.ImageI
         """
         queryService = self.getQueryService()
         pixelsService = self.getPixelsService()
         rawPixelsStore = self.c.sf.createRawPixelsStore()    # Make sure we don't get an existing rpStore
-        #renderingEngine = self.createRenderingEngine()
         containerService = self.getContainerService()
         updateService = self.getUpdateService()
 
-        def createImage(firstPlane):
-            """ Create our new Image once we have the first plane in hand """
-            # need to map numpy pixel types to omero - don't handle: bool_, character, int_, int64, object_
-            pTypes = {'int8':'int8', 'int16':'int16', 'uint16':'uint16', 'int32':'int32', 'float_':'float', 'float8':'float', 
-                        'float16':'float', 'float32':'float', 'float64':'double', 'complex_':'complex', 'complex64':'complex'}
-            dType = firstPlane.dtype.name
-            if dType not in pTypes: # try to look up any not named above
-                pType = dType
-            else:
-                pType = pTypes[dType]
-            pixelsType = queryService.findByQuery("from PixelsType as p where p.value='%s'" % pType, None) # omero::model::PixelsType
-            if pixelsType is None:
-                raise Exception("Cannot create an image in omero from numpy array with dtype: %s" % dType)
-            sizeY, sizeX = firstPlane.shape
-            channelList = range(1, sizeC+1)
-            iId = pixelsService.createImage(sizeX, sizeY, sizeZ, sizeT, channelList, pixelsType, imageName, description, self.SERVICE_OPTS)
-            imageId = iId.getValue()
-            return containerService.getImages("Image", [imageId], None, self.SERVICE_OPTS)[0]
+        import numpy
 
-        def uploadPlane(plane, z, c, t):
-            byteSwappedPlane = plane.byteswap();
+        def createImage(firstPlane, channelList):
+            """ Create our new Image once we have the first plane in hand """
+            convertToType = None
+            sizeY, sizeX = firstPlane.shape
+            if sourceImageId is not None:
+                if channelList is None:
+                    channelList = range(sizeC)
+                iId = pixelsService.copyAndResizeImage(sourceImageId, rint(sizeX), rint(sizeY), rint(sizeZ), rint(sizeT), channelList, None, False, self.SERVICE_OPTS)
+                # need to ensure that the plane dtype matches the pixels type of our new image
+                img = self.getObject("Image", iId.getValue())
+                newPtype = img.getPrimaryPixels().getPixelsType().getValue()
+                omeroToNumpy = {'int8':'int8', 'uint8':'uint8', 'int16':'int16', 'uint16':'uint16', 'int32':'int32', 'uint32':'uint32', 'float':'float32', 'double':'double'}
+                if omeroToNumpy[newPtype] != firstPlane.dtype.name:
+                    convertToType = getattr(numpy, omeroToNumpy[newPtype])
+                img._obj.setName(rstring(imageName))
+                updateService.saveObject(img._obj, self.SERVICE_OPTS)
+            else:
+                # need to map numpy pixel types to omero - don't handle: bool_, character, int_, int64, object_
+                pTypes = {'int8':'int8', 'int16':'int16', 'uint16':'uint16', 'int32':'int32', 'float_':'float', 'float8':'float',
+                            'float16':'float', 'float32':'float', 'float64':'double', 'complex_':'complex', 'complex64':'complex'}
+                dType = firstPlane.dtype.name
+                if dType not in pTypes: # try to look up any not named above
+                    pType = dType
+                else:
+                    pType = pTypes[dType]
+                pixelsType = queryService.findByQuery("from PixelsType as p where p.value='%s'" % pType, None) # omero::model::PixelsType
+                if pixelsType is None:
+                    raise Exception("Cannot create an image in omero from numpy array with dtype: %s" % dType)
+                channelList = range(sizeC)
+                iId = pixelsService.createImage(sizeX, sizeY, sizeZ, sizeT, channelList, pixelsType, imageName, description, self.SERVICE_OPTS)
+
+            imageId = iId.getValue()
+            return containerService.getImages("Image", [imageId], None, self.SERVICE_OPTS)[0], convertToType
+
+        def uploadPlane(plane, z, c, t, convertToType):
+            # if we're given a numpy dtype, need to convert plane to that dtype
+            if convertToType is not None:
+                p = numpy.zeros(plane.shape, dtype=convertToType)
+                p += plane
+                plane = p
+            byteSwappedPlane = plane.byteswap()
             convertedPlane = byteSwappedPlane.tostring();
             rawPixelsStore.setPlane(convertedPlane, z, c, t, self.SERVICE_OPTS)
 
         image = None
+        dtype = None
         channelsMinMax = []
         exc = None
         try:
@@ -2793,10 +2857,10 @@ class _BlitzGateway (object):
                     for theT in range(sizeT):
                         plane = zctPlanes.next()
                         if image == None:   # use the first plane to create image.
-                            image = createImage(plane)
+                            image, dtype = createImage(plane, channelList)
                             pixelsId = image.getPrimaryPixels().getId().getValue()
                             rawPixelsStore.setPixelsId(pixelsId, True, self.SERVICE_OPTS)
-                        uploadPlane(plane, theZ, theC, theT)
+                        uploadPlane(plane, theZ, theC, theT, dtype)
                         # init or update min and max for this channel
                         minValue = plane.min()
                         maxValue = plane.max()
@@ -4032,7 +4096,7 @@ class BooleanAnnotationWrapper (AnnotationWrapper):
         @return:    Value
         @rtype:     Boolean
         """
-        return self._obj.boolValue.val
+        return unwrap(self._obj.boolValue)
 
     def setValue (self, val):
         """
@@ -4108,8 +4172,8 @@ class TagAnnotationWrapper (AnnotationWrapper):
         @return:    Value
         @type:      String
         """
-        
-        return self._obj.textValue.val
+
+        return unwrap(self._obj.textValue)
 
     def setValue (self, val):
         """
@@ -4146,8 +4210,7 @@ class CommentAnnotationWrapper (AnnotationWrapper):
         @return:    Value
         @type:      String
         """
-        
-        return self._obj.textValue.val
+        return unwrap(self._obj.textValue)
 
     def setValue (self, val):
         """
@@ -4184,7 +4247,7 @@ class LongAnnotationWrapper (AnnotationWrapper):
         @type:      Long
         """
         
-        return self._obj.longValue and self._obj.longValue.val or None
+        return unwrap(self._obj.longValue)
 
     def setValue (self, val):
         """
@@ -4220,8 +4283,7 @@ class DoubleAnnotationWrapper (AnnotationWrapper):
         @return:    Value
         @type:      Double
         """
-        
-        return self._obj.doubleValue.val
+        return unwrap(self._obj.doubleValue)
 
     def setValue (self, val):
         """
@@ -4259,8 +4321,8 @@ class TermAnnotationWrapper (AnnotationWrapper):
         @return:    Value
         @type:      String
         """
-        
-        return self._obj.termValue.val
+
+        return unwrap(self._obj.termValue)
 
     def setValue (self, val):
         """
@@ -5908,7 +5970,7 @@ class _ImageWrapper (BlitzObjectWrapper):
             if not re.lookupRenderingDef(pid, ctx):
                 re.resetDefaults(ctx)
                 re.lookupRenderingDef(pid, ctx)
-            self._onResetDefaults(re.getRenderingDefId(self._conn.SERVICE_OPTS))
+            self._onResetDefaults(re.getRenderingDefId(ctx))
         else:
             re.loadRenderingDef(rdid, ctx)
         re.load(ctx)
@@ -6180,9 +6242,9 @@ class _ImageWrapper (BlitzObjectWrapper):
                 except omero.ConcurrencyException, ce:
                     logger.info( "ConcurrencyException: resetDefaults() failed in _prepareTB with backOff: %s" % ce.backOff)
                     return tb
-                tb.setPixelsId(pid, self._conn.SERVICE_OPTS)
+                tb.setPixelsId(pid, ctx)
                 try:
-                    rdid = tb.getRenderingDefId(self._conn.SERVICE_OPTS)
+                    rdid = tb.getRenderingDefId(ctx)
                 except omero.ApiUsageException:         # E.g. No rendering def (because of missing pyramid!)
                     logger.info( "ApiUsageException: getRenderingDefId() failed in _prepareTB")
                     return tb
@@ -7033,7 +7095,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         return rv
 
     def _renderSplit_channelLabel (self, channel):
-        return str(channel.getEmissionWave())
+        return str(channel.getLabel())
 
     def renderSplitChannelImage (self, z, t, compression=0.9, border=2):
         """
@@ -7095,13 +7157,14 @@ class _ImageWrapper (BlitzObjectWrapper):
                 pxc = 0
                 px = border
                 py += self.getSizeY() + border
-        if not self.isGreyscaleRenderingModel():
-            self.setActiveChannels(cmap)
-            img = self.renderImage(z,t, compression)
-            if fsize > 0:
-                draw = ImageDraw.ImageDraw(img)
-                draw.text((2,2), "merged", font=font, fill="#fff")
-            canvas.paste(img, (px, py))
+        # Render merged panel with all current channels in color
+        self.setActiveChannels(cmap)
+        self.setColorRenderingModel()
+        img = self.renderImage(z,t, compression)
+        if fsize > 0:
+            draw = ImageDraw.ImageDraw(img)
+            draw.text((2,2), "merged", font=font, fill="#fff")
+        canvas.paste(img, (px, py))
         return canvas
 
     LP_PALLETE = [0,0,0,0,0,0,255,255,255]

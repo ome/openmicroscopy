@@ -18,9 +18,12 @@
 % File annotation constants
 filePath = 'mydata.txt';
 fileContent = 'file annotation content';
+newFileContent = [fileContent ' modified'];
 fileMimeType = 'application/octet-stream';
-fileDescription = 'file annotation example';
+fileDescription = 'file annotation description';
+newFileDescription = [fileDescription ' modified'];
 fileNamespace = 'examples.training.matlab';
+newFileNamespace = [fileNamespace '.extended'];
 fileOutputPath = 'mydataBack.txt';
 
 % Tag annotation constants
@@ -43,7 +46,7 @@ try
     fprintf(1, 'Reading image: %g\n', imageId);
     image = getImages(session, imageId);
     assert(~isempty(image), 'OMERO:WriteData', 'Image Id not valid');
-
+    
     % Create a local file
     fprintf(1, 'Creating local file with content: %s\n', fileContent);
     fid = fopen(filePath, 'w');
@@ -60,7 +63,7 @@ try
     % Link the image and the file annotation
     link = linkAnnotation(session, fa, 'image', imageId);
     fprintf(1, 'and linked it to image %g\n', imageId);
-
+    
     % Delete the local file
     delete(filePath);
     
@@ -81,8 +84,29 @@ try
     readContent = fread(fid);
     fclose(fid);
     fprintf(1, 'File content: %s\n', readContent);
-
+    
     % Delete the local file
+    delete(fileOutputPath);
+    
+    % Update the local file
+    fprintf(1, 'Creating local file with content: %s\n', newFileContent);
+    fid = fopen(filePath, 'w');
+    fwrite(fid, newFileContent);
+    fclose(fid);
+    
+    % Update the file annotation on the server
+    fa = updateFileAnnotation(session, fa, filePath, 'description',...
+        newFileDescription, 'namespace', newFileNamespace);
+    delete(filePath);
+    
+    % Read the content of the updated file annotation
+    fprintf(1, 'Reading content of updated file annotation %g\n',...
+        fa.getId().getValue());
+    getFileAnnotationContent(session, fa, fileOutputPath);
+    fid = fopen(fileOutputPath, 'r');
+    readContent = fread(fid);
+    fclose(fid);
+    fprintf(1, 'Updated file content: %s\n', readContent);
     delete(fileOutputPath);
     
     % Create a tag i.e. tag annotation and link it to an existing project.
@@ -100,8 +124,9 @@ try
     fprintf(1, 'Found %g tag annotation(s)\n', numel(tas));
     
 catch err
-    disp(err.message);
+    client.closeSession();
+    throw(err);
 end
 
-%Close the session
+% Close the session
 client.closeSession();

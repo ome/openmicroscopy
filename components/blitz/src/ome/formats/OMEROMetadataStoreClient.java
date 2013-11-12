@@ -956,7 +956,7 @@ public class OMEROMetadataStoreClient
      */
     public RTime toRType(Timestamp value)
     {
-        return value == null? null : rtime(value.asDate().getTime());
+        return value == null? null : rtime(value.asInstant().getMillis());
     }
 
     /**
@@ -1214,7 +1214,11 @@ public class OMEROMetadataStoreClient
      */
     private Format getImageFormat()
     {
-        String value = getReader().getClass().toString();
+        IFormatReader reader = getReader();
+        if (reader instanceof ImageReader) {
+            reader = ((ImageReader) reader).getReader();
+        }
+        String value = reader.getClass().toString();
         value = value.replace("class loci.formats.in.", "");
         value = value.replace("Reader", "");
         return (Format) getEnumeration(Format.class, value);

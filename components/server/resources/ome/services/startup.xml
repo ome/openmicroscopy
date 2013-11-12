@@ -30,6 +30,11 @@
      <constructor-arg ref="preferenceContext"/>
   </bean>
 
+  <bean id="jvmSettingsCheck"
+     class="ome.services.util.JvmSettingsCheck"
+     lazy-init="false">
+  </bean>
+
   <bean id="namespaceCheck"
      class="ome.services.util.NamespaceCheck"
      lazy-init="false"><!--  Listens for ContextRefreshedEvent  -->

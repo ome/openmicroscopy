@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.data.views.calls.DMRefreshLoader
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -38,6 +38,7 @@ import java.util.Map.Entry;
 
 
 //Third-party libraries
+import org.apache.commons.collections.CollectionUtils;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.LookupNames;
@@ -118,7 +119,7 @@ public class DMRefreshLoader
         	ctx = entry.getKey();
         	userID = ctx.getExperimenter();
         	containers = entry.getValue();
-        	if (containers == null || containers.size() == 0) {
+        	if (CollectionUtils.isEmpty(containers)) {
         		result = os.loadContainerHierarchy(ctx, rootNodeType, null, 
                 		false, ctx.getExperimenter());
         		if (mapResult.containsKey(ctx)) {
@@ -370,79 +371,177 @@ public class DMRefreshLoader
             public void doCall() throws Exception
             {
                 OmeroMetadataService os = context.getMetadataService();
+                OmeroDataService ds = context.getDataService();
                 Map<SecurityContext, Object> r = 
-                	new HashMap<SecurityContext, Object>(nodes.size());
+                        new HashMap<SecurityContext, Object>(nodes.size());
                 long userID;
-                Object result;
-                Entry entry;
-                Iterator j = nodes.entrySet().iterator();
-                List l;
+                Entry<SecurityContext, List> entry;
+                Iterator<Entry<SecurityContext, List>>
+                j = nodes.entrySet().iterator();
+                List<?> l;
                 Collection tags;
                 Iterator k;
                 Iterator<TagAnnotationData> i;
                 TagAnnotationData tag, child;
-                Map<Long, Collection> values;
-                String ns;
-                Set<TagAnnotationData> set;
+                Map<Long, Collection<?>> values;
                 SecurityContext ctx;
+                Map<DataObject, Set<?>> mapForDataObject;
                 while (j.hasNext()) {
-                	entry = (Entry) j.next();
-                	ctx = (SecurityContext) entry.getKey();
-                	userID = ctx.getExperimenter();
-                	l = (List) entry.getValue();
-                	
-                	tags = os.loadTags(ctx, -1L, false, true, userID, -1);
-                	List<Object> tagResults = new ArrayList<Object>();
-                	if (l == null || l.size() == 0) {
-                		r.put(ctx, tags);
-                	} else {
-                		values = new HashMap<Long, Collection>();
-                		k = l.iterator();
-                		Object ob;
-                		TimeRefObject ref;
-                		while (k.hasNext()) {
-                			ob = k.next();
-                			if (ob instanceof TagAnnotationData) {
-                				tag = (TagAnnotationData) ob;
-    							values.put(tag.getId(), os.loadTags(ctx,
-    									tag.getId(), true, false, userID, -1));
-                			} else {
-                				ref = (TimeRefObject) ob;
-                				ref.setResults(os.loadFiles(ctx, 
-                					ref.getFileType(), userID));
-                				tagResults.add(ref);
-                			}
-						}
-                		k = tags.iterator();
-                    	while (k.hasNext()) {
-                    		tag = (TagAnnotationData) k.next();
-                    		tagResults.add(tag);
-                    		ns = tag.getNameSpace();
-							if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(ns))
-							{
-								set = tag.getTags();
-								i = set.iterator();
-								while (i.hasNext()) {
-									child = i.next();
-									if (values.containsKey(child.getId())) {
-										child.setDataObjects(
-	    	        					(Set<DataObject>) values.get(
-	    	        							child.getId()));
-									}
-								}
-							} else {
-								if (values.containsKey(tag.getId()))
-    								tag.setDataObjects(
-    										(Set<DataObject>) values.get(
-    												tag.getId()));
-							}
-    					}
-                		r.put(ctx, tagResults);
-                	}
+                    entry = j.next();
+                    ctx = entry.getKey();
+                    userID = ctx.getExperimenter();
+                    l = entry.getValue();
+
+                    tags = os.loadTags(ctx, -1L, true, userID, ctx.getGroupID());
+                    List<Object> tagResults = new ArrayList<Object>();
+                    mapForDataObject = new HashMap<DataObject, Set<?>>();
+                    if (CollectionUtils.isEmpty(l)) {
+                        r.put(ctx, tags);
+                    } else {
+                        values = new HashMap<Long, Collection<?>>();
+                        k = l.iterator();
+                        Object ob;
+                        TimeRefObject ref;
+                        DataObject ho;
+                        List<TagAnnotationData> refTags =
+                                new ArrayList<TagAnnotationData>();
+                        while (k.hasNext()) {
+                            ob = k.next();
+                            if (ob instanceof TagAnnotationData) {
+                                tag = (TagAnnotationData) ob;
+                                values.put(tag.getId(), os.loadTags(ctx,
+                                        tag.getId(), false, userID,
+                                        ctx.getGroupID()));
+                            } else if (ob instanceof TimeRefObject) {
+                                ref = (TimeRefObject) ob;
+                                ref.setResults(os.loadFiles(ctx,
+                                        ref.getFileType(), userID));
+                                refTags.addAll(ref.getResults());
+                                tagResults.add(ref);
+                            } else if (ob instanceof DataObject) {
+                                //retrieve the data for the data object
+                                ho = (DataObject) ob;
+                                mapForDataObject.put(ho,
+                                    ds.loadContainerHierarchy(ctx,
+                                    ob.getClass(), Arrays.asList(ho.getId()),
+                                                true, userID));
+                            }
+                        }
+                        handleTags(tags, tagResults, values, mapForDataObject);
+                        if (refTags.size() > 0) {
+                            handleTags(refTags, null, values, mapForDataObject);
+                        }
+                        r.put(ctx, tagResults);
+                    }
                 }
                 results = r;
             }
         };
+    }
+    
+    /**
+     * Maps the tags to the correct objects.
+     * 
+     * @param tags The tags to handle.
+     * @param tagResults The tags loading for smart folder.
+     * @param values The value for the loaded objects.
+     * @param mapForDataObject The loaded values.
+     */
+    private void handleTags(Collection<TagAnnotationData> tags,
+            List<Object> tagResults, Map<Long, Collection<?>> values,
+            Map<DataObject, Set<?>> mapForDataObject)
+    {
+        Iterator<TagAnnotationData> k = tags.iterator();
+        TagAnnotationData tag, child;
+        String ns;
+        Set<TagAnnotationData> set;
+        Iterator<TagAnnotationData> i;
+        while (k.hasNext()) {
+            tag = (TagAnnotationData) k.next();
+            if (tagResults != null) tagResults.add(tag);
+            ns = tag.getNameSpace();
+            if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(ns)) {
+                set = tag.getTags();
+                i = set.iterator();
+                while (i.hasNext()) {
+                    child = i.next();
+                    if (values.containsKey(child.getId())) {
+                        populateTag(child, values, mapForDataObject);
+                    }
+                }
+            } else {
+                if (values.containsKey(tag.getId())) {
+                    populateTag(tag, values, mapForDataObject);
+                }
+            }
+        }
+    }
+    
+    /**
+     * Populates the specified tag with the passed value.
+     * 
+     * @param tag The tag to populate
+     * @param values Track the object.
+     * @param mapForDataObject The values to set.
+     */
+    private void populateTag(TagAnnotationData tag,
+            Map<Long, Collection<?>> values,
+            Map<DataObject, Set<?>> mapForDataObject)
+    {
+        if (mapForDataObject.isEmpty()) {
+            tag.setDataObjects((Set<DataObject>) values.get(tag.getId()));
+        } else {
+            Set<DataObject> objects = (Set<DataObject>) values.get(tag.getId());
+            Set<DataObject> newList = new HashSet<DataObject>(objects.size());
+            Iterator<DataObject> kk = objects.iterator();
+            while (kk.hasNext()) {
+                newList.add(getLoadedObject(mapForDataObject, kk.next()));
+            }
+            tag.setDataObjects(newList);
+        }
+    }
+    
+    /**
+     * Checks the object has been reloaded.
+     * 
+     * @param map The list of reloaded object.
+     * @param ho The data object of reference.
+     */
+    private DataObject getLoadedObject(Map<DataObject, Set<?>> map,
+            DataObject ho)
+    {
+        Set<DataObject> sets = map.keySet();
+        Iterator<DataObject> i = sets.iterator();
+        DataObject object;
+        Set<?> s;
+        while (i.hasNext()) {
+            object = i.next();
+            if (object.getClass().equals(ho.getClass()) &&
+                    object.getId() == ho.getId()) {
+                s = map.get(object);
+                return (DataObject) s.iterator().next();
+            } else if (ho instanceof ProjectData) { //need to check the dataset
+                ProjectData p = (ProjectData) ho;
+                Set<DatasetData> datasets = p.getDatasets();
+                Iterator<DatasetData> j = datasets.iterator();
+                Set<DatasetData> loaded = new HashSet<DatasetData>();
+                boolean modified = false;
+                while (j.hasNext()) {
+                    DataObject data = j.next();
+                    if (object.getClass().equals(data.getClass()) &&
+                            object.getId() == data.getId()) {
+                        s = map.get(object);
+                        loaded.add((DatasetData) s.iterator().next());
+                        modified = true;
+                    } else loaded.add((DatasetData) data);
+                }
+                if (modified) {
+                    p.setDatasets(loaded);
+                    return p;
+                }
+            }
+        }
+        return ho;
     }
     
     /**

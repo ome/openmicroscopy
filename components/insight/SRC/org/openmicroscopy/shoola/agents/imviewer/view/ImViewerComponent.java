@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.iviewer.view.ImViewerComponent
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -204,19 +204,19 @@ class ImViewerComponent
 	private void showProjectionDialog()
 	{
 		if (projDialog == null) {
-			projDialog = new ProjSavingDialog(view, model.getParent(), 
+			projDialog = new ProjSavingDialog(view, model.getParent(),
 					model.getGrandParent());
-			projDialog.initialize(view.getProjectionType(), model.getMaxT()+1, 
+			projDialog.initialize(view.getProjectionType(), model.getRealT(),
 					model.getPixelsType(), model.getImageName(), 
 					model.getContainers(), model.getMaxZ()+1, 
 					view.getProjectionStartZ()+1, view.getProjectionEndZ()+1);
 			projDialog.addPropertyChangeListener(controller);
 			projDialog.pack();
-			Dimension minimumSize = new Dimension(projDialog.getWidth(), 
+			Dimension minimumSize = new Dimension(projDialog.getWidth(),
 					projDialog.getHeight());
 			projDialog.setMinimumSize(minimumSize);
 		} else {
-			projDialog.setProjectionInterval(view.getProjectionStartZ()+1, 
+			projDialog.setProjectionInterval(view.getProjectionStartZ()+1,
 					view.getProjectionEndZ()+1);
 		}
 		UIUtilities.centerAndShow(projDialog);
@@ -483,10 +483,10 @@ class ImViewerComponent
 			model.getZoomFactor()*model.getOriginalRatio();
 		if (model.isBigImage()) f = view.getBigImageMagnificationFactor();
 		MeasurementTool request = new MeasurementTool(
-				model.getSecurityContext(), model.getImageID(), 
-				model.getPixelsData(), model.getImageName(), 
+				model.getSecurityContext(), model.getImageID(),
+				model.getPixelsData(), model.getImageName(),
 				model.getDefaultZ(), model.getDefaultT(),
-				model.getActiveChannelsColorMap(),f, 
+				model.getActiveChannelsColorMap(),f,
 				view.getBounds(), model.getChannelData());
 		if (model.isBigImage()) {
 			request.setSize(model.getTiledImageSizeX(),
@@ -803,31 +803,32 @@ class ImViewerComponent
 	 */
 	public void setSelectedXYPlane(int z, int t, int bin)
 	{
-		if (z < 0) z = model.getDefaultZ();
-		if (t < 0) t = model.getDefaultT();
-		switch (model.getState()) {
-			case NEW:
-			case DISCARDED:
-				return;
-		}
-		int defaultZ = model.getDefaultZ();
-		int defaultT = model.getDefaultT();
-		if (bin >= 0) { //lifetime
-			model.setSelectedBin(bin);
-			renderXYPlane();
-		} else {
-			if (defaultZ == z && defaultT == t) return;
-			if (defaultZ != z) {
-				firePropertyChange(ImViewer.Z_SELECTED_PROPERTY, 
-						Integer.valueOf(defaultZ), Integer.valueOf(z));
-			}
-			if (defaultT != t) {
-				firePropertyChange(ImViewer.T_SELECTED_PROPERTY, 
-						Integer.valueOf(defaultT), Integer.valueOf(t));
-			}
-			newPlane = true;
-			model.setSelectedXYPlane(z, t);
-		}
+	    if (z < 0) z = model.getDefaultZ();
+	    if (t < 0) t = model.getRealSelectedT();
+	    switch (model.getState()) {
+	    case NEW:
+	    case DISCARDED:
+	        return;
+	    }
+	    int defaultZ = model.getDefaultZ();
+	    int defaultT = model.getRealSelectedT();
+	    if (bin >= 0) { //lifetime
+	        int v = model.getSelectedBin();
+	        firePropertyChange(ImViewer.BIN_SELECTED_PROPERTY,
+	                Integer.valueOf(v), Integer.valueOf(bin));
+	    } else {
+	        if (defaultZ == z && defaultT == t) return;
+	        if (defaultZ != z) {
+	            firePropertyChange(ImViewer.Z_SELECTED_PROPERTY,
+	                    Integer.valueOf(defaultZ), Integer.valueOf(z));
+	        }
+	        if (defaultT != t) {
+	            firePropertyChange(ImViewer.T_SELECTED_PROPERTY,
+	                    Integer.valueOf(defaultT), Integer.valueOf(t));
+	        }
+	        newPlane = true;
+	    }
+	    model.setSelectedXYPlane(z, t, bin);
 	}
 	
 	/** 
@@ -837,7 +838,7 @@ class ImViewerComponent
 	public void setSelectedRegion(int z, int t, Rectangle region)
 	{
 		if (z < 0) z = model.getDefaultZ();
-		if (t < 0) t = model.getDefaultT();
+		if (t < 0) t = model.getRealSelectedT();
 		if (region == null || !model.isBigImage()) {
 			setSelectedXYPlane(z, t);
 			return;
@@ -848,7 +849,7 @@ class ImViewerComponent
 				return;
 		}
 		int defaultZ = model.getDefaultZ();
-		int defaultT = model.getDefaultT();
+		int defaultT = model.getRealSelectedT();
 		boolean reset = false;
 		if (defaultZ != z) {
 			reset = true;
@@ -1096,7 +1097,7 @@ class ImViewerComponent
 	 */
 	public void renderXYPlane()
 	{
-		switch (model.getState()) {
+	    switch (model.getState()) {
 			case NEW:
 				throw new IllegalStateException(
 						"This method can't be invoked in the NEW state.");
@@ -1199,9 +1200,9 @@ class ImViewerComponent
 
 	/** 
 	 * Implemented as specified by the {@link ImViewer} interface.
-	 * @see ImViewer#getMaxT()
+	 * @see ImViewer#getRealT()
 	 */
-	public int getMaxT()
+	public int getRealT()
 	{
 		switch (model.getState()) {
 			case NEW:
@@ -1210,7 +1211,7 @@ class ImViewerComponent
 					"This method can't be invoked in the DISCARDED, NEW or" +
 					"LOADING_RENDERING_CONTROL state.");
 		}
-		return model.getMaxT();
+		return model.getRealT();
 	}
 
 	/** 
@@ -1889,88 +1890,94 @@ class ImViewerComponent
 	 */
 	public void playMovie(boolean play, boolean visible, int index)
 	{
-		switch (model.getState()) {
-			case NEW:
-			case LOADING_METADATA:
-			case DISCARDED:
-				return;
-		}
-		MoviePlayerDialog d = controller.getMoviePlayer();
-		boolean doClick = false;
-		if (visible) { // we have to play the movie
-			if (!d.isVisible()) {
-				controller.getAction(
-						ImViewerControl.PLAY_MOVIE_T).setEnabled(false);
-				controller.getAction(
-						ImViewerControl.PLAY_MOVIE_Z).setEnabled(false);
-				play = true;
-				UIUtilities.setLocationRelativeToAndShow(view, d);
-			}
-		} else {
-			if (d.isVisible()) {
-				controller.getAction(
-						ImViewerControl.PLAY_MOVIE_T).setEnabled(true);
-				controller.getAction(
-						ImViewerControl.PLAY_MOVIE_Z).setEnabled(true);
-				play = false;
-				d.setVisible(false);
-			} else {
-				switch (index) {
-					case PlayMovieAction.ACROSS_Z:
-						d.setZRange(model.getDefaultZ(), model.getMaxZ());
-						controller.getAction(
-								ImViewerControl.PLAY_MOVIE_T).setEnabled(!play);
-						break;
-					case PlayMovieAction.ACROSS_T:
-						controller.getAction(
-								ImViewerControl.PLAY_MOVIE_Z).setEnabled(!play);
-						break;
-					default:
-						controller.getAction(
-								ImViewerControl.PLAY_MOVIE_T).setEnabled(true);
-						controller.getAction(
-								ImViewerControl.PLAY_MOVIE_Z).setEnabled(true);
-						
-				}
-				doClick = true;
-				if (index != -1) d.setMovieIndex(index);
-				d.setTimeRange(model.getDefaultT(), model.getMaxT());
-			}
-		}
-		
-		model.setPlayingMovie(play, index);
-		view.enableSliders(!play);
-		controller.getAction(ImViewerControl.CHANNEL_MOVIE).setEnabled(!play);
-		if (doClick) {
-			if (play) {
-				d.addPropertyChangeListener(
-						MoviePlayerDialog.MOVIE_STATE_CHANGED_PROPERTY,
-						controller);
-				d.doClick(MoviePlayerDialog.DO_CLICK_PLAY);
-			} else {
-				d.removePropertyChangeListener(
-						MoviePlayerDialog.MOVIE_STATE_CHANGED_PROPERTY,
-						controller);
-				d.doClick(MoviePlayerDialog.DO_CLICK_PAUSE);
-			}
-		} else {
-			d.removePropertyChangeListener(
-					MoviePlayerDialog.MOVIE_STATE_CHANGED_PROPERTY,
-					controller);
-		}
-		if (!play) {
-			if (view.isLensVisible()) view.setLensPlaneImage();
-			switch (view.getTabbedIndex()) {
-				case ImViewer.VIEW_INDEX:
-					view.createHistoryItem(null);
-					break;
-				case ImViewer.PROJECTION_INDEX:
-					view.createHistoryItem(view.getLastProjRef());
-			}
-			if (model.getState() != LOADING_IMAGE)
-				model.setState(READY);
-			fireStateChange();
-		}
+	    switch (model.getState()) {
+	    case NEW:
+	    case LOADING_METADATA:
+	    case DISCARDED:
+	        return;
+	    }
+	    MoviePlayerDialog d = controller.getMoviePlayer();
+	    boolean doClick = false;
+	    if (visible) { // we have to play the movie
+	        if (!d.isVisible()) {
+	            controller.getAction(
+	                    ImViewerControl.PLAY_MOVIE_T).setEnabled(false);
+	            controller.getAction(
+	                    ImViewerControl.PLAY_MOVIE_Z).setEnabled(false);
+	            play = true;
+	            UIUtilities.setLocationRelativeToAndShow(view, d);
+	        }
+	    } else {
+	        if (d.isVisible()) {
+	            controller.getAction(
+	                    ImViewerControl.PLAY_MOVIE_T).setEnabled(true);
+	            controller.getAction(
+	                    ImViewerControl.PLAY_MOVIE_Z).setEnabled(true);
+	            play = false;
+	            d.setVisible(false);
+	        } else {
+	            switch (index) {
+	            case PlayMovieAction.ACROSS_Z:
+	                d.setZRange(model.getDefaultZ(), model.getMaxZ());
+	                controller.getAction(
+	                        ImViewerControl.PLAY_MOVIE_T).setEnabled(!play);
+	                break;
+	            case PlayMovieAction.ACROSS_T:
+	                controller.getAction(
+	                        ImViewerControl.PLAY_MOVIE_Z).setEnabled(!play);
+	                break;
+	            case PlayMovieAction.ACROSS_LIFETIME:
+	                d.setBinRange(model.getSelectedBin(),
+	                        model.getMaxLifetimeBin()-1);
+	                controller.getAction(
+	                        ImViewerControl.PLAY_LIFETIME_MOVIE).setEnabled(!play);
+	                break;
+	            default:
+	                controller.getAction(
+	                        ImViewerControl.PLAY_MOVIE_T).setEnabled(true);
+	                controller.getAction(
+	                        ImViewerControl.PLAY_MOVIE_Z).setEnabled(true);
+
+	            }
+	            doClick = true;
+	            if (index != -1) d.setMovieIndex(index);
+	            d.setTimeRange(model.getRealSelectedT(), model.getRealT()-1);
+	        }
+	    }
+
+	    model.setPlayingMovie(play, index);
+	    view.enableSliders(!play);
+	    controller.getAction(ImViewerControl.CHANNEL_MOVIE).setEnabled(!play);
+	    if (doClick) {
+	        if (play) {
+	            d.addPropertyChangeListener(
+	                    MoviePlayerDialog.MOVIE_STATE_CHANGED_PROPERTY,
+	                    controller);
+	            d.doClick(MoviePlayerDialog.DO_CLICK_PLAY);
+	        } else {
+	            d.removePropertyChangeListener(
+	                    MoviePlayerDialog.MOVIE_STATE_CHANGED_PROPERTY,
+	                    controller);
+	            d.doClick(MoviePlayerDialog.DO_CLICK_PAUSE);
+	        }
+	    } else {
+	        d.removePropertyChangeListener(
+	                MoviePlayerDialog.MOVIE_STATE_CHANGED_PROPERTY,
+	                controller);
+	    }
+	    if (!play) {
+	        if (view.isLensVisible()) view.setLensPlaneImage();
+	        switch (view.getTabbedIndex()) {
+	        case ImViewer.VIEW_INDEX:
+	            view.createHistoryItem(null);
+	            break;
+	        case ImViewer.PROJECTION_INDEX:
+	            view.createHistoryItem(view.getLastProjRef());
+	        }
+	        if (model.getState() != LOADING_IMAGE)
+	            model.setState(READY);
+	        fireStateChange();
+	    }
 	}
 
 	/** 
@@ -2865,12 +2872,6 @@ class ImViewerComponent
 		if (model.getState() == DISCARDED) return;
 		model.makeMovie();
 	}
-	
-	/** 
-	 * Implemented as specified by the {@link ImViewer} interface.
-	 * @see ImViewer#isNumerousChannel()
-	 */
-	public boolean isNumerousChannel() { return model.isNumerousChannel(); }
 
 	/** Build the view.*/
 	private void buildView()
@@ -3475,7 +3476,25 @@ class ImViewerComponent
 	{
 		return model.getResolutionLevels();
 	}
-	
+
+	/**
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see ImViewer#getResolutionLevels()
+	 */
+	public int getSelectedBin() { return model.getSelectedBin(); }
+
+	/**
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see ImViewer#getMaxLifetimeBin()
+	 */
+	public int getMaxLifetimeBin() { return model.getMaxLifetimeBin(); }
+
+	/**
+     * Implemented as specified by the {@link ImViewer} interface.
+     * @see ImViewer#getRealSelectedT()()
+     */
+    public int getRealSelectedT() { return model.getRealSelectedT(); }
+
 	/** 
 	 * Overridden to return the name of the instance to save. 
 	 * @see #toString()

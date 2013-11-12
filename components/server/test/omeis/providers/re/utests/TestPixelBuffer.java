@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2009-2011 University of Dundee & Open Microscopy Environment.
+ *   Copyright (C) 2009-2013 University of Dundee & Open Microscopy Environment.
  *   All rights reserved.
  *
  *   Use is subject to license terms supplied in LICENSE.txt
@@ -16,20 +16,32 @@ import java.util.List;
 
 import ome.io.nio.DimensionsOutOfBoundsException;
 import ome.io.nio.PixelBuffer;
+import ome.model.core.Pixels;
 import ome.util.PixelData;
-import ome.model.enums.PixelsType;
 
 public class TestPixelBuffer implements PixelBuffer {
-	
-	private byte[] dummyPlane; 
-	
-	private PixelsType pixelsType;
-	
-	public TestPixelBuffer(PixelsType pixelsType, byte[] dummyPlane)
-	{
-		this.pixelsType = pixelsType;
-		this.dummyPlane = dummyPlane;
-	}
+
+    private final ByteBuffer dummyPlane;
+
+    private final String pixelsType;
+    private final int bytesPerPixel;
+
+    private final int x, y, z, c, t;
+
+    /* cache the latest buffer returned by getByteBuffer */
+    private ByteBuffer buffer;
+
+    public TestPixelBuffer(Pixels pixels, byte[] dummyPlane)
+    {
+        this.dummyPlane = ByteBuffer.wrap(dummyPlane).asReadOnlyBuffer();
+        this.pixelsType = pixels.getPixelsType().getValue();
+        this.bytesPerPixel = new PixelData(this.pixelsType, null).bytesPerPixel();
+        this.x = pixels.getSizeX();
+        this.y = pixels.getSizeY();
+        this.z = pixels.getSizeZ();
+        this.c = pixels.getSizeC();
+        this.t = pixels.getSizeT();
+    }
 
 	public byte[] calculateMessageDigest() throws IOException {
 		// TODO Auto-generated method stub
@@ -77,7 +89,7 @@ public class TestPixelBuffer implements PixelBuffer {
 	public PixelData getPlane(Integer arg0, Integer arg1, Integer arg2)
 			throws IOException, DimensionsOutOfBoundsException
 	{
-		return new PixelData(pixelsType.getValue(), ByteBuffer.wrap(dummyPlane));
+		return new PixelData(pixelsType, dummyPlane);
 	}
 
 	public byte[] getPlaneDirect(Integer arg0, Integer arg1, Integer arg2,
@@ -140,28 +152,23 @@ public class TestPixelBuffer implements PixelBuffer {
 	}
 
 	public int getSizeC() {
-		// TODO Auto-generated method stub
-		return 0;
+        return c;
 	}
 
 	public int getSizeT() {
-		// TODO Auto-generated method stub
-		return 0;
+        return t;
 	}
 
 	public int getSizeX() {
-		// TODO Auto-generated method stub
-		return 0;
+        return x;
 	}
 
 	public int getSizeY() {
-		// TODO Auto-generated method stub
-		return 0;
+        return y;
 	}
 
 	public int getSizeZ() {
-		// TODO Auto-generated method stub
-		return 0;
+        return z;
 	}
 
 	public PixelData getStack(Integer arg0, Integer arg1) throws IOException,
@@ -319,14 +326,26 @@ public class TestPixelBuffer implements PixelBuffer {
 		return null;
 	}
 
+    /**
+     * Get a ByteBuffer filled to at least the requested limit.
+     * If possible, ByteBuffers are reused.
+     * @param limit the required limit
+     * @return a filled ByteBuffer
+     */
+    private ByteBuffer getByteBuffer(int limit) {
+        if (this.buffer == null || this.buffer.capacity() < limit) {
+            this.buffer = ByteBuffer.wrap(new byte[limit]).asReadOnlyBuffer();
+        }
+        return this.buffer;
+    }
+
     /* (non-Javadoc)
      * @see ome.io.nio.PixelBuffer#getTile(java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer)
      */
     public PixelData getTile(Integer z, Integer c, Integer t, Integer x,
             Integer y, Integer w, Integer h) throws IOException
     {
-        // TODO Auto-generated method stub
-        return null;
+        return new PixelData(this.pixelsType, getByteBuffer(w * h * this.bytesPerPixel));
     }
 
     /* (non-Javadoc)

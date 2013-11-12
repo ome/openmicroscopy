@@ -22,8 +22,10 @@ import ome.model.core.OriginalFile;
 import ome.model.meta.Session;
 import ome.parameters.Parameters;
 import ome.services.procs.Processor;
+import ome.services.scripts.ScriptRepoHelper;
 import ome.services.sessions.SessionManager;
 import ome.services.util.Executor;
+import ome.tools.hibernate.QueryBuilder;
 import ome.system.EventContext;
 import ome.system.Principal;
 import ome.system.ServiceFactory;
@@ -66,7 +68,9 @@ public class InteractiveProcessorI implements _InteractiveProcessorOperations,
 
     private final ProcessorPrx prx;
 
-    private final ParamsHelper helper;
+    private final ParamsHelper paramsHelper;
+
+    private final ScriptRepoHelper scriptRepoHelper;
 
     private final Executor ex;
 
@@ -106,9 +110,10 @@ public class InteractiveProcessorI implements _InteractiveProcessorOperations,
      */
     public InteractiveProcessorI(Principal p, SessionManager mgr, Executor ex,
             ProcessorPrx prx, Job job, long timeout, SessionControlPrx control,
-            ParamsHelper helper, Ice.Current current)
+            ParamsHelper paramsHelper, ScriptRepoHelper scriptRepoHelper, Ice.Current current)
         throws ServerError {
-        this.helper = helper;
+        this.paramsHelper = paramsHelper;
+        this.scriptRepoHelper = scriptRepoHelper;
         this.principal = p;
         this.ex = ex;
         this.mgr = mgr;
@@ -157,10 +162,10 @@ public class InteractiveProcessorI implements _InteractiveProcessorOperations,
                                     sb.toString());
                         }
 
-                        helper.saveScriptParams(params, (ParseJob) job,
+                        paramsHelper.saveScriptParams(params, (ParseJob) job,
                                 __current);
                     } else {
-                        params = helper.getOrCreateParams(scriptId, __current);
+                        params = paramsHelper.getOrCreateParams(scriptId, __current);
                     }
                 } catch (Throwable t) {
                     if (t instanceof ServerError) {
@@ -470,15 +475,15 @@ public class InteractiveProcessorI implements _InteractiveProcessorOperations,
         return newSession;
     }
 
-    private String getScriptIdQuery = "select f from Job s "
-            + "join s.originalFileLinks links "
-            + "join links.child f "
-            + "where s.id = :id and f.mimetype = :fmt";
-
     private long getScriptId(final Job job, final Ice.Current current) throws omero.ValidationException {
-        final Parameters p = new Parameters();
-        p.addId(job.getId().getValue());
-        p.addString("fmt", "text/x-python");
+        final QueryBuilder qb = new QueryBuilder();
+        qb.select("o").from("Job", "j");
+        qb.join("j.originalFileLinks", "links", false, false);
+        qb.join("links.child", "o", false, false);
+        qb.where();
+        qb.and("j.id = :id").param("id", job.getId().getValue());
+        scriptRepoHelper.buildQuery(qb);
+
         final Map<String, String> ctx = new HashMap<String, String>();
         ctx.putAll(current.ctx);
         ctx.put("omero.group", "-1");
@@ -488,8 +493,7 @@ public class InteractiveProcessorI implements _InteractiveProcessorOperations,
                     @Transactional(readOnly = true)
                     public Object doWork(org.hibernate.Session session,
                             ServiceFactory sf) {
-                        return sf.getQueryService().findByQuery(
-                                getScriptIdQuery, p);
+                        return qb.query(session).uniqueResult();
                     }
                 });
         if (f == null) {

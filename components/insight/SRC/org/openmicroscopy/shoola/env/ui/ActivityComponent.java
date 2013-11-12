@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.ui.ActivityComponent
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -57,6 +57,7 @@ import javax.swing.JToolBar;
 
 import omero.model.OriginalFile;
 
+import org.apache.commons.lang.StringUtils;
 import org.jdesktop.swingx.JXBusyLabel;
 import org.openmicroscopy.shoola.env.Environment;
 import org.openmicroscopy.shoola.env.LookupNames;
@@ -80,9 +81,6 @@ import pojos.FileAnnotationData;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  *         <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since 3.0-Beta4
  */
 public abstract class ActivityComponent 
@@ -476,11 +474,11 @@ public abstract class ActivityComponent
     /**
 	 * Returns the name to give to the file.
 	 * 
-	 * @param files		Collection of files in the currently selected directory.
-	 * @param fileName	The name of the original file.
-	 * @param original	The name of the file. 
-	 * @param dirPath	Path to the directory.
-	 * @param index		The index of the file.
+	 * @param files Collection of files in the currently selected directory.
+	 * @param fileName The name of the original file.
+	 * @param original The name of the file. 
+	 * @param dirPath Path to the directory.
+	 * @param index The index of the file.
 	 * @param extension The extension to check or <code>null</code>.
 	 * @return See above.
 	 */
@@ -498,9 +496,9 @@ public abstract class ActivityComponent
 			}
 		}
         if (!exist) return original;
-        if (fileName == null || fileName.trim().length() == 0) return original;
+        if (StringUtils.isEmpty(fileName)) return original;
     	
-    	if (extension != null && extension.trim().length() > 0) {
+    	if (!StringUtils.isEmpty(extension)) {
     		int n = fileName.lastIndexOf(extension);
     		String v = fileName.substring(0, n)+"_("+index+")"+extension;
     		index++;
@@ -623,7 +621,7 @@ public abstract class ActivityComponent
 		JFrame f = registry.getTaskBar().getFrame();
 		FileChooser chooser = new FileChooser(f, FileChooser.SAVE, 
 				"Download", "Select where to download the file.", null, 
-				true);
+				true, true);
 		IconManager icons = IconManager.getInstance(registry);
 		chooser.setTitleIcon(icons.getIcon(IconManager.DOWNLOAD_48));
 		chooser.setSelectedFileFull(name);

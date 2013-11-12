@@ -49,6 +49,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 //Third-party libraries
 
+import org.apache.commons.collections.CollectionUtils;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
@@ -84,6 +85,8 @@ import ome.formats.importer.ImportContainer;
 import ome.formats.importer.ImportEvent;
 import ome.formats.importer.ImportLibrary;
 import ome.formats.importer.OMEROWrapper;
+import ome.formats.importer.util.ProportionalTimeEstimatorImpl;
+import ome.formats.importer.util.TimeEstimator;
 import ome.system.UpgradeCheck;
 import ome.util.checksum.ChecksumProvider;
 import ome.util.checksum.ChecksumProviderFactory;
@@ -2124,6 +2127,18 @@ class OMEROGateway
 				break;
 			}
 		}
+		if (in) {
+		    Connector c = getConnector(ctx, true, false);
+		    IAdminPrx svc = c.getAdminService();
+		    try {
+		        svc.setDefaultGroup(exp.asExperimenter(),
+	                    new ExperimenterGroupI(groupID, false));
+            } catch (Exception e) {
+               handleException(e, "Can't modify the current group for user:"
+            +exp.getId());
+            }
+		}
+		
 		String s = "Can't modify the current group.\n\n";
 		if (!in) {
 			throw new DSOutOfServiceException(s);
@@ -3640,7 +3655,7 @@ class OMEROGateway
 		}
 
 		Map<Boolean, Object> result = new HashMap<Boolean, Object>();
-		if (files == null || files.size() == 0) return null;
+		if (CollectionUtils.isEmpty(files)) return result;
 		Iterator<?> i;
 		List<OriginalFile> values = new ArrayList<OriginalFile>();
 		if (image.isFSImage()) {
@@ -3668,10 +3683,7 @@ class OMEROGateway
 		List<File> results = new ArrayList<File>();
 		List<String> notDownloaded = new ArrayList<String>();
 		String folderPath = null;
-		if (values.size() > 1) {
-			if (file.isDirectory()) folderPath = file.getAbsolutePath();
-			else folderPath = file.getParent();
-		}
+		folderPath = file.getAbsolutePath();
 		i = values.iterator();
 
 		while (i.hasNext()) {
@@ -6387,6 +6399,8 @@ class OMEROGateway
 	        final List<String> checksums = new ArrayList<String>();
 	        final byte[] buf = new byte[omsc.getDefaultBlockSize()];
 	        Map<Integer, String> failingChecksums = new HashMap<Integer, String>();
+	        final TimeEstimator estimator = new ProportionalTimeEstimatorImpl(
+	                    ic.getUsedFilesTotalSize());
 
 	        if (status.isMarkedAsCancel()) return Boolean.valueOf(false);
 	        library.notifyObservers(new ImportEvent.FILESET_UPLOAD_START(
@@ -6394,7 +6408,7 @@ class OMEROGateway
 
 	        for (int i = 0; i < srcFiles.length; i++) {
 	            checksums.add(library. uploadFile(proc, srcFiles, i,
-	            		checksumProviderFactory,
+	                    checksumProviderFactory, estimator,
 	                    buf));
 	        }
 
@@ -6418,14 +6432,14 @@ class OMEROGateway
 			} catch (Exception ex) {}
 
 			handleConnectionException(e);
-			if (close) closeImport(ctx);
+			if (close) closeImport(ctx, userName);
             return new ImportException(e);
 		} finally {
 			try {
 				if (reader != null) reader.close();
 			} catch (Exception ex) {}
 			if (omsc != null && close)
-				closeImport(ctx);
+				closeImport(ctx, userName);
 		}
 	}
 
@@ -7956,13 +7970,15 @@ class OMEROGateway
 	 * Closes the services initialized by the importer.
 	 *
 	 * @param ctx The security context.
+	 * @param userName The user's name.
 	 */
-	void closeImport(SecurityContext ctx)
+	void closeImport(SecurityContext ctx, String userName)
 	{
 		try {
 			Connector c = getConnector(ctx, false, true);
+			c = c.getConnector(userName);
 			if (c != null) c.closeImport();
-		} catch (Exception e) {
+		} catch (Throwable e) {
 		    log("Failed to close import: " + e);
 		}
 	}

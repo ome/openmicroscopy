@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewerWin
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -40,7 +40,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JCheckBoxMenuItem;
@@ -74,6 +73,8 @@ import org.openmicroscopy.shoola.util.ui.JXTaskPaneContainerSingle;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.tdialog.TinyDialog;
 
+import com.google.common.collect.Lists;
+
 /**
  * The {@link TreeViewer}'s View. Embeds the different <code>Browser</code>'s UI
  * to display the various visualization trees. Also provides a menu bar
@@ -92,6 +93,15 @@ class TreeViewerWin
 
 	/** The text of the <code>View</code> menu.*/
 	static final String			VIEW_MENU = "View";
+	
+	/** The text of the <code>Edit</code> menu.*/
+	static final String EDIT_MENU = "Edit";
+	
+	/** The text of the <code>Edit</code> menu.*/
+	static final String CREATE_NEW_MENU = "Create New";
+	
+	/** The text of the <code>Edit</code> menu.*/
+	static final String RENDERING_SETTINGS_MENU = "Rendering Settings";
 	
 	/** Identifies the <code>JXTaskPane</code> layout. */
 	static final String			JXTASKPANE_TYPE = "JXTaskPane";
@@ -201,77 +211,40 @@ class TreeViewerWin
     		container = new JXTaskPaneContainerSingle();
     		container.addPropertyChangeListener(controller);
     		JXTaskPane pane;
-    		switch (TreeViewerAgent.getDefaultHierarchy()) {
-				case Browser.PROJECTS_EXPLORER:
-					browser = browsers.get(Browser.PROJECTS_EXPLORER);
-					pane = new TaskPaneBrowser(browser);
-					firstPane = pane;
-					container.add(pane);
-					browser = browsers.get(Browser.SCREENS_EXPLORER);
-					container.add(new TaskPaneBrowser(browser));
+            final List<String>  browserNames = Lists.newArrayList("project", "screen", "file", "tag");
+            final List<Integer> browserOrder = Lists.newArrayList(
+                    Browser.PROJECTS_EXPLORER, Browser.SCREENS_EXPLORER, Browser.FILES_EXPLORER, Browser.TAGS_EXPLORER);
+            int browserIndex = browserOrder.indexOf(TreeViewerAgent.getDefaultHierarchy());
+            switch (Integer.signum(browserIndex)) {
+            case 1:
+                browserNames.add(0, browserNames.remove(browserIndex));
+                browserOrder.add(0, browserOrder.remove(browserIndex));
+                /* intentional fall-through */
+            case 0:
+                for (browserIndex = 0; browserIndex < browserOrder.size(); browserIndex++) {
+                    pane = new TaskPaneBrowser(browsers.get(browserOrder.get(browserIndex)), browserNames.get(browserIndex));
+                    if (browserIndex == 0) {
+                        firstPane = pane;
+                    }
+                    container.add(pane);
+                }
+            }
 
-					browser = browsers.get(Browser.FILES_EXPLORER);
-					container.add(new TaskPaneBrowser(browser));
-
-					browser = browsers.get(Browser.TAGS_EXPLORER);
-					container.add(new TaskPaneBrowser(browser));
-					break;
-				case Browser.SCREENS_EXPLORER:
-					browser = browsers.get(Browser.SCREENS_EXPLORER);
-					pane = new TaskPaneBrowser(browser);
-					firstPane = pane;
-					container.add(pane);
-					browser = browsers.get(Browser.PROJECTS_EXPLORER);
-					container.add(new TaskPaneBrowser(browser));
-
-					browser = browsers.get(Browser.FILES_EXPLORER);
-					container.add(new TaskPaneBrowser(browser));
-
-					browser = browsers.get(Browser.TAGS_EXPLORER);
-					container.add(new TaskPaneBrowser(browser));
-					break;
-				case Browser.TAGS_EXPLORER:
-					browser = browsers.get(Browser.TAGS_EXPLORER);
-					pane = new TaskPaneBrowser(browser);
-					firstPane = pane;
-					container.add(pane);
-					browser = browsers.get(Browser.PROJECTS_EXPLORER);
-					container.add(new TaskPaneBrowser(browser));
-
-					browser = browsers.get(Browser.SCREENS_EXPLORER);
-					container.add(new TaskPaneBrowser(browser));
-
-					browser = browsers.get(Browser.FILES_EXPLORER);
-					container.add(new TaskPaneBrowser(browser));
-					break;
-				case Browser.FILES_EXPLORER:
-					browser = browsers.get(Browser.FILES_EXPLORER);
-					pane = new TaskPaneBrowser(browser);
-					firstPane = pane;
-					container.add(pane);
-					browser = browsers.get(Browser.PROJECTS_EXPLORER);
-					container.add(new TaskPaneBrowser(browser));
-
-					browser = browsers.get(Browser.SCREENS_EXPLORER);
-					container.add(new TaskPaneBrowser(browser));
-					browser = browsers.get(Browser.TAGS_EXPLORER);
-					container.add(new TaskPaneBrowser(browser));
-			}
-    		
     		//browser = (Browser) browsers.get(Browser.FILE_SYSTEM_EXPLORER);
     		//container.add(new TaskPaneBrowser(browser));
              
             
             
             browser = browsers.get(Browser.IMAGES_EXPLORER);
-            container.add(new TaskPaneBrowser(browser));
+            container.add(new TaskPaneBrowser(browser, "image"));
             if (model.isLeader() || model.isAdministrator()) {
-            	browser = browsers.get(Browser.ADMIN_EXPLORER);
-                container.add(new TaskPaneBrowser(browser));
+                browser = browsers.get(Browser.ADMIN_EXPLORER);
+                final TaskPaneBrowser tpb = new TaskPaneBrowser(browser, "administration");
+                container.add(tpb);
             }
             AdvancedFinder finder = model.getAdvancedFinder();
     		finder.addPropertyChangeListener(controller);
-    		searchPane = new TaskPaneBrowser(new JScrollPane(finder));
+    		searchPane = new TaskPaneBrowser(new JScrollPane(finder), "search");
     		container.add(searchPane);
     		JScrollPane s = new JScrollPane(container);
     		s.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
@@ -320,6 +293,7 @@ class TreeViewerWin
         menus.add(createEditMenu());
         menus.add(createViewMenu());
         JMenuBar bar = tb.getTaskBarMenuBar();
+        bar.setName("menu bar");
         List<JMenu> existingMenus = new ArrayList<JMenu>();
         for (int i = 0; i < bar.getMenuCount(); i++) {
         	if (i != TaskBar.FILE_MENU)
@@ -438,34 +412,15 @@ class TreeViewerWin
     	JMenu menu = tb.getMenu(TaskBar.FILE_MENU);
     	Component[] comps = menu.getPopupMenu().getComponents();
     	menu.removeAll();
-        //JMenu menu = new JMenu("File");
-        //menu.setMnemonic(KeyEvent.VK_F);
-        
         menu.add(createNewMenu());
         if (comps != null) {
         	for (int i = 0; i < comps.length; i++) {
         		menu.add(comps[i]);
 			}
         }
-        TreeViewerAction a = controller.getAction(
-        		TreeViewerControl.SWITCH_USER);
-        JMenuItem item = new JMenuItem(a);
-        //menu.add(item);
-        item.setText(a.getActionName());
-        //menu.add(createRootMenu());
-        /*
-        a = controller.getAction(TreeViewerControl.EDITOR_NO_SELECTION);
-        item = new JMenuItem(a);
-        menu.add(item);
-        item.setText(a.getActionName());
-        a = controller.getAction(TreeViewerControl.IMPORT_NO_SELECTION);
-        item = new JMenuItem(a);
-        menu.add(item);
-        item.setText(a.getActionName());
-        */
         menu.add(new JSeparator(JSeparator.HORIZONTAL));
-        a = controller.getAction(TreeViewerControl.BROWSE);
-        item = new JMenuItem(a);
+        TreeViewerAction a = controller.getAction(TreeViewerControl.BROWSE);
+        JMenuItem item = new JMenuItem(a);
         item.setText(a.getActionName());
         menuItems.add(item);
         menu.add(item);
@@ -678,6 +633,7 @@ class TreeViewerWin
     	buildGUI();
     	controller.attachUIListeners(browsersDisplay);
     	createTitle();
+    	setName("tree viewer window");
     }
 
     /** Creates and displays the title of the window. */
@@ -938,7 +894,10 @@ class TreeViewerWin
         viewPort.validate();
         viewPort.repaint();
     }
-    
+
+    /** Clears the menus. */
+    void clearMenus() { toolBar.clearMenus(); }
+
     /**
      * Shows or hides the component depending on the stated of the frame.
      * 
@@ -1044,13 +1003,9 @@ class TreeViewerWin
     { 
     	Map<Integer, Browser> browsers = model.getBrowsers();
         if (browsers != null) {
-        	Entry entry;
-            Iterator i = browsers.entrySet().iterator();
-            while (i.hasNext()) {
-            	entry = (Entry) i.next();
-            	((Browser) entry.getValue()).onComponentStateChange(b);
-            }    
-
+            for (final Browser browser : browsers.values()) {
+                browser.onComponentStateChange(b);
+            }
         }
         //if (browser != null) browser.onComponentStateChange(b);
         if (container != null) container.setExpandable(b);
@@ -1089,11 +1044,11 @@ class TreeViewerWin
      */
     void updateMenuItems()
     {
-    	Iterator i = menuItems.iterator();
+    	Iterator<JMenuItem> i = menuItems.iterator();
     	JMenuItem item;
     	TreeViewerAction a;
     	while (i.hasNext()) {
-    		item = (JMenuItem) i.next();
+    		item = i.next();
     		a = (TreeViewerAction) item.getAction();
 			item.setText(a.getActionName());
 			item.setToolTipText(a.getActionDescription());

@@ -1,7 +1,7 @@
 /*
  *   $Id$
  *
- *   Copyright 2008 University of Dundee. All rights reserved.
+ *   Copyright 2008-2013 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -15,7 +15,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
 
-import ome.annotations.PermitAll;
 import ome.annotations.RolesAllowed;
 import ome.api.IPixels;
 import ome.api.IProjection;
@@ -94,6 +93,16 @@ public class ProjectionBean extends AbstractLevel2Service implements IProjection
         ctx.pixels = iQuery.get(Pixels.class, pixelsId);
         PixelBuffer pixelBuffer = pixelsService.getPixelBuffer(
                 ctx.pixels, false);
+        zIntervalBoundsCheck(start, end, ctx.pixels.getSizeZ());
+        outOfBoundsStepping(stepping);
+        outOfBoundsCheck(channelIndex, "channel");
+        outOfBoundsCheck(timepoint, "timepoint");
+        Integer v = ctx.pixels.getSizeT();
+        if (timepoint >= v)
+            throw new ValidationException("timepoint must be <"+v);
+        v = ctx.pixels.getSizeC();
+        if (channelIndex >= v)
+            throw new ValidationException("channel index must be <"+v);
         try
         {
 
@@ -175,8 +184,8 @@ public class ProjectionBean extends AbstractLevel2Service implements IProjection
      */
     @RolesAllowed("user")
     @Transactional(readOnly = false)
-    public long projectPixels(long pixelsId, PixelsType pixelsType, 
-                              int algorithm, int tStart, int tEnd, 
+    public long projectPixels(long pixelsId, PixelsType pixelsType,
+                              int algorithm, int tStart, int tEnd,
                               List<Integer> channels, int stepping,
                               int zStart, int zEnd, String name)
     {
@@ -186,10 +195,16 @@ public class ProjectionBean extends AbstractLevel2Service implements IProjection
         Image image = ctx.pixels.getImage();
         name = name == null? image.getName() + " Projection" : name;
         //size of the new buffer.
+        //Add control for z
+        zIntervalBoundsCheck(zStart, zEnd, ctx.pixels.getSizeZ());
+        outOfBoundsStepping(stepping);
+
         Integer sizeT = tEnd-tStart+1;
         if (tStart > tEnd)
         	sizeT = tStart-tEnd+1;
         if (sizeT <= 0) sizeT = null;
+
+        //Channels and timepoint validation done there
         long newImageId = 
             iPixels.copyAndResizeImage(image.getId(), null, null, 1, sizeT,
                                        channels, name, false);
@@ -310,6 +325,50 @@ public class ProjectionBean extends AbstractLevel2Service implements IProjection
         }
         newImage = iUpdate.saveAndReturnObject(newImage);
         return newImage.getId();
+    }
+    
+    /**
+     * Ensures that a particular dimension value is not out of range (ex. less
+     * than zero).
+     * @param value The value to check.
+     * @param name The name of the value to be used for error reporting.
+     * @throws ValidationException If <code>value</code> is out of range.
+     */
+    private void outOfBoundsCheck(Integer value, String name)
+    {
+        if (value != null && value < 0)
+        {
+            throw new ValidationException(name + ": " + value + " < 0");
+        }
+    }
+    
+    /**
+     * Ensures that a particular dimension value is not out of range.
+     * @param value The value to check.
+     * @throws ValidationException If <code>value</code> is out of range.
+     */
+    private void outOfBoundsStepping(Integer value)
+    {
+        if (value != null && value <= 0)
+        {
+            throw new ValidationException("stepping: " + value + " <= 0");
+        }
+    }
+    
+    /**
+     * Ensures that a particular dimension value is not out of range (ex. less
+     * than zero).
+     * @param start The lower bound of the interval.
+     * @param end The upper bound of the interval.
+     * @param name The name of the value to be used for error reporting.
+     * @throws ValidationException If <code>value</code> is out of range.
+     */
+    private void zIntervalBoundsCheck(int start, int end, Integer maxZ)
+    {
+        if (start < 0 || end < 0)
+            throw new ValidationException("Z interval value cannot be negative.");
+        if (start >= maxZ || end >= maxZ)
+            throw new ValidationException("Z interval value cannot be >= "+maxZ);
     }
     
     /**

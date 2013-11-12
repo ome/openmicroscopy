@@ -82,7 +82,7 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
         </then></if>
         <installIvy/>
         <ivy:buildlist reference="all.buildpath" settingsRef="ivy.toplevel">
-            <fileset dir="${omero.home}/components" includes="*/build.xml" excludes="**/tools/**"/>
+            <fileset dir="${omero.home}/components" includes="*/build.xml" excludes="**/tools/**, **/tests/**"/>
         </ivy:buildlist>
         <ivy:buildlist reference="blitzserver.buildpath" settingsRef="ivy.toplevel">
             <fileset dir="${omero.home}/components/blitz/" includes="build.xml"/>
@@ -96,6 +96,9 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
         <ivy:buildlist reference="all-tools.buildpath" settingsRef="ivy.toplevel">
             <fileset dir="${omero.home}/components/tools" includes="*/build.xml"/>
         </ivy:buildlist>
+        <ivy:buildlist reference="all-tests.buildpath" settingsRef="ivy.toplevel">
+            <fileset dir="${omero.home}/components/tests" includes="*/build.xml"/>
+        </ivy:buildlist>
         <!-- Single file paths defined in antlib/resources/directories.xml -->
     </target>
 
@@ -105,6 +108,7 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
         <antcall target="check-scons" inheritRefs="true" inheritAll="true"/>
         <iterate buildpathref="all.buildpath"   target="clean"/>
         <iterate buildpathref="tools.buildpath" target="clean"/>
+        <iterate buildpathref="tests.buildpath" target="clean"/>
         <delete dir="${dist.dir}"/>
         <delete dir="${lib.dir}/cache"/>
         <delete includeemptydirs="true">
@@ -144,11 +148,9 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
         <unzip src="${lib.dir}/repository/scons-local-2.1.0.zip" dest="target/scons"/>
     </target>
 
-    <target name="check-ice" description="Checks for slice/include files and unpacks">
-        <available property="slice.dir" value="true" filepath="${target.dir}" file="Ice" />
-        <antcall target="build-ice" inheritAll="true" inheritRefs="true"/>
+    <target name="check-ice" description="Checks Ice versioning">
         <!-- Checking the slice2* version before continuing. See #1185 -->
-        <exec outputproperty="executable.ice.version" executable="slice2java">
+        <exec outputproperty="executable.ice.version" executable="${ice.slice2java}">
             <arg value="--version"/>
         </exec>
         <if>
@@ -160,23 +162,17 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
             </not>
             <then><fail>WRONG ICE VERSION!
 
-                slice2java version = ${executable.ice.version}
+                slice2java (${ice.slice2java}) version = ${executable.ice.version}
                 Expected version = ${ice.compatibility}
 
-                If you would like to configure which Ice to use,
-                set ice.compatibility=3.3 or ice.compatibility=3.4
-                in your etc/local.properties file or on the command-
-                line: ./build.py -Dice.compatibility=3.3
+                If you would like to configure which Ice to use, set
+                ice.compatibility=3.3, ice.compatibility=3.4, or
+                ice.compatibility=3.5 in your etc/local.properties
+                file or on the command- line:
+                  ./build.py -Dice.compatibility=3.3
 
             </fail></then>
         </if>
-    </target>
-
-    <target name="build-ice" depends="check-scons" description="Installs the Ice code generation executables" unless="slice2java.exe">
-        <if><not><available file="${target.dir}/Ice"/></not><then>
-            <mkdir dir="${target.dir}/Ice"/>
-            <untar compression="gzip" src="${lib.dir}/repository/ice-includes-${versions.ice}.tar.gz" dest="target/Ice"/>
-        </then></if>
     </target>
 
     <target name="build-default" description="Default build calls build" depends="build"/>
@@ -185,6 +181,8 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
         <iterate buildpathref="all.buildpath" target="dist"/>
         <iterate buildpathref="all-tools.buildpath" target="tools-dist"/>
         <iterate buildpathref="tools.buildpath" target="dist"/>
+        <iterate buildpathref="tests.buildpath" target="dist"/>
+        <iterate buildpathref="all-tests.buildpath" target="tests-dist"/>
         <antcall target="build-dist" inheritRefs="true" inheritAll="true"/>
     </target>
 
@@ -193,6 +191,7 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
         <iterate buildpathref="all.buildpath" target="dist"/>
         <iterate buildpathref="tools.buildpath" target="build"/>
         <iterate buildpathref="tools.buildpath" target="dist"/>
+        <iterate buildpathref="tests.buildpath" target="build"/>
         <antcall target="build-dist" inheritRefs="true" inheritAll="true"/>
     </target>
 
@@ -200,7 +199,7 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
         depends="clean,init,build-default,test-compile,build-eclipse"/>
 
     <target name="build-all-dev" description="build-all, then test-compile and build-eclipse"
-        depends="clean,init,build-default,test-compile,build-eclipse"/>
+        depends="clean,init,build-all,test-compile-all,build-eclipse"/>
 
     <target name="build-blitz" description="Alias for 'build-server'" depends="build-server"/>
 
@@ -324,12 +323,13 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
 
     <macrodef name="launchSuite">
         <attribute name="suite"/>
-        <attribute name="excludes" default="**/tools/build.xml"/>
+        <attribute name="excludes" default="**/tools/build.xml,**/tests/build.xml"/>
         <sequential>
         <ivy:settings id="ivy.@{suite}"  file="${etc.dir}/ivysettings.xml"/>
         <ivy:buildlist reference="@{suite}.buildpath" settingsRef="ivy.@{suite}" ivyfilepath="test.xml">
             <fileset dir="${omero.home}/components" includes="*/build.xml" excludes="**/insight/*/**/*.xml,@{excludes}"/>
             <fileset dir="${omero.home}/components/tools" includes="*/build.xml"/>
+            <fileset dir="${omero.home}/components/tests" includes="*/build.xml"/>
         </ivy:buildlist>
         <iterate buildpathref="@{suite}.buildpath" target="@{suite}"/>
         </sequential>
@@ -460,7 +460,6 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
             <zipfileset dir="${blitz.comp}/target"      prefix="OMERO.java-${omero.version}/src"  includes="**/*.java"/>
             <zipfileset dir="${blitz.comp}/generated"   prefix="OMERO.java-${omero.version}/src"  includes="**/*.java"/>
             <zipfileset dir="${insight.comp}/SRC"       prefix="OMERO.java-${omero.version}/src"  includes="**/*.java"/>
-            <zipfileset dir="${OmeroJava.comp}/src"     prefix="OMERO.java-${omero.version}/src"  includes="**/*.java"/>
             <zipfileset dir="${dist.dir}/lib/client"    prefix="OMERO.java-${omero.version}/libs" includes="**/*.jar"/>
         </zip>
 
@@ -515,6 +514,7 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
     <target name="release-headers" description="Generates headers.xml for all components" depends="init">
        <iterate buildpathref="all.buildpath"   target="headers"/>
        <iterate buildpathref="tools.buildpath" target="headers"/>
+       <iterate buildpathref="tests.buildpath" target="headers"/>
        <taskdef resource="checkstyletask.properties" classpathref="omero.classpath"/>
         <checkstyle config="${omero.home}/docs/styles/checkstyle-header.xml" failOnViolation="true">
             <fileset dir="${basedir}" includes="*,docs/**/*,etc/**/*,sql/**/*"/>
@@ -525,52 +525,6 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
     <target name="release-findbugs" description="Generates findbugs.xml and checkstyle.xml for all components" depends="init">
        <iterate buildpathref="all.buildpath"   target="findbugs"/>
        <iterate buildpathref="tools.buildpath" target="findbugs"/>
-    </target>
-
-    <target name="release-jdepend" description="Generates jdepend.xml for all components" depends="init">
-       <path id="omero.classpath">
-           <fileset dir="${omero.home}/lib/repository"/>
-       </path>
-
-       <jdepend outputfile="target/jdepend.txt" fork="yes" classpathref="omero.classpath">
-           <exclude name="java.*"/>
-           <exclude name="java.lang.*"/>
-           <exclude name="java.io.*"/>
-           <exclude name="java.util.*"/>
-           <exclude name="javax.*"/>
-           <exclude name="org.springframework.*"/>
-           <exclude name="org.springframework.orm.*"/>
-           <exclude name="org.apache.*"/>
-           <exclude name="net.ehcache.*"/>
-           <classespath>
-               <!--pathelement location="components/model/target/classes"/-->
-               <pathelement location="components/server/target/classes"/>
-               <!--pathelement location="components/blitz/target/classes"/-->
-           </classespath>
-       </jdepend>
-       <jdepend outputfile="target/jdepend.xml" fork="yes" format="xml" classpathref="omero.classpath">
-           <exclude name="java.*"/>
-           <exclude name="java.lang.*"/>
-           <exclude name="java.io.*"/>
-           <exclude name="java.util.*"/>
-           <exclude name="javax.*"/>
-           <exclude name="org.springframework.*"/>
-           <exclude name="org.springframework.orm.*"/>
-           <exclude name="org.apache.*"/>
-           <exclude name="net.ehcache.*"/>
-           <classespath>
-               <!--pathelement location="components/model/target/classes"/-->
-               <pathelement location="components/server/target/classes"/>
-               <!--pathelement location="components/blitz/target/classes"/-->
-           </classespath>
-       </jdepend>
-       <style in="target/jdepend.xml" out="target/jdepend.dot" style="lib/repository/jdepend2dot.xsl"/>
-       <exec executable="dot" failifexecutionfails="false"> <!-- In case dot is missing -->
-           <arg value="-Tpng"/>
-           <arg value="target/jdepend.dot"/>
-           <arg value="-o"/>
-           <arg value="target/jdepend.png"/>
-       </exec>
     </target>
 
     <target name="release-coverage" depends="build-eclipse"
@@ -616,7 +570,7 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
       <replace file="${omero.home}/target/docs/header.txt" token="@VERSION@" value="${omero.version}"/>
       <replace file="${omero.home}/target/docs/footer.txt" token="@VERSION@" value="${omero.version}"/>
       <mkdir dir="${dist.dir}/docs/api/slice2html"/>
-      <apply executable="slice2html" parallel="true" failonerror="true">
+      <apply executable="${ice.slice2html}" parallel="true" failonerror="true">
            <arg value="--hdr"/>
            <arg value="${omero.home}/target/docs/header.txt"/>
            <!-- <arg value="-REMOVETHISTEXTBETWEENDASHES-ftr"/> Commented out as causing a crash in slice2html
@@ -626,7 +580,7 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
            <arg value="-I"/>
            <arg value="${blitz.comp}/resources"/>
            <arg value="-I"/>
-           <arg value="${omero.home}/target/Ice/slice"/>
+           <arg value="${ice.slicepath}"/>
            <arg value="--output-dir"/>
            <arg value="${dist.dir}/docs/api/slice2html"/>
         <!-- The order here is important. Later docs overwrite earlier ones -->
@@ -692,6 +646,8 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
                 version="true"
                 use="true"
                 breakiterator="true"
+                encoding="UTF-8"
+                docencoding="UTF-8"
                 windowtitle="OMERO (OME Remote Objects) Server"
                 overview="target/docs/overview.html"
                 stylesheetfile="docs/javadocsstyle.css">
@@ -751,7 +707,7 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
                 <group title="I. Deprecated"
                         packages="ome.dynamic*:ome.rules*"/>
 
-                <link href="http://java.sun.com/j2se/1.5/docs/api/"/>
+                <link href="http://docs.oracle.com/javase/6/docs/api/"/>
                 <link href="http://www.springframework.org/docs/api/"/>
                 <link href="http://www.hibernate.org/hib_docs/v3/api/"/>
                 <link href="http://aopalliance.sourceforge.net/doc/"/>

@@ -70,7 +70,7 @@ public class BrowseContainerAction
 {
 
 	/** Name of the action when the <code>DataObject</code> isn't an Image. */
-    private static final String NAME_NO_TUMBNAILS = "Browse w/o thumbnails";
+    private static final String NAME_NO_THUMBNAILS = "Browse w/o thumbnails";
     
     /** Name of the action when the <code>DataObject</code> isn't an Image. */
     private static final String NAME = "Browse";
@@ -124,7 +124,7 @@ public class BrowseContainerAction
     private static IconManager	icons = IconManager.getInstance();
     
     /** Flag indicating to browse the object and retrieve the thumbnails. */
-    private boolean withThumnails;
+    private final boolean withThumbnails;
     
     /**
      * Sets the action enabled depending on the browser's type and 
@@ -156,9 +156,9 @@ public class BrowseContainerAction
         	putValue(Action.SMALL_ICON, icons.getIcon(IconManager.BROWSER));
         	putValue(Action.SHORT_DESCRIPTION, 
         			UIUtilities.formatToolTipText(DESCRIPTION_TIME));
-        	if (withThumnails) name = NAME;
+        	if (withThumbnails) name = NAME;
         	else {
-        		name = NAME_NO_TUMBNAILS;
+        		name = NAME_NO_THUMBNAILS;
         		setEnabled(false);
         		return;
         	}
@@ -200,8 +200,8 @@ public class BrowseContainerAction
                     setEnabled(true);
                     //for this version
                     //setEnabled(false);
-                    if (withThumnails) name = NAME;
-                	else name = NAME_NO_TUMBNAILS;
+                    if (withThumbnails) name = NAME;
+                	else name = NAME_NO_THUMBNAILS;
                     putValue(Action.SMALL_ICON, 
                     			icons.getIcon(IconManager.BROWSER)); 
                     putValue(Action.SHORT_DESCRIPTION, 
@@ -209,8 +209,8 @@ public class BrowseContainerAction
                     return;
                 }
             }
-            if (withThumnails) name = NAME;
-        	else name = NAME_NO_TUMBNAILS;
+            if (withThumbnails) name = NAME;
+        	else name = NAME_NO_THUMBNAILS;
         	putValue(Action.SMALL_ICON, icons.getIcon(IconManager.BROWSER));
 
         	String description = DESCRIPTION_DEFAULT;
@@ -228,11 +228,11 @@ public class BrowseContainerAction
                 } else if (ho instanceof ProjectData) {
                 	description = DESCRIPTION_PROJECT;
                 	setEnabled(n > 0);
-                	if (!withThumnails) setEnabled(false);
+                	if (!withThumbnails) setEnabled(false);
                 } else if (ho instanceof DatasetData) {
                 	description = DESCRIPTION_DATASET;
                 	setEnabled(n > 0);
-                	if (!withThumnails) setEnabled(false);
+                	if (!withThumbnails) setEnabled(false);
                 } else if (ho instanceof TagAnnotationData) {
             		String ns = ((TagAnnotationData) ho).getNameSpace();
             		if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(ns))
@@ -241,7 +241,7 @@ public class BrowseContainerAction
             			description = DESCRIPTION_TAG;
             			setEnabled(n > 0);
             		}
-            		if (!withThumnails) setEnabled(false);
+            		if (!withThumbnails) setEnabled(false);
                 } else if (ho instanceof MultiImageData) {
                 	MultiImageData mi = (MultiImageData) ho;
             		if (!mi.isHidden()) {
@@ -281,9 +281,9 @@ public class BrowseContainerAction
     public BrowseContainerAction(TreeViewer model, boolean withThumbnails)
     {
         super(model);
-        this.withThumnails = withThumbnails;
+        this.withThumbnails = withThumbnails;
         if (withThumbnails) name = NAME;
-        else name = NAME_NO_TUMBNAILS;
+        else name = NAME_NO_THUMBNAILS;
         putValue(Action.SHORT_DESCRIPTION, 
                 UIUtilities.formatToolTipText(DESCRIPTION_DEFAULT));
         putValue(Action.SMALL_ICON, icons.getIcon(IconManager.BROWSER)); 
@@ -295,7 +295,7 @@ public class BrowseContainerAction
      */
     public void actionPerformed(ActionEvent e)
     {
-       ViewCmd cmd = new ViewCmd(model, withThumnails);
+       ViewCmd cmd = new ViewCmd(model, withThumbnails);
        cmd.execute();
     }
     

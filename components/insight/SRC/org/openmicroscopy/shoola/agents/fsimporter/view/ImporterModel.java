@@ -78,22 +78,22 @@ class ImporterModel
 {
 
 	/** Holds one of the state flags defined by {@link Importer}. */
-	private int					state;
+	private int state;
 
 	/** Reference to the component that embeds this model. */
-	protected Importer			component;
+	protected Importer component;
 
 	/** The collection of existing tags. */
-	private Collection			tags;
+	private Collection tags;
 	
 	/** Keeps track of the different loaders. */
 	private Map<Integer, ImagesImporter> loaders;
 	
 	/** The id of the selected group of the current user. */
-	private long					groupId;
+	private long groupId;
 
 	/** The id of the user currently logged in.*/
-	private long 					experimenterId;
+	private long experimenterId;
 	
 	/** The security context.*/
 	private SecurityContext ctx; //to be initialized.
@@ -103,12 +103,16 @@ class ImporterModel
 	
 	/** The display mode.*/
     private int displayMode;
+
+    /** The id of the user to import for.*/
+    private long userId;
     
 	/** Initializes the model.*/
 	private void initialize()
 	{
 		groupId = -1;
 		experimenterId = -1;
+		userId = -1;
 		state = Importer.NEW;
 		loaders = new HashMap<Integer, ImagesImporter>();
 		checkDefaultDisplayMode();
@@ -152,7 +156,7 @@ class ImporterModel
 		}
 		return true;
 	}
-	
+
 	/**
 	 * Returns the group corresponding to the specified id or <code>null</code>.
 	 * 
@@ -482,5 +486,37 @@ class ImporterModel
 				pixels, type, component);
 		loader.load();
 	}
+	
+    /**
+     * Returns the id of the user to import data for.
+     *
+     * @return See above.
+     */
+    long getImportFor()
+    {
+        if (!canImportAs() || userId < 0) return experimenterId;
+        return userId;
+    }
+
+    /**
+     * Sets the id of the user to import the data for.
+     * 
+     * @param userId The id of the user.
+     */
+    void setImportFor(long userId)
+    {
+        if (canImportAs()) this.userId = userId;
+    }
+
+    /**
+     * Returns <code>true</code> if the user currently log in can import as,
+     * <code>false</code> otherwise.
+     *
+     * @return
+     */
+    boolean canImportAs()
+    {
+        return ImporterAgent.isAdministrator();
+    }
 
 }

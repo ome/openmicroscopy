@@ -187,7 +187,7 @@ class OmeroImageServiceImpl
 	throws DSAccessException, DSOutOfServiceException
 	{
 		if (status.isMarkedAsCancel()) {
-			if (close) gateway.closeImport(ctx);
+			if (close) gateway.closeImport(ctx, userName);
 			return Boolean.valueOf(false);
 		}
 		Entry<File, StatusLabel> entry;
@@ -219,8 +219,13 @@ class OmeroImageServiceImpl
 					ic = gateway.getImportCandidates(ctx, object, file, status);
 					icContainers = ic.getContainers();
 					if (icContainers.size() == 0) {
-						label.setCallback(new ImportException(
-								ImportException.FILE_NOT_VALID_TEXT));
+					    Object o = status.getImportResult();
+					    if (o instanceof ImportException) {
+					        label.setCallback(o);
+					    } else {
+					        label.setCallback(new ImportException(
+	                                ImportException.FILE_NOT_VALID_TEXT));
+					    }
 					} else {
 						//Check after scanning
 						if (label.isMarkedAsCancel())
@@ -242,7 +247,7 @@ class OmeroImageServiceImpl
 				label.setCallback(Boolean.valueOf(false));
 			}
 		}
-		if (close) gateway.closeImport(ctx);
+		if (close) gateway.closeImport(ctx, userName);
 		return null;
 	}
 
@@ -386,13 +391,19 @@ class OmeroImageServiceImpl
 									(DatasetData) 
 									PojoMapper.asDataObject(
 									ioContainer));
-							link = (ProjectDatasetLink) 
-							ModelMapper.linkParentToChild(
-									(Dataset) ioContainer, 
+							//Check that the project still exists
+							IObject ho = gateway.findIObject(ctx,
+									container.asIObject());
+							if (ho != null) {
+								link = (ProjectDatasetLink) 
+								ModelMapper.linkParentToChild(
+									(Dataset) ioContainer,
 									(Project) container.asProject());
-							link = (ProjectDatasetLink) 
-							gateway.saveAndReturnObject(ctx, link,
-									parameters, userName);
+									link = (ProjectDatasetLink) 
+									gateway.saveAndReturnObject(ctx, link,
+										parameters, userName);
+							}
+							
 						} else ioContainer = createdData.asIObject();
 					}
 				} else { //dataset w/o project.
@@ -425,7 +436,8 @@ class OmeroImageServiceImpl
 				} else ioContainer = container.asIObject();
 			}
 		}
-		return ioContainer;
+		//Check that the container still exist
+		return gateway.findIObject(ctx, ioContainer);
 	}
 	
 	/**
@@ -962,11 +974,6 @@ class OmeroImageServiceImpl
 			throw new IllegalArgumentException("No images to import.");
 		StatusLabel status = importable.getStatus();
 		SecurityContext ctx = new SecurityContext(importable.getGroup().getId());
-
-		if (status.isMarkedAsCancel()) {
-			if (close) gateway.closeImport(ctx);
-			return Boolean.valueOf(false);
-		}
 		//If import as.
 		ExperimenterData loggedIn = context.getAdminService().getUserDetails();
 		long userID = loggedIn.getId();
@@ -977,6 +984,10 @@ class OmeroImageServiceImpl
 			if (exp.getId() != loggedIn.getId())
 				userName = exp.getUserName();
 		}
+	      if (status.isMarkedAsCancel()) {
+	            if (close) gateway.closeImport(ctx, userName);
+	            return Boolean.valueOf(false);
+	        }
 		Collection<TagAnnotationData> tags = object.getTags();
 		List<Annotation> customAnnotationList = new ArrayList<Annotation>();
 		List<IObject> l;
@@ -1005,7 +1016,12 @@ class OmeroImageServiceImpl
 					customAnnotationList.add(a); // THIS!
 				}
 				object.setTags(values);
-			} catch (Exception e) {}
+			} catch (Exception e) {
+			    LogMessage msg = new LogMessage();
+			    msg.print("Cannot create the tags.");
+			    msg.print(e);
+			    context.getLogger().error(this, msg);
+			}
 		}
 		IObject link;
 		//prepare the container.
@@ -1036,7 +1052,7 @@ class OmeroImageServiceImpl
 							String value = candidates.get(0);
 							if (!file.getAbsolutePath().equals(value) && 
 								object.isFileinQueue(value)) {
-								if (close) gateway.closeImport(ctx);
+								if (close) gateway.closeImport(ctx, userName);
 								status.markedAsDuplicate();
 								return Boolean.valueOf(true);
 							}
@@ -1112,7 +1128,11 @@ class OmeroImageServiceImpl
 								context.getLogger().error(this, msg);
 							}
 						}
-					} else ioContainer = container.asIObject();
+					} else {
+						//Check that the container still exists
+						ioContainer = gateway.findIObject(ctx,
+								container.asIObject());
+					}
 				}
 			}
 			if (ImportableObject.isArbitraryFile(file)) {
@@ -1121,14 +1141,18 @@ class OmeroImageServiceImpl
 				candidates = ic.getPaths();
 				int size = candidates.size();
 				if (size == 0) {
-					return new ImportException(
-							ImportException.FILE_NOT_VALID_TEXT);
+				    Object o = status.getImportResult();
+                    if (o instanceof ImportException) {
+                        return o;
+                    }
+                    return new ImportException(
+                            ImportException.FILE_NOT_VALID_TEXT);
 				}
 				else if (size == 1) {
 					String value = candidates.get(0);
 					if (!file.getAbsolutePath().equals(value) && 
 						object.isFileinQueue(value)) {
-						if (close) gateway.closeImport(ctx);
+						if (close) gateway.closeImport(ctx, userName);
 						status.markedAsDuplicate();
 						return Boolean.valueOf(true);
 					}
@@ -1170,6 +1194,10 @@ class OmeroImageServiceImpl
 				ic = gateway.getImportCandidates(ctx, object, file, status);
 				icContainers = ic.getContainers();
 				if (icContainers.size() == 0) {
+				    Object o = status.getImportResult();
+				    if (o instanceof ImportException) {
+				        return o;
+				    }
 					return new ImportException(
 							ImportException.FILE_NOT_VALID_TEXT);
 				}
@@ -1187,9 +1215,13 @@ class OmeroImageServiceImpl
 		//Checks folder import.
 		ic = gateway.getImportCandidates(ctx, object, file, status);
 		List<ImportContainer> lic = ic.getContainers();
-		if (lic.size() == 0)
-			return new ImportException(
-				ImportException.FILE_NOT_VALID_TEXT);
+		if (lic.size() == 0) {
+            Object o = status.getImportResult();
+            if (o instanceof ImportException) {
+                return o;
+            }
+            return new ImportException(ImportException.FILE_NOT_VALID_TEXT);
+		}
 		if (status.isMarkedAsCancel()) {
 			return Boolean.valueOf(false);
 		}
@@ -1244,7 +1276,8 @@ class OmeroImageServiceImpl
 							context.getLogger().error(this, msg);
 						}
 					}
-				} else ioContainer = container.asIObject();
+				} else ioContainer = gateway.findIObject(ctx,
+						container.asIObject());
 			}
 			importCandidates(ctx, hcsFiles, status, object,
 					ioContainer, customAnnotationList, userID, close, true, userName);

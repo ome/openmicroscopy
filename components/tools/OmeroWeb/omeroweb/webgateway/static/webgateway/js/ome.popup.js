@@ -23,6 +23,29 @@ if (typeof OME === "undefined") {
     OME = {};
 }
 
+Number.prototype.filesizeformat = function () {
+    /*
+    Formats the value like a 'human-readable' file size (i.e. 13 KB, 4.1 MB,
+    102 bytes, etc).*/
+    
+    var bytes = this;
+    if (bytes < 1024) {
+        return bytes + ' B';
+    } else if (bytes < (1024*1024)) {
+        return (bytes / 1024).toFixed(2) + ' KB';
+    } else if (bytes < (1024*1024*1024)) {
+        return (bytes / (1024*1024)).toFixed(2) + ' MB';
+    } else if (bytes < (1024*1024*1024*1024)) {
+        return (bytes / (1024*1024*1024)).toFixed(2) + ' GB';
+    } else if (bytes < (1024*1024*1024*1024*1024)) {
+        return (bytes / (1024*1024*1024*1024)).toFixed(2) + ' TB';
+    } else {
+        return (bytes / (1024*1024*1024*1024*1024)).toFixed(2) + ' PB';
+    }
+    
+}
+
+
 String.prototype.capitalize = function() {
     return this.charAt(0).toUpperCase() + this.slice(1);
 };
@@ -439,11 +462,11 @@ OME.login_dialog = function(login_url, callback) {
 
                 // update enabled & selected state
                 if(!supported) {
-                    $("#annotation_tabs").tabs("disable", plugin_tab_index);
                     if (plugin_tab_index == select_tab) {
                         // if we're currently selected - switch to first tab
                         $("#annotation_tabs").tabs("select", 0);
                     }
+                    $("#annotation_tabs").tabs("disable", plugin_tab_index);
                 } else {
                     $("#annotation_tabs").tabs("enable", plugin_tab_index);
                     // update tab content

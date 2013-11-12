@@ -3,7 +3,6 @@ package ome.formats.utests;
 import java.util.List;
 import java.util.Map;
 
-import Glacier2.AMI_Session_destroy;
 import Ice.ByteSeqHolder;
 import Ice.Communicator;
 import Ice.Connection;

@@ -75,6 +75,5 @@ for app in settings.ADDITIONAL_APPS:
     regex = '(?i)^%s/' % app
     urlpatterns += patterns('', (regex, include('omeroweb.%s.urls' % app)),)
 
-# Only append if urlpatterns are empty
-if settings.DEBUG and not urlpatterns:
+if settings.DEBUG:
     urlpatterns += staticfiles_urlpatterns()

@@ -12,16 +12,18 @@
 """
 
 from omero.cli import BaseControl, CLI
-import cmd, sys
 import sys
 
 prompt = "omero submit [%s]> "
 
+
 class Save(Exception):
     pass
 
+
 class Cancel(Exception):
     pass
+
 
 class SubmitCLI(CLI):
 
@@ -49,6 +51,7 @@ HELP = """When run without arguments, submit shell is opened
 which takes commands without executing them. On save,
 the file is trasferred to the server, and executed."""
 
+
 class SubmitControl(BaseControl):
 
     def _configure(self, parser):
@@ -64,12 +67,12 @@ class SubmitControl(BaseControl):
         else:
             try:
                 submit.invokeloop()
-            except Save, s:
+            except Save:
                 submit.execute()
-            except Cancel, c:
+            except Cancel:
                 l = len(submit.queue)
                 if l > 0:
-                    print l," items queued. Really cancel? [Yn]"
+                    print l, " items queued. Really cancel? [Yn]"
 
 try:
     # register("submit", SubmitControl, HELP)

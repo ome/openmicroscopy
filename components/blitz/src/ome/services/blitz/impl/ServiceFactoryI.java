@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 import ome.api.IAdmin;
 import ome.api.IShare;
@@ -482,7 +483,7 @@ public final class ServiceFactoryI extends omero.cmd.SessionI implements _Servic
     public StatefulServiceInterfacePrx createByName(String name, Current current)
             throws ServerError {
 
-        Ice.Identity id = holder.getIdentity(Ice.Util.generateUUID() + name);
+        Ice.Identity id = holder.getIdentity(UUID.randomUUID().toString() + name);
         if (null != adapter.find(id)) {
             omero.InternalException ie = new omero.InternalException();
             ie.message = name + " already registered for this adapter.";

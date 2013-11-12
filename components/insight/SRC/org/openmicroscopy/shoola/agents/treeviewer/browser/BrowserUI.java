@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.treeviewer.browser.BrowserUI
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -252,6 +252,7 @@ class BrowserUI
 				a = (BrowserManageAction) 
 					controller.getAction(BrowserControl.NEW_CONTAINER);
 				button = new JButton(a);
+				button.setName("new container button");
 				button.setBorderPainted(false);
 				button.addMouseListener(a);
 				rightMenuBar.add(button);
@@ -260,6 +261,7 @@ class BrowserUI
 				a = (BrowserManageAction) 
 					controller.getAction(BrowserControl.NEW_ADMIN);
 				button = new JButton(a);
+				button.setName("new group or user button");
 				button.setBorderPainted(false);
 				button.addMouseListener(a);
 				rightMenuBar.add(button);
@@ -268,23 +270,29 @@ class BrowserUI
 				a = (BrowserManageAction) 
 					controller.getAction(BrowserControl.NEW_TAG);
 				button = new JButton(a);
+				button.setName("new tag button");
 				button.setBorderPainted(false);
 				button.addMouseListener(a);
 				rightMenuBar.add(button);
 		}
         button = new JButton(controller.getAction(BrowserControl.CUT));
+        button.setName("cut button");
         button.setBorderPainted(false);
         rightMenuBar.add(button);
         button = new JButton(controller.getAction(BrowserControl.COPY));
+        button.setName("copy button");
         button.setBorderPainted(false);
         rightMenuBar.add(button);
         button = new JButton(controller.getAction(BrowserControl.PASTE));
+        button.setName("paste button");
         button.setBorderPainted(false);
         rightMenuBar.add(button);
         button = new JButton(controller.getAction(BrowserControl.DELETE));
+        button.setName("delete button");
 		button.setBorderPainted(false);
 		rightMenuBar.add(button);
 		button = new JButton(controller.getAction(BrowserControl.REFRESH));
+		button.setName("refresh button");
 		button.setBorderPainted(false);
 		rightMenuBar.add(button);
 		
@@ -1821,7 +1829,7 @@ class BrowserUI
 		expNode.removeAllChildren();
 		expNode.removeAllChildrenDisplay();
 		expNode.setChildrenLoaded(Boolean.valueOf(true));
-        dtm.reload();
+        dtm.reload(expNode);
         Iterator i;
         if (nodes.size() > 0) {
         	boolean createFolder = true;
@@ -1840,9 +1848,9 @@ class BrowserUI
                 		if (l.size() > 0) {
                 			createFolder = false;
                 			n = (TreeFileSet) node.copy();
-                			n.setExpanded(Boolean.valueOf(true));
                 			n.setChildrenLoaded(Boolean.valueOf(true));
                 			expNode.addChildDisplay(n);
+                			expandNode(n);
                 		}
             		} else {
             			toKeep.add(node);
@@ -1868,7 +1876,6 @@ class BrowserUI
             	}
             }
         } else {
-        	expNode.setExpanded(false);
         	switch (model.getBrowserType()) {
 				case Browser.TAGS_EXPLORER:
 					createTagsElements(expNode);
@@ -1877,6 +1884,7 @@ class BrowserUI
 					buildOrphanImagesNode(expNode);
 					break;
 				default:
+				    expNode.setExpanded(false);
 					buildEmptyNode(expNode);
         	}
 		}
@@ -1971,7 +1979,6 @@ class BrowserUI
 		DefaultTreeModel dtm = (DefaultTreeModel) treeDisplay.getModel();
 		if (model.getBrowserType() != Browser.TAGS_EXPLORER)
 			expNode.setChildrenLoaded(Boolean.valueOf(true));
-		expNode.setExpanded(true);
 		int n = expNode.getChildCount();
 		TreeImageSet node;
 		List l;
@@ -1983,7 +1990,7 @@ class BrowserUI
 		int number;
 		int total;
 		DefaultMutableTreeNode childNode;
-		List<DefaultMutableTreeNode> remove = 
+		List<DefaultMutableTreeNode> remove =
 			new ArrayList<DefaultMutableTreeNode>();
 		for (int j = 0; j < n; j++) {
 			childNode = (DefaultMutableTreeNode) expNode.getChildAt(j);
@@ -2026,7 +2033,7 @@ class BrowserUI
 						node.setNumberItems(total);
 						k = toKeep.iterator();
 						while (k.hasNext()) {
-							dtm.insertNodeInto((TreeImageTimeSet) k.next(), node, 
+							dtm.insertNodeInto((TreeImageTimeSet) k.next(), node,
 													node.getChildCount());
 						}
 					}
@@ -2246,8 +2253,9 @@ class BrowserUI
 	void setFoundNode(TreeImageDisplay[] newSelection)
 	{
 		//treeDisplay.removeTreeSelectionListener(selectionListener);
-		treeDisplay.clearSelection();
-		if (newSelection != null) {
+		if (newSelection == null) {
+		    treeDisplay.clearSelection();
+		} else {
 			TreePath[] paths = new TreePath[newSelection.length];
 			for (int i = 0; i < newSelection.length; i++) {
 				paths[i] = new TreePath(newSelection[i].getPath());
@@ -2318,9 +2326,9 @@ class BrowserUI
 	 */
 	void reloadNode(TreeImageDisplay node)
 	{
-		if (node == null) return;
 		DefaultTreeModel tm = (DefaultTreeModel) treeDisplay.getModel();
-		tm.reload(node);
+		if (node == null) tm.reload();
+		else tm.reload(node);
 	}
 	
 	/**

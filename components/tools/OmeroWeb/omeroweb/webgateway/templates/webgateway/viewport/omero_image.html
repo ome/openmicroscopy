@@ -5,7 +5,7 @@
 <!--
  omero_image - django html template
 
- Copyright (c) 2007-2010 Glencoe Software, Inc. All rights reserved.
+ Copyright (c) 2007-2013 Glencoe Software, Inc. All rights reserved.
 
  This software is distributed under the terms described by the LICENCE file
  you can find at the root of the distribution bundle, which states you are
@@ -187,8 +187,8 @@
   }
 
   var rdChanSelHelper = function (e) {
-    if (!$('#rd-wblitz-rmodel').get(0).checked) {
-      // Grey model selected, select a single channel active
+    if (!$('#rd-wblitz-rmodel').get(0).checked && viewport.getProjection() != 'split') {
+      // Grey model selected and not in 'split' view, select a single channel active
       var t = $('[id^=rd-wblitz-ch]').filter(':checked');
       if (t.size() > 1) {
         if (e.checked) {
@@ -233,6 +233,11 @@
                  title="'+channels[i].label+'"\
                  onclick="viewport.toggleChannel('+i+')">'+channels[i].label+'</button>');
 
+    }
+
+    // disable 'split' view for single channel images.
+    if (channels.length < 2) {
+      $("input[value='split']").attr('disabled', 'disabled');
     }
 
     /* Image details */
@@ -324,8 +329,8 @@
         lblEnd: ''});
       $('#wblitz-ch'+i+'-cwslider').slider({
         range: true,
-        min: channels[i].window.min,
-        max: channels[i].window.max,
+        min: Math.min(channels[i].window.min, channels[i].window.start+1),  // range may extend outside min/max pixel
+        max: Math.max(channels[i].window.max, channels[i].window.end-1),
         values: [ channels[i].window.start+1, channels[i].window.end-1 ],
         slide: function(event, ui) {
           $('#wblitz-ch'+$(event.target).data('channel-idx')+'-cw-start').val(ui.values[0]).change();
@@ -334,14 +339,24 @@
         }).data('channel-idx', i);
       cb = function (i) {
         return function (e) {
-          $('#wblitz-ch'+i+'-cwslider').slider('values', 0, Math.min(Math.max(parseInt(e.target.value), channels[i].window.min), $('#wblitz-ch'+i+'-cwslider').slider('values')[1]));
+          var new_start = e.target.value,
+              $sl = $('#wblitz-ch'+i+'-cwslider'),
+              end = $sl.slider('values')[1]
+              min = $sl.slider( "option", "min" );
+          $sl.slider('values', 0, Math.min(new_start, end));    // ensure start < end
+          $sl.slider( "option", "min", Math.min(min, new_start) );   // extend range if needed
           show_change($('#wblitz-ch'+i+'-cw-start').get(0), channels[i].window.start, 'changed');
         };
       }
       $('#wblitz-ch'+i+'-cw-start').val(channels[i].window.start).unbind('change').bind('change', cb(i));
       cb = function (i) {
         return function (e) {
-          $('#wblitz-ch'+i+'-cwslider').slider('values', 1, Math.max(Math.min(parseInt(e.target.value), channels[i].window.max), $('#wblitz-ch'+i+'-cwslider').slider('values')[0]));
+          var new_end = e.target.value,
+              $sl = $('#wblitz-ch'+i+'-cwslider'),
+              start = $sl.slider('values')[0]
+              max = $sl.slider( "option", "max" );
+          $sl.slider('values', 1, Math.max(new_end, start));    // ensure end > start
+          $sl.slider( "option", "max", Math.max(max, new_end) );   // extend range if needed
           show_change($('#wblitz-ch'+i+'-cw-end').get(0), channels[i].window.end, 'changed');
         };
       }
@@ -401,9 +416,11 @@
       if (p != 'normal') {
         editLinePlot(false);
       }
+      // disable line-plot for max projection, split-view etc
       $('#wblitz-lp-enable').attr('disabled', p != 'normal');
       //$('#wblitz-channels-box button').attr('disabled', p == 'split');
-        $('[name="wblitz-proj"][value=intmax]').attr('disabled', viewport.loadedImg.rdefs.invertAxis);
+      var disable_intmax = (viewport.loadedImg.rdefs.invertAxis || viewport.getSizes().z < 2);
+      $('[name="wblitz-proj"][value=intmax]').attr('disabled', disable_intmax);
     }
     
     //nosync || syncRDCW();
@@ -756,6 +773,10 @@
     for (i in channels) {
       $('#rd-wblitz-ch'+i).get(0).checked = channels[i].active;
       $('#wblitz-ch'+i+'-cwslider .ui-slider-range').css('background-color', toRGB(channels[i].color));
+      var w = channels[i].window;
+      $('#wblitz-ch'+i+'-cwslider')
+          .slider( "option", "min", Math.min(w.min, w.start) )   // extend range if needed
+          .slider( "option", "max", Math.max(w.max, w.end) );
       $('#wblitz-ch'+i+'-color').css('background-color', toRGB(channels[i].color));//$('#wblitz-ch'+i).css('background-color'));
       $('#wblitz-ch'+i+'-cw-start').val(channels[i].window.start).change();
       $('#wblitz-ch'+i+'-cw-end').val(channels[i].window.end).change();
@@ -1151,7 +1172,7 @@
     </div>
     <div id="footer">
     {% block footer_content %}
-      &copy; 2007-2011 Glencoe Software Inc. All rights reserved.
+      &copy; 2007-2013 Glencoe Software Inc. All rights reserved.
     {% endblock %}
     </div>
 {% endblock full_body %}

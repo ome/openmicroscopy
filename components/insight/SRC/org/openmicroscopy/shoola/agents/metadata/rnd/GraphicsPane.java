@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.metadata.rnd.GraphicsPane 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2009 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -200,7 +200,7 @@ class GraphicsPane
         maxLabel.setBackground(UIUtilities.BACKGROUND_COLOR);
         minLabel.setBackground(UIUtilities.BACKGROUND_COLOR);
         sliders = new ArrayList<ChannelSlider>();
-        if (!model.isLifetimeImage()) {
+        if (model.getModuloT() != null || !model.isLifetimeImage()) {
         	List<ChannelData> channels = model.getChannelData();
         	Iterator<ChannelData> i = channels.iterator();
         	ChannelSlider slider;

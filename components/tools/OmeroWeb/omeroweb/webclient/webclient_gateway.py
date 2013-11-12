@@ -77,11 +77,6 @@ except:
     import sha
     hash_sha1 = sha.new
 
-try:
-    PAGE = settings.PAGE
-except:
-    PAGE = 200
-
 
 def defaultThumbnail(size=(120,120)):
     if isinstance(size, int):
@@ -409,61 +404,6 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             if len(rslt[0]) > 0:
                 return rslt[0][0].val
         return 0
-            
-    
-    def listOrphans (self, obj_type, eid=None, page=None):
-        """
-        List orphaned Datasets, Images, Plates controlled by the security system, 
-        Optionally filter by experimenter 'eid'
-        
-        @param obj_type:    'Dataset', 'Image', 'Plate'
-        @param eid:         experimenter id
-        @type eid:          Long
-        @param page:        page number
-        @type page:         Long
-        @return:            Generator yielding Datasets
-        @rtype:             L{DatasetWrapper} generator
-        """
-                
-        links = {'Dataset':('ProjectDatasetLink', DatasetWrapper), 
-                'Image':('DatasetImageLink', ImageWrapper),
-                'Plate':('ScreenPlateLink', PlateWrapper)}
-        
-        if obj_type not in links:
-            raise TypeError("'%s' is not valid object type. Must use one of %s" % (obj_type, links.keys()) )
-            
-        q = self.getQueryService()
-        p = omero.sys.Parameters()
-        p.map = {}
-        
-        if eid is not None:
-            p.map["eid"] = rlong(long(eid))
-            eidFilter = "obj.details.owner.id=:eid and " 
-            eidWsFilter = " and ws.details.owner.id=:eid"
-        else:
-            eidFilter = ""
-            eidWsFilter = ""
-        
-        if page is not None:
-            f = omero.sys.Filter()
-            f.limit = rint(PAGE)
-            f.offset = rint((int(page)-1)*PAGE)
-            p.theFilter = f
-        
-        sql = "select obj from %s as obj " \
-                "join fetch obj.details.creationEvent "\
-                "join fetch obj.details.owner join fetch obj.details.group " % (obj_type)
-        
-        sql += "where %s" \
-                "not exists (select obl from %s as obl where " \
-                "obl.child=obj.id)" % (eidFilter, links[obj_type][0])
-        
-        if obj_type == 'Image':
-            sql += "and not exists ( "\
-                "select ws from WellSample as ws "\
-                "where ws.image=obj.id %s)" % eidWsFilter
-        for e in q.findAllByQuery(sql, p, self.SERVICE_OPTS):
-            yield links[obj_type][1](self, e)
     
     def listImagesInDataset (self, oid, eid=None, page=None, load_pixels=False):
         """
@@ -479,14 +419,10 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         """
         
         q = self.getQueryService()
-        p = omero.sys.Parameters()
-        p.map = {}
+        p = omero.sys.ParametersI()
         p.map["oid"] = rlong(long(oid))
         if page is not None:
-            f = omero.sys.Filter()
-            f.limit = rint(PAGE)
-            f.offset = rint((int(page)-1)*PAGE)
-            p.theFilter = f
+            p.page(((int(page)-1)*settings.PAGE), settings.PAGE)
         if load_pixels:
             pixels = "join fetch im.pixels "
         else:
@@ -1777,17 +1713,14 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         @rtype:             Map
         """
         tm = self.getTimelineService()
-        p = omero.sys.Parameters()
-        p.map = {}
-        f = omero.sys.Filter()
-        f.ownerId = rlong(eid)
-        #f.groupId = rlong(self.getEventContext().groupId)
+        
+        p = omero.sys.ParametersI()
+        p.exp(eid)
         if page is not None:
-            f.limit = rint(PAGE)
-            f.offset = rint((int(page)-1)*PAGE)
+            p.page(((int(page)-1)*settings.PAGE), settings.PAGE)
         else:
-            f.limit = rint(100)
-        p.theFilter = f
+            p.page(None, 100)
+        
         im_list = list()
         ds_list = list()
         pr_list = list()

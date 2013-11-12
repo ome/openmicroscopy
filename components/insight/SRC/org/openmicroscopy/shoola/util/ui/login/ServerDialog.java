@@ -158,6 +158,7 @@ class ServerDialog
 	/** Sets the window's properties. */
 	private void setProperties()
 	{
+		setName("server dialog");
 		setTitle(TITLE);
 		setModal(true);
 		setAlwaysOnTop(true);
@@ -191,8 +192,10 @@ class ServerDialog
 	{
 		if (editor != null) editor.addPropertyChangeListener(this);
 		cancelButton = new JButton("Cancel");
+		cancelButton.setName("cancel button");
 		cancelButton.setToolTipText("Close the window.");
 		finishButton =  new JButton("Apply");
+		finishButton.setName("apply button");
 		finishButton.setEnabled(false);
 		getRootPane().setDefaultButton(finishButton);
 		//layer hosting title and empty message

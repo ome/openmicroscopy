@@ -5,7 +5,7 @@
  *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -302,11 +302,15 @@ public interface MetadataHandlerView
 	 * @param ctx The security context.
 	 * @param imageID The id of the pixels set related to the image.
 	 * @param location The location where to store the files.
+	 * @param name The name of the image.
+	 * @param override Flag indicating to override the existing file if it
+     *                 exists, <code>false</code> otherwise.
 	 * @param observer Call-back handler.
      * @return A handle that can be used to cancel the call.
 	 */
 	public CallHandle loadArchivedImage(SecurityContext ctx, long imageID,
-		File location, AgentEventListener observer);
+		File location, String name, boolean override,
+		AgentEventListener observer);
 	
 	/**
 	 * Filters by annotation.
@@ -424,14 +428,27 @@ public interface MetadataHandlerView
 			long userID, AgentEventListener observer);
 
 	/**
+     * Loads the original files hosted by the file annotation.
+     * 
+     * @param ctx The security context.
+     * @param files The files to handle. Mustn't be <code>null</code>.
+     * @param observer Call-back handler.
+     * @return A handle that can be used to cancel the call.
+     */
+    public CallHandle loadFiles(SecurityContext ctx,
+        Map<FileAnnotationData, File> files, AgentEventListener observer);
+    
+	/**
 	 * Loads the original files hosted by the file annotation.
 	 * 
 	 * @param ctx The security context.
+	 * @param zipDirectory Pass <code>true</code> to zip the directory
+	 * hosting the downloaded files, <code>false</code> otherwise.
 	 * @param files The files to handle. Mustn't be <code>null</code>.
 	 * @param observer Call-back handler.
      * @return A handle that can be used to cancel the call.
 	 */
-	public CallHandle loadFiles(SecurityContext ctx,
+	public CallHandle loadFiles(SecurityContext ctx, boolean zipDirectory,
 		Map<FileAnnotationData, File> files, AgentEventListener observer);
 	
 	/**

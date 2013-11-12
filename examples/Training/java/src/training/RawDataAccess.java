@@ -2,7 +2,7 @@
  * training.RawDataAccess 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2011 University of Dundee & Open Microscopy Environment.
+ *  Copyright (C) 2006-2013 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
  *
  *
@@ -26,12 +26,16 @@ package training;
 
 //Java imports
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 //Third-party libraries
 
+import omero.api.IContainerPrx;
 //Application-internal dependencies
 import omero.api.RawPixelsStorePrx;
+import omero.model.Image;
+import omero.sys.ParametersI;
 import pojos.ImageData;
 import pojos.PixelsData;
 import training.util.DataSink;
@@ -45,22 +49,44 @@ import training.util.Plane2D;
  * @since Beta4.3.2
  */
 public class RawDataAccess
-	extends ConnectToOMERO
 {
 	
-	/** Information to edit.*/
-	private long imageId = 27544;
+	//The value used if the configuration file is not used. To edit*/
+	/** The server address.*/
+	private String hostName = "serverName";
+
+	/** The username.*/
+	private String userName = "userName";
+	
+	/** The password.*/
+	private String password = "password";
+	
+	private long imageId = 1;
+	//end edit
 	
 	/** The image.*/
 	private ImageData image;
 
-	/** Load the image.*/
-	private void loadImage()
+	/** Reference to the connector.*/
+	private Connector connector;
+	
+	/**
+	 * Loads the image.
+	 * 
+	 * @param imageID The id of the image to load.
+	 * @return See above.
+	 */
+	private ImageData loadImage(long imageID)
 		throws Exception
 	{
-		image = loadImage(imageId);
-		if (image == null)
+		IContainerPrx proxy = connector.getContainerService();
+		List<Image> results = proxy.getImages(Image.class.getName(),
+				Arrays.asList(imageID), new ParametersI());
+		//You can directly interact with the IObject or the Pojos object.
+		//Follow interaction with the Pojos.
+		if (results.size() == 0)
 			throw new Exception("Image does not exist. Check ID.");
+		return new ImageData(results.get(0));
 	}
 	
 	/**
@@ -79,28 +105,35 @@ public class RawDataAccess
 		int sizeX = pixels.getSizeX();
 		int sizeY = pixels.getSizeY();
 		long pixelsId = pixels.getId();
-		RawPixelsStorePrx store = entryUnencrypted.createRawPixelsStore(); 
-		store.setPixelsId(pixelsId, false);
-		DataSink data = new DataSink(pixels);
-		Plane2D p;
-		for (int z = 0; z < sizeZ; z++) {
-			for (int t = 0; t < sizeT; t++) {
-				for (int c = 0; c < sizeC; c++) {
-					 byte[] plane = store.getPlane(z, c, t);
-					 p = data.getPlane(plane);
-					 for (int x = 0; x < sizeX; x++) {
-						for (int y = 0; y < sizeY; y++) {
-							System.err.println(p.getPixelValue(x, y));
+		RawPixelsStorePrx store = null;
+		
+		try {
+			store = connector.getRawPixelsStore();
+			store.setPixelsId(pixelsId, false);
+			DataSink data = new DataSink(pixels);
+			Plane2D p;
+			for (int z = 0; z < sizeZ; z++) {
+				for (int t = 0; t < sizeT; t++) {
+					for (int c = 0; c < sizeC; c++) {
+						 byte[] plane = store.getPlane(z, c, t);
+						 p = data.getPlane(plane);
+						 for (int x = 0; x < sizeX; x++) {
+							for (int y = 0; y < sizeY; y++) {
+								//System.err.println(p.getPixelValue(x, y));
+							}
 						}
 					}
 				}
 			}
+		} catch (Exception e) {
+			throw new Exception("Cannot read the plane", e);
+		} finally {
+			if (store != null) store.close();
 		}
-		store.close();
 	}
 	
 	/**
-	 * Retrieve a given tile.. 
+	 * Retrieve a given tile.
 	 * 
 	 * This is useful when you need the pixels intensity.
 	 */
@@ -113,21 +146,28 @@ public class RawDataAccess
 		int sizeT = pixels.getSizeT();
 		int sizeC = pixels.getSizeC();
 		long pixelsId = pixels.getId();
-		RawPixelsStorePrx store = entryUnencrypted.createRawPixelsStore(); 
-		store.setPixelsId(pixelsId, false);
-		//tile = (50, 50, 10, 10)  x, y, width, height of tile
-		int x = 0;
-		int y = 0;
-		int width = pixels.getSizeX()/2;
-		int height = pixels.getSizeY()/2;
-		for (int z = 0; z < sizeZ; z++) {
-			for (int t = 0; t < sizeT; t++) {
-				for (int c = 0; c < sizeC; c++) {
-					 byte[] plane = store.getTile(z, c, t, x, y, width, height);
+		RawPixelsStorePrx store = null;
+		try {
+			store = connector.getRawPixelsStore();
+			store.setPixelsId(pixelsId, false);
+			//tile = (50, 50, 10, 10)  x, y, width, height of tile
+			int x = 0;
+			int y = 0;
+			int width = pixels.getSizeX()/2;
+			int height = pixels.getSizeY()/2;
+			for (int z = 0; z < sizeZ; z++) {
+				for (int t = 0; t < sizeT; t++) {
+					for (int c = 0; c < sizeC; c++) {
+						byte[] plane = store.getTile(z, c, t, x, y, width,
+								height);
+					}
 				}
 			}
+		} catch (Exception e) {
+			throw new Exception("Cannot read the tiles", e);
+		} finally {
+			if (store != null) store.close();
 		}
-		store.close();
 	}
 	/**
 	 * Retrieve a given stack.
@@ -142,18 +182,24 @@ public class RawDataAccess
 		int sizeT = pixels.getSizeT();
 		int sizeC = pixels.getSizeC();
 		long pixelsId = pixels.getId();
-		RawPixelsStorePrx store = entryUnencrypted.createRawPixelsStore(); 
-		store.setPixelsId(pixelsId, false);
-		for (int t = 0; t < sizeT; t++) {
-			for (int c = 0; c < sizeC; c++) {
-				 byte[] plane = store.getStack(c, t);
+		RawPixelsStorePrx store = null;
+		try {
+			store = connector.getRawPixelsStore();
+			store.setPixelsId(pixelsId, false);
+			for (int t = 0; t < sizeT; t++) {
+				for (int c = 0; c < sizeC; c++) {
+					 byte[] plane = store.getStack(c, t);
+				}
 			}
+		} catch (Exception e) {
+			throw new Exception("Cannot read the stack", e);
+		} finally {
+			if (store != null) store.close();
 		}
-		store.close();
 	}
 	
 	/**
-	 * Retrieve a given hypercube. 
+	 * Retrieve a given hypercube.
 	 * 
 	 * This is useful when you need the pixels intensity.
 	 */
@@ -163,15 +209,12 @@ public class RawDataAccess
 		//To retrieve the image, see above.
 		PixelsData pixels = image.getDefaultPixels();
 		long pixelsId = pixels.getId();
-		RawPixelsStorePrx store = entryUnencrypted.createRawPixelsStore();
-		store.setPixelsId(pixelsId, false);
 		// offset values in each dimension XYZCT
 		List<Integer> offset = new ArrayList<Integer>();
-		offset.add(0);
-		offset.add(0);
-		offset.add(0);
-		offset.add(0);
-		offset.add(0);
+		int n = 5;
+		for (int i = 0; i < n; i++) {
+			offset.add(i, 0);
+		}
 
 		List<Integer> size = new ArrayList<Integer>();
 		size.add(pixels.getSizeX());
@@ -184,24 +227,39 @@ public class RawDataAccess
 		//will return values at index 0, 1, 2.
 		//step = 2, values at index 0, 2, 4 etc.
 		List<Integer> step = new ArrayList<Integer>();
-		step.add(1);
-		step.add(1);
-		step.add(1);
-		step.add(1);
-		step.add(1);
-		byte[] values = store.getHypercube(offset, size, step);
-		//Do something
-		store.close();
+		for (int i = 0; i < n; i++) {
+			step.add(i, 1);
+		}
+		RawPixelsStorePrx store = null;
+		try {
+			store = connector.getRawPixelsStore();
+			store.setPixelsId(pixelsId, false);
+			byte[] values = store.getHypercube(offset, size, step);
+		} catch (Exception e) {
+			throw new Exception("Cannot read the hypercube", e);
+		} finally {
+			if (store != null) store.close();
+		}
 	}
 	
 	/**
 	 * Connects and invokes the various methods.
+	 * 
+	 * @param info The configuration information.
 	 */
-	RawDataAccess()
+	RawDataAccess(ConfigurationInfo info)
 	{
+		if (info == null) {
+			info = new ConfigurationInfo();
+			info.setHostName(hostName);
+			info.setPassword(password);
+			info.setUserName(userName);
+			info.setImageId(imageId);
+		}
+		connector = new Connector(info);
 		try {
-			connect();
-			loadImage();
+			connector.connect();
+			image = loadImage(info.getImageId());
 			retrievePlane();
 			retrieveTile();
 			retrieveStack();
@@ -210,16 +268,21 @@ public class RawDataAccess
 			e.printStackTrace();
 		} finally {
 			try {
-				disconnect(); // Be sure to disconnect
+				connector.disconnect(); // Be sure to disconnect
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
 	}
 
+	/**
+	 * Runs the script without configuration options.
+	 * 
+	 * @param args
+	 */
 	public static void main(String[] args)
 	{
-		new RawDataAccess();
+		new RawDataAccess(null);
 		System.exit(0);
 	}
 

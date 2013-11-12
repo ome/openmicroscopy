@@ -341,7 +341,7 @@ public interface TreeViewer
 	 * 
 	 * @return See above.
 	 */
-	public Map getBrowsers();
+	public Map<Integer, Browser> getBrowsers();
 
 	/**
 	 * Transitions the viewer to the {@link #DISCARDED} state.
@@ -906,8 +906,10 @@ public interface TreeViewer
 	 * Downloads the currently selected files to the specified folder.
 	 * 
 	 * @param folder The folder where to download the files.
+	 * @param override Flag indicating to override the existing file if it
+     *                 exists, <code>false</code> otherwise.
 	 */
-	void download(File folder);
+	void download(File folder, boolean override);
 
 	/**
 	 * Sets the collection of archived files.
@@ -1099,6 +1101,13 @@ public interface TreeViewer
 	 * @return See above.
 	 */
 	GroupData getSelectedGroup();
+	
+	/**
+	 * Returns the only group displayed if any.
+	 * 
+	 * @return See above.
+	 */
+	GroupData getSingleGroupDisplayed();
 
 	/** 
 	 * Removes group.

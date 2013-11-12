@@ -5,7 +5,7 @@
 Creates composite builds from the various client build artifacts/platforms.
 """
 
-# Copyright (C) 2009 University of Dundee
+# Copyright (C) 2009-2013 University of Dundee
 
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -45,13 +45,15 @@ INSIGHT = 'OMERO.insight'
 
 EDITOR = 'OMERO.editor'
 
+IMPORTER = 'OMERO.importer'
+
 IGNORE = []
 
 def find(pattern):
     """Grabs platform specific distribution targets from target"""
     target = os.path.join(os.path.dirname(os.path.dirname(__file__)), "target")
     artifacts = glob(os.path.join(target, pattern))
-    if not artifacts:
+    if not artifacts and pattern.find("*win.zip") == -1:
         raise Exception("Nothing found! %s" % pattern)
     return artifacts
 
@@ -119,6 +121,7 @@ def compress(target, base):
 target_artifacts = list()
 target_artifacts += find(EDITOR + "*win.zip")
 target_artifacts += find(INSIGHT + "*win.zip")
+target_artifacts += find(IMPORTER + "*win.zip")
 target = '%s.win' % TARGET_PREFIX
 ignore = ['omero_client.jar',
           'omero-clients-util-r\d+-b\d+.jar'] + IGNORE
@@ -134,6 +137,7 @@ compress('%s.zip' % target, target)
 target_artifacts = list()
 target_artifacts += find(EDITOR + "*mac.zip")
 target_artifacts += find(INSIGHT + "*mac.zip")
+target_artifacts += find(IMPORTER + "*mac.zip")
 target = '%s.mac' % TARGET_PREFIX
 
 os.makedirs(target)

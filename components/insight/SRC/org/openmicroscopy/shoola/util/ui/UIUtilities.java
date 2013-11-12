@@ -276,7 +276,7 @@ public class UIUtilities
     public static final int					INCREMENT = 15;
 
     /** The number of bytes in megabyte, used when working with memory methods.*/
-	public static final long		MEGABYTE = 1048567;
+	public static final long		MEGABYTE = 1048576;
     
 	/** Key value for the default folder. */
     private static final String 			DEFAULT_FOLDER = "defaultFolder";
@@ -759,20 +759,12 @@ public class UIUtilities
 	 * passed, in turn, to the <code>setToolTipText</code> method of a 
 	 * {@link javax.swing.JComponent}.
 	 *
-	 * @param toolTipText     The textual content of the tool tip.
-	 * @return An <i>HTML</i> formatted string to be passed to 
-	 * 			<code>setToolTipText()</code>.
+	 * @param toolTipText The textual content of the tool tip.
+	 * @return The String.
 	 */
 	public static String formatToolTipText(String toolTipText) 
 	{
-		if (toolTipText == null) toolTipText = "";
-		StringBuffer buf = new StringBuffer(90+toolTipText.length());
-		buf.append("<html><body bgcolor=#FFFCB7 text=#AD5B00>");
-		//TODO: change into platform independent font
-		buf.append("<font face=Arial size=2>");  
-		buf.append(toolTipText);
-		buf.append("</font></body></html>");
-		return buf.toString();
+	    return toolTipText;
 	}
 	
 	/**
@@ -1605,21 +1597,24 @@ public class UIUtilities
     {
     	return round(value, 2);
     }
-    
+
     /**
-     * Returns the decimal value.
-     * 
+     * Returns the maximum number of decimal places which still result in a
+     * non-zero rounded value.
+     *
      * @param value The value to handle.
+     * @param decimal The starting number of decimal places to test.
      * @return See above.
      */
     public static final int findDecimal(double value, int decimal)
     {
-    	double v = round(value, decimal);
+    	double testValue = Math.abs(value);
+    	double v = round(testValue, decimal);
     	if (v > 0) return decimal;
     	decimal++;
-    	return findDecimal(value, decimal);
+    	return findDecimal(testValue, decimal);
     }
-    
+
     /**
      * Rounds the passed value to the specified number of decimals.
      * 

@@ -1,5 +1,6 @@
 {% load i18n %}
 {% load common_filters %}
+{% load common_tags %}
 
 {% comment %}
 <!--
@@ -22,7 +23,7 @@
 {% endcomment %}
 
 <ul>
-    <li id="experimenter-0" rel="experimenter"><a href="#">{% if manager.experimenter %}{{ manager.experimenter.getFullName }}{% else %}All Members{% endif %}</a>
+    <li id="experimenter-0" rel="experimenter"><a href="#">{% if manager.experimenter %}{{ manager.experimenter.getFullName }}{% else %}{% setting UI_MENU_DROPDOWN.ALL %}{% endif %}</a>
         {% if manager.t_size %}
         <ul>
             {% for t in manager.tags %}

@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.data.views.calls.ThumbnailLoader
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -114,9 +114,10 @@ public class ThumbnailLoader
      * @param pxd The image the thumbnail for.
      * @param userID The id of the user the thumbnail is for.
      * @param store The thumbnail store to use.
+     * @param imageID The id of the image associated to the pixels set.
      */
     private void loadThumbail(PixelsData pxd, long userID,
-    		ThumbnailStorePrx store, boolean last)
+    		ThumbnailStorePrx store, boolean last, long imageID)
     {
     	BufferedImage thumbPix = null;
         boolean valid = true;
@@ -158,10 +159,9 @@ public class ThumbnailLoader
         	valid = false;
         	thumbPix = Factory.createDefaultImageThumbnail(sizeX, sizeY);
         }
-        currentThumbnail = new ThumbnailData(pxd.getImage().getId(), thumbPix,
-        		userID, valid);
+        currentThumbnail = new ThumbnailData(imageID, thumbPix, userID, valid);
     }
-    
+
     /**
      * Creates a {@link BatchCall} to retrieve rendering control.
      * 
@@ -221,18 +221,24 @@ public class ThumbnailLoader
         		final ThumbnailStorePrx value = store;
         		int size = images.size()-1;
         		int k = 0;
+        		long imageID = -1;
         		while (i.hasNext()) {
         			image = (DataObject) i.next();
-        			if (image instanceof ImageData)
-        				pxd = ((ImageData) image).getDefaultPixels();
-        			else pxd = (PixelsData) image;
+        			if (image instanceof ImageData) {
+        			    pxd = ((ImageData) image).getDefaultPixels();
+        			    imageID = image.getId();
+        			} else {
+        			    pxd = (PixelsData) image;
+        			    if (pxd != null) imageID = pxd.getImage().getId();
+        			}
         			description = "Loading thumbnail";
         			final PixelsData index = pxd;
         			final boolean last = size == k;
         			k++;
+        			final long iid = imageID;
         			add(new BatchCall(description) {
         				public void doCall() {
-        					loadThumbail(index, userID, value, last);
+        					loadThumbail(index, userID, value, last, iid);
         				}
         			});
         		}

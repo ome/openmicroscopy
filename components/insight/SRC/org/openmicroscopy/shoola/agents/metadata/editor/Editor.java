@@ -2,10 +2,10 @@
  * org.openmicroscopy.shoola.agents.metadata.editor.Editor 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -208,7 +208,7 @@ public interface Editor
 	 * 
 	 * @param attachments The value to set.
 	 */
-	public void setExistingAttachements(Collection attachments);
+	public void setExistingAttachments(Collection attachments);
 	
 	/**
 	 * Sets either to single selection or to multiple selection.
@@ -288,8 +288,10 @@ public interface Editor
 	 * 
 	 * @param file The file where to download the content.
 	 * If it is a multi-images file a zip will be created.
+	 * @param override Flag indicating to override the existing file if it
+	 * exists, <code>false</code> otherwise.
 	 */
-	public void download(File file);
+	public void download(File file, boolean override);
 
 	/**
 	 * Sets the parent of the root object. This will be taken into account
@@ -522,4 +524,10 @@ public interface Editor
 
 	/** Loads the file set associated to the image.*/
 	void loadFileset();
+
+	/**
+	 * Loads the rendering engine depending on the selected pane or component
+	 * usage.
+	 */
+	void loadRnd();
 }

@@ -67,6 +67,7 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.Document;
 
+import org.apache.commons.lang.StringUtils;
 import org.jdesktop.swingx.JXTaskPane;
 import org.openmicroscopy.shoola.agents.events.editor.EditFileEvent;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
@@ -78,6 +79,7 @@ import org.openmicroscopy.shoola.agents.metadata.actions.ViewAction;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.editorpreview.PreviewPanel;
 import org.openmicroscopy.shoola.env.event.EventBus;
+import org.openmicroscopy.shoola.util.file.modulo.ModuloInfo;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.UnitsObject;
 import org.openmicroscopy.shoola.util.ui.omeeditpane.OMEWikiComponent;
@@ -324,6 +326,7 @@ class PropertiesUI
        	wellLabel.setBackground(UIUtilities.BACKGROUND_COLOR);
        	
        	idLabel = UIUtilities.setTextFont("");
+       	idLabel.setName("ID label");
        	ownerLabel = new JLabel();
        	ownerLabel.setBackground(UIUtilities.BACKGROUND_COLOR);
     	namePane = createTextPane();
@@ -335,12 +338,6 @@ class PropertiesUI
     	newFont = f.deriveFont(f.getStyle(), f.getSize()-2);
     	
     	descriptionWiki = new OMEWikiComponent(false);
-    	try {
-    		descriptionWiki.installObjectFormatters();
-		} catch (Exception e) {
-			//just to be on the save side.
-		}
-    	
     	descriptionWiki.setFont(newFont);
     	descriptionWiki.setEnabled(false);
     	descriptionWiki.setAllowOneClick(true);
@@ -749,19 +746,39 @@ class PropertiesUI
         	c.gridx = c.gridx+2;
         	content.add(value, c);
     	}
+    	//parse modulo T.
+    	Map<Integer, ModuloInfo> modulo = model.getModulo();
+    	ModuloInfo moduloT = modulo.get(ModuloInfo.T);
     	c.gridy++;
     	label = UIUtilities.setTextFont(EditorUtil.Z_T_FIELDS, Font.BOLD,
     			size);
     	value = UIUtilities.createComponent(null);
     	v = (String) details.get(EditorUtil.SECTIONS);
     	v += " x ";
-    	v += (String) details.get(EditorUtil.TIMEPOINTS);
+    	if (moduloT != null) {
+    	    String time = (String) details.get(EditorUtil.TIMEPOINTS);
+    	    int t = Integer.parseInt(time);
+    	    v += ""+(t/moduloT.getSize());
+    	} else {
+    	    v += (String) details.get(EditorUtil.TIMEPOINTS);
+    	}
     	value.setText(v);
     	c.gridx = 0;
     	content.add(label, c);
     	c.gridx = c.gridx+2;
     	content.add(value, c);
     	c.gridy++;
+    	if (moduloT != null) {
+    	    label = UIUtilities.setTextFont(EditorUtil.SMALL_T_VARIABLE,
+    	            Font.BOLD, size);
+            value = UIUtilities.createComponent(null);
+            value.setText(""+moduloT.getSize());
+            c.gridx = 0;
+            content.add(label, c);
+            c.gridx = c.gridx+2;
+            content.add(value, c);
+            c.gridy++;
+    	}
     	if (!model.isNumerousChannel() && model.getRefObjectID() > 0) {
     		label = UIUtilities.setTextFont(EditorUtil.CHANNELS,
     				Font.BOLD, size);
@@ -1155,17 +1172,14 @@ class PropertiesUI
 		if (ownerName != null && ownerName.length() > 0)
 			ownerLabel.setText(OWNER_TEXT+ownerName);
 		originalDescription = model.getRefObjectDescription();
-		if (originalDescription == null || originalDescription.length() == 0)
+		if (StringUtils.isEmpty(originalDescription))
 			originalDescription = DEFAULT_DESCRIPTION_TEXT;
 		descriptionWiki.setText(originalDescription);
 		//wrap();
 		descriptionWiki.setCaretPosition(0);
 		descriptionWiki.setBackground(UIUtilities.BACKGROUND_COLOR);
     	descriptionWiki.setForeground(UIUtilities.DEFAULT_FONT_COLOR);
-    	
-		
-        if (refObject instanceof WellSampleData) b = false;
-        
+
         namePane.setEnabled(b);
         if (!(refObject instanceof FileData)) editName.setEnabled(b);
         

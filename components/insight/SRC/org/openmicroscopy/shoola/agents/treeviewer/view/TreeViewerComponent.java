@@ -5,7 +5,7 @@
  *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -45,11 +45,11 @@ import javax.swing.JDialog;
 import javax.swing.JFrame;
 
 //Third-party libraries
+import org.apache.commons.collections.CollectionUtils;
 
 //Application-internal dependencies
 import omero.model.OriginalFile;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowserFactory;
 import org.openmicroscopy.shoola.agents.events.SaveData;
@@ -62,6 +62,7 @@ import org.openmicroscopy.shoola.agents.events.treeviewer.ChangeUserGroupEvent;
 import org.openmicroscopy.shoola.agents.events.treeviewer.CopyItems;
 import org.openmicroscopy.shoola.agents.events.treeviewer.DeleteObjectEvent;
 import org.openmicroscopy.shoola.agents.events.treeviewer.DisplayModeEvent;
+import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewerFactory;
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
@@ -101,7 +102,6 @@ import org.openmicroscopy.shoola.agents.util.ui.UserManagerDialog;
 import org.openmicroscopy.shoola.env.Environment;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
-import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.events.ExitApplication;
 import org.openmicroscopy.shoola.env.data.events.RemoveGroupEvent;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
@@ -110,6 +110,7 @@ import org.openmicroscopy.shoola.env.data.model.ApplicationData;
 import org.openmicroscopy.shoola.env.data.model.DeletableObject;
 import org.openmicroscopy.shoola.env.data.model.DeleteActivityParam;
 import org.openmicroscopy.shoola.env.data.model.DownloadActivityParam;
+import org.openmicroscopy.shoola.env.data.model.DownloadArchivedActivityParam;
 import org.openmicroscopy.shoola.env.data.model.MIFResultObject;
 import org.openmicroscopy.shoola.env.data.model.OpenActivityParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
@@ -120,7 +121,6 @@ import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.ui.ActivityComponent;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
-import org.openmicroscopy.shoola.util.filter.file.OMETIFFFilter;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
@@ -329,7 +329,7 @@ class TreeViewerComponent
 				NodesFinder finder = new NodesFinder(klass, ids);
 				Browser browser = model.getSelectedBrowser();
 				browser.accept(finder);
-				model.getSelectedBrowser().removeTreeNodes(finder.getNodes());
+				browser.removeTreeNodes(finder.getNodes());
 				view.removeAllFromWorkingPane();
 				DataBrowserFactory.discardAll();
 				model.getMetadataViewer().setRootObject(null, -1, null);
@@ -659,6 +659,7 @@ class TreeViewerComponent
 				} else {
 					db = handleDiscardedBrowser(displayParent);
 				}
+				model.setDataViewer(db);
 				return;
 			}
 			if (parent != null) {
@@ -741,7 +742,7 @@ class TreeViewerComponent
 	        				}
 	        			}
 					} else
-						showDataBrowser(object, parent.getParentDisplay(), 
+						showDataBrowser(object, parent.getParentDisplay(),
 								visible);
 				}
 			} else {
@@ -866,7 +867,7 @@ class TreeViewerComponent
 		model.setDataViewer(db);
 		if (db != null) {
 			Browser b = getSelectedBrowser();
-			if (b != null && b.getBrowserType() == Browser.SCREENS_EXPLORER)
+			if (b != null)
 				b.addComponent(db.getGridUI());
 		}
 	}
@@ -1098,6 +1099,7 @@ class TreeViewerComponent
 		EventBus bus = TreeViewerAgent.getRegistry().getEventBus();
 		bus.post(new BrowserSelectionEvent(t));
 		view.updateMenuItems();
+		fireStateChange();
 	}
 
 	/**
@@ -1243,7 +1245,12 @@ class TreeViewerComponent
 		cancel();
 		if (TreeViewerFactory.isLastViewer()) {
 			EventBus bus = TreeViewerAgent.getRegistry().getEventBus();
-			bus.post(new ExitApplication(!(TreeViewerAgent.isRunAsPlugin())));
+			ExitApplication a = new ExitApplication(
+			        !TreeViewerAgent.isRunAsPlugin());
+			GroupData group = model.getSelectedGroup();
+	        if (group != null)
+	            a.setSecurityContext(new SecurityContext(group.getId()));
+			bus.post(a);
 		} else discard();
 
 	}
@@ -1271,6 +1278,7 @@ class TreeViewerComponent
 			model.setSelectedGroupId(group.getId());
 			notifyChangeGroup(oldId);
 		}
+		model.setDataViewer(null);
 		MetadataViewer metadata = model.getMetadataViewer();
 		TreeImageDisplay[] selection = browser.getSelectedDisplays();
 		
@@ -1325,6 +1333,12 @@ class TreeViewerComponent
 			display.getUserObject() instanceof ExperimenterData &&
 			display.isToRefresh()) {
 			refreshTree();
+		}
+		Browser b = model.getSelectedBrowser();
+		if (b != null && display != null) {
+			if (model.getDataViewer() != null)
+				b.addComponent(model.getDataViewer().getGridUI());
+			else b.addComponent(null);
 		}
 	}
 
@@ -1886,6 +1900,8 @@ class TreeViewerComponent
 			Browser browser = model.getSelectedBrowser();
 			if (browser == null) return false;
 			group = browser.getNodeGroup((TreeImageDisplay) ho);
+		} else {
+		    return false;
 		}
 		//Do not have enough information about the group.
 		if (group.getPermissions() == null) return false;
@@ -2032,8 +2048,8 @@ class TreeViewerComponent
 					"This method cannot be invoked in the DISCARDED state.");
 		switch (menuID) {
 			case MANAGER_MENU:
-			case CREATE_MENU_CONTAINERS:  
-			case CREATE_MENU_TAGS:  
+			case CREATE_MENU_CONTAINERS:
+			case CREATE_MENU_TAGS:
 			case CREATE_MENU_ADMIN:
 			case PERSONAL_MENU:
 			case CREATE_MENU_SCREENS:
@@ -2214,8 +2230,11 @@ class TreeViewerComponent
 				}
 			}
 		}
-		MessageBox box = new MessageBox(view, "Change group", "Are you " +
-		"sure you want to move the selected items to another group?");
+		//Warn the user than the copy/paste not allowed between groups
+		MessageBox box = new MessageBox(view, "Copy data",
+				"Copying between groups is not yet supported.\n" +
+		"To continue and move the data to the new group, click 'Yes'.\n"+
+		"To leave the data in the current group, click 'No'.");
 		if (box.centerMsgBox() != MessageBox.YES_OPTION) return;
 		//if we are here moving data.
 		i = elements.keySet().iterator();
@@ -2632,12 +2651,12 @@ class TreeViewerComponent
 			}
 		}
 			
-		if (db == null) return;
-		db.addPropertyChangeListener(controller);
-		//db.activate();
-		view.displayBrowser(db);
-		db.setDisplayMode(model.getDisplayMode());
-		db.activate();
+		if (db != null) {
+			db.addPropertyChangeListener(controller);
+			view.displayBrowser(db);
+			db.setDisplayMode(model.getDisplayMode());
+			db.activate();
+		}
 		model.setDataViewer(db);
 	}
 	
@@ -3180,7 +3199,7 @@ class TreeViewerComponent
 						node = i.next();
 						parent = node.getParentDisplay();
 						expNode = BrowserFactory.getDataOwner(node);
-						exp = (ExperimenterData) expNode.getUserObject();
+						exp = expNode == null ? null : (ExperimenterData) expNode.getUserObject();
 						if (exp == null) exp = model.getUserDetails();
 						node.setExpanded(true);
 						//mv.setRootObject(node.getUserObject(), exp.getId());
@@ -3515,86 +3534,52 @@ class TreeViewerComponent
 	 * Implemented as specified by the {@link TreeViewer} interface.
 	 * @see TreeViewer#download(File, boolean)
 	 */
-	public void download(File folder)
+	public void download(File folder, boolean override)
 	{
-		if (model.getState() == DISCARDED) return;
-		Browser browser = model.getSelectedBrowser();
-		if (browser == null) return;
-		List l = browser.getSelectedDataObjects();
-		if (l == null) return;
-		Iterator i = l.iterator();
-		Object object;
-		List<ImageData> archived = new ArrayList<ImageData>();
-		boolean override = l.size() > 1;
-		ImageData image;
-		while (i.hasNext()) {
-			object = i.next();
-			if (object instanceof ImageData) {
-				image = (ImageData) object;
-				if (image.isArchived()) archived.add(image);
-			} else if (object instanceof FileAnnotationData) {
-				downloadFile(folder, override, (FileAnnotationData) object, 
-						null);
-			}
-		}
-		if (archived.size() > 0) {
-			model.downloadImages(archived, folder, null);
-		}
+	    if (model.getState() == DISCARDED) return;
+	    Browser browser = model.getSelectedBrowser();
+	    if (browser == null) return;
+	    List l = browser.getSelectedDataObjects();
+	    if (l == null) return;
+	    Iterator i = l.iterator();
+	    Object object;
+	    List<ImageData> archived = new ArrayList<ImageData>();
+	    List<Long> filesetIds = new ArrayList<Long>();
+	    ImageData image;
+	    long id;
+	    while (i.hasNext()) {
+	        object = i.next();
+	        if (object instanceof ImageData) {
+	            image = (ImageData) object;
+	            if (image.isArchived()) {
+	                id = image.getFilesetId();
+	                if (id < 0) archived.add(image);
+	                else if (!filesetIds.contains(id)) {
+	                    archived.add(image);
+	                    filesetIds.add(id);
+	                }
+	            }
+	        } else if (object instanceof FileAnnotationData) {
+	            downloadFile(folder, override, (FileAnnotationData) object,
+	                    null);
+	        }
+	    }
+	    if (archived.size() > 0) {
+	        Iterator<ImageData> j = archived.iterator();
+	        DownloadArchivedActivityParam p;
+	        UserNotifier un =
+	                MetadataViewerAgent.getRegistry().getUserNotifier();
+	        IconManager icons = IconManager.getInstance();
+	        Icon icon = icons.getIcon(IconManager.DOWNLOAD_22);
+	        SecurityContext ctx = getSecurityContext();
+	        while (j.hasNext()) {
+	            p = new DownloadArchivedActivityParam(folder, j.next(), icon);
+	            p.setOverride(override);
+	            un.notifyActivity(ctx, p);
+	        }
+	    }
 	}
 
-	/**
-	 * Downloads the documents.
-	 * 
-	 * @param folder The folder where to download the file.
-	 * @param data	 The application to open the document with or 
-	 * 				 <code>null</code>.
-	 */
-	private void download(File folder, ApplicationData data)
-	{
-		Browser browser = model.getSelectedBrowser();
-		if (browser == null) return;
-		List l = browser.getSelectedDataObjects();
-		if (l == null) return;
-		Iterator i = l.iterator();
-		Object object;
-		List<ImageData> archived = new ArrayList<ImageData>();
-		List<ImageData> notArchived = new ArrayList<ImageData>();
-		boolean override = l.size() > 1;
-		ImageData image;
-		while (i.hasNext()) {
-			object = i.next();
-			if (object instanceof ImageData) {
-				image = (ImageData) object;
-				if (image.isArchived()) archived.add(image);
-				else notArchived.add(image);
-			} else if (object instanceof FileAnnotationData) {
-				downloadFile(folder, override, (FileAnnotationData) object, 
-						data);
-			}
-		}
-		if (archived.size() > 0) {
-			model.downloadImages(archived, folder, data);
-		}
-		if (notArchived.size() > 0) {
-			image = notArchived.get(0);
-			try {
-				//TODO: review
-				
-				File f = new File(
-						folder.getAbsolutePath()+File.separator+
-						image.getName()+OMETIFFFilter.OME_TIFF);
-				OmeroImageService svc =
-					TreeViewerAgent.getRegistry().getImageService();
-				svc.exportImageAsOMEFormat(model.getSecurityContext(), 
-						OmeroImageService.EXPORT_AS_OMETIFF,
-						image.getId(), f, null);
-				TreeViewerAgent.getRegistry().getUserNotifier().openApplication(
-						data, f.getAbsolutePath());
-			} catch (Exception e) {
-			}
-		}
-	}
-	
 	/** 
 	 * Implemented as specified by the {@link TreeViewer} interface.
 	 * @see TreeViewer#setDownloadedFiles(File, ApplicationData, Collection)
@@ -3913,9 +3898,10 @@ class TreeViewerComponent
 		//remove thumbnails browser
 		view.removeAllFromWorkingPane();
 		model.setDataViewer(null);
-		
+		model.setAvailableScripts(null);
 		model.clearImportResult();
 		view.onImport();
+		view.clearMenus();
 		//reset metadata
 		MetadataViewer mv = view.resetMetadataViewer();
 		mv.addPropertyChangeListener(controller);
@@ -4462,6 +4448,27 @@ class TreeViewerComponent
 	{ 
 		if (model.getState() == DISCARDED) return null;
 		return model.getSelectedGroup();
+	}
+
+	/** 
+	 * Implemented as specified by the {@link TreeViewer} interface.
+	 * @see TreeViewer#hasSingleGroupDisplayed()
+	 */
+	public GroupData getSingleGroupDisplayed()
+	{
+	    if (model.getState() == DISCARDED) return null;
+	    Collection<GroupData> groups = model.getAvailableGroups();
+	    if (groups != null && groups.size() == 1) return null;
+	    Browser browser = model.getSelectedBrowser();
+	    if (browser == null) return null;
+
+	    TreeImageDisplay node = null;
+	    ExperimenterVisitor v = new ExperimenterVisitor(browser, -1);
+	    browser.accept(v, ExperimenterVisitor.TREEIMAGE_SET_ONLY);
+	    List<TreeImageDisplay> nodes = v.getNodes();
+        if (nodes.size() == 1)
+            return (GroupData) nodes.get(0).getUserObject();
+        return null;
 	}
 
 	/** 

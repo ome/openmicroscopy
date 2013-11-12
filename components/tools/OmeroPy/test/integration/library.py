@@ -4,7 +4,7 @@
 """
    Library for integration tests
 
-   Copyright 2008 Glencoe Software, Inc. All rights reserved.
+   Copyright 2008-2013 Glencoe Software, Inc. All rights reserved.
    Use is subject to license terms supplied in LICENSE.txt
 
 """
@@ -15,10 +15,9 @@ import sys
 import time
 import weakref
 import logging
-import unittest
-import tempfile
 import traceback
 import subprocess
+import Glacier2
 
 import omero, omero.gateway
 
@@ -48,11 +47,11 @@ class Clients(object):
         self.__clients.add(weakref.ref(client))
 
 
-class ITest(unittest.TestCase):
+class ITest(object):
 
     log = logging.getLogger("ITest")
 
-    def setUp(self):
+    def setup_method(self, method):
 
         self.OmeroPy = self.omeropydir()
 
@@ -97,7 +96,7 @@ class ITest(unittest.TestCase):
         if str(p.basename()) == "OmeroPy":
             return p
         else:
-            self.fail("Could not find OmeroPy/; searched %s" % searched)
+            assert False, "Could not find OmeroPy/; searched %s" % searched
 
     def uuid(self):
         import omero_ext.uuid as _uuid # see ticket:3774
@@ -138,6 +137,14 @@ class ITest(unittest.TestCase):
             for exp in experimenters:
                 user, name = self.user_and_name(exp)
                 admin.addGroups(user, [group])
+
+    def add_groups(self, experimenter, groups, owner=False):
+        admin = self.root.sf.getAdminService()
+        for group in groups:
+            user, name = self.user_and_name(experimenter)
+            admin.addGroups(user, [group])
+            if owner:
+                admin.setGroupOwner(group, user)
 
     def remove_experimenters(self, group, experimenters):
         admin = self.root.sf.getAdminService()
@@ -218,7 +225,7 @@ class ITest(unittest.TestCase):
         query = client.sf.getQueryService()
         fake = create_path(name, "&series=%d.fake" % seriesCount)
         pixelIds = self.import_image(filename=fake.abspath(), client=client)
-        self.assertEqual(seriesCount, len(pixelIds))
+        assert seriesCount == len(pixelIds)
 
         images = []
         for pixIdStr in pixelIds:
@@ -314,7 +321,7 @@ class ITest(unittest.TestCase):
         tb = session.createThumbnailStore()
         try:
             s = tb.getThumbnailByLongestSideSet(rint(16), [pixelsId])
-            self.assertNotEqual(s[pixelsId],'')
+            assert s[pixelsId] != ''
 
         finally:
             tb.close()
@@ -339,7 +346,7 @@ class ITest(unittest.TestCase):
         callback.loop(loops, ms) # throws on timeout
         rsp = callback.getResponse()
         is_ok = isinstance(rsp, omero.cmd.OK)
-        self.assertEquals(passes, is_ok, str(rsp))
+        assert passes ==  is_ok, str(rsp)
         return callback
 
     def new_user(self, group = None, perms = None,
@@ -437,10 +444,10 @@ class ITest(unittest.TestCase):
             name = group
             group = admin.lookupGroup(name)
         elif isinstance(group, omero.model.Experimenter):
-            self.fail(\
-                "group is a user! Try adding group= to your method invocation")
+            assert False,\
+                "group is a user! Try adding group= to your method invocation"
         else:
-            self.fail("Unknown type: %s=%s" % (type(group), group))
+            assert False, "Unknown type: %s=%s" % (type(group), group)
 
         return group, name
 
@@ -463,10 +470,10 @@ class ITest(unittest.TestCase):
             name = user
             user = admin.lookupExperimenter(name)
         elif isinstance(user, omero.model.ExperimenterGroup):
-            self.fail(\
-                "user is a group! Try adding user= to your method invocation")
+            assert False,\
+                "user is a group! Try adding user= to your method invocation"
         else:
-            self.fail("Unknown type: %s=%s" % (type(user), user))
+            assert False, "Unknown type: %s=%s" % (type(user), user)
 
         return user, name
 
@@ -598,16 +605,16 @@ class ITest(unittest.TestCase):
             try:
                 c.createSession(name, pw)
                 if pw == "BAD":
-                    self.fail("Should not reach this point")
+                    assert False, "Should not reach this point"
             except Glacier2.PermissionDeniedException:
                 if pw != "BAD":
                     raise
             t2 = time.time()
             T = (t2-t1)
             if less:
-                self.assertTrue(T < t, "%s > %s" % (T, t))
+                assert T < t, "%s > %s" % (T, t)
             else:
-                self.assertTrue(T > t, "%s < %s" % (T, t))
+                assert T > t, "%s < %s" % (T, t)
         finally:
             c.__del__()
 
@@ -622,27 +629,26 @@ class ITest(unittest.TestCase):
         else:
             prx = sf.submit(request)
 
-        self.assertFalse(State.FAILURE in prx.getStatus().flags)
+        assert not State.FAILURE in prx.getStatus().flags
 
         cb = CmdCallbackI(client, prx)
         cb.loop(20, 500)
 
-        self.assertNotEqual(prx.getResponse(), None)
+        assert prx.getResponse() !=  None
 
         status = prx.getStatus()
         rsp = prx.getResponse()
 
         if test_should_pass:
-            if isinstance(rsp, omero.cmd.GraphConstraintERR):
-                self.fail("Found ERR when test_should_pass==true: %s (%s) params=%s constraints=%s" \
-                              % (rsp.category, rsp.name, rsp.parameters, rsp.constraints))
-            elif isinstance(rsp, ERR):
-                self.fail("Found ERR when test_should_pass==true: %s (%s) params=%s" % (rsp.category, rsp.name, rsp.parameters))
-            self.assertFalse(State.FAILURE in prx.getStatus().flags)
+            if isinstance(rsp, ERR):
+                assert False,\
+                    "Found ERR when test_should_pass==true: %s (%s) params=%s" %\
+                    (rsp.category, rsp.name, rsp.parameters)
+            assert not State.FAILURE in prx.getStatus().flags
         else:
             if isinstance(rsp, OK):
-                self.fail("Found OK when test_should_pass==false: %s" % rsp)
-            self.assertTrue(State.FAILURE in prx.getStatus().flags)
+                assert False, "Found OK when test_should_pass==false: %s" % rsp
+            assert State.FAILURE in prx.getStatus().flags
 
         return rsp
 
@@ -652,6 +658,6 @@ class ITest(unittest.TestCase):
         rsp = self.doSubmit(da, client, test_should_pass=test_should_pass, omero_group=omero_group)
         return rsp
 
-    def tearDown(self):
+    def teardown_method(self, method):
         failure = False
         self.__clients.__del__()

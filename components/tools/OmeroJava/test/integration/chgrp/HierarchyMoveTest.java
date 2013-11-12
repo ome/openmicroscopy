@@ -66,7 +66,7 @@ import pojos.FileAnnotationData;
 
 /**
  * Collection of test to move hierarchies between groups.
- * 
+ *
  * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @version 3.0 <small> (<b>Internal version:</b> $Revision: $Date: $) </small>
@@ -74,10 +74,9 @@ import pojos.FileAnnotationData;
  */
 public class HierarchyMoveTest extends AbstractServerTest {
 
-
     /**
      * Test to move an image w/o pixels between 2 private groups.
-     * 
+     *
      * @throws Exception
      *             Thrown if an error occurred.
      */
@@ -109,7 +108,7 @@ public class HierarchyMoveTest extends AbstractServerTest {
 
     /**
      * Test to move an image w/o pixels between 2 private groups.
-     * 
+     *
      * @throws Exception
      *             Thrown if an error occurred.
      */
@@ -244,7 +243,7 @@ public class HierarchyMoveTest extends AbstractServerTest {
 
     /**
      * Test to move an image with ROis.
-     * 
+     *
      * @throws Exception
      *             Thrown if an error occurred.
      */
@@ -313,7 +312,7 @@ public class HierarchyMoveTest extends AbstractServerTest {
 
     /**
      * Test to move a populated plate. Plate with plate acquisition.
-     * 
+     *
      * @throws Exception
      *             Thrown if an error occurred.
      */
@@ -441,7 +440,7 @@ public class HierarchyMoveTest extends AbstractServerTest {
 
     /**
      * Test to move a populated plate. Plate with no plate acquisition.
-     * 
+     *
      * @throws Exception
      *             Thrown if an error occurred.
      */
@@ -547,7 +546,7 @@ public class HierarchyMoveTest extends AbstractServerTest {
     /**
      * Tests to move a screen containing 2 plates, one w/o plate acquisition and
      * one with plate acquisition.
-     * 
+     *
      * @throws Exception
      *             Thrown if an error occurred.
      */
@@ -612,7 +611,7 @@ public class HierarchyMoveTest extends AbstractServerTest {
 
     /**
      * Tests to move screen with a plate and a reagent.
-     * 
+     *
      * @throws Exception
      *             Thrown if an error occurred.
      */
@@ -694,11 +693,11 @@ public class HierarchyMoveTest extends AbstractServerTest {
     /**
      * Tests to move a plate with a reagent. The test now passes with or w/o the
      * FORCE option. Similar to delete
-     * 
+     *
      * @throws Exception
      *             Thrown if an error occurred.
      */
-    @Test(enabled = true)
+    @Test
     public void testMovePlateWithReagent() throws Exception {
         String perms = "rw----";
         EventContext ctx = newUserAndGroup(perms);
@@ -776,7 +775,7 @@ public class HierarchyMoveTest extends AbstractServerTest {
 
     /**
      * Test to move a plate with ROI on images. The ROI will have measurements.
-     * 
+     *
      * @throws Exception
      *             Thrown if an error occurred.
      */
@@ -850,7 +849,7 @@ public class HierarchyMoveTest extends AbstractServerTest {
 
     /**
      * Tests to move a project containing a dataset with images.
-     * 
+     *
      * @throws Exception
      *             Thrown if an error occurred.
      */
@@ -933,7 +932,7 @@ public class HierarchyMoveTest extends AbstractServerTest {
     /**
      * Tests to move a screen containing a plate also contained in another
      * screen. The screen should be moved but not the plate.
-     * 
+     *
      * @throws Exception
      *             Thrown if an error occurred.
      */
@@ -1003,6 +1002,5 @@ public class HierarchyMoveTest extends AbstractServerTest {
     }
 
     // Test the data move by an admin
-
 
 }

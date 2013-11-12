@@ -56,15 +56,11 @@ class BaseCalendar(BaseController):
         
         if day:
             self.day = int(day)
-            # only for python 2.5
-            # date = datetime.datetime.strptime(("%i-%i-%i" % (self.year, self.month, self.day)), "%Y-%m-%d")
-            date = datetime.datetime(*(time.strptime(("%i-%i-%i" % (self.year, self.month, self.day)), "%Y-%m-%d")[0:6]))
+            date = datetime.datetime.strptime(("%i-%i-%i" % (self.year, self.month, self.day)), "%Y-%m-%d")
             self.displayDate = '%s %s' % (date.strftime("%A, %d"), date.strftime("%B %Y"))
             self.nameday = date.strftime("%A")
         else:
-            # only for python 2.5
-            # date = datetime.datetime.strptime(("%i-%i" % (self.year, self.month)), "%Y-%m")
-            date = datetime.datetime(*(time.strptime(("%i-%i" % (self.year, self.month)), "%Y-%m")[0:6]))
+            date = datetime.datetime.strptime(("%i-%i" % (self.year, self.month)), "%Y-%m")
 
     def create_calendar(self):
         calendar.setfirstweekday(settings.FIRST_DAY_OF_WEEK)
@@ -153,11 +149,8 @@ class BaseCalendar(BaseController):
             mn = '0%i' % month
         else:
             mn = month
-        # only for python 2.5
-        # d1 = datetime.datetime.strptime(("%i-%s-01 00:00:00" % (self.year, mn)), "%Y-%m-%d %H:%M:%S")
-        # d2 = datetime.datetime.strptime(("%i-%s-%i 23:59:59" % (self.year, mn, monthrange)), "%Y-%m-%d %H:%M:%S")
-        d1 = datetime.datetime(*(time.strptime(("%i-%s-01 00:00:00" % (self.year, mn)), "%Y-%m-%d %H:%M:%S")[0:6]))
-        d2 = datetime.datetime(*(time.strptime(("%i-%s-%i 23:59:59" % (self.year, mn, monthrange)), "%Y-%m-%d %H:%M:%S")[0:6]))
+        d1 = datetime.datetime.strptime(("%i-%s-01 00:00:00" % (self.year, mn)), "%Y-%m-%d %H:%M:%S")
+        d2 = datetime.datetime.strptime(("%i-%s-%i 23:59:59" % (self.year, mn, monthrange)), "%Y-%m-%d %H:%M:%S")
         
         start = long(time.mktime(d1.timetuple())+1e-6*d1.microsecond)*1000
         end = long(time.mktime(d2.timetuple())+1e-6*d2.microsecond)*1000
@@ -190,12 +183,8 @@ class BaseCalendar(BaseController):
             dy = '0%i' % self.day
         else:
             dy = self.day
-        # only for python 2.5
-        # d1 = datetime.datetime.strptime(('%i-%s-%s 00:00:00' % (self.year, mn, dy)), "%Y-%m-%d %H:%M:%S")
-        # d2 = datetime.datetime.strptime(('%i-%s-%s 23:59:59' % (self.year, mn, dy)), "%Y-%m-%d %H:%M:%S")
-        
-        d1 = datetime.datetime(*(time.strptime(('%i-%s-%s 00:00:00' % (self.year, mn, dy)), "%Y-%m-%d %H:%M:%S")[0:6]))
-        d2 = datetime.datetime(*(time.strptime(('%i-%s-%s 23:59:59' % (self.year, mn, dy)), "%Y-%m-%d %H:%M:%S")[0:6]))
+        d1 = datetime.datetime.strptime(('%i-%s-%s 00:00:00' % (self.year, mn, dy)), "%Y-%m-%d %H:%M:%S")
+        d2 = datetime.datetime.strptime(('%i-%s-%s 23:59:59' % (self.year, mn, dy)), "%Y-%m-%d %H:%M:%S")
         
         start = long(time.mktime(d1.timetuple())+1e-6*d1.microsecond)*1000
         end = long(time.mktime(d2.timetuple())+1e-6*d2.microsecond)*1000

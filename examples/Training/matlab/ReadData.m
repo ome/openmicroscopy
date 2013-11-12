@@ -129,9 +129,11 @@ try
             pa = wellSamples(j).getPlateAcquisition();
         end
     end
+    
 catch err
-    disp(err.message);
+    client.closeSession();
+    throw(err);
 end
 
-% close the session
+% Close the session
 client.closeSession();

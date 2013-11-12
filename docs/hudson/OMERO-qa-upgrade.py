@@ -80,10 +80,7 @@ from email.MIMEImage import MIMEImage
 
 from zipfile import ZipFile
 
-try:
-    from xml.etree.ElementTree import XML, ElementTree, tostring
-except ImportError:
-    from elementtree.ElementTree import XML, ElementTree, tostring
+from xml.etree.ElementTree import XML, ElementTree, tostring
 
 
 class Artifacts(object):

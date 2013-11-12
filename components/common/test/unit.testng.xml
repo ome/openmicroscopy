@@ -5,7 +5,6 @@
       <run>
         <exclude name="broken"/>
         <exclude name="ignore"/>
-        <exclude name="integration"/>
       </run>
     </groups>
     <packages>

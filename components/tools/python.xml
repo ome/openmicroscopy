@@ -40,36 +40,60 @@ ice_compatibility="${versions.ice}"
         </setup_py>
     </target>
 
-    <target name="python-test-single" if="TEST">
-        <setup_py failonerror="${test.with.fail}">
-            <env key="OMERODIR" value="${dist.dir}"/>
-            <arg value="test"/>
-            <arg value="-s"/>
-            <arg value="${TEST}"/>
-        </setup_py>
-    </target>
-
-    <target name="python-test-suite" unless="TEST">
-        <run_py failonerror="${test.with.fail}">
-            <env key="ICE_CONFIG" value="${env.ICE_CONFIG}"/>
-            <env key="PYTHONPATH" path="test:build/lib:${basedir}/../target/lib/python:${env.PYTHONPATH}"/>
-            <arg file="${basedir}/test/suite.py"/>
-        </run_py>
-    </target>
-
     <target name="python-test" unless="env.NOPYTHON">
         <antcall target="python-test-single" inheritRefs="true" inheritAll="true"/>
         <antcall target="python-test-suite" inheritRefs="true" inheritAll="true"/>
     </target>
 
-    <target name="python-integration" unless="env.NOPYTHON">
-        <property name="suite_file" value="${basedir}/test/integration/integration_suite.py"/>
-        <run_py failonerror="${test.with.fail}">
-            <env key="ICE_CONFIG" value="${env.ICE_CONFIG}"/>
-            <env key="PYTHONPATH" path="test:build/lib:${basedir}/../target/lib/python:${env.PYTHONPATH}"/>
-            <arg file="${suite_file}"/>
-        </run_py>
+    <target name="python-test-single" if="TEST">
+        <mkdir dir="${testreports.dir}"/>
+        <py_test target="${TEST}">
+            <optionalArgs/>
+        </py_test>
     </target>
+
+    <target name="python-test-suite" unless="TEST">
+        <mkdir dir="${testreports.dir}"/>
+        <py_test target="${basedir}/test/unit">
+            <optionalArgs/>
+        </py_test>
+    </target>
+
+    <target name="python-integration" unless="env.NOPYTHON">
+        <mkdir dir="${testreports.dir}"/>
+        <if>
+            <isset property="MARK"/>
+            <then>
+                <py_test>
+                    <optionalArgs>
+                        <arg value="-m ${MARK}"/>
+                    </optionalArgs>
+                </py_test>
+            </then>
+            <else>
+                <py_test>
+                    <optionalArgs/>
+                </py_test>
+            </else>
+        </if>
+    </target>
+
+    <macrodef name="py_test">
+        <attribute name="target" default="${basedir}/test"/>
+        <element name="optionalArgs" optional="y"/>
+        <sequential>
+            <setup_py failonerror="${test.with.fail}">
+                <env key="OMERODIR" value="${dist.dir}"/>
+                <env key="ICE_CONFIG" value="${env.ICE_CONFIG}"/>
+                <arg value="test"/>
+                <optionalArgs/>
+                <arg value="-v"/>
+                <arg value="-s"/>
+                <arg file="@{target}"/>
+                <arg value="--junitxml=${testreports.dir}/junit-results.xml"/>
+            </setup_py>
+        </sequential>
+    </macrodef>
 
     <target name="python-install" unless="env.NOPYTHON">
         <!-- The renaming which takes place here doesn't seem to work with eggs.

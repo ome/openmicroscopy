@@ -73,7 +73,7 @@ def planeGen():
             for t in range(sizeT):      # all time-points
                 channel0 = pixels.getPlane(z, 0, t)
                 channel1 = pixels.getPlane(z, 1, t)
-                # Here we can manipulate the data in many different ways. As an example we're doing "average"
+                # Here we can manipulate the data in many different ways. As an example we are doing "average"
                 newPlane = (channel0 + channel1) / 2    # average of 2 channels
                 print "newPlane for z,t:", z, t, newPlane.dtype, newPlane.min(), newPlane.max()
                 yield newPlane
@@ -86,5 +86,5 @@ i = conn.createImageFromNumpySeq(planeGen(), "new image",\
 
 # Close connection:
 # =================================================================
-# When you're done, close the session to free up server resources.
+# When you are done, close the session to free up server resources.
 conn._closeSession()

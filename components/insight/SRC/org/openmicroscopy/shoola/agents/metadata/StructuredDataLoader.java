@@ -2,10 +2,10 @@
  * org.openmicroscopy.shoola.agents.metadata.StructuredDataLoader 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -32,15 +32,13 @@ import java.util.Map;
 //Third-party libraries
 
 
+import org.apache.commons.collections.CollectionUtils;
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.metadata.browser.TreeBrowserDisplay;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
-import org.openmicroscopy.shoola.env.log.LogMessage;
-
 import pojos.DataObject;
 
 /** 
@@ -53,9 +51,6 @@ import pojos.DataObject;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since OME3.0
  */
 public class StructuredDataLoader 
@@ -67,7 +62,7 @@ public class StructuredDataLoader
 
 	/** Handle to the asynchronous call so that we can cancel it. */
     private CallHandle  handle;
-    
+
 	/**
 	 * Creates a new instance.
 	 * 
@@ -82,20 +77,20 @@ public class StructuredDataLoader
 			List<DataObject> dataObjects, int loaderID)
 	{
 		super(viewer, ctx, null, loaderID);
-		if (dataObjects == null || dataObjects.size() == 0)
+		if (CollectionUtils.isEmpty(dataObjects))
 			throw new IllegalArgumentException("No object specified.");
 		this.dataObjects = dataObjects;
 	}
-	
+
 	/** 
 	 * Loads the data.
 	 * @see MetadataLoader#cancel()
 	 */
 	public void load()
 	{
-		handle = mhView.loadStructuredData(ctx, dataObjects, -1, false, this);
+	    handle = mhView.loadStructuredData(ctx, dataObjects, -1, false, this);
 	}
-	
+
 	/** 
 	 * Cancels the data loading. 
 	 * @see MetadataLoader#cancel()
@@ -112,7 +107,7 @@ public class StructuredDataLoader
     	viewer.setMetadata((Map<DataObject, StructuredDataResults>) result,
     			loaderID);
     }
-    
+
     /**
      * Notifies the user that an error has occurred and discards the 
      * {@link #viewer}.
@@ -120,15 +115,15 @@ public class StructuredDataLoader
      */
     public void handleException(Throwable exc)
     {
-    	handleException(exc, false);
-    	Map<DataObject, StructuredDataResults> m = 
-    		new HashMap<DataObject, StructuredDataResults>();
-    	Iterator<DataObject> i = dataObjects.iterator();
-    	DataObject data;
-    	while (i.hasNext()) {
-    		data = i.next();
-			m.put(data, new StructuredDataResults(data, false));
-		}
-    	viewer.setMetadata(m, loaderID);
+        handleException(exc, false);
+        Map<DataObject, StructuredDataResults> m =
+                new HashMap<DataObject, StructuredDataResults>();
+        Iterator<DataObject> i = dataObjects.iterator();
+        DataObject data;
+        while (i.hasNext()) {
+            data = i.next();
+            m.put(data, new StructuredDataResults(data, false));
+        }
+        viewer.setMetadata(m, loaderID);
     }
 }

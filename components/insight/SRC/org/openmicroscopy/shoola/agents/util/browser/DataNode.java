@@ -266,9 +266,9 @@ public class DataNode
 		children = new ArrayList<DataNode>();
 		if (data instanceof ProjectData) {
 			if (refNode != null) {
-				List l = refNode.getChildrenDisplay();
+				List<?> l = refNode.getChildrenDisplay();
 				if (l != null && l.size() > 0) {
-					Iterator i = l.iterator();
+					Iterator<?> i = l.iterator();
 					TreeImageDisplay node;
 					DataNode n;
 					while (i.hasNext()) {
@@ -278,12 +278,10 @@ public class DataNode
 						n.parent = this;
 						children.add(n);
 					}
-					//if (this.isDefaultNode())
-						children.add(new DataNode(
-								DataNode.createDefaultDataset(), 
-								this));
+					children.add(new DataNode(
+								DataNode.createDefaultDataset(), this));
 				} else {
-					children.add(new DataNode(DataNode.createDefaultDataset(), 
+					children.add(new DataNode(DataNode.createDefaultDataset(),
 							this));
 				}
 			}
@@ -340,7 +338,7 @@ public class DataNode
 	}
 	
 	/**
-	 * Returns <code>true</code> if the node is a default node for project, 
+	 * Returns <code>true</code> if the node is a default node for project,
 	 * <code>false</code> otherwise.
 	 *  
 	 * @return See above.
@@ -351,7 +349,7 @@ public class DataNode
 	}
 	
 	/**
-	 * Returns <code>true</code> if the node is a default node for screen, 
+	 * Returns <code>true</code> if the node is a default node for screen,
 	 * <code>false</code> otherwise.
 	 *  
 	 * @return See above.
@@ -362,7 +360,7 @@ public class DataNode
 	}
 	
 	/**
-	 * Returns <code>true</code> if the node is a default node for dataset, 
+	 * Returns <code>true</code> if the node is a default node for dataset,
 	 * <code>false</code> otherwise.
 	 *  
 	 * @return See above.
@@ -385,11 +383,7 @@ public class DataNode
 	 */
 	public String toString()
 	{
-		//space added at the end otherwise does not show on linux if
-		//name ends up with "v".
-		String name = getFullName();
-		
-		return EditorUtil.truncate(name, 48);
+		return EditorUtil.truncate(getFullName(), 48);
 	}
 	
 	/**
@@ -399,15 +393,14 @@ public class DataNode
 	 */
 	public String getFullName()
 	{
-		String name = " ";
-		
 		if (data instanceof DatasetData)
-			name = ((DatasetData) data).getName() + " "; 
-		else if (data instanceof ProjectData) 
-			name = ((ProjectData) data).getName() + " "; 
-		else if (data instanceof ScreenData) 
-			name = ((ScreenData) data).getName() + " ";
-		return name;
+			return ((DatasetData) data).getName() + " ";
+		else if (data instanceof ProjectData)
+			return ((ProjectData) data).getName() + " ";
+		else if (data instanceof ScreenData)
+			return ((ScreenData) data).getName() + " ";
+		else if (data instanceof GroupData)
+		    return ((GroupData) data).getName() + " ";
+		return "";
 	}
-	
 }

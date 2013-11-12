@@ -1423,7 +1423,11 @@ def manage_action_containers(request, action, o_type=None, o_id=None, conn=None,
                 logger.debug("Create new: %s" % (str(form.cleaned_data)))
                 name = form.cleaned_data['name']                
                 description = form.cleaned_data['description']
-                oid = getattr(manager, "create"+request.REQUEST.get('folder_type').capitalize())(name, description)
+                folder_type = request.REQUEST.get('folder_type')
+                if folder_type == "dataset":
+                    oid = manager.createDataset(name,description, img_ids=request.REQUEST.get('img_ids', None))
+                else:
+                    oid = getattr(manager, "create"+folder_type.capitalize())(name, description)
                 rdict = {'bad':'false', 'id': oid}
                 json = simplejson.dumps(rdict, ensure_ascii=False)
                 return HttpResponse( json, mimetype='application/javascript')
@@ -2321,27 +2325,43 @@ def list_scripts (request, conn=None, **kwargs):
         if fullpath in settings.SCRIPTS_TO_IGNORE:
             logger.info('Ignoring script %r' % fullpath)
             continue
-        displayName = name.replace("_", " ").replace(".py", "")
 
-        if path not in scriptMenu:
-            folder, name = os.path.split(path)
-            if len(name) == 0:      # path was /path/to/folderName/  - we want 'folderName'
-                folderName = os.path.basename(folder)
-            else:                   # path was /path/to/folderName  - we want 'folderName'
-                folderName = name
-            folderName = folderName.title().replace("_", " ")
-            scriptMenu[path] = {'name': folderName, 'scripts': []}
+        # We want to build a hierarchical <ul> <li> structure
+        # Each <ul> is a {}, each <li> is either a script 'name': <id> or directory 'name': {ul}
 
-        scriptMenu[path]['scripts'].append((scriptId, displayName))
+        ul = scriptMenu
+        dirs = fullpath.split("/");
+        for l, d in enumerate(dirs):
+            if len(d) == 0:
+                continue
+            if d not in ul:
+                # if last component in path:
+                if l+1 == len(dirs):
+                    ul[d] = scriptId
+                else:
+                    ul[d] = {}
+            ul = ul[d]
 
-    # convert map into list
-    scriptList = []
-    for path, sData in scriptMenu.items():
-        sData['path'] = path    # sData map has 'name', 'path', 'scripts'
-        sData['scripts'].sort(key=lambda x:x[1].lower())    # sort each script submenu by displayName
-        scriptList.append(sData)
-    scriptList.sort(key=lambda x:x['name'])
-    return {'template':"webclient/scripts/list_scripts.html", 'scriptMenu': scriptList}
+    # convert <ul> maps into lists and sort
+
+    def ul_to_list(ul):
+        dir_list = []
+        for name, value in ul.items():
+            if isinstance(value, dict):
+                # value is a directory
+                dir_list.append({'name': name, 'ul': ul_to_list(value)})
+            else:
+                dir_list.append({'name': name, 'id':value})
+        dir_list.sort(key=lambda x:x['name'].lower())
+        return dir_list
+
+    scriptList = ul_to_list(scriptMenu)
+
+    # If we have a single top-level directory, we can skip it
+    if len(scriptList) == 1:
+        scriptList = scriptList[0]['ul']
+
+    return scriptList
 
 
 @login_required()
@@ -2649,6 +2669,15 @@ def script_run(request, scriptId, conn=None, **kwargs):
 
     sId = long(scriptId)
 
+    try:
+        params = scriptService.getParams(sId)
+    except Exception, x:
+        if x.message and x.message.startswith("No processor available"):
+            # Delegate to run_script() for handling 'No processor available'
+            rsp = run_script(request, conn, sId, inputMap, scriptName='Script')
+            return HttpResponse(simplejson.dumps(rsp), mimetype='json')
+        else:
+            raise
     params = scriptService.getParams(sId)
     scriptName = params.name.replace("_", " ").replace(".py", "")
 
@@ -2771,9 +2800,9 @@ def run_script(request, conn, sId, inputMap, scriptName='Script'):
         jobId = str(time())      # E.g. 1312803670.6076391
         if x.message and x.message.startswith("No processor available"): # omero.ResourceError
             logger.info(traceback.format_exc())
-            error = None
+            error = "No Processor Available"
             status = 'no processor available'
-            message = 'No Processor Available: Please try again later'
+            message = "" # template displays message and link
         else:
             logger.error(traceback.format_exc())
             error = traceback.format_exc()

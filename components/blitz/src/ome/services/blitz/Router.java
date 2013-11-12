@@ -86,24 +86,6 @@ public class Router {
         }
     }
 
-    /**
-     * Uses the administrative interface for the Glacier2 router to call
-     * {@link Glacier2.AdminPrx#shutdown()}. This method should not throw an
-     * exception under any circumstances.
-     */
-    public boolean shutdown(Ice.Communicator ic) {
-        Ice.ObjectPrx prx = ic.stringToProxy(map.get("Glacier2.InstanceName")
-                + "/admin:tcp -p 4064 -h 127.0.0.1");
-        try {
-            Glacier2.AdminPrx rtr = Glacier2.AdminPrxHelper.checkedCast(prx);
-            rtr.shutdown();
-        } catch (Exception e) {
-            log.error("Error while calling router.shutdown.", e);
-            return false;
-        }
-        return true;
-    }
-
     String getBashPath() {
         ProcessBuilder pb = new ProcessBuilder("bash", "-l", "-c",
                 "which glacier2router");
