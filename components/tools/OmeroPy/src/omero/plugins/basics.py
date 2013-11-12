@@ -150,7 +150,7 @@ Other help topics:
 %(topics)s
 
 For additional information, see:
-http://www.openmicroscopy.org/site/support/omero4/users/\
+http://www.openmicroscopy.org/site/support/omero5/users/\
 command-line-interface.html
 Report bugs to <ome-users@lists.openmicroscopy.org.uk>
 """ % key_list
