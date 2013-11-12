@@ -213,18 +213,26 @@ def timeformat( value ):
     Filter - returns the converted value with units
     all values are in seconds
     """
+    from decimal import Decimal, InvalidOperation
+    from django.utils.encoding import force_unicode
+    
     try:
-        value = float(value)
-    except (TypeError,ValueError,UnicodeDecodeError):
-        return u'%s s' % str(value)
-
+        value = Decimal(force_unicode(value))
+    except UnicodeEncodeError:
+        return u''
+    except InvalidOperation:
+        try:
+            value = Decimal(force_unicode(float(value)))
+        except (ValueError, InvalidOperation, TypeError, UnicodeEncodeError):
+            return u'%s s' % str(value)
+        
     if value < 1 / 1000 :
-        return u'%f \u00B5s' % (value * 1000 * 1000)
+        return u'%d\u00A0\u00B5s' % (value * 1000 * 1000)
     elif value < 1 :
-        return u'%f ms' % (value * 1000)
+        return u'%d\u00A0ms' % (value * 1000)
     elif value < 60:
-        return u'%d s' % value
+        return u'%d\u00A0s' % value
     elif value < 60 * 60:
-        return u'%d min %d s' % (value / 60, value%60)
+        return u'%d\u00A0min\u00A0%d\u00A0s' % (value / 60, value%60)
     else:
-        return u'%d h %d min' % (value / 3600, value%3600)
+        return u'%d\u00A0h\u00A0%d\u00A0min' % (value / 3600, value%3600)
