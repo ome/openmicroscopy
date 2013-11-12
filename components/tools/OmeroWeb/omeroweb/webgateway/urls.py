@@ -15,11 +15,6 @@
 
 from django.conf.urls.defaults import *
 
-webgateway = url( r'^$', 'webgateway.views.test', name="webgateway" )
-"""
-Returns a main prefix
-"""
-
 annotations = url(r'^annotations/(?P<objtype>[\w.]+)/(?P<objid>\d+)/$', 'webgateway.views.annotations', name="webgateway_annotations")
 """
 Retrieve annotations for object specified by object type and identifier,
@@ -296,7 +291,6 @@ original_file_paths = url( r'^original_file_paths/(?P<iid>[0-9]+)/$', 'webgatewa
 """ Get a json array of path/name strings for original files for the Image"""
 
 urlpatterns = patterns('',
-    webgateway,
     render_image,
     render_image_region,
     render_split_channel,
@@ -309,7 +303,6 @@ urlpatterns = patterns('',
     render_ome_tiff,
     render_movie,
     # Template views
-    test,
     # JSON methods
     listProjects_json,
     projectDetail_json,
