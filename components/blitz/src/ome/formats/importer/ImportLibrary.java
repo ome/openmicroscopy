@@ -396,15 +396,18 @@ public class ImportLibrary implements IObservable
             FileInputStream stream) throws ServerError {
         try {
             if (rawFileStore != null) {
-                rawFileStore.close();
+                try {
+                    rawFileStore.close();
+                } catch (Exception e) {
+                    log.error("error in closing raw file store", e);
+                }
             }
         } finally {
             if (stream != null) {
                 try {
                     stream.close();
-                }
-                catch (Exception e) {
-                    log.error("I/O error closing stream.", e);
+                } catch (IOException e) {
+                    log.error("I/O in error closing stream", e);
                 }
             }
         }
@@ -648,9 +651,12 @@ public class ImportLibrary implements IObservable
 
     public void clear()
     {
-        store.setGroup(null);
-        store.setCurrentLogFile(null);
-        store.createRoot();
+        try {
+            store.setGroup(null);
+            store.setCurrentLogFile(null);
+            store.createRoot();
+        } catch (Throwable t) {
+            log.error("failed to clear metadata store", t);
+        }
     }
-
 }
