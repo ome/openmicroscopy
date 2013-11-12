@@ -223,7 +223,6 @@ class ToolBar
         controller.setSelection(selectedItem.getGroup(),
                 selectedItem.getSeletectedUsers(),
                 !selectedItem.isGroupSelected());
-
         usersMenu.setVisible(false);
         groupsMenu.setVisible(false);
     }
@@ -232,7 +231,7 @@ class ToolBar
     private void handleGroupsSelection()
     {
         Entry<JCheckBox, DataMenuItem> e;
-        Iterator<Entry<JCheckBox, DataMenuItem>> 
+        Iterator<Entry<JCheckBox, DataMenuItem>>
         i = groupItems.entrySet().iterator();
         List<GroupData> toAdd = new ArrayList<GroupData>();
         List<GroupData> toRemove = new ArrayList<GroupData>();
@@ -260,6 +259,7 @@ class ToolBar
         title.setBackground(UIUtilities.BACKGROUND_COLOUR_EVEN);
         return title;
     }
+
     /**
      * Creates the menu hosting the users belonging to the specified group.
      * 
@@ -438,7 +438,6 @@ class ToolBar
         int h = dim.height-p1.y-30; //max size.
         int diff = p1.y+d.height;
         if (diff > h) groupsMenu.setPopupSize(d.width+20, h);
-
         groupsMenu.show(source, p.x, p.y);
     }
 
@@ -1158,7 +1157,7 @@ class ToolBar
         if (!b) { //only show for admin and group owner
             if (group.getPermissions().getPermissionsLevel() ==
                     GroupData.PERMISSIONS_PRIVATE)
-                usersButton.setEnabled(model.isAdministrator() ||
+                usersButton.setVisible(model.isAdministrator() ||
                         model.isGroupOwner(group));
             else usersButton.setVisible(!b);
         } else usersButton.setVisible(!b);
