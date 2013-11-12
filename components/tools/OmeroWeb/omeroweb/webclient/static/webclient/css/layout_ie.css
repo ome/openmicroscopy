@@ -225,6 +225,10 @@
 				border-right:solid 1px rgba(255,255,255,.5);
 				background:#A1AAB3;
 			}
+
+			.jstree-contextmenu-disabled {
+				-ms-filter: "alpha(opacity=50)";
+			}
         
 		
 
