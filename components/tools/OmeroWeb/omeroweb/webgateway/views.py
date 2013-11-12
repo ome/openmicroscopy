@@ -1741,21 +1741,6 @@ def get_rois_json(request, imageId, conn=None, **kwargs):
     rois.sort(key=lambda x: x['id']) # sort by ID - same as in measurement tool.
     
     return HttpResponse(simplejson.dumps(rois), mimetype='application/javascript')
-    
-
-def test (request):
-    """
-    Tests the L{full_viewer} with no args passed to the template. 
-    
-    @param request:     http request.
-    @return:            blank page template
-    """
-    
-    context = {}
-
-    t = template_loader.get_template('webgateway/viewport/omero_image.html')
-    c = Context(request,context)
-    return HttpResponse(t.render(c))
 
 @login_required(isAdmin=True)
 @jsonp
