@@ -66,22 +66,6 @@ Number.prototype.lengthformat = function () {
     }
 }
 
-
-Number.prototype.timeformat = function () {
-    var time = this;
-    if (time < 1 / 1000) {
-        return (time * 1000 * 1000) + ' &#181s';
-    } else if (time < 1) {
-        return (time * 1000) + ' ms';
-    } else if (time < 60) {
-        return time + ' s';
-    } else if (time < 60 * 60) {
-        return (time / 60).toFixed(0) + ' min ' + (time % 60) + ' s';
-    } else {
-        return (time / 60 / 60).toFixed(0) + ' h ' + (time % 3600) + ' min';
-    }
-}
-
 String.prototype.capitalize = function() {
     return this.charAt(0).toUpperCase() + this.slice(1);
 };
