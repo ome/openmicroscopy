@@ -19,7 +19,7 @@
  * implementation, for use by the server and via the
  * InteractiveProcessor wrapper by clients.
  *
- * See https://www.openmicroscopy.org/site/support/omero4/developers/Modules/Scripts.html
+ * See https://www.openmicroscopy.org/site/support/omero4/developers/scripts/
  */
 
 module omero {
