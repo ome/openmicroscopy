@@ -5,7 +5,7 @@
  *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -1830,20 +1830,24 @@ class ImViewerComponent
 	 */
 	public void showMenu(int menuID, Component source, Point location)
 	{
-		if (model.getState() == DISCARDED) return;
-		if (source == null) throw new IllegalArgumentException("No component.");
-		if (location == null) throw new IllegalArgumentException("No point.");
-		switch (menuID) {
-			case COLOR_PICKER_MENU:
-				if (model.getMaxC() == 1) showColorPicker(0);
-				else view.showMenu(menuID, source, location);
-				break;
-			case ACTIVITY_MENU:
-				model.activityOptions(source, location);
-				break;
-			default:
-				throw new IllegalArgumentException("Menu not supported.");
-		}
+	    if (model.getState() == DISCARDED) return;
+	    if (source == null) throw new IllegalArgumentException("No component.");
+	    if (location == null) {
+	        Point p = source.getLocation();
+	        location = new Point(p.x+source.getWidth(), Math.abs(
+	                p.y-source.getHeight()));
+	    }
+	    switch (menuID) {
+	    case COLOR_PICKER_MENU:
+	        if (model.getMaxC() == 1) showColorPicker(0);
+	        else view.showMenu(menuID, source, location);
+	        break;
+	    case ACTIVITY_MENU:
+	        model.activityOptions(source, location);
+	        break;
+	    default:
+	        throw new IllegalArgumentException("Menu not supported.");
+	    }
 	}
 
 	/** 

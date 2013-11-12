@@ -2,10 +2,10 @@
  * org.openmicroscopy.shoola.agents.imviewer.actions.ColorPickerAction 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -46,35 +46,32 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since OME3.0
  */
-public class ColorPickerAction 
+public class ColorPickerAction
 	extends ViewerAction
 	implements MouseListener
 {
 
-	/** The description of the action. */
+    /** The description of the action. */
     private static final String DESCRIPTION = "Bring up the color picker.";
-    
+
     /** The location of the mouse pressed. */
     private Point point;
-    
+
     /**
      * Creates a new instance.
      * 
-     * @param model	Reference to the Model. Mustn't be <code>null</code>.
+     * @param model Reference to the Model. Mustn't be <code>null</code>.
      */
-	public ColorPickerAction(ImViewer model)
-	{
-		super(model);
-		putValue(Action.SHORT_DESCRIPTION, 
+    public ColorPickerAction(ImViewer model)
+    {
+        super(model);
+        putValue(Action.SHORT_DESCRIPTION,
                 UIUtilities.formatToolTipText(DESCRIPTION));
-		IconManager im = IconManager.getInstance();
+        IconManager im = IconManager.getInstance();
         putValue(Action.SMALL_ICON, im.getIcon(IconManager.COLOR_PICKER));
-	}
+    }
 
     /** 
      * Sets the location of the point where the <code>mousePressed</code>
@@ -82,7 +79,7 @@ public class ColorPickerAction
      * @see MouseListener#mousePressed(MouseEvent)
      */
     public void mousePressed(MouseEvent me) { point = me.getPoint(); }
-    
+
     /** 
      * Brings up the menu. 
      * @see MouseListener#mouseReleased(MouseEvent)
@@ -90,11 +87,12 @@ public class ColorPickerAction
     public void mouseReleased(MouseEvent me)
     {
         Object source = me.getSource();
+        if (point == null) point = me.getPoint();
         if (source instanceof Component && isEnabled())
-            model.showMenu(ImViewer.COLOR_PICKER_MENU, (Component) source, 
-            		point);
+            model.showMenu(ImViewer.COLOR_PICKER_MENU, (Component) source,
+                    point);
     }
-    
+
     /** 
      * Required by {@link MouseListener} I/F but not actually needed in our
      * case, no-op implementation.
@@ -108,12 +106,12 @@ public class ColorPickerAction
      * @see MouseListener#mouseExited(MouseEvent)
      */   
     public void mouseExited(MouseEvent e) {}
-    
+
     /** 
      * Required by {@link MouseListener} I/F but not actually needed in our
      * case, no-op implementation.
      * @see MouseListener#mouseClicked(MouseEvent)
      */   
     public void mouseClicked(MouseEvent e) {}
-	
+
 }
