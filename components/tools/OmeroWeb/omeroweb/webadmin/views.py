@@ -432,8 +432,8 @@ def manage_experimenter(request, action, eid=None, conn=None, **kwargs):
                                 'administrator': experimenter.isAdmin(), 'active': experimenter.isActive(), 
                                 'default_group': defaultGroupId, 'other_groups':[g.id for g in otherGroups],
                                 'groups':otherGroupsInitialList(groups)}
-        experimenter_is_me = (conn.getEventContext().userId == long(eid))
-        form = ExperimenterForm(experimenter_is_me=experimenter_is_me, initial=initial)
+        experimenter_is_me_or_system = (conn.getEventContext().userId == long(eid)) or (long(eid) < 2)
+        form = ExperimenterForm(experimenter_is_me_or_system=experimenter_is_me_or_system, initial=initial)
         password_form = ChangePassword()
         context = {'form':form, 'eid': eid, 'ldapAuth': isLdapUser, 'password_form':password_form}
     elif action == 'save':
@@ -444,7 +444,6 @@ def manage_experimenter(request, action, eid=None, conn=None, **kwargs):
             name_check = conn.checkOmeName(request.REQUEST.get('omename'), experimenter.omeName)
             email_check = conn.checkEmail(request.REQUEST.get('email'), experimenter.email)
             initial={'active':True, 'groups':otherGroupsInitialList(groups)}
-            
             form = ExperimenterForm(initial=initial, data=request.POST.copy(), name_check=name_check, email_check=email_check)
             
             if form.is_valid():
@@ -579,9 +578,11 @@ def manage_group(request, action, gid=None, conn=None, **kwargs):
         memberIds = [m.id for m in group.getMembers()]
         
         permissions = getActualPermissions(group)
+        group_is_system = (long(gid) < 3)
         form = GroupForm(initial={'name': group.name, 'description':group.description,
                                      'permissions': permissions, 
-                                     'owners': ownerIds, 'members':memberIds, 'experimenters':experimenters})
+                                     'owners': ownerIds, 'members':memberIds, 'experimenters':experimenters},
+                                     group_is_system=group_is_system)
         
         context = {'form':form, 'gid': gid, 'permissions': permissions}
     elif action == 'save':
