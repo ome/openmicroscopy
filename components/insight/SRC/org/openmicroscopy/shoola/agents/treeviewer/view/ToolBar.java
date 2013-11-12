@@ -1142,53 +1142,59 @@ class ToolBar
 		}
 		return null;
 	}
-	
-	/** Sets the permissions level.*/
-    void setPermissions()
-    {
-    	Browser browser = model.getSelectedBrowser();
-    	if (browser != null &&
-    			browser.getBrowserType() == Browser.ADMIN_EXPLORER)
-    		return;
-    	GroupData group = model.getSelectedGroup();
-    	if (group == null || groupContext == null) {
-    		menuButton.setVisible(false);
-        	groupContext.setVisible(false);
-    		return;
-    	}
-    	String desc = "";
-		Icon icon = getGroupIcon(group);
-		switch (group.getPermissions().getPermissionsLevel()) {
-			case GroupData.PERMISSIONS_PRIVATE:
-				desc = GroupData.PERMISSIONS_PRIVATE_TEXT;
-				break;
-			case GroupData.PERMISSIONS_GROUP_READ:
-				desc = GroupData.PERMISSIONS_GROUP_READ_TEXT;
-				break;
-			case GroupData.PERMISSIONS_GROUP_READ_LINK:
-				desc = GroupData.PERMISSIONS_GROUP_READ_LINK_TEXT;
-				break;
-			case GroupData.PERMISSIONS_GROUP_READ_WRITE:
-				desc = GroupData.PERMISSIONS_GROUP_READ_WRITE_TEXT;
-				break;
-			case GroupData.PERMISSIONS_PUBLIC_READ:
-				desc = GroupData.PERMISSIONS_PUBLIC_READ_TEXT;
-				break;
-			case GroupData.PERMISSIONS_PUBLIC_READ_WRITE:
-				desc = GroupData.PERMISSIONS_PUBLIC_READ_WRITE_TEXT;
-		}
-		if (icon != null) groupContext.setIcon(icon);
-		groupContext.setText(group.getName());
-		groupContext.setToolTipText(desc);
 
-        Collection set = TreeViewerAgent.getAvailableUserGroups();
-        boolean b = set != null && set.size() > 1;
-        menuButton.setVisible(b);
-    	groupContext.setVisible(b);
-    	usersButton.setVisible(!b);
-		repaint();
-    }
-    
+	/** Sets the permissions level.*/
+	void setPermissions()
+	{
+	    Browser browser = model.getSelectedBrowser();
+	    if (browser != null &&
+	            browser.getBrowserType() == Browser.ADMIN_EXPLORER)
+	        return;
+	    GroupData group = model.getSelectedGroup();
+	    if (group == null || groupContext == null) {
+	        menuButton.setVisible(false);
+	        groupContext.setVisible(false);
+	        return;
+	    }
+	    String desc = "";
+	    Icon icon = getGroupIcon(group);
+	    switch (group.getPermissions().getPermissionsLevel()) {
+	    case GroupData.PERMISSIONS_PRIVATE:
+	        desc = GroupData.PERMISSIONS_PRIVATE_TEXT;
+	        break;
+	    case GroupData.PERMISSIONS_GROUP_READ:
+	        desc = GroupData.PERMISSIONS_GROUP_READ_TEXT;
+	        break;
+	    case GroupData.PERMISSIONS_GROUP_READ_LINK:
+	        desc = GroupData.PERMISSIONS_GROUP_READ_LINK_TEXT;
+	        break;
+	    case GroupData.PERMISSIONS_GROUP_READ_WRITE:
+	        desc = GroupData.PERMISSIONS_GROUP_READ_WRITE_TEXT;
+	        break;
+	    case GroupData.PERMISSIONS_PUBLIC_READ:
+	        desc = GroupData.PERMISSIONS_PUBLIC_READ_TEXT;
+	        break;
+	    case GroupData.PERMISSIONS_PUBLIC_READ_WRITE:
+	        desc = GroupData.PERMISSIONS_PUBLIC_READ_WRITE_TEXT;
+	    }
+	    if (icon != null) groupContext.setIcon(icon);
+	    groupContext.setText(group.getName());
+	    groupContext.setToolTipText(desc);
+
+	    Collection set = TreeViewerAgent.getAvailableUserGroups();
+	    boolean b = set != null && set.size() > 1;
+	    menuButton.setVisible(b);
+	    groupContext.setVisible(b);
+	    if (!b) { //only show for admin and group owner
+	        if (group.getPermissions().getPermissionsLevel() ==
+	                GroupData.PERMISSIONS_PRIVATE)
+	            usersButton.setEnabled(model.isAdministrator() ||
+	                    model.isGroupOwner(group));
+	        else usersButton.setVisible(!b);
+	    } else usersButton.setVisible(!b);
+	    repaint();
+	}
+
 	/** Invokes when import is going on or finished.*/
 	void onImport()
 	{

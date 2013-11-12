@@ -39,6 +39,7 @@ import java.util.Set;
 
 //Third-party libraries
 
+import org.apache.commons.collections.CollectionUtils;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
 import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
@@ -1125,6 +1126,28 @@ class TreeViewerModel
 		return TreeViewerAgent.getGroupsLeaderOf().size() > 0;
 	}
 
+	/**
+	 * Returns <code>true</code> if the user currently logged in is an owner
+	 * of the group, <code>false</code> otherwise.
+	 * 
+	 * @param g The group to handle.
+	 * @return See above.
+	 */
+	boolean isGroupOwner(GroupData g)
+	{
+	    if (g == null) return false;
+	    Set leaders = g.getLeaders();
+	    if (CollectionUtils.isEmpty(leaders)) return false;
+	    Iterator i = leaders.iterator();
+	    ExperimenterData leader;
+	    ExperimenterData user = getExperimenter();
+	    while (i.hasNext()) {
+	        leader = (ExperimenterData) i.next();
+            if (user.getId() == leader.getId()) return true;
+        }
+	    return false;
+	}
+	
 	/**
 	 * Returns <code>true</code> if the currently logged in user
 	 * is an administrator, <code>false</code> otherwise.
