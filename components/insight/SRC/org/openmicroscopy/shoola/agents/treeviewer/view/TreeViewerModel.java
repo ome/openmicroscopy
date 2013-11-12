@@ -1143,11 +1143,11 @@ class TreeViewerModel
 	    ExperimenterData user = getExperimenter();
 	    while (i.hasNext()) {
 	        leader = (ExperimenterData) i.next();
-            if (user.getId() == leader.getId()) return true;
-        }
+	        if (user.getId() == leader.getId()) return true;
+	    }
 	    return false;
 	}
-	
+
 	/**
 	 * Returns <code>true</code> if the currently logged in user
 	 * is an administrator, <code>false</code> otherwise.

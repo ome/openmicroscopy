@@ -68,6 +68,7 @@ import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FilenameUtils;
 //Third-party libraries
 import org.jdesktop.swingx.JXBusyLabel;
@@ -332,7 +333,12 @@ class ToolBar
 				
 			}
 		};
-		if (l != null && l.size() > 0) {
+		int level = group.getPermissions().getPermissionsLevel();
+		boolean view = true;
+		if (level == GroupData.PERMISSIONS_PRIVATE) {
+		    view = model.isAdministrator() || model.isGroupOwner(group);
+		}
+		if (!CollectionUtils.isEmpty(l) && view) {
 			p.add(formatHeader("Group owners"));
 			i = l.iterator();
 			list = new JPanel();
@@ -348,55 +354,31 @@ class ToolBar
 			p.add(UIUtilities.buildComponentPanel(list));
 		}
 		l = sorter.sort(group.getMembersOnly());
-		if (l != null && l.size() > 0) {
+		if (!CollectionUtils.isEmpty(l)) {
 			p.add(formatHeader("Members"));
 			i = l.iterator();
 			list = new JPanel();
 			list.setLayout(new BoxLayout(list, BoxLayout.Y_AXIS));
 			while (i.hasNext()) {
 				exp = (ExperimenterData) i.next();
-				item = new DataMenuItem(exp, exp.getId() != id);
-				item.setSelected(users.contains(exp.getId()));
-				item.addActionListener(al);
-				items.add(item);
-				list.add(item);
+				if (view || exp.getId() == id) {
+				    item = new DataMenuItem(exp, exp.getId() != id);
+	                item.setSelected(users.contains(exp.getId()));
+	                item.addActionListener(al);
+	                items.add(item);
+	                list.add(item);
+				}
 			}
 			p.add(UIUtilities.buildComponentPanel(list));
 		}
-		
-		int level = group.getPermissions().getPermissionsLevel();
-		if (level == GroupData.PERMISSIONS_PRIVATE) {
-			boolean owner = false;
-			if (model.isAdministrator()) owner = true;
-			else {
-				ExperimenterData currentUser = model.getExperimenter();
-				Set leaders = group.getLeaders();
-				if (leaders != null) {
-					Iterator k = leaders.iterator();
-					while (k.hasNext()) {
-						exp = (ExperimenterData) k.next();
-						if (exp.getId() == currentUser.getId()) {
-							owner = true;
-							break;
-						}
-					}
-				}
-			}
-			if (!owner) {
-				Iterator<DataMenuItem> k = items.iterator();
-				while (k.hasNext()) {
-					k.next().setEnabled(false);
-				}
-			}
-		}
-		
+
 		
 		JScrollPane pane = new JScrollPane(p);
 		groupItem.setUsersMenu(pane);
 		groupItem.setUsersItem(items);
 		return pane;
 	}
-	
+
 	/**
 	 * Creates the menu displaying the groups
 	 * 
@@ -407,7 +389,7 @@ class ToolBar
 	{
 		if (!source.isEnabled()) return;
 		Collection groups = model.getGroups();
-		if (groups == null || groups.size() == 0) return;
+		if (CollectionUtils.isEmpty(groups)) return;
 		List sortedGroups = sorter.sort(groups);
 		groupsMenu.removeAll();
 		groupItems.clear();
