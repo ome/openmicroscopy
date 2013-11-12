@@ -1406,32 +1406,32 @@ class PropertiesUI
 	protected void clearData(Object oldObject)
 	{
 	    editableName = false;
-		originalName = model.getRefObjectName();
-		originalDisplayedName = originalName;
-		originalDescription = model.getRefObjectDescription();
-		namePane.getDocument().removeDocumentListener(this);
-		descriptionWiki.removeDocumentListener(this);
-		namePane.setText(originalName);
-		if (StringUtils.isEmpty(originalDescription))
-			originalDescription = DEFAULT_DESCRIPTION_TEXT;
-		descriptionWiki.setText(originalDescription);
-		namePane.getDocument().addDocumentListener(this);
-		descriptionWiki.addDocumentListener(this);
-		channelEditPane = null;
-		editChannel.setEnabled(false);
-		descriptionWiki.setEnabled(false);
-		editNames();
-		if (oldObject == null) return;
-		if (!model.isSameObject(oldObject)) {
-			channelsArea.setText("");
-			idLabel.setText("");
-			ownerLabel.setText("");
-			parentLabel.setText("");
-			wellLabel.setText("");
-			gpLabel.setText("");
-		}
+	    originalName = model.getRefObjectName();
+	    originalDisplayedName = originalName;
+	    originalDescription = model.getRefObjectDescription();
+	    namePane.getDocument().removeDocumentListener(this);
+	    descriptionWiki.removeDocumentListener(this);
+	    namePane.setText(originalName);
+	    if (StringUtils.isEmpty(originalDescription))
+	        originalDescription = DEFAULT_DESCRIPTION_TEXT;
+	    descriptionWiki.setText(originalDescription);
+	    namePane.getDocument().addDocumentListener(this);
+	    descriptionWiki.addDocumentListener(this);
+	    channelEditPane = null;
+	    editChannel.setEnabled(false);
+	    descriptionWiki.setEnabled(false);
+	    editNames();
+	    if (oldObject == null) return;
+	    if (!model.isSameObject(oldObject)) {
+	        channelsArea.setText("");
+	        idLabel.setText("");
+	        ownerLabel.setText("");
+	        parentLabel.setText("");
+	        wellLabel.setText("");
+	        gpLabel.setText("");
+	    }
 	}
-	
+
 	/**
 	 * Clears the UI.
 	 * @see AnnotationUI#clearDisplay()
