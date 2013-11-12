@@ -1116,29 +1116,31 @@ class OmeroMetadataServiceImpl
 	 * @see OmeroMetadataService#loadAnnotations(SecurityContext, Class, String, long)
 	 */
 	public Collection loadAnnotations(SecurityContext ctx, Class annotationType,
-			String nameSpace, long userID) 
-		throws DSOutOfServiceException, DSAccessException
+	        String nameSpace, long userID)
+	                throws DSOutOfServiceException, DSAccessException
 	{
-		ParametersI po = new ParametersI();
-		if (userID >= 0) po.exp(omero.rtypes.rlong(userID));
-		List<String> toInclude = new ArrayList<String>();
-		List<String> toExclude = new ArrayList<String>();
-		if (nameSpace != null) 
-			toInclude.add(nameSpace);
-		if (FileAnnotationData.class.equals(annotationType)) {
-			if (!FileAnnotationData.COMPANION_FILE_NS.equals(nameSpace))
-				toExclude.add(FileAnnotationData.COMPANION_FILE_NS);
-			if (!FileAnnotationData.MEASUREMENT_NS.equals(nameSpace))
-				toExclude.add(FileAnnotationData.MEASUREMENT_NS);
-			if (!FileAnnotationData.FLIM_NS.equals(nameSpace))
-				toExclude.add(FileAnnotationData.FLIM_NS);
-			if (!FileAnnotationData.EXPERIMENTER_PHOTO_NS.equals(nameSpace))
-				toExclude.add(FileAnnotationData.EXPERIMENTER_PHOTO_NS);
-		}
-		return gateway.loadSpecificAnnotation(ctx, annotationType, toInclude,
-				toExclude, po);
+	    ParametersI po = new ParametersI();
+	    if (userID >= 0) po.exp(omero.rtypes.rlong(userID));
+	    List<String> toInclude = new ArrayList<String>();
+	    List<String> toExclude = new ArrayList<String>();
+	    if (nameSpace != null) 
+	        toInclude.add(nameSpace);
+	    if (FileAnnotationData.class.equals(annotationType)) {
+	        if (!FileAnnotationData.COMPANION_FILE_NS.equals(nameSpace))
+	            toExclude.add(FileAnnotationData.COMPANION_FILE_NS);
+	        if (!FileAnnotationData.MEASUREMENT_NS.equals(nameSpace))
+	            toExclude.add(FileAnnotationData.MEASUREMENT_NS);
+	        if (!FileAnnotationData.FLIM_NS.equals(nameSpace))
+	            toExclude.add(FileAnnotationData.FLIM_NS);
+	        if (!FileAnnotationData.EXPERIMENTER_PHOTO_NS.equals(nameSpace))
+	            toExclude.add(FileAnnotationData.EXPERIMENTER_PHOTO_NS);
+	        if (!FileAnnotationData.LOG_FILE_NS.equals(nameSpace))
+	            toExclude.add(FileAnnotationData.LOG_FILE_NS);
+	    }
+	    return gateway.loadSpecificAnnotation(ctx, annotationType, toInclude,
+	            toExclude, po);
 	}
-	
+
 	/**
 	 * Implemented as specified by {@link OmeroDataService}.
 	 * @see OmeroMetadataService#saveData(SecurityContext, Collection, List, List, long)
