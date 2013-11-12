@@ -98,6 +98,37 @@
         // refresh tooltips
        $('.btn-sm, .navbar-header').tooltip({container: 'body', placement:'bottom', toggle:"tooltip"});
 
+        $("#save_figure").click(function(){
+
+            // Turn panels into json
+            var p_json = [];
+            figureModel.panels.each(function(m) {
+                p_json.push(m.toJSON());
+            });
+
+            var figureJSON = {
+                panels: p_json,
+                paper_width: figureModel.get('paper_width'),
+                paper_height: figureModel.get('paper_height'),
+            }
+
+            var url = "{% url save_web_figure %}",
+                data = {
+                    figureJSON: JSON.stringify(figureJSON),
+                    // figureName: "test"
+                    // fileId: 352,
+                }
+
+            // Save
+            $.post( url, data)
+                .done(function( data ) {
+                    console.log(data)
+                });
+
+            return false;
+        });
+
+
         // Heavy lifting of PDF generation handled by OMERO.script...
         $("#create_figure_pdf").click(function(){
 
@@ -230,6 +261,10 @@
                             <span class="glyphicon glyphicon-share-alt"></span>
                         </button>
                     </div>
+
+                    <button id="save_figure" class="btn btn-success btn-sm" title="Save Figure to OMERO">
+                        Save
+                    </button>
                 </form>
 
                 <form class="navbar-form navbar-right">
