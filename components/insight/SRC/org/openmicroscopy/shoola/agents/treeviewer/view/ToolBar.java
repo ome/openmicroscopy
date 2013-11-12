@@ -5,7 +5,7 @@
  *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -42,7 +42,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -67,10 +66,9 @@ import javax.swing.border.BevelBorder;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 
-
+//Third-party libraries
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FilenameUtils;
-//Third-party libraries
 import org.jdesktop.swingx.JXBusyLabel;
 
 //Application-internal dependencies
@@ -101,400 +99,397 @@ import pojos.GroupData;
  * @author	Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $ $Date: $)
- * </small>
  * @since OME2.2
  */
 class ToolBar
     extends JPanel
 {
 
-	/** The text indicating the number of successful import.*/
-	private static final String IMPORTED_TEXT = " Imported";
-	
-	/** The text indicating the number of failed import.*/
-	private static final String FAILED_TEXT = " Failed";
-	
-	/** The tool tip used to indicate on-going import.*/
-	private static final String IMPORT_TOOLTIP = "Indicates on-going imports";
-	
+    /** The text indicating the number of successful import.*/
+    private static final String IMPORTED_TEXT = " Imported";
+
+    /** The text indicating the number of failed import.*/
+    private static final String FAILED_TEXT = " Failed";
+
+    /** The tool tip used to indicate on-going import.*/
+    private static final String IMPORT_TOOLTIP = "Indicates on-going imports";
+
     /** Size of the horizontal box. */
     private static final Dimension HBOX = new Dimension(100, 16);
 
     /** The icon for private group.*/
     private static final Icon PERMISSIONS_PRIVATE;
-    
+
     /** The icon for private group.*/
     private static final Icon PERMISSIONS_GROUP_READ;
-    
+
     /** The icon for private group.*/
     private static final Icon PERMISSIONS_GROUP_READ_LINK;
-    
+
     /** The icon for private group.*/
     private static final Icon PERMISSIONS_PUBLIC_READ;
-    
+
     /** The icon for private group.*/
     private static final Icon PERMISSIONS_GROUP_READ_WRITE;
-    
+
     /** The icon for private group.*/
     private static final Icon PERMISSIONS_PUBLIC_READ_WRITE;
-    
+
     //Initializes the icons.
     static {
-    	IconManager im = IconManager.getInstance();
-    	PERMISSIONS_PRIVATE = im.getIcon(IconManager.PRIVATE_GROUP);
-    	PERMISSIONS_GROUP_READ = im.getIcon(IconManager.READ_GROUP);
-    	PERMISSIONS_GROUP_READ_LINK = im.getIcon(IconManager.READ_LINK_GROUP);
-    	PERMISSIONS_GROUP_READ_WRITE = im.getIcon(IconManager.READ_WRITE_GROUP);
-    	PERMISSIONS_PUBLIC_READ = im.getIcon(IconManager.PUBLIC_GROUP);
-    	PERMISSIONS_PUBLIC_READ_WRITE = im.getIcon(IconManager.PUBLIC_GROUP);
+        IconManager im = IconManager.getInstance();
+        PERMISSIONS_PRIVATE = im.getIcon(IconManager.PRIVATE_GROUP);
+        PERMISSIONS_GROUP_READ = im.getIcon(IconManager.READ_GROUP);
+        PERMISSIONS_GROUP_READ_LINK = im.getIcon(IconManager.READ_LINK_GROUP);
+        PERMISSIONS_GROUP_READ_WRITE = im.getIcon(IconManager.READ_WRITE_GROUP);
+        PERMISSIONS_PUBLIC_READ = im.getIcon(IconManager.PUBLIC_GROUP);
+        PERMISSIONS_PUBLIC_READ_WRITE = im.getIcon(IconManager.PUBLIC_GROUP);
     }
-    
+
     /** Reference to the control. */
     private TreeViewerControl controller;
-    
+
     /** Reference to the model. */
     private TreeViewerModel model;
-    
+
     /** Reference to the view. */
     private TreeViewerWin view;
-    
+
     /** The menu displaying the groups the user is a member of. */
     private JPopupMenu personalMenu;
 
     /** Button to open the full in a separate window. */
     private JToggleButton fullScreen;
-    
+
     /** The menu displaying the available scripts.*/
     private JPopupMenu scriptsMenu;
-    
+
     /** The button showing the available scripts.*/
     private JButton scriptButton;
-    
+
     /** Indicates the loading progress. */
-	private JXBusyLabel busyLabel;
-	
-	/** The index of the {@link #scriptButton}.*/
-	private int index;
-	
-	/** The management bar.*/
-	private JToolBar bar;
-	
-	/** The label displaying the group context.*/
-	private JLabel groupContext;
-	
-	/** The button to display the menu.*/
-	private JButton menuButton;
-	
-	/** The button to display the users.*/
-	private JButton usersButton;
+    private JXBusyLabel busyLabel;
 
-	/** Used to sort the list of users.*/
-	private ViewerSorter sorter;
-	
-	/** Button indicating to add the user to the display.*/
-	private JButton addToDisplay;
-	
-	/** The menu displaying the users option.*/
-	private JPopupMenu usersMenu;
-	
-	/** The menu displaying the users option.*/
-	private JPopupMenu groupsMenu;
-	
-	/** The selected group.*/
-	private GroupItem selectedItem;
-	
-	/** The collection of object hosting the groups.*/
-	private Map<JCheckBox, DataMenuItem> groupItems;
-	
-	/** Listens to selection in the groups menu.*/
-	private MouseAdapter usersMenuListener;
-	
-	/** Label indicating the number of successful import if any.*/
-	private JLabel importSuccessLabel;
-	
-	/** Label indicating the number of failed import if any.*/
-	private JLabel importFailureLabel;
-	
-	/** Label indicating the import status.*/
-	private JXBusyLabel importLabel;
+    /** The index of the {@link #scriptButton}.*/
+    private int index;
 
-	/** Handles the group and users selection.*/
-	private void handleUsersSelection()
-	{
-		if (selectedItem == null) return;
-		//handle users and group selection.
-		controller.setSelection(selectedItem.getGroup(),
-				selectedItem.getSeletectedUsers(),
-				!selectedItem.isGroupSelected());
+    /** The management bar.*/
+    private JToolBar bar;
 
-		usersMenu.setVisible(false);
-		groupsMenu.setVisible(false);
-	}
-	
-	/** Handles the groups selection.*/
-	private void handleGroupsSelection()
-	{
-		Entry<JCheckBox, DataMenuItem> e;
-		Iterator<Entry<JCheckBox, DataMenuItem>> 
-		i = groupItems.entrySet().iterator();
-		List<GroupData> toAdd = new ArrayList<GroupData>();
-		List<GroupData> toRemove = new ArrayList<GroupData>();
-		while (i.hasNext()) {
-			e = i.next();
-			if (e.getKey().isSelected())
-				toAdd.add((GroupData) e.getValue().getDataObject());
-			else toRemove.add((GroupData) e.getValue().getDataObject());
-		}
-		controller.setSelectedGroups(toAdd, toRemove);
-		groupsMenu.setVisible(false);
-	}
-	
-	/**
-	 * Formats the header.
-	 * 
-	 * @param text The text to display
-	 * @return See above.
-	 */
-	private JPanel formatHeader(String text)
-	{
-		JPanel title = new JPanel();
-		title.setLayout(new FlowLayout(FlowLayout.LEFT));
-		title.add(UIUtilities.setTextFont(text));
-		title.setBackground(UIUtilities.BACKGROUND_COLOUR_EVEN);
-		return title;
-	}
-	/**
-	 * Creates the menu hosting the users belonging to the specified group.
-	 * 
-	 * @param groupItem The item hosting the group.
-	 * @param groupNumber The number of groups.
-	 * @return See above.
-	 */
-	private JComponent createGroupMenu(GroupItem groupItem, int groupNumber)
-	{
-		GroupData group = groupItem.getGroup();
-		long id = model.getUserDetails().getId();
-		//Determine the user already added to the display
-		Browser browser = model.getBrowser(Browser.PROJECTS_EXPLORER);
-		TreeImageDisplay refNode = null;
-		List<TreeImageDisplay> nodes;
-		ExperimenterVisitor visitor;
-		//Find the user already added to the selected group.
-		visitor = new ExperimenterVisitor(browser, group.getId());
-		browser.accept(visitor);
-		nodes = visitor.getNodes();
-		if (nodes.size() == 1) {
-			refNode = nodes.get(0);
-		}	
-		visitor = new ExperimenterVisitor(browser, -1, -1);
-		if (refNode != null) refNode.accept(visitor);
-		else browser.accept(visitor);
-		nodes = visitor.getNodes();
-		List<Long> users = new ArrayList<Long>();
-		Iterator<TreeImageDisplay> j = nodes.iterator();
-		TreeImageDisplay n;
-		while (j.hasNext()) {
-			n = j.next();
-			if (n.getUserObject() instanceof ExperimenterData) {
-				users.add(((ExperimenterData) n.getUserObject()).getId());
-			}
-		}
-		if (!users.contains(id)) users.add(id);
-		//now add the users
-		List<DataMenuItem> items = new ArrayList<DataMenuItem>();
-		JPanel p = new JPanel();
-		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
-		List l = sorter.sort(group.getLeaders());
-		Iterator i;
-		ExperimenterData exp;
-		
-		DataMenuItem item;
-		JPanel list;
-		JCheckBox groupBox = new JCheckBox();
-		Font font = groupBox.getFont();
-		Font newFont = font.deriveFont(Font.BOLD);
-		groupBox.setFont(newFont);
-		groupBox.setText("Show Group");
-		groupBox.setHorizontalTextPosition(SwingConstants.LEFT);
-		if (groupNumber > 1)
-			p.add(UIUtilities.buildComponentPanel(groupBox));
-		groupItem.setGroupBox(groupBox);
-		ActionListener al = new ActionListener() {
-			
-			/**
-			 * Selects the group is not already selected.
-			 * @see ActionListner#actionPerformed(ActionEvent)
-			 */
-			public void actionPerformed(ActionEvent e) {
-				if (selectedItem == null) return;
-				selectedItem.setGroupSelection(true);
-				
-			}
-		};
-		int level = group.getPermissions().getPermissionsLevel();
-		boolean view = true;
-		if (level == GroupData.PERMISSIONS_PRIVATE) {
-		    view = model.isAdministrator() || model.isGroupOwner(group);
-		}
-		if (!CollectionUtils.isEmpty(l) && view) {
-			p.add(formatHeader("Group owners"));
-			i = l.iterator();
-			list = new JPanel();
-			list.setLayout(new BoxLayout(list, BoxLayout.Y_AXIS));
-			while (i.hasNext()) {
-				exp = (ExperimenterData) i.next();
-				item = new DataMenuItem(exp, exp.getId() != id);
-				item.setSelected(users.contains(exp.getId()));
-				item.addActionListener(al);
-				items.add(item);
-				list.add(item);
-			}
-			p.add(UIUtilities.buildComponentPanel(list));
-		}
-		l = sorter.sort(group.getMembersOnly());
-		if (!CollectionUtils.isEmpty(l)) {
-			p.add(formatHeader("Members"));
-			i = l.iterator();
-			list = new JPanel();
-			list.setLayout(new BoxLayout(list, BoxLayout.Y_AXIS));
-			while (i.hasNext()) {
-				exp = (ExperimenterData) i.next();
-				if (view || exp.getId() == id) {
-				    item = new DataMenuItem(exp, exp.getId() != id);
-	                item.setSelected(users.contains(exp.getId()));
-	                item.addActionListener(al);
-	                items.add(item);
-	                list.add(item);
-				}
-			}
-			p.add(UIUtilities.buildComponentPanel(list));
-		}
+    /** The label displaying the group context.*/
+    private JLabel groupContext;
 
-		
-		JScrollPane pane = new JScrollPane(p);
-		groupItem.setUsersMenu(pane);
-		groupItem.setUsersItem(items);
-		return pane;
-	}
+    /** The button to display the menu.*/
+    private JButton menuButton;
 
-	/**
-	 * Creates the menu displaying the groups
-	 * 
-	 * @param source The invoker.
-	 * @param p The location of the mouse clicked.
-	 */
-	private void createGroupsMenu(Component source, Point p)
-	{
-		if (!source.isEnabled()) return;
-		Collection groups = model.getGroups();
-		if (CollectionUtils.isEmpty(groups)) return;
-		List sortedGroups = sorter.sort(groups);
-		groupsMenu.removeAll();
-		groupItems.clear();
-		GroupData group;
-		//Determine the group already displayed.
-		Browser browser = model.getBrowser(Browser.PROJECTS_EXPLORER);
-		List<TreeImageDisplay> nodes;
-		ExperimenterVisitor visitor;
-		//Find the user already added to the selected group.
-		visitor = new ExperimenterVisitor(browser, -1);
-		browser.accept(visitor);
-		nodes = visitor.getNodes();
-		Iterator<TreeImageDisplay> k = nodes.iterator();
-		List<Long> groupIds = new ArrayList<Long>();
-		long id;
-		while (k.hasNext()) {
-			id = k.next().getUserObjectId();
-			if (id >= 0) groupIds.add(id);
-		}
-		
-		//Create the group menu.
-		Iterator i = sortedGroups.iterator();
-		DataMenuItem item;
-		int size = sortedGroups.size();
-		JPanel pane = new JPanel();
-		pane.setLayout(new BoxLayout(pane, BoxLayout.Y_AXIS));
-		JPanel row;
-		JCheckBox box;
-		while (i.hasNext()) {
-			group = (GroupData) i.next();
-			row = new JPanel();
-			row.setLayout(new FlowLayout(FlowLayout.LEFT));
-			box = new JCheckBox();
-			row.add(box);
-			item = new DataMenuItem(group, getGroupIcon(group));
-			if (groupIds.contains(group.getId()) || size == 1)
-				box.setSelected(true);
-			groupItems.put(box, item);
-			row.add(item);
-			pane.add(row);
-		}
-		pane.add(UIUtilities.buildComponentPanel(addToDisplay));
-		groupsMenu.add(new JScrollPane(pane));
-		//Check the size of the menu
-		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
-		 
-		//Set the size
-		Dimension d = groupsMenu.getPreferredSize();
-		Point p1 = source.getLocation();
-		SwingUtilities.convertPointToScreen(p1, source);
-		int h = dim.height-p1.y-30; //max size.
-		int diff = p1.y+d.height;
-		if (diff > h) groupsMenu.setPopupSize(d.width+20, h);
-		
-		groupsMenu.show(source, p.x, p.y);
-	}
-	
-	/**
-	 * Creates the menu displaying the groups and users.
-	 * 
-	 * @param source The invoker.
-	 * @param p The location of the mouse clicked.
-	 */
-	private void createGroupsAndUsersMenu(Component source, Point p)
-	{
-		if (!source.isEnabled()) return;
-		Collection groups = model.getGroups();
-		if (groups == null || groups.size() == 0) return;
-		List sortedGroups = sorter.sort(groups);
-		groupsMenu.removeAll();
-		groupItems.clear();
-		GroupData group;
-		
-		//Determine the group already displayed.
-		Browser browser = model.getBrowser(Browser.PROJECTS_EXPLORER);
-		List<TreeImageDisplay> nodes;
-		ExperimenterVisitor visitor;
-		//Find the user already added to the selected group.
-		visitor = new ExperimenterVisitor(browser, -1);
-		browser.accept(visitor);
-		nodes = visitor.getNodes();
-		Iterator<TreeImageDisplay> k = nodes.iterator();
-		List<Long> groupIds = new ArrayList<Long>();
-		long id;
-		while (k.hasNext()) {
-			id = k.next().getUserObjectId();
-			if (id >= 0) groupIds.add(id);
-		}
-		
-		//Create the group menu.
-		Iterator i = sortedGroups.iterator();
-		GroupItem item;
-		int size = sortedGroups.size();
-		while (i.hasNext()) {
-			group = (GroupData) i.next();
-			item = new GroupItem(group, getGroupIcon(group));
-			createGroupMenu(item, size);
-			if (groupIds.contains(group.getId()) || size == 1)
-				item.setGroupSelection(true);
-			item.addMouseListener(usersMenuListener);
-			groupsMenu.add(item);
-		}
-		groupsMenu.show(source, p.x, p.y);
-	}
-	
+    /** The button to display the users.*/
+    private JButton usersButton;
+
+    /** Used to sort the list of users.*/
+    private ViewerSorter sorter;
+
+    /** Button indicating to add the user to the display.*/
+    private JButton addToDisplay;
+
+    /** The menu displaying the users option.*/
+    private JPopupMenu usersMenu;
+
+    /** The menu displaying the users option.*/
+    private JPopupMenu groupsMenu;
+
+    /** The selected group.*/
+    private GroupItem selectedItem;
+
+    /** The collection of object hosting the groups.*/
+    private Map<JCheckBox, DataMenuItem> groupItems;
+
+    /** Listens to selection in the groups menu.*/
+    private MouseAdapter usersMenuListener;
+
+    /** Label indicating the number of successful import if any.*/
+    private JLabel importSuccessLabel;
+
+    /** Label indicating the number of failed import if any.*/
+    private JLabel importFailureLabel;
+
+    /** Label indicating the import status.*/
+    private JXBusyLabel importLabel;
+
+    /** Handles the group and users selection.*/
+    private void handleUsersSelection()
+    {
+        if (selectedItem == null) return;
+        //handle users and group selection.
+        controller.setSelection(selectedItem.getGroup(),
+                selectedItem.getSeletectedUsers(),
+                !selectedItem.isGroupSelected());
+
+        usersMenu.setVisible(false);
+        groupsMenu.setVisible(false);
+    }
+
+    /** Handles the groups selection.*/
+    private void handleGroupsSelection()
+    {
+        Entry<JCheckBox, DataMenuItem> e;
+        Iterator<Entry<JCheckBox, DataMenuItem>> 
+        i = groupItems.entrySet().iterator();
+        List<GroupData> toAdd = new ArrayList<GroupData>();
+        List<GroupData> toRemove = new ArrayList<GroupData>();
+        while (i.hasNext()) {
+            e = i.next();
+            if (e.getKey().isSelected())
+                toAdd.add((GroupData) e.getValue().getDataObject());
+            else toRemove.add((GroupData) e.getValue().getDataObject());
+        }
+        controller.setSelectedGroups(toAdd, toRemove);
+        groupsMenu.setVisible(false);
+    }
+
+    /**
+     * Formats the header.
+     * 
+     * @param text The text to display
+     * @return See above.
+     */
+    private JPanel formatHeader(String text)
+    {
+        JPanel title = new JPanel();
+        title.setLayout(new FlowLayout(FlowLayout.LEFT));
+        title.add(UIUtilities.setTextFont(text));
+        title.setBackground(UIUtilities.BACKGROUND_COLOUR_EVEN);
+        return title;
+    }
+    /**
+     * Creates the menu hosting the users belonging to the specified group.
+     * 
+     * @param groupItem The item hosting the group.
+     * @param groupNumber The number of groups.
+     * @return See above.
+     */
+    private JComponent createGroupMenu(GroupItem groupItem, int groupNumber)
+    {
+        GroupData group = groupItem.getGroup();
+        long id = model.getUserDetails().getId();
+        //Determine the user already added to the display
+        Browser browser = model.getBrowser(Browser.PROJECTS_EXPLORER);
+        TreeImageDisplay refNode = null;
+        List<TreeImageDisplay> nodes;
+        ExperimenterVisitor visitor;
+        //Find the user already added to the selected group.
+        visitor = new ExperimenterVisitor(browser, group.getId());
+        browser.accept(visitor);
+        nodes = visitor.getNodes();
+        if (nodes.size() == 1) {
+            refNode = nodes.get(0);
+        }	
+        visitor = new ExperimenterVisitor(browser, -1, -1);
+        if (refNode != null) refNode.accept(visitor);
+        else browser.accept(visitor);
+        nodes = visitor.getNodes();
+        List<Long> users = new ArrayList<Long>();
+        Iterator<TreeImageDisplay> j = nodes.iterator();
+        TreeImageDisplay n;
+        while (j.hasNext()) {
+            n = j.next();
+            if (n.getUserObject() instanceof ExperimenterData) {
+                users.add(((ExperimenterData) n.getUserObject()).getId());
+            }
+        }
+        if (!users.contains(id)) users.add(id);
+        //now add the users
+        List<DataMenuItem> items = new ArrayList<DataMenuItem>();
+        JPanel p = new JPanel();
+        p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
+        List l = sorter.sort(group.getLeaders());
+        Iterator i;
+        ExperimenterData exp;
+
+        DataMenuItem item;
+        JPanel list;
+        JCheckBox groupBox = new JCheckBox();
+        Font font = groupBox.getFont();
+        Font newFont = font.deriveFont(Font.BOLD);
+        groupBox.setFont(newFont);
+        groupBox.setText("Show Group");
+        groupBox.setHorizontalTextPosition(SwingConstants.LEFT);
+        if (groupNumber > 1)
+            p.add(UIUtilities.buildComponentPanel(groupBox));
+        groupItem.setGroupBox(groupBox);
+        ActionListener al = new ActionListener() {
+
+            /**
+             * Selects the group is not already selected.
+             * @see ActionListner#actionPerformed(ActionEvent)
+             */
+            public void actionPerformed(ActionEvent e) {
+                if (selectedItem == null) return;
+                selectedItem.setGroupSelection(true);
+
+            }
+        };
+        int level = group.getPermissions().getPermissionsLevel();
+        boolean view = true;
+        if (level == GroupData.PERMISSIONS_PRIVATE) {
+            view = model.isAdministrator() || model.isGroupOwner(group);
+        }
+        if (!CollectionUtils.isEmpty(l) && view) {
+            p.add(formatHeader("Group owners"));
+            i = l.iterator();
+            list = new JPanel();
+            list.setLayout(new BoxLayout(list, BoxLayout.Y_AXIS));
+            while (i.hasNext()) {
+                exp = (ExperimenterData) i.next();
+                item = new DataMenuItem(exp, exp.getId() != id);
+                item.setSelected(users.contains(exp.getId()));
+                item.addActionListener(al);
+                items.add(item);
+                list.add(item);
+            }
+            p.add(UIUtilities.buildComponentPanel(list));
+        }
+        l = sorter.sort(group.getMembersOnly());
+        if (!CollectionUtils.isEmpty(l)) {
+            p.add(formatHeader("Members"));
+            i = l.iterator();
+            list = new JPanel();
+            list.setLayout(new BoxLayout(list, BoxLayout.Y_AXIS));
+            while (i.hasNext()) {
+                exp = (ExperimenterData) i.next();
+                if (view || exp.getId() == id) {
+                    item = new DataMenuItem(exp, exp.getId() != id);
+                    item.setSelected(users.contains(exp.getId()));
+                    item.addActionListener(al);
+                    items.add(item);
+                    list.add(item);
+                }
+            }
+            p.add(UIUtilities.buildComponentPanel(list));
+        }
+
+
+        JScrollPane pane = new JScrollPane(p);
+        groupItem.setUsersMenu(pane);
+        groupItem.setUsersItem(items);
+        return pane;
+    }
+
+    /**
+     * Creates the menu displaying the groups
+     * 
+     * @param source The invoker.
+     * @param p The location of the mouse clicked.
+     */
+    private void createGroupsMenu(Component source, Point p)
+    {
+        if (!source.isEnabled()) return;
+        Collection groups = model.getGroups();
+        if (CollectionUtils.isEmpty(groups)) return;
+        List sortedGroups = sorter.sort(groups);
+        groupsMenu.removeAll();
+        groupItems.clear();
+        GroupData group;
+        //Determine the group already displayed.
+        Browser browser = model.getBrowser(Browser.PROJECTS_EXPLORER);
+        List<TreeImageDisplay> nodes;
+        ExperimenterVisitor visitor;
+        //Find the user already added to the selected group.
+        visitor = new ExperimenterVisitor(browser, -1);
+        browser.accept(visitor);
+        nodes = visitor.getNodes();
+        Iterator<TreeImageDisplay> k = nodes.iterator();
+        List<Long> groupIds = new ArrayList<Long>();
+        long id;
+        while (k.hasNext()) {
+            id = k.next().getUserObjectId();
+            if (id >= 0) groupIds.add(id);
+        }
+
+        //Create the group menu.
+        Iterator i = sortedGroups.iterator();
+        DataMenuItem item;
+        int size = sortedGroups.size();
+        JPanel pane = new JPanel();
+        pane.setLayout(new BoxLayout(pane, BoxLayout.Y_AXIS));
+        JPanel row;
+        JCheckBox box;
+        while (i.hasNext()) {
+            group = (GroupData) i.next();
+            row = new JPanel();
+            row.setLayout(new FlowLayout(FlowLayout.LEFT));
+            box = new JCheckBox();
+            row.add(box);
+            item = new DataMenuItem(group, getGroupIcon(group));
+            if (groupIds.contains(group.getId()) || size == 1)
+                box.setSelected(true);
+            groupItems.put(box, item);
+            row.add(item);
+            pane.add(row);
+        }
+        pane.add(UIUtilities.buildComponentPanel(addToDisplay));
+        groupsMenu.add(new JScrollPane(pane));
+        //Check the size of the menu
+        Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+
+        //Set the size
+        Dimension d = groupsMenu.getPreferredSize();
+        Point p1 = source.getLocation();
+        SwingUtilities.convertPointToScreen(p1, source);
+        int h = dim.height-p1.y-30; //max size.
+        int diff = p1.y+d.height;
+        if (diff > h) groupsMenu.setPopupSize(d.width+20, h);
+
+        groupsMenu.show(source, p.x, p.y);
+    }
+
+    /**
+     * Creates the menu displaying the groups and users.
+     * 
+     * @param source The invoker.
+     * @param p The location of the mouse clicked.
+     */
+    private void createGroupsAndUsersMenu(Component source, Point p)
+    {
+        if (!source.isEnabled()) return;
+        Collection groups = model.getGroups();
+        if (CollectionUtils.isEmpty(groups)) return;
+        List sortedGroups = sorter.sort(groups);
+        groupsMenu.removeAll();
+        groupItems.clear();
+        GroupData group;
+
+        //Determine the group already displayed.
+        Browser browser = model.getBrowser(Browser.PROJECTS_EXPLORER);
+        List<TreeImageDisplay> nodes;
+        ExperimenterVisitor visitor;
+        //Find the user already added to the selected group.
+        visitor = new ExperimenterVisitor(browser, -1);
+        browser.accept(visitor);
+        nodes = visitor.getNodes();
+        Iterator<TreeImageDisplay> k = nodes.iterator();
+        List<Long> groupIds = new ArrayList<Long>();
+        long id;
+        while (k.hasNext()) {
+            id = k.next().getUserObjectId();
+            if (id >= 0) groupIds.add(id);
+        }
+
+        //Create the group menu.
+        Iterator i = sortedGroups.iterator();
+        GroupItem item;
+        int size = sortedGroups.size();
+        while (i.hasNext()) {
+            group = (GroupData) i.next();
+            item = new GroupItem(group, getGroupIcon(group));
+            createGroupMenu(item, size);
+            if (groupIds.contains(group.getId()) || size == 1)
+                item.setGroupSelection(true);
+            item.addMouseListener(usersMenuListener);
+            groupsMenu.add(item);
+        }
+        groupsMenu.show(source, p.x, p.y);
+    }
+
     /**
      * Sets the defaults of the specified menu item.
      * 
@@ -507,7 +502,7 @@ class ToolBar
                 TreeViewerAgent.getRegistry().lookup(
                         "/resources/fonts/Labels"));
     }
-    
+
     /**
      * Helper method to create the tool bar hosting the management items.
      * 
@@ -516,136 +511,133 @@ class ToolBar
     private JComponent createManagementBar()
     {
         bar = new JToolBar();
-    	bar.setFloatable(false);
+        bar.setFloatable(false);
         bar.setRollover(true);
         bar.setBorder(null);
         JToggleButton button = new JToggleButton(
-        		controller.getAction(TreeViewerControl.INSPECTOR));
-        //UIUtilities.unifiedButtonLookAndFeel(button);
+                controller.getAction(TreeViewerControl.INSPECTOR));
         button.setSelected(true);
         bar.add(button);
-        
+
         button = new JToggleButton(
-        		controller.getAction(TreeViewerControl.METADATA));
-        //UIUtilities.unifiedButtonLookAndFeel(button);
+                controller.getAction(TreeViewerControl.METADATA));
         button.setSelected(true);
         bar.add(button);
-        
+
         JButton b = new JButton(controller.getAction(TreeViewerControl.BROWSE));
         UIUtilities.unifiedButtonLookAndFeel(b);
         bar.add(b);
         switch (TreeViewerAgent.runAsPlugin()) {
-			case TreeViewer.IMAGE_J:
-				b = UIUtilities.formatButtonFromAction(
-						controller.getAction(TreeViewerControl.VIEW));
-				UIUtilities.unifiedButtonLookAndFeel(b);
-				b.addMouseListener(new MouseAdapter() {
-					
-					/**
-					 * Displays the menu when the user releases the mouse.
-					 * @see MouseListener#mouseReleased(MouseEvent)
-					 */
-					public void mouseReleased(MouseEvent e)
-					{
-						controller.showMenu(TreeViewer.VIEW_MENU, 
-								(JComponent) e.getSource(), e.getPoint());
-					}
-				});
-				bar.add(b);
-				break;
-			default:
-				b = new JButton(controller.getAction(TreeViewerControl.VIEW));
-		        UIUtilities.unifiedButtonLookAndFeel(b);
-		        bar.add(b);
-		}
-        
+        case TreeViewer.IMAGE_J:
+            b = UIUtilities.formatButtonFromAction(
+                    controller.getAction(TreeViewerControl.VIEW));
+            UIUtilities.unifiedButtonLookAndFeel(b);
+            b.addMouseListener(new MouseAdapter() {
+
+                /**
+                 * Displays the menu when the user releases the mouse.
+                 * @see MouseListener#mouseReleased(MouseEvent)
+                 */
+                public void mouseReleased(MouseEvent e)
+                {
+                    controller.showMenu(TreeViewer.VIEW_MENU,
+                            (JComponent) e.getSource(), e.getPoint());
+                }
+            });
+            bar.add(b);
+            break;
+        default:
+            b = new JButton(controller.getAction(TreeViewerControl.VIEW));
+            UIUtilities.unifiedButtonLookAndFeel(b);
+            bar.add(b);
+        }
+
 
         bar.add(new JSeparator(JSeparator.VERTICAL));
         //Now register the agent if any
         TaskBar tb = TreeViewerAgent.getRegistry().getTaskBar();
         List<JComponent> l = tb.getToolBarEntries(TaskBar.AGENTS);
         if (l != null) {
-        	Iterator<JComponent> i = l.iterator();
-        	JComponent comp;
-        	while (i.hasNext()) {
-				comp = i.next();
-				UIUtilities.unifiedButtonLookAndFeel(comp);
-		        bar.add(comp);
-			}
+            Iterator<JComponent> i = l.iterator();
+            JComponent comp;
+            while (i.hasNext()) {
+                comp = i.next();
+                UIUtilities.unifiedButtonLookAndFeel(comp);
+                bar.add(comp);
+            }
             bar.add(new JSeparator(JSeparator.VERTICAL));
         }
         fullScreen = new JToggleButton(
-        		controller.getAction(TreeViewerControl.FULLSCREEN));
+                controller.getAction(TreeViewerControl.FULLSCREEN));
         fullScreen.setSelected(model.isFullScreen());
         //bar.add(fullScreen);
         if (TreeViewerAgent.isAdministrator()) {
-        	b = new JButton(controller.getAction(
-        			TreeViewerControl.UPLOAD_SCRIPT));
+            b = new JButton(controller.getAction(
+                    TreeViewerControl.UPLOAD_SCRIPT));
             UIUtilities.unifiedButtonLookAndFeel(b);
             bar.add(b);
         }
         TreeViewerAction a = controller.getAction(
-        		TreeViewerControl.AVAILABLE_SCRIPTS);
+                TreeViewerControl.AVAILABLE_SCRIPTS);
         b = new JButton(a);
         Icon icon  = b.getIcon();
         Dimension d = new Dimension(UIUtilities.DEFAULT_ICON_WIDTH,
-				UIUtilities.DEFAULT_ICON_HEIGHT);
+                UIUtilities.DEFAULT_ICON_HEIGHT);
         if (icon != null) 
-        	d = new Dimension(icon.getIconWidth(), icon.getIconHeight());
-    	busyLabel = new JXBusyLabel(d);
-    	busyLabel.setVisible(true);
+            d = new Dimension(icon.getIconWidth(), icon.getIconHeight());
+        busyLabel = new JXBusyLabel(d);
+        busyLabel.setVisible(true);
         b.addMouseListener((RunScriptAction) a);
         UIUtilities.unifiedButtonLookAndFeel(b);
         scriptButton = b;
         bar.add(b);
         index = bar.getComponentCount()-1;
-        
+
         bar.add(new JSeparator(JSeparator.VERTICAL));
-        
+
         groupContext = new JLabel();
         groupContext.setVisible(false);
-       
+
         MouseAdapter adapter = new MouseAdapter() {
-    		
-    		/**
-    		 * Shows the menu corresponding to the display mode.
-    		 */
-    		public void mousePressed(MouseEvent me)
-    		{
-    			switch (model.getDisplayMode()) {
-					case TreeViewer.GROUP_DISPLAY:
-						createGroupsMenu((Component) me.getSource(),
-								me.getPoint());
-						break;
-					case TreeViewer.EXPERIMENTER_DISPLAY:
-					default:
-						createGroupsAndUsersMenu((Component) me.getSource(),
-								me.getPoint());
-				}
-    		}
-		};
-		
+
+            /**
+             * Shows the menu corresponding to the display mode.
+             */
+            public void mousePressed(MouseEvent me)
+            {
+                switch (model.getDisplayMode()) {
+                case TreeViewer.GROUP_DISPLAY:
+                    createGroupsMenu((Component) me.getSource(),
+                            me.getPoint());
+                    break;
+                case TreeViewer.EXPERIMENTER_DISPLAY:
+                default:
+                    createGroupsAndUsersMenu((Component) me.getSource(),
+                            me.getPoint());
+                }
+            }
+        };
+
         a = controller.getAction(TreeViewerControl.SWITCH_USER);
         usersButton = new JButton(a);
         usersButton.addMouseListener(adapter);
-        //usersButton.addMouseListener((SwitchUserAction) a);
         UIUtilities.unifiedButtonLookAndFeel(usersButton);
-        
+
         IconManager icons = IconManager.getInstance();
-    	menuButton = new JButton(icons.getIcon(IconManager.OWNER_GROUP));
-    	menuButton.setVisible(false);
-    	usersButton.setVisible(false);
-    	UIUtilities.unifiedButtonLookAndFeel(menuButton);
-    	
-    	menuButton.addMouseListener(adapter);
-    	groupContext.addMouseListener(adapter);
-    	bar.add(usersButton);
-    	bar.add(Box.createHorizontalStrut(5));
-    	bar.add(groupContext);
-    	setPermissions();
+        menuButton = new JButton(icons.getIcon(IconManager.OWNER_GROUP));
+        menuButton.setVisible(false);
+        usersButton.setVisible(false);
+        UIUtilities.unifiedButtonLookAndFeel(menuButton);
+
+        menuButton.addMouseListener(adapter);
+        groupContext.addMouseListener(adapter);
+        bar.add(usersButton);
+        bar.add(Box.createHorizontalStrut(5));
+        bar.add(groupContext);
+        setPermissions();
         return bar;
     }
-    
+
     /**
      * Helper method to create the tool bar hosting the edit items.
      * 
@@ -659,10 +651,10 @@ class ToolBar
         bar.setBorder(null);
         bar.add(new JSeparator(JSeparator.VERTICAL));
         bar.add(new JToggleButton(
-        		controller.getAction(TreeViewerControl.SEARCH)));
+                controller.getAction(TreeViewerControl.SEARCH)));
         return bar;
     }
-    
+
     /** Builds and lays out the UI. */
     private void buildGUI()
     {
@@ -671,20 +663,20 @@ class ToolBar
         bars.setLayout(new BoxLayout(bars, BoxLayout.X_AXIS));
         bars.add(createManagementBar());
         if (!TreeViewerWin.JXTASKPANE_TYPE.equals(view.getLayoutType())) {
-        	bars.add(createSearchBar());
+            bars.add(createSearchBar());
         }
-        	
+
         outerPanel.setBorder(null);
         outerPanel.setLayout(new BoxLayout(outerPanel, BoxLayout.X_AXIS));
         outerPanel.add(bars);
         outerPanel.add(Box.createRigidArea(HBOX));
         outerPanel.add(Box.createHorizontalGlue());
-        
+
         setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
         add(UIUtilities.buildComponentPanel(outerPanel));
         add(UIUtilities.buildComponentPanelRight(buildRightPane()));
     }
-    
+
     /** 
      * Builds and lays out the component displayed on the right hand side of
      * the toolbar.
@@ -693,17 +685,17 @@ class ToolBar
      */
     private JPanel buildRightPane()
     {
-    	JPanel p = new JPanel();
-    	p.setBorder(null);
+        JPanel p = new JPanel();
+        p.setBorder(null);
         p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
         p.add(importFailureLabel);
         p.add(Box.createHorizontalStrut(5));
         p.add(importSuccessLabel);
         p.add(Box.createHorizontalStrut(5));
         p.add(importLabel);
-    	return p;
+        return p;
     }
-    
+
     /**
      * Formats the specified label.
      * 
@@ -711,116 +703,107 @@ class ToolBar
      */
     private void formatLabel(JLabel label)
     {
-    	label.setHorizontalTextPosition(SwingConstants.LEADING);
-    	label.setAlignmentX(SwingConstants.RIGHT);
-    	label.setVisible(false);
+        label.setHorizontalTextPosition(SwingConstants.LEADING);
+        label.setAlignmentX(SwingConstants.RIGHT);
+        label.setVisible(false);
     }
-    
+
     /** Initializes the components.*/
     private void initialize()
     {
-    	IconManager icons = IconManager.getInstance();
-    	importFailureLabel = new JLabel(icons.getIcon(IconManager.DELETE));
-    	formatLabel(importFailureLabel);
-    	importSuccessLabel = new JLabel(icons.getIcon(IconManager.APPLY));
-    	formatLabel(importSuccessLabel);
-    	Dimension d = new Dimension(UIUtilities.DEFAULT_ICON_WIDTH,
-				UIUtilities.DEFAULT_ICON_HEIGHT);
-    	importLabel = new JXBusyLabel(d);
-    	importLabel.setToolTipText(IMPORT_TOOLTIP);
-    	importLabel.setVisible(false);
-    	importLabel.setBusy(false);
-    	sorter = new ViewerSorter();
+        IconManager icons = IconManager.getInstance();
+        importFailureLabel = new JLabel(icons.getIcon(IconManager.DELETE));
+        formatLabel(importFailureLabel);
+        importSuccessLabel = new JLabel(icons.getIcon(IconManager.APPLY));
+        formatLabel(importSuccessLabel);
+        Dimension d = new Dimension(UIUtilities.DEFAULT_ICON_WIDTH,
+                UIUtilities.DEFAULT_ICON_HEIGHT);
+        importLabel = new JXBusyLabel(d);
+        importLabel.setToolTipText(IMPORT_TOOLTIP);
+        importLabel.setVisible(false);
+        importLabel.setBusy(false);
+        sorter = new ViewerSorter();
         sorter.setCaseSensitive(true);
         addToDisplay = new JButton("Update");
-		addToDisplay.addActionListener(new ActionListener() {
-			
-			public void actionPerformed(ActionEvent evt) {
-				
-				switch (model.getDisplayMode()) {
-					case LookupNames.EXPERIMENTER_DISPLAY:
-						handleUsersSelection();
-						break;
-					case LookupNames.GROUP_DISPLAY:
-						handleGroupsSelection();
-				}
-			}
-		});
-        
-        groupsMenu = new JPopupMenu();
-		groupItems = new HashMap<JCheckBox, DataMenuItem>();
-		groupsMenu.addPopupMenuListener(new PopupMenuListener() {
-			
-			public void popupMenuWillBecomeVisible(PopupMenuEvent evt) {}
-			
-			/**
-			 * Hides the menu
-			 */
-			public void popupMenuWillBecomeInvisible(PopupMenuEvent evt) {
-				if (usersMenu != null) usersMenu.setVisible(false);
-			}
+        addToDisplay.addActionListener(new ActionListener() {
 
-			/**
-			 * Hides the menu
-			 */
-			public void popupMenuCanceled(PopupMenuEvent evt) {
-				if (usersMenu != null) usersMenu.setVisible(false);
-			}
-		});
-		usersMenuListener = new MouseAdapter() {
-			
-			/**
-			 * Displays the users belonging to the selected group.
-			 * @see MouseListener#mouseEntered(MouseEvent)
-			 */
-			public void mouseEntered(MouseEvent e) {
-				GroupItem c = (GroupItem) e.getSource();
-				selectedItem = c;
-				if (usersMenu != null) {
-					usersMenu.setVisible(false);
-					usersMenu.removeAll();
-				}
-				usersMenu = new JPopupMenu();
-				
-				//usersMenu.setPopupSize(0, 0);
-				
-				Rectangle r = c.getBounds();
-				usersMenu.add(c.getUsersMenu());
-				usersMenu.add(UIUtilities.buildComponentPanel(addToDisplay));
-				
-				
-				Dimension size = Toolkit.getDefaultToolkit().getScreenSize();
-				 
-				//Set the size
-				Dimension d = usersMenu.getPreferredSize();
-				Point p1 = c.getLocation();
-				SwingUtilities.convertPointToScreen(p1, c);
-				int h = size.height-p1.y-30; //max size.
-				int diff = p1.y+d.height;
-				if (diff > h)
-					usersMenu.setPopupSize(d.width+20, h);
-				//Set the location
-				
-				usersMenu.show(e.getComponent(), r.width, 0);
-			}
-		};
-		
+            public void actionPerformed(ActionEvent evt) {
+
+                switch (model.getDisplayMode()) {
+                case LookupNames.EXPERIMENTER_DISPLAY:
+                    handleUsersSelection();
+                    break;
+                case LookupNames.GROUP_DISPLAY:
+                    handleGroupsSelection();
+                }
+            }
+        });
+
+        groupsMenu = new JPopupMenu();
+        groupItems = new HashMap<JCheckBox, DataMenuItem>();
+        groupsMenu.addPopupMenuListener(new PopupMenuListener() {
+
+            public void popupMenuWillBecomeVisible(PopupMenuEvent evt) {}
+
+            /**
+             * Hides the menu
+             */
+            public void popupMenuWillBecomeInvisible(PopupMenuEvent evt) {
+                if (usersMenu != null) usersMenu.setVisible(false);
+            }
+
+            /**
+             * Hides the menu
+             */
+            public void popupMenuCanceled(PopupMenuEvent evt) {
+                if (usersMenu != null) usersMenu.setVisible(false);
+            }
+        });
+        usersMenuListener = new MouseAdapter() {
+
+            /**
+             * Displays the users belonging to the selected group.
+             * @see MouseListener#mouseEntered(MouseEvent)
+             */
+            public void mouseEntered(MouseEvent e) {
+                GroupItem c = (GroupItem) e.getSource();
+                selectedItem = c;
+                if (usersMenu != null) {
+                    usersMenu.setVisible(false);
+                    usersMenu.removeAll();
+                }
+                usersMenu = new JPopupMenu();
+                Rectangle r = c.getBounds();
+                usersMenu.add(c.getUsersMenu());
+                usersMenu.add(UIUtilities.buildComponentPanel(addToDisplay));
+                Dimension size = Toolkit.getDefaultToolkit().getScreenSize();
+
+                //Set the size
+                Dimension d = usersMenu.getPreferredSize();
+                Point p1 = c.getLocation();
+                SwingUtilities.convertPointToScreen(p1, c);
+                int h = size.height-p1.y-30; //max size.
+                int diff = p1.y+d.height;
+                if (diff > h)
+                    usersMenu.setPopupSize(d.width+20, h);
+                //Set the location
+
+                usersMenu.show(e.getComponent(), r.width, 0);
+            }
+        };
     }
-    
+
     /**
      * Creates a new instance.
      * 
-     * @param controller    Reference to the control. 
-     *                      Mustn't be <code>null</code>.
-     * @param model    		Reference to the model. 
-     *                      Mustn't be <code>null</code>.
-     * @param view    		Reference to the view. 
-     *                      Mustn't be <code>null</code>.
+     * @param controller Reference to the control. Mustn't be <code>null</code>.
+     * @param model Reference to the model. Mustn't be <code>null</code>.
+     * @param view Reference to the view. Mustn't be <code>null</code>.
      */
-    ToolBar(TreeViewerControl controller, TreeViewerModel model, 
-    		TreeViewerWin view)
+    ToolBar(TreeViewerControl controller, TreeViewerModel model,
+            TreeViewerWin view)
     {
-        if (controller == null) 
+        if (controller == null)
             throw new NullPointerException("No Controller.");
         if (model == null) 
             throw new NullPointerException("No Model.");
@@ -832,23 +815,23 @@ class ToolBar
         initialize();
         buildGUI();
     }
-    
+
     /**
      * Brings up the <code>ManagePopupMenu</code>on top of the specified
      * component at the specified location.
      * 
      * @param c The component that requested the pop-up menu.
      * @param p The point at which to display the menu, relative to the
-     *            <code>component</code>'s coordinates.
+     *          <code>component</code>'s coordinates.
      */
     void showManagementMenu(Component c, Point p)
     {
-    	if (p == null) return;
+        if (p == null) return;
         if (c == null) throw new IllegalArgumentException("No component.");
         ManagePopupMenu managePopupMenu = new ManagePopupMenu(controller);
         managePopupMenu.show(c, p.x, p.y);
     }
-    
+
     /**
      * Brings up the <code>Personal Menu</code> on top of the specified
      * component at the specified location.
@@ -859,19 +842,19 @@ class ToolBar
      */
     void showPersonalMenu(Component c, Point p)
     {
-    	if (p == null) return;
+        if (p == null) return;
         if (c == null) throw new IllegalArgumentException("No component.");
         personalMenu = new JPopupMenu();
         personalMenu.setBorder(
-        		BorderFactory.createBevelBorder(BevelBorder.RAISED));
+                BorderFactory.createBevelBorder(BevelBorder.RAISED));
         List<JMenuItem> l = createMenuItem(false);
         Iterator<JMenuItem> i = l.iterator();
         while (i.hasNext()) {
-        	personalMenu.add(i.next());
+            personalMenu.add(i.next());
         }
         personalMenu.show(c, p.x, p.y);
     }
-    
+
     /**
      * Creates the items for the menu.
      * 
@@ -881,110 +864,109 @@ class ToolBar
      */
     private List<JMenuItem> createMenuItem(boolean add)
     {
-    	List<JMenuItem> items = new ArrayList<JMenuItem>();
-    	List<GroupSelectionAction> l = controller.getUserGroupAction(add);
-    	Iterator<GroupSelectionAction> i = l.iterator();
-    	GroupSelectionAction a;
-    	JMenuItem item;
-    	if (add) {
-    		//Check the groups that already in the view.
-    		Browser browser = model.getSelectedBrowser();
-    		List<Long> ids = new ArrayList<Long>();
-    		if (browser != null) {
-    			ExperimenterVisitor v = new ExperimenterVisitor(browser, -1);
-    			browser.accept(v, ExperimenterVisitor.TREEIMAGE_SET_ONLY);
-    			List<TreeImageDisplay> nodes = v.getNodes();
-    			Iterator<TreeImageDisplay> j = nodes.iterator();
-    			TreeImageDisplay node;
-    			while (j.hasNext()) {
-					node = j.next();
-					ids.add(((GroupData) node.getUserObject()).getId());
-				}
-    		}
-    		
-    		while (i.hasNext()) {
-    			a = i.next();
-    			item = new JMenuItem(a);
-    			if (ids.size() > 0) {
-    				item.setEnabled(!ids.contains(a.getGroupId()));
-    			} else item.setEnabled(true);
-    			initMenuItem(item);
-    			items.add(item);
-    		}
-    	} else {
-    		ButtonGroup buttonGroup = new ButtonGroup();
-        	long id = model.getSelectedGroupId();
-    		while (i.hasNext()) {
-    			a = i.next();
-    			item = new JCheckBoxMenuItem(a);
-    			item.setEnabled(true);
-    			item.setSelected(a.isSameGroup(id));
-    			initMenuItem(item);
-    			buttonGroup.add(item);
-    			items.add(item);
-    		}
-    	}
-    	
-    	return items;
+        List<JMenuItem> items = new ArrayList<JMenuItem>();
+        List<GroupSelectionAction> l = controller.getUserGroupAction(add);
+        Iterator<GroupSelectionAction> i = l.iterator();
+        GroupSelectionAction a;
+        JMenuItem item;
+        if (add) {
+            //Check the groups that already in the view.
+            Browser browser = model.getSelectedBrowser();
+            List<Long> ids = new ArrayList<Long>();
+            if (browser != null) {
+                ExperimenterVisitor v = new ExperimenterVisitor(browser, -1);
+                browser.accept(v, ExperimenterVisitor.TREEIMAGE_SET_ONLY);
+                List<TreeImageDisplay> nodes = v.getNodes();
+                Iterator<TreeImageDisplay> j = nodes.iterator();
+                TreeImageDisplay node;
+                while (j.hasNext()) {
+                    node = j.next();
+                    ids.add(((GroupData) node.getUserObject()).getId());
+                }
+            }
+
+            while (i.hasNext()) {
+                a = i.next();
+                item = new JMenuItem(a);
+                if (ids.size() > 0) {
+                    item.setEnabled(!ids.contains(a.getGroupId()));
+                } else item.setEnabled(true);
+                initMenuItem(item);
+                items.add(item);
+            }
+        } else {
+            ButtonGroup buttonGroup = new ButtonGroup();
+            long id = model.getSelectedGroupId();
+            while (i.hasNext()) {
+                a = i.next();
+                item = new JCheckBoxMenuItem(a);
+                item.setEnabled(true);
+                item.setSelected(a.isSameGroup(id));
+                initMenuItem(item);
+                buttonGroup.add(item);
+                items.add(item);
+            }
+        }
+
+        return items;
     }
-    
+
     /**
      * Brings up the <code>Available Scripts</code> on top of the specified
      * component at the specified location.
      * 
      * @param c The component that requested the pop-pup menu.
      * @param p The point at which to display the menu, relative to the
-     *            <code>component</code>'s coordinates.
+     *          <code>component</code>'s coordinates.
      */
     void showAvailableScriptsMenu(Component c, Point p)
     {
-    	if (p == null) return;
+        if (p == null) return;
         if (c == null) {
-        	c = scriptButton;
-        	//loading the data.
+            c = scriptButton;
         }
         IconManager icons = IconManager.getInstance();
         Collection<ScriptObject> scripts = model.getAvailableScripts();
-        if (scripts == null || scripts.size() == 0) return;
+        if (CollectionUtils.isEmpty(scripts)) return;
         if (scriptsMenu == null) {
-        	scriptsMenu = new JPopupMenu();
-        	JMenuItem refresh = new JMenuItem(icons.getIcon(
-    				IconManager.REFRESH));
-        	refresh.setText("Reload Scripts");
-        	refresh.setToolTipText("Reloads the existing scripts.");
-        	refresh.addMouseListener(new MouseAdapter() {
-    			
-    			/**
-    			 * Launches the dialog when the user releases the mouse.
-    			 * MouseAdapter#mouseReleased(MouseEvent)
-    			 */
-    			public void mouseReleased(MouseEvent e)
-    			{
-    				model.setAvailableScripts(null);
-    				scriptsMenu = null;
-    				controller.reloadAvailableScripts(e.getPoint());
-    			}
-        	});
-        	scriptsMenu.add(refresh);
-        	scriptsMenu.add(new JSeparator());
-        	
-        	ScriptObject so;
-        	Map<String, JMenu> menus = new HashMap<String, JMenu>();
-        	String path;
-        	
-        	Icon icon = icons.getIcon(IconManager.ANALYSIS);
-        	Icon largeIcon = icons.getIcon(IconManager.ANALYSIS_48);
-        	ActionListener listener = new ActionListener() {
-				
-        		/** 
-        		 * Listens to the selection of a script.
-        		 * @see ActionListener#actionPerformed(ActionEvent)
-        		 */
-				public void actionPerformed(ActionEvent e) {
-					ScriptMenuItem item = (ScriptMenuItem) e.getSource();
-					controller.handleScriptSelection(item.getScript());
-				}
-			};
+            scriptsMenu = new JPopupMenu();
+            JMenuItem refresh = new JMenuItem(icons.getIcon(
+                    IconManager.REFRESH));
+            refresh.setText("Reload Scripts");
+            refresh.setToolTipText("Reloads the existing scripts.");
+            refresh.addMouseListener(new MouseAdapter() {
+
+                /**
+                 * Launches the dialog when the user releases the mouse.
+                 * MouseAdapter#mouseReleased(MouseEvent)
+                 */
+                public void mouseReleased(MouseEvent e)
+                {
+                    model.setAvailableScripts(null);
+                    scriptsMenu = null;
+                    controller.reloadAvailableScripts(e.getPoint());
+                }
+            });
+            scriptsMenu.add(refresh);
+            scriptsMenu.add(new JSeparator());
+
+            ScriptObject so;
+            Map<String, JMenu> menus = new HashMap<String, JMenu>();
+            String path;
+
+            Icon icon = icons.getIcon(IconManager.ANALYSIS);
+            Icon largeIcon = icons.getIcon(IconManager.ANALYSIS_48);
+            ActionListener listener = new ActionListener() {
+
+                /** 
+                 * Listens to the selection of a script.
+                 * @see ActionListener#actionPerformed(ActionEvent)
+                 */
+                public void actionPerformed(ActionEvent e) {
+                    ScriptMenuItem item = (ScriptMenuItem) e.getSource();
+                    controller.handleScriptSelection(item.getScript());
+                }
+            };
             String name ="";
             //loop twice to check if we need to add the first element
             String refString = null;
@@ -1062,14 +1044,14 @@ class ToolBar
         }
         scriptsMenu.show(c, p.x, p.y);
     }
-    
+
     /**
      * Brings up the <code>ManagePopupMenu</code>on top of the specified
      * component at the specified location.
      * 
-     * @param c 	The component that requested the pop-up menu.
-     * @param p 	The point at which to display the menu, relative to the
-     *            	<code>component</code>'s coordinates.
+     * @param c The component that requested the pop-up menu.
+     * @param p The point at which to display the menu, relative to the
+     *          <code>component</code>'s coordinates.
      * @param index The index of the menu.
      */
     void showCreateMenu(Component c, Point p, int index)
@@ -1079,7 +1061,7 @@ class ToolBar
         PopupMenu menu = new PopupMenu(controller, index);
         menu.show(c, p.x, p.y);
     }
-    
+
     /**
      * Sets the selected flag of the {@link #fullScreen} component.
      * 
@@ -1087,129 +1069,135 @@ class ToolBar
      */
     void setFullScreenSelected(boolean selected)
     { 
-    	fullScreen.setSelected(selected);
+        fullScreen.setSelected(selected);
     }
-    
-	/** 
-	 * Invokes when loadings scripts.
-	 * 
-	 * @param loading Passes <code>true</code> if there is an on-going loading.
-	 *                <code>false</code> otherwise.
-	 */
-	void setScriptsLoadingStatus(boolean loading)
-	{
-		bar.remove(index);
-		busyLabel.setBusy(loading);
-		if (loading) bar.add(busyLabel, index);
-		else bar.add(scriptButton, index);
-		validate();
-		repaint();
-	}
-	
-	private Icon getGroupIcon(GroupData group)
-	{
-		switch (group.getPermissions().getPermissionsLevel()) {
-			case GroupData.PERMISSIONS_PRIVATE:
-				return PERMISSIONS_PRIVATE;
-			case GroupData.PERMISSIONS_GROUP_READ:
-				return PERMISSIONS_GROUP_READ;
-			case GroupData.PERMISSIONS_GROUP_READ_LINK:
-				return PERMISSIONS_GROUP_READ_LINK;
-			case GroupData.PERMISSIONS_GROUP_READ_WRITE:
-				return PERMISSIONS_GROUP_READ_WRITE;
-			case GroupData.PERMISSIONS_PUBLIC_READ:
-				return PERMISSIONS_PUBLIC_READ;
-			case GroupData.PERMISSIONS_PUBLIC_READ_WRITE:
-				return PERMISSIONS_PUBLIC_READ_WRITE;
-		}
-		return null;
-	}
 
-	/** Sets the permissions level.*/
-	void setPermissions()
-	{
-	    Browser browser = model.getSelectedBrowser();
-	    if (browser != null &&
-	            browser.getBrowserType() == Browser.ADMIN_EXPLORER)
-	        return;
-	    GroupData group = model.getSelectedGroup();
-	    if (group == null || groupContext == null) {
-	        menuButton.setVisible(false);
-	        groupContext.setVisible(false);
-	        return;
-	    }
-	    String desc = "";
-	    Icon icon = getGroupIcon(group);
-	    switch (group.getPermissions().getPermissionsLevel()) {
-	    case GroupData.PERMISSIONS_PRIVATE:
-	        desc = GroupData.PERMISSIONS_PRIVATE_TEXT;
-	        break;
-	    case GroupData.PERMISSIONS_GROUP_READ:
-	        desc = GroupData.PERMISSIONS_GROUP_READ_TEXT;
-	        break;
-	    case GroupData.PERMISSIONS_GROUP_READ_LINK:
-	        desc = GroupData.PERMISSIONS_GROUP_READ_LINK_TEXT;
-	        break;
-	    case GroupData.PERMISSIONS_GROUP_READ_WRITE:
-	        desc = GroupData.PERMISSIONS_GROUP_READ_WRITE_TEXT;
-	        break;
-	    case GroupData.PERMISSIONS_PUBLIC_READ:
-	        desc = GroupData.PERMISSIONS_PUBLIC_READ_TEXT;
-	        break;
-	    case GroupData.PERMISSIONS_PUBLIC_READ_WRITE:
-	        desc = GroupData.PERMISSIONS_PUBLIC_READ_WRITE_TEXT;
-	    }
-	    if (icon != null) groupContext.setIcon(icon);
-	    groupContext.setText(group.getName());
-	    groupContext.setToolTipText(desc);
+    /** 
+     * Invokes when loadings scripts.
+     * 
+     * @param loading Passes <code>true</code> if there is an on-going loading.
+     *                <code>false</code> otherwise.
+     */
+    void setScriptsLoadingStatus(boolean loading)
+    {
+        bar.remove(index);
+        busyLabel.setBusy(loading);
+        if (loading) bar.add(busyLabel, index);
+        else bar.add(scriptButton, index);
+        validate();
+        repaint();
+    }
 
-	    Collection set = TreeViewerAgent.getAvailableUserGroups();
-	    boolean b = set != null && set.size() > 1;
-	    menuButton.setVisible(b);
-	    groupContext.setVisible(b);
-	    if (!b) { //only show for admin and group owner
-	        if (group.getPermissions().getPermissionsLevel() ==
-	                GroupData.PERMISSIONS_PRIVATE)
-	            usersButton.setEnabled(model.isAdministrator() ||
-	                    model.isGroupOwner(group));
-	        else usersButton.setVisible(!b);
-	    } else usersButton.setVisible(!b);
-	    repaint();
-	}
+    /**
+     * Returns the icon corresponding to the specified group.
+     * 
+     * @param group The group to handle.
+     * @return See above.
+     */
+    private Icon getGroupIcon(GroupData group)
+    {
+        switch (group.getPermissions().getPermissionsLevel()) {
+        case GroupData.PERMISSIONS_PRIVATE:
+            return PERMISSIONS_PRIVATE;
+        case GroupData.PERMISSIONS_GROUP_READ:
+            return PERMISSIONS_GROUP_READ;
+        case GroupData.PERMISSIONS_GROUP_READ_LINK:
+            return PERMISSIONS_GROUP_READ_LINK;
+        case GroupData.PERMISSIONS_GROUP_READ_WRITE:
+            return PERMISSIONS_GROUP_READ_WRITE;
+        case GroupData.PERMISSIONS_PUBLIC_READ:
+            return PERMISSIONS_PUBLIC_READ;
+        case GroupData.PERMISSIONS_PUBLIC_READ_WRITE:
+            return PERMISSIONS_PUBLIC_READ_WRITE;
+        }
+        return null;
+    }
 
-	/** Invokes when import is going on or finished.*/
-	void onImport()
-	{
-		//Clear first
-		importFailureLabel.setText("");
-		importFailureLabel.setVisible(false);
-		importSuccessLabel.setText("");
-		importSuccessLabel.setVisible(false);
-		importLabel.setBusy(model.isImporting());
-		importLabel.setVisible(model.isImporting());
-		int n = model.getImportFailureCount();
-		StringBuffer buffer;
-		if (n > 0) {
-			buffer = new StringBuffer();
-			buffer.append(n);
-			buffer.append(FAILED_TEXT);
-			importFailureLabel.setText(buffer.toString());
-			importFailureLabel.setVisible(true);
-		}
-		n = model.getImportSuccessCount();
-		if (n > 0) {
-			buffer = new StringBuffer();
-			buffer.append(n);
-			buffer.append(IMPORTED_TEXT);
-			importSuccessLabel.setText(buffer.toString());
-			importSuccessLabel.setVisible(true);
-		}
-		repaint();
-	}
+    /** Sets the permissions level.*/
+    void setPermissions()
+    {
+        Browser browser = model.getSelectedBrowser();
+        if (browser != null &&
+                browser.getBrowserType() == Browser.ADMIN_EXPLORER)
+            return;
+        GroupData group = model.getSelectedGroup();
+        if (group == null || groupContext == null) {
+            menuButton.setVisible(false);
+            groupContext.setVisible(false);
+            return;
+        }
+        String desc = "";
+        Icon icon = getGroupIcon(group);
+        switch (group.getPermissions().getPermissionsLevel()) {
+        case GroupData.PERMISSIONS_PRIVATE:
+            desc = GroupData.PERMISSIONS_PRIVATE_TEXT;
+            break;
+        case GroupData.PERMISSIONS_GROUP_READ:
+            desc = GroupData.PERMISSIONS_GROUP_READ_TEXT;
+            break;
+        case GroupData.PERMISSIONS_GROUP_READ_LINK:
+            desc = GroupData.PERMISSIONS_GROUP_READ_LINK_TEXT;
+            break;
+        case GroupData.PERMISSIONS_GROUP_READ_WRITE:
+            desc = GroupData.PERMISSIONS_GROUP_READ_WRITE_TEXT;
+            break;
+        case GroupData.PERMISSIONS_PUBLIC_READ:
+            desc = GroupData.PERMISSIONS_PUBLIC_READ_TEXT;
+            break;
+        case GroupData.PERMISSIONS_PUBLIC_READ_WRITE:
+            desc = GroupData.PERMISSIONS_PUBLIC_READ_WRITE_TEXT;
+        }
+        if (icon != null) groupContext.setIcon(icon);
+        groupContext.setText(group.getName());
+        groupContext.setToolTipText(desc);
 
-	/** Clears the menus. */
-	void clearMenus()
-	{
-	    scriptsMenu = null; //reset the menu.
-	}
+        Collection set = TreeViewerAgent.getAvailableUserGroups();
+        boolean b = set != null && set.size() > 1;
+        menuButton.setVisible(b);
+        groupContext.setVisible(b);
+        if (!b) { //only show for admin and group owner
+            if (group.getPermissions().getPermissionsLevel() ==
+                    GroupData.PERMISSIONS_PRIVATE)
+                usersButton.setEnabled(model.isAdministrator() ||
+                        model.isGroupOwner(group));
+            else usersButton.setVisible(!b);
+        } else usersButton.setVisible(!b);
+        repaint();
+    }
+
+    /** Invokes when import is going on or finished.*/
+    void onImport()
+    {
+        //Clear first
+        importFailureLabel.setText("");
+        importFailureLabel.setVisible(false);
+        importSuccessLabel.setText("");
+        importSuccessLabel.setVisible(false);
+        importLabel.setBusy(model.isImporting());
+        importLabel.setVisible(model.isImporting());
+        int n = model.getImportFailureCount();
+        StringBuffer buffer;
+        if (n > 0) {
+            buffer = new StringBuffer();
+            buffer.append(n);
+            buffer.append(FAILED_TEXT);
+            importFailureLabel.setText(buffer.toString());
+            importFailureLabel.setVisible(true);
+        }
+        n = model.getImportSuccessCount();
+        if (n > 0) {
+            buffer = new StringBuffer();
+            buffer.append(n);
+            buffer.append(IMPORTED_TEXT);
+            importSuccessLabel.setText(buffer.toString());
+            importSuccessLabel.setVisible(true);
+        }
+        repaint();
+    }
+
+    /** Clears the menus. */
+    void clearMenus()
+    {
+        scriptsMenu = null; //reset the menu.
+    }
 }
