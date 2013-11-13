@@ -60,7 +60,7 @@ class TestPixels (object):
         assert pixelsType.value ==  'int16'
         assert pixelsType.bitSize ==  16
 
-    def testGetTile(self):
+    def testGetTile(self, gatewaywrapper):
         image = self.image
         pixels = image.getPrimaryPixels()
 
@@ -99,7 +99,7 @@ class TestPixels (object):
 
         # See whether a the first row and a tile of the first row
         # are equal (without using gateway)
-        rfs = self.gateway.c.sf.createRawPixelsStore()
+        rfs = gatewaywrapper.gateway.createRawPixelsStore()
         try:
             rfs.setPixelsId(pixels.id, False)
             directRow = rfs.getRow(0, 0, 0, 0)
