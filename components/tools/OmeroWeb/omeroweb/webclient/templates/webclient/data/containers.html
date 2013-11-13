@@ -4,7 +4,7 @@
 
 {% comment %}
 <!--
-  Copyright (C) 2011 University of Dundee & Open Microscopy Environment.
+  Copyright (C) 2011-2013 University of Dundee & Open Microscopy Environment.
   All rights reserved.
 
   This program is free software: you can redistribute it and/or modify
@@ -390,8 +390,16 @@
                         type: "POST",
                         success: function(r){
                             var cont_id = cont_type + "-" + r['id'];
-                            $("#dataTree").jstree("create", selected, position, 
-                                { "attr" : { "rel":cont_type, "id":cont_id, "class":"canLink canDelete"}, "data":new_container_name },
+                            var node_data = { "attr" : { "rel":cont_type, "id":cont_id, "class":"canLink canDelete"},
+                                            "data":new_container_name }
+                            // if orphaned imgs moved into new Dataset, remove them...
+                            if (cont_type == "dataset") {
+                                if (img_ids.length > 0) {node_data.state = "closed"};
+                                for (var o=0; o<img_ids.length; o++) {
+                                    $("#dataTree").jstree("delete_node", "#image-"+img_ids[o]);
+                                }
+                            }
+                            $("#dataTree").jstree("create", selected, position, node_data,
                                 false, true);
                             $("#dataTree").jstree("deselect_all");
                             $("#dataTree").jstree("select_node", "#"+cont_id);
