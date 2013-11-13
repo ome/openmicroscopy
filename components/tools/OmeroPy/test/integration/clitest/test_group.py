@@ -19,18 +19,12 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-from omero.plugins.group import GroupControl
+from omero.plugins.group import GroupControl, defaultperms
 from omero.cli import NonZeroReturnCode
 from test.integration.clitest.cli import CLITest, RootCLITest
 import pytest
 
 subcommands = ['add', 'perms', 'list', 'copyusers', 'adduser', 'removeuser']
-permissions = {
-    "private": "rw----",
-    "read-only": "rwr---",
-    "read-annotate": "rwra--",
-    "read-write": "rwrw--"
-    }
 
 
 class TestGroup(CLITest):
@@ -70,7 +64,7 @@ class TestGroupRoot(RootCLITest):
         group = self.sf.getAdminService().lookupGroup(group_name)
         assert str(group.details.permissions) == 'rw----'
 
-    @pytest.mark.parametrize("perms", permissions.values())
+    @pytest.mark.parametrize("perms", defaultperms.values())
     def testAddPerms(self, perms):
         group_name = self.uuid()
         self.args += ["add", group_name, "--perms", perms]
@@ -80,7 +74,7 @@ class TestGroupRoot(RootCLITest):
         group = self.sf.getAdminService().lookupGroup(group_name)
         assert str(group.details.permissions) == perms
 
-    @pytest.mark.parametrize("perms_type", permissions.keys())
+    @pytest.mark.parametrize("perms_type", defaultperms.keys())
     def testAddType(self, perms_type):
         group_name = self.uuid()
         self.args += ["add", group_name, "--type", perms_type]
@@ -88,7 +82,7 @@ class TestGroupRoot(RootCLITest):
 
         # Check group is created with the right permissions
         group = self.sf.getAdminService().lookupGroup(group_name)
-        assert str(group.details.permissions) == permissions[perms_type]
+        assert str(group.details.permissions) == defaultperms[perms_type]
 
     def testAddSameNamefails(self):
         group_name = self.uuid()
