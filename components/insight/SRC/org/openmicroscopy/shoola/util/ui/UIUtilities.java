@@ -2490,8 +2490,7 @@ public class UIUtilities
 	{
 		double v = value.doubleValue();
 		String units = UnitsObject.MICRONS;
-		/* TODO: check if we want to introduce that.
-		if (v < 1) {
+		if (v < 0.01) {
 			units = UnitsObject.NANOMETER;
 			v *= 1000;
 			if (v < 1) {
@@ -2500,7 +2499,6 @@ public class UIUtilities
 			}
 			return new UnitsObject(units, v);
 		}
-		*/
 		if (v > 1000) {
 			units = UnitsObject.MILLIMETER;
 			v /= 1000;
