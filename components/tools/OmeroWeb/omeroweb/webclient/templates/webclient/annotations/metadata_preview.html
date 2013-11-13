@@ -38,6 +38,19 @@
             var viewport = $.WeblitzViewport($("#viewport"), "{% url webindex %}", {'mediaroot': '{{ STATIC_URL }}' } );
             viewport.load({{ manager.image.id }});
             {% endif %}
+
+            var copy_paste_rdef_url = "{% url webgateway.views.copy_image_rdef_json %}";
+            $(".btn.copy_rdef").click(function() {
+                $.getJSON(copy_paste_rdef_url + "?fromid={{ manager.image.id }}");
+            });
+
+            $(".btn.paste_rdef").click(function() {
+                $.getJSON(copy_paste_rdef_url + "?toids={{ manager.image.id }}", function(data){
+                    // update thumbnails
+                    OME.refreshThumbnails({{ manager.image.id }});
+                });
+            });
+
         });
     </script>
 
@@ -57,5 +70,17 @@
 
     <div class="miniview" id="viewport">
     </div>
+
+    <div style="clear:both"></div>
+    <hr>
+
+    Rendering Settings:
+    <button class="btn silver btn_text copy_rdef" title="Copy Rendering Settings">
+        <span>Copy</span>
+    </button>
+
+    <button class="btn silver btn_text paste_rdef" title="Paste Rendering Settings">
+        <span>Paste</span>
+    </button>
 
 </div>
