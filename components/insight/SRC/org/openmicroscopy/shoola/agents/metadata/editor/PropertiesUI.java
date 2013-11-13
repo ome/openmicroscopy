@@ -1233,42 +1233,43 @@ class PropertiesUI
 			String v2 = OMEWikiComponent.prepare(desc.trim(), true);
 			if (v2.equals(v)) value = "";
 		}
+		if (value == null) value = "";
 		if (object instanceof ProjectData) {
 			ProjectData p = (ProjectData) object;
 			if (name.length() > 0) p.setName(name);
-			if (value.length() > 0) p.setDescription(value);
+			p.setDescription(value);
 		} else if (object instanceof DatasetData) {
 			DatasetData p = (DatasetData) object;
 			if (name.length() > 0) p.setName(name);
-			if (value.length() > 0) p.setDescription(value);
+			p.setDescription(value);
 		} else if (object instanceof ImageData) {
 			ImageData p = (ImageData) object;
 			if (name.length() > 0) p.setName(name);
-			if (value.length() > 0) p.setDescription(value);
+			p.setDescription(value);
 		} else if (object instanceof TagAnnotationData) {
 			TagAnnotationData p = (TagAnnotationData) object;
 			if (name.length() > 0) p.setTagValue(name);
-			if (value.length() > 0) p.setTagDescription(value);
+			p.setTagDescription(value);
 		} else if (object instanceof ScreenData) {
 			ScreenData p = (ScreenData) object;
 			if (name.length() > 0) p.setName(name);
-			if (value.length() > 0) p.setDescription(value);
+			p.setDescription(value);
 		} else if (object instanceof PlateData) {
 			PlateData p = (PlateData) object;
 			if (name.length() > 0) p.setName(name);
-			if (value.length() > 0) p.setDescription(value);
+			p.setDescription(value);
 		} else if (object instanceof WellSampleData) {
 			WellSampleData well = (WellSampleData) object;
 			ImageData img = well.getImage();
 			if (name.length() > 0) img.setName(name);
-			if (value.length() > 0) img.setDescription(value);
+			img.setDescription(value);
 		} else if (object instanceof FileData) {
 			FileData f = (FileData) object;
 			if (f.getId() > 0) return;
 		} else if (object instanceof PlateAcquisitionData) {
 			PlateAcquisitionData pa = (PlateAcquisitionData) object;
 			if (name.length() > 0) pa.setName(name);
-			if (value.length() > 0) pa.setDescription(value);
+			pa.setDescription(value);
 		}
 	}
 	
