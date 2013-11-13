@@ -476,15 +476,18 @@ class IntensityResultsView
 		un.notifyInfo("Save ROI results", "The ROI results have been " +
 											"successfully saved.");
 	}
-	
+
 	/** Removes the selected results from the table. */
 	private void removeResults()
 	{
-		for (final int rowIndex : results.getSelectedRows())
-			resultsModel.removeRow(rowIndex);
-		setButtonsEnabled(results.getRowCount() > 0);
+	    int[] rows = results.getSelectedRows();
+	    for (int i = 0;i < rows.length; i++){
+	        resultsModel.removeRow(rows[i]-i);
+	    }
+	    results.clearSelection();
+	    setButtonsEnabled(results.getRowCount() > 0);
 	}
-	
+
 	/**
 	 * @return the ROI shapes currently in the results table rows, never null
 	 */
@@ -784,7 +787,7 @@ class IntensityResultsView
 				addAllResults();
 				break;
 			case SAVE:
-				saveResults();	
+				saveResults();
 				break;
 			case REMOVE:
 				removeResults();
