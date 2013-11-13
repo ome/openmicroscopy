@@ -26,6 +26,9 @@ import pytest
 
 subcommands = ['add', 'perms', 'list', 'copyusers', 'adduser', 'removeuser']
 group_prefixes = ['--id', '--name']
+perms_prefixes = ['--perms', '--type']
+perms_pairs = [('--perms', v) for v in defaultperms.values()]
+perms_pairs.extend([('--type', v) for v in defaultperms.keys()])
 
 
 class TestGroup(CLITest):
@@ -65,25 +68,18 @@ class TestGroupRoot(RootCLITest):
         group = self.sf.getAdminService().lookupGroup(group_name)
         assert str(group.details.permissions) == 'rw----'
 
-    @pytest.mark.parametrize("perms", defaultperms.values())
-    def testAddPerms(self, perms):
+    @pytest.mark.parametrize("perms_prefix,perms", perms_pairs)
+    def testAddPerms(self, perms_prefix, perms):
         group_name = self.uuid()
-        self.args += ["add", group_name, "--perms", perms]
+        self.args += ["add", group_name, perms_prefix, perms]
         self.cli.invoke(self.args, strict=True)
 
         # Check group is created with the right permissions
         group = self.sf.getAdminService().lookupGroup(group_name)
-        assert str(group.details.permissions) == perms
-
-    @pytest.mark.parametrize("perms_type", defaultperms.keys())
-    def testAddType(self, perms_type):
-        group_name = self.uuid()
-        self.args += ["add", group_name, "--type", perms_type]
-        self.cli.invoke(self.args, strict=True)
-
-        # Check group is created with the right permissions
-        group = self.sf.getAdminService().lookupGroup(group_name)
-        assert str(group.details.permissions) == defaultperms[perms_type]
+        if perms_prefix == "--perms":
+            assert str(group.details.permissions) == perms
+        else:
+            assert str(group.details.permissions) == defaultperms[perms]
 
     def testAddSameNamefails(self):
         group_name = self.uuid()
@@ -107,8 +103,8 @@ class TestGroupRoot(RootCLITest):
     # ========================================================================
     @pytest.mark.parametrize("group_prefix", group_prefixes)
     @pytest.mark.parametrize("from_perms", defaultperms.values())
-    @pytest.mark.parametrize("to_perms", defaultperms.values())
-    def testPerms(self, group_prefix, from_perms, to_perms):
+    @pytest.mark.parametrize("perms_prefix,to_perms", perms_pairs)
+    def testPerms(self, group_prefix, from_perms, perms_prefix, to_perms):
         group = self.new_group([], from_perms)
         group = self.sf.getAdminService().getGroup(group.id.val)
         assert str(group.details.permissions) == from_perms
@@ -118,9 +114,12 @@ class TestGroupRoot(RootCLITest):
             self.args += ["%s" % group.id.val]
         else:
             self.args += ["%s" % group.name.val]
-        self.args += ["--perms", to_perms]
+        self.args += [perms_prefix, to_perms]
         self.cli.invoke(self.args, strict=True)
 
         # Check group is created with the right permissions
         group = self.sf.getAdminService().getGroup(group.id.val)
-        assert str(group.details.permissions) == to_perms
+        if perms_prefix == "--perms":
+            assert str(group.details.permissions) == to_perms
+        else:
+            assert str(group.details.permissions) == defaultperms[to_perms]
