@@ -2,10 +2,10 @@
  * org.openmicroscopy.shoola.agents.fsimporter.util.ThumbnailLabel 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2011 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -39,13 +39,12 @@ import javax.swing.border.Border;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.util.ui.RollOverThumbnailManager;
 import org.openmicroscopy.shoola.env.data.model.ThumbnailData;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 import pojos.ImageData;
 import pojos.PlateData;
 
-/** 
+/**
  * Component displaying the thumbnail.
  *
  * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
@@ -53,148 +52,117 @@ import pojos.PlateData;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since 3.0-Beta4
  */
 public class ThumbnailLabel
 	extends JLabel
 {
 
-	/** Bound property indicating to browse the specified plate. */
-	public static final String BROWSE_PLATE_PROPERTY = "browsePlate";
-	
-	/** Bound property indicating to view the image. */
-	public static final String VIEW_IMAGE_PROPERTY = "viewImage";
-	
-	/** The border of the thumbnail label. */
-	private static final Border	LABEL_BORDER = 
-							BorderFactory.createLineBorder(Color.black, 1);
-	
-	/** The text displayed in the tool tip when the image has been imported. */
-	static final String	IMAGE_LABEL_TOOLTIP = "Click to view the image.";
-	
-	/** The text displayed in the tool tip when the plate has been imported. */
-	static final String	PLATE_LABEL_TOOLTIP = "Click to browse the plate.";
-	
-	/** The thumbnail or the image to host. */
-	private Object data;
+    /** Bound property indicating to browse the specified plate. */
+    public static final String BROWSE_PLATE_PROPERTY = "browsePlate";
 
-	/** Posts an event to view the object. */
-	private void view()
-	{
-		if (data instanceof ThumbnailData) {
-			ThumbnailData thumbnail = (ThumbnailData) data;
-			firePropertyChange(VIEW_IMAGE_PROPERTY, null,
-					thumbnail.getImageID());
-		} else if (data instanceof ImageData) {
-			firePropertyChange(VIEW_IMAGE_PROPERTY, null,
-					((ImageData) data).getId());
-		} else if (data instanceof PlateData) {
-			firePropertyChange(BROWSE_PLATE_PROPERTY, null, data);
-		}
-	}
-	
-	/** Rolls over the node. */
-	private void rollOver()
-	{
-		if (data instanceof ThumbnailData) {
-			ThumbnailData thumbnail = (ThumbnailData) data;
-			RollOverThumbnailManager.rollOverDisplay(thumbnail.getThumbnail(), 
-		   			 getBounds(), getLocationOnScreen(), toString());
-		} 
-	}
-	
+    /** Bound property indicating to view the image. */
+    public static final String VIEW_IMAGE_PROPERTY = "viewImage";
 
-	/** 
-	 * Sets the thumbnail to view. 
-	 * 
-	 * @param data The value to set.
-	 */
-	private void setThumbnail(ThumbnailData data)
-	{
-		if (data == null) return;
-		BufferedImage img  = Factory.magnifyImage(0.25, data.getThumbnail());
-		ImageIcon icon = null;
-		if (img != null) icon = new ImageIcon(img);
-		this.data = data;
-		setToolTipText(IMAGE_LABEL_TOOLTIP);
-		setBorder(LABEL_BORDER);
-		if (icon != null) {
-			setIcon(icon);
-		}
-		addMouseListener(new MouseAdapter() {
-			
-			/**
-			 * Views the image.
-			 * @see MouseListener#mousePressed(MouseEvent)
-			 */
-			public void mousePressed(MouseEvent e)
-			{
-				if (e.getClickCount() == 1)
-					view(); 
-			}
+    /** The border of the thumbnail label. */
+    private static final Border LABEL_BORDER =
+            BorderFactory.createLineBorder(Color.black, 1);
 
-			/**
-			 * Removes the zooming window from the display.
-			 * @see MouseListener#mouseExited(MouseEvent)
-			 */
-			public void mouseExited(MouseEvent e)
-			{
-				RollOverThumbnailManager.stopOverDisplay();
-			}
-			
-			/**
-			 * Zooms the thumbnail.
-			 * @see MouseListener#mouseEntered(MouseEvent)
-			 */
-			public void mouseEntered(MouseEvent e) { rollOver(); }
-		});
-	}
-	
-	/** Creates a default new instance. */
-	public ThumbnailLabel() {}
-	
-	/**  
-	 * Creates a new instance. 
-	 * 
-	 * @param icon The icon to display.
-	 */
-	public ThumbnailLabel(Icon icon)
-	{
-		super(icon);
-	}
-	
-	/** 
-	 * Sets the object that has been imported. 
-	 * 
-	 * @param data The imported image.
-	 */
-	public void setData(Object data)
-	{
-		if (data == null) return;
-		this.data = data;
-		if (data instanceof ImageData) {
-			setToolTipText(IMAGE_LABEL_TOOLTIP);
-		} else if (data instanceof PlateData) {
-			setToolTipText(PLATE_LABEL_TOOLTIP);
-		} else if (data instanceof ThumbnailData) {
-			setThumbnail((ThumbnailData) data);
-			return;
-		}
-		addMouseListener(new MouseAdapter() {
-			
-			/**
-			 * Views the image.
-			 * @see MouseListener#mousePressed(MouseEvent)
-			 */
-			public void mousePressed(MouseEvent e)
-			{
-				if (e.getClickCount() == 1)
-					view(); 
-			}
-		});
-	}
-	
+    /** The text displayed in the tool tip when the image has been imported. */
+    static final String IMAGE_LABEL_TOOLTIP = "Click to view the image.";
+
+    /** The text displayed in the tool tip when the plate has been imported. */
+    static final String PLATE_LABEL_TOOLTIP = "Click to browse the plate.";
+
+    /** The thumbnail or the image to host. */
+    private Object data;
+
+    /** Posts an event to view the object. */
+    private void view()
+    {
+        if (data instanceof ThumbnailData) {
+            ThumbnailData thumbnail = (ThumbnailData) data;
+            firePropertyChange(VIEW_IMAGE_PROPERTY, null,
+                    thumbnail.getImageID());
+        } else if (data instanceof ImageData) {
+            firePropertyChange(VIEW_IMAGE_PROPERTY, null,
+                    ((ImageData) data).getId());
+        } else if (data instanceof PlateData) {
+            firePropertyChange(BROWSE_PLATE_PROPERTY, null, data);
+        }
+    }
+
+    /** 
+     * Sets the thumbnail to view.
+     * 
+     * @param data The value to set.
+     */
+    private void setThumbnail(ThumbnailData data)
+    {
+        if (data == null) return;
+        BufferedImage img  = Factory.magnifyImage(0.25, data.getThumbnail());
+        ImageIcon icon = null;
+        if (img != null) icon = new ImageIcon(img);
+        this.data = data;
+        setToolTipText(IMAGE_LABEL_TOOLTIP);
+        setBorder(LABEL_BORDER);
+        setIcon(icon);
+        addMouseListener(new MouseAdapter() {
+
+            /**
+             * Views the image.
+             * @see MouseListener#mousePressed(MouseEvent)
+             */
+            public void mousePressed(MouseEvent e)
+            {
+                if (e.getClickCount() == 1)
+                    view();
+            }
+        });
+    }
+
+    /** Creates a default new instance. */
+    public ThumbnailLabel() {}
+
+    /**  
+     * Creates a new instance. 
+     * 
+     * @param icon The icon to display.
+     */
+    public ThumbnailLabel(Icon icon)
+    {
+        super(icon);
+    }
+
+    /** 
+     * Sets the object that has been imported.
+     * 
+     * @param data The imported image.
+     */
+    public void setData(Object data)
+    {
+        if (data == null) return;
+        this.data = data;
+        if (data instanceof ImageData) {
+            setToolTipText(IMAGE_LABEL_TOOLTIP);
+        } else if (data instanceof PlateData) {
+            setToolTipText(PLATE_LABEL_TOOLTIP);
+        } else if (data instanceof ThumbnailData) {
+            setThumbnail((ThumbnailData) data);
+            return;
+        }
+        addMouseListener(new MouseAdapter() {
+
+            /**
+             * Views the image.
+             * @see MouseListener#mousePressed(MouseEvent)
+             */
+            public void mousePressed(MouseEvent e)
+            {
+                if (e.getClickCount() == 1)
+                    view(); 
+            }
+        });
+    }
+
 }
