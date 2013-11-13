@@ -15,6 +15,11 @@
 
 from django.conf.urls.defaults import *
 
+webgateway = url( r'^$', 'webgateway.views.index', name="webgateway" )
+"""
+Returns a main prefix
+"""
+
 annotations = url(r'^annotations/(?P<objtype>[\w.]+)/(?P<objid>\d+)/$', 'webgateway.views.annotations', name="webgateway_annotations")
 """
 Retrieve annotations for object specified by object type and identifier,
@@ -135,12 +140,6 @@ Params in render_movie/<iid>/<axis>/<pos> are:
     - iid:      Image ID
     - axis:     'z' or 't' dimension that movie plays
     - pos:      The T index (for 'z' movie) or Z index (for 't' movie)
-"""
-
-# Template views
-test = (r'^test/$', 'webgateway.views.test')
-"""
-Test method: returns a blank template of the image-viewer
 """
 
 # json methods...
@@ -291,6 +290,7 @@ original_file_paths = url( r'^original_file_paths/(?P<iid>[0-9]+)/$', 'webgatewa
 """ Get a json array of path/name strings for original files for the Image"""
 
 urlpatterns = patterns('',
+    webgateway,
     render_image,
     render_image_region,
     render_split_channel,

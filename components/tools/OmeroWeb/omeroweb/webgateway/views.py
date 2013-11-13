@@ -70,6 +70,9 @@ except: #pragma: nocover
     except:
         logger.error('No PIL installed')
 
+def index (request):
+    """ /webgateway/ index placeholder """
+    return HttpResponse("Welcome to webgateway")
 
 def _safestr (s):
     return unicode(s).encode('utf-8')
