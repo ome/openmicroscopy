@@ -861,9 +861,10 @@ class EditorModel
 	 * @return See above.
 	 */
 	boolean canEdit(Object data)
-	{ 
-		DataObject d = (DataObject) data;
-		return d.canEdit();
+	{
+	    if (!(data instanceof DataObject)) return false;
+	    DataObject d = (DataObject) data;
+	    return d.canEdit();
 	}
 	
 	/**
