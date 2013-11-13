@@ -25,6 +25,7 @@ from test.integration.clitest.cli import CLITest, RootCLITest
 import pytest
 
 subcommands = ['add', 'perms', 'list', 'copyusers', 'adduser', 'removeuser']
+group_prefixes = ['--id', '--name']
 
 
 class TestGroup(CLITest):
@@ -53,7 +54,7 @@ class TestGroupRoot(RootCLITest):
         self.cli.register("group", GroupControl, "TEST")
         self.args += ["group"]
 
-    # Group addition commands
+    # Group addition subcommand
     # ========================================================================
     def testAddDefaults(self):
         group_name = self.uuid()
@@ -101,3 +102,25 @@ class TestGroupRoot(RootCLITest):
         # Check group is created
         group = self.sf.getAdminService().lookupGroup(group_name)
         assert group.name.val == group_name
+
+    # Group permissions subcommand
+    # ========================================================================
+    @pytest.mark.parametrize("group_prefix", group_prefixes)
+    @pytest.mark.parametrize("from_perms", defaultperms.values())
+    @pytest.mark.parametrize("to_perms", defaultperms.values())
+    def testPerms(self, group_prefix, from_perms, to_perms):
+        group = self.new_group([], from_perms)
+        group = self.sf.getAdminService().getGroup(group.id.val)
+        assert str(group.details.permissions) == from_perms
+
+        self.args += ["perms", group_prefix]
+        if group_prefix == "--id":
+            self.args += ["%s" % group.id.val]
+        else:
+            self.args += ["%s" % group.name.val]
+        self.args += ["--perms", to_perms]
+        self.cli.invoke(self.args, strict=True)
+
+        # Check group is created with the right permissions
+        group = self.sf.getAdminService().getGroup(group.id.val)
+        assert str(group.details.permissions) == to_perms
