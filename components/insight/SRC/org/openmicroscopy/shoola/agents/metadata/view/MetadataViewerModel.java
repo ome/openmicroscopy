@@ -91,14 +91,11 @@ import pojos.WellSampleData;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since OME3.0
  */
-class MetadataViewerModel 
+class MetadataViewerModel
 {
-	
+
 	/** Holds one of the state flags defined by {@link MetadataViewer}. */
 	private int state;
 
@@ -771,7 +768,6 @@ class MetadataViewerModel
 	void setRelatedNodes(List<DataObject> relatedNodes)
 	{ 
 	    this.relatedNodes = relatedNodes;
-	    //fire load
 	    if (CollectionUtils.isEmpty(relatedNodes)) return;
 	    DataObject ho = relatedNodes.get(0);
 	    List<DataObject> l = new ArrayList<DataObject>();
