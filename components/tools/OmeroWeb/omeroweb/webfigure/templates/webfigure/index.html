@@ -41,6 +41,25 @@
 
     $(document).ready(function() {
 
+        var FigureRouter = Backbone.Router.extend({
+
+            routes: {
+                "": "index",
+                "figure/:id": "loadFigure"
+            },
+
+            index: function() {
+                console.log("index");
+            },
+
+            loadFigure: function(id) {
+                console.log(id);
+            }
+        });
+
+        app = new FigureRouter();
+        Backbone.history.start();
+
 
         var figureModel = new FigureModel( {'canvas_width': 2000, 'canvas_height': 2000,
                 'paper_width': 612, 'paper_height': 792});
