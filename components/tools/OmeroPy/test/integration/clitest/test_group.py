@@ -65,19 +65,21 @@ class TestGroup(CLITest):
         # Read from the stdout
         out, err = capsys.readouterr()
         lines = out.split('\n')
-        found_ids = []
-        found_names = []
+        ids = []
+        last_value = None
         for line in lines[2:]:
             elements = line.split('|')
             if len(elements) < 4:
                 continue
 
-            found_ids.append(int(elements[0].strip()))
-            if sort_key == 'id' and len(found_ids) > 2:
-                assert found_ids[-1] > found_ids[-2]
-            found_names.append(elements[1].strip())
-            if sort_key == 'name' and len(found_names) > 1:
-                assert found_names[-1] > found_names[-2]
+            ids.append(int(elements[0].strip()))
+            if sort_key:
+                if sort_key == 'id':
+                    new_value = ids[-1]
+                else:
+                    new_value = elements[1].strip()
+                assert new_value >= last_value
+                last_value = new_value
 
         # Check all groups are listed
         groups = self.sf.getAdminService().lookupGroups()
@@ -85,8 +87,7 @@ class TestGroup(CLITest):
             groups.sort(key=lambda x: x.name.val)
         else:
             groups.sort(key=lambda x: x.id.val)
-        assert found_ids == [group.id.val for group in groups]
-        assert found_names == [group.name.val for group in groups]
+        assert ids == [group.id.val for group in groups]
 
 
 class TestGroupRoot(RootCLITest):
