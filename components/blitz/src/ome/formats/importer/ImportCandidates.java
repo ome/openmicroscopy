@@ -424,7 +424,7 @@ public class ImportCandidates extends DirectoryWalker
                 String configImageName = config.userSpecifiedName.get();
                 if (configImageName == null)
                 {
-                    ic.setUserSpecifiedName(path);
+                    ic.setUserSpecifiedName(file.getName());
                 }
                 else
                 {
@@ -567,8 +567,7 @@ public class ImportCandidates extends DirectoryWalker
      * @param depth - depth of scan
      * @param collection
      */
-    @SuppressWarnings("unchecked")
-	@Override
+    @Override
     public void handleFile(File file, int depth, Collection collection) {
 
         count++;
