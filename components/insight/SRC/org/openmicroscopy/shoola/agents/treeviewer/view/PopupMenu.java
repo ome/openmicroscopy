@@ -598,9 +598,7 @@ class PopupMenu
 				add(new JSeparator(JSeparator.HORIZONTAL));
 				add(resetPassword);
 				add(activatedUser);
-				add(cutElement);
-				add(copyElement);
-				add(pasteElement);
+				add(buildEditMenu());
 				add(deleteElement);
 				break;
 			case TreeViewer.VIEW_MENU:
