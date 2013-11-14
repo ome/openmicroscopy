@@ -444,7 +444,6 @@ TEMPLATE_LOADERS = (
 # a Django application, as created by django-admin.py startapp.
 INSTALLED_APPS = (
     'django.contrib.staticfiles',
-    'django.contrib.markup',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
