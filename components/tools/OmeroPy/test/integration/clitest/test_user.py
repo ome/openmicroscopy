@@ -29,6 +29,7 @@ user_pairs = [('--id', 'id'), ('--name', 'omeName')]
 group_pairs = [(None, 'id'), (None, 'name'), ('--group-id', 'id'),
                ('--group-name', 'name')]
 sort_keys = [None, "id", "login", "first-name", "last-name", "email"]
+columns = {'login': 1, 'first-name': 2, 'last-name': 3, 'email': 4}
 
 
 class TestUser(CLITest):
@@ -64,29 +65,21 @@ class TestUser(CLITest):
         # Read from the stdout
         out, err = capsys.readouterr()
         lines = out.split('\n')
-        found_ids = []
-        sorted_list = []
+        ids = []
+        last_value = None
         for line in lines[2:]:
             elements = line.split('|')
             if len(elements) < 8:
                 continue
 
-            found_ids.append(int(elements[0].strip()))
-            if sort_key == 'id' and sorted_list:
-                sorted_list.append(int(elements[0].strip()))
-                assert found_ids[-1] > found_ids[-2]
-            elif sort_key == 'login' and len(sorted_list) > 1:
-                sorted_list.append(elements[1].strip())
-                assert sorted_list[-1] > sorted_list[-2]
-            elif sort_key == 'first-name' and len(sorted_list) > 1:
-                sorted_list.append(elements[2].strip())
-                assert sorted_list[-1] > sorted_list[-2]
-            elif sort_key == 'last-name' and len(sorted_list) > 1:
-                sorted_list.append(elements[3].strip())
-                assert sorted_list[-1] > sorted_list[-2]
-            elif sort_key == 'email' and len(sorted_list) > 1:
-                sorted_list.append(elements[4].strip())
-                assert sorted_list[-1] > sorted_list[-2]
+            ids.append(int(elements[0].strip()))
+            if sort_key:
+                if sort_key == 'id':
+                    new_value = ids[-1]
+                else:
+                    new_value = elements[columns[sort_key]].strip()
+                assert new_value >= last_value
+                last_value = new_value
 
         # Check all users are listed
         users = self.sf.getAdminService().lookupExperimenters()
@@ -100,7 +93,7 @@ class TestUser(CLITest):
             users.sort(key=lambda x: (x.email and x.email.val or ""))
         else:
             users.sort(key=lambda x: x.id.val)
-        assert found_ids == [user.id.val for user in users]
+        assert ids == [user.id.val for user in users]
 
 
 class TestUserRoot(RootCLITest):
