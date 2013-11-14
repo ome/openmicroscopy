@@ -1789,6 +1789,15 @@ class _BlitzGateway (object):
                 self._user = self.getObject("Experimenter", self._userid) or None
         return self._user
     
+    def getAdministrators(self):
+        """
+        Returns Experimenters with administration privileges.
+         
+        @return:    Current Experimenter
+        @return:     Generator of L{BlitzObjectWrapper} subclasses
+        """
+        return self.getObject("ExperimenterGroup", 0).getMembers()
+    
     def getGroupFromContext(self):
         """
         Returns current omero_model_ExperimenterGroupI.
