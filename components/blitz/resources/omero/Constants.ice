@@ -153,7 +153,7 @@ module omero {
     };
 
     /**
-     * General namespaces for <a href="http://trac.openmicroscopy.org.uk/ome/wiki/StructuredAnnotations">StructuredAnnotations</a>
+     * General namespaces for <a href="http://www.openmicroscopy.org/site/support/omero4/developers/Modules/StructuredAnnotations.html">StructuredAnnotations</a>
      **/
     module namespaces {
         const string NSMEASUREMENT = "openmicroscopy.org/omero/measurement";
@@ -169,7 +169,7 @@ module omero {
         const string NSVIEW = "openmicroscopy.org/omero/scripts/results/view";
         
         //
-        // modulo namespaces for <a href="https://www.openmicroscopy.org/site/support/file-formats/working-with-ome-xml/6d-7d-and-8d-storage">6d-7d-and-8d-storage</a>
+        // modulo namespaces for <a href="http://www.openmicroscopy.org/site/support/ome-model/developers/6d-7d-and-8d-storage.html">6d-7d-and-8d-storage</a>
         //
         const string NSMODULO = "openmicroscopy.org/omero/dimension/modulo";
     };
