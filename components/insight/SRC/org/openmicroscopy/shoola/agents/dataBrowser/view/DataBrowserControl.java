@@ -469,7 +469,13 @@ class DataBrowserControl
      */
     void activateUser()
     {
-
+        Browser browser = model.getBrowser();
+        if (browser == null) return;
+        Collection<DataObject> nodes = browser.getSelectedDataObjects();
+        if (CollectionUtils.isEmpty(nodes) || nodes.size() >1) return;
+        DataObject n = nodes.iterator().next();
+        if (n instanceof ExperimenterData)
+            model.activateUser((ExperimenterData) n);
     }
 
     /**

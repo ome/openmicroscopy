@@ -2,10 +2,10 @@
  * org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -130,7 +130,10 @@ public interface DataBrowser
 	
 	/** Indicates to run the application as an <code>Knime</code> plugin.*/
 	public static final int KNIME = LookupNames.KNIME;
-	
+
+	/** Bound property indicating to activate the user.*/
+	public static final String ACTIVATE_USER_PROPERTY = "activateUser";
+
 	/** 
 	 * Bound property indicating to launch the editor to create a new 
 	 * experiment. 
@@ -822,4 +825,11 @@ public interface DataBrowser
 	 * @return See above.
 	 */
 	int getType();
+	
+    /**
+     * Activates the user or de-activates the user.
+     * 
+     * @param exp The experimenter to handle.
+     */
+    void activateUser(ExperimenterData exp);
 }

@@ -1755,13 +1755,13 @@ class DataBrowserComponent
 	}
 	
 	/** 
-	 * Implemented as specified by the {@link ImViewer} interface.
+	 * Implemented as specified by the {@link DataBrowser} interface.
 	 * @see DataBrowser#getDisplayMode()
 	 */
 	public int getDisplayMode() { return model.getDisplayMode(); }
 
 	/** 
-	 * Implemented as specified by the {@link ImViewer} interface.
+	 * Implemented as specified by the {@link DataBrowser} interface.
 	 * @see DataBrowser#setDisplayMode(int)
 	 */
 	public void setDisplayMode(int displayMode)
@@ -1770,12 +1770,20 @@ class DataBrowserComponent
 	}
 	
     /** 
-     * Returns the type of the model.
-     * 
-     * @return See above.
+     * Implemented as specified by the {@link DataBrowser} interface.
+     * @see DataBrowser#getType()
      */
     public int getType() { return model.getType(); }
 
+    /** 
+     * Implemented as specified by the {@link DataBrowser} interface.
+     * @see DataBrowser#getType()
+     */
+    public void activateUser(ExperimenterData exp)
+    {
+        firePropertyChange(ACTIVATE_USER_PROPERTY, null, exp);
+    }
+    
 	/** 
 	 * Overridden to return the name of the instance to save. 
 	 * @see #toString()

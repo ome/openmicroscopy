@@ -1545,6 +1545,9 @@ class TreeViewerControl
 				return;
 			}
 			model.setUserGroup(groups);
+		} else if (DataBrowser.ACTIVATE_USER_PROPERTY.equals(name)) {
+		    ExperimenterData exp = (ExperimenterData) pce.getNewValue();
+		    if (exp != null) model.activateUser(exp);
 		}
 	}
 	
