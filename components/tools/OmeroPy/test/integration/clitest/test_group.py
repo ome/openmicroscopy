@@ -162,3 +162,34 @@ class TestGroupRoot(RootCLITest):
             assert user.id.val in self.getownerids(group.id.val)
         else:
             assert user.id.val in self.getmemberids(group.id.val)
+
+    # Group removeuser subcommand
+    # ========================================================================
+    @pytest.mark.parametrize("group_prefix,group_attr", group_pairs)
+    @pytest.mark.parametrize("user_prefix,user_attr", user_pairs)
+    @pytest.mark.parametrize("is_owner", [True, False])
+    @pytest.mark.parametrize("owner_arg", [None, '--as-owner'])
+    def testRemoveUser(self, group_prefix, group_attr, user_prefix, user_attr,
+                       is_owner, owner_arg):
+        user = self.new_user()
+        group = self.new_group([user])
+        if is_owner:
+            self.root.sf.getAdminService().setGroupOwner(group, user)
+            assert user.id.val in self.getownerids(group.id.val)
+        else:
+            assert user.id.val in self.getmemberids(group.id.val)
+
+        self.args += ["removeuser", group_prefix,
+                      "%s" % getattr(group, group_attr).val]
+        if user_prefix:
+            self.args += [user_prefix]
+        self.args += ["%s" % getattr(user, user_attr).val]
+        if owner_arg:
+            self.args += [owner_arg]
+        self.cli.invoke(self.args, strict=True)
+
+        # Check user has been added to the list of member/owners
+        if owner_arg:
+            assert user.id.val not in self.getownerids(group.id.val)
+        else:
+            assert user.id.val not in self.getuserids(group.id.val)
