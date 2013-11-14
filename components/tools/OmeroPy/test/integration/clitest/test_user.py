@@ -28,6 +28,7 @@ subcommands = ['add', 'list', 'password', 'email', 'joingroup', 'leavegroup']
 user_pairs = [('--id', 'id'), ('--name', 'omeName')]
 group_pairs = [(None, 'id'), (None, 'name'), ('--group-id', 'id'),
                ('--group-name', 'name')]
+sort_keys = [None, "id", "login", "first-name", "last-name", "email"]
 
 
 class TestUser(CLITest):
@@ -47,6 +48,59 @@ class TestUser(CLITest):
     def testSubcommandHelp(self, subcommand):
         self.args += [subcommand, "-h"]
         self.cli.invoke(self.args, strict=True)
+
+    # List subcommand
+    # ========================================================================
+    @pytest.mark.parametrize("sort_key", sort_keys)
+    @pytest.mark.parametrize("group_format", [None, "count", "long"])
+    def testList(self, capsys, sort_key, group_format):
+        self.args += ["list"]
+        if sort_key:
+            self.args += ["--sort-by-%s" % sort_key]
+        if group_format:
+            self.args += ["--%s" % group_format]
+        self.cli.invoke(self.args, strict=True)
+
+        # Read from the stdout
+        out, err = capsys.readouterr()
+        lines = out.split('\n')
+        found_ids = []
+        sorted_list = []
+        for line in lines[2:]:
+            elements = line.split('|')
+            if len(elements) < 8:
+                continue
+
+            found_ids.append(int(elements[0].strip()))
+            if sort_key == 'id' and sorted_list:
+                sorted_list.append(int(elements[0].strip()))
+                assert found_ids[-1] > found_ids[-2]
+            elif sort_key == 'login' and len(sorted_list) > 1:
+                sorted_list.append(elements[1].strip())
+                assert sorted_list[-1] > sorted_list[-2]
+            elif sort_key == 'first-name' and len(sorted_list) > 1:
+                sorted_list.append(elements[2].strip())
+                assert sorted_list[-1] > sorted_list[-2]
+            elif sort_key == 'last-name' and len(sorted_list) > 1:
+                sorted_list.append(elements[3].strip())
+                assert sorted_list[-1] > sorted_list[-2]
+            elif sort_key == 'email' and len(sorted_list) > 1:
+                sorted_list.append(elements[4].strip())
+                assert sorted_list[-1] > sorted_list[-2]
+
+        # Check all users are listed
+        users = self.sf.getAdminService().lookupExperimenters()
+        if sort_key == 'login':
+            users.sort(key=lambda x: x.omeName.val)
+        elif sort_key == 'first-name':
+            users.sort(key=lambda x: x.firstName.val)
+        elif sort_key == 'last-name':
+            users.sort(key=lambda x: x.lastName.val)
+        elif sort_key == 'login':
+            users.sort(key=lambda x: (x.email and x.email.val or ""))
+        else:
+            users.sort(key=lambda x: x.id.val)
+        assert found_ids == [user.id.val for user in users]
 
 
 class TestUserRoot(RootCLITest):
