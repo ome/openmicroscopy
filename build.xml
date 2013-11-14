@@ -646,6 +646,7 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
                         <include name="**/*.jar"/>
                         <exclude name="repository/omero/**"/>
                         <exclude name="repository/omero-tools/**"/>
+                        <exclude name="cache/omero/omero_client/jars/**"/>
                     </fileset>
                 </classpath>
 
