@@ -1731,27 +1731,41 @@ class BrowserComponent
 	public void refreshAdmin(Object data)
 	{
 		if (model.getState() == DISCARDED) return;
-		if (model.getBrowserType() == ADMIN_EXPLORER) {
+		if (model.getBrowserType() == ADMIN_EXPLORER && model.isSelected()) {
 			//visit the browser
 			TreeImageDisplay node = model.getLastSelectedDisplay();
 			refreshBrowser();
 			setSelectedDisplay(node, true);
-		} else {
-			if (data instanceof ExperimenterData) {
-				ExperimenterData exp = (ExperimenterData) data;
-				ExperimenterVisitor v = new ExperimenterVisitor(this,
-						exp.getId(), -1);
-				accept(v, TreeImageDisplayVisitor.TREEIMAGE_SET_ONLY);
-				List<TreeImageDisplay> l = v.getNodes();
-				Iterator<TreeImageDisplay> i = l.iterator();
-				TreeImageDisplay n;
-				while (i.hasNext()) {
-					n = i.next();
-					n.setUserObject(model.getUserDetails());
-					view.reloadNode(n);
-				}
-			}
+			return;
 		}
+		if (data instanceof ExperimenterData || data instanceof GroupData) {
+            ExperimenterVisitor v;
+            GroupData g = null;
+            if (data instanceof ExperimenterData) {
+                ExperimenterData exp = (ExperimenterData) data;
+                v = new ExperimenterVisitor(this, exp.getId(), -1);
+            } else {
+                g = (GroupData) data;
+                v = new ExperimenterVisitor(this, g.getId());
+            }
+            accept(v, TreeImageDisplayVisitor.TREEIMAGE_SET_ONLY);
+            List<TreeImageDisplay> l = v.getNodes();
+            Iterator<TreeImageDisplay> i = l.iterator();
+            TreeImageDisplay n;
+            if (data instanceof ExperimenterData) {
+                while (i.hasNext()) {
+                    n = i.next();
+                    n.setUserObject(model.getUserDetails());
+                    view.reloadNode(n);
+                }
+            } else {
+                while (i.hasNext()) {
+                    n = i.next();
+                    n.setUserObject(g);
+                    view.reloadNode(n);
+                }
+            }
+        }
 	}
 
 	/**
