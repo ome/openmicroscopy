@@ -74,10 +74,13 @@
         };
 
         // Since we want to disable removal of 'system' group (id=0) from chosen, this hides the 'X'
+        var admin_groups = [{% for x in admin_groups %}'{{ x|escapejs }}',{% endfor %}]
         var hideSystemGroupX = function() {
-            var optText = $("#id_other_groups").find("option[value=0]").text(),
-                $system_li = $("#id_other_groups_chzn").find("span:contains('"+optText+"')").parent();
-            $system_li.find('a').hide();
+            for (i=0; i<admin_groups.length; i++) {
+                var optText = $("#id_other_groups").find("option[value=" + admin_groups[i] + "]").text(),
+                    $system_li = $("#id_other_groups_chzn").find("span:contains('"+optText+"')").parent();
+                $system_li.find('a').hide();
+            }
         }
 
         $("#id_other_groups").chosen({placeholder_text:'Choose one or more groups'}).change(function(evt, data) {
