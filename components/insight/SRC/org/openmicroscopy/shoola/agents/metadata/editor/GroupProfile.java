@@ -275,6 +275,7 @@ class GroupProfile
 			}
 			data.setName(v);
 		}
+		saveButton.setEnabled(false);
 		//check description
 		v = descriptionPane.getText();
 		v = v.trim();
