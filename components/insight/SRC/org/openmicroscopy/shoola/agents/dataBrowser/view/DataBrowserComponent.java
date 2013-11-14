@@ -1783,7 +1783,16 @@ class DataBrowserComponent
     {
         firePropertyChange(ACTIVATE_USER_PROPERTY, null, exp);
     }
-    
+
+    /** 
+     * Implemented as specified by the {@link DataBrowser} interface.
+     * @see DataBrowser#resetPassword()
+     */
+    public void resetPassword()
+    {
+        firePropertyChange(RESET_PASSWORD_PROPERTY, Boolean.FALSE,
+                Boolean.TRUE);
+    }
 	/** 
 	 * Overridden to return the name of the instance to save. 
 	 * @see #toString()

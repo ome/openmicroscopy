@@ -111,12 +111,12 @@ public class PasswordResetAction
     } 
 
     /**
-     * Displays a modal dialog.
+     * Fires a property change to reset the password.
      * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
      */
     public void actionPerformed(ActionEvent e)
     {
-       
+       model.resetPassword();
     }
 
 }

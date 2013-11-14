@@ -134,6 +134,9 @@ public interface DataBrowser
 	/** Bound property indicating to activate the user.*/
 	public static final String ACTIVATE_USER_PROPERTY = "activateUser";
 
+	/** Bound property indicating to reset the password of the selected user.*/
+	public static final String RESET_PASSWORD_PROPERTY = "resetUserPassword";
+
 	/** 
 	 * Bound property indicating to launch the editor to create a new 
 	 * experiment. 
@@ -832,4 +835,7 @@ public interface DataBrowser
      * @param exp The experimenter to handle.
      */
     void activateUser(ExperimenterData exp);
+
+    /** Indicates to reset the password of the selected user.*/
+    void resetPassword();
 }
