@@ -15,7 +15,7 @@
 
 from django.conf.urls.defaults import *
 
-webgateway = url( r'^$', 'webgateway.views.test', name="webgateway" )
+webgateway = url( r'^$', 'webgateway.views.index', name="webgateway" )
 """
 Returns a main prefix
 """
@@ -140,12 +140,6 @@ Params in render_movie/<iid>/<axis>/<pos> are:
     - iid:      Image ID
     - axis:     'z' or 't' dimension that movie plays
     - pos:      The T index (for 'z' movie) or Z index (for 't' movie)
-"""
-
-# Template views
-test = (r'^test/$', 'webgateway.views.test')
-"""
-Test method: returns a blank template of the image-viewer
 """
 
 # json methods...
@@ -309,7 +303,6 @@ urlpatterns = patterns('',
     render_ome_tiff,
     render_movie,
     # Template views
-    test,
     # JSON methods
     listProjects_json,
     projectDetail_json,
