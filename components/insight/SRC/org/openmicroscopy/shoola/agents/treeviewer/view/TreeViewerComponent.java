@@ -2586,7 +2586,7 @@ class TreeViewerComponent
 		//Need to notify the browser without having 
 		List l = (List) object;
 		int n = l.size();
-		if (n > 3) return;
+		if (n > 3 || n <= 1) return;
 		Object multiSelection = l.get(0);
 		Object selected = l.get(1);
 		Object parent = null;
@@ -2605,6 +2605,7 @@ class TreeViewerComponent
 		}
 
 		Browser browser = model.getSelectedBrowser();
+		if (browser == null) return;
 		browser.onDeselectedNode(parent, selected, (Boolean) multiSelection);
 		onSelectedDisplay();
 	}
