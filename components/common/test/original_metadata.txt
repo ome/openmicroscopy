@@ -1,0 +1,26 @@
+[FooMetadata]
+one=1
+
+[GlobalMetadata]
+a=b=c
+(a=b)=c
+a=(b=c)
+{a=b=c}
+{(a=b)=c}
+{a=(b=c)}
+(p=q=r
+p=q=r)
+((p=q)=r
+p=(q=r))
+p q = r s
+
+[BarMetadata]
+two=2
+
+[SeriesMetadata]
+ein må lære seg å krype før ein lærer å gå = learn to walk before you can run
+money doesn't grow on trees = pengar växer inte på träd
+аб=вг
+
+[BazMetadata]
+three=3

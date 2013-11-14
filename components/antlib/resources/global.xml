@@ -183,6 +183,7 @@
 			<include name="**/*.bmp"/>
 			<include name="**/*.jpg"/>
 			<include name="**/*.png"/>
+			<include name="**/*.txt"/>
 			<include name="**/*.xml"/>
 			<include name="**/*.ldif"/>
 			<exclude name="**/.svn"/>
