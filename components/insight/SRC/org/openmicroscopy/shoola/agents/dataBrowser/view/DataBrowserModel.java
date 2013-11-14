@@ -105,34 +105,34 @@ abstract class DataBrowserModel
 	static final int MAX_LOADER = 4;
 	
 	/** Identifies the <code>DatasetsModel</code>. */
-	static final int	DATASETS = 0;
+	static final int DATASETS = DataBrowser.DATASETS;
 	
 	/** Identifies the <code>ImagesModel</code>. */
-	static final int	IMAGES = 1;
+	static final int IMAGES = DataBrowser.IMAGES;
 	
 	/** Identifies the <code>ProjectsModel</code>. */
-	static final int	PROJECTS = 2;
+	static final int PROJECTS = DataBrowser.PROJECTS;
 	
 	/** Identifies the <code>SearchModel</code>. */
-	static final int	SEARCH = 3;
+	static final int SEARCH = DataBrowser.SEARCH;
 	
 	/** Identifies the <code>TagSetsModel</code>. */
-	static final int	TAGSETS = 4;
+	static final int TAGSETS = DataBrowser.TAGSETS;
 	
 	/** Identifies the <code>WellsModel</code>. */
-	static final int	WELLS = 5;
+	static final int WELLS = DataBrowser.WELLS;
 	
 	/** Identifies the <code>TagsModel</code>. */
-	static final int	TAGS = 6;
+	static final int TAGS = DataBrowser.TAGS;
 	
 	/** Identifies the <code>PlatesModel</code>. */
-	static final int	PLATES = 7;
+	static final int PLATES = DataBrowser.PLATES;
 	
 	/** Identifies the <code>GroupModel</code>. */
-	static final int	GROUP = 8;
+	static final int GROUP = DataBrowser.GROUP;
 	
 	/** Identifies the <code>FSFolderModel</code>. */
-	static final int	FS_FOLDER = 9;
+	static final int FS_FOLDER = DataBrowser.FS_FOLDER;
 	
 	/** Holds one of the state flags defined by {@link DataBrowser}. */
     protected int state;

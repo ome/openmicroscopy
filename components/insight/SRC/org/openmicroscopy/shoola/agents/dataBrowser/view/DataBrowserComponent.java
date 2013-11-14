@@ -1769,6 +1769,13 @@ class DataBrowserComponent
 		model.setDisplayMode(displayMode);
 	}
 	
+    /** 
+     * Returns the type of the model.
+     * 
+     * @return See above.
+     */
+    public int getType() { return model.getType(); }
+
 	/** 
 	 * Overridden to return the name of the instance to save. 
 	 * @see #toString()

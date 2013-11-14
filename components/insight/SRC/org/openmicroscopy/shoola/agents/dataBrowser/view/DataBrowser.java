@@ -91,15 +91,45 @@ import pojos.ExperimenterData;
  * </small>
  * @since OME3.0
  */
-public interface DataBrowser 
+public interface DataBrowser
 	extends ObservableComponent
 {
 
+    /** Identifies the <code>DatasetsModel</code>. */
+    public static final int DATASETS = 0;
+    
+    /** Identifies the <code>ImagesModel</code>. */
+    public static final int IMAGES = 1;
+    
+    /** Identifies the <code>ProjectsModel</code>. */
+    public static final int PROJECTS = 2;
+    
+    /** Identifies the <code>SearchModel</code>. */
+    public static final int SEARCH = 3;
+    
+    /** Identifies the <code>TagSetsModel</code>. */
+    public static final int TAGSETS = 4;
+    
+    /** Identifies the <code>WellsModel</code>. */
+    public static final int WELLS = 5;
+    
+    /** Identifies the <code>TagsModel</code>. */
+    public static final int TAGS = 6;
+    
+    /** Identifies the <code>PlatesModel</code>. */
+    public static final int PLATES = 7;
+    
+    /** Identifies the <code>GroupModel</code>. */
+    public static final int GROUP = 8;
+    
+    /** Identifies the <code>FSFolderModel</code>. */
+    public static final int FS_FOLDER = 9;
+    
 	/** Indicates to run the application as an <code>ImageJ</code> plugin.*/
-	public static final int		IMAGE_J = LookupNames.IMAGE_J;
+	public static final int IMAGE_J = LookupNames.IMAGE_J;
 	
 	/** Indicates to run the application as an <code>Knime</code> plugin.*/
-	public static final int		KNIME = LookupNames.KNIME;
+	public static final int KNIME = LookupNames.KNIME;
 	
 	/** 
 	 * Bound property indicating to launch the editor to create a new 
@@ -785,5 +815,11 @@ public interface DataBrowser
 	 * @param displayMode The value to set.
 	 */
 	void setDisplayMode(int displayMode);
-	
+
+	/** 
+	 * Returns the type of the model.
+	 * 
+	 * @return See above.
+	 */
+	int getType();
 }
