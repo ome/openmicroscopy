@@ -1573,15 +1573,14 @@ class LocationDialog extends JDialog implements ActionListener,
 	 * @param userID The id of the user.
 	 */
 	void reset(TreeImageDisplay container, int type,
-			Collection<TreeImageDisplay> objects , long currentGroupId,
-			long userID)
+	        Collection<TreeImageDisplay> objects , long currentGroupId,
+	        long userID)
 	{
-		this.dataType = type;
-		this.objects = objects;
-		this.container = container;
-        populateUIWithDisplayData(findWithId(groups, currentGroupId),
-                userID);
-        setInputsEnabled(true);
+	    this.dataType = type;
+	    this.objects = objects;
+	    this.container = container;
+	    populateUIWithDisplayData(findWithId(groups, currentGroupId), userID);
+	    setInputsEnabled(true);
 	}
 
 	/**
@@ -1602,9 +1601,8 @@ class LocationDialog extends JDialog implements ActionListener,
 				newDataType = Importer.SCREEN_TYPE;
 			
 			storeCurrentSelections();
-
 			firePropertyChange(ImportDialog.REFRESH_LOCATION_PROPERTY,
-					null, new ImportLocationDetails(newDataType, 
+					null, new ImportLocationDetails(newDataType,
 							getSelectedUser().getId()));
 		}
 	}
