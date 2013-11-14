@@ -1322,7 +1322,7 @@
 
     var copy_paste_rdef_url = "{% url webgateway.views.copy_image_rdef_json %}";
     $(".btn.copy_rdef").click(function() {
-
+        // copy the current rendering settings to the 'session'
         $.getJSON(copy_paste_rdef_url + "?"+ viewport.getQuery(true));
     });
 

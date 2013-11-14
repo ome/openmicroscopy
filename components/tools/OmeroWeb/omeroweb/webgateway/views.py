@@ -27,7 +27,7 @@ from django.core.urlresolvers import reverse
 from django.conf import settings
 from django.template import RequestContext as Context
 from django.core.servers.basehttp import FileWrapper
-from omero.rtypes import rlong, unwrap
+from omero.rtypes import rint, rlong, unwrap
 from omero.constants.namespaces import NSBULKANNOTATIONS
 from marshal import imageMarshal, shapeMarshal
 
@@ -1517,10 +1517,68 @@ def copy_image_rdef_json (request, conn=None, **kwargs):
     if fromid is not None and len(toids) == 0:
         request.session.modified = True
         request.session['fromid'] = fromid
+        if request.session.get('rdef') is not None:
+            del request.session['rdef']
         return True
+
+    # If we've got an rdef encoded in request instead of ImageId...
+    if r.get('c') is not None:
+        # make a map of settings we need
+        rdef = {
+            'c': str(r.get('c')),    # channels
+            'm': str(r.get('m')),    # model (grey)
+            'z': str(r.get('z')),    # z & t pos
+            't': str(r.get('t'))
+        }
+        request.session.modified = True
+        request.session['rdef'] = rdef
+        if request.session.get('fromid') is not None:
+            del request.session['fromid']
+        return True
+
     # Check session for 'fromid'
     if fromid is None:
         fromid = request.session.get('fromid', None)
+
+    if fromid is None:
+        print "fromid is None..."
+        # if we have rdef, apply to first image, then use that image as 'fromId'
+        if request.session.get('rdef') is not None and len(toids) > 0:
+            # Horrible that we have to do all these lookups, just to get first Image!
+            p = omero.sys.Parameters()
+            f = omero.sys.Filter()
+            f.limit = rint(1)
+            p.theFilter = f
+            if to_type == "dataset":
+                ds = conn.getObject("Dataset", long(toids[0]))
+                images = list(ds.listChildren())
+                if len(images) > 0:
+                    image = images[0]
+            elif to_type == "plate":
+                p.map = {'pid': rlong(toids[0])}
+                query = "select ws from WellSample ws join fetch ws.well as well where well.plate.id=:pid"
+                ws = conn.getQueryService().findByQuery(query, p, conn.SERVICE_OPTS)
+                image = conn.getObject("Image", ws.image.id.val)
+            elif to_type == "acquisition":
+                p.map = {'pid': rlong(toids[0])}
+                query = "select ws from WellSample ws where ws.plateAcquisition.id=:pid"
+                ws = conn.getQueryService().findByQuery(query, p, conn.SERVICE_OPTS)
+                image = conn.getObject("Image", ws.image.id.val)
+            else:
+                image = conn.getObject("Image", long(toids[0]))
+            if image is not None:
+                rdef = request.session.get('rdef')
+                channels, windows, colors =  _split_channel_info(rdef['c'])
+                image.setActiveChannels(channels, windows, colors)  # also prepares _re
+                if rdef['m'] == 'g':
+                    image.setGreyscaleRenderingModel()
+                else:
+                    image.setColorRenderingModel()
+                image._re.setDefaultZ(long(rdef['z'])-1)
+                image._re.setDefaultT(long(rdef['t'])-1)
+                image.saveDefaults()
+                fromid = image.getId()
+
     # If we have both, apply settings...
     try:
         fromid = long(fromid)
