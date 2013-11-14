@@ -193,3 +193,31 @@ class TestGroupRoot(RootCLITest):
             assert user.id.val not in self.getownerids(group.id.val)
         else:
             assert user.id.val not in self.getuserids(group.id.val)
+
+    # Group copyusers subcommand
+    # ========================================================================
+    @pytest.mark.parametrize("from_group", [x[1] for x in group_pairs])
+    @pytest.mark.parametrize("to_group", [x[1] for x in group_pairs])
+    @pytest.mark.parametrize("owner_only", [None, '--as-owner'])
+    def testCopyUsers(self, from_group, to_group, owner_only):
+        users = [self.new_user(), self.new_user()]
+        owners = [self.new_user(), self.new_user()]
+        users.extend(owners)
+        group1 = self.new_group(users)
+        for owner in owners:
+            self.root.sf.getAdminService().setGroupOwner(group1, owner)
+        group2 = self.new_group([])
+
+        self.args += ["copyusers", "%s" % getattr(group1, from_group).val,
+                      "%s" % getattr(group2, to_group).val]
+        if owner_only:
+            self.args += [owner_only]
+        self.cli.invoke(self.args, strict=True)
+
+        # Check all owners have been copied
+        if owner_only:
+            for owner in owners:
+                assert owner.id.val in self.getownerids(group2.id.val)
+        else:
+            for user in users:
+                assert user.id.val in self.getmemberids(group2.id.val)
