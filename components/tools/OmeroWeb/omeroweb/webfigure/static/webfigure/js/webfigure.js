@@ -259,7 +259,7 @@
             });
         },
 
-        localStorage: new Backbone.LocalStorage("figureShop-backbone")
+        // localStorage: new Backbone.LocalStorage("figureShop-backbone")
     });
 
 
@@ -535,6 +535,7 @@
             "click .delete_panel": "deleteSelectedPanels",
             "click .copy.btn": "copy_selected_panels",
             "click .paste.btn": "paste_panels",
+            "click .save_figure": "save_figure",
         },
 
         keyboardEvents: {
@@ -542,7 +543,45 @@
             'del': 'deleteSelectedPanels',
             'mod+a': 'select_all',
             'mod+c': 'copy_selected_panels',
-            'mod+v': 'paste_panels'
+            'mod+v': 'paste_panels',
+            'mod+s': 'save_figure',
+        },
+
+        save_figure: function() {
+
+            // Turn panels into json
+            var figureModel = this.model,
+                p_json = [];
+            figureModel.panels.each(function(m) {
+                p_json.push(m.toJSON());
+            });
+
+            var figureJSON = {
+                panels: p_json,
+                paper_width: figureModel.get('paper_width'),
+                paper_height: figureModel.get('paper_height'),
+            };
+
+            var url = $(".save_figure", this.$el).attr('data-url'),
+                data = {
+                    figureJSON: JSON.stringify(figureJSON),
+                };
+
+            if (figureModel.fileAnnId) {
+                data.fileId = figureModel.fileAnnId;
+            } else {
+                data.figureName = prompt("Enter Figure Name");
+            }
+
+            // Save
+            $.post( url, data)
+                .done(function( data ) {
+                    console.log(data);
+                    figureModel.fileAnnId = +data;
+                    window.location.hash = "figure/"+data;
+                });
+
+            return false;
         },
 
         copy_selected_panels: function() {

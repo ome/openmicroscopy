@@ -18,134 +18,21 @@
     <link rel="stylesheet" href="{% static "3rdparty/jquery-ui-1.8.19/themes/base/jquery.ui.base.css" %}" type="text/css" />
     <script>
 
-    // http://www.sitepoint.com/javascript-json-serialization/
-    JSON.stringify = JSON.stringify || function (obj) {
-        var t = typeof (obj);
-        if (t != "object" || obj === null) {
-            // simple data type
-            if (t == "string") obj = '"'+obj+'"';
-            return String(obj);
-        }
-        else {
-            // recurse array or object
-            var n, v, json = [], arr = (obj && obj.constructor == Array);
-            for (n in obj) {
-                v = obj[n]; t = typeof(v);
-                if (t == "string") v = '"'+v+'"';
-                else if (t == "object" && v !== null) v = JSON.stringify(v);
-                json.push((arr ? "" : '"' + n + '":') + String(v));
-            }
-            return (arr ? "[" : "{") + String(json) + (arr ? "]" : "}");
-        }
-    };
 
     $(document).ready(function() {
 
-        var FigureRouter = Backbone.Router.extend({
-
-            routes: {
-                "": "index",
-                "figure/:id": "loadFigure"
-            },
-
-            index: function() {
-                console.log("index");
-            },
-
-            loadFigure: function(id) {
-                console.log(id);
-            }
-        });
-
-        app = new FigureRouter();
-        Backbone.history.start();
 
 
-        var figureModel = new FigureModel( {'canvas_width': 2000, 'canvas_height': 2000,
-                'paper_width': 612, 'paper_height': 792});
-
-        // UI Model (not saved - just used to coordinate UI status)
-        // var uiState = new UiState( {model:figureModel} )
-
-        var view = new FigureView( {model: figureModel});   // uiState: uiState
-        var svgView = new SvgView( {model: figureModel});
-        new RightPanelView({model: figureModel});
-
-        $("#zoom_slider").slider({
-            max: 400,
-            min: 40,
-            value: 75,
-            slide: function(event, ui) {
-                figureModel.set('curr_zoom', ui.value);
-            }
-        });
-
-        // Do this after other setup above
-        figureModel.set('curr_zoom', 75);
 
         // load Panels from localStorage (if any)
-        figureModel.panels.fetch({
-            success: function(model, rsp, options) {
-                if (model.length == 0) {
-                    $('#addImagesModal').modal();
-                }
-            }
-        });
-        figureModel.clearSelected();    // reset selection (all saved as 'true')
-
-        // Undo Model and View
-        var undoManager = new UndoManager({'figureModel':figureModel}),
-            undoView = new UndoView({model:undoManager});
-        // Finally, start listening for changes to panels
-        undoManager.listenToCollection(figureModel.panels);
-
-
-        $(".modal-dialog").draggable();
-
-        $('#previewInfoTabs a').click(function (e) {
-            e.preventDefault();
-            $(this).tab('show');
-        });
-
-        // If we're on Windows, update tool-tips for keyboard short cuts:
-        if (navigator.platform.toUpperCase().indexOf('WIN') > -1) {
-            $('.btn-sm').each(function(){
-                var $this = $(this);
-                    $this.attr('data-original-title', $this.attr('data-original-title').replace("⌘", "Ctrl+"));
-            });
-        }
-        // refresh tooltips
-       $('.btn-sm, .navbar-header').tooltip({container: 'body', placement:'bottom', toggle:"tooltip"});
-
-        $("#save_figure").click(function(){
-
-            // Turn panels into json
-            var p_json = [];
-            figureModel.panels.each(function(m) {
-                p_json.push(m.toJSON());
-            });
-
-            var figureJSON = {
-                panels: p_json,
-                paper_width: figureModel.get('paper_width'),
-                paper_height: figureModel.get('paper_height'),
-            }
-
-            var url = "{% url save_web_figure %}",
-                data = {
-                    figureJSON: JSON.stringify(figureJSON),
-                    // figureName: "test"
-                    // fileId: 352,
-                }
-
-            // Save
-            $.post( url, data)
-                .done(function( data ) {
-                    console.log(data)
-                });
-
-            return false;
-        });
+        // figureModel.panels.fetch({
+        //     success: function(model, rsp, options) {
+        //         if (model.length == 0) {
+        //             $('#addImagesModal').modal();
+        //         }
+        //     }
+        // });
+        // figureModel.clearSelected();    // reset selection (all saved as 'true')
 
 
         // Heavy lifting of PDF generation handled by OMERO.script...
@@ -281,7 +168,8 @@
                         </button>
                     </div>
 
-                    <button id="save_figure" class="btn btn-success btn-sm" title="Save Figure to OMERO">
+                    <button class="save_figure btn btn-success btn-sm" title="Save Figure to OMERO" 
+                            data-url="{% url save_web_figure %}">
                         Save
                     </button>
                 </form>
@@ -803,7 +691,7 @@
     <script src="{% static 'webfigure/3rdparty/json2.js' %}"></script>
     <script src="{% static 'webfigure/3rdparty/underscore.js' %}"></script>
     <script src="{% static 'webfigure/3rdparty/backbone.js' %}"></script>
-    <script src="{% static 'webfigure/3rdparty/backbone-localstorage.js' %}"></script>
+    <!-- <script src="{% static 'webfigure/3rdparty/backbone-localstorage.js' %}"></script> -->
     <script src="{% static 'webfigure/3rdparty/raphael-min.js' %}"></script>
     <script src="{% static 'webfigure/3rdparty/mousetrap/mousetrap.min.js' %}"></script>
     <script src="{% static 'webfigure/3rdparty/backbone.mousetrap/backbone.mousetrap.js' %}"></script>
@@ -812,6 +700,8 @@
     <script type="text/javascript" src="{% static 'webfigure/js/webfigure.js' %}"></script>
     <script type="text/javascript" src="{% static 'webfigure/js/undo.js' %}"></script>
     <script type="text/javascript" src="{% static 'webfigure/js/raphael-rect.js' %}"></script>
+    <script type="text/javascript" src="{% static 'webfigure/js/util.js' %}"></script>
+    <script type="text/javascript" src="{% static 'webfigure/js/app.js' %}"></script>
 
 </body>
 
