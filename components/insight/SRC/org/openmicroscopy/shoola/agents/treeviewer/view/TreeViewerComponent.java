@@ -4279,167 +4279,193 @@ class TreeViewerComponent
 	 * @see TreeViewer#transfer(TreeImageDisplay, List, int)
 	 */
 	public void transfer(TreeImageDisplay target, List<TreeImageDisplay> nodes,
-			int transferAction)
+	        int transferAction)
 	{
-		if (target == null || nodes == null || nodes.size() == 0) return;
-		Browser browser = model.getSelectedBrowser();
-		if (browser == null) return;
-		Object ot = target.getUserObject();
-		Object os;
-		if (nodes.size() == 1) { //check if src = destination
-			TreeImageDisplay src = nodes.get(0);
-			if (src == target) {
-				browser.rejectTransfer();
-				return;
-			}
-		}
-		UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
-		if (browser.getBrowserType() == Browser.ADMIN_EXPLORER) {
-			if (!(ot instanceof GroupData) ||
-					!TreeViewerAgent.isAdministrator()) {
-				un.notifyInfo("DnD", "Only administrator can perform" +
-						"such action.");
-				browser.rejectTransfer();
-				return;
-			}
-		}
-		if (!canLink(ot) && !(ot instanceof ExperimenterData ||
-				ot instanceof GroupData)) {
-			un.notifyInfo("DnD", 
-					"You must be the owner of the container.");
-			browser.rejectTransfer();
-			return;
-		}
-		TreeImageDisplay p = target.getParentDisplay();
-		List<TreeImageDisplay> list = new ArrayList<TreeImageDisplay>();
-		Iterator<TreeImageDisplay> i = nodes.iterator();
-		TreeImageDisplay n;
-		
-		int count = 0;
-		String child;
-		String parent;
-		os = null;
-		int childCount = 0;
-		long userID = TreeViewerAgent.getUserDetails().getId();
-		boolean administrator = TreeViewerAgent.isAdministrator();
-		ExperimenterData exp;
-		long gId;
-		List<Long> groupIds = new ArrayList<Long>();
-		DataObject data;
-		while (i.hasNext()) {
-			n = i.next();
-			os = n.getUserObject();
-			if (target.contains(n)) {
-				childCount++;
-			} else {
-				if (EditorUtil.isTransferable(ot, os, userID)) {
-					count++;
-					if (ot instanceof GroupData) {
-						if (os instanceof ExperimenterData &&
-								administrator) {
-							list.add(n);
-						} else {
-							if (canEdit(os)) {
-								data = (DataObject) os;
-								if (!groupIds.contains(data.getGroupId()))
-									groupIds.add(data.getGroupId());
-								list.add(n);
-							}
-						}
-					} else {
-						if (ot instanceof ExperimenterData) {
-							exp = (ExperimenterData) ot;
-							if (exp.getId() == userID) {
-								target = null;
-								list.add(n);
-							}
-						} else {
-							if (canEdit(os)) {
-								list.add(n);
-								data = (DataObject) os;
-								if (!groupIds.contains(data.getGroupId()))
-									groupIds.add(data.getGroupId());
-							}
-						}
-					}
-				}
-			}
-		}
-		if (childCount == nodes.size()) {
-			browser.rejectTransfer();
-			return;
-		}
-		
-		
-		if (list.size() == 0) {
-			String s = "";
-			if (nodes.size() > 1) s = "s";
-			un.notifyInfo("DnD", 
-			"The "+getObjectType(os)+s+" cannot be moved to the selected "+
-				getObjectType(ot)+".");
-			browser.rejectTransfer();
-			return;
-		}
-		DataObject otData = (DataObject) ot;
-		GroupData group = null;
-		if (ot instanceof ExperimenterData) {
-			Object po = p.getUserObject();
-			if (po instanceof GroupData) group = (GroupData) po;
-		} else {
-			group = new GroupData();
-			group.setId(otData.getGroupId());
-		}
-		//to review
-		if (browser.getBrowserType() == Browser.ADMIN_EXPLORER)
-			model.transfer(target, list);
-		else if (groupIds.size() == 1 && groupIds.get(0) == group.getId())
-			model.transfer(target, list);
-		else {
-			if (group == null) return;
-			
-			
-			MessageBox box = new MessageBox(view, "Change group", "Are you " +
-				"sure you want to move the selected items to another group?");
-			if (box.centerMsgBox() != MessageBox.YES_OPTION) return;
-			otData = null;
-			if (target != null && !(ot instanceof GroupData)) {
-				otData = (DataObject) ot;
-			}
-			
-			Map<Long, List<DataObject>> elements = 
-				new HashMap<Long, List<DataObject>>();
-			i = list.iterator();
-			long gid;
-			List<DataObject> l;
-			while (i.hasNext()) {
-				n = i.next();
-				os = n.getUserObject();
-				if (os instanceof DataObject &&
-					!(os instanceof ExperimenterData ||
-						os instanceof GroupData)) {
-					gid = ((DataObject) os).getGroupId();
-					if (!elements.containsKey(gid)) {
-						elements.put(gid, new ArrayList<DataObject>());
-					}
-					l = elements.get(gid);
-					l.add((DataObject) os);
-				}
-			}
-			if (elements.size() == 0) return;
-			Iterator<Long> j = elements.keySet().iterator();
-			Map<SecurityContext, List<DataObject>> trans = 
-				new HashMap<SecurityContext, List<DataObject>>();
-			while (j.hasNext()) {
-				gid = j.next();
-				trans.put(new SecurityContext(gid), elements.get(gid));
-			}
-			if (target == null) otData = null;
-			ChgrpObject object = new ChgrpObject(group, otData, trans);
-			model.fireImageChecking(trans, object, ImageCheckerType.CHGRP);
-		}
+	    if (target == null || CollectionUtils.isEmpty(nodes)) return;
+	    Browser browser = model.getSelectedBrowser();
+	    if (browser == null) return;
+	    Object ot = target.getUserObject();
+	    Object os;
+	    if (nodes.size() == 1) { //check if src = destination
+	        TreeImageDisplay src = nodes.get(0);
+	        if (src == target) {
+	            browser.rejectTransfer();
+	            return;
+	        }
+	    }
+	    UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
+	    if (browser.getBrowserType() == Browser.ADMIN_EXPLORER) {
+	        if (!(ot instanceof GroupData) ||
+	                !TreeViewerAgent.isAdministrator()) {
+	            un.notifyInfo("DnD", "Only administrator can perform" +
+	                    "such action.");
+	            browser.rejectTransfer();
+	            return;
+	        }
+	        //Check the source
+	        Iterator<TreeImageDisplay> i = nodes.iterator();
+	        TreeImageDisplay n;
+	        ExperimenterData exp;
+	        long id = model.getUserDetails().getId();
+	        TreeImageDisplay parent;
+	        GroupData g;
+	        boolean stop = false;
+	        while (i.hasNext()) {
+	            n = i.next();
+	            if (n.getUserObject() instanceof ExperimenterData) {
+	                exp = (ExperimenterData) n.getUserObject();
+	                if (exp.getId() == id) { //check the source
+	                    parent = n.getParentDisplay();
+	                    if (parent != null &&
+	                            parent.getUserObject() instanceof GroupData) {
+	                        g = (GroupData) parent.getUserObject();
+	                        if (g.isSystemGroup()) {
+	                            stop = true;
+	                        }
+	                    }
+	                }
+	            }
+	        }
+	        if (stop) {
+	            un.notifyInfo("DnD", "An administrator cannot removed " +
+	                    "himself/herself from the System group.");
+	            browser.rejectTransfer();
+	            return;
+	        }
+	    }
+	    if (!canLink(ot) && !(ot instanceof ExperimenterData ||
+	            ot instanceof GroupData)) {
+	        un.notifyInfo("DnD", 
+	                "You must be the owner of the container.");
+	        browser.rejectTransfer();
+	        return;
+	    }
+	    TreeImageDisplay p = target.getParentDisplay();
+	    List<TreeImageDisplay> list = new ArrayList<TreeImageDisplay>();
+	    Iterator<TreeImageDisplay> i = nodes.iterator();
+	    TreeImageDisplay n;
+
+	    int count = 0;
+	    String child;
+	    String parent;
+	    os = null;
+	    int childCount = 0;
+	    long userID = TreeViewerAgent.getUserDetails().getId();
+	    boolean administrator = TreeViewerAgent.isAdministrator();
+	    ExperimenterData exp;
+	    long gId;
+	    List<Long> groupIds = new ArrayList<Long>();
+	    DataObject data;
+	    while (i.hasNext()) {
+	        n = i.next();
+	        os = n.getUserObject();
+	        if (target.contains(n)) {
+	            childCount++;
+	        } else {
+	            if (EditorUtil.isTransferable(ot, os, userID)) {
+	                count++;
+	                if (ot instanceof GroupData) {
+	                    if (os instanceof ExperimenterData &&
+	                            administrator) {
+	                        list.add(n);
+	                    } else {
+	                        if (canEdit(os)) {
+	                            data = (DataObject) os;
+	                            if (!groupIds.contains(data.getGroupId()))
+	                                groupIds.add(data.getGroupId());
+	                            list.add(n);
+	                        }
+	                    }
+	                } else {
+	                    if (ot instanceof ExperimenterData) {
+	                        exp = (ExperimenterData) ot;
+	                        if (exp.getId() == userID) {
+	                            target = null;
+	                            list.add(n);
+	                        }
+	                    } else {
+	                        if (canEdit(os)) {
+	                            list.add(n);
+	                            data = (DataObject) os;
+	                            if (!groupIds.contains(data.getGroupId()))
+	                                groupIds.add(data.getGroupId());
+	                        }
+	                    }
+	                }
+	            }
+	        }
+	    }
+	    if (childCount == nodes.size()) {
+	        browser.rejectTransfer();
+	        return;
+	    }
+
+	    if (list.size() == 0) {
+	        String s = "";
+	        if (nodes.size() > 1) s = "s";
+	        un.notifyInfo("DnD", 
+	                "The "+getObjectType(os)+s+" cannot be moved to the " +
+	                        "selected "+getObjectType(ot)+".");
+	        browser.rejectTransfer();
+	        return;
+	    }
+	    DataObject otData = (DataObject) ot;
+	    GroupData group = null;
+	    if (ot instanceof ExperimenterData) {
+	        Object po = p.getUserObject();
+	        if (po instanceof GroupData) group = (GroupData) po;
+	    } else {
+	        group = new GroupData();
+	        group.setId(otData.getGroupId());
+	    }
+	    //to review
+	    if (browser.getBrowserType() == Browser.ADMIN_EXPLORER)
+	        model.transfer(target, list);
+	    else if (groupIds.size() == 1 && groupIds.get(0) == group.getId())
+	        model.transfer(target, list);
+	    else {
+	        if (group == null) return;
+	        MessageBox box = new MessageBox(view, "Change group", "Are you " +
+	                "sure you want to move the selected items to another group?");
+	        if (box.centerMsgBox() != MessageBox.YES_OPTION) return;
+	        otData = null;
+	        if (target != null && !(ot instanceof GroupData)) {
+	            otData = (DataObject) ot;
+	        }
+
+	        Map<Long, List<DataObject>> elements =
+	                new HashMap<Long, List<DataObject>>();
+	        i = list.iterator();
+	        long gid;
+	        List<DataObject> l;
+	        while (i.hasNext()) {
+	            n = i.next();
+	            os = n.getUserObject();
+	            if (os instanceof DataObject &&
+	                    !(os instanceof ExperimenterData ||
+	                            os instanceof GroupData)) {
+	                gid = ((DataObject) os).getGroupId();
+	                if (!elements.containsKey(gid)) {
+	                    elements.put(gid, new ArrayList<DataObject>());
+	                }
+	                l = elements.get(gid);
+	                l.add((DataObject) os);
+	            }
+	        }
+	        if (elements.size() == 0) return;
+	        Iterator<Long> j = elements.keySet().iterator();
+	        Map<SecurityContext, List<DataObject>> trans = 
+	                new HashMap<SecurityContext, List<DataObject>>();
+	        while (j.hasNext()) {
+	            gid = j.next();
+	            trans.put(new SecurityContext(gid), elements.get(gid));
+	        }
+	        if (target == null) otData = null;
+	        ChgrpObject object = new ChgrpObject(group, otData, trans);
+	        model.fireImageChecking(trans, object, ImageCheckerType.CHGRP);
+	    }
 	}
 
-	
 	/** 
 	 * Implemented as specified by the {@link TreeViewer} interface.
 	 * @see TreeViewer#getSelectedGroup()
