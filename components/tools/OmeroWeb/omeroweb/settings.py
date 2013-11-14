@@ -522,6 +522,10 @@ EMAIL_TEMPLATES = {
     }
 }
 
+# https://docs.djangoproject.com/en/1.6/releases/1.6/#default-session-serialization-switched-to-json
+# JSON serializer, which is now the default, cannot handle omeroweb.connector.Connector object
+SESSION_SERIALIZER = 'django.contrib.sessions.serializers.PickleSerializer'
+
 # Load server list and freeze 
 from connector import Server
 def load_server_list():
