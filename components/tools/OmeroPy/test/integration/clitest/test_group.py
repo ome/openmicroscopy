@@ -26,7 +26,8 @@ import pytest
 
 subcommands = ['add', 'perms', 'list', 'copyusers', 'adduser', 'removeuser']
 group_pairs = [('--id', 'id'), ('--name', 'name')]
-perms_prefixes = ['--perms', '--type']
+user_pairs = [(None, 'id'), (None, 'omeName'), ('--user-id', 'id'),
+              ('--user-name', 'omeName')]
 perms_pairs = [('--perms', v) for v in defaultperms.values()]
 perms_pairs.extend([('--type', v) for v in defaultperms.keys()])
 
@@ -56,6 +57,20 @@ class TestGroupRoot(RootCLITest):
         super(TestGroupRoot, self).setup_method(method)
         self.cli.register("group", GroupControl, "TEST")
         self.args += ["group"]
+
+    def getuserids(self, gid):
+        group = self.sf.getAdminService().getGroup(gid)
+        return [x.child.id.val for x in group.copyGroupExperimenterMap()]
+
+    def getmemberids(self, gid):
+        group = self.sf.getAdminService().getGroup(gid)
+        return [x.child.id.val for x in group.copyGroupExperimenterMap()
+                if not x.owner.val]
+
+    def getownerids(self, gid):
+        group = self.sf.getAdminService().getGroup(gid)
+        return [x.child.id.val for x in group.copyGroupExperimenterMap()
+                if x.owner.val]
 
     # Group addition subcommand
     # ========================================================================
@@ -121,3 +136,29 @@ class TestGroupRoot(RootCLITest):
             assert str(group.details.permissions) == to_perms
         else:
             assert str(group.details.permissions) == defaultperms[to_perms]
+
+    # Group adduser subcommand
+    # ========================================================================
+    @pytest.mark.parametrize("group_prefix,group_attr", group_pairs)
+    @pytest.mark.parametrize("user_prefix,user_attr", user_pairs)
+    @pytest.mark.parametrize("owner_arg", [None, '--as-owner'])
+    def testAddUser(self, group_prefix, group_attr, user_prefix, user_attr,
+                    owner_arg):
+        group = self.new_group()
+        user = self.new_user()
+        assert user.id.val not in self.getuserids(group.id.val)
+
+        self.args += ["adduser", group_prefix,
+                      "%s" % getattr(group, group_attr).val]
+        if user_prefix:
+            self.args += [user_prefix]
+        self.args += ["%s" % getattr(user, user_attr).val]
+        if owner_arg:
+            self.args += [owner_arg]
+        self.cli.invoke(self.args, strict=True)
+
+        # Check user has been added to the list of member/owners
+        if owner_arg:
+            assert user.id.val in self.getownerids(group.id.val)
+        else:
+            assert user.id.val in self.getmemberids(group.id.val)
