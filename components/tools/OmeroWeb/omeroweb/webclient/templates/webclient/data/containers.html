@@ -199,7 +199,7 @@
 
         // Getting text from jsTree nodes shouldn't be this hard, but it is!
         OME.jsTreeNodeText = function($node) {
-            return $node.children("a:eq(0)").text().split("\n")[0].trim();
+            return $.trim($node.children("a:eq(0)").text().split("\n")[0]);
         }
 
         OME.remove_nodes = function(tree, selected) {
@@ -261,7 +261,7 @@
                     topNodes[rel].push(nodeTxt.toLowerCase());
                 }
             });
-            name = name.trim().toLowerCase();
+            name = $.trim(name).toLowerCase();
 
             // look-up the name we're given, within siblings of the same node type:
             var nodeIndex = 0;
@@ -271,7 +271,7 @@
                     var siblings = topNodes[dtype];
                     siblings.push(name);
                     siblings.sort();
-                    return nodeIndex + siblings.indexOf(name);
+                    return nodeIndex + $.inArray(name, siblings)
                 } else {
                     // if NOT, increment nodeIndex and continue
                     nodeIndex += topNodes[nodeTypes[i]].length;
