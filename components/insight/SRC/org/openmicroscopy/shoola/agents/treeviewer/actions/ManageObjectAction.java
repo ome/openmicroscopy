@@ -71,7 +71,7 @@ public class ManageObjectAction
 {
 
     /** Identified the copy action. */
-    public static final int 	COPY = 0;
+    public static final int COPY = 0;
 
     /** Identified the paste action. */
     public static final int PASTE = 1;
@@ -306,7 +306,21 @@ public class ManageObjectAction
                 }
                 setEnabled(count == selected.length);
             } else if (ho instanceof ExperimenterData) {
-                setEnabled(browser.getBrowserType() == Browser.ADMIN_EXPLORER);
+                if (index == COPY) {
+                    setEnabled(browser.getBrowserType() == Browser.ADMIN_EXPLORER);
+                } else {
+                    setEnabled(false);
+                    if (browser.getBrowserType() == Browser.ADMIN_EXPLORER) {
+                        if (parent instanceof GroupData) {
+                            GroupData g = (GroupData) parent;
+                            if (g.isSystemGroup()) {
+                                ExperimenterData user = model.getUserDetails();
+                                ExperimenterData exp = (ExperimenterData) ho;
+                                setEnabled(exp.getId() != user.getId());
+                            }
+                        }
+                    }
+                }
             } else if (ho instanceof TagAnnotationData) {
                 TagAnnotationData tag = (TagAnnotationData) ho;
                 if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(
