@@ -3,7 +3,7 @@
 
 {% comment %}
 <!--
-  Copyright (C) 2011 University of Dundee & Open Microscopy Environment.
+  Copyright (C) 2011-2013 University of Dundee & Open Microscopy Environment.
   All rights reserved.
 
   This program is free software: you can redistribute it and/or modify
@@ -21,16 +21,21 @@
 -->
 {% endcomment %}
 
+{% block title %}
+  OMERO webstart
+{% endblock %}
+
 {% block login %}
 
     <form class="standard_form inlined">
-    <h1>{% trans "OMERO client applications" %}: </h1>
-    <p>
-        <a href="{% url 'webindex' %}"><img src="{% static "webstart/img/icon-omero-web.png" %}"><a> 
+      <h1 style="text-align: center">{% trans "Launch OMERO.insight via webstart" %}: </h1>
+      <p style="text-align: center">
         {% include "webstart/includes/webstart_insight_script.html" %}
-    </p>
+      </p>
+      <p style="text-align: center; margin-top: 15px; margin-bottom:0px; position: relative; top:15px">
+        To return to the webclient, click <a href="{% url 'webindex' %}">here</a>
+      </p>
     </form>
-</div>
 
 {% endblock %}
 
