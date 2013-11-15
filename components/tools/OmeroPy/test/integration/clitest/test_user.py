@@ -100,6 +100,26 @@ class TestUser(CLITest):
             users.sort(key=lambda x: x.id.val)
         assert ids == [user.id.val for user in users]
 
+    # Email subcommand
+    # ========================================================================
+    @pytest.mark.parametrize("oneperline_arg", [None, "-1", "--one"])
+    def testEmail(self, capsys, oneperline_arg):
+        self.args += ["email", "-i"]
+        if oneperline_arg:
+            self.args += [oneperline_arg]
+        self.cli.invoke(self.args, strict=True)
+
+        # Read from the stdout
+        out, err = capsys.readouterr()
+
+        # Check all users are listed
+        users = self.sf.getAdminService().lookupExperimenters()
+        emails = [x.email.val for x in users if x.email and x.email.val]
+        if oneperline_arg:
+            assert out.strip() == "\n".join(emails)
+        else:
+            assert out.strip() == ", ".join(emails)
+
 
 class TestUserRoot(RootCLITest):
 
