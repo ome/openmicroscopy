@@ -26,14 +26,25 @@
 {% endblock %}
 
 {% block login %}
+<script>
+  $(function(){
+    if (window.opener && $.contains(window.opener.location, "webclient")) {
+        $("#goWebclientMsg span").text("return");
+        $("#goWebclientMsg a").click(function(){
+          window.close();
+          return false;
+        });
+    }
+  });
+</script>
 
     <form class="standard_form inlined">
       <h1 style="text-align: center">{% trans "Launch OMERO.insight via webstart" %}: </h1>
       <p style="text-align: center">
         {% include "webstart/includes/webstart_insight_script.html" %}
       </p>
-      <p style="text-align: center; margin-top: 15px; margin-bottom:0px; position: relative; top:15px">
-        To return to the webclient, click <a href="{% url 'webindex' %}">here</a>
+      <p id="goWebclientMsg" style="text-align: center; margin-top: 15px; margin-bottom:0px; position: relative; top:15px">
+        To <span>go</span> to the webclient, click <a href="{% url 'webindex' %}">here</a>
       </p>
     </form>
 
