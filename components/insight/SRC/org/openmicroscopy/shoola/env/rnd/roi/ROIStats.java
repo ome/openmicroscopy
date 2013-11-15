@@ -2,10 +2,10 @@
  * org.openmicroscopy.shoola.env.rnd.roi.ROIStats 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -49,15 +49,15 @@ import omero.model.Pixels;
  * @since OME3.0
  */
 public class ROIStats
-	implements PointIteratorObserver
+    implements PointIteratorObserver
 {
 
-	/** 
-	 * The dimensions of the pixels set over which the statistic will be 
-	 * computed.
-	 */
-    private Pixels    					dims;
-    
+    /** 
+     * The dimensions of the pixels set over which the statistic will be
+     * computed.
+     */
+    private Pixels dims;
+
     /**
      * Maps a {@link #linearize(int, int, int) linearized} <code>(z, w, t)
      * </code> tuple identifying a plane onto the statistics calculated for the
@@ -67,7 +67,7 @@ public class ROIStats
 
     /**
      * Transforms 3D coordinates into linear coordinates.
-     * The returned value <code>L</code> is calculated as follows: 
+     * The returned value <code>L</code> is calculated as follows:
      * <code>L = sizeZ*sizeW*t + sizeZ*w + z</code>.
      * 
      * @param z The z coordinate. Must be in the range <code>[0, sizeZ)</code>.
@@ -77,8 +77,8 @@ public class ROIStats
      */
     private Integer linearize(int z, int w, int t)
     {
-    	int sizeZ = dims.getSizeZ().getValue();
-    	int sizeC = dims.getSizeC().getValue();
+        int sizeZ = dims.getSizeZ().getValue();
+        int sizeC = dims.getSizeC().getValue();
         if (z < 0 || sizeZ <= z) 
             throw new IllegalArgumentException(
                     "z out of range [0, "+sizeZ+"): "+z+".");
@@ -90,19 +90,19 @@ public class ROIStats
                     "t out of range [0, "+dims.getSizeT()+"): "+t+".");
         return Integer.valueOf(sizeZ*sizeC*t + sizeZ*w + z);
     }
-    
+
     /**
      * Creates a new object to collect statistics for a given ROI.
      * 
-     * @param dims  The dimensions of the pixels set over which the statistics 
-     * 				will be computed. Mustn't be <code>null</code>.
+     * @param dims The dimensions of the pixels set over which the statistics 
+     *             will be computed. Mustn't be <code>null</code>.
      */
     public ROIStats(Pixels dims)
     {
         if (dims == null) throw new NullPointerException("No dims.");
         this.dims = dims;
     }
-   
+
     /**
      * Returns the statistics, if any, that were calculated against 
      * the 2D-selection within the specified plane.
@@ -111,7 +111,7 @@ public class ROIStats
      * @param w The w coordinate. Must be in the range <code>[0, sizeW)</code>.
      * @param t The t coordinate. Must be in the range <code>[0, sizeT)</code>.
      * @return A {@link ROIPlaneStats} object holding the statistics for the
-     *          2D-selection in the specified plane.  If no selection was
+     *          2D-selection in the specified plane. If no selection was
      *          made in that plane, then <code>null</code> is returned instead.
      */
     public ROIShapeStats getPlaneStats(int z, int w, int t)
@@ -119,7 +119,7 @@ public class ROIStats
         Integer index = linearize(z, w, t);
         return arrayMap.get(index);
     }
-    
+
     /**
      * Creates a new map to store the {@link ROIShapeStats} entries that are
      * about to be calculated.
@@ -137,7 +137,7 @@ public class ROIStats
      */
     public void onStartPlane(int z, int w, int t, int pointsCount)
     {
-    	ROIShapeStats planeStats = new ROIShapeStats();
+        ROIShapeStats planeStats = new ROIShapeStats();
         Integer index = linearize(z, w, t);
         arrayMap.put(index, planeStats);
     }
@@ -152,10 +152,10 @@ public class ROIStats
         Integer index = linearize(z, w, t);
         ROIShapeStats planeStats = arrayMap.get(index);
         //planeStats can't be null, see onStartPlane().
-        if (pixelValue < planeStats.getMin()) 
-        	planeStats.setMin(pixelValue);
-        if (planeStats.getMax() < pixelValue) 
-        	planeStats.setMax(pixelValue);
+        if (pixelValue < planeStats.getMin())
+            planeStats.setMin(pixelValue);
+        if (planeStats.getMax() < pixelValue)
+            planeStats.setMax(pixelValue);
         planeStats.addToSum(pixelValue);
         planeStats.addToSumOfSquares(pixelValue);
     }
@@ -174,9 +174,9 @@ public class ROIStats
             ps.setMean(ps.getSum()/pointsCount);
             ps.setPointsCount(pointsCount);
             if (0 < pointsCount-1) {
-                double sigmaSquare = 
-                 (ps.getSumOfSquares() - ps.getSum()*ps.getSum()/pointsCount)
-                 /(pointsCount-1);
+                double sigmaSquare =
+                   (ps.getSumOfSquares() - ps.getSum()*ps.getSum()/pointsCount)
+                     /(pointsCount-1);
                 if (sigmaSquare > 0)
                     ps.setStandardDeviation(Math.sqrt(sigmaSquare));
             }  
@@ -189,5 +189,5 @@ public class ROIStats
      * @see PointIteratorObserver#iterationFinished()
      */
     public void iterationFinished() {}
-    
+
 }
