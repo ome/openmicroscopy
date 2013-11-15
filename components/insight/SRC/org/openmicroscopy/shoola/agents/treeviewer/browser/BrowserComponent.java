@@ -1763,6 +1763,12 @@ class BrowserComponent
                     n = i.next();
                     n.setUserObject(g);
                     view.reloadNode(n);
+                    l = n.getChildrenDisplay();
+                    i = l.iterator();
+                    while (i.hasNext()) {
+                        n = i.next();
+                        if (n.isExpanded()) view.expandNode(n);
+                    }
                 }
             }
         }
