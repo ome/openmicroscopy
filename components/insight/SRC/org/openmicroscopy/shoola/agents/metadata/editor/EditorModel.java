@@ -816,7 +816,7 @@ class EditorModel
 	{
 		Object ref = getRefObject();
 		if (!(ref instanceof ExperimenterData)) return false;
-		ExperimenterData exp = MetadataViewerAgent.getUserDetails();
+		ExperimenterData exp = getCurrentUser();
 		return exp.getId() == getRefObjectID();
 	}
 	

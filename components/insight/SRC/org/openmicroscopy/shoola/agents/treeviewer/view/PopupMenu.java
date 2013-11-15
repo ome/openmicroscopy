@@ -438,7 +438,7 @@ class PopupMenu
 					Object o = node.getUserObject();
 					if (o instanceof ExperimenterData) {
 						ExperimenterData exp = (ExperimenterData) o;
-						ExperimenterData loggedIn = 
+						ExperimenterData loggedIn =
 							TreeViewerAgent.getUserDetails();
 						value = exp.getId() == loggedIn.getId();
 						activatedUser.setSelected(exp.isActive());
@@ -449,7 +449,8 @@ class PopupMenu
 							activatedUser.setIcon(
 								icons.getIcon(IconManager.OWNER_NOT_ACTIVE));
 						}
-						activatedUser.setEnabled(!value);
+						activatedUser.setEnabled(!value &&
+						        !exp.isRoot());
 					}
 					if (!value)
 						activatedUser.addItemListener(new ItemListener() {
@@ -458,9 +459,8 @@ class PopupMenu
 								controller.activateUser();
 							}
 						});
-				}
+				} else activatedUser.setEnabled(false);
 				activatedUser.setAction(a);
-				activatedUser.setEnabled(!value);
 				initMenuItem(activatedUser, a.getActionName());
 		}
 	}

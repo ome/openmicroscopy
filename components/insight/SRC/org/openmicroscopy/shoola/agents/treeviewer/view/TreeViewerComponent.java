@@ -4314,7 +4314,7 @@ class TreeViewerComponent
 	            n = i.next();
 	            if (n.getUserObject() instanceof ExperimenterData) {
 	                exp = (ExperimenterData) n.getUserObject();
-	                if (exp.getId() == id) { //check the source
+	                if (exp.getId() == id || exp.isRoot()) { //check the source
 	                    parent = n.getParentDisplay();
 	                    if (parent != null &&
 	                            parent.getUserObject() instanceof GroupData) {
@@ -4327,8 +4327,8 @@ class TreeViewerComponent
 	            }
 	        }
 	        if (stop) {
-	            un.notifyInfo("DnD", "An administrator cannot removed " +
-	                    "himself/herself from the System group.");
+	            un.notifyInfo("DnD", "An administrator cannot remove " +
+	                    "himself/herself or root from the System group.");
 	            browser.rejectTransfer();
 	            return;
 	        }

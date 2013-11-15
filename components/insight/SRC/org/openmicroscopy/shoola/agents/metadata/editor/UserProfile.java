@@ -22,8 +22,6 @@
  */
 package org.openmicroscopy.shoola.agents.metadata.editor;
 
-
-
 //Java imports
 import java.awt.FlowLayout;
 import java.awt.Font;
@@ -88,7 +86,7 @@ import pojos.GroupData;
 /** 
  * Component displaying the user details.
  *
- * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
+ * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
@@ -379,28 +377,23 @@ class UserProfile
                 UIUtilities.BACKGROUND_COLOR);
         permissionsPane.disablePermissions();
 
-        boolean owner = false;
-        Object parentRootObject = model.getParentRootObject();
-        if (parentRootObject instanceof GroupData) {
-            owner = setGroupOwner((GroupData) parentRootObject);
-        }
-        ExperimenterData logUser = MetadataViewerAgent.getUserDetails();
+        ExperimenterData logUser = model.getCurrentUser();
         if (MetadataViewerAgent.isAdministrator()) {
             //Check that the user is not the one currently logged.
             oldPassword.setVisible(false);
-            owner = true;
             adminBox.setVisible(true);
             activeBox.setVisible(true);
             adminBox.addChangeListener(this);
             active = user.isActive();
             activeBox.setSelected(active);
-            activeBox.setEnabled(!model.isSelf());
+            activeBox.setEnabled(!model.isSelf() && !user.isRoot());
             activeBox.addChangeListener(this);
             //indicate if the user is an administrator.a
             admin = isUserAdministrator();
             adminBox.setSelected(admin);
-            adminBox.setEnabled(user.getId() != logUser.getId());
+            adminBox.setEnabled(!model.isSelf() && !user.isRoot());
             ownerBox.addChangeListener(this);
+            ownerBox.setEnabled(!user.isRoot());
         } else {
             ownerBox.setEnabled(false);
             passwordConfirm.getDocument().addDocumentListener(
@@ -627,7 +620,7 @@ class UserProfile
     {
         ExperimenterData user = (ExperimenterData) model.getRefObject();
         boolean editable = model.isUserOwner(user);
-        if (!editable) MetadataViewerAgent.isAdministrator();
+        if (!editable) editable = MetadataViewerAgent.isAdministrator();
         details = EditorUtil.convertExperimenter(user);
         JPanel content = new JPanel();
         content.setBorder(BorderFactory.createTitledBorder("User"));
@@ -663,7 +656,13 @@ class UserProfile
         c.fill = GridBagConstraints.HORIZONTAL;
         c.weightx = 1.0;
         loginArea.setText(user.getUserName());
-        loginArea.getDocument().addDocumentListener(this);
+        loginArea.setEnabled(false);
+        loginArea.setEditable(false);
+        if (MetadataViewerAgent.isAdministrator() && !user.isRoot()
+                && !model.isSelf()) {
+            loginArea.setEnabled(true);
+            loginArea.getDocument().addDocumentListener(this);
+        }
         content.add(loginArea, c);
         while (i.hasNext()) {
             ++c.gridy;
@@ -1013,7 +1012,6 @@ class UserProfile
 
         String v = loginArea.getText();
         if (v == null || v.trim().length() == 0) showRequiredField();
-        original.setLastName(v);
         JTextField f = items.get(EditorUtil.EMAIL);
         v = f.getText();
         if (v == null || v.trim().length() == 0) v = "";

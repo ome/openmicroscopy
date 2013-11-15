@@ -1,7 +1,7 @@
 /*
  * pojos.Experimenter
  *
- *   Copyright 2006 University of Dundee. All rights reserved.
+ *   Copyright 2006-2013 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -54,6 +54,9 @@ public class ExperimenterData extends DataObject {
 
     /** Identifies the {@link Experimenter#GROUPEXPERIMENTERMAP} field. */
     public final static String GROUP_EXPERIMENTER_MAP = ExperimenterI.GROUPEXPERIMENTERMAP;
+
+    /** The login name of the root user.*/
+    private final static String ROOT_USER = "root";
 
     /** The other Groups this Experimenter belongs in. */
     private List<GroupData> groups;
@@ -270,7 +273,7 @@ public class ExperimenterData extends DataObject {
     }
     
     /**
-     * Returns <code>true</code> if the experimenter is active, 
+     * Returns <code>true</code> if the experimenter is active,
      * <code>false</code> otherwise.
      * 
      * @return See above.
@@ -287,7 +290,18 @@ public class ExperimenterData extends DataObject {
 		}
 		return false;
     }
-    
+
+    /**
+     * Returns <code>true</code> if the user is the root user,
+     * <code>false</code> otherwise.
+     * @return
+     */
+    public boolean isRoot()
+    {
+        String name = getUserName();
+        return (ROOT_USER.equals(name.toLowerCase()));
+    }
+
     /**
      * Overridden to return the id of the default group.
      * @see DataObject#getGroupId()

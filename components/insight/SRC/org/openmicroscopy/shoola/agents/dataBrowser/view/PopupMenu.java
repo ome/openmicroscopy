@@ -156,7 +156,7 @@ class PopupMenu
                     activatedUser.setIcon(
                             ActivatedUserAction.NOT_ACTIVATED_ICON);
                 }
-                activatedUser.setEnabled(!value);
+                activatedUser.setEnabled(!value && !exp.isRoot());
             }
             if (!value)
                 activatedUser.addItemListener(new ItemListener() {
@@ -165,10 +165,8 @@ class PopupMenu
                         controller.activateUser();
                     }
                 });
-        }
+        } else  activatedUser.setEnabled(false);
         activatedUser.setAction(a);
-        activatedUser.setEnabled(!value);
-
         tagElement = new JMenuItem(controller.getAction(
                 DataBrowserControl.TAG));
         newExperimentElement = new JMenuItem(controller.getAction(

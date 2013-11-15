@@ -258,7 +258,8 @@ public class ManageObjectAction
                             ExperimenterData user =
                                     DataBrowserAgent.getUserDetails();
                             ExperimenterData exp = (ExperimenterData) ho;
-                            setEnabled(exp.getId() != user.getId());
+                            setEnabled(exp.getId() != user.getId() &&
+                                    !exp.isRoot());
                         }
                     }
                 }

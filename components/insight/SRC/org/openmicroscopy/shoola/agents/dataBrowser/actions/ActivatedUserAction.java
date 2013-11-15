@@ -26,7 +26,6 @@ package org.openmicroscopy.shoola.agents.dataBrowser.actions;
 //Java imports
 import java.awt.event.ActionEvent;
 import java.util.Collection;
-
 import javax.swing.Action;
 import javax.swing.Icon;
 
@@ -102,9 +101,11 @@ public class ActivatedUserAction
         if (nodes.size() > 1) setEnabled(false);
         else {
             if (node.getHierarchyObject() instanceof ExperimenterData) {
-                setEnabled(true);
                 ExperimenterData exp = (ExperimenterData)
                         node.getHierarchyObject();
+                ExperimenterData user = DataBrowserAgent.getUserDetails();
+                setEnabled(exp.getId() != user.getId() &&
+                        !exp.isRoot());
                 if (exp.isActive())
                     putValue(Action.SMALL_ICON, ACTIVATED_ICON);
                 else putValue(Action.SMALL_ICON, NOT_ACTIVATED_ICON);
