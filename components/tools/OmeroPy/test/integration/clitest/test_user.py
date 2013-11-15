@@ -20,8 +20,8 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 from omero.plugins.user import UserControl
-from omero.cli import NonZeroReturnCode
 from test.integration.clitest.cli import CLITest, RootCLITest
+import getpass
 import pytest
 
 subcommands = ['add', 'list', 'password', 'email', 'joingroup', 'leavegroup']
@@ -34,7 +34,7 @@ middlename_prefixes = [None, '-m', '--middlename']
 email_prefixes = [None, '-e', '--email']
 institution_prefixes = [None, '-i', '--institution']
 admin_prefixes = [None, '-a', '--admin']
-admin_prefixes = ['--no-password', '-P', '--password']
+password_prefixes = [None, '--no-password', '-P', '--userpassword']
 
 
 class TestUser(CLITest):
@@ -185,14 +185,16 @@ class TestUserRoot(RootCLITest):
     @pytest.mark.parametrize("middlename_prefix", middlename_prefixes)
     @pytest.mark.parametrize("email_prefix", email_prefixes)
     @pytest.mark.parametrize("institution_prefix", institution_prefixes)
-
-    def testAdd(self, middlename_prefix, email_prefix, institution_prefix):
+    @pytest.mark.parametrize("admin_prefix", admin_prefixes)
+    def testAdd(self, middlename_prefix, email_prefix, institution_prefix,
+                admin_prefix):
         group = self.new_group()
-        username = self.uuid()
+        login = self.uuid()
         firstname = self.uuid()
         lastname = self.uuid()
 
-        self.args += ["add", username, firstname, lastname]
+        self.args += ["add", login, firstname, lastname]
+        self.args += ["%s" % group.id.val]
         if middlename_prefix:
             middlename = self.uuid()
             self.args += [middlename_prefix, middlename]
@@ -200,11 +202,82 @@ class TestUserRoot(RootCLITest):
             email = "%s.%s@%s.org" % (firstname[:6], lastname[:6],
                                       self.uuid()[:6])
             self.args += [email_prefix, email]
+        if institution_prefix:
+            institution = self.uuid()
+            self.args += [institution_prefix, institution]
+        if admin_prefix:
+            self.args += [admin_prefix]
         self.args += ['--no-password']
-        self.args += ['--group-id', group.id.val]
         self.cli.invoke(self.args, strict=True)
 
         # Check user has been added to the list of member/owners
-        user = self.sf.adminService.lookupExperimenter(username)
+        user = self.sf.getAdminService().lookupExperimenter(login)
+        assert user.omeName.val == login
         assert user.firstName.val == firstname
         assert user.lastName.val == lastname
+        assert user.id.val in self.getuserids(group.id.val)
+        if middlename_prefix:
+            assert user.middleName.val == middlename
+        if email_prefix:
+            assert user.email.val == email
+        if institution_prefix:
+            assert user.institution.val == institution
+        if admin_prefix:
+            roles = self.sf.getAdminService().getSecurityRoles()
+            assert user.id.val in self.getuserids(roles.systemGroupId)
+
+    @pytest.mark.parametrize("group_prefix,group_attr", group_pairs)
+    def testAddGroup(self, group_prefix, group_attr):
+        group = self.new_group()
+        login = self.uuid()
+        firstname = self.uuid()
+        lastname = self.uuid()
+
+        self.args += ["add", login, firstname, lastname]
+        if group_prefix:
+            self.args += [group_prefix]
+        self.args += ["%s" % getattr(group, group_attr).val]
+        self.args += ['--no-password']
+        self.cli.invoke(self.args, strict=True)
+
+        # Check user has been added to the list of member/owners
+        user = self.sf.getAdminService().lookupExperimenter(login)
+        assert user.omeName.val == login
+        assert user.firstName.val == firstname
+        assert user.lastName.val == lastname
+        assert user.id.val in self.getuserids(group.id.val)
+
+    @pytest.mark.parametrize("password_prefix", password_prefixes)
+    def testAddPassword(self, password_prefix):
+        group = self.new_group()
+        login = self.uuid()
+        firstname = self.uuid()
+        lastname = self.uuid()
+
+        self.args += ["add", login, firstname, lastname]
+        self.args += ["%s" % group.id.val]
+        if password_prefix:
+            self.args += [password_prefix]
+            if password_prefix != '--no-password':
+                password = self.uuid()
+                self.args += ["%s" % password]
+        else:
+            password = self.uuid()
+            self.setup_mock()
+            self.mox.StubOutWithMock(getpass, 'getpass')
+            i1 = 'Please enter password for your new user (%s): ' % login
+            i2 = 'Please re-enter password for your new user (%s): ' % login
+            getpass.getpass(i1).AndReturn(password)
+            getpass.getpass(i2).AndReturn(password)
+            self.mox.ReplayAll()
+
+        self.cli.invoke(self.args, strict=True)
+        if not password_prefix:
+            self.teardown_mock()
+
+        # Check user has been added to the list of member/owners
+        user = self.sf.getAdminService().lookupExperimenter(login)
+        assert user.omeName.val == login
+        assert user.firstName.val == firstname
+        assert user.lastName.val == lastname
+        assert user.id.val in self.getuserids(group.id.val)
