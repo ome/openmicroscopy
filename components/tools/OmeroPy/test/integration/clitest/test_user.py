@@ -120,6 +120,26 @@ class TestUser(CLITest):
         else:
             assert out.strip() == ", ".join(emails)
 
+    # Password subcommand
+    # ========================================================================
+    def testPassword(self):
+        self.args += ["password"]
+        password = self.uuid()
+        login = self.sf.getAdminService().getEventContext().userName
+
+        self.setup_mock()
+        self.mox.StubOutWithMock(getpass, 'getpass')
+        i1 = 'Please enter password for your user (%s): ' % login
+        i2 = 'Please enter password to be set: '
+        i3 = 'Please re-enter password to be set: '
+        getpass.getpass(i1).AndReturn('')
+        getpass.getpass(i2).AndReturn(password)
+        getpass.getpass(i3).AndReturn(password)
+        self.mox.ReplayAll()
+
+        self.cli.invoke(self.args, strict=True)
+        self.teardown_mock()
+
 
 class TestUserRoot(RootCLITest):
 
@@ -301,3 +321,24 @@ class TestUserRoot(RootCLITest):
         assert user.firstName.val == firstname
         assert user.lastName.val == lastname
         assert user.id.val in self.getuserids(group.id.val)
+
+    # Password subcommand
+    # ========================================================================
+    def testPassword(self):
+        user = self.new_user()
+        self.args += ["password", "%s" % user.omeName.val]
+        root_password = self.root.getProperty("omero.rootpass")
+        password = self.uuid()
+
+        self.setup_mock()
+        self.mox.StubOutWithMock(getpass, 'getpass')
+        i1 = 'Please enter password for your user (root): '
+        i2 = 'Please enter password to be set: '
+        i3 = 'Please re-enter password to be set: '
+        getpass.getpass(i1).AndReturn(root_password)
+        getpass.getpass(i2).AndReturn(password)
+        getpass.getpass(i3).AndReturn(password)
+        self.mox.ReplayAll()
+
+        self.cli.invoke(self.args, strict=True)
+        self.teardown_mock()
