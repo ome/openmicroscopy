@@ -153,7 +153,8 @@ class TestUserRoot(RootCLITest):
     @pytest.mark.parametrize("user_prefix,user_attr", user_pairs)
     @pytest.mark.parametrize("group_prefix,group_attr", group_pairs)
     @pytest.mark.parametrize("is_owner", [True, False])
-    @pytest.mark.parametrize("owner_arg", [None, '--as-owner'])
+    @pytest.mark.parametrize("owner_arg", [
+        pytest.mark.xfail(reason="See ticket #11687")(None), '--as-owner'])
     def testLeaveGroup(self, user_prefix, user_attr, group_prefix, group_attr,
                        is_owner, owner_arg):
         user = self.new_user()
