@@ -94,7 +94,7 @@ class TestUser(CLITest):
             users.sort(key=lambda x: x.firstName.val)
         elif sort_key == 'last-name':
             users.sort(key=lambda x: x.lastName.val)
-        elif sort_key == 'login':
+        elif sort_key == 'email':
             users.sort(key=lambda x: (x.email and x.email.val or ""))
         else:
             users.sort(key=lambda x: x.id.val)
