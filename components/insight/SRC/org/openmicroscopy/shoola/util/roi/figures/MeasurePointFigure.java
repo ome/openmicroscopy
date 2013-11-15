@@ -33,6 +33,7 @@ import java.awt.geom.Rectangle2D;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 //Third-party libraries
@@ -490,9 +491,8 @@ public class MeasurePointFigure
 	 */
 	public List<Point> getPoints()
 	{
-		List<Point> points = new ArrayList<Point>(1);
-		points.add(new Point((int) getX(), (int) getY())); 
-		return points;
+		return Arrays.asList(new Point((int) (getX()+getWidth()/2),
+                (int) (getY()+getHeight()/2)));
 	}
 	
 	/**
