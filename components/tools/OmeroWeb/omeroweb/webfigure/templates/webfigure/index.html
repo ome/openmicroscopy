@@ -168,9 +168,13 @@
                         </button>
                     </div>
 
-                    <button class="save_figure btn btn-success btn-sm" title="Save Figure to OMERO" 
-                            data-url="{% url save_web_figure %}">
+                    <button class="save_figure btn btn-default btn-sm" title="Save Figure to OMERO" 
+                            data-url="{% url save_web_figure %}" disabled="disabled">
                         Save
+                    </button>
+
+                    <button class="new_figure btn btn-success btn-sm" title="Start New Figure">
+                        New
                     </button>
                 </form>
 

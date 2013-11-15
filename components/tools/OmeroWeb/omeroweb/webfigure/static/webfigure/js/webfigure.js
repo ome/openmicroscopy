@@ -268,7 +268,8 @@
     var FigureModel = Backbone.Model.extend({
 
         defaults: {
-            'curr_zoom': 100
+            'curr_zoom': 100,
+            'unsaved': false,
         },
 
         initialize: function() {
@@ -277,6 +278,41 @@
             // wrap selection notification in a 'debounce', so that many rapid
             // selection changes only trigger a single re-rendering 
             this.notifySelectionChange = _.debounce( this.notifySelectionChange, 10);
+        },
+
+        save_to_OMERO: function(options, success) {
+
+            // Turn panels into json
+            var p_json = [],
+                self = this;
+            this.panels.each(function(m) {
+                p_json.push(m.toJSON());
+            });
+
+            var figureJSON = {
+                panels: p_json,
+                paper_width: this.get('paper_width'),
+                paper_height: this.get('paper_height'),
+            };
+
+            var url = $(".save_figure", this.$el).attr('data-url'),
+                data = options || {};
+
+            if (this.get('fileId')) {
+                data.fileId = this.get('fileId');
+            }
+            data.figureJSON = JSON.stringify(figureJSON);
+
+            // Save
+            $.post( url, data)
+                .done(function( data ) {
+                    console.log(data);
+                    self.set({'fileId': +data, 'unsaved': false});
+
+                    if (success) {
+                        success(data);
+                    }
+                });
         },
 
         align_left: function() {
@@ -471,6 +507,19 @@
             this.notifySelectionChange();
         },
 
+        delete_all: function() {
+            // make list that won't change as we destroy
+            var ps = [];
+            this.panels.each(function(p){
+                ps.push(p);
+            });
+            for (var i=ps.length-1; i>=0; i--) {
+                console.log(i);
+                ps[i].destroy();
+            }
+            this.notifySelectionChange();
+        },
+
         notifySelectionChange: function() {
             this.trigger('change:selection');
         }
@@ -499,6 +548,7 @@
             this.$paper = $("#paper");
             this.$copyBtn = $(".copy.btn");
             this.$pasteBtn = $(".paste.btn");
+            this.$saveBtn = $(".save_figure.btn");
 
             var self = this;
 
@@ -519,6 +569,7 @@
             // respond to zoom changes
             this.listenTo(this.model, 'change:curr_zoom', this.setZoom);
             this.listenTo(this.model, 'change:selection', this.renderSelectionChange);
+            this.listenTo(this.model, 'change:unsaved', this.renderUnsaved);
 
             // refresh current UI
             this.setZoom();
@@ -536,6 +587,7 @@
             "click .copy.btn": "copy_selected_panels",
             "click .paste.btn": "paste_panels",
             "click .save_figure": "save_figure",
+            "click .new_figure": "new_figure",
         },
 
         keyboardEvents: {
@@ -545,41 +597,38 @@
             'mod+c': 'copy_selected_panels',
             'mod+v': 'paste_panels',
             'mod+s': 'save_figure',
+            'mod+n': 'new_figure',
+        },
+
+        new_figure: function() {
+
+            var self = this;
+            this.model.save_to_OMERO({}, function() {
+                self.model.unset('fileId');
+            });
+            // this.model.unset('fileId');
+            this.model.delete_all();
+            window.location.hash = "";
+
+            return false;
         },
 
         save_figure: function() {
 
             // Turn panels into json
-            var figureModel = this.model,
-                p_json = [];
-            figureModel.panels.each(function(m) {
-                p_json.push(m.toJSON());
-            });
+            var figureModel = this.model;
 
-            var figureJSON = {
-                panels: p_json,
-                paper_width: figureModel.get('paper_width'),
-                paper_height: figureModel.get('paper_height'),
-            };
-
-            var url = $(".save_figure", this.$el).attr('data-url'),
-                data = {
-                    figureJSON: JSON.stringify(figureJSON),
-                };
-
-            if (figureModel.fileAnnId) {
-                data.fileId = figureModel.fileAnnId;
+            var options = {};
+            if (figureModel.get('fileId')) {
+                options.fileId = figureModel.get('fileId');
             } else {
-                data.figureName = prompt("Enter Figure Name");
+                options.figureName = prompt("Enter Figure Name");
             }
 
             // Save
-            $.post( url, data)
-                .done(function( data ) {
-                    console.log(data);
-                    figureModel.fileAnnId = +data;
-                    window.location.hash = "figure/"+data;
-                });
+            figureModel.save_to_OMERO(options, function(data){
+                window.location.hash = "figure/"+data;
+            });
 
             return false;
         },
@@ -745,6 +794,15 @@
         addOne: function(panel) {
             var view = new PanelView({model:panel});    // uiState:this.uiState
             this.$paper.append(view.render().el);
+        },
+
+        renderUnsaved: function() {
+
+            if (this.model.get('unsaved')) {
+                this.$saveBtn.addClass('btn-success').removeClass('btn-default').removeAttr('disabled');
+            } else {
+                this.$saveBtn.addClass('btn-default').removeClass('btn-success').attr('disabled', 'disabled');
+            }
         },
 
         renderSelectionChange: function() {

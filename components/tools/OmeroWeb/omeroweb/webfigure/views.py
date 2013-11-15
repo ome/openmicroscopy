@@ -65,6 +65,8 @@ def save_web_figure(request, conn=None, **kwargs):
             # time-stamp name by default: WebFigure_2013-10-29_22-43-53.json
             figureName = "WebFigure_%s-%s-%s_%s-%s-%s.json" % \
                 (n.year, n.month, n.day, n.hour, n.minute, n.second)
+        else:
+            figureName = str(figureName)
         fileSize = len(figureJSON)
         f = StringIO()
         f.write(figureJSON)
