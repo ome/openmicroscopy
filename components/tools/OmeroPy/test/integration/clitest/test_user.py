@@ -140,6 +140,9 @@ class TestUser(CLITest):
         self.cli.invoke(self.args, strict=True)
         self.teardown_mock()
 
+        # Check session creation using new password
+        self.new_client(user=login, password=password)
+
 
 class TestUserRoot(RootCLITest):
 
@@ -301,6 +304,8 @@ class TestUserRoot(RootCLITest):
             if password_prefix != '--no-password':
                 password = self.uuid()
                 self.args += ["%s" % password]
+            else:
+                password = None
         else:
             password = self.uuid()
             self.setup_mock()
@@ -322,11 +327,15 @@ class TestUserRoot(RootCLITest):
         assert user.lastName.val == lastname
         assert user.id.val in self.getuserids(group.id.val)
 
+        # Check session creation using password
+        self.new_client(user=login, password=password)
+
     # Password subcommand
     # ========================================================================
     def testPassword(self):
         user = self.new_user()
-        self.args += ["password", "%s" % user.omeName.val]
+        login = user.omeName.val
+        self.args += ["password", "%s" % login]
         root_password = self.root.getProperty("omero.rootpass")
         password = self.uuid()
 
@@ -342,3 +351,6 @@ class TestUserRoot(RootCLITest):
 
         self.cli.invoke(self.args, strict=True)
         self.teardown_mock()
+
+        # Check session creation using new password
+        self.new_client(user=login, password=password)
