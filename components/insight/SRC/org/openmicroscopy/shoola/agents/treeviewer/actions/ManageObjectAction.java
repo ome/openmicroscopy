@@ -318,7 +318,7 @@ public class ManageObjectAction
                                 ExperimenterData exp = (ExperimenterData) ho;
                                 setEnabled(exp.getId() != user.getId() &&
                                         !exp.isRoot());
-                            }
+                            } else setEnabled(true);
                         }
                     }
                 }
