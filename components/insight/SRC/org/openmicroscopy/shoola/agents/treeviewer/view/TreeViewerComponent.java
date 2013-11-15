@@ -1400,105 +1400,110 @@ class TreeViewerComponent
 		result.add(parent);
 		setSelectedNode(result);
 	}
-	
+
 	/**
 	 * Implemented as specified by the {@link TreeViewer} interface.
 	 * @see TreeViewer#setSelectedNode(Object)
 	 */
 	public void setSelectedNode(Object object)
 	{
-		if (object == null) return;
-		if (!(object instanceof List)) return;
-		List l = (List) object;
-		int n = l.size();
-		if (n > 3) return;
-		Object selected = l.get(1);
-		Object parent = null;
-		if (n == 3) parent = l.get(2);
-		if (selected instanceof ImageData) {
-			ImageData img = (ImageData) selected;
-			try {
-				img.getDefaultPixels();
-			} catch (Exception e) {
-				UserNotifier un = 
-					TreeViewerAgent.getRegistry().getUserNotifier();
-				un.notifyInfo("Image Not valid", 
-						"The selected image is not valid.");
-				return;
-			}
-		} else if (selected instanceof WellSampleData) {
-			WellSampleData ws = (WellSampleData) selected;
-			if (ws.getId() < 0) {
-				UserNotifier un = 
-					TreeViewerAgent.getRegistry().getUserNotifier();
-				un.notifyInfo("Well Not valid", 
-						"The selected well is not valid.");
-				return;
-			}
-		}
-		
-		MetadataViewer mv = model.getMetadataViewer();
-		if (hasDataToSave()) {
-			MessageBox dialog = new MessageBox(view, "Save data", 
-					"Do you want to save the modified " +
-					"data \n before selecting a new item?");
-			if (dialog.centerMsgBox() == MessageBox.YES_OPTION) mv.saveData();
-			else mv.clearDataToSave();
-		}
-		
-		List siblings = (List) l.get(0);
-		int size = siblings.size();
-		if (view.getDisplayMode() != SEARCH_MODE) {
-			Browser browser = model.getSelectedBrowser();
-			browser.onSelectedNode(parent, selected, size > 0);
-		}
-		mv.setSelectionMode(size == 0);
-		Browser browser = model.getSelectedBrowser();
-		ExperimenterData exp = null;
-		TreeImageDisplay last = null;
-		if (browser != null) last = browser.getLastSelectedDisplay();
-		if (last != null) exp = browser.getNodeOwner(last);
-		if (exp == null) exp = model.getUserDetails();
-		Object grandParent = null;
-		if (selected instanceof WellSampleData) {
-			if (parent instanceof WellData) 
-				grandParent = ((WellData) parent).getPlate();
-		}
-		
-		if (browser == null) {
-			if (selected instanceof DataObject) {
-				SecurityContext ctx = new SecurityContext(
-						((DataObject) selected).getGroupId());
-				mv.setRootObject(selected, exp.getId(), ctx);
-			}
-		} else {
-			mv.setRootObject(selected, exp.getId(),
-					browser.getSecurityContext(last));
-		}
-		mv.setParentRootObject(parent, grandParent);
-		
-		TreeImageDisplay[] selection = null;
-		if (browser != null) selection = browser.getSelectedDisplays();
-		if (selection != null) {
-			siblings = new ArrayList<Object>(selection.length);
-			for (int i = 0; i < selection.length; i++) {
-				siblings.add(selection[i].getUserObject());
-			}
-			if (siblings.size() > 1)
-				mv.setRelatedNodes(siblings);
-		}
+	    if (object == null) return;
+	    if (!(object instanceof List)) return;
+	    List l = (List) object;
+	    int n = l.size();
+	    if (n > 3) return;
+	    Object selected = l.get(1);
+	    Object parent = null;
+	    if (n == 3) parent = l.get(2);
+	    if (selected instanceof ImageData) {
+	        ImageData img = (ImageData) selected;
+	        try {
+	            img.getDefaultPixels();
+	        } catch (Exception e) {
+	            UserNotifier un =
+	                    TreeViewerAgent.getRegistry().getUserNotifier();
+	            un.notifyInfo("Image Not valid", 
+	                    "The selected image is not valid.");
+	            return;
+	        }
+	    } else if (selected instanceof WellSampleData) {
+	        WellSampleData ws = (WellSampleData) selected;
+	        if (ws.getId() < 0) {
+	            UserNotifier un =
+	                    TreeViewerAgent.getRegistry().getUserNotifier();
+	            un.notifyInfo("Well Not valid", 
+	                    "The selected well is not valid.");
+	            return;
+	        }
+	    }
+	    MetadataViewer mv = model.getMetadataViewer();
+	    if (hasDataToSave()) {
+	        MessageBox dialog = new MessageBox(view, "Save data",
+	                "Do you want to save the modified " +
+	                "data \n before selecting a new item?");
+	        if (dialog.centerMsgBox() == MessageBox.YES_OPTION) mv.saveData();
+	        else mv.clearDataToSave();
+	    }
 
-		if (model.getDataViewer() != null)
-			model.getDataViewer().setApplications(
-				TreeViewerFactory.getApplications(
-						model.getObjectMimeType(selected)));
-		if (!model.isFullScreen()) {
-			browse(browser.getLastSelectedDisplay(), null, false);
-		}
-		
-		//Notifies actions.
-		firePropertyChange(SELECTION_PROPERTY, Boolean.valueOf(false), 
-				Boolean.valueOf(true));
+	    List<Object> siblings = (List<Object>) l.get(0);
+	    int size = siblings.size();
+	    if (view.getDisplayMode() != SEARCH_MODE) {
+	        Browser browser = model.getSelectedBrowser();
+	        browser.onSelectedNode(parent, selected, size > 0);
+	    }
+	    mv.setSelectionMode(size == 0);
+	    Browser browser = model.getSelectedBrowser();
+	    ExperimenterData exp = null;
+	    TreeImageDisplay last = null;
+	    if (browser != null) last = browser.getLastSelectedDisplay();
+	    if (last != null) exp = browser.getNodeOwner(last);
+	    if (exp == null) exp = model.getUserDetails();
+	    Object grandParent = null;
+	    if (selected instanceof WellSampleData) {
+	        if (parent instanceof WellData) 
+	            grandParent = ((WellData) parent).getPlate();
+	    }
+
+	    if (browser == null) {
+	        if (selected instanceof DataObject) {
+	            SecurityContext ctx = new SecurityContext(
+	                    ((DataObject) selected).getGroupId());
+	            mv.setRootObject(selected, exp.getId(), ctx);
+	        }
+	    } else {
+	        mv.setRootObject(selected, exp.getId(),
+	                browser.getSecurityContext(last));
+	    }
+	    mv.setParentRootObject(parent, grandParent);
+
+	    TreeImageDisplay[] selection = null;
+	    if (browser != null) selection = browser.getSelectedDisplays();
+	    if (selection != null && selection.length > 0) {
+	        if (selected instanceof WellSampleData) {
+	            siblings.add(selected);
+	            if (siblings.size() > 1)
+	                mv.setRelatedNodes(siblings);
+	        } else {
+	            siblings = new ArrayList<Object>(selection.length);
+	            for (int i = 0; i < selection.length; i++) {
+	                siblings.add(selection[i].getUserObject());
+	            }
+	            if (siblings.size() > 1)
+	                mv.setRelatedNodes(siblings);
+	        }
+
+	    }
+	    if (model.getDataViewer() != null)
+	        model.getDataViewer().setApplications(
+	                TreeViewerFactory.getApplications(
+	                        model.getObjectMimeType(selected)));
+	    if (!model.isFullScreen()) {
+	        browse(browser.getLastSelectedDisplay(), null, false);
+	    }
+
+	    //Notifies actions.
+	    firePropertyChange(SELECTION_PROPERTY, Boolean.valueOf(false),
+	            Boolean.valueOf(true));
 	}
 
 	/**

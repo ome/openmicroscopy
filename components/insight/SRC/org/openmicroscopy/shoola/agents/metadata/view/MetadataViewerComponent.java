@@ -43,6 +43,7 @@ import javax.swing.JComponent;
 import javax.swing.JFrame;
 
 //Third-party libraries
+import org.apache.commons.collections.CollectionUtils;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.iviewer.RndSettingsSaved;
@@ -78,6 +79,7 @@ import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
+
 import pojos.AnnotationData;
 import pojos.ChannelData;
 import pojos.DataObject;
@@ -600,7 +602,7 @@ class MetadataViewerComponent
 	 */
 	public void setRelatedNodes(List nodes)
 	{
-		if (nodes == null || nodes.size() == 0) return;
+		if (CollectionUtils.isEmpty(nodes)) return;
 		List<Long> ids = new ArrayList<Long>();
 		Iterator i = nodes.iterator();
 		List<DataObject> results = new ArrayList<DataObject>();

@@ -38,8 +38,8 @@ import java.util.Map.Entry;
 
 //Third-party libraries
 
+import org.apache.commons.collections.CollectionUtils;
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.events.metadata.AnnotatedEvent;
 import org.openmicroscopy.shoola.agents.metadata.AdminEditor;
 import org.openmicroscopy.shoola.agents.metadata.DataBatchSaver;
 import org.openmicroscopy.shoola.agents.metadata.DataSaver;
@@ -59,16 +59,11 @@ import org.openmicroscopy.shoola.agents.metadata.editor.EditorFactory;
 import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
 import org.openmicroscopy.shoola.agents.metadata.util.DataToSave;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
-import org.openmicroscopy.shoola.env.data.AdminService;
-import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
-import org.openmicroscopy.shoola.env.event.EventBus;
-import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
-import org.openmicroscopy.shoola.env.ui.UserNotifier;
 
 import pojos.AnnotationData;
 import pojos.DataObject;
@@ -96,14 +91,11 @@ import pojos.WellSampleData;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since OME3.0
  */
-class MetadataViewerModel 
+class MetadataViewerModel
 {
-	
+
 	/** Holds one of the state flags defined by {@link MetadataViewer}. */
 	private int state;
 
@@ -169,6 +161,18 @@ class MetadataViewerModel
 	
 	/** The active loaders.*/
 	private Map<Integer, MetadataLoader> loaders;
+
+    /**
+     * Creates a new context if <code>null</code>.
+     *
+     * @param ho The node to handle.
+     * @return See above.
+     */
+    private SecurityContext retrieveContext(DataObject ho)
+    {
+        if (ctx != null) return ctx;
+        return new SecurityContext(ho.getGroupId());
+    }
 
 	/**
 	 * Returns the loader's ID if any corresponding to the class.
@@ -395,6 +399,7 @@ class MetadataViewerModel
 		Object ho = refNode.getUserObject();
 		if (ho instanceof DataObject) {
 			loaderID++;
+			ctx = retrieveContext((DataObject) ho);
 			ContainersLoader loader = new ContainersLoader(
 					component, ctx, refNode, ho.getClass(),
 					((DataObject) ho).getId(), loaderID);
@@ -402,7 +407,6 @@ class MetadataViewerModel
 			loader.load();
 		}
 	}
-
 
 	/**
 	 * Starts the asynchronous retrieval of the structured data related
@@ -417,26 +421,11 @@ class MetadataViewerModel
 		if (node instanceof DataObject) {
 			Integer id = getLoaderID(StructuredDataLoader.class);
 			if (id != null) cancel(id);
-			if (node instanceof WellSampleData) {
-				WellSampleData wsd = (WellSampleData) node;
-				node = wsd.getImage();
-				/*
-				if (!loaders.containsKey(node) && parentData == null
-						&& parentRefObject != null) {
-					loaderID++;
-					StructuredDataLoader l = new StructuredDataLoader(component,
-						ctx, Arrays.asList((DataObject) parentRefObject),
-						loaderID);
-					loaders.put(loaderID, l);
-					l.load();
-					state = MetadataViewer.LOADING_METADATA;
-					return;
-				}*/
-			}
 			loaderID++;
 			if (node instanceof WellSampleData) {
 			    node = ((WellSampleData) node).getImage();
 			}
+			ctx = retrieveContext((DataObject) node);
 			StructuredDataLoader loader = new StructuredDataLoader(component,
 					ctx, Arrays.asList((DataObject) node), loaderID);
 			loaders.put(loaderID, loader);
@@ -580,71 +569,31 @@ class MetadataViewerModel
 			toAdd = object.getToAdd();
 			toRemove = object.getToRemove();
 		}
-		if (asynch) {
-			loaderID++;
-			DataSaver loader = new DataSaver(component, ctx, data, toAdd,
-					toRemove, metadata, loaderID);
-			loaders.put(loaderID, loader);
-			loader.load();
-			state = MetadataViewer.SAVING;
-		} else {
-			OmeroMetadataService os = 
-				MetadataViewerAgent.getRegistry().getMetadataService();
-			try {
-            	if (metadata != null) {
-            		Iterator<Object> i = metadata.iterator();
-            		while (i.hasNext()) 
-						os.saveAcquisitionData(ctx, i.next()) ;
-            	}
-            	os.saveData(ctx, data, toAdd, toRemove, userID);
-            	int count = 0;
-            	if (toAdd != null) count += toAdd.size();
-            	if (toRemove != null) count -= toRemove.size();
-            	boolean post = (toAdd != null && toAdd.size() != 0) ||
-				(toRemove != null && toRemove.size() != 0);
-            	if (post) {
-        			EventBus bus = 
-        				MetadataViewerAgent.getRegistry().getEventBus();
-        			bus.post(new AnnotatedEvent(
-        					new ArrayList<DataObject>(data), count));
-        		}
-			} catch (Exception e) {
-				LogMessage msg = new LogMessage();
-				msg.print("Unable to save annotation and/or edited data");
-				msg.print(e);
-				MetadataViewerAgent.getRegistry().getLogger().error(this, msg);
-			}
-		}
+		loaderID++;
+        ctx = retrieveContext(data.iterator().next());
+        DataSaver loader = new DataSaver(component, ctx, data, toAdd,
+                toRemove, metadata, loaderID);
+        loaders.put(loaderID, loader);
+        loader.load();
+        state = MetadataViewer.SAVING;
 	}
 	
 	/**
 	 * Fires an asynchronous call to update the passed experimenter.
 	 * 
-	 * @param data 	 The object to update.
+	 * @param data The object to update.
 	 * @param asynch Pass <code>true</code> to save data asynchronously,
-     * 				 <code>false</code> otherwise.
+	 *               <code>false</code> otherwise.
 	 */
 	void fireExperimenterSaving(ExperimenterData data, boolean async)
 	{
-		if (async) {
-			loaderID++;
-			ExperimenterEditor loader = new ExperimenterEditor(component, ctx,
-					data, loaderID);
-			loaders.put(loaderID, loader);
-			loader.load();
-			state = MetadataViewer.SAVING;
-		} else {
-			AdminService svc = 
-				MetadataViewerAgent.getRegistry().getAdminService();
-			try {
-				svc.updateExperimenter(ctx, data, null);
-			} catch (Exception e) {
-				LogMessage msg = new LogMessage();
-				msg.print("Unable to update the experimenter");
-				msg.print(e);
-				MetadataViewerAgent.getRegistry().getLogger().error(this, msg);
-			}
-		}
+	    loaderID++;
+	    ctx = retrieveContext(data);
+	    ExperimenterEditor loader = new ExperimenterEditor(component, ctx,
+	            data, loaderID);
+	    loaders.put(loaderID, loader);
+	    loader.load();
+	    state = MetadataViewer.SAVING;
 	}
 	
 	/**
@@ -672,67 +621,28 @@ class MetadataViewerModel
 	 */
 	void fireAdminSaving(AdminObject data, boolean asynch)
 	{
-		if (asynch) {
-			MetadataLoader loader = null;
-			SecurityContext c = ctx;
-			if (MetadataViewerAgent.isAdministrator())
-				c = getAdminContext();
-			switch (data.getIndex()) {
-				case AdminObject.UPDATE_GROUP:
-					GroupData group = data.getGroup();
-					loaderID++;
-					loader = new GroupEditor(component, c, group, 
-							data.getPermissions(), loaderID, GroupEditor.UPDATE);
-					loaders.put(loaderID, loader);
-					break;
-				case AdminObject.UPDATE_EXPERIMENTER:
-					loaderID++;
-					loader = new AdminEditor(component, c, data.getGroup(),
-							data.getExperimenters(), loaderID);
-					loaders.put(loaderID, loader);
-			}	
-			if (loader != null) {
-				loader.load();
-				state = MetadataViewer.SAVING;
-			}
-		} else {
-			AdminService svc = 
-				MetadataViewerAgent.getRegistry().getAdminService();
-			LogMessage msg = new LogMessage();
-			switch (data.getIndex()) {
-				case AdminObject.UPDATE_GROUP:
-					try {
-						GroupData group = data.getGroup();
-						GroupData g = svc.lookupGroup(getAdminContext(),
-								group.getName());
-						if (g == null || group.getId() == g.getId())
-							svc.updateGroup(getAdminContext(), data.getGroup(),
-									data.getPermissions());
-						else {
-							UserNotifier un = 
-							MetadataViewerAgent.getRegistry().getUserNotifier();
-							un.notifyInfo("Update Group", "A group with the " +
-									"same name already exists.");
-						}
-					} catch (Exception e) {
-						msg.print("Unable to update the group");
-						msg.print(e);
-						MetadataViewerAgent.getRegistry().getLogger().error(
-								this, msg);
-					}
-					break;
-				case AdminObject.UPDATE_EXPERIMENTER:
-					try {
-						svc.updateExperimenters(ctx, data.getGroup(),
-								data.getExperimenters());
-					} catch (Exception e) {
-						msg.print("Unable to update experimenters");
-						msg.print(e);
-						MetadataViewerAgent.getRegistry().getLogger().error(
-								this, msg);
-					}
-			}
-		}
+	    MetadataLoader loader = null;
+        SecurityContext c = ctx;
+        if (MetadataViewerAgent.isAdministrator())
+            c = getAdminContext();
+        switch (data.getIndex()) {
+            case AdminObject.UPDATE_GROUP:
+                GroupData group = data.getGroup();
+                loaderID++;
+                loader = new GroupEditor(component, c, group, 
+                        data.getPermissions(), loaderID, GroupEditor.UPDATE);
+                loaders.put(loaderID, loader);
+                break;
+            case AdminObject.UPDATE_EXPERIMENTER:
+                loaderID++;
+                loader = new AdminEditor(component, c, data.getGroup(),
+                        data.getExperimenters(), loaderID);
+                loaders.put(loaderID, loader);
+        }   
+        if (loader != null) {
+            loader.load();
+            state = MetadataViewer.SAVING;
+        }
 	}
 	
 	/**
@@ -849,7 +759,7 @@ class MetadataViewerModel
 	 * @return See above.
 	 */
 	boolean isSingleMode() { return singleMode; }
-	
+
 	/**
 	 * Sets the nodes related to the object of reference.
 	 * 
@@ -857,16 +767,25 @@ class MetadataViewerModel
 	 */
 	void setRelatedNodes(List<DataObject> relatedNodes)
 	{ 
-		this.relatedNodes = relatedNodes;
-		//fire load
-		loaderID++;
-		StructuredDataLoader loader = new StructuredDataLoader(component,
-				ctx, relatedNodes, loaderID);
-		loaders.put(loaderID, loader);
-		loader.load();
-		state = MetadataViewer.LOADING_METADATA;
+	    this.relatedNodes = relatedNodes;
+	    if (CollectionUtils.isEmpty(relatedNodes)) return;
+	    DataObject ho = relatedNodes.get(0);
+	    List<DataObject> l = new ArrayList<DataObject>();
+	    if (ho instanceof WellSampleData) {
+	        Iterator<DataObject> i = relatedNodes.iterator();
+	        while (i.hasNext()) {
+	            l.add(((WellSampleData) i.next()).getImage());
+	        }
+	    } else l.addAll(relatedNodes);
+	    loaderID++;
+	    ctx = retrieveContext(ho);
+	    StructuredDataLoader loader = new StructuredDataLoader(component,
+	            ctx, l, loaderID);
+	    loaders.put(loaderID, loader);
+	    loader.load();
+	    state = MetadataViewer.LOADING_METADATA;
 	}
-	
+
 	/**
 	 * Returns the nodes related to the object of reference.
 	 * 
@@ -891,12 +810,10 @@ class MetadataViewerModel
 	void loadParents(Class type, long id)
 	{
 		loaderID++;
-		ContainersLoader loader 
-		= new ContainersLoader(component, ctx, type, id, loaderID);
+		ContainersLoader loader = new ContainersLoader(component, ctx, type,
+		        id, loaderID);
 		loaders.put(loaderID, loader);
 		loader.load();
-		
-		
 	}
 
 	/**
@@ -1012,7 +929,8 @@ class MetadataViewerModel
 		if (img == null) return;
 		getEditor().getRenderer().loadRndSettings(false, null);
 		loaderID++;
-		RenderingSettingsLoader loader = new RenderingSettingsLoader(component, 
+		ctx = retrieveContext(img);
+		RenderingSettingsLoader loader = new RenderingSettingsLoader(component,
 				ctx, img.getDefaultPixels().getId(), loaderID);
 		loaders.put(loaderID, loader);
 		loader.load();
@@ -1033,6 +951,7 @@ class MetadataViewerModel
 		}
 		if (ids.size() == 0) return;
 		loaderID++;
+		ctx = retrieveContext(image);
 		ThumbnailLoader loader = new ThumbnailLoader(component, ctx, image,
 				ids, loaderID);
 		loaders.put(loaderID, loader);
