@@ -30,6 +30,11 @@ group_pairs = [(None, 'id'), (None, 'name'), ('--group-id', 'id'),
                ('--group-name', 'name')]
 sort_keys = [None, "id", "login", "first-name", "last-name", "email"]
 columns = {'login': 1, 'first-name': 2, 'last-name': 3, 'email': 4}
+middlename_prefixes = [None, '-m', '--middlename']
+email_prefixes = [None, '-e', '--email']
+institution_prefixes = [None, '-i', '--institution']
+admin_prefixes = [None, '-a', '--admin']
+admin_prefixes = ['--no-password', '-P', '--password']
 
 
 class TestUser(CLITest):
@@ -173,3 +178,32 @@ class TestUserRoot(RootCLITest):
             assert user.id.val not in self.getownerids(group.id.val)
         else:
             assert user.id.val not in self.getuserids(group.id.val)
+
+    # User add subcommand
+    # ========================================================================
+    @pytest.mark.parametrize("middlename_prefix", middlename_prefixes)
+    @pytest.mark.parametrize("email_prefix", email_prefixes)
+    @pytest.mark.parametrize("institution_prefix", institution_prefixes)
+
+    def testAdd(self, middlename_prefix, email_prefix, institution_prefix):
+        group = self.new_group()
+        username = self.uuid()
+        firstname = self.uuid()
+        lastname = self.uuid()
+
+        self.args += ["add", username, firstname, lastname]
+        if middlename_prefix:
+            middlename = self.uuid()
+            self.args += [middlename_prefix, middlename]
+        if email_prefix:
+            email = "%s.%s@%s.org" % (firstname[:6], lastname[:6],
+                                      self.uuid()[:6])
+            self.args += [email_prefix, email]
+        self.args += ['--no-password']
+        self.args += ['--group-id', group.id.val]
+        self.cli.invoke(self.args, strict=True)
+
+        # Check user has been added to the list of member/owners
+        user = self.sf.adminService.lookupExperimenter(username)
+        assert user.firstName.val == firstname
+        assert user.lastName.val == lastname
