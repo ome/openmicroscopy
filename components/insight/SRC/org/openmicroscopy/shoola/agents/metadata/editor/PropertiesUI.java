@@ -67,6 +67,7 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.Document;
 
+import org.apache.commons.lang.StringUtils;
 import org.jdesktop.swingx.JXTaskPane;
 import org.openmicroscopy.shoola.agents.events.editor.EditFileEvent;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
@@ -1146,28 +1147,6 @@ class PropertiesUI
             WellSampleData wsd = (WellSampleData) refObject;
             t += " (Image ID: "+wsd.getImage().getId()+")";
         }
-<<<<<<< HEAD
-		idLabel.setText(t);
-		String ownerName = model.getOwnerName();
-		ownerLabel.setText("");
-		if (ownerName != null && ownerName.length() > 0)
-			ownerLabel.setText(OWNER_TEXT+ownerName);
-		originalDescription = model.getRefObjectDescription();
-		if (originalDescription == null || originalDescription.length() == 0)
-			originalDescription = DEFAULT_DESCRIPTION_TEXT;
-		descriptionWiki.setText(originalDescription);
-		//wrap();
-		descriptionWiki.setCaretPosition(0);
-		descriptionWiki.setBackground(UIUtilities.BACKGROUND_COLOR);
-    	descriptionWiki.setForeground(UIUtilities.DEFAULT_FONT_COLOR);
-    	
-		
-        if (refObject instanceof WellSampleData) b = false;
-        
-        namePane.setEnabled(b);
-        if (!(refObject instanceof FileData)) editName.setEnabled(b);
-        
-=======
         idLabel.setText(t);
         String ownerName = model.getOwnerName();
         ownerLabel.setText("");
@@ -1183,7 +1162,6 @@ class PropertiesUI
         descriptionWiki.setForeground(UIUtilities.DEFAULT_FONT_COLOR);
 
         editNames();
->>>>>>> 308adc2... Refactors name and description edit.
         if (b) {
             namePane.getDocument().addDocumentListener(this);
             descriptionWiki.addDocumentListener(this);
