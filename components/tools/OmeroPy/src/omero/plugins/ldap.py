@@ -192,7 +192,7 @@ user never had a password, one will need to be set!""")
             self.ctx.err("Connecting to %s..." % url)
 
             ld = ldap.initialize(url)
-            ld.simple_bind_s()
+            ld.simple_bind_s(cfg['username'], cfg['password'])
 
             user_filter = cfg["user_filter"]
             user_mapping = cfg["user_mapping"]
@@ -202,36 +202,59 @@ user never had a password, one will need to be set!""")
                 parts = um.split("=")
                 if parts[0] == "omeName":
                     omeName_mapping = parts[1]
-            results = ld.search_s(basedn, ldap.SCOPE_SUBTREE, user_filter)
-            for dn, entry in results:
-                omeName = entry[omeName_mapping]
-                if isinstance(omeName, (list, tuple)):
-                    if len(omeName) == 1:
-                        omeName = omeName[0]
-                    else:
-                        self.ctx.err("Failed to unwrap omeName: %s" % omeName)
-                        continue
+
+            from ldap.controls import SimplePagedResultsControl
+
+            cookie = ''
+            # This is the limit for Active Directory, 1000. However
+            # the LDAP connection has a sizeLimit that overrides
+            # this value if the page_size exceeds it so it is safe
+            # to enter pretty much anything here when using paged results.
+            page_size = 1000
+
+            results = []
+            first = True
+            page_control = SimplePagedResultsControl(True, page_size, cookie)
+
+            while first or page_control.cookie:
+                first = False
                 try:
-                    exp = iadmin.lookupExperimenter(omeName)
-                    olddn = iadmin.lookupLdapAuthExperimenter(exp.id.val)
-                except omero.ApiUsageException:
-                    continue  # Unknown user
+                    msgid = ld.search_ext(basedn, ldap.SCOPE_SUBTREE, user_filter, serverctrls=[page_control])
+                except:
+                    self.ctx.die(1, "Failed to execute LDAP search")
 
-                if olddn:
-                    if olddn != dn:
-                        self.ctx.err("Found different DN for %s: %s"
-                                     % (omeName, olddn))
-                    else:
-                        self.ctx.dbg("DN already set for %s: %s"
-                                     % (omeName, olddn))
-                else:
-                    if args.commands:
-                        self.ctx.out("%s ldap setdn %s %s"
-                                     % (sys.argv[0], omeName, dn))
-                    else:
-                        self.ctx.out("Experimenter:%s\tomeName=%s\t%s"
-                                     % (exp.id.val, omeName, dn))
+                result_type, results, msgid, serverctrls = ld.result3(msgid)
+                page_control.cookie = serverctrls[0].cookie
 
+                for dn, entry in results:
+                    omeName = entry[omeName_mapping]
+                    if isinstance(omeName, (list, tuple)):
+                        if len(omeName) == 1:
+                            omeName = omeName[0]
+                        else:
+                            self.ctx.err("Failed to unwrap omeName: %s" % omeName)
+                            continue
+
+                    try:
+                        exp = iadmin.lookupExperimenter(omeName)
+                        olddn = iadmin.lookupLdapAuthExperimenter(exp.id.val)
+                    except omero.ApiUsageException:
+                        continue # Unknown user
+
+                    if olddn:
+                        if olddn != dn:
+                            self.ctx.err("Found different DN for %s: %s"
+                                         % (omeName, olddn))
+                        else:
+                            self.ctx.dbg("DN already set for %s: %s"
+                                         % (omeName, olddn))
+                    else:
+                        if args.commands:
+                            self.ctx.out("%s ldap setdn %s %s"
+                                         % (sys.argv[0], omeName, dn))
+                        else:
+                            self.ctx.out("Experimenter:%s\tomeName=%s\t%s"
+                                         % (exp.id.val, omeName, dn))
 
 try:
     register("ldap", LdapControl, HELP)
