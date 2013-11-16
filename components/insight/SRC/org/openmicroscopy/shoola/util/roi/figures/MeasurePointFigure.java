@@ -468,8 +468,8 @@ public class MeasurePointFigure
      */
     public List<Point> getPoints()
     {
-        return Arrays.asList(new Point((int) (getX()+getWidth()/2),
-                (int) (getY()+getHeight()/2)));
+        return Arrays.asList(new Point((int) ellipse.getCenterX(),
+                (int) ellipse.getCenterY()));
     }
 
     /**
