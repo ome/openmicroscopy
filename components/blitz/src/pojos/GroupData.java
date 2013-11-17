@@ -306,15 +306,4 @@ public class GroupData extends DataObject {
         experimenters = new HashSet<ExperimenterData>(m.result());
     }
 
-    /**
-     * Returns <code>true</code> if the group is a system group,
-     * <code>false</code> otherwise.
-     * 
-     * @return See above.
-     */
-    public boolean isSystemGroup()
-    {
-        return SYSTEM_GROUPS.contains(getName());
-    }
-
 }
