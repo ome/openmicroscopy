@@ -1094,7 +1094,7 @@ class ToolBar
     {
         if (c == null) return;
         if (p == null) return;
-        PopupMenu menu = new PopupMenu(controller, index);
+        PopupMenu menu = new PopupMenu(controller, model, index);
         menu.show(c, p.x, p.y);
     }
     
