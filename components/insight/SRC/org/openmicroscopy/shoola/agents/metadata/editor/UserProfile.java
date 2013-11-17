@@ -355,7 +355,7 @@ class UserProfile
         oldPassword.setBackground(UIUtilities.BACKGROUND_COLOR);
         items = new HashMap<String, JTextField>();
         ExperimenterData user = (ExperimenterData) model.getRefObject();
-        Collection<GroupData> groups = model.getAvailableGroups();
+        Collection<GroupData> groups = user.getGroups();
 
         GroupData defaultGroup = user.getDefaultGroup();
 
