@@ -634,6 +634,10 @@ public class DataServicesFactory
         			}
         		}
         	}
+        	registry.bind(LookupNames.SYSTEM_GROUPS,
+                    omeroGateway.getSystemGroupsIds(ctx));
+        	registry.bind(LookupNames.SYSTEM_USERS,
+        	        omeroGateway.getSystemUsers(ctx));
         	registry.bind(LookupNames.USER_GROUP_DETAILS, available);
         	List<Long> ids = new ArrayList<Long>();
         	i = available.iterator();

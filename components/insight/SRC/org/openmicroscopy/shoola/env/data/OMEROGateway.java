@@ -87,6 +87,7 @@ import ome.formats.importer.ImportLibrary;
 import ome.formats.importer.OMEROWrapper;
 import ome.formats.importer.util.ProportionalTimeEstimatorImpl;
 import ome.formats.importer.util.TimeEstimator;
+
 import ome.system.UpgradeCheck;
 import ome.util.checksum.ChecksumProvider;
 import ome.util.checksum.ChecksumProviderFactory;
@@ -213,6 +214,7 @@ import omero.model.enums.ChecksumAlgorithmSHA1160;
 import omero.model.XmlAnnotation;
 import omero.sys.Parameters;
 import omero.sys.ParametersI;
+import omero.sys.Roles;
 import pojos.AnnotationData;
 import pojos.BooleanAnnotationData;
 import pojos.ChannelAcquisitionData;
@@ -637,19 +639,6 @@ class OMEROGateway
 				if (SYSTEM_GROUPS.contains(name)) //to be on the save side
 					systemGroups.add(group);
 			}
-			/*
-			IAdminPrx svc = getAdminService();
-			List<ExperimenterGroup> groups = svc.lookupGroups();
-			Iterator<ExperimenterGroup> i = groups.iterator();
-			ExperimenterGroup group;
-			String name;
-			while (i.hasNext()) {
-				group =  i.next();
-				name = group.getName().getValue();
-				if (SYSTEM_GROUPS.contains(name))
-					systemGroups.add(group);
-			}
-			*/
 		} catch (Exception e) {
 			handleException(e, "Cannot retrieve the system groups.");
 		}
@@ -8398,4 +8387,54 @@ class OMEROGateway
 		return null;
 	}
 
+	/**
+	 * Returns the collection of identifiers of system users.
+	 * 
+	 * @param ctx The security context.
+	 * @return See above.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occurred while trying to
+	 * retrieve data from OMERO service.
+	 */
+	List<Long> getSystemUsers(SecurityContext ctx)
+	        throws DSOutOfServiceException, DSAccessException
+	{
+	    Connector c = getConnector(ctx, true, false);
+	    IAdminPrx svc = c.getAdminService();
+	    List<Long> ids = new ArrayList<Long>();
+	    try {
+	        Roles roles = svc.getSecurityRoles();
+	        ids.add(roles.guestId);
+	        ids.add(roles.rootId);
+	    } catch (Throwable t) {
+	        handleException(t, "Cannot load system users.");
+	    }
+	    return ids;
+	}
+	
+	   /**
+     * Returns the collection of identifiers of system groups.
+     * 
+     * @param ctx The security context.
+     * @return See above.
+     * @throws DSOutOfServiceException If the connection is broken, or logged in
+     * @throws DSAccessException If an error occurred while trying to
+     * retrieve data from OMERO service.
+     */
+    List<Long> getSystemGroupsIds(SecurityContext ctx)
+            throws DSOutOfServiceException, DSAccessException
+    {
+        Connector c = getConnector(ctx, true, false);
+        IAdminPrx svc = c.getAdminService();
+        List<Long> ids = new ArrayList<Long>();
+        try {
+            Roles roles = svc.getSecurityRoles();
+            ids.add(roles.userGroupId);
+            ids.add(roles.systemGroupId);
+            ids.add(roles.guestGroupId);
+        } catch (Throwable t) {
+            handleException(t, "Cannot load system users.");
+        }
+        return ids;
+     }
 }

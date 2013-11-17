@@ -796,7 +796,9 @@ class AdminServiceImpl
      */
     public boolean isSystemGroup(long groupID)
     {
-        return false;
+        List<Long> ids = (List<Long>) context.lookup(
+                LookupNames.SYSTEM_GROUPS);
+        return ids.contains(groupID);
     }
 
     /**
@@ -805,6 +807,8 @@ class AdminServiceImpl
      */
     public boolean isSystemUser(long userID)
     {
-        return false;
+        List<Long> ids = (List<Long>) context.lookup(
+                LookupNames.SYSTEM_USERS);
+        return ids.contains(userID);
     }
 }
