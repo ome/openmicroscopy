@@ -453,7 +453,7 @@ class PopupMenu
 								icons.getIcon(IconManager.OWNER_NOT_ACTIVE));
 						}
 						activatedUser.setEnabled(!value &&
-						        model.isSystemUser(exp.getId()));
+						        !model.isSystemUser(exp.getId()));
 					}
 					if (!value)
 						activatedUser.addItemListener(new ItemListener() {

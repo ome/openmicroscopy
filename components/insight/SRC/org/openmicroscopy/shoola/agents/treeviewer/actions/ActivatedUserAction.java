@@ -123,7 +123,7 @@ public class ActivatedUserAction
                         selectedDisplay.getUserObject();
                 ExperimenterData user = model.getUserDetails();
                 setEnabled(exp.getId() != user.getId() &&
-                        model.isSystemUser(exp.getId()));
+                       !model.isSystemUser(exp.getId()));
                 if (exp.isActive())
                     putValue(Action.SMALL_ICON, ACTIVATED_ICON);
                 else putValue(Action.SMALL_ICON, NOT_ACTIVATED_ICON);

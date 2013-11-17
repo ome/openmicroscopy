@@ -4314,7 +4314,7 @@ class TreeViewerComponent
 	            n = i.next();
 	            if (n.getUserObject() instanceof ExperimenterData) {
 	                exp = (ExperimenterData) n.getUserObject();
-	                if (exp.getId() == id || model.isSystemUser(exp.getId())) { //check the source
+	                if (exp.getId() == id || !model.isSystemUser(exp.getId())) { //check the source
 	                    parent = n.getParentDisplay();
 	                    if (parent != null &&
 	                            parent.getUserObject() instanceof GroupData) {
