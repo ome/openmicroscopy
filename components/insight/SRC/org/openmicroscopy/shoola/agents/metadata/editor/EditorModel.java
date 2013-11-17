@@ -80,7 +80,6 @@ import org.openmicroscopy.shoola.agents.metadata.rnd.RendererFactory;
 import org.openmicroscopy.shoola.agents.metadata.util.AnalysisResultsItem;
 import org.openmicroscopy.shoola.agents.metadata.util.DataToSave;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
-import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.agents.util.ui.PermissionMenu;
@@ -3924,8 +3923,8 @@ class EditorModel
 	    				icons.getIcon(IconManager.APPLY_22), l);
 	    		p.setUIRegister(false);
 	    		p.setFailureIcon(icons.getIcon(IconManager.DELETE_22));
-	    		UserNotifier un = 
-	    			TreeViewerAgent.getRegistry().getUserNotifier();
+	    		UserNotifier un =
+	    		        MetadataViewerAgent.getRegistry().getUserNotifier();
 	    		un.notifyActivity(getSecurityContext(), p);
 			} catch (Exception e) {
 				// TODO: handle exception
@@ -4339,4 +4338,27 @@ class EditorModel
 	    return MetadataViewerAgent.getAvailableUserGroups();
 	}
 
+    /**
+     * Returns <code>true</code> if the user is a system user e.g. root
+     * <code>false</code> otherwise.
+     *
+     * @param id The identifier of the user.
+     * @return See above.
+     */
+    boolean isSystemUser(long id)
+    {
+        return MetadataViewerAgent.getRegistry().getAdminService().isSystemUser(id);
+    }
+
+    /**
+     * Returns <code>true</code> if the group is a system group e.g. System
+     * <code>false</code> otherwise.
+     *
+     * @param id The identifier of the group.
+     * @return See above.
+     */
+    boolean isSystemGroup(long id)
+    {
+        return MetadataViewerAgent.getRegistry().getAdminService().isSystemUser(id);
+    }
 }

@@ -386,14 +386,16 @@ class UserProfile
             adminBox.addChangeListener(this);
             active = user.isActive();
             activeBox.setSelected(active);
-            activeBox.setEnabled(!model.isSelf() && !user.isRoot());
+            activeBox.setEnabled(!model.isSelf() &&
+                    !model.isSystemUser(user.getId()));
             activeBox.addChangeListener(this);
             //indicate if the user is an administrator.a
             admin = isUserAdministrator();
             adminBox.setSelected(admin);
-            adminBox.setEnabled(!model.isSelf() && !user.isRoot());
+            adminBox.setEnabled(!model.isSelf() &&
+                    !model.isSystemUser(user.getId()));
             ownerBox.addChangeListener(this);
-            ownerBox.setEnabled(!user.isRoot());
+            ownerBox.setEnabled(!model.isSystemUser(user.getId()));
         } else {
             ownerBox.setEnabled(false);
             passwordConfirm.getDocument().addDocumentListener(
@@ -658,8 +660,8 @@ class UserProfile
         loginArea.setText(user.getUserName());
         loginArea.setEnabled(false);
         loginArea.setEditable(false);
-        if (MetadataViewerAgent.isAdministrator() && !user.isRoot()
-                && !model.isSelf()) {
+        if (MetadataViewerAgent.isAdministrator() &&
+                !model.isSystemUser(user.getId()) && !model.isSelf()) {
             loginArea.setEnabled(true);
             loginArea.getDocument().addDocumentListener(this);
         }
