@@ -254,7 +254,7 @@ public class ManageObjectAction
                 if (model.getType() == DataBrowser.GROUP) {
                     if (parent instanceof GroupData) {
                         GroupData g = (GroupData) parent;
-                        if (g.isSystemGroup()) {
+                        if (model.isSystemGroup(g.getId())) {
                             ExperimenterData user =
                                     DataBrowserAgent.getUserDetails();
                             ExperimenterData exp = (ExperimenterData) ho;

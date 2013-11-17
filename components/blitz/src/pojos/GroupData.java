@@ -110,15 +110,6 @@ public class GroupData extends DataObject {
 	/** Identifies the <code>default</code> group. */
 	public static final String DEFAULT = "default";
 
-	/** The list of system group. */
-	private static final List<String> SYSTEM_GROUPS;
-	static {
-	    SYSTEM_GROUPS = new ArrayList<String>();
-	    SYSTEM_GROUPS.add(GroupData.SYSTEM);
-	    SYSTEM_GROUPS.add(GroupData.USER);
-	    SYSTEM_GROUPS.add(GroupData.GUEST);
-	}
-
     /** All experimenters in this group */
     private Set experimenters;
 

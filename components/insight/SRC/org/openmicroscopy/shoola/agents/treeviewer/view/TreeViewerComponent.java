@@ -4319,7 +4319,7 @@ class TreeViewerComponent
 	                    if (parent != null &&
 	                            parent.getUserObject() instanceof GroupData) {
 	                        g = (GroupData) parent.getUserObject();
-	                        if (g.isSystemGroup()) {
+	                        if (model.isSystemUser(g.getId())) {
 	                            stop = true;
 	                        }
 	                    }

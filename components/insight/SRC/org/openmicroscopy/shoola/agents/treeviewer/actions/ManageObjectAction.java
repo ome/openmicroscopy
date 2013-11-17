@@ -313,7 +313,7 @@ public class ManageObjectAction
                     if (browser.getBrowserType() == Browser.ADMIN_EXPLORER) {
                         if (parent instanceof GroupData) {
                             GroupData g = (GroupData) parent;
-                            if (g.isSystemGroup()) {
+                            if (model.isSystemGroup(g.getId())) {
                                 ExperimenterData user = model.getUserDetails();
                                 ExperimenterData exp = (ExperimenterData) ho;
                                 setEnabled(exp.getId() != user.getId() &&
