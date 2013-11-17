@@ -141,11 +141,8 @@ public class LookupNames
     /** Field to access the <code>env</code> package. */
     public static final  String ENV = "/env";
 
-    /** Field to access the system users. */
-    public static final String SYSTEM_GROUPS = "/groups/system";
-
-    /** Field to access the system groups. */
-    public static final String SYSTEM_USERS = "/users/system";
+    /** Field to access the system users and groups. */
+    public static final String SYSTEM_ROLES = "/system/roles";
 
     /** Field to access the user credentials. */
     public static final String USER_CREDENTIALS = "/user/credentials";

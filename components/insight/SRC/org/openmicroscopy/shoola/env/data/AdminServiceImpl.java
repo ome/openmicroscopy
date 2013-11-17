@@ -41,6 +41,8 @@ import java.util.Map.Entry;
 //Application-internal dependencies
 import omero.model.Experimenter;
 import omero.model.ExperimenterGroup;
+import omero.sys.Roles;
+
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.AgentInfo;
 import org.openmicroscopy.shoola.env.config.Registry;
@@ -796,9 +798,11 @@ class AdminServiceImpl
      */
     public boolean isSystemGroup(long groupID)
     {
-        List<Long> ids = (List<Long>) context.lookup(
-                LookupNames.SYSTEM_GROUPS);
-        return ids.contains(groupID);
+        Roles roles = (Roles) context.lookup(LookupNames.SYSTEM_ROLES);
+        if (roles == null) return false;
+        return (roles.guestGroupId == groupID ||
+                roles.systemGroupId == groupID ||
+                roles.userGroupId == groupID);
     }
 
     /**
@@ -807,8 +811,8 @@ class AdminServiceImpl
      */
     public boolean isSystemUser(long userID)
     {
-        List<Long> ids = (List<Long>) context.lookup(
-                LookupNames.SYSTEM_USERS);
-        return ids.contains(userID);
+        Roles roles = (Roles) context.lookup(LookupNames.SYSTEM_ROLES);
+        if (roles == null) return false;
+        return (roles.rootId == userID || roles.guestId == userID);
     }
 }
