@@ -280,6 +280,26 @@
             this.notifySelectionChange = _.debounce( this.notifySelectionChange, 10);
         },
 
+        load_from_OMERO: function(fileId, success) {
+
+            var load_url = BASE_WEBFIGURE_URL + "load_web_figure/" + fileId + "/",
+                self = this;
+
+
+            $.getJSON(load_url, function(data){
+
+                _.each(data.panels, function(p){
+                    self.panels.create(p);
+                });
+
+                self.set({'fileId': fileId,
+                        'unsaved': false,
+                        'figureName': data.figureName,
+                    });
+                self.trigger("reset_undo_redo");
+            });
+        },
+
         save_to_OMERO: function(options, success) {
 
             // Turn panels into json
@@ -289,10 +309,14 @@
                 p_json.push(m.toJSON());
             });
 
+            // figureName should be in options, but just in case...
+            var figureName = options.figureName || "WebFigure_" + Date();
+
             var figureJSON = {
                 panels: p_json,
                 paper_width: this.get('paper_width'),
                 paper_height: this.get('paper_height'),
+                figureName: figureName,
             };
 
             var url = $(".save_figure", this.$el).attr('data-url'),
@@ -306,8 +330,7 @@
             // Save
             $.post( url, data)
                 .done(function( data ) {
-                    console.log(data);
-                    self.set({'fileId': +data, 'unsaved': false});
+                    self.set({'fileId': +data, 'unsaved': false, 'figureName': figureName});
 
                     if (success) {
                         success(data);
@@ -514,7 +537,6 @@
                 ps.push(p);
             });
             for (var i=ps.length-1; i>=0; i--) {
-                console.log(i);
                 ps[i].destroy();
             }
             this.notifySelectionChange();
@@ -570,6 +592,7 @@
             this.listenTo(this.model, 'change:curr_zoom', this.setZoom);
             this.listenTo(this.model, 'change:selection', this.renderSelectionChange);
             this.listenTo(this.model, 'change:unsaved', this.renderUnsaved);
+            this.listenTo(this.model, 'change:figureName', this.renderFigureName);
 
             // refresh current UI
             this.setZoom();
@@ -587,7 +610,7 @@
             "click .copy.btn": "copy_selected_panels",
             "click .paste.btn": "paste_panels",
             "click .save_figure": "save_figure",
-            "click .new_figure": "new_figure",
+            "click .new_figure": "goto_newfigure",
         },
 
         keyboardEvents: {
@@ -597,19 +620,11 @@
             'mod+c': 'copy_selected_panels',
             'mod+v': 'paste_panels',
             'mod+s': 'save_figure',
-            'mod+n': 'new_figure',
+            'mod+n': 'goto_newfigure',
         },
 
-        new_figure: function() {
-
-            var self = this;
-            this.model.save_to_OMERO({}, function() {
-                self.model.unset('fileId');
-            });
-            // this.model.unset('fileId');
-            this.model.delete_all();
+        goto_newfigure: function() {
             window.location.hash = "";
-
             return false;
         },
 
@@ -622,7 +637,18 @@
             if (figureModel.get('fileId')) {
                 options.fileId = figureModel.get('fileId');
             } else {
-                options.figureName = prompt("Enter Figure Name");
+                var d = new Date(),
+                    dt = d.getFullYear() + "-" + (d.getMonth()+1) + "-" +d.getDate(),
+                    tm = d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds(),
+                    defaultName = "WebFigure_" + dt + "_" + tm;
+                var figureName = prompt("Enter Figure Name", defaultName);
+
+                if (figureName) {
+                    options.figureName = figureName;
+                } else {
+                    // Abort saving
+                    return false;
+                }
             }
 
             // Save
@@ -794,6 +820,16 @@
         addOne: function(panel) {
             var view = new PanelView({model:panel});    // uiState:this.uiState
             this.$paper.append(view.render().el);
+        },
+
+        renderFigureName: function() {
+
+            var title = "WebFigure",
+                figureName = this.model.get('figureName');
+            if ((figureName) && (figureName.length > 0)) {
+                title += " - " + figureName;
+            }
+            $('title').text(title);
         },
 
         renderUnsaved: function() {
@@ -981,24 +1017,30 @@
 
         align_left: function() {
             this.model.align_left();
+            return false;
         },
 
         align_grid: function() {
             this.model.align_grid();
+            return false;
         },
 
         align_width: function() {
             this.model.align_size(true, false);
+            return false;
         },
         align_height: function() {
             this.model.align_size(false, true);
+            return false;
         },
         align_size: function() {
             this.model.align_size(true, true);
+            return false;
         },
 
         align_top: function() {
             this.model.align_top();
+            return false;
         },
 
         render: function() {
@@ -1939,6 +1981,7 @@
                     m.save_channel(idx, 'color', color);
                 });
             }
+            return false;
         },
 
         toggle_channel: function(e) {
@@ -1957,6 +2000,7 @@
                     }
                 });
             }
+            return false;
         },
 
         clear: function() {

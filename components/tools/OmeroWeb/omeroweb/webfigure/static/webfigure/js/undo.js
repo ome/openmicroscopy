@@ -10,12 +10,18 @@ var UndoManager = Backbone.Model.extend({
     },
     initialize: function(opts) {
         this.figureModel = opts.figureModel;    // need for setting selection etc
+        this.listenTo(this.figureModel, 'reset_undo_redo', this.resetQueue);
         this.undoQueue = [];
         this.undoInProgress = false;
         //this.undo_pointer = -1;
         // Might need to undo/redo multiple panels/objects
         this.undo_functions = [];
         this.redo_functions = [];
+    },
+    resetQueue: function() {
+        console.log('resetQueue');
+        this.undoQueue = [];
+        this.set('undo_pointer', -1);
     },
     canUndo: function() {
         return this.get('undo_pointer') >= 0;

@@ -100,6 +100,19 @@ def save_web_figure(request, conn=None, **kwargs):
     return HttpResponse(str(fileId))
 
 
+@login_required()
+def load_web_figure(request, fileId, conn=None, **kwargs):
+    """
+    Loads the json stored in the file, identified by file annotation ID 
+    """
+
+    fileAnn = conn.getObject("FileAnnotation", fileId)
+    jsonData = "".join(list(fileAnn.getFileInChunks()))
+
+    return HttpResponse(jsonData, mimetype='json')
+
+
+
 @login_required(setGroupContext=True)
 def make_web_figure(request, conn=None, **kwargs):
     """
