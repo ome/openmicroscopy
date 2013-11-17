@@ -242,7 +242,7 @@ user never had a password, one will need to be set!""")
                         continue # Unknown user
 
                     if olddn:
-                        if olddn != dn:
+                        if olddn.lower() != dn.lower():
                             self.ctx.err("Found different DN for %s: %s"
                                          % (omeName, olddn))
                         else:
