@@ -166,7 +166,7 @@ class PopupMenu
                         controller.activateUser();
                     }
                 });
-        } else  activatedUser.setEnabled(false);
+        } else activatedUser.setEnabled(false);
         activatedUser.setAction(a);
         tagElement = new JMenuItem(controller.getAction(
                 DataBrowserControl.TAG));
