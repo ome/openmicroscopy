@@ -55,9 +55,6 @@ public class ExperimenterData extends DataObject {
     /** Identifies the {@link Experimenter#GROUPEXPERIMENTERMAP} field. */
     public final static String GROUP_EXPERIMENTER_MAP = ExperimenterI.GROUPEXPERIMENTERMAP;
 
-    /** The login name of the root user.*/
-    private final static String ROOT_USER = "root";
-
     /** The other Groups this Experimenter belongs in. */
     private List<GroupData> groups;
     
@@ -292,17 +289,6 @@ public class ExperimenterData extends DataObject {
     }
 
     /**
-     * Returns <code>true</code> if the user is the root user,
-     * <code>false</code> otherwise.
-     * @return
-     */
-    public boolean isRoot()
-    {
-        String name = getUserName();
-        return (ROOT_USER.equals(name.toLowerCase()));
-    }
-
-    /**
      * Overridden to return the id of the default group.
      * @see DataObject#getGroupId()
      */
@@ -316,7 +302,7 @@ public class ExperimenterData extends DataObject {
      * Checks if supplied group id matches any group to which the current
      * experimenter belongs to.
      * @param long groupId
-     * @return bolean <code>true</code>/<code>false</code> depending if matching
+     * @return boolean <code>true</code>/<code>false</code> depending if matching
      *                id found
      */
     public boolean isMemberOfGroup(long groupId) {
