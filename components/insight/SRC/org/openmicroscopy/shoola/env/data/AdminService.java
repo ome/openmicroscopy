@@ -469,7 +469,7 @@ public interface AdminService
     public boolean isSystemGroup(long groupID);
 
     /**
-     * Returns <code>true</code> if the group is a system user e.g. root
+     * Returns <code>true</code> if the user is a system user e.g. root
      * <code>false</code> otherwise.
      *
      * @param userID The identifier of the user.

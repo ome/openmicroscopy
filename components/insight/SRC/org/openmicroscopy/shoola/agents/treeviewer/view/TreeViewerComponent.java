@@ -4728,4 +4728,21 @@ class TreeViewerComponent
 		}
 	}
 
+    /** 
+     * Implemented as specified by the {@link TreeViewer} interface.
+     * @see TreeViewer#isSystemUser(long)
+     */
+    public boolean isSystemUser(long userID)
+    {
+        return model.isSystemUser(userID);
+    }
+
+    /** 
+     * Implemented as specified by the {@link TreeViewer} interface.
+     * @see TreeViewer#isSystemGroup(long)
+     */
+    public boolean isSystemGroup(long groupID)
+    {
+        return model.isSystemGroup(groupID);
+    }
 }
