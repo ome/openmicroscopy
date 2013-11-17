@@ -2,10 +2,10 @@
  * org.openmicroscopy.shoola.agents.treeviewer.view.PopupMenu
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -176,6 +176,9 @@ class PopupMenu
 	
 	/** Reference to the Control. */
 	private TreeViewerControl controller;
+
+	/** Reference to the Control. */
+    private TreeViewerModel model;
 
 	/** Font label. */
 	private Font fontLabel;
@@ -450,7 +453,7 @@ class PopupMenu
 								icons.getIcon(IconManager.OWNER_NOT_ACTIVE));
 						}
 						activatedUser.setEnabled(!value &&
-						        !exp.isRoot());
+						        model.isSystemUser(exp.getId()));
 					}
 					if (!value)
 						activatedUser.addItemListener(new ItemListener() {
@@ -634,17 +637,19 @@ class PopupMenu
 	/** 
 	 * Creates a new instance.
 	 *
-	 * @param controller	The Controller. Mustn't be <code>null</code>.
-	 * @param index			The index of the menu. One of the following
-	 * 						{@link TreeViewer#FULL_POP_UP_MENU} or 
-	 * 						{@link TreeViewer#PARTIAL_POP_UP_MENU}
+	 * @param controller The Controller. Mustn't be <code>null</code>.
+	 * @param model Reference to the model. Mustn't be <code>null</code>.
+	 * @param index The index of the menu. One of the following
+	 *              {@link TreeViewer#FULL_POP_UP_MENU} or
+	 *              {@link TreeViewer#PARTIAL_POP_UP_MENU}
 	 */
-	PopupMenu(TreeViewerControl controller, int index)
+	PopupMenu(TreeViewerControl controller, TreeViewerModel model, int index)
 	{
 		if (controller == null) 
 			throw new IllegalArgumentException("No control.");
 		this.index = index;
 		this.controller = controller;
+		this.model = model;
 		fontLabel = (Font) TreeViewerAgent.getRegistry().lookup(
 				"/resources/fonts/Labels");
 		createMenuItems();

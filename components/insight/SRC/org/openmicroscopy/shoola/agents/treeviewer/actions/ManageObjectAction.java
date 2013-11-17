@@ -317,7 +317,7 @@ public class ManageObjectAction
                                 ExperimenterData user = model.getUserDetails();
                                 ExperimenterData exp = (ExperimenterData) ho;
                                 setEnabled(exp.getId() != user.getId() &&
-                                        !exp.isRoot());
+                                        model.isSystemUser(exp.getId()));
                             } else setEnabled(true);
                         }
                     }
