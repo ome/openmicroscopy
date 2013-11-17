@@ -277,7 +277,8 @@ class AdminServiceImpl
 		Map<ExperimenterData, UserCredentials> m = object.getExperimenters();
 		if (m == null || m.size() == 0)
 			throw new IllegalArgumentException("No experimenters to create.");
-		return gateway.createExperimenters(ctx, object);
+		Roles roles = (Roles) context.lookup(LookupNames.SYSTEM_ROLES);
+		return gateway.createExperimenters(ctx, object, roles);
 	}
 
 	/**
@@ -307,7 +308,8 @@ class AdminServiceImpl
 			throw new IllegalArgumentException("No object.");
 		if (object.getGroup() == null)
 			throw new IllegalArgumentException("No group.");
-		return gateway.createGroup(ctx, object);
+		Roles roles = (Roles) context.lookup(LookupNames.SYSTEM_ROLES);
+		return gateway.createGroup(ctx, object, roles);
 	}
 
 	/**

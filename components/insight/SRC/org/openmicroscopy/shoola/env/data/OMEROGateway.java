@@ -420,9 +420,6 @@ class OMEROGateway
 	/** Map hosting the enumeration required for metadata. */
 	private Map<String, List<EnumerationObject>> enumerations;
 
-	/** The collection of system groups. */
-	private List<ExperimenterGroup>	 systemGroups;
-
 	/** Keep track of the file system view. */
 	private Map<Long, FSFileSystemView> fsViews;
 
@@ -599,76 +596,6 @@ class OMEROGateway
 					e);
 		}
 		return cb;
-	}
-
-	/**
-	 * Retrieves the system groups.
-	 *
-	 * @param ctx The security context.
-	 * @return See above.
-	 * @throws DSOutOfServiceException  If the connection is broken, or logged
-	 *                                  in.
-	 * @throws DSAccessException        If an error occurred while trying to
-	 *                                  retrieve data from OMEDS service.
-	 */
-	private List<ExperimenterGroup> getSystemGroups(SecurityContext ctx)
-		throws DSOutOfServiceException, DSAccessException
-	{
-		if (systemGroups != null) return systemGroups;
-		Connector c = getConnector(ctx, true, false);
-		IQueryPrx service = c.getQueryService();
-		try {
-			List<RType> names = new ArrayList<RType>();
-			Iterator<String> j = SYSTEM_GROUPS.iterator();
-			while (j.hasNext()) {
-				names.add(omero.rtypes.rstring(j.next()));
-			}
-			systemGroups = new ArrayList<ExperimenterGroup>();
-			ParametersI params = new ParametersI();
-			params.map.put("names", omero.rtypes.rlist(names));
-			String sql = "select g from ExperimenterGroup as g ";
-			sql += "where g.name in (:names)";
-
-			List<IObject> l = service.findAllByQuery(sql, params);
-			Iterator<IObject> i = l.iterator();
-			ExperimenterGroup group;
-			String name;
-			while (i.hasNext()) {
-				group = (ExperimenterGroup) i.next();
-				name = group.getName().getValue();
-				if (SYSTEM_GROUPS.contains(name)) //to be on the save side
-					systemGroups.add(group);
-			}
-		} catch (Exception e) {
-			handleException(e, "Cannot retrieve the system groups.");
-		}
-		return systemGroups;
-	}
-
-	/**
-	 * Returns the system group corresponding to the passed name.
-	 *
-	 * @param ctx The security context.
-	 * @param name The name to handle.
-	 * @return See above.
-	 * @throws DSOutOfServiceException  If the connection is broken, or logged
-	 *                                  in.
-	 * @throws DSAccessException        If an error occurred while trying to
-	 *                                  retrieve data from OMEDS service.
-	 */
-	private ExperimenterGroup getSystemGroup(SecurityContext ctx, String name)
-		throws DSOutOfServiceException, DSAccessException
-	{
-		getSystemGroups(ctx);
-		Iterator<ExperimenterGroup> i = systemGroups.iterator();
-
-		ExperimenterGroup g = null;
-		while (i.hasNext()) {
-			g = (ExperimenterGroup) i.next();
-			if (g.getName() != null && name.equals(g.getName().getValue()))
-				return g;
-		}
-		return g;
 	}
 
 	/**
@@ -7132,6 +7059,7 @@ class OMEROGateway
 	 * @param ctx The security context.
 	 * @param object The object hosting information about the experimenters
 	 * to create.
+	 * @param roles The system roles.
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
@@ -7139,7 +7067,7 @@ class OMEROGateway
 	 *                                  retrieve data from OMEDS service.
 	 */
 	List<ExperimenterData> createExperimenters(SecurityContext ctx,
-			AdminObject object)
+			AdminObject object, Roles roles)
 		throws DSOutOfServiceException, DSAccessException
 	{
 	    Connector c = getConnector(ctx, true, false);
@@ -7165,6 +7093,10 @@ class OMEROGateway
 			long id;
 			Experimenter value;
 			boolean systemGroup = false;
+			ExperimenterGroup userGroup = new ExperimenterGroupI();
+			userGroup.setId(rtypes.rlong(roles.userGroupId));
+			ExperimenterGroup system = new ExperimenterGroupI();
+			system.setId(rtypes.rlong(roles.systemGroupId));
 			while (i.hasNext()) {
 				entry = (Entry) i.next();
 				exp = (Experimenter) ModelMapper.createIObject(
@@ -7173,9 +7105,9 @@ class OMEROGateway
 				value = lookupExperimenter(ctx, uc.getUserName());
 				if (value == null) {
 					if (uc.isAdministrator()) {
-						l.add(getSystemGroup(ctx, GroupData.USER));
-						l.add(getSystemGroup(ctx, GroupData.SYSTEM));
-					} else l.add(getSystemGroup(ctx, GroupData.USER));
+						l.add(userGroup);
+						l.add(system);
+					} else l.add(userGroup);
 					if (g == null) {
 						g = l.get(0);
 						systemGroup = true;
@@ -7206,13 +7138,14 @@ class OMEROGateway
 	 * @param ctx The security context.
 	 * @param object The object hosting information about the experimenters
 	 * to create.
+	 * @param roles The security roles.
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
 	 * @throws DSAccessException        If an error occurred while trying to
 	 *                                  retrieve data from OMEDS service.
 	 */
-	GroupData createGroup(SecurityContext ctx, AdminObject object)
+	GroupData createGroup(SecurityContext ctx, AdminObject object, Roles roles)
 		throws DSOutOfServiceException, DSAccessException
 	{
 	    Connector c = getConnector(ctx, true, false);
@@ -7245,6 +7178,10 @@ class OMEROGateway
 			Experimenter value;
 			GroupData defaultGroup = null;
 			ExperimenterData expData;
+			ExperimenterGroup userGroup = new ExperimenterGroupI();
+			userGroup.setId(rtypes.rlong(roles.userGroupId));
+			ExperimenterGroup systemGroup = new ExperimenterGroupI();
+			systemGroup.setId(rtypes.rlong(roles.systemGroupId));
 			while (i.hasNext()) {
 				entry = (Entry) i.next();
 				uc = (UserCredentials) entry.getValue();
@@ -7260,9 +7197,9 @@ class OMEROGateway
 					exp = (Experimenter) ModelMapper.createIObject(
 							(ExperimenterData) entry.getKey());
 					if (uc.isAdministrator()) {
-						l.add(getSystemGroup(ctx, GroupData.SYSTEM));
-						l.add(getSystemGroup(ctx, GroupData.USER));
-					} else l.add(getSystemGroup(ctx, GroupData.USER));
+						l.add(userGroup);
+						l.add(systemGroup);
+					} else l.add(userGroup);
 					exp.setOmeName(omero.rtypes.rstring(uc.getUserName()));
 					password = uc.getPassword();
 					if (password != null && password.length() > 0) {
