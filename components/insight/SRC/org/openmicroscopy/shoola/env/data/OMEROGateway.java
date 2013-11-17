@@ -338,9 +338,6 @@ class OMEROGateway
 	/** The collection of escaping characters we allow in the search. */
 	private static final List<String>		WILD_CARDS;
 
-	/** The collection of system groups. */
-	private static final List<String>		SYSTEM_GROUPS;
-
 	/** The collection of scripts that have a UI available. */
 	private static final List<String>		SCRIPTS_UI_AVAILABLE;
 
@@ -368,10 +365,6 @@ class OMEROGateway
 		WILD_CARDS.add("*");
 		WILD_CARDS.add("?");
 		WILD_CARDS.add("~");
-		SYSTEM_GROUPS = new ArrayList<String>();
-		SYSTEM_GROUPS.add(GroupData.SYSTEM);
-		SYSTEM_GROUPS.add(GroupData.USER);
-		SYSTEM_GROUPS.add(GroupData.GUEST);
 
 		//script w/ a UI.
 		SCRIPTS_UI_AVAILABLE = new ArrayList<String>();
@@ -1669,19 +1662,6 @@ class OMEROGateway
 	void setPort(int port)
 	{
 		if (this.port != port) this.port = port;
-	}
-
-	/**
-	 * Returns <code>true</code> if the passed group is an experimenter group
-	 * internal to OMERO, <code>false</code> otherwise.
-	 *
-	 * @param group The experimenter group to handle.
-	 * @return See above.
-	 */
-	boolean isSystemGroup(ExperimenterGroup group)
-	{
-		String n = group.getName() == null ? null : group.getName().getValue();
-		return (SYSTEM_GROUPS.contains(n));
 	}
 
 	/**
@@ -3486,10 +3466,6 @@ class OMEROGateway
                     + "where g.id in "
                     + "  (select m.parent from GroupExperimenterMap m "
                     + "  where m.child.id = :id )", p);
-
-			//List<ExperimenterGroup> groups = service.containedGroups(
-			//		user.getId());
-
 			ExperimenterGroup group;
 			//GroupData pojoGroup;
 			Iterator<IObject> i = groups.iterator();
@@ -7190,7 +7166,8 @@ class OMEROGateway
 					exp = value;
 					expData = new ExperimenterData(exp);
 					defaultGroup = expData.getDefaultGroup();
-					if (isSystemGroup(defaultGroup.asGroup()))
+					if (dsFactory.getAdmin().isSystemGroup(
+					        defaultGroup.getId()))
 						defaultGroup = null;
 				} else {
 					exp = (Experimenter) ModelMapper.createIObject(
@@ -7228,12 +7205,14 @@ class OMEROGateway
 	 *
 	 * @param ctx The security context.
 	 * @param ids The group identifiers.
+	 * @param roles The security roles.
 	 * @return See above
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
 	 * @throws DSAccessException If an error occurred while trying to
 	 * retrieve data from OMERO service.
 	 */
-	Map<Long, Long> countExperimenters(SecurityContext ctx, List<Long> groupIds)
+	Map<Long, Long> countExperimenters(SecurityContext ctx, List<Long> groupIds,
+	        Roles roles)
 		throws DSOutOfServiceException, DSAccessException
 	{
 	    Connector c = getConnector(ctx, true, false);
@@ -7254,7 +7233,8 @@ class OMEROGateway
 			while (i.hasNext()) {
 				g = (GroupExperimenterMap) i.next();
 				group = g.getParent();
-				if (!isSystemGroup(group)) {
+				if (!dsFactory.getAdmin().isSystemGroup(
+				        group.getId().getValue())) {
 					id = group.getId().getValue();
 					groupIds.remove(id);
 					count = r.get(id);
@@ -7262,7 +7242,7 @@ class OMEROGateway
 					count++;
 					r.put(id, count);
 				} else {
-					if (GroupData.SYSTEM.equals(group.getName().getValue())) {
+					if (roles.systemGroupId == g.getId().getValue()) {
 						id = group.getId().getValue();
 						groupIds.remove(id);
 						count = r.get(id);
@@ -7315,7 +7295,7 @@ class OMEROGateway
 			Iterator<ExperimenterGroup> i = groups.iterator();
 			while (i.hasNext()) {
 				group = i.next();
-				if (!isSystemGroup(group))
+				if (!dsFactory.getAdmin().isSystemGroup(group.getId().getValue()))
 					pojos.add((GroupData) PojoMapper.asDataObject(group));
 			}
 		} catch (Exception e) {
@@ -7330,13 +7310,14 @@ class OMEROGateway
 	 *
 	 * @param ctx The security context.
 	 * @param id The group identifier or <code>-1</code>.
+	 * @param roles The security roles.
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
 	 * @throws DSAccessException        If an error occurred while trying to
 	 *                                  retrieve data from OMEDS service.
 	 */
-	List<GroupData> loadGroups(SecurityContext ctx, long id)
+	List<GroupData> loadGroups(SecurityContext ctx, long id, Roles roles)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		List<GroupData> pojos = new ArrayList<GroupData>();
@@ -7367,10 +7348,10 @@ class OMEROGateway
 			while (i.hasNext()) {
 				group = i.next();
 				pojoGroup = (GroupData) PojoMapper.asDataObject(group);
-				if (!isSystemGroup(group))
+				if (!dsFactory.getAdmin().isSystemGroup(pojoGroup.getId()))
 					pojos.add(pojoGroup);
 				else {
-					if (GroupData.SYSTEM.equals(pojoGroup.getName()))
+					if (roles.systemGroupId == pojoGroup.getId())
 						pojos.add(pojoGroup);
 				}
 			}
@@ -7386,13 +7367,15 @@ class OMEROGateway
 	 *
 	 * @param ctx The security context.
 	 * @param id The group identifier or <code>-1</code>.
+	 * @param roles The security roles.
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
 	 * @throws DSAccessException        If an error occurred while trying to
 	 *                                  retrieve data from OMEDS service.
 	 */
-	List<GroupData> loadGroupsForExperimenter(SecurityContext ctx, long id)
+	List<GroupData> loadGroupsForExperimenter(SecurityContext ctx, long id,
+	        Roles roles)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		List<GroupData> pojos = new ArrayList<GroupData>();
@@ -7413,10 +7396,10 @@ class OMEROGateway
 			while (i.hasNext()) {
 				group = i.next();
 				pojoGroup = (GroupData) PojoMapper.asDataObject(group);
-				if (!isSystemGroup(group))
+				if (!dsFactory.getAdmin().isSystemGroup(pojoGroup.getId()))
 					pojos.add(pojoGroup);
 				else {
-					if (GroupData.SYSTEM.equals(pojoGroup.getName()))
+				    if (roles.systemGroupId == pojoGroup.getId())
 						pojos.add(pojoGroup);
 				}
 			}

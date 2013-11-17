@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.env.data.AdminServiceImpl 
+ * org.openmicroscopy.shoola.env.data.AdminServiceImpl
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
@@ -37,12 +37,12 @@ import java.util.Set;
 import java.util.Map.Entry;
 
 //Third-party libraries
+import org.apache.commons.collections.CollectionUtils;
 
 //Application-internal dependencies
 import omero.model.Experimenter;
 import omero.model.ExperimenterGroup;
 import omero.sys.Roles;
-
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.AgentInfo;
 import org.openmicroscopy.shoola.env.config.Registry;
@@ -64,9 +64,6 @@ import pojos.GroupData;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since 3.0-Beta4
  */
 class AdminServiceImpl
@@ -330,7 +327,8 @@ class AdminServiceImpl
 	public List<GroupData> loadGroups(SecurityContext ctx, long id) 
 		throws DSOutOfServiceException, DSAccessException
 	{
-		return gateway.loadGroups(ctx, id);
+	    Roles roles = (Roles) context.lookup(LookupNames.SYSTEM_ROLES);
+		return gateway.loadGroups(ctx, id, roles);
 	}
 	
 	/**
@@ -341,7 +339,8 @@ class AdminServiceImpl
 			long id) 
 		throws DSOutOfServiceException, DSAccessException
 	{
-		return gateway.loadGroupsForExperimenter(ctx, id);
+	    Roles roles = (Roles) context.lookup(LookupNames.SYSTEM_ROLES);
+		return gateway.loadGroupsForExperimenter(ctx, id, roles);
 	}
 	
 	/**
@@ -471,9 +470,10 @@ class AdminServiceImpl
 			List<Long> ids)
 			throws DSOutOfServiceException, DSAccessException
 	{
-		if (ids == null || ids.size() == 0)
+		if (CollectionUtils.isEmpty(ids))
 			return new HashMap<Long, Long>();
-		return gateway.countExperimenters(ctx, ids);
+		Roles roles = (Roles) context.lookup(LookupNames.SYSTEM_ROLES);
+		return gateway.countExperimenters(ctx, ids, roles);
 	}
 
 	/**
@@ -668,12 +668,13 @@ class AdminServiceImpl
 		Iterator<GroupData> i = groups.iterator();
 		GroupData g;
 		available = new HashSet<GroupData>();
+		Roles roles = (Roles) context.lookup(LookupNames.SYSTEM_ROLES);
 		while (i.hasNext()) {
 			g = i.next();
-			if (!gateway.isSystemGroup(g.asGroup())) {
+			if (!isSystemGroup(g.getId())) {
 				available.add(g);
 			} else {
-				if (GroupData.SYSTEM.equals(g.getName()))
+				if (g.getId() == roles.systemGroupId)
 					uc.setAdministrator(true);
 			}
 		}
