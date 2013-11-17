@@ -1786,6 +1786,24 @@ class DataBrowserComponent
 
     /** 
      * Implemented as specified by the {@link DataBrowser} interface.
+     * @see DataBrowser#isSystemUser(long)
+     */
+    public boolean isSystemUser(long userID)
+    {
+        return model.isSystemUser(userID);
+    }
+
+    /** 
+     * Implemented as specified by the {@link DataBrowser} interface.
+     * @see DataBrowser#isSystemGroup(long)
+     */
+    public boolean isSystemGroup(long groupID)
+    {
+        return model.isSystemGroup(groupID);
+    }
+    
+    /** 
+     * Implemented as specified by the {@link DataBrowser} interface.
      * @see DataBrowser#resetPassword()
      */
     public void resetPassword()

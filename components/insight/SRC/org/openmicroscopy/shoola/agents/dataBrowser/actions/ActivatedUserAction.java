@@ -105,7 +105,7 @@ public class ActivatedUserAction
                         node.getHierarchyObject();
                 ExperimenterData user = DataBrowserAgent.getUserDetails();
                 setEnabled(exp.getId() != user.getId() &&
-                        !exp.isRoot());
+                        !model.isSystemUser(exp.getId()));
                 if (exp.isActive())
                     putValue(Action.SMALL_ICON, ACTIVATED_ICON);
                 else putValue(Action.SMALL_ICON, NOT_ACTIVATED_ICON);

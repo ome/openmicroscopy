@@ -156,7 +156,8 @@ class PopupMenu
                     activatedUser.setIcon(
                             ActivatedUserAction.NOT_ACTIVATED_ICON);
                 }
-                activatedUser.setEnabled(!value && !exp.isRoot());
+                activatedUser.setEnabled(!value &&
+                        !model.isSystemUser(exp.getId()));
             }
             if (!value)
                 activatedUser.addItemListener(new ItemListener() {

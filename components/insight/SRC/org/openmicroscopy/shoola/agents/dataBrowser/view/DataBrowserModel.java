@@ -58,7 +58,6 @@ import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.dataBrowser.layout.Layout;
 import org.openmicroscopy.shoola.agents.dataBrowser.layout.LayoutFactory;
 import org.openmicroscopy.shoola.agents.dataBrowser.visitor.ResetThumbnailVisitor;
-import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.env.LookupNames;
@@ -225,7 +224,7 @@ abstract class DataBrowserModel
 		if (group == null) return false;
 		if (GroupData.PERMISSIONS_GROUP_READ ==
 			group.getPermissions().getPermissionsLevel()) {
-			if (MetadataViewerAgent.isAdministrator()) return true;
+			if (DataBrowserAgent.isAdministrator()) return true;
 			Set leaders = group.getLeaders();
 			Iterator i = leaders.iterator();
 			long userID = getCurrentUser().getId();
@@ -1006,7 +1005,31 @@ abstract class DataBrowserModel
 		}
 		return loaders;
 	}
-	
+
+    /**
+     * Returns <code>true</code> if the user is a system user e.g. root
+     * <code>false</code> otherwise.
+     *
+     * @param id The identifier of the user.
+     * @return See above.
+     */
+    boolean isSystemUser(long id)
+    {
+        return DataBrowserAgent.getRegistry().getAdminService().isSystemUser(id);
+    }
+
+    /**
+     * Returns <code>true</code> if the group is a system group e.g. System
+     * <code>false</code> otherwise.
+     *
+     * @param id The identifier of the group.
+     * @return See above.
+     */
+    boolean isSystemGroup(long id)
+    {
+        return DataBrowserAgent.getRegistry().getAdminService().isSystemUser(id);
+    }
+    
     /**
      * Creates a data loader that can retrieve the hierarchy objects needed
      * by this model.
@@ -1016,7 +1039,7 @@ abstract class DataBrowserModel
      * @param ids       The collection of images' ids to reload.
      * @return A suitable data loader.
      */
-    protected abstract List<DataBrowserLoader> createDataLoader(boolean refresh, 
+    protected abstract List<DataBrowserLoader> createDataLoader(boolean refresh,
     		                                             Collection ids);
 
     /** 
