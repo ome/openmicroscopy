@@ -106,12 +106,9 @@ public class ActivatedUserAction
             setEnabled(false);
             return;
         }
-        Browser browser = model.getSelectedBrowser(); 
-        if (browser == null || selectedDisplay == null) {
-            setEnabled(false);
-            return;
-        } 
-        if (browser.getBrowserType() != Browser.ADMIN_EXPLORER) {
+        Browser browser = model.getSelectedBrowser();
+        if (browser == null || selectedDisplay == null ||
+            browser.getBrowserType() != Browser.ADMIN_EXPLORER) {
             setEnabled(false);
             return;
         }
