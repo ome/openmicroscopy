@@ -531,7 +531,7 @@ class ImporterModel
     }
 
     /**
-     * Returns the groups the current users is a member of.
+     * Returns the groups the current user is a member of.
      * 
      * @return See above.
      */
