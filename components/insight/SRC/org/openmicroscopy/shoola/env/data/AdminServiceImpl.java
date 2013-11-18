@@ -792,7 +792,7 @@ class AdminServiceImpl
 
     /**
      * Implemented as specified by {@link AdminService}.
-     * @see AdminService#isSystemGroup(long)
+     * @see AdminService#isSecuritySystemGroup(long)
      */
     public boolean isSecuritySystemGroup(long groupID)
     {
@@ -805,7 +805,7 @@ class AdminServiceImpl
 
     /**
      * Implemented as specified by {@link AdminService}.
-     * @see AdminService#isSystemGroup(long, String)
+     * @see AdminService#isSecuritySystemGroup(long, String)
      */
     public boolean isSecuritySystemGroup(long groupID, String key)
     {
