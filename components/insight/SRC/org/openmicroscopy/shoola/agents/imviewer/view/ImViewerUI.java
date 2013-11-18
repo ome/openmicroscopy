@@ -1367,9 +1367,12 @@ class ImViewerUI
 		    buffer.append("/"+(model.getMaxLifetimeBin()));
 		    //format the result
 		    ModuloInfo info = model.getModuloT();
-		    buffer.append(" (");
-		    buffer.append(UIUtilities.roundTwoDecimals(info.getRealValue(bin)));
-		    buffer.append(info.getUnit()+")");
+		    if (info != null) {
+	            buffer.append(" (");
+	            buffer.append(UIUtilities.roundTwoDecimals(
+	                    info.getRealValue(bin)));
+	            buffer.append(info.getUnit()+")");
+		    }
 		}
 		setLeftStatus(buffer.toString());
 	}
