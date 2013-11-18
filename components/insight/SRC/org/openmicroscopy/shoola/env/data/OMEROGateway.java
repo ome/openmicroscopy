@@ -7068,10 +7068,10 @@ class OMEROGateway
 			long id;
 			Experimenter value;
 			boolean systemGroup = false;
-			ExperimenterGroup userGroup = new ExperimenterGroupI();
-			userGroup.setId(rtypes.rlong(roles.userGroupId));
-			ExperimenterGroup system = new ExperimenterGroupI();
-			system.setId(rtypes.rlong(roles.systemGroupId));
+			final ExperimenterGroup userGroup = new ExperimenterGroupI(
+			        roles.userGroupId, false);
+			ExperimenterGroup system = new ExperimenterGroupI(
+                    roles.systemGroupId, false);
 			while (i.hasNext()) {
 				entry = (Entry) i.next();
 				exp = (Experimenter) ModelMapper.createIObject(
@@ -8307,7 +8307,7 @@ class OMEROGateway
 	}
 
 	/**
-	 * Returns the system groups and usres..
+	 * Returns the system groups and users
 	 * 
 	 * @param ctx The security context.
 	 * @return See above.
