@@ -588,6 +588,13 @@
                 self.model.set({'paper_width':w, 'paper_height':h});
             });
 
+            // Don't leave the page with unsaved changes!
+            window.onbeforeunload = function() {
+                if (self.model.get("unsaved")) {
+                    return "Leave page with unsved changes?";
+                }
+            };
+
             // respond to zoom changes
             this.listenTo(this.model, 'change:curr_zoom', this.setZoom);
             this.listenTo(this.model, 'change:selection', this.renderSelectionChange);
