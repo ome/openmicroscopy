@@ -2,10 +2,10 @@
  * org.openmicroscopy.shoola.agents.metadata.view.MetadataViewerComponent 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -43,6 +43,7 @@ import javax.swing.JComponent;
 import javax.swing.JFrame;
 
 //Third-party libraries
+import org.apache.commons.collections.CollectionUtils;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.iviewer.RndSettingsSaved;
@@ -78,6 +79,7 @@ import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
+
 import pojos.AnnotationData;
 import pojos.ChannelData;
 import pojos.DataObject;
@@ -264,13 +266,15 @@ class MetadataViewerComponent
 	public void setMetadata(Map<DataObject, StructuredDataResults> results,
 			int loaderID)
 	{
+	    //load rnd.
+	    model.loadRnd();
 		if (results == null || results.size() == 0) return;
 		//Need to check the size of the results map.
 		Browser browser = model.getBrowser();
 		DataObject node;
 		StructuredDataResults data;
 		Entry<DataObject, StructuredDataResults> e;
-		Iterator<Entry<DataObject, StructuredDataResults>> 
+		Iterator<Entry<DataObject, StructuredDataResults>>
 		i = results.entrySet().iterator();
 		if (results.size() == 1) { //handle the single selection
 			while (i.hasNext()) {
@@ -598,7 +602,7 @@ class MetadataViewerComponent
 	 */
 	public void setRelatedNodes(List nodes)
 	{
-		if (nodes == null || nodes.size() == 0) return;
+		if (CollectionUtils.isEmpty(nodes)) return;
 		List<Long> ids = new ArrayList<Long>();
 		Iterator i = nodes.iterator();
 		List<DataObject> results = new ArrayList<DataObject>();
@@ -805,7 +809,6 @@ class MetadataViewerComponent
 		switch (getRndIndex()) {
 			case RND_GENERAL:
 				model.getEditor().getRenderer().renderPreview();
-				//firePropertyChange(RENDER_THUMBNAIL_PROPERTY, -1, imageID);
 				break;
 			case RND_SPECIFIC:
 				firePropertyChange(RENDER_PLANE_PROPERTY, -1, imageID);

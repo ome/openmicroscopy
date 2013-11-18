@@ -46,6 +46,9 @@ public enum ImportStatus {
 	
 	/** The value indicating that the import was not successful. */
 	FAILURE,
+
+	/** The value indicating that a missing library import was not successful. */
+    FAILURE_LIBRARY,
 	
 	/** The value indicating that the file has been ignored. */
 	IGNORED

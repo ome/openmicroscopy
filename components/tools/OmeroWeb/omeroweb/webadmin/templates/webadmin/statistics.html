@@ -4,7 +4,7 @@
 
 {% comment %}
 <!--
-  Copyright (C) 2011 University of Dundee & Open Microscopy Environment.
+  Copyright (C) 2011-2013 University of Dundee & Open Microscopy Environment.
   All rights reserved.
 
   This program is free software: you can redistribute it and/or modify
@@ -39,6 +39,7 @@
     {{ block.super }}
     <script type="text/javascript" src="{% static "3rdparty/jquery.flot/jquery.flot.js" %}"></script>
     <script type="text/javascript" src="{% static "3rdparty/jquery.flot/jquery.flot.pie.js" %}"></script>
+    <!--[if lte IE 8]><script language="javascript" type="text/javascript" src="{% static "3rdparty/jquery.flot/excanvas.js" %}"></script><![endif]-->
     
     <script type="text/javascript">
         $(document).ready(function() 
@@ -59,30 +60,6 @@
                     }
                 });
         })
-        
-        Number.prototype.filesizeformat = function () {
-            /*
-            Formats the value like a 'human-readable' file size (i.e. 13 KB, 4.1 MB,
-            102 bytes, etc).*/
-            
-            var bytes = this;
-            if (bytes < 1024) {
-                return bytes + ' B';
-            } else if (bytes < (1024*1024)) {
-                return (bytes / 1024).toFixed(2) + ' KB';
-            } else if (bytes < (1024*1024*1024)) {
-                return (bytes / (1024*1024)).toFixed(2) + ' MB';
-            } else if (bytes < (1024*1024*1024*1024)) {
-                return (bytes / (1024*1024*1024)).toFixed(2) + ' GB';
-            } else if (bytes < (1024*1024*1024*1024*1024)) {
-                return (bytes / (1024*1024*1024*1024)).toFixed(2) + ' TB';
-            } else if (bytes < (1024*1024*1024*1024*1024*1024)) {
-                return (bytes / (1024*1024*1024*1024*1024)).toFixed(2) + ' PB';
-            } else {
-                return bytes + ' B';
-            }
-            
-        }
         
         var load_drivespace = function(freespace) {
             $("#free_space").text(freespace.filesizeformat());

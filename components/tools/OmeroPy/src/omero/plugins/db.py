@@ -13,7 +13,6 @@
 
 from omero.cli import BaseControl
 from omero.cli import CLI
-from omero.cli import VERSION
 
 from omero_ext.argparse import FileType
 
@@ -23,7 +22,7 @@ import omero.java
 import time
 import sys
 
-HELP="""Database tools for creating scripts, setting passwords, etc."""
+HELP = """Database tools for creating scripts, setting passwords, etc."""
 
 
 class DatabaseControl(BaseControl):
@@ -31,18 +30,23 @@ class DatabaseControl(BaseControl):
     def _configure(self, parser):
         sub = parser.sub()
 
-        script = sub.add_parser("script", help="Generates a DB creation script")
+        script = sub.add_parser(
+            "script", help="Generates a DB creation script")
         script.set_defaults(func=self.script)
-        script.add_argument("-f", "--file", type=FileType(mode="w"), help="Optional file to save to. Use '-' for stdout.")
+        script.add_argument(
+            "-f", "--file", type=FileType(mode="w"),
+            help="Optional file to save to. Use '-' for stdout.")
         script.add_argument("dbversion", nargs="?")
         script.add_argument("dbpatch", nargs="?")
         script.add_argument("password", nargs="?")
 
-        pw = sub.add_parser("password", help="Prints SQL command for updating your root password")
+        pw = sub.add_parser(
+            "password",
+            help="Prints SQL command for updating your root password")
         pw.add_argument("password", nargs="?")
         pw.set_defaults(func=self.password)
 
-    def _lookup(self, data, data2, key, map, hidden = False):
+    def _lookup(self, data, data2, key, map, hidden=False):
         """
         Read values from data and data2. If value is contained in data
         then use it without question. If the value is in data2, offer
@@ -54,27 +58,29 @@ class DatabaseControl(BaseControl):
                 default = data2.properties.getProperty("omero.db."+key)
             else:
                 default = ""
-            map[key] = self.ctx.input("Please enter omero.db.%s [%s]: " % (key, default), hidden)
+            map[key] = self.ctx.input("Please enter omero.db.%s [%s]: "
+                                      % (key, default), hidden)
             if not map[key] or map[key] == "":
                 map[key] = default
         if not map[key] or map[key] == "":
                 self.ctx.die(1, "No value entered")
 
-    def _get_password_hash(self, root_pass = None):
+    def _get_password_hash(self, root_pass=None):
 
         root_pass = self._ask_for_password(" for OMERO root user", root_pass)
 
         server_jar = self.ctx.dir / "lib" / "server" / "server.jar"
-        p = omero.java.popen(["-cp",str(server_jar),"ome.security.auth.PasswordUtil",root_pass])
+        p = omero.java.popen(["-cp", str(server_jar),
+                             "ome.security.auth.PasswordUtil", root_pass])
         rc = p.wait()
         if rc != 0:
-            self.ctx.die(rc, "PasswordUtil failed: %s" % p.communicate() )
+            self.ctx.die(rc, "PasswordUtil failed: %s" % p.communicate())
         value = p.communicate()[0]
         if not value or len(value) == 0:
             self.ctx.die(100, "Encoded password is empty")
         return value.strip()
 
-    def _copy(self, input_path, output, func, cfg = None):
+    def _copy(self, input_path, output, func, cfg=None):
             input = open(str(input_path))
             try:
                 for s in input.xreadlines():
@@ -84,15 +90,17 @@ class DatabaseControl(BaseControl):
                             else:
                                 output.write(func(s))
                         except Exception, e:
-                            self.ctx.die(154, "Failed to map line: %s\nError: %s" % (s, e))
+                            self.ctx.die(
+                                154, "Failed to map line: %s\nError: %s"
+                                % (s, e))
             finally:
                 input.close()
 
     def _make_replace(self, root_pass, db_vers, db_patch):
         def replace_method(str_in):
-                str_out = str_in.replace("@ROOTPASS@",root_pass)
-                str_out = str_out.replace("@DBVERSION@",db_vers)
-                str_out = str_out.replace("@DBPATCH@",db_patch)
+                str_out = str_in.replace("@ROOTPASS@", root_pass)
+                str_out = str_out.replace("@DBVERSION@", db_vers)
+                str_out = str_out.replace("@DBPATCH@", db_patch)
                 return str_out
         return replace_method
 
@@ -101,7 +109,8 @@ class DatabaseControl(BaseControl):
         server_lib = self.ctx.dir / "lib" / "server"
         model_jars = server_lib.glob("model-*.jar")
         if len(model_jars) != 1:
-            self.ctx.die(200, "Invalid model-*.jar state: %s" % ",".join(model_jars))
+            self.ctx.die(200, "Invalid model-*.jar state: %s"
+                         % ",".join(model_jars))
         model_jar = model_jars[0]
         model_jar = str(model_jar.basename())
         match = re.search("model-(.*?).jar", model_jar)
@@ -112,15 +121,19 @@ class DatabaseControl(BaseControl):
         See #2689
         """
         dbprofile = self._db_profile()
-        sql_directory = self.ctx.dir / "sql" / dbprofile / ("%s__%s" % (db_vers, db_patch))
+        sql_directory = self.ctx.dir / "sql" / dbprofile / \
+            ("%s__%s" % (db_vers, db_patch))
         if not sql_directory.exists():
-            self.ctx.die(2, "Invalid Database version/patch: %s does not exist" % sql_directory)
+            self.ctx.die(2, "Invalid Database version/patch: %s does not"
+                         " exist" % sql_directory)
         return sql_directory
 
-    def _create(self, sql_directory, db_vers, db_patch, password_hash, args, location = None):
+    def _create(self, sql_directory, db_vers, db_patch, password_hash, args,
+                location=None):
         sql_directory = self._sql_directory(db_vers, db_patch)
         if not sql_directory.exists():
-            self.ctx.die(2, "Invalid Database version/patch: %s does not exist" % sql_directory)
+            self.ctx.die(2, "Invalid Database version/patch: %s does not"
+                         " exist" % sql_directory)
 
         if args and args.file:
             output = args.file
@@ -137,13 +150,15 @@ class DatabaseControl(BaseControl):
             footer = sql_directory / ("%s-footer.sql" % dbprofile)
             if header.exists():
                 # 73 multiple DB support. OMERO 4.3+
-                cfg = {"TIME":time.ctime(time.time()),
-                    "DIR":sql_directory,
-                    "SCRIPT":script}
+                cfg = {
+                    "TIME": time.ctime(time.time()),
+                    "DIR": sql_directory,
+                    "SCRIPT": script}
                 self._copy(header, output, str, cfg)
                 self._copy(sql_directory/"schema.sql", output, str)
                 self._copy(sql_directory/"views.sql", output, str)
-                self._copy(footer, output,
+                self._copy(
+                    footer, output,
                     self._make_replace(password_hash, db_vers, db_patch), cfg)
             else:
                 # OMERO 4.2.x and before
@@ -163,9 +178,11 @@ class DatabaseControl(BaseControl):
 --
 
 BEGIN;
-                """ % ( time.ctime(time.time()), sql_directory, script ) )
+                """ % (time.ctime(time.time()), sql_directory, script))
                 self._copy(sql_directory/"schema.sql", output, str)
-                self._copy(sql_directory/"data.sql", output, self._make_replace(password_hash, db_vers, db_patch))
+                self._copy(
+                    sql_directory/"data.sql", output,
+                    self._make_replace(password_hash, db_vers, db_patch))
                 self._copy(sql_directory/"views.sql", output, str)
                 output.write("COMMIT;\n")
 
@@ -181,7 +198,8 @@ BEGIN;
         except Exception, e:
             self.ctx.dbg("While getting arguments:" + str(e))
         password_hash = self._get_password_hash(root_pass)
-        self.ctx.out("""UPDATE password SET hash = '%s' WHERE experimenter_id = 0;""" % password_hash)
+        self.ctx.out("UPDATE password SET hash = '%s' "
+                     "WHERE experimenter_id  = 0;""" % password_hash)
 
     def loaddefaults(self):
         try:
@@ -217,7 +235,7 @@ BEGIN;
             self.ctx.dbg("While getting arguments:"+str(e))
         self._lookup(data, data2, "version", map)
         self._lookup(data, data2, "patch", map)
-        sql = self._sql_directory(map["version"],map["patch"])
+        sql = self._sql_directory(map["version"], map["patch"])
         map["pass"] = self._get_password_hash(root_pass)
         self._create(sql, map["version"], map["patch"], map["pass"], args)
 
@@ -225,7 +243,6 @@ try:
     register("db", DatabaseControl, HELP)
 except NameError:
     if __name__ == "__main__":
-        import sys
         cli = CLI()
         cli.register("db", DatabaseControl, HELP)
         cli.invoke(sys.argv[1:])

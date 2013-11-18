@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 #
-# Copyright (C) 2012 Glencoe Software, Inc. All Rights Reserved.
+# Copyright (C) 2012-2013 Glencoe Software, Inc. All Rights Reserved.
 # Use is subject to license terms supplied in LICENSE.txt
 #
 # This program is free software; you can redistribute it and/or modify
@@ -98,6 +98,7 @@ class TestCliImport(lib.ITest):
         pix = fixture.load_pixels(pix)
         self.assertGroup(fixture.context.groupId, dataset, pix)
 
+    @pytest.mark.xfail(reason="See ticket #11539")
     def testTargetInDifferentGroup(self):
         fixture = Fixture(*self.new_client_and_user())
         group = self.new_group(experimenters=[fixture.user])

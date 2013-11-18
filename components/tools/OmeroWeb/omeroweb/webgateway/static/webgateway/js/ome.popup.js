@@ -23,6 +23,29 @@ if (typeof OME === "undefined") {
     OME = {};
 }
 
+Number.prototype.filesizeformat = function () {
+    /*
+    Formats the value like a 'human-readable' file size (i.e. 13 KB, 4.1 MB,
+    102 bytes, etc).*/
+    
+    var bytes = this;
+    if (bytes < 1024) {
+        return bytes + ' B';
+    } else if (bytes < (1024*1024)) {
+        return (bytes / 1024).toFixed(2) + ' KB';
+    } else if (bytes < (1024*1024*1024)) {
+        return (bytes / (1024*1024)).toFixed(2) + ' MB';
+    } else if (bytes < (1024*1024*1024*1024)) {
+        return (bytes / (1024*1024*1024)).toFixed(2) + ' GB';
+    } else if (bytes < (1024*1024*1024*1024*1024)) {
+        return (bytes / (1024*1024*1024*1024)).toFixed(2) + ' TB';
+    } else {
+        return (bytes / (1024*1024*1024*1024*1024)).toFixed(2) + ' PB';
+    }
+    
+}
+
+
 String.prototype.capitalize = function() {
     return this.charAt(0).toUpperCase() + this.slice(1);
 };
@@ -368,7 +391,7 @@ OME.login_dialog = function(login_url, callback) {
     //
     //  $("#rotation_3d_tab").omeroweb_right_plugin({           // The tab content element
     //      plugin_index: 3,                                    // The tab index
-    //      load_tab_content: function(selected, obj_dtype, obj_id) {    // Url based on selected object(s)
+    //      load_plugin_content: function(selected, obj_dtype, obj_id) {    // Url based on selected object(s)
     //          $(this).load('{% url weblabs_index %}rotation_3d_viewer/'+obj_id);
     //      },
     //      supported_obj_types: ['image','dataset'],   // E.g. only support single image/dataset selected
@@ -380,13 +403,15 @@ OME.login_dialog = function(login_url, callback) {
         // Process each jQuery object in array
         this.each(function(i) {
             // 'this' is the element we're working with
-            var $this = $(this);
+            var $this = $(this),
+                plugin_tab_index = $this.index()-1;
 
             // store settings
-            var plugin_tab_index = settings['plugin_index'],
-                load_tab_content = settings['load_tab_content'],
+            // 'load_plugin_content' was called 'load_tab_content' (4.4.9 and earlier). Support both...
+            var load_plugin_content = settings['load_plugin_content'] || settings['load_tab_content'],
                 supported_obj_types = settings['supported_obj_types'],
-                tab_enabled = settings['tab_enabled'];      // only used if 'supported_obj_types' undefined
+                // only used if 'supported_obj_types' undefined. (was called 'tab_enabled' in 4.4.9)
+                plugin_enabled = settings['plugin_enabled'] || settings['tab_enabled'];
 
             var update_tab_content = function() {
                 // get the selected id etc
@@ -400,8 +425,8 @@ OME.login_dialog = function(login_url, callback) {
 
                 // if the tab is visible and not loaded yet...
                 if ($this.is(":visible") && $this.is(":empty")) {
-                    // we want the context of load_tab_content to be $this
-                    $.proxy(load_tab_content,$this)(selected, dtype, oid);
+                    // we want the context of load_plugin_content to be $this
+                    $.proxy(load_plugin_content, $this)(selected, dtype, oid);
                 }
             };
 
@@ -434,7 +459,7 @@ OME.login_dialog = function(login_url, callback) {
                 if (typeof supported_obj_types != 'undefined') {
                     supported = ($.inArray(orel, supported_obj_types) >-1) && (selected.length == 1);
                 } else {
-                    supported = tab_enabled(selected);
+                    supported = plugin_enabled ? plugin_enabled(selected) : true;
                 }
 
                 // update enabled & selected state
@@ -465,11 +490,11 @@ OME.login_dialog = function(login_url, callback) {
         // Process each jQuery object in array
         this.each(function(i) {
             // 'this' is the element we're working with
-            var $this = $(this);
+            var $this = $(this),
+                plugin_index = $this.index() - 1;
 
             // store settings
-            var plugin_index = settings['plugin_index'],
-                load_plugin_content = settings['load_plugin_content'],
+            var load_plugin_content = settings['load_plugin_content'],
                 supported_obj_types = settings['supported_obj_types'],
                 plugin_enabled = settings['plugin_enabled'],      // only used if 'supported_obj_types' undefined
                 empty_on_sel_change = settings['empty_on_sel_change'];
@@ -521,7 +546,7 @@ OME.login_dialog = function(login_url, callback) {
                     supported = ($.inArray(orel, supported_obj_types) >-1) && (selected.length == 1);
                 } else {
                     // OR use the user-specified function to check support
-                    supported = plugin_enabled(selected);
+                    supported = plugin_enabled ? plugin_enabled(selected) : true;
                 }
 
                 // update enabled state

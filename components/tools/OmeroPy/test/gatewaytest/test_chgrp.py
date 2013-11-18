@@ -12,6 +12,7 @@
 
 """
 
+import pytest
 import omero
 from omero.rtypes import *
 from omero.cmd import Chgrp, State, ERR, OK
@@ -168,6 +169,7 @@ def testPDIChgrp(gatewaywrapper):
                    "Image should be available in original group"
 
 
+@pytest.mark.xfail(reason="ticket 11610")
 def testTwoDatasetsChgrpToProject(gatewaywrapper):
     """
     Create a new group with the User as member. Image has 2 Dataset Parents.

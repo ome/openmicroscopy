@@ -646,6 +646,15 @@ public class StatusLabel
 			directory = evt.file.isDirectory();
 			if (exception == null)
 				firePropertyChange(SCANNING_PROPERTY, null, this);
+		} else if (event instanceof ErrorHandler.MISSING_LIBRARY) {
+            exception = new ImportException(ImportException.MISSING_LIBRARY_TEXT,
+                    ((ErrorHandler.MISSING_LIBRARY) event).exception);
+            handleProcessingError(ImportException.MISSING_LIBRARY_TEXT, false);
+		} else if (event instanceof ErrorHandler.UNKNOWN_FORMAT) {
+            exception = new ImportException(ImportException.UNKNOWN_FORMAT_TEXT,
+                    ((ErrorHandler.UNKNOWN_FORMAT) event).exception);
+            if (!directory)
+            handleProcessingError(ImportException.UNKNOWN_FORMAT_TEXT, true);
 		} else if (event instanceof ErrorHandler.FILE_EXCEPTION) {
 			ErrorHandler.FILE_EXCEPTION e = (ErrorHandler.FILE_EXCEPTION) event;
 			readerType = e.reader;
@@ -661,16 +670,7 @@ public class StatusLabel
 			usedFiles = e.usedFiles;
 			exception = new ImportException(e.exception);
 			handleProcessingError("", true);
-		} else if (event instanceof ErrorHandler.UNKNOWN_FORMAT) {
-			exception = new ImportException(ImportException.UNKNOWN_FORMAT_TEXT,
-					((ErrorHandler.UNKNOWN_FORMAT) event).exception);
-			if (!directory)
-			handleProcessingError(ImportException.UNKNOWN_FORMAT_TEXT, true);
-		} else if (event instanceof ErrorHandler.MISSING_LIBRARY) {
-			exception = new ImportException(ImportException.MISSING_LIBRARY_TEXT,
-					((ErrorHandler.MISSING_LIBRARY) event).exception);
-			handleProcessingError(ImportException.MISSING_LIBRARY_TEXT, false);
-		} else if (event instanceof ImportEvent.FILE_UPLOAD_BYTES) {
+		}  else if (event instanceof ImportEvent.FILE_UPLOAD_BYTES) {
 			ImportEvent.FILE_UPLOAD_BYTES e =
 				(ImportEvent.FILE_UPLOAD_BYTES) event;
 			long v = totalUploadedSize+e.uploadedBytes;

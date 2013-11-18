@@ -837,7 +837,7 @@ class BlitzObjectWrapper (object):
         """
         return self._linkObject(ann, "%sAnnotationLinkI" % self.OMERO_CLASS)
 
-    def linkAnnotation (self, ann, sameOwner=True):
+    def linkAnnotation (self, ann, sameOwner=False):
         """
         Link the annotation to this object.
         
@@ -3821,7 +3821,7 @@ class AnnotationWrapper (BlitzObjectWrapper):
             return None
 
     @classmethod
-    def createAndLink (klass, target, ns, val=None):
+    def createAndLink (klass, target, ns, val=None, sameOwner=False):
         """
         Class method for creating an instance of this AnnotationWrapper, setting ns and value
         and linking to the target. 
@@ -3837,7 +3837,7 @@ class AnnotationWrapper (BlitzObjectWrapper):
         this.setNs(ns)
         if val is not None:
             this.setValue(val)
-        target.linkAnnotation(this)
+        target.linkAnnotation(this, sameOwner=sameOwner)
 
     def getNs (self):
         """
@@ -6470,10 +6470,18 @@ class _ImageWrapper (BlitzObjectWrapper):
         Sets the active channels on the rendering engine.
         Also sets rendering windows and channel colors (for channels that are active)
         
+        Examples:
+        # Turn first channel ON, others OFF
+        image.setActiveChannels([1])
+        # First OFF, second ON, windows and colors for both
+        image.setActiveChannels([-1, 2], [[20, 300], [50, 500]], ['00FF00', 'FF0000'])
+        # Second Channel ON with windows. All others OFF
+        image.setActiveChannels([2], [[20, 300]])
+
         @param channels:    List of active channel indexes ** 1-based index **
         @type channels:     List of int
         @param windows:     Start and stop values for active channel rendering settings
-        @type windows:      List of tuples. [(20, 300), (None, None), (50, 500)]. Must be tuples for all channels
+        @type windows:      List of [start, stop]. [[20, 300], [None, None], [50, 500]]. Must be list for each channel
         @param colors:      List of colors. ['F00', None, '00FF00'].  Must be item for each channel
         """
         abs_channels = [abs(c) for c in channels]
@@ -6482,7 +6490,7 @@ class _ImageWrapper (BlitzObjectWrapper):
             self._re.setActive(c, (c+1) in channels, self._conn.SERVICE_OPTS)
             if (c+1) in channels:
                 if windows is not None and windows[idx][0] is not None and windows[idx][1] is not None:
-                    self._re.setChannelWindow(c, *(windows[idx] + [self._conn.SERVICE_OPTS]))
+                    self._re.setChannelWindow(c, float(windows[idx][0]), float(windows[idx][1]), self._conn.SERVICE_OPTS)
                 if colors is not None and colors[idx]:
                     rgba = splitHTMLColor(colors[idx])
                     if rgba:
@@ -6751,10 +6759,10 @@ class _ImageWrapper (BlitzObjectWrapper):
         self._pd.t = long(t)
 
         regionDef = omero.romio.RegionDef()
-        regionDef.x = x
-        regionDef.y = y
-        regionDef.width = width
-        regionDef.height = height
+        regionDef.x = int(x)
+        regionDef.y = int(y)
+        regionDef.width = int(width)
+        regionDef.height = int(height)
         self._pd.region = regionDef
         try:
             if level is not None:

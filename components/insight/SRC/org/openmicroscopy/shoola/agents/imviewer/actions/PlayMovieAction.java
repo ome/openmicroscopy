@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.imviewer.actions.PlayMovieAction 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -45,36 +45,39 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since OME3.0
  */
 public class PlayMovieAction
 	extends ViewerAction
 {
 
-	/** Indicates to play the movie across Z. */
-	public static final int		ACROSS_Z = MoviePlayerDialog.ACROSS_Z;
-	
-	/** Indicates to play the movie across Z. */
-	public static final int		ACROSS_T = MoviePlayerDialog.ACROSS_T;
-	
-	/** The description of the action. */
+    /** Indicates to play the movie across Z. */
+    public static final int ACROSS_Z = MoviePlayerDialog.ACROSS_Z;
+
+    /** Indicates to play the movie across T. */
+    public static final int ACROSS_T = MoviePlayerDialog.ACROSS_T;
+
+    /** Indicates to play the movie across t. */
+    public static final int ACROSS_LIFETIME = MoviePlayerDialog.ACROSS_BIN;
+
+    /** The description of the action. */
     private static final String DESCRIPTION_ACROSS_Z = "Play movie across Z.";
-    
+
     /** The description of the action. */
     private static final String DESCRIPTION_ACROSS_T = "Play movie across T.";
-    
+
+    /** The description of the action. */
+    private static final String DESCRIPTION_ACROSS_BIN = "Play movie across t.";
+
 	/** Helper reference to the icon manager. */
     private IconManager icons;
-    
+
     /** One of the constants defined by this class. */
-    private int			index;
-    
+    private int index;
+
     /**
      * Checks if the passed index is valid.
-     * 
+     *
      * @param index The value to handle.
      */
     private void checkIndex(int index)
@@ -82,66 +85,77 @@ public class PlayMovieAction
     	switch (index) {
 			case ACROSS_Z:
 			case ACROSS_T:
+			case ACROSS_LIFETIME:
 				break;
 			default:
 				throw new IllegalArgumentException("Index not valid.");
 		}
     }
-    
-    /** 
+
+    /**
      * Overridden to make sure that the movie player is not enabled when 
      * there is only one channel.
      * @see ViewerAction#onStateChange(ChangeEvent)
      */
     protected void onStateChange(ChangeEvent e)
     {
-    	switch (model.getState()) {
-			case ImViewer.DISCARDED:
-				break;
-			case ImViewer.CHANNEL_MOVIE:
-				setEnabled(false);
-				break;
-			case ImViewer.READY:
-				if (model.isBigImage()) {
-					setEnabled(false);
-				} else {
-					if (model.isPlayingMovie()) {
-						setEnabled(model.getMovieIndex() == index);
-					} else {
-						if (index == ACROSS_T)
-							setEnabled(model.getMaxT() != 0);
-						else if (index == ACROSS_Z)
-							setEnabled(model.getMaxZ() != 0);
-					}
-				}
-		}
+        switch (model.getState()) {
+        case ImViewer.DISCARDED:
+            break;
+        case ImViewer.CHANNEL_MOVIE:
+            setEnabled(false);
+            break;
+        case ImViewer.READY:
+            if (model.isBigImage()) {
+                setEnabled(false);
+            } else {
+                if (model.isPlayingMovie()) {
+                    setEnabled(model.getMovieIndex() == index);
+                } else {
+                    switch (index) {
+                    case ACROSS_LIFETIME:
+
+                        break;
+                    case ACROSS_T:
+                        setEnabled(model.getRealT() > 1);
+                        break;
+                    case ACROSS_Z:
+                        setEnabled(model.getMaxZ() != 0);
+                    }
+                }
+            }
+        }
     }
-    
+
     /**
      * Creates a new instance.
-     * 
+     *
      * @param model Reference to the model. Mustn't be <code>null</code>.
      * @param index	One of the constants defined by this class.
      */
 	public PlayMovieAction(ImViewer model, int index)
-    {
-        super(model);
-        checkIndex(index);
-        this.index = index;
-        icons = IconManager.getInstance();
-        switch (index) {
-			case ACROSS_T:
-				putValue(Action.SHORT_DESCRIPTION, 
-		                UIUtilities.formatToolTipText(DESCRIPTION_ACROSS_T));
-			break;
-			case ACROSS_Z:
-				putValue(Action.SHORT_DESCRIPTION, 
-		                UIUtilities.formatToolTipText(DESCRIPTION_ACROSS_Z));
-		}
-        
+	{
+	    super(model);
+	    checkIndex(index);
+	    this.index = index;
+	    icons = IconManager.getInstance();
+	    switch (index) {
+	    case ACROSS_T:
+	        putValue(Action.SHORT_DESCRIPTION,
+	                UIUtilities.formatToolTipText(DESCRIPTION_ACROSS_T));
+	        break;
+	    case ACROSS_Z:
+	        putValue(Action.SHORT_DESCRIPTION,
+	                UIUtilities.formatToolTipText(DESCRIPTION_ACROSS_Z));
+	        break;
+	    case ACROSS_LIFETIME:
+            putValue(Action.SHORT_DESCRIPTION,
+                    UIUtilities.formatToolTipText(DESCRIPTION_ACROSS_BIN));
+	    }
+
         putValue(Action.SMALL_ICON, icons.getIcon(IconManager.PLAY));
     }
-	
+
 	/**
 	 * Sets the icon of the action.
 	 * 
@@ -155,8 +169,8 @@ public class PlayMovieAction
 		else 
 			putValue(Action.SMALL_ICON, icons.getIcon(IconManager.PAUSE));
 	}
-	
-	/** 
+
+	/**
      * Plays movie across z-sections or time-points.
      * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
      */
@@ -167,5 +181,5 @@ public class PlayMovieAction
     	setActionIcon(!b);
     	model.playMovie(b, false, index);
     }
-	
+
 }

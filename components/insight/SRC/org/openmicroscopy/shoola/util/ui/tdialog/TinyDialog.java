@@ -2,10 +2,10 @@
  * org.openmicroscopy.shoola.util.ui.tdialog.TinyWindow
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -28,6 +28,8 @@ package org.openmicroscopy.shoola.util.ui.tdialog;
 import java.awt.Dimension;
 import java.awt.Frame;
 import java.awt.Point;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.awt.image.BufferedImage;
 import java.util.List;
 import javax.swing.JComponent;
@@ -38,84 +40,80 @@ import javax.swing.JDialog;
 //Application-internal dependencies
 
 /** 
- *  A tiny-looking non-modal and non-resizable JDialog without decoration.
+ * A tiny-looking non-modal and non-resizable JDialog without decoration.
  * <p>This window has a small title bar and an JComponent to display the 
  * image.
  * <p>The window behaves mostly like a regular window, but has a close and
  * sizing button allowing to collapse/expand the window contents.</p>
  *
- * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
- * @author  <br>Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:a.falconi@dundee.ac.uk">
- * 					a.falconi@dundee.ac.uk</a>
+ * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
+ * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+ * @author <br>Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
+ * <a href="mailto:a.falconi@dundee.ac.uk">a.falconi@dundee.ac.uk</a>
  * @version 2.2
- * <small>
- * (<b>Internal version:</b> $Revision: 4724 $ $Date: 2007-01-17 08:46:48 +0000 (Wed, 17 Jan 2007) $)
- * </small>
  * @since OME2.2
  */
 public class TinyDialog
     extends JDialog
 {
-    
+
     /** Bound property name indicating if the window is collapsed. */
     public final static String COLLAPSED_PROPERTY = "collapsed";
-    
+
     /** Bound property name indicating if the window is closed. */
     public final static String CLOSED_PROPERTY = "closedDialog";
-     
+
     /** Bound property name indicating if the window's title has changed. */
     public final static String TITLE_PROPERTY = "title";
-    
+
     /** Indicates to show both the close and size buttons. */
-    public final static int		BOTH = 0;
-    
+    public final static int BOTH = 0;
+
     /** Indicates to only show the close button. */
     public final static int		CLOSE_ONLY = 1;
-    
+
     /** Indicates to only show the size button. */
-    public final static int		SIZE_ONLY = 2;
-    
+    public final static int SIZE_ONLY = 2;
+
     /** Indicates to only show the size button. */
-    public final static int		NO_BUTTON = 3;
-    
+    public final static int NO_BUTTON = 3;
+
     /** The minimum magnification value. */
-    final static int		MINIMUM_ZOOM = 1;
-    
+    final static int MINIMUM_ZOOM = 1;
+
     /** The maximum magnification value. */
-    final static int		MAXIMUM_ZOOM = 2;
-    
+    final static int MAXIMUM_ZOOM = 2;
+
     /** The size of the frame before the last collapse request. */
-    private Dimension       restoreSize;
-    
+    private Dimension restoreSize;
+
     /** The View component that renders this frame. */
     protected TinyDialogUI  uiDelegate;
-    
+
     /** The Controller component that renders this frame. */
     protected DialogControl controller;
-    
+
     /** Tells if this window is expanded or collapsed. */
-    private boolean         collapsed;
-    
+    private boolean collapsed;
+
     /** Tells if this window is closed or not. */
-    private boolean         closed;
-    
+    private boolean closed;
+
     /** The image to display. */
-    private BufferedImage	originalImage;
-    
+    private BufferedImage originalImage;
+
     /** The magnification factor. */
-    private float			zoomFactor;
-   
+    private float zoomFactor;
+
     /** 
      * One of the following: {@link #BOTH}, {@link #CLOSE_ONLY} or 
      * {@link #SIZE_ONLY}. 
      */
-    private int				buttonIndex;
-    
+    private int buttonIndex;
+
     /** The title displayed in this window's title bar. */
-    protected String        title;
-    
+    protected String title;
+
     /** Sets the property of the dialog window. */ 
     private void setProperties()
     {
@@ -124,6 +122,17 @@ public class TinyDialog
         setUndecorated(true);
         setRestoreSize(new Dimension(getWidth(), getHeight()));
         zoomFactor = MINIMUM_ZOOM;
+        addFocusListener(new FocusListener() {
+
+            /** Closes the dialog when losing the focus.*/
+            public void focusLost(FocusEvent e) { setClosed(true); }
+
+            /** 
+             * Required by the I/F but no operation in that case.
+             * @see FocusListner#focusGained(FocusEvent)
+             */
+            public void focusGained(FocusEvent e) {}
+        });
     }
 
     /** 
@@ -132,21 +141,21 @@ public class TinyDialog
      * @return See above.
      */
     BufferedImage getOriginalImage() { return originalImage; }
-    
+
     /**
      * Returns the magnification factor.
      * 
      * @return See above.
      */
     float getZoomFactor() { return zoomFactor; }
-    
+
     /**
      * Sets the magnification factor.
      * 
      * @param v The value to set.
      */
     void setZoomFactor(float v) { zoomFactor = v; }
-    
+
     /**
      * Sets the size to used to restore the size of the component
      * when the frame is expanded.
@@ -154,7 +163,7 @@ public class TinyDialog
      * @param d The size to set.
      */
     void setRestoreSize(Dimension d) { restoreSize = d; }
-    
+
     /**
      * Returns the size used to restore the size of the component
      * when the frame is expanded.
@@ -162,14 +171,14 @@ public class TinyDialog
      * @return See above.
      */
     Dimension getRestoreSize() { return restoreSize; }
-    
+
     /**
      * Returns the type of buttons to display in the tool bar.
      * 
      * @return See above.
      */
     int getButtonIndex() { return buttonIndex; }
-    
+
     /**
      * Creates a new window with the specified owner frame.
      * 
@@ -180,7 +189,7 @@ public class TinyDialog
     { 
         this(owner, image, null);
     }
-    
+
     /**
      * Creates a new window with the specified owner frame.
      * 
@@ -192,7 +201,6 @@ public class TinyDialog
     {
         super(owner);
         setProperties();
-        //if (owner == null) throw new NullPointerException("No owner.");
         if (image == null) throw new NullPointerException("No image.");
         this.title = title;
         originalImage = image;
@@ -203,67 +211,67 @@ public class TinyDialog
         controller = new DialogControl(this, uiDelegate);
         uiDelegate.attachMouseWheelListener(controller);
     }
-    
+
     /**
      * Creates a new window with the specified owner frame.
      * 
      * @param owner The parent's of the window. Mustn't be <code>null</code>.
-     * @param c     The component to display. Mustn't be <code>null</code>.
+     * @param c The component to display. Mustn't be <code>null</code>.
      */
     public TinyDialog(Frame owner, JComponent c)
     {
         this(owner, c, null);
     }
-    
+
     /**
      * Creates a new window with the specified owner frame.
      * 
      * @param owner The parent's of the window. Mustn't be <code>null</code>.
-     * @param c     The component to display. Mustn't be <code>null</code>.
+     * @param c The component to display. Mustn't be <code>null</code>.
      * @param index The type of button to display in the tool bar.
      */
     public TinyDialog(Frame owner, JComponent c, int index)
     {
         this(owner, c, index, null);
     }
-    
+
     /**
      * Creates a new window with the specified owner frame.
      * 
      * @param owner The parent's of the window. Mustn't be <code>null</code>.
-     * @param c     The component to display. Mustn't be <code>null</code>.
+     * @param c The component to display. Mustn't be <code>null</code>.
      * @param index The type of button to display in the tool bar.
      * @param title The window's title.
      */
     public TinyDialog(Frame owner, JComponent c, int index, String title)
     {
-    	 super(owner);
-         //if (owner == null) throw new NullPointerException("No owner.");
-         this.title = title;
-         buttonIndex = index;
-         //Create the View and the Controller.
-         if (c == null) uiDelegate = new TinyDialogUI(this);
-         else uiDelegate = new TinyDialogUI(this, c);
-         controller = new DialogControl(this, uiDelegate);
-         setProperties();
+        super(owner);
+        //if (owner == null) throw new NullPointerException("No owner.");
+        this.title = title;
+        buttonIndex = index;
+        //Create the View and the Controller.
+        if (c == null) uiDelegate = new TinyDialogUI(this);
+        else uiDelegate = new TinyDialogUI(this, c);
+        controller = new DialogControl(this, uiDelegate);
+        setProperties();
     }
-    
+
     /**
      * Creates a new window with the specified owner frame.
      * 
      * @param owner The parent's of the window. Mustn't be <code>null</code>.
-     * @param c     The component to display. Mustn't be <code>null</code>.
+     * @param c The component to display. Mustn't be <code>null</code>.
      * @param title The window's title.
      */
     public TinyDialog(Frame owner, JComponent c, String title)
     {
-       this(owner, c, BOTH, title);
+        this(owner, c, BOTH, title);
     }
-    
+
     /**
      * Creates a new window with the specified owner frame.
      * 
-     * @param owner	The parent's of the window. Mustn't be <code>null</code>.
+     * @param owner The parent's of the window. Mustn't be <code>null</code>.
      * @param title The window's title.
      * @param index The type of button to display in the tool bar.
      */
@@ -277,17 +285,17 @@ public class TinyDialog
         controller = new DialogControl(this, uiDelegate);
         setProperties();
     }
-    
+
     /**
      * Returns the canvas.
      * 
      * @return See above.
      */
     public JComponent getCanvas() { return uiDelegate.getCanvas(); }
-    
+
     /** Moves the window to the Front. */
     public void moveToFront() { setVisible(true); }
-    
+
     /** 
      * Moves the window to the Front and sets the location.
      * 
@@ -299,14 +307,14 @@ public class TinyDialog
         setLocation(x, y);
         setVisible(true);
     }
-    
+
     /**
      * Moves the window and sets the location.
      * 
      * @param p The new location.
      */
     public void moveToFront(Point p) { moveToFront(p.x, p.y); }
-    
+
     /**
      * Returns the title of the <code>TinyWindow</code>.
      *
@@ -314,7 +322,7 @@ public class TinyDialog
      * @see #setTitle
      */
     public String getTitle() { return title; }
-    
+
     /** 
      * Sets the <code>TinyWindow</code> title. The <code>title</code>
      * may have a <code>null</code> value.
@@ -328,11 +336,11 @@ public class TinyDialog
         this.title = title;
         firePropertyChange(TITLE_PROPERTY, oldValue, title);
     }
-    
+
     /**
      * Collapses or expands this frame depending on the passed value.
      * This is a bound property; property change listeners are notified
-     * of any change to this property. 
+     * of any change to this property.
      * 
      * @param b Pass <code>true</code> to collapse, <code>false</code> to
      *          expand.
@@ -348,18 +356,18 @@ public class TinyDialog
         collapsed = b;
         firePropertyChange(COLLAPSED_PROPERTY, oldValue, newValue);
     }
-    
+
     /** 
      * Tells if this frame is expanded or collapsed.
      * 
-     * @return <code>true</code> if collapsed, <code>false</code> if expanded. 
+     * @return <code>true</code> if collapsed, <code>false</code> if expanded.
      */
     public boolean isCollapsed() { return collapsed; }
-    
+
     /**
      * Closes or opens this window depending on the passed value.
      * This is a bound property; property change listeners are notified
-     * of any change to this property. 
+     * of any change to this property.
      * 
      * @param b Pass <code>true</code> to close, <code>false</code> otherwise.
      */
@@ -372,7 +380,7 @@ public class TinyDialog
         closed = b;
         firePropertyChange(CLOSED_PROPERTY, oldValue, newValue);
     }
-    
+
     /**
      * Sets the node's decoration.
      * 
@@ -381,31 +389,31 @@ public class TinyDialog
      */
     public void setDecoration(List l)
     {
-    	if (uiDelegate == null) return;
-    	uiDelegate.setDecoration(l);
+        if (uiDelegate == null) return;
+        uiDelegate.setDecoration(l);
     }
-    
+
     /** 
-     * Sets the canvas. 
+     * Sets the canvas.
      * 
      * @param c The component to set.
      */
     public void setCanvas(JComponent c)
     {
-    	if (uiDelegate == null || c == null) return;
-    	uiDelegate.setCanvas(c);
+        if (uiDelegate == null || c == null) return;
+        uiDelegate.setCanvas(c);
     }
-    
+
     /** 
      * Tells if this window is closed or not.
      * 
-     * @return <code>true</code> if closed, <code>false</code> otherwise. 
+     * @return <code>true</code> if closed, <code>false</code> otherwise.
      */
     public boolean isClosed() { return closed; }
-    
+
     /** Closes and disposes. */
     public void closeWindow() { uiDelegate.updateClosedState(); }
-    
+
     /** 
      * Modifies the style of the font of the title.
      * 
@@ -413,11 +421,11 @@ public class TinyDialog
      */
     public void setFontTitleStyle(int style)
     { 
-    	uiDelegate.setFontStyle(style);
+        uiDelegate.setFontStyle(style);
     }
-    
+
     /** 
-     * Overrides the method. 
+     * Overrides the method.
      * If the specified flag is <code>true</code>, we attach a 
      * {@link BorderListener}.
      * @see JDialog#setResizable(boolean)
@@ -428,9 +436,9 @@ public class TinyDialog
         if (b)
             getRootPane().addMouseMotionListener(new BorderListener(this));
     }
-    
+
     /** 
-     * Overrides the method to make sure that we have no decoration. 
+     * Overrides the method to make sure that we have no decoration.
      * @see JDialog#setUndecorated(boolean)
      */
     public void setUndecorated(boolean b)

@@ -5,7 +5,7 @@
    Integration tests for tickets between 2000 and 2999
    a running server.
 
-   Copyright 2010 Glencoe Software, Inc. All rights reserved.
+   Copyright 2010-2013 Glencoe Software, Inc. All rights reserved.
    Use is subject to license terms supplied in LICENSE.txt
 
 """
@@ -134,6 +134,7 @@ class TestTickets3000(lib.ITest):
 
         assert  la.id.val in [x.id.val for x in res]
 
+    @pytest.mark.xfail(reason="See ticket #11539")
     def test2762(self):
         """
         Test that the page (limit/offset) settings on a ParametersI

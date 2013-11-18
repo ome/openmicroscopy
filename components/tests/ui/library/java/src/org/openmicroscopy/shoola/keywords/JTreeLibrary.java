@@ -322,19 +322,19 @@ public class JTreeLibrary
 
     /**
      * <table>
-     *   <td>Get Tree Path With Icon And Suffix</td>
+     *   <td>Get Tree Path With Icon And Name</td>
      *   <td>name of the sought node's image icon</td>
-     *   <td>required suffix of the sought node's text</td>
+     *   <td>name of the sought node</td>
      *   <td><code>JTree</code> component name</td>
      * <table>
      * @param iconName the name of the icon sought among the tree nodes
-     * @param nodeSuffix the suffix of the sought node's text
+     * @param nodeName the name of the sought node
      * @param treeName the name of the tree among whose nodes to search
      * @return a tree path from the tree whose node matches the given criteria
      * @throws MultipleComponentsFoundException if multiple suitable components have the given name
      * @throws ComponentNotFoundException if no suitable components have the given name or no suitable node can be found
      */
-    public String getTreePathWithIconAndSuffix(final String iconName, final String nodeSuffix, final String treeName)
+    public String getTreePathWithIconAndName(final String iconName, final String nodeName, final String treeName)
             throws ComponentNotFoundException, MultipleComponentsFoundException {
         final JTree tree = (JTree) new BasicFinder().find(new Matcher() {
             public boolean matches(Component component) {
@@ -344,9 +344,8 @@ public class JTreeLibrary
         final TreeNodeMatcher matcher = new TreeNodeMatcher() {
             @Override
             public boolean matches(TreePath treePath, Component component, Object node) {
-                final String nodeText = treeNodeTextExtractor.getText(node, treePath);
-                return nodeText != null && nodeText.endsWith(nodeSuffix) &&
-                        iconName.equals(IconCheckLibrary.getIconNameMaybe(component));
+                return nodeName.equals(treeNodeTextExtractor.getText(node, treePath)) &&
+                       iconName.equals(IconCheckLibrary.getIconNameMaybe(component));
             }};
         return findInTree(matcher, tree);
     }

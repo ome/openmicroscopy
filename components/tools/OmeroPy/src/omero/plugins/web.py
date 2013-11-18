@@ -10,13 +10,9 @@
 
 from datetime import datetime
 from omero.cli import BaseControl, CLI
-import omero.java
 import platform
-import time
 import sys
 import os
-import re
-from subprocess import Popen, PIPE
 
 try:
     from omeroweb import settings
@@ -25,19 +21,20 @@ try:
     CONFIG_TABLE = CONFIG_TABLE_FMT % ("Key", "Default?", "Current value")
 
     for key in sorted(settings.CUSTOM_SETTINGS_MAPPINGS):
-        global_name, default_value, mapping, using_default = settings.CUSTOM_SETTINGS_MAPPINGS[key]
+        global_name, default_value, mapping, using_default = \
+            settings.CUSTOM_SETTINGS_MAPPINGS[key]
         global_value = getattr(settings, global_name, "(unset)")
-        CONFIG_TABLE += CONFIG_TABLE_FMT  % (key, using_default, global_value)
+        CONFIG_TABLE += CONFIG_TABLE_FMT % (key, using_default, global_value)
 except:
-    CONFIG_TABLE="INVALID OR LOCKED CONFIGURATION! Cannot display default values"
+    CONFIG_TABLE = "INVALID OR LOCKED CONFIGURATION! Cannot display default"\
+        " values"
 
-HELP="""OMERO.web configuration/deployment tools
+HELP = """OMERO.web configuration/deployment tools
 
 Configuration:
 
-    Configuration for OMERO.web takes place via the
-    omero config commands. The configuration values
-    which are checked are as below:
+    Configuration for OMERO.web takes place via the omero config commands. The
+    configuration values which are checked are as below:
 
 %s
 
@@ -76,57 +73,99 @@ class WebControl(BaseControl):
         parser.add(sub, self.status, "Status for the OMERO.web server")
 
         iis = parser.add(sub, self.iis, "IIS (un-)install of OMERO.web ")
-        iis.add_argument("--remove", action = "store_true", default = False)
+        iis.add_argument("--remove", action="store_true", default=False)
 
         #
         # Advanced
         #
 
-        config = parser.add(sub, self.config, "Output a config template for server ('nginx' or 'apache' for the moment")
-        config.add_argument("type", choices=("nginx","apache"))
-        config.add_argument("--http", type=int, help="HTTP port for web server (not fastcgi)")
-        config.add_argument("--system", action="store_true", help="System appropriate configuration file")
+        config = parser.add(
+            sub, self.config,
+            "Output a config template for server"
+            " ('nginx' or 'apache' for the moment")
+        config.add_argument("type", choices=("nginx", "apache"))
+        config.add_argument(
+            "--http", type=int,
+            help="HTTP port for web server (not fastcgi)")
+        config.add_argument(
+            "--system", action="store_true",
+            help="System appropriate configuration file")
 
-        parser.add(sub, self.syncmedia, "Advanced use: Creates needed symlinks for static media files\n(Performed automatically by 'start')")
+        parser.add(
+            sub, self.syncmedia,
+            "Advanced use: Creates needed symlinks for static"
+            " media files (Performed automatically by 'start')")
 
         #
         # Developer
         #
 
-        call = parser.add(sub, self.call, """Developer use: call appname "[executable] scriptname" args """)
+        call = parser.add(
+            sub, self.call,
+            """Developer use: call appname "[executable] scriptname" args""")
         call.add_argument("appname")
         call.add_argument("scriptname")
         call.add_argument("arg", nargs="*")
 
-        enableapp = parser.add(sub, self.enableapp, "Developer use: runs enable.py and then syncdb")
+        enableapp = parser.add(
+            sub, self.enableapp,
+            "Developer use: runs enable.py and then syncdb")
         enableapp.add_argument("appname", nargs="*")
 
-        gateway = parser.add(sub, self.gateway, "Developer use: Loads the blitz gateway into a Python interpreter")
+        parser.add(
+            sub, self.gateway,
+            "Developer use: Loads the blitz gateway into a Python"
+            " interpreter")
 
-        selenium = parser.add(sub, self.seleniumtest, "Developer use: runs selenium tests on a django app")
-        selenium.add_argument("--config", action="store", help = "ice.config location")
-        selenium.add_argument("djangoapp", help = "Django-app to be tested")
-        selenium.add_argument("seleniumserver", help = "E.g. localhost")
-        selenium.add_argument("hostname", help = "E.g. http://localhost:4080")
-        selenium.add_argument("browser", help = "E.g. firefox")
+        selenium = parser.add(
+            sub, self.seleniumtest,
+            "Developer use: runs selenium tests on a django app")
+        selenium.add_argument(
+            "--config", action="store", help="ice.config location")
+        selenium.add_argument("djangoapp", help="Django-app to be tested")
+        selenium.add_argument("seleniumserver", help="E.g. localhost")
+        selenium.add_argument("hostname", help="E.g. http://localhost:4080")
+        selenium.add_argument("browser", help="E.g. firefox")
 
-        test = parser.add(sub, self.test, "Developer use: Runs omero web tests (py.test)\n--cov* options depend on pytest-cov plugin")
-        test.add_argument("--config", action="store", help = "ice.config location")
-        test.add_argument("--basepath", action="store", help = "Base omeroweb path (default lib/python/omeroweb)")
-        test.add_argument("--testpath", action="store", help = "Path for test collection (relative to basepath)")
-        test.add_argument("--string", action="store", help = "Only run tests including string.")
-        test.add_argument("--failfast", action="store_true", default=False, help = "Exit on first error")
-        test.add_argument("--verbose", action="store_true", default=False, help = "More verbose output")
-        test.add_argument("--quiet", action="store_true", default=False, help = "Less verbose output")
-        test.add_argument("--pdb", action="store_true", default=False, help = "Fallback to pdb on error")
-        test.add_argument('--cov', action='append', default=[],
-                            help='measure coverage for filesystem path (multi-allowed)')
-        test.add_argument('--cov-report', action='append', default=[],
-                            choices=['term', 'term-missing', 'annotate', 'html', 'xml'],
-                            help='type of report to generate: term, term-missing, annotate, html, xml (multi-allowed)')
+        test = parser.add(
+            sub, self.test, "Developer use: Runs omero web tests"
+            " (py.test)\n--cov* options depend on pytest-cov plugin")
+        test.add_argument(
+            "--config", action="store", help="ice.config location")
+        test.add_argument(
+            "--basepath", action="store",
+            help="Base omeroweb path (default lib/python/omeroweb)")
+        test.add_argument(
+            "--testpath", action="store",
+            help="Path for test collection (relative to basepath)")
+        test.add_argument(
+            "--string", action="store",
+            help="Only run tests including string.")
+        test.add_argument(
+            "--failfast", action="store_true", default=False,
+            help="Exit on first error")
+        test.add_argument(
+            "--verbose", action="store_true", default=False,
+            help="More verbose output")
+        test.add_argument(
+            "--quiet", action="store_true", default=False,
+            help="Less verbose output")
+        test.add_argument(
+            "--pdb", action="store_true", default=False,
+            help="Fallback to pdb on error")
+        test.add_argument(
+            '--cov', action='append', default=[],
+            help='measure coverage for filesystem path (multi-allowed)')
+        test.add_argument(
+            '--cov-report', action='append', default=[],
+            choices=['term', 'term-missing', 'annotate', 'html', 'xml'],
+            help="type of report to generate: term, term-missing, annotate,"
+            " html, xml (multi-allowed)")
+
     def config(self, args):
         if not args.type:
-            self.ctx.out("Available configuration helpers:\n - nginx, apache\n")
+            self.ctx.out(
+                "Available configuration helpers:\n - nginx, apache\n")
         else:
             server = args.type
             port = 8080
@@ -134,34 +173,40 @@ class WebControl(BaseControl):
                 port = args.http
             if settings.APPLICATION_SERVER == settings.FASTCGITCP:
                 if settings.APPLICATION_SERVER_PORT == port:
-                    self.ctx.die(678, "Port conflict: HTTP(%s) and fastcgi-tcp(%s)." % \
-                            (port, settings.APPLICATION_SERVER_PORT))
+                    self.ctx.die(
+                        678, "Port conflict: HTTP(%s) and"" fastcgi-tcp(%s)."
+                        % (port, settings.APPLICATION_SERVER_PORT))
             if server == "nginx":
                 if settings.APPLICATION_SERVER == settings.FASTCGITCP:
-                    fastcgi_pass = "%s:%s" % (settings.APPLICATION_SERVER_HOST,
-                                              settings.APPLICATION_SERVER_PORT)
+                    fastcgi_pass = "%s:%s" \
+                        % (settings.APPLICATION_SERVER_HOST,
+                           settings.APPLICATION_SERVER_PORT)
                 else:
-                    fastcgi_pass = "unix:%s/var/django_fcgi.sock" % self.ctx.dir
+                    fastcgi_pass = "unix:%s/var/django_fcgi.sock" \
+                        % self.ctx.dir
                 if args.system:
-                    c = file(self.ctx.dir / "etc" / "nginx.conf.system.template").read()
+                    c = file(self.ctx.dir / "etc" /
+                             "nginx.conf.system.template").read()
                 else:
-                    c = file(self.ctx.dir / "etc" / "nginx.conf.template").read()
+                    c = file(self.ctx.dir / "etc" /
+                             "nginx.conf.template").read()
                 d = {
-                    "ROOT":self.ctx.dir,
-                    "OMEROWEBROOT":self.ctx.dir / "lib" / "python" / "omeroweb",
-                    "HTTPPORT":port,
-                    "FASTCGI_PASS":fastcgi_pass,
+                    "ROOT": self.ctx.dir,
+                    "OMEROWEBROOT": self.ctx.dir / "lib" / "python" /
+                    "omeroweb",
+                    "HTTPPORT": port,
+                    "FASTCGI_PASS": fastcgi_pass,
                     }
                 self.ctx.out(c % d)
             if server == "apache":
                 if settings.APPLICATION_SERVER == settings.FASTCGITCP:
                     fastcgi_external = '-host %s:%s' % \
-                            (settings.APPLICATION_SERVER_HOST,
-                             settings.APPLICATION_SERVER_PORT)
+                        (settings.APPLICATION_SERVER_HOST,
+                         settings.APPLICATION_SERVER_PORT)
                 else:
                     fastcgi_external = '-socket "%s/var/django_fcgi.sock"' % \
                         self.ctx.dir
-                stanza  = """###
+                stanza = """###
 # apache config for omero
 # this file should be loaded *after* ssl.conf
 #
@@ -175,9 +220,11 @@ class WebControl(BaseControl):
 ###
 
 # Eliminate overlap warnings with the default ssl vhost
-# Requires SNI (http://wiki.apache.org/httpd/NameBasedSSLVHostsWithSNI) support
+# Requires SNI (http://wiki.apache.org/httpd/NameBasedSSLVHostsWithSNI) \
+support
 # most later versions of mod_ssl and OSes will support it
-# if you see "You should not use name-based virtual hosts in conjunction with SSL!!"
+# if you see "You should not use name-based virtual hosts in conjunction \
+with  SSL!!"
 # or similar start apache with -D DISABLE_SNI and modify ssl.conf
 #<IfDefine !DISABLE_SNI>
 #  NameVirtualHost *:443
@@ -237,11 +284,13 @@ Alias /static %(STATIC)s
 Alias /omero "%(ROOT)s/var/omero.fcgi/"
 """
                 d = {
-                    "ROOT":self.ctx.dir,
-                    "STATIC":self.ctx.dir / "lib" / "python" / "omeroweb" / "static",
-                    "OMEROWEBROOT":self.ctx.dir / "lib" / "python" / "omeroweb",
-                    "FASTCGI_EXTERNAL":fastcgi_external,
-                    "NOW":str(datetime.now()),
+                    "ROOT": self.ctx.dir,
+                    "STATIC": self.ctx.dir / "lib" / "python" / "omeroweb" /
+                    "static",
+                    "OMEROWEBROOT": self.ctx.dir / "lib" / "python" /
+                    "omeroweb",
+                    "FASTCGI_EXTERNAL": fastcgi_external,
+                    "NOW": str(datetime.now()),
                     }
                 self.ctx.out(stanza % d)
 
@@ -251,28 +300,35 @@ Alias /omero "%(ROOT)s/var/omero.fcgi/"
     def enableapp(self, args):
         location = self.ctx.dir / "lib" / "python" / "omeroweb"
         if not args.appname:
-            apps = [x.name for x in filter(lambda x: x.isdir() and (x / 'scripts' / 'enable.py').exists(), location.listdir())]
-            iapps = map(lambda x: x.startswith('omeroweb.') and x[9:] or x, settings.INSTALLED_APPS)
+            apps = [x.name for x in filter(
+                lambda x: x.isdir() and
+                (x / 'scripts' / 'enable.py').exists(), location.listdir())]
+            iapps = map(lambda x: x.startswith('omeroweb.') and x[9:] or
+                        x, settings.INSTALLED_APPS)
             apps = filter(lambda x: x not in iapps, apps)
-            self.ctx.out('[enableapp] available apps:\n - ' + '\n - '.join(apps) + '\n')
+            self.ctx.out('[enableapp] available apps:\n - ' +
+                         '\n - '.join(apps) + '\n')
         else:
             for app in args.appname:
-                args = [sys.executable, location / app / "scripts" / "enable.py"]
-                rv = self.ctx.call(args, cwd = location)
+                args = [sys.executable, location / app / "scripts" /
+                        "enable.py"]
+                rv = self.ctx.call(args, cwd=location)
                 if rv != 0:
                     self.ctx.die(121, "Failed to enable '%s'.\n" % app)
                 else:
                     self.ctx.out("App '%s' was enabled\n" % app)
             args = [sys.executable, "manage.py", "syncdb", "--noinput"]
-            rv = self.ctx.call(args, cwd = location)
+            rv = self.ctx.call(args, cwd=location)
             self.syncmedia(None)
 
     def gateway(self, args):
         location = self.ctx.dir / "lib" / "python" / "omeroweb"
-        args = [sys.executable, "-i", location / "../omero/gateway/scripts/dbhelpers.py"]
+        args = [sys.executable, "-i", location /
+                "../omero/gateway/scripts/dbhelpers.py"]
         self.set_environ()
-        os.environ['DJANGO_SETTINGS_MODULE'] = os.environ.get('DJANGO_SETTINGS_MODULE', 'omeroweb.settings')
-        rv = self.ctx.call(args, cwd = location)
+        os.environ['DJANGO_SETTINGS_MODULE'] = \
+            os.environ.get('DJANGO_SETTINGS_MODULE', 'omeroweb.settings')
+        self.ctx.call(args, cwd=location)
 
     def test(self, args):
         try:
@@ -290,7 +346,7 @@ Alias /omero "%(ROOT)s/var/omero.fcgi/"
         if args.basepath:
             cwd = args.basepath
         else:
-            cwd = self.ctx.dir / 'lib' / 'python' / 'omeroweb'    
+            cwd = self.ctx.dir / 'lib' / 'python' / 'omeroweb'
 
         if args.testpath:
             cargs.extend(['-s', args.testpath])
@@ -309,14 +365,15 @@ Alias /omero "%(ROOT)s/var/omero.fcgi/"
         for cov_rep in args.cov_report:
             cargs.extend(['--cov-report', cov_rep])
 
-        os.environ['DJANGO_SETTINGS_MODULE'] = os.environ.get('DJANGO_SETTINGS_MODULE', 'omeroweb.settings')
+        os.environ['DJANGO_SETTINGS_MODULE'] = \
+            os.environ.get('DJANGO_SETTINGS_MODULE', 'omeroweb.settings')
         # The following is needed so the cwd is included in the python path
         # when using --testpath
         os.environ['PYTHONPATH'] += ':.'
 
-        rv = self.ctx.call(cargs, cwd = cwd)
+        self.ctx.call(cargs, cwd=cwd)
 
-    def seleniumtest (self, args):
+    def seleniumtest(self, args):
         try:
             ice_config = args.config
             appname = args.djangoapp
@@ -324,8 +381,9 @@ Alias /omero "%(ROOT)s/var/omero.fcgi/"
             hostname = args.hostname
             browser = args.browser
         except:
-            self.ctx.die(121, "usage: seleniumtest [path.]{djangoapp} [seleniumserver] [hostname] [browser]")
-        
+            self.ctx.die(121, "usage: seleniumtest [path.]{djangoapp}"
+                         " [seleniumserver] [hostname] [browser]")
+
         if appname.find('.') > 0:
             appname = appname.split('.')
             appbase = appname[0]
@@ -335,13 +393,14 @@ Alias /omero "%(ROOT)s/var/omero.fcgi/"
             appbase = "omeroweb"
             location = self.ctx.dir / "lib" / "python" / "omeroweb"
 
-        cargs = [sys.executable, location / appname / "tests" / "seleniumtests.py", seleniumserver, hostname, browser]
+        cargs = [sys.executable, location / appname / "tests" /
+                 "seleniumtests.py", seleniumserver, hostname, browser]
         #cargs += args.arg[1:]
         self.set_environ(ice_config=ice_config)
         os.environ['DJANGO_SETTINGS_MODULE'] = 'omeroweb.settings'
-        rv = self.ctx.call(cargs, cwd = location )
-        
-    def call (self, args):
+        self.ctx.call(cargs, cwd=location)
+
+    def call(self, args):
         try:
             location = self.ctx.dir / "lib" / "python" / "omeroweb"
             cargs = []
@@ -352,11 +411,12 @@ Alias /omero "%(ROOT)s/var/omero.fcgi/"
                 scriptname = ' '.join(scriptname[1:])
             else:
                 scriptname = scriptname[0]
-            cargs.extend([location / appname / "scripts" / scriptname] + args.arg)
+            cargs.extend([location / appname / "scripts" / scriptname] +
+                         args.arg)
             print cargs
             os.environ['DJANGO_SETTINGS_MODULE'] = 'omeroweb.settings'
             self.set_environ()
-            rv = self.ctx.call(cargs, cwd = location)
+            self.ctx.call(cargs, cwd=location)
         except:
             import traceback
             print traceback.print_exc()
@@ -365,7 +425,7 @@ Alias /omero "%(ROOT)s/var/omero.fcgi/"
         # Ensure that static media is copied to the correct location
         location = self.ctx.dir / "lib" / "python" / "omeroweb"
         args = [sys.executable, "manage.py", "collectstatic", "--noinput"]
-        rv = self.ctx.call(args, cwd = location)
+        rv = self.ctx.call(args, cwd=location)
         if rv != 0:
             self.ctx.die(607, "Failed to collect static content.\n")
 
@@ -380,9 +440,9 @@ Alias /omero "%(ROOT)s/var/omero.fcgi/"
         if cache_backend is not None and cache_backend.startswith("file:///"):
             cache_backend = cache_backend[7:]
             if "Windows" != platform.system() \
-               and not os.access(cache_backend, os.R_OK|os.W_OK):
+               and not os.access(cache_backend, os.R_OK | os.W_OK):
                 self.ctx.out("[FAILED]")
-                self.ctx.out("CACHE_BACKEND '%s' not writable or missing." % \
+                self.ctx.out("CACHE_BACKEND '%s' not writable or missing." %
                              getattr(settings, 'CACHE_BACKEND'))
                 return 1
         deploy = getattr(settings, 'APPLICATION_SERVER')
@@ -403,12 +463,14 @@ using bin\omero web start on Windows with FastCGI.
                     pid_num = int(pid_txt)
                 except:
                     pid_path.remove()
-                    self.ctx.err("Removed invalid %s: '%s'" % (pid_path, pid_txt))
+                    self.ctx.err("Removed invalid %s: '%s'"
+                                 % (pid_path, pid_txt))
 
             if pid_num is not None:
                 try:
                     os.kill(pid_num, 0)
-                    self.ctx.die(606, "%s exists! Use 'web stop' first" % pid_path)
+                    self.ctx.die(606,
+                                 "%s exists! Use 'web stop' first" % pid_path)
                 except OSError:
                     pid_path.remove()
                     self.ctx.err("Removed stale %s" % pid_path)
@@ -422,7 +484,7 @@ using bin\omero web start on Windows with FastCGI.
             django = (cmd % {
                 'maxrequests': settings.APPLICATION_SERVER_MAX_REQUESTS,
                 'base': self.ctx.dir}).split()
-            rv = self.ctx.popen(args=django, cwd=location) # popen
+            rv = self.ctx.popen(args=django, cwd=location)  # popen
         elif deploy == settings.FASTCGITCP:
             cmd = "python manage.py runfcgi workdir=./"
             cmd += " method=prefork host=%(host)s port=%(port)s"
@@ -434,16 +496,15 @@ using bin\omero web start on Windows with FastCGI.
                 'base': self.ctx.dir,
                 'host': settings.APPLICATION_SERVER_HOST,
                 'port': settings.APPLICATION_SERVER_PORT}).split()
-            rv = self.ctx.popen(args=django, cwd=location) # popen
+            rv = self.ctx.popen(args=django, cwd=location)  # popen
         else:
-            django = [sys.executable,"manage.py","runserver", link, "--noreload"]
-            rv = self.ctx.call(django, cwd = location)
+            django = [sys.executable, "manage.py", "runserver", link,
+                      "--noreload"]
+            rv = self.ctx.call(django, cwd=location)
         self.ctx.out("[OK]")
         return rv
 
-
     def status(self, args):
-        location = self.ctx.dir / "lib" / "python" / "omeroweb"
         self.ctx.out("OMERO.web status... ", newline=False)
         import omeroweb.settings as settings
         deploy = getattr(settings, 'APPLICATION_SERVER')
@@ -455,12 +516,12 @@ using bin\omero web start on Windows with FastCGI.
         rv = 0
         if deploy in settings.FASTCGI_TYPES:
             try:
-                f=open(self.ctx.dir / "var" / "django.pid", 'r')
+                f = open(self.ctx.dir / "var" / "django.pid", 'r')
                 pid = int(f.read())
             except IOError:
                 self.ctx.out("[NOT STARTED]")
                 return rv
-            import signal
+
             try:
                 os.kill(pid, 0)  # NULL signal
                 self.ctx.out("[RUNNING] (PID %d)%s" % (pid, cache_backend))
@@ -493,20 +554,25 @@ using bin\omero web start on Windows with FastCGI.
                     os.kill(pid, 0)  # NULL signal
                 except:
                     self.ctx.out("[FAILED]")
-                    self.ctx.out("Django FastCGI workers (PID %s) not started?" % pid_text)
+                    self.ctx.out(
+                        "Django FastCGI workers (PID %s) not started?"
+                        % pid_text)
                     return
-                os.kill(pid, signal.SIGTERM) #kill whole group
+                os.kill(pid, signal.SIGTERM)  # kill whole group
                 self.ctx.out("[OK]")
                 self.ctx.out("Django FastCGI workers (PID %d) killed." % pid)
             finally:
                 if pid_path.exists():
                     pid_path.remove()
         else:
-            self.ctx.err("DEVELOPMENT: You will have to kill processes by hand!")
+            self.ctx.err(
+                "DEVELOPMENT: You will have to kill processes by hand!")
 
     def set_environ(self, ice_config=None):
-        os.environ['ICE_CONFIG'] = ice_config is None and str(self.ctx.dir / "etc" / "ice.config") or str(ice_config)
-        os.environ['PATH'] = str(os.environ.get('PATH', '.') + ':' + self.ctx.dir / 'bin')
+        os.environ['ICE_CONFIG'] = ice_config is None and \
+            str(self.ctx.dir / "etc" / "ice.config") or str(ice_config)
+        os.environ['PATH'] = str(os.environ.get('PATH', '.') + ':' +
+                                 self.ctx.dir / 'bin')
 
     def iis(self, args):
         self.collectstatic()
@@ -517,7 +583,7 @@ using bin\omero web start on Windows with FastCGI.
         cmd = [sys.executable, str(web_iis)]
         if args.remove:
             cmd.append("remove")
-        rv = self.ctx.call(cmd)
+        self.ctx.call(cmd)
 
 try:
     register("web", WebControl, HELP)

@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.iviewer.view.ImViewerControl
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -392,70 +392,70 @@ class ImViewerControl
 		actionsMap.put(ZOOM_250, new ZoomAction(model, ZoomAction.ZOOM_250));
 		actionsMap.put(ZOOM_275, new ZoomAction(model, ZoomAction.ZOOM_275));
 		actionsMap.put(ZOOM_300, new ZoomAction(model, ZoomAction.ZOOM_300));
-		actionsMap.put(ZOOM_FIT_TO_WINDOW, 
+		actionsMap.put(ZOOM_FIT_TO_WINDOW,
 				new ZoomAction(model, ZoomAction.ZOOM_FIT_TO_WINDOW));
 		actionsMap.put(LENS, new LensAction(model));
-		actionsMap.put(GREY_SCALE_MODEL, 
+		actionsMap.put(GREY_SCALE_MODEL,
 				new ColorModelAction(model, ColorModelAction.GREY_SCALE_MODEL));
-		actionsMap.put(RGB_MODEL, 
+		actionsMap.put(RGB_MODEL,
 				new ColorModelAction(model, ColorModelAction.RGB_MODEL));
-		actionsMap.put(HSB_MODEL, 
+		actionsMap.put(HSB_MODEL,
 				new ColorModelAction(model, ColorModelAction.HSB_MODEL));
 		actionsMap.put(CHANNEL_MOVIE, new ChannelMovieAction(model));
 		actionsMap.put(UNIT_BAR, new UnitBarAction(model));
-		actionsMap.put(UNIT_BAR_ONE, new UnitBarSizeAction(model, 
+		actionsMap.put(UNIT_BAR_ONE, new UnitBarSizeAction(model,
 				UnitBarSizeAction.ONE));
-		actionsMap.put(UNIT_BAR_TWO, new UnitBarSizeAction(model, 
+		actionsMap.put(UNIT_BAR_TWO, new UnitBarSizeAction(model,
 				UnitBarSizeAction.TWO));
-		actionsMap.put(UNIT_BAR_FIVE, new UnitBarSizeAction(model, 
+		actionsMap.put(UNIT_BAR_FIVE, new UnitBarSizeAction(model,
 				UnitBarSizeAction.FIVE));
-		actionsMap.put(UNIT_BAR_TEN, new UnitBarSizeAction(model, 
+		actionsMap.put(UNIT_BAR_TEN, new UnitBarSizeAction(model,
 				UnitBarSizeAction.TEN));
-		actionsMap.put(UNIT_BAR_TWENTY, new UnitBarSizeAction(model, 
+		actionsMap.put(UNIT_BAR_TWENTY, new UnitBarSizeAction(model,
 				UnitBarSizeAction.TWENTY));
-		actionsMap.put(UNIT_BAR_FIFTY, new UnitBarSizeAction(model, 
+		actionsMap.put(UNIT_BAR_FIFTY, new UnitBarSizeAction(model,
 				UnitBarSizeAction.FIFTY));
-		actionsMap.put(UNIT_BAR_HUNDRED, new UnitBarSizeAction(model, 
+		actionsMap.put(UNIT_BAR_HUNDRED, new UnitBarSizeAction(model,
 				UnitBarSizeAction.HUNDRED));
-		actionsMap.put(UNIT_BAR_CUSTOM, new UnitBarSizeAction(model, 
+		actionsMap.put(UNIT_BAR_CUSTOM, new UnitBarSizeAction(model,
 				UnitBarSizeAction.CUSTOMIZED));
 		actionsMap.put(COLOR_PICKER, new ColorPickerAction(model));
 		actionsMap.put(TEXT_VISIBLE, new TextVisibleAction(model));
 		actionsMap.put(MEASUREMENT_TOOL, new ROIToolAction(model));
-		actionsMap.put(PLAY_MOVIE_T, 
+		actionsMap.put(PLAY_MOVIE_T,
 				new PlayMovieAction(model, PlayMovieAction.ACROSS_T));
-		actionsMap.put(PLAY_MOVIE_Z, 
+		actionsMap.put(PLAY_MOVIE_Z,
 				new PlayMovieAction(model, PlayMovieAction.ACROSS_Z));
 		actionsMap.put(PREFERENCES, new PreferencesAction(model));
 		actionsMap.put(USER, new UserAction(model));
-		actionsMap.put(ZOOM_GRID_25, new ZoomGridAction(model, 
+		actionsMap.put(ZOOM_GRID_25, new ZoomGridAction(model,
 									ZoomGridAction.ZOOM_25));
-		actionsMap.put(ZOOM_GRID_50, new ZoomGridAction(model, 
+		actionsMap.put(ZOOM_GRID_50, new ZoomGridAction(model,
 				ZoomGridAction.ZOOM_50));
-		actionsMap.put(ZOOM_GRID_75, new ZoomGridAction(model, 
+		actionsMap.put(ZOOM_GRID_75, new ZoomGridAction(model,
 				ZoomGridAction.ZOOM_75));
-		actionsMap.put(ZOOM_GRID_100, new ZoomGridAction(model, 
+		actionsMap.put(ZOOM_GRID_100, new ZoomGridAction(model,
 				ZoomGridAction.ZOOM_100));
 		actionsMap.put(TAB_VIEW, new ShowViewAction(model, ShowViewAction.VIEW));
-		actionsMap.put(TAB_PROJECTION, new ShowViewAction(model, 
+		actionsMap.put(TAB_PROJECTION, new ShowViewAction(model,
 											ShowViewAction.PROJECTION));
-		actionsMap.put(TAB_GRID, new ShowViewAction(model, 
+		actionsMap.put(TAB_GRID, new ShowViewAction(model,
 									ShowViewAction.SPLIT));
 		actionsMap.put(HISTORY, new HistoryAction(model));
-		actionsMap.put(PASTE_RND_SETTINGS, 
-				new ManageRndSettingsAction(model, 
+		actionsMap.put(PASTE_RND_SETTINGS,
+				new ManageRndSettingsAction(model,
 						ManageRndSettingsAction.PASTE));
-		actionsMap.put(COPY_RND_SETTINGS, new ManageRndSettingsAction(model, 
+		actionsMap.put(COPY_RND_SETTINGS, new ManageRndSettingsAction(model,
 				ManageRndSettingsAction.COPY));
 		actionsMap.put(SAVE_RND_SETTINGS, new SaveRndSettingsAction(model));
-		actionsMap.put(RESET_RND_SETTINGS, new ManageRndSettingsAction(model, 
+		actionsMap.put(RESET_RND_SETTINGS, new ManageRndSettingsAction(model,
 				ManageRndSettingsAction.RESET));
-		actionsMap.put(SET_OWNER_RND_SETTINGS, new ManageRndSettingsAction(model, 
+		actionsMap.put(SET_OWNER_RND_SETTINGS, new ManageRndSettingsAction(model,
 				ManageRndSettingsAction.SET_OWNER));
-		actionsMap.put(SET_RND_SETTINGS_MIN_MAX, 
-				new ManageRndSettingsAction(model, 
+		actionsMap.put(SET_RND_SETTINGS_MIN_MAX,
+				new ManageRndSettingsAction(model,
 				ManageRndSettingsAction.SET_MIN_MAX));
-		actionsMap.put(UNDO_RND_SETTINGS, new ManageRndSettingsAction(model, 
+		actionsMap.put(UNDO_RND_SETTINGS, new ManageRndSettingsAction(model,
 				ManageRndSettingsAction.UNDO));
 		actionsMap.put(PROJECTION_PROJECT, new ProjectionProjectAction(model));
 		actionsMap.put(COMPRESSION, new CompressionAction(model));
@@ -467,9 +467,8 @@ class ImViewerControl
 		actionsMap.put(CLOSE, new CloseAction(model));
 		actionsMap.put(DETACH, new DetachAction(model));
 		actionsMap.put(REFRESH, new RefreshAction(model));
-		//TO be modified.
-		actionsMap.put(PLAY_LIFETIME_MOVIE, new PlayMovieAction(model, 
-				PlayMovieAction.ACROSS_T));
+		actionsMap.put(PLAY_LIFETIME_MOVIE, new PlayMovieAction(model,
+				PlayMovieAction.ACROSS_LIFETIME));
 	}
 
 	/** 
@@ -932,25 +931,22 @@ class ImViewerControl
 	 */
 	public void propertyChange(PropertyChangeEvent pce)
 	{
-		String pName = pce.getPropertyName(); 
+		String pName = pce.getPropertyName();
 		if (ImViewer.Z_SELECTED_PROPERTY.equals(pName)) {
 			view.setZSection(((Integer) pce.getNewValue()).intValue());
 		} else if (ImViewer.T_SELECTED_PROPERTY.equals(pName)) {
 			view.setTimepoint(((Integer) pce.getNewValue()).intValue());
+		} else if (ImViewer.BIN_SELECTED_PROPERTY.equals(pName)) {
+		    view.setBin(((Integer) pce.getNewValue()).intValue());
 		} else if (ChannelButton.CHANNEL_SELECTED_PROPERTY.equals(pName)) {
 			Map map = (Map) pce.getNewValue();
 			if (map == null) return;
 			if (map.size() != 1) return;
 			Set set = map.entrySet();
-			Entry entry;
-			Iterator i = set.iterator();
-			Integer index;
-			while (i.hasNext()) {
-				entry = (Entry) i.next();
-				index = (Integer) entry.getKey();
-				model.setChannelSelection(index.intValue(), 
-						(Boolean) entry.getValue());
-			}
+			Entry entry = (Entry) map.entrySet().iterator().next();
+			Integer index = (Integer) entry.getKey();
+            model.setChannelSelection(index.intValue(),
+                    (Boolean) entry.getValue());
 		}  else if (ChannelButton.CHANNEL_OVERLAY_PROPERTY.equals(pName)) {
 			Map map = (Map) pce.getNewValue();
 			if (map == null) return;
@@ -962,7 +958,7 @@ class ImViewerControl
 			while (i.hasNext()) {
 				entry = (Entry) i.next();
 				index = (Integer) entry.getKey();
-				model.renderOverlays(index.intValue(), 
+				model.renderOverlays(index.intValue(),
 						(Boolean) entry.getValue());
 			}
 		} else if (LoadingWindow.CANCEL_LOADING_PROPERTY.equals(pName)) {
@@ -978,7 +974,7 @@ class ImViewerControl
 			ChannelColorMenuItem.CHANNEL_COLOR_PROPERTY.equals(pName)) {
 			if (view.isSourceDisplayed(pce.getSource()))
 				model.showColorPicker(((Integer) pce.getNewValue()).intValue());
-		} else if (ColourPicker.COLOUR_PROPERTY.equals(pName)) { 
+		} else if (ColourPicker.COLOUR_PROPERTY.equals(pName)) {
 			Color c = (Color) pce.getNewValue();
 			if (colorPickerIndex != -1) {
 				model.setChannelColor(colorPickerIndex, c, false);
@@ -1001,7 +997,7 @@ class ImViewerControl
 			view.scrollToNode((Rectangle) pce.getNewValue());
 		} else if (MoviePlayerDialog.CLOSE_PROPERTY.equals(pName)) {
 			model.playMovie(false, false, -1);
-		} else if (MoviePlayerDialog.MOVIE_STATE_CHANGED_PROPERTY.equals(pName)) 
+		} else if (MoviePlayerDialog.MOVIE_STATE_CHANGED_PROPERTY.equals(pName))
 		{
 			//when movie player stop
 			boolean b = ((Boolean) pce.getNewValue()).booleanValue();
@@ -1046,7 +1042,7 @@ class ImViewerControl
 			}
 			if (image != null) {
 				PixelsData pixs = image.getDefaultPixels();
-				if (pixs != null && pixs.getId() == view.getPixelsID()) 
+				if (pixs != null && pixs.getId() == view.getPixelsID())
 					model.discard();
 			}
 		} else if (MetadataViewer.CHANNEL_COLOR_CHANGED_PROPERTY.equals(
@@ -1098,7 +1094,7 @@ class ImViewerControl
 			}
 			ids.add(view.getImageID());
 			// not set
-			if (param.getIndex() != FigureParam.THUMBNAILS) 
+			if (param.getIndex() != FigureParam.THUMBNAILS)
 				param.setAnchor((DataObject) p);
 
 			activity = new FigureActivityParam(object, ids, klass,

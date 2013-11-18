@@ -5,7 +5,7 @@
  *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -67,6 +67,7 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.Document;
 
+import org.apache.commons.lang.StringUtils;
 import org.jdesktop.swingx.JXTaskPane;
 import org.openmicroscopy.shoola.agents.events.editor.EditFileEvent;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
@@ -78,6 +79,7 @@ import org.openmicroscopy.shoola.agents.metadata.actions.ViewAction;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.editorpreview.PreviewPanel;
 import org.openmicroscopy.shoola.env.event.EventBus;
+import org.openmicroscopy.shoola.util.file.modulo.ModuloInfo;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.UnitsObject;
 import org.openmicroscopy.shoola.util.ui.omeeditpane.OMEWikiComponent;
@@ -109,9 +111,6 @@ import pojos.WellSampleData;
  * @author Scott Littlewood &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:sylittlewood@dundee.ac.uk">sylittlewood@dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since OME3.0
  */
 class PropertiesUI
@@ -218,19 +217,13 @@ class PropertiesUI
 	
 	/** The text associated to the data object. */
 	private String				text;
-	
-	/** Flag indicating to build the UI once. */
-	private boolean 			init;
-	
+
 	/** ScrollPane hosting the {@link #descriptionWiki} component.*/
 	private JScrollPane			descriptionScrollPane;
 
 	/** The menu displaying the view options.*/
 	private JPopupMenu			viewMenu;
 
-	/** The visible width.*/
-	private int width = 0;
-	
 	/** Flag indicating that the name is editable mode or not.*/
 	private boolean editableName;
 	
@@ -246,7 +239,7 @@ class PropertiesUI
 	/** Builds and lays out the components displaying the channel information.*/
 	private void buildChannelsPane()
 	{
-		editChannel.setVisible(true);
+		editChannel.setVisible(model.canEdit());
 		channelsPane = channelsArea;
 	}
 	
@@ -744,19 +737,39 @@ class PropertiesUI
         	c.gridx = c.gridx+2;
         	content.add(value, c);
     	}
+    	//parse modulo T.
+    	Map<Integer, ModuloInfo> modulo = model.getModulo();
+    	ModuloInfo moduloT = modulo.get(ModuloInfo.T);
     	c.gridy++;
     	label = UIUtilities.setTextFont(EditorUtil.Z_T_FIELDS, Font.BOLD,
     			size);
     	value = UIUtilities.createComponent(null);
     	v = (String) details.get(EditorUtil.SECTIONS);
     	v += " x ";
-    	v += (String) details.get(EditorUtil.TIMEPOINTS);
+    	if (moduloT != null) {
+    	    String time = (String) details.get(EditorUtil.TIMEPOINTS);
+    	    int t = Integer.parseInt(time);
+    	    v += ""+(t/moduloT.getSize());
+    	} else {
+    	    v += (String) details.get(EditorUtil.TIMEPOINTS);
+    	}
     	value.setText(v);
     	c.gridx = 0;
     	content.add(label, c);
     	c.gridx = c.gridx+2;
     	content.add(value, c);
     	c.gridy++;
+    	if (moduloT != null) {
+    	    label = UIUtilities.setTextFont(EditorUtil.SMALL_T_VARIABLE,
+    	            Font.BOLD, size);
+            value = UIUtilities.createComponent(null);
+            value.setText(""+moduloT.getSize());
+            c.gridx = 0;
+            content.add(label, c);
+            c.gridx = c.gridx+2;
+            content.add(value, c);
+            c.gridy++;
+    	}
     	if (!model.isNumerousChannel() && model.getRefObjectID() > 0) {
     		label = UIUtilities.setTextFont(EditorUtil.CHANNELS,
     				Font.BOLD, size);
@@ -1106,75 +1119,72 @@ class PropertiesUI
        this.controller = controller;
        title = TITLE;
        initComponents();
-       init = false;
+    }
+
+    /** Allows to edit or not the name and description.*/
+    private void editNames()
+    {
+        Object refObject = model.getRefObject();
+        boolean b = model.canEdit();
+        if (refObject instanceof FileData ||
+                refObject instanceof MultiImageData) {
+                b = false;
+        }
+        namePane.setEnabled(b);
+        editName.setEnabled(b);
+        descriptionButtonEdit.setEnabled(b);
+        editChannel.setEnabled(b);
     }
 
     /**
-	 * Overridden to lay out the UI.
-	 * @see AnnotationUI#buildUI()
-	 */
-	protected void buildUI()
-	{
-		if (!init) {
-			//buildGUI();
-			//init = true;
-		}
-		removeAll();
-		Object refObject = model.getRefObject();
-		text = model.getObjectTypeAsString(refObject);
-		if (model.isMultiSelection()) return;
-		namePane.getDocument().removeDocumentListener(this);
-		descriptionWiki.removeDocumentListener(this);
-		originalName = model.getRefObjectName();
-		modifiedName = model.getRefObjectName();
-		originalDisplayedName = UIUtilities.formatPartialName(originalName);
-		namePane.setText(originalDisplayedName);
-		namePane.setToolTipText(originalName);
-		
-		boolean b = model.canEdit();
-		
-        if (refObject instanceof FileData || 
-        	refObject instanceof MultiImageData) {
-        	editName.setEnabled(false);
-        }
+     * Overridden to lay out the UI.
+     * @see AnnotationUI#buildUI()
+     */
+    protected void buildUI()
+    {
+        removeAll();
+        Object refObject = model.getRefObject();
+        text = model.getObjectTypeAsString(refObject);
+        if (model.isMultiSelection()) return;
+        namePane.getDocument().removeDocumentListener(this);
+        descriptionWiki.removeDocumentListener(this);
+        originalName = model.getRefObjectName();
+        modifiedName = model.getRefObjectName();
+        originalDisplayedName = UIUtilities.formatPartialName(originalName);
+        namePane.setText(originalDisplayedName);
+        namePane.setToolTipText(originalName);
+
+        boolean b = model.canEdit();
         String t = text;
         if (model.getRefObjectID() > 0)
-        	t += " "+ID_TEXT+model.getRefObjectID();
+            t += " "+ID_TEXT+model.getRefObjectID();
         if (refObject instanceof WellSampleData) {
-        	WellSampleData wsd = (WellSampleData) refObject;
-        	t += " (Image ID: "+wsd.getImage().getId()+")";
+            WellSampleData wsd = (WellSampleData) refObject;
+            t += " (Image ID: "+wsd.getImage().getId()+")";
         }
-		idLabel.setText(t);
-		String ownerName = model.getOwnerName();
-		ownerLabel.setText("");
-		if (ownerName != null && ownerName.length() > 0)
-			ownerLabel.setText(OWNER_TEXT+ownerName);
-		originalDescription = model.getRefObjectDescription();
-		if (originalDescription == null || originalDescription.length() == 0)
-			originalDescription = DEFAULT_DESCRIPTION_TEXT;
-		descriptionWiki.setText(originalDescription);
-		//wrap();
-		descriptionWiki.setCaretPosition(0);
-		descriptionWiki.setBackground(UIUtilities.BACKGROUND_COLOR);
-    	descriptionWiki.setForeground(UIUtilities.DEFAULT_FONT_COLOR);
-    	
-		
-        if (refObject instanceof WellSampleData) b = false;
-        
-        namePane.setEnabled(b);
-        if (!(refObject instanceof FileData)) editName.setEnabled(b);
-        
+        idLabel.setText(t);
+        String ownerName = model.getOwnerName();
+        ownerLabel.setText("");
+        if (ownerName != null && ownerName.length() > 0)
+            ownerLabel.setText(OWNER_TEXT+ownerName);
+        originalDescription = model.getRefObjectDescription();
+        if (StringUtils.isEmpty(originalDescription))
+            originalDescription = DEFAULT_DESCRIPTION_TEXT;
+        descriptionWiki.setText(originalDescription);
+        //wrap();
+        descriptionWiki.setCaretPosition(0);
+        descriptionWiki.setBackground(UIUtilities.BACKGROUND_COLOR);
+        descriptionWiki.setForeground(UIUtilities.DEFAULT_FONT_COLOR);
+
+        editNames();
         if (b) {
-        	namePane.getDocument().addDocumentListener(this);
-        	descriptionWiki.addDocumentListener(this);
+            namePane.getDocument().addDocumentListener(this);
+            descriptionWiki.addDocumentListener(this);
         }
-        descriptionButtonEdit.setEnabled(b);
-        editChannel.setEnabled(b);
-        
         setParentLabel();
         buildChannelsPane();
         buildGUI();
-	}
+    }
 	
 	/** 
 	 * Sets the <code>enabled</code> flag to <code>false</code> when the
@@ -1223,42 +1233,43 @@ class PropertiesUI
 			String v2 = OMEWikiComponent.prepare(desc.trim(), true);
 			if (v2.equals(v)) value = "";
 		}
+		if (value == null) value = "";
 		if (object instanceof ProjectData) {
 			ProjectData p = (ProjectData) object;
 			if (name.length() > 0) p.setName(name);
-			if (value.length() > 0) p.setDescription(value);
+			p.setDescription(value);
 		} else if (object instanceof DatasetData) {
 			DatasetData p = (DatasetData) object;
 			if (name.length() > 0) p.setName(name);
-			if (value.length() > 0) p.setDescription(value);
+			p.setDescription(value);
 		} else if (object instanceof ImageData) {
 			ImageData p = (ImageData) object;
 			if (name.length() > 0) p.setName(name);
-			if (value.length() > 0) p.setDescription(value);
+			p.setDescription(value);
 		} else if (object instanceof TagAnnotationData) {
 			TagAnnotationData p = (TagAnnotationData) object;
 			if (name.length() > 0) p.setTagValue(name);
-			if (value.length() > 0) p.setTagDescription(value);
+			p.setTagDescription(value);
 		} else if (object instanceof ScreenData) {
 			ScreenData p = (ScreenData) object;
 			if (name.length() > 0) p.setName(name);
-			if (value.length() > 0) p.setDescription(value);
+			p.setDescription(value);
 		} else if (object instanceof PlateData) {
 			PlateData p = (PlateData) object;
 			if (name.length() > 0) p.setName(name);
-			if (value.length() > 0) p.setDescription(value);
+			p.setDescription(value);
 		} else if (object instanceof WellSampleData) {
 			WellSampleData well = (WellSampleData) object;
 			ImageData img = well.getImage();
 			if (name.length() > 0) img.setName(name);
-			if (value.length() > 0) img.setDescription(value);
+			img.setDescription(value);
 		} else if (object instanceof FileData) {
 			FileData f = (FileData) object;
 			if (f.getId() > 0) return;
 		} else if (object instanceof PlateAcquisitionData) {
 			PlateAcquisitionData pa = (PlateAcquisitionData) object;
 			if (name.length() > 0) pa.setName(name);
-			if (value.length() > 0) pa.setDescription(value);
+			pa.setDescription(value);
 		}
 	}
 	
@@ -1381,14 +1392,12 @@ class PropertiesUI
 		name = originalDescription;
 		value = descriptionWiki.getText();
 		value = value.trim();
-		if (name == null) 
-			return value.length() != 0;
+		if (name == null) return value.length() != 0;
 		name = OMEWikiComponent.prepare(name.trim(), true);
 		value = OMEWikiComponent.prepare(value.trim(), true);
 		if (DEFAULT_DESCRIPTION_TEXT.equals(name) && 
 				DEFAULT_DESCRIPTION_TEXT.equals(value)) return false;
-		
-		return !(name.equals(value));
+		return !name.equals(value);
 	}
 	
 	/**
@@ -1397,30 +1406,33 @@ class PropertiesUI
 	 */
 	protected void clearData(Object oldObject)
 	{
-		originalName = model.getRefObjectName();
-		originalDisplayedName = originalName;
-		originalDescription = model.getRefObjectDescription();
-		namePane.getDocument().removeDocumentListener(this);
-		descriptionWiki.removeDocumentListener(this);
-		namePane.setText(originalName);
-		if (originalDescription == null || originalDescription.length() == 0)
-			originalDescription = DEFAULT_DESCRIPTION_TEXT;
-		descriptionWiki.setText(originalDescription);
-		namePane.getDocument().addDocumentListener(this);
-		descriptionWiki.addDocumentListener(this);
-		channelEditPane = null;
-		if (oldObject == null) return;
-		if (!model.isSameObject(oldObject)) {
-			editChannel.setEnabled(false);
-			channelsArea.setText("");
-			idLabel.setText("");
-			ownerLabel.setText("");
-			parentLabel.setText("");
-			wellLabel.setText("");
-			gpLabel.setText("");
-		}
+	    editableName = false;
+	    originalName = model.getRefObjectName();
+	    originalDisplayedName = originalName;
+	    originalDescription = model.getRefObjectDescription();
+	    namePane.getDocument().removeDocumentListener(this);
+	    descriptionWiki.removeDocumentListener(this);
+	    namePane.setText(originalName);
+	    if (StringUtils.isEmpty(originalDescription))
+	        originalDescription = DEFAULT_DESCRIPTION_TEXT;
+	    descriptionWiki.setText(originalDescription);
+	    namePane.getDocument().addDocumentListener(this);
+	    descriptionWiki.addDocumentListener(this);
+	    channelEditPane = null;
+	    editChannel.setEnabled(false);
+	    descriptionWiki.setEnabled(false);
+	    editNames();
+	    if (oldObject == null) return;
+	    if (!model.isSameObject(oldObject)) {
+	        channelsArea.setText("");
+	        idLabel.setText("");
+	        ownerLabel.setText("");
+	        parentLabel.setText("");
+	        wellLabel.setText("");
+	        gpLabel.setText("");
+	    }
 	}
-	
+
 	/**
 	 * Clears the UI.
 	 * @see AnnotationUI#clearDisplay()
@@ -1440,7 +1452,7 @@ class PropertiesUI
 	public void insertUpdate(DocumentEvent e)
 	{
 		handleNameChanged(e.getDocument());
-		firePropertyChange(EditorControl.SAVE_PROPERTY, Boolean.valueOf(false), 
+		firePropertyChange(EditorControl.SAVE_PROPERTY, Boolean.valueOf(false),
 				Boolean.valueOf(true));
 	}
 
@@ -1451,7 +1463,7 @@ class PropertiesUI
 	public void removeUpdate(DocumentEvent e)
 	{
 		handleNameChanged(e.getDocument());
-		firePropertyChange(EditorControl.SAVE_PROPERTY, Boolean.valueOf(false), 
+		firePropertyChange(EditorControl.SAVE_PROPERTY, Boolean.valueOf(false),
 				Boolean.valueOf(true));
 	}
 
@@ -1461,18 +1473,18 @@ class PropertiesUI
 	 */
 	public void actionPerformed(ActionEvent e)
 	{
-		int index = Integer.parseInt(e.getActionCommand());
-		switch (index) {
-			case EDIT_NAME:
-				editField(namePanel, namePane, editName, !editableName);
-				break;
-			case EDIT_DESC:
-				editField(descriptionPanel, descriptionWiki, descriptionButtonEdit,
-						!descriptionWiki.isEnabled());
-				break;
-			case EDIT_CHANNEL:
-				editChannels();
-		}
+	    int index = Integer.parseInt(e.getActionCommand());
+	    switch (index) {
+	    case EDIT_NAME:
+	        editField(namePanel, namePane, editName, !editableName);
+	        break;
+	    case EDIT_DESC:
+	        editField(descriptionPanel, descriptionWiki,
+	                descriptionButtonEdit, !descriptionWiki.isEnabled());
+	        break;
+	    case EDIT_CHANNEL:
+	        editChannels();
+	    }
 	}
 	
 	/**
@@ -1485,23 +1497,22 @@ class PropertiesUI
 		Object src = e.getSource();
 		if (src == namePane) {
 			String text = namePane.getText();
-			editName.setEnabled(true);
-			namePane.setEditable(false);
+			editNames();
 			if (text == null || text.trim().length() == 0) {
 				namePane.getDocument().removeDocumentListener(this);
 				namePane.setText(modifiedName);
 				namePane.getDocument().addDocumentListener(this);
-				firePropertyChange(EditorControl.SAVE_PROPERTY, 
+				firePropertyChange(EditorControl.SAVE_PROPERTY,
 						Boolean.valueOf(false), Boolean.valueOf(true));
 			}
 		} else if (src == descriptionWiki) {
 			String text = descriptionWiki.getText();
-			descriptionButtonEdit.setEnabled(true);
+			editNames();
 			if (text == null || text.trim().length() == 0) {
 				descriptionWiki.removeDocumentListener(this);
 				descriptionWiki.setText(DEFAULT_DESCRIPTION_TEXT);
 				descriptionWiki.addDocumentListener(this);
-				firePropertyChange(EditorControl.SAVE_PROPERTY, 
+				firePropertyChange(EditorControl.SAVE_PROPERTY,
 						Boolean.valueOf(false), Boolean.valueOf(true));
 			}
 		}

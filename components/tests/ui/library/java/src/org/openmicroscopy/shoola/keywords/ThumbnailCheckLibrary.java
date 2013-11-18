@@ -108,12 +108,9 @@ public class ThumbnailCheckLibrary
     private static Component componentFinder(final String panelType, final String imageFilename)
             throws ComponentNotFoundException, MultipleComponentsFoundException {
         return new BasicFinder().find(new Matcher() {
+            private final String soughtName = panelType + " for " + imageFilename;
             public boolean matches(Component component) {
-                if (component instanceof JPanel) {
-                    final String name = component.getName();
-                    return name != null && name.startsWith(panelType + " for ") && name.endsWith("/" + imageFilename);
-                }
-                return false;
+                return component instanceof JPanel && this.soughtName.equals(component.getName());
             }});
     }
 

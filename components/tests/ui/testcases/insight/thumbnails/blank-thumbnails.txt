@@ -24,10 +24,10 @@ Blank Thumbnails
         Expand Browser       project
         ${image icon name}=  Get Insight Image Icon Name  treeviewer          IMAGE
         :FOR  ${image name}  IN  @{normal images}
-        \  Get Tree Path With Icon And Suffix             ${image icon name}  /${image name}  project tree
+        \  Get Tree Path With Icon And Name               ${image icon name}  ${image name}  project tree
         \  Thumbnail Should Not Be Blank                  ${image name}
         :FOR  ${image name}  IN  @{blank images}
-        \  Get Tree Path With Icon And Suffix             ${image icon name}  /${image name}  project tree
+        \  Get Tree Path With Icon And Name               ${image icon name}  ${image name}  project tree
         \  Thumbnail Should Be Blank                      ${image name}
 
 Rendered Thumbnails
@@ -36,5 +36,5 @@ Rendered Thumbnails
         Expand Browser       project
         ${image icon name}=  Get Insight Image Icon Name  treeviewer          IMAGE
         :FOR  ${image name}  IN  @{normal images}
-        \  Get Tree Path With Icon And Suffix             ${image icon name}  /${image name}  project tree
+        \  Get Tree Path With Icon And Name               ${image icon name}  ${image name}  project tree
         Thumbnail Images Should Differ                    @{normal images}

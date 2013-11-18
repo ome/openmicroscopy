@@ -2,10 +2,10 @@
  * org.openmicroscopy.shoola.env.ui.DownloadArchivedActivity 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -25,20 +25,16 @@ package org.openmicroscopy.shoola.env.ui;
 
 
 //Java imports
+import java.io.File;
+import java.util.List;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import java.io.File;
-import java.util.Iterator;
-import java.util.List;
-
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.DownloadArchivedActivityParam;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
-import org.openmicroscopy.shoola.util.file.IOUtil;
 
 /** 
  * Downloads the archived image.
@@ -48,9 +44,6 @@ import org.openmicroscopy.shoola.util.file.IOUtil;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since 3.0-Beta4
  */
 public class DownloadArchivedActivity
@@ -95,7 +88,7 @@ public class DownloadArchivedActivity
 		this.parameters = parameters;
 		initialize("Downloading Original Image", parameters.getIcon());
 		File f = parameters.getLocation();
-		if (f.isFile()) f = f.getParentFile();
+		if (f.isFile() || !f.exists()) f = f.getParentFile();
 		messageLabel.setText("in "+f.getAbsolutePath());
 		this.parameters = parameters;
 	}
@@ -106,8 +99,14 @@ public class DownloadArchivedActivity
 	 */
 	protected UserNotifierLoader createLoader()
 	{
-		loader = new ArchivedLoader(viewer, registry, ctx, 
-				parameters.getImage(), parameters.getLocation(), this);
+	    File f = parameters.getLocation();
+	    String name = "";
+        if (f.isFile() || !f.exists()) {
+            name = FilenameUtils.removeExtension(f.getName());
+            f = f.getParentFile();
+        }
+		loader = new ArchivedLoader(viewer, registry, ctx,
+		        parameters.getImage(), name, f, parameters.isOverride(), this);
 		return loader;
 	}
 
@@ -121,62 +120,25 @@ public class DownloadArchivedActivity
 	}
 
 	/**
-	 * Modifies the text of the component. 
+	 * Modifies the text of the component.
 	 * @see ActivityComponent#notifyActivityEnd()
 	 */
 	protected void notifyActivityEnd()
 	{
-		List<File> files = (List<File>) result;
-		//Handle no file returned.
-		if (files.size() == 0) {
-			type.setText(DESCRIPTION_NO_ARCHIVED);
-			messageLabel.setText(OPTION_NO_ARCHIVED);
-			return;
-		}
-		type.setText(DESCRIPTION_CREATED);
-		StringBuffer buffer = new StringBuffer();
-		buffer.append("as ");
-		if (files.size() > 1) {//zip the result
-			try {
-				//Create a folder
-				File location = parameters.getLocation();
-				if (!location.isDirectory())
-					location = location.getParentFile();
-				String name = FilenameUtils.getName(
-						parameters.getImage().getName());
-				name = FilenameUtils.removeExtension(name);
-				File zipFolder = new File(location, name);
-				zipFolder.mkdir();
-				//copy file into the directory
-				Iterator<File> j = files.iterator();
-				File child;
-				while (j.hasNext()) {
-					child = j.next();
-					FileUtils.copyFileToDirectory(child, zipFolder, true);
-					child.delete();
-				}
-				
-				//rename 
-				IOUtil.zipDirectory(zipFolder);
-				messageLabel.setText(zipFolder.getAbsolutePath());
-				//empty folder.
-				File[] entries = zipFolder.listFiles();
-				for (int i = 0; i < entries.length; i++)
-					entries[i].delete();
-				
-				zipFolder.delete();
-				buffer.append(zipFolder.getAbsolutePath());
-				buffer.append(IOUtil.ZIP_EXTENSION);
-				messageLabel.setText(buffer.toString());
-			} catch (Exception e) {
-				registry.getLogger().debug(this, "Cannot create a zip");
-			}
-		} else {
-			buffer.append(files.get(0).getAbsolutePath());
-			messageLabel.setText(buffer.toString());
-		}
+	    List<File> files = (List<File>) result;
+	    //Handle no file returned.
+	    if (files.size() == 0) {
+	        type.setText(DESCRIPTION_NO_ARCHIVED);
+	        messageLabel.setText(OPTION_NO_ARCHIVED);
+	        return;
+	    }
+	    type.setText(DESCRIPTION_CREATED);
+	    StringBuffer buffer = new StringBuffer();
+	    buffer.append("as ");
+	    buffer.append(files.get(0).getAbsolutePath());
+	    messageLabel.setText(buffer.toString());
 	}
-    
+
 	/** 
 	 * No-operation in this case.
 	 * @see ActivityComponent#notifyActivityError()

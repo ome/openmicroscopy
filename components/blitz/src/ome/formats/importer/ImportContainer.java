@@ -45,10 +45,11 @@ import omero.model.IObject;
 
 public class ImportContainer
 {
-	private String reader;
+    private String reader;
     private String[] usedFiles;
+    private long usedFilesTotalSize;
     private Boolean isSPW;
-	private File file;
+    private File file;
     private Double[] userPixels;
     private String userSpecifiedName;
     private String userSpecifiedDescription;
@@ -56,19 +57,17 @@ public class ImportContainer
     private List<Annotation> customAnnotationList;
     private IObject target;
 
-	public ImportContainer(File file,
-            IObject target,
-            Double[] userPixels, String reader, String[] usedFiles, Boolean isSPW)
-	{
-		this.file = file;
-		this.target = target;
-		this.userPixels = userPixels;
-		this.reader = reader;
-		this.usedFiles = usedFiles;
-		this.isSPW = isSPW;
-	}
+    public ImportContainer(File file, IObject target, Double[] userPixels,
+            String reader, String[] usedFiles, Boolean isSPW) {
+        this.file = file;
+        this.target = target;
+        this.userPixels = userPixels;
+        this.reader = reader;
+        this.usedFiles = usedFiles;
+        this.isSPW = isSPW;
+    }
 
-	// Various Getters and Setters //
+    // Various Getters and Setters //
 
     /**
      * Retrieves whether or not we are performing thumbnail creation upon
@@ -158,58 +157,92 @@ public class ImportContainer
         customAnnotationList = v;
     }
 
+    /**
+     * Return the reader class name used for reading the contents of this
+     * import container.
+     * @return See above.
+     */
     public String getReader() {
-		return reader;
-	}
+        return reader;
+    }
 
-	public void setReader(String reader) {
-		this.reader = reader;
-	}
+    /**
+     * Sets the reader class name used for reading the contents of this
+     * import container.
+     * @param reader Bio-Formats reader class name.
+     */
+    public void setReader(String reader) {
+        this.reader = reader;
+    }
 
-	public String[] getUsedFiles() {
-		return usedFiles;
-	}
+    /**
+     * Return a list of file names that belong to this import container.
+     * @return See above.
+     */
+    public String[] getUsedFiles() {
+        return usedFiles;
+    }
 
-	public void setUsedFiles(String[] usedFiles) {
-		this.usedFiles = usedFiles;
-	}
+    /**
+     * Set the list of image file names that belong to this import container.
+     * @param usedFiles
+     */
+    public void setUsedFiles(String[] usedFiles) {
+        this.usedFiles = usedFiles;
+    }
 
-	public Boolean getIsSPW() {
-		return isSPW;
-	}
+    /**
+     * Returns the total size in bytes (based on <code>File.length()</code>)
+     * of all files in this import container.
+     * @return See above.
+     */
+    public long getUsedFilesTotalSize() {
+        return usedFilesTotalSize;
+    }
 
-	public void setIsSPW(Boolean isSPW) {
-		this.isSPW = isSPW;
-	}
+    /**
+     * Return true if this import container contains a Screen/Plate/Well image
+     * group. False otherwise.
+     * @return See above.
+     */
+    public Boolean getIsSPW() {
+        return isSPW;
+    }
 
-	/**
-	 * @return the File
-	 */
-	public File getFile() {
-		return file;
-	}
+    /**
+     * Set true if the import container is filled in with a Screen/Plate/Well
+     * image structure. False otherwise.
+     * @param isSPW True if container contains S/P/W, false otherwise.
+     */
+    public void setIsSPW(Boolean isSPW) {
+        this.isSPW = isSPW;
+    }
 
-	/**
-	 * Package-private setter added during the 4.1 release to fix name ordering.
-	 * A better solution would be to have a copy-constructor which also takes
-	 * a chosen file.
-	 */
-	void setFile(File file)
-	{
-	    this.file = file;
-	}
+    /**
+     * @return the File
+     */
+    public File getFile() {
+        return file;
+    }
 
-	public IObject getTarget()
-	{
-	    return target;
-	}
+    /**
+     * Package-private setter added during the 4.1 release to fix name ordering.
+     * A better solution would be to have a copy-constructor which also takes a
+     * chosen file.
+     */
+    void setFile(File file) {
+        this.file = file;
+    }
 
-	public void setTarget(IObject obj) {
-	    this.target = obj;
-	}
+    public IObject getTarget() {
+        return target;
+    }
 
-	public Double[] getUserPixels()
-	{
+    public void setTarget(IObject obj) {
+        this.target = obj;
+    }
+
+    public Double[] getUserPixels() {
         return userPixels;
     }
 
@@ -256,6 +289,13 @@ public class ImportContainer
         upload.setVersionInfo(clientVersionInfo);
         fs.linkJob(upload);
 
+    }
+
+    public void updateUsedFilesTotalSize() {
+        usedFilesTotalSize = 0;
+        for (String filePath : usedFiles) {
+            usedFilesTotalSize += new File(filePath).length();
+        }
     }
 
 }

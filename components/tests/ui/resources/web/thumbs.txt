@@ -1,0 +1,27 @@
+*** Keywords ***
+
+Capture Image Element
+    [Arguments]  ${xpath}                 ${thumbnailName}=thumbnail_capture.jpg
+    ${thumbY}    Get Vertical Position    xpath=${xpath}
+    ${thumbX}    Get Horizontal Position  xpath=${xpath}
+    ${thumbH}    Get Element Attribute    xpath=${xpath}@height
+    ${thumbW}    Get Element Attribute    xpath=${xpath}@width
+    Log          ${thumbX}
+    Log          ${thumbY}
+    Log          ${thumbW}
+    Log          ${thumbH}
+    Capture Page Screenshot    ${thumbnailName}
+    Crop Image                 ${thumbnailName}    ${thumbX}    ${thumbY}    ${thumbW}    ${thumbH}
+
+Click Thumbnail
+    [Arguments]    ${imageId}
+    Click Element  ${imageId.replace('image', 'image_icon')}
+
+Thumbnail Should Be Selected
+    [Arguments]     ${imageId}    ${expected}=${true}
+    Run Keyword If  ${expected}   Wait Until Page Contains Element    xpath=//li[@id='${imageId.replace('image', 'image_icon')}' and contains(@class, 'ui-selected')]
+    ...             ELSE          Wait Until Page Contains Element    xpath=//li[@id='${imageId.replace('image', 'image_icon')}' and not(contains(@class, 'ui-selected'))]
+
+Thumbnail Should Not Be Selected
+    [Arguments]                     ${imageId}
+    Thumbnail Should Be Selected    ${imageId}    ${false}

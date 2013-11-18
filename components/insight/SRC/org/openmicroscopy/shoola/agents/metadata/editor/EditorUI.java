@@ -278,7 +278,7 @@ class EditorUI
     		groupUI.buildUI();
     		groupUI.repaint();
     		component = groupTabbedPane; 
-    	} else if (!(uo instanceof DataObject)) {	
+    	} else if (!(uo instanceof DataObject)) {
     		toolBar.buildUI();
     		component = defaultPane;
     	} else {
@@ -332,6 +332,10 @@ class EditorUI
 			userUI.clearData(oldObject);
 			toolBar.setStatus(false);
 			layoutUI();
+		} else if (uo instanceof GroupData) {
+		    groupUI.clearData(oldObject);
+		    toolBar.setStatus(false);
+		    layoutUI();
 		} else {
 			boolean load = false;
 			if (model.isMultiSelection()) {
@@ -1070,6 +1074,13 @@ class EditorUI
 	 * @return See above.
 	 */
 	ImageData getImage() { return model.getImage(); }
+
+	/**
+	 * Returns the selected objects.
+	 * 
+	 * @return See above.
+	 */
+	List<DataObject> getSelectedObjects() { return model.getSelectedObjects(); }
 	
 	/**
 	 * Returns the companion file generated while importing the file
