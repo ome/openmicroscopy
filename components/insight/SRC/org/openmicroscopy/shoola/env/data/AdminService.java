@@ -460,14 +460,24 @@ public interface AdminService
     public Collection<GroupData> getAvailableUserGroups();
 
     /**
-     * Returns <code>true</code> if the group is a system group,
-     * <code>false</code> otherwise.
+     * Returns <code>true</code> if the group is a group required by the
+     * security system e.g. system, users, <code>false</code> otherwise.
      *
      * @param groupID The identifier of the group.
      * @return See above.
      */
-    public boolean isSystemGroup(long groupID);
+    public boolean isSecuritySystemGroup(long groupID);
 
+    /**
+     * Returns <code>true</code> if the group is a group required by the
+     * security system e.g. system, users, <code>false</code> otherwise.
+     *
+     * @param groupID The identifier of the group.
+     * @param key One of the constants defined by <code>GroupData</code>
+     * @return See above.
+     */
+    public boolean isSecuritySystemGroup(long groupID, String key);
+    
     /**
      * Returns <code>true</code> if the user is a system user e.g. root
      * <code>false</code> otherwise.

@@ -47,8 +47,6 @@ import javax.swing.JFrame;
 
 //Application-internal dependencies
 import omero.client;
-import omero.sys.Roles;
-
 import org.openmicroscopy.shoola.env.Agent;
 import org.openmicroscopy.shoola.env.Container;
 import org.openmicroscopy.shoola.env.Environment;
@@ -626,13 +624,13 @@ public class DataServicesFactory
         	Iterator<GroupData> i = groups.iterator();
         	GroupData g;
         	available = new HashSet<GroupData>();
-        	Roles roles = (Roles) registry.lookup(LookupNames.SYSTEM_ROLES);
         	while (i.hasNext()) {
         		g = i.next();
-        		if (!admin.isSystemGroup(g.getId())) {
+        		if (!admin.isSecuritySystemGroup(g.getId())) {
         			available.add(g);
         		} else {
-        			if (g.getId() == roles.systemGroupId) {
+        			if (admin.isSecuritySystemGroup(g.getId(),
+        			        GroupData.SYSTEM)) {
         				available.add(g);
         				uc.setAdministrator(true);
         			}

@@ -327,8 +327,7 @@ class AdminServiceImpl
 	public List<GroupData> loadGroups(SecurityContext ctx, long id) 
 		throws DSOutOfServiceException, DSAccessException
 	{
-	    Roles roles = (Roles) context.lookup(LookupNames.SYSTEM_ROLES);
-		return gateway.loadGroups(ctx, id, roles);
+		return gateway.loadGroups(ctx, id);
 	}
 	
 	/**
@@ -339,8 +338,7 @@ class AdminServiceImpl
 			long id) 
 		throws DSOutOfServiceException, DSAccessException
 	{
-	    Roles roles = (Roles) context.lookup(LookupNames.SYSTEM_ROLES);
-		return gateway.loadGroupsForExperimenter(ctx, id, roles);
+		return gateway.loadGroupsForExperimenter(ctx, id);
 	}
 	
 	/**
@@ -351,7 +349,7 @@ class AdminServiceImpl
 			List<ExperimenterData> experimenters)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		if (experimenters == null || experimenters.size() == 0)
+		if (CollectionUtils.isEmpty(experimenters))
 			throw new IllegalArgumentException("No experimenters to delete.");
 		return gateway.deleteExperimenters(ctx, experimenters);
 	}
@@ -364,7 +362,7 @@ class AdminServiceImpl
 			List<GroupData> groups)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		if (groups == null || groups.size() == 0)
+	    if (CollectionUtils.isEmpty(groups))
 			throw new IllegalArgumentException("No groups to delete.");
 		return gateway.deleteGroups(ctx, groups);
 	}
@@ -421,7 +419,7 @@ class AdminServiceImpl
 	{
 		if (group == null)
 			throw new IllegalArgumentException("No group specified.");
-		if (experimenters == null || experimenters.size() == 0) 
+		if (CollectionUtils.isEmpty(experimenters))
 			return new ArrayList<ExperimenterData>();
 		return gateway.copyExperimenters(ctx, group, experimenters);
 	}
@@ -472,8 +470,7 @@ class AdminServiceImpl
 	{
 		if (CollectionUtils.isEmpty(ids))
 			return new HashMap<Long, Long>();
-		Roles roles = (Roles) context.lookup(LookupNames.SYSTEM_ROLES);
-		return gateway.countExperimenters(ctx, ids, roles);
+		return gateway.countExperimenters(ctx, ids);
 	}
 
 	/**
@@ -508,8 +505,6 @@ class AdminServiceImpl
 			entry = (Entry) i.next();
 			exp = (ExperimenterData) entry.getKey();
 			uc = (UserCredentials) entry.getValue();
-			//exp.asExperimenter().setOmeName(
-			//		omero.rtypes.rstring(uc.getUserName()));
 			try {
 				updateExperimenter(ctx, exp, group, true);
 				//b = uc.isOwner();
@@ -671,7 +666,7 @@ class AdminServiceImpl
 		Roles roles = (Roles) context.lookup(LookupNames.SYSTEM_ROLES);
 		while (i.hasNext()) {
 			g = i.next();
-			if (!isSystemGroup(g.getId())) {
+			if (!isSecuritySystemGroup(g.getId())) {
 				available.add(g);
 			} else {
 				if (g.getId() == roles.systemGroupId)
@@ -799,13 +794,31 @@ class AdminServiceImpl
      * Implemented as specified by {@link AdminService}.
      * @see AdminService#isSystemGroup(long)
      */
-    public boolean isSystemGroup(long groupID)
+    public boolean isSecuritySystemGroup(long groupID)
     {
         Roles roles = (Roles) context.lookup(LookupNames.SYSTEM_ROLES);
         if (roles == null) return false;
         return (roles.guestGroupId == groupID ||
                 roles.systemGroupId == groupID ||
                 roles.userGroupId == groupID);
+    }
+
+    /**
+     * Implemented as specified by {@link AdminService}.
+     * @see AdminService#isSystemGroup(long, String)
+     */
+    public boolean isSecuritySystemGroup(long groupID, String key)
+    {
+        Roles roles = (Roles) context.lookup(LookupNames.SYSTEM_ROLES);
+        if (roles == null) return false;
+        if (GroupData.USER.equals(key)) {
+            return roles.userGroupId == groupID;
+        } else if (GroupData.SYSTEM.equals(key)) {
+            return roles.systemGroupId == groupID;
+        } else if (GroupData.GUEST.equals(key)) {
+            return roles.guestGroupId == groupID;
+        }
+        return false;
     }
 
     /**
