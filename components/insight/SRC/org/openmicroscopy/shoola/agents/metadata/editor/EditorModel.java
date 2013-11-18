@@ -1065,23 +1065,7 @@ class EditorModel
 		}
 		return false;
 	}
-	
-	/**
-	 * Returns <code>true</code> if the group's name is valid, 
-	 * <code>false</code> otherwise.
-	 * 
-	 * @param g The group to check.
-	 * @return See above.
-	 */
-	boolean isValidGroup(GroupData g)
-	{
-		if (g == null) return false;
-		String name = g.getName();
-		if (AdminService.USER_GROUP.equals(name) || 
-			AdminService.DEFAULT_GROUP.equals(name)) return false;
-		return true;
-	}
-	
+
 	/**
 	 * Returns <code>true</code> if the currently logged in user is the 
 	 * owner of the object, <code>false</code> otherwise.
