@@ -1551,6 +1551,6 @@ class TreeViewerModel
      */
     boolean isSystemGroup(long id)
     {
-        return TreeViewerAgent.getRegistry().getAdminService().isSystemUser(id);
+        return TreeViewerAgent.getRegistry().getAdminService().isSystemGroup(id);
     }
 }

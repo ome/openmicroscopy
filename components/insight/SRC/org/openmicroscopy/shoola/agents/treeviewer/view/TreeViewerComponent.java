@@ -4321,6 +4321,7 @@ class TreeViewerComponent
 	                        g = (GroupData) parent.getUserObject();
 	                        if (model.isSystemUser(g.getId())) {
 	                            stop = true;
+	                            break;
 	                        }
 	                    }
 	                }
