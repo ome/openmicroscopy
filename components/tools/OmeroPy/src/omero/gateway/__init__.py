@@ -1796,7 +1796,7 @@ class _BlitzGateway (object):
         @return:    Current Experimenter
         @return:     Generator of L{BlitzObjectWrapper} subclasses
         """
-        return self.getObject("ExperimenterGroup", 0).getMembers()
+        return self.getObject("ExperimenterGroup", self.getAdminService().getSecurityRoles().systemGroupId).getMembers()
     
     def getGroupFromContext(self):
         """
