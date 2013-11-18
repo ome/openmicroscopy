@@ -25,10 +25,7 @@ package org.openmicroscopy.shoola.agents.dataBrowser.actions;
 
 //Java imports
 import java.awt.event.ActionEvent;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.util.Collection;
-
 import javax.swing.Action;
 
 //Third-party libraries
