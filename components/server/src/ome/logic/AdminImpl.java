@@ -706,7 +706,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
         }
 
         /* The properly loaded user object is needed for collecting the group-experimenter map. */
-        final Experimenter loadedUser = iQuery.get(Experimenter.class, user.getId());
+        final Experimenter loadedUser = userProxy(user.getId());
 
         final Set<Long> resultingGroupIds = new HashSet<Long>();
         for (final GroupExperimenterMap map : loadedUser.<GroupExperimenterMap>collectGroupExperimenterMap(null)) {
