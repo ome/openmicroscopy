@@ -223,7 +223,7 @@ class UserProfile
         if (StringUtils.isBlank(old)) {
             un = MetadataViewerAgent.getRegistry().getUserNotifier();
             un.notifyInfo(PASSWORD_CHANGE_TITLE,
-                    "Please specify your old password.");
+                    "Please enter your old password.");
             oldPassword.requestFocus();
             return;
         }
