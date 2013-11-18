@@ -528,7 +528,7 @@ class UserProfile
         GroupData g;
         while (i.hasNext()) {
             g = i.next();
-            if (GroupData.SYSTEM.equals(g.getName()))
+            if (model.isSystemGroup(g.getId()))
                 return true;
         }
         return false;
