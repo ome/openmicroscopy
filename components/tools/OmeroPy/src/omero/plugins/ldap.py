@@ -219,7 +219,10 @@ user never had a password, one will need to be set!""")
             while first or page_control.cookie:
                 first = False
                 try:
-                    msgid = ld.search_ext(basedn, ldap.SCOPE_SUBTREE, user_filter, serverctrls=[page_control])
+                    msgid = ld.search_ext(
+                        basedn, ldap.SCOPE_SUBTREE,
+                        user_filter, serverctrls=[page_control]
+                    )
                 except:
                     self.ctx.die(1, "Failed to execute LDAP search")
 
@@ -232,14 +235,15 @@ user never had a password, one will need to be set!""")
                         if len(omeName) == 1:
                             omeName = omeName[0]
                         else:
-                            self.ctx.err("Failed to unwrap omeName: %s" % omeName)
+                            self.ctx.err("Failed to unwrap omeName: %s" %
+                                         omeName)
                             continue
 
                     try:
                         exp = iadmin.lookupExperimenter(omeName)
                         olddn = iadmin.lookupLdapAuthExperimenter(exp.id.val)
                     except omero.ApiUsageException:
-                        continue # Unknown user
+                        continue  # Unknown user
 
                     if olddn:
                         if olddn.lower() != dn.lower():
