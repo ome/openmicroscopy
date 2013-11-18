@@ -4082,7 +4082,6 @@ class OMEROGateway
 				ExperimenterData exp;
 				List<GroupData> list;
 				Iterator<GroupData> j;
-				GroupExperimenterMap gMap;
 				GroupData group;
 				List<ExperimenterGroup> groups;
 				boolean added = false;
@@ -4093,7 +4092,8 @@ class OMEROGateway
 					j = list.iterator();
 					while (j.hasNext()) {
 						group = j.next();
-						if (group.getName().equals(systemGroup))
+						if (dsFactory.getAdmin().isSecuritySystemGroup(
+						        group.getId(), systemGroup))
 							added = true;
 					}
 					if (!added) {
@@ -4107,7 +4107,6 @@ class OMEROGateway
 				ExperimenterData exp;
 				List<GroupData> list;
 				Iterator<GroupData> j;
-				GroupExperimenterMap gMap;
 				GroupData group;
 				List<ExperimenterGroup> groups;
 				while (i.hasNext()) {
@@ -4117,7 +4116,8 @@ class OMEROGateway
 					j = list.iterator();
 					while (j.hasNext()) {
 						group = j.next();
-						if (group.getName().equals(systemGroup)) {
+						if (dsFactory.getAdmin().isSecuritySystemGroup(
+                                group.getId(), systemGroup)) {
 							groups.add(group.asGroup());
 						}
 					}
