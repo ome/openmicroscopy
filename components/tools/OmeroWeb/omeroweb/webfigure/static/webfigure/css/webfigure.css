@@ -33,7 +33,12 @@
         z-index: 1;
         background-color: #EFF1F4;
         position: absolute;
-        /*transform: scale(0.25, 0.25);*/
+        /* Try to show images in their original pixelated form Although 'pixelated' isn't 
+        supported yet: https://developer.mozilla.org/en-US/docs/Web/CSS/image-rendering */
+        image-rendering: -moz-crisp-edges;
+        image-rendering: -o-crisp-edges;
+        image-rendering: -webkit-optimize-contrast;
+        -ms-interpolation-mode: nearest-neighbor;
     }
 
     #paper {
