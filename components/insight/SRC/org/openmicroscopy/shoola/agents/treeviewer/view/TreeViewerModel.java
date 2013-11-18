@@ -1547,10 +1547,11 @@ class TreeViewerModel
      * <code>false</code> otherwise.
      *
      * @param id The identifier of the group.
+     * @param key One of the constants defined by <code>GroupData</code>
      * @return See above.
      */
-    boolean isSystemGroup(long id)
+    boolean isSystemGroup(long id, String key)
     {
-        return TreeViewerAgent.getRegistry().getAdminService().isSecuritySystemGroup(id);
+        return TreeViewerAgent.getRegistry().getAdminService().isSecuritySystemGroup(id, key);
     }
 }

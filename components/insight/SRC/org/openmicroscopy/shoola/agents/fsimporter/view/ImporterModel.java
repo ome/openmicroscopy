@@ -43,7 +43,6 @@ import org.openmicroscopy.shoola.agents.fsimporter.ImportResultLoader;
 import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
 import org.openmicroscopy.shoola.agents.fsimporter.TagsLoader;
 import org.openmicroscopy.shoola.agents.fsimporter.util.ObjectToCreate;
-import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
@@ -51,7 +50,6 @@ import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import pojos.DataObject;
 import pojos.ExperimenterData;
 import pojos.GroupData;
-import pojos.PixelsData;
 import pojos.ProjectData;
 import pojos.ScreenData;
 
@@ -142,7 +140,7 @@ class ImporterModel
 		if (group == null) return false;
 		if (GroupData.PERMISSIONS_GROUP_READ ==
 			group.getPermissions().getPermissionsLevel()) {
-			if (MetadataViewerAgent.isAdministrator()) return true;
+			if (ImporterAgent.isAdministrator()) return true;
 			Set leaders = group.getLeaders();
 			Iterator i = leaders.iterator();
 			long userID = getExperimenterId();
@@ -517,6 +515,29 @@ class ImporterModel
     boolean canImportAs()
     {
         return ImporterAgent.isAdministrator();
+    }
+
+    /**
+     * Returns <code>true</code> if the group is a system group e.g. System
+     * <code>false</code> otherwise.
+     *
+     * @param id The identifier of the group.
+     * @param key One of the constants defined by <code>GroupData</code>
+     * @return See above.
+     */
+    boolean isSystemGroup(long id, String key)
+    {
+        return ImporterAgent.getRegistry().getAdminService().isSecuritySystemGroup(id, key);
+    }
+
+    /**
+     * Returns the groups the current users is a member of.
+     * 
+     * @return See above.
+     */
+    Collection<GroupData> getAvailableGroups()
+    {
+        return ImporterAgent.getAvailableUserGroups();
     }
 
 }

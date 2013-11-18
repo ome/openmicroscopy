@@ -1795,11 +1795,11 @@ class DataBrowserComponent
 
     /** 
      * Implemented as specified by the {@link DataBrowser} interface.
-     * @see DataBrowser#isSystemGroup(long)
+     * @see DataBrowser#isSystemGroup(long, String)
      */
-    public boolean isSystemGroup(long groupID)
+    public boolean isSystemGroup(long groupID, String key)
     {
-        return model.isSystemGroup(groupID);
+        return model.isSystemGroup(groupID, key);
     }
     
     /** 

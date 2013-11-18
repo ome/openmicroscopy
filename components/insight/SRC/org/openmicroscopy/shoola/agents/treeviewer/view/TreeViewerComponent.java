@@ -4740,10 +4740,10 @@ class TreeViewerComponent
 
     /** 
      * Implemented as specified by the {@link TreeViewer} interface.
-     * @see TreeViewer#isSystemGroup(long)
+     * @see TreeViewer#isSystemGroup(long, String)
      */
-    public boolean isSystemGroup(long groupID)
+    public boolean isSystemGroup(long groupID, String key)
     {
-        return model.isSystemGroup(groupID);
+        return model.isSystemGroup(groupID, key);
     }
 }

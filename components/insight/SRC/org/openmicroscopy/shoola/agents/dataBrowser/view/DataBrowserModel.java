@@ -1023,11 +1023,12 @@ abstract class DataBrowserModel
      * <code>false</code> otherwise.
      *
      * @param id The identifier of the group.
+     * @param key One of the constants defined by <code>GroupData</code>.
      * @return See above.
      */
-    boolean isSystemGroup(long id)
+    boolean isSystemGroup(long id, String key)
     {
-        return DataBrowserAgent.getRegistry().getAdminService().isSystemUser(id);
+        return DataBrowserAgent.getRegistry().getAdminService().isSecuritySystemGroup(id, key);
     }
     
     /**
