@@ -390,7 +390,7 @@ class UserProfile
             activeBox.setEnabled(!model.isSelf() &&
                     !model.isSystemUser(user.getId()));
             activeBox.addChangeListener(this);
-            //indicate if the user is an administrator.a
+            //indicate if the user is an administrator
             admin = isUserAdministrator();
             adminBox.setSelected(admin);
             adminBox.setEnabled(!model.isSelf() &&
