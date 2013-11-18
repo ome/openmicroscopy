@@ -1528,7 +1528,8 @@ def copy_image_rdef_json (request, conn=None, **kwargs):
             'c': str(r.get('c')),    # channels
             'm': str(r.get('m')),    # model (grey)
             'z': str(r.get('z')),    # z & t pos
-            't': str(r.get('t'))
+            't': str(r.get('t')),
+            'imageId': int(r.get('imageId')),
         }
         request.session.modified = True
         request.session['rdef'] = rdef
@@ -1540,44 +1541,45 @@ def copy_image_rdef_json (request, conn=None, **kwargs):
     if fromid is None:
         fromid = request.session.get('fromid', None)
 
+    # maybe these pair of methods should be on ImageWrapper??
+    def getRenderingSettings(image):
+        rv = {}
+        chs = []
+        for i, ch in enumerate(image.getChannels()):
+            act = "" if ch.isActive() else "-"
+            start = ch.getWindowStart()
+            end = ch.getWindowEnd()
+            color = ch.getColor().getHtml()
+            chs.append("%s%s|%s:%s$%s" % (act, i+1, start, end, color))
+        rv['c'] = ",".join(chs)
+        rv['m'] = "g" if image.isGreyscaleRenderingModel() else "c"
+        rv['z'] = image.getDefaultZ() + 1
+        rv['t'] = image.getDefaultT() + 1
+        return rv
+
+    def applyRenderingSettings(image, rdef):
+        channels, windows, colors =  _split_channel_info(rdef['c'])
+        image.setActiveChannels(channels, windows, colors)  # also prepares _re
+        if rdef['m'] == 'g':
+            image.setGreyscaleRenderingModel()
+        else:
+            image.setColorRenderingModel()
+        image._re.setDefaultZ(long(rdef['z'])-1)
+        image._re.setDefaultT(long(rdef['t'])-1)
+        image.saveDefaults()
+
+    originalSettings = None
+    fromImage = None
     if fromid is None:
-        print "fromid is None..."
-        # if we have rdef, apply to first image, then use that image as 'fromId'
+        # if we have rdef, save to source image, then use that image as 'fromId', then revert.
         if request.session.get('rdef') is not None and len(toids) > 0:
-            # Horrible that we have to do all these lookups, just to get first Image!
-            p = omero.sys.Parameters()
-            f = omero.sys.Filter()
-            f.limit = rint(1)
-            p.theFilter = f
-            if to_type == "dataset":
-                ds = conn.getObject("Dataset", long(toids[0]))
-                images = list(ds.listChildren())
-                if len(images) > 0:
-                    image = images[0]
-            elif to_type == "plate":
-                p.map = {'pid': rlong(toids[0])}
-                query = "select ws from WellSample ws join fetch ws.well as well where well.plate.id=:pid"
-                ws = conn.getQueryService().findByQuery(query, p, conn.SERVICE_OPTS)
-                image = conn.getObject("Image", ws.image.id.val)
-            elif to_type == "acquisition":
-                p.map = {'pid': rlong(toids[0])}
-                query = "select ws from WellSample ws where ws.plateAcquisition.id=:pid"
-                ws = conn.getQueryService().findByQuery(query, p, conn.SERVICE_OPTS)
-                image = conn.getObject("Image", ws.image.id.val)
-            else:
-                image = conn.getObject("Image", long(toids[0]))
-            if image is not None:
-                rdef = request.session.get('rdef')
-                channels, windows, colors =  _split_channel_info(rdef['c'])
-                image.setActiveChannels(channels, windows, colors)  # also prepares _re
-                if rdef['m'] == 'g':
-                    image.setGreyscaleRenderingModel()
-                else:
-                    image.setColorRenderingModel()
-                image._re.setDefaultZ(long(rdef['z'])-1)
-                image._re.setDefaultT(long(rdef['t'])-1)
-                image.saveDefaults()
-                fromid = image.getId()
+            rdef = request.session.get('rdef')
+            fromImage = conn.getObject("Image", rdef['imageId'])
+            if fromImage is not None:
+                # copy orig settings
+                originalSettings = getRenderingSettings(fromImage)
+                applyRenderingSettings(fromImage, rdef)
+                fromid = fromImage.getId()
 
     # If we have both, apply settings...
     try:
@@ -1595,13 +1597,12 @@ def copy_image_rdef_json (request, conn=None, **kwargs):
             for iid in json_data[True]:
                 img = conn.getObject("Image", iid)
                 img is not None and webgateway_cache.invalidateObject(server_id, userid, img)
+
+    # finally - if we temporarily saved rdef to original image, revert
+    if originalSettings is not None and fromImage is not None:
+        applyRenderingSettings(fromImage, originalSettings)
     return json_data
-#
-#            json_data = simplejson.dumps(json_data)
-#
-#    if r.get('callback', None):
-#        json_data = '%s(%s)' % (r['callback'], json_data)
-#    return HttpResponse(json_data, mimetype='application/javascript')
+
 
 @login_required()
 @jsonp
