@@ -4,7 +4,7 @@
 """
    Tests for the demonstrating client usage
 
-   Copyright 2010 Glencoe Software, Inc. All rights reserved.
+   Copyright 2010-2013 Glencoe Software, Inc. All rights reserved.
    Use is subject to license terms supplied in LICENSE.txt
 
 """
@@ -71,7 +71,7 @@ class TestClientUsage(lib.ITest):
         assert 1 ==  len(srvs)
         try:
             sf.setSecurityContext(omero.model.ExperimenterGroupI(1, False))
-            self.fail("Should not be allowed")
+            assert False, "Should not be allowed"
         except:
             pass # good
         srvs[0].close()

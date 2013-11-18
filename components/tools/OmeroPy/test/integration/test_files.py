@@ -4,11 +4,12 @@
 """
    Test of client upload/download functionality
 
-   Copyright 2008 Glencoe Software, Inc. All rights reserved.
+   Copyright 2008-2013 Glencoe Software, Inc. All rights reserved.
    Use is subject to license terms supplied in LICENSE.txt
 
 """
 
+import pytest
 import omero
 import test.integration.library as lib
 
@@ -34,6 +35,7 @@ class TestFiles(lib.ITest):
         sha1_download = self.client.sha1(str(downloaded))
         assert sha1_upload ==  sha1_download, "%s!=%s" % (sha1_upload, sha1_download)
 
+    @pytest.mark.xfail(reason="ticket 11610")
     def testUploadDifferentSizeTicket2337(self):
         uploaded = tmpfile()
         ofile = self.client.upload(str(uploaded), type="text/plain")

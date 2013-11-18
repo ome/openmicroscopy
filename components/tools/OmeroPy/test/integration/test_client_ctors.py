@@ -4,12 +4,13 @@
 """
    Tests of the omero.client constructors
 
-   Copyright 2008 Glencoe Software, Inc. All rights reserved.
+   Copyright 2008-2013 Glencoe Software, Inc. All rights reserved.
    Use is subject to license terms supplied in LICENSE.txt
 
 """
 
 import os
+import pytest
 import test.integration.library as lib
 import omero, Ice
 
@@ -36,6 +37,7 @@ class TestClientConstructors(lib.ITest):
         except:
             c.__del__()
 
+    @pytest.mark.xfail(reason="See ticket #11541")
     def testInitializationDataConstructor(self):
         id = Ice.InitializationData()
         id.properties = Ice.createProperties()

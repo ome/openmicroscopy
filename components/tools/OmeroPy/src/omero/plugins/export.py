@@ -13,7 +13,7 @@ import sys
 
 from omero.cli import BaseControl, CLI, NewFileType
 
-HELP="""Support for exporting data in XML and TIFF formats
+HELP = """Support for exporting data in XML and TIFF formats
 
 Example Usage:
   omero export --file new.ome.tif            Image:1
@@ -31,11 +31,18 @@ DEFAULT_READ_LENGTH = 1000*1000
 class ExportControl(BaseControl):
 
     def _configure(self, parser):
-        parser.add_argument("-f", "--file", type=NewFileType("wb"), required=True, help="Filename to export to or '-' for stdout. File may not exist")
-        parser.add_argument("-t", "--type", default="TIFF", choices=("TIFF", "XML"), help="Type of export. Default: %(default)s")
+        parser.add_argument(
+            "-f", "--file", type=NewFileType("wb"), required=True,
+            help="Filename to export to or '-' for stdout."
+            " File may not exist")
+        parser.add_argument(
+            "-t", "--type", default="TIFF", choices=("TIFF", "XML"),
+            help="Type of export. Default: %(default)s")
         parser.add_argument("obj", help="Format: Image:<id>")
-        parser.add_argument("--iterate", action="store_true", default=False,
-            help="Iterate over an object and write individual objects to the directory named by --file (EXPERIMENTAL)")
+        parser.add_argument(
+            "--iterate", action="store_true", default=False,
+            help="Iterate over an object and write individual objects to the"
+            " directory named by --file (EXPERIMENTAL)")
 
         parser.set_defaults(func=self.export)
         parser.add_login_arguments()
@@ -60,7 +67,8 @@ class ExportControl(BaseControl):
             self.handleImages(args, images)
         elif klass == "Dataset":
             if not args.iterate:
-                self.ctx.die(4, "Dataset currently only supported with --iterate")
+                self.ctx.die(4, "Dataset currently only supported with"
+                                " --iterate")
             datasets.append(id)
             self.handleDatasets(args, datasets)
         else:
@@ -83,15 +91,19 @@ class ExportControl(BaseControl):
         p = omero.sys.ParametersI()
         p.leaves()
 
-        ds = c.sf.getContainerService().loadContainerHierarchy("Dataset", datasets, p)
+        ds = c.sf.getContainerService().loadContainerHierarchy("Dataset",
+                                                               datasets, p)
         if not ds:
-            self.ctx.die(7, "No datasets found: %s", ", ".join([str(x) for x in datasets]))
+            self.ctx.die(7, "No datasets found: %s",
+                         ", ".join([str(x) for x in datasets]))
 
         for d in ds:
             for i in d.linkedImageList():
                 if i:
                     i = i.id.val
-                    args.file = open(os.path.join(dir, "%s.ome.%s" % (i,args.type.lower())), "wb")
+                    args.file = open(
+                        os.path.join(dir, "%s.ome.%s"
+                                     % (i, args.type.lower())), "wb")
                     self.handleImages(args, [i])
 
     def handleImages(self, args, images):

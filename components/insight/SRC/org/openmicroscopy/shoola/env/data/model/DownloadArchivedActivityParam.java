@@ -59,6 +59,9 @@ public class DownloadArchivedActivityParam
     /** The collection of archived images to download. */
     private ImageData image;
     
+    /** Flag indicating to override or not the files when saving.*/
+    private boolean override;
+
     /**
      * Creates a new instance.
      * 
@@ -72,8 +75,25 @@ public class DownloadArchivedActivityParam
     	this.location = location;
     	this.image = image;
     	this.icon = icon;
+    	this.override = false;
     }
-    
+
+    /**
+     * Sets to <code>true</code> to override the files when saving,
+     * <code>false</code> otherwise. Default is <code>false</code>.
+     *
+     * @param override The value to set.
+     */
+    public void setOverride(boolean override) { this.override = override; }
+
+    /**
+     * Returns <code>true</code> to override the files when saving,
+     * <code>false</code> otherwise. Default is <code>false</code>.
+     *
+     * @return
+     */
+    public boolean isOverride() { return override; }
+
     /**
      * Returns the icon.
      * 

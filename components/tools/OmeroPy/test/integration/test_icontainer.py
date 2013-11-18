@@ -2,15 +2,16 @@
 # -*- coding: utf-8 -*-
 
 """
-   Integration test focused on the omero.api.IPojos interface
+   Integration test focused on the omero.api.IContainer interface
    a running server.
 
-   Copyright 2008 Glencoe Software, Inc. All rights reserved.
+   Copyright 2008-2013 Glencoe Software, Inc. All rights reserved.
    Use is subject to license terms supplied in LICENSE.txt
 
 """
 
 import test.integration.library as lib
+import pytest
 import omero
 from omero_model_PixelsI import PixelsI
 from omero_model_ImageI import ImageI
@@ -280,6 +281,7 @@ class TestSplitFilesets(lib.ITest):
         expected = {filesetId: {True: [imgId], False: [images[1].id.val]}}
         self.checkSplitFilesets(client, {'Dataset': [datasets[0].id.val]}, expected)
 
+    @pytest.mark.xfail(reason="ticket 11610")
     def testGetImagesBySplitFilesetsManyCases(self):
         query = self.client.sf.getQueryService()
         update = self.client.sf.getUpdateService()

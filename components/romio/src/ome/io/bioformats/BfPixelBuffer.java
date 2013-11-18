@@ -469,12 +469,18 @@ public class BfPixelBuffer implements PixelBuffer, Serializable {
         final BfPixelsWrapper reader = reader();
         byte[] buffer = new byte[
                 w * h * FormatTools.getBytesPerPixel(reader.getPixelsType())];
-        getTileDirect(z, c, t, x, y, w, h, buffer);
-        PixelData d = new PixelData(
-                reader.getPixelsType(), ByteBuffer.wrap(buffer));
-        d.setOrder(isLittleEndian()?
-                ByteOrder.LITTLE_ENDIAN : ByteOrder.BIG_ENDIAN);
-        return d;
+        try {
+            // Call getTile on reader() rather than on this
+            // so as not to swap the bytes twice.
+            reader().getTile(z, c, t, x, y, w, h, buffer);
+            PixelData d = new PixelData(
+                    reader.getPixelsType(), ByteBuffer.wrap(buffer));
+            d.setOrder(isLittleEndian()?
+                    ByteOrder.LITTLE_ENDIAN : ByteOrder.BIG_ENDIAN);
+            return d;
+        } catch (FormatException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /* (non-Javadoc)
@@ -485,7 +491,9 @@ public class BfPixelBuffer implements PixelBuffer, Serializable {
     {
         try
         {
-            return reader().getTile(z, c, t, x, y, w, h, buffer);
+            reader().getTile(z, c, t, x, y, w, h, buffer);
+            reader().swapIfRequired(buffer);
+            return buffer;
         }
         catch (FormatException e)
         {

@@ -2,16 +2,24 @@
 # -*- coding: utf-8 -*-
 
 #
-# Copyright (C) 2012 University of Dundee & Open Microscopy Environment.
+# Copyright (C) 2012-2013 University of Dundee & Open Microscopy Environment.
 #                      All Rights Reserved.
 # Use is subject to license terms supplied in LICENSE.txt
 #
+
+"""
+   Integration test for moving objects between groups.
+
+"""
 
 import omero, omero.gateway
 import test.integration.library as lib
 import pytest
 from omero.rtypes import *
 from omero.api import Save
+
+# Module level marker
+pytestmark = pytest.mark.fs_suite
 
 PRIVATE = 'rw----'
 READONLY = 'rwr---'

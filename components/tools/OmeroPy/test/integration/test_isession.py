@@ -5,7 +5,7 @@
    Integration test focused on the omero.api.ISession interface
    a running server.
 
-   Copyright 2008 Glencoe Software, Inc. All rights reserved.
+   Copyright 2008-2013 Glencoe Software, Inc. All rights reserved.
    Use is subject to license terms supplied in LICENSE.txt
 
 """
@@ -93,7 +93,8 @@ class TestISession(lib.ITest):
 ##        guest_sess = guest_client.createSession("guest",sess.uuid)
 ##        guest_client.closeSession()
 
-    def testCreationDestructionClosing(self):
+    @pytest.mark.xfail(reason="See tickets #11494 and #11542")
+    def test1018CreationDestructionClosing(self):
         c1, c2, c3, c4 = None, None, None, None
         try:
             c1 = omero.client() # ok rather than new_client since has __del__

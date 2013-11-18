@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.util.ui.IconManager
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -46,9 +46,6 @@ import javax.swing.ImageIcon;
  * @author	Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $ $Date: $)
- * </small>
  * @since OME2.2
  */
 public class IconManager
@@ -555,11 +552,11 @@ public class IconManager
         relPaths[LEFT_ARROW_10] = "nuvola_player_play10_left.png"; 
         relPaths[RIGHT_ARROW_10] = "nuvola_player_play10_right.png";
         relPaths[UP_ARROW_DISABLED_10] = "nuvola_player_play10_up_disabled.png";
-        relPaths[DOWN_ARROW_DISABLED_10] = 
+        relPaths[DOWN_ARROW_DISABLED_10] =
         							"nuvola_player_play10_down_disabled.png";
-        relPaths[LEFT_ARROW_DISABLED_10] = 
-        							"nuvola_player_play10_left_disabled.png"; 
-        relPaths[RIGHT_ARROW_DISABLED_10] = 
+        relPaths[LEFT_ARROW_DISABLED_10] =
+        							"nuvola_player_play10_left_disabled.png";
+        relPaths[RIGHT_ARROW_DISABLED_10] =
         						"nuvola_player_play10_right_disabled.png";
         relPaths[RIGHT_ARROW_BLACK_10] = "nuvola_player_play10_right_black.png";
         relPaths[DOWN_ARROW_BLACK_10] = "nuvola_player_play10_down_black.png";
@@ -568,7 +565,7 @@ public class IconManager
     	relPaths[INFO] = "nuvola_messagebox_info16.png";
     	relPaths[PROGRESS] = "eclipse_progress_none16";
     	relPaths[CLASSIFICATION_48] = "nuvola_filenew48.png";
-    	relPaths[ERROR_ICON_64] = "nuvola_error64.png";
+    	relPaths[ERROR_ICON_64] = "nuvola_important64.png";
     	relPaths[COMMENT_ICON_64] = "nuvola_mail_send64.png";
     	relPaths[SERVER_22] = "nuvola_server22.png";
     	relPaths[CONFIG_24] = "nuvola_configure24.png";
@@ -589,7 +586,7 @@ public class IconManager
         relPaths[BACKWARD_NAV] = "eclipse_backward_nav16.png";
         relPaths[TRASH_CAN] = "nuvola_trashcan_full16.png";
         relPaths[SAVE] = "nuvola_filesaveas16.png";
-        relPaths[OWNER] = "nuvola_kdmconfig_modified16.png";//"nuvola_kdmconfig16.png";
+        relPaths[OWNER] = "nuvola_kdmconfig_modified16.png";
         relPaths[CALENDAR] = "nuvola_date16.png";
         relPaths[DATASET] = "nuvola_folder_image16.png";
         relPaths[IMAGE] = "nuvola_image16.png";
@@ -617,7 +614,7 @@ public class IconManager
         relPaths[TAG_USED] = "tag_used16.png";
         relPaths[BROWSE] = "zoom16.png";
         relPaths[TRANSPARENT] = "zoom16.png";
-        relPaths[OWNER_48] = "nuvola_kdmconfig_modified48.png";//"nuvola_kdmconfig48.png";
+        relPaths[OWNER_48] = "nuvola_kdmconfig_modified48.png";
         relPaths[SEARCH_TAG_SET] ="search_tag_folder16.png";
         relPaths[EDIT_REMOVE_12] = "remove12.png";
         relPaths[ADD_12] = "add12.png";
@@ -674,15 +671,15 @@ public class IconManager
         relPaths[QUIT_22] = "nuvola_exit22.png";
         relPaths[REFRESH_22] = "nuvola_reload22.png";
         relPaths[IMAGE_22] = "nuvola_indeximg22.png";
-        relPaths[MOVIE_48] = "crystal_video48.png";//openOffice_stock_insert-video-plugin-48.png";
+        relPaths[MOVIE_48] = "crystal_video48.png";
         relPaths[COLOR_PICKER] = "nuvola_colorpicker16.png";
         relPaths[IMPORT_48] = "omeroImporter48.png";
-        relPaths[SUBMIT_ICON_64] = "nuvola_error64.png";
+        relPaths[SUBMIT_ICON_64] = "nuvola_important64.png";
         relPaths[ACTUAL_SIZE] = "nuvola_viewmagfit16.png";
         relPaths[ZOOM_IN] = "nuvola_viewmag+16.png";
         relPaths[ZOOM_OUT] = "nuvola_viewmag-16.png";
         relPaths[TAG_SET_OTHER_OWNER] = "nuvola_knotesRed_group16.png";
-        relPaths[GROUP] = "group_generic16.png";//nuvola_kdmconfig16.png";//"nuvola_personal16.png";
+        relPaths[GROUP] = "group_generic16.png";
         relPaths[ENCRYPTED_24] = "nuvola_encrypted_grey24.png";
         relPaths[DECRYPTED_24] = "nuvola_decrypted_grey24.png";
         relPaths[PERSONAL_96] ="nuvola_personal96.png";
@@ -746,11 +743,11 @@ public class IconManager
      * If the icon can't be retrieved, then this method will log the error and
      * return <code>null</code>.
      *
-     * @param id    The index of the file name in the array of file names 
-     *              specified to this class' constructor.
-     * @return  An {@link Icon} object created from the image file.  The return
-     *          value will be <code>null</code> if the file couldn't be found
-     *          or an image icon couldn't be created from that file.
+     * @param id The index of the file name in the array of file names 
+     *           specified to this class' constructor.
+     * @return An {@link Icon} object created from the image file.  The return
+     *         value will be <code>null</code> if the file couldn't be found
+     *         or an image icon couldn't be created from that file.
      */ 
     public Icon getIcon(int id)
     {
@@ -763,12 +760,12 @@ public class IconManager
      * If the icon can't be retrieved, then this method will log the error and
      * return <code>null</code>.
      *
-     * @param name    Must be one a valid icon file name within the directory
-     *                  used by the {@link IconFactory} instance specified via
-     *                  this class' constructor.
-     * @return  An {@link Icon} object created from the image file.  The return
-     *          value will be <code>null</code> if the file couldn't be found
-     *          or an image icon couldn't be created from that file.
+     * @param name Must be one a valid icon file name within the directory
+     *             used by the {@link IconFactory} instance specified via
+     *             this class' constructor.
+     * @return An {@link Icon} object created from the image file.  The return
+     *         value will be <code>null</code> if the file couldn't be found
+     *         or an image icon couldn't be created from that file.
      */ 
     public Icon getIcon(String name)
     {
@@ -787,11 +784,11 @@ public class IconManager
      * If the icon can't be retrieved, then this method will log the error and
      * return <code>null</code>.
      *
-     * @param id    The index of the file name in the array of file names 
-     *              specified to this class' constructor.
-     * @return  An {@link Icon} object created from the image file.  The return
-     *          value will be <code>null</code> if the file couldn't be found
-     *          or an image icon couldn't be created from that file.
+     * @param id The index of the file name in the array of file names 
+     *           specified to this class' constructor.
+     * @return An {@link Icon} object created from the image file.  The return
+     *         value will be <code>null</code> if the file couldn't be found
+     *         or an image icon couldn't be created from that file.
      */ 
     public ImageIcon getImageIcon(int id)
     {
@@ -804,12 +801,12 @@ public class IconManager
      * If the icon can't be retrieved, then this method will log the error and
      * return <code>null</code>.
      *
-     * @param name    Must be one a valid icon file name within the directory
-     *                  used by the {@link IconFactory} instance specified via
-     *                  this class' constructor.
-     * @return  An {@link Icon} object created from the image file.  The return
-     *          value will be <code>null</code> if the file couldn't be found
-     *          or an image icon couldn't be created from that file.
+     * @param name Must be one a valid icon file name within the directory
+     *             used by the {@link IconFactory} instance specified via
+     *            this class' constructor.
+     * @return An {@link Icon} object created from the image file.  The return
+     *         value will be <code>null</code> if the file couldn't be found
+     *         or an image icon couldn't be created from that file.
      */ 
     public ImageIcon getImageIcon(String name)
     {
@@ -827,10 +824,10 @@ public class IconManager
     private static IconManager  singleton;
     
     /** The factory. */
-    private IconFactory         factory;
- 
+    private IconFactory factory;
+
     /** 
-     * Returns the <code>IconManager</code> object. 
+     * Returns the <code>IconManager</code> object.
      * 
      * @return See above.
      */
@@ -839,7 +836,7 @@ public class IconManager
         if (singleton == null) singleton = new IconManager();
         return singleton;
     }
-    
+
     /** Creates a new instance and configures the parameters. */
     private IconManager()
     {
@@ -860,5 +857,5 @@ public class IconManager
 		if (location != null)	icon = new ImageIcon(location);
 		return icon;
 	}
-	
+
 }

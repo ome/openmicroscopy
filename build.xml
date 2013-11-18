@@ -646,6 +646,8 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
                 version="true"
                 use="true"
                 breakiterator="true"
+                encoding="UTF-8"
+                docencoding="UTF-8"
                 windowtitle="OMERO (OME Remote Objects) Server"
                 overview="target/docs/overview.html"
                 stylesheetfile="docs/javadocsstyle.css">
@@ -655,6 +657,7 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
                         <include name="**/*.jar"/>
                         <exclude name="repository/omero/**"/>
                         <exclude name="repository/omero-tools/**"/>
+                        <exclude name="cache/omero/omero_client/jars/**"/>
                     </fileset>
                 </classpath>
 

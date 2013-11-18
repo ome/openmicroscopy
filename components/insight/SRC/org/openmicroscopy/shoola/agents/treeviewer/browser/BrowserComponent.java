@@ -1328,35 +1328,35 @@ class BrowserComponent
      * Implemented as specified by the {@link Browser} interface.
      * @see Browser#refreshTree(Object, DataObject)
      */
-    public void refreshTree(Object refNode, DataObject toBrowse)
-    { 
-    	switch (model.getState()) {
-	        case LOADING_DATA:
-	        case LOADING_LEAVES:
-	        	model.cancel();
-	        	break;
-	        case DISCARDED:
-	        	//ignore
-	        	return;
-    	}
+	public void refreshTree(Object refNode, DataObject toBrowse)
+	{ 
+	    switch (model.getState()) {
+	    case LOADING_DATA:
+	    case LOADING_LEAVES:
+	        model.cancel();
+	        break;
+	    case DISCARDED:
+	        //ignore
+	        return;
+	    }
 
-    	if (model.getBrowserType() == FILE_SYSTEM_EXPLORER) {
-    		//view.loadFileSystem(true);
-    		return;
-    	}
-    	if (model.getBrowserType() == ADMIN_EXPLORER) {
-    		refreshExperimenterData();
-    		return;
-    	}
-    	addComponent(null);
+	    if (model.getBrowserType() == FILE_SYSTEM_EXPLORER) {
+	        //view.loadFileSystem(true);
+	        return;
+	    }
+	    if (model.getBrowserType() == ADMIN_EXPLORER) {
+	        refreshExperimenterData();
+	        return;
+	    }
+	    addComponent(null);
 	    TreeImageDisplay root = view.getTreeRoot();
 	    //root.setToRefresh(false);
-	    
+
 	    RefreshExperimenterDef def;
 	    RefreshVisitor v; 
 	    int n = root.getChildCount();
 	    Map<SecurityContext, RefreshExperimenterDef> 
-	    	m = new HashMap<SecurityContext, RefreshExperimenterDef>(n);
+	    m = new HashMap<SecurityContext, RefreshExperimenterDef>(n);
 	    int type = model.getBrowserType();
 	    Iterator j;
 	    TreeImageSet expNode, groupNode;
@@ -1364,92 +1364,97 @@ class BrowserComponent
 	    long gid;
 	    SecurityContext ctx;
 	    switch (model.getDisplayMode()) {
-			case TreeViewer.EXPERIMENTER_DISPLAY:
-				if (model.isSingleGroup()) {
-			    	gid = model.getUserDetails().getDefaultGroup().getId();
-			    	for (int i = 0; i < n; i++) {
-			    		expNode = (TreeImageSet) root.getChildAt(i);
-				    	if (expNode.isExpanded() && expNode.isChildrenLoaded()) {
-				    		v = new RefreshVisitor(this);
-				    		expNode.accept(v);
-					    	//reset the flag 
-					    	if (type == Browser.IMAGES_EXPLORER)
-					    		countExperimenterImages(expNode);
-					    	def = new RefreshExperimenterDef(expNode, 
-					    			v.getFoundNodes(),
-									v.getExpandedTopNodes());
-					    	
-					    	ctx = new SecurityContext(gid);
-					    	if (model.getDisplayMode() ==
-					    			TreeViewer.EXPERIMENTER_DISPLAY)
-					    		ctx.setExperimenter(
-					    			(ExperimenterData) expNode.getUserObject());
-							m.put(ctx, def);
-				    	}
-					}
-			    } else {
-			    	for (int i = 0; i < n; i++) {
-				    	groupNode = (TreeImageSet) root.getChildAt(i);
-				    	if (groupNode.isExpanded()) {
-				    		v = new RefreshVisitor(this);
-				    		gid = groupNode.getUserObjectId();
-					    	children = groupNode.getChildrenDisplay();
-					    	j = children.iterator();
-					    	while (j.hasNext()) {
-								expNode = (TreeImageSet) j.next();
-								if (expNode.isChildrenLoaded()) {
-									v = new RefreshVisitor(this);
-									expNode.accept(v);
-							    	//reset the flag 
-							    	if (type == Browser.IMAGES_EXPLORER)
-							    		countExperimenterImages(expNode);
-							    	def = new RefreshExperimenterDef(expNode,
-							    			v.getFoundNodes(),
-											v.getExpandedTopNodes());
-							    	ctx = new SecurityContext(gid);
-							    	ctx.setExperimenter(
-							    	(ExperimenterData) expNode.getUserObject());
-									m.put(ctx, def);
-								}
-							}
-				    	}
-					}
-			    }
-				break;
-			case TreeViewer.GROUP_DISPLAY:
-				for (int i = 0; i < n; i++) {
-			    	groupNode = (TreeImageSet) root.getChildAt(i);
-			    	if (groupNode.isExpanded()) {
-			    		v = new RefreshVisitor(this);
-			    		groupNode.accept(v);
-			    		gid = groupNode.getUserObjectId();
-				    	//reset the flag 
-				    	if (type == Browser.IMAGES_EXPLORER)
-				    		countExperimenterImages(groupNode);
-				    	def = new RefreshExperimenterDef(groupNode, 
-				    			v.getFoundNodes(),
-								v.getExpandedTopNodes());
-						m.put(new SecurityContext(gid), def);
-			    	}
-				}
-		}
-	    
+	    case TreeViewer.EXPERIMENTER_DISPLAY:
+	        if (model.isSingleGroup()) {
+	            gid = model.getUserDetails().getDefaultGroup().getId();
+	            for (int i = 0; i < n; i++) {
+	                expNode = (TreeImageSet) root.getChildAt(i);
+	                if (expNode.isExpanded() && expNode.isChildrenLoaded()) {
+	                    v = new RefreshVisitor(this);
+	                    expNode.accept(v);
+	                    //reset the flag 
+	                    if (type == Browser.IMAGES_EXPLORER)
+	                        countExperimenterImages(expNode);
+	                    def = new RefreshExperimenterDef(expNode,
+	                            v.getFoundNodes(), v.getExpandedTopNodes());
+	                    ctx = new SecurityContext(gid);
+	                    if (model.getDisplayMode() ==
+	                            TreeViewer.EXPERIMENTER_DISPLAY)
+	                        ctx.setExperimenter(
+	                                (ExperimenterData) expNode.getUserObject());
+	                    m.put(ctx, def);
+	                } else {
+	                    expNode.setChildrenLoaded(Boolean.FALSE);
+	                }
+	            }
+	        } else {
+	            for (int i = 0; i < n; i++) {
+	                groupNode = (TreeImageSet) root.getChildAt(i);
+	                if (groupNode.isExpanded()) {
+	                    v = new RefreshVisitor(this);
+	                    gid = groupNode.getUserObjectId();
+	                    children = groupNode.getChildrenDisplay();
+	                    j = children.iterator();
+	                    while (j.hasNext()) {
+	                        expNode = (TreeImageSet) j.next();
+	                        if (expNode.isChildrenLoaded() &&
+	                                expNode.isExpanded()) {
+	                            v = new RefreshVisitor(this);
+	                            expNode.accept(v);
+	                            //reset the flag 
+	                            if (type == Browser.IMAGES_EXPLORER)
+	                                countExperimenterImages(expNode);
+	                            def = new RefreshExperimenterDef(expNode,
+	                                    v.getFoundNodes(),
+	                                    v.getExpandedTopNodes());
+	                            ctx = new SecurityContext(gid);
+	                            ctx.setExperimenter(
+	                                    (ExperimenterData) expNode.getUserObject());
+	                            m.put(ctx, def);
+	                        } else {
+	                            expNode.setChildrenLoaded(Boolean.FALSE);
+	                        }
+	                    }
+	                }
+	            }
+	        }
+	        break;
+	    case TreeViewer.GROUP_DISPLAY:
+	        for (int i = 0; i < n; i++) {
+	            groupNode = (TreeImageSet) root.getChildAt(i);
+	            if (groupNode.isExpanded() && groupNode.isChildrenLoaded()) {
+	                v = new RefreshVisitor(this);
+	                groupNode.accept(v);
+	                gid = groupNode.getUserObjectId();
+	                //reset the flag 
+	                if (type == Browser.IMAGES_EXPLORER)
+	                    countExperimenterImages(groupNode);
+	                def = new RefreshExperimenterDef(groupNode,
+	                        v.getFoundNodes(),
+	                        v.getExpandedTopNodes());
+	                m.put(new SecurityContext(gid), def);
+	            } else {
+	                groupNode.setChildrenLoaded(Boolean.FALSE);
+                }
+	        }
+	    }
+
 	    if (m.size() == 0) { //for new data the first time.
-	    	TreeImageDisplay node = null;
-	    	switch (model.getDisplayMode()) {
-				case TreeViewer.GROUP_DISPLAY:
-					node = getDefaultGroupNode();
-				case TreeViewer.EXPERIMENTER_DISPLAY:
-				default:
-					node = getLoggedExperimenterNode();
-			}
-	    	if (node != null)
-	    		loadExperimenterData(node, null);
-	    	return;
+	        TreeImageDisplay node = null;
+	        switch (model.getDisplayMode()) {
+	        case TreeViewer.GROUP_DISPLAY:
+	            node = getDefaultGroupNode();
+	        case TreeViewer.EXPERIMENTER_DISPLAY:
+	        default:
+	            node = getLoggedExperimenterNode();
+	        }
+	        if (node != null)
+	            loadExperimenterData(node, null);
+	        return;
 	    }
 	    model.loadRefreshExperimenterData(m, null, -1, refNode, toBrowse);
-		fireStateChange();
-    }
+	    fireStateChange();
+	}
 
     /**
      * Implemented as specified by the {@link Browser} interface.

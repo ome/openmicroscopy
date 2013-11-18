@@ -19,7 +19,7 @@ import os
 import omero.gateway
 
 
-def _testAnnotation (obj, annclass, ns, value):
+def _testAnnotation (obj, annclass, ns, value, sameOwner=False, testOwner=None):
     gateway = obj._conn
     # Make sure it doesn't yet exist
     obj.removeAnnotations(ns)
@@ -28,29 +28,69 @@ def _testAnnotation (obj, annclass, ns, value):
     ann = annclass(gateway)
     ann.setNs(ns)
     ann.setValue(value)
-    obj.linkAnnotation(ann)
+    if sameOwner:
+        obj.linkAnnotation(ann, sameOwner=True)
+    else:
+        # checks that default sameOwner=False
+        obj.linkAnnotation(ann)
     ann = obj.getAnnotation(ns)
     # Make sure the group for the annotation is the same as the original object. (#120)
     assert ann.getDetails().getGroup() == obj.getDetails().getGroup()
     tval = hasattr(value, 'val') and value.val or value
     assert ann.getValue() == value, '%s != %s' % (str(ann.getValue()), str(tval))
     assert ann.getNs() == ns,  '%s != %s' % (str(ann.getNs()), str(ns))
+    if testOwner is not None:
+        testOwner(obj, ann)
     # Remove and check
     obj.removeAnnotations(ns)
     assert obj.getAnnotation(ns) is None
     # Same dance, createAndLink shortcut
-    annclass.createAndLink(target=obj, ns=ns, val=value)
+    if sameOwner:
+        annclass.createAndLink(target=obj, ns=ns, val=value, sameOwner=True)
+    else:
+        # checks that default sameOwner=False
+        annclass.createAndLink(target=obj, ns=ns, val=value)
     ann = obj.getAnnotation(ns)
     # Make sure the group for the annotation is the same as the original object. (#120)
     assert ann.getDetails().getGroup() == obj.getDetails().getGroup()
     tval = hasattr(value, 'val') and value.val or value
     assert ann.getValue() == value, '%s != %s' % (str(ann.getValue()), str(tval))
     assert ann.getNs() == ns,  '%s != %s' % (str(ann.getNs()), str(ns))
+    if testOwner is not None:
+        testOwner(obj, ann)
     # Remove and check
     obj.removeAnnotations(ns)
     assert obj.getAnnotation(ns) is None
 
 TESTANN_NS = 'omero.gateway.test_annotation'
+
+def testSameOwner (gatewaywrapper):
+    """
+        tests project.linkAnnotation(sameOwner=False)
+        Tests sameOwner default is False (was True for 4.4.x but False in 5.0)
+    """
+    gatewaywrapper.loginAsAdmin()
+
+    gatewaywrapper.gateway.SERVICE_OPTS.setOmeroGroup("-1")
+    p = gatewaywrapper.getTestProject2()
+    p.getDetails().owner.id.val
+
+    def sameOwner(obj, ann):
+        assert obj.getDetails().owner.id.val == ann.getDetails().owner.id.val
+
+    def differentOwner(obj, ann):
+        assert obj.getDetails().owner.id.val != ann.getDetails().owner.id.val
+
+    _testAnnotation(p,
+                    omero.gateway.CommentAnnotationWrapper,
+                    TESTANN_NS, 'some value',
+                    sameOwner=True, testOwner=sameOwner)
+
+    return _testAnnotation(p,
+                    omero.gateway.CommentAnnotationWrapper,
+                    TESTANN_NS, 'some value',
+                    sameOwner=False, testOwner=differentOwner)
+
 
 def testCommentAnnotation (author_testimg_generated):
     return _testAnnotation(author_testimg_generated,
