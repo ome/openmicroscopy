@@ -64,6 +64,7 @@ import javax.swing.event.DocumentListener;
 //Third-party libraries
 
 
+import org.apache.commons.lang.StringUtils;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
@@ -194,7 +195,7 @@ class UserProfile
             StringBuffer buf = new StringBuffer();
             buf.append(passwordNew.getPassword());
             String newPass = buf.toString();
-            if (newPass == null || newPass.length() == 0) {
+            if (StringUtils.isBlank(newPass)) {
                 un = MetadataViewerAgent.getRegistry().getUserNotifier();
                 un.notifyInfo(PASSWORD_CHANGE_TITLE,
                         "Please enter the new password.");
@@ -219,14 +220,14 @@ class UserProfile
         buf = new StringBuffer();
         buf.append(oldPassword.getPassword());
         String old = buf.toString();
-        if (old == null || old.trim().length() == 0) {
+        if (StringUtils.isBlank(old)) {
             un = MetadataViewerAgent.getRegistry().getUserNotifier();
             un.notifyInfo(PASSWORD_CHANGE_TITLE,
                     "Please specify your old password.");
             oldPassword.requestFocus();
             return;
         }
-        if (newPass == null || newPass.trim().length() == 0) {
+        if (StringUtils.isBlank(newPass)) {
             un = MetadataViewerAgent.getRegistry().getUserNotifier();
             un.notifyInfo(PASSWORD_CHANGE_TITLE,
                     "Please enter your new password.");
@@ -244,7 +245,7 @@ class UserProfile
             return;
         }
 
-        if (pass == null || confirm == null || confirm.trim().length() == 0 ||
+        if (pass == null || StringUtils.isBlank(confirm) ||
                 !pass.equals(confirm)) {
             un = MetadataViewerAgent.getRegistry().getUserNotifier();
             un.notifyInfo(PASSWORD_CHANGE_TITLE,
@@ -928,7 +929,7 @@ class UserProfile
     {
         saveButton.setEnabled(false);
         String text = loginArea.getText();
-        if (text == null || text.trim().length() == 0) return false;
+        if (StringUtils.isBlank(text)) return false;
         text = text.trim();
         ExperimenterData original = (ExperimenterData) model.getRefObject();
         if (!text.equals(original.getUserName())) {
