@@ -342,7 +342,7 @@ class DataBrowserControl
     /**
      * Returns the actions used to move data between groups. 
      * 
-     * @return See abo.ve
+     * @return See above.
      */
     List<MoveToAction> getMoveAction()
     {
