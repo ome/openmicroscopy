@@ -470,7 +470,8 @@ public interface AdminService
 
     /**
      * Returns <code>true</code> if the group is a group required by the
-     * security system e.g. system, users, <code>false</code> otherwise.
+     * security system of the specified type e.g. users,
+     * <code>false</code> otherwise.
      *
      * @param groupID The identifier of the group.
      * @param key One of the constants defined by <code>GroupData</code>
