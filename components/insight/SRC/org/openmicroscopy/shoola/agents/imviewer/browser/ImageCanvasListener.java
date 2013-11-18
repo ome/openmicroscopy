@@ -217,7 +217,7 @@ class ImageCanvasListener
 		canvas.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 		if (canvas instanceof BrowserBICanvas)
 			((BrowserBICanvas) canvas).setPaintedString(model.getDefaultZ(),
-					model.getDefaultT());
+					model.getRealSelectedT());
 	}
 	
 	/**
@@ -266,7 +266,7 @@ class ImageCanvasListener
                 	model.setSelectedXYPlane(v, -1);
                 	if (canvas instanceof BrowserBICanvas)
             			((BrowserBICanvas) canvas).setPaintedString(v,
-            					model.getDefaultT());
+            					model.getRealSelectedT());
                 } else {
                 	if (canvas instanceof BrowserBICanvas)
             			((BrowserBICanvas) canvas).setPaintedString(-1, -1);

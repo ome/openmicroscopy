@@ -27,7 +27,9 @@ package org.openmicroscopy.shoola.env.data.util;
 //Java imports
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
+import java.io.FileOutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -136,31 +138,37 @@ public class OriginalMetadataParser
 	public void read(OriginalMetadataResponse response, String separator)
 		throws Exception
 	{
+		Writer writer = null;
 		BufferedWriter bufferWriter = null;
 		try {
-			FileWriter writer = new FileWriter(file.getAbsolutePath(), true);
+			writer = new OutputStreamWriter(new FileOutputStream(file, true), "UTF-8");
 			bufferWriter = new BufferedWriter(writer);
 			StringBuffer buffer = new StringBuffer();
 			String value;
 			
 			value = writeMap(response.globalMetadata, separator);
 			if (value != null) {
-				buffer.append("[global Metadata]");
+				buffer.append("[GlobalMetadata]");
 				buffer.append(System.getProperty("line.separator"));
 				buffer.append(writeMap(response.globalMetadata, separator));
 				buffer.append(System.getProperty("line.separator"));
 			}
 			value = writeMap(response.seriesMetadata, separator);
 			if (value != null) {
-				buffer.append("[series Metadata]");
+				buffer.append("[SeriesMetadata]");
 				buffer.append(System.getProperty("line.separator"));
 				buffer.append(writeMap(response.seriesMetadata, separator));
 			}
 			bufferWriter.write(buffer.toString());
 		} catch (Exception e) {
-			if (bufferWriter != null) bufferWriter.close();
 			throw new Exception("An error while reading/writing the content.");
+		} finally {
+		    if (bufferWriter != null) {
+		        bufferWriter.close();
+		    }
+		    if (writer != null) {
+		        writer.close();
+		    }
 		}
-		bufferWriter.close();
 	}
 }

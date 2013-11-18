@@ -2,10 +2,10 @@
  * org.openmicroscopy.shoola.util.file.IOUtil 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -43,9 +43,9 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 
-
 //Third-party libraries
-
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang.StringUtils;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.filter.file.ExcelFilter;
@@ -60,9 +60,6 @@ import org.openmicroscopy.shoola.util.filter.file.WordFilter;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since OME3.0
  */
 public class IOUtil
@@ -277,49 +274,88 @@ public class IOUtil
 	{
 		return System.getProperty("javawebstart.version", null) != null;
 	}
+
+	/**
+	 * Zips directory.
+	 * 
+	 * @param directory The directory to zip.
+	 * @param out The output stream.
+	 * @throws Exception Thrown if an error occurred during the operation.
+	 */
+	private static void zipDir(File directory, ZipOutputStream out,
+	        String parentDirectoryName)
+	        throws Exception
+	        {
+	    File[] entries = directory.listFiles();
+	    byte[] buffer = new byte[4096]; // Create a buffer for copying
+	    int bytesRead;
+	    FileInputStream in;
+	    File f;
+	    for (int i = 0; i < entries.length; i++) {
+	        f = entries[i];
+	        if (f.isHidden())
+	            continue;
+	        if (f.isDirectory()) {
+	            zipDir(f, out, f.getName());
+	            continue;
+	        }
+	        in = new FileInputStream(f); // Stream to read file
+	        String zipName = f.getName();
+	        if (!StringUtils.isEmpty(parentDirectoryName)) {
+	            zipName = FilenameUtils.concat(parentDirectoryName, zipName);
+	        }
+	        out.putNextEntry(new ZipEntry(zipName)); // Store entry
+	        while ((bytesRead = in.read(buffer)) != -1)
+	            out.write(buffer, 0, bytesRead);
+	        out.closeEntry();
+	        in.close();
+	    }
+	        }
+
+	/**
+	 * Makes the zip.
+	 * 
+	 * @param zipName The name of the zip.
+	 * @param compress Pass <code>true</code> to compress,
+	 * <code>false</code> otherwise.
+	 */
+	public static File zipDirectory(File zip, boolean compress)
+	        throws Exception
+	{
+	    if (zip == null)
+            throw new IllegalArgumentException("No name specified.");
+        if (!zip.isDirectory() || !zip.exists())
+            throw new IllegalArgumentException("Not a valid directory.");
+        //Check if the name already has the extension
+        String extension = FilenameUtils.getExtension(zip.getName());
+        String name = zip.getName();
+        if (StringUtils.isEmpty(extension) ||
+                !ZIP_EXTENSION.equals("."+extension)) {
+            name += ZIP_EXTENSION;
+        }
+        File file = new File(zip.getParentFile(), name);
+        ZipOutputStream out = null;
+        try {
+            out = new ZipOutputStream(new FileOutputStream(file));
+            if (!compress) out.setLevel(ZipOutputStream.STORED);
+            zipDir(zip, out, null);
+        } catch (Exception e) {
+            throw new Exception("Cannot create the zip.", e);
+        } finally {
+            if (out != null) out.close();
+        }
+        return file;
+	}
 	
 	/**
 	 * Makes the zip.
 	 * 
 	 * @param zipName The name of the zip.
-	 * @param files   The files to add.
 	 */
 	public static File zipDirectory(File zip)
 		throws Exception
 	{
-		if (zip == null)
-			throw new IllegalArgumentException("No name specified.");
-		if (!zip.isDirectory())
-			throw new IllegalArgumentException("Not a directory.");
-		File[] entries = zip.listFiles();
-	    byte[] buffer = new byte[4096]; // Create a buffer for copying
-	    int bytesRead;
-
-	    String name = zip.getName()+ZIP_EXTENSION;
-	    File file;
-		try {
-			file = new File(zip.getParentFile(), name);
-			ZipOutputStream out = new ZipOutputStream(
-					new FileOutputStream(file));
-
-		    FileInputStream in;
-		    File f;
-		    for (int i = 0; i < entries.length; i++) {
-		    	f = entries[i];
-		    	if (f.isDirectory() && f.isHidden())
-		    		continue;//Ignore directory TODO
-		    	in = new FileInputStream(f); // Stream to read file
-		    	out.putNextEntry(new ZipEntry(f.getName())); // Store entry
-		    	while ((bytesRead = in.read(buffer)) != -1)
-		    		out.write(buffer, 0, bytesRead);
-		    	out.closeEntry();
-		    	in.close(); 
-		    }
-		    out.close();
-			return file;
-		} catch (Exception e) {
-			throw new Exception("Cannot create the zip.", e);
-		}
+		return zipDirectory(zip, true);
 	}
 	
 	/**
@@ -372,25 +408,9 @@ public class IOUtil
 		while (entries.hasMoreElements()) {
 			entry = entries.nextElement();
 			if (!entry.isDirectory()) {
-				values.put(entry.getName(), 
-						zfile.getInputStream(entry));
+				values.put(entry.getName(), zfile.getInputStream(entry));
 			}
 		}
-	}
-	
-	/**
-	 * Extracts the content of the specified jar.
-	 * 
-	 * @param name The jar file to handle..
-	 * @return See above.
-	 */
-	public static Map<String, InputStream> readJar(String name)
-	throws Exception
-	{
-		Map<String, InputStream> values = new HashMap<String, InputStream>();
-		if (name == null) return values;
-		readJar(values, new File(name));
-		return values;
 	}
 
 }

@@ -32,4 +32,12 @@
 # Eg.
 # java -Dhttp.proxyHost=squid.example.net -Dhttp.proxyPort=8080 -jar omero.insight.jar containerImporter.xml
 
+# readlink -e fails on BSD
+CLIENTS_HOME="$(readlink -e "$0" 2> /dev/null)"
+if [ -z "$CLIENTS_HOME" ]; then
+        CLIENTS_HOME="$0"
+fi
+CLIENTS_HOME="$(dirname "$CLIENTS_HOME")"
+
+cd "$CLIENTS_HOME"
 java -Xms256000000 -Xmx1024000000 -jar omero.insight.jar containerImporter.xml

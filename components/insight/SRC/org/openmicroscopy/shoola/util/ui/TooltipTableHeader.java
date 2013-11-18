@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.util.ui.TooltipTableHeader 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2011 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -20,16 +20,19 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.util.ui;
 
+package org.openmicroscopy.shoola.util.ui;
 
 //Java imports
 import java.awt.event.MouseEvent;
+import java.util.List;
+
 import javax.swing.JTable;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableColumnModel;
 
 //Third-party libraries
+import org.apache.commons.lang.StringUtils;
 
 //Application-internal dependencies
 
@@ -46,20 +49,18 @@ import javax.swing.table.TableColumnModel;
  * </small>
  * @since 3.0-Beta4
  */
-public class TooltipTableHeader 
-	extends JTableHeader
-{
+public class TooltipTableHeader extends JTableHeader {
 
 	/** The tool tips. */
-	private String[] toolTips;
+	private final List<String> toolTips;
 	
 	/**
 	 * Creates a new instance.
 	 * 
 	 * @param model The table model the header is for.
-	 * @param toolTips The array with the tool tip to display.
+	 * @param toolTips The list with the tool tips to display.
 	 */
-	public TooltipTableHeader(TableColumnModel model, String[] toolTips)
+	public TooltipTableHeader(TableColumnModel model, List<String> toolTips)
 	{
 		super(model);
 		if (toolTips == null)
@@ -79,13 +80,12 @@ public class TooltipTableHeader
 		int modelCol = getTable().convertColumnIndexToModel(col);
 		String retStr;
 		try {
-			retStr = toolTips[modelCol];
+			retStr = toolTips.get(modelCol);
 		} catch (Exception ex) {
 			retStr = "";
 		}
-		if (retStr == null || retStr.length() < 1)
+		if (StringUtils.isBlank(retStr))
 			retStr = super.getToolTipText(e);
 		return retStr;
 	}
-	
 }

@@ -82,12 +82,9 @@ import pojos.ScreenData;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since 3.0-Beta4
  */
-class ImporterComponent 
+class ImporterComponent
 	extends AbstractComponent
 	implements Importer
 {
@@ -282,23 +279,23 @@ class ImporterComponent
 
 	/** 
 	 * Implemented as specified by the {@link Importer} interface.
-	 * @see Importer#activate(int, TreeImageDisplay, Collection)
+	 * @see Importer#activate(int, TreeImageDisplay, Collection, long)
 	 */
 	public void activate(int type, TreeImageDisplay selectedContainer,
-			Collection<TreeImageDisplay> objects)
+			Collection<TreeImageDisplay> objects, long userId)
 	{
 		if (model.getState() == DISCARDED) return;
 		boolean reactivate = chooser != null;
+		model.setImportFor(userId);
 		if (chooser == null) {
 			chooser = new ImportDialog(view, model.getSupportedFormats(),
 					selectedContainer, objects, type,
-					controller.getAction(ImporterControl.CANCEL_BUTTON));
+					controller.getAction(ImporterControl.CANCEL_BUTTON), this);
 			chooser.addPropertyChangeListener(controller);
 			view.addComponent(chooser);
 		} else {
-			ExperimenterData exp = ImporterAgent.getUserDetails();
 			chooser.reset(selectedContainer, objects, type, model.getGroupId(),
-					exp.getId());
+					model.getImportFor());
 			chooser.requestFocusInWindow();
 			view.selectChooser();
 		}
@@ -869,5 +866,17 @@ class ImporterComponent
 		if (element == null) return;
 		c.setStatus(result);
 	}
+
+    /** 
+     * Implemented as specified by the {@link TreeViewer} interface.
+     * @see Importer#getImportFor()
+     */
+    public long getImportFor() { return model.getImportFor(); }
+
+    /** 
+     * Implemented as specified by the {@link TreeViewer} interface.
+     * @see Importer#canImportAs()
+     */
+    public boolean canImportAs() { return model.canImportAs(); }
 
 }

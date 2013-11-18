@@ -1,7 +1,7 @@
 /*
- * pojos.Experimenter
+ * pojos.GroupData
  *
- *   Copyright 2006 University of Dundee. All rights reserved.
+ *   Copyright 2006-2013 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -99,17 +99,26 @@ public class GroupData extends DataObject {
     	ExperimenterGroupI.GROUPEXPERIMENTERMAP;
 
     /** Identifies the <code>User</code> group. */
-    public static final String	USER = "user";
+    public static final String USER = "user";
     
 	/** Identifies the <code>System</code> group. */
-	public static final String	SYSTEM = "system";
+	public static final String SYSTEM = "system";
 	
 	/** Identifies the <code>Guest</code> group. */
-	public static final String  GUEST = "guest";
+	public static final String GUEST = "guest";
 	
 	/** Identifies the <code>default</code> group. */
-	public static final String	DEFAULT = "default";
-    
+	public static final String DEFAULT = "default";
+
+	/** The list of system group. */
+	private static final List<String> SYSTEM_GROUPS;
+	static {
+	    SYSTEM_GROUPS = new ArrayList<String>();
+	    SYSTEM_GROUPS.add(GroupData.SYSTEM);
+	    SYSTEM_GROUPS.add(GroupData.USER);
+	    SYSTEM_GROUPS.add(GroupData.GUEST);
+	}
+
     /** All experimenters in this group */
     private Set experimenters;
 
@@ -295,6 +304,17 @@ public class GroupData extends DataObject {
         }
 
         experimenters = new HashSet<ExperimenterData>(m.result());
+    }
+
+    /**
+     * Returns <code>true</code> if the group is a system group,
+     * <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
+    public boolean isSystemGroup()
+    {
+        return SYSTEM_GROUPS.contains(getName());
     }
 
 }

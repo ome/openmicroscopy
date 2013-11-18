@@ -317,8 +317,8 @@ class UserNotifierManager
 	MessengerDialog getCommentDialog(JFrame frame, String email)
 	{
 		if (commentDialog != null) return commentDialog;
-		commentDialog = new MessengerDialog(frame, DEFAULT_COMMENT_TITLE, 
-				email);   
+		commentDialog = new MessengerDialog(frame, DEFAULT_COMMENT_TITLE,
+				email);
 		commentDialog.setServerVersion(getServerVersion());
 		commentDialog.addPropertyChangeListener(this);
 		commentDialog.setModal(false);

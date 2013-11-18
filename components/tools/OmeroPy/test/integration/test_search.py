@@ -4,7 +4,7 @@
 """
    Integration test for search testing
 
-   Copyright 2010 Glencoe Software, Inc. All rights reserved.
+   Copyright 2010-2013 Glencoe Software, Inc. All rights reserved.
    Use is subject to license terms supplied in LICENSE.txt
 
 """
@@ -32,34 +32,40 @@ class TestSearch(lib.ITest):
         r = q.findAllByFullText("TagAnnotation", uuid, None)
         assert 0 ==  len(r)
 
+    @pytest.mark.xfail(reason="See ticket #11539")
     def test3164Private(self):
         group = self.new_group(perms="rw----")
         owner = self.new_client(group)
         searcher = self.new_client(group)
         self._3164(owner, owner)
 
+    @pytest.mark.xfail(reason="See ticket #11539")
     def test3164ReadOnlySelf(self):
         group = self.new_group(perms="rwr---")
         owner = self.new_client(group)
         self._3164(owner, owner)
 
+    @pytest.mark.xfail(reason="See ticket #11539")
     def test3164ReadOnlyOther(self):
         group = self.new_group(perms="rwr---")
         owner = self.new_client(group)
         searcher = self.new_client(group)
         self._3164(owner, searcher)
 
+    @pytest.mark.xfail(reason="See ticket #11539")
     def test3164CollabSelf(self):
         group = self.new_group(perms="rwrw--")
         owner = self.new_client(group)
         self._3164(owner, owner)
 
+    @pytest.mark.xfail(reason="See ticket #11539")
     def test3164CollabOther(self):
         group = self.new_group(perms="rwrw--")
         owner = self.new_client(group)
         searcher = self.new_client(group)
         self._3164(owner, searcher)
 
+    @pytest.mark.xfail(reason="See ticket #11539")
     def test3721Ordering(self):
         """
         Creates two tags and checks that boosting
@@ -197,6 +203,7 @@ class TestSearch(lib.ITest):
                 if not s.hasNext(all) or len(s.results(all)) != 1:
                     assert False, msg % ("SearchPrx", uuid, who, x)
 
+    @pytest.mark.xfail(reason="See ticket #11539")
     def test8846(self):
         # Wildcard search
 

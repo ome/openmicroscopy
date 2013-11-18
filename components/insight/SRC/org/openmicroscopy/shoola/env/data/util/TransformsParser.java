@@ -158,7 +158,7 @@ public class TransformsParser
 			values = IOUtil.extractJarFromPath(SPECIFICATION);
 		if (values.size() == 0) {
 			//going to extract from libs.
-			values = IOUtil.readJar(path);
+			values = IOUtil.extractJarFromPath(path);
 		}
 		
 		if (values == null || values.size() == 0)

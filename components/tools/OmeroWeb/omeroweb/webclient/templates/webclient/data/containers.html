@@ -4,7 +4,7 @@
 
 {% comment %}
 <!--
-  Copyright (C) 2011 University of Dundee & Open Microscopy Environment.
+  Copyright (C) 2011-2013 University of Dundee & Open Microscopy Environment.
   All rights reserved.
 
   This program is free software: you can redistribute it and/or modify
@@ -199,7 +199,7 @@
 
         // Getting text from jsTree nodes shouldn't be this hard, but it is!
         OME.jsTreeNodeText = function($node) {
-            return $node.children("a:eq(0)").text().split("\n")[0].trim();
+            return $.trim($node.children("a:eq(0)").text().split("\n")[0]);
         }
 
         OME.remove_nodes = function(tree, selected) {
@@ -261,7 +261,7 @@
                     topNodes[rel].push(nodeTxt.toLowerCase());
                 }
             });
-            name = name.trim().toLowerCase();
+            name = $.trim(name).toLowerCase();
 
             // look-up the name we're given, within siblings of the same node type:
             var nodeIndex = 0;
@@ -271,7 +271,7 @@
                     var siblings = topNodes[dtype];
                     siblings.push(name);
                     siblings.sort();
-                    return nodeIndex + siblings.indexOf(name);
+                    return nodeIndex + $.inArray(name, siblings)
                 } else {
                     // if NOT, increment nodeIndex and continue
                     nodeIndex += topNodes[nodeTypes[i]].length;
@@ -390,8 +390,16 @@
                         type: "POST",
                         success: function(r){
                             var cont_id = cont_type + "-" + r['id'];
-                            $("#dataTree").jstree("create", selected, position, 
-                                { "attr" : { "rel":cont_type, "id":cont_id, "class":"canLink canDelete"}, "data":new_container_name },
+                            var node_data = { "attr" : { "rel":cont_type, "id":cont_id, "class":"canLink canDelete"},
+                                            "data":new_container_name }
+                            // if orphaned imgs moved into new Dataset, remove them...
+                            if (cont_type == "dataset") {
+                                if (img_ids.length > 0) {node_data.state = "closed"};
+                                for (var o=0; o<img_ids.length; o++) {
+                                    $("#dataTree").jstree("delete_node", "#image-"+img_ids[o]);
+                                }
+                            }
+                            $("#dataTree").jstree("create", selected, position, node_data,
                                 false, true);
                             $("#dataTree").jstree("deselect_all");
                             $("#dataTree").jstree("select_node", "#"+cont_id);

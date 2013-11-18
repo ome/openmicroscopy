@@ -13,7 +13,7 @@
 
 """
 
-import sys, os
+import sys
 import portalocker
 
 from path import path
@@ -22,32 +22,30 @@ from omero.cli import BaseControl
 from omero.cli import ExistingFile
 from omero.cli import NonZeroReturnCode
 from omero.config import ConfigXml
-from omero_ext.strings import shlex
 from omero.util import edit_path, get_user_dir
 from omero.util.decorators import wraps
 import omero.java
 
-HELP="""Commands for server configuration.
+HELP = """Commands for server configuration
 
-A config.xml file will be modified under your etc/grid
-directory. If you do not have one, "upgrade" will create
-a new 4.2 configuration file.
+A config.xml file will be modified under your etc/grid directory. If you do
+not have one, "upgrade" will create a new 4.2 configuration file.
 
-The configuration values are used by bin/omero admin {start,deploy}
-to set properties on launch. See etc/grid/(win)default.xml. The "Profile"
-block contains a reference to "__ACTIVE__" which is the current value
-in config.xml
+The configuration values are used by bin/omero admin {start,deploy} to set
+properties on launch. See etc/grid/(win)default.xml. The "Profile" block
+contains a reference to "__ACTIVE__" which is the current value in config.xml
 
 Environment variables:
     OMERO_CONFIG - Changes the active profile
 
 """
 
+
 def getprefs(args, dir):
     """
     Kept around temporarily for upgrading users from pre-4.2 configurations.
     """
-    if not isinstance(args,list):
+    if not isinstance(args, list):
         raise Exception("Not a list")
     cmd = ["prefs"]+list(args)
     return omero.java.run(cmd, chdir=dir)
@@ -90,50 +88,75 @@ def with_rw_config(func):
 class PrefsControl(BaseControl):
 
     def _configure(self, parser):
-        parser.add_argument("--source", help="""
-            Which configuration file should be used. By default, OMERO.grid
-            will use the file in etc/grid/config.xml. If you would like to
-            configure your system to use $HOME/omero/config.xml, you will
-            need to modify the application descriptor.
-        """)
+        parser.add_argument(
+            "--source", help="Which configuration file should be used. "
+            "By default, OMERO.grid will use the file in etc/grid/config.xml."
+            " If you would like to configure your system to use "
+            "$HOME/omero/config.xml, you will need to modify the application "
+            " descriptor")
 
         sub = parser.sub()
 
-        all = sub.add_parser("all", help="""List all profiles in the current config.xml file.""")
+        all = sub.add_parser(
+            "all", help="List all profiles in the current config.xml file.")
         all.set_defaults(func=self.all)
 
-        default = sub.add_parser("def", help="""List (or set) the current active profile.""")
+        default = sub.add_parser(
+            "def", help="""List (or set) the current active profile.""")
         default.set_defaults(func=self.default)
-        default.add_argument("NAME", nargs="?", help="""Name of the profile which should be made the new active profile.""")
+        default.add_argument(
+            "NAME", nargs="?",
+            help="Name of the profile which should be made the new active"
+            " profile.")
 
-        get = sub.add_parser("get", help="""Get keys from the current profile. All by default""")
+        get = sub.add_parser(
+            "get", help="Get keys from the current profile. All by default")
         get.set_defaults(func=self.get)
         get.add_argument("KEY", nargs="*")
 
-        set = sub.add_parser("set", help="""Set key-value pair in the current profile. Omit the value to remove the key.""")
+        set = sub.add_parser(
+            "set", help="Set key-value pair in the current profile. Omit the"
+            " value to remove the key.")
         set.set_defaults(func=self.set)
         set.add_argument("-f", "--file", type=ExistingFile('r'), help="Load value from file")
         set.add_argument("KEY")
-        set.add_argument("VALUE", nargs="?", help="Value to be set. If it is missing, the key will be removed")
+        set.add_argument(
+            "VALUE", nargs="?",
+            help="Value to be set. If it is missing, the key will be removed")
 
-        drop = sub.add_parser("drop", help="""Removes the profile from the configuration file""")
+        drop = sub.add_parser(
+            "drop", help="Removes the profile from the configuration file")
         drop.set_defaults(func=self.drop)
         drop.add_argument("NAME")
 
-        keys = sub.add_parser("keys", help="""List all keys for the current profile""")
+        keys = sub.add_parser(
+            "keys", help="""List all keys for the current profile""")
         keys.set_defaults(func=self.keys)
 
-        load = sub.add_parser("load", help="""Read into current profile from a file or standard in""")
+        load = sub.add_parser(
+            "load",
+            help="""Read into current profile from a file or standard in""")
         load.set_defaults(func=self.load)
-        load.add_argument("-q", action="store_true", help="No error on conflict")
-        load.add_argument("file", nargs="*", type=ExistingFile('r'), default="-", help="Files to read from. Default to standard in if not specified")
+        load.add_argument(
+            "-q", action="store_true", help="No error on conflict")
+        load.add_argument(
+            "file", nargs="*", type=ExistingFile('r'), default="-",
+            help="Files to read from. Default to standard in if not"
+            " specified")
 
-        edit = parser.add(sub, self.edit, "Presents the properties for the current profile in your editor. Saving them will update your profile.")
-        version = parser.add(sub, self.version, "Prints the configuration version for the current profile.")
-        path = parser.add(sub, self.path, "Prints the file that is used for configuration")
-        lock = parser.add(sub, self.lock, "Acquires the config file lock and holds it")
-        upgrade = parser.add(sub, self.upgrade, "Creates a 4.2 config.xml file based on your current Java Preferences")
-        old = parser.add(sub, self.old, "Delegates to the old configuration system using Java preferences")
+        parser.add(sub, self.edit, "Presents the properties for the current"
+                   " profile in your editor. Saving them will update your"
+                   " profile.")
+        parser.add(sub, self.version, "Prints the configuration version for"
+                   " the current profile.")
+        parser.add(sub, self.path, "Prints the file that is used for "
+                   " configuration")
+        parser.add(sub, self.lock, "Acquires the config file lock and holds"
+                   " it")
+        parser.add(sub, self.upgrade, "Creates a 4.2 config.xml file based on"
+                   " your current Java Preferences")
+        old = parser.add(sub, self.old, "Delegates to the old configuration"
+                         " system using Java preferences")
         old.add_argument("target", nargs="*")
 
     def die_on_ro(self, config):
@@ -151,7 +174,7 @@ class PrefsControl(BaseControl):
                 cfg_xml = grid_dir / "config.xml"
             else:
                 userdir = path(get_user_dir())
-                usr_xml = userdir / "omero"/ "config.xml"
+                usr_xml = userdir / "omero" / "config.xml"
                 self.ctx.err("%s not found; using %s" % (grid_dir, usr_xml))
                 cfg_xml = usr_xml
         try:
@@ -200,7 +223,8 @@ class PrefsControl(BaseControl):
     def set(self, args, config):
         if "=" in args.KEY and args.VALUE is None:
             k, v = args.KEY.split("=", 1)
-            self.ctx.err(""" "=" in key name. Did you mean "...set %s %s"?""" % (k, v))
+            self.ctx.err(""" "=" in key name. Did you mean "...set %s %s"?"""
+                         % (k, v))
         elif args.file:
             if args.file == "-":
                 # Read from standard input
@@ -245,13 +269,13 @@ class PrefsControl(BaseControl):
                 finally:
                     if f != "-":
                         f.close()
-        except NonZeroReturnCode, nzrc:
+        except NonZeroReturnCode:
             raise
         except Exception, e:
             self.ctx.die(968, "Cannot read %s: %s" % (args.file, e))
 
     @with_rw_config
-    def edit(self, args, config, edit_path = edit_path):
+    def edit(self, args, config, edit_path=edit_path):
         from omero.util.temp_files import create_path, remove_path
         start_text = "# Edit your preferences below. Comments are ignored\n"
         for k in sorted(config.keys()):
@@ -260,7 +284,8 @@ class PrefsControl(BaseControl):
         try:
             edit_path(temp_file, start_text)
         except RuntimeError, re:
-            self.ctx.die(954, "%s: Failed to edit %s" % (getattr(re, "pid", "Unknown"), temp_file))
+            self.ctx.die(954, "%s: Failed to edit %s"
+                         % (getattr(re, "pid", "Unknown"), temp_file))
         args.NAME = config.default()
         self.drop(args, config)
         args.file = [open(str(temp_file), "r")]
@@ -288,9 +313,11 @@ class PrefsControl(BaseControl):
             self.handle_line(line, config, None)
 
         # Upgrade procedure for 4.2
-        MSG = """Manually modify them via "omero config old set ..." and re-run"""
+        MSG = """Manually modify them via "omero config old set ..." and \
+re-run"""
         m = config.as_map()
-        for x in ("keyStore", "keyStorePassword", "trustStore", "trustStorePassword"):
+        for x in ("keyStore", "keyStorePassword", "trustStore",
+                  "trustStorePassword"):
             old = "omero.ldap." + x
             new = "omero.security." + x
             if old in m:
@@ -305,17 +332,21 @@ class PrefsControl(BaseControl):
             values = values.split(",")
 
         if len(attributes) != len(values):
-            raise ValueError("%s != %s\nLDAP properties in pre-4.2 configuration are invalid.\n%s" % (attributes, values, MSG))
+            raise ValueError("%s != %s\nLDAP properties in pre-4.2"
+                             " configuration are invalid.\n%s"
+                             % (attributes, values, MSG))
         pairs = zip(attributes, values)
         if pairs:
             if len(pairs) == 1:
                 user_filter = "(%s=%s)" % (tuple(pairs[0]))
             else:
-                user_filter = "(&%s)" % ["(%s=%s)" % tuple(pair) for pair in pairs]
+                user_filter = "(&%s)" % ["(%s=%s)" % tuple(pair)
+                                         for pair in pairs]
             config["omero.ldap.user_filter"] = user_filter
 
         if "omero.ldap.groups" in m:
-            raise ValueError("Not currently handling omero.ldap.groups\n%s" % MSG)
+            raise ValueError("Not currently handling omero.ldap.groups\n%s"
+                             % MSG)
 
         config["omero.config.upgraded"] = "4.2.0"
 
@@ -341,8 +372,8 @@ class PrefsControl(BaseControl):
 
         if keys and _key in keys and _new != _old:
 
-            self.ctx.die(502, "Duplicate property: %s ('%s' => '%s')"\
-                % (_key, _old, _new))
+            self.ctx.die(502, "Duplicate property: %s ('%s' => '%s')"
+                         % (_key, _old, _new))
             keys.append(_key)
 
         config[_key] = _new

@@ -2,10 +2,10 @@
  * org.openmicroscopy.shoola.agents.fsimporter.chooser.DataNodeElement 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2011 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.agents.fsimporter.chooser;
 //Java imports
 
 //Third-party libraries
+import org.apache.commons.lang.StringUtils;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.util.browser.DataNode;
@@ -70,7 +71,7 @@ class DataNodeElement
 		this.location = location;
 		setName(value);
 	}
-	
+
 	/**
 	 * Sets the name.
 	 * 
@@ -78,32 +79,34 @@ class DataNodeElement
 	 */
 	void setName(String value)
 	{
-		name = "";
-		if (value == null || value.trim().length() == 0) {
-			if (location == null) name = NO_LOCATION;
-			else {
-				if (location.getDataObject() instanceof ScreenData ||
-					location.isDefaultScreen()) {
-					name += location.toString();
-				} else {
-					DataNode parent = location.getParent();
-					if (parent != null && !parent.isDefaultNode() 
-							&& !location.isDefaultNode())
-						name = parent.toString()+"/";
-					name += location.toString();
-				}
-			}
-		} else {
-			if (location == null) name = value;
-			else {
-				DataNode parent = location.getParent();
-				if (parent != null && !parent.isDefaultNode())
-					name = parent.toString()+"/";
-				name += value;
-			}
-		}
+	    name = "";
+	    if (StringUtils.isEmpty(value)) {
+	        if (location == null) name = NO_LOCATION;
+	        else {
+	            if (location.getDataObject() instanceof ScreenData ||
+	                    location.isDefaultScreen()) {
+	                name += location.toString();
+	            } else {
+	                DataNode parent = location.getParent();
+	                if (parent != null && !parent.isDefaultNode() 
+	                        && !location.isDefaultNode())
+	                    name = parent.toString()+"/";
+	                name += location.toString();
+	            }
+	        }
+	    } else {
+	        if (location == null) name = value;
+	        else {
+	            DataNode parent = location.getParent();
+	            if (parent != null && !parent.isDefaultNode())
+	                name = parent.toString()+"/";
+	            if (!location.isDefaultNode())
+	                name += location.toString();
+	            else name += value;
+	        }
+	    }
 	}
-	
+
 	/**
 	 * Returns the parent.
 	 * 

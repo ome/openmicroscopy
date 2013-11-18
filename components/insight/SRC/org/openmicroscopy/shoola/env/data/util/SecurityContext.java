@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.data.util.SecurityContext 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2012 University of Dundee & Open Microscopy Environment.
+ *  Copyright (C) 2006-2013 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
  *
  *
@@ -26,9 +26,9 @@ package org.openmicroscopy.shoola.env.data.util;
 
 
 //Java imports
-import com.google.common.base.Objects;
 
 //Third-party libraries
+import com.google.common.base.Objects;
 
 //Application-internal dependencies
 import pojos.ExperimenterData;
@@ -179,7 +179,7 @@ public class SecurityContext
 	public int hashCode()
 	{
 		return Objects.hashCode(this.getGroupID(), this.getHostName(),
-				this.getPort());
+				this.getPort(), this.getExperimenter());
 	}
 
 	/**
@@ -188,12 +188,14 @@ public class SecurityContext
 	 */
 	public boolean equals(Object obj)
 	{
-		if (obj == null) return false;
-		return Objects.equal(((SecurityContext) obj).getGroupID(),
-				this.getGroupID()) &&
-				Objects.equal(((SecurityContext) obj).getHostName(),
-						this.getHostName()) &&
-			 Objects.equal(((SecurityContext) obj).getPort(),
-								this.getPort());
+	    if (obj == null) return false;
+	    return Objects.equal(((SecurityContext) obj).getGroupID(),
+	            this.getGroupID()) &&
+	            Objects.equal(((SecurityContext) obj).getHostName(),
+	                    this.getHostName()) &&
+	            Objects.equal(((SecurityContext) obj).getPort(),
+	                            this.getPort()) &&
+	           Objects.equal(((SecurityContext) obj).getExperimenter(),
+	                                    this.getExperimenter());
 	}
 }

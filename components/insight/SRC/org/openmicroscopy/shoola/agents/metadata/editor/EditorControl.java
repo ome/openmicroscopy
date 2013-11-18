@@ -5,7 +5,7 @@
  *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -370,37 +370,64 @@ class EditorControl
 	/** Brings up the folder chooser. */
 	private void download()
 	{
-		JFrame f = MetadataViewerAgent.getRegistry().getTaskBar().getFrame();
-		FileChooser chooser = new FileChooser(f, FileChooser.SAVE,
-				"Download", "Select where to download the file(s).", null, true);
-		try {
-			File file = UIUtilities.getDefaultFolder();
-			if (file != null) chooser.setCurrentDirectory(file);
-		} catch (Exception ex) {}
-		ImageData image = view.getImage();
-		if (image != null) chooser.setSelectedFileFull(image.getName());
-		IconManager icons = IconManager.getInstance();
-		chooser.setTitleIcon(icons.getIcon(IconManager.DOWNLOAD_48));
-		chooser.setApproveButtonText("Download");
-		chooser.setCheckOverride(true);
-		chooser.addPropertyChangeListener(new PropertyChangeListener() {
-		
-			public void propertyChange(PropertyChangeEvent evt) {
-				String name = evt.getPropertyName();
-				if (FileChooser.APPROVE_SELECTION_PROPERTY.equals(name)) {
-					File[] files = (File[]) evt.getNewValue();
-					if (files == null || files.length == 0) return;
-					File path = files[0];
-					if (path == null) {
-						path = UIUtilities.getDefaultFolder();
-					}
-					model.download(path);
-				}
-			}
-		});
-		chooser.centerDialog();
+	    JFrame f = MetadataViewerAgent.getRegistry().getTaskBar().getFrame();
+
+	    List<DataObject> list = view.getSelectedObjects();
+	    ImageData image = view.getImage();
+	    int type = FileChooser.SAVE;
+	    List<String> paths = new ArrayList<String>();
+	    if (list != null && list.size() > 1) {
+	        type = FileChooser.FOLDER_CHOOSER;
+	        Iterator<DataObject> i = list.iterator();
+	        DataObject data;
+	        while (i.hasNext()) {
+	            data  = i.next();
+	            if (data instanceof ImageData) {
+	                paths.add(FilenameUtils.getName(
+	                        ((ImageData) data).getName()));
+	            }
+	        }
+	    }
+
+	    FileChooser chooser = new FileChooser(f, type,
+	            FileChooser.DOWNLOAD_TEXT, FileChooser.DOWNLOAD_DESCRIPTION,
+	            null, true);
+	    try {
+	        File file = UIUtilities.getDefaultFolder();
+	        if (file != null) chooser.setCurrentDirectory(file);
+	    } catch (Exception ex) {}
+	    if (type == FileChooser.SAVE)
+	        chooser.setSelectedFileFull(image.getName());
+
+	    IconManager icons = IconManager.getInstance();
+	    chooser.setTitleIcon(icons.getIcon(IconManager.DOWNLOAD_48));
+	    chooser.setApproveButtonText(FileChooser.DOWNLOAD_TEXT);
+	    chooser.setCheckOverride(true);
+	    chooser.setSelectedFiles(paths);
+	    chooser.addPropertyChangeListener(new PropertyChangeListener() {
+
+	        public void propertyChange(PropertyChangeEvent evt) {
+	            String name = evt.getPropertyName();
+	            FileChooser src = (FileChooser) evt.getSource();
+	            if (FileChooser.APPROVE_SELECTION_PROPERTY.equals(name)) {
+	                File path = null;
+	                if (src.getChooserType() == FileChooser.FOLDER_CHOOSER) {
+	                    path = new File((String) evt.getNewValue());
+	                } else {
+	                    File[] files = (File[]) evt.getNewValue();
+	                    if (files == null || files.length == 0) return;
+	                    path = files[0];
+	                }
+	                if (path == null) {
+	                    path = UIUtilities.getDefaultFolder();
+	                }
+	                model.download(path, src.isOverride());
+	            }
+	        }
+	    });
+	    chooser.centerDialog();
 	}
-	
+
 	/** Brings up the folder chooser to select where to save the files. 
 	 * 
 	 * @param format One of the formats defined by <code>FigureParam</code>.

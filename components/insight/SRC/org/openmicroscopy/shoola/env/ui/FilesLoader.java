@@ -104,7 +104,7 @@ public class FilesLoader
 	 */
 	public void load()
 	{
-		handle = mhView.loadFiles(ctx, files, this);
+		handle = mhView.loadFiles(ctx, true, files, this);
 	}
     
 	/** 
@@ -114,11 +114,9 @@ public class FilesLoader
 	public void cancel()
 	{ 
 		if (handle != null) handle.cancel();
-		Entry entry;
-		Iterator i = files.entrySet().iterator();
+		Iterator<File> i = files.values().iterator();
 		while (i.hasNext()) {
-			entry = (Entry) i.next();
-			((File) entry.getValue()).delete();
+			i.next().delete();
 		}
 	}
 	
@@ -133,7 +131,7 @@ public class FilesLoader
     }
 
 	/** 
-	 * Feeds the file back to the viewer, as they arrive. 
+	 * Feeds the file back to the viewer, as they arrive.
 	 * @see EditorLoader#update(DSCallFeedbackEvent)
 	 */
 	public void update(DSCallFeedbackEvent fe) 

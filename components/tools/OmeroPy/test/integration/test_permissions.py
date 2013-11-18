@@ -4,7 +4,7 @@
 """
    Tests of the permissions
 
-   Copyright 2008 Glencoe Software, Inc. All rights reserved.
+   Copyright 2008-2013 Glencoe Software, Inc. All rights reserved.
    Use is subject to license terms supplied in LICENSE.txt
 
 """
@@ -58,11 +58,8 @@ class CallContextFixture(object):
 
         # At this point, the fixture shouldn't be able
         # to load the image
-        try:
+        with pytest.raises(omero.SecurityViolation):
             self.sf.getQueryService().get("Image", self.img.id.val)
-            self.fail("secvio!")
-        except omero.SecurityViolation, sv:
-            pass
 
     def prepare(self):
         """
@@ -819,6 +816,7 @@ class TestPermissions(lib.ITest):
         self.assertValidScript(lambda v: {'omero.group':
                 str(v.details.group.id.val)})
 
+    @pytest.mark.xfail(reason="See ticket #11539")
     def testUseOfRawFileBeanScriptReadCorrectGroupAndUser(self):
         self.assertValidScript(lambda v: {
             'omero.group': str(v.details.group.id.val),

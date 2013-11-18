@@ -3,7 +3,7 @@
 
 {% comment %}
 <!--
-  Copyright (C) 2011 University of Dundee & Open Microscopy Environment.
+  Copyright (C) 2011-2013 University of Dundee & Open Microscopy Environment.
   All rights reserved.
 
   This program is free software: you can redistribute it and/or modify
@@ -46,6 +46,9 @@
     <script type="text/javascript" src="{% static "webclient/javascript/jquery.form.js" %}"></script>
     <script type="text/javascript" src="{% static "3rdparty/jquery.flot/jquery.flot.js" %}"></script>
     <script type="text/javascript" src="{% static "3rdparty/jquery.flot/jquery.flot.pie.js" %}"></script>
+    
+    <!--[if lte IE 8]><script language="javascript" type="text/javascript" src="{% static "3rdparty/jquery.flot/excanvas.js" %}"></script><![endif]-->
+    
     <script type="text/javascript" src="{% static "3rdparty/jquery.chosen/chosen.jquery.js" %}"></script>
     
     <script type="text/javascript">
@@ -164,29 +167,6 @@
     </script>
     
     <script type="text/javascript">
-        Number.prototype.filesizeformat = function () {
-            /*
-            Formats the value like a 'human-readable' file size (i.e. 13 KB, 4.1 MB,
-            102 bytes, etc).*/
-            
-            var bytes = this;
-            if (bytes < 1024) {
-                return bytes + ' B';
-            } else if (bytes < (1024*1024)) {
-                return (bytes / 1024).toFixed(2) + ' KB';
-            } else if (bytes < (1024*1024*1024)) {
-                return (bytes / (1024*1024)).toFixed(2) + ' MB';
-            } else if (bytes < (1024*1024*1024*1024)) {
-                return (bytes / (1024*1024*1024)).toFixed(2) + ' GB';
-            } else if (bytes < (1024*1024*1024*1024*1024)) {
-                return (bytes / (1024*1024*1024*1024)).toFixed(2) + ' TB';
-            } else if (bytes < (1024*1024*1024*1024*1024*1024)) {
-                return (bytes / (1024*1024*1024*1024*1024)).toFixed(2) + ' PB';
-            } else {
-                return bytes + ' B';
-            }
-            
-        }
         
         var load_drivespace = function(freespace) {
             $("#status").html('loading...');
@@ -305,8 +285,7 @@
                             drivespace_loaded = true;
                             $.getJSON("{% url wadrivespace %}", function(data){
                                 load_drivespace(data.free);
-                                var fspace = parseInt(data.free / (1024 * 1024));  // GB
-                                $("#drivespace_free").text(fspace + " GB");
+                                $("#drivespace_free").text(parseInt(data.free).filesizeformat());
                             });
                         }
                     }
@@ -334,7 +313,7 @@
 
         {% if ownedGroups %}<li id="group_settings_tab"><a href="#groups_settings" title="Edit Groups that I own">My Groups</a></li>{% endif %}
 
-        <li id="drivespace_settings_tab"><a href="#drivespace_settings" title="Drivespace">Drivespace</a></li>
+        <li id="drivespace_settings_tab"><a href="#drivespace_settings" title="Drivespace">Statistics</a></li>
     </ul>
      
      <!-- Personal Settings -->
