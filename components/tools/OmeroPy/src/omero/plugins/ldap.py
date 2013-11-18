@@ -214,7 +214,7 @@ user never had a password, one will need to be set!""")
 
             results = []
             first = True
-            page_control = SimplePagedResultsControl(True, page_size, cookie)
+            page_control = SimplePagedResultsControl(False, page_size, cookie)
 
             while first or page_control.cookie:
                 first = False
