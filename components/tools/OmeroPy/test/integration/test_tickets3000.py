@@ -2,8 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-   Integration tests for tickets between 2000 and 2999
-   a running server.
+   Integration tests for tickets between 2000 and 2999.
 
    Copyright 2010-2013 Glencoe Software, Inc. All rights reserved.
    Use is subject to license terms supplied in LICENSE.txt
@@ -66,8 +65,8 @@ class TestTickets3000(lib.ITest):
         l_ia.setChild(fa)
         self.update.saveObject(l_ia)
 
-    # This test is no longer valid as it shpuld not be possible to remove
-    # users from their only remaining group. It would be easy to may the
+    # This test is no longer valid as it should not be possible to remove
+    # users from their only remaining group. It would be easy to make the
     # test pass by adding extra groups but that would defeat the purpose
     # of this test. Marking as xfail until the test has been reviewed.
     @pytest.mark.xfail(reason="Is this test still valid? See #11465")
@@ -87,26 +86,10 @@ class TestTickets3000(lib.ITest):
         sql = "select s.uuid "\
               "from EventLog evl join evl.event ev join ev.session s"
 
-        """
-          File "/Users/ola/Dev/omero/dist/lib/python/omero_api_IQuery_ice.py", line 138, in findAllByQuery
-            return _M_omero.api.IQuery._op_findAllByQuery.invoke(self, ((query, params), _ctx))
-        Ice.UnmarshalOutOfBoundsException: exception ::Ice::UnmarshalOutOfBoundsException
-        {
-            reason =
-        }
-        """
         # This was never supported
-        with pytest.raises(Ice.UnmarshalOutOfBoundsException):
+        with pytest.raises(Ice.UnmarshalOutOfBoundsException or Ice.UnknownUserException):
             q.findAllByQuery(sql, None)
 
-        """
-          File "/Users/ola/Dev/omero/dist/lib/python/omero_api_IQuery_ice.py", line 138, in findAllByQuery
-            return _M_omero.api.IQuery._op_findAllByQuery.invoke(self, ((query, params), _ctx))
-        Ice.UnknownUserException: exception ::Ice::UnknownUserException
-        {
-            unknown = unknown exception type `'
-        }
-        """
         p1 = omero.sys.Parameters()
         f1 = omero.sys.Filter()
         f1.limit = rint(100)
