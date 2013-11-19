@@ -232,12 +232,14 @@ user never had a password, one will need to be set!""")
                     page_control.cookie = serverctrls[0].cookie
 
                 user_names = set()
+                user_dns = {}
                 for dn, entry in results:
                     omeName = entry[omeName_mapping]
                     if isinstance(omeName, (list, tuple)):
                         if len(omeName) == 1:
                             omeName = omeName[0]
                             user_names.add(omeName)
+                            user_dns[omeName] = dn
                         else:
                             self.ctx.err("Failed to unwrap omeName: %s" %
                                          omeName)
@@ -258,6 +260,7 @@ user never had a password, one will need to be set!""")
                 for eid, omeName in id_names:
                     try:
                         olddn = iadmin.lookupLdapAuthExperimenter(eid)
+                        dn = user_dns[omeName]
                     except omero.ApiUsageException:
                         continue  # Unknown user
 
