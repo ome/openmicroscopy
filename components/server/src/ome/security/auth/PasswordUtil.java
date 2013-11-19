@@ -8,6 +8,7 @@
 package ome.security.auth;
 
 import java.io.UnsupportedEncodingException;
+import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.Random;
 
@@ -75,7 +76,7 @@ public class PasswordUtil {
     }
 
     public void changeUserPasswordById(Long id, String password) {
-        if (! sql.setUserPassword(id, preparePassword(password))) {
+        if (! sql.setUserPassword(id, prepareSaltedPassword(id, password))) {
             throw new InternalException("0 results for password insert.");
         }
     }
@@ -93,12 +94,16 @@ public class PasswordUtil {
     }
 
     public String preparePassword(String newPassword) {
+        return prepareSaltedPassword(null, newPassword);
+    }
+
+    public String prepareSaltedPassword(Long userId, String newPassword) {
         // This allows setting passwords to "null" - locked account.
         return newPassword == null ? null
         // This allows empty passwords to be considered "open-access"
                 : newPassword.trim().length() == 0 ? newPassword
                 // Regular MD5 digest.
-                        : passwordDigest(newPassword);
+                        : saltedPasswordDigest(userId, newPassword);
     }
 
     /**
@@ -109,7 +114,14 @@ public class PasswordUtil {
      *           implementation in general.
      */
     public String passwordDigest(String clearText) {
-
+        return saltedPasswordDigest(null, clearText);
+    }
+    /**
+     * Creates an MD5 hash of the given clear text and base64 encodes it.
+     * If the provided userId argument is not null, then it will be used
+     * as a salt value for the password.
+     */
+    public String saltedPasswordDigest(Long userId, String clearText) {
         if (clearText == null) {
             throw new ApiUsageException("Value for digesting may not be null");
         }
@@ -120,6 +132,15 @@ public class PasswordUtil {
         } catch (UnsupportedEncodingException uee) {
             log.warn("Unsupported charset ISO-8859-1. Using default");
             bytes = clearText.getBytes();
+        }
+
+        // If salting is activated, prepend the salt.
+        if (userId != null) {
+            byte[] saltedBytes = ByteBuffer.allocate(8).putLong(userId).array();
+            byte[] newValue = new byte[saltedBytes.length+bytes.length];
+            System.arraycopy(saltedBytes, 0, newValue, 0, saltedBytes.length);
+            System.arraycopy(bytes, 0, newValue, saltedBytes.length, bytes.length);
+            bytes = newValue;
         }
 
         String hashedText = null;
