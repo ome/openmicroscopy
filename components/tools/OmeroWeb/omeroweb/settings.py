@@ -226,6 +226,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
     "omero.web.application_server.port": ["APPLICATION_SERVER_PORT", "4080", str],
     "omero.web.application_server.max_requests": ["APPLICATION_SERVER_MAX_REQUESTS", 400, int],
     "omero.web.ping_interval": ["PING_INTERVAL", 60000, int],
+    "omero.web.force_script_name": ["FORCE_SCRIPT_NAME", None, leave_none_unset],
     "omero.web.static_url": ["STATIC_URL", "/static/", str],
     "omero.web.staticfile_dirs": ["STATICFILES_DIRS", '[]', json.loads],
     "omero.web.index_template": ["INDEX_TEMPLATE", None, identity],
@@ -391,7 +392,6 @@ STATICFILES_FINDERS = (
 # files for deployment. If the staticfiles contrib app is enabled (default) the collectstatic 
 # management command will collect static files into this directory.
 STATIC_ROOT = os.path.join(os.path.dirname(__file__), 'static').replace('\\','/')
-
 
 # STATICFILES_DIRS: This setting defines the additional locations the staticfiles app will 
 # traverse if the FileSystemFinder finder is enabled, e.g. if you use the collectstatic or 
