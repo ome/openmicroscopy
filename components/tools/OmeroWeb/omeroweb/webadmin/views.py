@@ -439,7 +439,7 @@ def manage_experimenter(request, action, eid=None, conn=None, **kwargs):
         password_form = ChangePassword()
         
         admin_groups = experimenter_is_me_or_system and [conn.getAdminService().getSecurityRoles().systemGroupId] or list()
-        context = {'form':form, 'eid': eid, 'ldapAuth': isLdapUser, 'password_form':password_form, 'admin_groups': admin_groups}
+        context = {'form':form, 'eid': eid, 'ldapAuth': isLdapUser, 'password_form':password_form, 'admin_groups': simplejson.dumps(admin_groups)}
     elif action == 'save':
         experimenter, defaultGroup, otherGroups, isLdapUser, hasAvatar = prepare_experimenter(conn, eid)
         if request.method != 'POST':
@@ -593,7 +593,7 @@ def manage_group(request, action, gid=None, conn=None, **kwargs):
         admins = [conn.getAdminService().getSecurityRoles().systemGroupId]
         if long(gid) in system_groups and conn.isAdmin:
             admins.append(conn.getUserId())
-        context = {'form':form, 'gid': gid, 'permissions': permissions, "admins": admins}
+        context = {'form':form, 'gid': gid, 'permissions': permissions, "admins": simplejson.dumps(admins)}
     elif action == 'save':
         group = conn.getObject("ExperimenterGroup", gid)
         
