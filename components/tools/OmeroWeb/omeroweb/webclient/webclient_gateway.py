@@ -2033,7 +2033,8 @@ class ExperimenterGroupWrapper (OmeroWebObjectWrapper, omero.gateway.Experimente
         if settings.UI_MENU_DROPDOWN.get("COLLEAGUES", None):
             self.colleagues = summary["colleagues"]
             self.colleagues.sort(key=lambda x: x.getLastName().lower())
-        if settings.UI_MENU_DROPDOWN.get("ALL", None):
+        # Only show 'All Members' option if configured, and we're not in a private group
+        if settings.UI_MENU_DROPDOWN.get("ALL", None) is not None and self.details.permissions.isGroupRead():
             self.all = True
 
     def getOwners(self):
