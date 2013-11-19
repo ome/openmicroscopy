@@ -167,6 +167,7 @@ user never had a password, one will need to be set!""")
         c = self.ctx.conn(args)
         iconfig = c.sf.getConfigService()
         iadmin = c.sf.getAdminService()
+        iquery = c.sf.getQueryService()
 
         LDAP_PROPERTIES = """
         omero.ldap.urls
@@ -230,19 +231,33 @@ user never had a password, one will need to be set!""")
                 if serverctrls:
                     page_control.cookie = serverctrls[0].cookie
 
+                user_names = set()
                 for dn, entry in results:
                     omeName = entry[omeName_mapping]
                     if isinstance(omeName, (list, tuple)):
                         if len(omeName) == 1:
                             omeName = omeName[0]
+                            user_names.add(omeName)
                         else:
                             self.ctx.err("Failed to unwrap omeName: %s" %
                                          omeName)
                             continue
 
+                if not user_names:
+                    continue  # Early exit!
+
+                from omero.rtypes import rlist
+                from omero.rtypes import rstring
+                from omero.rtypes import unwrap
+                params = omero.sys.ParametersI()
+                params.add("names", rlist([rstring(x) for x in user_names]))
+                id_names = unwrap(iquery.projection(
+                    "select id, omeName from Experimenter "
+                    "where omeName in (:names)", params))
+
+                for eid, omeName in id_names:
                     try:
-                        exp = iadmin.lookupExperimenter(omeName)
-                        olddn = iadmin.lookupLdapAuthExperimenter(exp.id.val)
+                        olddn = iadmin.lookupLdapAuthExperimenter(eid)
                     except omero.ApiUsageException:
                         continue  # Unknown user
 
@@ -259,7 +274,7 @@ user never had a password, one will need to be set!""")
                                          % (sys.argv[0], omeName, dn))
                         else:
                             self.ctx.out("Experimenter:%s\tomeName=%s\t%s"
-                                         % (exp.id.val, omeName, dn))
+                                         % (eid, omeName, dn))
 
 try:
     register("ldap", LdapControl, HELP)
