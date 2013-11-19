@@ -227,7 +227,8 @@ user never had a password, one will need to be set!""")
                     self.ctx.die(1, "Failed to execute LDAP search")
 
                 result_type, results, msgid, serverctrls = ld.result3(msgid)
-                page_control.cookie = serverctrls[0].cookie
+                if serverctrls:
+                    page_control.cookie = serverctrls[0].cookie
 
                 for dn, entry in results:
                     omeName = entry[omeName_mapping]
