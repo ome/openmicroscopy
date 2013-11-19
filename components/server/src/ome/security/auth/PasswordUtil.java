@@ -50,10 +50,17 @@ public class PasswordUtil {
      * "@ROOTPASS@" placeholder in data.sql.
      */
     public static void main(String args[]) {
-        if (args == null || args.length != 1) {
-            throw new IllegalArgumentException("PasswordUtil.main takes 1 arg.");
+        if (args == null || args.length < 1 || args.length > 2) {
+            throw new IllegalArgumentException("PasswordUtil.main takes 1 or 2 args.");
         }
-        System.out.println(new PasswordUtil(null).preparePassword(args[0]));
+        PasswordUtil util = new PasswordUtil(null);
+        String pw = args[0];
+        if (args.length == 1) {
+            System.out.println(util.preparePassword(pw));
+        } else {
+            Long userId = Long.valueOf(args[1]);
+            System.out.println(util.prepareSaltedPassword(userId, pw));
+        }
     }
 
     public String generateRandomPasswd() {
@@ -159,5 +166,4 @@ public class PasswordUtil {
         }
         return hashedText;
     }
-
 }
