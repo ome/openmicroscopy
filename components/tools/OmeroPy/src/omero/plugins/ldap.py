@@ -141,7 +141,7 @@ user never had a password, one will need to be set!""")
         if dn is not None and dn.strip():
             self.ctx.out(dn)
         else:
-            self.ctx.die(1, dn, newline=False)
+            self.ctx.die(136, "DN Not found: %s" %dn, newline=False)
 
     def setdn(self, args):
         c = self.ctx.conn(args)
