@@ -2034,8 +2034,9 @@ class ExperimenterGroupWrapper (OmeroWebObjectWrapper, omero.gateway.Experimente
             self.colleagues = summary["colleagues"]
             self.colleagues.sort(key=lambda x: x.getLastName().lower())
         # Only show 'All Members' option if configured, and we're not in a private group
-        if settings.UI_MENU_DROPDOWN.get("ALL", None) is not None and self.details.permissions.isGroupRead():
-            self.all = True
+        if settings.UI_MENU_DROPDOWN.get("ALL", None):
+            if self.details.permissions.isGroupRead() or self._conn.isAdmin() or self.isOwner():
+                self.all = True
 
     def getOwners(self):
         for gem in self.copyGroupExperimenterMap():
@@ -2062,6 +2063,10 @@ class ExperimenterGroupWrapper (OmeroWebObjectWrapper, omero.gateway.Experimente
             if not flag:
                 yield ExperimenterWrapper(self._conn, gem.child)
     
+    def isOwner(self):
+        """ Returns True if current user is Owner of this group """
+        return self.getId() in self._conn.getEventContext().leaderOfGroups
+
     def isLocked(self):
         if self.name == "user":
             return True
