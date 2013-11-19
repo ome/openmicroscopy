@@ -114,6 +114,15 @@ public abstract class ConfigurablePasswordProvider implements PasswordProvider,
     }
 
     /**
+     * Encodes the password as it would be encoded for a check by
+     * {@link #comparePasswords(String, String)} salting the password
+     * with the given userId if it's provided.
+     */
+    public String encodeSaltedPassword(Long userId, String newPassword) {
+        return util.prepareSaltedPassword(userId, newPassword);
+    }
+
+    /**
      * Compares the password provided by the user (unhashed) against the given
      * trusted password. In general, if the trusted password is null, return
      * {@link Boolean.FALSE}. If the trusted password is empty (only
@@ -121,12 +130,28 @@ public abstract class ConfigurablePasswordProvider implements PasswordProvider,
      * {@link String#equals(Object)}.
      */
     public Boolean comparePasswords(String trusted, String provided) {
+        return comparePasswords(null, trusted, provided);
+    }
+
+    /**
+     * Compares the password provided by the user (unhashed) against the given
+     * trusted password. In general, if the trusted password is null, return
+     * {@link Boolean.FALSE}. If the trusted password is empty (only
+     * whitespace), return {@link Boolean.TRUE}. Otherwise return the results of
+     * {@link String#equals(Object)}.
+     */
+    public Boolean comparePasswords(Long userId, String trusted, String provided) {
         if (trusted == null) {
             return Boolean.FALSE;
         } else if ("".equals(trusted.trim())) {
             return Boolean.TRUE;
         } else {
-            return trusted.equals(encodePassword(provided));
+            if (userId != null) {
+                if (trusted.equals(encodeSaltedPassword(userId, provided))) {
+                    return true;
+                }
+            }
+            return trusted.equals(encodePassword(provided)); // ok unsalted.
         }
     }
 

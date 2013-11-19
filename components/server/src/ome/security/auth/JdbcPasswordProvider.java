@@ -49,7 +49,7 @@ public class JdbcPasswordProvider extends ConfigurablePasswordProvider {
             b = super.checkPassword(user, password, readOnly);
         } else {
             String trusted = util.getUserPasswordHash(id);
-            b = comparePasswords(trusted, password);
+            b = comparePasswords(id, trusted, password);
         }
         loginAttempt(user, b);
         return b;
