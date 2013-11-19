@@ -43,6 +43,7 @@ class DatabaseControl(BaseControl):
         pw = sub.add_parser(
             "password",
             help="Prints SQL command for updating your root password")
+        pw.add_argument("--user-id", help="User ID to salt into the password")
         pw.add_argument("password", nargs="?")
         pw.set_defaults(func=self.password)
 
@@ -65,16 +66,24 @@ class DatabaseControl(BaseControl):
         if not map[key] or map[key] == "":
                 self.ctx.die(1, "No value entered")
 
-    def _get_password_hash(self, root_pass=None):
+    def _get_password_hash(self, args, root_pass=None):
 
-        root_pass = self._ask_for_password(" for OMERO root user", root_pass)
+        prompt = " for OMERO "
+        if args.user_id is None:
+            prompt += "root user"
+        else:
+            prompt += "user %s" % args.user_id
+        root_pass = self._ask_for_password(prompt, root_pass)
 
         server_jar = self.ctx.dir / "lib" / "server" / "server.jar"
-        p = omero.java.popen(["-cp", str(server_jar),
-                             "ome.security.auth.PasswordUtil", root_pass])
+        cmd = ["ome.security.auth.PasswordUtil", root_pass]
+        if args.user_id is not None:
+            cmd.append(args.user_id)
+        p = omero.java.popen(["-cp", str(server_jar)] + cmd)
         rc = p.wait()
         if rc != 0:
-            self.ctx.die(rc, "PasswordUtil failed: %s" % p.communicate())
+            out, err = p.communicate()
+            self.ctx.die(rc, "PasswordUtil failed: %s" % err)
         value = p.communicate()[0]
         if not value or len(value) == 0:
             self.ctx.die(100, "Encoded password is empty")
@@ -197,9 +206,13 @@ BEGIN;
             root_pass = args.password
         except Exception, e:
             self.ctx.dbg("While getting arguments:" + str(e))
-        password_hash = self._get_password_hash(root_pass)
+        password_hash = self._get_password_hash(args, root_pass)
+        user_id = 0
+        if args.user_id is not None:
+            user_id = args.user_id
         self.ctx.out("UPDATE password SET hash = '%s' "
-                     "WHERE experimenter_id  = 0;""" % password_hash)
+                     "WHERE experimenter_id  = %s;""" %
+                     (password_hash, user_id))
 
     def loaddefaults(self):
         try:
@@ -236,7 +249,7 @@ BEGIN;
         self._lookup(data, data2, "version", map)
         self._lookup(data, data2, "patch", map)
         sql = self._sql_directory(map["version"], map["patch"])
-        map["pass"] = self._get_password_hash(root_pass)
+        map["pass"] = self._get_password_hash(args, root_pass)
         self._create(sql, map["version"], map["patch"], map["pass"], args)
 
 try:
