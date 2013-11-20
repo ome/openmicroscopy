@@ -135,7 +135,11 @@ public abstract class ConfigurablePasswordProvider implements PasswordProvider,
 
     /**
      * Compares the password provided by the user (unhashed) against the given
-     * trusted password. In general, if the trusted password is null, return
+     * trusted password. A return value of null, however, is also possible
+     * with the same semantics as a null from
+     * {@link #checkPassword(String, String, boolean)}.
+     *
+     * For this implementation, if the trusted password is null, return
      * {@link Boolean.FALSE}. If the trusted password is empty (only
      * whitespace), return {@link Boolean.TRUE}. Otherwise return the results of
      * {@link String#equals(Object)}.
