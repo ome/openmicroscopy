@@ -1,8 +1,19 @@
 /*
- *   $Id$
+ * Copyright (C) 2009-2013 Glencoe Software, Inc. All rights reserved.
  *
- *   Copyright 2009 Glencoe Software, Inc. All rights reserved.
- *   Use is subject to license terms supplied in LICENSE.txt
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
 package ome.security.auth;
@@ -23,7 +34,7 @@ import org.springframework.context.ApplicationContextAware;
  * Base class for most {@link PasswordProvider} implementations, providing
  * configuration for default behaviors. There is no need for a subclass to
  * use this implementation.
- * 
+ *
  * @author Josh Moore, josh at glencoesoftware.com
  * @see SecuritySystem
  * @see Permissions
@@ -81,7 +92,7 @@ public abstract class ConfigurablePasswordProvider implements PasswordProvider,
     public boolean hasPassword(String user) {
         return false;
     }
-    
+
     /**
      * If {@link #ignoreUnknown} is true, returns null, since the base class
      * knows no users. Otherwise, return {@link Boolean#FALSE} specifying that
