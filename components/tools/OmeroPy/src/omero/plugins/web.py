@@ -93,8 +93,8 @@ class WebControl(BaseControl):
 
         parser.add(
             sub, self.syncmedia,
-            "[DEPRECATED] Advanced use: Creates needed symlinks for static"
-            " media files")
+            "Advanced use: Creates needed symlinks for static"
+            " media files (Performed automatically by 'start')")
 
         #
         # Developer
@@ -295,9 +295,7 @@ Alias /omero "%(ROOT)s/var/omero.fcgi/"
                 self.ctx.out(stanza % d)
 
     def syncmedia(self, args):
-        self.ctx.out(
-            "** NO-OP ** syncmedia now part of 'web start' and is "
-            "no longer required.")
+        self.collectstatic()
 
     def enableapp(self, args):
         location = self.ctx.dir / "lib" / "python" / "omeroweb"
