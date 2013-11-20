@@ -563,6 +563,12 @@ class TableI(omero.grid.Table, omero.util.SimpleServant):
     @perf
     def close(self, current = None):
 
+        if self._closed:
+            self.logger.warn(
+                "File object %d already closed",
+                unwrap(self.file_obj.id) if self.file_obj else None)
+            return
+
         size = None
         if self.storage is not None:
             size = self.storage.size() # Size to reset the server object to
