@@ -192,7 +192,7 @@ public class ShutDownDialog
 		remainingTime--;
 		formatText(remainingTime);
 		try {
-			checker.isNetworkup();
+			checker.isNetworkup(false);
 			cancel();
 			return;
 		} catch (Exception ex) {
