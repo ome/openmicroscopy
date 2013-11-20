@@ -187,6 +187,8 @@ class HdfStorage(object):
         except tables.NoSuchNodeError:
             self.__initialized = False
 
+        self.__modified = False
+
     #
     # Non-locked methods
     #
@@ -204,6 +206,9 @@ class HdfStorage(object):
             msg = "HDFStorage initialized with bad path: %s" % self.__hdf_path
             self.logger.error(msg)
             raise omero.ValidationException(None, None, msg)
+
+    def modified(self):
+        return self.__modified
 
     def __initcheck(self):
         if not self.__initialized:
@@ -239,6 +244,13 @@ class HdfStorage(object):
     # Locked methods
     #
 
+    def __flush(self):
+        """
+        Flush the underlying table, should only be called by @locked methods
+        """
+        self.__mea.flush()
+        self.__modified = True
+
     @locked
     def initialize(self, cols, metadata = None):
         """
@@ -272,7 +284,7 @@ class HdfStorage(object):
                 self.__mea.attrs[k] = v
                 # See attrs._f_list("user") to retrieve these.
 
-        self.__mea.flush()
+        self.__flush()
         self.__hdf_file.flush()
         self.__initialized = True
 
@@ -357,7 +369,7 @@ class HdfStorage(object):
         attr = self.__mea.attrs
         for k, v in m.items():
             attr[k] = unwrap(v)
-        self.__mea.flush()
+        self.__flush()
 
     @locked
     def append(self, cols):
@@ -380,7 +392,7 @@ class HdfStorage(object):
         records = numpy.array(zip(*arrays), dtype=dtypes)
 
         self.__mea.append(records)
-        self.__mea.flush()
+        self.__flush()
 
     #
     # Stamped methods
@@ -393,7 +405,7 @@ class HdfStorage(object):
             for i, rn in enumerate(data.rowNumbers):
                 for col in data.columns:
                     getattr(self.__mea.cols, col.name)[rn] = col.values[i]
-        self.__mea.flush()
+        self.__flush()
 
     @stamped
     def getWhereList(self, stamp, condition, variables, unused, start, stop, step):
@@ -479,7 +491,6 @@ class HdfStorage(object):
     def cleanup(self):
         self.logger.info("Cleaning storage: %s", self.__hdf_path)
         if self.__mea:
-            self.__mea.flush()
             self.__mea = None
         if self.__ome:
             self.__ome = None
@@ -577,9 +588,8 @@ class TableI(omero.grid.Table, omero.util.SimpleServant):
                 unwrap(self.file_obj.id) if self.file_obj else None)
             return
 
-        size = None
-        if self.storage is not None:
-            size = self.storage.size() # Size to reset the server object to
+        size = self.storage.size() # Size to reset the server object to
+        modified = self.storage.modified()
 
         try:
             self.cleanup()
@@ -589,10 +599,10 @@ class TableI(omero.grid.Table, omero.util.SimpleServant):
 
         self._closed = True
 
-        if self.file_obj is not None and self.can_write:
-            fid = unwrap(self.file_obj.id)
-            gid = unwrap(self.file_obj.details.group.id)
+        fid = unwrap(self.file_obj.id)
 
+        if self.file_obj is not None and self.can_write and modified:
+            gid = unwrap(self.file_obj.details.group.id)
             client_uuid = self.factory.ice_getIdentity().category[8:]
             ctx = {"omero.group": str(gid), omero.constants.CLIENTUUID: client_uuid}
             try:
@@ -613,6 +623,9 @@ class TableI(omero.grid.Table, omero.util.SimpleServant):
             except:
                 self.logger.warn("Failed to update file object %s",
                                  fid, exc_info=1)
+        else:
+            self.logger.info("File object %s not updated", fid)
+
 
     # TABLES READ API ============================
 
