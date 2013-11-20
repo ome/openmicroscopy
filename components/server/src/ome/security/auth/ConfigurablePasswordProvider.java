@@ -159,7 +159,7 @@ public abstract class ConfigurablePasswordProvider implements PasswordProvider,
         } else {
             if (userId != null) {
                 if (trusted.equals(encodeSaltedPassword(userId, provided))) {
-                    return true;
+                    return Boolean.TRUE;
                 }
             }
             return trusted.equals(encodePassword(provided)); // ok unsalted.
