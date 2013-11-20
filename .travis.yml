@@ -7,6 +7,7 @@ env:
 
 jdk:
   - openjdk7
+  - openjdk8
 
 before_install:
     - sudo apt-get -qq update
@@ -27,3 +28,10 @@ script:
     - if [[ $BUILD == 'py' ]]; then flake8 -v components/tools/OmeroPy/src/omero/plugins;  fi
     - if [[ $BUILD == 'py' ]]; then flake8 -v components/tools/OmeroPy/test/integration/clitest;  fi
     - python build.py $TEST_TARGET
+
+matrix:
+  exclude:
+    - jdk: openjdk8
+      env: BUILD=py BUILD_TARGET="build-default test-compile" TEST_TARGET="-py test -Dtest.with.fail=true"
+    - jdk: openjdk8
+      env: BUILD=cpp BUILD_TARGET="build-all test-compile-all" TEST_TARGET="-cpp test -Dtest.with.fail=true"
