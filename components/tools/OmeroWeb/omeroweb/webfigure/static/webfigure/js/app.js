@@ -1,6 +1,9 @@
 
 $(function(){
 
+    var figureFiles = new FileList();
+    figureFiles.fetch();
+
 
     var figureModel = new FigureModel( {'canvas_width': 2000, 'canvas_height': 2000,
             'paper_width': 612, 'paper_height': 792});
@@ -67,6 +70,7 @@ $(function(){
         index: function() {
             this.clearFigure();
             figureModel.set('unsaved', false);
+            $('#addImagesModal').modal();
         },
 
         loadFigure: function(id) {

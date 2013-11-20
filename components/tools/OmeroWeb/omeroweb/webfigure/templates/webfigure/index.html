@@ -147,6 +147,42 @@
                         </ul>
                     </li> -->
                     <!-- <li><a href="#about">About</a></li> -->
+
+                    <li class="active dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">File <b class="caret"></b></a>
+                        <ul id="figure-actions" class="active dropdown-menu">
+                            <li>
+                                <a href="#" class="undo">New ⌘N</a>
+                            </li>
+                            <li>
+                                <a href="#" class="undo">Open</a>
+                            </li>
+                            <li>
+                                <a href="#" class="redo">Save ⌘S</a>
+                            </li>
+                         </ul>
+                    </li>
+
+                    <li class="active dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Edit <b class="caret"></b></a>
+                        <ul id="figure-actions" class="active dropdown-menu">
+                            <!-- We add <a> to undo/redo to enable. See undo.js -->
+                            <li id="undo">
+                                <a href="#" class="undo">Undo ⌘Z</a>
+                            </li>
+                            <li id="redo">
+                                <a href="#" class="redo">Redo ⌘Y</a>
+                            </li>
+                            <li>
+                                <a href="#" class="copy">Copy ⌘C</a>
+                            </li>
+                            <li>
+                                <a href="#" class="paste">Paste ⌘V</a>
+                            </li>
+
+                         </ul>
+                    </li>
+
                 </ul>
 
                 <form class="navbar-form navbar-left">
@@ -706,6 +742,7 @@
     <script type="text/javascript" src="{% static 'webfigure/js/undo.js' %}"></script>
     <script type="text/javascript" src="{% static 'webfigure/js/raphael-rect.js' %}"></script>
     <script type="text/javascript" src="{% static 'webfigure/js/util.js' %}"></script>
+    <script type="text/javascript" src="{% static 'webfigure/js/files.js' %}"></script>
     <script type="text/javascript" src="{% static 'webfigure/js/app.js' %}"></script>
 
 </body>

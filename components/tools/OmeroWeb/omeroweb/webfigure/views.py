@@ -26,6 +26,8 @@ except:
 
 from omeroweb.webclient.decorators import login_required
 
+JSON_FILEANN_NS = "omero.web.figure.json"
+
 
 @login_required()
 def index(request, conn=None, **kwargs):
@@ -44,8 +46,6 @@ def save_web_figure(request, conn=None, **kwargs):
     in POST, then we update that file. Otherwise create a new one with
     name 'figureName' from POST.
     """
-
-    NS = "omero.web.figure.json"
 
     if not request.method == 'POST':
         return HttpResponse("Need to use POST")
@@ -73,7 +73,7 @@ def save_web_figure(request, conn=None, **kwargs):
         origF = conn.createOriginalFileFromFileObj(f, '', figureName, fileSize)
         fa = omero.model.FileAnnotationI()
         fa.setFile(origF._obj)
-        fa.setNs(wrap(NS))
+        fa.setNs(wrap(JSON_FILEANN_NS))
         fa = conn.getUpdateService().saveAndReturnObject(fa)
         fileId = fa.id.val
 
@@ -136,4 +136,21 @@ def make_web_figure(request, conn=None, **kwargs):
         'Panels_JSON': wrap(panelsJSON)}
 
     rsp = run_script(request, conn, sId, inputMap, scriptName='Web Figure.pdf')
+    return HttpResponse(simplejson.dumps(rsp), mimetype='json')
+
+
+@login_required()
+def list_web_figures(request, conn=None, **kwargs):
+
+    fileAnns = list( conn.getObjects("FileAnnotation", attributes={'ns': JSON_FILEANN_NS}) )
+    fileAnns.sort(key=lambda x: x.creationEventDate(), reverse=True)
+
+    rsp = []
+    for fa in fileAnns:
+        print dir(fa.creationEventDate())
+        rsp.append({'id': fa.id,
+            'name': fa.getFile().getName(),
+            'creationDate': str(fa.creationEventDate())
+        })
+
     return HttpResponse(simplejson.dumps(rsp), mimetype='json')
