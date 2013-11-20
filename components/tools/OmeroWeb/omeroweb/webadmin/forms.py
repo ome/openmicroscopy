@@ -138,7 +138,7 @@ PERMISSION_CHOICES = (
 
 class GroupForm(NonASCIIForm):
     
-    def __init__(self, name_check=False, group_is_system=False, *args, **kwargs):
+    def __init__(self, name_check=False, group_is_current_or_system=False, *args, **kwargs):
         super(GroupForm, self).__init__(*args, **kwargs)
         self.name_check=name_check
         try:
@@ -156,7 +156,7 @@ class GroupForm(NonASCIIForm):
         
         self.fields['permissions'] = forms.ChoiceField(choices=PERMISSION_CHOICES, widget=forms.RadioSelect(), required=True, label="Permissions")
         
-        if group_is_system:
+        if group_is_current_or_system:
             self.fields['name'].widget.attrs['readonly'] = True
             self.fields['name'].widget.attrs['title'] = "Changing of system groupname would be un-doable"
             

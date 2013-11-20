@@ -585,11 +585,11 @@ def manage_group(request, action, gid=None, conn=None, **kwargs):
         system_groups = [conn.getAdminService().getSecurityRoles().systemGroupId,
                          conn.getAdminService().getSecurityRoles().userGroupId,
                          conn.getAdminService().getSecurityRoles().guestGroupId]
-        group_is_system = (long(gid) in system_groups)
+        group_is_current_or_system = (conn.getEventContext().groupId == long(gid)) or (long(gid) in system_groups)
         form = GroupForm(initial={'name': group.name, 'description':group.description,
                                      'permissions': permissions, 
                                      'owners': ownerIds, 'members':memberIds, 'experimenters':experimenters},
-                                     group_is_system=group_is_system)
+                                     group_is_current_or_system=group_is_current_or_system)
         admins = [conn.getAdminService().getSecurityRoles().systemGroupId]
         if long(gid) in system_groups and conn.isAdmin:
             admins.append(conn.getUserId())
