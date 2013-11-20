@@ -597,10 +597,13 @@ class TableI(omero.grid.Table, omero.util.SimpleServant):
                         file_obj = rfs.save(ctx)
                     finally:
                         rfs.close(ctx)
-                    self.logger.info("Updated file object %s to sha1=%s (%s bytes)",\
-                        self.file_obj.id.val, file_obj.hash.val, file_obj.size.val)
+                    self.logger.info(
+                        "Updated file object %s to hash=%s (%s bytes)",
+                        unwrap(self.file_obj.id), unwrap(file_obj.hash),
+                        unwrap(file_obj.size))
                 except:
-                    self.logger.warn("Failed to update file object %s", self.file_obj.id.val, exc_info=1)
+                    self.logger.warn("Failed to update file object %s",
+                                     unwrap(self.file_obj.id), exc_info=1)
 
     # TABLES READ API ============================
 
