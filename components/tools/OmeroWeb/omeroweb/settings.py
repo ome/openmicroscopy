@@ -289,24 +289,32 @@ CUSTOM_SETTINGS_MAPPINGS = {
     "omero.web.nanoxml_jar": ["NANOXML_JAR", "nanoxml.jar", str],
 }
 
+def process_custom_settings(module):
+    logging.info('Processing custom settings for module %s' % module.__name__)
+    for key, values in getattr(module, 'CUSTOM_SETTINGS_MAPPINGS', {}).items():
+        # Django may import settings.py more than once, see:
+        # http://blog.dscpl.com.au/2010/03/improved-wsgi-script-for-use-with.html
+        # In that case, the custom settings have already been processed.
+        if len(values) == 4:
+            continue
 
-for key, values in CUSTOM_SETTINGS_MAPPINGS.items():
+        global_name, default_value, mapping = values
 
-    global_name, default_value, mapping = values
+        try:
+            global_value = CUSTOM_SETTINGS[key]
+            values.append(False)
+        except KeyError:
+            global_value = default_value
+            values.append(True)
 
-    try:
-        global_value = CUSTOM_SETTINGS[key]
-        values.append(False)
-    except KeyError:
-        global_value = default_value
-        values.append(True)
+        try:
+            setattr(module, global_name, mapping(global_value))
+        except ValueError:
+            raise ValueError("Invalid %s JSON: %r" % (global_name, global_value))
+        except LeaveUnset:
+            pass
 
-    try:
-        globals()[global_name] = mapping(global_value)
-    except ValueError:
-        raise ValueError("Invalid %s JSON: %r" % (global_name, global_value))
-    except LeaveUnset:
-        pass
+process_custom_settings(sys.modules[__name__])
 
 
 if not DEBUG:
@@ -323,15 +331,19 @@ if not DEBUG:
 #    handler500 = "omeroweb.feedback.views.handler500"
 TEMPLATE_DEBUG = DEBUG
 
-from django.views.debug import cleanse_setting
-for key in sorted(CUSTOM_SETTINGS_MAPPINGS):
-    values = CUSTOM_SETTINGS_MAPPINGS[key]
-    global_name, default_value, mapping, using_default = values
-    source = using_default and "default" or key
-    global_value = globals().get(global_name, None)
-    if global_name.isupper():
-        logger.debug("%s = %r (source:%s)", global_name, cleanse_setting(global_name, global_value), source)
-        
+def report_settings(module):
+    from django.views.debug import cleanse_setting
+    custom_settings_mappings = getattr(module, 'CUSTOM_SETTINGS_MAPPINGS', {})
+    for key in sorted(custom_settings_mappings):
+        values = custom_settings_mappings[key]
+        global_name, default_value, mapping, using_default = values
+        source = using_default and "default" or key
+        global_value = getattr(module, global_name, None)
+        if global_name.isupper():
+            logger.debug("%s = %r (source:%s)", global_name, cleanse_setting(global_name, global_value), source)
+
+report_settings(sys.modules[__name__])
+
 SITE_ID = 1
 
 # Local time zone for this installation. Choices can be found here:
@@ -445,8 +457,8 @@ INSTALLED_APPS = (
     
 )
 
-
 # ADDITONAL_APPS: We import any settings.py from apps. This allows them to modify settings.
+# We're also processing any CUSTOM_SETTINGS_MAPPINGS defined there.
 for app in ADDITIONAL_APPS:
     # Previously the app was added to INSTALLED_APPS as 'omeroweb.app', which
     # then required the app to reside within or be symlinked from within
@@ -460,7 +472,10 @@ for app in ADDITIONAL_APPS:
     except ImportError:
         INSTALLED_APPS += (app,)
     try:
-        a = __import__('%s.settings' % app)
+        logger.debug('Attempting to import additional app settings for app: %s' % app)
+        module = __import__('%s.settings' % app)
+        process_custom_settings(module.settings)
+        report_settings(module.settings)
     except ImportError:
         logger.debug("Couldn't import settings from app: %s" % app)
 
