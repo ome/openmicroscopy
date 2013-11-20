@@ -482,12 +482,12 @@ CREATE TRIGGER _fs_dir_delete
 CREATE TABLE _fs_deletelog (
     event_id BIGINT NOT NULL,
     file_id BIGINT NOT NULL,
-    group_id BIGINT NOT NULL,
-    name VARCHAR(255) NOT NULL,
     owner_id BIGINT NOT NULL,
-    params TEXT[2][],
-    path TEXT NOT NULL,
-    repo VARCHAR(36) NOT NULL
+    group_id BIGINT NOT NULL,
+    "path" TEXT NOT NULL,
+    "name" VARCHAR(255) NOT NULL,
+    repo VARCHAR(36) NOT NULL,
+    params TEXT[2][]
 );
 
 CREATE FUNCTION _fs_log_delete() RETURNS TRIGGER AS $_fs_log_delete$

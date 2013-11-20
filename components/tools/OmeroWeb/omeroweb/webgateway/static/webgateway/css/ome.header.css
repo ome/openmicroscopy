@@ -578,7 +578,14 @@
 		    .dropdown li:hover > ul{
 				visibility: visible;
 			}
-			
+
+	/*Add right arrows to the first level of menu only (groups)*/
+	#groupList>li>a {
+		background: url("../img/dropdown_right_arrow.png") no-repeat scroll 90% center rgba(0, 0, 0, 0);
+	}
+	#groupList>li:hover>a {
+		background: url("../img/dropdown_right_arrow_hover.png") no-repeat scroll 90% center rgba(0, 0, 0, 0);
+	}
 
 /**
 	.menulist has similar appearance to .dropdown (above) but different behaviour.

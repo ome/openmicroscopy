@@ -451,11 +451,23 @@ INSTALLED_APPS = (
 
 # ADDITONAL_APPS: We import any settings.py from apps. This allows them to modify settings.
 for app in ADDITIONAL_APPS:
-    INSTALLED_APPS += ('omeroweb.%s' % app,)
+    # Previously the app was added to INSTALLED_APPS as 'omeroweb.app', which
+    # then required the app to reside within or be symlinked from within
+    # omeroweb, instead of just having to be somewhere on the python path.
+    # To allow apps to just be on the path, but keep it backwards compatible,
+    # try to import as omeroweb.app, if it works, keep that in INSTALLED_APPS,
+    # otherwise add it to INSTALLED_APPS just with its own name.
+    try:
+        __import__('omeroweb.%s' % app)
+        INSTALLED_APPS += ('omeroweb.%s' % app,)
+    except ImportError:
+        INSTALLED_APPS += (app,)
     try:
         a = __import__('%s.settings' % app)
     except ImportError:
         logger.debug("Couldn't import settings from app: %s" % app)
+
+logger.debug('INSTALLED_APPS=%s' % [INSTALLED_APPS])
 
 
 # FEEDBACK_URL: Used in feedback.sendfeedback.SendFeedback class in order to submit 

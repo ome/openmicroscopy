@@ -397,6 +397,7 @@ class DataBrowserComponent
 			if (object instanceof WellSampleData) {
 				WellSampleNode wsn = (WellSampleNode) node;
 				parent = wsn.getParentObject();
+				if (others.size() > 0) parent = null;
 				List<WellImageSet> wells = new ArrayList<WellImageSet>();
 				boolean in = false;
 				WellImageSet well;

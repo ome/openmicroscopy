@@ -226,9 +226,14 @@
 				background:#A1AAB3;
 			}
 
+
 			/* seems this doesn't work in ome.table_ie.css */
 			.tablesorter tbody tr.ui-selected {
 				background-color: #9CB2C9;
+			}
+
+			.jstree-contextmenu-disabled {
+				-ms-filter: "alpha(opacity=50)";
 			}
         
 		

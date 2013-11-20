@@ -2,9 +2,7 @@
  * jsTree 1.0-rc3
  * http://jstree.com/
  *
- * Copyright (c) 2text-indent: 100%;  
-    white-space: nowrap;  
-    overflow: hidden; akata.com)
+ * Copyright (c) 2010 Ivan Bozhanov (vakata.com)
  *
  * Licensed same as jquery - under the terms of either the MIT License or the GPL Version 2 License
  *   http://www.opensource.org/licenses/mit-license.php
@@ -534,7 +532,7 @@
 				obj = this._get_node(obj);
 				if(!obj) { obj = -1; }
 				if(obj !== -1) { obj.children("UL").remove(); }
-				else { this.get_container_ul().empty(); }
+				else { this.get_container_ul().empty().html("<li class='jstree-last jstree-leaf'><ins>&#160;</ins><a class='jstree-loading' href='#'><ins class='jstree-icon'>&#160;</ins>" + this._get_string("loading") + "</a></li>")}
 				this.load_node(obj, function () { _this.__callback({ "obj" : obj}); _this.reload_nodes(); });
 			},
 			// Dummy function to fire after the first load (so that there is a jstree.loaded event)

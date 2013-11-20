@@ -395,7 +395,7 @@ class IntensityResultsView
 		channelMax = maxStats.get(coord);
 		channelMean = meanStats.get(coord);
 		channelStdDev = stdDevStats.get(coord);
-		channelSum = sumStats.get(coord);	
+		channelSum = sumStats.get(coord);
 		String cName;
 		int channel;
 		Vector<Object> rowData;
@@ -476,15 +476,18 @@ class IntensityResultsView
 		un.notifyInfo("Save ROI results", "The ROI results have been " +
 											"successfully saved.");
 	}
-	
+
 	/** Removes the selected results from the table. */
 	private void removeResults()
 	{
-		for (final int rowIndex : results.getSelectedRows())
-			resultsModel.removeRow(rowIndex);
-		setButtonsEnabled(results.getRowCount() > 0);
+	    int[] rows = results.getSelectedRows();
+	    for (int i = 0;i < rows.length; i++){
+	        resultsModel.removeRow(rows[i]-i);
+	    }
+	    results.clearSelection();
+	    setButtonsEnabled(results.getRowCount() > 0);
 	}
-	
+
 	/**
 	 * @return the ROI shapes currently in the results table rows, never null
 	 */
@@ -562,7 +565,20 @@ class IntensityResultsView
 			resultsModel.removeRow(j.next());
 		}
 	}
-	
+
+	/**
+	 * Sets the enabled flag of the various buttons.
+	 * 
+	 * @param value The value to set.
+	 */
+	private void setControls(boolean value)
+	{
+	    addAllButton.setEnabled(value);
+	    removeAllButton.setEnabled(value);
+	    removeButton.setEnabled(value);
+	    saveButton.setEnabled(value);
+	}
+
 	/**
 	 * Adds the statistics from the ROIShapes of the select ROI to the table.
 	 */
@@ -572,6 +588,7 @@ class IntensityResultsView
 			view.getDrawingView().getSelectedFigures();
 		if (selectedFigures.size() == 0 || state == State.ANALYSING) return;
 		state = State.ANALYSING;
+		setControls(false);
 		List<ROIShape> shapeList = new ArrayList<ROIShape>();
 		final Set<ROIShape> alreadyInTable = getShapesInRows();
 		
@@ -602,8 +619,6 @@ class IntensityResultsView
 		if (shapeList.size() > 0) {
 			view.calculateStats(shapeList);
 		}
-		removeAllButton.setEnabled(true);
-		state = State.READY;
 	}
 	
 	/**
@@ -649,76 +664,81 @@ class IntensityResultsView
 	 */
 	void displayAnalysisResults()
 	{
-		this.ROIStats = model.getAnalysisResults();
-		if (ROIStats == null || ROIStats.size() == 0) return;
-		
-		shapeMap = new TreeMap<Coord3D, ROIShape>(new Coord3D());
-		minStats = new TreeMap<Coord3D, Map<Integer, Double>>(new Coord3D());
-		maxStats = new TreeMap<Coord3D, Map<Integer, Double>>(new Coord3D());
-		meanStats = new TreeMap<Coord3D, Map<Integer, Double>>(new Coord3D());
-		sumStats = new TreeMap<Coord3D, Map<Integer, Double>>(new Coord3D());
-		stdDevStats = new TreeMap<Coord3D, Map<Integer, Double>>(new Coord3D());
-		
-		Entry entry;
-		Iterator j  = ROIStats.entrySet().iterator();
-		channelName = new TreeMap<Integer, String>();
-		nameMap = new HashMap<String, Integer>();
-		Map<StatsType, Map> shapeStats;
-		Coord3D c3D;
-		ChannelData channelData;
-		int channel;
-		List<ChannelData> metadata = model.getMetadata();
-		Iterator<ChannelData> i;
-		while (j.hasNext())
-		{
-			entry = (Entry) j.next();
-			shape = (ROIShape) entry.getKey();
-			//shapeMap.put(shape.getCoord3D(), shape);
-			if (shape.getFigure() instanceof MeasureTextFigure)
-			{
-				state = State.READY;
-				return;
-			}
-			c3D = shape.getCoord3D();
-			shapeStats = AnalysisStatsWrapper.convertStats(
-					(Map) entry.getValue());
-			if (shapeStats != null) {
-				minStats.put(c3D, shapeStats.get(StatsType.MIN));
-				maxStats.put(c3D, shapeStats.get(StatsType.MAX));
-				meanStats.put(c3D, shapeStats.get(StatsType.MEAN));
-				sumStats.put(c3D, shapeStats.get(StatsType.SUM));
-				stdDevStats.put(c3D, shapeStats.get(StatsType.STDDEV));
-			}
-			channelName.clear();
-			nameMap.clear();
-			channelColour.clear();
+	    this.ROIStats = model.getAnalysisResults();
+	    onFigureSelected();
+	    if (ROIStats == null || ROIStats.size() == 0) {
+	        state = State.READY;
+	        return;
+	    }
 
-			i = metadata.iterator();
-			while (i.hasNext()) {
-				channelData = i.next();
-				channel = channelData.getIndex();
-				if (model.isChannelActive(channel)) 
-				{
-					channelName.put(channel, channelData.getChannelLabeling());
-					nameMap.put(channelName.get(channel), channel);
-					channelColour.put(channel, 
-						(Color) model.getActiveChannels().get(channel));
-				}
-			}
-			
-			if (channelName.size() == 0 || nameMap.size() == 0 || 
-				channelColour.size() == 0)
-			{
-				state = State.READY;
-				return;
-			}
-		
-			coord = c3D;
-			getResults(shape);
-		}
+	    shapeMap = new TreeMap<Coord3D, ROIShape>(new Coord3D());
+	    minStats = new TreeMap<Coord3D, Map<Integer, Double>>(new Coord3D());
+	    maxStats = new TreeMap<Coord3D, Map<Integer, Double>>(new Coord3D());
+	    meanStats = new TreeMap<Coord3D, Map<Integer, Double>>(new Coord3D());
+	    sumStats = new TreeMap<Coord3D, Map<Integer, Double>>(new Coord3D());
+	    stdDevStats = new TreeMap<Coord3D, Map<Integer, Double>>(new Coord3D());
 
-		setButtonsEnabled(true);
-		state = State.READY;
+	    Entry entry;
+	    Iterator j  = ROIStats.entrySet().iterator();
+	    channelName = new TreeMap<Integer, String>();
+	    nameMap = new HashMap<String, Integer>();
+	    Map<StatsType, Map> shapeStats;
+	    Coord3D c3D;
+	    ChannelData channelData;
+	    int channel;
+	    List<ChannelData> metadata = model.getMetadata();
+	    Iterator<ChannelData> i;
+	    while (j.hasNext())
+	    {
+	        entry = (Entry) j.next();
+	        shape = (ROIShape) entry.getKey();
+	        //shapeMap.put(shape.getCoord3D(), shape);
+	        if (shape.getFigure() instanceof MeasureTextFigure)
+	        {
+	            state = State.READY;
+	            return;
+	        }
+	        c3D = shape.getCoord3D();
+	        shapeStats = AnalysisStatsWrapper.convertStats(
+	                (Map) entry.getValue());
+	        if (shapeStats != null) {
+	            minStats.put(c3D, shapeStats.get(StatsType.MIN));
+	            maxStats.put(c3D, shapeStats.get(StatsType.MAX));
+	            meanStats.put(c3D, shapeStats.get(StatsType.MEAN));
+	            sumStats.put(c3D, shapeStats.get(StatsType.SUM));
+	            stdDevStats.put(c3D, shapeStats.get(StatsType.STDDEV));
+	        }
+	        channelName.clear();
+	        nameMap.clear();
+	        channelColour.clear();
+
+	        i = metadata.iterator();
+	        while (i.hasNext()) {
+	            channelData = i.next();
+	            channel = channelData.getIndex();
+	            if (model.isChannelActive(channel)) 
+	            {
+	                channelName.put(channel, channelData.getChannelLabeling());
+	                nameMap.put(channelName.get(channel), channel);
+	                channelColour.put(channel, 
+	                        (Color) model.getActiveChannels().get(channel));
+	            }
+	        }
+
+	        if (channelName.size() == 0 || nameMap.size() == 0 || 
+	                channelColour.size() == 0)
+	        {
+	            state = State.READY;
+	            return;
+	        }
+
+	        coord = c3D;
+	        getResults(shape);
+	    }
+
+	    setButtonsEnabled(true);
+	    onFigureSelected();
+	    state = State.READY;
 	}
 
 	/** Invokes when figures are selected. */
@@ -728,7 +748,7 @@ class IntensityResultsView
 			view.getDrawingView().getSelectedFigures();
 		boolean valid = validFigures(selectedFigures);
 		addButton.setEnabled(valid);
-		addAllButton.setEnabled(valid);// && selectedFigures.size() == 1);
+		addAllButton.setEnabled(valid);
 		if (results != null) {
 			int count = results.getRowCount();
 			int[] rows = results.getSelectedRows();
@@ -767,7 +787,7 @@ class IntensityResultsView
 				addAllResults();
 				break;
 			case SAVE:
-				saveResults();	
+				saveResults();
 				break;
 			case REMOVE:
 				removeResults();
