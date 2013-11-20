@@ -82,13 +82,11 @@
                 $system_li.find('a').hide();
             }
         }
-
+        
         $("#id_other_groups").chosen({placeholder_text:'Choose one or more groups'}).change(function(evt, data) {
             if (data && data.deselected) {
                 if (data.deselected === "0") {
-                    // Don't allow to remove 'system' group from list (use 'Administrator' checkbox. See #10016)
-                    $('#id_other_groups option[value=0]').prop('selected', true);
-                    $("#id_other_groups").trigger("liszt:updated");
+                    $("input[name='administrator']").attr('checked', false);
                 }
                 $df = $('#id_default_group')
                 if ($df.val() === data.deselected){
@@ -100,11 +98,10 @@
                 }
                 $("li.search-choice").click(selectDefaultGroup);
                 // In case we've added the system group:
-                hideSystemGroupX();
             }
+            hideSystemGroupX();
         });
-        hideSystemGroupX();
-
+        
         $("input[name='administrator']").click( function(evt) {
             evt.stopPropagation();
             if($("input[name='administrator']").is(':checked')) {
@@ -128,6 +125,7 @@
             selectDefaultGroup(evt);
         });
         highlightDefault();
+        hideSystemGroupX();
         
         
         // code for Change Password dialog - NB this is duplicated in myaccount.html. 
