@@ -66,18 +66,21 @@ class DatabaseControl(BaseControl):
         if not map[key] or map[key] == "":
                 self.ctx.die(1, "No value entered")
 
+    def _has_user_id(self, args):
+        return args and "user_id" in args and args.user_id is not None
+
     def _get_password_hash(self, args, root_pass=None):
 
         prompt = " for OMERO "
-        if args.user_id is None:
-            prompt += "root user"
-        else:
+        if self._has_user_id(args):
             prompt += "user %s" % args.user_id
+        else:
+            prompt += "root user"
         root_pass = self._ask_for_password(prompt, root_pass)
 
         server_jar = self.ctx.dir / "lib" / "server" / "server.jar"
         cmd = ["ome.security.auth.PasswordUtil", root_pass]
-        if args.user_id is not None:
+        if self._has_user_id(args):
             cmd.append(args.user_id)
         p = omero.java.popen(["-cp", str(server_jar)] + cmd)
         rc = p.wait()
@@ -208,7 +211,7 @@ BEGIN;
             self.ctx.dbg("While getting arguments:" + str(e))
         password_hash = self._get_password_hash(args, root_pass)
         user_id = 0
-        if args.user_id is not None:
+        if self._has_user_id(args):
             user_id = args.user_id
         self.ctx.out("UPDATE password SET hash = '%s' "
                      "WHERE experimenter_id  = %s;""" %
