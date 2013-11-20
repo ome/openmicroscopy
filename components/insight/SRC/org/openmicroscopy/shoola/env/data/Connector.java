@@ -109,6 +109,12 @@ import com.google.common.collect.Sets;
 class Connector
 {
 
+    /**
+     * The elapsed time before checking if the services need to be
+     * kept alive.
+     */
+    private final int ELAPSED_TIME = 30000;
+
 	/** Keeps track of the last keep alive action.*/
     private final AtomicLong lastKeepAlive = new AtomicLong(0);
 
@@ -815,10 +821,7 @@ class Connector
     {
         long last = lastKeepAlive.get();
         long elapsed = System.currentTimeMillis() - last;
-        if (elapsed > 30000) {
-            return true;
-        }
-        return false;
+        return elapsed > ELAPSED_TIME;
     }
 
     /**
