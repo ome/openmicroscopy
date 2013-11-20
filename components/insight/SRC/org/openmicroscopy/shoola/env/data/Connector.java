@@ -89,6 +89,7 @@ import omero.model.Session;
 import omero.sys.Principal;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.log.Logger;
 
@@ -600,7 +601,6 @@ class Connector
 		}
 	}
 
-	
 	/** Keeps the services alive. */
 	void keepSessionAlive()
 	{
@@ -612,7 +612,7 @@ class Connector
 		    log("Failed encrypted keep alive:" + e);
 		}
 		try {
-			if (entryUnencrypted != null)
+			if (entryUnencrypted != null && success)
 				entryUnencrypted.keepAllAlive(null);
 		} catch (Exception e) {
 		    success = false;
@@ -766,7 +766,7 @@ class Connector
 	Connector getConnector(String userName)
 		throws Throwable
 	{
-		if (userName == null || userName.length() == 0) return this;
+		if (StringUtils.isBlank(userName)) return this;
 		Connector c = derived.get(userName);
 		if (c != null) return c;
 		if (groupName == null) {
