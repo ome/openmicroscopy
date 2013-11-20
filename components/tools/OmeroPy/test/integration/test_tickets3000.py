@@ -87,7 +87,7 @@ class TestTickets3000(lib.ITest):
               "from EventLog evl join evl.event ev join ev.session s"
 
         # This was never supported
-        with pytest.raises(Ice.UnmarshalOutOfBoundsException or Ice.UnknownUserException):
+        with pytest.raises((Ice.UnmarshalOutOfBoundsException, Ice.UnknownUserException)):
             q.findAllByQuery(sql, None)
 
         p1 = omero.sys.Parameters()
