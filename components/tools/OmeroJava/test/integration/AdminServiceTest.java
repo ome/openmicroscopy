@@ -947,6 +947,72 @@ public class AdminServiceTest extends AbstractServerTest {
     }
 
     /**
+     * Test that a user cannot rename the group that is currently their context.
+     * @throws Exception unexpected
+     */
+    @Test
+    public void testCurrentGroupRenameProhibition() throws Exception {
+        IAdminPrx proxy;
+        proxy = root.getSession().getAdminService();
+
+        final Roles roles = proxy.getSecurityRoles();
+        ExperimenterGroup userGroup   = proxy.getGroup(roles.userGroupId);
+        ExperimenterGroup systemGroup = proxy.getGroup(roles.systemGroupId);
+
+        final String normalGroupName1α = UUID.randomUUID().toString();
+        final String normalGroupName1β = UUID.randomUUID().toString();
+        ExperimenterGroup normalGroup1 = new ExperimenterGroupI();
+        normalGroup1.setName(omero.rtypes.rstring(normalGroupName1α));
+        normalGroup1 = proxy.getGroup(proxy.createGroup(normalGroup1));
+
+        final String normalGroupName2 = UUID.randomUUID().toString();
+        ExperimenterGroup normalGroup2 = new ExperimenterGroupI();
+        normalGroup2.setName(omero.rtypes.rstring(normalGroupName2));
+        normalGroup2 = proxy.getGroup(proxy.createGroup(normalGroup2));
+
+        final String userName1 = UUID.randomUUID().toString();
+        Experimenter experimenter1 = createExperimenterI(userName1, "1", "user");
+        final long experimenterId1 = proxy.createUser(experimenter1, normalGroupName1α);
+        experimenter1 = proxy.getExperimenter(experimenterId1);
+        proxy.addGroups(experimenter1, ImmutableList.of(userGroup, systemGroup, normalGroup1, normalGroup2));
+        experimenter1 = proxy.getExperimenter(experimenterId1);
+
+        final String userName2 = UUID.randomUUID().toString();
+        Experimenter experimenter2 = createExperimenterI(userName2, "2", "user");
+        final long experimenterId2 = proxy.createUser(experimenter2, normalGroupName1α);
+        experimenter2 = proxy.getExperimenter(experimenterId2);
+        proxy.addGroups(experimenter2, ImmutableList.of(userGroup, normalGroup1, normalGroup2));
+        experimenter2 = proxy.getExperimenter(experimenterId2);
+
+        final omero.client client1 = newOmeroClient();
+        final omero.client client2 = newOmeroClient();
+
+        client1.createSession(userName1, null);
+        client2.createSession(userName2, null);
+
+        proxy = client1.getSession().getAdminService();
+        try {
+            /* test that the current group cannot be renamed */
+            normalGroup1.setName(omero.rtypes.rstring(normalGroupName1β));
+            proxy.updateGroup(normalGroup1);
+            fail("the current group may not be renamed");
+        } catch (ValidationException e) { }
+        /* switch current group */
+        proxy.setDefaultGroup(experimenter1, normalGroup2);
+        client1.closeSession();
+        client1.createSession(userName1, null);
+        proxy = client1.getSession().getAdminService();
+        /* test that the same group can be renamed if no longer current */
+        proxy.updateGroup(normalGroup1);
+        /* test the viability of another user still logged in with the renamed group as current */
+        proxy = client2.getSession().getAdminService();
+        proxy.setDefaultGroup(experimenter2, normalGroup2);
+
+        client1.closeSession();
+        client2.closeSession();
+    }
+
+    /**
      * Test the group removal prohibitions of
      * {@link ome.api.IAdmin#removeGroups(ome.model.meta.Experimenter, ome.model.meta.ExperimenterGroup...)}.
      * Specifically, test this claim from the Javadoc:
@@ -995,7 +1061,7 @@ public class AdminServiceTest extends AbstractServerTest {
 
         final omero.client client = newOmeroClient();
 
-        client.createSession(userName1, normalGroupName);
+        client.createSession(userName1, null);
         proxy = client.getSession().getAdminService();
 
         try {
@@ -1062,7 +1128,7 @@ public class AdminServiceTest extends AbstractServerTest {
 
         final omero.client client = newOmeroClient();
 
-        client.createSession(userName1, normalGroupName);
+        client.createSession(userName1, null);
         proxy = client.getSession().getAdminService();
 
         try {
