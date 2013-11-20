@@ -512,6 +512,14 @@ class TableI(omero.grid.Table, omero.util.SimpleServant):
 
         self._closed = False
 
+        if (not self.file_obj.isLoaded() or
+            self.file_obj.getDetails() is None or
+            self.file_obj.details.group is None):
+            self.file_obj = self.ctx.getSession().getQueryService().get(
+                'omero.model.OriginalFileI', unwrap(file_obj.id),
+                {"omero.group": "-1"})
+
+
     def assert_write(self):
         """
         Checks that the current user can write to the given object
@@ -582,34 +590,29 @@ class TableI(omero.grid.Table, omero.util.SimpleServant):
         self._closed = True
 
         if self.file_obj is not None and self.can_write:
-            fid = self.file_obj.id.val
-            if not self.file_obj.isLoaded() or\
-                self.file_obj.getDetails() is None or\
-                self.file_obj.details.group is None:
-                self.logger.warn("Cannot update file object %s since group is none", fid)
-            else:
-                gid = self.file_obj.details.group.id.val
-                client_uuid = self.factory.ice_getIdentity().category[8:]
-                ctx = {"omero.group": str(gid), omero.constants.CLIENTUUID: client_uuid}
+            fid = unwrap(self.file_obj.id)
+            gid = unwrap(self.file_obj.details.group.id)
+
+            client_uuid = self.factory.ice_getIdentity().category[8:]
+            ctx = {"omero.group": str(gid), omero.constants.CLIENTUUID: client_uuid}
+            try:
+                rfs = self.factory.createRawFileStore(ctx)
                 try:
-                    rfs = self.factory.createRawFileStore(ctx)
-                    try:
-                        rfs.setFileId(fid, ctx)
-                        if size:
-                            rfs.truncate(size, ctx)     # May do nothing
-                            rfs.write([], size, 0, ctx) # Force an update
-                        else:
-                            rfs.write([], 0, 0, ctx)    # No-op
-                        file_obj = rfs.save(ctx)
-                    finally:
-                        rfs.close(ctx)
-                    self.logger.info(
-                        "Updated file object %s to hash=%s (%s bytes)",
-                        unwrap(self.file_obj.id), unwrap(file_obj.hash),
-                        unwrap(file_obj.size))
-                except:
-                    self.logger.warn("Failed to update file object %s",
-                                     unwrap(self.file_obj.id), exc_info=1)
+                    rfs.setFileId(fid, ctx)
+                    if size:
+                        rfs.truncate(size, ctx)     # May do nothing
+                        rfs.write([], size, 0, ctx) # Force an update
+                    else:
+                        rfs.write([], 0, 0, ctx)    # No-op
+                    file_obj = rfs.save(ctx)
+                finally:
+                    rfs.close(ctx)
+                self.logger.info(
+                    "Updated file object %s to hash=%s (%s bytes)",
+                    fid, unwrap(file_obj.hash), unwrap(file_obj.size))
+            except:
+                self.logger.warn("Failed to update file object %s",
+                                 fid, exc_info=1)
 
     # TABLES READ API ============================
 
