@@ -62,7 +62,7 @@ public class PasswordUtil {
      */
     public static void main(String args[]) {
         if (args == null || args.length < 1 || args.length > 2) {
-            throw new IllegalArgumentException("PasswordUtil.main takes 1 or 2 args.");
+            throw new IllegalArgumentException("PasswordUtil password [user-id]");
         }
         PasswordUtil util = new PasswordUtil(null);
         String pw = args[0];
