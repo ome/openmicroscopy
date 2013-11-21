@@ -265,6 +265,7 @@ class HdfStorage(object):
         self._modified = True
         if self.__mea:
             self.__mea.flush()
+        self.logger.debug("Modified flag set")
 
     @locked
     @modifies
