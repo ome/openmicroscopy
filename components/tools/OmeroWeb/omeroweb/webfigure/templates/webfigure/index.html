@@ -18,7 +18,8 @@
     <link rel="stylesheet" href="{% static "3rdparty/jquery-ui-1.8.19/themes/base/jquery.ui.base.css" %}" type="text/css" />
     <script>
 
-    var BASE_WEBFIGURE_URL = "{% url webfigure_index %}";
+    var BASE_WEBFIGURE_URL = "{% url webfigure_index %}",
+        SAVE_WEBFIGURE_URL = "{% url save_web_figure %}";
 
     $(document).ready(function() {
 
@@ -148,17 +149,17 @@
                     </li> -->
                     <!-- <li><a href="#about">About</a></li> -->
 
-                    <li class="active dropdown">
+                    <li class="active dropdown" id="file_actions">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown">File <b class="caret"></b></a>
                         <ul id="figure-actions" class="active dropdown-menu">
-                            <li>
-                                <a href="#" class="undo">New ⌘N</a>
+                            <li class="new_figure">
+                                <a href="#">New ⌘N</a>
                             </li>
                             <li>
-                                <a href="#" class="undo">Open</a>
+                                <a href="#">Open</a>
                             </li>
-                            <li>
-                                <a href="#" class="redo">Save ⌘S</a>
+                            <li class="save_figure">
+                                <a href="#">Save ⌘S</a>
                             </li>
                          </ul>
                     </li>
@@ -167,17 +168,17 @@
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown">Edit <b class="caret"></b></a>
                         <ul id="figure-actions" class="active dropdown-menu">
                             <!-- We add <a> to undo/redo to enable. See undo.js -->
-                            <li class="undo">
+                            <li class="undo disabled">
                                 <a href="#">Undo ⌘Z</a>
                             </li>
-                            <li class="redo">
+                            <li class="redo disabled">
                                 <a href="#">Redo ⌘Y</a>
                             </li>
-                            <li>
-                                <a href="#" class="copy">Copy ⌘C</a>
+                            <li class="copy disabled">
+                                <a href="#">Copy ⌘C</a>
                             </li>
-                            <li>
-                                <a href="#" class="paste">Paste ⌘V</a>
+                            <li class="paste disabled">
+                                <a href="#">Paste ⌘V</a>
                             </li>
 
                          </ul>
@@ -186,22 +187,9 @@
                 </ul>
 
                 <form class="navbar-form navbar-left">
-                    <div class="btn-group">
-                        <button type="button" class="copy btn btn-default btn-sm" title="Copy ⌘C" disabled="disabled">
-                            <span class="glyphicon glyphicon-file"></span>
-                        </button>
-                        <button type="button" class="paste btn btn-default btn-sm" title="Paste ⌘V" disabled="disabled">
-                            <span class="glyphicon glyphicon-book"></span>
-                        </button>
-                    </div>
 
-                    <button class="save_figure btn btn-default btn-sm" title="Save Figure to OMERO" 
-                            data-url="{% url save_web_figure %}" disabled="disabled">
+                    <button class="save_figure btn btn-default btn-sm" title="Save Figure to OMERO" disabled="disabled">
                         Save
-                    </button>
-
-                    <button class="new_figure btn btn-success btn-sm" title="Start New Figure">
-                        New
                     </button>
                 </form>
 

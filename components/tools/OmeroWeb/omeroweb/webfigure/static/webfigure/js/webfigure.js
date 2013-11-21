@@ -319,7 +319,7 @@
                 figureName: figureName,
             };
 
-            var url = $(".save_figure", this.$el).attr('data-url'),
+            var url = window.SAVE_WEBFIGURE_URL,
                 data = options || {};
 
             if (this.get('fileId')) {
@@ -568,9 +568,10 @@
             this.$canvas = $("#canvas");
             this.$canvas_wrapper = $("#canvas_wrapper");
             this.$paper = $("#paper");
-            this.$copyBtn = $(".copy.btn");
-            this.$pasteBtn = $(".paste.btn");
+            this.$copyBtn = $(".copy");
+            this.$pasteBtn = $(".paste");
             this.$saveBtn = $(".save_figure.btn");
+            this.$saveOption = $("li.save_figure");
 
             var self = this;
 
@@ -614,8 +615,8 @@
         events: {
             "click .add_panel": "addPanel",
             "click .delete_panel": "deleteSelectedPanels",
-            "click .copy.btn": "copy_selected_panels",
-            "click .paste.btn": "paste_panels",
+            "click .copy": "copy_selected_panels",
+            "click .paste": "paste_panels",
             "click .save_figure": "save_figure",
             "click .new_figure": "goto_newfigure",
         },
@@ -674,7 +675,8 @@
                 delete copy.id;
                 cd.push(copy);
             });
-            this.$pasteBtn.removeAttr("disabled");
+            this.$pasteBtn.removeClass("disabled");
+            return false;
         },
 
         paste_panels: function() {
@@ -719,6 +721,7 @@
             });
             // only pasted panels are selected - simply trigger...
             this.model.notifySelectionChange();
+            return false;
         },
 
         clipboard_data: undefined,
@@ -843,8 +846,10 @@
 
             if (this.model.get('unsaved')) {
                 this.$saveBtn.addClass('btn-success').removeClass('btn-default').removeAttr('disabled');
+                this.$saveOption.removeClass('disabled');
             } else {
                 this.$saveBtn.addClass('btn-default').removeClass('btn-success').attr('disabled', 'disabled');
+                this.$saveOption.addClass('disabled');
             }
         },
 
@@ -852,10 +857,10 @@
             var $delete_panel = $('.delete_panel', this.$el);
             if (this.model.getSelected().length > 0) {
                 $delete_panel.removeAttr("disabled");
-                this.$copyBtn.removeAttr("disabled");
+                this.$copyBtn.removeClass("disabled");
             } else {
                 $delete_panel.attr("disabled", "disabled");
-                this.$copyBtn.attr("disabled", "disabled");
+                this.$copyBtn.addClass("disabled");
             }
         },
 
