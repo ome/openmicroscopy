@@ -64,7 +64,7 @@ def send_feedback(request):
         if request.REQUEST.get('email', None) is not None and request.REQUEST['email'] != "":
             email = request.REQUEST['email']
         try:
-            sf = SendFeedback()
+            sf = SendFeedback(settings.FEEDBACK_URL)
             sf.give_feedback(error, comment, email)
         except:
             logger.error('handler500: Feedback could not be sent')
@@ -101,7 +101,7 @@ def send_comment(request):
             if request.REQUEST['email'] is not None or request.REQUEST['email'] != "":
                 email = request.REQUEST['email']
             try:
-                sf = SendFeedback()
+                sf = SendFeedback(settings.FEEDBACK_URL)
                 sf.give_comment(comment, email)
             except:
                 logger.error('handler500: Feedback could not be sent')

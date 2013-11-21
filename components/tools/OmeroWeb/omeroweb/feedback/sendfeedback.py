@@ -25,7 +25,7 @@
 
 import traceback
 import logging
-import httplib, urllib
+import httplib, urllib, urlparse
 
 from omero_version import omero_version
 
@@ -39,107 +39,109 @@ logger = logging.getLogger(__name__)
 
 class SendFeedback(object):
 
-    feedback_url = settings.FEEDBACK_URL
-
+    conn = None
+    
+    def __init__(self, feedback_url):
+        try:
+            host = urlparse.urlparse(feedback_url).hostname
+            if feedback_url.startswith("https"):
+                self.conn = httplib.HTTPSConnection(host)
+            else:
+                self.conn = httplib.HTTPConnection(host)
+        except Exception, e:
+            logger.error(e)
+            raise e
+                
     def send_feedback(self, feedback):
         try:
-            conn = httplib.HTTPConnection(self.feedback_url)
             try:
-                try:
-                    p = {'error': feedback['error'], "app_name":feedback['app_name'], "app_version":feedback['app_version'], "extra":""}
-                    if feedback['email'] is not None:
-                        p['email'] = feedback['email']
-                    if feedback['comment'] is not None:
-                        p['comment'] = feedback['comment']
-                    if feedback['env'] is not None:
-                        try:
-                            p['python_classpath'] = feedback['env']['path']
-                        except:
-                            pass
-                        try:
-                            p['python_version'] = feedback['env']['python_version']
-                        except:
-                            pass
-                        try:
-                            p['os_name'] = feedback['env']['platform']
-                        except:
-                            pass
-                        try:
-                            p['os_arch'] = feedback['env']['arch']
-                        except:
-                            pass
-                        try:
-                            p['os_version'] = feedback['env']['os_version']
-                        except:
-                            pass                        
-                    params = urllib.urlencode(p)
-                    headers = {"Content-type": "application/x-www-form-urlencoded","Accept": "text/plain"}
-                    conn.request("POST", "/qa/initial/", params, headers)
-                    response = conn.getresponse()
+                p = {'error': feedback['error'], "app_name":feedback['app_name'], "app_version":feedback['app_version'], "extra":""}
+                if feedback['email'] is not None:
+                    p['email'] = feedback['email']
+                if feedback['comment'] is not None:
+                    p['comment'] = feedback['comment']
+                if feedback['env'] is not None:
+                    try:
+                        p['python_classpath'] = feedback['env']['path']
+                    except:
+                        pass
+                    try:
+                        p['python_version'] = feedback['env']['python_version']
+                    except:
+                        pass
+                    try:
+                        p['os_name'] = feedback['env']['platform']
+                    except:
+                        pass
+                    try:
+                        p['os_arch'] = feedback['env']['arch']
+                    except:
+                        pass
+                    try:
+                        p['os_version'] = feedback['env']['os_version']
+                    except:
+                        pass                        
+                params = urllib.urlencode(p)
+                headers = {"Content-type": "application/x-www-form-urlencoded","Accept": "text/plain"}
+                self.conn.request("POST", "/qa/initial/", params, headers)
+                response = self.conn.getresponse()
 
-                    if response.status == 200:
-                        logger.info(response.read())
-                    else:
-                        logger.error("Feedback server error: %s" % response.reason)
-                        raise Exception("Feedback server error: %s" % response.reason)
-                except Exception, x:
-                    logger.error("Feedback could not be sent.")
-                    logger.error(traceback.format_exc())
-                    raise x
-            finally:
-                conn.close()
-        except Exception, x:
-            logger.error(x)
-            raise x
+                if response.status == 200:
+                    logger.info(response.read())
+                else:
+                    logger.error("Feedback server error: %s" % response.reason)
+                    raise Exception("Feedback server error: %s" % response.reason)
+            except Exception, x:
+                logger.error("Feedback could not be sent.")
+                logger.error(traceback.format_exc())
+                raise x
+        finally:
+            self.conn.close()
     
     def send_comment(self, feedback):
         try:
-            conn = httplib.HTTPConnection(self.feedback_url)
             try:
-                try:
-                    p = {"comment":feedback['comment'], "app_name":feedback['app_name'], "app_version":feedback['app_version'], "extra":""}
-                    if feedback['email'] is not None:
-                        p['email'] = feedback['email']
-                    if feedback['env'] is not None:
-                        try:
-                            p['python_classpath'] = feedback['env']['path']
-                        except:
-                            pass
-                        try:
-                            p['python_version'] = feedback['env']['python_version']
-                        except:
-                            pass
-                        try:
-                            p['os_name'] = feedback['env']['platform']
-                        except:
-                            pass
-                        try:
-                            p['os_arch'] = feedback['env']['arch']
-                        except:
-                            pass
-                        try:
-                            p['os_version'] = feedback['env']['os_version']
-                        except:
-                            pass                        
-                    params = urllib.urlencode(p)
-                    headers = {"Content-type": "application/x-www-form-urlencoded","Accept": "text/plain"}
-                    conn.request("POST", "/qa/initial/", params, headers)
-                    response = conn.getresponse()
+                p = {"comment":feedback['comment'], "app_name":feedback['app_name'], "app_version":feedback['app_version'], "extra":""}
+                if feedback['email'] is not None:
+                    p['email'] = feedback['email']
+                if feedback['env'] is not None:
+                    try:
+                        p['python_classpath'] = feedback['env']['path']
+                    except:
+                        pass
+                    try:
+                        p['python_version'] = feedback['env']['python_version']
+                    except:
+                        pass
+                    try:
+                        p['os_name'] = feedback['env']['platform']
+                    except:
+                        pass
+                    try:
+                        p['os_arch'] = feedback['env']['arch']
+                    except:
+                        pass
+                    try:
+                        p['os_version'] = feedback['env']['os_version']
+                    except:
+                        pass                        
+                params = urllib.urlencode(p)
+                headers = {"Content-type": "application/x-www-form-urlencoded","Accept": "text/plain"}
+                self.conn.request("POST", "/qa/initial/", params, headers)
+                response = self.conn.getresponse()
 
-                    if response.status == 200:
-                        logger.info(response.read())
-                    else:
-                        logger.error("Feedback server error: %s" % response.reason)
-                        raise Exception("Feedback server error: %s" % response.reason)
-                except Exception, x:
-                    logger.error("Feedback could not be sent.")
-                    logger.error(traceback.format_exc())
-                    raise x
-            finally:
-                conn.close()
-        except Exception, x:
-            logger.error(x)
-            raise x
+                if response.status == 200:
+                    logger.info(response.read())
+                else:
+                    logger.error("Feedback server error: %s" % response.reason)
+                    raise Exception("Feedback server error: %s" % response.reason)
+            except Exception, x:
+                logger.error("Feedback could not be sent.")
+                logger.error(traceback.format_exc())
+                raise x
+        finally:
+            self.conn.close()
+
 
     def give_feedback(self, error, comment=None, email=None):
         env = dict()
