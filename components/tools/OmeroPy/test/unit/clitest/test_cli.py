@@ -9,11 +9,12 @@
 
 """
 
-import os, subprocess, StringIO
+import os
 from path import path
-from omero.cli import Context, BaseControl, CLI
+from omero.cli import CLI
 
 omeroDir = path(os.getcwd()) / "build"
+
 
 class TestCli(object):
 
@@ -25,11 +26,11 @@ class TestCli(object):
 
         See #4749
         """
-        import logging
         import random
         from threading import Thread, Event
 
         event = Event()
+
         class T(Thread):
             def run(self, *args):
                 pause = random.random()
@@ -49,4 +50,3 @@ class TestCli(object):
         assert len(threads) == len(set([t.cli for t in threads]))
         assert len(threads) == len(set([t.con for t in threads]))
         assert len(threads) == len(set([t.cmp for t in threads]))
-

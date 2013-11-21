@@ -9,9 +9,8 @@
 
 """
 
-import os, subprocess, StringIO
 from path import path
-from omero.cli import Context, CLI, NonZeroReturnCode
+from omero.cli import CLI
 
 # Workaround for a poorly named module
 map = {}
@@ -20,11 +19,13 @@ rootDir = path(__file__).dirname() / ".." / ".." / ".."
 omeroDir = rootDir / "build"
 pluginDir = rootDir / "src" / "omero" / "plugins"
 
+
 def register(key, klass, help):
     map[key] = klass
 loc = {"register": register}
-execfile( str(pluginDir/"import.py"), loc)
+execfile(str(pluginDir/"import.py"), loc)
 ImportControl = map["import"]
+
 
 class TestImport(object):
 
@@ -34,15 +35,19 @@ class TestImport(object):
                 assert args.server == "localhost"
                 assert args.port == "4064"
                 assert args.key == "b0742975-03a1-4f6d-b0ac-639943f1a147"
-                assert args.errs == "/Users/cblackburn/omero/tmp/omero_cblackburn/6915/dropboxuUGl5rerr"
-                assert args.file == "/Users/cblackburn/omero/tmp/omero_cblackburn/6915/dropboxaDCjQlout"
+                assert args.errs == "/Users/cblackburn/omero/tmp/\
+omero_cblackburn/6915/dropboxuUGl5rerr"
+                assert args.file == "/Users/cblackburn/omero/tmp/\
+omero_cblackburn/6915/dropboxaDCjQlout"
 
-        cmd = ['-s', 'localhost', '-p', '4064', '-k', 'b0742975-03a1-4f6d-b0ac-639943f1a147']
-        cmd += ['import', '---errs=/Users/cblackburn/omero/tmp/omero_cblackburn/6915/dropboxuUGl5rerr']
-        cmd += ['---file=/Users/cblackburn/omero/tmp/omero_cblackburn/6915/dropboxaDCjQlout']
+        cmd = ['-s', 'localhost', '-p', '4064', '-k',
+               'b0742975-03a1-4f6d-b0ac-639943f1a147']
+        cmd += ['import', '---errs=/Users/cblackburn/omero/tmp/\
+omero_cblackburn/6915/dropboxuUGl5rerr']
+        cmd += ['---file=/Users/cblackburn/omero/tmp/\
+omero_cblackburn/6915/dropboxaDCjQlout']
         cmd += ['--', '/OMERO/DropBox/root/tinyTest.d3d.dv']
 
         cli = CLI()
         cli.register("import", MockImportControl, "HELP")
         cli.invoke(cmd)
-

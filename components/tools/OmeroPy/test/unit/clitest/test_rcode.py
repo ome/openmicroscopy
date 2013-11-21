@@ -9,11 +9,12 @@
 
 """
 
-import os, subprocess, StringIO
+import os
 from path import path
-from omero.cli import Context, BaseControl, CLI
+from omero.cli import BaseControl, CLI
 
 omeroDir = path(os.getcwd()) / "build"
+
 
 class TestRCode(object):
 
