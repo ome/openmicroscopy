@@ -347,58 +347,34 @@ public class DataServicesFactory
     	return (UserCredentials) 
     		registry.lookup(LookupNames.USER_CREDENTIALS);
     }
-    
+
     /**
-     * Brings up a notification dialog.
-     * 
-     * @param title     The dialog title.
-     * @param message   The dialog message.
+     * Adds a listener to the dialog and shows the dialog depending on the
+     * specified value.
      */
-    private void showNotificationDialog(String title, String message)
+    private void addListenerAndShow()
     {
-    	showNotificationDialog(title, message, false);
-    }
-    /**
-     * Brings up a notification dialog.
-     * 
-     * @param title     The dialog title.
-     * @param message   The dialog message.
-     * @param shutdown Pass <code>true</code> to shut down the application
-     * <code>false otherwise</code>
-     */
-    private void showNotificationDialog(String title, String message, boolean
-    		shutdown)
-    {
-    	JFrame f = new JFrame();
-    	f.setIconImage(AbstractIconManager.getOMEImageIcon());
-    	
-    	if (shutdown) {
-    		connectionDialog = new ShutDownDialog(f, title, message);
-    	} else
-    		connectionDialog = new NotificationDialog(f, title, message, null);
-        //connectionDialog.setModal(false);
         connectionDialog.addPropertyChangeListener(new PropertyChangeListener()
         {
-
-			public void propertyChange(PropertyChangeEvent evt) {
-				String name = evt.getPropertyName();
-				if (NotificationDialog.CLOSE_NOTIFICATION_PROPERTY.equals(name))
-				{
-					connectionDialog = null;
-					exitApplication(true, true);
-				} else if (
-					NotificationDialog.CANCEL_NOTIFICATION_PROPERTY.equals(
-							name))
-				{
-					connectionDialog = null;
-					omeroGateway.resetNetwork();
-				}
-			}
-		});
+            public void propertyChange(PropertyChangeEvent evt) {
+                String name = evt.getPropertyName();
+                if (NotificationDialog.CLOSE_NOTIFICATION_PROPERTY.equals(name))
+                {
+                    connectionDialog = null;
+                    exitApplication(true, true);
+                } else if (
+                    NotificationDialog.CANCEL_NOTIFICATION_PROPERTY.equals(
+                            name))
+                {
+                    connectionDialog = null;
+                    omeroGateway.resetNetwork();
+                }
+            }
+        });
         UIUtilities.centerAndShow(connectionDialog);
     }
-    
-	/** 
+
+	/**
 	 * Brings up a dialog indicating that the session has expired and
 	 * quits the application.
 	 * 
@@ -415,24 +391,34 @@ public class DataServicesFactory
 			msg.print(exc);
 			registry.getLogger().debug(this, msg);
 		}
+		JFrame f = new JFrame();
+        f.setIconImage(AbstractIconManager.getOMEImageIcon());
 		switch (index) {
 			case ConnectionExceptionHandler.DESTROYED_CONNECTION:
 				message = "The connection has been destroyed." +
 						"\nThe application will now exit.";
-				showNotificationDialog("Connection Refused", message);
+				connectionDialog = new NotificationDialog(f,
+				        "Connection Refused", message, null);
+				addListenerAndShow();
 				break;
 			case ConnectionExceptionHandler.NETWORK:
 				message = "The network is down.\n";
-				showNotificationDialog("Network", message, true);
+				connectionDialog = new ShutDownDialog(f, "Network down",
+				        message);
+				addListenerAndShow();
 				break;
 			case ConnectionExceptionHandler.LOST_CONNECTION:
+			    connectionDialog = new ShutDownDialog(f, "Network down",
+                        "Trying to reconnect...", false);
+			    addListenerAndShow();
 				UserCredentials uc = (UserCredentials) 
 				registry.lookup(LookupNames.USER_CREDENTIALS);
 				Map<SecurityContext, Set<Long>> l =
 						omeroGateway.getRenderingEngines();
-				boolean b =  omeroGateway.reconnect(uc.getUserName(), 
+				boolean b =  omeroGateway.reconnect(uc.getUserName(),
 						uc.getPassword());
-				connectionDialog = null;
+				connectionDialog.setVisible(false);
+				connectionDialog.dispose();
 				if (b) {
 					//reactivate the rendering engine. Need to review that
 					Iterator<Entry<SecurityContext, Set<Long>>> i =
@@ -441,10 +427,10 @@ public class DataServicesFactory
 					Long id;
 					Entry<SecurityContext, Set<Long>> entry;
 					Map<SecurityContext, List<Long>> 
-					failure = new HashMap<SecurityContext, List<Long>>();
+					failures = new HashMap<SecurityContext, List<Long>>();
 					Iterator<Long> j;
 					SecurityContext ctx;
-					List<Long> f;
+					List<Long> failure;
 					RenderingControl p;
 					while (i.hasNext()) {
 						entry = i.next();
@@ -458,36 +444,39 @@ public class DataServicesFactory
 								if (!p.isShutDown())
 									svc.reloadRenderingService(ctx, id);
 							} catch (Exception e) {
-								f = failure.get(ctx);
-								if (f == null) {
-									f = new ArrayList<Long>();
-									failure.put(ctx, f);
+							    failure = failures.get(ctx);
+								if (failure == null) {
+								    failure = new ArrayList<Long>();
+									failures.put(ctx, failure);
 								}
-								f.add(id);
+								failure.add(id);
 							}
 						}
 					}
 					message = "You are reconnected to the server.";
-					if (failure.size() > 0) {
+					if (failures.size() > 0) {
 						//notify user.
 						registry.getEventBus().post(
-								new ReloadRenderingEngine(failure));
+								new ReloadRenderingEngine(failures));
 					}
 				} else {
 					message = "A failure occurred while attempting to " +
 							"reconnect.\nThe application will now exit.";
-					showNotificationDialog("Reconnection Failure", message);
+					connectionDialog = new NotificationDialog(f,
+					        "Reconnection Failure", message, null);
+					addListenerAndShow();
 				}
-				//}
 				break;
 			case ConnectionExceptionHandler.SERVER_OUT_OF_SERVICE:
 				message = "The server is no longer " +
 				"running. \nPlease contact your system administrator." +
 				"\nThe application will now exit.";
-				showNotificationDialog("Connection Refused", message);
+				connectionDialog = new NotificationDialog(f,
+				        "Connection Refused", message, null);
+				addListenerAndShow();
 		}
 	}
-	
+
     /**
      * Returns the {@link OmeroDataService}.
      * 
