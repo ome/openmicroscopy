@@ -1508,19 +1508,10 @@ class OMEROGateway
 	            try {
 	                isNetworkUp(false);
                 } catch (Exception e) {
-                    ConnectionExceptionHandler handler =
-                            new ConnectionExceptionHandler();
-                    int index = handler.handleConnectionException(e);
-                    if (index >= 0) {
-                        if (permitNull) {
-                            log("Error keeping session alive. " +
-                                    "Returning null connector");
-                            return null;
-                        }
-                        dsFactory.sessionExpiredExit(index, null);
-                        throw new DSOutOfServiceException(
-                                "network is down but connector required");
-                    }
+                    dsFactory.sessionExpiredExit(
+                            ConnectionExceptionHandler.NETWORK, null);
+                    throw new DSOutOfServiceException(
+                            "network is down but connector required");
                 }
 	            c.keepSessionAlive();
 	        }
