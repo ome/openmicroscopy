@@ -679,3 +679,12 @@ input.spin-button {
     width: 8px;
     height: 10px;
 }
+
+.well img.failed {
+  /*border: solid red 5px !important;*/
+  background-color: #fdd;
+  width: 256px;
+  height: 256px;
+
+}
+
