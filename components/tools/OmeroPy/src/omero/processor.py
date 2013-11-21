@@ -880,11 +880,15 @@ class ProcessorI(omero.grid.Processor, omero.util.Servant):
             properties["omero.pass"] = session
             properties["Ice.Default.Router"] = client.getProperty("Ice.Default.Router")
 
+            launcher = ""
             try:
                 launcher = current.ctx["omero.launcher"]
-                self.logger.info("Found launcher: %s", launcher)
             except:
+                pass
+
+            if not launcher:
                 launcher = sys.executable
+            self.logger.debug("Using launcher: %s", launcher)
 
             process = ProcessI(self.ctx, launcher, properties, params, iskill, omero_home = self.omero_home)
             self.resources.add(process)
