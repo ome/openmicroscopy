@@ -880,12 +880,13 @@ class ProcessorI(omero.grid.Processor, omero.util.Servant):
             properties["omero.pass"] = session
             properties["Ice.Default.Router"] = client.getProperty("Ice.Default.Router")
 
-            ending = file.name.val.split(".")[-1]
-            if ending == "jy":
-                process = ProcessI(self.ctx, "jython", properties, params, iskill, omero_home = self.omero_home)
-            else:
-                process = ProcessI(self.ctx, sys.executable, properties, params, iskill, omero_home = self.omero_home)
+            try:
+                launcher = current.ctx["omero.launcher"]
+                self.logger.info("Found launcher: %s", launcher)
+            except:
+                launcher = sys.executable
 
+            process = ProcessI(self.ctx, launcher, properties, params, iskill, omero_home = self.omero_home)
             self.resources.add(process)
 
             # client.download(file, str(process.script_path))

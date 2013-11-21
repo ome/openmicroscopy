@@ -202,6 +202,18 @@ public class ScriptRepoHelper extends OnContextRefreshedEventListener {
         log.warn("No mimetype set for {}", ofile.getName());
     }
 
+
+    public String getLauncher(String mimetype) {
+        for (Map.Entry<String, ScriptFileType> entry : types.entrySet()) {
+            ScriptFileType type = entry.getValue();
+            if (type.getMimetype().equals(mimetype)) {
+                return type.getLauncher();
+            }
+        }
+        log.warn("No mimetype equals to {}", mimetype);
+        return "";
+    }
+
     /**
      * If we're in a testing scenario we need to ignore the fact that there
      * is no lib/script directory. Otherwise, all devs will need to mkdir -p
@@ -661,4 +673,5 @@ public class ScriptRepoHelper extends OnContextRefreshedEventListener {
                     + id + "\nIs in use by other objects");
         }
     }
+
 }

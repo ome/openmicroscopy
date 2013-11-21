@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Glencoe Software, Inc. All rights reserved.
+ * Copyright (C) 2013 Glencoe Software, Inc. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -45,9 +45,23 @@ public class ScriptFileType {
      */
     private final String mimetype;
 
+    /**
+     * Non-null but possibly empty launcher string. If empty, the
+     * default behavior is chosen by the launching process itself.
+     * For example, processor.py would chose "sys.executable". Values
+     * are configured in Spring (e.g. "${omero.launcher.python}") and
+     * can be modified by users via `bin/omero config set`.
+     */
+    private final String launcher;
+
     public ScriptFileType(String pattern, String mimetype) {
+        this(pattern, mimetype, "");
+    }
+
+    public ScriptFileType(String pattern, String mimetype, String launcher) {
         this.pattern = pattern;
         this.mimetype = mimetype;
+        this.launcher = launcher;
     }
 
     public String getMimetype() {
@@ -56,6 +70,10 @@ public class ScriptFileType {
 
     public IOFileFilter getFileFilter() {
         return new WildcardFileFilter(pattern);
+    }
+
+    public String getLauncher() {
+        return launcher;
     }
 
     /**
