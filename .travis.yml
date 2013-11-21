@@ -7,7 +7,7 @@ env:
 
 jdk:
   - openjdk7
-  - openjdk8
+  - oraclejdk8
 
 before_install:
     - sudo apt-get -qq update
@@ -31,7 +31,7 @@ script:
 
 matrix:
   exclude:
-    - jdk: openjdk8
+    - jdk: oraclejdk8
       env: BUILD=py BUILD_TARGET="build-default test-compile" TEST_TARGET="-py test -Dtest.with.fail=true"
-    - jdk: openjdk8
+    - jdk: oraclejdk8
       env: BUILD=cpp BUILD_TARGET="build-all test-compile-all" TEST_TARGET="-cpp test -Dtest.with.fail=true"
