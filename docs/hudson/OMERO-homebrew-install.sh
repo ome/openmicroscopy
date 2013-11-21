@@ -25,7 +25,7 @@ TESTING_MODE=${TESTING_MODE:-$DEFAULT_TESTING_MODE}
 ###################################################################
 
 # Install Homebrew in /usr/local
-ruby -e "$(curl -fsSL https://raw.github.com/mxcl/homebrew/go)"
+ruby -e "$(curl -fsSL https://raw.github.com/mxcl/homebrew/go/install)"
 cd /usr/local
 
 # Install git if not already installed
