@@ -128,6 +128,8 @@ import omero.api.ThumbnailStorePrx;
 import omero.cmd.Chgrp;
 import omero.cmd.Chmod;
 import omero.cmd.Delete;
+import omero.cmd.HandlePrx;
+
 import omero.cmd.Request;
 import omero.constants.projection.ProjectionType;
 import omero.grid.BoolColumn;
@@ -1468,6 +1470,8 @@ class OMEROGateway
                 log("Network down. Returning null connector");
                 return null;
             }
+            dsFactory.sessionExpiredExit(ConnectionExceptionHandler.NETWORK,
+                    null);
             throw new DSOutOfServiceException(
                     "network is down but connector required");
         }
@@ -1485,6 +1489,25 @@ class OMEROGateway
 		if (clist.size() > 0) {
 		    c = clist.get(0);
 	        if (c.needsKeepAlive()) {
+	            //Check if network is up before keeping service otherwise
+	            //we block until timeout.
+	            try {
+	                isNetworkUp(false);
+                } catch (Exception e) {
+                    ConnectionExceptionHandler handler =
+                            new ConnectionExceptionHandler();
+                    int index = handler.handleConnectionException(e);
+                    if (index >= 0) {
+                        if (permitNull) {
+                            log("Error keeping session alive. " +
+                                    "Returning null connector");
+                            return null;
+                        }
+                        dsFactory.sessionExpiredExit(index, null);
+                        throw new DSOutOfServiceException(
+                                "network is down but connector required");
+                    }
+                }
 	            c.keepSessionAlive();
 	        }
 	        return c;

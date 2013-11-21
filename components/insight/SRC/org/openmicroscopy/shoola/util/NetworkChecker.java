@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.data.NetworkChecker
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2012 University of Dundee & Open Microscopy Environment.
+ *  Copyright (C) 2006-2013 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
  *
  *
@@ -65,7 +65,7 @@ public class NetworkChecker {
 			getNetworkInterfacesMethod = NetworkInterfaceClass.getMethod("getNetworkInterfaces");
 			isUpMethod = NetworkInterfaceClass.getMethod("isUp");
 			isLoopbackMethod = NetworkInterfaceClass.getMethod("isLoopback");
-			useReflectiveCheck = true;
+			useReflectiveCheck = false;
 		} catch (ClassNotFoundException e) {
 			// Knowingly using System.err since 1) this will be primarily used on
 			// Linux in the first instance and 2) we don't have access to a logger.
