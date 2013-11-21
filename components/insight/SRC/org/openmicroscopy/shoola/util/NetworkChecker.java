@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.data.NetworkChecker
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2012 University of Dundee & Open Microscopy Environment.
+ *  Copyright (C) 2006-2013 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
  *
  *
@@ -28,9 +28,7 @@ import java.lang.reflect.Method;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -67,7 +65,7 @@ public class NetworkChecker {
 			getNetworkInterfacesMethod = NetworkInterfaceClass.getMethod("getNetworkInterfaces");
 			isUpMethod = NetworkInterfaceClass.getMethod("isUp");
 			isLoopbackMethod = NetworkInterfaceClass.getMethod("isLoopback");
-			useReflectiveCheck = true;
+			useReflectiveCheck = false;
 		} catch (ClassNotFoundException e) {
 			// Knowingly using System.err since 1) this will be primarily used on
 			// Linux in the first instance and 2) we don't have access to a logger.
@@ -210,7 +208,6 @@ public class NetworkChecker {
 	{
 
 		boolean networkup = false;
-		List<String> ips = new ArrayList<String>();
 		if (useReflectiveCheck) {
 			// On Java 1.6+, reflectiveCheck will perform a proper check.
 			networkup = reflectiveCheck();
