@@ -13,9 +13,8 @@ import omero
 import pytest
 import test.integration.library as lib
 
-from omero.rtypes import rstring, rlong, rint
-from omero.util.concurrency import get_event
-from omero.util.tiles import *
+from omero.util.tiles import TileLoopIteration
+from omero.util.tiles import RPSTileLoop
 from binascii import hexlify as hex
 
 
@@ -90,9 +89,9 @@ class TestRPS(lib.ITest):
             # First execution should certainly fail
             try:
                 rps.setPixelsId(pix.id.val, True)
-                fail("Should throw!")
+                assert False, "Should throw!"
             except omero.MissingPyramidException, mpm:
-                assert pix.id.val ==  mpm.pixelsID
+                assert pix.id.val == mpm.pixelsID
 
             # Eventually, however, it should be generated
             i = 10
@@ -102,11 +101,11 @@ class TestRPS(lib.ITest):
                     rps.setPixelsId(pix.id.val, True)
                     success = True
                 except omero.MissingPyramidException, mpm:
-                    assert pix.id.val ==  mpm.pixelsID
+                    assert pix.id.val == mpm.pixelsID
                     backOff = mpm.backOff/1000
                     event = concurrency.get_event("testRomio")
-                    event.wait(backOff) # seconds
-                i -=1
+                    event.wait(backOff)  # seconds
+                i -= 1
             assert success
         finally:
             rps.close()
@@ -117,7 +116,7 @@ class TestRPS(lib.ITest):
         Here we try the above but pass omero.group:-1
         to see if we can cause an exception.
         """
-        all_context = {"omero.group":"-1"}
+        all_context = {"omero.group": "-1"}
 
         from omero.util import concurrency
         pix = self.missing_pyramid(self.root)
@@ -126,9 +125,9 @@ class TestRPS(lib.ITest):
             # First execution should certainly fail
             try:
                 rps.setPixelsId(pix.id.val, True, all_context)
-                fail("Should throw!")
+                assert False, "Should throw!"
             except omero.MissingPyramidException, mpm:
-                assert pix.id.val ==  mpm.pixelsID
+                assert pix.id.val == mpm.pixelsID
 
             # Eventually, however, it should be generated
             i = 10
@@ -138,12 +137,11 @@ class TestRPS(lib.ITest):
                     rps.setPixelsId(pix.id.val, True, all_context)
                     success = True
                 except omero.MissingPyramidException, mpm:
-                    assert pix.id.val ==  mpm.pixelsID
+                    assert pix.id.val == mpm.pixelsID
                     backOff = mpm.backOff/1000
                     event = concurrency.get_event("testRomio")
-                    event.wait(backOff) # seconds
-                i -=1
+                    event.wait(backOff)  # seconds
+                i -= 1
             assert success
         finally:
             rps.close()
-
