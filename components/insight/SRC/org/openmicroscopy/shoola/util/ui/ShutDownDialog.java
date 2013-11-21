@@ -54,7 +54,7 @@ public class ShutDownDialog
     private static final int DEFAULT_TIME = 120;//2mins
 
     /** The default shutdown message.*/
-    private static final String SHUTDOWN_MESSAGE = 
+    private static final String SHUTDOWN_MESSAGE =
             "If the connection cannot be re-established,\n"+
                     "the application will shut down in ";
 
@@ -67,8 +67,11 @@ public class ShutDownDialog
     /** Use to check if the network is up.*/
     private NetworkChecker checker;
 
+    /** Flag indicating to create a timer or not.*/
+    private boolean withTimer;
+
     /** 
-     * Formats the displayed text. 
+     * Formats the displayed text.
      * 
      * @param time The time to format.
      */
@@ -90,19 +93,21 @@ public class ShutDownDialog
      */
     private void initialize(int time)
     {
-        checker = new NetworkChecker();
         removeWindowListener(windowAdapter);
         setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
         remainingTime = time;
         okButton.setText("Shut Down");
         okButton.setToolTipText("Shut down the application.");
-        formatText(time);
-        int speed = 1000;
-        int pause = 1000;
-        timer = new Timer(speed, this);
-        timer.setInitialDelay(pause);
-        timer.start();
-        setSize(400, 200);
+        if (withTimer) {
+            formatText(time);
+            int speed = 1000;
+            int pause = 1000;
+            checker = new NetworkChecker();
+            timer = new Timer(speed, this);
+            timer.setInitialDelay(pause);
+            timer.start();
+            setSize(400, 200);
+        } else pack();
         setResizable(false);
     }
 
@@ -115,10 +120,14 @@ public class ShutDownDialog
      * @param title The title to display on the title bar.
      * @param message The notification message.
      * @param time The time to wait before shutting down.
+     * @param withTimer Pass <code>true</code> to start timer,
+     *                  <code>false</code> otherwise.
      */
     public ShutDownDialog(JDialog owner, String title, String message,
-            int time) {
+            int time, boolean withTimer)
+    {
         super(owner, title, message, null);
+        this.withTimer = withTimer;
         initialize(time);
     }
 
@@ -131,10 +140,14 @@ public class ShutDownDialog
      * @param title The title to display on the title bar.
      * @param message The notification message.
      * @param time The time to wait before shutting down.
+     * @param withTimer Pass <code>true</code> to start timer,
+     *                  <code>false</code> otherwise.
      */
-    public ShutDownDialog(JFrame owner, String title, String message, int time)
+    public ShutDownDialog(JFrame owner, String title, String message, int time,
+            boolean withTimer)
     {
         super(owner, title, message, null);
+        this.withTimer = withTimer;
         initialize(time);
     }
 
@@ -146,9 +159,44 @@ public class ShutDownDialog
      * @param owner The parent window.
      * @param title The title to display on the title bar.
      * @param message The notification message.
+     * @param withTimer Pass <code>true</code> to start timer,
+     *                  <code>false</code> otherwise.
      */
-    public ShutDownDialog(JDialog owner, String title, String message) {
-        this(owner, title, message, DEFAULT_TIME);
+    public ShutDownDialog(JDialog owner, String title, String message, boolean
+            withTimer)
+    {
+        this(owner, title, message, DEFAULT_TIME, withTimer);
+    }
+
+    /**
+     * Creates a new dialog.
+     * You have to call {@link #setVisible(boolean)} to actually display it
+     * on screen. The default time is set to {@link #DEFAULT_TIME}
+     * 
+     * @param owner The parent window.
+     * @param title The title to display on the title bar.
+     * @param message The notification message.
+     */
+    public ShutDownDialog(JDialog owner, String title, String message)
+    {
+        this(owner, title, message, DEFAULT_TIME, true);
+    }
+
+    /**
+     * Creates a new dialog.
+     * You have to call {@link #setVisible(boolean)} to actually display it
+     * on screen. The default time is set to {@link #DEFAULT_TIME}
+     * 
+     * @param owner The parent window.
+     * @param title The title to display on the title bar.
+     * @param message The notification message.
+     * @param withTimer Pass <code>true</code> to start timer,
+     *                  <code>false</code> otherwise.
+     */
+    public ShutDownDialog(JFrame owner, String title, String message, boolean
+            withTimer)
+    {
+        this(owner, title, message, DEFAULT_TIME, withTimer);
     }
 
     /**
@@ -162,7 +210,7 @@ public class ShutDownDialog
      */
     public ShutDownDialog(JFrame owner, String title, String message)
     {
-        this(owner, title, message, DEFAULT_TIME);
+        this(owner, title, message, DEFAULT_TIME, true);
     }
 
     /**
