@@ -69,6 +69,19 @@ def stamped(func, update = False):
     checked_and_update_stamp = wraps(func)(check_and_update_stamp)
     return locked(check_and_update_stamp)
 
+def modifies(func):
+    """
+    Decorator which always calls flush() on the first argument after the
+    method call
+    """
+    def flush_after(*args, **kwargs):
+        self = args[0]
+        try:
+            return func(*args, **kwargs)
+        finally:
+            self.flush()
+    return wraps(func)(flush_after)
+
 
 class HdfList(object):
     """
@@ -187,7 +200,7 @@ class HdfStorage(object):
         except tables.NoSuchNodeError:
             self.__initialized = False
 
-        self.__modified = False
+        self._modified = False
 
     #
     # Non-locked methods
@@ -208,7 +221,7 @@ class HdfStorage(object):
             raise omero.ValidationException(None, None, msg)
 
     def modified(self):
-        return self.__modified
+        return self._modified
 
     def __initcheck(self):
         if not self.__initialized:
@@ -244,14 +257,17 @@ class HdfStorage(object):
     # Locked methods
     #
 
-    def __flush(self):
+    @locked
+    def flush(self):
         """
-        Flush the underlying table, should only be called by @locked methods
+        Flush writes to the underlying table, mark this object as modified
         """
-        self.__mea.flush()
-        self.__modified = True
+        self._modified = True
+        if self.__mea:
+            self.__mea.flush()
 
     @locked
+    @modifies
     def initialize(self, cols, metadata = None):
         """
 
@@ -284,7 +300,6 @@ class HdfStorage(object):
                 self.__mea.attrs[k] = v
                 # See attrs._f_list("user") to retrieve these.
 
-        self.__flush()
         self.__hdf_file.flush()
         self.__initialized = True
 
@@ -362,6 +377,7 @@ class HdfStorage(object):
         return metadata
 
     @locked
+    @modifies
     def add_meta_map(self, m):
         if not m:
             return
@@ -369,9 +385,9 @@ class HdfStorage(object):
         attr = self.__mea.attrs
         for k, v in m.items():
             attr[k] = unwrap(v)
-        self.__flush()
 
     @locked
+    @modifies
     def append(self, cols):
         self.__initcheck()
         # Optimize!
@@ -392,20 +408,19 @@ class HdfStorage(object):
         records = numpy.array(zip(*arrays), dtype=dtypes)
 
         self.__mea.append(records)
-        self.__flush()
 
     #
     # Stamped methods
     #
 
     @stamped
+    @modifies
     def update(self, stamp, data):
         self.__initcheck()
         if data:
             for i, rn in enumerate(data.rowNumbers):
                 for col in data.columns:
                     getattr(self.__mea.cols, col.name)[rn] = col.values[i]
-        self.__flush()
 
     @stamped
     def getWhereList(self, stamp, condition, variables, unused, start, stop, step):
