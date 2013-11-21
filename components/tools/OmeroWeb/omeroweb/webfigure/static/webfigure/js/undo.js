@@ -207,7 +207,7 @@ var UndoManager = Backbone.Model.extend({
 
 var UndoView = Backbone.View.extend({
     
-    el: $("#undoRedo"),
+    el: $("#edit_actions"),
     
     events: {
       "click .undo": "undo",
@@ -224,19 +224,20 @@ var UndoView = Backbone.View.extend({
       this.model.on('change', this.render, this);
       this.undoEl = $(".undo", this.$el);
       this.redoEl = $(".redo", this.$el);
+
       this.render();
     },
     
     render: function() {
         if (this.model.canUndo()) {
-            this.undoEl.removeAttr('disabled');
+            this.undoEl.removeClass('disabled');
         } else {
-            this.undoEl.attr('disabled', 'disabled').tooltip('hide');
+            this.undoEl.addClass('disabled');
         }
         if (this.model.canRedo()) {
-            this.redoEl.removeAttr('disabled');
+            this.redoEl.removeClass('disabled');
         } else {
-            this.redoEl.attr('disabled', 'disabled').tooltip('hide');
+            this.redoEl.addClass('disabled');
         }
         return this;
     },

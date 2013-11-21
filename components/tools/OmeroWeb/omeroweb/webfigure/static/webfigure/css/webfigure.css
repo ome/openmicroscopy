@@ -385,14 +385,6 @@
         font-size: 14px;
         padding: 4px 8px;
     }
-    .btn.undo {
-        -moz-transform: scaleX(-1);
-        -o-transform: scaleX(-1);
-        -webkit-transform: scaleX(-1);
-        transform: scaleX(-1);
-        filter: FlipH;
-        -ms-filter: "FlipH";
-    }
 
     .colorpicker span, .label-color span:first-child {
         border: solid 1px #bbb;

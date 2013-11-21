@@ -163,15 +163,15 @@
                          </ul>
                     </li>
 
-                    <li class="active dropdown">
+                    <li class="active dropdown" id="edit_actions">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown">Edit <b class="caret"></b></a>
                         <ul id="figure-actions" class="active dropdown-menu">
                             <!-- We add <a> to undo/redo to enable. See undo.js -->
-                            <li id="undo">
-                                <a href="#" class="undo">Undo ⌘Z</a>
+                            <li class="undo">
+                                <a href="#">Undo ⌘Z</a>
                             </li>
-                            <li id="redo">
-                                <a href="#" class="redo">Redo ⌘Y</a>
+                            <li class="redo">
+                                <a href="#">Redo ⌘Y</a>
                             </li>
                             <li>
                                 <a href="#" class="copy">Copy ⌘C</a>
@@ -192,16 +192,6 @@
                         </button>
                         <button type="button" class="paste btn btn-default btn-sm" title="Paste ⌘V" disabled="disabled">
                             <span class="glyphicon glyphicon-book"></span>
-                        </button>
-                    </div>
-
-                    <!-- Buttons for Undo / Redo - see undo.js -->
-                    <div class="btn-group" id="undoRedo">
-                        <button type="button" class="undo btn btn-default btn-sm" title="Undo ⌘Z" disabled="disabled">
-                            <span class="glyphicon glyphicon-share-alt"></span>
-                        </button>
-                        <button type="button" class="redo btn btn-default btn-sm" title="Redo ⌘Y" disabled="disabled">
-                            <span class="glyphicon glyphicon-share-alt"></span>
                         </button>
                     </div>
 
