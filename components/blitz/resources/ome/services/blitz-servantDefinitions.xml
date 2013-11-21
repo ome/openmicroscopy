@@ -81,6 +81,10 @@
       <constructor-arg index="0" value="*.jy"/>
       <constructor-arg index="1" value="text/x-jython"/>
   </bean>
+  <bean id="MatlabScripts" class="ome.services.scripts.ScriptFileType">
+      <constructor-arg index="0" value="*.m"/>
+      <constructor-arg index="1" value="text/x-matlab"/>
+  </bean>
 
   <bean id="omero.api.Exporter" class="omero.api._ExporterTie" singleton="false">
     <constructor-arg>
