@@ -197,6 +197,12 @@ class WebControl(BaseControl):
                     "HTTPPORT": port,
                     "FASTCGI_PASS": fastcgi_pass,
                     }
+                if hasattr(settings, 'FORCE_SCRIPT_NAME') and len(settings.FORCE_SCRIPT_NAME) > 0:
+                    d["FASTCGI_PATH_SCRIPT_INFO"] = "fastcgi_split_path_info ^(%s)(.*)$;\n" \
+                    "            fastcgi_param PATH_INFO $fastcgi_path_info;\n" \
+                    "            fastcgi_param SCRIPT_INFO $fastcgi_script_name;\n" % (settings.FORCE_SCRIPT_NAME)
+                else:
+                    d["FASTCGI_PATH_SCRIPT_INFO"] = "fastcgi_param PATH_INFO $fastcgi_script_name;\n"
                 self.ctx.out(c % d)
             if server == "apache":
                 if settings.APPLICATION_SERVER == settings.FASTCGITCP:
