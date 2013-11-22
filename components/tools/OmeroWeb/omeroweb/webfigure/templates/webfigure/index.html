@@ -16,15 +16,21 @@
     {% include "webgateway/base/includes/script_src_jquery.html" %}
     {% include "webgateway/base/includes/jquery-ui.html" %}
     <link rel="stylesheet" href="{% static "3rdparty/jquery-ui-1.8.19/themes/base/jquery.ui.base.css" %}" type="text/css" />
+
+
     <script>
 
     var BASE_WEBFIGURE_URL = "{% url webfigure_index %}",
-        SAVE_WEBFIGURE_URL = "{% url save_web_figure %}";
+        SAVE_WEBFIGURE_URL = "{% url save_web_figure %}",
+        LIST_WEBFIGURES_URL = "{% url list_web_figures %}",
+        DELETE_WEBFIGURE_URL = "{% url delete_web_figure %}";
 
     $(document).ready(function() {
 
-
-
+        // keep-alive ping every minute, so that OMERO session doesn't die
+        setInterval(function (){
+            $.get("{% url keepalive_ping %}");
+        }, 60000);
 
         // load Panels from localStorage (if any)
         // figureModel.panels.fetch({
@@ -134,6 +140,26 @@
             </div>
         </div>
     </div><!-- /.modal -->
+    <!-- Modal -->
+    <div class="modal" id="openFigureModal" tabindex="-1" role="dialog" aria-labelledby="addImagesLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title">Open Figure</h4>
+                </div>
+                <form class="openFigureForm" role="form">
+                    <div class="modal-body">
+                        <ul id="figure_files"></ul>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary" data-dismiss="modal" disabled="disabled">Open</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div><!-- /.modal -->
 
     <div class="navbar navbar-inverse navbar-fixed-top">
         <div class="container">
@@ -155,11 +181,14 @@
                             <li class="new_figure">
                                 <a href="#">New ⌘N</a>
                             </li>
-                            <li>
-                                <a href="#">Open</a>
+                            <li class="open_figure">
+                                <a href="#">Open ⌘O</a>
                             </li>
-                            <li class="save_figure">
+                            <li class="save_figure disabled">
                                 <a href="#">Save ⌘S</a>
+                            </li>
+                            <li class="delete_figure">
+                                <a href="#">Delete Figure</a>
                             </li>
                          </ul>
                     </li>
@@ -704,6 +733,10 @@
                 </ul>
             </div><br>
         <% }); %>
+    </script>
+
+    <script type="text/template" id="figure_file_item">
+        <% if(imageId > 0) { print("<img src='/webgateway/render_thumbnail/" + imageId + "/' />") } %> <%= id %> <a href="#figure/<%= id %>"><%= name %></a> (<%= ownerFullName %>)
     </script>
 
 

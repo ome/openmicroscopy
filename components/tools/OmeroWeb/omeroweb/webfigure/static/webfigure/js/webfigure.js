@@ -24,6 +24,8 @@
 
         },
 
+        syncOverride: true,
+
         hide_scalebar: function() {
             // keep all scalebar properties, except 'show'
             var sb = $.extend(true, {}, this.get('scalebar'));
@@ -280,6 +282,11 @@
             this.notifySelectionChange = _.debounce( this.notifySelectionChange, 10);
         },
 
+        syncOverride: function(method, model, options, error) {
+            console.log('syncOverride', arguments);
+            this.set("unsaved", true);
+        },
+
         load_from_OMERO: function(fileId, success) {
 
             var load_url = BASE_WEBFIGURE_URL + "load_web_figure/" + fileId + "/",
@@ -292,9 +299,11 @@
                     self.panels.create(p);
                 });
 
+                var name = data.figureName || "UN-NAMED";
+
                 self.set({'fileId': fileId,
                         'unsaved': false,
-                        'figureName': data.figureName,
+                        'figureName': name,
                     });
                 self.trigger("reset_undo_redo");
             });
@@ -563,6 +572,9 @@
             new AlignmentToolbarView({model: this.model});
             new AddImagesModalView({model: this.model, figureView: this});
 
+            this.figureFiles = new FileList();
+            new FileListView({model:this.figureFiles});
+
             // set up various elements and we need repeatedly
             this.$main = $('main');
             this.$canvas = $("#canvas");
@@ -572,6 +584,7 @@
             this.$pasteBtn = $(".paste");
             this.$saveBtn = $(".save_figure.btn");
             this.$saveOption = $("li.save_figure");
+            this.$deleteOption = $("li.delete_figure");
 
             var self = this;
 
@@ -592,7 +605,7 @@
             // Don't leave the page with unsaved changes!
             window.onbeforeunload = function() {
                 if (self.model.get("unsaved")) {
-                    return "Leave page with unsved changes?";
+                    return "Leave page with unsaved changes?";
                 }
             };
 
@@ -619,6 +632,8 @@
             "click .paste": "paste_panels",
             "click .save_figure": "save_figure",
             "click .new_figure": "goto_newfigure",
+            "click .open_figure": "open_figure",
+            "click .delete_figure": "delete_figure",
         },
 
         keyboardEvents: {
@@ -629,14 +644,40 @@
             'mod+v': 'paste_panels',
             'mod+s': 'save_figure',
             'mod+n': 'goto_newfigure',
+            'mod+o': 'open_figure',
         },
 
-        goto_newfigure: function() {
+        goto_newfigure: function(event) {
+            event.preventDefault();
             window.location.hash = "";
-            return false;
         },
 
-        save_figure: function() {
+        delete_figure: function(event) {
+            event.preventDefault();
+            var fileId = this.model.get('fileId'),
+                self = this;
+
+            if(fileId) {
+                var msg = "Delete '" + this.model.get('figureName') + "'?";
+                if(confirm(msg)) {
+                    var url = DELETE_WEBFIGURE_URL;
+                    $.post( DELETE_WEBFIGURE_URL, { fileId: fileId })
+                        .done(function( data ) {
+                            self.goto_newfigure();
+                        });
+                }
+            }
+        },
+
+        open_figure: function(event) {
+            event.preventDefault();
+            $(".modal").modal('hide');
+            $("#openFigureModal").modal();
+            this.figureFiles.fetch();
+        },
+
+        save_figure: function(event) {
+            event.preventDefault();
 
             // Turn panels into json
             var figureModel = this.model;
@@ -663,11 +704,10 @@
             figureModel.save_to_OMERO(options, function(data){
                 window.location.hash = "figure/"+data;
             });
-
-            return false;
         },
 
-        copy_selected_panels: function() {
+        copy_selected_panels: function(event) {
+            event.preventDefault();
             var s = this.model.getSelected();
             this.clipboard_data = cd = [];
             _.each(s, function(m) {
@@ -676,10 +716,11 @@
                 cd.push(copy);
             });
             this.$pasteBtn.removeClass("disabled");
-            return false;
         },
 
-        paste_panels: function() {
+        paste_panels: function(event) {
+            event.preventDefault();
+
             if (!this.clipboard_data) return;
 
             var self = this;
@@ -721,19 +762,18 @@
             });
             // only pasted panels are selected - simply trigger...
             this.model.notifySelectionChange();
-            return false;
         },
 
         clipboard_data: undefined,
 
-        select_all: function() {
+        select_all: function(event) {
+            event.preventDefault();
             this.model.select_all();
-            return false;
         },
 
-        deleteSelectedPanels: function(ev) {
+        deleteSelectedPanels: function(event) {
+            event.preventDefault();
             this.model.deleteSelected();
-            return false;
         },
 
         // User has zoomed the UI - work out new sizes etc...
@@ -850,6 +890,11 @@
             } else {
                 this.$saveBtn.addClass('btn-default').removeClass('btn-success').attr('disabled', 'disabled');
                 this.$saveOption.addClass('disabled');
+            }
+            if (this.model.get('fileId')) {
+                this.$deleteOption.removeClass('disabled');
+            } else {
+                this.$deleteOption.addClass('disabled');
             }
         },
 
@@ -1027,32 +1072,34 @@
             this.$buttons = $("button", this.$el);
         },
 
-        align_left: function() {
+        align_left: function(event) {
+            event.preventDefault();
             this.model.align_left();
-            return false;
         },
 
-        align_grid: function() {
+        align_grid: function(event) {
+            event.preventDefault();
             this.model.align_grid();
-            return false;
         },
 
-        align_width: function() {
+        align_width: function(event) {
+            event.preventDefault();
             this.model.align_size(true, false);
-            return false;
-        },
-        align_height: function() {
-            this.model.align_size(false, true);
-            return false;
-        },
-        align_size: function() {
-            this.model.align_size(true, true);
-            return false;
         },
 
-        align_top: function() {
+        align_height: function(event) {
+            event.preventDefault();
+            this.model.align_size(false, true);
+        },
+
+        align_size: function(event) {
+            event.preventDefault();
+            this.model.align_size(true, true);
+        },
+
+        align_top: function(event) {
+            event.preventDefault();
             this.model.align_top();
-            return false;
         },
 
         render: function() {
@@ -1294,7 +1341,7 @@
             // For the Label Text, handle this differently...
             if ($a.attr('data-label')) {
                 $('.new-label-form .label-text', this.$el).val( $a.attr('data-label') );
-                return;
+                return false;
             }
             // All others, we take the <span> from the <a> and place it in the <button>
             if ($span.length === 0) $span = $a;  // in case we clicked on <span>
@@ -1303,6 +1350,7 @@
             $span = $span.clone();
             $('span:first', $button).replaceWith($span);
             $button.trigger('change');      // can listen for this if we want to 'submit' etc
+            return false;
         },
 
         // submission of the New Label form

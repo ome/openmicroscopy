@@ -22,6 +22,18 @@ JSON.stringify = JSON.stringify || function (obj) {
 
 $(function(){
 
+    $("body").ajaxError(function(e, req, settings, exception) {
+        if (req.status == 404) {
+            alert("404 Url: " + settings.url + " not found");
+        } else if (req.status == 403) {
+            // Denied (E.g. session timeout) Refresh - will redirect to login page
+            window.location.reload();
+        } else if (req.status == 500) {
+            // Our 500 handler returns only the stack-trace if request.is_json()
+            alert("500 error: " + req.responseText);
+        }
+    });
+
     $(".modal-dialog").draggable();
 
     $('#previewInfoTabs a').click(function (e) {

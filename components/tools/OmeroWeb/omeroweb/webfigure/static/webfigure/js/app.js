@@ -1,17 +1,33 @@
 
 $(function(){
 
-    var figureFiles = new FileList();
-    figureFiles.fetch();
-
-
     var figureModel = new FigureModel( {'canvas_width': 2000, 'canvas_height': 2000,
             'paper_width': 612, 'paper_height': 792});
 
+    // var figureFiles = new FileList();
+    // figureFiles.fetch();
+
+    // Backbone.unsaveSync = function(method, model, options, error) {
+    //     figureModel.set("unsaved", true);
+    // };
 
     // Override 'Backbone.sync'...
+    Backbone.ajaxSync = Backbone.sync;
+
+    Backbone.getSyncMethod = function(model) {
+        if(model.syncOverride || (model.collection && model.collection.syncOverride))
+        {
+            return function(method, model, options, error) {
+                figureModel.set("unsaved", true);
+            };
+        }
+        return Backbone.ajaxSync;
+    };
+
+    // Override 'Backbone.sync' to default to localSync,
+    // the original 'Backbone.sync' is still available in 'Backbone.ajaxSync'
     Backbone.sync = function(method, model, options, error) {
-        figureModel.set("unsaved", true);
+        return Backbone.getSyncMethod(model).apply(this, [method, model, options, error]);
     };
 
     // UI Model (not saved - just used to coordinate UI status)

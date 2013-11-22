@@ -18,4 +18,7 @@ urlpatterns = patterns('django.views.generic.simple',
 
     # List file annotations of saved Figures
     url( r'^list_web_figures/', views.list_web_figures, name='list_web_figures'),
+
+    # Delete file annotations of saved Figures - 'POST' with 'fileId' of file annotation
+    url( r'^delete_web_figure/$', views.delete_web_figure, name='delete_web_figure'),
 )

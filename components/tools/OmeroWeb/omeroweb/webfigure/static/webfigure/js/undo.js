@@ -19,7 +19,6 @@ var UndoManager = Backbone.Model.extend({
         this.redo_functions = [];
     },
     resetQueue: function() {
-        console.log('resetQueue');
         this.undoQueue = [];
         this.set('undo_pointer', -1);
     },
@@ -242,12 +241,12 @@ var UndoView = Backbone.View.extend({
         return this;
     },
     
-    undo: function() {
+    undo: function(event) {
+        event.preventDefault();
         this.model.undo();
-        return false;
     },
-    redo: function() {
+    redo: function(event) {
+        event.preventDefault();
         this.model.redo();
-        return false;
     }
 });
