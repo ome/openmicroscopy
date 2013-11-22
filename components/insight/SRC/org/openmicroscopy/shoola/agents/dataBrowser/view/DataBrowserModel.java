@@ -5,7 +5,7 @@
  *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -1016,6 +1016,20 @@ abstract class DataBrowserModel
     boolean isSystemUser(long id)
     {
         return DataBrowserAgent.getRegistry().getAdminService().isSystemUser(id);
+    }
+
+    /**
+     * Returns <code>true</code> if the user is a system user e.g. root
+     * <code>false</code> otherwise.
+     *
+     * @param id The identifier of the user.
+     * @param key One of the constants defined by <code>GroupData</code>.
+     * @return See above.
+     */
+    boolean isSystemUser(long id, String key)
+    {
+        return DataBrowserAgent.getRegistry().getAdminService().isSystemUser(
+                id, key);
     }
 
     /**

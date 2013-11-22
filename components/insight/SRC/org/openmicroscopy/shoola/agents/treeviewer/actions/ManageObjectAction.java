@@ -110,6 +110,9 @@ public class ManageObjectAction
     private static final String DESCRIPTION_CUT =
             "Cut the selected elements.";
 
+    /** The system group to check.*/
+    private static final String[] KEYS = {GroupData.SYSTEM, GroupData.GUEST};
+
     /** One of the constants defined by this class. */
     private int index;
 
@@ -313,12 +316,19 @@ public class ManageObjectAction
                     if (browser.getBrowserType() == Browser.ADMIN_EXPLORER) {
                         if (parent instanceof GroupData) {
                             GroupData g = (GroupData) parent;
-                            if (model.isSystemGroup(g.getId(), GroupData.SYSTEM)) {
-                                ExperimenterData user = model.getUserDetails();
-                                ExperimenterData exp = (ExperimenterData) ho;
-                                setEnabled(exp.getId() != user.getId() &&
-                                        !model.isSystemUser(exp.getId()));
-                            } else setEnabled(true);
+                            Boolean b = null;
+                            for (int i = 0; i < KEYS.length; i++) {
+                                if (model.isSystemGroup(g.getId(), KEYS[i])) {
+                                    ExperimenterData user = model.getUserDetails();
+                                    ExperimenterData exp = (ExperimenterData) ho;
+                                    b = exp.getId() != user.getId() &&
+                                            !model.isSystemUser(exp.getId(),
+                                                    KEYS[i]);
+                                    break;
+                                }
+                            }
+                            if (b != null) setEnabled(b);
+                            else setEnabled(true);
                         }
                     }
                 }

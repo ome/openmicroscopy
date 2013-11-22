@@ -474,7 +474,7 @@ public interface AdminService
      * <code>false</code> otherwise.
      *
      * @param groupID The identifier of the group.
-     * @param key One of the constants defined by <code>GroupData</code>
+     * @param key One of the constants defined by <code>GroupData</code>.
      * @return See above.
      */
     public boolean isSecuritySystemGroup(long groupID, String key);
@@ -487,5 +487,15 @@ public interface AdminService
      * @return See above.
      */
     public boolean isSystemUser(long userID);
+
+    /**
+     * Returns <code>true</code> if the user is a system user e.g. root
+     * <code>false</code> otherwise.
+     *
+     * @param userID The identifier of the user.
+     * @param key One of the constants defined by <code>GroupData</code>
+     * @return See above.
+     */
+    public boolean isSystemUser(long userID, String key);
 
 }

@@ -849,6 +849,16 @@ public interface DataBrowser
     boolean isSystemUser(long userID);
 
     /**
+     * Returns <code>true</code> if the user is a system user e.g. root
+     * <code>false</code> otherwise.
+     *
+     * @param userID The identifier of the user.
+     * @param key One of the constants defined by <code>GroupData</code>.
+     * @return See above.
+     */
+    boolean isSystemUser(long userID, String key);
+
+    /**
      * Returns <code>true</code> if the group is a system group,
      * <code>false</code> otherwise.
      *
@@ -857,4 +867,11 @@ public interface DataBrowser
      * @return See above.
      */
     boolean isSystemGroup(long groupID, String key);
+
+    /**
+     * Returns the user currently logged in.
+     * 
+     * @return See above.
+     */
+    ExperimenterData getCurrentUser();
 }

@@ -1543,7 +1543,20 @@ class TreeViewerModel
     }
 
     /**
-     * Returns <code>true</code> if the group is a system group e.g. System
+     * Returns <code>true</code> if the user is a system user e.g. root
+     * <code>false</code> otherwise.
+     *
+     * @param id The identifier of the user.
+     * @return See above.
+     */
+    boolean isSystemUser(long id, String key)
+    {
+        return TreeViewerAgent.getRegistry().getAdminService().isSystemUser(id,
+                key);
+    }
+    
+    /**
+     * Returns <code>isSystemUsertrue</code> if the group is a system group e.g. System
      * <code>false</code> otherwise.
      *
      * @param id The identifier of the group.

@@ -1795,13 +1795,22 @@ class DataBrowserComponent
 
     /** 
      * Implemented as specified by the {@link DataBrowser} interface.
+     * @see DataBrowser#isSystemUser(long, String)
+     */
+    public boolean isSystemUser(long userID, String key)
+    {
+        return model.isSystemUser(userID, key);
+    }
+
+    /** 
+     * Implemented as specified by the {@link DataBrowser} interface.
      * @see DataBrowser#isSystemGroup(long, String)
      */
     public boolean isSystemGroup(long groupID, String key)
     {
         return model.isSystemGroup(groupID, key);
     }
-    
+
     /** 
      * Implemented as specified by the {@link DataBrowser} interface.
      * @see DataBrowser#resetPassword()
@@ -1811,10 +1820,20 @@ class DataBrowserComponent
         firePropertyChange(RESET_PASSWORD_PROPERTY, Boolean.FALSE,
                 Boolean.TRUE);
     }
-	/** 
-	 * Overridden to return the name of the instance to save. 
-	 * @see #toString()
-	 */
-	public String toString() { return ""+model.getType(); }
+
+    /** 
+     * Implemented as specified by the {@link DataBrowser} interface.
+     * @see DataBrowser#getCurrentUser()
+     */
+    public ExperimenterData getCurrentUser()
+    {
+        return model.getCurrentUser();
+    }
+
+    /** 
+     * Overridden to return the name of the instance to save. 
+     * @see #toString()
+     */
+    public String toString() { return ""+model.getType(); }
 
 }

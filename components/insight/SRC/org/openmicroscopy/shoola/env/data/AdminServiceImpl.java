@@ -818,7 +818,7 @@ class AdminServiceImpl
         } else if (GroupData.GUEST.equals(key)) {
             return roles.guestGroupId == groupID;
         }
-        return false;
+        throw new IllegalArgumentException("Key not valid.");
     }
 
     /**
@@ -830,5 +830,21 @@ class AdminServiceImpl
         Roles roles = (Roles) context.lookup(LookupNames.SYSTEM_ROLES);
         if (roles == null) return false;
         return (roles.rootId == userID || roles.guestId == userID);
+    }
+
+    /**
+     * Implemented as specified by {@link AdminService}.
+     * @see AdminService#isSystemUser(long, String)
+     */
+    public boolean isSystemUser(long userID, String key)
+    {
+        Roles roles = (Roles) context.lookup(LookupNames.SYSTEM_ROLES);
+        if (roles == null) return false;
+        if (GroupData.SYSTEM.equals(key)) {
+            return roles.rootId == userID;
+        } else if (GroupData.GUEST.equals(key)) {
+            return roles.guestId == userID;
+        }
+        throw new IllegalArgumentException("Key not valid.");
     }
 }

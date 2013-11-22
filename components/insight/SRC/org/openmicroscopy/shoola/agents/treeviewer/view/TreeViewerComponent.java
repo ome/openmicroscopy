@@ -4740,6 +4740,15 @@ class TreeViewerComponent
 
     /** 
      * Implemented as specified by the {@link TreeViewer} interface.
+     * @see TreeViewer#isSystemUser(long, String)
+     */
+    public boolean isSystemUser(long userID, String key)
+    {
+        return model.isSystemUser(userID, key);
+    }
+    
+    /** 
+     * Implemented as specified by the {@link TreeViewer} interface.
      * @see TreeViewer#isSystemGroup(long, String)
      */
     public boolean isSystemGroup(long groupID, String key)
