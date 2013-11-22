@@ -2251,15 +2251,29 @@ class OMEROGateway
 			// no need to handle the exception.
 		}
 		boolean networkup = this.networkup.get(); // our copy
-		connected = false;
-		Iterator<Connector> i = removeAllConnectors().iterator();
+		connected = true;
+		List<Connector> connectors = removeAllConnectors();
+		Iterator<Connector> i = connectors.iterator();
+		List<Integer> counts = new ArrayList<Integer>();
+		int index = 0;
 		while (i.hasNext()) {
 			try {
-				i.next().close(networkup);
+				i.next().reconnect(userName, password);
 			} catch (Throwable t) {
-				//no need to handle exception.
+			    counts.add(index);
 			}
+			index++;
 		}
+		if (counts.size() > 0) {//failure we shut down
+		    Iterator<Integer> j = counts.iterator();
+	        while (j.hasNext()) {
+	            try {
+	                connectors.get(j.next()).close(networkup);
+	            } catch (Throwable t) {
+	            }
+	        }
+		}
+		connected = counts.size() != connectors.size();
 		if (!networkup) return false;
 		reconnecting = true;
 		return connected;

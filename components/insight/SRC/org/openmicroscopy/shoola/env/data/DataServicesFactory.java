@@ -411,7 +411,7 @@ public class DataServicesFactory
 			    connectionDialog = new ShutDownDialog(f, "Network down",
                         "Trying to reconnect...", false);
 			    addListenerAndShow();
-				UserCredentials uc = (UserCredentials) 
+				UserCredentials uc = (UserCredentials)
 				registry.lookup(LookupNames.USER_CREDENTIALS);
 				Map<SecurityContext, Set<Long>> l =
 						omeroGateway.getRenderingEngines();
@@ -641,7 +641,7 @@ public class DataServicesFactory
         			}
         		}
         	}
-        	registry.bind(LookupNames.USERS_DETAILS, exps);	
+        	registry.bind(LookupNames.USERS_DETAILS, exps);
         	registry.bind(LookupNames.USER_ADMINISTRATOR, uc.isAdministrator());
 		} catch (DSAccessException e) {
 			throw new DSOutOfServiceException("Cannot retrieve groups", e);
