@@ -485,6 +485,7 @@ logger.debug('INSTALLED_APPS=%s' % [INSTALLED_APPS])
 # FEEDBACK_URL: Used in feedback.sendfeedback.SendFeedback class in order to submit 
 # error or comment messages to https://qa.openmicroscopy.org.
 FEEDBACK_URL = "http://qa.openmicroscopy.org.uk"
+FEEDBACK_APP = 6
 
 # IGNORABLE_404_STARTS: 
 # Default: ('/cgi-bin/', '/_vti_bin', '/_vti_inf')

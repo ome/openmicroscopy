@@ -44,10 +44,11 @@ class SendFeedback(object):
     def __init__(self, feedback_url):
         try:
             host = urlparse.urlparse(feedback_url).hostname
+            port = urlparse.urlparse(feedback_url).port
             if feedback_url.startswith("https"):
-                self.conn = httplib.HTTPSConnection(host)
+                self.conn = httplib.HTTPSConnection(host=host, port=port)
             else:
-                self.conn = httplib.HTTPConnection(host)
+                self.conn = httplib.HTTPConnection(host=host, port=port)
         except Exception, e:
             logger.error(e)
             raise e
