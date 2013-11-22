@@ -1,5 +1,6 @@
 {% extends "webadmin/base.html" %}
 {% load i18n %}
+{% load common_filters %}
 
 
 {% comment %}
@@ -74,7 +75,7 @@
         };
 
         // Since we want to disable removal of 'system' group (id=0) from chosen, this hides the 'X'
-        var admin_groups = {{ admin_groups|safe }}
+        var admin_groups = {{ admin_groups|jsonify|safe }};
         var hideSystemGroupX = function() {
             for (i=0; i<admin_groups.length; i++) {
                 var optText = $("#id_other_groups").find("option[value=" + admin_groups[i] + "]").text(),

@@ -1,5 +1,6 @@
 {% extends "webadmin/base.html" %}
 {% load i18n %}
+{% load common_filters %}
 
 
 {% comment %}
@@ -45,7 +46,7 @@
             {
                 
                 // Since we want to disable removal of 'system' users from chosen, this hides the 'X'
-                var admins = {{ admins|safe }}
+                var admins = {{ admins|jsonify|safe }};
                 var hideSystemUserX = function() {
                     for (i=0; i<admins.length; i++) {
                         var optText = $("#id_members").find("option[value=" + admins[i] + "]").text(),
