@@ -1748,6 +1748,9 @@ class OmeroImageServiceImpl
 	{
 		if (script == null) 
 			throw new IllegalArgumentException("No script to run.");
+		if (!script.allRequiredValuesPopulated())
+		    throw new ProcessException("No all required parameters have been" +
+		    		" filled.");
 		return gateway.runScript(ctx, script);
 	}
 	

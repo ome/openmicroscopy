@@ -522,9 +522,33 @@ public class ScriptObject
             p = entry.getValue();
             type = p.getValueToPassAsRType();
             if (type != null)
-                map.put((String) entry.getKey(), type);
+                map.put(entry.getKey(), type);
         }
         return map;
+    }
+
+    /**
+     * Returns <code>true</code> if all the required values are populated,
+     * <code>false</code> otherwise.
+     * 
+     * @return See above
+     */
+    public boolean allRequiredValuesPopulated()
+    {
+        if (inputs == null) return true;
+        Iterator<Entry<String, ParamData>> i = inputs.entrySet().iterator();
+        ParamData p;
+        Entry<String, ParamData> entry;
+        RType type;
+        while (i.hasNext()) {
+            entry = i.next();
+            p = entry.getValue();
+            if (!p.isOptional()) {
+                type = p.getValueToPassAsRType();
+                if (type == null) return false;
+            }
+        }
+        return true;
     }
 
     /**
