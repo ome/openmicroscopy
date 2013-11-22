@@ -134,13 +134,13 @@ class Connector
      * The entry point provided by the connection library to access the various
      * <i>OMERO</i> services.
      */
-    private final ServiceFactoryPrx entryEncrypted;
+    private ServiceFactoryPrx entryEncrypted;
 
     /**
      * The entry point provided by the connection library to access the various
      * <i>OMERO</i> services.
      */
-    private final ServiceFactoryPrx entryUnencrypted;
+    private ServiceFactoryPrx entryUnencrypted;
 
     /** Collection of stateless services to prevent re-lookup */
     private final ConcurrentHashMap<String, ServiceInterfacePrx> statelessServices;
@@ -530,6 +530,21 @@ class Connector
         return prx;
     }
 
+    /**
+     * Reconnects to the server.
+     * 
+     * @param userName
+     * @param password
+     * @throws Throwable
+     */
+    void reconnect(String userName, String password)
+            throws Throwable
+    {
+        entryEncrypted =  secureClient.createSession(userName, password);
+        if (unsecureClient != null)
+            entryUnencrypted = unsecureClient.getSession();
+    }
+    
     //
     // Cleanup
     //
