@@ -1580,7 +1580,7 @@ class OmeroImageServiceImpl
 	}
 	
 	/** 
-	 * Implemented as specified by {@link OmeroImageService}. 
+	 * Implemented as specified by {@link OmeroImageService}.
 	 * @see OmeroImageService#runScript(SecurityContext, ScriptObject)
 	 */
 	public ScriptCallback runScript(SecurityContext ctx, ScriptObject script)
