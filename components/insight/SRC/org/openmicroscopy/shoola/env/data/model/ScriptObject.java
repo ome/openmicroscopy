@@ -175,22 +175,22 @@ public class ScriptObject
     private Map<String, ParamData> outputs;
 
     /** The 16x16 icon associated to the script. */
-    private Icon 		icon;
+    private Icon icon;
 
     /** The 48x48 icon associated to the script. */
-    private Icon 		iconLarge;
+    private Icon iconLarge;
 
     /** Hold the parameters related to the script. */
-    private JobParams  parameters;
+    private JobParams parameters;
 
     /** The MIME type of the script if set. */ 
-    private String	   mimeType;
+    private String mimeType;
 
     /** The category of the script. */
-    private int 	  category;
+    private int category;
 
     /** The folder. */
-    private String	folder;
+    private String folder;
 
     /** 
      * Flag indicating if the script is an official script i.e.
