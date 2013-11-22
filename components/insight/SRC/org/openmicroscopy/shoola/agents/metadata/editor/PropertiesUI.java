@@ -321,6 +321,7 @@ class PropertiesUI
        	ownerLabel = new JLabel();
        	ownerLabel.setBackground(UIUtilities.BACKGROUND_COLOR);
     	namePane = createTextPane();
+    	namePane.setEditable(false);
     	editableName = false;
     	typePane = createTextPane();
     	typePane.setEditable(false);
@@ -1058,8 +1059,7 @@ class PropertiesUI
 	 * @param rowIndex Indicates how to label the rows.
 	 * @return See above.
 	 */
-	private String getWellLabel(WellData well, int columnIndex,
-			int rowIndex)
+	private String getWellLabel(WellData well, int columnIndex, int rowIndex)
 	{
 		int k = well.getRow()+1;
 		String rowText = "";
@@ -1498,7 +1498,7 @@ class PropertiesUI
 		if (src == namePane) {
 			String text = namePane.getText();
 			editNames();
-			if (text == null || text.trim().length() == 0) {
+			if (StringUtils.isBlank(text)) {
 				namePane.getDocument().removeDocumentListener(this);
 				namePane.setText(modifiedName);
 				namePane.getDocument().addDocumentListener(this);
@@ -1508,7 +1508,7 @@ class PropertiesUI
 		} else if (src == descriptionWiki) {
 			String text = descriptionWiki.getText();
 			editNames();
-			if (text == null || text.trim().length() == 0) {
+			if (StringUtils.isBlank(text)) {
 				descriptionWiki.removeDocumentListener(this);
 				descriptionWiki.setText(DEFAULT_DESCRIPTION_TEXT);
 				descriptionWiki.addDocumentListener(this);
@@ -1523,7 +1523,7 @@ class PropertiesUI
 	 * source.
 	 * @see FocusListener#focusGained(FocusEvent)
 	 */
-	public void focusGained(FocusEvent e) { }
+	public void focusGained(FocusEvent e) {}
 	
 	/** 
 	 * Listens to property changes fired by the {@link #descriptionWiki}.
@@ -1547,8 +1547,7 @@ class PropertiesUI
 					}
 					break;
 				case WikiDataObject.PROTOCOL:
-					bus.post(new EditFileEvent(model.getSecurityContext(),
-							id));
+					bus.post(new EditFileEvent(model.getSecurityContext(), id));
 					break;
 			}
 		} else if (OMEWikiComponent.WIKI_DATA_OBJECT_ONE_CLICK_PROPERTY.equals(
