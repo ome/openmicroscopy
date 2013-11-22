@@ -4309,7 +4309,7 @@ class TreeViewerComponent
 	        long id = model.getUserDetails().getId();
 	        TreeImageDisplay parent;
 	        GroupData g;
-	        boolean stop = false;
+	        String message = null;
 	        while (i.hasNext()) {
 	            n = i.next();
 	            if (n.getUserObject() instanceof ExperimenterData) {
@@ -4319,17 +4319,24 @@ class TreeViewerComponent
 	                    if (parent != null &&
 	                            parent.getUserObject() instanceof GroupData) {
 	                        g = (GroupData) parent.getUserObject();
-	                        if (model.isSystemUser(g.getId())) {
-	                            stop = true;
+	                        if (model.isSystemGroup(g.getId(),
+	                                GroupData.SYSTEM)) {
+	                            message = "An administrator cannot remove " +
+	                                    "himself/herself or root from the " +
+	                                    "System group.";
+	                            break;
+	                        } else if (model.isSystemGroup(g.getId(),
+	                                GroupData.GUEST)) {
+	                            message = "An administrator cannot remove " +
+                                        "guest from the Guest group.";
 	                            break;
 	                        }
 	                    }
 	                }
 	            }
 	        }
-	        if (stop) {
-	            un.notifyInfo("DnD", "An administrator cannot remove " +
-	                    "himself/herself or root from the System group.");
+	        if (message != null) {
+	            un.notifyInfo("DnD", message);
 	            browser.rejectTransfer();
 	            return;
 	        }
