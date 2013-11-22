@@ -299,7 +299,6 @@ class PropertiesUI
     	setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setBackground(UIUtilities.BACKGROUND_COLOR);
         Font f;
-    	
        	parentLabel = new JLabel();
        	f = parentLabel.getFont(); 
        	Font newFont = f.deriveFont(f.getStyle(), f.getSize()-2);
@@ -310,7 +309,7 @@ class PropertiesUI
        	gpLabel.setOpaque(false);
        	gpLabel.setFont(newFont);
        	gpLabel.setBackground(UIUtilities.BACKGROUND_COLOR);
-       	
+
        	wellLabel = new JLabel();
        	wellLabel.setOpaque(false);
        	wellLabel.setFont(newFont);
@@ -1143,6 +1142,8 @@ class PropertiesUI
     protected void buildUI()
     {
         removeAll();
+        editableName = false;
+        namePane.setEditable(false);
         Object refObject = model.getRefObject();
         text = model.getObjectTypeAsString(refObject);
         if (model.isMultiSelection()) return;
