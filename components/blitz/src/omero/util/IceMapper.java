@@ -1,7 +1,7 @@
 /*
  *   $Id$
  *
- *   Copyright 2007 Glencoe Software, Inc. All rights reserved.
+ *   Copyright 2007-2013 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  *
  */
@@ -602,6 +602,9 @@ public class IceMapper extends ome.util.ModelMapper implements
         r.systemGroupName = roles.getSystemGroupName();
         r.userGroupId = roles.getUserGroupId();
         r.userGroupName = roles.getUserGroupName();
+        r.guestId = roles.getGuestId();
+        r.guestName = roles.getGuestName();
+        r.guestGroupId = roles.getGuestGroupId();
         r.guestGroupName = roles.getGuestGroupName();
         return r;
     }
