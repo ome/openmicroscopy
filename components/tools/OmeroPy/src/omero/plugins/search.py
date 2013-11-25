@@ -40,12 +40,15 @@ See also:
 class SearchControl(HqlControl):
 
     def _configure(self, parser):
-        parser.add_argument("--index", action="store_true", default=False,
-                help="Index an object as a administrator")
-        parser.add_argument("type",
-                help="Object type to search for, e.g. 'Image' or 'Well'")
-        parser.add_argument("search_string", nargs="?",
-                help="Lucene search string")
+        parser.add_argument(
+            "--index", action="store_true", default=False,
+            help="Index an object as a administrator")
+        parser.add_argument(
+            "type",
+            help="Object type to search for, e.g. 'Image' or 'Well'")
+        parser.add_argument(
+            "search_string", nargs="?",
+            help="Lucene search string")
         parser.set_defaults(func=self.search)
         parser.add_login_arguments()
 

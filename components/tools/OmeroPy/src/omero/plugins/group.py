@@ -8,15 +8,16 @@
 
 """
 
-import os
 import sys
 
 from omero.cli import UserGroupControl, CLI, ExceptionHandler
 
-HELP="""Group administration methods"""
-defaultperms = {'private':'rw----',
-'read-only': 'rwr---',
-'read-annotate': 'rwra--'}
+HELP = """Group administration methods"""
+defaultperms = {
+    'private': 'rw----',
+    'read-only': 'rwr---',
+    'read-annotate': 'rwra--'}
+
 
 class GroupControl(UserGroupControl):
 
@@ -38,76 +39,89 @@ can see data but not annotate or modify it. In read-annotate groups,
 annotation is permitted by group members.
 
 More information is available at:
-
-    https://www.openmicroscopy.org/site/support/omero4/sysadmins/server-permissions.html
-        """
-
-        OWNER_TXT = """
-
-Your group may have one or more owners. The group owner has some additional
-rights within each group than a standard group member, including the ability
-to add other members to the group.
-
-More information is available at:
-
-    https://www.openmicroscopy.org/site/support/omero4/sysadmins/server-permissions.html
+https://www.openmicroscopy.org/site/support/omero4/sysadmins/\
+server-permissions.html
         """
 
         parser.add_login_arguments()
         sub = parser.sub()
-        add = parser.add(sub, self.add, "Add a new group with given permissions " + PERM_TXT)
-        add.add_argument("--ignore-existing", action="store_true", default=False, help="Do not fail if user already exists")
+        add = parser.add(sub, self.add,
+                         "Add a new group with given permissions " + PERM_TXT)
+        add.add_argument(
+            "--ignore-existing", action="store_true", default=False,
+            help="Do not fail if user already exists")
         add.add_argument("name", help="Name of the group")
         self.add_permissions_arguments(add)
 
-        perms = parser.add(sub, self.perms, "Modify a group's permissions " + PERM_TXT)
+        perms = parser.add(sub, self.perms,
+                           "Modify a group's permissions " + PERM_TXT)
         self.add_group_arguments(perms)
         self.add_permissions_arguments(perms)
 
         list = parser.add(sub, self.list, "List current groups")
         printgroup = list.add_mutually_exclusive_group()
-        printgroup.add_argument("--count", action = "store_true", help = "Print count of all users and owners (default)", default = True)
-        printgroup.add_argument("--long", action = "store_true", help = "Print comma-separated list of all users and owners", default = False)
+        printgroup.add_argument(
+            "--count", action="store_true", default=True,
+            help="Print count of all users and owners (default)")
+        printgroup.add_argument(
+            "--long", action="store_true", default=False,
+            help="Print comma-separated list of all users and owners")
         sortgroup = list.add_mutually_exclusive_group()
-        sortgroup.add_argument("--sort-by-id", action = "store_true", default = True, help = "Sort groups by ID (default)")
-        sortgroup.add_argument("--sort-by-name", action = "store_true", default = False, help = "Sort groups by name")
+        sortgroup.add_argument(
+            "--sort-by-id", action="store_true", default=True,
+            help="Sort groups by ID (default)")
+        sortgroup.add_argument(
+            "--sort-by-name", action="store_true", default=False,
+            help="Sort groups by name")
 
-        copyusers = parser.add(sub, self.copyusers, "Copy the users of one group to another group")
-        copyusers.add_argument("from_group", help = "ID or name of the source group whose users will be copied")
-        copyusers.add_argument("to_group", help = "ID or name of the target group which will have new users added")
-        copyusers.add_argument("--as-owner", action="store_true", default=False, help="Copy the group owners only")
+        copyusers = parser.add(sub, self.copyusers, "Copy the users of one"
+                               " group to another group")
+        copyusers.add_argument("from_group", help="ID or name of the source"
+                               " group whose users will be copied")
+        copyusers.add_argument("to_group", help="ID or name of the target"
+                               " group which will have new users added")
+        copyusers.add_argument(
+            "--as-owner", action="store_true",
+            default=False, help="Copy the group owners only")
 
-        adduser = parser.add(sub, self.adduser, "Add one or more users to a group")
+        adduser = parser.add(sub, self.adduser,
+                             "Add one or more users to a group")
         self.add_group_arguments(adduser)
         group = self.add_user_arguments(adduser, "add to the group")
-        group.add_argument("--as-owner", action="store_true", default=False, help="Add the users as owners of the group")
-        
-        removeuser = parser.add(sub, self.removeuser, "Remove one or more users from a group")
+        group.add_argument("--as-owner", action="store_true", default=False,
+                           help="Add the users as owners of the group")
+
+        removeuser = parser.add(sub, self.removeuser,
+                                "Remove one or more users from a group")
         self.add_group_arguments(removeuser)
         group = self.add_user_arguments(removeuser, "remove from the group")
-        group.add_argument("--as-owner", action="store_true", default=False, help="Remove the users from the group owner list")        
-        
+        group.add_argument("--as-owner", action="store_true", default=False,
+                           help="Remove the users from the group owner list")
+
         for x in (add, perms, list, copyusers, adduser, removeuser):
             x.add_login_arguments()
 
     def add_permissions_arguments(self, parser):
         group = parser.add_mutually_exclusive_group()
-        group.add_argument("--perms", help="Group permissions set as string, e.g. 'rw----' ")
-        group.add_argument("--type", help="Group permissions set symbolically", default="private", choices = defaultperms.keys())
+        group.add_argument(
+            "--perms", help="Group permissions set as string, e.g. 'rw----' ")
+        group.add_argument(
+            "--type", help="Group permissions set symbolically",
+            default="private", choices=defaultperms.keys())
 
     def add_group_arguments(self, parser):
         group = parser.add_mutually_exclusive_group()
         group.add_argument("--id", help="ID of the group")
         group.add_argument("--name", help="Name of the group")
 
-    def add_user_arguments(self, parser, action = "join", owner_desc = ""):
+    def add_user_arguments(self, parser, action="join", owner_desc=""):
         group = parser.add_argument_group('User arguments')
         group.add_argument("user_id_or_name",  metavar="user", nargs="*",
-            help = "ID or name of the user(s) to %s" % action)
+                           help="ID or name of the user(s) to %s" % action)
         group.add_argument("--user-id", metavar="user", nargs="+",
-            help="ID of the user(s) to %s" % action)
+                           help="ID of the user(s) to %s" % action)
         group.add_argument("--user-name", metavar="user", nargs="+",
-            help="Name of the user(s) to %s" % action)
+                           help="Name of the user(s) to %s" % action)
         return group
 
     def parse_perms(self, args):
@@ -122,14 +136,12 @@ More information is available at:
 
     def add(self, args):
 
-        import omero, Ice
+        import omero
         from omero.rtypes import rstring
-        from omero_model_PermissionsI import PermissionsI as Perms
         from omero_model_ExperimenterGroupI import ExperimenterGroupI as Grp
 
         perms = self.parse_perms(args)
         c = self.ctx.conn(args)
-        p = c.ic.getProperties()
         g = Grp()
         g.name = rstring(args.name)
         g.details.permissions = perms
@@ -138,22 +150,26 @@ More information is available at:
             grp = admin.lookupGroup(args.name)
             if grp:
                 if args.ignore_existing:
-                    self.ctx.out("Group exists: %s (id=%s)" % (args.name, grp.id.val))
+                    self.ctx.out("Group exists: %s (id=%s)"
+                                 % (args.name, grp.id.val))
                     return
                 else:
-                    self.ctx.die(3, "Group exists: %s (id=%s)" % (args.name, grp.id.val))
-        except omero.ApiUsageException, aue:
-            pass # Apparently no such group exists
+                    self.ctx.die(3, "Group exists: %s (id=%s)"
+                                 % (args.name, grp.id.val))
+        except omero.ApiUsageException:
+            pass  # Apparently no such group exists
 
         try:
             id = admin.createGroup(g)
-            self.ctx.out("Added group %s (id=%s) with permissions %s" % (args.name, id, perms))
+            self.ctx.out("Added group %s (id=%s) with permissions %s"
+                         % (args.name, id, perms))
         except omero.ValidationException, ve:
             # Possible, though unlikely after previous check
             if self.exc.is_constraint_violation(ve):
                 self.ctx.die(66, "Group already exists: %s" % args.name)
             else:
-                self.ctx.die(67, "Unknown ValidationException: %s" % ve.message)
+                self.ctx.die(67, "Unknown ValidationException: %s"
+                             % ve.message)
         except omero.SecurityViolation, se:
             self.ctx.die(68, "Security violation: %s" % se.message)
         except omero.ServerError, se:
@@ -163,7 +179,6 @@ More information is available at:
 
         import omero
         from omero_model_ExperimenterGroupI import ExperimenterGroupI as Grp
-        from omero_model_PermissionsI import PermissionsI as Perms
 
         perms = self.parse_perms(args)
         c = self.ctx.conn(args)
@@ -173,15 +188,18 @@ More information is available at:
 
         old_perms = str(g.details.permissions)
         if old_perms == str(perms):
-            self.ctx.out("Permissions for group %s (id=%s) already %s" % (g.name.val, gid, perms))
+            self.ctx.out("Permissions for group %s (id=%s) already %s"
+                         % (g.name.val, gid, perms))
         else:
             try:
                 a.changePermissions(Grp(gid, False), perms)
-                self.ctx.out("Changed permissions for group %s (id=%s) to %s" % (g.name.val, gid, perms))
+                self.ctx.out("Changed permissions for group %s (id=%s) to %s"
+                             % (g.name.val, gid, perms))
             except omero.GroupSecurityViolation:
                 import traceback
                 self.ctx.dbg(traceback.format_exc())
-                self.ctx.die(504, "Cannot change permissions for group %s (id=%s) to %s" % (g.name.val, gid, perms))
+                self.ctx.die(504, "Cannot change permissions for group %s"
+                             " (id=%s) to %s" % (g.name.val, gid, perms))
 
     def list(self, args):
         c = self.ctx.conn(args)
@@ -195,11 +213,14 @@ More information is available at:
             groups.sort(key=lambda x: x.id.val)
 
         if args.long:
-            tb = TableBuilder("id", "name", "perms", "owner ids", "member ids")
+            tb = TableBuilder("id", "name", "perms", "owner ids",
+                              "member ids")
         else:
-            tb = TableBuilder("id", "name", "perms", "# of owners", "# of members")
+            tb = TableBuilder("id", "name", "perms", "# of owners",
+                              "# of members")
         for group in groups:
-            row = [group.id.val, group.name.val, str(group.details.permissions)]
+            row = [group.id.val, group.name.val,
+                   str(group.details.permissions)]
             ownerids = self.getownerids(group)
             memberids = self.getmemberids(group)
             if args.long:
@@ -211,49 +232,49 @@ More information is available at:
             tb.row(*tuple(row))
         self.ctx.out(str(tb.build()))
 
-
     def parse_groupid(self, a, args):
         if args.id:
             group = getattr(args, "id", None)
-            return self.find_group_by_id(a, group, fatal = True)
+            return self.find_group_by_id(a, group, fatal=True)
         elif args.name:
             group = getattr(args, "name", None)
-            return self.find_group_by_name(a, group, fatal = True)
+            return self.find_group_by_name(a, group, fatal=True)
         else:
-            self.error_no_input_group(fatal = True)
+            self.error_no_input_group(fatal=True)
 
     def list_users(self, a, args):
 
         # Check input arguments
-        if not args.user_id_or_name and not args.user_id and not args.user_name:
-            self.error_no_input_user(fatal = True)
+        if not args.user_id_or_name and not args.user_id \
+                and not args.user_name:
+            self.error_no_input_user(fatal=True)
 
         # Retrieve groups by id or name
         uid_list = []
         if args.user_id_or_name:
             for user in args.user_id_or_name:
-                [uid, u] = self.find_user(a, user, fatal = False)
+                [uid, u] = self.find_user(a, user, fatal=False)
                 if uid is not None:
                     uid_list.append(uid)
 
         if args.user_id:
             for user_id in args.user_id:
-                [uid, u] = self.find_user_by_id(a, user_id, fatal = False)
+                [uid, u] = self.find_user_by_id(a, user_id, fatal=False)
                 if uid is not None:
                     uid_list.append(uid)
 
         if args.user_name:
             for user_name in args.user_name:
-                [uid, u] = self.find_user_by_name(a, user_name, fatal = False)
+                [uid, u] = self.find_user_by_name(a, user_name, fatal=False)
                 if uid is not None:
                     uid_list.append(uid)
 
         if not uid_list:
-            self.error_no_user_found(fatal = True)
+            self.error_no_user_found(fatal=True)
 
         return uid_list
 
-    def filter_users(self, uids, group, owner = False, join = True):
+    def filter_users(self, uids, group, owner=False, join=True):
 
         if owner:
             uid_list = self.getownerids(group)
@@ -261,59 +282,60 @@ More information is available at:
         else:
             uid_list = self.getuserids(group)
             relation = "in"
-            
-        for uid in list(uids):            
+
+        for uid in list(uids):
             if join:
                 if uid in uid_list:
-                    self.ctx.out("%s is already %s group %s" % (uid, relation, group.id.val))
+                    self.ctx.out("%s is already %s group %s"
+                                 % (uid, relation, group.id.val))
                     uids.remove(uid)
             else:
                 if uid not in uid_list:
-                    self.ctx.out("%s is not %s group %s" % (uid, relation, group.id.val))
+                    self.ctx.out("%s is not %s group %s"
+                                 % (uid, relation, group.id.val))
                     uids.remove(uid)
         return uids
 
     def copyusers(self, args):
-        import omero
         c = self.ctx.conn(args)
         a = c.sf.getAdminService()
-        f_gid, f_grp = self.find_group(a, args.from_group, fatal = True)
-        t_gid, t_grp = self.find_group(a, args.to_group, fatal = True)
+        f_gid, f_grp = self.find_group(a, args.from_group, fatal=True)
+        t_gid, t_grp = self.find_group(a, args.to_group, fatal=True)
 
         if args.as_owner:
             uids = self.getownerids(f_grp)
         else:
             uids = self.getuserids(f_grp)
         uids = self.filter_users(uids, t_grp, args.as_owner, True)
-        
+
         if args.as_owner:
             self.addownersbyid(a, t_grp, uids)
-            self.ctx.out("Owners of %s copied to %s" % (args.from_group, args.to_group))
+            self.ctx.out("Owners of %s copied to %s"
+                         % (args.from_group, args.to_group))
         else:
             self.addusersbyid(a, t_grp, uids)
-            self.ctx.out("Users of %s copied to %s" % (args.from_group, args.to_group))
+            self.ctx.out("Users of %s copied to %s"
+                         % (args.from_group, args.to_group))
 
     def adduser(self, args):
-        import omero
         c = self.ctx.conn(args)
         a = c.sf.getAdminService()
         group = self.parse_groupid(a, args)[1]
         uids = self.list_users(a, args)
         uids = self.filter_users(uids, group, args.as_owner, True)
-        
+
         if args.as_owner:
             self.addownersbyid(a, group, uids)
         else:
             self.addusersbyid(a, group, uids)
 
     def removeuser(self, args):
-        import omero
         c = self.ctx.conn(args)
         a = c.sf.getAdminService()
         group = self.parse_groupid(a, args)[1]
         uids = self.list_users(a, args)
         uids = self.filter_users(uids, group, args.as_owner, False)
-        
+
         if args.as_owner:
             self.removeownersbyid(a, group, uids)
         else:

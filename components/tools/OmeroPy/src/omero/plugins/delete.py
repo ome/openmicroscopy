@@ -8,16 +8,13 @@
 
 """
 
-import os
 import sys
-import array
 
-from omero.cli import BaseControl, CLI, GraphControl
+from omero.cli import CLI, GraphControl
 
 HELP = """Delete OMERO data.
 
-Remove entire graphs of data based on the ID
-of the top-node.
+Remove entire graphs of data based on the ID of the top-node.
 
 Examples:
 
@@ -28,6 +25,7 @@ Examples:
     bin/omero delete /Image:51 /Image:52 /OriginalFile:101
 
 """
+
 
 class DeleteControl(GraphControl):
 
