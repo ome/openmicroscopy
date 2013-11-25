@@ -2138,7 +2138,7 @@ class OMEROGateway
             +exp.getId());
             }
 		}
-		
+
 		String s = "Can't modify the current group.\n\n";
 		if (!in) {
 			throw new DSOutOfServiceException(s);
@@ -3775,7 +3775,6 @@ class OMEROGateway
 		OriginalFile of = getOriginalFile(ctx, fileID);
 		if (of == null) return null;
 
-		final long size = of.getSize().getValue();
 		final String path = file.getAbsolutePath();
 
 		Connector c = getConnector(ctx, true, false);
@@ -3789,8 +3788,14 @@ class OMEROGateway
 		}
 
 		try {
-	        long offset = 0;
-		    FileOutputStream stream = new FileOutputStream(file);
+			long size = -1;
+			if (of != null && of.getSize() != null) {
+				size = of.getSize().getValue();
+			} else {
+				size = store.size();
+			}
+			long offset = 0;
+			FileOutputStream stream = new FileOutputStream(file);
 			try {
 				try {
 					for (offset = 0; (offset+INC) < size;) {
