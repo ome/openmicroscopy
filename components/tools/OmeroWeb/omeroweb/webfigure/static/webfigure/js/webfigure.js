@@ -1336,6 +1336,7 @@
 
         // Handles all the various drop-down menus in the 'New' AND 'Edit Label' forms
         select_dropdown_option: function(event) {
+            event.preventDefault();
             var $a = $(event.target),
                 $span = $a.children('span');
             // For the Label Text, handle this differently...
@@ -1350,7 +1351,6 @@
             $span = $span.clone();
             $('span:first', $button).replaceWith($span);
             $button.trigger('change');      // can listen for this if we want to 'submit' etc
-            return false;
         },
 
         // submission of the New Label form

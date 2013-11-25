@@ -46,12 +46,20 @@ $(function(){
     // If we're on Windows, update tool-tips for keyboard short cuts:
     if (navigator.platform.toUpperCase().indexOf('WIN') > -1) {
         $('.btn-sm').each(function(){
+            var $this = $(this),
+                tooltip = $this.attr('data-original-title');
+            if ($this.attr('data-original-title')) {
+                $this.attr('data-original-title', tooltip.replace("⌘", "Ctrl+"));
+            }
+        });
+        // refresh tooltips
+        $('.btn-sm, .navbar-header').tooltip({container: 'body', placement:'bottom', toggle:"tooltip"});
+
+        // Also update text in dropdown menus
+        $("ul.dropdown-menu li a").each(function(){
             var $this = $(this);
-                $this.attr('data-original-title', $this.attr('data-original-title').replace("⌘", "Ctrl+"));
+                $this.text($this.text().replace("⌘", "Ctrl+"));
         });
     }
-    // refresh tooltips
-   $('.btn-sm, .navbar-header').tooltip({container: 'body', placement:'bottom', toggle:"tooltip"});
-
 
 });
