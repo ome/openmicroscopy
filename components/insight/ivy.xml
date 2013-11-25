@@ -41,7 +41,6 @@
     <dependency org="insight" name="commons-collections" rev="${versions.commons-collections}"/>
     <dependency org="insight" name="commons-digester" rev="${versions.commons-digester}"/>
     <dependency org="insight" name="commons-discovery" rev="${versions.commons-discovery}"/>
-    <dependency org="insight" name="commons-httpclient" rev="${versions.commons-httpclient}"/>
     <dependency org="insight" name="commons-io" rev="${versions.commons-io}"/>
     <dependency org="insight" name="commons-lang" rev="${versions.commons-lang}"/>
     <dependency org="insight" name="commons-logging" rev="${versi:ons.commons-logging}"/>
@@ -51,6 +50,10 @@
     <dependency org="insight" name="gicentreUtils" rev="${versions.gicentreUtils}"/>
     <dependency org="insight" name="gluegen-rt" rev="${versions.jogl}"/>
     <dependency org="com.google.guava" name="guava" rev="${versions.guava}"/>
+    <dependency org="insight" name="commons-httpclient" rev="${versions.commons-httpclient}"/>
+    <dependency org="insight" name="httpclient" rev="${versions.httpclient}"/>
+    <dependency org="insight" name="httpcore" rev="${versions.httpcore}"/>
+    <dependency org="insight" name="httpmime" rev="${versions.httpmime}"/>
     <dependency org="insight" name="ij" rev="${versions.ij}"/>
     <dependency org="insight" name="jaxrpc" rev="${versions.jaxrpc}"/>
     <dependency org="insight" name="jcommon" rev="${versions.jcommon}"/>
