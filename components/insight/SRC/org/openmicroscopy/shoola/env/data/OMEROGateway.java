@@ -3789,15 +3789,15 @@ class OMEROGateway
 
 		try {
 			long size = -1;
-			if (of != null && of.getSize() != null) {
-				size = of.getSize().getValue();
-			} else {
-				size = store.size();
-			}
 			long offset = 0;
 			FileOutputStream stream = new FileOutputStream(file);
 			try {
 				try {
+					if (of != null && of.getSize() != null) {
+						size = of.getSize().getValue();
+					} else {
+						size = store.size();
+					}
 					for (offset = 0; (offset+INC) < size;) {
 						stream.write(store.read(offset, INC));
 						offset += INC;
