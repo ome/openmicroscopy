@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.svc.proxy.SubmittedFilePart 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2011 University of Dundee & Open Microscopy Environment.
+ *  Copyright (C) 2006-2013 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
  *
  *
@@ -46,41 +46,41 @@ import org.apache.commons.httpclient.methods.multipart.PartSource;
  * @since Beta4.4
  */
 public class SubmittedFilePart
-	extends FilePart
+    extends FilePart
 {
 
-	/** The maximum size of a chunck to read at a time.*/
-	private static final int SIZE = 1024;
-	/**
-	 * Creates a new instance.
-	 * 
-	 * @param name The name of the target.
-	 * @param file The file to send.
-	 * @throws FileNotFoundException Thrown if the file cannot be found.
-	 */
-	SubmittedFilePart(String name, File file)
-		throws FileNotFoundException
-	{
-		super(name, file);
-	}
-	
-	/** 
-	 * Overridden to read chunk of the file.
-    * @see FilePart#sendData(OutputStream)
-    */
-	protected void sendData(OutputStream out)
-		throws IOException
-	{
-		PartSource source = getSource();
-		byte[] tmp = new byte[SIZE];
-		InputStream in = source.createInputStream();
-		try {
-			int l;
-			while ((l = in.read(tmp)) >= 0)
-				out.write(tmp, 0, l);
-		} finally {
-			in.close();
-		}
-	}
+    /** The maximum size of a data block to read at a time.*/
+    private static final int SIZE = 1024;
+    /**
+     * Creates a new instance.
+     * 
+     * @param name The name of the target.
+     * @param file The file to send.
+     * @throws FileNotFoundException Thrown if the file cannot be found.
+     */
+    SubmittedFilePart(String name, File file)
+            throws FileNotFoundException
+    {
+        super(name, file);
+    }
+
+    /** 
+     * Overridden to read chunk of the file.
+     * @see FilePart#sendData(OutputStream)
+     */
+    protected void sendData(OutputStream out)
+            throws IOException
+    {
+        PartSource source = getSource();
+        byte[] tmp = new byte[SIZE];
+        InputStream in = source.createInputStream();
+        try {
+            int l;
+            while ((l = in.read(tmp)) >= 0)
+                out.write(tmp, 0, l);
+        } finally {
+            in.close();
+        }
+    }
 
 }
