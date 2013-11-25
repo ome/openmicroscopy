@@ -378,9 +378,8 @@ class ScriptComponent
         } else if (c instanceof JTextField) {
             JTextField field = (JTextField) c;
             String value = field.getText();
-            if (value == null) return null;
-            value = value.trim();
-            if (value.length() == 0) return null;
+            if (StringUtils.isBlank(value))
+                return null;
             return value;
         } else if (c instanceof JComboBox) {
             JComboBox box = (JComboBox) c;
