@@ -164,11 +164,9 @@ def lengthformat( value ):
     except (TypeError,ValueError,UnicodeDecodeError):
         return value
     
-    if value < 0.001:
-        return value * 1000 * 1000
-    elif value < 0.1:
+    if value < 0.0001:
         return value * 1000 * 10
-    elif value < 1:
+    elif value < 0.001:
         return value * 1000
     elif value < 1000:
         return value
@@ -190,11 +188,9 @@ def lengthunit( value ):
     
     if value == 0:
         return u'µm'
-    if value < 0.001:
-        return u"pm"
-    elif value < 0.1:
+    elif value < 0.0001:
         return u"\u212B"
-    elif value < 1:
+    elif value < 0.001:
         return u"nm"
     elif value < 1000:
         return u'\u00B5m'
