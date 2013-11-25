@@ -93,7 +93,7 @@ $(function(){
 
                 var i = setInterval(function (){
 
-                    $.getJSON("{% url activities_json %}", function(act_data) {
+                    $.getJSON(ACTIVITIES_JSON_URL, function(act_data) {
 
                             var pdf_job = act_data[jobId];
 
@@ -105,7 +105,7 @@ $(function(){
                                 $create_figure_pdf.show();
                                 $pdf_inprogress.hide();
                                 var fa_id = pdf_job.results.File_Annotation.id,
-                                    fa_download = "{% url webindex %}annotation/" + fa_id + "/";
+                                    fa_download = WEBINDEX_URL + "annotation/" + fa_id + "/";
                                 $pdf_download.attr('href', fa_download).show();
                             }
 
