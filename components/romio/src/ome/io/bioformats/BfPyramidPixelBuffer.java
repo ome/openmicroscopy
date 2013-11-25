@@ -24,7 +24,6 @@ import loci.formats.meta.IMetadata;
 import loci.formats.out.TiffWriter;
 import loci.formats.services.OMEXMLService;
 import loci.formats.tiff.IFD;
-import loci.formats.tiff.IFDList;
 import loci.formats.tiff.TiffCompression;
 import ome.conditions.ApiUsageException;
 import ome.conditions.LockTimeout;
@@ -353,7 +352,7 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
         }
 
         // Since we don't control the lock here, we will try to
-        // obtain it an release it immediately.
+        // obtain it and release it immediately.
 
         try {
             lockFile = lockFile();
@@ -431,7 +430,7 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
     }
 
     /**
-     * Wether or not this instance is in writing-mode. Any of the calls to reader
+     * Whether or not this instance is in writing-mode. Any of the calls to reader
      * methods called while this method returns true will close the writer,
      * saving it to disk and preventing any further write methods.
      */
