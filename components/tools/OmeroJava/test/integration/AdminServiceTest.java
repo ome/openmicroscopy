@@ -16,11 +16,14 @@ import static org.testng.AssertJUnit.fail;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import omero.RString;
+import omero.ServerError;
 import omero.ValidationException;
 import omero.api.IAdminPrx;
 import omero.api.IQueryPrx;
@@ -37,6 +40,7 @@ import omero.sys.Roles;
 
 import com.google.common.collect.ImmutableList;
 
+import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import pojos.ExperimenterData;
@@ -1593,4 +1597,28 @@ public class AdminServiceTest extends AbstractServerTest {
         assertTrue(count == 3);
     }
 
+    /**
+     * Test that security role IDs and names are distinct and that no names are <code>null</code>.
+     * @throws ServerError unexpected
+     */
+    @Test
+    public void testSecurityRolesDistinct() throws ServerError {
+        final Set<Long> userIds = new HashSet<Long>();
+        final Set<Long> groupIds = new HashSet<Long>();
+        final Set<String> userNames = new HashSet<String>();
+        final Set<String> groupNames = new HashSet<String>();
+        final Roles roles = root.getSession().getAdminService().getSecurityRoles();
+        Assert.assertTrue(userIds.add(roles.rootId));
+        Assert.assertTrue(userIds.add(roles.guestId));
+        Assert.assertTrue(groupIds.add(roles.systemGroupId));
+        Assert.assertTrue(groupIds.add(roles.userGroupId));
+        Assert.assertTrue(groupIds.add(roles.guestGroupId));
+        Assert.assertTrue(userNames.add(roles.rootName));
+        Assert.assertTrue(userNames.add(roles.guestName));
+        Assert.assertTrue(groupNames.add(roles.systemGroupName));
+        Assert.assertTrue(groupNames.add(roles.userGroupName));
+        Assert.assertTrue(groupNames.add(roles.guestGroupName));
+        Assert.assertFalse(userNames.contains(null));
+        Assert.assertFalse(groupNames.contains(null));
+    }
 }
