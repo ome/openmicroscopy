@@ -18,12 +18,6 @@ except ImportError:
     import Image
 from cStringIO import StringIO
 
-try:
-    import hashlib
-    hash_sha1 = hashlib.sha1
-except:
-    import sha
-    hash_sha1 = sha.new
 
 from omeroweb.webclient.decorators import login_required
 
@@ -97,16 +91,12 @@ def save_web_figure(request, conn=None, **kwargs):
         origFile = fa._obj.file
         size = len(figureJSON)
         origFile.setSize(rlong(size))
-        # set sha1
-        h = hash_sha1()
-        h.update(figureJSON)
-        shaHast = h.hexdigest()
-        origFile.setHash(wrap(shaHast))
         origFile = conn.getUpdateService().saveAndReturnObject(origFile)
         # upload file
         rawFileStore = conn.createRawFileStore()
         rawFileStore.setFileId(origFile.getId().getValue())
         rawFileStore.write(figureJSON, 0, size)
+        rawFileStore.truncate(size)     # ticket #11751
         rawFileStore.close()
 
     return HttpResponse(str(fileId))
