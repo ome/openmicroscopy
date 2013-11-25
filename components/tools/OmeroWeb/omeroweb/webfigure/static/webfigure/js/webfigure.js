@@ -347,6 +347,32 @@
                 });
         },
 
+        nudge_right: function() {
+            this.nudge('x', 10);
+        },
+
+        nudge_left: function() {
+            this.nudge('x', -10);
+        },
+
+        nudge_down: function() {
+            this.nudge('y', 10);
+        },
+
+        nudge_up: function() {
+            this.nudge('y', -10);
+        },
+
+        nudge: function(axis, delta) {
+            var selected = this.getSelected(),
+                pos;
+
+            for (var j=0; j<selected.length; j++) {
+                pos = selected[j].get(axis);
+                selected[j].set(axis, pos + delta);
+            }
+        },
+
         align_left: function() {
             var selected = this.getSelected(),
                 x_vals = [];
@@ -645,6 +671,30 @@
             'mod+s': 'save_figure',
             'mod+n': 'goto_newfigure',
             'mod+o': 'open_figure',
+            'down' : 'nudge_down',
+            'up' : 'nudge_up',
+            'left' : 'nudge_left',
+            'right' : 'nudge_right',
+        },
+
+        nudge_right: function(event) {
+            event.preventDefault();
+            this.model.nudge_right();
+        },
+
+        nudge_left: function(event) {
+            event.preventDefault();
+            this.model.nudge_left();
+        },
+
+        nudge_down: function(event) {
+            event.preventDefault();
+            this.model.nudge_down();
+        },
+
+        nudge_up: function(event) {
+            event.preventDefault();
+            this.model.nudge_up();
         },
 
         goto_newfigure: function(event) {
