@@ -58,9 +58,12 @@ class DatabaseControl(BaseControl):
         pw = sub.add_parser(
             "password",
             help="Prints SQL command for updating your root password")
-        pw.add_argument("--user-id", help="User ID to salt into the password")
         pw.add_argument("password", nargs="?")
         pw.set_defaults(func=self.password)
+        pw.add_argument("--user-id",
+                        help="User ID to salt into the password. "
+                        "Defaults to '0', i.e. 'root'",
+                        default="0")
 
     def _lookup(self, data, data2, key, map, hidden=False):
         """
@@ -266,6 +269,7 @@ BEGIN;
             self.ctx.dbg("While getting arguments:"+str(e))
         self._lookup(data, data2, "version", map)
         self._lookup(data, data2, "patch", map)
+        args.user_id = "0"
         sql = self._sql_directory(map["version"], map["patch"])
         map["pass"] = self._get_password_hash(args, root_pass)
         self._create(sql, map["version"], map["patch"], map["pass"], args)
