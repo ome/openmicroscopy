@@ -39,7 +39,7 @@
             viewport.load({{ manager.image.id }});
             {% endif %}
 
-            var copy_paste_rdef_url = "{% url webgateway.views.copy_image_rdef_json %}";
+            var copy_paste_rdef_url = "{% url 'webgateway.views.copy_image_rdef_json' %}";
             $(".btn.copy_rdef").click(function() {
                 $.getJSON(copy_paste_rdef_url + "?fromid={{ manager.image.id }}");
             });
