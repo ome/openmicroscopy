@@ -296,15 +296,14 @@ public class ScriptingDialog
                 value = c.getValue();
                 if (value != null) {
                     if (value instanceof String) {
-                        if (StringUtils.isNotBlank((String) value))
-                            valueSet++;
+                        if (StringUtils.isNotBlank((String) value)) valueSet++;
                     } else if (value instanceof List) {
                         List<Object> l = (List<Object>) value;
                         if (l.size() > 0) valueSet++;
-                    }
-                } else if (value instanceof Map) {
-                    Map<Object, Object> m = (Map<Object, Object>) value;
-                    if (m.size() > 0) valueSet++;
+                    } else if (value instanceof Map) {
+                        Map<Object, Object> m = (Map<Object, Object>) value;
+                        if (m.size() > 0) valueSet++;
+                    } else valueSet++;
                 }
             }
         }
