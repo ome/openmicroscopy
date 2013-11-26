@@ -49,7 +49,6 @@
     <dependency org="insight" name="gicentreUtils" rev="${versions.gicentreUtils}"/>
     <dependency org="insight" name="gluegen-rt" rev="${versions.jogl}"/>
     <dependency org="com.google.guava" name="guava" rev="${versions.guava}"/>
-    <dependency org="insight" name="commons-httpclient" rev="${versions.commons-httpclient}"/>
     <dependency org="insight" name="httpclient" rev="${versions.httpclient}"/>
     <dependency org="insight" name="httpcore" rev="${versions.httpcore}"/>
     <dependency org="insight" name="httpmime" rev="${versions.httpmime}"/>
