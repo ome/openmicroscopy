@@ -27,13 +27,15 @@ package org.openmicroscopy.shoola.svc.transport;
 //Java imports
 import java.io.IOException;
 
+
 //Third-party libraries
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpMethod;
-import org.openmicroscopy.shoola.svc.proxy.Reply;
-import org.openmicroscopy.shoola.svc.proxy.Request;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.impl.client.CloseableHttpClient;
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.svc.proxy.Reply;
+import org.openmicroscopy.shoola.svc.proxy.Request;
 
 /** 
  * Top-channel that all channels using <code>HTTP</code> communication should 
@@ -66,7 +68,7 @@ public abstract class HttpChannel
      * 
      * @return See above.
      */ 
-    protected abstract HttpClient getCommunicationLink();
+    protected abstract CloseableHttpClient getCommunicationLink();
 
     /**
      * Returns the path derived from the server's URL.
@@ -92,16 +94,14 @@ public abstract class HttpChannel
 
         //Build HTTP request, send it, and wait for response.
         //Then read the response into the Reply object.
-        HttpClient comLink = getCommunicationLink();
-        HttpMethod method = null;
+        CloseableHttpClient comLink = getCommunicationLink();
+        HttpUriRequest method = null;
         try {
-            method = out.marshal();
-            method.setPath(getRequestPath());
-            comLink.executeMethod(method);
-            in.unmarshal(method, this);
+            method = out.marshal(getRequestPath());
+            CloseableHttpResponse response = comLink.execute(method);
+            in.unmarshal(response, this);
         } finally {
-            //Required by Http Client library.
-            if (method != null) method.releaseConnection();
+            if (comLink != null) comLink.close();
         }
     }
 

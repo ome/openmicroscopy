@@ -27,9 +27,10 @@ package org.openmicroscopy.shoola.svc.proxy;
 import java.io.InputStreamReader;
 import java.io.Reader;
 
+
 //Third-party libraries
-import org.apache.commons.httpclient.HttpMethod;
-import org.apache.commons.httpclient.HttpStatus;
+import org.apache.http.HttpEntity;
+import org.apache.http.client.methods.CloseableHttpResponse;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.svc.transport.HttpChannel;
@@ -55,30 +56,26 @@ public abstract class Reply
      * @return The message from server.
      * @throws TransportException If an error occurred while transferring data.
      */
-    protected static String checkStatusCode(HttpMethod response)
+    protected static String checkStatusCode(CloseableHttpResponse response)
             throws TransportException
     {
-        int status = response.getStatusCode();
-        if (status != -1) {
+        HttpEntity entity = response.getEntity();
+        if (entity != null) {
             Reader reader = null;
             try {
-                reader = new InputStreamReader(
-                        response.getResponseBodyAsStream());
+                reader = new InputStreamReader(entity.getContent());
                 char[] buf = new char[32678];
                 StringBuilder str = new StringBuilder();
                 for (int n; (n = reader.read(buf)) != -1;)
                     str.append(buf, 0, n);
-                try {
-                    if (reader != null) reader.close();
-                } catch (Exception ex) {}
                 return str.toString();
             } catch (Exception e) {
+                throw new TransportException("Couldn't handle request: "+
+                        response.getStatusLine()+".");
+            } finally {
                 try {
                     if (reader != null) reader.close();
                 } catch (Exception ex) {}
-
-                throw new TransportException("Couldn't handle request: "+
-                        HttpStatus.getStatusText(status)+".");
             }
         }
         return null;
@@ -91,7 +88,8 @@ public abstract class Reply
      * @param context The communication link.
      * @throws TransportException If an error occurred while transferring data.
      */
-    public abstract void unmarshal(HttpMethod response, HttpChannel context)
+    public abstract void unmarshal(CloseableHttpResponse response,
+            HttpChannel context)
             throws TransportException;
 
 }
