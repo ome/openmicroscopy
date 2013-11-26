@@ -163,10 +163,10 @@ def lengthformat( value ):
         value = float(value)
     except (TypeError,ValueError,UnicodeDecodeError):
         return value
-    
-    if value < 0.0001:
+
+    if value < 0.001:
         return value * 1000 * 10
-    elif value < 0.001:
+    elif value < 0.01:
         return value * 1000
     elif value < 1000:
         return value
@@ -185,12 +185,12 @@ def lengthunit( value ):
     Filter - returns th emost suitable length units
     all values are in micrometers
     """
-    
+
     if value == 0:
-        return u'µm'
-    elif value < 0.0001:
-        return u"\u212B"
+        return u'\u00B5m'
     elif value < 0.001:
+        return u"\u212B"
+    elif value < 0.01:
         return u"nm"
     elif value < 1000:
         return u'\u00B5m'
