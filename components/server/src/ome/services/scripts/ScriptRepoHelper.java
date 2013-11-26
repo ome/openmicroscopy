@@ -202,16 +202,44 @@ public class ScriptRepoHelper extends OnContextRefreshedEventListener {
         log.warn("No mimetype set for {}", ofile.getName());
     }
 
-
-    public String getLauncher(String mimetype) {
+    /**
+     * Search through all {@link ScriptFileType} instances and find one with
+     * a matching mimetype string. Otherwise, return null.
+     */
+    protected Map.Entry<String, ScriptFileType> findByMimetype(String mimetype) {
         for (Map.Entry<String, ScriptFileType> entry : types.entrySet()) {
             ScriptFileType type = entry.getValue();
             if (type.getMimetype().equals(mimetype)) {
-                return type.getLauncher();
+                return entry;
             }
         }
-        log.warn("No mimetype equals to {}", mimetype);
-        return "";
+        return null;
+    }
+
+    /**
+     * Find an "omero.launcher..." property string for the given mimetype or
+     * return "" if none is found.
+     */
+    public String getLauncher(String mimetype) {
+        Map.Entry<String, ScriptFileType> entry = findByMimetype(mimetype);
+        if (entry == null) {
+            log.warn("No mimetype equals to {}", mimetype);
+            return "";
+        }
+        return entry.getValue().getLauncher();
+    }
+
+    /**
+     * Find an "omero.process..." property string for the given mimetype or
+     * return "" if none is found.
+     */
+    public String getProcess(String mimetype) {
+        Map.Entry<String, ScriptFileType> entry = findByMimetype(mimetype);
+        if (entry == null) {
+            log.warn("No mimetype equals to {}", mimetype);
+            return "";
+        }
+        return entry.getValue().getProcess();
     }
 
     /**

@@ -54,26 +54,60 @@ public class ScriptFileType {
      */
     private final String launcher;
 
+    /**
+     * String representing the class of the launcher that is to be
+     * used. This will be loaded by the backend and given the same
+     * arguments as would be given to the default processor (e.g.
+     * "omero.processor.ProcessI").
+     */
+    private final String process;
+
     public ScriptFileType(String pattern, String mimetype) {
-        this(pattern, mimetype, "");
+        this(pattern, mimetype, "", "");
     }
 
-    public ScriptFileType(String pattern, String mimetype, String launcher) {
+    public ScriptFileType(String pattern, String mimetype,
+            String launcher, String process) {
         this.pattern = pattern;
         this.mimetype = mimetype;
         this.launcher = launcher;
+        this.process = process;
     }
 
+    /**
+     * Returns the mimetype that must be set on an original file instance
+     * in order to be considered of this type. Used in conjunction with
+     * {@link #getFileFilter()}.
+     */
     public String getMimetype() {
         return this.mimetype;
     }
 
+    /**
+     * A file-pattern (most likely of the form "*.EXT") which will be used
+     * to determine if a file is of this type. Used in conjunction with
+     * {@link #getMimetype()}.
+     */
     public IOFileFilter getFileFilter() {
         return new WildcardFileFilter(pattern);
     }
 
+    /**
+     *  Return the name of the launcher ("./run.exe") that is used for
+     *  scripts of this type. This is a fairly easy way to modify what
+     *  is called by the backend.
+     */
     public String getLauncher() {
         return launcher;
+    }
+
+    /**
+     * Return the import name of the process class which will be used
+     * to invoke scripts of this type. This permits developers to inject
+     * completely different process handling.
+     */
+    public String getProcess() {
+        return process;
     }
 
     /**

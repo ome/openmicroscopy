@@ -24,6 +24,7 @@ import omero.util.concurrency
 
 import omero_ext.uuid as uuid # see ticket:3774
 
+from omero.util import load_dotted_class
 from omero.util.temp_files import create_path, remove_path
 from omero.util.decorators import remoted, perf, locked
 from omero.rtypes import *
@@ -203,11 +204,20 @@ class ProcessI(omero.grid.Process, omero.util.SimpleServant):
 
         self.stdout = open(str(self.stdout_path), "w")
         self.stderr = open(str(self.stderr_path), "w")
-        self.popen = self.Popen([self.interpreter, "./script"], cwd=str(self.dir), env=self.env(), stdout=self.stdout, stderr=self.stderr)
+        self.popen = self.Popen(self.command(),
+                          cwd=str(self.dir), env=self.env(),
+                          stdout=self.stdout, stderr=self.stderr)
         self.pid = self.popen.pid
         self.started = time.time()
         self.stopped = None
         self.status("Activated")
+
+    def command(self):
+        """
+        Method to allow subclasses to override the launch
+        behavior by changing the command passed to self.Popen
+        """
+        return [self.interpreter, "./script"]
 
     @locked
     def deactivate(self):
@@ -628,6 +638,20 @@ class ProcessI(omero.grid.Process, omero.util.SimpleServant):
     def __str__(self):
         return "<proc:%s,rc=%s,uuid=%s>" % (self.pid, (self.rcode is None and "-" or self.rcode), self.uuid)
 
+
+class MATLABProcessI(ProcessI):
+
+    def command(self):
+        """
+        Overrides ProcessI to call MATLAB idiosyncratically.
+        """
+        matlab_cmd = [
+            self.interpreter, "-nosplash", "-nodisplay", "-nodesktop",
+            "-r", "try, run(fullfile('.', 'script')), catch, exit(1), end, exit(0)"
+        ]
+        return matlab_cmd
+
+
 class UseSessionHolder(object):
 
     def __init__(self, sf):
@@ -880,17 +904,8 @@ class ProcessorI(omero.grid.Processor, omero.util.Servant):
             properties["omero.pass"] = session
             properties["Ice.Default.Router"] = client.getProperty("Ice.Default.Router")
 
-            launcher = ""
-            try:
-                launcher = current.ctx["omero.launcher"]
-            except:
-                pass
-
-            if not launcher:
-                launcher = sys.executable
-            self.logger.debug("Using launcher: %s", launcher)
-
-            process = ProcessI(self.ctx, launcher, properties, params, iskill, omero_home = self.omero_home)
+            launcher, ProcessClass = self.find_launcher(current)
+            process = ProcessClass(self.ctx, launcher, properties, params, iskill, omero_home = self.omero_home)
             self.resources.add(process)
 
             # client.download(file, str(process.script_path))
@@ -918,6 +933,33 @@ class ProcessorI(omero.grid.Processor, omero.util.Servant):
 
         finally:
             handle.close()
+
+    def find_launcher(self, current):
+        launcher = ""
+        process_class = ""
+        if current.ctx:
+            launcher = current.ctx.get("omero.launcher", sys.executable)
+            process_class = current.ctx.get("omero.process", "omero.process.ProcessI")
+
+        self.logger.info("Using launcher: %s", launcher)
+        self.logger.info("Using process: %s", process_class)
+
+        # Imports in omero.util don't work well for this class
+        # Handling classes from this module specially.
+        internal = False
+        parts = process_class.split(".")
+        if len(parts) == 3:
+            if parts[0:2] == ("omero", "processor"):
+                internal = True
+
+        if not process_class:
+            ProcessClass = ProcessI
+        elif internal:
+            ProcessClass = globals()[parts[-1]]
+        else:
+            ProcessClass = load_dotted_class(process_class)
+        return launcher, ProcessClass
+
 
 def usermode_processor(client, serverid = "UsermodeProcessor",\
                        cfg = None, accepts_list = None, stop_event = None,\
