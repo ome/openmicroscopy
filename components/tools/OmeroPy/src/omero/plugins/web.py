@@ -230,7 +230,7 @@ class WebControl(BaseControl):
 support
 # most later versions of mod_ssl and OSes will support it
 # if you see "You should not use name-based virtual hosts in conjunction \
-with  SSL!!"
+with SSL!!"
 # or similar start apache with -D DISABLE_SNI and modify ssl.conf
 #<IfDefine !DISABLE_SNI>
 #  NameVirtualHost *:443
