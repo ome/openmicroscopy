@@ -7322,12 +7322,10 @@ class OMEROGateway
 		Connector c = getConnector(ctx, true, false);
 		IQueryPrx svc = c.getQueryService();
 		try {
-
 			List<ExperimenterGroup> groups = null;
 			if (id < 0) {
 				groups = (List)
 				svc.findAllByQuery("select distinct g from ExperimenterGroup g "
-		               // + "left outer join fetch g.groupExperimenterMap m "
 		                , null);
 			} else {
 				ParametersI p = new ParametersI();
@@ -7340,21 +7338,7 @@ class OMEROGateway
 		                + "left outer join fetch m2.parent" +
 		                		" where g.id = :id", p);
 			}
-			ExperimenterGroup group;
-			GroupData pojoGroup;
-			Iterator<ExperimenterGroup> i = groups.iterator();
-			while (i.hasNext()) {
-				group = i.next();
-				pojoGroup = (GroupData) PojoMapper.asDataObject(group);
-				if (!dsFactory.getAdmin().isSecuritySystemGroup(
-				        pojoGroup.getId()))
-					pojos.add(pojoGroup);
-				else {
-					if (dsFactory.getAdmin().isSecuritySystemGroup(
-					        pojoGroup.getId(), GroupData.SYSTEM))
-						pojos.add(pojoGroup);
-				}
-			}
+			pojos.addAll(PojoMapper.asDataObjects(groups));
 			return pojos;
 		} catch (Throwable t) {
 			handleException(t, "Cannot retrieve the available groups ");
@@ -7388,21 +7372,7 @@ class OMEROGateway
 	                + "left outer join fetch g.groupExperimenterMap m "
 	                + "left outer join fetch m.child u "
 	                + " where u.id = :id", p);
-			ExperimenterGroup group;
-			GroupData pojoGroup;
-			Iterator<ExperimenterGroup> i = groups.iterator();
-			while (i.hasNext()) {
-				group = i.next();
-				pojoGroup = (GroupData) PojoMapper.asDataObject(group);
-				if (!dsFactory.getAdmin().isSecuritySystemGroup(
-				        pojoGroup.getId()))
-					pojos.add(pojoGroup);
-				else {
-				    if (dsFactory.getAdmin().isSecuritySystemGroup(
-	                        pojoGroup.getId(), GroupData.SYSTEM))
-						pojos.add(pojoGroup);
-				}
-			}
+			pojos.addAll(PojoMapper.asDataObjects(groups));
 			return pojos;
 		} catch (Throwable t) {
 			handleException(t, "Cannot retrieve the available groups ");
