@@ -22,15 +22,17 @@
  */
 package org.openmicroscopy.shoola.svc.transport;
 
-
 //Java imports
+import java.util.Arrays;
 
 //Third-party libraries
-import org.apache.commons.httpclient.HostConfiguration;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.URI;
-import org.apache.commons.httpclient.URIException;
-import org.apache.commons.httpclient.params.HttpClientParams;
+import org.apache.commons.lang.StringUtils;
+import org.apache.http.HttpHost;
+import org.apache.http.client.config.AuthSchemes;
+import org.apache.http.client.config.CookieSpecs;
+import org.apache.http.client.config.RequestConfig;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
 
 //Application-internal dependencies
 
@@ -59,9 +61,6 @@ class BasicChannel
     /** The default value for the time out. */
     static final int DEF_CONN_TIMEOUT = 10000;
 
-    /** The server's URL. */
-    private final URI serverURL;
-
     /** The requested path. */
     private final String requestPath;
 
@@ -78,13 +77,7 @@ class BasicChannel
     BasicChannel(String url, int connTimeout)
             throws IllegalArgumentException
     {
-        try {
-            serverURL = new URI(url, true);
-            requestPath = serverURL.getPath();
-        } catch (URIException e) {
-            throw new IllegalArgumentException(
-                    "Invalid URL to Server: "+url+".");
-        }
+        requestPath = url;
         this.connTimeout = (connTimeout < 0 ? DEF_CONN_TIMEOUT : connTimeout);
     }
 
@@ -92,23 +85,28 @@ class BasicChannel
      * Creates a <code>HttpClient</code> to communicate.
      * @see HttpChannel#getCommunicationLink()
      */
-    protected HttpClient getCommunicationLink()
+    protected CloseableHttpClient getCommunicationLink()
     {
-        HostConfiguration cfg = new HostConfiguration();
-        cfg.setHost(serverURL);
+        //Default connection configuration
+        RequestConfig.Builder builder = RequestConfig.custom();
+        builder.setCookieSpec(CookieSpecs.BEST_MATCH)
+                .setExpectContinueEnabled(true)
+                .setStaleConnectionCheckEnabled(true)
+                .setTargetPreferredAuthSchemes(Arrays.asList(AuthSchemes.NTLM,
+                        AuthSchemes.DIGEST))
+                .setProxyPreferredAuthSchemes(Arrays.asList(AuthSchemes.BASIC));
+        builder.setConnectTimeout(connTimeout);
         String proxyHost = System.getProperty(HttpChannel.PROXY_HOST);
         String proxyPort = System.getProperty(HttpChannel.PROXY_PORT);
-        if (proxyHost != null && proxyPort != null) {
-            int port = Integer.parseInt(proxyPort);
-            cfg.setProxy(proxyHost, port);
+        if (StringUtils.isNotBlank(proxyHost) &&
+                StringUtils.isNotBlank(proxyPort)) {
+            builder.setProxy(new HttpHost(proxyHost,
+                    Integer.parseInt(proxyPort)));
         }
-
-        HttpClient channel = new HttpClient();
-        channel.setHostConfiguration(cfg);
-        HttpClientParams params = new HttpClientParams();
-        params.setConnectionManagerTimeout(connTimeout);
-        channel.setParams(params);
-        return channel;
+        CloseableHttpClient httpclient = HttpClients.custom()
+            .setDefaultRequestConfig(builder.build())
+            .build();
+        return httpclient;
     }
 
     /**

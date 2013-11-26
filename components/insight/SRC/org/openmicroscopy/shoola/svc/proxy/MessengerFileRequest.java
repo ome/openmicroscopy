@@ -27,15 +27,16 @@ package org.openmicroscopy.shoola.svc.proxy;
 import java.io.File;
 
 //Third-party libraries
+import org.apache.commons.lang.StringUtils;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.mime.HttpMultipartMode;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
+import org.apache.http.entity.mime.content.FileBody;
+import org.apache.http.entity.mime.content.StringBody;
 
 //Application-internal dependencies
-
-import org.apache.commons.httpclient.HttpMethod;
-import org.apache.commons.httpclient.methods.PostMethod;
-import org.apache.commons.httpclient.methods.multipart.MultipartRequestEntity;
-import org.apache.commons.httpclient.methods.multipart.Part;
-import org.apache.commons.httpclient.methods.multipart.StringPart;
-import org.apache.commons.lang.StringUtils;
 import org.openmicroscopy.shoola.svc.transport.TransportException;
 
 /**
@@ -88,23 +89,20 @@ class MessengerFileRequest
 
     /**
      * Prepares the <code>method</code> to post.
-     * @see Request#marshal()
+     * @see Request#marshal(String)
      */
-    public HttpMethod marshal() 
+    public HttpUriRequest marshal(String path)
             throws TransportException
     {
         //Create request.
-        PostMethod request = new PostMethod();
-        try {
-            Part[] parts = {new StringPart(TOKEN, token),
-                    new StringPart(READER, reader),
-                    new SubmittedFilePart(FILE,  file)
-            };
-            request.setRequestEntity(new MultipartRequestEntity(
-                    parts, request.getParams()));
-        } catch (Exception e) {
-            throw new TransportException("Cannot prepare file to submit", e);
-        }
+        MultipartEntityBuilder builder = MultipartEntityBuilder.create();
+        builder.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
+        builder.addPart(FILE, new FileBody(file,
+                ContentType.APPLICATION_OCTET_STREAM, file.getName()));
+        builder.addPart(TOKEN, new StringBody(token, ContentType.TEXT_PLAIN));
+        builder.addPart(READER, new StringBody(reader, ContentType.TEXT_PLAIN));
+        HttpPost request = new HttpPost(path);
+        request.setEntity(builder.build());
         return request;
     }
 
