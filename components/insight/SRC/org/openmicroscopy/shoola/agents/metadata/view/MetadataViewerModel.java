@@ -570,7 +570,6 @@ class MetadataViewerModel
 			toRemove = object.getToRemove();
 		}
 		loaderID++;
-        ctx = retrieveContext(data.iterator().next());
         DataSaver loader = new DataSaver(component, ctx, data, toAdd,
                 toRemove, metadata, loaderID);
         loaders.put(loaderID, loader);

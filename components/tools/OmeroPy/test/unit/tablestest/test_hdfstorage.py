@@ -74,7 +74,8 @@ class TestHdfStorage(TestCase):
         pytest.raises(omero.ApiUsageException, omero.tables.HdfStorage, bad)
 
     def testValidFile(self):
-        omero.tables.HdfStorage(self.hdfpath())
+        hdf = omero.tables.HdfStorage(self.hdfpath())
+        hdf.cleanup()
 
     def testLocking(self):
         tmp = str(self.hdfpath())
@@ -86,6 +87,7 @@ class TestHdfStorage(TestCase):
             pass
         hdf1.cleanup()
         hdf3 = omero.tables.HdfStorage(tmp)
+        hdf3.cleanup()
 
     def testSimpleCreation(self):
         hdf = omero.tables.HdfStorage(self.hdfpath())

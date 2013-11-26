@@ -93,8 +93,8 @@ class WebControl(BaseControl):
 
         parser.add(
             sub, self.syncmedia,
-            "[DEPRECATED] Advanced use: Creates needed symlinks for static"
-            " media files")
+            "Advanced use: Creates needed symlinks for static"
+            " media files (Performed automatically by 'start')")
 
         #
         # Developer
@@ -197,6 +197,12 @@ class WebControl(BaseControl):
                     "HTTPPORT": port,
                     "FASTCGI_PASS": fastcgi_pass,
                     }
+                if hasattr(settings, 'FORCE_SCRIPT_NAME') and len(settings.FORCE_SCRIPT_NAME) > 0:
+                    d["FASTCGI_PATH_SCRIPT_INFO"] = "fastcgi_split_path_info ^(%s)(.*)$;\n" \
+                    "            fastcgi_param PATH_INFO $fastcgi_path_info;\n" \
+                    "            fastcgi_param SCRIPT_INFO $fastcgi_script_name;\n" % (settings.FORCE_SCRIPT_NAME)
+                else:
+                    d["FASTCGI_PATH_SCRIPT_INFO"] = "fastcgi_param PATH_INFO $fastcgi_script_name;\n"
                 self.ctx.out(c % d)
             if server == "apache":
                 if settings.APPLICATION_SERVER == settings.FASTCGITCP:
@@ -295,9 +301,7 @@ Alias /omero "%(ROOT)s/var/omero.fcgi/"
                 self.ctx.out(stanza % d)
 
     def syncmedia(self, args):
-        self.ctx.out(
-            "** NO-OP ** syncmedia now part of 'web start' and is "
-            "no longer required.")
+        self.collectstatic()
 
     def enableapp(self, args):
         location = self.ctx.dir / "lib" / "python" / "omeroweb"

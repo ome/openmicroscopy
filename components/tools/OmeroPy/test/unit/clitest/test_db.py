@@ -9,13 +9,13 @@
 
 """
 
-import os, subprocess, StringIO
 import pytest
 from path import path
 from omero.plugins.db import DatabaseControl
 from omero.util.temp_files import create_path
-from omero.cli import Context, CLI, NonZeroReturnCode
+from omero.cli import NonZeroReturnCode
 from mocks import MockCLI
+
 
 class TestDatabase(object):
 
@@ -23,7 +23,8 @@ class TestDatabase(object):
         self.cli = MockCLI()
         self.cli.register("db", DatabaseControl, "TEST")
 
-        dir = path(__file__) / ".." / ".." / ".." / ".." / ".." / ".." / ".." / "dist"  # FIXME: should not be hard-coded
+        dir = path(__file__) / ".." / ".." / ".." / ".." / ".." / ".." /\
+            ".." / "dist"  # FIXME: should not be hard-coded
         dir = dir.abspath()
         cfg = dir / "etc" / "omero.properties"
         cfg = cfg.abspath()
@@ -44,7 +45,8 @@ class TestDatabase(object):
 
     def script(self, string, strict=True):
         string = string % self.data
-        self.cli.invoke("db script -f %s %s" % (self.file, string), strict=strict)
+        self.cli.invoke("db script -f %s %s" % (self.file, string),
+                        strict=strict)
 
     def password(self, string, strict=True):
         self.cli.invoke("db password " + string % self.data, strict=strict)
@@ -116,16 +118,17 @@ class TestDatabase(object):
         return "password for OMERO " + rv
 
     def expectPassword(self, pw, user="root", id=None):
-        self.cli.expect("Please enter %s" % self.password_ending(user, id), pw)
+        self.cli.expect("Please enter %s" %
+                        self.password_ending(user, id), pw)
 
     def expectConfirmation(self, pw, user="root", id=None):
-        self.cli.expect("Please re-enter %s" % self.password_ending(user, id), pw)
+        self.cli.expect("Please re-enter %s" %
+                        self.password_ending(user, id), pw)
 
     def expectVersion(self, version):
-        self.cli.expect("Please enter omero.db.version [%s]: " % \
-                self.data["version"], version)
+        self.cli.expect("Please enter omero.db.version [%s]: " %
+                        self.data["version"], version)
 
     def expectPatch(self, patch):
-        self.cli.expect("Please enter omero.db.patch [%s]: " % \
-                self.data["patch"], patch)
-
+        self.cli.expect("Please enter omero.db.patch [%s]: " %
+                        self.data["patch"], patch)

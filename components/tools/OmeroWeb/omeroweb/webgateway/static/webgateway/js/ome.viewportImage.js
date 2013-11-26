@@ -440,6 +440,13 @@ jQuery.fn.viewportImage = function(options) {
                     return false;
                 }
                 var coords = this.resolveCoordinates(e);
+                if (e.type=='mouseout' &&
+                    coords.x > 0 && coords.x < this.width &&
+                    coords.y > 0 && coords.y < this.height) {
+                    // on IE the mouseout event is triggered for every tile boundary,
+                    // so make sure we have really crossed the viewport boudary
+                    return false;
+                }
                 var motion = {
                     'x' : (coords.x - this.mark.x),
                     'y' : (coords.y - this.mark.y)
