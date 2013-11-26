@@ -26,10 +26,10 @@ package org.openmicroscopy.shoola.svc.proxy;
 //Java imports
 
 //Third-party libraries
+import org.apache.commons.lang.StringUtils;
+import org.apache.http.client.methods.HttpUriRequest;
 
 //Application-internal dependencies
-import org.apache.commons.httpclient.HttpMethod;
-import org.apache.commons.lang.StringUtils;
 import org.openmicroscopy.shoola.svc.transport.TransportException;
 
 /** 
@@ -69,11 +69,12 @@ public abstract class Request
     /**
      * Prepares the <code>http</code> method.
      * 
+     * @param path The server path.
      * @return See above.
      * @throws TransportException If an error occurred while preparing the
      *                            method.
      */
-    public abstract HttpMethod marshal()
+    public abstract HttpUriRequest marshal(String path)
             throws TransportException;
 
 }

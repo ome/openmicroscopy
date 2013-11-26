@@ -27,9 +27,9 @@ package org.openmicroscopy.shoola.svc.proxy;
 //Java imports
 
 //Third-party libraries
-import org.apache.commons.httpclient.HttpMethod;
 
 //Application-internal dependencies
+import org.apache.http.client.methods.CloseableHttpResponse;
 import org.openmicroscopy.shoola.svc.transport.HttpChannel;
 import org.openmicroscopy.shoola.svc.transport.TransportException;
 
@@ -53,7 +53,7 @@ class MessengerReply
     /**
      * Creates a new instance.
      * 
-     * @param reply	The reply to send to user.
+     * @param reply The reply to send to user.
      */
     MessengerReply(StringBuilder reply)
     {
@@ -64,7 +64,7 @@ class MessengerReply
      * Checks the HTTP status.
      * @see Reply#unmarshal(HttpMethod, HttpChannel)
      */
-    public void unmarshal(HttpMethod response, HttpChannel context)
+    public void unmarshal(CloseableHttpResponse response, HttpChannel context)
             throws TransportException
     {
         if (reply != null)

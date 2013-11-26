@@ -31,10 +31,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+
 //Third-party libraries
-import org.apache.commons.httpclient.HttpMethod;
-import org.apache.commons.httpclient.NameValuePair;
-import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.message.BasicNameValuePair;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.svc.transport.TransportException;
@@ -110,6 +114,15 @@ class MessengerRequest
     /** The associated files. */
     private List<File> associatedFiles;
 
+    /** Checks if the <code>null</code> values.*/
+    private void checkForNull()
+    {
+        if (email == null) email = "";
+        if (comment == null) comment = "";
+        if (extra == null) extra = "";
+        if (invoker == null) invoker = "";
+    }
+
     /**
      * Creates a new instance.
      *
@@ -124,9 +137,8 @@ class MessengerRequest
      *                  <code>null</code>.
      */
     MessengerRequest(String email, String comment, String extra, String error,
-            String applicationNumber, String invoker,
-            String applicationVersion, File mainFile,
-            List<File> associatedFiles)
+            String applicationNumber, String invoker, String applicationVersion,
+            File mainFile, List<File> associatedFiles)
     {
         super();
         this.error = error;
@@ -138,65 +150,65 @@ class MessengerRequest
         this.applicationVersion = applicationVersion;
         this.mainFile = mainFile;
         this.associatedFiles = associatedFiles;
+        checkForNull();
     }
 
     /**
      * Prepares the <code>method</code> to post.
-     * @see Request#marshal()
+     * @see Request#marshal(String)
      */
-    public HttpMethod marshal() 
+    public HttpUriRequest marshal(String path)
             throws TransportException
     {
         //Create request.
-        PostMethod request = new PostMethod();
-        //Marshal.
-        if (email != null) request.addParameter(EMAIL, email);
-        if (comment != null) request.addParameter(COMMENT, comment);
-        if (error != null) request.addParameter(ERROR, error);
-        if (extra != null) request.addParameter(EXTRA, extra);
-        if (applicationNumber != null) 
-            request.addParameter(ProxyUtil.APP_NAME, applicationNumber);
-        if (invoker != null) request.addParameter(INVOKER, invoker);
-        if (applicationVersion != null)
-            request.addParameter(ProxyUtil.APP_VERSION, applicationVersion);
+        if (StringUtils.isBlank(path))
+            throw new TransportException("No path specified.");
+        HttpPost request = new HttpPost(path);
+        request.addHeader("Accept", "text/plain");
+        request.addHeader("Content-type", "application/x-www-form-urlencoded");
+        List<BasicNameValuePair> p = new ArrayList<BasicNameValuePair>();
+        p.add(new BasicNameValuePair(COMMENT, comment));
+        p.add(new BasicNameValuePair(EMAIL, email));
+        p.add(new BasicNameValuePair(ERROR, error));
+        p.add(new BasicNameValuePair(EXTRA, extra));
+        p.add(new BasicNameValuePair(INVOKER, invoker));
+        p.add(new BasicNameValuePair(ProxyUtil.APP_NAME,
+                applicationNumber));
+        p.add(new BasicNameValuePair(ProxyUtil.APP_NAME, applicationNumber));
+        p.add(new BasicNameValuePair(ProxyUtil.APP_VERSION, applicationVersion));
+        
         Map<String, String> info = ProxyUtil.collectInfo();
         Entry<String, String> entry;
         Iterator<Entry<String, String>> k = info.entrySet().iterator();
         while (k.hasNext()) {
             entry = k.next();
-            request.addParameter(entry.getKey(), entry.getValue());
+            p.add(new BasicNameValuePair(entry.getKey(), entry.getValue()));
         }
-
-        List<NameValuePair> pairs = new ArrayList<NameValuePair>();
         if (mainFile != null) {
-            pairs.add(new NameValuePair(MAIN_FILE_NAME, mainFile.getName()));
-            pairs.add(new NameValuePair(MAIN_FILE_PATH,
+            p.add(new BasicNameValuePair(MAIN_FILE_NAME, mainFile.getName()));
+            p.add(new BasicNameValuePair(MAIN_FILE_PATH,
                     mainFile.getAbsolutePath()));
         }
-        if (associatedFiles != null) {
+        if (CollectionUtils.isNotEmpty(associatedFiles)) {
             Iterator<File> i = associatedFiles.iterator();
             File f;
             while (i.hasNext()) {
                 f = i.next();
-                pairs.add(new NameValuePair(ADDITIONAL_FILE_NAME, f.getName()));
+                p.add(new BasicNameValuePair(ADDITIONAL_FILE_NAME,
+                        f.getName()));
                 if (f.getParent() != null) 
-                    pairs.add(new NameValuePair(ADDITIONAL_FILE_PATH,
+                    p.add(new BasicNameValuePair(ADDITIONAL_FILE_PATH,
                             f.getParent()));
-                pairs.add(new NameValuePair(ADDITIONAL_FILE_SIZE,
+                p.add(new BasicNameValuePair(ADDITIONAL_FILE_SIZE,
                         ((Long) f.length()).toString()));
             }
         }
-        if (pairs.size() > 0) {
-            Iterator<NameValuePair> j = pairs.iterator();
-            NameValuePair[] values = new NameValuePair[pairs.size()];
-            int index = 0;
-            while (j.hasNext()) {
-                values[index] = j.next();
-                index++;
-            }
-            request.addParameters(values);
-        }
 
+        try {
+            request.setEntity(new UrlEncodedFormEntity(p));
+        } catch (Exception e) {
+            throw new TransportException("Cannot prepare parameters", e);
+        }
         return request;
     }
 
