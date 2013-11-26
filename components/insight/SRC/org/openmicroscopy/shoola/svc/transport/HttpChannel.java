@@ -67,8 +67,11 @@ public abstract class HttpChannel
      * Returns the channel corresponding to the passed type.
      * 
      * @return See above.
+     * @throws TransportException If an error occurred while creating the
+     *                            client.
      */ 
-    protected abstract CloseableHttpClient getCommunicationLink();
+    protected abstract CloseableHttpClient getCommunicationLink()
+            throws TransportException;
 
     /**
      * Returns the path derived from the server's URL.
