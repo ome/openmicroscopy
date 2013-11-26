@@ -23,7 +23,12 @@
 package org.openmicroscopy.shoola.svc.transport;
 
 //Java imports
+import java.security.cert.X509Certificate;
 import java.util.Arrays;
+
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 
 //Third-party libraries
 import org.apache.commons.lang.StringUtils;
@@ -31,7 +36,10 @@ import org.apache.http.HttpHost;
 import org.apache.http.client.config.AuthSchemes;
 import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.config.RequestConfig;
+import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
+import org.apache.http.conn.ssl.SSLContexts;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
 
 //Application-internal dependencies
@@ -68,6 +76,44 @@ class BasicChannel
     private final int connTimeout;
 
     /**
+     * Creates a connection.
+     * 
+     * @return See above
+     * @throws TransportException Thrown if an error occurred while creating the
+     *                            SSL context.
+     */
+    private SSLConnectionSocketFactory createSSLConnection()
+        throws TransportException
+    {
+        SSLContext sslcontext = SSLContexts.createSystemDefault();
+        final TrustManager trustEverything = new X509TrustManager() {
+            private final X509Certificate[] 
+                    acceptedIssuers = new X509Certificate[0];
+
+            @Override
+            public void checkClientTrusted(X509Certificate[] chain, String authType) {}
+
+            @Override
+            public void checkServerTrusted(X509Certificate[] chain, String authType) {}
+
+            @Override
+            public X509Certificate[] getAcceptedIssuers() {
+                return this.acceptedIssuers;
+            }
+        };
+        
+        TrustManager[] managers = {trustEverything};
+        try {
+            sslcontext = SSLContext.getInstance("TLS");
+            sslcontext.init(null, managers, null);
+        } catch (Exception e) {
+            new TransportException("Cannot create security context", e);
+        }
+        return new SSLConnectionSocketFactory(sslcontext,
+                SSLConnectionSocketFactory.BROWSER_COMPATIBLE_HOSTNAME_VERIFIER);
+    }
+    
+    /**
      * Creates a new instance.
      * 
      * @param url The server's URL.
@@ -86,6 +132,7 @@ class BasicChannel
      * @see HttpChannel#getCommunicationLink()
      */
     protected CloseableHttpClient getCommunicationLink()
+            throws TransportException
     {
         //Default connection configuration
         RequestConfig.Builder builder = RequestConfig.custom();
@@ -103,10 +150,11 @@ class BasicChannel
             builder.setProxy(new HttpHost(proxyHost,
                     Integer.parseInt(proxyPort)));
         }
-        CloseableHttpClient httpclient = HttpClients.custom()
-            .setDefaultRequestConfig(builder.build())
-            .build();
-        return httpclient;
+        HttpClientBuilder httpBuilder = HttpClients.custom();
+        httpBuilder.setDefaultRequestConfig(builder.build());
+        if (requestPath.startsWith("https"))
+            httpBuilder.setSSLSocketFactory(createSSLConnection());
+        return httpBuilder.build();
     }
 
     /**
