@@ -87,10 +87,10 @@ class DatabaseControl(BaseControl):
     def _has_user_id(self, args):
         return args and "user_id" in args and args.user_id is not None
 
-    def _get_password_hash(self, args, root_pass=None):
+    def _get_password_hash(self, args, root_pass=None, old_prompt=False):
 
         prompt = " for OMERO "
-        if self._has_user_id(args):
+        if self._has_user_id(args) and not old_prompt:
             prompt += "user %s" % args.user_id
         else:
             prompt += "root user"
@@ -223,14 +223,17 @@ BEGIN;
 
     def password(self, args):
         root_pass = None
+        user_id = 0
+        old_prompt = True
+        if self._has_user_id(args):
+            user_id = args.user_id
+            if user_id != '0':  # For non-root, use new_prompt
+                old_prompt = False
         try:
             root_pass = args.password
         except Exception, e:
             self.ctx.dbg("While getting arguments:" + str(e))
-        password_hash = self._get_password_hash(args, root_pass)
-        user_id = 0
-        if self._has_user_id(args):
-            user_id = args.user_id
+        password_hash = self._get_password_hash(args, root_pass, old_prompt)
         self.ctx.out("UPDATE password SET hash = '%s' "
                      "WHERE experimenter_id  = %s;""" %
                      (password_hash, user_id))
@@ -271,7 +274,7 @@ BEGIN;
         self._lookup(data, data2, "patch", map)
         args.user_id = "0"
         sql = self._sql_directory(map["version"], map["patch"])
-        map["pass"] = self._get_password_hash(args, root_pass)
+        map["pass"] = self._get_password_hash(args, root_pass, True)
         self._create(sql, map["version"], map["patch"], map["pass"], args)
 
 try:
