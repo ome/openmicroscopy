@@ -77,6 +77,14 @@ class TestDatabase(object):
     def testAutomatedPassword(self):
         self.password("ome")
 
+    def testUserPassword(self):
+        self.expectPassword("ome", id="1")
+        self.expectConfirmation("ome", id="1")
+        self.password("--user-id=1")
+
+    def testAutomatedUserPassword(self):
+        self.password("--user-id=1 ome")
+
     def testScript(self):
         self.expectVersion(self.data["version"])
         self.expectPatch(self.data["patch"])
@@ -102,13 +110,20 @@ class TestDatabase(object):
     def testAutomatedScript3(self):
         self.script("%(version)s %(patch)s ome")
 
-    def expectPassword(self, pw, user="root"):
-        self.cli.expect("Please enter password for OMERO %s user: " %
-                        user, pw)
+    def password_ending(self, user, id):
+        if id is not None:
+            rv = "user %s: " % id
+        else:
+            rv = "%s user: " % user
+        return "password for OMERO " + rv
 
-    def expectConfirmation(self, pw, user="root"):
-        self.cli.expect("Please re-enter password for OMERO %s user: " %
-                        user, pw)
+    def expectPassword(self, pw, user="root", id=None):
+        self.cli.expect("Please enter %s" % self.password_ending(user, id),
+                        pw)
+
+    def expectConfirmation(self, pw, user="root", id=None):
+        self.cli.expect("Please re-enter %s" % self.password_ending(user, id),
+                        pw)
 
     def expectVersion(self, version):
         self.cli.expect("Please enter omero.db.version [%s]: " %
