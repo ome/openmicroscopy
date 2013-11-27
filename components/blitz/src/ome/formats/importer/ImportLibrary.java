@@ -348,7 +348,14 @@ public class ImportLibrary implements IObservable
                     break;
                 }
                 cp.putBytes(buf, 0, rlen);
-                rawFileStore.write(buf, offset, rlen);
+                final byte[] bufferToWrite;
+                if (rlen < buf.length) {
+                    bufferToWrite = new byte[rlen];
+                    System.arraycopy(buf, 0, bufferToWrite, 0, rlen);
+                } else {
+                    bufferToWrite = buf;
+                }
+                rawFileStore.write(bufferToWrite, offset, rlen);
                 offset += rlen;
                 estimator.stop(rlen);
                 notifyObservers(new ImportEvent.FILE_UPLOAD_BYTES(
