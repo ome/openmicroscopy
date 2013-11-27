@@ -383,8 +383,8 @@ public interface OmeroImageService
 	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	public Map getRenderingSettings(SecurityContext ctx, long pixelsID,
-			long userID)
+	public Map<DataObject, Collection<RndProxyDef>>
+	getRenderingSettings(SecurityContext ctx, long pixelsID, long userID)
 		throws DSOutOfServiceException, DSAccessException;
 	
 	/**

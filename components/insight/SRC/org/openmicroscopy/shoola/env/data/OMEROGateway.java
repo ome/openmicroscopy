@@ -50,6 +50,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 //Third-party libraries
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.map.MultiValueMap;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
@@ -73,8 +74,10 @@ import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.util.NetworkChecker;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
+import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.ListMultimap;
+import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
 
 import omero.ResourceError;
@@ -4623,31 +4626,37 @@ class OMEROGateway
 	 * @throws DSAccessException        If an error occurred while trying to
 	 *                                  retrieve data from OMEDS service.
 	 */
-	Map getRenderingSettings(SecurityContext ctx, long pixelsID, long userID)
+	Map<DataObject, Collection<RndProxyDef>> getRenderingSettings(
+	        SecurityContext ctx, long pixelsID, long userID)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		Map map = new HashMap();
+	    Multimap<DataObject, RndProxyDef> tmp = ArrayListMultimap.create();
 		Connector c = getConnector(ctx, true, false);
 		IPixelsPrx service = c.getPixelsService();
 		try {
 			List results = service.retrieveAllRndSettings(pixelsID, userID);
-
-			if (results == null || results.size() == 0) return map;
+			if (CollectionUtils.isEmpty(results)) return tmp.asMap();
 			Iterator i = results.iterator();
 			RenderingDef rndDef;
 			Experimenter exp;
+			Map<Long, DataObject> users = new HashMap<Long, DataObject>();
+			Set<RndProxyDef> list;
+			DataObject user;
 			while (i.hasNext()) {
 				rndDef = (RenderingDef) i.next();
 				exp = rndDef.getDetails().getOwner();
-				map.put(PojoMapper.asDataObject(exp),
-						PixelsServicesFactory.convert(rndDef));
+				user = users.get(exp.getId().getValue());
+				if (user == null) {
+				    user = PojoMapper.asDataObject(exp);
+				    users.put(exp.getId().getValue(), user);
+				}
+				tmp.put(user, PixelsServicesFactory.convert(rndDef));
 			}
-			return map;
 		} catch (Exception e) {
 			handleException(e, "Cannot retrieve the rendering settings " +
 								"for: "+pixelsID);
 		}
-		return map;
+		return tmp.asMap();
 	}
 
 	/**
