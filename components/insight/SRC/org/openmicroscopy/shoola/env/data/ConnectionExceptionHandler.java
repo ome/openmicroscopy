@@ -33,6 +33,7 @@ import java.net.UnknownHostException;
 
 import ome.conditions.SessionTimeoutException;
 import omero.DatabaseBusyException;
+import Glacier2.CannotCreateSessionException;
 import Ice.CommunicatorDestroyedException;
 import Ice.ConnectionLostException;
 import Ice.ConnectionRefusedException;
@@ -122,7 +123,9 @@ public class ConnectionExceptionHandler
 				cause instanceof ConnectionTimeoutException ||
 				e instanceof ConnectionTimeoutException ||
 				cause instanceof DatabaseBusyException ||
-				e instanceof DatabaseBusyException)
+				e instanceof DatabaseBusyException ||
+				e instanceof CannotCreateSessionException ||
+				cause instanceof CannotCreateSessionException)
 			index = SERVER_OUT_OF_SERVICE;
 		else if (cause instanceof UnknownException)
 			index = handleIceUnknownException(cause);
