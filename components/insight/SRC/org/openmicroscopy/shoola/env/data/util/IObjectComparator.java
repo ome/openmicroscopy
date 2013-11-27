@@ -23,16 +23,14 @@
 package org.openmicroscopy.shoola.env.data.util;
 
 
-
-import java.util.Comparator;
 //Java imports
-import java.util.List;
+import java.util.Comparator;
 
-import omero.model.IObject;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import omero.model.IObject;
 
 /** 
  * Holds information about instances of a given agent to save.
