@@ -938,8 +938,11 @@ class ProcessorI(omero.grid.Processor, omero.util.Servant):
         launcher = ""
         process_class = ""
         if current.ctx:
-            launcher = current.ctx.get("omero.launcher", sys.executable)
+            launcher = current.ctx.get("omero.launcher", "")
             process_class = current.ctx.get("omero.process", "omero.process.ProcessI")
+
+        if not launcher:
+            launcher = sys.executable
 
         self.logger.info("Using launcher: %s", launcher)
         self.logger.info("Using process: %s", process_class)
