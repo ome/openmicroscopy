@@ -35,6 +35,7 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -63,6 +64,7 @@ import org.openmicroscopy.shoola.env.data.model.SaveAsParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.data.model.TableParameters;
 import org.openmicroscopy.shoola.env.data.model.TableResult;
+import org.openmicroscopy.shoola.env.data.util.IObjectComparator;
 import org.openmicroscopy.shoola.env.data.util.ModelMapper;
 import org.openmicroscopy.shoola.env.data.util.PojoMapper;
 import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
@@ -79,6 +81,8 @@ import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
+
+import edu.emory.mathcs.backport.java.util.Collections;
 
 import omero.ResourceError;
 import ome.formats.OMEROMetadataStoreClient;
@@ -4635,7 +4639,10 @@ class OMEROGateway
 		IPixelsPrx service = c.getPixelsService();
 		try {
 			List results = service.retrieveAllRndSettings(pixelsID, userID);
+
 			if (CollectionUtils.isEmpty(results)) return tmp.asMap();
+			Collections.sort(results, new IObjectComparator());
+			//sort the list
 			Iterator i = results.iterator();
 			RenderingDef rndDef;
 			Experimenter exp;
@@ -4645,6 +4652,7 @@ class OMEROGateway
 			while (i.hasNext()) {
 				rndDef = (RenderingDef) i.next();
 				exp = rndDef.getDetails().getOwner();
+				System.err.println(rndDef.getId().getValue());
 				user = users.get(exp.getId().getValue());
 				if (user == null) {
 				    user = PojoMapper.asDataObject(exp);
