@@ -2053,6 +2053,10 @@ class OMEROGateway
 					exp = getUserDetails(ctx, userName, true);
 					groupConnectorMap.put(ctx.getGroupID(), connector);
 				} catch (Exception e) {
+				    LogMessage msg = new LogMessage();
+				    msg.print("Error while changing group.");
+				    msg.print(e);
+				    dsFactory.getLogger().debug(this, msg);
 				}
 			}
 			// Connector now controls the secureClient for closing.
