@@ -193,6 +193,14 @@ public abstract class GraphStep {
         return copy;
     }
 
+    public int sizeOfIds() {
+        if (this.ids == null) {
+            return -1;
+        } else {
+            return this.ids.length;
+        }
+    }
+
     //
     // Main action
     //
