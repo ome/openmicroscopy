@@ -9,11 +9,18 @@ function annotations = getObjectAnnotations(session, annotationType, parentType,
 %    parents) returns all annotations of type annotationType linked to the
 %    input parent objects of type parentType owned by the session user.
 %
+%    Optional parameters:
+%
 %    anns = getObjectAnnotations(session, annotationType, parentType, ids,
 %    'include', include) only returns annotations with the input namespace.
 %
 %    anns = getObjectAnnotations(session, annotationType, parentType, ids,
 %    'exclude', exclude) excludes annotations with the input namespace.
+%
+%    anns = getObjectAnnotations(session, annotationType, parentType, ids,
+%    'flatten', tf) Flatten the list of annotations (default true). If
+%    false a cell array is returned where anns{i} is a list of annotations
+%    linked with ids(i).
 %
 %    anns = getObjectAnnotations(session, annotationType, parentType, ids,
 %    'uid', uid, ...) searches annotations owned by the specified user,
@@ -30,7 +37,7 @@ function annotations = getObjectAnnotations(session, annotationType, parentType,
 %        anns = getObjectAnnotations(session, annotationType, parentType,
 %        ids, 'exclude', exclude)
 %        anns = getObjectAnnotations(session, annotationType, parentType,
-%        ids, 'uid', -1, 'omero.group', -1)
+%        ids, 'flatten', true, 'uid', -1, 'omero.group', -1)
 %
 % See also: GETIMAGEFILEANNOTATIONS, GETIMAGETAGANNOTATIONS,
 % GETIMAGECOMMENTANNOTATIONS
@@ -61,6 +68,7 @@ ip.addRequired('parentType', @(x) ischar(x) && ismember(x, {objects.name}));
 ip.addRequired('ids', @(x) isvector(x) || isempty(x));
 ip.addParamValue('include', [], @(x) iscellstr(x) || ischar(x));
 ip.addParamValue('exclude', [], @(x) iscellstr(x) || ischar(x));
+ip.addParamValue('flatten', true, @(x) isscalar(x) && (x || ~x));
 ip.addParamValue('uid', [], @(x) isscalar(x) || isempty(x));
 ip.KeepUnmatched = true;
 ip.parse(annotationType, parentType, ids, varargin{:});
@@ -94,14 +102,26 @@ annotations = metadataService.loadSpecifiedAnnotationsLinkedTo(...
     structToHashMap(ip.Unmatched));
 
 % Aggregate all annotations into a java.util.ArrayList
-annotationList = java.util.ArrayList();
-i = annotations.values.iterator;
-while (i.hasNext())
-    j = i.next().iterator();
-    while (j.hasNext())
-        annotationList.add(j.next());
+if ip.Results.flatten
+    annotationList = java.util.ArrayList();
+    i = annotations.values.iterator;
+    while (i.hasNext())
+        j = i.next().iterator();
+        while (j.hasNext())
+            annotationList.add(j.next());
+        end
     end
-end
 
-% Convert java.util.ArrayList into a Matlab array
-annotations = toMatlabList(annotationList);
+    % Convert java.util.ArrayList into a Matlab array
+    annotations = toMatlabList(annotationList);
+else
+    annotationList = cell(ids.size(), 1);
+    for n = 1:ids.size()
+        annotationListPerId = annotations.get( ...
+            java.lang.Long(ids.get(n - 1)));
+        if ~isempty(annotationListPerId)
+            annotationList{n} = toMatlabList(annotationListPerId);
+        end
+    end
+    annotations = annotationList;
+end
