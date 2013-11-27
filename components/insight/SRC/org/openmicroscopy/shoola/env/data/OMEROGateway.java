@@ -1963,7 +1963,6 @@ class OMEROGateway
 			connector = new Connector(ctx, secureClient, entryEncrypted,
 					encrypted, dsFactory.getLogger());
 			groupConnectorMap.put(ctx.getGroupID(), connector);
-			reconnect(userName, "omero");
 			return exp;
 		} catch (Throwable e) {
 			connected = false;
