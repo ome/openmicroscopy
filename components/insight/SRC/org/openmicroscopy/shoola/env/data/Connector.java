@@ -541,6 +541,9 @@ class Connector
             throws Throwable
     {
         //Reconnect
+        //to be on the save side
+        secureClient.closeSession();
+        if (unsecureClient != null) unsecureClient.closeSession();
         ServiceFactoryPrx prx = secureClient.createSession(userName, password);
         return new Connector(this.context, secureClient, prx,
                 entryUnencrypted == null, logger);
