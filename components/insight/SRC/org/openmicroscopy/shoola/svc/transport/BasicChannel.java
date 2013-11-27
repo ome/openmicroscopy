@@ -152,7 +152,8 @@ class BasicChannel
         }
         HttpClientBuilder httpBuilder = HttpClients.custom();
         httpBuilder.setDefaultRequestConfig(builder.build());
-        if (requestPath.startsWith("https"))
+        String value = requestPath;
+        if (value.toLowerCase().startsWith("https"))
             httpBuilder.setSSLSocketFactory(createSSLConnection());
         return httpBuilder.build();
     }
