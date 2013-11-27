@@ -29,6 +29,7 @@ import loci.formats.tiff.IFD;
 import loci.formats.tiff.TiffCompression;
 import ome.conditions.ApiUsageException;
 import ome.conditions.LockTimeout;
+import ome.conditions.ResourceError;
 import ome.io.nio.ConfiguredTileSizes;
 import ome.io.nio.DimensionsOutOfBoundsException;
 import ome.io.nio.PixelBuffer;
@@ -195,12 +196,16 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
         }
     }
 
+    /**
+     * If the pyramid file exists (which the constructor guarantees) then we
+     * assume that even if a lock file is present, that it's no longer valid.
+     */
     protected synchronized void initializeReader() throws IOException, FormatException
     {
-        if (isLockedByOthers())
-        {
-            throw new LockTimeout(String.format("%s is locked by others",
-                    readerFile.getAbsolutePath()), 15*1000, 0);
+        File lockFile = lockFile();
+        if (readerFile.exists() && lockFile.exists()) {
+            // note: we double checked readerFile exists just in case.
+            lockFile.delete();
         }
         reader = new OmeroPixelsPyramidReader();
         delegate = new BfPixelBuffer(readerFile.getAbsolutePath(), reader);
@@ -228,6 +233,9 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
     {
         try
         {
+            if (readerFile.exists()) {
+                throw new ResourceError(" exists. Pyramid is read-only");
+            }
             loci.common.services.ServiceFactory lociServiceFactory =
                 new loci.common.services.ServiceFactory();
             OMEXMLService service =
