@@ -176,22 +176,12 @@ public abstract class GraphStep {
         this.ec = ec;
     }
 
+    /**
+     * To reduce overhead, we're no longer copying this array.
+     * @return
+     */
     public long[] getIds() {
-        if (this.ids == null) {
-            return null;
-        }
-
-        long[] copy = new long[ids.length];
-        System.arraycopy(ids, 0, copy, 0, copy.length);
-        return copy;
-    }
-
-    public int sizeOfIds() {
-        if (this.ids == null) {
-            return -1;
-        } else {
-            return this.ids.length;
-        }
+        return this.ids;
     }
 
     //
