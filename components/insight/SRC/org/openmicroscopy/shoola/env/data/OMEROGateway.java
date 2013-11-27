@@ -4691,7 +4691,8 @@ class OMEROGateway
 		try {
 			List results = service.retrieveAllRndSettings(pixelsID, userID);
 			List<RndProxyDef> l = new ArrayList<RndProxyDef>();
-			if (results == null || results.size() == 0) return l;
+			if (CollectionUtils.isEmpty(results)) return l;
+			Collections.sort(results, new IObjectComparator());
 			Iterator i = results.iterator();
 			while (i.hasNext()) {
 				l.add(PixelsServicesFactory.convert((RenderingDef) i.next()));
