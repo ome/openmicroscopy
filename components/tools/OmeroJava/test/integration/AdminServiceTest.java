@@ -1623,15 +1623,21 @@ public class AdminServiceTest extends AbstractServerTest {
     }
 
     /**
-     * Test that the root experimenter is reported to be a member of both the system and the user groups.
+     * Test that the root experimenter is reported to be a member of both the system and the user groups
+     * and that the guest experimenter is reported to be a member of the guest group.
      */
     @Test
-    public void testRootGroupMembership() throws ServerError {
+    public void testGroupMemberships() throws ServerError {
         final IAdminPrx adminSvc = root.getSession().getAdminService();
         final Roles roles = adminSvc.getSecurityRoles();
+
         final Experimenter root = new ExperimenterI(roles.rootId, false);
         final List<Long> rootGroups = adminSvc.getMemberOfGroupIds(root);
         Assert.assertTrue(rootGroups.contains(roles.systemGroupId));
         Assert.assertTrue(rootGroups.contains(roles.userGroupId));
+
+        final Experimenter guest = new ExperimenterI(roles.guestId, false);
+        final List<Long> guestGroups = adminSvc.getMemberOfGroupIds(guest);
+        Assert.assertTrue(guestGroups.contains(roles.guestGroupId));
     }
 }
