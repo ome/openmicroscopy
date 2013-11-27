@@ -249,6 +249,21 @@
             return {'left':img_x, 'top':img_y, 'width':img_w, 'height':img_h};
         },
 
+        // True if coords (x,y,width, height) overlap with panel
+        regionOverlaps: function(coords) {
+
+            var px = this.get('x'),
+                px2 = px + this.get('width'),
+                py = this.get('y'),
+                py2 = py + this.get('height'),
+                cx = coords.x,
+                cx2 = cx + coords.width,
+                cy = coords.y,
+                cy2 = cy + coords.height;
+            // overlap needs overlap on x-axis...
+            return ((px < cx2) && (cx < px2) && (py < cy2) && (cy < py2));
+        },
+
     });
 
     // ------------------------ Panel Collection -------------------------
@@ -283,7 +298,6 @@
         },
 
         syncOverride: function(method, model, options, error) {
-            console.log('syncOverride', arguments);
             this.set("unsaved", true);
         },
 
@@ -296,6 +310,7 @@
             $.getJSON(load_url, function(data){
 
                 _.each(data.panels, function(p){
+                    p.selected = false;
                     self.panels.create(p);
                 });
 
@@ -550,6 +565,15 @@
             if (trigger !== false) {
                 this.notifySelectionChange();
             }
+        },
+
+        selectByRegion: function(coords) {
+            this.panels.each(function(p){
+                if (p.regionOverlaps(coords)) {
+                    p.set('selected', true);
+                }
+            });
+            this.notifySelectionChange();
         },
 
         getSelected: function() {
@@ -2209,6 +2233,19 @@
     // the PanelModel.
     // The SVG RectView (Raphael) notifies this Model via trigger 'drag' & 'dragStop'
     // and this is delegated to the PanelModel via trigger or set respectively.
+
+    // Used by a couple of different models below
+    var getModelCoords = function(coords) {
+        var zoom = this.figureModel.get('curr_zoom') * 0.01,
+            paper_top = (this.figureModel.get('canvas_height') - this.figureModel.get('paper_height'))/2,
+            paper_left = (this.figureModel.get('canvas_width') - this.figureModel.get('paper_width'))/2,
+            x = (coords.x/zoom) - paper_left - 1,
+            y = (coords.y/zoom) - paper_top - 1,
+            w = coords.width/zoom,
+            h = coords.height/zoom;
+        return {'x':x>>0, 'y':y>>0, 'width':w>>0, 'height':h>>0};
+    };
+
     var ProxyRectModel = Backbone.Model.extend({
 
         initialize: function(opts) {
@@ -2245,16 +2282,7 @@
         },
 
         // return the Model x, y, w, h (converting from SVG coords)
-        getModelCoords: function(coords) {
-            var zoom = this.figureModel.get('curr_zoom') * 0.01,
-                paper_top = (this.figureModel.get('canvas_height') - this.figureModel.get('paper_height'))/2,
-                paper_left = (this.figureModel.get('canvas_width') - this.figureModel.get('paper_width'))/2,
-                x = (coords.x/zoom) - paper_left - 1,
-                y = (coords.y/zoom) - paper_top - 1,
-                w = coords.width/zoom,
-                h = coords.height/zoom;
-            return {'x':x>>0, 'y':y>>0, 'width':w>>0, 'height':h>>0};
-        },
+        getModelCoords: getModelCoords,
 
         // called on trigger from the RectView, on drag of the whole rect OR handle for resize.
         // we simply convert coordinates and delegate to figureModel
@@ -2498,15 +2526,75 @@
             var self = this,
                 canvas_width = this.model.get('canvas_width'),
                 canvas_height = this.model.get('canvas_height');
+            this.figureModel = this.model;  // since getModelCoords() expects this.figureModel
 
             // Create <svg> canvas
             this.raphael_paper = Raphael("canvas_wrapper", canvas_width, canvas_height);
 
             // this.panelRects = new ProxyRectModelList();
+            self.$dragOutline = $("<div style='border: dotted #0a0a0a 1px; position:absolute; z-index:1'></div>")
+                .appendTo("#canvas_wrapper");
+            self.outlineStyle = self.$dragOutline.get(0).style;
 
-            // Add global click handler
-            $("#canvas_wrapper>svg").mousedown(function(event){
-                self.handleClick(event);
+
+            // Add global mouse event handlers
+            self.dragging = false;
+            self.drag_start_x = 0;
+            self.drag_start_y = 0;
+            $("#canvas_wrapper>svg")
+                .mousedown(function(event){
+                    self.dragging = true;
+                    var parentOffset = $(this).parent().offset(); 
+                    //or $(this).offset(); if you really just want the current element's offset
+                    self.left = self.drag_start_x = event.pageX - parentOffset.left;
+                    self.top = self.drag_start_y = event.pageY - parentOffset.top;
+                    self.dx = 0;
+                    self.dy = 0;
+                    self.$dragOutline.css({
+                            'left': self.drag_start_x,
+                            'top': self.drag_start_y,
+                            'width': 0,
+                            'height': 0
+                        }).show();
+                    // return false;
+            })
+                .mousemove(function(event){
+                    if (self.dragging) {
+                        var parentOffset = $(this).parent().offset(); 
+                        //or $(this).offset(); if you really just want the current element's offset
+                        self.left = self.drag_start_x;
+                        self.top = self.drag_start_y;
+                        self.dx = event.pageX - parentOffset.left - self.drag_start_x;
+                        self.dy = event.pageY - parentOffset.top - self.drag_start_y;
+                        if (self.dx < 0) {
+                            self.left = self.left + self.dx;
+                            self.dx = Math.abs(self.dx);
+                        }
+                        if (self.dy < 0) {
+                            self.top = self.top + self.dy;
+                            self.dy = Math.abs(self.dy);
+                        }
+                        self.$dragOutline.css({
+                            'left': self.left,
+                            'top': self.top,
+                            'width': self.dx,
+                            'height': self.dy
+                        });
+                        // .show();
+                        // self.outlineStyle.left = left + 'px';
+                        // self.outlineStyle.top = top + 'px';
+                        // self.outlineStyle.width = dx + 'px';
+                        // self.outlineStyle.height = dy + 'px';
+                    }
+                    // return false;
+            })
+                .mouseup(function(event){
+                    if (self.dragging) {
+                        self.handleClick(event);
+                        self.$dragOutline.hide();
+                    }
+                    self.dragging = false;
+                    // return false;
             });
 
             // If a panel is added...
@@ -2541,9 +2629,18 @@
             this.raphael_paper.setSize(newWidth, newHeight);
         },
 
-        // Any mouse click (mousedown) that isn't captured by Panel Rect clears selection
+        getModelCoords: getModelCoords,
+
+        // Any mouse click (mouseup) or dragStop that isn't captured by Panel Rect clears selection
         handleClick: function(event) {
-            this.model.clearSelected();
+            if (!event.shiftKey) {
+                this.model.clearSelected();
+            }
+            // select panels overlapping with drag outline
+            if (this.dx > 0 || this.dy > 0) {
+                var coords = this.getModelCoords({x: this.left, y: this.top, width:this.dx, height:this.dy});
+                this.model.selectByRegion(coords);
+            }
         }
     });
 
