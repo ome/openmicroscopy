@@ -1599,8 +1599,10 @@ def copy_image_rdef_json (request, conn=None, **kwargs):
                 img is not None and webgateway_cache.invalidateObject(server_id, userid, img)
 
     # finally - if we temporarily saved rdef to original image, revert
-    if originalSettings is not None and fromImage is not None:
-        applyRenderingSettings(fromImage, originalSettings)
+    # if we're sure that from-image is not in the target set (Dataset etc)
+    if to_type == "Image" and fromid not in toids:
+        if originalSettings is not None and fromImage is not None:
+            applyRenderingSettings(fromImage, originalSettings)
     return json_data
 
 
