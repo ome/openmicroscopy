@@ -132,6 +132,11 @@ public class ChgrpValidation extends GraphStep {
     @Override
     public void onRelease(Class<IObject> k, Set<Long> ids)
             throws GraphException {
+
+        if (false) {
+            return;
+        }
+
         EventLogMessage elm = new EventLogMessage(this, "CHGRP-VALIDATION", k,
                 new ArrayList<Long>(ids));
 
