@@ -15,6 +15,10 @@ function annotations = getObjectAnnotations(session, annotationType, parentType,
 %    anns = getObjectAnnotations(session, annotationType, parentType, ids,
 %    'exclude', exclude) excludes annotations with the input namespace.
 %
+%    anns = getObjectAnnotations(session, annotationType, parentType, ids,
+%    'uid', uid, ...) searches annotations owned by the specified user,
+%    additional options are passed to the OMERO service.
+%
 %    Examples:
 %
 %        anns = getObjectAnnotations(session, annotationType, parentType,
@@ -25,6 +29,8 @@ function annotations = getObjectAnnotations(session, annotationType, parentType,
 %        ids, 'include', include)
 %        anns = getObjectAnnotations(session, annotationType, parentType,
 %        ids, 'exclude', exclude)
+%        anns = getObjectAnnotations(session, annotationType, parentType,
+%        ids, 'uid', -1, 'omero.group', -1)
 %
 % See also: GETIMAGEFILEANNOTATIONS, GETIMAGETAGANNOTATIONS,
 % GETIMAGECOMMENTANNOTATIONS
@@ -55,6 +61,8 @@ ip.addRequired('parentType', @(x) ischar(x) && ismember(x, {objects.name}));
 ip.addRequired('ids', @(x) isvector(x) || isempty(x));
 ip.addParamValue('include', [], @(x) iscellstr(x) || ischar(x));
 ip.addParamValue('exclude', [], @(x) iscellstr(x) || ischar(x));
+ip.addParamValue('uid', [], @(x) isscalar(x) || isempty(x));
+ip.KeepUnmatched = true;
 ip.parse(annotationType, parentType, ids, varargin{:});
 
 % Load existing file annotations
@@ -68,16 +76,22 @@ ids = toJavaList(ids, 'java.lang.Long');
 include = toJavaList(ip.Results.include, 'java.lang.String');
 exclude = toJavaList(ip.Results.exclude, 'java.lang.String');
 
-% Load the annotations of the session owner
-userId = session.getAdminService().getEventContext().userId;
 parameters = omero.sys.ParametersI;
+
+if isempty(ip.Results.uid)
+    % Load the annotations of the session owner
+    userId = session.getAdminService().getEventContext().userId;
+else
+    userId = ip.Results.uid;
+end
 parameters.exp(rlong(userId));
 
 % Read annotations
 object = objects(strcmp(parentType, {objects.name}));
 annotation = annotations(strcmp(annotationType, {annotations.name}));
 annotations = metadataService.loadSpecifiedAnnotationsLinkedTo(...
-    annotation.class, include, exclude, object.class, ids, parameters);
+    annotation.class, include, exclude, object.class, ids, parameters, ...
+    structToHashMap(ip.Unmatched));
 
 % Aggregate all annotations into a java.util.ArrayList
 annotationList = java.util.ArrayList();
