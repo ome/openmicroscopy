@@ -67,6 +67,7 @@ import omero.model.Screen;
 import omero.sys.Parameters;
 import omero.sys.ParametersI;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -335,7 +336,7 @@ public class ImportLibrary implements IObservable
                     null, length, null));
 
             // "touch" the file otherwise zero-length files
-            rawFileStore.write(new byte[0], offset, 0);
+            rawFileStore.write(ArrayUtils.EMPTY_BYTE_ARRAY, offset, 0);
             estimator.stop();
             notifyObservers(new ImportEvent.FILE_UPLOAD_BYTES(
                     file.getAbsolutePath(), index, srcFiles.length,
