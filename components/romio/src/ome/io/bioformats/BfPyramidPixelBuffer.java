@@ -152,12 +152,26 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
      * @throws FormatException
      */
     public BfPyramidPixelBuffer(TileSizes sizes, Pixels pixels, String filePath, boolean write)
-    throws IOException, FormatException
+            throws IOException, FormatException
+    {
+        this(sizes, pixels, filePath, write, true); // init!
+    }
+
+    protected BfPyramidPixelBuffer(TileSizes sizes, Pixels pixels, String filePath,
+            boolean write, boolean init)
+            throws IOException, FormatException
     {
         this.sizes = sizes;
         this.readerFile = new File(filePath);
         this.pixels = pixels;
+        if (init) {
+            init(filePath, write);
+        }
+    }
 
+    protected void init(String filePath, boolean write)
+            throws IOException, FormatException
+    {
         if (!write || readerFile.exists())
         {
             if (write) {
@@ -179,7 +193,7 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
         }
     }
 
-    private synchronized void initializeReader() throws IOException, FormatException
+    protected synchronized void initializeReader() throws IOException, FormatException
     {
         if (isLockedByOthers())
         {
@@ -204,7 +218,7 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
      * flag, <code>false</code> otherwise.
      * @throws Exception Thrown if an error occurred.
      */
-    private synchronized void initializeWriter(String output,
+    protected synchronized void initializeWriter(String output,
                                                String compression,
                                                boolean bigTiff,
                                                int tileWidth, int tileLength)
@@ -310,7 +324,7 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
         }
     }
 
-    private void acquireLock()
+    protected void acquireLock()
     {
         try {
             lockFile = lockFile();
@@ -327,7 +341,7 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
         }
     }
 
-    private void closeRaf()
+    protected void closeRaf()
     {
         if (lockRaf != null)
         {
@@ -344,7 +358,7 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
         }
     }
 
-    private boolean isLockedByOthers()
+    protected boolean isLockedByOthers()
     {
 
         if (fileLock != null) {
@@ -361,6 +375,7 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
                 fileLock = lockRaf.getChannel().tryLock();
             } catch (OverlappingFileLockException ofle) {
                 // Another object in this JVM controls the lock.
+                log.debug("Overlapping file lock exception: " + readerFile);
             }
             if (fileLock == null) {
                 // If we don't control the fileLock, then we
@@ -407,7 +422,7 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
     /**
      * This method should never exit without releasing the lock.
      */
-    private void closeWriter() throws IOException
+    protected void closeWriter() throws IOException
     {
         try {
             if (writer != null) {
