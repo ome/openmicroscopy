@@ -67,6 +67,7 @@ import org.openmicroscopy.shoola.env.data.util.PojoMapper;
 import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.util.StatusLabel;
+import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.rnd.PixelsServicesFactory;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
@@ -2239,8 +2240,8 @@ class OMEROGateway
 	 * if it was possible to reconnect, <code>false</code>
 	 * otherwise.
 	 *
-	 * @param userName	The user name to be used for login.
-	 * @param password	The password to be used for login.
+	 * @param userName The user name to be used for login.
+	 * @param password The password to be used for login.
 	 * @return See above.
 	 */
 	boolean reconnect(String userName, String password)
@@ -2256,9 +2257,11 @@ class OMEROGateway
 		Iterator<Connector> i = connectors.iterator();
 		List<Integer> counts = new ArrayList<Integer>();
 		int index = 0;
+		Connector c;
 		while (i.hasNext()) {
 			try {
-				i.next().reconnect(userName, password);
+				c = i.next().reconnect(userName, password);
+				groupConnectorMap.put(c.getGroupID(), c);
 			} catch (Throwable t) {
 			    counts.add(index);
 			}
