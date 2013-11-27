@@ -4652,7 +4652,6 @@ class OMEROGateway
 			while (i.hasNext()) {
 				rndDef = (RenderingDef) i.next();
 				exp = rndDef.getDetails().getOwner();
-				System.err.println(rndDef.getId().getValue());
 				user = users.get(exp.getId().getValue());
 				if (user == null) {
 				    user = PojoMapper.asDataObject(exp);
