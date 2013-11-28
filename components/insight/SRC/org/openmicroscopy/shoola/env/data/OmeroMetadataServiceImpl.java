@@ -38,6 +38,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 
+import org.apache.commons.collections.CollectionUtils;
 //Third-party libraries
 import org.apache.commons.collections.ListUtils;
 
@@ -2021,6 +2022,7 @@ class OmeroMetadataServiceImpl
 				exclude.add(FileAnnotationData.MEASUREMENT_NS);
 				exclude.add(FileAnnotationData.FLIM_NS);
 				exclude.add(FileAnnotationData.EXPERIMENTER_PHOTO_NS);
+				exclude.add(FileAnnotationData.LOG_FILE_NS);
 		}
 		
 		return gateway.loadSpecificAnnotation(ctx, FileAnnotationData.class,
@@ -2040,7 +2042,7 @@ class OmeroMetadataServiceImpl
 		if (set.size() != 1) return null;
 		Iterator<DataObject> i = set.iterator();
 		while (i.hasNext()) {
-			return i.next();	
+			return i.next();
 		}
 		return null;
 	}
@@ -2164,10 +2166,12 @@ class OmeroMetadataServiceImpl
 			List<String> nsExclude)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		if (rootType == null || rootIDs == null || rootIDs.size() == 0)
+		if (rootType == null || CollectionUtils.isEmpty(rootIDs))
 			throw new IllegalArgumentException("No node specified");
 		if (annotationType == null)
 			throw new IllegalArgumentException("No annotation type specified");
+		//always exclude the log file
+		nsExclude.add(FileAnnotationData.LOG_FILE_NS);
 		return gateway.loadSpecifiedAnnotationsLinkedTo(ctx, rootType, rootIDs,
 				annotationType, nsInclude, nsExclude, new Parameters());
 	}
