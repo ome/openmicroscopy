@@ -88,7 +88,7 @@ function hideHeader() {
         <div>
             <label>Image IDs</label>
             <input type="text" name="imageIds" {% if imageIds %} value="{{ imageIds }}" {% endif %} /> 
-            <a href="{% url webtest_split_view_figure %}">Clear</a>
+            <a href="{% url 'webtest_split_view_figure' %}">Clear</a>
         </div>
     {% if imageIds %}
         <div style="float:left">
@@ -173,7 +173,7 @@ function hideHeader() {
         <div style="border: 1px solid black; padding:10px">
             <b>Save Figure</b><br />
             Save the current page as a <br />comment on these Images:
-        <form method='post' action="{% url webtest_add_annotations %}">
+        <form method='post' action="{% url 'webtest_add_annotations' %}">
         
             <input type="text" name="imageIds" {% if imageIds %} value="{{ imageIds }}" {% endif %} />
             <input id="url_field" type="text" name="comment" style="display:none" />
@@ -230,7 +230,7 @@ function hideHeader() {
         {% for c in c_strs %}
         <td>
             <img class='img_panel' 
-            src="{% url webgateway.views.render_image image.id image.z 0 %}?c={{c}}&p={{proj}}" />
+            src="{% url 'webgateway.views.render_image' image.id image.z 0 %}?c={{c}}&p={{proj}}" />
         </td>
         {% endfor %}
     </tr>

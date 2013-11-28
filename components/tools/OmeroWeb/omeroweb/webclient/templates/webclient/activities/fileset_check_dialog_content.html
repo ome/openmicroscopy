@@ -22,8 +22,8 @@
         {% with MAX_SHOWN=4 %}
         <div style="border: 1px solid #87ABD2; float: left">
             {% for iid in fs.attempted_iids|slice:":4" %}
-                <a href="{% url webindex %}?show=image-{{ iid }}">
-                    <img src="{% url render_thumbnail_resize 96 iid %}" class="fileset_image"/>
+                <a href="{% url 'webindex' %}?show=image-{{ iid }}">
+                    <img src="{% url 'render_thumbnail_resize' 96 iid %}" class="fileset_image"/>
                 </a>
             {% endfor %}
             {% if fs.attempted_iids|length > MAX_SHOWN %}
@@ -32,8 +32,8 @@
         </div>
         <div style="border: 1px solid #87ABD2; float: left; margin-left:35px">
             {% for iid in fs.blocking_iids|slice:":4" %}
-                <a href="{% url webindex %}?show=image-{{ iid }}">
-                    <img src="{% url render_thumbnail_resize 96 iid %}" class="fileset_image"/>
+                <a href="{% url 'webindex' %}?show=image-{{ iid }}">
+                    <img src="{% url 'render_thumbnail_resize' 96 iid %}" class="fileset_image"/>
                 </a>
             {% endfor %}
             {% if fs.blocking_iids|length > MAX_SHOWN %}

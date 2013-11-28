@@ -48,7 +48,7 @@ form dir {
 
 {% block body %}
 <div>
-    <form id="split_dataset_form" method='get' action="{% url webtest_dataset_split_include dataset.id %}">
+    <form id="split_dataset_form" method='get' action="{% url 'webtest_dataset_split_include' dataset.id %}">
         <div>
             <table width="100%">
             <tr>

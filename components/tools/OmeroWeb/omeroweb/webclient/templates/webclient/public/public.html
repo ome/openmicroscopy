@@ -85,7 +85,7 @@
                             "ajax" : {
                                 // the URL to fetch the data
                                 "url" : function(n) {
-                                    return n.attr ? ("{% url load_public %}"+n.attr("id").split("-")[1]+"/") : "{% url load_public %}";
+                                    return n.attr ? ("{% url 'load_public' %}"+n.attr("id").split("-")[1]+"/") : "{% url 'load_public' %}";
                                     },
                                 // this function is executed in the instance's scope (this refers to the tree instance)
                                 // the parameter is the node being loaded (may be -1, 0, or undefined when loading the root nodes)
@@ -223,7 +223,7 @@
                 })
                 .delegate("a", "dblclick", function(e) {
                     if ($(this).parent().attr('rel')=='image') {
-                        OME.openPopup("{% url web_image_viewer 0 %}".replace('0', $(this).parent().attr('id').split("-")[1]));
+                        OME.openPopup("{% url 'web_image_viewer' 0 %}".replace('0', $(this).parent().attr('id').split("-")[1]));
                     }
                 })
                 .bind("select_node.jstree deselect_node.jstree", function (e, data) {
@@ -234,7 +234,7 @@
                     var pr = $(data.args[1]);
                     
                     data.args[0].each(function (i) {
-                        url = '{% url manage_action_containers "removefromshare" "share" %}'+pr.attr('id').split('-')[1]+'/'
+                        url = '{% url 'manage_action_containers' "removefromshare" "share" %}'+pr.attr('id').split('-')[1]+'/'
                         $.ajax({
                             async : false,
                             url: url,
@@ -328,9 +328,9 @@
 <div id="left_panel_tabs" class="absolute_fill">
     
     <ul id="left_panel_tab_list">
-        <li><a href="{% url load_template 'userdata' %}">{% trans "Explore" %}</a></li>
-        <li><a href="{% url load_template 'usertags' %}">{% trans "Tags" %}</a></li>
-		<!-- <li><a href="{% url load_template 'usertags' %}">{% trans "History" %}</a></li> -->
+        <li><a href="{% url 'load_template' 'userdata' %}">{% trans "Explore" %}</a></li>
+        <li><a href="{% url 'load_template' 'usertags' %}">{% trans "Tags" %}</a></li>
+		<!-- <li><a href="{% url 'load_template' 'usertags' %}">{% trans "History" %}</a></li> -->
         <li><a href="#Public" title="Public">{% trans "Public" %}</a></li>
     </ul>
 	

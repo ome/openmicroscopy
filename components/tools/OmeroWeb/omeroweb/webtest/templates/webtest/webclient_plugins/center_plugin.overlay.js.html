@@ -41,7 +41,7 @@ $(document).ready(function() {
         $channel_overlay_panel = $("#channel_overlay_panel");
         var channel_overlay_url;
         if ($channel_overlay_panel.is(":visible") && $channel_overlay_panel.is(":empty")) {
-            split_view_fig_url = '{% url webtest_index %}channel_overlay_viewer/'+ oid.split("-")[1] + "/";
+            split_view_fig_url = '{% url 'webtest_index' %}channel_overlay_viewer/'+ oid.split("-")[1] + "/";
             $channel_overlay_panel.load(split_view_fig_url);
         };
     };

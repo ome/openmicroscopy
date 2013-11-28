@@ -22,7 +22,7 @@ from django.utils import simplejson
 from django.utils.encoding import smart_str
 from django.utils.http import urlquote
 from django.views.decorators.http import require_POST
-from django.core import template_loader
+from django.template import loader as template_loader
 from django.core.urlresolvers import reverse
 from django.conf import settings
 from django.template import RequestContext as Context

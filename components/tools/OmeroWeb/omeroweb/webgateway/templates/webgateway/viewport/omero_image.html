@@ -273,11 +273,11 @@
                 }
             }
         };
-        $.getJSON('{% url webgateway_object_table_query 'Plate.wells' 999 %}'.replace('999', tmp.wellId) +
+        $.getJSON('{% url 'webgateway_object_table_query' 'Plate.wells' 999 %}'.replace('999', tmp.wellId) +
             '?query=Well-' + tmp.wellId +
             '&callback=?',
              onAnnotations);
-        $.getJSON('{% url webgateway_object_table_query 'Screen.plateLinks.child.wells' 999 %}'.replace('999', tmp.wellId) +
+        $.getJSON('{% url 'webgateway_object_table_query' 'Screen.plateLinks.child.wells' 999 %}'.replace('999', tmp.wellId) +
             '?query=Well-' + tmp.wellId +
             '&callback=?',
              onAnnotations);
@@ -544,7 +544,7 @@
       if (!viewport.viewportimg.get(0).show_rois) {
           var options = {'width':{{ image.getSizeX }}, 
                      'height':{{ image.getSizeY }},
-                     'json_url':'{% url webgateway_get_rois_json image.id %}'};
+                     'json_url':'{% url 'webgateway_get_rois_json' image.id %}'};
           if (viewport.loadedImg.tiles) {
               options['tiles'] = true;
               options['canvas_name'] = 'roi_canvas_big';
@@ -746,9 +746,9 @@
                     $thmb.attr('color', line_color);
                 }
                 var thmb_id = parseInt($thmb.attr('id'));
-                var thmb_src = "{% url webgateway.views.render_roi_thumbnail 0 %}"+ thmb_id +"/?color=" + line_color;
+                var thmb_src = "{% url 'webgateway.views.render_roi_thumbnail' 0 %}"+ thmb_id +"/?color=" + line_color;
                 if ($thmb.hasClass('shape_thumb')) {
-                    thmb_src = "{% url webgateway.views.render_shape_thumbnail 0 %}"+ thmb_id +"/?color=" + line_color;
+                    thmb_src = "{% url 'webgateway.views.render_shape_thumbnail' 0 %}"+ thmb_id +"/?color=" + line_color;
                 }
                 $thmb.attr('src', thmb_src);
                 $thmb.show();

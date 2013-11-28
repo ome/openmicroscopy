@@ -110,7 +110,7 @@
                         }
                     });
                     $("div#content_details").html('<p>{% trans "Loading data... please wait" %} <img src ="{% static "webgateway/img/spinner.gif" %}"/></p>');
-                    $("div#content_details").load('{% url load_searching "form" %}?'+url);
+                    $("div#content_details").load('{% url 'load_searching' "form" %}?'+url);
                     $("#filtersearch").show();
                     OME.table_selection_changed();
                     return false;
@@ -118,7 +118,7 @@
 
 
             {% if init.query %}
-                $("div#content_details").load('{% url load_searching "form" %}?query={{ init.query }}');
+                $("div#content_details").load('{% url 'load_searching' "form" %}?query={{ init.query }}');
                 $("#filtersearch").show();
                 OME.table_selection_changed();
                 var query_string = "{{ init.query }}";
@@ -144,7 +144,7 @@
                     }
                     var data = $("#batch_searching_form").serialize();
                     $("div#content_details").html('<p>{% trans "Loading data... please wait" %} <img src ="{% static "webgateway/img/spinner.gif" %}"/></p>');
-                    $("div#content_details").load('{% url load_searching %}', data);
+                    $("div#content_details").load('{% url 'load_searching' %}', data);
                     $("#filtersearch").show();
                     OME.table_selection_changed()
                     return false;

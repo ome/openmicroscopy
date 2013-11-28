@@ -91,7 +91,7 @@
                     var $selected = $('td.ui-selected', wpv.self);
                     OME.well_selection_changed($selected, {{ index }}, '{{ manager.getPermsCss }}'); // ome.webclient.actions.js
                 }).bind('dblclick', function(){
-                    OME.openPopup("{% url web_image_viewer 0 %}".replace('0', parseInt( $(this).attr('id').split("-")[1])));
+                    OME.openPopup("{% url 'web_image_viewer' 0 %}".replace('0', parseInt( $(this).attr('id').split("-")[1])));
                 });
             });            
             wpv.self.selectable({

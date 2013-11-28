@@ -89,14 +89,14 @@
                                     if (n.attr) {
                                         var parent = this._get_parent(n);
                                         if ($.inArray($(parent).attr("rel").replace("-locked", ""), ["project", "screen"]) > -1) {
-                                            url = "{% url load_data %}"+$(parent).attr("rel").replace("-locked", "")+"/"+$(parent).attr("id").split("-")[1]+"/"+n.attr("rel").replace("-locked", "")+"/"+n.attr("id").split("-")[1]+"/";
+                                            url = "{% url 'load_data' %}"+$(parent).attr("rel").replace("-locked", "")+"/"+$(parent).attr("id").split("-")[1]+"/"+n.attr("rel").replace("-locked", "")+"/"+n.attr("id").split("-")[1]+"/";
                                         } else if ($.inArray($(parent).attr("rel").replace("-locked", ""), ["image"]) > -1){
-                                            url = "{% url load_data %}"+n.attr("rel").replace("-locked", "")+"/"+n.attr("id").split("-")[1]+"/";
+                                            url = "{% url 'load_data' %}"+n.attr("rel").replace("-locked", "")+"/"+n.attr("id").split("-")[1]+"/";
                                         } else {
-                                            url = "{% url load_data_by_tag %}"+n.attr("rel").replace("-locked", "")+"/"+n.attr("id").split("-")[1]+"/";
+                                            url = "{% url 'load_data_by_tag' %}"+n.attr("rel").replace("-locked", "")+"/"+n.attr("id").split("-")[1]+"/";
                                         }
                                     } else {
-                                        url = "{% url load_data_by_tag %}";
+                                        url = "{% url 'load_data_by_tag' %}";
                                     }
                                     return url;
                                 },
@@ -324,7 +324,7 @@
                 })
                 .delegate("a", "dblclick", function(e, data) {
                     if ($(this).parent().attr('rel')=='image') {
-                        OME.openPopup("{% url web_image_viewer 0 %}".replace('0', $(this).parent().attr('id').split("-")[1]));
+                        OME.openPopup("{% url 'web_image_viewer' 0 %}".replace('0', $(this).parent().attr('id').split("-")[1]));
                     }
                     $("#dataTree").jstree("open_node", this);
                 })
@@ -335,7 +335,7 @@
                 })
                 .bind("remove.jstree", function (e, data) {
                     data.args[0].each(function (i) {
-                        var url = '{% url manage_action_containers "delete" %}'+$(this).attr("rel").replace("-locked","")+'/'+$(this).attr("id").split("-")[1]+'/'
+                        var url = '{% url 'manage_action_containers' "delete" %}'+$(this).attr("rel").replace("-locked","")+'/'+$(this).attr("id").split("-")[1]+'/'
 
                         $.ajax({
                             async : false,
@@ -442,9 +442,9 @@
 
 <div id="left_panel_tabs" class="absolute_fill">
     <ul id="left_panel_tab_list">
-        <li id="explore_tab"><a href="{% url load_template 'userdata' %}">{% trans "Explore" %}</a></li>
+        <li id="explore_tab"><a href="{% url 'load_template' 'userdata' %}">{% trans "Explore" %}</a></li>
         <li id="tags_tab"><a href="#Tags">{% trans "Tags" %}</a></li>
-        <li id="public_tab"><a href="{% url load_template 'public' %}">{% trans "Public" %}</a></li>
+        <li id="public_tab"><a href="{% url 'load_template' 'public' %}">{% trans "Public" %}</a></li>
     </ul>
     
     

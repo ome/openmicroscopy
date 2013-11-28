@@ -213,13 +213,13 @@
     <h1>{% trans "New User" %}</h1>
     {% endif %}
 
-    <h1><a href="{% url waexperimenters %}" style="position:relative; top:-38px; float:right" title="Go Back to Users">Cancel</a></h1>
+    <h1><a href="{% url 'waexperimenters' %}" style="position:relative; top:-38px; float:right" title="Go Back to Users">Cancel</a></h1>
 
 
 
     {% if eid %}
     <!-- We are editing existing user -->
-    <form action="{% url wamanageexperimenterid "save" eid %}" method="POST" class="standard_form settings_form">
+    <form action="{% url 'wamanageexperimenterid' "save" eid %}" method="POST" class="standard_form settings_form">
 
         {% if ldapAuth %}
         <label>LDAP:</label> {{ ldapAuth }}
@@ -235,7 +235,7 @@
         <br />
     {% else %}
     <!-- We are creating new user -->
-    <form action="{% url wamanageexperimenterid "create" %}" method="POST" class="standard_form settings_form">
+    <form action="{% url 'wamanageexperimenterid' "create" %}" method="POST" class="standard_form settings_form">
     {% endif %}
 
     <p>{% trans "Fields marked in red are mandatory." %}</p>
@@ -276,7 +276,7 @@
     <!-- hidden dialog for password change - This is almost duplicated in myaccount.html-->
     <div id="password_change_dialog" title="Change Password">
 
-    <form id="change_password_form" action="{% url wamanagechangepasswordid eid %}" method="POST">
+    <form id="change_password_form" action="{% url 'wamanagechangepasswordid' eid %}" method="POST">
 
         <table>
             <tbody>

@@ -44,7 +44,7 @@
       {% with plate=manager.image.getPlate %}
         {% if plate %}
           <li rel="plate">
-            <a href="{% url webindex %}?show=plate-{{ plate.id }}">
+            <a href="{% url 'webindex' %}?show=plate-{{ plate.id }}">
               <ins class="jstree-icon">
                   <img src="{% static "webclient/image/folder_plate16.png" %}"/>
               </ins>{{ plate.name|truncatebefor:"35" }}
@@ -53,7 +53,7 @@
             <ul>
               {% for screen in plate.listParents %}
                 <li rel="screen" class="jstree-last jstree-leaf">
-                  <a href="{% url webindex %}?show=screen-{{ screen.id }}">
+                  <a href="{% url 'webindex' %}?show=screen-{{ screen.id }}">
                     <ins class="jstree-icon">
                         <img src="{% static "webclient/image/folder_screen16.png" %}"/>
                     </ins>{{ screen.name|truncatebefor:"35" }}
@@ -70,7 +70,7 @@
       {% for c in manager.image.listParents %}
         {% ifequal c.OMERO_CLASS 'Dataset' %}
             <li rel="dataset" class="clear jstree-last {% if c.countParents %}jstree-open{% else %}jstree-leaf{% endif %}">
-                <a href="{% url webindex %}?show=dataset-{{ c.id }}">
+                <a href="{% url 'webindex' %}?show=dataset-{{ c.id }}">
                     <ins class="jstree-icon">
                         <img src="{% static "webclient/image/folder_image16.png" %}"/>
                     </ins>{{ c.name|truncatebefor:"35" }}
@@ -79,7 +79,7 @@
                 <ul>
                     {% for d in c.listParents %}
                         <li rel="project" class="jstree-last jstree-leaf">
-                            <a href="{% url webindex %}?show=project-{{ d.id }}">
+                            <a href="{% url 'webindex' %}?show=project-{{ d.id }}">
                                 <ins class="jstree-icon">
                                     <img src="{% static "webclient/image/folder16.png" %}"/>
                                 </ins>{{ d.name|truncatebefor:"35" }}

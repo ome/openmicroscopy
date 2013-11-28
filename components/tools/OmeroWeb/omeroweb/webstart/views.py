@@ -27,7 +27,7 @@ import os
 from glob import glob
 
 from django.conf import settings
-from django.core import template_loader
+from django.template import loader as template_loader
 from django.template import RequestContext as Context
 from django.shortcuts import render_to_response
 from django.http import HttpResponse

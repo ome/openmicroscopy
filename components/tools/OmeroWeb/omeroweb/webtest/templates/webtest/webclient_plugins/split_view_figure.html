@@ -67,11 +67,11 @@ function hideHeader() {
 <div>
     
     <div style="margin-left:auto; margin-right:auto; margin-top:5px">
-    <form id="split_view_fig_form" method='get' action="{% url webtest_split_view_fig_include %}">
+    <form id="split_view_fig_form" method='get' action="{% url 'webtest_split_view_fig_include' %}">
         <div style="display:none">
             <label>Image IDs</label>
             <input type="text" name="imageIds" {% if imageIds %} value="{{ imageIds }}" {% endif %} /> 
-            <a href="{% url webtest_split_view_figure %}">Clear</a>
+            <a href="{% url 'webtest_split_view_figure' %}">Clear</a>
         </div>
 		
 		

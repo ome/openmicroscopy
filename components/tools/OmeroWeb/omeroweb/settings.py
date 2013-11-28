@@ -26,6 +26,7 @@
 # Version: 1.0
 #
 
+
 import os.path
 import sys
 import datetime
@@ -230,7 +231,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
     "omero.web.static_url": ["STATIC_URL", "/static/", str],
     "omero.web.staticfile_dirs": ["STATICFILES_DIRS", '[]', json.loads],
     "omero.web.index_template": ["INDEX_TEMPLATE", None, identity],
-    "omero.web.caches": ["CACHES", '{}', json.loads],
+    "omero.web.caches": ["CACHES", '{"default": {"BACKEND": "django.core.cache.backends.dummy.DummyCache"}}', json.loads],
     "omero.web.webgateway_cache": ["WEBGATEWAY_CACHE", None, leave_none_unset],
     "omero.web.session_engine": ["SESSION_ENGINE", DEFAULT_SESSION_ENGINE, check_session_engine],
     "omero.web.debug": ["DEBUG", "false", parse_boolean],
@@ -288,6 +289,9 @@ CUSTOM_SETTINGS_MAPPINGS = {
     "omero.web.webstart_vendor": ["WEBSTART_VENDOR", "The Open Microscopy Environment", str],
     "omero.web.webstart_homepage": ["WEBSTART_HOMEPAGE", "http://www.openmicroscopy.org", str],
     "omero.web.nanoxml_jar": ["NANOXML_JAR", "nanoxml.jar", str],
+
+    # Allowed hosts: https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
+    "omero.web.allowed_hosts": ["ALLOWED_HOSTS", '["*"]', json.loads],
 }
 
 def process_custom_settings(module):
@@ -442,7 +446,6 @@ TEMPLATE_LOADERS = (
 # a Django application, as created by django-admin.py startapp.
 INSTALLED_APPS = (
     'django.contrib.staticfiles',
-    'django.contrib.markup',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -547,6 +550,10 @@ EMAIL_TEMPLATES = {
     }
 }
 
+# https://docs.djangoproject.com/en/1.6/releases/1.6/#default-session-serialization-switched-to-json
+# JSON serializer, which is now the default, cannot handle omeroweb.connector.Connector object
+SESSION_SERIALIZER = 'django.contrib.sessions.serializers.PickleSerializer'
+
 # Load server list and freeze 
 from connector import Server
 def load_server_list():
@@ -555,4 +562,3 @@ def load_server_list():
         Server(host=unicode(s[0]), port=int(s[1]), server=server)
     Server.freeze()
 load_server_list()
-
