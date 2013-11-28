@@ -34,8 +34,15 @@
     <target name="integration" depends="python-integration" unless="env.NOPYTHON"/>
 
     <target name="tools-init">
-        <if><not><available file="${basedir}/../target/lib/python/django"/></not>
+        <condition property="django.missing.or.outdated">
+            <not>
+                <resourcecontains resource="${basedir}/../target/lib/python/django/__init__.py" substring="VERSION = (1, 6, 0, 'final', 0)"/>
+            </not>
+        </condition>
+        <if>
+            <istrue value="${django.missing.or.outdated}"/>
             <then>
+                <delete dir="${basedir}/../target/lib/python/django"/>
                 <untar compression="gzip" src="${lib.dir}/repository/Django-1.6.tar.gz" dest="${basedir}/../target/lib/python">
                     <patternset>
                         <include name="Django-1.6/django/**"/>
