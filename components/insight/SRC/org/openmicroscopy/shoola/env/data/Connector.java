@@ -173,6 +173,9 @@ class Connector
     /** Reference to the logger.*/
     private final Logger logger;
 
+    /** The time between network check.*/
+    private int elapseTime;
+
     /**
      * Logs the error.
      */
@@ -189,10 +192,12 @@ class Connector
      * @param entryEncrypted The entry point to access the various services.
      * @param encrypted The entry point to access the various services.
      * @param logger Reference to the logger.
+     * @param elapseTime The time between network check.
      * @throws Throwable Thrown if entry points cannot be initialized.
      */
     Connector(SecurityContext context, client secureClient,
-            ServiceFactoryPrx entryEncrypted, boolean encrypted, Logger logger)
+            ServiceFactoryPrx entryEncrypted, boolean encrypted, Logger logger,
+            Integer elapseTime)
                     throws Throwable
     {
         if (context == null)
@@ -201,6 +206,10 @@ class Connector
             throw new IllegalArgumentException("No Server entry point.");
         if (entryEncrypted == null)
             throw new IllegalArgumentException("No Services entry point.");
+        if (elapseTime == null || elapseTime.intValue() <= 0)
+            elapseTime = ELAPSED_TIME;
+        this.elapseTime = elapseTime;
+        System.err.println(elapseTime);
         if (!encrypted) {
             unsecureClient = secureClient.createClient(false);
             entryUnencrypted = unsecureClient.getSession();
@@ -546,7 +555,7 @@ class Connector
         if (unsecureClient != null) unsecureClient.closeSession();
         ServiceFactoryPrx prx = secureClient.createSession(userName, password);
         return new Connector(this.context, secureClient, prx,
-                entryUnencrypted == null, logger);
+                entryUnencrypted == null, logger, elapseTime);
     }
 
     /**
@@ -819,7 +828,7 @@ class Connector
         ServiceFactoryPrx userSession = client.createSession(
                 session.getUuid().getValue(), session.getUuid().getValue());
         c = new Connector(context.copy(), client, userSession,
-                unsecureClient == null, logger);
+                unsecureClient == null, logger, elapseTime);
         log("Created derived connector: " + userName);
 
         Connector otherThread = derived.putIfAbsent(userName, c); 
@@ -847,7 +856,7 @@ class Connector
     {
         long last = lastKeepAlive.get();
         long elapsed = System.currentTimeMillis() - last;
-        return elapsed > ELAPSED_TIME;
+        return elapsed > elapseTime;
     }
 
     /**
