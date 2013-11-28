@@ -477,6 +477,9 @@ public class ImportLibrary implements IObservable
         final ImportCallback cb = createCallback(proc, handle, container);
         cb.loop(60*60, 1000); // Wait 1 hr per step.
         final ImportResponse rsp = cb.getImportResponse();
+        if (rsp == null) {
+            throw new Exception("Import failure");
+        }
         return rsp.pixels;
     }
 
