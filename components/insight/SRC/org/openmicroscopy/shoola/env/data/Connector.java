@@ -209,7 +209,6 @@ class Connector
         if (elapseTime == null || elapseTime.intValue() <= 0)
             elapseTime = ELAPSED_TIME;
         this.elapseTime = elapseTime;
-        System.err.println(elapseTime);
         if (!encrypted) {
             unsecureClient = secureClient.createClient(false);
             entryUnencrypted = unsecureClient.getSession();
