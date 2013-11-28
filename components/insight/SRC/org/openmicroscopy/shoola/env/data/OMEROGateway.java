@@ -35,7 +35,6 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -49,9 +48,13 @@ import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 //Third-party libraries
-
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.map.MultiValueMap;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.LinkedListMultimap;
+import com.google.common.collect.ListMultimap;
+import com.google.common.collect.Multimap;
+import com.google.common.collect.Multimaps;
+
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
@@ -64,7 +67,6 @@ import org.openmicroscopy.shoola.env.data.model.SaveAsParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.data.model.TableParameters;
 import org.openmicroscopy.shoola.env.data.model.TableResult;
-import org.openmicroscopy.shoola.env.data.util.IObjectComparator;
 import org.openmicroscopy.shoola.env.data.util.ModelMapper;
 import org.openmicroscopy.shoola.env.data.util.PojoMapper;
 import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
@@ -75,14 +77,6 @@ import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.util.NetworkChecker;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.LinkedListMultimap;
-import com.google.common.collect.ListMultimap;
-import com.google.common.collect.Multimap;
-import com.google.common.collect.Multimaps;
-
-import edu.emory.mathcs.backport.java.util.Collections;
 
 import omero.ResourceError;
 import ome.formats.OMEROMetadataStoreClient;
@@ -139,7 +133,6 @@ import omero.api.StatefulServiceInterfacePrx;
 import omero.api.ThumbnailStorePrx;
 import omero.cmd.Chgrp;
 import omero.cmd.Chmod;
-import omero.cmd.Delete;
 import omero.cmd.HandlePrx;
 import omero.cmd.Request;
 import omero.constants.projection.ProjectionType;
@@ -4641,7 +4634,6 @@ class OMEROGateway
 			List results = service.retrieveAllRndSettings(pixelsID, userID);
 
 			if (CollectionUtils.isEmpty(results)) return tmp.asMap();
-			Collections.sort(results, new IObjectComparator());
 			//sort the list
 			Iterator i = results.iterator();
 			RenderingDef rndDef;
@@ -4692,7 +4684,6 @@ class OMEROGateway
 			List results = service.retrieveAllRndSettings(pixelsID, userID);
 			List<RndProxyDef> l = new ArrayList<RndProxyDef>();
 			if (CollectionUtils.isEmpty(results)) return l;
-			Collections.sort(results, new IObjectComparator());
 			Iterator i = results.iterator();
 			while (i.hasNext()) {
 				l.add(PixelsServicesFactory.convert((RenderingDef) i.next()));
