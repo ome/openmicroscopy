@@ -349,6 +349,16 @@ public class DataServicesFactory
     }
 
     /**
+     * Returns the time before each network check.
+     * 
+     * @return See above.
+     */
+    Integer getElapseTime()
+    {
+        return (Integer) registry.lookup(LookupNames.ELAPSE_TIME);
+    }
+
+    /**
      * Adds a listener to the dialog and shows the dialog depending on the
      * specified value.
      */
