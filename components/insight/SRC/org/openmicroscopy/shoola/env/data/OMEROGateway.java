@@ -1524,7 +1524,7 @@ class OMEROGateway
     		prx.setSecurityContext(
     				new ExperimenterGroupI(ctx.getGroupID(), false));
     		c = new Connector(ctx, client, prx, encrypted,
-    				dsFactory.getLogger());
+    				dsFactory.getLogger(), dsFactory.getElapseTime());
     		groupConnectorMap.put(ctx.getGroupID(), c);
     	} catch (Throwable e) {
     	    // TODO: This previously was via handleException??
@@ -2023,7 +2023,8 @@ class OMEROGateway
 				ctx.setServerInformation(hostName, port);
 				ctx.setCompression(compression);
 				connector = new Connector(ctx, secureClient, entryEncrypted,
-						encrypted, dsFactory.getLogger());
+						encrypted, dsFactory.getLogger(),
+						dsFactory.getElapseTime());
 				groupConnectorMap.put(ctx.getGroupID(), connector);
 				if (defaultID == groupID) return exp;
 				try {
@@ -2032,7 +2033,8 @@ class OMEROGateway
 					ctx.setServerInformation(hostName, port);
 					ctx.setCompression(compression);
 					connector = new Connector(ctx, secureClient, entryEncrypted,
-							encrypted, dsFactory.getLogger());
+							encrypted, dsFactory.getLogger(),
+							dsFactory.getElapseTime());
 					exp = getUserDetails(ctx, userName, true);
 					groupConnectorMap.put(ctx.getGroupID(), connector);
 				} catch (Exception e) {
@@ -2047,7 +2049,7 @@ class OMEROGateway
 			ctx.setServerInformation(hostName, port);
 			ctx.setCompression(compression);
 			connector = new Connector(ctx, secureClient, entryEncrypted,
-					encrypted, dsFactory.getLogger());
+					encrypted, dsFactory.getLogger(), dsFactory.getElapseTime());
 			groupConnectorMap.put(ctx.getGroupID(), connector);
 			return exp;
 		} catch (Throwable e) {
