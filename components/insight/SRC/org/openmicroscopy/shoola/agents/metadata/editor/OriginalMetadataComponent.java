@@ -58,6 +58,7 @@ import javax.swing.table.DefaultTableModel;
 import org.apache.commons.collections.CollectionUtils;
 //Application-internal dependencies
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang.StringUtils;
 import org.jdesktop.swingx.JXBusyLabel;
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.decorator.Highlighter;
@@ -313,7 +314,7 @@ class OriginalMetadataComponent
 	 */
 	private int getStart(String line)
 	{
-		if (line == null || line.length() == 0) return 0;
+		if (StringUtils.isBlank(line)) return 0;
 		if (line.startsWith("[")) return 1;
 		return 0;
 	}
@@ -364,6 +365,7 @@ class OriginalMetadataComponent
 			add(statusBar, BorderLayout.NORTH);
 			return;
 		}
+		downloadButton.setEnabled(file.length() != 0);
 		try {
 			BufferedReader input = new BufferedReader(new FileReader(file));
 			Map<String, List<String>> components = 
@@ -395,7 +397,6 @@ class OriginalMetadataComponent
 			buildGUI(components);
 			file.delete();
 		} catch (IOException e) {
-			e.printStackTrace();
 			file.delete();
 			JLabel l = new JLabel("Loading metadata");
 			l.setBackground(UIUtilities.BACKGROUND_COLOR);
@@ -409,7 +410,6 @@ class OriginalMetadataComponent
 			msg.print(e);
 			logger.error(this, msg);
 		}
-		
 	}
 
 	/**
