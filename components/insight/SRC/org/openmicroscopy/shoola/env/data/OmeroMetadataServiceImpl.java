@@ -1982,6 +1982,7 @@ class OmeroMetadataServiceImpl
 				exclude.add(FileAnnotationData.MEASUREMENT_NS);
 				exclude.add(FileAnnotationData.FLIM_NS);
 				exclude.add(FileAnnotationData.EXPERIMENTER_PHOTO_NS);
+				exclude.add(FileAnnotationData.LOG_FILE_NS);
 		}
 		ParametersI po = new ParametersI();
 		if (userID >= 0) po.exp(omero.rtypes.rlong(userID));
