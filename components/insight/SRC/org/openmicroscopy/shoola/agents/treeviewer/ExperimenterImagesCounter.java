@@ -67,23 +67,23 @@ public class ExperimenterImagesCounter
 {
 
     /** The node hosting the experimenter the data are for. */
-    private TreeImageSet			expNode;
+    private TreeImageSet expNode;
 
     /** The node hosting the time information. */
-    private List<TreeImageSet>		nodes;
+    private List<TreeImageSet> nodes;
 
     /** Handle to the asynchronous call so that we can cancel it. */
-    private CallHandle  			handle;
+    private CallHandle handle;
 
     /**
-     * Creates a new instance. 
+     * Creates a new instance.
      * 
-     * @param viewer    The viewer this data loader is for.
-     *                  Mustn't be <code>null</code>.
+     * @param viewer The viewer this data loader is for.
+     *                Mustn't be <code>null</code>.
      * @param ctx The security context.
-     * @param expNode	The node hosting the experimenter the data are for.
-     * 					Mustn't be <code>null</code>.
-     * @param nodes		The time nodes. Mustn't be <code>null</code>.
+     * @param expNode The node hosting the experimenter the data are for.
+     *                Mustn't be <code>null</code>.
+     * @param nodes The time nodes. Mustn't be <code>null</code>.
      */
     public ExperimenterImagesCounter(Browser viewer, SecurityContext ctx,
             TreeImageSet expNode, List<TreeImageSet> nodes)
@@ -95,7 +95,7 @@ public class ExperimenterImagesCounter
         if (!(ho instanceof ExperimenterData || ho instanceof GroupData))
             throw new IllegalArgumentException("Node not valid.");
         if (CollectionUtils.isEmpty(nodes))
-            throw new IllegalArgumentException("No time node specified node.");
+            throw new IllegalArgumentException("No time node specified.");
         this.expNode = expNode;
         this.nodes = nodes;
     }
@@ -156,7 +156,7 @@ public class ExperimenterImagesCounter
     }
 
     /** 
-     * Feeds the thumbnails back to the viewer, as they arrive. 
+     * Feeds the thumbnails back to the viewer, as they arrive.
      * @see DataBrowserLoader#update(DSCallFeedbackEvent)
      */
     public void update(DSCallFeedbackEvent fe) 
