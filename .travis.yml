@@ -1,8 +1,8 @@
 language: java
 
 env:
-    - BUILD=java BUILD_TARGET="build-default test-compile" TEST_TARGET="-p"
     - BUILD=py BUILD_TARGET="build-default" TEST_TARGET="-py test -Dtest.with.fail=true"
+    - BUILD=java BUILD_TARGET="build-default test-compile" TEST_TARGET="-p"
 
 matrix:
       fast_finish: true
