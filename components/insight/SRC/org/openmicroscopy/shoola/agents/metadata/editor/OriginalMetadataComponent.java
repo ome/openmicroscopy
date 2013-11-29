@@ -54,15 +54,15 @@ import javax.swing.JToolBar;
 import javax.swing.table.DefaultTableModel;
 
 //Third-party libraries
-
 import org.apache.commons.collections.CollectionUtils;
-//Application-internal dependencies
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.jdesktop.swingx.JXBusyLabel;
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
+
+//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.env.data.model.DownloadActivityParam;
@@ -93,13 +93,11 @@ class OriginalMetadataComponent
     private static final String[] COLUMNS;
 
     static {
-        COLUMNS = new String[2];
-        COLUMNS[0] = "Tag";
-        COLUMNS[1] = "Value";
+        COLUMNS = new String[] {"Tag", "Value"};
     }
 
     /** Reference to the model.*/
-    private EditorModel	model;
+    private EditorModel model;
 
     /** Flag indicating if the metadata have been loaded or not. */
     private boolean metadataLoaded;
