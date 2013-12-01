@@ -214,7 +214,7 @@
                 theT = this.get('theT');
 
             return '/webgateway/render_image/' + imageId +
-                    "/" + theZ + "/" + theT + '/?c=' + renderString;
+                    "/" + theZ + "/" + theT + '/?c=' + renderString + "&m=c";
         },
 
         // used by the PanelView and ImageViewerView to get the size and
@@ -1088,6 +1088,15 @@
                         px = px || c.x - (colCount * data.size.width)/2;
                         py = py || c.y - (rowCount * data.size.height)/2;
                         spacer = spacer || data.size.width/20;
+                        var channels = data.channels;
+                        if (data.rdefs.model === "greyscale") {
+                            // we don't support greyscale, but instead set active channel grey
+                            _.each(channels, function(ch){
+                                if (ch.active) {
+                                    ch.color = "FFFFFF";
+                                }
+                            });
+                        }
                         var n = {
                             'imageId': data.id,
                             'name': data.meta.imageName,
@@ -1097,7 +1106,7 @@
                             'theZ': data.rdefs.defaultZ,
                             'sizeT': data.size.t,
                             'theT': data.rdefs.defaultT,
-                            'channels': data.channels,
+                            'channels': channels,
                             'orig_width': data.size.width,
                             'orig_height': data.size.height,
                             'x': px,
@@ -1418,7 +1427,6 @@
             // For the Label Text, handle this differently...
             if ($a.attr('data-label')) {
                 $('.new-label-form .label-text', this.$el).val( $a.attr('data-label') );
-                return false;
             }
             // All others, we take the <span> from the <a> and place it in the <button>
             if ($span.length === 0) $span = $a;  // in case we clicked on <span>
@@ -1444,12 +1452,9 @@
 
             var selected = this.model.getSelected();
 
-            if (label_text == '[channels]' || label_text == '[channels + colors]') {
-
-                // if we didn't choose 'color' from channels, use picked color
-                var ch_color = (label_text.indexOf('colors') == -1 ? color : false);
+            if (label_text == '[channels]') {
                 _.each(selected, function(m) {
-                    m.create_labels_from_channels({color:ch_color, position:position, size:font_size});
+                    m.create_labels_from_channels({position:position, size:font_size});
                 });
                 return false;
             }
