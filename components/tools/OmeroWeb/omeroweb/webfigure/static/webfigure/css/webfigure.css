@@ -255,6 +255,11 @@
         left: 240px;
         bottom: 0px;
     }
+    #vp_deltaT {
+        position: absolute;
+        right: 100px;
+        bottom: -19px;
+    }
     .no-padding {
         padding: 0px;
     }

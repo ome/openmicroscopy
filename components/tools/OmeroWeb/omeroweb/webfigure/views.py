@@ -8,6 +8,7 @@ import shutil
 import json
 
 from omeroweb.webgateway import views as webgateway_views
+from omeroweb.webgateway.marshal import imageMarshal
 from omeroweb.webclient.views import run_script
 from omero.rtypes import wrap, rlong
 import omero
@@ -32,6 +33,34 @@ def index(request, conn=None, **kwargs):
     """
 
     return render_to_response("webfigure/index.html", {})
+
+
+@login_required()
+def imgData_json(request, imageId, conn=None, **kwargs):
+
+    image = conn.getObject("Image", imageId)
+    if image is None:
+        return HttpResponseServerError('""', mimetype='application/javascript')
+    rv = imageMarshal(image)
+
+    sizeT = image.getSizeT()
+    timeList = []
+    if sizeT > 1:
+        params = omero.sys.ParametersI()
+        params.addLong('pid', image.getPixelsId())
+        query = "from PlaneInfo as Info where Info.theZ=0 and Info.theC=0 and pixels.id=:pid"
+        infoList = conn.getQueryService().findAllByQuery(query, params, conn.SERVICE_OPTS)
+        timeMap = {}
+        for info in infoList:
+            tIndex = info.theT.getValue()
+            time = int(info.deltaT.getValue())
+            timeMap[tIndex] = time
+        for t in range(image.getSizeT()):
+            if t in timeMap:
+                timeList.append(timeMap[t])
+    rv['deltaT'] = timeList
+
+    return HttpResponse(simplejson.dumps(rv), mimetype='json')
 
 
 @login_required(setGroupContext=True)

@@ -17,6 +17,7 @@
             dx: 0,    // pan x & y within viewport
             dy: 0,
             labels: [],
+            deltaT: [],     // list of deltaTs (secs) for tIndexes of movie
             selected: false
         },
 
@@ -1080,7 +1081,7 @@
                 if (parseInt(imgId, 10) > 0) {
                     var c = this.figureView.getCentre();
                     // Get the json data for the image...
-                    $.getJSON('/webgateway/imgData/' + parseInt(imgId, 10) + '/', function(data){
+                    $.getJSON('/webfigure/imgData/' + parseInt(imgId, 10) + '/', function(data){
                         // just pick what we need, add x & y etc...
                         // Need to work out where to start (px,py) now that we know size of panel
                         // (assume all panels are same size)
@@ -1104,6 +1105,7 @@
                             'datasetName': data.meta.datasetName,
                             'datasetId': data.meta.datasetId,
                             'pixel_size': data.pixel_size.x,
+                            'deltaT': data.deltaT,
                         };
                         // create Panel (and select it)
                         self.model.panels.create(n).set('selected', true);
@@ -1921,7 +1923,15 @@
                 min: 1,             // model is 0-based, UI is 1-based
                 value: self.theT_avg + 1,
                 slide: function(event, ui) {
-                    $("#vp_t_value").text(ui.value + "/" + self.sizeT);
+                    var theT = ui.value;
+                    $("#vp_t_value").text(theT + "/" + self.sizeT);
+                    var dt = self.models[0].get('deltaT')[theT-1];
+                    _.each(self.models, function(m){
+                        if (m.get('deltaT')[theT-1] != dt) {
+                            dt = undefined;
+                        }
+                    });
+                    $("#vp_deltaT").text(self.formatTime(dt));
                 },
                 stop: function( event, ui ) {
                     _.each(self.models, function(m){
@@ -1996,6 +2006,26 @@
             }
         },
 
+        formatTime: function(seconds) {
+
+            var mins, secs, hours;
+            if (typeof seconds === 'undefined') {
+                return "";
+            }
+            else if (seconds < 60) {
+                return seconds + " secs";
+            } else if (seconds < 3600) {
+                mins = (seconds / 60) >> 0;
+                secs = (seconds % 60) >> 0;
+                return mins + "min " + secs + "s";
+            } else {
+                hours = (seconds / 3600) >> 0;
+                mins = (seconds % 3600 / 60) >> 0;
+                secs = (seconds % 60) >> 0;
+                return hours + "h " + mins + "min " + secs + "s";
+            }
+        },
+
         render: function() {
 
             if (this.models.length === 0);
@@ -2009,6 +2039,8 @@
                 max_theZ = 0,
                 sum_theT = 0,
                 max_theT = 0,
+                sum_deltaT = 0,
+                max_deltaT = 0,
                 sum_dx = 0,
                 sum_dy = 0,
                 imgs_css = [],
@@ -2025,9 +2057,13 @@
                 sum_wh += (m.get('width')/ m.get('height'));
                 sum_zoom += m.get('zoom');
                 sum_theZ += m.get('theZ');
-                sum_theT += m.get('theT');
+                var theT = m.get('theT'),
+                    dT = m.get('deltaT')[theT] || 0;
+                sum_theT += theT;
+                sum_deltaT += dT;
                 max_theZ = Math.max(max_theZ, m.get('theZ'));
-                max_theT = Math.max(max_theT, m.get('theT'));
+                max_theT = Math.max(max_theT, theT);
+                max_deltaT = Math.max(max_deltaT, dT);
             });
             // Only continue if panels are all same w/h ratio
             if (!same_wh) return;
@@ -2037,6 +2073,7 @@
                 zoom = sum_zoom/this.models.length,
                 theZ = sum_theZ/this.models.length,
                 theT = sum_theT/this.models.length;
+                deltaT = sum_deltaT/this.models.length;
             if (wh <= 1) {
                 frame_h = this.full_size;
                 frame_w = this.full_size * wh;
@@ -2069,11 +2106,17 @@
             json.theZ = theZ+1;
             json.sizeT = this.sizeT || "-";
             json.theT = theT+1;
+            json.deltaT = deltaT;
             if (max_theZ != theZ) {
                 json.theZ = "-";
             }
             if (max_theT != theT) {
                 json.theT = "-";
+            }
+            if (max_deltaT != deltaT || this.sizeT == 1) {
+                json.deltaT = "";
+            } else {
+                json.deltaT = this.formatTime(deltaT);
             }
             var html = this.template(json);
             this.$el.html(html);
