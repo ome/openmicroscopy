@@ -79,7 +79,7 @@ class TestDatabase(object):
         self.mox.ReplayAll()
         self.script("%(version)s %(patch)s")
 
-    @pytest.mark.parametrize('user_id', [None, '1'])
+    @pytest.mark.parametrize('user_id', [None, '0', '1'])
     @pytest.mark.parametrize('password', [None, 'ome'])
     def testPassword(self, user_id, password):
         args = ""
@@ -107,7 +107,7 @@ class TestDatabase(object):
         self.script(script_input)
 
     def password_ending(self, user, id):
-        if id is not None:
+        if id and id != '0':
             rv = "user %s: " % id
         else:
             rv = "%s user: " % user
