@@ -518,8 +518,6 @@ class AcquisitionDataUI
 			controller.loadInstrumentData();
 		originalMetadataPane.setCollapsed(true);
 		if (MetadataViewerAgent.isBinaryAvailable()) {
-			//originalMetadataPane.setVisible(!(model.getRefObject() 
-			//		instanceof WellSampleData));
 			originalMetadataPane.setVisible(true);
 		} else originalMetadataPane.setVisible(false);
 	}
