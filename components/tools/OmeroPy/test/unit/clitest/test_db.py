@@ -79,12 +79,15 @@ class TestDatabase(object):
         self.mox.ReplayAll()
         self.script("%(version)s %(patch)s")
 
-    @pytest.mark.parametrize('user_id', [None, '0', '1'])
-    @pytest.mark.parametrize('password', [None, 'ome'])
-    def testPassword(self, user_id, password):
+    @pytest.mark.parametrize('no_salt', ['', '--no-salt'])
+    @pytest.mark.parametrize('user_id', ['', '0', '1'])
+    @pytest.mark.parametrize('password', ['', 'ome'])
+    def testPassword(self, user_id, password, no_salt):
         args = ""
         if user_id:
             args += "--user-id=%s " % user_id
+        if no_salt:
+            args += "%s " % no_salt
         if password:
             args += "%s" % password
         else:
