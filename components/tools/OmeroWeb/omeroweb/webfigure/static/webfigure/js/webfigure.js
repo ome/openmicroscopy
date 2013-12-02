@@ -77,6 +77,36 @@
             this.add_labels(newLabels);
         },
 
+        create_labels_from_time: function(options) {
+            var pad = function(digit) {
+                var d = digit + "";
+                return d.length === 1 ? ("0"+d) : d;
+            };
+            var theT = this.get('theT'),
+                deltaT = this.get('deltaT')[theT] || 0,
+                text = "", h, m, s;
+            if (options.format === "secs") {
+                text = deltaT + " secs";
+            } else if (options.format === "mins") {
+                text = Math.round(deltaT / 60) + "mins";
+            } else if (options.format === "hrs:mins") {
+                h = (deltaT / 3600) >> 0;
+                m = pad(Math.round((deltaT % 3600) / 60));
+                text = h + ":" + m;
+            } else if (options.format === "hrs:mins:secs") {
+                h = (deltaT / 3600) >> 0;
+                m = pad(((deltaT % 3600) / 60) >> 0);
+                s = pad(deltaT % 60);
+                text = h + ":" + m + ":" + s;
+            }
+            this.add_labels([{
+                    'text': text,
+                    'size': options.size,
+                    'position': options.position,
+                    'color': options.color
+            }]);
+        },
+
         get_label_key: function(label) {
             return label.text + '_' + label.size + '_' + label.color + '_' + label.position;
         },
@@ -1455,6 +1485,18 @@
             if (label_text == '[channels]') {
                 _.each(selected, function(m) {
                     m.create_labels_from_channels({position:position, size:font_size});
+                });
+                return false;
+            }
+
+            if (label_text.slice(0, 5) == '[time') {
+                var format = label_text.slice(6, -1);   // 'secs', 'hrs:mins' etc
+                _.each(selected, function(m) {
+                    m.create_labels_from_time({format: format,
+                            position:position,
+                            size:font_size,
+                            color: color
+                    });
                 });
                 return false;
             }
