@@ -14,13 +14,16 @@ from path import path
 from omero.plugins.db import DatabaseControl
 from omero.util.temp_files import create_path
 from omero.cli import NonZeroReturnCode
-from mocks import MockCLI
+from omero.cli import CLI
+from omero_ext.mox import Mox
+import getpass
+import __builtin__
 
 
 class TestDatabase(object):
 
     def setup_method(self, method):
-        self.cli = MockCLI()
+        self.cli = CLI()
         self.cli.register("db", DatabaseControl, "TEST")
 
         dir = path(__file__) / ".." / ".." / ".." / ".." / ".." / ".." /\
@@ -40,38 +43,47 @@ class TestDatabase(object):
 
         self.file = create_path()
 
+        self.mox = Mox()
+        self.mox.StubOutWithMock(getpass, 'getpass')
+        self.mox.StubOutWithMock(__builtin__, "raw_input")
+
     def teardown_method(self, method):
         self.file.remove()
+        self.mox.UnsetStubs()
+        self.mox.VerifyAll()
 
     def script(self, string, strict=True):
         string = string % self.data
-        self.cli.invoke("db script -f %s %s" % (self.file, string),
+        self.cli.invoke("db script -f %s %s" % (str(self.file), string),
                         strict=strict)
 
     def password(self, string, strict=True):
         self.cli.invoke("db password " + string % self.data, strict=strict)
 
     def testBadVersionDies(self):
-        self.expectPassword("pw")
-        self.expectConfirmation("pw")
-        pytest.raises(NonZeroReturnCode, self.script, "NONE NONE pw")
+        self.mox.ReplayAll()
+        with pytest.raises(NonZeroReturnCode):
+            self.script("NONE NONE pw")
 
     def testPasswordIsAskedForAgainIfDiffer(self):
         self.expectPassword("ome")
         self.expectConfirmation("bad")
         self.expectPassword("ome")
         self.expectConfirmation("ome")
+        self.mox.ReplayAll()
         self.script("'' ''")
 
     def testPasswordIsAskedForAgainIfEmpty(self):
         self.expectPassword("")
         self.expectPassword("ome")
         self.expectConfirmation("ome")
+        self.mox.ReplayAll()
         self.script("%(version)s %(patch)s")
 
     def testPassword(self):
         self.expectPassword("ome")
         self.expectConfirmation("ome")
+        self.mox.ReplayAll()
         self.password("")
 
     def testAutomatedPassword(self):
@@ -80,6 +92,7 @@ class TestDatabase(object):
     def testUserPassword(self):
         self.expectPassword("ome", id="1")
         self.expectConfirmation("ome", id="1")
+        self.mox.ReplayAll()
         self.password("--user-id=1")
 
     def testAutomatedUserPassword(self):
@@ -90,21 +103,23 @@ class TestDatabase(object):
         self.expectPatch(self.data["patch"])
         self.expectPassword("ome")
         self.expectConfirmation("ome")
+        self.mox.ReplayAll()
         self.script("")
 
     def testAutomatedScript1(self):
 
         # This should not be asked for, but ignoring for the moment
         self.expectVersion(self.data["version"])
-
         self.expectPatch(self.data["patch"])
         self.expectPassword("ome")
         self.expectConfirmation("ome")
+        self.mox.ReplayAll()
         self.script("%(version)s")
 
     def testAutomatedScript2(self):
         self.expectPassword("ome")
         self.expectConfirmation("ome")
+        self.mox.ReplayAll()
         self.script("%(version)s %(patch)s")
 
     def testAutomatedScript3(self):
@@ -118,17 +133,17 @@ class TestDatabase(object):
         return "password for OMERO " + rv
 
     def expectPassword(self, pw, user="root", id=None):
-        self.cli.expect("Please enter %s" % self.password_ending(user, id),
-                        pw)
+        getpass.getpass("Please enter %s" %
+                        self.password_ending(user, id)).AndReturn(pw)
 
     def expectConfirmation(self, pw, user="root", id=None):
-        self.cli.expect("Please re-enter %s" % self.password_ending(user, id),
-                        pw)
+        getpass.getpass("Please re-enter %s" %
+                        self.password_ending(user, id)).AndReturn(pw)
 
     def expectVersion(self, version):
-        self.cli.expect("Please enter omero.db.version [%s]: " %
-                        self.data["version"], version)
+        raw_input("Please enter omero.db.version [%s]: " %
+                  self.data["version"]).AndReturn(version)
 
     def expectPatch(self, patch):
-        self.cli.expect("Please enter omero.db.patch [%s]: " %
-                        self.data["patch"], patch)
+        raw_input("Please enter omero.db.patch [%s]: " %
+                  self.data["patch"]).AndReturn(patch)
