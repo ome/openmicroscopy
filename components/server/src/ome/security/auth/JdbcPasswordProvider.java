@@ -34,7 +34,12 @@ public class JdbcPasswordProvider extends ConfigurablePasswordProvider {
     }
 
     public JdbcPasswordProvider(PasswordUtil util, boolean ignoreUnknown) {
-        super(util);
+        super(util, ignoreUnknown);
+    }
+
+    public JdbcPasswordProvider(PasswordUtil util, boolean ignoreUnknown,
+            boolean salt) {
+        super(util, ignoreUnknown, salt);
     }
 
     @Override
@@ -73,7 +78,7 @@ public class JdbcPasswordProvider extends ConfigurablePasswordProvider {
         if (id == null) {
             throw new PasswordChangeException("Couldn't find id: " + user);
         }
-        util.changeUserPasswordById(id, password);
+        util.changeUserPasswordById(id, password, salt);
     }
 
 }

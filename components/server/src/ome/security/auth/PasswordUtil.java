@@ -93,8 +93,27 @@ public class PasswordUtil {
         return sql.dnForUser(id);
     }
 
+    /**
+     * Calls {@link #changeUserPasswordById(Long, String, boolean) with
+     * "false" as the value of the salt argument in order to provide backwards
+     * compatibility.
+     */
     public void changeUserPasswordById(Long id, String password) {
-        if (! sql.setUserPassword(id, prepareSaltedPassword(id, password))) {
+        changeUserPasswordById(id, password, false);
+    }
+
+    /**
+     * Calls either {@link #preparePassword(String)} or
+     * {@link #prepareSaltedPassword(Long, String)} and passes the resulting
+     * value to {@link SqlAction#setUserPassword(Long, String)}.
+     * An {@link InternalException} is thrown if the modification is not
+     * successful, which should only occur if the user has been deleted.
+     */
+    public void changeUserPasswordById(Long id, String password, boolean salt) {
+        String prepared = salt ?
+                prepareSaltedPassword(id, password) :
+                    preparePassword(password);
+        if (! sql.setUserPassword(id, prepared)) {
             throw new InternalException("0 results for password insert.");
         }
     }

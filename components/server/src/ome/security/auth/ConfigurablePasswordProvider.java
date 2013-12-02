@@ -52,6 +52,11 @@ public abstract class ConfigurablePasswordProvider implements PasswordProvider,
     protected final String hash;
 
     /**
+     * Whether or not salting based on the user ID should be attempted.
+     */
+    protected final boolean salt;
+
+    /**
      * If true, this implementation should return a null on
      * {@link #checkPassword(String, String)} if the user is unknown, otherwise
      * a {@link Boolean#FALSE}. Default value: false
@@ -67,8 +72,14 @@ public abstract class ConfigurablePasswordProvider implements PasswordProvider,
     }
 
     public ConfigurablePasswordProvider(PasswordUtil util, boolean ignoreUnknown) {
+        this(util, ignoreUnknown, true);
+    }
+
+    public ConfigurablePasswordProvider(PasswordUtil util, boolean ignoreUnknown,
+            boolean salt) {
         this.util = util;
         this.hash = "MD5";
+        this.salt = salt;
         this.ignoreUnknown = ignoreUnknown;
     }
 
@@ -130,7 +141,11 @@ public abstract class ConfigurablePasswordProvider implements PasswordProvider,
      * with the given userId if it's provided.
      */
     public String encodeSaltedPassword(Long userId, String newPassword) {
-        return util.prepareSaltedPassword(userId, newPassword);
+        if (salt) {
+            return util.prepareSaltedPassword(userId, newPassword);
+        } else {
+            return util.preparePassword(newPassword);
+        }
     }
 
     /**
@@ -161,7 +176,7 @@ public abstract class ConfigurablePasswordProvider implements PasswordProvider,
         } else if ("".equals(trusted.trim())) {
             return Boolean.TRUE;
         } else {
-            if (userId != null) {
+            if (userId != null && salt) {
                 if (trusted.equals(encodeSaltedPassword(userId, provided))) {
                     return Boolean.TRUE;
                 }
