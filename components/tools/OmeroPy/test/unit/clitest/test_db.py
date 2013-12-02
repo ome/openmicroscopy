@@ -82,7 +82,7 @@ class TestDatabase(object):
     @pytest.mark.parametrize('no_salt', ['', '--no-salt'])
     @pytest.mark.parametrize('user_id', ['', '0', '1'])
     @pytest.mark.parametrize('password', ['', 'ome'])
-    def testPassword(self, user_id, password, no_salt):
+    def testPassword(self, user_id, password, no_salt, capsys):
         args = ""
         if user_id:
             args += "--user-id=%s " % user_id
@@ -95,6 +95,9 @@ class TestDatabase(object):
             self.expectConfirmation("ome", id=user_id)
             self.mox.ReplayAll()
         self.password(args)
+        if no_salt:
+            out, err = capsys.readouterr()
+            assert out.strip() == self.password_output(user_id)
 
     @pytest.mark.parametrize(
         'script_input', ["", "%(version)s", "%(version)s %(patch)s",
@@ -131,3 +134,11 @@ class TestDatabase(object):
     def expectPatch(self, patch):
         raw_input("Please enter omero.db.patch [%s]: " %
                   self.data["patch"]).AndReturn(patch)
+
+    def password_output(self, user_id):
+        update_msg = "UPDATE password SET hash = 'vvFwuczAmpyoRC0Nsv8FCw=='" \
+            " WHERE experimenter_id  = %s;"
+        if user_id:
+            return update_msg % user_id
+        else:
+            return update_msg % "0"
