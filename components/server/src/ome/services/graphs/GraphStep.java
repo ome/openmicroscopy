@@ -177,8 +177,10 @@ public abstract class GraphStep {
     }
 
     /**
-     * To reduce overhead, we're no longer copying this array.
-     * @return
+     * Currently returns the ID array without copying
+     * therefore values should not be leaked to code outside
+     * of the ome.services.graphs hierarchy. Non-copying is
+     * primarily intended to reduce GC overhead.
      */
     public long[] getIds() {
         return this.ids;
