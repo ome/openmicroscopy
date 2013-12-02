@@ -102,7 +102,7 @@ class TestDatabase(object):
     @pytest.mark.parametrize(
         'script_input', ["", "%(version)s", "%(version)s %(patch)s",
                          "%(version)s %(patch)s ome"])
-    def testAutomatedScript(self, script_input):
+    def testScript(self, script_input):
         if "version" not in script_input or "patch" not in script_input:
             self.expectVersion(self.data["version"])
             self.expectPatch(self.data["patch"])
