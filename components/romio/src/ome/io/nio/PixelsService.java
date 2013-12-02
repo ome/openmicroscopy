@@ -428,7 +428,9 @@ public class PixelsService extends AbstractFileSystemService
     public PixelBuffer getPixelBuffer(Pixels pixels, boolean write)
     {
         PixelBuffer pb = _getPixelBuffer(pixels, write);
-        log.warn(pb +" for " + pixels);
+        if (log.isDebugEnabled()) {
+            log.debug(pb +" for " + pixels);
+        }
         return pb;
     }
 
