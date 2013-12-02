@@ -79,22 +79,19 @@ class TestDatabase(object):
         self.mox.ReplayAll()
         self.script("%(version)s %(patch)s")
 
-    @pytest.mark.parametrize('id', [None, '1'])
-    def testPassword(self, id):
-        self.expectPassword("ome", id=id)
-        self.expectConfirmation("ome", id=id)
-        self.mox.ReplayAll()
-        if id:
-            self.password("--user-id=%s" % id)
+    @pytest.mark.parametrize('user_id', [None, '1'])
+    @pytest.mark.parametrize('password', [None, 'ome'])
+    def testPassword(self, user_id, password):
+        args = ""
+        if user_id:
+            args += "--user-id=%s " % user_id
+        if password:
+            args += "%s" % password
         else:
-            self.password("")
-
-    @pytest.mark.parametrize('id', [None, '1'])
-    def testAutomatedPassword(self, id):
-        if id:
-            self.password("ome --user-id=%s" % id)
-        else:
-            self.password("ome")
+            self.expectPassword("ome", id=user_id)
+            self.expectConfirmation("ome", id=user_id)
+            self.mox.ReplayAll()
+        self.password(args)
 
     @pytest.mark.parametrize(
         'script_input', ["", "%(version)s", "%(version)s %(patch)s",
