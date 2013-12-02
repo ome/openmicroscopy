@@ -65,6 +65,11 @@ class DatabaseControl(BaseControl):
                         "Defaults to '0', i.e. 'root'",
                         default="0")
 
+        for x in (pw, script):
+            x.add_argument(
+                "--no-salt", action="store_true",
+                help="Disable the salting of passwords")
+
     def _lookup(self, data, data2, key, map, hidden=False):
         """
         Read values from data and data2. If value is contained in data
@@ -98,7 +103,7 @@ class DatabaseControl(BaseControl):
 
         server_jar = self.ctx.dir / "lib" / "server" / "server.jar"
         cmd = ["ome.security.auth.PasswordUtil", root_pass]
-        if self._has_user_id(args):
+        if not args.no_salt and self._has_user_id(args):
             cmd.append(args.user_id)
         p = omero.java.popen(["-cp", str(server_jar)] + cmd)
         rc = p.wait()
