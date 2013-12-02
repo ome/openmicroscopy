@@ -61,7 +61,6 @@ class TestDatabase(object):
         self.cli.invoke("db password " + string % self.data, strict=strict)
 
     def testBadVersionDies(self):
-        self.mox.ReplayAll()
         with pytest.raises(NonZeroReturnCode):
             self.script("NONE NONE pw")
 
@@ -80,23 +79,22 @@ class TestDatabase(object):
         self.mox.ReplayAll()
         self.script("%(version)s %(patch)s")
 
-    def testPassword(self):
-        self.expectPassword("ome")
-        self.expectConfirmation("ome")
+    @pytest.mark.parametrize('id', [None, '1'])
+    def testPassword(self, id):
+        self.expectPassword("ome", id=id)
+        self.expectConfirmation("ome", id=id)
         self.mox.ReplayAll()
-        self.password("")
+        if id:
+            self.password("--user-id=%s" % id)
+        else:
+            self.password("")
 
-    def testAutomatedPassword(self):
-        self.password("ome")
-
-    def testUserPassword(self):
-        self.expectPassword("ome", id="1")
-        self.expectConfirmation("ome", id="1")
-        self.mox.ReplayAll()
-        self.password("--user-id=1")
-
-    def testAutomatedUserPassword(self):
-        self.password("--user-id=1 ome")
+    @pytest.mark.parametrize('id', [None, '1'])
+    def testAutomatedPassword(self, id):
+        if id:
+            self.password("ome --user-id=%s" % id)
+        else:
+            self.password("ome")
 
     def testScript(self):
         self.expectVersion(self.data["version"])
