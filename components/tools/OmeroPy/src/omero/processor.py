@@ -915,7 +915,7 @@ class ProcessorI(omero.grid.Processor, omero.util.Servant):
             self.logger.info("Downloaded file: %s" % file.id.val)
             s = client.sha1(str(process.script_path))
             if not s == file.hash.val:
-                msg = "Sha1s don't match! expected %s, found %s" % (file.sha1.val, s)
+                msg = "Sha1s don't match! expected %s, found %s" % (file.hash.val, s)
                 self.logger.error(msg)
                 process.cleanup()
                 raise omero.InternalException(None, None, msg)
