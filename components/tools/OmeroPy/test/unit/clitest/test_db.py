@@ -96,32 +96,18 @@ class TestDatabase(object):
         else:
             self.password("ome")
 
-    def testScript(self):
-        self.expectVersion(self.data["version"])
-        self.expectPatch(self.data["patch"])
-        self.expectPassword("ome")
-        self.expectConfirmation("ome")
-        self.mox.ReplayAll()
-        self.script("")
-
-    def testAutomatedScript1(self):
-
-        # This should not be asked for, but ignoring for the moment
-        self.expectVersion(self.data["version"])
-        self.expectPatch(self.data["patch"])
-        self.expectPassword("ome")
-        self.expectConfirmation("ome")
-        self.mox.ReplayAll()
-        self.script("%(version)s")
-
-    def testAutomatedScript2(self):
-        self.expectPassword("ome")
-        self.expectConfirmation("ome")
-        self.mox.ReplayAll()
-        self.script("%(version)s %(patch)s")
-
-    def testAutomatedScript3(self):
-        self.script("%(version)s %(patch)s ome")
+    @pytest.mark.parametrize(
+        'script_input', ["", "%(version)s", "%(version)s %(patch)s",
+                         "%(version)s %(patch)s ome"])
+    def testAutomatedScript(self, script_input):
+        if "version" not in script_input or "patch" not in script_input:
+            self.expectVersion(self.data["version"])
+            self.expectPatch(self.data["patch"])
+        if "ome" not in script_input:
+            self.expectPassword("ome")
+            self.expectConfirmation("ome")
+            self.mox.ReplayAll()
+        self.script(script_input)
 
     def password_ending(self, user, id):
         if id is not None:
