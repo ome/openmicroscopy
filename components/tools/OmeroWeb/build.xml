@@ -53,6 +53,9 @@
                         </filtermapper>
                     </mapper>
                 </untar>
+                <touch>
+                    <fileset dir="${basedir}/../target/lib/python/django"/>
+                </touch>
             </then>
         </if>
         <if><not><available file="${basedir}/../target/lib/python/flup"/></not>
