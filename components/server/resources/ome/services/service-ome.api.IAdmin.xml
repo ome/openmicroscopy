@@ -69,6 +69,16 @@
     <constructor-arg value="true"/>
   </bean>
 
+  <bean id="jdbcPasswordProvider449" class="ome.security.auth.JdbcPasswordProvider">
+    <description>
+        Version of JDBCPasswordProvider as available in OMERO 4.4.9 with no
+        salting support.
+    </description>
+    <constructor-arg index="0" ref="passwordUtil"/>
+    <constructor-arg index="1" value="true"/>
+    <constructor-arg index="2" value="false"/>
+  </bean>
+
   <bean id="jdbcPasswordProvider" class="ome.security.auth.JdbcPasswordProvider">
     <constructor-arg ref="passwordUtil"/>
   </bean>
@@ -78,6 +88,15 @@
       <list>
         <ref bean="ldapPasswordProvider431"/>
         <ref bean="jdbcPasswordProvider"/>
+      </list>
+    </constructor-arg>
+  </bean>
+
+  <bean id="chainedPasswordProvider449" class="ome.security.auth.PasswordProviders">
+    <constructor-arg>
+      <list>
+        <ref bean="ldapPasswordProvider"/>
+        <ref bean="jdbcPasswordProvider449"/>
       </list>
     </constructor-arg>
   </bean>
