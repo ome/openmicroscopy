@@ -641,13 +641,21 @@ class ProcessI(omero.grid.Process, omero.util.SimpleServant):
 
 class MATLABProcessI(ProcessI):
 
+    def make_files(self):
+        """
+        Modify the script_path field from ProcessI.make_files
+        in ordert to append a ".m"
+        """
+        ProcessI.make_files(self)
+        self.script_path = self.dir / "script.m"
+
     def command(self):
         """
         Overrides ProcessI to call MATLAB idiosyncratically.
         """
         matlab_cmd = [
             self.interpreter, "-nosplash", "-nodisplay", "-nodesktop",
-            "-r", "try, run(fullfile('.', 'script')), catch, exit(1), end, exit(0)"
+            "-r", "try, script; catch, exit(1); end, exit(0)"
         ]
         return matlab_cmd
 
