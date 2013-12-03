@@ -63,7 +63,7 @@ class ForgottonPasswordForm(NonASCIIForm):
 
 class ExperimenterForm(NonASCIIForm):
 
-    def __init__(self, name_check=False, email_check=False, experimenter_is_me=False, *args, **kwargs):
+    def __init__(self, name_check=False, email_check=False, experimenter_is_me_or_system=False, *args, **kwargs):
         super(ExperimenterForm, self).__init__(*args, **kwargs)
         self.name_check=name_check
         self.email_check=email_check 
@@ -87,7 +87,9 @@ class ExperimenterForm(NonASCIIForm):
             self.fields.keyOrder = ['omename', 'password', 'confirmation', 'first_name', 'middle_name', 'last_name', 'email', 'institution', 'administrator', 'active', 'default_group', 'other_groups']
         else:
             self.fields.keyOrder = ['omename', 'first_name', 'middle_name', 'last_name', 'email', 'institution', 'administrator', 'active', 'default_group', 'other_groups']
-        if experimenter_is_me:
+        if experimenter_is_me_or_system:
+            self.fields['omename'].widget.attrs['readonly'] = True
+            self.fields['omename'].widget.attrs['title'] = "Changing of system username would be un-doable"
             self.fields['administrator'].widget.attrs['disabled'] = True
             self.fields['administrator'].widget.attrs['title'] = "Removal of your own admin rights would be un-doable"
             self.fields['active'].widget.attrs['disabled'] = True
@@ -136,7 +138,7 @@ PERMISSION_CHOICES = (
 
 class GroupForm(NonASCIIForm):
     
-    def __init__(self, name_check=False, *args, **kwargs):
+    def __init__(self, name_check=False, group_is_current_or_system=False, *args, **kwargs):
         super(GroupForm, self).__init__(*args, **kwargs)
         self.name_check=name_check
         try:
@@ -154,6 +156,10 @@ class GroupForm(NonASCIIForm):
         
         self.fields['permissions'] = forms.ChoiceField(choices=PERMISSION_CHOICES, widget=forms.RadioSelect(), required=True, label="Permissions")
         
+        if group_is_current_or_system:
+            self.fields['name'].widget.attrs['readonly'] = True
+            self.fields['name'].widget.attrs['title'] = "Changing of system groupname would be un-doable"
+            
         self.fields.keyOrder = ['name', 'description', 'owners', 'members', 'permissions']
 
     name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'autocomplete': 'off'}))

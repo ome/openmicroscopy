@@ -32,11 +32,16 @@ import logging
 from django.conf import settings
 from django import template
 from django.utils.translation import ugettext, ungettext
+from django.utils import simplejson
 
 register = template.Library()
 
 logger = logging.getLogger(__name__)
 
+@register.filter()
+def jsonify(obj):
+    """Simple template filter to encode a variable to JSON format"""
+    return simplejson.dumps(obj)
 
 @register.filter
 def hash(value, key):
