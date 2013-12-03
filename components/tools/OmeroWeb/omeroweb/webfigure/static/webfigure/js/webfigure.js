@@ -77,7 +77,7 @@
             this.add_labels(newLabels);
         },
 
-        create_labels_from_time: function(options) {
+        get_time_label_text: function(format) {
             var pad = function(digit) {
                 var d = digit + "";
                 return d.length === 1 ? ("0"+d) : d;
@@ -85,22 +85,27 @@
             var theT = this.get('theT'),
                 deltaT = this.get('deltaT')[theT] || 0,
                 text = "", h, m, s;
-            if (options.format === "secs") {
+            if (format === "secs") {
                 text = deltaT + " secs";
-            } else if (options.format === "mins") {
+            } else if (format === "mins") {
                 text = Math.round(deltaT / 60) + "mins";
-            } else if (options.format === "hrs:mins") {
+            } else if (format === "hrs:mins") {
                 h = (deltaT / 3600) >> 0;
                 m = pad(Math.round((deltaT % 3600) / 60));
                 text = h + ":" + m;
-            } else if (options.format === "hrs:mins:secs") {
+            } else if (format === "hrs:mins:secs") {
                 h = (deltaT / 3600) >> 0;
                 m = pad(((deltaT % 3600) / 60) >> 0);
                 s = pad(deltaT % 60);
                 text = h + ":" + m + ":" + s;
             }
+            return text;
+        },
+
+        create_labels_from_time: function(options) {
+            
             this.add_labels([{
-                    'text': text,
+                    'time': options.format,
                     'size': options.size,
                     'position': options.position,
                     'color': options.color
@@ -1246,7 +1251,7 @@
                 this.render_layout);
             this.listenTo(this.model, 'change:scalebar change:pixel_size', this.render_scalebar);
             this.listenTo(this.model, 'change:channels change:theZ change:theT', this.render_image);
-            this.listenTo(this.model, 'change:labels', this.render_labels);
+            this.listenTo(this.model, 'change:labels change:theT', this.render_labels);
             // This could be handled by backbone.relational, but do it manually for now...
             // this.listenTo(this.model.channels, 'change', this.render);
             // During drag, model isn't updated, but we trigger 'drag'
@@ -1320,7 +1325,12 @@
 
             // group labels by position
             _.each(labels, function(l) {
-                positions[l.position].push(l);
+                // check if label is dynamic delta-T
+                var ljson = $.extend(true, {}, l);
+                if (typeof ljson.text == 'undefined' && ljson.time) {
+                    ljson.text = self.model.get_time_label_text(ljson.time);
+                }
+                positions[l.position].push(ljson);
             });
 
             // Render template for each position and append to Panel.$el
@@ -1642,6 +1652,9 @@
                     var key = m.get_label_key(l),
                         ljson = $.extend(true, {}, l);
                         ljson.key = key;
+                    if (typeof ljson.text == 'undefined' && ljson.time) {
+                        ljson.text = m.get_time_label_text(ljson.time);
+                    }
                     positions[l.position][key] = ljson;
                 });
             });
