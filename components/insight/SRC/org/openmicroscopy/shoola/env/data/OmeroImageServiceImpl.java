@@ -1580,7 +1580,7 @@ class OmeroImageServiceImpl
 	}
 	
 	/** 
-	 * Implemented as specified by {@link OmeroImageService}. 
+	 * Implemented as specified by {@link OmeroImageService}.
 	 * @see OmeroImageService#runScript(SecurityContext, ScriptObject)
 	 */
 	public ScriptCallback runScript(SecurityContext ctx, ScriptObject script)
@@ -1588,6 +1588,9 @@ class OmeroImageServiceImpl
 	{
 		if (script == null) 
 			throw new IllegalArgumentException("No script to run.");
+		if (!script.allRequiredValuesPopulated())
+		    throw new ProcessException("No all required parameters have been" +
+		    		" filled.");
 		return gateway.runScript(ctx, script);
 	}
 	
