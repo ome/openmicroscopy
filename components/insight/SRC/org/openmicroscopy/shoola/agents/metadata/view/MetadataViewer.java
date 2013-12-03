@@ -501,7 +501,7 @@ public interface MetadataViewer
 	 * 
 	 * @param imageIds The collection of images.
 	 */
-	void onRndSettingsCopied(Collection imageIds);
+	void onRndSettingsCopied(Collection<Long> imageIds);
 	
 	/**
 	 * Returns <code>true</code> if it is an image with a lot of channels.

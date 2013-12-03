@@ -944,7 +944,7 @@ class TreeViewerComponent
 	 * 
 	 * @param imageIds The collection of updated images
 	 */
-	void onRndSettingsCopied(Collection imageIds)
+	void onRndSettingsCopied(Collection<Long> imageIds)
 	{
 		if (model.getState() == DISCARDED) return;
 		MetadataViewer mv = model.getMetadataViewer();

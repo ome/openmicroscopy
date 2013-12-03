@@ -925,9 +925,9 @@ class MetadataViewerComponent
 	 * Implemented as specified by the {@link MetadataViewer} interface.
 	 * @see MetadataViewer#onRndSettingsCopied(Collection)
 	 */
-	public void onRndSettingsCopied(Collection imageIds)
+	public void onRndSettingsCopied(Collection<Long> imageIds)
 	{
-		if (imageIds == null || imageIds.size() == 0) return;
+		if (CollectionUtils.isEmpty(imageIds)) return;
 		Renderer rnd = getRenderer();
 		if (rnd == null) return;
 		Object ob = model.getRefObject();
@@ -940,6 +940,7 @@ class MetadataViewerComponent
 		if (img == null) return;
 		if (!imageIds.contains(img.getId())) return;
 		rnd.refresh();
+		rnd.renderPreview();
 	}
 
 	/**
