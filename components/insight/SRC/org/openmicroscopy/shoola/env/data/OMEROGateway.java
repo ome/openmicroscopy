@@ -7214,52 +7214,40 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 	    Connector c = getConnector(ctx, true, false);
-		IQueryPrx svc = c.getQueryService();
-		Map<Long, Long> r = new HashMap<Long, Long>();
-		try {
-			ParametersI p = new ParametersI();
-			p.addLongs("gids", groupIds);
-			List list = (List) svc.findAllByQuery("select m " +
-					"from GroupExperimenterMap as m"
+	    IQueryPrx svc = c.getQueryService();
+	    Map<Long, Long> r = new HashMap<Long, Long>();
+	    try {
+	        ParametersI p = new ParametersI();
+	        p.addLongs("gids", groupIds);
+	        List list = (List) svc.findAllByQuery("select m " +
+	                "from GroupExperimenterMap as m"
 	                + " left outer join fetch m.parent"
-	                		+" where m.parent.id in (:gids)", p);
-			Iterator i = list.iterator();
-			GroupExperimenterMap g;
-			long id;
-			Long count;
-			ExperimenterGroup group;
-			while (i.hasNext()) {
-				g = (GroupExperimenterMap) i.next();
-				group = g.getParent();
-				id = group.getId().getValue();
-				if (!dsFactory.getAdmin().isSecuritySystemGroup(id)) {
-					groupIds.remove(id);
-					count = r.get(id);
-					if (count == null) count = 0L;
-					count++;
-					r.put(id, count);
-				} else {
-					if (dsFactory.getAdmin().isSecuritySystemGroup(id,
-					        GroupData.SYSTEM)) {
-						id = group.getId().getValue();
-						groupIds.remove(id);
-						count = r.get(id);
-						if (count == null) count = 0L;
-						count++;
-						r.put(id, count);
-					}
-				}
-			}
-			if (groupIds.size() > 0) {
-				i = groupIds.iterator();
-				while (i.hasNext()) {
-					r.put((Long) i.next(), 0L);
-				}
-			}
-		} catch (Throwable t) {
-			handleException(t, "Cannot count the experimenters.");
-		}
-		return r;
+	                +" where m.parent.id in (:gids)", p);
+	        Iterator i = list.iterator();
+	        GroupExperimenterMap g;
+	        long id;
+	        Long count;
+	        ExperimenterGroup group;
+	        while (i.hasNext()) {
+	            g = (GroupExperimenterMap) i.next();
+	            group = g.getParent();
+	            id = group.getId().getValue();
+	            groupIds.remove(id);
+	            count = r.get(id);
+	            if (count == null) count = 0L;
+	            count++;
+	            r.put(id, count);
+	        }
+	        if (groupIds.size() > 0) {
+	            i = groupIds.iterator();
+	            while (i.hasNext()) {
+	                r.put((Long) i.next(), 0L);
+	            }
+	        }
+	    } catch (Throwable t) {
+	        handleException(t, "Cannot count the experimenters.");
+	    }
+	    return r;
 	}
 
 	/**
