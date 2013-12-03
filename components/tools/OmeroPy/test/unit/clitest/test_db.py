@@ -19,6 +19,13 @@ from omero_ext.mox import Mox
 import getpass
 import __builtin__
 
+hash_map = {
+    ('0', ''): 'PJueOtwuTPHB8Nq/1rFVxg==',
+    ('0', '--no-salt'): 'vvFwuczAmpyoRC0Nsv8FCw==',
+    ('1', ''): 'pvL5Tyr9tCD2esF938sHEQ==',
+    ('1', '--no-salt'): 'vvFwuczAmpyoRC0Nsv8FCw==',
+}
+
 
 class TestDatabase(object):
 
@@ -95,9 +102,8 @@ class TestDatabase(object):
             self.expectConfirmation("ome", id=user_id)
             self.mox.ReplayAll()
         self.password(args)
-        if no_salt:
-            out, err = capsys.readouterr()
-            assert out.strip() == self.password_output(user_id)
+        out, err = capsys.readouterr()
+        assert out.strip() == self.password_output(user_id, no_salt)
 
     @pytest.mark.parametrize(
         'script_input', ["", "%(version)s", "%(version)s %(patch)s",
@@ -135,10 +141,9 @@ class TestDatabase(object):
         raw_input("Please enter omero.db.patch [%s]: " %
                   self.data["patch"]).AndReturn(patch)
 
-    def password_output(self, user_id):
-        update_msg = "UPDATE password SET hash = 'vvFwuczAmpyoRC0Nsv8FCw=='" \
+    def password_output(self, user_id, no_salt):
+        update_msg = "UPDATE password SET hash = \'%s\'" \
             " WHERE experimenter_id  = %s;"
-        if user_id:
-            return update_msg % user_id
-        else:
-            return update_msg % "0"
+        if not user_id:
+            user_id = "0"
+        return update_msg % (hash_map[(user_id, no_salt)], user_id)
