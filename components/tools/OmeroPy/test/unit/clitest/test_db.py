@@ -10,6 +10,7 @@
 """
 
 import pytest
+import os
 from path import path
 from omero.plugins.db import DatabaseControl
 from omero.util.temp_files import create_path
@@ -49,6 +50,10 @@ class TestDatabase(object):
                     self.data[x] = line[len(key)+1:]
 
         self.file = create_path()
+        self.script_file = "%(version)s__%(patch)s.sql" % self.data
+        if os.path.isfile(self.script_file):
+            os.rename(self.script_file, self.script_file + '.bak')
+        assert not os.path.isfile(self.script_file)
 
         self.mox = Mox()
         self.mox.StubOutWithMock(getpass, 'getpass')
@@ -56,20 +61,20 @@ class TestDatabase(object):
 
     def teardown_method(self, method):
         self.file.remove()
+        if os.path.isfile(self.script_file):
+            os.remove(self.script_file)
+        if os.path.isfile(self.script_file + '.bak'):
+            os.rename(self.script_file + '.bak', self.script_file)
+
         self.mox.UnsetStubs()
         self.mox.VerifyAll()
-
-    def script(self, string, strict=True):
-        string = string % self.data
-        self.cli.invoke("db script -f %s %s" % (str(self.file), string),
-                        strict=strict)
 
     def password(self, string, strict=True):
         self.cli.invoke("db password " + string % self.data, strict=strict)
 
     def testBadVersionDies(self):
         with pytest.raises(NonZeroReturnCode):
-            self.script("NONE NONE pw")
+            self.cli.invoke("db script NONE NONE pw", strict=True)
 
     def testPasswordIsAskedForAgainIfDiffer(self):
         self.expectPassword("ome")
@@ -77,14 +82,14 @@ class TestDatabase(object):
         self.expectPassword("ome")
         self.expectConfirmation("ome")
         self.mox.ReplayAll()
-        self.script("'' ''")
+        self.password("")
 
     def testPasswordIsAskedForAgainIfEmpty(self):
         self.expectPassword("")
         self.expectPassword("ome")
         self.expectConfirmation("ome")
         self.mox.ReplayAll()
-        self.script("%(version)s %(patch)s")
+        self.password("")
 
     @pytest.mark.parametrize('no_salt', ['', '--no-salt'])
     @pytest.mark.parametrize('user_id', ['', '0', '1'])
@@ -105,14 +110,21 @@ class TestDatabase(object):
         out, err = capsys.readouterr()
         assert out.strip() == self.password_output(user_id, no_salt)
 
+    @pytest.mark.parametrize('file_arg', ['', '-f', '--file'])
     @pytest.mark.parametrize('no_salt', ['', '--no-salt'])
     @pytest.mark.parametrize(
         'pos_input', ["", "%(version)s", "%(version)s %(patch)s",
                       "%(version)s %(patch)s ome"])
-    def testScript(self, pos_input, no_salt):
-        args = pos_input
+    def testScript(self, pos_input, no_salt, file_arg):
+        args = "db script "
+        args += pos_input
         if no_salt:
             args += " %s" % no_salt
+        if file_arg:
+            args += " %s %s" % (file_arg, str(self.file))
+            output = self.file
+        else:
+            output = self.script_file
         if "version" not in pos_input or "patch" not in pos_input:
             self.expectVersion(self.data["version"])
             self.expectPatch(self.data["patch"])
@@ -120,9 +132,9 @@ class TestDatabase(object):
             self.expectPassword("ome")
             self.expectConfirmation("ome")
             self.mox.ReplayAll()
-        self.script(args)
+        self.cli.invoke(args % self.data, strict=True)
 
-        with open(self.file) as f:
+        with open(output) as f:
             lines = f.readlines()
             for line in lines:
                 if line.startswith('insert into password values (0'):
