@@ -105,18 +105,28 @@ class TestDatabase(object):
         out, err = capsys.readouterr()
         assert out.strip() == self.password_output(user_id, no_salt)
 
+    @pytest.mark.parametrize('no_salt', ['', '--no-salt'])
     @pytest.mark.parametrize(
-        'script_input', ["", "%(version)s", "%(version)s %(patch)s",
-                         "%(version)s %(patch)s ome"])
-    def testScript(self, script_input):
-        if "version" not in script_input or "patch" not in script_input:
+        'pos_input', ["", "%(version)s", "%(version)s %(patch)s",
+                      "%(version)s %(patch)s ome"])
+    def testScript(self, pos_input, no_salt):
+        args = pos_input
+        if no_salt:
+            args += " %s" % no_salt
+        if "version" not in pos_input or "patch" not in pos_input:
             self.expectVersion(self.data["version"])
             self.expectPatch(self.data["patch"])
-        if "ome" not in script_input:
+        if "ome" not in pos_input:
             self.expectPassword("ome")
             self.expectConfirmation("ome")
             self.mox.ReplayAll()
-        self.script(script_input)
+        self.script(args)
+
+        with open(self.file) as f:
+            lines = f.readlines()
+            for line in lines:
+                if line.startswith('insert into password values (0'):
+                    assert line.strip() == self.script_output(no_salt)
 
     def password_ending(self, user, id):
         if id and id != '0':
@@ -147,3 +157,7 @@ class TestDatabase(object):
         if not user_id:
             user_id = "0"
         return update_msg % (hash_map[(user_id, no_salt)], user_id)
+
+    def script_output(self, no_salt):
+        root_password_msg = "insert into password values (0,\'%s\');"
+        return root_password_msg % (hash_map[("0", no_salt)])
