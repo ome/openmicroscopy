@@ -608,6 +608,8 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 		partialName.setSelected(true);
 		group.add(partialName);
 
+		table = new FileSelectionTable(this);
+		table.addPropertyChangeListener(this);
 		chooser = new GenericFileChooser();
 		JList list = (JList) UIUtilities.findComponent(chooser, JList.class);
 		KeyAdapter ka = new KeyAdapter() {
@@ -677,8 +679,7 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 			chooser.setAcceptAllFileFilterUsed(true);
 		}
 		
-		table = new FileSelectionTable(this);
-		table.addPropertyChangeListener(this);
+
 		closeButton = new JButton(TEXT_CLOSE);
 		closeButton.setToolTipText(TOOLTIP_CLOSE);
 		closeButton.setActionCommand("" + CMD_CLOSE);

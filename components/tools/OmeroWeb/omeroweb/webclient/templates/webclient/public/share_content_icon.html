@@ -72,17 +72,17 @@
         {% if c.loaded %}
         <li id="image_icon-{{ c.id }}" title="{{ c.name }}">
             {% if share.share.isOwned %}
-            <img id="{{ c.id }}" src="{% url render_thumbnail c.id %}" alt="image" title="{{ c.name }}, owned by {{ c.getOwner.getNameWithInitial }}"
-                href="{% url web_image_viewer c.id %}"/>
+            <img id="{{ c.id }}" src="{% url 'render_thumbnail' c.id %}" alt="image" title="{{ c.name }}, owned by {{ c.getOwner.getNameWithInitial }}"
+                href="{% url 'web_image_viewer' c.id %}"/>
             {% else %}
-            <img id="{{ c.id }}" src="{% url render_thumbnail c.id share.share.id %}" alt="image" title="{{ c.name }}, owned by {{ c.getOwner.getNameWithInitial }}"
-                href="{% url web_image_viewer share.share.id c.id %}"/>
+            <img id="{{ c.id }}" src="{% url 'render_thumbnail' c.id share.share.id %}" alt="image" title="{{ c.name }}, owned by {{ c.getOwner.getNameWithInitial }}"
+                href="{% url 'web_image_viewer' share.share.id c.id %}"/>
             {% endif %}
         </li>
         {% else %}
         <li id="image_icon-{{ c.id }}" title="Object deleted">
-            <img id="{{ c.id }}" src="{% url render_thumbnail c.id share.share.id %}" alt="image" title="Object deleted"
-                href="{% url web_image_viewer share.share.id c.id %}"/>
+            <img id="{{ c.id }}" src="{% url 'render_thumbnail' c.id share.share.id %}" alt="image" title="Object deleted"
+                href="{% url 'web_image_viewer' share.share.id c.id %}"/>
         </li>
         {% endif %}
         {% endfor %}

@@ -40,16 +40,16 @@
         <ul class="dropdown">
             {% if manager.image.countArchivedFiles %}
             <li>
-                <a id="download-origfile" href="{% url archived_files manager.image.id %}"
+                <a id="download-origfile" href="{% url 'archived_files' manager.image.id %}"
                 title="Download {{ manager.image.countArchivedFiles }} Archived file{{ manager.image.countArchivedFiles|pluralize:'s (zip)' }}">
                 Archived file{{ manager.image.countArchivedFiles|pluralize:'s (zip)' }}</a>
             </li>
             {% endif %}
             <li>
-                <a id="create-ometiff" href="{% url ome_tiff_script manager.image.id %}" 
+                <a id="create-ometiff" href="{% url 'ome_tiff_script' manager.image.id %}" 
                 title="Create OME-TIFF File for Download">OME-TIFF</a>
             </li>
-            <li id="download-jpeg"><a href="{% url web_render_image_download manager.image.id %}" title="Download as JPEG">JPEG</a></li>
+            <li id="download-jpeg"><a href="{% url 'web_render_image_download' manager.image.id %}" title="Download as JPEG">JPEG</a></li>
         </ul>
     </div>
 

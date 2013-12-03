@@ -9,14 +9,14 @@
 
 """
 
-import os, subprocess, StringIO
+import os
 from path import path
-from omero.cli import Context, BaseControl, CLI, NonZeroReturnCode
-from omero.plugins.sessions import SessionsControl
+from omero.cli import CLI, NonZeroReturnCode
 from omero.plugins.export import ExportControl
 from omero.util.temp_files import create_path
 
 omeroDir = path(os.getcwd()) / "build"
+
 
 class MockCLI(CLI):
 
@@ -49,6 +49,7 @@ class MockExporter(object):
     def generateTiff(self, *args):
         return 1
 
+
 class TestExport(object):
 
     def setup_method(self, method):
@@ -75,4 +76,3 @@ class TestExport(object):
             assert False, "ZeroReturnCode??"
         except NonZeroReturnCode:
             pass
-

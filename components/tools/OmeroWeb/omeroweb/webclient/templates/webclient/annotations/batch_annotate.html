@@ -99,7 +99,7 @@
 
                 // Choose to add tags...
                 if ($("#add_tags_form").length === 0) {
-                    $("<form id='add_tags_form' title='Tags Selection' action='{% url annotate_tags %}' method='post'>")
+                    $("<form id='add_tags_form' title='Tags Selection' action='{% url 'annotate_tags' %}' method='post'>")
                         .hide().appendTo('body');
                 }
                 $("#launch_tags_form").click(function(event) {
@@ -151,7 +151,7 @@
 
                 // set-up the attachment selection form to use AJAX. (requires jquery.form.js plugin)
                 if ($("#choose_attachments_form").length === 0) {
-                    $("<form id='choose_attachments_form' title='Choose Attachments' action='{% url annotate_file %}' method='post'>")
+                    $("<form id='choose_attachments_form' title='Choose Attachments' action='{% url 'annotate_file' %}' method='post'>")
                         .hide().appendTo('body');
                 }
                 $('#choose_attachments_form').ajaxForm({
@@ -309,7 +309,7 @@
                 
 		<h2>{% trans "Tags" %}</h2>
 
-        <a id="launch_tags_form" href="{% url annotate_tags %}?{{ obj_string }}&index={{ index }}" class="btn silver btn_add"><span></span></a>
+        <a id="launch_tags_form" href="{% url 'annotate_tags' %}?{{ obj_string }}&index={{ index }}" class="btn silver btn_add"><span></span></a>
 				
         <div id="tags_container" class="lntags">
             {% for t in batchAnns.Tag %}
@@ -331,7 +331,7 @@
 
            
 			
-            <a id="choose_file_anns" href="{% url annotate_file %}?{{ obj_string }}&index={{ index }}" class="btn silver btn_add">
+            <a id="choose_file_anns" href="{% url 'annotate_file' %}?{{ obj_string }}&index={{ index }}" class="btn silver btn_add">
                 <span></span>
             </a>
 			
@@ -368,7 +368,7 @@
 			
 			<h2>{% trans "Comment:" %}</h2>
 			
-                <form id="add_comment_form" action="{% url annotate_comment %}" method="post">
+                <form id="add_comment_form" action="{% url 'annotate_comment' %}" method="post">
                 <table>
                     <tr class="hiddenField"><td>{{ form_comment.image }}</td></tr>
                     <tr class="hiddenField"><td>{{ form_comment.dataset }}</td></tr>

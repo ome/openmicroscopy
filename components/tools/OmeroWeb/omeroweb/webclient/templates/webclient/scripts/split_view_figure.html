@@ -271,14 +271,14 @@
         <td class="split_column">
             <div>
                 <img colIdx="{{ forloop.counter0 }}" class='img_panel' 
-                    src="{% url web_render_image imgData.id %}?c={{ forloop.counter }}" />
+                    src="{% url 'web_render_image' imgData.id %}?c={{ forloop.counter }}" />
             </div>
         </td>
         {% endfor %}
         <td class="merged_column">
             <div>
                 <img class='img_panel' 
-                    src="{% url web_render_image imgData.id %}" />
+                    src="{% url 'web_render_image' imgData.id %}" />
             </div>
         </td>
     </tr>

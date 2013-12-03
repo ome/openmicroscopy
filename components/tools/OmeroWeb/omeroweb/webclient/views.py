@@ -53,7 +53,7 @@ from omero.rtypes import *
 
 from django.conf import settings
 from django.contrib.sessions.backends.cache import SessionStore
-from django.core import template_loader
+from django.template import loader as template_loader
 from django.core.cache import cache
 from django.http import Http404, HttpResponse, HttpResponseRedirect, HttpResponseServerError, HttpResponseForbidden
 from django.shortcuts import render_to_response

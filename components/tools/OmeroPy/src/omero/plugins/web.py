@@ -3,7 +3,7 @@
 """
    Plugin for our configuring the OMERO.web installation
 
-   Copyright 2009 University of Dundee. All rights reserved.
+   Copyright 2009-2013 University of Dundee. All rights reserved.
    Use is subject to license terms supplied in LICENSE.txt
 
 """
@@ -197,6 +197,18 @@ class WebControl(BaseControl):
                     "HTTPPORT": port,
                     "FASTCGI_PASS": fastcgi_pass,
                     }
+                if hasattr(settings, 'FORCE_SCRIPT_NAME') \
+                        and len(settings.FORCE_SCRIPT_NAME) > 0:
+                    d["FASTCGI_PATH_SCRIPT_INFO"] = \
+                        "fastcgi_split_path_info ^(%s)(.*)$;\n" \
+                        "            " \
+                        "fastcgi_param PATH_INFO $fastcgi_path_info;\n" \
+                        "            " \
+                        "fastcgi_param SCRIPT_INFO $fastcgi_script_name;\n" \
+                        % (settings.FORCE_SCRIPT_NAME)
+                else:
+                    d["FASTCGI_PATH_SCRIPT_INFO"] = \
+                        "fastcgi_param PATH_INFO $fastcgi_script_name;\n"
                 self.ctx.out(c % d)
             if server == "apache":
                 if settings.APPLICATION_SERVER == settings.FASTCGITCP:
@@ -224,7 +236,7 @@ class WebControl(BaseControl):
 support
 # most later versions of mod_ssl and OSes will support it
 # if you see "You should not use name-based virtual hosts in conjunction \
-with  SSL!!"
+with SSL!!"
 # or similar start apache with -D DISABLE_SNI and modify ssl.conf
 #<IfDefine !DISABLE_SNI>
 #  NameVirtualHost *:443
@@ -499,7 +511,7 @@ using bin\omero web start on Windows with FastCGI.
             rv = self.ctx.popen(args=django, cwd=location)  # popen
         else:
             django = [sys.executable, "manage.py", "runserver", link,
-                      "--noreload"]
+                      "--noreload", "--nothreading"]
             rv = self.ctx.call(django, cwd=location)
         self.ctx.out("[OK]")
         return rv

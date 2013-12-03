@@ -509,6 +509,11 @@ class DocComponent
 			} 
 			if (annotation.getId() > 0) {
 				buf.append("<b>");
+				buf.append("Annotation ID: ");
+				buf.append("</b>");
+				buf.append(annotation.getId());
+				buf.append("<br>");
+				buf.append("<b>");
 				buf.append("File ID: ");
 				buf.append("</b>");
 				FileAnnotationData fa = (FileAnnotationData) data;

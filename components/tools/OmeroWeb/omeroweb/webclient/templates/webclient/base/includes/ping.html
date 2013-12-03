@@ -35,7 +35,7 @@
         
         var ping_interval = {{ ping_interval }};
         var i = setInterval(function (){
-            $.get("{% url keepalive_ping %}");
+            $.get("{% url 'keepalive_ping' %}");
         }, ping_interval);
     });
 </script>

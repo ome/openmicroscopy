@@ -33,7 +33,7 @@
 
     // this is called by the setInterval loop below
     OME.activitiesUpdate = function(i) {
-        $.get("{% url activities %}", function(data) {
+        $.get("{% url 'activities' %}", function(data) {
             $('#activities_spinner').hide();
             var inprogress = $("#inprogress", data).text();
             var new_results = $("#new_results", data).text();
@@ -147,7 +147,7 @@
         });
         
         $("#clear_activities").click(function() {
-            $.post("{% url activities_update action='clean' %}");
+            $.post("{% url 'activities_update' action='clean' %}");
             $("#jobsTable>tbody>tr").filter(":not(.in_progress)").remove();
         });
 

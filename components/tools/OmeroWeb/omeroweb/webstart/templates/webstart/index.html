@@ -26,7 +26,7 @@
     <form class="standard_form inlined">
     <h1>{% trans "OMERO client applications" %}: </h1>
     <p>
-        <a href="{% url webindex %}"><img src="{% static "webstart/img/icon-omero-web.png" %}"><a> 
+        <a href="{% url 'webindex' %}"><img src="{% static "webstart/img/icon-omero-web.png" %}"><a> 
         {% include "webstart/includes/webstart_insight_script.html" %}
     </p>
     </form>

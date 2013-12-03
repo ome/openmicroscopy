@@ -5,7 +5,7 @@
  *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -38,7 +38,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 
+
 //Third-party libraries
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.ListUtils;
 
 //Application-internal dependencies
@@ -1116,29 +1118,31 @@ class OmeroMetadataServiceImpl
 	 * @see OmeroMetadataService#loadAnnotations(SecurityContext, Class, String, long)
 	 */
 	public Collection loadAnnotations(SecurityContext ctx, Class annotationType,
-			String nameSpace, long userID) 
-		throws DSOutOfServiceException, DSAccessException
+	        String nameSpace, long userID)
+	                throws DSOutOfServiceException, DSAccessException
 	{
-		ParametersI po = new ParametersI();
-		if (userID >= 0) po.exp(omero.rtypes.rlong(userID));
-		List<String> toInclude = new ArrayList<String>();
-		List<String> toExclude = new ArrayList<String>();
-		if (nameSpace != null) 
-			toInclude.add(nameSpace);
-		if (FileAnnotationData.class.equals(annotationType)) {
-			if (!FileAnnotationData.COMPANION_FILE_NS.equals(nameSpace))
-				toExclude.add(FileAnnotationData.COMPANION_FILE_NS);
-			if (!FileAnnotationData.MEASUREMENT_NS.equals(nameSpace))
-				toExclude.add(FileAnnotationData.MEASUREMENT_NS);
-			if (!FileAnnotationData.FLIM_NS.equals(nameSpace))
-				toExclude.add(FileAnnotationData.FLIM_NS);
-			if (!FileAnnotationData.EXPERIMENTER_PHOTO_NS.equals(nameSpace))
-				toExclude.add(FileAnnotationData.EXPERIMENTER_PHOTO_NS);
-		}
-		return gateway.loadSpecificAnnotation(ctx, annotationType, toInclude,
-				toExclude, po);
+	    ParametersI po = new ParametersI();
+	    if (userID >= 0) po.exp(omero.rtypes.rlong(userID));
+	    List<String> toInclude = new ArrayList<String>();
+	    List<String> toExclude = new ArrayList<String>();
+	    if (nameSpace != null) 
+	        toInclude.add(nameSpace);
+	    if (FileAnnotationData.class.equals(annotationType)) {
+	        if (!FileAnnotationData.COMPANION_FILE_NS.equals(nameSpace))
+	            toExclude.add(FileAnnotationData.COMPANION_FILE_NS);
+	        if (!FileAnnotationData.MEASUREMENT_NS.equals(nameSpace))
+	            toExclude.add(FileAnnotationData.MEASUREMENT_NS);
+	        if (!FileAnnotationData.FLIM_NS.equals(nameSpace))
+	            toExclude.add(FileAnnotationData.FLIM_NS);
+	        if (!FileAnnotationData.EXPERIMENTER_PHOTO_NS.equals(nameSpace))
+	            toExclude.add(FileAnnotationData.EXPERIMENTER_PHOTO_NS);
+	        if (!FileAnnotationData.LOG_FILE_NS.equals(nameSpace))
+	            toExclude.add(FileAnnotationData.LOG_FILE_NS);
+	    }
+	    return gateway.loadSpecificAnnotation(ctx, annotationType, toInclude,
+	            toExclude, po);
 	}
-	
+
 	/**
 	 * Implemented as specified by {@link OmeroDataService}.
 	 * @see OmeroMetadataService#saveData(SecurityContext, Collection, List, List, long)
@@ -1979,6 +1983,7 @@ class OmeroMetadataServiceImpl
 				exclude.add(FileAnnotationData.MEASUREMENT_NS);
 				exclude.add(FileAnnotationData.FLIM_NS);
 				exclude.add(FileAnnotationData.EXPERIMENTER_PHOTO_NS);
+				exclude.add(FileAnnotationData.LOG_FILE_NS);
 		}
 		ParametersI po = new ParametersI();
 		if (userID >= 0) po.exp(omero.rtypes.rlong(userID));
@@ -2019,6 +2024,7 @@ class OmeroMetadataServiceImpl
 				exclude.add(FileAnnotationData.MEASUREMENT_NS);
 				exclude.add(FileAnnotationData.FLIM_NS);
 				exclude.add(FileAnnotationData.EXPERIMENTER_PHOTO_NS);
+				exclude.add(FileAnnotationData.LOG_FILE_NS);
 		}
 		
 		return gateway.loadSpecificAnnotation(ctx, FileAnnotationData.class,
@@ -2038,7 +2044,7 @@ class OmeroMetadataServiceImpl
 		if (set.size() != 1) return null;
 		Iterator<DataObject> i = set.iterator();
 		while (i.hasNext()) {
-			return i.next();	
+			return i.next();
 		}
 		return null;
 	}
@@ -2162,10 +2168,12 @@ class OmeroMetadataServiceImpl
 			List<String> nsExclude)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		if (rootType == null || rootIDs == null || rootIDs.size() == 0)
+		if (rootType == null || CollectionUtils.isEmpty(rootIDs))
 			throw new IllegalArgumentException("No node specified");
 		if (annotationType == null)
 			throw new IllegalArgumentException("No annotation type specified");
+		//always exclude the log file
+		nsExclude.add(FileAnnotationData.LOG_FILE_NS);
 		return gateway.loadSpecifiedAnnotationsLinkedTo(ctx, rootType, rootIDs,
 				annotationType, nsInclude, nsExclude, new Parameters());
 	}

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2011 University of Dundee. & Open Microscopy Environment.
+ * Copyright (c) 2008-2013 University of Dundee. & Open Microscopy Environment.
  * All rights reserved.
  *
  * This program is free software: you can redistribute it and/or modify
@@ -45,6 +45,26 @@ Number.prototype.filesizeformat = function () {
     
 }
 
+Number.prototype.lengthformat = function () {
+    var length = this;
+    if (length < 0.001) {
+        return (length * 1000 * 1000).toFixed(2) + ' pm';
+    } else if (length < 0.1) {
+        return (length * 1000 * 10).toFixed(2) + ' &#8491;';
+    } else if (length < 1) {
+        return (length * 1000).toFixed(2) + ' nm';
+    } else if (length < 1000) {
+        return length.toFixed(2) + ' &#181m';
+    } else if (length < 1000 * 100) {
+        return (length / 1000).toFixed(2) + ' mm';
+    } else if (length < 1000 * 100 * 10) {
+        return (length / 1000 / 100).toFixed(2) + ' cm';
+    } else if (length < 1000 * 100 * 10 * 100) {
+        return (length / 1000 / 100 / 10).toFixed(2) + ' m';
+    } else {
+        return (length / 1000 / 100 / 10 / 1000).toFixed(2) + ' km';
+    }
+}
 
 String.prototype.capitalize = function() {
     return this.charAt(0).toUpperCase() + this.slice(1);

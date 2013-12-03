@@ -23,7 +23,7 @@
 # Version: 1.0
 #
 
-from django.conf.urls.defaults import *
+from django.conf.urls import *
 
 from omeroweb.feedback import views
 

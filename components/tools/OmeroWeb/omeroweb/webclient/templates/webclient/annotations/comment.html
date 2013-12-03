@@ -32,7 +32,7 @@
 <div class="ann_comment_wrapper">
 
     <div class="avatar">
-		<img src="{% url avatar tann.details.owner.id.val %}" alt="{{ tann.getOwner.getFullName }}" title="{{ tann.getOwner.getFullName }}" />
+		<img src="{% url 'avatar' tann.details.owner.id.val %}" alt="{{ tann.getOwner.getFullName }}" title="{{ tann.getOwner.getFullName }}" />
 	</div>
 
     <div class="ann_comment_text">
@@ -44,7 +44,7 @@
     
         {% if tann.canDelete %}
             <img class='removeComment' id="{{ tann.id }}-comment" src="{% static "webclient/image/icon_basic_delete.png"%}" 
-                url='{% url manage_action_containers "remove" %}comment/{{ tann.id }}/' title="Delete comment"/>
+                url='{% url 'manage_action_containers' "remove" %}comment/{{ tann.id }}/' title="Delete comment"/>
         {% endif %}
     
         <div class='commentText'>

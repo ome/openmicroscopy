@@ -47,6 +47,9 @@
     {% endfor %}
     
     <script type="text/javascript" src="{% static "3rdparty/jquery-1.7.2.js" %}"></script>
+    
+    <script type="text/javascript" src="{% static "webgateway/js/ome.popup.js" %}"></script>
+    
 	<script type="text/javascript" src="{% static "3rdparty/aop.js" %}"></script>
 
 	<script type="text/javascript" src="{% static "webgateway/js/ome.gs_utils.js" %}"></script>
@@ -270,11 +273,11 @@
                 }
             }
         };
-        $.getJSON('{% url webgateway_object_table_query 'Plate.wells' 999 %}'.replace('999', tmp.wellId) +
+        $.getJSON('{% url 'webgateway_object_table_query' 'Plate.wells' 999 %}'.replace('999', tmp.wellId) +
             '?query=Well-' + tmp.wellId +
             '&callback=?',
              onAnnotations);
-        $.getJSON('{% url webgateway_object_table_query 'Screen.plateLinks.child.wells' 999 %}'.replace('999', tmp.wellId) +
+        $.getJSON('{% url 'webgateway_object_table_query' 'Screen.plateLinks.child.wells' 999 %}'.replace('999', tmp.wellId) +
             '?query=Well-' + tmp.wellId +
             '&callback=?',
              onAnnotations);
@@ -290,9 +293,9 @@
     $('#wblitz-image-z-count').html(tmp.z);
     $('#wblitz-image-t-count').html(tmp.t);
     tmp = viewport.getPixelSizes();
-    $('#wblitz-image-pixel-size-x').html(tmp.x==0?'-':(tmp.x.toFixed(4) + '&micro;m'));
-    $('#wblitz-image-pixel-size-y').html(tmp.y==0?'-':(tmp.y.toFixed(4) + '&micro;m'));
-    $('#wblitz-image-pixel-size-z').html(tmp.z==0?'-':(tmp.z.toFixed(4) + '&micro;m'));
+    $('#wblitz-image-pixel-size-x').html(tmp.x==0?'-':(tmp.x.lengthformat()));
+    $('#wblitz-image-pixel-size-y').html(tmp.y==0?'-':(tmp.y.lengthformat()));
+    $('#wblitz-image-pixel-size-z').html(tmp.z==0?'-':(tmp.z.lengthformat()));
 
     /* Fill in the Rendering Details box */
 
@@ -541,7 +544,7 @@
       if (!viewport.viewportimg.get(0).show_rois) {
           var options = {'width':{{ image.getSizeX }}, 
                      'height':{{ image.getSizeY }},
-                     'json_url':'{% url webgateway_get_rois_json image.id %}'};
+                     'json_url':'{% url 'webgateway_get_rois_json' image.id %}'};
           if (viewport.loadedImg.tiles) {
               options['tiles'] = true;
               options['canvas_name'] = 'roi_canvas_big';
@@ -743,9 +746,9 @@
                     $thmb.attr('color', line_color);
                 }
                 var thmb_id = parseInt($thmb.attr('id'));
-                var thmb_src = "{% url webgateway.views.render_roi_thumbnail 0 %}"+ thmb_id +"/?color=" + line_color;
+                var thmb_src = "{% url 'webgateway.views.render_roi_thumbnail' 0 %}"+ thmb_id +"/?color=" + line_color;
                 if ($thmb.hasClass('shape_thumb')) {
-                    thmb_src = "{% url webgateway.views.render_shape_thumbnail 0 %}"+ thmb_id +"/?color=" + line_color;
+                    thmb_src = "{% url 'webgateway.views.render_shape_thumbnail' 0 %}"+ thmb_id +"/?color=" + line_color;
                 }
                 $thmb.attr('src', thmb_src);
                 $thmb.show();
