@@ -22,7 +22,7 @@ import omero.scripts
 import omero.util
 import omero.util.concurrency
 
-import omero_ext.uuid as uuid # see ticket:3774
+import omero_ext.uuid as uuid  # see ticket:3774
 
 from omero.util import load_dotted_class
 from omero.util.temp_files import create_path, remove_path
@@ -42,6 +42,7 @@ def with_context(func, context):
     handler = wraps(func)(handler)
     return handler
 
+
 class WithGroup(object):
     """
     Wraps a ServiceInterfacePrx instance and applies
@@ -56,8 +57,9 @@ class WithGroup(object):
         self._service = service
         self._group_id = str(group_id)
 
-    def _get_ctx(self, group = None):
-        ctx = self._service.ice_getCommunicator().getImplicitContext().getContext()
+    def _get_ctx(self, group=None):
+        ctx = self._service.ice_getCommunicator()\
+            .getImplicitContext().getContext()
         ctx = dict(ctx)
         ctx["omero.group"] = group
         return ctx
@@ -69,7 +71,9 @@ class WithGroup(object):
             method = getattr(self._service, name)
             ctx = self._get_ctx(self._group_id)
             return with_context(method, ctx)
-        raise AttributeError("'%s' object has no attribute '%s'" % (self.service, name))
+        raise AttributeError(
+            "'%s' object has no attribute '%s'" % (self.service, name))
+
 
 class ProcessI(omero.grid.Process, omero.util.SimpleServant):
     """
@@ -93,9 +97,10 @@ class ProcessI(omero.grid.Process, omero.util.SimpleServant):
     attached session completely.
     """
 
-    def __init__(self, ctx, interpreter, properties, params, iskill = False,\
-        Popen = subprocess.Popen, callback_cast = omero.grid.ProcessCallbackPrx.uncheckedCast,\
-        omero_home = path.getcwd()):
+    def __init__(self, ctx, interpreter, properties, params, iskill=False,
+                 Popen=subprocess.Popen,
+                 callback_cast=omero.grid.ProcessCallbackPrx.uncheckedCast,
+                 omero_home=path.getcwd()):
         """
         Popen and callback_Cast are primarily for testing.
         """
@@ -155,7 +160,7 @@ class ProcessI(omero.grid.Process, omero.util.SimpleServant):
             self.env.append("CLASSPATH", str(jar_file))
 
     def make_files(self):
-        self.dir = create_path("process", ".dir", folder = True)
+        self.dir = create_path("process", ".dir", folder=True)
         self.script_path = self.dir / "script"
         self.config_path = self.dir / "config"
         self.stdout_path = self.dir / "out"
@@ -168,7 +173,7 @@ class ProcessI(omero.grid.Process, omero.util.SimpleServant):
         config_file = open(str(self.config_path), "w")
         try:
             for key in self.properties.iterkeys():
-                config_file.write("%s=%s\n"%(key, self.properties[key]))
+                config_file.write("%s=%s\n" % (key, self.properties[key]))
         finally:
             config_file.close()
 
@@ -204,9 +209,10 @@ class ProcessI(omero.grid.Process, omero.util.SimpleServant):
 
         self.stdout = open(str(self.stdout_path), "w")
         self.stderr = open(str(self.stderr_path), "w")
-        self.popen = self.Popen(self.command(),
-                          cwd=str(self.dir), env=self.env(),
-                          stdout=self.stdout, stderr=self.stderr)
+        self.popen = self.Popen(
+            self.command(),
+            cwd=str(self.dir), env=self.env(),
+            stdout=self.stdout, stderr=self.stderr)
         self.pid = self.popen.pid
         self.started = time.time()
         self.stopped = None
@@ -247,14 +253,16 @@ class ProcessI(omero.grid.Process, omero.util.SimpleServant):
             try:
                 self.set_job_status(client)
                 self.cleanup_output()
-                self.upload_output(client) # Important!
+                self.upload_output(client)  # Important!
                 self.cleanup_tmpdir()
             finally:
                 if client:
-                    client.__del__() # Safe closeSession
+                    client.__del__()  # Safe closeSession
 
         except Exception:
-            self.logger.error("FAILED TO CLEANUP pid=%s (%s)", self.pid, self.uuid, exc_info = True)
+            self.logger.error(
+                "FAILED TO CLEANUP pid=%s (%s)",
+                self.pid, self.uuid, exc_info=True)
 
         d_stop = time.time()
         elapsed = int(self.stopped - self.started)
@@ -264,10 +272,10 @@ class ProcessI(omero.grid.Process, omero.util.SimpleServant):
     @locked
     def isActive(self):
         """
-        Tests only if this instance has a non-None popen attribute. After activation
-        this method will return True until the popen itself returns a non-None
-        value (self.rcode) at which time it will be nulled and this method will again
-        return False
+        Tests only if this instance has a non-None popen attribute. After
+        activation this method will return True until the popen itself returns
+        a non-None value (self.rcode) at which time it will be nulled and this
+        method will again return False
         """
         return self.popen is not None
 
@@ -296,7 +304,8 @@ class ProcessI(omero.grid.Process, omero.util.SimpleServant):
         the given non-None value itself.
         """
         if not self.wasActivated:
-            raise omero.InternalException(None, None, "Process never activated")
+            raise omero.InternalException(
+                None, None, "Process never activated")
         return self.isFinished()
 
     #
@@ -315,7 +324,7 @@ class ProcessI(omero.grid.Process, omero.util.SimpleServant):
         """
 
         if not self.wasActivated():
-            return True # This should only happen on startup, so ignore
+            return True  # This should only happen on startup, so ignore
 
         try:
             self.poll()
@@ -340,7 +349,7 @@ class ProcessI(omero.grid.Process, omero.util.SimpleServant):
             return
 
         try:
-            sf = self.ctx.getSession(recreate = False)
+            sf = self.ctx.getSession(recreate=False)
         except:
             self.logger.debug("Can't get session for cleanup")
             return
@@ -355,7 +364,9 @@ class ProcessI(omero.grid.Process, omero.util.SimpleServant):
             # No action to be taken when iskill == False if
             # we don't have an actual client to worry with.
         except:
-            self.logger.error("Error on session cleanup, kill=%s" % self.iskill, exc_info = True)
+            self.logger.error(
+                "Error on session cleanup, kill=%s" %
+                self.iskill, exc_info=True)
 
     def cleanup_output(self):
         """
@@ -366,20 +377,22 @@ class ProcessI(omero.grid.Process, omero.util.SimpleServant):
                 self.stderr.flush()
                 self.stderr.close()
         except:
-            self.logger.error("cleanup of sterr failed", exc_info = True)
+            self.logger.error("cleanup of sterr failed", exc_info=True)
         try:
             if hasattr(self, "stdout"):
                 self.stdout.flush()
                 self.stdout.close()
         except:
-            self.logger.error("cleanup of sterr failed", exc_info = True)
+            self.logger.error("cleanup of sterr failed", exc_info=True)
 
     def set_job_status(self, client):
         """
         Sets the job status
         """
         if not client:
-            self.logger.error("No client: Cannot set job status for pid=%s (%s)", self.pid, self.uuid)
+            self.logger.error(
+                "No client: Cannot set job status for pid=%s (%s)",
+                self.pid, self.uuid)
             return
 
         gid = client.sf.getAdminService().getEventContext().groupId
@@ -387,10 +400,11 @@ class ProcessI(omero.grid.Process, omero.util.SimpleServant):
         try:
             status = self.final_status
             if status is None:
-                status = ( self.rcode == 0 and "Finished" or "Error" )
+                status = (self.rcode == 0 and "Finished" or "Error")
             handle.attach(long(self.properties["omero.job"]))
             oldStatus = handle.setStatus(status)
-            self.status("Changed job status from %s to %s" % (oldStatus, status))
+            self.status(
+                "Changed job status from %s to %s" % (oldStatus, status))
         finally:
             handle.close()
 
@@ -401,7 +415,9 @@ class ProcessI(omero.grid.Process, omero.util.SimpleServant):
         attached to the job.
         """
         if not client:
-            self.logger.error("No client: Cannot upload output for pid=%s (%s)", self.pid, self.uuid)
+            self.logger.error(
+                "No client: Cannot upload output for pid=%s (%s)",
+                self.pid, self.uuid)
             return
 
         if self.params:
@@ -419,7 +435,7 @@ class ProcessI(omero.grid.Process, omero.util.SimpleServant):
         if not format:
             return
 
-        filename = str(filename) # Might be path.path
+        filename = str(filename)  # Might be path.path
         sz = os.path.getsize(filename)
         if not sz:
             self.status("No %s" % name)
@@ -435,9 +451,13 @@ class ProcessI(omero.grid.Process, omero.util.SimpleServant):
                 link.parent = omero.model.ScriptJobI(rlong(jobid), False)
             link.child = ofile.proxy()
             client.getSession().getUpdateService().saveObject(link)
-            self.status("Uploaded %s bytes of %s to %s" % (sz, filename, ofile.id.val))
+            self.status(
+                "Uploaded %s bytes of %s to %s" %
+                (sz, filename, ofile.id.val))
         except:
-            self.logger.error("Error on upload of %s for pid=%s (%s)", filename, self.pid, self.uuid, exc_info = True)
+            self.logger.error(
+                "Error on upload of %s for pid=%s (%s)",
+                filename, self.pid, self.uuid, exc_info=True)
 
     def cleanup_tmpdir(self):
         """
@@ -447,7 +467,7 @@ class ProcessI(omero.grid.Process, omero.util.SimpleServant):
         try:
             remove_path(self.dir)
         except:
-            self.logger.error("Failed to remove dir %s" % self.dir, exc_info = True)
+            self.logger.error("Failed to remove dir %s" % self.dir, exc_info=True)
 
     #
     # popen methods
