@@ -25,7 +25,7 @@
     <dependency org="omero-db" name="${omero.db.jar}" rev="${omero.db.jar_version}" conf="build,server->default"/>
     <dependency org="org.hibernate" name="hibernate-core" rev="${versions.hibernate}" conf="build,server->default"/>
     <dependency org="org.hibernate" name="hibernate-search" rev="${versions.hibernate-search}" conf="build,server->default"/>
-    <dependency org="hibernate" name="hibernate-validator" rev="${versions.hibernate-validator}" conf="build,server->default"/>
+    <dependency org="org.hibernate" name="hibernate-validator" rev="${versions.hibernate-validator}" conf="build,server->default"/>
     <dependency org="hibernate" name="hibernate-jpa-2.0-api" rev="${versions.persistence-api}" conf="build,server->default"/>
     <dependency org="org/apache/lucene" name="lucene-core" rev="${versions.lucene}" conf="build,server->default"/>
     <dependency org="org/apache/lucene" name="lucene-highlighter" rev="${versions.lucene}" conf="build,server->default"/>
