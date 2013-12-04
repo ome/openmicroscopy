@@ -50,6 +50,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 //Third-party libraries
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
@@ -77,6 +78,8 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Multimaps;
+
+import edu.emory.mathcs.backport.java.util.Collections;
 
 import omero.ResourceError;
 import ome.formats.OMEROMetadataStoreClient;
@@ -614,8 +617,8 @@ class OMEROGateway
 	{
 		if (systemGroups != null) return systemGroups;
 		Connector c = getConnector(ctx, true, false);
-		IQueryPrx service = c.getQueryService();
 		try {
+		    IQueryPrx service = c.getQueryService();
 			List<RType> names = new ArrayList<RType>();
 			Iterator<String> j = SYSTEM_GROUPS.iterator();
 			while (j.hasNext()) {
@@ -1083,8 +1086,8 @@ class OMEROGateway
 	 */
 	private List<String> formatText(List<String> terms, String field)
 	{
-		if (terms == null || terms.size() == 0) return null;
-		if (field == null || field.length() == 0) return terms;
+		if (CollectionUtils.isEmpty(terms)) return null;
+		if (StringUtils.isBlank(field)) return terms;
 		List<String> formatted = new ArrayList<String>(terms.size());
 		Iterator<String> j = terms.iterator();
 		while (j.hasNext())
@@ -1105,7 +1108,7 @@ class OMEROGateway
 	private List<String> formatText(List<String> terms, String firstField,
 								String sep, String secondField)
 	{
-		if (terms == null || terms.size() == 0) return null;
+		if (CollectionUtils.isEmpty(terms)) return null;
 		List<String> formatted = new ArrayList<String>(terms.size());
 		String value;
 		Iterator<String> j = terms.iterator();
@@ -1294,8 +1297,8 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 		Connector c = getConnector(ctx, true, false);
-	    IQueryPrx service = c.getQueryService();
 		try {
+		    IQueryPrx service = c.getQueryService();
 			if (table == null) return new ArrayList();
 			ParametersI param = new ParametersI();
 			param.map.put("id", omero.rtypes.rlong(childID));
@@ -1642,8 +1645,7 @@ class OMEROGateway
 			SearchPrx service)
 		throws DSAccessException, DSOutOfServiceException
 	{
-		if (terms == null || terms.size() == 0) return null;
-		if (terms == null || terms.size() == 0) return null;
+		if (CollectionUtils.isEmpty(terms)) return null;
 		String[] values = new String[terms.size()];
 		Iterator<String> i = terms.iterator();
 		int index = 0;
@@ -1663,7 +1665,7 @@ class OMEROGateway
 	 */
 	private boolean startWithWildCard(String value)
 	{
-		if (value == null) return false;
+		if (StringUtils.isBlank(value)) return false;
 		Iterator<String> i = WILD_CARDS.iterator();
 		String card = null;
 		while (i.hasNext()) {
@@ -1921,8 +1923,8 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 		Connector c = getConnector(ctx, true, false);
-	    IAdminPrx service = c.getAdminService();
 		try {
+		    IAdminPrx service = c.getAdminService();
 			return (ExperimenterData)
 				PojoMapper.asDataObject(service.lookupExperimenter(name));
 		} catch (Exception e) {
@@ -2147,8 +2149,8 @@ class OMEROGateway
 		}
 		if (in) {
 		    Connector c = getConnector(ctx, true, false);
-		    IAdminPrx svc = c.getAdminService();
 		    try {
+		        IAdminPrx svc = c.getAdminService();
 		        svc.setDefaultGroup(exp.asExperimenter(),
 	                    new ExperimenterGroupI(groupID, false));
             } catch (Exception e) {
@@ -2194,8 +2196,8 @@ class OMEROGateway
 		throws DSOutOfServiceException
 	{
         Connector c = getConnector(ctx, true, false);
-        IAdminPrx svc = c.getAdminService();
 		try {
+		    IAdminPrx svc = c.getAdminService();
 			return svc.lookupLdapAuthExperimenter(userID);
 		} catch (Throwable e) {
 			handleConnectionException(e);
@@ -2339,8 +2341,8 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 	    Connector c = getConnector(ctx, true, false);
-		IContainerPrx service = c.getPojosService();
 		try {
+		    IContainerPrx service = c.getPojosService();
 			return PojoMapper.asDataObjects(
 					service.loadContainerHierarchy(
 							convertPojos(rootType).getName(), rootIDs, options));
@@ -2377,8 +2379,8 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 	    Connector c = getConnector(ctx, true, false);
-		IContainerPrx service = c.getPojosService();
 		try {
+		    IContainerPrx service = c.getPojosService();
 			return PojoMapper.asDataObjects(service.findContainerHierarchies(
 					convertPojos(rootNodeType).getName(), leavesIDs, options));
 		} catch (Throwable t) {
@@ -2435,8 +2437,8 @@ class OMEROGateway
 			}
 		}
 		Connector c = getConnector(ctx, true, false);
-		IMetadataPrx service = c.getMetadataService();
 		try {
+		    IMetadataPrx service = c.getMetadataService();
 			return PojoMapper.asDataObjects(
 					service.loadAnnotations(convertPojos(nodeType).getName(),
 							nodeIDs, types, annotatorIDs, options));
@@ -2464,8 +2466,8 @@ class OMEROGateway
 			return new HashSet<DataObject>();
 
         Connector c = getConnector(ctx, true, false);
-		IMetadataPrx service = c.getMetadataService();
 		try {
+		    IMetadataPrx service = c.getMetadataService();
 			return PojoMapper.asDataObjects(
 					service.loadAnnotation(annotationIds));
 		} catch (Throwable t) {
@@ -2489,8 +2491,8 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 	    Connector c = getConnector(ctx, true, false);
-		IQueryPrx service = c.getQueryService();
 		try {
+		    IQueryPrx service = c.getQueryService();
 			String table = getTableForAnnotationLink(type.getName());
 			if (table == null) return null;
 			String sql = "select link from "+table+" as link";
@@ -2528,8 +2530,8 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 	    Connector c = getConnector(ctx, true, false);
-	    IContainerPrx service = c.getPojosService();
 		try {
+		    IContainerPrx service = c.getPojosService();
 			return PojoMapper.asDataObjects(service.getImages(
 					convertPojos(nodeType).getName(), nodeIDs, options));
 		} catch (Throwable t) {
@@ -2556,9 +2558,9 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 	    Connector c = getConnector(ctx, true, false);
-		IContainerPrx service = c.getPojosService();
-		IQueryPrx svc = c.getQueryService();
 		try {
+		    IContainerPrx service = c.getPojosService();
+		    IQueryPrx svc = c.getQueryService();
 			if (!orphan) {
 				ParametersI po = new ParametersI();
 				if (userID >= 0) po.exp(omero.rtypes.rlong(userID));
@@ -2610,9 +2612,9 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
         Connector c = getConnector(ctx, true, false);
-		IMetadataPrx service = c.getMetadataService();
-		IContainerPrx svc = c.getPojosService();
 		try {
+		      IMetadataPrx service = c.getMetadataService();
+		        IContainerPrx svc = c.getPojosService();
 			if (TagAnnotationData.class.equals(rootNodeType)) {
 				return service.getTaggedObjectsCount(ids, options);
 			}
@@ -2725,8 +2727,8 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
         Connector c = getConnector(ctx, true, false);
-        IUpdatePrx service = c.getUpdateService();
 		try {
+		    IUpdatePrx service = c.getUpdateService();
 			service.deleteObject(object);
 		} catch (Throwable t) {
 			handleException(t, "Cannot delete the object.");
@@ -2747,8 +2749,8 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
         Connector c = getConnector(ctx, true, false);
-	    IUpdatePrx service = c.getUpdateService();
 		try {
+		    IUpdatePrx service = c.getUpdateService();
 			Iterator<IObject> i = objects.iterator();
 			//TODO: need method
 			while (i.hasNext())
@@ -2776,8 +2778,8 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 	    Connector c = getConnector(ctx, true, false);
-		IUpdatePrx service = c.getUpdateService();
 		try {
+		    IUpdatePrx service = c.getUpdateService();
 			if (options == null) return service.saveAndReturnObject(object);
 			return service.saveAndReturnObject(object, options);
 		} catch (Throwable t) {
@@ -2862,8 +2864,8 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 	    Connector c = getConnector(ctx, true, false);
-		IContainerPrx service = c.getPojosService();
 		try {
+		    IContainerPrx service = c.getPojosService();
 			IObject r = service.updateDataObject(object, options);
 			return findIObject(ctx, r);
 		} catch (Throwable t) {
@@ -2890,8 +2892,8 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 	    Connector c = getConnector(ctx, true, false);
-		IContainerPrx service = c.getPojosService();
 		try {
+		    IContainerPrx service = c.getPojosService();
 			List<IObject> l = service.updateDataObjects(objects, options);
 			if (l == null) return l;
 			Iterator<IObject> i = l.iterator();
@@ -2922,8 +2924,8 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 	    Connector c = getConnector(ctx, true, false);
-		IPixelsPrx service = c.getPixelsService();
 		try {
+		    IPixelsPrx service = c.getPixelsService();
 			return service.retrievePixDescription(pixelsID);
 		} catch (Throwable t) {
 			handleException(t, "Cannot retrieve the pixels set for "+pixelsID);
@@ -2969,8 +2971,9 @@ class OMEROGateway
 		throws RenderingServiceException, DSOutOfServiceException
 	{
 	    Connector c = getConnector(ctx, true, false);
-	    ThumbnailStorePrx service = c.getThumbnailService();
+	    ThumbnailStorePrx service = null;
 		try {
+		    service = c.getThumbnailService();
 			needDefault(pixelsID, service);
 			//getRendering Def for a given pixels set.
 			if (userID >= 0) {
@@ -2988,7 +2991,7 @@ class OMEROGateway
 			}
 			throw new RenderingServiceException("Cannot get thumbnail", t);
 		} finally {
-		    c.close(service);
+		    if (service != null) c.close(service);
 		}
 	}
 
@@ -3028,8 +3031,9 @@ class OMEROGateway
 		throws RenderingServiceException, DSOutOfServiceException
 	{
         Connector c = getConnector(ctx, true, false);
-		ThumbnailStorePrx service = c.getThumbnailService();
+		ThumbnailStorePrx service = null;
 		try {
+		    service = c.getThumbnailService();
 			// No need to call setPixelsID if using set method?
 			return service.getThumbnailByLongestSide(
 					omero.rtypes.rint(maxLength));
@@ -3041,7 +3045,7 @@ class OMEROGateway
 			}
 			throw new RenderingServiceException("Cannot get thumbnail", t);
 		} finally {
-		    c.close(service);
+		    if (service != null) c.close(service);
 		}
 	}
 
@@ -3085,10 +3089,9 @@ class OMEROGateway
 		throws RenderingServiceException, DSOutOfServiceException
 	{
         Connector c = getConnector(ctx, true, false);
-		ThumbnailStorePrx service = c.getThumbnailService();
+		ThumbnailStorePrx service = null;
 		try {
-			int n = MAX_RETRIEVAL;
-			if (!reset) n = pixelsID.size();
+		    service = c.getThumbnailService();
 			return service.getThumbnailByLongestSideSet(
 					omero.rtypes.rint(maxLength), pixelsID);
 		} catch (Throwable t) {
@@ -3173,8 +3176,8 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 	    Connector c = getConnector(ctx, true, false);
-		IQueryPrx service = c.getQueryService();
 		try {
+		    IQueryPrx service = c.getQueryService();
 			String table = getTableForAnnotationLink(type.getName());
 			if (table == null) return null;
 			StringBuffer buffer = new StringBuffer();
@@ -3220,8 +3223,8 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
        Connector c = getConnector(ctx, true, false);
-		IQueryPrx service = c.getQueryService();
 		try {
+		    IQueryPrx service = c.getQueryService();
 			String table = getTableForAnnotationLink(parentType);
 			if (table == null) return null;
 			StringBuffer sb = new StringBuffer();
@@ -3266,8 +3269,8 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 	    Connector c = getConnector(ctx, true, false);
-		IQueryPrx service = c.getQueryService();
 		try {
+		    IQueryPrx service = c.getQueryService();
 			String table = getTableForLink(parent.getClass());
 			if (table == null) return null;
 			String sql = "select link from "+table+" as link where " +
@@ -3301,8 +3304,8 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 	    Connector c = getConnector(ctx, true, false);
-		IQueryPrx service = c.getQueryService();
 		try {
+		    IQueryPrx service = c.getQueryService();
 			String table = getTableForLink(parent.getClass());
 			if (table == null) return null;
 
@@ -3341,8 +3344,8 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 	    Connector c = getConnector(ctx, true, false);
-		IQueryPrx service = c.getQueryService();
 		try {
+		    IQueryPrx service = c.getQueryService();
 			String table = getTableForLink(parentClass);
 			if (table == null) return null;
 			String sql = "select link from "+table+" as link where " +
@@ -3380,8 +3383,8 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 	    Connector c = getConnector(ctx, true, false);
-		IQueryPrx service = c.getQueryService();
 		try {
+		    IQueryPrx service = c.getQueryService();
 			String table = getAnnotationTableLink(node);
 			if (table == null) return null;
 			StringBuffer sb = new StringBuffer();
@@ -3469,8 +3472,8 @@ class OMEROGateway
         sb.append("where img.id = :imageID");
 
         Connector c = getConnector(ctx, true, false);
-        IQueryPrx service = c.getQueryService();
         try {
+            IQueryPrx service = c.getQueryService();
             List results = service.findAllByQuery(sb.toString(), param);
     		Iterator i = results.iterator();
     		Well well;
@@ -3507,8 +3510,8 @@ class OMEROGateway
 	{
 		if (o == null) return null;
 		Connector c = getConnector(ctx, true, false);
-		IQueryPrx service = c.getQueryService();
 		try {
+		    IQueryPrx service = c.getQueryService();
 			return service.find(o.getClass().getName(), o.getId().getValue());
 		} catch (Throwable t) {
 			handleException(t, "Cannot retrieve the requested object with "+
@@ -3533,8 +3536,8 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 	    Connector c = getConnector(ctx, true, false);
-		IQueryPrx service = c.getQueryService();
 		try {
+		    IQueryPrx service = c.getQueryService();
 			ParametersI param = new ParametersI();
 			param.map.put("name", rtypes.rstring(name));
 			param.map.put("ownerID", rtypes.rlong(ownerID));
@@ -3564,8 +3567,8 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 	    Connector c = getConnector(ctx, true, false);
-		IQueryPrx service = c.getQueryService();
 		try {
+		    IQueryPrx service = c.getQueryService();
 			return service.find(klassName, id);
 		} catch (Throwable t) {
 			handleException(t, "Cannot retrieve the requested object with "+
@@ -3589,9 +3592,9 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 	    Connector c = getConnector(ctx, true, false);
-		IQueryPrx service = c.getQueryService();
 		Set<GroupData> pojos = new HashSet<GroupData>();
 		try {
+		    IQueryPrx service = c.getQueryService();
 			//Need method server side.
 			ParametersI p = new ParametersI();
 			p.addId(user.getId());
@@ -3657,10 +3660,10 @@ class OMEROGateway
 		throws DSAccessException, DSOutOfServiceException
 	{
 	    Connector c = getConnector(ctx, true, false);
-		IQueryPrx service = c.getQueryService();
 		List<?> files = null;
 		String query;
 		try {
+		    IQueryPrx service = c.getQueryService();
 			ParametersI param = new ParametersI();
 			long id;
 			if (image.isFSImage()) {
@@ -3813,8 +3816,9 @@ class OMEROGateway
 		final String path = file.getAbsolutePath();
 
 		Connector c = getConnector(ctx, true, false);
-		RawFileStorePrx store = c.getRawFileService();
+		RawFileStorePrx store = null;
 		try {
+		    store = c.getRawFileService();
 			store.setFileId(fileID);
 		} catch (Throwable e) {
 		    c.close(store);
@@ -3904,8 +3908,8 @@ class OMEROGateway
 	{
 		OriginalFile of = null;
 		Connector c = getConnector(ctx, true, false);
-		IQueryPrx svc = c.getQueryService();
 		try {
+		    IQueryPrx svc = c.getQueryService();
 			ParametersI param = new ParametersI();
 			param.map.put("id", omero.rtypes.rlong(id));
 			of = (OriginalFile) svc.findByQuery(
@@ -3933,8 +3937,8 @@ class OMEROGateway
 	{
 		List files = null;
 		Connector c = getConnector(ctx, true, false);
-        IQueryPrx svc = c.getQueryService();
 		try {
+		    IQueryPrx svc = c.getQueryService();
 			ParametersI param = new ParametersI();
 			param.map.put("id", omero.rtypes.rlong(pixelsID));
 			files = svc.findAllByQuery(
@@ -3986,7 +3990,7 @@ class OMEROGateway
 	{
 		if (file == null)
 			throw new IllegalArgumentException("No file to upload");
-		if (mimeType == null || mimeType.length() == 0)
+		if (StringUtils.isBlank(mimeType))
 			mimeType =  DEFAULT_MIMETYPE;
 
 		boolean fileCreated = false;
@@ -3996,8 +4000,8 @@ class OMEROGateway
         Long fileId = null;
 
 		Connector c = getConnector(ctx, true, false);
-		IUpdatePrx update = c.getUpdateService();
 		try {
+		    IUpdatePrx update = c.getUpdateService();
 			OriginalFile oFile;
 			if (originalFileID <= 0) {
 				oFile = new OriginalFileI();
@@ -4059,8 +4063,9 @@ class OMEROGateway
 		FileInputStream stream = null;
 		final ChecksumProvider hasher = checksumProviderFactory.getProvider(
 				ChecksumType.SHA1);
-		RawFileStorePrx store = c.getRawFileService();
+		RawFileStorePrx store = null;
 		try {
+		    store = c.getRawFileService();
 		    store.setFileId(fileId);
 			stream = new FileInputStream(file);
 			long pos = 0;
@@ -4098,7 +4103,7 @@ class OMEROGateway
 			throw new DSAccessException("Cannot upload the file with path " +
 					file.getAbsolutePath(), e);
 		} finally {
-		    c.close(store);
+		    if (store != null) c.close(store);
 		}
 		return save;
 	}
@@ -4119,8 +4124,8 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 	    Connector c = getConnector(ctx, true, false);
-		IAdminPrx service = c.getAdminService();
 		try {
+		    IAdminPrx service = c.getAdminService();
 			service.changePasswordWithOldPassword(
 					omero.rtypes.rstring(oldPassword),
 					omero.rtypes.rstring(password));
@@ -4145,8 +4150,8 @@ class OMEROGateway
 	{
 		if (exp == null) return;
 		Connector c = getConnector(ctx, true, false);
-		IAdminPrx svc = c.getAdminService();
 		try {
+		    IAdminPrx svc = c.getAdminService();
 			if (exp.getId().getValue() == currentUserID)
 				svc.updateSelf(exp);
 			else svc.updateExperimenter(exp);
@@ -4170,8 +4175,8 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 	    Connector c = getConnector(ctx, true, false);
-		IAdminPrx svc = c.getAdminService();
 		try {
+		    IAdminPrx svc = c.getAdminService();
 			ExperimenterGroup g = group.asGroup();
 			svc.updateGroup(g);
 			if (group.getPermissions().getPermissionsLevel() != permissions
@@ -4218,8 +4223,8 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 	    Connector c = getConnector(ctx, true, false);
-		IAdminPrx svc = c.getAdminService();
 		try {
+		    IAdminPrx svc = c.getAdminService();
 			if (toAdd) {
 				Iterator<ExperimenterData> i = experimenters.iterator();
 				ExperimenterData exp;
@@ -4291,8 +4296,8 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 	    Connector c = getConnector(ctx, true, false);
-		IAdminPrx svc = c.getAdminService();
 		try {
+		    IAdminPrx svc = c.getAdminService();
 			if (toAdd) svc.addGroupOwners(group, experimenters);
 			else svc.removeGroupOwners(group, experimenters);
 		} catch (Throwable t) {
@@ -4341,8 +4346,9 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException, FSAccessException
 	{
 	    Connector conn = getConnector(ctx, true, false);
-		RawPixelsStorePrx service = conn.getPixelsStore();
+		RawPixelsStorePrx service = null;
 		try {
+		    service = conn.getPixelsStore();
 			service.setPixelsId(pixelsID, false);
 			byte[] plane = service.getPlane(z, c, t);
 			return plane;
@@ -4353,7 +4359,7 @@ class OMEROGateway
 			handleFSException(e, s);
 			handleException(e, s);
 		} finally {
-		    conn.close(service);
+		    if (service != null) conn.close(service);
 		}
 		return null;
 	}
@@ -4375,8 +4381,8 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 	    Connector c = getConnector(ctx, true, false);
-		IRepositoryInfoPrx service = c.getRepositoryService();
 		try {
+		    IRepositoryInfoPrx service = c.getRepositoryService();
 			return service.getFreeSpaceInKilobytes();
 		} catch (Throwable e) {
 			handleException(e, "Cannot retrieve the free space");
@@ -4402,9 +4408,9 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 	    Connector c = getConnector(ctx, true, false);
-		IRepositoryInfoPrx svc = c.getRepositoryService();
-		IQueryPrx service = c.getQueryService();
 		try {
+		    IRepositoryInfoPrx svc = c.getRepositoryService();
+	        IQueryPrx service = c.getQueryService();
 			if (id < 0)
 				return svc.getUsedSpaceInKilobytes();
 			StringBuffer buffer = new StringBuffer();
@@ -4450,8 +4456,8 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 	    Connector c = getConnector(ctx, true, false);
-		IContainerPrx service = c.getPojosService();
 		try {
+		    IContainerPrx service = c.getPojosService();
 			List result = service.getImagesByOptions(map);
 			if (asDataObject) return PojoMapper.asDataObjects(result);
 			return result;
@@ -4486,8 +4492,8 @@ class OMEROGateway
 	{
 		List<Long> success = new ArrayList<Long>();
 		List<Long> failure = new ArrayList<Long>();
-		IRenderingSettingsPrx service = getRenderingSettingsService(ctx);
 		try {
+		    IRenderingSettingsPrx service = getRenderingSettingsService(ctx);
 			String klass = convertPojos(rootNodeType).getName();
 			if (klass.equals(Image.class.getName())) failure.addAll(nodes);
 			success = service.resetDefaultsInSet(klass, nodes);
@@ -4529,9 +4535,8 @@ class OMEROGateway
 		List<Long> success = new ArrayList<Long>();
 		List<Long> failure = new ArrayList<Long>();
 
-		IRenderingSettingsPrx service = getRenderingSettingsService(ctx);
 		try {
-
+		    IRenderingSettingsPrx service = getRenderingSettingsService(ctx);
 			String klass = convertPojos(rootNodeType).getName();
 			if (klass.equals(Image.class.getName())) failure.addAll(nodes);
 			success = service.resetMinMaxInSet(klass, nodes);
@@ -4574,10 +4579,8 @@ class OMEROGateway
 	{
 		List<Long> success = new ArrayList<Long>();
 		List<Long> failure = new ArrayList<Long>();
-
-		IRenderingSettingsPrx service = getRenderingSettingsService(ctx);
-
 		try {
+		    IRenderingSettingsPrx service = getRenderingSettingsService(ctx);
 			String klass = convertPojos(rootNodeType).getName();
 			if (klass.equals(Image.class.getName())) failure.addAll(nodes);
 			success = service.resetDefaultsByOwnerInSet(klass, nodes);
@@ -4622,8 +4625,8 @@ class OMEROGateway
 	{
 		List<Long> success = new ArrayList<Long>();
 		List<Long> failure = new ArrayList<Long>();
-		IRenderingSettingsPrx service = getRenderingSettingsService(ctx);
 		try {
+		    IRenderingSettingsPrx service = getRenderingSettingsService(ctx);
 			Map m  = service.applySettingsToSet(pixelsID,
 					convertPojos(rootNodeType).getName(),
 					nodes);
@@ -4657,11 +4660,11 @@ class OMEROGateway
 	{
 		Map map = new HashMap();
 		Connector c = getConnector(ctx, true, false);
-		IPixelsPrx service = c.getPixelsService();
 		try {
+		    IPixelsPrx service = c.getPixelsService();
 			List results = service.retrieveAllRndSettings(pixelsID, userID);
 
-			if (results == null || results.size() == 0) return map;
+			if (CollectionUtils.isEmpty(results)) return map;
 			Iterator i = results.iterator();
 			RenderingDef rndDef;
 			Experimenter exp;
@@ -4700,11 +4703,11 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 	    Connector c = getConnector(ctx, true, false);
-		IPixelsPrx service = c.getPixelsService();
 		try {
+		    IPixelsPrx service = c.getPixelsService();
 			List results = service.retrieveAllRndSettings(pixelsID, userID);
 			List<RndProxyDef> l = new ArrayList<RndProxyDef>();
-			if (results == null || results.size() == 0) return l;
+			if (CollectionUtils.isEmpty(results)) return l;
 			Iterator i = results.iterator();
 			while (i.hasNext()) {
 				l.add(PixelsServicesFactory.convert((RenderingDef) i.next()));
@@ -4734,8 +4737,8 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 	    Connector c = getConnector(ctx, true, false);
-		IPixelsPrx service = c.getPixelsService();
 		try {
+		    IPixelsPrx service = c.getPixelsService();
 			return service.retrieveRndSettingsFor(pixelsID, userID);
 		} catch (Exception e) {
 			handleException(e, "Cannot retrieve the rendering settings");
@@ -4762,8 +4765,8 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 	    Connector c = getConnector(ctx, true, false);
-		IMetadataPrx service = c.getMetadataService();
 		try {
+		    IMetadataPrx service = c.getMetadataService();
 			return PojoMapper.asDataObjects(
 					service.loadSpecifiedAnnotations(
 							convertPojos(type).getName(), toInclude,
@@ -4793,8 +4796,8 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 	    Connector c = getConnector(ctx, true, false);
-		IMetadataPrx service = c.getMetadataService();
 		try {
+		    IMetadataPrx service = c.getMetadataService();
 			RLong value = service.countSpecifiedAnnotations(
 					convertPojos(type).getName(), toInclude,
 					toExclude, options);
@@ -4824,9 +4827,9 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 	    Connector c = getConnector(ctx, true, false);
-		IMetadataPrx service = c.getMetadataService();
 		long count = 0;
 		try {
+		    IMetadataPrx service = c.getMetadataService();
 			RLong value = service.countAnnotationsUsedNotOwned(
 					convertAnnotation(annotationType), userID);
 			if (value != null) count = value.getValue();
@@ -4856,8 +4859,8 @@ class OMEROGateway
 	{
 		Set result = new HashSet();
 		Connector c = getConnector(ctx, true, false);
-		IMetadataPrx service = c.getMetadataService();
 		try {
+		    IMetadataPrx service = c.getMetadataService();
 			List<IObject> set = service.loadAnnotationsUsedNotOwned(
 					convertAnnotation(annotationType), userID);
 			Iterator<IObject> i = set.iterator();
@@ -4890,7 +4893,6 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 	    Connector c = getConnector(ctx, true, false);
-		IQueryPrx service = c.getQueryService();
 		ParametersI param = new ParametersI();
 		param.map = new HashMap<String, RType>();
 		StringBuffer buf = new StringBuffer();
@@ -4940,6 +4942,7 @@ class OMEROGateway
 			case SearchDataContext.ANNOTATION_TIME:
 		}
 		try {
+		    IQueryPrx service = c.getQueryService();
 			List<ExperimenterData> l = context.getOwners();
 			List<Long> ids = new ArrayList<Long>();
 			if (l != null) {
@@ -4980,12 +4983,12 @@ class OMEROGateway
 		Map<Integer, Object> results = new HashMap<Integer, Object>();
 		List<Class> types = context.getTypes();
 		List<Integer> scopes = context.getScope();
-		if (types == null || types.size() == 0) return new HashMap();
-		//if (scopes == null || scopes.size() == 0) return new HashMap();
+		if (CollectionUtils.isEmpty(types)) return new HashMap();
 
 		Connector c = getConnector(ctx, true, false);
-		SearchPrx service = c.getSearchService();
+		SearchPrx service = null;
 		try {
+		    service = c.getSearchService();
 			service.clearQueries();
 			service.setAllowLeadingWildcard(true);
 			service.setCaseSentivice(context.isCaseSensitive());
@@ -5139,7 +5142,7 @@ class OMEROGateway
 		} catch (Throwable e) {
 			handleException(e, "Cannot perform the search.");
 		} finally {
-		    c.close(service);
+		    if (service != null) c.close(service);
 		}
 		return null;
 	}
@@ -5166,8 +5169,9 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 		Connector c = getConnector(ctx, true, false);
-	    SearchPrx service = c.getSearchService();
+	    SearchPrx service = null;
 		try {
+		    service = c.getSearchService();
 			if (start != null && end != null)
 				service.onlyAnnotatedBetween(
 						omero.rtypes.rtime(start.getTime()),
@@ -5189,7 +5193,7 @@ class OMEROGateway
 		} catch (Exception e) {
 			handleException(e, "Filtering by annotation not valid");
 		} finally {
-	        c.close(service);
+	        if (service != null) c.close(service);
 		}
 		return new ArrayList();
 	}
@@ -5211,8 +5215,8 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 	    Connector c = getConnector(ctx, true, false);
-		IQueryPrx service = c.getQueryService();
 		try {
+		    IQueryPrx service = c.getQueryService();
 			Parameters p = new ParametersI();
 			p.map = new HashMap<String, RType>();
 			p.map.put("id", omero.rtypes.rlong(userID));
@@ -5242,8 +5246,8 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 	    Connector c = getConnector(ctx, true, false);
-		IQueryPrx service = c.getQueryService();
 		try {
+		    IQueryPrx service = c.getQueryService();
 			ParametersI param = new ParametersI();
 			param.addLongs("ids", annotationIds);
 			StringBuilder sb = new StringBuilder();
@@ -5283,8 +5287,8 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 	    Connector c = getConnector(ctx, true, false);
-		IQueryPrx service = c.getQueryService();
 		try {
+		    IQueryPrx service = c.getQueryService();
 			ParametersI param;
 			StringBuilder sb = new StringBuilder();
 
@@ -5366,8 +5370,8 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 	    Connector c = getConnector(ctx, true, false);
-		IQueryPrx service = c.getQueryService();
 		try {
+		    IQueryPrx service = c.getQueryService();
 			String type = "ome.model.annotations.TextAnnotation";
 			ParametersI param = new ParametersI();
 			param.addLong("uid", userID);
@@ -5442,8 +5446,8 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 	    Connector c = getConnector(ctx, true, false);
-		IProjectionPrx service = c.getProjectionService();
 		try {
+		    IProjectionPrx service = c.getProjectionService();
 			PixelsType type = null;
 			if (pixType != null) {
 				IQueryPrx svc = c.getQueryService();
@@ -5516,8 +5520,8 @@ class OMEROGateway
 	{
 		//TODO: add method to server so that we don't have to make 2 calls.
 	    Connector c = getConnector(ctx, true, false);
-	    IPixelsPrx svc = c.getPixelsService();
 		try {
+		    IPixelsPrx svc = c.getPixelsService();
 			Pixels pixels = svc.retrievePixDescription(pixelsID);
 			if (pixels == null) return null;
 			IRenderingSettingsPrx service = getRenderingSettingsService(ctx);
@@ -5543,8 +5547,8 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 	    Connector c = getConnector(ctx, true, false);
-		IQueryPrx service = c.getQueryService();
 		try {
+		    IQueryPrx service = c.getQueryService();
 			List results = null;
 			Iterator i;
 			StringBuilder sb = new StringBuilder();
@@ -5572,9 +5576,8 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 	    Connector c = getConnector(ctx, true, false);
-		IQueryPrx service = c.getQueryService();
 		try {
-
+		    IQueryPrx service = c.getQueryService();
 			List results = null;
 			Set<DataObject> wells = new HashSet<DataObject>();
 			Iterator i;
@@ -5624,8 +5627,8 @@ class OMEROGateway
 			throws DSOutOfServiceException, DSAccessException
 		{
 	        Connector c = getConnector(ctx, true, false);
-			IQueryPrx service = c.getQueryService();
 			try {
+			    IQueryPrx service = c.getQueryService();
 				List<RType> ids = new ArrayList<RType>(plateIDs.size());
 				Iterator<Long> j = plateIDs.iterator();
 				while (j.hasNext())
@@ -5680,8 +5683,8 @@ class OMEROGateway
 		ids.add(imageID);
 
 		Connector c = getConnector(ctx, true, false);
-		IContainerPrx service = c.getPojosService();
         try {
+            IContainerPrx service = c.getPojosService();
         	List images = service.getImages(Image.class.getName(), ids, po);
         	if (images != null && images.size() == 1)
         		return new ImageAcquisitionData((Image) images.get(0));
@@ -5706,9 +5709,9 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 	    Connector c = getConnector(ctx, true, false);
-		IMetadataPrx service = c.getMetadataService();
-		IQueryPrx query = c.getQueryService();
 		try {
+		    IMetadataPrx service = c.getMetadataService();
+	        IQueryPrx query = c.getQueryService();
 			List<Long> ids = new ArrayList<Long>(1);
 			ids.add(channelID);
 			List l = service.loadChannelAcquisitionData(ids);
@@ -5761,8 +5764,8 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 	    Connector c = getConnector(ctx, true, false);
-		IQueryPrx service = c.getQueryService();
 		try {
+		    IQueryPrx service = c.getQueryService();
 			return service.findByString(klass.getName(), "value", value);
 		} catch (Exception e) {
 			handleException(e, "Cannot find the enumeration's value.");
@@ -5787,9 +5790,9 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 	    Connector c = getConnector(ctx, true, false);
-		IPixelsPrx service = c.getPixelsService();
 		List<EnumerationObject> r;
 		try {
+		    IPixelsPrx service = c.getPixelsService();
 			r = enumerations.get(klassName);
 			if (r != null) return r;
 			List<IObject> l = service.getAllEnumerations(klassName);
@@ -5823,8 +5826,8 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 	    Connector c = getConnector(ctx, true, false);
-		IMetadataPrx service = c.getMetadataService();
 		try {
+		    IMetadataPrx service = c.getMetadataService();
 			List<Long> ids = new ArrayList<Long>(1);
 			ids.add(id);
 			Map m = service.loadTagContent(ids, options);
@@ -5852,8 +5855,8 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 	    Connector c = getConnector(ctx, true, false);
-		IMetadataPrx service = c.getMetadataService();
 		try {
+		    IMetadataPrx service = c.getMetadataService();
 			return PojoMapper.asDataObjects(service.loadTagSets(options));
 		} catch (Exception e) {
 			handleException(e, "Cannot find the Tags.");
@@ -5881,7 +5884,6 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 	    Connector c = getConnector(ctx, true, false);
-		IQueryPrx service = c.getQueryService();
 		StringBuilder sb;
 		ParametersI param;
 		sb = new StringBuilder();
@@ -5902,6 +5904,7 @@ class OMEROGateway
         	param.map.put("c", omero.rtypes.rint(channel));
         }
         try {
+            IQueryPrx service = c.getQueryService();
         	return service.findAllByQuery(sb.toString(), param);
 		} catch (Exception e) {
 			handleException(e,
@@ -6063,13 +6066,12 @@ class OMEROGateway
 	List<ScriptObject> loadRunnableScripts(SecurityContext ctx)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		IScriptPrx svc = getScriptService(ctx);
 		List<ScriptObject> scripts = new ArrayList<ScriptObject>();
 		try {
-
+		    IScriptPrx svc = getScriptService(ctx);
 			List<OriginalFile> storedScripts = svc.getScripts();
 
-			if (storedScripts == null || storedScripts.size() == 0)
+			if (CollectionUtils.isEmpty(storedScripts))
 				return scripts;
 			Entry en;
 			Iterator<OriginalFile> j = storedScripts.iterator();
@@ -6121,13 +6123,12 @@ class OMEROGateway
 	List<ScriptObject> loadRunnableScriptsWithUI(SecurityContext ctx)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		IScriptPrx svc = getScriptService(ctx);
 		List<ScriptObject> scripts = new ArrayList<ScriptObject>();
 		try {
-
+		    IScriptPrx svc = getScriptService(ctx);
 			List<OriginalFile> storedScripts = svc.getScripts();
 
-			if (storedScripts == null || storedScripts.size() == 0)
+			if (CollectionUtils.isEmpty(storedScripts))
 				return scripts;
 			Entry en;
 			Iterator<OriginalFile> j = storedScripts.iterator();
@@ -6190,8 +6191,8 @@ class OMEROGateway
 	Map<Long, String> getScriptsAsString(SecurityContext ctx)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		IScriptPrx svc = getScriptService(ctx);
 		try {
+		    IScriptPrx svc = getScriptService(ctx);
 			List<OriginalFile> scripts = svc.getScripts();
 			Map<Long, String> m = new HashMap<Long, String>();
 			if (scripts != null) {
@@ -6226,9 +6227,8 @@ class OMEROGateway
 	List<OriginalFile> getScripts(SecurityContext ctx)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		IScriptPrx svc = getScriptService(ctx);
 		try {
-
+		    IScriptPrx svc = getScriptService(ctx);
 			return svc.getScripts();
 		} catch (Exception e) {
 			handleException(e, "Cannot load the scripts. ");
@@ -6563,8 +6563,8 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 	    Connector c = getConnector(ctx, true, false);
-		IMetadataPrx service = c.getMetadataService();
 		try {
+		    IMetadataPrx service = c.getMetadataService();
 			Instrument instrument = service.loadInstrument(id);
 			if (instrument == null) return null;
 			return new InstrumentData(instrument);
@@ -6594,8 +6594,8 @@ class OMEROGateway
 		TablePrx tablePrx = null;
 		long id = -1;
 		List<TableResult> results = new ArrayList<TableResult>();
-		SharedResourcesPrx svc = getSharedResources(ctx);
 		try {
+		    SharedResourcesPrx svc = getSharedResources(ctx);
 			long[] rows;
 			TableResult result;
 			List<Long> ids;
@@ -6659,8 +6659,8 @@ class OMEROGateway
 	{
 		List<ROIResult> results = new ArrayList<ROIResult>();
 		Connector c = getConnector(ctx, true, false);
-		IRoiPrx svc = c.getROIService();
 		try {
+		    IRoiPrx svc = c.getROIService();
 			RoiOptions options = new RoiOptions();
 			options.userId = omero.rtypes.rlong(userID);
 			RoiResult r;
@@ -6713,9 +6713,9 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 	    Connector c = getConnector(ctx, true, false);
-		IUpdatePrx updateService = c.getUpdateService();
-		IRoiPrx svc = c.getROIService();
 		try {
+		    IUpdatePrx updateService = c.getUpdateService();
+		    IRoiPrx svc = c.getROIService();
 			RoiOptions options = new RoiOptions();
 			options.userId = omero.rtypes.rlong(userID);
 			RoiResult serverReturn;
@@ -6974,8 +6974,8 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 	    Connector c = getConnector(ctx, true, false);
-		IRoiPrx svc = c.getROIService();
 		try {
+		    IRoiPrx svc = c.getROIService();
 			RoiOptions options = new RoiOptions();
 			options.userId = omero.rtypes.rlong(userID);
 			Collection files = PojoMapper.asDataObjects(
@@ -7031,8 +7031,8 @@ class OMEROGateway
 		FileOutputStream stream = null;
 		DSAccessException exception = null;
 		Connector c = getConnector(ctx, true, false);
-		ExporterPrx store = c.getExporterService();
 		try {
+		    ExporterPrx store = c.getExporterService();
 			stream = new FileOutputStream(f);
 			try {
 				store.addImage(imageID);
@@ -7112,9 +7112,9 @@ class OMEROGateway
 			boolean official)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		IScriptPrx svc = getScriptService(ctx);
 		FileInputStream stream = null;
 		try {
+		    IScriptPrx svc = getScriptService(ctx);
 			StringBuffer buf = new StringBuffer("");
 			try {
 				File file = new File(script.getPath());
@@ -7188,9 +7188,9 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 	    Connector c = getConnector(ctx, true, false);
-		IAdminPrx svc = c.getAdminService();
 		List<ExperimenterData> results = new ArrayList<ExperimenterData>();
 		try {
+		    IAdminPrx svc = c.getAdminService();
 			Map<ExperimenterData, UserCredentials>
 				m = object.getExperimenters();
 			Entry entry;
@@ -7261,8 +7261,8 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 	    Connector c = getConnector(ctx, true, false);
-		IAdminPrx svc = c.getAdminService();
 		try {
+		    IAdminPrx svc = c.getAdminService();
 			Map<ExperimenterData, UserCredentials>
 				m = object.getExperimenters();
 			Entry entry;
@@ -7346,9 +7346,9 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 	    Connector c = getConnector(ctx, true, false);
-		IQueryPrx svc = c.getQueryService();
 		Map<Long, Long> r = new HashMap<Long, Long>();
 		try {
+		    IQueryPrx svc = c.getQueryService();
 			ParametersI p = new ParametersI();
 			p.addLongs("gids", groupIds);
 			List list = (List) svc.findAllByQuery("select m " +
@@ -7409,8 +7409,8 @@ class OMEROGateway
 		List<GroupData> pojos = new ArrayList<GroupData>();
 		if (experimenterID < 0) return pojos;
 		Connector c = getConnector(ctx, true, false);
-		IQueryPrx svc = c.getQueryService();
 		try {
+		    IQueryPrx svc = c.getQueryService();
 			List<ExperimenterGroup> groups = null;
 			ParametersI p = new ParametersI();
 			p.addId(experimenterID);
@@ -7450,9 +7450,8 @@ class OMEROGateway
 	{
 		List<GroupData> pojos = new ArrayList<GroupData>();
 		Connector c = getConnector(ctx, true, false);
-		IQueryPrx svc = c.getQueryService();
 		try {
-
+	        IQueryPrx svc = c.getQueryService();
 			List<ExperimenterGroup> groups = null;
 			if (id < 0) {
 				groups = (List)
@@ -7506,8 +7505,8 @@ class OMEROGateway
 	{
 		List<GroupData> pojos = new ArrayList<GroupData>();
 		Connector c = getConnector(ctx, true, false);
-		IQueryPrx svc = c.getQueryService();
 		try {
+		    IQueryPrx svc = c.getQueryService();
 			List<ExperimenterGroup> groups = null;
 			ParametersI p = new ParametersI();
 			p.addId(id);
@@ -7553,8 +7552,8 @@ class OMEROGateway
 	{
 		List<ExperimenterData> pojos = new ArrayList<ExperimenterData>();
 		Connector c = getConnector(ctx, true, false);
-		IAdminPrx service = c.getAdminService();
 		try {
+		    IAdminPrx service = c.getAdminService();
 			List<Experimenter> l = service.lookupExperimenters();
 			pojos.addAll(PojoMapper.asDataObjects(l));
 		} catch (Throwable t) {
@@ -7581,12 +7580,13 @@ class OMEROGateway
 	{
 		List<ExperimenterData> r = new ArrayList<ExperimenterData>();
 		Connector c = getConnector(ctx, true, false);
-		IAdminPrx svc = c.getAdminService();
+		IAdminPrx svc;
 		Iterator<ExperimenterData> i = experimenters.iterator();
 		ExperimenterData exp;
 		while (i.hasNext()) {
 			exp = i.next();
 			try {
+			    svc = c.getAdminService();
 				svc.deleteExperimenter(exp.asExperimenter());
 			} catch (Exception e) {
 				handleConnectionException(e);
@@ -7614,7 +7614,7 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 	    Connector c = getConnector(ctx, true, false);
-		IAdminPrx svc = c.getAdminService();
+		IAdminPrx svc;
 		List<ExperimenterData> r = new ArrayList<ExperimenterData>();
 		Iterator<ExperimenterData> i = experimenters.iterator();
 		ExperimenterData exp;
@@ -7623,6 +7623,7 @@ class OMEROGateway
 		while (i.hasNext()) {
 			exp = i.next();
 			try {
+			    svc = c.getAdminService();
 				svc.addGroups(exp.asExperimenter(), groups);
 			} catch (Exception e) {
 				handleConnectionException(e);
@@ -7651,7 +7652,7 @@ class OMEROGateway
 	{
 		List<ExperimenterData> r = new ArrayList<ExperimenterData>();
 		Connector c = getConnector(ctx, true, false);
-		IAdminPrx svc = c.getAdminService();
+		IAdminPrx svc;
 		Iterator<ExperimenterData> i = experimenters.iterator();
 		ExperimenterData exp;
 		List<ExperimenterGroup> groups = new ArrayList<ExperimenterGroup>();
@@ -7659,6 +7660,7 @@ class OMEROGateway
 		while (i.hasNext()) {
 			exp = i.next();
 			try {
+			    svc = c.getAdminService();
 				svc.removeGroups(exp.asExperimenter(), groups);
 			} catch (Exception e) {
 				handleConnectionException(e);
@@ -7685,12 +7687,13 @@ class OMEROGateway
 	{
 		List<GroupData> r = new ArrayList<GroupData>();
 		Connector c = getConnector(ctx, true, false);
-		IAdminPrx svc = c.getAdminService();
+		IAdminPrx svc = null;
 		Iterator<GroupData> i = groups.iterator();
 		GroupData g;
 		while (i.hasNext()) {
 			g = i.next();
 			try {
+			    svc = c.getAdminService();
 				svc.deleteGroup(g.asGroup());
 			} catch (Exception e) {
 				handleConnectionException(e);
@@ -7717,8 +7720,8 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 	    Connector c = getConnector(ctx, true, false);
-		IAdminPrx svc = c.getAdminService();
 		try {
+		    IAdminPrx svc = c.getAdminService();
 			svc.changeUserPassword(userName, omero.rtypes.rstring(password));
 		} catch (Throwable t) {
 			handleException(t, "Cannot modify the password for:"+userName);
@@ -7743,14 +7746,13 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 	    Connector c = getConnector(ctx, true, false);
-		IAdminPrx service = c.getAdminService();
 		try {
+		    IAdminPrx service = c.getAdminService();
 			//First check that no user with the name already exists
 			Experimenter value = lookupExperimenter(ctx, userName);
 			if (value == null) {
 				Experimenter exp = experimenter.asExperimenter();
 				exp.setOmeName(omero.rtypes.rstring(userName));
-
 				service.updateExperimenter(exp);
 				return true;
 			}
@@ -7795,8 +7797,8 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 	    Connector c = getConnector(ctx, true, false);
-		IAdminPrx svc = c.getAdminService();
 		try {
+		    IAdminPrx svc = c.getAdminService();
 			return svc.lookupGroup(name);
 		} catch (Exception e) {
 			if (e instanceof ApiUsageException)
@@ -7822,8 +7824,8 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 	    Connector c = getConnector(ctx, true, false);
-		IAdminPrx svc = c.getAdminService();
 		try {
+		    IAdminPrx svc = c.getAdminService();
 			return svc.lookupExperimenter(name);
 		} catch (Exception e) {
 			if (e instanceof ApiUsageException)
@@ -7847,8 +7849,8 @@ class OMEROGateway
 			throws DSOutOfServiceException, DSAccessException
 	{
 	    Connector c = getConnector(ctx, true, false);
-		IQueryPrx svc = c.getQueryService();
 		try {
+		    IQueryPrx svc = c.getQueryService();
 			ParametersI param = new ParametersI();
 			param.map.put("userID", omero.rtypes.rlong(userID));
 			List<Namespace> serverWorkflows =
@@ -7922,15 +7924,16 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 	    Connector c = getConnector(ctx, true, false);
-		RawFileStorePrx store = c.getRawFileService();
+		RawFileStorePrx store = null;
 		try {
+		    store = c.getRawFileService();
 			store.setFileId(fileID);
 			return store.read(0, (int) size);
 		} catch (Exception e) {
 			handleConnectionException(e);
 			throw new DSAccessException("Cannot read the file" +fileID, e);
 		} finally {
-		    c.close(store);
+		    if (store != null) c.close(store);
 		}
 	}
 
@@ -7952,8 +7955,9 @@ class OMEROGateway
 	{
 	    Connector c = getConnector(ctx, true, false);
 		IAdminPrx svc = c.getAdminService();
+		FileInputStream stream = null;
 		try {
-			FileInputStream stream = new FileInputStream(file);
+			stream = new FileInputStream(file);
 			long length = file.length();
 			//Make sure the file is not too big.
 			byte[] bytes = new byte[(int) length];
@@ -7964,10 +7968,16 @@ class OMEROGateway
 			if (offset < bytes.length)
 				throw new IOException("Could not completely read file "+
 						file.getName());
-			stream.close();
+			
 			return svc.uploadMyUserPhoto(file.getName(), format, bytes);
 		} catch (Exception e) {
 			handleException(e, "Cannot upload the photo.");
+		} finally {
+		    try {
+		        if (stream != null) stream.close();
+            } catch (Exception e2) {
+                dsFactory.getLogger().debug(this, "Cannot close stream.");
+            }
 		}
 		return -1;
 	}
@@ -7988,14 +7998,15 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
         Connector c = getConnector(ctx, true, false);
-        RawPixelsStorePrx store = c.getPixelsStore();
+        RawPixelsStorePrx store = null;
 	    try {
+	        store = c.getPixelsStore();
 			store.setPixelsId(pixelsId, true);
 			return store.requiresPixelsPyramid();
 		} catch (Exception e) {
 			handleException(e, "Cannot start the Raw pixels store.");
 		} finally {
-		    c.close(store);
+		    if (store != null) c.close(store);
 		}
 		return null;
 	}
@@ -8033,9 +8044,9 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 	    Connector c = getConnector(ctx, true, false);
-		IAdminPrx svc = c.getAdminService();
 		Iterator<ExperimenterData> i = experimenters.iterator();
 		try {
+		    IAdminPrx svc = c.getAdminService();
 			List<ExperimenterGroup> groups = new ArrayList<ExperimenterGroup>();
 			groups.add(group.asGroup());
 			while (i.hasNext()) {
@@ -8081,9 +8092,8 @@ class OMEROGateway
 	{
 		Connector c = getConnector(ctx, true, true);
 		if (c == null) return null; // TODO:
-		IAdminPrx svc = c.getAdminService();
-
 		try {
+		    IAdminPrx svc = c.getAdminService();
 			Entry<DataObject, List<IObject>> entry;
 			Iterator<Entry<DataObject, List<IObject>>>
 			i = map.entrySet().iterator();
@@ -8200,10 +8210,10 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 	    Connector c = getConnector(ctx, true, false);
-		IPixelsPrx service = c.getPixelsService();
-		IContainerPrx container = c.getPojosService();
-		IQueryPrx query = c.getQueryService();
 		try {
+		    IPixelsPrx service = c.getPixelsService();
+	        IContainerPrx container = c.getPojosService();
+	        IQueryPrx query = c.getQueryService();
 			DataObject ho = objects.get(0);
 			List<Long> ids = new ArrayList<Long>();
 			Iterator<DataObject> i = objects.iterator();
@@ -8273,7 +8283,7 @@ class OMEROGateway
 	{
 		if (ctx == null) return;
 		List<Connector> clist = groupConnectorMap.removeAll(ctx.getGroupID());
-		if (clist == null || clist.size() == 0) return;
+		if (CollectionUtils.isEmpty(clist)) return;
 		isNetworkUp();
 		for (Connector c:  clist) {
 		    try {
@@ -8299,8 +8309,8 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 	    Connector c = getConnector(ctx, true, false);
-		IQueryPrx service = c.getQueryService();
 		try {
+		    IQueryPrx service = c.getQueryService();
 			List<RType> l = new ArrayList<RType>(imageIds.size());
 			Iterator<Long> j = imageIds.iterator();
 			while (j.hasNext())
@@ -8360,8 +8370,8 @@ class OMEROGateway
 	{
 		String type = convertAnnotation(annotationType);
 		Connector c = getConnector(ctx, true, false);
-		IMetadataPrx service = c.getMetadataService();
 		try {
+		    IMetadataPrx service = c.getMetadataService();
 			return PojoMapper.asDataObjects(
 					service.loadSpecifiedAnnotationsLinkedTo(type, nsInclude,
 							nsExclude, convertPojos(rootType).getName(),
@@ -8421,8 +8431,8 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 		Connector c = getConnector(ctx, true, false);
-		IContainerPrx service = c.getPojosService();
 		try {
+		    IContainerPrx service = c.getPojosService();
 			Map<String, List<Long>> m = new HashMap<String, List<Long>>();
 			m.put(convertPojos(rootType).getName(),rootIDs);
 			return service.getImagesBySplitFilesets(m, options);
