@@ -399,6 +399,7 @@ public class PixelData
      * Attempt to free up any native memory resources associated with the data buffer.
      * This is a temporary workaround hoped to ameliorate trac ticket #11250.
      * This {@link PixelData} instance <em>must not</em> be accessed by any thread after this method is called.
+     * If not called, the resources should eventually be freed anyway by garbage collection and finalization.
      */
     public void dispose() {
         if (this.data instanceof sun.nio.ch.DirectBuffer) {
