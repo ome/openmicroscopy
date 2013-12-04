@@ -331,6 +331,8 @@
     }
     .modal-body {
         padding: 15px;
+        max-height: 450px;
+        overflow-y: auto;
     }
     .non-modal-dialog {
         position:relative;
@@ -393,4 +395,9 @@
 
     .colorpicker span, .label-color span:first-child {
         border: solid 1px #bbb;
+    }
+
+    .small-thumb {
+        max-width: 40px;
+        max-height: 40px;
     }

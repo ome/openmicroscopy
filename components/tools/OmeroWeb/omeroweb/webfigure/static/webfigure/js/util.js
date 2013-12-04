@@ -34,7 +34,7 @@ $(function(){
         }
     });
 
-    $(".modal-dialog").draggable();
+    $(".draggable-dialog").draggable();
 
     $('#previewInfoTabs a').click(function (e) {
         e.preventDefault();

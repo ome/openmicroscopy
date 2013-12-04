@@ -87,15 +87,24 @@
                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
                     <h4 class="modal-title">Open Figure</h4>
                 </div>
-                <form class="openFigureForm" role="form">
+                
                     <div class="modal-body">
-                        <ul id="figure_files"></ul>
+                        <table class="table table-condensed">
+                            <thead>
+                                <tr>
+                                    <th></th>
+                                    <th>Name</th>
+                                    <th>Created</th>
+                                    <th>Owner</th>
+                                </tr>
+                            </thead>
+                            <tbody id="figure_files">
+                            </tbody>
+                        </table>
                     </div>
-                    <div class="modal-footer">
+                    <div class="modal-footer" style="margin-top:0px">
                         <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-primary" data-dismiss="modal" disabled="disabled">Open</button>
                     </div>
-                </form>
             </div>
         </div>
     </div><!-- /.modal -->
@@ -242,7 +251,7 @@
 
 
     <!-- Hacked Bootstrap's modal dialog to be non-modal -->
-    <div class="modal-dialog non-modal-dialog">
+    <div class="modal-dialog non-modal-dialog draggable-dialog">
         <div class="modal-content">
 
             <ul class="nav nav-tabs" id="previewInfoTabs">
@@ -679,7 +688,18 @@
     </script>
 
     <script type="text/template" id="figure_file_item">
-        <% if(imageId > 0) { print("<img src='/webgateway/render_thumbnail/" + imageId + "/' />") } %> <%= id %> <a href="#figure/<%= id %>"><%= name %></a> (<%= ownerFullName %>)
+        <td>
+            <% if(imageId > 0) { print("<img class='small-thumb' src='/webclient/render_thumbnail/" + imageId + "/' />") } %>
+        </td>
+        <td>
+            <a href="#figure/<%= id %>"><%= name %></a>
+        </td>
+        <td>
+            <%= creationDate %>
+        </td>
+        <td>
+            <%= ownerFullName %>
+        </td>
     </script>
 
 

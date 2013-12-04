@@ -758,7 +758,7 @@
         },
 
         goto_newfigure: function(event) {
-            event.preventDefault();
+            if (event) event.preventDefault();
             window.location.hash = "";
         },
 

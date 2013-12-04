@@ -177,15 +177,16 @@ def make_web_figure(request, conn=None, **kwargs):
 def list_web_figures(request, conn=None, **kwargs):
 
     fileAnns = list( conn.getObjects("FileAnnotation", attributes={'ns': JSON_FILEANN_NS}) )
-    fileAnns.sort(key=lambda x: x.creationEventDate(), reverse=True)
+    #fileAnns.sort(key=lambda x: x.creationEventDate(), reverse=True)
 
     rsp = []
     for fa in fileAnns:
         owner = fa.getDetails().getOwner()
+        cd = fa.creationEventDate()
 
         figFile = {'id': fa.id,
             'name': fa.getFile().getName(),
-            'creationDate': str(fa.creationEventDate()),
+            'creationDate': "%s-%02d-%02d" % (cd.year, cd.month, cd.day),
             'ownerFullName': owner.getFullName()
         }
 
@@ -197,6 +198,8 @@ def list_web_figures(request, conn=None, **kwargs):
             pass
 
         rsp.append(figFile)
+
+    rsp.sort(key=lambda x: x['name'].lower())
 
     return HttpResponse(simplejson.dumps(rsp), mimetype='json')
 

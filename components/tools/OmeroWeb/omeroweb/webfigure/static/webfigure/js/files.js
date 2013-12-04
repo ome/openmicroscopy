@@ -52,7 +52,7 @@ var FileListView = Backbone.View.extend({
 
 var FileListItemView = Backbone.View.extend({
 
-    tagName:"li",
+    tagName:"tr",
 
     template: _.template($('#figure_file_item').html()),
 
