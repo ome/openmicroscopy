@@ -15,6 +15,7 @@ import org.slf4j.MDC;
 
 import ome.security.basic.CurrentDetails;
 import ome.system.OmeroContext;
+import omero.SecurityViolation;
 
 /**
  * Interceptor which takes any context provided by the
@@ -30,12 +31,16 @@ public class CallContext implements MethodInterceptor {
 
     private final CurrentDetails cd;
 
-    public CallContext(OmeroContext ctx) {
+    private final String token;
+
+    public CallContext(OmeroContext ctx, String token) {
         this.cd = ctx.getBean(CurrentDetails.class);
+        this.token = token;
     }
 
-    public CallContext(CurrentDetails cd) {
+    public CallContext(CurrentDetails cd, String token) {
         this.cd = cd;
+        this.token = token;
     }
 
     /**
@@ -53,7 +58,16 @@ public class CallContext implements MethodInterceptor {
                     if (ctx != null && ctx.size() > 0) {
                         cd.setContext(ctx);
                         if (ctx.containsKey("omero.logfilename")) {
-                            MDC.put("fileset", ctx.get("omero.logfilename"));
+                            if (ctx.containsKey("omero.logfilename.token")
+                                    && token.equals(ctx
+                                            .get("omero.logfilename.token"))) {
+                                MDC.put("fileset", ctx.get("omero.logfilename"));
+                            } else {
+                                throw new SecurityViolation(null, null,
+                                        "Setting the omero.logfilename value is"
+                                        + " not permissions without a secure"
+                                        + " server token!");
+                            }
                         }
                     }
                 }

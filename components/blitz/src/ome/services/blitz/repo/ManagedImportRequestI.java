@@ -145,11 +145,15 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
 
     private List<Plate> plateList;
 
-    public ManagedImportRequestI(Registry reg, TileSizes sizes, RepositoryDao dao, OMEROWrapper wrapper) {
+    private final String token;
+
+    public ManagedImportRequestI(Registry reg, TileSizes sizes,
+            RepositoryDao dao, OMEROWrapper wrapper, String token) {
         this.reg = reg;
         this.sizes = sizes;
         this.dao = dao;
-		this.reader = wrapper;
+        this.reader = wrapper;
+        this.token = token;
     }
 
     //
@@ -184,7 +188,7 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
                     sessionUuid, "unused", 3, 1, clientUuid);
             reader = new OMEROWrapper(config);
             store = new OMEROMetadataStoreClient();
-            store.setCurrentLogFile(logFilename);
+            store.setCurrentLogFile(logFilename, token);
             store.initialize(sf);
 
             userSpecifiedTarget = settings.userSpecifiedTarget;

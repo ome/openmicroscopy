@@ -103,10 +103,13 @@ public class SessionI implements _SessionOperations {
 
     public final Ice.ObjectAdapter adapter;
 
+    /** Token in the form of a UUID for securing method invocations. */
+    public final String token;
+
     public SessionI(boolean reusedSession, Ice.Current current,
             ServantHolder holder, Glacier2.SessionControlPrx control,
             OmeroContext context, SessionManager sessionManager,
-            Executor executor, Principal principal) throws ApiUsageException {
+            Executor executor, Principal principal, String token) throws ApiUsageException {
 
         this.clientId = clientId(current);
         this.adapter = current.adapter;
@@ -116,6 +119,7 @@ public class SessionI implements _SessionOperations {
         this.context = context;
         this.executor = executor;
         this.principal = principal;
+        this.token = token;
         this.reusedSession = new AtomicBoolean(reusedSession);
 
         // Setting up in memory store.
@@ -599,7 +603,7 @@ public class SessionI implements _SessionOperations {
         Object delegate = tie.ice_delegate();
 
         ProxyFactory wrapper = new ProxyFactory(delegate);
-        wrapper.addAdvice(0, new CallContext(context));
+        wrapper.addAdvice(0, new CallContext(context, token));
         tie.ice_delegate(wrapper.getProxy());
         return servant;
     }

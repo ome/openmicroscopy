@@ -661,7 +661,7 @@ public class ImportLibrary implements IObservable
     {
         try {
             store.setGroup(null);
-            store.setCurrentLogFile(null);
+            store.setCurrentLogFile(null, null);
             store.createRoot();
         } catch (Throwable t) {
             log.error("failed to clear metadata store", t);

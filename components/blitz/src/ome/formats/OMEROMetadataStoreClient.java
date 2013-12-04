@@ -295,6 +295,9 @@ public class OMEROMetadataStoreClient
     /** Filename of the log file where services will save logging output. */
     private String logFilename;
 
+    /** Token passed together with the log file name into the call context. */
+    private String token;
+
     /** Linkage target for all Images/Plates for use by model processors. */
     private IObject userSpecifiedTarget;
 
@@ -396,6 +399,7 @@ public class OMEROMetadataStoreClient
         }
         if (logFilename != null) {
             callCtx.put("omero.logfilename", logFilename);
+            callCtx.put("omero.logfilename.token", token);
             log.info(String.format("Call context: {omero.logfilename:%s}",
                     logFilename));
         }
@@ -8314,8 +8318,9 @@ public class OMEROMetadataStoreClient
         // TODO : not in OMERO model
     }
 
-    public void setCurrentLogFile(String logFilename) {
+    public void setCurrentLogFile(String logFilename, String token) {
         this.logFilename = logFilename;
+        this.token = token;
     }
 
 }
