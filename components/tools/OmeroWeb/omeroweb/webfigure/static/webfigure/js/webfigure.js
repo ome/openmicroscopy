@@ -1590,7 +1590,7 @@
             var self = this;
 
             _.each(this.models, function(m){
-                self.listenTo(m, 'change:labels', self.render);
+                self.listenTo(m, 'change:labels change:theT', self.render);
             });
         },
 
