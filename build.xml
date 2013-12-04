@@ -52,7 +52,7 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     </description>
 
-    <property name="gitmatch" value="v.[0-9]*"/>
+    <property name="gitmatch" value="v.[0-9]*.[0-9]*.[0-9]*"/>
     <property name="import.dir" value="${basedir}/components/antlib/resources"/>
     <import file="${import.dir}/global.xml"/>
 
