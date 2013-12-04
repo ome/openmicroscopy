@@ -2258,7 +2258,7 @@ class OMEROGateway
 			// no need to handle the exception.
 		}
 		boolean networkup = this.networkup.get(); // our copy
-		connected = true;
+		connected = false;
 		List<Connector> connectors = removeAllConnectors();
 		Iterator<Connector> i = connectors.iterator();
 		List<Integer> counts = new ArrayList<Integer>();
