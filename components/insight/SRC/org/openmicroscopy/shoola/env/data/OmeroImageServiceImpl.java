@@ -804,8 +804,8 @@ class OmeroImageServiceImpl
 	 * Implemented as specified by {@link OmeroImageService}. 
 	 * @see OmeroImageService#getRenderingSettings(ctx, long, long)
 	 */
-	public Map getRenderingSettings(SecurityContext ctx, long pixelsID,
-		long userID) 
+	public Map<DataObject, Collection<RndProxyDef>> getRenderingSettings(
+	        SecurityContext ctx, long pixelsID, long userID) 
 		throws DSOutOfServiceException, DSAccessException
 	{
 		return gateway.getRenderingSettings(ctx, pixelsID, userID);
