@@ -3,7 +3,7 @@
 #
 # webgateway/views.py - django application view handling functions
 # 
-# Copyright (c) 2007, 2008, 2009 Glencoe Software, Inc. All rights reserved.
+# Copyright (c) 2007-2013 Glencoe Software, Inc. All rights reserved.
 # 
 # This software is distributed under the terms described by the LICENCE file
 # you can find at the root of the distribution bundle, which states you are
@@ -14,11 +14,11 @@
 # Author: Carlos Neves <carlos(at)glencoesoftware.com>
 
 import re
-
+import json
 import omero
 import omero.clients
+
 from django.http import HttpResponse, HttpResponseServerError, HttpResponseRedirect, Http404
-from django.utils import simplejson
 from django.utils.encoding import smart_str
 from django.utils.http import urlquote
 from django.views.decorators.http import require_POST
@@ -821,7 +821,7 @@ def render_ome_tiff (request, ctx, cid, conn=None, **kwargs):
     imgs = filter(lambda x: not x.requiresPixelsPyramid(), imgs)
 
     if request.REQUEST.get('dryrun', False):
-        rv = simplejson.dumps(len(imgs))
+        rv = json.dumps(len(imgs))
         c = request.REQUEST.get('callback', None)
         if c is not None and not kwargs.get('_internal', False):
             rv = '%s(%s)' % (c, rv)
@@ -1030,7 +1030,7 @@ def jsonp (f):
                 return rv
             if isinstance(rv, HttpResponse):
                 return rv
-            rv = simplejson.dumps(rv)
+            rv = json.dumps(rv)
             c = request.REQUEST.get('callback', None)
             if c is not None and not kwargs.get('_internal', False):
                 rv = '%s(%s)' % (c, rv)
@@ -1201,9 +1201,9 @@ def plateGrid_json (request, pid, field=0, conn=None, **kwargs):
         rv = {'grid': grid,
               'collabels': plate.getColumnLabels(),
               'rowlabels': plate.getRowLabels()}
-        webgateway_cache.setJson(request, server_id, plate, simplejson.dumps(rv), 'plategrid-%d-%d' % (field, thumbsize))
+        webgateway_cache.setJson(request, server_id, plate, json.dumps(rv), 'plategrid-%d-%d' % (field, thumbsize))
     else:
-        rv = simplejson.loads(rv)
+        rv = json.loads(rv)
     return rv
 
 @login_required()
@@ -1482,7 +1482,7 @@ def list_compatible_imgs_json (request, iid, conn=None, **kwargs):
                 return False
             return True
         imgs = filter(compat, imgs)
-        json_data = simplejson.dumps([x.getId() for x in imgs])
+        json_data = json.dumps([x.getId() for x in imgs])
 
     if r.get('callback', None):
         json_data = '%s(%s)' % (r['callback'], json_data)
@@ -1542,7 +1542,7 @@ def copy_image_rdef_json (request, conn=None, **kwargs):
                 img is not None and webgateway_cache.invalidateObject(server_id, userid, img)
     return json_data
 #
-#            json_data = simplejson.dumps(json_data)
+#            json_data = json.dumps(json_data)
 #
 #    if r.get('callback', None):
 #        json_data = '%s(%s)' % (r['callback'], json_data)
@@ -1713,7 +1713,7 @@ def get_shape_json(request, roiId, shapeId, conn=None, **kwargs):
     if shape is None:
         logger.debug('No such shape: %r' % shapeId)
         raise Http404
-    return HttpResponse(simplejson.dumps(shapeMarshal(shape)),
+    return HttpResponse(json.dumps(shapeMarshal(shape)),
             mimetype='application/javascript')
 
 @login_required()
@@ -1743,7 +1743,7 @@ def get_rois_json(request, imageId, conn=None, **kwargs):
         
     rois.sort(key=lambda x: x['id']) # sort by ID - same as in measurement tool.
     
-    return HttpResponse(simplejson.dumps(rois), mimetype='application/javascript')
+    return HttpResponse(json.dumps(rois), mimetype='application/javascript')
 
 @login_required(isAdmin=True)
 @jsonp
