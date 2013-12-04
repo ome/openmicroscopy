@@ -1,5 +1,5 @@
 /*
- *   Copyright 2012 Glencoe Software, Inc. All rights reserved.
+ *   Copyright 2012-2013 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
