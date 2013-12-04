@@ -4307,30 +4307,38 @@ class TreeViewerComponent
 	        TreeImageDisplay n;
 	        ExperimenterData exp;
 	        long id = model.getUserDetails().getId();
-	        TreeImageDisplay parent;
+	        TreeImageDisplay p;
 	        GroupData g;
 	        String message = null;
 	        while (i.hasNext()) {
 	            n = i.next();
 	            if (n.getUserObject() instanceof ExperimenterData) {
 	                exp = (ExperimenterData) n.getUserObject();
-	                if (exp.getId() == id || !model.isSystemUser(exp.getId())) { //check the source
-	                    parent = n.getParentDisplay();
-	                    if (parent != null &&
-	                            parent.getUserObject() instanceof GroupData) {
-	                        g = (GroupData) parent.getUserObject();
-	                        if (model.isSystemGroup(g.getId(),
+	                p = n.getParentDisplay();
+	                if (p != null && p.getUserObject() instanceof GroupData) {
+	                    g = (GroupData) p.getUserObject();
+	                    if (model.isSystemGroup(g.getId(),
+	                            GroupData.SYSTEM)) {
+	                        if (exp.getId() == id) {
+	                            message = "An administrator cannot remove " +
+	                                    "himself/herself from "+g.getName()+
+	                                    " Group.";
+	                            break;
+	                        } else if (model.isSystemUser(exp.getId(),
 	                                GroupData.SYSTEM)) {
 	                            message = "An administrator cannot remove " +
-	                                    "himself/herself or root from the " +
-	                                    "System group.";
-	                            break;
-	                        } else if (model.isSystemGroup(g.getId(),
-	                                GroupData.GUEST)) {
-	                            message = "An administrator cannot remove " +
-                                        "guest from the Guest group.";
-	                            break;
+                                        exp.getUserName()+" from "+g.getName()
+                                        +" Group.";
+                                break;
 	                        }
+	                    } else if (model.isSystemGroup(g.getId(),
+	                            GroupData.GUEST) &&
+	                            model.isSystemUser(exp.getId(),
+	                                    GroupData.GUEST)) {
+	                        message = "An administrator cannot remove " +
+                                    exp.getUserName()+" from "+g.getName()+
+                                    " Group.";
+	                        break;
 	                    }
 	                }
 	            }
