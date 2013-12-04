@@ -52,6 +52,7 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     </description>
 
+    <property name="gitmatch" value="v.[0-9]*"/>
     <property name="import.dir" value="${basedir}/components/antlib/resources"/>
     <import file="${import.dir}/global.xml"/>
 
@@ -1008,10 +1009,9 @@ omero.version=${omero.version}
     </macrodef>
 
     <macrodef name="gitdescribe">
-
         <attribute name="regexp" default="^(v.)?(.*?)(-[0-9]+)?((-)g(.*?))?$"/>
         <attribute name="select" default="\2"/>
-        <attribute name="match" default="v.[0-9]*"/>
+        <attribute name="match" default="${gitmatch}"/>
         <sequential>
         <trycatch>
             <try>
@@ -1032,7 +1032,6 @@ omero.version=${omero.version}
     </macrodef>
 
     <target name="version">
-
         <gitdescribe select="\2\3\5\6">
         </gitdescribe>
         <echo>${version.describe}-ice${versions.ice_lib}</echo>
