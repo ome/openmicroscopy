@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import loci.common.Location;
 import loci.formats.FormatException;
 import loci.formats.FormatReader;
 import ome.formats.OMEROMetadataStoreClient;
@@ -321,7 +322,7 @@ public class ImportLibrary implements IObservable
                 ChecksumAlgorithmMapper.getChecksumType(
                         proc.getImportSettings().checksumAlgorithm));
         String digestString = null;
-        File file = new File(srcFiles[index]);
+        File file = new File(Location.getMappedId(srcFiles[index]));
         long length = file.length();
         FileInputStream stream = null;
         RawFileStorePrx rawFileStore = null;
