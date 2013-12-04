@@ -566,8 +566,7 @@ class GraphicsPane
                     controller.setCodomainInterval(s, e);
                     onCurveChange();
                 }
-            }
-            if (TwoKnobsSlider.LEFT_MOVED_PROPERTY.equals(name)){
+            } else if (TwoKnobsSlider.LEFT_MOVED_PROPERTY.equals(name)){
                 if (source.equals(domainSlider)) {
                     verticalLine = (int) (domainSlider.getStartValue()
                                     *domainSlider.getRoundingFactor());
@@ -611,8 +610,7 @@ class GraphicsPane
                     controller.setCodomainInterval(s, e);
                     onCurveChange();
                 }
-            }
-            if (TwoKnobsSlider.KNOB_RELEASED_PROPERTY.equals(name)) {
+            } else if (TwoKnobsSlider.KNOB_RELEASED_PROPERTY.equals(name)) {
                 if (source.equals(domainSlider)) {
                     controller.setInputInterval(domainSlider.getStartValue(),
                             domainSlider.getEndValue());
