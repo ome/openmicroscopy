@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Glencoe Software, Inc. All rights reserved.
+ * Copyright (C) 2012-2013 Glencoe Software, Inc. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,7 +23,6 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 import loci.formats.FormatException;
 import loci.formats.FormatReader;
@@ -34,13 +33,10 @@ import loci.formats.UnknownFormatException;
 import loci.formats.UnsupportedCompressionException;
 import loci.formats.in.MIASReader;
 
-import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
-import ome.api.IUpdate;
-import ome.api.IQuery;
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.OverlayMetadataStore;
 import ome.formats.importer.ImportConfig;
@@ -49,8 +45,6 @@ import ome.formats.importer.ImportSize;
 import ome.formats.importer.OMEROWrapper;
 import ome.formats.importer.util.ErrorHandler;
 import ome.io.nio.TileSizes;
-import ome.model.annotations.FileAnnotation;
-import ome.model.annotations.FilesetAnnotationLink;
 import ome.services.blitz.fire.Registry;
 import ome.util.Utils;
 
@@ -64,15 +58,12 @@ import omero.cmd.Response;
 import omero.grid.ImportRequest;
 import omero.grid.ImportResponse;
 import omero.model.Annotation;
-import omero.model.Fileset;
 import omero.model.FilesetJobLink;
 import omero.model.IObject;
 import omero.model.Image;
-import omero.model.ImageAnnotationLinkI;
 import omero.model.IndexingJob;
 import omero.model.Job;
 import omero.model.MetadataImportJob;
-import omero.model.OriginalFile;
 import omero.model.PixelDataJob;
 import omero.model.Pixels;
 import omero.model.Plate;
