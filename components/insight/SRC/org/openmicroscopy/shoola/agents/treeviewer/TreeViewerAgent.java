@@ -146,14 +146,7 @@ public class TreeViewerAgent
 	public static SecurityContext getAdminContext()
 	{
 		if (!isAdministrator()) return null;
-		Collection<GroupData> groups = Iterator<GroupData> i = groups.iterator();
-        GroupData g;
-        AdminService svc = registry.getAdminService();
-        while (i.hasNext()) {
-            g = i.next();
-            if (svc.isSecuritySystemGroup(g.getId(), GroupData.SYSTEM))
-                return new SecurityContext(g.getId());
-        }getAvailableUserGroups();
+		Collection<GroupData> groups = getAvailableUserGroups();
 		Iterator<GroupData> i = groups.iterator();
 		GroupData g;
 		AdminService svc = registry.getAdminService();
