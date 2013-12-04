@@ -797,9 +797,13 @@ class RenderingControlProxy
 		throws RenderingServiceException
 	{
     	lastAction = System.currentTimeMillis();
+    	boolean b = false;
 		try {
-			context.getImageService().isAlive(ctx);
-			servant.ice_ping();
+			b = context.getImageService().isAlive(ctx);
+			if (!b) {
+			    context.getTaskBar().sessionExpired(
+			            ConnectionExceptionHandler.NETWORK);
+			}
 		} catch (Throwable e) {
 			if (shutDown && (e instanceof ObjectNotExistException)) {
 	    		//reload the RE
@@ -811,7 +815,7 @@ class RenderingControlProxy
 				}
 				return;
 	    	}
-			boolean b = handleConnectionException(e);
+			b = handleConnectionException(e);
 			int index = 0;
 			if (!b) {
 				index = RenderingServiceException.CONNECTION;

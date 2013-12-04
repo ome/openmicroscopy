@@ -528,6 +528,10 @@ class OmeroImageServiceImpl
 		}
 	}
 
+	/** 
+	 * Implemented as specified by {@link OmeroImageService}.
+	 * @see OmeroImageService#isAlive(SecurityContext)
+	 */
 	public boolean isAlive(SecurityContext ctx) throws DSOutOfServiceException
 	{
 	    return null != gateway.getConnector(ctx, true, true);
