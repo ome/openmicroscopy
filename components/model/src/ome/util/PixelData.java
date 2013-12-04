@@ -1,7 +1,7 @@
 /*
  * ome.util.PixelData
  *
- *   Copyright 2007 Glencoe Software Inc. All rights reserved.
+ *   Copyright 2007-2013 Glencoe Software Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -393,5 +393,17 @@ public class PixelData
 
         throw new RuntimeException("Pixels type '" + type
                 + "' unsupported by nio.");
+    }
+
+    /**
+     * Attempt to free up any native memory resources associated with the data buffer.
+     * This is a temporary workaround hoped to ameliorate trac ticket #11250.
+     * This {@link PixelData} instance <em>must not</em> be accessed by any thread after this method is called.
+     */
+    public void dispose() {
+        if (this.data instanceof sun.nio.ch.DirectBuffer) {
+            ((sun.nio.ch.DirectBuffer) this.data).cleaner().clean();
+            this.data = null;
+        }
     }
 }
