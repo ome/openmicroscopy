@@ -5304,14 +5304,22 @@ class OMEROGateway
 	/** Keeps the services alive. */
 	void keepSessionAlive()
 	{
-		Iterator<Connector>  i = getAllConnectors().iterator();
-		Connector c;
-		while (i.hasNext()) {
-			c = i.next();
-			if (c.needsKeepAlive()) {
-			    c.keepSessionAlive();
-			}
-		}
+        //Check if network is up before keeping service otherwise
+        //we block until timeout.
+        try {
+            isNetworkUp(false);
+        } catch (Exception e) {
+            dsFactory.sessionExpiredExit(
+                    ConnectionExceptionHandler.NETWORK, null);
+        }
+	    Iterator<Connector> i = getAllConnectors().iterator();
+	    Connector c;
+	    while (i.hasNext()) {
+	        c = i.next();
+	        if (c.needsKeepAlive()) {
+	            c.keepSessionAlive();
+	        }
+	    }
 	}
 
 	/**
