@@ -4,12 +4,11 @@
 """
    Test of the scripts plugin
 
-   Copyright 2010 Glencoe Software, Inc. All rights reserved.
+   Copyright 2010-2013 Glencoe Software, Inc. All rights reserved.
    Use is subject to license terms supplied in LICENSE.txt
 
 """
 
-import os
 import pytest
 from omero.cli import CLI, NonZeroReturnCode
 from omero.config import ConfigXml
@@ -51,18 +50,10 @@ class TestPrefs(object):
         self.invoke("def")
         self.assertStdoutStderr(capsys, out="default")
 
-    def testDefaultEnvironment(self, capsys):
-        T = "testDefaultEnvironment"
-        old = os.environ.get("OMERO_CONFIG", None)
-        os.environ["OMERO_CONFIG"] = T
-        try:
-            self.invoke("def")
-            self.assertStdoutStderr(capsys, out=T)
-        finally:
-            if old:
-                os.environ["OMERO_CONFIG"] = old
-            else:
-                del os.environ["OMERO_CONFIG"]
+    def testDefaultEnvironment(self, capsys, monkeypatch):
+        monkeypatch.setenv("OMERO_CONFIG", "testDefaultEnvironment")
+        self.invoke("def")
+        self.assertStdoutStderr(capsys, out="testDefaultEnvironment")
 
     def testDefaultSet(self, capsys):
         self.invoke("def x")
@@ -175,11 +166,11 @@ class TestPrefs(object):
         finally:
             config.close()
 
-    def testNewEnvironment(self, capsys):
+    def testNewEnvironment(self, capsys, monkeypatch):
         config = self.config()
         config.default("default")
         config.close()
-        os.environ["OMERO_CONFIG"] = "testNewEnvironment"
+        monkeypatch.setenv("OMERO_CONFIG", "testNewEnvironment")
         self.invoke("set A B")
         self.assertStdoutStderr(capsys)
         self.invoke("get")
