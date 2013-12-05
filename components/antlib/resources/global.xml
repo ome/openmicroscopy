@@ -439,7 +439,7 @@ with OMERO.
             <classloader name="ivy.loader">
                 <classpath id="ivy.classpath">
                     <fileset dir="${omero.home}/lib/repository" includes="ivy*.jar"/>
-                    <fileset dir="${omero.home}/lib/repository" includes="jakarta-oro*.jar"/>
+                    <fileset dir="${omero.home}/lib/repository" includes="oro*.jar"/>
                     <pathelement location="${omero.home}/lib/"/><!-- IVY1016/* -->
                 </classpath>
             </classloader>
