@@ -58,7 +58,7 @@
     <dependency org="insight" name="processing-core" rev="${versions.processing-core}"/>
     <dependency org="insight" name="processing-controlP5" rev="${versions.processing-controlP5}"/>
     <dependency org="insight" name="saaj" rev="${versions.saaj}"/>
-    <dependency org="insight" name="swingx" rev="${versions.swingx}"/>
+    <dependency org="org.swinglabs" name="swingx" rev="${versions.swingx}"/>
     <dependency org="insight" name="TableLayout" rev="${versions.TableLayout}"/>
     <dependency org="insight" name="wsdl4j" rev="${versions.wsdl4j}"/>
     <dependency org="insight" name="java-image-scaling" rev="${versions.java-image-scaling}"/>
