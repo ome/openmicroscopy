@@ -1174,6 +1174,9 @@ class RenderingControlProxy
     	try {
     		servant.setCodomainInterval(start, end);
             rndDef.setCodomain(start, end);
+            Iterator<RenderingControl> i = slaves.iterator();
+            while (i.hasNext())
+                i.next().setCodomainInterval(start, end);
             invalidateCache();
 		} catch (Exception e) {
 			handleException(e, ERROR+"codomain interval.");
