@@ -1541,12 +1541,6 @@ def copy_image_rdef_json (request, conn=None, **kwargs):
                 img = conn.getObject("Image", iid)
                 img is not None and webgateway_cache.invalidateObject(server_id, userid, img)
     return json_data
-#
-#            json_data = json.dumps(json_data)
-#
-#    if r.get('callback', None):
-#        json_data = '%s(%s)' % (r['callback'], json_data)
-#    return HttpResponse(json_data, mimetype='application/javascript')
 
 @login_required()
 @jsonp
