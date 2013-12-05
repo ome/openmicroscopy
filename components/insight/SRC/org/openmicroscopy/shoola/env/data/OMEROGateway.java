@@ -1387,7 +1387,8 @@ class OMEROGateway
                 log("Failed to check network. Returning null connector");
                 return null;
             }
-            throw new DSOutOfServiceException("Can't check network up", e1);
+            dsFactory.sessionExpiredExit(ConnectionExceptionHandler.NETWORK,
+                    null);
         }
 
 	    if (!networkup.get()) {
@@ -1397,8 +1398,6 @@ class OMEROGateway
             }
             dsFactory.sessionExpiredExit(ConnectionExceptionHandler.NETWORK,
                     null);
-            throw new DSOutOfServiceException(
-                    "network is down but connector required");
         }
 
         if (ctx == null) {
@@ -1421,8 +1420,6 @@ class OMEROGateway
                 } catch (Exception e) {
                     dsFactory.sessionExpiredExit(
                             ConnectionExceptionHandler.NETWORK, null);
-                    throw new DSOutOfServiceException(
-                            "network is down but connector required");
                 }
 	            c.keepSessionAlive();
 	        }
