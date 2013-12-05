@@ -404,7 +404,6 @@ class TestManagedRepositoryMultiUser(AbstractRepoTest):
         return self.Fixture(client1, mrepo1, testdir1), \
                 self.Fixture(client2, mrepo2, testdir2)
 
-    @pytest.mark.xfail(reason="ticket 11610")
     def testTopPrivateGroup(self):
         f1, f2 = self.setup2RepoUsers("rw----")
         filename = f1.testdir + "/file.txt"
@@ -420,7 +419,6 @@ class TestManagedRepositoryMultiUser(AbstractRepoTest):
 
         assert 0 ==  len(unwrap(f2.repo.treeList(".")))
 
-    @pytest.mark.xfail(reason="ticket 11610")
     def testDirPrivateGroup(self):
         f1, f2 = self.setup2RepoUsers("rw----")
         dirname = f1.testdir + "/b/c"
@@ -494,7 +492,6 @@ class TestManagedRepositoryMultiUser(AbstractRepoTest):
         self.assertNoWrite(f2.repo, filename, ofile)
         self.assertDirWrite(f2.repo, dirname)
 
-    @pytest.mark.xfail(reason="ticket 11610")
     def testMultiGroup(self):
         group1 = self.new_group(perms="rw----")
         client1, user = self.new_client_and_user(group=group1)
