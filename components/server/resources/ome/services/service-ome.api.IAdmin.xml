@@ -81,6 +81,8 @@
 
   <bean id="jdbcPasswordProvider" class="ome.security.auth.JdbcPasswordProvider">
     <constructor-arg ref="passwordUtil"/>
+    <constructor-arg index="1" value="true"/>
+    <constructor-arg index="2" value="true"/>
   </bean>
 
   <bean id="jdbcHashedPasswordProvider" class="ome.security.auth.JdbcHashedPasswordProvider">

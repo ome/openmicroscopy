@@ -67,12 +67,21 @@ public abstract class ConfigurablePasswordProvider implements PasswordProvider,
 
     protected OmeroContext ctx;
 
+    /**
+     * Call {@link #ConfigurablePasswordProvider(PasswordUtil, boolean)}
+     * with "ignoreUnknown" equal to false.
+     * @param util
+     */
     public ConfigurablePasswordProvider(PasswordUtil util) {
         this(util, false);
     }
 
+    /**
+     * Call {@link #ConfigurablePasswordProvider(PasswordUtil, boolean, boolean)}
+     * with "salt" equal to false.
+     */
     public ConfigurablePasswordProvider(PasswordUtil util, boolean ignoreUnknown) {
-        this(util, ignoreUnknown, true);
+        this(util, ignoreUnknown, false);
     }
 
     public ConfigurablePasswordProvider(PasswordUtil util, boolean ignoreUnknown,
