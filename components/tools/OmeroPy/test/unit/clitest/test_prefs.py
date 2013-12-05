@@ -84,6 +84,11 @@ class TestPrefs(object):
         self.invoke("keys")
         self.assertStdoutStderr(capsys)
 
+    def testSetFails(self, capsys):
+        self.invoke("set A=B")
+        self.assertStdoutStderr(capsys,
+            err="\"=\" in key name. Did you mean \"...set A B\"?")
+
     def testKeys(self, capsys):
         self.invoke("keys")
         self.assertStdoutStderr(capsys)
@@ -158,6 +163,10 @@ class TestPrefs(object):
         self.assertStdoutStderr(capsys)
         self.invoke("all")
         self.assertStdoutStderr(capsys, 'y\ndefault')
+
+    def testDropFails(self, capsys):
+        self.invoke("drop x")
+        self.assertStdoutStderr(capsys, err="Unknown configuration: x")
 
     def testEdit(self):
         """
