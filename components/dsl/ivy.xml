@@ -40,6 +40,6 @@
     <dependency org="oro" name="oro" rev="${versions.oro}" conf="build->default"/>
     <dependency org="jamon" name="jamon" rev="${versions.jamon}" conf="build->default"/>
     <dependency org="org.testng" name="testng" rev="${versions.testng}" conf="build->default"/>
-    <dependency org="reportng" name="reportng" rev="${versions.reportng}" conf="build->default"/>
+    <dependency org="org.uncommons" name="reportng" rev="${versions.reportng}" conf="build->default"/>
  </dependencies>
 </ivy-module>
