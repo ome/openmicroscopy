@@ -65,7 +65,7 @@ public class CallContext implements MethodInterceptor {
                             } else {
                                 throw new SecurityViolation(null, null,
                                         "Setting the omero.logfilename value is"
-                                        + " not permissions without a secure"
+                                        + " not permitted without a secure"
                                         + " server token!");
                             }
                         }
