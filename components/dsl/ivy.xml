@@ -42,7 +42,7 @@
     <dependency org="findbugs" name="findbugs-ant" rev="${versions.findbugs}" conf="build->default"/>
     <dependency org="oro" name="oro" rev="${versions.oro}" conf="build->default"/>
     <dependency org="jamon" name="jamon" rev="${versions.jamon}" conf="build->default"/>
-    <dependency org="testng" name="testng" rev="${versions.testng}" conf="build->default"/>
+    <dependency org="org.testng" name="testng" rev="${versions.testng}" conf="build->default"/>
     <dependency org="com.google" name="guava-jdk5" rev="13.0" conf="build->default"/>
     <dependency org="com.google.inject" name="guice" rev="2.0" conf="build->default"/>
     <dependency org="reportng" name="reportng" rev="${versions.reportng}" conf="build->default"/>
