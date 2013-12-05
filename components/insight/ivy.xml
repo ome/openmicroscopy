@@ -84,7 +84,7 @@
     </dependency>
     
     <!-- importer -->
-    <dependency org="importer" name="slf4j-api" rev="${versions.slf4j}"/>
-    <dependency org="importer" name="slf4j-log4j12" rev="${versions.slf4j}"/>
+    <dependency org="org.slf4j" name="slf4j-api" rev="${versions.slf4j}"/>
+    <dependency org="org.slf4j" name="slf4j-log4j12" rev="${versions.slf4j}"/>
   </dependencies>
 </ivy-module>

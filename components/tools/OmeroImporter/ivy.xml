@@ -16,8 +16,8 @@
     <dependency org="omero" name="blitz" rev="${omero.version}" changing="true" conf="build->build"/>
     <dependency org="omero" name="romio" rev="${omero.version}" changing="true" conf="build->build;client->client"/><!-- For bioformats -->
     <!-- Basics (as in DSL) -->
-    <dependency org="slf4j" name="slf4j-api" rev="${versions.slf4j}" conf="client->default"/>
-    <dependency org="slf4j" name="slf4j-log4j12" rev="${versions.slf4j}"/>
+    <dependency org="org.slf4j" name="slf4j-api" rev="${versions.slf4j}" conf="client->default"/>
+    <dependency org="org.slf4j" name="slf4j-log4j12" rev="${versions.slf4j}"/>
     <dependency org="log4j" name="log4j" rev="${versions.log4j}"/>
     <dependency org="commons-lang" name="commons-lang" rev="${versions.commons-lang}"/>
     <dependency org="commons-logging" name="commons-logging" rev="${versions.commons-logging}" conf="build,client->default"/>
