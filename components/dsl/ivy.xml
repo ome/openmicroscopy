@@ -12,9 +12,9 @@
   </publications>
   <dependencies defaultconfmapping="build->default">
     <!-- runtime dependencies for all modules, since dsl is the base of our DAG -->
-    <dependency org="slf4j" name="slf4j-api" rev="${versions.slf4j}" conf="runtime->default"/>
-    <dependency org="slf4j" name="jul-to-slf4j" rev="${versions.slf4j}" conf="runtime->default"/>
-    <dependency org="slf4j" name="jcl-over-slf4j" rev="${versions.slf4j}" conf="runtime->default"/>
+    <dependency org="org.slf4j" name="slf4j-api" rev="${versions.slf4j}" conf="runtime->default"/>
+    <dependency org="org.slf4j" name="jul-to-slf4j" rev="${versions.slf4j}" conf="runtime->default"/>
+    <dependency org="org.slf4j" name="jcl-over-slf4j" rev="${versions.slf4j}" conf="runtime->default"/>
     <dependency org="log4j" name="log4j" rev="${versions.log4j}" conf="runtime->default"/>
     <dependency org="logback" name="logback-classic" rev="${versions.logback}" conf="runtime->default"/>
     <dependency org="logback" name="logback-core" rev="${versions.logback}" conf="runtime->default"/>
