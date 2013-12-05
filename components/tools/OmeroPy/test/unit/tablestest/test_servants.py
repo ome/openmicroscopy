@@ -243,6 +243,16 @@ class TestTables(lib.TestCase):
         assert table.table.storage
         return table
 
+    def testTableOriginalFileLoaded(self):
+        f1 = omero.model.OriginalFileI(1, False)
+        f2 = omero.model.OriginalFileI(1, True)
+        f2.details.group = omero.model.ExperimenterGroupI(1, False)
+        self.sf.return_values.append(f2)
+        storage = mock_storage()
+        self.ctx.newSession()
+        table = omero.tables.TableI(self.ctx, f1, self.sf, storage)
+        assert table.file_obj.details.group
+
     def testTableIncrDecr(self):
         f = omero.model.OriginalFileI(1, True)
         f.details.group = omero.model.ExperimenterGroupI(1, False)
