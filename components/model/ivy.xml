@@ -34,7 +34,7 @@
     <!-- build only -->
     <dependency org="org.hibernate" name="hibernate-tools" rev="${versions.hibernate-tools}" conf="build->default"/>
     <dependency org="freemarker" name="freemarker" rev="${versions.freemarker}" conf="build->default"/>
-    <dependency org="org/hibernate" name="jtidy" rev="${versions.hibernate-tools}" conf="build->default"/>
+    <dependency org="org.hibernate" name="jtidy" rev="${versions.jtidy}" conf="build->default"/>
     <!-- spring -->
     <dependency org="org.springframework" name="org.springframework.beans" rev="${versions.spring}" conf="build,client,server->default"/>
     <dependency org="org.springframework" name="org.springframework.context" rev="${versions.spring}" conf="build,client,server->default"/>
