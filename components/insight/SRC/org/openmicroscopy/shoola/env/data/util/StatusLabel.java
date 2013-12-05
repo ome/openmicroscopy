@@ -635,6 +635,9 @@ public class StatusLabel
 		if (event == null) return;
 		cancellable = false;
 		if (event instanceof ImportEvent.IMPORT_DONE) {
+		    step = 6;
+            processingBar.setValue(step);
+            processingBar.setString(STEPS.get(step));
 			pixels = (Set<PixelsData>) PojoMapper.asDataObjects(
 					((ImportEvent.IMPORT_DONE) event).pixels);
 			firePropertyChange(IMPORT_DONE_PROPERTY, null, this);
@@ -717,10 +720,6 @@ public class StatusLabel
 			processingBar.setString(STEPS.get(step));
 		} else if (event instanceof ImportEvent.METADATA_PROCESSED) {
 			step = 5;
-			processingBar.setValue(step);
-			processingBar.setString(STEPS.get(step));
-		} else if (event instanceof ImportEvent.OBJECTS_RETURNED) {
-			step = 6;
 			processingBar.setValue(step);
 			processingBar.setString(STEPS.get(step));
 		} else if (event instanceof ImportEvent.FILESET_UPLOAD_START) {
