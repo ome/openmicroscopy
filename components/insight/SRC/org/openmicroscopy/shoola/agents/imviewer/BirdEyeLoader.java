@@ -79,7 +79,7 @@ public class BirdEyeLoader
      * @param ratio The ratio by with to scale the image.
      */
     public BirdEyeLoader(ImViewer viewer, SecurityContext ctx, ImageData image,
-            PlaneDef plane, double ratio)
+            double ratio)
     {
         super(viewer, ctx);
         if (image == null)
