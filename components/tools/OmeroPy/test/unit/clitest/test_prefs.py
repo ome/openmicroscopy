@@ -15,6 +15,10 @@ from omero.config import ConfigXml
 from omero.plugins.prefs import PrefsControl, HELP
 from omero.util.temp_files import create_path
 
+subcommands = [
+    'all', 'def', 'get', 'set', 'drop', 'keys', 'load', 'edit', 'version',
+    'path', 'lock', 'upgrade', 'old']
+
 
 class TestPrefs(object):
 
@@ -37,6 +41,11 @@ class TestPrefs(object):
 
     def testHelp(self):
         self.invoke("-h")
+        assert 0 == self.cli.rv
+
+    @pytest.mark.parametrize('subcommand', subcommands)
+    def testSubcommandHelp(self, subcommand):
+        self.invoke("%s -h" % subcommand)
         assert 0 == self.cli.rv
 
     def testAll(self, capsys):
