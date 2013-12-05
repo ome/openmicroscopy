@@ -186,7 +186,6 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
         try {
             sf = reg.getInternalServiceFactory(
                     sessionUuid, "unused", 3, 1, clientUuid);
-            reader = new OMEROWrapper(config);
             store = new OMEROMetadataStoreClient();
             store.setCurrentLogFile(logFilename, token);
             store.initialize(sf);

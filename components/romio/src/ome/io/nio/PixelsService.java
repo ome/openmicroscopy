@@ -67,6 +67,9 @@ public class PixelsService extends AbstractFileSystemService
 	/** Null plane size constant. */
 	public static final int NULL_PLANE_SIZE = 64;
 
+	/** Time in ms. which setId must take before a file is memoized */
+	public static final long MEMOIZER_WAIT = 100;
+
 	/** Resolver of archived original file paths for pixels sets. */
 	protected FilePathResolver resolver;
 
@@ -145,6 +148,14 @@ public class PixelsService extends AbstractFileSystemService
                      path + ", resolver=" + resolver + ", backoff=" + backOff +
                      ", sizes=" + sizes + ")");
         }
+    }
+
+    public long getMemoizerWait() {
+        return MEMOIZER_WAIT;
+    }
+
+    public File getMemoizerDirectory() {
+        return memoizerDirectory;
     }
 
 	public void setApplicationEventPublisher(ApplicationEventPublisher pub) {
@@ -719,7 +730,7 @@ public class PixelsService extends AbstractFileSystemService
         IFormatReader reader = new ImageReader();
         reader = new ChannelFiller(reader);
         reader = new ChannelSeparator(reader);
-        reader = new Memoizer(reader, 100, memoizerDirectory);
+        reader = new Memoizer(reader, MEMOIZER_WAIT, memoizerDirectory);
         reader.setFlattenedResolutions(false);
         return reader;
     }

@@ -368,6 +368,7 @@
      <constructor-arg ref="configuredTileSizes"/>
      <constructor-arg ref="repositoryDao"/>
      <constructor-arg ref="ring"/>
+     <constructor-arg ref="/OMERO/Pixels"/>
      <property name="iceCommunicator" ref="Ice.Communicator"/>
   </bean>
 
