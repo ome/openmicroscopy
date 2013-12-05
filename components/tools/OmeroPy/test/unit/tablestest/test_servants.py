@@ -109,6 +109,12 @@ class mocked_query_service(object):
             raise rv
         else:
             return rv
+    def get(self, *args):
+        rv = self.return_values.pop(0)
+        if isinstance(rv, omero.ServerError):
+            raise rv
+        else:
+            return rv
 
 class mock_internal_repo(object):
     def __init__(self, dir):
@@ -227,8 +233,9 @@ class TestTables(lib.TestCase):
     def testTables(self, newfile = True):
         if newfile:
             self.repofile(self.sf.db_uuid)
-        f = omero.model.OriginalFileI( 1, False)
-        self.sf.return_values.append( f )
+        f = omero.model.OriginalFileI(1, True)
+        f.details.group = omero.model.ExperimenterGroupI(1, False)
+        self.sf.return_values.append(f)
         tables = self.tablesI()
         table = tables.getTable(f, self.sf, self.current)
         assert table
@@ -237,18 +244,22 @@ class TestTables(lib.TestCase):
         return table
 
     def testTableIncrDecr(self):
+        f = omero.model.OriginalFileI(1, True)
+        f.details.group = omero.model.ExperimenterGroupI(1, False)
         storage = mock_storage()
-        table = omero.tables.TableI(self.ctx, omero.model.OriginalFileI(1,None), self.sf, storage)
+        table = omero.tables.TableI(self.ctx, f, self.sf, storage)
         assert storage.up
         table.cleanup()
         assert storage.down
 
     def testTablePreInitialized(self):
+        f = omero.model.OriginalFileI(1, True)
+        f.details.group = omero.model.ExperimenterGroupI(1, False)
         mocktable = self.testTables()
         table1 = mocktable.table
         storage = table1.storage
         storage.initialize([LongColumnI("a",None,[])])
-        table2 = omero.tables.TableI(self.ctx, omero.model.OriginalFileI(1, None), self.sf, storage)
+        table2 = omero.tables.TableI(self.ctx, f, self.sf, storage)
         table2.cleanup()
         table1.cleanup()
 
@@ -313,8 +324,10 @@ class TestTables(lib.TestCase):
 
     def testErrorInGet(self):
         self.repofile(self.sf.db_uuid)
-        f = omero.model.OriginalFileI( 1, False)
+        f = omero.model.OriginalFileI(1, True)
+        f.details.group = omero.model.ExperimenterGroupI(1, False)
         self.sf.return_values.append( f )
+
         tables = self.tablesI()
         table = tables.getTable(f, self.sf, self.current).table # From mock
         cols = [ omero.columns.LongColumnI('name','desc',None) ]
