@@ -337,31 +337,36 @@ class LocationDialog extends JDialog implements ActionListener,
 	/** The currently selected Screen */
 	private DataNode currentScreen;
 
+	/** Reference to the model.*/
+	private Importer model;
+
 	/**
 	 * Creates a new instance.
 	 * 
 	 * @param parent The parent of the dialog.
 	 * @param selectedContainer The container selected by the user.
 	 * @param objects The screens / projects to be shown.
-	 * @param groups The available groups to the user.
+	 * @param model Reference to the model.
 	 * @param currentGroupId The id of the current user group.
 	 * @param userId The user to select when importing as.
 	 */
 	LocationDialog(JFrame parent, TreeImageDisplay selectedContainer,
 			int importDataType, Collection<TreeImageDisplay> objects,
-			Collection<GroupData> groups, long currentGroupId, long userId)
+			Importer model, long currentGroupId)
 	{
 		super(parent);
 		this.container = selectedContainer;
 		this.dataType = importDataType;
 		this.objects = objects;
-		this.groups = groups;
+		this.groups = model.getAvailableGroups();
+		this.model = model;
 		setModal(true);
 		setTitle(TEXT_TITLE);
 		
 		initUIComponents();
 		layoutUI();
-		populateUIWithDisplayData(findWithId(groups, currentGroupId), userId);
+		populateUIWithDisplayData(findWithId(groups, currentGroupId),
+		        model.getImportFor());
 	}
 
 	/** 
@@ -1009,7 +1014,7 @@ class LocationDialog extends JDialog implements ActionListener,
 	    Set<ExperimenterData> experimenters;
 	    while (i.hasNext()) {
             g = i.next();
-            if (GroupData.SYSTEM.equals(g.getName())) {
+            if (model.isSystemGroup(g.getId(), GroupData.SYSTEM)) {
                 experimenters = g.getExperimenters();
                 Iterator<ExperimenterData> j = experimenters.iterator();
                 while (j.hasNext()) {

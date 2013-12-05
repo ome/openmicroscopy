@@ -795,7 +795,7 @@ class TreeViewerWin
 			case TreeViewer.PARTIAL_POP_UP_MENU:
 			case TreeViewer.ADMIN_MENU:
 			case TreeViewer.VIEW_MENU:
-				PopupMenu popupMenu = new PopupMenu(controller, index);
+				PopupMenu popupMenu = new PopupMenu(controller, model, index);
 		        popupMenu.show(c, p.x, p.y);	
 		}
     }

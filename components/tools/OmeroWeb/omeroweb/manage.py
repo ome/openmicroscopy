@@ -23,24 +23,32 @@
 # Version: 1.0
 #
 
+import os
 import sys
 import logging
 
-from django.core.management import execute_manager
+from django.core.management import execute_from_command_line
 
 logger = logging.getLogger(__name__)
 
-try:
-    import settings # Assumed to be in the same directory.
-except ImportError:
-    logger.error("Error: Can't find the file 'settings.py' in the directory containing %r. It appears you've customized things.\nYou'll have to run django-admin.py, passing it your settings module.\n(If the file settings.py does indeed exist, it's causing an ImportError somehow.)\n" % __file__)
-    sys.stderr.write("Error: Can't find the file 'settings.py' in the directory containing %r. It appears you've customized things.\nYou'll have to run django-admin.py, passing it your settings module.\n(If the file settings.py does indeed exist, it's causing an ImportError somehow.)\n" % __file__)
-    sys.exit(1)
 
 if __name__ == "__main__":
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "omeroweb.settings")
+
+    import settings
     from omero.util import configure_logging
     if settings.DEBUG:
         configure_logging(settings.LOGDIR, 'OMEROweb.log', loglevel=logging.DEBUG)
     
-    logger.info("Application Starting...")    
-    execute_manager(settings)
+    logger.info("Application Starting...")
+
+    # Monkeypatch Django development web server to always run in single thread
+    # even if --nothreading is not specified on command line
+    def force_nothreading(addr, port, wsgi_handler, ipv6=False, threading=False):
+        django_core_servers_basehttp_run(addr, port, wsgi_handler, ipv6, False)
+    import django.core.servers.basehttp
+    if django.core.servers.basehttp.run.__module__ != 'settings':
+        django_core_servers_basehttp_run = django.core.servers.basehttp.run
+        django.core.servers.basehttp.run = force_nothreading
+
+    execute_from_command_line(sys.argv)

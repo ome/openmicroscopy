@@ -80,7 +80,6 @@ import org.openmicroscopy.shoola.agents.metadata.rnd.RendererFactory;
 import org.openmicroscopy.shoola.agents.metadata.util.AnalysisResultsItem;
 import org.openmicroscopy.shoola.agents.metadata.util.DataToSave;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
-import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.agents.util.ui.PermissionMenu;
@@ -816,7 +815,7 @@ class EditorModel
 	{
 		Object ref = getRefObject();
 		if (!(ref instanceof ExperimenterData)) return false;
-		ExperimenterData exp = MetadataViewerAgent.getUserDetails();
+		ExperimenterData exp = getCurrentUser();
 		return exp.getId() == getRefObjectID();
 	}
 	
@@ -861,9 +860,10 @@ class EditorModel
 	 * @return See above.
 	 */
 	boolean canEdit(Object data)
-	{ 
-		DataObject d = (DataObject) data;
-		return d.canEdit();
+	{
+	    if (!(data instanceof DataObject)) return false;
+	    DataObject d = (DataObject) data;
+	    return d.canEdit();
 	}
 	
 	/**
@@ -1065,23 +1065,7 @@ class EditorModel
 		}
 		return false;
 	}
-	
-	/**
-	 * Returns <code>true</code> if the group's name is valid, 
-	 * <code>false</code> otherwise.
-	 * 
-	 * @param g The group to check.
-	 * @return See above.
-	 */
-	boolean isValidGroup(GroupData g)
-	{
-		if (g == null) return false;
-		String name = g.getName();
-		if (AdminService.USER_GROUP.equals(name) || 
-			AdminService.DEFAULT_GROUP.equals(name)) return false;
-		return true;
-	}
-	
+
 	/**
 	 * Returns <code>true</code> if the currently logged in user is the 
 	 * owner of the object, <code>false</code> otherwise.
@@ -3923,8 +3907,8 @@ class EditorModel
 	    				icons.getIcon(IconManager.APPLY_22), l);
 	    		p.setUIRegister(false);
 	    		p.setFailureIcon(icons.getIcon(IconManager.DELETE_22));
-	    		UserNotifier un = 
-	    			TreeViewerAgent.getRegistry().getUserNotifier();
+	    		UserNotifier un =
+	    		        MetadataViewerAgent.getRegistry().getUserNotifier();
 	    		un.notifyActivity(getSecurityContext(), p);
 			} catch (Exception e) {
 				// TODO: handle exception
@@ -4338,4 +4322,27 @@ class EditorModel
 	    return MetadataViewerAgent.getAvailableUserGroups();
 	}
 
+    /**
+     * Returns <code>true</code> if the user is a system user e.g. root
+     * <code>false</code> otherwise.
+     *
+     * @param id The identifier of the user.
+     * @return See above.
+     */
+    boolean isSystemUser(long id)
+    {
+        return MetadataViewerAgent.getRegistry().getAdminService().isSystemUser(id);
+    }
+
+    /**
+     * Returns <code>true</code> if the group is a system group e.g. System
+     * <code>false</code> otherwise.
+     *
+     * @param id The identifier of the group.
+     * @return See above.
+     */
+    boolean isSystemGroup(long id)
+    {
+        return MetadataViewerAgent.getRegistry().getAdminService().isSystemUser(id);
+    }
 }

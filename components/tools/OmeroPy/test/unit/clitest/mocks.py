@@ -12,10 +12,7 @@
 import subprocess
 import logging
 
-from omero.cli import CLI
-from omero.cli import Context
-from omero.cli import BaseControl
-from omero.cli import NonZeroReturnCode
+from omero.cli import CLI, NonZeroReturnCode
 
 from omero_ext import mox
 from omero_version import ice_compatibility
@@ -49,7 +46,7 @@ class MockCLI(CLI):
 
         # Not found
         msg = """Couldn't find key: "%s". Options: %s""" % \
-                (key, [x[0] for x in self.__expect])
+            (key, [x[0] for x in self.__expect])
         print msg
         raise Exception(msg)
 

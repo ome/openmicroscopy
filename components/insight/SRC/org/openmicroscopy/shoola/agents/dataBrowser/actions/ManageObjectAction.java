@@ -43,6 +43,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
+import pojos.GroupData;
 import pojos.ImageData;
 import pojos.PlateData;
 import pojos.ProjectData;
@@ -52,7 +53,7 @@ import pojos.TagAnnotationData;
 /** 
  * Manages the object i.e. either copy, paste, cut or remove.
  *
- * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
+ * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
@@ -102,6 +103,9 @@ public class ManageObjectAction
 
     /** The description of the action if the index is {@link #CUT}. */
     private static final String DESCRIPTION_CUT = "Cut the selected elements.";
+
+    /** The system group to check.*/
+    private static final String[] KEYS = {GroupData.SYSTEM, GroupData.GUEST};
 
     /** One of the constants defined by this class. */
     private int index;
@@ -186,6 +190,8 @@ public class ManageObjectAction
                     if (model.canLink(i.next())) count++;
                 }
                 setEnabled(count == selected.size());
+            } else if (ho instanceof ExperimenterData) {
+                setEnabled(model.getType() == DataBrowser.GROUP);
             } else setEnabled(false);
             break;
         case PASTE:
@@ -245,7 +251,29 @@ public class ManageObjectAction
                     if (model.canLink(i.next())) count++;
                 }
                 setEnabled(count == selected.size());
-            } else setEnabled(false);
+            } else if (ho instanceof ExperimenterData) {
+                setEnabled(false);
+                if (model.getType() == DataBrowser.GROUP) {
+                    if (parent instanceof GroupData) {
+                        GroupData g = (GroupData) parent;
+                        Boolean b = null;
+                        for (int j = 0; j < KEYS.length; j++) {
+                            if (model.isSystemGroup(g.getId(), KEYS[j])) {
+                                ExperimenterData user = model.getCurrentUser();
+                                ExperimenterData exp = (ExperimenterData) ho;
+                                b = exp.getId() != user.getId() &&
+                                        !model.isSystemUser(exp.getId(),
+                                                KEYS[j]);
+                                break;
+                            }
+                        }
+                        if (b != null) setEnabled(b);
+                        else setEnabled(true);
+                    }
+                }
+            } else {
+                setEnabled(false);
+            }
         }
     }
 

@@ -11,150 +11,153 @@
 
 import os
 import pytest
-from omero.cli import Context, BaseControl, CLI, NonZeroReturnCode
+from omero.cli import CLI, NonZeroReturnCode
 from omero.config import ConfigXml
 from omero.plugins.prefs import PrefsControl, HELP
 from omero.util.temp_files import create_path
 
-class MockCLI(CLI):
-
-    def __init__(self, *args, **kwargs):
-        self.OUTPUT = []
-        self.ERROR = []
-        CLI.__init__(self, *args, **kwargs)
-        self.register("config", PrefsControl, HELP)
-
-    def out(self, *args):
-        self.OUTPUT.append(args[0])
-
-    def err(self, *args):
-        self.ERROR.append(args[0])
 
 class TestPrefs(object):
 
     def setup_method(self, method):
-        self.cli = MockCLI()
+        self.cli = CLI()
+        self.cli.register("config", PrefsControl, HELP)
         self.p = create_path()
+        self.args = ["config", "--source", "%s" % self.p]
 
     def config(self):
         return ConfigXml(filename=str(self.p))
 
-    def assertStdout(self, args):
-        assert set(args) == set(self.cli.OUTPUT)
-        self.cli.OUTPUT = []
-
-    def assertStderr(self, args):
-        assert set(args) == set(self.cli.ERROR)
-        self.cli.ERROR = []
+    def assertStdoutStderr(self, capsys, out='', err=''):
+        o, e = capsys.readouterr()
+        assert o.strip() == out
+        assert e.strip() == err
 
     def invoke(self, s):
-        self.cli.invoke("config --source %s %s" % (self.p, s), strict=True)
+        self.cli.invoke(self.args + s.split(), strict=True)
 
     def testHelp(self):
-        try:
-            self.cli.invoke("config -h")
-        except SystemExit:
-            pass
+        self.invoke("-h")
         assert 0 == self.cli.rv
 
-    def testAll(self):
+    def testAll(self, capsys):
         config = self.config()
         config.default("test")
         config.close()
         self.invoke("all")
-        self.assertStdout(["default", "test"])
+        self.assertStdoutStderr(capsys, out="test\ndefault")
 
-    def testDefaultInitial(self):
+    def testDefaultInitial(self, capsys):
         self.invoke("def")
-        self.assertStdout(["default"])
+        self.assertStdoutStderr(capsys, out="default")
 
-    def testDefaultEnvironment(self):
+    def testDefaultEnvironment(self, capsys):
         T = "testDefaultEnvironment"
         old = os.environ.get("OMERO_CONFIG", None)
         os.environ["OMERO_CONFIG"] = T
         try:
             self.invoke("def")
-            self.assertStdout([T])
+            self.assertStdoutStderr(capsys, out=T)
         finally:
             if old:
                 os.environ["OMERO_CONFIG"] = old
             else:
                 del os.environ["OMERO_CONFIG"]
 
-    def testDefaultSet(self):
+    def testDefaultSet(self, capsys):
         self.invoke("def x")
+        self.assertStdoutStderr(capsys, out="x")
         self.invoke("def")
-        self.assertStdout(["x"])
+        self.assertStdoutStderr(capsys, out="x")
 
-    def testGetSet(self):
+    def testGetSet(self, capsys):
         self.invoke("get X")
-        self.assertStdout([])
+        self.assertStdoutStderr(capsys)
         self.invoke("set A B")
-        self.assertStdout([])
+        self.assertStdoutStderr(capsys)
         self.invoke("get A")
-        self.assertStdout(["B"])
+        self.assertStdoutStderr(capsys, out='B')
         self.invoke("get")
-        self.assertStdout(["A=B"])
+        self.assertStdoutStderr(capsys, out='A=B')
         self.invoke("set A")
+        self.assertStdoutStderr(capsys)
         self.invoke("keys")
-        self.assertStdout([])
+        self.assertStdoutStderr(capsys)
 
-    def testKeys(self):
+    def testKeys(self, capsys):
         self.invoke("keys")
-        self.assertStdout([])
+        self.assertStdoutStderr(capsys)
         self.invoke("set A B")
+        self.assertStdoutStderr(capsys)
         self.invoke("keys")
-        self.assertStdout(["A"])
+        self.assertStdoutStderr(capsys, out="A")
 
-    def testVersion(self):
+    def testVersion(self, capsys):
         self.invoke("version")
-        self.assertStdout([ConfigXml.VERSION])
+        self.assertStdoutStderr(capsys, out=ConfigXml.VERSION)
 
-    def testPath(self):
+    def testPath(self, capsys):
         self.invoke("path")
-        self.assertStdout([self.p])
+        self.assertStdoutStderr(capsys, out=self.p)
 
-    def testLoad(self):
+    def testLoad(self, capsys):
         to_load = create_path()
         to_load.write_text("A=B")
         self.invoke("load %s" % to_load)
+        self.assertStdoutStderr(capsys)
         self.invoke("get")
-        self.assertStdout(["A=B"])
+        self.assertStdoutStderr(capsys, out="A=B")
 
         # Same property/value pairs should pass
         self.invoke("load %s" % to_load)
 
         to_load.write_text("A=C")
-        try:
+        with pytest.raises(NonZeroReturnCode):
             # Different property/value pair should fail
             self.invoke("load %s" % to_load)
-            assert False, "No NZRC"
-        except NonZeroReturnCode:
-            self.assertStderr(["Duplicate property: A ('B' => 'C')"])
-            pass
+        self.assertStdoutStderr(
+            capsys, err="Duplicate property: A ('B' => 'C')")
 
         # Quiet load
         self.invoke("load -q %s" % to_load)
+        self.assertStdoutStderr(capsys)
         self.invoke("get")
-        self.assertStdout(["A=C"])
-        self.assertStderr([])
+        self.assertStdoutStderr(capsys, out="A=C")
 
     def testLoadDoesNotExist(self):
         # ticket:7273
-        pytest.raises(NonZeroReturnCode, self.invoke, "load THIS_FILE_SHOULD_NOT_EXIST")
+        pytest.raises(NonZeroReturnCode, self.invoke,
+                      "load THIS_FILE_SHOULD_NOT_EXIST")
 
-    def testDrop(self):
+    def testLoadMultiLine(self, capsys):
+        to_load = create_path()
+        to_load.write_text("A=B\\\nC")
+        self.invoke("load %s" % to_load)
+        self.invoke("get")
+        self.assertStdoutStderr(capsys, out="A=BC")
+
+    def testSetFromFile(self, capsys):
+        to_load = create_path()
+        to_load.write_text("Test")
+        self.invoke("set -f %s A" % to_load)
+        self.invoke("get")
+        self.assertStdoutStderr(capsys, out="A=Test")
+
+    def testDrop(self, capsys):
         self.invoke("def x")
+        self.assertStdoutStderr(capsys, out="x")
         self.invoke("def")
-        self.assertStdout(["x"])
+        self.assertStdoutStderr(capsys, out="x")
         self.invoke("all")
-        self.assertStdout(["x", "default"])
+        self.assertStdoutStderr(capsys, out="x\ndefault")
         self.invoke("def y")
+        self.assertStdoutStderr(capsys, out="y")
         self.invoke("all")
-        self.assertStdout(["x", "y", "default"])
+        self.assertStdoutStderr(capsys, out="y\nx\ndefault")
         self.invoke("drop x")
+        self.assertStdoutStderr(capsys)
         self.invoke("all")
-        self.assertStdout(["y", "default"])
+        self.assertStdoutStderr(capsys, 'y\ndefault')
 
     def testEdit(self):
         """
@@ -172,13 +175,12 @@ class TestPrefs(object):
         finally:
             config.close()
 
-    def testNewEnvironment(self):
+    def testNewEnvironment(self, capsys):
         config = self.config()
         config.default("default")
         config.close()
         os.environ["OMERO_CONFIG"] = "testNewEnvironment"
         self.invoke("set A B")
-        self.assertStdout([])
+        self.assertStdoutStderr(capsys)
         self.invoke("get")
-        self.assertStdout(["A=B"])
-
+        self.assertStdoutStderr(capsys, out="A=B")

@@ -13,7 +13,7 @@
 #
 # Author: Carlos Neves <carlos(at)glencoesoftware.com>
 
-from django.conf.urls.defaults import *
+from django.conf.urls import *
 
 webgateway = url( r'^$', 'webgateway.views.index', name="webgateway" )
 """

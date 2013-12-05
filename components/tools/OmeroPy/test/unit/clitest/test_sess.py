@@ -9,15 +9,12 @@
 
 """
 
-import os, subprocess, StringIO
-import Ice
+import os
 import Glacier2
-import omero
-import omero.all
-import omero_ext.uuid as uuid # see ticket:3774
+import omero_ext.uuid as uuid  # see ticket:3774
 
 from path import path
-from omero.cli import Context, BaseControl, CLI, NonZeroReturnCode
+from omero.cli import CLI, NonZeroReturnCode
 from omero.util import get_user
 from omero.util.sessions import SessionsStore
 from omero.util.temp_files import create_path
@@ -37,7 +34,7 @@ class MyStore(SessionsStore):
         self.clients = []
         self.exceptions = []
 
-    def create(self, name, pasw, props, new = True, set_current = True):
+    def create(self, name, pasw, props, new=True, set_current=True):
 
         if not isinstance(props, dict):
             raise Exception("Bad type")
@@ -47,11 +44,12 @@ class MyStore(SessionsStore):
 
         cb = getattr(self, "create_callback", None)
         if cb:
-            cb(*args, **kwargs)
+            cb()
             self.create_callback = None
         return_tuple, add_tuple, should_be_new = self.clients.pop(0)
 
-        assert should_be_new == new, ("should_be_new=%s wasn't!" % should_be_new)
+        assert should_be_new == new, ("should_be_new=%s wasn't!"
+                                      % should_be_new)
 
         if new:
             self.add(*add_tuple)
@@ -62,8 +60,10 @@ class MyStore(SessionsStore):
         return return_tuple
 
     def __del__(self):
-        assert len(self.clients) == 0, ("clients not empty! %s" % self.clients)
-        assert len(self.exceptions) == 0, ("exceptions not empty! %s" % self.exceptions)
+        assert len(self.clients) == 0, ("clients not empty! %s"
+                                        % self.clients)
+        assert len(self.exceptions) == 0, ("exceptions not empty! %s"
+                                           % self.exceptions)
 
 
 class MyClient(object):
@@ -72,7 +72,7 @@ class MyClient(object):
         self.sf = self
         self.userName = user
         self.groupName = group
-        self.props = {"omero.port":"4064"} # Fix after #3883
+        self.props = {"omero.port": "4064"}  # Fix after #3883
         self.props.update(props)
 
     def __del__(self, *args):
@@ -99,6 +99,7 @@ class MyClient(object):
     def getProperty(self, key):
         return self.props[key]
 
+
 class MyCLI(CLI):
 
     def __init__(self, *args, **kwargs):
@@ -114,36 +115,40 @@ class MyCLI(CLI):
     def __del__(self):
         del self.STORE
 
-    def creates_client(self, name="testuser", host="testhost", sess="sess_id", port=None, group=None, new=True):
+    def creates_client(self, name="testuser", host="testhost", sess="sess_id",
+                       port=None, group=None, new=True):
         props = dict()
-        if port: props["omero.port"] = port
+        if port:
+            props["omero.port"] = port
         if group:
             props["omero.group"] = group
         else:
-            group = "mygroup" # For use via IAdmin.EventContext
+            group = "mygroup"  # For use via IAdmin.EventContext
 
         #props = {"omero.group":group, "omero.port":port}
-        return_tuple = (MyClient(name, group, {"omero.host":host}), sess, 0, 0)
+        return_tuple = (MyClient(name, group, {"omero.host": host}), sess, 0,
+                        0)
         add_tuple = (host, name, sess, props)
         self.STORE.clients.append((return_tuple, add_tuple, new))
 
     def throw_on_create(self, e):
         self.STORE.exceptions.append(e)
 
-    def requests_host(self, host = "testhost"):
+    def requests_host(self, host="testhost"):
         self.REQRESP["Server: [localhost]"] = host
 
-    def requests_user(self, user = 'testuser'):
+    def requests_user(self, user='testuser'):
         self.REQRESP["Username: [%s]" % get_user("Unknown")] = user
 
-    def requests_pass(self, pasw = "pasw"):
+    def requests_pass(self, pasw="pasw"):
         self.REQRESP["Password:"] = pasw
 
     def requests_size(self):
         return len(self.REQRESP)
 
     def assertReqSize(self, test, size):
-        assert size == self.requests_size(), "size!=%s: %s" % (size, self.REQRESP)
+        assert size == self.requests_size(), "size!=%s: %s" % (
+            size, self.REQRESP)
 
     def input(self, prompt, hidden=False, required=False):
         if prompt not in self.REQRESP:
@@ -151,7 +156,7 @@ class MyCLI(CLI):
         return self.REQRESP.pop(prompt)
 
     def invoke(self, *args):
-        CLI.invoke(self, *args, strict = True)
+        CLI.invoke(self, *args, strict=True)
 
 
 class TestStore(object):
@@ -199,30 +204,30 @@ class TestStore(object):
     def testCount(self):
         s = self.store()
         assert 0 == s.count()
-        s.add("a","a","a",{})
+        s.add("a", "a", "a", {})
         assert 1 == s.count()
-        s.remove("a","a","a")
+        s.remove("a", "a", "a")
         assert 0 == s.count()
 
     def testGet(self):
         s = self.store()
-        s.add("a","b","c", {"foo":"1"})
-        rv = s.get("a","b","c")
+        s.add("a", "b", "c", {"foo": "1"})
+        rv = s.get("a", "b", "c")
         expect = {
-            "foo":"1",
-            "omero.host":"a",
-            "omero.user":"b",
-            "omero.sess":"c"
+            "foo": "1",
+            "omero.host": "a",
+            "omero.user": "b",
+            "omero.sess": "c"
         }
         assert expect == rv
 
     def testConflicts(self):
         s = self.store()
-        s.add("a", "b", "c", {"omero.group":"1"})
+        s.add("a", "b", "c", {"omero.group": "1"})
         conflicts = s.conflicts("a", "b", "c", {})
-        assert "" !=  conflicts
-        conflicts = s.conflicts("a", "b", "c", {"omero.group":"2"})
-        assert "" !=  conflicts
+        assert "" != conflicts
+        conflicts = s.conflicts("a", "b", "c", {"omero.group": "2"})
+        assert "" != conflicts
 
 
 class TestSessions(object):
@@ -233,39 +238,40 @@ class TestSessions(object):
         cli.requests_user()
         cli.requests_pass()
         cli.creates_client()
-        cli.invoke(["s","login"])
+        cli.invoke(["s", "login"])
         assert 0 == cli.rv
 
     def test2(self):
         cli = MyCLI()
         cli.requests_pass()
         cli.creates_client(name="user")
-        cli.invoke(["s","login","user@host"])
+        cli.invoke(["s", "login", "user@host"])
         assert 0 == cli.rv
 
     def test3(self):
         cli = MyCLI()
         cli.creates_client(name="user")
-        cli.invoke(["-s", "localhost","-u", "user", "-w", "pasw", "s", "login"])
+        cli.invoke(["-s", "localhost", "-u", "user", "-w", "pasw", "s",
+                    "login"])
         assert 0 == cli.rv
 
     def test4(self):
         cli = MyCLI()
-        cli.STORE.add("testhost","testuser","key", {})
+        cli.STORE.add("testhost", "testuser", "key", {})
         cli.creates_client(sess="key", new=False)
-        cli.invoke(["-s", "testuser@testhost","-k", "key", "s", "login"])
+        cli.invoke(["-s", "testuser@testhost", "-k", "key", "s", "login"])
         assert 0 == cli.rv
 
     def testReuseWorks(self):
         cli = MyCLI()
-        cli.STORE.add("testhost","testuser","testsessid", {})
+        cli.STORE.add("testhost", "testuser", "testsessid", {})
         cli.creates_client(new=False)
         cli.invoke("-s testhost -u testuser s login".split())
         assert cli._client is not None
 
     def testReuseFromDifferentGroupDoesntWork(self):
         cli = MyCLI()
-        cli.STORE.add("testhost","testuser","testsessid", {})
+        cli.STORE.add("testhost", "testuser", "testsessid", {})
         cli.requests_pass()
         cli.assertReqSize(self, 1)
         cli.creates_client(group="mygroup2")
@@ -274,7 +280,8 @@ class TestSessions(object):
 
     def testReuseFromSameGroupDoesWork(self):
         cli = MyCLI()
-        cli.STORE.add("testhost","testuser","testsessid", {"omero.group":"mygroup"})
+        cli.STORE.add("testhost", "testuser", "testsessid",
+                      {"omero.group": "mygroup"})
         cli.assertReqSize(self, 0)
         cli.creates_client(group="mygroup", new=False)
         cli.invoke("-s testhost -u testuser -g mygroup s login".split())
@@ -282,7 +289,7 @@ class TestSessions(object):
 
     def testReuseFromDifferentPortDoesntWork(self):
         cli = MyCLI()
-        cli.STORE.add("testhost","testuser","testsessid", {})
+        cli.STORE.add("testhost", "testuser", "testsessid", {})
         cli.requests_pass()
         cli.assertReqSize(self, 1)
         cli.creates_client(port="4444")
@@ -291,7 +298,7 @@ class TestSessions(object):
 
     def testReuseFromDifferentPortDoesntWork_4072(self):
         cli = MyCLI()
-        cli.STORE.add("testhost","testuser","testsessid", {})
+        cli.STORE.add("testhost", "testuser", "testsessid", {})
         cli.requests_pass()
         cli.assertReqSize(self, 1)
         cli.creates_client(port="4444")
@@ -300,7 +307,8 @@ class TestSessions(object):
 
     def testReuseFromSamePortDoesWork(self):
         cli = MyCLI()
-        cli.STORE.add("testhost","testuser","testsessid", {"omero.port":"4444"})
+        cli.STORE.add("testhost", "testuser", "testsessid",
+                      {"omero.port": "4444"})
         cli.assertReqSize(self, 0)
         cli.creates_client(port="4444", new=False)
         cli.invoke("-s testhost -u testuser -p 4444 s login".split())
@@ -308,7 +316,8 @@ class TestSessions(object):
 
     def testReuseFromSamePortDoesWork_4072(self):
         cli = MyCLI()
-        cli.STORE.add("testhost","testuser","testsessid", {"omero.port":"4444"})
+        cli.STORE.add("testhost", "testuser", "testsessid",
+                      {"omero.port": "4444"})
         cli.assertReqSize(self, 0)
         cli.creates_client(port="4444", new=False)
         cli.invoke("s login testuser@testhost:4444".split())
@@ -318,7 +327,7 @@ class TestSessions(object):
         cli = MyCLI()
         cli.creates_client()
         cli.invoke("-s testhost -u testuser -w testpass s login")
-        cli.invoke("s login") # Should work. No conflict
+        cli.invoke("s login")  # Should work. No conflict
         cli.invoke("-p 4444 s login")
 
     def testPortThenNothingShouldReuse(self):
@@ -328,10 +337,10 @@ class TestSessions(object):
         cli.requests_user()
         cli.requests_pass()
         cli.invoke("-p 4444 s login")
-        cli.assertReqSize(self, 0) # All were requested
-        cli._client = None # Forcing new instance
+        cli.assertReqSize(self, 0)  # All were requested
+        cli._client = None  # Forcing new instance
         cli.creates_client(port="4444", new=False)
-        cli.invoke("s login") # Should work. No conflict
+        cli.invoke("s login")  # Should work. No conflict
         del cli
 
     def testBadSessionKeyDies(self):
@@ -347,25 +356,26 @@ class TestSessions(object):
         cli.creates_client(sess=MOCKKEY)
         cli.requests_pass()
         cli.invoke("-s testuser@testhost s login")
-        cli.assertReqSize(self, 0) # All were requested
-        cli._client = None # Forcing new instance
+        cli.assertReqSize(self, 0)  # All were requested
+        cli._client = None  # Forcing new instance
 
         key_login = "-s testuser@testhost -k %s s login" % MOCKKEY
 
         # Now try with session when it's still available
         cli.creates_client(sess=MOCKKEY, new=False)
         cli.invoke(key_login)
-        cli._client = None # Forcing new instance
+        cli._client = None  # Forcing new instance
 
         # Don't do creates_client, so the session key
         # is now bad.
-        cli.throw_on_create(Glacier2.PermissionDeniedException("MOCKKEY EXPIRED"))
+        cli.throw_on_create(
+            Glacier2.PermissionDeniedException("MOCKKEY EXPIRED"))
         try:
             cli.invoke(key_login)
             assert False, "This must throw 'Bad session key'"
         except NonZeroReturnCode:
             pass
-        cli._client = None # Forcing new instance
+        cli._client = None  # Forcing new instance
 
         del cli
 
@@ -383,7 +393,7 @@ class TestSessions(object):
         # Try with session when it's still available
         cli.creates_client(sess=MOCKKEY, new=True)
         cli.invoke(key_login)
-        cli._client = None # Forcing new instance
+        cli._client = None  # Forcing new instance
 
     def assert5975(self, key, cli):
         host, name, uuid = cli.STORE.get_current()
@@ -403,4 +413,3 @@ class TestSessions(object):
 
         cli.invoke("s logout")
         self.assert5975(key, cli)
-

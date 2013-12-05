@@ -37,13 +37,13 @@ import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowserFactory;
 import org.openmicroscopy.shoola.agents.events.iviewer.CopyRndSettings;
 import org.openmicroscopy.shoola.agents.events.iviewer.RndSettingsCopied;
 import org.openmicroscopy.shoola.agents.events.metadata.AnnotatedEvent;
-import org.openmicroscopy.shoola.agents.events.treeviewer.ChangeUserGroupEvent;
 import org.openmicroscopy.shoola.agents.events.treeviewer.CopyItems;
 import org.openmicroscopy.shoola.agents.events.treeviewer.DisplayModeEvent;
 import org.openmicroscopy.shoola.env.Agent;
 import org.openmicroscopy.shoola.env.Environment;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.AdminService;
 import org.openmicroscopy.shoola.env.data.events.ReconnectedEvent;
 import org.openmicroscopy.shoola.env.data.events.UserGroupSwitched;
 import org.openmicroscopy.shoola.env.data.util.AgentSaveInfo;
@@ -103,16 +103,16 @@ public class DataBrowserAgent
 	public static SecurityContext getAdminContext()
 	{
 		if (!isAdministrator()) return null;
-		Collection groups = getAvailableUserGroups();
-		Iterator i = groups.iterator();
-		GroupData g;
-		while (i.hasNext()) {
-			g = (GroupData) i.next();
-			if (g.getName().equals(GroupData.SYSTEM)) {
-				return new SecurityContext(g.getId());
-			}
-		}
-		return null;
+        Collection<GroupData> groups = getAvailableUserGroups();
+        Iterator<GroupData> i = groups.iterator();
+        GroupData g;
+        AdminService svc = registry.getAdminService();
+        while (i.hasNext()) {
+            g = i.next();
+            if (svc.isSecuritySystemGroup(g.getId(), GroupData.SYSTEM))
+                return new SecurityContext(g.getId());
+        }
+        return null;
 	}
 	
     /**

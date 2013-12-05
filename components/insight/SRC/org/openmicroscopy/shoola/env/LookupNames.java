@@ -33,17 +33,29 @@ package org.openmicroscopy.shoola.env;
  * entries in the container's registry.
  *
  * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
+<<<<<<< HEAD
  *          <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author <br>Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
  *         <a href="mailto:a.falconi@dundee.ac.uk">a.falconi@dundee.ac.uk</a>
  * @version 2.2
+=======
+ *         <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+ * @author  <br>Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
+ *          <a href="mailto:a.falconi@dundee.ac.uk">
+ *          a.falconi@dundee.ac.uk</a>
+ * @version 2.2 
+>>>>>>> origin/develop
  * @since OME2.2
  */
 public class LookupNames
 {
 
     /** 
+<<<<<<< HEAD
      * Field indicating how to display the data i.e. 
+=======
+     * Field indicating how to display the data i.e.
+>>>>>>> origin/develop
      * <code>group</code> display, <code>experimenter</code>.
      */
     public static final String DATA_DISPLAY = "DataDisplay";
@@ -120,7 +132,7 @@ public class LookupNames
     public static final String VERSION = "Version";	
 
     /** Field to access the <code>Name of the software</code>. */
-    public static final String SOFTWARE_NAME = "SoftwareName";	
+    public static final String SOFTWARE_NAME = "SoftwareName";
 
     /** Field to access the <code>About file</code> information. */
     public static final String ABOUT_FILE = "AboutFile";
@@ -142,6 +154,9 @@ public class LookupNames
 
     /** Field to access  the time before each network check. */
     public static final String ELAPSE_TIME = "/services/NETWORK/timeout";
+
+    /** Field to access the system users and groups. */
+    public static final String SYSTEM_ROLES = "/system/roles";
 
     /** Field to access the user credentials. */
     public static final String USER_CREDENTIALS = "/user/credentials";
@@ -187,13 +202,21 @@ public class LookupNames
 
     /** 
      * Field to access the location of the <code>OMERO folder</code>
+<<<<<<< HEAD
      * on the user's machine.
+=======
+     * on the user's machine. 
+>>>>>>> origin/develop
      */
     public static final String USER_HOME_OMERO = "/user/home/omero";
 
     /** 
      * Field to access the location of the <code>OMERO folder</code>
+<<<<<<< HEAD
      * on the user's machine.
+=======
+     * on the user's machine. 
+>>>>>>> origin/develop
      */
     public static final String USER_HOME_OMERO_FILES = "/user/home/omero/files";
 
@@ -215,7 +238,11 @@ public class LookupNames
 
     /** 
      * Field to access the Factor by which the maximum number of thumbnails
+<<<<<<< HEAD
      * to fetch is multiplied by when the connection's speed is 
+=======
+     * to fetch is multiplied by when the connection's speed is
+>>>>>>> origin/develop
      * <code>Low</code>.
      */
     public static final String THUMBNAIL_FETCH_LOW_SPEED =

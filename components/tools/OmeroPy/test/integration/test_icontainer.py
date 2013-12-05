@@ -23,6 +23,7 @@ from omero_model_DatasetImageLinkI import DatasetImageLinkI
 from omero_model_ImageAnnotationLinkI import ImageAnnotationLinkI
 from omero_model_CommentAnnotationI import CommentAnnotationI
 from omero.rtypes import rstring, rtime
+from uuid import uuid4
 
 class TestIContainer(lib.ITest):
 
@@ -281,11 +282,13 @@ class TestSplitFilesets(lib.ITest):
         expected = {filesetId: {True: [imgId], False: [images[1].id.val]}}
         self.checkSplitFilesets(client, {'Dataset': [datasets[0].id.val]}, expected)
 
-    @pytest.mark.xfail(reason="ticket 11610")
     def testGetImagesBySplitFilesetsManyCases(self):
         query = self.client.sf.getQueryService()
         update = self.client.sf.getUpdateService()
         ipojo = self.client.sf.getContainerService()
+        admin = self.client.sf.getAdminService()
+
+        eventContext = admin.getEventContext()
 
         # entity hierarchy
 
@@ -392,6 +395,7 @@ class TestSplitFilesets(lib.ITest):
             wells.append(well)  # cannot save until attached to plate
         for fileset_index in set(all_inputs['Fileset'] + parents(fileset_image_hierarchy)):
             fileset = omero.model.FilesetI()
+            fileset.templatePrefix = rstring('%s_%i/%s' % (eventContext.userName, eventContext.userId, uuid4()))
             fileset.id = update.saveAndReturnObject(fileset).id
             filesets.append(query.get('Fileset', fileset.id.val))
         for image_index in set(all_inputs['Image'] + children(dataset_image_hierarchy)

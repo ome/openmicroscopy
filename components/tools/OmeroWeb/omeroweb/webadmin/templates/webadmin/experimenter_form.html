@@ -1,5 +1,6 @@
 {% extends "webadmin/base.html" %}
 {% load i18n %}
+{% load common_filters %}
 
 
 {% comment %}
@@ -74,18 +75,19 @@
         };
 
         // Since we want to disable removal of 'system' group (id=0) from chosen, this hides the 'X'
+        var admin_groups = {{ admin_groups|jsonify|safe }};
         var hideSystemGroupX = function() {
-            var optText = $("#id_other_groups").find("option[value=0]").text(),
-                $system_li = $("#id_other_groups_chzn").find("span:contains('"+optText+"')").parent();
-            $system_li.find('a').hide();
+            for (i=0; i<admin_groups.length; i++) {
+                var optText = $("#id_other_groups").find("option[value=" + admin_groups[i] + "]").text(),
+                    $system_li = $("#id_other_groups_chzn").find("span:contains('"+optText+"')").parent();
+                $system_li.find('a').hide();
+            }
         }
-
+        
         $("#id_other_groups").chosen({placeholder_text:'Choose one or more groups'}).change(function(evt, data) {
             if (data && data.deselected) {
                 if (data.deselected === "0") {
-                    // Don't allow to remove 'system' group from list (use 'Administrator' checkbox. See #10016)
-                    $('#id_other_groups option[value=0]').prop('selected', true);
-                    $("#id_other_groups").trigger("liszt:updated");
+                    $("input[name='administrator']").attr('checked', false);
                 }
                 $df = $('#id_default_group')
                 if ($df.val() === data.deselected){
@@ -97,11 +99,10 @@
                 }
                 $("li.search-choice").click(selectDefaultGroup);
                 // In case we've added the system group:
-                hideSystemGroupX();
             }
+            hideSystemGroupX();
         });
-        hideSystemGroupX();
-
+        
         $("input[name='administrator']").click( function(evt) {
             evt.stopPropagation();
             if($("input[name='administrator']").is(':checked')) {
@@ -125,6 +126,7 @@
             selectDefaultGroup(evt);
         });
         highlightDefault();
+        hideSystemGroupX();
         
         
         // code for Change Password dialog - NB this is duplicated in myaccount.html. 
@@ -213,13 +215,13 @@
     <h1>{% trans "New User" %}</h1>
     {% endif %}
 
-    <h1><a href="{% url waexperimenters %}" style="position:relative; top:-38px; float:right" title="Go Back to Users">Cancel</a></h1>
+    <h1><a href="{% url 'waexperimenters' %}" style="position:relative; top:-38px; float:right" title="Go Back to Users">Cancel</a></h1>
 
 
 
     {% if eid %}
     <!-- We are editing existing user -->
-    <form action="{% url wamanageexperimenterid "save" eid %}" method="POST" class="standard_form settings_form">
+    <form action="{% url 'wamanageexperimenterid' "save" eid %}" method="POST" class="standard_form settings_form">
 
         {% if ldapAuth %}
         <label>LDAP:</label> {{ ldapAuth }}
@@ -235,7 +237,7 @@
         <br />
     {% else %}
     <!-- We are creating new user -->
-    <form action="{% url wamanageexperimenterid "create" %}" method="POST" class="standard_form settings_form">
+    <form action="{% url 'wamanageexperimenterid' "create" %}" method="POST" class="standard_form settings_form">
     {% endif %}
 
     <p>{% trans "Fields marked in red are mandatory." %}</p>
@@ -276,7 +278,7 @@
     <!-- hidden dialog for password change - This is almost duplicated in myaccount.html-->
     <div id="password_change_dialog" title="Change Password">
 
-    <form id="change_password_form" action="{% url wamanagechangepasswordid eid %}" method="POST">
+    <form id="change_password_form" action="{% url 'wamanagechangepasswordid' eid %}" method="POST">
 
         <table>
             <tbody>

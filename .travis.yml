@@ -1,9 +1,11 @@
 language: java
 
 env:
-    - BUILD=all BUILD_TARGET="build-all" TEST_TARGET="-p"
-    - BUILD=py BUILD_TARGET="build-default test-compile" TEST_TARGET="-py test -Dtest.with.fail=true"
-    - BUILD=cpp BUILD_TARGET="build-all test-compile-all" TEST_TARGET="-cpp test -Dtest.with.fail=true"
+    - BUILD=py BUILD_TARGET="build-default" TEST_TARGET="-py test -Dtest.with.fail=true"
+    - BUILD=java BUILD_TARGET="build-default test-compile" TEST_TARGET="-p"
+
+matrix:
+      fast_finish: true
 
 jdk:
   - openjdk7
@@ -19,11 +21,12 @@ before_install:
     - sudo pip install scc --use-mirrors
     - scc travis-merge
     - if [[ $BUILD == 'py' ]]; then sudo pip install flake8 --use-mirrors; fi
+    - if [[ $BUILD == 'py' ]]; then flake8 -v components/tools/OmeroPy/src/omero/plugins;  fi
+    - if [[ $BUILD == 'py' ]]; then flake8 -v components/tools/OmeroPy/test/integration/clitest;  fi
+    - if [[ $BUILD == 'py' ]]; then flake8 -v components/tools/OmeroPy/test/unit/clitest;  fi
 
 install: python build.py $BUILD_TARGET
 
 # Running python tests as script, since there's no compile step.
 script:
-    - if [[ $BUILD == 'py' ]]; then flake8 -v components/tools/OmeroPy/src/omero/plugins;  fi
-    - if [[ $BUILD == 'py' ]]; then flake8 -v components/tools/OmeroPy/test/integration/clitest;  fi
     - python build.py $TEST_TARGET

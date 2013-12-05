@@ -224,9 +224,9 @@ public class TreeViewerFactory
 	 * 
 	 * @param imageIds The collection of updated images
 	 */
-	public static void onRndSettingsCopied(Collection imageIds)
+	public static void onRndSettingsCopied(Collection<Long> imageIds)
 	{
-		Iterator v = singleton.viewers.iterator();
+		Iterator<TreeViewer> v = singleton.viewers.iterator();
 		TreeViewerComponent comp;
 		while (v.hasNext()) {
 			comp = (TreeViewerComponent) v.next();

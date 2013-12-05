@@ -106,3 +106,34 @@ class TestRFS(lib.ITest):
         buf = rfs.read(0, 4)
         rfs.close()
         assert "0123" == buf
+
+    def testNullSize11743(self):
+
+        # Create an object of size 4
+        client = self.new_client()
+        ofile = self.file(client=client)
+        rfs = client.sf.createRawFileStore()
+        try:
+            rfs.setFileId(ofile.id.val)
+            rfs.write("0123", 0, 4)
+            ofile = rfs.save()
+            assert 4 == ofile.size.val
+        finally:
+            rfs.close()
+
+        # Synthetically null the size
+        old_size = ofile.size
+        ofile.size = None
+        client.sf.getUpdateService().saveObject(ofile)
+
+        # Assert the size is null
+        ofile = client.sf.getQueryService().get("OriginalFile", ofile.id.val)
+        assert ofile.size is None
+
+        # Show that the size can be loaded from the service
+        rfs = client.sf.createRawFileStore()
+        rfs.setFileId(ofile.id.val)
+        assert 4 == rfs.size()
+        rfs.write([], 0, 0)  # touch
+        ofile = rfs.save()
+        assert ofile.size is not None

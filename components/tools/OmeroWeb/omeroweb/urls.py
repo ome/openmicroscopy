@@ -26,9 +26,10 @@
 import os.path
 
 from django.conf import settings
-from django.conf.urls.defaults import *
+from django.conf.urls import *
 from django.views.static import serve
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
+from django.shortcuts import redirect
 
 from django.core.urlresolvers import reverse
 from django.utils.functional import lazy
@@ -55,25 +56,31 @@ def redirect_urlpatterns():
 
 urlpatterns = patterns('',
     
-    (r'^favicon\.ico$', 'django.views.generic.simple.redirect_to', {'url': '%swebgateway/img/ome.ico' % settings.STATIC_URL}),
+    (r'^favicon\.ico$', lambda request: redirect('%swebgateway/img/ome.ico' % settings.STATIC_URL)),
     
-    (r'(?i)^webgateway/', include('omeroweb.webgateway.urls')),
-    (r'(?i)^webadmin/', include('omeroweb.webadmin.urls')),
-    (r'(?i)^webclient/', include('omeroweb.webclient.urls')),
-    (r'(?i)^webstart/', include('omeroweb.webstart.urls')),
+    (r'^(?i)webgateway/', include('omeroweb.webgateway.urls')),
+    (r'^(?i)webadmin/', include('omeroweb.webadmin.urls')),
+    (r'^(?i)webclient/', include('omeroweb.webclient.urls')),
+    (r'^(?i)webstart/', include('omeroweb.webstart.urls')),
     
-    (r'(?i)^url/', include('omeroweb.webredirect.urls')),
-    (r'(?i)^feedback/', include('omeroweb.feedback.urls')),
+    (r'^(?i)url/', include('omeroweb.webredirect.urls')),
+    (r'^(?i)feedback/', include('omeroweb.feedback.urls')),
     
-    (r'(?i)^webtest/', include('omeroweb.webtest.urls')),
+    (r'^(?i)webtest/', include('omeroweb.webtest.urls')),
 
 )
 
 urlpatterns += redirect_urlpatterns()
 
 for app in settings.ADDITIONAL_APPS:
-    regex = '(?i)^%s/' % app
-    urlpatterns += patterns('', (regex, include('omeroweb.%s.urls' % app)),)
+    # Depending on how we added the app to INSTALLED_APPS in settings.py,
+    # include the urls the same way
+    if 'omeroweb.%s' % app in settings.INSTALLED_APPS:
+        urlmodule = 'omeroweb.%s.urls' % app
+    else:
+        urlmodule = '%s.urls' % app
+    regex = '^(?i)%s/' % app
+    urlpatterns += patterns('', (regex, include(urlmodule)),)
 
 if settings.DEBUG:
     urlpatterns += staticfiles_urlpatterns()

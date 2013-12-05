@@ -82,7 +82,7 @@
         {% for c in c_strs %}
         <td>
             <img class='img_panel' 
-            src="{% url web_render_image image.id image.z 0 %}?c={{c}}&p={{proj}}" />
+            src="{% url 'web_render_image' image.id image.z 0 %}?c={{c}}&p={{proj}}" />
         </td>
         {% endfor %}
     </tr>

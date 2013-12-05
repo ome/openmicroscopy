@@ -29,10 +29,10 @@ from django.http import Http404, HttpResponse, HttpResponseRedirect, HttpRespons
 
 from django.conf import settings
 from django.utils.http import urlencode
-from django.utils.functional import wraps
+from functools import update_wrapper
 from django.utils import simplejson
 from django.core.urlresolvers import reverse
-from django.core import template_loader
+from django.template import loader as template_loader
 from django.template import RequestContext
 from django.core.cache import cache
 
@@ -54,6 +54,7 @@ class ConnCleaningHttpResponse(HttpResponse):
         except:
             logger.error('Failed to clean up connection.', exc_info=True)
 
+
 class login_required(object):
     """
     OMERO.web specific extension of the Django login_required() decorator,
@@ -74,6 +75,15 @@ class login_required(object):
         self.doConnectionCleanup = doConnectionCleanup
         self.omero_group = omero_group
         self.allowPublic = allowPublic
+
+    # To make django's method_decorator work, this is required until
+    # python/django sort out how argumented decorator wrapping should work
+    # https://github.com/openmicroscopy/openmicroscopy/pull/1820
+    def __getattr__(self, name):
+        if name == '__name__':
+            return self.__class__.__name__
+        else:
+            return super(login_required, self).getattr(name)
 
     def get_login_url(self):
         """The URL that should be redirected to if not logged in."""
@@ -386,7 +396,8 @@ class login_required(object):
             except:
                 logger.warn('Failed to clean up connection.', exc_info=True)
             return retval
-        return wraps(f)(wrapped)
+        return update_wrapper(wrapped, f)
+
         
 class render_response(object):
     """
@@ -398,6 +409,15 @@ class render_response(object):
     - A hook is provided for adding additional data to the context, from the L{omero.gateway.BlitzGateway}
         or from the request.
     """
+
+    # To make django's method_decorator work, this is required until
+    # python/django sort out how argumented decorator wrapping should work
+    # https://github.com/openmicroscopy/openmicroscopy/pull/1820
+    def __getattr__(self, name):
+        if name == '__name__':
+            return self.__class__.__name__
+        else:
+            return super(render_response, self).getattr(name)
 
     def prepare_context(self, request, context, *args, **kwargs):
         """ Hook for adding additional data to the context dict """
@@ -432,4 +452,5 @@ class render_response(object):
                 t = template_loader.get_template(template)
                 c = RequestContext(request, context)
                 return HttpResponse(t.render(c))
-        return wraps(f)(wrapper)
+        return update_wrapper(wrapper, f)
+

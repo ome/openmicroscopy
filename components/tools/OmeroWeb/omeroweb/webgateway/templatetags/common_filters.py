@@ -4,7 +4,7 @@
 # 
 # 
 # 
-# Copyright (c) 2008 University of Dundee. 
+# Copyright (c) 2008-2013 University of Dundee. 
 # 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -31,11 +31,17 @@ import logging
 
 from django.conf import settings
 from django import template
+from django.utils.translation import ugettext, ungettext
+from django.utils import simplejson
 
 register = template.Library()
 
 logger = logging.getLogger(__name__)
 
+@register.filter()
+def jsonify(obj):
+    """Simple template filter to encode a variable to JSON format"""
+    return simplejson.dumps(obj)
 
 @register.filter
 def hash(value, key):
@@ -151,3 +157,83 @@ def get_range( value ):
     Instead of 3 one may use the variable set in the views
   """
   return range( value )
+
+@register.filter
+def lengthformat( value ):
+    """
+    Filter - returns the converted value
+    all values are in micrometers
+    """
+    try:
+        value = float(value)
+    except (TypeError,ValueError,UnicodeDecodeError):
+        return value
+
+    if value < 0.001:
+        return value * 1000 * 10
+    elif value < 0.01:
+        return value * 1000
+    elif value < 1000:
+        return value
+    elif value < 1000 * 100:
+        return value / 1000
+    elif value < 1000 * 100 * 10:
+        return value / 1000 / 100
+    elif value < 1000 * 100 * 10 * 100:
+        return value / 1000 / 100 / 10
+    else:
+        return value / 1000 / 100 / 10 / 1000
+
+@register.filter
+def lengthunit( value ):
+    """
+    Filter - returns th emost suitable length units
+    all values are in micrometers
+    """
+
+    if value == 0:
+        return u'\u00B5m'
+    elif value < 0.001:
+        return u"\u212B"
+    elif value < 0.01:
+        return u"nm"
+    elif value < 1000:
+        return u'\u00B5m'
+    elif value < 1000 * 100:
+        return "mm"
+    elif value < 1000 * 100 * 10:
+        return "cm"
+    elif value < 1000 * 100 * 10 * 100:
+        return "m"
+    else:
+        return "km" 
+
+@register.filter
+def timeformat( value ):
+    """
+    Filter - returns the converted value with units
+    all values are in seconds
+    """
+    from decimal import Decimal, InvalidOperation
+    from django.utils.encoding import force_unicode
+    
+    try:
+        value = Decimal(force_unicode(value))
+    except UnicodeEncodeError:
+        return u''
+    except InvalidOperation:
+        try:
+            value = Decimal(force_unicode(float(value)))
+        except (ValueError, InvalidOperation, TypeError, UnicodeEncodeError):
+            return u'%s s' % str(value)
+        
+    if value < 1 / 1000 :
+        return u'%d\u00A0\u00B5s' % (value * 1000 * 1000)
+    elif value < 1 :
+        return u'%d\u00A0ms' % (value * 1000)
+    elif value < 60:
+        return u'%d\u00A0s' % value
+    elif value < 60 * 60:
+        return u'%d\u00A0min\u00A0%d\u00A0s' % (value / 60, value%60)
+    else:
+        return u'%d\u00A0h\u00A0%d\u00A0min' % (value / 3600, value%3600)

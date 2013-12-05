@@ -32,13 +32,13 @@
 <span class="tag_annotation_wrapper" id="tag_ann-{{ tag.id }}">
 	
 		<div class="tag">
-	        <a class='tooltip tag_inner' href="{% url load_template 'usertags' %}?show=tag-{{ tag.id }}" target="_top">
+	        <a class='tooltip tag_inner' href="{% url 'load_template' 'usertags' %}?show=tag-{{ tag.id }}" target="_top">
 	            {{ tag.textValue }}
 	        </a>
 		
 			{% if can_remove %}
 	        <span class='removeTag' id="{{ tag.id }}-tag" title="Remove Tag" 
-	            url='{% url manage_action_containers "remove" %}tag/{{ tag.id }}/'>
+	            url='{% url 'manage_action_containers' "remove" %}tag/{{ tag.id }}/'>
 	            X
 	        </span>
 	        {% endif %}

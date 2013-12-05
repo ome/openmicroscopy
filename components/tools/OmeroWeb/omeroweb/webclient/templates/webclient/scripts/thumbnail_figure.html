@@ -164,7 +164,7 @@
                 <img id="thumbnail-{{ img.id }}" class="img_panel" title="{% for t in img.tags %} {{ t.getTextValue }} {% endfor %}" 
                     data-iId="{{ img.id }}"
                     data-tags="{% for t in img.tags %}{% if not forloop.first %},{% endif %}{{t.id}}{% endfor %}"
-                    src="{% url render_thumbnail_resize 96 img.id %}" />
+                    src="{% url 'render_thumbnail_resize' 96 img.id %}" />
                 {% endfor %}
             </td>
         </tr>

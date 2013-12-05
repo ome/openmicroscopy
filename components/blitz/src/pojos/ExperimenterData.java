@@ -1,7 +1,7 @@
 /*
  * pojos.Experimenter
  *
- *   Copyright 2006 University of Dundee. All rights reserved.
+ *   Copyright 2006-2013 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -270,7 +270,7 @@ public class ExperimenterData extends DataObject {
     }
     
     /**
-     * Returns <code>true</code> if the experimenter is active, 
+     * Returns <code>true</code> if the experimenter is active,
      * <code>false</code> otherwise.
      * 
      * @return See above.
@@ -287,7 +287,7 @@ public class ExperimenterData extends DataObject {
 		}
 		return false;
     }
-    
+
     /**
      * Overridden to return the id of the default group.
      * @see DataObject#getGroupId()
@@ -302,7 +302,7 @@ public class ExperimenterData extends DataObject {
      * Checks if supplied group id matches any group to which the current
      * experimenter belongs to.
      * @param long groupId
-     * @return bolean <code>true</code>/<code>false</code> depending if matching
+     * @return boolean <code>true</code>/<code>false</code> depending if matching
      *                id found
      */
     public boolean isMemberOfGroup(long groupId) {

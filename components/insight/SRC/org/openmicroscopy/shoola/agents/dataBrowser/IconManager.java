@@ -2,10 +2,10 @@
  * org.openmicroscopy.shoola.agents.dataBrowser.IconManager 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -41,7 +41,7 @@ import org.openmicroscopy.shoola.env.ui.AbstractIconManager;
  * configuration has been read in (this happens during the initialization
  * procedure).</p>
  *
- * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
+ * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
@@ -51,204 +51,213 @@ import org.openmicroscopy.shoola.env.ui.AbstractIconManager;
  * </small>
  * @since OME3.0
  */
-public class IconManager    
+public class IconManager
 	extends AbstractIconManager
-{ 
-    
+{
+
     /** The <code>Zoom in</code> icon. */
-    public static final int			ZOOM_IN = 0;
+    public static final int ZOOM_IN = 0;
 
     /** The <code>Zoom out</code> icon. */
-    public static final int			ZOOM_OUT = 1;
-    
+    public static final int ZOOM_OUT = 1;
+
     /** The <code>Thumbnail view</code> icon. */
-    public static final int			THUMBNAIL_VIEW = 2;
-    
+    public static final int THUMBNAIL_VIEW = 2;
+
     /** The <code>Column view</code> icon. */
-    public static final int			COLUMN_VIEW = 3;
-    
+    public static final int COLUMN_VIEW = 3;
+
     /** The 48x48 <code>Filtering</code> icon. */
-    public static final int			FILTERING_48 = 4;
-    
+    public static final int FILTERING_48 = 4;
+
     /** The <code>Filtering</code> icon. */
-    public static final int			FILTERING = 5;
-    
+    public static final int FILTERING = 5;
+
     /** The <code>Slide Show View</code> icon. */
-    public static final int			SLIDE_SHOW_VIEW = 6;
-    
+    public static final int SLIDE_SHOW_VIEW = 6;
+
     /** The <code>Metadata</code> icon. */
-    public static final int			METADATA = 7;
-    
+    public static final int METADATA = 7;
+
     /** The <code>Pin</code> icon. */
-    public static final int			PIN = 8;
-    
+    public static final int PIN = 8;
+
     /** The <code>Pause</code> icon. */
-    public static final int			PAUSE = 9;
-    
+    public static final int PAUSE = 9;
+
     /** The <code>Forward</code> icon. */
-    public static final int			FORWARD = 10;
-    
+    public static final int FORWARD = 10;
+
     /** The <code>Backward</code> icon. */
-    public static final int			BACKWARD = 11;
-    
+    public static final int BACKWARD = 11;
+
     /** The <code>Previous</code> icon. */
-    public static final int			PREVIOUS = 12;
-    
+    public static final int PREVIOUS = 12;
+
     /** The <code>Next</code> icon. */
-    public static final int			NEXT = 13;
-    
+    public static final int NEXT = 13;
+
     /** The <code>Image</code> icon. */
-    public static final int			IMAGE = 14;
-    
+    public static final int IMAGE = 14;
+
     /** The <code>Dataset</code> icon. */
-    public static final int			DATASET = 15;
-    
+    public static final int DATASET = 15;
+
     /** The <code>Project</code> icon. */
-    public static final int			PROJECT = 16;
-    
+    public static final int PROJECT = 16;
+
     /** The <code>Annotation</code> icon. */
-    public static final int			ANNOTATION = 17;
-    
+    public static final int ANNOTATION = 17;
+
     /** The <code>Transparent</code> icon. */
-    public static final int			TRANSPARENT = 18;
-    
+    public static final int TRANSPARENT = 18;
+
     /** The <code>Annotation 8</code> icon. */
-    public static final int			ANNOTATION_8 = 19;
-    
+    public static final int ANNOTATION_8 = 19;
+
     /** The <code>Manager</code> icon. */
-    public static final int			MANAGER = 20;
-    
+    public static final int MANAGER = 20;
+
     /** The <code>Roll Over</code> icon. */
-    public static final int			ROLL_OVER = 21;
-    
+    public static final int ROLL_OVER = 21;
+
     /** The <code>Create</code> icon. */
-    public static final int         CREATE = 22;
-    
+    public static final int CREATE = 22;
+
     /** The 48x48 <code>Create</code> icon. */
-    public static final int         CREATE_48 = 23;
-    
+    public static final int CREATE_48 = 23;
+
     /** The <code>Sort by date</code> icon. */
-    public static final int         SORT_BY_DATE = 24;
-    
+    public static final int SORT_BY_DATE = 24;
+
     /** The <code>Sort by name</code> icon. */
-    public static final int         SORT_BY_NAME = 25;
-    
+    public static final int SORT_BY_NAME = 25;
+
     /** The <code>View</code> icon. */
-    public static final int         VIEWER = 26;
-    
+    public static final int VIEWER = 26;
+
     /** The <code>Copy</code> icon. */
-    public static final int         COPY = 27;
-    
+    public static final int COPY = 27;
+
     /** The <code>Paste</code> icon. */
-    public static final int         PASTE = 28;
-    
+    public static final int PASTE = 28;
+
     /** The <code>Remove</code> icon. */
-    public static final int         REMOVE = 29;
-    
+    public static final int REMOVE = 29;
+
     /** The <code>Refresh</code> icon. */
-    public static final int         REFRESH = 30;
-    
+    public static final int REFRESH = 30;
+
     /** The <code>Cut</code> icon. */
-    public static final int         CUT = 31;
-    
+    public static final int CUT = 31;
+
     /** The <code>Undo</code> icon. */
-    public static final int         UNDO = 32;
-    
+    public static final int UNDO = 32;
+
     /** The <code>Tag</code> icon. */
-    public static final int         SET_ORIGINAL_RND_SETTINGS = 33;
-    
+    public static final int SET_ORIGINAL_RND_SETTINGS = 33;
+
     /** The 8x8 <code>Owner</code> icon. */
-    public static final int			OWNER_8 = 34;
-    
+    public static final int OWNER_8 = 34;
+
     /** The <code>Image annotated</code> icon. */
-    public static final int			IMAGE_ANNOTATED = 35;
-    
+    public static final int IMAGE_ANNOTATED = 35;
+
     /** The <code>Save as</code> icon. */
-    public static final int			SAVE_AS = 36;
-    
+    public static final int SAVE_AS = 36;
+
     /** The <code>Report</code> icon. */
-    public static final int			REPORT = 37;
-    
+    public static final int REPORT = 37;
+
     /** The <48x48 code>Report</code> icon. */
-    public static final int			REPORT_48 = 38;
-    
+    public static final int REPORT_48 = 38;
+
     /** The 48x48 <code>Save As</code> icon. */
-    public static final int			SAVE_AS_48 = 39;
-    
+    public static final int SAVE_AS_48 = 39;
+
     /** The <code>Tag</code> icon. */
-    public static final int			TAG = 40;
-    
+    public static final int TAG = 40;
+
     /** The <code>Editor</code> icon. */
-    public static final int			EDITOR = 41;
-    
+    public static final int EDITOR = 41;
+
     /** The 8x8 <code>Edit</code> icon. */
-    public static final int			EDIT_8 = 42;
-    
+    public static final int EDIT_8 = 42;
+
     /** The 48x48 <code>Dataset</code> icon. */
-    public static final int			DATASET_48 = 43;
-    
+    public static final int DATASET_48 = 43;
+
     /** The <code>Field View</code> icon. */
-    public static final int			FIELDS_VIEW = 44;
-    
+    public static final int FIELDS_VIEW = 44;
+
     /** The <code>Rendering Settings redo</code> icon. */
-    public static final int         RND_REDO = 45;
-    
+    public static final int RND_REDO = 45;
+
     /** The <code>Rendering Settings Min-Max</code> icon. */
-    public static final int         RND_MIN_MAX = 46;
-    
+    public static final int RND_MIN_MAX = 46;
+
     /** The <code>Rendering Settings Owner</code> icon. */
-    public static final int         RND_OWNER = 47;
+    public static final int RND_OWNER = 47;
 
     /** The 48x48 <code>filter by tags</code> icon. */
-    public static final int         TAG_FILTER_48 = 48;
-    
+    public static final int TAG_FILTER_48 = 48;
+
     /** The <code>filter by tags</code> icon. */
-    public static final int         TAG_FILTER = 49;
-    
+    public static final int TAG_FILTER = 49;
+
     /** The <code>filter by Menu</code> icon. */
-    public static final int         FILTER_BY_MENU = 50;
-    
+    public static final int FILTER_BY_MENU = 50;
+
     /** The <code>Send comment</code> icon. */
-    public static final int			SEND_COMMENT = 51;
+    public static final int SEND_COMMENT = 51;
 
     /** The <code>Personal</code> icon. */
-    public static final int          PERSONAL = 52;
-    
+    public static final int PERSONAL = 52;
+
     /** The <code>Private Group</code> icon. */
-    public static final int           PRIVATE_GROUP = 53;
-    
+    public static final int PRIVATE_GROUP = 53;
+
     /** The <code>Read Group</code> icon. */
-    public static final int           READ_GROUP = 54;
-    
+    public static final int READ_GROUP = 54;
+
     /** The <code>Read Link Group</code> icon. */
-    public static final int           READ_LINK_GROUP = 55;
-    
+    public static final int READ_LINK_GROUP = 55;
+
     /** The <code>Public Group</code> icon. */
-    public static final int           PUBLIC_GROUP = 56;
-    
+    public static final int PUBLIC_GROUP = 56;
+
     /** The <code>ImageJ Viewer</code> icon. */
-    public static final int          VIEWER_IJ = 57;
-    
+    public static final int VIEWER_IJ = 57;
+
     /** The <code>Read Link Group</code> icon. */
-    public static final int           READ_WRITE_GROUP = 58;
-    
+    public static final int READ_WRITE_GROUP = 58;
+
     /** The <code>KNIME Viewer</code> icon. */
-    public static final int          VIEWER_KNIME = 59;
-    
+    public static final int VIEWER_KNIME = 59;
+
     /** The 8x8 <code>Owner</code> icon. */
-    public static final int			NOT_OWNER_8 = 60;
-    
+    public static final int NOT_OWNER_8 = 60;
+
+    /** The <code>Owner</code> icon. */
+    public static final int OWNER = 61;
+
+    /** The <code>Owner Not Active</code> icon. */
+    public static final int OWNER_NOT_ACTIVE = 62;
+
+    /** The <code>Owner Not Active</code> icon. */
+    public static final int PASSWORD = 63;
+
     /** 
      * The maximum ID used for the icon IDs.
-     * Allows to correctly build arrays for direct indexing. 
+     * Allows to correctly build arrays for direct indexing.
      */
-    private static final int          MAX_ID = 60;
-    
+    private static final int MAX_ID = 63;
+
     /** Paths of the icon files. */
-    private static String[]     relPaths = new String[MAX_ID+1];
-    
+    private static String[] relPaths = new String[MAX_ID+1];
+
     static {
-    	relPaths[ZOOM_IN] = "nuvola_viewmag+16.png";
+        relPaths[ZOOM_IN] = "nuvola_viewmag+16.png";
         relPaths[ZOOM_OUT] = "nuvola_viewmag-16.png";
         relPaths[THUMBNAIL_VIEW] = "nuvola_view_multicolumn16.png";
         relPaths[COLUMN_VIEW] = "nuvola_view_text16.png";
@@ -309,23 +318,26 @@ public class IconManager
         relPaths[VIEWER_IJ] = "imageJ16.png";
         relPaths[VIEWER_KNIME] = "knimeIcon16.png";
         relPaths[NOT_OWNER_8] = "red_dot8.png";
+        relPaths[OWNER] = "nuvola_kdmconfig_modified16.png";
+        relPaths[OWNER_NOT_ACTIVE] = "nuvola_kdmconfig_modified_grey16.png";
+        relPaths[PASSWORD] = "nuvola_download_manager_rotated16.png";
     }
-    
+
     /** The sole instance. */
-    private static IconManager  singleton;
-    
+    private static IconManager singleton;
+
     /**
-     * Returns the <code>IconManager</code> object. 
+     * Returns the <code>IconManager</code> object.
      * 
      * @return See above.
      */
-    public static IconManager getInstance() 
+    public static IconManager getInstance()
     { 
         if (singleton == null) 
             singleton = new IconManager(DataBrowserAgent.getRegistry());
         return singleton; 
     }
-    
+
     /**
      * Creates a new instance and configures the parameters.
      * 
@@ -335,5 +347,5 @@ public class IconManager
     {
         super(registry, "/resources/icons/Factory", relPaths);
     }
-    
+
 }

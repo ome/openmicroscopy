@@ -2,10 +2,10 @@
  * org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -91,16 +91,52 @@ import pojos.ExperimenterData;
  * </small>
  * @since OME3.0
  */
-public interface DataBrowser 
+public interface DataBrowser
 	extends ObservableComponent
 {
 
+    /** Identifies the <code>DatasetsModel</code>. */
+    public static final int DATASETS = 0;
+    
+    /** Identifies the <code>ImagesModel</code>. */
+    public static final int IMAGES = 1;
+    
+    /** Identifies the <code>ProjectsModel</code>. */
+    public static final int PROJECTS = 2;
+    
+    /** Identifies the <code>SearchModel</code>. */
+    public static final int SEARCH = 3;
+    
+    /** Identifies the <code>TagSetsModel</code>. */
+    public static final int TAGSETS = 4;
+    
+    /** Identifies the <code>WellsModel</code>. */
+    public static final int WELLS = 5;
+    
+    /** Identifies the <code>TagsModel</code>. */
+    public static final int TAGS = 6;
+    
+    /** Identifies the <code>PlatesModel</code>. */
+    public static final int PLATES = 7;
+    
+    /** Identifies the <code>GroupModel</code>. */
+    public static final int GROUP = 8;
+    
+    /** Identifies the <code>FSFolderModel</code>. */
+    public static final int FS_FOLDER = 9;
+    
 	/** Indicates to run the application as an <code>ImageJ</code> plugin.*/
-	public static final int		IMAGE_J = LookupNames.IMAGE_J;
+	public static final int IMAGE_J = LookupNames.IMAGE_J;
 	
 	/** Indicates to run the application as an <code>Knime</code> plugin.*/
-	public static final int		KNIME = LookupNames.KNIME;
-	
+	public static final int KNIME = LookupNames.KNIME;
+
+	/** Bound property indicating to activate the user.*/
+	public static final String ACTIVATE_USER_PROPERTY = "activateUser";
+
+	/** Bound property indicating to reset the password of the selected user.*/
+	public static final String RESET_PASSWORD_PROPERTY = "resetUserPassword";
+
 	/** 
 	 * Bound property indicating to launch the editor to create a new 
 	 * experiment. 
@@ -785,5 +821,57 @@ public interface DataBrowser
 	 * @param displayMode The value to set.
 	 */
 	void setDisplayMode(int displayMode);
+
+	/** 
+	 * Returns the type of the model.
+	 * 
+	 * @return See above.
+	 */
+	int getType();
 	
+    /**
+     * Activates the user or de-activates the user.
+     * 
+     * @param exp The experimenter to handle.
+     */
+    void activateUser(ExperimenterData exp);
+
+    /** Indicates to reset the password of the selected user.*/
+    void resetPassword();
+
+    /**
+     * Returns <code>true</code> if the user is a system user e.g. root
+     * <code>false</code> otherwise.
+     *
+     * @param userID The identifier of the user.
+     * @return See above.
+     */
+    boolean isSystemUser(long userID);
+
+    /**
+     * Returns <code>true</code> if the user is a system user e.g. root
+     * <code>false</code> otherwise.
+     *
+     * @param userID The identifier of the user.
+     * @param key One of the constants defined by <code>GroupData</code>.
+     * @return See above.
+     */
+    boolean isSystemUser(long userID, String key);
+
+    /**
+     * Returns <code>true</code> if the group is a system group,
+     * <code>false</code> otherwise.
+     *
+     * @param groupID The identifier of the group.
+     * @param key One of the constants defined by <code>GroupData</code>.
+     * @return See above.
+     */
+    boolean isSystemGroup(long groupID, String key);
+
+    /**
+     * Returns the user currently logged in.
+     * 
+     * @return See above.
+     */
+    ExperimenterData getCurrentUser();
 }

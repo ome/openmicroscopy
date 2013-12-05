@@ -368,4 +368,20 @@ public interface Importer
      */
     boolean canImportAs();
 
+    /**
+     * Returns the groups the current user is a member of.
+     * 
+     * @return See above.
+     */
+    Collection<GroupData> getAvailableGroups();
+
+    /**
+     * Returns <code>true</code> if the group is a system group,
+     * <code>false</code> otherwise.
+     *
+     * @param groupID The identifier of the group.
+     * @param key One of the constants defined by GroupData.
+     * @return See above.
+     */
+    boolean isSystemGroup(long groupID, String key);
 }

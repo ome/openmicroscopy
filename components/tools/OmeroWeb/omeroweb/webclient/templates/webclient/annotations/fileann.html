@@ -32,7 +32,7 @@
 
 {% if fileann.getFileName %}
 <li class="file_ann_wrapper" id="file_ann-{{ fileann.id }}">
-    <a class='tooltip' href="{% url download_annotation fileann.id %}">
+    <a class='tooltip' href="{% url 'download_annotation' fileann.id %}">
         {{ fileann.getFileName|shortening:40 }}
 		<span>{% if fileann.getFileSize %}({{ fileann.getFileSize|default:0|filesizeformat }}){% endif %}</span>
     </a>
@@ -58,6 +58,7 @@
     </span>
     {% else %}
         <span class="tooltip_html" style='display:none'>
+            <b>Annotation ID:</b> {{ fileann.id }}<br />
             <b>Owner:</b> {{ fileann.getOwner.getFullName }}<br />
             <b>Linked by:</b> {{ fileann.link.getDetails.getOwner.getFullName }}<br />
             <b>On:</b> {{ fileann.link.creationEventDate|date:"Y-m-d H:i:s" }}<br />
@@ -65,26 +66,29 @@
             {% if fileann.getNs %}
                 <br/><b>Namespace:</b> {{ fileann.getNs }}
             {% endif %}
+            {% if fileann.file %}
+                <br/><b>File ID:</b> {{ fileann.file.id.val }}
+            {% endif %}
         </span>
     {% endif %}
 	
 	<div class="attachment_actions">
 	    {% if can_remove and not fileann.isOriginalMetadata %}
 	        <a class='removeFile action' id="{{ fileann.id }}-file" title="Remove File"
-	        href='{% url manage_action_containers "remove" %}file/{{ fileann.id }}/'>-</a>
+	        href='{% url 'manage_action_containers' "remove" %}file/{{ fileann.id }}/'>-</a>
 	    {% endif %}
 	
 	    {% if fileann.canDelete and not fileann.isOriginalMetadata %}
 	        <a id="{{ fileann.id }}-file" type="image" class="deleteFile action" title="Delete File"
-	            href="{% url manage_action_containers 'delete' %}file/{{ fileann.id }}/"> &#215 </a>
+	            href="{% url 'manage_action_containers' 'delete' %}file/{{ fileann.id }}/"> &#215 </a>
 	    {% endif %}
 	
 	    <!-- if we have 'volume' data attached - link for viewing in Open-Astex Viewer -->
 	    {% ifequal fileann.getFileName|slice:"-3:" 'map' %}
-	        <a href="#" onclick="return OME.openPopup('{% url open_astex_viewer 'file' fileann.id %}')">Volume viewer</a>
+	        <a href="#" onclick="return OME.openPopup('{% url 'open_astex_viewer' 'file' fileann.id %}')">Volume viewer</a>
 	    {% endifequal %}
 	    {% ifequal fileann.getFileName|slice:"-3:" 'bit' %}
-	        <a href="#" onclick="return OME.openPopup('{% url open_astex_viewer 'file' fileann.id %}')">Volume viewer</a>
+	        <a href="#" onclick="return OME.openPopup('{% url 'open_astex_viewer' 'file' fileann.id %}')">Volume viewer</a>
 	    {% endifequal %}
 	</div>
 </li>

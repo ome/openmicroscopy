@@ -554,9 +554,8 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 		    groupId = model.getSelectedGroup().getGroupId();
 		if (groupId < 0) groupId = ImporterAgent.getUserDetails().getGroupId();
 		
-		locationDialog = new LocationDialog(owner, selectedContainer, type, 
-				objects, ImporterAgent.getAvailableUserGroups(), groupId,
-				model.getImportFor());
+		locationDialog = new LocationDialog(owner, selectedContainer, type,
+				objects, model, groupId);
 		locationDialog.addPropertyChangeListener(this);
 		
 		tagSelectionListener = new ActionListener() {
@@ -608,6 +607,8 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 		partialName.setSelected(true);
 		group.add(partialName);
 
+		table = new FileSelectionTable(this);
+		table.addPropertyChangeListener(this);
 		chooser = new GenericFileChooser();
 		JList list = (JList) UIUtilities.findComponent(chooser, JList.class);
 		KeyAdapter ka = new KeyAdapter() {
@@ -677,8 +678,7 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 			chooser.setAcceptAllFileFilterUsed(true);
 		}
 		
-		table = new FileSelectionTable(this);
-		table.addPropertyChangeListener(this);
+
 		closeButton = new JButton(TEXT_CLOSE);
 		closeButton.setToolTipText(TOOLTIP_CLOSE);
 		closeButton.setActionCommand("" + CMD_CLOSE);

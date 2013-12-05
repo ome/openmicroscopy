@@ -3,7 +3,7 @@
 # 
 # 
 # 
-# Copyright (c) 2008 University of Dundee. 
+# Copyright (c) 2008-2013 University of Dundee. 
 # 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -18,7 +18,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 # 
-# Author: Aleksandra Tarkowska <A(dot)Tarkowska(at)dundee(dot)ac(dot)uk>, 2008.
+# Author: Aleksandra Tarkowska <A(dot)Tarkowska(at)dundee(dot)ac(dot)uk>, 2008-2013.
 # 
 # Version: 1.0
 #
@@ -45,7 +45,7 @@ from omero_version import omero_version
 
 from django.conf import settings
 from django.contrib.sessions.backends.cache import SessionStore
-from django.core import template_loader
+from django.template import loader as template_loader
 from django.core.cache import cache
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpRequest, HttpResponseRedirect, Http404
@@ -432,10 +432,14 @@ def manage_experimenter(request, action, eid=None, conn=None, **kwargs):
                                 'administrator': experimenter.isAdmin(), 'active': experimenter.isActive(), 
                                 'default_group': defaultGroupId, 'other_groups':[g.id for g in otherGroups],
                                 'groups':otherGroupsInitialList(groups)}
-        experimenter_is_me = (conn.getEventContext().userId == long(eid))
-        form = ExperimenterForm(experimenter_is_me=experimenter_is_me, initial=initial)
+        system_users = [conn.getAdminService().getSecurityRoles().rootId,
+                        conn.getAdminService().getSecurityRoles().guestId]
+        experimenter_is_me_or_system = (conn.getEventContext().userId == long(eid)) or (long(eid) in system_users)
+        form = ExperimenterForm(experimenter_is_me_or_system=experimenter_is_me_or_system, initial=initial)
         password_form = ChangePassword()
-        context = {'form':form, 'eid': eid, 'ldapAuth': isLdapUser, 'password_form':password_form}
+        
+        admin_groups = experimenter_is_me_or_system and [conn.getAdminService().getSecurityRoles().systemGroupId] or list()
+        context = {'form':form, 'eid': eid, 'ldapAuth': isLdapUser, 'password_form':password_form, 'admin_groups': admin_groups}
     elif action == 'save':
         experimenter, defaultGroup, otherGroups, isLdapUser, hasAvatar = prepare_experimenter(conn, eid)
         if request.method != 'POST':
@@ -444,7 +448,6 @@ def manage_experimenter(request, action, eid=None, conn=None, **kwargs):
             name_check = conn.checkOmeName(request.REQUEST.get('omename'), experimenter.omeName)
             email_check = conn.checkEmail(request.REQUEST.get('email'), experimenter.email)
             initial={'active':True, 'groups':otherGroupsInitialList(groups)}
-            
             form = ExperimenterForm(initial=initial, data=request.POST.copy(), name_check=name_check, email_check=email_check)
             
             if form.is_valid():
@@ -579,11 +582,18 @@ def manage_group(request, action, gid=None, conn=None, **kwargs):
         memberIds = [m.id for m in group.getMembers()]
         
         permissions = getActualPermissions(group)
+        system_groups = [conn.getAdminService().getSecurityRoles().systemGroupId,
+                         conn.getAdminService().getSecurityRoles().userGroupId,
+                         conn.getAdminService().getSecurityRoles().guestGroupId]
+        group_is_current_or_system = (conn.getEventContext().groupId == long(gid)) or (long(gid) in system_groups)
         form = GroupForm(initial={'name': group.name, 'description':group.description,
                                      'permissions': permissions, 
-                                     'owners': ownerIds, 'members':memberIds, 'experimenters':experimenters})
-        
-        context = {'form':form, 'gid': gid, 'permissions': permissions}
+                                     'owners': ownerIds, 'members':memberIds, 'experimenters':experimenters},
+                                     group_is_current_or_system=group_is_current_or_system)
+        admins = [conn.getAdminService().getSecurityRoles().systemGroupId]
+        if long(gid) in system_groups and conn.isAdmin:
+            admins.append(conn.getUserId())
+        context = {'form':form, 'gid': gid, 'permissions': permissions, "admins": admins}
     elif action == 'save':
         group = conn.getObject("ExperimenterGroup", gid)
         

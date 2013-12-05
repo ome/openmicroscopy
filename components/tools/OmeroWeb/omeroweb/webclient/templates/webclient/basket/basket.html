@@ -63,7 +63,7 @@
 
                 $.ajax({
                     type: "POST",
-                    url: '{% url basket_action "update" %}', //this.href,
+                    url: '{% url 'basket_action' "update" %}', //this.href,
                     data: productListQuery,
                     contentType:'html',
                     cache:false,
@@ -71,7 +71,7 @@
                         if(responce.match(/(Error: ([A-z]+))/gi)) {
                             alert(responce)
                         } else {
-                            window.location = '{% url basket_action %}';
+                            window.location = '{% url 'basket_action' %}';
                         }
                     }
                 });
@@ -99,7 +99,7 @@
         }
         
         OME.makeDiscussion = function() {
-            var src = '{% url basket_action action="todiscuss" %}';
+            var src = '{% url 'basket_action' action="todiscuss" %}';
             $("#create_discussion_form").dialog("open");
             $("#create_discussion_form").load(src);
             return false;
@@ -116,7 +116,7 @@
                 success: function(html) {
                     if (html == "success") {
                         $("#create_discussion_form").dialog( "close" );
-                        document.location.href = "{% url load_template 'public' %}";
+                        document.location.href = "{% url 'load_template' 'public' %}";
                     } else {
                         $("#create_discussion_form").html(html);
                     }
@@ -144,7 +144,7 @@
                 success: function(html) {
                     if (html == "success") {
                         $("#create_share_form").dialog( "close" );
-                        document.location.href = "{% url load_template 'public' %}";
+                        document.location.href = "{% url 'load_template' 'public' %}";
                     } else {
                         $("#create_share_form").html(html);
                     }
@@ -225,7 +225,7 @@
 		
 			    <ul class="toolbar">
 			        <li>
-						<input id="refreshButton" alt="Refresh" class="button" type="image" src="{% static "webclient/image/icon_toolbar_refresh2.png" %}" title="Refresh" onclick="document.location.href='{% url basket_action %}';">
+						<input id="refreshButton" alt="Refresh" class="button" type="image" src="{% static "webclient/image/icon_toolbar_refresh2.png" %}" title="Refresh" onclick="document.location.href='{% url 'basket_action' %}';">
 					</li>
 					
 					<li class="seperator2"></li>
@@ -235,7 +235,7 @@
 					</li>
 				
 					<li>
-						<input disabled="true" class="toggleEnabled button" type="image"  title="Create a 'Share' with the selected images" src="{% static "webclient/image/icon_toolbar_share2.png" %}" onclick="OME.makeShare('{% url basket_action 'toshare' %}');">
+						<input disabled="true" class="toggleEnabled button" type="image"  title="Create a 'Share' with the selected images" src="{% static "webclient/image/icon_toolbar_share2.png" %}" onclick="OME.makeShare('{% url 'basket_action' 'toshare' %}');">
 					</li>
 					
 					
@@ -246,7 +246,7 @@
 					 </li>
 					 
 					 <li>
-					    <input type="image" class="button" src="{% static "webclient/image/icon_toolbar_clean2.png" %}" alt="Remove All" title="Remove All" onclick="document.location.href='{% url empty_basket %}';">
+					    <input type="image" class="button" src="{% static "webclient/image/icon_toolbar_clean2.png" %}" alt="Remove All" title="Remove All" onclick="document.location.href='{% url 'empty_basket' %}';">
 					</li>
 					
 			        
@@ -270,8 +270,8 @@
 	                {% for c in basket.imageInBasket %}
 	                    <tr id="image-{{ c.id }}">
 	                        <td class="image">
-	                            <img src="{% url render_thumbnail_resize 32 c.id  %}" id="{{ c.id }}" alt="image" alt="image" title="{{ c.name }}, owned by {{ c.getOwner.getNameWithInitial }}"/>
-	                            <!--<img src="{% url render_thumbnail_resize 32 c.id  %}" alt="image" title="{{ c.name }}"/>-->
+	                            <img src="{% url 'render_thumbnail_resize' 32 c.id  %}" id="{{ c.id }}" alt="image" alt="image" title="{{ c.name }}, owned by {{ c.getOwner.getNameWithInitial }}"/>
+	                            <!--<img src="{% url 'render_thumbnail_resize' 32 c.id  %}" alt="image" title="{{ c.name }}"/>-->
 	                            <input type="checkbox" name="image" id="{{ c.id }}" class="hide">
 	                        </td>
 	                        <td class="desc">{{ c.name|truncatebefor:"65" }} {% if c.annotation_counter %}<img src="{% static "webgateway/img/knotes16.png" %}" alt="a" title="annotation"/>{% endif %}{% if not c.isOwned %} <img src="{% static "webclient/image/kgpg12.png" %}" alt="l" title="locked"/>{% endif %}</td>
@@ -297,11 +297,11 @@
 </div>
 
 <!-- hidden form for creating share - shown in dialog & loaded by AJAX -->
-<form id="create_share_form" action="{% url basket_action 'createshare' %}" method="post" title="Create Share" class="standard_form">
+<form id="create_share_form" action="{% url 'basket_action' 'createshare' %}" method="post" title="Create Share" class="standard_form">
 </form>
 
 <!-- hidden form for creating discussion - shown in dialog & loaded by AJAX -->
-<form id="create_discussion_form" action="{% url basket_action "createdisc" %}" method="post" title="Create Discussion" class="standard_form">
+<form id="create_discussion_form" action="{% url 'basket_action' "createdisc" %}" method="post" title="Create Discussion" class="standard_form">
 </form>
     
 {% endblock %}

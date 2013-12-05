@@ -97,7 +97,7 @@
     <script type="text/javascript">
 
         $(document).ready(function() {
-            OME.setupAjaxError("{% url fsend %}");      // just in case!
+            OME.setupAjaxError("{% url 'fsend' %}");      // just in case!
 
             $('#script_form').ajaxForm({
                 beforeSubmit: function() {
@@ -182,7 +182,7 @@
 
 
 {% block body %}
-    <form id='script_form' method="post" action="{% url script_run paramData.id %}">
+    <form id='script_form' method="post" action="{% url 'script_run' paramData.id %}">
         <div style="padding:10px; margin-bottom:40px">
             <h3 id="scriptName">{{ paramData.name }}</h3>
             <div id='script_desc'>{{ paramData.description|linebreaks }}
@@ -213,7 +213,7 @@
                 <a href="#" onClick="self.close()">Cancel</a>
                 <input id="submit" type="submit" value="Run Script" />
             </div>
-            <a href="#" onClick="return OME.openPopup('{% url get_original_file scriptId %}');">View Script</a>
+            <a href="#" onClick="return OME.openPopup('{% url 'get_original_file' scriptId %}');">View Script</a>
         </div>
     </form>
 {% endblock %}

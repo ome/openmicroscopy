@@ -35,7 +35,7 @@ import traceback
 import logging
 
 from django.conf import settings
-from django.core import template_loader
+from django.template import loader as template_loader
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponseServerError, HttpResponseNotFound
 from django.shortcuts import render_to_response
 from django.template import RequestContext, Context
@@ -47,6 +47,14 @@ from omeroweb.feedback.sendfeedback import SendFeedback
 from omeroweb.feedback.forms import ErrorForm, CommentForm
 
 logger = logging.getLogger(__name__)
+
+def get_user_agent(request):
+    user_agent = ""
+    try:
+        user_agent = request.META['HTTP_USER_AGENT']
+    except:
+        pass
+    return user_agent
 
 ###############################################################################
 def thanks(request):
@@ -64,12 +72,12 @@ def send_feedback(request):
         if request.REQUEST.get('email', None) is not None and request.REQUEST['email'] != "":
             email = request.REQUEST['email']
         try:
-            sf = SendFeedback()
-            sf.give_feedback(error, comment, email)
-        except:
+            sf = SendFeedback(settings.FEEDBACK_URL)
+            sf.send_feedback(error=error, comment=comment, email=email, user_agent=get_user_agent(request))
+        except Exception, e:
             logger.error('handler500: Feedback could not be sent')
             logger.error(traceback.format_exc())
-            error = "Feedback could not been sent. Please contact administrator."
+            error = "Feedback could not been sent. Please contact administrator. %s" % e
             fileObj = open(("%s/error500-%s.html" % (settings.LOGDIR, datetime.datetime.now())),"w")
             try:
                 try:
@@ -79,11 +87,11 @@ def send_feedback(request):
                     logger.error(traceback.format_exc())
             finally:
                 fileObj.close()
-
-        if request.is_ajax():
-            return HttpResponse("<h1>Thanks for your feedback</h1><p>You may need to refresh your browser to recover from the error</p>");
-        return HttpResponseRedirect(reverse("fthanks"))
-        
+        else:
+            if request.is_ajax():
+                return HttpResponse("<h1>Thanks for your feedback</h1><p>You may need to refresh your browser to recover from the error</p>");
+            return HttpResponseRedirect(reverse("fthanks"))
+    
     context = {'form':form, 'error':error}
     t = template_loader.get_template('500.html') 
     c = RequestContext(request, context)
@@ -91,7 +99,7 @@ def send_feedback(request):
 
 def send_comment(request):
     error = None
-    form = CommentForm()    
+    form = CommentForm()
     
     if request.method == "POST":
         form = CommentForm(data=request.REQUEST.copy())
@@ -101,8 +109,8 @@ def send_comment(request):
             if request.REQUEST['email'] is not None or request.REQUEST['email'] != "":
                 email = request.REQUEST['email']
             try:
-                sf = SendFeedback()
-                sf.give_comment(comment, email)
+                sf = SendFeedback(settings.FEEDBACK_URL)
+                sf.send_feedback(comment=comment, email=email, user_agent=get_user_agent(request))
             except:
                 logger.error('handler500: Feedback could not be sent')
                 logger.error(traceback.format_exc())
