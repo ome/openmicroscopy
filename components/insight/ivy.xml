@@ -45,7 +45,7 @@
     <dependency org="insight" name="ehcache-core" rev="${versions.ehcache}"/>
     <dependency org="insight" name="gicentreUtils" rev="${versions.gicentreUtils}"/>
     <dependency org="insight" name="gluegen-rt" rev="${versions.jogl}"/>
-    <dependency org="insight" name="guava-jdk5" rev="${versions.guava}"/>
+    <dependency org="com.google.guava" name="guava-jdk5" rev="${versions.guava}"/>
     <dependency org="insight" name="ij" rev="${versions.ij}"/>
     <dependency org="insight" name="jaxrpc" rev="${versions.jaxrpc}"/>
     <dependency org="insight" name="jcommon" rev="${versions.jcommon}"/>
