@@ -32,13 +32,13 @@
     <dependency org="org.perf4j" name="perf4j" rev="${versions.perf4j}"/>
     <!-- Gui -->
     <dependency org="gui" name="TableLayout" rev="${versions.tablelayout}"/>
-    <dependency org="gui" name="swingx" rev="${versions.swingx}"/>
+    <dependency org="org.swinglabs" name="swingx" rev="${versions.swingx}"/>
     <dependency org="gui" name="omero-clients-util" rev="${versions.clients-util}"/>
-    <dependency org="gui" name="ini4j" rev="0.3.2"/>
-    <dependency org="gui" name="java-getopt" rev="1.0.13"/>
-    <dependency org="gui" name="commons-httpclient" rev="${versions.commons-httpclient}"/>
-    <dependency org="gui" name="commons-codec" rev="${versions.commons-codec}"/>
-    <dependency org="gui" name="commons-io" rev="${versions.commons-io}"/>
+    <dependency org="org.ini4j" name="ini4j" rev="0.3.2"/>
+    <dependency org="gnu.getopt" name="java-getopt" rev="1.0.13"/>
+    <dependency org="commons-httpclient" name="commons-httpclient" rev="${versions.commons-httpclient}"/>
+    <dependency org="commons-codec" name="commons-codec" rev="${versions.commons-codec}"/>
+    <dependency org="commons-io" name="commons-io" rev="${versions.commons-io}"/>
     <dependency org="gui" name="gtkjfilechooser" rev="${versions.gtkjfilechooser}"/>
   </dependencies>
 </ivy-module>
