@@ -1756,13 +1756,13 @@ class DataBrowserComponent
 	}
 	
 	/** 
-	 * Implemented as specified by the {@link ImViewer} interface.
+	 * Implemented as specified by the {@link DataBrowser} interface.
 	 * @see DataBrowser#getDisplayMode()
 	 */
 	public int getDisplayMode() { return model.getDisplayMode(); }
 
 	/** 
-	 * Implemented as specified by the {@link ImViewer} interface.
+	 * Implemented as specified by the {@link DataBrowser} interface.
 	 * @see DataBrowser#setDisplayMode(int)
 	 */
 	public void setDisplayMode(int displayMode)
@@ -1770,10 +1770,71 @@ class DataBrowserComponent
 		model.setDisplayMode(displayMode);
 	}
 	
-	/** 
-	 * Overridden to return the name of the instance to save. 
-	 * @see #toString()
-	 */
-	public String toString() { return ""+model.getType(); }
+    /** 
+     * Implemented as specified by the {@link DataBrowser} interface.
+     * @see DataBrowser#getType()
+     */
+    public int getType() { return model.getType(); }
+
+    /** 
+     * Implemented as specified by the {@link DataBrowser} interface.
+     * @see DataBrowser#getType()
+     */
+    public void activateUser(ExperimenterData exp)
+    {
+        firePropertyChange(ACTIVATE_USER_PROPERTY, null, exp);
+    }
+
+    /** 
+     * Implemented as specified by the {@link DataBrowser} interface.
+     * @see DataBrowser#isSystemUser(long)
+     */
+    public boolean isSystemUser(long userID)
+    {
+        return model.isSystemUser(userID);
+    }
+
+    /** 
+     * Implemented as specified by the {@link DataBrowser} interface.
+     * @see DataBrowser#isSystemUser(long, String)
+     */
+    public boolean isSystemUser(long userID, String key)
+    {
+        return model.isSystemUser(userID, key);
+    }
+
+    /** 
+     * Implemented as specified by the {@link DataBrowser} interface.
+     * @see DataBrowser#isSystemGroup(long, String)
+     */
+    public boolean isSystemGroup(long groupID, String key)
+    {
+        return model.isSystemGroup(groupID, key);
+    }
+
+    /** 
+     * Implemented as specified by the {@link DataBrowser} interface.
+     * @see DataBrowser#resetPassword()
+     */
+    public void resetPassword()
+    {
+        firePropertyChange(RESET_PASSWORD_PROPERTY, Boolean.FALSE,
+                Boolean.TRUE);
+    }
+
+    /** 
+     * Implemented as specified by the {@link DataBrowser} interface.
+     * @see DataBrowser#getCurrentUser()
+     */
+    public ExperimenterData getCurrentUser()
+    {
+        return model.getCurrentUser();
+    }
+
+    /** 
+     * Overridden to return the name of the instance to save. 
+     * @see #toString()
+     */
+    public String toString() { return ""+model.getType(); }
 
 }

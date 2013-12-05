@@ -855,7 +855,7 @@ class ImporterComponent
 	}
 	
 	/** 
-	 * Implemented as specified by the {@link TreeViewer} interface.
+	 * Implemented as specified by the {@link Importer} interface.
 	 * @see Importer#setImportResult(Object, Object)
 	 */
 	public void setImportResult(Object result, Object component)
@@ -868,15 +868,32 @@ class ImporterComponent
 	}
 
     /** 
-     * Implemented as specified by the {@link TreeViewer} interface.
+     * Implemented as specified by the {@link Importer} interface.
      * @see Importer#getImportFor()
      */
     public long getImportFor() { return model.getImportFor(); }
 
     /** 
-     * Implemented as specified by the {@link TreeViewer} interface.
+     * Implemented as specified by the {@link Importer} interface.
      * @see Importer#canImportAs()
      */
     public boolean canImportAs() { return model.canImportAs(); }
 
+    /** 
+     * Implemented as specified by the {@link Importer} interface.
+     * @see Importer#getAvailableGroups()
+     */
+    public Collection<GroupData> getAvailableGroups()
+    {
+        return model.getAvailableGroups();
+    }
+
+    /** 
+     * Implemented as specified by the {@link Importer} interface.
+     * @see Importer#isSystemGroup(long, String)
+     */
+    public boolean isSystemGroup(long groupID, String key)
+    {
+        return model.isSystemGroup(groupID, key);
+    }
 }

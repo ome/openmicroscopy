@@ -47,7 +47,6 @@ import javax.swing.JFrame;
 
 //Application-internal dependencies
 import omero.client;
-
 import org.openmicroscopy.shoola.env.Agent;
 import org.openmicroscopy.shoola.env.Container;
 import org.openmicroscopy.shoola.env.Environment;
@@ -619,21 +618,25 @@ public class DataServicesFactory
         	SecurityContext ctx = new SecurityContext(
         			exp.getDefaultGroup().getId());
         	groups = omeroGateway.getAvailableGroups(ctx, exp);
+        	registry.bind(LookupNames.SYSTEM_ROLES,
+                    omeroGateway.getSystemRoles(ctx));
         	//Check if the current experimenter is an administrator 
         	Iterator<GroupData> i = groups.iterator();
         	GroupData g;
         	available = new HashSet<GroupData>();
         	while (i.hasNext()) {
         		g = i.next();
-        		if (!omeroGateway.isSystemGroup(g.asGroup())) {
+        		if (!admin.isSecuritySystemGroup(g.getId())) {
         			available.add(g);
         		} else {
-        			if (GroupData.SYSTEM.equals(g.getName())) {
+        			if (admin.isSecuritySystemGroup(g.getId(),
+        			        GroupData.SYSTEM)) {
         				available.add(g);
         				uc.setAdministrator(true);
         			}
         		}
         	}
+        	
         	registry.bind(LookupNames.USER_GROUP_DETAILS, available);
         	List<Long> ids = new ArrayList<Long>();
         	i = available.iterator();

@@ -1,11 +1,11 @@
 /*
- * org.openmicroscopy.shoola.env.data.AdminServiceImpl 
+ * org.openmicroscopy.shoola.env.data.AdminServiceImpl
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -37,10 +37,12 @@ import java.util.Set;
 import java.util.Map.Entry;
 
 //Third-party libraries
+import org.apache.commons.collections.CollectionUtils;
 
 //Application-internal dependencies
 import omero.model.Experimenter;
 import omero.model.ExperimenterGroup;
+import omero.sys.Roles;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.AgentInfo;
 import org.openmicroscopy.shoola.env.config.Registry;
@@ -62,9 +64,6 @@ import pojos.GroupData;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since 3.0-Beta4
  */
 class AdminServiceImpl
@@ -275,7 +274,8 @@ class AdminServiceImpl
 		Map<ExperimenterData, UserCredentials> m = object.getExperimenters();
 		if (m == null || m.size() == 0)
 			throw new IllegalArgumentException("No experimenters to create.");
-		return gateway.createExperimenters(ctx, object);
+		Roles roles = (Roles) context.lookup(LookupNames.SYSTEM_ROLES);
+		return gateway.createExperimenters(ctx, object, roles);
 	}
 
 	/**
@@ -305,7 +305,8 @@ class AdminServiceImpl
 			throw new IllegalArgumentException("No object.");
 		if (object.getGroup() == null)
 			throw new IllegalArgumentException("No group.");
-		return gateway.createGroup(ctx, object);
+		Roles roles = (Roles) context.lookup(LookupNames.SYSTEM_ROLES);
+		return gateway.createGroup(ctx, object, roles);
 	}
 
 	/**
@@ -348,7 +349,7 @@ class AdminServiceImpl
 			List<ExperimenterData> experimenters)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		if (experimenters == null || experimenters.size() == 0)
+		if (CollectionUtils.isEmpty(experimenters))
 			throw new IllegalArgumentException("No experimenters to delete.");
 		return gateway.deleteExperimenters(ctx, experimenters);
 	}
@@ -361,7 +362,7 @@ class AdminServiceImpl
 			List<GroupData> groups)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		if (groups == null || groups.size() == 0)
+	    if (CollectionUtils.isEmpty(groups))
 			throw new IllegalArgumentException("No groups to delete.");
 		return gateway.deleteGroups(ctx, groups);
 	}
@@ -418,7 +419,7 @@ class AdminServiceImpl
 	{
 		if (group == null)
 			throw new IllegalArgumentException("No group specified.");
-		if (experimenters == null || experimenters.size() == 0) 
+		if (CollectionUtils.isEmpty(experimenters))
 			return new ArrayList<ExperimenterData>();
 		return gateway.copyExperimenters(ctx, group, experimenters);
 	}
@@ -467,7 +468,7 @@ class AdminServiceImpl
 			List<Long> ids)
 			throws DSOutOfServiceException, DSAccessException
 	{
-		if (ids == null || ids.size() == 0)
+		if (CollectionUtils.isEmpty(ids))
 			return new HashMap<Long, Long>();
 		return gateway.countExperimenters(ctx, ids);
 	}
@@ -504,8 +505,6 @@ class AdminServiceImpl
 			entry = (Entry) i.next();
 			exp = (ExperimenterData) entry.getKey();
 			uc = (UserCredentials) entry.getValue();
-			//exp.asExperimenter().setOmeName(
-			//		omero.rtypes.rstring(uc.getUserName()));
 			try {
 				updateExperimenter(ctx, exp, group, true);
 				//b = uc.isOwner();
@@ -664,12 +663,13 @@ class AdminServiceImpl
 		Iterator<GroupData> i = groups.iterator();
 		GroupData g;
 		available = new HashSet<GroupData>();
+		Roles roles = (Roles) context.lookup(LookupNames.SYSTEM_ROLES);
 		while (i.hasNext()) {
 			g = i.next();
-			if (!gateway.isSystemGroup(g.asGroup())) {
+			if (!isSecuritySystemGroup(g.getId())) {
 				available.add(g);
 			} else {
-				if (GroupData.SYSTEM.equals(g.getName()))
+				if (g.getId() == roles.systemGroupId)
 					uc.setAdministrator(true);
 			}
 		}
@@ -790,4 +790,61 @@ class AdminServiceImpl
 				LookupNames.USER_GROUP_DETAILS);
 	}
 
+    /**
+     * Implemented as specified by {@link AdminService}.
+     * @see AdminService#isSecuritySystemGroup(long)
+     */
+    public boolean isSecuritySystemGroup(long groupID)
+    {
+        Roles roles = (Roles) context.lookup(LookupNames.SYSTEM_ROLES);
+        if (roles == null) return false;
+        return (roles.guestGroupId == groupID ||
+                roles.systemGroupId == groupID ||
+                roles.userGroupId == groupID);
+    }
+
+    /**
+     * Implemented as specified by {@link AdminService}.
+     * @see AdminService#isSecuritySystemGroup(long, String)
+     */
+    public boolean isSecuritySystemGroup(long groupID, String key)
+    {
+        Roles roles = (Roles) context.lookup(LookupNames.SYSTEM_ROLES);
+        if (roles == null) return false;
+        if (GroupData.USER.equals(key)) {
+            return roles.userGroupId == groupID;
+        } else if (GroupData.SYSTEM.equals(key)) {
+            return roles.systemGroupId == groupID;
+        } else if (GroupData.GUEST.equals(key)) {
+            return roles.guestGroupId == groupID;
+        }
+        throw new IllegalArgumentException("Key not valid.");
+    }
+
+    /**
+     * Implemented as specified by {@link AdminService}.
+     * @see AdminService#isSystemUser(long)
+     */
+    public boolean isSystemUser(long userID)
+    {
+        Roles roles = (Roles) context.lookup(LookupNames.SYSTEM_ROLES);
+        if (roles == null) return false;
+        return (roles.rootId == userID || roles.guestId == userID);
+    }
+
+    /**
+     * Implemented as specified by {@link AdminService}.
+     * @see AdminService#isSystemUser(long, String)
+     */
+    public boolean isSystemUser(long userID, String key)
+    {
+        Roles roles = (Roles) context.lookup(LookupNames.SYSTEM_ROLES);
+        if (roles == null) return false;
+        if (GroupData.SYSTEM.equals(key)) {
+            return roles.rootId == userID;
+        } else if (GroupData.GUEST.equals(key)) {
+            return roles.guestId == userID;
+        }
+        throw new IllegalArgumentException("Key not valid.");
+    }
 }

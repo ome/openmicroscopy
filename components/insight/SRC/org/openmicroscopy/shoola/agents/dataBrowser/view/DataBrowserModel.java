@@ -5,7 +5,7 @@
  *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -58,7 +58,6 @@ import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.dataBrowser.layout.Layout;
 import org.openmicroscopy.shoola.agents.dataBrowser.layout.LayoutFactory;
 import org.openmicroscopy.shoola.agents.dataBrowser.visitor.ResetThumbnailVisitor;
-import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.env.LookupNames;
@@ -105,34 +104,34 @@ abstract class DataBrowserModel
 	static final int MAX_LOADER = 4;
 	
 	/** Identifies the <code>DatasetsModel</code>. */
-	static final int	DATASETS = 0;
+	static final int DATASETS = DataBrowser.DATASETS;
 	
 	/** Identifies the <code>ImagesModel</code>. */
-	static final int	IMAGES = 1;
+	static final int IMAGES = DataBrowser.IMAGES;
 	
 	/** Identifies the <code>ProjectsModel</code>. */
-	static final int	PROJECTS = 2;
+	static final int PROJECTS = DataBrowser.PROJECTS;
 	
 	/** Identifies the <code>SearchModel</code>. */
-	static final int	SEARCH = 3;
+	static final int SEARCH = DataBrowser.SEARCH;
 	
 	/** Identifies the <code>TagSetsModel</code>. */
-	static final int	TAGSETS = 4;
+	static final int TAGSETS = DataBrowser.TAGSETS;
 	
 	/** Identifies the <code>WellsModel</code>. */
-	static final int	WELLS = 5;
+	static final int WELLS = DataBrowser.WELLS;
 	
 	/** Identifies the <code>TagsModel</code>. */
-	static final int	TAGS = 6;
+	static final int TAGS = DataBrowser.TAGS;
 	
 	/** Identifies the <code>PlatesModel</code>. */
-	static final int	PLATES = 7;
+	static final int PLATES = DataBrowser.PLATES;
 	
 	/** Identifies the <code>GroupModel</code>. */
-	static final int	GROUP = 8;
+	static final int GROUP = DataBrowser.GROUP;
 	
 	/** Identifies the <code>FSFolderModel</code>. */
-	static final int	FS_FOLDER = 9;
+	static final int FS_FOLDER = DataBrowser.FS_FOLDER;
 	
 	/** Holds one of the state flags defined by {@link DataBrowser}. */
     protected int state;
@@ -225,7 +224,7 @@ abstract class DataBrowserModel
 		if (group == null) return false;
 		if (GroupData.PERMISSIONS_GROUP_READ ==
 			group.getPermissions().getPermissionsLevel()) {
-			if (MetadataViewerAgent.isAdministrator()) return true;
+			if (DataBrowserAgent.isAdministrator()) return true;
 			Set leaders = group.getLeaders();
 			Iterator i = leaders.iterator();
 			long userID = getCurrentUser().getId();
@@ -1006,7 +1005,46 @@ abstract class DataBrowserModel
 		}
 		return loaders;
 	}
-	
+
+    /**
+     * Returns <code>true</code> if the user is a system user e.g. root
+     * <code>false</code> otherwise.
+     *
+     * @param id The identifier of the user.
+     * @return See above.
+     */
+    boolean isSystemUser(long id)
+    {
+        return DataBrowserAgent.getRegistry().getAdminService().isSystemUser(id);
+    }
+
+    /**
+     * Returns <code>true</code> if the user is a system user e.g. root
+     * <code>false</code> otherwise.
+     *
+     * @param id The identifier of the user.
+     * @param key One of the constants defined by <code>GroupData</code>.
+     * @return See above.
+     */
+    boolean isSystemUser(long id, String key)
+    {
+        return DataBrowserAgent.getRegistry().getAdminService().isSystemUser(
+                id, key);
+    }
+
+    /**
+     * Returns <code>true</code> if the group is a system group e.g. System
+     * <code>false</code> otherwise.
+     *
+     * @param id The identifier of the group.
+     * @param key One of the constants defined by <code>GroupData</code>.
+     * @return See above.
+     */
+    boolean isSystemGroup(long id, String key)
+    {
+        return DataBrowserAgent.getRegistry().getAdminService().isSecuritySystemGroup(id, key);
+    }
+    
     /**
      * Creates a data loader that can retrieve the hierarchy objects needed
      * by this model.
@@ -1016,7 +1054,7 @@ abstract class DataBrowserModel
      * @param ids       The collection of images' ids to reload.
      * @return A suitable data loader.
      */
-    protected abstract List<DataBrowserLoader> createDataLoader(boolean refresh, 
+    protected abstract List<DataBrowserLoader> createDataLoader(boolean refresh,
     		                                             Collection ids);
 
     /** 

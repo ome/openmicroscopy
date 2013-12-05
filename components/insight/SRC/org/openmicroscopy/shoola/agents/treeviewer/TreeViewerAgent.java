@@ -51,6 +51,7 @@ import org.openmicroscopy.shoola.env.Agent;
 import org.openmicroscopy.shoola.env.Environment;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.AdminService;
 import org.openmicroscopy.shoola.env.data.events.ReconnectedEvent;
 import org.openmicroscopy.shoola.env.data.events.SaveEventRequest;
 import org.openmicroscopy.shoola.env.data.events.UserGroupSwitched;
@@ -145,14 +146,14 @@ public class TreeViewerAgent
 	public static SecurityContext getAdminContext()
 	{
 		if (!isAdministrator()) return null;
-		Collection groups = TreeViewerAgent.getAvailableUserGroups();
-		Iterator i = groups.iterator();
+		Collection<GroupData> groups = getAvailableUserGroups();
+		Iterator<GroupData> i = groups.iterator();
 		GroupData g;
+		AdminService svc = registry.getAdminService();
 		while (i.hasNext()) {
-			g = (GroupData) i.next();
-			if (g.getName().equals(GroupData.SYSTEM)) {
-				return new SecurityContext(g.getId());
-			}
+			g = i.next();
+			if (svc.isSecuritySystemGroup(g.getId(), GroupData.SYSTEM))
+			    return new SecurityContext(g.getId());
 		}
 		return null;
 	}

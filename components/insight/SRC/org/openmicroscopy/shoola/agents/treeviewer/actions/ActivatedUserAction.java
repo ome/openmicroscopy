@@ -85,7 +85,7 @@ public class ActivatedUserAction
         switch (browser.getState()) {
             case Browser.LOADING_DATA:
             case Browser.LOADING_LEAVES:
-            case Browser.COUNTING_ITEMS:  
+            case Browser.COUNTING_ITEMS:
                 setEnabled(false);
                 break;
             default:
@@ -95,40 +95,39 @@ public class ActivatedUserAction
             		onDisplayChange(browser.getLastSelectedDisplay());
         }
     }
-    
+
     /**
      * Sets the action enabled depending on the selected type.
      * @see TreeViewerAction#onDisplayChange(TreeImageDisplay)
      */
     protected void onDisplayChange(TreeImageDisplay selectedDisplay)
     {
-    	if (!TreeViewerAgent.isAdministrator()) {
-    		 setEnabled(false);
-             return;
-    	}
-        Browser browser = model.getSelectedBrowser(); 
-        if (browser == null || selectedDisplay == null) {
-        	 setEnabled(false);
-             return;
-        } 
-        if (browser.getBrowserType() != Browser.ADMIN_EXPLORER) {
-        	 setEnabled(false);
-             return;
+        if (!TreeViewerAgent.isAdministrator()) {
+            setEnabled(false);
+            return;
+        }
+        Browser browser = model.getSelectedBrowser();
+        if (browser == null || selectedDisplay == null ||
+            browser.getBrowserType() != Browser.ADMIN_EXPLORER) {
+            setEnabled(false);
+            return;
         }
         TreeImageDisplay[] nodes = browser.getSelectedDisplays();
         if (nodes.length > 1) setEnabled(false);
         else {
-        	if (selectedDisplay.getUserObject() instanceof ExperimenterData) {
-        		setEnabled(true);
-        		ExperimenterData exp = (ExperimenterData) 
-        			selectedDisplay.getUserObject();
-        		if (exp.isActive())
-        			putValue(Action.SMALL_ICON, ACTIVATED_ICON);
-        		else putValue(Action.SMALL_ICON, NOT_ACTIVATED_ICON);
-        	} else setEnabled(false);
+            if (selectedDisplay.getUserObject() instanceof ExperimenterData) {
+                ExperimenterData exp = (ExperimenterData)
+                        selectedDisplay.getUserObject();
+                ExperimenterData user = model.getUserDetails();
+                setEnabled(exp.getId() != user.getId() &&
+                       !model.isSystemUser(exp.getId()));
+                if (exp.isActive())
+                    putValue(Action.SMALL_ICON, ACTIVATED_ICON);
+                else putValue(Action.SMALL_ICON, NOT_ACTIVATED_ICON);
+            } else setEnabled(false);
         }
     }
-    
+
 	/**
 	 * Creates a new instance.
 	 * 

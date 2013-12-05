@@ -554,9 +554,8 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 		    groupId = model.getSelectedGroup().getGroupId();
 		if (groupId < 0) groupId = ImporterAgent.getUserDetails().getGroupId();
 		
-		locationDialog = new LocationDialog(owner, selectedContainer, type, 
-				objects, ImporterAgent.getAvailableUserGroups(), groupId,
-				model.getImportFor());
+		locationDialog = new LocationDialog(owner, selectedContainer, type,
+				objects, model, groupId);
 		locationDialog.addPropertyChangeListener(this);
 		
 		tagSelectionListener = new ActionListener() {
