@@ -417,14 +417,14 @@ public class DataServicesFactory
 				addListenerAndShow();
 				break;
 			case ConnectionExceptionHandler.LOST_CONNECTION:
-			    connectionDialog = new ShutDownDialog(f, "Network down",
+			    connectionDialog = new ShutDownDialog(f, "Lost connection"",
                         "Trying to reconnect...", false);
 			    addListenerAndShow();
 				UserCredentials uc = (UserCredentials)
 				registry.lookup(LookupNames.USER_CREDENTIALS);
 				Map<SecurityContext, Set<Long>> l =
 						omeroGateway.getRenderingEngines();
-				boolean b =  omeroGateway.reconnect(uc.getUserName(),
+				boolean b = omeroGateway.reconnect(uc.getUserName(),
 						uc.getPassword());
 				connectionDialog.setVisible(false);
 				connectionDialog.dispose();

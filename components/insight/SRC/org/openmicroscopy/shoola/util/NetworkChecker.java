@@ -203,7 +203,14 @@ public class NetworkChecker {
         return isNetworkup(true);
     }
 
-	public boolean _isNetworkup()
+    /**
+     * Returns <code>true</code> if the network is still up, otherwise
+     * throws an <code>UnknownHostException</code>.
+     *
+     * @return See above.
+     * @throws Exception Thrown if the network is down.
+     */
+	private boolean _isNetworkup()
 		throws Exception
 	{
 
