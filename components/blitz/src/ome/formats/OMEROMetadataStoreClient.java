@@ -2260,31 +2260,25 @@ public class OMEROMetadataStoreClient
      * @param pixelsIds Set of Pixels IDs to reset defaults and thumbnails for.
      */
     public void resetDefaultsAndGenerateThumbnails(List<Long> plateIds,
-		                                       List<Long> pixelsIds)
-    {
-	try
-	{
-		if (plateIds.size() > 0)
-		{
-			iSettings.resetDefaultsInSet("Plate", plateIds);
-		}
-		else
-		{
-			iSettings.resetDefaultsInSet("Pixels", pixelsIds);
-		}
-		thumbnailStore.createThumbnailsByLongestSideSet(
-				rint(DEFAULT_INSIGHT_THUMBNAIL_LONGEST_SIDE), pixelsIds);
-	}
-	catch (ServerError e)
-	{
-		throw new RuntimeException(e);
-	}
+            List<Long> pixelsIds) {
+        try {
+            if (plateIds.size() > 0) {
+                iSettings.resetDefaultsInSet("Plate", plateIds);
+            } else {
+                iSettings.resetDefaultsInSet("Pixels", pixelsIds);
+            }
+            for (long pixelsId : pixelsIds) {
+                thumbnailStore.setPixelsId(pixelsId);
+                thumbnailStore.getThumbnail(
+                        rint(DEFAULT_INSIGHT_THUMBNAIL_LONGEST_SIDE),
+                        rint(DEFAULT_INSIGHT_THUMBNAIL_LONGEST_SIDE));
+            }
+        } catch (ServerError e) {
+            throw new RuntimeException(e);
+        }
     }
 
-
-    /*-------------------*/
-
-	/**
+    /**
      * Based on immmersion table bug in 4.0 this is a hack to fix in code those enums missing/broken
      *
      *  replace l1[0:3] (['Gly', 'Hl', 'Oel']) l2[0:3] (['Air', 'Glycerol', 'Multi'])
