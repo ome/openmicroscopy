@@ -194,7 +194,6 @@ class GraphicsPane
         maxLabel.setBackground(UIUtilities.BACKGROUND_COLOR);
         minLabel.setBackground(UIUtilities.BACKGROUND_COLOR);
         sliders = new ArrayList<ChannelSlider>();
-<<<<<<< HEAD
         if (!model.isLifetimeImage()) {
         	List<ChannelData> channels = model.getChannelData();
         	Iterator<ChannelData> i = channels.iterator();
@@ -209,22 +208,6 @@ class GraphicsPane
         	while (j.hasNext()) {
         		j.next().setColumns(columns);
 			}
-=======
-        if (model.getModuloT() != null || !model.isLifetimeImage()) {
-            List<ChannelData> channels = model.getChannelData();
-            Iterator<ChannelData> i = channels.iterator();
-            ChannelSlider slider;
-            int columns = 0;
-            while (i.hasNext()) {
-                slider = new ChannelSlider(this, model, controller, i.next());
-                columns = Math.max(columns, slider.getColumns());
-                sliders.add(slider);
-            }
-            Iterator<ChannelSlider> j = sliders.iterator();
-            while (j.hasNext()) {
-                j.next().setColumns(columns);
-            }
->>>>>>> 9356c48... Remove commented out code and clean class.
         }
         previewToolBar = new PreviewToolBar(controller, model);
     }
