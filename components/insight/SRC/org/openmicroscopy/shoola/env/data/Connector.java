@@ -642,8 +642,13 @@ class Connector
         }
     }
 
-    /** Keeps the services alive. */
-    void keepSessionAlive()
+    /**
+     * Keeps the services alive.
+     * Returns <code>true</code> if success, <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
+    boolean keepSessionAlive()
     {
         boolean success = true;
         try {
@@ -663,6 +668,7 @@ class Connector
         if (success) {
             lastKeepAlive.set(System.currentTimeMillis());
         }
+        return success;
     }
 
     /**
