@@ -401,7 +401,7 @@ class OMEROGateway
 	 * Flag used during reconnecting process if a connection failure
 	 * occurred.
 	 */
-	private boolean reconnecting;
+	private final AtomicBoolean reconnecting = new AtomicBoolean(false);
 
 	/**
 	 * Used whenever a broken link is detected to get the Login Service and
@@ -876,8 +876,8 @@ class OMEROGateway
 	 */
 	boolean handleConnectionException(Throwable e)
 	{
-		if (reconnecting) {
-			reconnecting = false;
+		if (reconnecting.get()) {
+			reconnecting.set(false);
 			return false;
 		}
 		//if (networkup) return true;
@@ -1422,7 +1422,10 @@ class OMEROGateway
                     dsFactory.sessionExpiredExit(
                             ConnectionExceptionHandler.NETWORK, null);
                 }
-	            c.keepSessionAlive();
+	            if (!c.keepSessionAlive()) {
+	                dsFactory.sessionExpiredExit(
+                            ConnectionExceptionHandler.LOST_CONNECTION, null);
+	            }
 	        }
 	        return c;
 		}
@@ -2146,6 +2149,7 @@ class OMEROGateway
 	 */
 	boolean reconnect(String userName, String password)
 	{
+	    if (reconnecting.get()) return true;
 		try {
 			isNetworkUp(false); // Force re-check to prevent hang
 		} catch (Exception e) {
@@ -2153,6 +2157,7 @@ class OMEROGateway
 		}
 		boolean networkup = this.networkup.get(); // our copy
 		connected = false;
+		if (!networkup) return false;
 		List<Connector> connectors = removeAllConnectors();
 		Iterator<Connector> i = connectors.iterator();
 		List<Integer> counts = new ArrayList<Integer>();
@@ -2177,8 +2182,7 @@ class OMEROGateway
 	        }
 		}
 		connected = counts.size() != connectors.size();
-		if (!networkup) return false;
-		reconnecting = true;
+		reconnecting.set(true);
 		return connected;
 	}
 
@@ -5318,7 +5322,10 @@ class OMEROGateway
 	    while (i.hasNext()) {
 	        c = i.next();
 	        if (c.needsKeepAlive()) {
-	            c.keepSessionAlive();
+	            if (!c.keepSessionAlive()) {
+	                dsFactory.sessionExpiredExit(
+                            ConnectionExceptionHandler.LOST_CONNECTION, null);
+	            }
 	        }
 	    }
 	}
