@@ -1,5 +1,5 @@
 /*
- *   Copyright 2012 Glencoe Software, Inc. All rights reserved.
+ *   Copyright 2012-2013 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -13,9 +13,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
-import ome.conditions.InternalException;
 import ome.security.basic.CurrentDetails;
 import ome.system.OmeroContext;
+import omero.SecurityViolation;
 
 /**
  * Interceptor which takes any context provided by the
@@ -31,12 +31,16 @@ public class CallContext implements MethodInterceptor {
 
     private final CurrentDetails cd;
 
-    public CallContext(OmeroContext ctx) {
+    private final String token;
+
+    public CallContext(OmeroContext ctx, String token) {
         this.cd = ctx.getBean(CurrentDetails.class);
+        this.token = token;
     }
 
-    public CallContext(CurrentDetails cd) {
+    public CallContext(CurrentDetails cd, String token) {
         this.cd = cd;
+        this.token = token;
     }
 
     /**
@@ -54,7 +58,16 @@ public class CallContext implements MethodInterceptor {
                     if (ctx != null && ctx.size() > 0) {
                         cd.setContext(ctx);
                         if (ctx.containsKey("omero.logfilename")) {
-                            MDC.put("fileset", ctx.get("omero.logfilename"));
+                            if (ctx.containsKey("omero.logfilename.token")
+                                    && token.equals(ctx
+                                            .get("omero.logfilename.token"))) {
+                                MDC.put("fileset", ctx.get("omero.logfilename"));
+                            } else {
+                                throw new SecurityViolation(null, null,
+                                        "Setting the omero.logfilename value is"
+                                        + " not permitted without a secure"
+                                        + " server token!");
+                            }
                         }
                     }
                 }

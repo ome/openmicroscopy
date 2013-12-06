@@ -2,7 +2,7 @@
  * ome.formats.OMEROMetadataStoreClient
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -30,26 +30,18 @@ import static omero.rtypes.rlong;
 import static omero.rtypes.rstring;
 import static omero.rtypes.rtime;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.UUID;
 import java.util.Map.Entry;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -75,10 +67,7 @@ import ome.formats.model.ReferenceProcessor;
 import ome.formats.model.ShapeProcessor;
 import ome.formats.model.TargetProcessor;
 import ome.formats.model.WellProcessor;
-import ome.services.blitz.repo.CheckedPath;
-import ome.services.blitz.repo.ManagedImportLocationI;
 import ome.services.blitz.repo.ManagedImportRequestI;
-import ome.system.UpgradeCheck;
 import ome.util.LSID;
 import ome.xml.model.AffineTransform;
 import ome.xml.model.enums.FillRule;
@@ -118,10 +107,8 @@ import omero.api.RawPixelsStorePrx;
 import omero.api.ServiceFactoryPrx;
 import omero.api.ServiceInterfacePrx;
 import omero.api.ThumbnailStorePrx;
-import omero.constants.CLIENTUUID;
 import omero.constants.METADATASTORE;
 import omero.constants.namespaces.NSCOMPANIONFILE;
-import omero.grid.ImportSettings;
 import omero.grid.InteractiveProcessorPrx;
 import omero.metadatastore.IObjectContainer;
 import omero.model.AcquisitionMode;
@@ -173,7 +160,6 @@ import omero.model.LaserType;
 import omero.model.LightEmittingDiode;
 import omero.model.LightPath;
 import omero.model.LightSettings;
-import omero.model.LightSource;
 import omero.model.Line;
 import omero.model.ListAnnotation;
 import omero.model.LogicalChannel;
@@ -216,10 +202,8 @@ import omero.model.WellSample;
 import omero.model.XmlAnnotation;
 import omero.sys.EventContext;
 import omero.sys.ParametersI;
-import omero.util.TempFileManager;
 
 import org.apache.commons.io.FilenameUtils;
-import org.apache.log4j.MDC;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -310,6 +294,9 @@ public class OMEROMetadataStoreClient
 
     /** Filename of the log file where services will save logging output. */
     private String logFilename;
+
+    /** Token passed together with the log file name into the call context. */
+    private String token;
 
     /** Linkage target for all Images/Plates for use by model processors. */
     private IObject userSpecifiedTarget;
@@ -412,6 +399,7 @@ public class OMEROMetadataStoreClient
         }
         if (logFilename != null) {
             callCtx.put("omero.logfilename", logFilename);
+            callCtx.put("omero.logfilename.token", token);
             log.info(String.format("Call context: {omero.logfilename:%s}",
                     logFilename));
         }
@@ -8330,8 +8318,9 @@ public class OMEROMetadataStoreClient
         // TODO : not in OMERO model
     }
 
-    public void setCurrentLogFile(String logFilename) {
+    public void setCurrentLogFile(String logFilename, String token) {
         this.logFilename = logFilename;
+        this.token = token;
     }
 
 }

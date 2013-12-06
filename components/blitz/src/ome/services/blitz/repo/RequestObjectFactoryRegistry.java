@@ -26,6 +26,7 @@ import org.springframework.context.ApplicationContextAware;
 
 import ome.io.nio.TileSizes;
 import ome.services.blitz.fire.Registry;
+import ome.services.blitz.fire.Ring;
 import ome.system.OmeroContext;
 
 import ome.formats.importer.ImportConfig;
@@ -46,10 +47,14 @@ public class RequestObjectFactoryRegistry extends
 
     private/* final */OmeroContext ctx;
 
-    public RequestObjectFactoryRegistry(Registry reg, TileSizes sizes, RepositoryDao repositoryDao) {
+    private final Ring ring;
+
+    public RequestObjectFactoryRegistry(Registry reg, TileSizes sizes,
+            RepositoryDao repositoryDao, Ring ring) {
         this.reg = reg;
         this.sizes = sizes;
         this.dao = repositoryDao;
+        this.ring = ring;
     }
 
     public void setApplicationContext(ApplicationContext ctx)
@@ -64,7 +69,7 @@ public class RequestObjectFactoryRegistry extends
             @Override
             public Ice.Object create(String name) {
                 return new ManagedImportRequestI(reg, sizes, dao,
-                        new OMEROWrapper(new ImportConfig()));
+                        new OMEROWrapper(new ImportConfig()), ring.uuid);
             }
 
         });

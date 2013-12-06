@@ -367,6 +367,7 @@
      <constructor-arg ref="Registry"/>
      <constructor-arg ref="configuredTileSizes"/>
      <constructor-arg ref="repositoryDao"/>
+     <constructor-arg ref="ring"/>
      <property name="iceCommunicator" ref="Ice.Communicator"/>
   </bean>
 
