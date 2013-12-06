@@ -22,6 +22,7 @@
  *
  *
  */
+
 package ome.services.blitz.repo;
 
 import java.io.File;
@@ -794,15 +795,19 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
      */
     private CheckedPath checkId(final long id, final Ice.Current curr)
         throws SecurityViolation, ValidationException {
+        // TODO: could getOriginalFile and getFile be reduced to a single call?
         final FsFile file = this.repositoryDao.getFile(id, curr, this.repoUuid);
         if (file == null) {
             throw new SecurityViolation(null, null, "FileNotFound: " + id);
         }
-
-        // TODO: could getOriginalFile and getFile be reduced to a single call?
-        final ChecksumAlgorithm checksumAlgorithm = this.repositoryDao.getOriginalFile(id, curr).getHasher();
+        final OriginalFile originalFile = this.repositoryDao.getOriginalFile(id, curr);
+        if (originalFile == null) {
+            /* reachable even if file != null because getFile uses SQL,
+             * evading the filter on the HQL used here by getOriginalFile */
+            throw new SecurityViolation(null, null, "FileNotAccessible: " + id);
+        }
         final CheckedPath checked = new CheckedPath(this.serverPaths,file.toString(),
-                checksumProviderFactory, checksumAlgorithm);
+                checksumProviderFactory, originalFile.getHasher());
         checked.setId(id);
         return checked;
     }
