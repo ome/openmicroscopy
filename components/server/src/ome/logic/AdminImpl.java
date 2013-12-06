@@ -599,6 +599,9 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
             } else if (fixedGroupNames.contains(newName)) {
                 throw new ValidationException("cannot change name to special group '" + newName + "'");
             }
+            if (group.getId().equals(getEventContext().getCurrentGroupId())) {
+                throw new ValidationException("cannot rename the current group context '" + origName + "'");
+            }
         }
         orig.setName(newName);
         orig.setDescription(group.getDescription());
