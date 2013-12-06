@@ -24,7 +24,7 @@
 <script>
   var openWebstartPopup = function() {
     // IE8 doesn't support arbitrary text for 'name' 2nd arg.  #6118
-    var owindow = window.open("{% url webstart_index %}", '', 'height=500,width=500,left=550,top=50,toolbar=no,menubar=no,scrollbars=no,resizable=no,location=no,directories=no,status=no');
+    var owindow = window.open("{% url 'webstart_index' %}", '', 'height=500,width=500,left=550,top=50,toolbar=no,menubar=no,scrollbars=no,resizable=no,location=no,directories=no,status=no');
     if(!owindow.closed) {
         owindow.focus();
     }
