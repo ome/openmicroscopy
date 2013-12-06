@@ -8,7 +8,7 @@
 
    The pref plugin makes use of prefs.class from the common component.
 
-   Copyright 2007 Glencoe Software, Inc. All rights reserved.
+   Copyright 2007-2013 Glencoe Software, Inc. All rights reserved.
    Use is subject to license terms supplied in LICENSE.txt
 
 """
@@ -118,13 +118,21 @@ class PrefsControl(BaseControl):
             "set", help="Set key-value pair in the current profile. Omit the"
             " value to remove the key.")
         set.set_defaults(func=self.set)
-        set.add_argument(
-            "-f", "--file", type=ExistingFile('r'),
-            help="Load value from file")
-        set.add_argument("KEY")
+        append = parser.add(
+            sub, self.append, "Append value to a key in the current profile.")
+        remove = parser.add(
+            sub, self.remove, "Append value to a key in the current profile.")
+
+        for x in [set, append, remove]:
+            x.add_argument(
+                "-f", "--file", type=ExistingFile('r'),
+                help="Load value from file")
+            x.add_argument("KEY")
         set.add_argument(
             "VALUE", nargs="?",
             help="Value to be set. If it is missing, the key will be removed")
+        append.add_argument("VALUE", help="Value to be appended")
+        remove.add_argument("VALUE", help="Value to be removed")
 
         drop = sub.add_parser(
             "drop", help="Removes the profile from the configuration file")
@@ -242,6 +250,31 @@ class PrefsControl(BaseControl):
             del config[args.KEY]
         else:
             config[args.KEY] = args.VALUE
+
+    @with_rw_config
+    def append(self, args, config):
+        if args.KEY in config.keys():
+            import ast
+            list_value = ast.literal_eval(config[args.KEY])
+            list_value.append(args.VALUE)
+            config[args.KEY] = str(list_value)
+        else:
+            list_value = [args.VALUE]
+            config[args.KEY] = str(list_value)
+
+    @with_rw_config
+    def remove(self, args, config):
+        if args.KEY in config.keys():
+            import ast
+            list_value = ast.literal_eval(config[args.KEY])
+            if args.VALUE in list_value:
+                list_value.remove(args.VALUE)
+                config[args.KEY] = str(list_value)
+            else:
+                self.ctx.err("%s is not defined in %s"
+                             % (args.VALUE, args.KEY))
+        else:
+            self.ctx.err("%s is not defined" % (args.KEY))
 
     @with_config
     def keys(self, args, config):

@@ -86,8 +86,8 @@ class TestPrefs(object):
 
     def testSetFails(self, capsys):
         self.invoke("set A=B")
-        self.assertStdoutStderr(capsys,
-            err="\"=\" in key name. Did you mean \"...set A B\"?")
+        self.assertStdoutStderr(
+            capsys, err="\"=\" in key name. Did you mean \"...set A B\"?")
 
     def testKeys(self, capsys):
         self.invoke("keys")
@@ -193,3 +193,17 @@ class TestPrefs(object):
         self.assertStdoutStderr(capsys)
         self.invoke("get")
         self.assertStdoutStderr(capsys, out="A=B")
+
+    def testAppendRemove(self, capsys):
+        self.invoke("append A x")
+        self.invoke("get A")
+        self.assertStdoutStderr(capsys, out="['x']")
+        self.invoke("append A y")
+        self.invoke("get A")
+        self.assertStdoutStderr(capsys, out="['x', 'y']")
+        self.invoke("remove A x")
+        self.invoke("get A")
+        self.assertStdoutStderr(capsys, out="['y']")
+        self.invoke("remove A y")
+        self.invoke("get A")
+        self.assertStdoutStderr(capsys, out="")
