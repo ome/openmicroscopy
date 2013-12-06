@@ -110,8 +110,8 @@ public class RenderingSettingsLoader
         while (i.hasNext()) {
             entry = i.next();
             Collection<RndProxyDef> def = entry.getValue();
-            if (CollectionUtils.isNotEmpty(def));
-            m.put(entry.getKey(), def.iterator().next());
+            if (CollectionUtils.isNotEmpty(def))
+                m.put(entry.getKey(), def.iterator().next());
         }
         viewer.setViewedBy(m);
     }
