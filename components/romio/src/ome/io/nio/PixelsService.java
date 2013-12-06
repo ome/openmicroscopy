@@ -67,7 +67,7 @@ public class PixelsService extends AbstractFileSystemService
 	/** Null plane size constant. */
 	public static final int NULL_PLANE_SIZE = 64;
 
-	/** Time in ms. which setId must take before a file is memoized */
+	/** Default of 100 ms for {@link #memoizerWait} */
 	public static final long MEMOIZER_WAIT = 100;
 
 	/** Resolver of archived original file paths for pixels sets. */
@@ -83,6 +83,11 @@ public class PixelsService extends AbstractFileSystemService
 	 * Location where cached data from the {@link Memoizer} should be stored.
 	 */
 	protected final File memoizerDirectory;
+
+	/**
+	 * Time in ms. which setId must take before a file is memoized
+	 */
+	protected final long memoizerWait;
 
 	/** Null plane byte array. */
 	public static final byte[] nullPlane = new byte[] { -128, 127, -128, 127,
@@ -126,7 +131,26 @@ public class PixelsService extends AbstractFileSystemService
                 backOff, sizes);
     }
 
+    /**
+     * Call {@link #PixelsService(String, File, long, FilePathResolver, BackOff, TileSizes)}
+     * with {@link #MEMOIZER_WAIT}.
+     */
+    public PixelsService(String path, long memoizerWait,
+            FilePathResolver resolver, BackOff backOff, TileSizes sizes) {
+        this(path, new File(new File(path), "BioFormatsCache"),
+                memoizerWait, resolver, backOff, sizes);
+    }
+
+    /**
+     * Call {@link #PixelsService(String, File, long, FilePathResolver, BackOff, TileSizes)}
+     * with {@link #MEMOIZER_WAIT}.
+     */
     public PixelsService(String path, File memoizerDirectory,
+            FilePathResolver resolver, BackOff backOff, TileSizes sizes) {
+        this(path, memoizerDirectory, MEMOIZER_WAIT, resolver, backOff, sizes);
+    }
+
+    public PixelsService(String path, File memoizerDirectory, long memoizerWait,
             FilePathResolver resolver, BackOff backOff, TileSizes sizes)
     {
         super(path);
@@ -134,6 +158,7 @@ public class PixelsService extends AbstractFileSystemService
         this.backOff = backOff;
         this.sizes = sizes;
         this.memoizerDirectory = memoizerDirectory;
+        this.memoizerWait = memoizerWait;
         if (!this.memoizerDirectory.exists())
         {
             log.info("Creating Bio-Formats Cache: {}", memoizerDirectory);
@@ -151,7 +176,7 @@ public class PixelsService extends AbstractFileSystemService
     }
 
     public long getMemoizerWait() {
-        return MEMOIZER_WAIT;
+        return memoizerWait;
     }
 
     public File getMemoizerDirectory() {
@@ -730,7 +755,7 @@ public class PixelsService extends AbstractFileSystemService
         IFormatReader reader = new ImageReader();
         reader = new ChannelFiller(reader);
         reader = new ChannelSeparator(reader);
-        reader = new Memoizer(reader, MEMOIZER_WAIT, memoizerDirectory);
+        reader = new Memoizer(reader, getMemoizerWait(), getMemoizerDirectory());
         reader.setFlattenedResolutions(false);
         return reader;
     }
