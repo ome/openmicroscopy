@@ -20,21 +20,21 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 """
-   Integration test for rendering engine, particularly rendering a 'region' of big images. 
-
+   Integration test for rendering engine, particularly
+   rendering a 'region' of big images.
 """
 
 import omero
+import logging
 import test.integration.library as lib
-from omero.rtypes import *
 
 try:
-    from PIL import Image, ImageDraw, ImageFont     # see ticket:2597
-except: #pragma: nocover
+    from PIL import Image  # see ticket:2597
+except:  #pragma: nocover
     try:
-        import Image, ImageDraw, ImageFont          # see ticket:2597
+        import Image  # see ticket:2597
     except:
-        logger.error('No PIL installed')
+        logging.error('No PIL installed')
 
 try:
     import hashlib
@@ -45,22 +45,27 @@ except:
 
 from numpy import asarray
 
+
 class TestFigureExportScripts(lib.ITest):
 
     def testRenderRegion(self):
         """
-        Test attempts to compare a full image plane, cropped to a region, with a region retrieved from
-        rendering engine. 
-        Uses PIL to convert compressed strings into 2D numpy arrays for cropping and comparison.
-        ** Although cropped images and retrieved regions APPEAR identical, there appear to be rounding
-        or rendering errors, either in the 'renderCompressed' method of the rendering engine or in PIL **
-        For this reason, there are small differences in the pixel values of rendered regions. 
-        This functionality is also tested in Java.
-        Therefore this test is not 'Activated' currently. 
+        Test attempts to compare a full image plane, cropped to a region, with
+        a region retrieved from rendering engine.
+
+        Uses PIL to convert compressed strings into 2D numpy arrays for
+        cropping and comparison. ** Although cropped images and retrieved
+        regions APPEAR identical, there appear to be rounding or rendering
+        errors, either in the 'renderCompressed' method of the rendering engine
+        or in PIL **
+
+        For this reason, there are small differences in the pixel values of
+        rendered regions. This functionality is also tested in Java. Therefore
+        this test is not 'Activated' currently.
         """
 
         session = self.root.sf
-        
+
         sizeX = 4
         sizeY = 3
         sizeZ = 1
@@ -68,16 +73,16 @@ class TestFigureExportScripts(lib.ITest):
         sizeT = 1
         image = self.createTestImage(sizeX, sizeY, sizeZ, sizeC, sizeT)
         pixelsId = image.getPrimaryPixels().id.val
-        
+
         renderingEngine = session.createRenderingEngine()
         renderingEngine.lookupPixels(pixelsId)
         if not renderingEngine.lookupRenderingDef(pixelsId):
-            renderingEngine.resetDefaults() 
+            renderingEngine.resetDefaults()
         renderingEngine.lookupRenderingDef(pixelsId)
         renderingEngine.load()
-        
+
         # turn all channels on
-        for i in range(sizeC): 
+        for i in range(sizeC):
             renderingEngine.setActive(i, True)
 
         regionDef = omero.romio.RegionDef()
@@ -87,7 +92,7 @@ class TestFigureExportScripts(lib.ITest):
         height = 2
         x2 = x+width
         y2 = y+height
-        
+
         regionDef.x = x
         regionDef.y = y
         regionDef.width = width
@@ -98,11 +103,11 @@ class TestFigureExportScripts(lib.ITest):
         planeDef.t = long(0)
 
         import StringIO
-        
+
         # First, get the full rendered plane...
-        img = renderingEngine.renderCompressed(planeDef)    # compressed String
-        fullImage = Image.open(StringIO.StringIO(img))     # convert to numpy array...
-        img_array = asarray(fullImage)   # 3D array, since each pixel is [r,g,b]
+        img = renderingEngine.renderCompressed(planeDef)  # compressed String
+        fullImage = Image.open(StringIO.StringIO(img))  # convert to numpy arr
+        img_array = asarray(fullImage)  # 3D array, since each pixel is [r,g,b]
 
         # get the cropped image
         cropped = img_array[y:y2, x:x2, :]      # ... so we can crop to region
@@ -110,16 +115,13 @@ class TestFigureExportScripts(lib.ITest):
         h = hash_sha1()
         h.update(cropped_img.tostring())
         hash_cropped = h.hexdigest()
-        
+
         # now get the region
         planeDef.region = regionDef
         img = renderingEngine.renderCompressed(planeDef)
         regionImage = Image.open(StringIO.StringIO(img))
-        region_array = asarray(regionImage)   # 3D array, since each pixel is [r,g,b]
         h = hash_sha1()
         h.update(regionImage.tostring())
         hash_region = h.hexdigest()
 
         assert hash_cropped == hash_region
-        
-
