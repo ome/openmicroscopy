@@ -355,6 +355,7 @@
                 self.set({'fileId': fileId,
                         'unsaved': false,
                         'figureName': name,
+                        'canEdit': data.canEdit
                     });
                 self.trigger("reset_undo_redo");
             });
@@ -690,7 +691,7 @@
 
             // Don't leave the page with unsaved changes!
             window.onbeforeunload = function() {
-                if (self.model.get("unsaved")) {
+                if (self.model.get("unsaved") && self.model.get('canEdit')) {
                     return "Leave page with unsaved changes?";
                 }
             };
@@ -698,7 +699,7 @@
             // respond to zoom changes
             this.listenTo(this.model, 'change:curr_zoom', this.setZoom);
             this.listenTo(this.model, 'change:selection', this.renderSelectionChange);
-            this.listenTo(this.model, 'change:unsaved', this.renderUnsaved);
+            this.listenTo(this.model, 'change:unsaved', this.renderSaveBtn);
             this.listenTo(this.model, 'change:figureName', this.renderFigureName);
 
             // refresh current UI
@@ -992,15 +993,19 @@
             $('title').text(title);
         },
 
-        renderUnsaved: function() {
+        renderSaveBtn: function() {
 
-            if (this.model.get('unsaved')) {
+            var canEdit = this.model.get('canEdit'),
+                btnText = canEdit ? "Save" : "Can't Save";
+            this.$saveBtn.text(btnText);
+            if (this.model.get('unsaved') && canEdit) {
                 this.$saveBtn.addClass('btn-success').removeClass('btn-default').removeAttr('disabled');
                 this.$saveOption.removeClass('disabled');
             } else {
                 this.$saveBtn.addClass('btn-default').removeClass('btn-success').attr('disabled', 'disabled');
                 this.$saveOption.addClass('disabled');
             }
+
             if (this.model.get('fileId')) {
                 this.$deleteOption.removeClass('disabled');
             } else {

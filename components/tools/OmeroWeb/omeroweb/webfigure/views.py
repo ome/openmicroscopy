@@ -10,7 +10,7 @@ import json
 from omeroweb.webgateway import views as webgateway_views
 from omeroweb.webgateway.marshal import imageMarshal
 from omeroweb.webclient.views import run_script
-from omero.rtypes import wrap, rlong
+from omero.rtypes import wrap, rlong, rstring
 import omero
 
 try:
@@ -23,6 +23,56 @@ from cStringIO import StringIO
 from omeroweb.webclient.decorators import login_required
 
 JSON_FILEANN_NS = "omero.web.figure.json"
+
+
+def createOriginalFileFromFileObj(
+        conn, fo, path, name, fileSize, mimetype=None, ns=None):
+    """
+    This is a copy of the same method from Blitz Gateway, but fixes a bug
+    where the conn.SERVICE_OPTS are not passed in the API calls.
+    Once that has been fixed in develop and dev_4_4, then we can revert to
+    using the BlitzGateway for this method again.
+    """
+    updateService = conn.getUpdateService()
+    rawFileStore = conn.createRawFileStore()
+
+    # create original file, set name, path, mimetype
+    originalFile = omero.model.OriginalFileI()
+    originalFile.setName(rstring(name))
+    originalFile.setPath(rstring(path))
+    if mimetype:
+        originalFile.mimetype = rstring(mimetype)
+    originalFile.setSize(rlong(fileSize))
+    # set sha1
+    # try:
+    #     import hashlib
+    #     hash_sha1 = hashlib.sha1
+    # except:
+    #     import sha
+    #     hash_sha1 = sha.new
+    fo.seek(0)
+    # h = hash_sha1()
+    # h.update(fo.read())
+    # shaHast = h.hexdigest()
+    # originalFile.setHash(rstring(shaHast))
+    originalFile = updateService.saveAndReturnObject(
+        originalFile, conn.SERVICE_OPTS)
+
+    # upload file
+    fo.seek(0)
+    rawFileStore.setFileId(originalFile.getId().getValue(), conn.SERVICE_OPTS)
+    buf = 10000
+    for pos in range(0, long(fileSize), buf):
+        block = None
+        if fileSize-pos < buf:
+            blockSize = fileSize-pos
+        else:
+            blockSize = buf
+        fo.seek(pos)
+        block = fo.read(blockSize)
+        rawFileStore.write(block, pos, blockSize, conn.SERVICE_OPTS)
+    rawFileStore.close()
+    return OriginalFileWrapper(conn, originalFile)
 
 
 @login_required()
@@ -48,8 +98,10 @@ def imgData_json(request, imageId, conn=None, **kwargs):
     if sizeT > 1:
         params = omero.sys.ParametersI()
         params.addLong('pid', image.getPixelsId())
-        query = "from PlaneInfo as Info where Info.theZ=0 and Info.theC=0 and pixels.id=:pid"
-        infoList = conn.getQueryService().findAllByQuery(query, params, conn.SERVICE_OPTS)
+        query = "from PlaneInfo as Info where"\
+            " Info.theZ=0 and Info.theC=0 and pixels.id=:pid"
+        infoList = conn.getQueryService().findAllByQuery(
+            query, params, conn.SERVICE_OPTS)
         timeMap = {}
         for info in infoList:
             tIndex = info.theT.getValue()
@@ -84,7 +136,6 @@ def save_web_figure(request, conn=None, **kwargs):
     if fileId is None:
         # Create new file
         figureName = request.POST.get('figureName')
-        description = {}
         if figureName is None:
             n = datetime.now()
             # time-stamp name by default: WebFigure_2013-10-29_22-43-53.json
@@ -92,17 +143,21 @@ def save_web_figure(request, conn=None, **kwargs):
                 (n.year, n.month, n.day, n.hour, n.minute, n.second)
         else:
             figureName = str(figureName)
+        # we store json in description field...
+        description = {}
         try:
+            # ...such as first imageId (used for figure thumbnail)
             json_data = json.loads(figureJSON)
             firstImgId = json_data['panels'][0]['imageId']
-            description['imageId'] = long(firstImgId);
+            description['imageId'] = long(firstImgId)
         except:
             # Maybe give user warning that figure json is invalid?
             pass
         fileSize = len(figureJSON)
         f = StringIO()
         f.write(figureJSON)
-        origF = conn.createOriginalFileFromFileObj(f, '', figureName, fileSize)
+        origF = conn.createOriginalFileFromFileObj(
+            f, '', figureName, fileSize, mimetype="application/json")
         fa = omero.model.FileAnnotationI()
         fa.setFile(origF._obj)
         fa.setNs(wrap(JSON_FILEANN_NS))
@@ -114,6 +169,7 @@ def save_web_figure(request, conn=None, **kwargs):
     else:
         # Update existing Original File
         conn.SERVICE_OPTS.setOmeroGroup('-1')
+        # Following seems to work OK with group -1 (regardless of group ctx)
         fa = conn.getObject("FileAnnotation", fileId)
         if fa is None:
             return Http404("Couldn't find FileAnnotation of ID: %s" % fileId)
@@ -134,17 +190,23 @@ def save_web_figure(request, conn=None, **kwargs):
 @login_required()
 def load_web_figure(request, fileId, conn=None, **kwargs):
     """
-    Loads the json stored in the file, identified by file annotation ID 
+    Loads the json stored in the file, identified by file annotation ID
     """
 
     fileAnn = conn.getObject("FileAnnotation", fileId)
     if fileAnn is None:
         raise Http404("Figure File-Annotation %s not found" % fileId)
-    jsonData = "".join(list(fileAnn.getFileInChunks()))
+    figureJSON = "".join(list(fileAnn.getFileInChunks()))
 
+    try:
+        # parse the json, so we can add info...
+        json_data = json.loads(figureJSON)
+        json_data['canEdit'] = fileAnn.getFile().canEdit()
+    except:
+        # If the json failed to parse, return the string anyway
+        return HttpResponse(jsonData, mimetype='json')
 
-    return HttpResponse(jsonData, mimetype='json')
-
+    return HttpResponse(simplejson.dumps(json_data), mimetype='json')
 
 
 @login_required(setGroupContext=True)
@@ -176,7 +238,8 @@ def make_web_figure(request, conn=None, **kwargs):
 @login_required()
 def list_web_figures(request, conn=None, **kwargs):
 
-    fileAnns = list( conn.getObjects("FileAnnotation", attributes={'ns': JSON_FILEANN_NS}) )
+    fileAnns = list(conn.getObjects(
+        "FileAnnotation", attributes={'ns': JSON_FILEANN_NS}))
     #fileAnns.sort(key=lambda x: x.creationEventDate(), reverse=True)
 
     rsp = []
@@ -184,12 +247,15 @@ def list_web_figures(request, conn=None, **kwargs):
         owner = fa.getDetails().getOwner()
         cd = fa.creationEventDate()
 
-        figFile = {'id': fa.id,
+        figFile = {
+            'id': fa.id,
             'name': fa.getFile().getName(),
             'creationDate': "%s-%02d-%02d" % (cd.year, cd.month, cd.day),
-            'ownerFullName': owner.getFullName()
+            'ownerFullName': owner.getFullName(),
+            'canEdit': fa.getFile().canEdit()
         }
 
+        # We use the 'description' field to store json - try to validate...
         try:
             desc = fa.getDescription()
             description = json.loads(desc)
@@ -203,6 +269,7 @@ def list_web_figures(request, conn=None, **kwargs):
 
     return HttpResponse(simplejson.dumps(rsp), mimetype='json')
 
+
 @login_required()
 def delete_web_figure(request, conn=None, **kwargs):
     """ POST 'fileId' to delete the FileAnnotation """
@@ -214,4 +281,3 @@ def delete_web_figure(request, conn=None, **kwargs):
     # fileAnn = conn.getObject("FileAnnotation", fileId)
     conn.deleteObjects("Annotation", [fileId])
     return HttpResponse("Deleted OK")
-
