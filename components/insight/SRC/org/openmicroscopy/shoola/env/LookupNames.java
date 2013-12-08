@@ -36,14 +36,14 @@ package org.openmicroscopy.shoola.env;
  *          <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author <br>Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
  *         <a href="mailto:a.falconi@dundee.ac.uk">a.falconi@dundee.ac.uk</a>
- * @version 2.2
+ * @version 2.2 
  * @since OME2.2
  */
 public class LookupNames
 {
 
-    /** 
-     * Field indicating how to display the data i.e. 
+    /**
+     * Field indicating how to display the data i.e.
      * <code>group</code> display, <code>experimenter</code>.
      */
     public static final String DATA_DISPLAY = "DataDisplay";
@@ -215,7 +215,7 @@ public class LookupNames
 
     /** 
      * Field to access the Factor by which the maximum number of thumbnails
-     * to fetch is multiplied by when the connection's speed is 
+     * to fetch is multiplied by when the connection's speed is
      * <code>Low</code>.
      */
     public static final String THUMBNAIL_FETCH_LOW_SPEED =
