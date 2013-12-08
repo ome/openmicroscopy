@@ -100,10 +100,8 @@ export PYTHONPATH=$(bin/brew --prefix omero)/lib/python:$ICE_HOME/python
 export PATH=$(bin/brew --prefix)/bin:$(bin/brew --prefix)/sbin:/usr/local/lib/node_modules:$ICE_HOME/bin:$PATH
 export DYLD_LIBRARY_PATH=$ICE_HOME/lib:$ICE_HOME/python:${DYLD_LIBRARY_PATH-}
 
-# There may be an old postgres process still running, but its working directory
-# may have been deleted so pg_ctl won't work.
-killall postgres || echo No existing postgres running
-
+# Note: If postgres startup fails it's probably because there was an old
+# process still running.
 # Create PostgreSQL database
 if [ -d "$PSQL_DIR" ]; then
     rm -rf $PSQL_DIR
