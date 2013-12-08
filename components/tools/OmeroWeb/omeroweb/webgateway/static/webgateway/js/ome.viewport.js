@@ -127,6 +127,7 @@ jQuery._WeblitzViewport = function (container, server, options) {
   var bottomid = thisid + '-bot';
   var tsliderid = thisid + '-tsl';
   var ajaxTimeout;
+  var tileHref;
   this.self.append('<div id="'+topid+'" id="'+topid+'" class="weblitz-viewport-top">');
   this.top = jQuery('#'+topid);
   this.top.append('<div id="'+zsliderid+'">');
@@ -288,7 +289,10 @@ jQuery._WeblitzViewport = function (container, server, options) {
     if (_this.loadedImg.tiles) {
         // This is called for every tile, each time they move
         var hrefProvider = function() {
-          return server + '/render_image_region/' + _this.getRelUrl();
+          if (typeof tileHref == "undefined") {
+            tileHref = server + '/render_image_region/' + _this.getRelUrl();
+          }
+          return tileHref;
         };
         // temporary solution for sharing. ShareId must me passed in a different way.
         thref = server + '/render_birds_eye_view/' + _this.loadedImg.id + "/";
@@ -347,6 +351,8 @@ jQuery._WeblitzViewport = function (container, server, options) {
       };
       
       if (_this.loadedImg.tiles) {
+          // clear the cached tiles href
+          tileHref = undefined;
           showLoading();
           rcb();
           _this.viewportimg.get(0).refreshTiles();
