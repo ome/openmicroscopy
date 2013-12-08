@@ -2157,15 +2157,13 @@ class OMEROGateway
 		boolean networkup = this.networkup.get(); // our copy
 		connected = false;
 		if (!networkup) return false;
-		List<Connector> connectors = removeAllConnectors();
+		List<Connector> connectors = getAllConnectors();
 		Iterator<Connector> i = connectors.iterator();
 		List<Integer> counts = new ArrayList<Integer>();
 		int index = 0;
-		Connector c;
 		while (i.hasNext()) {
 			try {
-				c = i.next().reconnect(userName, password);
-				groupConnectorMap.put(c.getGroupID(), c);
+				i.next().reconnect(userName, password);
 			} catch (Throwable t) {
 			    counts.add(index);
 			}

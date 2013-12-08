@@ -417,7 +417,7 @@ public class DataServicesFactory
 				addListenerAndShow();
 				break;
 			case ConnectionExceptionHandler.LOST_CONNECTION:
-			    connectionDialog = new ShutDownDialog(f, "Lost connection"",
+			    connectionDialog = new ShutDownDialog(f, "Lost connection",
                         "Trying to reconnect...", false);
 			    addListenerAndShow();
 				UserCredentials uc = (UserCredentials)
