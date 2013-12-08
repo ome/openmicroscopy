@@ -370,28 +370,31 @@
                 p_json.push(m.toJSON());
             });
 
-            // figureName should be in options, but just in case...
-            var figureName = options.figureName || "WebFigure_" + Date();
-
             var figureJSON = {
                 panels: p_json,
                 paper_width: this.get('paper_width'),
                 paper_height: this.get('paper_height'),
-                figureName: figureName,
             };
 
             var url = window.SAVE_WEBFIGURE_URL,
                 data = options || {};
 
-            if (this.get('fileId')) {
-                data.fileId = this.get('fileId');
+            if (options.fileId) {
+                data.fileId = options.fileId;
             }
             data.figureJSON = JSON.stringify(figureJSON);
 
             // Save
             $.post( url, data)
                 .done(function( data ) {
-                    self.set({'fileId': +data, 'unsaved': false, 'figureName': figureName});
+                    var update = {
+                        'fileId': +data,
+                        'unsaved': false,
+                    };
+                    if (options.figureName) {
+                        update.figureName = options.figureName;
+                    }
+                    self.set(update);
 
                     if (success) {
                         success(data);
@@ -671,6 +674,7 @@
             this.$pasteBtn = $(".paste");
             this.$saveBtn = $(".save_figure.btn");
             this.$saveOption = $("li.save_figure");
+            this.$saveAsOption = $("li.save_as");
             this.$deleteOption = $("li.delete_figure");
 
             var self = this;
@@ -718,6 +722,7 @@
             "click .copy": "copy_selected_panels",
             "click .paste": "paste_panels",
             "click .save_figure": "save_figure",
+            "click .save_as": "save_as",
             "click .new_figure": "goto_newfigure",
             "click .open_figure": "open_figure",
             "click .delete_figure": "delete_figure",
@@ -796,25 +801,42 @@
             var options = {};
             if (figureModel.get('fileId')) {
                 options.fileId = figureModel.get('fileId');
+                // Save
+                figureModel.save_to_OMERO(options, function(data){
+                    window.location.hash = "figure/"+data;
+                });
             } else {
-                var d = new Date(),
-                    dt = d.getFullYear() + "-" + (d.getMonth()+1) + "-" +d.getDate(),
-                    tm = d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds(),
-                    defaultName = "WebFigure_" + dt + "_" + tm;
-                var figureName = prompt("Enter Figure Name", defaultName);
-
-                if (figureName) {
-                    options.figureName = figureName;
-                } else {
-                    // Abort saving
-                    return false;
-                }
+                this.save_as();
             }
 
-            // Save
-            figureModel.save_to_OMERO(options, function(data){
-                window.location.hash = "figure/"+data;
-            });
+        },
+
+        save_as: function(event) {
+            if (event) {
+                event.preventDefault();
+            }
+
+            var options = {},
+                defaultName = this.model.get('figureName');
+            console.log('defaultName', defaultName);
+            if (!defaultName) {
+                var d = new Date(),
+                    dt = d.getFullYear() + "-" + (d.getMonth()+1) + "-" +d.getDate(),
+                    tm = d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds();
+                defaultName = "WebFigure_" + dt + "_" + tm;
+            } else {
+                defaultName = defaultName + "_copy";
+            }
+            var figureName = prompt("Enter Figure Name", defaultName);
+
+            if (figureName) {
+                options.figureName = figureName;
+                // Save
+                this.model.save_to_OMERO(options, function(data){
+                    window.location.hash = "figure/"+data;
+                });
+            }
+
         },
 
         copy_selected_panels: function(event) {
