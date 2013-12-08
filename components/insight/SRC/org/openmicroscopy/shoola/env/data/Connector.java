@@ -128,19 +128,19 @@ class Connector
      * The client object, this is the entry point to the
      * OMERO Server using non secure data transfer
      */
-    private final client unsecureClient;
+    private client unsecureClient;
 
     /**
      * The entry point provided by the connection library to access the various
      * <i>OMERO</i> services.
      */
-    private final ServiceFactoryPrx entryEncrypted;
+    private ServiceFactoryPrx entryEncrypted;
 
     /**
      * The entry point provided by the connection library to access the various
      * <i>OMERO</i> services.
      */
-    private final ServiceFactoryPrx entryUnencrypted;
+    private ServiceFactoryPrx entryUnencrypted;
 
     /** Collection of stateless services to prevent re-lookup */
     private final ConcurrentHashMap<String, ServiceInterfacePrx> statelessServices;
@@ -545,16 +545,20 @@ class Connector
      * @param password The password.
      * @throws Throwable Thrown if an error occurred while recreating session.
      */
-    Connector reconnect(String userName, String password)
+    void reconnect(String userName, String password)
             throws Throwable
     {
         //Reconnect
         //to be on the save side
         secureClient.closeSession();
         if (unsecureClient != null) unsecureClient.closeSession();
-        ServiceFactoryPrx prx = secureClient.createSession(userName, password);
-        return new Connector(this.context, secureClient, prx,
-                entryUnencrypted == null, logger, elapseTime);
+        unsecureClient = secureClient.createClient(false);
+       
+        entryEncrypted = secureClient.createSession(userName, password);
+        if (unsecureClient != null) {
+            unsecureClient = secureClient.createClient(false);
+            entryUnencrypted = unsecureClient.getSession();
+        }
     }
 
     /**
