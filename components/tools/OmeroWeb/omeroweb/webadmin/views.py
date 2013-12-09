@@ -785,4 +785,4 @@ def drivespace(request, conn=None, **kwargs):
 def load_drivespace(request, conn=None, **kwargs):
     offset = request.REQUEST.get('offset', 0)
     rv = usersData(conn, offset)
-    return HttpResponse(json.dumps(rv),mimetype='application/json')
+    return HttpResponse(json.dumps(rv), content_type='application/json')
