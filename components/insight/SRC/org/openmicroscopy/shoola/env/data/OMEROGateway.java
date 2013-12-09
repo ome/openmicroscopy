@@ -2162,28 +2162,16 @@ class OMEROGateway
 		}
 		List<Connector> connectors = getAllConnectors();
 		Iterator<Connector> i = connectors.iterator();
-		List<Integer> counts = new ArrayList<Integer>();
 		int index = 0;
 		while (i.hasNext()) {
 			try {
 				i.next().reconnect(userName, password);
 			} catch (Throwable t) {
 			    log("Failed to reconnect "+t.getMessage());
-			    counts.add(index);
+			    index++;
 			}
-			index++;
 		}
-		if (counts.size() > 0) {//failure we shut down
-		    Iterator<Integer> j = counts.iterator();
-	        while (j.hasNext()) {
-	            try {
-	                connectors.get(j.next()).close(networkup);
-	            } catch (Throwable t) {
-	                log("Failed to close "+t.getMessage());
-	            }
-	        }
-		}
-		connected = counts.size() != connectors.size();
+		connected = index == 0;
 		reconnecting.set(true);
 		return connected;
 	}
