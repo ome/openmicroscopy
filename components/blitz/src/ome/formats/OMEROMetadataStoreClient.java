@@ -85,6 +85,7 @@ import ome.xml.model.primitives.PercentFraction;
 import ome.xml.model.primitives.PositiveInteger;
 import ome.xml.model.primitives.PositiveFloat;
 import ome.xml.model.primitives.Timestamp;
+import omero.InternalException;
 import omero.RBool;
 import omero.RDouble;
 import omero.RInt;
@@ -2268,10 +2269,13 @@ public class OMEROMetadataStoreClient
                 iSettings.resetDefaultsInSet("Pixels", pixelsIds);
             }
             for (long pixelsId : pixelsIds) {
-                thumbnailStore.setPixelsId(pixelsId);
-                thumbnailStore.getThumbnail(
-                        rint(DEFAULT_INSIGHT_THUMBNAIL_LONGEST_SIDE),
-                        rint(DEFAULT_INSIGHT_THUMBNAIL_LONGEST_SIDE));
+                try {
+                    thumbnailStore.setPixelsId(pixelsId);
+                    thumbnailStore.getThumbnailByLongestSide(
+                            rint(DEFAULT_INSIGHT_THUMBNAIL_LONGEST_SIDE));
+                } catch (InternalException ie) {
+                    log.debug("resetDefaultsAndGenerateThumbnails exception", ie);
+                }
             }
         } catch (ServerError e) {
             throw new RuntimeException(e);
