@@ -69,6 +69,19 @@ def stamped(func, update = False):
     checked_and_update_stamp = wraps(func)(check_and_update_stamp)
     return locked(check_and_update_stamp)
 
+def modifies(func):
+    """
+    Decorator which always calls flush() on the first argument after the
+    method call
+    """
+    def flush_after(*args, **kwargs):
+        self = args[0]
+        try:
+            return func(*args, **kwargs)
+        finally:
+            self.flush()
+    return wraps(func)(flush_after)
+
 
 class HdfList(object):
     """
@@ -187,6 +200,8 @@ class HdfStorage(object):
         except tables.NoSuchNodeError:
             self.__initialized = False
 
+        self._modified = False
+
     #
     # Non-locked methods
     #
@@ -204,6 +219,9 @@ class HdfStorage(object):
             msg = "HDFStorage initialized with bad path: %s" % self.__hdf_path
             self.logger.error(msg)
             raise omero.ValidationException(None, None, msg)
+
+    def modified(self):
+        return self._modified
 
     def __initcheck(self):
         if not self.__initialized:
@@ -240,6 +258,17 @@ class HdfStorage(object):
     #
 
     @locked
+    def flush(self):
+        """
+        Flush writes to the underlying table, mark this object as modified
+        """
+        self._modified = True
+        if self.__mea:
+            self.__mea.flush()
+        self.logger.debug("Modified flag set")
+
+    @locked
+    @modifies
     def initialize(self, cols, metadata = None):
         """
 
@@ -272,7 +301,6 @@ class HdfStorage(object):
                 self.__mea.attrs[k] = v
                 # See attrs._f_list("user") to retrieve these.
 
-        self.__mea.flush()
         self.__hdf_file.flush()
         self.__initialized = True
 
@@ -350,6 +378,7 @@ class HdfStorage(object):
         return metadata
 
     @locked
+    @modifies
     def add_meta_map(self, m):
         if not m:
             return
@@ -357,9 +386,9 @@ class HdfStorage(object):
         attr = self.__mea.attrs
         for k, v in m.items():
             attr[k] = unwrap(v)
-        self.__mea.flush()
 
     @locked
+    @modifies
     def append(self, cols):
         self.__initcheck()
         # Optimize!
@@ -380,20 +409,19 @@ class HdfStorage(object):
         records = numpy.array(zip(*arrays), dtype=dtypes)
 
         self.__mea.append(records)
-        self.__mea.flush()
 
     #
     # Stamped methods
     #
 
     @stamped
+    @modifies
     def update(self, stamp, data):
         self.__initcheck()
         if data:
             for i, rn in enumerate(data.rowNumbers):
                 for col in data.columns:
                     getattr(self.__mea.cols, col.name)[rn] = col.values[i]
-        self.__mea.flush()
 
     @stamped
     def getWhereList(self, stamp, condition, variables, unused, start, stop, step):
@@ -479,7 +507,6 @@ class HdfStorage(object):
     def cleanup(self):
         self.logger.info("Cleaning storage: %s", self.__hdf_path)
         if self.__mea:
-            self.__mea.flush()
             self.__mea = None
         if self.__ome:
             self.__ome = None
@@ -511,6 +538,14 @@ class TableI(omero.grid.Table, omero.util.SimpleServant):
         self.storage.incr(self)
 
         self._closed = False
+
+        if (not self.file_obj.isLoaded() or
+            self.file_obj.getDetails() is None or
+            self.file_obj.details.group is None):
+            self.file_obj = self.ctx.getSession().getQueryService().get(
+                'omero.model.OriginalFileI', unwrap(file_obj.id),
+                {"omero.group": "-1"})
+
 
     def assert_write(self):
         """
@@ -563,9 +598,14 @@ class TableI(omero.grid.Table, omero.util.SimpleServant):
     @perf
     def close(self, current = None):
 
-        size = None
-        if self.storage is not None:
-            size = self.storage.size() # Size to reset the server object to
+        if self._closed:
+            self.logger.warn(
+                "File object %d already closed",
+                unwrap(self.file_obj.id) if self.file_obj else None)
+            return
+
+        size = self.storage.size() # Size to reset the server object to
+        modified = self.storage.modified()
 
         try:
             self.cleanup()
@@ -575,32 +615,33 @@ class TableI(omero.grid.Table, omero.util.SimpleServant):
 
         self._closed = True
 
-        if self.file_obj is not None and self.can_write:
-            fid = self.file_obj.id.val
-            if not self.file_obj.isLoaded() or\
-                self.file_obj.getDetails() is None or\
-                self.file_obj.details.group is None:
-                self.logger.warn("Cannot update file object %s since group is none", fid)
-            else:
-                gid = self.file_obj.details.group.id.val
-                client_uuid = self.factory.ice_getIdentity().category[8:]
-                ctx = {"omero.group": str(gid), omero.constants.CLIENTUUID: client_uuid}
+        fid = unwrap(self.file_obj.id)
+
+        if self.file_obj is not None and self.can_write and modified:
+            gid = unwrap(self.file_obj.details.group.id)
+            client_uuid = self.factory.ice_getIdentity().category[8:]
+            ctx = {"omero.group": str(gid), omero.constants.CLIENTUUID: client_uuid}
+            try:
+                rfs = self.factory.createRawFileStore(ctx)
                 try:
-                    rfs = self.factory.createRawFileStore(ctx)
-                    try:
-                        rfs.setFileId(fid, ctx)
-                        if size:
-                            rfs.truncate(size, ctx)     # May do nothing
-                            rfs.write([], size, 0, ctx) # Force an update
-                        else:
-                            rfs.write([], 0, 0, ctx)    # No-op
-                        file_obj = rfs.save(ctx)
-                    finally:
-                        rfs.close(ctx)
-                    self.logger.info("Updated file object %s to sha1=%s (%s bytes)",\
-                        self.file_obj.id.val, file_obj.hash.val, file_obj.size.val)
-                except:
-                    self.logger.warn("Failed to update file object %s", self.file_obj.id.val, exc_info=1)
+                    rfs.setFileId(fid, ctx)
+                    if size:
+                        rfs.truncate(size, ctx)     # May do nothing
+                        rfs.write([], size, 0, ctx) # Force an update
+                    else:
+                        rfs.write([], 0, 0, ctx)    # No-op
+                    file_obj = rfs.save(ctx)
+                finally:
+                    rfs.close(ctx)
+                self.logger.info(
+                    "Updated file object %s to hash=%s (%s bytes)",
+                    fid, unwrap(file_obj.hash), unwrap(file_obj.size))
+            except:
+                self.logger.warn("Failed to update file object %s",
+                                 fid, exc_info=1)
+        else:
+            self.logger.info("File object %s not updated", fid)
+
 
     # TABLES READ API ============================
 
