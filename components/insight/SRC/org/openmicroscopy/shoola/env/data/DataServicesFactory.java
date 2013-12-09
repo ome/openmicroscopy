@@ -2,10 +2,10 @@
  * org.openmicroscopy.shoola.env.data.DataServicesFactory
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -363,6 +363,7 @@ public class DataServicesFactory
      */
     private void addListenerAndShow()
     {
+        connectionDialog.setModal(false);
         connectionDialog.addPropertyChangeListener(new PropertyChangeListener()
         {
             public void propertyChange(PropertyChangeEvent evt) {
@@ -377,10 +378,76 @@ public class DataServicesFactory
                 {
                     connectionDialog = null;
                     omeroGateway.resetNetwork();
+                    int index = (Integer) evt.getNewValue();
+                    if (index == ConnectionExceptionHandler.LOST_CONNECTION)
+                        reconnect();
                 }
             }
         });
+        connectionDialog.setModal(true);
         UIUtilities.centerAndShow(connectionDialog);
+    }
+
+    /** Attempts to reconnect.*/
+    private void reconnect()
+    {
+        String message;
+        JFrame f = registry.getTaskBar().getFrame();
+        UserCredentials uc = (UserCredentials)
+                registry.lookup(LookupNames.USER_CREDENTIALS);
+        Map<SecurityContext, Set<Long>> l =
+                omeroGateway.getRenderingEngines();
+        boolean b = omeroGateway.reconnect(uc.getUserName(),
+                uc.getPassword());
+        connectionDialog.setVisible(false);
+        connectionDialog.dispose();
+        if (b) {
+            //reactivate the rendering engine. Need to review that
+            Iterator<Entry<SecurityContext, Set<Long>>> i =
+                    l.entrySet().iterator();
+            OmeroImageService svc = registry.getImageService();
+            Long id;
+            Entry<SecurityContext, Set<Long>> entry;
+            Map<SecurityContext, List<Long>> 
+            failures = new HashMap<SecurityContext, List<Long>>();
+            Iterator<Long> j;
+            SecurityContext ctx;
+            List<Long> failure;
+            RenderingControl p;
+            while (i.hasNext()) {
+                entry = i.next();
+                j = entry.getValue().iterator();
+                ctx = entry.getKey();
+                while (j.hasNext()) {
+                    id = j.next();
+                    try {
+                        p = PixelsServicesFactory.getRenderingControl(
+                                registry, Long.valueOf(id), false);
+                        if (!p.isShutDown())
+                            svc.reloadRenderingService(ctx, id);
+                    } catch (Exception e) {
+                        failure = failures.get(ctx);
+                        if (failure == null) {
+                            failure = new ArrayList<Long>();
+                            failures.put(ctx, failure);
+                        }
+                        failure.add(id);
+                    }
+                }
+            }
+            message = "You are reconnected to the server.";
+            if (failures.size() > 0) {
+                //notify user.
+                registry.getEventBus().post(
+                        new ReloadRenderingEngine(failures));
+            }
+        } else {
+            message = "A failure occurred while attempting to " +
+                    "reconnect.\nThe application will now exit.";
+            connectionDialog = new NotificationDialog(f,
+                    "Reconnection Failure", message, null);
+            addListenerAndShow();
+        }
     }
 
 	/**
@@ -400,8 +467,7 @@ public class DataServicesFactory
 			msg.print(exc);
 			registry.getLogger().debug(this, msg);
 		}
-		JFrame f = new JFrame();
-        f.setIconImage(AbstractIconManager.getOMEImageIcon());
+		JFrame f = registry.getTaskBar().getFrame();
 		switch (index) {
 			case ConnectionExceptionHandler.DESTROYED_CONNECTION:
 				message = "The connection has been destroyed." +
@@ -413,68 +479,13 @@ public class DataServicesFactory
 			case ConnectionExceptionHandler.NETWORK:
 				message = "The network is down.\n";
 				connectionDialog = new ShutDownDialog(f, "Network down",
-				        message);
+				        message, -1);
 				addListenerAndShow();
 				break;
 			case ConnectionExceptionHandler.LOST_CONNECTION:
 			    connectionDialog = new ShutDownDialog(f, "Lost connection",
-                        "Trying to reconnect...", false);
+                        "Trying to reconnect...", index);
 			    addListenerAndShow();
-				UserCredentials uc = (UserCredentials)
-				registry.lookup(LookupNames.USER_CREDENTIALS);
-				Map<SecurityContext, Set<Long>> l =
-						omeroGateway.getRenderingEngines();
-				boolean b = omeroGateway.reconnect(uc.getUserName(),
-						uc.getPassword());
-				connectionDialog.setVisible(false);
-				connectionDialog.dispose();
-				if (b) {
-					//reactivate the rendering engine. Need to review that
-					Iterator<Entry<SecurityContext, Set<Long>>> i =
-							l.entrySet().iterator();
-					OmeroImageService svc = registry.getImageService();
-					Long id;
-					Entry<SecurityContext, Set<Long>> entry;
-					Map<SecurityContext, List<Long>> 
-					failures = new HashMap<SecurityContext, List<Long>>();
-					Iterator<Long> j;
-					SecurityContext ctx;
-					List<Long> failure;
-					RenderingControl p;
-					while (i.hasNext()) {
-						entry = i.next();
-						j = entry.getValue().iterator();
-						ctx = entry.getKey();
-						while (j.hasNext()) {
-							id = j.next();
-							try {
-								p = PixelsServicesFactory.getRenderingControl(
-										registry, Long.valueOf(id), false);
-								if (!p.isShutDown())
-									svc.reloadRenderingService(ctx, id);
-							} catch (Exception e) {
-							    failure = failures.get(ctx);
-								if (failure == null) {
-								    failure = new ArrayList<Long>();
-									failures.put(ctx, failure);
-								}
-								failure.add(id);
-							}
-						}
-					}
-					message = "You are reconnected to the server.";
-					if (failures.size() > 0) {
-						//notify user.
-						registry.getEventBus().post(
-								new ReloadRenderingEngine(failures));
-					}
-				} else {
-					message = "A failure occurred while attempting to " +
-							"reconnect.\nThe application will now exit.";
-					connectionDialog = new NotificationDialog(f,
-					        "Reconnection Failure", message, null);
-					addListenerAndShow();
-				}
 				break;
 			case ConnectionExceptionHandler.SERVER_OUT_OF_SERVICE:
 				message = "The server is no longer " +
@@ -550,7 +561,7 @@ public class DataServicesFactory
 		String name = (String) 
 		 container.getRegistry().lookup(LookupNames.MASTER);
 		if (name == null) name = LookupNames.MASTER_INSIGHT;
-		client client = omeroGateway.createSession(uc.getUserName(), 
+		client client = omeroGateway.createSession(uc.getUserName(),
 				uc.getPassword(), uc.getHostName(), uc.isEncrypted(), name);
 		if (client == null) {
 			omeroGateway.logout();
