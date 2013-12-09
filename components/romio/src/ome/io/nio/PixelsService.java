@@ -1,9 +1,10 @@
 /*
  * ome.io.nio.PixelsService
  *
- *   Copyright 2006 University of Dundee. All rights reserved.
+ *   Copyright 2006-2013 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
+
 package ome.io.nio;
 
 import java.awt.Dimension;
@@ -358,6 +359,7 @@ public class PixelsService extends AbstractFileSystemService
                     PixelData tile = source.getTile(z, c, t, x, y, w, h);
                     pixelsPyramid.setTile(
                             tile.getData().array(), z, c, t, x, y, w, h);
+                    tile.dispose();
                 }
                 catch (IOException e1)
                 {

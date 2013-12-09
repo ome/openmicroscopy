@@ -1,7 +1,7 @@
 /*
  *   $Id$
  *
- *   Copyright 2009 Glencoe Software, Inc. All rights reserved.
+ *   Copyright 2009-2013 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -43,8 +43,9 @@ public class PixelData {
     }
 
     public double get(PixelBuffer buf, int x, int y, int z, int c, int t) {
+        ome.util.PixelData pd = null;
         try {
-            ome.util.PixelData pd = buf.getRow(y, z, c, t);
+            pd = buf.getRow(y, z, c, t);
             return pd.getPixelValue(x);
         } catch (IOException e) {
             throw new ResourceError("IOException: " + e);
@@ -52,6 +53,10 @@ public class PixelData {
             throw new ApiUsageException("DimensionsOutOfBounds: " + e);
         } catch (IndexOutOfBoundsException iobe) {
             throw new ValidationException("IndexOutOfBounds: " + iobe);
+        } finally {
+            if (pd != null) {
+                pd.dispose();
+            }
         }
     }
 
