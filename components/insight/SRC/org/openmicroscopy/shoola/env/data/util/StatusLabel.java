@@ -71,7 +71,7 @@ import pojos.PixelsData;
  */
 public class StatusLabel
     extends JPanel
-implements IObserver
+    implements IObserver
 {
 
     /** The text displayed when the file is already selected.*/
