@@ -69,8 +69,6 @@ from django.core.servers.basehttp import FileWrapper
 
 from webclient.webclient_gateway import OmeroWebGateway
 
-from webclient_http import HttpJavascriptRedirect, HttpJavascriptResponse, HttpLoginRedirect
-
 from webclient_utils import _formatReport, _purgeCallback
 from forms import ShareForm, BasketShareForm, \
                     ContainerForm, ContainerNameForm, ContainerDescriptionForm, \
@@ -100,6 +98,7 @@ from omeroweb.webgateway import views as webgateway_views
 
 from omeroweb.feedback.views import handlerInternalError
 
+from omeroweb.webclient.webclient_http import HttpJsonResponse
 from omeroweb.webclient.decorators import login_required
 from omeroweb.webclient.decorators import render_response
 from omeroweb.connector import Connector
@@ -1408,14 +1407,14 @@ def manage_action_containers(request, action, o_type=None, o_id=None, conn=None,
                 oid = manager.createDataset(name, description)
                 rdict = {'bad':'false', 'id': oid}
                 json_data = json.dumps(rdict, ensure_ascii=False)
-                return HttpResponse(json_data, content_type='application/javascript')
+                return HttpJsonResponse(json_data)
             else:
                 d = dict()
                 for e in form.errors.iteritems():
                     d.update({e[0]:unicode(e[1])}) 
                 rdict = {'bad':'true','errs': d }
                 json_data = json.dumps(rdict, ensure_ascii=False)
-                return HttpResponse(json_data, content_type='application/javascript')
+                return HttpJsonResponse(json_data)
         elif request.REQUEST.get('folder_type') in ("project", "screen", "dataset"):
             # No parent specified. We can create orphaned 'project', 'dataset' etc.
             form = ContainerForm(data=request.REQUEST.copy())
@@ -1430,14 +1429,14 @@ def manage_action_containers(request, action, o_type=None, o_id=None, conn=None,
                     oid = getattr(manager, "create"+folder_type.capitalize())(name, description)
                 rdict = {'bad':'false', 'id': oid}
                 json_data = json.dumps(rdict, ensure_ascii=False)
-                return HttpResponse(json_data, content_type='application/javascript')
+                return HttpJsonResponse(json_data)
             else:
                 d = dict()
                 for e in form.errors.iteritems():
                     d.update({e[0]:unicode(e[1])}) 
                 rdict = {'bad':'true','errs': d }
                 json_data = json.dumps(rdict, ensure_ascii=False)
-                return HttpResponse(json_data, content_type='application/javascript')
+                return HttpJsonResponse(json_data)
         else:
             return HttpResponseServerError("Object does not exist")
     elif action == 'edit':
@@ -1513,14 +1512,14 @@ def manage_action_containers(request, action, o_type=None, o_id=None, conn=None,
                     o_type = "image"
                 manager.updateName(o_type, name)
                 json_data = json.dumps(rdict, ensure_ascii=False)
-                return HttpResponse(json_data, content_type='application/javascript')
+                return HttpJsonResponse(json_data)
             else:
                 d = dict()
                 for e in form.errors.iteritems():
                     d.update({e[0]:unicode(e[1])}) 
                 rdict = {'bad':'true','errs': d }
                 json_data = json.dumps(rdict, ensure_ascii=False)
-                return HttpResponse(json_data, content_type='application/javascript')
+                return HttpJsonResponse(json_data)
         else:
             return HttpResponseServerError("Object does not exist")
     elif action == 'editdescription':
@@ -1549,14 +1548,14 @@ def manage_action_containers(request, action, o_type=None, o_id=None, conn=None,
                 manager.updateDescription(o_type, description)
                 rdict = {'bad':'false' }
                 json_data = json.dumps(rdict, ensure_ascii=False)
-                return HttpResponse(json_data, content_type='application/javascript')
+                return HttpJsonResponse(json_data)
             else:
                 d = dict()
                 for e in form.errors.iteritems():
                     d.update({e[0]:unicode(e[1])}) 
                 rdict = {'bad':'true','errs': d }
                 json_data = json.dumps(rdict, ensure_ascii=False)
-                return HttpResponse(json_data, content_type='application/javascript')
+                return HttpJsonResponse(json_data)
         else:
             return HttpResponseServerError("Object does not exist")
     elif action == 'paste':
@@ -1566,11 +1565,11 @@ def manage_action_containers(request, action, o_type=None, o_id=None, conn=None,
         if rv:
             rdict = {'bad':'true','errs': rv }
             json_data = json.dumps(rdict, ensure_ascii=False)
-            return HttpResponse(json_data, content_type='application/javascript')
+            return HttpJsonResponse(json_data)
         else:
             rdict = {'bad':'false' }
             json_data = json.dumps(rdict, ensure_ascii=False)
-            return HttpResponse(json_data, content_type='application/javascript')
+            return HttpJsonResponse(json_data)
     elif action == 'move':
         # Handles drag-and-drop moving of objects in jsTree. 
         # Also handles 'remove' of Datasets (moves to 'Experimenter' parent)
@@ -1591,7 +1590,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, conn=None,
             else:
                 rdict = {'bad':'false' }
         json_data = json.dumps(rdict, ensure_ascii=False)
-        return HttpResponse(json_data, content_type='application/javascript')
+        return HttpJsonResponse(json_data)
     elif action == 'remove':
         # Handles 'remove' of Images from jsTree, removal of comment, tag from Object etc.
         parents = request.REQUEST['parent']     # E.g. image-123  or image-1|image-2
@@ -1601,11 +1600,11 @@ def manage_action_containers(request, action, o_type=None, o_id=None, conn=None,
             logger.error(traceback.format_exc())
             rdict = {'bad':'true','errs': str(x) }
             json_data = json.dumps(rdict, ensure_ascii=False)
-            return HttpResponse(json_data, content_type='application/javascript')
+            return HttpJsonResponse(json_data)
         
         rdict = {'bad':'false' }
         json_data = json.dumps(rdict, ensure_ascii=False)
-        return HttpResponse(json_data, content_type='application/javascript')
+        return HttpJsonResponse(json_data)
     elif action == 'removefromshare':
         image_id = request.REQUEST.get('source')
         try:
@@ -1614,10 +1613,10 @@ def manage_action_containers(request, action, o_type=None, o_id=None, conn=None,
             logger.error(traceback.format_exc())
             rdict = {'bad':'true','errs': str(x) }
             json_data = json.dumps(rdict, ensure_ascii=False)
-            return HttpResponse(json_data, content_type='application/javascript')
+            return HttpJsonResponse(json_data)
         rdict = {'bad':'false' }
         json_data = json.dumps(rdict, ensure_ascii=False)
-        return HttpResponse(json_data, content_type='application/javascript')
+        return HttpJsonResponse(json_data)
     elif action == 'delete':
         # Handles delete of a file attached to object.
         child = toBoolean(request.REQUEST.get('child'))
@@ -1633,7 +1632,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, conn=None,
         else:
             rdict = {'bad':'false' }
         json_data = json.dumps(rdict, ensure_ascii=False)
-        return HttpResponse(json_data, content_type='application/javascript')
+        return HttpJsonResponse(json_data)
     elif action == 'deletemany':
         # Handles multi-delete from jsTree.
         object_ids = {'Image':request.REQUEST.getlist('image'), 'Dataset':request.REQUEST.getlist('dataset'), 'Project':request.REQUEST.getlist('project'), 'Screen':request.REQUEST.getlist('screen'), 'Plate':request.REQUEST.getlist('plate'), 'Well':request.REQUEST.getlist('well'), 'PlateAcquisition':request.REQUEST.getlist('acquisition')}
@@ -1660,7 +1659,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, conn=None,
         else:
             rdict = {'bad':'false' }
         json_data = json.dumps(rdict, ensure_ascii=False)
-        return HttpResponse(json_data, content_type='application/javascript')
+        return HttpJsonResponse(json_data)
     context['template'] = template
     return context
 
@@ -2216,7 +2215,7 @@ def activities(request, conn=None, **kwargs):
         rv['inprogress'] = in_progress
         rv['failure'] = failure
         rv['jobs'] = len(request.session['callback'])
-        return HttpResponse(json.dumps(rv), content_type='application/javascript') # json
+        return HttpJsonResponse(json.dumps(rv)) # json
         
     jobs = []
     new_errors = False
@@ -2266,7 +2265,7 @@ def activities_update (request, action, **kwargs):
                 rv['removed'] = True
             else:
                 rv['removed'] = False
-            return HttpResponse(json.dumps(rv), content_type='application/javascript')
+            return HttpJsonResponse(json.dumps(rv))
         else:
             for key, data in request.session['callback'].items():
                 if data['status'] != "in progress":
@@ -2662,7 +2661,7 @@ def script_run(request, scriptId, conn=None, **kwargs):
         if x.message and x.message.startswith("No processor available"):
             # Delegate to run_script() for handling 'No processor available'
             rsp = run_script(request, conn, sId, inputMap, scriptName='Script')
-            return HttpResponse(json.dumps(rsp), content_type='application/json')
+            return HttpJsonResponse(json.dumps(rsp))
         else:
             raise
     params = scriptService.getParams(sId)
@@ -2742,7 +2741,7 @@ def script_run(request, scriptId, conn=None, **kwargs):
 
     logger.debug("Running script %s with params %s" % (scriptName, inputMap))
     rsp = run_script(request, conn, sId, inputMap, scriptName)
-    return HttpResponse(json.dumps(rsp), content_type='application/json')
+    return HttpJsonResponse(json.dumps(rsp))
 
 
 @login_required(setGroupContext=True)
@@ -2762,7 +2761,7 @@ def ome_tiff_script(request, imageId, conn=None, **kwargs):
     inputMap = {'Data_Type': wrap('Image'), 'IDs': wrap(imageIds)}
     inputMap['Format'] = wrap('OME-TIFF')
     rsp = run_script(request, conn, sId, inputMap, scriptName='Create OME-TIFF')
-    return HttpResponse(json.dumps(rsp), content_type='application/json')
+    return HttpJsonResponse(json.dumps(rsp))
 
 
 def run_script(request, conn, sId, inputMap, scriptName='Script'):

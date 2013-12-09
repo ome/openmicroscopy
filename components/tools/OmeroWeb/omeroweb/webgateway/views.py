@@ -1709,7 +1709,7 @@ def get_shape_json(request, roiId, shapeId, conn=None, **kwargs):
         logger.debug('No such shape: %r' % shapeId)
         raise Http404
     return HttpResponse(json.dumps(shapeMarshal(shape)),
-            content_type='application/javascript')
+            content_type='application/json')
 
 @login_required()
 def get_rois_json(request, imageId, conn=None, **kwargs):
@@ -1738,7 +1738,7 @@ def get_rois_json(request, imageId, conn=None, **kwargs):
         
     rois.sort(key=lambda x: x['id']) # sort by ID - same as in measurement tool.
     
-    return HttpResponse(json.dumps(rois), content_type='application/javascript')
+    return HttpResponse(json.dumps(rois), content_type='application/json')
 
 @login_required(isAdmin=True)
 @jsonp
