@@ -2246,7 +2246,10 @@ class OMEROGateway
 		}
 		boolean networkup = this.networkup.get(); // our copy
 		connected = false;
-		if (!networkup) return false;
+		if (!networkup) {
+		    log("Network is down");
+		    return false;
+		}
 		List<Connector> connectors = getAllConnectors();
 		Iterator<Connector> i = connectors.iterator();
 		List<Integer> counts = new ArrayList<Integer>();
@@ -2255,6 +2258,7 @@ class OMEROGateway
 			try {
 				i.next().reconnect(userName, password);
 			} catch (Throwable t) {
+			    log("Failed to reconnect "+t.getMessage());
 			    counts.add(index);
 			}
 			index++;
@@ -2265,6 +2269,7 @@ class OMEROGateway
 	            try {
 	                connectors.get(j.next()).close(networkup);
 	            } catch (Throwable t) {
+	                log("Failed to close "+t.getMessage());
 	            }
 	        }
 		}
