@@ -2216,7 +2216,7 @@ def activities(request, conn=None, **kwargs):
         rv['inprogress'] = in_progress
         rv['failure'] = failure
         rv['jobs'] = len(request.session['callback'])
-        return HttpResponse(json.dumps(rv),content_type='application/javascript') # json
+        return HttpResponse(json.dumps(rv), content_type='application/javascript') # json
         
     jobs = []
     new_errors = False
@@ -2266,7 +2266,7 @@ def activities_update (request, action, **kwargs):
                 rv['removed'] = True
             else:
                 rv['removed'] = False
-            return HttpResponse(json.dumps(rv),content_type='application/javascript')
+            return HttpResponse(json.dumps(rv), content_type='application/javascript')
         else:
             for key, data in request.session['callback'].items():
                 if data['status'] != "in progress":
