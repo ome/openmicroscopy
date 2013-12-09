@@ -166,8 +166,8 @@ public class RenderingSettingsLoader
                 entry = i.next();
                 exp = entry.getKey();
                 Collection<RndProxyDef> def = entry.getValue();
-                if (CollectionUtils.isNotEmpty(def));
-                m.put(entry.getKey(), def.iterator().next());
+                if (CollectionUtils.isNotEmpty(def))
+                    m.put(entry.getKey(), def.iterator().next());
             }
             viewer.setRenderingSettings(m, ownerID);
         }
