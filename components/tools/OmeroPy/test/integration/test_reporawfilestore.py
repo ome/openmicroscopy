@@ -60,21 +60,19 @@ class TestRepoRawFileStore(AbstractRepoTest):
             pass
         assert rfs.size() == 0
 
-    @pytest.mark.xfail(reason="ticket 11610")
     def testFailedWriteNoFile(self):
         # Without a single write, no file is produced
         rfs = self.repoPrx.file(self.repo_filename, "rw") #create empty file
         rfs.close()
+        with pytest.raises(Ice.ObjectNotExistException):
+            rfs.size()
 
         rfs = self.repoPrx.file(self.repo_filename, "r")
-        with pytest.raises(omero.ResourceError):
-            rfs.size()
         wbytes = "0123456789"
-        try:
+        with pytest.raises(omero.SecurityViolation):
             rfs.write(wbytes,0,len(wbytes))
-        except:
-            pass
-        with pytest.raises(omero.ResourceError):
+        rfs.close()
+        with pytest.raises(Ice.ObjectNotExistException):
             rfs.size()
 
     def testWriteRead(self):
