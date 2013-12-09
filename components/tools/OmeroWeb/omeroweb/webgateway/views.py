@@ -27,7 +27,7 @@ from django.core.urlresolvers import reverse
 from django.conf import settings
 from django.template import RequestContext as Context
 from django.core.servers.basehttp import FileWrapper
-from omero.rtypes import rlong, unwrap
+from omero.rtypes import rint, rlong, unwrap
 from omero.constants.namespaces import NSBULKANNOTATIONS
 from marshal import imageMarshal, shapeMarshal
 
@@ -1520,10 +1520,70 @@ def copy_image_rdef_json (request, conn=None, **kwargs):
     if fromid is not None and len(toids) == 0:
         request.session.modified = True
         request.session['fromid'] = fromid
+        if request.session.get('rdef') is not None:
+            del request.session['rdef']
         return True
+
+    # If we've got an rdef encoded in request instead of ImageId...
+    if r.get('c') is not None:
+        # make a map of settings we need
+        rdef = {
+            'c': str(r.get('c')),    # channels
+            'm': str(r.get('m')),    # model (grey)
+            'z': str(r.get('z')),    # z & t pos
+            't': str(r.get('t')),
+            'imageId': int(r.get('imageId')),
+        }
+        request.session.modified = True
+        request.session['rdef'] = rdef
+        if request.session.get('fromid') is not None:
+            del request.session['fromid']
+        return True
+
     # Check session for 'fromid'
     if fromid is None:
         fromid = request.session.get('fromid', None)
+
+    # maybe these pair of methods should be on ImageWrapper??
+    def getRenderingSettings(image):
+        rv = {}
+        chs = []
+        for i, ch in enumerate(image.getChannels()):
+            act = "" if ch.isActive() else "-"
+            start = ch.getWindowStart()
+            end = ch.getWindowEnd()
+            color = ch.getColor().getHtml()
+            chs.append("%s%s|%s:%s$%s" % (act, i+1, start, end, color))
+        rv['c'] = ",".join(chs)
+        rv['m'] = "g" if image.isGreyscaleRenderingModel() else "c"
+        rv['z'] = image.getDefaultZ() + 1
+        rv['t'] = image.getDefaultT() + 1
+        return rv
+
+    def applyRenderingSettings(image, rdef):
+        channels, windows, colors =  _split_channel_info(rdef['c'])
+        image.setActiveChannels(channels, windows, colors)  # also prepares _re
+        if rdef['m'] == 'g':
+            image.setGreyscaleRenderingModel()
+        else:
+            image.setColorRenderingModel()
+        image._re.setDefaultZ(long(rdef['z'])-1)
+        image._re.setDefaultT(long(rdef['t'])-1)
+        image.saveDefaults()
+
+    originalSettings = None
+    fromImage = None
+    if fromid is None:
+        # if we have rdef, save to source image, then use that image as 'fromId', then revert.
+        if request.session.get('rdef') is not None and len(toids) > 0:
+            rdef = request.session.get('rdef')
+            fromImage = conn.getObject("Image", rdef['imageId'])
+            if fromImage is not None:
+                # copy orig settings
+                originalSettings = getRenderingSettings(fromImage)
+                applyRenderingSettings(fromImage, rdef)
+                fromid = fromImage.getId()
+
     # If we have both, apply settings...
     try:
         fromid = long(fromid)
@@ -1540,13 +1600,14 @@ def copy_image_rdef_json (request, conn=None, **kwargs):
             for iid in json_data[True]:
                 img = conn.getObject("Image", iid)
                 img is not None and webgateway_cache.invalidateObject(server_id, userid, img)
+
+    # finally - if we temporarily saved rdef to original image, revert
+    # if we're sure that from-image is not in the target set (Dataset etc)
+    if to_type == "Image" and fromid not in toids:
+        if originalSettings is not None and fromImage is not None:
+            applyRenderingSettings(fromImage, originalSettings)
     return json_data
-#
-#            json_data = simplejson.dumps(json_data)
-#
-#    if r.get('callback', None):
-#        json_data = '%s(%s)' % (r['callback'], json_data)
-#    return HttpResponse(json_data, mimetype='application/javascript')
+
 
 @login_required()
 @jsonp
