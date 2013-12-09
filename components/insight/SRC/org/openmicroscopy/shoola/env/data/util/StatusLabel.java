@@ -233,7 +233,7 @@ public class StatusLabel
     private Object callback;
 
     /** Indicates that the file scanned is a directory.*/
-    private boolean directory;
+    //private boolean directory;
 
     /** The id of the log file.*/
     private long logFileID;
@@ -243,6 +243,9 @@ public class StatusLabel
 
     /** Indicates if the upload ever started.*/
     private boolean uploadStarted;
+
+    /** The file or folder this component is for.*/
+    private File sourceFile;
 
     /** 
      * Formats the size of the uploaded data.
@@ -329,9 +332,14 @@ public class StatusLabel
             firePropertyChange(PROCESSING_ERROR_PROPERTY, null, this);
     }
 
-    /** Creates a new instance. */
-    public StatusLabel()
+    /**
+     * Creates a new instance.
+     * 
+     * @param sourceFile The file associated to that label.
+     */
+    public StatusLabel(File sourceFile)
     {
+        this.sourceFile = sourceFile;
         initialize();
         buildUI();
     }
@@ -641,8 +649,6 @@ public class StatusLabel
             if (!markedAsCancel) cancellable = true;
             if (!markedAsCancel && exception == null)
                 generalLabel.setText(SCANNING_TEXT);
-            ImportCandidates.SCANNING evt = (ImportCandidates.SCANNING) event;
-            directory = evt.file.isDirectory();
             if (exception == null)
                 firePropertyChange(SCANNING_PROPERTY, null, this);
         } else if (event instanceof ErrorHandler.MISSING_LIBRARY) {
@@ -652,7 +658,7 @@ public class StatusLabel
         } else if (event instanceof ErrorHandler.UNKNOWN_FORMAT) {
             exception = new ImportException(ImportException.UNKNOWN_FORMAT_TEXT,
                     ((ErrorHandler.UNKNOWN_FORMAT) event).exception);
-            if (!directory)
+            if (sourceFile != null && !sourceFile.isDirectory())
                 handleProcessingError(ImportException.UNKNOWN_FORMAT_TEXT, true);
         } else if (event instanceof ErrorHandler.FILE_EXCEPTION) {
             ErrorHandler.FILE_EXCEPTION e = (ErrorHandler.FILE_EXCEPTION) event;
@@ -660,7 +666,7 @@ public class StatusLabel
             usedFiles = e.usedFiles;
             exception = new ImportException(e.exception);
             String text = ImportException.FILE_NOT_VALID_TEXT;
-            if (directory) text = "";
+            if (sourceFile != null && sourceFile.isDirectory()) text = "";
             handleProcessingError(text, false);
         } else if (event instanceof ErrorHandler.INTERNAL_EXCEPTION) {
             ErrorHandler.INTERNAL_EXCEPTION e =
@@ -685,7 +691,7 @@ public class StatusLabel
                         true);
                 buffer.append(s);
                 if (!StringUtils.isBlank(s)) buffer.append(" Left");
-                else buffer.append("Almost complete");
+                else buffer.append("complete");
             }
             uploadBar.setString(buffer.toString());
         } else if (event instanceof ImportEvent.FILE_UPLOAD_COMPLETE) {
