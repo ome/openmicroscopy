@@ -100,13 +100,14 @@ export PYTHONPATH=$(bin/brew --prefix omero)/lib/python:$ICE_HOME/python
 export PATH=$(bin/brew --prefix)/bin:$(bin/brew --prefix)/sbin:/usr/local/lib/node_modules:$ICE_HOME/bin:$PATH
 export DYLD_LIBRARY_PATH=$ICE_HOME/lib:$ICE_HOME/python:${DYLD_LIBRARY_PATH-}
 
+# Note: If postgres startup fails it's probably because there was an old
+# process still running.
 # Create PostgreSQL database
 if [ -d "$PSQL_DIR" ]; then
     rm -rf $PSQL_DIR
 fi
 bin/initdb $PSQL_DIR
-bin/brew services restart postgresql
-bin/pg_ctl -D $PSQL_DIR -l $PSQL_DIR/server.log start
+bin/pg_ctl -D $PSQL_DIR -l $PSQL_DIR/server.log -w start
 
 # Create user and database
 bin/createuser -w -D -R -S db_user
