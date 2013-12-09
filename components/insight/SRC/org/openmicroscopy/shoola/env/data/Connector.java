@@ -550,10 +550,10 @@ class Connector
     {
         //Reconnect
         //to be on the save side
+        shutDownServices(true);
+        statelessServices.clear();
         secureClient.closeSession();
         if (unsecureClient != null) unsecureClient.closeSession();
-        unsecureClient = secureClient.createClient(false);
-       
         entryEncrypted = secureClient.createSession(userName, password);
         if (unsecureClient != null) {
             unsecureClient = secureClient.createClient(false);
@@ -840,7 +840,7 @@ class Connector
                 unsecureClient == null, logger, elapseTime);
         log("Created derived connector: " + userName);
 
-        Connector otherThread = derived.putIfAbsent(userName, c); 
+        Connector otherThread = derived.putIfAbsent(userName, c);
         if (null != otherThread) {
             // This means that in the mean time someone else has created
             // another derived connector for this userName. We need to clean
