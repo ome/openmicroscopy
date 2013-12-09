@@ -67,8 +67,8 @@ public class ShutDownDialog
     /** Use to check if the network is up.*/
     private NetworkChecker checker;
 
-    /** Flag indicating to create a timer or not.*/
-    private boolean withTimer;
+    /** The type of shutdown windows.*/
+    private int index;
 
     /** 
      * Formats the displayed text.
@@ -98,14 +98,14 @@ public class ShutDownDialog
         remainingTime = time;
         okButton.setText("Shut Down");
         okButton.setToolTipText("Shut down the application.");
-        if (withTimer) {
+        int speed = 1000;
+        int pause = 1000;
+        checker = new NetworkChecker();
+        timer = new Timer(speed, this);
+        timer.setInitialDelay(pause);
+        timer.start();
+        if (index == -1) {
             formatText(time);
-            int speed = 1000;
-            int pause = 1000;
-            checker = new NetworkChecker();
-            timer = new Timer(speed, this);
-            timer.setInitialDelay(pause);
-            timer.start();
             setSize(400, 200);
         } else pack();
         setResizable(false);
@@ -120,14 +120,13 @@ public class ShutDownDialog
      * @param title The title to display on the title bar.
      * @param message The notification message.
      * @param time The time to wait before shutting down.
-     * @param withTimer Pass <code>true</code> to start timer,
-     *                  <code>false</code> otherwise.
+     * @param index <code>-1</code> or indicate the type of shutdown error.
      */
     public ShutDownDialog(JDialog owner, String title, String message,
-            int time, boolean withTimer)
+            int time, int index)
     {
         super(owner, title, message, null);
-        this.withTimer = withTimer;
+        this.index = index;
         initialize(time);
     }
 
@@ -140,14 +139,13 @@ public class ShutDownDialog
      * @param title The title to display on the title bar.
      * @param message The notification message.
      * @param time The time to wait before shutting down.
-     * @param withTimer Pass <code>true</code> to start timer,
-     *                  <code>false</code> otherwise.
+     * @param index <code>-1</code> or indicate the type of shutdown error.
      */
     public ShutDownDialog(JFrame owner, String title, String message, int time,
-            boolean withTimer)
+            int index)
     {
         super(owner, title, message, null);
-        this.withTimer = withTimer;
+        this.index = index;
         initialize(time);
     }
 
@@ -159,13 +157,11 @@ public class ShutDownDialog
      * @param owner The parent window.
      * @param title The title to display on the title bar.
      * @param message The notification message.
-     * @param withTimer Pass <code>true</code> to start timer,
-     *                  <code>false</code> otherwise.
+     * @param index <code>-1</code> or indicate the type of shutdown error.
      */
-    public ShutDownDialog(JDialog owner, String title, String message, boolean
-            withTimer)
+    public ShutDownDialog(JDialog owner, String title, String message, int index)
     {
-        this(owner, title, message, DEFAULT_TIME, withTimer);
+        this(owner, title, message, DEFAULT_TIME, index);
     }
 
     /**
@@ -179,7 +175,7 @@ public class ShutDownDialog
      */
     public ShutDownDialog(JDialog owner, String title, String message)
     {
-        this(owner, title, message, DEFAULT_TIME, true);
+        this(owner, title, message, DEFAULT_TIME, -1);
     }
 
     /**
@@ -190,13 +186,11 @@ public class ShutDownDialog
      * @param owner The parent window.
      * @param title The title to display on the title bar.
      * @param message The notification message.
-     * @param withTimer Pass <code>true</code> to start timer,
-     *                  <code>false</code> otherwise.
+     * @param index <code>-1</code> or indicate the type of shutdown error.
      */
-    public ShutDownDialog(JFrame owner, String title, String message, boolean
-            withTimer)
+    public ShutDownDialog(JFrame owner, String title, String message, int index)
     {
-        this(owner, title, message, DEFAULT_TIME, withTimer);
+        this(owner, title, message, DEFAULT_TIME, index);
     }
 
     /**
@@ -210,7 +204,7 @@ public class ShutDownDialog
      */
     public ShutDownDialog(JFrame owner, String title, String message)
     {
-        this(owner, title, message, DEFAULT_TIME, true);
+        this(owner, title, message, DEFAULT_TIME, -1);
     }
 
     /**
@@ -228,8 +222,9 @@ public class ShutDownDialog
     protected void cancel()
     {
         if (timer != null) timer.stop();
-        super.cancel();
         setVisible(false);
+        dispose();
+        firePropertyChange(CANCEL_NOTIFICATION_PROPERTY, -2, index);
     }
 
     /**
@@ -240,7 +235,7 @@ public class ShutDownDialog
     public void actionPerformed(ActionEvent e)
     {
         remainingTime--;
-        formatText(remainingTime);
+        if (index == -1) formatText(remainingTime);
         try {
             checker.isNetworkup(false);
             cancel();
