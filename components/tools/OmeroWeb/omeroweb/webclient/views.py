@@ -2662,7 +2662,7 @@ def script_run(request, scriptId, conn=None, **kwargs):
         if x.message and x.message.startswith("No processor available"):
             # Delegate to run_script() for handling 'No processor available'
             rsp = run_script(request, conn, sId, inputMap, scriptName='Script')
-            return HttpResponse(json.dumps(rsp), content_type='json')
+            return HttpResponse(json.dumps(rsp), content_type='application/json')
         else:
             raise
     params = scriptService.getParams(sId)
@@ -2742,7 +2742,7 @@ def script_run(request, scriptId, conn=None, **kwargs):
 
     logger.debug("Running script %s with params %s" % (scriptName, inputMap))
     rsp = run_script(request, conn, sId, inputMap, scriptName)
-    return HttpResponse(json.dumps(rsp), content_type='json')
+    return HttpResponse(json.dumps(rsp), content_type='application/json')
 
 
 @login_required(setGroupContext=True)
@@ -2762,7 +2762,7 @@ def ome_tiff_script(request, imageId, conn=None, **kwargs):
     inputMap = {'Data_Type': wrap('Image'), 'IDs': wrap(imageIds)}
     inputMap['Format'] = wrap('OME-TIFF')
     rsp = run_script(request, conn, sId, inputMap, scriptName='Create OME-TIFF')
-    return HttpResponse(json.dumps(rsp), content_type='json')
+    return HttpResponse(json.dumps(rsp), content_type='application/json')
 
 
 def run_script(request, conn, sId, inputMap, scriptName='Script'):
