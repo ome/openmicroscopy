@@ -319,12 +319,11 @@ public class RepositoryDaoImpl implements RepositoryDao {
                     // Make sure the file is in the user group
                     try {
                         sw = new Slf4JStopWatch();
-                        List<Object[]> rv = sf.getQueryService().projection(
-                                "select g.id from OriginalFile o " +
-                                "join o.details.group as g " +
-                                "where o.id = :id", new Parameters().addId(id));
-                        if (rv != null && rv.size() >= 0) {
-                            long groupId = (Long) rv.get(0)[0];
+                        // Now that within one tx, likely cached.
+                        f = sf.getQueryService().get(
+                                ome.model.core.OriginalFile.class, id);
+                        if (f != null) {
+                            long groupId = f.getDetails().getGroup().getId();
                             if (roles.getUserGroupId() == groupId) {
                                 // Null f, since it doesn't need to be reset.
                                 f = null;
