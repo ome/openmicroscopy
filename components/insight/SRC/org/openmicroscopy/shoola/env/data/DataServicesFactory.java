@@ -391,8 +391,8 @@ public class DataServicesFactory
     /** Attempts to reconnect.*/
     private void reconnect()
     {
-        String message;
         JFrame f = registry.getTaskBar().getFrame();
+        String message;
         UserCredentials uc = (UserCredentials)
                 registry.lookup(LookupNames.USER_CREDENTIALS);
         Map<SecurityContext, Set<Long>> l =
@@ -401,6 +401,7 @@ public class DataServicesFactory
                 uc.getPassword());
         connectionDialog.setVisible(false);
         connectionDialog.dispose();
+        registry.getLogger().debug(this, "reconnected: "+b+" "+l.size());
         if (b) {
             //reactivate the rendering engine. Need to review that
             Iterator<Entry<SecurityContext, Set<Long>>> i =
@@ -423,21 +424,24 @@ public class DataServicesFactory
                     try {
                         p = PixelsServicesFactory.getRenderingControl(
                                 registry, Long.valueOf(id), false);
-                        if (!p.isShutDown())
+                        if (!p.isShutDown()) {
+                            registry.getLogger().debug(this,
+                                    "loading re "+id);
                             svc.reloadRenderingService(ctx, id);
+                        }
                     } catch (Exception e) {
                         failure = failures.get(ctx);
                         if (failure == null) {
                             failure = new ArrayList<Long>();
                             failures.put(ctx, failure);
                         }
+                        registry.getLogger().debug(this,
+                                "Failed to load re for "+id+" "+e);
                         failure.add(id);
                     }
                 }
             }
-            message = "You are reconnected to the server.";
             if (failures.size() > 0) {
-                //notify user.
                 registry.getEventBus().post(
                         new ReloadRenderingEngine(failures));
             }
@@ -489,7 +493,7 @@ public class DataServicesFactory
 				break;
 			case ConnectionExceptionHandler.SERVER_OUT_OF_SERVICE:
 				message = "The server is no longer " +
-				"running. \nPlease contact your system administrator." +
+				"running.\nPlease contact your system administrator." +
 				"\nThe application will now exit.";
 				connectionDialog = new NotificationDialog(f,
 				        "Connection Refused", message, null);
