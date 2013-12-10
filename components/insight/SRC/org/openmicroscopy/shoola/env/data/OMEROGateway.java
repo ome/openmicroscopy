@@ -1379,7 +1379,6 @@ class OMEROGateway
 	        boolean permitNull)
 		throws DSOutOfServiceException
 	{
-
 	    try {
             isNetworkUp(); // Need safe version?
         } catch (Exception e1) {
@@ -2162,16 +2161,14 @@ class OMEROGateway
 		}
 		List<Connector> connectors = getAllConnectors();
 		Iterator<Connector> i = connectors.iterator();
-		int index = 0;
 		while (i.hasNext()) {
 			try {
 				i.next().reconnect(userName, password);
 			} catch (Throwable t) {
-			    log("Failed to reconnect "+t.getMessage());
-			    index++;
+			    log("Failed to reconnect "+t);
 			}
 		}
-		connected = index == 0;
+		connected = true;
 		reconnecting.set(true);
 		return connected;
 	}

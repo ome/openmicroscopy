@@ -36,6 +36,12 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
 //Third-party libraries
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
+import com.google.common.collect.Multimaps;
+import com.google.common.collect.Sets;
 
 //Application-internal dependencies
 import ome.formats.OMEROMetadataStoreClient;
@@ -87,16 +93,8 @@ import omero.grid.SharedResourcesPrxHelper;
 import omero.model.ExperimenterGroup;
 import omero.model.Session;
 import omero.sys.Principal;
-
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang.StringUtils;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.log.Logger;
-
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Multimap;
-import com.google.common.collect.Multimaps;
-import com.google.common.collect.Sets;
 
 
 /** 
@@ -552,8 +550,16 @@ class Connector
         //to be on the save side
         shutDownServices(true);
         statelessServices.clear();
-        secureClient.closeSession();
-        if (unsecureClient != null) unsecureClient.closeSession();
+        try {
+            if (unsecureClient != null) unsecureClient.closeSession();
+        } catch (Exception e) {
+            log("Failed to close the session");
+        }
+        try {
+            secureClient.closeSession();
+        } catch (Exception e) {
+            log("Failed to close the session");
+        }
         entryEncrypted = secureClient.createSession(userName, password);
         if (unsecureClient != null) {
             unsecureClient = secureClient.createClient(false);
@@ -623,7 +629,7 @@ class Connector
                 c = i.next();
                 c.close(networkup);
             } catch (Throwable e) {
-                log(String.format("Failed to close(%s) dervice: %s",
+                log(String.format("Failed to close(%s) service: %s",
                         networkup, c));
             }
         }

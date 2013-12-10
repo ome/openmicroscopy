@@ -664,15 +664,15 @@ class OmeroImageServiceImpl
 	}
 	
 	/** 
-	 * Implemented as specified by {@link OmeroImageService}. 
+	 * Implemented as specified by {@link OmeroImageService}.
 	 * @see OmeroImageService#reloadRenderingService(SecurityContext, long)
 	 */
 	public RenderingControl reloadRenderingService(SecurityContext ctx,
 		long pixelsID)
 		throws RenderingServiceException
 	{
-		RenderingControl proxy = 
-			PixelsServicesFactory.getRenderingControl(context, 
+		RenderingControl proxy =
+			PixelsServicesFactory.getRenderingControl(context,
 					Long.valueOf(pixelsID), false);
 		if (proxy == null) return null;
 		try {
@@ -683,7 +683,7 @@ class OmeroImageServiceImpl
 			for (int i = 0; i < number; i++) {
 				proxies.add(gateway.createRenderingEngine(ctx, pixelsID));
 			}
-			return PixelsServicesFactory.reloadRenderingControl(context, 
+			return PixelsServicesFactory.reloadRenderingControl(context,
 					pixelsID, proxies);
 		} catch (Exception e) {
 			throw new RenderingServiceException("Cannot restart the " +

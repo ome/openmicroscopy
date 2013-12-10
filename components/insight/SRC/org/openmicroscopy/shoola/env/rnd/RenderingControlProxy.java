@@ -42,7 +42,6 @@ import java.util.Set;
 
 
 //Third-party libraries
-import Ice.ObjectNotExistException;
 import com.sun.opengl.util.texture.TextureData;
 
 //Application-internal dependencies
@@ -54,13 +53,10 @@ import omero.model.Pixels;
 import omero.model.QuantumDef;
 import omero.model.RenderingModel;
 import omero.romio.PlaneDef;
-
-import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.cache.CacheService;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.ConnectionExceptionHandler;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
-import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.log.LogMessage;
@@ -189,7 +185,7 @@ class RenderingControlProxy
     	if (isChannelGreen(channel)) return GREEN_INDEX;
     	return NON_PRIMARY_INDEX;
     }
-    
+
     /**
      * Handles only connection error. Returns <code>true</code> if it is not a
      * connection error, <code>false</code> otherwise.
@@ -199,13 +195,24 @@ class RenderingControlProxy
      */
     private boolean handleConnectionException(Throwable e)
     {
-    	ConnectionExceptionHandler handler = new ConnectionExceptionHandler();
-    	int index = handler.handleConnectionException(e);
-    	if (index < 0) return true;
-    	context.getTaskBar().sessionExpired(index);
-    	return false;
+        ConnectionExceptionHandler handler = new ConnectionExceptionHandler();
+        int index = handler.handleConnectionException(e);
+        if (index < 0) return true;
+        log("Handle Exception:"+index);
+        context.getTaskBar().sessionExpired(index);
+        return index == ConnectionExceptionHandler.LOST_CONNECTION;
     }
-    
+
+    /**
+     * Logs the specified message.
+     * 
+     * @param error The message to log.
+     */
+    private void log(String error)
+    {
+        context.getLogger().debug(this, error);
+    }
+
     /**
      * Helper method to handle exceptions thrown by the connection library.
      * Methods in this class are required to fill in a meaningful context
@@ -799,24 +806,9 @@ class RenderingControlProxy
 			    context.getTaskBar().sessionExpired(
 			            ConnectionExceptionHandler.NETWORK);
 			}
-		} catch (Throwable e) {
-			if (shutDown && (e instanceof ObjectNotExistException)) {
-	    		//reload the RE
-				try {
-					context.getImageService().reloadRenderingService(ctx,
-							getPixelsID());
-				} catch (Exception ex) {
-					throw new RenderingServiceException(ex);
-				}
-				return;
-	    	}
-			b = handleConnectionException(e);
-			int index = 0;
-			if (!b) {
-				index = RenderingServiceException.CONNECTION;
-			}
+		} catch (DSOutOfServiceException e) {
 			RenderingServiceException ex = new RenderingServiceException(e);
-			ex.setIndex(index);
+			ex.setIndex(RenderingServiceException.CONNECTION);
 			throw ex;
 		}
 	}
@@ -850,8 +842,6 @@ class RenderingControlProxy
             throw new NullPointerException("No security context.");
         this.ctx = ctx;
         slaves = new ArrayList<RenderingControl>();
-        UserCredentials uc = (UserCredentials)
-        		context.lookup(LookupNames.USER_CREDENTIALS);
         resolutionLevels = -1;
         selectedResolutionLevel = -1;
         lastAction = System.currentTimeMillis();
@@ -931,7 +921,9 @@ class RenderingControlProxy
     	if (servant == null) return;
     	try {
 			this.servant.close();
-		} catch (Exception e) {} //digest exception if already close.
+		} catch (Exception e) {
+		    log("Error while closing the rendering engine "+e);
+		}
     	invalidateCache();
     	this.servant = servant;
     	shutDown = false;
@@ -1011,8 +1003,7 @@ class RenderingControlProxy
 			handleException(e, "Cannot reset the rendering engine.");
 		}
     }
-    
-    
+
     /** 
      * Shuts down the service. Returns <code>true</code> if the proxy
      * was already shut down, <code>false</code> otherwise.
@@ -1027,12 +1018,12 @@ class RenderingControlProxy
     	try {
     		if (!keepCache && cacheID >= 0)
     			context.getCacheService().removeCache(cacheID);
-    		//The servant is close in the connector.
-    		//if (checker.isNetworkup()) servant.close();
     		Iterator<RenderingControl> j = slaves.iterator();
 			while (j.hasNext())
 				((RenderingControlProxy) j.next()).shutDown();
-		} catch (Exception e) {}
+		} catch (Exception e) {
+		    log(e.toString());
+		}
     	shutDown = true;
     	return false;
     }
@@ -1066,7 +1057,7 @@ class RenderingControlProxy
             while (i.hasNext()) {
                 model= (RenderingModel) i.next();
                 if (model.getValue().getValue().equals(value)) {
-                    servant.setModel(model); 
+                    servant.setModel(model);
                     rndDef.setColorModel(value);
                     invalidateCache();
                 }
