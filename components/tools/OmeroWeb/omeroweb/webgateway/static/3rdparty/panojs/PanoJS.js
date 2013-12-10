@@ -528,7 +528,7 @@ PanoJS.prototype.assignTileImage = function(tile) {
           setTimeout(function(){
             var s = tileImg.src;
             tileImg.src = s;    // no change, but is enough to trigger reload
-          }, 1000); // try to reload src after timeout - best value?
+          }, 1000); // try to reload src after timeout - 1 sec seems to work OK
         }
         $(this).addClass('failed');
       };
@@ -536,7 +536,7 @@ PanoJS.prototype.assignTileImage = function(tile) {
     if ( tileImg.done || !tileImg.delayed_loading &&
          (useBlankImage || !PanoJS.USE_LOADER_IMAGE || tileImg.complete || (tileImg.image && tileImg.image.complete))  ) {
       tileImg.onload = null;
-      // tileImg.onerror = null;  // thought this would work? but we need to keep it
+      // tileImg.onerror = null;  // seems we can't remove error handler here
       $(tileImg).removeClass('failed');
       if (tileImg.image) tileImg.image.onload = null;
             
@@ -573,7 +573,7 @@ PanoJS.prototype.assignTileImage = function(tile) {
           }           
         }
 
-        // since we've loaded OK, don't need error handling (not sure if this works?)
+        // since we've loaded OK, I assume this frees up memory (not confirmed)
         tileImg.onerror = null;
                 
         tileImg.onload = function() {};
