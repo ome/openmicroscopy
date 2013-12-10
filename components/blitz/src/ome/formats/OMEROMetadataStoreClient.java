@@ -204,6 +204,7 @@ import omero.sys.EventContext;
 import omero.sys.ParametersI;
 
 import org.apache.commons.io.FilenameUtils;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -1913,7 +1914,7 @@ public class OMEROMetadataStoreClient
             } catch (ServerError se) {
                 throw new RuntimeException(se);
             }
-                    
+
         }
 		return ofile;
     }
@@ -4455,7 +4456,7 @@ public class OMEROMetadataStoreClient
     public void setLightEmittingDiodeLotNumber(String lotNumber,
             int instrumentIndex, int lightSourceIndex)
     {
-        LightEmittingDiode o = getLightEmittingDiode(instrumentIndex, 
+        LightEmittingDiode o = getLightEmittingDiode(instrumentIndex,
         		lightSourceIndex);
         o.setLotNumber(toRType(lotNumber));
     }
