@@ -548,7 +548,6 @@ class Connector
     {
         //Reconnect
         //to be on the save side
-        shutDownServices(true);
         statelessServices.clear();
         secureClient.closeSession();
         if (unsecureClient != null) {
@@ -560,6 +559,32 @@ class Connector
             unsecureClient = secureClient.createClient(false);
             entryUnencrypted = unsecureClient.getSession();
         }
+    }
+
+    /**
+     * Rejoins the session.
+     * 
+     * @throws Throwable Thrown if an error occurred while recreating session.
+     */
+    void joinSession()
+            throws Throwable
+    {
+        //Reconnect
+        //to be on the save side
+        String uuid = secureClient.getSessionId();
+        statelessServices.clear();
+        secureClient.closeSession();
+        if (unsecureClient != null) {
+            unsecureClient.closeSession();
+            unsecureClient = null;
+        }
+        entryEncrypted = secureClient.joinSession(uuid);
+        if (unsecureClient != null) {
+            unsecureClient = secureClient.createClient(false);
+            entryUnencrypted = unsecureClient.getSession();
+        }
+        reServices.clear();
+        statefulServices.clear();
     }
 
     /**

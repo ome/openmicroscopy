@@ -1475,8 +1475,6 @@ class OMEROGateway
 			if (prx instanceof ThumbnailStorePrx) {
 				ThumbnailStorePrx service = (ThumbnailStorePrx) prx;
 				if (!(service.setPixelsId(pixelsID))) {
-					//service.resetDefaults();
-					//service.setPixelsId(pixelsID);
 				}
 			} else if (prx instanceof RenderingEnginePrx) {
 				RenderingEnginePrx re = (RenderingEnginePrx) prx;
@@ -2173,6 +2171,39 @@ class OMEROGateway
 		return connected;
 	}
 
+	/**
+	 * Tries to rejoin the session.
+	 *
+	 * @return See above.
+	 */
+    boolean joinSession()
+    {
+        if (reconnecting.get()) return true;
+        try {
+            isNetworkUp(false); // Force re-check to prevent hang
+        } catch (Exception e) {
+            // no need to handle the exception.
+        }
+        boolean networkup = this.networkup.get(); // our copy
+        connected = false;
+        if (!networkup) {
+            log("Network is down");
+            return false;
+        }
+        List<Connector> connectors = getAllConnectors();
+        Iterator<Connector> i = connectors.iterator();
+        while (i.hasNext()) {
+            try {
+                i.next().joinSession();
+            } catch (Throwable t) {
+                log("Failed to rejoin the session "+t);
+            }
+        }
+        connected = true;
+        reconnecting.set(true);
+        return connected;
+    }
+    
 	/** Logs out. */
 	void logout()
 	{
