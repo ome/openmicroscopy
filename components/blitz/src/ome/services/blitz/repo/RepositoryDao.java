@@ -68,12 +68,13 @@ public interface RepositoryDao {
             throws ServerError;
 
     /**
-     * Checks that the given {@link CheckedPath} object exists (via
+     * Checks that the given {@link CheckedPath} objects exist (via
      * {@link #findRepoFile(String, CheckedPath, String, Ice.Current)})
-     * and is in the "user" group. If it doesn't exist, it is created; and if
-     * it isn't in the "user" group, it is moved.
+     * and are in the "user" group. If they don't exist, they are created; and
+     * if they aren't in the "user" group, they are moved.
      */
-    void createOrFixUserDir(String uuid, CheckedPath path, Ice.Current current)
+    void createOrFixUserDir(String uuid,
+            List<CheckedPath> path, Ice.Current current)
         throws ServerError;
 
     /**

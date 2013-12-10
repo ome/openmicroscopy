@@ -642,9 +642,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
         // Now that we know that these are the right directories for
         // the current user, we make sure that the directories are in
         // the user group.
-        for (final CheckedPath pathToFix : pathsToFix) {
-            repositoryDao.createOrFixUserDir(getRepoUuid(), pathToFix, __current);
-        }
+        repositoryDao.createOrFixUserDir(getRepoUuid(), pathsToFix, __current);
     }
 
     protected String getUserDirectoryName(Current __current) {
