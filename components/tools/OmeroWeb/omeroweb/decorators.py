@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 #
-# Copyright (C) 2011 University of Dundee & Open Microscopy Environment.
+# Copyright (C) 2011-2013 University of Dundee & Open Microscopy Environment.
 # All rights reserved.
 #
 # This program is free software: you can redistribute it and/or modify
@@ -24,17 +24,19 @@ Decorators for use with OMERO.web applications.
 """
 
 import logging
+import json
 
 from django.http import Http404, HttpResponse, HttpResponseRedirect, HttpResponseForbidden
 
 from django.conf import settings
 from django.utils.http import urlencode
 from functools import update_wrapper
-from django.utils import simplejson
 from django.core.urlresolvers import reverse
 from django.template import loader as template_loader
 from django.template import RequestContext
 from django.core.cache import cache
+
+from omeroweb.webclient.webclient_http import HttpJsonResponse
 
 from omeroweb.connector import Connector
 
@@ -444,8 +446,8 @@ class render_response(object):
 
             # allows us to return the dict as json  (NB: BlitzGateway objects don't serialize)
             if template is None or template == 'json':
-                json_data = simplejson.dumps(context)
-                return HttpResponse(json_data, mimetype='application/javascript')
+                json_data = json.dumps(context)
+                return HttpJsonResponse(json_data)
             else:
                 # allow additional processing of context dict
                 ctx.prepare_context(request, context, *args, **kwargs)

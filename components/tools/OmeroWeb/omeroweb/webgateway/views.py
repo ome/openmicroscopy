@@ -3,7 +3,7 @@
 #
 # webgateway/views.py - django application view handling functions
 # 
-# Copyright (c) 2007, 2008, 2009 Glencoe Software, Inc. All rights reserved.
+# Copyright (c) 2007-2013 Glencoe Software, Inc. All rights reserved.
 # 
 # This software is distributed under the terms described by the LICENCE file
 # you can find at the root of the distribution bundle, which states you are
@@ -14,11 +14,11 @@
 # Author: Carlos Neves <carlos(at)glencoesoftware.com>
 
 import re
-
+import json
 import omero
 import omero.clients
+
 from django.http import HttpResponse, HttpResponseServerError, HttpResponseRedirect, Http404
-from django.utils import simplejson
 from django.utils.encoding import smart_str
 from django.utils.http import urlquote
 from django.views.decorators.http import require_POST
@@ -310,7 +310,7 @@ def render_thumbnail (request, iid, w=None, h=None, conn=None, _defcb=None, **kw
             webgateway_cache.setThumb(request, server_id, user_id, iid, jpeg_data, size)
     else:
         pass
-    rsp = HttpResponse(jpeg_data, mimetype='image/jpeg')
+    rsp = HttpResponse(jpeg_data, content_type='image/jpeg')
     return rsp
 
 @login_required()
@@ -508,7 +508,7 @@ def get_shape_thumbnail (request, conn, image, s, compress_quality):
         draw.text((10,30), "Shape too large to \ngenerate thumbnail", fill=(255,0,0))
         rv = StringIO()
         dummy.save(rv, 'jpeg', quality=90)
-        return HttpResponse(rv.getvalue(), mimetype='image/jpeg')
+        return HttpResponse(rv.getvalue(), content_type='image/jpeg')
 
     xOffset = (newW - w)/2
     yOffset = (newH - h)/2
@@ -607,7 +607,7 @@ def get_shape_thumbnail (request, conn, image, s, compress_quality):
     img.save(rv, 'jpeg', quality=int(compression*100))
     jpeg = rv.getvalue()
     
-    return HttpResponse(jpeg, mimetype='image/jpeg')
+    return HttpResponse(jpeg, content_type='image/jpeg')
 
 
 def _get_signature_from_request (request):
@@ -728,7 +728,7 @@ def render_image_region(request, iid, z, t, conn=None, **kwargs):
         if jpeg_data is None:
             raise Http404
         webgateway_cache.setImage(request, server_id, img, z, t, jpeg_data)
-    rsp = HttpResponse(jpeg_data, mimetype='image/jpeg')
+    rsp = HttpResponse(jpeg_data, content_type='image/jpeg')
     return rsp    
     
 @login_required()
@@ -757,7 +757,7 @@ def render_image (request, iid, z=None, t=None, conn=None, **kwargs):
             raise Http404
         webgateway_cache.setImage(request, server_id, img, z, t, jpeg_data)
 
-    rsp = HttpResponse(jpeg_data, mimetype='image/jpeg')
+    rsp = HttpResponse(jpeg_data, content_type='image/jpeg')
     if 'download' in kwargs and kwargs['download']:
         rsp['Content-Type'] = 'application/force-download'
         rsp['Content-Length'] = len(jpeg_data)
@@ -821,11 +821,11 @@ def render_ome_tiff (request, ctx, cid, conn=None, **kwargs):
     imgs = filter(lambda x: not x.requiresPixelsPyramid(), imgs)
 
     if request.REQUEST.get('dryrun', False):
-        rv = simplejson.dumps(len(imgs))
+        rv = json.dumps(len(imgs))
         c = request.REQUEST.get('callback', None)
         if c is not None and not kwargs.get('_internal', False):
             rv = '%s(%s)' % (c, rv)
-        return HttpResponse(rv, mimetype='application/javascript')
+        return HttpResponse(rv, content_type='application/javascript')
     
     if len(imgs) == 0:
         raise Http404
@@ -850,7 +850,7 @@ def render_ome_tiff (request, ctx, cid, conn=None, **kwargs):
                 raise Http404
             webgateway_cache.setOmeTiffImage(request, server_id, imgs[0], tiff_data)
         if fobj is None:
-            rsp = HttpResponse(tiff_data, mimetype='image/tiff')
+            rsp = HttpResponse(tiff_data, content_type='image/tiff')
             rsp['Content-Disposition'] = 'attachment; filename="%s.ome.tiff"' % (str(obj.getId()) + '-'+objname)
             rsp['Content-Length'] = len(tiff_data)
             return rsp
@@ -884,7 +884,7 @@ def render_ome_tiff (request, ctx, cid, conn=None, **kwargs):
             zobj.close()
             if fpath is None:
                 zip_data = fobj.getvalue()
-                rsp = HttpResponse(zip_data, mimetype='application/zip')
+                rsp = HttpResponse(zip_data, content_type='application/zip')
                 rsp['Content-Disposition'] = 'attachment; filename="%s.zip"' % name
                 rsp['Content-Length'] = len(zip_data)
                 return rsp
@@ -948,7 +948,7 @@ def render_movie (request, iid, axis, pos, conn=None, **kwargs):
         if fpath is None:
             movie = open(fn).read()
             os.close(fo)
-            rsp = HttpResponse(movie, mimetype=mimetype)
+            rsp = HttpResponse(movie, content_type=mimetype)
             rsp['Content-Disposition'] = 'attachment; filename="%s"' % (img.getName()+ext)
             rsp['Content-Length'] = len(movie)
             return rsp
@@ -986,7 +986,7 @@ def render_split_channel (request, iid, z, t, conn=None, **kwargs):
         if jpeg_data is None:
             raise Http404
         webgateway_cache.setSplitChannelImage(request, server_id, img, z, t, jpeg_data)
-    rsp = HttpResponse(jpeg_data, mimetype='image/jpeg')
+    rsp = HttpResponse(jpeg_data, content_type='image/jpeg')
     return rsp
 
 def debug (f):
@@ -1030,22 +1030,22 @@ def jsonp (f):
                 return rv
             if isinstance(rv, HttpResponse):
                 return rv
-            rv = simplejson.dumps(rv)
+            rv = json.dumps(rv)
             c = request.REQUEST.get('callback', None)
             if c is not None and not kwargs.get('_internal', False):
                 rv = '%s(%s)' % (c, rv)
             if kwargs.get('_internal', False):
                 return rv
-            return HttpResponse(rv, mimetype='application/javascript')
+            return HttpResponse(rv, content_type='application/javascript')
         except omero.ServerError:
             if kwargs.get('_raw', False) or kwargs.get('_internal', False):
                 raise
-            return HttpResponseServerError('("error in call","%s")' % traceback.format_exc(), mimetype='application/javascript')
+            return HttpResponseServerError('("error in call","%s")' % traceback.format_exc(), content_type='application/javascript')
         except:
             logger.debug(traceback.format_exc())
             if kwargs.get('_raw', False) or kwargs.get('_internal', False):
                 raise
-            return HttpResponseServerError('("error in call","%s")' % traceback.format_exc(), mimetype='application/javascript')
+            return HttpResponseServerError('("error in call","%s")' % traceback.format_exc(), content_type='application/javascript')
     wrap.func_name = f.func_name
     return wrap
 
@@ -1081,7 +1081,7 @@ def render_row_plot (request, iid, z, t, y, conn=None, w=1, **kwargs):
         raise
     if gif_data is None:
         raise Http404
-    rsp = HttpResponse(gif_data, mimetype='image/gif')
+    rsp = HttpResponse(gif_data, content_type='image/gif')
     return rsp
 
 @debug
@@ -1112,7 +1112,7 @@ def render_col_plot (request, iid, z, t, x, w=1, conn=None, **kwargs):
     gif_data = img.renderColLinePlotGif(int(z),int(t),int(x), int(w))
     if gif_data is None:
         raise Http404
-    rsp = HttpResponse(gif_data, mimetype='image/gif')
+    rsp = HttpResponse(gif_data, content_type='image/gif')
     return rsp
  
 @login_required()
@@ -1132,7 +1132,7 @@ def imageData_json (request, conn=None, _internal=False, **kwargs):
     key = kwargs.get('key', None)
     image = conn.getObject("Image", iid)
     if image is None:
-        return HttpResponseServerError('""', mimetype='application/javascript')
+        return HttpResponseServerError('""', content_type='application/javascript')
     rv = imageMarshal(image, key)
     return rv
 
@@ -1152,7 +1152,7 @@ def wellData_json (request, conn=None, _internal=False, **kwargs):
     wid = kwargs['wid']
     well = conn.getObject("Well", wid)
     if well is None:
-        return HttpResponseServerError('""', mimetype='application/javascript')
+        return HttpResponseServerError('""', content_type='application/javascript')
     prefix = kwargs.get('thumbprefix', 'webgateway.views.render_thumbnail')
     def urlprefix(iid):
         return reverse(prefix, args=(iid,))
@@ -1171,7 +1171,7 @@ def plateGrid_json (request, pid, field=0, conn=None, **kwargs):
     except ValueError:
         field = 0
     if plate is None:
-        return HttpResponseServerError('""', mimetype='application/javascript')
+        return HttpResponseServerError('""', content_type='application/javascript')
     grid = []
     prefix = kwargs.get('thumbprefix', 'webgateway.views.render_thumbnail')
     thumbsize = int(request.REQUEST.get('size', 64))
@@ -1201,9 +1201,9 @@ def plateGrid_json (request, pid, field=0, conn=None, **kwargs):
         rv = {'grid': grid,
               'collabels': plate.getColumnLabels(),
               'rowlabels': plate.getRowLabels()}
-        webgateway_cache.setJson(request, server_id, plate, simplejson.dumps(rv), 'plategrid-%d-%d' % (field, thumbsize))
+        webgateway_cache.setJson(request, server_id, plate, json.dumps(rv), 'plategrid-%d-%d' % (field, thumbsize))
     else:
-        rv = simplejson.loads(rv)
+        rv = json.loads(rv)
     return rv
 
 @login_required()
@@ -1221,7 +1221,7 @@ def listImages_json (request, did, conn=None, **kwargs):
     
     dataset = conn.getObject("Dataset", did)
     if dataset is None:
-        return HttpResponseServerError('""', mimetype='application/javascript')
+        return HttpResponseServerError('""', content_type='application/javascript')
     prefix = kwargs.get('thumbprefix', 'webgateway.views.render_thumbnail')
     def urlprefix(iid):
         return reverse(prefix, args=(iid,))
@@ -1244,7 +1244,7 @@ def listWellImages_json (request, did, conn=None, **kwargs):
     
     well = conn.getObject("Well", did)
     if well is None:
-        return HttpResponseServerError('""', mimetype='application/javascript')
+        return HttpResponseServerError('""', content_type='application/javascript')
     prefix = kwargs.get('thumbprefix', 'webgateway.views.render_thumbnail')
     def urlprefix(iid):
         return reverse(prefix, args=(iid,))
@@ -1267,7 +1267,7 @@ def listDatasets_json (request, pid, conn=None, **kwargs):
     project = conn.getObject("Project", pid)
     rv = []
     if project is None:
-        return HttpResponse('[]', mimetype='application/javascript')
+        return HttpResponse('[]', content_type='application/javascript')
     return [x.simpleMarshal(xtra={'childCount':0}) for x in project.listChildren()]
 
 @login_required()
@@ -1386,7 +1386,7 @@ def search_json (request, conn=None, **kwargs):
         else:
             sr = conn.searchObjects(None, opts['search'], conn.SERVICE_OPTS)  # searches P/D/I
     except ApiUsageException:
-        return HttpResponseServerError('"parse exception"', mimetype='application/javascript')
+        return HttpResponseServerError('"parse exception"', content_type='application/javascript')
     def marshal ():
         rv = []
         if (opts['grabData'] and opts['ctx'] == 'imgs'):
@@ -1436,7 +1436,7 @@ def save_image_rdef_json (request, iid, conn=None, **kwargs):
         json_data = 'true'
     if r.get('callback', None):
         json_data = '%s(%s)' % (r['callback'], json_data)
-    return HttpResponse(json_data, mimetype='application/javascript')
+    return HttpResponse(json_data, content_type='application/javascript')
 
 @login_required()
 def list_compatible_imgs_json (request, iid, conn=None, **kwargs):
@@ -1482,11 +1482,11 @@ def list_compatible_imgs_json (request, iid, conn=None, **kwargs):
                 return False
             return True
         imgs = filter(compat, imgs)
-        json_data = simplejson.dumps([x.getId() for x in imgs])
+        json_data = json.dumps([x.getId() for x in imgs])
 
     if r.get('callback', None):
         json_data = '%s(%s)' % (r['callback'], json_data)
-    return HttpResponse(json_data, mimetype='application/javascript')
+    return HttpResponse(json_data, content_type='application/javascript')
 
 @login_required()
 @jsonp
@@ -1636,7 +1636,7 @@ def reset_image_rdef_json (request, iid, conn=None, **kwargs):
 #        return json_data == 'true'      # TODO: really return a boolean? (not json)
 #    if r.get('callback', None):
 #        json_data = '%s(%s)' % (r['callback'], json_data)
-#    return HttpResponse(json_data, mimetype='application/javascript')
+#    return HttpResponse(json_data, content_type='application/javascript')
 
 @login_required()
 def full_viewer (request, iid, conn=None, **kwargs):
@@ -1774,8 +1774,8 @@ def get_shape_json(request, roiId, shapeId, conn=None, **kwargs):
     if shape is None:
         logger.debug('No such shape: %r' % shapeId)
         raise Http404
-    return HttpResponse(simplejson.dumps(shapeMarshal(shape)),
-            mimetype='application/javascript')
+    return HttpResponse(json.dumps(shapeMarshal(shape)),
+            content_type='application/json')
 
 @login_required()
 def get_rois_json(request, imageId, conn=None, **kwargs):
@@ -1804,7 +1804,7 @@ def get_rois_json(request, imageId, conn=None, **kwargs):
         
     rois.sort(key=lambda x: x['id']) # sort by ID - same as in measurement tool.
     
-    return HttpResponse(simplejson.dumps(rois), mimetype='application/javascript')
+    return HttpResponse(json.dumps(rois), content_type='application/json')
 
 @login_required(isAdmin=True)
 @jsonp
