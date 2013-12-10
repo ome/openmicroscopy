@@ -734,6 +734,8 @@ public class StatusLabel
             uploadBar.setVisible(true);
             processingBar.setVisible(true);
             firePropertyChange(FILE_IMPORT_STARTED_PROPERTY, null, this);
+        } else if (event instanceof ImportEvent.FILESET_UPLOAD_PREPARATION) {
+            generalLabel.setText("Preparing upload...");
         }
     }
 
