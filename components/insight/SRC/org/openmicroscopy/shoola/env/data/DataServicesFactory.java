@@ -66,7 +66,6 @@ import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.log.Logger;
 import org.openmicroscopy.shoola.env.rnd.PixelsServicesFactory;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
-import org.openmicroscopy.shoola.env.ui.AbstractIconManager;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.svc.proxy.ProxyUtil;
 import org.openmicroscopy.shoola.util.ui.IconManager;
@@ -393,15 +392,11 @@ public class DataServicesFactory
     {
         JFrame f = registry.getTaskBar().getFrame();
         String message;
-        UserCredentials uc = (UserCredentials)
-                registry.lookup(LookupNames.USER_CREDENTIALS);
         Map<SecurityContext, Set<Long>> l =
                 omeroGateway.getRenderingEngines();
-        boolean b = omeroGateway.reconnect(uc.getUserName(),
-                uc.getPassword());
+        boolean b = omeroGateway.joinSession();
         connectionDialog.setVisible(false);
         connectionDialog.dispose();
-        registry.getLogger().debug(this, "reconnected: "+b+" "+l.size());
         if (b) {
             //reactivate the rendering engine. Need to review that
             Iterator<Entry<SecurityContext, Set<Long>>> i =
