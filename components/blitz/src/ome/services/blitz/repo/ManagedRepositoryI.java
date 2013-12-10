@@ -586,9 +586,13 @@ public class ManagedRepositoryI extends PublicRepositoryI
         // to saveFileset() requires the parent dirs to
         // exist.
         List<CheckedPath> dirs = new ArrayList<CheckedPath>();
+        Set<String> seen = new HashSet<String>();
         // dirs.add(data.sharedPath); TODO: is this needed?
         for (CheckedPath checked : data.checkedPaths) {
-            dirs.add(checked.parent());
+            if (!seen.contains(checked.getRelativePath())) {
+                dirs.add(checked.parent());
+                seen.add(checked.getRelativePath());
+            }
         }
         repositoryDao.makeDirs(this, dirs, true, __current);
 
