@@ -78,6 +78,12 @@ public class InteractiveProcessorI implements _InteractiveProcessorOperations,
 
     private final long scriptId;
 
+    private final String mimetype;
+
+    private final String launcher;
+
+    private final String process;
+
     private final long timeout;
 
     private final ReadWriteLock rwl = new ReentrantReadWriteLock();
@@ -124,8 +130,17 @@ public class InteractiveProcessorI implements _InteractiveProcessorOperations,
         this.session = UNINITIALIZED;
 
         // Loading values.
-        scriptId = getScriptId(job, current);
+        OriginalFile f = getScriptId(job, current);
+        this.scriptId = f.getId();
+        this.mimetype = f.getMimetype();
+        this.launcher = scriptRepoHelper.getLauncher(this.mimetype);
+        this.process = scriptRepoHelper.getProcess(this.mimetype);
 
+    }
+
+    private void setLauncher(Ice.Current __current) {
+        __current.ctx.put("omero.launcher", this.launcher);
+        __current.ctx.put("omero.process", this.process);
     }
 
     public JobParams params(Current __current) throws ServerError {
@@ -147,6 +162,7 @@ public class InteractiveProcessorI implements _InteractiveProcessorOperations,
             if (params == null) {
                 try {
                     if (job instanceof ParseJob) {
+                        setLauncher(__current);
                         params = prx.parseJob(session.getUuid(), job, __current.ctx);
                         if (params == null) {
                             StringBuilder sb = new StringBuilder();
@@ -229,6 +245,7 @@ public class InteractiveProcessorI implements _InteractiveProcessorOperations,
                     params = params(__current);
                 }
 
+                setLauncher(__current);
                 currentProcess = prx.processJob(uuid, params, job, __current.ctx);
 
                 // Have to add the process to the control, otherwise the
@@ -475,7 +492,7 @@ public class InteractiveProcessorI implements _InteractiveProcessorOperations,
         return newSession;
     }
 
-    private long getScriptId(final Job job, final Ice.Current current) throws omero.ValidationException {
+    private OriginalFile getScriptId(final Job job, final Ice.Current current) throws omero.ValidationException {
         final QueryBuilder qb = new QueryBuilder();
         qb.select("o").from("Job", "j");
         qb.join("j.originalFileLinks", "links", false, false);
@@ -500,7 +517,7 @@ public class InteractiveProcessorI implements _InteractiveProcessorOperations,
             throw new omero.ValidationException(null, null,
                     "No script for job :" + job.getId().getValue());
         }
-        return f.getId();
+        return f;
     }
 
     public void close(Current current) throws Exception {
