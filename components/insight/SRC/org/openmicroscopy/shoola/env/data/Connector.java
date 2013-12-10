@@ -551,7 +551,10 @@ class Connector
         shutDownServices(true);
         statelessServices.clear();
         secureClient.closeSession();
-        if (unsecureClient != null) unsecureClient.closeSession();
+        if (unsecureClient != null) {
+            unsecureClient.closeSession();
+            unsecureClient = null;
+        }
         entryEncrypted = secureClient.createSession(userName, password);
         if (unsecureClient != null) {
             unsecureClient = secureClient.createClient(false);
