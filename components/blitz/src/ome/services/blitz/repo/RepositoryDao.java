@@ -2,6 +2,8 @@ package ome.services.blitz.repo;
 
 import java.util.List;
 
+import org.hibernate.Session;
+
 import Ice.Current;
 
 import ome.api.RawFileStore;
@@ -55,6 +57,14 @@ public interface RepositoryDao {
             String mimetype, Ice.Current current) throws ServerError;
 
     /**
+     * As {@link #findRepoFile(String, CheckedPath, String, Current)} but
+     * can be called from within a transaction.
+     */
+    ome.model.core.OriginalFile findRepoFile(ServiceFactory sf,
+            SqlAction sql, final String uuid, final CheckedPath checked,
+            final String mimetype);
+
+    /*
      * Look up all original files at a given path, recursively, in a single
      * transaction.
      *
@@ -74,7 +84,7 @@ public interface RepositoryDao {
      * if they aren't in the "user" group, they are moved.
      */
     void createOrFixUserDir(String uuid,
-            List<CheckedPath> path, Ice.Current current)
+            List<CheckedPath> path, Session s, ServiceFactory sf, SqlAction sql)
         throws ServerError;
 
     /**
@@ -234,5 +244,13 @@ public interface RepositoryDao {
      * @return the number of rows deleted
      */
     int deleteRepoDeleteLogs(DeleteLog template, final Ice.Current current);
+
+    /**
+     * Create a number of directories in a single transaction, using the
+     * {@link PublicRepositoryI} instance as a callback for implementation
+     * specific logic.
+     */
+    void makeDirs(PublicRepositoryI repo, List<CheckedPath> dirs, boolean parents,
+            Ice.Current c);
 
 }

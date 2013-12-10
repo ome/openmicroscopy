@@ -33,6 +33,7 @@ import java.util.Set;
 
 import loci.formats.FormatReader;
 
+import ome.api.local.LocalAdmin;
 import ome.formats.importer.ImportConfig;
 import ome.formats.importer.ImportContainer;
 import ome.services.blitz.gateway.services.util.ServiceUtilities;
@@ -41,6 +42,8 @@ import ome.services.blitz.repo.path.FilePathNamingValidator;
 import ome.services.blitz.repo.path.FilePathRestrictionInstance;
 import ome.services.blitz.repo.path.FsFile;
 import ome.services.blitz.util.ChecksumAlgorithmMapper;
+import ome.system.ServiceFactory;
+import ome.util.SqlAction;
 import ome.util.checksum.ChecksumProviderFactory;
 import ome.util.checksum.ChecksumProviderFactoryImpl;
 import omero.ResourceError;
@@ -66,9 +69,11 @@ import omero.model.ThumbnailGenerationJob;
 import omero.model.ThumbnailGenerationJobI;
 import omero.model.UploadJob;
 import omero.sys.EventContext;
+import omero.util.IceMapper;
 
 import org.apache.commons.lang.text.StrLookup;
 import org.apache.commons.lang.text.StrSubstitutor;
+import org.hibernate.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -178,7 +183,8 @@ public class ManagedRepositoryI extends PublicRepositoryI
 
         // This is the first part of the string which comes after:
         // ManagedRepository/, e.g. %user%/%year%/etc.
-        FsFile relPath = new FsFile(expandTemplate(template, __current));
+        final EventContext ec = repositoryDao.getEventContext(__current);
+        final FsFile relPath = new FsFile(expandTemplate(template, ec));
         // at this point, relPath should not yet exist on the filesystem
         createTemplateDir(relPath, __current);
         fs.setTemplatePrefix(rstring(relPath.toString() + FsFile.separatorChar));
@@ -400,13 +406,13 @@ public class ManagedRepositoryI extends PublicRepositoryI
      * @param curr
      * @return
      */
-    protected String expandTemplate(final String template, Ice.Current curr) {
+    protected String expandTemplate(final String template, EventContext ec) {
 
         if (template == null) {
             return ""; // EARLY EXIT.
         }
 
-        final Map<String, String> map = replacementMap(curr);
+        final Map<String, String> map = replacementMap(ec);
         final StrSubstitutor strSubstitutor = new StrSubstitutor(
                 new StrLookup() {
                     @Override
@@ -428,8 +434,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
      * @param curr
      * @return
      */
-    protected Map<String, String> replacementMap(Ice.Current curr) {
-        final EventContext ec = this.repositoryDao.getEventContext(curr);
+    protected Map<String, String> replacementMap(EventContext ec) {
         final Map<String, String> map = new HashMap<String, String>();
         final Calendar now = Calendar.getInstance();
         map.put("user", ec.userName);
@@ -576,15 +581,16 @@ public class ManagedRepositoryI extends PublicRepositoryI
                     this.checksumProviderFactory, checksumAlgorithm));
         }
 
-        makeDir(data.sharedPath, true, __current);
-
         // Assuming we reach here, then we need to make
         // sure that the directory exists since the call
         // to saveFileset() requires the parent dirs to
         // exist.
+        List<CheckedPath> dirs = new ArrayList<CheckedPath>();
+        // dirs.add(data.sharedPath); TODO: is this needed?
         for (CheckedPath checked : data.checkedPaths) {
-            makeDir(checked.getRelativePath(), true, __current);
+            dirs.add(checked.parent());
         }
+        repositoryDao.makeDirs(this, dirs, true, __current);
 
         return data;
     }
@@ -594,10 +600,13 @@ public class ManagedRepositoryI extends PublicRepositoryI
      * {@link PublicRepositoryI#makeCheckedDirs(LinkedList<CheckedPath>, boolean, Current)}
      */
     protected void makeCheckedDirs(final LinkedList<CheckedPath> paths,
-            boolean parents, Current __current) throws ResourceError,
-            ServerError {
+            boolean parents, Session s, ServiceFactory sf, SqlAction sql)
+                    throws ResourceError, ServerError {
 
-        final String expanded = expandTemplate(template, __current);
+        final ome.system.EventContext _ec
+            = ((LocalAdmin) sf.getAdminService()).getEventContextQuiet();
+        final EventContext ec = IceMapper.convert(_ec);
+        final String expanded = expandTemplate(template, ec);
         final FsFile asfsfile = new FsFile(expanded);
         final List<String> components = asfsfile.getComponents();
         final List<CheckedPath> pathsToFix = new ArrayList<CheckedPath>();
@@ -625,7 +634,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
                 // "%USERNAME%_%USERID%", in which case if it doesn't exist, it will
                 // be created for the user in the "user" group so that it is
                 // visible globally.
-                String userDirectory = getUserDirectoryName(__current);
+                String userDirectory = getUserDirectoryName(ec);
                 if (!userDirectory.equals(checked.getName())) {
                     throw new omero.ValidationException(null, null, String.format(
                             "User-directory name mismatch! (%s<>%s)",
@@ -637,16 +646,15 @@ public class ManagedRepositoryI extends PublicRepositoryI
             pathsToFix.add(checked);
         }
         
-        super.makeCheckedDirs(paths, parents, __current);
+        super.makeCheckedDirs(paths, parents, s, sf, sql);
         
         // Now that we know that these are the right directories for
         // the current user, we make sure that the directories are in
         // the user group.
-        repositoryDao.createOrFixUserDir(getRepoUuid(), pathsToFix, __current);
+        repositoryDao.createOrFixUserDir(getRepoUuid(), pathsToFix, s, sf, sql);
     }
 
-    protected String getUserDirectoryName(Current __current) {
-        EventContext ec = repositoryDao.getEventContext(__current);
+    protected String getUserDirectoryName(EventContext ec) {
         return String.format("%s_%s", ec.userName, ec.userId);
     }
 }

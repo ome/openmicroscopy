@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.io.FileUtils;
 import org.perf4j.StopWatch;
 import org.perf4j.slf4j.Slf4JStopWatch;
 import org.slf4j.Logger;
@@ -35,9 +34,7 @@ import ome.system.ServiceFactory;
 import ome.util.SqlAction;
 import ome.util.SqlAction.DeleteLog;
 
-import omero.RLong;
 import omero.RMap;
-import omero.RString;
 import omero.RType;
 import omero.SecurityViolation;
 import omero.ServerError;
@@ -180,7 +177,7 @@ public class RepositoryDaoImpl implements RepositoryDao {
 
     }
 
-    protected ome.model.core.OriginalFile findRepoFile(ServiceFactory sf,
+    public ome.model.core.OriginalFile findRepoFile(ServiceFactory sf,
             SqlAction sql, final String uuid, final CheckedPath checked,
             final String mimetype) {
 
@@ -289,75 +286,67 @@ public class RepositoryDaoImpl implements RepositoryDao {
 
     public void createOrFixUserDir(final String repoUuid,
             final List<CheckedPath> checkedPaths,
-            final Current current) throws ServerError {
+            final Session s, final ServiceFactory sf, final SqlAction sql)
+                    throws ServerError {
 
         final StopWatch outer = new Slf4JStopWatch();
         try {
-             executor.execute(current.ctx, currentUser(current),
-                            new Executor.SimpleWork(this, "createOrFixUserDir",
-                                    repoUuid) {
-                @Transactional(readOnly = false)
-                public ome.model.core.OriginalFile doWork(Session session, ServiceFactory sf) {
 
-                    for (CheckedPath checked : checkedPaths) {
+            for (CheckedPath checked : checkedPaths) {
 
-                        CheckedPath parent;
-                        try {
-                            parent = checked.parent();
-                        } catch (ValidationException ve) {
-                            throw new RuntimeException(ve);
-                        }
+                CheckedPath parent;
+                try {
+                    parent = checked.parent();
+                } catch (ValidationException ve) {
+                    throw new RuntimeException(ve);
+                }
 
-                        StopWatch sw = new Slf4JStopWatch();
-                        // Look for the dir in all groups (
-                        Long id = getSqlAction().findRepoFile(repoUuid, checked.getRelativePath(),
-                                checked.getName());
-                        sw.stop("omero.repo.file.find");
+                StopWatch sw = new Slf4JStopWatch();
+                // Look for the dir in all groups (
+                Long id = sql.findRepoFile(repoUuid, checked.getRelativePath(),
+                        checked.getName());
+                sw.stop("omero.repo.file.find");
 
-                        ome.model.core.OriginalFile f = null;
-                        if (id == null) {
-                            // Doesn't exist. Create directory
-                            sw = new Slf4JStopWatch();
-                            f = _internalRegister(repoUuid, checked, null,
-                                    PublicRepositoryI.DIRECTORY_MIMETYPE,
-                                    parent, sf, getSqlAction());
-                            sw.stop("omero.repo.file.register");
-                        } else {
-                            // Make sure the file is in the user group
-                            try {
-                                sw = new Slf4JStopWatch();
-                                List<Object[]> rv = sf.getQueryService().projection(
-                                        "select g.id from OriginalFile o " +
-                                        "join o.details.group as g " +
-                                        "where o.id = :id", new Parameters().addId(id));
-                                if (rv != null && rv.size() >= 0) {
-                                    long groupId = (Long) rv.get(0)[0];
-                                    if (roles.getUserGroupId() == groupId) {
-                                        // Null f, since it doesn't need to be reset.
-                                        f = null;
-                                    }
-                                }
-                                sw.stop("omero.repo.file.check_group");
-                            }
-                            catch (ome.conditions.SecurityViolation e) {
-                                // If we aren't allowed to read the file, then likely
-                                // it isn't in the user group so we will move it there.
-                                f = new ome.model.core.OriginalFile(id, false);
+                ome.model.core.OriginalFile f = null;
+                if (id == null) {
+                    // Doesn't exist. Create directory
+                    sw = new Slf4JStopWatch();
+                    f = _internalRegister(repoUuid, checked, null,
+                            PublicRepositoryI.DIRECTORY_MIMETYPE,
+                            parent, sf, sql);
+                    sw.stop("omero.repo.file.register");
+                } else {
+                    // Make sure the file is in the user group
+                    try {
+                        sw = new Slf4JStopWatch();
+                        List<Object[]> rv = sf.getQueryService().projection(
+                                "select g.id from OriginalFile o " +
+                                "join o.details.group as g " +
+                                "where o.id = :id", new Parameters().addId(id));
+                        if (rv != null && rv.size() >= 0) {
+                            long groupId = (Long) rv.get(0)[0];
+                            if (roles.getUserGroupId() == groupId) {
+                                // Null f, since it doesn't need to be reset.
+                                f = null;
                             }
                         }
-
-                        if (f != null) {
-                            sw = new Slf4JStopWatch();
-                            ((LocalAdmin) sf.getAdminService())
-                                .internalMoveToCommonSpace(f);
-                            sw.stop("omero.repo.file.move_to_common");
-                        }
-
+                        sw.stop("omero.repo.file.check_group");
                     }
-                    return null;
+                    catch (ome.conditions.SecurityViolation e) {
+                        // If we aren't allowed to read the file, then likely
+                        // it isn't in the user group so we will move it there.
+                        f = new ome.model.core.OriginalFile(id, false);
+                    }
+                }
 
-            }});
+                if (f != null) {
+                    sw = new Slf4JStopWatch();
+                    ((LocalAdmin) sf.getAdminService())
+                        .internalMoveToCommonSpace(f);
+                    sw.stop("omero.repo.file.move_to_common");
+                }
 
+            }
         } catch (ome.conditions.SecurityViolation sv) {
             throw wrapSecurityViolation(sv);
         } finally {
@@ -653,6 +642,33 @@ public class RepositoryDaoImpl implements RepositoryDao {
             throw (ServerError) mapper.handleException(e, executor.getContext());
         }
     }
+
+    /*
+     * See api.
+     */
+    public void makeDirs(final PublicRepositoryI repo,
+            final List<CheckedPath> dirs,
+            final boolean parents,
+            final Ice.Current __current) {
+        executor.execute(__current.ctx, currentUser(__current),
+                new Executor.SimpleWork(this, "makeDirs", dirs) {
+            @Transactional(readOnly = false)
+            public Object doWork(Session session, ServiceFactory sf) {
+                for (CheckedPath checked : dirs) {
+                    try {
+                        repo.makeDir(checked, parents,
+                            session, sf, getSqlAction());
+                    } catch (ServerError se) {
+                        // TODO: Here we need a way to convert back to a
+                        // ome.condition
+                        throw new RuntimeException(se);
+                    }
+                }
+                return null;
+            }
+        });
+    }
+
     /**
      * Internal file registration which must happen within a single tx.
      *
