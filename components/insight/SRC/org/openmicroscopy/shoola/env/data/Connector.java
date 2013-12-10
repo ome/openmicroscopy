@@ -550,16 +550,8 @@ class Connector
         //to be on the save side
         shutDownServices(true);
         statelessServices.clear();
-        try {
-            if (unsecureClient != null) unsecureClient.closeSession();
-        } catch (Exception e) {
-            log("Failed to close the session");
-        }
-        try {
-            secureClient.closeSession();
-        } catch (Exception e) {
-            log("Failed to close the session");
-        }
+        secureClient.closeSession();
+        if (unsecureClient != null) unsecureClient.closeSession();
         entryEncrypted = secureClient.createSession(userName, password);
         if (unsecureClient != null) {
             unsecureClient = secureClient.createClient(false);
