@@ -36,6 +36,8 @@ public class LoggingImportMonitor implements IObserver
             // send the import results to stdout
             // to enable external tools integration
             outputGreppableResults(ev);
+        } else if (event instanceof FILESET_UPLOAD_PREPARATION) {
+            log.info(event.toLog());
         } else if (event instanceof FILESET_UPLOAD_START) {
             log.info(event.toLog());
         } else if (event instanceof FILESET_UPLOAD_END) {
