@@ -267,10 +267,9 @@ class PrefsControl(BaseControl):
         if args.KEY in config.keys():
             list_value = self.get_list_value(args, config)
             list_value.append(args.VALUE)
-            config[args.KEY] = str(list_value)
         else:
             list_value = [args.VALUE]
-            config[args.KEY] = str(list_value)
+        config[args.KEY] = str(list_value)
 
     @with_rw_config
     def remove(self, args, config):
