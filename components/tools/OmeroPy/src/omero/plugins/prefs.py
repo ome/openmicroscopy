@@ -251,11 +251,21 @@ class PrefsControl(BaseControl):
         else:
             config[args.KEY] = args.VALUE
 
+    def get_list_value(self, args, config):
+        import ast
+        try:
+            list_value = ast.literal_eval(config[args.KEY])
+        except:
+            self.ctx.die(510, "Malformed string")
+
+        if not isinstance(list_value, list):
+            self.ctx.die(511, "Property %s is not a list" % args.KEY)
+        return list_value
+
     @with_rw_config
     def append(self, args, config):
         if args.KEY in config.keys():
-            import ast
-            list_value = ast.literal_eval(config[args.KEY])
+            list_value = self.get_list_value(args, config)
             list_value.append(args.VALUE)
             config[args.KEY] = str(list_value)
         else:
@@ -264,17 +274,19 @@ class PrefsControl(BaseControl):
 
     @with_rw_config
     def remove(self, args, config):
-        if args.KEY in config.keys():
-            import ast
-            list_value = ast.literal_eval(config[args.KEY])
-            if args.VALUE in list_value:
-                list_value.remove(args.VALUE)
-                config[args.KEY] = str(list_value)
-            else:
-                self.ctx.err("%s is not defined in %s"
-                             % (args.VALUE, args.KEY))
+        if args.KEY not in config.keys():
+            self.ctx.die(512, "%s is not defined" % (args.KEY))
+
+        list_value = self.get_list_value(args, config)
+        if args.VALUE not in list_value:
+            self.ctx.die(513, "%s is not defined in %s"
+                         % (args.VALUE, args.KEY))
+
+        list_value.remove(args.VALUE)
+        if list_value:
+            config[args.KEY] = str(list_value)
         else:
-            self.ctx.err("%s is not defined" % (args.KEY))
+            del config[args.KEY]
 
     @with_config
     def keys(self, args, config):
