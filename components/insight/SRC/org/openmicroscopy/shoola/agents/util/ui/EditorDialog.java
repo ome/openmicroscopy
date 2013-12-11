@@ -252,8 +252,8 @@ public class EditorDialog
      */
     private JPanel buildContentPanel() {
         JPanel content = new JPanel();
-        double[][] tl = {{TableLayout.PREFERRED, TableLayout.FILL },
-                {TableLayout.PREFERRED, 5, TableLayout.FILL }};
+        double[][] tl = {{TableLayout.PREFERRED, TableLayout.FILL},
+                {TableLayout.PREFERRED, 5, TableLayout.FILL}};
         TableLayout layout = new TableLayout(tl);
         content.setLayout(layout);
         content.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
