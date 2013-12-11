@@ -2277,6 +2277,7 @@ public class OMEROMetadataStoreClient
                     log.debug("resetDefaultsAndGenerateThumbnails exception", ie);
                 }
             }
+            thumbnailStore.close();
         } catch (ServerError e) {
             throw new RuntimeException(e);
         }
