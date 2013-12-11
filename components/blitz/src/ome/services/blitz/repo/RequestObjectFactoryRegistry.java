@@ -24,6 +24,7 @@ import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
+import ome.io.nio.PixelsService;
 import ome.io.nio.TileSizes;
 import ome.services.blitz.fire.Registry;
 import ome.services.blitz.fire.Ring;
@@ -45,16 +46,20 @@ public class RequestObjectFactoryRegistry extends
 
     private final RepositoryDao dao;
 
-    private/* final */OmeroContext ctx;
-
     private final Ring ring;
 
+    private final PixelsService pixels;
+
+    private/* final */OmeroContext ctx;
+
     public RequestObjectFactoryRegistry(Registry reg, TileSizes sizes,
-            RepositoryDao repositoryDao, Ring ring) {
+            RepositoryDao repositoryDao, Ring ring,
+            PixelsService pixels) {
         this.reg = reg;
         this.sizes = sizes;
         this.dao = repositoryDao;
         this.ring = ring;
+        this.pixels = pixels;
     }
 
     public void setApplicationContext(ApplicationContext ctx)
@@ -69,7 +74,11 @@ public class RequestObjectFactoryRegistry extends
             @Override
             public Ice.Object create(String name) {
                 return new ManagedImportRequestI(reg, sizes, dao,
-                        new OMEROWrapper(new ImportConfig()), ring.uuid);
+                        new OMEROWrapper(
+                                new ImportConfig(),
+                                pixels.getMemoizerWait(),
+                                pixels.getMemoizerDirectory()),
+                        ring.uuid);
             }
 
         });

@@ -243,6 +243,26 @@ def long_to_path(id, root=""):
 
     return os.path.join(root, "%s%s" %(suffix,id))
 
+
+def load_dotted_class(dotted_class):
+    """
+    Load a Python class of the form "pkg.mod.Class"
+    via __import__ and return it. No ctor or similar
+    is called.
+    """
+    try:
+        parts = dotted_class.split(".")
+        pkg = ".".join(parts[0:-2])
+        mod = str(parts[-2])
+        kls = parts[-1]
+        got = __import__(pkg, fromlist=[mod])
+        got = getattr(got, mod)
+        return getattr(got, kls)
+    except Exception, e:
+        raise Exception("""Failed to load: %s
+        previous excetion: %s""" % (dotted_class, e))
+
+
 class ServerContext(object):
     """
     Context passed to all servants.
