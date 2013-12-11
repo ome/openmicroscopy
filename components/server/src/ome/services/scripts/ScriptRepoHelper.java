@@ -203,6 +203,46 @@ public class ScriptRepoHelper extends OnContextRefreshedEventListener {
     }
 
     /**
+     * Search through all {@link ScriptFileType} instances and find one with
+     * a matching mimetype string. Otherwise, return null.
+     */
+    protected Map.Entry<String, ScriptFileType> findByMimetype(String mimetype) {
+        for (Map.Entry<String, ScriptFileType> entry : types.entrySet()) {
+            ScriptFileType type = entry.getValue();
+            if (type.getMimetype().equals(mimetype)) {
+                return entry;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Find an "omero.launcher..." property string for the given mimetype or
+     * return "" if none is found.
+     */
+    public String getLauncher(String mimetype) {
+        Map.Entry<String, ScriptFileType> entry = findByMimetype(mimetype);
+        if (entry == null) {
+            log.warn("No mimetype equals to {}", mimetype);
+            return "";
+        }
+        return entry.getValue().getLauncher();
+    }
+
+    /**
+     * Find an "omero.process..." property string for the given mimetype or
+     * return "" if none is found.
+     */
+    public String getProcess(String mimetype) {
+        Map.Entry<String, ScriptFileType> entry = findByMimetype(mimetype);
+        if (entry == null) {
+            log.warn("No mimetype equals to {}", mimetype);
+            return "";
+        }
+        return entry.getValue().getProcess();
+    }
+
+    /**
      * If we're in a testing scenario we need to ignore the fact that there
      * is no lib/script directory. Otherwise, all devs will need to mkdir -p
      * that directory both at the top-level and under blitz/ etc.
@@ -661,4 +701,5 @@ public class ScriptRepoHelper extends OnContextRefreshedEventListener {
                     + id + "\nIs in use by other objects");
         }
     }
+
 }

@@ -1,9 +1,10 @@
 /*
  * ome.io.nio.PixelBuffer
  *
- *   Copyright 2007 Glencoe Software Inc. All rights reserved.
+ *   Copyright 2007-2013 Glencoe Software Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
+
 package ome.io.nio;
 
 import java.awt.Dimension;
@@ -20,7 +21,6 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import ome.conditions.ApiUsageException;
@@ -355,8 +355,9 @@ public class RomioPixelBuffer extends AbstractBuffer implements PixelBuffer {
     {
 		if (buffer.length != size)
 			throw new ApiUsageException("Buffer size incorrect.");
-		ByteBuffer b = getRegion(size, offset).getData();
-		b.get(buffer);
+		final PixelData pd = getRegion(size, offset);
+		pd.getData().get(buffer);
+		pd.dispose();
 		return buffer;
     }
 
@@ -393,7 +394,7 @@ public class RomioPixelBuffer extends AbstractBuffer implements PixelBuffer {
             value = plane.getPixelValue(offset);
             column.setPixelValue(i, value);
         }
-        
+        plane.dispose();
         return column;
     }
     
@@ -406,8 +407,9 @@ public class RomioPixelBuffer extends AbstractBuffer implements PixelBuffer {
     {
 		if (buffer.length != getRowSize())
 			throw new ApiUsageException("Buffer size incorrect.");
-		ByteBuffer b = getRow(y, z, c, t).getData();
-		b.get(buffer);
+		final PixelData pd = getRow(y, z, c, t);
+		pd.getData().get(buffer);
+		pd.dispose();
 		return buffer;
     }
     
@@ -430,7 +432,7 @@ public class RomioPixelBuffer extends AbstractBuffer implements PixelBuffer {
             value = plane.getPixelValue(offset);
             column.setPixelValue(i, value);
         }
-
+        plane.dispose();
         return buffer;
     }
 
@@ -441,12 +443,10 @@ public class RomioPixelBuffer extends AbstractBuffer implements PixelBuffer {
     public PixelData getHypercube(List<Integer> offset, List<Integer> size, 
             List<Integer> step) throws IOException, DimensionsOutOfBoundsException 
     {
-        PixelData d;
         byte[] buffer = new byte[
                 safeLongToInteger(getHypercubeSize(offset,size,step))];
         getHypercubeDirect(offset,size,step,buffer);
-        d = new PixelData(pixels.getPixelsType().getValue(), ByteBuffer.wrap(buffer));
-        return d;
+        return new PixelData(pixels.getPixelsType().getValue(), ByteBuffer.wrap(buffer));
 	}
                 
     /**
@@ -461,9 +461,8 @@ public class RomioPixelBuffer extends AbstractBuffer implements PixelBuffer {
             throw new RuntimeException("Buffer size incorrect.");
         getWholeHypercube(offset,size,step,buffer);
         return buffer;
-	}
-                
-    
+    }
+
     /**
      * Implemented as specified by {@link PixelBuffer} I/F.
      * @see PixelBuffer#getPlaneRegionDirect(Integer, Integer, Integer, Integer, 
@@ -473,9 +472,11 @@ public class RomioPixelBuffer extends AbstractBuffer implements PixelBuffer {
 			Integer count, Integer offset, byte[] buffer)
 		throws IOException, DimensionsOutOfBoundsException
 	{
-		ByteBuffer b = getPlane(z, c, t).getData();
+		final PixelData pd = getPlane(z, c, t);
+		final ByteBuffer b = pd.getData();
 		b.position(offset * getByteWidth());
 		b.get(buffer, 0, count * getByteWidth());
+		pd.dispose();
 		return buffer;
 	}
 
@@ -498,6 +499,7 @@ public class RomioPixelBuffer extends AbstractBuffer implements PixelBuffer {
             }
         }
 
+        region.dispose();
         return null; // All of the nullPlane bytes match, non-filled plane
     }
     
@@ -529,6 +531,7 @@ public class RomioPixelBuffer extends AbstractBuffer implements PixelBuffer {
             		region.setPixelValue(i*width+j, plane.getPixelValue(offset));
             	}
             }
+            plane.dispose();
             return region;
     	}
     	stride++;
@@ -547,6 +550,7 @@ public class RomioPixelBuffer extends AbstractBuffer implements PixelBuffer {
         	}
         	k++;
         }
+        plane.dispose();
         return region;
     }
     
@@ -559,8 +563,9 @@ public class RomioPixelBuffer extends AbstractBuffer implements PixelBuffer {
     {
 		if (buffer.length != getPlaneSize())
 			throw new ApiUsageException("Buffer size incorrect.");
-		ByteBuffer b = getPlane(z, c, t).getData();
-		b.get(buffer);
+		final PixelData pd = getPlane(z, c, t);
+		pd.getData().get(buffer);
+		pd.dispose();
 		return buffer;
     }
 
@@ -585,8 +590,9 @@ public class RomioPixelBuffer extends AbstractBuffer implements PixelBuffer {
     {
 		if (buffer.length != getStackSize())
 			throw new ApiUsageException("Buffer size incorrect.");
-		ByteBuffer b = getStack(c, t).getData();
-		b.get(buffer);
+		final PixelData pd = getStack(c, t);
+		pd.getData().get(buffer);
+		pd.dispose();
 		return buffer;
     }
 
@@ -611,8 +617,9 @@ public class RomioPixelBuffer extends AbstractBuffer implements PixelBuffer {
     {
 		if (buffer.length != getTimepointSize())
 			throw new ApiUsageException("Buffer size incorrect.");
-		ByteBuffer b = getTimepoint(t).getData();
-		b.get(buffer);
+		final PixelData pd = getTimepoint(t);
+		pd.getData().get(buffer);
+		pd.dispose();
 		return buffer;
     }
 
@@ -765,8 +772,9 @@ public class RomioPixelBuffer extends AbstractBuffer implements PixelBuffer {
             for (int c = 0; c < getSizeC(); c++) {
                 for (int z = 0; z < getSizeZ(); z++) {
                     try {
-                        ByteBuffer buffer = getPlane(z, c, t).getData();
-                        md.update(buffer);
+                        final PixelData pd = getPlane(z, c, t);
+                        md.update(pd.getData());
+                        pd.dispose();
                     } catch (DimensionsOutOfBoundsException e) {
                         // This better not happen. :)
                         throw new RuntimeException(e);

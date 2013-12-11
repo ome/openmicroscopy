@@ -31,6 +31,8 @@ from omero.util.sessions import SessionsStore
 
 from path import path
 
+MIMETYPE = "text/x-python"
+
 HELP = """Support for launching, uploading and otherwise managing \
 OMERO.scripts"""
 
@@ -129,10 +131,10 @@ class ScriptControl(BaseControl):
             "--mimetype", default="text/plain",
             help="Use a mimetype other than the default (%(default)s)")
         enable = parser.add(
-            sub, self.enable, help="Makes a script non-executable (sets"
-            " mimetype to text/x-python)")
+            sub, self.enable, help="Makes a script executable (e.g. sets"
+            " mimetype to %s)" % MIMETYPE)
         enable.add_argument(
-            "--mimetype", default="text/x-python",
+            "--mimetype", default=MIMETYPE,
             help="Use a mimetype other than the default (%(default)s)")
 
         for x in (launch, params, cat, disable, enable, edit):
@@ -685,6 +687,11 @@ http://stackoverflow.com/questions/3471461/raw-input-and-timeout/3911560
         from omero.rtypes import rstring
         client = self.ctx.conn(args)
         script_id, ofile = self._file(args, client)
+        if args.mimetype == MIMETYPE:  # is default
+            if ofile.name.val.endswith(".jy"):
+                args.mimetype = "text/x-jython"
+            elif ofile.name.val.endswith(".m"):
+                args.mimetype = "text/x-matlab"
         ofile.setMimetype(rstring(args.mimetype))
         return client.sf.getUpdateService().saveAndReturnObject(ofile)
 

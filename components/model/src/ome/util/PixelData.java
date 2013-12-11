@@ -1,7 +1,7 @@
 /*
  * ome.util.PixelData
  *
- *   Copyright 2007 Glencoe Software Inc. All rights reserved.
+ *   Copyright 2007-2013 Glencoe Software Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -9,6 +9,9 @@ package ome.util;
 
 import java.nio.ByteOrder;
 import java.nio.ByteBuffer;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Represents a block of pixel data.
@@ -21,6 +24,21 @@ import java.nio.ByteBuffer;
  */
 public class PixelData
 {
+    public static final String CONFIG_KEY;
+
+    private static final Logger LOG = LoggerFactory.getLogger(PixelData.class);
+
+    private static final boolean DISPOSE;
+    static {
+        CONFIG_KEY = "omero.pixeldata.dispose";
+        String p = System.getProperties().getProperty(CONFIG_KEY);
+        if (Boolean.valueOf(p)) {
+            DISPOSE = true;
+        } else {
+            DISPOSE = false;
+        }
+        LOG.debug("{} set to {}", CONFIG_KEY, DISPOSE);
+    }
     /** Identifies the type used to store pixel values. */
     public static final int BYTE = 0;
 
@@ -393,5 +411,23 @@ public class PixelData
 
         throw new RuntimeException("Pixels type '" + type
                 + "' unsupported by nio.");
+    }
+
+    /**
+     * Attempt to free up any native memory resources associated with the data buffer.
+     * This is a temporary workaround hoped to ameliorate trac ticket #11250.
+     * This {@link PixelData} instance <em>must not</em> be accessed by any thread after this method is called.
+     * If not called, the resources should eventually be freed anyway by garbage collection and finalization.
+     */
+    public void dispose() {
+
+        if (!DISPOSE) {
+            return; // EARLY EXIT
+        }
+
+        if (this.data instanceof sun.nio.ch.DirectBuffer) {
+            ((sun.nio.ch.DirectBuffer) this.data).cleaner().clean();
+            this.data = null;
+        }
     }
 }

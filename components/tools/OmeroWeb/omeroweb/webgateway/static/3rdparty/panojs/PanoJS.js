@@ -520,9 +520,24 @@ PanoJS.prototype.assignTileImage = function(tile) {
       tileImg.style.height = tileImg.offsetHeight*scale + 'px';         
     }
 
+    // error handling for tile image loading - simply try to reload image after timeout
+    tileImg.onerror = function() {
+        var $this = $(this);
+        // only try to reload if this is the first failure
+        if (!$this.hasClass('failed')) {
+          setTimeout(function(){
+            var s = tileImg.src;
+            tileImg.src = s;    // no change, but is enough to trigger reload
+          }, 1000); // try to reload src after timeout - 1 sec seems to work OK
+        }
+        $(this).addClass('failed');
+      };
+
     if ( tileImg.done || !tileImg.delayed_loading &&
          (useBlankImage || !PanoJS.USE_LOADER_IMAGE || tileImg.complete || (tileImg.image && tileImg.image.complete))  ) {
       tileImg.onload = null;
+      // tileImg.onerror = null;  // seems we can't remove error handler here
+      $(tileImg).removeClass('failed');
       if (tileImg.image) tileImg.image.onload = null;
             
       if (tileImg.parentNode == null) {
@@ -557,6 +572,9 @@ PanoJS.prototype.assignTileImage = function(tile) {
             tile.element = null;      
           }           
         }
+
+        // since we've loaded OK, I assume this frees up memory (not confirmed)
+        tileImg.onerror = null;
                 
         tileImg.onload = function() {};
         return false;

@@ -1,21 +1,18 @@
 /*
  *   $Id$
  *
- *   Copyright 2006 University of Dundee. All rights reserved.
+ *   Copyright 2006-2013 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
 package ome.services;
 
 import java.awt.Dimension;
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.BufferOverflowException;
 import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -30,20 +27,15 @@ import ome.conditions.ApiUsageException;
 import ome.conditions.ResourceError;
 import ome.conditions.RootException;
 import ome.conditions.ValidationException;
-import ome.io.bioformats.BfPixelBuffer;
-import ome.io.bioformats.BfPyramidPixelBuffer;
 import ome.io.nio.DimensionsOutOfBoundsException;
 import ome.io.nio.PixelBuffer;
 import ome.io.nio.PixelsService;
 import ome.io.nio.RomioPixelBuffer;
-import ome.model.IObject;
 import ome.model.core.Pixels;
 import ome.parameters.Parameters;
-import ome.security.basic.BasicSecuritySystem;
-import ome.services.messages.EventLogMessage;
+import ome.util.PixelData;
 import ome.util.ShallowCopy;
 import ome.util.SqlAction;
-import ome.util.Utils;
 
 import org.apache.commons.codec.binary.Hex;
 import org.slf4j.Logger;
@@ -420,13 +412,20 @@ public class RawPixelsBean extends AbstractStatefulBean implements
     public synchronized byte[] getRegion(int arg0, long arg1) {
         errorIfNotLoaded();
 
-        ByteBuffer region = null;
+        PixelData pd = null;
+        byte[] bytes = null;
+
         try {
-            region = buffer.getRegion(arg0, arg1).getData();
+            pd = buffer.getRegion(arg0, arg1);
+            bytes = bufferAsByteArrayWithExceptionIfNull(pd.getData());
         } catch (Exception e) {
             handleException(e);
+        } finally {
+            if (pd != null) {
+                pd.dispose();
+            }
         }
-        return bufferAsByteArrayWithExceptionIfNull(region);
+        return bytes;
     }
 
     @RolesAllowed("user")

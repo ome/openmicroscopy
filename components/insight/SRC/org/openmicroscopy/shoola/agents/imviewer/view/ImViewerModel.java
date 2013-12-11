@@ -5,7 +5,7 @@
  *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -45,7 +45,6 @@ import java.util.Map;
 
 import omero.model.PlaneInfo;
 import omero.romio.PlaneDef;
-import omero.romio.RegionDef;
 
 import org.apache.commons.io.FilenameUtils;
 import org.openmicroscopy.shoola.agents.events.iviewer.CopyRndSettings;
@@ -111,15 +110,13 @@ import com.sun.opengl.util.texture.TextureData;
 * them back to this class and fires state transitions as appropriate.
 * 
 * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
-* 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
-* @author	Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
-* 				<a href="mailto:a.falconi@dundee.ac.uk">a.falconi@dundee.ac.uk</a>
-* @author	Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
-* 				<a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
+*         <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+* @author Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
+*         <a href="mailto:a.falconi@dundee.ac.uk">a.falconi@dundee.ac.uk</a>
+* @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
+*         <a href="mailto:donald@lifesci.dundee.ac.uk">
+*         donald@lifesci.dundee.ac.uk</a>
 * @version 3.0
-* <small>
-* (<b>Internal version:</b> $Revision: $ $Date: $)
-* </small>
 * @since OME2.2
 */
 class ImViewerModel
@@ -2573,32 +2570,10 @@ class ImViewerModel
 		// use the lowest resolution
 		Renderer rnd = metadataViewer.getRenderer();
 		if (rnd == null) return;
-		PlaneDef pDef = createPlaneDef();
 		ResolutionLevel level = getResolutionDescription();
 		Dimension d = level.getTileSize();
 		int w = d.width;
 		int h = d.height;
-		int edgeWidth = w;
-		int edgeHeight = h;
-		int size = level.getImageSize().width;
-		edgeWidth = w;
-		int n = size/w;
-		int tiledImageSizeX = n*w;
-		if (n*w < size) {
-			edgeWidth = size-n*w;
-			tiledImageSizeX += edgeWidth;
-			n++;
-		}
-		size = level.getImageSize().height;
-		edgeHeight = h;
-		n = size/h;
-		int tiledImageSizeY = n*h;
-		if (n*h < size) {
-			edgeHeight = size-n*h;
-			tiledImageSizeY += edgeHeight;
-			n++;
-		}
-		pDef.region = new RegionDef(0, 0, tiledImageSizeX, tiledImageSizeY);
 		double ratio = 1;
 		w = tiledImageSizeX;
 		h = tiledImageSizeY;
@@ -2616,7 +2591,7 @@ class ImViewerModel
 		ratio = (double) ref/Factory.THUMB_DEFAULT_WIDTH;
 		state = ImViewer.LOADING_BIRD_EYE_VIEW;
 		BirdEyeLoader loader = new BirdEyeLoader(component, ctx, getImage(),
-				pDef, ratio);
+				ratio);
 		loader.load();
 		loaders.put(BIRD_EYE_VIEW, loader);
 	}

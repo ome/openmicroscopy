@@ -183,14 +183,14 @@ public abstract class GraphStep {
         this.ec = ec;
     }
 
+    /**
+     * Currently returns the ID array without copying
+     * therefore values should not be leaked to code outside
+     * of the ome.services.graphs hierarchy. Non-copying is
+     * primarily intended to reduce GC overhead.
+     */
     public long[] getIds() {
-        if (this.ids == null) {
-            return null;
-        }
-
-        long[] copy = new long[ids.length];
-        System.arraycopy(ids, 0, copy, 0, copy.length);
-        return copy;
+        return this.ids;
     }
 
     //

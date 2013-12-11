@@ -92,14 +92,17 @@ public class OMEROWrapper extends MinMaxCalculator {
      */
     public OMEROWrapper(ImportConfig config)
     {
-        super(createReader(config));
+        this(config, -1, null); // Disabled memoization
+    }
 
+    public OMEROWrapper(ImportConfig config, long elapsedTime, File cacheDirectory) {
+        super(createReader(config));
         this.config = config;
         this.iReader = (ImageReader) reader; // Save old value
         this.reader = null;
         filler = new ChannelFiller(iReader);
         separator  = new ChannelSeparator(filler);
-        memoizer = new Memoizer(separator) { // Disabled
+        memoizer = new Memoizer(separator, elapsedTime, cacheDirectory) {
             public Deser getDeser() {
                 KryoDeser k = new KryoDeser();
                 k.kryo.register(OMEXMLModelComparator.class);

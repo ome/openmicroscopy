@@ -125,3 +125,11 @@ class TestRepoRawFileStore(AbstractRepoTest):
             pass #FIXME: ... so an exception should be thrown here now.
         rfs = self.repoPrx.file(self.repo_filename, "r")
         assert rfs.size() == len(wbytes)
+
+    # ticket:11154
+    def testImportLogFilenameSetting(self):
+        q = self.root.sf.getQueryService()
+
+        with pytest.raises(omero.SecurityViolation):
+            q.projection("select e.id from Experimenter e where e.id = 0",
+                None, {"omero.logfilename":"/tmp/foo.log"})

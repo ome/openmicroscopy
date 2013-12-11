@@ -26,10 +26,10 @@ import loci.formats.meta.IMetadata;
 import loci.formats.out.TiffWriter;
 import loci.formats.services.OMEXMLService;
 import loci.formats.tiff.IFD;
-import loci.formats.tiff.IFDList;
 import loci.formats.tiff.TiffCompression;
 import ome.conditions.ApiUsageException;
 import ome.conditions.LockTimeout;
+import ome.conditions.ResourceError;
 import ome.io.nio.ConfiguredTileSizes;
 import ome.io.nio.DimensionsOutOfBoundsException;
 import ome.io.nio.PixelBuffer;
@@ -155,12 +155,26 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
      * @throws FormatException
      */
     public BfPyramidPixelBuffer(TileSizes sizes, Pixels pixels, String filePath, boolean write)
-    throws IOException, FormatException
+            throws IOException, FormatException
+    {
+        this(sizes, pixels, filePath, write, true); // init!
+    }
+
+    protected BfPyramidPixelBuffer(TileSizes sizes, Pixels pixels, String filePath,
+            boolean write, boolean init)
+            throws IOException, FormatException
     {
         this.sizes = sizes;
         this.readerFile = new File(filePath);
         this.pixels = pixels;
+        if (init) {
+            init(filePath, write);
+        }
+    }
 
+    protected void init(String filePath, boolean write)
+            throws IOException, FormatException
+    {
         if (!write || readerFile.exists())
         {
             if (write) {
@@ -182,12 +196,16 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
         }
     }
 
-    private synchronized void initializeReader() throws IOException, FormatException
+    /**
+     * If the pyramid file exists (which the constructor guarantees) then we
+     * assume that even if a lock file is present, that it's no longer valid.
+     */
+    protected synchronized void initializeReader() throws IOException, FormatException
     {
-        if (isLockedByOthers())
-        {
-            throw new LockTimeout(String.format("%s is locked by others",
-                    readerFile.getAbsolutePath()), 15*1000, 0);
+        File lockFile = lockFile();
+        if (readerFile.exists() && lockFile.exists()) {
+            // note: we double checked readerFile exists just in case.
+            lockFile.delete();
         }
         reader = new OmeroPixelsPyramidReader();
         delegate = new BfPixelBuffer(readerFile.getAbsolutePath(), reader);
@@ -207,7 +225,7 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
      * flag, <code>false</code> otherwise.
      * @throws Exception Thrown if an error occurred.
      */
-    private synchronized void initializeWriter(String output,
+    protected synchronized void initializeWriter(String output,
                                                String compression,
                                                boolean bigTiff,
                                                int tileWidth, int tileLength)
@@ -215,6 +233,9 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
     {
         try
         {
+            if (readerFile.exists()) {
+                throw new ResourceError(" exists. Pyramid is read-only");
+            }
             loci.common.services.ServiceFactory lociServiceFactory =
                 new loci.common.services.ServiceFactory();
             OMEXMLService service =
@@ -313,7 +334,7 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
         }
     }
 
-    private void acquireLock()
+    protected void acquireLock()
     {
         try {
             lockFile = lockFile();
@@ -330,7 +351,7 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
         }
     }
 
-    private void closeRaf()
+    protected void closeRaf()
     {
         if (lockRaf != null)
         {
@@ -347,7 +368,7 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
         }
     }
 
-    private boolean isLockedByOthers()
+    protected boolean isLockedByOthers()
     {
 
         if (fileLock != null) {
@@ -355,7 +376,7 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
         }
 
         // Since we don't control the lock here, we will try to
-        // obtain it an release it immediately.
+        // obtain it and release it immediately.
 
         try {
             lockFile = lockFile();
@@ -364,6 +385,7 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
                 fileLock = lockRaf.getChannel().tryLock();
             } catch (OverlappingFileLockException ofle) {
                 // Another object in this JVM controls the lock.
+                log.debug("Overlapping file lock exception: " + readerFile);
             }
             if (fileLock == null) {
                 // If we don't control the fileLock, then we
@@ -410,7 +432,7 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
     /**
      * This method should never exit without releasing the lock.
      */
-    private void closeWriter() throws IOException
+    protected void closeWriter() throws IOException
     {
         try {
             if (writer != null) {
@@ -433,7 +455,7 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
     }
 
     /**
-     * Wether or not this instance is in writing-mode. Any of the calls to reader
+     * Whether or not this instance is in writing-mode. Any of the calls to reader
      * methods called while this method returns true will close the writer,
      * saving it to disk and preventing any further write methods.
      */
