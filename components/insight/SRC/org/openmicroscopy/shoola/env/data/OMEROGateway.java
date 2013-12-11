@@ -448,7 +448,6 @@ class OMEROGateway
 
 	// Only code which should synchronize on groupConnectorMap or call
 	// values().
-
 	private List<Connector> getAllConnectors() {
         synchronized(groupConnectorMap) {
             // This should be the only location which calls values().
@@ -2152,16 +2151,30 @@ class OMEROGateway
             log("Network is down");
             return false;
         }
-        List<Connector> connectors = getAllConnectors();
+        List<Connector> connectors = removeAllConnectors();
         Iterator<Connector> i = connectors.iterator();
+        Connector c;
+        int index = 0;
         while (i.hasNext()) {
             try {
-                i.next().joinSession();
+                c = i.next();
+                if (groupConnectorMap.containsKey(c.getGroupID())) {
+                    try {
+                        c.shutDownServices(true);
+                        c.close(networkup);
+                    } catch (Exception e) {
+                        log("Failed to close the session "+e);
+                    }
+                } else {
+                    c.joinSession();
+                    groupConnectorMap.put(c.getGroupID(), c);
+                }
             } catch (Throwable t) {
+                index++;
                 log("Failed to rejoin the session "+t);
             }
         }
-        connected = true;
+        connected = index == 0;
         reconnecting.set(true);
         return connected;
     }

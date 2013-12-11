@@ -394,6 +394,7 @@ public class DataServicesFactory
         String message;
         Map<SecurityContext, Set<Long>> l =
                 omeroGateway.getRenderingEngines();
+        //omeroGateway.logout();
         boolean b = omeroGateway.joinSession();
         if (b) {
             //reactivate the rendering engine. Need to review that
@@ -441,8 +442,7 @@ public class DataServicesFactory
             connectionDialog.setVisible(false);
             connectionDialog.dispose();
         } else {
-            connectionDialog.setVisible(false);
-            connectionDialog.dispose();
+            //connectionDialog.setVisible(false);
             message = "A failure occurred while attempting to " +
                     "reconnect.\nThe application will now exit.";
             connectionDialog = new NotificationDialog(f,
