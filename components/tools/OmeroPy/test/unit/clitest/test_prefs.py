@@ -194,6 +194,26 @@ class TestPrefs(object):
         self.invoke("get")
         self.assertStdoutStderr(capsys, out="A=B")
 
+    @pytest.mark.parametrize(
+        ('initval', 'newval'),
+        [('1', '1'), ('["1"]', ''), ('["1"]', '')])
+    def testAppendFails(self, initval, newval):
+        self.invoke("set A %s" % initval)
+        with pytest.raises(NonZeroReturnCode):
+            self.invoke("append A %s" % newval)
+
+    def testRemoveUnsetPropertyFails(self):
+        with pytest.raises(NonZeroReturnCode):
+            self.invoke("remove A x")
+
+    @pytest.mark.parametrize(
+        ('initval', 'newval'),
+        [('["1"]', ''), ('["1"]', '2'), ('[1]', '1')])
+    def testRemoveFails(self, initval, newval):
+        self.invoke("set A %s" % initval)
+        with pytest.raises(NonZeroReturnCode):
+            self.invoke("remove A %s" % newval)
+
     def testAppendRemove(self, capsys):
         self.invoke("append A x")
         self.invoke("get A")
