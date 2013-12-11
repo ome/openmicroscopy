@@ -37,11 +37,6 @@ package org.openmicroscopy.shoola.env;
  * @author <br>Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
  *         <a href="mailto:a.falconi@dundee.ac.uk">a.falconi@dundee.ac.uk</a>
  * @version 2.2
- *         <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
- * @author  <br>Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
- *          <a href="mailto:a.falconi@dundee.ac.uk">
- *          a.falconi@dundee.ac.uk</a>
- * @version 2.2 
  * @since OME2.2
  */
 public class LookupNames
