@@ -29,6 +29,7 @@ import java.io.File;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -73,6 +74,7 @@ import ome.services.util.Executor;
 import ome.system.OmeroContext;
 import ome.system.Principal;
 import ome.system.ServiceFactory;
+import ome.util.SqlAction;
 import ome.util.checksum.ChecksumProviderFactory;
 import ome.util.messages.InternalMessage;
 
@@ -681,6 +683,11 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
      */
     public void makeDir(String path, boolean parents, Current __current) throws ServerError {
         CheckedPath checked = checkPath(path, null, __current);
+        repositoryDao.makeDirs(this, Arrays.asList(checked), parents, __current);
+    }
+
+    public void makeDir(CheckedPath checked, boolean parents,
+            Session s, ServiceFactory sf, SqlAction sql) throws ServerError {
 
         final LinkedList<CheckedPath> paths = new LinkedList<CheckedPath>();
         while (!checked.isRoot) {
@@ -700,7 +707,7 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
             }
         }
 
-        makeCheckedDirs(paths, parents, __current);
+        makeCheckedDirs(paths, parents, s, sf, sql);
 
     }
 
@@ -714,7 +721,8 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
      * @param __current
      */
     protected void makeCheckedDirs(final LinkedList<CheckedPath> paths,
-            boolean parents, Current __current) throws ResourceError,
+            boolean parents, Session s, ServiceFactory sf, SqlAction sql)
+                    throws ResourceError,
             ServerError {
 
         CheckedPath checked;
@@ -734,12 +742,12 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
                     throw new omero.ResourceError(null, null,
                             "Directory is not readable");
                 }
-                assertFindDir(checked, __current);
+                assertFindDir(checked, s, sf, sql);
 
             } else {
                 // This will fail if the file already exists in
                 repositoryDao.register(repoUuid, checked,
-                        DIRECTORY_MIMETYPE, __current);
+                        DIRECTORY_MIMETYPE, sf, sql);
             }
 
         }
@@ -748,14 +756,14 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
         checked = paths.removeFirst(); // Size is now empty
         if (checked.exists()) {
             if (parents) {
-                assertFindDir(checked, __current);
+                assertFindDir(checked, s, sf, sql);
             } else {
                 throw new omero.ResourceError(null, null,
                     "Path exists on disk: " + checked.fsFile);
             }
         }
         repositoryDao.register(repoUuid, checked,
-                DIRECTORY_MIMETYPE, __current);
+                DIRECTORY_MIMETYPE, sf, sql);
     }
 
     //
@@ -812,9 +820,10 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
         return checked;
     }
 
-    private void assertFindDir(final CheckedPath checked, final Ice.Current curr)
+    private void assertFindDir(final CheckedPath checked,
+            Session s, ServiceFactory sf, SqlAction sql)
         throws omero.ServerError {
-        if (null == repositoryDao.findRepoFile(repoUuid, checked, null, curr)) {
+        if (null == repositoryDao.findRepoFile(sf, sql, repoUuid, checked, null)) {
             omero.ResourceError re = new omero.ResourceError();
             IceMapper.fillServerError(re, new RuntimeException(
                     "Directory exists but is not registered: " + checked));
