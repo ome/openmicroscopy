@@ -21,6 +21,7 @@ import ome.api.IQuery;
 import ome.api.JobHandle;
 import ome.api.RawFileStore;
 import ome.api.local.LocalAdmin;
+import ome.conditions.InternalException;
 import ome.io.nio.FileBuffer;
 import ome.model.fs.FilesetJobLink;
 import ome.parameters.Parameters;
@@ -57,6 +58,14 @@ import omero.util.IceMapper;
  */
 public class RepositoryDaoImpl implements RepositoryDao {
 
+    private static class Rethrow extends InternalException {
+        private final Throwable t;
+        Rethrow(Throwable t) {
+            super("rethrow!");
+            this.t = t;
+        }
+    }
+
     private static abstract class StatefulWork
         extends Executor.SimpleWork
         implements Executor.StatefulWork {
@@ -78,6 +87,8 @@ public class RepositoryDaoImpl implements RepositoryDao {
     "select f from OriginalFile as f left outer join fetch f.hasher where ";
 
     private final static Logger log = LoggerFactory.getLogger(RepositoryDaoImpl.class);
+
+    private final IceMapper mapper = new IceMapper();
 
     protected final Principal principal;
     protected final Roles roles;
@@ -648,8 +659,9 @@ public class RepositoryDaoImpl implements RepositoryDao {
     public void makeDirs(final PublicRepositoryI repo,
             final List<CheckedPath> dirs,
             final boolean parents,
-            final Ice.Current __current) {
-        executor.execute(__current.ctx, currentUser(__current),
+            final Ice.Current __current) throws ServerError {
+        try {
+            executor.execute(__current.ctx, currentUser(__current),
                 new Executor.SimpleWork(this, "makeDirs", dirs) {
             @Transactional(readOnly = false)
             public Object doWork(Session session, ServiceFactory sf) {
@@ -658,14 +670,17 @@ public class RepositoryDaoImpl implements RepositoryDao {
                         repo.makeDir(checked, parents,
                             session, sf, getSqlAction());
                     } catch (ServerError se) {
-                        // TODO: Here we need a way to convert back to a
-                        // ome.condition
-                        throw new RuntimeException(se);
+                        throw new Rethrow(se);
                     }
                 }
                 return null;
             }
         });
+        } catch (Rethrow rt) {
+            throw (ServerError) rt.t;
+        } catch (Exception e) {
+            throw (ServerError) mapper.handleException(e, executor.getContext());
+        }
     }
 
     /**

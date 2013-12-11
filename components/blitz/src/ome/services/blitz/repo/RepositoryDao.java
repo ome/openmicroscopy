@@ -251,6 +251,6 @@ public interface RepositoryDao {
      * specific logic.
      */
     void makeDirs(PublicRepositoryI repo, List<CheckedPath> dirs, boolean parents,
-            Ice.Current c);
+            Ice.Current c) throws ServerError;
 
 }

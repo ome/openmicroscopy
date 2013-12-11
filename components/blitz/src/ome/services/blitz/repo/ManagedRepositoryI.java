@@ -587,7 +587,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
         // exist.
         List<CheckedPath> dirs = new ArrayList<CheckedPath>();
         Set<String> seen = new HashSet<String>();
-        // dirs.add(data.sharedPath); TODO: is this needed?
+        dirs.add(checkPath(data.sharedPath, checksumAlgorithm, __current));
         for (CheckedPath checked : data.checkedPaths) {
             if (!seen.contains(checked.getRelativePath())) {
                 dirs.add(checked.parent());
