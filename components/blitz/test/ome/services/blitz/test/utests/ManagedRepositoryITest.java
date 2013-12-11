@@ -87,8 +87,8 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
         }
 
         @Override
-        public String expandTemplate(String template, Ice.Current curr) {
-            return super.expandTemplate(template, curr);
+        public String expandTemplate(String template, EventContext ec) {
+            return super.expandTemplate(template, ec);
         }
 
         @Override
@@ -155,52 +155,52 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
 
     @Test
     public void testExpandTemplateEmptyStringOnNullToken() {
-        newEventContext();
-        String actual = this.tmri.expandTemplate(null, curr);
+        EventContext ecStub = newEventContext();
+        String actual = this.tmri.expandTemplate(null, ecStub);
         Assert.assertEquals(0, actual.length());
     }
 
     @Test
     public void testExpandTemplateTokenOnMalformedToken() {
-        newEventContext();
+        EventContext ecStub = newEventContext();
         String expected = "foo";
-        String actual = this.tmri.expandTemplate(expected, curr);
+        String actual = this.tmri.expandTemplate(expected, ecStub);
         Assert.assertEquals(expected, actual);
     }
 
     @Test
     public void testExpandTemplateYear() {
-        newEventContext();
+        EventContext ecStub = newEventContext();
         String expected = Integer.toString(cal.get(Calendar.YEAR));
-        String actual = this.tmri.expandTemplate("%year%", curr);
+        String actual = this.tmri.expandTemplate("%year%", ecStub);
         Assert.assertEquals(expected, actual);
     }
 
     @Test
     public void testExpandTemplateMonth() {
-        newEventContext();
+        EventContext ecStub = newEventContext();
         String expected = Integer.toString(cal.get(Calendar.MONTH)+1);
         if (expected.length() == 1)
             expected = '0' + expected;
-        String actual = this.tmri.expandTemplate("%month%", curr);
+        String actual = this.tmri.expandTemplate("%month%", ecStub);
         Assert.assertEquals(expected, actual);
     }
 
     @Test
     public void testExpandTemplateMonthName() {
-        newEventContext();
+        EventContext ecStub = newEventContext();
         DateFormatSymbols dateFormat = new DateFormatSymbols();
         String expected = dateFormat.getMonths()
                 [cal.get(Calendar.MONTH)];
-        String actual = this.tmri.expandTemplate("%monthname%", curr);
+        String actual = this.tmri.expandTemplate("%monthname%", ecStub);
         Assert.assertEquals(expected, actual);
     }
 
     @Test
     public void testExpandTemplateDay() {
-        newEventContext();
+        EventContext ecStub = newEventContext();
         String expected = String.format("%02d", cal.get(Calendar.DAY_OF_MONTH));
-        String actual = this.tmri.expandTemplate("%day%", curr);
+        String actual = this.tmri.expandTemplate("%day%", ecStub);
         Assert.assertEquals(expected, actual);
     }
 
@@ -209,7 +209,7 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
         String expected = "user-1";
         EventContext ecStub = newEventContext();
         ecStub.userName = expected;
-        String actual = this.tmri.expandTemplate("%user%", curr);
+        String actual = this.tmri.expandTemplate("%user%", ecStub);
         Assert.assertEquals(expected, actual);
     }
 
@@ -218,7 +218,7 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
         String expected = "group-1";
         EventContext ecStub = newEventContext();
         ecStub.groupName = expected;
-        String actual = this.tmri.expandTemplate("%group%", curr);
+        String actual = this.tmri.expandTemplate("%group%", ecStub);
         Assert.assertEquals(expected, actual);
     }
     @Test
@@ -227,7 +227,7 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
         EventContext ecStub = newEventContext();
         ecStub.groupName = "group-1";
         ecStub.groupPermissions = new PermissionsI("rwrwrw");
-        String actual = this.tmri.expandTemplate("%group%-%perms%", curr);
+        String actual = this.tmri.expandTemplate("%group%-%perms%", ecStub);
         Assert.assertEquals(expected, actual);
     }
 
@@ -236,15 +236,15 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
         String expected = UUID.randomUUID().toString();
         EventContext ecStub = newEventContext();
         ecStub.sessionUuid = expected;
-        String actual = this.tmri.expandTemplate("%session%", curr);
+        String actual = this.tmri.expandTemplate("%session%", ecStub);
         Assert.assertEquals(expected, actual);
     }
 
     @Test
     public void testExpandTemplateEscape() {
         String expected = "%%";
-        newEventContext();
-        String actual = this.tmri.expandTemplate("%%", curr);
+        EventContext ecStub = newEventContext();
+        String actual = this.tmri.expandTemplate("%%", ecStub);
         Assert.assertEquals(expected, actual);
     }
 
@@ -253,23 +253,23 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
         String expected = "%%-grp";
         EventContext ecStub = newEventContext();
         ecStub.groupName = "grp";
-        String actual = this.tmri.expandTemplate("%%-%group%", curr);
+        String actual = this.tmri.expandTemplate("%%-%group%", ecStub);
         Assert.assertEquals(expected, actual);
     }
 
     @Test
     public void testExpandTemplateEscape3() {
         String expected = "%%george";
-        newEventContext();
-        String actual = this.tmri.expandTemplate("%%george", curr);
+        EventContext ecStub = newEventContext();
+        String actual = this.tmri.expandTemplate("%%george", ecStub);
         Assert.assertEquals(expected, actual);
     }
 
     @Test
     public void testExpandTemplateUnknown() {
         String expected = "%björk%";
-        newEventContext();
-        String actual = this.tmri.expandTemplate("%björk%", curr);
+        EventContext ecStub = newEventContext();
+        String actual = this.tmri.expandTemplate("%björk%", ecStub);
         Assert.assertEquals(expected, actual);
     }
 
