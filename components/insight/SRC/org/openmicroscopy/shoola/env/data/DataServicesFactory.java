@@ -395,8 +395,6 @@ public class DataServicesFactory
         Map<SecurityContext, Set<Long>> l =
                 omeroGateway.getRenderingEngines();
         boolean b = omeroGateway.joinSession();
-        connectionDialog.setVisible(false);
-        connectionDialog.dispose();
         if (b) {
             //reactivate the rendering engine. Need to review that
             Iterator<Entry<SecurityContext, Set<Long>>> i =
@@ -440,7 +438,11 @@ public class DataServicesFactory
                 registry.getEventBus().post(
                         new ReloadRenderingEngine(failures));
             }
+            connectionDialog.setVisible(false);
+            connectionDialog.dispose();
         } else {
+            connectionDialog.setVisible(false);
+            connectionDialog.dispose();
             message = "A failure occurred while attempting to " +
                     "reconnect.\nThe application will now exit.";
             connectionDialog = new NotificationDialog(f,
