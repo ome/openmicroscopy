@@ -475,13 +475,22 @@ public class ImportLibrary implements IObservable
 
         // At this point the import is running, check handle for number of
         // steps.
-        final ImportCallback cb = createCallback(proc, handle, container);
-        cb.loop(60*60, 1000); // Wait 1 hr per step.
-        final ImportResponse rsp = cb.getImportResponse();
-        if (rsp == null) {
-            throw new Exception("Import failure");
+        ImportCallback cb = null;
+        try {
+            cb = createCallback(proc, handle, container);
+            cb.loop(60*60, 1000); // Wait 1 hr per step.
+            final ImportResponse rsp = cb.getImportResponse();
+            if (rsp == null) {
+                throw new Exception("Import failure");
+            }
+            return rsp.pixels;
+        } finally {
+            if (cb != null) {
+                cb.close(true); // Allow cb to close handle
+            } else if (handle != null) {
+                handle.close();
+            }
         }
-        return rsp.pixels;
     }
 
     public ImportCallback createCallback(ImportProcessPrx proc,
