@@ -2225,50 +2225,12 @@ class OMEROGateway
 	}
 
 	/**
-	 * Tries to reconnect to the server. Returns <code>true</code>
-	 * if it was possible to reconnect, <code>false</code>
-	 * otherwise.
-	 *
-	 * @param userName The user name to be used for login.
-	 * @param password The password to be used for login.
-	 * @return See above.
-	 */
-	boolean reconnect(String userName, String password)
-	{
-	    if (reconnecting.get()) return true;
-		try {
-			isNetworkUp(false); // Force re-check to prevent hang
-		} catch (Exception e) {
-			// no need to handle the exception.
-		}
-		boolean networkup = this.networkup.get(); // our copy
-		connected = false;
-		if (!networkup) {
-		    log("Network is down");
-		    return false;
-		}
-		List<Connector> connectors = getAllConnectors();
-		Iterator<Connector> i = connectors.iterator();
-		while (i.hasNext()) {
-			try {
-				i.next().reconnect(userName, password);
-			} catch (Throwable t) {
-			    log("Failed to reconnect "+t);
-			}
-		}
-		connected = true;
-		reconnecting.set(true);
-		return connected;
-	}
-
-	/**
 	 * Tries to rejoin the session.
 	 *
 	 * @return See above.
 	 */
     boolean joinSession()
     {
-        if (reconnecting.get()) return true;
         try {
             isNetworkUp(false); // Force re-check to prevent hang
         } catch (Exception e) {
@@ -2293,7 +2255,7 @@ class OMEROGateway
         reconnecting.set(true);
         return connected;
     }
-    
+
 	/** Logs out. */
 	void logout()
 	{
@@ -3161,6 +3123,7 @@ class OMEROGateway
 			service.load();
 			return service;
 		} catch (Throwable t) {
+		    log(t.getMessage());
 		    c.close(service);
 			String s = "Cannot start the Rendering Engine.";
 			handleFSException(t, s);

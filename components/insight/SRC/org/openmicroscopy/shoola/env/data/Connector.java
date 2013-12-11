@@ -537,54 +537,29 @@ class Connector
     }
 
     /**
-     * Reconnects to the server.
-     * 
-     * @param userName The user's name.
-     * @param password The password.
-     * @throws Throwable Thrown if an error occurred while recreating session.
-     */
-    void reconnect(String userName, String password)
-            throws Throwable
-    {
-        //Reconnect
-        //to be on the save side
-        statelessServices.clear();
-        secureClient.closeSession();
-        if (unsecureClient != null) {
-            unsecureClient.closeSession();
-            unsecureClient = null;
-        }
-        entryEncrypted = secureClient.createSession(userName, password);
-        if (unsecureClient != null) {
-            unsecureClient = secureClient.createClient(false);
-            entryUnencrypted = unsecureClient.getSession();
-        }
-    }
-
-    /**
      * Rejoins the session.
      * 
-     * @throws Throwable Thrown if an error occurred while recreating session.
+     * @throws Throwable Thrown if an error occurred while rejoining the session.
      */
     void joinSession()
             throws Throwable
     {
-        //Reconnect
-        //to be on the save side
         String uuid = secureClient.getSessionId();
         statelessServices.clear();
+        reServices.clear();
+        statefulServices.clear();
         secureClient.closeSession();
         if (unsecureClient != null) {
             unsecureClient.closeSession();
-            unsecureClient = null;
         }
         entryEncrypted = secureClient.joinSession(uuid);
-        if (unsecureClient != null) {
+        if (unsecureClient != null) { //we are in unsecured mode
+            unsecureClient = null;
+            entryUnencrypted = null;
             unsecureClient = secureClient.createClient(false);
             entryUnencrypted = unsecureClient.getSession();
         }
-        reServices.clear();
-        statefulServices.clear();
+        
     }
 
     /**
