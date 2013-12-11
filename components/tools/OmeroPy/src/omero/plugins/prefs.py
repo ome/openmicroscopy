@@ -124,10 +124,10 @@ class PrefsControl(BaseControl):
             sub, self.remove, "Append value to a key in the current profile.")
 
         for x in [set, append, remove]:
-            x.add_argument(
-                "-f", "--file", type=ExistingFile('r'),
-                help="Load value from file")
             x.add_argument("KEY")
+        set.add_argument(
+            "-f", "--file", type=ExistingFile('r'),
+            help="Load value from file")
         set.add_argument(
             "VALUE", nargs="?",
             help="Value to be set. If it is missing, the key will be removed")
