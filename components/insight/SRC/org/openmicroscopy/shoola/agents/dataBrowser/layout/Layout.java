@@ -2,10 +2,10 @@
  * org.openmicroscopy.shoola.agents.dataBrowser.layout.Layout 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -42,15 +42,12 @@ import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplayVisitor;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since OME3.0
  */
 public interface Layout
-	extends ImageDisplayVisitor
+    extends ImageDisplayVisitor
 {
-    
+
     /**
      * Returns a textual description of the layout.
      * Can be used for tooltips.
@@ -58,36 +55,36 @@ public interface Layout
      * @return A textual description of the layout.
      */
     public String getDescription();
-    
+
     /** 
      * Returns the index of the layout.
      * 
      * @return See above.
      */
     public int getIndex();
-    
+
     /** Lays out the nodes. */
     public void doLayout();
-    
+
     /**
      * Invokes when refreshing the display.
      * 
      * @param oldNodes The collection of the nodes previously displayed.
      */
     public void setOldNodes(Set oldNodes);
-    
+
     /**
      * Sets the number of images per row.
      * 
      * @param number The value to set.
      */
     public void setImagesPerRow(int number);
-    
+
     /**
      * Returns the number of images per row.
      * 
      * @return See above.
      */
     public int getImagesPerRow();
-    
+
 }

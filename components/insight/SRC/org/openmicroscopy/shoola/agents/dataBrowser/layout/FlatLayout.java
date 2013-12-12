@@ -2,10 +2,10 @@
  * org.openmicroscopy.shoola.agents.dataBrowser.layout.FlatLayout 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -39,25 +39,22 @@ import pojos.DataObject;
 /** 
  * Recursively lays out all nodes regardless of the container.
  *
- * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
+ * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since OME3.0
  */
-class FlatLayout 	
-	implements Layout
+class FlatLayout
+    implements Layout
 {
-    
+
     //NOTE: The algorithm for this layout *relies* on the fact that
     //visualization trees are visited in a depth-first fashion.
     //When we'll implement iterators to visit a tree, then this class
     //will ask for a depth-first iterator.
-    
+
     /** Textual description of this layout. */
     static final String DESCRIPTION = "Layout the images in a square grid.";
 
@@ -65,20 +62,20 @@ class FlatLayout
      * A {@link ViewerSorter sorter} to order nodes in ascending 
      * alphabetical order.
      */
-    private ViewerSorter    sorter;
-    
+    private ViewerSorter sorter;
+
     /** Collection of {@link ImageNode}s to lay out. */
-    private List<ImageNode>	images;
-    
+    private List<ImageNode> images;
+
     /** The root of all nodes. */
-    private ImageSet        root;
-    
-    /** Collection of nodes previously layed out. */
-    private Set				oldNodes;
-    
+    private ImageSet root;
+
+    /** Collection of nodes previously displayed. */
+    private Set oldNodes;
+
     /** The number of items per row. */
-    private int				itemsPerRow;
-    
+    private int itemsPerRow;
+
     /**
      * Package constructor so that objects can only be created by the
      * {@link LayoutFactory}.
@@ -90,7 +87,7 @@ class FlatLayout
         images =  new ArrayList<ImageNode>();
         this.sorter = sorter;
     }
-    
+
     /**
      * Lays out the images.
      * @see Layout#doLayout()
@@ -100,12 +97,12 @@ class FlatLayout
         if (root != null) {
             List l = sorter.sort(images);
             if (oldNodes == null || oldNodes.size() != l.size())
-            	LayoutUtils.doSquareGridLayout(root, l);
+                LayoutUtils.doSquareGridLayout(root, l);
             else 
-            	LayoutUtils.redoLayout(root, null, l, oldNodes);
+                LayoutUtils.redoLayout(root, null, l, oldNodes);
         }  
     }
-    
+
     /**
      * Retrieves the images.
      * @see Layout#visit(ImageNode)
@@ -121,7 +118,7 @@ class FlatLayout
         if (!(node.getHierarchyObject() instanceof DataObject) && 
                 node.getParentDisplay() == null) root = node;
     }
-    
+
     /**
      * Implemented as specified by the {@link Layout} interface.
      * @see Layout#getDescription()
@@ -138,18 +135,18 @@ class FlatLayout
      * Implemented as specified by the {@link Layout} interface.
      * @see Layout#setOldNodes(Set)
      */
-	public void setOldNodes(Set oldNodes) { this.oldNodes = oldNodes; }
+    public void setOldNodes(Set oldNodes) { this.oldNodes = oldNodes; }
 
     /**
      * Implemented as specified by the {@link Layout} interface.
      * @see Layout#setImagesPerRow(int)
      */
-	public void setImagesPerRow(int number) { itemsPerRow = number; }
-   
-	 /**
+    public void setImagesPerRow(int number) { itemsPerRow = number; }
+
+    /**
      * Implemented as specified by the {@link Layout} interface.
      * @see Layout#getImagesPerRow()
      */
-	public int getImagesPerRow() { return itemsPerRow; }
-	
+    public int getImagesPerRow() { return itemsPerRow; }
+
 }
