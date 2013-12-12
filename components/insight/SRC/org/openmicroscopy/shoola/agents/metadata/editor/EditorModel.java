@@ -2963,8 +2963,6 @@ class EditorModel
 	boolean isArchived(DataObject ho)
 	{
 	    ImageData img = null;
-        if (ho instanceof WellSampleData)
-            img = ((WellSampleData) ho).getImage();
         if (ho instanceof ImageData)
             img = (ImageData) ho;
         if (img == null) return false;
