@@ -106,12 +106,12 @@ public class ConnectionExceptionHandler
                 cause instanceof TimeoutException ||
                 e instanceof TimeoutException ||
                 cause instanceof ObjectNotExistException ||
-                e instanceof ObjectNotExistException)
-            index = LOST_CONNECTION;
-        else if (cause instanceof CommunicatorDestroyedException ||
-                e instanceof CommunicatorDestroyedException ||
+                e instanceof ObjectNotExistException ||
                 cause instanceof DNSException ||
                 e instanceof DNSException)
+            index = LOST_CONNECTION;
+        else if (cause instanceof CommunicatorDestroyedException ||
+                e instanceof CommunicatorDestroyedException)
             index = DESTROYED_CONNECTION;
         else if (cause instanceof SocketException ||
                 e instanceof SocketException ||
