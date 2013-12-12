@@ -2156,13 +2156,14 @@ class OMEROGateway
         Connector c;
         int index = 0;
         while (i.hasNext()) {
+            c = i.next();
             try {
-                c = i.next();
+                
                 if (groupConnectorMap.containsKey(c.getGroupID())) {
                     try {
                         c.shutDownServices(true);
                         c.close(networkup);
-                    } catch (Exception e) {
+                    } catch (Throwable e) {
                         log("Failed to close the session "+e);
                     }
                 } else {
@@ -2170,8 +2171,20 @@ class OMEROGateway
                     groupConnectorMap.put(c.getGroupID(), c);
                 }
             } catch (Throwable t) {
-                index++;
-                log("Failed to rejoin the session "+t);
+                //failed to join so we create a new one, first we shut down
+                try {
+                    c.shutDownServices(true);
+                    c.close(networkup);
+                } catch (Throwable e) {
+                    log("Failed to close the session "+e);
+                }
+                try {
+                    c = getConnector(new SecurityContext(c.getGroupID()),
+                            true, false);
+                } catch (Exception e) {
+                    log("Failed to create connector "+e);
+                    index++;
+                }
             }
         }
         connected = index == 0;

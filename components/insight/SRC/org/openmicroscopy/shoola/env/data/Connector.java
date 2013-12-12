@@ -25,6 +25,8 @@ package org.openmicroscopy.shoola.env.data;
 
 
 //Java imports
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -648,6 +650,19 @@ class Connector
     }
 
     /**
+     * Prints the stack trace and returns it as a string.
+     * 
+     * @return See above.
+     */
+    public String getErrorMessage(Exception e)
+    {
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+        e.printStackTrace(pw);
+        return sw.toString();
+    }
+    
+    /**
      * Keeps the services alive.
      * Returns <code>true</code> if success, <code>false</code> otherwise.
      * 
@@ -660,14 +675,14 @@ class Connector
             entryEncrypted.keepAllAlive(null);
         } catch (Exception e) {
             success = false;
-            log("Failed encrypted keep alive:" + e);
+            log("Failed encrypted keep alive:" + getErrorMessage(e));
         }
         try {
             if (entryUnencrypted != null && success)
                 entryUnencrypted.keepAllAlive(null);
         } catch (Exception e) {
             success = false;
-            log("failed unencrypted keep alive:" + e);
+            log("failed unencrypted keep alive:" + getErrorMessage(e));
         }
 
         if (success) {
@@ -692,7 +707,7 @@ class Connector
         } catch (Ice.ObjectNotExistException e) {
             // ignore
         } catch (Exception e) {
-            log("Failed to close " + proxy + "(" + e + ")");
+            log("Failed to close " + proxy + "(" + getErrorMessage(e) + ")");
         } finally {
             if (proxy instanceof RenderingEnginePrx) {
                 Set<Long> keys = reServices.keySet();
@@ -735,7 +750,7 @@ class Connector
             try {
                 store.closeServices();
             } catch (Exception e) {
-                log("Failed to close import store:" + e);
+                log("Failed to close import store:" + getErrorMessage(e));
             }
         }
     }
