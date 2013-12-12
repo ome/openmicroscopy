@@ -238,8 +238,13 @@ class MetadataViewerUI
 		this.location = location;
 	}
 	
-	/** Displays the menu displaying the list of users who viewed the image. */
-	void viewedBy()
+	/** 
+	 * Displays the menu displaying the list of users who viewed the image.
+	 * 
+	 * @param source The component invoking the loading.
+     * @param location The location of the mouse pressed.
+     */
+	void viewedBy(Component source, Point location)
 	{
 		if (viewedByMenu == null) {
 			Map m = model.getViewedBy();

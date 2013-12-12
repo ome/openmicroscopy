@@ -1068,25 +1068,26 @@ class MetadataViewerComponent
 
 	/**
 	 * Implemented as specified by the {@link MetadataViewer} interface.
-	 * @see MetadataViewer#loadViewedBy()
+	 * @see MetadataViewer#loadViewedBy(Component, Point)
 	 */
-	public void loadViewedBy()
+	public void loadViewedBy(Component source, Point location)
 	{
 		Object ref = model.getRefObject();
 		if (ref instanceof ImageData || ref instanceof WellSampleData) {
-			if (model.getViewedBy() != null) setViewedBy(model.getViewedBy());
-			else model.fireViewedByLoading();
+			if (model.getViewedBy() != null)
+			    setViewedBy(model.getViewedBy(), source, location);
+			else model.fireViewedByLoading(source, location);
 		}
 	}
 	
 	/**
 	 * Implemented as specified by the {@link MetadataViewer} interface.
-	 * @see MetadataViewer#setViewedBy(map)
+	 * @see MetadataViewer#setViewedBy(Map, Component, Point)
 	 */
-	public void setViewedBy(Map result)
+	public void setViewedBy(Map result, Component source, Point location)
 	{
 		model.setViewedBy(result);
-		view.viewedBy();
+		view.viewedBy(source, location);
 		model.fireThumbnailsLoading();
 	}
 	
