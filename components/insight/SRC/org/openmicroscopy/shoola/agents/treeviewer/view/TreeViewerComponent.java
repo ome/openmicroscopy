@@ -3224,9 +3224,8 @@ class TreeViewerComponent
 						if (db == null) return;
 						db.addPropertyChangeListener(controller);
 						db.setDisplayMode(model.getDisplayMode());
-						db.activate();
 						view.displayBrowser(db);
-						//db.activate();
+						db.activate();
 						model.setDataViewer(db);
 						browser.setSelectedDisplay(node);
 					}
