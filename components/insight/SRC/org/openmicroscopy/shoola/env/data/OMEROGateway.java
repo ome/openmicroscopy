@@ -2254,7 +2254,7 @@ class OMEROGateway
                         c.shutDownServices(true);
                         c.close(networkup);
                     } catch (Throwable e) {
-                        log("Failed to close the session "+e);
+                        log("Failed to close the session "+printErrorText(e));
                     }
                 } else {
                     c.joinSession();
@@ -2266,13 +2266,13 @@ class OMEROGateway
                     c.shutDownServices(true);
                     c.close(networkup);
                 } catch (Throwable e) {
-                    log("Failed to close the session "+e);
+                    log("Failed to close the session "+printErrorText(e));
                 }
                 try {
                     c = getConnector(new SecurityContext(c.getGroupID()),
                             true, false);
                 } catch (Exception e) {
-                    log("Failed to create connector "+e);
+                    log("Failed to create connector "+printErrorText(e));
                     index++;
                 }
             }
