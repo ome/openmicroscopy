@@ -22,6 +22,12 @@
   Registers the cron job for background indexing.
   </description>
 
+  <bean id="dbUserCheck"
+     class="ome.services.util.DBUserCheck" lazy-init="false">
+     <constructor-arg ref="simpleSqlAction"/>
+     <constructor-arg ref="preferenceContext"/>
+  </bean>
+
   <bean id="jvmSettingsCheck"
      class="ome.services.util.JvmSettingsCheck"
      lazy-init="false">
