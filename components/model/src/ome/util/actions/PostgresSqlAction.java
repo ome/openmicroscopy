@@ -247,55 +247,6 @@ public class PostgresSqlAction extends SqlAction.Impl {
                 new IdRowMapper(), roiId);
     }
 
-    public boolean setUserPassword(Long experimenterID, String password) {
-        int results = _jdbc().update(_lookup("update_password"), //$NON-NLS-1$
-                password, experimenterID);
-        if (results < 1) {
-            results = _jdbc().update(_lookup("insert_password"), //$NON-NLS-1$
-                    experimenterID, password, null);
-        }
-        return results >= 1;
-    }
-
-    public String getPasswordHash(Long experimenterID) {
-        String stored;
-        try {
-            stored = _jdbc().queryForObject(
-                    _lookup("password_hash"), //$NON-NLS-1$
-                    String.class, experimenterID);
-        } catch (EmptyResultDataAccessException e) {
-            stored = null; // This means there's not one.
-        }
-        return stored;
-    }
-
-    public Long getUserId(String userName) {
-        Long id;
-        try {
-            id = _jdbc().queryForObject(_lookup("user_id"), //$NON-NLS-1$
-                    Long.class, userName);
-        } catch (EmptyResultDataAccessException e) {
-            id = null; // This means there's not one.
-        }
-        return id;
-    }
-
-    public List<String> getUserGroups(String userName) {
-        List<String> roles;
-        try {
-            roles = _jdbc().query(_lookup("user_groups"), //$NON-NLS-1$
-                    new RowMapper<String>() {
-                        public String mapRow(ResultSet rs, int rowNum)
-                                throws SQLException {
-                            return rs.getString(1);
-                        }
-                    }, userName);
-        } catch (EmptyResultDataAccessException e) {
-            roles = null; // This means there's not one.
-        }
-        return roles == null ? new ArrayList<String>() : roles;
-    }
-
     public void setFileRepo(long id, String repoId) {
         _jdbc().update(_lookup("set_file_repo"), //$NON-NLS-1$
                 repoId, id);
