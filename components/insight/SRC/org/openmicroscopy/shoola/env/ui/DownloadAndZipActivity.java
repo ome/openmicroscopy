@@ -23,9 +23,6 @@
 package org.openmicroscopy.shoola.env.ui;
 
 
-
-
-
 //Java imports
 import java.io.File;
 import java.util.HashMap;
@@ -34,13 +31,12 @@ import java.util.List;
 import java.util.Map;
 
 //Third-party libraries
-
 import org.apache.commons.io.FileUtils;
+
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.DownloadAndZipParam;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
-import org.openmicroscopy.shoola.util.file.IOUtil;
 import pojos.FileAnnotationData;
 
 /** 
@@ -51,9 +47,6 @@ import pojos.FileAnnotationData;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since 3.0-Beta4
  */
 public class DownloadAndZipActivity 
