@@ -213,7 +213,6 @@ public class NetworkChecker {
 	private boolean _isNetworkup()
 		throws Exception
 	{
-
 		boolean networkup = false;
 		if (useReflectiveCheck) {
 			// On Java 1.6+, reflectiveCheck will perform a proper check.
