@@ -422,9 +422,13 @@ class BrowserControl
         				if (nho.getClass().equals(TagAnnotationData.class)) {
         					nsNode = ((TagAnnotationData) nho).getNameSpace();
         					if (ns == null && nsNode == null) l.add(node);
-        					else if (ns == null && nsNode != null)
+        					else if (ns == null && nsNode != null &&
+        					        TagAnnotationData.INSIGHT_TAGSET_NS.equals(
+        					                nsNode))
         						toRemove.add(path);
-        					else if (ns != null && nsNode == null)
+        					else if (ns != null && nsNode == null &&
+                                    TagAnnotationData.INSIGHT_TAGSET_NS.equals(
+                                            ns))
         						toRemove.add(path);
         					else if (ns != null && nsNode != null) {
         						if (ns.equals(nsNode))
