@@ -1981,10 +1981,11 @@ class TreeViewerComponent
 		setStatus(false, "", true);
 		view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 		model.setState(READY);
-		if (objects == null || objects.size() == 0)
+		if (CollectionUtils.isEmpty(objects))
 			return;
 		Browser b = model.getSelectedBrowser();
 		List<Object> available = new ArrayList<Object>();
+		List<Object> immutable = new ArrayList<Object>();
 		Set selected = null;
 		if (b != null) {
 			TreeImageDisplay[] values = b.getSelectedDisplays();
@@ -1993,18 +1994,26 @@ class TreeViewerComponent
 				Object value = values[0].getUserObject();
 				if (value instanceof GroupData) {
 					long groupId = ((GroupData) value).getId();
-					long currentUserId = TreeViewerAgent.getUserDetails().getId();
+					ExperimenterData currentUser = model.getExperimenter();
 					selected = new HashSet<ExperimenterData>();
+					long userID = currentUser.getId();
+					long id;
 					List<Long> ids = new ArrayList<Long>();
 					for (ExperimenterData experimenter :
 						(List<ExperimenterData>) objects) {
-						if (experimenter.getId() != currentUserId &&
-								experimenter.isMemberOfGroup(groupId)) {
-							selected.add(experimenter);
-							ids.add(experimenter.getId());
+					    id = experimenter.getId();
+						if (experimenter.isMemberOfGroup(groupId)) {
+						    ids.add(id);
+						    selected.add(experimenter);
+						    //Cannot move guest or root
+						    if ((model.isSystemUser(id, GroupData.GUEST) &&
+						       model.isSystemGroup(groupId, GroupData.GUEST)) ||
+						       (model.isSystemUser(id, GroupData.SYSTEM) &&
+		                       model.isSystemGroup(groupId, GroupData.SYSTEM))) {
+						        immutable.add(experimenter);
+						    }
 						}
-						if (!ids.contains(experimenter.getId()) &&
-								experimenter.getId() != currentUserId) {
+						if (!ids.contains(experimenter.getId())) {
 							available.add(experimenter);
 						}
 					}
@@ -2016,6 +2025,7 @@ class TreeViewerComponent
 		fireStateChange();
 		SelectionWizard d = new SelectionWizard(view, available, selected,
 				objects.get(0).getClass(), TreeViewerAgent.getUserDetails());
+		d.setImmutableElements(immutable);
 		IconManager icons = IconManager.getInstance();
 		String title = "User Selection";
 		String text = "Select the Users who should be in the selected group.";
