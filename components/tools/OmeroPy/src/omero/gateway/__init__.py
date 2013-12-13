@@ -6146,8 +6146,9 @@ class _ImageWrapper (BlitzObjectWrapper):
             where i.id = %i
             """ % self._obj.id.val
             query = self._conn.getQueryService()
-            prj = query.findByQuery(q,None, self._conn.SERVICE_OPTS)
-            return prj and ProjectWrapper(self._conn, prj) or None
+            prj = query.findAllByQuery(q,None, self._conn.SERVICE_OPTS)
+            if prj and len(prj) == 1:
+                return ProjectWrapper(self._conn, prj[0])
         except: #pragma: no cover
             logger.debug('on getProject')
             logger.debug(traceback.format_exc())
