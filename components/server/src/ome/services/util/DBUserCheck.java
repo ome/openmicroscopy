@@ -32,7 +32,8 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Hook run by the context. This hook examines the database for the well known
- * user info on {@link #start()}.
+ * user info on creation and provides them to the Spring context via
+ * {@link #getRoles()}.
  *
  * @author Josh Moore, josh at glencoesoftwarecom
  * @since 5.0.0-beta2

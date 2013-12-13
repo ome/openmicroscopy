@@ -730,7 +730,8 @@ public interface SqlAction {
                     rv.put(name, id);
                     return null;
                 }};
-            _jdbc().query(_lookup("get_group_ids"), mapper, params);
+            _jdbc().query(_lookup("get_group_ids"), //$NON-NLS-1$
+                    mapper, params);
             return rv;
         }
 
