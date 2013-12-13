@@ -600,6 +600,13 @@ CREATE TRIGGER prevent_experimenter_group_rename
     BEFORE UPDATE ON experimentergroup
     FOR EACH ROW EXECUTE PROCEDURE prevent_experimenter_group_rename();
 
+-- #11810 Fix Image.archived flag
+UPDATE image set archived = false where id in (
+    SELECT i.id FROM pixels p, image i
+     WHERE p.image = i.id
+       AND i.archived
+       AND NOT EXISTS ( SELECT 1 FROM pixelsoriginalfilemap m WHERE m.child = p.id));
+
 --
 -- FINISHED
 --
