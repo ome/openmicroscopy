@@ -267,7 +267,6 @@ OME.removeItem = function(event, domClass, url, parentId, index) {
                     type: "POST",
                     url: url,
                     data: {'parent':parentId, 'index':index},
-					contentType: 'application/javascript',
                     dataType: 'json',
                     success: function(r){
                         if(eval(r.bad)) {
