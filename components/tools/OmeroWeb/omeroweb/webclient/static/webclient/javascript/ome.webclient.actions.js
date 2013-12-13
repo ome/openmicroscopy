@@ -296,7 +296,6 @@ OME.deleteItem = function(event, domClass, url) {
                 $.ajax({
                     type: "POST",
                     url: url,
-                    contentType: 'application/javascript',
                     dataType:'json',
                     success: function(r){
                         if(eval(r.bad)) {
