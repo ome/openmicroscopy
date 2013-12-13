@@ -52,7 +52,6 @@ OME.addToBasket = function(selected, prefix) {
         type: "POST",
         url: prefix, //this.href,
         data: productListQuery.join("&"),
-        contentType:'html',
         success: function(responce){
             if(responce.match(/(Error: ([A-z]+))/gi)) {
                 OME.alert_dialog(responce);
