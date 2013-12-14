@@ -225,6 +225,8 @@ public class NetworkChecker {
 				InetAddress ia;
 				while (interfaces.hasMoreElements()) {
 					ni = interfaces.nextElement();
+					if (ni.isLoopback() || !ni.isUp())
+					    continue;
 					Enumeration<InetAddress> e = ni.getInetAddresses();
 					if (!ni.getDisplayName().startsWith("lo")) {
 						while (e.hasMoreElements()) {
