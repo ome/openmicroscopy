@@ -80,17 +80,6 @@ class TestTag(CLITest):
         tags = self.query.findAllByQuery(query, params)
         return tags
 
-    # Help subcommands
-    # ========================================================================
-    def testHelp(self):
-        self.args += ["-h"]
-        self.cli.invoke(self.args, strict=True)
-
-    @pytest.mark.parametrize('subcommand', subcommands)
-    def testSubcommandHelp(self, subcommand):
-        self.args += [subcommand, "-h"]
-        self.cli.invoke(self.args, strict=True)
-
     # Tag creation commands
     # ========================================================================
     @pytest.mark.parametrize('name_arg', [None, '--name'])
