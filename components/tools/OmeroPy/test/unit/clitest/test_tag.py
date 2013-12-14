@@ -62,7 +62,11 @@ class TestTag(object):
         with pytest.raises(NonZeroReturnCode):
             self.cli.invoke(self.args, strict=True)
 
-    def testLinkFails(self):
-        self.args += ["link", "Image:1", "test"]
+    @pytest.mark.parametrize(
+        ('object_arg', 'tag_arg'),
+        [('Image:1', 'test'), ('Image', '1'), ('Image:image', '1'),
+         ('1', '1')])
+    def testLinkFails(self, object_arg, tag_arg):
+        self.args += ["link", object_arg, tag_arg]
         with pytest.raises(NonZeroReturnCode):
             self.cli.invoke(self.args, strict=True)

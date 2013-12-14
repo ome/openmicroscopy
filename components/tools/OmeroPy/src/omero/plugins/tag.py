@@ -550,10 +550,13 @@ JSON File Format:
         """
         Links an object to a tag annotation.
         """
-        obj_type = None
-        obj_id = None
-        if args.object:
+
+        try:
             obj_type, obj_id = args.object.split(':')
+            obj_id = long(obj_id)
+        except ValueError:
+            obj_type = None
+            obj_id = None
 
         if obj_type is None or obj_id is None:
             self.ctx.err("Missing object or object not of form"
