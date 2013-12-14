@@ -19,6 +19,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
+import pytest
 import omero
 from omero.plugins.tag import TagControl
 from test.integration.clitest.cli import CLITest
@@ -28,6 +29,9 @@ from omero_ext.mox import IgnoreArg
 import __builtin__
 NSINSIGHTTAGSET = omero.constants.metadata.NSINSIGHTTAGSET
 
+subcommands = [
+    "create", "createset", "list", "listsets", "link", "load"]
+
 
 class TestTag(CLITest):
 
@@ -35,6 +39,11 @@ class TestTag(CLITest):
         super(TestTag, self).setup_method(method)
         self.cli.register("tag", TagControl, "TEST")
         self.args += ["tag"]
+        self.setup_mock()
+
+    def teardown_method(self, method):
+        self.teardown_mock()
+        super(TestTag, self).teardown_method(method)
 
     def create_tags(self, ntags, name):
         tag_ids = []
@@ -47,24 +56,6 @@ class TestTag(CLITest):
             else:
                 tag_ids = tag.id.val
         return tag_ids
-
-    def create_tag(self, tag_name, tag_desc):
-        self.args += ["create"]
-        if tag_name:
-            self.args += ["--name", tag_name]
-        if tag_desc:
-            self.args += ["--desc", tag_desc]
-        self.cli.invoke(self.args, strict=True)
-
-    def create_tagset(self, tag_ids, tag_name, tag_desc):
-        self.args += ["createset", "--tag"]
-        self.args += ["%s" % tag_id for tag_id in tag_ids]
-        if tag_name:
-            self.args += ["--name", tag_name]
-        if tag_desc:
-            self.args += ["--desc", tag_desc]
-
-        self.cli.invoke(self.args, strict=True)
 
     def get_tag_by_name(self, tag_name, ns=None):
         # Query
@@ -96,89 +87,66 @@ class TestTag(CLITest):
         self.args += ["-h"]
         self.cli.invoke(self.args, strict=True)
 
-    def testCreateHelp(self):
-        self.args += ["create", "-h"]
-        self.cli.invoke(self.args, strict=True)
-
-    def testCreateSetHelp(self):
-        self.args += ["createset", "-h"]
-        self.cli.invoke(self.args, strict=True)
-
-    def testListHelp(self):
-        self.args += ["list", "-h"]
-        self.cli.invoke(self.args, strict=True)
-
-    def testListSetsHelp(self):
-        self.args += ["listsets", "-h"]
-        self.cli.invoke(self.args, strict=True)
-
-    def testLinkHelp(self):
-        self.args += ["link", "-h"]
-        self.cli.invoke(self.args, strict=True)
-
-    def testLoadHelp(self):
-        self.args += ["load", "-h"]
+    @pytest.mark.parametrize('subcommand', subcommands)
+    def testCreateHelp(self, subcommand):
+        self.args += [subcommand, "-h"]
         self.cli.invoke(self.args, strict=True)
 
     # Tag creation commands
     # ========================================================================
-    def testCreateTag(self):
+    @pytest.mark.parametrize('name_arg', [None, '--name'])
+    @pytest.mark.parametrize('desc_arg', [None, '--desc'])
+    def testCreateTag(self, name_arg, desc_arg):
         tag_name = self.uuid()
         tag_desc = self.uuid()
-        self.create_tag(tag_name, tag_desc)
-
-        # Check tag is created
-        tag = self.get_tag_by_name(tag_name)
-        assert tag.description.val == tag_desc
-
-    def testCreateTagNoDesc(self):
-        tag_name = self.uuid()
-        tag_desc = self.uuid()
-
-        self.setup_mock()
+        self.args += ["create"]
         self.mox.StubOutWithMock(__builtin__, "raw_input")
-        raw_input(IgnoreArg()).AndReturn(tag_desc)
+        if name_arg:
+            self.args += [name_arg, tag_name]
+        else:
+            raw_input(IgnoreArg()).AndReturn(tag_name)
+
+        if tag_desc:
+            self.args += [desc_arg, tag_desc]
+        else:
+            raw_input(IgnoreArg()).AndReturn(tag_desc)
         self.mox.ReplayAll()
 
-        self.create_tag(tag_name, None)
-        self.teardown_mock()
+        self.cli.invoke(self.args, strict=True)
 
         # Check tag is created
         tag = self.get_tag_by_name(tag_name)
         assert tag.description.val == tag_desc
 
-    def testCreateTagNoName(self):
+    @pytest.mark.parametrize('name_arg', [None, '--name'])
+    @pytest.mark.parametrize('desc_arg', [None, '--desc'])
+    def testCreateTagset(self, name_arg, desc_arg):
         tag_name = self.uuid()
         tag_desc = self.uuid()
+        tag_ids = self.create_tags(2, tag_name)
+        self.args += ["createset", "--tag"]
+        self.args += ["%s" % tag_id for tag_id in tag_ids]
 
-        self.setup_mock()
         self.mox.StubOutWithMock(__builtin__, "raw_input")
-        raw_input(IgnoreArg()).AndReturn(tag_name)
+        if name_arg:
+            self.args += [name_arg, tag_name]
+        else:
+            raw_input(IgnoreArg()).AndReturn(tag_name)
+        if tag_desc:
+            self.args += [desc_arg, tag_desc]
+        else:
+            raw_input(IgnoreArg()).AndReturn(tag_desc)
         self.mox.ReplayAll()
 
-        self.create_tag(None, tag_desc)
-        self.teardown_mock()
+        self.cli.invoke(self.args, strict=True)
 
-        # Check tag is created
-        tag = self.get_tag_by_name(tag_name)
-        assert tag.description.val == tag_desc
+        # Check tagset is created
+        tagset = self.get_tag_by_name(tag_name, NSINSIGHTTAGSET)
+        assert tagset.description.val == tag_desc
 
-    def testCreateTagNoNameNoDesc(self):
-        tag_name = self.uuid()
-        tag_desc = self.uuid()
-
-        self.setup_mock()
-        self.mox.StubOutWithMock(__builtin__, "raw_input")
-        raw_input(IgnoreArg()).AndReturn(tag_name)
-        raw_input(IgnoreArg()).AndReturn(tag_desc)
-        self.mox.ReplayAll()
-
-        self.create_tag(None, None)
-        self.teardown_mock()
-
-        # Check tag is created
-        tag = self.get_tag_by_name(tag_name)
-        assert tag.description.val == tag_desc
+        # Check all tags are linked to the tagset
+        tags = self.get_tags_in_tagset(tagset.id.val)
+        assert sorted([x.id.val for x in tags]) == sorted(tag_ids)
 
     def testLoadTag(self):
         tag_name = self.uuid()
@@ -194,84 +162,6 @@ class TestTag(CLITest):
         # Check tag is created
         tag = self.get_tag_by_name(tag_name)
         assert tag.description.val == tag_desc
-
-    # Tagset creation commands
-    # ========================================================================
-    def testCreateTagset(self):
-        ts_name = self.uuid()
-        ts_desc = self.uuid()
-        tag_ids = self.create_tags(2, ts_name)
-
-        self.create_tagset(tag_ids, ts_name, ts_desc)
-
-        # Check tagset is created
-        tagset = self.get_tag_by_name(ts_name, NSINSIGHTTAGSET)
-        assert tagset.description.val == ts_desc
-
-        # Check all tags are linked to the tagset
-        tags = self.get_tags_in_tagset(tagset.id.val)
-        assert sorted([x.id.val for x in tags]) == sorted(tag_ids)
-
-    def testCreateTagsetNoDesc(self):
-        ts_name = self.uuid()
-        ts_desc = self.uuid()
-        tag_ids = self.create_tags(2, ts_name)
-
-        self.setup_mock()
-        self.mox.StubOutWithMock(__builtin__, "raw_input")
-        raw_input(IgnoreArg()).AndReturn(ts_desc)
-        self.mox.ReplayAll()
-        self.create_tagset(tag_ids, ts_name, None)
-        self.teardown_mock()
-
-        # Check tagset is created
-        tagset = self.get_tag_by_name(ts_name, NSINSIGHTTAGSET)
-        assert tagset.description.val == ts_desc
-
-        # Check all tags are linked to the tagset
-        tags = self.get_tags_in_tagset(tagset.id.val)
-        assert sorted([x.id.val for x in tags]) == sorted(tag_ids)
-
-    def testCreateTagsetNoName(self):
-        ts_name = self.uuid()
-        ts_desc = self.uuid()
-        tag_ids = self.create_tags(2, ts_name)
-
-        self.setup_mock()
-        self.mox.StubOutWithMock(__builtin__, "raw_input")
-        raw_input(IgnoreArg()).AndReturn(ts_name)
-        self.mox.ReplayAll()
-        self.create_tagset(tag_ids, None, ts_desc)
-        self.teardown_mock()
-
-        # Check tagset is created
-        tagset = self.get_tag_by_name(ts_name, NSINSIGHTTAGSET)
-        assert tagset.description.val == ts_desc
-
-        # Check all tags are linked to the tagset
-        tags = self.get_tags_in_tagset(tagset.id.val)
-        assert sorted([x.id.val for x in tags]) == sorted(tag_ids)
-
-    def testCreateTagsetNoNameNoDesc(self):
-        ts_name = self.uuid()
-        ts_desc = self.uuid()
-        tag_ids = self.create_tags(2, ts_name)
-
-        self.setup_mock()
-        self.mox.StubOutWithMock(__builtin__, "raw_input")
-        raw_input(IgnoreArg()).AndReturn(ts_name)
-        raw_input(IgnoreArg()).AndReturn(ts_desc)
-        self.mox.ReplayAll()
-        self.create_tagset(tag_ids, None, None)
-        self.teardown_mock()
-
-        # Check tagset is created
-        tagset = self.get_tag_by_name(ts_name, NSINSIGHTTAGSET)
-        assert tagset.description.val == ts_desc
-
-        # Check all tags are linked to the tagset
-        tags = self.get_tags_in_tagset(tagset.id.val)
-        assert sorted([x.id.val for x in tags]) == sorted(tag_ids)
 
     def testLoadTagset(self):
         ts_name = self.uuid()
@@ -312,81 +202,23 @@ class TestTag(CLITest):
         link = self.query.findByQuery(query, params)
         return link
 
-    def testLinkImage(self):
+    @pytest.mark.parametrize(
+        'object_type', ['Image', 'Dataset', 'Project', 'Screen', 'Plate'])
+    def testLink(self, object_type):
         # Create a tag and an image
         tid = self.create_tags(1, "%s" % self.uuid())
-        img = self.new_image()
-        img = self.update.saveAndReturnObject(img)
-        iid = img.getId().getValue()
+        if object_type == 'Image':
+            new_object = self.new_image()
+        else:
+            new_object = getattr(omero.model, object_type + "I")()
+        new_object.name = rstring("%s" % self.uuid())
+        new_object = self.update.saveAndReturnObject(new_object)
+        oid = new_object.getId().getValue()
 
         # Call tag link subcommand
-        self.args += ["link", "Image:%s" % iid, "%s" % tid]
+        self.args += ["link", "%s:%s" % (object_type, oid), "%s" % tid]
         self.cli.invoke(self.args, strict=True)
 
         # Check link
-        link = self.get_link("Image", iid)
-        assert link.child.id.val == tid
-
-    def testLinkDataset(self):
-        # Create a tag and a dataset
-        tid = self.create_tags(1, "%s" % self.uuid())
-        ds = omero.model.DatasetI()
-        ds.name = rstring("%s" % self.uuid())
-        ds = self.update.saveAndReturnObject(ds)
-        did = ds.getId().getValue()
-
-        # Call tag link subcommand
-        self.args += ["link", "Dataset:%s" % did, "%s" % tid]
-        self.cli.invoke(self.args, strict=True)
-
-        # Check link
-        link = self.get_link("Dataset", did)
-        assert link.child.id.val == tid
-
-    def testLinkProject(self):
-        # Create a tag and a project
-        tid = self.create_tags(1, "%s" % self.uuid())
-        p = omero.model.ProjectI()
-        p.name = rstring("%s" % self.uuid())
-        p = self.update.saveAndReturnObject(p)
-        pid = p.getId().getValue()
-
-        # Call tag link subcommand
-        self.args += ["link", "Project:%s" % pid, "%s" % tid]
-        self.cli.invoke(self.args, strict=True)
-
-        # Check link
-        link = self.get_link("Project", pid)
-        assert link.child.id.val == tid
-
-    def testLinkScreen(self):
-        # Create a tag and a project
-        tid = self.create_tags(1, "%s" % self.uuid())
-        s = omero.model.ScreenI()
-        s.name = rstring("%s" % self.uuid())
-        s = self.update.saveAndReturnObject(s)
-        sid = s.getId().getValue()
-
-        # Call tag link subcommand
-        self.args += ["link", "Screen:%s" % sid, "%s" % tid]
-        self.cli.invoke(self.args, strict=True)
-
-        # Check link
-        link = self.get_link("Screen", sid)
-        assert link.child.id.val == tid
-
-    def testLinkPlate(self):
-        # Create a tag and a project
-        tid = self.create_tags(1, "%s" % self.uuid())
-        p = omero.model.PlateI()
-        p.name = rstring("%s" % self.uuid())
-        p = self.update.saveAndReturnObject(p)
-        pid = p.getId().getValue()
-
-        # Call tag link subcommand
-        self.args += ["link", "Plate:%s" % pid, "%s" % tid]
-        self.cli.invoke(self.args, strict=True)
-
-        # Check link
-        link = self.get_link("Plate", pid)
+        link = self.get_link(object_type, oid)
         assert link.child.id.val == tid
