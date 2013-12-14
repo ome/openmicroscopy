@@ -28,9 +28,6 @@ from omero.util.temp_files import create_path
 import __builtin__
 NSINSIGHTTAGSET = omero.constants.metadata.NSINSIGHTTAGSET
 
-subcommands = [
-    "create", "createset", "list", "listsets", "link", "load"]
-
 
 class TestTag(CLITest):
 
