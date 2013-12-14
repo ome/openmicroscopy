@@ -25,7 +25,6 @@ from omero.plugins.tag import TagControl
 from test.integration.clitest.cli import CLITest
 from omero.rtypes import rstring, rlong
 from omero.util.temp_files import create_path
-from omero_ext.mox import IgnoreArg
 import __builtin__
 NSINSIGHTTAGSET = omero.constants.metadata.NSINSIGHTTAGSET
 
@@ -88,7 +87,7 @@ class TestTag(CLITest):
         self.cli.invoke(self.args, strict=True)
 
     @pytest.mark.parametrize('subcommand', subcommands)
-    def testCreateHelp(self, subcommand):
+    def testSubcommandHelp(self, subcommand):
         self.args += [subcommand, "-h"]
         self.cli.invoke(self.args, strict=True)
 
@@ -104,12 +103,14 @@ class TestTag(CLITest):
         if name_arg:
             self.args += [name_arg, tag_name]
         else:
-            raw_input(IgnoreArg()).AndReturn(tag_name)
+            name_input = 'Please enter a name for this tag: '
+            raw_input(name_input).AndReturn(tag_name)
 
-        if tag_desc:
+        if desc_arg:
             self.args += [desc_arg, tag_desc]
         else:
-            raw_input(IgnoreArg()).AndReturn(tag_desc)
+            desc_input = 'Please enter a description for this tag: '
+            raw_input(desc_input).AndReturn(tag_desc)
         self.mox.ReplayAll()
 
         self.cli.invoke(self.args, strict=True)
@@ -131,11 +132,13 @@ class TestTag(CLITest):
         if name_arg:
             self.args += [name_arg, tag_name]
         else:
-            raw_input(IgnoreArg()).AndReturn(tag_name)
-        if tag_desc:
+            name_input = 'Please enter a name for this tag set: '
+            raw_input(name_input).AndReturn(tag_name)
+        if desc_arg:
             self.args += [desc_arg, tag_desc]
         else:
-            raw_input(IgnoreArg()).AndReturn(tag_desc)
+            desc_input = 'Please enter a description for this tag set: '
+            raw_input(desc_input).AndReturn(tag_desc)
         self.mox.ReplayAll()
 
         self.cli.invoke(self.args, strict=True)
