@@ -1566,6 +1566,20 @@
                 $(".new-label-form", this.$el).hide();
             } else {
                 $(".new-label-form", this.$el).show();
+                // if none of the selected panels have time data, disable 'add_time_label's
+                var have_time = false, dTs;
+                for (var i=0; i<selected.length; i++) {
+                    dTs = selected[i].get('deltaT');
+                    if (dTs && dTs.length > 0) {
+                        have_time = true;
+                        break;
+                    }
+                }
+                if (have_time) {
+                    $(".add_time_label", this.$el).removeClass('disabled');
+                } else {
+                    $(".add_time_label", this.$el).addClass('disabled');
+                }
             }
 
             // show selected panels labels below
