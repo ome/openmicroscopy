@@ -1018,16 +1018,16 @@
         renderSaveBtn: function() {
 
             var canEdit = this.model.get('canEdit'),
-                btnText = canEdit ? "Save" : "Can't Save";
+                noFile = (typeof this.model.get('fileId') == 'undefined'),
+                btnText = (canEdit || noFile) ? "Save" : "Can't Save";
             this.$saveBtn.text(btnText);
-            if (this.model.get('unsaved') && canEdit) {
+            if (this.model.get('unsaved') && (canEdit || noFile)) {
                 this.$saveBtn.addClass('btn-success').removeClass('btn-default').removeAttr('disabled');
                 this.$saveOption.removeClass('disabled');
             } else {
                 this.$saveBtn.addClass('btn-default').removeClass('btn-success').attr('disabled', 'disabled');
                 this.$saveOption.addClass('disabled');
             }
-
             if (this.model.get('fileId')) {
                 this.$deleteOption.removeClass('disabled');
             } else {
