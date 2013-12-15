@@ -34,8 +34,6 @@ class TestTag(object):
         self.cli.register("tag", TagControl, "TEST")
         self.args = ["tag"]
 
-    # Help subcommands
-    # ========================================================================
     def testHelp(self):
         self.args += ["-h"]
         self.cli.invoke(self.args, strict=True)
@@ -45,8 +43,6 @@ class TestTag(object):
         self.args += [subcommand, "-h"]
         self.cli.invoke(self.args, strict=True)
 
-    # Tag creation commands
-    # ========================================================================
     def testCreateTagsetFails(self):
         self.args += ["createset", "--tag", "A"]
         with pytest.raises(NonZeroReturnCode):
