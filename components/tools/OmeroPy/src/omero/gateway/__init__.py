@@ -6124,8 +6124,9 @@ class _ImageWrapper (BlitzObjectWrapper):
             where i.id = %i
             """ % self._obj.id.val
             query = self._conn.getQueryService()
-            ds = query.findByQuery(q,None, self._conn.SERVICE_OPTS)
-            return ds and DatasetWrapper(self._conn, ds) or None
+            ds = query.findAllByQuery(q, None, self._conn.SERVICE_OPTS)
+            if ds and len(ds) == 1:
+                return DatasetWrapper(self._conn, ds[0])
         except: #pragma: no cover
             logger.debug('on getDataset')
             logger.debug(traceback.format_exc())
