@@ -184,7 +184,8 @@ public class NetworkChecker {
         boolean newValue = _isNetworkup();
         long stop = System.currentTimeMillis();
         long elapsed = stop - start;
-        log("Network status: %s (in %s ms.)", newValue, elapsed);
+        log("Network status: %s (in %s ms.) use cached value: %s", newValue,
+                elapsed, useCachedValue);
         lastValue.set(newValue);
         lastCheck.set(stop);
         return newValue;
