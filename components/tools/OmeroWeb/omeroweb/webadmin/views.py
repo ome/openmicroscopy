@@ -36,6 +36,7 @@ import datetime
 import traceback
 import logging
 import re
+import json
 
 import omeroweb.webclient.views
 
@@ -51,7 +52,6 @@ from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpRequest, HttpResponseRedirect, Http404
 from django.shortcuts import render_to_response
 from django.template import RequestContext as Context
-from django.utils import simplejson
 from django.utils.translation import ugettext as _
 from django.views.defaults import page_not_found, server_error
 from django.views import debug
@@ -785,4 +785,4 @@ def drivespace(request, conn=None, **kwargs):
 def load_drivespace(request, conn=None, **kwargs):
     offset = request.REQUEST.get('offset', 0)
     rv = usersData(conn, offset)
-    return HttpResponse(simplejson.dumps(rv),mimetype='application/json')
+    return HttpResponse(json.dumps(rv),mimetype='application/json')

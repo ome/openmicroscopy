@@ -6,7 +6,7 @@
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # 
 # 
-# Copyright (c) 2008 University of Dundee. 
+# Copyright (c) 2008-2013 University of Dundee. 
 # 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -36,8 +36,8 @@ import omero.config
 import omero.clients
 import tempfile
 import re
+import json
 
-from django.utils import simplejson as json
 from portalocker import LockException
 
 logger = logging.getLogger(__name__)

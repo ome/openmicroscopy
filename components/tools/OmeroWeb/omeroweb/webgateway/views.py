@@ -2,9 +2,9 @@
 # -*- coding: utf-8 -*-
 #
 # webgateway/views.py - django application view handling functions
-# 
-# Copyright (c) 2007, 2008, 2009 Glencoe Software, Inc. All rights reserved.
-# 
+#
+# Copyright (c) 2007-2013 Glencoe Software, Inc. All rights reserved.
+#
 # This software is distributed under the terms described by the LICENCE file
 # you can find at the root of the distribution bundle, which states you are
 # free to use it only for non commercial purposes.
@@ -14,11 +14,11 @@
 # Author: Carlos Neves <carlos(at)glencoesoftware.com>
 
 import re
-
+import json
 import omero
 import omero.clients
+
 from django.http import HttpResponse, HttpResponseServerError, HttpResponseRedirect, Http404
-from django.utils import simplejson
 from django.utils.encoding import smart_str
 from django.utils.http import urlquote
 from django.views.decorators.http import require_POST
@@ -35,7 +35,7 @@ try:
     from hashlib import md5
 except:
     from md5 import md5
-    
+
 from cStringIO import StringIO
 
 from omero import client_wrapper, ApiUsageException
@@ -79,73 +79,73 @@ def _safestr (s):
 
 class UserProxy (object):
     """
-    Represents the current user of the connection, with methods delegating to the connection itself. 
+    Represents the current user of the connection, with methods delegating to the connection itself.
     """
-    
+
     def __init__ (self, blitzcon):
         """
         Initialises the User proxy with the L{omero.gateway.BlitzGateway} connection
-        
+
         @param blitzcon:    connection
         @type blitzcon:     L{omero.gateway.BlitzGateway}
         """
-        
+
         self._blitzcon = blitzcon
         self.loggedIn = False
 
     def logIn (self):
         """ Sets the loggedIn Flag to True """
-        
+
         self.loggedIn = True
 
     def isAdmin (self):
-        """ 
+        """
         True if the current user is an admin
-        
+
         @return:    True if the current user is an admin
         @rtype:     Boolean
         """
-        
+
         return self._blitzcon.isAdmin()
 
     def canBeAdmin (self):
-        """ 
+        """
         True if the current user can be admin
-        
+
         @return:    True if the current user can be admin
         @rtype:     Boolean
         """
-        
+
         return self._blitzcon.canBeAdmin()
 
     def getId (self):
-        """ 
+        """
         Returns the ID of the current user
-        
+
         @return:    User ID
         @rtype:     Long
         """
-        
+
         return self._blitzcon.getUserId()
 
     def getName (self):
-        """ 
+        """
         Returns the Name of the current user
-        
+
         @return:    User Name
         @rtype:     String
         """
-        
+
         return self._blitzcon.getUser().omeName
 
     def getFirstName (self):
-        """ 
+        """
         Returns the first name of the current user
-        
+
         @return:    First Name
         @rtype:     String
         """
-        
+
         return self._blitzcon.getUser().firstName or self.getName()
 
 #    def getPreferences (self):
@@ -172,13 +172,13 @@ def _split_channel_info (rchannels):
     """
     Splits the request query channel information for images into a sequence of channels, window ranges
     and channel colors.
-    
+
     @param rchannels:   The request string with channel info. E.g 1|100:505$0000FF,-2,3|620:3879$FF0000
     @type rchannels:    String
     @return:            E.g. [1, -2, 3] [[100.0, 505.0], (None, None), [620.0, 3879.0]] [u'0000FF', None, u'FF0000']
     @rtype:             tuple of 3 lists
     """
-    
+
     channels = []
     windows = []
     colors = []
@@ -221,13 +221,13 @@ def getImgDetailsFromReq (request, as_string=False):
     c - a comma separated list of channels to be rendered (start index 1)
       - format for each entry [-]ID[|wndst:wndend][#HEXCOLOR][,...]
     zm - the zoom setting (as a percentual value)
-    
+
     @param request:     http request with keys above
     @param as_string:   If True, return a string representation of the rendering details
-    @return:            A dict or String representation of rendering details above. 
+    @return:            A dict or String representation of rendering details above.
     @rtype:             Dict or String
     """
-    
+
     r = request.REQUEST
     rv = {}
     for k in ('z', 't', 'q', 'm', 'zm', 'x', 'y', 'p'):
@@ -263,9 +263,9 @@ def render_birds_eye_view (request, iid, size=None,
 
 @login_required()
 def render_thumbnail (request, iid, w=None, h=None, conn=None, _defcb=None, **kwargs):
-    """ 
-    Returns an HttpResponse wrapped jpeg with the rendered thumbnail for image 'iid' 
-    
+    """
+    Returns an HttpResponse wrapped jpeg with the rendered thumbnail for image 'iid'
+
     @param request:     http request
     @param iid:         Image ID
     @param w:           Thumbnail max width. 64 by default
@@ -316,12 +316,12 @@ def render_thumbnail (request, iid, w=None, h=None, conn=None, _defcb=None, **kw
 @login_required()
 def render_roi_thumbnail (request, roiId, w=None, h=None, conn=None, **kwargs):
     """
-    For the given ROI, choose the shape to render (first time-point, mid z-section) then render 
+    For the given ROI, choose the shape to render (first time-point, mid z-section) then render
     a region around that shape, scale to width and height (or default size) and draw the
     shape on to the region
     """
     server_id = request.session['connector'].server_id
-    
+
     # need to find the z indices of the first shape in T
     roiResult = conn.getRoiService().findByRoi(long(roiId), None, conn.SERVICE_OPTS)
     if roiResult is None or roiResult.rois is None:
@@ -341,15 +341,15 @@ def render_roi_thumbnail (request, roiId, w=None, h=None, conn=None, **kwargs):
             if t < minT:
                 zz = set([z])
                 minT = t
-            elif minT == t: 
+            elif minT == t:
                 zz.add(z)
     zList = list(zz)
     zList.sort()
     midZ = zList[len(zList)/2]
     s = shapes[(midZ, minT)]
-    
+
     pi = _get_prepared_image(request, imageId, server_id=server_id, conn=conn)
-    
+
     if pi is None:
         raise Http404
     image, compress_quality = pi
@@ -360,10 +360,10 @@ def render_roi_thumbnail (request, roiId, w=None, h=None, conn=None, **kwargs):
 def render_shape_thumbnail (request, shapeId, w=None, h=None, conn=None, **kwargs):
     """
     For the given Shape, redner a region around that shape, scale to width and height (or default size) and draw the
-    shape on to the region. 
+    shape on to the region.
     """
     server_id = request.session['connector'].server_id
-    
+
     # need to find the z indices of the first shape in T
     params = omero.sys.Parameters()
     params.map = {'id':rlong(shapeId)}
@@ -385,8 +385,8 @@ def render_shape_thumbnail (request, shapeId, w=None, h=None, conn=None, **kwarg
 def get_shape_thumbnail (request, conn, image, s, compress_quality):
     """
     Render a region around the specified Shape, scale to width and height (or default size) and draw the
-    shape on to the region. Returns jpeg data. 
-    
+    shape on to the region. Returns jpeg data.
+
     @param image:   ImageWrapper
     @param s:       omero.model.Shape
     """
@@ -398,7 +398,7 @@ def get_shape_thumbnail (request, conn, image, s, compress_quality):
     if color in colours:
         lineColour = colours[color]
     bg_color = (221,221,221)        # used for padding if we go outside the image area
-    
+
     def pointsStringToXYlist(string):
         """
         Method for converting the string returned from omero.model.ShapeI.getPoints()
@@ -481,7 +481,7 @@ def get_shape_thumbnail (request, conn, image, s, compress_quality):
     else:
         logger.debug("Shape type not supported: %s" % str(type(s)))
     #print shape
-    
+
     # we want to render a region larger than the bounding box
     x,y,w,h = bBox
     requiredWidth = max(w,h*3/2)            # make the aspect ratio (w/h) = 3/2
@@ -514,7 +514,7 @@ def get_shape_thumbnail (request, conn, image, s, compress_quality):
     yOffset = (newH - h)/2
     newX = int(x - xOffset)
     newY = int(y - yOffset)
-    
+
     # Need to check if any part of our region is outside the image. (assume that SOME of the region is within the image!)
     sizeX = image.getSizeX()
     sizeY = image.getSizeY()
@@ -537,7 +537,7 @@ def get_shape_thumbnail (request, conn, image, s, compress_quality):
     # now we should be getting the correct region
     jpeg_data = image.renderJpegRegion(theZ,theT,newX, newY, newW, newH,level=None, compression=compress_quality)
     img = Image.open(StringIO(jpeg_data))
-    
+
     # add back on the xs we were forced to trim
     if left_xs != 0 or right_xs != 0 or top_xs != 0 or bottom_xs != 0:
         jpg_w, jpg_h = img.size
@@ -546,13 +546,13 @@ def get_shape_thumbnail (request, conn, image, s, compress_quality):
         xs_image = Image.new('RGBA', (xs_w, xs_h), bg_color)
         xs_image.paste(img, (left_xs, top_xs))
         img = xs_image
-    
-    # we have our full-sized region. Need to resize to thumbnail. 
+
+    # we have our full-sized region. Need to resize to thumbnail.
     current_w, current_h = img.size
     factor = float(MAX_WIDTH) / current_w
     resizeH = int(current_h * factor)
     img = img.resize((MAX_WIDTH, resizeH))
-    
+
     draw = ImageDraw.Draw(img)
     if shape['type'] == 'Rectangle':
         rectX = int(xOffset * factor)
@@ -601,12 +601,12 @@ def get_shape_thumbnail (request, conn, image, s, compress_quality):
             if y2 is None:
                 y2 = start_y + 1
             draw.line((x2, y2, start_x, start_y), fill=lineColour, width=2)
-        
+
     rv = StringIO()
     compression = 0.9
     img.save(rv, 'jpeg', quality=int(compression*100))
     jpeg = rv.getvalue()
-    
+
     return HttpResponse(jpeg, mimetype='image/jpeg')
 
 
@@ -614,11 +614,11 @@ def _get_signature_from_request (request):
     """
     returns a string that identifies this image, along with the settings passed on the request.
     Useful for using as img identifier key, for prepared image.
-    
+
     @param request: http request
     @return:        String
     """
-    
+
     r = request.REQUEST
     rv = r.get('m','_') + r.get('p','_')+r.get('c','_')+r.get('q', '_')
     return rv
@@ -628,11 +628,11 @@ def _get_prepared_image (request, iid, server_id=None, conn=None, saveDefs=False
     Fetches the Image object for image 'iid' and prepares it according to the request query, setting the channels,
     rendering model and projection arguments. The compression level is parsed and returned too.
     For parameters in request, see L{getImgDetailsFromReq}
-    
+
     @param request:     http request
     @param iid:         Image ID
     @param conn:        L{omero.gateway.BlitzGateway} connection
-    @param saveDefs:    Try to save the rendering settings, default z and t. 
+    @param saveDefs:    Try to save the rendering settings, default z and t.
     @param retry:       Try an extra attempt at this method
     @return:            Tuple (L{omero.gateway.ImageWrapper} image, quality)
     """
@@ -665,9 +665,9 @@ def _get_prepared_image (request, iid, server_id=None, conn=None, saveDefs=False
 def render_image_region(request, iid, z, t, conn=None, **kwargs):
     """
     Returns a jpeg of the OMERO image, rendering only a region specified in query string as
-    region=x,y,width,height. E.g. region=0,512,256,256 
+    region=x,y,width,height. E.g. region=0,512,256,256
     Rendering settings can be specified in the request parameters.
-    
+
     @param request:     http request
     @param iid:         image ID
     @param z:           Z index
@@ -676,29 +676,29 @@ def render_image_region(request, iid, z, t, conn=None, **kwargs):
     @return:            http response wrapping jpeg
     """
     server_id = request.session['connector'].server_id
-    # if the region=x,y,w,h is not parsed correctly to give 4 ints then we simply provide whole image plane. 
-    # alternatively, could return a 404?    
+    # if the region=x,y,w,h is not parsed correctly to give 4 ints then we simply provide whole image plane.
+    # alternatively, could return a 404?
     #if h == None:
     #    return render_image (request, iid, z, t, server_id=None, _conn=None, **kwargs)
     pi = _get_prepared_image(request, iid, server_id=server_id, conn=conn)
-    
+
     if pi is None:
         raise Http404
     img, compress_quality = pi
-    
+
     tile = request.REQUEST.get('tile', None)
     region = request.REQUEST.get('region', None)
     level = None
-    
+
     if tile:
         try:
             img._prepareRenderingEngine()
             tiles = img._re.requiresPixelsPyramid()
             w, h = img._re.getTileSize()
             levels = img._re.getResolutionLevels()-1
-            
+
             zxyt = tile.split(",")
-            
+
             #w = int(zxyt[3])
             #h = int(zxyt[4])
             level = levels-int(zxyt[0])
@@ -708,7 +708,7 @@ def render_image_region(request, iid, z, t, conn=None, **kwargs):
         except:
             logger.debug("render_image_region: tile=%s" % tile)
             logger.debug(traceback.format_exc())
-            
+
     elif region:
         try:
             xywh = region.split(",")
@@ -721,7 +721,7 @@ def render_image_region(request, iid, z, t, conn=None, **kwargs):
             logger.debug("render_image_region: region=%s" % region)
             logger.debug(traceback.format_exc())
 
-    # region details in request are used as key for caching. 
+    # region details in request are used as key for caching.
     jpeg_data = webgateway_cache.getImage(request, server_id, img, z, t)
     if jpeg_data is None:
         jpeg_data = img.renderJpegRegion(z,t,x,y,w,h,level=level, compression=compress_quality)
@@ -729,15 +729,15 @@ def render_image_region(request, iid, z, t, conn=None, **kwargs):
             raise Http404
         webgateway_cache.setImage(request, server_id, img, z, t, jpeg_data)
     rsp = HttpResponse(jpeg_data, mimetype='image/jpeg')
-    return rsp    
-    
+    return rsp
+
 @login_required()
 def render_image (request, iid, z=None, t=None, conn=None, **kwargs):
-    """ 
+    """
     Renders the image with id {{iid}} at {{z}} and {{t}} as jpeg.
     Many options are available from the request dict. See L{getImgDetailsFromReq} for list.
     I am assuming a single Pixels object on image with image-Id='iid'. May be wrong
-    
+
     @param request:     http request
     @param iid:         image ID
     @param z:           Z index
@@ -773,7 +773,7 @@ def render_ome_tiff (request, ctx, cid, conn=None, **kwargs):
     If exporting a single big image or if all images in a multple image export are big,
     a 404 will be triggered.
     A request parameter dryrun can be passed to return the count of images that would actually be exported.
-    
+
     @param request:     http request
     @param ctx:         'p' or 'd' or 'i'
     @param cid:         Project, Dataset or Image ID
@@ -821,12 +821,12 @@ def render_ome_tiff (request, ctx, cid, conn=None, **kwargs):
     imgs = filter(lambda x: not x.requiresPixelsPyramid(), imgs)
 
     if request.REQUEST.get('dryrun', False):
-        rv = simplejson.dumps(len(imgs))
+        rv = json.dumps(len(imgs))
         c = request.REQUEST.get('callback', None)
         if c is not None and not kwargs.get('_internal', False):
             rv = '%s(%s)' % (c, rv)
         return HttpResponse(rv, mimetype='application/javascript')
-    
+
     if len(imgs) == 0:
         raise Http404
     if len(imgs) == 1:
@@ -895,9 +895,9 @@ def render_ome_tiff (request, ctx, cid, conn=None, **kwargs):
 
 @login_required()
 def render_movie (request, iid, axis, pos, conn=None, **kwargs):
-    """ 
+    """
     Renders a movie from the image with id iid
-    
+
     @param request:     http request
     @param iid:         Image ID
     @param axis:        Movie frames are along 'z' or 't' dimension. String
@@ -915,7 +915,7 @@ def render_movie (request, iid, axis, pos, conn=None, **kwargs):
         ext = '.avi'
         key = "%s-%s-%s-%d-%s-%s" % (iid, axis, pos, opts['fps'], _get_signature_from_request(request),
                                   request.REQUEST.get('format', 'quicktime'))
-        
+
         pos = int(pos)
         pi = _get_prepared_image(request, iid, server_id=server_id, conn=conn)
         if pi is None:
@@ -959,14 +959,14 @@ def render_movie (request, iid, axis, pos, conn=None, **kwargs):
     except:
         logger.debug(traceback.format_exc())
         raise
-        
+
 @login_required()
 def render_split_channel (request, iid, z, t, conn=None, **kwargs):
     """
     Renders a split channel view of the image with id {{iid}} at {{z}} and {{t}} as jpeg.
     Many options are available from the request dict.
-    Requires PIL to be installed on the server. 
-    
+    Requires PIL to be installed on the server.
+
     @param request:     http request
     @param iid:         Image ID
     @param z:           Z index
@@ -992,11 +992,11 @@ def render_split_channel (request, iid, z, t, conn=None, **kwargs):
 def debug (f):
     """
     Decorator for adding debugging functionality to methods.
-    
+
     @param f:       The function to wrap
     @return:        The wrapped function
     """
-    
+
     def wrap (request, *args, **kwargs):
         debug = request.REQUEST.getlist('debug')
         if 'slow' in debug:
@@ -1011,13 +1011,13 @@ def debug (f):
 
 def jsonp (f):
     """
-    Decorator for adding connection debugging and returning function result as json, depending on 
+    Decorator for adding connection debugging and returning function result as json, depending on
     values in kwargs
-    
+
     @param f:       The function to wrap
-    @return:        The wrapped function, which will return json 
+    @return:        The wrapped function, which will return json
     """
-    
+
     def wrap (request, *args, **kwargs):
         logger.debug('jsonp')
         try:
@@ -1030,7 +1030,7 @@ def jsonp (f):
                 return rv
             if isinstance(rv, HttpResponse):
                 return rv
-            rv = simplejson.dumps(rv)
+            rv = json.dumps(rv)
             c = request.REQUEST.get('callback', None)
             if c is not None and not kwargs.get('_internal', False):
                 rv = '%s(%s)' % (c, rv)
@@ -1055,9 +1055,9 @@ def render_row_plot (request, iid, z, t, y, conn=None, w=1, **kwargs):
     """
     Renders the line plot for the image with id {{iid}} at {{z}} and {{t}} as gif with transparent background.
     Many options are available from the request dict.
-    I am assuming a single Pixels object on image with Image ID='iid'. May be wrong 
-    TODO: cache 
-    
+    I am assuming a single Pixels object on image with Image ID='iid'. May be wrong
+    TODO: cache
+
     @param request:     http request
     @param iid:         Image ID
     @param z:           Z index
@@ -1067,7 +1067,7 @@ def render_row_plot (request, iid, z, t, y, conn=None, w=1, **kwargs):
     @param w:           Line width
     @return:            http response wrapping a gif
     """
-    
+
     if not w:
         w = 1
     pi = _get_prepared_image(request, iid, conn=conn)
@@ -1087,12 +1087,12 @@ def render_row_plot (request, iid, z, t, y, conn=None, w=1, **kwargs):
 @debug
 @login_required()
 def render_col_plot (request, iid, z, t, x, w=1, conn=None, **kwargs):
-    """ 
+    """
     Renders the line plot for the image with id {{iid}} at {{z}} and {{t}} as gif with transparent background.
     Many options are available from the request dict.
-    I am assuming a single Pixels object on image with id='iid'. May be wrong 
+    I am assuming a single Pixels object on image with id='iid'. May be wrong
     TODO: cache
-    
+
     @param request:     http request
     @param iid:         Image ID
     @param z:           Z index
@@ -1102,7 +1102,7 @@ def render_col_plot (request, iid, z, t, x, w=1, conn=None, **kwargs):
     @param w:           Line width
     @return:            http response wrapping a gif
     """
-    
+
     if not w:
         w = 1
     pi = _get_prepared_image(request, iid, conn=conn)
@@ -1114,20 +1114,20 @@ def render_col_plot (request, iid, z, t, x, w=1, conn=None, **kwargs):
         raise Http404
     rsp = HttpResponse(gif_data, mimetype='image/gif')
     return rsp
- 
+
 @login_required()
 @jsonp
 def imageData_json (request, conn=None, _internal=False, **kwargs):
     """
     Get a dict with image information
     TODO: cache
-    
+
     @param request:     http request
     @param conn:        L{omero.gateway.BlitzGateway}
-    @param _internal:   TODO: ? 
+    @param _internal:   TODO: ?
     @return:            Dict
     """
-    
+
     iid = kwargs['iid']
     key = kwargs.get('key', None)
     image = conn.getObject("Image", iid)
@@ -1142,13 +1142,13 @@ def wellData_json (request, conn=None, _internal=False, **kwargs):
     """
     Get a dict with image information
     TODO: cache
-    
+
     @param request:     http request
     @param conn:        L{omero.gateway.BlitzGateway}
-    @param _internal:   TODO: ? 
+    @param _internal:   TODO: ?
     @return:            Dict
     """
-    
+
     wid = kwargs['wid']
     well = conn.getObject("Well", wid)
     if well is None:
@@ -1201,9 +1201,9 @@ def plateGrid_json (request, pid, field=0, conn=None, **kwargs):
         rv = {'grid': grid,
               'collabels': plate.getColumnLabels(),
               'rowlabels': plate.getRowLabels()}
-        webgateway_cache.setJson(request, server_id, plate, simplejson.dumps(rv), 'plategrid-%d-%d' % (field, thumbsize))
+        webgateway_cache.setJson(request, server_id, plate, json.dumps(rv), 'plategrid-%d-%d' % (field, thumbsize))
     else:
-        rv = simplejson.loads(rv)
+        rv = json.loads(rv)
     return rv
 
 @login_required()
@@ -1212,13 +1212,13 @@ def listImages_json (request, did, conn=None, **kwargs):
     """
     lists all Images in a Dataset, as json
     TODO: cache
-    
+
     @param request:     http request
     @param did:         Dataset ID
     @param conn:        L{omero.gateway.BlitzGateway}
-    @return:            list of image json. 
+    @return:            list of image json.
     """
-    
+
     dataset = conn.getObject("Dataset", did)
     if dataset is None:
         return HttpResponseServerError('""', mimetype='application/javascript')
@@ -1235,13 +1235,13 @@ def listWellImages_json (request, did, conn=None, **kwargs):
     """
     lists all Images in a Well, as json
     TODO: cache
-    
+
     @param request:     http request
     @param did:         Well ID
     @param conn:        L{omero.gateway.BlitzGateway}
-    @return:            list of image json. 
+    @return:            list of image json.
     """
-    
+
     well = conn.getObject("Well", did)
     if well is None:
         return HttpResponseServerError('""', mimetype='application/javascript')
@@ -1257,13 +1257,13 @@ def listDatasets_json (request, pid, conn=None, **kwargs):
     """
     lists all Datasets in a Project, as json
     TODO: cache
-    
+
     @param request:     http request
     @param pid:         Project ID
     @param conn:        L{omero.gateway.BlitzGateway}
     @return:            list of dataset json.
     """
-    
+
     project = conn.getObject("Project", pid)
     rv = []
     if project is None:
@@ -1286,12 +1286,12 @@ def listProjects_json (request, conn=None, **kwargs):
     """
     lists all Projects, as json
     TODO: cache
-    
+
     @param request:     http request
     @param conn:        L{omero.gateway.BlitzGateway}
     @return:            list of project json.
     """
-    
+
     rv = []
     for pr in conn.listProjects():
         rv.append( {'id': pr.id, 'name': pr.name, 'description': pr.description or ''} )
@@ -1303,34 +1303,34 @@ def projectDetail_json (request, pid, conn=None, **kwargs):
     """
     grab details from one specific project
     TODO: cache
-    
+
     @param request:     http request
     @param pid:         Project ID
     @param conn:        L{omero.gateway.BlitzGateway}
     @return:            project details as dict.
     """
-    
+
     pr = conn.getObject("Project", pid)
     rv = pr.simpleMarshal()
     return rv
 
 def searchOptFromRequest (request):
     """
-    Returns a dict of options for searching, based on 
+    Returns a dict of options for searching, based on
     parameters in the http request
     Request keys include:
         - ctx: (http request) 'imgs' to search only images
         - text: (http request) the actual text phrase
         - start: starting index (0 based) for result
         - limit: nr of results to retuen (0 == unlimited)
-        - author: 
+        - author:
         - grabData:
         - parents:
-        
+
     @param request:     http request
     @return:            Dict of options
     """
-    
+
     try:
         r = request.REQUEST
         opts = {
@@ -1363,10 +1363,10 @@ def search_json (request, conn=None, **kwargs):
         - text: (http request) the actual text phrase
         - start: starting index (0 based) for result
         - limit: nr of results to retuen (0 == unlimited)
-        - author: 
+        - author:
         - grabData:
         - parents:
-    
+
     @param request:     http request
     @param conn:        L{omero.gateway.BlitzGateway}
     @return:            json search results
@@ -1418,7 +1418,7 @@ def save_image_rdef_json (request, iid, conn=None, **kwargs):
     Requests that the rendering defs passed in the request be set as the default for this image.
     Rendering defs in request listed at L{getImgDetailsFromReq}
     TODO: jsonp
-    
+
     @param request:     http request
     @param iid:         Image ID
     @param conn:        L{omero.gateway.BlitzGateway}
@@ -1444,13 +1444,13 @@ def list_compatible_imgs_json (request, iid, conn=None, **kwargs):
     Lists the images on the same project that would be viable targets for copying rendering settings.
     TODO: change method to:
     list_compatible_imgs_json (request, iid, server_id=None, conn=None, **kwargs):
-    
+
     @param request:     http request
     @param iid:         Image ID
     @param conn:        L{omero.gateway.BlitzGateway}
     @return:            json list of image IDs
     """
-    
+
     json_data = 'false'
     r = request.REQUEST
     if conn is None:
@@ -1482,7 +1482,7 @@ def list_compatible_imgs_json (request, iid, conn=None, **kwargs):
                 return False
             return True
         imgs = filter(compat, imgs)
-        json_data = simplejson.dumps([x.getId() for x in imgs])
+        json_data = json.dumps([x.getId() for x in imgs])
 
     if r.get('callback', None):
         json_data = '%s(%s)' % (r['callback'], json_data)
@@ -1492,22 +1492,22 @@ def list_compatible_imgs_json (request, iid, conn=None, **kwargs):
 @jsonp
 def copy_image_rdef_json (request, conn=None, **kwargs):
     """
-    If 'fromid' is in request, copy the image ID to session, 
+    If 'fromid' is in request, copy the image ID to session,
     for applying later using this same method.
     If list of 'toids' is in request, paste the image ID from the session
     to the specified images.
-    If 'fromid' AND 'toids' are in the reqest, we simply 
+    If 'fromid' AND 'toids' are in the reqest, we simply
     apply settings and don't save anything to request.
     If 'to_type' is in request, this can be 'dataset', 'plate', 'acquisition'
-    Returns json dict of Boolean:[Image-IDs] for images that have successfully 
-    had the rendering settings applied, or not. 
-    
+    Returns json dict of Boolean:[Image-IDs] for images that have successfully
+    had the rendering settings applied, or not.
+
     @param request:     http request
-    @param server_id:   
+    @param server_id:
     @param conn:        L{omero.gateway.BlitzGateway}
     @return:            json dict of Boolean:[Image-IDs]
     """
-    
+
     server_id = request.session['connector'].server_id
     json_data = False
     r = request.REQUEST
@@ -1608,13 +1608,12 @@ def copy_image_rdef_json (request, conn=None, **kwargs):
             applyRenderingSettings(fromImage, originalSettings)
     return json_data
 
-
 @login_required()
 @jsonp
 def reset_image_rdef_json (request, iid, conn=None, **kwargs):
     """
     Try to remove all rendering defs the logged in user has for this image.
-    
+
     @param request:     http request
     @param iid:         Image ID
     @param conn:        L{omero.gateway.BlitzGateway}
@@ -1643,14 +1642,14 @@ def full_viewer (request, iid, conn=None, **kwargs):
     """
     This view is responsible for showing the omero_image template
     Image rendering options in request are used in the display page. See L{getImgDetailsFromReq}.
-    
+
     @param request:     http request.
     @param iid:         Image ID
     @param conn:        L{omero.gateway.BlitzGateway}
     @param **kwargs:    Can be used to specify the html 'template' for rendering
     @return:            html page of image and metadata
     """
-    
+
     rid = getImgDetailsFromReq(request)
     try:
         image = conn.getObject("Image", iid)
@@ -1682,7 +1681,7 @@ def archived_files(request, iid, conn=None, **kwargs):
     if image is None:
         logger.debug("Cannot download archived file becuase Image does not exist.")
         return HttpResponseServerError("Cannot download archived file becuase Image does not exist (id:%s)." % (iid))
-    
+
     files = list(image.getImportedImageFiles())
 
     if len(files) == 0:
@@ -1722,7 +1721,7 @@ def archived_files(request, iid, conn=None, **kwargs):
                     # delete temp dir
             finally:
                 shutil.rmtree(temp_zip_dir, ignore_errors=True)
-            
+
             file_name = "%s.zip" % image.getName().replace(" ","_")
 
             # return the zip or single file
@@ -1774,19 +1773,19 @@ def get_shape_json(request, roiId, shapeId, conn=None, **kwargs):
     if shape is None:
         logger.debug('No such shape: %r' % shapeId)
         raise Http404
-    return HttpResponse(simplejson.dumps(shapeMarshal(shape)),
+    return HttpResponse(json.dumps(shapeMarshal(shape)),
             mimetype='application/javascript')
 
 @login_required()
 def get_rois_json(request, imageId, conn=None, **kwargs):
     """
-    Returns json data of the ROIs in the specified image. 
+    Returns json data of the ROIs in the specified image.
     """
     rois = []
     roiService = conn.getRoiService()
     #rois = webfigure_utils.getRoiShapes(roiService, long(imageId))  # gets a whole json list of ROIs
     result = roiService.findByImage(long(imageId), None, conn.SERVICE_OPTS)
-    
+
     for r in result.rois:
         roi = {}
         roi['id'] = r.getId().getValue()
@@ -1796,15 +1795,15 @@ def get_rois_json(request, imageId, conn=None, **kwargs):
             if s is None:   # seems possible in some situations
                 continue
             shapes.append(shapeMarshal(s))
-        # sort shapes by Z, then T. 
+        # sort shapes by Z, then T.
         shapes.sort(key=lambda x:
                 "%03d%03d"% (x.get('theZ', -1), x.get('theT', -1)));
         roi['shapes'] = shapes
         rois.append(roi)
-        
+
     rois.sort(key=lambda x: x['id']) # sort by ID - same as in measurement tool.
-    
-    return HttpResponse(simplejson.dumps(rois), mimetype='application/javascript')
+
+    return HttpResponse(json.dumps(rois), mimetype='application/javascript')
 
 @login_required(isAdmin=True)
 @jsonp
@@ -1813,7 +1812,7 @@ def su (request, user, conn=None, **kwargs):
     If current user is admin, switch the session to a new connection owned by 'user'
     (puts the new session ID in the request.session)
     Return False if not possible
-    
+
     @param request:     http request.
     @param user:        Username of new connection owner
     @param conn:        L{omero.gateway.BlitzGateway}
