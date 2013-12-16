@@ -2201,18 +2201,19 @@ class OMEROGateway
 			//ignore already registered.
 		}
 		connected = false;
-		shutDownServices(true);
-		try {
-			Iterator<Connector> i = getAllConnectors().iterator();
-			while (i.hasNext()) {
-			    // Should each close perhaps be in its own try/catch?
-				i.next().close(networkup.get());
-			}
-		} catch (Throwable e) {
-			// Should this really be ignored?
-		} finally {
-			groupConnectorMap.clear();
-		}
+		List<Connector> connectors = getAllConnectors();
+		Iterator<Connector> i = connectors.iterator();
+        while (i.hasNext())
+            i.next().shutDownServices(true);
+        i = connectors.iterator();
+        while (i.hasNext()) {
+            try {
+                i.next().close(networkup.get());
+            } catch (Throwable e) {
+                log("Cannot close connector: "+printErrorText(e));
+            }
+        }
+        groupConnectorMap.clear();
 	}
 
 	/**
@@ -3776,23 +3777,6 @@ class OMEROGateway
 			}
 		} catch (Exception e) {
 		    log(String.format("Failed to close %s: %s", svc, e));
-		}
-	}
-
-	/**
-	 * Shuts downs the stateful services.
-	 *
-	 * @param rendering Pass <code>true</code> to shut down the rendering
-	 * 					services, <code>false</code> otherwise.
-	 */
-	private void shutDownServices(boolean rendering)
-	{
-		try {
-			Iterator<Connector> i = getAllConnectors().iterator();
-			while (i.hasNext())
-				i.next().shutDownServices(rendering);
-		} catch (Exception e) {
-			//do not shut down the services, the network is down.
 		}
 	}
 
