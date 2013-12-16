@@ -1267,6 +1267,7 @@
         className: "imagePanel",
         template: _.template($('#figure_panel_template').html()),
         label_template: _.template($('#label_template').html()),
+        label_vertical_template: _.template($('#label_vertical_template').html()),
         label_table_template: _.template($('#label_table_template').html()),
         scalebar_template: _.template($('#scalebar_panel_template').html()),
 
@@ -1317,6 +1318,9 @@
                         'width': w +'px',
                         'height': h +'px'});
 
+            // container needs to be square for rotation to vertical
+            $('.left_vlabels', this.$el).css('width', h + 'px');
+
             // update the img within the panel
             var zoom = this.model.get('zoom'),
                 vp_css = this.model.get_vp_img_css(zoom, w, h);
@@ -1346,6 +1350,7 @@
                 self = this,
                 positions = {
                     'top':[], 'bottom':[], 'left':[], 'right':[],
+                    'leftvert':[],
                     'topleft':[], 'topright':[],
                     'bottomleft':[], 'bottomright':[]
                 };
@@ -1365,13 +1370,18 @@
             _.each(positions, function(lbls, p) {
                 var json = {'position':p, 'labels':lbls};
                 if (lbls.length === 0) return;
-                if (p == 'left' || p == 'right') {
+                if (p == 'leftvert') {  // vertical
+                    html += self.label_vertical_template(json);
+                } else if (p == 'left' || p == 'right') {
                     html += self.label_table_template(json);
                 } else {
                     html += self.label_template(json);
                 }
             });
             self.$el.append(html);
+
+            // need to force update of vertical labels layout
+            $('.left_vlabels', self.$el).css('width', self.$el.height() + 'px');
 
             return this;
         },
@@ -1684,7 +1694,7 @@
         render: function() {
 
             var self = this,
-                positions = {'top':{}, 'bottom':{}, 'left':{}, 'right':{},
+                positions = {'top':{}, 'bottom':{}, 'left':{}, 'leftvert':{}, 'right':{},
                     'topleft':{}, 'topright':{}, 'bottomleft':{}, 'bottomright':{}};
             _.each(this.models, function(m, i){
                 // group labels by position

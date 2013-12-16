@@ -142,12 +142,25 @@
     }
     .label_middle, .label_middle table, .label_middle td {
         height:100%;
-        width:100%;
+        width:10000px;
     }
     .label_middle td {
         vertical-align: middle;
     }
 
+    .left_vlabels{
+        position: absolute;
+        height: 100%;
+        right: 100%;
+        width:400px;
+        text-align: center;
+        transform: rotate(-90deg);
+    }
+    .left_vlabels>div {
+        position: absolute;
+        bottom:0;
+        width:100%;
+    }
     /* Classes here are generated in templates from 'top' etc See labelicon classes below */
     .label_top {
         bottom: 100%;
@@ -209,6 +222,12 @@
         transform: rotate(-90deg);
     }
     .labelicon-left {
+        position: relative;
+        top: 5px;
+        -webkit-transform: rotate(-180deg);
+        transform: rotate(-180deg)
+    }
+    .labelicon-leftvert {
         position: relative;
         top: 5px;
         -webkit-transform: rotate(-180deg);

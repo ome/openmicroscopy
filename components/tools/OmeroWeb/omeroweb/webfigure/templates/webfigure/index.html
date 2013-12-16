@@ -480,7 +480,7 @@
             <button type="button" class="label-position btn btn-default btn-sm dropdown-toggle" 
                     title="Position" data-toggle="dropdown">
                 <span data-position="<%= position %>" class="labelicon-<%= position %> glyphicon 
-                    <% if (_.contains(['top','bottom','left','right'],position)) print('glyphicon-log-out'); else {print('glyphicon-new-window')} %>"></span>
+                    <% if (_.contains(['top','bottom','left','leftvert','right'],position)) print('glyphicon-log-out'); else {print('glyphicon-new-window')} %>"></span>
                 <span class="caret"></span>
             </button>
             <ul class="dropdown-menu" role="menu">
@@ -506,6 +506,11 @@
                 <li role="presentation" class="dropdown-header">Outside Edges</li>
                 <li><a href="#">
                     <span data-position="left" class="labelicon-left glyphicon glyphicon-log-out"></span> Left</a>
+                </li>
+                <li><a href="#">
+                        <span data-position="leftvert" class="labelicon-leftvert glyphicon glyphicon-log-out"></span> 
+                        Left vertical
+                    </a>
                 </li>
                 <li><a href="#">
                     <span data-position="top" class="labelicon-top glyphicon glyphicon-log-out"></span> Top</a>
@@ -645,6 +650,15 @@
             <% _.each(labels, function(l, i) { %>
                 <div style='color:#<%= l.color %>; font-size:<%= l.size %>px'><%= l.text %></div>
             <% }); %>
+        </div>
+    </script>
+    <script id="label_vertical_template" type="text/template">
+        <div class="label_layout left_vlabels">
+            <div>
+                <% _.each(labels, function(l, i) { %>
+                    <div style='color:#<%= l.color %>; font-size:<%= l.size %>px'><%= l.text %></div>
+                <% }); %>
+            </div>
         </div>
     </script>
     <!-- Alternative label_template - uses table to valign middle for 'left' & 'right' labels -->
