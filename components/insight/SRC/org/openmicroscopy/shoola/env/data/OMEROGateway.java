@@ -3860,7 +3860,6 @@ class OMEROGateway
 	private void shutDownServices(boolean rendering)
 	{
 		try {
-			isNetworkUp(false); // Forces a re-check
 			Iterator<Connector> i = getAllConnectors().iterator();
 			while (i.hasNext())
 				i.next().shutDownServices(rendering);
