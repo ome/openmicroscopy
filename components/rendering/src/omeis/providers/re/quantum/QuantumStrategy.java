@@ -309,8 +309,8 @@ public abstract class QuantumStrategy {
      */
     public void setWindow(double start, double end) {
         verifyInterval(start, end);
-        if (start < globalMin) start = globalMin;
-        if (end < globalMax) end = globalMax;
+        if (start < pixelsTypeMin) start = pixelsTypeMin;
+        if (end > pixelsTypeMax) end = pixelsTypeMax;
         windowStart = start;
         windowEnd = end;
         onWindowChange();
