@@ -71,9 +71,9 @@ def clip(s, width):
     Returns modified string
     """
     mod_s = s
-    if len(s) > width:
+    if s and len(s) > width:
         mod_s = s[:width]
-    elif len(s) < width:
+    elif s and len(s) < width:
         mod_s = s + " " * (width - len(s))
     return mod_s
 
