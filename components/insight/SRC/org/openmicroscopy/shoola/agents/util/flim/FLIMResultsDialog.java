@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.ui.FLIMResultsDialog 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -20,6 +20,7 @@
  *
  *------------------------------------------------------------------------------
  */
+
 package org.openmicroscopy.shoola.agents.util.flim;
 
 
@@ -152,7 +153,7 @@ public class FLIMResultsDialog
 	
 	static{
 		HISTOGRAMSTATS = new ArrayList<String>();
-		HISTOGRAMSTATS.add("Colour");
+		HISTOGRAMSTATS.add("Color");
 		HISTOGRAMSTATS.add("Bin Start");
 		HISTOGRAMSTATS.add("Bin End");
 		HISTOGRAMSTATS.add("Min");
@@ -590,9 +591,9 @@ public class FLIMResultsDialog
 			}
 		}
 		
-		if(file==null)
+		if (file == null)
 			return;
-		List sortedNames = (List<String>) sorter.sort(names);
+		final List<String> sortedNames = (List<String>) sorter.sort(names);
 
 		int selectedFileIndex = sortedNames.indexOf(selectedFileName);
 		resultsBox = new JComboBox(sortedNames.toArray());
@@ -836,9 +837,9 @@ public class FLIMResultsDialog
 			throw new IllegalArgumentException("No parameters set.");
 		this.imageName = imageName;
 		sorter = new ViewerSorter();
-		List list = sorter.sort(values.keySet());
+		final List<FileAnnotationData> list = sorter.sort(values.keySet());
 		results = new LinkedHashMap<FileAnnotationData, File>();
-		Iterator i = list.iterator();
+		final Iterator<FileAnnotationData> i = list.iterator();
 		FileAnnotationData fa;
 		while (i.hasNext()) {
 			fa = (FileAnnotationData) i.next();
@@ -973,7 +974,7 @@ public class FLIMResultsDialog
 		Map<String, Double> blueStats = chartObject.getRangeStats(end, BINS);
 		Map<String, Object> rowData = new HashMap<String, Object>();
 		
-		rowData.put("Colour","Red");
+		rowData.put("Color","Red");
 		rowData.put("Bin Start",0);
 		rowData.put("Bin End", start-1);
 		rowData.put("Min", UIUtilities.formatToDecimal(redStats.get(Histogram.MIN)));
@@ -985,7 +986,7 @@ public class FLIMResultsDialog
 		statsTable.insertData(rowData);
 		rowData =  new HashMap<String, Object>();
 		
-		rowData.put("Colour","Green");
+		rowData.put("Color","Green");
 		rowData.put("Bin Start",start);
 		rowData.put("Bin End", end-1);
 		rowData.put("Min", UIUtilities.formatToDecimal(greenStats.get(Histogram.MIN)));
@@ -997,7 +998,7 @@ public class FLIMResultsDialog
 		statsTable.insertData(rowData);
 		rowData =  new HashMap<String, Object>();
 		
-		rowData.put("Colour","Blue");
+		rowData.put("Color","Blue");
 		rowData.put("Bin Start",end);
 		rowData.put("Bin End", BINS);
 		rowData.put("Min", UIUtilities.formatToDecimal(blueStats.get(Histogram.MIN)));

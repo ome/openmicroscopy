@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.measurement.util.AnnotationDescription 
  *
   *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -20,6 +20,7 @@
  *
  *------------------------------------------------------------------------------
  */
+
 package org.openmicroscopy.shoola.agents.measurement.util.model;
 
 
@@ -73,8 +74,8 @@ public class AnnotationDescription
 		annotationDescription.put(AnnotationKeys.TEXT, "Text"); //J-M change to text
 		annotationDescription.put(AnnotationKeys.ANGLE, "Angle");
 		annotationDescription.put(AnnotationKeys.AREA, "Area");
-		annotationDescription.put(AnnotationKeys.CENTREX, "Centre(X)");
-		annotationDescription.put(AnnotationKeys.CENTREY, "Centre(Y)");
+		annotationDescription.put(AnnotationKeys.CENTREX, "Center(X)");
+		annotationDescription.put(AnnotationKeys.CENTREY, "Center(Y)");
 		annotationDescription.put(AnnotationKeys.ENDPOINTX, "EndCoord(X)");
 		annotationDescription.put(AnnotationKeys.ENDPOINTY, "EndCoord(Y)");
 		annotationDescription.put(AnnotationKeys.STARTPOINTX, "StartCoord(X)");
@@ -86,13 +87,13 @@ public class AnnotationDescription
 		annotationDescription.put(AnnotationKeys.POINTARRAYX, "Coord List(X)");
 		annotationDescription.put(AnnotationKeys.POINTARRAYY, "Coord List(Y)");
 		annotationDescription.put(AnnotationKeys.VOLUME, "Volume");
-		annotationDescription.put(MeasurementAttributes.FILL_COLOR, "Fill Colour");
+		annotationDescription.put(MeasurementAttributes.FILL_COLOR, "Fill Color");
 		annotationDescription.put(MeasurementAttributes.FONT_SIZE, "Font Size");
-		annotationDescription.put(MeasurementAttributes.STROKE_COLOR, "Line Colour");
+		annotationDescription.put(MeasurementAttributes.STROKE_COLOR, "Line Color");
 		annotationDescription.put(MeasurementAttributes.STROKE_WIDTH, "Line Width");
-		annotationDescription.put(MeasurementAttributes.TEXT_COLOR, "Font Colour");
+		annotationDescription.put(MeasurementAttributes.TEXT_COLOR, "Font Color");
 		annotationDescription.put(MeasurementAttributes.MEASUREMENTTEXT_COLOUR,
-														"Measurement Colour");
+														"Measurement Color");
 		annotationDescription.put(MeasurementAttributes.SHOWMEASUREMENT,
 														"Show Measurement");
 		annotationDescription.put(MeasurementAttributes.SCALE_PROPORTIONALLY,
