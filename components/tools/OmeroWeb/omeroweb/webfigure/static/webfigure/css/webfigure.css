@@ -125,7 +125,7 @@
         margin-right: 4px;
     }
 
-    .form-inline button.close {
+    .form-inline .close {
         color: #FF0000;
         left: 3px;
         top: 2px;
@@ -182,23 +182,23 @@
         width: 100%;
     }
     .label_topleft {
-        top: 0px;
-        left: 0px;
+        top: 0;
+        left: 0;
         text-align: left;
     }
     .label_topright {
-        top: 0px;
-        right: 0px;
+        top: 0;
+        right: 0;
         text-align: right;
     }
     .label_bottomleft {
-        bottom: 0px;
-        left: 0px;
+        bottom: 0;
+        left: 0;
         text-align: left;
     }
     .label_bottomright {
-        bottom: 0px;
-        right: 0px;
+        bottom: 0;
+        right: 0;
         text-align: right;
     }
 
@@ -255,9 +255,9 @@
     }
     #vp_z_label {
         position:absolute;
-        top: 0px;
-        left: 0px;
-        padding: 0px 2px;
+        top: 0;
+        left: 0;
+        padding: 0 2px;
     }
     #vp_z_value {
         position: absolute;
@@ -267,12 +267,12 @@
     #vp_t_label {
         position: absolute;
         left: 20px;
-        bottom: 0px;
+        bottom: 0;
     }
     #vp_t_value {
         position: absolute;
         left: 240px;
-        bottom: 0px;
+        bottom: 0;
     }
     #vp_deltaT {
         position: absolute;
@@ -280,7 +280,7 @@
         bottom: -19px;
     }
     .no-padding {
-        padding: 0px;
+        padding: 0;
     }
     .tab-footer {
         border-top: solid #dddddd 1px;
@@ -343,7 +343,7 @@
     }
     /* Over-riding Bootstrap Styles */
     .modal-dialog {
-        left: 0px;
+        left: 0;
     }
     .modal-header {
         padding: 10px;
@@ -357,7 +357,7 @@
         position:relative;
         left:auto;
         margin-right:20px;
-        padding-top:0px;
+        padding-top:0;
         top:55px;
         width:375px;
         z-index:50;
