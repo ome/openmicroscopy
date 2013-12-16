@@ -1338,9 +1338,10 @@ class ImViewerUI
 			buffer.append("-"+(getProjectionEndZ()+1));
 			if (d > 0 && max > 0) {
 				o = EditorUtil.transformSize(n*d);
-				units = o.getUnits();
 				buffer.append(" ("+UIUtilities.roundTwoDecimals(o.getValue()));
+				buffer.append("-");
 				o = EditorUtil.transformSize(m*d);
+				units = o.getUnits();
 				buffer.append(UIUtilities.roundTwoDecimals(o.getValue()));
 				buffer.append(units+")");
 			}
