@@ -2007,10 +2007,13 @@ class TreeViewerComponent
 						    selected.add(experimenter);
 						    //Cannot move guest or root
 						    if ((model.isSystemUser(id, GroupData.GUEST) &&
-						       model.isSystemGroup(groupId, GroupData.GUEST)) ||
-						       (model.isSystemUser(id, GroupData.SYSTEM) &&
-		                       model.isSystemGroup(groupId, GroupData.SYSTEM))) {
+						       model.isSystemGroup(groupId, GroupData.GUEST))) {
 						        immutable.add(experimenter);
+						    } else if (model.isSystemGroup(groupId, GroupData.SYSTEM)) {
+						        if (model.isSystemUser(id, GroupData.SYSTEM) ||
+						                id == userID) {
+						            immutable.add(experimenter);
+						        }
 						    }
 						}
 						if (!ids.contains(experimenter.getId())) {
