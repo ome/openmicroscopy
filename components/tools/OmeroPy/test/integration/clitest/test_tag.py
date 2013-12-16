@@ -53,6 +53,22 @@ class TestTag(CLITest):
                 tag_ids = tag.id.val
         return tag_ids
 
+    def create_tagset(self, tag_ids, name):
+        tagset = omero.model.TagAnnotationI()
+        tagset.textValue = omero.rtypes.rstring(name)
+        tagset = self.update.saveAndReturnObject(tagset)
+
+        tagset.ns = rstring(omero.constants.metadata.NSINSIGHTTAGSET)
+        links = []
+        for tag_id in tag_ids:
+            link = omero.model.AnnotationAnnotationLinkI()
+            link.parent = tagset
+            link.child = omero.model.TagAnnotationI(tag_id, False)
+            links.append(link)
+        self.update.saveArray(links)
+
+        return tagset.id.val
+
     def get_tag_by_name(self, tag_name, ns=None):
         # Query
         params = omero.sys.Parameters()
@@ -178,6 +194,27 @@ class TestTag(CLITest):
         # Check all tags are linked to the tagset
         tags = self.get_tags_in_tagset(tagset.id.val)
         assert sorted([x.textValue.val for x in tags]) == sorted(tag_names)
+
+    # Tag list commands
+    # ========================================================================
+    @pytest.mark.parametrize('list_command', ['list', 'listsets'])
+    @pytest.mark.parametrize('page_arg', ['', '--nopage'])
+    def testList(self, capsys, list_command, page_arg):
+        tag_ids = self.create_tags(2, 'list_tag')
+        tagset_id = self.create_tagset(tag_ids, 'list_tagset')
+
+        self.args += [list_command]
+        if page_arg:
+            self.args += [page_arg]
+        self.cli.invoke(self.args, strict=True)
+
+        out, err = capsys.readouterr()
+        assert str(tagset_id) in out
+        for tag_id in tag_ids:
+            if list_command == 'list':
+                assert str(tag_id) in out
+            else:
+                assert str(tag_id) not in out
 
     # Tag linking commands
     # ========================================================================
