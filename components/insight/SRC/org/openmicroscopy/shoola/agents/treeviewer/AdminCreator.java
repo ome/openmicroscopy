@@ -105,7 +105,6 @@ public class AdminCreator
 				handle = adminView.activateExperimenters(ctx, object, this);
 				break;
 			case AdminObject.ADD_EXPERIMENTER_TO_GROUP:
-				long userID = getCurrentUserID();
 				Map m = new HashMap();
 				GroupData group = object.getGroup();
 				Set experimenters = object.getExperimenters().keySet();
@@ -117,13 +116,11 @@ public class AdminCreator
 					i = existing.iterator();
 					while (i.hasNext()) {
 						o = (DataObject) i.next();
-						if (o.getId() != userID) {
-							ids.add(o.getId());
-						}
+						ids.add(o.getId());
 					}
 				}
-				Set toAdd = new HashSet();
-				Set toRemove = new HashSet();
+				Set<DataObject> toAdd = new HashSet<DataObject>();
+				Set<DataObject> toRemove = new HashSet<DataObject>();
 				i = experimenters.iterator();
 				long id;
 				List<Long> selectedIds = new ArrayList<Long>();
@@ -138,8 +135,7 @@ public class AdminCreator
 					i = existing.iterator();
 					while (i.hasNext()) {
 						o = (DataObject) i.next();
-						if (o.getId() != userID &&
-							!selectedIds.contains(o.getId())) {
+						if (!selectedIds.contains(o.getId())) {
 							toRemove.add(o);
 						}
 					}
