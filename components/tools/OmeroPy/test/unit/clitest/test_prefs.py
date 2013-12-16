@@ -195,8 +195,7 @@ class TestPrefs(object):
         self.assertStdoutStderr(capsys, out="A=B")
 
     @pytest.mark.parametrize(
-        ('initval', 'newval'),
-        [('1', '1'), ('["1"]', ''), ('["1"]', '')])
+        ('initval', 'newval'), [('1', '2'), ('test', 'test2')])
     def testAppendFails(self, initval, newval):
         self.invoke("set A %s" % initval)
         with pytest.raises(NonZeroReturnCode):
@@ -207,8 +206,7 @@ class TestPrefs(object):
             self.invoke("remove A x")
 
     @pytest.mark.parametrize(
-        ('initval', 'newval'),
-        [('["1"]', ''), ('["1"]', '2'), ('[1]', '1')])
+        ('initval', 'newval'), [('1', '1'), ('["1"]', '2'), ('[1]', '1')])
     def testRemoveFails(self, initval, newval):
         self.invoke("set A %s" % initval)
         with pytest.raises(NonZeroReturnCode):
