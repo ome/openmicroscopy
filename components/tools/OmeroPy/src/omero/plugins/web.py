@@ -82,7 +82,7 @@ class WebControl(BaseControl):
         config = parser.add(
             sub, self.config,
             "Output a config template for server"
-            " ('nginx' or 'apache' for the moment")
+            " ('nginx' or 'apache' for the moment)")
         config.add_argument("type", choices=("nginx", "apache"))
         config.add_argument(
             "--http", type=int,
