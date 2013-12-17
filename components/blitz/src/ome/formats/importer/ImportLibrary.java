@@ -22,6 +22,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import loci.common.Location;
 import loci.formats.FormatException;
@@ -38,6 +39,7 @@ import ome.services.blitz.util.ChecksumAlgorithmMapper;
 import ome.util.checksum.ChecksumProvider;
 import ome.util.checksum.ChecksumProviderFactory;
 import ome.util.checksum.ChecksumProviderFactoryImpl;
+import ome.util.checksum.ChecksumType;
 import omero.ChecksumValidationException;
 import omero.ServerError;
 import omero.api.IMetadataPrx;
@@ -57,6 +59,7 @@ import omero.grid.ManagedRepositoryPrxHelper;
 import omero.grid.RepositoryMap;
 import omero.grid.RepositoryPrx;
 import omero.model.Annotation;
+import omero.model.ChecksumAlgorithm;
 import omero.model.Dataset;
 import omero.model.FileAnnotation;
 import omero.model.FileAnnotationI;
@@ -71,6 +74,8 @@ import omero.sys.ParametersI;
 import org.apache.commons.lang.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.ImmutableList;
 
 import Ice.Current;
 
@@ -101,6 +106,9 @@ public class ImportLibrary implements IObservable
     /* checksum provider factory for verifying file integrity in upload */
     private static final ChecksumProviderFactory checksumProviderFactory = new ChecksumProviderFactoryImpl();
 
+    /* the checksum algorithms available from the checksum provider factory */
+    private static final ImmutableList<ChecksumAlgorithm> availableChecksumAlgorithms;
+
     private final ArrayList<IObserver> observers = new ArrayList<IObserver>();
 
     private final OMEROMetadataStoreClient store;
@@ -118,6 +126,18 @@ public class ImportLibrary implements IObservable
      * Router category which allows callbacks to be accessed behind a firewall.
      */
     private final String category;
+
+    static {
+        final Set<ChecksumType> availableTypes = checksumProviderFactory.getAvailableTypes();
+        final ImmutableList.Builder<ChecksumAlgorithm> builder = ImmutableList.builder();
+        for (final ChecksumAlgorithm checksumAlgorithm : ChecksumAlgorithmMapper.getAllChecksumAlgorithms()) {
+            final ChecksumType checksumType =  ChecksumAlgorithmMapper.getChecksumType(checksumAlgorithm);
+            if (availableTypes.contains(checksumType)) {
+                builder.add(checksumAlgorithm);
+            }
+        }
+        availableChecksumAlgorithms = builder.build();
+    }
 
     /**
      * The library will not close the client instance. The reader will be closed
@@ -264,7 +284,10 @@ public class ImportLibrary implements IObservable
         // present and pass it into the settings object
         final Fileset fs = new FilesetI();
         container.fillData(new ImportConfig(), settings, fs, sanitizer);
-        settings.checksumAlgorithm = repo.suggestChecksumAlgorithm(repo.listChecksumAlgorithms());
+        settings.checksumAlgorithm = repo.suggestChecksumAlgorithm(availableChecksumAlgorithms);
+        if (settings.checksumAlgorithm == null) {
+            throw new RuntimeException("no supported checksum algorithm negotiated with server");
+        }
         return repo.importFileset(fs, settings);
     }
 
