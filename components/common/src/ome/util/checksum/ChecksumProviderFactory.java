@@ -19,6 +19,8 @@
 
 package ome.util.checksum;
 
+import java.util.Set;
+
 /**
  * A factory producing throw-away objects of the {@link ChecksumProvider} type.
  *
@@ -36,4 +38,8 @@ public interface ChecksumProviderFactory {
      */
     ChecksumProvider getProvider(ChecksumType checksumType);
 
+    /**
+     * @return the values for which this instance creates a corresponding provider from {@link #getProvider(ChecksumType)}
+     */
+    Set<ChecksumType> getAvailableTypes();
 }
