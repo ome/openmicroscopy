@@ -82,7 +82,7 @@
          network is up.
          Non-positive values will be ignored and the internal default will
          be used instead. -->
-    <entry name="/services/NETWORK/timeout" type="integer">200000</entry>
+    <entry name="/services/NETWORK/timeout" type="integer">300000</entry>
 
     <!-- Location of the omero folder. -->
     <entry name="/services/OMERO/home">omero</entry>
