@@ -116,7 +116,7 @@ class Connector
     private final int ELAPSED_TIME = 30000;
 
     /** Keeps track of the last keep alive action.*/
-    private final AtomicLong lastKeepAlive = new AtomicLong(0);
+    private final AtomicLong lastKeepAlive = new AtomicLong(System.currentTimeMillis());
 
     /** 
      * The Blitz client object, this is the entry point to the
