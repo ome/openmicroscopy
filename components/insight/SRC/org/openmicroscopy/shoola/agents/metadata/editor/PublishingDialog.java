@@ -277,15 +277,17 @@ class PublishingDialog
     			data = img.getDefaultPixels();
     			boolean b = !model.isLargeImage();
     			exportAsOmeTiffButton.setEnabled(b);
-    			movieButton.setEnabled(data.getSizeT() > 1 || 
-    					data.getSizeZ() > 1);
-    			splitViewFigureButton.setEnabled(data.getSizeC() > 1);
-    			exportAsOmeTiffItem.setEnabled(b);
-    			movieItem.setEnabled(data.getSizeT() > 1 || 
-    					data.getSizeZ() > 1);
-    			splitViewFigureItem.setEnabled(data.getSizeC() > 1);
-    			splitViewROIFigureItem.setEnabled(data.getSizeC() > 1);
-    			movieFigureItem.setEnabled(true);
+    			if (model.isSingleMode()) {
+    			    movieButton.setEnabled(data.getSizeT() > 1 || 
+                            data.getSizeZ() > 1);
+                    splitViewFigureButton.setEnabled(data.getSizeC() > 1);
+                    exportAsOmeTiffItem.setEnabled(b);
+                    movieItem.setEnabled(data.getSizeT() > 1 || 
+                            data.getSizeZ() > 1);
+                    splitViewFigureItem.setEnabled(b && data.getSizeC() > 1);
+                    splitViewROIFigureItem.setEnabled(b && data.getSizeC() > 1);
+                    movieFigureItem.setEnabled(true);
+    			}
 			} catch (Exception e) {}
     	} else {
     		if (refObject instanceof DatasetData)
