@@ -280,44 +280,6 @@ public class Preprocessor {
     }
 
     /**
-     * @return how many images have had any of their containers looked up
-     */
-    public long getImageCount() {
-        final Set<GraphModifyTarget> images = new HashSet<GraphModifyTarget>();
-        for (final Entry<TargetType, GraphModifyTarget> containerLookup : lookupContainerDone) {
-            final GraphModifyTarget contained = containerLookup.getValue();
-            if (contained.targetType == TargetType.IMAGE) {
-                images.add(contained);
-            }
-        }
-        return images.size();
-    }
-
-    /**
-     * @return how many filesets have had any of their contents looked up
-     */
-    public long getFilesetCount() {
-        final Set<GraphModifyTarget> filesets = new HashSet<GraphModifyTarget>();
-        for (final Entry<TargetType, GraphModifyTarget> containedLookup : lookupContainedDone) {
-            final GraphModifyTarget container = containedLookup.getValue();
-            if (container.targetType == TargetType.FILESET) {
-                filesets.add(container);
-            }
-        }
-        return filesets.size();
-    }
-
-    /**
-     * Returns a copy of the requests field or an empty list if null.
-     */
-    public List<Request> getRequests() {
-        if (requests == null) {
-            return new ArrayList<Request>();
-        }
-        return new ArrayList<Request>(requests);
-    }
-
-    /**
      * Look up the containers of a target.
      * @param containerType the container type to add
      * @param contained the target that may be contained
