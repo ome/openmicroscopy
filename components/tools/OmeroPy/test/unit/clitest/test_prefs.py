@@ -17,7 +17,7 @@ from omero.util.temp_files import create_path
 
 subcommands = [
     'all', 'def', 'get', 'set', 'drop', 'keys', 'load', 'edit', 'version',
-    'path', 'lock', 'upgrade', 'old']
+    'path', 'lock', 'upgrade', 'old', 'append', 'remove']
 
 
 class TestPrefs(object):
