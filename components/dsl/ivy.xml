@@ -18,6 +18,7 @@
     <dependency org="log4j" name="log4j" rev="${versions.log4j}" conf="runtime->default"/>
     <dependency org="logback" name="logback-classic" rev="${versions.logback}" conf="runtime->default"/>
     <dependency org="logback" name="logback-core" rev="${versions.logback}" conf="runtime->default"/>
+    <dependency org="janino" name="janino" rev="${versions.janino}" conf="runtime->default"/>
     <dependency org="perf4j" name="perf4j" rev="${versions.perf4j}" conf="build,runtime->default"/>
     <dependency org="commons-logging" name="commons-logging" rev="${versions.commons-logging}" conf="build,runtime->default"/>
     <dependency org="commons-collections" name="commons-collections" rev="${versions.commons-collections}" conf="build,runtime->default"/>
