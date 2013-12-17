@@ -86,7 +86,7 @@ public class NetworkChecker {
     // make its own call, even if cached.
     //
 
-    private final AtomicLong lastCheck = new AtomicLong(0);
+    private final AtomicLong lastCheck = new AtomicLong(System.currentTimeMillis());
 
     private final AtomicBoolean lastValue = new AtomicBoolean(true);
 
