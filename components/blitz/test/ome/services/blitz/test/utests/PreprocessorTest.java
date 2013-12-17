@@ -22,7 +22,6 @@ package ome.services.blitz.test.utests;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 
@@ -34,13 +33,14 @@ import org.testng.annotations.Test;
 import Ice.Object;
 
 import com.google.common.collect.HashMultimap;
+import com.google.common.collect.HashMultiset;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Multiset;
 import com.google.common.collect.SetMultimap;
 
 import omero.cmd.Chgrp;
 import omero.cmd.Delete;
-import omero.cmd.GraphModify;
 import omero.cmd.Request;
 import omero.cmd.graphs.ChgrpI;
 import omero.cmd.graphs.DeleteI;
@@ -117,10 +117,10 @@ public class PreprocessorTest extends Preprocessor {
         Assert.assertEquals(requests.size(), choices.length);
 
         for (int idx = 0; idx < choices.length; idx++) {
-            List<String> expected = Arrays.asList(choices[idx]);
+            final Multiset<String> expected = HashMultiset.create(Arrays.asList(choices[idx]));
             Request request = requests.get(idx);
             String requestString = requestToString(request);
-            Assert.assertTrue(expected.contains(requestString),
+            Assert.assertTrue(expected.remove(requestString),
                 String.format("index %s: %s not in %s", idx, requestString,
                         expected));
         }
