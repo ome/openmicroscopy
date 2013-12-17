@@ -487,17 +487,6 @@ class OMEROGateway
         }
     }
 
-    /**
-     * Checks if the network is up, using a cached value if present.
-     * @throws Exception Throw
-     */
-    private void isNetworkUp()
-        throws Exception
-    {
-        isNetworkUp(true);
-    }
-
-
 	/**
 	 * Returns <code>true</code> if the server is running.
 	 *
@@ -1379,7 +1368,7 @@ class OMEROGateway
 		throws DSOutOfServiceException
 	{
 	    try {
-            isNetworkUp(); // Need safe version?
+            isNetworkUp(true); // Need safe version?
         } catch (Exception e1) {
             if (permitNull) {
                 log("Failed to check network. Returning null connector");
@@ -8164,7 +8153,7 @@ class OMEROGateway
 		if (ctx == null) return;
 		List<Connector> clist = groupConnectorMap.removeAll(ctx.getGroupID());
 		if (CollectionUtils.isEmpty(clist)) return;
-		isNetworkUp();
+		isNetworkUp(true);
 		for (Connector c:  clist) {
 		    try {
 		        c.close(networkup.get());
