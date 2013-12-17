@@ -7,6 +7,7 @@
 
 package ome.util;
 
+import java.lang.reflect.Method;
 import java.nio.ByteOrder;
 import java.nio.ByteBuffer;
 
@@ -18,26 +19,84 @@ import org.slf4j.LoggerFactory;
  *
  * @author Chris Allan &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:chris@glencoesoftware.com">chris@glencoesoftware.com</a>
+ * @author m.t.b.carroll@dundee.ac.uk
  * @version $Revision$
  * @since 3.0
  * @see PixelBuffer
  */
 public class PixelData
 {
-    public static final String CONFIG_KEY;
+    public static final String CONFIG_KEY = "omero.pixeldata.dispose";
 
     private static final Logger LOG = LoggerFactory.getLogger(PixelData.class);
 
-    private static final boolean DISPOSE;
+    /* set to sun.nio.ch.DirectBuffer.cleaner() only if it is both available and to be invoked, otherwise null */
+    private static final Method DIRECT_BUFFER_CLEANER;
+
+    /* the clean() method of DIRECT_BUFFER_CLEANER.cleaner() */
+    private static final Method DIRECT_BUFFER_CLEANER_CLEAN;
+
     static {
-        CONFIG_KEY = "omero.pixeldata.dispose";
-        String p = System.getProperties().getProperty(CONFIG_KEY);
-        if (Boolean.valueOf(p)) {
-            DISPOSE = true;
+        final String configValue = System.getProperties().getProperty(CONFIG_KEY);
+        final Boolean dispose;
+
+        /* parse config value and log accordingly */
+        if ("true".equals(configValue)) {
+            dispose = Boolean.TRUE;
+        } else if ("false".equals(configValue)) {
+            dispose = Boolean.FALSE;
         } else {
-            DISPOSE = false;
+            dispose = null;
         }
-        LOG.debug("{} set to {}", CONFIG_KEY, DISPOSE);
+        if (dispose == null) {
+            LOG.warn("{} cannot be set to invalid value {}, must be true or false", CONFIG_KEY, configValue);
+        } else {
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("{} set to {}", CONFIG_KEY, dispose.toString());
+            }
+        }
+
+        if (Boolean.TRUE.equals(dispose)) {
+            Method cleanerGetter = null;
+            Method cleaner = null;
+            try {
+                /* find cleaner() on DirectBuffer, if the class can be loaded at all */
+                final Class<?> directBufferClass = Class.forName("sun.nio.ch.DirectBuffer");
+                FIND_CLEANER_CLEAN:
+                for (final Method directBufferMethod : directBufferClass.getMethods()) {
+                    if (!directBufferMethod.isBridge() && !directBufferMethod.isSynthetic() &&
+                            "cleaner".equals(directBufferMethod.getName()) &&
+                            directBufferMethod.getParameterTypes().length == 0) {
+                        /* find void clean() on cleaner() */
+                        final Class<?> cleanerClass = directBufferMethod.getReturnType();
+                        for (final Method cleanerMethod : cleanerClass.getMethods()) {
+                            if (!cleanerMethod.isBridge() && !cleanerMethod.isSynthetic() &&
+                                    "clean".equals(cleanerMethod.getName()) &&
+                                    cleanerMethod.getReturnType() == void.class &&
+                                    cleanerMethod.getParameterTypes().length == 0) {
+                                cleanerGetter = directBufferMethod;
+                                cleaner = cleanerMethod;
+                                break FIND_CLEANER_CLEAN;
+                            }
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                /* logged below */
+            }
+            if (cleanerGetter == null) {
+                LOG.warn("{} set to true, but cannot be actioned in the JVM", CONFIG_KEY);
+                DIRECT_BUFFER_CLEANER = null;
+                DIRECT_BUFFER_CLEANER_CLEAN = null;
+            } else {
+                DIRECT_BUFFER_CLEANER = cleanerGetter;
+                DIRECT_BUFFER_CLEANER_CLEAN = cleaner;
+            }
+        } else {
+            DIRECT_BUFFER_CLEANER = null;
+            DIRECT_BUFFER_CLEANER_CLEAN = null;
+        }
+
     }
     /** Identifies the type used to store pixel values. */
     public static final int BYTE = 0;
@@ -420,13 +479,18 @@ public class PixelData
      * If not called, the resources should eventually be freed anyway by garbage collection and finalization.
      */
     public void dispose() {
-
-        if (!DISPOSE) {
-            return; // EARLY EXIT
-        }
-
-        if (this.data instanceof sun.nio.ch.DirectBuffer) {
-            ((sun.nio.ch.DirectBuffer) this.data).cleaner().clean();
+        if (DIRECT_BUFFER_CLEANER != null && this.data != null &&
+                DIRECT_BUFFER_CLEANER.getDeclaringClass().isAssignableFrom(this.data.getClass())) {
+            try {
+                final Object cleaner = DIRECT_BUFFER_CLEANER.invoke(this.data);
+                if (cleaner != null) {
+                    DIRECT_BUFFER_CLEANER_CLEAN.invoke(cleaner);
+                }
+            } catch (Exception e) {
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("DirectBuffer disposal failed", e);
+                }
+            }
             this.data = null;
         }
     }
