@@ -97,34 +97,39 @@ class PrefsControl(BaseControl):
 
         sub = parser.sub()
 
-        all = sub.add_parser(
-            "all", help="List all profiles in the current config.xml file.")
-        all.set_defaults(func=self.all)
+        parser.add(
+            sub, self.all,
+            "List all profiles in the current config.xml file.")
 
         default = sub.add_parser(
-            "def", help="""List (or set) the current active profile.""")
+            "def", help="List (or set) the current active profile.",
+            description="List (or set) the current active profile.")
         default.set_defaults(func=self.default)
         default.add_argument(
             "NAME", nargs="?",
             help="Name of the profile which should be made the new active"
             " profile.")
 
-        get = sub.add_parser(
-            "get", help="Get keys from the current profile. All by default")
+        get = parser.add(
+            sub, self.get,
+            "Get keys from the current profile. All by default")
         get.set_defaults(func=self.get)
-        get.add_argument("KEY", nargs="*")
+        get.add_argument(
+            "KEY", nargs="*", help="Name of the key in the current profile")
 
-        set = sub.add_parser(
-            "set", help="Set key-value pair in the current profile. Omit the"
+        set = parser.add(
+            sub, self.set,
+            "Set key-value pair in the current profile. Omit the"
             " value to remove the key.")
-        set.set_defaults(func=self.set)
         append = parser.add(
             sub, self.append, "Append value to a key in the current profile.")
         remove = parser.add(
-            sub, self.remove, "Append value to a key in the current profile.")
+            sub, self.remove,
+            "Remove value from a key in the current profile.")
 
         for x in [set, append, remove]:
-            x.add_argument("KEY")
+            x.add_argument(
+                "KEY", help="Name of the key in the current profile")
         set.add_argument(
             "-f", "--file", type=ExistingFile('r'),
             help="Load value from file")
@@ -134,19 +139,15 @@ class PrefsControl(BaseControl):
         append.add_argument("VALUE", help="Value to be appended")
         remove.add_argument("VALUE", help="Value to be removed")
 
-        drop = sub.add_parser(
-            "drop", help="Removes the profile from the configuration file")
-        drop.set_defaults(func=self.drop)
+        drop = parser.add(
+            sub, self.drop, "Removes the profile from the configuration file")
         drop.add_argument("NAME")
 
-        keys = sub.add_parser(
-            "keys", help="""List all keys for the current profile""")
-        keys.set_defaults(func=self.keys)
+        parser.add(sub, self.keys, "List all keys for the current profile")
 
-        load = sub.add_parser(
-            "load",
-            help="""Read into current profile from a file or standard in""")
-        load.set_defaults(func=self.load)
+        load = parser.add(
+            sub, self.load,
+            "Read into current profile from a file or standard in")
         load.add_argument(
             "-q", action="store_true", help="No error on conflict")
         load.add_argument(
