@@ -236,12 +236,15 @@ public class ShutDownDialog
     {
         remainingTime--;
         if (index == -1) formatText(remainingTime);
-        try {
-            checker.isNetworkup(false);
-            cancel();
-            return;
-        } catch (Exception ex) {
-            //continue the network is still down.
+        //Check the network every 5s
+        if (remainingTime %5 ==0) {
+            try {
+                checker.isNetworkup(false);
+                cancel();
+                return;
+            } catch (Exception ex) {
+                //continue the network is still down.
+            }
         }
         if (remainingTime == 0) close();
     }
