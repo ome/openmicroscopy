@@ -896,7 +896,6 @@ public class PreprocessorTest extends Preprocessor {
                 _("DELETE[/Fileset:2]"),
                 _("DELETE[/Well:6]")
                 );
-
     }
 
     /**
@@ -928,6 +927,39 @@ public class PreprocessorTest extends Preprocessor {
                 "DELETE[/Fileset:1]",
                 "DELETE[/Fileset:2]"
                 );
+    }
 
+    /**
+     * Test conversion of mixed image requests to image requests.
+     */
+    @Test
+    public void testImagesToImagesMixedRequests() {
+        addChgrpRequest("/Image", 1, 1);
+        addDeleteRequest("/Image", 2);
+
+        process();
+
+        assertRequests(
+                "CHGRP(1)[/Image:1]",
+                "DELETE[/Image:2]"
+                );
+    }
+
+    /**
+     * Test conversion of mixed image requests to fileset requests.
+     */
+    @Test
+    public void testImagesToFilesetsMixedRequests() {
+        addChgrpRequest("/Image", 1, 1);
+        addDeleteRequest("/Image", 1);
+        addChgrpRequest("/Image", 2, 1);
+        addDeleteRequest("/Image", 2);
+
+        process();
+
+        assertRequests(
+                "CHGRP(1)[/Fileset:1]",
+                "DELETE[/Fileset:1]"
+                );
     }
 }
