@@ -35,6 +35,10 @@ The configuration values are used by bin/omero admin {start,deploy} to set
 properties on launch. See etc/grid/(win)default.xml. The "Profile" block
 contains a reference to "__ACTIVE__" which is the current value in config.xml
 
+By default, OMERO.grid will use the file in etc/grid/config.xml. If you would
+like to configure your system to use $HOME/omero/config.xml, you will need to
+modify the application descriptor.
+
 Environment variables:
     OMERO_CONFIG - Changes the active profile
 
@@ -89,11 +93,8 @@ class PrefsControl(BaseControl):
 
     def _configure(self, parser):
         parser.add_argument(
-            "--source", help="Which configuration file should be used. "
-            "By default, OMERO.grid will use the file in etc/grid/config.xml."
-            " If you would like to configure your system to use "
-            "$HOME/omero/config.xml, you will need to modify the application "
-            " descriptor")
+            "--source", help="Configuration file to be used. Default:"
+            " etc/grid/config.xml")
 
         sub = parser.sub()
 
@@ -140,8 +141,8 @@ class PrefsControl(BaseControl):
         remove.add_argument("VALUE", help="Value to be removed")
 
         drop = parser.add(
-            sub, self.drop, "Removes the profile from the configuration file")
-        drop.add_argument("NAME")
+            sub, self.drop, "Remove the profile from the configuration file")
+        drop.add_argument("NAME", help="Name of the profile to remove")
 
         parser.add(sub, self.keys, "List all keys for the current profile")
 
@@ -155,18 +156,18 @@ class PrefsControl(BaseControl):
             help="Files to read from. Default to standard in if not"
             " specified")
 
-        parser.add(sub, self.edit, "Presents the properties for the current"
+        parser.add(sub, self.edit, "Present the properties for the current"
                    " profile in your editor. Saving them will update your"
                    " profile.")
-        parser.add(sub, self.version, "Prints the configuration version for"
+        parser.add(sub, self.version, "Print the configuration version for"
                    " the current profile.")
-        parser.add(sub, self.path, "Prints the file that is used for "
+        parser.add(sub, self.path, "Print the file that is used for "
                    " configuration")
-        parser.add(sub, self.lock, "Acquires the config file lock and holds"
+        parser.add(sub, self.lock, "Acquire the config file lock and hold"
                    " it")
-        parser.add(sub, self.upgrade, "Creates a 4.2 config.xml file based on"
+        parser.add(sub, self.upgrade, "Create a 4.2 config.xml file based on"
                    " your current Java Preferences")
-        old = parser.add(sub, self.old, "Delegates to the old configuration"
+        old = parser.add(sub, self.old, "Delegate to the old configuration"
                          " system using Java preferences")
         old.add_argument("target", nargs="*")
 
