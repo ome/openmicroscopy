@@ -26,6 +26,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.ArrayUtils;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -240,6 +241,16 @@ public class PreprocessorTest extends Preprocessor {
         chgrp.id = id;
         chgrp.grp = group;
         this.requests.add(chgrp);
+    }
+
+    /**
+     * Test conversion of nothing to nothing.
+     */
+    @Test
+    public void testNothingToNothing() {
+        process();
+
+        assertRequests(ArrayUtils.EMPTY_STRING_ARRAY);
     }
 
     /**
