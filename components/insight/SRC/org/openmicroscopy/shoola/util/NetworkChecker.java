@@ -169,7 +169,7 @@ public class NetworkChecker {
 	 * @return See above.
 	 * @throws Exception Thrown if the network is down.
 	 */
-    public boolean isNetworkup(boolean useCachedValue)
+    public synchronized boolean isNetworkup(boolean useCachedValue)
         throws Exception
     {
         if (useCachedValue) {
