@@ -86,9 +86,9 @@ public class NetworkChecker {
     // make its own call, even if cached.
     //
 
-    private static final AtomicLong lastCheck = new AtomicLong(0);
+    private final AtomicLong lastCheck = new AtomicLong(0);
 
-    private static final AtomicBoolean lastValue = new AtomicBoolean(true);
+    private final AtomicBoolean lastValue = new AtomicBoolean(true);
 
 	/**
 	 * The IP Address of the server the client is connected to
