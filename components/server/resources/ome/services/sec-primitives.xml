@@ -41,7 +41,7 @@
 
   <bean id="internalServiceFactory" class="ome.tools.spring.InternalServiceFactory"/>
 
-  <bean id="roles" class="ome.system.Roles"/>
+  <bean id="roles" factory-bean="dbUserCheck" factory-method="getRoles"/>
 
   <bean id="securityFilterHolder" class="ome.security.SecurityFilterHolder">
     <constructor-arg ref="currentDetails"/>
