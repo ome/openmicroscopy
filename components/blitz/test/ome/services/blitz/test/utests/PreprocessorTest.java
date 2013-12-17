@@ -53,12 +53,6 @@ import omero.cmd.graphs.Preprocessor;
 @Test(groups = {"fs"})
 public class PreprocessorTest extends Preprocessor {
 
-    /**
-     * Array of DELETEs for the first three filesets.
-     */
-    private static String[] FS012 =
-            new String[] {"DELETE[/Fileset:0]", "DELETE[/Fileset:1]", "DELETE[/Fileset:2]" };
-
     private final Ice.Communicator ic = Ice.Util.initialize();
 
     private final class Factory implements Ice.ObjectFactory {
