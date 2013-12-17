@@ -198,19 +198,6 @@ public class NetworkChecker {
      * @return See above.
      * @throws Exception Thrown if the network is down.
      */
-    public boolean isNetworkup()
-        throws Exception
-    {
-        return isNetworkup(true);
-    }
-
-    /**
-     * Returns <code>true</code> if the network is still up, otherwise
-     * throws an <code>UnknownHostException</code>.
-     *
-     * @return See above.
-     * @throws Exception Thrown if the network is down.
-     */
 	private boolean _isNetworkup()
 		throws Exception
 	{
@@ -273,6 +260,6 @@ public class NetworkChecker {
 		NetworkChecker nc = new NetworkChecker(address);
 		System.err.println("Using explicit server address: " + address);
 		System.err.println("Java version: " + System.getProperty("java.version"));
-		System.err.println("isNetworkup()?: " + nc.isNetworkup());
+		System.err.println("isNetworkup()?: " + nc.isNetworkup(false));
 	}
 }
