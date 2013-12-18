@@ -39,6 +39,7 @@ import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.DownloadArchivedActivityParam;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.util.file.IOUtil;
+import org.springframework.util.CollectionUtils;
 
 /** 
  * Downloads the archived image.
@@ -128,7 +129,7 @@ public class DownloadArchivedActivity
 	{
 		List<File> files = (List<File>) result;
 		//Handle no file returned.
-		if (files.size() == 0) {
+		if (CollectionUtils.isEmpty(files)) {
 			type.setText(DESCRIPTION_NO_ARCHIVED);
 			messageLabel.setText(OPTION_NO_ARCHIVED);
 			return;
