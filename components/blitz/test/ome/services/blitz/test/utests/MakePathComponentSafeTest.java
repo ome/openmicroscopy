@@ -212,6 +212,16 @@ public class MakePathComponentSafeTest extends MakePathComponentSafe {
     }
 
     /**
+     * Test that one of the operating-system-specific tests for the unsafety of unsafe characters
+     * did actually execute because the current operating system was actually recognized.
+     */
+    @Test
+    @Assumption(methods = {"isUnknown"}, methodClass = CurrentPlatform.class)
+    public void testPlatformTestExecuted() {
+        Assert.fail("one of the operating-system-specific tests should have executed");
+    }
+
+    /**
      * Test that data can be stored in files named using sanitized unsafe characters.
      * @throws IOException unexpected
      */
