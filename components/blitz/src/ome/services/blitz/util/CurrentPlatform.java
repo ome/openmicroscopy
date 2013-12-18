@@ -17,19 +17,20 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-package ome.services.blitz.test.utests;
+package ome.services.blitz.util;
 
 /**
- * Methods for use with {@literal @}Assumption annotations
- * to limit unit tests to specific test platforms.
- * 
+ * Test under which platform OMERO is currently running.
+ * Exactly one of the public methods returns <code>true</code>. Each executes quickly.
+ * Useful with {@literal @}Assumption annotations to limit unit tests to specific test platforms.
+ *
  * @author m.t.b.carroll@dundee.ac.uk
  * @since 5.0
  */
-public class PlatformAssumptions {
+
+public class CurrentPlatform {
     /**
-     * A enumeration of operating systems under which tests may be occurring.
-     * Some file path tests are platform-specific.
+     * A enumeration of operating systems under which OMERO may run.
      * 
      * @author m.t.b.carroll@dundee.ac.uk
      * @since 5.0
@@ -85,5 +86,12 @@ public class PlatformAssumptions {
      */
     public static boolean isMacOSX() {
         return os == OperatingSystem.MAC;
+    }
+
+    /**
+     * @return if this platform is unidentified
+     */
+    public static boolean isUnknown() {
+        return os == null;
     }
 }
