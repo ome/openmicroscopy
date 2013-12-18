@@ -19,6 +19,9 @@
 
 package ome.services.blitz.util;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Test under which platform OMERO is currently running.
  * Exactly one of the public methods returns <code>true</code>. Each executes quickly.
@@ -56,6 +59,8 @@ public class CurrentPlatform {
     private static final OperatingSystem os;
 
     static {
+        final Logger logger = LoggerFactory.getLogger(CurrentPlatform.class);
+
         final String osName = System.getProperty("os.name");
         if (osName.startsWith("Windows "))
             os = OperatingSystem.WINDOWS;
@@ -63,8 +68,13 @@ public class CurrentPlatform {
             os = OperatingSystem.LINUX;
         else if (osName.equals("Mac OS X"))
             os = OperatingSystem.MAC;
-        else
+        else {
             os = null;
+            logger.warn("failed to recognize current operating system");
+        }
+        if (os != null && logger.isDebugEnabled()) {
+            logger.debug("recognized current operating system as being " + os);
+        }
     }
 
     /**
