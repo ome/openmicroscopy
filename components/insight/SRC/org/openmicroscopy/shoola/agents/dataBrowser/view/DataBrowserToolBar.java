@@ -609,7 +609,6 @@ class DataBrowserToolBar
 		bar.add(Box.createHorizontalStrut(2));
 		bar.add(rollOverButton);
 		if (model.getType() != DataBrowserModel.GROUP) {
-			bar.add(createDatasetButton);
 			bar.add(reportButton);
 			bar.add(saveButton);
 			bar.add(new JSeparator(JSeparator.VERTICAL));
@@ -620,14 +619,6 @@ class DataBrowserToolBar
 		itemsPerRowPane.add(itemsPerRow);
 		itemsPerRowPane.setToolTipText(itemsPerRow.getToolTipText());
 		bar.add(itemsPerRowPane);
-		/*
-		bar.add(Box.createHorizontalStrut(2));
-		bar.add(new JSeparator(JSeparator.VERTICAL));
-		bar.add(Box.createHorizontalStrut(2));
-		if (model.getType() != DataBrowserModel.GROUP) {
-			bar.add(slideShowView);
-		}
-		*/
 		return bar;
 	}
 	
@@ -919,6 +910,9 @@ class DataBrowserToolBar
 			case DataBrowserUI.THUMB_VIEW:
 			case DataBrowserUI.COLUMNS_VIEW:
 				view.setSelectedView(index);
+				if (index == DataBrowserUI.THUMB_VIEW &&
+						!model.hasThumbnailsBeenLoaded())
+					model.loadData(false, null);
 				break;
 			case ROLL_OVER:
 				//view.setRollOver(rollOverItem.isSelected());

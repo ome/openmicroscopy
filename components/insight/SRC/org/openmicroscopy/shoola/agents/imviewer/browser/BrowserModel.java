@@ -30,18 +30,20 @@ import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBuffer;
+import java.lang.management.ManagementFactory;
+import java.lang.management.MemoryUsage;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import javax.swing.Icon;
 
 //Third-party libraries
 import com.sun.opengl.util.texture.TextureData;
 
+import org.apache.commons.collections.CollectionUtils;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.IconManager;
 import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
@@ -250,27 +252,6 @@ class BrowserModel
 							gridImages.add(null);
 						}
 					}
-		        	/*
-		    		for (int i = 0; i < maxC; i++) {
-						if (l.contains(i)) {
-							if (parent.isChannelRed(i)) { 
-								gridImages.add(createBandImage(buf, w, h, 
-										Factory.RED_MASK, Factory.RED_MASK, 
-										Factory.RED_MASK));
-							} else if (parent.isChannelGreen(i)) {
-								gridImages.add(createBandImage(buf, w, h,
-										Factory.GREEN_MASK, Factory.GREEN_MASK, 
-										Factory.GREEN_MASK));
-							} else if (parent.isChannelBlue(i)) {
-								gridImages.add(createBandImage(buf, w, h, 
-										Factory.BLUE_MASK, Factory.BLUE_MASK,
-										Factory.BLUE_MASK));
-							}
-						} else {
-							gridImages.add(null);
-						}
-					}
-					*/
 				} else {
 					retrieveGridImagesForGreyScale(l);
 				}
@@ -296,12 +277,12 @@ class BrowserModel
     		combinedImage = Factory.magnifyImage(gridRatio, 
 								images.get(last));
     		images.remove(last);
-    		Iterator i = images.iterator();
+    		Iterator<BufferedImage> i = images.iterator();
     		boolean b = originalGridImages.size() == 0 &&
     		!isImageMappedRGB(channels);
     		BufferedImage img;
         	while (i.hasNext()) {
-        		img = (BufferedImage) i.next();
+        		img = i.next();
         		gridImages.add(Factory.magnifyImage(gridRatio, img));
         		if (b) originalGridImages.add(img);
     		}
@@ -317,11 +298,11 @@ class BrowserModel
     {
     	List<BufferedImage> images = parent.getGridImages();
     	if (images != null) {
-    		Iterator i = images.iterator();
+    		Iterator<BufferedImage> i = images.iterator();
     		boolean b = originalGridImages.size() == 0;
     		BufferedImage img;
         	while (i.hasNext()) {
-        		img = (BufferedImage) i.next();
+        		img = i.next();
         		gridImages.add(Factory.magnifyImage(img, gridRatio, 0));
         		if (b) originalGridImages.add(img);
     		}
@@ -337,9 +318,7 @@ class BrowserModel
     			clearTextureMap(gridImagesAsTextures);
     			gridImagesAsTextures = parent.getGridImagesAsTexture();
     		}
-    			
     	} else {
-    		//if (isRenderedImageRGB()) return;
     		clearTextureMap(gridImagesAsTextures);
         	gridImagesAsTextures = parent.getGridImagesAsTexture();
     	}
@@ -353,13 +332,11 @@ class BrowserModel
     private void clearTextureMap(Map<Integer, TextureData> map)
     {
     	if (map == null) return;
-    	Entry e;
     	TextureData data;
-    	Iterator i = map.entrySet().iterator();
+    	Iterator<TextureData> i = map.values().iterator();
     	while (i.hasNext()) {
-			e = (Entry) i.next();
-			data = (TextureData) e.getValue();
-			if (data != null) data.flush();
+			data = i.next();
+			data = null;
 		}
     	map.clear();
     }
@@ -372,11 +349,11 @@ class BrowserModel
     private void clearList(List<BufferedImage> l)
     {
     	if (l == null) return;
-    	Iterator<BufferedImage> k = gridImages.iterator();
+    	Iterator<BufferedImage> k = l.iterator();
     	BufferedImage img;
     	while (k.hasNext()) {
     		img = k.next();
-			if (img != null) img.flush();
+			img = null;
 		}
     	l.clear();
     }
@@ -403,8 +380,7 @@ class BrowserModel
 			case 2:
 			case 3:
 				if (isImageMappedRGB(l) && !parent.isCompressed()) {
-					//if (combinedImage == null)
-					if (combinedImage != null) combinedImage.flush();
+					combinedImage = null;
 					combinedImage = Factory.magnifyImage(gridRatio, 
 								renderedImage);
 					int w = combinedImage.getWidth();
@@ -521,8 +497,12 @@ class BrowserModel
      */
     void setRenderedImage(BufferedImage image)
     {
-    	if (renderedImage != null) renderedImage.flush();
+    	renderedImage = null;
+    	displayedImage = null;
+    	combinedImage = null;
+    	clearList(gridImages);
         renderedImage = image;
+        
         if (renderedImage != null) {
         	if (init) {
         		int imageWidth = image.getWidth();
@@ -536,11 +516,6 @@ class BrowserModel
         		init = false;
         	}
         }
-        if (displayedImage != null) displayedImage.flush();
-        if (combinedImage != null) combinedImage.flush();
-        clearList(gridImages);
-        displayedImage = null;
-        combinedImage = null;
     }
     
     /** Sets the images composing the grid. */
@@ -623,19 +598,20 @@ class BrowserModel
      */
     void createDisplayedImage()
     {
-        if (renderedImage == null) return;
-        if (displayedImage != null) displayedImage.flush();
-        if (zoomFactor != ZoomAction.DEFAULT_ZOOM_FACTOR) {
-        	BufferedImage img = null;
-        	try {
-				img = Factory.magnifyImage(renderedImage, zoomFactor, 0);
-			} catch (Throwable e) {
-				UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
-				un.notifyInfo("Magnification", 
-						"An error occured while magnifying the image.");
-			}
-			if (img != null) displayedImage = img;
-        } else displayedImage = renderedImage;
+    	if (renderedImage == null) return;
+    	displayedImage = null;
+    	if (zoomFactor != ZoomAction.DEFAULT_ZOOM_FACTOR) {
+    		BufferedImage img = null;
+    		try {
+    			img = Factory.magnifyImage(renderedImage, zoomFactor, 0);
+    			renderedImage.flush();
+    		} catch (Throwable e) {
+    			UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
+    			un.notifyInfo("Magnification", 
+    					"An error occurred while magnifying the image.");
+    		}
+    		if (img != null) displayedImage = img;
+    	} else displayedImage = renderedImage;
     }
    
     /**
@@ -930,7 +906,7 @@ class BrowserModel
      * 
      * @return See above.
      */
-    boolean hasNoGridImages() { return (gridImages.size() == 0); }
+    boolean hasNoGridImages() { return gridImages.size() == 0; }
     
     /** 
      * Returns <code>true</code> if there is no images retrieved for the
@@ -950,7 +926,7 @@ class BrowserModel
      * 
      * @return See above.
      */
-    List getSplitImages()
+    List<SplitImage> getSplitImages()
     { 
     	if (splitImages == null) splitImages = new ArrayList<SplitImage>();
     	else splitImages.clear();
@@ -1014,7 +990,7 @@ class BrowserModel
 		if (gridRatio > max) return;
 		this.gridRatio = gridRatio; 
 		if (ImViewerAgent.hasOpenGLSupport()) return;
-		if (originalGridImages == null || originalGridImages.size() == 0) {
+		if (CollectionUtils.isEmpty(originalGridImages)) {
 			try {
 				createGridImages();
 			} catch (Exception e) {
@@ -1041,23 +1017,23 @@ class BrowserModel
 						handleGridImageCreationException(e);
 					}
 				} else {
-					combinedImage.flush();
-					combinedImage = Factory.magnifyImage(gridRatio, 
-														renderedImage);
-					Iterator i = originalGridImages.iterator();
+					combinedImage = null;
+					combinedImage = Factory.magnifyImage(gridRatio,
+							renderedImage);
+					Iterator<BufferedImage> i = originalGridImages.iterator();
 					while (i.hasNext()) {
-    	        		gridImages.add(Factory.magnifyImage(gridRatio, 
-    	        							(BufferedImage) i.next()));
-    	    		}
+						gridImages.add(Factory.magnifyImage(gridRatio,
+								i.next()));
+					}
 				}
 				break;
 			default:
-				combinedImage.flush();
+				combinedImage = null;
 				combinedImage = Factory.magnifyImage(gridRatio, renderedImage);
-				Iterator i = originalGridImages.iterator();
+				Iterator<BufferedImage> i = originalGridImages.iterator();
 				while (i.hasNext()) {
-		    		gridImages.add(Factory.magnifyImage(gridRatio, 
-		    							(BufferedImage) i.next()));
+					gridImages.add(Factory.magnifyImage(gridRatio,
+							i.next()));
 				}
 		}
 	}
@@ -1301,18 +1277,20 @@ class BrowserModel
 	 */
 	int getTiledImageSizeY() { return parent.getTiledImageSizeY(); }
 
+	/** Removes references to images.*/ 
 	void discard()
 	{
-		if (combinedImage != null) combinedImage.flush();
-		if (displayedImage != null) displayedImage.flush();
-		if (displayedProjectedImage != null) displayedProjectedImage.flush();
-		if (projectedImage != null) projectedImage.flush();
-		if (renderedImage != null) renderedImage.flush();
+		combinedImage = null;
+		displayedImage = null;
+		displayedProjectedImage = null;
+		projectedImage = null;
+		renderedImage = null;
 		clearList(gridImages);
 		clearList(originalGridImages);
 		clearTextureMap(gridImagesAsTextures);
-		if (projectedImageAsTexture != null) projectedImageAsTexture.flush();
-		if (renderedImageAsTexture != null) renderedImageAsTexture.flush();
+		projectedImageAsTexture = null;
+		renderedImageAsTexture = null;
+		System.gc();//force garbage collection
 	}
 
 }

@@ -68,11 +68,15 @@ if size(keep_alives) > 0,
     end
 end
 
+% List jars
+libpath = fullfile(findOmero, 'libs');
+omero_client_jar = fullfile(libpath, 'omero_client.jar');
+guavajdk5_jar = fullfile(libpath, 'guava-jdk5.jar');
 
-omero_client_jar=fullfile(findOmero, 'libs', 'omero_client.jar');
 try
     % Remove OMERO jars from Java class path
     javarmpath(omero_client_jar);
+    javarmpath(guavajdk5_jar);
     [w, wid] = lastwarn;
     if ~strcmp(w, '') && ~isequal(wid, JAVAWARNID)
         disp('  ');

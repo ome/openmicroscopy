@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.measurement.MeasurementAgent 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -398,7 +398,7 @@ public class MeasurementAgent
 			handleImageRenderedEvent((ImageRendered) e);
 		else if (e instanceof UserGroupSwitched)
 			handleUserGroupSwitched((UserGroupSwitched) e);
-		else if (e instanceof ActivityProcessEvent)
+		else if (e instanceof ActivityProcessEvent && ((ActivityProcessEvent) e).isFinished())
 			handleActivityFinished((ActivityProcessEvent) e);
 		else if (e instanceof ReconnectedEvent)
 			handleReconnectedEvent((ReconnectedEvent) e);

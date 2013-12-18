@@ -23,7 +23,6 @@ Populate bulk metadata tables from delimited text files.
 #
 
 
-import exceptions
 import tempfile
 import logging
 import time

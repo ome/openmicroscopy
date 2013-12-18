@@ -14,7 +14,7 @@
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  *  GNU General Public License for more details.
- *  
+ *
  *  You should have received a copy of the GNU General Public License along
  *  with this program; if not, write to the Free Software Foundation, Inc.,
  *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -28,18 +28,17 @@ import java.lang.reflect.Method;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
 
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 
-/** 
+/**
  * Checks if the network is still up.
  *
  * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
@@ -80,30 +79,46 @@ public class NetworkChecker {
 		}
 	}
 
+    //
+    // WARNING: these would usually not be static fields, but due to
+    // the number of created NetworkCheckers, sharing the state among
+    // all of them will be substantially quicker than letting each
+    // make its own call, even if cached.
+    //
+
+    private static final AtomicLong lastCheck = new AtomicLong(0);
+
+    private static final AtomicBoolean lastValue = new AtomicBoolean(true);
+
 	/**
 	 * The IP Address of the server the client is connected to
 	 * or <code>null</code>.
 	 */
-	private String ipAddress;
+	private InetAddress ipAddress;
 	
-	/** Creates a new instance.
-	 */
+	/** Creates a new instance.*/
 	public NetworkChecker()
 	{
 		this(null);
 	}
-	
+
 	/**
 	 * Creates a new instance.
-	 * 
+	 *
 	 * @param ipAddress The IP address of the server the client is connected to
 	 * or <code>null</code>.
 	 */
 	public NetworkChecker(String ipAddress)
 	{
-		this.ipAddress = ipAddress;
+		if (ipAddress != null) {
+			try {
+				this.ipAddress = InetAddress.getByName(ipAddress);
+			} catch (UnknownHostException e) {
+				// Ignored
+			}
+		}
 	}
-	
+
 	/**
 	 * Run the standard Java 1.6 check using reflection. If this is not 1.6 or later, then
 	 * exit successfully, printing this assumption to System.err. If any odd reflection error
@@ -149,25 +164,56 @@ public class NetworkChecker {
 	/**
 	 * Returns <code>true</code> if the network is still up, otherwise
 	 * throws an <code>UnknownHostException</code>.
-	 * 
+	 *
 	 * @return See above.
 	 * @throws Exception Thrown if the network is down.
 	 */
-	public boolean isNetworkup()
+    public boolean isNetworkup(boolean useCachedValue)
+        throws Exception
+    {
+        if (useCachedValue) {
+            long elapsed = System.currentTimeMillis() - lastCheck.get();
+            if (elapsed <= 5000) {
+                boolean last = lastValue.get();
+                log("Cached networkup: %s", last);
+                return last;
+            }
+        }
+        long start = System.currentTimeMillis();
+        boolean newValue = _isNetworkup();
+        long stop = System.currentTimeMillis();
+        long elapsed = stop - start;
+        log("Network status: %s (in %s ms.)", newValue, elapsed);
+        lastValue.set(newValue);
+        lastCheck.set(stop);
+        return newValue;
+    }
+
+    /**
+     * Returns <code>true</code> if the network is still up, otherwise
+     * throws an <code>UnknownHostException</code>.
+     *
+     * @return See above.
+     * @throws Exception Thrown if the network is down.
+     */
+    public boolean isNetworkup()
+        throws Exception
+    {
+        return isNetworkup(true);
+    }
+
+	public boolean _isNetworkup()
 		throws Exception
 	{
 
 		boolean networkup = false;
-		List<String> ips = new ArrayList<String>();
-		if (UIUtilities.isLinuxOS()) {
-			// Not trying any connection on linux to prevent hangs.
+		if (useReflectiveCheck) {
 			// On Java 1.6+, reflectiveCheck will perform a proper check.
-			// On Java 1.5 and before, it will simply return true.
 			networkup = reflectiveCheck();
 		} else {
 			Enumeration<NetworkInterface> interfaces =
 					NetworkInterface.getNetworkInterfaces();
-			if (interfaces != null) {
+			if (interfaces != null && !networkup) {
 				NetworkInterface ni;
 				InetAddress ia;
 				while (interfaces.hasMoreElements()) {
@@ -178,34 +224,45 @@ public class NetworkChecker {
 							ia = (InetAddress) e.nextElement();
 							if (!ia.isAnyLocalAddress() &&
 									!ia.isLoopbackAddress()) {
-								//if (!ia.isSiteLocalAddress()) {
 								if (!ia.getHostName().equals(
 										ia.getHostAddress())) {
 									networkup = true;
 									break;
 								}
-								//}
 							}
 						}
 						if (networkup) break;
-					} else {
-						String ip;
-						while (e.hasMoreElements()) {
-							ia = (InetAddress) e.nextElement();
-							ip = ia.getHostAddress();
-							if (!ips.contains(ip))
-								ips.add(ip);
-						}
 					}
 				}
 			}
 		}
 		if (!networkup) {
-			if (ipAddress != null) {
-				if (ips.contains(ipAddress)) return true;
+			if (ipAddress != null && ipAddress.isLoopbackAddress()) {
+				return true;
 			}
 			throw new UnknownHostException("Network is down.");
 		}
 		return networkup;
+	}
+
+	static org.apache.log4j.Logger logger = 
+	        org.apache.log4j.Logger.getLogger(NetworkChecker.class.getName());
+
+	void log(String msg, Object...objs) {
+	    if (logger.isDebugEnabled()) {
+	        logger.debug(String.format(msg, objs));
+	    }
+	}
+	
+	/**
+	 * Testing main that allows for the usage of the NetworkChecker
+	 * without running the entire software stack.
+	 */
+	public static void main(String[] args) throws Exception {
+		String address = args.length == 1? args[0] : null;
+		NetworkChecker nc = new NetworkChecker(address);
+		System.err.println("Using explicit server address: " + address);
+		System.err.println("Java version: " + System.getProperty("java.version"));
+		System.err.println("isNetworkup()?: " + nc.isNetworkup());
 	}
 }

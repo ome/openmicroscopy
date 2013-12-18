@@ -346,7 +346,7 @@ public class ScriptRepoHelper {
                     String sha1 = null;
                     OriginalFile ofile = null;
                     if (id == null) {
-                        ofile = addOrReplace(sqlAction, sf, file, null);
+                        ofile = addOrReplace(session, sqlAction, sf, file, null);
                     } else {
 
                         ofile = load(id, session, getSqlAction(), true); // checks for type & repo
@@ -357,7 +357,7 @@ public class ScriptRepoHelper {
                         if (modificationCheck) {
                             sha1 = file.sha1();
                             if (!sha1.equals(ofile.getSha1())) {
-                                ofile = addOrReplace(sqlAction, sf, file, id);
+                                ofile = addOrReplace(session, sqlAction, sf, file, id);
                             }
                         }
                     }
@@ -379,12 +379,12 @@ public class ScriptRepoHelper {
                 "addOrReplace", repoFile, old) {
             @Transactional(readOnly = false)
             public Object doWork(Session session, ServiceFactory sf) {
-                return addOrReplace(getSqlAction(), sf, repoFile, old);
+                return addOrReplace(session, getSqlAction(), sf, repoFile, old);
             }
         });
     }
 
-    protected OriginalFile addOrReplace(SqlAction sqlAction, ServiceFactory sf,
+    protected OriginalFile addOrReplace(Session session, SqlAction sqlAction, ServiceFactory sf,
             final RepoFile repoFile, final Long old) {
 
         if (old != null) {
@@ -393,7 +393,8 @@ public class ScriptRepoHelper {
         }
 
         OriginalFile ofile = new OriginalFile();
-        return update(repoFile, sqlAction, sf, ofile);
+        ExperimenterGroup group = loadUserGroup(session);
+        return update(repoFile, sqlAction, sf, ofile, group);
     }
 
     /**
@@ -434,26 +435,32 @@ public class ScriptRepoHelper {
         sqlAction.setFileRepo(old, null);
     }
 
-    public OriginalFile update(final RepoFile repoFile, final Long id) {
-        return (OriginalFile) ex.execute(p, new Executor.SimpleWork(this,
+    public OriginalFile update(final RepoFile repoFile, final Long id,
+            Map<String,String> context) {
+        return (OriginalFile) ex.execute(context, p, new Executor.SimpleWork(this,
                 "update", repoFile, id) {
             @Transactional(readOnly = false)
             public Object doWork(Session session, ServiceFactory sf) {
                 OriginalFile ofile = load(id, session, getSqlAction(), true);
-                return update(repoFile, getSqlAction(), sf, ofile);
+                ExperimenterGroup group = loadUserGroup(session);
+                return update(repoFile, getSqlAction(), sf, ofile, group);
             }
         });
     }
 
+    private ExperimenterGroup loadUserGroup(Session session) {
+        return (ExperimenterGroup)
+            session.get(ExperimenterGroup.class, roles.getUserGroupId());
+    }
+
     private OriginalFile update(final RepoFile repoFile, SqlAction sqlAction,
-            ServiceFactory sf, OriginalFile ofile) {
+            ServiceFactory sf, OriginalFile ofile, ExperimenterGroup group) {
         ofile.setPath(repoFile.dirname());
         ofile.setName(repoFile.basename());
         ofile.setSha1(repoFile.sha1());
         ofile.setSize(repoFile.length());
         ofile.setMimetype("text/x-python");
-        ofile.getDetails().setGroup(
-                new ExperimenterGroup(roles.getUserGroupId(), false));
+        ofile.getDetails().setGroup(group);
         ofile = sf.getUpdateService().saveAndReturnObject(ofile);
 
         sqlAction.setFileRepo(ofile.getId(), uuid);
@@ -512,7 +519,7 @@ public class ScriptRepoHelper {
 
         simpleDelete(null, ex, p, id);
 
-        FileUtils.deleteQuietly(new File(dir, file.getPath()));
+        FileUtils.deleteQuietly(new File(dir, file.getPath() + file.getName()));
 
         return true;
     }
@@ -521,8 +528,8 @@ public class ScriptRepoHelper {
      * Unlike {@link #delete(long)} this method simply performs the DB delete
      * on the given original file id.
      *
-     * @param context 
-     *                  Call context which affecets which group the current user is in. 
+     * @param context
+     *                  Call context which affecets which group the current user is in.
      *                  Can be null to pass no call context.
      * @param executor
      * @param p

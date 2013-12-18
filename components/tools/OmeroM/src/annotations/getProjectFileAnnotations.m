@@ -5,6 +5,10 @@ function fas = getProjectFileAnnotations(session, ids, varargin)
 %    annotations linked to the projects specified by the input identifiers
 %    and owned by the session user.
 %
+%    fas = getProjectFileAnnotations(session, projects) returns all file
+%    annotations linked to the input projects and owned by the session
+%    user.
+%
 %    fas = getProjectFileAnnotations(session,  ids, 'include', include) only
 %    returns file annotations with the input namespace.
 %
@@ -14,6 +18,7 @@ function fas = getProjectFileAnnotations(session, ids, varargin)
 %    Examples:
 %
 %        fas = getProjectFileAnnotations(session, ids)
+%        fas = getProjectFileAnnotations(session, projects)
 %        fas = getProjectFileAnnotations(session, ids, 'include', include)
 %        fas = getProjectFileAnnotations(session, ids, 'exclude', exclude)
 %

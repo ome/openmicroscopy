@@ -15,7 +15,6 @@ import logging
 import tempfile
 import threading
 import traceback
-import exceptions
 import portalocker
 
 from path import path
@@ -63,7 +62,7 @@ class TempFileManager(object):
                 if self.create(t) or self.access(t):
                     self.userdir = t
                     break
-            raise exceptions.Exception("Failed to create temporary directory: %s" % self.userdir)
+            raise Exception("Failed to create temporary directory: %s" % self.userdir)
         self.dir = self.userdir / self.pid()
         """
         Directory under which all temporary files and folders will be created.
@@ -185,7 +184,7 @@ class TempFileManager(object):
                             self.logger.debug("Failed os.remove(%s)", name)
 
 
-            except exceptions.Exception, e:
+            except Exception, e:
                 if "Operation not permitted" in str(e) or \
                    "Operation not supported" in str(e):
 
@@ -197,7 +196,7 @@ class TempFileManager(object):
                     self.logger.warn("Invalid tmp dir: %s" % target, exc_info = True)
 
         if choice is None:
-            raise exceptions.Exception("Could not find lockable tmp dir")
+            raise Exception("Could not find lockable tmp dir")
 
         return path(choice) / "omero" / "tmp"
 
@@ -274,7 +273,7 @@ class TempFileManager(object):
         p = path(name)
         parpath = p.parpath(self.dir)
         if len(parpath) < 1:
-            raise exceptions.Exception("%s is not in %s" % (p, self.dir))
+            raise Exception("%s is not in %s" % (p, self.dir))
 
         if p.exists():
             if p.isdir():

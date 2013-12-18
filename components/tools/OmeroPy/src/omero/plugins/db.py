@@ -11,8 +11,6 @@
 
 """
 
-from exceptions import Exception
-
 from omero.cli import BaseControl
 from omero.cli import CLI
 from omero.cli import VERSION

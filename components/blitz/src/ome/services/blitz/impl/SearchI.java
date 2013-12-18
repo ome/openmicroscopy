@@ -79,7 +79,7 @@ import Ice.Current;
  * @since 3.0-Beta4
  * @see ome.api.Search
  */
-public class SearchI extends AbstractAmdServant implements _SearchOperations {
+public class SearchI extends AbstractCloseableAmdServant implements _SearchOperations {
 
     public SearchI(Search service, BlitzExecutor be) {
         super(service, be);
@@ -383,6 +383,20 @@ public class SearchI extends AbstractAmdServant implements _SearchOperations {
     public void bySimilarTerms_async(AMD_Search_bySimilarTerms __cb,
             List<String> terms, Current __current) throws ServerError {
         callInvokerOnRawArgs(__cb, __current, terms);
+    }
+
+    //
+    // Close logic
+    //
+
+    @Override
+    protected void preClose(Current current) throws Throwable {
+        // no-op
+    }
+
+    @Override
+    protected void postClose(Current current) {
+        // no-op
     }
 
 }

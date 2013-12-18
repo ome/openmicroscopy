@@ -15,7 +15,7 @@
 """
 
 
-import sys, exceptions
+import sys
 from xml.dom import minidom
 from path import path
 import fileinput
@@ -35,10 +35,10 @@ def win_set_path(new_name = dummy, old_name = r"c:\omero_dist", dir = path("."))
     if new_name == dummy:
         new_name = dir.abspath()
     if new_name is None or old_name is None:
-        raise exceptions.Exception("Arguments cannot be None")
+        raise Exception("Arguments cannot be None")
 
     if new_name.find(" ") >= 0:
-        raise exceptions.Exception("Contains whitespace: '%s'" % new_name)
+        raise Exception("Contains whitespace: '%s'" % new_name)
 
     new_name = path(new_name).abspath()
     old_name = path(old_name).abspath()
@@ -76,7 +76,7 @@ if __name__ == "__main__":
         elif len(sys.argv) == 3:
             win_set_path(old_name = sys.argv[1], new_name = sys.argv[2])
             sys.exit(0)
-    except exceptions.Exception, e:
+    except Exception, e:
         print "Failed to set path: ", e
         sys.exit(1)
 

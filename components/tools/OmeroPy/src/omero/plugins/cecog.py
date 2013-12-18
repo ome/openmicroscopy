@@ -11,7 +11,6 @@
 import os
 import re
 import sys
-import exceptions
 
 from omero.cli import BaseControl, CLI, OMERODIR
 from omero_ext.argparse import FileType

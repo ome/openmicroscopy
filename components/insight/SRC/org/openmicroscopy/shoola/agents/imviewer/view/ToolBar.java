@@ -496,5 +496,11 @@ class ToolBar
 	{ 
 		return compressionBox.getSelectedIndex();
 	}
+	
+	/** Invokes when import is going on or finished.*/
+	void onImport()
+	{
+		
+	}
 
 }

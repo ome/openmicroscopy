@@ -47,13 +47,7 @@ class LoginForm(NonASCIIForm):
     
     def __init__(self, *args, **kwargs):
         super(LoginForm, self).__init__(*args, **kwargs)
-        try:
-            if reduce( (lambda x, y : x + 1), Server, 0) > 1:
-                self.fields['server'] = ServerModelChoiceField(Server, empty_label=u"---------")
-            else:
-                self.fields['server'] = ServerModelChoiceField(Server, empty_label=None)
-        except:
-            self.fields['server'] = ServerModelChoiceField(Server, empty_label=u"---------")
+        self.fields['server'] = ServerModelChoiceField(Server, empty_label=None)
         
         self.fields.keyOrder = ['server', 'username', 'password', 'ssl']
             

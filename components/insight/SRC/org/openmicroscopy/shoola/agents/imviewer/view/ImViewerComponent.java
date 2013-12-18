@@ -2814,7 +2814,7 @@ class ImViewerComponent
 			logMsg.println(e.getMessage());
 			logMsg.print(e);
 			logger.error(this, logMsg);
-			un.notifyError("Paste Rendering settings", "An error occured " +
+			un.notifyError("Paste Rendering settings", "An error occurred " +
 					"while pasting the rendering settings.", e);
 			view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 		}
@@ -3144,6 +3144,8 @@ class ImViewerComponent
 				}
 				
 		}
+		view.setVisible(false);
+		view.dispose();
 		discard();
 	}
 

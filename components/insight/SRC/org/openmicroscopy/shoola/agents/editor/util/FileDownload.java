@@ -59,7 +59,7 @@ public class FileDownload
 	 * @param fileUrl  The url to the file.
 	 * @param newFileName The name of the file.
 	 * @return See above.
-	 * @throws IOException Thrown if an exception occured while downloading the
+	 * @throws IOException Thrown if an exception occurred while downloading the
 	 * file.
 	 */
 	public static File downloadFile(String fileUrl, String newFileName) 

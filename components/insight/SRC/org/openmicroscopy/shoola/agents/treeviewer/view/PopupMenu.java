@@ -49,6 +49,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.actions.MoveToAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.SwitchUserAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.TreeViewerAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ViewOtherAction;
+import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import pojos.ExperimenterData;
 
@@ -69,133 +70,124 @@ class PopupMenu
 {
 
 	/** Button to browse a container. */
-	private JMenuItem           browseNoThumbnails;
-	
-	/** Button to browse a container. */
-	private JMenuItem           browse;
+	private JMenuItem browse;
 
 	/** Button to add existing element to the specified container. */
-	private JMenuItem           existingElement;
+	private JMenuItem existingElement;
 
 	/** Button to import files to the specified container. */
-	private JMenuItem           importElement;
+	private JMenuItem importElement;
 	
 	/** Button to add element to the specified container. */
-	private JMenuItem           newElement;
+	private JMenuItem newElement;
 
 	/** Button to cut the selected elements. */
-	private JMenuItem           cutElement;
+	private JMenuItem cutElement;
 
 	/** Button to copy the selected elements. */
-	private JMenuItem           copyElement;
+	private JMenuItem copyElement;
 
 	/** Button to paste the selected elements. */
-	private JMenuItem           pasteElement;
+	private JMenuItem pasteElement;
 
 	/** Button to delete the selected elements. */
-	private JMenuItem           deleteElement;
+	private JMenuItem deleteElement;
 
 	/** Button to download the selected elements. */
-	private JMenuItem           downloadElement;
+	private JMenuItem downloadElement;
 
 	/** Button to remove experimenter node from the display. */
-	private JMenuItem			removeExperimenterElement;
+	private JMenuItem removeExperimenterElement;
 
 	/** Button to refresh the experimenter data. */
-	private JMenuItem			refreshExperimenterElement;
+	private JMenuItem refreshExperimenterElement;
 
 	/** Button to add experimenter node from the display. */
-	private JMenuItem			addExperimenterElement;
+	private JMenuItem addExperimenterElement;
 	
 	/** Button to refresh the tree data. */
-	private JMenuItem			refreshTreeElement;
+	private JMenuItem refreshTreeElement;
 
 	/** Button to create a top container. */
-	private JMenuItem			createTopElement;
+	private JMenuItem createTopElement;
 
 	/** Button to switch user. */
-	private JMenuItem			switchUserElement;
+	private JMenuItem switchUserElement;
 
 	/** Button to paste Rnd settings. */
-	private JMenuItem			pasteRndElement;
+	private JMenuItem pasteRndElement;
 	
 	/** Button to copy Rnd settings. */
-	private JMenuItem			copyRndElement;
+	private JMenuItem copyRndElement;
 	
 	/** Button to reset default Rnd settings. */
-	private JMenuItem			resetRndElement;
+	private JMenuItem resetRndElement;
 	
 	/** Button to set the min/max for each channel. */
-	private JMenuItem			setMinMaxElement;
+	private JMenuItem setMinMaxElement;
 	
 	/** Button to reset default Rnd settings. */
-	private JMenuItem			setOwnerRndElement;
+	private JMenuItem setOwnerRndElement;
 	
 	/** Button to add existing elements. */
-	private JMenuItem			addExistingElement;
+	private JMenuItem addExistingElement;
 
 	/** Button to quit the application. */
-	private JMenuItem			quitElement;
+	private JMenuItem quitElement;
 	
 	/** Button to create a new project. */
-	private JMenuItem			createProject;
+	private JMenuItem createProject;
 	
 	/** Button to create a new dataset. */
-	private JMenuItem			createDataset;
-	
-	/** Button to create a new dataset and add the selected images.*/
-	private JMenuItem			createDatasetFromSelection;
+	private JMenuItem createDataset;
 	
 	/** Button to create a new tag. */
-	private JMenuItem			createTag;
+	private JMenuItem createTag;
 	
 	/** Button to create a new screen. */
-	private JMenuItem			createScreen;
+	private JMenuItem createScreen;
 	
 	/** Button to create a new Tag Set. */
-	private JMenuItem			createTagSet;
+	private JMenuItem createTagSet;
 	
 	/** Button to create a new group. */
-	private JMenuItem			createGroup;
+	private JMenuItem createGroup;
 	
 	/** Button to create a experimenter. */
-	private JMenuItem			createExperimenter;
+	private JMenuItem createExperimenter;
 	
 	/** Button to reset the password. */
-	private JMenuItem			resetPassword;
+	private JMenuItem resetPassword;
 	
 	/** Button to view an Image. */
-	private JMenuItem			view;
+	private JMenuItem view;
 	
 	/** Button to open the Editor. */
-	private JMenuItem			editFile;
+	private JMenuItem editFile;
 	
 	/** Button to open the Tag wizard. */
-	private JMenuItem			tagElement;
+	private JMenuItem tagElement;
 	
 	/** Button to open the new Editor. */
-	private JMenuItem			newExperimentElement;
-	
-	/** Button to send feedback. */
-	private JMenuItem			sendFeedbackElement;
+	private JMenuItem newExperimentElement;
 	
 	/** Button to view an Image using plug-in. */
-	private JMenuItem			viewInPlugin;
+	private JMenuItem viewInPlugin;
 	
 	/** Reference to the Control. */
-	private TreeViewerControl   controller;
+	private TreeViewerControl controller;
 
 	/** Font label. */
-	private Font				fontLabel;
+	private Font fontLabel;
 
 	/** The index of the menu .*/
-	private int					index;
+	private int index;
 
 	/** The menu to open the file with third party. */
-	private JMenu				openWithMenu;
+	private JMenu openWithMenu;
 	
 	/** Button to activate or not user. */
-    private JCheckBoxMenuItem   activatedUser;
+    private JCheckBoxMenuItem activatedUser;
     
     /** Button to remove group from the display. */
 	private JMenuItem removeGroupElement;
@@ -247,10 +239,6 @@ class PopupMenu
 				a = controller.getAction(TreeViewerControl.BROWSE);
 				browse = new JMenuItem(a);
 				initMenuItem(browse, a.getActionName());
-				a = controller.getAction(
-						TreeViewerControl.BROWSE_NO_THUMBNAILS);
-				browseNoThumbnails = new JMenuItem(a);
-				initMenuItem(browseNoThumbnails, a.getActionName());
 				a = controller.getAction(TreeViewerControl.VIEW);
 				view = new JMenuItem(a);
 				initMenuItem(view, a.getActionName());
@@ -338,15 +326,31 @@ class PopupMenu
 						TreeViewerControl.EDITOR_NEW_WITH_SELECTION);
 				newExperimentElement = new JMenuItem(a);
 				initMenuItem(newExperimentElement, a.getActionName());
+				
+				a = controller.getAction(TreeViewerControl.CREATE_TOP_PROJECT);
+				createProject = new JMenuItem(a);
+				initMenuItem(createProject, a.getActionName());
+				if (controller.isOrphanedImagesSelected()) {
+					a = controller.getAction(
+							TreeViewerControl.CREATE_DATASET_FROM_SELECTION);
+				} else {
+					a = controller.getAction(
+							TreeViewerControl.CREATE_TOP_DATASET);
+					((CreateTopContainerAction) a).setFromTopMenu(true);
+				}
+				createDataset = new JMenuItem(a);
+				initMenuItem(createDataset, a.getActionName());
 				a = controller.getAction(
-						TreeViewerControl.SEND_COMMENT);
-				sendFeedbackElement = new JMenuItem(a);
-				initMenuItem(sendFeedbackElement, a.getActionName());
-				a = controller.getAction(
-						TreeViewerControl.CREATE_DATASET_FROM_SELECTION);
-				createDatasetFromSelection = new JMenuItem(a);
-				initMenuItem(createDatasetFromSelection, a.getActionName());
-				 
+						TreeViewerControl.CREATE_TOP_SCREEN);
+				createScreen = new JMenuItem(a);
+				initMenuItem(createScreen, a.getActionName());
+				a = controller.getAction(TreeViewerControl.CREATE_TOP_TAG_SET);
+				createTagSet = new JMenuItem(a);
+                initMenuItem(createTagSet, a.getActionName());
+                a = controller.getAction(TreeViewerControl.CREATE_TOP_TAG);
+                createTag = new JMenuItem(a);
+                initMenuItem(createTag, a.getActionName());
+                a = controller.getAction(TreeViewerControl.CREATE_TOP_GROUP);
 				break;
 			case TreeViewer.PARTIAL_POP_UP_MENU:
 				a = controller.getAction(TreeViewerControl.REFRESH_TREE);
@@ -367,9 +371,14 @@ class PopupMenu
 				a = controller.getAction(TreeViewerControl.CREATE_TOP_PROJECT);
 				createProject = new JMenuItem(a);
 				initMenuItem(createProject, a.getActionName());
-				a = controller.getAction(
-						TreeViewerControl.CREATE_TOP_DATASET);
-				((CreateTopContainerAction) a).setFromTopMenu(true);
+				if (controller.isOrphanedImagesSelected()) {
+					a = controller.getAction(
+							TreeViewerControl.CREATE_DATASET_FROM_SELECTION);
+				} else {
+					a = controller.getAction(
+							TreeViewerControl.CREATE_TOP_DATASET);
+					((CreateTopContainerAction) a).setFromTopMenu(true);
+				}
 				createDataset = new JMenuItem(a);
 				initMenuItem(createDataset, a.getActionName());
 				break;
@@ -473,6 +482,61 @@ class PopupMenu
 		return menu;
 	}
 	
+	/**
+	 * Creates the menu to create new object.
+	 * 
+	 * @return See above.
+	 */
+	private JMenu buildCreateNewMenu()
+	{
+	    JMenu menu = new JMenu();
+	    initMenuItem(menu, TreeViewerWin.CREATE_NEW_MENU);
+	    //Check the context
+	    int type = controller.getSelectedBrowserType();
+	    if (type == Browser.TAGS_EXPLORER) {
+	        menu.add(createTagSet);
+	        menu.add(createTag);
+	    } else if (type == Browser.SCREENS_EXPLORER) {
+	        menu.add(createScreen);
+	    } else {
+	        menu.add(createProject);
+	        menu.add(createDataset);
+	    }
+		return menu;
+	}
+	
+	/**
+	 * Creates the menu to edit the object.
+	 * 
+	 * @return See above.
+	 */
+	private JMenu buildEditMenu()
+	{
+		JMenu menu = new JMenu();
+		initMenuItem(menu, TreeViewerWin.EDIT_MENU);
+		menu.add(cutElement);
+		menu.add(copyElement);
+		menu.add(pasteElement);
+		return menu;
+	}
+	
+	/**
+	 * Creates the menu to manipulate the rendering settings.
+	 * 
+	 * @return See above.
+	 */
+	private JMenu buildRenderingSettingsMenu()
+	{
+		JMenu menu = new JMenu();
+		initMenuItem(menu, TreeViewerWin.RENDERING_SETTINGS_MENU);
+		menu.add(copyRndElement);
+		menu.add(pasteRndElement);
+		menu.add(resetRndElement);
+		menu.add(setMinMaxElement);
+		menu.add(setOwnerRndElement);
+		return menu;
+	}
+	
 	/** Builds and lays out the GUI. */
 	private void buildGUI()
 	{
@@ -480,7 +544,6 @@ class PopupMenu
 		switch (index) {
 			case TreeViewer.FULL_POP_UP_MENU:
 				add(browse);
-				add(browseNoThumbnails);
 				if (viewInPlugin != null) {
 					JMenu menu = new JMenu();
 					initMenuItem(menu, TreeViewerWin.VIEW_MENU);
@@ -492,29 +555,19 @@ class PopupMenu
 				add(openWithMenu);
 				add(editFile);
 				add(downloadElement);
-				//add(sendFeedbackElement);
 				add(new JSeparator(JSeparator.HORIZONTAL));
-				add(createDatasetFromSelection);
 				add(importElement);
-				add(newElement);
-				add(cutElement);
-				add(copyElement);
-				add(pasteElement);
+				add(buildCreateNewMenu());
+				add(buildEditMenu());
+				add(deleteElement);
 				JMenu m = createMoveToMenu();
 				if (m != null) add(m);
-				add(deleteElement);
 				add(new JSeparator(JSeparator.HORIZONTAL));
 				add(tagElement);
 				add(newExperimentElement);
 				add(new JSeparator(JSeparator.HORIZONTAL));
-				add(copyRndElement);
-				add(pasteRndElement);
-				add(resetRndElement);
-				add(setMinMaxElement);
-				add(setOwnerRndElement);
-				add(new JSeparator(JSeparator.HORIZONTAL));
+				add(buildRenderingSettingsMenu());
 				add(removeGroupElement);
-				//add(addExperimenterElement);
 				add(refreshExperimenterElement);
 				add(removeExperimenterElement);
 				break;
@@ -527,7 +580,6 @@ class PopupMenu
 			case TreeViewer.CREATE_MENU_CONTAINERS:
 				add(createProject);
 				add(createDataset);
-				//add(createScreen);
 				break;
 			case TreeViewer.CREATE_MENU_SCREENS:
 				add(createScreen);

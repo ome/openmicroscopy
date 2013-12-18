@@ -14,7 +14,6 @@ import atexit
 import logging
 import threading
 import omero.util
-import exceptions
 import logging.handlers
 
 

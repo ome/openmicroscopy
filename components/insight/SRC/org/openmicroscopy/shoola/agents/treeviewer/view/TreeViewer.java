@@ -339,7 +339,7 @@ public interface TreeViewer
 	 * 
 	 * @return See above.
 	 */
-	public Map getBrowsers();
+	public Map<Integer, Browser> getBrowsers();
 
 	/**
 	 * Transitions the viewer to the {@link #DISCARDED} state.
@@ -1016,9 +1016,10 @@ public interface TreeViewer
 	 * @param containers The containers that need to be refreshed.
 	 * @param refresh Pass <code>true</code> to mark the node to refresh,
 	 * <code>false</code> otherwise.
+	 * @param importedObject The result of the import.
 	 */
 	void setImporting(boolean importing, List<DataObject> containers, boolean
-			refresh);
+			refresh, Object importedObject);
 
 	/**
 	 * Marks the passed nodes.
@@ -1096,6 +1097,13 @@ public interface TreeViewer
 	 * @return See above.
 	 */
 	GroupData getSelectedGroup();
+	
+	/**
+	 * Returns the only group displayed if any.
+	 * 
+	 * @return See above.
+	 */
+	GroupData getSingleGroupDisplayed();
 
 	/** 
 	 * Removes group.

@@ -1,23 +1,30 @@
 function annotations = getObjectAnnotations(session, annotationType, parentType, ids, varargin)
 % GETOBJECTANNOTATIONS Retrieve annotations of a given type associated with an object
 %
-%    files = getObjectAnnotations(session, annotationType, parentType, ids)
+%    anns = getObjectAnnotations(session, annotationType, parentType, ids)
 %    returns all annotations of type annotationType linked to the object of
 %    type parentType and identifiers ids owned by the session user.
 %
-%    files = getObjectAnnotations(session, annotationType, parentType, ids,
+%    anns = getObjectAnnotations(session, annotationType, parentType,
+%    parents) returns all annotations of type annotationType linked to the
+%    input parent objects of type parentType owned by the session user.
+%
+%    anns = getObjectAnnotations(session, annotationType, parentType, ids,
 %    'include', include) only returns annotations with the input namespace.
 %
-%    files = getObjectAnnotations(session, annotationType, parentType, ids,
+%    anns = getObjectAnnotations(session, annotationType, parentType, ids,
 %    'exclude', exclude) excludes annotations with the input namespace.
 %
 %    Examples:
 %
-%        anns = getObjectAnnotations(session, annotationType, parentType, ids)
-%        anns = getObjectAnnotations(session, annotationType, parentType, ids,...
-%        'include', include)
-%        anns = getObjectAnnotations(session, annotationType, parentType, ids,...
-%        'exclude', exclude)
+%        anns = getObjectAnnotations(session, annotationType, parentType,
+%        ids)
+%        anns = getObjectAnnotations(session, annotationType, parentType,
+%        parents)
+%        anns = getObjectAnnotations(session, annotationType, parentType,
+%        ids, 'include', include)
+%        anns = getObjectAnnotations(session, annotationType, parentType,
+%        ids, 'exclude', exclude)
 %
 % See also: GETIMAGEFILEANNOTATIONS, GETIMAGETAGANNOTATIONS,
 % GETIMAGECOMMENTANNOTATIONS
@@ -54,6 +61,9 @@ ip.parse(annotationType, parentType, ids, varargin{:});
 metadataService = session.getMetadataService();
 
 % Convert input into java.util.ArrayList;
+if ~isnumeric(ids),
+    ids = arrayfun(@(x) x.getId().getValue(), ids);
+end
 ids = toJavaList(ids, 'java.lang.Long');
 include = toJavaList(ip.Results.include, 'java.lang.String');
 exclude = toJavaList(ip.Results.exclude, 'java.lang.String');

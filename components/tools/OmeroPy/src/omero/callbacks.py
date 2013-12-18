@@ -13,7 +13,6 @@
 import os
 import Ice
 import logging
-import exceptions
 
 import omero
 import omero.all
@@ -81,7 +80,7 @@ class ProcessCallbackI(omero.grid.ProcessCallback):
                 rc = self.process.poll()
                 if rc is not None:
                     self.processFinished(rc.getValue())
-            except exceptions.Exception, e:
+            except Exception, e:
                 PROC_LOG.warn("Error calling poll: %s" % e)
 
         self.event.wait(float(ms) / 1000)
@@ -171,7 +170,7 @@ class DeleteCallbackI(object):
                 if self.handle.finished():
                     try:
                         self.finished(self.handle.errors())
-                    except exceptions.Exception, e:
+                    except Exception, e:
                         DEL_LOG.warn("Error calling DeleteCallbackI.finished: %s" % e, exc_info=True)
             except Ice.ObjectNotExistException, onee:
                 raise omero.ClientError("Handle is gone! %s" % self.handle)
@@ -193,7 +192,7 @@ class DeleteCallbackI(object):
         #self.adapter.remove(self.id) # OK ADAPTER USAGE
         try:
             self.handle.close() # ticket:2978
-        except exceptions.Exception, e:
+        except Exception, e:
             DEL_LOG.warn("Error calling DeleteHandlePrx.close: %s" % self.handle, exc_info=True)
 
 

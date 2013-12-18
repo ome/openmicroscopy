@@ -199,8 +199,8 @@ public class ThumbnailProvider
      */
     public void setFullScaleThumb(BufferedImage t)
     {
+    	flush();
     	fullScaleThumb = t;
-        fullSizeImage = null;
         if (fullScaleThumb != null) scale(scalingFactor);
     }
     
@@ -294,6 +294,7 @@ public class ThumbnailProvider
         g2D.fillRect(0, 0, newImg.getWidth(), newImg.getHeight());
         g2D.drawImage(img, null, BORDER, BORDER);
         iconThumb = new ImageIcon(newImg);
+        img.flush();
         return iconThumb;
     }
     
@@ -313,6 +314,7 @@ public class ThumbnailProvider
         g2D.setColor(BORDER_COLOR);
         g2D.fillRect(0, 0, newImg.getWidth(), newImg.getHeight());
         g2D.drawImage(img, null, BORDER, BORDER);
+        img.flush();
         return new ImageIcon(newImg);
     }
 
@@ -352,8 +354,8 @@ public class ThumbnailProvider
      */
 	public void flush()
 	{
-		if (fullSizeImage != null) fullSizeImage.flush();
-		if (displayThumb != null) displayThumb.flush();
-		if (fullScaleThumb != null) fullScaleThumb.flush();
+		fullSizeImage = null;
+		displayThumb = null;
+		fullScaleThumb = null;
 	}
 }

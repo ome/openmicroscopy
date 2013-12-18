@@ -1,0 +1,276 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project name="ui-tests" default="install" basedir="." xmlns:ivy="antlib:org.apache.ivy.ant">
+<!--
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#
+# Copyright 2013 University of Dundee. All rights reserved.
+# Use is subject to license terms supplied in LICENSE.txt
+#
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Written by:  Jean-Marie Burel, j.burel at dundee.ac.uk
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+-->
+    <description>
+        The from-a-distance automated operations on OMERO client UIs
+        that are performed by Robot Framework. At present this build
+        file simply compiles the Java source for custom script
+        keywords.
+    </description>
+
+    <!-- run jybot with various arguments. Used to run insight tests.-->
+    <macrodef name="run_jybot">
+        <attribute name="failonerror" default="true"/>
+        <attribute name="filename"/>
+        <attribute name="output"/>
+        <sequential>
+            <exec executable="jybot" failonerror="@{failonerror}" dir="${reports.insight}">
+                <env key="CLASSPATH" value="${insight.dir}/app/libs/*:${insight.dir}/dist/omero.insight.jar:${target.dir}/java-ui-libraries-${omero.version}.jar:${lib.dir}/repository/swinglibrary-${versions.robotframework.swinglibrary}.jar"/>
+                    <arg value="-d"/>
+                    <arg value="@{output}"/>
+                    <arg value="--loglevel"/>
+                    <arg value="debug"/>
+                    <arg value="${basedir}/testcases/insight/${filename}"/>
+            </exec>
+        </sequential>
+    </macrodef>
+
+    <!-- run pybot with various arguments. Used to run web/cli tests.-->
+    <macrodef name="run_pybot">
+        <attribute name="failonerror" default="true"/>
+        <attribute name="output"/>
+        <element name="args" implicit="true"/>
+        <sequential>
+            <exec executable="pybot" failonerror="@{failonerror}" dir="${output}">
+                <env key="PYTHONPATH" path="${basedir}/library/python:${env.PYTHONPATH}"/>
+                 <args/>
+            </exec>
+        </sequential>
+    </macrodef>
+
+    <!-- point the build file used to generate the ui libraries -->
+    <macrodef name="librarybuild">
+        <attribute name="target"/>
+        <sequential>
+            <ant antfile="${basedir}/library/java/build.xml" inheritAll="false" inheritRefs="false" target="@{target}">
+            </ant>
+        </sequential>
+    </macrodef>
+
+
+    <!-- reports for the web tests. -->
+    <property name="reports.web" value="${basedir}/target/reports/web"/>
+
+    <!-- reports for the insight tests. -->
+    <property name="reports.insight" value="${basedir}/target/reports/insight"/>
+
+    <!-- reports for the cli tests. -->
+    <property name="reports.cli" value="${basedir}/target/reports/cli"/>
+
+    <!-- reports for the cli tests. -->
+    <property name="target.images" value="${basedir}/target/images"/>
+
+
+    <property name="main.class" value="NONE"/>
+
+    <property name="import.dir" value="${basedir}/../../antlib/resources"/>
+
+    <property name="target.dir" value="${basedir}/../../../target/repository"/>
+
+    <property name="insight.dir" value="${basedir}/../../insight/OUT"/>
+
+    <!-- file created while running the web-chrome target -->
+    <property name="google.log" value="${basedir}/libpeerconnection.log"/>
+
+    <import file="${import.dir}/global.xml"/>
+    <import file="${import.dir}/lifecycle.xml"/>
+
+    <!-- set up the directory for insight reports. -->
+    <target name="setup-dir">
+        <mkdir dir="${reports.insight}" />
+        <!-- copy the config folder. This should be modified later -->
+        <mkdir dir="${reports.insight}/config"/>
+        <copy todir="${reports.insight}/config" verbose="yes" flatten="yes" failonerror="no">
+            <fileset dir="${insight.dir}/../config"/>
+        </copy>
+    </target>
+
+    <!-- Populates the db. This target will be removed when the set-up is in place. -->
+    <target name="setup-db">
+        <!-- extract images to import -->
+         <mkdir dir="${target.images}" />
+        <unjar src="${basedir}/../../../target/test-repository/common-test-${omero.version}.jar" dest="${target.images}">
+            <patternset>
+                <include name="*.dv"/>
+                <include name="*.bmp"/>
+                <include name="*.jpg"/>
+                <include name="*.png"/>
+            </patternset>
+        </unjar>
+        <exec executable="python" failonerror="${test.with.fail}">
+            <env key="PYTHONPATH" path="${basedir}/library/python:${env.PYTHONPATH}"/>    
+            <arg value="setup.py"/>
+            <arg value="${target.images}"/>
+        </exec>
+    </target>
+    <!--  run the web, insight and CLI tests -->
+    <target name="test-all" unless="env.NOPYTHON">
+        <antcall target="ui-test-insight" inheritRefs="true" inheritAll="true"/>
+        <!--<antcall target="ui-test-web" inheritRefs="true" inheritAll="true"/>-->
+        <antcall target="test-cli" inheritRefs="true" inheritAll="true"/>
+    </target>
+
+
+    <!-- run the cli tests. -->
+    <target name="test-cli">
+        <mkdir dir="${reports.cli}" />
+        <!--<touch file="${reports.cli}/error.log"/>-->
+        <var name="target" value="cli/"/>
+        <if><isset property="TEST"/>
+            <then>
+                <var name="target" value="cli/${TEST}"/>
+            </then>
+        </if>
+        <exec executable="pybot" failonerror="${test.with.fail}" dir="../../../dist/">
+            <env key="PYTHONPATH" path="${basedir}/library/python:${env.PYTHONPATH}"/>    
+            <redirector error="${reports.cli}/cli.log" alwayslog="false"/>       
+            <arg value="-d"/>
+            <arg value="${reports.cli}"/>
+            <arg value="--loglevel"/>
+            <arg value="debug"/>
+            <arg value="${basedir}/testcases/${target}"/>
+        </exec>
+    </target>
+    <!-- run all the tests for insight -->
+    <target name="run_all_insight" depends="setup-dir">
+        <!-- execute sub-directory per sub-directory -->
+        <for param="file">
+            <path>
+                <dirset dir="${basedir}/testcases/insight" includes="*"/>
+            </path>
+            <sequential>
+                <local name="filename" />
+                <basename property="filename" file="@{file}"/>
+                <var name="output" value="${reports.insight}/${filename}"/>
+                <mkdir dir="${output}" />
+                <run_jybot failonerror="${test.with.fail}" filename="${filename}" output="${output}"/>
+            </sequential>
+        </for>
+    </target>
+
+    <!-- run the tests in the specified folder or run the speficied test. -->
+    <target name="run_folder_insight" depends="setup-dir">
+        <var name="filename" value="${TEST}"/>
+        <if>
+            <available file="${basedir}/testcases/insight/${filename}" type="dir"/>
+            <then>
+                <var name="output" value="${reports.insight}/${filename}"/>
+                <mkdir dir="${output}" />
+                <run_jybot failonerror="${test.with.fail}" filename="testcases/insight/${filename}" output="${output}"/>
+            </then>
+            <else>
+                <antcall target="run_single_insight" inheritRefs="true" inheritAll="true"/>
+            </else>
+        </if>
+    </target>
+
+    <!-- run the specified test -->
+    <target name="run_single_insight" depends="setup-dir">
+        <var name="filename" value="${TEST}"/>
+        <dirname file="${filename}" property="filename.parent" />
+        <basename property="parent" file="${filename.parent}"/>
+        <var name="output" value="${reports.insight}/${parent}"/>
+        <mkdir dir="${output}" />
+        <run_jybot failonerror="${test.with.fail}" filename="testcases/insight/${filename}" output="${output}"/>
+    </target>
+
+    <!--  run the insight tests -->
+    <target name="ui-test-insight">
+        <if><isset property="TEST"/><then>
+            <antcall target="run_folder_insight" inheritRefs="true" inheritAll="true"/></then>
+            <else>
+                <antcall target="run_all_insight" inheritRefs="true" inheritAll="true"/>
+            </else>
+        </if>
+    </target>
+
+    <!--  run all the web tests -->
+    <target name="ui-test-web">
+        <antcall target="web-firefox" inheritRefs="true" inheritAll="true"/>
+        <antcall target="web-chrome" inheritRefs="true" inheritAll="true"/>
+    </target>
+
+   <!-- test with firefox -->
+    <target name="web-firefox">
+        <var name="output" value="${reports.web}/firefox"/>
+        <mkdir dir="${output}"/>
+        <var name="target" value="web/"/>
+        <if><isset property="TEST"/>
+            <then>
+                <var name="target" value="web/${TEST}"/>
+            </then>
+        </if>
+        
+        <run_pybot failonerror="${test.with.fail}" output="${output}">
+            <arg value="-d"/>
+            <arg value="${output}"/>
+            <arg value="--loglevel"/>
+            <arg value="debug"/>
+            <arg value="${basedir}/testcases/${target}"/>
+        </run_pybot>
+    </target>
+
+    <!-- test with chrome This requires the chrome driver to be installed-->
+    <target name="web-chrome"> 
+        <var name="output" value="${reports.web}/chrome"/>
+        <mkdir dir="${output}"/>
+        <var name="target" value="web/"/>
+        <if><isset property="TEST"/>
+            <then>
+                <var name="target" value="web/${TEST}"/>
+            </then>
+        </if>
+        <run_pybot failonerror="${test.with.fail}" output="${output}">
+            <arg value="-d"/>
+            <arg value="${output}"/>
+            <arg value="-v"/>
+            <arg value="browser:chrome"/>
+            <arg value="--loglevel"/>
+            <arg value="debug"/>
+            <arg value="${basedir}/testcases/${target}"/>
+        </run_pybot>
+        <if>
+            <available file="${google.log}"/>
+            <then>
+                <move file="${google.log}" todir="${reports.web}/chrome"/>
+            </then>
+        </if>
+        
+    </target>
+
+    <target name="tests-dist">
+        <librarybuild target="dist"/>
+    </target>
+
+    <target name="package" depends="lifecycle.package">
+        <librarybuild target="jar"/>
+    </target>
+
+    <!-- delete the reports directory -->
+    <target name="tests-clean" depends="clean">
+    <delete dir="${basedir}/target"/>
+    <librarybuild target="clean"/>
+    </target>
+
+       <!-- compile the unit tests under library/java/test -->
+    <target name="test-compile" description=""/>
+
+    <!-- no-operation -->
+    <target name="integration" description=""/>
+
+    <target name="test">
+        <librarybuild target="test"/>
+    </target>
+</project>

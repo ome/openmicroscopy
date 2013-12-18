@@ -462,6 +462,7 @@ class MeasurementViewerUI
         	controller.getAction(MeasurementViewerControl.IN_MICRONS);
     	a.setRefUnits(EditorUtil.transformSize(
     			model.getPixelSizeX()).getUnits());
+        setName("measurement viewer window");
     }
     
     /** Builds and lays out the GUI. */
@@ -1122,7 +1123,7 @@ class MeasurementViewerUI
     						"Problem while handling ROI "+e.getMessage());
     		statusBar.setStatus(text);
     	} else {
-    		String s = "An unexpected error occured while handling ROI ";
+    		String s = "An unexpected error occurred while handling ROI ";
     		reg.getLogger().error(this, s+e.getMessage());
     		reg.getUserNotifier().notifyError("ROI", s, e);
     	}
@@ -1213,11 +1214,11 @@ class MeasurementViewerUI
 							handleROIException(e, RETRIEVE_MSG);
 						}
 						if (list != null) {
-							TreeMap map = list.getList();
-							Iterator i = map.values().iterator();
+							TreeMap<?, ROIShape> map = list.getList();
+							Iterator<ROIShape> i = map.values().iterator();
 							ROIShape shape;
 							while (i.hasNext()) {
-								shape = (ROIShape) i.next();
+								shape = i.next();
 								if (shape != null) {
 									figure = shape.getFigure();
 									drawing.add(figure);

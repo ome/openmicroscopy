@@ -1,55 +1,71 @@
-% Copyright (C) 2011 University of Dundee & Open Microscopy Environment.
-% All rights reversed.
-% Use is subject to license terms supplied in LICENSE.txt
-
-% Information to edit
-imageId = java.lang.Long(27544);
-datasetId = java.lang.Long(2651);
+% Copyright (C) 2011-2013 University of Dundee & Open Microscopy Environment.
+% All rights reserved.
+%
+% This program is free software; you can redistribute it and/or modify
+% it under the terms of the GNU General Public License as published by
+% the Free Software Foundation; either version 2 of the License, or
+% (at your option) any later version.
+%
+% This program is distributed in the hope that it will be useful,
+% but WITHOUT ANY WARRANTY; without even the implied warranty of
+% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+% GNU General Public License for more details.
+%
+% You should have received a copy of the GNU General Public License along
+% with this program; if not, write to the Free Software Foundation, Inc.,
+% 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 % Create an image from an existing image.
 %
 % The source image must have at least 2 channels.
 
 try
-    [client, session] = connect();
-    % First retrieve the image.
+    % Create a connection
+    [client, session] = loadOmero();
+    fprintf(1, 'Created connection to %s\n', char(client.getProperty('omero.host')));
+    fprintf(1, 'Created session for user %s using group %s\n',...
+        char(session.getAdminService().getEventContext().userName),...
+        char(session.getAdminService().getEventContext().groupName));
     
-    iContainer = session.getContainerService();
-    list = iContainer.getImages(omero.model.Image.class, java.util.Arrays.asList(imageId), omero.sys.ParametersI()); 
-    if (list.size == 0)
-        exception = MException('OMERO:CreateImage', 'Image Id not valid');
-        throw(exception);
-    end
-    image = list.get(0);
-    pixelsList = image.copyPixels();
-    % you should only have one pixels set per image.
-    pixels = pixelsList.get(0);
-    sizeZ = pixels.getSizeZ().getValue() % The number of z-sections.
-    sizeT = pixels.getSizeT().getValue(); % The number of timepoints.
-    sizeC = pixels.getSizeC().getValue(); % The number of channels.
+    % Information to edit
+    imageId = str2double(client.getProperty('image.id'));
+    datasetId = str2double(client.getProperty('dataset.id'));
+    
+    % First retrieve the image.
+    fprintf(1, 'Reading image: %g\n', imageId);
+    image = getImages(session, imageId);
+    assert(~isempty(image), 'OMERO:CreateImage', 'Image id not valid');
+    
+    % Read the dimensions
+    pixels = image.getPrimaryPixels();
     sizeX = pixels.getSizeX().getValue();
     sizeY = pixels.getSizeY().getValue();
-    if (sizeC <= 1)
-        exception = MException('OMERO:CreateImage', 'Image must contain at least 2 channels');
-        throw(exception);
-    end
-    pixelsId = pixels.getId().getValue()
+    sizeZ = pixels.getSizeZ().getValue(); % The number of z-sections.
+    sizeT = pixels.getSizeT().getValue(); % The number of timepoints.
+    sizeC = pixels.getSizeC().getValue(); % The number of channels.
+    assert(sizeC > 1,'OMERO:CreateImage', 'Image must contain at least 2 channels');
+    
+    pixelsId = pixels.getId().getValue();
     store = session.createRawPixelsStore();
     store.setPixelsId(pixelsId, false);
     
+    
+    linearize = @(z,t) sizeZ * t + z;
+    % Read the raw data
+    disp('Reading planes');
     map = java.util.LinkedHashMap;
     for z = 0:sizeZ-1,
-       for t = 0:sizeT-1,
-             planeC1 = store.getPlane(z, 0, t);
-             map.put(linearize(z, t, sizeZ), planeC1);
-       end
+        for t = 0:sizeT-1,
+            planeC1 = store.getPlane(z, 0, t);
+            map.put(linearize(z, t), planeC1);
+        end
     end
     
     % Close to free space.
     store.close();
     
-    proxy = session.getPixelsService();
-    l = proxy.getAllEnumerations(omero.model.PixelsType.class);
+    pixelsService = session.getPixelsService();
+    l = pixelsService.getAllEnumerations(omero.model.PixelsType.class);
     original = pixels.getPixelsType().getValue().getValue();
     for j = 0:l.size()-1,
         type = l.get(j);
@@ -58,55 +74,48 @@ try
         end
     end
     
-    
+    % Create a new image
+    disp('Uploading image onto the server');
     description = char(['Source Image ID: ' int2str(image.getId().getValue())]);
     name = char(['newImageFrom' int2str(image.getId().getValue())]);
-    idNew = proxy.createImage(sizeX, sizeY, sizeZ, sizeT, java.util.Arrays.asList(java.lang.Integer(0)), type, name, description);
-    
+    idNew = pixelsService.createImage(sizeX, sizeY, sizeZ, sizeT, java.util.Arrays.asList(java.lang.Integer(0)), type, name, description);
     
     %load the image.
-    list = iContainer.getImages(omero.model.Image.class, java.util.Arrays.asList(java.lang.Long(idNew.getValue())), omero.sys.ParametersI()); 
-    if (list.size == 0)
-        exception = MException('OMERO:CreateImage', 'Image Id not valid');
-        throw(exception);
-    end
-    imageNew = list.get(0);
-    param = omero.sys.ParametersI();
-    param.noLeaves(); % indicate to load the images.
+    disp('Checking the created image');
+    imageNew = getImages(session, idNew.getValue());
+    assert(~isempty(imageNew), 'OMERO:CreateImage', 'Image Id not valid');
+    
     % load the dataset
-    results = session.getContainerService().loadContainerHierarchy(omero.model.Dataset.class, java.util.Arrays.asList(datasetId), param);
-    if (results.size == 0)
-        exception = MException('OMERO:CreateImage', 'Dataset Id not valid');
-        throw(exception);
-    end
-    dataset = results.get(0);
+    fprintf(1, 'Reading dataset: %g\n', datasetId);
+    dataset = getDatasets(session, datasetId, false);
+    assert(~isempty(dataset), 'OMERO:CreateImage', 'Dataset Id not valid');
+    
+    % Link the new image to the dataset
+    fprintf(1, 'Linking image %g to dataset %g\n', idNew.getValue(), datasetId);
     link = omero.model.DatasetImageLinkI;
     link.setChild(omero.model.ImageI(imageNew.getId().getValue(), false));
     link.setParent(omero.model.DatasetI(dataset.getId().getValue(), false));
-
     session.getUpdateService().saveAndReturnObject(link);
-
     
-    %Copy the data.
-    pixelsNewList = imageNew.copyPixels();
-    pixelsNew = pixelsNewList.get(0);
-    pixelsNewId = pixelsNew.getId().getValue()
+    % Copy the data.
+    fprintf(1, 'Copying data to image %g\n', idNew.getValue());
+    pixelsNew = imageNew.getPrimaryPixels();
+    pixelsNewId = pixelsNew.getId().getValue();
     store = session.createRawPixelsStore();
     store.setPixelsId(pixelsNewId, false);
     
     for z = 0:sizeZ-1,
-       for t = 0:sizeT-1,
-             index = linearize(z, t, sizeZ);
-             store.setPlane(map.get(index), z, 0, t);
-       end
+        for t = 0:sizeT-1,
+            store.setPlane(map.get(linearize(z, t)), z, 0, t);
+        end
     end
-    %save the data
-    store.save();
-    %close
-    store.close();
+    store.save(); %save the data
+    store.close(); %close
+    
 catch err
-    disp(err.message);
+    client.closeSession();
+    throw(err);
 end
 
-%Close the session
+% Close the session
 client.closeSession();

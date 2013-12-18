@@ -195,7 +195,8 @@
            deprecation="yes"
            encoding="UTF-8"
            debug="yes"
-           debuglevel="lines,vars,source">
+           debuglevel="lines,vars,source"
+           fork="true">
       <classpath refid="test.compile.classpath" />
       <patternset refid="test.sources" />
     </javac>

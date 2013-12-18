@@ -8,8 +8,7 @@
         <exclude name="broken"/>
         <exclude name="ignore"/>
         <exclude name="manual"/>
-        <exclude name="integration"/>
-      </run>        
+      </run>
     </groups>
     <packages>
       <package name="ome.formats.*"/>

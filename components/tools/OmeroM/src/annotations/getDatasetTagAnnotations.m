@@ -5,6 +5,10 @@ function tas = getDatasetTagAnnotations(session, ids, varargin)
 %    annotations linked to the datasets specified by the input identifiers
 %    ids and owned by the session user.
 %
+%    tas = getDatasetTagAnnotations(session, datasets) returns all tag
+%    annotations linked to the input datasets and owned by the session
+%    user.
+%
 %    tas = getDatasetTagAnnotations(session,  ids, 'include', include) only
 %    returns tag annotations with the input namespace.
 %
@@ -14,8 +18,9 @@ function tas = getDatasetTagAnnotations(session, ids, varargin)
 %    Examples:
 %
 %        tas = getDatasetTagAnnotations(session, ids)
-%        fas = getDatasetTagAnnotations(session, ids, 'include', include)
-%        fas = getDatasetTagAnnotations(session, ids, 'exclude', exclude)
+%        tas = getDatasetTagAnnotations(session, datasets)
+%        tas = getDatasetTagAnnotations(session, ids, 'include', include)
+%        tas = getDatasetTagAnnotations(session, ids, 'exclude', exclude)
 %
 % See also: GETOBJECTANNOTATIONS, GETDATASETCOMMENTANNOTATIONS,
 % GETDATASETFILEANNOTATIONS, GETDATASETXMLANNOTATIONS

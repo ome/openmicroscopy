@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2012 University of Dundee & Open Microscopy Environment.
+ *  Copyright (C) 2006-2013 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
  *
  *
@@ -25,13 +25,8 @@ import java.awt.Component;
 import java.util.List;
 
 import javax.swing.DefaultListCellRenderer;
-import javax.swing.Icon;
 import javax.swing.JComponent;
-import javax.swing.JLabel;
 import javax.swing.JList;
-
-import org.openmicroscopy.shoola.agents.util.browser.DataNode;
-import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.Selectable;
 
 
@@ -42,18 +37,7 @@ import org.openmicroscopy.shoola.util.ui.Selectable;
  * @since Beta4.4
  */
 public class ComboBoxToolTipRenderer extends DefaultListCellRenderer {
-	
-	/** 
-	 * The icon indicating that the data object is not owned by the
-	 * specified user.
-	 */
-	private static final Icon NOT_OWNED_ICON;
-	
-	static {
-		IconManager icons = IconManager.getInstance();
-		NOT_OWNED_ICON = icons.getIcon(IconManager.NOT_OWNED_8);
-	}
-	
+
 	/** The tool tips to set.*/
 	private List<String> tooltips;
 
@@ -90,17 +74,6 @@ public class ComboBoxToolTipRenderer extends DefaultListCellRenderer {
 		{
 			Selectable<?> entry = (Selectable<?>) value;
 			comp.setEnabled(entry.isSelectable());
-			Object obj = entry.getObject();
-			if (obj instanceof DataNode) {
-				DataNode node = (DataNode) obj;
-	
-				if (userID >= 0 && node.getOwner() != null) {
-					if (node.getOwner().getId() != userID 
-							&& comp instanceof JLabel) {
-						((JLabel) comp).setIcon(NOT_OWNED_ICON);
-					}
-				}
-			}
 		}
 		return comp;
 	}

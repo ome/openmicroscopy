@@ -10,7 +10,6 @@ import time
 import logging
 import threading
 import traceback
-import exceptions
 
 import omero
 
@@ -62,7 +61,7 @@ def remoted(func):
             rv = func(*args, **kwargs)
             log.info(__RESULT, rv)
             return rv
-        except exceptions.Exception, e:
+        except Exception, e:
             log.info(__EXCEPT, e)
             if isinstance(e, omero.ServerError):
                 raise

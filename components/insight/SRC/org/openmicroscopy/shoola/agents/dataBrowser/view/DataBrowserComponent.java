@@ -275,11 +275,12 @@ class DataBrowserComponent
 	 * Implemented as specified by the {@link DataBrowser} interface.
 	 * @see DataBrowser#setThumbnail(Object, BufferedImage, boolean, int)
 	 */
-	public void setThumbnail(Object ref, BufferedImage thumb, boolean valid, 
+	public void setThumbnail(Object ref, BufferedImage thumb, boolean valid,
 			int maxEntries)
 	{
 		int previousState = model.getState();
-		model.setThumbnail(ref, thumb, valid, maxEntries);
+		int perc = model.setThumbnail(ref, thumb, valid, maxEntries);
+		view.setStatus((perc == 100) ? "Done" : "", perc == 100, perc);
 		if (previousState != model.getState()) fireStateChange();
 	}
 
@@ -503,6 +504,7 @@ class DataBrowserComponent
 		//model.layoutBrowser();
 		view.layoutUI();
 		view.setNumberOfImages(model.getNumberOfImages());
+		fireStateChange();
 	}
 
 	/**
@@ -554,6 +556,7 @@ class DataBrowserComponent
 		view.setNumberOfImages(nodes.size());
 		//view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 		view.setFilterStatus(false);
+		fireStateChange();
 	}
 
 	/**
@@ -1045,12 +1048,6 @@ class DataBrowserComponent
 			case NEW:
 				return;
 		}
-		//flush the previous one first
-		Browser browser = model.getBrowser();
-		if (browser != null) {
-			browser.accept(new FlushVisitor(),
-					ImageDisplayVisitor.IMAGE_NODE_ONLY);
-		}
 		model.loadData(true, ids);
 		fireStateChange();
 	}
@@ -1166,7 +1163,8 @@ class DataBrowserComponent
 		((WellsModel) model).viewField(selectedIndex);
 		view.viewField();
 		view.repaint();
-		model.loadData(false, null); 
+		model.loadData(false, null);
+		fireStateChange();
 	}
 
 	/**
@@ -1564,6 +1562,7 @@ class DataBrowserComponent
 			if (node != null) 
 				viewFieldsFor(node.getRow(), node.getColumn(), false);
 		}
+		fireStateChange();
 	}
 
 	/**

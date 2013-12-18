@@ -119,7 +119,7 @@ module omero {
              * on [processJob]. A missing output param will be marked after
              * execution.
              **/
-            bool optional;
+            bool \optional;
 
             /**
              * Whether or not the prototype should be used as a default.

@@ -5,6 +5,9 @@ function tas = getImageTagAnnotations(session, ids, varargin)
 %    linked to the image specified by the input identifiers ids and owned 
 %    by the session user.
 %
+%    tas = getImageTagAnnotations(session, images) returns all tag
+%    annotations linked to the input images and owned by the session user.
+%
 %    tas = getImageTagAnnotations(session,  ids, 'include', include) only
 %    returns tag annotations with the input namespace.
 %
@@ -14,8 +17,9 @@ function tas = getImageTagAnnotations(session, ids, varargin)
 %    Examples:
 %
 %        tas = getImageTagAnnotations(session, ids)
-%        fas = getImageTagAnnotations(session, ids, 'include', include)
-%        fas = getImageTagAnnotations(session, ids, 'exclude', exclude)
+%        tas = getImageTagAnnotations(session, images)
+%        tas = getImageTagAnnotations(session, ids, 'include', include)
+%        tas = getImageTagAnnotations(session, ids, 'exclude', exclude)
 %
 % See also: GETOBJECTANNOTATIONS, GETIMAGECOMMENTANNOTATIONS,
 % GETIMAGEFILEANNOTATIONS, GETIMAGEXMLANNOTATIONS

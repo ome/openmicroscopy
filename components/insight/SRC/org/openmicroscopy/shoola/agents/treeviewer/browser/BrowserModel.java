@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.treemng.browser.BrowserModel
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -282,7 +282,8 @@ class BrowserModel
     				selectedDisplay.getUserObject().getClass()))
     			selectedNodes.clear();
     	}
-    	selectedNodes.add(selectedDisplay);
+    	if (!selectedNodes.contains(selectedDisplay))
+    		selectedNodes.add(selectedDisplay);
     }
     
     /**
@@ -410,7 +411,7 @@ class BrowserModel
      * 
      * @param tree The component hosting the node.
      * @param containerID The ID of the container.
-     * @param value	The number of items.
+     * @param value The number of items.
      * @param nodes The collection of nodes.
      * @return See above.
      */
@@ -895,14 +896,17 @@ class BrowserModel
 	SecurityContext getSecurityContext(TreeImageDisplay node)
 	{
 		if (node == null || isSingleGroup()) {
-			return new SecurityContext(
+		    return new SecurityContext(
 					TreeViewerAgent.getUserDetails().getDefaultGroup().getId());
 		}
+		GroupData group = parent.getSingleGroupDisplayed();
+		if (node == null && group != null)
+		    return new SecurityContext(group.getId());
 		if (node.getUserObject() instanceof ExperimenterData) {
 			TreeImageDisplay parent = node.getParentDisplay();
 			Object p = parent.getUserObject();
 			if (p instanceof GroupData) {
-				GroupData group = (GroupData) p;
+				group = (GroupData) p;
 				return new SecurityContext(group.getId());
 			} else {
 				return new SecurityContext(
@@ -910,7 +914,7 @@ class BrowserModel
 			}
 		}
 		if (node.getUserObject() instanceof GroupData) {
-			GroupData group = (GroupData) node.getUserObject();
+			group = (GroupData) node.getUserObject();
 			return new SecurityContext(group.getId());
 		}
 		TreeImageDisplay n = null;
@@ -935,7 +939,7 @@ class BrowserModel
 		}
 		Object p = parent.getUserObject();
 		if (p instanceof GroupData) {
-			GroupData group = (GroupData) p;
+			group = (GroupData) p;
 			return new SecurityContext(group.getId());
 		}
 		return new SecurityContext(

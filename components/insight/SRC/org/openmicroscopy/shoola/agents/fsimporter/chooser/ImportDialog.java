@@ -108,7 +108,7 @@ import pojos.TagAnnotationData;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:donald@lifesci.dundee.ac.uk"
  *         >donald@lifesci.dundee.ac.uk</a>
-  * @author Scott Littlewood &nbsp;&nbsp;&nbsp;&nbsp; <a
+ * @author Scott Littlewood &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:sylittlewood@dundee.ac.uk"
  *         >sylittlewood@dundee.ac.uk</a>
  * @version 3.0 <small> (<b>Internal version:</b> $Revision: $Date: $) </small>
@@ -1168,9 +1168,8 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 	 */
 	public ImportDialog(JFrame owner, FileFilter[] filters,
 			TreeImageDisplay selectedContainer,
-			Collection<TreeImageDisplay> objects, int type,
-			Collection<GroupData> groups) {
-		
+			Collection<TreeImageDisplay> objects, int type)
+	{
 		super(0, TITLE, TITLE);
 		
 		this.owner = owner;

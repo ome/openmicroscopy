@@ -2,7 +2,7 @@
 
 # OMERO.importer startup script for Unix
 # ------------------------------------------------------------------------------
-#  Copyright (C) 2006-2001 University of Dundee & Open Microscopy Environment.
+#  Copyright (C) 2006-2013 University of Dundee & Open Microscopy Environment.
 #  All rights reserved.
 #
 #
@@ -24,5 +24,12 @@
 # If you have problems with memory errors you may need to change the "start"
 # -Xms or "max" -Xmx memory size. More information about these command line
 # switches may be found by running "java -X"
+
+# If you are running importer behind a web proxy you need to add the following
+# options to your JVM:
+# -Dhttp.proxyHost=<your_proxy_host>
+# -Dhttp.proxyPort=<your_proxy_port>
+# E.g.
+# java -Dhttp.proxyHost=squid.example.net -Dhttp.proxyPort=8080 -jar omero.insight.jar containerImporter.xml
 
 java -Xms256000000 -Xmx1024000000 -jar omero.insight.jar containerImporter.xml

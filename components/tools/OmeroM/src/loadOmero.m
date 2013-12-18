@@ -68,12 +68,15 @@ if exist('omero.client','class') == 0
     disp('--------------------------');
     disp('');
     
-    % Add the omero_client jar to the Java dynamic classpath
+    % Add the omero_client and guava-jdk5 jar to the Java dynamic classpath
     % This will allow the import omero.* statement to pass
     % successfully.
-    OmeroClient_Jar = fullfile(findOmero, 'libs', 'omero_client.jar');
-    javaaddpath(OmeroClient_Jar);
+    libpath = fullfile(findOmero, 'libs');
+    omero_client_jar = fullfile(libpath, 'omero_client.jar');
+    guavajdk5_jar = fullfile(libpath, 'guava-jdk5.jar');
+    javaaddpath(omero_client_jar);
     import omero.*;
+    javaaddpath(guavajdk5_jar);
     
     % Also add the OmeroM directory and its subdirectories to the path
     % so that functions and demos are available even if the user changes

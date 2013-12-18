@@ -90,7 +90,7 @@
                             {% ifequal j.status "in progress" %}
                                 <img alt="Deleting" src="{% static "webgateway/img/spinner.gif" %}" />
                             {% else %}
-                                {% if j.error %}
+                                {% if j.derror %}
                                     <div class='script_error' title="{{ j.error }}">
                                         <img alt="Failed to run script properly" src="{% static "webgateway/img/failed.png" %}" />
                                     </div>
@@ -174,8 +174,17 @@
 						
 						<!-- General Script Info -->
                         <td class="script_description">
+                            {% ifequal j.status 'no processor available' %}
+
+                            <span class="activity_title">No Processor Available</span>
+                            <span class="message">Please try again later.<br/>
+                                See <a target="new" href="http://trac.openmicroscopy.org.uk/ome/ticket/8266">more info</a> for Admins.
+                            </span>
+
+                            {% else %}
                             <span class="activity_title">{{ j.job_name }}</span>
                             <span class="message">{{ j.Message }}</span>
+                            {% endifequal %}
                         </td>
 						
 						

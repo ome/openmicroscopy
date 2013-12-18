@@ -4,10 +4,10 @@
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
 # $Id$
-# 
+#
 # Copyright 2006 University of Dundee. All rights reserved.
 # Use is subject to license terms supplied in LICENSE.txt
-# 
+#
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -168,6 +168,7 @@ omero.version=${omero.version}
 	<macrodef name="suite">
 		<attribute name="groups" default=""/>
 		<attribute name="methods" default=""/>
+		<attribute name="testnames" default=""/>
 		<element name="files" implicit="yes"/>
 		<sequential>
 		<testng outputDir="${testreports.dir}"
@@ -176,6 +177,7 @@ omero.version=${omero.version}
 			verbose="${testng.verbose}"
                         groups="@{groups}"
                         methods="@{methods}"
+                        testnames="@{testnames}"
                         useDefaultListeners="${testng.useDefaultListeners}"
                         listeners="org.uncommons.reportng.HTMLReporter,org.uncommons.reportng.JUnitXMLReporter"
 			>
@@ -197,6 +199,7 @@ omero.version=${omero.version}
 			<jvmarg value="-Domero.db.user=${omero.db.user}"/>
 			<jvmarg value="-Domero.db.pass=${omero.db.pass}"/>
 			<jvmarg value="-Domero.data.dir=${omero.data.dir}"/>
+			<jvmarg value="-Domero.db.poolsize=${omero.db.poolsize}"/>
 		</testng>
 		</sequential>
 	</macrodef>
@@ -217,7 +220,7 @@ omero.version=${omero.version}
 			<src path="${test.dir}"/>
 		</javac>
 		<jar destfile="${target.dir}/${ivy.module}.jar">
-			<fileset dir="${testclasses.dir}" includes="**/*.class,**/*.xml,**/*.properties,**/*.dv,**/*.bmp,**/*.jpg"/>
+			<fileset dir="${testclasses.dir}" includes="**/*.class,**/*.xml,**/*.properties,**/*.dv,**/*.bmp,**/*.jpg,**/*.png"/>
 		</jar>
 		<delete file="${target.dir}/${ivy.module}.xml"/> <!-- delete last produced ivy file to be sure a new one will be generated -->
 		<ivy:publish artifactspattern="${target.dir}/[module].[ext]" resolver="test-resolver" settingsRef="ivy.${ant.project.name}"
@@ -298,11 +301,16 @@ omero.version=${omero.version}
 		<!-- may be overridden by fail-on-error -->
 		<property name="test.with.fail" value="false"/>
 		<property name="integration.suite" value="integration.testng.xml"/>
-		<suite>
-			<xmlfileset dir="${test.dir}">
-				<include name="${integration.suite}"/>
-			</xmlfileset>
-		</suite>
+		<if>
+			<available file="${test.dir}/${integration.suite}" />
+			<then>
+				<suite>
+					<xmlfileset dir="${test.dir}">
+						<include name="${integration.suite}"/>
+					</xmlfileset>
+				</suite>
+			</then>
+		</if>
 		<emma enabled="${emma.enabled}" >
 			<report sourcepath="${src.dir}" >
 				<fileset dir="${target.dir}" includes="*.emma"/>

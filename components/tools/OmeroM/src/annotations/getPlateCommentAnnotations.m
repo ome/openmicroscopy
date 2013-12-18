@@ -5,6 +5,10 @@ function cas = getPlateCommentAnnotations(session, ids, varargin)
 %    annotations linked to the plates specified by the input identifiers ids
 %    and owned by the session user.
 %
+%    cas = getPlateCommentAnnotations(session, plates) returns all comment
+%    annotations linked to the input plates and owned by the session
+%    user.
+%
 %    cas = getPlateCommentAnnotations(session,  ids, 'include', include)
 %    only returns comment annotations with the input namespace.
 %
@@ -14,6 +18,7 @@ function cas = getPlateCommentAnnotations(session, ids, varargin)
 %    Examples:
 %
 %        cas = getPlateCommentAnnotations(session, ids)
+%        cas = getPlateCommentAnnotations(session, plates)
 %        cas = getPlateCommentAnnotations(session, ids, 'include', include)
 %        cas = getPlateCommentAnnotations(session, ids, 'exclude', exclude)
 %

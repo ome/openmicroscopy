@@ -63,7 +63,7 @@ public class TreeModelFactory
 	 * 
 	 * @param file The file to handle.
 	 * @return See above.
-	 * @throws ParsingException If an error occured while parsing the file.
+	 * @throws ParsingException If an error occurred while parsing the file.
 	 */
 	public static TreeModel getTree(File file) 
 		throws ParsingException
@@ -120,7 +120,7 @@ public class TreeModelFactory
 	 * 
 	 * @param file The file to handle.
 	 * @return See above.
-	 * @throws ParsingException If an error occured while parsing the file.
+	 * @throws ParsingException If an error occurred while parsing the file.
 	 */
 	public static TreeModel getTreeXml(File file) 
 		throws ParsingException

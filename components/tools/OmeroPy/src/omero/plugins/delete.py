@@ -11,7 +11,6 @@
 import os
 import sys
 import array
-import exceptions
 
 from omero.cli import BaseControl, CLI, GraphControl
 

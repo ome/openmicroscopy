@@ -9,6 +9,7 @@ package ome.server.itests.sec;
 import java.lang.reflect.Field;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -43,8 +44,6 @@ import org.hibernate.Session;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.transaction.annotation.Transactional;
 import org.testng.annotations.Test;
-
-import edu.emory.mathcs.backport.java.util.Collections;
 
 @Test(groups = { "ticket:117", "security", "filter" })
 public class SecurityFilterTest extends AbstractManagedContextTest {

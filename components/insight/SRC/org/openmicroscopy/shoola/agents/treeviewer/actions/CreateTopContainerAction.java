@@ -38,8 +38,6 @@ import org.openmicroscopy.shoola.agents.treeviewer.cmd.CreateCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-
-import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.GroupData;
 import pojos.ProjectData;
@@ -248,24 +246,7 @@ public class CreateTopContainerAction
         					TreeViewer.GROUP_DISPLAY);
         			return;
         		}
-        		switch (nodeType) {
-					case TAG:
-						if (ho instanceof TagAnnotationData) {
-							TagAnnotationData tag = (TagAnnotationData) ho;
-							String ns = tag.getNameSpace();
-							if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(ns)) {
-								setEnabled(model.canLink(ho));
-							} else setEnabled(false);
-						} else setEnabled(model.canLink(ho));
-						break;
-					case DATASET:
-						if (ho instanceof DatasetData) setEnabled(false);
-						else setEnabled(model.canLink(ho));
-						break;
-					default:
-						setEnabled(model.canLink(ho));
-				}
-        		//setEnabled(true);
+        		setEnabled(model.canLink(ho));
         	}
         } else {
         	Browser browser = model.getSelectedBrowser();
@@ -287,9 +268,7 @@ public class CreateTopContainerAction
      */
     protected void onBrowserSelection(Browser browser)
     {
-        if (browser == null) {
-            setEnabled(false);
-        } //else onDisplayChange(browser.getLastSelectedDisplay());
+        if (browser == null) setEnabled(false);
     }
     
     /**
@@ -315,7 +294,7 @@ public class CreateTopContainerAction
      */
     public void setFromTopMenu(boolean fromTopMenu)
     { 
-    	this.fromTopMenu = fromTopMenu; 
+    	this.fromTopMenu = fromTopMenu;
     }
     
     /**
@@ -340,7 +319,7 @@ public class CreateTopContainerAction
 						break;
 					case EXPERIMENTER:
 						if (uo instanceof ExperimenterData) 
-							withParent = false;//true;
+							withParent = false;
 						break;
 					case TAG:
 						if (uo instanceof TagAnnotationData) {
@@ -354,6 +333,7 @@ public class CreateTopContainerAction
 				}
         	}
         }
+        if (!fromTopMenu) withParent = false;
         CreateCmd cmd = new CreateCmd(model, nodeType);
         cmd.setWithParent(withParent);
         cmd.execute();

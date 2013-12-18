@@ -81,7 +81,7 @@ def compile(dir=dat):
         version = proc.communicate()[1].strip()
         pat = "%s/ice*%s.jar" % (rep, version)
         cp = ":".join(glob.glob(pat))
-        javac_cmd = "javac -target 1.5 -cp "
+        javac_cmd = "javac -target 1.6 -cp "
         javac_cmd += ("%s %s/*.java""" % (cp, dat))
         print javac_cmd
         call(javac_cmd, cwd=src)
@@ -95,4 +95,4 @@ if __name__ == "__main__":
     clean()
     slice()
     compile()
-    print "Be sure to run for Ice 3.3 and Ice 3.4"
+    print "Be sure to run for Ice 3.3 and Ice 3.4 and Ice 3.5"

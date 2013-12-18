@@ -24,7 +24,7 @@ import Ice.Current;
  * @author Josh Moore, josh at glencoesoftware.com
  * @since Beta4.3
  */
-public abstract class AbstractPyramidServant extends AbstractAmdServant {
+public abstract class AbstractPyramidServant extends AbstractCloseableAmdServant {
 
     public AbstractPyramidServant(ServiceInterface service, BlitzExecutor be) {
         super(service, be);
@@ -88,6 +88,20 @@ public abstract class AbstractPyramidServant extends AbstractAmdServant {
     public void getResolutionLevel_async(
             AMD_PyramidService_getResolutionLevel __cb, Current __current) {
         callInvokerOnRawArgs(__cb, __current);
+    }
+
+    //
+    // Close logic
+    //
+
+    @Override
+    protected void preClose(Current current) throws Throwable {
+        // no-op
+    }
+
+    @Override
+    protected void postClose(Current current) {
+        // no-op
     }
 
 }

@@ -1,21 +1,25 @@
 function xas = getScreenXmlAnnotations(session, ids, varargin)
 % GETSCREENXMLANNOTATIONS Retrieve xml annotations linked to screens
 %
-%    fas = getScreenXmlAnnotations(session, ids) returns all xml
+%    xas = getScreenXmlAnnotations(session, ids) returns all xml
 %    annotations linked to the screens specified by the input identifiers
 %    and owned by the session user.
 %
-%    fas = getScreenXmlAnnotations(session,  ids, 'include', include) only
+%    xas = getScreenXmlAnnotations(session, screens) returns all xml
+%    annotations linked to the input screens and owned by the session user.
+%
+%    xas = getScreenXmlAnnotations(session,  ids, 'include', include) only
 %    returns xml annotations with the input namespace.
 %
-%    fas = getScreenXmlAnnotations(session,  ids, 'exclude', exclude)
+%    xas = getScreenXmlAnnotations(session,  ids, 'exclude', exclude)
 %    excludes xml annotations with the input namespace.
 %
 %    Examples:
 %
-%        fas = getScreenXmlAnnotations(session, ids)
-%        fas = getScreenXmlAnnotations(session, ids, 'include', include)
-%        fas = getScreenXmlAnnotations(session, ids, 'exclude', exclude)
+%        xas = getScreenXmlAnnotations(session, ids)
+%        xas = getScreenXmlAnnotations(session, screens)
+%        xas = getScreenXmlAnnotations(session, ids, 'include', include)
+%        xas = getScreenXmlAnnotations(session, ids, 'exclude', exclude)
 %
 % See also: GETOBJECTANNOTATIONS, GETSCREENCOMMENTANNOTATIONS,
 % GETSCREENTAGANNOTATIONS, GETSCREENFILEANNOTATIONS

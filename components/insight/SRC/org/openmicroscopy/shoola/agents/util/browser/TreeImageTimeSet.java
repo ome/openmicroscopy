@@ -39,6 +39,7 @@ import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 import pojos.ExperimenterData;
+import pojos.GroupData;
 
 /** 
  * Node used for smart folders.
@@ -58,146 +59,146 @@ public class TreeImageTimeSet
 {
 
 	/** Identifies a node hosting the images imported today. */
-	public static final int			TODAY = 99;
+	public static final int TODAY = 99;
 	
 	/** Identifies a node hosting the images imported in the last 7 days. */
-	public static final int			WEEK = 100;
+	public static final int WEEK = 100;
 	
 	/** Identifies a node hosting the images imported in the last 2 weeks. */
-	public static final int			TWO_WEEK = 101;
+	public static final int TWO_WEEK = 101;
 
 	/** Identifies a node hosting the images imported before current year. */
-	public static final int			OTHER = 102;
+	public static final int OTHER = 102;
 	
 	/** Identifies a node hosting the images imported in the current year. */
-	public static final int			YEAR = 103;
+	public static final int YEAR = 103;
 	
 	/** 
 	 * Identifies a node hosting the images imported during the year 
 	 * before the current year. 
 	 */
-	public static final int			YEAR_BEFORE = 104;
+	public static final int YEAR_BEFORE = 104;
 	
 	/** 
 	 * Identifies a node hosting the images imported during the year 
 	 * before the current year. 
 	 */
-	public static final int			MONTH = 105;
+	public static final int MONTH = 105;
 	
 	/** Identifies the month of January. */
-	static final int 				JANUARY = Calendar.JANUARY;
+	static final int JANUARY = Calendar.JANUARY;
 	
 	/** Identifies the month of February. */
-	static final int 				FEBRUARY = Calendar.FEBRUARY;
+	static final int FEBRUARY = Calendar.FEBRUARY;
 	
 	/** Identifies the month of March. */
-	static final int 				MARCH = Calendar.MARCH;
+	static final int MARCH = Calendar.MARCH;
 	
 	/** Identifies the month of April. */
-	static final int 				APRIL = Calendar.APRIL;
+	static final int APRIL = Calendar.APRIL;
 	
 	/** Identifies the month of May. */
-	static final int 				MAY = Calendar.MAY;
+	static final int MAY = Calendar.MAY;
 	
 	/** Identifies the month of June. */
-	static final int 				JUNE = Calendar.JUNE;
+	static final int JUNE = Calendar.JUNE;
 	
 	/** Identifies the month of July. */
-	static final int 				JULY = Calendar.JULY;
+	static final int JULY = Calendar.JULY;
 	
 	/** Identifies the month of August. */
-	static final int 				AUGUST = Calendar.AUGUST;
+	static final int AUGUST = Calendar.AUGUST;
 	
 	/** Identifies the month of September. */
-	static final int 				SEPTEMBER = Calendar.SEPTEMBER;
+	static final int SEPTEMBER = Calendar.SEPTEMBER;
 	
 	/** Identifies the month of October. */
-	static final int 				OCTOBER = Calendar.OCTOBER;
+	static final int OCTOBER = Calendar.OCTOBER;
 	
 	/** Identifies the month of November. */
-	static final int 				NOVEMBER = Calendar.NOVEMBER;
+	static final int NOVEMBER = Calendar.NOVEMBER;
 	
 	/** Identifies the month of December. */
-	static final int 				DECEMBER = Calendar.DECEMBER;
+	static final int DECEMBER = Calendar.DECEMBER;
 	
 	 /** 
-	 * Text of the dummy TreeImageSet containing the images 
+	 * Text of the dummy TreeImageSet containing the images
 	 * imported today.
 	 */
-	private static final String 	TODAY_OLD = "Today";
+	private static final String TODAY_OLD = "Today";
 	
     /** 
-	 * Text of the dummy TreeImageSet containing the images 
+	 * Text of the dummy TreeImageSet containing the images
 	 * imported less than a week ago.
 	 */
-	private static final String 	WEEK_OLD = "Last 7 days";
+	private static final String WEEK_OLD = "Last 7 days";
 	
 	/** 
-	 * Text of the dummy TreeImageSet containing the images 
+	 * Text of the dummy TreeImageSet containing the images
 	 * imported less than two weeks ago.
 	 */
-	private static final String 	TWO_WEEK_OLD = "Last 2 weeks";
+	private static final String TWO_WEEK_OLD = "Last 2 weeks";
 	
     /** 
-	 * Text of the dummy TreeImageSet containing the images 
+	 * Text of the dummy TreeImageSet containing the images
 	 * imported before the current year
 	 * .
 	 */
-	private static final String 	PRIOR_TO = "Before ";
+	private static final String PRIOR_TO = "Before ";
 	
 	/** Node tooltip if the index is {@link #TODAY}. */
-	private static final String		TODAY_TOOLTIP = "Contains the " +
-									"data imported today.";
+	private static final String TODAY_TOOLTIP = "Contains the " +
+			"data imported today.";
 	
 	/** Node tooltip if the index is {@link #WEEK}. */
-	private static final String		WEEK_TOOLTIP = "Contains the " +
+	private static final String WEEK_TOOLTIP = "Contains the " +
 									"data imported in the last 7 days.";
 	
 	/** Node tooltip if the index is {@link #TWO_WEEK}. */
-	private static final String		TWO_WEEK_TOOLTIP = "Contains the " +
+	private static final String TWO_WEEK_TOOLTIP = "Contains the " +
 									"data imported in the last 2 weeks.";
 	
 	/** Node tooltip if the index is {@link #YEAR}. */
-	private static final String		YEAR_TOOLTIP = "Contains the " +
+	private static final String YEAR_TOOLTIP = "Contains the " +
 									"data imported in this year.";
 	
 	/** Node tooltip if the index is {@link #OTHER}. */
-	private static final String		OTHER_TOOLTIP = "Contains the " +
+	private static final String OTHER_TOOLTIP = "Contains the " +
 									"data imported before this year.";
 	
 	/** Node tooltip if the index is {@link #YEAR_BEFORE}. */
-	private static final String		YEAR_BEFORE_TOOLTIP = "Contains the " +
+	private static final String YEAR_BEFORE_TOOLTIP = "Contains the " +
 									"data imported during the period ";
 	
 	/** Node tooltip if the index is a month. */
-	private static final String		MONTH_TOOLTIP = "Contains the " +
+	private static final String MONTH_TOOLTIP = "Contains the " +
 									"data imported in selected month.";
 	
 	/** A day in milliseconds. */
-	private static final long		DAY = UIUtilities.DAY;
+	private static final long DAY = UIUtilities.DAY;
 	
 	/** The default text. */ 
-	private static final String 	TEXT = "_";
+	private static final String TEXT = "_";
 	
 	
 	/** The node's index. One of the constants defined by this class. */
-	private int 			type;
+	private int type;
 	
 	/** 
 	 * Time corresponding to 01/01 of the current year if the index is 
 	 * {@link #YEAR} or 7 days before the actual day if the index is 
 	 * {@link #WEEK}.
 	 */
-	private Timestamp 		endTime;
+	private Timestamp endTime;
 	
 	/** Value only set if the index is {@link #YEAR_BEFORE}. */
-	private Timestamp		startTime;
+	private Timestamp startTime;
 	
 	/** The index. */
-	private int				index;
+	private int index;
 	
 	/** The ref object hosting the time interval. */
-	private TimeRefObject	ref;
+	private TimeRefObject ref;
 	
 	/** 
 	 * Returns the month corresponding to the passed index.
@@ -229,14 +230,14 @@ public class TreeImageTimeSet
 	 * Returns the last day of the month.
 	 * 
 	 * @param month The selected month.
-	 * @param year	The selected year.
+	 * @param year The selected year.
 	 * @return See above
 	 */
 	private int getLastDayOfMonth(int month, int year)
 	{
 		switch (month) {
 			case JANUARY: return 31;
-			case FEBRUARY: 
+			case FEBRUARY:
 				if (year%4 == 0) return 29;
 				if (year%100 == 0) return 28;
 				if (year%400 == 0) return 29;
@@ -262,7 +263,7 @@ public class TreeImageTimeSet
 	 * interval defined by {@link #startTime} and {@link #endTime},
 	 * <code>false</code> otherwise.
 	 * 
-	 * @param t	The value to handle.
+	 * @param t The value to handle.
 	 * @return See above.
 	 */
 	private boolean containTime(Timestamp t)
@@ -301,18 +302,38 @@ public class TreeImageTimeSet
     	if (node == null) return path;
     	TreeImageDisplay parent = node.getParentDisplay();
     	Object ho;
+    	ExperimenterData exp;
+    	GroupData group;
     	if (parent == null) {
     		ho = node.getUserObject();
     		if (ho instanceof ExperimenterData) {
-    			path = ((ExperimenterData) ho).getId()+TEXT+path;
+    			exp = (ExperimenterData) ho;
+    			path = "gid"+exp.getGroupId()+TEXT+"eid"+exp.getId()+TEXT+path;
     			return path;
-    		} 
+    		}
+    		if (ho instanceof GroupData) {
+    			group = (GroupData) ho;
+    			path = "gid"+group.getId()+TEXT+path;
+    			return path;
+    		}
     		path = ho.toString()+TEXT+path;
     		return path;
     	}
     	ho = parent.getUserObject();
     	if (ho instanceof ExperimenterData) {
-    		path = ((ExperimenterData) ho).getId()+TEXT+path;
+    		exp = (ExperimenterData) ho;
+    		//check if we have grandparent
+    		TreeImageDisplay gp = parent.getParentDisplay();
+    		if (gp != null && gp.getUserObject() instanceof GroupData) {
+    			group = (GroupData) gp.getUserObject();
+    			path = "gid"+group.getId()+TEXT+"eid"+exp.getId()+TEXT+path;
+    		}
+
+    		return path;
+    	}
+    	if (ho instanceof GroupData) {
+    		group = (GroupData) ho;
+    		path = "gid"+group.getId()+TEXT+path;
     		return path;
     	}
     	path = ho.toString()+TEXT+path;
@@ -330,30 +351,29 @@ public class TreeImageTimeSet
 		index = type;
 		GregorianCalendar gc = new GregorianCalendar();
 		int year;
-		//endTime = UIUtilities.getDefaultTimestamp();
 		endTime = null;
 		switch (type) {
 			case TODAY:
 				setUserObject(TODAY_OLD);
 				setToolTip(TODAY_TOOLTIP);
-				gc = new GregorianCalendar(gc.get(Calendar.YEAR), 
-						gc.get(Calendar.MONTH), 
+				gc = new GregorianCalendar(gc.get(Calendar.YEAR),
+						gc.get(Calendar.MONTH),
 						gc.get(Calendar.DAY_OF_MONTH), 0, 0, 0);
 				startTime = new Timestamp(gc.getTime().getTime());
 				break;
 			case WEEK:
 				setUserObject(WEEK_OLD);
 				setToolTip(WEEK_TOOLTIP);
-				gc = new GregorianCalendar(gc.get(Calendar.YEAR), 
-						gc.get(Calendar.MONTH), 
+				gc = new GregorianCalendar(gc.get(Calendar.YEAR),
+						gc.get(Calendar.MONTH),
 						gc.get(Calendar.DAY_OF_MONTH), 23, 59, 0);
 				startTime = new Timestamp(gc.getTime().getTime()-7*DAY);
 				break;
 			case TWO_WEEK:
 				setUserObject(TWO_WEEK_OLD);
 				setToolTip(TWO_WEEK_TOOLTIP);
-				gc = new GregorianCalendar(gc.get(Calendar.YEAR), 
-						gc.get(Calendar.MONTH), 
+				gc = new GregorianCalendar(gc.get(Calendar.YEAR),
+						gc.get(Calendar.MONTH),
 						gc.get(Calendar.DAY_OF_MONTH), 23, 59, 0);
 				startTime = new Timestamp(gc.getTime().getTime()-14*DAY);
 				break;
@@ -370,9 +390,9 @@ public class TreeImageTimeSet
 				year = gc.get(Calendar.YEAR);
 				setUserObject(""+(year-1));
 				gc = new GregorianCalendar(year, 0, 1, 0, 0, 0);
-			    endTime = new Timestamp(gc.getTime().getTime());
-			    gc = new GregorianCalendar(year-1, 0, 1, 0, 0, 0);
-			    startTime = new Timestamp(gc.getTime().getTime());
+				endTime = new Timestamp(gc.getTime().getTime());
+				gc = new GregorianCalendar(year-1, 0, 1, 0, 0, 0);
+				startTime = new Timestamp(gc.getTime().getTime());
 				break;
 			case OTHER:
 				setToolTip(OTHER_TOOLTIP);
@@ -382,7 +402,7 @@ public class TreeImageTimeSet
 				startTime = null;
 				endTime = new Timestamp(gc.getTime().getTime());
 				break;
-			default: 
+			default:
 				throw new IllegalArgumentException("Node index not valid.");
 		}
 	}
@@ -390,8 +410,8 @@ public class TreeImageTimeSet
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param type 			One of the constants defined by this class.
-	 * @param monthIndex 	The index of the month.
+	 * @param type One of the constants defined by this class.
+	 * @param monthIndex The index of the month.
 	 */
 	public TreeImageTimeSet(int type, int monthIndex)
 	{
@@ -413,7 +433,7 @@ public class TreeImageTimeSet
 				} else {
 					lastDay = getLastDayOfMonth(monthIndex, year);
 				}
-				gc = new GregorianCalendar(year, monthIndex, lastDay, 23, 59, 
+				gc = new GregorianCalendar(year, monthIndex, lastDay, 23, 59,
 											0);
 				endTime = new Timestamp(gc.getTime().getTime());
 				gc = new GregorianCalendar(year, monthIndex, 1, 0, 0, 0);
@@ -423,7 +443,7 @@ public class TreeImageTimeSet
 				setToolTip(MONTH_TOOLTIP);
 				year = gc.get(Calendar.YEAR)-1;
 				setUserObject(""+getMonth(monthIndex));
-				gc = new GregorianCalendar(year, monthIndex, 
+				gc = new GregorianCalendar(year, monthIndex,
 								getLastDayOfMonth(monthIndex, year), 23, 59, 0);
 				endTime = new Timestamp(gc.getTime().getTime());
 				gc = new GregorianCalendar(year, monthIndex, 1, 0, 0, 0);
@@ -447,7 +467,7 @@ public class TreeImageTimeSet
 		Iterator i = times.iterator();
 		int number = 0;
 		while (i.hasNext()) {
-			if (containTime((Timestamp) i.next())) 
+			if (containTime((Timestamp) i.next()))
 				number++;
 		}
 		return number;

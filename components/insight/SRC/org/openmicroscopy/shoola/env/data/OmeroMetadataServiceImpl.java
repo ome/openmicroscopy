@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.data.OmeroMetadataServiceImpl 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -260,7 +260,7 @@ class OmeroMetadataServiceImpl
 	{
 		LogicalChannel lc = data.asChannel().getLogicalChannel();
 		ModelMapper.unloadCollections(lc);
-		gateway.updateObject(ctx, lc, new Parameters());
+		gateway.saveAndReturnObject(ctx, lc, null);
 	}
 	
 	/**
@@ -1216,7 +1216,6 @@ class OmeroMetadataServiceImpl
 		if (data == null)
 			throw new IllegalArgumentException("No data to save");
 		OmeroDataService service = context.getDataService();
-		System.err.println(data);
 		Iterator i;
 		Iterator<DataObject> j = data.iterator();
 		DataObject object, child;
@@ -1930,10 +1929,10 @@ class OmeroMetadataServiceImpl
 
 	/** 
 	 * Implemented as specified by {@link OmeroImageService}. 
-	 * @see OmeroMetadataService#loadTags(SecurityContext, Long, boolean,
+	 * @see OmeroMetadataService#loadTags(SecurityContext, Long,
 	 * boolean, long, long)
 	 */
-	public Collection loadTags(SecurityContext ctx, Long id, boolean dataObject,
+	public Collection loadTags(SecurityContext ctx, Long id,
 		boolean topLevel, long userID, long groupID)
 		throws DSOutOfServiceException, DSAccessException
 	{
@@ -2124,7 +2123,7 @@ class OmeroMetadataServiceImpl
 			}
 		}
 		//Update the channels now
-		gateway.updateObjects(ctx, toUpdate, new Parameters());
+		gateway.saveAndReturnObject(ctx, toUpdate, null, null);
 		return images;
 	}
 	

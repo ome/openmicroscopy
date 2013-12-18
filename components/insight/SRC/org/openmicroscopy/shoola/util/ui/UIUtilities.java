@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.util.ui.UIUtilities
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -83,7 +83,6 @@ import javax.swing.text.TabStop;
 
 
 //Third-party libraries
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.SystemUtils;
 import org.jdesktop.swingx.JXDatePicker;
@@ -277,7 +276,7 @@ public class UIUtilities
     public static final int					INCREMENT = 15;
 
     /** The number of bytes in megabyte, used when working with memory methods.*/
-	public static final long		MEGABYTE = 1048567;
+	public static final long		MEGABYTE = 1048576;
     
 	/** Key value for the default folder. */
     private static final String 			DEFAULT_FOLDER = "defaultFolder";
@@ -294,6 +293,9 @@ public class UIUtilities
 	
 	/** The maximum width of the text when wrapping up text. */
 	private static final int		WRAP_UP_MAX_WIDTH = 50;
+
+	/** The standard multiplier prefixes. */
+	private static final String UNIT_PREFIXES = "KMGTPEZY";
 
 	private static final List<String> CHARACTERS;
 	
@@ -1534,21 +1536,24 @@ public class UIUtilities
     {
     	return round(value, 2);
     }
-    
+
     /**
-     * Returns the decimal value.
-     * 
+     * Returns the maximum number of decimal places which still result in a
+     * non-zero rounded value.
+     *
      * @param value The value to handle.
+     * @param decimal The starting number of decimal places to test.
      * @return See above.
      */
     public static final int findDecimal(double value, int decimal)
     {
-    	double v = round(value, decimal);
+    	double testValue = Math.abs(value);
+    	double v = round(testValue, decimal);
     	if (v > 0) return decimal;
     	decimal++;
-    	return findDecimal(value, decimal);
+    	return findDecimal(testValue, decimal);
     }
-    
+
     /**
      * Rounds the passed value to the specified number of decimals.
      * 
@@ -1683,24 +1688,29 @@ public class UIUtilities
 	}
 	
 	/**
-	 * Converts the passed value into a string in Mb and returns a string 
-	 * version of it.
+	 * Converts the passed value into a string in KB, MB, etc.,
+	 * and returns a string version of it.
 	 * 
 	 * @param v The value to convert.
 	 * @return See above.
 	 */
 	public static String formatFileSize(long v)
 	{
-		if (v <= 0) return "0 Kb";
-		String s = "";
-		if (v < FileUtils.ONE_KB) 
-			s = String.format("%.1f", (double) v)+" bytes";
-		else if (v >= FileUtils.ONE_KB && v < FileUtils.ONE_MB)
-			s = String.format("%.1f", ((double) v/FileUtils.ONE_KB))+" Kb";
-		else if (v >= FileUtils.ONE_MB && v < FileUtils.ONE_GB) 
-			s = String.format("%.1f", ((double) v/FileUtils.ONE_MB))+" Mb";
-		else if (v >= FileUtils.ONE_GB)
-			s = String.format("%.1f", ((double) v/FileUtils.ONE_GB))+" Gb";
+		final long prefixStep = 1 << 10;
+		final String s;
+		if (v < 1) {
+		    s = "0 bytes";
+		} else if (v == 1) {
+		    s = "1 byte";
+		} else if (v < prefixStep) {
+			s = v + " bytes";
+		} else {
+		    double vd = v;
+		    final int maxIndex = UNIT_PREFIXES.length() - 1;
+		    int index;
+		    for (index = -1; vd >= prefixStep && index < maxIndex; vd /= prefixStep, index++);
+		    s = String.format("%.1f %cB", vd, UNIT_PREFIXES.charAt(index));
+		}
 		return s;
 	}
 	

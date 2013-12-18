@@ -8,6 +8,7 @@ package ome.services.roi.test;
 import static omero.rtypes.rstring;
 import static omero.rtypes.rtime;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -28,8 +29,6 @@ import omero.model.Shape;
 
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-
-import edu.emory.mathcs.backport.java.util.Arrays;
 
 /**
  *<pre>

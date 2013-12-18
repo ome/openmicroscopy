@@ -97,31 +97,11 @@ class FileUploader
 		if (l != null) {
 			Iterator i = l.iterator();
 			FileTableNode node;
-			int index = 0;
 			ImportErrorObject object;
-			File log = details.getLogFile();
 			while (i.hasNext()) {
 				node = (FileTableNode) i.next();
 				object = node.getFailure();
-				if (index == 0) {
-					if (log != null) {
-						String[] used = object.getUsedFiles();
-						if (used == null) {
-							used = new String[1];
-							used[0] = log.getAbsolutePath();
-							object.setUsedFiles(used);
-						} else {
-							String[] values = new String[used.length+1];
-							for (int j = 0; j < used.length; j++) {
-								values[j] = used[j];
-							}
-							values[used.length] = log.getAbsolutePath();
-							object.setUsedFiles(values);
-						}
-					}
-				}
 				nodes.put(object, node);
-				index++;
 			}
 		}
 	}
@@ -135,6 +115,7 @@ class FileUploader
 		total = nodes.size();
 		if (!details.isExceptionOnly()) {
 			src.setSubmitStatus("0 out of "+total, false);
+			details.setLogFile(new File(registry.getLogger().getLogFile()));
 		}
 		handle = mhView.submitFiles(ctx, details, this);
 	}
@@ -173,15 +154,15 @@ class FileUploader
         		s = "s";
         		verb = "have";
         	}
-        	if (details.isExceptionOnly()) {
-        		String message = "The exception"+s+" "+verb+" been " +
-        				"successfully submitted.";
-        		viewer.notifyInfo("Submit Exception"+s, message);
-        	} else {
-        		String message = "The file"+s+" "+verb+" been " +
-				"successfully submitted.";
-        		viewer.notifyInfo("Submit File"+s, message);
-        	}
+        	StringBuffer buf = new StringBuffer();
+        	String term;
+        	if (details.isExceptionOnly()) term = "exception";
+        	else term = "file";
+        	buf.append("The ");
+        	buf.append(term);
+        	buf.append(s);
+        	buf.append(verb);
+        	buf.append(" been successfully submitted.");
         	if (src != null) {
         		src.setVisible(false);
             	src.dispose();

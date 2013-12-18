@@ -5,6 +5,10 @@ function cas = getDatasetCommentAnnotations(session, ids, varargin)
 %    annotations linked to the datasets specified by the input identifiers
 %    and owned by the session user.
 %
+%    cas = getDatasetCommentAnnotations(session, datasets) returns all
+%    comment annotations linked to the input datasets and owned by the
+%    session user.
+%
 %    cas = getDatasetCommentAnnotations(session,  ids, 'include', include)
 %    only returns comment annotations with the input namespace.
 %
@@ -14,6 +18,7 @@ function cas = getDatasetCommentAnnotations(session, ids, varargin)
 %    Examples:
 %
 %        cas = getDatasetCommentAnnotations(session, ids)
+%        cas = getDatasetCommentAnnotations(session, datasets)
 %        cas = getDatasetCommentAnnotations(session, ids, 'include', include)
 %        cas = getDatasetCommentAnnotations(session, ids, 'exclude', exclude)
 %

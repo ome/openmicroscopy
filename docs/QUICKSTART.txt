@@ -5,10 +5,10 @@ set -e
 #
 # Prerequisites
 #
-java -version
-python --version 2>&1 | grep -E "Python 2.(4|5)"
-icegridnode --version 2>&1 | grep 3.3
-glacier2router --version 2>&1 | grep 3.3
+java -version 2>&1 | head -n1 | grep -E '1\.[678]\.[0-9]+.*'
+python --version 2>&1 | grep -E "Python 2.(4|5|6|7)"
+icegridnode --version 2>&1 | grep -E "3.[345]"
+glacier2router --version 2>&1 | grep -E "3.[345]"
 psql -U omero -h localhost -l 1> /dev/null
 
 #

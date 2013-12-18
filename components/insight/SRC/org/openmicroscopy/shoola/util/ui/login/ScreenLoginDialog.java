@@ -62,6 +62,7 @@ public class ScreenLoginDialog
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		setResizable(false);
 		setUndecorated(true);
+		setName("login dialog");
 		toFront();
 	}
 	

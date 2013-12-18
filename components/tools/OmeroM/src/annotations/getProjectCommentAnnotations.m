@@ -5,6 +5,10 @@ function cas = getProjectCommentAnnotations(session, ids, varargin)
 %    annotations linked to the projects specified by the input identifiers
 %    and owned by the session user.
 %
+%    cas = getProjectCommentAnnotations(session, projects) returns all
+%    comment annotations linked to the input projects and owned by the
+%    session user.
+%
 %    cas = getProjectCommentAnnotations(session,  ids, 'include', include)
 %    only returns comment annotations with the input namespace.
 %
@@ -14,6 +18,7 @@ function cas = getProjectCommentAnnotations(session, ids, varargin)
 %    Examples:
 %
 %        cas = getProjectCommentAnnotations(session, ids)
+%        cas = getProjectCommentAnnotations(session, projects)
 %        cas = getProjectCommentAnnotations(session, ids, 'include', include)
 %        cas = getProjectCommentAnnotations(session, ids, 'exclude', exclude)
 %

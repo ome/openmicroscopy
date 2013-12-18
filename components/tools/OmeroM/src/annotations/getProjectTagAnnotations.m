@@ -5,6 +5,10 @@ function tas = getProjectTagAnnotations(session, ids, varargin)
 %    annotations linked to the projects specified by the input identifiers
 %    ids and owned by the session user.
 %
+%    tas = getProjectTagAnnotations(session, projects) returns all tag
+%    annotations linked to the input projects and owned by the session
+%    user.
+%
 %    tas = getProjectTagAnnotations(session,  ids, 'include', include) only
 %    returns tag annotations with the input namespace.
 %
@@ -14,8 +18,9 @@ function tas = getProjectTagAnnotations(session, ids, varargin)
 %    Examples:
 %
 %        tas = getProjectTagAnnotations(session, ids)
-%        fas = getProjectTagAnnotations(session, ids, 'include', include)
-%        fas = getProjectTagAnnotations(session, ids, 'exclude', exclude)
+%        tas = getProjectTagAnnotations(session, projects)
+%        tas = getProjectTagAnnotations(session, ids, 'include', include)
+%        tas = getProjectTagAnnotations(session, ids, 'exclude', exclude)
 %
 % See also: GETOBJECTANNOTATIONS, GETPROJECTCOMMENTANNOTATIONS,
 % GETPROJECTFILEANNOTATIONS, GETPROJECTXMLANNOTATIONS

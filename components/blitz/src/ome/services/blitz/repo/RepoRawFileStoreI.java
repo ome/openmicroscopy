@@ -15,7 +15,7 @@ import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 
-import ome.services.blitz.impl.AbstractAmdServant;
+import ome.services.blitz.impl.AbstractCloseableAmdServant;
 import omero.ServerError;
 import omero.api.AMD_RawFileStore_exists;
 import omero.api.AMD_RawFileStore_read;
@@ -37,7 +37,7 @@ import Ice.Current;
  *
  * @author Josh Moore, josh at glencoesoftware.com
  */
-public class RepoRawFileStoreI extends AbstractAmdServant implements
+public class RepoRawFileStoreI extends AbstractCloseableAmdServant implements
 _RawFileStoreOperations {
 
     private final static Log log = LogFactory.getLog(RepoRawFileStoreI.class);
@@ -161,6 +161,11 @@ _RawFileStoreOperations {
     protected void preClose(Ice.Current current) throws Throwable {
         log.info("Closing " + rafile);
         this.rafile.close();
+    }
+
+    @Override
+    protected void postClose(Ice.Current current) {
+        // no-op
     }
 
     //

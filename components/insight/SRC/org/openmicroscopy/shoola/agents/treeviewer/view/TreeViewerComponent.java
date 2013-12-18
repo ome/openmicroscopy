@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewerComponent
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -441,6 +441,7 @@ class TreeViewerComponent
 				} else {
 					db = handleDiscardedBrowser(displayParent);
 				}
+				model.setDataViewer(db);
 				return;
 			}
 			if (parent != null) {
@@ -523,7 +524,7 @@ class TreeViewerComponent
 	        				}
 	        			}
 					} else
-						showDataBrowser(object, parent.getParentDisplay(), 
+						showDataBrowser(object, parent.getParentDisplay(),
 								visible);
 				}
 			} else {
@@ -648,7 +649,7 @@ class TreeViewerComponent
 		model.setDataViewer(db);
 		if (db != null) {
 			Browser b = getSelectedBrowser();
-			if (b != null && b.getBrowserType() == Browser.SCREENS_EXPLORER)
+			if (b != null)
 				b.addComponent(db.getGridUI());
 		}
 	}
@@ -880,6 +881,7 @@ class TreeViewerComponent
 		EventBus bus = TreeViewerAgent.getRegistry().getEventBus();
 		bus.post(new BrowserSelectionEvent(t));
 		view.updateMenuItems();
+		fireStateChange();
 	}
 
 	/**
@@ -1025,7 +1027,12 @@ class TreeViewerComponent
 		cancel();
 		if (TreeViewerFactory.isLastViewer()) {
 			EventBus bus = TreeViewerAgent.getRegistry().getEventBus();
-			bus.post(new ExitApplication(!(TreeViewerAgent.isRunAsPlugin())));
+			ExitApplication a = new ExitApplication(
+			        !TreeViewerAgent.isRunAsPlugin());
+			GroupData group = model.getSelectedGroup();
+	        if (group != null)
+	            a.setSecurityContext(new SecurityContext(group.getId()));
+			bus.post(a);
 		} else discard();
 
 	}
@@ -1053,6 +1060,7 @@ class TreeViewerComponent
 			model.setSelectedGroupId(group.getId());
 			notifyChangeGroup(oldId);
 		}
+		model.setDataViewer(null);
 		MetadataViewer metadata = model.getMetadataViewer();
 		TreeImageDisplay[] selection = browser.getSelectedDisplays();
 		
@@ -1107,6 +1115,12 @@ class TreeViewerComponent
 			display.getUserObject() instanceof ExperimenterData &&
 			display.isToRefresh()) {
 			refreshTree();
+		}
+		Browser b = model.getSelectedBrowser();
+		if (b != null && display != null) {
+			if (model.getDataViewer() != null)
+				b.addComponent(model.getDataViewer().getGridUI());
+			else b.addComponent(null);
 		}
 	}
 
@@ -1668,6 +1682,8 @@ class TreeViewerComponent
 			Browser browser = model.getSelectedBrowser();
 			if (browser == null) return false;
 			group = browser.getNodeGroup((TreeImageDisplay) ho);
+		} else {
+		    return false;
 		}
 		switch (group.getPermissions().getPermissionsLevel()) {
 			case GroupData.PERMISSIONS_GROUP_READ_WRITE:
@@ -1812,8 +1828,8 @@ class TreeViewerComponent
 					"This method cannot be invoked in the DISCARDED state.");
 		switch (menuID) {
 			case MANAGER_MENU:
-			case CREATE_MENU_CONTAINERS:  
-			case CREATE_MENU_TAGS:  
+			case CREATE_MENU_CONTAINERS:
+			case CREATE_MENU_TAGS:
 			case CREATE_MENU_ADMIN:
 			case PERSONAL_MENU:
 			case CREATE_MENU_SCREENS:
@@ -2412,12 +2428,12 @@ class TreeViewerComponent
 			}
 		}
 			
-		if (db == null) return;
-		db.addPropertyChangeListener(controller);
-		//db.activate();
-		view.displayBrowser(db);
-		db.setDisplayMode(model.getDisplayMode());
-		db.activate();
+		if (db != null) {
+			db.addPropertyChangeListener(controller);
+			view.displayBrowser(db);
+			db.setDisplayMode(model.getDisplayMode());
+			db.activate();
+		}
 		model.setDataViewer(db);
 	}
 	
@@ -2960,7 +2976,7 @@ class TreeViewerComponent
 						node = i.next();
 						parent = node.getParentDisplay();
 						expNode = BrowserFactory.getDataOwner(node);
-						exp = (ExperimenterData) expNode.getUserObject();
+						exp = expNode == null ? null : (ExperimenterData) expNode.getUserObject();
 						if (exp == null) exp = model.getUserDetails();
 						node.setExpanded(true);
 						//mv.setRootObject(node.getUserObject(), exp.getId());
@@ -3271,7 +3287,7 @@ class TreeViewerComponent
 				NodesFinder finder = new NodesFinder(klass, ids);
 				Browser browser = model.getSelectedBrowser();
 				browser.accept(finder);
-				model.getSelectedBrowser().removeTreeNodes(finder.getNodes());
+				browser.removeTreeNodes(finder.getNodes());
 				view.removeAllFromWorkingPane();
 				DataBrowserFactory.discardAll();
 				model.getMetadataViewer().setRootObject(null, -1, null);
@@ -3840,6 +3856,8 @@ class TreeViewerComponent
 		view.removeAllFromWorkingPane();
 		model.setDataViewer(null);
 		
+		model.clearImportResult();
+		view.onImport();
 		//reset metadata
 		MetadataViewer mv = view.resetMetadataViewer();
 		mv.addPropertyChangeListener(controller);
@@ -4008,13 +4026,14 @@ class TreeViewerComponent
 	
 	/** 
 	 * Implemented as specified by the {@link TreeViewer} interface.
-	 * @see TreeViewer#setImporting(boolean, List, boolean)
+	 * @see TreeViewer#setImporting(boolean, List, boolean, Object)
 	 */
-	public void setImporting(boolean importing, List<DataObject> containers, 
-			boolean refreshTree)
+	public void setImporting(boolean importing, List<DataObject> containers,
+			boolean refreshTree, Object importResult)
 	{
 		if (model.getState() == DISCARDED) return;
-		model.setImporting(importing);
+		model.setImporting(importing, importResult);
+		view.onImport();
 		if (!importing)
 			indicateToRefresh(containers, refreshTree);
 		firePropertyChange(IMPORT_PROPERTY, importing, !importing);
@@ -4382,6 +4401,27 @@ class TreeViewerComponent
 	{ 
 		if (model.getState() == DISCARDED) return null;
 		return model.getSelectedGroup();
+	}
+
+	/** 
+	 * Implemented as specified by the {@link TreeViewer} interface.
+	 * @see TreeViewer#hasSingleGroupDisplayed()
+	 */
+	public GroupData getSingleGroupDisplayed()
+	{
+	    if (model.getState() == DISCARDED) return null;
+	    Collection<GroupData> groups = model.getAvailableGroups();
+	    if (groups != null && groups.size() == 1) return null;
+	    Browser browser = model.getSelectedBrowser();
+	    if (browser == null) return null;
+
+	    TreeImageDisplay node = null;
+	    ExperimenterVisitor v = new ExperimenterVisitor(browser, -1);
+	    browser.accept(v, ExperimenterVisitor.TREEIMAGE_SET_ONLY);
+	    List<TreeImageDisplay> nodes = v.getNodes();
+        if (nodes.size() == 1)
+            return (GroupData) nodes.get(0).getUserObject();
+        return null;
 	}
 
 	/** 

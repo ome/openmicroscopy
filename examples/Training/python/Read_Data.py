@@ -45,7 +45,7 @@ def print_obj(obj, indent=0):
 # List all Projects available to me, and their Datasets and Images:
 # =================================================================
 # The only_owned=True parameter limits the Projects which are returned.
-# If the parameter is omitted or the value is Fale, then all Projects
+# If the parameter is omitted or the value is False, then all Projects
 # visible in the current group are returned.
 print "\nList Projects:"
 print "=" * 50
@@ -135,5 +135,5 @@ if plateId >= 0:
 
 # Close connection:
 # =================================================================
-# When you're done, close the session to free up server resources.
+# When you are done, close the session to free up server resources.
 conn._closeSession()

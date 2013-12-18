@@ -2,13 +2,12 @@
 # -*- coding: utf-8 -*-
 #
 #   $Id$
-#   $Id$
 #
 #   Copyright 2008 Glencoe Software, Inc. All rights reserved.
 #   Use is subject to license terms supplied in LICENSE.txt
 #
 
-import sys, os, glob, exceptions, subprocess
+import sys, os, glob, subprocess
 import optparse
 from SCons.Script.SConscript import *
 from SCons.Script import AddOption, GetOption
@@ -20,7 +19,6 @@ from SCons.Variables import *
 #
 cwd = os.path.abspath( os.path.dirname( __file__ ) )
 top = os.path.abspath( os.path.join( cwd, os.path.pardir, os.path.pardir ) )
-slice_directory = os.path.abspath( os.path.join( top, "target", "Ice", "slice" ) )
 blitz_resources = os.path.abspath( os.path.join( top, "components", "blitz", "resources") )
 blitz_generated = os.path.abspath( os.path.join( top, "components", "blitz", "generated") )
 tools_include = os.path.abspath( os.path.join( top, "components", "tools", "target", "include" ) )
@@ -35,8 +33,30 @@ generated = os.path.abspath("generated")
 # Support ICE_HOME
 if os.environ.has_key("ICE_HOME"):
     ice_home = os.path.abspath( os.environ["ICE_HOME"] )
+    print "Using env[ICE_HOME] = %s" % (ice_home)
 else:
     ice_home = None
+if os.environ.has_key("SLICEPATH"):
+    slicepath = os.path.abspath( os.environ["SLICEPATH"] )
+    print "Using env[SLICEPATH] = %s" % (slicepath)
+else:
+    slicepath = None
+if os.environ.has_key("SLICE2JAVA"):
+    slice2java = os.environ["SLICE2JAVA"]
+    print "Using env[SLICE2JAVA] = %s" % (slice2java)
+else:
+    slice2java = None
+if os.environ.has_key("SLICE2PY"):
+    slice2py = os.environ["SLICE2PY"]
+    print "Using env[SLICE2PY] = %s" % (slice2py)
+else:
+    slice2py = None
+if os.environ.has_key("SLICE2CPP"):
+    slice2cpp = os.environ["SLICE2CPP"]
+    print "Using env[SLICE2CPP] = %s" % (slice2cpp)
+else:
+    slice2cpp = None
+
 
 def jdep(DEPMAP, target):
     """
@@ -57,7 +77,7 @@ def common(dir = generated):
     """
     Necessary since output for C++ does not include directories.
     """
-    return ["-I%s" % generated, "-I%s" % resources, "-I%s" % slice_directory, "--output-dir=%s" % dir]
+    return ["-I%s" % generated, "-I%s" % resources, "-I%s" % slicepath, "--output-dir=%s" % dir]
 
 def names(dir, ice):
     basename = os.path.basename(ice)[:-4]
@@ -77,11 +97,11 @@ def make_slice(command):
         args = command+[str(source[0].get_abspath())]
         rv = subprocess.call(args)
         if rv != 0:
-            raise exceptions.Exception("%s returned %s" % (str(args), str(rv)) )
+            raise Exception("%s returned %s" % (str(args), str(rv)) )
     return slice
 
 def slice_cpp(env, where, dir):
-    command = ["slice2cpp", "--include-dir=%s"%dir] + common( "%s/%s" % (generated, dir) )
+    command = [slice2cpp, "--include-dir=%s"%dir] + common( "%s/%s" % (generated, dir) )
     if sys.platform == "win32":
         command.append("--dll-export")
         command.append("OMERO_API")
@@ -96,7 +116,7 @@ def slice_cpp(env, where, dir):
     return actions
 
 def slice_java(env, where, dir):
-    command  = ["slice2java", "--tie"] + common()
+    command  = [slice2java, "--tie"] + common()
     actions = []
     for basename, filename in basenames(where, dir):
         c = env.Command(
@@ -109,7 +129,7 @@ def slice_java(env, where, dir):
 
 def slice_py(env, where, dir):
     prefix = dir.replace("/","_") + "_"
-    command = ["slice2py", "--prefix", "%s" % prefix ] + common()
+    command = [slice2py, "--prefix", "%s" % prefix ] + common()
     actions = []
     for basename, filename in basenames(where, dir):
         c = env.Command(
@@ -277,15 +297,6 @@ class OmeroEnvironment(SConsEnvironment):
                 # Only LIB contains the path to the Windows SDK x64 library when starting
                 # from the VS2008 x64 command line batch.
                 self.AppendUnique(LIBPATH=os.environ["LIB"].split(os.path.pathsep))
-        if ice_home:
-            if self.is64bit():
-                if self.iswin32():
-                    self.Append(LIBPATH=[os.path.join(ice_home, "lib", "x64")])
-                else:
-                    lib64 = os.path.join(ice_home, "lib64")
-                    if os.path.exists(lib64):
-                        self.Append(LIBPATH=[lib64])
-            self.Append(LIBPATH=[os.path.join(ice_home, "lib")])
 
     def isdebug(self):
 

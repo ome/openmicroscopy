@@ -33,7 +33,7 @@ import Ice.Current;
  * @since 3.0-Beta4
  * @see ome.api.JobHandle
  */
-public class JobHandleI extends AbstractAmdServant implements
+public class JobHandleI extends AbstractCloseableAmdServant implements
         _JobHandleOperations {
 
     public JobHandleI(JobHandle service, BlitzExecutor be) {
@@ -112,4 +112,13 @@ public class JobHandleI extends AbstractAmdServant implements
         callInvokerOnRawArgs(__cb, __current, message);
     };
 
+    @Override
+    protected void preClose(Current current) throws Throwable {
+        // no-op
+    }
+
+    @Override
+    protected void postClose(Current current) {
+        // no-op
+    }
 }

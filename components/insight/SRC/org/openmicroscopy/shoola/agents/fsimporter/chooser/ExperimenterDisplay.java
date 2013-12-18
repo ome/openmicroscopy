@@ -21,6 +21,8 @@
  */
 package org.openmicroscopy.shoola.agents.fsimporter.chooser;
 
+import org.openmicroscopy.shoola.agents.util.EditorUtil;
+
 import pojos.ExperimenterData;
 
 /** 
@@ -44,7 +46,8 @@ public class ExperimenterDisplay  {
 	 */
 	public String toString()
 	{
-		return String.format("%s %s", data.getFirstName(), data.getLastName());
+	    String value = EditorUtil.formatExperimenter(data);
+	    return EditorUtil.truncate(value);
 	}
 
 	/**

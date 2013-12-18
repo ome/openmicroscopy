@@ -12,15 +12,15 @@
 """
 
 from omero.cli import BaseControl, CLI
-import cmd, sys, exceptions
+import cmd, sys
 import sys
 
 prompt = "omero submit [%s]> "
 
-class Save(exceptions.Exception):
+class Save(Exception):
     pass
 
-class Cancel(exceptions.Exception):
+class Cancel(Exception):
     pass
 
 class SubmitCLI(CLI):

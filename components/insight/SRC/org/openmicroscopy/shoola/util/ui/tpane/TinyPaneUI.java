@@ -158,7 +158,7 @@ class TinyPaneUI
      */
     protected FrameBorder makeBorder()
     {
-        return new FrameBorder(BORDER_COLOR, DESKTOP_COLOR, BORDER_MARGIN);
+        return new FrameBorder(BORDER_COLOR, null, BORDER_MARGIN);
     }
     
     /**

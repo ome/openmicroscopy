@@ -321,12 +321,12 @@ public class ScreenLogin
 	 */
 	private Long getGroupId(String value)
 	{
-		Entry entry;
-		Iterator i = groups.entrySet().iterator();
+		Entry<Long, String> entry;
+		Iterator<Entry<Long, String>> i = groups.entrySet().iterator();
 		while (i.hasNext()) {
-			entry = (Entry) i.next();
+			entry = i.next();
 			if (entry.getValue().equals(value))
-				return (Long) entry.getKey();
+				return entry.getKey();
 		}
 		return -1L;
 	}
@@ -515,10 +515,12 @@ public class ScreenLogin
 		
 		originalName = userName;
 		user = new JTextField();
+		user.setName("username field");
 		user.setText(userName);
 		user.setToolTipText("Enter your username.");
 		user.setColumns(TEXT_COLUMN);
 		pass = new JPasswordField();
+		pass.setName("password field");
 		pass.setToolTipText("Enter your password.");
 		pass.setColumns(TEXT_COLUMN);
 		Map<String, String> servers = editor.getServers();
@@ -576,6 +578,7 @@ public class ScreenLogin
 		connectionSpeedText.setBorder(
 				BorderFactory.createEmptyBorder(5, 0, 0, 0));
 		serverText = UIUtilities.buildTextPane(serverName, TEXT_COLOR);
+		serverText.setName("server name text pane");
 		
 		serverTextPane = UIUtilities.buildComponentPanelRight(serverText, 
 				false);
@@ -584,6 +587,7 @@ public class ScreenLogin
 		initializeGroups();
 		ref = new ArrayList<JComponent>();
 		login = new JButton("Login");
+		login.setName("login button");
 		defaultForeground = login.getForeground();
 		login.setMnemonic('L');
 		login.setToolTipText("Login");
@@ -597,6 +601,7 @@ public class ScreenLogin
 		setButtonDefault(cancel);
 		UIUtilities.opacityCheck(cancel);
 		configButton = new JButton();
+		configButton.setName("config server button");
 		configButton.setMnemonic('X');
 		configButton.setToolTipText("Enter the server's address.");
 		configButton.setBorderPainted(false);
@@ -927,9 +932,7 @@ public class ScreenLogin
 	{
 		Preferences prefs = Preferences.userNodeForPackage(ScreenLogin.class);
 		String value = prefs.get(OMERO_TRANSFER_ENCRYPTED, null);
-		if (value == null || value.trim().length() == 0) return false;
-		if (value.equals("true")) return Boolean.valueOf(true);
-		return Boolean.valueOf(false); 
+		return "true".equals(value); 
 	}
 	
 	/** 
@@ -1027,9 +1030,9 @@ public class ScreenLogin
 	public ScreenLogin(String title, Icon logo, Image frameIcon, String version,
 			String defaultPort, String hostName, boolean serverAvailable)
 	{
-		super();
+		super(title);
+		setName("login window");
 		selectedPort = -1;
-		setTitle(title);
 		Dimension d;
 		if (logo != null)
 			d = new Dimension(logo.getIconWidth(), logo.getIconHeight());

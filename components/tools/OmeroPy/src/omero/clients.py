@@ -20,7 +20,7 @@ finally:
     del __save__
 
 sys = __import__("sys")
-import exceptions, traceback, threading, logging
+import traceback, threading, logging
 import IceImport, Ice
 import omero_ext.uuid as uuid # see ticket:3774
 
@@ -187,6 +187,12 @@ class BaseClient(object):
         id.properties.setProperty("IceSSL.Ciphers" , "ADH")
         id.properties.setProperty("IceSSL.VerifyPeer" , "0")
 
+        # Set the default encoding if this is Ice 3.5 or later
+        # and none is set.
+        if Ice.intVersion() >= 30500:
+            if not id.properties.getProperty("Ice.Default.EncodingVersion"):
+                id.properties.setProperty("Ice.Default.EncodingVersion", "1.0")
+
         # Setting MessageSizeMax
         messageSize = id.properties.getProperty("Ice.MessageSizeMax")
         if not messageSize or len(messageSize) == 0:
@@ -311,7 +317,7 @@ class BaseClient(object):
         """
         try:
             self.closeSession()
-        except exceptions.Exception, e:
+        except Exception, e:
             # It is perfectly normal for the session to have been closed before garbage collection
             # though for some reason I can't match this exception with the Glacier2.SessionNotExistException
             # class. Using str matching instead.
@@ -597,7 +603,7 @@ class BaseClient(object):
                         if sf != None:
                             try:
                                 sf.keepAlive(None)
-                            except exceptions.Exception, e:
+                            except Exception, e:
                                 if ic != None:
                                     ic.getLogger().warning("Proxy keep alive failed.")
                                 return False
@@ -789,7 +795,7 @@ class BaseClient(object):
 
             try:
                 self.stopKeepAlive()
-            except exceptions.Exception, e:
+            except Exception, e:
                 oldIc.getLogger().warning(
                     "While cleaning up resources: " + str(e))
 
@@ -808,7 +814,7 @@ class BaseClient(object):
             if oldOa:
                 try:
                     oldOa.deactivate()
-                except exceptions.Exception, e:
+                except Exception, e:
                     self.__logger.warning("While deactivating adapter: " + str(e.message))
 
             self.__previous = Ice.InitializationData()
@@ -992,7 +998,7 @@ class BaseClient(object):
         def _closeSession(self):
             try:
                 self.oa.deactivate();
-            except exceptions.Exception, e:
+            except Exception, e:
                 sys.err.write("On session closed: " + str(e))
 
         def __init__(self, ic, oa, id):

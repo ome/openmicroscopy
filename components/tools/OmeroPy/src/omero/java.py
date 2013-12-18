@@ -10,7 +10,6 @@
 import os, shlex
 import platform
 import subprocess
-import exceptions
 import logging
 
 
@@ -26,7 +25,7 @@ def check_java(command):
     except:
         pass # Falls through to raise
 
-    raise exceptions.Exception("Java could not be found. (Executable=%s)" % command[0])
+    raise Exception("Java could not be found. (Executable=%s)" % command[0])
 
 def makeVar(key, env):
         if os.environ.has_key(key):

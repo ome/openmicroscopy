@@ -7,12 +7,13 @@
       <run>
         <exclude name="broken"/>
         <exclude name="ignore"/>
-        <exclude name="integration"/>
       </run>
     </groups>
     <packages>
       <package name="ome.rnd.*"/>
-      <package name="ome.util.*"/>
+      <package name="ome.util.math.*"/>
+      <package name="ome.util.mem.*"/>
+      <package name="ome.util.tests.*"/>
     </packages>
   </test>
 

@@ -50,6 +50,7 @@ import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 import pojos.AnnotationData;
 import pojos.ChannelData;
 import pojos.DataObject;
+import pojos.ExperimenterData;
 
 /** 
  * Defines the interface provided by the viewer component. 
@@ -661,5 +662,12 @@ public interface MetadataViewer
 	 * @param channels The channels to handle.
 	 */
 	void onUpdatedChannels(List<ChannelData> channels);
+
+	/**
+	 * Returns the user currently logged in.
+	 * 
+	 * @return See above.
+	 */
+	ExperimenterData getCurrentUser();
 
 }

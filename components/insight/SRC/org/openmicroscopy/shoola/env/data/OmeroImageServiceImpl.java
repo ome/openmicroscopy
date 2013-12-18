@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.data.OmeroImageServiceImpl
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -59,6 +59,7 @@ import com.sun.opengl.util.texture.TextureData;
 import ome.formats.importer.ImportCandidates;
 import ome.formats.importer.ImportContainer;
 import omero.api.RenderingEnginePrx;
+import omero.api.ThumbnailStorePrx;
 import omero.model.Annotation;
 import omero.model.Channel;
 import omero.model.Dataset;
@@ -130,6 +131,11 @@ import pojos.WorkflowData;
 class OmeroImageServiceImpl
  	implements OmeroImageService
 {
+	/**
+	 * If a given plane is larger than the size, the thumbnail is not loaded
+	 * at import time.
+	 */
+	private static final int MAX_SIZE = 2000*2000;
 
 	/** The collection of supported file filters. */
 	private FileFilter[] filters;
@@ -141,7 +147,7 @@ class OmeroImageServiceImpl
 	private OMEROGateway gateway;
 	
 	/**
-	 * Returns the number of rendering engine to initialize or reload.
+	 * Returns the number of rendering engines to initialize or reload.
 	 * 
 	 * @param ctx The security context.
 	 * @param pixelsID The id of pixels set.
@@ -151,7 +157,7 @@ class OmeroImageServiceImpl
 	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	private int getNumberofRenderingEnging(SecurityContext ctx, long pixelsID)
+	private int getNumberOfRenderingEngines(SecurityContext ctx, long pixelsID)
 			throws DSOutOfServiceException, DSAccessException
 	{
 		int number = 1;
@@ -233,8 +239,8 @@ class OmeroImageServiceImpl
 						image = (ImageData) result;
 						images.add(image);
 						if (thumbnail)
-							label.setFile(file, 
-								createImportedImage(ctx, userID, image));
+							label.setFile(file, formatResult(ctx, image, userID,
+									true, userName));
 						else label.setFile(file, image);
 					} else if (result instanceof Set) {
 						ll = (Set<ImageData>) result;
@@ -245,8 +251,8 @@ class OmeroImageServiceImpl
 						while (kk.hasNext()) {
 							image = kk.next();
 							if (thumbnail)
-								converted.add(
-									createImportedImage(ctx, userID, image));
+								converted.add(formatResult(ctx, image, userID,
+										true, userName));
 							else converted.add(image);
 						}
 						label.setFile(file, converted);
@@ -301,10 +307,11 @@ class OmeroImageServiceImpl
 	 * @param ctx The security context.
 	 * @param userID  The identifier of the user.
 	 * @param image   The image to handle.
+	 * @param userName The name of the user who will own the thumbnail.
 	 * @return See above.
 	 */
 	private Object createImportedImage(SecurityContext ctx, long userID,
-		ImageData image)
+		ImageData image, String userName)
 	{
 		if (image != null) {
 			ThumbnailData data;
@@ -312,7 +319,7 @@ class OmeroImageServiceImpl
 				PixelsData pix = image.getDefaultPixels();
 				BufferedImage img = createImage(
 						gateway.getThumbnailByLongestSide(ctx, pix.getId(),
-								Factory.THUMB_DEFAULT_WIDTH));
+								Factory.THUMB_DEFAULT_WIDTH, userName));
 				data = new ThumbnailData(image.getId(), img, userID, true);
 				data.setImage(image);
 				return data;
@@ -335,21 +342,26 @@ class OmeroImageServiceImpl
 	 * @param userID The user's id.
 	 * @param thumbnail Pass <code>true</code> if thumbnail has to be created,
 	 * 					<code>false</code> otherwise.
+	 * @param userName The name of the user who will own the thumbnail.
 	 * @return See above.
 	 */
 	private Object formatResult(SecurityContext ctx, ImageData image,
-		long userID, boolean thumbnail)
+		long userID, boolean thumbnail, String userName)
 	{
 		Boolean backoff = null;
 		try {
 			PixelsData pixels = image.getDefaultPixels();
+			if (pixels.getSizeX()*pixels.getSizeY() >= MAX_SIZE)
+				return image;
 			backoff = gateway.isLargeImage(ctx, pixels.getId());
-		} catch (Exception e) {}
-		//if (backoff != null && backoff.booleanValue())
-		//	return new ThumbnailData(image, backoff);
+		} catch (Exception e) {
+			LogMessage msg = new LogMessage();
+			msg.print(e);
+			context.getLogger().debug(this, msg);
+		}
 		if (thumbnail) {
 			ThumbnailData thumb = (ThumbnailData) createImportedImage(ctx,
-				userID, image);
+				userID, image, userName);
 			thumb.setBackOffForPyramid(backoff);
 			return thumb;
 		} 
@@ -516,13 +528,19 @@ class OmeroImageServiceImpl
 									(DatasetData) 
 									PojoMapper.asDataObject(
 									ioContainer));
-							link = (ProjectDatasetLink) 
-							ModelMapper.linkParentToChild(
-									(Dataset) ioContainer, 
+							//Check that the project still exists
+							IObject ho = gateway.findIObject(ctx,
+									container.asIObject());
+							if (ho != null) {
+								link = (ProjectDatasetLink) 
+								ModelMapper.linkParentToChild(
+									(Dataset) ioContainer,
 									(Project) container.asProject());
-							link = (ProjectDatasetLink) 
-							gateway.saveAndReturnObject(ctx, link,
-									parameters, userName);
+									link = (ProjectDatasetLink) 
+									gateway.saveAndReturnObject(ctx, link,
+										parameters, userName);
+							}
+							
 						} else ioContainer = createdData.asIObject();
 					}
 				} else { //dataset w/o project.
@@ -555,7 +573,8 @@ class OmeroImageServiceImpl
 				} else ioContainer = container.asIObject();
 			}
 		}
-		return ioContainer;
+		//Check that the container still exist
+		return gateway.findIObject(ctx, ioContainer);
 	}
 	
 	/**
@@ -603,7 +622,7 @@ class OmeroImageServiceImpl
 			
 			Pixels pixels = gateway.getPixels(ctx, pixelsID);
 			if (pixels == null) return null;
-			int number = getNumberofRenderingEnging(ctx, pixelsID);
+			int number = getNumberOfRenderingEngines(ctx, pixelsID);
 			
 			ExperimenterData exp = (ExperimenterData) context.lookup(
 					LookupNames.CURRENT_USER_DETAILS);
@@ -645,7 +664,12 @@ class OmeroImageServiceImpl
 			throw new RenderingServiceException("RenderImage", e);
 		}
 	}
-	
+
+	public boolean isAlive(SecurityContext ctx) throws DSOutOfServiceException
+	{
+	    return null != gateway.getConnector(ctx, true, true);
+	}
+
 	/** 
 	 * Implemented as specified by {@link OmeroImageService}. 
 	 * @see OmeroImageService#shutDown(SecurityContext,long)
@@ -785,7 +809,7 @@ class OmeroImageServiceImpl
 					Long.valueOf(pixelsID), false);
 		if (proxy == null) return null;
 		try {
-			int number = getNumberofRenderingEnging(ctx, pixelsID);
+			int number = getNumberOfRenderingEngines(ctx, pixelsID);
 			List<RenderingEnginePrx>
 			proxies = new ArrayList<RenderingEnginePrx>(number);
 			gateway.removeREService(ctx, pixelsID);
@@ -813,7 +837,7 @@ class OmeroImageServiceImpl
 					Long.valueOf(pixelsID), false);
 		if (proxy == null) return null;
 		try {
-			int number = getNumberofRenderingEnging(ctx, pixelsID);
+			int number = getNumberOfRenderingEngines(ctx, pixelsID);
 			List<RenderingEnginePrx>
 			proxies = new ArrayList<RenderingEnginePrx>(number);
 			for (int i = 0; i < number; i++) {
@@ -1257,7 +1281,11 @@ class OmeroImageServiceImpl
 								context.getLogger().error(this, msg);
 							}
 						}
-					} else ioContainer = container.asIObject();
+					} else {
+						//Check that the container still exists
+						ioContainer = gateway.findIObject(ctx,
+								container.asIObject());
+					}
 				}
 			}
 			if (ImportableObject.isArbitraryFile(file)) {
@@ -1284,7 +1312,8 @@ class OmeroImageServiceImpl
 						image = (ImageData) result;
 						images.add(image);
 						annotatedImportedImage(ctx, list, images, userName);
-						return formatResult(ctx, image, userID, thumbnail);
+						return formatResult(ctx, image, userID, thumbnail,
+								userName);
 					} else if (result instanceof Set) {
 						ll = (Set<ImageData>) result;
 						annotatedImportedImage(ctx, list, ll, userName);
@@ -1292,7 +1321,7 @@ class OmeroImageServiceImpl
 						converted = new ArrayList<Object>(ll.size());
 						while (kk.hasNext()) {
 							converted.add(formatResult(ctx, kk.next(), userID,
-									thumbnail));
+									thumbnail, userName));
 						}
 						return converted;
 					}
@@ -1321,7 +1350,8 @@ class OmeroImageServiceImpl
 					image = (ImageData) result;
 					images.add(image);
 					annotatedImportedImage(ctx, list, images, userName);
-					return formatResult(ctx, image, userID, thumbnail);
+					return formatResult(ctx, image, userID, thumbnail,
+							userName);
 				} else if (result instanceof Set) {
 					ll = (Set<ImageData>) result;
 					annotatedImportedImage(ctx, list, ll, userName);
@@ -1329,7 +1359,7 @@ class OmeroImageServiceImpl
 					converted = new ArrayList<Object>(ll.size());
 					while (kk.hasNext()) {
 						converted.add(formatResult(ctx, kk.next(), userID,
-								thumbnail));
+								thumbnail, userName));
 					}
 					return converted;
 				}
@@ -1393,7 +1423,8 @@ class OmeroImageServiceImpl
 							context.getLogger().error(this, msg);
 						}
 					}
-				} else ioContainer = container.asIObject();
+				} else ioContainer = gateway.findIObject(ctx,
+						container.asIObject());
 			}
 			importCandidates(ctx, hcsFiles, status, object, archived,
 					ioContainer, list, userID, close, true, userName);
@@ -1990,5 +2021,29 @@ class OmeroImageServiceImpl
 	{
 		return gateway.isLargeImage(ctx, pixelsId);
 	}
-	
+
+	/**
+	 * Implemented as specified by {@link OmeroDataService}.
+	 * @see OmeroImageService#createThumbnailStore(SecurityContext)
+	 */
+	public ThumbnailStorePrx createThumbnailStore(SecurityContext ctx)
+			throws DSAccessException, DSOutOfServiceException
+	{
+		if (ctx == null) return null;
+		return gateway.createThumbnailStore(ctx);
+	}
+
+	/**
+	 * Implemented as specified by {@link OmeroDataService}.
+	 * @see OmeroImageService#getRenderingDef(SecurityContext, long, long)
+	 */
+	public Long getRenderingDef(SecurityContext ctx, long pixelsID,
+			long userID)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		RenderingDef def = gateway.getRenderingDef(ctx, pixelsID, userID);
+		if (def == null) return -1L;
+		return def.getId().getValue();
+	}
+
 }

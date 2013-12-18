@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.treemng.TreeViewerTranslator
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -40,6 +40,7 @@ import java.util.Map.Entry;
 
 //Third-party libraries
 
+import org.apache.commons.collections.CollectionUtils;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.util.browser.TreeFileSet;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
@@ -50,7 +51,6 @@ import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.clsf.TreeCheckNode;
-import pojos.AnnotationData;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
@@ -145,11 +145,11 @@ public class TreeViewerTranslator
             ImageData child;
             while (i.hasNext()) {
             	tmp = (DataObject) i.next();
-                if (tmp instanceof ImageData) {
-                	 child = (ImageData) tmp;
-                	 if (EditorUtil.isReadable(child))
-                         dataset.addChildDisplay(transformImage(child));
-                }
+            	if (tmp instanceof ImageData) {
+            		child = (ImageData) tmp;
+            		if (EditorUtil.isReadable(child))
+            			dataset.addChildDisplay(transformImage(child));
+            	}
             }
         }
         
@@ -242,36 +242,33 @@ public class TreeViewerTranslator
         TreeImageSet tag =  new TreeImageSet(data);
         formatToolTipFor(tag);
         if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(data.getNameSpace())) {
-        	Set tags = data.getTags();
-            if (tags != null && tags.size() > 0) {
+        	Set<TagAnnotationData> tags = data.getTags();
+            if (!CollectionUtils.isEmpty(tags)) {
             	tag.setChildrenLoaded(Boolean.valueOf(true));
             	
-                Iterator i = tags.iterator();
-                AnnotationData tmp;
+                Iterator<TagAnnotationData> i = tags.iterator();
                 while (i.hasNext()) {
-                	tmp = (AnnotationData) i.next();
-                	if (tmp instanceof TagAnnotationData)
-                		tag.addChildDisplay(
-                				transformTag((TagAnnotationData) tmp));
+                	tag.addChildDisplay(transformTag(i.next()));
                 }
                 tag.setNumberItems(tags.size());
                 return tag;
             } 
-            tag.setChildrenLoaded(Boolean.valueOf(true)); 
+            tag.setChildrenLoaded(Boolean.valueOf(true));
             tag.setNumberItems(0);
             return tag;
         }
         
-        Set dataObjects = data.getDataObjects();
+        Set<DataObject> dataObjects = data.getDataObjects();
         //
-        if (dataObjects == null || dataObjects.size() == 0) 
+        if (CollectionUtils.isEmpty(dataObjects))
         	tag.setNumberItems(-1);
         else {
         	tag.setChildrenLoaded(Boolean.valueOf(true));
         	tag.setNumberItems(dataObjects.size());
-            Iterator i = dataObjects.iterator();
+            Iterator<DataObject> i = dataObjects.iterator();
             DataObject tmp;
             ProjectData p;
+            ScreenData screen;
             while (i.hasNext()) {
             	tmp = (DataObject) i.next();
             	if (EditorUtil.isReadable(tmp)) {
@@ -284,7 +281,11 @@ public class TreeViewerTranslator
             			p = (ProjectData) tmp;
             			tag.addChildDisplay(transformProject(p,
             					p.getDatasets()));
-            		}	
+            		} else if (tmp instanceof ScreenData) {
+            		    screen = (ScreenData) tmp;
+            		    tag.addChildDisplay(
+                                transformScreen(screen, screen.getPlates()));
+            		}
             	}
                 
             }

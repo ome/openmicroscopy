@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<project name="OmeroJava" default="install" basedir="." xmlns:ivy="antlib:org.apache.ivy.ant">
+<project name="OmeroJava" default="install" basedir="."
+    xmlns:ivy="antlib:org.apache.ivy.ant">
 <!--
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
 # $Id$
 #
-# Copyright 2008 Glencoe Software, Inc. All rights reserved.
+# Copyright 2008-2013 Glencoe Software, Inc. All rights reserved.
 # Use is subject to license terms supplied in LICENSE.txt
 #
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -16,19 +17,33 @@
 
 -->
     <description>
-    OmeroJava interface to OmeroBlitz, provides user-friendly gateway.
+    OmeroJava is the integration test suite for the server services.
     </description>
 
     <dirname property="up-two" file="${basedir}"/>
     <dirname property="up-one" file="${up-two}"/>
-    <property name="import.dir"       value="${up-one}/antlib/resources"/>
+    <property name="import.dir" value="${up-one}/antlib/resources"/>
+    <property name="integration.suite" value="integration.testng.xml"/>
 
     <import file="${import.dir}/global.xml"/>
     <import file="${import.dir}/lifecycle.xml"/>
 
     <defineVariables/>
     <import file="../common.xml"/>
+
     <target name="slice">
+        <echo>no-op</echo>
+    </target>
+
+    <target name="compile" depends="pre-compile">
+        <echo>no-op</echo>
+    </target>
+
+    <target name="tools-init">
+        <echo>no-op</echo>
+    </target>
+
+    <target name="test-suite">
         <echo>no-op</echo>
     </target>
 
@@ -73,34 +88,40 @@
                 <include name="ome/conditions/**/*.class"/>
             </fileset>
         </copy>
-        <unjar src="${target.dir}/libs/ice.jar" dest="${target.dir}/generated-classes"/>
+        <unjar dest="${target.dir}/generated-classes">
+            <fileset dir="${target.dir}/libs">
+                <include name="ice*.jar"/>
+            </fileset>
+        </unjar>
     </target>
 
-    <target name="compile" depends="pre-compile,lifecycle.compile"/>
-
-    <target name="package" depends="compile"> <!-- depending on compile like lifecycle.package does -->
-	<jar update="true" destfile="${target.dir}/${ivy.module}.jar">
+    <target name="package" depends="compile">
+    <!-- depending on compile like lifecycle.package does -->
+        <jar update="true" destfile="${target.dir}/${ivy.module}.jar">
             <manifest>
                 <attribute name="Class-Path" value=""/>
                 <attribute name="Main-Class" value=""/>
             </manifest>
-            <fileset dir="${classes.dir}" includes="**/*.class,omero.properties"/>
+            <fileset dir="${classes.dir}"
+                includes="**/*.class,omero.properties"/>
             <fileset dir="${target.dir}/generated-classes"/>
         </jar>
     </target>
 
-    <target name="tools-init"/>
+    <target name="tools-build" depends="tools-init,install"
+        description="Creates all artifacts for tools/target"/>
 
-    <target name="tools-build" depends="tools-init,install" description="Creates all artifacts for tools/target"/>
-
-    <target name="tools-dist" depends="tools-build" description="Copy artifacts to tools/target"/>
+    <target name="tools-dist" depends="tools-build"
+        description="Copy artifacts to tools/target"/>
 
     <target name="tools-clean" depends="clean">
-	<delete dir="${basedir}/target"/>
+        <delete dir="${basedir}/target"/>
     </target>
 
-    <target name="test-compile" depends="lifecycle.test-compile" description="Unzips test dependencies and then calls lifecycle.test">
-        <unjar src="${target.dir}/libs/test/common-test.jar" dest="${classes.dir}">
+    <target name="test-compile" depends="lifecycle.test-compile"
+        description="Unzips test dependencies and then calls lifecycle.test">
+        <unjar src="${target.dir}/libs/test/common-test.jar"
+            dest="${classes.dir}">
             <patternset>
                 <include name="tiny*dv"/>
                 <include name="test.bmp"/>
@@ -110,5 +131,24 @@
         </unjar>
     </target>
 
+    <target name="broken" depends="test-compile" unless="test.skip"
+        description="Run broken integration tests">
+        <property name="test.with.fail" value="false"/>
+        <suite testnames="broken">
+            <xmlfileset dir="${test.dir}">
+                <include name="${integration.suite}"/>
+            </xmlfileset>
+        </suite>
+    </target>
+
+    <target name="integration" depends="test-compile" unless="test.skip"
+        description="Run passing integration tests">
+        <property name="test.with.fail" value="false"/>
+        <suite testnames="integration">
+            <xmlfileset dir="${test.dir}">
+                <include name="${integration.suite}"/>
+            </xmlfileset>
+        </suite>
+    </target>
 
 </project>

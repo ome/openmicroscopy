@@ -6,14 +6,22 @@
  */
 package ome.server.itests.sec;
 
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 import ome.api.IAdmin;
+import ome.api.IQuery;
 import ome.api.ISession;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.model.meta.Session;
+import ome.parameters.Parameters;
 import ome.server.itests.AbstractManagedContextTest;
+import ome.server.itests.LoginInterceptor;
 import ome.system.EventContext;
 import ome.system.Principal;
+import ome.system.ServiceFactory;
 
 import org.testng.annotations.Test;
 
@@ -27,20 +35,33 @@ public class SessionTest extends AbstractManagedContextTest {
     public void testSimpleCreate() throws Exception {
 
         loginRoot();
-        Experimenter e = loginNewUser();
+        final Experimenter e = loginNewUser();
 
-        ISession service = this.factory.getServiceByClass(ISession.class);
-        Session s = service.createSession(new Principal(e.getOmeName(), "user",
-                "Test"), "ome");
+        final IAdmin a = iAdmin;
+        final ServiceFactory f = factory;
+        final LoginInterceptor aop = loginAop;
+        final boolean[] success = new boolean[1];
+        Thread t = new Thread() {
+            @Override
+            public void run() {
+                ISession service = f.getServiceByClass(ISession.class);
+                Session s = service.createSession(new Principal(e.getOmeName(), "user",
+                        "Test"), "ome");
 
-        // This is what then gets passed to the
-        loginAop.p = new Principal(s.getUuid(), "user", "Test");
+                aop.p = new Principal(s.getUuid(), "user", "Test");
 
-        // Now we should be able to do something.
-        EventContext ec = this.iAdmin.getEventContext();
-        assertEquals(ec.getCurrentUserName(), e.getOmeName());
+                // Now we should be able to do something.
+                EventContext ec = a.getEventContext();
+                AbstractManagedContextTest.assertEquals(
+                        ec.getCurrentUserName(), e.getOmeName());
 
-        service.closeSession(s);
+                service.closeSession(s);
+                success[0] = true;
+            }
+        };
+        t.start();
+        t.join();
+        assertTrue(success[0]);
     }
 
     @Test
@@ -102,5 +123,31 @@ public class SessionTest extends AbstractManagedContextTest {
         
         // But now if we try to get the session again, boom.
         s.getSession(uuid);
+    }
+
+    @Test(groups = "session-uuid")
+    public void testQuerySession() throws Exception {
+
+        final IAdmin a = this.factory.getAdminService();
+        final IQuery q = this.factory.getQueryService();
+        loginNewUser();
+        final String uuid = a.getEventContext().getCurrentSessionUuid();
+
+        loginNewUser();
+        final List<Object[]> rv = q.projection(
+                "select uuid from Session order by id desc", new Parameters().page(0, 100));
+
+        final Set<String> uuids = new HashSet<String>();
+        for (Object[] item : rv) {
+            uuids.add(item[0].toString());
+        }
+        assertFalse(uuids.contains(uuid));
+    }
+
+    @Test(groups = "session-uuid")
+    public void testSessionContext() throws Exception {
+        final ISession s = this.factory.getSessionService();
+        loginNewUser();
+        assertNull(s.getMyOpenSessions().get(0).getDetails().contextAt(0));
     }
 }

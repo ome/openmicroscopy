@@ -19,9 +19,12 @@
     <dependency org="java-image-scaling" name="java-image-scaling" rev="${versions.java-image-scaling}"/>
     <!-- Ice -->
     <dependency org="omero" name="omero-shares" rev="${versions.ice}"/>
-    <dependency org="omero" name="ice" rev="${versions.ice}"/>
-    <dependency org="omero" name="ice-db" rev="${versions.ice}"/>
-    <dependency org="omero" name="ice-freeze" rev="${versions.ice}"/>
+    <dependency org="zeroc" name="ice" rev="${versions.ice}"/>
+    <dependency org="zeroc" name="ice-glacier2" rev="${versions.ice}"/>
+    <dependency org="zeroc" name="ice-storm" rev="${versions.ice}"/>
+    <dependency org="zeroc" name="ice-grid" rev="${versions.ice}"/>
+    <dependency org="zeroc" name="ice-db" rev="${versions.ice}"/>
+    <dependency org="zeroc" name="ice-freeze" rev="${versions.ice}"/>
     <!-- j2ee replacements : jta, jndi, etc. -->
     <dependency org="geronimo-spec" name="geronimo-spec-jta" rev="1.0.1B-rc4"/>
     <dependency org="btm" name="btm" rev="${versions.btm}"/>
@@ -51,9 +54,5 @@
     <dependency org="spring" name="spring-security-config" rev="${versions.spring-security}"/>
     <dependency org="spring" name="spring-security-ldap" rev="${versions.spring-security}"/>
     <dependency org="spring" name="spring-ldap" rev="${versions.spring-ldap}-all"/>
-    <!-- Build dependencies for test -->
-    <dependency org="apacheds" name="apacheds-all" rev="${versions.apacheds}" conf="build->*"/>
-    <!--dependency org="apacheds" name="shared-ldap" rev="${versions.shared-ldap}" conf="build->*"/--><!--in apacheds-all -->
-    <dependency org="apacheds" name="shared-ldap-constants" rev="${versions.shared-ldap}" conf="build->*"/>
   </dependencies>
 </ivy-module>

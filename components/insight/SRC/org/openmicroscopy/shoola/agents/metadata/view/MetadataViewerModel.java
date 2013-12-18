@@ -200,9 +200,9 @@ class MetadataViewerModel
 		StructuredDataResults data = getStructuredData();
 		List<FileAnnotationData> l = new ArrayList<FileAnnotationData>();
 		if (data == null) return l;
-		Collection<FileAnnotationData> attachements = data.getAttachments(); 
-		if (attachements == null) return l;
-		Iterator<FileAnnotationData> i = attachements.iterator();
+		Collection<FileAnnotationData> attachments = data.getAttachments(); 
+		if (attachments == null) return l;
+		Iterator<FileAnnotationData> i = attachments.iterator();
 		FileAnnotationData f;
 		String ns;
 		while (i.hasNext()) {
@@ -418,6 +418,9 @@ class MetadataViewerModel
 			Integer id = getLoaderID(StructuredDataLoader.class);
 			if (id != null) cancel(id);
 			loaderID++;
+			if (node instanceof WellSampleData) {
+			    node = ((WellSampleData) node).getImage();
+			}
 			StructuredDataLoader loader = new StructuredDataLoader(component,
 					ctx, Arrays.asList((DataObject) node), loaderID);
 			loaders.put(loaderID, loader);
@@ -628,6 +631,22 @@ class MetadataViewerModel
 	}
 	
 	/**
+	 * Fires an asynchronous call to modify the default group of the
+	 * logged in experimenter.
+	 * 
+	 * @param group
+	 */
+	void fireChangeGroup(GroupData group)
+	{
+	    SecurityContext c = ctx;
+        if (MetadataViewerAgent.isAdministrator())
+            c = getAdminContext();
+        MetadataLoader loader = new GroupEditor(component, c, group,
+                loaderID, GroupEditor.CHANGE);
+        loader.load();
+	}
+	
+	/**
 	 * Fires an asynchronous call to update the passed group.
 	 * 
 	 * @param data   The object to update.
@@ -646,7 +665,7 @@ class MetadataViewerModel
 					GroupData group = data.getGroup();
 					loaderID++;
 					loader = new GroupEditor(component, c, group, 
-							data.getPermissions(), loaderID);
+							data.getPermissions(), loaderID, GroupEditor.UPDATE);
 					loaders.put(loaderID, loader);
 					break;
 				case AdminObject.UPDATE_EXPERIMENTER:
@@ -1108,5 +1127,14 @@ class MetadataViewerModel
 		return count == nodes.size() && count == keys.size();
 	}
 	
+	/**
+     * Returns the user currently logged in.
+     * 
+     * @return See above.
+     */
+    ExperimenterData getCurrentUser()
+    {
+        return MetadataViewerAgent.getUserDetails();
+    }
 
 }

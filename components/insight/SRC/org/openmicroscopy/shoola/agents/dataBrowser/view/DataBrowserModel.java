@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowserModel 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -101,6 +101,9 @@ import pojos.TagAnnotationData;
 abstract class DataBrowserModel
 {
 
+	/** The number of loaders to use for the thumbnails.*/
+	static final int MAX_LOADER = 4;
+	
 	/** Identifies the <code>DatasetsModel</code>. */
 	static final int	DATASETS = 0;
 	
@@ -360,13 +363,16 @@ abstract class DataBrowserModel
     	if (refresh) 
     		browser.accept(new ResetThumbnailVisitor(ids), 
     				ImageDisplayVisitor.IMAGE_NODE_ONLY);
-    	loader = createDataLoader(refresh, ids);
-    	if (loader == null) {
+    	List<DataBrowserLoader> loaders = createDataLoader(refresh, ids);
+    	if (loaders == null) {
     		state = DataBrowser.READY;
     		return;
     	}
     	state = DataBrowser.LOADING;
-    	loader.load();
+    	Iterator<DataBrowserLoader> i = loaders.iterator();
+    	while (i.hasNext()) {
+			i.next().load();
+		}
     }
     
     /**
@@ -437,14 +443,15 @@ abstract class DataBrowserModel
      * When every image object has a thumbnail, this method sets the state
      * to {@link HiViewer#READY}.
      * 
-     * @param imageID    The id of the image or to the object of reference
-     * 				 	 which the thumbnail belongs.
-     * @param thumb      The thumbnail pixels.
-     * @param valid		 Pass <code>true</code> if it is a valid thumbnail,
-     * 					 <code>false</code> otherwise.
+     * @param imageID The id of the image or to the object of reference
+     * which the thumbnail belongs.
+     * @param thumb The thumbnail pixels.
+     * @param valid Pass <code>true</code> if it is a valid thumbnail,
+     * <code>false</code> otherwise.
      * @param maxEntries The number of thumbnails to load.
+     * @return The percentage of processed data.
      */
-    void setThumbnail(Object ref, BufferedImage thumb, boolean valid, 
+    int setThumbnail(Object ref, BufferedImage thumb, boolean valid,
     		int maxEntries)
     {
         if (thumbsManager == null) {
@@ -457,10 +464,12 @@ abstract class DataBrowserModel
         }
 
         thumbsManager.setThumbnail(ref, thumb, valid);
+        int perc = thumbsManager.getPercentDone();
         if (thumbsManager.isDone()) {
             state = DataBrowser.READY;
             thumbsManager = null;
         }
+        return perc;
     }
 
     /**
@@ -619,7 +628,7 @@ abstract class DataBrowserModel
 			fullSizeThumbsManager = new ThumbnailsManager(toKeep, 
 					                                    toKeep.size());
 			ThumbnailLoader loader = new ThumbnailLoader(component, ctx,
-					nodes, false, ThumbnailLoader.IMAGE);
+					nodes, false, ThumbnailLoader.IMAGE, nodes.size());
 			loader.load();
 			state = DataBrowser.LOADING_SLIDE_VIEW;
 		}
@@ -931,6 +940,14 @@ abstract class DataBrowserModel
 	int getDisplayMode() { return displayMode; }
 	
 	/**
+	 * Returns <code>true</code> if the thumbnails have been loaded
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean hasThumbnailsBeenLoaded() { return loader != null; }
+	
+	/**
 	 * Sets the display mode.
 	 * 
 	 * @param value The value to set.
@@ -959,6 +976,37 @@ abstract class DataBrowserModel
 		}
 	}
 
+	/**
+	 * Creates a collection of loaders for the thumbnails.
+	 * 
+	 * @param images The objects to load.
+	 * @return See above.
+	 */
+	List<DataBrowserLoader> createThumbnailsLoader(List<DataObject> images)
+	{
+		if (images == null) return null;
+		List<DataBrowserLoader> loaders = new ArrayList<DataBrowserLoader>();
+		int n = images.size();
+		int diff = n/MAX_LOADER;
+		List<DataObject> l;
+		int j;
+		int step = 0;
+		if (n < MAX_LOADER) diff = 1;
+		for (int k = 0; k < MAX_LOADER; k++) {
+			l = new ArrayList<DataObject>();
+			j = step+diff;
+			if (k == (MAX_LOADER-1)) j += (n-j);
+			if (j <= n) {
+				l = images.subList(step, j);
+				step += l.size();
+			}
+			if (l.size() > 0) {
+				loaders.add(new ThumbnailLoader(component, ctx, l, n));
+			}
+		}
+		return loaders;
+	}
+	
     /**
      * Creates a data loader that can retrieve the hierarchy objects needed
      * by this model.
@@ -968,15 +1016,15 @@ abstract class DataBrowserModel
      * @param ids       The collection of images' ids to reload.
      * @return A suitable data loader.
      */
-    protected abstract DataBrowserLoader createDataLoader(boolean refresh, 
+    protected abstract List<DataBrowserLoader> createDataLoader(boolean refresh, 
     		                                             Collection ids);
 
     /** 
-     * Returns the type of the model. 
+     * Returns the type of the model.
      * 
      * @return See above.
      */
-    protected abstract int getType(); 
+    protected abstract int getType();
     
     /**
      * Returns the collection of {@link ImageDisplay}.

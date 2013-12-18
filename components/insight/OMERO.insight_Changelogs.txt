@@ -354,7 +354,7 @@ Version: M3 Beta 1
 Changes: 
  - SplashScreen: Update SplashScreen image.
  - RenderingService: Handle exception.
- - Viewer: Handle Exception if an error occured while rendering a new image.
+ - Viewer: Handle Exception if an error occurred while rendering a new image.
  - DataManager: Fixed the refresh method for the ImageExplorer.
  - DataManager: Added option to display the full/partial name of images.
  - HiViewer, Viewer: Fixed problem when attaching menu listeners.

@@ -68,7 +68,7 @@ class WebClientTestBase (SeleniumTestBase):
         out, err = popen.communicate()
         rc = popen.wait()
         if rc != 0:
-            raise exceptions.Exception("import failed: [%r] %s\n%s" % (args, rc, err))
+            raise Exception("import failed: [%r] %s\n%s" % (args, rc, err))
         pix_ids = []
         for x in out.split("\n"):
             if x and x.find("Created") < 0 and x.find("#") < 0:

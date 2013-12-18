@@ -5,6 +5,9 @@ function fas = getPlateFileAnnotations(session, ids, varargin)
 %    annotations linked to the plates specified by the input identifiers
 %    and owned by the session user.
 %
+%    fas = getPlateFileAnnotations(session, plates) returns all file
+%    annotations linked to the input plates and owned by the session user.
+%
 %    fas = getPlateFileAnnotations(session,  ids, 'include', include) only
 %    returns file annotations with the input namespace.
 %
@@ -14,6 +17,7 @@ function fas = getPlateFileAnnotations(session, ids, varargin)
 %    Examples:
 %
 %        fas = getPlateFileAnnotations(session, ids)
+%        fas = getPlateFileAnnotations(session, plates)
 %        fas = getPlateFileAnnotations(session, ids, 'include', include)
 %        fas = getPlateFileAnnotations(session, ids, 'exclude', exclude)
 %

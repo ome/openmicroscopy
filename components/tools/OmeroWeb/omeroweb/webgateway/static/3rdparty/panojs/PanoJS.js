@@ -111,7 +111,9 @@ function PanoJS(viewer, options) {
   this.loadingTile = options.loadingTile ? options.loadingTile : PanoJS.LOADING_TILE_IMAGE;      
   this.resetCache();
   this.image_size = { width: options.imageWidth, height: options.imageHeight };
-    
+  
+  this.delay_ms = options.delay ? options.delay : PanoJS.DELAY_MS; 
+  
   // employed to throttle the number of redraws that
   // happen while the mouse is moving
   this.moveCount = 0;
@@ -146,6 +148,10 @@ PanoJS.LOADING_TILE_IMAGE = 'blank.gif';
 PanoJS.INITIAL_PAN = { 'x' : .5, 'y' : .5 };
 PanoJS.USE_LOADER_IMAGE = true;
 PanoJS.USE_SLIDE = true;
+
+// Delay before positioning tiles in the viewer, see positionTiles 
+// or moving the viewer, see: ThumbnailControl
+PanoJS.DELAY_MS = 500;
 
 // dima
 if (!PanoJS.STATIC_BASE_URL) PanoJS.STATIC_BASE_URL = '';
@@ -290,7 +296,7 @@ PanoJS.prototype.init = function() {
     this.ui_listener.ongesturestart  = callback(this, this.gestureStartHandler);
     this.ui_listener.ongesturechange = callback(this, this.gestureChangeHandler);
     this.ui_listener.ongestureend    = callback(this, this.gestureEndHandler);        
-        
+    
     // notify listners
     this.notifyViewerZoomed();    
     this.notifyViewerMoved();  
@@ -667,6 +673,18 @@ PanoJS.prototype.notifyViewerMoved = function(coords) {
     }
 };
 
+PanoJS.prototype.queuePositionTiles = function (motion, reset) {
+  if (this.positionTiles_timeout) clearTimeout (this.positionTiles_timeout);
+  this.positionTiles_timeout = setTimeout(callback(this, 'positionTilesNow', motion, reset), this.delay_ms);
+}
+
+PanoJS.prototype.positionTilesNow = function (motion, reset) {
+  if (this.positionTiles_timeout) clearTimeout (this.positionTiles_timeout);
+  this.positionTiles_timeout = null;
+  this.positionTiles(motion, reset);
+}
+
+
 PanoJS.prototype.zoom = function(direction) {       
     // ensure we are not zooming out of range
     if (this.zoomLevel + direction < 0) {
@@ -716,7 +734,10 @@ PanoJS.prototype.zoom = function(direction) {
     this.y = coords.y - after.y;
     this.zoomLevel += direction;
         
-    this.positionTiles();
+    if (this.delay_ms<=0)
+      this.positionTiles();
+    else
+      this.queuePositionTiles();
     this.notifyViewerZoomed();
 };
 

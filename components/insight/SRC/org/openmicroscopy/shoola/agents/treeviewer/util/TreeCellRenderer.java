@@ -431,7 +431,7 @@ public class TreeCellRenderer
     		if (data.getId() < 0) owner = true;
     		else owner = node.isOwner(userId);
     	}
-    	if (userId < 0) owner = true;
+    	owner = true;
         Icon icon = FILE_TEXT_ICON;
         if (usrObject instanceof ProjectData) {
         	if (node.isToRefresh()) {

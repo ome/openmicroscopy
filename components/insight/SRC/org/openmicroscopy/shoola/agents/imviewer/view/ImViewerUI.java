@@ -400,7 +400,7 @@ class ImViewerUI
 	{
 		JMenu menu = new JMenu("Background color");
 		bgColorGroup = new ButtonGroup();
-		Iterator i = backgrounds.entrySet().iterator();
+		Iterator<Entry<Color, String>> i = backgrounds.entrySet().iterator();
 		ColorCheckBoxMenuItem item;
 		Color c;
 		Color refColor = ImagePaintingFactory.DEFAULT_BACKGROUND;
@@ -408,12 +408,12 @@ class ImViewerUI
 			refColor = pref.getBackgroundColor();
 		if (refColor == null) 
 			refColor = ImagePaintingFactory.DEFAULT_BACKGROUND;
-		Entry entry;
+		Entry<Color, String> entry;
 		while (i.hasNext()) {
-			entry = (Entry) i.next();
-			c = (Color) entry.getKey();
+			entry = i.next();
+			c = entry.getKey();
 			item = new ColorCheckBoxMenuItem(c);
-			item.setText((String) entry.getValue()); 
+			item.setText(entry.getValue()); 
 			item.setSelected(c.equals(refColor));
 			bgColorGroup.add(item);
 			menu.add(item);
@@ -444,19 +444,19 @@ class ImViewerUI
 	{
 		JMenu menu = new JMenu("Scale bar/Text color");
 		ButtonGroup group = new ButtonGroup();
-		Iterator i = EditorUtil.COLORS_BAR.entrySet().iterator();
+		Iterator<Entry<Color, String>> i = EditorUtil.COLORS_BAR.entrySet().iterator();
 		ColorCheckBoxMenuItem item;
 		Color c;
 		Color refColor = ImagePaintingFactory.UNIT_BAR_COLOR;
 		if (pref != null) refColor = pref.getScaleBarColor();
 		if (refColor == null)
 			refColor = ImagePaintingFactory.UNIT_BAR_COLOR;
-		Entry entry;
+		Entry<Color, String> entry;
 		while (i.hasNext()) {
-			entry = (Entry) i.next();
-			c = (Color) entry.getKey();
+			entry = i.next();
+			c = entry.getKey();
 			item = new ColorCheckBoxMenuItem(c);
-			item.setText((String) entry.getValue()); 
+			item.setText(entry.getValue()); 
 			item.setSelected(c.equals(refColor));
 			group.add(item);
 			menu.add(item);
@@ -1103,8 +1103,8 @@ class ImViewerUI
 	private void clearZoomMenu(ButtonGroup group, JMenu menu)
 	{
 		menu.removeAll();
-		for (Enumeration e = group.getElements(); e.hasMoreElements();)
-			group.remove((AbstractButton) e.nextElement()) ;
+		for (Enumeration<AbstractButton> e = group.getElements(); e.hasMoreElements();)
+			group.remove(e.nextElement()) ;
 	}
 	
 	/**
@@ -1149,6 +1149,7 @@ class ImViewerUI
 		ImageIcon icon = IconManager.getInstance().getImageIcon(
 				IconManager.VIEWER);
 		if (icon != null) setIconImage(icon.getImage());
+		setName("image viewer window");
 	}
 
 	/** 
@@ -1266,9 +1267,9 @@ class ImViewerUI
 		controlPane.setColorModel();
 		AbstractButton b;
 		Action a;
-		Enumeration e;
+		Enumeration<AbstractButton> e;
 		for (e = colorModelGroup.getElements(); e.hasMoreElements();) {
-			b = (AbstractButton) e.nextElement();
+			b = e.nextElement();
 			a = b.getAction();
 			if (a instanceof ColorModelAction) {
 				b.removeActionListener(a);

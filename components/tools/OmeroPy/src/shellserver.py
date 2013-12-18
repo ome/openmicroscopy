@@ -9,7 +9,6 @@
 # down again.
 
 import Ice, os, signal, subprocess, sys, time
-from exceptions import Exception
 
 def call(arr):
     # The following work around is due to the relative paths

@@ -46,8 +46,8 @@ import spec.XMLMockObjects;
 import spec.XMLWriter;
 
 /**
- * 
- * 
+ *
+ *
  * @author Scott Littlewood, <a
  *         href="mailto:sylittlewood@dundee.ac.uk">sylittlewood@dundee.ac.uk</a>
  * @since Beta4.4
@@ -60,7 +60,7 @@ public class HierarchyMoveImageWithAcquisitionDataTest extends
 
     /**
      * Overridden to delete the files.
-     * 
+     *
      * @see AbstractServerTest#tearDown()
      */
     @Override
@@ -92,7 +92,7 @@ public class HierarchyMoveImageWithAcquisitionDataTest extends
 
     /**
      * Helper method to load the Image.
-     * 
+     *
      * @param p
      * @return
      * @throws ServerError
@@ -106,7 +106,7 @@ public class HierarchyMoveImageWithAcquisitionDataTest extends
 
     /**
      * Test moving data as the data owner from a private to a private group
-     * 
+     *
      * @throws Exception
      */
     @Test
@@ -117,7 +117,7 @@ public class HierarchyMoveImageWithAcquisitionDataTest extends
     /**
      * Performs the changing of group for an image with an ROI owned by the same
      * user
-     * 
+     *
      * @param sourceGroupPermissions
      * @param targetGroupPermissions
      * @throws Exception
@@ -189,7 +189,7 @@ public class HierarchyMoveImageWithAcquisitionDataTest extends
 
     /**
      * Creates a new group for the user with the permissions detailed
-     * 
+     *
      * @param userId
      * @param permissions
      * @return
@@ -202,7 +202,7 @@ public class HierarchyMoveImageWithAcquisitionDataTest extends
 
     /**
      * Validates if the inserted object corresponds to the XML object.
-     * 
+     *
      * @param laser
      *            The laser to check.
      * @param xml

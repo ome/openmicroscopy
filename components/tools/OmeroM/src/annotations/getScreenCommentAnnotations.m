@@ -5,6 +5,10 @@ function cas = getScreenCommentAnnotations(session, ids, varargin)
 %    annotations linked to the screens specified by the input identifiers
 %    and owned by the session user.
 %
+%    cas = getScreenCommentAnnotations(session, screens) returns all
+%    comment annotations linked to the input screens and owned by the
+%    session user.
+%
 %    cas = getScreenCommentAnnotations(session,  ids, 'include', include)
 %    only returns comment annotations with the input namespace.
 %

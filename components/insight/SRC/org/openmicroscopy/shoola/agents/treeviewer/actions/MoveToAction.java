@@ -52,7 +52,7 @@ public class MoveToAction
 {
 
 	/** The name of the action.*/
-	public static final String NAME = "Move to";
+	public static final String NAME = "Move to Group";
 	
 	/** The name of the action.*/
 	public static final String DESCRIPTION = "Select the group where to" +

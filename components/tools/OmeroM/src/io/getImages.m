@@ -51,11 +51,12 @@ function images = getImages(session, varargin)
 % 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 % Input check
+isValidIds =  @(x) isempty(x) || (isvector(x) && isnumeric(x));
 ip = inputParser;
 ip.addRequired('session');
-ip.addOptional('ids', [], @(x) isempty(x) || (isvector(x) && isnumeric(x)));
-ip.addParamValue('project', [], @(x) isvector(x) && isnumeric(x));
-ip.addParamValue('dataset', [], @(x) isscalar(x) && isnumeric(x));
+ip.addOptional('ids', [], isValidIds);
+ip.addParamValue('project', [], isValidIds);
+ip.addParamValue('dataset', [], isValidIds);
 ip.KeepUnmatched = true;
 ip.parse(session, varargin{:});
 

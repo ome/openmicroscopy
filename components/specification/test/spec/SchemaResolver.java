@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- *   Copyright 2006-2011 University of Dundee. All rights reserved.
+ *   Copyright 2006-2013 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -31,6 +31,8 @@ public class SchemaResolver implements LSResourceResolver
     // the static string to strip when mapping schema locations
     private static String GIT_MASTER_PATH  = "http://git.openmicroscopy.org/src/master/components/specification";
     private static String GIT_DEVELOP_PATH = "http://git.openmicroscopy.org/src/develop/components/specification";
+    private static String MAIN_PATH = "http://www.openmicroscopy.org/Schemas/";
+    private static String MAIN_SEARCH_PATH = "/Released-Schema/";
     private static String LEGACY_AC_PATH = "http://www.openmicroscopy.org/XMLschemas/AnalysisChain/RC1/";
     private static String LEGACY_AM_PATH = "http://www.openmicroscopy.org/XMLschemas/AnalysisModule/RC1/";
     private static String LEGACY_BF_PATH = "http://www.openmicroscopy.org/XMLschemas/BinaryFile/RC1/";
@@ -45,9 +47,9 @@ public class SchemaResolver implements LSResourceResolver
     public SchemaResolver() throws ClassNotFoundException, InstantiationException, IllegalAccessException
     {
         // Create the objects necessary to make the correct LSInput return types
-        System.setProperty(
+/*        System.setProperty(
             DOMImplementationRegistry.PROPERTY, 
-            "org.apache.xerces.dom.DOMImplementationSourceImpl");
+            "org.apache.xerces.dom.DOMImplementationSourceImpl");*/
         DOMImplementationRegistry theDOMImplementationRegistry = 
             DOMImplementationRegistry.newInstance();
         theDOMImplementationLS = 
@@ -84,6 +86,10 @@ public class SchemaResolver implements LSResourceResolver
         {
             theResult = makeSubstutionStream(systemId.substring(GIT_DEVELOP_PATH.length()), systemId);
         } 
+        else if (systemId.startsWith(MAIN_PATH))
+        {
+            theResult = makeSubstutionStream(MAIN_SEARCH_PATH + systemId.substring(MAIN_PATH.length()), systemId);
+        }
         else if (systemId.startsWith(LEGACY_AC_PATH)) 
         {
             theResult = makeSubstutionStream(LEGACY_SEARCH_PATH + systemId.substring(LEGACY_AC_PATH.length()), systemId);

@@ -461,17 +461,17 @@ public class ParametersI extends omero.sys.Parameters {
     }
 
     public ParametersI addId(long id) {
-        add("id", rlong(id));
+        add(ome.parameters.Parameters.ID, rlong(id));
         return this;
     }
 
     public ParametersI addId(RLong id) {
-        add("id", id);
+        add(ome.parameters.Parameters.ID, id);
         return this;
     }
 
     public ParametersI addIds(Collection<Long> longs) {
-        addLongs("ids", longs);
+        addLongs(ome.parameters.Parameters.IDS, longs);
         return this;
     }
 

@@ -12,7 +12,6 @@
 """
 
 from omero.cli import BaseControl, CLI
-import exceptions
 import cmd
 import time
 import cmd
@@ -59,7 +58,7 @@ class HqlControl(BaseControl):
         p.page(args.offset, args.limit)
         rv = self.project(q, args.query, p, ice_map)
         has_details = self.display(rv)
-        if args.quiet:
+        if args.quiet or not sys.stdout.isatty():
             return
 
         input = """

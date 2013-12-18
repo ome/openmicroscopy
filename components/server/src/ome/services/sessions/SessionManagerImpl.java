@@ -49,6 +49,7 @@ import ome.services.sessions.state.SessionCache;
 import ome.services.sessions.stats.CounterFactory;
 import ome.services.sessions.stats.SessionStats;
 import ome.services.util.Executor;
+import ome.services.util.Executor.Priority;
 import ome.system.EventContext;
 import ome.system.OmeroContext;
 import ome.system.Principal;
@@ -690,7 +691,7 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
             throw new RemovedSessionException("No session with uuid:"
                     + uuid);
         }
-        Future<Object> future = executor.submit(
+        Future<Object> future = executor.submit(Priority.SYSTEM,
                 new Callable<Object>(){
                     public Object call() throws Exception {
                         cache.reload(uuid);

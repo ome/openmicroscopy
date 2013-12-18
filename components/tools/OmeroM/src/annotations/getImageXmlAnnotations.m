@@ -1,21 +1,25 @@
 function xas = getImageXmlAnnotations(session, ids, varargin)
 % GETIMAGEXMLANNOTATIONS Retrieve xml annotations linked to images
 %
-%    fas = getImageXmlAnnotations(session, ids) returns all xml
+%    xas = getImageXmlAnnotations(session, ids) returns all xml
 %    annotations linked to the image specified by the input identifiers ids
 %    and owned by the session user.
 %
-%    fas = getImageXmlAnnotations(session,  ids, 'include', include) only
+%    xas = getImageXmlAnnotations(session, images) returns all xml
+%    annotations linked to the input images and owned by the session user.
+%
+%    xas = getImageXmlAnnotations(session,  ids, 'include', include) only
 %    returns xml annotations with the input namespace.
 %
-%    fas = getImageXmlAnnotations(session,  ids, 'exclude', exclude)
+%    xas = getImageXmlAnnotations(session,  ids, 'exclude', exclude)
 %    excludes xml annotations with the input namespace.
 %
 %    Examples:
 %
-%        fas = getImageXmlAnnotations(session, ids)
-%        fas = getImageXmlAnnotations(session, ids, 'include', include)
-%        fas = getImageXmlAnnotations(session, ids, 'exclude', exclude)
+%        xas = getImageXmlAnnotations(session, ids)
+%        xas = getImageXmlAnnotations(session, images)
+%        xas = getImageXmlAnnotations(session, ids, 'include', include)
+%        xas = getImageXmlAnnotations(session, ids, 'exclude', exclude)
 %
 % See also: GETOBJECTANNOTATIONS, GETIMAGECOMMENTANNOTATIONS,
 % GETIMAGETAGANNOTATIONS, GETIMAGEFILEANNOTATIONS

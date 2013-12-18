@@ -18,7 +18,6 @@ import os
 import sys
 import stat
 import platform
-import exceptions
 import portalocker
 
 from path import path
@@ -122,6 +121,9 @@ class AdminControl(BaseControl):
 
         Action("ice", """Drop user into icegridadmin console or execute arguments""")
 
+        fixpyramids = Action("fixpyramids", """Remove empty pyramid pixels files""").parser
+        # See cleanse options below
+
         Action("diagnostics", """Run a set of checks on the current, preferably active server""")
 
         Action("waitup", """Used by start after calling startasync to wait on status==0""", wait=True)
@@ -193,9 +195,11 @@ Examples:
   bin/omero admin cleanse /volumes/data/OMERO                                      # Delete from a standard location.
 
 """).parser
-        cleanse.add_argument("--dry-run", action = "store_true", help = "Print out which files would be deleted")
-        cleanse.add_argument("data_dir", type=DirectoryType(), help = "omero.data.dir directory value (e.g. /OMERO")
-        cleanse.add_login_arguments()
+
+        for x in (cleanse, fixpyramids):
+            x.add_argument("--dry-run", action = "store_true", help = "Print out which files would be deleted")
+            x.add_argument("data_dir", type=DirectoryType(), help = "omero.data.dir directory value (e.g. /OMERO")
+            x.add_login_arguments()
 
         Action("checkwindows", """Run simple check of the local installation (Windows-only)""")
         Action("checkice", """Run simple check of the Ice installation""")
@@ -415,7 +419,7 @@ Examples:
                 try:
                     self.ctx.out("Installing %s Windows service." % svc_name)
                     hs = win32service.CreateService(hscm, svc_name, svc_name, win32service.SERVICE_ALL_ACCESS,
-                            win32service.SERVICE_WIN32_OWN_PROCESS, win32service.SERVICE_DEMAND_START,
+                            win32service.SERVICE_WIN32_OWN_PROCESS, win32service.SERVICE_AUTO_START,
                             win32service.SERVICE_ERROR_NORMAL, binpath, None, 0, None, user, pasw)
                     self.ctx.out("Successfully installed %s Windows service." % svc_name)
                     win32service.CloseServiceHandle(hs)
@@ -495,7 +499,7 @@ Examples:
                         self.ctx.rv = 0
                 finally:
                     ic.destroy()
-            except exceptions.Exception, exc:
+            except Exception, exc:
                 self.ctx.rv = 1
                 self.ctx.dbg("Server not reachable: "+str(exc))
 
@@ -630,6 +634,16 @@ Examples:
             rv = self.ctx.call(command)
 
     @with_config
+    def fixpyramids(self, args, config):
+        self.check_access()
+        from omero.util.cleanse import fixpyramids
+        client = self.ctx.conn(args)
+        key = client.getSessionId()
+        fixpyramids(data_dir=args.data_dir, dry_run=args.dry_run, \
+            query_service=client.sf.getQueryService(), \
+            config_service=client.sf.getConfigService())
+
+    @with_config
     def diagnostics(self, args, config):
         self.check_access()
         config = config.as_map()
@@ -638,6 +652,14 @@ Examples:
             omero_data_dir = config['omero.data.dir']
         except KeyError:
             pass
+
+        from omero.util.temp_files import gettempdir
+        # gettempdir returns ~/omero/tmp/omero_%NAME/%PROCESS
+        # To find something more generally useful for calculating
+        # size, we go up two directories
+        omero_temp_dir = gettempdir()
+        omero_temp_dir = os.path.abspath(os.path.join(omero_temp_dir, os.path.pardir, os.path.pardir))
+
         self.ctx.out("""
 %s
 OMERO Diagnostics %s
@@ -672,9 +694,14 @@ OMERO Diagnostics %s
                     warn = 0
                     err = 0
                     for l in p.lines():
-                        if l.find("ERROR") >= 0:
+                        # ensure errors/warnings search is case-insensitive
+                        lcl = l.lower()
+                        found_err = lcl.find("error") >= 0
+                        found_warn = lcl.find("warn") >= 0
+
+                        if found_err:
                             err += 1
-                        elif l.find("WARN") >= 0:
+                        elif found_warn:
                             warn += 1
                     msg = ""
                     if warn or err:
@@ -716,7 +743,7 @@ OMERO Diagnostics %s
                     where = "unknown"
                 self.ctx.out("(%s)" % where)
                 return True
-            except exceptions.Exception, e:
+            except Exception, e:
                 self.ctx.err("error:%s" % e)
                 return False
 
@@ -901,21 +928,36 @@ OMERO Diagnostics %s
         env_val("OMERO_HOME")
         env_val("OMERO_NODE")
         env_val("OMERO_MASTER")
+        env_val("OMERO_TEMPDIR")
         env_val("PATH")
         env_val("ICE_HOME")
         env_val("LD_LIBRARY_PATH")
         env_val("DYLD_LIBRARY_PATH")
 
         self.ctx.out("")
-        exists = os.path.exists(omero_data_dir)
-        is_writable = os.access(omero_data_dir, os.R_OK|os.W_OK)
-        self.ctx.out("OMERO data dir: '%s'\tExists? %s\tIs writable? %s" % \
-            (omero_data_dir, exists, is_writable))
+        for dir_name, dir_path, dir_size in (
+                ("data", omero_data_dir, ""),
+                ("temp", omero_temp_dir, True)):
+            exists = os.path.exists(dir_path)
+            is_writable = os.access(dir_path, os.R_OK|os.W_OK)
+            if dir_size and exists:
+                dir_size = self.getdirsize(omero_temp_dir)
+                dir_size = "   (Size: %s)" % dir_size
+            self.ctx.out("OMERO %s dir: '%s'\tExists? %s\tIs writable? %s%s" % \
+                (dir_name, dir_path, exists, is_writable, dir_size))
+
         from omero.plugins.web import WebControl
         try:
             WebControl().status(args)
         except:
             self.ctx.out("OMERO.web not installed!")
+
+    def getdirsize(self, directory):
+        total = 0
+        for values in os.walk(directory):
+            for filename in values[2]:
+                total += os.path.getsize(os.path.join(values[0], filename))
+        return total
 
     def session_manager(self, communicator):
         import IceGrid, Glacier2

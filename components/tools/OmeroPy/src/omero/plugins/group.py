@@ -169,7 +169,7 @@ More information is available at:
         c = self.ctx.conn(args)
         a = c.sf.getAdminService()
 
-        gid, g = self.find_group(a, args.id_or_name)
+        gid, g = self.parse_groupid(a, args)
 
         old_perms = str(g.details.permissions)
         if old_perms == str(perms):

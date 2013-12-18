@@ -9,7 +9,6 @@
 
 """
 
-import exceptions
 import logging
 import os
 import time
