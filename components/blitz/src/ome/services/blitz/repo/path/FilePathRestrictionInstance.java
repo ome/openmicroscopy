@@ -22,6 +22,8 @@ package ome.services.blitz.repo.path;
 import java.util.HashSet;
 import java.util.Set;
 
+import ome.services.blitz.util.CurrentPlatform;
+
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -41,13 +43,13 @@ public enum FilePathRestrictionInstance {
     /** proscribe naming that probably causes system problems on UNIX-like platforms */
     UNIX_REQUIRED("UNIX required"),
     /** proscribe naming that probably causes sysadmin inconvenience on UNIX-like platforms */
-    UNIX_OPTIONAL("UNIX optional");
+    UNIX_OPTIONAL("UNIX optional"),
+    /** proscribe naming that probably causes system problems on the current platform */
+    LOCAL_REQUIRED("local required"),
+    /** proscribe naming that probably causes sysadmin inconvenience on the current platform */
+    LOCAL_OPTIONAL("local optional");
 
-    private static ImmutableMap<String, FilePathRestrictionInstance> nameLookup =
-            ImmutableMap.of(WINDOWS_REQUIRED.name, WINDOWS_REQUIRED,
-                            WINDOWS_OPTIONAL.name, WINDOWS_OPTIONAL,
-                            UNIX_REQUIRED.name, UNIX_REQUIRED,
-                            UNIX_OPTIONAL.name, UNIX_OPTIONAL);
+    private static ImmutableMap<String, FilePathRestrictionInstance> nameLookup;
 
     /**
      * Convert the given character to the corresponding Unicode code point.
@@ -62,6 +64,15 @@ public enum FilePathRestrictionInstance {
     static {
         /* Some information on Windows naming strategies is to be found at
          * http://msdn.microsoft.com/en-us/library/aa365247(VS.85).aspx */
+
+        final ImmutableMap.Builder<String, FilePathRestrictionInstance> nameLookupBuilder = ImmutableMap.builder();
+        nameLookupBuilder.put(WINDOWS_REQUIRED.name, WINDOWS_REQUIRED);
+        nameLookupBuilder.put(WINDOWS_OPTIONAL.name, WINDOWS_OPTIONAL);
+        nameLookupBuilder.put(UNIX_REQUIRED.name, UNIX_REQUIRED);
+        nameLookupBuilder.put(UNIX_OPTIONAL.name, UNIX_OPTIONAL);
+        nameLookupBuilder.put(LOCAL_REQUIRED.name, LOCAL_REQUIRED);
+        nameLookupBuilder.put(LOCAL_OPTIONAL.name, LOCAL_OPTIONAL);
+        nameLookup = nameLookupBuilder.build();
 
         final ImmutableSet<Character> safeCharacters = ImmutableSet.of('_');
         final int safeCodePoint = getCodePoint(safeCharacters.iterator().next());
@@ -119,6 +130,18 @@ public enum FilePathRestrictionInstance {
         unsafePrefixes.add("-");
 
         UNIX_OPTIONAL.rules = new FilePathRestrictions(null, unsafePrefixes, null, null, safeCharacters);
+
+        if (CurrentPlatform.isWindows()) {
+            LOCAL_REQUIRED.rules = WINDOWS_REQUIRED.rules;
+            LOCAL_OPTIONAL.rules = WINDOWS_OPTIONAL.rules;
+        } else if (CurrentPlatform.isLinux() || CurrentPlatform.isMacOSX()) {
+            LOCAL_REQUIRED.rules = UNIX_REQUIRED.rules;
+            LOCAL_OPTIONAL.rules = UNIX_OPTIONAL.rules;
+        } else {
+            /* take a conservative approach */
+            LOCAL_REQUIRED.rules = getFilePathRestrictions(WINDOWS_REQUIRED, UNIX_REQUIRED);
+            LOCAL_OPTIONAL.rules = getFilePathRestrictions(WINDOWS_OPTIONAL, UNIX_OPTIONAL);
+        }
     }
 
     public final String name;
