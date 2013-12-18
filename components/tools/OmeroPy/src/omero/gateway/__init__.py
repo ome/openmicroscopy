@@ -1796,7 +1796,9 @@ class _BlitzGateway (object):
         @return:    Current Experimenter
         @return:     Generator of L{BlitzObjectWrapper} subclasses
         """
-        return self.getObject("ExperimenterGroup", self.getAdminService().getSecurityRoles().systemGroupId).getMembers()
+        sysGroup = self.getObject("ExperimenterGroup", self.getAdminService().getSecurityRoles().systemGroupId)
+        for gem in sysGroup.copyGroupExperimenterMap():
+            yield ExperimenterWrapper(self, gem.child)
     
     def getGroupFromContext(self):
         """
