@@ -19,14 +19,21 @@
 
 package ome.services.blitz.test.utests;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
+import ome.services.blitz.repo.path.FilePathRestrictionInstance;
 import ome.services.blitz.repo.path.FilePathRestrictions;
+import ome.services.blitz.util.CurrentPlatform;
+
+import nl.javadude.assumeng.Assumption;
+import nl.javadude.assumeng.AssumptionListener;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.testng.Assert;
+import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.HashMultimap;
@@ -40,6 +47,7 @@ import com.google.common.collect.SetMultimap;
  */
 
 @Test(groups = { "fs" })
+@Listeners(AssumptionListener.class)
 public class FilePathRestrictionsTest {
 
     /**
@@ -51,7 +59,7 @@ public class FilePathRestrictionsTest {
     }
 
     /**
-     * Test that one may with rule sets created with mostly nulls.
+     * Test that one may create rule sets using mostly nulls.
      */
     @Test
     public void testNullSafety() {
@@ -377,5 +385,69 @@ public class FilePathRestrictionsTest {
         final FilePathRestrictions rules =
                 new FilePathRestrictions(transformationMatrix, null, null, null, ImmutableSet.of('A'));
         FilePathRestrictions.combineFilePathRestrictions(rules); 
+    }
+
+    /**
+     * Assert that collections contain exactly the same elements, regardless of ordering.
+     * @param actual the actual elements
+     * @param expected the expected elements
+     */
+    private static <X> void assertEqualsNoOrder(Collection<X> actual, Collection<X> expected) {
+        final HashSet<X> remaining = new HashSet<X>(actual);
+        for (final X expectedItem : expected) {
+            Assert.assertTrue(remaining.remove(expectedItem), "collections must contain the same elements");
+        }
+        Assert.assertTrue(remaining.isEmpty(), "collections must contain the same elements");
+    }
+
+    /**
+     * Assert that file path restriction rules are identical in effect.
+     * @param actual the actual rules
+     * @param expected the expected rules
+     */
+    private static void assertSameRules(FilePathRestrictions actual, FilePathRestrictions expected) {
+        assertEqualsNoOrder(actual.transformationMatrix.entries(), expected.transformationMatrix.entries());
+        assertEqualsNoOrder(actual.unsafePrefixes, expected.unsafePrefixes);
+        assertEqualsNoOrder(actual.unsafeSuffixes, expected.unsafeSuffixes);
+        assertEqualsNoOrder(actual.unsafeNames, expected.unsafeNames);
+        assertEqualsNoOrder(actual.safeCharacters, expected.safeCharacters);
+        Assert.assertEquals(actual.safeCharacter, expected.safeCharacter);
+        assertEqualsNoOrder(actual.transformationMap.entrySet(), expected.transformationMap.entrySet());
+    }
+
+    /**
+     * On Microsoft Windows, test that the applicable rules are those for Microsoft Windows.
+     */
+    @Test
+    @Assumption(methods = {"isWindows"}, methodClass = CurrentPlatform.class)
+    public void testUnsafeCharacterUnsafetyWindows() {
+        assertSameRules(FilePathRestrictionInstance.getFilePathRestrictions(FilePathRestrictionInstance.LOCAL_REQUIRED),
+                        FilePathRestrictionInstance.getFilePathRestrictions(FilePathRestrictionInstance.WINDOWS_REQUIRED));
+        assertSameRules(FilePathRestrictionInstance.getFilePathRestrictions(FilePathRestrictionInstance.LOCAL_OPTIONAL),
+                        FilePathRestrictionInstance.getFilePathRestrictions(FilePathRestrictionInstance.WINDOWS_OPTIONAL));
+    }
+
+    /**
+     * On Linux, test that the applicable rules are those for UNIX-like platforms.
+     */
+    @Test
+    @Assumption(methods = {"isLinux"}, methodClass = CurrentPlatform.class)
+    public void testUnsafeCharacterUnsafetyLinux() {
+        assertSameRules(FilePathRestrictionInstance.getFilePathRestrictions(FilePathRestrictionInstance.LOCAL_REQUIRED),
+                        FilePathRestrictionInstance.getFilePathRestrictions(FilePathRestrictionInstance.UNIX_REQUIRED));
+        assertSameRules(FilePathRestrictionInstance.getFilePathRestrictions(FilePathRestrictionInstance.LOCAL_OPTIONAL),
+                        FilePathRestrictionInstance.getFilePathRestrictions(FilePathRestrictionInstance.UNIX_OPTIONAL));
+    }
+
+    /**
+     * On Apple Mac OS X, test that the applicable rules are those for UNIX-like platforms.
+     */
+    @Test
+    @Assumption(methods = {"isMacOSX"}, methodClass = CurrentPlatform.class)
+    public void testUnsafeCharacterUnsafetyMacOSX() {
+        assertSameRules(FilePathRestrictionInstance.getFilePathRestrictions(FilePathRestrictionInstance.LOCAL_REQUIRED),
+                        FilePathRestrictionInstance.getFilePathRestrictions(FilePathRestrictionInstance.UNIX_REQUIRED));
+        assertSameRules(FilePathRestrictionInstance.getFilePathRestrictions(FilePathRestrictionInstance.LOCAL_OPTIONAL),
+                        FilePathRestrictionInstance.getFilePathRestrictions(FilePathRestrictionInstance.UNIX_OPTIONAL));
     }
 }
