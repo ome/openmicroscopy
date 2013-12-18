@@ -76,6 +76,11 @@ if __name__ == '__main__':
     for g in conn.listOwnedGroups():
         print "   ID:", g.getName(), " Name:", g.getId()
 
+    # New in OMERO 5
+    print "Admins:"
+    for exp in conn.getAdministrators():
+        print "   ID:", exp.getId(), exp.getOmeName(), " Name:", exp.getFullName()
+
     # The 'context' of our current session
     ctx = conn.getEventContext()
     # print ctx     # for more info
