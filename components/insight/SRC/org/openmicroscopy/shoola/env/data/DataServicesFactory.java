@@ -481,6 +481,8 @@ public class DataServicesFactory
 				message = "The network is down.\n";
 				connectionDialog = new ShutDownDialog(f, "Network down",
 				        message, -1);
+				((ShutDownDialog) connectionDialog).setChecker(
+				        omeroGateway.getChecker());
 				addListenerAndShow();
 				break;
 			case ConnectionExceptionHandler.LOST_CONNECTION:

@@ -1645,6 +1645,8 @@ class OMEROGateway
 		enumerations = new HashMap<String, List<EnumerationObject>>();
 	}
 
+	NetworkChecker getChecker() { return networkChecker; }
+	
 	/**
 	 * Returns the port used.
 	 *
