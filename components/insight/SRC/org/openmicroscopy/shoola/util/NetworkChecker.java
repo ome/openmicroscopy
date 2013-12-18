@@ -31,7 +31,6 @@ import java.util.Enumeration;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
-
 //Third-party libraries
 
 //Application-internal dependencies
@@ -57,6 +56,9 @@ public class NetworkChecker {
      */
     private InetAddress ipAddress;
 
+    /** The list of interfaces when the network checker is initialized.*/
+    private long interfacesCount;
+    
     /** Creates a new instance.*/
     public NetworkChecker()
     {
@@ -77,6 +79,22 @@ public class NetworkChecker {
             } catch (UnknownHostException e) {
                 // Ignored
             }
+        }
+        interfacesCount = 0;
+        try {
+            Enumeration<NetworkInterface> interfaces =
+                    NetworkInterface.getNetworkInterfaces();
+            if (interfaces != null) {
+                NetworkInterface ni;
+                while (interfaces.hasMoreElements()) {
+                    ni = interfaces.nextElement();
+                    if (ni.isLoopback() || !ni.isUp())
+                        continue;
+                    interfacesCount++;
+                }
+            }
+        } catch (Exception e) {
+            // Ignored
         }
     }
 
@@ -119,37 +137,27 @@ public class NetworkChecker {
     private boolean _isNetworkup()
             throws Exception
     {
+        if (ipAddress != null && ipAddress.isLoopbackAddress()) {
+            return true;
+        }
         boolean networkup = false;
         Enumeration<NetworkInterface> interfaces =
                 NetworkInterface.getNetworkInterfaces();
+        long count = 0;
         if (interfaces != null && !networkup) {
             NetworkInterface ni;
-            InetAddress ia;
             while (interfaces.hasMoreElements()) {
                 ni = interfaces.nextElement();
                 if (ni.isLoopback() || !ni.isUp())
                     continue;
-                Enumeration<InetAddress> e = ni.getInetAddresses();
-                if (!ni.getDisplayName().startsWith("lo")) {
-                    while (e.hasMoreElements()) {
-                        ia = (InetAddress) e.nextElement();
-                        if (!ia.isAnyLocalAddress() &&
-                                !ia.isLoopbackAddress()) {
-                            if (!ia.getHostName().equals(
-                                    ia.getHostAddress())) {
-                                networkup = true;
-                                break;
-                            }
-                        }
-                    }
-                    if (networkup) break;
-                }
+                count++;
             }
         }
+        log("Count: %s  %s", count, interfacesCount);
+        if (count >= interfacesCount) {
+            networkup = true;
+        }
         if (!networkup) {
-            if (ipAddress != null && ipAddress.isLoopbackAddress()) {
-                return true;
-            }
             throw new UnknownHostException("Network is down.");
         }
         return networkup;
@@ -175,11 +183,33 @@ public class NetworkChecker {
      * without running the entire software stack.
      */
     public static void main(String[] args) throws Exception {
-        String address = args.length == 1? args[0] : null;
-        NetworkChecker nc = new NetworkChecker(address);
-        System.err.println("Using explicit server address: " + address);
-        System.err.println("Java version: " + System.getProperty("java.version"));
-        System.err.println("isNetworkup()?: " + nc.isNetworkup(false));
+        String address = args.length == 1? args[0] : "null";
+        runTest(new NetworkChecker(address), address);
+    }
+
+    /**
+     * Runs the tests.
+     *
+     * @param nc The network checker.
+     * @param address The address to check.
+     */
+    private static void runTest(NetworkChecker nc, String address)
+    {
+        try {
+            int i = 0;
+            while (i < 1) {
+                System.err.println("host: "+"127.0.0.1".equals(InetAddress.getLocalHost().getHostAddress().toString()));
+                System.err.println("Using explicit server address: " + address);
+                System.err.println("Java version: " + System.getProperty("java.version"));
+                System.err.println("isNetworkup()?: " + nc.isNetworkup(false));
+                try {
+                    Thread.sleep(5L*1000L);
+                } catch(Exception ex) {}
+                i++;
+            }
+        } catch (Exception e) {
+            System.err.println("isNetworkup()?: " + false);
+        }
     }
 
 }
