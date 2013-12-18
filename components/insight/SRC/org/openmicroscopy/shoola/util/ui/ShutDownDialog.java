@@ -100,7 +100,7 @@ public class ShutDownDialog
         okButton.setToolTipText("Shut down the application.");
         int speed = 1000;
         int pause = 1000;
-        checker = new NetworkChecker();
+        //checker = new NetworkChecker();
         timer = new Timer(speed, this);
         timer.setInitialDelay(pause);
         timer.start();
@@ -205,6 +205,12 @@ public class ShutDownDialog
     public ShutDownDialog(JFrame owner, String title, String message)
     {
         this(owner, title, message, DEFAULT_TIME, -1);
+    }
+
+    public void setChecker(NetworkChecker checker)
+    {
+        if (checker == null) checker = new NetworkChecker();
+        this.checker = checker;
     }
 
     /**
