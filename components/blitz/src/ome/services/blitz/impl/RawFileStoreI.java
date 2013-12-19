@@ -16,8 +16,10 @@ import ome.services.blitz.util.BlitzExecutor;
 import ome.services.blitz.util.ServiceFactoryAware;
 import ome.services.util.Executor;
 import ome.util.SqlAction;
+import omero.RLong;
 import omero.ServerError;
 import omero.api.AMD_RawFileStore_exists;
+import omero.api.AMD_RawFileStore_getFileId;
 import omero.api.AMD_RawFileStore_read;
 import omero.api.AMD_RawFileStore_save;
 import omero.api.AMD_RawFileStore_setFileId;
@@ -80,6 +82,11 @@ _RawFileStoreOperations, ServiceFactoryAware, TieAware {
             int length, Current __current) throws ServerError {
         callInvokerOnRawArgs(__cb, __current, position, length);
 
+    }
+
+    public void getFileId_async(AMD_RawFileStore_getFileId __cb,
+            Current __current) throws ServerError {
+        callInvokerOnRawArgs(__cb, __current);
     }
 
     public void setFileId_async(AMD_RawFileStore_setFileId __cb, long fileId,
@@ -198,6 +205,15 @@ _RawFileStoreOperations, ServiceFactoryAware, TieAware {
             safeRunnableCall(__current, __cb, false, new Callable<Boolean>() {
                 public Boolean call() throws Exception {
                     return prx.exists();
+                }
+            });
+        }
+
+        public void getFileId_async(AMD_RawFileStore_getFileId __cb, Current __current)
+                throws ServerError {
+            safeRunnableCall(__current, __cb, false, new Callable<RLong>() {
+                public RLong call() throws Exception {
+                    return prx.getFileId();
                 }
             });
         }

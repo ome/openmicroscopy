@@ -277,7 +277,18 @@ public class RawFileBean extends AbstractStatefulBean implements RawFileStore {
 
     /*
      * (non-Javadoc)
-     * 
+     *
+     * @see ome.api.RawFileStore#getFileId()
+     */
+    @RolesAllowed("user")
+    @Transactional(readOnly = true)
+    public synchronized Long getFileId() {
+        return id;
+    }
+
+    /*
+     * (non-Javadoc)
+     *
      * @see ome.api.RawFileStore#setFileId(long)
      */
     @RolesAllowed("user")
