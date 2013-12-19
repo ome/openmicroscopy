@@ -22,6 +22,7 @@ def _to_list(path):
     """
     if isinstance(path,str) or isinstance(path,unicode):
         path = [str(path)]
+        return path
     else:
         path = [str(x) for x in path]
         return path
