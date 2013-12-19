@@ -116,16 +116,13 @@ import pojos.ImageData;
  * Embeds the {@link Browser}. Also provides a menu bar, a status bar and a 
  * panel hosting various controls.
  *
- * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
- * @author	Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:a.falconi@dundee.ac.uk">a.falconi@dundee.ac.uk</a>
- * @author	Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
+ * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
+ * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+ * @author Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
+ * <a href="mailto:a.falconi@dundee.ac.uk">a.falconi@dundee.ac.uk</a>
+ * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
+ * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $ $Date: $)
- * </small>
  * @since OME2.2
  */
 class ImViewerUI
@@ -1079,16 +1076,7 @@ class ImViewerUI
 			h = height;
 		} 
 		if (reset) {
-			setSize(h, h);
-			/*
-			model.setZoomFactor(ZoomAction.ZOOM_FIT_FACTOR, false);
-			//Depending on the size 
-			clearZoomMenu(zoomingGroup, zoomMenu);
-			clearZoomMenu(zoomingGridGroup, zoomGridMenu);
-			ViewerPreferences pref = ImViewerFactory.getPreferences();
-			createZoomMenu(pref, false);
-			controlPane.resetZoomValues();
-			*/
+			setSize(w, h);
 		}
 	}
 	
