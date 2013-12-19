@@ -675,14 +675,14 @@ class Connector
             entryEncrypted.keepAllAlive(null);
         } catch (Exception e) {
             success = false;
-            log("Failed encrypted keep alive:" + getErrorMessage(e));
+            log("Failed encrypted keep alive: " + getErrorMessage(e));
         }
         try {
             if (entryUnencrypted != null && success)
                 entryUnencrypted.keepAllAlive(null);
         } catch (Exception e) {
             success = false;
-            log("failed unencrypted keep alive:" + getErrorMessage(e));
+            log("failed unencrypted keep alive: " + getErrorMessage(e));
         }
 
         if (success) {

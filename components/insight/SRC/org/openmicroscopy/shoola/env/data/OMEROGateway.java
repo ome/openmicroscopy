@@ -2221,6 +2221,7 @@ class OMEROGateway
 	 */
     boolean joinSession()
     {
+        log("joinSession ");
         try {
             isNetworkUp(false); // Force re-check to prevent hang
         } catch (Exception e) {
@@ -2239,7 +2240,6 @@ class OMEROGateway
         while (i.hasNext()) {
             c = i.next();
             try {
-                
                 if (groupConnectorMap.containsKey(c.getGroupID())) {
                     try {
                         c.shutDownServices(true);
@@ -2248,10 +2248,12 @@ class OMEROGateway
                         log("Failed to close the session "+printErrorText(e));
                     }
                 } else {
-                    c.joinSession();
                     groupConnectorMap.put(c.getGroupID(), c);
                 }
+                log("joining the session ");
+                c.joinSession();
             } catch (Throwable t) {
+                log("Failed to join the session "+printErrorText(t));
                 //failed to join so we create a new one, first we shut down
                 try {
                     c.shutDownServices(true);
@@ -5370,6 +5372,7 @@ class OMEROGateway
 	            if (!c.keepSessionAlive()) {
 	                dsFactory.sessionExpiredExit(
                             ConnectionExceptionHandler.LOST_CONNECTION, null);
+	                break;
 	            }
 	        }
 	    }
