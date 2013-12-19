@@ -362,6 +362,10 @@ public class DataServicesFactory
      */
     private void addListenerAndShow()
     {
+        if (connectionDialog instanceof ShutDownDialog) {
+            ((ShutDownDialog) connectionDialog).setChecker(
+                    omeroGateway.getChecker());
+        }
         connectionDialog.setModal(false);
         connectionDialog.addPropertyChangeListener(new PropertyChangeListener()
         {
@@ -383,7 +387,7 @@ public class DataServicesFactory
                 }
             }
         });
-        connectionDialog.setModal(true);
+        connectionDialog.setModal(false);
         UIUtilities.centerAndShow(connectionDialog);
     }
 
@@ -481,8 +485,6 @@ public class DataServicesFactory
 				message = "The network is down.\n";
 				connectionDialog = new ShutDownDialog(f, "Network down",
 				        message, -1);
-				((ShutDownDialog) connectionDialog).setChecker(
-				        omeroGateway.getChecker());
 				addListenerAndShow();
 				break;
 			case ConnectionExceptionHandler.LOST_CONNECTION:
