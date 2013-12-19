@@ -22,6 +22,7 @@ module omero {
          **/
         ["ami", "amd"] interface RawFileStore extends StatefulServiceInterface
             {
+                idempotent omero::RLong getFileId() throws ServerError;
                 void setFileId(long fileId) throws ServerError;
                 idempotent Ice::ByteSeq read(long position, int length) throws ServerError;
                 idempotent long size() throws ServerError;
