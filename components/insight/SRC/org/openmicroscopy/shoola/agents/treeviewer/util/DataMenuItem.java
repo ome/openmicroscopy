@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.treeviewer.util.DataMenuItem
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2012 University of Dundee & Open Microscopy Environment.
+ *  Copyright (C) 2006-2013 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
  *
  *
@@ -25,14 +25,16 @@ package org.openmicroscopy.shoola.agents.treeviewer.util;
 
 
 //Java imports
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
 import javax.swing.Icon;
 import javax.swing.JCheckBox;
 
 //Third-party libraries
 
-import pojos.DataObject;
-import pojos.GroupData;
 //Application-internal dependencies
+import pojos.GroupData;
 import pojos.ExperimenterData;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 
@@ -43,74 +45,98 @@ import org.openmicroscopy.shoola.agents.util.EditorUtil;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @since 4.4
  */
-public class DataMenuItem 
-	extends JCheckBox
+public class DataMenuItem
+    extends JCheckBox
+    implements ActionListener
 {
 
-	/** The object to host.*/
-	private DataObject data;
-	
-	/** Flag indicating if the item can be enabled or not.*/
-	private boolean canBeEnabled;
-	
-	/**
-	 * Creates a new instance.
-	 * 
-	 * @param data The data to host.
-	 * @param icon The icon to set.
-	 */
-	public DataMenuItem(DataObject data, Icon icon)
-	{
-		this(data, icon, true);
-	}
-	
-	/**
-	 * Creates a new instance.
-	 * 
-	 * @param data The data to host.
-	 * @param icon The icon to set.
-	 * @param canBeEnabled Flag indicating if the item can be enabled or not.
-	 */
-	public DataMenuItem(DataObject data, Icon icon, boolean canBeEnabled)
-	{
-		if (data == null) 
-			throw new IllegalArgumentException("No data");
-		if (data instanceof ExperimenterData)
-			setText(EditorUtil.formatExperimenter((ExperimenterData) data));
-		else if (data instanceof GroupData)
-			setText(((GroupData) data).getName());
-		if (icon != null) setIcon(icon);
-		this.canBeEnabled = canBeEnabled;
-		this.data = data;
-		setEnabled(true);
-	}
-	
-	/**
-	 * Creates a new instance.
-	 * 
-	 * @param data The data to host.
-	 * @param canBeEnabled Flag indicating if the item can be enabled or not.
-	 */
-	public DataMenuItem(DataObject data, boolean canBeEnabled)
-	{
-		this(data, null, canBeEnabled);
-	}
-	
-	/**
-	 * Returns the data object.
-	 * 
-	 * @return See above.
-	 */
-	public DataObject getDataObject() { return data; }
-	
-	/**
-	 * Overridden to set the enabled flag.
-	 * @see #setEnabled(boolean)
-	 */
-	public void setEnabled(boolean enabled)
-	{
-		if (!canBeEnabled) enabled = false;
-		super.setEnabled(enabled);
-	}
+    /** The default text to select all the users.*/
+    public static final String ALL_USERS_TEXT;
+
+    /** Bound property indicating if the item is selected or not.*/
+    public static final String ITEM_SELECTED_PROPERTY;
+
+    static {
+        ITEM_SELECTED_PROPERTY = "itemSelectedProperty";
+        ALL_USERS_TEXT = "Show All Users";
+    }
+
+    /** The object to host.*/
+    private final Object data;
+
+    /** Flag indicating if the item can be enabled or not.*/
+    private boolean canBeEnabled;
+
+    /**
+     * Creates a new instance.
+     * 
+     * @param data The data to host.
+     * @param icon The icon to set.
+     */
+    public DataMenuItem(Object data, Icon icon)
+    {
+        this(data, icon, true);
+    }
+
+    /**
+     * Creates a new instance.
+     * 
+     * @param data The data to host.
+     * @param icon The icon to set.
+     * @param canBeEnabled Flag indicating if the item can be enabled or not.
+     */
+    public DataMenuItem(Object data, Icon icon, boolean canBeEnabled)
+    {
+        if (data == null) 
+            throw new IllegalArgumentException("No data");
+        if (data instanceof ExperimenterData)
+            setText(EditorUtil.formatExperimenter((ExperimenterData) data));
+        else if (data instanceof GroupData)
+            setText(((GroupData) data).getName());
+        else setText(data.toString());
+        if (icon != null) setIcon(icon);
+        this.canBeEnabled = canBeEnabled;
+        this.data = data;
+        setEnabled(true);
+        addActionListener(this);
+    }
+
+    /**
+     * Creates a new instance.
+     * 
+     * @param data The data to host.
+     * @param canBeEnabled Flag indicating if the item can be enabled or not.
+     */
+    public DataMenuItem(Object data, boolean canBeEnabled)
+    {
+        this(data, null, canBeEnabled);
+    }
+
+    /**
+     * Returns the data object.
+     * 
+     * @return See above.
+     */
+    public Object getDataObject() { return data; }
+
+    /**
+     * Overridden to set the enabled flag.
+     * @see #setEnabled(boolean)
+     */
+    public void setEnabled(boolean enabled)
+    {
+        if (!canBeEnabled) enabled = false;
+        super.setEnabled(enabled);
+    }
+
+    /**
+     * Fires a property change indicating the selected or deselected object.
+     *
+     * @see ActionListener#actionPerformed(ActionEvent)
+     */
+    public void actionPerformed(ActionEvent evt)
+    {
+        firePropertyChange(ITEM_SELECTED_PROPERTY, null, this);
+    }
 
 }
