@@ -148,12 +148,12 @@ class PrefsControl(BaseControl):
 
         load = parser.add(
             sub, self.load,
-            "Read into current profile from a file or standard in")
+            "Read into current profile from a file or standard input")
         load.add_argument(
             "-q", action="store_true", help="No error on conflict")
         load.add_argument(
             "file", nargs="*", type=ExistingFile('r'), default="-",
-            help="Files to read from. Default to standard in if not"
+            help="Files to read from. Default to standard input if not"
             " specified")
 
         parser.add(sub, self.edit, "Present the properties for the current"
