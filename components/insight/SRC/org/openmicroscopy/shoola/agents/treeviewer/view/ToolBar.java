@@ -28,7 +28,6 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Point;
-import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -192,19 +191,16 @@ class ToolBar
     private JButton addToDisplay;
 
     /** The menu displaying the users option.*/
-    private JPopupMenu usersMenu;
-
-    /** The menu displaying the users option.*/
-    private JPopupMenu groupsMenu;
+    private JPopupMenu popupMenu;
 
     /** The selected group.*/
-    private GroupItem selectedItem;
+    //private GroupItem selectedItem;
 
     /** The collection of object hosting the groups.*/
     private Map<JCheckBox, DataMenuItem> groupItems;
 
     /** Listens to selection in the groups menu.*/
-    private MouseAdapter usersMenuListener;
+    //private MouseAdapter usersMenuListener;
 
     /** Label indicating the number of successful import if any.*/
     private JLabel importSuccessLabel;
@@ -214,18 +210,6 @@ class ToolBar
 
     /** Label indicating the import status.*/
     private JXBusyLabel importLabel;
-
-    /** Handles the group and users selection.*/
-    private void handleUsersSelection()
-    {
-        if (selectedItem == null) return;
-        //handle users and group selection.
-        controller.setSelection(selectedItem.getGroup(),
-                selectedItem.getSeletectedUsers(),
-                !selectedItem.isGroupSelected());
-        usersMenu.setVisible(false);
-        groupsMenu.setVisible(false);
-    }
 
     /** Handles the groups selection.*/
     private void handleGroupsSelection()
@@ -242,7 +226,7 @@ class ToolBar
             else toRemove.add((GroupData) e.getValue().getDataObject());
         }
         controller.setSelectedGroups(toAdd, toRemove);
-        groupsMenu.setVisible(false);
+        popupMenu.setVisible(false);
     }
 
     /**
@@ -267,7 +251,7 @@ class ToolBar
      * @param groupNumber The number of groups.
      * @return See above.
      */
-    private JComponent createGroupMenu(GroupItem groupItem, int groupNumber)
+    private void createGroupMenu(GroupItem groupItem)
     {
         GroupData group = groupItem.getGroup();
         long id = model.getUserDetails().getId();
@@ -307,33 +291,19 @@ class ToolBar
 
         DataMenuItem item;
         JPanel list;
-        JCheckBox groupBox = new JCheckBox();
-        Font font = groupBox.getFont();
-        Font newFont = font.deriveFont(Font.BOLD);
-        groupBox.setFont(newFont);
-        groupBox.setText("Show Group");
-        groupBox.setHorizontalTextPosition(SwingConstants.LEFT);
-        if (groupNumber > 1)
-            p.add(UIUtilities.buildComponentPanel(groupBox));
-        groupItem.setGroupBox(groupBox);
-        ActionListener al = new ActionListener() {
-
-            /**
-             * Selects the group is not already selected.
-             * @see ActionListner#actionPerformed(ActionEvent)
-             */
-            public void actionPerformed(ActionEvent e) {
-                if (selectedItem == null) return;
-                selectedItem.setGroupSelection(true);
-
-            }
-        };
         int level = group.getPermissions().getPermissionsLevel();
         boolean view = true;
         if (level == GroupData.PERMISSIONS_PRIVATE) {
             view = model.isAdministrator() || model.isGroupOwner(group);
         }
-        if (!CollectionUtils.isEmpty(l) && view) {
+        list = new JPanel();
+        list.setLayout(new BoxLayout(list, BoxLayout.Y_AXIS));
+        item = new DataMenuItem(DataMenuItem.ALL_USERS_TEXT, true);
+        item.addPropertyChangeListener(groupItem);
+        items.add(item);
+        list.add(item);
+        p.add(UIUtilities.buildComponentPanel(list));
+        if (CollectionUtils.isNotEmpty(l) && view) {
             p.add(formatHeader("Group owners"));
             i = l.iterator();
             list = new JPanel();
@@ -342,14 +312,15 @@ class ToolBar
                 exp = (ExperimenterData) i.next();
                 item = new DataMenuItem(exp, exp.getId() != id);
                 item.setSelected(users.contains(exp.getId()));
-                item.addActionListener(al);
+                item.addPropertyChangeListener(groupItem);
                 items.add(item);
                 list.add(item);
             }
             p.add(UIUtilities.buildComponentPanel(list));
         }
+
         l = sorter.sort(group.getMembersOnly());
-        if (!CollectionUtils.isEmpty(l)) {
+        if (CollectionUtils.isNotEmpty(l)) {
             p.add(formatHeader("Members"));
             i = l.iterator();
             list = new JPanel();
@@ -359,19 +330,15 @@ class ToolBar
                 if (view || exp.getId() == id) {
                     item = new DataMenuItem(exp, exp.getId() != id);
                     item.setSelected(users.contains(exp.getId()));
-                    item.addActionListener(al);
+                    item.addPropertyChangeListener(groupItem);
                     items.add(item);
                     list.add(item);
                 }
             }
             p.add(UIUtilities.buildComponentPanel(list));
         }
-
-
-        JScrollPane pane = new JScrollPane(p);
-        groupItem.setUsersMenu(pane);
+        groupItem.add(new JScrollPane(p));
         groupItem.setUsersItem(items);
-        return pane;
     }
 
     /**
@@ -386,7 +353,7 @@ class ToolBar
         Collection groups = model.getGroups();
         if (CollectionUtils.isEmpty(groups)) return;
         List sortedGroups = sorter.sort(groups);
-        groupsMenu.removeAll();
+        popupMenu.removeAll();
         groupItems.clear();
         GroupData group;
         //Determine the group already displayed.
@@ -427,18 +394,18 @@ class ToolBar
             pane.add(row);
         }
         pane.add(UIUtilities.buildComponentPanel(addToDisplay));
-        groupsMenu.add(new JScrollPane(pane));
+        popupMenu.add(new JScrollPane(pane));
         //Check the size of the menu
         Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
 
         //Set the size
-        Dimension d = groupsMenu.getPreferredSize();
+        Dimension d = popupMenu.getPreferredSize();
         Point p1 = source.getLocation();
         SwingUtilities.convertPointToScreen(p1, source);
         int h = dim.height-p1.y-30; //max size.
         int diff = p1.y+d.height;
-        if (diff > h) groupsMenu.setPopupSize(d.width+20, h);
-        groupsMenu.show(source, p.x, p.y);
+        if (diff > h) popupMenu.setPopupSize(d.width+20, h);
+        popupMenu.show(source, p.x, p.y);
     }
 
     /**
@@ -453,7 +420,7 @@ class ToolBar
         Collection groups = model.getGroups();
         if (CollectionUtils.isEmpty(groups)) return;
         List sortedGroups = sorter.sort(groups);
-        groupsMenu.removeAll();
+        popupMenu.removeAll();
         groupItems.clear();
         GroupData group;
 
@@ -479,14 +446,13 @@ class ToolBar
         int size = sortedGroups.size();
         while (i.hasNext()) {
             group = (GroupData) i.next();
-            item = new GroupItem(group, getGroupIcon(group));
-            createGroupMenu(item, size);
-            if (groupIds.contains(group.getId()) || size == 1)
-                item.setGroupSelection(true);
-            item.addMouseListener(usersMenuListener);
-            groupsMenu.add(item);
+            boolean b = groupIds.contains(group.getId()) || size == 1;
+            item = new GroupItem(group, b);
+            createGroupMenu(item);
+            //item.addMouseListener(usersMenuListener);
+            popupMenu.add(item);
         }
-        groupsMenu.show(source, p.x, p.y);
+        popupMenu.show(source, p.x, p.y);
     }
 
     /**
@@ -723,73 +689,8 @@ class ToolBar
         importLabel.setBusy(false);
         sorter = new ViewerSorter();
         sorter.setCaseSensitive(true);
-        addToDisplay = new JButton("Update");
-        addToDisplay.addActionListener(new ActionListener() {
-
-            public void actionPerformed(ActionEvent evt) {
-
-                switch (model.getDisplayMode()) {
-                case LookupNames.EXPERIMENTER_DISPLAY:
-                    handleUsersSelection();
-                    break;
-                case LookupNames.GROUP_DISPLAY:
-                    handleGroupsSelection();
-                }
-            }
-        });
-
-        groupsMenu = new JPopupMenu();
+        popupMenu = new JPopupMenu();
         groupItems = new HashMap<JCheckBox, DataMenuItem>();
-        groupsMenu.addPopupMenuListener(new PopupMenuListener() {
-
-            public void popupMenuWillBecomeVisible(PopupMenuEvent evt) {}
-
-            /**
-             * Hides the menu
-             */
-            public void popupMenuWillBecomeInvisible(PopupMenuEvent evt) {
-                if (usersMenu != null) usersMenu.setVisible(false);
-            }
-
-            /**
-             * Hides the menu
-             */
-            public void popupMenuCanceled(PopupMenuEvent evt) {
-                if (usersMenu != null) usersMenu.setVisible(false);
-            }
-        });
-        usersMenuListener = new MouseAdapter() {
-
-            /**
-             * Displays the users belonging to the selected group.
-             * @see MouseListener#mouseEntered(MouseEvent)
-             */
-            public void mouseEntered(MouseEvent e) {
-                GroupItem c = (GroupItem) e.getSource();
-                selectedItem = c;
-                if (usersMenu != null) {
-                    usersMenu.setVisible(false);
-                    usersMenu.removeAll();
-                }
-                usersMenu = new JPopupMenu();
-                Rectangle r = c.getBounds();
-                usersMenu.add(c.getUsersMenu());
-                usersMenu.add(UIUtilities.buildComponentPanel(addToDisplay));
-                Dimension size = Toolkit.getDefaultToolkit().getScreenSize();
-
-                //Set the size
-                Dimension d = usersMenu.getPreferredSize();
-                Point p1 = c.getLocation();
-                SwingUtilities.convertPointToScreen(p1, c);
-                int h = size.height-p1.y-30; //max size.
-                int diff = p1.y+d.height;
-                if (diff > h)
-                    usersMenu.setPopupSize(d.width+20, h);
-                //Set the location
-
-                usersMenu.show(e.getComponent(), r.width, 0);
-            }
-        };
     }
 
     /**

@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.treeviewer.util.GroupItem
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2012 University of Dundee & Open Microscopy Environment.
+ *  Copyright (C) 2006-2013 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
  *
  *
@@ -26,18 +26,18 @@ package org.openmicroscopy.shoola.agents.treeviewer.util;
 
 
 //Java imports
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
-import javax.swing.Icon;
-import javax.swing.JCheckBox;
 import javax.swing.JComponent;
-import javax.swing.JMenu;
 
 //Third-party libraries
 
+import org.apache.commons.collections.CollectionUtils;
 //Application-internal dependencies
+import org.openmicroscopy.shoola.util.ui.SelectableMenu;
 import pojos.ExperimenterData;
 import pojos.GroupData;
 
@@ -48,116 +48,95 @@ import pojos.GroupData;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @since 4.4
  */
-public class GroupItem 
-	extends JMenu
+public class GroupItem
+    extends SelectableMenu
+    implements PropertyChangeListener
 {
-	
-	/** The group hosted by this component.*/
-	private GroupData group;
 
-	/** The List of components hosting the user.*/
-	private List<DataMenuItem> usersItem;
-	
-	/** The menu displaying the users.*/
-	private JComponent usersMenu;
+    /** The group hosted by this component.*/
+    private GroupData group;
 
-	/** The box indicating if the group is selected or not.*/
-	private JCheckBox groupBox;
-	
-	/**
-	 * Creates a new instance.
-	 * 
-	 * @param group The group hosted by this component.
-	 * @param icon The icon associated to the group permissions.
-	 */
-	public GroupItem(GroupData group, Icon icon)
-	{
-		if (group == null) 
-			throw new IllegalArgumentException("No group");
-		this.group = group;
-		setText(group.getName());
-		setIcon(icon);
-	}
+    /** The List of components hosting the user.*/
+    private List<DataMenuItem> usersItem;
 
-	/**
-	 * Sets the component indicating if the group is displayed or not.
-	 * 
-	 * @param groupBox The value to set.
-	 */
-	public void setGroupBox(JCheckBox groupBox)
-	{
-		this.groupBox = groupBox;
-	}
-	
-	/**
-	 * Selects or not the group.
-	 * 
-	 * @param selected Pass <code>true</code> to select the group,
-	 * <code>false</code> otherwise.
-	 */
-	public void setGroupSelection(boolean selected)
-	{
-		groupBox.setSelected(selected);
-	}
-	
-	/**
-	 * Returns <code>true</code> if the group is selected or not.
-	 * 
-	 * @return See above.
-	 */
-	public boolean isGroupSelected() { return groupBox.isSelected(); }
-	
-	
-	/**
-	 * Sets the list of components hosting the users.
-	 * 
-	 * @param usersItem The value to set.
-	 */
-	public void setUsersItem(List<DataMenuItem> usersItem)
-	{
-		this.usersItem = usersItem;
-	}
-	
-	/**
-	 * Sets the component displaying the users.
-	 * 
-	 * @param usersMenu The value to set.
-	 */
-	public void setUsersMenu(JComponent usersMenu)
-	{
-		this.usersMenu = usersMenu;
-	}
-	
-	/**
-	 * Returns the component displaying the users.
-	 * 
-	 * @return See above.
-	 */
-	public JComponent getUsersMenu() { return usersMenu; }
-	
-	/**
-	 * Returns the group.
-	 * 
-	 * @return See above.
-	 */
-	public GroupData getGroup() { return group; }
-	
-	/**
-	 * Returns the selected users.
-	 * 
-	 * @return See above.
-	 */
-	public List<ExperimenterData> getSeletectedUsers()
-	{
-		List<ExperimenterData> users = new ArrayList<ExperimenterData>();
-		Iterator<DataMenuItem> i = usersItem.iterator();
-		DataMenuItem item;
-		while (i.hasNext()) {
-			item = i.next();
-			if (item.isSelected())
-				users.add((ExperimenterData) item.getDataObject());
-		}
-		return users;
-	}
-	
+    /** The menu displaying the users.*/
+    private JComponent usersMenu;
+
+    /**
+     * Creates a new instance.
+     * 
+     * @param group The group hosted by this component.
+     * @param selected Pass <code>true</code> if the group is selected,
+     *                 <code>false</code>
+     */
+    public GroupItem(GroupData group, boolean selected)
+    {
+        super(selected, group.getName());
+        this.group = group;
+    }
+
+    /**
+     * Sets the list of components hosting the users.
+     * 
+     * @param usersItem The value to set.
+     */
+    public void setUsersItem(List<DataMenuItem> usersItem)
+    {
+        this.usersItem = usersItem;
+    }
+
+    /**
+     * Returns the group.
+     * 
+     * @return See above.
+     */
+    public GroupData getGroup() { return group; }
+
+    /**
+     * Returns the selected users.
+     * 
+     * @return See above.
+     */
+    public List<ExperimenterData> getSeletectedUsers()
+    {
+        List<ExperimenterData> users = new ArrayList<ExperimenterData>();
+        Iterator<DataMenuItem> i = usersItem.iterator();
+        DataMenuItem item;
+        Object ho;
+        while (i.hasNext()) {
+            item = i.next();
+            ho = item.getDataObject();
+            if (item.isSelected() && ho instanceof ExperimenterData)
+                users.add((ExperimenterData) ho);
+        }
+        return users;
+    }
+
+    /** Handles the selection of menu items.
+     * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
+     */
+    public void propertyChange(PropertyChangeEvent evt)
+    {
+        String name = evt.getPropertyName();
+        if (DataMenuItem.ITEM_SELECTED_PROPERTY.equals(name)) {
+            DataMenuItem item = (DataMenuItem) evt.getNewValue();
+            Object ho = item.getDataObject();
+            if (ho instanceof String) {
+                String v = (String) ho;
+                if (DataMenuItem.ALL_USERS_TEXT.equals(v)) {
+                    Iterator<DataMenuItem> i = usersItem.iterator();
+                    boolean b = item.isSelected();
+                    while (i.hasNext()) {
+                        item = i.next();
+                        ho = item.getDataObject();
+                        if (ho instanceof ExperimenterData && item.isEnabled())
+                            item.setSelected(b);
+                    }
+                }
+            }
+            List<ExperimenterData> l = getSeletectedUsers();
+            setMenuSelected(CollectionUtils.isNotEmpty(l));
+        }
+    }
+
 }
