@@ -185,7 +185,7 @@ class TabbedPaneUI
         icons.getIcon(IconManager.COLOUR_WHEEL_24));
         UIUtilities.unifiedButtonLookAndFeel(colourWheelButton);
         colourWheelButton.setBorderPainted(true);
-        colourWheelButton.setToolTipText("Show HSV Color Wheel");
+        colourWheelButton.setToolTipText("Show HSV Color Wheel.");
 
         AbstractAction action = new AbstractAction("HSV Wheel Color Button") {
             public void actionPerformed(ActionEvent evt) 
@@ -200,7 +200,7 @@ class TabbedPaneUI
         icons.getIcon(IconManager.COLOUR_SLIDER_24));
         UIUtilities.unifiedButtonLookAndFeel(RGBSlidersButton);
         RGBSlidersButton.setBorderPainted(true);
-        RGBSlidersButton.setToolTipText("Show RGB Color Sliders");
+        RGBSlidersButton.setToolTipText("Show RGB Color Sliders.");
         
         action = new AbstractAction("RGB Slider Button") 
         {
@@ -213,7 +213,7 @@ class TabbedPaneUI
         RGBSlidersButton.addActionListener(action);
         colourSwatchButton = new JToggleButton(
         icons.getIcon(IconManager.COLOUR_SWATCH_24));
-        colourSwatchButton.setToolTipText("Show Color List");
+        colourSwatchButton.setToolTipText("Show Color List.");
         UIUtilities.unifiedButtonLookAndFeel(colourSwatchButton);
         colourSwatchButton.setBorderPainted(true);
         
