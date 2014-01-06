@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.metadata.editor.ToolBar 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -20,8 +20,8 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.agents.metadata.editor;
 
+package org.openmicroscopy.shoola.agents.metadata.editor;
 
 //Java imports
 import java.awt.Component;
