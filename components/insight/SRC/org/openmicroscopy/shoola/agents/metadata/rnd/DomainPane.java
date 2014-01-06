@@ -679,7 +679,7 @@ public class DomainPane
 		if (channelsBox != null) {
 			comp = UIUtilities.buildComponentPanel(channelsBox);
 			comp.setBackground(UIUtilities.BACKGROUND_COLOR);
-			addComponent(c, "Channels", comp, p);
+			addComponent(c, "Channel", comp, p);
 			c.gridy++;
 		}
 		comp = UIUtilities.buildComponentPanel(familyBox);
