@@ -33,7 +33,7 @@ install(){
     pip freeze "$@" | grep -q "^$PKG==" && {
         echo $PKG installed.
     } || {
-        pip install $PKG
+        pip install --allow-external $PKG
     }
 }
 
