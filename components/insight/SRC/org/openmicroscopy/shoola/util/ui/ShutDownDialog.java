@@ -70,6 +70,9 @@ public class ShutDownDialog
     /** The type of shutdown windows.*/
     private int index;
 
+    /** The time to wait before checking if the network is up.*/
+    private int checkupTime;
+
     /** 
      * Formats the displayed text.
      * 
@@ -93,6 +96,7 @@ public class ShutDownDialog
      */
     private void initialize(int time)
     {
+        checkupTime = 5;
         removeWindowListener(windowAdapter);
         setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
         remainingTime = time;
@@ -207,10 +211,26 @@ public class ShutDownDialog
         this(owner, title, message, DEFAULT_TIME, -1);
     }
 
+    /**
+     * Sets the checker.
+     *
+     * @param checker The value to set.
+     */
     public void setChecker(NetworkChecker checker)
     {
         if (checker == null) checker = new NetworkChecker();
         this.checker = checker;
+    }
+
+    /**
+     * Sets how often to check if the network is still down.
+     *
+     * @param time The value to set.
+     */
+    public void setCheckupTime(int time)
+    {
+        if (time <= 0) time = 1;
+        checkupTime = time;
     }
 
     /**
@@ -242,8 +262,7 @@ public class ShutDownDialog
     {
         remainingTime--;
         if (index == -1) formatText(remainingTime);
-        //Check the network every 5s
-        if (remainingTime %5 ==0) {
+        if (remainingTime %checkupTime == 0) {
             try {
                 checker.isNetworkup(false);
                 cancel();
