@@ -1424,28 +1424,34 @@ class OMEROGateway
 		    }
 		    throw new DSOutOfServiceException("Not allowed to recreate");
 		}
-
-    	try {
-    		UserCredentials uc = dsFactory.getCredentials();
-    		ctx.setServerInformation(uc.getHostName(), port);
-    		// client will be cleaned up by connector
-    		client client = new client(uc.getHostName(), port);
-    		ServiceFactoryPrx prx = client.createSession(uc.getUserName(),
-    				uc.getPassword());
-    		prx.setSecurityContext(
-    				new ExperimenterGroupI(ctx.getGroupID(), false));
-    		c = new Connector(ctx, client, prx, encrypted,
-    				dsFactory.getLogger(), dsFactory.getElapseTime());
-    		groupConnectorMap.put(ctx.getGroupID(), c);
-    	} catch (Throwable e) {
-    	    // TODO: This previously was via handleException??
-    	    if (!permitNull) {
-    	        throw new DSOutOfServiceException("Failed to create connector", e);
-    	    }
-    	}
-		return c;
+		return createConnector(ctx, permitNull);
 	}
 
+	private Connector createConnector(SecurityContext ctx, boolean permitNull)
+	        throws DSOutOfServiceException
+	{
+	    Connector c = null;
+	    try {
+            UserCredentials uc = dsFactory.getCredentials();
+            ctx.setServerInformation(uc.getHostName(), port);
+            // client will be cleaned up by connector
+            client client = new client(uc.getHostName(), port);
+            ServiceFactoryPrx prx = client.createSession(uc.getUserName(),
+                    uc.getPassword());
+            prx.setSecurityContext(
+                    new ExperimenterGroupI(ctx.getGroupID(), false));
+            c = new Connector(ctx, client, prx, encrypted,
+                    dsFactory.getLogger(), dsFactory.getElapseTime());
+            groupConnectorMap.put(ctx.getGroupID(), c);
+        } catch (Throwable e) {
+            // TODO: This previously was via handleException??
+            if (!permitNull) {
+                throw new DSOutOfServiceException("Failed to create connector", e);
+            }
+        }
+	    return c;
+	}
+	
 	/**
 	 * Checks if some default rendering settings have to be created
 	 * for the specified set of pixels.
@@ -2150,18 +2156,9 @@ class OMEROGateway
         while (i.hasNext()) {
             c = i.next();
             try {
-                if (groupConnectorMap.containsKey(c.getGroupID())) {
-                    try {
-                        c.shutDownServices(true);
-                        c.close(networkup);
-                    } catch (Throwable e) {
-                        log("Failed to close the session "+printErrorText(e));
-                    }
-                } else {
-                    groupConnectorMap.put(c.getGroupID(), c);
-                }
                 log("joining the session ");
                 c.joinSession();
+                groupConnectorMap.put(c.getGroupID(), c);
             } catch (Throwable t) {
                 log("Failed to join the session "+printErrorText(t));
                 //failed to join so we create a new one, first we shut down
@@ -2171,12 +2168,14 @@ class OMEROGateway
                 } catch (Throwable e) {
                     log("Failed to close the session "+printErrorText(e));
                 }
-                try {
-                    c = getConnector(new SecurityContext(c.getGroupID()),
-                            true, false);
-                } catch (Exception e) {
-                    log("Failed to create connector "+printErrorText(e));
-                    index++;
+                if (!groupConnectorMap.containsKey(c.getGroupID())) {
+                    try {
+                        createConnector(new SecurityContext(c.getGroupID()),
+                                false);
+                    } catch (Exception e) {
+                        log("Failed to create connector "+printErrorText(e));
+                        index++;
+                    }
                 }
             }
         }
