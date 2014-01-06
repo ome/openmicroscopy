@@ -84,14 +84,12 @@ public class ColorModelAction
     	switch (index) {
 	    	case GREY_SCALE_MODEL:
 	    	default:
-	    		//putValue(Action.NAME, "Greyscale");
 	    		putValue(Action.SHORT_DESCRIPTION, 
 	    				UIUtilities.formatToolTipText(DESCRIPTION_GREY_SCALE));
 	    		putValue(Action.SMALL_ICON, 
 	    				icons.getIcon(IconManager.GRAYSCALE));
 	    		break;
 	    	case RGB_MODEL:
-	    		//putValue(Action.NAME, "Color");
 	    		putValue(Action.SHORT_DESCRIPTION, 
 	    				UIUtilities.formatToolTipText(DESCRIPTION_RGB));
 	    		putValue(Action.SMALL_ICON, icons.getIcon(IconManager.RGB));
