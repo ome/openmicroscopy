@@ -2,8 +2,7 @@
  * org.openmicroscopy.shoola.agents.metadata.editor.EditorModel 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
- *
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  * 	This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -20,6 +19,7 @@
  *
  *------------------------------------------------------------------------------
  */
+
 package org.openmicroscopy.shoola.agents.metadata.editor;
 
 
@@ -141,9 +141,6 @@ import pojos.XMLAnnotationData;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since OME3.0
  */
 class EditorModel 
@@ -3948,17 +3945,17 @@ class EditorModel
 			Iterator i = l.iterator();
 			while (i.hasNext()) {
 				o = (Object) i.next();
-				if (o instanceof ImageData || o instanceof DatasetData) {
+				if (o instanceof ImageData || o instanceof DatasetData || o instanceof WellSampleData) {
 					objects.add((DataObject) o);
 				}
 			}
 		}
 		o = getRefObject();
-		if (o instanceof ImageData || o instanceof DatasetData) {
-			objects.add((DataObject) o);
+		if ((o instanceof ImageData || o instanceof DatasetData || o instanceof WellSampleData) && !objects.contains(o)) {
+		    objects.add((DataObject) o);
 		}
-		
-		if (objects.size() > 0) {
+
+		if (!objects.isEmpty()) {
 			IconManager icons = IconManager.getInstance();
 			SaveAsParam p = new SaveAsParam(folder, objects);
 			p.setIndex(format);
