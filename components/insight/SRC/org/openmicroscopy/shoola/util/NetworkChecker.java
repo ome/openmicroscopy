@@ -198,7 +198,6 @@ public class NetworkChecker {
         try {
             int i = 0;
             while (i < 1) {
-                System.err.println("host: "+"127.0.0.1".equals(InetAddress.getLocalHost().getHostAddress().toString()));
                 System.err.println("Using explicit server address: " + address);
                 System.err.println("Java version: " + System.getProperty("java.version"));
                 System.err.println("isNetworkup()?: " + nc.isNetworkup(false));
