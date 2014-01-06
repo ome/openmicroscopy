@@ -3945,13 +3945,19 @@ class EditorModel
 			Iterator i = l.iterator();
 			while (i.hasNext()) {
 				o = (Object) i.next();
-				if (o instanceof ImageData || o instanceof DatasetData || o instanceof WellSampleData) {
+				if (o instanceof WellSampleData) {
+				    o = ((WellSampleData) o).getImage();
+				}
+				if (o instanceof ImageData || o instanceof DatasetData) {
 					objects.add((DataObject) o);
 				}
 			}
 		}
 		o = getRefObject();
-		if ((o instanceof ImageData || o instanceof DatasetData || o instanceof WellSampleData) && !objects.contains(o)) {
+		if (o instanceof WellSampleData) {
+		    o = ((WellSampleData) o).getImage();
+		}
+		if ((o instanceof ImageData || o instanceof DatasetData) && !objects.contains(o)) {
 			objects.add((DataObject) o);
 		}
 
