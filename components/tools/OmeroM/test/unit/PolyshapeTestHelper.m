@@ -38,6 +38,15 @@ classdef PolyshapeTestHelper < handle
                 sprintf('%g,%g ', [self.x; self.y]));
         end
         
+        function testColumns(self)
+            self.x = [10 20 30 40]';
+            self.y = [5 10 15 20]';
+            self.createShape();
+            assertTrue(isa(self.shape, self.class));
+            assertEqual(char(self.shape.getPoints().getValue()),...
+                sprintf('%g,%g ', [self.x'; self.y']));
+        end
+        
         function testNonMatchingDimensions(self)
             self.x = [10 20 30 40];
             self.y = [5 10];
