@@ -2,7 +2,8 @@
  * org.openmicroscopy.shoola.env.data.OMEROGateway
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *
  *
  * 	This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -241,6 +242,9 @@ import pojos.XMLAnnotationData;
  * @author <br>Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:a.falconi@dundee.ac.uk">a.falconi@dundee.ac.uk</a>
  * @version 2.2
+ * <small>
+ * (<b>Internal version:</b> $Revision$ $Date$)
+ * </small>
  * @since OME2.2
  */
 class OMEROGateway
@@ -5900,12 +5904,7 @@ class OMEROGateway
 		DataObject data;
 		while (i.hasNext()) {
 			data = i.next();
-			if (data instanceof WellSampleData) {
-			    final ImageData image = ((WellSampleData) data).getImage();
-			    if (image != null) {
-			        data = image;
-			    }
-			} else if (data instanceof DatasetData) {
+			if (data instanceof DatasetData) {
 				type = "Dataset";
 			}
 			ids.add(omero.rtypes.rlong(data.getId()));
