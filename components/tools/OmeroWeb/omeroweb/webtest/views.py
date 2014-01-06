@@ -228,7 +228,7 @@ def render_channel_overlay (request, conn=None, **kwargs):
     merge.save(rv, 'jpeg', quality=int(compression*100))
     jpeg_data = rv.getvalue()
 
-    rsp = HttpResponse(jpeg_data, mimetype='image/jpeg')
+    rsp = HttpResponse(jpeg_data, content_type='image/jpeg')
     return rsp
 
 
