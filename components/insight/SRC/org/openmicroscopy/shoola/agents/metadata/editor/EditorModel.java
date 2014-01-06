@@ -3952,7 +3952,7 @@ class EditorModel
 		}
 		o = getRefObject();
 		if ((o instanceof ImageData || o instanceof DatasetData || o instanceof WellSampleData) && !objects.contains(o)) {
-		    objects.add((DataObject) o);
+			objects.add((DataObject) o);
 		}
 
 		if (!objects.isEmpty()) {
