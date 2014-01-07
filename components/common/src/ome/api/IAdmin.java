@@ -273,7 +273,8 @@ public interface IAdmin extends ServiceInterface {
     /**
      * Updates an experimenter group if admin or owner of group.
      * Only string fields on the object are taken into account.
-     * The root, system and guest groups may not be renamed.
+     * The root, system and guest groups may not be renamed,
+     * nor may the user's current group.
      * 
      * @param group
      *            the ExperimenterGroup to update.
