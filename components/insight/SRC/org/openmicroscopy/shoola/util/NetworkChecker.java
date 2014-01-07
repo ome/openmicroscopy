@@ -192,6 +192,8 @@ public class NetworkChecker {
         log("Count: %s  %s", count, interfacesCount);
         if (count >= interfacesCount) {
             networkup = true;
+        } else {
+            networkup = isAvailable();
         }
         if (!networkup) {
             throw new UnknownHostException("Network is down.");

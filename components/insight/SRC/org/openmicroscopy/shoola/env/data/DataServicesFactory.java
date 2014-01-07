@@ -39,6 +39,7 @@ import java.util.Set;
 import java.util.Map.Entry;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.swing.JDialog;
 import javax.swing.JFrame;
@@ -157,6 +158,9 @@ public class DataServicesFactory
 	
     /** The fs properties. */
     private Properties 					fsConfig;
+
+    /** Flag indicating that we try to re-establish the connection.*/
+    private final AtomicBoolean reconnecting = new AtomicBoolean(false);
 
     /**
 	 * Reads in the specified file as a property object.
@@ -375,6 +379,7 @@ public class DataServicesFactory
                 String name = evt.getPropertyName();
                 if (NotificationDialog.CLOSE_NOTIFICATION_PROPERTY.equals(name))
                 {
+                    reconnecting.set(false);
                     connectionDialog = null;
                     exitApplication(true, true);
                 } else if (
@@ -382,6 +387,7 @@ public class DataServicesFactory
                             name))
                 {
                     connectionDialog = null;
+                    reconnecting.set(false);
                     omeroGateway.resetNetwork();
                     int index = (Integer) evt.getNewValue();
                     if (index == ConnectionExceptionHandler.LOST_CONNECTION)
@@ -389,7 +395,7 @@ public class DataServicesFactory
                 }
             }
         });
-        connectionDialog.setModal(false);
+        connectionDialog.setModal(true);
         UIUtilities.centerAndShow(connectionDialog);
     }
 
@@ -446,6 +452,8 @@ public class DataServicesFactory
             }
             connectionDialog.setVisible(false);
             connectionDialog.dispose();
+            connectionDialog = null;
+            reconnecting.set(false);
         } else {
             //connectionDialog.setVisible(false);
             message = "A failure occurred while attempting to " +
@@ -465,7 +473,8 @@ public class DataServicesFactory
 	 */
 	public void sessionExpiredExit(int index, Throwable exc)
 	{
-		if (connectionDialog != null || !omeroGateway.isConnected()) return;
+	    if (reconnecting.get()) return;
+		reconnecting.set(true);
 		String message;
 		if (exc != null) {
 			LogMessage msg = new LogMessage();
