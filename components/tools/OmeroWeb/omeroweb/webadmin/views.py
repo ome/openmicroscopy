@@ -558,10 +558,14 @@ def manage_group(request, action, gid=None, conn=None, **kwargs):
                          conn.getAdminService().getSecurityRoles().userGroupId,
                          conn.getAdminService().getSecurityRoles().guestGroupId]
         group_is_current_or_system = (conn.getEventContext().groupId == long(gid)) or (long(gid) in system_groups)
-        form = GroupForm(initial={'name': group.name, 'description':group.description,
-                'permissions': permissions, 
-                'owners': ownerIds, 'members':memberIds, 'experimenters':experimenters},
-                group_is_current_or_system=group_is_current_or_system)
+        form = GroupForm(initial={
+            'name': group.name,
+            'description':group.description,
+            'permissions': permissions, 
+            'owners': ownerIds,
+            'members':memberIds,
+            'experimenters':experimenters},
+            group_is_current_or_system=group_is_current_or_system)
         admins = [conn.getAdminService().getSecurityRoles().rootId]
         if long(gid) in system_groups:
             # prevent removing 'root' or yourself from group if it's a system group
