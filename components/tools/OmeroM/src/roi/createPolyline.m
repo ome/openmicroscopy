@@ -36,5 +36,5 @@ ip.parse(x, y);
 
 % Create Polyline shape
 polyline = omero.model.PolylineI;
-points = sprintf('%g,%g ', x, y);
+points = sprintf('%g,%g ', [x(:)'; y(:)']);
 polyline.setPoints(rstring(points));
