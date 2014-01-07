@@ -215,6 +215,9 @@ public class FileImportComponent
 	/** Text indicating where the images where imported. */
 	private static final String TEXT_IMPORTED = "Imported to:";
 
+	/** Text indicating that the plate cannot be archived. */
+	private static final String ARCHIVED_TEXT = "Plate cannot be archived";
+
 	/** One of the constants defined by this class. */
 	private int				type;
 	
@@ -335,7 +338,12 @@ public class FileImportComponent
 	/** Flag indicating the the user is member of one group only.*/
 	private boolean singleGroup;
 
+	/** The component indicating that the data could not be archived. */
+    private JLabel warningLabel;
 	
+    /** Flag indicating the file is archived or not.*/
+    private boolean archived;
+
 	/**
 	 * Returns the formatted result.
 	 * 
@@ -534,7 +542,8 @@ public class FileImportComponent
 		}
 		
 		browseButton.setVisible(false);
-		
+		warningLabel = new JLabel(ARCHIVED_TEXT);
+		warningLabel.setVisible(false);
 		containerLabel = new JLabel();
 		containerLabel.setVisible(false);
 		String text = String.format("Group: %s, Owner: %s", 
@@ -614,6 +623,7 @@ public class FileImportComponent
 		add(containerLabel);
 		add(browseButton);
 		add(groupUserLabel);
+		add(warningLabel);
 		add(reimportedLabel);
 	}
 	
@@ -685,6 +695,7 @@ public class FileImportComponent
 			if (f.isFile()) {
 				c.setLocation(data, d, node);
 				c.setParent(this);
+				c.setArchived(archived);
 			}
 			c.showContainerLabel(showContainerLabel);
 			c.setType(getType());
@@ -746,6 +757,17 @@ public class FileImportComponent
 		buildGUI();
 	}
 	
+	/**
+	 * Sets the flag indicating that the file is archived or not.
+	 *
+	 * @param archived Pass <code>true</code> if the file is archived,
+	 *                 <code>false</code> otherwise.
+	 */
+	public void setArchived(boolean archived)
+	{
+	    this.archived = archived;
+	}
+
 	/**
 	 * Returns the file hosted by this component.
 	 * 
@@ -972,6 +994,7 @@ public class FileImportComponent
 				browseButton.setVisible(showContainerLabel);
 				containerLabel.setVisible(showContainerLabel);
 			}
+			warningLabel.setVisible(archived);
 		} else if (image instanceof List) {
 			statusLabel.setVisible(false);
 			groupUserLabel.setVisible(!singleGroup);
