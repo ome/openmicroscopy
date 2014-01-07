@@ -934,12 +934,15 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
     
     def setMembersOfGroup(self, group, new_members):
         """
-        Change members of the group.
+        Change members of the group. Returns a list of existing group members
+        that could not be removed from the group because it is their only group.
         
         @param group            An existing ExperimenterGroup instance.
         @type group             ExperimenterGroupI
         @param new_members      List of new new Experimenter Ids.
         @type new_members       L{Long}
+        @return                 List of Experimenters not removed from group
+        @rtype                  List of L{ExperimenterWrapper}
         """
         
         experimenters = list(self.getObjects("Experimenter"))

@@ -551,9 +551,14 @@ def manage_group(request, action, gid=None, conn=None, **kwargs):
         ownerIds = [e.id for e in group.getOwners()]
         memberIds = [m.id for m in group.getMembers()]
         permissions = getActualPermissions(group)
-        form = GroupForm(initial={'name': group.name, 'description':group.description,
-                'permissions': permissions,
-                'owners': ownerIds, 'members':memberIds, 'experimenters':experimenters})
+        form = GroupForm(initial={
+            'name': group.name,
+            'description': group.description,
+            'permissions': permissions,
+            'owners': ownerIds,
+            'members': memberIds,
+            'experimenters': experimenters,
+        })
         return {'form':form, 'gid': gid, 'permissions': permissions}
 
     if action == 'new':
