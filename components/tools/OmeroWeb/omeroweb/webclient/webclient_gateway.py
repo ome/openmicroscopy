@@ -987,7 +987,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             # Experimenter needs to stay in at least 1 non-user group
             gs = [l.parent.id.val for l in e.copyGroupExperimenterMap() if l.parent.id.val != userGid]
             if len(gs) == 1:
-                failures.append(e)
+                failures.append(ExperimenterWrapper(self, e))
                 continue
             admin_serv.removeGroups(e, [group._obj])
         return failures
