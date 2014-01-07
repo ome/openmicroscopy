@@ -634,7 +634,9 @@ def manage_group(request, action, gid=None, conn=None, **kwargs):
                 msgs = []
                 # prepare error messages
                 for e in removalFails:
-                    msgs.append("Can't remove user %s from their only group" % e.omeName.val)
+                    url = reverse("wamanageexperimenterid", args=["edit", e.id])
+                    msgs.append("Can't remove user <a href='%s'>%s</a> from their only group"
+                        % (url, e.getFullName()))
                 # refresh the form and add messages
                 context = getEditFormContext()
                 context['ome'] = {}
