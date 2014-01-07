@@ -102,6 +102,7 @@ class TestTickets3000(lib.ITest):
         # Only IQuery.projection can return non-IObject types
         q.projection(sql, p1)
 
+    @pytest.mark.xfail(reason="See ticket #11539")
     def test2952(self):
 
         la = omero.model.LongAnnotationI()
