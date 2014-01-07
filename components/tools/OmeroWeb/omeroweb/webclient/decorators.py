@@ -108,7 +108,8 @@ class render_response(omeroweb.decorators.render_response):
             return
         conn = kwargs['conn']
 
-        context['ome'] = {}
+        if 'ome' not in context:
+            context['ome'] = {}
         context['ome']['eventContext'] = conn.getEventContext
         context['ome']['user'] = conn.getUser
         context['ome']['basket_counter'] = request.session.get('basket_counter', 0)
