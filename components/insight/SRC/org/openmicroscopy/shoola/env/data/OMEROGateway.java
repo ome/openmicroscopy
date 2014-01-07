@@ -8251,8 +8251,6 @@ class OMEROGateway
 	}
 
 	/**
-<<<<<<< HEAD
-=======
 	 * Loads the file set corresponding to the specified image.
 	 *
 	 * @param ctx The security context.
