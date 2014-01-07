@@ -265,8 +265,11 @@ public class ShutDownDialog
         if (remainingTime %checkupTime == 0) {
             try {
                 checker.isNetworkup(false);
-                cancel();
-                return;
+                //adapter is now ready. Check if we can actually connect.
+                if (checker.isAvailable()) {
+                    cancel();
+                    return;
+                }
             } catch (Exception ex) {
                 //continue the network is still down.
             }

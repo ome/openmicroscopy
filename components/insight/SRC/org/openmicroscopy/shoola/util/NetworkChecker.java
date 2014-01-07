@@ -56,6 +56,9 @@ public class NetworkChecker {
      */
     private InetAddress ipAddress;
 
+    /** The address of the server to reach.*/
+    private final String address;
+    
     /** The list of interfaces when the network checker is initialized.*/
     private long interfacesCount;
     
@@ -68,14 +71,15 @@ public class NetworkChecker {
     /**
      * Creates a new instance.
      *
-     * @param ipAddress The IP address of the server the client is connected to
-     * or <code>null</code>.
+     * @param address The address of the server the client is connected to
+     *                or <code>null</code>.
      */
-    public NetworkChecker(String ipAddress)
+    public NetworkChecker(String address)
     {
+        this.address = address;
         if (ipAddress != null) {
             try {
-                this.ipAddress = InetAddress.getByName(ipAddress);
+                this.ipAddress = InetAddress.getByName(address);
             } catch (UnknownHostException e) {
                 // Ignored
             }
@@ -100,7 +104,8 @@ public class NetworkChecker {
 
     /**
      * Returns <code>true</code> if the network is still up, otherwise
-     * throws an <code>UnknownHostException</code>.
+     * throws an <code>UnknownHostException</code>. This tests if the adapter
+     * is ready.
      *
      * @return See above.
      * @throws Exception Thrown if the network is down.
@@ -126,6 +131,37 @@ public class NetworkChecker {
         lastCheck.set(stop);
         return newValue;
      }
+
+    /**
+     * Checks the network is available or not.
+     *
+     * @return See above.
+     * @throws Exception Thrown if an error occurred if we cannot reach.
+     */
+    public boolean isAvailable()
+            throws Exception
+    {
+        if (ipAddress != null && ipAddress.isLoopbackAddress()) {
+            return true;
+        }
+        if (address != null) {
+            try {
+                InetAddress[] addresses = InetAddress.getAllByName(address);
+                log("IsAvailable %s", addresses.length);
+                if (addresses != null) {
+                    for (int i = 0; i < addresses.length; i++) {
+                        InetAddress ia = addresses[i];
+                        boolean b = ia.isReachable(5000);
+                        log("Is Reachable %s", b);
+                        return b;
+                    }
+                }
+            } catch (Exception e) {
+               log("Not available %s", e);
+            }
+        }
+        return false;
+    }
 
     /**
      * Returns <code>true</code> if the network is still up, otherwise
@@ -184,6 +220,7 @@ public class NetworkChecker {
      */
     public static void main(String[] args) throws Exception {
         String address = args.length == 1? args[0] : "null";
+        address = "omero4-demo.openmicroscopy.org";
         runTest(new NetworkChecker(address), address);
     }
 
@@ -201,6 +238,7 @@ public class NetworkChecker {
                 System.err.println("Using explicit server address: " + address);
                 System.err.println("Java version: " + System.getProperty("java.version"));
                 System.err.println("isNetworkup()?: " + nc.isNetworkup(false));
+                System.err.println("isAvailable()?: " + nc.isAvailable());
                 try {
                     Thread.sleep(5L*1000L);
                 } catch(Exception ex) {}

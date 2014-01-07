@@ -400,7 +400,6 @@ public class DataServicesFactory
         String message;
         Map<SecurityContext, Set<Long>> l =
                 omeroGateway.getRenderingEngines();
-        //omeroGateway.logout();
         boolean b = omeroGateway.joinSession();
         if (b) {
             //reactivate the rendering engine. Need to review that
