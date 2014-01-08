@@ -194,6 +194,9 @@ public class NetworkChecker {
             networkup = true;
         } else {
             networkup = isAvailable();
+            if (networkup) { //one interface was dropped e.g. wireless
+                interfacesCount = count;
+            }
         }
         if (!networkup) {
             throw new UnknownHostException("Network is down.");
