@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Glencoe Software, Inc. All rights reserved.
+ * Copyright (C) 2013-2014 Glencoe Software, Inc. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,7 +22,6 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
@@ -35,13 +34,11 @@ import com.google.common.collect.Collections2;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableMap.Builder;
 import com.google.common.collect.Maps;
 import com.google.common.collect.SetMultimap;
-import com.google.common.collect.Sets;
 
 import ome.api.IQuery;
-import ome.parameters.Parameters;
+import ome.services.query.HierarchyNavigatorWrap;
 import omero.cmd.Chgrp;
 import omero.cmd.Delete;
 import omero.cmd.DoAll;
@@ -62,6 +59,7 @@ import omero.cmd.Request;
 public class Preprocessor {
 
     private final static Logger log = LoggerFactory.getLogger(Preprocessor.class);
+
     /**
      * The types of target for which we care about adjusting graph operation requests.
      * @author m.t.b.carroll@dundee.ac.uk
@@ -76,8 +74,8 @@ public class Preprocessor {
         public static final ImmutableMap<TargetType, String> byType;
 
         static {
-            final Builder<String, TargetType> byNameBuilder = ImmutableMap.builder();
-            final Builder<TargetType, String> byTypeBuilder = ImmutableMap.builder();
+            final ImmutableMap.Builder<String, TargetType> byNameBuilder = ImmutableMap.builder();
+            final ImmutableMap.Builder<TargetType, String> byTypeBuilder = ImmutableMap.builder();
             for (final TargetType value : TargetType.values()) {
                 final String name = '/' + value.name().substring(0, 1) + value.name().substring(1).toLowerCase();
                 byNameBuilder.put(name, value);
@@ -165,57 +163,9 @@ public class Preprocessor {
         targetTypeHierarchy = builder.build();
     }
 
-    /* TODO: batch querying on multiple IDs at once as in ome.logic.PojosImpl.getImagesBySplitFilesets */
-
-    /** HQL queries to map from ID of first target type to that of the second */
-    protected static final ImmutableMap<Entry<TargetType, TargetType>, String> hqlFromTo;
-
-    static {
-        final Builder<Entry<TargetType, TargetType>, String> builder = ImmutableMap.builder();
-        builder.put(Maps.immutableEntry(TargetType.PROJECT, TargetType.DATASET),
-                "select child.id from ProjectDatasetLink where parent.id = :" + Parameters.ID);
-        builder.put(Maps.immutableEntry(TargetType.DATASET, TargetType.IMAGE),
-                "select child.id from DatasetImageLink where parent.id = :" + Parameters.ID);
-        builder.put(Maps.immutableEntry(TargetType.SCREEN, TargetType.PLATE),
-                "select child.id from ScreenPlateLink where parent.id = :" + Parameters.ID);
-        builder.put(Maps.immutableEntry(TargetType.PLATE, TargetType.WELL),
-                "select id from Well where plate.id = :" + Parameters.ID);
-        builder.put(Maps.immutableEntry(TargetType.WELL, TargetType.IMAGE),
-                "select image.id from WellSample where well.id = :" + Parameters.ID);
-        builder.put(Maps.immutableEntry(TargetType.FILESET, TargetType.IMAGE),
-                "select id from Image where fileset.id = :" + Parameters.ID);
-        builder.put(Maps.immutableEntry(TargetType.IMAGE, TargetType.FILESET),
-                "select fileset.id from Image where fileset.id is not null and id = :" + Parameters.ID);
-        builder.put(Maps.immutableEntry(TargetType.IMAGE, TargetType.WELL),
-                "select well.id from WellSample where image.id = :" + Parameters.ID);
-        builder.put(Maps.immutableEntry(TargetType.WELL, TargetType.PLATE),
-                "select plate.id from Well where id = :" + Parameters.ID);
-        builder.put(Maps.immutableEntry(TargetType.PLATE, TargetType.SCREEN),
-                "select parent.id from ScreenPlateLink where child.id = :" + Parameters.ID);
-        builder.put(Maps.immutableEntry(TargetType.IMAGE, TargetType.DATASET),
-                "select parent.id from DatasetImageLink where child.id = :" + Parameters.ID);
-        builder.put(Maps.immutableEntry(TargetType.DATASET, TargetType.PROJECT),
-                "select parent.id from ProjectDatasetLink where child.id = :" + Parameters.ID);
-        hqlFromTo = builder.build();
-    }
-
-    private final Ice.Communicator ic;
-
     protected final List<Request> requests;
 
-    private final Helper helper;
-
-    /** cache of containers that have been looked up */
-    protected final SetMultimap<GraphModifyTarget, GraphModifyTarget> containedByContainer = HashMultimap.create();
-
-    /** cache of contained that have been looked up */
-    protected final SetMultimap<GraphModifyTarget, GraphModifyTarget> containerByContained = HashMultimap.create();
-
-    /** note of which contained have been looked up */
-    protected final Set<Map.Entry<TargetType, GraphModifyTarget>> lookupContainedDone = Sets.newHashSet();
-
-    /** note of which containers have been looked up */
-    protected final Set<Map.Entry<TargetType, GraphModifyTarget>> lookupContainerDone = Sets.newHashSet();
+    protected final HierarchyNavigatorWrap<TargetType, GraphModifyTarget> hierarchyNavigator;
 
     /**
      * Transform the list of requests.
@@ -268,57 +218,50 @@ public class Preprocessor {
     }
 
     public Preprocessor(List<Request> requests, Helper helper) {
-        this(null, requests, helper);
+        final IQuery iQuery = helper.getServiceFactory().getQueryService();
+
+        this.hierarchyNavigator = new HierarchyNavigatorWrap<TargetType, GraphModifyTarget>(iQuery) {
+            @Override
+            protected String typeToString(TargetType type) {
+                return TargetType.byType.get(type);
+            }
+
+            @Override
+            protected TargetType stringToType(String typeName) {
+                return TargetType.byName.get(typeName);
+            }
+
+            @Override
+            protected Entry<String, Long> entityToStringLong(GraphModifyTarget entity) {
+                return Maps.immutableEntry(TargetType.byType.get(entity.targetType), entity.targetId);
+            }
+
+            @Override
+            protected GraphModifyTarget stringLongToEntity(String typeName, long id) {
+                return new GraphModifyTarget(TargetType.byName.get(typeName), id);
+            }
+        };
+
+        this.requests = requests;
+
+        process();
     }
 
-    public Preprocessor(Ice.Communicator ic, List<Request> requests, Helper helper) {
-        this.ic = ic;
+    public Preprocessor(List<Request> requests, HierarchyNavigatorWrap<TargetType, GraphModifyTarget> hierarchyNavigator) {
+        this.hierarchyNavigator = hierarchyNavigator;
         this.requests = requests;
-        this.helper = helper;
 
         process();
     }
 
     /**
-     * Look up the containers of a target.
-     * @param containerType the container type to add
-     * @param contained the target that may be contained
+     * Returns a copy of the requests field or an empty list if null.
      */
-    protected void lookupContainer(TargetType containerType, GraphModifyTarget contained) {
-        if (!lookupContainerDone.add(Maps.immutableEntry(containerType, contained))) {
-            return;
+    public List<Request> getRequests() {
+        if (requests == null) {
+            return new ArrayList<Request>();
         }
-        final String queryString = Preprocessor.hqlFromTo.get(Maps.immutableEntry(contained.targetType, containerType));
-        if (queryString == null) {
-            throw new IllegalArgumentException("not implemented for " + contained.targetType + " to " + containerType);
-        }
-        final IQuery queryService = helper.getServiceFactory().getQueryService();
-        final List<Object[]> containerIds = queryService.projection(queryString, new Parameters().addId(contained.targetId));
-        for (final Object[] containerId : containerIds) {
-            final GraphModifyTarget container = new GraphModifyTarget(containerType, (Long) containerId[0]);
-            containerByContained.put(contained, container);
-        }
-    }
-
-    /**
-     * Look up what a target contains.
-     * @param containedType the contained type to add
-     * @param container the container
-     */
-    protected void lookupContained(TargetType containedType, GraphModifyTarget container) {
-        if (!lookupContainedDone.add(Maps.immutableEntry(containedType, container))) {
-            return;
-        }
-        final String queryString = Preprocessor.hqlFromTo.get(Maps.immutableEntry(container.targetType, containedType));
-        if (queryString == null) {
-            throw new IllegalArgumentException("not implemented for " + containedType + " from " + container.targetType);
-        }
-        final IQuery queryService = helper.getServiceFactory().getQueryService();
-        final List<Object[]> containedIds = queryService.projection(queryString, new Parameters().addId(container.targetId));
-        for (final Object[] containedId : containedIds) {
-            final GraphModifyTarget contained = new GraphModifyTarget(containedType, (Long) containedId[0]);
-            containedByContainer.put(container, contained);
-        }
+        return new ArrayList<Request>(requests);
     }
 
     /**
@@ -334,12 +277,12 @@ public class Preprocessor {
             final Iterator<GraphModifyTarget> pendingContainedsIterator = pendingContained.iterator();
             final GraphModifyTarget nextContained = pendingContainedsIterator.next();
             pendingContainedsIterator.remove();
+            final Set<GraphModifyTarget> nextContainers = new HashSet<GraphModifyTarget>();// = this.containerByContained.get(nextContained);
             for (final Entry<TargetType, TargetType> relationship : targetTypeHierarchy) {
                 if (relationship.getValue() == nextContained.targetType) {
-                    lookupContainer(relationship.getKey(), nextContained);
+                    nextContainers.addAll(hierarchyNavigator.doLookup(relationship.getKey(), nextContained));
                 }
             }
-            final Set<GraphModifyTarget> nextContainers = this.containerByContained.get(nextContained);
             allContainers.addAll(nextContainers);
             pendingContained.addAll(nextContainers);
         }
@@ -403,19 +346,20 @@ public class Preprocessor {
             for (final Entry<TargetType, TargetType> relationship : Preprocessor.targetTypeHierarchy) {
                 final TargetType containerType = relationship.getKey();
                 final TargetType containedType = relationship.getValue();
-                for (final GraphModifyTarget container : targets.get(containerType)) {
-                    lookupContained(containedType, container);
-                    targets.putAll(containedType, this.containedByContainer.get(container));
+                final Set<GraphModifyTarget> containers = targets.get(containerType);
+                this.hierarchyNavigator.prepareLookups(containedType, containers);
+                for (final GraphModifyTarget container : containers) {
+                    targets.putAll(containedType, this.hierarchyNavigator.doLookup(containedType, container));
                 }
             }
 
             /* review the referenced FS images */
+            this.hierarchyNavigator.prepareLookups(TargetType.FILESET, targets.get(TargetType.IMAGE));
             while (!targets.get(TargetType.IMAGE).isEmpty()) {
                 final GraphModifyTarget image = targets.get(TargetType.IMAGE).iterator().next();
                 /* find the image's fileset */
-                lookupContainer(TargetType.FILESET, image);
-                final Set<GraphModifyTarget> containers = this.containerByContained.get(image);
-                final Iterator<GraphModifyTarget> filesetIterator = 
+                final Set<GraphModifyTarget> containers = this.hierarchyNavigator.doLookup(TargetType.FILESET, image);
+                final Iterator<GraphModifyTarget> filesetIterator =
                         GraphModifyTarget.filterByType(containers, TargetType.FILESET).iterator();
                 final GraphModifyTarget fileset;
                 if (!filesetIterator.hasNext()) {
@@ -428,13 +372,7 @@ public class Preprocessor {
                     throw new IllegalStateException("image is contained in multiple filesets");
                 }
                 /* check that all the fileset's images are referenced */
-                lookupContained(TargetType.IMAGE, fileset);
-                final Set<GraphModifyTarget> filesetImages = this.containedByContainer.get(fileset);
-                for (final GraphModifyTarget filesetImage : filesetImages) {
-                    if (filesetImage.targetType != TargetType.IMAGE) {
-                        throw new IllegalStateException("non-image found in fileset");
-                    }
-                }
+                final Set<GraphModifyTarget> filesetImages = this.hierarchyNavigator.doLookup(TargetType.IMAGE, fileset);
                 final boolean completeFileset = targets.get(TargetType.IMAGE).containsAll(filesetImages);
                 /* this iteration will handle this fileset sufficiently, so do not revisit it */
                 targets.get(TargetType.IMAGE).removeAll(filesetImages);
@@ -456,7 +394,7 @@ public class Preprocessor {
             }
         }
 
-        if (modified) {
+        if (modified && log.isDebugEnabled()) {
             StringBuilder sb = new StringBuilder();
             sb.append(requestToString(requests.get(0)));
             for (int i = 1; i < requests.size(); i++) {
