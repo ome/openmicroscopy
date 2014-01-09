@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
+ * Copyright (C) 2013-2014 University of Dundee & Open Microscopy Environment.
  * All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -21,11 +21,11 @@ package ome.services.blitz.test.utests;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.ArrayUtils;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
@@ -36,6 +36,7 @@ import Ice.Object;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.HashMultiset;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multiset;
 import com.google.common.collect.SetMultimap;
@@ -45,6 +46,7 @@ import omero.cmd.Delete;
 import omero.cmd.Request;
 import omero.cmd.graphs.ChgrpI;
 import omero.cmd.graphs.DeleteI;
+import ome.services.query.HierarchyNavigatorWrap;
 import omero.cmd.graphs.Preprocessor;
 
 /**
@@ -75,8 +77,52 @@ public class PreprocessorTest extends Preprocessor {
         
     }
 
+    /* Rather than query the database and cache the results, this subclass queries a mock model object hierarchy. */
+    static final HierarchyNavigatorWrap<TargetType, GraphModifyTarget> hierarchyNavigatorMock =
+            new HierarchyNavigatorWrap<TargetType, GraphModifyTarget>(null) {
+        @Override
+        protected String typeToString(TargetType type) {
+            throw new RuntimeException();
+        }
+
+        @Override
+        protected TargetType stringToType(String typeName) {
+            throw new RuntimeException();
+        }
+
+        @Override
+        protected Entry<String, Long> entityToStringLong(GraphModifyTarget entity) {
+            throw new RuntimeException();
+        }
+
+        @Override
+        protected GraphModifyTarget stringLongToEntity(String typeName, long id) {
+            throw new RuntimeException();
+        }
+
+        @Override
+        public void prepareLookups(TargetType toType, Collection<GraphModifyTarget> from) { }
+
+        @Override
+        public ImmutableSet<GraphModifyTarget> doLookup(TargetType toType, GraphModifyTarget from) {
+            final Entry<TargetType, GraphModifyTarget> query = Maps.immutableEntry(toType, from);
+            final ImmutableSet.Builder<GraphModifyTarget> builder = ImmutableSet.builder();
+            if (containers.containsKey(query)) {
+                for (final Long containerId : containers.get(query)) {
+                    builder.add(new GraphModifyTarget(toType, containerId));
+                }
+            }
+            if (containeds.containsKey(query)) {
+                for (final Long containedId : containeds.get(query)) {
+                    builder.add(new GraphModifyTarget(toType, containedId));
+                }
+            }
+            return builder.build();
+        }
+    };
+
     public PreprocessorTest() {
-        super(new ArrayList<Request>(), null);
+        super(new ArrayList<Request>(), hierarchyNavigatorMock);
         ic.addObjectFactory(new Factory(), ChgrpI.ice_staticId());
         ic.addObjectFactory(new Factory(), DeleteI.ice_staticId());
     }
@@ -133,19 +179,6 @@ public class PreprocessorTest extends Preprocessor {
         }
     }
 
-    /**
-     * Test that the HQL query strings match what is needed to navigate the target type hierarchy.
-     */
-    @Test
-    public void testHqlStrings() {
-        final Set<Entry<TargetType, TargetType>> expectedKeys = new HashSet<Entry<TargetType, TargetType>>();
-        for (final Entry<TargetType, TargetType> relationship : targetTypeHierarchy) {
-            expectedKeys.add(relationship);
-            expectedKeys.add(Maps.immutableEntry(relationship.getValue(), relationship.getKey()));
-        }
-        Assert.assertTrue(CollectionUtils.isEqualCollection(expectedKeys, hqlFromTo.keySet()));
-    }
-
     /* named for their values */
     private static final SetMultimap<Entry<TargetType, GraphModifyTarget>, Long> containers;
     private static final SetMultimap<Entry<TargetType, GraphModifyTarget>, Long> containeds;
@@ -187,33 +220,11 @@ public class PreprocessorTest extends Preprocessor {
         
     }
 
-    /* load cache with container lookup from test hierarchy */
-    @Override
-    protected void lookupContainer(TargetType containerType, GraphModifyTarget contained) {
-        final Set<Long> containerIds = containers.get(Maps.immutableEntry(containerType, contained));
-        for (final Long containerId : containerIds) {
-            final GraphModifyTarget container = new GraphModifyTarget(containerType, containerId);
-            containerByContained.put(contained, container);
-        }
-    }
-
-    /* load cache with contained lookup from test hierarchy */
-    @Override
-    protected void lookupContained(TargetType containedType, GraphModifyTarget container) {
-        final Set<Long> containedIds = containeds.get(Maps.immutableEntry(containedType, container));
-        for (final Long containedId : containedIds) {
-            final GraphModifyTarget contained = new GraphModifyTarget(containedType, containedId);
-            containedByContainer.put(container, contained);
-        }
-    }
-
     /**
      * Clear the lookup caches and the list of requests ready for a new unit test.
      */
     @BeforeMethod
     public void clearCacheAndRequests() {
-        containerByContained.clear();
-        containedByContainer.clear();
         requests.clear();
     }
 
