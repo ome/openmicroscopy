@@ -1,7 +1,7 @@
 /*
  *   $Id$
  *
- *   Copyright 2006 University of Dundee. All rights reserved.
+ *   Copyright 2006-2014 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -29,6 +29,7 @@ import java.util.TreeSet;
 
 import ome.annotations.RolesAllowed;
 import ome.api.IContainer;
+import ome.api.IQuery;
 import ome.api.ServiceInterface;
 import ome.conditions.ApiUsageException;
 import ome.conditions.InternalException;
@@ -51,12 +52,14 @@ import ome.services.query.Query;
 import ome.tools.HierarchyTransformations;
 import ome.tools.lsid.LsidUtils;
 import ome.util.CBlock;
+import ome.services.query.HierarchyNavigator;
 
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 
 /**
@@ -97,7 +100,46 @@ public class PojosImpl extends AbstractLevel2Service implements IContainer {
     final static String loadCountsPlates = "select p from Plate p "
             + "left outer join fetch p.annotationLinksCountPerOwner " 
             + "where p in (:list)";
-    
+
+    /* A model object hierarchy navigator that is convenient for getImagesBySplitFilesets.
+     * To switch its API from bare Longs to an IObject-based query interface, it is easy to implement
+     * HierarchyNavigatorWrap<Class<? extends IObject>, IObject> and implement noteLookups with its methods. */
+    private static class HierarchyNavigatorPlain extends HierarchyNavigator {
+
+        HierarchyNavigatorPlain(IQuery iQuery) {
+            super(iQuery);
+        }
+
+        /**
+         * @{inheritDoc}
+         */
+        public void prepareLookups(String toType, String fromType, Collection<Long> fromIds) {
+            super.prepareLookups(toType, fromType, fromIds);
+        }
+
+        /**
+         * @{inheritDoc}
+         */
+        public ImmutableSet<Long> doLookup(String toType, String fromType, Long fromId) {
+            return super.doLookup(toType, fromType, fromId);
+        }
+
+        /**
+         * Perform {@link #prepareLookups(String, String, Collection)} and {@link #doLookup(String, String, Long)}
+         * for the given arguments and add the results to <code>toIdsAccumulator</code>.
+         * @param fromType the query objects' type, not <code>null</code>
+         * @param toType the type of the objects to which the query objects may be related, not <code>null</code>
+         * @param fromIds the query objects' database IDs, none <code>null</code>
+         * @param toIdsAccumulator collection into which to store the related objects' database IDs, not <code>null</code>
+         */
+        public void noteLookups(String fromType, String toType, Collection<Long> fromIds, Collection<Long> toIdsAccumulator) {
+            super.prepareLookups(toType, fromType, fromIds);
+            for (final Long fromId : fromIds) {
+                toIdsAccumulator.addAll(super.doLookup(toType, fromType, fromId));
+            }
+        }
+    }
+
     /**
      * Implemented as specified by the {@link IContainer} I/F
      * @see IContainer#loadContainerHierarchy(Class, Set, Parameters)
@@ -380,45 +422,6 @@ public class PojosImpl extends AbstractLevel2Service implements IContainer {
     }
 
     /**
-     * Split a collection into batches of the given size.
-     * @param batchSize the maximum batch size
-     * @param items some items
-     * @return the items split into batches
-     */
-    private static <X> List<List<X>> batchCollection(int batchSize, Collection<X> items) {
-        if (batchSize < 1) {
-            throw new IllegalArgumentException("batch size must be strictly positive");
-        }
-        final List<List<X>> batches = new ArrayList<List<X>>();
-        List<X> batch = new ArrayList<X>(batchSize);
-        for (final X item : items) {
-            batch.add(item);
-            if (batch.size() >= batchSize) {
-                batches.add(batch);
-                batch = new ArrayList<X>(batchSize);
-            }
-        }
-        if (!batch.isEmpty()) {
-            batches.add(batch);
-        }
-        return batches;
-    }
-
-    /**
-     * Perform the given HQL query in batches, adding the results to the given collection.
-     * @param queryString a HQL query that includes {@link Parameters.IDS}
-     * @param queryIds the IDs to use as a query parameter
-     * @param resultIds the set to which to add the results
-     */
-    private void addResultIds(String queryString, Collection<Long> queryIds, Set<Long> resultIds) {
-        for (final List<Long> idBatch : batchCollection(256, queryIds)) {
-            for (final Object[] result : iQuery.projection(queryString, new Parameters().addIds(idBatch))) {
-                resultIds.add((Long) result[0]);
-            }
-        }
-    }
-
-    /**
      * Implemented as specified by the {@link IContainer} I/F
      * @see IContainer#getImagesBySplitFilesets(Map)
      */
@@ -459,38 +462,35 @@ public class PojosImpl extends AbstractLevel2Service implements IContainer {
 
         /* also note which entities have been implicitly referenced */
 
-        final String inIds = " in (:" + Parameters.IDS + ")";
+        final HierarchyNavigatorPlain hierarchyNavigator = new HierarchyNavigatorPlain(iQuery);
 
-        addResultIds("select child.id from ProjectDatasetLink where parent.id" + inIds, projectIds, datasetIds);
-        addResultIds("select child.id from DatasetImageLink where parent.id" + inIds, datasetIds, imageIds);
-        addResultIds("select child.id from ScreenPlateLink where parent.id" + inIds, screenIds, plateIds);
-        addResultIds("select id from Well where plate.id" + inIds, plateIds, wellIds);
-        addResultIds("select image.id from WellSample where well.id" + inIds, wellIds, imageIds);
-        addResultIds("select id from Image where fileset.id" + inIds, filesetIds, imageIds);
+        hierarchyNavigator.noteLookups("/Project", "/Dataset", projectIds, datasetIds);
+        hierarchyNavigator.noteLookups("/Dataset", "/Image", datasetIds, imageIds);
+        hierarchyNavigator.noteLookups("/Screen", "/Plate", screenIds, plateIds);
+        hierarchyNavigator.noteLookups("/Plate", "/Well", plateIds, wellIds);
+        hierarchyNavigator.noteLookups("/Well", "/Image", wellIds, imageIds);
+        hierarchyNavigator.noteLookups("/Fileset", "/Image", filesetIds, imageIds);
 
         /* note which filesets are associated with referenced images */
 
-        final SortedSet<Long> filesetIdsRequired = new TreeSet<Long>();
-        addResultIds("select distinct fileset.id from Image where fileset.id is not null and id" + inIds,
-                imageIds, filesetIdsRequired);
+        final Set<Long> filesetIdsRequired = new HashSet<Long>();
+        hierarchyNavigator.noteLookups("/Image", "/Fileset", imageIds, filesetIdsRequired);
 
         /* make sure that associated filesets have all their images referenced */
 
         final Map<Long, Map<Boolean, List<Long>>> imagesBySplitFilesets = new HashMap<Long, Map<Boolean, List<Long>>>();
-        for (final long filesetIdRequired : Sets.difference(filesetIdsRequired, filesetIds)) {
-            final SortedSet<Long> imageIdsRequired = new TreeSet<Long>();
-            for (final Object[] result : iQuery.projection(
-                    "select id from Image where fileset.id = :" + Parameters.ID,
-                    new Parameters().addId(filesetIdRequired))) {
-                imageIdsRequired.add((Long) result[0]);
-            }
+        final Set<Long> filesetIdsMissing = Sets.difference(filesetIdsRequired, filesetIds);
+        hierarchyNavigator.prepareLookups("/Image", "/Fileset", filesetIdsMissing);
+        for (final long filesetIdMissing : filesetIdsMissing) {
+            final Set<Long> imageIdsRequiredUnordered = hierarchyNavigator.doLookup("/Image", "/Fileset", filesetIdMissing);
+            final SortedSet<Long> imageIdsRequired = new TreeSet<Long>(imageIdsRequiredUnordered);
             final Set<Long> includedImageIds = Sets.intersection(imageIdsRequired, imageIds);
             final Set<Long> excludedImageIds = Sets.difference(imageIdsRequired, includedImageIds);
             if (!excludedImageIds.isEmpty()) {
                 final Map<Boolean, List<Long>> partitionedImages = new HashMap<Boolean, List<Long>>(2);
                 partitionedImages.put(true,  new ArrayList<Long>(includedImageIds));
                 partitionedImages.put(false, new ArrayList<Long>(excludedImageIds));
-                imagesBySplitFilesets.put(filesetIdRequired, partitionedImages);
+                imagesBySplitFilesets.put(filesetIdMissing, partitionedImages);
             }
         }
         return imagesBySplitFilesets;
