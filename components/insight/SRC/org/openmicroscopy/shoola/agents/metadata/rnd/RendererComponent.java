@@ -45,6 +45,7 @@ import com.sun.opengl.util.texture.TextureData;
 //Application-internal dependencies
 import omero.romio.PlaneDef;
 
+import org.openmicroscopy.shoola.agents.events.iviewer.RendererUnloadedEvent;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImageObject;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
@@ -155,7 +156,7 @@ class RendererComponent
 			logMsg.println(rse.getExtendedMessage());
 			logMsg.print(rse);
 			logger.error(this, logMsg);
-			if (e.getCause() instanceof OutOfMemoryError || 
+			if (e.getCause() instanceof OutOfMemoryError ||
 				e instanceof OutOfMemoryError) {
 				un.notifyInfo("Image", "Running out of memory, " +
 				"\nit is not possible to render the image.\n" +
@@ -173,24 +174,22 @@ class RendererComponent
 							"An error occurred while modifying the settings." +
 							"\nThe attempts to reload failed, " +
 							"the viewer will now close.");
-						discard();
-						fireStateChange();
+						//discard the viewer.
+						closeViewer();
 						return;
 					}
 					MessageBox box = new MessageBox(f, "Rendering Error", 
 							"An error occurred while modifying the settings." +
-							"\nDo you " +
-					"want to reload the settings? " +
+							"\nDo you want to reload the settings? " +
 					"If Not, the viewer will close.");
 					if (box.centerMsgBox() == MessageBox.YES_OPTION) {
 						loadingAttempt++;
 						logger.debug(this, "Reload rendering Engine.");
 						firePropertyChange(RELOAD_PROPERTY, 
-								Boolean.valueOf(false), 
+								Boolean.valueOf(false),
 								Boolean.valueOf(true));
 					} else {
-						discard();
-						fireStateChange();
+					    closeViewer();
 					}
 				}
 			}
@@ -202,7 +201,17 @@ class RendererComponent
 		}
 		return;
 	}
-	
+
+	/** Posts an event to discard the viewer.*/
+	private void closeViewer()
+	{
+	    long id = model.getRefImage().getDefaultPixels().getId();
+	    MetadataViewerAgent.getRegistry().getEventBus().post(
+	            new RendererUnloadedEvent(id));
+	    discard();
+	    fireStateChange();
+	}
+
     /**
      * Creates a new instance.
      * The {@link #initialize() initialize} method should be called straight
