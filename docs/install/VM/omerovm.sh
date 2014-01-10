@@ -41,6 +41,7 @@ function installvm ()
 	SCP="scp -2 -o NoHostAuthenticationForLocalhost=yes -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o CheckHostIP=no -o PasswordAuthentication=no -o ChallengeResponseAuthentication=no -o PreferredAuthentications=publickey -i omerovmkey -P $SSH_PF"
 	SSH="ssh -2 -o StrictHostKeyChecking=no -i omerovmkey -p $SSH_PF -t"
 	echo "Copying scripts to VM"
+	$SCP ../../../target/OMERO.server*zip omero@localhost:~/
 	$SCP driver.sh omero@localhost:~/
 	$SCP setup_userspace.sh omero@localhost:~/
 	$SCP setup_postgres.sh omero@localhost:~/
@@ -132,7 +133,7 @@ function deletevm ()
 function createvm ()
 {
 		$VBOX list vms | grep "$VMNAME" || {
-		VBoxManage clonehd "$HARDDISKS"omero-base-img_2011-08-08.vdi"" "$HARDDISKS$VMNAME.vdi"
+		VBoxManage clonehd "$OMERO_BASE_IMAGE" "$HARDDISKS$VMNAME.vdi"
 		VBoxManage createvm --name "$VMNAME" --register --ostype "Debian"
 		VBoxManage storagectl "$VMNAME" --name "SATA CONTROLLER" --add sata
 		VBoxManage storageattach "$VMNAME" --storagectl "SATA CONTROLLER" --port 0 --device 0 --type hdd --medium $HARDDISKS$VMNAME.vdi

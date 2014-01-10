@@ -19,25 +19,9 @@ readAPIValue() {
     wget -q -O- $URL | sed 's/^<.*>\([^<].*\)<.*>$/\1/'
     }
 
-echo "Grabbing last successful QA Build of OMERO.server"
-DL_ARCHIVE=""
-if [ "x$DL_ARCHIVE" == "x" ]; then
-
-    URL=`readAPIValue $OMERO_BUILD_URL"/api/xml?xpath=/freeStyleBuild/url"`
-    FILE=`readAPIValue $OMERO_BUILD_URL"/api/xml?xpath=//relativePath[contains(.,'server')]"`
-
-    wget -q "$URL"artifact/$FILE
-
-    DL_ARCHIVE=`basename $FILE`
-    DL_FOLDER=${DL_ARCHIVE%.zip}
-else
-    DL_LOC=$OMERO_BUILD_URL"/artifact/"
-    DL_FOLDER=${DL_ARCHIVE%.zip}
-
-    wget $DL_LOC$DL_ARCHIVE
-fi
-unzip $DL_ARCHIVE
-mv $DL_FOLDER $INSTALL_FOLDER
+unzip OMERO.server*.zip
+rm -rf OMERO.server*.zip
+mv OMERO.server* $INSTALL_FOLDER
 
 mkdir OMERO.data
 
