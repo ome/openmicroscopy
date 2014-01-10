@@ -30,6 +30,8 @@ import java.beans.PropertyChangeListener;
 import javax.swing.Icon;
 import javax.swing.JDialog;
 
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
 //Third-party libraries
 
 //Application-internal dependencies
@@ -116,7 +118,9 @@ public class ScreenLoginDialog
         getContentPane().add(view.getContentPane().getComponent(0));
         setSize(view.getSize());
         setPreferredSize(view.getPreferredSize());
-        getRootPane().setDefaultButton(view.getRootPane().getDefaultButton());
+        if (UIUtilities.isMacOS())
+            getRootPane().setDefaultButton(
+                    view.getRootPane().getDefaultButton());
         setCursor(view.getCursor());
     }
 
