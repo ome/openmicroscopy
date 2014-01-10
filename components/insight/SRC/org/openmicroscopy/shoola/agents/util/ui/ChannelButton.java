@@ -100,6 +100,9 @@ public class ChannelButton
     /** Flag indicating that the button is an overlay. */
     private boolean overlay;
 
+    /** The default font.*/
+    private Font originalFont;
+
     /** Fires an event to select the channel. */
     private final void setChannelSelected()
     {
@@ -146,7 +149,7 @@ public class ChannelButton
     /**
      * Returns the preferred dimension of the component.
      *
-     * @param decrease The value by which the size of the font is decreased
+     * @param decrease The value by which the size of the font is decreased.
      */
     private Dimension setComponentSize(int decrease)
     {
@@ -179,7 +182,7 @@ public class ChannelButton
                 s = "..";
                 while (i.hasNext())
                     s += i.next();
-                setText(s);
+                super.setText(s);
                 //reset text
                 return setComponentSize(decrease);
             }
@@ -202,6 +205,20 @@ public class ChannelButton
     }
 
     /**
+     * Sets the text associated to the component.
+     *
+     * @param text The value to set.
+     */
+    private void setTextValue(String text)
+    {
+        super.setText(parseText(text));
+        List<String> l = new ArrayList<String>(2);
+        if (StringUtils.isNotBlank(text)) l.add(text);
+        l.add(DESCRIPTION);
+        setToolTipText(UIUtilities.formatToolTipText(l));
+    }
+
+    /**
      * Creates a new instance.
      * 
      * @param text The text of the button. The text should correspond to
@@ -216,7 +233,8 @@ public class ChannelButton
     public ChannelButton(String text, Color color, int index, boolean selected)
     {
         super(text, color);
-        setText(text);
+        originalFont = getFont();
+        setTextValue(text);
         //Need to parse the String.
         this.index = index;
         rightClickSupported = true;
@@ -292,11 +310,12 @@ public class ChannelButton
      */
     public void setText(String text)
     {
-        super.setText(parseText(text));
-        List<String> l = new ArrayList<String>(2);
-        if (StringUtils.isNotBlank(text)) l.add(text);
-        l.add(DESCRIPTION);
-        setToolTipText(UIUtilities.formatToolTipText(l));
+        setTextValue(text);
+        if (originalFont != null) {
+            setFont(originalFont);
+            setComponentSize(0);
+        }
+        repaint();
     }
 
     /**
