@@ -888,6 +888,8 @@ class ImViewerModel
 	void setChannels(List<ChannelData> channels)
 	{
 		this.channels = channels;
+		if (metadataViewer != null)
+		    metadataViewer.onUpdatedChannels(channels);
 	}
 	
 	/**
