@@ -83,7 +83,7 @@ class ChannelEditUI
     /** 
      * Message displayed before apply the renaming to all images in the dataset.
      */
-    private static final String WARNING_DATASET = 
+    private static final String WARNING_DATASET =
             "Update channel names for all images in the dataset? " +
                     "This cannot be undone.";
 
