@@ -99,9 +99,12 @@ import pojos.WellSampleData;
  * </small>
  * @since OME3.0
  */
-public class EditorUtil 
+public class EditorUtil
 {
-	
+
+    /** The maximum number of characters.*/
+    public static final int MAX_CHAR = 256;
+
 	/** The number of characters.*/
 	public static final int LENGHT_CHAR = 50;
 	
