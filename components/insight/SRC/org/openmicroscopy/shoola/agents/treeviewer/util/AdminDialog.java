@@ -176,7 +176,7 @@ public class AdminDialog
 		UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
 		StringBuffer text = new StringBuffer();
 		if (group) text.append("This Group name already exists.");
-		else text.append("This Experimenter name already exists.");
+		else text.append("This User name already exists.");
 		text.append("\nPlease choose another name.");
 		un.notifyInfo("Admin Error", text.toString());
 	}
