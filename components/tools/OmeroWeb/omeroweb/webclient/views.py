@@ -103,7 +103,7 @@ from omeroweb.feedback.views import handlerInternalError
 from omeroweb.webclient.decorators import login_required
 from omeroweb.webclient.decorators import render_response
 from omeroweb.connector import Connector
-from omeroweb.decorators import ConnCleaningHttpResponse
+from omeroweb.decorators import ConnCleaningHttpResponse, parse_url
 
 logger = logging.getLogger(__name__)
 
@@ -116,6 +116,7 @@ def getIntOrDefault(request, name, default):
     except ValueError:
         index = 0
     return index
+
 
 ################################################################################
 # views controll
@@ -171,7 +172,7 @@ def login(request):
                     if url is not None and len(url) != 0:
                         return HttpResponseRedirect(url)
                     else:
-                        return HttpResponseRedirect(reverse("webindex"))
+                        return HttpResponseRedirect(parse_url(settings.LOGIN_REDIRECT))
                 elif username == "guest":
                     error = "Guest account is for internal OMERO use only. Not for login."
                 else:
