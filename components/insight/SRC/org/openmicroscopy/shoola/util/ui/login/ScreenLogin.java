@@ -604,7 +604,7 @@ implements ActionListener, DocumentListener, PropertyChangeListener
         if (encrypted) 
             encryptedButton.setIcon(icons.getIcon(IconManager.ENCRYPTED_24));
         else encryptedButton.setIcon(icons.getIcon(IconManager.DECRYPTED_24));
-        getRootPane().setDefaultButton(login);
+        if (UIUtilities.isMacOS()) getRootPane().setDefaultButton(login);
         enableControls();
     }
 
