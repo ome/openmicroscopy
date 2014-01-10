@@ -49,8 +49,11 @@ import javax.swing.event.DocumentListener;
 
 //Third-party libraries
 
+
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.util.ui.MultilineLabel;
+import org.openmicroscopy.shoola.util.ui.TextFieldLimit;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.ChannelData;
 import pojos.DatasetData;
@@ -153,7 +156,7 @@ class ChannelEditUI
         Iterator k = channels.keySet().iterator();
         while (k.hasNext()) {
             channel = (ChannelData) k.next();
-            field = new JTextField();
+            field = new TextFieldLimit(EditorUtil.MAX_CHAR);
             field.setBackground(UIUtilities.BACKGROUND_COLOR);
             field.setText(channel.getChannelLabeling());
             field.getDocument().addDocumentListener(this);
