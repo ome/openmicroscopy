@@ -202,7 +202,7 @@
             return $.trim($node.children("a:eq(0)").text().split("\n")[0]);
         }
 
-        OME.remove_nodes = function(tree, selected) {
+        OME.remove_nodes = function(tree, selected, force) {
             if (selected.length>0) {
                 var images = selected.filter('li[id*=image]');      // id='copy_image-123' if just pasted
                 var datasets = selected.filter('li[id*=dataset]');
@@ -218,27 +218,34 @@
                 if (plates.length > 0) {
                     removeTxt += plates.length + " Plate" + ((datasets.length>1) && "s from their" || " from its") +" Screen";
                 }
-                removeTxt += "?"
-                var confirm_remove = OME.confirm_dialog(removeTxt,
-                    function() {
-                        if (confirm_remove.data('clicked_button') == "OK") {
-                            if (images.length > 0) {
-                                tree.move_node(images,$("li#orphaned-0"), undefined, undefined, false, true);
+                removeTxt += "?";
+                var do_remove = function() {
+                    if (images.length > 0) {
+                        tree.move_node(images,$("li#orphaned-0"), undefined, undefined, false, true);
+                    }
+                    if (datasets.length > 0) {
+                        var nodeText = OME.jsTreeNodeText($(datasets[0])),
+                            targetIndex = OME.findTreeIndexForNode(tree, 'dataset', nodeText);
+                        tree.move_node(datasets, $("li#experimenter-0"), targetIndex);
+                    }
+                    if (plates.length > 0) {
+                        var nodeText = OME.jsTreeNodeText($(plates[0])),
+                            targetIndex = OME.findTreeIndexForNode(tree, 'plate', nodeText);
+                        tree.move_node(plates, $("li#experimenter-0"), targetIndex);
+                    }
+                }
+                if (force) {
+                    do_remove();
+                } else {
+                    var confirm_remove = OME.confirm_dialog(removeTxt,
+                        function() {
+                            if (confirm_remove.data('clicked_button') == "OK") {
+                                do_remove();
                             }
-                            if (datasets.length > 0) {
-                                var nodeText = OME.jsTreeNodeText($(datasets[0])),
-                                    targetIndex = OME.findTreeIndexForNode(tree, 'dataset', nodeText);
-                                tree.move_node(datasets, $("li#experimenter-0"), targetIndex);
-                            }
-                            if (plates.length > 0) {
-                                var nodeText = OME.jsTreeNodeText($(plates[0])),
-                                    targetIndex = OME.findTreeIndexForNode(tree, 'plate', nodeText);
-                                tree.move_node(plates, $("li#experimenter-0"), targetIndex);
-                            }
-                        }
-                    },
-                    "Remove item"+ ((selected.length>1) && "s" || "") + "?"
-                );
+                        },
+                        "Remove item"+ ((selected.length>1) && "s" || "") + "?"
+                    );
+                }
             }
         }
 
@@ -807,7 +814,10 @@
                                         "label" : "Cut",
                                         "icon"  : '{% static "webclient/image/icon_basic_cut_16.png" %}',
                                         "action": function() {
-                                            this.cut(this.get_selected());
+                                            var tree = this,
+                                                selected = this.get_selected();
+                                            tree.cut(selected);     // jsTree 'cut' doesn't remove...
+                                            OME.remove_nodes(this, selected, true);
                                         }
                                     },
                                     "paste": {
@@ -1059,6 +1069,9 @@
 
                 })
                 .bind("move_node.jstree", function (e, data) {
+                    // We don't do 'move' in the way that jsTree expects now.
+                    // We 'Cut', which copies and removes. Then 'Paste' to move to new destination.
+                    // So 'move' doesn't need to remove the old parent any more...
                     var refresh = false;
                     data.rslt.o.each(function (i) {
                         var remove = false;
@@ -1069,10 +1082,16 @@
                                 "destination" : data.rslt.np.attr("rel").replace("-locked","") +'-'+data.rslt.np.attr("id").split("-")[1]
                             }
                         } else  {
+                            // 'cr' is destination, 'op' is current parent
                             if (data.rslt.cr.attr('rel')!="orphaned") {
                                 url = '{% url 'manage_action_containers' "move" %}'+$(this).attr("rel").replace("-locked","")+'/'+$(this).attr("id").split("-")[1]+'/';
-                                d = {
-                                    "parent" : data.rslt.op.attr("rel").replace("-locked","")+'-'+data.rslt.op.attr("id").split("-")[1], 
+                                var p = "orphaned-0";
+                                // ...but parent may be project if we are orphaning a dataset or drag'n'drop image
+                                if (data.rslt.op.attr("rel")) {
+                                    p = data.rslt.op.attr("rel").replace("-locked","")+'-'+data.rslt.op.attr("id").split("-")[1];
+                                }
+                                var d = {
+                                    "parent" : p,
                                     "destination" : data.rslt.np.attr("rel").replace("-locked","") +'-'+data.rslt.np.attr("id").split("-")[1]
                                 };
                                 if (data.inst.get_container().find('#'+this.id).length > 1 ) data.inst.delete_node(this);
@@ -1113,8 +1132,8 @@
                     if (refresh) {
                         data.inst.deselect_all();
                         // refresh source
-                        if (!data.inst.is_leaf(data.rslt.op) && $.inArray(data.rslt.op.attr("rel").replace("-locked", ""), ["dataset", "orphaned"]) > -1) {
-                            data.inst.refresh(data.inst._get_node('#'+data.rslt.op.attr('id')));
+                        if (!data.inst.is_leaf(data.rslt.op)) {
+                            data.inst.refresh(data.inst._get_node('#orphaned-0'));
                         }
                         //refresh destination (will already be expanded, even if orphaned)
                         if (!data.inst.is_leaf(data.rslt.cr) && $.inArray(data.rslt.cr.attr("rel").replace("-locked", ""), ["dataset", "orphaned"]) > -1) {
