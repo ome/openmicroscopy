@@ -48,6 +48,8 @@ import javax.swing.JFrame;
 //Application-internal dependencies
 import omero.model.OriginalFile;
 import omero.model.PlaneInfo;
+
+import org.apache.commons.collections.CollectionUtils;
 import org.openmicroscopy.shoola.agents.metadata.AcquisitionDataLoader;
 import org.openmicroscopy.shoola.agents.metadata.AnalysisResultsFileLoader;
 import org.openmicroscopy.shoola.agents.metadata.AttachmentsLoader;
@@ -324,23 +326,20 @@ class EditorModel
 	private void downloadImages(File file)
 	{
 		List<ImageData> images = new ArrayList<ImageData>();
-		Collection l = parent.getRelatedNodes();
+		List<DataObject> l = getSelectedObjects();
 		ImageData img;
-		if (l != null) {
-			Iterator i = l.iterator();
-			Object o;
+		if (CollectionUtils.isNotEmpty(l)) {
+			Iterator<DataObject> i = l.iterator();
+			DataObject o;
 			while (i.hasNext()) {
-				o = (Object) i.next();
-				if (o instanceof ImageData) {
-					img = (ImageData) o;
-					images.add(img);
+				o = i.next();
+				if (isArchived(o)) {
+				    images.add((ImageData) o);
 				}
 			}
 		}
-		img = (ImageData) getRefObject();
-		images.add(img);
-		
-		if (images.size() > 0) {
+
+		if (CollectionUtils.isNotEmpty(images)) {
 			Iterator<ImageData> i = images.iterator();
 			DownloadArchivedActivityParam p;
 			UserNotifier un =
@@ -2847,12 +2846,7 @@ class EditorModel
 	 * 
 	 * @return See above.
 	 */
-	boolean isArchived()
-	{
-		ImageData img = getImage();
-		if (img == null) return false;
-		return img.isArchived();
-	}
+	boolean isArchived() { return isArchived(getImage()); }
 
 	/** 
 	 * Starts an asynchronous loading. 
@@ -4166,5 +4160,21 @@ class EditorModel
 	{
 	    return MetadataViewerAgent.getAvailableUserGroups();
 	}
+
+	/**
+	 * Returns <code>true</code> if the object is archived,
+	 * <code>false</code> otherwise.
+	 *
+	 * @param ho The object to handle.
+	 * @return See above.
+	 */
+    boolean isArchived(DataObject ho)
+    {
+        ImageData img = null;
+        if (ho instanceof ImageData)
+            img = (ImageData) ho;
+        if (img == null) return false;
+        return img.isArchived();
+    }
 
 }
