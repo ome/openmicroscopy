@@ -216,7 +216,7 @@ public class ChannelButton
     public ChannelButton(String text, Color color, int index, boolean selected)
     {
         super(text, color);
-        setText(parseText(text));
+        setText(text);
         //Need to parse the String.
         this.index = index;
         rightClickSupported = true;
@@ -225,10 +225,6 @@ public class ChannelButton
             public void mousePressed(MouseEvent e) { onClick(e); }
             public void mouseReleased(MouseEvent e) { onReleased(e); }
         });
-        List<String> l = new ArrayList<String>(2);
-        if (text != null && text.length() > 0) l.add(text);
-        l.add(DESCRIPTION);
-        setToolTipText(UIUtilities.formatToolTipText(l));
         setPreferredSize(setComponentSize(0));
     }
 
@@ -288,6 +284,19 @@ public class ChannelButton
         super.setSelected(selected);
         if (selected) setBorder(BorderFactory.createLoweredBevelBorder());
         else setBorder(BorderFactory.createRaisedBevelBorder());
+    }
+
+    /**
+     * Overridden so the text can be parsed and the tool tip set.
+     * @see ColouredButton#setText(String)
+     */
+    public void setText(String text)
+    {
+        super.setText(parseText(text));
+        List<String> l = new ArrayList<String>(2);
+        if (StringUtils.isNotBlank(text)) l.add(text);
+        l.add(DESCRIPTION);
+        setToolTipText(UIUtilities.formatToolTipText(l));
     }
 
     /**
