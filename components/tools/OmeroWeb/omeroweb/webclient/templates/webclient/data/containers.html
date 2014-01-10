@@ -774,14 +774,14 @@
                                 "action"    : false,
                                 "submenu"   : {
                                     "copy"  : {
-                                        "label" : "Copy",
+                                        "label" : "Copy Link",
                                         "icon"  : '{% static "webclient/image/icon_basic_copy_16.png" %}',
                                         "action": function() {
                                             this.copy(this.get_selected());
                                         }
                                     },
                                     "cut"   :{
-                                        "label" : "Cut",
+                                        "label" : "Cut Link",
                                         "icon"  : '{% static "webclient/image/icon_basic_cut_16.png" %}',
                                         "action": function() {
                                             var tree = this,
@@ -791,7 +791,7 @@
                                         }
                                     },
                                     "paste": {
-                                        "label" : "Paste",
+                                        "label" : "Paste Link",
                                         "icon"  : '{% static "webclient/image/icon_basic_paste_16.png" %}',
                                         "action": function() {
                                             this.paste(this.get_selected());
@@ -1211,9 +1211,9 @@
 			
 			<li class="seperator"></li>
 			
-			<li><input id="copyButton" class="button button-disabled" type="image" src="{% static "webclient/image/icon_toolbar_copy.png" %}" alt="Copy" title="Copy" /> </li>
-			<li><input id="cutButton" class="button button-disabled" type="image" src="{% static "webclient/image/icon_toolbar_cut.png" %}" alt="Cut" title="Cut" /> </li>
-			<li><input id="pasteButton" class="button button-disabled" type="image" src="{% static "webclient/image/icon_toolbar_paste.png" %}" alt="Paste" title="Paste" /> </li>
+			<li><input id="copyButton" class="button button-disabled" type="image" src="{% static "webclient/image/icon_toolbar_copy.png" %}" alt="Copy Link" title="Copy a link to the selected object" /> </li>
+			<li><input id="cutButton" class="button button-disabled" type="image" src="{% static "webclient/image/icon_toolbar_cut.png" %}" alt="Cut Link" title="Cut Link" /> </li>
+			<li><input id="pasteButton" class="button button-disabled" type="image" src="{% static "webclient/image/icon_toolbar_paste.png" %}" alt="Paste Link" title="Paste the copied link" /> </li>
 			
 			<li class="seperator">
 			
