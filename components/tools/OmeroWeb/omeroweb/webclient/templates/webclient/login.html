@@ -55,12 +55,17 @@
 
 <div style="margin: auto">
 
-<div id="login-logo">
+<div style="margin: 5% auto 0; height: 100px"></div>
+<div class="login-logos">
+    <div class="custom_logo">
+        {% if LOGIN_LOGO %}
+            <img src="{{ LOGIN_LOGO }}" />
+        {% else %}
+            <img src="{% static "webclient/image/custom_login_logo.png" %}" />
+        {% endif %}
+    </div>
     <img src="{% static "webclient/image/logo_login_web.png" %}" />
 </div>
-
-	
-
 
 <div id="login">
     {% block login %}

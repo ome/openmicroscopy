@@ -23,14 +23,19 @@ body {
 	height: 0%;
 }
 
-#login-logo {
-    margin: 10% auto 10px;
-    width: 347px;
+.login-logos {
+    width:100%;
+    height:10%;
+    position: relative;
+    text-align:center;
 }
 
-
-
-
+.custom_logo {
+    position: absolute;
+    bottom: 100%;
+    width: 100%;
+    text-align: center;
+}
 
 #login {
 	width:370px;
