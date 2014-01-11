@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.treemng.browser.BrowserControl
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -358,7 +358,6 @@ class BrowserControl
         JTree tree = view.getTreeDisplay();
         TreePath[] paths = tree.getSelectionPaths();
         if (paths == null) {
-            model.setSelectedDisplay(null);
             return;
         }
         TreeImageDisplay node;
