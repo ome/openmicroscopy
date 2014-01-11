@@ -28,8 +28,6 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import javax.swing.text.PlainDocument;
 
-import org.openmicroscopy.shoola.env.Container;
-
 /**
  * A text field with a limited number of characters.
  *
