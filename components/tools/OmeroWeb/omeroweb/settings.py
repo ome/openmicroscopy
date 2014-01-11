@@ -211,6 +211,7 @@ def leave_none_unset_int(s):
         return int(s)
 
 CUSTOM_SETTINGS_MAPPINGS = {
+    "omero.web.login_logo": ["LOGIN_LOGO", None, leave_none_unset],
     "omero.web.apps": ["ADDITIONAL_APPS", '[]', json.loads],
     "omero.web.public.enabled": ["PUBLIC_ENABLED", "false", parse_boolean],
     "omero.web.public.url_filter": ["PUBLIC_URL_FILTER", r'^/(?!webadmin)', re.compile],
