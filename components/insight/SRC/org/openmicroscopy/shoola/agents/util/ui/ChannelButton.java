@@ -65,7 +65,7 @@ public class ChannelButton
     public static final Dimension DEFAULT_MIN_SIZE = new Dimension(30, 30);
 
     /** The default size of the component. */
-    public static final Dimension 	DEFAULT_MAX_SIZE = new Dimension(60, 30);
+    public static final Dimension DEFAULT_MAX_SIZE = new Dimension(60, 30);
 
     /**
      * Bound property name indicating that the channel is or is not selected.
@@ -149,43 +149,39 @@ public class ChannelButton
     /**
      * Returns the preferred dimension of the component.
      *
-     * @param decrease The value by which the size of the font is decreased.
+     * @param dimWidth The width of the component.
      */
-    private Dimension setComponentSize(int decrease)
+    private Dimension setComponentSize(int dimWidth)
     {
         Font f = getFont();
-        Font fNew = f.deriveFont(f.getStyle(), f.getSize()-1);
-        setFont(fNew);
         String text = getText();
-        FontMetrics fm = getFontMetrics(fNew);
-        int width = fm.stringWidth(text)+4;
+        FontMetrics fm = getFontMetrics(f);
+        int width = fm.stringWidth(text);
         Dimension d = DEFAULT_MIN_SIZE;
-        if (width > DEFAULT_MIN_SIZE.width &&
-                width < DEFAULT_MAX_SIZE.width) {
-            d = new Dimension(width+6, DEFAULT_MIN_SIZE.height);
-        } else if (width >= DEFAULT_MAX_SIZE.width) {
-            if (fNew.getSize() > MIN_FONT_SIZE) {
-                return setComponentSize(decrease-1);
-            } else {
-                String s = "";
-                int n = text.length()-1;
-                List l = new ArrayList();
-                char ch;
-                while (fm.stringWidth(s)+4 < DEFAULT_MAX_SIZE.width-2) {
-                    ch = text.charAt(n);
-                    s += ch;
-                    l.add(ch);
-                    n = n-1;
-                }
-                Collections.reverse(l);
-                Iterator i = l.iterator();
-                s = "..";
-                while (i.hasNext())
-                    s += i.next();
-                super.setText(s);
-                //reset text
-                return setComponentSize(decrease);
+        if (width > DEFAULT_MIN_SIZE.width && width < dimWidth) {
+            d = new Dimension(width+10, DEFAULT_MIN_SIZE.height);
+        } else if (width >= dimWidth) {
+            int size = fm.stringWidth(UIUtilities.DOTS);
+            width += size;
+            String s = "";
+            int n = text.length()-1;
+            List l = new ArrayList();
+            char ch;
+            while (fm.stringWidth(s)+size < dimWidth-size) {
+                ch = text.charAt(n);
+                s += ch;
+                l.add(ch);
+                n = n-1;
             }
+            Collections.reverse(l);
+            Iterator i = l.iterator();
+            s = UIUtilities.DOTS;
+            while (i.hasNext())
+                s += i.next();
+            super.setText(s);
+            //reset text
+            width = fm.stringWidth(s);
+            d = new Dimension(width+10, DEFAULT_MIN_SIZE.height);
         }
         return d;
     }
@@ -243,7 +239,7 @@ public class ChannelButton
             public void mousePressed(MouseEvent e) { onClick(e); }
             public void mouseReleased(MouseEvent e) { onReleased(e); }
         });
-        setPreferredSize(setComponentSize(0));
+        setPreferredSize(setComponentSize(DEFAULT_MAX_SIZE.width));
     }
 
     /**
@@ -313,7 +309,7 @@ public class ChannelButton
         setTextValue(text);
         if (originalFont != null) {
             setFont(originalFont);
-            setComponentSize(0);
+            setComponentSize(getPreferredSize().width);
         }
         repaint();
     }
