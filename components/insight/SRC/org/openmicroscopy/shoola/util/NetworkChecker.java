@@ -149,13 +149,11 @@ public class NetworkChecker {
         if (address != null) {
             try {
                 URL url = new URL("http://"+address);
-               //open a connection to that source
                 HttpURLConnection urlConnect = (HttpURLConnection)
                         url.openConnection();
                 urlConnect.setConnectTimeout(1000);
                 urlConnect.getContent();
             } catch (Exception e) {
-                e.printStackTrace();
                log("Not available %s", e);
                return false;
             }
