@@ -9,7 +9,6 @@ export PSQL_DIR=${PSQL_DIR:-/usr/local/var/postgres}
 export OMERO_DATA_DIR=${OMERO_DATA_DIR:-/tmp/var/OMERO.data}
 export BREW_OPTS=${BREW_OPTS:-}
 export SCRIPT_NAME=${SCRIPT_NAME:-OMERO.sql}
-VENV_DIR=${VENV_DIR:-/usr/local/virtualenv}
 
 # Test whether this script is run in a job environment
 JOB_NAME=${JOB_NAME:-}
@@ -82,15 +81,6 @@ showinf -version
 # Install PostgreSQL and OMERO
 bin/brew install omero $BREW_OPTS
 bin/brew install postgres
-
-# Create a virtual environment for Python dependencies
-bin/pip install virtualenv
-bin/virtualenv $VENV_DIR
-
-# Activate the virtual environment
-set +u
-source $VENV_DIR/bin/activate
-set -u
 
 # Install OMERO Python dependencies
 bash bin/omero_python_deps
