@@ -369,7 +369,7 @@ public class DataServicesFactory
         if (connectionDialog instanceof ShutDownDialog) {
             ShutDownDialog d = (ShutDownDialog) connectionDialog;
             d.setChecker(omeroGateway.getChecker());
-            d.setCheckupTime(8);
+            d.setCheckupTime(5);
         }
         connectionDialog.setModal(false);
         connectionDialog.addPropertyChangeListener(new PropertyChangeListener()
