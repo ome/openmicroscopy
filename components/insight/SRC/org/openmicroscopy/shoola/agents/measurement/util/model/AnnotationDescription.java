@@ -70,7 +70,7 @@ public class AnnotationDescription
 	static
 	{
 		annotationDescription = new HashMap<AttributeKey, String>();
-		annotationDescription.put(AnnotationKeys.TEXT, "Text"); //J-M change to text
+		annotationDescription.put(AnnotationKeys.TEXT, "Comment");
 		annotationDescription.put(AnnotationKeys.ANGLE, "Angle");
 		annotationDescription.put(AnnotationKeys.AREA, "Area");
 		annotationDescription.put(AnnotationKeys.CENTREX, "Centre(X)");
