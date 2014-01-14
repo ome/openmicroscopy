@@ -14,6 +14,7 @@ import pytest
 import omero
 import datetime, time
 
+@pytest.mark.xfail(reason="See ticket #11539")
 class TestSearch(lib.ITest):
 
     def test2541(self):
@@ -32,33 +33,28 @@ class TestSearch(lib.ITest):
         r = q.findAllByFullText("TagAnnotation", uuid, None)
         assert 0 ==  len(r)
 
-    @pytest.mark.xfail(reason="See ticket #11539")
     def test3164Private(self):
         group = self.new_group(perms="rw----")
         owner = self.new_client(group)
         searcher = self.new_client(group)
         self._3164(owner, owner)
 
-    @pytest.mark.xfail(reason="See ticket #11539")
     def test3164ReadOnlySelf(self):
         group = self.new_group(perms="rwr---")
         owner = self.new_client(group)
         self._3164(owner, owner)
 
-    @pytest.mark.xfail(reason="See ticket #11539")
     def test3164ReadOnlyOther(self):
         group = self.new_group(perms="rwr---")
         owner = self.new_client(group)
         searcher = self.new_client(group)
         self._3164(owner, searcher)
 
-    @pytest.mark.xfail(reason="See ticket #11539")
     def test3164CollabSelf(self):
         group = self.new_group(perms="rwrw--")
         owner = self.new_client(group)
         self._3164(owner, owner)
 
-    @pytest.mark.xfail(reason="See ticket #11539")
     def test3164CollabOther(self):
         group = self.new_group(perms="rwrw--")
         owner = self.new_client(group)
@@ -162,7 +158,6 @@ class TestSearch(lib.ITest):
         if msg:
             assert False, "%s\n" % msg
 
-    @pytest.mark.xfail(reason="ticket 11494")
     def test8692(self):
         # Test that group admin and system admins can
         # find items in non-private groups.
@@ -203,7 +198,6 @@ class TestSearch(lib.ITest):
                 if not s.hasNext(all) or len(s.results(all)) != 1:
                     assert False, msg % ("SearchPrx", uuid, who, x)
 
-    @pytest.mark.xfail(reason="See ticket #11539")
     def test8846(self):
         # Wildcard search
 

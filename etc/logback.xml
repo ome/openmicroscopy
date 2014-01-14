@@ -3,7 +3,23 @@
 
   <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
     <file>${omero.logfile}</file>
-    <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+      <!-- Exclude debug level logging from ome.services.blitz.repo.ManagedImportRequestI -->
+      <filter class="ch.qos.logback.core.filter.EvaluatorFilter">
+        <evaluator> <!-- defaults to type ch.qos.logback.classic.boolex.JaninoEventEvaluator -->
+          <expression>return Level.DEBUG.equals(Level.toLevel(level)) &amp;&amp; logger.equals("ome.services.blitz.repo.ManagedImportRequestI");</expression>
+        </evaluator>
+        <OnMismatch>NEUTRAL</OnMismatch>
+        <OnMatch>DENY</OnMatch>
+      </filter>
+      <!-- Exclude debug level logging from omero.* -->
+      <filter class="ch.qos.logback.core.filter.EvaluatorFilter">
+        <evaluator> <!-- defaults to type ch.qos.logback.classic.boolex.JaninoEventEvaluator -->
+          <expression>return Level.DEBUG.equals(Level.toLevel(level)) &amp;&amp; logger.startsWith("omero.");</expression>
+        </evaluator>
+        <OnMismatch>NEUTRAL</OnMismatch>
+        <OnMatch>DENY</OnMatch>
+      </filter>
+      <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
       <fileNamePattern>${omero.logfile}.%i</fileNamePattern>
       <minIndex>1</minIndex>
       <maxIndex>9</maxIndex>

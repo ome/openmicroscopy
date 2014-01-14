@@ -30,6 +30,7 @@ import java.util.List;
 
 //Third-party libraries
 
+import org.apache.commons.collections.CollectionUtils;
 //Application-internal dependencies
 import org.apache.commons.io.FilenameUtils;
 import org.openmicroscopy.shoola.env.config.Registry;
@@ -127,7 +128,7 @@ public class DownloadArchivedActivity
 	{
 	    List<File> files = (List<File>) result;
 	    //Handle no file returned.
-	    if (files.size() == 0) {
+	    if (CollectionUtils.isEmpty(files)) {
 	        type.setText(DESCRIPTION_NO_ARCHIVED);
 	        messageLabel.setText(OPTION_NO_ARCHIVED);
 	        return;

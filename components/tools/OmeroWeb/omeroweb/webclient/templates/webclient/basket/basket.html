@@ -65,7 +65,6 @@
                     type: "POST",
                     url: '{% url 'basket_action' "update" %}', //this.href,
                     data: productListQuery,
-                    contentType:'html',
                     cache:false,
                     success: function(responce){
                         if(responce.match(/(Error: ([A-z]+))/gi)) {

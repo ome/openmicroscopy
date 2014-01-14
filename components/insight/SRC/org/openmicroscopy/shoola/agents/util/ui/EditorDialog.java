@@ -244,34 +244,33 @@ public class EditorDialog
 
     /**
      * Builds the panel hosting the {@link #nameArea} and the
-     * {@link #descriptionArea}. If the <code>DataOject</code>
-     * can be annotated and if we are in the 
-     * {@link Editor#PROPERTIES_EDITOR} mode, we display the annotation pane. 
-     * 
+     * {@link #descriptionArea}. If the <code>DataOject</code> can be annotated
+     * and if we are in the {@link Editor#PROPERTIES_EDITOR} mode, we display
+     * the annotation pane.
+     *
      * @return See above.
      */
-    private JPanel buildContentPanel()
-    {
+    private JPanel buildContentPanel() {
         JPanel content = new JPanel();
-        int height = 80;
-        double[][] tl = {{TableLayout.PREFERRED, TableLayout.FILL}, //columns
-        				{TableLayout.PREFERRED, 5, height}};//, 5, 
+        double[][] tl = {{TableLayout.PREFERRED, TableLayout.FILL},
+                {TableLayout.PREFERRED, 5, TableLayout.FILL}};
         TableLayout layout = new TableLayout(tl);
         content.setLayout(layout);
         content.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
         String value = ", LEFT, TOP";
+
         if (data instanceof XMLAnnotationData) {
-            content.add(UIUtilities.setTextFont("Content"), "0, 2"+value);
+            content.add(UIUtilities.setTextFont("Content"), "0, 2" + value);
             content.add(new JScrollPane(nameArea), "1, 2");
         } else if (data instanceof String) {
             content.add(new JScrollPane(nameArea), "1, 2");
         } else {
-        	content.add(UIUtilities.setTextFont("Name"), "0, 0"+value);
+            content.add(UIUtilities.setTextFont("Name"), "0, 0" + value);
             content.add(nameArea, "1, 0");
-            content.add(UIUtilities.setTextFont("Description"), "0, 2"+value);
+            content.add(UIUtilities.setTextFont("Description"), "0, 2" + value);
             content.add(new JScrollPane(descriptionArea), "1, 2");
         }
-        
+
         return content;
     }
     

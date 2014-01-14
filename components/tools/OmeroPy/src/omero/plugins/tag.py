@@ -71,9 +71,9 @@ def clip(s, width):
     Returns modified string
     """
     mod_s = s
-    if len(s) > width:
+    if s and len(s) > width:
         mod_s = s[:width]
-    elif len(s) < width:
+    elif s and len(s) < width:
         mod_s = s + " " * (width - len(s))
     return mod_s
 
@@ -91,15 +91,15 @@ class TagControl(BaseControl):
             sub, self.list, help="List all the tags, grouped by tagset")
         self.add_standard_params(listtags)
         listtags.add_argument(
-            "--tagset", nargs="+", help="One or more tagset IDs")
+            "--tagset", nargs="+", type=long, help="One or more tagset IDs")
         self.add_tag_common_params(listtags)
         listtags.add_login_arguments()
 
         listsets = parser.add(sub, self.listsets, help="List tag sets")
         self.add_standard_params(listsets)
         listsets.add_argument(
-            "--tag", nargs="+",
-            help="List only tagsets containing the following tag IDs")
+            "--tag", nargs="+", type=long,
+            help="List only tagsets containing the following tag ID(s)")
         self.add_tag_common_params(listsets)
         listsets.add_login_arguments()
 
@@ -110,8 +110,8 @@ class TagControl(BaseControl):
         createset = parser.add(
             sub, self.createset, help="Create a new tag set")
         createset.add_argument(
-            "--tag", nargs="+", required=True,
-            help="One or more tags to include in this set")
+            "--tag", nargs="+", required=True, type=long,
+            help="ID(s) of the tag(s) to include in this set")
         self.add_newtag_params(createset)
         createset.add_login_arguments()
 
@@ -150,7 +150,7 @@ JSON File Format:
             help="The object to link to. Should be of form"
             " <object_type>:<object_id>")
         links.add_argument(
-            'tag_id',
+            'tag_id', type=long,
             help="The tag annotation ID")
         self.add_standard_params(links)
         links.add_login_arguments()
@@ -550,10 +550,13 @@ JSON File Format:
         """
         Links an object to a tag annotation.
         """
-        obj_type = None
-        obj_id = None
-        if args.object:
+
+        try:
             obj_type, obj_id = args.object.split(':')
+            obj_id = long(obj_id)
+        except ValueError:
+            obj_type = None
+            obj_id = None
 
         if obj_type is None or obj_id is None:
             self.ctx.err("Missing object or object not of form"

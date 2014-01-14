@@ -382,6 +382,8 @@ public interface SqlAction {
 
     Long getUserId(String userName);
 
+    Map<String, Long> getGroupIds(Collection<String> names);
+
     List<String> getUserGroups(String userName);
 
     void setFileRepo(long id, String repoId);
@@ -707,6 +709,69 @@ public interface SqlAction {
             return _jdbc().queryForObject(
                     _lookup("get_group_permissions"), Long.class, //$NON-NLS-1$
                     groupId);
+        }
+
+        public Map<String, Long> getGroupIds(Collection<String> names) {
+            final Map<String, Long> rv = new HashMap<String, Long>();
+            if (names == null || names.size() == 0) {
+                return rv;
+            }
+
+            final Map<String, Collection<String>> params =
+                    new HashMap<String, Collection<String>>();
+            params.put("names", names);
+
+            RowMapper<Object> mapper = new RowMapper<Object>(){
+                @Override
+                public Object mapRow(ResultSet arg0, int arg1)
+                        throws SQLException {
+                    Long id = arg0.getLong(1);
+                    String name = arg0.getString(2);
+                    rv.put(name, id);
+                    return null;
+                }};
+            _jdbc().query(_lookup("get_group_ids"), //$NON-NLS-1$
+                    mapper, params);
+            return rv;
+        }
+
+        public String getPasswordHash(Long experimenterID) {
+            String stored;
+            try {
+                stored = _jdbc().queryForObject(
+                        _lookup("password_hash"), //$NON-NLS-1$
+                        String.class, experimenterID);
+            } catch (EmptyResultDataAccessException e) {
+                stored = null; // This means there's not one.
+            }
+            return stored;
+        }
+
+        public Long getUserId(String userName) {
+            Long id;
+            try {
+                id = _jdbc().queryForObject(_lookup("user_id"), //$NON-NLS-1$
+                        Long.class, userName);
+            } catch (EmptyResultDataAccessException e) {
+                id = null; // This means there's not one.
+            }
+            return id;
+        }
+
+        public List<String> getUserGroups(String userName) {
+            List<String> roles;
+            try {
+                roles = _jdbc().query(_lookup("user_groups"), //$NON-NLS-1$
+                        new RowMapper<String>() {
+                            public String mapRow(ResultSet rs, int rowNum)
+                                    throws SQLException {
+                                return rs.getString(1);
+                            }
+                        }, userName);
+            } catch (EmptyResultDataAccessException e) {
+                roles = null; // This means there's not one.
+            }
+            return roles == null ? new ArrayList<String>() : roles;
         }
 
         public ExperimenterGroup groupInfoFor(String table, long id) {

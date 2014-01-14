@@ -367,10 +367,12 @@ class UserProfile
         Selectable<DataNode> node, selected = null;
         while (i.hasNext()) {
             g = i.next();
-            node = new Selectable<DataNode>(new DataNode(g), true);
-            if (g.getId() == defaultGroup.getId())
-                selected = node;
-            m.addElement(node);
+            if (!model.isSystemGroup(g.getId(), GroupData.USER)) {
+                node = new Selectable<DataNode>(new DataNode(g), true);
+                if (g.getId() == defaultGroup.getId())
+                    selected = node;
+                m.addElement(node);
+            }
         }
         groupsBox.setModel(m);
         if (selected != null) groupsBox.setSelectedItem(selected);

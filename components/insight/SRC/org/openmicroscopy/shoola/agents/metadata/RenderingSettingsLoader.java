@@ -2,10 +2,10 @@
  * org.openmicroscopy.shoola.agents.metadata.RenderingSettingsLoader 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -24,77 +24,116 @@ package org.openmicroscopy.shoola.agents.metadata;
 
 
 //Java imports
+import java.awt.Component;
+import java.awt.Point;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 
 //Third-party libraries
 
+import org.apache.commons.collections.CollectionUtils;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
+import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
+
+import pojos.DataObject;
 
 /** 
  * Loads all rendering settings associated to an image.
  *
- * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
+ * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since 3.0-Beta4
  */
-public class RenderingSettingsLoader 
-	extends MetadataLoader
+public class RenderingSettingsLoader
+    extends MetadataLoader
 {
 
     /** The ID of the pixels set. */
-    private long        pixelsID;
-    
+    private long pixelsID;
+
     /** Handle to the asynchronous call so that we can cancel it. */
     private CallHandle  handle;
-    
-	/**
-	 * Creates a new instance.
-	 * 
-	 * @param viewer The viewer this data loader is for.
-	 *               Mustn't be <code>null</code>.
-     * @param ctx The security context.
-	 * @param pixelsID The identifier of the pixels set.
-	 * @param loaderID The identifier of the loader.
-	 */
-	public RenderingSettingsLoader(MetadataViewer viewer, SecurityContext ctx,
-			long pixelsID, int loaderID)
-	{
-		super(viewer, ctx, loaderID);
-		this.pixelsID = pixelsID;
-	}
-	
-	/** 
-	 * Loads the folders containing the object. 
-	 * @see MetadataLoader#cancel()
-	 */
-	public void load()
-	{
-		handle = ivView.getRenderingSettings(ctx, pixelsID, this);
-	}
-	
-	/** 
-	 * Cancels the data loading. 
-	 * @see MetadataLoader#cancel()
-	 */
-	public void cancel() { handle.cancel(); }
 
-	/**
+    /** The component invoking the loading.*/
+    private Component source;
+
+    /** The location of the mouse pressed.*/
+    private Point location;
+
+    /**
+     * Creates a new instance.
+     * 
+     * @param viewer The viewer this data loader is for.
+     *               Mustn't be <code>null</code>.
+     * @param ctx The security context.
+     * @param pixelsID The identifier of the pixels set.
+     * @param loaderID The identifier of the loader.
+     */
+    public RenderingSettingsLoader(MetadataViewer viewer, SecurityContext ctx,
+            long pixelsID, int loaderID)
+    {
+        super(viewer, ctx, loaderID);
+        this.pixelsID = pixelsID;
+    }
+
+    /**
+     * Sets where to display the result.
+     * 
+     * @param source The component invoking the loading.
+     * @param location The location of the mouse pressed.
+     */
+    public void setLocation(Component source, Point location)
+    {
+        this.source = source;
+        this.location = location;
+    }
+
+    /** 
+     * Loads the folders containing the object.
+     * @see MetadataLoader#cancel()
+     */
+    public void load()
+    {
+        handle = ivView.getRenderingSettings(ctx, pixelsID, this);
+    }
+
+    /** 
+     * Cancels the data loading.
+     * @see MetadataLoader#cancel()
+     */
+    public void cancel() { handle.cancel(); }
+
+    /**
      * Feeds the result back to the viewer.
      * @see MetadataLoader#handleResult(Object)
      */
     public void handleResult(Object result) 
     {
-    	if (viewer.getState() == MetadataViewer.DISCARDED) return;  //Async cancel.
-    	viewer.setViewedBy((Map) result);
+        if (viewer.getState() == MetadataViewer.DISCARDED) return;  //Async cancel.
+        //Create a new map to avoid major changes for now
+        Map<DataObject, Collection<RndProxyDef>> map =
+                (Map<DataObject, Collection<RndProxyDef>>) result;
+        Map<DataObject, RndProxyDef> m =
+                new HashMap<DataObject, RndProxyDef>(map.size());
+        Entry<DataObject, Collection<RndProxyDef>> entry;
+        Iterator<Entry<DataObject, Collection<RndProxyDef>>> i =
+                map.entrySet().iterator();
+        while (i.hasNext()) {
+            entry = i.next();
+            Collection<RndProxyDef> def = entry.getValue();
+            if (CollectionUtils.isNotEmpty(def))
+                m.put(entry.getKey(), def.iterator().next());
+        }
+        viewer.setViewedBy(m, source, location);
     }
-	
+
 }

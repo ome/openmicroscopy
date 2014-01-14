@@ -52,7 +52,6 @@ OME.addToBasket = function(selected, prefix) {
         type: "POST",
         url: prefix, //this.href,
         data: productListQuery.join("&"),
-        contentType:'html',
         success: function(responce){
             if(responce.match(/(Error: ([A-z]+))/gi)) {
                 OME.alert_dialog(responce);
@@ -267,7 +266,6 @@ OME.removeItem = function(event, domClass, url, parentId, index) {
                     type: "POST",
                     url: url,
                     data: {'parent':parentId, 'index':index},
-					contentType: 'application/javascript',
                     dataType: 'json',
                     success: function(r){
                         if(eval(r.bad)) {
@@ -298,7 +296,6 @@ OME.deleteItem = function(event, domClass, url) {
                 $.ajax({
                     type: "POST",
                     url: url,
-                    contentType: 'application/javascript',
                     dataType:'json',
                     success: function(r){
                         if(eval(r.bad)) {

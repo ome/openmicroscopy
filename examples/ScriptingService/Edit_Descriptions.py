@@ -104,7 +104,7 @@ if __name__ == "__main__":
     # Good practice to put url here to give users more guidance on how to run your script.
     client = scripts.client('Edit_Descriptions.py', """Edits the descriptions of multiple Images,
 either specified via Image IDs or by the Dataset IDs.
-See http://trac.openmicroscopy.org.uk/ome/wiki/OmeroPy/ScriptingServiceGuide for the tutorial that uses this script.""",
+See http://www.openmicroscopy.org/site/support/omero5/developers/scripts/user-guide.html for the tutorial that uses this script.""",
 
     scripts.String("Data_Type", optional=False, grouping="1",
         description="The data you want to work with.", values=dataTypes, default="Dataset"),

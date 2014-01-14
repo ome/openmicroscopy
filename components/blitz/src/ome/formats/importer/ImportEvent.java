@@ -206,6 +206,15 @@ public class ImportEvent {
         }
     }
 
+    public static class FILESET_UPLOAD_PREPARATION extends FILE_UPLOAD_EVENT {
+        public FILESET_UPLOAD_PREPARATION(String filename, int fileIndex,
+                int fileTotal, Long uploadedBytes, Long contentLength,
+                Exception exception) {
+            super(filename, fileIndex, fileTotal, uploadedBytes, contentLength,
+                    exception);
+        }
+    }
+
     public static class FILESET_UPLOAD_START extends FILE_UPLOAD_EVENT {
         public FILESET_UPLOAD_START(String filename, int fileIndex,
                 int fileTotal, Long uploadedBytes, Long contentLength,

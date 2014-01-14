@@ -230,7 +230,7 @@ class MetadataViewerControl
 		} else if (Renderer.VIEWED_BY_PROPERTY.equals(name)) {
 			List l = (List) evt.getNewValue();
 			view.setLocationAndSource((Component) l.get(0), (Point) l.get(1));
-			model.loadViewedBy();
+			model.loadViewedBy((Component) l.get(0), (Point) l.get(1));
 		} else if (Renderer.SAVE_SETTINGS_PROPERTY.equals(name)) {
 			model.saveSettings() ;
 		}

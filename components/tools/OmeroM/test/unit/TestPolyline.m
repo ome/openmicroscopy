@@ -24,7 +24,7 @@ classdef TestPolyline < TestShape
     
     properties
         x = [10 20 30 40];
-        y = [5 10 15 20];
+        y = [1 2 3 4];
     end
     
     methods
@@ -43,7 +43,7 @@ classdef TestPolyline < TestShape
         function testSimplePolyline(self)
             assertTrue(isa(self.shape, 'omero.model.PolylineI'));
             assertEqual(char(self.shape.getPoints().getValue()),...
-                sprintf('%g,%g ', self.x, self.y));
+                sprintf('%g,%g ', [self.x; self.y]));
         end
         
         function testNonMatchingDimensions(self)

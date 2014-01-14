@@ -639,8 +639,9 @@ public class DataServicesFactory
         Set<GroupData> available;
         List<ExperimenterData> exps = new ArrayList<ExperimenterData>();
         try {
-        	SecurityContext ctx = new SecurityContext(
-        			exp.getDefaultGroup().getId());
+            GroupData defaultGroup = null;
+            long gid = exp.getDefaultGroup().getId();
+        	SecurityContext ctx = new SecurityContext(gid);
         	groups = omeroGateway.getAvailableGroups(ctx, exp);
         	registry.bind(LookupNames.SYSTEM_ROLES,
                     omeroGateway.getSystemRoles(ctx));
@@ -650,6 +651,7 @@ public class DataServicesFactory
         	available = new HashSet<GroupData>();
         	while (i.hasNext()) {
         		g = i.next();
+        		if (gid == g.getId()) defaultGroup = g;
         		if (!admin.isSecuritySystemGroup(g.getId())) {
         			available.add(g);
         		} else {
@@ -660,7 +662,12 @@ public class DataServicesFactory
         			}
         		}
         	}
-        	
+        	//to be on the safe side.
+        	if (available.size() ==  0) {
+        	    //group with loaded users.
+        	    if (defaultGroup != null) available.add(defaultGroup);
+        	    else available.add(exp.getDefaultGroup());
+        	}
         	registry.bind(LookupNames.USER_GROUP_DETAILS, available);
         	List<Long> ids = new ArrayList<Long>();
         	i = available.iterator();

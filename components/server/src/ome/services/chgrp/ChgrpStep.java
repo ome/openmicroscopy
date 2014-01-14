@@ -203,9 +203,7 @@ public class ChgrpStep extends GraphStep {
     @Override
     public void onRelease(Class<IObject> k, Set<Long> ids)
             throws GraphException {
-        EventLogMessage elm = new EventLogMessage(this, "CHGRP", k,
-                new ArrayList<Long>(ids));
-        publish(elm);
+
     }
 
     protected void publish(EventLogMessage elm) throws GraphException {
@@ -216,7 +214,6 @@ public class ChgrpStep extends GraphStep {
             de.initCause(t);
             throw de;
         }
-
     }
 
 }

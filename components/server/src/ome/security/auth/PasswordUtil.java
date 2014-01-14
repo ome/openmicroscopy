@@ -1,13 +1,25 @@
 /*
- *   $Id$
+ * Copyright (C) 2006-2013 Glencoe Software, Inc. All rights reserved.
  *
- *   Copyright 2006 University of Dundee. All rights reserved.
- *   Use is subject to license terms supplied in LICENSE.txt
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
 package ome.security.auth;
 
 import java.io.UnsupportedEncodingException;
+import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.Random;
 
@@ -34,6 +46,21 @@ import org.slf4j.LoggerFactory;
  */
 public class PasswordUtil {
 
+    public static enum METHOD {
+
+       CLEAR(false, false),
+       LEGACY(true, false),
+       ALL(true, true);
+
+       private final boolean hash;
+       private final boolean salt;
+
+       METHOD(boolean hash, boolean salt) {
+           this.hash = hash;
+           this.salt = salt;
+       }
+    }
+
     private final static Logger log = LoggerFactory.getLogger(PasswordUtil.class);
 
     private final SqlAction sql;
@@ -49,10 +76,17 @@ public class PasswordUtil {
      * "@ROOTPASS@" placeholder in data.sql.
      */
     public static void main(String args[]) {
-        if (args == null || args.length != 1) {
-            throw new IllegalArgumentException("PasswordUtil.main takes 1 arg.");
+        if (args == null || args.length < 1 || args.length > 2) {
+            throw new IllegalArgumentException("PasswordUtil password [user-id]");
         }
-        System.out.println(new PasswordUtil(null).preparePassword(args[0]));
+        PasswordUtil util = new PasswordUtil(null);
+        String pw = args[0];
+        if (args.length == 1) {
+            System.out.println(util.preparePassword(pw));
+        } else {
+            Long userId = Long.valueOf(args[1]);
+            System.out.println(util.prepareSaltedPassword(userId, pw));
+        }
     }
 
     public String generateRandomPasswd() {
@@ -74,8 +108,30 @@ public class PasswordUtil {
         return sql.dnForUser(id);
     }
 
+    /**
+     * Calls {@link #changeUserPasswordById(Long, String, boolean) with
+     * "false" as the value of the salt argument in order to provide backwards
+     * compatibility.
+     */
     public void changeUserPasswordById(Long id, String password) {
-        if (! sql.setUserPassword(id, preparePassword(password))) {
+        changeUserPasswordById(id, password, METHOD.LEGACY);
+    }
+
+    /**
+     * Calls either {@link #preparePassword(String)} or
+     * {@link #prepareSaltedPassword(Long, String)} and passes the resulting
+     * value to {@link SqlAction#setUserPassword(Long, String)}.
+     * An {@link InternalException} is thrown if the modification is not
+     * successful, which should only occur if the user has been deleted.
+     */
+    public void changeUserPasswordById(Long id, String password, METHOD meth) {
+        String prepared = password;
+        if (meth.hash){
+            prepared = meth.salt ?
+                prepareSaltedPassword(id, password) :
+                    preparePassword(password);
+        }
+        if (! sql.setUserPassword(id, prepared)) {
             throw new InternalException("0 results for password insert.");
         }
     }
@@ -93,12 +149,16 @@ public class PasswordUtil {
     }
 
     public String preparePassword(String newPassword) {
+        return prepareSaltedPassword(null, newPassword);
+    }
+
+    public String prepareSaltedPassword(Long userId, String newPassword) {
         // This allows setting passwords to "null" - locked account.
         return newPassword == null ? null
         // This allows empty passwords to be considered "open-access"
                 : newPassword.trim().length() == 0 ? newPassword
                 // Regular MD5 digest.
-                        : passwordDigest(newPassword);
+                        : saltedPasswordDigest(userId, newPassword);
     }
 
     /**
@@ -109,7 +169,14 @@ public class PasswordUtil {
      *           implementation in general.
      */
     public String passwordDigest(String clearText) {
-
+        return saltedPasswordDigest(null, clearText);
+    }
+    /**
+     * Creates an MD5 hash of the given clear text and base64 encodes it.
+     * If the provided userId argument is not null, then it will be used
+     * as a salt value for the password.
+     */
+    public String saltedPasswordDigest(Long userId, String clearText) {
         if (clearText == null) {
             throw new ApiUsageException("Value for digesting may not be null");
         }
@@ -120,6 +187,15 @@ public class PasswordUtil {
         } catch (UnsupportedEncodingException uee) {
             log.warn("Unsupported charset ISO-8859-1. Using default");
             bytes = clearText.getBytes();
+        }
+
+        // If salting is activated, prepend the salt.
+        if (userId != null) {
+            byte[] saltedBytes = ByteBuffer.allocate(8).putLong(userId).array();
+            byte[] newValue = new byte[saltedBytes.length+bytes.length];
+            System.arraycopy(saltedBytes, 0, newValue, 0, saltedBytes.length);
+            System.arraycopy(bytes, 0, newValue, saltedBytes.length, bytes.length);
+            bytes = newValue;
         }
 
         String hashedText = null;
@@ -138,5 +214,4 @@ public class PasswordUtil {
         }
         return hashedText;
     }
-
 }

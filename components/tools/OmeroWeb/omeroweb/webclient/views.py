@@ -3,7 +3,7 @@
 # 
 # 
 # 
-# Copyright (c) 2008-2011 University of Dundee.
+# Copyright (c) 2008-2013 University of Dundee.
 # 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -43,6 +43,7 @@ import traceback
 
 import shutil
 import zipfile
+import json
 
 from time import time
 from thread import start_new_thread
@@ -58,7 +59,6 @@ from django.core.cache import cache
 from django.http import Http404, HttpResponse, HttpResponseRedirect, HttpResponseServerError, HttpResponseForbidden
 from django.shortcuts import render_to_response
 from django.template import RequestContext as Context
-from django.utils import simplejson
 from django.utils.http import urlencode
 from django.views.defaults import page_not_found, server_error
 from django.views import debug
@@ -1407,15 +1407,15 @@ def manage_action_containers(request, action, o_type=None, o_id=None, conn=None,
                 description = form.cleaned_data['description']              
                 oid = manager.createDataset(name, description)
                 rdict = {'bad':'false', 'id': oid}
-                json = simplejson.dumps(rdict, ensure_ascii=False)
-                return HttpResponse( json, mimetype='application/javascript')
+                json_data = json.dumps(rdict, ensure_ascii=False)
+                return HttpResponse(json_data, mimetype='application/javascript')
             else:
                 d = dict()
                 for e in form.errors.iteritems():
                     d.update({e[0]:unicode(e[1])}) 
                 rdict = {'bad':'true','errs': d }
-                json = simplejson.dumps(rdict, ensure_ascii=False)
-                return HttpResponse( json, mimetype='application/javascript')
+                json_data = json.dumps(rdict, ensure_ascii=False)
+                return HttpResponse(json_data, mimetype='application/javascript')
         elif request.REQUEST.get('folder_type') in ("project", "screen", "dataset"):
             # No parent specified. We can create orphaned 'project', 'dataset' etc.
             form = ContainerForm(data=request.REQUEST.copy())
@@ -1429,15 +1429,15 @@ def manage_action_containers(request, action, o_type=None, o_id=None, conn=None,
                 else:
                     oid = getattr(manager, "create"+folder_type.capitalize())(name, description)
                 rdict = {'bad':'false', 'id': oid}
-                json = simplejson.dumps(rdict, ensure_ascii=False)
-                return HttpResponse( json, mimetype='application/javascript')
+                json_data = json.dumps(rdict, ensure_ascii=False)
+                return HttpResponse(json_data, mimetype='application/javascript')
             else:
                 d = dict()
                 for e in form.errors.iteritems():
                     d.update({e[0]:unicode(e[1])}) 
                 rdict = {'bad':'true','errs': d }
-                json = simplejson.dumps(rdict, ensure_ascii=False)
-                return HttpResponse( json, mimetype='application/javascript')
+                json_data = json.dumps(rdict, ensure_ascii=False)
+                return HttpResponse(json_data, mimetype='application/javascript')
         else:
             return HttpResponseServerError("Object does not exist")
     elif action == 'edit':
@@ -1512,15 +1512,15 @@ def manage_action_containers(request, action, o_type=None, o_id=None, conn=None,
                     manager.image = manager.well.getWellSample(index).image()
                     o_type = "image"
                 manager.updateName(o_type, name)
-                json = simplejson.dumps(rdict, ensure_ascii=False)
-                return HttpResponse( json, mimetype='application/javascript')
+                json_data = json.dumps(rdict, ensure_ascii=False)
+                return HttpResponse(json_data, mimetype='application/javascript')
             else:
                 d = dict()
                 for e in form.errors.iteritems():
                     d.update({e[0]:unicode(e[1])}) 
                 rdict = {'bad':'true','errs': d }
-                json = simplejson.dumps(rdict, ensure_ascii=False)
-                return HttpResponse( json, mimetype='application/javascript')
+                json_data = json.dumps(rdict, ensure_ascii=False)
+                return HttpResponse(json_data, mimetype='application/javascript')
         else:
             return HttpResponseServerError("Object does not exist")
     elif action == 'editdescription':
@@ -1548,15 +1548,15 @@ def manage_action_containers(request, action, o_type=None, o_id=None, conn=None,
                     o_type = "image"
                 manager.updateDescription(o_type, description)
                 rdict = {'bad':'false' }
-                json = simplejson.dumps(rdict, ensure_ascii=False)
-                return HttpResponse( json, mimetype='application/javascript')
+                json_data = json.dumps(rdict, ensure_ascii=False)
+                return HttpResponse(json_data, mimetype='application/javascript')
             else:
                 d = dict()
                 for e in form.errors.iteritems():
                     d.update({e[0]:unicode(e[1])}) 
                 rdict = {'bad':'true','errs': d }
-                json = simplejson.dumps(rdict, ensure_ascii=False)
-                return HttpResponse( json, mimetype='application/javascript')
+                json_data = json.dumps(rdict, ensure_ascii=False)
+                return HttpResponse(json_data, mimetype='application/javascript')
         else:
             return HttpResponseServerError("Object does not exist")
     elif action == 'paste':
@@ -1565,12 +1565,12 @@ def manage_action_containers(request, action, o_type=None, o_id=None, conn=None,
         rv = manager.paste(destination)
         if rv:
             rdict = {'bad':'true','errs': rv }
-            json = simplejson.dumps(rdict, ensure_ascii=False)
-            return HttpResponse( json, mimetype='application/javascript')
+            json_data = json.dumps(rdict, ensure_ascii=False)
+            return HttpResponse(json_data, mimetype='application/javascript')
         else:
             rdict = {'bad':'false' }
-            json = simplejson.dumps(rdict, ensure_ascii=False)
-            return HttpResponse( json, mimetype='application/javascript')
+            json_data = json.dumps(rdict, ensure_ascii=False)
+            return HttpResponse(json_data, mimetype='application/javascript')
     elif action == 'move':
         # Handles drag-and-drop moving of objects in jsTree. 
         # Also handles 'remove' of Datasets (moves to 'Experimenter' parent)
@@ -1590,8 +1590,8 @@ def manage_action_containers(request, action, o_type=None, o_id=None, conn=None,
                 rdict = {'bad':'true','errs': rv }
             else:
                 rdict = {'bad':'false' }
-        json = simplejson.dumps(rdict, ensure_ascii=False)
-        return HttpResponse( json, mimetype='application/javascript')
+        json_data = json.dumps(rdict, ensure_ascii=False)
+        return HttpResponse(json_data, mimetype='application/javascript')
     elif action == 'remove':
         # Handles 'remove' of Images from jsTree, removal of comment, tag from Object etc.
         parents = request.REQUEST['parent']     # E.g. image-123  or image-1|image-2
@@ -1600,12 +1600,12 @@ def manage_action_containers(request, action, o_type=None, o_id=None, conn=None,
         except Exception, x:
             logger.error(traceback.format_exc())
             rdict = {'bad':'true','errs': str(x) }
-            json = simplejson.dumps(rdict, ensure_ascii=False)
-            return HttpResponse( json, mimetype='application/javascript')
+            json_data = json.dumps(rdict, ensure_ascii=False)
+            return HttpResponse(json_data, mimetype='application/javascript')
         
         rdict = {'bad':'false' }
-        json = simplejson.dumps(rdict, ensure_ascii=False)
-        return HttpResponse( json, mimetype='application/javascript')
+        json_data = json.dumps(rdict, ensure_ascii=False)
+        return HttpResponse(json_data, mimetype='application/javascript')
     elif action == 'removefromshare':
         image_id = request.REQUEST.get('source')
         try:
@@ -1613,11 +1613,11 @@ def manage_action_containers(request, action, o_type=None, o_id=None, conn=None,
         except Exception, x:
             logger.error(traceback.format_exc())
             rdict = {'bad':'true','errs': str(x) }
-            json = simplejson.dumps(rdict, ensure_ascii=False)
-            return HttpResponse( json, mimetype='application/javascript')
+            json_data = json.dumps(rdict, ensure_ascii=False)
+            return HttpResponse(json_data, mimetype='application/javascript')
         rdict = {'bad':'false' }
-        json = simplejson.dumps(rdict, ensure_ascii=False)
-        return HttpResponse( json, mimetype='application/javascript')
+        json_data = json.dumps(rdict, ensure_ascii=False)
+        return HttpResponse(json_data, mimetype='application/javascript')
     elif action == 'delete':
         # Handles delete of a file attached to object.
         child = toBoolean(request.REQUEST.get('child'))
@@ -1632,8 +1632,8 @@ def manage_action_containers(request, action, o_type=None, o_id=None, conn=None,
             rdict = {'bad':'true','errs': str(x) }
         else:
             rdict = {'bad':'false' }
-        json = simplejson.dumps(rdict, ensure_ascii=False)
-        return HttpResponse( json, mimetype='application/javascript')
+        json_data = json.dumps(rdict, ensure_ascii=False)
+        return HttpResponse(json_data, mimetype='application/javascript')
     elif action == 'deletemany':
         # Handles multi-delete from jsTree.
         object_ids = {'Image':request.REQUEST.getlist('image'), 'Dataset':request.REQUEST.getlist('dataset'), 'Project':request.REQUEST.getlist('project'), 'Screen':request.REQUEST.getlist('screen'), 'Plate':request.REQUEST.getlist('plate'), 'Well':request.REQUEST.getlist('well'), 'PlateAcquisition':request.REQUEST.getlist('acquisition')}
@@ -1659,8 +1659,8 @@ def manage_action_containers(request, action, o_type=None, o_id=None, conn=None,
             rdict = {'bad':'true','errs': str(x) }
         else:
             rdict = {'bad':'false' }
-        json = simplejson.dumps(rdict, ensure_ascii=False)
-        return HttpResponse( json, mimetype='application/javascript')
+        json_data = json.dumps(rdict, ensure_ascii=False)
+        return HttpResponse(json_data, mimetype='application/javascript')
     context['template'] = template
     return context
 
@@ -2216,7 +2216,7 @@ def activities(request, conn=None, **kwargs):
         rv['inprogress'] = in_progress
         rv['failure'] = failure
         rv['jobs'] = len(request.session['callback'])
-        return HttpResponse(simplejson.dumps(rv),mimetype='application/javascript') # json
+        return HttpResponse(json.dumps(rv),mimetype='application/javascript') # json
         
     jobs = []
     new_errors = False
@@ -2266,7 +2266,7 @@ def activities_update (request, action, **kwargs):
                 rv['removed'] = True
             else:
                 rv['removed'] = False
-            return HttpResponse(simplejson.dumps(rv),mimetype='application/javascript')
+            return HttpResponse(json.dumps(rv),mimetype='application/javascript')
         else:
             for key, data in request.session['callback'].items():
                 if data['status'] != "in progress":
@@ -2662,7 +2662,7 @@ def script_run(request, scriptId, conn=None, **kwargs):
         if x.message and x.message.startswith("No processor available"):
             # Delegate to run_script() for handling 'No processor available'
             rsp = run_script(request, conn, sId, inputMap, scriptName='Script')
-            return HttpResponse(simplejson.dumps(rsp), mimetype='json')
+            return HttpResponse(json.dumps(rsp), mimetype='json')
         else:
             raise
     params = scriptService.getParams(sId)
@@ -2742,7 +2742,7 @@ def script_run(request, scriptId, conn=None, **kwargs):
 
     logger.debug("Running script %s with params %s" % (scriptName, inputMap))
     rsp = run_script(request, conn, sId, inputMap, scriptName)
-    return HttpResponse(simplejson.dumps(rsp), mimetype='json')
+    return HttpResponse(json.dumps(rsp), mimetype='json')
 
 
 @login_required(setGroupContext=True)
@@ -2762,7 +2762,7 @@ def ome_tiff_script(request, imageId, conn=None, **kwargs):
     inputMap = {'Data_Type': wrap('Image'), 'IDs': wrap(imageIds)}
     inputMap['Format'] = wrap('OME-TIFF')
     rsp = run_script(request, conn, sId, inputMap, scriptName='Create OME-TIFF')
-    return HttpResponse(simplejson.dumps(rsp), mimetype='json')
+    return HttpResponse(json.dumps(rsp), mimetype='json')
 
 
 def run_script(request, conn, sId, inputMap, scriptName='Script'):

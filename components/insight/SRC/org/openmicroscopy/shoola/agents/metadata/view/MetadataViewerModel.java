@@ -24,6 +24,8 @@ package org.openmicroscopy.shoola.agents.metadata.view;
 
 
 //Java imports
+import java.awt.Component;
+import java.awt.Point;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -918,8 +920,11 @@ class MetadataViewerModel
 	/**
 	 * Starts an asynchronous call to load the rendering settings
 	 * associated to the image.
+	 * 
+	 * @param source The component invoking the loading.
+     * @param location The location of the mouse pressed.
 	 */
-	void fireViewedByLoading()
+	void fireViewedByLoading(Component source, Point location)
 	{
 		ImageData img = null;
 		if (refObject instanceof ImageData) img = (ImageData) refObject;
@@ -931,6 +936,7 @@ class MetadataViewerModel
 		ctx = retrieveContext(img);
 		RenderingSettingsLoader loader = new RenderingSettingsLoader(component,
 				ctx, img.getDefaultPixels().getId(), loaderID);
+		loader.setLocation(source, location);
 		loaders.put(loaderID, loader);
 		loader.load();
 	}

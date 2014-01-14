@@ -43,14 +43,11 @@ import pojos.ProjectData;
  * This class calls one of the <code>loadExistingObjects</code> method in the
  * <code>DataManagerView</code>.
  *
- * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
- * @author	Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
+ * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
+ *         <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+ * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
+ *        <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $ $Date: $)
- * </small>
  * @since OME2.2
  */
 public class ExistingObjectsLoader
@@ -61,8 +58,8 @@ public class ExistingObjectsLoader
     private DataObject ho;
 
     /** Handle to the asynchronous call so that we can cancel it. */
-    private CallHandle  handle;
-    
+    private CallHandle handle;
+
     /**
      * Controls if the passed object is supported.
      * 
@@ -70,12 +67,12 @@ public class ExistingObjectsLoader
      */
     private void checkObject(DataObject o)
     {
-        if ((o instanceof DatasetData) || (o instanceof ProjectData) ||
-        	(o instanceof GroupData))
+        if (o instanceof DatasetData || o instanceof ProjectData ||
+                o instanceof GroupData)
             return;
         throw new IllegalArgumentException("Data type not supported.");
     }
-    
+
     /**
      * Creates a new instance.
      * 
@@ -85,13 +82,13 @@ public class ExistingObjectsLoader
      * @param ho The object the nodes has to be added to.
      */ 
     public ExistingObjectsLoader(TreeViewer viewer, SecurityContext ctx,
-    		DataObject ho)
+            DataObject ho)
     {
         super(viewer, ctx);
         checkObject(ho);
         this.ho = ho;
     }
-    
+
     /** 
      * Retrieves the available objects.
      * @see DataTreeViewerLoader#load()
@@ -99,21 +96,18 @@ public class ExistingObjectsLoader
     public void load()
     {
         if (ho instanceof GroupData) {
-        	handle = adminView.loadExperimenters(ctx, -1, this);
+            handle = adminView.loadExperimenters(ctx, -1, this);
         }
-        //handle = dmView.loadExistingObjects(ho.getClass(), nodes, 
-         //       viewer.getRootID(), this);
-        
     }
 
     /** 
-     * Cancels the data loading. 
+     * Cancels the data loading.
      * @see DataTreeViewerLoader#cancel()
      */
     public void cancel() { handle.cancel(); }
 
     /** 
-     * Feeds the result back to the viewer. 
+     * Feeds the result back to the viewer.
      * @see DataTreeViewerLoader#handleResult(Object)
      */
     public void handleResult(Object result)
@@ -121,5 +115,5 @@ public class ExistingObjectsLoader
         if (viewer.getState() == TreeViewer.DISCARDED) return;  //Async cancel.
         viewer.setExistingObjects((List) result);
     }
-    
+
 }

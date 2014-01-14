@@ -1178,10 +1178,12 @@ class OmeroImageServiceImpl
 					Iterator<String> i = candidates.iterator();
 					StatusLabel label;
 					int index = 0;
+					File f;
 					while (i.hasNext()) {
-						label = new StatusLabel();
+					    f = new File(i.next());
+						label = new StatusLabel(f);
 						label.setUsedFiles(containers.get(index).getUsedFiles());
-						files.put(new File(i.next()), label);
+						files.put(f, label);
 						index++;
 					}
 						
@@ -1242,7 +1244,7 @@ class OmeroImageServiceImpl
 			c = j.next();
 			hcs = c.getIsSPW();
 			f = c.getFile();
-			sl = new StatusLabel();
+			sl = new StatusLabel(f);
 			sl.setUsedFiles(c.getUsedFiles());
 			if (hcs) {
 				if (n == 1 && file.list().length > 1)

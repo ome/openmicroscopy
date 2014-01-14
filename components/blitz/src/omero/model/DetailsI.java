@@ -1,9 +1,20 @@
 /*
- *   $Id$
+ * Copyright (C) 2006-2013 University of Dundee & Open Microscopy Environment.
+ * All rights reserved.
  *
- *   Copyright 2006 University of Dundee. All rights reserved.
- *   Use is subject to license terms supplied in LICENSE.txt
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
  *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
 package omero.model;
@@ -128,6 +139,13 @@ public class DetailsI extends Details implements ome.model.ModelBased {
 
     }
 
+    private void ellideEventUuid(Event evt) {
+        if (evt != null && evt.session != null) {
+            evt.session.uuid = omero.rtypes.rstring("********");
+        }
+
+    }
+
     @SuppressWarnings("unchecked")
     public void copyObject(ome.util.Filterable model,
             ome.util.ModelMapper _mapper) {
@@ -142,6 +160,10 @@ public class DetailsI extends Details implements ome.model.ModelBased {
                     .getCreationEvent()));
             this.setUpdateEvent((omero.model.EventI) mapper.findTarget(source
                     .getUpdateEvent()));
+
+            ellideEventUuid(creationEvent);
+            ellideEventUuid(updateEvent);
+
             this.setExternalInfo((omero.model.ExternalInfoI) mapper
                     .findTarget(source.getExternalInfo()));
 
@@ -151,6 +173,9 @@ public class DetailsI extends Details implements ome.model.ModelBased {
             // Note: call context will frequently be null.
             this.event = omero.util.IceMapper.convert(
                     (EventContext) source.contextAt(0));
+            if (this.event != null) {
+                this.event.sessionUuid = "*********";
+            }
             this.call = (Map<String, String>) source.contextAt(1);
 
             ome.model.internal.Permissions sourceP = source.getPermissions();

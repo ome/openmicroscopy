@@ -172,7 +172,7 @@ public final class ServiceFactoryI extends omero.cmd.SessionI implements _Servic
             TopicManager topicManager, Registry registry)
             throws ApiUsageException {
         this(false, current, holder, control, context, manager, executor, p,
-                interceptors, topicManager, registry);
+                interceptors, topicManager, registry, null);
     }
 
     public ServiceFactoryI(boolean reusedSession,
@@ -181,9 +181,9 @@ public final class ServiceFactoryI extends omero.cmd.SessionI implements _Servic
             Glacier2.SessionControlPrx control, OmeroContext context,
             SessionManager manager, Executor executor, Principal p,
             List<HardWiredInterceptor> interceptors,
-            TopicManager topicManager, Registry registry)
+            TopicManager topicManager, Registry registry, String token)
             throws ApiUsageException {
-        super(reusedSession, current, holder, control, context, manager, executor, p);
+        super(reusedSession, current, holder, control, context, manager, executor, p, token);
         this.cptors = interceptors;
         this.initializer = new AopContextInitializer(new ServiceFactory(
                 this.context), this.principal, this.reusedSession);

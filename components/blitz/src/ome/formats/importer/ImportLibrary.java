@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import loci.common.Location;
 import loci.formats.FormatException;
 import loci.formats.FormatReader;
 import ome.formats.OMEROMetadataStoreClient;
@@ -248,6 +249,9 @@ public class ImportLibrary implements IObservable
             }
         }
 
+        notifyObservers(new ImportEvent.FILESET_UPLOAD_PREPARATION(
+                null, 0, usedFiles.length, null, null, null));
+
         // TODO: allow looser sanitization according to server configuration
         final FilePathRestrictions portableRequiredRules =
                 FilePathRestrictionInstance.getFilePathRestrictions(FilePathRestrictionInstance.WINDOWS_REQUIRED,
@@ -321,7 +325,7 @@ public class ImportLibrary implements IObservable
                 ChecksumAlgorithmMapper.getChecksumType(
                         proc.getImportSettings().checksumAlgorithm));
         String digestString = null;
-        File file = new File(srcFiles[index]);
+        File file = new File(Location.getMappedId(srcFiles[index]));
         long length = file.length();
         FileInputStream stream = null;
         RawFileStorePrx rawFileStore = null;
@@ -474,10 +478,22 @@ public class ImportLibrary implements IObservable
 
         // At this point the import is running, check handle for number of
         // steps.
-        final ImportCallback cb = createCallback(proc, handle, container);
-        cb.loop(60*60, 1000); // Wait 1 hr per step.
-        final ImportResponse rsp = cb.getImportResponse();
-        return rsp.pixels;
+        ImportCallback cb = null;
+        try {
+            cb = createCallback(proc, handle, container);
+            cb.loop(60*60, 1000); // Wait 1 hr per step.
+            final ImportResponse rsp = cb.getImportResponse();
+            if (rsp == null) {
+                throw new Exception("Import failure");
+            }
+            return rsp.pixels;
+        } finally {
+            if (cb != null) {
+                cb.close(true); // Allow cb to close handle
+            } else if (handle != null) {
+                handle.close();
+            }
+        }
     }
 
     public ImportCallback createCallback(ImportProcessPrx proc,
@@ -661,7 +677,7 @@ public class ImportLibrary implements IObservable
     {
         try {
             store.setGroup(null);
-            store.setCurrentLogFile(null);
+            store.setCurrentLogFile(null, null);
             store.createRoot();
         } catch (Throwable t) {
             log.error("failed to clear metadata store", t);

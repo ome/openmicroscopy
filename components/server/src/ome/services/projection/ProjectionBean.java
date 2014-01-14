@@ -176,6 +176,9 @@ public class ProjectionBean extends AbstractLevel2Service implements IProjection
                 throw new ResourceError(
                         e.getMessage() + " Please check server log.");
             }
+            if (ctx.from != null) {
+                ctx.from.dispose();
+            }
         }
     }
 
@@ -284,6 +287,10 @@ public class ProjectionBean extends AbstractLevel2Service implements IProjection
                                     c, t, ctx.pixels.getId(), e.getMessage());
                             log.error(error, e);
                             throw new ValidationException(error);
+                        } finally {
+                            if (ctx.from != null) {
+                                ctx.from.dispose();
+                            }
                         }
                     }
                     // Handle the change of minimum and maximum for this channel.

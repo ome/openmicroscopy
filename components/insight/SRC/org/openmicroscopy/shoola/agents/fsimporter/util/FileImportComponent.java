@@ -656,7 +656,7 @@ public class FileImportComponent
 		namePane.add(fileNameLabel);
 		namePane.add(Box.createHorizontalStrut(10));
 		resultLabel = new JLabel();
-		statusLabel = new StatusLabel();
+		statusLabel = new StatusLabel(importable.getFile());
 		statusLabel.addPropertyChangeListener(this);
 		image = null;
 		refButton = cancelButton;

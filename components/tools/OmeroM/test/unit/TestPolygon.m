@@ -43,7 +43,7 @@ classdef TestPolygon < TestShape
         function testSimplePolygon(self)
             assertTrue(isa(self.shape, 'omero.model.PolygonI'));
             assertEqual(char(self.shape.getPoints().getValue()),...
-                sprintf('%g,%g ', self.x, self.y));
+                sprintf('%g,%g ', [self.x; self.y]));
         end
         
         function testNonMatchingDimensions(self)

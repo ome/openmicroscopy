@@ -2963,8 +2963,6 @@ class EditorModel
 	boolean isArchived(DataObject ho)
 	{
 	    ImageData img = null;
-        if (ho instanceof WellSampleData)
-            img = ((WellSampleData) ho).getImage();
         if (ho instanceof ImageData)
             img = (ImageData) ho;
         if (img == null) return false;
@@ -4343,6 +4341,19 @@ class EditorModel
      */
     boolean isSystemGroup(long id)
     {
-        return MetadataViewerAgent.getRegistry().getAdminService().isSystemUser(id);
+        return MetadataViewerAgent.getRegistry().getAdminService().isSecuritySystemGroup(id);
+    }
+
+    /**
+     * Returns <code>true</code> if the group is a system group e.g. System
+     * <code>false</code> otherwise.
+     *
+     * @param id The identifier of the group.
+     * @param key The type of group to check.
+     * @return See above.
+     */
+    boolean isSystemGroup(long id, String key)
+    {
+        return MetadataViewerAgent.getRegistry().getAdminService().isSecuritySystemGroup(id, key);
     }
 }
