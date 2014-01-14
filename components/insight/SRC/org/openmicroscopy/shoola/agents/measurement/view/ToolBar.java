@@ -214,7 +214,7 @@ class ToolBar
     /** Initializes the component composing the display. */
 	private void initComponents()
 	{
-		showTextButton = new JCheckBox("Show Text");
+		showTextButton = new JCheckBox("Show Comment");
 		
 		lineConnectionProperties = new FigureProperties(
 				defaultConnectionAttributes);

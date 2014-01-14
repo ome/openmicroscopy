@@ -141,7 +141,7 @@ class ObjectInspector
 		l.add(new AttributeField(MeasurementAttributes.HEIGHT, 
 				AnnotationDescription.annotationDescription.get(
 				AnnotationKeys.HEIGHT), true));
-		l.add(new AttributeField(MeasurementAttributes.SHOWTEXT, "Show Text", 
+		l.add(new AttributeField(MeasurementAttributes.SHOWTEXT, "Show Comment", 
 				false));
 		l.add(new AttributeField(MeasurementAttributes.SHOWMEASUREMENT, 
 				AnnotationDescription.annotationDescription.get(
