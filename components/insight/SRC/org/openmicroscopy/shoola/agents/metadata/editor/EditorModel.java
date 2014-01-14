@@ -2,8 +2,7 @@
  * org.openmicroscopy.shoola.agents.metadata.editor.EditorModel 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
- *
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  * 	This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -20,6 +19,7 @@
  *
  *------------------------------------------------------------------------------
  */
+
 package org.openmicroscopy.shoola.agents.metadata.editor;
 
 
@@ -48,6 +48,8 @@ import javax.swing.JFrame;
 //Application-internal dependencies
 import omero.model.OriginalFile;
 import omero.model.PlaneInfo;
+
+import org.apache.commons.collections.CollectionUtils;
 import org.openmicroscopy.shoola.agents.metadata.AcquisitionDataLoader;
 import org.openmicroscopy.shoola.agents.metadata.AnalysisResultsFileLoader;
 import org.openmicroscopy.shoola.agents.metadata.AttachmentsLoader;
@@ -141,9 +143,6 @@ import pojos.XMLAnnotationData;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since OME3.0
  */
 class EditorModel 
@@ -327,23 +326,20 @@ class EditorModel
 	private void downloadImages(File file)
 	{
 		List<ImageData> images = new ArrayList<ImageData>();
-		Collection l = parent.getRelatedNodes();
+		List<DataObject> l = getSelectedObjects();
 		ImageData img;
-		if (l != null) {
-			Iterator i = l.iterator();
-			Object o;
+		if (CollectionUtils.isNotEmpty(l)) {
+			Iterator<DataObject> i = l.iterator();
+			DataObject o;
 			while (i.hasNext()) {
-				o = (Object) i.next();
-				if (o instanceof ImageData) {
-					img = (ImageData) o;
-					images.add(img);
+				o = i.next();
+				if (isArchived(o)) {
+				    images.add((ImageData) o);
 				}
 			}
 		}
-		img = (ImageData) getRefObject();
-		images.add(img);
-		
-		if (images.size() > 0) {
+
+		if (CollectionUtils.isNotEmpty(images)) {
 			Iterator<ImageData> i = images.iterator();
 			DownloadArchivedActivityParam p;
 			UserNotifier un =
@@ -2850,12 +2846,7 @@ class EditorModel
 	 * 
 	 * @return See above.
 	 */
-	boolean isArchived()
-	{
-		ImageData img = getImage();
-		if (img == null) return false;
-		return img.isArchived();
-	}
+	boolean isArchived() { return isArchived(getImage()); }
 
 	/** 
 	 * Starts an asynchronous loading. 
@@ -3948,17 +3939,23 @@ class EditorModel
 			Iterator i = l.iterator();
 			while (i.hasNext()) {
 				o = (Object) i.next();
+				if (o instanceof WellSampleData) {
+				    o = ((WellSampleData) o).getImage();
+				}
 				if (o instanceof ImageData || o instanceof DatasetData) {
 					objects.add((DataObject) o);
 				}
 			}
 		}
 		o = getRefObject();
-		if (o instanceof ImageData || o instanceof DatasetData) {
+		if (o instanceof WellSampleData) {
+		    o = ((WellSampleData) o).getImage();
+		}
+		if ((o instanceof ImageData || o instanceof DatasetData) && !objects.contains(o)) {
 			objects.add((DataObject) o);
 		}
-		
-		if (objects.size() > 0) {
+
+		if (!objects.isEmpty()) {
 			IconManager icons = IconManager.getInstance();
 			SaveAsParam p = new SaveAsParam(folder, objects);
 			p.setIndex(format);
@@ -4163,5 +4160,21 @@ class EditorModel
 	{
 	    return MetadataViewerAgent.getAvailableUserGroups();
 	}
+
+	/**
+	 * Returns <code>true</code> if the object is archived,
+	 * <code>false</code> otherwise.
+	 *
+	 * @param ho The object to handle.
+	 * @return See above.
+	 */
+    boolean isArchived(DataObject ho)
+    {
+        ImageData img = null;
+        if (ho instanceof ImageData)
+            img = (ImageData) ho;
+        if (img == null) return false;
+        return img.isArchived();
+    }
 
 }
