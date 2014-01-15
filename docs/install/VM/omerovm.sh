@@ -5,21 +5,21 @@ export VMNAME=${VMNAME:-"omerovm"}
 
 export MEMORY=${MEMORY:-"1024"}
 export SSH_PF=${SSH_PF:-"2222"}
-export OMERO_PORT=${OMERO_PORT:-"4063"}
-export OMERO_PF=${OMERO_PF:-"4063"}
-export OMEROS_PORT=${OMEROS_PORT:-"4064"}
-export OMEROS_PF=${OMEROS_PF:-"4064"}
-export OMERO_JOB=${OMERO_JOB:-"OMERO-stable"}
 
-set -e
-set -u
-set -x
+export OMERO_JOB=${OMERO_JOB:-"OMERO-stable-ice34"}
+export OMERO_BASE_IMAGE=${OMERO_BASE_IMAGE:-"Debian-7.1.0-amd64-omerobase.vdi"}
+export OMERO_POST_INSTALL_SCRIPTS=${OMERO_POST_INSTALL_SCRIPTS:-""}
+
+export DELETE_BUILD_VM=${DELETE_BUILD_VM:-"1"}
+export KILL_VBOX=${KILL_VBOX:-"1"}
+
+set -e -u -x
 
 VBOX="VBoxManage --nologo"
 OS=`uname -s`
 ATTEMPTS=0
-MAXATTEMPTS=5
-DELAY=2
+MAXATTEMPTS=20
+DELAY=60
 NATADDR="10.0.2.15"
 
 ##################
@@ -36,28 +36,41 @@ function checknet ()
 
 function installvm ()
 {
-	ssh-keygen -R [localhost]:2222 -f ~/.ssh/known_hosts
 	chmod 600 ./omerovmkey
-	SCP="scp -2 -o NoHostAuthenticationForLocalhost=yes -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o CheckHostIP=no -o PasswordAuthentication=no -o ChallengeResponseAuthentication=no -o PreferredAuthentications=publickey -i omerovmkey -P $SSH_PF"
-	SSH="ssh -2 -o StrictHostKeyChecking=no -i omerovmkey -p $SSH_PF -t"
-	echo "Copying scripts to VM"
-	$SCP driver.sh omero@localhost:~/
-	$SCP setup_userspace.sh omero@localhost:~/
-	$SCP setup_postgres.sh omero@localhost:~/
-	$SCP setup_environment.sh omero@localhost:~/
-	$SCP setup_omero.sh omero@localhost:~/
-	$SCP setup_nginx.sh omero@localhost:~/
-	$SCP setup_omero_daemon.sh omero@localhost:~/
-	$SCP omero-init.d omero@localhost:~/
-	$SCP omero-web-init.d omero@localhost:~/
-	$SCP virtualbox-network-fix-init.d omero@localhost:~/
-  $SCP virtualbox_fix.sh omero@localhost:~/
-  $SCP nginx-control.sh omero@localhost:~/
-	echo "ssh : exec driver.sh"
-	$SSH omero@localhost "export OMERO_JOB=$OMERO_JOB; bash /home/omero/driver.sh"
-	sleep 10
-	
-	echo "ALL DONE!"
+        SSH_ARGS="-2 -o NoHostAuthenticationForLocalhost=yes -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o CheckHostIP=no -o PasswordAuthentication=no -o ChallengeResponseAuthentication=no -o PreferredAuthentications=publickey -i omerovmkey"
+        SCP="scp $SSH_ARGS -P $SSH_PF"
+        SSH="ssh $SSH_ARGS -p $SSH_PF -t"
+
+        echo "Copying scripts to VM"
+        $SSH omero@localhost "mkdir install"
+        $SCP \
+            driver.sh \
+            cleanup.sh \
+            omero_guest_settings.sh \
+            setup_environment.sh \
+            setup_nginx.sh \
+            setup_postgres.sh \
+            setup_omero.sh \
+            setup_omero_daemon.sh \
+            omero-init.d \
+            omero-web-init.d \
+            no_processor_8266.sh \
+            omero@localhost:install
+
+        if [[ ${OMERO_JOB} == *.zip ]]; then
+            $SCP $OMERO_JOB omero@localhost:install
+        fi
+
+        if [ -n "$OMERO_POST_INSTALL_SCRIPTS" ]; then
+            $SSH omero@localhost "mkdir install/post"
+            $SCP $OMERO_POST_INSTALL_SCRIPTS omero@localhost:install/post
+        fi
+
+        echo "ssh : exec driver.sh"
+        $SSH omero@localhost "export OMERO_JOB=$OMERO_JOB; cd install; bash driver.sh"
+        sleep 10
+
+        echo "ALL DONE!"
 }
 
 function failfast ()
@@ -106,36 +119,48 @@ function killallvbox ()
 	} || true
 }
 
-function checkhddfolder ()
+function checkbaseimage ()
 {
-	if test -e $HOME/Library/VirtualBox; then
-	    export HARDDISKS=${HARDDISKS:-"$HOME/Library/VirtualBox/HardDisks/"}
-	elif test -e $HOME/.VirtualBox; then
-	    export HARDDISKS=${HARDDISKS:-"$HOME/.VirtualBox/HardDisks/"}
-	else
-	    echo "Cannot find harddisks! Trying setting HARDDISKS"
-	    failfast
-	fi
+    # Check the old locations in case anyone is still relying on them
+    # TODO: Remove during the next refactoring?
+    FILE="$OMERO_BASE_IMAGE"
+    if [ ! -f "$FILE" ]; then
+        FILE="$HOME/Library/VirtualBox/HardDisks/$OMERO_BASE_IMAGE"
+    fi
+    if [ ! -f "$FILE" ]; then
+        FILE="$HOME/.VirtualBox/HardDisks/$OMERO_BASE_IMAGE"
+    fi
+    if [ ! -f "$FILE" ]; then
+        echo "$OMERO_BASE_IMAGE not found, try specifying the full path"
+        failfast
+    fi
+
+    export OMERO_BASE_IMAGE="$FILE"
 }
 
 function deletevm ()
 {
-	poweroffvm
-	
-	$VBOX list vms | grep "$VMNAME" && {
-		VBoxManage storageattach "$VMNAME" --storagectl "SATA CONTROLLER" --port 0 --device 0 --type hdd --medium none
-		VBoxManage unregistervm "$VMNAME" --delete
-		VBoxManage closemedium disk $HARDDISKS"$VMNAME".vdi --delete
-	} || true
+    poweroffvm
+
+    $VBOX list vms | grep "$VMNAME" && {
+        # Try this first because it should delete everything including whereas
+        # deleting the disks separately seems to leave some log files behind
+        VBoxManage unregistervm "$VMNAME" --delete
+        if [ $? -ne 0 ]; then
+            VBoxManage storageattach "$VMNAME" --storagectl "SATA CONTROLLER" --port 0 --device 0 --type hdd --medium none
+            VBoxManage unregistervm "$VMNAME" --delete
+            VBoxManage closemedium disk "$VMNAME.vdi" --delete
+        fi
+    } || true
 }
 
 function createvm ()
 {
 		$VBOX list vms | grep "$VMNAME" || {
-		VBoxManage clonehd "$HARDDISKS"omero-base-img_2011-08-08.vdi"" "$HARDDISKS$VMNAME.vdi"
+		VBoxManage clonehd "$OMERO_BASE_IMAGE" "$VMNAME.vdi"
 		VBoxManage createvm --name "$VMNAME" --register --ostype "Debian"
 		VBoxManage storagectl "$VMNAME" --name "SATA CONTROLLER" --add sata
-		VBoxManage storageattach "$VMNAME" --storagectl "SATA CONTROLLER" --port 0 --device 0 --type hdd --medium $HARDDISKS$VMNAME.vdi
+		VBoxManage storageattach "$VMNAME" --storagectl "SATA CONTROLLER" --port 0 --device 0 --type hdd --medium "$VMNAME.vdi"
 			
 		VBoxManage modifyvm "$VMNAME" --nic1 nat --nictype1 "82545EM"
 		VBoxManage modifyvm "$VMNAME" --memory $MEMORY --acpi on
@@ -153,9 +178,11 @@ function createvm ()
 ####################
 ####################
 
-checkhddfolder
+checkbaseimage
 
-killallvbox
+if [ "$KILL_VBOX" -eq 1 ]; then
+    killallvbox
+fi
 
 deletevm
 
@@ -169,9 +196,9 @@ if [[ -z "$UP" ]]
 then
 	while [[ -z "$UP" && $ATTEMPTS -lt $MAXATTEMPTS ]]
 	do
-		rebootvm
-	    checknet
+	    #rebootvm
 	    sleep $DELAY
+	    checknet
 	done
 	if [[ -z "$UP" ]]
 	then
@@ -184,3 +211,6 @@ echo "Network up after $ATTEMPTS tries"
 installvm
 
 bash export_ova.sh ${VMNAME}
+if [ "$DELETE_BUILD_VM" -eq 1 ]; then
+    deletevm
+fi

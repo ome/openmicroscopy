@@ -2,14 +2,26 @@
 
 set -e -u -x
 
-PASSWORD=${PASSWORD:-"omero"}
+sudo cp omero-init.d /etc/init.d/omero
+sudo chmod a+x /etc/init.d/omero
 
-echo $PASSWORD | sudo -S cp /home/omero/omero-init.d /etc/init.d/omero
-echo $PASSWORD | sudo -S chmod a+x /etc/init.d/omero
-echo $PASSWORD | sudo -S update-rc.d -f omero remove
-echo $PASSWORD | sudo -S update-rc.d -f omero defaults 98 02
+sudo cp omero-web-init.d /etc/init.d/omero-web
+sudo chmod a+x /etc/init.d/omero-web
 
-echo $PASSWORD | sudo -S cp /home/omero/omero-web-init.d /etc/init.d/omero-web
-echo $PASSWORD | sudo -S chmod a+x /etc/init.d/omero-web
-echo $PASSWORD | sudo -S update-rc.d -f omero-web remove
-echo $PASSWORD | sudo -S update-rc.d -f omero-web defaults 98 02
+if [ -f /usr/sbin/update-rc.d ]; then
+    # Debian
+    sudo update-rc.d -f omero remove
+    sudo update-rc.d -f omero defaults 98 02
+    sudo update-rc.d -f omero-web remove
+    sudo update-rc.d -f omero-web defaults 98 02
+elif [ -f /sbin/chkconfig ]; then
+    # Redhat
+    sudo chkconfig --del omero
+    sudo chkconfig --add omero
+    sudo chkconfig --del omero-web
+    sudo chkconfig --add omero-web
+else
+    echo "ERROR: Failed to find init.d management script"
+    exit 2
+fi
+

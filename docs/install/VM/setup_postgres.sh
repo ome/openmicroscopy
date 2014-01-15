@@ -2,22 +2,23 @@
 
 set -e -u -x
 
-export PGPASSWORD=omero
+# hostname:port:database:username:password
+echo "localhost:5432:*:$OMERO_DB_USER:$OMERO_DB_PASS" > ~/.pgpass
+chmod 600 ~/.pgpass
 
-FILE=.pgpass
-sudo -u omero cat > ${FILE} << EOF
-localhost:5432:omero:omero:omero
-EOF
-chmod 600 .pgpass
+echo "CREATE USER $OMERO_DB_USER PASSWORD '$OMERO_DB_PASS'" | \
+    sudo -u postgres psql
+sudo -u postgres createdb -O "$OMERO_DB_USER" "$OMERO_DB_NAME"
 
-echo "CREATE USER omero PASSWORD 'omero'" | sudo -u postgres psql
-sudo -u postgres createdb -O omero omero
-sudo -u postgres createlang plpgsql omero
+# Might be setup by default
+set +e
+sudo -u postgres createlang -l "$OMERO_DB_NAME" | grep '[^\w]plpgsql[^w]' > /dev/null
+RET=$?
+set -e
+if [ $RET -ne 0 ]; then
+	sudo -u postgres createlang plpgsql "$OMERO_DB_NAME"
+fi
 
-echo `psql -h localhost -U omero -l`
-
-sudo sed '/127.0.0.1/s/md5/trust/' /etc/postgresql/8.4/main/pg_hba.conf > pg_hba.conf && sudo mv pg_hba.conf /etc/postgresql/8.4/main/pg_hba.conf
-
-sudo /etc/init.d/postgresql restart
+echo `psql -h localhost -U "$OMERO_DB_USER" -l`
 
 echo `netstat -an | egrep '5432.*LISTEN'`

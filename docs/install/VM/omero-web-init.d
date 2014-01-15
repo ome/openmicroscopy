@@ -11,6 +11,11 @@
 # Default-Stop:         0 1 6
 # Short-Description:    OMERO.web
 ### END INIT INFO
+#
+### Redhat
+# chkconfig: - 98 02
+# description: Init script for OMERO.web
+###
 
 RETVAL=0
 prog="omero-web"
@@ -26,23 +31,22 @@ OMERO_USER=${OMERO_USER:-"omero"}
 start() {	
 	echo -n $"Starting $prog:"
 	sudo -iu ${OMERO_USER} ${OMERO_HOME}/bin/omero web start &> /dev/null && echo -n ' OMERO.web'
-  sudo -iu ${OMERO_USER} bash ${OMERO_HOME%OMERO.server}/nginx-control.sh start
 	RETVAL=$?
 	[ "$RETVAL" = 0 ]
+        echo
 }
 
 stop() {
 	echo -n $"Stopping $prog:"
 	sudo -iu ${OMERO_USER} ${OMERO_HOME}/bin/omero web stop &> /dev/null && echo -n ' OMERO.web'
-  sudo -iu ${OMERO_USER} bash ${OMERO_HOME%OMERO.server}/nginx-control.sh stop
 	RETVAL=$?
 	[ "$RETVAL" = 0 ]
+        echo
 }
 
 status() {
 	echo -n $"Status $prog:"
 	sudo -iu ${OMERO_USER} ${OMERO_HOME}/bin/omero web status
-  sudo -iu ${OMERO_USER} bash ${OMERO_HOME%OMERO.server}/nginx-control.sh status
 	RETVAL=$?
 }
 

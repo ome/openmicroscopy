@@ -11,6 +11,11 @@
 # Default-Stop:         0 1 6
 # Short-Description:    OMERO.server
 ### END INIT INFO
+#
+### Redhat
+# chkconfig: - 98 02
+# description: Init script for OMERO.server
+###
 
 RETVAL=0
 prog="omero"

@@ -2,25 +2,31 @@
 
 set -e -u -x
 
-PASSWORD=${PASSWORD:-"omero"}
-
-OMERO_PATH="/home/omero/OMERO.server"
-OMERO_BIN=$OMERO_PATH/bin
-
-# Set up stuff requiring su privileges
-echo $PASSWORD | sudo -S sh setup_userspace.sh
-echo $PASSWORD | sudo -S sh setup_postgres.sh
-
-# Set up everything else
-sudo -k
+source omero_guest_settings.sh
 
 bash setup_environment.sh
-bash virtualbox_fix.sh
+
+bash setup_postgres.sh
 bash setup_omero.sh
 bash setup_omero_daemon.sh
 bash setup_nginx.sh
 
-$OMERO_BIN/omero admin start
+sudo service omero start
+sudo service omero-web start
+sudo service nginx start
 
-echo $PASSWORD | sudo -S halt
-#echo $PASSWORD | sudo -S reboot
+sleep 10
+
+bash no_processor_8266.sh
+
+bash cleanup.sh
+
+for SCRIPT in post/*.sh; do
+    if [ -f "$SCRIPT" ]; then
+        bash "$SCRIPT"
+    fi
+done
+
+sleep 10
+
+sudo halt

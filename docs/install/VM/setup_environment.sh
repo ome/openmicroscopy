@@ -2,7 +2,8 @@
 
 set -e -u -x
 
-echo 'export OMERO_SERVER=/home/omero/OMERO.server' >> .bashrc
-echo 'export PATH=$PATH:$OMERO_SERVER/bin' >> .bashrc
+chmod a+rx $HOME
+echo "export OMERO_PREFIX=$OMERO_PREFIX" >> ~/.bashrc
+echo 'export PATH=$PATH:$OMERO_PREFIX/bin' >> ~/.bashrc
 
-(source /home/omero/.bashrc) || true
+(source ~/.bashrc) || true
