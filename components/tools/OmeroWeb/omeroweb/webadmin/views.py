@@ -590,7 +590,7 @@ def manage_group(request, action, gid=None, conn=None, **kwargs):
                                      'permissions': permissions, 
                                      'owners': ownerIds, 'members':memberIds, 'experimenters':experimenters},
                                      group_is_current_or_system=group_is_current_or_system)
-        admins = [conn.getAdminService().getSecurityRoles().systemGroupId]
+        admins = [conn.getAdminService().getSecurityRoles().rootId]
         if long(gid) in system_groups and conn.isAdmin:
             admins.append(conn.getUserId())
         context = {'form':form, 'gid': gid, 'permissions': permissions, "admins": admins}
