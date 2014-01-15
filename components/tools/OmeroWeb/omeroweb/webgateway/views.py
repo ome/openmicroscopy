@@ -40,6 +40,7 @@ from cStringIO import StringIO
 
 from omero import client_wrapper, ApiUsageException
 from omero.gateway import timeit, TimeIt
+from omeroweb.http import HttpJavascriptResponse
 
 import Ice
 import glob
@@ -824,7 +825,7 @@ def render_ome_tiff (request, ctx, cid, conn=None, **kwargs):
         c = request.REQUEST.get('callback', None)
         if c is not None and not kwargs.get('_internal', False):
             rv = '%s(%s)' % (c, rv)
-        return HttpResponse(rv, content_type='application/javascript')
+        return HttpJavascriptResponse(rv)
     if len(imgs) == 0:
         raise Http404
     if len(imgs) == 1:
@@ -1034,16 +1035,16 @@ def jsonp (f):
                 rv = '%s(%s)' % (c, rv)
             if kwargs.get('_internal', False):
                 return rv
-            return HttpResponse(rv, content_type='application/javascript')
+            return HttpJavascriptResponse(rv)
         except omero.ServerError:
             if kwargs.get('_raw', False) or kwargs.get('_internal', False):
                 raise
-            return HttpResponseServerError('("error in call","%s")' % traceback.format_exc(), content_type='application/javascript')
+            return HttpJavascriptResponseServerError('("error in call","%s")' % traceback.format_exc())
         except:
             logger.debug(traceback.format_exc())
             if kwargs.get('_raw', False) or kwargs.get('_internal', False):
                 raise
-            return HttpResponseServerError('("error in call","%s")' % traceback.format_exc(), content_type='application/javascript')
+            return HttpJavascriptResponseServerError('("error in call","%s")' % traceback.format_exc())
     wrap.func_name = f.func_name
     return wrap
 
@@ -1130,7 +1131,7 @@ def imageData_json (request, conn=None, _internal=False, **kwargs):
     key = kwargs.get('key', None)
     image = conn.getObject("Image", iid)
     if image is None:
-        return HttpResponseServerError('""', content_type='application/javascript')
+        return HttpJavascriptResponseServerError('""')
     rv = imageMarshal(image, key)
     return rv
 
@@ -1150,7 +1151,7 @@ def wellData_json (request, conn=None, _internal=False, **kwargs):
     wid = kwargs['wid']
     well = conn.getObject("Well", wid)
     if well is None:
-        return HttpResponseServerError('""', content_type='application/javascript')
+        return HttpJavascriptResponseServerError('""')
     prefix = kwargs.get('thumbprefix', 'webgateway.views.render_thumbnail')
     def urlprefix(iid):
         return reverse(prefix, args=(iid,))
@@ -1169,7 +1170,7 @@ def plateGrid_json (request, pid, field=0, conn=None, **kwargs):
     except ValueError:
         field = 0
     if plate is None:
-        return HttpResponseServerError('""', content_type='application/javascript')
+        return HttpJavascriptResponseServerError('""')
     grid = []
     prefix = kwargs.get('thumbprefix', 'webgateway.views.render_thumbnail')
     thumbsize = int(request.REQUEST.get('size', 64))
@@ -1219,7 +1220,7 @@ def listImages_json (request, did, conn=None, **kwargs):
 
     dataset = conn.getObject("Dataset", did)
     if dataset is None:
-        return HttpResponseServerError('""', content_type='application/javascript')
+        return HttpJavascriptResponseServerError('""')
     prefix = kwargs.get('thumbprefix', 'webgateway.views.render_thumbnail')
     def urlprefix(iid):
         return reverse(prefix, args=(iid,))
@@ -1242,7 +1243,7 @@ def listWellImages_json (request, did, conn=None, **kwargs):
 
     well = conn.getObject("Well", did)
     if well is None:
-        return HttpResponseServerError('""', content_type='application/javascript')
+        return HttpJavascriptResponseServerError('""')
     prefix = kwargs.get('thumbprefix', 'webgateway.views.render_thumbnail')
     def urlprefix(iid):
         return reverse(prefix, args=(iid,))
@@ -1265,7 +1266,7 @@ def listDatasets_json (request, pid, conn=None, **kwargs):
     project = conn.getObject("Project", pid)
     rv = []
     if project is None:
-        return HttpResponse('[]', content_type='application/javascript')
+        return HttpJavascriptResponse('[]')
     return [x.simpleMarshal(xtra={'childCount':0}) for x in project.listChildren()]
 
 @login_required()
@@ -1384,7 +1385,7 @@ def search_json (request, conn=None, **kwargs):
         else:
             sr = conn.searchObjects(None, opts['search'], conn.SERVICE_OPTS)  # searches P/D/I
     except ApiUsageException:
-        return HttpResponseServerError('"parse exception"', content_type='application/javascript')
+        return HttpJavascriptResponseServerError('"parse exception"')
     def marshal ():
         rv = []
         if (opts['grabData'] and opts['ctx'] == 'imgs'):
@@ -1434,7 +1435,7 @@ def save_image_rdef_json (request, iid, conn=None, **kwargs):
         json_data = 'true'
     if r.get('callback', None):
         json_data = '%s(%s)' % (r['callback'], json_data)
-    return HttpResponse(json_data, content_type='application/javascript')
+    return HttpJavascriptResponse(json_data)
 
 @login_required()
 def list_compatible_imgs_json (request, iid, conn=None, **kwargs):
@@ -1484,7 +1485,7 @@ def list_compatible_imgs_json (request, iid, conn=None, **kwargs):
 
     if r.get('callback', None):
         json_data = '%s(%s)' % (r['callback'], json_data)
-    return HttpResponse(json_data, content_type='application/javascript')
+    return HttpJavascriptResponse(json_data)
 
 @login_required()
 @jsonp
@@ -1633,7 +1634,7 @@ def reset_image_rdef_json (request, iid, conn=None, **kwargs):
 #        return json_data == 'true'      # TODO: really return a boolean? (not json)
 #    if r.get('callback', None):
 #        json_data = '%s(%s)' % (r['callback'], json_data)
-#    return HttpResponse(json_data, content_type='application/javascript')
+#    return HttpJavascriptResponse(json_data)
 
 @login_required()
 def full_viewer (request, iid, conn=None, **kwargs):
@@ -1771,8 +1772,7 @@ def get_shape_json(request, roiId, shapeId, conn=None, **kwargs):
     if shape is None:
         logger.debug('No such shape: %r' % shapeId)
         raise Http404
-    return HttpResponse(json.dumps(shapeMarshal(shape)),
-            content_type='application/javascript')
+    return HttpJsonResponse(shapeMarshal(shape))
 
 @login_required()
 def get_rois_json(request, imageId, conn=None, **kwargs):
@@ -1801,7 +1801,7 @@ def get_rois_json(request, imageId, conn=None, **kwargs):
 
     rois.sort(key=lambda x: x['id']) # sort by ID - same as in measurement tool.
     
-    return HttpResponse(json.dumps(rois), content_type='application/javascript')
+    return HttpJsonResponse(rois)
 
 @login_required(isAdmin=True)
 @jsonp

@@ -68,7 +68,7 @@ from forms import LoginForm, ForgottonPasswordForm, ExperimenterForm, \
 from omeroweb.webadmin.webadmin_utils import toBoolean, upgradeCheck
 
 from omeroweb.connector import Server
-
+from omeroweb.http import HttpJsonResponse
 from omeroweb.webclient.decorators import login_required
 from omeroweb.connector import Connector
 
@@ -785,4 +785,4 @@ def drivespace(request, conn=None, **kwargs):
 def load_drivespace(request, conn=None, **kwargs):
     offset = request.REQUEST.get('offset', 0)
     rv = usersData(conn, offset)
-    return HttpResponse(json.dumps(rv), content_type='application/json')
+    return HttpJsonResponse(rv)

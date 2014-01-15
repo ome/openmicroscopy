@@ -34,6 +34,7 @@ from django.http import HttpResponse
 from django.core.urlresolvers import reverse
 from django.views.decorators.cache import never_cache
 
+from omeroweb.http import HttpJNLPResponse
 from omero_version import omero_version
 
 def index(request):
@@ -83,5 +84,5 @@ def insight(request):
               }
 
     c = Context(request, context)
-    return HttpResponse(t.render(c), content_type="application/x-java-jnlp-file")
+    return HttpJNLPResponse(t.render(c))
     
