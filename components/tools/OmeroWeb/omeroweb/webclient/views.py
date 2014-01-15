@@ -1344,8 +1344,9 @@ def edit_channel_names(request, imageId, conn=None, **kwargs):
     for i in range(sizeC):
         cname = request.REQUEST.get("channel%d" % i, None)
         if cname is not None:
-            channelNames["channel%d" % i] = smart_str(cname)
-            nameDict[i+1] = smart_str(cname)
+            cname = smart_str(cname)[:255]      # Truncate to fit in DB
+            channelNames["channel%d" % i] = cname
+            nameDict[i+1] = cname
     # If the 'Apply to Dataset' button was used to submit...
     if request.REQUEST.get('confirm_apply', None) is not None:
         parentId = request.REQUEST.get('parentId', None)    # plate-123 OR dataset-234
