@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.imviewer.view.ControlPane
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -76,14 +76,14 @@ import org.openmicroscopy.shoola.util.ui.slider.OneKnobSlider;
 import org.openmicroscopy.shoola.util.ui.slider.TwoKnobsSlider;
 import pojos.ChannelData;
 
-/** 
+/**
  * Presents variable controls.
  *
- * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
- * @author	Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
- * 			<a href="mailto:a.falconi@dundee.ac.uk">a.falconi@dundee.ac.uk</a>
- * @author	Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
+ * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
+ *         <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+ * @author Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
+ *         <a href="mailto:a.falconi@dundee.ac.uk">a.falconi@dundee.ac.uk</a>
+ * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
  * @since OME2.2
@@ -1862,29 +1862,54 @@ class ControlPane
      */
     void onChannelUpdated()
     {
-        Iterator<ChannelButton> i = channelButtons.iterator();
-        ChannelData data;
-        ChannelButton cb;
-        while (i.hasNext()) {
-            cb = i.next();
-            data = model.getChannelData(cb.getChannelIndex());
-            cb.setText(data.getChannelLabeling());
-        }
-        i = channelButtonsGrid.iterator();
-        while (i.hasNext()) {
-            cb = i.next();
-            data = model.getChannelData(cb.getChannelIndex());
-            cb.setText(data.getChannelLabeling());
-        }
-        i = channelButtonsProjection.iterator();
-        while (i.hasNext()) {
-            cb = i.next();
-            data = model.getChannelData(cb.getChannelIndex());
-            cb.setText(data.getChannelLabeling());
-        }
+        Dimension dimMax = updateText(channelButtons);
+        updateText(channelButtonsGrid);
+        updateText(channelButtonsProjection);
+        resizeChannelButton(dimMax, channelButtons);
+        resizeChannelButton(dimMax, channelButtonsGrid);
+        resizeChannelButton(dimMax, channelButtonsProjection);
         repaint();
     }
 
+    /**
+     * Updates the text of the specified components. Returns the maximum
+     * size of the components.
+     *
+     * @param buttons The components to update.
+     * @return See above
+     */
+    private Dimension updateText(List<ChannelButton> buttons)
+    {
+        Iterator<ChannelButton> i = buttons.iterator();
+        ChannelData data;
+        ChannelButton cb;
+        Dimension d;
+        Dimension dimMax = new Dimension(0, 0);
+        while (i.hasNext()) {
+            cb = i.next();
+            data = model.getChannelData(cb.getChannelIndex());
+            cb.setText(data.getChannelLabeling());
+            d = cb.getPreferredSize();
+            if (d.width > dimMax.width) 
+                dimMax = new Dimension(d.width, d.height);
+        }
+        return dimMax;
+    }
+
+    /**
+     * Resizes the buttons after changing the text.
+     * 
+     * @param d The dimension to set.
+     * @param buttons The buttons to handle.
+     */
+    private void resizeChannelButton(Dimension d, List<ChannelButton> buttons)
+    {
+        Iterator<ChannelButton> j = buttons.iterator();
+        while (j.hasNext())
+            j.next().setPreferredSize(d);
+        repaint();
+    }
+    
     /**
      * Reacts to the selection of an item in the projection box
      * @see ActionListener#actionPerformed(ActionEvent)
