@@ -585,7 +585,9 @@ using bin\omero web start on Windows with FastCGI.
 
     def restart(self, args):
         if self.stop(args):
-            self.start(args)
+            return self.start(args)
+        else:
+            return False
 
     def set_environ(self, ice_config=None):
         os.environ['ICE_CONFIG'] = ice_config is None and \
