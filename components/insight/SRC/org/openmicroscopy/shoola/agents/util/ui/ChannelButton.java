@@ -158,9 +158,9 @@ public class ChannelButton
         FontMetrics fm = getFontMetrics(f);
         int width = fm.stringWidth(text);
         Dimension d = DEFAULT_MIN_SIZE;
-        if (width > DEFAULT_MIN_SIZE.width && width < dimWidth) {
+        if (width > DEFAULT_MIN_SIZE.width && width <= dimWidth) {
             d = new Dimension(width+10, DEFAULT_MIN_SIZE.height);
-        } else if (width >= dimWidth) {
+        } else if (width > dimWidth) {
             int size = fm.stringWidth(UIUtilities.DOTS);
             width += size;
             String s = "";
@@ -309,7 +309,16 @@ public class ChannelButton
         setTextValue(text);
         if (originalFont != null) {
             setFont(originalFont);
-            setComponentSize(getPreferredSize().width);
+            if (StringUtils.isNotBlank(text)) {
+                int width = getFontMetrics(getFont()).stringWidth(text);
+                if (width > DEFAULT_MAX_SIZE.width)
+                    width = DEFAULT_MAX_SIZE.width;
+                if (width < getPreferredSize().width)
+                    width = getPreferredSize().width;
+                Dimension d = setComponentSize(width);
+                setSize(d);
+                setPreferredSize(d);
+            }
         }
         repaint();
     }
