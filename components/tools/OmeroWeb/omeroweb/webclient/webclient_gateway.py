@@ -934,12 +934,15 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
     
     def setMembersOfGroup(self, group, new_members):
         """
-        Change members of the group.
+        Change members of the group. Returns a list of existing group members
+        that could not be removed from the group because it is their only group.
         
         @param group            An existing ExperimenterGroup instance.
         @type group             ExperimenterGroupI
         @param new_members      List of new new Experimenter Ids.
         @type new_members       L{Long}
+        @return                 List of Experimenters not removed from group
+        @rtype                  List of L{ExperimenterWrapper}
         """
         
         experimenters = list(self.getObjects("Experimenter"))
@@ -976,10 +979,18 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
                 to_add.append(e._obj)
         
         admin_serv = self.getAdminService()
+        userGid = admin_serv.getSecurityRoles().userGroupId
+        failures = []
         for e in to_add:
             admin_serv.addGroups(e, [group._obj])
         for e in to_remove:
+            # Experimenter needs to stay in at least 1 non-user group
+            gs = [l.parent.id.val for l in e.copyGroupExperimenterMap() if l.parent.id.val != userGid]
+            if len(gs) == 1:
+                failures.append(ExperimenterWrapper(self, e))
+                continue
             admin_serv.removeGroups(e, [group._obj])
+        return failures
     
     def setOwnersOfGroup(self, group, new_owners):
         """
