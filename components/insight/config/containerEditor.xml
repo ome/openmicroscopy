@@ -76,7 +76,14 @@
          Non-positive values will be ignored and the internal default will
          be used instead. -->
     <entry name="/services/LOGIN/omeds/timeout"
-           type="integer">120000</entry>     
+           type="integer">120000</entry>
+
+    <!-- The interval, in milliseconds, between each time we check if the
+         network is up.
+         Non-positive values will be ignored and the internal default will
+         be used instead. -->
+    <entry name="/services/NETWORK/timeout" type="integer">300000</entry>
+
     <!-- Location of the omero folder. -->
     <entry name="/services/OMERO/home">omero</entry>
 
@@ -91,28 +98,27 @@
          installation directory. -->
     <entry name="/services/LOG/dir">log</entry>
     <!-- The name of the log file -->
-    <entry name="/services/LOG/file">omeroinsight.log</entry>       
-    
+    <entry name="/services/LOG/file">omeroinsight.log</entry>
+
     <!-- Enables/disables the Caching Service. -->
     <entry name="/services/CACHE/on" type="boolean">true</entry>
-    
+
     <!-- Maximum number of thumbnails retrieved asynchronously. -->
     <entry name="/services/Thumbnailing/fetchSz" type="integer">50</entry>
-    
+
      <!-- Factor by which the maximum number of thumbnails to fetch
-	 is multiplied by when the connection's speed is Low. 
-	 -->
+        is multiplied by when the connection's speed is Low.
+    -->
     <entry name="/services/Thumbnailing/fetchLowSpeed" type="double">0.25</entry>
     
     <!-- Factor by which the maximum number of thumbnails to fetch
-	 is multiplied by when the connection's speed is Medium. 
-	 -->
+    is multiplied by when the connection's speed is Medium.
+    -->
     <entry name="/services/Thumbnailing/fetchMediumSpeed" type="double">0.5</entry>
-    
-    
+
     <!-- Rendering Engine configuration.
          NOTE: All the following entries for the Rendering Engine will
-     		be removed as soon as we move the engine to the server. 
+         be removed as soon as we move the engine to the server.
     -->
     <!-- Maximum size, in Mb, of the image cache in the Rendering Engine.
           This is a per-image cache which stores planes that have already
@@ -128,7 +134,7 @@
          asynchronously in addition to the plane that has been currently
          requested.  If set to a positive value n, then separate threads 
          will be spawned to render (at most) n planes that are likely to
-         be requested after the current plane.  If 0 or negative, then no
+         be requested after the current plane. If 0 or negative, then no
          asynchronous rendering will take place.
          Having asynchronous rendering on usually increses performance and
          responsiveness.  However, take into account that too a high value
@@ -137,7 +143,7 @@
     <entry name="/services/RE/maxPreFetch" type="integer">0</entry>
     <!-- How many Mb should be allocated to the Rendering Engine to cache
          pixels stacks.  If the size of an image stack exceeds this value
-         then the stack won't be cached.  This will increase the time it
+         then the stack won't be cached. This will increase the time it
          takes to render planes within that image stack and will result
          in an error if 3D rendering is attempted; 3D rendering requires
          the stack to be in memory. -->
@@ -146,22 +152,20 @@
      	   Experimental, affects performance and responsiveness.
          Don't modify this unless you know what you're doing. -->
     <entry name="/services/RE/stackBlockSz" type="integer">4096</entry> 
-          
     <entry name="/services/RE/compressionMedium" type="float">0.85</entry>
     <entry name="/services/RE/compressionLow" type="float">0.50</entry>
     <!-- Debugger configuration.
          This entry specifies the name of the server and 
          and e-mail address to submit comment.
     -->
-<entry name="/services/DEBUGGER/hostnameToken">http://qa.openmicroscopy.org.uk/qa/initial/</entry>
-<entry name="/services/DEBUGGER/hostnameProcessing">http://qa.openmicroscopy.org.uk/qa/upload_processing/</entry>
-<entry name="/services/DEBUGGER/applicationNameBug">4</entry>
-<entry name="/services/DEBUGGER/applicationNameComment">3</entry>
-<entry name="/services/DEBUGGER/postTimeout" type="integer">2000</entry>
-<entry name="/services/DEBUGGER/emailAddress">qa@openmicroscopy.org.uk</entry>
+    <entry name="/services/DEBUGGER/hostnameToken">http://qa.openmicroscopy.org.uk/qa/initial/</entry>
+    <entry name="/services/DEBUGGER/hostnameProcessing">http://qa.openmicroscopy.org.uk/qa/upload_processing/</entry>
+    <entry name="/services/DEBUGGER/applicationNameBug">4</entry>
+    <entry name="/services/DEBUGGER/applicationNameComment">3</entry>
+    <entry name="/services/DEBUGGER/postTimeout" type="integer">2000</entry>
+    <entry name="/services/DEBUGGER/emailAddress">qa@openmicroscopy.org.uk</entry>
 </services>
-  
-  
+
   <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
    * 
    * AGENTS
@@ -175,7 +179,6 @@
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
   <agents>
     <structuredEntry name="/agents" type="agents">
-      
       <!-- NOTE FOR DEVELOPERS
            Add an agent tag for each of your Agents.
            The name tag specifies the human-readable name of the Agent.
@@ -194,8 +197,7 @@
     </agent>
     </structuredEntry>
   </agents>
-  
-  
+
   <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
    * 
    * RESOURCES
@@ -204,7 +206,7 @@
    * The iconFactories shouldn't be edited by system administrators, they're
    * only useful to developers.  The fonts family, size, and style can instead
    * be tweaked if needed.
-   * 
+   *
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
   <resources>
     <iconFactories>
@@ -225,7 +227,7 @@
       <!-- NOTE FOR DEVELOPERS
            This type of entry can be used in agents' configuration files too.
            It is turned into an instance of java.awt.Font. 
-      --> 
+      -->
       <structuredEntry name="/resources/fonts/Titles" type="font">
         <family>SansSerif</family>
         <size>12</size>
@@ -233,8 +235,6 @@
       </structuredEntry>
     </fonts>
   </resources>
-  
-  
   <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
    * 
    * LOOK & FEEL
@@ -255,7 +255,7 @@
        documents accompanying the L&F.
   -->
   <entry name="LookAndFeel">system</entry>
-  
+
   <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
    * Information related to the version of the software, name of the software,
    * etc.
@@ -266,11 +266,11 @@
     <entry name="SplashScreenLogo">client_splashscreen.png</entry>
     <entry name="HelpOnLine">http://help.openmicroscopy.org/</entry>
     <entry name="Forum">http://www.openmicroscopy.org.uk/community/</entry>
- <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
- * Information indicating to display data per group not per owner.
- * 0: indicate to display the group's data.
- * 1: indicate to display the user's data. Default value
- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
+  <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  * Information indicating to display data per group not per owner.
+  * 0: indicate to display the group's data.
+  * 1: indicate to display the user's data. Default value
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
    <entry name="DataDisplay" type="integer">1</entry>
-   
+
 </container>

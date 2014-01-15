@@ -194,7 +194,7 @@ class OmeroImageServiceImpl
 	throws DSAccessException, DSOutOfServiceException
 	{
 		if (status.isMarkedAsCancel()) {
-			if (close) gateway.closeImport(ctx);
+			if (close) gateway.closeImport(ctx, userName);
 			return Boolean.valueOf(false);
 		}
 		boolean thumbnail = object.isLoadThumbnail();
@@ -263,7 +263,7 @@ class OmeroImageServiceImpl
 			}
 		}
 		annotatedImportedImage(ctx, list, images, userName);
-		if (close) gateway.closeImport(ctx);
+		if (close) gateway.closeImport(ctx, userName);
 		return null;
 	}
 	
@@ -665,6 +665,10 @@ class OmeroImageServiceImpl
 		}
 	}
 
+	/** 
+	 * Implemented as specified by {@link OmeroImageService}.
+	 * @see OmeroImageService#isAlive(SecurityContext)
+	 */
 	public boolean isAlive(SecurityContext ctx) throws DSOutOfServiceException
 	{
 	    return null != gateway.getConnector(ctx, true, true);
@@ -797,26 +801,25 @@ class OmeroImageServiceImpl
 	}
 	
 	/** 
-	 * Implemented as specified by {@link OmeroImageService}. 
+	 * Implemented as specified by {@link OmeroImageService}.
 	 * @see OmeroImageService#reloadRenderingService(SecurityContext, long)
 	 */
 	public RenderingControl reloadRenderingService(SecurityContext ctx,
 		long pixelsID)
 		throws RenderingServiceException
 	{
-		RenderingControl proxy = 
-			PixelsServicesFactory.getRenderingControl(context, 
+		RenderingControl proxy =
+			PixelsServicesFactory.getRenderingControl(context,
 					Long.valueOf(pixelsID), false);
 		if (proxy == null) return null;
 		try {
 			int number = getNumberOfRenderingEngines(ctx, pixelsID);
 			List<RenderingEnginePrx>
 			proxies = new ArrayList<RenderingEnginePrx>(number);
-			gateway.removeREService(ctx, pixelsID);
 			for (int i = 0; i < number; i++) {
 				proxies.add(gateway.createRenderingEngine(ctx, pixelsID));
 			}
-			return PixelsServicesFactory.reloadRenderingControl(context, 
+			return PixelsServicesFactory.reloadRenderingControl(context,
 					pixelsID, proxies);
 		} catch (Exception e) {
 			throw new RenderingServiceException("Cannot restart the " +
@@ -1123,7 +1126,7 @@ class OmeroImageServiceImpl
 			new SecurityContext(importable.getGroup().getId());
 
 		if (status.isMarkedAsCancel()) {
-			if (close) gateway.closeImport(ctx);
+			if (close) gateway.closeImport(ctx, userName);
 			return Boolean.valueOf(false);
 		}
 		Object result = null;
@@ -1191,7 +1194,7 @@ class OmeroImageServiceImpl
 							String value = candidates.get(0);
 							if (!file.getAbsolutePath().equals(value) && 
 								object.isFileinQueue(value)) {
-								if (close) gateway.closeImport(ctx);
+								if (close) gateway.closeImport(ctx, userName);
 								status.markedAsDuplicate();
 								return Boolean.valueOf(true);
 							}
@@ -1298,7 +1301,7 @@ class OmeroImageServiceImpl
 					String value = candidates.get(0);
 					if (!file.getAbsolutePath().equals(value) && 
 						object.isFileinQueue(value)) {
-						if (close) gateway.closeImport(ctx);
+						if (close) gateway.closeImport(ctx, userName);
 						status.markedAsDuplicate();
 						return Boolean.valueOf(true);
 					}
@@ -1740,7 +1743,7 @@ class OmeroImageServiceImpl
 	}
 	
 	/** 
-	 * Implemented as specified by {@link OmeroImageService}. 
+	 * Implemented as specified by {@link OmeroImageService}.
 	 * @see OmeroImageService#runScript(SecurityContext, ScriptObject)
 	 */
 	public ScriptCallback runScript(SecurityContext ctx, ScriptObject script)
@@ -1748,6 +1751,9 @@ class OmeroImageServiceImpl
 	{
 		if (script == null) 
 			throw new IllegalArgumentException("No script to run.");
+		if (!script.allRequiredValuesPopulated())
+		    throw new ProcessException("No all required parameters have been" +
+		    		" filled.");
 		return gateway.runScript(ctx, script);
 	}
 	

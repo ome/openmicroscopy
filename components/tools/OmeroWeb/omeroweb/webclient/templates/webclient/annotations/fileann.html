@@ -58,12 +58,16 @@
     </span>
     {% else %}
         <span class="tooltip_html" style='display:none'>
+            <b>Annotation ID:</b> {{ fileann.id }}<br />
             <b>Owner:</b> {{ fileann.getOwner.getFullName }}<br />
             <b>Linked by:</b> {{ fileann.link.getDetails.getOwner.getFullName }}<br />
             <b>On:</b> {{ fileann.link.creationEventDate|date:"Y-m-d H:i:s" }}<br />
             <b>Description:</b> {{ fileann.description|default:""|truncatewords:10  }}
             {% if fileann.getNs %}
                 <br/><b>Namespace:</b> {{ fileann.getNs }}
+            {% endif %}
+            {% if fileann.file %}
+                <br/><b>File ID:</b> {{ fileann.file.id.val }}
             {% endif %}
         </span>
     {% endif %}

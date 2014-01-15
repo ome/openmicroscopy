@@ -52,6 +52,7 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     </description>
 
+    <property name="gitmatch" value="v.[0-9]*.[0-9]*.[0-9]*"/>
     <property name="import.dir" value="${basedir}/components/antlib/resources"/>
     <import file="${import.dir}/global.xml"/>
 
@@ -648,6 +649,7 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
                     <include name="**/*.jar"/>
                     <exclude name="repository/omero/**"/>
                     <exclude name="repository/omero-tools/**"/>
+                    <exclude name="cache/omero/omero_client/jars/**"/>
                 </fileset>
             </classpath>
 
@@ -941,6 +943,12 @@ omero.version=${omero.version}
         <hotdeploy component="${server.comp}" targets="${targets}"/>
     </target>
 
+    <target name="hot-bioformats" depends="init" description="Re-launch running bioformats with new bioformats.jar">
+        <property name="targets" value="dist"/>
+        <hotdeploy component="${basedir}/components/bioformats" targets="${targets}"/>
+    </target>
+
+
     <macrodef name="hotdeploy">
         <attribute name="targets"/>
         <attribute name="component"/>
@@ -983,14 +991,16 @@ omero.version=${omero.version}
     </macrodef>
 
     <macrodef name="gitdescribe">
-
         <attribute name="regexp" default="^(v.)?(.*?)(-[0-9]+)?((-)g(.*?))?$"/>
         <attribute name="select" default="\2"/>
+        <attribute name="match" default="${gitmatch}"/>
         <sequential>
         <trycatch>
             <try>
                 <git command="describe" output="fullversion" failonerror="true">
                     <args>
+                        <arg value="--match"/>
+                        <arg value="@{match}"/>
                         <arg line="--dirty"/>
                     </args>
                 </git>
@@ -1004,7 +1014,6 @@ omero.version=${omero.version}
     </macrodef>
 
     <target name="version">
-
         <gitdescribe select="\2\3\5\6">
         </gitdescribe>
         <echo>${version.describe}-ice${versions.ice_lib}</echo>

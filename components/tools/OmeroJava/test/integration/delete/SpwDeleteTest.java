@@ -37,7 +37,7 @@ import spec.XMLWriter;
 @Test(groups = "ticket:2615")
 public class SpwDeleteTest extends AbstractServerTest {
 
-    @Test(groups = { "ticket:3102" })
+    @Test(groups = {"ticket:3102", "ticket:11540"})
     public void testScreen() throws Exception {
 
         newUserAndGroup("rw----");
@@ -68,10 +68,13 @@ public class SpwDeleteTest extends AbstractServerTest {
             }
         }
 
+        // In order to avoid omero.LockTimeout
+        // see XMLMockObjects.createScreen()
+        scalingFactor *= 1*2*2*2*2;
+
         delete(client, new Delete(DeleteServiceTest.REF_SCREEN, screen.getId()
                 .getValue(), null));
 
-        // assertDoesNotExist(exp);
         assertDoesNotExist(screen);
         assertNoneExist(plates.toArray(new Plate[0]));
         assertNoneExist(samples.toArray(new WellSample[0]));

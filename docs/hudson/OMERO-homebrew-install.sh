@@ -9,7 +9,6 @@ export PSQL_DIR=${PSQL_DIR:-/usr/local/var/postgres}
 export OMERO_DATA_DIR=${OMERO_DATA_DIR:-/tmp/var/OMERO.data}
 export BREW_OPTS=${BREW_OPTS:-}
 export SCRIPT_NAME=${SCRIPT_NAME:-OMERO.sql}
-VENV_DIR=${VENV_DIR:-/usr/local/virtualenv}
 
 # Test whether this script is run in a job environment
 JOB_NAME=${JOB_NAME:-}
@@ -25,7 +24,7 @@ TESTING_MODE=${TESTING_MODE:-$DEFAULT_TESTING_MODE}
 ###################################################################
 
 # Install Homebrew in /usr/local
-ruby -e "$(curl -fsSL https://raw.github.com/mxcl/homebrew/go)"
+ruby -e "$(curl -fsSL https://raw.github.com/mxcl/homebrew/go/install)"
 cd /usr/local
 
 # Install git if not already installed
@@ -80,15 +79,6 @@ showinf -version
 bin/brew install omero $BREW_OPTS
 bin/brew install postgres
 
-# Create a virtual environment for Python dependencies
-bin/pip install virtualenv
-bin/virtualenv $VENV_DIR
-
-# Activate the virtual environment
-set +u
-source $VENV_DIR/bin/activate
-set -u
-
 # Install OMERO Python dependencies
 bash bin/omero_python_deps
 
@@ -100,13 +90,14 @@ export PYTHONPATH=$(bin/brew --prefix omero)/lib/python:$ICE_HOME/python
 export PATH=$(bin/brew --prefix)/bin:$(bin/brew --prefix)/sbin:/usr/local/lib/node_modules:$ICE_HOME/bin:$PATH
 export DYLD_LIBRARY_PATH=$ICE_HOME/lib:$ICE_HOME/python:${DYLD_LIBRARY_PATH-}
 
+# Note: If postgres startup fails it's probably because there was an old
+# process still running.
 # Create PostgreSQL database
 if [ -d "$PSQL_DIR" ]; then
     rm -rf $PSQL_DIR
 fi
 bin/initdb $PSQL_DIR
-bin/brew services restart postgresql
-bin/pg_ctl -D $PSQL_DIR -l $PSQL_DIR/server.log start
+bin/pg_ctl -D $PSQL_DIR -l $PSQL_DIR/server.log -w start
 
 # Create user and database
 bin/createuser -w -D -R -S db_user

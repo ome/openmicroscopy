@@ -52,7 +52,7 @@ $(document).ready(function() {
             }
         });
         // Also clear well selection if 'plate' selected
-        if (get_selected.attr('id').split("-")[0] === 'plate') {
+        if (get_selected.length > 0 && get_selected.attr('id').split("-")[0] === 'plate') {
             $("td.ui-selected").removeClass("ui-selected");
         }
     }

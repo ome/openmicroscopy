@@ -1,9 +1,11 @@
 language: java
 
 env:
-    - BUILD="build-all" TEST="-p"
-    - BUILD="build-default test-compile" TEST="-py test -Dtest.with.fail=true"
-    - BUILD="build-all test-compile-all" TEST="-cpp test -Dtest.with.fail=true"
+    - BUILD=py BUILD_TARGET="build-default" TEST_TARGET="-py test -Dtest.with.fail=true"
+    - BUILD=java BUILD_TARGET="build-default test-compile" TEST_TARGET="-p"
+
+matrix:
+      fast_finish: true
 
 jdk:
   - openjdk7
@@ -18,9 +20,12 @@ before_install:
     - git config --global user.name 'Snoopy Crime Cop'
     - sudo pip install scc --use-mirrors
     - scc travis-merge
+    - if [[ $BUILD == 'py' ]]; then sudo pip install flake8 --use-mirrors; fi
+    - if [[ $BUILD == 'py' ]]; then flake8 -v components/tools/OmeroPy/src/omero/plugins;  fi
+    - if [[ $BUILD == 'py' ]]; then flake8 -v components/tools/OmeroPy/test/unit/clitest;  fi
 
-install: python build.py $BUILD
+install: python build.py $BUILD_TARGET
 
 # Running python tests as script, since there's no compile step.
 script:
-    - python build.py $TEST
+    - python build.py $TEST_TARGET

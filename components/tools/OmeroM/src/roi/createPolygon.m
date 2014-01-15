@@ -36,5 +36,5 @@ ip.parse(x, y);
 
 % Create Polygon shape
 polygon = omero.model.PolygonI;
-points = sprintf('%g,%g ', x, y);
+points = sprintf('%g,%g ', [x(:)'; y(:)']);
 polygon.setPoints(rstring(points));

@@ -23,7 +23,7 @@ setup script provided.
 Setting up
 ----------
 If you wish to set-up data, i.e. create a Project, dataset and
-import 3 images in the dataset, you first need to run
+import few images in the dataset, you first need to run
 
 ./build.py test-compile
 then
@@ -104,9 +104,29 @@ By default, the tests are run using the default browser i.e. firefox
 If you want to run the tests on googlechrome, you need to install the chrome driver.
 See https://code.google.com/p/chromedriver/downloads/list
 
-If you are running the tests on Mac OS X, you can install install with the following command
+If you are running the tests on Mac OS X, you can install with the following command
 
 brew install chromedriver
+
+To run the tests locally, you will first need to start OMERO.web.
+Please check either https://www.openmicroscopy.org/site/support/omero4/sysadmins/unix/install-web.html
+or https://www.openmicroscopy.org/site/support/omero4/sysadmins/windows/install-web.html for more information.
+
+If you need to specify the port used for OMERO.web e.g.
+you are running the lightweight development server, you will need to modify few values in config.txt located under
+components/tests/ui/testcases
+
+Replace
+${LOGIN URL}              http://${WEB HOST}/webclient/login/
+${WELCOME URL}            http://${WEB HOST}/webclient/
+${WEBADMIN WELCOME URL}   http://${WEB HOST}/webadmin/
+
+by 
+${LOGIN URL}              http://${WEB HOST}:${WEB PORT}/webclient/login/
+${WELCOME URL}            http://${WEB HOST}:${WEB PORT}/webclient/
+${WEBADMIN WELCOME URL}   http://${WEB HOST}:${WEB PORT}/webadmin/
+
+and modify the value of ${WEB PORT} if required.
 
 
 To run all the web tests on both Firefox and Chrome, from the top level

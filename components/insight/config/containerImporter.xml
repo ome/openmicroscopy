@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+<!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  *                     OMERO.insight MASTER CONFIGURATION FILE
  *
  * This file specifies the configuration settings for the OMERO.insight runtime 
@@ -9,19 +9,19 @@
  *
  * + Services: The runtime services provided by the Container.
  * + Agents: The UI components that will be loaded at runtime.
- * + Resources: Icons and fonts used by the widgets that are part of the 
+ * + Resources: Icons and fonts used by the widgets that are part of the
  *              Container.
  * + Look and Feel: The L&F to use for the whole application.
  *
  *
  * Note that the only entry that needs to be edited *before* launching 
- * OMERO.insight is the URL of the OMERO Data Server (OMERODS) in the Services 
- * group. All other entries can optionally be edited to tweak runtime behavior, 
+ * OMERO.insight is the URL of the OMERO Data Server (OMERODS) in the Services
+ * group. All other entries can optionally be edited to tweak runtime behavior,
  * but can in most cases be safely ignored.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
 
 <container>
-   
+
   <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
    * 
    * SERVICES
@@ -29,10 +29,10 @@
    * The runtime services provided by the Container.All entries can 
    * optionally be edited to tweak runtime behavior.
    * 
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~--> 
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
   <services>
    <!-- OMERO Data Server (OMERO) configuration.
-         This entry specifies the hostName and the port to use to connect to 
+         This entry specifies the hostName and the port to use to connect to
          OMERO using blitz
     -->
     <structuredEntry name="/services/OMERODS" type="OMERODS">
@@ -52,21 +52,20 @@
     i.e. TreeViewerAgent = 0, EditorAgent = 1, ImporterAgent = 2
     The default value is 0.-->
     <entry name="/application/entryPoint" type="integer">2</entry>
-    
+
     <!-- the value corresponding to a given hierarchy
     i.e. Project/Dataset = 0, HCS = 1, Tags = 2, Attachments = 3
     The default value is 0.-->
     <entry name="/application/entryPointHierarchy" type="integer">0</entry>
-    
+
     <!-- default fs directory -->
     <entry name="/services/FS/defaultDirectory"></entry>
     
     <!-- The maximum number of times that the Login Service should attempt
-         to restore a valid link to OMERO server in the background. 
+         to restore a valid link to OMERO server in the background.
          Non-positive values will be ignored and the internal default will
          be used instead. -->
-         
-    
+
     <entry name="/services/LOGIN/omeds/max-retry" type="integer">10</entry>
     <!-- The interval, in milliseconds, between each attempt.
          Non-positive values will be ignored and the internal default will
@@ -76,15 +75,20 @@
     <!-- The interval, in milliseconds, between each attempt.
          Non-positive values will be ignored and the internal default will
          be used instead. -->
-    <entry name="/services/LOGIN/omeds/timeout"
-           type="integer">120000</entry>    
-            
+    <entry name="/services/LOGIN/omeds/timeout" type="integer">120000</entry>
+
+    <!-- The interval, in milliseconds, between each time we check if the
+         network is up.
+         Non-positive values will be ignored and the internal default will
+         be used instead. -->
+    <entry name="/services/NETWORK/timeout" type="integer">300000</entry>
+
     <!-- Name of the omero folder. -->
     <entry name="/services/OMERO/home">omero</entry>
-    
+
     <!-- Name of the omero folder. -->
     <entry name="/services/OMERO/files/home">filesOmero</entry>
-    
+
     <!-- Log Service configuration.
     -->
     <!-- Enables/disables the Log Service. -->
@@ -93,28 +97,27 @@
          installation directory. -->
     <entry name="/services/LOG/dir">log</entry>
     <!-- The name of the log file -->
-    <entry name="/services/LOG/file">omeroinsight.log</entry>       
-    
+    <entry name="/services/LOG/file">omeroinsight.log</entry>
+
     <!-- Enables/disables the Caching Service. -->
     <entry name="/services/CACHE/on" type="boolean">true</entry>
-    
+
     <!-- Maximum number of thumbnails retrieved asynchronously. -->
     <entry name="/services/Thumbnailing/fetchSz" type="integer">50</entry>
-    
+
      <!-- Factor by which the maximum number of thumbnails to fetch
-	 is multiplied by when the connection's speed is Low. 
-	 -->
+        is multiplied by when the connection's speed is Low.
+     -->
     <entry name="/services/Thumbnailing/fetchLowSpeed" type="double">0.25</entry>
-    
+
     <!-- Factor by which the maximum number of thumbnails to fetch
-	 is multiplied by when the connection's speed is Medium. 
-	 -->
+     is multiplied by when the connection's speed is Medium.
+    -->
     <entry name="/services/Thumbnailing/fetchMediumSpeed" type="double">0.5</entry>
-    
-    
+
     <!-- Rendering Engine configuration.
          NOTE: All the following entries for the Rendering Engine will
-     		be removed as soon as we move the engine to the server. 
+         be removed as soon as we move the engine to the server.
     -->
     <!-- Maximum size, in Mb, of the image cache in the Rendering Engine.
           This is a per-image cache which stores planes that have already
@@ -130,7 +133,7 @@
          asynchronously in addition to the plane that has been currently
          requested.  If set to a positive value n, then separate threads 
          will be spawned to render (at most) n planes that are likely to
-         be requested after the current plane.  If 0 or negative, then no
+         be requested after the current plane. If 0 or negative, then no
          asynchronous rendering will take place.
          Having asynchronous rendering on usually increses performance and
          responsiveness.  However, take into account that too a high value
@@ -139,31 +142,30 @@
     <entry name="/services/RE/maxPreFetch" type="integer">0</entry>
     <!-- How many Mb should be allocated to the Rendering Engine to cache
          pixels stacks.  If the size of an image stack exceeds this value
-         then the stack won't be cached.  This will increase the time it
+         then the stack won't be cached. This will increase the time it
          takes to render planes within that image stack and will result
          in an error if 3D rendering is attempted; 3D rendering requires
          the stack to be in memory. -->
     <entry name="/services/RE/stackBufSz" type="integer">100</entry>
     <!-- How many Kb should be fetched at a time when retrieving a stack.
-     	   Experimental, affects performance and responsiveness.
+         Experimental, affects performance and responsiveness.
          Don't modify this unless you know what you're doing. -->
     <entry name="/services/RE/stackBlockSz" type="integer">4096</entry> 
-          
+
     <entry name="/services/RE/compressionMedium" type="float">0.85</entry>
     <entry name="/services/RE/compressionLow" type="float">0.50</entry>
     <!-- Debugger configuration.
-         This entry specifies the name of the server and 
+         This entry specifies the name of the server and
          and e-mail address to submit comment.
     -->
-<entry name="/services/DEBUGGER/hostnameToken">http://qa.openmicroscopy.org.uk/qa/initial/</entry>
-<entry name="/services/DEBUGGER/hostnameProcessing">http://qa.openmicroscopy.org.uk/qa/upload_processing/</entry>
-<entry name="/services/DEBUGGER/applicationNameBug">2</entry>
-<entry name="/services/DEBUGGER/applicationNameComment">1</entry>
-<entry name="/services/DEBUGGER/postTimeout" type="integer">2000</entry>
-<entry name="/services/DEBUGGER/emailAddress">qa@openmicroscopy.org.uk</entry>
+    <entry name="/services/DEBUGGER/hostnameToken">http://qa.openmicroscopy.org.uk/qa/initial/</entry>
+    <entry name="/services/DEBUGGER/hostnameProcessing">http://qa.openmicroscopy.org.uk/qa/upload_processing/</entry>
+    <entry name="/services/DEBUGGER/applicationNameBug">2</entry>
+    <entry name="/services/DEBUGGER/applicationNameComment">1</entry>
+    <entry name="/services/DEBUGGER/postTimeout" type="integer">2000</entry>
+    <entry name="/services/DEBUGGER/emailAddress">qa@openmicroscopy.org.uk</entry>
   </services>
-  
-  
+
   <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
    * 
    * AGENTS
@@ -193,8 +195,8 @@
         <active>true</active>
         <class>org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent</class>
         <config>imviewer.xml</config>
-      </agent>
-       <agent>
+    </agent>
+    <agent>
         <name>Tree Manager</name>
         <number>0</number>
         <active>false</active>
@@ -213,8 +215,8 @@
         <class>org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent</class>
         <config>metadataViewer.xml</config>
     </agent>
-    	<agent>
-        <name>Data Browser</name> 
+    <agent>
+        <name>Data Browser</name>
         <active>false</active>
         <class>org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent</class>
         <config>dataBrowser.xml</config>
@@ -235,8 +237,7 @@
     </agent>
     </structuredEntry>
   </agents>
-  
-  
+
   <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
    * 
    * RESOURCES
@@ -265,7 +266,7 @@
     <fonts>
       <!-- NOTE FOR DEVELOPERS
            This type of entry can be used in agents' configuration files too.
-           It is turned into an instance of java.awt.Font. 
+           It is turned into an instance of java.awt.Font.
       --> 
       <structuredEntry name="/resources/fonts/Titles" type="font">
         <family>SansSerif</family>
@@ -274,8 +275,7 @@
       </structuredEntry>
     </fonts>
   </resources>
-  
-  
+
   <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
    * 
    * LOOK & FEEL
@@ -289,25 +289,25 @@
        the Windows L&F on Microsoft Windows platforms, etc.  Alternatively, you
        can specify the following:
           javax.swing.plaf.metal.MetalLookAndFeel: the Java look and feel.
-        
+
        If you want to use a custom L&F then you can just drop the L&F jar file
        into the lib directory and then specify here the fully-qualified name
        (FQN) of the L&F class to use - this name can usually be found in the
        documents accompanying the L&F.
   -->
   <entry name="LookAndFeel">system</entry>
-  
+
   <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
    * Information related to the version of the software, name of the software,
    * etc.
    * <entry name="SplashScreenLogo">client_splashscreen.png</entry>
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
-    <entry name="Version">@OMERO_DISPLAY_VERSION@</entry>
-    <entry name="SoftwareName">OMERO.clients</entry>
-    <entry name="AboutFile">about.xml</entry>
-    <entry name="HelpOnLine">http://help.openmicroscopy.org/</entry>
-    <entry name="Forum">http://www.openmicroscopy.org.uk/community/</entry>
-    
+  <entry name="Version">@OMERO_DISPLAY_VERSION@</entry>
+  <entry name="SoftwareName">OMERO.clients</entry>
+  <entry name="AboutFile">about.xml</entry>
+  <entry name="HelpOnLine">http://help.openmicroscopy.org/</entry>
+  <entry name="Forum">http://www.openmicroscopy.org.uk/community/</entry>
+
   <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
    * Information indicating if the binary data are available. This should only
    * be set to false when testing DB upgrade for example.

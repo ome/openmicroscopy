@@ -1,7 +1,7 @@
 /*
  *   $Id$
  *
- *   Copyright 2006 University of Dundee. All rights reserved.
+ *   Copyright 2006-2013 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -115,7 +115,7 @@ public class PixelsImpl extends AbstractLevel2Service implements IPixels {
 
 		List<IObject> l = iQuery.findAllByQuery(
 				RENDERING_DEF_QUERY_PREFIX +restriction +
-				"order by rdef.details.updateEvent.time", params);
+				"order by rdef.details.updateEvent.time desc", params);
 		return l;
 	}
 

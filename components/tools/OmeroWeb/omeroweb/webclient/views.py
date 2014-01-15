@@ -1988,19 +1988,6 @@ def update_basket(request, **kwargs):
     else:
         return handlerInternalError(request, "Request method error in Basket.")
 
-@login_required()
-@render_response()
-def help(request, conn=None, **kwargs):
-    """ Displays help page. Includes the choosers for changing current group and current user. """
-
-    template = "webclient/help.html"
-    
-    controller = BaseHelp(conn)
-    
-    context = {'controller':controller}
-    context['template'] = template
-    return context
-
 @login_required(setGroupContext=True)
 @render_response()
 def load_calendar(request, year=None, month=None, conn=None, **kwargs):

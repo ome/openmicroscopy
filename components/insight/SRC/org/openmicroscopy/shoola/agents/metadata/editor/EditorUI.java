@@ -329,6 +329,10 @@ class EditorUI
 			userUI.clearData(oldObject);
 			toolBar.setStatus(false);
 			layoutUI();
+		} else if (uo instanceof GroupData) {
+		    groupUI.clearData(oldObject);
+		    toolBar.setStatus(false);
+		    layoutUI();
 		} else {
 			boolean load = false;
 			if (model.isMultiSelection()) {

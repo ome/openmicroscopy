@@ -4,7 +4,7 @@
 """
    Integration test focused running interactive scripts.
 
-   Copyright 2008 Glencoe Software, Inc. All rights reserved.
+   Copyright 2008-2013 Glencoe Software, Inc. All rights reserved.
    Use is subject to license terms supplied in LICENSE.txt
 
 """
@@ -48,6 +48,7 @@ class TestScripts(lib.ITest):
         self.client.setInput("a", rstring("a"));
         self.client.getInput("a");
 
+    @pytest.mark.xfail(reason="See ticket #11539")
     def testUploadAndPing(self):
         name = str(self.pingfile())
         file = self.client.upload(name, type="text/x-python")
@@ -325,6 +326,7 @@ client.closeSession()
             assert s.path.val + s.name.val !=  validPath, "getScripts() returns invalid script"
 
 
+    @pytest.mark.xfail(reason="See ticket #11539")
     def testAutoFillTicket2326(self):
         SCRIPT = """if True:
         import omero.scripts
@@ -355,6 +357,7 @@ client.closeSession()
         finally:
             impl.cleanup()
 
+    @pytest.mark.xfail(reason="See ticket #11539")
     def testParamLoadingPerformanceTicket2285(self):
         svc = self.root.sf.getScriptService()
         SCRIPT = """if True:

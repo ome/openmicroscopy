@@ -4,12 +4,13 @@
 """
    Tests of the changing permissions on groups
 
-   Copyright 2012 Glencoe Software, Inc. All rights reserved.
+   Copyright 2012-2013 Glencoe Software, Inc. All rights reserved.
    Use is subject to license terms supplied in LICENSE.txt
 
 """
 
 import time
+import pytest
 import test.integration.library as lib
 import omero
 from omero.rtypes import *
@@ -99,6 +100,7 @@ class TestChmodEasy(BaseChmodTest):
         assert self.elapsed < 0.5
         BaseChmodTest.assertChmod(self)
 
+    @pytest.mark.xfail(reason="See ticket #11539")
     def test_chmod_rw_rwr(self):
         self.init("rw----", "rwr---")
         self.addData()

@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 #
-# Copyright (C) 2012 Glencoe Software, Inc. All Rights Reserved.
+# Copyright (C) 2012-2013 Glencoe Software, Inc. All Rights Reserved.
 # Use is subject to license terms supplied in LICENSE.txt
 #
 # This program is free software; you can redistribute it and/or modify
@@ -34,14 +34,14 @@ from omero.rtypes import *
 from omero.util.concurrency import get_event
 
 
-class TestCB(omero.callbacks.CmdCallbackI):
+class CmdCallback(omero.callbacks.CmdCallbackI):
 
     def __init__(self, client, handle):
-        super(TestCB, self).__init__(client, handle)
+        super(CmdCallback, self).__init__(client, handle)
         self.t_lock = threading.RLock()
         self.t_steps = 0
         self.t_finished = 0
-        self.t_event = get_event("TestCB")
+        self.t_event = get_event("CmdCallback")
 
     def step(self, complete, total, current=None):
         self.t_lock.acquire()
@@ -94,15 +94,15 @@ class TestCB(omero.callbacks.CmdCallbackI):
             self.t_lock.release()
 
 
-class CmdCallbackTest(lib.ITest):
+class TestCmdCallback(lib.ITest):
 
     def mktestcb(self, req):
         """
-        returns a testCB instance for testing
+        returns a CmdCallback instance for testing
         """
         client = self.new_client(perms="rw----")
         handle = client.getSession().submit(req)
-        return TestCB(client, handle)
+        return CmdCallback(client, handle)
 
     # Timing
     # =========================================================================

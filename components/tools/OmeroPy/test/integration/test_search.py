@@ -4,7 +4,7 @@
 """
    Integration test for search testing
 
-   Copyright 2010 Glencoe Software, Inc. All rights reserved.
+   Copyright 2010-2013 Glencoe Software, Inc. All rights reserved.
    Use is subject to license terms supplied in LICENSE.txt
 
 """
@@ -14,6 +14,7 @@ import pytest
 import omero
 import datetime, time
 
+@pytest.mark.xfail(reason="See ticket #11539")
 class TestSearch(lib.ITest):
 
     def test2541(self):
@@ -156,7 +157,6 @@ class TestSearch(lib.ITest):
         if msg:
             assert False, "%s\n" % msg
 
-    @pytest.mark.xfail(reason="ticket 11494")
     def test8692(self):
         # Test that group admin and system admins can
         # find items in non-private groups.

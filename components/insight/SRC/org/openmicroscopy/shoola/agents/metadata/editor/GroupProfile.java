@@ -138,7 +138,9 @@ class GroupProfile
     	}
     	
     	if (!canEdit) canEdit = model.isAdministrator();
+    	if (canEdit) canEdit = !ref.isSystemGroup();
     	namePane.setEditable(canEdit);
+    	namePane.setEnabled(canEdit);
     	descriptionPane.setEditable(canEdit);
     	permissionsPane.setEnabled(canEdit);
     	if (canEdit) {
@@ -273,6 +275,7 @@ class GroupProfile
 			}
 			data.setName(v);
 		}
+		saveButton.setEnabled(false);
 		//check description
 		v = descriptionPane.getText();
 		v = v.trim();
