@@ -445,7 +445,7 @@ class render_response(object):
             # allows us to return the dict as json  (NB: BlitzGateway objects don't serialize)
             if template is None or template == 'json':
                 json_data = json.dumps(context)
-                return HttpResponse(json_data, mimetype='application/javascript')
+                return HttpResponse(json_data, content_type='application/javascript')
             else:
                 # allow additional processing of context dict
                 ctx.prepare_context(request, context, *args, **kwargs)
