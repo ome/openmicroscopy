@@ -55,6 +55,7 @@ public class UploadFileTransfer implements FileTransfer {
             ChecksumProvider cp,
             byte[] buf) throws IOException, ServerError {
 
+        log.info("Transferring {}...", file);
         estimator.start();
         long length = file.length();
         FileInputStream stream = null;
