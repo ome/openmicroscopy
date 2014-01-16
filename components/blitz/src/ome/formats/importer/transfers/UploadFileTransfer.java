@@ -23,14 +23,11 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 
-import ome.formats.importer.FileTransfer;
 import ome.util.checksum.ChecksumProvider;
 import omero.ServerError;
 import omero.api.RawFileStorePrx;
 
 import org.apache.commons.lang.ArrayUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Traditional file transfer mechanism which uploads
@@ -38,24 +35,20 @@ import org.slf4j.LoggerFactory;
  *
  * @since 5.0
  */
-public class UploadFileTransfer implements FileTransfer {
+public class UploadFileTransfer extends AbstractFileTransfer {
 
-    private static final Logger log = LoggerFactory.getLogger(UploadFileTransfer.class);
 
     public String transfer(TransferState state) throws IOException, ServerError {
 
+        final RawFileStorePrx rawFileStore = start(state);
         final File file = state.getFile();
         final byte[] buf = state.getBuffer();
         final ChecksumProvider cp = state.getChecksumProvider();
-
-        log.info("Transferring {}...", state.getFile());
-        state.start();
+        
         FileInputStream stream = null;
-        RawFileStorePrx rawFileStore = null;
 
         try {
             stream = new FileInputStream(file);
-            rawFileStore = state.getUploader(); 
             int rlen = 0;
             long offset = 0;
 
@@ -86,36 +79,9 @@ public class UploadFileTransfer implements FileTransfer {
                 state.uploadBytes(offset);
             }
 
-            state.start();
-            state.save();
-            state.stop();
-            state.uploadComplete(offset);
-            return state.getChecksum();
+            return finish(state, offset);
         } finally {
             cleanupUpload(rawFileStore, stream);
         }
-
-    }
-
-    protected void cleanupUpload(RawFileStorePrx rawFileStore,
-            FileInputStream stream) throws ServerError {
-        try {
-            if (rawFileStore != null) {
-                try {
-                    rawFileStore.close();
-                } catch (Exception e) {
-                    log.error("error in closing raw file store", e);
-                }
-            }
-        } finally {
-            if (stream != null) {
-                try {
-                    stream.close();
-                } catch (IOException e) {
-                    log.error("I/O in error closing stream", e);
-                }
-            }
-        }
-
     }
 }

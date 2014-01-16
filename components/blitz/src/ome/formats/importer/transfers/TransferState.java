@@ -21,6 +21,8 @@ package ome.formats.importer.transfers;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 import ome.formats.importer.ImportEvent;
 import ome.formats.importer.ImportLibrary;
@@ -128,6 +130,26 @@ public class TransferState implements TimeEstimator {
 
     public File getFile() {
         return this.file;
+    }
+
+    public long getLength() {
+        return this.length;
+    }
+
+    /**
+     * Find original file as defined by the ID in the {@link RawFileStorePrx}
+     * regardless of group.
+     */
+    public OriginalFile getOriginalFile() throws ServerError {
+        return library.loadOriginalFile(getUploader());
+    }
+
+    /**
+     * Find original file represented by the managed repository that
+     * import is taking place to.
+     */
+    public OriginalFile getRootFile() throws ServerError {
+        return library.lookupManagedRepository().root();
     }
 
     public RawFileStorePrx getUploader() throws ServerError {

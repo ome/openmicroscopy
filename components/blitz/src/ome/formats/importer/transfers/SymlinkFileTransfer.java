@@ -1,0 +1,110 @@
+/*
+ * Copyright (C) 2014 University of Dundee & Open Microscopy Environment.
+ * All rights reserved.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
+
+package ome.formats.importer.transfers;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.UUID;
+
+import org.apache.commons.io.FileUtils;
+
+import ome.util.checksum.ChecksumProvider;
+import omero.ServerError;
+import omero.api.RawFileStorePrx;
+import omero.model.OriginalFile;
+
+/**
+ * Local-only file transfer mechanism which makes use of symlinking.
+ *
+ * @since 5.0
+ */
+public class SymlinkFileTransfer extends AbstractFileTransfer {
+
+    public String transfer(TransferState state) throws IOException, ServerError {
+        final RawFileStorePrx rawFileStore = start(state);
+        final OriginalFile root = state.getRootFile();
+        final OriginalFile ofile = state.getOriginalFile();
+        final File location = getLocalLocation(root, ofile);
+        final File file = state.getFile();
+        final long length = state.getLength();
+        final ChecksumProvider cp = state.getChecksumProvider();
+        try {
+            state.uploadStarted();
+            checkLocation(location, rawFileStore);
+            symlink(file, location);
+            cp.putFile(file.getAbsolutePath());
+            state.stop(length);
+            state.uploadBytes(length);
+            return finish(state, length);
+        } finally {
+            cleanupUpload(rawFileStore, null);
+        }
+    }
+
+    protected File getLocalLocation(OriginalFile root, OriginalFile ofile) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(root.getPath().getValue());
+        sb.append("/");
+        sb.append(root.getName().getValue());
+        sb.append("/");
+        sb.append(ofile.getPath().getValue());
+        sb.append("/");
+        sb.append(ofile.getName().getValue());
+        return new File(sb.toString());
+    }
+
+    protected void checkLocation(File location, RawFileStorePrx rawFileStore)
+            throws ServerError, IOException {
+
+        final String uuid = UUID.randomUUID().toString();
+
+        // Safety measures
+        if (location.exists()) {
+            throw new RuntimeException(location + " exists!");
+        }
+
+        // First we guarantee that we have the right file
+        // If so, we remove it
+        rawFileStore.write(uuid.getBytes(), 0, uuid.getBytes().length);
+        if (!uuid.equals(FileUtils.readFileToString(location))) {
+            throw new RuntimeException("Check text not found in " + location);
+        }
+        FileUtils.deleteQuietly(location);
+    }
+
+    protected void symlink(File file, File location) throws IOException {
+        ProcessBuilder pb = new ProcessBuilder();
+        pb.command("ln", "-s", file.getAbsolutePath(), location.getAbsolutePath());
+        Process process = pb.start();
+        Integer rcode = null;
+        while (rcode == null) {
+            try {
+                rcode = process.waitFor();
+                break;
+            } catch (InterruptedException e) {
+                continue;
+            }
+        }
+        if (rcode == null || rcode.intValue() != 0) {
+            throw new RuntimeException("symlink process returned " + rcode);
+        }
+    }
+
+}
