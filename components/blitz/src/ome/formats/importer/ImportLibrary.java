@@ -20,7 +20,6 @@
 package ome.formats.importer;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -32,6 +31,7 @@ import loci.common.Location;
 import loci.formats.FormatException;
 import loci.formats.FormatReader;
 import ome.formats.OMEROMetadataStoreClient;
+import ome.formats.importer.transfers.TransferState;
 import ome.formats.importer.transfers.UploadFileTransfer;
 import ome.formats.importer.util.ErrorHandler;
 import ome.formats.importer.util.ProportionalTimeEstimatorImpl;
@@ -74,7 +74,6 @@ import omero.model.Screen;
 import omero.sys.Parameters;
 import omero.sys.ParametersI;
 
-import org.apache.commons.lang.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -346,8 +345,9 @@ public class ImportLibrary implements IObservable
         final File file = new File(Location.getMappedId(srcFiles[index]));
 
         try {
-            return transfer.transfer(file, index, srcFiles.length,
-                    proc, this, estimator, cp, buf);
+            return transfer.transfer(new TransferState(
+                    file, index, srcFiles.length,
+                    proc, this, estimator, cp, buf));
         }
         catch (IOException e) {
             notifyObservers(new ImportEvent.FILE_UPLOAD_ERROR(
@@ -581,7 +581,7 @@ public class ImportLibrary implements IObservable
      * repositories.
      * @return Active proxy for the legacy repository.
      */
-    private ManagedRepositoryPrx lookupManagedRepository()
+    public ManagedRepositoryPrx lookupManagedRepository()
     {
         try
         {
@@ -621,5 +621,15 @@ public class ImportLibrary implements IObservable
         } catch (Throwable t) {
             log.error("failed to clear metadata store", t);
         }
+    }
+
+    public OriginalFile loadOriginalFile(RawFileStorePrx uploader)
+            throws ServerError {
+        omero.RLong rid = uploader.getFileId();
+        long id = rid.getValue();
+        Map<String, String> ctx = new HashMap<String, String>();
+        ctx.put("omero.group", "-1");
+        return (OriginalFile)
+                sf.getQueryService().get("OriginalFile", id, ctx);
     }
 }
