@@ -68,6 +68,7 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
 //Third-party libraries
+import org.apache.commons.lang.StringUtils;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.StringComparator;
@@ -85,8 +86,8 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * @since OME3.0
  */
 public class ScreenLogin
-extends JFrame
-implements ActionListener, DocumentListener, PropertyChangeListener
+    extends JFrame
+    implements ActionListener, DocumentListener, PropertyChangeListener
 {
 
     /** Bounds property indicating this window is moved to the front. */
@@ -114,10 +115,7 @@ implements ActionListener, DocumentListener, PropertyChangeListener
     static final Color FOOT_NOTE_COLOR = new Color(156, 165, 174);
 
     /** The default size of the window. */
-    static final Dimension			DEFAULT_SIZE = new Dimension(551, 113);
-
-    /** The default color for the foreground. */
-    private final static Color FOREGROUND_COLOR = Color.DARK_GRAY;
+    static final Dimension DEFAULT_SIZE = new Dimension(551, 113);
 
     /** The property name for the user who connects to <i>OMERO</i>. */
     private static final String OMERO_USER = "omeroUser";
@@ -195,9 +193,6 @@ implements ActionListener, DocumentListener, PropertyChangeListener
 
     /** Indicates to show or hide the connection speed option. */
     private boolean connectionSpeed;
-
-    /** The default foreground color. */
-    private Color defaultForeground;
 
     /** The groups the user is a member of. */
     private JComboBox groupsBox;
@@ -503,7 +498,7 @@ implements ActionListener, DocumentListener, PropertyChangeListener
         pass.setToolTipText("Enter your password.");
         pass.setColumns(TEXT_COLUMN);
         Map<String, String> servers = editor.getServers();
-        if (hostName != null && hostName.trim().length() > 0) {
+        if (StringUtils.isNotBlank(hostName)) {
             serverName = hostName;
             //if user did point to another server
             if (servers != null && servers.size() > 0) {
@@ -567,7 +562,6 @@ implements ActionListener, DocumentListener, PropertyChangeListener
         ref = new ArrayList<JComponent>();
         login = new JButton("Login");
         login.setName("login button");
-        defaultForeground = login.getForeground();
         login.setMnemonic('L');
         login.setToolTipText("Login");
         setButtonDefault(login);
@@ -701,7 +695,7 @@ implements ActionListener, DocumentListener, PropertyChangeListener
      * Lays out the widgets and positions the window in the middle of
      * the screen.
      *
-     * @param logo The Frame's background logo. 
+     * @param logo The Frame's background logo.
      * @param version The version of the software.
      * @param serverAvailable Pass <code>true</code> if the client needs to
      *                        connect to a server, <code>false</code> otherwise.
@@ -712,8 +706,15 @@ implements ActionListener, DocumentListener, PropertyChangeListener
         layers = new JLayeredPane(); 
         layers.add(splash, Integer.valueOf(0));
         getContentPane().add(layers);
-        int width = logo.getIconWidth();
-        int height = logo.getIconHeight();
+        int width = 0;
+        int height = 0;
+        if (logo != null) {
+            width = logo.getIconWidth();
+            height = logo.getIconHeight();
+        } else {
+            width = DEFAULT_SIZE.width;
+            height = DEFAULT_SIZE.height;
+        }
         layers.setBounds(0, 0, width, height);
         splash.setBounds(0, 0, width, height);
         int h = progressBar.getFontMetrics(progressBar.getFont()).getHeight();
@@ -781,7 +782,7 @@ implements ActionListener, DocumentListener, PropertyChangeListener
      */
     private void setNewServer(String s)
     {
-        if (s == null || s.length() == 0) {
+        if (StringUtils.isBlank(s)) {
             if (configureServerName != null)
                 s = configureServerName;
             else s = DEFAULT_SERVER;
@@ -836,9 +837,6 @@ implements ActionListener, DocumentListener, PropertyChangeListener
                 }
                 if (!set) login.addActionListener(this);
             }
-            login.setForeground(defaultForeground);
-        } else {
-            login.setForeground(FOREGROUND_COLOR);
         }
         layout(hasGroupOption());
     }
@@ -864,8 +862,7 @@ implements ActionListener, DocumentListener, PropertyChangeListener
     {
         Preferences prefs = Preferences.userNodeForPackage(ScreenLogin.class);
         String s = prefs.get(OMERO_CONNECTION_SPEED, null);
-        if (s == null || s.trim().length() == 0)
-            return LoginCredentials.HIGH;
+        if (StringUtils.isBlank(s)) return LoginCredentials.HIGH;
         return Integer.parseInt(s);
     }
 
@@ -927,7 +924,7 @@ implements ActionListener, DocumentListener, PropertyChangeListener
         Map<Long, String> groups = new LinkedHashMap<Long, String>();
         Preferences prefs = Preferences.userNodeForPackage(ScreenLogin.class);
         String list = prefs.get(OMERO_USER_GROUP, null);
-        if (list == null || list.length() == 0)  return groups;
+        if (StringUtils.isBlank(list))  return groups;
         String[] l = list.split(ServerEditor.SERVER_NAME_SEPARATOR, 0);
 
         if (l == null) return groups;
@@ -995,7 +992,7 @@ implements ActionListener, DocumentListener, PropertyChangeListener
      * @param defaultPort The default port.
      * @param hostName The default host name.
      * @param serverAvailable Pass <code>true</code> if the client needs to
-     * connect to a server, <code>false</code> otherwise.
+     *                        connect to a server, <code>false</code> otherwise.
      */
     public ScreenLogin(String title, Icon logo, Image frameIcon, String version,
             String defaultPort, String hostName, boolean serverAvailable)
@@ -1176,7 +1173,7 @@ implements ActionListener, DocumentListener, PropertyChangeListener
         if (loginAttempt) return;
         setControlsEnabled(true);
         String txt = user.getText();
-        if (txt == null || txt.trim().length() == 0) user.requestFocus();
+        if (StringUtils.isBlank(txt)) user.requestFocus();
         else pass.requestFocus();
     }
 
@@ -1189,9 +1186,7 @@ implements ActionListener, DocumentListener, PropertyChangeListener
      */
     public void setQuitButtonText(String text) 
     {
-        if (text == null) return;
-        text = text.trim();
-        if (text.length() == 0) return;
+        if (StringUtils.isBlank(text)) return;
         if (text.equals(cancel.getText())) return;
         cancel.setText(text);
         char c = text.toUpperCase().charAt(0);
@@ -1278,12 +1273,13 @@ implements ActionListener, DocumentListener, PropertyChangeListener
      * @param encrypted Pass <code>true</code> to encrypt the data transfer,
      *                  <code>false</code> otherwise.
      * @param configurable Pass <code>true</code> to allow the user to interact
-     * with the encryption controls, <code>false</code> otherwise.
+     *                     with the encryption controls,
+     *                     <code>false</code> otherwise.
      */
     public void setEncryptionConfiguration(boolean encrypted,
             boolean configurable)
     {
-        if ((encrypted && !this.encrypted) || (!encrypted && this.encrypted))
+        if (encrypted && !this.encrypted || !encrypted && this.encrypted)
             encrypt();
         if (!configurable)
             encryptedButton.removeActionListener(encryptionListener);
@@ -1293,14 +1289,14 @@ implements ActionListener, DocumentListener, PropertyChangeListener
      * Indicates if the user can modify or not the host name from the UI.
      *
      * @param hostName The hostname.
-     * @param configurable Pass <code>true</code> to allow to change the 
-     * host name, <code>false</code> otherwise.
+     * @param configurable Pass <code>true</code> to allow to change the
+     *                     host name, <code>false</code> otherwise.
      */
     public void setHostNameConfiguration(String hostName, boolean configurable)
     {
         hostConfigurable = configurable;
         configureServerName = hostName;
-        if (hostName != null && hostName.trim().length() > 0) {
+        if (StringUtils.isNotBlank(hostName)) {
             if (configurable) {
                 Map<String, String> servers = editor.getServers();
                 if (servers == null || servers.size() == 0) 
