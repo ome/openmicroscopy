@@ -19,13 +19,10 @@
 
 package ome.formats.importer;
 
-import java.io.File;
 import java.io.IOException;
 
-import ome.formats.importer.util.TimeEstimator;
-import ome.util.checksum.ChecksumProvider;
+import ome.formats.importer.transfers.TransferState;
 import omero.ServerError;
-import omero.grid.ImportProcessPrx;
 
 /**
  * Abstracted concept of "getting the file to the server".
@@ -43,26 +40,11 @@ import omero.grid.ImportProcessPrx;
  */
 public interface FileTransfer {
 
-    /**
-     * Transfers a file and returns the appropriate checksum string for
-     * the source file.
-     *
-     * @param file Source file which is to be transferred.
-     * @param index Which of the total files to upload this is.
-     * @param total Total number of files to upload.
-     * @param proc {@link ImportProcessPrx} which is being imported to.
-     * @param library {@link ImportLibrary} to use for notifications.
-     * @param estimator
-     * @param cp
-     * @param buf optional buffer. Need not be used or updated.
-     * @return checksum string
-     * @throws Exception
-     */
-    String transfer(File file,
-            int index, int total, // as index of
-            ImportProcessPrx proc, // to
-            ImportLibrary library,
-            TimeEstimator estimator,
-            ChecksumProvider cp,
-            byte[] buf) throws IOException, ServerError;
+   /*
+    * Transfers a file and returns the appropriate checksum string for
+    * the source file.
+    */
+    String transfer(TransferState state)
+        throws IOException, ServerError;
+
 }
