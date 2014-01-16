@@ -2,10 +2,10 @@
  * org.openmicroscopy.shoola.agents.iviewer.ImViewerAgent
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -25,12 +25,14 @@ package org.openmicroscopy.shoola.agents.imviewer;
 
 //Java imports
 import java.awt.Rectangle;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
 import javax.swing.JComponent;
 
 //Third-party libraries
+import org.apache.commons.collections.CollectionUtils;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.FocusGainedEvent;
@@ -39,6 +41,7 @@ import org.openmicroscopy.shoola.agents.events.iviewer.FLIMResultsEvent;
 import org.openmicroscopy.shoola.agents.events.iviewer.ImageViewport;
 import org.openmicroscopy.shoola.agents.events.iviewer.MeasurementTool;
 import org.openmicroscopy.shoola.agents.events.iviewer.RendererUnloadedEvent;
+import org.openmicroscopy.shoola.agents.events.iviewer.RndSettingsCopied;
 import org.openmicroscopy.shoola.agents.events.iviewer.RndSettingsSaved;
 import org.openmicroscopy.shoola.agents.events.iviewer.SaveRelatedData;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
@@ -87,9 +90,6 @@ import pojos.WellSampleData;
  * 				<a href="mailto:donald@lifesci.dundee.ac.uk">
  *              donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $ $Date: $)
- * </small>
  * @since OME2.2
  */
 public class ImViewerAgent
@@ -282,6 +282,7 @@ public class ImViewerAgent
 			}
     	}
     }
+
     /**
      * Handles the {@link CopyRndSettings} event.
      * 
@@ -292,7 +293,25 @@ public class ImViewerAgent
     	if (evt == null) return;
     	ImViewerFactory.copyRndSettings(evt.getImage());
     }
-    
+
+    /**
+     * Handles the {@link RndSettingsCopied} event.
+     *
+     * @param evt The event to handle.
+     */
+    private void handleRndSettingsCopied(RndSettingsCopied evt)
+    {
+        Collection<Long> ids = evt.getImagesIDs();
+        if (CollectionUtils.isEmpty(ids)) return;
+        Iterator<Long> i = ids.iterator();
+        ImViewer view;
+        while (i.hasNext()) {
+            view = ImViewerFactory.getImageViewerFromImage(null, i.next());
+            if (view != null) {
+                view.pasteRenderingSettings();
+            }
+        }
+    }
     /**
      * Handles the {@link RndSettingsSaved} event.
      * 
@@ -581,6 +600,7 @@ public class ImViewerAgent
         bus.register(this, SelectChannel.class);
         bus.register(this, ChannelSavedEvent.class);
         bus.register(this, DisplayModeEvent.class);
+        bus.register(this, RndSettingsCopied.class);
     }
 
     /**
@@ -590,13 +610,13 @@ public class ImViewerAgent
     public boolean canTerminate() { return true; }
 
     /**
-     * Implemented as specified by {@link Agent}. 
+     * Implemented as specified by {@link Agent}.
      * @see Agent#getDataToSave()
      */
     public AgentSaveInfo getDataToSave()
     {
     	List<Object> list = ImViewerFactory.getInstancesToSave();
-    	if (list == null || list.size() == 0) return null; 
+    	if (CollectionUtils.isEmpty(list)) return null; 
     	return new AgentSaveInfo("Image Viewer", list);
 	}
     
@@ -651,6 +671,8 @@ public class ImViewerAgent
 			handleChannelSavedEvent((ChannelSavedEvent) e);
         else if (e instanceof DisplayModeEvent)
 			handleDisplayModeEvent((DisplayModeEvent) e);
+        else if (e instanceof RndSettingsCopied)
+            handleRndSettingsCopied((RndSettingsCopied) e);
     }
 
 }

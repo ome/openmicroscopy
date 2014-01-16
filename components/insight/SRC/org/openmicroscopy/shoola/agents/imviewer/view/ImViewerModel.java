@@ -1712,6 +1712,7 @@ class ImViewerModel
 	{
 		Renderer rnd = metadataViewer.getRenderer();
 		if (rnd == null) return;
+		originalDef = settings;
 		rnd.resetSettings(settings, false);
 	}
 
