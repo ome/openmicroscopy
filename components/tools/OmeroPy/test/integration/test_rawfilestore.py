@@ -107,10 +107,10 @@ class TestRFS(lib.ITest):
         rfs.close()
         assert "0123" == buf
 
-    def testNullSize11743(self):
-
-        # Create an object of size 4
-        client = self.new_client()
+    def dummy_file(self, client):
+        """
+        Create an object of size 4
+        """
         ofile = self.file(client=client)
         rfs = client.sf.createRawFileStore()
         try:
@@ -118,8 +118,14 @@ class TestRFS(lib.ITest):
             rfs.write("0123", 0, 4)
             ofile = rfs.save()
             assert 4 == ofile.size.val
+            return ofile
         finally:
             rfs.close()
+
+    def testNullSize11743(self):
+
+        client = self.new_client()
+        ofile = self.dummy_file(client)
 
         # Synthetically null the size
         old_size = ofile.size
@@ -132,8 +138,23 @@ class TestRFS(lib.ITest):
 
         # Show that the size can be loaded from the service
         rfs = client.sf.createRawFileStore()
-        rfs.setFileId(ofile.id.val)
-        assert 4 == rfs.size()
-        rfs.write([], 0, 0)  # touch
-        ofile = rfs.save()
-        assert ofile.size is not None
+        try:
+            rfs.setFileId(ofile.id.val)
+            assert 4 == rfs.size()
+            rfs.write([], 0, 0)  # touch
+            ofile = rfs.save()
+            assert ofile.size is not None
+        finally:
+            rfs.close()
+
+    def testGetFileId(self):
+        client = self.new_client()
+        ofile = self.dummy_file(client)
+        rfs = client.sf.createRawFileStore()
+        try:
+            rfs.getFileId()
+            rfs.setFileId(ofile.id.val)
+            assert rfs.getFileId() == ofile.id.val
+        except:
+            rfs.close()
+
