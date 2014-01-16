@@ -24,14 +24,9 @@ import java.io.FileInputStream;
 import java.io.IOException;
 
 import ome.formats.importer.FileTransfer;
-import ome.formats.importer.ImportEvent;
-import ome.formats.importer.ImportLibrary;
-import ome.formats.importer.util.TimeEstimator;
 import ome.util.checksum.ChecksumProvider;
 import omero.ServerError;
 import omero.api.RawFileStorePrx;
-import omero.grid.ImportProcessPrx;
-import omero.model.OriginalFile;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.slf4j.Logger;
@@ -47,41 +42,32 @@ public class UploadFileTransfer implements FileTransfer {
 
     private static final Logger log = LoggerFactory.getLogger(UploadFileTransfer.class);
 
-    public String transfer(File file,
-            int index, int total, // as index of
-            ImportProcessPrx proc, // to
-            ImportLibrary library,
-            TimeEstimator estimator,
-            ChecksumProvider cp,
-            byte[] buf) throws IOException, ServerError {
+    public String transfer(TransferState state) throws IOException, ServerError {
 
-        log.info("Transferring {}...", file);
-        estimator.start();
-        long length = file.length();
+        final File file = state.getFile();
+        final byte[] buf = state.getBuffer();
+        final ChecksumProvider cp = state.getChecksumProvider();
+
+        log.info("Transferring {}...", state.getFile());
+        state.start();
         FileInputStream stream = null;
         RawFileStorePrx rawFileStore = null;
 
         try {
             stream = new FileInputStream(file);
-            rawFileStore = proc.getUploader(index);
+            rawFileStore = state.getUploader(); 
             int rlen = 0;
             long offset = 0;
-    
-            library.notifyObservers(
-                    new ImportEvent.FILE_UPLOAD_STARTED(
-                    file.getAbsolutePath(), index, total,
-                    null, length, null));
+
+            state.uploadStarted();
       
                 // "touch" the file otherwise zero-length files
             rawFileStore.write(ArrayUtils.EMPTY_BYTE_ARRAY, offset, 0);
-            estimator.stop();
-            library.notifyObservers(
-                    new ImportEvent.FILE_UPLOAD_BYTES(
-                    file.getAbsolutePath(), index, total,
-                    offset, length, estimator.getUploadTimeLeft(), null));
+            state.stop();
+            state.uploadBytes(offset);
     
             while (true) {
-                estimator.start();
+                state.start();
                 rlen = stream.read(buf);
                 if (rlen == -1) {
                     break;
@@ -96,37 +82,22 @@ public class UploadFileTransfer implements FileTransfer {
                 }
                 rawFileStore.write(bufferToWrite, offset, rlen);
                 offset += rlen;
-                estimator.stop(rlen);
-                library.notifyObservers(
-                        new ImportEvent.FILE_UPLOAD_BYTES(
-                        file.getAbsolutePath(), index, total, offset,
-                        length, estimator.getUploadTimeLeft(), null));
+                state.stop(rlen);
+                state.uploadBytes(offset);
             }
 
-            estimator.start();
-            String digestString = cp.checksumAsString();
-
-            OriginalFile ofile = rawFileStore.save();
-            if (log.isDebugEnabled()) {
-                log.debug(String.format("%s/%s id=%s",
-                        ofile.getPath().getValue(),
-                        ofile.getName().getValue(),
-                        ofile.getId().getValue()));
-                log.debug(String.format("checksums: client=%s,server=%s",
-                        digestString, ofile.getHash().getValue()));
-            }
-            estimator.stop();
-            library.notifyObservers(new ImportEvent.FILE_UPLOAD_COMPLETE(
-                    file.getAbsolutePath(), index, total,
-                    offset, length, null));
-            return digestString;
+            state.start();
+            state.save();
+            state.stop();
+            state.uploadComplete(offset);
+            return state.getChecksum();
         } finally {
             cleanupUpload(rawFileStore, stream);
         }
 
     }
 
-    private void cleanupUpload(RawFileStorePrx rawFileStore,
+    protected void cleanupUpload(RawFileStorePrx rawFileStore,
             FileInputStream stream) throws ServerError {
         try {
             if (rawFileStore != null) {
