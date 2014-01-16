@@ -94,12 +94,9 @@ import pojos.WorkflowData;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since OME3.0
  */
-class MeasurementViewerComponent 
+class MeasurementViewerComponent
 	extends AbstractComponent
 	implements MeasurementViewer
 {
