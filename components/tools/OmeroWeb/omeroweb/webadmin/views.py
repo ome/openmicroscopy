@@ -549,6 +549,29 @@ def manage_group(request, action, gid=None, conn=None, **kwargs):
     
     experimenters = list(conn.getObjects("Experimenter"))
     
+    def getEditFormContext():
+        group = conn.getObject("ExperimenterGroup", gid)
+        ownerIds = [e.id for e in group.getOwners()]
+        memberIds = [m.id for m in group.getMembers()]
+        permissions = getActualPermissions(group)
+        system_groups = [conn.getAdminService().getSecurityRoles().systemGroupId,
+                         conn.getAdminService().getSecurityRoles().userGroupId,
+                         conn.getAdminService().getSecurityRoles().guestGroupId]
+        group_is_current_or_system = (conn.getEventContext().groupId == long(gid)) or (long(gid) in system_groups)
+        form = GroupForm(initial={
+            'name': group.name,
+            'description':group.description,
+            'permissions': permissions, 
+            'owners': ownerIds,
+            'members':memberIds,
+            'experimenters':experimenters},
+            group_is_current_or_system=group_is_current_or_system)
+        admins = [conn.getAdminService().getSecurityRoles().rootId]
+        if long(gid) in system_groups:
+            # prevent removing 'root' or yourself from group if it's a system group
+            admins.append(conn.getUserId())
+        return {'form':form, 'gid': gid, 'permissions': permissions, "admins": admins}
+
     if action == 'new':
         form = GroupForm(initial={'experimenters':experimenters, 'permissions': 0})
         context = {'form':form}
@@ -572,28 +595,11 @@ def manage_group(request, action, gid=None, conn=None, **kwargs):
                 new_members = getSelectedExperimenters(conn, mergeLists(members,owners))
                 group = conn.getObject("ExperimenterGroup", gid)
                 conn.setMembersOfGroup(group, new_members)
-                
+
                 return HttpResponseRedirect(reverse("wagroups"))
             context = {'form':form}
     elif action == 'edit':
-        group = conn.getObject("ExperimenterGroup", gid)
-        ownerIds = [e.id for e in group.getOwners()]
-        
-        memberIds = [m.id for m in group.getMembers()]
-        
-        permissions = getActualPermissions(group)
-        system_groups = [conn.getAdminService().getSecurityRoles().systemGroupId,
-                         conn.getAdminService().getSecurityRoles().userGroupId,
-                         conn.getAdminService().getSecurityRoles().guestGroupId]
-        group_is_current_or_system = (conn.getEventContext().groupId == long(gid)) or (long(gid) in system_groups)
-        form = GroupForm(initial={'name': group.name, 'description':group.description,
-                                     'permissions': permissions, 
-                                     'owners': ownerIds, 'members':memberIds, 'experimenters':experimenters},
-                                     group_is_current_or_system=group_is_current_or_system)
-        admins = [conn.getAdminService().getSecurityRoles().systemGroupId]
-        if long(gid) in system_groups and conn.isAdmin:
-            admins.append(conn.getUserId())
-        context = {'form':form, 'gid': gid, 'permissions': permissions, "admins": admins}
+        context = getEditFormContext()
     elif action == 'save':
         group = conn.getObject("ExperimenterGroup", gid)
         
@@ -604,6 +610,7 @@ def manage_group(request, action, gid=None, conn=None, **kwargs):
             
             name_check = conn.checkGroupName(request.REQUEST.get('name'), group.name)
             form = GroupForm(initial={'experimenters':experimenters}, data=request.POST.copy(), name_check=name_check)
+            context = {'form':form, 'gid': gid, 'permissions': permissions}
             if form.is_valid():
                 logger.debug("Update group form:" + str(form.cleaned_data))
                 name = form.cleaned_data['name']
@@ -620,10 +627,20 @@ def manage_group(request, action, gid=None, conn=None, **kwargs):
                 conn.updateGroup(group, name, perm, listOfOwners, description)
                 
                 new_members = getSelectedExperimenters(conn, mergeLists(members,owners))
-                conn.setMembersOfGroup(group, new_members)
-                
-                return HttpResponseRedirect(reverse("wagroups"))
-            context = {'form':form, 'gid': gid, 'permissions': permissions}
+                removalFails = conn.setMembersOfGroup(group, new_members)
+                if len(removalFails) == 0:
+                    return HttpResponseRedirect(reverse("wagroups"))
+                # If we've failed to remove user...
+                msgs = []
+                # prepare error messages
+                for e in removalFails:
+                    url = reverse("wamanageexperimenterid", args=["edit", e.id])
+                    msgs.append("Can't remove user <a href='%s'>%s</a> from their only group"
+                        % (url, e.getFullName()))
+                # refresh the form and add messages
+                context = getEditFormContext()
+                context['ome'] = {}
+                context['ome']['message'] = "<br>".join(msgs)
     else:
         return HttpResponseRedirect(reverse("wagroups"))
     
