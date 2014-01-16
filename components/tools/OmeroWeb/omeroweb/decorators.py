@@ -31,7 +31,7 @@ from django.http import Http404, HttpResponse, HttpResponseRedirect, HttpRespons
 from django.conf import settings
 from django.utils.http import urlencode
 from functools import update_wrapper
-from django.core.urlresolvers import reverse
+from django.core.urlresolvers import reverse, NoReverseMatch
 from django.template import loader as template_loader
 from django.template import RequestContext
 from django.core.cache import cache
@@ -43,15 +43,17 @@ logger = logging.getLogger(__name__)
 
 def parse_url(lookup_view):
     try:
-        if "args" in lookup_view:
+        if "args" in lookup_view.keys():
             url = reverse(viewname=lookup_view["viewname"], args=lookup_view["args"])
         else:
             url = reverse(viewname=lookup_view["viewname"])
-        if "query_string" in lookup_view:
+        if "query_string" in lookup_view.keys():
             url = url + "?" + lookup_view["query_string"]
-    except:
+    except AttributeError, e:
         # assume we've been passed a url
         url = lookup_view
+    except NoReverseMatch:
+        url = None
     return url
 
 
@@ -134,14 +136,18 @@ class login_required(object):
             logger.debug('Request is Ajax, returning HTTP 403.')
             return HttpResponseForbidden()
         
-        if settings.LOGIN_REDIRECT:
-            for lookup_view in settings.LOGIN_REDIRECT["redirect"]:
-                try:
-                    if url == reverse(lookup_view):
-                        url = parse_url(settings.LOGIN_REDIRECT)
-                except:
-                    if url == lookup_view:
-                        url = parse_url(settings.LOGIN_REDIRECT)
+        if hasattr(settings.LOGIN_REDIRECT, "redirect") :
+            try:
+                for lookup_view in settings.LOGIN_REDIRECT["redirect"]:
+                    try:
+                        if url == reverse(lookup_view):
+                            url = parse_url(settings.LOGIN_REDIRECT)
+                    except NoReverseMatch:
+                        if url == lookup_view:
+                            url = parse_url(settings.LOGIN_REDIRECT)
+            except Exception, x:
+                logger.error('Error while redirection on not logged in.', exc_info=True)
+        
         args = {'url': url}
         
         logger.debug('Request is not Ajax, redirecting to %s' % self.login_url)
