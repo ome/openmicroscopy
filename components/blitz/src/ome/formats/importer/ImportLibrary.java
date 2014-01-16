@@ -33,6 +33,7 @@ import loci.common.Location;
 import loci.formats.FormatException;
 import loci.formats.FormatReader;
 import ome.formats.OMEROMetadataStoreClient;
+import ome.formats.importer.transfers.UploadFileTransfer;
 import ome.formats.importer.util.ErrorHandler;
 import ome.formats.importer.util.ProportionalTimeEstimatorImpl;
 import ome.formats.importer.util.TimeEstimator;
@@ -123,6 +124,11 @@ public class ImportLibrary implements IObservable
     private final ServiceFactoryPrx sf;
 
     /**
+     * Method used for transferring files to the server.
+     */
+    private final FileTransfer transfer;
+
+    /**
      * Adapter for use with any callbacks created by the library.
      */
     private final Ice.ObjectAdapter oa;
@@ -144,6 +150,11 @@ public class ImportLibrary implements IObservable
         availableChecksumAlgorithms = builder.build();
     }
 
+    public ImportLibrary(OMEROMetadataStoreClient client, OMEROWrapper reader)
+    {
+        this(client, reader, new UploadFileTransfer());
+    }
+
     /**
      * The library will not close the client instance. The reader will be closed
      * between calls to import.
@@ -151,7 +162,8 @@ public class ImportLibrary implements IObservable
      * @param store not null
      * @param reader not null
      */
-    public ImportLibrary(OMEROMetadataStoreClient client, OMEROWrapper reader)
+    public ImportLibrary(OMEROMetadataStoreClient client, OMEROWrapper reader,
+            FileTransfer transfer)
     {
         if (client == null || reader == null)
         {
@@ -160,6 +172,7 @@ public class ImportLibrary implements IObservable
         }
 
         this.store = client;
+        this.transfer = transfer;
         repo = lookupManagedRepository();
         // Adapter which should be used for callbacks. This is more
         // complicated than it needs to be at the moment. We're only sure that
@@ -348,70 +361,16 @@ public class ImportLibrary implements IObservable
             final ChecksumProviderFactory cpf, TimeEstimator estimator,
             final byte[] buf)
             throws ServerError, IOException {
-        estimator.start();
-        ChecksumProvider cp = cpf.getProvider(
+
+        final ChecksumProvider cp = cpf.getProvider(
                 ChecksumAlgorithmMapper.getChecksumType(
                         proc.getImportSettings().checksumAlgorithm));
-        String digestString = null;
-        File file = new File(Location.getMappedId(srcFiles[index]));
-        long length = file.length();
-        FileInputStream stream = null;
-        RawFileStorePrx rawFileStore = null;
+
+        final File file = new File(Location.getMappedId(srcFiles[index]));
+
         try {
-            stream = new FileInputStream(file);
-            rawFileStore = proc.getUploader(index);
-            int rlen = 0;
-            long offset = 0;
-
-            notifyObservers(new ImportEvent.FILE_UPLOAD_STARTED(
-                    file.getAbsolutePath(), index, srcFiles.length,
-                    null, length, null));
-
-            // "touch" the file otherwise zero-length files
-            rawFileStore.write(ArrayUtils.EMPTY_BYTE_ARRAY, offset, 0);
-            estimator.stop();
-            notifyObservers(new ImportEvent.FILE_UPLOAD_BYTES(
-                    file.getAbsolutePath(), index, srcFiles.length,
-                    offset, length, estimator.getUploadTimeLeft(), null));
-
-            while (true) {
-                estimator.start();
-                rlen = stream.read(buf);
-                if (rlen == -1) {
-                    break;
-                }
-                cp.putBytes(buf, 0, rlen);
-                final byte[] bufferToWrite;
-                if (rlen < buf.length) {
-                    bufferToWrite = new byte[rlen];
-                    System.arraycopy(buf, 0, bufferToWrite, 0, rlen);
-                } else {
-                    bufferToWrite = buf;
-                }
-                rawFileStore.write(bufferToWrite, offset, rlen);
-                offset += rlen;
-                estimator.stop(rlen);
-                notifyObservers(new ImportEvent.FILE_UPLOAD_BYTES(
-                        file.getAbsolutePath(), index, srcFiles.length, offset,
-                        length, estimator.getUploadTimeLeft(), null));
-            }
-            estimator.start();
-            digestString = cp.checksumAsString();
-
-            OriginalFile ofile = rawFileStore.save();
-            if (log.isDebugEnabled()) {
-                log.debug(String.format("%s/%s id=%s",
-                        ofile.getPath().getValue(),
-                        ofile.getName().getValue(),
-                        ofile.getId().getValue()));
-                log.debug(String.format("checksums: client=%s,server=%s",
-                        digestString, ofile.getHash().getValue()));
-            }
-            estimator.stop();
-            notifyObservers(new ImportEvent.FILE_UPLOAD_COMPLETE(
-                    file.getAbsolutePath(), index, srcFiles.length,
-                    offset, length, null));
-
+            return transfer.transfer(file, index, srcFiles.length,
+                    proc, this, estimator, cp, buf);
         }
         catch (IOException e) {
             notifyObservers(new ImportEvent.FILE_UPLOAD_ERROR(
@@ -425,34 +384,9 @@ public class ImportLibrary implements IObservable
                     null, null, e));
             throw e;
         }
-        finally {
-            cleanupUpload(rawFileStore, stream);
-        }
-
-        return digestString;
-    }
-
-    private void cleanupUpload(RawFileStorePrx rawFileStore,
-            FileInputStream stream) throws ServerError {
-        try {
-            if (rawFileStore != null) {
-                try {
-                    rawFileStore.close();
-                } catch (Exception e) {
-                    log.error("error in closing raw file store", e);
-                }
-            }
-        } finally {
-            if (stream != null) {
-                try {
-                    stream.close();
-                } catch (IOException e) {
-                    log.error("I/O in error closing stream", e);
-                }
-            }
-        }
 
     }
+
 
     /**
      * Perform an image import uploading files if necessary.
