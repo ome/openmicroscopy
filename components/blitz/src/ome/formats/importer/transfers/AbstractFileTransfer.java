@@ -37,6 +37,24 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class AbstractFileTransfer implements FileTransfer {
 
+    public static FileTransfer createTransfer(String arg) {
+        Logger tmp = LoggerFactory.getLogger(AbstractFileTransfer.class);
+        if ("upload".equals(arg)) {
+            return new UploadFileTransfer();
+        } else if ("symlink".equals(arg)) {
+            return new SymlinkFileTransfer();
+        } else {
+            tmp.debug("Loading file transfer class {}", arg);
+            try {
+                Class<?> c = Class.forName(arg);
+                return (FileTransfer) c.newInstance();
+            } catch (Exception e) {
+                tmp.error("Failed to load file transfer class " + arg);
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
     protected final Logger log = LoggerFactory.getLogger(getClass());
 
     protected RawFileStorePrx start(TransferState state) throws ServerError {

@@ -19,11 +19,14 @@ import loci.formats.in.DefaultMetadataOptions;
 import loci.formats.in.MetadataLevel;
 import loci.formats.meta.MetadataStore;
 import ome.formats.OMEROMetadataStoreClient;
+import ome.formats.importer.FileTransfer;
 import ome.formats.importer.ImportCandidates;
 import ome.formats.importer.ImportConfig;
 import ome.formats.importer.ImportEvent;
 import ome.formats.importer.ImportLibrary;
 import ome.formats.importer.OMEROWrapper;
+import ome.formats.importer.transfers.AbstractFileTransfer;
+import ome.formats.importer.transfers.UploadFileTransfer;
 import omero.model.Annotation;
 import omero.model.CommentAnnotationI;
 import omero.model.Dataset;
@@ -49,6 +52,9 @@ public class CommandLineImporter {
     /** Configuration used by all components */
     public final ImportConfig config;
 
+    /** {@link FileTransfer} mechanism to be used for uploading */
+    public final FileTransfer transfer;
+
     /** Base importer library, this is what we actually use to import. */
     public final ImportLibrary library;
 
@@ -68,16 +74,25 @@ public class CommandLineImporter {
     private final boolean getUsedFiles;
 
     /**
-     * Main entry class for the application.
+     * Legacy constructor which uses a {@link UploadFileTransfer}.
      */
     public CommandLineImporter(final ImportConfig config, String[] paths,
             boolean getUsedFiles) throws Exception {
+        this(config, paths, getUsedFiles, new UploadFileTransfer());
+    }
+
+    /**
+     * Main entry class for the application.
+     */
+    public CommandLineImporter(final ImportConfig config, String[] paths,
+            boolean getUsedFiles, FileTransfer transfer) throws Exception {
         this.config = config;
         config.loadAll();
 
         this.getUsedFiles = getUsedFiles;
         this.reader = new OMEROWrapper(config);
         this.handler = new ErrorHandler(config);
+        this.transfer = transfer;
         candidates = new ImportCandidates(reader, paths, handler);
 
         if (paths == null || paths.length == 0 || getUsedFiles) {
@@ -98,7 +113,7 @@ public class CommandLineImporter {
             store.logVersionInfo(config.getIniVersionNumber());
             reader.setMetadataOptions(
                     new DefaultMetadataOptions(MetadataLevel.ALL));
-            library = new ImportLibrary(store, reader);
+            library = new ImportLibrary(store, reader, transfer);
         }
 
         Runtime.getRuntime().addShutdownHook(new Thread() {
@@ -218,6 +233,13 @@ public class CommandLineImporter {
                                         + "  --annotation_text\tContent for a text annotation (requires namespace)\n"
                                         + "  --annotation_link\tComment annotation ID to link all images to\n"
                                         + "\n"
+                                        + "Advanced arguments:\n"
+                                        + "  --transfer=ARG\tFile transfer method\n"
+                                        + "      Examples:\n"
+                                        + "       -t upload           # Default\n"
+                                        + "       -t symlink          # Use symlnk. Locally only!\n"
+                                        + "       -t some.class.Name  # Use a class on the CLASSPATH\n"
+                                        + "\n"
                                         + "ex. %s -s localhost -u bart -w simpson -d 50 foo.tiff\n"
                                         + "\n"
                                         + "Report bugs to <ome-users@lists.openmicroscopy.org.uk>",
@@ -272,6 +294,7 @@ public class CommandLineImporter {
      */
     public static void main(String[] args) {
 
+        FileTransfer transfer = new UploadFileTransfer();
         ImportConfig config = new ImportConfig();
 
         // Defaults
@@ -306,12 +329,14 @@ public class CommandLineImporter {
         LongOpt annotationLink =
             new LongOpt("annotation_link", LongOpt.REQUIRED_ARGUMENT,
                         null, 12);
+        LongOpt transferOpt =
+            new LongOpt("transfer", LongOpt.REQUIRED_ARGUMENT, null, 13);
 
-        Getopt g = new Getopt(APP_NAME, args, "cfl:s:u:w:d:r:k:x:n:p:h",
+        Getopt g = new Getopt(APP_NAME, args, "cfl:s:u:w:d:r:k:x:n:p:ht:",
                 new LongOpt[] { debug, report, upload, logs, email,
                                 plateName, plateDescription, noThumbnails,
                                 agent, annotationNamespace, annotationText,
-                                annotationLink });
+                                annotationLink, transferOpt });
         int a;
 
         boolean getUsedFiles = false;
@@ -382,6 +407,13 @@ public class CommandLineImporter {
             }
             case 12: {
                 annotationIds.add(Long.parseLong(g.getOptarg()));
+                break;
+            }
+            case 13:
+            case 't': {
+                String arg = g.getOptarg();
+                log.info("Setting transfer to {}", arg);
+                transfer = AbstractFileTransfer.createTransfer(arg);
                 break;
             }
             case 's': {
@@ -478,8 +510,7 @@ public class CommandLineImporter {
             if (rest.length == 1 && "-".equals(rest[0])) {
                 rest = stdin();
             }
-
-            c = new CommandLineImporter(config, rest, getUsedFiles);
+            c = new CommandLineImporter(config, rest, getUsedFiles, transfer);
             rc = c.start();
         } catch (Throwable t) {
             log.error("Error during import process.", t);
