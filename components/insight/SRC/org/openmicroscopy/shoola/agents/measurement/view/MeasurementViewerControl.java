@@ -53,6 +53,7 @@ import javax.swing.event.MenuKeyEvent;
 import javax.swing.event.MenuKeyListener;
 import javax.swing.event.MenuListener;
 
+import org.jhotdraw.draw.AttributeKey;
 //Third-party libraries
 import org.jhotdraw.draw.DrawingEvent;
 import org.jhotdraw.draw.DrawingListener;
@@ -82,6 +83,7 @@ import org.openmicroscopy.shoola.util.roi.figures.MeasureTextFigure;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
+import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes;
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
 import org.openmicroscopy.shoola.util.ui.LoadingWindow;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -247,7 +249,6 @@ class MeasurementViewerControl
 				(figure instanceof MeasurePointFigure)) {
     		figure.calculateMeasurements();
     		view.refreshResultsTable();
-    		if (!figure.isReadOnly()) model.setDataChanged();
     		if (!view.inDataView()) return;
     		ROIShape shape = figure.getROIShape();
     		List<ROIShape> shapeList = new ArrayList<ROIShape>();
@@ -264,7 +265,6 @@ class MeasurementViewerControl
  		if (figure.getStatus() != ROIFigure.IDLE) return;
 		figure.calculateMeasurements();
 		view.refreshResultsTable();
-		if (!figure.isReadOnly()) model.setDataChanged();
 		if (!view.inDataView()) return;
 		ROIShape shape = figure.getROIShape();
 		List<ROIShape> shapeList = new ArrayList<ROIShape>();
@@ -635,7 +635,12 @@ class MeasurementViewerControl
 			view.refreshInspectorTable();
 			model.figureAttributeChanged(e.getAttribute(), fig);
 			if (!fig.isReadOnly()) {
-				if (fig.canEdit()) model.setDataChanged();
+				if (fig.canEdit()) {
+				    AttributeKey<?> key = e.getAttribute();
+		            if (key != MeasurementAttributes.SHOWTEXT) {
+		                model.setDataChanged();
+		            }
+				}
 			}
 		}
 	}
