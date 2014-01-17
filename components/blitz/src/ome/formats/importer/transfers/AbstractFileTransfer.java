@@ -30,8 +30,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Traditional file transfer mechanism which uploads
- * files using the API.
+ * Base {@link FileTransfer} implementation primarily providing the
+ * {@link #start(TransferState)} and {@link #finish(TransferState, long)}
+ * methods. Also used as the factory for {@link FileTransfer} implementations
+ * via {@link #createTransfer(String)}.
  *
  * @since 5.0
  */
@@ -74,12 +76,29 @@ public abstract class AbstractFileTransfer implements FileTransfer {
 
     protected final Logger log = LoggerFactory.getLogger(getClass());
 
+    /**
+     * Minimal start method which logs the file, calls
+     * {@link TransferState#start()}, and loads the {@link RawFileStorePrx}
+     * which any implementation will need.
+     *
+     * @param state non-null.
+     * @return
+     * @throws ServerError
+     */
     protected RawFileStorePrx start(TransferState state) throws ServerError {
         log.info("Transferring {}...", state.getFile());
         state.start();
         return state.getUploader();
     }
 
+    /**
+     * Save the current state to disk and finish all timing and logging.
+     *
+     * @param state non-null
+     * @param offset total length transferred.
+     * @return client-side digest string.
+     * @throws ServerError
+     */
     protected String finish(TransferState state, long offset) throws ServerError {
         state.start();
         state.save();
@@ -88,6 +107,13 @@ public abstract class AbstractFileTransfer implements FileTransfer {
         return state.getChecksum();
     }
 
+    /**
+     * Utility method for closing resources.
+     *
+     * @param rawFileStore possibly null
+     * @param stream possibly null
+     * @throws ServerError
+     */
     protected void cleanupUpload(RawFileStorePrx rawFileStore,
             FileInputStream stream) throws ServerError {
         try {

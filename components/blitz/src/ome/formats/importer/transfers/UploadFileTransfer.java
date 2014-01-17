@@ -31,12 +31,14 @@ import org.apache.commons.lang.ArrayUtils;
 
 /**
  * Traditional file transfer mechanism which uploads
- * files using the API.
+ * files using the API. This is done by reading from
+ * {@link TransferState#getFile()} into {@link TransferState#getBuffer()}
+ * and then {@link RawFileStorePrx#write(byte[], long, int) writing} to the
+ * server. <em>Not thread safe</em>
  *
  * @since 5.0
  */
 public class UploadFileTransfer extends AbstractFileTransfer {
-
 
     public String transfer(TransferState state) throws IOException, ServerError {
 
@@ -54,7 +56,7 @@ public class UploadFileTransfer extends AbstractFileTransfer {
 
             state.uploadStarted();
       
-                // "touch" the file otherwise zero-length files
+            // "touch" the file otherwise zero-length files
             rawFileStore.write(ArrayUtils.EMPTY_BYTE_ARRAY, offset, 0);
             state.stop();
             state.uploadBytes(offset);
