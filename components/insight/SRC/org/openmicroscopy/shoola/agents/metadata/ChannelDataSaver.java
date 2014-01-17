@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.metadata.ChannelDataSaver
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee & Open Microscopy Environment.
+ *  Copyright (C) 2006-2014 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
  *
  *
@@ -31,6 +31,7 @@ import java.util.List;
 //Third-party libraries
 
 
+import org.apache.commons.collections.CollectionUtils;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.metadata.ChannelSavedEvent;
 import org.openmicroscopy.shoola.agents.metadata.editor.Editor;
@@ -49,19 +50,19 @@ import pojos.DataObject;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @since 4.4
  */
-public class ChannelDataSaver 
-	extends EditorLoader
+public class ChannelDataSaver
+    extends EditorLoader
 {
 
     /** The id of the pixels set. */
     private List<ChannelData> channels;
-    
+
     /** The id of the user. */
     private DataObject parent;
-    
+
     /** Handle to the asynchronous call so that we can cancel it. */
     private CallHandle handle;
-    
+
     /**
      * Creates a new instance.
      * 
@@ -70,16 +71,16 @@ public class ChannelDataSaver
      * @param pixelsID The id of the pixels set.
      * @param userID The id of the user.
      */
-	public ChannelDataSaver(Editor viewer, SecurityContext ctx, 
-			List<ChannelData> channels, DataObject parent)
-	{
-		super(viewer, ctx);
-		if (channels == null || channels.size() == 0)
-			throw new IllegalArgumentException("No Channels specified.");
-		this.channels = channels;
-		this.parent = parent;
-	}
-	
+    public ChannelDataSaver(Editor viewer, SecurityContext ctx,
+            List<ChannelData> channels, DataObject parent)
+    {
+        super(viewer, ctx);
+        if (CollectionUtils.isEmpty(channels))
+            throw new IllegalArgumentException("No Channels specified.");
+        this.channels = channels;
+        this.parent = parent;
+    }
+
     /** 
      * Saves the channels and updates the images linked to the specified
      * object.
@@ -87,25 +88,25 @@ public class ChannelDataSaver
      */
     public void load()
     {
-    	List<DataObject> list = new ArrayList<DataObject>();
-    	if (parent != null) list.add(parent);
+        List<DataObject> list = new ArrayList<DataObject>();
+        if (parent != null) list.add(parent);
         handle = dmView.saveChannelData(ctx, channels, list, this);
     }
-    
+
     /** 
-     * Cancels the data loading. 
+     * Cancels the data loading.
      * @see EditorLoader#cancel()
      */
     public void cancel() { handle.cancel(); }
-    
+
     /**
      * Feeds the result back to the viewer.
      * @see EditorLoader#handleResult(Object)
      */
     public void handleResult(Object result) 
     {
-    	EventBus bus = MetadataViewerAgent.getRegistry().getEventBus();
-    	bus.post(new ChannelSavedEvent(ctx, channels, (List<Long>) result));
+        EventBus bus = MetadataViewerAgent.getRegistry().getEventBus();
+        bus.post(new ChannelSavedEvent(ctx, channels, (List<Long>) result));
     }
 
 }
