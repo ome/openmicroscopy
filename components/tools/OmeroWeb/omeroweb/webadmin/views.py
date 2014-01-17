@@ -653,7 +653,7 @@ def manage_group_owner(request, action, gid, conn=None, **kwargs):
         context = {'form':form, 'gid': gid, 'permissions': permissions, 'group':group, 'experimenterDefaultGroups':",".join(experimenterDefaultIds), 'ownerIds':(",".join(str(x) for x in ownerIds if x != userId)), 'userId':userId}
     elif action == "save":
         if request.method != 'POST':
-            return HttpResponseRedirect(reverse(viewname="wamyaccount", args=["edit", group.id]))
+            return HttpResponseRedirect(reverse(viewname="wamanagegroupownerid", args=["edit", group.id]))
         else:
             form = GroupOwnerForm(data=request.POST.copy(), initial={'experimenters':experimenters})
             if form.is_valid():
