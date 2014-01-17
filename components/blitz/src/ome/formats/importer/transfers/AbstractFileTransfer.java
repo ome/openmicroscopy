@@ -37,21 +37,38 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class AbstractFileTransfer implements FileTransfer {
 
+    /**
+     * Enum of well-known {@link FileTransfer} names.
+     */
+    public enum Transfers {
+        upload(UploadFileTransfer.class),
+        symlink(SymlinkFileTransfer.class);
+        Class<?> kls;
+        Transfers(Class<?> kls) {
+            this.kls = kls;
+        }
+    }
+
+    /**
+     * Factory method for instantiating {@link FileTransfer} objects from
+     * a string. Supported values can be found in the {@link Transfers} enum.
+     * Otherwise, a FQN for a class on the classpath should be passed in.
+     * @param arg non-null
+     */
     public static FileTransfer createTransfer(String arg) {
         Logger tmp = LoggerFactory.getLogger(AbstractFileTransfer.class);
-        if ("upload".equals(arg)) {
-            return new UploadFileTransfer();
-        } else if ("symlink".equals(arg)) {
-            return new SymlinkFileTransfer();
-        } else {
-            tmp.debug("Loading file transfer class {}", arg);
+        tmp.debug("Loading file transfer class {}", arg);
+        try {
             try {
-                Class<?> c = Class.forName(arg);
-                return (FileTransfer) c.newInstance();
+                return (FileTransfer) Transfers.valueOf(arg).kls.newInstance();
             } catch (Exception e) {
-                tmp.error("Failed to load file transfer class " + arg);
-                throw new RuntimeException(e);
+                // Assume not in the enum
             }
+            Class<?> c = Class.forName(arg);
+            return (FileTransfer) c.newInstance();
+        } catch (Exception e) {
+            tmp.error("Failed to load file transfer class " + arg);
+            throw new RuntimeException(e);
         }
     }
 
