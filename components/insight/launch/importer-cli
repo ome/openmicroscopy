@@ -136,8 +136,15 @@ cd "${PROGRAM_DIR}"
 # build the classpath
 # Insight JAR is here for composite builds, please do not remove it.
 # Mon 30 Nov 2009 10:15:38 GMT -- Chris Allan <callan@openmicroscopy.org.uk>
+if [ -z "$LIBS" ]; then
+    if [ -e OMERO.insight.app ]; then
+        LIBS=./OMERO.insight.app/Contents/Resources/Java/
+    else
+        LIBS=./libs
+    fi
+fi
 CLASSPATH="./OmeroImporter.jar:./omero.insight.jar"
-for FILE in ./libs/*.jar; do
+for FILE in $LIBS/*.jar; do
 	CLASSPATH="${CLASSPATH:+${CLASSPATH}:}$FILE"
 done
 
