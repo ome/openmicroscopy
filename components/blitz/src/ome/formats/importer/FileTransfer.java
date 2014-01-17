@@ -31,18 +31,24 @@ import omero.ServerError;
  * that a file-like object (file, hardlink, symlink, etc.) is
  * present with the right size and checksum.
  *
- * Transfer implementations have a number of responsibilities
- * which make them not completely trivial to implement. Sub-classing
- * an existing implementation is likely the easiest way to
- * modify behavior.
+ * Transfer implementations have a number of responsibilities such as
+ * reporting on progress and estimating remaining time which make them not
+ * completely trivial to implement. Sub-classing an existing implementation is
+ * likely the easiest way to modify behavior.
+ *
+ * Implementations should be thread-safe, i.e. callable from multiple
+ * threads, and blocking should be avoided if at all possible.
  *
  * @since 5.0
  */
 public interface FileTransfer {
 
-   /*
+   /**
     * Transfers a file and returns the appropriate checksum string for
-    * the source file.
+    * the source file. The {@link TransferState} instance should be unique
+    * for this invocation, i.e. not used by any other threads. After
+    * execution, the fields can be inspected to see, e.g., the newly created
+    * file.
     */
     String transfer(TransferState state)
         throws IOException, ServerError;

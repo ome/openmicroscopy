@@ -646,6 +646,14 @@ public class ImportLibrary implements IObservable
         }
     }
 
+    /**
+     * Use {@link RawFileStorePrx#getFileId()} in order to load the
+     * {@link OriginalFile} that the service argument is acting on.
+     *
+     * @param uploader not null
+     * @return
+     * @throws ServerError
+     */
     public OriginalFile loadOriginalFile(RawFileStorePrx uploader)
             throws ServerError {
         omero.RLong rid = uploader.getFileId();

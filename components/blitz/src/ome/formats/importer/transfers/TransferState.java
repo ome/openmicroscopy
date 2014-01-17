@@ -21,8 +21,6 @@ package ome.formats.importer.transfers;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 
 import ome.formats.importer.ImportEvent;
 import ome.formats.importer.ImportLibrary;
@@ -37,8 +35,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Traditional file transfer mechanism which uploads
- * files using the API.
+ * Non-thread-safe argument holder for {@link FileTransfer} implementations.
+ * A single instance will be created per invocation of
+ * {@link FileTransfer#transfer(TransferState)}. Several instance methods are
+ * provided for common reporting actions (See usage in existing
+ * {@link FileTransfer} implementations.
  *
  * @since 5.0
  */
@@ -98,6 +99,14 @@ public class TransferState implements TimeEstimator {
                 this.buf = buf;
             }
 
+    /**
+     * Calls {@link RawFileStorePrx#save()} and stores the resultant
+     * {@link OriginalFile} for future inspection along with the <em>local</em>
+     * checksum. (The remote checksum is available from the
+     * {@link OriginalFile}.
+     *
+     * @throws ServerError
+     */
     public void save() throws ServerError {
         RawFileStorePrx rawFileStore = getUploader();
         checksum = cp.checksumAsString();
@@ -116,22 +125,43 @@ public class TransferState implements TimeEstimator {
     // ACCESSORS
     //
 
+    /**
+     * <em>(Not thread safe)</em> Get a moderately large buffer for use in
+     * reading/writing data. To prevent the creation of many MB-sized byte
+     * arrays, this value can be re-used but requires external synchronization.
+     */
     public byte[] getBuffer() {
         return this.buf;
     }
 
+    /**
+     * Get the digest string for the local file. This will only be available,
+     * i.e. non-null, after {@link #save()} has been called.
+     */
     public String getChecksum() {
         return this.checksum;
     }
 
+    /**
+     * Get the {@link ChecksumProvider} passed to the constructor.
+     * Since the {@link ChecksumProvider} has a number of different usage styles,
+     * {@link TransferState} doesn't attempt to delegate but just returns the
+     * instance.
+     */
     public ChecksumProvider getChecksumProvider() {
         return this.cp;
     }
 
+    /**
+     * Return the target file passed to the constructor.
+     */
     public File getFile() {
         return this.file;
     }
 
+    /**
+     * Return the length of the {@link #getFile() target file}.
+     */
     public long getLength() {
         return this.length;
     }
@@ -152,6 +182,9 @@ public class TransferState implements TimeEstimator {
         return library.lookupManagedRepository().root();
     }
 
+    /**
+     * Return the {@link RawFileStorePrx} instance for this index.
+     */
     public RawFileStorePrx getUploader() throws ServerError {
         return this.proc.getUploader(this.index);
     }
@@ -160,6 +193,10 @@ public class TransferState implements TimeEstimator {
     // NOTIFICATIONS AND LOGGING
     //
 
+    /**
+     * Raise the {@link ImportEvent.FILE_UPLOAD_STARTED} event to all
+     * observers.
+     */
     public void uploadStarted() {
         library.notifyObservers(
                 new ImportEvent.FILE_UPLOAD_STARTED(
@@ -167,6 +204,10 @@ public class TransferState implements TimeEstimator {
                 null, length, null));
     }
 
+    /**
+     * Raise the {@link ImportEvent.FILE_UPLOAD_BYTES} event to all
+     * observers.
+     */
     public void uploadBytes(long offset) {
         library.notifyObservers(
                 new ImportEvent.FILE_UPLOAD_BYTES(
@@ -174,6 +215,10 @@ public class TransferState implements TimeEstimator {
                 offset, length, estimator.getUploadTimeLeft(), null));
     }
 
+    /**
+     * Raise the {@link ImportEvent.FILE_UPLOAD_COMPLETE} event to all
+     * observers.
+     */
     public void uploadComplete(long offset) {
         library.notifyObservers(new ImportEvent.FILE_UPLOAD_COMPLETE(
                 file.getAbsolutePath(), index, total,
