@@ -223,6 +223,7 @@ public class CreateTopContainerAction
      */
     protected void onDisplayChange(TreeImageDisplay selectedDisplay)
     {
+        setEnabled(false);
         if (nodeType == GROUP) {
             setEnabled(TreeViewerAgent.isAdministrator());
             return;
