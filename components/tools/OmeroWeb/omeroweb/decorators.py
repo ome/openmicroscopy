@@ -136,17 +136,16 @@ class login_required(object):
             logger.debug('Request is Ajax, returning HTTP 403.')
             return HttpResponseForbidden()
         
-        if hasattr(settings.LOGIN_REDIRECT, "redirect") :
-            try:
-                for lookup_view in settings.LOGIN_REDIRECT["redirect"]:
-                    try:
-                        if url == reverse(lookup_view):
-                            url = parse_url(settings.LOGIN_REDIRECT)
-                    except NoReverseMatch:
-                        if url == lookup_view:
-                            url = parse_url(settings.LOGIN_REDIRECT)
-            except Exception, x:
-                logger.error('Error while redirection on not logged in.', exc_info=True)
+        try:
+            for lookup_view in settings.LOGIN_REDIRECT["redirect"]:
+                try:
+                    if url == reverse(lookup_view):
+                        url = parse_url(settings.LOGIN_REDIRECT)
+                except NoReverseMatch:
+                    if url == lookup_view:
+                        url = parse_url(settings.LOGIN_REDIRECT)
+        except Exception, x:
+            logger.error('Error while redirection on not logged in.', exc_info=True)
         
         args = {'url': url}
         
