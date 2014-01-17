@@ -144,6 +144,8 @@ class login_required(object):
                 except NoReverseMatch:
                     if url == lookup_view:
                         url = parse_url(settings.LOGIN_REDIRECT)
+        except KeyError, x:
+            pass
         except Exception, x:
             logger.error('Error while redirection on not logged in.', exc_info=True)
         
