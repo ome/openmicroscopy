@@ -305,9 +305,10 @@ public class ImViewerAgent
         if (CollectionUtils.isEmpty(ids)) return;
         Iterator<Long> i = ids.iterator();
         ImViewer view;
+        long id = evt.getRefPixelsID();
         while (i.hasNext()) {
             view = ImViewerFactory.getImageViewerFromImage(null, i.next());
-            if (view != null) {
+            if (view != null && view.getPixelsID() != id) {
                 view.pasteRenderingSettings();
             }
         }
