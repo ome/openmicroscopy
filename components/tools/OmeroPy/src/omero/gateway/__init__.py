@@ -5848,6 +5848,8 @@ class _ImageWrapper (BlitzObjectWrapper):
     _filesetFileCount = None
 
     _pr = None # projection
+    _prStart = None
+    _prEnd = None
 
     _invertedAxis = False
 
@@ -6548,6 +6550,14 @@ class _ImageWrapper (BlitzObjectWrapper):
         
         self._pr = proj
 
+    def setProjectionRange (self, projStart, projEnd):
+        """
+        Sets the range used for Z-projection. Will only be used
+        if E.g. setProjection('intmax') is not 'normal'
+        """
+        self._prStart = max(0, int(projStart))
+        self._prEnd = min(int(projEnd), self.getSizeZ()-1)
+
     def isInvertedAxis (self):
         """
         Returns the inverted axis flag
@@ -6837,7 +6847,12 @@ class _ImageWrapper (BlitzObjectWrapper):
             if not isinstance(projection, omero.constants.projection.ProjectionType):
                 rv = self._re.renderCompressed(self._pd, self._conn.SERVICE_OPTS)
             else:
-                rv = self._re.renderProjectedCompressed(projection, self._pd.t, 1, 0, self.getSizeZ()-1, self._conn.SERVICE_OPTS)
+                prStart, prEnd = 0, self.getSizeZ()-1
+                if self._prStart is not None:
+                    prStart = self._prStart
+                if self._prEnd is not None:
+                    prEnd = self._prEnd
+                rv = self._re.renderProjectedCompressed(projection, self._pd.t, 1, prStart, prEnd, self._conn.SERVICE_OPTS)
             return rv
         except omero.InternalException: #pragma: no cover
             logger.debug('On renderJpeg');
