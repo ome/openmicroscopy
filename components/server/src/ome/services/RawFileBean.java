@@ -1,8 +1,20 @@
 /*
- *   $Id$
+ * Copyright (C) 2006-2014 University of Dundee & Open Microscopy Environment.
+ * All rights reserved.
  *
- *   Copyright 2006 University of Dundee. All rights reserved.
- *   Use is subject to license terms supplied in LICENSE.txt
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
 package ome.services;
@@ -46,7 +58,7 @@ import com.google.common.collect.ImmutableMap;
 
 /**
  * Raw file gateway which provides access to the OMERO file repository.
- * 
+ *
  * @author Chris Allan &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:callan@blackcat.ca">callan@blackcat.ca</a>
  * @version 3.0 <small> (<b>Internal version:</b> $Revision$ $Date:
@@ -56,10 +68,10 @@ import com.google.common.collect.ImmutableMap;
 @Transactional(readOnly = true)
 public class RawFileBean extends AbstractStatefulBean implements RawFileStore {
     /**
-     * 
+     *
      */
     private static final long serialVersionUID = -450924529925301925L;
-    
+
     /** The logger for this particular class */
     private static Logger log = LoggerFactory.getLogger(RawPixelsBean.class);
 
@@ -82,13 +94,13 @@ public class RawFileBean extends AbstractStatefulBean implements RawFileStore {
 
     /** Only set after a passivated bean is activated. */
     private transient Long reset = null;
-    
+
     /** The original file this service is currently working on. */
     private transient OriginalFile file;
 
     /** The file buffer for the service's original file. */
     private transient FileBuffer buffer;
-    
+
     /** ROMIO I/O service for files. */
     private transient OriginalFilesService ioService;
 
@@ -108,7 +120,7 @@ public class RawFileBean extends AbstractStatefulBean implements RawFileStore {
      * default constructor
      */
     public RawFileBean() {}
-    
+
     /**
      * overridden to allow Spring to set boolean
      * @param checking
@@ -122,7 +134,7 @@ public class RawFileBean extends AbstractStatefulBean implements RawFileStore {
 
     /**
      * I/O service (OriginalFilesService) Bean injector.
-     * 
+     *
      * @param ioService
      *            an <code>OriginalFileService</code>.
      */
@@ -130,7 +142,7 @@ public class RawFileBean extends AbstractStatefulBean implements RawFileStore {
         getBeanHelper().throwIfAlreadySet(this.ioService, ioService);
         this.ioService = ioService;
     }
-    
+
     /**
      * Disk Space Usage service Bean injector
      * @param iRepositoryInfo
@@ -159,14 +171,14 @@ public class RawFileBean extends AbstractStatefulBean implements RawFileStore {
 
     // See documentation on JobBean#passivate
     @RolesAllowed("user")
-    @Transactional(readOnly = true)    
+    @Transactional(readOnly = true)
     public void passivate() {
 	// Nothing necessary
     }
 
     // See documentation on JobBean#activate
     @RolesAllowed("user")
-    @Transactional(readOnly = true)    
+    @Transactional(readOnly = true)
     public void activate() {
         if (id != null) {
             reset = id;
@@ -227,7 +239,7 @@ public class RawFileBean extends AbstractStatefulBean implements RawFileStore {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see ome.api.StatefulServiceInterface#close()
      */
     @RolesAllowed("user")
@@ -277,7 +289,18 @@ public class RawFileBean extends AbstractStatefulBean implements RawFileStore {
 
     /*
      * (non-Javadoc)
-     * 
+     *
+     * @see ome.api.RawFileStore#getFileId()
+     */
+    @RolesAllowed("user")
+    @Transactional(readOnly = true)
+    public synchronized Long getFileId() {
+        return id;
+    }
+
+    /*
+     * (non-Javadoc)
+     *
      * @see ome.api.RawFileStore#setFileId(long)
      */
     @RolesAllowed("user")
@@ -347,7 +370,7 @@ public class RawFileBean extends AbstractStatefulBean implements RawFileStore {
                             + "Please set the file id before executing any other methods.\n");
         }
     }
-    
+
     /* (non-Javadoc)
      * @see ome.api.RawFileStore#exists()
      */
