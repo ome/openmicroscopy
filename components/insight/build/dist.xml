@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+<!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  * Child build file to create the app deliverables.
- * This file is only meant to be used as an imported file within the 
+ * This file is only meant to be used as an imported file within the
  * OMERO.insight master build file.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
 <project name="dist" default="usage">
- 
+
   <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
    * Fail at import time if the external properties this child depends upon
-   * have not been defined. 
+   * have not been defined.
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
-  <checkdef prop="build.dir"/> 
+  <checkdef prop="build.dir"/>
   <checkdef prop="base.launch.dir"/>
   <checkdef prop="base.lib.dir"/>
   <checkdef prop="app.compiled.dir"/>
@@ -21,18 +21,18 @@
   <checkdef ref="app.config"/>
   <!-- <checkdef ref="app.libs"/> -->
 <checkdef prop="app.compiled.util.dir"/>
-  
+
   <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
    * Settings to create the deliverables:
    *   + dist.dir: The distribution directory, where deliverables are created.
-   *   + dist.jar.file: The name of the file in which the whole app will be 
+   *   + dist.jar.file: The name of the file in which the whole app will be
    *           packaged.  This file will be output under ${dist.dir}.
    *   + dist.bundle.name: The name of the distribution bundle.  This is a
-   *           compressed file containing the app jar, all required libs, 
+   *           compressed file containing the app jar, all required libs,
    *           launch scripts, and install instructions.
    *   + dist.bundle.version: The version of the distribution bundle.  Together
-   *           with the bundle name, it forms the name of the default bundle 
-   *           file as <name>-<version>.zip.  (The extension name is dictated 
+   *           with the bundle name, it forms the name of the default bundle
+   *           file as <name>-<version>.zip.  (The extension name is dictated
    *           by the compression algorithm used.)  Other platform-specific
    *           bundles follow the same naming convention, except they add a
    *           platform-specific postfix, like <name>-<version>-mac.zip for
@@ -45,9 +45,9 @@
    *   + dist.osx.icon: The icon to use for the Mac OS X client.
    *   + dist.osx.stub: The stub file for the Mac OS X client.
    *   + dist.osx.stub.name: The name of the above file.
-   *   + dist.osx.installfile: The install instructions to include in the 
+   *   + dist.osx.installfile: The install instructions to include in the
    *           Mac OS X bundle.
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~--> 
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
   <if>
       <isset property="dist.dir"/>
       <then>
@@ -70,19 +70,19 @@
   <fileset id="dist.launch.scripts" dir="${base.launch.dir}">
     <include name="importer-cli"/>
     <include name="*.sh"/>
-    <include name="*.bat"/> 
-  </fileset> 
-  <property name="dist.installfile" 
-            location="${base.launch.dir}/INSTALL.txt"/> 
+    <include name="*.bat"/>
+  </fileset>
+  <property name="dist.installfile"
+            location="${base.launch.dir}/INSTALL.txt"/>
   <basename property="dist.app.lib.dir.name" file="${app.lib.dir}"/>
   <basename property="dist.app.config.dir.name" file="${app.config.dir}"/>
   <property name="dist.vmparameters" value="${app.vmparameters}"/>
-  <property name="dist.osx.icon" 
+  <property name="dist.osx.icon"
             location="${base.launch.dir}/osx/omeroinsight.icns"/>
-  <property name="dist.osx.stub" 
-            location="${base.launch.dir}/osx/JavaApplicationStub"/> 
-  <property name="dist.osx.stub.name" value="JavaApplicationStub"/> 
-  <property name="dist.osx.installfile" 
+  <property name="dist.osx.stub"
+            location="${base.launch.dir}/osx/JavaApplicationStub"/>
+  <property name="dist.osx.stub.name" value="JavaApplicationStub"/>
+  <property name="dist.osx.installfile"
             location="${base.launch.dir}/osx/INSTALL"/>
   <property name="dist.exe4j.home" value="/opt/exe4j"/>
   <property name="distInsight.win.exename" value="OMERO.insight"/>
@@ -93,7 +93,7 @@
   <property name="dist.util.dir" location="${dist.dir}/util"/>
   <!-- editor -->
   <property name="distEditor.name" value="OMERO.editor"/>
-  <property name="distEditor.osx.icon" 
+  <property name="distEditor.osx.icon"
 	            location="${base.launch.dir}/osx/editorIcon.icns"/>
   <property name="distEditor.bundle.name" value="OMERO.editor"/>
   <property name="distEditor.win.exename" value="OMERO.editor"/>
@@ -102,26 +102,26 @@
             location="${base.launch.dir}/win/omeroeditor.ico"/>
   <!-- importer -->
   <property name="distImporter.name" value="OMERO.importer"/>
-  <property name="distImporter.osx.icon" 
+  <property name="distImporter.osx.icon"
 		            location="${base.launch.dir}/osx/omeroImporterLogo.icns"/>
   <property name="distImporter.bundle.name" value="OMERO.importer"/>
   <property name="distImporter.win.exename" value="OMERO.importer"/>
   <property name="distImporter.win64.exename" value="${distImporter.win.exename}_64"/>
   <property name="distImporter.win.icon"
 	            location="${base.launch.dir}/win/omeroImporterLogo.ico"/>
-  <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+  <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     * Verify the app is good for distribution and create ${dist.dir}.
     * First the whole app and test dirs are removed and then new ones are
     * re-generated with all app and test code.  Tests are run and if a failure
-    * occurs, the build is halted.  This way, the app can't be released unless 
+    * occurs, the build is halted.  This way, the app can't be released unless
     * all tests pass.  ,test
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
   <target name="dist-init" depends="app.clean,test.clean, test">
     <mkdir dir="${dist.dir}"/>
     <property name="main-dist-prefix" value="${dist.bundle.name}-${dist.bundle.version}"/>
   </target>
-  
-  <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+
+  <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     * Checks to see if EXE4J is available for Windows build targets.
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
   <target name="exe4j-check-exists">
@@ -150,7 +150,7 @@
     <echo message="exe4j not present at ${dist.exe4j.home}/bin/ant.jar, skipping exe4j tasks."/>
   </target>
 
-  <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+  <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     * Prepares the EXE4J Ant plug-in for Windows build targets.
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
   <target name="exe4j-init" depends="exe4j-check-exists,exe4j-echo-on-missing" if="dist.exe4j.exists">
@@ -159,8 +159,8 @@
                classpath="${dist.exe4j.home}/bin/ant.jar"
                classname="com.exe4j.Exe4JTask"/>
   </target>
- 
-  <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+
+  <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
    * Package the whole app into the ${dist.jar.file} under ${dist.dir}.
    * The whole content of the ${app.compiled.dir} is jar'ed and a suitable
    * manifest is generated that links all the required libraries.  That is
@@ -170,9 +170,9 @@
    * {lib} is the name of the ${app.lib.dir}.
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
   <target name="jar" depends="dist-init">
-    <pathconvert property="dist.jar.manifest.cp" 
-                 pathsep=" " 
-                 dirsep="/" 
+    <pathconvert property="dist.jar.manifest.cp"
+                 pathsep=" "
+                 dirsep="/"
                  refid="app.libs">
       <map from="${base.runtimelib.dir}" to="${dist.app.lib.dir.name}"/>
     </pathconvert>
@@ -185,13 +185,13 @@
         <attribute name="Created-By" value="OMERO Development Team"/>
         <attribute name="Class-Path" value="${dist.jar.manifest.cp}"/>
         <attribute name="Main-Class" value="${app.mainclass}"/>
-      </manifest> 
+      </manifest>
     </jar>
   </target>
   <target name="jar-ij" depends="dist-init">
-    <pathconvert property="dist.jar.manifest.cp" 
-                 pathsep=" " 
-                 dirsep="/" 
+    <pathconvert property="dist.jar.manifest.cp"
+                 pathsep=" "
+                 dirsep="/"
                  refid="app.libs">
       <map from="${base.lib.dir}" to="${dist.app.lib.dir.name}"/>
     </pathconvert>
@@ -201,28 +201,28 @@
         <attribute name="Created-By" value="OMERO Development Team"/>
         <attribute name="Class-Path" value="${dist.jar.manifest.cp}"/>
         <attribute name="Main-Class" value="${app.mainclass.ij}"/>
-      </manifest> 
+      </manifest>
     </jar>
   </target>
   <target name="jar-util" depends="dist-init">
-     <pathconvert property="dist.jar.manifest.cp" 
-        pathsep=" " 
-	                 dirsep="/" 
+     <pathconvert property="dist.jar.manifest.cp"
+        pathsep=" "
+	                 dirsep="/"
 	                 refid="app.libs">
 	    <map from="${base.runtimelib.dir}" to="${dist.app.lib.dir.name}"/>
-	    </pathconvert>   
+	    </pathconvert>
 	    <jar destfile="${dist.dir}/${dist.util.name}-${dist.bundle.version}.jar">
 	      <fileset dir="${app.compiled.util.dir}"/>
 	    	<fileset dir="${base.runtimelib.dir}" includes="${ivy.module}.jar"/>
 	    	<manifest>
 	    	        <attribute name="Created-By" value="OMERO Development Team"/>
-	    	      </manifest> 
+	    	      </manifest>
 	    </jar>
-  </target> 
-  <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+  </target>
+  <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
    * Creates the default distribution bundle under ${dist.dir}.
-   * This is a zip file whose name is set to 
-   * ${dist.bundle.name}-${dist.bundle.version}.zip 
+   * This is a zip file whose name is set to
+   * ${dist.bundle.name}-${dist.bundle.version}.zip
    * and whose contents are:
    *   + A config dir, containing all the app.config files.  The dir name is
    *     set to the name of the ${app.config.dir}.
@@ -231,13 +231,13 @@
    *   + The app jar file, ${dist.jar.file}.
    *   + The launch scripts, dist.launch.scripts.
    *   + The install instructions, ${dist.installfile}.
-   *   + The license file, ${base.licensefile}. 
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~--> 
+   *   + The license file, ${base.licensefile}.
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
   <target name="dist"
-          depends="jar, jar-util, jar-ij, dist-osx-openGL, dist-osx, dist-win, 
-  	dist-win-openGL,dist-win64-openGL,distEditor-osx, distEditor-win, dist-ij, 
+          depends="jar, jar-util, jar-ij, dist-osx-openGL, dist-osx, dist-win,
+  	dist-win-openGL,dist-win64-openGL,distEditor-osx, distEditor-win, dist-ij,
   	distImporter-osx, distImporter-win"
-          description="Build and package the app for distribution."> 
+          description="Build and package the app for distribution.">
 
     <!-- Main zip -->
     <zip destfile="${dist.dir}/${main-dist-prefix}.zip">
@@ -250,10 +250,10 @@
     </zip>
   </target>
 
-  <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+  <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
    * Creates the default distribution bundle under ${dist.dir}.
-   * This is a zip file whose name is set to 
-   * ${dist.bundle.name}-${dist.bundle.version}.zip 
+   * This is a zip file whose name is set to
+   * ${dist.bundle.name}-${dist.bundle.version}.zip
    * and whose contents are:
    *   + A config dir, containing all the app.config files.  The dir name is
    *     set to the name of the ${app.config.dir}.
@@ -262,11 +262,11 @@
    *   + The app jar file, ${dist.jar.file}.
    *   + The launch scripts, dist.launch.scripts.
    *   + The install instructions, ${dist.installfile}.
-   *   + The license file, ${base.licensefile}. 
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~--> 
+   *   + The license file, ${base.licensefile}.
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
   <target name="dist-ij"
           depends="jar-ij"
-          description="Build and package the app for distribution."> 
+          description="Build and package the app for distribution.">
   	<property name="main-dist-ij-prefix" value="${dist.bundle.ij.name}-${dist.bundle.version}"/>
     <zip destfile="${dist.dir}/${main-dist-ij-prefix}.zip">
       <zipfileset dir="${app.config.dir}" prefix="${main-dist-ij-prefix}/${dist.app.config.dir.name}"/>
@@ -331,16 +331,16 @@
     </sequential>
   </macrodef>
 
-  <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+  <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
    * Creates the Windows distribution bundle under ${dist.dir}.
-   * This is a zip file whose name is set to 
-   * ${dist.bundle.name}-${dist.bundle.version}-win.zip 
+   * This is a zip file whose name is set to
+   * ${dist.bundle.name}-${dist.bundle.version}-win.zip
    * and whose contents are:
    *   + A config dir, containing all the app.config files.  The dir name is
    *     set to the name of the ${app.config.dir}.
    *   + The OMERO.insight application.  That is, the .app dir embedding the app
    *     jar file, all the the app.libs files, and Windows exe.
-   *   + The license file, ${base.licensefile}. 
+   *   + The license file, ${base.licensefile}.
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
   <target name="dist-win" depends="jar,exe4j-init"
 	          if="dist.exe4j.exists"
@@ -358,12 +358,12 @@
 	      <zipfileset prefix="${dist.zip.prefix.win}"
 	                  file="${app.dir}/${distInsight.win64.exename}.exe"/>
 	      <zipfileset file="${base.licensefile}"
-	                  fullpath="${dist.zip.prefix.win}/LICENSE"/> 
+	                  fullpath="${dist.zip.prefix.win}/LICENSE"/>
 	      <zipfileset prefix="${dist.zip.prefix.win}" dir="${dist.dir}"
 	                  includes="${dist.jar.file}"/>
-	    </zip> 
+	    </zip>
 	  </target>
-	
+
   <target name="dist-win-openGL" depends="jar,exe4j-init"
           if="dist.exe4j.exists"
           description="Build and package the app for Windows distribution with OpenGL support.">
@@ -387,26 +387,26 @@
       <zipfileset prefix="${dist.zip.prefix.win.openGL}"
                   file="${app.dir}/${distInsight.win.exename}.exe"/>
       <zipfileset fullpath="${dist.zip.prefix.win.openGL}/LICENSE"
-                  file="${base.licensefile}"/> 
+                  file="${base.licensefile}"/>
       <zipfileset prefix="${dist.zip.prefix.win.openGL}" dir="${dist.dir}"
                   includes="${dist.jar.file}"/>
       <zipfileset prefix="${dist.zip.prefix.win.openGL}/libs"
                   dir="${native.lib.dir}/win-native" includes="*"/>
       <zipfileset file="${dist.dir}/opengl-imviewer.xml"
                   fullpath="${dist.zip.prefix.win.openGL}/${dist.app.config.dir.name}/imviewer.xml"/>
-    </zip> 
+    </zip>
   </target>
-  
-  <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+
+  <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	* Creates the Windows distribution bundle under ${dist.dir}.
-	* This is a zip file whose name is set to 
-	* ${dist.bundle.name}-${dist.bundle.version}-win.zip 
+	* This is a zip file whose name is set to
+	* ${dist.bundle.name}-${dist.bundle.version}-win.zip
 	* and whose contents are:
 	*   + A config dir, containing all the app.config files.  The dir name is
 	*     set to the name of the ${app.config.dir}.
 	*   + The OMERO.insight application.  That is, the .app dir embedding the app
 	*     jar file, all the the app.libs files, and Windows exe.
-	*   + The license file, ${base.licensefile}.  
+	*   + The license file, ${base.licensefile}.
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
    <target name="dist-win64-openGL" depends="jar,exe4j-init"
 	          if="dist.exe4j.exists"
@@ -430,7 +430,7 @@
 	      <zipfileset prefix="${dist.zip.prefix.win64.openGL}"
 	                  file="${app.dir}/${distInsight.win64.exename}.exe"/>
 	      <zipfileset file="${base.licensefile}"
-	                  fullpath="${dist.zip.prefix.win64.openGL}/LICENSE"/> 
+	                  fullpath="${dist.zip.prefix.win64.openGL}/LICENSE"/>
 	      <zipfileset prefix="${dist.zip.prefix.win64.openGL}" dir="${dist.dir}"
 	                  includes="${dist.jar.file}"/>
 	      <zipfileset prefix="${dist.zip.prefix.win64.openGL}/libs"
@@ -438,11 +438,11 @@
 	                  includes="*"/>
         <zipfileset file="${dist.dir}/opengl-imviewer.xml"
                     fullpath="${dist.zip.prefix.win64.openGL}/${dist.app.config.dir.name}/imviewer.xml"/>
-	    </zip> 
+	    </zip>
 	  </target>
-  <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+  <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
    * Creates the Mac OS X distribution bundle under ${dist.dir}.
-   * This is a zip file whose name is set to 
+   * This is a zip file whose name is set to
    * ${dist.bundle.name}-${dist.bundle.version}-mac.zip
    * and whose contents are:
    *   + A config dir, containing all the app.config files.  The dir name is
@@ -450,8 +450,8 @@
    *   + The OMERO.insight application.  That is, the .app dir embedding the app
    *     jar file, all the the app.libs files, and Mac OS X specific config.
    *   + The install instructions, ${dist.osx.installfile}.
-   *   + The license file, ${base.licensefile}. 
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->  
+   *   + The license file, ${base.licensefile}.
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
   <target name="dist-osx"
           depends="jar"
           description="Build and package the app for OS X distribution.">
@@ -462,9 +462,9 @@
                 version="${dist.bundle.version}"
                 infostring="${distInsight.name} Java Client, ${dist.bundle.version}"
                 aboutmenuname="${distInsight.name}"
-                screenmenu="true" 
+                screenmenu="true"
                 icon="${dist.osx.icon}"
-                stubfile="${dist.osx.stub}" 
+                stubfile="${dist.osx.stub}"
                	jvmversion="1.6+"
                 vmoptions="${dist.vmparameters}">
       <jarfileset refid="app.libs"/>
@@ -476,17 +476,17 @@
       <zipfileset refid="dist.launch.scripts" prefix="${main-dist-prefix}" filemode="775"/>
       <zipfileset prefix="${dist.zip.prefix.osx}/${dist.app.config.dir.name}"
                   dir="${app.config.dir}"/>
-      <zipfileset prefix="${dist.zip.prefix.osx}" dir="${dist.dir}" 
+      <zipfileset prefix="${dist.zip.prefix.osx}" dir="${dist.dir}"
                includes="OMERO.insight.app/**"
                excludes="**/${dist.osx.stub.name}"/>
-      <zipfileset file="${dist.osx.stub}" 
+      <zipfileset file="${dist.osx.stub}"
                   fullpath="${dist.zip.prefix.osx}/OMERO.insight.app/Contents/MacOS/${dist.osx.stub.name}"
-                  filemode="775"/> 
+                  filemode="775"/>
       <zipfileset prefix="${dist.zip.prefix.osx}" file="${dist.osx.installfile}"/>
       <zipfileset file="${base.licensefile}"
-                  fullpath="${dist.zip.prefix.osx}/LICENSE"/> 
-    </zip> 
-  </target> 
+                  fullpath="${dist.zip.prefix.osx}/LICENSE"/>
+    </zip>
+  </target>
 
   <target name="dist-osx-openGL"
           depends="jar"
@@ -498,9 +498,9 @@
                 version="${dist.bundle.version}"
                 infostring="${distInsight.name} Java Client, ${dist.bundle.version}"
                 aboutmenuname="${distInsight.name}"
-                screenmenu="true" 
+                screenmenu="true"
                 icon="${dist.osx.icon}"
-                stubfile="${dist.osx.stub}" 
+                stubfile="${dist.osx.stub}"
                 jvmversion="1.6+"
                 vmoptions="${dist.vmparameters}">
       <jarfileset refid="app.libs"/>
@@ -522,30 +522,30 @@
                   dir="${app.config.dir}"
                   includes="**"
                   excludes="imviewer.xml"/>
-      <zipfileset prefix="${dist.zip.prefix.osx.openGL}" dir="${dist.dir}" 
+      <zipfileset prefix="${dist.zip.prefix.osx.openGL}" dir="${dist.dir}"
                includes="OMERO.insight.app/**"
                excludes="**/${dist.osx.stub.name}"/>
-      <zipfileset file="${dist.osx.stub}" 
+      <zipfileset file="${dist.osx.stub}"
                   fullpath="${dist.zip.prefix.osx.openGL}/OMERO.insight.app/Contents/MacOS/${dist.osx.stub.name}"
-                  filemode="775"/> 
+                  filemode="775"/>
       <zipfileset prefix="${dist.zip.prefix.osx.openGL}" file="${dist.osx.installfile}"/>
       <zipfileset file="${base.licensefile}"
                   fullpath="${dist.zip.prefix.osx.openGL}/LICENSE"/>
       <zipfileset file="${dist.dir}/opengl-imviewer.xml"
                   fullpath="${dist.zip.prefix.osx.openGL}/${dist.app.config.dir.name}/imviewer.xml"/>
-    </zip> 
+    </zip>
   </target>
 
-    <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+    <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
      * Creates the Windows distribution bundle under ${dist.dir}.
-     * This is a zip file whose name is set to 
-     * ${dist.bundle.name}-${dist.bundle.version}-win.zip 
+     * This is a zip file whose name is set to
+     * ${dist.bundle.name}-${dist.bundle.version}-win.zip
      * and whose contents are:
      *   + A config dir, containing all the app.config files.  The dir name is
      *     set to the name of the ${app.config.dir}.
      *   + The OMERO.insight application.  That is, the .app dir embedding the app
      *     jar file, all the the app.libs files, and Windows exe.
-     *   + The license file, ${base.licensefile}. 
+     *   + The license file, ${base.licensefile}.
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
     <target name="distEditor-win" depends="jar,exe4j-init"
               if="dist.exe4j.exists"
@@ -563,15 +563,15 @@
           <zipfileset prefix="${dist.zip.prefix.editor.win}"
                       file="${app.dir}/${distEditor.win64.exename}.exe"/>
           <zipfileset file="${base.licensefile}"
-                      fullpath="${dist.zip.prefix.editor.win}/LICENSE"/> 
+                      fullpath="${dist.zip.prefix.editor.win}/LICENSE"/>
           <zipfileset prefix="${dist.zip.prefix.editor.win}" dir="${dist.dir}"
                       includes="${dist.jar.file}"/>
-        </zip> 
+        </zip>
       </target>
 
-  <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+  <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   * Creates the Mac OS X distribution bundle under ${dist.dir}.
-  * This is a zip file whose name is set to 
+  * This is a zip file whose name is set to
   * ${dist.bundle.name}-${dist.bundle.version}-mac.zip
   * and whose contents are:
   *   + A config dir, containing all the app.config files.  The dir name is
@@ -579,8 +579,8 @@
   *   + The OMERO.insight application.  That is, the .app dir embedding the app
   *     jar file, all the the app.libs files, and Mac OS X specific config.
   *   + The install instructions, ${dist.osx.installfile}.
-  *   + The license file, ${base.licensefile}. 
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->  
+  *   + The license file, ${base.licensefile}.
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
   <target name="distEditor-osx"
 	        depends="jar"
 	        description="Build and package the app for OS X distribution.">
@@ -590,15 +590,15 @@
 	        version="${dist.bundle.version}"
 	        infostring="${distEditor.name} Java Client, ${dist.bundle.version}"
 	        aboutmenuname="${distEditor.name}"
-	        screenmenu="true" 
+	        screenmenu="true"
 	        icon="${distEditor.osx.icon}"
-	        stubfile="${dist.osx.stub}" 
+	        stubfile="${dist.osx.stub}"
 	        jvmversion="1.6+"
   	        vmoptions="${dist.vmparameters}"
   			arguments="containerEditor.xml">
 	  <jarfileset refid="app.libs"/>
 	  <jarfileset dir="${dist.dir}" includes="${dist.jar.file}"/>
-  </jarbundler>  
+  </jarbundler>
   <property name="dist.zip.prefix.editor.osx"
             value="${distEditor.bundle.name}-${dist.bundle.version}-mac"/>
 	  <zip destfile="${dist.dir}/${dist.zip.prefix.editor.osx}.zip">
@@ -607,26 +607,26 @@
 	     <zipfileset prefix="${dist.zip.prefix.editor.osx}" dir="${dist.dir}"
 	               includes="OMERO.editor.app/**"
 	               excludes="**/${dist.osx.stub.name}"/>
-	     <zipfileset file="${dist.osx.stub}" 
+	     <zipfileset file="${dist.osx.stub}"
 	                 fullpath="${dist.zip.prefix.editor.osx}/OMERO.editor.app/Contents/MacOS/${dist.osx.stub.name}"
-	                 filemode="775"/> 
+	                 filemode="775"/>
 	     <zipfileset prefix="${dist.zip.prefix.editor.osx}"
 	                 file="${dist.osx.installfile}"/>
 	     <zipfileset file="${base.licensefile}"
-	                 fullpath="${dist.zip.prefix.editor.osx}/LICENSE"/> 
-	  </zip> 
-  </target> 
+	                 fullpath="${dist.zip.prefix.editor.osx}/LICENSE"/>
+	  </zip>
+  </target>
 
-<!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+<!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   * Creates the Windows distribution bundle under ${dist.dir}.
-  * This is a zip file whose name is set to 
-  * ${dist.bundle.name}-${dist.bundle.version}-win.zip 
+  * This is a zip file whose name is set to
+  * ${dist.bundle.name}-${dist.bundle.version}-win.zip
   * and whose contents are:
   *   + A config dir, containing all the app.config files.  The dir name is
   *     set to the name of the ${app.config.dir}.
   *   + The OMERO.insight application.  That is, the .app dir embedding the app
   *     jar file, all the the app.libs files, and Windows exe.
-  *   + The license file, ${base.licensefile}. 
+  *   + The license file, ${base.licensefile}.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
     <target name="distImporter-win" depends="jar,exe4j-init"
               if="dist.exe4j.exists"
@@ -644,15 +644,15 @@
           <zipfileset prefix="${dist.zip.prefix.importer.win}"
                       file="${app.dir}/${distImporter.win64.exename}.exe"/>
           <zipfileset file="${base.licensefile}"
-                      fullpath="${dist.zip.prefix.importer.win}/LICENSE"/> 
+                      fullpath="${dist.zip.prefix.importer.win}/LICENSE"/>
           <zipfileset prefix="${dist.zip.prefix.importer.win}" dir="${dist.dir}"
                       includes="${dist.jar.file}"/>
-        </zip> 
+        </zip>
       </target>
 
-<!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+<!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   * Creates the Mac OS X distribution bundle under ${dist.dir}.
-  * This is a zip file whose name is set to 
+  * This is a zip file whose name is set to
   * ${dist.bundle.name}-${dist.bundle.version}-mac.zip
   * and whose contents are:
   *   + A config dir, containing all the app.config files.  The dir name is
@@ -660,8 +660,8 @@
   *   + The OMERO.importer application.  That is, the .app dir embedding the app
   *     jar file, all the the app.libs files, and Mac OS X specific config.
   *   + The install instructions, ${dist.osx.installfile}.
-  *   + The license file, ${base.licensefile}. 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->  
+  *   + The license file, ${base.licensefile}.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
   <target name="distImporter-osx"
         depends="jar"
         description="Build and package the app for OS X distribution.">
@@ -671,15 +671,15 @@
         version="${dist.bundle.version}"
         infostring="${distImporter.name} Java Client, ${dist.bundle.version}"
         aboutmenuname="${distImporter.name}"
-        screenmenu="true" 
+        screenmenu="true"
         icon="${distImporter.osx.icon}"
-        stubfile="${dist.osx.stub}" 
+        stubfile="${dist.osx.stub}"
         jvmversion="1.6+"
   	    vmoptions="${dist.vmparameters}"
   arguments="containerImporter.xml">
   <jarfileset refid="app.libs"/>
   <jarfileset dir="${dist.dir}" includes="${dist.jar.file}"/>
-  </jarbundler>  
+  </jarbundler>
   <property name="dist.zip.prefix.importer.osx"
             value="${distImporter.bundle.name}-${dist.bundle.version}-mac"/>
   <zip destfile="${dist.dir}/${dist.zip.prefix.importer.osx}.zip">
@@ -688,19 +688,19 @@
      <zipfileset prefix="${dist.zip.prefix.importer.osx}" dir="${dist.dir}"
                includes="OMERO.importer.app/**"
                excludes="**/${dist.osx.stub.name}"/>
-     <zipfileset file="${dist.osx.stub}" 
+     <zipfileset file="${dist.osx.stub}"
                  fullpath="${dist.zip.prefix.importer.osx}/OMERO.importer.app/Contents/MacOS/${dist.osx.stub.name}"
-                 filemode="775"/> 
+                 filemode="775"/>
      <zipfileset prefix="${dist.zip.prefix.importer.osx}"
                  file="${dist.osx.installfile}"/>
      <zipfileset file="${base.licensefile}"
-                 fullpath="${dist.zip.prefix.importer.osx}/LICENSE"/> 
-  </zip> 
+                 fullpath="${dist.zip.prefix.importer.osx}/LICENSE"/>
+  </zip>
 	  </target>
 
-  
-  <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
-   * Remove all output generated by the targets within this file. 
+
+  <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   * Remove all output generated by the targets within this file.
    * This target simply deletes the ${dist.dir}, relying on the fact that all
    * other targets output under this dir.  As long as dir mapping props stick
    * to this rule, new targets can be added without modifying this one.
@@ -710,9 +710,9 @@
   <target name="clean"
           description="Remove all output generated by dist targets.">
     <delete dir="${dist.dir}"/>
-  </target> 
-  
-  <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+  </target>
+
+  <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
    * Output a list of available targets.
    * This is the list of all public targets exported by this file.
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
@@ -720,7 +720,7 @@
           description="List available distribution targets.">
     <echo level="info">
 Distribution targets:
---------------------- 
+---------------------
   dist: Creates the distribution bundle under ${dist.dir}.
   dist-osx: Creates the Mac OS X distribution bundle under ${dist.dir}.
   dist-win: Creates the Windows distribution bundle under ${dist.dir}.
@@ -730,5 +730,5 @@ Distribution targets:
   dist.clean: Remove ${dist.dir}.
     </echo>
   </target>
- 
-</project> 
+
+</project>
