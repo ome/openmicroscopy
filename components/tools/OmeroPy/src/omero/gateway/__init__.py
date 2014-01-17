@@ -6544,13 +6544,23 @@ class _ImageWrapper (BlitzObjectWrapper):
         
         self._pr = proj
 
+    def getProjectionRange (self):
+        """
+        Gets the range used for Z-projection as tuple (proStart, proEnd)
+        """
+        return (self._prStart, self._prEnd)
+
     def setProjectionRange (self, projStart, projEnd):
         """
         Sets the range used for Z-projection. Will only be used
         if E.g. setProjection('intmax') is not 'normal'
         """
-        self._prStart = max(0, int(projStart))
-        self._prEnd = min(int(projEnd), self.getSizeZ()-1)
+        if projStart is not None:
+            projStart = max(0, int(projStart))
+        if projEnd is not None:
+            projEnd = min(int(projEnd), self.getSizeZ()-1)
+        self._prStart = projStart
+        self._prEnd = projEnd
 
     def isInvertedAxis (self):
         """
