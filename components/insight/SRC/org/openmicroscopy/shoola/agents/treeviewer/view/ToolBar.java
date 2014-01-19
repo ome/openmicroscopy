@@ -448,9 +448,8 @@ class ToolBar
         while (i.hasNext()) {
             group = (GroupData) i.next();
             boolean b = groupIds.contains(group.getId()) || size == 1;
-            item = new GroupItem(group, b);
+            item = new GroupItem(group, b, false);
             createGroupMenu(item);
-            //item.addMouseListener(usersMenuListener);
             popupMenu.add(item);
         }
         popupMenu.show(source, p.x, p.y);

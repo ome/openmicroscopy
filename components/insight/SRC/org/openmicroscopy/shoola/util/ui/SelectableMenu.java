@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2014 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -61,36 +61,44 @@ public class SelectableMenu
      *
      * @param selectedIcon The icon used when the menu is selected.
      * @param deselectedIcon The icon used when the menu is not selected.
-     */
-    public SelectableMenu(Icon selectedIcon, Icon deselectedIcon)
-    {
-        this(selectedIcon, deselectedIcon, false, "");
-    }
-
-    /**
-     * Creates a new instance.
-     *
-     * @param selectedIcon The icon used when the menu is selected.
-     * @param deselectedIcon The icon used when the menu is not selected.
-     * @param text The text of the menu.
-     */
-    public SelectableMenu(Icon selectedIcon, Icon deselectedIcon, String text)
-    {
-        this(selectedIcon, deselectedIcon, false, "");
-    }
-
-    /**
-     * Creates a new instance.
-     *
-     * @param selectedIcon The icon used when the menu is selected.
-     * @param deselectedIcon The icon used when the menu is not selected.
-     * @param selected Pass <code>true</code> to select the menu,
-     *                 <code>false</code> otherwise.
+     * @param selectable Pass <code>true</code> to allow user selection,
+     *                   <code>false</code> otherwise.
      */
     public SelectableMenu(Icon selectedIcon, Icon deselectedIcon,
-            boolean selected)
+            boolean selectable)
     {
-        this(selectedIcon, deselectedIcon, selected, "");
+        this(selectedIcon, deselectedIcon, false, "", selectable);
+    }
+
+    /**
+     * Creates a new instance.
+     *
+     * @param selectedIcon The icon used when the menu is selected.
+     * @param deselectedIcon The icon used when the menu is not selected.
+     * @param text The text of the menu.
+     * @param selectable Pass <code>true</code> to allow user selection,
+     *                   <code>false</code> otherwise.
+     */
+    public SelectableMenu(Icon selectedIcon, Icon deselectedIcon, String text,
+            boolean selectable)
+    {
+        this(selectedIcon, deselectedIcon, false, "", selectable);
+    }
+
+    /**
+     * Creates a new instance.
+     *
+     * @param selectedIcon The icon used when the menu is selected.
+     * @param deselectedIcon The icon used when the menu is not selected.
+     * @param selected Pass <code>true</code> to select the menu,
+     *                 <code>false</code> otherwise.
+     * @param selectable Pass <code>true</code> to allow user selection,
+     *                   <code>false</code> otherwise.
+     */
+    public SelectableMenu(Icon selectedIcon, Icon deselectedIcon,
+            boolean selected, boolean selectable)
+    {
+        this(selectedIcon, deselectedIcon, selected, "", selectable);
     }
 
     /**
@@ -99,10 +107,12 @@ public class SelectableMenu
      * @param selected Pass <code>true</code> to select the menu,
      *                 <code>false</code> otherwise.
      * @param text The text of the menu.
+     * @param selectable Pass <code>true</code> to allow user selection,
+     *                   <code>false</code> otherwise.
      */
-    public SelectableMenu(boolean selected, String text)
+    public SelectableMenu(boolean selected, String text, boolean selectable)
     {
-        this(DEFAULT_SELECTED, DEFAULT_DESELECTED, selected, text);
+        this(DEFAULT_SELECTED, DEFAULT_DESELECTED, selected, text, selectable);
     }
 
     /**
@@ -113,20 +123,24 @@ public class SelectableMenu
      * @param selected Pass <code>true</code> to select the menu,
      *                 <code>false</code> otherwise.
      * @param text The text of the menu.
+     * @param selectable Pass <code>true</code> to allow user selection,
+     *                   <code>false</code> otherwise.
      */
     public SelectableMenu(Icon selectedIcon, Icon deselectedIcon,
-            boolean selected, String text)
+            boolean selected, String text, boolean selectable)
     {
         this.selectedIcon = selectedIcon;
         this.deselectedIcon = deselectedIcon;
         setMenuSelected(selected);
         setText(text);
-        addMouseListener(new MouseAdapter() {
-            public void mouseClicked(MouseEvent evt) {
-                setMenuSelected(!isMenuSelected());
-                repaint();
-            }
-        });
+        if (selectable) {
+            addMouseListener(new MouseAdapter() {
+                public void mouseClicked(MouseEvent evt) {
+                    setMenuSelected(!isMenuSelected());
+                    repaint();
+                }
+            });
+        }
     }
 
     /**

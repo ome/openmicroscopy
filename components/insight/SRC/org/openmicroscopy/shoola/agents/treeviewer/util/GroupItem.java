@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.treeviewer.util.GroupItem
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee & Open Microscopy Environment.
+ *  Copyright (C) 2006-2014 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
  *
  *
@@ -31,7 +31,6 @@ import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import javax.swing.JComponent;
 
 //Third-party libraries
 
@@ -66,22 +65,34 @@ public class GroupItem
     /** The List of components hosting the user.*/
     private List<DataMenuItem> usersItem;
 
-    /** The menu displaying the users.*/
-    private JComponent usersMenu;
+    /**
+     * Creates a new instance.
+     * 
+     * @param group The group hosted by this component.
+     * @param selected Pass <code>true</code> if the group is selected,
+     *                 <code>false</code>.
+     * @param selectable Pass <code>true</code> to allow user selection,
+     *                   <code>false</code> otherwise.
+     */
+    public GroupItem(GroupData group, boolean selected, boolean selectable)
+    {
+        super(selected, group.getName(), selectable);
+        this.group = group;
+    }
 
     /**
      * Creates a new instance.
      * 
      * @param group The group hosted by this component.
      * @param selected Pass <code>true</code> if the group is selected,
-     *                 <code>false</code>
+     *                 <code>false</code>.
      */
     public GroupItem(GroupData group, boolean selected)
     {
-        super(selected, group.getName());
+        super(selected, group.getName(), true);
         this.group = group;
     }
-
+    
     /**
      * Sets the list of components hosting the users.
      * 
