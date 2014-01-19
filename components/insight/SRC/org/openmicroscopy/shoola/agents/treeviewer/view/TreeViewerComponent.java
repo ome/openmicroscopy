@@ -1766,12 +1766,11 @@ class TreeViewerComponent
 		Iterator<TreeImageDisplay> k = nodes.iterator();
 		TreeImageDisplay n;
 		ExperimenterData exp;
-		long currentUser = model.getExperimenter().getId();
 		while (k.hasNext()) {
 			n = k.next();
 			if (n.getUserObject() instanceof ExperimenterData) {
 				exp = (ExperimenterData) n.getUserObject();
-				if (!ids.contains(exp.getId()) && exp.getId() != currentUser) {
+				if (!ids.contains(exp.getId())) {
 					users.add(exp);
 				}
 			}

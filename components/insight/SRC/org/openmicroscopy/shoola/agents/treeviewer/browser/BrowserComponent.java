@@ -1202,8 +1202,10 @@ class BrowserComponent
 			throw new IllegalArgumentException("Experimenter cannot be null.");
 		if (model.getBrowserType() == ADMIN_EXPLORER) return;
 		TreeImageDisplay node = model.getLastSelectedDisplay();
+		boolean reload = false;
 		if (model.isSingleGroup()) {
 			node = view.getTreeRoot();
+			reload = node.getChildCount() == 0;
 		} else {
 			//Find the group
 			ExperimenterVisitor v = new ExperimenterVisitor(this, groupID);
@@ -1222,6 +1224,7 @@ class BrowserComponent
 		if (visitor.getFoundNodes().size() > 0) return;
 		setSelectedDisplay(null);
 		view.addExperimenter(experimenter, node);
+		if (reload) view.reloadNode(node);
 	}
 
 	/**

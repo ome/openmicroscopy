@@ -212,8 +212,6 @@ class ToolBar
     /** Handles the groups selection.*/
     private void handleSelection()
     {
-        List<GroupData> toAdd = new ArrayList<GroupData>();
-        List<GroupData> toRemove = new ArrayList<GroupData>();
         int n = popupMenu.getComponentCount();
         GroupItem item;
         Component c;
@@ -225,21 +223,6 @@ class ToolBar
                         item.getSeletectedUsers(), !item.isSelected());
             }
         }
-        /*
-        Entry<JCheckBox, DataMenuItem> e;
-        Iterator<Entry<JCheckBox, DataMenuItem>>
-        i = groupItems.entrySet().iterator();
-        List<GroupData> toAdd = new ArrayList<GroupData>();
-        List<GroupData> toRemove = new ArrayList<GroupData>();
-        while (i.hasNext()) {
-            e = i.next();
-            if (e.getKey().isSelected())
-                toAdd.add((GroupData) e.getValue().getDataObject());
-            else toRemove.add((GroupData) e.getValue().getDataObject());
-        }
-        controller.setSelectedGroups(toAdd, toRemove);
-        */
-        //popupMenu.setVisible(false);
     }
 
     /**
@@ -267,7 +250,6 @@ class ToolBar
     private void createGroupMenu(GroupItem groupItem)
     {
         GroupData group = groupItem.getGroup();
-        long id = model.getUserDetails().getId();
         //Determine the user already added to the display
         Browser browser = model.getBrowser(Browser.PROJECTS_EXPLORER);
         TreeImageDisplay refNode = null;
@@ -293,7 +275,6 @@ class ToolBar
                 users.add(((ExperimenterData) n.getUserObject()).getId());
             }
         }
-        if (!users.contains(id)) users.add(id);
         //now add the users
         List<DataMenuItem> items = new ArrayList<DataMenuItem>();
         JPanel p = new JPanel();
@@ -323,7 +304,7 @@ class ToolBar
             list.setLayout(new BoxLayout(list, BoxLayout.Y_AXIS));
             while (i.hasNext()) {
                 exp = (ExperimenterData) i.next();
-                item = new DataMenuItem(exp, exp.getId() != id);
+                item = new DataMenuItem(exp, true);
                 item.setSelected(users.contains(exp.getId()));
                 item.addPropertyChangeListener(groupItem);
                 items.add(item);
@@ -340,8 +321,8 @@ class ToolBar
             list.setLayout(new BoxLayout(list, BoxLayout.Y_AXIS));
             while (i.hasNext()) {
                 exp = (ExperimenterData) i.next();
-                if (view || exp.getId() == id) {
-                    item = new DataMenuItem(exp, exp.getId() != id);
+                if (view) {
+                    item = new DataMenuItem(exp, true);
                     item.setSelected(users.contains(exp.getId()));
                     item.addPropertyChangeListener(groupItem);
                     items.add(item);
