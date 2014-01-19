@@ -47,7 +47,7 @@ public class SelectableMenu
     static {
         IconManager icons = IconManager.getInstance();
         DEFAULT_DESELECTED = icons.getIcon(IconManager.TRANSPARENT);
-        DEFAULT_SELECTED = icons.getIcon(IconManager.SELECTED);
+        DEFAULT_SELECTED = icons.getIcon(IconManager.SELECTED_8);
     }
 
     /** The icon used when the menu is selected.*/
