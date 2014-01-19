@@ -48,7 +48,6 @@ import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.Icon;
 import javax.swing.JButton;
-import javax.swing.JCheckBox;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -63,6 +62,8 @@ import javax.swing.JToolBar;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.border.BevelBorder;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 //Third-party libraries
 import org.apache.commons.collections.CollectionUtils;
@@ -191,15 +192,6 @@ class ToolBar
     /** The menu displaying the users option.*/
     private JPopupMenu popupMenu;
 
-    /** The selected group.*/
-    //private GroupItem selectedItem;
-
-    /** The collection of object hosting the groups.*/
-    private Map<JCheckBox, DataMenuItem> groupItems;
-
-    /** Listens to selection in the groups menu.*/
-    //private MouseAdapter usersMenuListener;
-
     /** Label indicating the number of successful import if any.*/
     private JLabel importSuccessLabel;
 
@@ -209,7 +201,7 @@ class ToolBar
     /** Label indicating the import status.*/
     private JXBusyLabel importLabel;
 
-    /** Handles the groups selection.*/
+    /** Handles the selection of user.*/
     private void handleSelection()
     {
         int n = popupMenu.getComponentCount();
@@ -223,6 +215,28 @@ class ToolBar
                         item.getSeletectedUsers(), !item.isSelected());
             }
         }
+    }
+
+    /** Handles the selection of user.*/
+    private void handleGroupSelection()
+    {
+        int n = popupMenu.getComponentCount();
+        DataMenuItem item;
+        Component c;
+        List<GroupData> toAdd = new ArrayList<GroupData>();
+        List<GroupData> toRemove = new ArrayList<GroupData>();
+        for (int i = 0; i < n; i++) {
+            c = popupMenu.getComponent(i);
+            if (c instanceof DataMenuItem) {
+                item = (DataMenuItem) c;
+                if (item.isSelected()) {
+                    toAdd.add((GroupData) item.getDataObject());
+                } else {
+                    toRemove.add((GroupData) item.getDataObject());
+                }
+            }
+        }
+        controller.setSelectedGroups(toAdd, toRemove);
     }
 
     /**
@@ -355,13 +369,12 @@ class ToolBar
         if (CollectionUtils.isEmpty(groups)) return;
         List sortedGroups = sorter.sort(groups);
         popupMenu.removeAll();
-        groupItems.clear();
         GroupData group;
         //Determine the group already displayed.
         Browser browser = model.getBrowser(Browser.PROJECTS_EXPLORER);
         List<TreeImageDisplay> nodes;
         ExperimenterVisitor visitor;
-        //Find the user already added to the selected group.
+        //Find the group.
         visitor = new ExperimenterVisitor(browser, -1);
         browser.accept(visitor);
         nodes = visitor.getNodes();
@@ -376,26 +389,19 @@ class ToolBar
         //Create the group menu.
         Iterator i = sortedGroups.iterator();
         DataMenuItem item;
-        int size = sortedGroups.size();
-        JPanel pane = new JPanel();
-        pane.setLayout(new BoxLayout(pane, BoxLayout.Y_AXIS));
-        JPanel row;
-        JCheckBox box;
         while (i.hasNext()) {
             group = (GroupData) i.next();
-            row = new JPanel();
-            row.setLayout(new FlowLayout(FlowLayout.LEFT));
-            box = new JCheckBox();
-            row.add(box);
-            item = new DataMenuItem(group, getGroupIcon(group));
-            if (groupIds.contains(group.getId()) || size == 1)
-                box.setSelected(true);
-            groupItems.put(box, item);
-            row.add(item);
-            pane.add(row);
+            item = new DataMenuItem(group, true);
+            item.setSelected(groupIds.contains(group.getId()));
+            item.addChangeListener(new ChangeListener() {
+                
+                @Override
+                public void stateChanged(ChangeEvent evt) {
+                    handleGroupSelection();
+                }
+            });
+            popupMenu.add(item);
         }
-        pane.add(UIUtilities.buildComponentPanel(addToDisplay));
-        popupMenu.add(new JScrollPane(pane));
         //Check the size of the menu
         Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
 
@@ -422,7 +428,6 @@ class ToolBar
         if (CollectionUtils.isEmpty(groups)) return;
         List sortedGroups = sorter.sort(groups);
         popupMenu.removeAll();
-        groupItems.clear();
         GroupData group;
 
         //Determine the group already displayed.
@@ -690,7 +695,6 @@ class ToolBar
         sorter = new ViewerSorter();
         sorter.setCaseSensitive(true);
         popupMenu = new JPopupMenu();
-        groupItems = new HashMap<JCheckBox, DataMenuItem>();
     }
 
     /**
