@@ -701,7 +701,7 @@ public class IconManager
         relPaths[UPLOAD_SCRIPT] = "nuvola_script_add16.png";
         relPaths[NO_ENTRY] = "crystal_agt_action_fail16.png";
         relPaths[NOT_OWNED_8] = "red_dot8.png";
-        relPaths[SELECTED] = "nuvola_attach16.png";
+        relPaths[SELECTED] = "apply_monochrome16.png";
     }
 
     /**
