@@ -53,6 +53,13 @@ public class GroupItem
     implements PropertyChangeListener
 {
 
+    /** Bound property indicating that the users have been selected.*/
+    static final String USER_SELECTION_PROPERTY;
+
+    static {
+        USER_SELECTION_PROPERTY = "userSelection";
+    }
+
     /** The group hosted by this component.*/
     private GroupData group;
 
@@ -136,6 +143,7 @@ public class GroupItem
             }
             List<ExperimenterData> l = getSeletectedUsers();
             setMenuSelected(CollectionUtils.isNotEmpty(l));
+            firePropertyChange(USER_SELECTION_PROPERTY, null, this);
         }
     }
 

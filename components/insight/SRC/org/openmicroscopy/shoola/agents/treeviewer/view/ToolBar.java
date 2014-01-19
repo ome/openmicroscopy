@@ -34,13 +34,14 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -62,8 +63,6 @@ import javax.swing.JToolBar;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.border.BevelBorder;
-import javax.swing.event.PopupMenuEvent;
-import javax.swing.event.PopupMenuListener;
 
 //Third-party libraries
 import org.apache.commons.collections.CollectionUtils;
@@ -83,7 +82,6 @@ import org.openmicroscopy.shoola.agents.treeviewer.util.DataMenuItem;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.util.ui.ScriptMenuItem;
-import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -93,10 +91,10 @@ import pojos.GroupData;
 /** 
  * The tool bar of {@link TreeViewer}.
  *
- * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
- * @author	Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
+ * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
+ *         <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+ * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
+ *         <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
  * @since OME2.2
  */
@@ -212,8 +210,22 @@ class ToolBar
     private JXBusyLabel importLabel;
 
     /** Handles the groups selection.*/
-    private void handleGroupsSelection()
+    private void handleSelection()
     {
+        List<GroupData> toAdd = new ArrayList<GroupData>();
+        List<GroupData> toRemove = new ArrayList<GroupData>();
+        int n = popupMenu.getComponentCount();
+        GroupItem item;
+        Component c;
+        for (int i = 0; i < n; i++) {
+            c = popupMenu.getComponent(i);
+            if (c instanceof GroupItem) {
+                item = (GroupItem) c;
+                controller.setSelection(item.getGroup(),
+                        item.getSeletectedUsers(), !item.isSelected());
+            }
+        }
+        /*
         Entry<JCheckBox, DataMenuItem> e;
         Iterator<Entry<JCheckBox, DataMenuItem>>
         i = groupItems.entrySet().iterator();
@@ -226,7 +238,8 @@ class ToolBar
             else toRemove.add((GroupData) e.getValue().getDataObject());
         }
         controller.setSelectedGroups(toAdd, toRemove);
-        popupMenu.setVisible(false);
+        */
+        //popupMenu.setVisible(false);
     }
 
     /**
@@ -339,6 +352,13 @@ class ToolBar
         }
         groupItem.add(new JScrollPane(p));
         groupItem.setUsersItem(items);
+        groupItem.addPropertyChangeListener(new PropertyChangeListener() {
+            
+            @Override
+            public void propertyChange(PropertyChangeEvent arg0) {
+                handleSelection();
+            }
+        });
     }
 
     /**
