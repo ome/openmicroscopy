@@ -83,14 +83,7 @@ public class RemoveExperimenterNode
         else {
             Browser browser = model.getSelectedBrowser();
             if (browser != null) {
-                if (browser.getSelectedDisplays().length > 1) {
-                    setEnabled(false);
-                } else {
-                	ExperimenterData loggedIn = 
-                		TreeViewerAgent.getUserDetails();
-                	ExperimenterData exp = (ExperimenterData) ho;
-                	setEnabled(exp.getId() != loggedIn.getId());
-                }
+                setEnabled(browser.getSelectedDisplays().length == 1);
             } else setEnabled(false);
         }
     }
