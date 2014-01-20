@@ -3,7 +3,7 @@
 # 
 # webclient_gateway
 # 
-# Copyright (c) 2008-2011 University of Dundee.
+# Copyright (c) 2008-2014 University of Dundee.
 # 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -557,8 +557,11 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             if len(ann) > 0:
                 ann = ann[0]
                 store = self.createRawFileStore()
-                store.setFileId(ann.file.id.val)
-                photo = store.read(0,long(ann.file.size.val))
+                try:
+                    store.setFileId(ann.file.id.val)
+                    photo = store.read(0, long(ann.file.size.val))
+                finally:
+                    store.close()
             else:
                 photo = self.getExperimenterDefaultPhoto()
         except:
@@ -588,8 +591,11 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             else:
                 ann = meta.loadAnnotations("Experimenter", [long(oid)], None, None, None).get(long(oid), [])[0]
             store = self.createRawFileStore()
-            store.setFileId(ann.file.id.val)
-            photo = store.read(0,long(ann.file.size.val))
+            try:
+                store.setFileId(ann.file.id.val)
+                photo = store.read(0, long(ann.file.size.val))
+            finally:
+                store.close()
             try:
                 im = Image.open(StringIO(photo))
             except:
@@ -643,8 +649,11 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             else:
                 ann = meta.loadAnnotations("Experimenter", [long(oid)], None, None, None).get(long(oid), [])[0]
             store = self.createRawFileStore()
-            store.setFileId(ann.file.id.val)
-            photo = store.read(0,long(ann.file.size.val))
+            try:
+                store.setFileId(ann.file.id.val)
+                photo = store.read(0, long(ann.file.size.val))
+            finally:
+                store.close()
         except:
             logger.error(traceback.format_exc())
             raise IOError("Photo does not exist.")
