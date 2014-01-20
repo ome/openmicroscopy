@@ -174,13 +174,16 @@ class BlitzObjectWrapper (object):
         """
         Returns a unique key for this object
         """
-        return self._obj.id.val
+        return self.getId()
 
     def __hash__(self):
         """
         Returns a hash of the unique key
         """
-        return hash(self.__key)
+        h = self.__key()
+        if h is None:
+            return None
+        return hash(h)
 
     def __eq__ (self, a):
         """
@@ -190,7 +193,7 @@ class BlitzObjectWrapper (object):
         @return:    True if objects are same - see above
         @rtype:     Boolean
         """
-        return type(a) == type(self) and self._key() == a._key()
+        return type(a) == type(self) and self.__key() == a.__key()
 
     def __bstrap__ (self):
         """ Initialisation method which is implemented by subclasses to set their class variables etc. """
