@@ -169,10 +169,12 @@ def login(request):
                     if request.REQUEST.get('noredirect'):
                         return HttpResponse('OK')
                     url = request.REQUEST.get("url")
-                    if url is not None and len(url) != 0:
-                        return HttpResponseRedirect(url)
-                    else:
-                        return HttpResponseRedirect(parse_url(settings.LOGIN_REDIRECT))
+                    if url is None or len(url) == 0:
+                        try:
+                            url = parse_url(settings.LOGIN_REDIRECT)
+                        except:
+                            url = reverse("webindex")
+                    return HttpResponseRedirect(url)
                 elif username == "guest":
                     error = "Guest account is for internal OMERO use only. Not for login."
                 else:
