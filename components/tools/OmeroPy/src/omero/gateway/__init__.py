@@ -174,16 +174,16 @@ class BlitzObjectWrapper (object):
         """
         Returns a unique key for this object
         """
-        return self.getId()
+        k = self.getId()
+        if k is None:
+            return id(self)
+        return k
 
     def __hash__(self):
         """
         Returns a hash of the unique key
         """
-        h = self.__key()
-        if h is None:
-            return hash(id(self))
-        return hash(h)
+        return hash(self.__key())
 
     def __eq__ (self, a):
         """
