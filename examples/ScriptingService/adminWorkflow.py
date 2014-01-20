@@ -4,7 +4,7 @@
  examples/ScriptingService/adminWorkflow.py
 
 -----------------------------------------------------------------------------
-  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
+  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
 
 
   This program is free software; you can redistribute it and/or modify
@@ -260,6 +260,7 @@ def runScript(session, scriptService, scriptPath):
             fileId = origFile.getId().getValue()
             print "\n******** Script generated StdErr in file:%s  *******" % fileId
             print scriptUtil.readFromOriginalFile(rawFileService, queryService, fileId)
+        rawFileService.close()
 
 
 def disableScript(session, scriptId):
