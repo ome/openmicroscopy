@@ -67,7 +67,7 @@ public class AddAction
     private static final String NAME_IMAGE = "Add Existing Image...";
 
     /** The name of the action to add existing <code>Users</code>. */
-    private static final String NAME_USER= "Add Existing User...";
+    private static final String NAME_USER = "Edit group membership...";
 
     /** Description of the action. */
     private static final String DESCRIPTION = "Add existing elements to the " +
@@ -83,7 +83,7 @@ public class AddAction
 
     /** Description of the action. */
     private static final String DESCRIPTION_USER =
-            "Add existing users to the selected group.";
+            "Add/Remove existing users to/from the selected group.";
 
     /**
      * Modifies the name of the action and sets it enabled depending on
