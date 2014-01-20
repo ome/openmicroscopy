@@ -3,7 +3,7 @@
 #
 # blitz_gateway - python bindings and wrappers to access an OMERO blitz server
 # 
-# Copyright (c) 2007, 2010 Glencoe Software, Inc. All rights reserved.
+# Copyright (c) 2007-2014 Glencoe Software, Inc. All rights reserved.
 # 
 # This software is distributed under the terms described by the LICENCE file
 # you can find at the root of the distribution bundle, which states you are
@@ -3041,17 +3041,20 @@ class _BlitzGateway (object):
 
         # upload file
         fo.seek(0)
-        rawFileStore.setFileId(originalFile.getId().getValue())
-        buf = 10000
-        for pos in range(0,long(fileSize),buf):
-            block = None
-            if fileSize-pos < buf:
-                blockSize = fileSize-pos
-            else:
-                blockSize = buf
-            fo.seek(pos)
-            block = fo.read(blockSize)
-            rawFileStore.write(block, pos, blockSize)
+        try:
+            rawFileStore.setFileId(originalFile.getId().getValue())
+            buf = 10000
+            for pos in range(0,long(fileSize),buf):
+                block = None
+                if fileSize-pos < buf:
+                    blockSize = fileSize-pos
+                else:
+                    blockSize = buf
+                fo.seek(pos)
+                block = fo.read(blockSize)
+                rawFileStore.write(block, pos, blockSize)
+        finally:
+            rawFileStore.close();
         return OriginalFileWrapper(self, originalFile)
         
     def createOriginalFileFromLocalFile (self, localPath, origFilePathAndName=None, mimetype=None, ns=None):
