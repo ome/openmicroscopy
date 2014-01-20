@@ -182,7 +182,7 @@ class BlitzObjectWrapper (object):
         """
         h = self.__key()
         if h is None:
-            return None
+            return hash(id(self))
         return hash(h)
 
     def __eq__ (self, a):
