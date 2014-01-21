@@ -1,7 +1,7 @@
 /*
  * ome.util.PixelData
  *
- *   Copyright 2007-2013 Glencoe Software Inc. All rights reserved.
+ *   Copyright 2007-2014 Glencoe Software Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -41,9 +41,9 @@ public class PixelData
         final Boolean dispose;
 
         /* parse config value and log accordingly */
-        if ("true".equals(configValue)) {
+        if ("true".equalsIgnoreCase(configValue)) {
             dispose = Boolean.TRUE;
-        } else if ("false".equals(configValue)) {
+        } else if ("false".equalsIgnoreCase(configValue)) {
             dispose = Boolean.FALSE;
         } else {
             dispose = null;
