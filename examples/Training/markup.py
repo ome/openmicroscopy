@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 #
-# Copyright (C) 2011 University of Dundee & Open Microscopy Environment.
+# Copyright (C) 2014 University of Dundee & Open Microscopy Environment.
 #                    All Rights Reserved.
 # Use is subject to license terms supplied in LICENSE.txt
 #
@@ -286,7 +286,7 @@ PYHEADER="""#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 #
-# Copyright (C) 2011 University of Dundee & Open Microscopy Environment.
+# Copyright (C) 2014 University of Dundee & Open Microscopy Environment.
 #                    All Rights Reserved.
 # Use is subject to license terms supplied in LICENSE.txt
 #
@@ -320,9 +320,9 @@ if __name__ == "__main__":
 
     pythonFiles = ['python/Connect_To_OMERO.py', 'python/Read_Data.py', 'python/Groups_Permissions.py', 'python/Raw_Data_Access.py', 
         'python/Write_Data.py', 'python/Tables.py', 'python/ROIs.py', 'python/Delete.py', 'python/Render_Images.py', 
-        'python/Create_Image.py']
+        'python/Create_Image.py', 'python/Filesets.py']
     titles = ['Connect to OMERO', 'Read data', 'Groups and permissions', 'Raw data access', 'Write data', 
-        'OMERO tables', 'ROIs', 'Delete data', 'Render Images', 'Create Image']
+        'OMERO tables', 'ROIs', 'Delete data', 'Render Images', 'Create Image', 'Filesets - New in OMERO 5']
 
     if "--check_header" in sys.argv:
         for py in pythonFiles:

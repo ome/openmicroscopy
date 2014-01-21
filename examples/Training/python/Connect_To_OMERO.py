@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 #
-# Copyright (C) 2011 University of Dundee & Open Microscopy Environment.
+# Copyright (C) 2014 University of Dundee & Open Microscopy Environment.
 #                    All Rights Reserved.
 # Use is subject to license terms supplied in LICENSE.txt
 #
@@ -75,6 +75,11 @@ if __name__ == '__main__':
     print "Owner of:"
     for g in conn.listOwnedGroups():
         print "   ID:", g.getName(), " Name:", g.getId()
+
+    # New in OMERO 5
+    print "Admins:"
+    for exp in conn.getAdministrators():
+        print "   ID:", exp.getId(), exp.getOmeName(), " Name:", exp.getFullName()
 
     # The 'context' of our current session
     ctx = conn.getEventContext()
