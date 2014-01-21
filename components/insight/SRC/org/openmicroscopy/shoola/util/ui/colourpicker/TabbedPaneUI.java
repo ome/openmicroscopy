@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.util.ui.colourpicker.TabbedPaneUI
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -79,7 +79,7 @@ class TabbedPaneUI
 	static final int			TEXTBOX_COLUMN = 2;
 	
 	/** Used by card layout to select colour wheel panel. */
-	private static final String COLOURWHEELPANE = "Colour Wheel Pane"; 	
+	private static final String COLOURWHEELPANE = "Color Wheel Pane"; 	
 	
 	/** Used by card layout to select RGB Slider panel. */
 	private static final String RGBSLIDERPANE = "RGB Slider Pane"; 	
@@ -185,9 +185,9 @@ class TabbedPaneUI
         icons.getIcon(IconManager.COLOUR_WHEEL_24));
         UIUtilities.unifiedButtonLookAndFeel(colourWheelButton);
         colourWheelButton.setBorderPainted(true);
-        colourWheelButton.setToolTipText("Show HSV Colour Wheel");
+        colourWheelButton.setToolTipText("Show HSV Color Wheel.");
 
-        AbstractAction action = new AbstractAction("HSV Wheel Colour Button") {
+        AbstractAction action = new AbstractAction("HSV Wheel Color Button") {
             public void actionPerformed(ActionEvent evt) 
             {
                 clearToggleButtons();
@@ -200,7 +200,7 @@ class TabbedPaneUI
         icons.getIcon(IconManager.COLOUR_SLIDER_24));
         UIUtilities.unifiedButtonLookAndFeel(RGBSlidersButton);
         RGBSlidersButton.setBorderPainted(true);
-        RGBSlidersButton.setToolTipText("Show RGB Colour Sliders");
+        RGBSlidersButton.setToolTipText("Show RGB Color Sliders.");
         
         action = new AbstractAction("RGB Slider Button") 
         {
@@ -213,11 +213,11 @@ class TabbedPaneUI
         RGBSlidersButton.addActionListener(action);
         colourSwatchButton = new JToggleButton(
         icons.getIcon(IconManager.COLOUR_SWATCH_24));
-        colourSwatchButton.setToolTipText("Show Colour List");
+        colourSwatchButton.setToolTipText("Show Color List.");
         UIUtilities.unifiedButtonLookAndFeel(colourSwatchButton);
         colourSwatchButton.setBorderPainted(true);
         
-        action = new AbstractAction("Colour Swatch Button")
+        action = new AbstractAction("Color Swatch Button")
         {
             public void actionPerformed(ActionEvent evt) 
             {
@@ -248,19 +248,19 @@ class TabbedPaneUI
         
         //accept
         acceptButton = new JButton("Accept");
-        acceptButton.setToolTipText("Accept the selected colour.");
+        acceptButton.setToolTipText("Accept the selected color.");
         acceptButton.setActionCommand(""+ACCEPT);
         acceptButton.addActionListener(this);
         
         //revert
         revertButton = new JButton("Revert");
-        revertButton.setToolTipText("Revert to the original colour.");
+        revertButton.setToolTipText("Revert to the original color.");
         revertButton.setActionCommand(""+REVERT);
         revertButton.addActionListener(this);
         
         //cancel
         cancelButton = new JButton("Cancel");
-        cancelButton.setToolTipText("Close the Colour Picker.");
+        cancelButton.setToolTipText("Close the Color Picker.");
         cancelButton.setActionCommand(""+CANCEL);
         cancelButton.addActionListener(this);
         

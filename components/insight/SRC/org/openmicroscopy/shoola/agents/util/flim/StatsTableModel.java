@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.util.flim.StatsTableModel
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2011 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -20,6 +20,7 @@
  *
  *------------------------------------------------------------------------------
  */
+
 package org.openmicroscopy.shoola.agents.util.flim;
 
 //Java imports
@@ -52,7 +53,7 @@ public class StatsTableModel
 	static List<String> DEFAULTCOLUMNS;
 	static{
 		DEFAULTCOLUMNS = new ArrayList<String>();
-		DEFAULTCOLUMNS.add("Colour");
+		DEFAULTCOLUMNS.add("Color");
 		DEFAULTCOLUMNS.add("Bin Start");
 		DEFAULTCOLUMNS.add("Bin End");
 		DEFAULTCOLUMNS.add("Min");

@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.measurement.view.IntensityView 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -20,6 +20,7 @@
  *
  *------------------------------------------------------------------------------
  */
+
 package org.openmicroscopy.shoola.agents.measurement.view;
 
 
@@ -715,8 +716,8 @@ class IntensityView
 		statNames.add("Y Coord");
 		statNames.add("Width");
 		statNames.add("Height");
-		statNames.add("X Centre");
-		statNames.add("Y Centre");
+		statNames.add("X Center");
+		statNames.add("Y Center");
 	}
 
 	/**
@@ -730,8 +731,8 @@ class IntensityView
 		statNames.add("Y1 Coord");
 		statNames.add("X2 Coord");
 		statNames.add("Y2 Coord");
-		statNames.add("X Centre");
-		statNames.add("Y Centre");
+		statNames.add("X Center");
+		statNames.add("Y Center");
 	}
 	
 	/**
@@ -741,8 +742,8 @@ class IntensityView
 	 */
 	private void addPointStats(List<String> statNames)
 	{
-		statNames.add("X Centre");
-		statNames.add("Y Centre");
+		statNames.add("X Center");
+		statNames.add("Y Center");
 	}
 
 	/**

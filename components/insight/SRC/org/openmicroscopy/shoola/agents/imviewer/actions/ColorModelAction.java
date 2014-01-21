@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.imviewer.actions.ColorModelAction
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -94,7 +94,7 @@ public class ColorModelAction
     static {
         names = new String[MAX+1];
         names[GREY_SCALE_MODEL] = "Greyscale";
-        names[RGB_MODEL] = "Colour";
+        names[RGB_MODEL] = "Color";
         names[HSB_MODEL] = "HSB/HSV"; 
     }
     

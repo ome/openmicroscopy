@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.util.ui.colourpicker.ColourPicker
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -77,7 +77,7 @@ public class ColourPicker
     public static final String CANCEL_PROPERTY = "closeColourPicker";
     
     /** The title of the window. */
-    private static final String TITLE = "Colour Picker Window";
+    private static final String TITLE = "Color Picker Window";
     
     /** The default color. */
     private static final Color DEFAULT_COLOR = Color.red;
