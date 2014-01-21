@@ -277,7 +277,7 @@ public class Preprocessor {
             final Iterator<GraphModifyTarget> pendingContainedsIterator = pendingContained.iterator();
             final GraphModifyTarget nextContained = pendingContainedsIterator.next();
             pendingContainedsIterator.remove();
-            final Set<GraphModifyTarget> nextContainers = new HashSet<GraphModifyTarget>();// = this.containerByContained.get(nextContained);
+            final Set<GraphModifyTarget> nextContainers = new HashSet<GraphModifyTarget>();
             for (final Entry<TargetType, TargetType> relationship : targetTypeHierarchy) {
                 if (relationship.getValue() == nextContained.targetType) {
                     nextContainers.addAll(hierarchyNavigator.doLookup(relationship.getKey(), nextContained));
