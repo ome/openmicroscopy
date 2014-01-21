@@ -2,10 +2,10 @@
  * org.openmicroscopy.shoola.agents.treeviewer.actions.AddAction
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -43,17 +43,14 @@ import pojos.ExperimenterData;
 import pojos.GroupData;
 import pojos.ProjectData;
 
-/** 
+/**
  *  Adds existing objects to the selected <code>DataObject</code>.
  *
- * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
- * @author	Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
+ * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
+ *         <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+ * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
+ *      <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Rev$ $LastChangedDate$)
- * </small>
  * @since OME2.2
  */
 public class AddAction
@@ -62,32 +59,32 @@ public class AddAction
 
     /** The default name of the action. */
     private static final String NAME = "Add Existing...";
-    
+
     /** The name of the action to add existing <code>Datasets</code>. */
     private static final String NAME_DATASET = "Add Existing Dataset...";
-    
+
     /** The name of the action to add existing <code>Images</code>. */
     private static final String NAME_IMAGE = "Add Existing Image...";
-    
+
     /** The name of the action to add existing <code>Users</code>. */
-    private static final String NAME_USER= "Add Existing User...";
-    
+    private static final String NAME_USER = "Edit group membership...";
+
     /** Description of the action. */
     private static final String DESCRIPTION = "Add existing elements to the " +
-                                                "selected container.";
-    
+            "selected container.";
+
     /** Description of the action. */
-    private static final String DESCRIPTION_DATASET = 
-    	"Add existing datasets to the selected project.";
-    
+    private static final String DESCRIPTION_DATASET =
+            "Add existing datasets to the selected project.";
+
     /** Description of the action. */
-    private static final String DESCRIPTION_IMAGE = 
-    	"Add existing images to the selected dataset.";
-    
+    private static final String DESCRIPTION_IMAGE =
+            "Add existing images to the selected dataset.";
+
     /** Description of the action. */
-    private static final String DESCRIPTION_USER = 
-    	"Add existing users to the selected group.";
-    
+    private static final String DESCRIPTION_USER =
+            "Add/Remove existing users to/from the selected group.";
+
     /**
      * Modifies the name of the action and sets it enabled depending on
      * the selected type.
@@ -95,20 +92,20 @@ public class AddAction
      */
     protected void onDisplayChange(TreeImageDisplay selectedDisplay)
     {
-    	 putValue(Action.SHORT_DESCRIPTION, 
-                 UIUtilities.formatToolTipText(DESCRIPTION));
+        putValue(Action.SHORT_DESCRIPTION,
+                UIUtilities.formatToolTipText(DESCRIPTION));
         if (selectedDisplay == null) {
             setEnabled(false);
-            putValue(Action.NAME, NAME); 
+            putValue(Action.NAME, NAME);
             return;
         }
         Object ho = selectedDisplay.getUserObject();
         if (ho instanceof String || ho instanceof ExperimenterData) { // root
             setEnabled(false);
-            putValue(Action.NAME, NAME); 
+            putValue(Action.NAME, NAME);
         } else if (ho instanceof ProjectData) {
             setEnabled(model.canLink(ho));
-            putValue(Action.NAME, NAME_DATASET); 
+            putValue(Action.NAME, NAME_DATASET);
             putValue(Action.SHORT_DESCRIPTION, 
                     UIUtilities.formatToolTipText(DESCRIPTION_DATASET));
         } else if (ho instanceof DatasetData) {
@@ -117,16 +114,17 @@ public class AddAction
             putValue(Action.SHORT_DESCRIPTION, 
                     UIUtilities.formatToolTipText(DESCRIPTION_IMAGE));
         } else if (ho instanceof GroupData) {
-            //setEnabled(TreeViewerAgent.isAdministrator() 
-            	//	|| model.isLeaderOfGroup((GroupData) ho));
-            boolean multipleNodesSelected = false;
-            Browser browser = this.model.getSelectedBrowser();
-            TreeImageDisplay[] array = browser.getSelectedDisplays();
-            if (array != null && array.length > 1) {
-                multipleNodesSelected = true;
+            setEnabled(false);
+            GroupData g = (GroupData) ho;
+            if (TreeViewerAgent.isAdministrator() || model.isLeaderOfGroup(g)) {
+                boolean multipleNodesSelected = false;
+                Browser browser = this.model.getSelectedBrowser();
+                TreeImageDisplay[] array = browser.getSelectedDisplays();
+                if (array != null && array.length > 1) {
+                    multipleNodesSelected = true;
+                }
+                setEnabled(!multipleNodesSelected);
             }
-            setEnabled(TreeViewerAgent.isAdministrator()
-                    && !multipleNodesSelected);
             putValue(Action.NAME, NAME_USER);
             putValue(Action.SHORT_DESCRIPTION,
                     UIUtilities.formatToolTipText(DESCRIPTION_USER));
@@ -136,7 +134,7 @@ public class AddAction
         }
         name = (String) getValue(Action.NAME);
     }
-    
+
     /**
      * Creates a new instance.
      * 
@@ -147,7 +145,7 @@ public class AddAction
         super(model);
         putValue(Action.NAME, NAME);
         name = (String) getValue(Action.NAME);
-        putValue(Action.SHORT_DESCRIPTION, 
+        putValue(Action.SHORT_DESCRIPTION,
                 UIUtilities.formatToolTipText(DESCRIPTION));
         IconManager im = IconManager.getInstance();
         putValue(Action.SMALL_ICON, im.getIcon(IconManager.ADD_EXISTING));
@@ -164,9 +162,9 @@ public class AddAction
         TreeImageDisplay d = b.getLastSelectedDisplay();
         if (d == null) return;
         Object ho = d.getUserObject();
-        if ((ho instanceof ProjectData) || (ho instanceof DatasetData) ||
-        	(ho instanceof GroupData))
+        if (ho instanceof ProjectData || ho instanceof DatasetData ||
+                ho instanceof GroupData)
             model.addExistingObjects((DataObject) ho);
     }
-    
+
 }
