@@ -385,8 +385,6 @@
                   includes="*"/>
       <zipfileset prefix="${dist.zip.prefix.win.openGL}"
                   file="${app.dir}/${distInsight.win.exename}.exe"/>
-      <zipfileset prefix="${dist.zip.prefix.win.openGL}"
-                  file="${app.dir}/${distInsight.win64.exename}.exe"/>
       <zipfileset fullpath="${dist.zip.prefix.win.openGL}/LICENSE"
                   file="${base.licensefile}"/> 
       <zipfileset prefix="${dist.zip.prefix.win.openGL}" dir="${dist.dir}"
