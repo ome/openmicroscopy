@@ -17,7 +17,7 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-package ome.formats.importer;
+package ome.formats.importer.transfers;
 
 import java.io.IOException;
 

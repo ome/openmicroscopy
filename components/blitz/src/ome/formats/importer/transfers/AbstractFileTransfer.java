@@ -22,7 +22,6 @@ package ome.formats.importer.transfers;
 import java.io.FileInputStream;
 import java.io.IOException;
 
-import ome.formats.importer.FileTransfer;
 import omero.ServerError;
 import omero.api.RawFileStorePrx;
 
