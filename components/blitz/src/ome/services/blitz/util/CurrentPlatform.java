@@ -17,19 +17,23 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-package ome.services.blitz.test.utests;
+package ome.services.blitz.util;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * Methods for use with {@literal @}Assumption annotations
- * to limit unit tests to specific test platforms.
- * 
+ * Test under which platform OMERO is currently running.
+ * Exactly one of the public methods returns <code>true</code>. Each executes quickly.
+ * Useful with {@literal @}Assumption annotations to limit unit tests to specific test platforms.
+ *
  * @author m.t.b.carroll@dundee.ac.uk
  * @since 5.0
  */
-public class PlatformAssumptions {
+
+public class CurrentPlatform {
     /**
-     * A enumeration of operating systems under which tests may be occurring.
-     * Some file path tests are platform-specific.
+     * A enumeration of operating systems under which OMERO may run.
      * 
      * @author m.t.b.carroll@dundee.ac.uk
      * @since 5.0
@@ -55,6 +59,8 @@ public class PlatformAssumptions {
     private static final OperatingSystem os;
 
     static {
+        final Logger logger = LoggerFactory.getLogger(CurrentPlatform.class);
+
         final String osName = System.getProperty("os.name");
         if (osName.startsWith("Windows "))
             os = OperatingSystem.WINDOWS;
@@ -62,8 +68,13 @@ public class PlatformAssumptions {
             os = OperatingSystem.LINUX;
         else if (osName.equals("Mac OS X"))
             os = OperatingSystem.MAC;
-        else
+        else {
             os = null;
+            logger.warn("failed to recognize current operating system");
+        }
+        if (os != null && logger.isDebugEnabled()) {
+            logger.debug("recognized current operating system as being " + os);
+        }
     }
 
     /**
@@ -85,5 +96,12 @@ public class PlatformAssumptions {
      */
     public static boolean isMacOSX() {
         return os == OperatingSystem.MAC;
+    }
+
+    /**
+     * @return if this platform is unidentified
+     */
+    public static boolean isUnknown() {
+        return os == null;
     }
 }

@@ -33,6 +33,7 @@ import java.util.Set;
 import ome.services.blitz.repo.path.FilePathRestrictionInstance;
 import ome.services.blitz.repo.path.FilePathRestrictions;
 import ome.services.blitz.repo.path.MakePathComponentSafe;
+import ome.services.blitz.util.CurrentPlatform;
 import omero.util.TempFileManager;
 
 import nl.javadude.assumeng.Assumption;
@@ -185,7 +186,7 @@ public class MakePathComponentSafeTest extends MakePathComponentSafe {
      * @throws IOException unexpected
      */
     @Test
-    @Assumption(methods = {"isWindows"}, methodClass = PlatformAssumptions.class)
+    @Assumption(methods = {"isWindows"}, methodClass = CurrentPlatform.class)
     public void testUnsafeCharacterUnsafetyWindows() throws IOException {
         testUnsafeCharacterUnsafety(FilePathRestrictionInstance.WINDOWS_REQUIRED);
     }
@@ -195,7 +196,7 @@ public class MakePathComponentSafeTest extends MakePathComponentSafe {
      * @throws IOException unexpected
      */
     @Test
-    @Assumption(methods = {"isLinux"}, methodClass = PlatformAssumptions.class)
+    @Assumption(methods = {"isLinux"}, methodClass = CurrentPlatform.class)
     public void testUnsafeCharacterUnsafetyLinux() throws IOException {
         testUnsafeCharacterUnsafety(FilePathRestrictionInstance.UNIX_REQUIRED);
     }
@@ -205,9 +206,19 @@ public class MakePathComponentSafeTest extends MakePathComponentSafe {
      * @throws IOException unexpected
      */
     @Test
-    @Assumption(methods = {"isMacOSX"}, methodClass = PlatformAssumptions.class)
+    @Assumption(methods = {"isMacOSX"}, methodClass = CurrentPlatform.class)
     public void testUnsafeCharacterUnsafetyMacOSX() throws IOException {
         testUnsafeCharacterUnsafety(FilePathRestrictionInstance.UNIX_REQUIRED);
+    }
+
+    /**
+     * Test that one of the operating-system-specific tests for the unsafety of unsafe characters
+     * did actually execute because the current operating system was actually recognized.
+     */
+    @Test
+    @Assumption(methods = {"isUnknown"}, methodClass = CurrentPlatform.class)
+    public void testPlatformTestExecuted() {
+        Assert.fail("one of the operating-system-specific tests should have executed");
     }
 
     /**
