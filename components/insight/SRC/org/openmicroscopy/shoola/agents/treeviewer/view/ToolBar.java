@@ -258,10 +258,10 @@ class ToolBar
      * Creates the menu hosting the users belonging to the specified group.
      * 
      * @param groupItem The item hosting the group.
-     * @param groupNumber The number of groups.
+     * @param size The number of groups.
      * @return See above.
      */
-    private void createGroupMenu(GroupItem groupItem)
+    private void createGroupMenu(GroupItem groupItem, int size)
     {
         GroupData group = groupItem.getGroup();
         //Determine the user already added to the display
@@ -269,24 +269,26 @@ class ToolBar
         TreeImageDisplay refNode = null;
         List<TreeImageDisplay> nodes;
         ExperimenterVisitor visitor;
-        //Find the user already added to the selected group.
+        //Find the group already displayed
         visitor = new ExperimenterVisitor(browser, group.getId());
         browser.accept(visitor);
         nodes = visitor.getNodes();
         if (nodes.size() == 1) {
             refNode = nodes.get(0);
-        }	
+        }
         visitor = new ExperimenterVisitor(browser, -1, -1);
         if (refNode != null) refNode.accept(visitor);
-        else browser.accept(visitor);
+        else if (size == 1) browser.accept(visitor);
         nodes = visitor.getNodes();
         List<Long> users = new ArrayList<Long>();
-        Iterator<TreeImageDisplay> j = nodes.iterator();
         TreeImageDisplay n;
-        while (j.hasNext()) {
-            n = j.next();
-            if (n.getUserObject() instanceof ExperimenterData) {
-                users.add(((ExperimenterData) n.getUserObject()).getId());
+        if (CollectionUtils.isNotEmpty(nodes)) {
+            Iterator<TreeImageDisplay> j = nodes.iterator();
+            while (j.hasNext()) {
+                n = j.next();
+                if (n.getUserObject() instanceof ExperimenterData) {
+                    users.add(((ExperimenterData) n.getUserObject()).getId());
+                }
             }
         }
         //now add the users
@@ -454,7 +456,7 @@ class ToolBar
             group = (GroupData) i.next();
             boolean b = groupIds.contains(group.getId()) || size == 1;
             item = new GroupItem(group, b, false);
-            createGroupMenu(item);
+            createGroupMenu(item, size);
             popupMenu.add(item);
         }
         popupMenu.show(source, p.x, p.y);
