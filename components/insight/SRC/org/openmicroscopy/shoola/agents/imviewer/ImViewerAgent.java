@@ -2,10 +2,10 @@
  * org.openmicroscopy.shoola.agents.iviewer.ImViewerAgent
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -25,12 +25,14 @@ package org.openmicroscopy.shoola.agents.imviewer;
 
 //Java imports
 import java.awt.Rectangle;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
 import javax.swing.JComponent;
 
 //Third-party libraries
+import org.apache.commons.collections.CollectionUtils;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.FocusGainedEvent;
@@ -39,6 +41,7 @@ import org.openmicroscopy.shoola.agents.events.iviewer.FLIMResultsEvent;
 import org.openmicroscopy.shoola.agents.events.iviewer.ImageViewport;
 import org.openmicroscopy.shoola.agents.events.iviewer.MeasurementTool;
 import org.openmicroscopy.shoola.agents.events.iviewer.RendererUnloadedEvent;
+import org.openmicroscopy.shoola.agents.events.iviewer.RndSettingsCopied;
 import org.openmicroscopy.shoola.agents.events.iviewer.RndSettingsSaved;
 import org.openmicroscopy.shoola.agents.events.iviewer.SaveRelatedData;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
@@ -87,9 +90,6 @@ import pojos.WellSampleData;
  * 				<a href="mailto:donald@lifesci.dundee.ac.uk">
  *              donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $ $Date: $)
- * </small>
  * @since OME2.2
  */
 public class ImViewerAgent
@@ -97,67 +97,67 @@ public class ImViewerAgent
 {
 
     /** The default error message. */
-    public static final String ERROR = " An error occurred while modifying  " +
-    		"the rendering settings.";
-    
+    public static final String ERROR = " An error occurred while modifying " +
+            "the rendering settings.";
+
     /** Reference to the registry. */
-    private static Registry         registry; 
-    
+    private static Registry registry; 
+
     /** The display mode.*/
-	private int displayMode = -1;
-	
+    private int displayMode = -1;
+
     /**
-     * Helper method. 
-     * 
+     * Helper method.
+     *
      * @return A reference to the <code>Registry</code>.
      */
     public static Registry getRegistry() { return registry; }
-    
+
     /**
      * Returns <code>true</code> if the openGL flag is turned on,
      * <code>false</code> otherwise.
-     * 
+     *
      * @return See above.
      */
     public static boolean hasOpenGLSupport()
-	{
-		Boolean support = (Boolean) getRegistry().lookup("/library/opengl");
-		return support.booleanValue();
-	}
-    
+    {
+        Boolean support = (Boolean) getRegistry().lookup("/library/opengl");
+        return support.booleanValue();
+    }
+
     /**
-	 * Helper method returning the current user's details.
-	 * 
-	 * @return See above.
-	 */
-	public static ExperimenterData getUserDetails()
-	{ 
-		return (ExperimenterData) registry.lookup(
-								LookupNames.CURRENT_USER_DETAILS);
-	}
-	
-	/**
-	 * Helper method returning <code>true</code> if the connection is fast,
-	 * <code>false</code> otherwise.
-	 * 
-	 * @return See above.
-	 */
-	public static boolean isFastConnection()
-	{
-		int value = (Integer) registry.lookup(LookupNames.CONNECTION_SPEED);
-		return value == ImViewer.UNCOMPRESSED;
-	}
-	
+     * Helper method returning the current user's details.
+     *
+     * @return See above.
+     */
+    public static ExperimenterData getUserDetails()
+    { 
+        return (ExperimenterData) registry.lookup(
+                LookupNames.CURRENT_USER_DETAILS);
+    }
+
+    /**
+     * Helper method returning <code>true</code> if the connection is fast,
+     * <code>false</code> otherwise.
+     *
+     * @return See above.
+     */
+    public static boolean isFastConnection()
+    {
+        int value = (Integer) registry.lookup(LookupNames.CONNECTION_SPEED);
+        return value == ImViewer.UNCOMPRESSED;
+    }
+
     /**
      * Handles the {@link ViewImage} event.
-     * 
+     *
      * @param evt The event to handle.
      */
     private void handleViewImage(ViewImage evt)
     {
         if (evt == null) return;
-        Boolean available = (Boolean) 
-        	registry.lookup(LookupNames.BINARY_AVAILABLE);
+        Boolean available = (Boolean)
+                registry.lookup(LookupNames.BINARY_AVAILABLE);
         if (available != null && !available.booleanValue()) return;
         List<ViewImageObject> images = evt.getImages();
         ViewImageObject object = images.get(0);
@@ -166,45 +166,45 @@ public class ImViewerAgent
         ImViewer view = null;
         boolean b = evt.isSeparateWindow();
         if (image != null) {
-        	if (evt.getPlugin() > 0) {
-        		ViewInPluginEvent event = new ViewInPluginEvent(
-        				evt.getSecurityContext(), image, evt.getPlugin());
-        		EventBus bus = registry.getEventBus();
-        		bus.post(event);
-        		return;
-        	}
-        	PixelsData pixels = null;
-        	if (image instanceof ImageData) {
-        		pixels = ((ImageData) image).getDefaultPixels();
-        	} else if (image instanceof WellSampleData) {
-        		pixels = ((WellSampleData) image).getImage().getDefaultPixels();
-        	}
-        	if (pixels != null)
-        		view = ImViewerFactory.getImageViewer(evt.getSecurityContext(),
-        				image, r, b);
+            if (evt.getPlugin() > 0) {
+                ViewInPluginEvent event = new ViewInPluginEvent(
+                        evt.getSecurityContext(), image, evt.getPlugin());
+                EventBus bus = registry.getEventBus();
+                bus.post(event);
+                return;
+            }
+            PixelsData pixels = null;
+            if (image instanceof ImageData) {
+                pixels = ((ImageData) image).getDefaultPixels();
+            } else if (image instanceof WellSampleData) {
+                pixels = ((WellSampleData) image).getImage().getDefaultPixels();
+            }
+            if (pixels != null)
+                view = ImViewerFactory.getImageViewer(evt.getSecurityContext(),
+                        image, r, b);
         } else {
-        	if (evt.getPlugin() > 0) {
-        		ViewInPluginEvent event = new ViewInPluginEvent(
-        				evt.getSecurityContext(),object.getImageID(),
-        				evt.getPlugin());
-        		EventBus bus = registry.getEventBus();
-        		bus.post(event);
-        	} else {
-            	view = ImViewerFactory.getImageViewer(evt.getSecurityContext(),
-            			object.getImageID(), r, b);
-        	}
+            if (evt.getPlugin() > 0) {
+                ViewInPluginEvent event = new ViewInPluginEvent(
+                        evt.getSecurityContext(),object.getImageID(),
+                        evt.getPlugin());
+                EventBus bus = registry.getEventBus();
+                bus.post(event);
+            } else {
+                view = ImViewerFactory.getImageViewer(evt.getSecurityContext(),
+                        object.getImageID(), r, b);
+            }
         }
-        	
+
         if (view != null) {
-        	view.activate(object.getSettings(), object.getSelectedUserID(),
-        			displayMode);
-        	view.setContext(object.getParent(), object.getGrandParent());
+            view.activate(object.getSettings(), object.getSelectedUserID(),
+                    displayMode);
+            view.setContext(object.getParent(), object.getGrandParent());
         }
     }
-    
+
     /**
      * Handles the {@link SaveRelatedData} event.
-     * 
+     *
      * @param evt The event to handle.
      */
     private void handleSaveRelatedData(SaveRelatedData evt)
@@ -212,107 +212,127 @@ public class ImViewerAgent
         if (evt == null) return;
         ImViewerFactory.storeEvent(evt);
     }
-    
+
     /**
      * Handles the {@link MeasurementToolLoaded} event.
-     * 
+     *
      * @param evt The event to handle.
      */
     private void handleMeasurementToolLoaded(MeasurementToolLoaded evt)
     {
-    	if (evt == null) return;
-    	MeasurementTool request = (MeasurementTool) evt.getACT();
-    	PixelsData pixels = request.getPixels();
-    	if (pixels == null) return;
-    	long pixelsID = pixels.getId();
-    	//TODO: review
-    	ImViewer view = ImViewerFactory.getImageViewer(evt.getSecurityContext(),
-    			pixelsID);
-    	if (view != null) {
-    		switch (evt.getIndex()) {
-				case MeasurementToolLoaded.ADD:
-					view.addToView(evt.getView());
-					break;
-				case MeasurementToolLoaded.REMOVE:
-					view.removeFromView(evt.getView());
-			}
-    	}
+        if (evt == null) return;
+        MeasurementTool request = (MeasurementTool) evt.getACT();
+        PixelsData pixels = request.getPixels();
+        if (pixels == null) return;
+        long pixelsID = pixels.getId();
+        //TODO: review
+        ImViewer view = ImViewerFactory.getImageViewer(evt.getSecurityContext(),
+                pixelsID);
+        if (view != null) {
+            switch (evt.getIndex()) {
+            case MeasurementToolLoaded.ADD:
+                view.addToView(evt.getView());
+                break;
+            case MeasurementToolLoaded.REMOVE:
+                view.removeFromView(evt.getView());
+            }
+        }
     }
-    
+
     /**
      * Handles the {@link SelectPlane} event.
-     * 
+     *
      * @param evt The event to handle.
      */
     private void handleSelectPlane(SelectPlane evt)
     {
-    	if (evt == null) return;
-    	long pixelsID = evt.getPixelsID();
-    	ImViewer view = ImViewerFactory.getImageViewer(null, pixelsID);
-    	if (view != null && !view.isPlayingMovie()) {
-    		Rectangle r = evt.getBounds();
-    		if (r != null) {
-    			view.setSelectedRegion(evt.getDefaultZ(), evt.getDefaultT(),
-    					evt.getBounds());
-    		} else 
-    			view.setSelectedXYPlane(evt.getDefaultZ(), evt.getDefaultT());
-    	}
+        if (evt == null) return;
+        long pixelsID = evt.getPixelsID();
+        ImViewer view = ImViewerFactory.getImageViewer(null, pixelsID);
+        if (view != null && !view.isPlayingMovie()) {
+            Rectangle r = evt.getBounds();
+            if (r != null) {
+                view.setSelectedRegion(evt.getDefaultZ(), evt.getDefaultT(),
+                        evt.getBounds());
+            } else 
+                view.setSelectedXYPlane(evt.getDefaultZ(), evt.getDefaultT());
+        }
     }
-    
+
     /**
      * Handles the {@link SelectChannel} event.
-     * 
+     *
      * @param evt The event to handle.
      */
     private void handleSelectChannel(SelectChannel evt)
     {
-    	if (evt == null) return;
-    	long pixelsID = evt.getPixelsID();
-    	ImViewer view = ImViewerFactory.getImageViewer(null, pixelsID);
-    	if (view != null && !view.isPlayingMovie()) {
-    		List<Integer> l = view.getActiveChannels();
-    		List<Integer> channels = evt.getChannels();
-    		Iterator<Integer> i = channels.iterator();
-    		Integer c;
-    		while (i.hasNext()) {
-				c = i.next();
-				if (!l.contains(c)) {
-					view.setChannelSelection(c, true);
-				}
-			}
-    	}
+        if (evt == null) return;
+        long pixelsID = evt.getPixelsID();
+        ImViewer view = ImViewerFactory.getImageViewer(null, pixelsID);
+        if (view != null && !view.isPlayingMovie()) {
+            List<Integer> l = view.getActiveChannels();
+            List<Integer> channels = evt.getChannels();
+            Iterator<Integer> i = channels.iterator();
+            Integer c;
+            while (i.hasNext()) {
+                c = i.next();
+                if (!l.contains(c)) {
+                    view.setChannelSelection(c, true);
+                }
+            }
+        }
     }
+
     /**
      * Handles the {@link CopyRndSettings} event.
-     * 
+     *
      * @param evt The event to handle.
      */
     public void handleCopyRndSettingsEvent(CopyRndSettings evt)
     {
-    	if (evt == null) return;
-    	ImViewerFactory.copyRndSettings(evt.getImage());
+        if (evt == null) return;
+        ImViewerFactory.copyRndSettings(evt.getImage());
     }
-    
+
+    /**
+     * Handles the {@link RndSettingsCopied} event.
+     *
+     * @param evt The event to handle.
+     */
+    private void handleRndSettingsCopied(RndSettingsCopied evt)
+    {
+        Collection<Long> ids = evt.getImagesIDs();
+        if (CollectionUtils.isEmpty(ids)) return;
+        Iterator<Long> i = ids.iterator();
+        ImViewer view;
+        long id = evt.getRefPixelsID();
+        while (i.hasNext()) {
+            view = ImViewerFactory.getImageViewerFromImage(null, i.next());
+            if (view != null && view.getPixelsID() != id) {
+                view.pasteRenderingSettings();
+            }
+        }
+    }
     /**
      * Handles the {@link RndSettingsSaved} event.
-     * 
+     *
      * @param evt The event to handle.
      */
     public void handleRndSettingsSavedEvent(RndSettingsSaved evt)
     {
-    	if (evt == null) return;
-    	ImViewerFactory.rndSettingsSaved(evt.getRefPixelsID(), 
-    			evt.getSettings());
+        if (evt == null) return;
+        ImViewerFactory.rndSettingsSaved(evt.getRefPixelsID(),
+                evt.getSettings());
     }
-    
+
     /**
      * Indicates to bring up the window if a related window gained focus
-     * 
+     *
      * @param evt The event to handle.
      */
     private void handleFocusGainedEvent(FocusGainedEvent evt)
     {
-    	/*
+        /*
     	ImViewer viewer = ImViewerFactory.getImageViewer(
 				evt.getPixelsID());
     	if (viewer == null) return;
@@ -320,224 +340,224 @@ public class ImViewerAgent
     		evt.getIndex() != FocusGainedEvent.VIEWER_FOCUS) {
 			//viewer.toFront();
 		}
-		*/
+         */
     }
 
     /**
      * Displays the passed rectangle if possible.
-     * 
+     *
      * @param evt The event to handle.
      */
     private void handleImageViewportEvent(ImageViewport evt)
     {
-    	if (evt == null) return;
-    	ImViewer viewer = ImViewerFactory.getImageViewer(null,
-				evt.getPixelsID());
-    	if (viewer == null) return;
-    	viewer.scrollToViewport(evt.getBounds());
+        if (evt == null) return;
+        ImViewer viewer = ImViewerFactory.getImageViewer(null,
+                evt.getPixelsID());
+        if (viewer == null) return;
+        viewer.scrollToViewport(evt.getBounds());
     }
-    
+
     /**
      * Removes all the references to the existing viewers.
-     * 
+     *
      * @param evt The event to handle.
      */
     private void handleUserGroupSwitched(UserGroupSwitched evt)
     {
-    	if (evt == null) return;
-    	ImViewerFactory.onGroupSwitched(evt.isSuccessful());
+        if (evt == null) return;
+        ImViewerFactory.onGroupSwitched(evt.isSuccessful());
     }
-    
+
     /**
      * Indicates that it was possible to reconnect.
-     * 
+     *
      * @param evt The event to handle.
      */
     private void handleReconnectedEvent(ReconnectedEvent evt)
     {
-    	Environment env = (Environment) registry.lookup(LookupNames.ENV);
-    	if (!env.isServerAvailable()) return;
-    	ImViewerFactory.onGroupSwitched(true);
+        Environment env = (Environment) registry.lookup(LookupNames.ENV);
+        if (!env.isServerAvailable()) return;
+        ImViewerFactory.onGroupSwitched(true);
     }
-    
+
     /**
      * Views the passed object if the object is an image.
-     * 
+     *
      * @param evt The event to handle.
      */
     private void handleViewObjectEvent(ViewObjectEvent evt)
     {
-    	if (evt == null) return;
-    	Object o = evt.getObject();
-    	if (evt.browseObject()) return;
-    	if (o instanceof ImageData) {
-    		if (evt.getPlugin() > 0) {
-    			JComponent src = evt.getSource();
-    			if (src != null) src.setEnabled(true);
-    			ViewInPluginEvent event = new ViewInPluginEvent(
-        				evt.getSecurityContext(), ((ImageData) o).getId(),
-        				evt.getPlugin());
-        		EventBus bus = registry.getEventBus();
-        		bus.post(event);
-    		} else {
-    			ImViewer view = ImViewerFactory.getImageViewer(
-        				evt.getSecurityContext(), ((ImageData) o).getId(),
-        				null, true);
-        		if (view != null) {
-        			view.activate(null, getUserDetails().getId(),
-        					displayMode);
-        			JComponent src = evt.getSource();
-        			if (src != null) src.setEnabled(true);
-        		}
-    		}
-    	}
+        if (evt == null) return;
+        Object o = evt.getObject();
+        if (evt.browseObject()) return;
+        if (o instanceof ImageData) {
+            if (evt.getPlugin() > 0) {
+                JComponent src = evt.getSource();
+                if (src != null) src.setEnabled(true);
+                ViewInPluginEvent event = new ViewInPluginEvent(
+                        evt.getSecurityContext(), ((ImageData) o).getId(),
+                        evt.getPlugin());
+                EventBus bus = registry.getEventBus();
+                bus.post(event);
+            } else {
+                ImViewer view = ImViewerFactory.getImageViewer(
+                        evt.getSecurityContext(), ((ImageData) o).getId(),
+                        null, true);
+                if (view != null) {
+                    view.activate(null, getUserDetails().getId(),
+                            displayMode);
+                    JComponent src = evt.getSource();
+                    if (src != null) src.setEnabled(true);
+                }
+            }
+        }
     }
-    
+
     /**
      * Indicates that the rendered could not be loaded.
-     * 
+     *
      * @param evt The event to handle.
      */
     private void handleRendererUnloadedEvent(RendererUnloadedEvent evt)
     {
-    	if (evt == null) return;
-    	ImViewer viewer = ImViewerFactory.getImageViewer(null,
-				evt.getPixelsID());
-    	if (viewer == null) return;
-    	viewer.discard();
+        if (evt == null) return;
+        ImViewer viewer = ImViewerFactory.getImageViewer(null,
+                evt.getPixelsID());
+        if (viewer == null) return;
+        viewer.discard();
     }
-    
+
     /**
      * Checks the files to delete and see if a viewer is opened.
-     * 
+     *
      * @param evt The event to handle.
      */
     private void handleDeleteObjectEvent(DeleteObjectEvent evt)
     {
-    	if (evt == null) return;
-    	List<DataObject> objects = evt.getObjects();
-    	if (objects == null) return;
-    	Iterator<DataObject> i = objects.iterator();
-    	DataObject object;
-    	ImViewer viewer;
-    	EventBus bus = registry.getEventBus();
-    	while (i.hasNext()) {
-    		object = i.next();
-			if (object instanceof ImageData) {
-				checkImageForDelete((ImageData) object);
-			} else {
-				viewer = ImViewerFactory.getImageViewerFromParent(object);
-				if (viewer != null) {
-					//Post an event to discard Measurement tool
-					ViewerState event = new ViewerState(viewer.getPixelsID(),
-							ViewerState.CLOSE);
-					bus.post(event);
-					viewer.discard();
-				}
-			}
-		}
+        if (evt == null) return;
+        List<DataObject> objects = evt.getObjects();
+        if (objects == null) return;
+        Iterator<DataObject> i = objects.iterator();
+        DataObject object;
+        ImViewer viewer;
+        EventBus bus = registry.getEventBus();
+        while (i.hasNext()) {
+            object = i.next();
+            if (object instanceof ImageData) {
+                checkImageForDelete((ImageData) object);
+            } else {
+                viewer = ImViewerFactory.getImageViewerFromParent(object);
+                if (viewer != null) {
+                    //Post an event to discard Measurement tool
+                    ViewerState event = new ViewerState(viewer.getPixelsID(),
+                            ViewerState.CLOSE);
+                    bus.post(event);
+                    viewer.discard();
+                }
+            }
+        }
     }
-    
+
     /**
      * Displays the results of a FLIM analysis
-     * 
+     *
      * @param evt The event to handle.
      */
     private void handleFLIMResultsEvent(FLIMResultsEvent evt)
     {
-    	if (evt == null) return;
-    	ImageData image = evt.getImage();
-    	ImViewer viewer = ImViewerFactory.getImageViewer(null,
-    			image.getDefaultPixels().getId());
-    	if (viewer != null) {
-    		viewer.displayFLIMResults(evt.getResults());
-    	}
+        if (evt == null) return;
+        ImageData image = evt.getImage();
+        ImViewer viewer = ImViewerFactory.getImageViewer(null,
+                image.getDefaultPixels().getId());
+        if (viewer != null) {
+            viewer.displayFLIMResults(evt.getResults());
+        }
     }
-    
+
     /**
-     * Closes the viewer b/c the rendering engine could not be loade.
-     * 
+     * Closes the viewer b/c the rendering engine could not be loaded.
+     *
      * @param evt The event to handle.
      */
     private void handleReloadRenderingEngineEvent(ReloadRenderingEngine evt)
     {
-    	if (evt == null) return;
-    	List<Long> pixels = evt.getPixelsID();
-    	if (pixels == null || pixels.size() == 0) return;
-    	Iterator<Long> i = pixels.iterator();
-    	Long id;
-    	ImViewer viewer;
-    	UserNotifier un = registry.getUserNotifier();
-    	while (i.hasNext()) {
-			id = i.next();
-			viewer = ImViewerFactory.getImageViewer(null, id);
-			if (viewer != null) {
-				un.notifyInfo("Reload", "The rendering engine could not be " +
-						"reloaded for " + viewer.getUI().getTitle()+
-						".\nThe viewer will now close.");
-				viewer.discard();
-			}
-		}
+        if (evt == null) return;
+        List<Long> pixels = evt.getPixelsID();
+        if (CollectionUtils.isEmpty(pixels)) return;
+        Iterator<Long> i = pixels.iterator();
+        Long id;
+        ImViewer viewer;
+        UserNotifier un = registry.getUserNotifier();
+        while (i.hasNext()) {
+            id = i.next();
+            viewer = ImViewerFactory.getImageViewer(null, id);
+            if (viewer != null) {
+                un.notifyInfo("Reload", "The rendering engine could not be " +
+                        "reloaded for " + viewer.getUI().getTitle()+
+                        ".\nThe viewer will now close.");
+                viewer.discard();
+            }
+        }
     }
-    
+
     /**
      * Updates the view when the channels have been updated.
-     * 
+     *
      * @param evt The event to handle.
      */
     private void handleChannelSavedEvent(ChannelSavedEvent evt)
     {
-    	Environment env = (Environment) registry.lookup(LookupNames.ENV);
-    	if (!env.isServerAvailable()) return;
-    	List<ChannelData> channels = evt.getChannels();
-    	Iterator<Long> i = evt.getImageIds().iterator();
-    	SecurityContext ctx = evt.getSecurityContext();
-    	ImViewer viewer;
-    	while (i.hasNext()) {
-    		viewer = ImViewerFactory.getImageViewerFromImage(ctx, i.next());
-			if (viewer != null) {
-				viewer.onUpdatedChannels(channels);
-			}
-		}
+        Environment env = (Environment) registry.lookup(LookupNames.ENV);
+        if (!env.isServerAvailable()) return;
+        List<ChannelData> channels = evt.getChannels();
+        Iterator<Long> i = evt.getImageIds().iterator();
+        SecurityContext ctx = evt.getSecurityContext();
+        ImViewer viewer;
+        while (i.hasNext()) {
+            viewer = ImViewerFactory.getImageViewerFromImage(ctx, i.next());
+            if (viewer != null) {
+                viewer.onUpdatedChannels(channels);
+            }
+        }
     }
-    
+
     /**
      * Updates the view when the mode is changed.
-     * 
+     *
      * @param evt The event to handle.
      */
     private void handleDisplayModeEvent(DisplayModeEvent evt)
     {
-    	displayMode = evt.getDisplayMode();
-    	Environment env = (Environment) registry.lookup(LookupNames.ENV);
-    	if (!env.isServerAvailable()) return;
-    	ImViewerFactory.setDisplayMode(displayMode);
+        displayMode = evt.getDisplayMode();
+        Environment env = (Environment) registry.lookup(LookupNames.ENV);
+        if (!env.isServerAvailable()) return;
+        ImViewerFactory.setDisplayMode(displayMode);
     }
-    
+
     /**
      * Checks if the passed image is actually opened in the viewer.
-     * 
+     *
      * @param image The image to handle.
      */
     private void checkImageForDelete(ImageData image)
     {
-    	if (image.getId() < 0) return;
-    	PixelsData pixels = image.getDefaultPixels();
-    	if (pixels == null) return;
-    	EventBus bus = registry.getEventBus();
-    	ImViewer viewer = ImViewerFactory.getImageViewer(null, pixels.getId());
-    	if (viewer != null) {
-    		//Post an event to discard Measurement tool
-    		ViewerState event = new ViewerState(viewer.getPixelsID(),
-    				ViewerState.CLOSE);
-    		bus.post(event);
-    		viewer.discard();
-    	}
+        if (image.getId() < 0) return;
+        PixelsData pixels = image.getDefaultPixels();
+        if (pixels == null) return;
+        EventBus bus = registry.getEventBus();
+        ImViewer viewer = ImViewerFactory.getImageViewer(null, pixels.getId());
+        if (viewer != null) {
+            //Post an event to discard Measurement tool
+            ViewerState event = new ViewerState(viewer.getPixelsID(),
+                    ViewerState.CLOSE);
+            bus.post(event);
+            viewer.discard();
+        }
     }
 
     /** Creates a new instance. */
     public ImViewerAgent() {}
-    
+
     /**
      * Implemented as specified by {@link Agent}.
      * @see Agent#activate(boolean)
@@ -545,18 +565,18 @@ public class ImViewerAgent
     public void activate(boolean master) {}
 
     /**
-     * Implemented as specified by {@link Agent}. 
+     * Implemented as specified by {@link Agent}.
      * @see Agent#terminate()
      */
     public void terminate()
     {
-    	Environment env = (Environment) registry.lookup(LookupNames.ENV);
-    	if (env.isRunAsPlugin())
-    		ImViewerFactory.onGroupSwitched(true);
+        Environment env = (Environment) registry.lookup(LookupNames.ENV);
+        if (env.isRunAsPlugin())
+            ImViewerFactory.onGroupSwitched(true);
     }
 
     /** 
-     * Implemented as specified by {@link Agent}. 
+     * Implemented as specified by {@link Agent}.
      * @see Agent#setContext(Registry)
      */
     public void setContext(Registry ctx)
@@ -581,34 +601,35 @@ public class ImViewerAgent
         bus.register(this, SelectChannel.class);
         bus.register(this, ChannelSavedEvent.class);
         bus.register(this, DisplayModeEvent.class);
+        bus.register(this, RndSettingsCopied.class);
     }
 
     /**
-     * Implemented as specified by {@link Agent}. 
+     * Implemented as specified by {@link Agent}.
      * @see Agent#canTerminate()
      */
     public boolean canTerminate() { return true; }
 
     /**
-     * Implemented as specified by {@link Agent}. 
+     * Implemented as specified by {@link Agent}.
      * @see Agent#getDataToSave()
      */
     public AgentSaveInfo getDataToSave()
     {
-    	List<Object> list = ImViewerFactory.getInstancesToSave();
-    	if (list == null || list.size() == 0) return null; 
-    	return new AgentSaveInfo("Image Viewer", list);
-	}
-    
+        List<Object> list = ImViewerFactory.getInstancesToSave();
+        if (CollectionUtils.isEmpty(list)) return null;
+        return new AgentSaveInfo("Image Viewer", list);
+    }
+
     /**
-     * Implemented as specified by {@link Agent}. 
+     * Implemented as specified by {@link Agent}.
      * @see Agent#save(List)
      */
     public void save(List<Object> instances)
     {
-    	ImViewerFactory.saveInstances(instances);
+        ImViewerFactory.saveInstances(instances);
     }
-    
+
     /**
      * Responds to events fired trigger on the bus.
      * @see AgentEventListener#eventFired(AgentEvent)
@@ -616,41 +637,43 @@ public class ImViewerAgent
     public void eventFired(AgentEvent e)
     {
         if (e instanceof ViewImage) 
-        	handleViewImage((ViewImage) e);
+            handleViewImage((ViewImage) e);
         else if (e instanceof MeasurementToolLoaded)
-        	handleMeasurementToolLoaded((MeasurementToolLoaded) e);
+            handleMeasurementToolLoaded((MeasurementToolLoaded) e);
         else if (e instanceof SelectPlane)
-        	handleSelectPlane((SelectPlane) e);
+            handleSelectPlane((SelectPlane) e);
         else if (e instanceof CopyRndSettings)
-        	handleCopyRndSettingsEvent((CopyRndSettings) e);
+            handleCopyRndSettingsEvent((CopyRndSettings) e);
         else if (e instanceof SaveRelatedData)
-        	handleSaveRelatedData((SaveRelatedData) e);
+            handleSaveRelatedData((SaveRelatedData) e);
         else if (e instanceof FocusGainedEvent)
-			handleFocusGainedEvent((FocusGainedEvent) e);
+            handleFocusGainedEvent((FocusGainedEvent) e);
         else if (e instanceof ImageViewport)
-			handleImageViewportEvent((ImageViewport) e);
+            handleImageViewportEvent((ImageViewport) e);
         else if (e instanceof UserGroupSwitched)
-			handleUserGroupSwitched((UserGroupSwitched) e);
+            handleUserGroupSwitched((UserGroupSwitched) e);
         else if (e instanceof ViewObjectEvent)
-        	handleViewObjectEvent((ViewObjectEvent) e);
+            handleViewObjectEvent((ViewObjectEvent) e);
         else if (e instanceof RendererUnloadedEvent)
-        	handleRendererUnloadedEvent((RendererUnloadedEvent) e);
+            handleRendererUnloadedEvent((RendererUnloadedEvent) e);
         else if (e instanceof DeleteObjectEvent)
-        	handleDeleteObjectEvent((DeleteObjectEvent) e);
+            handleDeleteObjectEvent((DeleteObjectEvent) e);
         else if (e instanceof RndSettingsSaved) 
-        	handleRndSettingsSavedEvent((RndSettingsSaved) e);
+            handleRndSettingsSavedEvent((RndSettingsSaved) e);
         else if (e instanceof FLIMResultsEvent) 
-        	handleFLIMResultsEvent((FLIMResultsEvent) e);
+            handleFLIMResultsEvent((FLIMResultsEvent) e);
         else if (e instanceof ReloadRenderingEngine) 
-        	handleReloadRenderingEngineEvent((ReloadRenderingEngine) e);
+            handleReloadRenderingEngineEvent((ReloadRenderingEngine) e);
         else if (e instanceof ReconnectedEvent)
-			handleReconnectedEvent((ReconnectedEvent) e);
+            handleReconnectedEvent((ReconnectedEvent) e);
         else if (e instanceof SelectChannel)
-			handleSelectChannel((SelectChannel) e);
+            handleSelectChannel((SelectChannel) e);
         else if (e instanceof ChannelSavedEvent)
-			handleChannelSavedEvent((ChannelSavedEvent) e);
+            handleChannelSavedEvent((ChannelSavedEvent) e);
         else if (e instanceof DisplayModeEvent)
-			handleDisplayModeEvent((DisplayModeEvent) e);
+            handleDisplayModeEvent((DisplayModeEvent) e);
+        else if (e instanceof RndSettingsCopied)
+            handleRndSettingsCopied((RndSettingsCopied) e);
     }
 
 }
