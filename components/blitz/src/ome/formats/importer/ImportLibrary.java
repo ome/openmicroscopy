@@ -32,6 +32,7 @@ import loci.common.Location;
 import loci.formats.FormatException;
 import loci.formats.FormatReader;
 import ome.formats.OMEROMetadataStoreClient;
+import ome.formats.importer.transfers.FileTransfer;
 import ome.formats.importer.transfers.TransferState;
 import ome.formats.importer.transfers.UploadFileTransfer;
 import ome.formats.importer.util.ErrorHandler;
