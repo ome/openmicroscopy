@@ -31,7 +31,7 @@ from django.http import Http404, HttpResponse, HttpResponseRedirect, HttpRespons
 from django.conf import settings
 from django.utils.http import urlencode
 from functools import update_wrapper
-from django.core.urlresolvers import reverse
+from django.core.urlresolvers import reverse, resolve, NoReverseMatch
 from django.template import loader as template_loader
 from django.template import RequestContext
 from django.core.cache import cache
@@ -39,6 +39,29 @@ from django.core.cache import cache
 from omeroweb.connector import Connector
 
 logger = logging.getLogger(__name__)
+
+
+def parse_url(lookup_view):
+    url = None
+    try:
+        if "args" in lookup_view.keys():
+            url = reverse(viewname=lookup_view["viewname"], args=lookup_view["args"])
+        else:
+            url = reverse(viewname=lookup_view["viewname"])
+        if "query_string" in lookup_view.keys():
+            url = url + "?" + lookup_view["query_string"]
+    except KeyError, e:
+        # assume we've been passed a url
+        try:
+            resolve(lookup_view)
+            url = lookup_view
+        except:
+            pass
+    if url is None:
+        logger.error("Reverse for '%s' not found." % lookup_view)
+        raise NoReverseMatch("Reverse for '%s' not found." % lookup_view)
+    return url
+
 
 class ConnCleaningHttpResponse(HttpResponse):
     """Extension of L{HttpResponse} which closes the OMERO connection."""
@@ -118,8 +141,27 @@ class login_required(object):
         if request.is_ajax():
             logger.debug('Request is Ajax, returning HTTP 403.')
             return HttpResponseForbidden()
+        
+        try:
+            for lookup_view in settings.LOGIN_REDIRECT["redirect"]:
+                try:
+                    if url == reverse(lookup_view):
+                        url = parse_url(settings.LOGIN_REDIRECT)
+                except NoReverseMatch:
+                    try:
+                        resolve(lookup_view)
+                        if url == lookup_view:
+                            url = parse_url(settings.LOGIN_REDIRECT)
+                    except Http404:
+                        logger.error('Cannot resolve url %s' % lookup_view)
+        except KeyError, x:
+            pass
+        except Exception, x:
+            logger.error('Error while redirection on not logged in.', exc_info=True)
+        
         args = {'url': url}
-        logger.debug('Request is not Ajax, redirecting to %s' % self.login_url)
+        
+        logger.debug('Request is not Ajax, redirecting to %s?%s' % (self.login_url, urlencode(args)))
         return HttpResponseRedirect('%s?%s' % (self.login_url, urlencode(args)))
 
     def on_logged_in(self, request, conn):
