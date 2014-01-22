@@ -212,7 +212,7 @@ class ToolBar
             if (c instanceof GroupItem) {
                 item = (GroupItem) c;
                 controller.setSelection(item.getGroup(),
-                        item.getSeletectedUsers(), !item.isSelected());
+                        item.getSeletectedUsers(), !item.isMenuSelected());
             }
         }
     }
@@ -352,8 +352,10 @@ class ToolBar
         groupItem.addPropertyChangeListener(new PropertyChangeListener() {
             
             @Override
-            public void propertyChange(PropertyChangeEvent arg0) {
-                handleSelection();
+            public void propertyChange(PropertyChangeEvent evt) {
+                String name = evt.getPropertyName();
+                if (GroupItem.USER_SELECTION_PROPERTY.equals(name))
+                    handleSelection();
             }
         });
     }
