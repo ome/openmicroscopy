@@ -74,11 +74,11 @@ public abstract class AbstractExecFileTransfer extends AbstractFileTransfer {
     protected File getLocalLocation(OriginalFile root, OriginalFile ofile) {
         StringBuilder sb = new StringBuilder();
         sb.append(root.getPath().getValue());
-        sb.append("/");
+        sb.append(File.separatorChar);
         sb.append(root.getName().getValue());
-        sb.append("/");
+        sb.append(File.separatorChar);
         sb.append(ofile.getPath().getValue());
-        sb.append("/");
+        sb.append(File.separatorChar);
         sb.append(ofile.getName().getValue());
         return new File(sb.toString());
     }
