@@ -246,6 +246,21 @@ public class CommandLineImporter {
                                         + "  --annotation_text\tContent for a text annotation (requires namespace)\n"
                                         + "  --annotation_link\tComment annotation ID to link all images to\n"
                                         + "\n"
+                                        + "ex. %s -s localhost -u bart -w simpson -d 50 foo.tiff\n"
+                                        + "\n"
+                                        + "Report bugs to <ome-users@lists.openmicroscopy.org.uk>",
+                                APP_NAME, APP_NAME, APP_NAME));
+        System.exit(1);
+    }
+
+    /**
+     * Prints advanced usage to STDERR and exits with return code 1.
+     */
+    public static void advUsage() {
+        System.err
+                .println(String
+                        .format(
+                                "\n"
                                         + "Advanced arguments:\n"
                                         + "  --transfer=ARG\tFile transfer method\n"
                                         + "      Examples:\n"
@@ -255,13 +270,12 @@ public class CommandLineImporter {
                                         + "       -t ln_s             # Use symlnk. Locally only!\n"
                                         + "       -t some.class.Name  # Use a class on the CLASSPATH\n"
                                         + "\n"
-                                        + "ex. %s -s localhost -u bart -w simpson -d 50 foo.tiff\n"
+                                        + "ex. %s --tranasfer=ln_s foo.tiff\n"
                                         + "\n"
                                         + "Report bugs to <ome-users@lists.openmicroscopy.org.uk>",
-                                APP_NAME, APP_NAME, APP_NAME));
+                                APP_NAME));
         System.exit(1);
     }
-
 
     /**
      * Takes pairs of namespaces and string and creates comment annotations
@@ -345,13 +359,15 @@ public class CommandLineImporter {
             new LongOpt("annotation_link", LongOpt.REQUIRED_ARGUMENT,
                         null, 12);
         LongOpt transferOpt =
-            new LongOpt("transfer", LongOpt.REQUIRED_ARGUMENT, null, 13);
+                new LongOpt("transfer", LongOpt.REQUIRED_ARGUMENT, null, 13);
+        LongOpt transferHelp =
+                new LongOpt("transfer-help", LongOpt.NO_ARGUMENT, null, 14);
 
         Getopt g = new Getopt(APP_NAME, args, "cfl:s:u:w:d:r:k:x:n:p:ht:",
                 new LongOpt[] { debug, report, upload, logs, email,
                                 plateName, plateDescription, noThumbnails,
                                 agent, annotationNamespace, annotationText,
-                                annotationLink, transferOpt });
+                                annotationLink, transferOpt, transferHelp });
         int a;
 
         boolean getUsedFiles = false;
@@ -429,6 +445,10 @@ public class CommandLineImporter {
                 String arg = g.getOptarg();
                 log.info("Setting transfer to {}", arg);
                 transfer = AbstractFileTransfer.createTransfer(arg);
+                break;
+            }
+            case 14: {
+                advUsage();
                 break;
             }
             case 's': {
