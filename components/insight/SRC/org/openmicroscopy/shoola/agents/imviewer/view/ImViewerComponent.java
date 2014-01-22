@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.iviewer.view.ImViewerComponent
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -2256,14 +2256,9 @@ class ImViewerComponent
 		switch (model.getState()) {
 			case NEW:
 			case DISCARDED:
-				//throw new IllegalStateException(
-				//"This method can't be invoked in the DISCARDED, NEW state.");
 				return;
 		}
 		if (!model.hasRndToPaste()) {
-			UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
-			un.notifyInfo("Paste Image's settings", "No Image's settings " +
-							"to paste.");
 			return;
 		}
 		model.fireLoadRndSettingsToPaste();
