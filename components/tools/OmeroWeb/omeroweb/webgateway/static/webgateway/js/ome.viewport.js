@@ -306,6 +306,16 @@ jQuery._WeblitzViewport = function (container, server, options) {
           init_zoom = _this.loadedImg.init_zoom,
           zoom_levels = _this.loadedImg.levels,
           zoomLevelScaling = _this.loadedImg.zoomLevelScaling;  // may be 'undefined'
+          // If zm set in query, see if this is a supported zoom level
+          if (typeof _this.loadedImg.query_zoom != "undefined") {
+            var query_zm = _this.loadedImg.query_zoom / 100;
+            for (var zm=0; zm<zoom_levels; zm++) {
+              if (zoomLevelScaling[zm] == query_zm) {
+                init_zoom = (zoom_levels-1) - zm;
+                break;
+              }
+            }
+          }
           // If init_zoom not defined, Zoom out until we fit in the viewport (window)
           if (typeof init_zoom === "undefined") {
             init_zoom = zoom_levels-1;   // fully zoomed in
@@ -815,7 +825,11 @@ jQuery._WeblitzViewport = function (container, server, options) {
 
   this.getZoom = function () {
     if (_this.loadedImg.tiles) {
-      return _this.viewportimg.get(0).getBigImageContainer().currentScale()*100;
+      var viewerBean = _this.viewportimg.get(0).getBigImageContainer();
+      if (viewerBean) {
+        return viewerBean.currentScale()*100;
+      }
+      return 100;
     }
     return _this.loadedImg.current.zoom;
   };
@@ -957,8 +971,8 @@ jQuery._WeblitzViewport = function (container, server, options) {
     if (this.loadedImg.current.quality) {
       query.push('q=' + this.loadedImg.current.quality);
     }
-    /* Zoom */
-    query.push('zm=' + this.loadedImg.current.zoom);
+    /* Zoom - getZoom() also handles big images */
+    query.push('zm=' + this.getZoom());
     /* Slider positions */
     if (include_slider_pos) {
       query.push('t=' + (this.loadedImg.current.t+1));
@@ -1020,7 +1034,10 @@ jQuery._WeblitzViewport = function (container, server, options) {
     query.q && this.setQuality(query.q, true);
     query.p && this.setProjection(query.p, true);
     query.p && this.setInvertedAxis(query.ia, true);
-    query.zm && this.setZoom(parseInt(query.zm, 10));
+    if (query.zm) {
+      this.loadedImg.query_zoom = query.zm;  // for big images
+      this.setZoom(parseInt(query.zm, 10));
+    }
     if (query.t) {
       this.loadedImg.current.t = parseInt(query.t, 10)-1;
     }

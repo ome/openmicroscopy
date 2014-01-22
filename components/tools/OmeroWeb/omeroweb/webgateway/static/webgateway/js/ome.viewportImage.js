@@ -497,7 +497,14 @@ jQuery.fn.viewportImage = function(options) {
             PanoJS.MSG_BEYOND_MAX_ZOOM = null;
             viewerBean.init();
             if ((typeof init_cx != 'undefined') && (typeof init_cy != 'undefined')) {
-                viewerBean.recenter({'x':parseInt(init_cx, 10), 'y':parseInt(init_cy, 10)}, true, true);
+                var scale = viewerBean.currentScale();
+                viewerBean.recenter({
+                    'x':parseInt(init_cx, 10)*scale,
+                    'y':parseInt(init_cy, 10)*scale}, true, true);
+                // Seems that if we're on the edge of image, blank tiles are not cleared...
+                setTimeout(function() {
+                  viewerBean.positionTiles();
+                }, 5000);   // clear AFTER they have loaded (not ideal!)
             }
             if (viewerBean.thumbnail_control) {
                 viewerBean.thumbnail_control.update();
