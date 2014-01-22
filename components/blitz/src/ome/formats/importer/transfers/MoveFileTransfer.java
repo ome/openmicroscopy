@@ -20,34 +20,38 @@
 package ome.formats.importer.transfers;
 
 import java.io.File;
-import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Local-only file transfer mechanism which makes use of symlinking.
- * This is only useful where the command "ln -s source target" will work.
+ * Local-only file transfer mechanism which makes use of hard-linking
+ * followed by the deletion of the original source file.
+ *
+ * This is only useful where the command "ln source target" will work.
  *
  * @since 5.0
  */
-public class SymlinkFileTransfer extends AbstractExecFileTransfer {
+public class MoveFileTransfer extends HardlinkFileTransfer {
 
     /**
-     * Executes "ln -s file location" and fails on non-0 return codes.
-     *
-     * @param file
-     * @param location
-     * @throws IOException
+     * Deletes all hard-linked files
      */
-    protected ProcessBuilder createProcessBuilder(File file, File location) {
-        ProcessBuilder pb = new ProcessBuilder();
-        pb.command("ln", "-s", file.getAbsolutePath(), location.getAbsolutePath());
-        return pb;
-    }
+    @Override
+    public void afterSuccess(List<String> srcFiles) throws CleanupFailure {
+        List<File> failedFiles = new ArrayList<File>();
+        for (String path : srcFiles) {
+            File srcFile = new File(path);
+            try {
+                log.info("Deleting source file {}...", srcFile);
+                srcFile.delete();
+            } catch (Exception e) {
+                log.error("Failed to remove source file {}", srcFile);
+                failedFiles.add(srcFile);
+            }
+        }
 
-    /**
-     * No cleanup is needed for symlinking.
-     */
-    public void afterSuccess(List<String> srcFiles) {
-        // no-op
+        if (!failedFiles.isEmpty()) {
+            throw new CleanupFailure(failedFiles);
+        }
     }
 }

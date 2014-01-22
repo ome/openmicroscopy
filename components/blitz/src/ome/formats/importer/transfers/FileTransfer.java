@@ -20,12 +20,15 @@
 package ome.formats.importer.transfers;
 
 import java.io.IOException;
+import java.util.List;
 
-import ome.formats.importer.transfers.TransferState;
 import omero.ServerError;
 
 /**
- * Abstracted concept of "getting the file to the server".
+ * Abstracted concept of "getting the file to the server". A single
+ * {@link FileTransfer} instance should be used for all the instances in
+ * a single "import".
+ *
  * Implementations are responsible for making sure that when
  * the server accesses the remote (i.e. server-side) location
  * that a file-like object (file, hardlink, symlink, etc.) is
@@ -52,5 +55,12 @@ public interface FileTransfer {
     */
     String transfer(TransferState state)
         throws IOException, ServerError;
+
+    /**
+     * Callback which must be invoked after a related set of files has been
+     * successfully processed. This provides the {@link FileTransfer} instance
+     * a chance to free resources
+     */
+    void afterSuccess(List<String> transferredFiles) throws CleanupFailure;
 
 }

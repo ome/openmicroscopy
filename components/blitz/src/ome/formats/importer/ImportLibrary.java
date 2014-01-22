@@ -150,6 +150,16 @@ public class ImportLibrary implements IObservable
         availableChecksumAlgorithms = builder.build();
     }
 
+    /**
+     * The default implementation of {@link FileTransfer} performs a
+     * no-op and therefore need not have
+     * {@link FileTransfer#afterSuccess(File[])} as with the
+     * {@link #ImportLibrary(OMEROMetadataStoreClient, OMEROWrapper, FileTransfer)}
+     * constructor.
+     *
+     * @param client
+     * @param reader
+     */
     public ImportLibrary(OMEROMetadataStoreClient client, OMEROWrapper reader)
     {
         this(client, reader, new UploadFileTransfer());
@@ -158,6 +168,10 @@ public class ImportLibrary implements IObservable
     /**
      * The library will not close the client instance. The reader will be closed
      * between calls to import.
+     *
+     * <em>Note:</em> the responsibility of closing
+     * {@link FileTransfer#afterSuccess(File[])} falls to invokers of this
+     * method.
      *
      * @param store not null
      * @param reader not null
