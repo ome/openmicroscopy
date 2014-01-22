@@ -3053,6 +3053,7 @@ class _BlitzGateway (object):
                 fo.seek(pos)
                 block = fo.read(blockSize)
                 rawFileStore.write(block, pos, blockSize)
+            originalFile = rawFileStore.save()
         finally:
             rawFileStore.close();
         return OriginalFileWrapper(self, originalFile)
