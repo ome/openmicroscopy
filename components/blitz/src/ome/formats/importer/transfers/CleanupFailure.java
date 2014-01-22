@@ -20,34 +20,27 @@
 package ome.formats.importer.transfers;
 
 import java.io.File;
-import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 
 /**
- * Local-only file transfer mechanism which makes use of symlinking.
- * This is only useful where the command "ln -s source target" will work.
+ * {@link Exception} thrown when cleaning up resources after transfer fails
+ * partially or completely. The error should likely be shown to users to
+ * permit manual cleanup.
  *
  * @since 5.0
  */
-public class SymlinkFileTransfer extends AbstractExecFileTransfer {
+public class CleanupFailure extends Exception {
 
-    /**
-     * Executes "ln -s file location" and fails on non-0 return codes.
-     *
-     * @param file
-     * @param location
-     * @throws IOException
-     */
-    protected ProcessBuilder createProcessBuilder(File file, File location) {
-        ProcessBuilder pb = new ProcessBuilder();
-        pb.command("ln", "-s", file.getAbsolutePath(), location.getAbsolutePath());
-        return pb;
+    private final List<File> failedFiles;
+
+    public CleanupFailure(List<File> failedFiles) {
+        this.failedFiles = Collections.unmodifiableList(failedFiles);
     }
 
-    /**
-     * No cleanup is needed for symlinking.
-     */
-    public void afterSuccess(List<String> srcFiles) {
-        // no-op
+    private static final long serialVersionUID = 1L;
+
+    public List<File> getFailedFiles() {
+        return failedFiles;
     }
 }

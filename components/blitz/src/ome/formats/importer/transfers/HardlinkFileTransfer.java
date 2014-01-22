@@ -24,15 +24,16 @@ import java.io.IOException;
 import java.util.List;
 
 /**
- * Local-only file transfer mechanism which makes use of symlinking.
- * This is only useful where the command "ln -s source target" will work.
+ * Local-only file transfer mechanism which makes use of hard-linking.
+ *
+ * This is only useful where the command "ln source target" will work.
  *
  * @since 5.0
  */
-public class SymlinkFileTransfer extends AbstractExecFileTransfer {
+public class HardlinkFileTransfer extends AbstractExecFileTransfer {
 
     /**
-     * Executes "ln -s file location" and fails on non-0 return codes.
+     * Executes "ln file location" and fails on non-0 return codes.
      *
      * @param file
      * @param location
@@ -40,14 +41,15 @@ public class SymlinkFileTransfer extends AbstractExecFileTransfer {
      */
     protected ProcessBuilder createProcessBuilder(File file, File location) {
         ProcessBuilder pb = new ProcessBuilder();
-        pb.command("ln", "-s", file.getAbsolutePath(), location.getAbsolutePath());
+        // Doesn't currently support Windows
+        pb.command("ln", file.getAbsolutePath(), location.getAbsolutePath());
         return pb;
     }
 
     /**
-     * No cleanup is needed for symlinking.
+     * No cleanup action is taken.
      */
-    public void afterSuccess(List<String> srcFiles) {
+    public void afterSuccess(List<String> srcFiles) throws CleanupFailure {
         // no-op
     }
 }

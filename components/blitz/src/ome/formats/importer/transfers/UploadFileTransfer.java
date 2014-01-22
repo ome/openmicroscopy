@@ -22,6 +22,7 @@ package ome.formats.importer.transfers;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.List;
 
 import ome.util.checksum.ChecksumProvider;
 import omero.ServerError;
@@ -85,5 +86,13 @@ public class UploadFileTransfer extends AbstractFileTransfer {
         } finally {
             cleanupUpload(rawFileStore, stream);
         }
+    }
+
+    /**
+     * Since the {@link RawFileStorePrx} instances are cleaned up after each
+     * transfer, there's no need to cleanup per {@link File}.
+     */
+    public void afterSuccess(List<String> srcFiles) throws CleanupFailure {
+        // no-op
     }
 }

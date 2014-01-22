@@ -25,6 +25,7 @@ import ome.formats.importer.ImportEvent;
 import ome.formats.importer.ImportLibrary;
 import ome.formats.importer.OMEROWrapper;
 import ome.formats.importer.transfers.AbstractFileTransfer;
+import ome.formats.importer.transfers.CleanupFailure;
 import ome.formats.importer.transfers.FileTransfer;
 import ome.formats.importer.transfers.UploadFileTransfer;
 import omero.model.Annotation;
@@ -157,6 +158,12 @@ public class CommandLineImporter {
             library.addObserver(this.handler);
             successful = library.importCandidates(config, candidates);
             report();
+            try {
+                transfer.afterSuccess(candidates.getPaths());
+            } catch (CleanupFailure e) {
+                log.error("rcode=3 on failed cleanup");
+                return 3;
+            }
         }
 
         return successful? 0 : 2;

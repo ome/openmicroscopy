@@ -42,8 +42,10 @@ public abstract class AbstractFileTransfer implements FileTransfer {
      * Enum of well-known {@link FileTransfer} names.
      */
     public enum Transfers {
-        upload(UploadFileTransfer.class),
-        symlink(SymlinkFileTransfer.class);
+        ln(HardlinkFileTransfer.class),
+        ln_rm(MoveFileTransfer.class),
+        ln_s(SymlinkFileTransfer.class),
+        upload(UploadFileTransfer.class);
         Class<?> kls;
         Transfers(Class<?> kls) {
             this.kls = kls;

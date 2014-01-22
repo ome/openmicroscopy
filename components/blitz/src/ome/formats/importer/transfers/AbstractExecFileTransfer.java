@@ -121,6 +121,7 @@ public abstract class AbstractExecFileTransfer extends AbstractFileTransfer {
      */
     protected void exec(File file, File location) throws IOException {
         ProcessBuilder pb = createProcessBuilder(file, location);
+        pb.redirectErrorStream(true);
         Process process = pb.start();
         Integer rcode = null;
         while (rcode == null) {
@@ -132,7 +133,8 @@ public abstract class AbstractExecFileTransfer extends AbstractFileTransfer {
             }
         }
         if (rcode == null || rcode.intValue() != 0) {
-            throw new RuntimeException("symlink process returned " + rcode);
+            log.error("transfer process returned {}", rcode);
+            throw new RuntimeException("transfer process returned " + rcode);
         }
     }
 
