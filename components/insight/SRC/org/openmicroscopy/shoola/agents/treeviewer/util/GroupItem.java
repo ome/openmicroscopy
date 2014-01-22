@@ -53,7 +53,7 @@ public class GroupItem
 {
 
     /** Bound property indicating that the users have been selected.*/
-    static final String USER_SELECTION_PROPERTY;
+    public static final String USER_SELECTION_PROPERTY;
 
     static {
         USER_SELECTION_PROPERTY = "userSelection";
