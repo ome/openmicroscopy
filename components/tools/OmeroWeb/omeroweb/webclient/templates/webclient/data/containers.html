@@ -1120,6 +1120,10 @@
                     break;
                 case "cutButton":
                     $("#dataTree").jstree('cut', $.jstree._focused().get_selected());
+                    var tree = $.jstree._focused(),
+                        selected = tree.get_selected();
+                    tree.cut(selected);     // jsTree 'cut' doesn't remove...
+                    OME.remove_nodes(tree, selected);
                     break;
                 case "pasteButton":
                     $("#dataTree").jstree('paste', $.jstree._focused().get_selected());
