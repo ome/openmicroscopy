@@ -13,6 +13,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import loci.formats.in.DefaultMetadataOptions;
@@ -21,6 +22,7 @@ import loci.formats.meta.MetadataStore;
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.ImportCandidates;
 import ome.formats.importer.ImportConfig;
+import ome.formats.importer.ImportContainer;
 import ome.formats.importer.ImportEvent;
 import ome.formats.importer.ImportLibrary;
 import ome.formats.importer.OMEROWrapper;
@@ -159,7 +161,11 @@ public class CommandLineImporter {
             successful = library.importCandidates(config, candidates);
             report();
             try {
-                transfer.afterSuccess(candidates.getPaths());
+                List<String> paths = new ArrayList<String>();
+                for (ImportContainer ic : candidates.getContainers()) {
+                    paths.addAll(Arrays.asList(ic.getUsedFiles()));
+                }
+                transfer.afterSuccess(paths);
             } catch (CleanupFailure e) {
                 log.error("rcode=3 on failed cleanup");
                 return 3;
