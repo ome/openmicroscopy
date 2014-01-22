@@ -824,7 +824,8 @@ public class ScreenLogin
                 }
             }
         }
-        login.setEnabled(enabled);
+        login.setEnabled(true);
+        if (!UIUtilities.isWindowsOS()) login.setEnabled(enabled);
         if (enabled) {
             ActionListener[] listeners = login.getActionListeners();
             if (listeners != null) {
