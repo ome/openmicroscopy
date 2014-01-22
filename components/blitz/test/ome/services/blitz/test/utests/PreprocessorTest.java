@@ -22,11 +22,11 @@ package ome.services.blitz.test.utests;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.ArrayUtils;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -34,13 +34,14 @@ import org.testng.annotations.Test;
 import Ice.Object;
 
 import com.google.common.collect.HashMultimap;
+import com.google.common.collect.HashMultiset;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Multiset;
 import com.google.common.collect.SetMultimap;
 
 import omero.cmd.Chgrp;
 import omero.cmd.Delete;
-import omero.cmd.GraphModify;
 import omero.cmd.Request;
 import omero.cmd.graphs.ChgrpI;
 import omero.cmd.graphs.DeleteI;
@@ -52,12 +53,6 @@ import omero.cmd.graphs.Preprocessor;
  */
 @Test(groups = {"fs"})
 public class PreprocessorTest extends Preprocessor {
-
-    /**
-     * Array of DELETEs for the first three filesets.
-     */
-    private static String[] FS012 =
-            new String[] {"DELETE[/Fileset:0]", "DELETE[/Fileset:1]", "DELETE[/Fileset:2]" };
 
     private final Ice.Communicator ic = Ice.Util.initialize();
 
@@ -117,10 +112,10 @@ public class PreprocessorTest extends Preprocessor {
         Assert.assertEquals(requests.size(), choices.length);
 
         for (int idx = 0; idx < choices.length; idx++) {
-            List<String> expected = Arrays.asList(choices[idx]);
+            final Multiset<String> expected = HashMultiset.create(Arrays.asList(choices[idx]));
             Request request = requests.get(idx);
             String requestString = requestToString(request);
-            Assert.assertTrue(expected.contains(requestString),
+            Assert.assertTrue(expected.remove(requestString),
                 String.format("index %s: %s not in %s", idx, requestString,
                         expected));
         }
@@ -246,6 +241,16 @@ public class PreprocessorTest extends Preprocessor {
         chgrp.id = id;
         chgrp.grp = group;
         this.requests.add(chgrp);
+    }
+
+    /**
+     * Test conversion of nothing to nothing.
+     */
+    @Test
+    public void testNothingToNothing() {
+        process();
+
+        assertRequests(ArrayUtils.EMPTY_STRING_ARRAY);
     }
 
     /**
@@ -902,7 +907,6 @@ public class PreprocessorTest extends Preprocessor {
                 _("DELETE[/Fileset:2]"),
                 _("DELETE[/Well:6]")
                 );
-
     }
 
     /**
@@ -934,6 +938,39 @@ public class PreprocessorTest extends Preprocessor {
                 "DELETE[/Fileset:1]",
                 "DELETE[/Fileset:2]"
                 );
+    }
 
+    /**
+     * Test conversion of mixed image requests to image requests.
+     */
+    @Test
+    public void testImagesToImagesMixedRequests() {
+        addChgrpRequest("/Image", 1, 1);
+        addDeleteRequest("/Image", 2);
+
+        process();
+
+        assertRequests(
+                "CHGRP(1)[/Image:1]",
+                "DELETE[/Image:2]"
+                );
+    }
+
+    /**
+     * Test conversion of mixed image requests to fileset requests.
+     */
+    @Test
+    public void testImagesToFilesetsMixedRequests() {
+        addChgrpRequest("/Image", 1, 1);
+        addDeleteRequest("/Image", 1);
+        addChgrpRequest("/Image", 2, 1);
+        addDeleteRequest("/Image", 2);
+
+        process();
+
+        assertRequests(
+                "CHGRP(1)[/Fileset:1]",
+                "DELETE[/Fileset:1]"
+                );
     }
 }
