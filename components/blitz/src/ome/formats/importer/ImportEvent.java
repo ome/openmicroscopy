@@ -9,6 +9,7 @@ package ome.formats.importer;
 
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import omero.model.Fileset;
 import omero.model.IObject;
@@ -173,9 +174,17 @@ public class ImportEvent {
         public String toLog() {
             StringBuilder sb = new StringBuilder();
             sb.append(super.toLog());
-            sb.append(String.format(" uploaded: %d of: %d bytes",
-                    uploadedBytes, contentLength));
+            sb.append(String.format(" uploaded: %d of: %d bytes (ETA: %s)",
+                    uploadedBytes, contentLength, msToString(timeLeft)));
             return sb.toString();
+        }
+
+        private String msToString(long millis) {
+            return String.format("%d' %d\"",
+                    TimeUnit.MILLISECONDS.toMinutes(millis),
+                    TimeUnit.MILLISECONDS.toSeconds(millis) -
+                    TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(millis))
+                );
         }
 
     }
