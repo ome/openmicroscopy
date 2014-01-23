@@ -46,6 +46,9 @@ import org.slf4j.LoggerFactory;
  * @author Josh Moore josh at glencoesoftware.com
  */
 public class CommandLineImporter {
+
+    public static final int DEFAULT_WAIT = -1;
+
     /** Logger for this class. */
     private static Logger log = LoggerFactory.getLogger(CommandLineImporter.class);
 
@@ -81,14 +84,16 @@ public class CommandLineImporter {
      */
     public CommandLineImporter(final ImportConfig config, String[] paths,
             boolean getUsedFiles) throws Exception {
-        this(config, paths, getUsedFiles, new UploadFileTransfer());
+        this(config, paths, getUsedFiles, new UploadFileTransfer(), DEFAULT_WAIT);
     }
 
     /**
      * Main entry class for the application.
      */
     public CommandLineImporter(final ImportConfig config, String[] paths,
-            boolean getUsedFiles, FileTransfer transfer) throws Exception {
+            boolean getUsedFiles, FileTransfer transfer, int minutesToWait)
+                    throws Exception {
+
         this.config = config;
         config.loadAll();
 
@@ -116,7 +121,7 @@ public class CommandLineImporter {
             store.logVersionInfo(config.getIniVersionNumber());
             reader.setMetadataOptions(
                     new DefaultMetadataOptions(MetadataLevel.ALL));
-            library = new ImportLibrary(store, reader, transfer);
+            library = new ImportLibrary(store, reader, transfer, minutesToWait);
         }
 
         Runtime.getRuntime().addShutdownHook(new Thread() {
@@ -261,16 +266,20 @@ public class CommandLineImporter {
                 .println(String
                         .format(
                                 "\n"
-                                        + "Advanced arguments:\n"
+                                        + "Advanced arguments:\n\n"
+                                        + "  These options are not intended for general use. Make sure you have read the\n"
+                                        + "  documentation regarding them. They may change in future releases.\n\n"
+                                        + "  --minutes_wait=ARG      \tARG = 0 implies no wait; ARG < 0 implies wait indefinitely.\n"
+                                        + "                          \tOtherwise, the number of minutes to wait for completion.\n\n"
                                         + "  --checksum_algorithm=ARG\tE.g. Adler-32, CRC-32, MD5-128\n"
-                                        + "                          \t     Murmur3-32, Murmur3-128, SHA1-160\n"
-                                        + "  --transfer=ARG          \tFile transfer method\n"
-                                        + "      Examples:\n"
-                                        + "       -t upload           # Default\n"
-                                        + "       -t ln               # Use hard-link. Locally only!\n"
-                                        + "       -t ln_rm            # Caution! Hard-link followed by rm. Locally only!\n"
-                                        + "       -t ln_s             # Use symlnk. Locally only!\n"
-                                        + "       -t some.class.Name  # Use a class on the CLASSPATH\n"
+                                        + "                          \t     Murmur3-32, Murmur3-128, SHA1-160\n\n"
+                                        + "  --transfer=ARG          \tFile transfer method\n\n"
+                                        + "      Values:           \t\n"
+                                        + "       -t upload          \t# Default\n"
+                                        + "       -t ln              \t# Use hard-link. Locally only!\n"
+                                        + "       -t ln_rm           \t# Caution! Hard-link followed by rm. Locally only!\n"
+                                        + "       -t ln_s            \t# Use symlnk. Locally only!\n"
+                                        + "       -t some.class.Name \t# Use a class on the CLASSPATH\n"
                                         + "\n"
                                         + "ex. %s --transfer=ln_s foo.tiff\n"
                                         + "\n"
@@ -325,6 +334,7 @@ public class CommandLineImporter {
      */
     public static void main(String[] args) {
 
+        int minutesToWait = DEFAULT_WAIT;
         FileTransfer transfer = new UploadFileTransfer();
         ImportConfig config = new ImportConfig();
 
@@ -360,19 +370,23 @@ public class CommandLineImporter {
         LongOpt annotationLink =
             new LongOpt("annotation_link", LongOpt.REQUIRED_ARGUMENT,
                         null, 12);
+
+        // ADVANCED OPTIONS
+        LongOpt advancedHelp =
+                new LongOpt("advanced-help", LongOpt.NO_ARGUMENT, null, 13);
         LongOpt transferOpt =
-                new LongOpt("transfer", LongOpt.REQUIRED_ARGUMENT, null, 13);
-        LongOpt transferHelp =
-                new LongOpt("transfer-help", LongOpt.NO_ARGUMENT, null, 14);
+                new LongOpt("transfer", LongOpt.REQUIRED_ARGUMENT, null, 15);
         LongOpt checksumAlgorithm =
                 new LongOpt("checksum_algorithm", LongOpt.REQUIRED_ARGUMENT, null, 15);
+        LongOpt minutesWait =
+                new LongOpt("minutes_wait", LongOpt.REQUIRED_ARGUMENT, null, 16);
 
         Getopt g = new Getopt(APP_NAME, args, "cfl:s:u:w:d:r:k:x:n:p:ht:",
                 new LongOpt[] { debug, report, upload, logs, email,
                                 plateName, plateDescription, noThumbnails,
                                 agent, annotationNamespace, annotationText,
-                                annotationLink, transferOpt, transferHelp,
-                                checksumAlgorithm});
+                                annotationLink, transferOpt, advancedHelp,
+                                checksumAlgorithm, minutesWait});
         int a;
 
         boolean getUsedFiles = false;
@@ -444,15 +458,16 @@ public class CommandLineImporter {
                 annotationIds.add(Long.parseLong(g.getOptarg()));
                 break;
             }
-            case 13:
+            case 13: {
+                advUsage();
+                break;
+            }
+            // ADVANCED START -------------------------------------------------
+            case 14:
             case 't': {
                 String arg = g.getOptarg();
                 log.info("Setting transfer to {}", arg);
                 transfer = AbstractFileTransfer.createTransfer(arg);
-                break;
-            }
-            case 14: {
-                advUsage();
                 break;
             }
             case 15: {
@@ -461,6 +476,12 @@ public class CommandLineImporter {
                 config.checksumAlgorithm.set(arg);
                 break;
             }
+            case 16: {
+                minutesToWait = Integer.parseInt(g.getOptarg());
+                log.info("Setting minutes to wait to {}", minutesToWait);
+                break;
+            }
+            // ADVANCED END ---------------------------------------------------
             case 's': {
                 config.hostname.set(g.getOptarg());
                 break;
@@ -555,7 +576,8 @@ public class CommandLineImporter {
             if (rest.length == 1 && "-".equals(rest[0])) {
                 rest = stdin();
             }
-            c = new CommandLineImporter(config, rest, getUsedFiles, transfer);
+            c = new CommandLineImporter(config, rest, getUsedFiles,
+                    transfer, minutesToWait);
             rc = c.start();
         } catch (Throwable t) {
             log.error("Error during import process.", t);
