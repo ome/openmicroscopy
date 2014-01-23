@@ -295,7 +295,7 @@ public class ImportLibrary implements IObservable
         // check if the container object has ChecksumAlgorithm
         // present and pass it into the settings object
         final Fileset fs = new FilesetI();
-        container.fillData(new ImportConfig(), settings, fs, sanitizer);
+        container.fillData(new ImportConfig(), settings, fs, sanitizer, transfer);
         settings.checksumAlgorithm = repo.suggestChecksumAlgorithm(repo.listChecksumAlgorithms());
         return repo.importFileset(fs, settings);
     }
