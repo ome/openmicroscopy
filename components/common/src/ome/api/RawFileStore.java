@@ -20,6 +20,12 @@ import ome.model.core.OriginalFile;
  * @since OMERO3.0
  */
 public interface RawFileStore extends StatefulServiceInterface {
+
+    /**
+     * Returns the current file id or null if none has been set.
+     */
+    public Long getFileId();
+
     /**
      * This method manages the state of the service.
      * 
