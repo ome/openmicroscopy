@@ -30,6 +30,13 @@ import ome.formats.importer.transfers.AbstractFileTransfer;
 import ome.formats.importer.transfers.CleanupFailure;
 import ome.formats.importer.transfers.FileTransfer;
 import ome.formats.importer.transfers.UploadFileTransfer;
+import omero.api.ServiceFactoryPrx;
+import omero.api.ServiceInterfacePrx;
+import omero.api.StatefulServiceInterfacePrx;
+import omero.cmd.Response;
+import omero.grid.ImportProcessPrx;
+import omero.grid.ImportProcessPrxHelper;
+import omero.grid.ImportResponse;
 import omero.model.Annotation;
 import omero.model.CommentAnnotationI;
 import omero.model.Dataset;
@@ -129,6 +136,41 @@ public class CommandLineImporter {
                 cleanup();
             }
         });
+    }
+
+    /**
+     * Look for all {@link ImportProcessPrx} in the current session and close
+     * them if they return a non-null {@link Response} (i.e. they are done).
+     */
+    public static int closeCompleted(ImportConfig config) throws Exception {
+        int errors = 0;
+        int count = 0;
+        config.loadAll();
+        OMEROMetadataStoreClient client = config.createStore();
+        ServiceFactoryPrx sf = client.getServiceFactory();
+        List<String> active = sf.activeServices();
+        for (String service : active) {
+            try {
+                ServiceInterfacePrx prx = sf.getByName(service);
+                ImportProcessPrx imPrx = ImportProcessPrxHelper.checkedCast(prx);
+                if (imPrx != null) {
+                    count++;
+                    String logName = imPrx.toString().split("\\s")[0];
+                    Response rsp = imPrx.getHandle().getResponse();
+                    if (rsp != null) {
+                        log.info("Done: {}", logName);
+                        imPrx.close();
+                    } else {
+                        log.info("Running: {}", logName);
+                    }
+                }
+            } catch (Exception e) {
+                errors++;
+                log.warn("Failure accessing service", e);
+            }
+        }
+        log.info("{} service(s) processed", count);
+        return errors;
     }
 
     public int start() {
@@ -269,10 +311,11 @@ public class CommandLineImporter {
                                         + "Advanced arguments:\n\n"
                                         + "  These options are not intended for general use. Make sure you have read the\n"
                                         + "  documentation regarding them. They may change in future releases.\n\n"
-                                        + "  --minutes_wait=ARG      \tARG = 0 implies no wait; ARG < 0 implies wait indefinitely.\n"
-                                        + "                          \tOtherwise, the number of minutes to wait for completion.\n\n"
                                         + "  --checksum_algorithm=ARG\tE.g. Adler-32, CRC-32, MD5-128\n"
                                         + "                          \t     Murmur3-32, Murmur3-128, SHA1-160\n\n"
+                                        + "  --close_completed       \tClose lingering processes left by --minutes_wait\n\n"
+                                        + "  --minutes_wait=ARG      \tARG = 0 implies no wait; ARG < 0 implies wait indefinitely.\n"
+                                        + "                          \tOtherwise, the number of minutes to wait for completion.\n\n"
                                         + "  --transfer=ARG          \tFile transfer method\n\n"
                                         + "      Values:           \t\n"
                                         + "       -t upload          \t# Default\n"
@@ -332,7 +375,7 @@ public class CommandLineImporter {
      * @param args
      *            Command line arguments.
      */
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
 
         int minutesToWait = DEFAULT_WAIT;
         FileTransfer transfer = new UploadFileTransfer();
@@ -380,15 +423,18 @@ public class CommandLineImporter {
                 new LongOpt("checksum_algorithm", LongOpt.REQUIRED_ARGUMENT, null, 15);
         LongOpt minutesWait =
                 new LongOpt("minutes_wait", LongOpt.REQUIRED_ARGUMENT, null, 16);
+        LongOpt closeCompleted =
+                new LongOpt("close_completed", LongOpt.NO_ARGUMENT, null, 17);
 
         Getopt g = new Getopt(APP_NAME, args, "cfl:s:u:w:d:r:k:x:n:p:ht:",
                 new LongOpt[] { debug, report, upload, logs, email,
                                 plateName, plateDescription, noThumbnails,
                                 agent, annotationNamespace, annotationText,
                                 annotationLink, transferOpt, advancedHelp,
-                                checksumAlgorithm, minutesWait});
+                                checksumAlgorithm, minutesWait, closeCompleted});
         int a;
 
+        boolean doCloseCompleted = false;
         boolean getUsedFiles = false;
         config.agent.set("importer-cli");
 
@@ -481,6 +527,10 @@ public class CommandLineImporter {
                 log.info("Setting minutes to wait to {}", minutesToWait);
                 break;
             }
+            case 17: {
+                doCloseCompleted = true;
+                break;
+            }
             // ADVANCED END ---------------------------------------------------
             case 's': {
                 config.hostname.set(g.getOptarg());
@@ -553,6 +603,10 @@ public class CommandLineImporter {
         //        "Log levels -- Bio-Formats: %s OMERO.importer: %s",
         //        org.apache.log4j.Logger.getLogger("loci").getLevel(),
         //        org.apache.log4j.Logger.getLogger("ome.formats").getLevel()));
+
+        if (doCloseCompleted) {
+            System.exit(closeCompleted(config)); // EARLY EXIT!
+        }
 
         List<Annotation> annotations =
             toTextAnnotations(annotationNamespaces, textAnnotations);
