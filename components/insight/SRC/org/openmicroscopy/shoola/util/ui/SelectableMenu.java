@@ -38,6 +38,9 @@ public class SelectableMenu
     extends JMenu
 {
 
+    /** Bound property indicating that the group is selected.*/
+    public static final String GROUP_SELECTION_PROPERTY;
+
     /** The default selected icon.*/
     private static final Icon DEFAULT_SELECTED;
 
@@ -48,6 +51,7 @@ public class SelectableMenu
         IconManager icons = IconManager.getInstance();
         DEFAULT_DESELECTED = icons.getIcon(IconManager.TRANSPARENT);
         DEFAULT_SELECTED = icons.getIcon(IconManager.SELECTED_8);
+        GROUP_SELECTION_PROPERTY = "groupSelection";
     }
 
     /** The icon used when the menu is selected.*/
@@ -131,12 +135,12 @@ public class SelectableMenu
     {
         this.selectedIcon = selectedIcon;
         this.deselectedIcon = deselectedIcon;
-        setMenuSelected(selected);
+        setMenuSelected(selected, false);
         setText(text);
         if (selectable) {
             addMouseListener(new MouseAdapter() {
                 public void mouseClicked(MouseEvent evt) {
-                    setMenuSelected(!isMenuSelected());
+                    setMenuSelected(!isMenuSelected(), true);
                     repaint();
                 }
             });
@@ -159,11 +163,16 @@ public class SelectableMenu
      *
      * @param selected Pass <code>true</code> to select the menu,
      *                 <code>false</code> otherwise.
+     * @param fireProperty Pass <code>true</code> to fire a property,
+     *                     <code>false</code> otherwise.
      */
-    public void setMenuSelected(boolean selected)
+    public void setMenuSelected(boolean selected, boolean fireProperty)
     {
         if (selected) setIcon(selectedIcon);
         else setIcon(deselectedIcon);
+        if (fireProperty) {
+            firePropertyChange(GROUP_SELECTION_PROPERTY, null, this);
+        }
     }
 
 }

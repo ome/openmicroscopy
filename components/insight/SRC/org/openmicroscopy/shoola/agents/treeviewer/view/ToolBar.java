@@ -350,7 +350,7 @@ class ToolBar
         groupItem.add(new JScrollPane(p));
         groupItem.setUsersItem(items);
         groupItem.addPropertyChangeListener(new PropertyChangeListener() {
-            
+
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
                 String name = evt.getPropertyName();
@@ -398,7 +398,7 @@ class ToolBar
             item = new DataMenuItem(group, true);
             item.setSelected(groupIds.contains(group.getId()));
             item.addChangeListener(new ChangeListener() {
-                
+
                 @Override
                 public void stateChanged(ChangeEvent evt) {
                     handleGroupSelection();
@@ -454,10 +454,12 @@ class ToolBar
         Iterator i = sortedGroups.iterator();
         GroupItem item;
         int size = sortedGroups.size();
+        long userID = model.getExperimenter().getId();
         while (i.hasNext()) {
             group = (GroupData) i.next();
             boolean b = groupIds.contains(group.getId()) || size == 1;
-            item = new GroupItem(group, b, false);
+            item = new GroupItem(group, b, true);
+            item.setUserID(userID);
             createGroupMenu(item, size);
             popupMenu.add(item);
         }

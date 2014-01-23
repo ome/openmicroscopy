@@ -65,6 +65,9 @@ public class GroupItem
     /** The List of components hosting the user.*/
     private List<DataMenuItem> usersItem;
 
+    /** The identifier of the user currently logged in.*/
+    private long userID;
+    
     /**
      * Creates a new instance.
      * 
@@ -78,6 +81,7 @@ public class GroupItem
     {
         super(selected, group.getName(), selectable);
         this.group = group;
+        addPropertyChangeListener(this);
     }
 
     /**
@@ -91,6 +95,7 @@ public class GroupItem
     {
         super(selected, group.getName(), true);
         this.group = group;
+        addPropertyChangeListener(this);
     }
     
     /**
@@ -102,6 +107,13 @@ public class GroupItem
     {
         this.usersItem = usersItem;
     }
+
+    /**
+     * Sets the identifier of the user currently logged in.
+     * 
+     * @param userID The value to set.
+     */
+    public void setUserID(long userID) { this.userID = userID; }
 
     /**
      * Returns the group.
@@ -153,8 +165,34 @@ public class GroupItem
                 }
             }
             List<ExperimenterData> l = getSeletectedUsers();
-            setMenuSelected(CollectionUtils.isNotEmpty(l));
+            setMenuSelected(CollectionUtils.isNotEmpty(l), false);
             firePropertyChange(USER_SELECTION_PROPERTY, null, this);
+        } else if (SelectableMenu.GROUP_SELECTION_PROPERTY.equals(name)) {
+            GroupItem item = (GroupItem) evt.getNewValue();
+            if (item != this) return;
+            if (!item.isMenuSelected()) {
+                firePropertyChange(USER_SELECTION_PROPERTY, null, this);
+            } else {
+                List<ExperimenterData> l = getSeletectedUsers();
+                if (CollectionUtils.isEmpty(l)) {
+                    //select the user currently logged in
+                    Iterator<DataMenuItem> i = usersItem.iterator();
+                    Object ho;
+                    DataMenuItem data;
+                    while (i.hasNext()) {
+                        data = i.next();
+                        ho = data.getDataObject();
+                        if (ho instanceof ExperimenterData && data.isEnabled()) {
+                            long id = ((ExperimenterData) ho).getId();
+                            if (id == userID) {
+                                data.setSelected(true);
+                                break;
+                            }
+                        }
+                    }
+                }
+                firePropertyChange(USER_SELECTION_PROPERTY, null, this);
+            }
         }
     }
 
