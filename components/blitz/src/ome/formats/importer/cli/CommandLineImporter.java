@@ -262,7 +262,9 @@ public class CommandLineImporter {
                         .format(
                                 "\n"
                                         + "Advanced arguments:\n"
-                                        + "  --transfer=ARG\tFile transfer method\n"
+                                        + "  --checksum_algorithm=ARG\tE.g. Adler-32, CRC-32, MD5-128\n"
+                                        + "                          \t     Murmur3-32, Murmur3-128, SHA1-160\n"
+                                        + "  --transfer=ARG          \tFile transfer method\n"
                                         + "      Examples:\n"
                                         + "       -t upload           # Default\n"
                                         + "       -t ln               # Use hard-link. Locally only!\n"
@@ -362,12 +364,15 @@ public class CommandLineImporter {
                 new LongOpt("transfer", LongOpt.REQUIRED_ARGUMENT, null, 13);
         LongOpt transferHelp =
                 new LongOpt("transfer-help", LongOpt.NO_ARGUMENT, null, 14);
+        LongOpt checksumAlgorithm =
+                new LongOpt("checksum_algorithm", LongOpt.REQUIRED_ARGUMENT, null, 15);
 
         Getopt g = new Getopt(APP_NAME, args, "cfl:s:u:w:d:r:k:x:n:p:ht:",
                 new LongOpt[] { debug, report, upload, logs, email,
                                 plateName, plateDescription, noThumbnails,
                                 agent, annotationNamespace, annotationText,
-                                annotationLink, transferOpt, transferHelp });
+                                annotationLink, transferOpt, transferHelp,
+                                checksumAlgorithm});
         int a;
 
         boolean getUsedFiles = false;
@@ -448,6 +453,12 @@ public class CommandLineImporter {
             }
             case 14: {
                 advUsage();
+                break;
+            }
+            case 15: {
+                String arg = g.getOptarg();
+                log.info("Setting checksum algorithm to {}", arg);
+                config.checksumAlgorithm.set(arg);
                 break;
             }
             case 's': {
