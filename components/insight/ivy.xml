@@ -86,6 +86,7 @@
 
     <!-- importer -->
     <dependency org="importer" name="slf4j-api" rev="${versions.slf4j}"/>
-    <dependency org="importer" name="slf4j-log4j12" rev="${versions.slf4j}"/>
+    <dependency org="importer" name="logback-classic" rev="${versions.logback}" conf="build,client->default"/>
+    <dependency org="importer" name="logback-core" rev="${versions.logback}" conf="build,client->default"/>
   </dependencies>
 </ivy-module>

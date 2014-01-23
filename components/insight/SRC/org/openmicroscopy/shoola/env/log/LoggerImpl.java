@@ -28,7 +28,6 @@ package org.openmicroscopy.shoola.env.log;
 import java.util.Properties;
 
 //Third-party libraries
-import org.apache.log4j.PropertyConfigurator;
 
 //Application-internal dependencies
 
@@ -64,12 +63,12 @@ class LoggerImpl
      * 					<code>null</code>, then the root logger is returned.
      * @return A logger for the specified object.
      */
-    private org.apache.log4j.Logger getAdaptee(Object target)
+    private org.slf4j.Logger getAdaptee(Object target)
     { 
 		if (target != null) 
-			return org.apache.log4j.Logger.getLogger(
-												target.getClass().getName());
-		return org.apache.log4j.Logger.getRootLogger();
+			return org.slf4j.LoggerFactory.getLogger(
+												target.getClass());
+		return org.slf4j.LoggerFactory.getLogger(org.slf4j.Logger.ROOT_LOGGER_NAME);
     }
     
     /**
@@ -80,9 +79,13 @@ class LoggerImpl
      */
     LoggerImpl(Properties config, String absFile)
     {
-    	this.absFile = absFile;
-		config.put("log4j.appender.BASE.File", absFile);
-		PropertyConfigurator.configure(config);
+        // TODO: This will need to be changed once the
+        // log4j.config file has been translated.
+        /*
+        this.absFile = absFile;
+        config.put("log4j.appender.BASE.File", absFile);
+        PropertyConfigurator.configure(config);
+        */
     }
     
 	/** 
@@ -127,7 +130,7 @@ class LoggerImpl
      */ 
     public void fatal(Object c, String logMsg)
     {
-		getAdaptee(c).fatal(logMsg);
+		getAdaptee(c).error(logMsg);
     }
     
 	/** 
@@ -136,7 +139,7 @@ class LoggerImpl
      */     
 	public void fatal(Object c, LogMessage msg)
 	{
-		getAdaptee(c).fatal(msg == null ? null : msg.toString());
+		getAdaptee(c).error(msg == null ? null : msg.toString());
 	}
     
 	/** 
