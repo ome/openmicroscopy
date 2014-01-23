@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.treeviewer.view.ToolBar
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -115,34 +115,11 @@ class ToolBar
     /** Size of the horizontal box. */
     private static final Dimension HBOX = new Dimension(100, 16);
 
-    /** The icon for private group.*/
-    private static final Icon PERMISSIONS_PRIVATE;
+    /** Text indicating to display the groups.*/ 
+    private static final String GROUP_DISPLAY_TEXT = "Display Groups";
 
-    /** The icon for private group.*/
-    private static final Icon PERMISSIONS_GROUP_READ;
-
-    /** The icon for private group.*/
-    private static final Icon PERMISSIONS_GROUP_READ_LINK;
-
-    /** The icon for private group.*/
-    private static final Icon PERMISSIONS_PUBLIC_READ;
-
-    /** The icon for private group.*/
-    private static final Icon PERMISSIONS_GROUP_READ_WRITE;
-
-    /** The icon for private group.*/
-    private static final Icon PERMISSIONS_PUBLIC_READ_WRITE;
-
-    //Initializes the icons.
-    static {
-        IconManager im = IconManager.getInstance();
-        PERMISSIONS_PRIVATE = im.getIcon(IconManager.PRIVATE_GROUP);
-        PERMISSIONS_GROUP_READ = im.getIcon(IconManager.READ_GROUP);
-        PERMISSIONS_GROUP_READ_LINK = im.getIcon(IconManager.READ_LINK_GROUP);
-        PERMISSIONS_GROUP_READ_WRITE = im.getIcon(IconManager.READ_WRITE_GROUP);
-        PERMISSIONS_PUBLIC_READ = im.getIcon(IconManager.PUBLIC_GROUP);
-        PERMISSIONS_PUBLIC_READ_WRITE = im.getIcon(IconManager.PUBLIC_GROUP);
-    }
+    /** Text indicating to display the users (only one group).*/ 
+    private static final String USER_DISPLAY_TEXT = "Display Users";
 
     /** Reference to the control. */
     private TreeViewerControl controller;
@@ -174,14 +151,8 @@ class ToolBar
     /** The management bar.*/
     private JToolBar bar;
 
-    /** The label displaying the group context.*/
-    private JLabel groupContext;
-
     /** The button to display the menu.*/
     private JButton menuButton;
-
-    /** The button to display the users.*/
-    private JButton usersButton;
 
     /** Used to sort the list of users.*/
     private ViewerSorter sorter;
@@ -430,9 +401,9 @@ class ToolBar
         if (!source.isEnabled()) return;
         Collection groups = model.getGroups();
         if (CollectionUtils.isEmpty(groups)) return;
-        List sortedGroups = sorter.sort(groups);
         popupMenu.removeAll();
         GroupData group;
+        List sortedGroups = sorter.sort(groups);
 
         //Determine the group already displayed.
         Browser browser = model.getBrowser(Browser.PROJECTS_EXPLORER);
@@ -571,9 +542,6 @@ class ToolBar
 
         bar.add(new JSeparator(JSeparator.VERTICAL));
 
-        groupContext = new JLabel();
-        groupContext.setVisible(false);
-
         MouseAdapter adapter = new MouseAdapter() {
 
             /**
@@ -595,21 +563,13 @@ class ToolBar
         };
 
         a = controller.getAction(TreeViewerControl.SWITCH_USER);
-        usersButton = new JButton(a);
-        usersButton.addMouseListener(adapter);
-        UIUtilities.unifiedButtonLookAndFeel(usersButton);
-
         IconManager icons = IconManager.getInstance();
-        menuButton = new JButton(icons.getIcon(IconManager.OWNER_GROUP));
-        menuButton.setVisible(false);
-        usersButton.setVisible(false);
-        UIUtilities.unifiedButtonLookAndFeel(menuButton);
-
+        menuButton = new JButton(icons.getIcon(IconManager.FILTER_MENU));
+        menuButton.setVisible(true);
+        menuButton.setText(GROUP_DISPLAY_TEXT);
+        menuButton.setHorizontalTextPosition(SwingConstants.LEFT);
         menuButton.addMouseListener(adapter);
-        groupContext.addMouseListener(adapter);
-        bar.add(usersButton);
-        bar.add(Box.createHorizontalStrut(5));
-        bar.add(groupContext);
+        bar.add(menuButton);
         setPermissions();
         return bar;
     }
@@ -998,31 +958,6 @@ class ToolBar
         repaint();
     }
 
-    /**
-     * Returns the icon corresponding to the specified group.
-     * 
-     * @param group The group to handle.
-     * @return See above.
-     */
-    private Icon getGroupIcon(GroupData group)
-    {
-        switch (group.getPermissions().getPermissionsLevel()) {
-        case GroupData.PERMISSIONS_PRIVATE:
-            return PERMISSIONS_PRIVATE;
-        case GroupData.PERMISSIONS_GROUP_READ:
-            return PERMISSIONS_GROUP_READ;
-        case GroupData.PERMISSIONS_GROUP_READ_LINK:
-            return PERMISSIONS_GROUP_READ_LINK;
-        case GroupData.PERMISSIONS_GROUP_READ_WRITE:
-            return PERMISSIONS_GROUP_READ_WRITE;
-        case GroupData.PERMISSIONS_PUBLIC_READ:
-            return PERMISSIONS_PUBLIC_READ;
-        case GroupData.PERMISSIONS_PUBLIC_READ_WRITE:
-            return PERMISSIONS_PUBLIC_READ_WRITE;
-        }
-        return null;
-    }
-
     /** Sets the permissions level.*/
     void setPermissions()
     {
@@ -1030,48 +965,23 @@ class ToolBar
         if (browser != null &&
                 browser.getBrowserType() == Browser.ADMIN_EXPLORER)
             return;
-        GroupData group = model.getSelectedGroup();
-        if (group == null || groupContext == null) {
-            menuButton.setVisible(false);
-            groupContext.setVisible(false);
-            return;
-        }
-        String desc = "";
-        Icon icon = getGroupIcon(group);
-        switch (group.getPermissions().getPermissionsLevel()) {
-        case GroupData.PERMISSIONS_PRIVATE:
-            desc = GroupData.PERMISSIONS_PRIVATE_TEXT;
-            break;
-        case GroupData.PERMISSIONS_GROUP_READ:
-            desc = GroupData.PERMISSIONS_GROUP_READ_TEXT;
-            break;
-        case GroupData.PERMISSIONS_GROUP_READ_LINK:
-            desc = GroupData.PERMISSIONS_GROUP_READ_LINK_TEXT;
-            break;
-        case GroupData.PERMISSIONS_GROUP_READ_WRITE:
-            desc = GroupData.PERMISSIONS_GROUP_READ_WRITE_TEXT;
-            break;
-        case GroupData.PERMISSIONS_PUBLIC_READ:
-            desc = GroupData.PERMISSIONS_PUBLIC_READ_TEXT;
-            break;
-        case GroupData.PERMISSIONS_PUBLIC_READ_WRITE:
-            desc = GroupData.PERMISSIONS_PUBLIC_READ_WRITE_TEXT;
-        }
-        if (icon != null) groupContext.setIcon(icon);
-        groupContext.setText(group.getName());
-        groupContext.setToolTipText(desc);
-
         Collection set = TreeViewerAgent.getAvailableUserGroups();
         boolean b = set != null && set.size() > 1;
-        menuButton.setVisible(b);
-        groupContext.setVisible(b);
-        if (!b) { //only show for admin and group owner
+        menuButton.setEnabled(true);
+        if (model.getDisplayMode() == TreeViewer.GROUP_DISPLAY) {
+            b = true;
+        }
+
+        if (b) {
+            menuButton.setText(GROUP_DISPLAY_TEXT);
+        } else {
+            GroupData group = model.getSelectedGroup();
+            menuButton.setText(USER_DISPLAY_TEXT);
             if (group.getPermissions().getPermissionsLevel() ==
                     GroupData.PERMISSIONS_PRIVATE)
-                usersButton.setVisible(model.isAdministrator() ||
+                menuButton.setEnabled(model.isAdministrator() ||
                         model.isGroupOwner(group));
-            else usersButton.setVisible(!b);
-        } else usersButton.setVisible(!b);
+        }
         repaint();
     }
 
