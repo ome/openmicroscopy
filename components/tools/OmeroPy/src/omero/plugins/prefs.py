@@ -254,9 +254,9 @@ class PrefsControl(BaseControl):
             config[args.KEY] = args.VALUE
 
     def get_list_value(self, args, config):
-        import ast
+        import json
         try:
-            list_value = ast.literal_eval(config[args.KEY])
+            list_value = json.loads(config[args.KEY])
         except:
             self.ctx.die(510, "Malformed string")
 
@@ -271,12 +271,13 @@ class PrefsControl(BaseControl):
             list_value.append(args.VALUE)
         else:
             list_value = [args.VALUE]
-        config[args.KEY] = str(list_value)
+        import json
+        config[args.KEY] = json.dumps(list_value)
 
     @with_rw_config
     def remove(self, args, config):
         if args.KEY not in config.keys():
-            self.ctx.die(512, "%s is not defined" % (args.KEY))
+            self.ctx.die(512, "Property %s is not defined" % (args.KEY))
 
         list_value = self.get_list_value(args, config)
         if args.VALUE not in list_value:
@@ -285,7 +286,8 @@ class PrefsControl(BaseControl):
 
         list_value.remove(args.VALUE)
         if list_value:
-            config[args.KEY] = str(list_value)
+            import json
+            config[args.KEY] = json.dumps(list_value)
         else:
             del config[args.KEY]
 
