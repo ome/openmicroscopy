@@ -384,8 +384,7 @@ public class CommandLineImporter {
         while ((a = g.getopt()) != -1) {
             switch (a) {
             case 1: {
-                // CGB: Needs replacing with logback equivalent.
-                // config.configureDebug(Level.toLevel(g.getOptarg()));
+                config.configureDebug(g.getOptarg());
                 break;
             }
             case 2: {
