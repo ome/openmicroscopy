@@ -4706,6 +4706,7 @@ class TreeViewerComponent
 		model.setRndSettings(null);
 		model.setNodesToCopy(null, -1);
 		//remove thumbnails browser
+		view.setPermissions();
 		view.removeAllFromWorkingPane();
 		model.setDataViewer(null);
 		//reset search
