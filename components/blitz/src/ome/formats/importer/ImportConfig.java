@@ -125,6 +125,7 @@ public class ImportConfig {
 
     public final FileValue savedDirectory;
     public final StrValue readersPath;
+    public final StrValue checksumAlgorithm;
 
     public final BoolValue encryptedConnection;
 
@@ -243,6 +244,7 @@ public class ImportConfig {
                 "userPixels", this, null);
 
         readersPath = new StrValue("readersPath", this);
+        checksumAlgorithm = new StrValue("checksumAlgorithm", this);
     }
 
     public String getBioFormatsVersion() {
