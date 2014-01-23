@@ -624,7 +624,8 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
             AbstractAmdServant servant, Ice.Current current)
                     throws ServerError {
 
-        final RegisterServantMessage msg = new RegisterServantMessage(this, tie, current);
+        final RegisterServantMessage msg = new RegisterServantMessage(this, tie,
+                servant.getClass().getSimpleName(), current);
         publishMessage(msg);
         Ice.ObjectPrx prx = msg.getProxy();
         if (prx == null) {

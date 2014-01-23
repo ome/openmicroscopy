@@ -26,12 +26,20 @@ public class RegisterServantMessage extends FindServiceFactoryMessage {
 
     private final transient Ice.Object servant;
 
+    private final String readableName;
+
     private transient Ice.ObjectPrx prx;
 
     public RegisterServantMessage(Object source, Ice.Object servant,
             Ice.Current current) {
+        this(source, servant, "unknown", current);
+    }
+
+    public RegisterServantMessage(Object source, Ice.Object servant,
+            String name, Ice.Current current) {
         super(source, current);
         this.servant = servant;
+        this.readableName = name;
     }
 
     public Ice.Object getServant() {
@@ -53,8 +61,9 @@ public class RegisterServantMessage extends FindServiceFactoryMessage {
             throws omero.ServerError {
         super.setServiceFactory(id, sf);
         if (sf != null) {
-            final Ice.Identity newId = new Ice.Identity(UUID.randomUUID().toString(), id.name);
             final Ice.Object servant = getServant();
+            final String name = UUID.randomUUID().toString() + "-" + readableName;
+            final Ice.Identity newId = new Ice.Identity(name, id.name);
             sf.configureServant(servant); // Sets holder
             setProxy(sf.registerServant(newId, servant));
         }
