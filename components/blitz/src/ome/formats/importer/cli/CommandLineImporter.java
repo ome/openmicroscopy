@@ -270,7 +270,7 @@ public class CommandLineImporter {
                                         + "       -t ln_s             # Use symlnk. Locally only!\n"
                                         + "       -t some.class.Name  # Use a class on the CLASSPATH\n"
                                         + "\n"
-                                        + "ex. %s --tranasfer=ln_s foo.tiff\n"
+                                        + "ex. %s --transfer=ln_s foo.tiff\n"
                                         + "\n"
                                         + "Report bugs to <ome-users@lists.openmicroscopy.org.uk>",
                                 APP_NAME));
