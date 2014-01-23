@@ -19,6 +19,13 @@
 
 package ome.util.checksum;
 
+import java.util.Arrays;
+import java.util.EnumSet;
+import java.util.Set;
+
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Sets;
+
 /**
  * An implementation of the {@link ChecksumProviderFactory} interface.
  *
@@ -26,6 +33,9 @@ package ome.util.checksum;
  * @since 4.4.7
  */
 public class ChecksumProviderFactoryImpl implements ChecksumProviderFactory {
+
+    private static final ImmutableSet<ChecksumType> availableChecksumTypes =
+            Sets.immutableEnumSet(Arrays.asList(ChecksumType.values()));
 
     /**
      * @see ChecksumProviderFactory#getProvider(ChecksumType)
@@ -50,4 +60,8 @@ public class ChecksumProviderFactoryImpl implements ChecksumProviderFactory {
         }
     }
 
+    @Override
+    public Set<ChecksumType> getAvailableTypes() {
+        return availableChecksumTypes;
+    }
 }
