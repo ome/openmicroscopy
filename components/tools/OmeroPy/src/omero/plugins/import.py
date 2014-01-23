@@ -71,6 +71,10 @@ class ImportControl(BaseControl):
             help="Image name to use (**)",
             metavar="NAME")
         parser.add_argument(
+            "-t", "--transfer", dest="java_transfer",
+            help="File transfer method to use (**)",
+            metavar="TRANSFER")
+        parser.add_argument(
             "-x", dest="java_x",
             help="Image description to use (**)",
             metavar="DESCRIPTION")
@@ -159,7 +163,8 @@ class ImportControl(BaseControl):
             "java_debug": "--debug",
             "java_ns": "--annotation_ns",
             "java_text": "--annotation_text",
-            "java_link": "--annotation_link"
+            "java_link": "--annotation_link",
+            "java_transfer": "--transfer",
             }
 
         for attr_name, arg_name in java_args.items():

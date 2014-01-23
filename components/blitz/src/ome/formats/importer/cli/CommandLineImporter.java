@@ -13,6 +13,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import loci.formats.in.DefaultMetadataOptions;
@@ -21,9 +22,14 @@ import loci.formats.meta.MetadataStore;
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.ImportCandidates;
 import ome.formats.importer.ImportConfig;
+import ome.formats.importer.ImportContainer;
 import ome.formats.importer.ImportEvent;
 import ome.formats.importer.ImportLibrary;
 import ome.formats.importer.OMEROWrapper;
+import ome.formats.importer.transfers.AbstractFileTransfer;
+import ome.formats.importer.transfers.CleanupFailure;
+import ome.formats.importer.transfers.FileTransfer;
+import ome.formats.importer.transfers.UploadFileTransfer;
 import omero.model.Annotation;
 import omero.model.CommentAnnotationI;
 import omero.model.Dataset;
@@ -49,6 +55,9 @@ public class CommandLineImporter {
     /** Configuration used by all components */
     public final ImportConfig config;
 
+    /** {@link FileTransfer} mechanism to be used for uploading */
+    public final FileTransfer transfer;
+
     /** Base importer library, this is what we actually use to import. */
     public final ImportLibrary library;
 
@@ -68,16 +77,25 @@ public class CommandLineImporter {
     private final boolean getUsedFiles;
 
     /**
-     * Main entry class for the application.
+     * Legacy constructor which uses a {@link UploadFileTransfer}.
      */
     public CommandLineImporter(final ImportConfig config, String[] paths,
             boolean getUsedFiles) throws Exception {
+        this(config, paths, getUsedFiles, new UploadFileTransfer());
+    }
+
+    /**
+     * Main entry class for the application.
+     */
+    public CommandLineImporter(final ImportConfig config, String[] paths,
+            boolean getUsedFiles, FileTransfer transfer) throws Exception {
         this.config = config;
         config.loadAll();
 
         this.getUsedFiles = getUsedFiles;
         this.reader = new OMEROWrapper(config);
         this.handler = new ErrorHandler(config);
+        this.transfer = transfer;
         candidates = new ImportCandidates(reader, paths, handler);
 
         if (paths == null || paths.length == 0 || getUsedFiles) {
@@ -98,7 +116,7 @@ public class CommandLineImporter {
             store.logVersionInfo(config.getIniVersionNumber());
             reader.setMetadataOptions(
                     new DefaultMetadataOptions(MetadataLevel.ALL));
-            library = new ImportLibrary(store, reader);
+            library = new ImportLibrary(store, reader, transfer);
         }
 
         Runtime.getRuntime().addShutdownHook(new Thread() {
@@ -142,6 +160,16 @@ public class CommandLineImporter {
             library.addObserver(this.handler);
             successful = library.importCandidates(config, candidates);
             report();
+            try {
+                List<String> paths = new ArrayList<String>();
+                for (ImportContainer ic : candidates.getContainers()) {
+                    paths.addAll(Arrays.asList(ic.getUsedFiles()));
+                }
+                transfer.afterSuccess(paths);
+            } catch (CleanupFailure e) {
+                log.error("rcode=3 on failed cleanup");
+                return 3;
+            }
         }
 
         return successful? 0 : 2;
@@ -225,6 +253,29 @@ public class CommandLineImporter {
         System.exit(1);
     }
 
+    /**
+     * Prints advanced usage to STDERR and exits with return code 1.
+     */
+    public static void advUsage() {
+        System.err
+                .println(String
+                        .format(
+                                "\n"
+                                        + "Advanced arguments:\n"
+                                        + "  --transfer=ARG\tFile transfer method\n"
+                                        + "      Examples:\n"
+                                        + "       -t upload           # Default\n"
+                                        + "       -t ln               # Use hard-link. Locally only!\n"
+                                        + "       -t ln_rm            # Caution! Hard-link followed by rm. Locally only!\n"
+                                        + "       -t ln_s             # Use symlnk. Locally only!\n"
+                                        + "       -t some.class.Name  # Use a class on the CLASSPATH\n"
+                                        + "\n"
+                                        + "ex. %s --transfer=ln_s foo.tiff\n"
+                                        + "\n"
+                                        + "Report bugs to <ome-users@lists.openmicroscopy.org.uk>",
+                                APP_NAME));
+        System.exit(1);
+    }
 
     /**
      * Takes pairs of namespaces and string and creates comment annotations
@@ -272,6 +323,7 @@ public class CommandLineImporter {
      */
     public static void main(String[] args) {
 
+        FileTransfer transfer = new UploadFileTransfer();
         ImportConfig config = new ImportConfig();
 
         // Defaults
@@ -306,12 +358,16 @@ public class CommandLineImporter {
         LongOpt annotationLink =
             new LongOpt("annotation_link", LongOpt.REQUIRED_ARGUMENT,
                         null, 12);
+        LongOpt transferOpt =
+                new LongOpt("transfer", LongOpt.REQUIRED_ARGUMENT, null, 13);
+        LongOpt transferHelp =
+                new LongOpt("transfer-help", LongOpt.NO_ARGUMENT, null, 14);
 
-        Getopt g = new Getopt(APP_NAME, args, "cfl:s:u:w:d:r:k:x:n:p:h",
+        Getopt g = new Getopt(APP_NAME, args, "cfl:s:u:w:d:r:k:x:n:p:ht:",
                 new LongOpt[] { debug, report, upload, logs, email,
                                 plateName, plateDescription, noThumbnails,
                                 agent, annotationNamespace, annotationText,
-                                annotationLink });
+                                annotationLink, transferOpt, transferHelp });
         int a;
 
         boolean getUsedFiles = false;
@@ -382,6 +438,17 @@ public class CommandLineImporter {
             }
             case 12: {
                 annotationIds.add(Long.parseLong(g.getOptarg()));
+                break;
+            }
+            case 13:
+            case 't': {
+                String arg = g.getOptarg();
+                log.info("Setting transfer to {}", arg);
+                transfer = AbstractFileTransfer.createTransfer(arg);
+                break;
+            }
+            case 14: {
+                advUsage();
                 break;
             }
             case 's': {
@@ -478,8 +545,7 @@ public class CommandLineImporter {
             if (rest.length == 1 && "-".equals(rest[0])) {
                 rest = stdin();
             }
-
-            c = new CommandLineImporter(config, rest, getUsedFiles);
+            c = new CommandLineImporter(config, rest, getUsedFiles, transfer);
             rc = c.start();
         } catch (Throwable t) {
             log.error("Error during import process.", t);
