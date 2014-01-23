@@ -195,7 +195,8 @@ class TestPrefs(object):
         self.assertStdoutStderr(capsys, out="A=B")
 
     @pytest.mark.parametrize(
-        ('initval', 'newval'), [('1', '2'), ('test', 'test2')])
+        ('initval', 'newval'),
+        [('1', '2'), ('\"1\"', '\"2\"'), ('test', 'test')])
     def testAppendFails(self, initval, newval):
         self.invoke("set A %s" % initval)
         with pytest.raises(NonZeroReturnCode):
@@ -206,22 +207,23 @@ class TestPrefs(object):
             self.invoke("remove A x")
 
     @pytest.mark.parametrize(
-        ('initval', 'newval'), [('1', '1'), ('["1"]', '2'), ('[1]', '1')])
+        ('initval', 'newval'),
+        [('1', '1'), ('[\"1\"]', '1'), ('[1]', '\"1\"')])
     def testRemoveFails(self, initval, newval):
         self.invoke("set A %s" % initval)
         with pytest.raises(NonZeroReturnCode):
             self.invoke("remove A %s" % newval)
 
     def testAppendRemove(self, capsys):
-        self.invoke("append A x")
+        self.invoke("append A 1")
         self.invoke("get A")
-        self.assertStdoutStderr(capsys, out='["x"]')
-        self.invoke("append A y")
+        self.assertStdoutStderr(capsys, out='[1]')
+        self.invoke("append A \"y\"")
         self.invoke("get A")
-        self.assertStdoutStderr(capsys, out='["x", "y"]')
-        self.invoke("remove A x")
+        self.assertStdoutStderr(capsys, out='[1, "y"]')
+        self.invoke("remove A \"y\"")
         self.invoke("get A")
-        self.assertStdoutStderr(capsys, out='["y"]')
-        self.invoke("remove A y")
+        self.assertStdoutStderr(capsys, out='[1]')
+        self.invoke("remove A 1")
         self.invoke("get A")
         self.assertStdoutStderr(capsys, out='')

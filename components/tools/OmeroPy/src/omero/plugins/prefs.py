@@ -257,8 +257,8 @@ class PrefsControl(BaseControl):
         import json
         try:
             list_value = json.loads(config[args.KEY])
-        except:
-            self.ctx.die(510, "Malformed string")
+        except ValueError:
+            self.ctx.die(510, "No JSON object could be decoded")
 
         if not isinstance(list_value, list):
             self.ctx.die(511, "Property %s is not a list" % args.KEY)
@@ -266,12 +266,12 @@ class PrefsControl(BaseControl):
 
     @with_rw_config
     def append(self, args, config):
+        import json
         if args.KEY in config.keys():
             list_value = self.get_list_value(args, config)
-            list_value.append(args.VALUE)
+            list_value.append(json.loads(args.VALUE))
         else:
-            list_value = [args.VALUE]
-        import json
+            list_value = [json.loads(args.VALUE)]
         config[args.KEY] = json.dumps(list_value)
 
     @with_rw_config
@@ -280,13 +280,13 @@ class PrefsControl(BaseControl):
             self.ctx.die(512, "Property %s is not defined" % (args.KEY))
 
         list_value = self.get_list_value(args, config)
-        if args.VALUE not in list_value:
+        import json
+        if json.loads(args.VALUE) not in list_value:
             self.ctx.die(513, "%s is not defined in %s"
                          % (args.VALUE, args.KEY))
 
-        list_value.remove(args.VALUE)
+        list_value.remove(json.loads(args.VALUE))
         if list_value:
-            import json
             config[args.KEY] = json.dumps(list_value)
         else:
             del config[args.KEY]
