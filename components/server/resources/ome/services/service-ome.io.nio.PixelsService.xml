@@ -24,10 +24,15 @@
     <constructor-arg ref="simpleSqlAction"/>
   </bean>
 
+  <!-- Casting string to Long to prevent the wrong ctor from being used -->
+  <bean name="MemoizerWait" class="java.lang.Long">
+    <constructor-arg value="${omero.pixeldata.memoizer_wait}"/>
+  </bean>
+
   <bean name="/OMERO/Pixels" class="ome.io.nio.PixelsService"
         parent="filesystem">
     <!-- index=0 "path" comes from parent -->
-    <constructor-arg index="1" value="${omero.pixeldata.memoizer_wait}"/>
+    <constructor-arg index="1" ref="MemoizerWait"/>
     <constructor-arg ref="omeroFilePathResolver"/>
     <constructor-arg ref="backOff"/>
     <constructor-arg ref="tileSizes"/>
