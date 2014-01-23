@@ -11,7 +11,7 @@
   <appender name="stderr" class="ch.qos.logback.core.ConsoleAppender">
     <target>System.err</target>
     <encoder>
-      <pattern>%d %-10.10r [%10.10t] %-6.6p %40.40c %x - %m</pattern>
+      <pattern>%d %-10.10r [%10.10t] %-6.6p %40.40c %x - %m%n</pattern>
     </encoder>
   </appender>
   <logger name="ome.adapters" level="error"/>
