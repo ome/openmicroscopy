@@ -378,9 +378,7 @@ class AdminServiceImpl
 		if (group == null)
 			throw new IllegalArgumentException("No group to update.");
 		gateway.updateGroup(ctx, group, permissions);
-		UserCredentials uc = (UserCredentials) 
-		context.lookup(LookupNames.USER_CREDENTIALS);
-		gateway.reconnect(uc.getUserName(), uc.getPassword());
+		gateway.joinSession();
 		
 		group = (GroupData) PojoMapper.asDataObject(
 				(ExperimenterGroup) gateway.findIObject(ctx, group.asGroup()));

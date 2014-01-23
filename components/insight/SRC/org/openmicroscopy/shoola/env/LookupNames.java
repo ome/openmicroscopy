@@ -33,11 +33,10 @@ package org.openmicroscopy.shoola.env;
  * entries in the container's registry.
  *
  * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
- *         <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
- * @author  <br>Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
- *          <a href="mailto:a.falconi@dundee.ac.uk">
- *          a.falconi@dundee.ac.uk</a>
- * @version 2.2 
+ *          <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+ * @author <br>Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
+ *         <a href="mailto:a.falconi@dundee.ac.uk">a.falconi@dundee.ac.uk</a>
+ * @version 2.2
  * @since OME2.2
  */
 public class LookupNames
@@ -141,6 +140,9 @@ public class LookupNames
     /** Field to access the <code>env</code> package. */
     public static final  String ENV = "/env";
 
+    /** Field to access  the time before each network check. */
+    public static final String ELAPSE_TIME = "/services/NETWORK/timeout";
+
     /** Field to access the system users and groups. */
     public static final String SYSTEM_ROLES = "/system/roles";
 
@@ -188,13 +190,13 @@ public class LookupNames
 
     /** 
      * Field to access the location of the <code>OMERO folder</code>
-     * on the user's machine. 
+     * on the user's machine.
      */
     public static final String USER_HOME_OMERO = "/user/home/omero";
 
     /** 
      * Field to access the location of the <code>OMERO folder</code>
-     * on the user's machine. 
+     * on the user's machine.
      */
     public static final String USER_HOME_OMERO_FILES = "/user/home/omero/files";
 
@@ -266,7 +268,7 @@ public class LookupNames
             "/services/RE/compressionLow";
 
     /** Field to access the <code>Log service</code> information. */
-    public static final String LOGIN_SPLASHSCREEN = 
+    public static final String LOGIN_SPLASHSCREEN =
             "/services/Login/splashscreen";
 
     /** Field to access the <code>Log service</code> information. */
@@ -289,7 +291,7 @@ public class LookupNames
             "/services/LOGIN/omeds/retry-interval";
 
     /** 
-     * Field to access the maximum value allowed to establish 
+     * Field to access the maximum value allowed to establish
      * a valid link to an <i>OMERO</i> server.
      */
     public static final String LOGIN_TIME_OUT = "/services/LOGIN/omeds/timeout";
@@ -302,11 +304,11 @@ public class LookupNames
             "/services/DEBUGGER/hostnameProcessing";
 
     /** Field to access the application number to submit bug. */
-    public static final String APPLICATION_NAME_BUG = 
+    public static final String APPLICATION_NAME_BUG =
             "/services/DEBUGGER/applicationNameBug";
 
     /** Field to access the application to submit comment. */
-    public static final String APPLICATION_NAME_COMMENT = 
+    public static final String APPLICATION_NAME_COMMENT =
             "/services/DEBUGGER/applicationNameComment";
 
     /** Field to access the timeout value. */
@@ -326,7 +328,7 @@ public class LookupNames
     public static final String FS_DEFAUL_DIR = "/services/FS/defaultDirectory";
 
     /** Field to access the <code>Binary Available</code> information. */
-    public static final String	BINARY_AVAILABLE = 
+    public static final String	BINARY_AVAILABLE =
             "/services/SERVER/BinaryAvailable";
 
     /** Field to access <code>RAPID</code> information. */
