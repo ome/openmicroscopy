@@ -118,9 +118,6 @@ class ToolBar
     /** Text indicating to display the groups.*/ 
     private static final String GROUP_DISPLAY_TEXT = "Display Groups";
 
-    /** Text indicating to display the users (only one group).*/ 
-    private static final String USER_DISPLAY_TEXT = "Display Users";
-
     /** Reference to the control. */
     private TreeViewerControl controller;
 
@@ -981,11 +978,8 @@ class ToolBar
             b = true;
         }
 
-        if (b) {
-            menuButton.setText(GROUP_DISPLAY_TEXT);
-        } else {
+        if (!b) {
             GroupData group = model.getSelectedGroup();
-            menuButton.setText(USER_DISPLAY_TEXT);
             if (group.getPermissions().getPermissionsLevel() ==
                     GroupData.PERMISSIONS_PRIVATE)
                 menuButton.setEnabled(model.isAdministrator() ||

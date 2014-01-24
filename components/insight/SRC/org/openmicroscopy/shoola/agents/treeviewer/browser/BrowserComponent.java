@@ -2322,17 +2322,10 @@ class BrowserComponent
 				nodes.size());
 		Iterator<TreeImageDisplay> i = nodes.iterator();
 		while (i.hasNext()) {
-			groups.add((GroupData) i.next().getUserObject());	
+			groups.add((GroupData) i.next().getUserObject());
 		}
-		switch (mode) {
-			case LookupNames.EXPERIMENTER_DISPLAY:
-				//Check if the user is in more than one group
-				if (model.isSingleGroup()) view.reActivate();
-				else view.setUserGroup(groups);
-			break;
-			case LookupNames.GROUP_DISPLAY:
-				view.setUserGroup(groups);
-		}
+		if (model.isSingleGroup()) view.reActivate();
+        else view.setUserGroup(groups);
 	}
 	
 }
