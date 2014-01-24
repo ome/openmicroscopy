@@ -426,7 +426,7 @@ public class CommandLineImporter {
         LongOpt closeCompleted =
                 new LongOpt("close_completed", LongOpt.NO_ARGUMENT, null, 17);
 
-        Getopt g = new Getopt(APP_NAME, args, "cfl:s:u:w:d:r:k:x:n:p:ht:",
+        Getopt g = new Getopt(APP_NAME, args, "cfl:s:u:w:d:r:k:x:n:p:h",
                 new LongOpt[] { debug, report, upload, logs, email,
                                 plateName, plateDescription, noThumbnails,
                                 agent, annotationNamespace, annotationText,
@@ -509,8 +509,7 @@ public class CommandLineImporter {
                 break;
             }
             // ADVANCED START -------------------------------------------------
-            case 14:
-            case 't': {
+            case 14: {
                 String arg = g.getOptarg();
                 log.info("Setting transfer to {}", arg);
                 transfer = AbstractFileTransfer.createTransfer(arg);
