@@ -418,7 +418,7 @@ public class CommandLineImporter {
         LongOpt advancedHelp =
                 new LongOpt("advanced-help", LongOpt.NO_ARGUMENT, null, 13);
         LongOpt transferOpt =
-                new LongOpt("transfer", LongOpt.REQUIRED_ARGUMENT, null, 15);
+                new LongOpt("transfer", LongOpt.REQUIRED_ARGUMENT, null, 14);
         LongOpt checksumAlgorithm =
                 new LongOpt("checksum_algorithm", LongOpt.REQUIRED_ARGUMENT, null, 15);
         LongOpt minutesWait =
