@@ -286,10 +286,7 @@ class PrefsControl(BaseControl):
                          % (args.VALUE, args.KEY))
 
         list_value.remove(json.loads(args.VALUE))
-        if list_value:
-            config[args.KEY] = json.dumps(list_value)
-        else:
-            del config[args.KEY]
+        config[args.KEY] = json.dumps(list_value)
 
     @with_config
     def keys(self, args, config):
