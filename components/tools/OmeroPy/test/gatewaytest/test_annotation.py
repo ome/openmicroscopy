@@ -262,6 +262,35 @@ def testFileAnnotation (author_testimg_generated, gatewaywrapper):
     gateway.deleteObjectDirect(ann._obj.file)    # then the file
     assert gateway.getObject("Annotation", annId) is None
 
+def testFileAnnNonDefaultGroup (author_testimg_generated, gatewaywrapper):
+    """ Test conn.createFileAnnfromLocalFile() respects SERVICE_OPTS """
+    gatewaywrapper.loginAsAuthor()
+    userId = gatewaywrapper.gateway.getUser().getId()
+    defGid = gatewaywrapper.gateway.getDefaultGroup(userId).getId()
+    ctx = gatewaywrapper.gateway.getAdminService().getEventContext()
+    uuid = ctx.sessionUuid
+
+    # Admin creates a new group with user
+    gatewaywrapper.loginAsAdmin()
+    gid = gatewaywrapper.gateway.createGroup("testFileAnnNonDefaultGroup-%s" % uuid, member_Ids=[userId])
+
+    # login as Author again (into 'default' group)
+    gatewaywrapper.loginAsAuthor()
+    conn = gatewaywrapper.gateway
+    # Try to create fileAnn in another group
+    conn.SERVICE_OPTS.setOmeroGroup(gid)
+    tempFileName = "tempFile"
+    f = open(tempFileName, 'w')
+    fileText = "Test text for writing to file for upload"
+    f.write(fileText)
+    f.close()
+    fileSize = os.path.getsize(tempFileName)
+    ns = TESTANN_NS
+    fileAnn = conn.createFileAnnfromLocalFile(
+        tempFileName, mimetype='text/plain', ns=ns)
+    os.remove(tempFileName)
+    assert fileAnn.getDetails().group.id.val == gid
+
 def testUnlinkAnnotation (author_testimg_generated):
     """ Tests the use of unlinkAnnotations. See #7301 """
 
