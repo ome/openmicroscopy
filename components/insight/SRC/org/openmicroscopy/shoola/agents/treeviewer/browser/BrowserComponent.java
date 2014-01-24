@@ -2,10 +2,10 @@
  * org.openmicroscopy.shoola.agents.treeviewer.browser.BrowserComponent
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -70,7 +70,6 @@ import org.openmicroscopy.shoola.agents.util.browser.TreeImageSet;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageTimeSet;
 import org.openmicroscopy.shoola.agents.util.browser.TreeViewerTranslator;
 import org.openmicroscopy.shoola.agents.util.dnd.DnDTree;
-import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.FSAccessException;
 import org.openmicroscopy.shoola.env.data.FSFileSystemView;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
@@ -2308,7 +2307,6 @@ class BrowserComponent
 	{
 		if (model.getBrowserType() == Browser.ADMIN_EXPLORER)
 			return;
-		int mode = model.getDisplayMode();
 		model.setSelectedDisplay(null, true);
 		//view.changeDisplayMode();
 		ExperimenterVisitor v = new ExperimenterVisitor(this, -1);
@@ -2318,8 +2316,7 @@ class BrowserComponent
 		//Check the group already display
 		//Was in group mode
 		view.clear();
-		List<GroupData> groups = new ArrayList<GroupData>(
-				nodes.size());
+		List<GroupData> groups = new ArrayList<GroupData>(nodes.size());
 		Iterator<TreeImageDisplay> i = nodes.iterator();
 		while (i.hasNext()) {
 			groups.add((GroupData) i.next().getUserObject());
