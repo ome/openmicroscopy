@@ -8,6 +8,7 @@ from omeroweb.connector import Server
 
 from omeroweb.webclient.decorators import login_required, render_response
 from omeroweb.connector import Connector
+from omeroweb.http import HttpJPEGResponse
 
 from cStringIO import StringIO
 
@@ -228,7 +229,7 @@ def render_channel_overlay (request, conn=None, **kwargs):
     merge.save(rv, 'jpeg', quality=int(compression*100))
     jpeg_data = rv.getvalue()
 
-    rsp = HttpResponse(jpeg_data, mimetype='image/jpeg')
+    rsp = HttpJPEGResponse(jpeg_data)
     return rsp
 
 
