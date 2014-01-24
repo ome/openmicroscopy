@@ -226,4 +226,13 @@ class TestPrefs(object):
         self.assertStdoutStderr(capsys, out='[1]')
         self.invoke("remove A 1")
         self.invoke("get A")
-        self.assertStdoutStderr(capsys, out='')
+        self.assertStdoutStderr(capsys, out='[]')
+
+    def testRemoveIdenticalValues(self, capsys):
+        self.invoke("set A [1,1]")
+        self.invoke("remove A 1")
+        self.invoke("get A")
+        self.assertStdoutStderr(capsys, out='[1]')
+        self.invoke("remove A 1")
+        self.invoke("get A")
+        self.assertStdoutStderr(capsys, out='[]')
