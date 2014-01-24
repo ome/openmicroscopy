@@ -172,23 +172,32 @@ class ToolBar
     /** Label indicating the import status.*/
     private JXBusyLabel importLabel;
 
-    /** Handles the selection of user.*/
+    /** Handles the selection of users.*/
     private void handleSelection()
     {
         int n = popupMenu.getComponentCount();
         GroupItem item;
         Component c;
+        boolean b;
+        List<ExperimenterData> users;
         for (int i = 0; i < n; i++) {
             c = popupMenu.getComponent(i);
             if (c instanceof GroupItem) {
                 item = (GroupItem) c;
-                controller.setSelection(item.getGroup(),
-                        item.getSeletectedUsers(), !item.isMenuSelected());
+                b = !item.isMenuSelected();
+                users = item.getSeletectedUsers();
+                if (n == 1) {
+                    if (b) { //group not selected
+                        users = new ArrayList<ExperimenterData>();
+                    }
+                    b = false;
+                }
+                controller.setSelection(item.getGroup(), users, b);
             }
         }
     }
 
-    /** Handles the selection of user.*/
+    /** Handles the selection of groups.*/
     private void handleGroupSelection()
     {
         int n = popupMenu.getComponentCount();
