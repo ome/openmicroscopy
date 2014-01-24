@@ -70,6 +70,7 @@ class WebControl(BaseControl):
 
         parser.add(sub, self.start, "Primary start for the OMERO.web server")
         parser.add(sub, self.stop, "Stop the OMERO.web server")
+        parser.add(sub, self.restart, "Restart the OMERO.web server")
         parser.add(sub, self.status, "Status for the OMERO.web server")
 
         iis = parser.add(sub, self.iis, "IIS (un-)install of OMERO.web ")
@@ -569,16 +570,24 @@ using bin\omero web start on Windows with FastCGI.
                     self.ctx.out(
                         "Django FastCGI workers (PID %s) not started?"
                         % pid_text)
-                    return
+                    return True
                 os.kill(pid, signal.SIGTERM)  # kill whole group
                 self.ctx.out("[OK]")
                 self.ctx.out("Django FastCGI workers (PID %d) killed." % pid)
+                return True
             finally:
                 if pid_path.exists():
                     pid_path.remove()
         else:
             self.ctx.err(
                 "DEVELOPMENT: You will have to kill processes by hand!")
+            return False
+
+    def restart(self, args):
+        if self.stop(args):
+            return self.start(args)
+        else:
+            return False
 
     def set_environ(self, ice_config=None):
         os.environ['ICE_CONFIG'] = ice_config is None and \
