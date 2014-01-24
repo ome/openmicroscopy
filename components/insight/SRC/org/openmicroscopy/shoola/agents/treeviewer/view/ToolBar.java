@@ -86,6 +86,7 @@ import org.openmicroscopy.shoola.agents.util.ui.ScriptMenuItem;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
 import pojos.ExperimenterData;
 import pojos.GroupData;
 
@@ -192,6 +193,7 @@ class ToolBar
                 controller.setSelection(item.getGroup(), users, b);
             }
         }
+        popupMenu.setVisible(false);
     }
 
     /** Handles the selection of groups.*/
@@ -214,6 +216,7 @@ class ToolBar
             }
         }
         controller.setSelectedGroups(toAdd, toRemove);
+        popupMenu.setVisible(false);
     }
 
     /**
