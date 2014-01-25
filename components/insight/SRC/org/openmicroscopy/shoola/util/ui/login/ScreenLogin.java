@@ -298,7 +298,7 @@ public class ScreenLogin
         setEncrypted();
         setControlsEnabled(false);
         loginAttempt = true;
-        login.setEnabled(false);
+        if (!UIUtilities.isWindowsOS()) login.setEnabled(false);
         firePropertyChange(LOGIN_PROPERTY, null, lc);
     }
 
