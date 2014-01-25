@@ -270,6 +270,9 @@ class ToolBar
                     users.add(((ExperimenterData) n.getUserObject()).getId());
                 }
             }
+            if (size == 1) {
+                groupItem.setMenuSelected(true, false);
+            }
         }
         //now add the users
         List<DataMenuItem> items = new ArrayList<DataMenuItem>();
@@ -437,7 +440,7 @@ class ToolBar
         long userID = model.getExperimenter().getId();
         while (i.hasNext()) {
             group = (GroupData) i.next();
-            boolean b = groupIds.contains(group.getId()) || size == 1;
+            boolean b = groupIds.contains(group.getId());
             item = new GroupItem(group, b, true);
             item.setUserID(userID);
             createGroupMenu(item, size);
