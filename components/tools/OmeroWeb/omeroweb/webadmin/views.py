@@ -68,7 +68,7 @@ from forms import LoginForm, ForgottonPasswordForm, ExperimenterForm, \
 from omeroweb.webadmin.webadmin_utils import toBoolean, upgradeCheck
 
 from omeroweb.connector import Server
-
+from omeroweb.http import HttpJsonResponse, HttpJPEGResponse
 from omeroweb.webclient.decorators import login_required
 from omeroweb.connector import Connector
 
@@ -746,7 +746,7 @@ def my_account(request, action=None, conn=None, **kwargs):
 @login_required()
 def myphoto(request, conn=None, **kwargs):
     photo = conn.getExperimenterPhoto()
-    return HttpResponse(photo, mimetype='image/jpeg')
+    return HttpJPEGResponse(photo)
 
 
 @login_required()
@@ -802,4 +802,4 @@ def drivespace(request, conn=None, **kwargs):
 def load_drivespace(request, conn=None, **kwargs):
     offset = request.REQUEST.get('offset', 0)
     rv = usersData(conn, offset)
-    return HttpResponse(json.dumps(rv),mimetype='application/json')
+    return HttpJsonResponse(rv)
