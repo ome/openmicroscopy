@@ -1249,7 +1249,7 @@ alter table dbpatch alter message set default 'Updating';
 -- running so that if anything goes wrong, we'll have some record.
 --
 insert into dbpatch (currentVersion, currentPatch, previousVersion, previousPatch, message)
-             values ('OMERO5.0',  0,    'OMERO5.0',   0,             'Initializing');
+             values ('OMERO5.1DEV',  0,    'OMERO5.1DEV',   0,             'Initializing');
 
 --
 -- Here we will create the root account and the necessary groups
@@ -2071,6 +2071,11 @@ create unique index originalfile_repo_path_index on originalfile (repo, path, na
 -- end ticket:2201
 --
 
+
+-- ticket:11591 Shrink the userIP column as IP expected only
+alter table session alter column userIP varchar(15)
+
+
 -- Indices. See #1640, #2573, etc.
 create unique index namespace_name on namespace (name);
 create unique index well_col_row on well (plate, "column", "row");
@@ -2233,9 +2238,9 @@ after delete on originalfile
 
 -- Here we have finished initializing this database.
 update dbpatch set message = 'Database ready.', finished = clock_timestamp()
-  where currentVersion = 'OMERO5.0' and
+  where currentVersion = 'OMERO5.1DEV' and
         currentPatch = 0 and
-        previousVersion = 'OMERO5.0' and
+        previousVersion = 'OMERO5.1DEV' and
         previousPatch = 0;
 
 COMMIT;

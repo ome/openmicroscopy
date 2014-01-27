@@ -1866,6 +1866,7 @@
         timeToIdle int8 not null,
         timeToLive int8 not null,
         userAgent varchar(255),
+        userIP varchar(255),
         uuid varchar(255) not null unique,
         version int4,
         external_id int8 unique,
