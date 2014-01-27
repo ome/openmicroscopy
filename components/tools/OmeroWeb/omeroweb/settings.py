@@ -411,7 +411,9 @@ STATICFILES_FINDERS = (
     "django.contrib.staticfiles.finders.AppDirectoriesFinder",
 )
 
-
+STATICFILES_STORAGE = 'pipeline.storage.PipelineCachedStorage'
+PIPELINE_JS_COMPRESSOR = None
+PIPELINE_CSS_COMPRESSOR = None
 # STATIC_URL: URL to use when referring to static files located in STATIC_ROOT. 
 # Example: "/site_media/static/" or "http://static.example.com/".
 # If not None, this will be used as the base path for media definitions and the staticfiles 

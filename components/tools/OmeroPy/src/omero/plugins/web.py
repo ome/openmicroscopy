@@ -442,19 +442,9 @@ Alias /omero "%(ROOT)s/var/omero.fcgi/"
         if rv != 0:
             self.ctx.die(607, "Failed to collect static content.\n")
     
-    def synccompress(self):
-        # Ensure that static media is copied to the correct location
-        location = self.ctx.dir / "lib" / "python" / "omeroweb"
-        args = [sys.executable, "manage.py", "synccompress"]
-        rv = self.ctx.call(args, cwd = location)
-        if rv != 0:
-            self.ctx.die(607, "Media compression has failed. Please check .\n")
-        
     def start(self, args):
         self.collectstatic()
         import omeroweb.settings as settings
-        if settings.PIPELINE:
-            self.synccompress()
         link = ("%s:%s" % (settings.APPLICATION_SERVER_HOST,
                            settings.APPLICATION_SERVER_PORT))
         location = self.ctx.dir / "lib" / "python" / "omeroweb"
