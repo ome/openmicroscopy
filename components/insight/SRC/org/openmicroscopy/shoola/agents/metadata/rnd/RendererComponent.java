@@ -626,6 +626,7 @@ class RendererComponent
 				}
 			} else {
 			    int selectedT = model.getRealSelectedT();
+			    if (t < 0 || t >= model.getRealT()) t = selectedT;
 			    model.setSelectedBin(bin, t);
 			    if (selectedT != t) {
                     firePropertyChange(T_SELECTED_PROPERTY,
