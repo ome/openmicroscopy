@@ -193,7 +193,6 @@ class ToolBar
                 controller.setSelection(item.getGroup(), users, b);
             }
         }
-        popupMenu.setVisible(false);
     }
 
     /** Handles the selection of groups.*/
@@ -216,7 +215,6 @@ class ToolBar
             }
         }
         controller.setSelectedGroups(toAdd, toRemove);
-        popupMenu.setVisible(false);
     }
 
     /**
