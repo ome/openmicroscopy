@@ -3651,14 +3651,14 @@ class ProxyObjectWrapper (object):
         """ Sets the tainted flag to False """
         self._tainted = False
 
-    def close (self):
+    def close (self, *args, **kwargs):
         """
         Closes the underlaying service, so next call to the proxy will create a new
         instance of it.
         """
-        
+
         if self._obj and isinstance(self._obj, omero.api.StatefulServiceInterfacePrx):
-            self._obj.close()
+            self._obj.close(*args, **kwargs)
         self._obj = None
     
     def _resyncConn (self, conn):
