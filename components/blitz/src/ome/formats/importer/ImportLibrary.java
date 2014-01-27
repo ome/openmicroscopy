@@ -1,21 +1,25 @@
 /*
- * ome.formats.importer.ImportLibrary
+ * Copyright (C) 2005-2014 University of Dundee & Open Microscopy Environment.
+ * All rights reserved.
  *
- *------------------------------------------------------------------------------
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
  *
- *  Copyright (C) 2005-2013 Open Microscopy Environment
- *      Massachusetts Institute of Technology,
- *      National Institutes of Health,
- *      University of Dundee
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- *
- *------------------------------------------------------------------------------
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
 package ome.formats.importer;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -28,6 +32,9 @@ import loci.common.Location;
 import loci.formats.FormatException;
 import loci.formats.FormatReader;
 import ome.formats.OMEROMetadataStoreClient;
+import ome.formats.importer.transfers.FileTransfer;
+import ome.formats.importer.transfers.TransferState;
+import ome.formats.importer.transfers.UploadFileTransfer;
 import ome.formats.importer.util.ErrorHandler;
 import ome.formats.importer.util.ProportionalTimeEstimatorImpl;
 import ome.formats.importer.util.TimeEstimator;
@@ -71,7 +78,6 @@ import omero.model.Screen;
 import omero.sys.Parameters;
 import omero.sys.ParametersI;
 
-import org.apache.commons.lang.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -118,6 +124,11 @@ public class ImportLibrary implements IObservable
     private final ServiceFactoryPrx sf;
 
     /**
+     * Method used for transferring files to the server.
+     */
+    private final FileTransfer transfer;
+
+    /**
      * Adapter for use with any callbacks created by the library.
      */
     private final Ice.ObjectAdapter oa;
@@ -140,13 +151,33 @@ public class ImportLibrary implements IObservable
     }
 
     /**
+     * The default implementation of {@link FileTransfer} performs a
+     * no-op and therefore need not have
+     * {@link FileTransfer#afterSuccess(File[])} as with the
+     * {@link #ImportLibrary(OMEROMetadataStoreClient, OMEROWrapper, FileTransfer)}
+     * constructor.
+     *
+     * @param client
+     * @param reader
+     */
+    public ImportLibrary(OMEROMetadataStoreClient client, OMEROWrapper reader)
+    {
+        this(client, reader, new UploadFileTransfer());
+    }
+
+    /**
      * The library will not close the client instance. The reader will be closed
      * between calls to import.
+     *
+     * <em>Note:</em> the responsibility of closing
+     * {@link FileTransfer#afterSuccess(File[])} falls to invokers of this
+     * method.
      *
      * @param store not null
      * @param reader not null
      */
-    public ImportLibrary(OMEROMetadataStoreClient client, OMEROWrapper reader)
+    public ImportLibrary(OMEROMetadataStoreClient client, OMEROWrapper reader,
+            FileTransfer transfer)
     {
         if (client == null || reader == null)
         {
@@ -155,6 +186,7 @@ public class ImportLibrary implements IObservable
         }
 
         this.store = client;
+        this.transfer = transfer;
         repo = lookupManagedRepository();
         // Adapter which should be used for callbacks. This is more
         // complicated than it needs to be at the moment. We're only sure that
@@ -283,7 +315,7 @@ public class ImportLibrary implements IObservable
         // check if the container object has ChecksumAlgorithm
         // present and pass it into the settings object
         final Fileset fs = new FilesetI();
-        container.fillData(new ImportConfig(), settings, fs, sanitizer);
+        container.fillData(new ImportConfig(), settings, fs, sanitizer, transfer);
         settings.checksumAlgorithm = repo.suggestChecksumAlgorithm(availableChecksumAlgorithms);
         if (settings.checksumAlgorithm == null) {
             throw new RuntimeException("no supported checksum algorithm negotiated with server");
@@ -343,70 +375,17 @@ public class ImportLibrary implements IObservable
             final ChecksumProviderFactory cpf, TimeEstimator estimator,
             final byte[] buf)
             throws ServerError, IOException {
-        estimator.start();
-        ChecksumProvider cp = cpf.getProvider(
+
+        final ChecksumProvider cp = cpf.getProvider(
                 ChecksumAlgorithmMapper.getChecksumType(
                         proc.getImportSettings().checksumAlgorithm));
-        String digestString = null;
-        File file = new File(Location.getMappedId(srcFiles[index]));
-        long length = file.length();
-        FileInputStream stream = null;
-        RawFileStorePrx rawFileStore = null;
+
+        final File file = new File(Location.getMappedId(srcFiles[index]));
+
         try {
-            stream = new FileInputStream(file);
-            rawFileStore = proc.getUploader(index);
-            int rlen = 0;
-            long offset = 0;
-
-            notifyObservers(new ImportEvent.FILE_UPLOAD_STARTED(
-                    file.getAbsolutePath(), index, srcFiles.length,
-                    null, length, null));
-
-            // "touch" the file otherwise zero-length files
-            rawFileStore.write(ArrayUtils.EMPTY_BYTE_ARRAY, offset, 0);
-            estimator.stop();
-            notifyObservers(new ImportEvent.FILE_UPLOAD_BYTES(
-                    file.getAbsolutePath(), index, srcFiles.length,
-                    offset, length, estimator.getUploadTimeLeft(), null));
-
-            while (true) {
-                estimator.start();
-                rlen = stream.read(buf);
-                if (rlen == -1) {
-                    break;
-                }
-                cp.putBytes(buf, 0, rlen);
-                final byte[] bufferToWrite;
-                if (rlen < buf.length) {
-                    bufferToWrite = new byte[rlen];
-                    System.arraycopy(buf, 0, bufferToWrite, 0, rlen);
-                } else {
-                    bufferToWrite = buf;
-                }
-                rawFileStore.write(bufferToWrite, offset, rlen);
-                offset += rlen;
-                estimator.stop(rlen);
-                notifyObservers(new ImportEvent.FILE_UPLOAD_BYTES(
-                        file.getAbsolutePath(), index, srcFiles.length, offset,
-                        length, estimator.getUploadTimeLeft(), null));
-            }
-            estimator.start();
-            digestString = cp.checksumAsString();
-
-            OriginalFile ofile = rawFileStore.save();
-            if (log.isDebugEnabled()) {
-                log.debug(String.format("%s/%s id=%s",
-                        ofile.getPath().getValue(),
-                        ofile.getName().getValue(),
-                        ofile.getId().getValue()));
-                log.debug(String.format("checksums: client=%s,server=%s",
-                        digestString, ofile.getHash().getValue()));
-            }
-            estimator.stop();
-            notifyObservers(new ImportEvent.FILE_UPLOAD_COMPLETE(
-                    file.getAbsolutePath(), index, srcFiles.length,
-                    offset, length, null));
-
+            return transfer.transfer(new TransferState(
+                    file, index, srcFiles.length,
+                    proc, this, estimator, cp, buf));
         }
         catch (IOException e) {
             notifyObservers(new ImportEvent.FILE_UPLOAD_ERROR(
@@ -420,34 +399,9 @@ public class ImportLibrary implements IObservable
                     null, null, e));
             throw e;
         }
-        finally {
-            cleanupUpload(rawFileStore, stream);
-        }
-
-        return digestString;
-    }
-
-    private void cleanupUpload(RawFileStorePrx rawFileStore,
-            FileInputStream stream) throws ServerError {
-        try {
-            if (rawFileStore != null) {
-                try {
-                    rawFileStore.close();
-                } catch (Exception e) {
-                    log.error("error in closing raw file store", e);
-                }
-            }
-        } finally {
-            if (stream != null) {
-                try {
-                    stream.close();
-                } catch (IOException e) {
-                    log.error("I/O in error closing stream", e);
-                }
-            }
-        }
 
     }
+
 
     /**
      * Perform an image import uploading files if necessary.
@@ -665,7 +619,7 @@ public class ImportLibrary implements IObservable
      * repositories.
      * @return Active proxy for the legacy repository.
      */
-    private ManagedRepositoryPrx lookupManagedRepository()
+    public ManagedRepositoryPrx lookupManagedRepository()
     {
         try
         {
@@ -705,5 +659,23 @@ public class ImportLibrary implements IObservable
         } catch (Throwable t) {
             log.error("failed to clear metadata store", t);
         }
+    }
+
+    /**
+     * Use {@link RawFileStorePrx#getFileId()} in order to load the
+     * {@link OriginalFile} that the service argument is acting on.
+     *
+     * @param uploader not null
+     * @return
+     * @throws ServerError
+     */
+    public OriginalFile loadOriginalFile(RawFileStorePrx uploader)
+            throws ServerError {
+        omero.RLong rid = uploader.getFileId();
+        long id = rid.getValue();
+        Map<String, String> ctx = new HashMap<String, String>();
+        ctx.put("omero.group", "-1");
+        return (OriginalFile)
+                sf.getQueryService().get("OriginalFile", id, ctx);
     }
 }
