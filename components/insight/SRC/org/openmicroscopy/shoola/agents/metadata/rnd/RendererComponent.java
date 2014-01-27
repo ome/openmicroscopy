@@ -624,7 +624,14 @@ class RendererComponent
 					firePropertyChange(T_SELECTED_PROPERTY,
 							Integer.valueOf(selectedT), Integer.valueOf(t));
 				}
-			} else model.setSelectedBin(bin);
+			} else {
+			    int selectedT = model.getRealSelectedT();
+			    model.setSelectedBin(bin, t);
+			    if (selectedT != t) {
+                    firePropertyChange(T_SELECTED_PROPERTY,
+                            Integer.valueOf(selectedT), Integer.valueOf(t));
+                }
+			}
 			firePropertyChange(RENDER_PLANE_PROPERTY,
 					Boolean.valueOf(false), Boolean.valueOf(true));
 		} catch (Exception ex) {
