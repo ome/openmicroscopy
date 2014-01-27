@@ -2,7 +2,7 @@
  * ome.services.blitz.repo.PublicRepositoryI
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -141,6 +141,9 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
      * Mimetype used to connote a directory {@link OriginalFile} object.
      */
     public static String DIRECTORY_MIMETYPE = "Directory";
+
+    /** media type for import logs */
+    public static String IMPORT_LOG_MIMETYPE = "application/omero-log-file";
 
     private /*final*/ long id;
 
