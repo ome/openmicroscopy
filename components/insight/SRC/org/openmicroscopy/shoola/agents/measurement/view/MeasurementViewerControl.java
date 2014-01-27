@@ -2,10 +2,10 @@
  * org.openmicroscopy.shoola.agents.measurement.view.MeasurementViewerControl 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -53,6 +53,7 @@ import javax.swing.event.MenuKeyEvent;
 import javax.swing.event.MenuKeyListener;
 import javax.swing.event.MenuListener;
 
+import org.jhotdraw.draw.AttributeKey;
 //Third-party libraries
 import org.jhotdraw.draw.DrawingEvent;
 import org.jhotdraw.draw.DrawingListener;
@@ -82,6 +83,7 @@ import org.openmicroscopy.shoola.util.roi.figures.MeasureTextFigure;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
+import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes;
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
 import org.openmicroscopy.shoola.util.ui.LoadingWindow;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -90,7 +92,7 @@ import org.openmicroscopy.shoola.util.ui.colourpicker.ColourPicker;
 /** 
  * The MeasurementViewer's Controller.
  *
- * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
+ * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
@@ -247,7 +249,6 @@ class MeasurementViewerControl
 				(figure instanceof MeasurePointFigure)) {
     		figure.calculateMeasurements();
     		view.refreshResultsTable();
-    		if (!figure.isReadOnly()) model.setDataChanged();
     		if (!view.inDataView()) return;
     		ROIShape shape = figure.getROIShape();
     		List<ROIShape> shapeList = new ArrayList<ROIShape>();
@@ -264,7 +265,6 @@ class MeasurementViewerControl
  		if (figure.getStatus() != ROIFigure.IDLE) return;
 		figure.calculateMeasurements();
 		view.refreshResultsTable();
-		if (!figure.isReadOnly()) model.setDataChanged();
 		if (!view.inDataView()) return;
 		ROIShape shape = figure.getROIShape();
 		List<ROIShape> shapeList = new ArrayList<ROIShape>();
@@ -635,7 +635,12 @@ class MeasurementViewerControl
 			view.refreshInspectorTable();
 			model.figureAttributeChanged(e.getAttribute(), fig);
 			if (!fig.isReadOnly()) {
-				if (fig.canEdit()) model.setDataChanged();
+				if (fig.canEdit()) {
+				    AttributeKey<?> key = e.getAttribute();
+		            if (key != MeasurementAttributes.SHOWTEXT) {
+		                model.setDataChanged();
+		            }
+				}
 			}
 		}
 	}

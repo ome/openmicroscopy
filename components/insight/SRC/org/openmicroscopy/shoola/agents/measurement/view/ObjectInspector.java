@@ -2,10 +2,10 @@
  * org.openmicroscopy.shoola.agents.measurement.view.ObjectInspector 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -62,17 +62,14 @@ import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes
  * UI Component displaying various drawing information about a 
  * Region of Interest.
  *
- * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
+ * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since OME3.0
  */
-class ObjectInspector 
+class ObjectInspector
 	extends JPanel
 {
 	
@@ -141,7 +138,7 @@ class ObjectInspector
 		l.add(new AttributeField(MeasurementAttributes.HEIGHT, 
 				AnnotationDescription.annotationDescription.get(
 				AnnotationKeys.HEIGHT), true));
-		l.add(new AttributeField(MeasurementAttributes.SHOWTEXT, "Show Text", 
+		l.add(new AttributeField(MeasurementAttributes.SHOWTEXT, "Show Comment", 
 				false));
 		l.add(new AttributeField(MeasurementAttributes.SHOWMEASUREMENT, 
 				AnnotationDescription.annotationDescription.get(
