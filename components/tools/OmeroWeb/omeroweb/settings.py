@@ -296,7 +296,93 @@ CUSTOM_SETTINGS_MAPPINGS = {
     "omero.web.allowed_hosts": ["ALLOWED_HOSTS", '["*"]', json.loads],
 }
 
+
+def process_custom_setting(custom_settings, key,
+                           global_name, default_value, mapping):
+
+    EXTEND = ".extend"
+    REMOVE = ".remove"
+
+    try:
+        global_value = custom_settings[key]
+        action = 'custom'
+    except KeyError:
+        global_value = default_value
+        action = 'default'
+
+    try:
+        mapped_global_value = mapping(global_value)
+    except ValueError:
+        raise ValueError("Invalid %s JSON: %r" % (global_name, global_value))
+    except LeaveUnset, ex:
+        ex.action = action
+        raise
+
+    # extend setting
+    try:
+        extend_value = custom_settings[key + EXTEND]
+    except KeyError:
+        extend_value = None
+
+    if extend_value:
+        try:
+            mapped_extend_value = mapping(extend_value)
+        except ValueError:
+            raise ValueError("Invalid %s%s JSON: %r" % (key, EXTEND, extend_value))
+
+        if type(mapped_extend_value) == type(mapped_global_value):
+            if isinstance(mapped_extend_value, list):
+                # don't duplicate existing items
+                for item in mapped_extend_value:
+                    if item not in mapped_global_value:
+                        mapped_global_value.append(item)
+            elif isinstance(mapped_extend_value, dict):
+                mapped_global_value.update(mapped_extend_value)
+            else:
+                raise TypeError("Cannot extend %s, unsupported type %s" %
+                                (global_name, type(mapped_extend_value).__name__))
+            action += ',extend'
+        else:
+            raise TypeError("Cannot extend %s %s with a %s" %
+                            (type(mapped_global_value).__name__,
+                             global_name,
+                             type(mapped_extend_value).__name__))
+
+    # remove setting
+    try:
+        remove_value = custom_settings[key + REMOVE]
+    except KeyError:
+        remove_value = None
+
+    if remove_value:
+        try:
+            mapped_remove_value = mapping(remove_value)
+        except ValueError:
+            raise ValueError("Invalid %s%s JSON: %r" % (key, REMOVE, extend_value))
+
+        if isinstance(mapped_remove_value, list):
+            if isinstance(mapped_global_value, list):
+                for item in mapped_remove_value:
+                    if item in mapped_global_value:
+                        mapped_global_value.remove(item)
+            elif isinstance(mapped_global_value, dict):
+                for item in mapped_remove_value:
+                    if item in mapped_global_value:
+                        del mapped_global_value[item]
+            else:
+                raise TypeError("Cannot remove from %s, unsupported type %s" %
+                                (global_name, type(mapped_extend_value).__name__))
+            action += ',remove'
+        else:
+            raise TypeError("Cannot remove from %s %s using a %s, need list" %
+                            (type(mapped_global_value).__name__,
+                             global_name,
+                             type(mapped_extend_value).__name__))
+
+    return mapped_global_value, action
+
 def process_custom_settings(module):
+
     logging.info('Processing custom settings for module %s' % module.__name__)
     for key, values in getattr(module, 'CUSTOM_SETTINGS_MAPPINGS', {}).items():
         # Django may import settings.py more than once, see:
@@ -308,44 +394,12 @@ def process_custom_settings(module):
         global_name, default_value, mapping = values
 
         try:
-            global_value = CUSTOM_SETTINGS[key]
-            values.append(False)
-        except KeyError:
-            global_value = default_value
-            values.append(True)
-
-        try:
-            mapped_global_value = mapping(global_value)
-        except ValueError:
-            raise ValueError("Invalid %s JSON: %r" % (global_name, global_value))
-        except LeaveUnset:
+            mapped_global_value, action = process_custom_setting(
+                CUSTOM_SETTINGS, key, global_name, default_value, mapping)
+            values.append(action)
+        except LeaveUnset, ex:
+            values.append(ex.action)
             continue
-
-        try:
-            extend_value = CUSTOM_SETTINGS[key + '[extend]']
-        except KeyError:
-            extend_value = None
-
-        if extend_value:
-            try:
-                mapped_extend_value = mapping(extend_value)
-            except ValueError:
-                raise ValueError("Invalid %s[extend] JSON: %r" % (key, extend_value))
-
-            if type(mapped_extend_value) == type(mapped_global_value):
-                if isinstance(mapped_extend_value, list):
-                    mapped_global_value.extend(mapped_extend_value)
-                elif isinstance(mapped_extend_value, dict):
-                    mapped_global_value.update(mapped_extend_value)
-                else:
-                    raise TypeError("Cannot extend %s, unsupported type %s" %
-                                    (global_name, type(mapped_extend_value).__name__))
-                values[-1] = 'extend'
-            else:
-                raise TypeError("Cannot extend %s %s with a %s" %
-                                (type(mapped_global_value).__name__,
-                                 global_name,
-                                 type(mapped_extend_value).__name__))
 
         setattr(module, global_name, mapped_global_value)
 
@@ -371,11 +425,10 @@ def report_settings(module):
     custom_settings_mappings = getattr(module, 'CUSTOM_SETTINGS_MAPPINGS', {})
     for key in sorted(custom_settings_mappings):
         values = custom_settings_mappings[key]
-        global_name, default_value, mapping, using_default = values
-        source = key if not using_default else ("default" if using_default == True else using_default)
+        global_name, default_value, mapping, action = values
         global_value = getattr(module, global_name, None)
         if global_name.isupper():
-            logger.debug("%s = %r (source:%s)", global_name, cleanse_setting(global_name, global_value), source)
+            logger.debug("%s = %r (source:%s)", global_name, cleanse_setting(global_name, global_value), action)
 
 report_settings(sys.modules[__name__])
 
