@@ -9,19 +9,19 @@ OriginalFile and any annotation links.
 import omero
 import omero.callbacks
 
-c = omero.client("localhost")
+c = omero.client()
 ice_config = c.getProperty("Ice.Config")
 
 from omero.rtypes import *
 from omero.model import *
 
 try:
-    s = c.createSession("will", "ome")
+    s = c.createSession()
     d = DatasetI()
     d.setName(rstring("FileAnnotationDelete"))
     d = s.getUpdateService().saveAndReturnObject(d)
 
-    file = c.upload("test.xml")
+    file = c.upload(ice_config)
     fa = FileAnnotationI()
     fa.setFile(OriginalFileI(file.id.val, False))
     link = DatasetAnnotationLinkI()
