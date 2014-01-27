@@ -20,22 +20,15 @@ try:
     d = DatasetI()
     d.setName(rstring("FileAnnotationDelete"))
     d = s.getUpdateService().saveAndReturnObject(d)
-    fa = FileAnnotationI()
-    file = c.upload("test.xml")
-    # fa.setFile(file)
-    fa.setFile(OriginalFileI(file.id.val, False))
-    fa = s.getUpdateService().saveAndReturnObject(fa)
 
-    # Get Dataset with annotations loaded, so we can add fa to the list
-    query = "select d from Dataset as d " \
-            "left outer join fetch d.annotationLinks as dal " \
-            "left outer join fetch dal.child as a where d.id = :d"
-    params = omero.sys.ParametersI()
-    params.addLong('d', d.id.val)
-    d = s.getQueryService().findByQuery(query, params)
-    d.linkAnnotation(fa)
-    d = s.getUpdateService().saveAndReturnObject(d)
-    # fa = d.linkedAnnotationList()[0]
+    file = c.upload("test.xml")
+    fa = FileAnnotationI()
+    fa.setFile(OriginalFileI(file.id.val, False))
+    link = DatasetAnnotationLinkI()
+    link.parent = DatasetI(d.id.val, False)
+    link.child = fa
+    link = s.getUpdateService().saveAndReturnObject(link)
+    fa = link.child
 
     graph_spec = "/Annotation"
     options = {}
