@@ -1503,13 +1503,13 @@ class RendererModel
 	 * Sets the selected lifetime bin.
 	 *
 	 * @param bin The selected bin.
+	 * @param t The selected t;
 	 */
-	void setSelectedBin(int bin)
+	void setSelectedBin(int bin, int t)
 		throws RenderingServiceException, DSOutOfServiceException
 	{
 	    if (hasModuloT()) {
 	        int binSize = getMaxLifetimeBin();
-	        int t = getRealSelectedT();
 	        int v = bin + t * binSize;
 	        setSelectedXYPlane(getDefaultZ(), v);
 	        return;
