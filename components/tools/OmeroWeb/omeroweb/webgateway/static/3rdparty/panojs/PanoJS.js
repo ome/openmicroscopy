@@ -525,12 +525,12 @@ PanoJS.prototype.assignTileImage = function(tile) {
         var $this = $(this);
         // only try to reload if this is the first failure
         if (!$this.hasClass('failed')) {
+          $this.addClass('failed');
           setTimeout(function(){
             var s = tileImg.src;
             tileImg.src = s;    // no change, but is enough to trigger reload
           }, 1000); // try to reload src after timeout - 1 sec seems to work OK
         }
-        $(this).addClass('failed');
       };
 
     if ( tileImg.done || !tileImg.delayed_loading &&
