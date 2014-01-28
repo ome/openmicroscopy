@@ -2583,6 +2583,7 @@ class EditorModel
 	{ 
 		boolean b = isSameObject(this.refObject);
 		set = null;
+		largeImage = false;
 		this.refObject = refObject;
 		if (existingTags != null) existingTags.clear();
 		existingTags = null;

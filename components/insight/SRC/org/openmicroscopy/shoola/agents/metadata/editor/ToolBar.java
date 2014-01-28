@@ -266,8 +266,11 @@ class ToolBar
         exportAsOmeTiffItem.addActionListener(controller);
         exportAsOmeTiffItem.setActionCommand(
                 ""+EditorControl.EXPORT_AS_OMETIFF);
-        b = model.getRefObject() instanceof ImageData && 
-                !model.isLargeImage();
+        if (model.isMultiSelection()) b = false;
+        else {
+            b = model.getRefObject() instanceof ImageData &&
+                    !model.isLargeImage();
+        }
         exportAsOmeTiffItem.setEnabled(b);
         saveAsMenu.add(exportAsOmeTiffItem);
         JMenu menu = new JMenu();
