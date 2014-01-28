@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.log.LoggerImpl
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-14 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -25,17 +25,20 @@ package org.openmicroscopy.shoola.env.log;
 
 
 //Java imports
-import java.util.Properties;
 
 //Third-party libraries
+import ch.qos.logback.classic.LoggerContext;
+import ch.qos.logback.classic.joran.JoranConfigurator;
+import ch.qos.logback.core.joran.spi.JoranException;
+import ch.qos.logback.core.util.StatusPrinter;
 
 //Application-internal dependencies
 
 
 /** 
  * Provides the log service.
- * This is just a simple adapter that forwards calls to <i>log4j</i>.
- * Thread-safety is already enforced by <i>log4j</i>, so we don't deal with it. 
+ * This is just a simple adapter that forwards calls to <i>slf4j</i>.
+ * Thread-safety is already enforced by <i>slf4j</i>, so we don't deal with it.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  *              <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -53,6 +56,9 @@ class LoggerImpl
     implements Logger
 {
     
+    /** The name of the log file variable the log config file. */
+    private static final String LOG_FILE_NAME = "logFileName";
+
 	/** The absolute pathname of the log file.*/
 	private String absFile;
 	
@@ -72,20 +78,24 @@ class LoggerImpl
     }
     
     /**
-     * Initializes Log4j.
+     * Initializes slf4j.
      * 
-     * @param config	A property object built from the configuration file.
-     * @param absFile	The absolute pathname of the log file.
+     * @param configFile  The pathname of a configuration file.
+     * @param absFile     The absolute pathname of the log file.
      */
-    LoggerImpl(Properties config, String absFile)
+    LoggerImpl(String configFile, String absFile)
     {
-        // TODO: This will need to be changed once the
-        // log4j.config file has been translated.
-        /*
-        this.absFile = absFile;
-        config.put("log4j.appender.BASE.File", absFile);
-        PropertyConfigurator.configure(config);
-        */
+        LoggerContext context = (LoggerContext) org.slf4j.LoggerFactory.getILoggerFactory();
+        try {
+          JoranConfigurator configurator = new JoranConfigurator();
+          configurator.setContext(context);
+          context.reset();
+          context.putProperty(LOG_FILE_NAME, absFile);
+          configurator.doConfigure(configFile);
+        } catch (JoranException je) {
+          // StatusPrinter will handle this
+        }
+        StatusPrinter.printInCaseOfErrorsOrWarnings(context);
     }
     
 	/** 
