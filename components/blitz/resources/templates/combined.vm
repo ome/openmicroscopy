@@ -913,7 +913,7 @@ Properties used throughout the accessor generation
 #elseif( $property.class.name == "ome.dsl.MapField" )
 #set( $javaType = "java.util.Map<String, String>");
 #set( $iceType = "omero::api::StringStringMap" )
-#set( $cppType = "${iceType}Ptr" )
+#set( $cppType = "${iceType}" )
 #set( $copyMethod = "this.${fieldName} = source.get${PropertyName}() == null ? null : new java.util.HashMap(source.get${PropertyName}());" );
 [$Ice]       omero::api::StringStringMap ${property.name};
 
@@ -986,7 +986,11 @@ Unload
 [$hdr]       virtual void unload${PropertyName}($HDR_CURRENT_COLL);
 [$cpp]       void ${Pojo}I::unload${PropertyName}($CPP_CURRENT_COLL) {
 [$cpp]           ${unloadIfIsSet}
+#if( $property.class.name == "ome.dsl.MapField" )
+[$cpp]           ${fieldName} = $cppType();
+#else
 [$cpp]           ${fieldName} = ($cppType) 0;
+#end
 [$cpp]       }
 [$pyc]       def unload${PropertyName}(self, $PYC_CURRENT_COLL):
 [$pyc]           self._${property.name}Loaded = False
