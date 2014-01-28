@@ -64,6 +64,7 @@
     <properties id="PythonServer">
       <property name="Ice.ImplicitContext" value="Shared"/>
       <!-- Default logging settings for Python servers. -->
+      <property name="omero.logging.directory" value="${OMERO_LOGS}"/>
       <property name="omero.logging.timedlog" value="False"/>
       <property name="omero.logging.logsize" value="5000000"/>
       <property name="omero.logging.lognum" value="9"/>
