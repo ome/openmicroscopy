@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.log.LoggerFactory
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-14 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -26,7 +26,6 @@ package org.openmicroscopy.shoola.env.log;
 
 //Java imports
 import java.io.File;
-import java.util.Properties;
 
 //Third-party libraries
 
@@ -34,7 +33,6 @@ import java.util.Properties;
 import org.openmicroscopy.shoola.env.Container;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
-import org.openmicroscopy.shoola.util.file.IOUtil;
 
 /** 
  * A factory for the {@link Logger}. 
@@ -54,7 +52,7 @@ public class LoggerFactory
 {
 	
 	/** The name of the log configuration file in the config directory. */
-	private static final String		LOG_CONFIG_FILE = "log4j.config";
+	private static final String		LOG_CONFIG_FILE = "logback.xml";
 	
 	/**
 	 * Creates a new {@link Logger}.
@@ -76,10 +74,12 @@ public class LoggerFactory
 		
 		//Ok we have to log, so try and read the config file.
 		String relPathName = c.getConfigFileRelative(LOG_CONFIG_FILE);
-		Properties config = loadConfig(relPathName);
-		if (config == null)	return makeNoOpLogger();
-		
-		//We have a config file, set up log4j.
+		File configFile = new File(relPathName);
+		if(!configFile.exists() || !configFile.isFile()) {
+			return makeNoOpLogger();
+		}
+
+		//We have a config file, set up slf4j.
 		String logDirName = (String) reg.lookup(LookupNames.LOG_DIR),
 				logFileName = (String) reg.lookup(LookupNames.LOG_FILE);
 		String name = (String) reg.lookup(LookupNames.OMERO_HOME);
@@ -101,7 +101,7 @@ public class LoggerFactory
 			else logFile = new File(c.getHomeDir(), logFileName);
 		}
 		
-		return new LoggerImpl(config, logFile.getAbsolutePath());
+		return new LoggerImpl(relPathName, logFile.getAbsolutePath());
 	}
 	
 	/**
@@ -124,24 +124,6 @@ public class LoggerFactory
 			public void warn(Object c, LogMessage msg) {}
 			public String getLogFile() { return null; }
 		};
-	}
-	
-	/**
-	 * Reads in the specified file as a property object.
-	 * 
-	 * @param file	Absolute pathname to the file.
-	 * @return	The content of the file as a property object or
-	 * 			<code>null</code> if an error occurred.
-	 */
-	private static Properties loadConfig(String file)
-	{
-		Properties config = new Properties();
-		try { 
-			config.load(IOUtil.readConfigFile(file));
-		} catch (Exception e) {
-			return null;
-		}
-		return config;
 	}
 
 }
