@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.metadata.rnd.RendererComponent 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -624,7 +624,15 @@ class RendererComponent
 					firePropertyChange(T_SELECTED_PROPERTY,
 							Integer.valueOf(selectedT), Integer.valueOf(t));
 				}
-			} else model.setSelectedBin(bin);
+			} else {
+			    int selectedT = model.getRealSelectedT();
+			    if (t < 0 || t >= model.getRealT()) t = selectedT;
+			    model.setSelectedBin(bin, t);
+			    if (selectedT != t) {
+                    firePropertyChange(T_SELECTED_PROPERTY,
+                            Integer.valueOf(selectedT), Integer.valueOf(t));
+                }
+			}
 			firePropertyChange(RENDER_PLANE_PROPERTY,
 					Boolean.valueOf(false), Boolean.valueOf(true));
 		} catch (Exception ex) {
