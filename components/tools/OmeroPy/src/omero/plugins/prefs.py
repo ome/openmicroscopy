@@ -264,11 +264,26 @@ class PrefsControl(BaseControl):
             self.ctx.die(511, "Property %s is not a list" % args.KEY)
         return list_value
 
+    def get_omeroweb_default(self, key):
+        try:
+            from omeroweb import settings
+            setting = settings.CUSTOM_SETTINGS_MAPPINGS.get(key)
+            default = setting[2](setting[1]) if setting else []
+        except:
+            self.ctx.die(514, "Cannot retrieve default value for property %s" %
+                         key)
+        if not isinstance(default, list):
+            self.ctx.die(515, "Property %s is not a list" % args.KEY)
+        return default
+
     @with_rw_config
     def append(self, args, config):
         import json
         if args.KEY in config.keys():
             list_value = self.get_list_value(args, config)
+            list_value.append(json.loads(args.VALUE))
+        elif args.KEY.startswith('omero.web.'):
+            list_value = self.get_omeroweb_default(args.KEY)
             list_value.append(json.loads(args.VALUE))
         else:
             list_value = [json.loads(args.VALUE)]
@@ -277,9 +292,12 @@ class PrefsControl(BaseControl):
     @with_rw_config
     def remove(self, args, config):
         if args.KEY not in config.keys():
-            self.ctx.die(512, "Property %s is not defined" % (args.KEY))
-
-        list_value = self.get_list_value(args, config)
+            if args.KEY.startswith('omero.web.'):
+                list_value = self.get_omeroweb_default(args.KEY)
+            else:
+                self.ctx.die(512, "Property %s is not defined" % (args.KEY))
+        else:
+            list_value = self.get_list_value(args, config)
         import json
         if json.loads(args.VALUE) not in list_value:
             self.ctx.die(513, "%s is not defined in %s"
