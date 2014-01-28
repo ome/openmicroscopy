@@ -41,10 +41,13 @@ TEST(MapAnnotationTest, mapStringField)
     string uuid = generate_uuid();
     ExperimenterGroupPtr group = new ExperimenterGroupI();
     ParametersIPtr params = new ParametersI();
+    StringStringMap map = StringStringMap();
     group->setName(rstring(uuid));
-    group->setConfig(StringStringMap());
-    group->getConfig()["foo"] = "bar";
+    map["foo"] = "bar";
+    // Setting must happen after map updated, since a copy is made
+    group->setConfig(map);
     ASSERT_EQ("bar", group->getConfig()["foo"]);
+
     group = ExperimenterGroupPtr::dynamicCast(u->saveAndReturnObject(group));
     params->addId(group->getId()->getValue());
     group = ExperimenterGroupPtr::dynamicCast(q->findByQuery(
