@@ -910,6 +910,13 @@ Properties used throughout the accessor generation
 #set( $copyMethod = "this.${fieldName} = source.get${PropertyName}() == null ? null : rtime(source.get${PropertyName}().getTime() );" );
 [$Ice]       omero::RTime ${property.name};
 
+#elseif( $property.class.name == "ome.dsl.MapField" )
+#set( $javaType = "java.util.Map<String, String>");
+#set( $iceType = "omero::api::StringStringMap" )
+#set( $cppType = "${iceType}Ptr" )
+#set( $copyMethod = "this.${fieldName} = source.get${PropertyName}() == null ? null : new java.util.HashMap(source.get${PropertyName}());" );
+[$Ice]       omero::api::StringStringMap ${property.name};
+
 #elseif( $javaType.startsWith("java.lang.String")) ## for Event
 #set( $javaType = "omero.RString");
 #set( $iceType = "omero::RString" )
@@ -1026,7 +1033,7 @@ ticket:684 This is necessary to map back and forth from sets.
 
 #elseif( $javaType.startsWith("omero.R") )
 [$jav]             try {
-[$jav]                 target.set${PropertyName}( (${property.type}) mapper.fromRType( this.get${PropertyName}() ));
+[$jav]                 target.set${PropertyName}( (${property.fieldType}) mapper.fromRType( this.get${PropertyName}() ));
 [$jav]             } catch (omero.ApiUsageException aue) {
 [$jav]                 throw new omero.ClientError(aue.message);
 [$jav]             }

@@ -16,6 +16,7 @@
 		<properties>
 			<required name="name" type="string" unique="true"/><!-- unique required so not 'named' -->
 			<child name="groupExperimenterMap" type="ome.model.meta.GroupExperimenterMap" target="ome.model.meta.Experimenter"/>
+			<map name="config" type="string"/>
 		</properties>
 	</type>
 	<type id="ome.model.meta.Experimenter" global="true" annotated="true">

@@ -55,6 +55,8 @@ public abstract class Property { // TODO need to define equality so that two
 
     public final static String FROMPARENT = "from_parent";
 
+    public final static String MAP = "map";
+
     public final static Set<String> FIELDS = new HashSet<String>();
     static {
         FIELDS.add(REQUIRED);
@@ -68,6 +70,7 @@ public abstract class Property { // TODO need to define equality so that two
         FIELDS.add(PARENT);
         FIELDS.add(FROMPARENT);
         FIELDS.add(TOCHILD);
+        FIELDS.add(MAP);
     }
 
     public final static Map<String, Class<? extends Property>> FIELDS2CLASSES = new HashMap<String, Class<? extends Property>>();
@@ -83,6 +86,7 @@ public abstract class Property { // TODO need to define equality so that two
         FIELDS2CLASSES.put(CHILD, ChildLink.class);
         FIELDS2CLASSES.put(FROMPARENT, LinkParent.class);
         FIELDS2CLASSES.put(TOCHILD, LinkChild.class);
+        FIELDS2CLASSES.put(MAP, MapField.class);
     }
 
     // VALUE-Type identifiers
@@ -834,4 +838,22 @@ class DetailsField extends Property {
     public String getFieldInitializer() {
         return "new Details()";
     }
+}
+
+class MapField extends Property {
+
+    public MapField(SemanticType st, Properties attrs) {
+        super(st, attrs);
+    }
+
+
+    @Override
+    public String getFieldType() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("java.util.Map<String, ");
+        sb.append(getType());
+        sb.append(">");
+        return sb.toString();
+    }
+
 }
