@@ -56,8 +56,9 @@ import javax.swing.JSlider;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import org.apache.commons.collections.CollectionUtils;
+
 //Third-party libraries
+import org.apache.commons.collections.CollectionUtils;
 import org.jhotdraw.draw.Figure;
 
 //Application-internal dependencies
