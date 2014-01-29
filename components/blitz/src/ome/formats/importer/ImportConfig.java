@@ -1,7 +1,7 @@
 /*
  *   $Id$
  *
- *   Copyright 2009-2011 Glencoe Software, Inc. All rights reserved.
+ *   Copyright 2009-2014 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -36,7 +36,6 @@ import omero.model.FilesetVersionInfo;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-// import org.apache.log4j.Level; CGB: Needs replacing with logback equivalent.
 
 import ch.qos.logback.classic.Level;
 
