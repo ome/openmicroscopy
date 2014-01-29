@@ -273,7 +273,7 @@ class PrefsControl(BaseControl):
             self.ctx.die(514, "Cannot retrieve default value for property %s" %
                          key)
         if not isinstance(default, list):
-            self.ctx.die(515, "Property %s is not a list" % args.KEY)
+            self.ctx.die(515, "Property %s is not a list" % key)
         return default
 
     @with_rw_config
