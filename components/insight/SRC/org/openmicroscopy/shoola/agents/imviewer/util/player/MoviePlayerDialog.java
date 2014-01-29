@@ -148,27 +148,23 @@ public class MoviePlayerDialog
     }
 
     /**
-     * Fires an event to render the plane specified by the z-section, 
+     * Fires an event to render the plane specified by the z-section,
      * timepoint and bin.
      */
     void renderImage()
     {
-        int z = -1;
-        int t = -1;
-        int bin = -1;
+        int z = model.getDefaultZ();
+        int t = model.getRealSelectedT();
+        int bin = model.getSelectedBin();
         switch (player.getMovieIndex()) {
             case ACROSS_T:
-                z = model.getDefaultZ();
                 t = player.getFrameNumberT();
                 break;
             case ACROSS_Z:
-                t = model.getRealSelectedT();
                 z = player.getFrameNumberZ();
                 break;
             case ACROSS_BIN:
-                t = model.getRealSelectedT();
-                z = model.getDefaultZ();
-                bin = player.getFrameNumberBin();
+               bin = player.getFrameNumberBin();
                 break;
             case ACROSS_ZT:
                 z = player.getFrameNumberZ();
