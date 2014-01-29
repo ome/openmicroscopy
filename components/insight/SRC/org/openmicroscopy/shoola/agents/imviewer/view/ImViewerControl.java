@@ -1008,6 +1008,8 @@ class ImViewerControl
 					action.setActionIcon(true);
 					action = (PlayMovieAction) getAction(PLAY_MOVIE_Z);
 					action.setActionIcon(true);
+					action = (PlayMovieAction) getAction(PLAY_LIFETIME_MOVIE);
+                    action.setActionIcon(true);
 					model.playMovie(false, false, -1);
 				}
 			}
