@@ -163,6 +163,18 @@ public class BasicACLVoter implements ACLVoter {
         throw new SecurityViolation("Cannot read " + iObject);
     }
 
+    /**
+     * Define "read-only" as having any write bit set.
+     */
+    private boolean readOnly() {
+        EventContext c = currentUser.current();
+        Permissions p = c.getCurrentGroupPermissions();
+        if (p.isGranted(USER, Right.ANNOTATE) || p.isGranted(USER, Right.WRITE)) {
+            return false;
+        }
+        return true;
+    }
+
     public boolean allowCreation(IObject iObject) {
         Assert.notNull(iObject);
         Class<?> cls = iObject.getClass();
@@ -184,7 +196,7 @@ public class BasicACLVoter implements ACLVoter {
             return false;
         }
 
-        return true;
+        return !readOnly();
     }
 
     public void throwCreationViolation(IObject iObject)
@@ -197,6 +209,10 @@ public class BasicACLVoter implements ACLVoter {
         if (!sysType && currentUser.isGraphCritical(iObject.getDetails())) { // ticket:1769
             throw new GroupSecurityViolation(iObject + "-insertion violates " +
                     "group-security.");
+        }
+
+        if (readOnly()) {
+            throw new SecurityViolation("Current group is read-only");
         }
 
         throw new SecurityViolation(iObject

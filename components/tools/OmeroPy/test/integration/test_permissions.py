@@ -95,6 +95,12 @@ class CallContextFixture(object):
 
 class TestPermissions(lib.ITest):
 
+    def testNoInsertInReadOnly(self):
+        client = self.new_client(perms="r-----")
+        tag = TagAnnotationI()
+        with pytest.raises(omero.SecurityViolation):
+            client.sf.getUpdateService().saveObject(tag)
+
     def testLoginToPublicGroupTicket1940(self):
         # As root create a new group
         uuid = self.uuid()
