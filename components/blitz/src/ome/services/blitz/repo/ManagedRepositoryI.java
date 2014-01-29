@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012-2013 Glencoe Software, Inc. All rights reserved.
+ * Copyright (C) 2012-2014 Glencoe Software, Inc. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -36,6 +36,7 @@ import loci.formats.FormatReader;
 import ome.api.local.LocalAdmin;
 import ome.formats.importer.ImportConfig;
 import ome.formats.importer.ImportContainer;
+import ome.model.core.OriginalFile;
 import ome.services.blitz.gateway.services.util.ServiceUtilities;
 import ome.services.blitz.repo.path.ClientFilePathTransformer;
 import ome.services.blitz.repo.path.FilePathNamingValidator;
@@ -323,6 +324,12 @@ public class ManagedRepositoryI extends PublicRepositoryI
         }
 
         fs.linkJob(new IndexingJobI());
+
+        if (location instanceof ManagedImportLocationI) {
+            OriginalFile of = ((ManagedImportLocationI) location).getLogFile().asOriginalFile(IMPORT_LOG_MIMETYPE);
+            of = persistLogFile(of, __current);
+            job.linkOriginalFile((omero.model.OriginalFile) new IceMapper().map(of));
+        }
 
         // Create CheckedPath objects for use by saveFileset
         final int size = fs.sizeOfUsedFiles();
