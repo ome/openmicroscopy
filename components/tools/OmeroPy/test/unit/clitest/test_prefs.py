@@ -236,3 +236,27 @@ class TestPrefs(object):
         self.invoke("remove A 1")
         self.invoke("get A")
         self.assertStdoutStderr(capsys, out='[]')
+
+    def testAppendWithDefault(self, monkeypatch, capsys):
+        import json
+        monkeypatch.setattr("omeroweb.settings.CUSTOM_SETTINGS_MAPPINGS", {
+            "omero.web.test": ["TEST", "[1,2,3]", json.loads],
+            "omero.web.notalist": ["NOTALIST", "abc", str],
+        })
+        self.invoke("append omero.web.test 4")
+        self.invoke("get omero.web.test")
+        self.assertStdoutStderr(capsys, out='[1, 2, 3, 4]')
+        self.invoke("append omero.web.unknown 1")
+        self.invoke("get omero.web.unknown")
+        self.assertStdoutStderr(capsys, out='[1]')
+        with pytest.raises(NonZeroReturnCode):
+            self.invoke("append omero.web.notalist 1")
+
+    def testRemoveWithDefault(self, monkeypatch, capsys):
+        import json
+        monkeypatch.setattr("omeroweb.settings.CUSTOM_SETTINGS_MAPPINGS", {
+            "omero.web.test": ["TEST", "[1,2,3]", json.loads],
+        })
+        self.invoke("remove omero.web.test 2")
+        self.invoke("get omero.web.test")
+        self.assertStdoutStderr(capsys, out='[1, 3]')
