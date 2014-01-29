@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2009-2013 University of Dundee & Open Microscopy Environment.
+ *   Copyright (C) 2009-2014 University of Dundee & Open Microscopy Environment.
  *   All rights reserved.
  *
  *   Use is subject to license terms supplied in LICENSE.txt
@@ -44,7 +44,6 @@ import omero.model.Screen;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-// import org.apache.log4j.Level; CGB: Needs replacing with logback equivalent.
 
 /**
  * The base entry point for the CLI version of the OMERO importer.
@@ -596,12 +595,13 @@ public class CommandLineImporter {
             }
         }
 
-        // CGB: Needs replacing with logback equivalent.
         // Let the user know at what level we're logging
-        //log.info(String.format(
-        //        "Log levels -- Bio-Formats: %s OMERO.importer: %s",
-        //        org.apache.log4j.Logger.getLogger("loci").getLevel(),
-        //        org.apache.log4j.Logger.getLogger("ome.formats").getLevel()));
+        log.info(String.format(
+                "Log levels -- Bio-Formats: %s OMERO.importer: %s",
+                ((ch.qos.logback.classic.Logger)LoggerFactory
+                    .getLogger("loci")).getLevel(),
+                ((ch.qos.logback.classic.Logger)LoggerFactory
+                    .getLogger("ome.formats")).getLevel()));
 
         if (doCloseCompleted) {
             System.exit(closeCompleted(config)); // EARLY EXIT!
