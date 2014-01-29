@@ -276,3 +276,7 @@ class TestPrefs(object):
         self.invoke("remove omero.web.test 2")
         self.invoke("get omero.web.test")
         self.assertStdoutStderr(capsys, out='[1, 3]')
+        self.invoke("remove omero.web.test 1")
+        self.invoke("remove omero.web.test 3")
+        self.invoke("get omero.web.test")
+        self.assertStdoutStderr(capsys, out='[]')
