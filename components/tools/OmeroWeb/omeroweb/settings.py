@@ -505,6 +505,7 @@ PIPELINE_JS = {
     'webgateway_viewer': {
         'source_filenames': (
             '3rdparty/jquery-1.7.2.js',
+            'webgateway/js/ome.popup.js',
             '3rdparty/aop.js',
             'webgateway/js/ome.gs_utils.js',
             'webgateway/js/ome.viewportImage.js',
@@ -518,7 +519,6 @@ PIPELINE_JS = {
             '3rdparty/jquery.selectboxes.js',
             'webgateway/js/ome.rangewidget.js',
             '3rdparty/farbtastic/farbtastic.js',
-            'webgateway/js/ome.gs_utils.js',
             'webgateway/js/ome.roidisplay.js',
             '3rdparty/raphael/raphael-min.js',
             '3rdparty/raphael/scale.raphael.js',
