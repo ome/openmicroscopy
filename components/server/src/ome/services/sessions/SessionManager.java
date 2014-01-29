@@ -141,6 +141,11 @@ public interface SessionManager {
     List<Session> findByUserAndAgent(String user, String... agent);
 
     /**
+     * Returns a snapshot of all the open sessions.
+     */
+    List<EventContext> getOpenSessions();
+
+    /**
      * If reference count for the session is less than 1, close the session.
      * Otherwise decrement the reference count. The current reference count is
      * returned. If -1, then no such session existed. If -2, then the session

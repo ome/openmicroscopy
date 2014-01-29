@@ -26,6 +26,7 @@ import ome.services.sessions.SessionContext;
 import ome.services.sessions.SessionManager;
 import ome.services.sessions.events.UserGroupUpdateEvent;
 import ome.services.sessions.state.SessionCache.StaleCacheListener;
+import ome.system.EventContext;
 import ome.system.OmeroContext;
 
 import org.slf4j.Logger;
@@ -484,8 +485,22 @@ public class SessionCache implements ApplicationContextAware {
      * significantly effected.
      */
     public Set<String> getIds() {
-        // waitForUpdate();
         return sessions.keySet();
+    }
+
+    /**
+     * Returns a collection of all the active sessions currently in the
+     * system. Timed out sessions are silently ignored.
+     */
+    public Set<EventContext> getSnapshot() {
+        Set<EventContext> rv = new HashSet<EventContext>();
+        for (String uuid : sessions.keySet()) {
+            Data data = getDataNullOrThrowOnTimeout(uuid, false);
+            if (data != null) {
+                rv.add(data.sessionContext);
+            }
+        }
+        return rv;
     }
 
     // State

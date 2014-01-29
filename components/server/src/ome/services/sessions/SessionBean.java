@@ -28,6 +28,7 @@ import ome.model.internal.Permissions;
 import ome.model.meta.Session;
 import ome.security.basic.CurrentDetails;
 import ome.services.util.Executor;
+import ome.system.EventContext;
 import ome.system.Principal;
 
 import org.slf4j.Logger;
@@ -189,6 +190,15 @@ public class SessionBean implements ISession {
             public List<Session> call() throws Exception {
                 return mgr.findByUserAndAgent(user, "OMERO.insight",
                         "OMERO.web", "OMERO.importer");
+            }});
+        return ex.get(future);
+    }
+
+    @RolesAllowed("system")
+    public java.util.List<EventContext> getOpenSessions() {
+        Future<List<EventContext>> future = ex.submit(new Callable<List<EventContext>>(){
+            public List<EventContext> call() throws Exception {
+                return mgr.getOpenSessions();
             }});
         return ex.get(future);
     }

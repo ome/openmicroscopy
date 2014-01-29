@@ -66,6 +66,7 @@ module omero {
       long   groupId;
       string groupName;
       bool   isAdmin;
+      bool   isReadOnly;
       long   eventId;
       string eventType;
       LongList memberOfGroups;

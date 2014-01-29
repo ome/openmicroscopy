@@ -525,8 +525,10 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
         return ctx.stats();
     }
 
-    /*
-     */
+    public List<EventContext> getOpenSessions() {
+        return new ArrayList<EventContext>(cache.getSnapshot());
+    }
+
     public int close(String uuid) {
         SessionContext ctx;
         try {
