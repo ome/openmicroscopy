@@ -22,14 +22,16 @@ subcommands = [
 
 @pytest.fixture
 def configxml(monkeypatch):
-    class ConfigXml(object):
+    class MockConfigXml(object):
         def __init__(self, path):
             pass
+
         def as_map(self):
             return {}
+
         def close(self):
             pass
-    monkeypatch.setattr("omero.config.ConfigXml", ConfigXml)
+    monkeypatch.setattr("omero.config.ConfigXml", MockConfigXml)
 
 
 class TestPrefs(object):
