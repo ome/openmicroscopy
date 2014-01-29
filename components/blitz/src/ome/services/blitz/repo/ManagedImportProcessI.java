@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012-2013 Glencoe Software, Inc. All rights reserved.
+ * Copyright (C) 2012-2014 Glencoe Software, Inc. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -37,7 +37,6 @@ import ome.services.blitz.util.ServiceFactoryAware;
 import omero.ServerError;
 import omero.api.RawFileStorePrx;
 import omero.cmd.HandlePrx;
-import omero.constants.CLIENTUUID;
 import omero.grid.ImportLocation;
 import omero.grid.ImportProcessPrx;
 import omero.grid.ImportProcessPrxHelper;
@@ -45,7 +44,6 @@ import omero.grid.ImportRequest;
 import omero.grid.ImportSettings;
 import omero.grid._ImportProcessOperations;
 import omero.grid._ImportProcessTie;
-import omero.model.ChecksumAlgorithm;
 import omero.model.Fileset;
 import omero.model.FilesetJobLink;
 
@@ -281,8 +279,7 @@ public class ManagedImportProcessI extends AbstractCloseableAmdServant
         // Now move on to the metadata import.
         link = fs.getFilesetJobLink(1);
         CheckedPath checkedPath = ((ManagedImportLocationI) location).getLogFile();
-        omero.model.OriginalFile logFile =
-                repo.registerLogFile(repo.getRepoUuid(),  fs.getId().getValue(), checkedPath,__current);
+        final omero.model.OriginalFile logFile = repo.findInDb(checkedPath, "r", __current);
 
         final String reqId = ImportRequest.ice_staticId();
         final ImportRequest req = (ImportRequest)
