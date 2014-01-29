@@ -119,9 +119,9 @@ public interface SecuritySystem {
      * Prepares the current {@link EventContext} instance with the current
      * {@link Principal}. An exception is thrown if there is none.
      * 
-     * @param isReadyOnly
+     * @param isReadOnly
      */
-    void loadEventContext(boolean isReadyOnly);
+    void loadEventContext(boolean isReadOnly);
 
     /**
      * Clears the content of the {@link EventContext}so that the
