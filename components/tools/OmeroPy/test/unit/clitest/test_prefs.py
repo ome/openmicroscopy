@@ -20,6 +20,18 @@ subcommands = [
     'path', 'lock', 'upgrade', 'old', 'append', 'remove']
 
 
+@pytest.fixture
+def configxml(monkeypatch):
+    class ConfigXml(object):
+        def __init__(self, path):
+            pass
+        def as_map(self):
+            return {}
+        def close(self):
+            pass
+    monkeypatch.setattr("omero.config.ConfigXml", ConfigXml)
+
+
 class TestPrefs(object):
 
     def setup_method(self, method):
@@ -237,6 +249,7 @@ class TestPrefs(object):
         self.invoke("get A")
         self.assertStdoutStderr(capsys, out='[]')
 
+    @pytest.mark.usefixtures('configxml')
     def testAppendWithDefault(self, monkeypatch, capsys):
         import json
         monkeypatch.setattr("omeroweb.settings.CUSTOM_SETTINGS_MAPPINGS", {
@@ -252,6 +265,7 @@ class TestPrefs(object):
         with pytest.raises(NonZeroReturnCode):
             self.invoke("append omero.web.notalist 1")
 
+    @pytest.mark.usefixtures('configxml')
     def testRemoveWithDefault(self, monkeypatch, capsys):
         import json
         monkeypatch.setattr("omeroweb.settings.CUSTOM_SETTINGS_MAPPINGS", {
