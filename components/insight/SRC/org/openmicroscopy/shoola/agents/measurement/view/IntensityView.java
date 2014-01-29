@@ -2,10 +2,10 @@
  * org.openmicroscopy.shoola.agents.measurement.view.IntensityView 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -56,7 +56,9 @@ import javax.swing.JSlider;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+
 //Third-party libraries
+import org.apache.commons.collections.CollectionUtils;
 import org.jhotdraw.draw.Figure;
 
 //Application-internal dependencies
@@ -408,10 +410,6 @@ class IntensityView
 		JPanel panel = new JPanel();
 		panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
 		panel.add(Box.createRigidArea(new Dimension(0,10)));
-		//JPanel channelPanel = 
-			//UIUtilities.buildComponentPanel(channelSelection);
-		//UIUtilities.setDefaultSize(channelPanel, new Dimension(175, 32));
-		//panel.add(channelPanel);
 		panel.add(Box.createRigidArea(new Dimension(0,10)));
 		JPanel intensityPanel = 
 			UIUtilities.buildComponentPanel(showIntensityTable);
@@ -1182,7 +1180,6 @@ class IntensityView
 		if (ROIStats == null || ROIStats.size() == 0) 
 			return;
 		state = State.ANALYSING;
-		channelSelection.setVisible(true);
 		clearMaps();
 		shapeStatsList = new TreeMap<Coord3D, Map<StatsType, Map>>(new Coord3D());
 		pixelStats = 
@@ -1264,26 +1261,28 @@ class IntensityView
 		if (channelName.size() != channelColour.size() || nameMap.size() == 0)
 		{
 			createComboBox();
+			channelSelection.setVisible(channelSelection.getItemCount() > 0);
 			List<String> names = channelSummaryModel.getRowNames();
 			List<String> channelNames = new ArrayList<String>();
 			Double data[][] = new Double[channelName.size()][names.size()];
-			channelSummaryModel = new ChannelSummaryModel(names, channelNames, 
+			channelSummaryModel = new ChannelSummaryModel(names, channelNames,
 					data);
 			channelSummaryTable.setModel(channelSummaryModel);
-			saveButton.setEnabled(false);
-			showIntensityTable.setEnabled(false);
 			if (intensityDialog != null) intensityDialog.setVisible(false);
 			state = State.READY;
+			showIntensityTable.setEnabled(channelSelection.isVisible());
+			saveButton.setEnabled(tableModel.getRowCount() > 0);
 			return;
 		}
-		saveButton.setEnabled(true);
-		showIntensityTable.setEnabled(true);
+		
 		maxZ = maxZ+1;
 		minZ = minZ+1;
 		maxT = maxT+1;
 		minT = minT+1;
 		
 		createComboBox();
+		channelSelection.setVisible(channelSelection.getItemCount() > 0);
+		showIntensityTable.setEnabled(channelSelection.isVisible());
 		Object[] nameColour = (Object[]) channelSelection.getSelectedItem();
 		String string = (String) nameColour[1];
 		selectedChannel = nameMap.get(string);
@@ -1308,15 +1307,16 @@ class IntensityView
 	{
 		Set<Figure> selectedFigures = 
 			view.getDrawingView().getSelectedFigures();
-		if (selectedFigures == null || selectedFigures.size() == 0) {
-			int row = tableModel.getRowCount();
-			showIntensityTable.setEnabled(row > 0);
-			channelSelection.setEnabled(row > 0);
+		if (CollectionUtils.isEmpty(selectedFigures)) {
+			boolean row = tableModel.getRowCount() > 1;
+			showIntensityTable.setEnabled(row);
+			channelSelection.setEnabled(row);
+			saveButton.setEnabled(row);
 		} else {
-			int size = 0;
-			size = channelSelection.getModel().getSize();
-			channelSelection.setEnabled(size > 0);
-			showIntensityTable.setEnabled(size > 0);
+			boolean size = channelSelection.getModel().getSize() > 0;
+			channelSelection.setEnabled(size);
+			showIntensityTable.setEnabled(size);
+			saveButton.setEnabled(size);
 		}
 	}
 	
@@ -1328,6 +1328,12 @@ class IntensityView
  	 */
 	void onAnalysed(boolean analyse)
 	{
+	    if (!analyse) {
+	        onFigureSelected();
+	    } else {
+	        showIntensityTable.setEnabled(false);
+	        saveButton.setEnabled(false);
+	    }
 		zSlider.setEnabled(!analyse);
 		tSlider.setEnabled(!analyse);
 	}
