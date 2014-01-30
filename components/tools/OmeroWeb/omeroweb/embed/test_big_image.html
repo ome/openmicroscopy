@@ -18,7 +18,7 @@
             .viewport {
                 height: 400px;
                 position: relative;
-                width: 400px;
+                width: 600px;
             }
             .zoom button {
                 background-color: #777777;
@@ -35,48 +35,6 @@
         <script type="text/javascript" src="http://localhost/static/omeroweb.viewer.min.js"></script>
     
         <script type="text/javascript">
-            var _refresh = function (ev, viewport) {
-
-                /**
-                 * This function is called when an image is initially loaded.
-                 * This is the place to sync everything; rendering model, quality, channel buttons, etc.
-                 */
-
-                /**
-                 * Load channels and create buttons
-                 */
-                var channels = viewport.getChannels();
-                for (i in channels) {
-                    $('#viewport-channels-box').append('<button id="viewer-ch-' + i + '"\
-                        class="squared' + (channels[i].active ? ' pressed' : '') + '"\
-                        style="background-color: #' + channels[i].color + '"\
-                        title="' + channels[i].label + '">' + channels[i].label + '</button>');
-                }
-
-                /**
-                 * Attach functions to the click event on specific buttons
-                 */
-
-                $('#viewport-channels-box button.squared').click(function (e) {
-                    viewport.toggleChannel(e.target.id.split("-")[2]);
-                });
-
-                $("#viewport-full-size").click(function () {
-                    viewport.setZoom(100);
-                });
-
-                $("#viewport-full-screen").click(function () {
-                    viewport.setZoomToFit();
-                });
-
-                $("#viewport-zoom").change(function (e) {
-                    var percent = parseFloat($(this).attr('value').replace(/%/, ''));
-                    if (isNaN(percent)) {
-                        percent = 100;
-                    }
-                    viewport.setZoom(percent);
-                });
-            }
 
             $(document).ready(function () {
 
@@ -84,20 +42,9 @@
                 var viewport = $.WeblitzViewport($("#viewport"), "http://v.jcb-dataviewer.glencoesoftware.com/webclient/", {
                     'mediaroot': "http://v.jcb-dataviewer.glencoesoftware.com/static/"
                 });
-                viewport.bind('imageLoad', _refresh);
-
-                /* Prepare the Zoom spin button */
-                $("INPUT.spin-button").SpinButton({
-                    min: 0
-                });
-
+                
                 /* Load the selected image into the viewport */
                 viewport.load(201);
-
-                /* Bind zoomimg action to the zoom button */
-                viewport.bind('zoom', function (e, percent) {
-                    $("#viewport-zoom").attr('value', '' + percent /*+'%'*/ );
-                });
 
             });
         </script>
@@ -114,18 +61,7 @@
                 &nbsp;<a onclick="$('#metadata-postit').toggle(); return false;" href="#">[Image Information]</a></p>
     </div>
     <div id="viewport" class="viewport"></div>
-    <div class="zoom">
-        <label for="viewport-zoom">Zoom (%)</label>
-        <br />
-        <input type="text" class="spin-button" id="viewport-zoom" value="100" size="5" />
-        <button id="viewport-full-size" title="Actual size">1:1</button>
-        <button id="viewport-full-screen" title="Zoom image to fit">Fit</button>
-    </div>
-    <div>
-        <label for="viewport-channels-box">Channels</label>
-        <br /> <span id="viewport-channels-box"></span>
-
-    </div>
+    
 
 </body>
 </html>
