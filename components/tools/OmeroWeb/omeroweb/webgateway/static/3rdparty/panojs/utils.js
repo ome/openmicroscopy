@@ -86,4 +86,10 @@ function isIE () {
     return false;
 }
 
+function isMobileSafari () {
+  if (navigator.userAgent.toLowerCase().indexOf("mobile")>=0 &&
+      navigator.userAgent.toLowerCase().indexOf("safari")>=0
+      ) return true; 
+}
+
 // ]]>
