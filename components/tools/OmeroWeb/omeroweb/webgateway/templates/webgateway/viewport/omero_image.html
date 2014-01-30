@@ -229,7 +229,7 @@
     var box = $('#wblitz-channels-box');
     var channels = viewport.getChannels();
     box.empty();
-    for (i in channels) {
+    for (i=0; i<channels.length; i++) {
       box.append('<button id="wblitz-ch'+i+'"\
                  class="squared' + (channels[i].active?' pressed':'') + '"\
                  style="background-color: #'+channels[i].color+'"\
@@ -775,7 +775,7 @@
   function syncRDCW() {
     var cb;
     var channels = viewport.getChannels();
-    for (i in channels) {
+    for (i=0; i<channels.length; i++) {
       $('#rd-wblitz-ch'+i).get(0).checked = channels[i].active;
       $('#wblitz-ch'+i+'-cwslider .ui-slider-range').css('background-color', toRGB(channels[i].color));
       var w = channels[i].window;
