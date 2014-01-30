@@ -3037,12 +3037,12 @@ class _BlitzGateway (object):
         h.update(fo.read())
         shaHast = h.hexdigest()
         originalFile.setHash(rstring(shaHast))
-        originalFile = updateService.saveAndReturnObject(originalFile)
+        originalFile = updateService.saveAndReturnObject(originalFile, self.SERVICE_OPTS)
 
         # upload file
         fo.seek(0)
         try:
-            rawFileStore.setFileId(originalFile.getId().getValue())
+            rawFileStore.setFileId(originalFile.getId().getValue(), self.SERVICE_OPTS)
             buf = 10000
             for pos in range(0,long(fileSize),buf):
                 block = None
@@ -3052,8 +3052,8 @@ class _BlitzGateway (object):
                     blockSize = buf
                 fo.seek(pos)
                 block = fo.read(blockSize)
-                rawFileStore.write(block, pos, blockSize)
-            originalFile = rawFileStore.save()
+                rawFileStore.write(block, pos, blockSize, self.SERVICE_OPTS)
+            originalFile = rawFileStore.save(self.SERVICE_OPTS)
         finally:
             rawFileStore.close();
         return OriginalFileWrapper(self, originalFile)
@@ -3107,7 +3107,7 @@ class _BlitzGateway (object):
             fa.setDescription(rstring(desc))
         if ns:
             fa.setNs(rstring(ns))
-        fa = updateService.saveAndReturnObject(fa)
+        fa = updateService.saveAndReturnObject(fa, self.SERVICE_OPTS)
         return FileAnnotationWrapper(self, fa)
 
     def getObjectsByAnnotations(self, obj_type, annids):
@@ -3651,14 +3651,14 @@ class ProxyObjectWrapper (object):
         """ Sets the tainted flag to False """
         self._tainted = False
 
-    def close (self):
+    def close (self, *args, **kwargs):
         """
         Closes the underlaying service, so next call to the proxy will create a new
         instance of it.
         """
-        
+
         if self._obj and isinstance(self._obj, omero.api.StatefulServiceInterfacePrx):
-            self._obj.close()
+            self._obj.close(*args, **kwargs)
         self._obj = None
     
     def _resyncConn (self, conn):
