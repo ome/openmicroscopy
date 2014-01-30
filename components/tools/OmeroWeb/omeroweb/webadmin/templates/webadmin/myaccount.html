@@ -221,7 +221,7 @@
             var keyArray = [];
             var sum = 0;
             var i=0;
-            for (var l in piechart_data) { 
+            for (l=0; l<piechart_data.length; l++) { 
                 sum = sum + (piechart_data[l]);
                 keyArray[i]=l;
                 i++;
