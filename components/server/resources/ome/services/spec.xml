@@ -405,7 +405,7 @@
     <bean parent="graphSpec" name="/ImageAnnotationLink"> <constructor-arg> <list> <value>/ImageAnnotationLink</value> </list> </constructor-arg> </bean>
     <bean parent="graphSpec" name="/NamespaceAnnotationLink"> <constructor-arg> <list> <value>/NamespaceAnnotationLink</value> </list> </constructor-arg> </bean>
     <bean parent="graphSpec" name="/NodeAnnotationLink"> <constructor-arg> <list> <value>/NodeAnnotationLink</value> </list> </constructor-arg> </bean>
-    <bean parent="graphSpec" name="/OriginalfileAnnotationLink"> <constructor-arg> <list> <value>/OriginalfileAnnotationLink</value> </list> </constructor-arg> </bean>
+    <bean parent="graphSpec" name="/OriginalFileAnnotationLink"> <constructor-arg> <list> <value>/OriginalFileAnnotationLink</value> </list> </constructor-arg> </bean>
     <bean parent="graphSpec" name="/PixelsAnnotationLink"> <constructor-arg> <list> <value>/PixelsAnnotationLink</value> </list> </constructor-arg> </bean>
     <bean parent="graphSpec" name="/PlaneinfoAnnotationLink"> <constructor-arg> <list> <value>/PlaneinfoAnnotationLink</value> </list> </constructor-arg> </bean>
     <bean parent="graphSpec" name="/PlateAcquisitionAnnotationLink"> <constructor-arg> <list> <value>/PlateAcquisitionAnnotationLink</value> </list> </constructor-arg> </bean>
