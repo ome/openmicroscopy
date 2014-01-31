@@ -22,7 +22,6 @@ package ome.formats.importer;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -66,19 +65,16 @@ import omero.grid.ManagedRepositoryPrx;
 import omero.grid.ManagedRepositoryPrxHelper;
 import omero.grid.RepositoryMap;
 import omero.grid.RepositoryPrx;
-import omero.model.Annotation;
 import omero.model.ChecksumAlgorithm;
 import omero.model.Dataset;
-import omero.model.FileAnnotation;
-import omero.model.FileAnnotationI;
 import omero.model.Fileset;
 import omero.model.FilesetI;
+import omero.model.IObject;
 import omero.model.OriginalFile;
 import omero.model.Pixels;
 import omero.model.Screen;
-import omero.sys.Parameters;
-import omero.sys.ParametersI;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -554,29 +550,24 @@ public class ImportLibrary implements IObservable
             final ImportRequest req = (ImportRequest) handle.getRequest();
             final Long fsId = req.activity.getParent().getId().getValue();
             final IMetadataPrx metadataService = sf.getMetadataService();
-            final List<String> nsToInclude = new ArrayList<String>(
-                    Arrays.asList(omero.constants.namespaces.NSLOGFILE.value));
-            final List<String> nsToExclude = new ArrayList<String>();
-            final List<Long> rootIds = new ArrayList<Long>(Arrays.asList(fsId));
-            final Parameters param = new ParametersI();
-            Map<Long,List<Annotation>> annotationMap = new HashMap<Long,List<Annotation>>();
-            List<Annotation> annotations = new ArrayList<Annotation>();
-            Long ofId = null;
+            final List<Long> rootIds = Collections.singletonList(fsId);
             try {
-                annotationMap = metadataService.loadSpecifiedAnnotationsLinkedTo(
-                        FileAnnotation.class.getName(), nsToInclude, nsToExclude,
-                        Fileset.class.getName(), rootIds, param);
-                if (annotationMap.containsKey(fsId)) {
-                    annotations = annotationMap.get(fsId);
-                    if (annotations.size() != 0) {
-                        FileAnnotation fa = (FileAnnotationI) annotations.get(0);
-                        ofId = fa.getFile().getId().getValue();
+                final Map<Long, List<IObject>> logMap = metadataService.loadLogFiles(Fileset.class.getName(), rootIds);
+                final List<IObject> logs = logMap.get(fsId);
+                if (CollectionUtils.isNotEmpty(logs)) {
+                    for (final IObject log : logs) {
+                        if (log instanceof OriginalFile) {
+                            final Long ofId = log.getId().getValue();
+                            if (ofId != null) {
+                                return ofId;
+                            }
+                        }
                     }
                 }
             } catch (ServerError e) {
-                ofId = null;
+                log.debug("failed to load log file", e);
             }
-            return ofId;
+            return null;
         }
 
         @Override
