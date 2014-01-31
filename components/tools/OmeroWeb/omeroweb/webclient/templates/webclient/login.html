@@ -44,11 +44,20 @@
     {{ block.super }}
 	
     {% include "webgateway/base/includes/shortcut_icon.html" %}
-	
-	<script type="text/javascript" charset="utf-8">
-			$(function(){ $("label").inFieldLabels(); });
-		</script>
-	
+
+    <script type="text/javascript" charset="utf-8">
+        $(function(){
+            $("label").inFieldLabels();
+
+            // if url has #hash then we want to add it to the form
+            if(window.location.hash) {
+                var hash = window.location.hash.substring(1); // remove #
+                $("<input name='hash' style='display:none' value='" + hash + "' />")
+                    .appendTo($('form'));
+            }
+        });
+    </script>
+
 {% endblock %}
 
 {% block body %}

@@ -173,6 +173,9 @@ def login(request):
                             url = parse_url(settings.LOGIN_REDIRECT)
                         except:
                             url = reverse("webindex")
+                    url_hash = request.REQUEST.get("hash")
+                    if url_hash is not None:
+                        url = url + "#" + url_hash
                     return HttpResponseRedirect(url)
                 elif username == "guest":
                     error = "Guest account is for internal OMERO use only. Not for login."
