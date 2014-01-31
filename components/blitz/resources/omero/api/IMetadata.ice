@@ -1,7 +1,7 @@
 /*
  *   $Id$
  *
- *   Copyright 2010 Glencoe Software, Inc. All rights reserved.
+ *   Copyright 2010-2014 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  *
  */
@@ -49,6 +49,7 @@ module omero {
                                                                    string rootNodeType,
                                                                    omero::sys::LongList rootNodeIds,
                                                                    omero::sys::Parameters options) throws ServerError;
+                idempotent LongIObjectListMap loadLogFiles(string rootType, omero::sys::LongList ids) throws ServerError;
             };
 
     };
