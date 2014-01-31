@@ -18,12 +18,13 @@
 -->
 {% endcomment %}
 
+
 <form id="search" action="{% url 'load_template' 'search' %}" method="post" title="Search for Images">
+
     <div id="top_search_field">
-        <label class="inline_label" for="search_field_input">
-            Search
-        </label>
-        <input id="search_field_input" type="text" name="search_query" value="" size="25" />
+        <label class="inline_label" for="search_field_input">Search:</label>
+        {{ global_search_form.search_field_input }}
         <input type="submit" value="Go" />
     </div>
+    
 </form>

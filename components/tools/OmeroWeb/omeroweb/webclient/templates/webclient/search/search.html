@@ -181,7 +181,7 @@
 					<h2>{% trans "General Search" %}</h2>
 					
 						<label for="query">{% trans "Search for" %}:</label>
-						<input class="search" type="text" name="query" value="{{ manager.criteria.query }}" size="35"/>
+						<input class="search" type="text" name="query" value="{{ manager.criteria.query|iriencode }}" size="35"/>
 	                    <span class="searching_info"
 	                        title="Searching - <small>Performs a single character wildcard search use the <b>'?'</b> symbol.
 	                            The single character wildcard search looks for terms that match that with the single character replaced.
