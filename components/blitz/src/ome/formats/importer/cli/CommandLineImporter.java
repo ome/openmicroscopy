@@ -33,6 +33,7 @@ import ome.formats.importer.transfers.UploadFileTransfer;
 import omero.api.ServiceFactoryPrx;
 import omero.api.ServiceInterfacePrx;
 import omero.api.StatefulServiceInterfacePrx;
+import omero.cmd.HandlePrx;
 import omero.cmd.Response;
 import omero.grid.ImportProcessPrx;
 import omero.grid.ImportProcessPrxHelper;
@@ -142,34 +143,44 @@ public class CommandLineImporter {
      * them if they return a non-null {@link Response} (i.e. they are done).
      */
     public static int closeCompleted(ImportConfig config) throws Exception {
-        int errors = 0;
-        int count = 0;
         config.loadAll();
         OMEROMetadataStoreClient client = config.createStore();
-        ServiceFactoryPrx sf = client.getServiceFactory();
-        List<String> active = sf.activeServices();
-        for (String service : active) {
+        ImportCloser closer = new ImportCloser(client);
+        closer.closeCompleted();
+        log.info("{} service(s) processed", closer.getProcessed());
+        return closer.getErrors();
+    }
+
+    /**
+     * Look for all {@link ImportProcessPrx} in the current session and close
+     * them if they return a non-null {@link Response} (i.e. they are done).
+     */
+    public static int waitCompleted(ImportConfig config) throws Exception {
+        long wait = 5000L;
+        config.loadAll();
+        OMEROMetadataStoreClient client = config.createStore();
+        while (true) {
+            ImportCloser closer = new ImportCloser(client);
+            closer.closeCompleted();
+            if (closer.getProcessed() == 0) {
+                // In this case, there's nothing to do. Exit successfully.
+                return 0;
+            }
+            int closed = closer.getClosed();
+            int open = closer.getProcessed() - closed;
+            int errs = closer.getErrors();
+            if (errs > 0) {
+                log.warn("{} open. {} closed. {} errors", open, closed, errs);
+            } else {
+                log.info("{} open. {} closed.", open, closed);
+            }
             try {
-                ServiceInterfacePrx prx = sf.getByName(service);
-                ImportProcessPrx imPrx = ImportProcessPrxHelper.checkedCast(prx);
-                if (imPrx != null) {
-                    count++;
-                    String logName = imPrx.toString().split("\\s")[0];
-                    Response rsp = imPrx.getHandle().getResponse();
-                    if (rsp != null) {
-                        log.info("Done: {}", logName);
-                        imPrx.close();
-                    } else {
-                        log.info("Running: {}", logName);
-                    }
-                }
+                log.debug("Sleeping {} ms", wait);
+                Thread.sleep(wait);
             } catch (Exception e) {
-                errors++;
-                log.warn("Failure accessing service", e);
+                // ignore
             }
         }
-        log.info("{} service(s) processed", count);
-        return errors;
     }
 
     public int start() {
@@ -310,20 +321,23 @@ public class CommandLineImporter {
                                         + "Advanced arguments:\n\n"
                                         + "  These options are not intended for general use. Make sure you have read the\n"
                                         + "  documentation regarding them. They may change in future releases.\n\n"
-                                        + "  --checksum_algorithm=ARG\tE.g. Adler-32, CRC-32, MD5-128\n"
-                                        + "                          \t     Murmur3-32, Murmur3-128, SHA1-160\n\n"
-                                        + "  --close_completed       \tClose lingering processes left by --minutes_wait\n\n"
-                                        + "  --minutes_wait=ARG      \tARG = 0 implies no wait; ARG < 0 implies wait indefinitely.\n"
-                                        + "                          \tOtherwise, the number of minutes to wait for completion.\n\n"
                                         + "  --transfer=ARG          \tFile transfer method\n\n"
                                         + "      Values:           \t\n"
                                         + "       -t upload          \t# Default\n"
                                         + "       -t ln              \t# Use hard-link. Locally only!\n"
                                         + "       -t ln_rm           \t# Caution! Hard-link followed by rm. Locally only!\n"
                                         + "       -t ln_s            \t# Use symlnk. Locally only!\n"
-                                        + "       -t some.class.Name \t# Use a class on the CLASSPATH\n"
-                                        + "\n"
-                                        + "ex. %s --transfer=ln_s foo.tiff\n"
+                                        + "       -t some.class.Name \t# Use a class on the CLASSPATH\n\n"
+                                        + "  --checksum_algorithm=ARG\tChoose a possibly faster algorithm for detecting file corruption\n"
+                                        + "                          \tE.g. Adler-32 (fast), CRC-32 (fast), MD5-128\n"
+                                        + "                          \t     Murmur3-32, Murmur3-128, SHA1-160 (slow, default)\n\n"
+                                        + "  --minutes_wait=ARG      \tChoose how long the importer will wait on server-side processing\n"
+                                        + "                          \tARG > 0 implies the number of minutes to wait.\n"
+                                        + "                          \tARG = 0 exits immediately. Use a *_completed option to clean up\n"
+                                        + "                          \tARG < 0 waits indefinitely. This is the default\n\n"
+                                        + "  --close_completed       \tClose lingering processes left by --minutes_wait\n\n"
+                                        + "  --wait_completed        \tWait for all background imports to complete.\n\n"
+                                        + "ex. %s --transfer=ln_s --checksum_algorithm=CRC-32 foo.tiff\n"
                                         + "\n"
                                         + "Report bugs to <ome-users@lists.openmicroscopy.org.uk>",
                                 APP_NAME));
@@ -424,16 +438,20 @@ public class CommandLineImporter {
                 new LongOpt("minutes_wait", LongOpt.REQUIRED_ARGUMENT, null, 16);
         LongOpt closeCompleted =
                 new LongOpt("close_completed", LongOpt.NO_ARGUMENT, null, 17);
+        LongOpt waitCompleted =
+                new LongOpt("wait_completed", LongOpt.NO_ARGUMENT, null, 18);
 
         Getopt g = new Getopt(APP_NAME, args, "cfl:s:u:w:d:r:k:x:n:p:h",
                 new LongOpt[] { debug, report, upload, logs, email,
                                 plateName, plateDescription, noThumbnails,
                                 agent, annotationNamespace, annotationText,
                                 annotationLink, transferOpt, advancedHelp,
-                                checksumAlgorithm, minutesWait, closeCompleted});
+                                checksumAlgorithm, minutesWait, closeCompleted,
+                                waitCompleted});
         int a;
 
         boolean doCloseCompleted = false;
+        boolean doWaitCompleted = false;
         boolean getUsedFiles = false;
         config.agent.set("importer-cli");
 
@@ -529,6 +547,10 @@ public class CommandLineImporter {
                 doCloseCompleted = true;
                 break;
             }
+            case 18: {
+                doWaitCompleted = true;
+                break;
+            }
             // ADVANCED END ---------------------------------------------------
             case 's': {
                 config.hostname.set(g.getOptarg());
@@ -605,6 +627,8 @@ public class CommandLineImporter {
 
         if (doCloseCompleted) {
             System.exit(closeCompleted(config)); // EARLY EXIT!
+        } else if (doWaitCompleted) {
+            System.exit(waitCompleted(config)); // EARLY EXIT!
         }
 
         List<Annotation> annotations =
@@ -664,4 +688,72 @@ public class CommandLineImporter {
         return files.toArray(new String[0]);
     }
 
+}
+
+
+class ImportCloser {
+
+    private final static Logger log = LoggerFactory.getLogger(ImportCloser.class);
+
+    List<ImportProcessPrx> imports;
+    int closed = 0;
+    int errors = 0;
+    int processed = 0;
+
+    ImportCloser(OMEROMetadataStoreClient client) throws Exception {
+        this.imports = getImports(client);
+    }
+
+    void closeCompleted() {
+        for (ImportProcessPrx imPrx : imports) {
+            try {
+                processed++;
+                String logName = imPrx.toString().split("\\s")[0];
+                HandlePrx handle = imPrx.getHandle();
+                if (handle != null) {
+                    Response rsp = handle.getResponse();
+                    if (rsp != null) {
+                        log.info("Done: {}", logName);
+                        imPrx.close();
+                        closed++;
+                        continue;
+                    }
+                }
+                log.info("Running: {}", logName);
+            } catch (Exception e) {
+                errors++;
+                log.warn("Failure accessing service", e);
+            }
+        }
+    }
+
+    int getClosed() {
+        return closed;
+    }
+
+    int getErrors() {
+        return errors;
+    }
+
+    int getProcessed() {
+        return processed;
+    }
+
+    private static List<ImportProcessPrx> getImports(OMEROMetadataStoreClient client) throws Exception {
+        final List<ImportProcessPrx> rv = new ArrayList<ImportProcessPrx>();
+        final ServiceFactoryPrx sf = client.getServiceFactory();
+        final List<String> active = sf.activeServices();
+        for (String service : active) {
+            try {
+                final ServiceInterfacePrx prx = sf.getByName(service);
+                final ImportProcessPrx imPrx = ImportProcessPrxHelper.checkedCast(prx);
+                if (imPrx != null) {
+                    rv.add(imPrx);
+                }
+            } catch (Exception e) {
+                log.warn("Failure accessing active service", e);
+            }
+        }
+        return rv;
+    }
 }
