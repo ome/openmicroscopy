@@ -55,7 +55,7 @@ import ch.qos.logback.core.util.StatusPrinter;
 class LoggerImpl
     implements Logger
 {
-    
+
     /** The name of the log file variable the log config file. */
     private static final String LOG_FILE_NAME = "logFileName";
 
@@ -80,8 +80,8 @@ class LoggerImpl
     /**
      * Initializes slf4j.
      * 
-     * @param configFile  The pathname of a configuration file.
-     * @param absFile     The absolute pathname of the log file.
+     * @param configFile The pathname of a configuration file.
+     * @param absFile The absolute pathname of the log file.
      */
     LoggerImpl(String configFile, String absFile)
     {
@@ -95,12 +95,12 @@ class LoggerImpl
           configurator.doConfigure(configFile);
         } catch (JoranException je) {
           // StatusPrinter will handle this
+            StatusPrinter.printInCaseOfErrorsOrWarnings(context);
         }
-        StatusPrinter.printInCaseOfErrorsOrWarnings(context);
     }
 
 	/** 
-     * Implemented as specified by {@link Logger}. 
+     * Implemented as specified by {@link Logger}.
      * @see Logger#debug(Object, String)
      */     
     public void debug(Object c, String logMsg)
@@ -109,14 +109,14 @@ class LoggerImpl
     }
     
 	/** 
-     * Implemented as specified by {@link Logger}.
+     * Implemented as specified by {@link Logger}
      * @see Logger#debug(Object, LogMessage)
      */     
 	public void debug(Object c, LogMessage msg)
 	{
         getAdaptee(c).debug(msg == null ? null : msg.toString());
 	}
-    
+
 	/**
      * Implemented as specified by {@link Logger}.
      * @see Logger#error(Object, String)
@@ -145,12 +145,12 @@ class LoggerImpl
     }
     
 	/** 
-     * Implemented as specified by {@link Logger}. 
+     * Implemented as specified by {@link Logger}.
      * @see Logger#fatal(Object, LogMessage)
      */     
 	public void fatal(Object c, LogMessage msg)
 	{
-		getAdaptee(c).error(msg == null ? null : msg.toString());
+	    getAdaptee(c).error(msg == null ? null : msg.toString());
 	}
     
 	/** 
@@ -172,7 +172,7 @@ class LoggerImpl
 	}
     
 	/**
-     * Implemented as specified by {@link Logger}. 
+     * Implemented as specified by {@link Logger}.
      * @see Logger#warn(Object, String)
      */ 
     public void warn(Object c, String logMsg)
