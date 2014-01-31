@@ -463,6 +463,18 @@ public class DataServicesFactory
         }
     }
 
+    /**
+     * Returns the value of the plug-in or <code>-1</code>.
+     * 
+     * @return See above.
+     */
+    int runAsPlugin()
+    {
+        Environment env = (Environment) registry.lookup(LookupNames.ENV);
+        if (env != null) return env.runAsPlugin();
+        return -1;
+    }
+
 	/**
 	 * Brings up a dialog indicating that the session has expired and
 	 * quits the application.
