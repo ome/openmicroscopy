@@ -27,12 +27,14 @@ package org.openmicroscopy.shoola.env.log;
 //Java imports
 
 //Third-party libraries
+import ij.IJ;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.joran.JoranConfigurator;
 import ch.qos.logback.core.joran.spi.JoranException;
 import ch.qos.logback.core.util.StatusPrinter;
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.LookupNames;
 
 
 /** 
@@ -62,6 +64,9 @@ class LoggerImpl
 	/** The absolute pathname of the log file.*/
 	private String absFile;
 	
+	/** Value identifying the plugin or <code>-1</code>.*/
+	private int runAsPlugin;
+
     /**
      * Returns the <i>Log4j</i> logger for the specified object.
      * 
@@ -76,53 +81,82 @@ class LoggerImpl
 												target.getClass());
 		return org.slf4j.LoggerFactory.getLogger(org.slf4j.Logger.ROOT_LOGGER_NAME);
     }
-    
+
+    /**
+     * Handles the error if run as a plug-in.
+     *
+     * @param logMsg The message to handle.
+     */
+    private void handlePlugin(String logMsg)
+    {
+        if (runAsPlugin == LookupNames.IMAGE_J && IJ.debugMode) {
+            IJ.log(logMsg);
+        }
+    }
+
     /**
      * Initializes slf4j.
      * 
-     * @param configFile  The pathname of a configuration file.
-     * @param absFile     The absolute pathname of the log file.
+     * @param configFile The pathname of a configuration file.
+     * @param absFile The absolute pathname of the log file.
+     * @param runAsPlugin Value identifying the plugin or <code>-1</code>.
      */
-    LoggerImpl(String configFile, String absFile)
+    LoggerImpl(String configFile, String absFile, int runAsPlugin)
     {
-        LoggerContext context = (LoggerContext) org.slf4j.LoggerFactory.getILoggerFactory();
-        try {
-          JoranConfigurator configurator = new JoranConfigurator();
-          configurator.setContext(context);
-          context.reset();
-          context.putProperty(LOG_FILE_NAME, absFile);
-          configurator.doConfigure(configFile);
-        } catch (JoranException je) {
-          // StatusPrinter will handle this
+        this.runAsPlugin = runAsPlugin;
+        if (runAsPlugin < 0) {
+            LoggerContext context = (LoggerContext)
+                    org.slf4j.LoggerFactory.getILoggerFactory();
+            try {
+              JoranConfigurator configurator = new JoranConfigurator();
+              configurator.setContext(context);
+              context.reset();
+              context.putProperty(LOG_FILE_NAME, absFile);
+              configurator.doConfigure(configFile);
+            } catch (JoranException je) {
+              // StatusPrinter will handle this
+            }
+            StatusPrinter.printInCaseOfErrorsOrWarnings(context);
         }
-        StatusPrinter.printInCaseOfErrorsOrWarnings(context);
-    }
-    
-	/** 
-     * Implemented as specified by {@link Logger}. 
-     * @see Logger#debug(Object, String)
-     */     
-    public void debug(Object c, String logMsg)
-    {
-		getAdaptee(c).debug(logMsg);
     }
     
 	/** 
      * Implemented as specified by {@link Logger}.
+     * @see Logger#debug(Object, String)
+     */     
+    public void debug(Object c, String logMsg)
+    {
+        if (runAsPlugin < 0) {
+            getAdaptee(c).debug(logMsg);
+        } else {
+            handlePlugin(logMsg);
+        }
+    }
+    
+	/** 
+     * Implemented as specified by {@link Logger}
      * @see Logger#debug(Object, LogMessage)
      */     
 	public void debug(Object c, LogMessage msg)
 	{
-		getAdaptee(c).debug(msg == null ? null : msg.toString());
+	    if (runAsPlugin < 0) {
+	        getAdaptee(c).debug(msg == null ? null : msg.toString());
+        } else {
+            handlePlugin(msg == null ? null : msg.toString());
+        }
 	}
-    
+
 	/**
      * Implemented as specified by {@link Logger}.
      * @see Logger#error(Object, String)
      */ 
     public void error(Object c, String logMsg)
     {
-		getAdaptee(c).error(logMsg);
+        if (runAsPlugin < 0) {
+            getAdaptee(c).error(logMsg);
+        } else {
+            handlePlugin(logMsg);
+        }
     }
     
 	/** 
@@ -131,7 +165,11 @@ class LoggerImpl
      */     
 	public void error(Object c, LogMessage msg)
 	{
-		getAdaptee(c).error(msg == null ? null : msg.toString());
+	    if (runAsPlugin < 0) {
+	        getAdaptee(c).error(msg == null ? null : msg.toString());
+	    } else {
+	        handlePlugin(msg == null ? null : msg.toString());
+	    }
 	}
     
 	/** 
@@ -140,16 +178,24 @@ class LoggerImpl
      */ 
     public void fatal(Object c, String logMsg)
     {
-		getAdaptee(c).error(logMsg);
+        if (runAsPlugin < 0) {
+            getAdaptee(c).error(logMsg);
+        } else {
+            handlePlugin(logMsg);
+        }
     }
     
 	/** 
-     * Implemented as specified by {@link Logger}. 
+     * Implemented as specified by {@link Logger}.
      * @see Logger#fatal(Object, LogMessage)
      */     
 	public void fatal(Object c, LogMessage msg)
 	{
-		getAdaptee(c).error(msg == null ? null : msg.toString());
+        if (runAsPlugin < 0) {
+            getAdaptee(c).error(msg == null ? null : msg.toString());
+        } else {
+            handlePlugin(msg == null ? null : msg.toString());
+        }
 	}
     
 	/** 
@@ -158,7 +204,11 @@ class LoggerImpl
      */ 
     public void info(Object c, String logMsg)
     {
-		getAdaptee(c).info(logMsg);
+        if (runAsPlugin < 0) {
+            getAdaptee(c).info(logMsg);
+        } else {
+            handlePlugin(logMsg);
+        }
     }
     
 	/**
@@ -167,16 +217,24 @@ class LoggerImpl
      */     
 	public void info(Object c, LogMessage msg)
 	{
-		getAdaptee(c).info(msg == null ? null : msg.toString());
+        if (runAsPlugin < 0) {
+            getAdaptee(c).info(msg == null ? null : msg.toString());
+        } else {
+            handlePlugin(msg == null ? null : msg.toString());
+        }
 	}
     
 	/**
-     * Implemented as specified by {@link Logger}. 
+     * Implemented as specified by {@link Logger}.
      * @see Logger#warn(Object, String)
      */ 
     public void warn(Object c, String logMsg)
     {
-		getAdaptee(c).warn(logMsg);
+        if (runAsPlugin < 0) {
+            getAdaptee(c).warn(logMsg);
+        } else {
+            handlePlugin(logMsg);
+        }
     }
     
 	/**
@@ -185,7 +243,11 @@ class LoggerImpl
      */
 	public void warn(Object c, LogMessage msg)
 	{
-		getAdaptee(c).warn(msg == null ? null : msg.toString());
+        if (runAsPlugin < 0) {
+            getAdaptee(c).warn(msg == null ? null : msg.toString());
+        } else {
+            handlePlugin(msg == null ? null : msg.toString());
+        }
 	}
 
 	/**
