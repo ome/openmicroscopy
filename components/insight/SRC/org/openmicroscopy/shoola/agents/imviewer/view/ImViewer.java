@@ -833,8 +833,12 @@ public interface ImViewer
 	/** Resets the default settings. */
     public void resetDefaultRndSettings();
     
-    /** Saves the rendering settings. */
-    public void saveRndSettings();
+    /** Saves the rendering settings. 
+     * 
+     * @param post Pass <code>true</code> to post an event,
+     *             <code>false</code> otherwise.
+     */
+    public void saveRndSettings(boolean post);
     
     /** Moves the window to the front. */
     public void toFront();
