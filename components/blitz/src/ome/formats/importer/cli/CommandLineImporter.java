@@ -334,6 +334,9 @@ public class CommandLineImporter {
                                         + "    --checksum_algorithm=ARG\tChoose a possibly faster algorithm for detecting file corruption\n"
                                         + "                            \tE.g. Adler-32 (fast), CRC-32 (fast), MD5-128\n"
                                         + "                            \t     Murmur3-32, Murmur3-128, SHA1-160 (slow, default)\n\n"
+                                        + "\n"
+                                        + "  ex. $ %s --transfer=ln_s --checksum_algorithm=CRC-32 foo.tiff\n"
+                                        + "\n"
                                         + "  Background imports:\n"
                                         + "  -------------------\n\n"
                                         + "    --minutes_wait=ARG      \tChoose how long the importer will wait on server-side processing\n"
@@ -343,10 +346,11 @@ public class CommandLineImporter {
                                         + "    --close_completed       \tClose completed imports\n\n"
                                         + "    --wait_completed        \tWait for all background imports to complete.\n\n"
                                         + "\n"
-                                        + "  ex. %s --transfer=ln_s --checksum_algorithm=CRC-32 foo.tiff\n"
+                                        + "  ex. $ %s --minutes_wait=0 file1.tiff file2.tiff file3.tiff\n"
+                                        + "      $ %s --wait_completed # Waits on all 3 imports.\n"
                                         + "\n"
                                         + "Report bugs to <ome-users@lists.openmicroscopy.org.uk>",
-                                APP_NAME));
+                                APP_NAME, APP_NAME, APP_NAME));
         System.exit(1);
     }
 
