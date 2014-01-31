@@ -816,6 +816,10 @@ class ImViewerComponent
 	        int v = model.getSelectedBin();
 	        firePropertyChange(ImViewer.BIN_SELECTED_PROPERTY,
 	                Integer.valueOf(v), Integer.valueOf(bin));
+	        if (defaultT != t) {
+                firePropertyChange(ImViewer.T_SELECTED_PROPERTY,
+                        Integer.valueOf(defaultT), Integer.valueOf(t));
+            }
 	    } else {
 	        if (defaultZ == z && defaultT == t) return;
 	        if (defaultZ != z) {
