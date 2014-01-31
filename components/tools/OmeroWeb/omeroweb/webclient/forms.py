@@ -64,7 +64,7 @@ help_expire = '<span id="expire" title="Expire date - <small>This date defines w
 
 class GlobalSearchForm(NonASCIIForm):
     
-    search_field_input = forms.CharField(widget=forms.TextInput(attrs={'size':25}))
+    search_query = forms.CharField(widget=forms.TextInput(attrs={'size':25}))
 
 
 class ShareForm(NonASCIIForm):

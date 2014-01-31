@@ -390,7 +390,7 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
     global_search_form = GlobalSearchForm(data=request.REQUEST.copy())
     if menu == "search":
         if global_search_form.is_valid():
-            init['query'] = global_search_form.cleaned_data['search_field_input']
+            init['query'] = global_search_form.cleaned_data['search_query']
             
     # get url without request string - used to refresh page after switch user/group etc
     url = reverse(viewname="load_template", args=[menu])
