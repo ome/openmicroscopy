@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.metadata.rnd.DomainPane 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -1064,7 +1064,10 @@ public class DomainPane
             bitDepthLabel.setText(""+
             		convertUIBitResolution(bitDepthSlider.getValue()));
         } else if (source.equals(tSlider) || source.equals(zSlider)) {
-        	controller.setSelectedXYPlane(zSlider.getValue(),
+            if (lifetimeSlider != null && lifetimeSlider.isVisible()) {
+                controller.setSelectedXYPlane(model.getDefaultZ(),
+                        tSlider.getValue(), lifetimeSlider.getValue());
+            } else controller.setSelectedXYPlane(zSlider.getValue(),
                     tSlider.getValue());
         } else if (source.equals(lifetimeSlider)) {
         	controller.setSelectedXYPlane(model.getDefaultZ(),

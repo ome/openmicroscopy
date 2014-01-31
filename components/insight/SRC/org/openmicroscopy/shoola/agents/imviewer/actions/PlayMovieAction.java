@@ -114,7 +114,7 @@ public class PlayMovieAction
                 } else {
                     switch (index) {
                     case ACROSS_LIFETIME:
-
+                        setEnabled(model.getMaxLifetimeBin() > 1);
                         break;
                     case ACROSS_T:
                         setEnabled(model.getRealT() > 1);

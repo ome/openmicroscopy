@@ -2,10 +2,10 @@
  * org.openmicroscopy.shoola.agents.imviewer.util.player.MoviePlayerDialog
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -148,27 +148,23 @@ public class MoviePlayerDialog
     }
 
     /**
-     * Fires an event to render the plane specified by the z-section, 
+     * Fires an event to render the plane specified by the z-section,
      * timepoint and bin.
      */
     void renderImage()
     {
-        int z = -1;
-        int t = -1;
-        int bin = -1;
+        int z = model.getDefaultZ();
+        int t = model.getRealSelectedT();
+        int bin = model.getSelectedBin();
         switch (player.getMovieIndex()) {
             case ACROSS_T:
-                z = model.getDefaultZ();
                 t = player.getFrameNumberT();
                 break;
             case ACROSS_Z:
-                t = model.getRealSelectedT();
                 z = player.getFrameNumberZ();
                 break;
             case ACROSS_BIN:
-                t = model.getRealSelectedT();
-                z = model.getDefaultZ();
-                bin = player.getFrameNumberBin();
+               bin = player.getFrameNumberBin();
                 break;
             case ACROSS_ZT:
                 z = player.getFrameNumberZ();
