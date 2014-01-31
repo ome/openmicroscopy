@@ -1766,12 +1766,11 @@ class TreeViewerComponent
 		Iterator<TreeImageDisplay> k = nodes.iterator();
 		TreeImageDisplay n;
 		ExperimenterData exp;
-		long currentUser = model.getExperimenter().getId();
 		while (k.hasNext()) {
 			n = k.next();
 			if (n.getUserObject() instanceof ExperimenterData) {
 				exp = (ExperimenterData) n.getUserObject();
-				if (!ids.contains(exp.getId()) && exp.getId() != currentUser) {
+				if (!ids.contains(exp.getId())) {
 					users.add(exp);
 				}
 			}
@@ -4546,8 +4545,6 @@ class TreeViewerComponent
 		browser.accept(v, ExperimenterVisitor.TREEIMAGE_SET_ONLY);
 		//do not remove the last group.
 		List<TreeImageDisplay> groups = v.getNodes();
-		if (groups.size() == 1 && 
-			model.getDisplayMode() == TreeViewer.EXPERIMENTER_DISPLAY) return;
 		//Find the node
 		Iterator<TreeImageDisplay> j = groups.iterator();
 		TreeImageDisplay n;
