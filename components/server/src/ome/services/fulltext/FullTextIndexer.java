@@ -77,6 +77,7 @@ public class FullTextIndexer extends SimpleWork {
         @Override
         void go(FullTextSession session) {
             session.purge(type, id);
+            session.flushToIndexes();
         }
 
         @Override
@@ -94,6 +95,7 @@ public class FullTextIndexer extends SimpleWork {
         @Override
         void go(FullTextSession session) {
             session.index(obj);
+            session.flushToIndexes();
         }
 
         @Override
@@ -105,6 +107,8 @@ public class FullTextIndexer extends SimpleWork {
     }
 
     final protected EventLogLoader loader;
+
+    final protected ParserSession parserSession;
 
     protected int reps = 5;
 
@@ -120,6 +124,7 @@ public class FullTextIndexer extends SimpleWork {
     public FullTextIndexer(EventLogLoader ll) {
         super("FullTextIndexer", "index");
         this.loader = ll;
+        this.parserSession = new ParserSession();
     }
 
     /**
@@ -172,7 +177,6 @@ public class FullTextIndexer extends SimpleWork {
 
     private int doIndexingWithWorldRead(ServiceFactory sf, FullTextSession session) {
         int rc = doIndexing(session);
-        session.flush();
         return rc;
     }
 
@@ -226,6 +230,8 @@ public class FullTextIndexer extends SimpleWork {
                     }
                 }
             }
+            session.flush();
+            parserSession.closeParsedFiles();
 
         }
         return count;
