@@ -101,9 +101,10 @@ public class LoggerFactory
 			if (logDir.isDirectory()) logFile = new File(logDir, logFileName);
 			else logFile = new File(c.getHomeDir(), logFileName);
 		}
-		Environment env = (Environment) reg.lookup(LookupNames.ENV);
-		return new LoggerImpl(relPathName, logFile.getAbsolutePath(),
-		        env.runAsPlugin());
+		Integer v = (Integer) reg.lookup(LookupNames.PLUGIN);
+		int value = -1;
+		if (v != null) value = v.intValue();
+		return new LoggerImpl(relPathName, logFile.getAbsolutePath(), value);
 	}
 	
 	/**
