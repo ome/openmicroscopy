@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.data.OmeroMetadataServiceImpl 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -2210,4 +2210,17 @@ class OmeroMetadataServiceImpl
 		cmd.imageId = id;
 		return gateway.submit(Arrays.<Request>asList(cmd), ctx);
 	}
+
+    /**
+     * Implemented as specified by {@link OmeroDataService}.
+     * @see OmeroDataService#loadLogFiles(SecurityContext, Class, List)
+     */
+    public Map<Long, List<IObject>> loadLogFiles(SecurityContext ctx,
+            Class<?> rootType, List<Long> rootIDs)
+                    throws DSOutOfServiceException, DSAccessException
+   {
+        if (rootType == null || CollectionUtils.isEmpty(rootIDs))
+            throw new IllegalArgumentException("No node specified");
+        return gateway.loadLogFiles(ctx, rootType, rootIDs);
+    }
 }
