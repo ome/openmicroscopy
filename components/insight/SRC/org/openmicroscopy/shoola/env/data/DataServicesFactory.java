@@ -470,9 +470,10 @@ public class DataServicesFactory
      */
     int runAsPlugin()
     {
-        Environment env = (Environment) registry.lookup(LookupNames.ENV);
-        if (env != null) return env.runAsPlugin();
-        return -1;
+        Integer v = (Integer) container.getRegistry().lookup(
+                LookupNames.PLUGIN);
+        if (v == null) return -1;
+        return v.intValue();
     }
 
 	/**
