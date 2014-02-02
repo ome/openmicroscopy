@@ -743,10 +743,10 @@ public interface OmeroMetadataService
 	 * @param rootIDs The collection of object's identifiers.
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-     * @throws DSAccessException If an error occurred while trying to 
-     * retrieve data from OMERO service.
+	 * @throws DSAccessException If an error occurred while trying to 
+	 * retrieve data from OMERO service.
 	 */
 	public Map<Long, List<IObject>> loadLogFiles(SecurityContext ctx,
 	        Class<?> rootType, List<Long> rootIDs)
-                throws DSOutOfServiceException, DSAccessException;
+	                throws DSOutOfServiceException, DSAccessException;
 }
