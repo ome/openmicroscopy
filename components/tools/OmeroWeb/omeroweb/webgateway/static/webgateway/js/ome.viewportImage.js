@@ -416,9 +416,8 @@ jQuery.fn.viewportImage = function(options) {
         
         if (viewerBean == null) {
             $('<div id="weblitz-viewport-tiles" class="viewer" style="width: 100%; height: 100%;" ></div>').appendTo(wrapdiv);
-            jQuery('#weblitz-viewport-tiles').css({width: wrapwidth, height: wrapheight});
             
-            PanoJS.CREATE_CONTROL_MAXIMIZE = false;
+            PanoJS.CREATE_CONTROL_MAXIMIZE = true;
             PanoJS.PRE_CACHE_AMOUNT = 2;
             viewerBean = new PanoJS('weblitz-viewport-tiles', {
                 tileUrlProvider : myProvider,
@@ -547,7 +546,6 @@ jQuery.fn.viewportImage = function(options) {
       //orig_height = image.get(0).clientHeight;
       
       if (viewerBean != null) {
-          jQuery('#weblitz-viewport-tiles').css({width: wrapwidth, height: wrapheight});
           viewerBean.resize();
       }
       
