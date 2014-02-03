@@ -121,10 +121,10 @@ public class FullTextIndexer extends SimpleWork {
         ;
     }
 
-    public FullTextIndexer(EventLogLoader ll, ParserSession ps) {
+    public FullTextIndexer(EventLogLoader ll) {
         super("FullTextIndexer", "index");
         this.loader = ll;
-        this.parserSession = ps;
+        this.parserSession = new ParserSession();
     }
 
     /**
