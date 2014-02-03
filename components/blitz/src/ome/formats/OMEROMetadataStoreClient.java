@@ -85,6 +85,7 @@ import ome.xml.model.primitives.PercentFraction;
 import ome.xml.model.primitives.PositiveInteger;
 import ome.xml.model.primitives.PositiveFloat;
 import ome.xml.model.primitives.Timestamp;
+import omero.InternalException;
 import omero.RBool;
 import omero.RDouble;
 import omero.RInt;
@@ -2261,31 +2262,30 @@ public class OMEROMetadataStoreClient
      * @param pixelsIds Set of Pixels IDs to reset defaults and thumbnails for.
      */
     public void resetDefaultsAndGenerateThumbnails(List<Long> plateIds,
-		                                       List<Long> pixelsIds)
-    {
-	try
-	{
-		if (plateIds.size() > 0)
-		{
-			iSettings.resetDefaultsInSet("Plate", plateIds);
-		}
-		else
-		{
-			iSettings.resetDefaultsInSet("Pixels", pixelsIds);
-		}
-		thumbnailStore.createThumbnailsByLongestSideSet(
-				rint(DEFAULT_INSIGHT_THUMBNAIL_LONGEST_SIDE), pixelsIds);
-	}
-	catch (ServerError e)
-	{
-		throw new RuntimeException(e);
-	}
+            List<Long> pixelsIds) {
+        try {
+            if (plateIds.size() > 0) {
+                iSettings.resetDefaultsInSet("Plate", plateIds);
+            } else {
+                iSettings.resetDefaultsInSet("Pixels", pixelsIds);
+            }
+            for (long pixelsId : pixelsIds) {
+                try {
+                    thumbnailStore.setPixelsId(pixelsId);
+                    thumbnailStore.getThumbnailByLongestSide(
+                            rint(DEFAULT_INSIGHT_THUMBNAIL_LONGEST_SIDE));
+                } catch (InternalException ie) {
+                    log.debug("resetDefaultsAndGenerateThumbnails exception", ie);
+                }
+            }
+        } catch (ServerError e) {
+            throw new RuntimeException(e);
+        } finally {
+            closeQuietly(thumbnailStore);
+        }
     }
 
-
-    /*-------------------*/
-
-	/**
+    /**
      * Based on immmersion table bug in 4.0 this is a hack to fix in code those enums missing/broken
      *
      *  replace l1[0:3] (['Gly', 'Hl', 'Oel']) l2[0:3] (['Air', 'Glycerol', 'Multi'])
