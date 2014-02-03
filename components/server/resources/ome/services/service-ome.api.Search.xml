@@ -42,11 +42,8 @@
     <constructor-arg ref="fullTextBridge"/>
   </bean>
 
-  <bean id="parserSession" class="ome.services.fulltext.ParserSession"/>
-
   <bean id="fullTextIndexer" class="ome.services.fulltext.FullTextIndexer">
     <constructor-arg ref="eventLogLoader"/>
-    <constructor-arg ref="parserSession"/>
     <property name="repetitions" value="${omero.search.repetitions}"/>
   </bean>
 
