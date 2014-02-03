@@ -171,7 +171,7 @@ class ToolBar
     private JXBusyLabel importLabel;
 
     /**
-     * Selects all the groups.
+     * Selects or de-selects all the groups.
      *
      * @param select Pass <code>true</code> to select all the groups,
      *               <code>false</code> otherwise.
@@ -187,7 +187,30 @@ class ToolBar
                 item = (GroupItem) c;
                 if (item.getGroup() != null) {
                     item.setMenuSelected(select, false);
-                    if (select) item.selectUsers();
+                    if (select) item.selectUsers(false, true);
+                }
+            }
+        }
+        handleSelection();
+    }
+
+    /**
+     * Selects or de-selects all the users.
+     *
+     * @param select Pass <code>true</code> to select all the groups,
+     *               <code>false</code> otherwise.
+     */
+    private void handleAllUsersSelection(boolean select)
+    {
+        int n = popupMenu.getComponentCount();
+        GroupItem item;
+        Component c;
+        for (int i = 0; i < n; i++) {
+            c = popupMenu.getComponent(i);
+            if (c instanceof GroupItem) {
+                item = (GroupItem) c;
+                if (item.getGroup() != null) {
+                    item.selectUsers(true, select);
                 }
             }
         }
@@ -376,6 +399,10 @@ class ToolBar
                     handleAllGroupsSelection(true);
                 else if (GroupItem.ALL_GROUPS_DESELECTION_PROPERTY.equals(name))
                     handleAllGroupsSelection(false);
+                else if (GroupItem.ALL_USERS_SELECTION_PROPERTY.equals(name))
+                    handleAllUsersSelection(true);
+                else if (GroupItem.ALL_USERS_DESELECTION_PROPERTY.equals(name))
+                    handleAllUsersSelection(false);
             }
         });
     }

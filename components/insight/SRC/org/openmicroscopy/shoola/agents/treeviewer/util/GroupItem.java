@@ -64,11 +64,19 @@ public class GroupItem
     /** Bound property indicating to select all the groups.*/
     public static final String ALL_GROUPS_DESELECTION_PROPERTY;
 
+    /** Bound property indicating to select all the users.*/
+    public static final String ALL_USERS_SELECTION_PROPERTY;
+
+    /** Bound property indicating to select all the users.*/
+    public static final String ALL_USERS_DESELECTION_PROPERTY;
+
     static {
         USER_SELECTION_PROPERTY = "userSelection";
         ALL_GROUPS = "All Groups";
         ALL_GROUPS_SELECTION_PROPERTY = "allGroupsSelection";
         ALL_GROUPS_DESELECTION_PROPERTY = "allGroupsDeselection";
+        ALL_USERS_SELECTION_PROPERTY = "allUsersSelection";
+        ALL_USERS_DESELECTION_PROPERTY = "allUsersDeselection";
     }
 
     /** The group hosted by this component.*/
@@ -166,23 +174,47 @@ public class GroupItem
         return users;
     }
 
-    /** Selects the user currently logged in if no user already selected.*/
-    public void selectUsers()
+    /** 
+     * Selects the user currently logged in if no user already selected.
+     *
+     * @param all Pass <code>true</code> to select all the users or
+     *            <code>false</code> to select the user currently logged in
+     *            if no user already selected.
+     * @param select Pass <code>true</code> to select the users,
+     *               <code>false</code> to de-select.
+     */
+    public void selectUsers(boolean all, boolean select)
     {
-        List<ExperimenterData> l = getSeletectedUsers();
-        if (CollectionUtils.isEmpty(l)) {
-            //select the user currently logged in
+        DataMenuItem data;
+        Object ho;
+        if (all) {
             Iterator<DataMenuItem> i = usersItem.iterator();
-            Object ho;
-            DataMenuItem data;
             while (i.hasNext()) {
                 data = i.next();
                 ho = data.getDataObject();
-                if (ho instanceof ExperimenterData && data.isEnabled()) {
-                    long id = ((ExperimenterData) ho).getId();
-                    if (id == userID) {
-                        data.setSelected(true);
-                        break;
+                if (ho instanceof ExperimenterData && data.isEnabled())
+                    data.setSelected(select);
+                else if (ho instanceof String) {
+                    data.removePropertyChangeListener(this);
+                    data.setSelected(select);
+                    data.addPropertyChangeListener(this);
+                }
+            }
+        } else {
+            List<ExperimenterData> l = getSeletectedUsers();
+            if (CollectionUtils.isEmpty(l)) {
+                //select the user currently logged in
+                Iterator<DataMenuItem> i = usersItem.iterator();
+                
+                while (i.hasNext()) {
+                    data = i.next();
+                    ho = data.getDataObject();
+                    if (ho instanceof ExperimenterData && data.isEnabled()) {
+                        long id = ((ExperimenterData) ho).getId();
+                        if (id == userID) {
+                            data.setSelected(true);
+                            break;
+                        }
                     }
                 }
             }
@@ -201,19 +233,28 @@ public class GroupItem
             if (ho instanceof String) {
                 String v = (String) ho;
                 if (DataMenuItem.ALL_USERS_TEXT.equals(v)) {
-                    Iterator<DataMenuItem> i = usersItem.iterator();
-                    boolean b = item.isSelected();
-                    while (i.hasNext()) {
-                        item = i.next();
-                        ho = item.getDataObject();
-                        if (ho instanceof ExperimenterData && item.isEnabled())
-                            item.setSelected(b);
-                    }
+                    selectUsers(true, item.isSelected());
                 }
             }
             List<ExperimenterData> l = getSeletectedUsers();
-            setMenuSelected(CollectionUtils.isNotEmpty(l), false);
-            firePropertyChange(USER_SELECTION_PROPERTY, null, this);
+            if (getGroup() != null) {
+                setMenuSelected(CollectionUtils.isNotEmpty(l), false);
+                firePropertyChange(USER_SELECTION_PROPERTY, null, this);
+            } else {
+                //no longer select the group.
+                boolean selected = item.isSelected();
+                if (!selected && isMenuSelected()) {
+                    setMenuSelected(false, false);
+                } else if (selected && !isMenuSelected()) {
+                    setMenuSelected(true, false);
+                }
+                if (selected)
+                    firePropertyChange(ALL_USERS_SELECTION_PROPERTY, null,
+                            this);
+                else firePropertyChange(ALL_USERS_DESELECTION_PROPERTY, null,
+                        this);
+            }
+            
         } else if (SelectableMenu.GROUP_SELECTION_PROPERTY.equals(name)) {
             GroupItem item = (GroupItem) evt.getNewValue();
             if (item != this) return;
@@ -230,7 +271,7 @@ public class GroupItem
             if (!item.isMenuSelected()) {
                 firePropertyChange(USER_SELECTION_PROPERTY, null, this);
             } else {
-                selectUsers();
+                selectUsers(false, true);
                 firePropertyChange(USER_SELECTION_PROPERTY, null, this);
             }
         }
