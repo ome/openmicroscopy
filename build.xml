@@ -456,6 +456,7 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
             <arg value="openmicroscopy"/>
             <arg value="${omero.shortversion}"/>
             <arg value="${omero.plainversion}"/>
+            <arg value="components/antlib/resources/gitversion.xml"/>
             <arg value="${target.dir}"/>
         </exec>
     </target>
