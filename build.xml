@@ -454,6 +454,7 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
         <exec executable="python" failonerror="true">
             <arg value="${omero.home}/components/antlib/scripts/source-archive"/>
             <arg value="openmicroscopy"/>
+            <arg value="${omero.shortversion}"/>
             <arg value="${omero.plainversion}"/>
             <arg value="${target.dir}"/>
         </exec>
@@ -565,14 +566,12 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
             <zipfileset dir="${dist.dir}/docs" prefix="OMERO.docs-${omero.version}"/>
         </zip>
 
-        <gitdescribe select="\2"> </gitdescribe>
-
         <exec executable="make" failonerror="true" dir="${sphinx.dir}">
-            <env key="SOURCE_BRANCH" value="v.${version.describe}"/>
-            <env key="OMERO_RELEASE" value="${version.describe}"/>
+            <env key="SOURCE_BRANCH" value="v.${omero.shortversion}"/>
+            <env key="OMERO_RELEASE" value="${omero.shortversion}"/>
             <arg line="clean html latexpdf"/>
         </exec>
-        <copy file="${sphinx.dir}/_build/latex/OMERO-${version.describe}.pdf" tofile="${omero.home}/target/OMERO-${version.describe}.pdf" overwrite="true"/>
+        <copy file="${sphinx.dir}/_build/latex/OMERO-${omero.shortversion}.pdf" tofile="${omero.home}/target/OMERO-${omero.shortversion}.pdf" overwrite="true"/>
         <zip destfile="${omero.home}/target/OMERO.sphinx-${omero.version}.zip">
             <zipfileset dir="${sphinx.dir}/_build/html/" prefix="OMERO.sphinx-${omero.version}"/>
         </zip>
@@ -1074,6 +1073,18 @@ omero.version=${omero.version}
     </target>
 
     <target name="plainversion" depends="plainversion-embed,plainversion-git"/>
+
+    <target name="shortversion-embed" if="omero.shortversion">
+        <echo>${omero.shortversion}</echo>
+    </target>
+
+    <target name="shortversion-git" unless="omero.shortversion">
+        <gitdescribe select="\2">
+        </gitdescribe>
+        <echo>${version.describe}</echo>
+    </target>
+
+    <target name="shortversion" depends="shortversion-embed,shortversion-git"/>
 
     <target name="print-mem">
         <echo>

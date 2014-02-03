@@ -24,12 +24,13 @@ import zipfile
 # polluting the release with version control files.
 
 if __name__ == "__main__":
-    if len(sys.argv) != 4:
-        raise Exception('Usage: %s releasename version targetdir')
+    if len(sys.argv) != 5:
+        raise Exception('Usage: %s releasename shortversion fullversion targetdir')
 
     release = sys.argv[1]
-    version = sys.argv[2]
-    target = os.path.abspath(sys.argv[3])
+    shortversion = sys.argv[2]
+    version = sys.argv[3]
+    target = os.path.abspath(sys.argv[4])
     release = "%s-%s" % (release,version)
 
     if not os.path.isdir('.git'):
@@ -86,6 +87,7 @@ if __name__ == "__main__":
     basezip.writestr("%s/components/antlib/resources/gitversion.xml" % (release),
 """<?xml version="1.0" encoding="utf-8"?>
 <project name="gitversion" basedir=".">
+        <property name="omero.shortversion" value="%s"/>
         <property name="omero.plainversion" value="%s"/>
 </project>
-""" % (version))
+""" % (shortversion, version))
