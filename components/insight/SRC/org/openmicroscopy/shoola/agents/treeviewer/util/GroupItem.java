@@ -58,9 +58,17 @@ public class GroupItem
     /** Text indicating to select all the groups.*/
     public static final String ALL_GROUPS;
 
+    /** Bound property indicating to select all the groups.*/
+    public static final String ALL_GROUPS_SELECTION_PROPERTY;
+
+    /** Bound property indicating to select all the groups.*/
+    public static final String ALL_GROUPS_DESELECTION_PROPERTY;
+
     static {
         USER_SELECTION_PROPERTY = "userSelection";
         ALL_GROUPS = "All Groups";
+        ALL_GROUPS_SELECTION_PROPERTY = "allGroupsSelection";
+        ALL_GROUPS_DESELECTION_PROPERTY = "allGroupsDeselection";
     }
 
     /** The group hosted by this component.*/
@@ -158,6 +166,29 @@ public class GroupItem
         return users;
     }
 
+    /** Selects the user currently logged in if no user already selected.*/
+    public void selectUsers()
+    {
+        List<ExperimenterData> l = getSeletectedUsers();
+        if (CollectionUtils.isEmpty(l)) {
+            //select the user currently logged in
+            Iterator<DataMenuItem> i = usersItem.iterator();
+            Object ho;
+            DataMenuItem data;
+            while (i.hasNext()) {
+                data = i.next();
+                ho = data.getDataObject();
+                if (ho instanceof ExperimenterData && data.isEnabled()) {
+                    long id = ((ExperimenterData) ho).getId();
+                    if (id == userID) {
+                        data.setSelected(true);
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
     /** Handles the selection of menu items.
      * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
      */
@@ -186,27 +217,20 @@ public class GroupItem
         } else if (SelectableMenu.GROUP_SELECTION_PROPERTY.equals(name)) {
             GroupItem item = (GroupItem) evt.getNewValue();
             if (item != this) return;
+            //Check if all groups need to be selected.
+            GroupData group = item.getGroup();
+            if (group == null && GroupItem.ALL_GROUPS.equals(item.getText())) {
+                if (item.isMenuSelected())
+                    firePropertyChange(ALL_GROUPS_SELECTION_PROPERTY, null,
+                            this);
+                else firePropertyChange(ALL_GROUPS_DESELECTION_PROPERTY, null,
+                        this);
+                return;
+            }
             if (!item.isMenuSelected()) {
                 firePropertyChange(USER_SELECTION_PROPERTY, null, this);
             } else {
-                List<ExperimenterData> l = getSeletectedUsers();
-                if (CollectionUtils.isEmpty(l)) {
-                    //select the user currently logged in
-                    Iterator<DataMenuItem> i = usersItem.iterator();
-                    Object ho;
-                    DataMenuItem data;
-                    while (i.hasNext()) {
-                        data = i.next();
-                        ho = data.getDataObject();
-                        if (ho instanceof ExperimenterData && data.isEnabled()) {
-                            long id = ((ExperimenterData) ho).getId();
-                            if (id == userID) {
-                                data.setSelected(true);
-                                break;
-                            }
-                        }
-                    }
-                }
+                selectUsers();
                 firePropertyChange(USER_SELECTION_PROPERTY, null, this);
             }
         }

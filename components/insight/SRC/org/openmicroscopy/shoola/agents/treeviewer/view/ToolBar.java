@@ -170,6 +170,30 @@ class ToolBar
     /** Label indicating the import status.*/
     private JXBusyLabel importLabel;
 
+    /**
+     * Selects all the groups.
+     *
+     * @param select Pass <code>true</code> to select all the groups,
+     *               <code>false</code> otherwise.
+     */
+    private void handleAllGroupsSelection(boolean select)
+    {
+        int n = popupMenu.getComponentCount();
+        GroupItem item;
+        Component c;
+        for (int i = 0; i < n; i++) {
+            c = popupMenu.getComponent(i);
+            if (c instanceof GroupItem) {
+                item = (GroupItem) c;
+                if (item.getGroup() != null) {
+                    item.setMenuSelected(select, false);
+                    if (select) item.selectUsers();
+                }
+            }
+        }
+        handleSelection();
+    }
+
     /** Handles the selection of users.*/
     private void handleSelection()
     {
@@ -182,15 +206,17 @@ class ToolBar
             c = popupMenu.getComponent(i);
             if (c instanceof GroupItem) {
                 item = (GroupItem) c;
-                b = !item.isMenuSelected();
-                users = item.getSeletectedUsers();
-                if (n == 1) {
-                    if (b) { //group not selected
-                        users = new ArrayList<ExperimenterData>();
+                if (item.getGroup() != null) {
+                    b = !item.isMenuSelected();
+                    users = item.getSeletectedUsers();
+                    if (n == 1) {
+                        if (b) { //group not selected
+                            users = new ArrayList<ExperimenterData>();
+                        }
+                        b = false;
                     }
-                    b = false;
+                    controller.setSelection(item.getGroup(), users, b);
                 }
-                controller.setSelection(item.getGroup(), users, b);
             }
         }
     }
@@ -346,6 +372,10 @@ class ToolBar
                 String name = evt.getPropertyName();
                 if (GroupItem.USER_SELECTION_PROPERTY.equals(name))
                     handleSelection();
+                else if (GroupItem.ALL_GROUPS_SELECTION_PROPERTY.equals(name))
+                    handleAllGroupsSelection(true);
+                else if (GroupItem.ALL_GROUPS_DESELECTION_PROPERTY.equals(name))
+                    handleAllGroupsSelection(false);
             }
         });
     }
