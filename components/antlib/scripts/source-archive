@@ -24,11 +24,16 @@ import zipfile
 # polluting the release with version control files.
 
 if __name__ == "__main__":
-    if len(sys.argv) != 3:
-        raise Exception('Usage: %s releasename targetdir')
+    if len(sys.argv) != 4:
+        raise Exception('Usage: %s releasename version targetdir')
 
     release = sys.argv[1]
-    target = os.path.abspath(sys.argv[2])
+    version = sys.argv[2]
+    target = os.path.abspath(sys.argv[3])
+    release = "%s-%s" % (release,version)
+
+    if not os.path.isdir('.git'):
+        raise Exception('Releasing is only possible from a git repository')
 
     print("Releasing %s" % (release))
 
@@ -65,8 +70,8 @@ if __name__ == "__main__":
         print("  - repacking %s" % (name))
         # Iterate over the ZipInfo objects from the archive
         for info in subzip.infolist():
-            # Skip unwanted .gitignore files
-            if os.path.basename(info.filename) == '.gitignore':
+            # Skip unwanted git and travis files
+            if os.path.basename(info.filename) == '.gitignore' or os.path.basename(info.filename) == '.gitmodule' or os.path.basename(info.filename) == '.travis.yml':
                 continue
             # Repack a single zip object; preserve the metadata
             # directly via the ZipInfo object and rewrite the content
@@ -76,3 +81,11 @@ if __name__ == "__main__":
 
         # Remove repacked zip
         os.remove(name)
+
+    # Embed release number
+    basezip.writestr("%s/components/antlib/resources/gitversion.xml" % (release),
+"""<?xml version="1.0" encoding="utf-8"?>
+<project name="gitversion" basedir=".">
+        <property name="omero.plainversion" value="%s"/>
+</project>
+""" % (version))
