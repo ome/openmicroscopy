@@ -39,11 +39,16 @@ try:
     doall.requests = dcs
     handle = s.submit(doall)
 
-    callback = omero.callbacks.CmdCallbackI(c, handle)
-    loops = 10
-    delay = 500
-    callback.loop(loops, delay) # Throw LockTimeout
-    rsp = callback.getResponse()
+    try:
+        callback = omero.callbacks.CmdCallbackI(c, handle)
+        loops = 10
+        delay = 500
+        callback.loop(loops, delay)  # Throw LockTimeout
+        rsp = callback.getResponse()
+        if isinstance(rsp, omero.cmd.OK):
+            print "OK"
+    finally:
+        handle.close()
 
 finally:
     c.closeSession()
