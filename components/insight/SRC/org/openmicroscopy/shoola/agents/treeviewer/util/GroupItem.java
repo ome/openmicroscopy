@@ -55,8 +55,12 @@ public class GroupItem
     /** Bound property indicating that the users have been selected.*/
     public static final String USER_SELECTION_PROPERTY;
 
+    /** Text indicating to select all the groups.*/
+    public static final String ALL_GROUPS;
+
     static {
         USER_SELECTION_PROPERTY = "userSelection";
+        ALL_GROUPS = "All Groups";
     }
 
     /** The group hosted by this component.*/
@@ -67,7 +71,7 @@ public class GroupItem
 
     /** The identifier of the user currently logged in.*/
     private long userID;
-    
+
     /**
      * Creates a new instance.
      * 
@@ -97,7 +101,19 @@ public class GroupItem
         this.group = group;
         addPropertyChangeListener(this);
     }
-    
+
+    /**
+     * Creates a new default instance.
+     *
+     * @param selected Pass <code>true</code> if the item is selected,
+     *                 <code>false</code>.
+     */
+    public GroupItem(boolean selected)
+    {
+        super(selected, ALL_GROUPS, true);
+        addPropertyChangeListener(this);
+    }
+
     /**
      * Sets the list of components hosting the users.
      * 

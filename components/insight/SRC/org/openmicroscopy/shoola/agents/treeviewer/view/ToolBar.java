@@ -247,46 +247,55 @@ class ToolBar
         TreeImageDisplay refNode = null;
         List<TreeImageDisplay> nodes;
         ExperimenterVisitor visitor;
-        //Find the group already displayed
-        visitor = new ExperimenterVisitor(browser, group.getId());
-        browser.accept(visitor);
-        nodes = visitor.getNodes();
-        if (nodes.size() == 1) {
-            refNode = nodes.get(0);
-        }
-        visitor = new ExperimenterVisitor(browser, -1, -1);
-        if (refNode != null) refNode.accept(visitor);
-        else if (size == 1) browser.accept(visitor);
-        nodes = visitor.getNodes();
         List<Long> users = new ArrayList<Long>();
-        TreeImageDisplay n;
-        if (CollectionUtils.isNotEmpty(nodes)) {
-            Iterator<TreeImageDisplay> j = nodes.iterator();
-            while (j.hasNext()) {
-                n = j.next();
-                if (n.getUserObject() instanceof ExperimenterData) {
-                    users.add(((ExperimenterData) n.getUserObject()).getId());
+        //Find the group already displayed
+        if (group != null) {
+            visitor = new ExperimenterVisitor(browser, group.getId());
+            browser.accept(visitor);
+            nodes = visitor.getNodes();
+            if (nodes.size() == 1) {
+                refNode = nodes.get(0);
+            }
+            visitor = new ExperimenterVisitor(browser, -1, -1);
+            if (refNode != null) refNode.accept(visitor);
+            else if (size == 1) browser.accept(visitor);
+            nodes = visitor.getNodes();
+            
+            TreeImageDisplay n;
+            if (CollectionUtils.isNotEmpty(nodes)) {
+                Iterator<TreeImageDisplay> j = nodes.iterator();
+                while (j.hasNext()) {
+                    n = j.next();
+                    if (n.getUserObject() instanceof ExperimenterData) {
+                        users.add(((ExperimenterData) n.getUserObject()).getId());
+                    }
+                }
+                if (size == 1) {
+                    groupItem.setMenuSelected(true, false);
                 }
             }
-            if (size == 1) {
-                groupItem.setMenuSelected(true, false);
-            }
         }
+        
         //now add the users
         List<DataMenuItem> items = new ArrayList<DataMenuItem>();
         JPanel p = new JPanel();
         p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
-        List l = sorter.sort(group.getLeaders());
+        List l = null;
+        if (group != null) l = sorter.sort(group.getLeaders());
         Iterator i;
         ExperimenterData exp;
 
         DataMenuItem item;
         JPanel list;
-        int level = group.getPermissions().getPermissionsLevel();
+        
         boolean view = true;
-        if (level == GroupData.PERMISSIONS_PRIVATE) {
-            view = model.isAdministrator() || model.isGroupOwner(group);
+        if (group != null) {
+            int level = group.getPermissions().getPermissionsLevel();
+            if (level == GroupData.PERMISSIONS_PRIVATE) {
+                view = model.isAdministrator() || model.isGroupOwner(group);
+            }
         }
+
         list = new JPanel();
         list.setLayout(new BoxLayout(list, BoxLayout.Y_AXIS));
         item = new DataMenuItem(DataMenuItem.ALL_USERS_TEXT, true);
@@ -310,7 +319,7 @@ class ToolBar
             p.add(UIUtilities.buildComponentPanel(list));
         }
 
-        l = sorter.sort(group.getMembersOnly());
+        if (group != null) l = sorter.sort(group.getMembersOnly());
         if (CollectionUtils.isNotEmpty(l)) {
             p.add(formatHeader("Members"));
             i = l.iterator();
@@ -431,11 +440,22 @@ class ToolBar
             if (id >= 0) groupIds.add(id);
         }
 
+        
+        
         //Create the group menu.
         Iterator i = sortedGroups.iterator();
-        GroupItem item;
         int size = sortedGroups.size();
         long userID = model.getExperimenter().getId();
+
+        GroupItem item;
+        //First add option to add all the groups.
+        if (size > 1) {
+            item = new GroupItem(false);
+            item.setUserID(userID);
+            createGroupMenu(item, 0);
+            popupMenu.add(item);
+        }
+
         while (i.hasNext()) {
             group = (GroupData) i.next();
             boolean b = groupIds.contains(group.getId());
