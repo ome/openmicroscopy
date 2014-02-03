@@ -18,7 +18,7 @@ import java.util.List;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-// CGB: Needs replacing with logback equivalent.
+// TODO: Needs addressing in slf4j-friendly way
 // import org.apache.log4j.ConsoleAppender;
 // import org.apache.log4j.Level;
 // import org.apache.log4j.SimpleLayout;
@@ -38,7 +38,7 @@ public class TempFileManager {
     static {
         // Activating logging at a static level
         if (System.getenv().containsKey("DEBUG")) {
-            // CGB: Needs replacing with logback equivalent.
+            // TODO: Needs addressing in slf4j-friendly way
             //ConsoleAppender console = new ConsoleAppender();
             //console.setName("System.err");
             //console.setTarget(ConsoleAppender.SYSTEM_ERR);
@@ -465,7 +465,7 @@ public class TempFileManager {
 
             // Debug may already be activated. See static block above.
             if (args.contains("--debug") && ! System.getenv().containsKey("DEBUG")) {
-                // CGB: Needs replacing with logback equivalent.
+                // TODO: Needs addressing in slf4j-friendly way
                 //ConsoleAppender console = new ConsoleAppender();
                 //console.setName("System.err");
                 //console.setTarget(ConsoleAppender.SYSTEM_ERR);
