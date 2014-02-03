@@ -110,6 +110,6 @@ public class SaveRndSettingsAction
      * Saves the rendering settings.
      * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
      */
-    public void actionPerformed(ActionEvent e) { model.saveRndSettings(); }
+    public void actionPerformed(ActionEvent e) { model.saveRndSettings(true); }
     
 }
