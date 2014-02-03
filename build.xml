@@ -428,7 +428,7 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
     </target>
 
     <target name="release-all" description="Produce all binary release artifacts"
-        depends="release-clients,release-webstart,release-zip,release-src,release-docs">
+        depends="release-clients,release-webstart,release-zip,release-docs">
         <!-- Clients must come first to produce the zips needed by webstart,
         followed by webstart in order to add jars to dist/, followed by zip -->
     </target>
