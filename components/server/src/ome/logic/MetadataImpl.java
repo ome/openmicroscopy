@@ -1081,11 +1081,13 @@ public class MetadataImpl
         final SetMultimap<Long, Long> rootIdByFileset;
         if (Image.class.isAssignableFrom(rootNodeType)) {
             rootIdByFileset = HashMultimap.create();
-            for (final Object[] result : iQuery.projection(LOAD_FILESET_OF_IMAGE,
-                    new Parameters().addIds(ids))) {
-                final Long imageId = (Long) result[0];
-                final Long filesetId = (Long) result[1];
-                rootIdByFileset.put(filesetId, imageId);
+            if (CollectionUtils.isNotEmpty(ids)) {
+                for (final Object[] result : iQuery.projection(LOAD_FILESET_OF_IMAGE,
+                        new Parameters().addIds(ids))) {
+                    final Long imageId = (Long) result[0];
+                    final Long filesetId = (Long) result[1];
+                    rootIdByFileset.put(filesetId, imageId);
+                }
             }
         } else if (!Fileset.class.isAssignableFrom(rootNodeType)) {
             throw new ApiUsageException("can load log files only by Fileset or Image");
