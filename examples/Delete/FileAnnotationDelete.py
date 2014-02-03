@@ -39,6 +39,7 @@ try:
     doall.requests = dcs
     handle = s.submit(doall)
 
+    callback = None
     try:
         callback = omero.callbacks.CmdCallbackI(c, handle)
         loops = 10
@@ -48,7 +49,10 @@ try:
         if isinstance(rsp, omero.cmd.OK):
             print "OK"
     finally:
-        handle.close()
+        if callback:
+            callback.close(True)
+        else:
+            handle.close()
 
 finally:
     c.closeSession()
