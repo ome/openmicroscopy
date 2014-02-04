@@ -49,7 +49,7 @@ public class SelectableMenu
 
     static {
         IconManager icons = IconManager.getInstance();
-        DEFAULT_DESELECTED = icons.getIcon(IconManager.TRANSPARENT);
+        DEFAULT_DESELECTED = icons.getIcon(IconManager.NOT_SELECTED_8);
         DEFAULT_SELECTED = icons.getIcon(IconManager.SELECTED_8);
         GROUP_SELECTION_PROPERTY = "groupSelection";
     }
