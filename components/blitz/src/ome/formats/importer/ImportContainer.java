@@ -61,6 +61,7 @@ public class ImportContainer
     private boolean doThumbnails = true;
     private List<Annotation> customAnnotationList;
     private IObject target;
+    private String checksumAlgorithm;
 
     public ImportContainer(File file, IObject target, Double[] userPixels,
             String reader, String[] usedFiles, Boolean isSPW) {
@@ -254,6 +255,14 @@ public class ImportContainer
     public void setUserPixels(Double[] userPixels)
     {
         this.userPixels = userPixels;
+    }
+
+    public String getChecksumAlgorithm() {
+        return this.checksumAlgorithm;
+    }
+
+    public void setChecksumAlgorithm(String ca) {
+        this.checksumAlgorithm = ca;
     }
 
     public void fillData(ImportConfig config, ImportSettings settings, Fileset fs,
