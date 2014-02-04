@@ -202,6 +202,9 @@ def login(request):
     if url is not None and len(url) != 0:
         context['url'] = urlencode({'url':url})
     
+    if hasattr(settings, 'LOGIN_LOGO'):
+        context['LOGIN_LOGO'] = settings.LOGIN_LOGO
+
     t = template_loader.get_template(template)
     c = Context(request, context)
     rsp = t.render(c)
