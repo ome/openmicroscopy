@@ -856,7 +856,7 @@ jQuery._WeblitzViewport = function (container, server, options) {
     /* Store all useful information */
     var entry = {channels:[], model: this.getModel()};
     var channels = _this.loadedImg.channels;
-    for (var i in channels) {
+    for (i=0; i<channels.length; i++) {
       var channel = {active: channels[i].active,
                      color: toRGB(channels[i].color),
                      windowStart: channels[i].window.start,
@@ -939,7 +939,7 @@ jQuery._WeblitzViewport = function (container, server, options) {
     /* Channels (verbose as IE7 does not support Array.filter */
     var chs = [];
     var channels = this.loadedImg.channels;
-    for (var i in channels) {
+    for (i=0; i<channels.length; i++) {
       var ch = channels[i].active ? '' : '-';
       ch += parseInt(i, 10)+1;
       ch += '|' + channels[i].window.start + ':' + channels[i].window.end;

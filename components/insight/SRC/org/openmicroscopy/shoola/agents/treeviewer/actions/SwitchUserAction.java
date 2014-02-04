@@ -88,7 +88,7 @@ public class SwitchUserAction
     	}
     	Collection l = group.getExperimenters();
     	if (l == null) {
-    		setEnabled(false);
+    		setEnabled(true);
     		return;
     	}
     	int level = model.getGroupPermissions(group);

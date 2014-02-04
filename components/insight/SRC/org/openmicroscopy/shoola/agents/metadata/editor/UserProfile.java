@@ -530,7 +530,7 @@ class UserProfile
         GroupData g;
         while (i.hasNext()) {
             g = i.next();
-            if (model.isSystemGroup(g.getId()))
+            if (model.isSystemGroup(g.getId(), GroupData.SYSTEM))
                 return true;
         }
         return false;
@@ -954,7 +954,7 @@ class UserProfile
                 field = items.get(key);
                 if (field != null) {
                     v = field.getText();
-                    if (v != null && v.trim().length() == 0) {
+                    if (StringUtils.isBlank(v)) {
                         if (EditorUtil.FIRST_NAME.equals(key) ||
                                 EditorUtil.LAST_NAME.equals(key)) {
                             return false;

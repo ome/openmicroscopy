@@ -1052,7 +1052,10 @@ class LocationDialog extends JDialog implements ActionListener,
 		Selectable<DataNode> selected = null;
 		
 		GroupData group = getSelectedGroup();
-		long userID = getSelectedUser().getId();
+		ExperimenterData user = getSelectedUser();
+		long userID = -1;
+		if (user != null)
+		    userID = user.getId();
 		ExperimenterData loggedIn = ImporterAgent.getUserDetails();
 		boolean isAdmin = ImporterAgent.isAdministrator();
 		long loggedInID = loggedIn.getId();
@@ -1485,7 +1488,7 @@ class LocationDialog extends JDialog implements ActionListener,
 	private List<DataNode> sortByUser(List<DataNode> nodes)
 	{
 		if (CollectionUtils.isEmpty(nodes)) return nodes;
-		List<DataNode> sorted = new ArrayList<DataNode>(nodes.size());
+		List<DataNode> sorted = new ArrayList<DataNode>();
 		ListMultimap<Long, DataNode> map = ArrayListMultimap.create();
 		sorted.add(nodes.get(0)); //default node.
 		Iterator<DataNode> i = nodes.iterator();
@@ -1498,7 +1501,8 @@ class LocationDialog extends JDialog implements ActionListener,
 		}
 		ExperimenterData exp = getSelectedUser();
 		List<DataNode> l = map.get(exp.getId());
-		sorted.addAll(sort(l));
+		if (CollectionUtils.isNotEmpty(l))
+		    sorted.addAll(sort(l));
 		//items are ordered by users.
 		long id;
 		ExperimenterData user;

@@ -209,8 +209,12 @@ class ImporterModel
 	void setGroupId(long groupId)
 	{ 
 		this.groupId = groupId;
+		ExperimenterData exp = ImporterAgent.getUserDetails();
+		if (this.groupId < 0) {
+		    this.groupId = exp.getDefaultGroup().getGroupId();
+		}
 		ctx = new SecurityContext(groupId);
-		experimenterId = ImporterAgent.getUserDetails().getId();
+		experimenterId = exp.getId();
 		tags = null;
 	}
 	
