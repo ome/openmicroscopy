@@ -174,6 +174,20 @@ public class GroupItem
         return users;
     }
 
+    /**
+     * Sets the enabled flag of the items hosting the users.
+     *
+     * @param enabled Pass <code>true</code> to enable,
+     *                <code>false</code> otherwise
+     */
+    public void setEnabledUsers(boolean enabled)
+    {
+        Iterator<DataMenuItem> i = usersItem.iterator();
+        while (i.hasNext()) {
+            i.next().setEnabled(enabled);
+        }
+    }
+
     /** 
      * Selects the user currently logged in if no user already selected.
      *

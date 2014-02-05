@@ -179,6 +179,16 @@ class ToolBar
      */
     private void handleSelectionDisplay(boolean userDisplay)
     {
+        int n = popupMenu.getComponentCount();
+        GroupItem item;
+        Component c;
+        for (int i = 0; i < n; i++) {
+            c = popupMenu.getComponent(i);
+            if (c instanceof GroupItem) {
+                item = (GroupItem) c;
+                item.setEnabledUsers(userDisplay);
+            }
+        }
         int mode = LookupNames.EXPERIMENTER_DISPLAY;
         if (!userDisplay) mode = LookupNames.GROUP_DISPLAY;
         controller.setDisplayMode(mode);
