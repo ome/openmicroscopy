@@ -8,7 +8,7 @@
 
    The pref plugin makes use of prefs.class from the common component.
 
-   Copyright 2007 Glencoe Software, Inc. All rights reserved.
+   Copyright 2007-2013 Glencoe Software, Inc. All rights reserved.
    Use is subject to license terms supplied in LICENSE.txt
 
 """
@@ -34,6 +34,10 @@ not have one, "upgrade" will create a new 4.2 configuration file.
 The configuration values are used by bin/omero admin {start,deploy} to set
 properties on launch. See etc/grid/(win)default.xml. The "Profile" block
 contains a reference to "__ACTIVE__" which is the current value in config.xml
+
+By default, OMERO.grid will use the file in etc/grid/config.xml. If you would
+like to configure your system to use $HOME/omero/config.xml, you will need to
+modify the application descriptor.
 
 Environment variables:
     OMERO_CONFIG - Changes the active profile
@@ -89,75 +93,81 @@ class PrefsControl(BaseControl):
 
     def _configure(self, parser):
         parser.add_argument(
-            "--source", help="Which configuration file should be used. "
-            "By default, OMERO.grid will use the file in etc/grid/config.xml."
-            " If you would like to configure your system to use "
-            "$HOME/omero/config.xml, you will need to modify the application "
-            " descriptor")
+            "--source", help="Configuration file to be used. Default:"
+            " etc/grid/config.xml")
 
         sub = parser.sub()
 
-        all = sub.add_parser(
-            "all", help="List all profiles in the current config.xml file.")
-        all.set_defaults(func=self.all)
+        parser.add(
+            sub, self.all,
+            "List all profiles in the current config.xml file.")
 
         default = sub.add_parser(
-            "def", help="""List (or set) the current active profile.""")
+            "def", help="List (or set) the current active profile.",
+            description="List (or set) the current active profile.")
         default.set_defaults(func=self.default)
         default.add_argument(
             "NAME", nargs="?",
             help="Name of the profile which should be made the new active"
             " profile.")
 
-        get = sub.add_parser(
-            "get", help="Get keys from the current profile. All by default")
+        get = parser.add(
+            sub, self.get,
+            "Get keys from the current profile. All by default")
         get.set_defaults(func=self.get)
-        get.add_argument("KEY", nargs="*")
+        get.add_argument(
+            "KEY", nargs="*", help="Name of the key in the current profile")
 
-        set = sub.add_parser(
-            "set", help="Set key-value pair in the current profile. Omit the"
+        set = parser.add(
+            sub, self.set,
+            "Set key-value pair in the current profile. Omit the"
             " value to remove the key.")
-        set.set_defaults(func=self.set)
+        append = parser.add(
+            sub, self.append, "Append value to a key in the current profile.")
+        remove = parser.add(
+            sub, self.remove,
+            "Remove value from a key in the current profile.")
+
+        for x in [set, append, remove]:
+            x.add_argument(
+                "KEY", help="Name of the key in the current profile")
         set.add_argument(
             "-f", "--file", type=ExistingFile('r'),
             help="Load value from file")
-        set.add_argument("KEY")
         set.add_argument(
             "VALUE", nargs="?",
             help="Value to be set. If it is missing, the key will be removed")
+        append.add_argument("VALUE", help="Value to be appended")
+        remove.add_argument("VALUE", help="Value to be removed")
 
-        drop = sub.add_parser(
-            "drop", help="Removes the profile from the configuration file")
-        drop.set_defaults(func=self.drop)
-        drop.add_argument("NAME")
+        drop = parser.add(
+            sub, self.drop, "Remove the profile from the configuration file")
+        drop.add_argument("NAME", help="Name of the profile to remove")
 
-        keys = sub.add_parser(
-            "keys", help="""List all keys for the current profile""")
-        keys.set_defaults(func=self.keys)
+        parser.add(sub, self.keys, "List all keys for the current profile")
 
-        load = sub.add_parser(
-            "load",
-            help="""Read into current profile from a file or standard in""")
-        load.set_defaults(func=self.load)
+        load = parser.add(
+            sub, self.load,
+            "Read into current profile from a file or standard input")
         load.add_argument(
             "-q", action="store_true", help="No error on conflict")
         load.add_argument(
             "file", nargs="*", type=ExistingFile('r'), default="-",
-            help="Files to read from. Default to standard in if not"
+            help="Files to read from. Default to standard input if not"
             " specified")
 
-        parser.add(sub, self.edit, "Presents the properties for the current"
+        parser.add(sub, self.edit, "Present the properties for the current"
                    " profile in your editor. Saving them will update your"
                    " profile.")
-        parser.add(sub, self.version, "Prints the configuration version for"
+        parser.add(sub, self.version, "Print the configuration version for"
                    " the current profile.")
-        parser.add(sub, self.path, "Prints the file that is used for "
+        parser.add(sub, self.path, "Print the file that is used for "
                    " configuration")
-        parser.add(sub, self.lock, "Acquires the config file lock and holds"
+        parser.add(sub, self.lock, "Acquire the config file lock and hold"
                    " it")
-        parser.add(sub, self.upgrade, "Creates a 4.2 config.xml file based on"
+        parser.add(sub, self.upgrade, "Create a 4.2 config.xml file based on"
                    " your current Java Preferences")
-        old = parser.add(sub, self.old, "Delegates to the old configuration"
+        old = parser.add(sub, self.old, "Delegate to the old configuration"
                          " system using Java preferences")
         old.add_argument("target", nargs="*")
 
@@ -242,6 +252,59 @@ class PrefsControl(BaseControl):
             del config[args.KEY]
         else:
             config[args.KEY] = args.VALUE
+
+    def get_list_value(self, args, config):
+        import json
+        try:
+            list_value = json.loads(config[args.KEY])
+        except ValueError:
+            self.ctx.die(510, "No JSON object could be decoded")
+
+        if not isinstance(list_value, list):
+            self.ctx.die(511, "Property %s is not a list" % args.KEY)
+        return list_value
+
+    def get_omeroweb_default(self, key):
+        try:
+            from omeroweb import settings
+            setting = settings.CUSTOM_SETTINGS_MAPPINGS.get(key)
+            default = setting[2](setting[1]) if setting else []
+        except:
+            self.ctx.die(514, "Cannot retrieve default value for property %s" %
+                         key)
+        if not isinstance(default, list):
+            self.ctx.die(515, "Property %s is not a list" % key)
+        return default
+
+    @with_rw_config
+    def append(self, args, config):
+        import json
+        if args.KEY in config.keys():
+            list_value = self.get_list_value(args, config)
+            list_value.append(json.loads(args.VALUE))
+        elif args.KEY.startswith('omero.web.'):
+            list_value = self.get_omeroweb_default(args.KEY)
+            list_value.append(json.loads(args.VALUE))
+        else:
+            list_value = [json.loads(args.VALUE)]
+        config[args.KEY] = json.dumps(list_value)
+
+    @with_rw_config
+    def remove(self, args, config):
+        if args.KEY not in config.keys():
+            if args.KEY.startswith('omero.web.'):
+                list_value = self.get_omeroweb_default(args.KEY)
+            else:
+                self.ctx.die(512, "Property %s is not defined" % (args.KEY))
+        else:
+            list_value = self.get_list_value(args, config)
+        import json
+        if json.loads(args.VALUE) not in list_value:
+            self.ctx.die(513, "%s is not defined in %s"
+                         % (args.VALUE, args.KEY))
+
+        list_value.remove(json.loads(args.VALUE))
+        config[args.KEY] = json.dumps(list_value)
 
     @with_config
     def keys(self, args, config):
