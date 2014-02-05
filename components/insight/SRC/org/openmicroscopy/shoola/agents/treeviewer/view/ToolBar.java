@@ -665,16 +665,8 @@ class ToolBar
              */
             public void mousePressed(MouseEvent me)
             {
-                switch (model.getDisplayMode()) {
-                case TreeViewer.GROUP_DISPLAY:
-                    createGroupsMenu((Component) me.getSource(),
-                            me.getPoint());
-                    break;
-                case TreeViewer.EXPERIMENTER_DISPLAY:
-                default:
-                    createGroupsAndUsersMenu((Component) me.getSource(),
-                            me.getPoint());
-                }
+                createGroupsAndUsersMenu((Component) me.getSource(),
+                        me.getPoint());
             }
         };
 
