@@ -1094,6 +1094,14 @@ class TreeViewerControl
 		}
 		return false;
 	}
+
+	/**
+	 * Sets the display mode.
+	 *
+	 * @param mode The mode to set.
+	 */
+	void setDisplayMode(int mode) { model.setDisplayMode(mode); }
+
 	/**
 	 * Reacts to property changed. 
 	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
