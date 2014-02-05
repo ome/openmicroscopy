@@ -531,10 +531,10 @@ public class IconManager
     public static final int NOT_OWNED_8 = 155;
 
     /** The <code>Selected</code> icon. */
-    public static final int SELECTED_8 = 156;
+    public static final int SELECTED = 156;
 
     /** The <code>Not Selected</code> icon. */
-    public static final int NOT_SELECTED_8 = 157;
+    public static final int NOT_SELECTED = 157;
 
     /** 
      * The maximum ID used for the icon IDs.
@@ -704,8 +704,8 @@ public class IconManager
         relPaths[UPLOAD_SCRIPT] = "nuvola_script_add16.png";
         relPaths[NO_ENTRY] = "crystal_agt_action_fail16.png";
         relPaths[NOT_OWNED_8] = "red_dot8.png";
-        relPaths[SELECTED_8] = "tick_check8.png";
-        relPaths[NOT_SELECTED_8] = "empty_check8.png";
+        relPaths[SELECTED] = "tick_check16.png";
+        relPaths[NOT_SELECTED] = "empty_check16.png";
     }
 
     /**
