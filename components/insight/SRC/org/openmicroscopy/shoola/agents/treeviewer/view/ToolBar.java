@@ -83,6 +83,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.util.DataMenuItem;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.util.ui.ScriptMenuItem;
+import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -169,6 +170,19 @@ class ToolBar
 
     /** Label indicating the import status.*/
     private JXBusyLabel importLabel;
+
+    /**
+     * Sets either the user display or group display.
+     *
+     * @param userDisplay Pass <code>true</code> for user display,
+     *                    <code>false</code> for group display.
+     */
+    private void handleSelectionDisplay(boolean userDisplay)
+    {
+        int mode = LookupNames.EXPERIMENTER_DISPLAY;
+        if (!userDisplay) mode = LookupNames.GROUP_DISPLAY;
+        controller.setDisplayMode(mode);
+    }
 
     /**
      * Selects or de-selects all the groups.
@@ -498,13 +512,27 @@ class ToolBar
             if (id >= 0) groupIds.add(id);
         }
 
-        
-        
         //Create the group menu.
         Iterator i = sortedGroups.iterator();
         int size = sortedGroups.size();
         long userID = model.getExperimenter().getId();
 
+        //First add item to toggle between users and group display
+        DataMenuItem data = new DataMenuItem(DataMenuItem.USERS_TEXT, null);
+        data.setSelected(
+                model.getDisplayMode() == LookupNames.EXPERIMENTER_DISPLAY);
+        data.addPropertyChangeListener(new PropertyChangeListener() {
+
+            @Override
+            public void propertyChange(PropertyChangeEvent evt) {
+                String name = evt.getPropertyName();
+                if (DataMenuItem.ITEM_SELECTED_PROPERTY.equals(name)) {
+                    DataMenuItem data = (DataMenuItem) evt.getNewValue();
+                    handleSelectionDisplay(data.isSelected());
+                }
+            }
+        });
+        popupMenu.add(data);
         GroupItem item;
         //First add option to add all the groups.
         if (size > 1) {
