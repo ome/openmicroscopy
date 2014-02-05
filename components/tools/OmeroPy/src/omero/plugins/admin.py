@@ -8,7 +8,7 @@
  This is a python wrapper around icegridregistry/icegridnode for master
  and various other tools needed for administration.
 
- Copyright 2008 Glencoe Software, Inc.  All Rights Reserved.
+ Copyright 2008-14 Glencoe Software, Inc.  All Rights Reserved.
  Use is subject to license terms supplied in LICENSE.txt
 
 """
@@ -165,10 +165,11 @@ machine where /OMERO/FullText is located.
 
 Examples:
   bin/omero admin reindex --full                                             \
-  # All objects
+          # All objects
   bin/omero admin reindex --class ome.model.core.Image                       \
-  # Only images
-  JAVA_OPTS="-Dlog4j.configuration=stderr.xml" bin/omero admin reindex --full\
+          # Only images
+  JAVA_OPTS="-Dlogback.configurationFile=stderr.xml" \
+  bin/omero admin reindex --full\
   # Passing arguments to Java
 
 
@@ -1229,9 +1230,10 @@ OMERO Diagnostics %s
         self.check_access(config=config)
         import omero.java
         server_dir = self.ctx.dir / "lib" / "server"
-        log4j = "-Dlog4j.configuration=log4j-cli.properties"
+        log_config_file = self.ctx.dir / "etc" / "logback-indexing-cli.xml"
+        logback = "-Dlogback.configurationFile=%s" % log_config_file
         classpath = [file.abspath() for file in server_dir.files("*.jar")]
-        xargs = [log4j, "-Xmx1024M", "-cp", os.pathsep.join(classpath)]
+        xargs = [logback, "-Xmx1024M", "-cp", os.pathsep.join(classpath)]
 
         cfg = config.as_map()
         config.close()  # Early close. See #9800
