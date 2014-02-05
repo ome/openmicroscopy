@@ -210,6 +210,7 @@ class ToolBar
             if (c instanceof GroupItem) {
                 item = (GroupItem) c;
                 if (item.getGroup() != null) {
+                    item.setMenuSelected(true, false);
                     item.selectUsers(true, select);
                 }
             }
