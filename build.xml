@@ -55,10 +55,15 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
     <property name="gitmatch" value="v.[0-9]*.[0-9]*.[0-9]*"/>
     <property name="import.dir" value="${basedir}/components/antlib/resources"/>
     <import file="${import.dir}/global.xml"/>
+    <import file="${import.dir}/gitversion.xml" optional="true"/>
 
     <target name="init" depends="check-bioformats,check-ivy,check-scons,check-ice">
         <mkdir dir="${blitz.comp}/generated"/>
         <mkdir dir="${blitz.comp}/target/generated/src"/>
+    </target>
+
+    <target name="check-git">
+      <available file=".git" type="dir" property="git.exists"/>
     </target>
 
     <target name="check-bioformats" unless="bioformats.done">
@@ -422,8 +427,8 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
         </scons_py>
     </target>
 
-    <target name="release-all" description="Produce all release artifacts"
-        depends="release-clients,release-webstart,release-zip,release-src,release-docs">
+    <target name="release-all" description="Produce all binary release artifacts"
+        depends="release-clients,release-webstart,release-zip,release-docs">
         <!-- Clients must come first to produce the zips needed by webstart,
         followed by webstart in order to add jars to dist/, followed by zip -->
     </target>
@@ -438,16 +443,25 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
         </zip>
     </target>
 
-    <target name="release-src" description="Zip the git source into OMERO.source-${omero.version}.zip">
-        <git command="archive" output="release-src-command" failonerror="true">
-            <args>
-                <arg value="--format=zip"/>
-                <arg value="HEAD"/>
-                <arg value="-o"/>
-                <arg value="${target.dir}/OMERO.source-${omero.version}.zip"/>
-            </args>
-        </git>
+    <target name="release-src-embed" description="Package the release source tree into openmicroscopy-${omero.plainversion}.zip (not functional)"
+            depends="check-git" unless="git.exists">
+         <fail message="Releasing is only possible from a git repository"/>
     </target>
+
+    <target name="release-src-git" description="Package the git source tree into openmicroscopy-${omero.plainversion}.zip"
+            depends="check-git" if="git.exists">
+        <mkdir dir="${target.dir}"/>
+        <exec executable="python" failonerror="true">
+            <arg value="${omero.home}/components/antlib/scripts/source-archive"/>
+            <arg value="openmicroscopy"/>
+            <arg value="${omero.shortversion}"/>
+            <arg value="${omero.plainversion}"/>
+            <arg value="components/antlib/resources/gitversion.xml"/>
+            <arg value="${target.dir}"/>
+        </exec>
+    </target>
+
+    <target name="release-src" depends="release-src-embed,release-src-git"/>
 
     <target name="release-clients" description="Zip the Python, Java, and Matlab zips">
         <zip destfile="${omero.home}/target/OMERO.py-${omero.version}.zip">
@@ -553,14 +567,12 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
             <zipfileset dir="${dist.dir}/docs" prefix="OMERO.docs-${omero.version}"/>
         </zip>
 
-        <gitdescribe select="\2"> </gitdescribe>
-
         <exec executable="make" failonerror="true" dir="${sphinx.dir}">
-            <env key="SOURCE_BRANCH" value="v.${version.describe}"/>
-            <env key="OMERO_RELEASE" value="${version.describe}"/>
+            <env key="SOURCE_BRANCH" value="v.${omero.shortversion}"/>
+            <env key="OMERO_RELEASE" value="${omero.shortversion}"/>
             <arg line="clean html latexpdf"/>
         </exec>
-        <copy file="${sphinx.dir}/_build/latex/OMERO-${version.describe}.pdf" tofile="${omero.home}/target/OMERO-${version.describe}.pdf" overwrite="true"/>
+        <copy file="${sphinx.dir}/_build/latex/OMERO-${omero.shortversion}.pdf" tofile="${omero.home}/target/OMERO-${omero.shortversion}.pdf" overwrite="true"/>
         <zip destfile="${omero.home}/target/OMERO.sphinx-${omero.version}.zip">
             <zipfileset dir="${sphinx.dir}/_build/html/" prefix="OMERO.sphinx-${omero.version}"/>
         </zip>
@@ -1039,11 +1051,41 @@ omero.version=${omero.version}
         </sequential>
     </macrodef>
 
-    <target name="version">
+    <target name="version-embed" if="omero.plainversion">
+        <echo>${omero.plainversion}-ice${versions.ice_lib}</echo>
+    </target>
+
+    <target name="version-git" unless="omero.plainversion">
         <gitdescribe select="\2\3\5\6">
         </gitdescribe>
         <echo>${version.describe}-ice${versions.ice_lib}</echo>
     </target>
+
+    <target name="version" depends="version-embed,version-git"/>
+
+    <target name="plainversion-embed" if="omero.plainversion">
+        <echo>${omero.plainversion}</echo>
+    </target>
+
+    <target name="plainversion-git" unless="omero.plainversion">
+        <gitdescribe select="\2\3\5\6">
+        </gitdescribe>
+        <echo>${version.describe}</echo>
+    </target>
+
+    <target name="plainversion" depends="plainversion-embed,plainversion-git"/>
+
+    <target name="shortversion-embed" if="omero.shortversion">
+        <echo>${omero.shortversion}</echo>
+    </target>
+
+    <target name="shortversion-git" unless="omero.shortversion">
+        <gitdescribe select="\2">
+        </gitdescribe>
+        <echo>${version.describe}</echo>
+    </target>
+
+    <target name="shortversion" depends="shortversion-embed,shortversion-git"/>
 
     <target name="print-mem">
         <echo>
