@@ -473,7 +473,7 @@
     <property name="dist.zip.prefix.osx"
               value="${dist.bundle.name}-${dist.bundle.version}-mac"/>
     <zip destfile="${dist.dir}/${dist.zip.prefix.osx}.zip">
-      <zipfileset refid="dist.launch.scripts" prefix="${main-dist-prefix}" filemode="775"/>
+      <zipfileset refid="dist.launch.scripts" prefix="${dist.zip.prefix.osx}" filemode="775"/>
       <zipfileset prefix="${dist.zip.prefix.osx}/${dist.app.config.dir.name}"
                   dir="${app.config.dir}"/>
       <zipfileset prefix="${dist.zip.prefix.osx}" dir="${dist.dir}"
