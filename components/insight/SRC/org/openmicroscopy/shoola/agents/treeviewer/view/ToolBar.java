@@ -479,7 +479,13 @@ class ToolBar
                 }
             }
         });
-        popupMenu.add(data);
+        JPanel panel = new JPanel();
+        panel.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
+        panel.setBorder(null);
+        IconManager icons= IconManager.getInstance();
+        panel.add(new JLabel(icons.getIcon(IconManager.TRANSPARENT)));
+        panel.add(data);
+        popupMenu.add(panel);
         GroupItem item;
         //First add option to add all the groups.
         if (size > 1) {
