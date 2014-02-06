@@ -352,7 +352,7 @@
     <plugin>
       <id>1</id>
       <!-- The dependencies will be ignored if used as an ImageJ2 or Fiji plugin-->
-      <dependencies>loci_tools.jar</dependencies>
+      <dependencies>bioformats_package.jar, loci_tools.jar</dependencies>
       <conjunction>or</conjunction>
       <directory>plugins</directory>
       <info>http://www.openmicroscopy.org/site/products/bio-formats/downloads</info>
