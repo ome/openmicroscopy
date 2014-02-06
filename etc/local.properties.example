@@ -47,6 +47,7 @@ jarsign.keystore=${omero.home}/lib/keystore
 jarsign.alias=omedev
 jarsign.storepassfile=${omero.home}/lib/keystore.passwd
 jarsign.validity=1000
+jarsign.tsa=
 
 ############################################
 # Testing

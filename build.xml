@@ -864,6 +864,8 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
                                 <arg value="${jarsign.keystore}"/>
                                 <arg value="-storepass:file"/>
                                 <arg value="${jarsign.storepassfile}"/>
+                                <arg value="-tsa"/>
+                                <arg value="${jarsign.tsa}"/>
                                 <arg value="@{destfile}"/>
                                 <arg value="${jarsign.alias}"/>
                             </exec>
@@ -935,6 +937,8 @@ omero.version=${omero.version}
             <arg value="${jarsign.keystore}"/>
             <arg value="-storepass:file"/>
             <arg value="${jarsign.storepassfile}"/>
+            <arg value="-tsa"/>
+            <arg value="${jarsign.tsa}"/>
             <srcfile/>
             <arg value="${jarsign.alias}"/>
             <fileset dir="${dist.dir}/lib/insight" includes="*.jar"/>
