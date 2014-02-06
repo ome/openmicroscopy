@@ -895,17 +895,19 @@ omero.version=${omero.version}
     </target>
 
     <target name="keystore" depends="init" description="Create keystore">
-        <genkey alias="${jarsign.alias}"
-            keystore="${jarsign.keystore}"
-            storepass="${jarsign.storepass}"
-            validity="${jarsign.validity}">
-            <dname>
-                <param name="CN" value="omedev"/>
-                <param name="OU" value="Open Microscopy Team"/>
-                <param name="O"  value="openmicroscopy.org"/>
-                <param name="C"  value="UK"/>
-            </dname>
-        </genkey>
+        <exec executable="keytool" failonerror="true">
+            <arg value="-genkey"/>
+            <arg value="-alias"/>
+            <arg value="${jarsign.alias}"/>
+            <arg value="-dname"/>
+            <arg value="CN=omedev, OU=Open Microscopy Team, O=openmicroscopy.org, C=UK"/>
+            <arg value="-keystore"/>
+            <arg value="${jarsign.keystore}"/>
+            <arg value="-storepass:file"/>
+            <arg value="${jarsign.storepassfile}"/>
+            <arg value="-validity"/>
+            <arg value="${jarsign.validity}"/>
+        </exec>
     </target>
 
     <target name="server-verify">
