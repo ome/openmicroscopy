@@ -64,8 +64,8 @@ public final class ContainerConfigInit
 	private static final String FIJI = "fiji";
 	
 	/** Indicates the ImageJ2 title.*/
-	private static final String IMAGE_J2 = "imaje2";
-	
+	private static final String IMAGE_J2 = "imagej2";
+
 	/**
 	 * Handles the plugin dependencies. Returns <code>true</code> if the
 	 * dependencies are found, <code>false</code> otherwise.
