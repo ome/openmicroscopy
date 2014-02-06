@@ -61,7 +61,7 @@ class LoggerImpl
 
 	/** The absolute pathname of the log file.*/
 	private String absFile;
-	
+
     /**
      * Returns the <i>Log4j</i> logger for the specified object.
      * 
@@ -76,7 +76,7 @@ class LoggerImpl
 												target.getClass());
 		return org.slf4j.LoggerFactory.getLogger(org.slf4j.Logger.ROOT_LOGGER_NAME);
     }
-    
+
     /**
      * Initializes slf4j.
      * 
@@ -85,7 +85,8 @@ class LoggerImpl
      */
     LoggerImpl(String configFile, String absFile)
     {
-        LoggerContext context = (LoggerContext) org.slf4j.LoggerFactory.getILoggerFactory();
+        LoggerContext context = (LoggerContext)
+                org.slf4j.LoggerFactory.getILoggerFactory();
         try {
           JoranConfigurator configurator = new JoranConfigurator();
           configurator.setContext(context);
@@ -97,14 +98,14 @@ class LoggerImpl
         }
         StatusPrinter.printInCaseOfErrorsOrWarnings(context);
     }
-    
+
 	/** 
      * Implemented as specified by {@link Logger}. 
      * @see Logger#debug(Object, String)
      */     
     public void debug(Object c, String logMsg)
     {
-		getAdaptee(c).debug(logMsg);
+        getAdaptee(c).debug(logMsg);
     }
     
 	/** 
@@ -113,7 +114,7 @@ class LoggerImpl
      */     
 	public void debug(Object c, LogMessage msg)
 	{
-		getAdaptee(c).debug(msg == null ? null : msg.toString());
+        getAdaptee(c).debug(msg == null ? null : msg.toString());
 	}
     
 	/**
@@ -122,7 +123,7 @@ class LoggerImpl
      */ 
     public void error(Object c, String logMsg)
     {
-		getAdaptee(c).error(logMsg);
+        getAdaptee(c).error(logMsg);
     }
     
 	/** 
@@ -131,7 +132,7 @@ class LoggerImpl
      */     
 	public void error(Object c, LogMessage msg)
 	{
-		getAdaptee(c).error(msg == null ? null : msg.toString());
+        getAdaptee(c).error(msg == null ? null : msg.toString());
 	}
     
 	/** 
@@ -140,7 +141,7 @@ class LoggerImpl
      */ 
     public void fatal(Object c, String logMsg)
     {
-		getAdaptee(c).error(logMsg);
+        getAdaptee(c).error(logMsg);
     }
     
 	/** 
@@ -158,7 +159,7 @@ class LoggerImpl
      */ 
     public void info(Object c, String logMsg)
     {
-		getAdaptee(c).info(logMsg);
+        getAdaptee(c).info(logMsg);
     }
     
 	/**
@@ -167,7 +168,7 @@ class LoggerImpl
      */     
 	public void info(Object c, LogMessage msg)
 	{
-		getAdaptee(c).info(msg == null ? null : msg.toString());
+        getAdaptee(c).info(msg == null ? null : msg.toString());
 	}
     
 	/**
@@ -176,7 +177,7 @@ class LoggerImpl
      */ 
     public void warn(Object c, String logMsg)
     {
-		getAdaptee(c).warn(logMsg);
+        getAdaptee(c).warn(logMsg);
     }
     
 	/**
@@ -185,7 +186,7 @@ class LoggerImpl
      */
 	public void warn(Object c, LogMessage msg)
 	{
-		getAdaptee(c).warn(msg == null ? null : msg.toString());
+        getAdaptee(c).warn(msg == null ? null : msg.toString());
 	}
 
 	/**
