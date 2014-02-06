@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.data.NetworkChecker
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee & Open Microscopy Environment.
+ *  Copyright (C) 2006-2014 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
  *
  *
@@ -24,6 +24,8 @@
 package org.openmicroscopy.shoola.util;
 
 //Java imports
+import ij.IJ;
+
 import java.net.HttpURLConnection;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
@@ -60,6 +62,15 @@ public class NetworkChecker {
 
     /** The address of the server to reach.*/
     private final String address;
+
+    /**
+     * Flag indicating if the application is run as an ImageJ plugin,
+     * <code>false</code> otherwise.
+     */
+    private final boolean asIJPlugin;
+
+    /** Reference to the logger.*/
+    private final org.slf4j.Logger logger;
     
     /** The list of interfaces when the network checker is initialized.*/
     private long interfacesCount;
@@ -67,7 +78,7 @@ public class NetworkChecker {
     /** Creates a new instance.*/
     public NetworkChecker()
     {
-        this(null);
+        this(null, false);
     }
 
     /**
@@ -75,10 +86,18 @@ public class NetworkChecker {
      *
      * @param address The address of the server the client is connected to
      *                or <code>null</code>.
+     * @param asIJPlugin Pass <code>true</code> if it runs as an ImageJ plugin,
+     *                   <code>false</code> otherwise.
      */
-    public NetworkChecker(String address)
+    public NetworkChecker(String address, boolean asIJPlugin)
     {
         this.address = address;
+        this.asIJPlugin = asIJPlugin;
+        if (asIJPlugin) {
+            logger = null;
+        } else {
+            logger = org.slf4j.LoggerFactory.getLogger(NetworkChecker.class);
+        }
         if (ipAddress != null) {
             try {
                 this.ipAddress = InetAddress.getByName(address);
@@ -202,9 +221,6 @@ public class NetworkChecker {
         return networkup;
     }
 
-    static org.slf4j.Logger logger =
-            org.slf4j.LoggerFactory.getLogger(NetworkChecker.class);
-
     /**
      * Logs the error.
      * 
@@ -212,8 +228,14 @@ public class NetworkChecker {
      * @param objs The objects to add to the message.
      */
     void log(String msg, Object...objs) {
-        if (logger.isDebugEnabled()) {
-            logger.debug(String.format(msg, objs));
+        if (asIJPlugin) {
+            if (IJ.debugMode) {
+                IJ.log(String.format(msg, objs));
+            }
+        } else {
+            if (logger.isDebugEnabled()) {
+                logger.debug(String.format(msg, objs));
+            }
         }
     }
 
@@ -223,7 +245,7 @@ public class NetworkChecker {
      */
     public static void main(String[] args) throws Exception {
         String address = args.length == 1? args[0] : "null";
-        runTest(new NetworkChecker(address), address);
+        runTest(new NetworkChecker(address, false), address);
     }
 
     /**
