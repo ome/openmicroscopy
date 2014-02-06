@@ -635,10 +635,21 @@ public class CommandLineImporter {
                 ((ch.qos.logback.classic.Logger)LoggerFactory
                     .getLogger("ome.formats")).getLevel()));
 
-        if (doCloseCompleted) {
-            System.exit(closeCompleted(config)); // EARLY EXIT!
-        } else if (doWaitCompleted) {
-            System.exit(waitCompleted(config)); // EARLY EXIT!
+        // Start the importer and import the image we've been given
+        String[] rest = new String[args.length - g.getOptind()];
+        System.arraycopy(args, g.getOptind(), rest, 0, args.length
+                - g.getOptind());
+
+        if (doCloseCompleted || doWaitCompleted) {
+            if (rest.length > 0) {
+                log.error("Files found with completed option: "+
+                        Arrays.toString(rest));
+                System.exit(-2); // EARLY EXIT!
+            } else if (doCloseCompleted) {
+                System.exit(closeCompleted(config)); // EARLY EXIT!
+            } else if (doWaitCompleted) {
+                System.exit(waitCompleted(config)); // EARLY EXIT!
+            }
         }
 
         List<Annotation> annotations =
@@ -650,11 +661,6 @@ public class CommandLineImporter {
             annotations.add(unloadedAnnotation);
         }
         config.annotations.set(annotations);
-
-        // Start the importer and import the image we've been given
-        String[] rest = new String[args.length - g.getOptind()];
-        System.arraycopy(args, g.getOptind(), rest, 0, args.length
-                - g.getOptind());
 
         CommandLineImporter c = null;
         int rc = 0;
