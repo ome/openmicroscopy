@@ -88,6 +88,7 @@ public final class ContainerConfigInit
 			for (int j = 0; j < values.length; j++) {
 				value = values[j];
 				if (value != null) value = value.trim();
+				if (l == null) continue;
 				for (int i = 0; i < l.length; i++) {
 					if (l[i].getName().equals(value)) {
 						count++;
