@@ -28,7 +28,6 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Point;
-import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -60,10 +59,7 @@ import javax.swing.JSeparator;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.SwingConstants;
-import javax.swing.SwingUtilities;
 import javax.swing.border.BevelBorder;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 
 //Third-party libraries
 import org.apache.commons.collections.CollectionUtils;
@@ -430,65 +426,6 @@ class ToolBar
                     handleAllUsersSelection(false);
             }
         });
-    }
-
-    /**
-     * Creates the menu displaying the groups
-     * 
-     * @param source The invoker.
-     * @param p The location of the mouse clicked.
-     */
-    private void createGroupsMenu(Component source, Point p)
-    {
-        if (!source.isEnabled()) return;
-        Collection groups = model.getGroups();
-        if (CollectionUtils.isEmpty(groups)) return;
-        List sortedGroups = sorter.sort(groups);
-        popupMenu.removeAll();
-        GroupData group;
-        //Determine the group already displayed.
-        Browser browser = model.getBrowser(Browser.PROJECTS_EXPLORER);
-        List<TreeImageDisplay> nodes;
-        ExperimenterVisitor visitor;
-        //Find the group.
-        visitor = new ExperimenterVisitor(browser, -1);
-        browser.accept(visitor);
-        nodes = visitor.getNodes();
-        Iterator<TreeImageDisplay> k = nodes.iterator();
-        List<Long> groupIds = new ArrayList<Long>();
-        long id;
-        while (k.hasNext()) {
-            id = k.next().getUserObjectId();
-            if (id >= 0) groupIds.add(id);
-        }
-
-        //Create the group menu.
-        Iterator i = sortedGroups.iterator();
-        DataMenuItem item;
-        while (i.hasNext()) {
-            group = (GroupData) i.next();
-            item = new DataMenuItem(group, true);
-            item.setSelected(groupIds.contains(group.getId()));
-            item.addChangeListener(new ChangeListener() {
-
-                @Override
-                public void stateChanged(ChangeEvent evt) {
-                    handleGroupSelection();
-                }
-            });
-            popupMenu.add(item);
-        }
-        //Check the size of the menu
-        Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
-
-        //Set the size
-        Dimension d = popupMenu.getPreferredSize();
-        Point p1 = source.getLocation();
-        SwingUtilities.convertPointToScreen(p1, source);
-        int h = dim.height-p1.y-30; //max size.
-        int diff = p1.y+d.height;
-        if (diff > h) popupMenu.setPopupSize(d.width+20, h);
-        popupMenu.show(source, p.x, p.y);
     }
 
     /**
