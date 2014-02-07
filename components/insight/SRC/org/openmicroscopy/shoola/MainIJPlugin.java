@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.MainIJPlugin 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2011 University of Dundee & Open Microscopy Environment.
+ *  Copyright (C) 2006-2014 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
  *
  *
