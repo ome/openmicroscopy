@@ -2,7 +2,7 @@
  *  $Id$
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2009 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -20,8 +20,8 @@
  *
  *------------------------------------------------------------------------------
  */
-package ome.services.blitz.impl;
 
+package ome.services.blitz.impl;
 
 import java.util.List;
 
@@ -36,6 +36,7 @@ import omero.api.AMD_IMetadata_loadAnnotations;
 import omero.api.AMD_IMetadata_loadAnnotationsUsedNotOwned;
 import omero.api.AMD_IMetadata_loadChannelAcquisitionData;
 import omero.api.AMD_IMetadata_loadInstrument;
+import omero.api.AMD_IMetadata_loadLogFiles;
 import omero.api.AMD_IMetadata_loadSpecifiedAnnotations;
 import omero.api.AMD_IMetadata_loadSpecifiedAnnotationsLinkedTo;
 import omero.api.AMD_IMetadata_loadTagContent;
@@ -203,7 +204,14 @@ public class MetadataI
 		 callInvokerOnRawArgs(__cb, __current, annotationType, include, exclude, 
 				 rootNodeType, nodeIds, options);
 	 }
-	 
+
+    @Override
+    public void loadLogFiles_async(AMD_IMetadata_loadLogFiles __cb,
+            String rootType, List<Long> ids, Current __current)
+                    throws ServerError {
+        callInvokerOnRawArgs(__cb, __current, rootType, ids);
+    }
+
 	protected void map(List<String> annotationTypes) throws ServerError
 	{
 		if (annotationTypes == null)

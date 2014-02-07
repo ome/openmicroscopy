@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.data.views.calls.FileUploader
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -25,12 +25,16 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 //Java imports
 import java.io.File;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import omero.model.IObject;
+import omero.model.OriginalFile;
+
+
 //Third-party libraries
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 
@@ -126,25 +130,26 @@ public class FileUploader
 						object.getSecurityContext());
 				try {
 					if (object.isRetrieveFromAnnotation()) {
-						Map<Long, Collection<AnnotationData>> map =
-						svc.loadAnnotations(ctx, FilesetData.class,
-							Arrays.asList(id), FileAnnotationData.class,
-							Arrays.asList(FileAnnotationData.LOG_FILE_NS),
-							null);
+						final Map<Long, List<IObject>> map =
+						svc.loadLogFiles(ctx, FilesetData.class,
+							Arrays.asList(id));
 						if (map.size() == 0) id = -1;
 						else {
-							Collection<AnnotationData> l = map.get(id);
+							List<IObject> l = map.get(id);
 							id = -1; //reset
-							Iterator<AnnotationData> k = l.iterator();
-							AnnotationData data;
-							while (k.hasNext()) {
-								data = k.next();
-								if (FileAnnotationData.LOG_FILE_NS.equals(
-										data.getNameSpace())) {
-									id = ((FileAnnotationData) data).getFileID();
-									break;
-								}
+							if (CollectionUtils.isNotEmpty(l)) {
+							    Iterator<IObject> k = l.iterator();
+	                            IObject data;
+	                            while (k.hasNext()) {
+	                                data = k.next();
+	                                if (data instanceof OriginalFile) {
+	                                    id = ((OriginalFile) 
+	                                            data).getId().getValue();
+	                                    break;
+	                                }
+	                            }
 							}
+							
 						}
 					}
 				} catch (Exception ex) {
