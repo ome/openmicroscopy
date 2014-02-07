@@ -45,7 +45,7 @@ ivy.log.resolved.revision=false
 # Default keystore values
 jarsign.keystore=${omero.home}/lib/keystore
 jarsign.alias=omedev
-jarsign.storepassfile=${omero.home}/lib/keystore.passwd
+jarsign.storepass=omedev
 jarsign.validity=1000
 jarsign.tsa=http://time.certum.pl
 
