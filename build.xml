@@ -847,16 +847,27 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
                     </jar>
                     <if><equals arg1="@{sign}" arg2="true"/>
                         <then>
-                            <exec executable="jarsigner" failonerror="true">
-                                <arg value="-keystore"/>
-                                <arg value="${jarsign.keystore}"/>
-                                <arg value="-storepass:file"/>
-                                <arg value="${jarsign.storepassfile}"/>
-                                <arg value="-tsa"/>
-                                <arg value="${jarsign.tsa}"/>
-                                <arg value="@{destfile}"/>
-                                <arg value="${jarsign.alias}"/>
-                            </exec>
+                            <if><isset property="jarsign.storepassfile"/>
+                                <then>
+                                    <exec executable="jarsigner" failonerror="true">
+                                        <arg value="-keystore"/>
+                                        <arg value="${jarsign.keystore}"/>
+                                        <arg value="-storepass:file"/>
+                                        <arg value="${jarsign.storepassfile}"/>
+                                        <arg value="-tsa"/>
+                                        <arg value="${jarsign.tsa}"/>
+                                        <arg value="@{destfile}"/>
+                                        <arg value="${jarsign.alias}"/>
+                                    </exec>
+                                </then>
+                                <else>
+                                    <signjar alias="${jarsign.alias}"
+                                        keystore="${jarsign.keystore}"
+                                        storepass="${jarsign.storepass}"
+                                        preservelastmodified="true"
+                                        jar="@{destfile}"/>
+                                </else>
+                            </if>
                         </then>
                     </if>
                 </then>
@@ -897,19 +908,36 @@ omero.version=${omero.version}
     </target>
 
     <target name="keystore" depends="init" description="Create keystore">
-        <exec executable="keytool" failonerror="true">
-            <arg value="-genkey"/>
-            <arg value="-alias"/>
-            <arg value="${jarsign.alias}"/>
-            <arg value="-dname"/>
-            <arg value="CN=omedev, OU=Open Microscopy Team, O=openmicroscopy.org, C=UK"/>
-            <arg value="-keystore"/>
-            <arg value="${jarsign.keystore}"/>
-            <arg value="-storepass:file"/>
-            <arg value="${jarsign.storepassfile}"/>
-            <arg value="-validity"/>
-            <arg value="${jarsign.validity}"/>
-        </exec>
+        <if><isset property="jarsign.storepassfile"/>
+            <then>
+                <exec executable="keytool" failonerror="true">
+                    <arg value="-genkey"/>
+                    <arg value="-alias"/>
+                    <arg value="${jarsign.alias}"/>
+                    <arg value="-dname"/>
+                    <arg value="CN=omedev, OU=Open Microscopy Team, O=openmicroscopy.org, C=UK"/>
+                    <arg value="-keystore"/>
+                    <arg value="${jarsign.keystore}"/>
+                    <arg value="-storepass:file"/>
+                    <arg value="${jarsign.storepassfile}"/>
+                    <arg value="-validity"/>
+                    <arg value="${jarsign.validity}"/>
+                </exec>
+            </then>
+            <else>
+                <genkey alias="${jarsign.alias}"
+                    keystore="${jarsign.keystore}"
+                    storepass="${jarsign.storepass}"
+                    validity="${jarsign.validity}">
+                    <dname>
+                        <param name="CN" value="omedev"/>
+                        <param name="OU" value="Open Microscopy Team"/>
+                        <param name="O"  value="openmicroscopy.org"/>
+                        <param name="C"  value="UK"/>
+                    </dname>
+                </genkey>
+            </else>
+        </if>
     </target>
 
     <target name="server-verify">
@@ -920,17 +948,28 @@ omero.version=${omero.version}
     </target>
 
     <target name="webstart-sign">
-        <apply executable="jarsigner" failonerror="true">
-            <arg value="-keystore"/>
-            <arg value="${jarsign.keystore}"/>
-            <arg value="-storepass:file"/>
-            <arg value="${jarsign.storepassfile}"/>
-            <arg value="-tsa"/>
-            <arg value="${jarsign.tsa}"/>
-            <srcfile/>
-            <arg value="${jarsign.alias}"/>
-            <fileset dir="${dist.dir}/lib/insight" includes="*.jar"/>
-        </apply>
+        <if><isset property="jarsign.storepassfile"/>
+            <then>
+                <apply executable="jarsigner" failonerror="true">
+                    <arg value="-keystore"/>
+                    <arg value="${jarsign.keystore}"/>
+                    <arg value="-storepass:file"/>
+                    <arg value="${jarsign.storepassfile}"/>
+                    <arg value="-tsa"/>
+                    <arg value="${jarsign.tsa}"/>
+                    <srcfile/>
+                    <arg value="${jarsign.alias}"/>
+                    <fileset dir="${dist.dir}/lib/insight" includes="*.jar"/>
+                </apply>
+            </then>
+            <else>
+                <signjar alias="${jarsign.alias}" keystore="${jarsign.keystore}" storepass="${jarsign.storepass}" preservelastmodified="false">
+                    <path>
+                        <fileset dir="${dist.dir}/lib/insight" includes="*.jar"/>
+                    </path>
+                </signjar>
+            </else>
+        </if>
     </target>
 
     <target name="webstart-verify">
