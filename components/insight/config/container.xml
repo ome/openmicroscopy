@@ -356,7 +356,7 @@
       <conjunction>or</conjunction>
       <directory>plugins</directory>
       <info>http://downloads.openmicroscopy.org/bio-formats/@OMERO_DISPLAY_VERSION@</info>
-      <name>imageJ</name>
+      <name>ImageJ</name>
     </plugin>
   </structuredEntry>
   </plugins>

@@ -133,11 +133,10 @@ implements PlugIn
      */
     private String formatMessage(PluginInfo info)
     {
-        String dependencies = info.getDependencies();
         StringBuffer buffer = new StringBuffer();
         buffer.append("<html><body>");
         buffer.append("<p>The plugin requires ");
-        buffer.append(dependencies);
+        buffer.append(info.formatDependencies());
         buffer.append("<br>Download the stable release version from<br>");
         String page = info.getInfo();
         buffer.append("<a href=\""+page+"\">");
