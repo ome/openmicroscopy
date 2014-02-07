@@ -480,7 +480,7 @@ create unique index originalfile_repo_path_index on originalfile (repo, path, na
 
 
 -- ticket:11591 Shrink the userIP column as IP expected only
-alter table session alter column userIP varchar(15)
+alter table session alter column userIP TYPE varchar(15);
 
 
 -- Indices. See #1640, #2573, etc.
