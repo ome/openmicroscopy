@@ -846,6 +846,23 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
             <ivy:retrieve conf="server" pattern="${dist.dir}/lib/server/[artifact].[ext]" sync="false" log="quiet" settingsRef="ivy.toplevel"/>
     </target>
 
+    <macrodef name="signjar_passfile">
+        <attribute name="target"/>
+        <sequential>
+            <echo message="Signing jar: @{target} as ${jarsign.alias}"/>
+            <exec executable="jarsigner" failonerror="true">
+                <arg value="-keystore"/>
+                <arg value="${jarsign.keystore}"/>
+                <arg value="-storepass:file"/>
+                <arg value="${jarsign.storepassfile}"/>
+                <arg value="-tsa"/>
+                <arg value="${jarsign.tsa}"/>
+                <arg value="@{target}"/>
+                <arg value="${jarsign.alias}"/>
+            </exec>
+        </sequential>
+    </macrodef>
+
     <macrodef name="jar_update_if">
         <attribute name="destfile"/>
         <attribute name="sign" default="true"/>
@@ -861,16 +878,7 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
                         <then>
                             <if><isset property="jarsign.storepassfile"/>
                                 <then>
-                                    <exec executable="jarsigner" failonerror="true">
-                                        <arg value="-keystore"/>
-                                        <arg value="${jarsign.keystore}"/>
-                                        <arg value="-storepass:file"/>
-                                        <arg value="${jarsign.storepassfile}"/>
-                                        <arg value="-tsa"/>
-                                        <arg value="${jarsign.tsa}"/>
-                                        <arg value="@{destfile}"/>
-                                        <arg value="${jarsign.alias}"/>
-                                    </exec>
+                                    <signjar_passfile target="@{destfile}"/>
                                 </then>
                                 <else>
                                     <signjar alias="${jarsign.alias}"
@@ -963,17 +971,14 @@ omero.version=${omero.version}
     <target name="webstart-sign">
         <if><isset property="jarsign.storepassfile"/>
             <then>
-                <apply executable="jarsigner" failonerror="true">
-                    <arg value="-keystore"/>
-                    <arg value="${jarsign.keystore}"/>
-                    <arg value="-storepass:file"/>
-                    <arg value="${jarsign.storepassfile}"/>
-                    <arg value="-tsa"/>
-                    <arg value="${jarsign.tsa}"/>
-                    <srcfile/>
-                    <arg value="${jarsign.alias}"/>
-                    <fileset dir="${dist.dir}/lib/insight" includes="*.jar"/>
-                </apply>
+                <for param="target">
+                    <path>
+                        <fileset dir="${dist.dir}/lib/insight" includes="*.jar"/>
+                    </path>
+                    <sequential>
+                        <signjar_passfile target="@{target}"/>
+                    </sequential>
+                </for>
             </then>
             <else>
                 <signjar alias="${jarsign.alias}"
