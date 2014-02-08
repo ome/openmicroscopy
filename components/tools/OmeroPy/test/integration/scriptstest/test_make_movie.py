@@ -15,7 +15,7 @@ import omero.processor
 
 class TestMakeMovie(lib.ITest):
     """
-    Requires PIL being installed
+    Requires Pillow being installed
     """
 
     def setup_method(self, method):
