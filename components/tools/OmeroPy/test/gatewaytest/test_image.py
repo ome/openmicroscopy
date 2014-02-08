@@ -24,7 +24,7 @@ except ImportError:
     try:
         import Image, ImageDraw # see ticket:2597
     except ImportError:
-        print "PIL not installed"
+        print "Pillow not installed"
 
 
 

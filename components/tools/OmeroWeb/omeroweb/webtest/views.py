@@ -30,7 +30,7 @@ except: #pragma: nocover
     try:
         import Image
     except:
-        logger.error('No PIL installed, line plots and split channel will fail!')
+        logger.error('No Pillow installed, line plots and split channel will fail!')
 
 
 @login_required()    # wrapper handles login (or redirects to webclient login). Connection passed in **kwargs

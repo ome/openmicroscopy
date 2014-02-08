@@ -580,7 +580,7 @@ class ITest(object):
             try:
                 import Image, ImageDraw # see ticket:2597
             except ImportError:
-                print "PIL not installed"
+                print "Pillow not installed"
         from cStringIO import StringIO
         tfile = StringIO(buf)
         jpeg = Image.open(tfile) # Raises if invalid
