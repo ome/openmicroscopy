@@ -62,6 +62,9 @@ if [ $TESTING_MODE ]; then
     # Merge homebrew-alt PRs
     cd Library/Taps/ome-alt
     /usr/local/bin/scc merge master
+
+    # Repair formula symlinks aftr merge
+    bin/brew tap --repair
 fi
 
 cd /usr/local
