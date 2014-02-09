@@ -85,7 +85,7 @@ bin/brew install postgres
 bash bin/omero_python_deps
 
 # Set environment variables
-ICE_VERSION=$(bin/brew deps omero44 $BREW_OPTS | grep ice)
+ICE_VERSION=$(bin/brew deps omero44 | grep ice)
 export ICE_CONFIG=$(bin/brew --prefix omero44)/etc/ice.config
 export ICE_HOME=$(bin/brew --prefix $ICE_VERSION)
 export PYTHONPATH=$(bin/brew --prefix omero44)/lib/python:$ICE_HOME/python
