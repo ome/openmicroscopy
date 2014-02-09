@@ -59,8 +59,8 @@ if [ $TESTING_MODE ]; then
     cd Library/Taps/ome-alt
     /usr/local/bin/scc merge master
 
-    # Repair formula symlinks aftr merge
-    bin/brew tap --repair
+    # Repair formula symlinks after merge
+    /usr/local/bin/brew tap --repair
 fi
 
 cd /usr/local
