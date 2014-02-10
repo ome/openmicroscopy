@@ -39,32 +39,81 @@ $(document).ready(function() {
         });
     }
 
+
+
+    var matrixCount,
+        sizeZ = {{ sizeZ }},
+        sizeT = {{ sizeT }},
+        splitDim = 'z',
+        splitSize = Math.max(sizeZ, sizeT),
+        splitIncr;
+    if (sizeT > sizeZ) {
+        splitDim = 't';
+    }
+
+    // set up matrix frames based on select change
+    $("#frameCount").change(function(){
+        matrixCount = + $(this).val();
+        var $firstFrame = $("#matrix_frames .matrix_frame").first();
+        $firstFrame.find('img').attr('src', "{% static 'webtest/img/background.png' %}");
+
+        // clear and add the initial one.
+        $("#matrix_frames").empty()
+            .append($firstFrame);
+        var i = 1;
+        while(i < matrixCount) {
+            $("#matrix_frames").append($firstFrame.clone());
+            i++;
+        }
+    });
+
+
+    // on-click, setup callbacks then load!
+    $("#loadMatrix").click(function() {
+
+        matrixCount = $(".planes_matrix").length;
+        splitIncr = Math.ceil(splitSize/matrixCount);
+
+        // setup callbacks
+        initMatrixLoadCallbacks();
+
+        // do the loading
+        start = Date.now();
+        $(".planes_matrix").each(function(i){
+            var $img = $(this),
+                src = $img.attr('plane'),
+                start = i * splitIncr,
+                end = ((i + 1) * splitIncr) - 1;
+            end = Math.min(end, splitSize-1);
+            var q = '?' + splitDim + 'Start=' + start + '&' + splitDim + 'End=' + end;
+            $img.attr('src', src + q);
+        });
+    });
+
+
     var initMatrixLoadCallbacks = function() {
+
+        var matrixPlaneCount = 0,
+            $matrixPlaneCount = $("#matrixPlaneCount"),
+            $matrixPlanesLoaded = $("#matrixPlanesLoaded"),
+            $matrixDuration = $("#matrixDuration"),
+            $matrixSecsPerPlane = $("#matrixSecsPerPlane");
+
+        $matrixPlaneCount.text(splitSize);
+        $matrixDuration.text(0);
 
         $(".planes_matrix").load(function() {
             // equivalent to all planes loaded
-            loadedCount = planeCount;
-            $planesLoaded.text(loadedCount);
+            matrixPlaneCount += splitIncr;
+            matrixPlaneCount = Math.min(matrixPlaneCount, splitSize);
+            $matrixPlanesLoaded.text(matrixPlaneCount);
             duration = (Date.now() - start) / 1000;
-            perPlane = duration / loadedCount;
-            $duration.text(duration.toPrecision(3));
-            $secsPerPlane.text(perPlane.toPrecision(3));
+            perPlane = duration / matrixPlaneCount;
+            $matrixDuration.text(duration.toPrecision(3));
+            $matrixSecsPerPlane.text(perPlane.toPrecision(3));
         });
     }
 
-
-    $("#loadMatrix").click(function() {
-
-        initMatrixLoadCallbacks();
-
-        start = Date.now();
-
-        $(".planes_matrix").each(function(){
-            var $img = $(this),
-                src = $img.attr('plane');
-                $img.attr('src', src);
-        });
-    });
 
     $("#loadSequential").click(function() {
 
@@ -193,13 +242,35 @@ Per Plane: <span id="secsPerPlane">0</span> secs.
 
 <!-- single image - compare separate zct places with matrix of planes -->
 {% if zctList %}
-<div class="matrix_frame" style="width:{{ sizeX }}px; height:{{ sizeY }}px; overflow:auto; float:left">
-    <img id="planes_matrix" class="planes_matrix"
-    src="{% static 'webtest/img/background.png' %}"
-    plane="{% url 'render_planes_matrix' imageId %}" />
+Usage: compare speed to load all planes as a stitched 'matrix' of Z/T planes.
+
+<div id="matrix_frames" style="float:left">
+    <div class="matrix_frame" style="width:200px; height:{{ sizeY }}px; overflow:auto; float:left">
+        <img id="planes_matrix" class="planes_matrix" style="width:100%"
+        src="{% static 'webtest/img/background.png' %}"
+        plane="{% url 'render_planes_matrix' imageId %}" />
+    </div>
 </div>
 
-<button id="loadMatrix" value="Load Plane Matrix">Load Plane Matrix</button>
+Split all planes into
+<select id="frameCount">
+    <option value="1">1</option>
+    <option value="2">2</option>
+    <option value="3">3</option>
+    <option value="4">4</option>
+    <option value="5">5</option>
+    <option value="6">6</option>
+    <option value="8">8</option>
+    <option value="10">10</option>
+    <option value="15">15</option>
+</select>
+matrices <br>
+<button id="loadMatrix" value="Load Plane Matrix">Load Plane Matrix</button> <br>
+
+Planes Loaded: <span id="matrixPlanesLoaded">0</span> / <span id="matrixPlaneCount">0</span> |
+Duration: <span id="matrixDuration">0</span> secs |
+Per Plane: <span id="matrixSecsPerPlane">0</span> secs.
+
 {% endif %}
 
 {% endblock %}

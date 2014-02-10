@@ -621,6 +621,8 @@ def render_performance (request, obj_type, id, conn=None, **kwargs):
                 sizeC = 1
             context['sizeX'] = image.getSizeX()
             context['sizeY'] = image.getSizeY()
+            context['sizeT'] = image.getSizeT()
+            context['sizeZ'] = image.getSizeZ()
             for z in range(image.getSizeZ()):
                 for c in range(sizeC):
                     for t in range(image.getSizeT()):
@@ -668,6 +670,14 @@ def render_planes_matrix (request, iid, conn=None, **kwargs):
     sizeZ = img.getSizeZ()
     sizeT = img.getSizeT()
 
+    zStart = int(request.REQUEST.get('zStart', 0))
+    zEnd = int(request.REQUEST.get('zEnd', sizeZ-1))
+    sizeZ = zEnd - zStart + 1
+
+    tStart = int(request.REQUEST.get('tStart', 0))
+    tEnd = int(request.REQUEST.get('tEnd', sizeT-1))
+    sizeT = tEnd - tStart + 1
+
     rowCount = sizeZ
     colCount = sizeT
     w = colCount * sizeX
@@ -688,14 +698,13 @@ def render_planes_matrix (request, iid, conn=None, **kwargs):
 
     matrix = Image.new("RGBA", (w,h))
 
-
-    for z in range(sizeZ):
-        for t in range(sizeT):
+    for z in range(zStart, zEnd + 1):
+        for t in range(tStart, tEnd + 1):
             jpeg = img.renderImage(z,t, compression=compress_quality)
             if jpeg is None:
                 raise Http404
-            row = z
-            col = t
+            row = z - zStart
+            col = t - tStart
             # Handle large Z OR large T
             if row >= rowCount:
                 row = z % rowCount
