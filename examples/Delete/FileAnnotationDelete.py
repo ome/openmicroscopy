@@ -19,34 +19,40 @@ try:
     s = c.createSession()
     d = DatasetI()
     d.setName(rstring("FileAnnotationDelete"))
-    fa = FileAnnotationI()
-    file = c.upload(ice_config)
-    fa.setFile(file)
-    d.linkAnnotation(fa)
     d = s.getUpdateService().saveAndReturnObject(d)
-    fa = d.linkedAnnotationList()[0]
 
-    deleteServicePrx = s.getDeleteService();
-    dc = omero.api.delete.DeleteCommand("/Annotation", fa.id.val, None)
-    deleteHandlePrx = deleteServicePrx .queueDelete([dc])
-    cb = omero.callbacks.DeleteCallbackI(c, deleteHandlePrx)
+    file = c.upload(ice_config)
+    fa = FileAnnotationI()
+    fa.setFile(OriginalFileI(file.id.val, False))
+    link = DatasetAnnotationLinkI()
+    link.parent = DatasetI(d.id.val, False)
+    link.child = fa
+    link = s.getUpdateService().saveAndReturnObject(link)
+    fa = link.child
 
+    graph_spec = "/Annotation"
+    options = {}
+    delCmd = omero.cmd.Delete(graph_spec, long(fa.id.val), options)
+
+    dcs = [delCmd]
+    doall = omero.cmd.DoAll()
+    doall.requests = dcs
+    handle = s.submit(doall)
+
+    callback = None
     try:
-
-        try:
-            cb.loop(10, 500)
-        except omero.LockTimeout:
-            print "Not finished in 5 seconds. Cancelling..."
-            if not deleteHandlePrx.cancel():
-                print "ERROR: Failed to cancel"
-
-        reports = deleteHandlePrx.report()
-        r = reports[0] # We only sent one command
-        print "Report:error=%s,warning=%s,deleted=%s" % \
-            (r.error, r.warning, r.actualDeletes)
-
+        callback = omero.callbacks.CmdCallbackI(c, handle)
+        loops = 10
+        delay = 500
+        callback.loop(loops, delay)  # Throw LockTimeout
+        rsp = callback.getResponse()
+        if isinstance(rsp, omero.cmd.OK):
+            print "OK"
     finally:
-        cb.close()
+        if callback:
+            callback.close(True)
+        else:
+            handle.close()
 
 finally:
     c.closeSession()

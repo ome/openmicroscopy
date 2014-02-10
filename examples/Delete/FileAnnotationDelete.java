@@ -1,15 +1,22 @@
 import omero.LockTimeout;
 import omero.ServerError;
-import omero.api.IDeletePrx;
+import omero.cmd.Delete;
+import omero.cmd.DoAll;
+import omero.cmd.Request;
+import omero.cmd.OK;
+import omero.cmd.CmdCallbackI;
+import omero.cmd.Response;
 import omero.api.ServiceFactoryPrx;
-import omero.api.delete.DeleteCommand;
-import omero.api.delete.DeleteHandlePrx;
-import omero.api.delete.DeleteReport;
 import omero.grid.DeleteCallbackI;
 import omero.model.*;
 import static omero.rtypes.*;
 import Glacier2.CannotCreateSessionException;
 import Glacier2.PermissionDeniedException;
+
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.HashMap;
 
 /**
  * Uses the default {@link DeleteCallbackI} instance
@@ -37,28 +44,26 @@ public class FileAnnotationDelete {
             fa = (FileAnnotation) d.linkedAnnotationList().get(0);
 
 
-            IDeletePrx deleteServicePrx = s.getDeleteService();
-            DeleteCommand dc = new DeleteCommand("/Annotation", fa.getId().getValue(), null);
-            DeleteHandlePrx deleteHandlePrx = deleteServicePrx
-                    .queueDelete(new DeleteCommand[] { dc });
-            DeleteCallbackI cb = new DeleteCallbackI(c, deleteHandlePrx);
+            Delete dc = new Delete("/Annotation", fa.getId().getValue(), null);
+            List<Request> commands = new ArrayList<Request>();
+            commands.add(dc);
+            DoAll all = new DoAll();
+            all.requests = commands;
+            Map<String, String> callContext = new HashMap<String, String>();
+            CmdCallbackI cb = null;
             try {
-
+                cb = new CmdCallbackI(c, s.submit(all, callContext));
                 cb.loop(10, 500);
-
-                DeleteReport[] reports = deleteHandlePrx.report();
-                DeleteReport r = reports[0]; // We only sent one command
-                System.out.println(String.format(
-                        "Report:error=%s,warning=%s,deleted=%s", r.error,
-                        r.warning, r.actualDeletes));
-
-            } catch (LockTimeout lt) {
-                System.out.println("Not finished in 5 seconds. Cancelling...");
-                if (!deleteHandlePrx.cancel()) {
-                    System.out.println("ERROR: Failed to cancel");
+                Response rsp = cb.getResponse();
+                if (rsp instanceof OK) {
+                    System.out.println("OK");
                 }
+            } catch (InterruptedException lt) {
+                System.out.println("Not finished in 5 seconds. Cancelling...");
+                if (!cb.isCancelled())
+                    System.out.println("ERROR: Failed to cancel");
             } finally {
-                cb.close();
+                if (cb != null) cb.close(true);
             }
 
         } finally {
