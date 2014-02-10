@@ -1,13 +1,14 @@
 /*
-/*
- *   Copyright (C) 2006-2013 University of Dundee & Open Microscopy Environment.
+ *   Copyright (C) 2006-2014 University of Dundee & Open Microscopy Environment.
  *   All rights reserved.
  *
  *   Use is subject to license terms supplied in LICENSE.txt
  */
+
 package ome.logic;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -15,7 +16,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.SetMultimap;
 
 import ome.annotations.NotNull;
 import ome.annotations.RolesAllowed;
@@ -80,7 +85,17 @@ public class MetadataImpl
 	/** Query to load the original file related to a file annotation. */
 	private final String LOAD_ORIGINAL_FILE = 
 		"select p from OriginalFile as p left outer join fetch p.hasher where p.id = :id";
-	
+
+    /* HQL to translate given image IDs into corresponding fileset IDs */
+    private static final String LOAD_FILESET_OF_IMAGE =
+            "SELECT id, fileset.id FROM Image WHERE fileset IS NOT NULL AND id IN (:ids)";
+
+    /* HQL to translate given fileset IDs into corresponding import log IDs */
+    private static final String LOAD_IMPORT_LOGS =
+            "SELECT fjl.parent.id, o FROM UploadJob u, FilesetJobLink fjl, JobOriginalFileLink jol, OriginalFile o " +
+                    "WHERE fjl.parent.id IN (:ids) AND fjl.child = jol.parent AND jol.child.id = o.id AND fjl.child = u AND " +
+                    "o.mimetype = '" + "application/omero-log-file" /*PublicRepositoryI.IMPORT_LOG_MIMETYPE*/ + "'";
+
 	/** Identifies the file annotation class. */
 	private final String FILE_TYPE = "ome.model.annotations.FileAnnotation";
 	
@@ -1056,5 +1071,53 @@ public class MetadataImpl
 		}
     	return map;
     }
-    
+
+    @Override
+    @RolesAllowed("user")
+    @Transactional(readOnly = true)
+    public Map<Long, Set<IObject>> loadLogFiles(
+            @NotNull Class<? extends IObject> rootNodeType,
+            @Validate(Long.class) Set<Long> ids) {
+        final SetMultimap<Long, Long> rootIdByFileset;
+        if (Image.class.isAssignableFrom(rootNodeType)) {
+            rootIdByFileset = HashMultimap.create();
+            if (CollectionUtils.isNotEmpty(ids)) {
+                for (final Object[] result : iQuery.projection(LOAD_FILESET_OF_IMAGE,
+                        new Parameters().addIds(ids))) {
+                    final Long imageId = (Long) result[0];
+                    final Long filesetId = (Long) result[1];
+                    rootIdByFileset.put(filesetId, imageId);
+                }
+            }
+        } else if (!Fileset.class.isAssignableFrom(rootNodeType)) {
+            throw new ApiUsageException("can load log files only by Fileset or Image");
+        } else {
+            rootIdByFileset = null;
+        }
+        // TODO: Once we upgrade the Guava JAR, make map a SetMultimap and return Multimaps.asMap(map);
+        final Map<Long, Set<IObject>> map = new HashMap<Long, Set<IObject>>();
+        final Set<Long> filesetIds = rootIdByFileset == null ? ids : rootIdByFileset.keySet();
+        if (CollectionUtils.isNotEmpty(filesetIds)) {
+            for (final Object[] result : iQuery.projection(LOAD_IMPORT_LOGS,
+                    new Parameters().addIds(filesetIds))) {
+                final Long filesetId = (Long) result[0];
+                final OriginalFile logFile = (OriginalFile) result[1];
+                final Set<Long> mapKeys;
+                if (rootIdByFileset == null) {
+                    mapKeys = Collections.singleton(filesetId);
+                } else {
+                    mapKeys = rootIdByFileset.get(filesetId);
+                }
+                for (final Long mapKey : mapKeys) {
+                    Set<IObject> logFiles = map.get(mapKey);
+                    if (logFiles == null) {
+                        logFiles = new HashSet<IObject>();
+                        map.put(mapKey,  logFiles);
+                    }
+                    logFiles.add(logFile);
+                }
+            }
+        }
+        return map;
+    }
 }

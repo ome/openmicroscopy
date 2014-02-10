@@ -147,6 +147,56 @@ UPDATE image set archived = false where id in (
        AND i.archived
        AND NOT EXISTS ( SELECT 1 FROM pixelsoriginalfilemap m WHERE m.child = p.id));
 
+
+-- #11877 move import logs to upload jobs so they are no longer file annotations
+CREATE FUNCTION upgrade_import_logs() RETURNS void AS $$
+
+    DECLARE
+        import      RECORD;
+        time        TIMESTAMP WITHOUT TIME ZONE;
+        event_type  BIGINT;
+        event_id    BIGINT;
+        new_link_id BIGINT;
+
+    BEGIN
+        SELECT id INTO STRICT event_type FROM eventtype WHERE value = 'Internal';
+
+        FOR import IN
+            SELECT fal.id AS old_link_id, a.id AS annotation_id, u.job_id AS job_id, a.file AS log_id
+              FROM filesetannotationlink fal, annotation a, filesetjoblink fjl, uploadjob u
+             WHERE fal.parent = fjl.parent AND fal.child = a.id AND fjl.child = u.job_id
+               AND a.discriminator = '/type/OriginalFile/' AND a.ns = 'openmicroscopy.org/omero/import/logFile' LOOP
+
+            SELECT clock_timestamp() INTO time;
+            SELECT ome_nextval('seq_event') INTO event_id;
+            SELECT ome_nextval('seq_joboriginalfilelink') INTO new_link_id;
+
+            INSERT INTO event (id, permissions, time, experimenter, experimentergroup, session, type)
+                SELECT event_id, a.permissions, time, a.owner_id, a.group_id, 0, event_type
+                  FROM annotation a WHERE a.id = import.annotation_id;
+
+            INSERT INTO eventlog (id, action, permissions, entityid, entitytype, event)
+                SELECT ome_nextval('seq_eventlog'), 'INSERT', e.permissions, new_link_id, 'ome.model.jobs.JobOriginalFileLink', event_id
+                  FROM event e WHERE e.id = event_id;
+
+            INSERT INTO joboriginalfilelink (id, permissions, creation_id, update_id, owner_id, group_id, parent, child)
+                SELECT new_link_id, old.permissions, old.creation_id, old.update_id, old.owner_id, old.group_id, import.job_id, import.log_id
+                  FROM filesetannotationlink old WHERE old.id = import.old_link_id;
+
+            UPDATE originalfile SET mimetype = 'application/omero-log-file' WHERE id = import.log_id;
+
+            DELETE FROM filesetannotationlink WHERE id = import.old_link_id;
+
+            DELETE FROM annotation WHERE id = import.annotation_id;
+        END LOOP;
+    END;
+$$ LANGUAGE plpgsql;
+
+SELECT upgrade_import_logs();
+
+DROP FUNCTION upgrade_import_logs();
+
+
 --
 -- FINISHED
 --

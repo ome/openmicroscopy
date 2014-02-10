@@ -1,9 +1,10 @@
 /*
  * $Id$
  *
- *   Copyright 2006-2010 University of Dundee. All rights reserved.
+ *   Copyright 2006-2014 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
+
 package integration;
 
 import static omero.rtypes.rstring;
@@ -13,13 +14,20 @@ import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
+import ome.api.JobHandle;
+import ome.system.Login;
+import omero.ApiUsageException;
+import omero.ServerError;
 import omero.api.IAdminPrx;
 import omero.api.IMetadataPrx;
+import omero.api.IUpdatePrx;
 import omero.api.ServiceFactoryPrx;
 import omero.model.AcquisitionMode;
 import omero.model.Annotation;
@@ -46,6 +54,7 @@ import omero.model.ExperimenterI;
 import omero.model.Filament;
 import omero.model.FileAnnotation;
 import omero.model.FileAnnotationI;
+import omero.model.Fileset;
 import omero.model.Filter;
 import omero.model.FilterSet;
 import omero.model.IObject;
@@ -53,7 +62,12 @@ import omero.model.Illumination;
 import omero.model.Image;
 import omero.model.ImageAnnotationLink;
 import omero.model.ImageAnnotationLinkI;
+import omero.model.ImageI;
 import omero.model.Instrument;
+import omero.model.Job;
+import omero.model.JobOriginalFileLink;
+import omero.model.JobOriginalFileLinkI;
+import omero.model.JobStatus;
 import omero.model.Laser;
 import omero.model.LightSource;
 import omero.model.LogicalChannel;
@@ -62,6 +76,7 @@ import omero.model.LongAnnotationI;
 import omero.model.OTF;
 import omero.model.Objective;
 import omero.model.OriginalFile;
+import omero.model.OriginalFileI;
 import omero.model.PermissionsI;
 import omero.model.Pixels;
 import omero.model.PixelsAnnotationLink;
@@ -86,16 +101,27 @@ import omero.model.TagAnnotation;
 import omero.model.TagAnnotationI;
 import omero.model.TermAnnotation;
 import omero.model.TermAnnotationI;
+import omero.model.UploadJob;
+import omero.model.UploadJobI;
 import omero.model.Well;
 import omero.model.WellAnnotationLink;
 import omero.model.WellAnnotationLinkI;
+import omero.model.WellSample;
 import omero.model.XmlAnnotation;
 import omero.model.XmlAnnotationI;
 import omero.sys.Parameters;
 import omero.sys.ParametersI;
+import omero.sys.Roles;
 
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+
+import Glacier2.CannotCreateSessionException;
+import Glacier2.PermissionDeniedException;
+
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Sets;
 
 import pojos.BooleanAnnotationData;
 import pojos.ChannelAcquisitionData;
@@ -1856,4 +1882,189 @@ public class MetadataServiceTest extends AbstractServerTest {
         assertEquals(result.get(0).getId().getValue(), data2.getId().getValue());
     }
 
+    /**
+     * Creates a new finished upload job, without persisting it.
+     * @return the new job
+     * @throws ServerError unexpected
+     */
+    private UploadJob getNewUploadJob() throws ServerError {
+        final Roles roles = iAdmin.getSecurityRoles();
+        final UploadJob uploadJob = new UploadJobI();
+        uploadJob.setUsername(omero.rtypes.rstring(roles.rootName));
+        uploadJob.setGroupname(omero.rtypes.rstring(roles.systemGroupName));
+        uploadJob.setSubmitted(omero.rtypes.rtime(System.currentTimeMillis()));
+        uploadJob.setScheduledFor(omero.rtypes.rtime(System.currentTimeMillis()));
+        uploadJob.setStarted(omero.rtypes.rtime(System.currentTimeMillis()));
+        uploadJob.setFinished(omero.rtypes.rtime(System.currentTimeMillis()));
+        uploadJob.setMessage(omero.rtypes.rstring(getClass().getSimpleName()));
+        uploadJob.setStatus((JobStatus) factory.getTypesService().getEnumeration(JobStatus.class.getName(), JobHandle.FINISHED));
+        uploadJob.setType(omero.rtypes.rstring("Test"));
+        return uploadJob;
+    }
+
+    /**
+     * Assert that the collection of IObjects is exactly original files of the given IDs.
+     * @param objects the IObjects expected to be original files
+     * @param expectedIdArray the expected original file IDs
+     */
+    private static void assertOriginalFileIds(Collection<IObject> objects, Long... expectedIdArray) {
+        final Set<Long> expectedIds = Sets.newHashSet(expectedIdArray);
+        for (final IObject object : objects) {
+            assertTrue(expectedIds.remove(((OriginalFile) object).getId().getValue()));
+        }
+        assertTrue(expectedIds.isEmpty());
+    }
+
+    /**
+     * Test that the correct import logs are retrieved for given fileset and image IDs.
+     * @throws ServerError unexpected
+     * @throws CannotCreateSessionException unexpected
+     * @throws PermissionDeniedException unexpected
+     */
+    @Test
+    public void testLoadImportLog() throws ServerError, CannotCreateSessionException, PermissionDeniedException
+    {
+        /* set up import records where image 1 is in fileset 1 and images 2 and 3 are in fileset 2 */
+
+        final long currentGroupId = iAdmin.getEventContext().groupId;
+        final Map<String, String> groupContext = ImmutableMap.of(Login.OMERO_GROUP, Long.toString(currentGroupId));
+        final IUpdatePrx iUpdateRoot = (IUpdatePrx) root.getSession().getUpdateService().ice_context(groupContext);
+
+        final IMetadataPrx iMetadata = (IMetadataPrx) root.getSession().getMetadataService().ice_context(groupContext);
+
+        Job uploadJob1 = getNewUploadJob();
+        uploadJob1 = (Job) iUpdateRoot.saveAndReturnObject(uploadJob1);
+        final long uploadJob1Id = uploadJob1.getId().getValue();
+
+        Job uploadJob2 = getNewUploadJob();
+        uploadJob2 = (Job) iUpdateRoot.saveAndReturnObject(uploadJob2);
+        final long uploadJob2Id = uploadJob2.getId().getValue();
+
+        OriginalFile importLog1 = new OriginalFileI();
+        importLog1.setMimetype(omero.rtypes.rstring("application/omero-log-file"));
+        importLog1.setName(omero.rtypes.rstring("import log"));
+        importLog1.setPath(omero.rtypes.rstring("import one"));
+        importLog1 = (OriginalFile) iUpdate.saveAndReturnObject(importLog1);
+        final long importLog1Id = importLog1.getId().getValue();
+
+        OriginalFile importLog2 = new OriginalFileI();
+        importLog2.setMimetype(omero.rtypes.rstring("application/omero-log-file"));
+        importLog2.setName(omero.rtypes.rstring("import log"));
+        importLog2.setPath(omero.rtypes.rstring("import two"));
+        importLog2 = (OriginalFile) iUpdate.saveAndReturnObject(importLog2);
+        final long importLog2Id = importLog2.getId().getValue();
+
+        JobOriginalFileLink jobOriginalFileLink;
+
+        jobOriginalFileLink = new JobOriginalFileLinkI();
+        jobOriginalFileLink.setParent(uploadJob1);
+        jobOriginalFileLink.setChild(importLog1);
+        iUpdate.saveAndReturnObject(jobOriginalFileLink);
+
+        jobOriginalFileLink = new JobOriginalFileLinkI();
+        jobOriginalFileLink.setParent(uploadJob2);
+        jobOriginalFileLink.setChild(importLog2);
+        iUpdate.saveAndReturnObject(jobOriginalFileLink);
+
+        uploadJob1 = (Job) iQuery.find(UploadJob.class.getName(), uploadJob1Id);
+        uploadJob2 = (Job) iQuery.find(UploadJob.class.getName(), uploadJob2Id);
+
+        Fileset fileset1 = newFileset();
+        fileset1.linkJob(uploadJob1);
+        fileset1 = (Fileset) iUpdate.saveAndReturnObject(fileset1);
+        final long fileset1Id = fileset1.getId().getValue();
+
+        Fileset fileset2 = newFileset();
+        fileset2.linkJob(uploadJob2);
+        fileset2 = (Fileset) iUpdate.saveAndReturnObject(fileset2);
+        final long fileset2Id = fileset2.getId().getValue();
+
+        Image image1 = new ImageI();
+        image1.setName(omero.rtypes.rstring("image alpha from fileset one"));
+        image1.setAcquisitionDate(omero.rtypes.rtime(System.currentTimeMillis()));
+        image1.setFileset(fileset1);
+        image1 = (Image) iUpdate.saveAndReturnObject(image1);
+        final long image1Id = image1.getId().getValue();
+
+        Image image2 = new ImageI();
+        image2.setName(omero.rtypes.rstring("image alpha from fileset two"));
+        image2.setAcquisitionDate(omero.rtypes.rtime(System.currentTimeMillis()));
+        image2.setFileset(fileset2);
+        image2 = (Image) iUpdate.saveAndReturnObject(image2);
+        final long image2Id = image2.getId().getValue();
+
+        Image image3 = new ImageI();
+        image3.setName(omero.rtypes.rstring("image beta from fileset two"));
+        image3.setAcquisitionDate(omero.rtypes.rtime(System.currentTimeMillis()));
+        image3.setFileset(fileset2);
+        image3 = (Image) iUpdate.saveAndReturnObject(image3);
+        final long image3Id = image3.getId().getValue();
+
+        Map<Long, List<IObject>> logFiles;
+
+        /* test import log retrieval by fileset ID */
+
+        logFiles = iMetadata.loadLogFiles(Fileset.class.getName(), ImmutableList.<Long>of());
+        assertTrue(logFiles.isEmpty());
+
+        logFiles = iMetadata.loadLogFiles(Fileset.class.getName(), ImmutableList.of(fileset1Id));
+        assertTrue(logFiles.size() == 1);
+        assertOriginalFileIds(logFiles.get(fileset1Id), importLog1Id);
+
+        logFiles = iMetadata.loadLogFiles(Fileset.class.getName(), ImmutableList.of(fileset2Id));
+        assertTrue(logFiles.size() == 1);
+        assertOriginalFileIds(logFiles.get(fileset2Id), importLog2Id);
+
+        logFiles = iMetadata.loadLogFiles(Fileset.class.getName(), ImmutableList.of(fileset1Id, fileset2Id));
+        assertTrue(logFiles.size() == 2);
+        assertOriginalFileIds(logFiles.get(fileset1Id), importLog1Id);
+        assertOriginalFileIds(logFiles.get(fileset2Id), importLog2Id);
+
+        /* test import log retrieval by image ID */
+
+        logFiles = iMetadata.loadLogFiles(Image.class.getName(), ImmutableList.<Long>of());
+        assertTrue(logFiles.isEmpty());
+
+        logFiles = iMetadata.loadLogFiles(Image.class.getName(), ImmutableList.of(image1Id));
+        assertTrue(logFiles.size() == 1);
+        assertOriginalFileIds(logFiles.get(image1Id), importLog1Id);
+
+        logFiles = iMetadata.loadLogFiles(Image.class.getName(), ImmutableList.of(image2Id));
+        assertTrue(logFiles.size() == 1);
+        assertOriginalFileIds(logFiles.get(image2Id), importLog2Id);
+
+        logFiles = iMetadata.loadLogFiles(Image.class.getName(), ImmutableList.of(image3Id));
+        assertTrue(logFiles.size() == 1);
+        assertOriginalFileIds(logFiles.get(image3Id), importLog2Id);
+
+        logFiles = iMetadata.loadLogFiles(Image.class.getName(), ImmutableList.of(image1Id, image2Id));
+        assertTrue(logFiles.size() == 2);
+        assertOriginalFileIds(logFiles.get(image1Id), importLog1Id);
+        assertOriginalFileIds(logFiles.get(image2Id), importLog2Id);
+
+        logFiles = iMetadata.loadLogFiles(Image.class.getName(), ImmutableList.of(image1Id, image3Id));
+        assertTrue(logFiles.size() == 2);
+        assertOriginalFileIds(logFiles.get(image1Id), importLog1Id);
+        assertOriginalFileIds(logFiles.get(image3Id), importLog2Id);
+
+        logFiles = iMetadata.loadLogFiles(Image.class.getName(), ImmutableList.of(image2Id, image3Id));
+        assertTrue(logFiles.size() == 2);
+        assertOriginalFileIds(logFiles.get(image2Id), importLog2Id);
+        assertOriginalFileIds(logFiles.get(image3Id), importLog2Id);
+
+        logFiles = iMetadata.loadLogFiles(Image.class.getName(), ImmutableList.of(image1Id, image2Id, image3Id));
+        assertTrue(logFiles.size() == 3);
+        assertOriginalFileIds(logFiles.get(image1Id), importLog1Id);
+        assertOriginalFileIds(logFiles.get(image2Id), importLog2Id);
+        assertOriginalFileIds(logFiles.get(image3Id), importLog2Id);
+    }
+
+    /**
+     * Test that import logs cannot be retrieved for unexpected root node types.
+     * @throws ServerError because of the given unexpected root node type
+     */
+    @Test(expectedExceptions = ApiUsageException.class)
+    public void testLoadImportLogWrongRootType() throws ServerError {
+        iMetadata.loadLogFiles(WellSample.class.getName(), ImmutableList.<Long>of());
+    }
 }
