@@ -36,6 +36,8 @@ from omeroweb.webgateway import views as webgateway_views
 from omeroweb.connector import Server
 from omeroweb.webclient.webclient_http import HttpLoginRedirect
 
+from omeroweb.webclient.forms import GlobalSearchForm
+
 logger = logging.getLogger('omeroweb.webclient.decorators')
 
 class login_required(omeroweb.decorators.login_required):
@@ -115,6 +117,8 @@ class render_response(omeroweb.decorators.render_response):
         context['ome']['user_id'] = request.session.get('user_id', None)
         context['ome']['group_id'] = request.session.get('group_id', None)
         context['ome']['active_group'] = request.session.get('active_group', conn.getEventContext().groupId)
+        context['global_search_form'] = GlobalSearchForm()
+        
         if settings.WEBSTART:
             context['ome']['insight_url'] = request.build_absolute_uri(reverse("webstart_insight"))
         self.load_settings(request, context, conn)
