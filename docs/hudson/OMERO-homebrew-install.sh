@@ -7,7 +7,6 @@ set -x
 
 export PSQL_DIR=${PSQL_DIR:-/usr/local/var/postgres}
 export OMERO_DATA_DIR=${OMERO_DATA_DIR:-/tmp/var/OMERO.data}
-export BREW_OPTS=${BREW_OPTS:-}
 export SCRIPT_NAME=${SCRIPT_NAME:-OMERO.sql}
 
 # Test whether this script is run in a job environment
@@ -74,7 +73,7 @@ cd /usr/local
 ###################################################################
 
 # Install Bio-Formats
-bin/brew install bioformats $BREW_OPTS
+bin/brew install bioformats
 showinf -version
 
 ###################################################################
@@ -82,14 +81,14 @@ showinf -version
 ###################################################################
 
 # Install PostgreSQL and OMERO
-bin/brew install omero $BREW_OPTS
+bin/brew install omero
 bin/brew install postgres
 
 # Install OMERO Python dependencies
 bash bin/omero_python_deps
 
 # Set environment variables
-ICE_VERSION=$(bin/brew deps omero $BREW_OPTS | grep ice)
+ICE_VERSION=$(bin/brew deps omero | grep ice)
 export ICE_CONFIG=$(bin/brew --prefix omero)/etc/ice.config
 export ICE_HOME=$(bin/brew --prefix $ICE_VERSION)
 export PYTHONPATH=$(bin/brew --prefix omero)/lib/python:$ICE_HOME/python
