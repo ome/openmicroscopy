@@ -26,11 +26,14 @@ package org.openmicroscopy.shoola.env.init;
 //Java imports
 import ij.IJ;
 import java.io.File;
+import java.security.CodeSource;
 import java.util.Iterator;
 import java.util.List;
 
 //Third-party libraries
 
+import org.apache.commons.lang.StringUtils;
+import org.openmicroscopy.shoola.MainIJPlugin;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.Container;
 import org.openmicroscopy.shoola.env.LookupNames;
@@ -81,8 +84,12 @@ public final class ContainerConfigInit
 		int count = 0;
 		try {
 			//Plugin folder
-			File dir = new File(System.getProperty("user.dir"),
-					info.getDirectory());
+		    File parent = new File(container.getHomeDir());
+		    File pp = parent.getParentFile();
+		    if (pp == null) pp = parent;
+			File dir;
+			if (pp.getName().equals(info.getDirectory())) dir = pp;
+			else dir = new File(pp, info.getDirectory());
 			File[] l = dir.listFiles();
 			String value;
 			for (int j = 0; j < values.length; j++) {
