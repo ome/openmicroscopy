@@ -166,6 +166,7 @@ class TestChgrp(CLITest):
             img = self.query.get('Image', i.id.val, ctx)
             assert img.details.group.id.val == group.id.val
 
+    @pytest.mark.xfail(reason="CLI  does not wrap all chgrps in 1 DoAll")
     def testFilesetAllImages(self):
         # 2 images sharing a fileset
         images = self.importMIF(2)
