@@ -26,14 +26,11 @@ package org.openmicroscopy.shoola.env.init;
 //Java imports
 import ij.IJ;
 import java.io.File;
-import java.security.CodeSource;
 import java.util.Iterator;
 import java.util.List;
 
 //Third-party libraries
 
-import org.apache.commons.lang.StringUtils;
-import org.openmicroscopy.shoola.MainIJPlugin;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.Container;
 import org.openmicroscopy.shoola.env.LookupNames;
