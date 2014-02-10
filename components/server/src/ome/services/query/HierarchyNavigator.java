@@ -19,7 +19,6 @@
 
 package ome.services.query;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -32,6 +31,7 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
 import com.google.common.collect.SetMultimap;
 import com.google.common.collect.Sets;
@@ -100,31 +100,6 @@ public class HierarchyNavigator {
     }
 
     /**
-     * Split a collection into batches of the given size.
-     * @param batchSize the maximum batch size
-     * @param items some items
-     * @return the items split into batches
-     */
-    private static <X> List<List<X>> batchCollection(int batchSize, Collection<X> items) {
-        if (batchSize < 1) {
-            throw new IllegalArgumentException("batch size must be strictly positive");
-        }
-        final List<List<X>> batches = new ArrayList<List<X>>();
-        List<X> batch = new ArrayList<X>(batchSize);
-        for (final X item : items) {
-            batch.add(item);
-            if (batch.size() >= batchSize) {
-                batches.add(batch);
-                batch = new ArrayList<X>(batchSize);
-            }
-        }
-        if (!batch.isEmpty()) {
-            batches.add(batch);
-        }
-        return batches;
-    }
-
-    /**
      * Perform the database query to discover the IDs of the related objects.
      * @param toType the type of the objects to which the query object may be related, not <code>null</code>
      * @param fromType the query object's type, not <code>null</code>
@@ -160,7 +135,7 @@ public class HierarchyNavigator {
         }
         /* collate the results from multiple batches */
         final SetMultimap<Long, Long> fromIdsToIds = HashMultimap.create();
-        for (final List<Long> fromIdsToQueryBatch : batchCollection(256, fromIdsToQuery)) {
+        for (final List<Long> fromIdsToQueryBatch : Iterables.partition(fromIdsToQuery, 256)) {
             for (final Object[] queryResult : doQuery(toType, fromType, fromIdsToQueryBatch)) {
                 fromIdsToIds.put((Long) queryResult[0], (Long) queryResult[1]);
             }
