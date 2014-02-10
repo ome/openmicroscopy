@@ -57,16 +57,15 @@ class ChgrpControl(GraphControl):
             help="""Group to move objects to""")
 
     def _process_request(self, req, args, client):
-        # Check group existence
-        req.grp = args.grp.lookup(client)
-        if req.grp is None:
+        # Retrieve group id
+        gid = args.grp.lookup(client)
+        if gid is None:
             self.ctx.die(196, "Failed to find group: %s" % args.grp.orig)
 
+        # Retrieve group
         import omero
-        admin = client.sf.getAdminService()
         try:
-            group = admin.getGroup(req.grp)
-            req.grp = group.id.val
+            group = client.sf.getAdminService().getGroup(gid)
         except omero.ApiUsageException:
             self.ctx.die(196, "Failed to find group: %s" % args.grp.orig)
 
@@ -76,6 +75,10 @@ class ChgrpControl(GraphControl):
         if uid not in ids:
             self.ctx.die(197, "Current user is not member of group: %s" %
                          group.id.val)
+
+        # Set requests group
+        for request in req.requests:
+            request.grp = gid
 
         super(ChgrpControl, self)._process_request(req, args, client)
 
