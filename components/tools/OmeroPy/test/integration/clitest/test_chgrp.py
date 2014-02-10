@@ -130,9 +130,10 @@ class TestChgrp(CLITest):
         # assert img is None
 
         # change the session context and check the image has been moved
-        self.set_context(self.client, group.id.val)
-        img = self.query.get('Image', images[0].id.val)
-        assert img.id.val == images[0].id.val
+        ctx = {'omero.group': '-1'}  # query across groups
+        for i in images:
+            img = self.query.get('Image', images[0].id.val, ctx)
+            assert img.details.group.id.val == group.id.val
 
     def testFilesetOneImg(self):
         # 2 images sharing a fileset
@@ -144,8 +145,11 @@ class TestChgrp(CLITest):
         self.cli.invoke(self.args, strict=True)
 
         # check the image is still in the current group
-        img = self.query.get('Image', images[0].id.val)
-        assert img.id.val == images[0].id.val
+        ctx = {'omero.group': '-1'}  # query across groups
+        gid = self.sf.getAdminService().getEventContext().groupId
+        for i in images:
+            img = self.query.get('Image', images[0].id.val, ctx)
+            assert img.details.group.id.val == gid
 
     def testFilesetAllImages(self):
         # 2 images sharing a fileset
