@@ -39,6 +39,32 @@ $(document).ready(function() {
         });
     }
 
+    var initMatrixLoadCallbacks = function() {
+
+        $(".planes_matrix").load(function() {
+            // equivalent to all planes loaded
+            loadedCount = planeCount;
+            $planesLoaded.text(loadedCount);
+            duration = (Date.now() - start) / 1000;
+            perPlane = duration / loadedCount;
+            $duration.text(duration.toPrecision(3));
+            $secsPerPlane.text(perPlane.toPrecision(3));
+        });
+    }
+
+
+    $("#loadMatrix").click(function() {
+
+        initMatrixLoadCallbacks();
+
+        start = Date.now();
+
+        $(".planes_matrix").each(function(){
+            var $img = $(this),
+                src = $img.attr('plane');
+                $img.attr('src', src);
+        });
+    });
 
     $("#loadSequential").click(function() {
 
@@ -109,6 +135,15 @@ Planes Loaded: <span id="planesLoaded">0</span> / <span id="planeCount">0</span>
 Duration: <span id="duration">0</span> secs |
 Per Plane: <span id="secsPerPlane">0</span> secs.
 
+<!-- Regular Image - option to split_channels -->
+{% if zctList %}
+    {% if split_channels %}
+        <a href="?split_channels=false">merge_channels</a>
+    {% else %}
+        <a href="?split_channels=true">split_channels</a>
+    {% endif %}
+{% endif %}
+
 {% if imageIds %}
     | For Images,
     Load Full Planes <input type='radio' name='loadThumbs' value="plane" checked="true"/>
@@ -122,7 +157,7 @@ Per Plane: <span id="secsPerPlane">0</span> secs.
     {% for zct in zctList %}
         <img id="{{ forloop.counter0 }}" class="plane"
             src="{% static 'webtest/img/background.png' %}"
-            plane="{% url 'webgateway.views.render_image' imageId zct.z zct.t %}?c={{ zct.c }}"/>
+            plane="{% url 'webgateway.views.render_image' imageId zct.z zct.t %}{% if zct.c %}?c={{ zct.c }}{% endif %}"/>
     {% endfor %}
 
 {% else %}
@@ -152,6 +187,19 @@ Per Plane: <span id="secsPerPlane">0</span> secs.
 
     {% endif %}
 
+{% endif %}
+
+<hr />
+
+<!-- single image - compare separate zct places with matrix of planes -->
+{% if zctList %}
+<div class="matrix_frame" style="width:{{ sizeX }}px; height:{{ sizeY }}px; overflow:auto; float:left">
+    <img id="planes_matrix" class="planes_matrix"
+    src="{% static 'webtest/img/background.png' %}"
+    plane="{% url 'render_planes_matrix' imageId %}" />
+</div>
+
+<button id="loadMatrix" value="Load Plane Matrix">Load Plane Matrix</button>
 {% endif %}
 
 {% endblock %}
