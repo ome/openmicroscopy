@@ -27,14 +27,12 @@ package org.openmicroscopy.shoola.env.log;
 //Java imports
 
 //Third-party libraries
-import ij.IJ;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.joran.JoranConfigurator;
 import ch.qos.logback.core.joran.spi.JoranException;
 import ch.qos.logback.core.util.StatusPrinter;
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.LookupNames;
 
 
 /** 
