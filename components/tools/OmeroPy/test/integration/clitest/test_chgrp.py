@@ -137,10 +137,6 @@ class TestChgrp(CLITest):
     def testFilesetOneImg(self):
         # 2 images sharing a fileset
         images = self.importMIF(2)
-        img = self.query.get('Image', images[0].id.val)
-        filesetId = img.fileset.id.val
-        fileset = self.query.get('Fileset', filesetId)
-        assert fileset is not None
 
         # create a new group and try to move only one image to the new group
         group = self.add_new_group()
@@ -150,6 +146,22 @@ class TestChgrp(CLITest):
         # check the image is still in the current group
         img = self.query.get('Image', images[0].id.val)
         assert img.id.val == images[0].id.val
+
+    def testFilesetAllImages(self):
+        # 2 images sharing a fileset
+        images = self.importMIF(2)
+
+        # create a new group and try to move only one image to the new group
+        group = self.add_new_group()
+        self.args += ['%s' % group.id.val, '/Image:%s' % images[0].id.val,
+                      '/Image:%s' % images[1].id.val]
+        self.cli.invoke(self.args, strict=True)
+
+        # check the images have bee moved
+        ctx = {'omero.group': '-1'}  # query across groups
+        for i in images:
+            img = self.query.get('Image', images[0].id.val, ctx)
+            assert img.details.group.id.val == group.id.val
 
     @pytest.mark.parametrize("group_prefix", group_prefixes)
     def testNonExistingGroupId(self, group_prefix):
