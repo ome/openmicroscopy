@@ -62,7 +62,7 @@ public class DataMenuItem
     static {
         ITEM_SELECTED_PROPERTY = "itemSelectedProperty";
         ALL_USERS_TEXT = "Show All Users";
-        USERS_TEXT = "Show Users";
+        USERS_TEXT = "Display Users";
     }
 
     /** The object to host.*/
