@@ -486,6 +486,7 @@ class ToolBar
         panel.add(new JLabel(icons.getIcon(IconManager.TRANSPARENT)));
         panel.add(data);
         popupMenu.add(panel);
+        popupMenu.add(new JSeparator());
         GroupItem item;
         //First add option to add all the groups.
         if (size > 1) {
