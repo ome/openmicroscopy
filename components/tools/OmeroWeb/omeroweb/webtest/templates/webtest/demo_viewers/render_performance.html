@@ -49,6 +49,9 @@ $(document).ready(function() {
         splitIncr;
     if (sizeT > sizeZ) {
         splitDim = 't';
+        $(".matrix_frame img").css('height', '150px');
+    } else {
+        $(".matrix_frame img").css('width', '150px');
     }
 
     // set up matrix frames based on select change
@@ -245,8 +248,8 @@ Per Plane: <span id="secsPerPlane">0</span> secs.
 Usage: compare speed to load all planes as a stitched 'matrix' of Z/T planes.
 
 <div id="matrix_frames" style="float:left">
-    <div class="matrix_frame" style="width:200px; height:{{ sizeY }}px; overflow:auto; float:left">
-        <img id="planes_matrix" class="planes_matrix" style="width:100%"
+    <div class="matrix_frame" style="width:200px; height:200px; overflow:auto; float:left">
+        <img id="planes_matrix" class="planes_matrix"
         src="{% static 'webtest/img/background.png' %}"
         plane="{% url 'render_planes_matrix' imageId %}" />
     </div>
