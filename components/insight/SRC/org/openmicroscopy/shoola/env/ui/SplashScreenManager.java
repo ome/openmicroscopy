@@ -2,10 +2,10 @@
  * org.openmicroscopy.shoola.env.ui.SplashScreenManager
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -125,7 +125,6 @@ class SplashScreenManager
 			userCredentials.set(uc);
 			this.lc = null;
 		} catch (Exception e) {
-			e.printStackTrace();
 			UserNotifier un = UIFactory.makeUserNotifier(container);
             un.notifyError("Login Incomplete", e.getMessage());
             view.setControlsEnabled(true);
@@ -150,8 +149,8 @@ class SplashScreenManager
 	/** Sets the views on top. */
     private void updateView()
     {
-    	if (view != null) view.setAlwaysOnTop(true);
     	if (view != null) {
+    	    view.setAlwaysOnTop(true);
     		view.requestFocusOnField();
     	}
     }
@@ -264,8 +263,7 @@ class SplashScreenManager
 	{
 		//close() has already been called.
 		if (view == null) return;
-		view.setVisible(false);
-		view.dispose();
+		view.close();
 		view = null;
 		isOpen = false;
 		container.getRegistry().bind(LookupNames.LOGIN_SPLASHSCREEN, 
@@ -346,7 +344,7 @@ class SplashScreenManager
     /** Fails to log in. */
     void onLoginFailure()
     {
-    	view.onLoginFailure();
+    	if (view != null) view.onLoginFailure();
     	updateView();
     }
     

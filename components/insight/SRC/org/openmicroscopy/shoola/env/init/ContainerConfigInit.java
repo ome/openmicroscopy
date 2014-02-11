@@ -2,10 +2,10 @@
  * org.openmicroscopy.shoola.env.init.ContainerConfigInit
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -64,8 +64,8 @@ public final class ContainerConfigInit
 	private static final String FIJI = "fiji";
 	
 	/** Indicates the ImageJ2 title.*/
-	private static final String IMAGE_J2 = "imaje2";
-	
+	private static final String IMAGE_J2 = "imagej2";
+
 	/**
 	 * Handles the plugin dependencies. Returns <code>true</code> if the
 	 * dependencies are found, <code>false</code> otherwise.
@@ -81,13 +81,18 @@ public final class ContainerConfigInit
 		int count = 0;
 		try {
 			//Plugin folder
-			File dir = new File(System.getProperty("user.dir"),
-					info.getDirectory());
+		    File parent = new File(container.getHomeDir());
+		    File pp = parent.getParentFile();
+		    if (pp == null) pp = parent;
+			File dir;
+			if (pp.getName().equals(info.getDirectory())) dir = pp;
+			else dir = new File(pp, info.getDirectory());
 			File[] l = dir.listFiles();
 			String value;
 			for (int j = 0; j < values.length; j++) {
 				value = values[j];
 				if (value != null) value = value.trim();
+				if (l == null) continue;
 				for (int i = 0; i < l.length; i++) {
 					if (l[i].getName().equals(value)) {
 						count++;
