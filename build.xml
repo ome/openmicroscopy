@@ -855,8 +855,6 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
                 <arg value="${jarsign.keystore}"/>
                 <arg value="-storepass:file"/>
                 <arg value="${jarsign.storepassfile}"/>
-                <arg value="-tsa"/>
-                <arg value="${jarsign.tsa}"/>
                 <arg value="@{target}"/>
                 <arg value="${jarsign.alias}"/>
             </exec>
@@ -884,7 +882,6 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
                                     <signjar alias="${jarsign.alias}"
                                         keystore="${jarsign.keystore}"
                                         storepass="${jarsign.storepass}"
-                                        tsaurl="${jarsign.tsa}"
                                         preservelastmodified="true"
                                         jar="@{destfile}"/>
                                 </else>
@@ -984,7 +981,6 @@ omero.version=${omero.version}
                 <signjar alias="${jarsign.alias}"
                     keystore="${jarsign.keystore}"
                     storepass="${jarsign.storepass}"
-                    tsaurl="${jarsign.tsa}"
                     preservelastmodified="false">
                     <path>
                         <fileset dir="${dist.dir}/lib/insight" includes="*.jar"/>
