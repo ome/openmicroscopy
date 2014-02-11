@@ -183,8 +183,13 @@ public class GroupItem
     public void setEnabledUsers(boolean enabled)
     {
         Iterator<DataMenuItem> i = usersItem.iterator();
+        DataMenuItem item;
         while (i.hasNext()) {
-            i.next().setEnabled(enabled);
+            item = i.next();
+            item.setEnabled(enabled);
+            if (!enabled) {
+                item.setSelected(false);
+            }
         }
     }
 
