@@ -49,7 +49,8 @@ jarsign.storepass=omedev
 #Password can be stored in a file with Java>=1.7
 #jarsign.storepassfile=
 jarsign.validity=1000
-jarsign.tsa=http://time.certum.pl
+#Timestamping can be enabled by providing a server url
+#jarsign.tsa=
 
 ############################################
 # Testing
