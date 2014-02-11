@@ -78,6 +78,8 @@
     <property name="types" ref="internal-ome.api.ITypes"/>
     <property name="batchSize" value="${omero.search.batch}"/>
     <property name="excludes" value="${omero.search.excludes}"/>
+    <property name="useFileLog" value="true"/>
+    <property name="dataDir" value="${omero.data.dir}"/>
   </bean>
 
   <bean id="fullTextThreadRun" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
