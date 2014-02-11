@@ -846,20 +846,61 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
             <ivy:retrieve conf="server" pattern="${dist.dir}/lib/server/[artifact].[ext]" sync="false" log="quiet" settingsRef="ivy.toplevel"/>
     </target>
 
-    <macrodef name="signjar_passfile">
+    <macrodef name="signjar_password">
         <attribute name="target"/>
         <sequential>
-            <echo message="Signing jar: @{target} as ${jarsign.alias}"/>
-            <exec executable="jarsigner" failonerror="true">
-                <arg value="-keystore"/>
-                <arg value="${jarsign.keystore}"/>
-                <arg value="-storepass:file"/>
-                <arg value="${jarsign.storepassfile}"/>
-                <arg value="-tsa"/>
-                <arg value="${jarsign.tsa}"/>
-                <arg value="@{target}"/>
-                <arg value="${jarsign.alias}"/>
-            </exec>
+            <if>
+                <isset property="jarsign.storepassfile"/>
+                <then>
+                    <if>
+                        <isset property="jarsign.tsa"/>
+                        <then>
+                            <echo message="Signing jar: @{target} as ${jarsign.alias} with timestamping"/>
+                            <exec executable="jarsigner" failonerror="true">
+                                <arg value="-keystore"/>
+                                <arg value="${jarsign.keystore}"/>
+                                <arg value="-storepass:file"/>
+                                <arg value="${jarsign.storepassfile}"/>
+                                <arg value="-tsa"/>
+                                <arg value="${jarsign.tsa}"/>
+                                <arg value="@{target}"/>
+                                <arg value="${jarsign.alias}"/>
+                            </exec>
+                        </then>
+                        <else>
+                            <echo message="Signing jar: @{target} as ${jarsign.alias}"/>
+                            <exec executable="jarsigner" failonerror="true">
+                                <arg value="-keystore"/>
+                                <arg value="${jarsign.keystore}"/>
+                                <arg value="-storepass:file"/>
+                                <arg value="${jarsign.storepassfile}"/>
+                                <arg value="@{target}"/>
+                                <arg value="${jarsign.alias}"/>
+                            </exec>
+                        </else>
+                    </if>
+                </then>
+                <else>
+                    <if>
+                        <isset property="jarsign.tsa"/>
+                        <then>
+                            <signjar alias="${jarsign.alias}"
+                                keystore="${jarsign.keystore}"
+                                storepass="${jarsign.storepass}"
+                                tsaurl="${jarsign.tsa}"
+                                preservelastmodified="true"
+                                jar="@{target}"/>
+                        </then>
+                        <else>
+                            <signjar alias="${jarsign.alias}"
+                                keystore="${jarsign.keystore}"
+                                storepass="${jarsign.storepass}"
+                                preservelastmodified="true"
+                                jar="@{target}"/>
+                        </else>
+                    </if>
+                </else>
+            </if>
         </sequential>
     </macrodef>
 
@@ -876,19 +917,7 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
                     </jar>
                     <if><equals arg1="@{sign}" arg2="true"/>
                         <then>
-                            <if><isset property="jarsign.storepassfile"/>
-                                <then>
-                                    <signjar_passfile target="@{destfile}"/>
-                                </then>
-                                <else>
-                                    <signjar alias="${jarsign.alias}"
-                                        keystore="${jarsign.keystore}"
-                                        storepass="${jarsign.storepass}"
-                                        tsaurl="${jarsign.tsa}"
-                                        preservelastmodified="true"
-                                        jar="@{destfile}"/>
-                                </else>
-                            </if>
+                            <signjar_password target="@{destfile}"/>
                         </then>
                     </if>
                 </then>
@@ -969,29 +998,14 @@ omero.version=${omero.version}
     </target>
 
     <target name="webstart-sign">
-        <if><isset property="jarsign.storepassfile"/>
-            <then>
-                <for param="target">
-                    <path>
-                        <fileset dir="${dist.dir}/lib/insight" includes="*.jar"/>
-                    </path>
-                    <sequential>
-                        <signjar_passfile target="@{target}"/>
-                    </sequential>
-                </for>
-            </then>
-            <else>
-                <signjar alias="${jarsign.alias}"
-                    keystore="${jarsign.keystore}"
-                    storepass="${jarsign.storepass}"
-                    tsaurl="${jarsign.tsa}"
-                    preservelastmodified="false">
-                    <path>
-                        <fileset dir="${dist.dir}/lib/insight" includes="*.jar"/>
-                    </path>
-                </signjar>
-            </else>
-        </if>
+        <for param="target">
+            <path>
+                <fileset dir="${dist.dir}/lib/insight" includes="*.jar"/>
+            </path>
+            <sequential>
+                <signjar_password target="@{target}"/>
+            </sequential>
+        </for>
     </target>
 
     <target name="webstart-verify">
