@@ -252,7 +252,12 @@ public abstract class PersistentEventLogLoader extends EventLogLoader {
     }
 
     public void deleteCurrentId() {
-        sql.delCurrentEventLog(key);
+        if (useFileLog) {
+            File currIdFile = new File(dataDir + CURRENT_ID_FILE);
+            currIdFile.delete();
+        } else {
+            sql.delCurrentEventLog(key);
+        }
     }
 
     @Override
