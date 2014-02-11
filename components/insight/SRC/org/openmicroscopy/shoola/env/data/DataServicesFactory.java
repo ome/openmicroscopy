@@ -577,7 +577,7 @@ public class DataServicesFactory
 		if (name == null) name = LookupNames.MASTER_INSIGHT;
 		client client = omeroGateway.createSession(uc.getUserName(),
 				uc.getPassword(), uc.getHostName(), uc.isEncrypted(), name);
-		if (client == null) {
+		if (client == null || singleton == null) {
 			omeroGateway.logout();
         	return;
 		}
@@ -739,12 +739,13 @@ public class DataServicesFactory
 	public void shutdown(SecurityContext ctx)
     { 
 		//Need to write the current group.
-		if (!omeroGateway.isConnected()) return;
+		//if (!omeroGateway.isConnected()) return;
 		omeroGateway.logout();
 		DataServicesFactory.registry.getCacheService().clearAllCaches();
 		PixelsServicesFactory.shutDownRenderingControls(container.getRegistry());
 		 
         if (executor != null) executor.shutdown();
+        singleton = null;
         executor = null;
     }
 	

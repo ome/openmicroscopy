@@ -480,7 +480,8 @@ class OMEROGateway
         throws Exception
     {
         try {
-            networkup.set(networkChecker.isNetworkup(useCachedValue));
+            if (networkChecker != null)
+                networkup.set(networkChecker.isNetworkup(useCachedValue));
         } catch (Throwable t) {
             log("Error on isNetworkUp check:" + t);
             networkup.set(false);
