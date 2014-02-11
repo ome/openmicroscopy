@@ -125,31 +125,56 @@ class TestChgrp(CLITest):
         self.args += ['%s' % group.id.val, '/Fileset:%s' % filesetId]
         self.cli.invoke(self.args, strict=True)
 
-        # # check the image cannot be queried in the current session
-        # img = self.query.get('Image', images[0].id.val)
-        # assert img is None
-
         # change the session context and check the image has been moved
-        self.set_context(self.client, group.id.val)
-        img = self.query.get('Image', images[0].id.val)
-        assert img.id.val == images[0].id.val
+        ctx = {'omero.group': '-1'}  # query across groups
+        for i in images:
+            img = self.query.get('Image', i.id.val, ctx)
+            assert img.details.group.id.val == group.id.val
 
-    def testFilesetOneImg(self):
-        # 2 images sharing a fileset
-        images = self.importMIF(2)
-        img = self.query.get('Image', images[0].id.val)
-        filesetId = img.fileset.id.val
-        fileset = self.query.get('Fileset', filesetId)
-        assert fileset is not None
+    def testFilesetPartialFailing(self):
+        images = self.importMIF(2)  # 2 images sharing a fileset
 
         # create a new group and try to move only one image to the new group
         group = self.add_new_group()
         self.args += ['%s' % group.id.val, '/Image:%s' % images[0].id.val]
         self.cli.invoke(self.args, strict=True)
 
-        # check the image is still in the current group
-        img = self.query.get('Image', images[0].id.val)
-        assert img.id.val == images[0].id.val
+        # check the images are still in the current group
+        ctx = {'omero.group': '-1'}  # query across groups
+        gid = self.sf.getAdminService().getEventContext().groupId
+        for i in images:
+            img = self.query.get('Image', i.id.val, ctx)
+            assert img.details.group.id.val == gid
+
+    def testFilesetOneImage(self):
+        images = self.importMIF(1)  # One image in a fileset
+
+        # create a new group and try to move only one image to the new group
+        group = self.add_new_group()
+        self.args += ['%s' % group.id.val, '/Image:%s' % images[0].id.val]
+        self.cli.invoke(self.args, strict=True)
+
+        # check the image has been moved
+        ctx = {'omero.group': '-1'}  # query across groups
+        for i in images:
+            img = self.query.get('Image', i.id.val, ctx)
+            assert img.details.group.id.val == group.id.val
+
+    @pytest.mark.xfail(reason="CLI  does not wrap all chgrps in 1 DoAll")
+    def testFilesetAllImages(self):
+        images = self.importMIF(2)  # 2 images sharing a fileset
+
+        # create a new group and try to move only one image to the new group
+        group = self.add_new_group()
+        self.args += ['%s' % group.id.val, '/Image:%s' % images[0].id.val,
+                      '/Image:%s' % images[1].id.val]
+        self.cli.invoke(self.args, strict=True)
+
+        # check the images have been moved
+        ctx = {'omero.group': '-1'}  # query across groups
+        for i in images:
+            img = self.query.get('Image', i.id.val, ctx)
+            assert img.details.group.id.val == group.id.val
 
     @pytest.mark.parametrize("group_prefix", group_prefixes)
     def testNonExistingGroupId(self, group_prefix):

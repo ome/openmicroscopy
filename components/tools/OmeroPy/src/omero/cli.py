@@ -1245,10 +1245,10 @@ class GraphArg(object):
 
             import omero
             import omero.cmd
-            return self.cmd_type(\
+            return omero.cmd.DoAll([self.cmd_type(\
                     type=type,\
                     id=id,\
-                    options={})
+                    options={})])
         except:
             raise ValueError("Bad object: %s", arg)
 
@@ -1396,6 +1396,11 @@ class GraphControl(CmdControl):
         """
         pass
 
+    def as_doall(self, req_or_doall):
+        if not isinstance(req_or_doall, omero.cmd.DoAll):
+            req_or_doall = omero.cmd.DoAll([req_or_doall])
+        return req_or_doall
+
     def main_method(self, args):
 
         import omero
@@ -1433,14 +1438,16 @@ class GraphControl(CmdControl):
             self.ctx.out("\n".join(keys))
             return # Early exit.
 
-        for req in args.obj:
-            if args.edit:
-                req.options = self.edit_options(req, specmap)
-            if args.opt:
-                for opt in args.opt:
-                    self.line_to_opts(opt, req.options)
+        for req_or_doall in args.obj:
+            doall = self.as_doall(req_or_doall)
+            for req in doall.requests:
+                if args.edit:
+                    req.options = self.edit_options(req, specmap)
+                if args.opt:
+                    for opt in args.opt:
+                        self.line_to_opts(opt, req.options)
 
-            self._process_request(req, args, client)
+            self._process_request(doall, args, client)
 
     def edit_options(self, req, specmap):
 
@@ -1476,9 +1483,10 @@ class GraphControl(CmdControl):
         return start_text
 
     def print_request_description(self, req):
-
-        cmd_type = self.cmd_type().ice_staticId()[2:].replace("::", ".")
-        return "%s %s %s... " % (cmd_type, req.type, req.id)
+        doall = self.as_doall(req)
+        for req in doall.requests:
+            cmd_type = self.cmd_type().ice_staticId()[2:].replace("::", ".")
+            return "%s %s %s... " % (cmd_type, req.type, req.id)
 
 class UserGroupControl(BaseControl):
 
