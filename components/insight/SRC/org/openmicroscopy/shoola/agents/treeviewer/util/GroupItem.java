@@ -184,11 +184,20 @@ public class GroupItem
     {
         Iterator<DataMenuItem> i = usersItem.iterator();
         DataMenuItem item;
+        ExperimenterData exp;
+        Object ho;
         while (i.hasNext()) {
             item = i.next();
             item.setEnabled(enabled);
             if (!enabled) {
                 item.setSelected(false);
+            } else {
+                ho = item.getDataObject();
+                if (ho instanceof ExperimenterData) {
+                    exp = (ExperimenterData) ho;
+                    if (exp.getId() == userID)
+                        item.setSelected(true);
+                }
             }
         }
     }
