@@ -263,8 +263,7 @@ class SplashScreenManager
 	{
 		//close() has already been called.
 		if (view == null) return;
-		view.setVisible(false);
-		view.dispose();
+		view.close();
 		view = null;
 		isOpen = false;
 		container.getRegistry().bind(LookupNames.LOGIN_SPLASHSCREEN, 
