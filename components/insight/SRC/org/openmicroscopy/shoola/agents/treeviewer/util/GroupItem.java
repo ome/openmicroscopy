@@ -172,7 +172,8 @@ public class GroupItem
                 }
             }
             List<ExperimenterData> l = getSeletectedUsers();
-            setMenuSelected(CollectionUtils.isNotEmpty(l), false);
+            if (isSelectable())
+                setMenuSelected(CollectionUtils.isNotEmpty(l), false);
             firePropertyChange(USER_SELECTION_PROPERTY, null, this);
         } else if (SelectableMenu.GROUP_SELECTION_PROPERTY.equals(name)) {
             GroupItem item = (GroupItem) evt.getNewValue();
