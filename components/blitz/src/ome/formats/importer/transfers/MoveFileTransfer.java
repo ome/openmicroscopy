@@ -56,7 +56,9 @@ public class MoveFileTransfer extends HardlinkFileTransfer {
             File srcFile = new File(path);
             try {
                 log.info("Deleting source file {}...", srcFile);
-                srcFile.delete();
+                if (!srcFile.delete()) {
+                    throw new RuntimeException("Failed to delete.");
+                }
             } catch (Exception e) {
                 log.error("Failed to remove source file {}", srcFile);
                 failedFiles.add(srcFile);
