@@ -277,7 +277,7 @@ class BaseClient(object):
         """
         Sets the omero.model.Session#getUserAgent() string for
         this client. Every session creation will be passed this argument. Finding
-        open sesssions with the same agent can be done via
+        open sessions with the same agent can be done via
         omero.api.ISessionPrx#getMyOpenAgentSessions(String).
         """
         self.__agent = agent
