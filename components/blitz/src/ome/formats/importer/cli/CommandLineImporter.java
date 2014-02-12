@@ -223,7 +223,7 @@ public class CommandLineImporter {
                     paths.addAll(Arrays.asList(ic.getUsedFiles()));
                 }
 
-                // No exception are thrown from importCandidates and therefore
+                // No exceptions are thrown from importCandidates and therefore
                 // we must manually check for the number of errors. If there
                 // are **ANY** then we refuse to post-process these paths,
                 // which primarily only means that MoveFileTransfer will not
