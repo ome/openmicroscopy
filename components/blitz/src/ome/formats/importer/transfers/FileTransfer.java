@@ -58,9 +58,10 @@ public interface FileTransfer {
 
     /**
      * Callback which must be invoked after a related set of files has been
-     * successfully processed. This provides the {@link FileTransfer} instance
-     * a chance to free resources
+     * processed. This provides the {@link FileTransfer} instance a chance to
+     * free resources. If any errors have occurred, then no destructive changes
+     * should be made, though the user may should be given the option to react.
      */
-    void afterSuccess(List<String> transferredFiles) throws CleanupFailure;
+    void afterTransfer(int errors, List<String> transferredFiles) throws CleanupFailure;
 
 }

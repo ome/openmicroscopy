@@ -222,7 +222,14 @@ public class CommandLineImporter {
                 for (ImportContainer ic : candidates.getContainers()) {
                     paths.addAll(Arrays.asList(ic.getUsedFiles()));
                 }
-                transfer.afterSuccess(paths);
+
+                // No exception are thrown from importCandidates and therefore
+                // we must manually check for the number of errors. If there
+                // are **ANY** then we refuse to post-process these paths,
+                // which primarily only means that MoveFileTransfer will not
+                // get a chance to delete the files.
+                transfer.afterTransfer(handler.errorCount(), paths);
+
             } catch (CleanupFailure e) {
                 log.error("rcode=3 on failed cleanup");
                 return 3;

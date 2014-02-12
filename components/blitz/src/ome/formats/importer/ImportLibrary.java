@@ -161,7 +161,7 @@ public class ImportLibrary implements IObservable
     /**
      * The default implementation of {@link FileTransfer} performs a
      * no-op and therefore need not have
-     * {@link FileTransfer#afterSuccess(File[])} as with the
+     * {@link FileTransfer#afterTransfer(int, File[])} as with the
      * {@link #ImportLibrary(OMEROMetadataStoreClient, OMEROWrapper, FileTransfer)}
      * constructor.
      *
@@ -178,7 +178,7 @@ public class ImportLibrary implements IObservable
      * between calls to import.
      *
      * <em>Note:</em> the responsibility of closing
-     * {@link FileTransfer#afterSuccess(File[])} falls to invokers of this
+     * {@link FileTransfer#afterTransfer(int, File[])} falls to invokers of this
      * method.
      *
      * @param store not null
@@ -411,17 +411,25 @@ public class ImportLibrary implements IObservable
                     file, index, srcFiles.length,
                     proc, this, estimator, cp, buf));
         }
-        catch (IOException e) {
+        catch (Exception e) {
+            // Required to bump  the error count
+            notifyObservers(new ErrorHandler.FILE_EXCEPTION(
+                    file.getAbsolutePath(), e, srcFiles, "unknown"));
+            // The state that we're entering, i.e. exiting upload via error
             notifyObservers(new ImportEvent.FILE_UPLOAD_ERROR(
                     file.getAbsolutePath(), index, srcFiles.length,
                     null, null, e));
-            throw e;
-        }
-        catch (ServerError e) {
-            notifyObservers(new ImportEvent.FILE_UPLOAD_ERROR(
-                    file.getAbsolutePath(), index, srcFiles.length,
-                    null, null, e));
-            throw e;
+            if (e instanceof RuntimeException) {
+                throw (RuntimeException) e;
+            } else if (e instanceof ServerError) {
+                throw (ServerError) e;
+            } else if (e instanceof IOException) {
+                throw (IOException) e;
+            } else {
+                String msg = "Unexpected exception thrown!";
+                log.error(msg, e);
+                throw new RuntimeException(msg);
+            }
         }
 
     }
