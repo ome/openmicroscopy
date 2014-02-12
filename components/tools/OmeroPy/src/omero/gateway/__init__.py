@@ -170,15 +170,30 @@ class BlitzObjectWrapper (object):
                 self._obj = self._conn.getQueryService().get(self._obj.__class__.__name__, self._oid, self._conn.SERVICE_OPTS)
         self.__prepare__ (**kwargs)
 
+    def __key(self):
+        """
+        Returns a unique key for this object
+        """
+        k = self.getId()
+        if k is None:
+            return id(self)
+        return k
+
+    def __hash__(self):
+        """
+        Returns a hash of the unique key
+        """
+        return hash(self.__key())
+
     def __eq__ (self, a):
         """
-        Returns true if the object is of the same type and has same id and name
+        Returns true if the object is of the same type and has the same key
         
         @param a:   The object to compare to this one
         @return:    True if objects are same - see above
         @rtype:     Boolean
         """
-        return type(a) == type(self) and self._obj.id == a._obj.id and self.getName() == a.getName()
+        return type(a) == type(self) and self.__key() == a.__key()
 
     def __bstrap__ (self):
         """ Initialisation method which is implemented by subclasses to set their class variables etc. """
@@ -3782,16 +3797,6 @@ class AnnotationWrapper (BlitzObjectWrapper):
         self.link = kwargs.has_key('link') and kwargs['link'] or None
         if self._obj is None and self.OMERO_TYPE is not None:
             self._obj = self.OMERO_TYPE()
-
-    def __eq__ (self, a):
-        """
-        Returns true if type, id, value and ns are equal
-        
-        @param a:   The annotation to compare
-        @return:    True if annotations are the same - see above
-        @rtype:     Boolean
-        """
-        return type(a) == type(self) and self._obj.id == a._obj.id and self.getValue() == a.getValue() and self.getNs() == a.getNs()
 
     def _getQueryString(self):
         """
