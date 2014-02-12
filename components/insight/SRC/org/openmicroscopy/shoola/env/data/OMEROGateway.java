@@ -408,9 +408,6 @@ class OMEROGateway
 	 */
 	private DataServicesFactory dsFactory;
 
-	/** The default port to use. */
-	private int port;
-
 	/** Map hosting the enumeration required for metadata. */
 	private Map<String, List<EnumerationObject>> enumerations;
 
@@ -1433,9 +1430,9 @@ class OMEROGateway
 	    Connector c = null;
 	    try {
             UserCredentials uc = dsFactory.getCredentials();
-            ctx.setServerInformation(uc.getHostName(), port);
+            ctx.setServerInformation(uc.getHostName(), uc.getPort());
             // client will be cleaned up by connector
-            client client = new client(uc.getHostName(), port);
+            client client = new client(uc.getHostName(), uc.getPort());
             ServiceFactoryPrx prx = client.createSession(uc.getUserName(),
                     uc.getPassword());
             prx.setSecurityContext(
@@ -1636,39 +1633,20 @@ class OMEROGateway
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param port			The default port used to connect.
 	 * @param dsFactory 	A reference to the factory. Used whenever a broken
 	 * 						link is detected to get the Login Service and try
 	 *                  	reestablishing a valid link to <i>OMERO</i>.
 	 *                  	Mustn't be <code>null</code>.
 	 */
-	OMEROGateway(int port, DataServicesFactory dsFactory)
+	OMEROGateway(DataServicesFactory dsFactory)
 	{
 		if (dsFactory == null)
 			throw new IllegalArgumentException("No Data service factory.");
 		this.dsFactory = dsFactory;
-		this.port = port;
 		enumerations = new HashMap<String, List<EnumerationObject>>();
 	}
 
 	NetworkChecker getChecker() { return networkChecker; }
-	
-	/**
-	 * Returns the port used.
-	 *
-	 * @return See above.
-	 */
-	int getPort() { return port; }
-
-	/**
-	 * Sets the port value.
-	 *
-	 * @param port The value to set.
-	 */
-	void setPort(int port)
-	{
-		if (this.port != port) this.port = port;
-	}
 
 	/**
 	 * Converts the specified POJO into the corresponding model.
@@ -1850,6 +1828,7 @@ class OMEROGateway
 	 * @param encrypted Pass <code>true</code> to encrypt data transfer,
      * 					<code>false</code> otherwise.
      * @param agentName The name to register with the server.
+     * @param port The port to use.
 	 * @return The user's details.
 	 * @throws DSOutOfServiceException If the connection can't be established
 	 *                                  or the credentials are invalid.
@@ -1857,7 +1836,7 @@ class OMEROGateway
 	 * TODO: could be refactored to return a Connector for later use in login()
 	 */
 	client createSession(String userName, String password, String hostName,
-		boolean encrypted, String agentName)
+		boolean encrypted, String agentName, int port)
 	throws DSOutOfServiceException
 	{
 		this.encrypted = encrypted;
@@ -1903,13 +1882,14 @@ class OMEROGateway
 	 * @param encrypted Pass <code>true</code> to encrypt data transfer,
      * 					<code>false</code> otherwise.
      * @param agentName The name to register with the server.
+     * @param port The port to use
 	 * @return The user's details.
 	 * @throws DSOutOfServiceException If the connection can't be established
 	 *                                  or the credentials are invalid.
 	 * @see #createSession(String, String, String, long, boolean, String)
 	 */
 	ExperimenterData login(client secureClient, String userName, String hostName,
-		float compression, long groupID)
+		float compression, long groupID, int port)
 		throws DSOutOfServiceException
 	{
 		Connector connector = null;
