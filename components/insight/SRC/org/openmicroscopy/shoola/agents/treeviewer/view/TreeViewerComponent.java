@@ -2482,6 +2482,8 @@ class TreeViewerComponent
 			browser = entry.getValue();
 			browser.removeExperimenter(exp, groupID);
 		}
+		DataBrowserFactory.discardAll();
+        view.removeAllFromWorkingPane();
 	}
 
 	/**
@@ -4579,6 +4581,8 @@ class TreeViewerComponent
 				break;
 			}
 		}
+		DataBrowserFactory.discardAll();
+        view.removeAllFromWorkingPane();
 	}
 
 	/** 
