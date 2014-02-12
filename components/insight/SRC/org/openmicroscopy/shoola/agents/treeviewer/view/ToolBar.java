@@ -355,7 +355,7 @@ class ToolBar
         Iterator i;
         ExperimenterData exp;
 
-        DataMenuItem item;
+        DataMenuItem item, allUser;
         JPanel list;
         
         boolean view = true;
@@ -368,13 +368,15 @@ class ToolBar
 
         list = new JPanel();
         list.setLayout(new BoxLayout(list, BoxLayout.Y_AXIS));
-        item = new DataMenuItem(DataMenuItem.ALL_USERS_TEXT, true);
-        item.addPropertyChangeListener(groupItem);
-        items.add(item);
-        list.add(item);
+        allUser = new DataMenuItem(DataMenuItem.ALL_USERS_TEXT, true);
+        items.add(allUser);
+        list.add(allUser);
         p.add(UIUtilities.buildComponentPanel(list));
+        int count = 0;
+        int total = 0;
         if (CollectionUtils.isNotEmpty(l) && view) {
             p.add(formatHeader("Group owners"));
+            total += l.size();
             i = l.iterator();
             list = new JPanel();
             list.setLayout(new BoxLayout(list, BoxLayout.Y_AXIS));
@@ -382,6 +384,7 @@ class ToolBar
                 exp = (ExperimenterData) i.next();
                 item = new DataMenuItem(exp, true);
                 item.setSelected(users.contains(exp.getId()));
+                if (item.isSelected()) count++;
                 item.addPropertyChangeListener(groupItem);
                 items.add(item);
                 list.add(item);
@@ -392,6 +395,7 @@ class ToolBar
         if (group != null) l = sorter.sort(group.getMembersOnly());
         if (CollectionUtils.isNotEmpty(l)) {
             p.add(formatHeader("Members"));
+            total += l.size();
             i = l.iterator();
             list = new JPanel();
             list.setLayout(new BoxLayout(list, BoxLayout.Y_AXIS));
@@ -400,6 +404,7 @@ class ToolBar
                 if (view) {
                     item = new DataMenuItem(exp, true);
                     item.setSelected(users.contains(exp.getId()));
+                    if (item.isSelected()) count++;
                     item.addPropertyChangeListener(groupItem);
                     items.add(item);
                     list.add(item);
@@ -407,6 +412,8 @@ class ToolBar
             }
             p.add(UIUtilities.buildComponentPanel(list));
         }
+        allUser.setSelected(total == count);
+        allUser.addPropertyChangeListener(groupItem);
         groupItem.add(new JScrollPane(p));
         groupItem.setUsersItem(items);
         groupItem.addPropertyChangeListener(new PropertyChangeListener() {
