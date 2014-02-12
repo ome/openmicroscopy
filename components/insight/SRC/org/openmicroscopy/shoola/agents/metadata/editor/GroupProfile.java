@@ -121,9 +121,7 @@ class GroupProfile
     	permissionsPane.addPropertyChangeListener(this);
     	namePane.setText(ref.getName());
     	descriptionPane.setText(ref.getDescription());
-    	canEdit = false;
-    	if (!canEdit) canEdit = model.isAdministrator();
-    	if (canEdit) canEdit = !model.isSystemGroup(ref.getId());
+    	canEdit = model.isAdministrator() && !model.isSystemGroup(ref.getId());
     	namePane.setEditable(canEdit);
     	namePane.setEnabled(canEdit);
     	descriptionPane.setEditable(canEdit);
