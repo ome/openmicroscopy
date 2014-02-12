@@ -202,8 +202,8 @@ public class NetworkChecker {
         return networkup;
     }
 
-    static org.apache.log4j.Logger logger =
-            org.apache.log4j.Logger.getLogger(NetworkChecker.class.getName());
+    static org.slf4j.Logger logger =
+            org.slf4j.LoggerFactory.getLogger(NetworkChecker.class);
 
     /**
      * Logs the error.
