@@ -428,7 +428,7 @@ public class ImportLibrary implements IObservable
             } else {
                 String msg = "Unexpected exception thrown!";
                 log.error(msg, e);
-                throw new RuntimeException(msg);
+                throw new RuntimeException(msg, e);
             }
         }
 
