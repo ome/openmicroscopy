@@ -51,6 +51,7 @@ import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 import pojos.DataObject;
 import pojos.DatasetData;
+import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
 import pojos.GroupData;
 import pojos.ImageData;
@@ -254,7 +255,39 @@ public class DMRefreshLoader
             }
         };
     }
-    
+
+    /**
+     * Returns the collection of groups the current user is the leader of.
+     * 
+     * @return See above.
+     */
+    public Set getGroupsLeaderOf()
+    {
+        Set values = new HashSet();
+        Collection groups = (Collection) context.lookup(
+                LookupNames.USER_GROUP_DETAILS);
+        Iterator i = groups.iterator();
+        GroupData g;
+        Set leaders;
+        ExperimenterData exp = (ExperimenterData) context.lookup(
+                LookupNames.CURRENT_USER_DETAILS);
+        long id = exp.getId();
+        Iterator j;
+        while (i.hasNext()) {
+            g = (GroupData) i.next();
+            leaders = g.getLeaders();
+            if (leaders != null && leaders.size() > 0) {
+                j = leaders.iterator();
+                while (j.hasNext()) {
+                    exp = (ExperimenterData) j.next();
+                    if (exp.getId() == id)
+                        values.add(g);
+                }
+            }
+        }
+        return values;
+    }
+
     /**
      * Creates a {@link BatchCall} to retrieve the groups.
      * 
@@ -302,8 +335,7 @@ public class DMRefreshLoader
                         results = r;
     				}
                 } else { //Not admin groups owner.
-                	Collection groups = (Collection) context.lookup(
-        						LookupNames.USER_GROUP_DETAILS);
+                	Collection groups = getGroupsLeaderOf();
                 	Iterator i = groups.iterator();
                 	GroupData group;
                 	SecurityContext ctx;
