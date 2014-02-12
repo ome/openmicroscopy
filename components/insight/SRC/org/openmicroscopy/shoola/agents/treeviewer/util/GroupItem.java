@@ -258,10 +258,25 @@ public class GroupItem
         if (DataMenuItem.ITEM_SELECTED_PROPERTY.equals(name)) {
             DataMenuItem item = (DataMenuItem) evt.getNewValue();
             Object ho = item.getDataObject();
+            ExperimenterData exp;
             if (ho instanceof String) {
                 String v = (String) ho;
                 if (DataMenuItem.ALL_USERS_TEXT.equals(v)) {
                     selectUsers(true, item.isSelected());
+                    Iterator<DataMenuItem> i = usersItem.iterator();
+                    boolean b = item.isSelected();
+                    while (i.hasNext()) {
+                        item = i.next();
+                        ho = item.getDataObject();
+                        if (ho instanceof ExperimenterData && item.isEnabled()) {
+                            exp = (ExperimenterData) ho;
+                            if (b) item.setSelected(b);
+                            else {
+                                if (exp.getId() != userID)
+                                    item.setSelected(b);
+                            }
+                        }
+                    }
                 }
             }
             List<ExperimenterData> l = getSeletectedUsers();
