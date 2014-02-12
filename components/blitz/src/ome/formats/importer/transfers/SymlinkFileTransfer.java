@@ -48,7 +48,7 @@ public class SymlinkFileTransfer extends AbstractExecFileTransfer {
     /**
      * No cleanup is needed for symlinking.
      */
-    public void afterSuccess(List<String> srcFiles) {
+    public void afterTransfer(int errors, List<String> srcFiles) {
         // no-op
     }
 }

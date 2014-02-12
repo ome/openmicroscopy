@@ -92,7 +92,7 @@ public class UploadFileTransfer extends AbstractFileTransfer {
      * Since the {@link RawFileStorePrx} instances are cleaned up after each
      * transfer, there's no need to cleanup per {@link File}.
      */
-    public void afterSuccess(List<String> srcFiles) throws CleanupFailure {
+    public void afterTransfer(int errors, List<String> srcFiles) throws CleanupFailure {
         // no-op
     }
 }
