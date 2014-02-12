@@ -281,7 +281,8 @@ public class GroupItem
             }
             List<ExperimenterData> l = getSeletectedUsers();
             if (getGroup() != null) {
-                setMenuSelected(CollectionUtils.isNotEmpty(l), false);
+                if (isSelectable())
+                    setMenuSelected(CollectionUtils.isNotEmpty(l), false);
                 firePropertyChange(USER_SELECTION_PROPERTY, null, this);
             } else {
                 //no longer select the group.
@@ -297,7 +298,6 @@ public class GroupItem
                 else firePropertyChange(ALL_USERS_DESELECTION_PROPERTY, null,
                         this);
             }
-            
         } else if (SelectableMenu.GROUP_SELECTION_PROPERTY.equals(name)) {
             GroupItem item = (GroupItem) evt.getNewValue();
             if (item != this) return;
