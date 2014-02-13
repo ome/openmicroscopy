@@ -55,4 +55,6 @@ urlpatterns = patterns('django.views.generic.simple',
 
     # Test the speed of rendering all planes in an Image OR images in a Plate or Dataset (E.g. to compare FS)
     url( r'^render_performance/(?P<obj_type>[a-z]+)/(?P<id>[0-9]+)/', views.render_performance, name='webtest_render_performance' ),
+
+    url( r'^render_planes_matrix/(?:(?P<iid>[0-9]+)/)?$', views.render_planes_matrix, name="render_planes_matrix"),
 )
