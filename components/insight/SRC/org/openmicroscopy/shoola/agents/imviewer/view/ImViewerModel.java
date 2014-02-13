@@ -2324,7 +2324,7 @@ class ImViewerModel
 	int getSelectedBin()
 	{
 	    Renderer rnd = metadataViewer.getRenderer();
-        if (rnd == null) return 0;
+        if (rnd == null) return -1;
         return rnd.getSelectedBin();
 	}
 

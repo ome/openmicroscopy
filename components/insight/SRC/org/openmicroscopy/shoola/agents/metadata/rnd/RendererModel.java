@@ -1491,6 +1491,7 @@ class RendererModel
 	 */
 	int getSelectedBin()
 	{
+	    if (!isLifetimeImage()) return -1;
 	    if (hasModuloT()) {
 	        return getDefaultT()-getRealSelectedT()*getMaxLifetimeBin();
 	    }
