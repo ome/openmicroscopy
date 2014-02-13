@@ -24,7 +24,7 @@ import java.io.IOException;
 import java.util.List;
 
 /**
- * Local-only file transfer mechanism which makes use of symlinking.
+ * Local-only file transfer mechanism which makes use of soft-linking.
  * This is only useful where the command "ln -s source target" will work.
  *
  * @since 5.0
@@ -46,7 +46,7 @@ public class SymlinkFileTransfer extends AbstractExecFileTransfer {
     }
 
     /**
-     * No cleanup is needed for symlinking.
+     * No cleanup is needed for soft-linking.
      */
     public void afterTransfer(int errors, List<String> srcFiles) {
         // no-op
