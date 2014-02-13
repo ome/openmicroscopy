@@ -45,7 +45,7 @@ public class MoveFileTransfer extends HardlinkFileTransfer {
             log.error("MoveFileTransfer cleanup not performed!", errors);
             log.error("The following files will *not* be deleted:");
             for (String srcFile : srcFiles) {
-                log.error(srcFile);
+                log.error("\t{}", srcFile);
             }
             log.error("*******************************************");
             return;
