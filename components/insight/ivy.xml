@@ -76,7 +76,6 @@
         <artifact name="lwf-stubs"/>
         <artifact name="mdbtools-java"/>
         <artifact name="metakit"/>
-        <artifact name="ome-io"/>
         <artifact name="ome-xml"/>
         <artifact name="poi-loci"/>
         <artifact name="scifio"/>
