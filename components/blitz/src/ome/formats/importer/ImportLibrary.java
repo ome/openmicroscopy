@@ -412,7 +412,7 @@ public class ImportLibrary implements IObservable
                     proc, this, estimator, cp, buf));
         }
         catch (Exception e) {
-            // Required to bump  the error count
+            // Required to bump the error count
             notifyObservers(new ErrorHandler.FILE_EXCEPTION(
                     file.getAbsolutePath(), e, srcFiles, "unknown"));
             // The state that we're entering, i.e. exiting upload via error
