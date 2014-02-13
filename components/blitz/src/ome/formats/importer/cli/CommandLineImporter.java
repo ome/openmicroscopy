@@ -333,7 +333,7 @@ public class CommandLineImporter {
             + "          some.class.Name \t# Use a class on the CLASSPATH.\n\n"
             + "        Server-side options:\t\n"
             + "          ln              \t# Use hard-link.\n"
-            + "          ln_s            \t# Use symlnk.\n"
+            + "          ln_s            \t# Use soft-link.\n"
             + "          ln_rm           \t# Caution! Hard-link followed by source deletion.\n\n"
             + "\n"
             + "  ex. $ bin/omero import -- --transfer=ln_s foo.tiff\n"

@@ -31,7 +31,7 @@ import omero.ServerError;
  *
  * Implementations are responsible for making sure that when
  * the server accesses the remote (i.e. server-side) location
- * that a file-like object (file, hardlink, symlink, etc.) is
+ * that a file-like object (file, hard-link, soft-link, etc.) is
  * present with the right size and checksum.
  *
  * Transfer implementations have a number of responsibilities such as
