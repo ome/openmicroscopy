@@ -1803,6 +1803,11 @@ class TreeViewerComponent
 				browser.addExperimenter(exp, userGroupID);
 			}
 		}
+		//clean display if 
+		if (users.size() > 0) {
+		      DataBrowserFactory.discardAll();
+		        view.removeAllFromWorkingPane();
+		}
 	}
 
 	/**
