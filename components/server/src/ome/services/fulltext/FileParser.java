@@ -96,6 +96,11 @@ public class FileParser implements ApplicationContextAware {
             return EMPTY;
         }
 
+        if (file.length() > (50 * 1024 * 1024)) {
+            log.warn("File too large for indexing. Skipping: " + file.getAbsoluteFile());
+            return EMPTY;
+        }
+
         try {
             Iterable<Reader> it = doParse(file);
             if (it == null) {
