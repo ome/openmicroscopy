@@ -152,10 +152,12 @@ public class GroupItem
             DataMenuItem item = (DataMenuItem) evt.getNewValue();
             Object ho = item.getDataObject();
             ExperimenterData exp;
+            Iterator<DataMenuItem> i;
+            List<ExperimenterData> l;
             if (ho instanceof String) {
                 String v = (String) ho;
                 if (DataMenuItem.ALL_USERS_TEXT.equals(v)) {
-                    Iterator<DataMenuItem> i = usersItem.iterator();
+                    i = usersItem.iterator();
                     boolean b = item.isSelected();
                     while (i.hasNext()) {
                         item = i.next();
@@ -170,10 +172,28 @@ public class GroupItem
                         }
                     }
                 }
+            } else {
+                l = getSeletectedUsers();
+              //check that if we keep the "show All users" selected
+                boolean all = l.size() == usersItem.size()-1;
+                i = usersItem.iterator();
+                while (i.hasNext()) {
+                    item = i.next();
+                    ho = item.getDataObject();
+                    if (ho instanceof String) {
+                        String v = (String) ho;
+                        if (DataMenuItem.ALL_USERS_TEXT.equals(v)) {
+                            item.removePropertyChangeListener(this);
+                            item.setSelected(all);
+                            item.addPropertyChangeListener(this);
+                        }
+                    }
+                }
             }
-            List<ExperimenterData> l = getSeletectedUsers();
+            l = getSeletectedUsers();
             if (isSelectable())
                 setMenuSelected(CollectionUtils.isNotEmpty(l), false);
+            
             firePropertyChange(USER_SELECTION_PROPERTY, null, this);
         } else if (SelectableMenu.GROUP_SELECTION_PROPERTY.equals(name)) {
             GroupItem item = (GroupItem) evt.getNewValue();
