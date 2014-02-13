@@ -4357,4 +4357,13 @@ class EditorModel
     {
         return MetadataViewerAgent.getRegistry().getAdminService().isSecuritySystemGroup(id, key);
     }
+    
+    /**
+     * Returns <code>true</code> if the file is an inplace import <code>false</code> otherwise.
+     * @return See above.
+     */
+    boolean isInplaceImport() {
+    	//TODO: not implemented yet
+    	return false;
+    }
 }
