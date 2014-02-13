@@ -222,7 +222,14 @@ public class CommandLineImporter {
                 for (ImportContainer ic : candidates.getContainers()) {
                     paths.addAll(Arrays.asList(ic.getUsedFiles()));
                 }
-                transfer.afterSuccess(paths);
+
+                // No exceptions are thrown from importCandidates and therefore
+                // we must manually check for the number of errors. If there
+                // are **ANY** then we refuse to post-process these paths,
+                // which primarily only means that MoveFileTransfer will not
+                // get a chance to delete the files.
+                transfer.afterTransfer(handler.errorCount(), paths);
+
             } catch (CleanupFailure e) {
                 log.error("rcode=3 on failed cleanup");
                 return 3;
@@ -326,7 +333,7 @@ public class CommandLineImporter {
             + "          some.class.Name \t# Use a class on the CLASSPATH.\n\n"
             + "        Server-side options:\t\n"
             + "          ln              \t# Use hard-link.\n"
-            + "          ln_s            \t# Use symlnk.\n"
+            + "          ln_s            \t# Use soft-link.\n"
             + "          ln_rm           \t# Caution! Hard-link followed by source deletion.\n\n"
             + "\n"
             + "  ex. $ bin/omero import -- --transfer=ln_s foo.tiff\n"
