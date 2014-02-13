@@ -25,7 +25,7 @@ package ome.formats;
 
 import java.util.ArrayList;
 import java.util.List;
-import loci.formats.meta.MetadataRoot;
+import ome.xml.meta.MetadataRoot;
 import omero.model.Pixels;
 
 /**
