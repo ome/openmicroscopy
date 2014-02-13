@@ -20,6 +20,7 @@ import javax.xml.transform.TransformerException;
 
 import loci.common.services.DependencyException;
 import loci.common.services.ServiceException;
+import loci.common.xml.XMLTools;
 import loci.formats.FormatTools;
 import loci.formats.IFormatWriter;
 import loci.formats.ImageWriter;
@@ -43,7 +44,6 @@ import ome.services.formats.OmeroReader;
 import ome.services.util.Executor;
 import ome.system.ServiceFactory;
 import ome.util.messages.InternalMessage;
-import ome.scifio.xml.XMLTools;
 import ome.xml.model.OME;
 import ome.xml.model.OMEModel;
 import ome.xml.model.OMEModelImpl;
