@@ -42,6 +42,8 @@ import org.apache.commons.collections.CollectionUtils;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.LookupNames;
+import org.openmicroscopy.shoola.env.config.AgentInfo;
+import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.AdminService;
 import org.openmicroscopy.shoola.env.data.OmeroDataService;
 import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
@@ -254,6 +256,16 @@ public class DMRefreshLoader
     }
 
     /**
+     * Returns all the groups the user is a member of.
+     *
+     * @return See above.
+     */
+    private Collection getAllGroups()
+    {
+        return (Collection) context.lookup(LookupNames.USER_GROUP_DETAILS);
+    }
+
+    /**
      * Returns the collection of groups the current user is the leader of.
      * 
      * @return See above.
@@ -261,8 +273,7 @@ public class DMRefreshLoader
     public Set getGroupsLeaderOf()
     {
         Set values = new HashSet();
-        Collection groups = (Collection) context.lookup(
-                LookupNames.USER_GROUP_DETAILS);
+        Collection groups = getAllGroups();
         Iterator i = groups.iterator();
         GroupData g;
         Set leaders;
@@ -277,8 +288,10 @@ public class DMRefreshLoader
                 j = leaders.iterator();
                 while (j.hasNext()) {
                     exp = (ExperimenterData) j.next();
-                    if (exp.getId() == id)
+                    if (exp.getId() == id) {
                         values.add(g);
+                        break;
+                    }
                 }
             }
         }
@@ -332,6 +345,7 @@ public class DMRefreshLoader
                         results = r;
     				}
                 } else { //Not admin groups owner.
+                    Collection allgroups = getAllGroups();
                 	Collection groups = getGroupsLeaderOf();
                 	Iterator i = groups.iterator();
                 	GroupData group;
@@ -341,8 +355,23 @@ public class DMRefreshLoader
                 		group = (GroupData) i.next();
 						ctx = new SecurityContext(group.getId());
 						l.addAll(svc.loadGroups(ctx, group.getId()));
+						allgroups.remove(group);
 					}
-                	context.bind(LookupNames.USER_GROUP_DETAILS, l);
+                	Collection all = new ArrayList();
+                	all.addAll(l);
+                	all.addAll(allgroups);
+                	context.bind(LookupNames.USER_GROUP_DETAILS, all);
+                	List agents = (List) context.lookup(LookupNames.AGENTS);
+                	Iterator kk = agents.iterator();
+                	AgentInfo agentInfo;
+                	Registry reg;
+                	while (kk.hasNext()) {
+                	    agentInfo = (AgentInfo) kk.next();
+                	    if (agentInfo.isActive()) {
+                	        reg = agentInfo.getRegistry();
+                	        reg.bind(LookupNames.USER_GROUP_DETAILS, all);
+                	    }
+                	}
                 	results = l;
                 }
             }
