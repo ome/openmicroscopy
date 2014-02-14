@@ -85,6 +85,29 @@ def choose_omero_version():
     if omero_build:
         omero_build = "-b%s" % omero_build
 
+    command = [ "ant","-f","components/bioformats/build.xml","-q","version" ]
+    err = ""
+    try:
+        p = popen(command, stdout=subprocess.PIPE)
+        for line in iter(p.stdout.readline, ''):
+            line = line.rstrip()
+            if not re.match(r'\s*\[echo\]\s+', line):
+                continue
+            line=re.sub(r'\s+\[echo\]\s+(.*)', r'\1', line)
+            if re.match(r'^VERSION=', line):
+                bioformats_version = re.sub(r'^VERSION=(.*)', r'\1', line)
+            if re.match(r'^SHORTVERSION=', line):
+                bioformats_shortversion = re.sub(r'^SHORTVERSION=(.*)', r'\1', line)
+            if re.match(r'^VCS_DATE=', line):
+                bioformats_vcsdate = re.sub(r'^VCS_DATE=(.*)', r'\1', line)
+            if re.match(r'^VCS_REVISION=', line):
+                bioformats_vcsrevision = re.sub(r'^VCS_REVISION=(.*)', r'\1', line)
+    except:
+        print "Error getting bioformats version for BUILD_NUMBER=%s" % omero_build
+        if err:
+            print err
+        sys.exit(1)
+
     command = [ find_java(), "omero",BUILD_PY,"-q","version" ]
     err = ""
     try:
@@ -136,7 +159,12 @@ def choose_omero_version():
             print err
         sys.exit(1)
 
-    return [ "-Domero.version=%s%s" % (omero_version, omero_build),
+
+    return [ "-Dbioformats.version=%s" % (bioformats_version),
+             "-Dbioformats.shortversion=%s" % (bioformats_shortversion),
+             "-Dbioformats.vcs.date=%s" % (bioformats_vcsdate),
+             "-Dbioformats.vcs.revision=%s" % (bioformats_vcsrevision),
+             "-Domero.version=%s%s" % (omero_version, omero_build),
              "-Domero.plainversion=%s" % (omero_plain_version),
              "-Domero.shortversion=%s" % (omero_short_version) ]
 

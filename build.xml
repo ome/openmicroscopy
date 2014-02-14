@@ -1163,6 +1163,15 @@ omero.version=${omero.version}
 
     <target name="shortversion" depends="shortversion-embed,shortversion-git"/>
 
+    <target name="bfversion" description="Print Bio-Formats version information">
+        <echo>VERSION=${bioformats.version}
+SHORTVERSION=${bioformats.version}
+VCS_DATE=${bioformats.vcs.date}
+VCS_REVISION=${bioformats.vcs.revision}
+</echo>
+    </target>
+
+
     <target name="print-mem">
         <echo>
             *.maxmem.* settings
