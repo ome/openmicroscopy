@@ -66,8 +66,12 @@
     </constructor-arg>
   </bean>
   
-  <bean id="fileParser" class="ome.services.fulltext.FileParser"/>
-  <bean id="pdfParser" class="ome.services.fulltext.PdfParser"/>
+  <bean id="fileParser" class="ome.services.fulltext.FileParser">
+    <property name="maxFileSize" value="${omero.search.max_file_size}"/>
+  </bean>
+  <bean id="pdfParser" class="ome.services.fulltext.PdfParser">
+    <property name="maxFileSize" value="${omero.search.max_file_size}"/>
+  </bean>
 
   <alias name="persistentEventLogLoader" alias="eventLogLoader"/>
 
