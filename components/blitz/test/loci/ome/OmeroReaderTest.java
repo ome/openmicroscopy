@@ -23,7 +23,7 @@
  * #L%
  */
 
-package loci.tests;
+package loci.ome;
 
 import java.io.BufferedReader;
 import java.io.IOException;
