@@ -11,6 +11,7 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 
 import loci.common.services.ServiceFactory;
+import loci.formats.codec.JPEG2000CodecOptions;
 import loci.formats.services.JAIIIOService;
 import ome.conditions.MissingPyramidException;
 import ome.model.core.Pixels;
@@ -111,9 +112,13 @@ public class SimpleBackOff implements BackOff {
 
         for (int i = 0; i < count; i++) {
             sw = new Slf4JStopWatch(key);
+            JPEG2000CodecOptions options = JPEG2000CodecOptions.getDefaultOptions();
+            options.lossless = false;
+            options.codeBlockSize = CODE_BLOCK;
+            options.quality = 1.0f;
             image = new BufferedImage(sizes.getTileWidth(), sizes.getTileHeight(), IMAGE_TYPE);
             stream = new ByteArrayOutputStream();
-            service.writeImage(stream, image, false, CODE_BLOCK, 1.0);
+            service.writeImage(stream, image, options);
             sw.stop();
             elapsed += sw.getElapsedTime();
         }
