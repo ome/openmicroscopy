@@ -1803,6 +1803,11 @@ class TreeViewerComponent
 				browser.addExperimenter(exp, userGroupID);
 			}
 		}
+		//clean display if 
+		if (users.size() > 0) {
+		      DataBrowserFactory.discardAll();
+		        view.removeAllFromWorkingPane();
+		}
 	}
 
 	/**
@@ -2482,6 +2487,8 @@ class TreeViewerComponent
 			browser = entry.getValue();
 			browser.removeExperimenter(exp, groupID);
 		}
+		DataBrowserFactory.discardAll();
+        view.removeAllFromWorkingPane();
 	}
 
 	/**
@@ -4579,6 +4586,8 @@ class TreeViewerComponent
 				break;
 			}
 		}
+		DataBrowserFactory.discardAll();
+        view.removeAllFromWorkingPane();
 	}
 
 	/** 
