@@ -14,7 +14,7 @@
     <dependency org="omero" name="blitz-test" rev="${omero.version}" changing="true"/>
     <dependency org="ome" name="bio-formats" rev="${omero.version}" changing="true">
        <artifact name="specification"/>
-       <artifact name="scifio-test"/>
+       <artifact name="formats-bsd-test"/>
     </dependency>
   </dependencies>
 </ivy-module>
