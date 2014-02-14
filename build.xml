@@ -452,12 +452,15 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
             depends="check-git" if="git.exists">
         <mkdir dir="${target.dir}"/>
         <exec executable="python" failonerror="true">
-            <arg value="${omero.home}/components/antlib/scripts/source-archive"/>
-            <arg value="openmicroscopy"/>
-            <arg value="${omero.shortversion}"/>
-            <arg value="${omero.plainversion}"/>
-            <arg value="components/antlib/resources/gitversion.xml"/>
-            <arg value="${target.dir}"/>
+            <arg value="${omero.home}/components/bioformats/tools/source-archive"/>
+            <arg value="--release=openmicroscopy"/>
+            <arg value="--openmicroscopy-version=${omero.shortversion}"/>
+            <arg value="--openmicroscopy-shortversion=${omero.plainversion}"/>
+            <arg value="--bioformats-shortversion=${bioformats.shortversion}"/>
+            <arg value="--bioformats-version=${bioformats.version}"/>
+            <arg value="--bioformats-vcsrevision=${bioformats.vcs.revision}"/>
+            <arg value="--bioformats-vcsdate=${bioformats.vcs.date}"/>
+            <arg value="--target=${target.dir}"/>
         </exec>
     </target>
 
