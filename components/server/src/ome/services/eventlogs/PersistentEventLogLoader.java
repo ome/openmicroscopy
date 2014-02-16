@@ -116,6 +116,7 @@ public abstract class PersistentEventLogLoader extends EventLogLoader {
             } catch (IOException e) {
                 log.warn("Problem writting current event log ID file: " + e);
                 log.info("Falling back to database for ID tracking.");
+                this.useFileLog = false;
                 return currentIdFromDatabase();
             }
         } else {
@@ -126,8 +127,9 @@ public abstract class PersistentEventLogLoader extends EventLogLoader {
     public long currentIdFromFile() throws IOException {
         if (dataDir == null) {
             log.warn("Attempted to use a file to track event log progress, but "
-                        + "the location of the \"Indexer\" directory is not"
+                        + "the location of the OMERO data directory is not"
                         + "set. Falling back to database for tracking.");
+            this.useFileLog = false;
             return currentIdFromDatabase();
         }
 
@@ -197,6 +199,7 @@ public abstract class PersistentEventLogLoader extends EventLogLoader {
             } catch (IOException e) {
                 log.warn("Problem writting current event log ID file: " + e);
                 log.info("Falling back to database for ID tracking.");
+                this.useFileLog = false;
                 setCurrentIdDatabase(id);
             }
         } else {
@@ -207,8 +210,9 @@ public abstract class PersistentEventLogLoader extends EventLogLoader {
     public void setCurrentIdFile(long id) throws IOException {
         if (dataDir == null) {
             log.warn("Attempted to use a file to track event log progress, but "
-                        + "the location of the \"Indexer\" directory is not"
+                        + "the location of the OMERO data directory is not"
                         + "set. Falling back to database for ID tracking.");
+            this.useFileLog = false;
             setCurrentIdDatabase(id);
         }
 
