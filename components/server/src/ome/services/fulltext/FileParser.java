@@ -110,7 +110,7 @@ public class FileParser implements ApplicationContextAware {
         }
 
         if (file.length() > this.maxFileSize) {
-            log.warn("File too large for indexing. Skipping: "
+            log.info("File too large for indexing. Skipping: "
                     + file.getAbsoluteFile());
             return EMPTY;
         }
