@@ -124,7 +124,7 @@ public abstract class PersistentEventLogLoader extends EventLogLoader {
         }
     }
 
-    public long currentIdFromFile() throws IOException {
+    private long currentIdFromFile() throws IOException {
         if (dataDir == null) {
             log.warn("Attempted to use a file to track event log progress, but "
                         + "the location of the OMERO data directory is not"
@@ -173,7 +173,7 @@ public abstract class PersistentEventLogLoader extends EventLogLoader {
         return current_id;
     }
 
-    public long currentIdFromDatabase() {
+    private long currentIdFromDatabase() {
         long current_id;
         try {
             current_id = sql.selectCurrentEventLog(key);
@@ -207,7 +207,7 @@ public abstract class PersistentEventLogLoader extends EventLogLoader {
         }
     }
 
-    public void setCurrentIdFile(long id) throws IOException {
+    private void setCurrentIdFile(long id) throws IOException {
         if (dataDir == null) {
             log.warn("Attempted to use a file to track event log progress, but "
                         + "the location of the OMERO data directory is not"
@@ -251,7 +251,7 @@ public abstract class PersistentEventLogLoader extends EventLogLoader {
         }
     }
 
-    public void setCurrentIdDatabase(long id) {
+    private void setCurrentIdDatabase(long id) {
         sql.setCurrentEventLog(id, key);
     }
 
