@@ -89,6 +89,10 @@ def choose_omero_version():
     err = ""
     try:
         p = popen(command, stdout=subprocess.PIPE)
+        bioformats_version = 'UNKNOWN'
+        bioformats_shortversion = 'UNKNOWN'
+        bioformats_vcsdate = 'UNKNOWN'
+        bioformats_vcsrevision = 'UNKNOWN'
         for line in iter(p.stdout.readline, ''):
             line = line.rstrip()
             if not re.match(r'\s*\[echo\]\s+', line):
