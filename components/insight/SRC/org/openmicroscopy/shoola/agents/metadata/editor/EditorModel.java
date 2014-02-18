@@ -4365,6 +4365,6 @@ class EditorModel
     boolean isInplaceImport() {
     	StructuredDataResults data = parent.getStructuredData();
 		if (data == null) return false;
-    	return CollectionUtils.isNotEmpty(data.getSymLinks());
+    	return CollectionUtils.isNotEmpty(data.getTransferLinks());
     }
 }

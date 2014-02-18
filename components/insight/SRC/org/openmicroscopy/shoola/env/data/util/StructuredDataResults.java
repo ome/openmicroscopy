@@ -81,8 +81,8 @@ public class StructuredDataResults
 	/** The object the results are for. */
 	private DataObject					relatedObject;
 	
-	/** The collection of symlinks  for in-place imports.*/
-	private Collection<DataObject> symlinks;
+	/** The collection of links  for in-place imports.*/
+	private Collection<AnnotationData> transferlinks;
 
 	/** 
 	 * Collection of parents. 
@@ -321,9 +321,9 @@ public class StructuredDataResults
 		this.annotationLinks = annotationLinks;
 	}
 	
-	public void setSymlinks(Collection<DataObject> symlinks)
+	public void setTransferlinks(Collection<AnnotationData> transferlinks)
 	{
-		this.symlinks = symlinks;
+		this.transferlinks = transferlinks;
 	}
 	
 	/**
@@ -331,8 +331,8 @@ public class StructuredDataResults
 	 * 
 	 * @return See above.
 	 */
-	public Collection<DataObject> getSymLinks()
+	public Collection<AnnotationData> getTransferLinks()
 	{
-		return symlinks;
+		return transferlinks;
 	}
 }
