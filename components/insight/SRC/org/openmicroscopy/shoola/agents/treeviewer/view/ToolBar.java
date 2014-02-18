@@ -179,7 +179,7 @@ class ToolBar
             c = popupMenu.getComponent(i);
             if (c instanceof GroupItem) {
                 item = (GroupItem) c;
-                item.setEnabledUsers(userDisplay);
+                item.setDisplay(userDisplay);
             }
         }
         int mode = LookupNames.EXPERIMENTER_DISPLAY;
@@ -316,7 +316,7 @@ class ToolBar
         ExperimenterVisitor visitor;
         List<Long> users = new ArrayList<Long>();
         //Find the group already displayed
-        if (group != null) {
+        if (group != null && size > 0) {
             visitor = new ExperimenterVisitor(browser, group.getId());
             browser.accept(visitor);
             nodes = visitor.getNodes();
