@@ -152,9 +152,6 @@ class ToolBar
     /** Used to sort the list of users.*/
     private ViewerSorter sorter;
 
-    /** Button indicating to add the user to the display.*/
-    private JButton addToDisplay;
-
     /** The menu displaying the users option.*/
     private JPopupMenu popupMenu;
 
