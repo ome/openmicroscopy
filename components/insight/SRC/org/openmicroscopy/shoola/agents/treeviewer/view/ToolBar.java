@@ -409,7 +409,7 @@ class ToolBar
             }
             p.add(UIUtilities.buildComponentPanel(list));
         }
-        allUser.setSelected(total == count);
+        allUser.setSelected(total != 0 && total == count);
         allUser.addPropertyChangeListener(groupItem);
         groupItem.add(new JScrollPane(p));
         groupItem.setUsersItem(items);
