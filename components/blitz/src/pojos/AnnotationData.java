@@ -12,6 +12,7 @@ import java.sql.Timestamp;
 
 //Third-party libraries
 
+
 //Application-internal dependencies
 import static omero.rtypes.*;
 import omero.model.Annotation;
@@ -28,6 +29,9 @@ import omero.model.Annotation;
  */
 public abstract class AnnotationData extends DataObject {
 
+    /**  The name space used to identify the file transfer type. */
+    public static final String FILE_TRANSFER_NS =
+    	omero.constants.namespaces.NSFILETRANSFER.value;
     /**
      * Creates a new instance.
      * 
