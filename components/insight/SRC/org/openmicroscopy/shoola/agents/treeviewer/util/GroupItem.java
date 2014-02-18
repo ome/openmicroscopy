@@ -177,10 +177,10 @@ public class GroupItem
     /**
      * Sets the enabled flag of the items hosting the users.
      *
-     * @param enabled Pass <code>true</code> to enable,
-     *                <code>false</code> otherwise
+     * @param enabled Pass <code>true</code> to enable (user display),
+     *                <code>false</code> otherwise (group display).
      */
-    public void setEnabledUsers(boolean enabled)
+    public void setDisplay(boolean enabled)
     {
         Iterator<DataMenuItem> i = usersItem.iterator();
         DataMenuItem item;
@@ -190,14 +190,13 @@ public class GroupItem
             item = i.next();
             item.setEnabled(enabled);
             if (!enabled) {
-                item.setSelected(false);
+                item.setSelected(true);
             } else {
                 ho = item.getDataObject();
                 if (ho instanceof ExperimenterData) {
                     exp = (ExperimenterData) ho;
-                    if (exp.getId() == userID)
-                        item.setSelected(true);
-                }
+                    item.setSelected(exp.getId() == userID);
+                } else item.setSelected(false);
             }
         }
     }
