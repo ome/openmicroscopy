@@ -68,7 +68,6 @@ import javax.swing.event.DocumentListener;
 import javax.swing.text.Document;
 
 import org.apache.commons.lang.StringUtils;
-import org.hibernate.ejb.criteria.predicate.InPredicate;
 import org.jdesktop.swingx.JXTaskPane;
 import org.openmicroscopy.shoola.agents.events.editor.EditFileEvent;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
