@@ -1029,8 +1029,10 @@ class ToolBar
     {
         Browser browser = model.getSelectedBrowser();
         if (browser != null &&
-                browser.getBrowserType() == Browser.ADMIN_EXPLORER)
+                browser.getBrowserType() == Browser.ADMIN_EXPLORER) {
+            menuButton.setEnabled(false);
             return;
+        }
         Collection set = TreeViewerAgent.getAvailableUserGroups();
         boolean b = set != null && set.size() > 1;
         menuButton.setEnabled(true);
