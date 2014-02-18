@@ -1035,6 +1035,7 @@ class TreeViewerWin
 			item.setText(a.getActionName());
 			item.setToolTipText(a.getActionDescription());
 		}
+    	toolBar.setPermissions();
     }
     
     /** Shows or hides the Tree Viewer. */

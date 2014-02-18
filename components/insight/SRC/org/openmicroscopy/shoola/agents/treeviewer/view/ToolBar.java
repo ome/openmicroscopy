@@ -1033,21 +1033,7 @@ class ToolBar
             menuButton.setEnabled(false);
             return;
         }
-        Collection set = TreeViewerAgent.getAvailableUserGroups();
-        boolean b = set != null && set.size() > 1;
         menuButton.setEnabled(true);
-        if (model.getDisplayMode() == TreeViewer.GROUP_DISPLAY) {
-            b = true;
-        }
-
-        if (!b) {
-            GroupData group = model.getSelectedGroup();
-            if (group.getPermissions().getPermissionsLevel() ==
-                    GroupData.PERMISSIONS_PRIVATE)
-                menuButton.setEnabled(model.isAdministrator() ||
-                        model.isGroupOwner(group));
-        }
-        repaint();
     }
 
     /** Invokes when import is going on or finished.*/
