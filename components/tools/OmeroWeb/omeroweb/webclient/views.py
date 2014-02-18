@@ -173,6 +173,9 @@ def login(request):
                             url = parse_url(settings.LOGIN_REDIRECT)
                         except:
                             url = reverse("webindex")
+                    url_hash = request.REQUEST.get("hash")
+                    if url_hash is not None:
+                        url = url + "#" + url_hash
                     return HttpResponseRedirect(url)
                 elif username == "guest":
                     error = "Guest account is for internal OMERO use only. Not for login."
@@ -205,6 +208,9 @@ def login(request):
     if hasattr(settings, 'LOGIN_LOGO'):
         context['LOGIN_LOGO'] = settings.LOGIN_LOGO
 
+    url_hash = request.REQUEST.get("hash")
+    if url_hash is not None:
+        context['url'] = "%s#%s" % (context['url'], url_hash)
     t = template_loader.get_template(template)
     c = Context(request, context)
     rsp = t.render(c)
@@ -2208,7 +2214,7 @@ def activities(request, conn=None, **kwargs):
         rv['inprogress'] = in_progress
         rv['failure'] = failure
         rv['jobs'] = len(request.session['callback'])
-        return HttpJsonResponse(json.dumps(rv)) # json
+        return HttpJsonResponse(rv) # json
         
     jobs = []
     new_errors = False
