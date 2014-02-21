@@ -241,6 +241,7 @@ class ToolBar
      */
     private void createGroupMenu(GroupItem groupItem, int size)
     {
+        long loggedUserID = model.getUserDetails().getId();
         GroupData group = groupItem.getGroup();
         //Determine the user already added to the display
         Browser browser = model.getBrowser(Browser.PROJECTS_EXPLORER);
@@ -291,38 +292,18 @@ class ToolBar
         list.setLayout(new BoxLayout(list, BoxLayout.Y_AXIS));
         allUser = new DataMenuItem(DataMenuItem.ALL_USERS_TEXT, true);
         items.add(allUser);
-        list.add(allUser);
+        if (view) list.add(allUser);
         p.add(UIUtilities.buildComponentPanel(list));
         int count = 0;
         int total = 0;
-        if (CollectionUtils.isNotEmpty(l) && view) {
-            p.add(formatHeader("Group owners"));
-            total += l.size();
-            i = l.iterator();
-            list = new JPanel();
-            list.setLayout(new BoxLayout(list, BoxLayout.Y_AXIS));
-            while (i.hasNext()) {
-                exp = (ExperimenterData) i.next();
-                item = new DataMenuItem(exp, true);
-                item.setSelected(users.contains(exp.getId()));
-                if (item.isSelected()) count++;
-                item.addPropertyChangeListener(groupItem);
-                items.add(item);
-                list.add(item);
-            }
-            p.add(UIUtilities.buildComponentPanel(list));
-        }
-
-        l = sorter.sort(group.getMembersOnly());
         if (CollectionUtils.isNotEmpty(l)) {
-            p.add(formatHeader("Members"));
             total += l.size();
             i = l.iterator();
             list = new JPanel();
             list.setLayout(new BoxLayout(list, BoxLayout.Y_AXIS));
             while (i.hasNext()) {
                 exp = (ExperimenterData) i.next();
-                if (view) {
+                if (view || exp.getId() == loggedUserID) {
                     item = new DataMenuItem(exp, true);
                     item.setSelected(users.contains(exp.getId()));
                     if (item.isSelected()) count++;
@@ -331,7 +312,33 @@ class ToolBar
                     list.add(item);
                 }
             }
-            p.add(UIUtilities.buildComponentPanel(list));
+            if (list.getComponentCount() > 0) {
+                p.add(formatHeader("Group owners"));
+                p.add(UIUtilities.buildComponentPanel(list));
+            }
+        }
+
+        l = sorter.sort(group.getMembersOnly());
+        if (CollectionUtils.isNotEmpty(l)) {
+            total += l.size();
+            i = l.iterator();
+            list = new JPanel();
+            list.setLayout(new BoxLayout(list, BoxLayout.Y_AXIS));
+            while (i.hasNext()) {
+                exp = (ExperimenterData) i.next();
+                if (view || exp.getId() == loggedUserID) {
+                    item = new DataMenuItem(exp, true);
+                    item.setSelected(users.contains(exp.getId()));
+                    if (item.isSelected()) count++;
+                    item.addPropertyChangeListener(groupItem);
+                    items.add(item);
+                    list.add(item);
+                }
+            }
+            if (list.getComponentCount() > 0) {
+                p.add(formatHeader("Members"));
+                p.add(UIUtilities.buildComponentPanel(list));
+            }
         }
         allUser.setSelected(total == count);
         allUser.addPropertyChangeListener(groupItem);
