@@ -344,11 +344,13 @@ class ImageTable
 				node.setSibingColor(null);
 				if (refNode instanceof ImageData) {
 					selected = (ImageData) refNode;
-					sibling = (ImageData) nodeDataObject;
-					if (selected.getId() != nodeId &&
-							selected.getFilesetId() == sibling.getFilesetId()) {
-						node.setSibingColor(borderColor);
-						break;
+					if (nodeDataObject instanceof ImageData) {
+					    sibling = (ImageData) nodeDataObject;
+					    if (selected.getId() != nodeId &&
+	                            selected.getFilesetId() == sibling.getFilesetId()) {
+	                        node.setSibingColor(borderColor);
+	                        break;
+	                    }
 					}
 				}
 			}
