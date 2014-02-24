@@ -2,10 +2,10 @@
  * org.openmicroscopy.shoola.agents.dataBrowser.view.ImageTable 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -69,9 +69,6 @@ import pojos.ImageData;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since OME3.0
  */
 class ImageTable
@@ -344,11 +341,13 @@ class ImageTable
 				node.setSibingColor(null);
 				if (refNode instanceof ImageData) {
 					selected = (ImageData) refNode;
-					sibling = (ImageData) nodeDataObject;
-					if (selected.getId() != nodeId &&
-							selected.getFilesetId() == sibling.getFilesetId()) {
-						node.setSibingColor(borderColor);
-						break;
+					if (nodeDataObject instanceof ImageData) {
+					    sibling = (ImageData) nodeDataObject;
+					    if (selected.getId() != nodeId &&
+	                            selected.getFilesetId() == sibling.getFilesetId()) {
+	                        node.setSibingColor(borderColor);
+	                        break;
+	                    }
 					}
 				}
 			}
