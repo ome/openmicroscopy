@@ -355,7 +355,7 @@
       <dependencies>bioformats_package.jar, loci_tools.jar</dependencies>
       <conjunction>or</conjunction>
       <directory>plugins</directory>
-      <info>http://downloads.openmicroscopy.org/bio-formats/@OMERO_DISPLAY_VERSION@</info>
+      <info>http://downloads.openmicroscopy.org/latest/bio-formats5</info>
       <name>ImageJ</name>
     </plugin>
   </structuredEntry>
