@@ -663,29 +663,34 @@ class Connector
 		}
 	}
 
-	
-	/** Keeps the services alive. */
-	void keepSessionAlive()
-	{
-		boolean success = true;
-	    try {
-			entryEncrypted.keepAllAlive(null);
-		} catch (Exception e) {
-		    success = false;
-		    log("Failed encrypted keep alive:" + e);
-		}
-		try {
-			if (entryUnencrypted != null)
-				entryUnencrypted.keepAllAlive(null);
-		} catch (Exception e) {
-		    success = false;
-		    log("failed unencrypted keep alive:" + e);
-		}
+	/**
+     * Keeps the services alive.
+     * Returns <code>true</code> if success, <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
+    boolean keepSessionAlive()
+    {
+        boolean success = true;
+        try {
+            entryEncrypted.keepAllAlive(null);
+        } catch (Exception e) {
+            success = false;
+            log("Failed encrypted keep alive: " + getErrorMessage(e));
+        }
+        try {
+            if (entryUnencrypted != null && success)
+                entryUnencrypted.keepAllAlive(null);
+        } catch (Exception e) {
+            success = false;
+            log("failed unencrypted keep alive: " + getErrorMessage(e));
+        }
 
-		if (success) {
-		    lastKeepAlive.set(System.currentTimeMillis());
-		}
-	}
+        if (success) {
+            lastKeepAlive.set(System.currentTimeMillis());
+        }
+        return success;
+    }
 
 	/**
 	 * Closes the specified proxy.
