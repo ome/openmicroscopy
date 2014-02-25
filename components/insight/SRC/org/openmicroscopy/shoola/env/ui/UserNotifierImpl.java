@@ -448,31 +448,33 @@ public class UserNotifierImpl implements UserNotifier, PropertyChangeListener {
 			        msg.print(e);
 			        logger.error(this, msg);
 			    }
+			    UserCredentials lc = (UserCredentials)
+                        manager.getRegistry().lookup(
+                                LookupNames.USER_CREDENTIALS);
 			    StringBuffer buffer = new StringBuffer();
+			    buffer.append(" -s ");
+                buffer.append(lc.getHostName());
+                buffer.append(" -p ");
+                buffer.append(lc.getPort());
+                buffer.append(" -g ");
+                buffer.append(ctx.getGroupID());
 			    if (uuid == null) { //no session pass user credentials
-			        UserCredentials lc = (UserCredentials)
-			                manager.getRegistry().lookup(
-			                        LookupNames.USER_CREDENTIALS);
-			        buffer.append("server=");
-			        buffer.append(lc.getHostName());
-			        buffer.append(" user=");
+			        buffer.append(" -u ");
 			        buffer.append(lc.getUserName());
-			        buffer.append(" password=");
+			        buffer.append(" -pwd ");
 			        buffer.append(lc.getPassword());
-			        buffer.append(" port=");
-			        buffer.append(lc.getPort());
-			        buffer.append(" group=");
-			        buffer.append(ctx.getGroupID());
-			    } else buffer.append("key="+uuid);
 
+			    } else buffer.append(" -k "+uuid);
+
+			    buffer.append(" -w boxit");
 			    //now data type
 			    DataObject object = p.getObject();
 			    String name = object.asIObject().getClass().getSimpleName();
 			    if (name.endsWith("I"))
 			        name = name.substring(0, name.length()-1);
-			    buffer.append(" data_type="+name.toLowerCase());
-			    buffer.append(" nids="+object.getId());
-			    commands.add(buffer.toString());
+			    buffer.append(" -t "+name.toLowerCase());
+			    buffer.append(" id "+object.getId());
+			    commands.add("\""+buffer.toString()+"\"");
 			    for (String arg : args) {
 			        commands.add(arg);
 			    }
@@ -541,8 +543,10 @@ public class UserNotifierImpl implements UserNotifier, PropertyChangeListener {
 			logger.info(this, "Executing command & args: " + 
 					Arrays.toString(commandLineElements));
 
+			String v = StringUtils.join(commandLineElements, " ");
+			System.err.println(v);
 			Runtime runtime = Runtime.getRuntime();
-			runtime.exec(commandLineElements);
+			runtime.exec(v);
 		} catch (Exception e) {
 			logger.error(this, e.getMessage());
 		}
