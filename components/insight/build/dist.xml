@@ -182,9 +182,12 @@
       <fileset dir="${app.compiled.dir}"/>
       <fileset dir="${dist.jar.app.config.dir}" includes="${dist.jar.app.config.base}/**"/>
       <manifest>
+        <attribute name="Application-Name" value="${distInsight.name}"/>
+        <attribute name="Codebase" value="*"/>
         <attribute name="Created-By" value="OMERO Development Team"/>
         <attribute name="Class-Path" value="${dist.jar.manifest.cp}"/>
         <attribute name="Main-Class" value="${app.mainclass}"/>
+        <attribute name="Permissions" value="all-permissions"/>
       </manifest>
     </jar>
   </target>

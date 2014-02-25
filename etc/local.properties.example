@@ -46,7 +46,11 @@ ivy.log.resolved.revision=false
 jarsign.keystore=${omero.home}/lib/keystore
 jarsign.alias=omedev
 jarsign.storepass=omedev
+#Password can be stored in a file with Java>=1.7
+#jarsign.storepassfile=
 jarsign.validity=1000
+#Timestamping can be enabled by providing a server url
+#jarsign.tsa=
 
 ############################################
 # Testing
