@@ -545,8 +545,8 @@ public class UserNotifierImpl implements UserNotifier, PropertyChangeListener {
 			logger.info(this, "Executing command & args: " + 
 					Arrays.toString(commandLineElements));
 
-			Runtime runtime = Runtime.getRuntime();
-			runtime.exec(StringUtils.join(commandLineElements, " "));
+			ProcessBuilder builder = new ProcessBuilder(commandLineElements);
+			builder.start();
 		} catch (Exception e) {
 			logger.error(this, e.getMessage());
 		}
