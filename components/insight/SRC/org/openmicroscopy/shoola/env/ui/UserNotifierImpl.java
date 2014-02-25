@@ -451,7 +451,11 @@ public class UserNotifierImpl implements UserNotifier, PropertyChangeListener {
 			    UserCredentials lc = (UserCredentials)
                         manager.getRegistry().lookup(
                                 LookupNames.USER_CREDENTIALS);
+			    String name = (String)
+			            manager.getRegistry().lookup(LookupNames.MASTER);
+			    if (name == null) name = LookupNames.MASTER_INSIGHT;
 			    StringBuffer buffer = new StringBuffer();
+			    buffer.append(name);
 			    buffer.append(" -s ");
                 buffer.append(lc.getHostName());
                 buffer.append(" -p ");
@@ -465,11 +469,9 @@ public class UserNotifierImpl implements UserNotifier, PropertyChangeListener {
 			        buffer.append(lc.getPassword());
 
 			    } else buffer.append(" -k "+uuid);
-
-			    buffer.append(" -w boxit");
 			    //now data type
 			    DataObject object = p.getObject();
-			    String name = object.asIObject().getClass().getSimpleName();
+			    name = object.asIObject().getClass().getSimpleName();
 			    if (name.endsWith("I"))
 			        name = name.substring(0, name.length()-1);
 			    buffer.append(" -t "+name.toLowerCase());
@@ -543,10 +545,8 @@ public class UserNotifierImpl implements UserNotifier, PropertyChangeListener {
 			logger.info(this, "Executing command & args: " + 
 					Arrays.toString(commandLineElements));
 
-			String v = StringUtils.join(commandLineElements, " ");
-			System.err.println(v);
 			Runtime runtime = Runtime.getRuntime();
-			runtime.exec(v);
+			runtime.exec(StringUtils.join(commandLineElements, " "));
 		} catch (Exception e) {
 			logger.error(this, e.getMessage());
 		}
