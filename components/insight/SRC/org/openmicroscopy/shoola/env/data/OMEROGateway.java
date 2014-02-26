@@ -8316,7 +8316,6 @@ class OMEROGateway
 	}
 
 	/**
-<<<<<<< HEAD
 	 * Returns the system groups and users
 	 * 
 	 * @param ctx The security context.

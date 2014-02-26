@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.data.AdminService 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -306,7 +306,6 @@ public interface AdminService
      * @throws DSOutOfServiceException If the connection is broken, or logged in
      * @throws DSAccessException If an error occurred while trying to 
      * retrieve data from OMERO service.
-<<<<<<< HEAD
      */
     public Map<Long, Long> countExperimenters(SecurityContext ctx,
             List<Long> ids)
@@ -499,16 +498,16 @@ public interface AdminService
      */
     public boolean isSystemUser(long userID, String key);
 
-	/**
-	 * Creates a new session to pass to a 3rd-party application.
-	 * 
-	 * @param ctx The security context.
-	 * @return See above.
+    /**
+     * Creates a new session to pass to a 3rd-party application.
+     * 
+     * @param ctx The security context.
+     * @return See above.
      * @throws DSOutOfServiceException If the connection is broken, or logged in
      * @throws DSAccessException If an error occurred while trying to 
      * retrieve data from OMERO service.
-	 */
-	public String createNewSession(SecurityContext ctx)
-	        throws DSOutOfServiceException, DSAccessException;
+     */
+    public String createNewSession(SecurityContext ctx)
+            throws DSOutOfServiceException, DSAccessException;
 
 }
