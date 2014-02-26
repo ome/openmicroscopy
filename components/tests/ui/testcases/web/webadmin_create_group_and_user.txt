@@ -27,8 +27,8 @@ Check Group Form
     Page Should Contain Input Field     Name            name
     Page Should Contain Input Field     Description     description
     
-    Page Should Contain Choice Field    Owners          Choose one or more owners
-    Page Should Contain Choice Field    Members         Choose one or more members
+    Page Should Contain Choice Field    Owners          Type owner names to add...
+    Page Should Contain Choice Field    Members         Type member names to add...
     
     Page Should Contain Radio Field     Permissions     permissions                     0
     
@@ -63,7 +63,7 @@ Check User Form
     Page Should Contain Checkbox Field      Administrator   administrator
     Page Should Contain Checkbox Field      Active          active          selected=${True}
     
-    Page Should Contain Choice Field        Group           Choose one or more groups
+    Page Should Contain Choice Field        Group           Type group names to add...
     
     Page Should Contain Button              Save
 
