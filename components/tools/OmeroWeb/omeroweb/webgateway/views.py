@@ -69,7 +69,7 @@ except: #pragma: nocover
         import Image
         import ImageDraw
     except:
-        logger.error('No PIL installed')
+        logger.error('No Pillow installed')
 
 def index (request):
     """ /webgateway/ index placeholder """
@@ -975,7 +975,7 @@ def render_split_channel (request, iid, z, t, conn=None, **kwargs):
     """
     Renders a split channel view of the image with id {{iid}} at {{z}} and {{t}} as jpeg.
     Many options are available from the request dict.
-    Requires PIL to be installed on the server.
+    Requires Pillow to be installed on the server.
 
     @param request:     http request
     @param iid:         Image ID

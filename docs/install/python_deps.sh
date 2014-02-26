@@ -38,9 +38,9 @@ install(){
 }
 
 
-# Numpy & PIL
+# Numpy & Pillow
 install numpy
-install PIL
+install Pillow
 
 # Scipy (requires Gfortran compiler)
 install scipy || echo "Scipy installation failed. Make sure a fortran compiler is available."

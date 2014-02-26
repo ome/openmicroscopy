@@ -34,7 +34,7 @@ except:  #pragma: nocover
     try:
         import Image  # see ticket:2597
     except:
-        logging.error('No PIL installed')
+        logging.error('No Pillow installed')
 
 try:
     import hashlib
