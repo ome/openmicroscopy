@@ -463,6 +463,19 @@ public class DataServicesFactory
         }
     }
 
+    /**
+     * Returns the value of the plug-in or <code>-1</code>.
+     * 
+     * @return See above.
+     */
+    int runAsPlugin()
+    {
+        Integer v = (Integer) container.getRegistry().lookup(
+                LookupNames.PLUGIN);
+        if (v == null) return -1;
+        return v.intValue();
+    }
+
 	/**
 	 * Brings up a dialog indicating that the session has expired and
 	 * quits the application.
