@@ -1,7 +1,7 @@
 /*
  *   $Id$
  *
- *   Copyright 2008 Glencoe Software, Inc. All rights reserved.
+ *   Copyright 2008-14 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -18,8 +18,9 @@ import ome.services.util.Executor;
 import ome.system.OmeroContext;
 import ome.services.eventlogs.*;
 
-import org.apache.log4j.xml.DOMConfigurator;
 import org.hibernate.SessionFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.util.ResourceUtils;
 
@@ -72,26 +73,14 @@ public class Main {
 
     public static void usage() {
         StringBuilder sb = new StringBuilder();
-        sb
-                .append("usage: ome.service.fulltext.Main [help|standalone|events|full|reindex class1 class2 class3 ...]\n");
+        sb.append("usage: [-Dlogback.configurationFile=stderr.xml] ");
+        sb.append("ome.service.fulltext.Main [help|standalone|events|full|");
+        sb.append("reindex class1 class2 class3 ...]\n");
         System.out.println(sb.toString());
         System.exit(-2);
     }
 
     public static void main(String[] args) throws Throwable {
-
-        // Copied from blitz Entry
-        try {
-            String log4j_xml = System.getProperty("log4j.configuration", "");
-            if (log4j_xml.length() == 0) {
-                File file = ResourceUtils.getFile("classpath:log4j.xml");
-                log4j_xml = file.getAbsolutePath();
-            }
-            DOMConfigurator.configureAndWatch(log4j_xml);
-        } catch (Exception e) {
-            String msg = "CANNOT INITIALIZE LOGGING. Set -Dlog4j.configuration=...";
-            throw new RuntimeException(msg, e);
-        }
 
         int rc = 0;
         try {
