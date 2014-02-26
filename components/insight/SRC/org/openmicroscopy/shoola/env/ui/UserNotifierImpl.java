@@ -491,14 +491,14 @@ public class UserNotifierImpl implements UserNotifier, PropertyChangeListener {
                                 buffer.append(" -d "+object.getId());
                             } else {
                                 buffer.append(" -t "+name.toLowerCase());
-                                buffer.append(" id "+object.getId());
+                                buffer.append(" --id "+object.getId());
                             }
                         }
                         id += object.getId()+" ";
                     }
 	                if (n > 1) {
 	                    buffer.append(" -t "+name.toLowerCase());
-                        buffer.append(" id "+id);
+                        buffer.append(" --id "+id);
 	                }
 			    }
 			    commands.add(buffer.toString());
