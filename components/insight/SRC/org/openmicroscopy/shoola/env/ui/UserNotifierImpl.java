@@ -465,7 +465,7 @@ public class UserNotifierImpl implements UserNotifier, PropertyChangeListener {
 			    if (uuid == null) { //no session pass user credentials
 			        buffer.append(" -u ");
 			        buffer.append(lc.getUserName());
-			        buffer.append(" -pwd ");
+			        buffer.append(" -w ");
 			        buffer.append(lc.getPassword());
 
 			    } else buffer.append(" -k "+uuid);
