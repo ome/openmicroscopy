@@ -3637,13 +3637,16 @@ class TreeViewerComponent
 			OpenActivityParam activity;
 			UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
 			SecurityContext ctx = model.getSecurityContext();
+			List<DataObject> objects = new ArrayList<DataObject>();
 			while (i.hasNext()) {
 				object = i.next();
 				if (object instanceof DataObject) {
-					activity = new OpenActivityParam(data, (DataObject) object,
-							dir);
-					un.notifyActivity(ctx, activity);
+				    objects.add((DataObject) object);
 				}
+			}
+			if (CollectionUtils.isNotEmpty(objects)) {
+			    activity = new OpenActivityParam(data, objects, dir);
+                un.notifyActivity(ctx, activity);
 			}
 			return;
 		}

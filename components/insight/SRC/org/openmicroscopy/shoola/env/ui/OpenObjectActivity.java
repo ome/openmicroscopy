@@ -25,13 +25,17 @@ package org.openmicroscopy.shoola.env.ui;
 
 //Java imports
 import java.io.File;
+import java.util.Collection;
 
 //Third-party libraries
 
+import org.apache.commons.collections.CollectionUtils;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.OpenActivityParam;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+
+import pojos.DataObject;
 
 /** 
  * Activity to open an image or a file.
@@ -89,9 +93,10 @@ public class OpenObjectActivity
 	 */
 	protected UserNotifierLoader createLoader()
 	{
-		loader = new OpenObjectLoader(viewer,  registry, ctx, 
-				parameters.getObject(), 
-				parameters.getFolderPath(), this);
+	    Collection<DataObject> objects = parameters.getObjects();
+	    if (CollectionUtils.isEmpty(objects)) return null;
+		loader = new OpenObjectLoader(viewer,  registry, ctx,
+				objects.iterator().next(), parameters.getFolderPath(), this);
 		return loader;
 	}
 

@@ -31,6 +31,8 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.swing.Icon;
@@ -468,19 +470,37 @@ public class UserNotifierImpl implements UserNotifier, PropertyChangeListener {
 
 			    } else buffer.append(" -k "+uuid);
 			    //now data type
-			    DataObject object = p.getObject();
-			    String name = object.asIObject().getClass().getSimpleName();
-			    if (name.endsWith("I"))
-			        name = name.substring(0, name.length()-1);
-			    if (object instanceof ImageData) {
-                    buffer.append(" -i "+object.getId());
-			    } else if (object instanceof DatasetData) {
-                    buffer.append(" -d "+object.getId());
-			    } else {
-			        buffer.append(" -t "+name.toLowerCase());
-	                buffer.append(" id "+object.getId());
+			    Collection<DataObject> objects = p.getObjects();
+			    if (CollectionUtils.isNotEmpty(objects)) {
+			        Iterator<DataObject> i = objects.iterator();
+			        DataObject object;
+			        String name = null;
+			        int n = objects.size();
+			        String id = "";
+			        while (i.hasNext()) {
+			            object = i.next();
+                        if (name == null) {
+                            name = object.asIObject().getClass().getSimpleName();
+                            if (name.endsWith("I"))
+                                name = name.substring(0, name.length()-1);
+                        }
+                        if (n == 1) {
+                            if (object instanceof ImageData) {
+                                buffer.append(" -i "+object.getId());
+                            } else if (object instanceof DatasetData) {
+                                buffer.append(" -d "+object.getId());
+                            } else {
+                                buffer.append(" -t "+name.toLowerCase());
+                                buffer.append(" id "+object.getId());
+                            }
+                        }
+                        id += object.getId()+" ";
+                    }
+	                if (n > 1) {
+	                    buffer.append(" -t "+name.toLowerCase());
+                        buffer.append(" id "+id);
+	                }
 			    }
-			    
 			    commands.add(buffer.toString());
 			    for (String arg : args) {
 			        commands.add(arg);
