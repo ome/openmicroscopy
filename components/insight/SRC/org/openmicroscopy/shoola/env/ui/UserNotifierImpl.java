@@ -66,7 +66,9 @@ import org.openmicroscopy.shoola.util.ui.NotificationDialog;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 import pojos.DataObject;
+import pojos.DatasetData;
 import pojos.ExperimenterData;
+import pojos.ImageData;
 
 /**
  * Implements the {@link UserNotifier} interface.
@@ -451,11 +453,7 @@ public class UserNotifierImpl implements UserNotifier, PropertyChangeListener {
 			    UserCredentials lc = (UserCredentials)
                         manager.getRegistry().lookup(
                                 LookupNames.USER_CREDENTIALS);
-			    String name = (String)
-			            manager.getRegistry().lookup(LookupNames.MASTER);
-			    if (name == null) name = LookupNames.MASTER_INSIGHT;
 			    StringBuffer buffer = new StringBuffer();
-			    buffer.append(name);
 			    buffer.append(" -s ");
                 buffer.append(lc.getHostName());
                 buffer.append(" -p ");
@@ -471,11 +469,18 @@ public class UserNotifierImpl implements UserNotifier, PropertyChangeListener {
 			    } else buffer.append(" -k "+uuid);
 			    //now data type
 			    DataObject object = p.getObject();
-			    name = object.asIObject().getClass().getSimpleName();
+			    String name = object.asIObject().getClass().getSimpleName();
 			    if (name.endsWith("I"))
 			        name = name.substring(0, name.length()-1);
-			    buffer.append(" -t "+name.toLowerCase());
-			    buffer.append(" id "+object.getId());
+			    if (object instanceof ImageData) {
+                    buffer.append(" -i "+object.getId());
+			    } else if (object instanceof DatasetData) {
+                    buffer.append(" -d "+object.getId());
+			    } else {
+			        buffer.append(" -t "+name.toLowerCase());
+	                buffer.append(" id "+object.getId());
+			    }
+			    
 			    commands.add(buffer.toString());
 			    for (String arg : args) {
 			        commands.add(arg);
