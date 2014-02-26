@@ -128,5 +128,5 @@ bin/omero admin start
 
 # Test simple fake import
 touch test.fake
-bin/omero import test.fake
+bin/omero import -s localhost -u root -w root_password test.fake
 rm test.fake
