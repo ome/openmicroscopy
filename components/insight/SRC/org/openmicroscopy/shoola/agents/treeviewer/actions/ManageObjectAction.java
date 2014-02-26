@@ -83,18 +83,18 @@ public class ManageObjectAction
     public static final int CUT = 3;
 
     /** The default name of the action if the index is {@link #COPY}. */
-    private static final String NAME_COPY = "Copy";
+    private static final String NAME_COPY = "Copy Link";
 
     /** The description of the action if the index is {@link #COPY}. */
     private static final String DESCRIPTION_COPY =
-            "Copy the selected elements.";
+            "Copy link(s) to the selected element(s) into the clipboard.";
 
     /** The default name of the action if the index is {@link #PASTE}. */
-    private static final String NAME_PASTE = "Paste";
+    private static final String NAME_PASTE = "Paste Link";
 
     /** The description of the action if the index is {@link #PASTE}. */
     private static final String DESCRIPTION_PASTE =
-            "Paste the selected elements.";
+            "Paste link(s) from the clipboard.";
 
     /** The default name of the action if the index is {@link #REMOVE}. */
     private static final String NAME_REMOVE = "Delete";
@@ -104,11 +104,11 @@ public class ManageObjectAction
             "Delete the selected elements.";
 
     /** The default name of the action if the index is {@link #CUT}. */
-    private static final String NAME_CUT = "Cut";
+    private static final String NAME_CUT = "Cut Link";
 
     /** The description of the action if the index is {@link #CUT}. */
     private static final String DESCRIPTION_CUT =
-            "Cut the selected elements.";
+            "Cut the selected link(s).";
 
     /** The system group to check.*/
     private static final String[] KEYS = {GroupData.SYSTEM, GroupData.GUEST};
