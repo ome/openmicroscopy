@@ -34,6 +34,7 @@ import javax.swing.JComponent;
 
 //Third-party libraries
 
+import org.openmicroscopy.shoola.agents.events.OpenWithAddOnEvent;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.importer.BrowseContainer;
 import org.openmicroscopy.shoola.agents.events.importer.ImportStatusEvent;
@@ -55,6 +56,7 @@ import org.openmicroscopy.shoola.env.data.AdminService;
 import org.openmicroscopy.shoola.env.data.events.ReconnectedEvent;
 import org.openmicroscopy.shoola.env.data.events.SaveEventRequest;
 import org.openmicroscopy.shoola.env.data.events.UserGroupSwitched;
+import org.openmicroscopy.shoola.env.data.model.ApplicationData;
 import org.openmicroscopy.shoola.env.data.util.AgentSaveInfo;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.event.AgentEvent;
@@ -469,7 +471,23 @@ public class TreeViewerAgent
     	if (!env.isServerAvailable()) return;
     	TreeViewerFactory.onAnnotated(evt.getData(), evt.getCount());
     }
-    
+
+    /**
+     * Indicates to open with a given application
+     * 
+     * @param evt The event to handle.
+     */
+    private void handleOpenWithAddOnEvent(OpenWithAddOnEvent evt)
+    {
+        ApplicationData data = evt.getApplication();
+        if (data == null) return;
+        ExperimenterData exp = (ExperimenterData) registry.lookup(
+                LookupNames.CURRENT_USER_DETAILS);
+        if (exp == null) return;
+        TreeViewer viewer = TreeViewerFactory.getTreeViewer(exp);
+        viewer.openWith(data);
+    }
+
     /**
      * Implemented as specified by {@link Agent}.
      * @see Agent#activate(boolean)
@@ -520,6 +538,7 @@ public class TreeViewerAgent
         bus.register(this, ReconnectedEvent.class);
         bus.register(this, MoveToEvent.class);
         bus.register(this, AnnotatedEvent.class);
+        bus.register(this, OpenWithAddOnEvent.class);
     }
 
     /**
@@ -578,6 +597,8 @@ public class TreeViewerAgent
 			handleMoveToEvent((MoveToEvent) e);
 		else if (e instanceof AnnotatedEvent)
 			handleAnnotatedEvent((AnnotatedEvent) e);
+		else if (e instanceof OpenWithAddOnEvent)
+		    handleOpenWithAddOnEvent((OpenWithAddOnEvent) e);
 	}
 
 }
