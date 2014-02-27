@@ -321,13 +321,17 @@ public class StructuredDataResults
 		this.annotationLinks = annotationLinks;
 	}
 	
+	/**
+	 * Sets the collection of transferlink annotations (in-place imports)
+	 * @param transferlinks Transferlink annotations to set
+	 */
 	public void setTransferlinks(Collection<AnnotationData> transferlinks)
 	{
 		this.transferlinks = transferlinks;
 	}
 	
 	/**
-	 * Returns the collection of links.
+	 * Returns the collection of links (in-place imports).
 	 * 
 	 * @return See above.
 	 */
