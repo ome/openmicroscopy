@@ -8,6 +8,7 @@ set -x
 export PSQL_DIR=${PSQL_DIR:-/usr/local/var/postgres}
 export OMERO_DATA_DIR=${OMERO_DATA_DIR:-/tmp/var/OMERO.data}
 export SCRIPT_NAME=${SCRIPT_NAME:-OMERO.sql}
+export ICE=${ICE:-3.5}
 
 # Test whether this script is run in a job environment
 JOB_NAME=${JOB_NAME:-}
@@ -81,7 +82,13 @@ showinf -version
 ###################################################################
 
 # Install PostgreSQL and OMERO
-bin/brew install omero
+if [ "$ICE" == "3.3"]; then
+    bin/brew install omero --with-ice33
+elif [ "$ICE" == "3.4"]; then
+    bin/brew install omero --with-ice34
+else
+    bin/brew install omero
+fi
 bin/brew install postgres
 
 # Install OMERO Python dependencies
