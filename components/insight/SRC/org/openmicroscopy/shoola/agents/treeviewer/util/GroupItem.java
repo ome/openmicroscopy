@@ -215,9 +215,15 @@ public class GroupItem
             while (i.hasNext()) {
                 data = i.next();
                 ho = data.getDataObject();
-                if (ho instanceof ExperimenterData && data.isEnabled())
+                if (ho instanceof ExperimenterData && data.isEnabled()) {
                     data.setSelected(select);
-                else if (ho instanceof String) {
+                    long id = ((ExperimenterData) ho).getId();
+                    //always keep the user currently logged in even if 
+                    //select is false
+                    if (id == userID) {
+                        data.setSelected(true);
+                    }
+                } else if (ho instanceof String) {
                     data.removePropertyChangeListener(this);
                     data.setSelected(select);
                     data.addPropertyChangeListener(this);
