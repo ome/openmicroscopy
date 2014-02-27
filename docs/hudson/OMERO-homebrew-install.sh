@@ -127,6 +127,7 @@ bin/omero config set omero.data.dir $OMERO_DATA_DIR
 bin/omero admin start
 
 # Test simple fake import
+bin/omero login -s localhost -u root -w root_password
 touch test.fake
-bin/omero import -s localhost -u root -w root_password test.fake
-rm test.fake
+bin/omero import test.fake
+bin/omero logout
