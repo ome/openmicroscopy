@@ -445,9 +445,7 @@ class ToolBar
                 else if (GroupItem.ALL_GROUPS_DESELECTION_PROPERTY.equals(name))
                     handleAllGroupsSelection(false);
                 else if (GroupItem.ALL_USERS_SELECTION_PROPERTY.equals(name))
-                    handleAllUsersSelection(true);
-                else if (GroupItem.ALL_USERS_DESELECTION_PROPERTY.equals(name))
-                    handleAllUsersSelection(false);
+                    handleAllUsersSelection((Boolean) evt.getNewValue());
             }
         });
     }

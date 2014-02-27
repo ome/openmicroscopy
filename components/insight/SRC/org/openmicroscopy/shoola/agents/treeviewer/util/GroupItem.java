@@ -67,16 +67,12 @@ public class GroupItem
     /** Bound property indicating to select all the users.*/
     public static final String ALL_USERS_SELECTION_PROPERTY;
 
-    /** Bound property indicating to select all the users.*/
-    public static final String ALL_USERS_DESELECTION_PROPERTY;
-
     static {
         USER_SELECTION_PROPERTY = "userSelection";
         ALL_GROUPS = "All Groups";
         ALL_GROUPS_SELECTION_PROPERTY = "allGroupsSelection";
         ALL_GROUPS_DESELECTION_PROPERTY = "allGroupsDeselection";
         ALL_USERS_SELECTION_PROPERTY = "allUsersSelection";
-        ALL_USERS_DESELECTION_PROPERTY = "allUsersDeselection";
     }
 
     /** The group hosted by this component.*/
@@ -310,11 +306,8 @@ public class GroupItem
                 } else if (selected && !isMenuSelected()) {
                     setMenuSelected(true, false);
                 }
-                if (selected)
-                    firePropertyChange(ALL_USERS_SELECTION_PROPERTY, null,
-                            this);
-                else firePropertyChange(ALL_USERS_DESELECTION_PROPERTY, null,
-                        this);
+                firePropertyChange(ALL_USERS_SELECTION_PROPERTY, null,
+                        selected);
             }
         } else if (SelectableMenu.GROUP_SELECTION_PROPERTY.equals(name)) {
             GroupItem item = (GroupItem) evt.getNewValue();
