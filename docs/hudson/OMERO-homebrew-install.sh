@@ -82,25 +82,27 @@ showinf -version
 ###################################################################
 
 # Install PostgreSQL and OMERO
+OMERO_PYTHONPATH=$(bin/brew --prefix omero)/lib/python
 if [ "$ICE" == "3.3" ]; then
     bin/brew install omero --with-ice33
+    ICE_HOME=$(bin/brew --prefix zeroc-ice33)
+    export PYTHONPATH=$OMERO_PYTHONPATH:$ICE_HOME/python
+    export DYLD_LIBRARY_PATH=$ICE_HOME/lib
 elif [ "$ICE" == "3.4" ]; then
     bin/brew install omero --with-ice34
+    export PYTHONPATH=$OMERO_PYTHONPATH:$ICE_HOME/python
+    export DYLD_LIBRARY_PATH=$ICE_HOME/lib
 else
     bin/brew install omero
+    export PYTHONPATH=$OMERO_PYTHONPATH
 fi
 bin/brew install postgres
 
 # Install OMERO Python dependencies
 bash bin/omero_python_deps
 
-# Set environment variables
-ICE_VERSION=$(bin/brew deps omero | grep ice)
+# Set additional environment variables
 export ICE_CONFIG=$(bin/brew --prefix omero)/etc/ice.config
-export ICE_HOME=$(bin/brew --prefix $ICE_VERSION)
-export PYTHONPATH=$(bin/brew --prefix omero)/lib/python:$ICE_HOME/python
-export PATH=$(bin/brew --prefix)/bin:$(bin/brew --prefix)/sbin:/usr/local/lib/node_modules:$ICE_HOME/bin:$PATH
-export DYLD_LIBRARY_PATH=$ICE_HOME/lib:$ICE_HOME/python:${DYLD_LIBRARY_PATH-}
 
 # Note: If postgres startup fails it's probably because there was an old
 # process still running.
