@@ -505,6 +505,7 @@ class ToolBar
             item.setUserID(userID);
             createGroupMenu(item, 0);
             popupMenu.add(item);
+            popupMenu.add(new JSeparator());
         }
 
         while (i.hasNext()) {
