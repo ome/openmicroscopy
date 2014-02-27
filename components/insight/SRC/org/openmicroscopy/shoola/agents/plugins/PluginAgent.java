@@ -22,8 +22,15 @@ package org.openmicroscopy.shoola.agents.plugins;
 
 
 //Java imports
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
+import javax.swing.JComponent;
+import javax.swing.JMenu;
+
+import org.apache.commons.collections.CollectionUtils;
+import org.openmicroscopy.shoola.agents.plugins.util.AddOnMenuItem;
 import org.openmicroscopy.shoola.env.Agent;
 import org.openmicroscopy.shoola.env.config.AddOnInfo;
 import org.openmicroscopy.shoola.env.config.Registry;
@@ -57,7 +64,31 @@ public class PluginAgent
     {
         List<AddOnInfo> infos = (List<AddOnInfo>)
                 registry.lookup("/addOns");
+        if (CollectionUtils.isEmpty(infos)) return;
+        Iterator<AddOnInfo> i = infos.iterator();
+        AddOnInfo info;
+        List<String> scripts;
+        Iterator<String> j;
+        List<JComponent> components = new ArrayList<JComponent>();
+        AddOnMenuItem item;
+        while (i.hasNext()) {
+            info = i.next();
+            scripts = info.getScripts();
+            if (CollectionUtils.isEmpty(scripts)) {
+                item = new AddOnMenuItem(info);
+                components.add(item);
+            } else {
+                JMenu menu = new JMenu(info.getName());
+                j = scripts.iterator();
+                while (j.hasNext()) {
+                    item = new AddOnMenuItem(info, j.next());
+                    menu.add(item);
+                }
+                components.add(menu);
+            }
+        }
     }
+
     /** Creates a new instance. */
     public PluginAgent() {}
 

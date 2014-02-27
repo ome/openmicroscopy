@@ -95,4 +95,27 @@ public class AddOnInfo {
             }
         }
     }
+
+    /**
+     * Returns the name of the application.
+     *
+     * @return See above.
+     */
+    public String getName() { return name; }
+
+    /**
+     * Returns the description of the application.
+     *
+     * @return See above.
+     */
+    public String getDescription() { return description; }
+
+    /**
+     * Returns the list of scripts if any.
+     *
+     * @return See above.
+     */
+    public List<String> getScripts() { return scripts; }
+
+
 }
