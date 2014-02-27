@@ -118,7 +118,7 @@
 
 
             {% if init.query %}
-                $("div#content_details").load('{% url 'load_searching' "form" %}?query={{ init.query }}');
+                $("div#content_details").load('{% url 'load_searching' "form" %}?query={{ init.query|iriencode }}');
                 $("#filtersearch").show();
                 OME.table_selection_changed();
                 var query_string = "{{ init.query }}";

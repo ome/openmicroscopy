@@ -4,6 +4,7 @@ from django.http import HttpResponseRedirect, HttpResponse
 from django.core.urlresolvers import reverse
 from django.shortcuts import render_to_response
 from omeroweb.webgateway import views as webgateway_views
+from omeroweb.webgateway.views import _get_prepared_image
 from omeroweb.connector import Server
 
 from omeroweb.webclient.decorators import login_required, render_response
@@ -19,6 +20,7 @@ import omero
 from omero.rtypes import rint, rstring
 import omero.gateway
 import random
+import math
 
 
 logger = logging.getLogger(__name__)    
@@ -30,7 +32,7 @@ except: #pragma: nocover
     try:
         import Image
     except:
-        logger.error('No PIL installed, line plots and split channel will fail!')
+        logger.error('No Pillow installed, line plots and split channel will fail!')
 
 
 @login_required()    # wrapper handles login (or redirects to webclient login). Connection passed in **kwargs
@@ -40,7 +42,7 @@ def dataset(request, datasetId, conn=None, **kwargs):
     return render_to_response('webtest/dataset.html', {'dataset': ds})    # generate html from template
 
 
-@login_required()    # wrapper handles login (or redirects to webclient login). Connection passed in **kwargs
+@login_required(setGroupContext=True)    # wrapper handles login (or redirects to webclient login). Connection passed in **kwargs
 def index(request, conn=None, **kwargs):
     # use Image IDs from request...
     if request.REQUEST.get("Image", None):
@@ -593,6 +595,7 @@ def render_performance (request, obj_type, id, conn=None, **kwargs):
     """ Test rendering performance for all planes in an image """
     context = {}
     if obj_type == 'image':
+        context['imageId'] = id
         image = conn.getObject("Image", id)
         image._prepareRenderingEngine()
 
@@ -607,15 +610,27 @@ def render_performance (request, obj_type, id, conn=None, **kwargs):
             if (len(tileList) > 2*MAX_TILES):
                 tileList = tileList[ (len(tileList)/2):]    # start in middle of list (looks nicer!)
             tileList = tileList[:MAX_TILES]
-            context = {'tileList': tileList, 'imageId':id}
+            context['tileList'] = tileList
         # A regular Image
         else:
             zctList = []
+            if request.REQUEST.get('split_channels') == 'true':
+                context['split_channels'] = True
+                sizeC = image.getSizeC()
+            else:
+                sizeC = 1
+            context['sizeX'] = image.getSizeX()
+            context['sizeY'] = image.getSizeY()
+            context['sizeT'] = image.getSizeT()
+            context['sizeZ'] = image.getSizeZ()
             for z in range(image.getSizeZ()):
-                for c in range(image.getSizeC()):
+                for c in range(sizeC):
                     for t in range(image.getSizeT()):
-                        zctList.append({'z':z, 'c':c+1, 't':t})
-            context = {'zctList':zctList, 'imageId':id}
+                        zct = {'z':z, 't':t}
+                        if sizeC > 1:
+                            zct['c'] = c+1
+                        zctList.append(zct)
+            context['zctList'] = zctList
     # A Plate
     elif obj_type == 'plate':
         imageIds = []
@@ -631,3 +646,81 @@ def render_performance (request, obj_type, id, conn=None, **kwargs):
         context = {'imageIds':imageIds}
 
     return render_to_response('webtest/demo_viewers/render_performance.html', context)
+
+@login_required()
+def render_planes_matrix (request, iid, conn=None, **kwargs):
+    """
+    Renders the image as a 2D matrix of planes, with z horizontal and t vertical.
+    Test whether using a single rendering engine / request for a stack
+    is faster than opening a rendering engine for each plane / request.
+    Use zStart, zEnd, tStart, tEnd in request to get a sub-matrix.
+
+    @param request:     http request
+    @param iid:         image ID
+    @param conn:        L{omero.gateway.BlitzGateway} connection
+    @return:            http response wrapping jpeg
+    """
+    pi = _get_prepared_image(request, iid, conn=conn)
+    if pi is None:
+        raise Http404
+    img, compress_quality = pi
+
+    sizeX = img.getSizeX()
+    sizeY = img.getSizeY()
+    sizeZ = img.getSizeZ()
+    sizeT = img.getSizeT()
+
+    zStart = int(request.REQUEST.get('zStart', 0))
+    zEnd = int(request.REQUEST.get('zEnd', sizeZ-1))
+    sizeZ = zEnd - zStart + 1
+
+    tStart = int(request.REQUEST.get('tStart', 0))
+    tEnd = int(request.REQUEST.get('tEnd', sizeT-1))
+    sizeT = tEnd - tStart + 1
+
+    rowCount = sizeZ
+    colCount = sizeT
+    w = colCount * sizeX
+    h = rowCount * sizeY
+
+    # Firefox bug limits w & h to 32767
+    # https://bugzilla.mozilla.org/show_bug.cgi?id=591822s
+    while(h > 32767):
+        rowCount = int(math.ceil(float(rowCount)/2))
+        colCount = colCount * 2
+        w = colCount * sizeX
+        h = rowCount * sizeY
+    while(w > 32767):
+        colCount = int(math.ceil(float(colCount)/2))
+        rowCount = rowCount * 2
+        w = colCount * sizeX
+        h = rowCount * sizeY
+
+    matrix = Image.new("RGBA", (w,h))
+
+    for z in range(zStart, zEnd + 1):
+        for t in range(tStart, tEnd + 1):
+            jpeg = img.renderImage(z,t, compression=compress_quality)
+            if jpeg is None:
+                raise Http404
+            row = z - zStart
+            col = t - tStart
+            # Handle large Z OR large T
+            if row >= rowCount:
+                row = z % rowCount
+                col = col + (sizeT * (z/rowCount))
+            elif col >= colCount:
+                col = t % colCount
+                row = row + (sizeZ * (t/colCount))
+            px = col * sizeX
+            py = row * sizeY
+            matrix.paste(jpeg, (px, py))
+
+    # convert from PIL back to string image data
+    rv = StringIO()
+    compression = 0.9
+    matrix.save(rv, 'jpeg', quality=int(compression*100))
+    jpeg_data = rv.getvalue()
+
+    rsp = HttpJPEGResponse(jpeg_data)
+    return rsp

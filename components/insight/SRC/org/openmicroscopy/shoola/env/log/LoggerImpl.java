@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.log.LoggerImpl
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-14 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -25,18 +25,20 @@ package org.openmicroscopy.shoola.env.log;
 
 
 //Java imports
-import java.util.Properties;
 
 //Third-party libraries
-import org.apache.log4j.PropertyConfigurator;
+import ch.qos.logback.classic.LoggerContext;
+import ch.qos.logback.classic.joran.JoranConfigurator;
+import ch.qos.logback.core.joran.spi.JoranException;
+import ch.qos.logback.core.util.StatusPrinter;
 
 //Application-internal dependencies
 
 
 /** 
  * Provides the log service.
- * This is just a simple adapter that forwards calls to <i>log4j</i>.
- * Thread-safety is already enforced by <i>log4j</i>, so we don't deal with it. 
+ * This is just a simple adapter that forwards calls to <i>slf4j</i>.
+ * Thread-safety is already enforced by <i>slf4j</i>, so we don't deal with it.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  *              <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -54,6 +56,9 @@ class LoggerImpl
     implements Logger
 {
     
+    /** The name of the log file variable the log config file. */
+    private static final String LOG_FILE_NAME = "logFileName";
+
 	/** The absolute pathname of the log file.*/
 	private String absFile;
 	
@@ -64,25 +69,33 @@ class LoggerImpl
      * 					<code>null</code>, then the root logger is returned.
      * @return A logger for the specified object.
      */
-    private org.apache.log4j.Logger getAdaptee(Object target)
+    private org.slf4j.Logger getAdaptee(Object target)
     { 
 		if (target != null) 
-			return org.apache.log4j.Logger.getLogger(
-												target.getClass().getName());
-		return org.apache.log4j.Logger.getRootLogger();
+			return org.slf4j.LoggerFactory.getLogger(
+												target.getClass());
+		return org.slf4j.LoggerFactory.getLogger(org.slf4j.Logger.ROOT_LOGGER_NAME);
     }
     
     /**
-     * Initializes Log4j.
+     * Initializes slf4j.
      * 
-     * @param config	A property object built from the configuration file.
-     * @param absFile	The absolute pathname of the log file.
+     * @param configFile  The pathname of a configuration file.
+     * @param absFile     The absolute pathname of the log file.
      */
-    LoggerImpl(Properties config, String absFile)
+    LoggerImpl(String configFile, String absFile)
     {
-    	this.absFile = absFile;
-		config.put("log4j.appender.BASE.File", absFile);
-		PropertyConfigurator.configure(config);
+        LoggerContext context = (LoggerContext) org.slf4j.LoggerFactory.getILoggerFactory();
+        try {
+          JoranConfigurator configurator = new JoranConfigurator();
+          configurator.setContext(context);
+          context.reset();
+          context.putProperty(LOG_FILE_NAME, absFile);
+          configurator.doConfigure(configFile);
+        } catch (JoranException je) {
+          // StatusPrinter will handle this
+        }
+        StatusPrinter.printInCaseOfErrorsOrWarnings(context);
     }
     
 	/** 
@@ -127,7 +140,7 @@ class LoggerImpl
      */ 
     public void fatal(Object c, String logMsg)
     {
-		getAdaptee(c).fatal(logMsg);
+		getAdaptee(c).error(logMsg);
     }
     
 	/** 
@@ -136,7 +149,7 @@ class LoggerImpl
      */     
 	public void fatal(Object c, LogMessage msg)
 	{
-		getAdaptee(c).fatal(msg == null ? null : msg.toString());
+		getAdaptee(c).error(msg == null ? null : msg.toString());
 	}
     
 	/** 

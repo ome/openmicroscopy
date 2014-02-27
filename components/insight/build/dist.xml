@@ -182,9 +182,12 @@
       <fileset dir="${app.compiled.dir}"/>
       <fileset dir="${dist.jar.app.config.dir}" includes="${dist.jar.app.config.base}/**"/>
       <manifest>
+        <attribute name="Application-Name" value="${distInsight.name}"/>
+        <attribute name="Codebase" value="*"/>
         <attribute name="Created-By" value="OMERO Development Team"/>
         <attribute name="Class-Path" value="${dist.jar.manifest.cp}"/>
         <attribute name="Main-Class" value="${app.mainclass}"/>
+        <attribute name="Permissions" value="all-permissions"/>
       </manifest>
     </jar>
   </target>
@@ -473,7 +476,7 @@
     <property name="dist.zip.prefix.osx"
               value="${dist.bundle.name}-${dist.bundle.version}-mac"/>
     <zip destfile="${dist.dir}/${dist.zip.prefix.osx}.zip">
-      <zipfileset refid="dist.launch.scripts" prefix="${main-dist-prefix}" filemode="775"/>
+      <zipfileset refid="dist.launch.scripts" prefix="${dist.zip.prefix.osx}" filemode="775"/>
       <zipfileset prefix="${dist.zip.prefix.osx}/${dist.app.config.dir.name}"
                   dir="${app.config.dir}"/>
       <zipfileset prefix="${dist.zip.prefix.osx}" dir="${dist.dir}"

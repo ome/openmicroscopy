@@ -22,6 +22,9 @@
     <variable name="OMERO_JARS"    value="${OMERO_HOME}\\lib\\server\\"/>
     <variable name="OMERO_LOGS"    value="${OMERO_HOME}\\var\\log\\"/>
     <variable name="OMERO_LOGFILE" value="${OMERO_LOGS}$${omero.name}.log"/>
+    <!-- Note: you will also need to modify the etc/Windows.cfg property
+         file if you want var/log to be completely unused -->
+
     <variable name="OMEROPY_HOME"  value="${OMERO_HOME}\\lib\\python\\"/>
     <variable name="OMEROPY_SERV"  value="${OMERO_HOME}\\lib\\python\\omero\\"/>
     <variable name="PYTHONPATH"    value="PYTHONPATH=${OMEROPY_HOME};%PYTHONPATH%"/>

@@ -162,7 +162,7 @@ echo "${JAVA_PROGRAM_DIR}java ${JAVA_ARGS} -cp \"${CLASSPATH}\" -Djava.library.p
 # restarts
 ${JAVA_PROGRAM_DIR}java "${JAVA_ARGS}" \
 	-cp "${CLASSPATH}" \
-	-Dlog4j.configuration=log4j-cli.properties \
+	-Dlogback.configuration=logback-cli.xml \
 	-Djava.library.path="${PROGRAM_DIR}" \
 	$JAVA_PROPS \
 	$START_CLASS "$@"

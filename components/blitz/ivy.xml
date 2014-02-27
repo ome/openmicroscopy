@@ -29,7 +29,6 @@
     <dependency org="OME" name="ome-java" rev="${versions.ome-java}"/>
     <!-- Public -->
     <dependency org="gui" name="ini4j" rev="0.3.2"/>
-    <dependency org="log4j" name="log4j" rev="${versions.log4j}"/><!-- Required for compile-time importer classes -->
   </dependencies>
 </ivy-module>
 

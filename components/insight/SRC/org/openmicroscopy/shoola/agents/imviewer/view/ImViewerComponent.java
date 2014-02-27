@@ -276,7 +276,7 @@ class ImViewerComponent
 	{
 		if (model.isOriginalPlane()) return;
 		try {
-			saveRndSettings();
+			saveRndSettings(true);
 		} catch (Exception e) {
 			LogMessage logMsg = new LogMessage();
 			logMsg.println("Cannot save rendering settings. ");
@@ -299,7 +299,7 @@ class ImViewerComponent
 		if (!canAnnotate()) return true;
 		if (failureToSave) return true;
 		if (!notifyUser) {
-			saveRndSettings();
+			saveRndSettings(true);
 			return true;
 		}
 		boolean showBox = false;
@@ -370,7 +370,7 @@ class ImViewerComponent
 			}
 			if (rndBox != null && rndBox.isSelected()) {
 				try {
-					saveRndSettings();
+					saveRndSettings(true);
 				} catch (Exception e) {
 					LogMessage logMsg = new LogMessage();
 					logMsg.println("Cannot save rendering settings. ");
@@ -2325,9 +2325,9 @@ class ImViewerComponent
     
     /** 
      * Implemented as specified by the {@link ImViewer} interface.
-     * @see ImViewer#saveRndSettings()
+     * @see ImViewer#saveRndSettings(boolean)
      */
-    public void saveRndSettings()
+    public void saveRndSettings(boolean post)
     {
     	try {
     		model.saveRndSettings(true);
@@ -2343,11 +2343,12 @@ class ImViewerComponent
 	        failureToSave = true;
 	        //post event indicating no settings to save
 		}
-		
-		EventBus bus = ImViewerAgent.getRegistry().getEventBus();
-		bus.post(new RndSettingsCopied(Arrays.asList(model.getImageID()),
-				getPixelsID()));
-		fireStateChange();
+		if (post) {
+		      EventBus bus = ImViewerAgent.getRegistry().getEventBus();
+		        bus.post(new RndSettingsCopied(Arrays.asList(model.getImageID()),
+		                getPixelsID()));
+		        fireStateChange();
+		}
     }
     
     /** 
@@ -2813,6 +2814,7 @@ class ImViewerComponent
 					"invoked in the PASTING state.");
 		try {
 			model.resetMappingSettings(rndProxyDef);
+			saveRndSettings(false);
 			view.resetDefaults();
 			renderXYPlane();
 		} catch (Exception e) {

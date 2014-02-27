@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.treeviewer.RefreshExperimenterDataLoader 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -42,7 +42,6 @@ import org.openmicroscopy.shoola.agents.util.browser.TreeFileSet;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageSet;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageTimeSet;
-import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
@@ -375,11 +374,6 @@ public class RefreshExperimenterDataLoader
                 nodes = def.getExpandedTopNodes();
                 viewer.setGroups((Collection) result,
                         (List) nodes.get(GroupData.class));
-            }
-            //
-            if (!TreeViewerAgent.isAdministrator()) {
-                TreeViewerAgent.getRegistry().bind(
-                        LookupNames.USER_GROUP_DETAILS, result);
             }
             return;
         }

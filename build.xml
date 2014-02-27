@@ -55,10 +55,15 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
     <property name="gitmatch" value="v.[0-9]*.[0-9]*.[0-9]*"/>
     <property name="import.dir" value="${basedir}/components/antlib/resources"/>
     <import file="${import.dir}/global.xml"/>
+    <import file="${import.dir}/gitversion.xml" optional="true"/>
 
     <target name="init" depends="check-bioformats,check-ivy,check-scons,check-ice">
         <mkdir dir="${blitz.comp}/generated"/>
         <mkdir dir="${blitz.comp}/target/generated/src"/>
+    </target>
+
+    <target name="check-git">
+      <available file=".git" type="dir" property="git.exists"/>
     </target>
 
     <target name="check-bioformats" unless="bioformats.done">
@@ -422,8 +427,8 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
         </scons_py>
     </target>
 
-    <target name="release-all" description="Produce all release artifacts"
-        depends="release-clients,release-webstart,release-zip,release-src,release-docs">
+    <target name="release-all" description="Produce all binary release artifacts"
+        depends="release-clients,release-webstart,release-zip,release-docs">
         <!-- Clients must come first to produce the zips needed by webstart,
         followed by webstart in order to add jars to dist/, followed by zip -->
     </target>
@@ -438,16 +443,25 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
         </zip>
     </target>
 
-    <target name="release-src" description="Zip the git source into OMERO.source-${omero.version}.zip">
-        <git command="archive" output="release-src-command" failonerror="true">
-            <args>
-                <arg value="--format=zip"/>
-                <arg value="HEAD"/>
-                <arg value="-o"/>
-                <arg value="${target.dir}/OMERO.source-${omero.version}.zip"/>
-            </args>
-        </git>
+    <target name="release-src-embed" description="Package the release source tree into openmicroscopy-${omero.plainversion}.zip (not functional)"
+            depends="check-git" unless="git.exists">
+         <fail message="Releasing is only possible from a git repository"/>
     </target>
+
+    <target name="release-src-git" description="Package the git source tree into openmicroscopy-${omero.plainversion}.zip"
+            depends="check-git" if="git.exists">
+        <mkdir dir="${target.dir}"/>
+        <exec executable="python" failonerror="true">
+            <arg value="${omero.home}/components/antlib/scripts/source-archive"/>
+            <arg value="openmicroscopy"/>
+            <arg value="${omero.shortversion}"/>
+            <arg value="${omero.plainversion}"/>
+            <arg value="components/antlib/resources/gitversion.xml"/>
+            <arg value="${target.dir}"/>
+        </exec>
+    </target>
+
+    <target name="release-src" depends="release-src-embed,release-src-git"/>
 
     <target name="release-clients" description="Zip the Python, Java, and Matlab zips">
         <zip destfile="${omero.home}/target/OMERO.py-${omero.version}.zip">
@@ -553,14 +567,12 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
             <zipfileset dir="${dist.dir}/docs" prefix="OMERO.docs-${omero.version}"/>
         </zip>
 
-        <gitdescribe select="\2"> </gitdescribe>
-
         <exec executable="make" failonerror="true" dir="${sphinx.dir}">
-            <env key="SOURCE_BRANCH" value="v.${version.describe}"/>
-            <env key="OMERO_RELEASE" value="${version.describe}"/>
+            <env key="SOURCE_BRANCH" value="v.${omero.shortversion}"/>
+            <env key="OMERO_RELEASE" value="${omero.shortversion}"/>
             <arg line="clean html latexpdf"/>
         </exec>
-        <copy file="${sphinx.dir}/_build/latex/OMERO-${version.describe}.pdf" tofile="${omero.home}/target/OMERO-${version.describe}.pdf" overwrite="true"/>
+        <copy file="${sphinx.dir}/_build/latex/OMERO-${omero.shortversion}.pdf" tofile="${omero.home}/target/OMERO-${omero.shortversion}.pdf" overwrite="true"/>
         <zip destfile="${omero.home}/target/OMERO.sphinx-${omero.version}.zip">
             <zipfileset dir="${sphinx.dir}/_build/html/" prefix="OMERO.sphinx-${omero.version}"/>
         </zip>
@@ -834,6 +846,64 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
             <ivy:retrieve conf="server" pattern="${dist.dir}/lib/server/[artifact].[ext]" sync="false" log="quiet" settingsRef="ivy.toplevel"/>
     </target>
 
+    <macrodef name="signjar_password">
+        <attribute name="target"/>
+        <sequential>
+            <if>
+                <isset property="jarsign.storepassfile"/>
+                <then>
+                    <if>
+                        <isset property="jarsign.tsa"/>
+                        <then>
+                            <echo message="Signing jar: @{target} as ${jarsign.alias} with timestamping"/>
+                            <exec executable="jarsigner" failonerror="true">
+                                <arg value="-keystore"/>
+                                <arg value="${jarsign.keystore}"/>
+                                <arg value="-storepass:file"/>
+                                <arg value="${jarsign.storepassfile}"/>
+                                <arg value="-tsa"/>
+                                <arg value="${jarsign.tsa}"/>
+                                <arg value="@{target}"/>
+                                <arg value="${jarsign.alias}"/>
+                            </exec>
+                        </then>
+                        <else>
+                            <echo message="Signing jar: @{target} as ${jarsign.alias}"/>
+                            <exec executable="jarsigner" failonerror="true">
+                                <arg value="-keystore"/>
+                                <arg value="${jarsign.keystore}"/>
+                                <arg value="-storepass:file"/>
+                                <arg value="${jarsign.storepassfile}"/>
+                                <arg value="@{target}"/>
+                                <arg value="${jarsign.alias}"/>
+                            </exec>
+                        </else>
+                    </if>
+                </then>
+                <else>
+                    <if>
+                        <isset property="jarsign.tsa"/>
+                        <then>
+                            <signjar alias="${jarsign.alias}"
+                                keystore="${jarsign.keystore}"
+                                storepass="${jarsign.storepass}"
+                                tsaurl="${jarsign.tsa}"
+                                preservelastmodified="true"
+                                jar="@{target}"/>
+                        </then>
+                        <else>
+                            <signjar alias="${jarsign.alias}"
+                                keystore="${jarsign.keystore}"
+                                storepass="${jarsign.storepass}"
+                                preservelastmodified="true"
+                                jar="@{target}"/>
+                        </else>
+                    </if>
+                </else>
+            </if>
+        </sequential>
+    </macrodef>
+
     <macrodef name="jar_update_if">
         <attribute name="destfile"/>
         <attribute name="sign" default="true"/>
@@ -847,11 +917,7 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
                     </jar>
                     <if><equals arg1="@{sign}" arg2="true"/>
                         <then>
-                            <signjar alias="${jarsign.alias}"
-                                keystore="${jarsign.keystore}"
-                                storepass="${jarsign.storepass}"
-                                preservelastmodified="true"
-                                jar="@{destfile}"/>
+                            <signjar_password target="@{destfile}"/>
                         </then>
                     </if>
                 </then>
@@ -892,17 +958,36 @@ omero.version=${omero.version}
     </target>
 
     <target name="keystore" depends="init" description="Create keystore">
-        <genkey alias="${jarsign.alias}"
-            keystore="${jarsign.keystore}"
-            storepass="${jarsign.storepass}"
-            validity="${jarsign.validity}">
-            <dname>
-                <param name="CN" value="omedev"/>
-                <param name="OU" value="Open Microscopy Team"/>
-                <param name="O"  value="openmicroscopy.org"/>
-                <param name="C"  value="UK"/>
-            </dname>
-        </genkey>
+        <if><isset property="jarsign.storepassfile"/>
+            <then>
+                <exec executable="keytool" failonerror="true">
+                    <arg value="-genkey"/>
+                    <arg value="-alias"/>
+                    <arg value="${jarsign.alias}"/>
+                    <arg value="-dname"/>
+                    <arg value="CN=omedev, OU=Open Microscopy Team, O=openmicroscopy.org, C=UK"/>
+                    <arg value="-keystore"/>
+                    <arg value="${jarsign.keystore}"/>
+                    <arg value="-storepass:file"/>
+                    <arg value="${jarsign.storepassfile}"/>
+                    <arg value="-validity"/>
+                    <arg value="${jarsign.validity}"/>
+                </exec>
+            </then>
+            <else>
+                <genkey alias="${jarsign.alias}"
+                    keystore="${jarsign.keystore}"
+                    storepass="${jarsign.storepass}"
+                    validity="${jarsign.validity}">
+                    <dname>
+                        <param name="CN" value="omedev"/>
+                        <param name="OU" value="Open Microscopy Team"/>
+                        <param name="O"  value="openmicroscopy.org"/>
+                        <param name="C"  value="UK"/>
+                    </dname>
+                </genkey>
+            </else>
+        </if>
     </target>
 
     <target name="server-verify">
@@ -913,11 +998,14 @@ omero.version=${omero.version}
     </target>
 
     <target name="webstart-sign">
-        <signjar alias="${jarsign.alias}" keystore="${jarsign.keystore}" storepass="${jarsign.storepass}" preservelastmodified="false">
+        <for param="target">
             <path>
                 <fileset dir="${dist.dir}/lib/insight" includes="*.jar"/>
             </path>
-        </signjar>
+            <sequential>
+                <signjar_password target="@{target}"/>
+            </sequential>
+        </for>
     </target>
 
     <target name="webstart-verify">
@@ -1039,11 +1127,41 @@ omero.version=${omero.version}
         </sequential>
     </macrodef>
 
-    <target name="version">
+    <target name="version-embed" if="omero.plainversion">
+        <echo>${omero.plainversion}-ice${versions.ice_lib}</echo>
+    </target>
+
+    <target name="version-git" unless="omero.plainversion">
         <gitdescribe select="\2\3\5\6">
         </gitdescribe>
         <echo>${version.describe}-ice${versions.ice_lib}</echo>
     </target>
+
+    <target name="version" depends="version-embed,version-git"/>
+
+    <target name="plainversion-embed" if="omero.plainversion">
+        <echo>${omero.plainversion}</echo>
+    </target>
+
+    <target name="plainversion-git" unless="omero.plainversion">
+        <gitdescribe select="\2\3\5\6">
+        </gitdescribe>
+        <echo>${version.describe}</echo>
+    </target>
+
+    <target name="plainversion" depends="plainversion-embed,plainversion-git"/>
+
+    <target name="shortversion-embed" if="omero.shortversion">
+        <echo>${omero.shortversion}</echo>
+    </target>
+
+    <target name="shortversion-git" unless="omero.shortversion">
+        <gitdescribe select="\2">
+        </gitdescribe>
+        <echo>${version.describe}</echo>
+    </target>
+
+    <target name="shortversion" depends="shortversion-embed,shortversion-git"/>
 
     <target name="print-mem">
         <echo>

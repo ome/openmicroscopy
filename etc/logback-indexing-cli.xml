@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+  <appender name="stderr" class="ch.qos.logback.core.ConsoleAppender">
+    <target>System.err</target>
+    <encoder>
+      <pattern>%d %-10.10r [%10.10t] %-6.6p %40.40c - %m%n</pattern>
+    </encoder>
+  </appender>
+
+  <!-- INTERNAL /////////////////////////////////////////////////////////////// -->
+  <logger name="ome" level="INFO"/>
+  <logger name="ome.formats" level="INFO"/>
+  <logger name="omero" level="INFO"/>
+  <logger name="OMERO" level="INFO"/>
+  <!-- Quieter indexing -->
+  <logger name="ome.security.basic.EventHandler" level="WARN"/>
+  <logger name="ome.services.util.ServiceHandler" level="WARN"/>
+  <logger name="ome.services.sessions.state" level="WARN"/>
+  <!-- Inherit from Spring/etc and so are a bit verbose -->
+  <logger name="ome.system.OmeroContext" level="WARN"/>
+  <logger name="ome.system.PreferenceContext" level="WARN"/>
+  <logger name="ome.security.basic.BasicEventContext" level="WARN"/>
+  <logger name="ome.security.basic.CurrentDetails" level="INFO"/>
+  <logger name="ome.services.blitz.impl.ServiceFactoryI" level="INFO"/>
+  <logger name="ome.services.blitz.impl.OmeroMetadata" level="DEBUG"/>
+  <logger name="ome.services.blitz.util.ShutdownSafeEhcacheManagerFactoryBean" level="WARN"/>
+  <!-- Adapters are also too so is a bit verbose -->
+  <logger name="ome.adapters" level="ERROR"/>
+
+  <!-- THIRD PARTY //////////////////////////////////////////////////////////// -->
+  <logger name="org.apache" level="WARN"/>
+  <logger name="org.jgroups" level="WARN"/>
+  <logger name="org.quartz" level="WARN"/>
+  <logger name="org.hibernate" level="WARN"/>
+  <logger name="org.springframework" level="WARN"/>
+  <!-- Suppressing "Warning missing properties files" -->
+  <logger name="org.springframework.beans" level="ERROR"/>
+  <!-- Whether or not to print jamon timing INFO. ERROR or TRACE -->
+  <logger name="org.springframework.aop.interceptor.JamonPerformanceMonitorInterceptor" level="TRACE"/>
+  <!-- Quieting blitz startup -->
+  <logger name="net.sf.ehcache" level="ERROR"/>
+  <logger name="loci" level="INFO"/><!-- Bio-Formats -->
+  <logger name="ucar" level="WARN"/><!-- NetCDF -->
+
+  <!-- DATABASE /////////////////////////////////////////////////////////////// -->
+  <logger name="bitronix" level="WARN"/>
+  <!-- Limit memory WARNing -->
+  <logger name="org.hibernate.hql.ast.QueryTranslatorImpl" level="ERROR"/>
+  <!-- Limit fail-safe cleanup -->
+  <logger name="org.hibernate.engine.loading.LoadContexts" level="ERROR"/>
+  <!-- This is bogus, and will be caught by our exception handlers anyway -->
+  <logger name="org.hibernate.util.JDBCExceptionReporter" level="ERROR"/>
+  <!-- Printed on startup -->
+  <logger name="org.hibernate.search.engine.DocumentBuilderContainedEntity" level="ERROR"/>
+  <!-- Other overly verbose messages -->
+  <logger name="org.hibernate.SQL" level="ERROR"/>
+  <logger name="org.hibernate.cfg" level="ERROR"/>
+  <logger name="org.hibernate.engine" level="ERROR"/>
+  <logger name="org.hibernate.hql" level="WARN"/> <!-- for first/max in memory -->
+  <logger name="org.hibernate.hql.PARSER" level="ERROR"/>
+  <logger name="org.hibernate.loader" level="ERROR"/>
+  <logger name="org.hibernate.persister" level="ERROR"/>
+  <logger name="org.hibernate.pretty" level="ERROR"/>
+  <logger name="org.hibernate.type" level="ERROR"/>
+  <logger name="org.hibernate.validator" level="ERROR"/>
+
+  <root level="warn">
+    <appender-ref ref="stderr"/>
+  </root>
+</configuration>

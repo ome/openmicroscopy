@@ -70,7 +70,7 @@ from django.core.servers.basehttp import FileWrapper
 from webclient.webclient_gateway import OmeroWebGateway
 
 from webclient_utils import _formatReport, _purgeCallback
-from forms import ShareForm, BasketShareForm, \
+from forms import GlobalSearchForm, ShareForm, BasketShareForm, \
                     ContainerForm, ContainerNameForm, ContainerDescriptionForm, \
                     CommentAnnotationForm, TagsAnnotationForm, \
                     UsersForm, ActiveGroupForm, \
@@ -202,6 +202,9 @@ def login(request):
     if url is not None and len(url) != 0:
         context['url'] = urlencode({'url':url})
     
+    if hasattr(settings, 'LOGIN_LOGO'):
+        context['LOGIN_LOGO'] = settings.LOGIN_LOGO
+
     t = template_loader.get_template(template)
     c = Context(request, context)
     rsp = t.render(c)
@@ -387,12 +390,14 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
         switch_active_group(request, first_sel.details.group.id.val)
 
     # search support
-    if menu == "search" and request.REQUEST.get('search_query'):
-        init['query'] = str(request.REQUEST.get('search_query')).replace(" ", "%20")
-
+    global_search_form = GlobalSearchForm(data=request.REQUEST.copy())
+    if menu == "search":
+        if global_search_form.is_valid():
+            init['query'] = global_search_form.cleaned_data['search_query']
+            
     # get url without request string - used to refresh page after switch user/group etc
     url = reverse(viewname="load_template", args=[menu])
-
+    
     manager = BaseContainer(conn)
 
     # validate experimenter is in the active group
@@ -440,7 +445,7 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
     myGroups.sort(key=lambda x: x.getName().lower())
     new_container_form = ContainerForm()
 
-    context = {'init':init, 'myGroups':myGroups, 'new_container_form':new_container_form}
+    context = {'init':init, 'myGroups':myGroups, 'new_container_form':new_container_form, 'global_search_form':global_search_form}
     context['groups'] = myGroups
     context['active_group'] = conn.getObject("ExperimenterGroup", long(active_group))
     for g in context['groups']:
@@ -450,6 +455,7 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
     context['isLeader'] = conn.isLeader()
     context['current_url'] = url
     context['template'] = template
+
     return context
 
 
