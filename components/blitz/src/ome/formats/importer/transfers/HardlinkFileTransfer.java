@@ -50,7 +50,7 @@ public class HardlinkFileTransfer extends AbstractExecFileTransfer {
     /**
      * No cleanup action is taken.
      */
-    public void afterSuccess(List<String> srcFiles) throws CleanupFailure {
+    public void afterTransfer(int errors, List<String> srcFiles) throws CleanupFailure {
         // no-op
     }
 }
