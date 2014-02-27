@@ -55,8 +55,8 @@
                     }
                 }
                 
-                $("#id_owners").chosen({placeholder_text:'Choose one or more owners'});
-                $("#id_members").chosen({placeholder_text:'Choose one or more members'}).change(function(evt, data) {
+                $("#id_owners").chosen({placeholder_text:'Type owner names to add...'});
+                $("#id_members").chosen({placeholder_text:'Type member names to add...'}).change(function(evt, data) {
                     if (data && data.deselected) {
                         var selected = $.grep($('#id_owners').data('chosen').results_data, function(item){
                             if(item.selected && item.value === data.deselected) {

@@ -548,6 +548,7 @@ def manage_group(request, action, gid=None, conn=None, **kwargs):
     template = "webadmin/group_form.html"
     
     experimenters = list(conn.getObjects("Experimenter"))
+    experimenters.sort(key=lambda x: x.getLastName().lower())
     
     def getEditFormContext():
         group = conn.getObject("ExperimenterGroup", gid)
