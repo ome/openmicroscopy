@@ -28,6 +28,7 @@ import java.util.List;
 
 import javax.swing.JComponent;
 import javax.swing.JMenu;
+import javax.swing.JMenuItem;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.openmicroscopy.shoola.agents.plugins.util.AddOnMenuItem;
@@ -37,6 +38,7 @@ import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.util.AgentSaveInfo;
 import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
+import org.openmicroscopy.shoola.env.ui.TaskBar;
 
 /**
  * This agent handles the registration of client side applications.
@@ -69,7 +71,7 @@ public class PluginAgent
         AddOnInfo info;
         List<String> scripts;
         Iterator<String> j;
-        List<JComponent> components = new ArrayList<JComponent>();
+        List<JMenuItem> components = new ArrayList<JMenuItem>();
         AddOnMenuItem item;
         while (i.hasNext()) {
             info = i.next();
@@ -86,6 +88,11 @@ public class PluginAgent
                 }
                 components.add(menu);
             }
+        }
+        TaskBar tb = registry.getTaskBar();
+        Iterator<JMenuItem> k = components.iterator();
+        while (k.hasNext()) {
+            tb.addToMenu(TaskBar.ADD_ON, k.next());
         }
     }
 
