@@ -21,18 +21,18 @@
 package org.openmicroscopy.shoola.env.config;
 
 
+//Java imports
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.w3c.dom.DOMException;
-//Java imports
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 /**
- * 
+ * Handles the <code>Addon</code> tag.
  *
  * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -95,8 +95,6 @@ public class AddOnEntry
         } catch (Exception e) {
            //value not required.
         }
-                
-        System.err.println(tagName+" "+tagValue);
         if (NAME_TAG.equals(tagName) ||
             DESCRIPTION_TAG.equals(tagName) ||
             DOWNLOAD_TAG.equals(tagName) ||
@@ -111,7 +109,7 @@ public class AddOnEntry
     /**
      * Extracts the values of the tags within an <i>agent</i> tag and puts them
      * in a map keyed by tag names.
-     *  
+     *
      * @param agent The <i>agent</i> tag.
      * @return The pairs <i>(tag-name, tag-value)</i> built from the tags
      *          contained within the <i>agent</i> tag.
@@ -152,7 +150,7 @@ public class AddOnEntry
      * @return  See above.
      */  
     Object getValue() { return values; }
-    
+
     /**
      * Implemented as specified by {@link Entry}.
      * @see Entry#setContent(Node)

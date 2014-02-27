@@ -105,7 +105,6 @@ public interface TaskBar
 	/** Identifies the Add-on menu within the menu bar. */
 	public static final int ADD_ON = 1;
 
-
 	/** Identifies the <code>Send Comment</code> menu item. */
 	public static final int		COMMENT = 100;
 	
