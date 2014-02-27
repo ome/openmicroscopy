@@ -82,9 +82,9 @@ showinf -version
 ###################################################################
 
 # Install PostgreSQL and OMERO
-if [ "$ICE" == "3.3"]; then
+if [ "$ICE" == "3.3" ]; then
     bin/brew install omero --with-ice33
-elif [ "$ICE" == "3.4"]; then
+elif [ "$ICE" == "3.4" ]; then
     bin/brew install omero --with-ice34
 else
     bin/brew install omero
