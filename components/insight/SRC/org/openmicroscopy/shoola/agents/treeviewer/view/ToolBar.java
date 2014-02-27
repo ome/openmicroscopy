@@ -243,22 +243,35 @@ class ToolBar
         Component c;
         boolean b;
         List<ExperimenterData> users;
+        int count = 0;
+        int total = 0;
+        GroupItem allGroups = null;
         for (int i = 0; i < n; i++) {
             c = popupMenu.getComponent(i);
             if (c instanceof GroupItem) {
                 item = (GroupItem) c;
                 if (item.getGroup() != null) {
+                    total++;
                     b = !item.isMenuSelected();
                     users = item.getSeletectedUsers();
+                    
                     if (n == 1) {
                         if (b) { //group not selected
                             users = new ArrayList<ExperimenterData>();
                         }
                         b = false;
                     }
+                    if (!b) count++;
                     controller.setSelection(item.getGroup(), users, b);
+                } else {
+                    if (GroupItem.ALL_GROUPS.equals(item.getText())) {
+                        allGroups = item;
+                    }
                 }
             }
+        }
+        if (allGroups != null) {
+            allGroups.setMenuSelected(total == count, false);
         }
     }
 
