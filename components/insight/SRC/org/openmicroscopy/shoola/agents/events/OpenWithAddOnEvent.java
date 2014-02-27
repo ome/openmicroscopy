@@ -39,14 +39,19 @@ public class OpenWithAddOnEvent
     /** The application to use.*/
     private ApplicationData data;
 
+    /** The name of the unregistered application.*/
+    private String name;
+
     /**
      * Creates a new instance
      *
      * @param data The application to use.
+     * @param name The name of the unregistered application.
      */
-    public OpenWithAddOnEvent(ApplicationData data)
+    public OpenWithAddOnEvent(ApplicationData data, String name)
     {
         this.data = data;
+        this.name = name;
     }
 
     /**
@@ -55,5 +60,12 @@ public class OpenWithAddOnEvent
      * @return See above.
      */
     public ApplicationData getApplication() { return data; }
+
+    /**
+     * Returns the name of the unregistered application.
+     *
+     * @return See above.
+     */
+    public String getName() { return name; }
 
 }

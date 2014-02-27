@@ -929,6 +929,15 @@ public interface TreeViewer
 	void openWith(ApplicationData data);
 
 	/**
+	 * Indicates to view the image with another application. 
+	 * This will only possible if the image has been archived.
+	 *
+	 * @param data The application to handle.
+	 * @param name The name of the application to handle.
+	 */
+	void openWith(ApplicationData data, String name);
+
+	/**
 	 * Adds/Removes the groups to/from the display.
 	 * 
 	 * @param groups The groups to set.

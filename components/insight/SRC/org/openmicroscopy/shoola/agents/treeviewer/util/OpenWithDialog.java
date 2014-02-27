@@ -36,6 +36,7 @@ import javax.swing.JFrame;
 
 //Third-party libraries
 
+import org.apache.commons.lang.StringUtils;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
@@ -108,11 +109,16 @@ public class OpenWithDialog
 	 * Builds and lays out the UI.
 	 * 
 	 * @param name The name of the document to open.
+	 * @param appName
 	 */
-	private void buildGUI(String name)
+	private void buildGUI(String appName)
 	{
 		IconManager icons = IconManager.getInstance();
-		TitlePanel tp = new TitlePanel(TITLE, TEXT+name,
+		String text = TEXT;
+		if (StringUtils.isNotBlank(appName)) {
+		    text = "Register "+appName;
+		}
+		TitlePanel tp = new TitlePanel(TITLE, text,
 				icons.getIcon(IconManager.APPLICATION_48));
 		Container c = getContentPane();
 		c.setLayout(new BorderLayout(0, 0));
@@ -125,13 +131,14 @@ public class OpenWithDialog
 	 * 
 	 * @param parent The parent of the dialog.
 	 * @param directory The default directory.
-	 * @param name The name of the document to open.
+	 * @param appName The name of the document to open.
 	 */
-	public OpenWithDialog(JFrame parent, String directory, String name)
+	public OpenWithDialog(JFrame parent, String directory,
+	        String appName)
 	{
 		super(parent);
 		initComponents(directory);
-		buildGUI(name);
+		buildGUI(appName);
 		pack();
 	}
 

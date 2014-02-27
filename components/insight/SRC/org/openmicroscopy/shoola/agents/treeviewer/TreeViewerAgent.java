@@ -479,13 +479,12 @@ public class TreeViewerAgent
      */
     private void handleOpenWithAddOnEvent(OpenWithAddOnEvent evt)
     {
-        ApplicationData data = evt.getApplication();
-        if (data == null) return;
         ExperimenterData exp = (ExperimenterData) registry.lookup(
                 LookupNames.CURRENT_USER_DETAILS);
         if (exp == null) return;
+        ApplicationData data = evt.getApplication();
         TreeViewer viewer = TreeViewerFactory.getTreeViewer(exp);
-        viewer.openWith(data);
+        viewer.openWith(data, evt.getName());
     }
 
     /**

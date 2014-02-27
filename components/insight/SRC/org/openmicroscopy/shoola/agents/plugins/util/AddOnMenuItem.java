@@ -112,4 +112,18 @@ public class AddOnMenuItem
      */
     public ApplicationData getApplicationData() { return data; }
 
+    /**
+     * Returns the name of the add-on.
+     *
+     * @return See above.
+     */
+    public String getAddOnName() { return info.getName(); }
+
+    /**
+     * Returns the script if any.
+     *
+     * @return See above.
+     */
+    public String getScript() { return script; }
+
 }
