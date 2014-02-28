@@ -51,8 +51,8 @@ Check User Form
     Page Should Contain                     New User
     Page Should Contain                     Fields marked in red are mandatory.
     
-    Page Should Contain Input Field         Username        omename
-    Page Should Contain Password Field      Password        password
+    Page Should Contain Input Field         Username        id_omename
+    Page Should Contain Password Field      Password        xpath=//input[@name='omename']
     Page Should Contain Password Field      Confirmation    confirmation
     Page Should Contain Input Field         First name      first_name
     Page Should Contain Input Field         Middle name     middle_name
