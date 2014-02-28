@@ -469,6 +469,10 @@ public class UserNotifierImpl implements UserNotifier, PropertyChangeListener {
 			        buffer.append(lc.getPassword());
 
 			    } else buffer.append(" -k "+uuid);
+			    String script = data.getScript();
+			    if (StringUtils.isNotBlank(script)) {
+			        buffer.append(" --script "+script);
+			    }
 			    //now data type
 			    Collection<DataObject> objects = p.getObjects();
 			    if (CollectionUtils.isNotEmpty(objects)) {

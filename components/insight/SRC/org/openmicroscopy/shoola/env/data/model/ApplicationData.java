@@ -71,6 +71,9 @@ public class ApplicationData {
 	/** The commands to add. */
 	private List<String> commands;
 
+	/** The script to use.*/
+	private String script;
+
 	/**
 	 * Static constructor that creates the platform specific application
 	 * data extractor.
@@ -221,4 +224,19 @@ public class ApplicationData {
 
 		return commandLine.toArray(new String[0]);
 	}
+
+	/**
+	 * Returns the script to use if any.
+	 *
+	 * @return See above.
+	 */
+	public String getScript() { return script; }
+
+	/**
+	 * Sets the script.
+	 *
+	 * @param script The value to set.
+	 */
+	public void setScript(String script) { this.script = script; }
+
 }
