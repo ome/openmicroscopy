@@ -616,12 +616,12 @@ class DocComponent
 			}
 		});
 		unlinkButton = new JMenuItem(icons.getIcon(IconManager.MINUS_12));
-		unlinkButton.setText("Unlink");
+		unlinkButton.setText("Remove");
 		unlinkButton.addActionListener(this);
 		unlinkButton.setActionCommand(""+UNLINK);
 		if (data instanceof FileAnnotationData) {
 			FileAnnotationData fa = (FileAnnotationData) data;
-			unlinkButton.setToolTipText("Unlink the attachment.");
+			unlinkButton.setToolTipText("Remove the attachment.");
 			
 			if (fa.getId() > 0) {
 				if (deletable) {
@@ -661,7 +661,7 @@ class DocComponent
 				data instanceof TermAnnotationData ||
 				data instanceof LongAnnotationData ||
 				data instanceof DoubleAnnotationData) {
-			unlinkButton.setToolTipText("Unlink the annotation.");
+			unlinkButton.setToolTipText("Remove the annotation.");
 			editButton = new JMenuItem(icons.getIcon(IconManager.EDIT_12));
 			if (isModulo) editButton.setText("View");
 			else editButton.setText("Edit");
