@@ -263,18 +263,18 @@ public class TestEngine
                 "\n" +
                 "Optional arguments:\n" +
                 "  -s\tOMERO server hostname\n" +
-                "  -u\tOMERO experimenter name (username)\n" +
-                "  -w\tOMERO experimenter password\n" +
+                "  -u\tOMERO username\n" +
+                "  -w\tOMERO password\n" +
                 "  -k\tOMERO session key (can be used in place of -u and -w)\n" +
-                "  -p\tOMERO server port [defaults to 4064]\n" +
+                "  -p\tOMERO server port [default: 4064]\n" +
                 "  -e\tRaise error on given situation: any, minimal, never [defaults to any]\n" +
-                "  -f\tOMERO feedback url [defaults to %s]\n" +
+                "  -f\tOMERO feedback url [default: %s]\n" +
                 "  -c\tConfiguration file location (instead of any of the above arguments)\n" +
                 "  -x\tPopulate initiation files with metadata [defaults to False]\n" +
                 "  -h, --help\tDisplay this help and exit\n" +
                 "  --no-recurse\tSingle directory test run\n" +
                 "\n" +
-                "ex. %s -s localhost -u bart -w simpson ShortRunImages\n" +
+                "ex. %s -s localhost -u username -w password ShortRunImages\n" +
                 "\n" +
                 "Report bugs to <ome-users@lists.openmicroscopy.org.uk>",
                 APP_NAME, TestEngineConfig.DEFAULT_FEEDBACK, APP_NAME));

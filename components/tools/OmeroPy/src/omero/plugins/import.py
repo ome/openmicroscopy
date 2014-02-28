@@ -50,7 +50,7 @@ class ImportControl(BaseControl):
         # The following arguments are strictly passed to Java
         parser.add_argument(
             "-f", dest="java_f", action="store_true",
-            help="Display used files (**)")
+            help="Display the used files (**)")
         parser.add_argument(
             "-c", dest="java_c", action="store_true",
             help="Continue importing after errors (**)")
@@ -60,11 +60,11 @@ class ImportControl(BaseControl):
             metavar="READER_FILE")
         parser.add_argument(
             "-d", dest="java_d",
-            help="OMERO dataset Id to import image into (**)",
+            help="OMERO dataset ID to import image into (**)",
             metavar="DATASET_ID")
         parser.add_argument(
             "-r", dest="java_r",
-            help="OMERO screen Id to import plate into (**)",
+            help="OMERO screen ID to import plate into (**)",
             metavar="SCREEN_ID")
         parser.add_argument(
             "-n", dest="java_n",
