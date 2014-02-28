@@ -54,7 +54,6 @@ import org.openmicroscopy.shoola.env.Environment;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.cache.CacheServiceFactory;
 import org.openmicroscopy.shoola.env.config.AgentInfo;
-import org.openmicroscopy.shoola.env.config.OMEROInfo;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.events.ConnectedEvent;
 import org.openmicroscopy.shoola.env.data.events.ReloadRenderingEngine;
@@ -197,14 +196,8 @@ public class DataServicesFactory
 	{
 		registry = c.getRegistry();
 		container = c;
-		
-        OMEROInfo omeroInfo = (OMEROInfo) registry.lookup(LookupNames.OMERODS);
-        
-		//Try and read the Ice config file.
-		//Properties config = loadConfig(c.resolveConfigFile(ICE_CONFIG_FILE));
-		
 		//Check what to do if null.
-        omeroGateway = new OMEROGateway(omeroInfo.getPortSSL(), this);
+        omeroGateway = new OMEROGateway(this);
         
 		//Create the adapters.
         ds = new OmeroDataServiceImpl(omeroGateway, registry);
@@ -582,14 +575,15 @@ public class DataServicesFactory
 	public void connect(UserCredentials uc)
 		throws DSOutOfServiceException
 	{
+	    
 		if (uc == null)
             throw new NullPointerException("No user credentials.");
-		omeroGateway.setPort(uc.getPort());
 		String name = (String) 
 		 container.getRegistry().lookup(LookupNames.MASTER);
 		if (name == null) name = LookupNames.MASTER_INSIGHT;
 		client client = omeroGateway.createSession(uc.getUserName(),
-				uc.getPassword(), uc.getHostName(), uc.isEncrypted(), name);
+				uc.getPassword(), uc.getHostName(), uc.isEncrypted(), name,
+				uc.getPort());
 		if (client == null || singleton == null) {
 			omeroGateway.logout();
         	return;
@@ -619,7 +613,7 @@ public class DataServicesFactory
         
         ExperimenterData exp = omeroGateway.login(client, uc.getUserName(), 
         		uc.getHostName(), determineCompression(uc.getSpeedLevel()),
-        		uc.getGroup());
+        		uc.getGroup(), uc.getPort());
         //Post an event to indicate that the user is connected.
         EventBus bus = container.getRegistry().getEventBus();
         bus.post(new ConnectedEvent());
@@ -760,6 +754,7 @@ public class DataServicesFactory
         if (executor != null) executor.shutdown();
         singleton = null;
         executor = null;
+        omeroGateway = null;
     }
 	
 	/** Shuts the services down and exits the application.
@@ -819,9 +814,9 @@ public class DataServicesFactory
 			}
 		}
 		shutdown(null);
+		singleton = null;
 		if (exit) {
 			CacheServiceFactory.shutdown(container);
-			singleton = null;
 			container.exit();
 		}
 	}

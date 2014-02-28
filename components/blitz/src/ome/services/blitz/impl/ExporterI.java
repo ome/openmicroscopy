@@ -28,6 +28,7 @@ import loci.formats.meta.IMetadata;
 import loci.formats.meta.MetadataRetrieve;
 import loci.formats.out.OMETiffWriter;
 import loci.formats.services.OMEXMLService;
+import loci.formats.tiff.IFD;
 import ome.api.RawPixelsStore;
 import ome.conditions.ApiUsageException;
 import ome.conditions.InternalException;
@@ -410,7 +411,13 @@ public class ExporterI extends AbstractCloseableAmdServant implements
                                         planeCount, i);
                                     int readerIndex = reader.getIndex(zct[0], zct[1], zct[2]);
                                     reader.openBytes(readerIndex, plane);
-                                    writer.saveBytes(i, plane);
+
+
+                                    IFD ifd = new IFD();
+                                    ifd.put(IFD.TILE_WIDTH, 128);
+                                    ifd.put(IFD.TILE_LENGTH, 128);
+
+                                    writer.saveBytes(i, plane, ifd);
                                 }
                                 retrieve = null;
 

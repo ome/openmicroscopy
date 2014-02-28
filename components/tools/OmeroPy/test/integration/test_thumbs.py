@@ -27,7 +27,7 @@ class TestThumbs(lib.ITest):
                 try:
                     import Image, ImageDraw # see ticket:2597
                 except ImportError:
-                    print "PIL not installed"
+                    print "Pillow not installed"
             thumb = self.open_jpeg_buffer(buf)
             assert unwrap(x) ==  thumb.size[0]
             assert unwrap(y) ==  thumb.size[1]

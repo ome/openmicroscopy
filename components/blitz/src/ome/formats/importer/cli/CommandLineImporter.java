@@ -222,7 +222,14 @@ public class CommandLineImporter {
                 for (ImportContainer ic : candidates.getContainers()) {
                     paths.addAll(Arrays.asList(ic.getUsedFiles()));
                 }
-                transfer.afterSuccess(paths);
+
+                // No exceptions are thrown from importCandidates and therefore
+                // we must manually check for the number of errors. If there
+                // are **ANY** then we refuse to post-process these paths,
+                // which primarily only means that MoveFileTransfer will not
+                // get a chance to delete the files.
+                transfer.afterTransfer(handler.errorCount(), paths);
+
             } catch (CleanupFailure e) {
                 log.error("rcode=3 on failed cleanup");
                 return 3;
@@ -314,43 +321,47 @@ public class CommandLineImporter {
      * Prints advanced usage to STDERR and exits with return code 1.
      */
     public static void advUsage() {
-        System.err
-                .println(String
-                        .format(
-                                "\n"
-                                        + "ADVANCED OPTIONS:\n\n"
-                                        + "  These options are not intended for general use. Make sure you have read the\n"
-                                        + "  documentation regarding them. They may change in future releases.\n\n"
-                                        + "  In-place imports:\n"
-                                        + "  -----------------\n\n"
-                                        + "    --transfer=ARG          \tFile transfer method\n\n"
-                                        + "        General options:    \t\n"
-                                        + "         -t upload          \t# Default\n"
-                                        + "         -t some.class.Name \t# Use a class on the CLASSPATH\n\n"
-                                        + "        Server-side options:\t\n"
-                                        + "         -t ln              \t# Use hard-link.\n"
-                                        + "         -t ln_s            \t# Use symlnk.\n"
-                                        + "         -t ln_rm           \t# Caution! Hard-link followed by source deletion.\n\n"
-                                        + "    --checksum_algorithm=ARG\tChoose a possibly faster algorithm for detecting file corruption\n"
-                                        + "                            \tE.g. Adler-32 (fast), CRC-32 (fast), MD5-128\n"
-                                        + "                            \t     Murmur3-32, Murmur3-128, SHA1-160 (slow, default)\n\n"
-                                        + "\n"
-                                        + "  ex. $ %s --transfer=ln_s --checksum_algorithm=CRC-32 foo.tiff\n"
-                                        + "\n"
-                                        + "  Background imports:\n"
-                                        + "  -------------------\n\n"
-                                        + "    --minutes_wait=ARG      \tChoose how long the importer will wait on server-side processing\n"
-                                        + "                            \tARG > 0 implies the number of minutes to wait.\n"
-                                        + "                            \tARG = 0 exits immediately. Use a *_completed option to clean up\n"
-                                        + "                            \tARG < 0 waits indefinitely. This is the default\n\n"
-                                        + "    --close_completed       \tClose completed imports\n\n"
-                                        + "    --wait_completed        \tWait for all background imports to complete.\n\n"
-                                        + "\n"
-                                        + "  ex. $ %s --minutes_wait=0 file1.tiff file2.tiff file3.tiff\n"
-                                        + "      $ %s --wait_completed # Waits on all 3 imports.\n"
-                                        + "\n"
-                                        + "Report bugs to <ome-users@lists.openmicroscopy.org.uk>",
-                                APP_NAME, APP_NAME, APP_NAME));
+        System.err.println("\n"
+            + "ADVANCED OPTIONS:\n\n"
+            + "  These options are not intended for general use. Make sure you have read the\n"
+            + "  documentation regarding them. They may change in future releases.\n\n"
+            + "  In-place imports:\n"
+            + "  -----------------\n\n"
+            + "    --transfer=ARG          \tFile transfer method\n\n"
+            + "        General options:    \t\n"
+            + "          upload          \t# Default\n"
+            + "          some.class.Name \t# Use a class on the CLASSPATH.\n\n"
+            + "        Server-side options:\t\n"
+            + "          ln              \t# Use hard-link.\n"
+            + "          ln_s            \t# Use soft-link.\n"
+            + "          ln_rm           \t# Caution! Hard-link followed by source deletion.\n\n"
+            + "\n"
+            + "  ex. $ bin/omero import -- --transfer=ln_s foo.tiff\n"
+            + "      $ ./importer-cli --transfer=ln bar.tiff\n"
+            + "      $ CLASSPATH=mycode.jar ./importer-cli --transfer=com.example.MyTransfer baz.tiff\n"
+            + "\n"
+            + "  Background imports:\n"
+            + "  -------------------\n\n"
+            + "    --minutes_wait=ARG      \tChoose how long the importer will wait on server-side processing.\n"
+            + "                            \tARG > 0 implies the number of minutes to wait.\n"
+            + "                            \tARG = 0 exits immediately. Use a *_completed option to clean up.\n"
+            + "                            \tARG < 0 waits indefinitely. This is the default.\n\n"
+            + "    --close_completed       \tClose completed imports.\n\n"
+            + "    --wait_completed        \tWait for all background imports to complete.\n\n"
+            + "\n"
+            + "  ex. $ bin/omero import -- --minutes_wait=0 file1.tiff file2.tiff file3.tiff\n"
+            + "      $ ./importer-cli --minutes_wait=0 some_directory/\n"
+            + "      $ ./importer-cli --wait_completed # Waits on all 3 imports.\n"
+            + "\n"
+            + "  Import speed:\n"
+            + "  -------------\n\n"
+            + "    --checksum_algorithm=ARG\tChoose a possibly faster algorithm for detecting file corruption,\n"
+            + "                            \te.g. Adler-32 (fast), CRC-32 (fast), MD5-128,\n"
+            + "                            \t     Murmur3-32, Murmur3-128, SHA1-160 (slow, default)\n\n"
+            + "  ex. $ bin/omero import --checksum_algorithm=CRC-32 foo.tiff\n"
+            + "      $ ./importer-cli --checksum_algorithm=Murmur3-128 bar.tiff\n"
+            + "\n"
+            + "Report bugs to <ome-users@lists.openmicroscopy.org.uk>");
         System.exit(1);
     }
 
@@ -635,10 +646,21 @@ public class CommandLineImporter {
                 ((ch.qos.logback.classic.Logger)LoggerFactory
                     .getLogger("ome.formats")).getLevel()));
 
-        if (doCloseCompleted) {
-            System.exit(closeCompleted(config)); // EARLY EXIT!
-        } else if (doWaitCompleted) {
-            System.exit(waitCompleted(config)); // EARLY EXIT!
+        // Start the importer and import the image we've been given
+        String[] rest = new String[args.length - g.getOptind()];
+        System.arraycopy(args, g.getOptind(), rest, 0, args.length
+                - g.getOptind());
+
+        if (doCloseCompleted || doWaitCompleted) {
+            if (rest.length > 0) {
+                log.error("Files found with completed option: "+
+                        Arrays.toString(rest));
+                System.exit(-2); // EARLY EXIT!
+            } else if (doCloseCompleted) {
+                System.exit(closeCompleted(config)); // EARLY EXIT!
+            } else if (doWaitCompleted) {
+                System.exit(waitCompleted(config)); // EARLY EXIT!
+            }
         }
 
         List<Annotation> annotations =
@@ -650,11 +672,6 @@ public class CommandLineImporter {
             annotations.add(unloadedAnnotation);
         }
         config.annotations.set(annotations);
-
-        // Start the importer and import the image we've been given
-        String[] rest = new String[args.length - g.getOptind()];
-        System.arraycopy(args, g.getOptind(), rest, 0, args.length
-                - g.getOptind());
 
         CommandLineImporter c = null;
         int rc = 0;

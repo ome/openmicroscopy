@@ -31,7 +31,7 @@ import omero.api.RawFileStorePrx;
 import omero.model.OriginalFile;
 
 /**
- * Local-only file transfer mechanism which makes use of symlinking.
+ * Local-only file transfer mechanism which makes use of soft-linking.
  * This is only useful where the command "ln -s source target" will work.
  *
  * @since 5.0
@@ -39,9 +39,9 @@ import omero.model.OriginalFile;
 public abstract class AbstractExecFileTransfer extends AbstractFileTransfer {
 
     /**
-     * "Transfer" files by symlinking them into place. This method is likely
-     * re-usable for other general "linking" strategies by overriding by
-     * {@link #symlink(File, File)} and the other protected methods here.
+     * "Transfer" files by soft-linking them into place. This method is likely
+     * re-usable for other general "linking" strategies by overriding
+     * {@link #createProcessBuilder(File, File)} and the other protected methods here.
      */
     public String transfer(TransferState state) throws IOException, ServerError {
         final RawFileStorePrx rawFileStore = start(state);

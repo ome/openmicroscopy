@@ -37,13 +37,28 @@ public class MoveFileTransfer extends HardlinkFileTransfer {
      * Deletes all hard-linked files
      */
     @Override
-    public void afterSuccess(List<String> srcFiles) throws CleanupFailure {
+    public void afterTransfer(int errors, List<String> srcFiles) throws CleanupFailure {
+
+        if (errors > 0) {
+            log.error("*******************************************");
+            log.error("{} error(s) found.", errors);
+            log.error("MoveFileTransfer cleanup not performed!", errors);
+            log.error("The following files will *not* be deleted:");
+            for (String srcFile : srcFiles) {
+                log.error("\t{}", srcFile);
+            }
+            log.error("*******************************************");
+            return;
+        }
+
         List<File> failedFiles = new ArrayList<File>();
         for (String path : srcFiles) {
             File srcFile = new File(path);
             try {
                 log.info("Deleting source file {}...", srcFile);
-                srcFile.delete();
+                if (!srcFile.delete()) {
+                    throw new RuntimeException("Failed to delete.");
+                }
             } catch (Exception e) {
                 log.error("Failed to remove source file {}", srcFile);
                 failedFiles.add(srcFile);
