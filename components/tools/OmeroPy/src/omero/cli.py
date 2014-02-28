@@ -166,16 +166,16 @@ class Parser(ArgumentParser):
         group.add_argument("-C", "--create", action = "store_true",
             help = "Create a new session regardless of existing ones")
         group.add_argument("-s", "--server",
-            help = "Hostname of the OMERO server")
+            help = "OMERO server hostname")
         group.add_argument("-p", "--port",
-            help = "Port of the OMERO server")
+            help = "OMERO server port")
         group.add_argument("-g", "--group",
             help = "OMERO server default group")
         group.add_argument("-u", "--user",
-            help = "OMERO server login username")
+            help = "OMERO username")
         group.add_argument("-w", "--password",
-            help = "OMERO server login password")
-        group.add_argument("-k", "--key", help = "UUID of an active session")
+            help = "OMERO password")
+        group.add_argument("-k", "--key", help = "OMERO session key (UUID of an active session)")
 
     def _check_value(self, action, value):
         # converted value must be one of the choices (if specified)
