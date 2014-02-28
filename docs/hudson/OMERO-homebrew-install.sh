@@ -90,6 +90,7 @@ if [ "$ICE" == "3.3" ]; then
     export DYLD_LIBRARY_PATH=$ICE_HOME/lib
 elif [ "$ICE" == "3.4" ]; then
     bin/brew install omero --with-ice34
+    ICE_HOME=$(bin/brew --prefix zeroc-ice34)
     export PYTHONPATH=$OMERO_PYTHONPATH:$ICE_HOME/python
     export DYLD_LIBRARY_PATH=$ICE_HOME/lib
 else
