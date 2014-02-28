@@ -61,6 +61,7 @@ import javax.swing.event.MenuListener;
 import org.jdesktop.swingx.JXTaskPane;
 import org.jdesktop.swingx.JXTaskPaneContainer;
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
+import org.openmicroscopy.shoola.agents.events.RegisteredAddOnEvent;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
@@ -1464,10 +1465,12 @@ class TreeViewerControl
             }
 			if (data == null) return;
 			String format = view.getObjectMimeType();
-			//if (format == null) return;
-			if (format != null)	
-				TreeViewerFactory.register(data, format);
+			if (format == null) format = "application/octet-stream";
+			TreeViewerFactory.register(data, format);
+            TreeViewerAgent.getRegistry().getEventBus().post(
+                    new RegisteredAddOnEvent(data));
 			model.openWith(data);
+			//post an event
 		} else if (DataBrowser.OPEN_EXTERNAL_APPLICATION_PROPERTY.equals(name)) {
 			model.openWith((ApplicationData) pce.getNewValue());
 		} else if (AdminDialog.CREATE_ADMIN_PROPERTY.equals(name)) {

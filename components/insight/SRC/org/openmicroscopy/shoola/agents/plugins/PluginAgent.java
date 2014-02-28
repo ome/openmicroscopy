@@ -40,6 +40,8 @@ import javax.swing.JMenuItem;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.openmicroscopy.shoola.agents.events.OpenWithAddOnEvent;
+import org.openmicroscopy.shoola.agents.events.RegisteredAddOnEvent;
+import org.openmicroscopy.shoola.agents.events.iviewer.CopyRndSettings;
 import org.openmicroscopy.shoola.agents.plugins.util.AddOnMenuItem;
 import org.openmicroscopy.shoola.env.Agent;
 import org.openmicroscopy.shoola.env.Environment;
@@ -50,6 +52,7 @@ import org.openmicroscopy.shoola.env.data.model.ApplicationData;
 import org.openmicroscopy.shoola.env.data.util.AgentSaveInfo;
 import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
+import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
 
@@ -140,6 +143,7 @@ public class PluginAgent
     private ApplicationData getApplication(String name,
             Map<String, ApplicationData> apps)
     {
+        System.err.println(apps);
         if (apps == null) return null;
         Entry<String, ApplicationData> e;
         Iterator<Entry<String, ApplicationData>> i = apps.entrySet().iterator();
@@ -216,6 +220,8 @@ public class PluginAgent
     public void setContext(Registry ctx)
     {
         registry = ctx;
+        EventBus bus = registry.getEventBus();
+        bus.register(this, RegisteredAddOnEvent.class);
         register();
     }
 
@@ -242,9 +248,10 @@ public class PluginAgent
      * 
      * @see AgentEventListener#eventFired(AgentEvent)
      */
-    public void eventFired(AgentEvent e) {
-        // TODO Auto-generated method stub
-        
+    public void eventFired(AgentEvent e)
+    {
+        if (e instanceof RegisteredAddOnEvent)
+            register();
     }
 
     /**
