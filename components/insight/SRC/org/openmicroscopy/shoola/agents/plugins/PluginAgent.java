@@ -39,9 +39,9 @@ import javax.swing.JMenuItem;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FilenameUtils;
+import org.openmicroscopy.shoola.agents.events.AddOnRegisteredEvent;
 import org.openmicroscopy.shoola.agents.events.OpenWithAddOnEvent;
 import org.openmicroscopy.shoola.agents.events.RegisteredAddOnEvent;
-import org.openmicroscopy.shoola.agents.events.iviewer.CopyRndSettings;
 import org.openmicroscopy.shoola.agents.plugins.util.AddOnMenuItem;
 import org.openmicroscopy.shoola.env.Agent;
 import org.openmicroscopy.shoola.env.Environment;
@@ -186,13 +186,14 @@ public class PluginAgent
                 }
                 components.add(menu);
             }
-            
         }
         TaskBar tb = registry.getTaskBar();
+        tb.getMenu(TaskBar.ADD_ON).removeAll();
         Iterator<JMenuItem> k = components.iterator();
         while (k.hasNext()) {
             tb.addToMenu(TaskBar.ADD_ON, k.next());
         }
+        getRegistry().getEventBus().post(new AddOnRegisteredEvent());
     }
 
     /** Creates a new instance. */
@@ -252,7 +253,7 @@ public class PluginAgent
             RegisteredAddOnEvent evt = (RegisteredAddOnEvent) e;
             ApplicationData data = evt.getData();
             if (data == null) return;
-            applications.put(data.getApplicationName(), data);
+            applications.put(data.getApplicationName().toLowerCase(), data);
             register();
         }
     }

@@ -34,6 +34,7 @@ import javax.swing.JComponent;
 
 //Third-party libraries
 
+import org.openmicroscopy.shoola.agents.events.AddOnRegisteredEvent;
 import org.openmicroscopy.shoola.agents.events.OpenWithAddOnEvent;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.importer.BrowseContainer;
@@ -488,6 +489,20 @@ public class TreeViewerAgent
     }
 
     /**
+     * Indicates that the application is registered.
+     * 
+     * @param evt The event to handle.
+     */
+    private void handleAddOnRegisteredEvent(AddOnRegisteredEvent evt)
+    {
+        ExperimenterData exp = (ExperimenterData) registry.lookup(
+                LookupNames.CURRENT_USER_DETAILS);
+        if (exp == null) return;
+        TreeViewer viewer = TreeViewerFactory.getTreeViewer(exp);
+        viewer.applicationRegistered();
+    }
+
+    /**
      * Implemented as specified by {@link Agent}.
      * @see Agent#activate(boolean)
      */
@@ -538,6 +553,7 @@ public class TreeViewerAgent
         bus.register(this, MoveToEvent.class);
         bus.register(this, AnnotatedEvent.class);
         bus.register(this, OpenWithAddOnEvent.class);
+        bus.register(this, AddOnRegisteredEvent.class);
     }
 
     /**
@@ -598,6 +614,8 @@ public class TreeViewerAgent
 			handleAnnotatedEvent((AnnotatedEvent) e);
 		else if (e instanceof OpenWithAddOnEvent)
 		    handleOpenWithAddOnEvent((OpenWithAddOnEvent) e);
+		else if (e instanceof AddOnRegisteredEvent)
+		    handleAddOnRegisteredEvent((AddOnRegisteredEvent) e);
 	}
 
 }

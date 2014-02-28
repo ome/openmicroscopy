@@ -4796,4 +4796,13 @@ class TreeViewerComponent
     {
         return model.isSystemGroup(groupID, key);
     }
+
+    /** 
+     * Implemented as specified by the {@link TreeViewer} interface.
+     * @see TreeViewer#applicationRegistered()
+     */
+    public void applicationRegistered()
+    {
+        view.resetMenuBar();
+    }
 }

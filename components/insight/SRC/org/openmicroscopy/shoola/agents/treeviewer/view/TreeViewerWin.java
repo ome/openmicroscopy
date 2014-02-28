@@ -186,7 +186,10 @@ class TreeViewerWin
     
     /** The listener to the split panes.*/
     private PropertyChangeListener listener;
-    
+
+    /** The components of the <code>File</code> menu.*/
+    private Component[] comps;
+
     /**
      * Checks if the specified {@link Browser} is already visible.
      * 
@@ -410,7 +413,6 @@ class TreeViewerWin
     {
     	TaskBar tb = TreeViewerAgent.getRegistry().getTaskBar();
     	JMenu menu = tb.getMenu(TaskBar.FILE_MENU);
-    	Component[] comps = menu.getPopupMenu().getComponents();
     	menu.removeAll();
         menu.add(createNewMenu());
         if (comps != null) {
@@ -629,6 +631,9 @@ class TreeViewerWin
     	statusBar.addPropertyChangeListener(controller);
     	toolBar = new ToolBar(controller, model, this);
     	initComponents();
+    	TaskBar tb = TreeViewerAgent.getRegistry().getTaskBar();
+        JMenu menu = tb.getMenu(TaskBar.FILE_MENU);
+        comps = menu.getPopupMenu().getComponents();
     	setJMenuBar(createMenuBar());
     	buildGUI();
     	controller.attachUIListeners(browsersDisplay);
@@ -1260,7 +1265,14 @@ class TreeViewerWin
 	/** Invokes when import is going on or finished.*/
 	void onImport() { toolBar.onImport(); }
 
-	
+	/** Resets the menu bar.*/
+	void resetMenuBar()
+	{
+	    setJMenuBar(createMenuBar());
+	    validate();
+	    repaint();
+	}
+
     /** Overrides the {@link #setOnScreen() setOnScreen} method. */
     public void setOnScreen()
     {

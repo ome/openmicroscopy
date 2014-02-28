@@ -650,6 +650,7 @@ class TaskBarView
         case HELP_MENU: return getHelpMenu();
         case WINDOW_MENU: return getWindowsMenu();
         case FILE_MENU: return menus[FILE_MENU];
+        case ADD_ON: return menus[ADD_ON];
         }
         return null;
     }

@@ -1215,4 +1215,7 @@ public interface TreeViewer
      */
     boolean isSystemGroup(long groupID, String key);
 
+    /** Invokes when the application is registered.*/
+    void applicationRegistered();
+
 }
