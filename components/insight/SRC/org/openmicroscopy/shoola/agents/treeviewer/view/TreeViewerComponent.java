@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewerComponent
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -82,6 +82,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.util.ChgrpObject;
 import org.openmicroscopy.shoola.agents.treeviewer.util.GenericDialog;
 import org.openmicroscopy.shoola.agents.treeviewer.util.MIFNotificationDialog;
 import org.openmicroscopy.shoola.agents.treeviewer.util.MoveGroupSelectionDialog;
+import org.openmicroscopy.shoola.agents.treeviewer.util.MultiLinkNotificationDialog;
 import org.openmicroscopy.shoola.agents.treeviewer.util.NotDeletedObjectDialog;
 import org.openmicroscopy.shoola.agents.treeviewer.util.OpenWithDialog;
 import org.openmicroscopy.shoola.agents.util.browser.ContainerFinder;
@@ -111,6 +112,7 @@ import org.openmicroscopy.shoola.env.data.model.DeletableObject;
 import org.openmicroscopy.shoola.env.data.model.DeleteActivityParam;
 import org.openmicroscopy.shoola.env.data.model.DownloadActivityParam;
 import org.openmicroscopy.shoola.env.data.model.DownloadArchivedActivityParam;
+import org.openmicroscopy.shoola.env.data.model.ImageCheckerResult;
 import org.openmicroscopy.shoola.env.data.model.MIFResultObject;
 import org.openmicroscopy.shoola.env.data.model.OpenActivityParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
@@ -4729,13 +4731,13 @@ class TreeViewerComponent
 	 * Implemented as specified by the {@link TreeViewer} interface.
 	 * @see TreeViewer#handleSplitImage(Map, Object, int)
 	 */
-	public void handleSplitImage(List<MIFResultObject> result,
-			Object action, ImageCheckerType index)
+	public void handleSplitImage(ImageCheckerResult result,
+			final Object action, ImageCheckerType index)
 	{
-		if (!CollectionUtils.isEmpty(result)) {
+		if (!CollectionUtils.isEmpty(result.getMifResults())) {
 			//Indicate what do depending on the index.
 			MIFNotificationDialog dialog = new MIFNotificationDialog(view,
-					result, action, index,
+					result.getMifResults(), action, index,
 					TreeViewerAgent.getAvailableUserGroups());
 			dialog.addPropertyChangeListener(new PropertyChangeListener() {
 				
@@ -4748,6 +4750,25 @@ class TreeViewerComponent
 						moveObject((ChgrpObject) evt.getNewValue());
 					}
 				}
+			});
+			UIUtilities.centerAndShow(dialog);
+			return;
+		}
+		// show a warning if the images to be deleted are linked to multiple datasets:
+		if (ImageCheckerType.DELETE.equals(index) && result.getMultiLinkImageCount()>0) {
+			MultiLinkNotificationDialog dialog = new MultiLinkNotificationDialog(view, result.getMultiLinkImages(), result.getMultiLinkImageCount());
+			dialog.addPropertyChangeListener(new PropertyChangeListener() {
+				
+				/** 
+				 * Removes the data
+				 */
+				public void propertyChange(PropertyChangeEvent evt) {
+					String name = evt.getPropertyName();
+					if (MultiLinkNotificationDialog.DELETE_PROPERTY.equals(name)) {
+						delete((List) action);
+					}					
+				}
+				
 			});
 			UIUtilities.centerAndShow(dialog);
 			return;
