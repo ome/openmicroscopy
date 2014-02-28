@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.data.views.calls.ImageSplitChecker
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
+ *  Copyright (C) 2013-2014 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
  *
  *
@@ -27,6 +27,7 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 //Java imports
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -39,6 +40,9 @@ import java.util.Map.Entry;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.OmeroDataService;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
+import org.openmicroscopy.shoola.env.data.DSAccessException;
+import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
+import org.openmicroscopy.shoola.env.data.model.ImageCheckerResult;
 import org.openmicroscopy.shoola.env.data.model.MIFResultObject;
 import org.openmicroscopy.shoola.env.data.model.ThumbnailData;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
@@ -50,7 +54,7 @@ import org.openmicroscopy.shoola.util.image.geom.Factory;
 
 import pojos.DataObject;
 import pojos.ImageData;
-import pojos.PixelsData;
+import pojos.DatasetData;
 
 /**
  * Checks if the images in the specified containers are split between
@@ -64,7 +68,7 @@ public class ImageSplitChecker
 	extends BatchCallTree
 {
 	/** Result of the call. */
-	private Object result;
+	private ImageCheckerResult result = new ImageCheckerResult();
 
 	/** Loads the specified tree. */
 	private BatchCall loadCall;
@@ -132,14 +136,15 @@ public class ImageSplitChecker
 				Entry<SecurityContext, List<DataObject>> e;
 				Iterator<Entry<SecurityContext, List<DataObject>>> i =
 						objects.entrySet().iterator();
-				List<MIFResultObject> list = new ArrayList<MIFResultObject>();
 				Iterator<DataObject> j;
 				List<Long> ids;
 				DataObject uo;
 				Map<Long, Map<Boolean, List<ImageData>>> r;
 				MIFResultObject mif;
 				List<ImageData> images;
+				List<ImageData> multiLinkImgs;
 				while (i.hasNext()) {
+					multiLinkImgs = new ArrayList<ImageData>();
 					e = i.next();
 					j = e.getValue().iterator();
 					ids = new ArrayList<Long>();
@@ -148,6 +153,14 @@ public class ImageSplitChecker
 						uo = j.next();
 						klass = uo.getClass();
 						ids.add(uo.getId());
+						if(uo instanceof ImageData) {
+							ImageData img = (ImageData)uo;
+							// check if an image is linked to multiple datasets:
+							List<DatasetData> ds = loadDatasets(e.getKey(), img);
+							if(ds.size()>1) {
+								multiLinkImgs.add((img));
+							}
+						}
 					}
 					r = svc.getImagesBySplitFilesets(e.getKey(),
 							klass, ids);
@@ -156,11 +169,24 @@ public class ImageSplitChecker
 						//load the thumbnails for a limited number of images.
 						images = mif.getImages();
 						mif.setThumbnails(loadThumbails(e.getKey(), images));
-						list.add(mif);
+						result.getMifResults().add(mif);
 					}
 						
+					if(!multiLinkImgs.isEmpty()) {
+						// adjust the the current count
+						result.setMultiLinkImageCount(result.getMultiLinkImageCount()+multiLinkImgs.size());
+						
+						// determine how many thumbnails to get
+						int limit = ImageCheckerResult.MAX_MULTILINK_THUMBS-result.getMultiLinkImages().size();
+						if(limit>multiLinkImgs.size())
+							limit = multiLinkImgs.size();
+						multiLinkImgs = multiLinkImgs.subList(0, limit);
+												
+						// get/add the thumbnails
+						result.getMultiLinkImages().addAll(
+								loadThumbails(e.getKey(), multiLinkImgs));
+					}
 				}
-				result = list;
 			}
 		};
 	} 
@@ -192,5 +218,20 @@ public class ImageSplitChecker
 			throw new IllegalArgumentException("No object to check.");
 		service = context.getImageService();
 		loadCall = makeBatchCall(objects);
+	}
+	
+	private List<DatasetData> loadDatasets(SecurityContext ctx, ImageData img) {
+		try {
+			OmeroDataService svc = context.getDataService();
+			return svc.findDatasetsByImageId(ctx, img.getId());
+		} catch (DSOutOfServiceException e) {
+			context.getLogger().error(this, 
+    				"Cannot retrieve thumbnail: "+e.getMessage());
+		} catch (DSAccessException e) {
+			context.getLogger().error(this, 
+    				"Cannot retrieve thumbnail: "+e.getMessage());
+		}
+		
+		return Collections.emptyList();
 	}
 }
