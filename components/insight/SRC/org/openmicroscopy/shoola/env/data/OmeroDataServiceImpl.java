@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.data.OmeroDataServiceImpl
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * This program is free software; you can redistribute it and/or modify
@@ -28,18 +28,16 @@ package org.openmicroscopy.shoola.env.data;
 import java.io.File;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 
-//Third-party libraries
-
-import omero.api.StatefulServiceInterfacePrx;
 //Application-internal dependencies
 import omero.cmd.Delete;
 import omero.cmd.Request;
@@ -94,6 +92,8 @@ import pojos.ScreenData;
 import pojos.TagAnnotationData;
 import pojos.WellData;
 import pojos.WellSampleData;
+//Third-party libraries
+import omero.api.StatefulServiceInterfacePrx;
 
 /**
  * Implementation of the {@link OmeroDataService} I/F.
@@ -1123,5 +1123,22 @@ class OmeroDataServiceImpl
 		}
 		return r;
 	}
+	
+	/**
+	 * Implemented as specified by {@link OmeroDataService}.
+	 * @see OmeroDataService#findDatasetsByImageId(SecurityContext ctx, imgId)
+	 */
+	public List<DatasetData> findDatasetsByImageId(SecurityContext ctx, long imgId) throws DSOutOfServiceException, DSAccessException
+		{
+		List<IObject> objects = gateway.findLinks(ctx, Dataset.class, Arrays.asList(new Long[] {imgId}) , -1);
+		List<DatasetData> datasets = new ArrayList<DatasetData>();
+		for(IObject obj : objects) {
+			if(obj instanceof DatasetImageLink) {
+				DatasetData ds = (DatasetData) PojoMapper.asDataObject(((DatasetImageLink) obj).getParent());
+				datasets.add(ds);
+			}
+		}
+		return datasets;
+		}
 
 }
