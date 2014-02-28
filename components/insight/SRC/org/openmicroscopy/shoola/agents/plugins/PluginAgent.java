@@ -76,6 +76,9 @@ public class PluginAgent
     /** Reference to the registry. */
     private static Registry registry;
 
+    /** The registered applications.*/
+    private Map<String, ApplicationData> applications;
+
     /**
      * Helper method.
      * 
@@ -84,16 +87,15 @@ public class PluginAgent
     public static Registry getRegistry() { return registry; }
 
     /** Reads the file hosting the external applications. */
-    private Map<String, ApplicationData> readExternalApplications()
+    private void readExternalApplications()
     {
-        Map<String, ApplicationData>
         applications = new HashMap<String, ApplicationData>();
 
         Environment env = (Environment) getRegistry().lookup(LookupNames.ENV);
         String name = FilenameUtils.concat(env.getOmeroHome(), FILE_NAME);
 
         File f = new File(name);
-        if (!f.exists()) return applications;
+        if (!f.exists()) return;
         try {
             BufferedReader input = new BufferedReader(new FileReader(f));
             try {
@@ -130,23 +132,19 @@ public class PluginAgent
             msg.print(e);
             getRegistry().getLogger().error(this, msg);
         }
-        return applications;
     }
 
     /**
      * Returns the application data if it is already registered.
      *
      * @param name The name of the application.
-     * @param apps The registered application.
      * @return See above.
      */
-    private ApplicationData getApplication(String name,
-            Map<String, ApplicationData> apps)
+    private ApplicationData getApplication(String name)
     {
-        System.err.println(apps);
-        if (apps == null) return null;
         Entry<String, ApplicationData> e;
-        Iterator<Entry<String, ApplicationData>> i = apps.entrySet().iterator();
+        Iterator<Entry<String, ApplicationData>> i =
+                applications.entrySet().iterator();
         while (i.hasNext()) {
             e = i.next();
             if (e.getKey().startsWith(name.toLowerCase()))
@@ -162,7 +160,6 @@ public class PluginAgent
                 registry.lookup("/addOns");
         if (CollectionUtils.isEmpty(infos)) return;
         //Check if already registered
-        Map<String, ApplicationData> apps = readExternalApplications();
         Iterator<AddOnInfo> i = infos.iterator();
         AddOnInfo info;
         List<String> scripts;
@@ -172,7 +169,7 @@ public class PluginAgent
         ApplicationData data;
         while (i.hasNext()) {
             info = i.next();
-            data = getApplication(info.getName(), apps);
+            data = getApplication(info.getName());
             scripts = info.getScripts();
             if (CollectionUtils.isEmpty(scripts)) {
                 item = new AddOnMenuItem(info);
@@ -222,6 +219,7 @@ public class PluginAgent
         registry = ctx;
         EventBus bus = registry.getEventBus();
         bus.register(this, RegisteredAddOnEvent.class);
+        readExternalApplications();
         register();
     }
 
@@ -250,8 +248,13 @@ public class PluginAgent
      */
     public void eventFired(AgentEvent e)
     {
-        if (e instanceof RegisteredAddOnEvent)
+        if (e instanceof RegisteredAddOnEvent) {
+            RegisteredAddOnEvent evt = (RegisteredAddOnEvent) e;
+            ApplicationData data = evt.getData();
+            if (data == null) return;
+            applications.put(data.getApplicationName(), data);
             register();
+        }
     }
 
     /**
