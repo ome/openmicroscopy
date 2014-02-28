@@ -161,7 +161,8 @@ class EditorUI
 		bar.removeAll();
 		bar.add(menu);
 		for (int i = 0; i < existingMenus.length; i++) 
-			if (i != TaskBar.FILE_MENU) bar.add(existingMenus[i]);
+			if (i != TaskBar.FILE_MENU && i != TaskBar.ADD_ON)
+			    bar.add(existingMenus[i]);
         return bar;	
 	}
 
