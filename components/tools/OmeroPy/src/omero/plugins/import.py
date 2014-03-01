@@ -19,7 +19,7 @@ TEST_CLASS = "ome.formats.test.util.TestEngine"
 HELP = """Run the Java-based command-line importer
 
 This is a Python wrapper around the Java importer. Login is handled by Python
-OmeroCli. To see more options, use "--javahelp".
+OMERO.cli. To see more options, use "--javahelp".
 
 Options marked with "**" are passed strictly to Java. If they interfere with
 any of the Python arguments, you may need to end precede your arguments with a
@@ -48,60 +48,61 @@ class ImportControl(BaseControl):
             "---errs", nargs="?",
             help="File for storing the standard err of the Java process")
         # The following arguments are strictly passed to Java
-        parser.add_argument(
+        java_group = parser.add_argument_group(
+            'Java arguments', 'Optional arguments passed strictly to Java')
+        java_group.add_argument(
             "-f", dest="java_f", action="store_true",
             help="Display the used files (**)")
-        parser.add_argument(
+        java_group.add_argument(
             "-c", dest="java_c", action="store_true",
             help="Continue importing after errors (**)")
-        parser.add_argument(
+        java_group.add_argument(
             "-l", dest="java_l",
             help="Use the list of readers rather than the default (**)",
             metavar="READER_FILE")
-        parser.add_argument(
+        java_group.add_argument(
             "-d", dest="java_d",
             help="OMERO dataset ID to import image into (**)",
             metavar="DATASET_ID")
-        parser.add_argument(
+        java_group.add_argument(
             "-r", dest="java_r",
             help="OMERO screen ID to import plate into (**)",
             metavar="SCREEN_ID")
-        parser.add_argument(
+        java_group.add_argument(
             "-n", dest="java_n",
             help="Image name to use (**)",
             metavar="NAME")
-        parser.add_argument(
+        java_group.add_argument(
             "-x", dest="java_x",
             help="Image description to use (**)",
             metavar="DESCRIPTION")
-        parser.add_argument(
+        java_group.add_argument(
             "--report", action="store_true", dest="java_report",
             help="Report errors to the OME team (**)")
-        parser.add_argument(
+        java_group.add_argument(
             "--upload", action="store_true", dest="java_upload",
             help="Upload broken files with report (**)")
-        parser.add_argument(
+        java_group.add_argument(
             "--logs", action="store_true", dest="java_logs",
             help="Upload log file with report (**)")
-        parser.add_argument(
+        java_group.add_argument(
             "--email", dest="java_email",
             help="Email for reported errors (**)", metavar="EMAIL")
-        parser.add_argument(
+        java_group.add_argument(
             "--debug", dest="java_debug",
-            help="Turn debug logging on (**; must be preceded by '--')",
+            help="Turn debug logging on (**)",
             choices=["ALL", "DEBUG", "ERROR", "FATAL", "INFO", "TRACE",
                      "WARN"],
             metavar="LEVEL")
-
-        parser.add_argument(
-            "--annotation_ns", dest="java_ns",
-            help="Namespace to use for subsequent annotation")
-        parser.add_argument(
-            "--annotation_text", dest="java_text",
-            help="Content for a text annotation (requires namespace)")
-        parser.add_argument(
-            "--annotation_link", dest="java_link",
-            help="Comment annotation ID to link all images to")
+        java_group.add_argument(
+            "--annotation_ns", dest="java_ns", metavar="ANNOTATION_NS",
+            help="Namespace to use for subsequent annotation (**)")
+        java_group.add_argument(
+            "--annotation_text", dest="java_text", metavar="ANNOTATION_TEXT",
+            help="Content for a text annotation (requires namespace) (**)")
+        java_group.add_argument(
+            "--annotation_link", dest="java_link", metavar="ANNOTATION_LINK",
+            help="Comment annotation ID to link all images to (**)")
 
         parser.add_argument(
             "arg", nargs="*",
