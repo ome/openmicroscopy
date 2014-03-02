@@ -2423,6 +2423,19 @@ def script_ui(request, scriptId, conn=None, **kwargs):
                 Data_TypeParam["default"] = dtype
                 IDsParam["default"] = request.REQUEST.get(dtype, "")
                 break       # only use the first match
+        # if we've not found a match, check whether we have "Well" selected
+        if len(IDsParam["default"]) == 0 and request.REQUEST.get("Well", None) is not None:
+            if "Image" in Data_TypeParam["options"]:
+                wellIds = [long(i) for i in request.REQUEST.get("Well", None).split(",")]
+                wellIdx = 0
+                try:
+                    wellIdx = int(request.REQUEST.get("Index", 0))
+                except:
+                    pass
+                wells = conn.getObjects("Well", wellIds)
+                imgIds = [str(w.getImage(wellIdx).getId()) for w in wells]
+                Data_TypeParam["default"] = "Image"
+                IDsParam["default"] = ",".join(imgIds)
 
     # try to determine hierarchies in the groupings - ONLY handle 1 hierarchy level now (not recursive!)
     for i in range(len(inputs)):

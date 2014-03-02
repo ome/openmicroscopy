@@ -171,7 +171,14 @@ OME.openScriptWindow = function(event, width, height) {
             sel_types[type].push(oid);
         }
         var args = [];
-        for (key in sel_types) {
+        for (var key in sel_types) {
+            // If in SPW with wells selected, handy to know what 'field'
+            if (key === "well") {
+                // grab the index select value:
+                if ($("#id_index").length > 0) {
+                    args.push("Index=" + $("#id_index").val());
+                }
+            }
             if (sel_types.hasOwnProperty(key)){
                 args.push(key.capitalize() + "=" + sel_types[key].join(","));
             }
