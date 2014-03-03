@@ -49,8 +49,8 @@ public class SelectableMenu
 
     static {
         IconManager icons = IconManager.getInstance();
-        DEFAULT_DESELECTED = icons.getIcon(IconManager.TRANSPARENT);
-        DEFAULT_SELECTED = icons.getIcon(IconManager.SELECTED_8);
+        DEFAULT_DESELECTED = icons.getIcon(IconManager.NOT_SELECTED);
+        DEFAULT_SELECTED = icons.getIcon(IconManager.SELECTED);
         GROUP_SELECTION_PROPERTY = "groupSelection";
     }
 
@@ -59,6 +59,9 @@ public class SelectableMenu
 
     /** The icon used when the menu is not selected.*/
     private Icon deselectedIcon;
+
+    /** Flag indicating if the object is selectable or not.*/
+    private boolean selectable;
 
     /**
      * Creates a new instance.
@@ -137,6 +140,7 @@ public class SelectableMenu
         this.deselectedIcon = deselectedIcon;
         setMenuSelected(selected, false);
         setText(text);
+        this.selectable = selectable;
         if (selectable) {
             addMouseListener(new MouseAdapter() {
                 public void mouseClicked(MouseEvent evt) {
@@ -174,5 +178,14 @@ public class SelectableMenu
             firePropertyChange(GROUP_SELECTION_PROPERTY, null, this);
         }
     }
+
+    /**
+     * Returns <code>true</code> if the item can be selected,
+     * <code>false</code> otherwise.
+     *
+     * @return See above.
+     */
+    public boolean isSelectable() { return selectable; }
+
 
 }
