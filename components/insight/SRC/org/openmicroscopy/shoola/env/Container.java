@@ -36,6 +36,7 @@ import java.util.Set;
 import org.openmicroscopy.shoola.env.config.AgentInfo;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.config.RegistryFactory;
+import org.openmicroscopy.shoola.env.data.DataServicesFactory;
 import org.openmicroscopy.shoola.env.data.events.ActivateAgents;
 import org.openmicroscopy.shoola.env.data.events.ConnectedEvent;
 import org.openmicroscopy.shoola.env.data.login.LoginService;
@@ -44,6 +45,7 @@ import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.init.Initializer;
 import org.openmicroscopy.shoola.env.init.StartupException;
+import org.openmicroscopy.shoola.env.log.Logger;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.file.IOUtil;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -345,7 +347,8 @@ public final class Container
 	 * user. 
 	 */
 	public void startService()
-	{	
+	{
+	    if (singleton == null) return;
 		List<AgentInfo> agents = (List<AgentInfo>)
 				singleton.registry.lookup(LookupNames.AGENTS);
 		Iterator<AgentInfo> i = agents.iterator();
@@ -385,8 +388,13 @@ public final class Container
 		if (v != null) value = v.intValue();
 		if (value <= 0) {
 			System.exit(0);
-		}
-		else {
+		} else {
+		    try {
+		        DataServicesFactory.getInstance(this).shutdown(null);
+            } catch (Exception e) {
+                Logger logger = getRegistry().getLogger();
+                if (logger != null) logger.error(this, e.toString());
+            }
 			getRegistry().getEventBus().post(new ConnectedEvent(false));
 			singleton = null;
 		}

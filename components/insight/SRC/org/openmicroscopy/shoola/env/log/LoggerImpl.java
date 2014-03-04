@@ -55,13 +55,13 @@ import ch.qos.logback.core.util.StatusPrinter;
 class LoggerImpl
     implements Logger
 {
-    
+
     /** The name of the log file variable the log config file. */
     private static final String LOG_FILE_NAME = "logFileName";
 
 	/** The absolute pathname of the log file.*/
 	private String absFile;
-	
+
     /**
      * Returns the <i>Log4j</i> logger for the specified object.
      * 
@@ -76,16 +76,17 @@ class LoggerImpl
 												target.getClass());
 		return org.slf4j.LoggerFactory.getLogger(org.slf4j.Logger.ROOT_LOGGER_NAME);
     }
-    
+
     /**
      * Initializes slf4j.
      * 
-     * @param configFile  The pathname of a configuration file.
-     * @param absFile     The absolute pathname of the log file.
+     * @param configFile The pathname of a configuration file.
+     * @param absFile The absolute pathname of the log file.
      */
     LoggerImpl(String configFile, String absFile)
     {
-        LoggerContext context = (LoggerContext) org.slf4j.LoggerFactory.getILoggerFactory();
+        LoggerContext context = (LoggerContext)
+                org.slf4j.LoggerFactory.getILoggerFactory();
         try {
           JoranConfigurator configurator = new JoranConfigurator();
           configurator.setContext(context);
@@ -94,35 +95,35 @@ class LoggerImpl
           configurator.doConfigure(configFile);
         } catch (JoranException je) {
           // StatusPrinter will handle this
+            StatusPrinter.printInCaseOfErrorsOrWarnings(context);
         }
-        StatusPrinter.printInCaseOfErrorsOrWarnings(context);
     }
-    
+
 	/** 
-     * Implemented as specified by {@link Logger}. 
+     * Implemented as specified by {@link Logger}.
      * @see Logger#debug(Object, String)
      */     
     public void debug(Object c, String logMsg)
     {
-		getAdaptee(c).debug(logMsg);
+        getAdaptee(c).debug(logMsg);
     }
     
 	/** 
-     * Implemented as specified by {@link Logger}.
+     * Implemented as specified by {@link Logger}
      * @see Logger#debug(Object, LogMessage)
      */     
 	public void debug(Object c, LogMessage msg)
 	{
-		getAdaptee(c).debug(msg == null ? null : msg.toString());
+        getAdaptee(c).debug(msg == null ? null : msg.toString());
 	}
-    
+
 	/**
      * Implemented as specified by {@link Logger}.
      * @see Logger#error(Object, String)
      */ 
     public void error(Object c, String logMsg)
     {
-		getAdaptee(c).error(logMsg);
+        getAdaptee(c).error(logMsg);
     }
     
 	/** 
@@ -131,7 +132,7 @@ class LoggerImpl
      */     
 	public void error(Object c, LogMessage msg)
 	{
-		getAdaptee(c).error(msg == null ? null : msg.toString());
+        getAdaptee(c).error(msg == null ? null : msg.toString());
 	}
     
 	/** 
@@ -140,16 +141,16 @@ class LoggerImpl
      */ 
     public void fatal(Object c, String logMsg)
     {
-		getAdaptee(c).error(logMsg);
+        getAdaptee(c).error(logMsg);
     }
     
 	/** 
-     * Implemented as specified by {@link Logger}. 
+     * Implemented as specified by {@link Logger}.
      * @see Logger#fatal(Object, LogMessage)
      */     
 	public void fatal(Object c, LogMessage msg)
 	{
-		getAdaptee(c).error(msg == null ? null : msg.toString());
+	    getAdaptee(c).error(msg == null ? null : msg.toString());
 	}
     
 	/** 
@@ -158,7 +159,7 @@ class LoggerImpl
      */ 
     public void info(Object c, String logMsg)
     {
-		getAdaptee(c).info(logMsg);
+        getAdaptee(c).info(logMsg);
     }
     
 	/**
@@ -167,16 +168,16 @@ class LoggerImpl
      */     
 	public void info(Object c, LogMessage msg)
 	{
-		getAdaptee(c).info(msg == null ? null : msg.toString());
+        getAdaptee(c).info(msg == null ? null : msg.toString());
 	}
     
 	/**
-     * Implemented as specified by {@link Logger}. 
+     * Implemented as specified by {@link Logger}.
      * @see Logger#warn(Object, String)
      */ 
     public void warn(Object c, String logMsg)
     {
-		getAdaptee(c).warn(logMsg);
+        getAdaptee(c).warn(logMsg);
     }
     
 	/**
@@ -185,7 +186,7 @@ class LoggerImpl
      */
 	public void warn(Object c, LogMessage msg)
 	{
-		getAdaptee(c).warn(msg == null ? null : msg.toString());
+        getAdaptee(c).warn(msg == null ? null : msg.toString());
 	}
 
 	/**

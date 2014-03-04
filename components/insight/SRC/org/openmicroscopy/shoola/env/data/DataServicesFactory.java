@@ -456,6 +456,19 @@ public class DataServicesFactory
         }
     }
 
+    /**
+     * Returns the value of the plug-in or <code>-1</code>.
+     * 
+     * @return See above.
+     */
+    int runAsPlugin()
+    {
+        Integer v = (Integer) container.getRegistry().lookup(
+                LookupNames.PLUGIN);
+        if (v == null) return -1;
+        return v.intValue();
+    }
+
 	/**
 	 * Brings up a dialog indicating that the session has expired and
 	 * quits the application.
@@ -733,12 +746,13 @@ public class DataServicesFactory
 	public void shutdown(SecurityContext ctx)
     { 
 		//Need to write the current group.
-		if (!omeroGateway.isConnected()) return;
+		//if (!omeroGateway.isConnected()) return;
 		omeroGateway.logout();
 		DataServicesFactory.registry.getCacheService().clearAllCaches();
 		PixelsServicesFactory.shutDownRenderingControls(container.getRegistry());
 		 
         if (executor != null) executor.shutdown();
+        singleton = null;
         executor = null;
         omeroGateway = null;
     }

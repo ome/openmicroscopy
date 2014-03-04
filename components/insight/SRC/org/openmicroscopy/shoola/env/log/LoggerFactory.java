@@ -31,6 +31,7 @@ import java.io.File;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.Container;
+import org.openmicroscopy.shoola.env.Environment;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 
@@ -100,8 +101,14 @@ public class LoggerFactory
 			if (logDir.isDirectory()) logFile = new File(logDir, logFileName);
 			else logFile = new File(c.getHomeDir(), logFileName);
 		}
-		
-		return new LoggerImpl(relPathName, logFile.getAbsolutePath());
+		Integer v = (Integer) reg.lookup(LookupNames.PLUGIN);
+		int value = -1;
+		if (v != null) value = v.intValue();
+		if (value < 0) {
+		    return new LoggerImpl(relPathName, logFile.getAbsolutePath());
+		} else {
+		    return new PluginLoggerImpl(value);
+		}
 	}
 	
 	/**

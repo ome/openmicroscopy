@@ -1198,6 +1198,7 @@ public class ScreenLogin
 	/** Closes and disposes. */
 	public void close()
 	{
+	    setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 		setVisible(false);
 		dispose();
 	}

@@ -56,6 +56,7 @@ import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
 
+import org.openmicroscopy.shoola.env.LookupNames;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
@@ -477,7 +478,8 @@ class OMEROGateway
         throws Exception
     {
         try {
-            networkup.set(networkChecker.isNetworkup(useCachedValue));
+            if (networkChecker != null)
+                networkup.set(networkChecker.isNetworkup(useCachedValue));
         } catch (Throwable t) {
             log("Error on isNetworkUp check:" + t);
             networkup.set(false);
@@ -1856,7 +1858,8 @@ class OMEROGateway
 				log("Failed to get inet address: " + hostName);
 			}
 
-			networkChecker = new NetworkChecker(ip);
+	        boolean b = dsFactory.runAsPlugin() == LookupNames.IMAGE_J;
+			networkChecker = new NetworkChecker(ip, b);
 		} catch (Throwable e) {
 		    if (secureClient != null) {
 		        secureClient.__del__();
