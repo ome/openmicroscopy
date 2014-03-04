@@ -52,7 +52,7 @@ class ImportControl(BaseControl):
             'Java arguments', 'Optional arguments passed strictly to Java')
         java_group.add_argument(
             "-f", dest="java_f", action="store_true",
-            help="Display the used files (**)")
+            help="Display the used files and exit (**)")
         java_group.add_argument(
             "-c", dest="java_c", action="store_true",
             help="Continue importing after errors (**)")
