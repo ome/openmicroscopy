@@ -314,12 +314,14 @@ class ToolBar
 
     /**
      * Creates the menu hosting the users belonging to the specified group.
+     * Returns <code>true</code> if the group is selected, <code>false</code>
+     * otherwise.
      * 
      * @param groupItem The item hosting the group.
      * @param size The number of groups.
      * @return See above.
      */
-    private void createGroupMenu(GroupItem groupItem, int size)
+    private boolean createGroupMenu(GroupItem groupItem, int size)
     {
         long loggedUserID = model.getUserDetails().getId();
         GroupData group = groupItem.getGroup();
@@ -448,6 +450,7 @@ class ToolBar
                     handleAllUsersSelection((Boolean) evt.getNewValue());
             }
         });
+        return groupItem.isMenuSelected();
     }
 
     /**
@@ -510,6 +513,7 @@ class ToolBar
         popupMenu.add(panel);
         popupMenu.add(new JSeparator());
         GroupItem item;
+        GroupItem allGroup = null;
         //First add option to add all the groups.
         if (size > 1) {
             item = new GroupItem(false);
@@ -517,15 +521,22 @@ class ToolBar
             createGroupMenu(item, 0);
             popupMenu.add(item);
             popupMenu.add(new JSeparator());
+            allGroup = item;
         }
 
+        boolean selected;
+        int count = 0;
         while (i.hasNext()) {
             group = (GroupData) i.next();
             boolean b = groupIds.contains(group.getId());
             item = new GroupItem(group, b, size > 1);
             item.setUserID(userID);
-            createGroupMenu(item, size);
+            selected = createGroupMenu(item, size);
             popupMenu.add(item);
+            if (selected) count++;
+        }
+        if (allGroup != null) {
+            allGroup.setMenuSelected(count == sortedGroups.size(), false);
         }
         popupMenu.show(source, p.x, p.y);
     }
