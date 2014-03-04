@@ -50,7 +50,6 @@ import loci.formats.IFormatReader;
 import loci.formats.ImageReader;
 import loci.formats.meta.IMinMaxStore;
 import loci.formats.meta.MetadataStore;
-import loci.formats.meta.MetadataRoot;
 import ome.formats.enums.EnumerationProvider;
 import ome.formats.enums.IQueryEnumProvider;
 import ome.formats.importer.ImportEvent;
@@ -69,6 +68,7 @@ import ome.formats.model.TargetProcessor;
 import ome.formats.model.WellProcessor;
 import ome.services.blitz.repo.ManagedImportRequestI;
 import ome.util.LSID;
+import ome.xml.meta.MetadataRoot;
 import ome.xml.model.AffineTransform;
 import ome.xml.model.enums.FillRule;
 import ome.xml.model.enums.FontFamily;
@@ -1148,7 +1148,7 @@ public class OMEROMetadataStoreClient
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#getRoot(loci.formats.meta.MetadataRoot)
+     * @see loci.formats.meta.MetadataStore#getRoot(omx.xml.meta.MetadataRoot)
      */
     public MetadataRoot getRoot()
     {
