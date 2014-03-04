@@ -93,43 +93,37 @@ public class ManageObjectAction
     private static final String NAME_COPY = "Copy";
 
     /** Alternative description of the action if the index is {@link #COPY}. */
-    private static final String DESCRIPTION_COPY =
-            "Copy the selected element(s) into the clipboard.";
+    private static final String DESCRIPTION_COPY = "Copy the selected element(s) into the clipboard.";
 
     /** The default name of the action if the index is {@link #PASTE}. */
     private static final String NAME_PASTE_LINK = "Paste Link";
     
     /** The description of the action if the index is {@link #PASTE}. */
-    private static final String DESCRIPTION_PASTE_LINK =
-            "Paste link(s) from the clipboard.";
+    private static final String DESCRIPTION_PASTE_LINK = "Paste link(s) from the clipboard.";
     
     /** Alternative default name of the action if the index is {@link #PASTE}. */
     private static final String NAME_PASTE = "Paste";
 
     /** Alternative description of the action if the index is {@link #PASTE}. */
-    private static final String DESCRIPTION_PASTE =
-            "Paste element(s) from the clipboard.";
+    private static final String DESCRIPTION_PASTE = "Paste element(s) from the clipboard.";
 
     /** The default name of the action if the index is {@link #REMOVE}. */
     private static final String NAME_REMOVE = "Delete";
 
     /** The description of the action if the index is {@link #REMOVE}. */
-    private static final String DESCRIPTION_REMOVE =
-            "Delete the selected elements.";
+    private static final String DESCRIPTION_REMOVE = "Delete the selected elements.";
 
     /** The default name of the action if the index is {@link #CUT}. */
     private static final String NAME_CUT_LINK = "Cut Link";
 
     /** The description of the action if the index is {@link #CUT}. */
-    private static final String DESCRIPTION_CUT_LINK =
-            "Cut the selected link(s).";
+    private static final String DESCRIPTION_CUT_LINK = "Cut the selected link(s).";
     
     /** Alternative default name of the action if the index is {@link #CUT}. */
     private static final String NAME_CUT = "Cut";
 
     /** Alternative description of the action if the index is {@link #CUT}. */
-    private static final String DESCRIPTION_CUT =
-            "Cut the selected element(s).";
+    private static final String DESCRIPTION_CUT = "Cut the selected element(s).";
 
     /** The system group to check.*/
     private static final String[] KEYS = {GroupData.SYSTEM, GroupData.GUEST};
@@ -224,53 +218,56 @@ public class ManageObjectAction
     }
 
     /**
-     * Adapt the name and description of this action with respect to
-     * the selected browser
-     * @param browserType The type of the {@link Browser}
+     * Adapt the name and description of this action with respect to the
+     * selected browser
+     * 
+     * @param browserType
+     *            The type of the {@link Browser}
      */
     private void adaptActionNameDescription(int browserType) {
-    	if(browserType == Browser.ADMIN_EXPLORER) {
-	    	switch (index) {
-	    	case CUT:
-	    		name = NAME_CUT;
-	    		putValue(Action.NAME, NAME_CUT);
-	            putValue(Action.SHORT_DESCRIPTION,
-	                    UIUtilities.formatToolTipText(DESCRIPTION_CUT));
-		    	break;
-	    	case COPY:
-	    		name = NAME_COPY;
-	    		putValue(Action.NAME, NAME_COPY);
-	            putValue(Action.SHORT_DESCRIPTION,
-	                    UIUtilities.formatToolTipText(DESCRIPTION_COPY));
-		    	break;
-	        case PASTE:
-	    		name = NAME_PASTE;
-	    		putValue(Action.NAME, NAME_PASTE);
-	            putValue(Action.SHORT_DESCRIPTION,
-	                    UIUtilities.formatToolTipText(DESCRIPTION_PASTE));
-	    	}
-    	}
-    	else {
-    		switch (index) {
-    		case CUT:
-	    		name = NAME_CUT_LINK;
-	    		putValue(Action.NAME, NAME_CUT_LINK);
-	            putValue(Action.SHORT_DESCRIPTION,
-	                    UIUtilities.formatToolTipText(DESCRIPTION_CUT_LINK));
-		    	break;
-	    	case COPY:
-	    		name = NAME_COPY_LINK;
-	    		putValue(Action.NAME, NAME_COPY_LINK);
-	            putValue(Action.SHORT_DESCRIPTION,
-	                    UIUtilities.formatToolTipText(DESCRIPTION_COPY_LINK));
-		    	break;
-	        case PASTE:
-	    		name = NAME_PASTE_LINK;
-	    		putValue(Action.NAME, NAME_PASTE_LINK);
-	            putValue(Action.SHORT_DESCRIPTION,
-	                    UIUtilities.formatToolTipText(DESCRIPTION_PASTE_LINK));
-    		}
-    	}
+        if (browserType == Browser.ADMIN_EXPLORER) {
+            switch (index) {
+                case CUT:
+                    name = NAME_CUT;
+                    putValue(Action.NAME, NAME_CUT);
+                    putValue(Action.SHORT_DESCRIPTION,
+                            UIUtilities.formatToolTipText(DESCRIPTION_CUT));
+                    break;
+                case COPY:
+                    name = NAME_COPY;
+                    putValue(Action.NAME, NAME_COPY);
+                    putValue(Action.SHORT_DESCRIPTION,
+                            UIUtilities.formatToolTipText(DESCRIPTION_COPY));
+                    break;
+                case PASTE:
+                    name = NAME_PASTE;
+                    putValue(Action.NAME, NAME_PASTE);
+                    putValue(Action.SHORT_DESCRIPTION,
+                            UIUtilities.formatToolTipText(DESCRIPTION_PASTE));
+            }
+        } else {
+            switch (index) {
+                case CUT:
+                    name = NAME_CUT_LINK;
+                    putValue(Action.NAME, NAME_CUT_LINK);
+                    putValue(Action.SHORT_DESCRIPTION,
+                            UIUtilities.formatToolTipText(DESCRIPTION_CUT_LINK));
+                    break;
+                case COPY:
+                    name = NAME_COPY_LINK;
+                    putValue(Action.NAME, NAME_COPY_LINK);
+                    putValue(Action.SHORT_DESCRIPTION,
+                            UIUtilities
+                                    .formatToolTipText(DESCRIPTION_COPY_LINK));
+                    break;
+                case PASTE:
+                    name = NAME_PASTE_LINK;
+                    putValue(Action.NAME, NAME_PASTE_LINK);
+                    putValue(Action.SHORT_DESCRIPTION,
+                            UIUtilities
+                                    .formatToolTipText(DESCRIPTION_PASTE_LINK));
+            }
+        }
     }
     
     /**
