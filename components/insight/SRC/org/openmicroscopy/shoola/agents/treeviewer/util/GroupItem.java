@@ -261,9 +261,11 @@ public class GroupItem
             Object ho = item.getDataObject();
             ExperimenterData exp;
             Iterator<DataMenuItem> i;
+            List<ExperimenterData> l;
             if (ho instanceof String) {
                 String v = (String) ho;
                 if (DataMenuItem.ALL_USERS_TEXT.equals(v)) {
+                    selectUsers(true, item.isSelected());
                     i = usersItem.iterator();
                     boolean b = item.isSelected();
                     while (i.hasNext()) {
@@ -280,21 +282,38 @@ public class GroupItem
                     }
                 }
             } else {
-                List<ExperimenterData> l = getSeletectedUsers();
-                if (getGroup() != null) {
-                    setMenuSelected(CollectionUtils.isNotEmpty(l), false);
-                    firePropertyChange(USER_SELECTION_PROPERTY, null, this);
-                } else {
-                  //no longer select the group.
-                    boolean selected = item.isSelected();
-                    if (!selected && isMenuSelected()) {
-                        setMenuSelected(false, false);
-                    } else if (selected && !isMenuSelected()) {
-                        setMenuSelected(true, false);
+                l = getSeletectedUsers();
+                //check that if we keep the "show All users" selected
+                boolean all = l.size() == usersItem.size()-1;
+                i = usersItem.iterator();
+                while (i.hasNext()) {
+                    item = i.next();
+                    ho = item.getDataObject();
+                    if (ho instanceof String) {
+                        String v = (String) ho;
+                        if (DataMenuItem.ALL_USERS_TEXT.equals(v)) {
+                            item.removePropertyChangeListener(this);
+                            item.setSelected(all);
+                            item.addPropertyChangeListener(this);
+                        }
                     }
-                    firePropertyChange(ALL_USERS_SELECTION_PROPERTY, null,
-                            selected);
                 }
+            }
+            l = getSeletectedUsers();
+            if (getGroup() != null) {
+                if (isSelectable())
+                    setMenuSelected(CollectionUtils.isNotEmpty(l), false);
+                firePropertyChange(USER_SELECTION_PROPERTY, null, this);
+            } else {
+                //no longer select the group.
+                boolean selected = item.isSelected();
+                if (!selected && isMenuSelected()) {
+                    setMenuSelected(false, false);
+                } else if (selected && !isMenuSelected()) {
+                    setMenuSelected(true, false);
+                }
+                firePropertyChange(ALL_USERS_SELECTION_PROPERTY, null,
+                        selected);
             }
         } else if (SelectableMenu.GROUP_SELECTION_PROPERTY.equals(name)) {
             GroupItem item = (GroupItem) evt.getNewValue();
