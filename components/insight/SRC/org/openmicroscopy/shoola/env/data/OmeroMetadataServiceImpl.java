@@ -2121,22 +2121,35 @@ class OmeroMetadataServiceImpl
 		return gateway.loadTabularData(ctx, parameters, userID);
 	}
 
+        /**
+         * Implemented as specified by {@link OmeroImageService}.
+         * 
+         * @see OmeroMetadataService#loadParentsOfAnnotations(SecurityContext, long)
+         */
+        public List<DataObject> loadParentsOfAnnotations(SecurityContext ctx, long annotationId) throws DSOutOfServiceException,
+                DSAccessException {
+    
+            ExperimenterData exp = (ExperimenterData) context
+                    .lookup(LookupNames.CURRENT_USER_DETAILS);
+            long userId = exp.getId();
+    
+            return loadParentsOfAnnotations(ctx, annotationId, userId);
+        }
+
 	/** 
 	 * Implemented as specified by {@link OmeroImageService}. 
-	 * @see OmeroMetadataService#loadParentsOfAnnotations(long)
+	 * @see OmeroMetadataService#loadParentsOfAnnotations(SecurityContext, long, long)
 	 */
 	public List<DataObject> loadParentsOfAnnotations(SecurityContext ctx,
-		long annotationId)
+		long annotationId, long userId)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		if (annotationId < 0)
 			throw new IllegalArgumentException("Annotation id not valid.");
 		//Check possible links
-		ExperimenterData exp = (ExperimenterData) context.lookup(
-					LookupNames.CURRENT_USER_DETAILS);
 		
 		List links = gateway.findLinks(ctx, FileAnnotation.class, annotationId,
-				exp.getId());
+				userId);
 		List<DataObject> nodes = new ArrayList<DataObject>();
 		if (links != null) {
 			Iterator j = links.iterator();
