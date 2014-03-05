@@ -114,7 +114,7 @@ public abstract class PersistentEventLogLoader extends EventLogLoader {
             try {
                 return currentIdFromFile();
             } catch (IOException e) {
-                log.warn("Problem writting current event log ID file: " + e);
+                log.warn("Problem writing current event log ID file: " + e);
                 log.info("Falling back to database for ID tracking.");
                 this.useFileLog = false;
                 return currentIdFromDatabase();
@@ -127,7 +127,7 @@ public abstract class PersistentEventLogLoader extends EventLogLoader {
     private long currentIdFromFile() throws IOException {
         if (dataDir == null) {
             log.warn("Attempted to use a file to track event log progress, but "
-                        + "the location of the OMERO data directory is not"
+                        + "the location of the OMERO data directory is not "
                         + "set. Falling back to database for tracking.");
             this.useFileLog = false;
             return currentIdFromDatabase();
@@ -197,7 +197,7 @@ public abstract class PersistentEventLogLoader extends EventLogLoader {
             try {
                 setCurrentIdFile(id);
             } catch (IOException e) {
-                log.warn("Problem writting current event log ID file: " + e);
+                log.warn("Problem writing current event log ID file: " + e);
                 log.info("Falling back to database for ID tracking.");
                 this.useFileLog = false;
                 setCurrentIdDatabase(id);
@@ -210,7 +210,7 @@ public abstract class PersistentEventLogLoader extends EventLogLoader {
     private void setCurrentIdFile(long id) throws IOException {
         if (dataDir == null) {
             log.warn("Attempted to use a file to track event log progress, but "
-                        + "the location of the OMERO data directory is not"
+                        + "the location of the OMERO data directory is not "
                         + "set. Falling back to database for ID tracking.");
             this.useFileLog = false;
             setCurrentIdDatabase(id);
