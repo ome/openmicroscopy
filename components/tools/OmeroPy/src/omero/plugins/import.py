@@ -24,12 +24,25 @@ OMERO.cli. To see more options, use "--javahelp".
 Options marked with "**" are passed strictly to Java. If they interfere with
 any of the Python arguments, you may need to end precede your arguments with a
 "--".
-
+"""
+EXAMPLES = """
 Examples:
 
-  bin/omero import ~/Data/my_file.dv                    # Use current login
-  bin/omero import -- --debug=ALL ~/Data/my_file2.png   # Set Java debug
+  # Display help
+  $ bin/omero import -h
+  # Import foo.tiff using current login
+  $ bin/omero import ~/Data/my_file.dv
+  # Import foot.tif using input credentials
+  $ bin/omero import -s localhost -u user -w password foo.tiff
+  # Set Java debugging level to ALL
+  $ bin/omero import foo.tiff -- --debug=ALL
+  # Display used files for importing foo.tif
+  $ bin/omero import foo.tiff -f
 
+For additional information, see:
+http://www.openmicroscopy.org/site/support/omero5/users/\
+command-line-import.html
+Report bugs to <ome-users@lists.openmicroscopy.org.uk>
 """
 TESTHELP = """Run the Importer TestEngine suite (devs-only)"""
 
@@ -182,11 +195,11 @@ class TestEngine(ImportControl):
     COMMAND = [TEST_CLASS]
 
 try:
-    register("import", ImportControl, HELP)
+    register("import", ImportControl, HELP, epilog=EXAMPLES)
     register("testengine", TestEngine, TESTHELP)
 except NameError:
     if __name__ == "__main__":
         cli = CLI()
-        cli.register("import", ImportControl, HELP)
+        cli.register("import", ImportControl, HELP, epilog=EXAMPLES)
         cli.register("testengine", TestEngine, TESTHELP)
         cli.invoke(sys.argv[1:])

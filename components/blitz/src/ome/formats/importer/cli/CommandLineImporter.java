@@ -305,10 +305,16 @@ public class CommandLineImporter {
             + "  --annotation_text ANNOTATION_TEXT\tContent for a text annotation (requires namespace)\n"
             + "  --annotation_link ANNOTATION_LINK\tComment annotation ID to link all images to\n"
             + "\n"
-            + "ex. %s -s localhost -u username -w password -d 50 foo.tiff\n"
+            + "Examples:\n"
             + "\n"
+            + "  $ %s -s localhost -u username -w password -d 50 foo.tiff\n"
+            + "  $ %s -f foo.tiff\n"
+            + "  $ %s -s localhost -u username -w password -d 50 --debug ALL foo.tiff\n"
+            + "\n"
+            + "For additional information, see:\n"
+            + "http://www.openmicroscopy.org/site/support/omero5/users/command-line-import.html\n"
             + "Report bugs to <ome-users@lists.openmicroscopy.org.uk>",
-            APP_NAME, APP_NAME, APP_NAME));
+            APP_NAME, APP_NAME, APP_NAME, APP_NAME, APP_NAME));
         System.exit(1);
     }
 
