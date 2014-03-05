@@ -61,6 +61,26 @@ class ImportControl(BaseControl):
             "---errs", nargs="?",
             help="File for storing the standard err of the Java process")
         # The following arguments are strictly passed to Java
+        name_group = parser.add_argument_group(
+            'Naming arguments', 'Optional arguments passed strictly to Java. '
+            'Only image OR plate arguments should be set')
+        name_group.add_argument(
+            "-n", dest="java_n",
+            help="Image name to use (**)",
+            metavar="IMAGE_NAME")
+        name_group.add_argument(
+            "-x", dest="java_x",
+            help="Image description to use (**)",
+            metavar="IMAGE_DESCRIPTION")
+        name_group.add_argument(
+            "--plate_name", dest="java_plate_name",
+            help="Plate name to use (**)",
+            metavar="PLATE_NAME")
+        name_group.add_argument(
+            "--plate_description", dest="java_plate_description",
+            help="Plate description to use (**)",
+            metavar="PLATE_DESCRIPTION")
+
         java_group = parser.add_argument_group(
             'Java arguments', 'Optional arguments passed strictly to Java')
         java_group.add_argument(
@@ -81,14 +101,6 @@ class ImportControl(BaseControl):
             "-r", dest="java_r",
             help="OMERO screen ID to import plate into (**)",
             metavar="SCREEN_ID")
-        java_group.add_argument(
-            "-n", dest="java_n",
-            help="Image name to use (**)",
-            metavar="NAME")
-        java_group.add_argument(
-            "-x", dest="java_x",
-            help="Image description to use (**)",
-            metavar="DESCRIPTION")
         java_group.add_argument(
             "--report", action="store_true", dest="java_report",
             help="Report errors to the OME team (**)")
@@ -168,6 +180,8 @@ class ImportControl(BaseControl):
             "java_r": "-r",
             "java_n": "-n",
             "java_x": "-x",
+            "java_plate_name": "--plate_name",
+            "java_plate_description": "--plate_description",
             "java_report": "--report",
             "java_upload": "--upload",
             "java_logs": "--logs",
