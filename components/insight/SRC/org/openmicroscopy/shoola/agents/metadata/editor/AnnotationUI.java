@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.metadata.editor.AnnotationUI 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -64,9 +64,6 @@ abstract class AnnotationUI
 	/** The border of a field that can be edited. */
 	static final Border EDIT_BORDER_BLACK = BorderFactory.createLineBorder(
 			Color.BLACK);
-	
-	/** Bound property indicating to remove the annotation from the view. */
-	static final String	DELETE_ANNOTATION_PROPERTY = "deleteAnnotation";
 	
 	/** Bound property indicating to remove the annotation from the view. */
 	static final String	REMOVE_ANNOTATION_PROPERTY = "removeAnnotation";

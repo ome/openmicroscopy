@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.metadata.editor.EditorUI 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -592,13 +592,16 @@ class EditorUI
 		while (i.hasNext()) {
 			o = i.next();
 			links = model.getLinks(level, o);
-			if (links != null) toRemove.addAll(links);
+			if (links != null)
+			{
+			    toRemove.addAll(links);
+			}
 		}
 		DataToSave object = new DataToSave(new ArrayList<AnnotationData>(), 
 				toRemove);
 		model.fireAnnotationSaving(object, null, true);
 	}
-	
+    
 	/**
 	 * Removes the tags.
 	 * 
@@ -610,7 +613,7 @@ class EditorUI
 		if (!generalPane.hasTagsToUnlink()) return;
 		if (model.isGroupLeader() || model.isAdministrator()) {
 			if (tagMenu == null) {
-				tagMenu = new PermissionMenu(PermissionMenu.UNLINK, "Tags");
+				tagMenu = new PermissionMenu(PermissionMenu.REMOVE, "Tags");
 				tagMenu.addPropertyChangeListener(new PropertyChangeListener() {
 					
 					public void propertyChange(PropertyChangeEvent evt) {
@@ -648,7 +651,7 @@ class EditorUI
 		if (!generalPane.hasOtherAnnotationsToUnlink()) return;
 		if (model.isGroupLeader() || model.isAdministrator()) {
 			if (otherAnnotationMenu == null) {
-				otherAnnotationMenu = new PermissionMenu(PermissionMenu.UNLINK, 
+				otherAnnotationMenu = new PermissionMenu(PermissionMenu.REMOVE, 
 						"Other annotations");
 				otherAnnotationMenu.addPropertyChangeListener(
 						new PropertyChangeListener() {
@@ -694,7 +697,7 @@ class EditorUI
 	 * 
 	 * @param file The file to remove.
 	 */
-	void removeAttachedFile(Object file)
+	void unlinkAttachedFile(Object file)
 	{
 		if (file == null) return;
 		generalPane.removeAttachedFile(file);
@@ -715,15 +718,15 @@ class EditorUI
 		if (!generalPane.hasAttachmentsToUnlink()) return;
 		if (model.isAdministrator() || model.isGroupLeader()) {
 			if (docMenu == null) {
-				docMenu = new PermissionMenu(PermissionMenu.UNLINK,
+				docMenu = new PermissionMenu(PermissionMenu.REMOVE,
 						"Attachments");
 				docMenu.addPropertyChangeListener(new PropertyChangeListener() {
 					
 					public void propertyChange(PropertyChangeEvent evt) {
 						String n = evt.getPropertyName();
 						if (PermissionMenu.SELECTED_LEVEL_PROPERTY.equals(n)) {
-							removeLinks((Integer) evt.getNewValue(), 
-									model.getAllAttachments());
+						    List<FileAnnotationData> toRemove = model.getFileAnnotatationsByLevel((Integer) evt.getNewValue());
+						    model.fireFileAnnotationRemoveCheck(toRemove);
 						}
 					}
 				});
@@ -739,7 +742,8 @@ class EditorUI
 		Point p = new Point(location.x-d.width/2, location.y);
 		if (box.showMsgBox(p) == MessageBox.YES_OPTION) {
 			List<FileAnnotationData> list = generalPane.removeAttachedFiles();
-			if (list.size() > 0) saveData(true);
+			if (list.size() > 0) 
+			    model.fireFileAnnotationRemoveCheck(list);
 		}
 	}
 	
