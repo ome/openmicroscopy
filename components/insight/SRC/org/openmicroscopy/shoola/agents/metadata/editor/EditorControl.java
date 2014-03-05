@@ -670,10 +670,14 @@ class EditorControl
 			Object object = evt.getNewValue();
 			if (object instanceof DocComponent) {
 				DocComponent doc = (DocComponent) object;
+				
 				Object data = doc.getData();
-				if (data instanceof File) view.removeAttachedFile(data);
-				else if (data instanceof FileAnnotationData)
-					view.removeAttachedFile(data);
+				
+				
+				if (data instanceof FileAnnotationData) {
+				    model.removeFileAnnotations(Arrays.asList(new FileAnnotationData[] {(FileAnnotationData)data}));
+				}
+				
 				else if (data instanceof TagAnnotationData ||
 						data instanceof TermAnnotationData ||
 						data instanceof XMLAnnotationData ||
@@ -682,20 +686,11 @@ class EditorControl
 						data instanceof BooleanAnnotationData)
 					view.removeObject((DataObject) data);
 			} 
-		} else if (AnnotationUI.DELETE_ANNOTATION_PROPERTY.equals(name)) {
-			Object object = evt.getNewValue();
-			if (object instanceof DocComponent) {
-				DocComponent doc = (DocComponent) object;
-				Object data = doc.getData();
-				if (data instanceof FileAnnotationData) {
-					view.deleteAnnotation((FileAnnotationData) data);
-					view.removeAttachedFile(data);
-				}
-			} else if (object instanceof TextualAnnotationComponent) {
-				TextualAnnotationComponent doc = 
-					(TextualAnnotationComponent) object;
-				view.removeObject(doc.getData());
-			}
+			else if (object instanceof TextualAnnotationComponent) {
+                            TextualAnnotationComponent doc = 
+                                    (TextualAnnotationComponent) object;
+                            view.removeObject(doc.getData());
+                    }
 		} else if (AnnotationUI.EDIT_TAG_PROPERTY.equals(name)) {
 			Object object = evt.getNewValue();
 			if (object instanceof DocComponent) {
