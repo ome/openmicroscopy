@@ -64,13 +64,13 @@ for ch in image.getChannels():
     if lightPath is not None:
         lightPathDichroic = lightPath.getDichroic()
         print "  Emission Filters:"
-        for f in lightPath.copyEmissionFilters():
+        for f in lightPath.getEmissionFilters():
             print "    Model:", f.getModel(),
             print "    Type:", f.getType() and f.getType().getValue(),
             tr = f.getTransmittanceRange()
             print "    Transmittance range:", tr.getCutIn(), "-", tr.getCutOut()
         print "  Excitation Filters:"
-        for f in lightPath.copyExcitationFilters():
+        for f in lightPath.getExcitationFilters():
             print "    Model:", f.getModel(),
             print "    Type:", f.getType() and f.getType().getValue(),
             tr = f.getTransmittanceRange()
