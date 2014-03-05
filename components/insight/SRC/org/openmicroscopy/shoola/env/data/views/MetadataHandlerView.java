@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.data.views.MetadataHandlerView 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -165,6 +165,16 @@ public interface MetadataHandlerView
 	public CallHandle loadStructuredData(SecurityContext ctx,
 		List<DataObject> data, long userID, boolean viewed,
 		AgentEventListener observer);
+	
+	/**
+	 * Loads all {@link DataObject}s the given annotations ({@link FileAnnotationData}) are linked to
+	 * @param ctx The security context.
+	 * @param annotations The annotations ({@link FileAnnotationData}) 
+         * @param observer Call-back handler.
+	 * @return See above.
+	 */
+	public CallHandle loadFileAnnotationParents(SecurityContext ctx, List<FileAnnotationData> annotations,
+			AgentEventListener observer);
 	
 	/**
 	 * Loads the existing annotations defined by the annotation type
