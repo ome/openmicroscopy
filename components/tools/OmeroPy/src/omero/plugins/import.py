@@ -118,8 +118,8 @@ class ImportControl(BaseControl):
             help="Comment annotation ID to link all images to (**)")
 
         parser.add_argument(
-            "arg", nargs="*",
-            help="Arguments to be passed to the Java process")
+            "path", nargs="*",
+            help="Path to be passed to the Java process")
         parser.set_defaults(func=self.importer)
         parser.add_login_arguments()
 
@@ -185,7 +185,7 @@ class ImportControl(BaseControl):
                 if isinstance(arg_value, (str, unicode)):
                     login_args.append(arg_value)
 
-        a = self.COMMAND + login_args + args.arg
+        a = self.COMMAND + login_args + args.path
         p = omero.java.popen(
             a, debug=False, xargs=xargs, stdout=out, stderr=err)
         self.ctx.rv = p.wait()
