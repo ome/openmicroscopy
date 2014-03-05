@@ -1070,16 +1070,16 @@ class CLI(cmd.Cmd, Context):
     ## Plugin registry
     ##
 
-    def register(self, name, Control, help):
-        self.register_only(name, Control, help)
+    def register(self, name, Control, help, epilog=None):
+        self.register_only(name, Control, help, epilog=epilog)
         self.configure_plugins()
 
-    def register_only(self, name, Control, help):
+    def register_only(self, name, Control, help, epilog=None):
         """ This method is added to the globals when execfile() is
         called on each plugin. A Control class should be
         passed to the register method which will be added to the CLI.
         """
-        self.controls[name] = (Control, help)
+        self.controls[name] = (Control, help, epilog)
 
     def configure_plugins(self):
         """
@@ -1091,11 +1091,13 @@ class CLI(cmd.Cmd, Context):
             if isinstance(control, tuple):
                 Control = control[0]
                 help = control[1]
+                epilog = control[2]
                 control = Control(ctx = self, dir = self.dir)
                 self.controls[name] = control
                 setattr(self, "complete_%s" % name, control._complete)
                 parser = self.subparsers.add_parser(name, help=help)
                 parser.description = help
+                parser.epilog = epilog
                 if hasattr(control, "_configure"):
                     control._configure(parser)
                 elif hasattr(control, "__call__"):
