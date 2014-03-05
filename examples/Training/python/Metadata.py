@@ -63,6 +63,8 @@ for ch in image.getChannels():
     lightPath = logicalChannel.getLightPath()
     if lightPath is not None:
         lightPathDichroic = lightPath.getDichroic()
+        print "  Dichroic:"
+        print "    Model:", lightPathDichroic.getModel()
         print "  Emission Filters:"
         for f in lightPath.getEmissionFilters():
             print "    Model:", f.getModel(),
