@@ -265,7 +265,7 @@ public class CommandLineImporter {
      */
     public static void usage() {
         System.err.println(String.format("\n"
-            + " Usage:  %s [OPTION]... [DIR|FILE]... \n"
+            + " Usage:  %s [OPTION]... [path [path ...]]... \n"
             + "   or:   %s [OPTION]... - \n"
             + "\n"
             + "Import any number of files into an OMERO instance.\n"
