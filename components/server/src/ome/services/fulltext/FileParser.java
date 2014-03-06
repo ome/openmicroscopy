@@ -15,7 +15,7 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.lang.Runtime;
 
-import ome.services.messages.RegisterServiceCleanupMessage;
+import ome.services.messages.ParserOpenFileMessage;
 import ome.system.OmeroContext;
 
 import org.slf4j.Logger;
@@ -149,7 +149,7 @@ public class FileParser implements ApplicationContextAware {
     public Iterable<Reader> doParse(File file) throws Exception {
         FileReader reader = new FileReader(file);
         BufferedReader buffered = new BufferedReader(reader);
-        context.publishEvent(new RegisterServiceCleanupMessage(this, buffered) {
+        context.publishEvent(new ParserOpenFileMessage(this, buffered) {
             @Override
             public void close() {
                 try {
