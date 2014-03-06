@@ -41,7 +41,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import javax.swing.ButtonGroup;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComponent;
 import javax.swing.JMenu;
@@ -59,7 +58,6 @@ import org.jdesktop.swingx.JXTaskPane;
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
-import org.openmicroscopy.shoola.agents.treeviewer.actions.DisplayModeAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.MoveToAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.NewObjectAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.TreeViewerAction;
@@ -382,22 +380,6 @@ class TreeViewerWin
             		 controller.getAction(TreeViewerControl.IMAGES_EXPLORER));
              menu.add(item);
         }
-        ButtonGroup group = new ButtonGroup();
-        int mode = model.getDisplayMode();
-        item = new JCheckBoxMenuItem();
-        DisplayModeAction a = (DisplayModeAction) 
-        		controller.getAction(TreeViewerControl.DISPLAY_GROUP);
-        item.setAction(a);
-        item.setSelected(mode == a.getIndex());
-        group.add(item);
-        menu.add(item);
-        item = new JCheckBoxMenuItem();
-        a = (DisplayModeAction) 
-        		controller.getAction(TreeViewerControl.DISPLAY_EXPERIMENTER);
-        item.setAction(a);
-        item.setSelected(mode == a.getIndex());
-        group.add(item);
-        menu.add(item);
         return menu;
     }
     
@@ -1053,6 +1035,7 @@ class TreeViewerWin
 			item.setText(a.getActionName());
 			item.setToolTipText(a.getActionDescription());
 		}
+    	toolBar.setPermissions();
     }
     
     /** Shows or hides the Tree Viewer. */
