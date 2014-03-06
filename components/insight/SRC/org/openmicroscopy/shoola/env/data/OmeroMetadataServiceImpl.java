@@ -39,9 +39,11 @@ import java.util.Set;
 import java.util.Map.Entry;
 
 
+
 //Third-party libraries
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.ListUtils;
+
 
 //Application-internal dependencies
 import omero.cmd.OriginalMetadataRequest;
@@ -75,6 +77,7 @@ import omero.model.TermAnnotation;
 import omero.model.XmlAnnotation;
 import omero.sys.Parameters;
 import omero.sys.ParametersI;
+
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.AnnotationLinkData;
@@ -86,6 +89,7 @@ import org.openmicroscopy.shoola.env.data.util.ModelMapper;
 import org.openmicroscopy.shoola.env.data.util.PojoMapper;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
+
 import pojos.AnnotationData;
 import pojos.BooleanAnnotationData;
 import pojos.ChannelAcquisitionData;
@@ -95,6 +99,7 @@ import pojos.DatasetData;
 import pojos.DoubleAnnotationData;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
+import pojos.FilesetData;
 import pojos.ImageAcquisitionData;
 import pojos.ImageData;
 import pojos.LongAnnotationData;
@@ -790,7 +795,7 @@ class OmeroMetadataServiceImpl
 		
 		Collection annotations = loadStructuredAnnotations(ctx,
 				object.getClass(), r.getId(), userID);
-		if (annotations != null && annotations.size() > 0) {
+		if (CollectionUtils.isNotEmpty(annotations)) {
 			List<TextualAnnotationData> 
 				texts = new ArrayList<TextualAnnotationData>();
 			List<TagAnnotationData> tags = new ArrayList<TagAnnotationData>();
@@ -874,6 +879,18 @@ class OmeroMetadataServiceImpl
 			results.setTags(tags);
 			results.setRatings(ratings);
 			results.setAttachments(attachments);
+		}
+		//in-place import check
+		if (object instanceof ImageData) {
+			ImageData img = (ImageData) object;
+			long fID = img.getFilesetId();
+			if (fID >=0) {
+				Map<Long, Collection<AnnotationData>> map =
+					loadAnnotations(ctx, FilesetData.class, Arrays.asList(fID),
+						TextualAnnotationData.class,
+						Arrays.asList(AnnotationData.FILE_TRANSFER_NS), null);
+				results.setTransferlinks(map.get(fID));
+			}
 		}
 		return results;
 	}
@@ -2173,6 +2190,7 @@ class OmeroMetadataServiceImpl
 		if (annotationType == null)
 			throw new IllegalArgumentException("No annotation type specified");
 		//always exclude the log file
+		if (nsExclude == null) nsExclude = new ArrayList<String>();
 		nsExclude.add(FileAnnotationData.LOG_FILE_NS);
 		return gateway.loadSpecifiedAnnotationsLinkedTo(ctx, rootType, rootIDs,
 				annotationType, nsInclude, nsExclude, new Parameters());
