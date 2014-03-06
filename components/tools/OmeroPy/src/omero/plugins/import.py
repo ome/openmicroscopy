@@ -52,6 +52,8 @@ class ImportControl(BaseControl):
     COMMAND = [START_CLASS]
 
     def _configure(self, parser):
+        parser.add_login_arguments()
+
         parser.add_argument(
             "--javahelp", action="store_true", help="Show the Java help text")
         parser.add_argument(
@@ -133,7 +135,6 @@ class ImportControl(BaseControl):
             "path", nargs="*",
             help="Path to be passed to the Java process")
         parser.set_defaults(func=self.importer)
-        parser.add_login_arguments()
 
     def importer(self, args):
 
