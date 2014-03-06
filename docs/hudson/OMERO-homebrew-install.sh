@@ -7,8 +7,8 @@ set -x
 
 export PSQL_DIR=${PSQL_DIR:-/usr/local/var/postgres}
 export OMERO_DATA_DIR=${OMERO_DATA_DIR:-/tmp/var/OMERO.data}
-export BREW_OPTS=${BREW_OPTS:-}
 export SCRIPT_NAME=${SCRIPT_NAME:-OMERO.sql}
+export ICE=${ICE:-3.5}
 
 # Test whether this script is run in a job environment
 JOB_NAME=${JOB_NAME:-}
@@ -24,7 +24,7 @@ TESTING_MODE=${TESTING_MODE:-$DEFAULT_TESTING_MODE}
 ###################################################################
 
 # Install Homebrew in /usr/local
-ruby -e "$(curl -fsSL https://raw.github.com/mxcl/homebrew/go/install)"
+ruby -e "$(curl -fsSL https://raw.github.com/Homebrew/homebrew/go/install)"
 cd /usr/local
 
 # Install git if not already installed
@@ -62,6 +62,9 @@ if [ $TESTING_MODE ]; then
     # Merge homebrew-alt PRs
     cd Library/Taps/ome-alt
     /usr/local/bin/scc merge master
+
+    # Repair formula symlinks after merge
+    /usr/local/bin/brew tap --repair
 fi
 
 cd /usr/local
@@ -71,7 +74,7 @@ cd /usr/local
 ###################################################################
 
 # Install Bio-Formats
-bin/brew install bioformats $BREW_OPTS
+bin/brew install bioformats
 showinf -version
 
 ###################################################################
@@ -79,19 +82,28 @@ showinf -version
 ###################################################################
 
 # Install PostgreSQL and OMERO
-bin/brew install omero $BREW_OPTS
+OMERO_PYTHONPATH=$(bin/brew --prefix omero)/lib/python
+if [ "$ICE" == "3.3" ]; then
+    bin/brew install omero --with-ice33
+    ICE_HOME=$(bin/brew --prefix zeroc-ice33)
+    export PYTHONPATH=$OMERO_PYTHONPATH:$ICE_HOME/python
+    export DYLD_LIBRARY_PATH=$ICE_HOME/lib
+elif [ "$ICE" == "3.4" ]; then
+    bin/brew install omero --with-ice34
+    ICE_HOME=$(bin/brew --prefix zeroc-ice34)
+    export PYTHONPATH=$OMERO_PYTHONPATH:$ICE_HOME/python
+    export DYLD_LIBRARY_PATH=$ICE_HOME/lib
+else
+    bin/brew install omero
+    export PYTHONPATH=$OMERO_PYTHONPATH
+fi
 bin/brew install postgres
 
 # Install OMERO Python dependencies
 bash bin/omero_python_deps
 
-# Set environment variables
-ICE_VERSION=$(bin/brew deps omero $BREW_OPTS | grep ice)
+# Set additional environment variables
 export ICE_CONFIG=$(bin/brew --prefix omero)/etc/ice.config
-export ICE_HOME=$(bin/brew --prefix $ICE_VERSION)
-export PYTHONPATH=$(bin/brew --prefix omero)/lib/python:$ICE_HOME/python
-export PATH=$(bin/brew --prefix)/bin:$(bin/brew --prefix)/sbin:/usr/local/lib/node_modules:$ICE_HOME/bin:$PATH
-export DYLD_LIBRARY_PATH=$ICE_HOME/lib:$ICE_HOME/python:${DYLD_LIBRARY_PATH-}
 
 # Note: If postgres startup fails it's probably because there was an old
 # process still running.
@@ -123,3 +135,9 @@ bin/omero config set omero.data.dir $OMERO_DATA_DIR
 
 # Start the server
 bin/omero admin start
+
+# Test simple fake import
+bin/omero login -s localhost -u root -w root_password
+touch test.fake
+bin/omero import test.fake
+bin/omero logout
