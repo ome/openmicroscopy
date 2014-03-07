@@ -279,7 +279,7 @@ public class PluginAgent
         if (AddOnMenuItem.ADD_ON_SELECTION_PROPERTY.equals(name)) {
             AddOnMenuItem item = (AddOnMenuItem) evt.getNewValue();
             ApplicationData data = item.getApplicationData();
-            data.setScript(item.getScript());
+            if (data != null) data.setScript(item.getScript());
             getRegistry().getEventBus().post(new OpenWithAddOnEvent(data,
                     item.getAddOnName()));
         }
