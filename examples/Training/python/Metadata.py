@@ -111,7 +111,6 @@ for ch in image.getChannels():
 om = image.loadOriginalMetadata()
 if om is not None:
     print "\n\noriginal_metadata"
-    print "    File Annotation ID:", om[0].getId()
     print "global_metadata"
     for keyValue in om[1]:
         if len(keyValue) > 1:
