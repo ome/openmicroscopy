@@ -41,7 +41,8 @@
      <name>Brenda</name>
         <description>to be added</description><!-- text display in tooltip -->
         <download>http://downloads.openmicroscopy.org/brenda/</download>
-        <script>boxit, intensity</script>
+        <script>BoxIt, Intensity Analysis, Distance Analysis, FRAP, Event Timer,
+        Create Kymograph, ROI Tweak, Label Maker</script>
      </addOn>
      </structuredEntry>
      </addOns>

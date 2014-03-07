@@ -44,6 +44,7 @@ import org.openmicroscopy.shoola.agents.events.AddOnRegisteredEvent;
 import org.openmicroscopy.shoola.agents.events.OpenWithAddOnEvent;
 import org.openmicroscopy.shoola.agents.events.RegisteredAddOnEvent;
 import org.openmicroscopy.shoola.agents.plugins.util.AddOnMenuItem;
+import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.env.Agent;
 import org.openmicroscopy.shoola.env.Environment;
 import org.openmicroscopy.shoola.env.LookupNames;
@@ -172,6 +173,7 @@ public class PluginAgent
         IconManager manager = IconManager.getInstance();
         Icon register = manager.getIcon(IconManager.REGISTER);
         Icon registered = manager.getIcon(IconManager.REGISTERED);
+        ViewerSorter sorter = new ViewerSorter();
         while (i.hasNext()) {
             info = i.next();
             data = getApplication(info.getName());
@@ -188,6 +190,7 @@ public class PluginAgent
                
                 JMenu menu = new JMenu(info.getName());
                 menu.setIcon(icon);
+                scripts = sorter.sort(scripts);
                 j = scripts.iterator();
                 while (j.hasNext()) {
                     item = new AddOnMenuItem(info, j.next());

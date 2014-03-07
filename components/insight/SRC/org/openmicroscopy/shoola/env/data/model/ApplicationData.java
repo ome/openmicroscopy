@@ -235,7 +235,11 @@ public class ApplicationData {
 	 *
 	 * @return See above.
 	 */
-	public String getScript() { return script; }
+	public String getScript()
+	{
+	    if (StringUtils.isBlank(script)) return script;
+	    return script.toLowerCase().replaceAll("\\s+", "");
+	}
 
 	/**
 	 * Sets the script.
