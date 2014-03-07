@@ -122,6 +122,7 @@ public class ApplicationData {
         this.applicationName = data.applicationName;
         this.executable = data.executable;
         this.applicationIcon = data.applicationIcon;
+        register();
 	}
 
 	/**
@@ -140,6 +141,7 @@ public class ApplicationData {
 		this.applicationName = applicationName;
 		this.executable = executablePath;
 		this.commands = new ArrayList<String>();
+		register();
 	}
 
 	/**

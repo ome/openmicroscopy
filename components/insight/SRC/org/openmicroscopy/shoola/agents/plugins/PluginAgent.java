@@ -117,6 +117,7 @@ public class PluginAgent
                             }
                             File application = new File(buffer.toString());
                             ApplicationData data = new ApplicationData(application);
+                            data.register();
                             applications.put(data.getApplicationName().toLowerCase(),
                                     data);
                         }
