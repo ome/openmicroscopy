@@ -42,7 +42,9 @@ import json
 from time import time
 from thread import start_new_thread
 
+from omero_version import build_year
 from omero_version import omero_version
+
 import omero, omero.scripts
 from omero.rtypes import *
 
@@ -192,7 +194,8 @@ def login(request):
         else:
             form = LoginForm()
 
-    context = {"version": omero_version, 'error':error, 'form':form}
+    context = {'version': omero_version, 'build_year': build_year,
+               'error':error, 'form':form}
     if url is not None and len(url) != 0:
         context['url'] = urlencode({'url':url})
 
