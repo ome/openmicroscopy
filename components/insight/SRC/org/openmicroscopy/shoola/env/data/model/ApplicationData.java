@@ -74,6 +74,9 @@ public class ApplicationData {
 	/** The script to use.*/
 	private String script;
 
+	/** Flag indicating if the application is a known application.*/
+	private boolean registered;
+
 	/**
 	 * Static constructor that creates the platform specific application
 	 * data extractor.
@@ -238,5 +241,16 @@ public class ApplicationData {
 	 * @param script The value to set.
 	 */
 	public void setScript(String script) { this.script = script; }
+
+	/**
+	 * Returns <code>true</code> if the application is a known application
+	 * e.g. FLIMfit, <code>false</code> otherwise.
+	 *
+	 * @return See above.
+	 */
+    public boolean isRegistered() { return registered; }
+
+    /** Registers the application as a known application.*/
+    public void register() { registered = true; }
 
 }

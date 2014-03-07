@@ -1906,25 +1906,5 @@ class OmeroImageServiceImpl
 		if (def == null) return -1L;
 		return def.getId().getValue();
 	}
-    
-	/**
-	 * Implemented as specified by {@link OmeroImageService}.
-	 * @see OmeroImageService#getRenderingDef(SecurityContext, long, long)
-	 */
-    public boolean isApplicationRegistered(SecurityContext ctx, String name)
-            throws DSOutOfServiceException, DSAccessException
-    {
-        List<ScriptObject> apps = gateway.loadApplications(ctx);
-        /*
-        if (CollectionUtils.isEmpty(apps) || StringUtils.isEmpty(name))
-            return false;
-        Iterator<ScriptObject> i = apps.iterator();
-        while (i.hasNext()) {
-            if (name.startsWith(i.next().getName()))
-                return true;
-        }
-        */
-        return true;
-    }
 
 }

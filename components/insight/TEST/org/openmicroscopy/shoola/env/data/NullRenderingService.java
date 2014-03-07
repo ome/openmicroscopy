@@ -40,9 +40,8 @@ import javax.swing.filechooser.FileSystemView;
 //Third-party libraries
 import com.sun.opengl.util.texture.TextureData;
 
-import omero.api.StatefulServiceInterfacePrx;
-import omero.api.ThumbnailStorePrx;
 //Application-internal dependencies
+import omero.api.ThumbnailStorePrx;
 import omero.romio.PlaneDef;
 
 import org.openmicroscopy.shoola.env.data.model.ImportableFile;
@@ -564,12 +563,5 @@ public class NullRenderingService
 		// TODO Auto-generated method stub
 		return null;
 	}
-
-    @Override
-    public boolean isApplicationRegistered(SecurityContext ctx, String name)
-            throws DSOutOfServiceException, DSAccessException {
-        // TODO Auto-generated method stub
-        return false;
-    }
 
 }

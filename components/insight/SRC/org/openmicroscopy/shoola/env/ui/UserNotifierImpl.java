@@ -428,18 +428,7 @@ public class UserNotifierImpl implements UserNotifier, PropertyChangeListener {
 			ApplicationData data = p.getApplication();
 			AdminService svc = manager.getRegistry().getAdminService();
 			OmeroImageService prx = manager.getRegistry().getImageService();
-			boolean registeredApplication = false;
-			try {
-			    registeredApplication = prx.isApplicationRegistered(ctx,
-			            (new File(data.getApplicationName()).getName()));
-            } catch (Exception e) {
-                Logger logger = manager.getRegistry().getLogger();
-                LogMessage msg = new LogMessage();
-                msg.append("Could not check if the application is registered");
-                msg.print(e);
-                logger.error(this, msg);
-            }
-			if (registeredApplication) { //specified some arguments
+			if (data.isRegistered()) { //specified some arguments
 			    List<String> commands = new ArrayList<String>();
 			    Iterable<String> args= data.getCommandLineArguments();
 			    String uuid = null;
