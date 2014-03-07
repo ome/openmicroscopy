@@ -740,8 +740,8 @@ def render_image_region(request, iid, z, t, conn=None, **kwargs):
         webgateway_cache.setImage(request, server_id, img, z, t, jpeg_data)
 
     rsp = HttpResponse(jpeg_data, content_type='image/jpeg')
-    return rsp    
-    
+    return rsp
+
 @login_required()
 def render_image (request, iid, z=None, t=None, conn=None, **kwargs):
     """
@@ -1811,7 +1811,7 @@ def get_rois_json(request, imageId, conn=None, **kwargs):
         rois.append(roi)
 
     rois.sort(key=lambda x: x['id']) # sort by ID - same as in measurement tool.
-    
+
     return HttpJsonResponse(rois)
 
 @login_required(isAdmin=True)
