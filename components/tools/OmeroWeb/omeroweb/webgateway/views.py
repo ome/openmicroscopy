@@ -29,6 +29,7 @@ from django.template import RequestContext as Context
 from django.core.servers.basehttp import FileWrapper
 from omero.rtypes import rint, rlong, unwrap
 from omero.constants.namespaces import NSBULKANNOTATIONS
+from omero_version import build_year
 from marshal import imageMarshal, shapeMarshal
 
 try:
@@ -1669,6 +1670,7 @@ def full_viewer (request, iid, conn=None, **kwargs):
         d = {'blitzcon': conn,
              'image': image,
              'opts': rid,
+             'build_year': build_year,
              'roiCount': image.getROICount(),
              'viewport_server': kwargs.get('viewport_server', reverse('webgateway')),
              'object': 'image:%i' % int(iid)}
