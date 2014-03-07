@@ -177,6 +177,15 @@ public class PluginAgent
         while (i.hasNext()) {
             info = i.next();
             data = getApplication(info.getName());
+            //Check if it is still there.
+            if (data != null) {
+                String path = data.getApplicationPath();
+                File f = new File(path);
+                //registered but the application has moved.
+                if (!f.exists()) {
+                    data = null;
+                }
+            }
             scripts = info.getScripts();
             Icon icon = register;
             if (data != null) icon = registered;
