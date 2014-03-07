@@ -49,20 +49,24 @@ public class IconManager
     extends AbstractIconManager
 {
 
-    /** The <code>Status Info</code> icon. */
-    public  static final int STATUS_INFO = 0;
+    /** The <code>Register</code> icon. */
+    public  static final int REGISTER = 0;
+
+    /** The <code>Registered</code> icon. */
+    public  static final int REGISTERED = 1;
 
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing.
      */
-    private static final int MAX_ID = 1;
+    private static final int MAX_ID = 2;
 
     /** Paths of the icon files. */
     private static String[] relPaths = new String[MAX_ID+1];
 
     static {
-        relPaths[STATUS_INFO] = "nuvola_messagebox_info16.png";
+        relPaths[REGISTER] = "register16.png";
+        relPaths[REGISTERED] = "registered16.png";
     }
 
     /** The sole instance. */

@@ -34,6 +34,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import javax.swing.Icon;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 
@@ -168,21 +169,30 @@ public class PluginAgent
         List<JMenuItem> components = new ArrayList<JMenuItem>();
         AddOnMenuItem item;
         ApplicationData data;
+        IconManager manager = IconManager.getInstance();
+        Icon register = manager.getIcon(IconManager.REGISTER);
+        Icon registered = manager.getIcon(IconManager.REGISTERED);
         while (i.hasNext()) {
             info = i.next();
             data = getApplication(info.getName());
             scripts = info.getScripts();
+            Icon icon = register;
+            if (data != null) icon = registered;
             if (CollectionUtils.isEmpty(scripts)) {
                 item = new AddOnMenuItem(info);
                 item.setApplicationData(data);
+                item.setIcon(icon);
                 item.addPropertyChangeListener(this);
                 components.add(item);
             } else {
+               
                 JMenu menu = new JMenu(info.getName());
+                menu.setIcon(icon);
                 j = scripts.iterator();
                 while (j.hasNext()) {
                     item = new AddOnMenuItem(info, j.next());
                     item.setApplicationData(data);
+                    item.setIcon(icon);
                     menu.add(item);
                 }
                 components.add(menu);
