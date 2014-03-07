@@ -3628,6 +3628,18 @@ class TreeViewerComponent
         Browser browser = model.getSelectedBrowser();
         if (browser == null) return;
         if (data != null) {
+            //check if the application exist
+            String path = data.getApplicationPath();
+            System.err.println(path);
+            if (StringUtils.isNotBlank(path)) {
+                File f = new File(path);
+                System.err.println(f.exists());
+                if (!f.exists()) {
+                    registerApplication(appName);
+                    return;
+                }
+                return;
+            }
             Environment env = (Environment) 
                 TreeViewerAgent.getRegistry().lookup(LookupNames.ENV);
             String dir = env.getTmpDir();
@@ -3651,6 +3663,17 @@ class TreeViewerComponent
             }
             return;
         }
+        registerApplication(appName);
+    }
+
+    /**
+     * Pops up the dialog to register the application.
+     *
+     * @param appName
+     */
+    private void registerApplication(String appName)
+    {
+        Browser browser = model.getSelectedBrowser();
         TreeImageDisplay d = browser.getLastSelectedDisplay();
         if (d == null && StringUtils.isBlank(appName)) return;
         Object uo = d.getUserObject();
@@ -3668,6 +3691,7 @@ class TreeViewerComponent
         dialog.addPropertyChangeListener(controller);
         UIUtilities.centerAndShow(dialog);
     }
+
 	/** 
 	 * Implemented as specified by the {@link TreeViewer} interface.
 	 * @see TreeViewer#openWith(ApplicationData)
