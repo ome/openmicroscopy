@@ -199,6 +199,14 @@ public abstract class EventLogLoader implements Iterator<EventLog>,
     }
 
     /**
+     * Returns true if this loader is fresh (has not returned the first event
+     * yet).
+     */
+    protected boolean fresh() {
+        return count < 2;
+    }
+
+    /**
      * Returns the {@link EventLog} with the next id after the given argument or
      * null if none exists. This method will only return "true" {@link EventLog}
      * instances, with a valid id. The {@link #excludes} list is used to filter
