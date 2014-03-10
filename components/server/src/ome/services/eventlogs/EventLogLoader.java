@@ -125,7 +125,7 @@ public abstract class EventLogLoader implements Iterator<EventLog>,
 
         // If we've done this enough, then bail out.
         if (count == batchSize) {
-            count = 0;
+            reset();
             return false;
         }
         count++;
@@ -139,7 +139,7 @@ public abstract class EventLogLoader implements Iterator<EventLog>,
 
         boolean endBatch = eventLog == null;
         if (endBatch) {
-            count = 0;
+            reset();
         }
         return !endBatch;
     }
@@ -189,6 +189,22 @@ public abstract class EventLogLoader implements Iterator<EventLog>,
      * {@link Long#MAX_VALUE}. Use 0 to stop execution.
      */
     public abstract long more();
+
+    /**
+     * Resets the batch counter. Also provides a hook for subclasses to do any
+     * needed finalization at the end of a batch.
+     */
+    protected void reset() {
+        count = 0;
+    }
+
+    /**
+     * Returns true if this loader is fresh (has not returned the first event
+     * yet).
+     */
+    protected boolean fresh() {
+        return count < 2;
+    }
 
     /**
      * Returns the {@link EventLog} with the next id after the given argument or
