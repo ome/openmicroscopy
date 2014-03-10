@@ -32,11 +32,11 @@ Examples:
   $ bin/omero import -h
   # Import foo.tiff using current login
   $ bin/omero import ~/Data/my_file.dv
-  # Import foot.tif using input credentials
+  # Import foo.tiff using input credentials
   $ bin/omero import -s localhost -u user -w password foo.tiff
   # Set Java debugging level to ALL
   $ bin/omero import foo.tiff -- --debug=ALL
-  # Display used files for importing foo.tif
+  # Display used files for importing foo.tiff
   $ bin/omero import foo.tiff -f
 
 For additional information, see:
