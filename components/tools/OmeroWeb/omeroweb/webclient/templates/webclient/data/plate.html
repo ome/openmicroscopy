@@ -85,15 +85,16 @@
         $(document).ready(function() {
             wpv = $.WeblitzPlateview($('#spw'), {baseurl: '{{ baseurl }}', useParentPrefix: false});
             var $selected;
-            wpv.self.bind('thumbLoad', function (ev, pelm, elm) {
-                elm.bind('click', function(event){
-                    handleClickSelection(event);
-                    var $selected = $('td.ui-selected', wpv.self);
-                    OME.well_selection_changed($selected, {{ index }}, '{{ manager.getPermsCss }}'); // ome.webclient.actions.js
-                }).bind('dblclick', function(){
-                    OME.openPopup("{% url 'web_image_viewer' 0 %}".replace('0', parseInt( $(this).attr('id').split("-")[1])));
-                });
-            });            
+            // delegated click and dblclick handlers for wells
+            $( '#spw' ).on( "click", "td.well img", function(event) {
+                handleClickSelection(event);
+                var $selected = $('td.ui-selected', wpv.self);
+                OME.well_selection_changed($selected, {{ index }}, '{{ manager.getPermsCss }}'); // ome.webclient.actions.js
+            });
+            $( '#spw' ).on( "dblclick", "td.well img", function(event) {
+                OME.openPopup("{% url 'web_image_viewer' 0 %}".replace('0', parseInt( $(this).attr('id').split("-")[1])));
+            });
+
             wpv.self.selectable({
                 filter: 'td.well',
                 distance: 2,

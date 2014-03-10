@@ -665,6 +665,7 @@ def manage_group_owner(request, action, gid, conn=None, **kwargs):
         if e != userId and e.getDefaultGroup() is not None and e.getDefaultGroup().id == group.id:
             experimenterDefaultIds.append(str(e.id))
     
+    msgs = []
     if action == 'edit':
         permissions = getActualPermissions(group)
         form = GroupOwnerForm(initial={'permissions': permissions, 'members':memberIds, 'owners':ownerIds, 'experimenters':experimenters})
@@ -682,20 +683,32 @@ def manage_group_owner(request, action, gid, conn=None, **kwargs):
                 listOfOwners = getSelectedExperimenters(conn, owners)
                 conn.setOwnersOfGroup(group, listOfOwners)
                 
-                new_members = getSelectedExperimenters(conn, members)
-                conn.setMembersOfGroup(group, new_members)
-                
                 permissions = int(permissions)
                 if getActualPermissions(group) != permissions:
                     perm = setActualPermissions(permissions)
                     conn.updatePermissions(group, perm)
+
+                new_members = getSelectedExperimenters(conn, members)
+                removalFails = conn.setMembersOfGroup(group, new_members)
                 
-                return HttpResponseRedirect(reverse("wamyaccount"))
+                if len(removalFails) == 0:
+                    return HttpResponseRedirect(reverse("wamyaccount"))
+                # If we've failed to remove user...
+                # prepare error messages
+                for e in removalFails:
+                    url = reverse("wamanageexperimenterid", args=["edit", e.id])
+                    msgs.append("Can't remove user <a href='%s'>%s</a> from their only group"
+                        % (url, e.getFullName()))
+                # refresh the form and add messages
+                form = GroupOwnerForm(initial={'permissions': permissions, 'members':memberIds, 'owners':ownerIds, 'experimenters':experimenters})
             context = {'form':form, 'gid': gid, 'permissions': permissions, 'group':group, 'experimenterDefaultGroups':",".join(experimenterDefaultIds), 'ownerIds':(",".join(str(x) for x in ownerIds if x != userId)), 'userId':userId}
     else:
         return HttpResponseRedirect(reverse("wamyaccount"))
     
     context['template'] = template
+    if len(msgs) > 0:
+        context['ome'] = {}
+        context['ome']['message'] = "<br>".join(msgs)
     return context
 
 
