@@ -94,8 +94,8 @@ public abstract class PersistentEventLogLoader extends EventLogLoader {
         log.debug("Current event ID is: {}", current_id);
 
         EventLog el = nextEventLog(current_id);
-        log.debug("Next event ID to process is: {}", el.getId());
         if (el != null) {
+            log.debug("Next event ID to process is: {}", el.getId());
             setCurrentId(el.getId());
         }
         return el;
