@@ -90,6 +90,8 @@ import pojos.GroupData;
 import pojos.ImageData;
 import pojos.WellSampleData;
 
+import omero.model.Fileset;
+
 /** 
  * The tool bar of the editor.
  *
@@ -818,7 +820,12 @@ class ToolBar
 		int n = 0;
 		while (i.hasNext()) {
 			data = i.next();
-			paths = data.getAbsolutePaths();
+			if(model.isInplaceImport()) {
+			    paths = data.getUsedFilePaths();
+			}
+			else {
+			    paths = data.getAbsolutePaths();
+			}
 			j = paths.iterator();
 			n += paths.size();
 			while (j.hasNext()) {
