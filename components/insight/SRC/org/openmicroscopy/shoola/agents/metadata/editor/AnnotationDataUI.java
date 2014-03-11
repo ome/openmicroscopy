@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.metadata.editor.AnnotationDataUI 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -402,14 +402,14 @@ class AnnotationDataUI
 		removeTagsButton = new JButton(icons.getIcon(IconManager.MINUS_12));
 		UIUtilities.unifiedButtonLookAndFeel(removeTagsButton);
 		removeTagsButton.setBackground(UIUtilities.BACKGROUND_COLOR);
-		removeTagsButton.setToolTipText("Unlink Tags.");
+		removeTagsButton.setToolTipText("Remove Tags.");
 		removeTagsButton.addMouseListener(controller);
 		removeTagsButton.setActionCommand(""+EditorControl.REMOVE_TAGS);
 		
 		removeDocsButton = new JButton(icons.getIcon(IconManager.MINUS_12));
 		UIUtilities.unifiedButtonLookAndFeel(removeDocsButton);
 		removeDocsButton.setBackground(UIUtilities.BACKGROUND_COLOR);
-		removeDocsButton.setToolTipText("Unlink Attachments.");
+		removeDocsButton.setToolTipText("Remove Attachments.");
 		removeDocsButton.addMouseListener(controller);
 		removeDocsButton.setActionCommand(""+EditorControl.REMOVE_DOCS);
 		
@@ -417,7 +417,7 @@ class AnnotationDataUI
 				icons.getIcon(IconManager.MINUS_12));
 		UIUtilities.unifiedButtonLookAndFeel(removeOtherAnnotationsButton);
 		removeOtherAnnotationsButton.setBackground(UIUtilities.BACKGROUND_COLOR);
-		removeOtherAnnotationsButton.setToolTipText("Unlink Annotations.");
+		removeOtherAnnotationsButton.setToolTipText("Remove Annotations.");
 		removeOtherAnnotationsButton.addMouseListener(controller);
 		removeOtherAnnotationsButton.setActionCommand(
 				""+EditorControl.REMOVE_OTHER_ANNOTATIONS);
