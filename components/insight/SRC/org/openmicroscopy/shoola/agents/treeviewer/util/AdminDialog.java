@@ -332,11 +332,7 @@ implements ActionListener, PropertyChangeListener
                 DataObject data;
                 while (i.hasNext()) {
                     data = i.next();
-                    if (data.getId() == p.getId()) {
-                        i.remove();
-                        continue;
-                    }
-                    if(svc.isSecuritySystemGroup(data.getId(), GroupData.USER)) {
+                    if(data.getId() == p.getId() || svc.isSecuritySystemGroup(data.getId(), GroupData.USER)) {
                         i.remove();
                     }
                 }
