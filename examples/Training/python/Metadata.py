@@ -63,14 +63,18 @@ for ch in image.getChannels():
     lightPath = logicalChannel.getLightPath()
     if lightPath is not None:
         lightPathDichroic = lightPath.getDichroic()
+        if (lightPathDichroic is not None and
+            lightPathDichroic._obj is not None):
+            print "  Dichroic:"
+            print "    Model:", lightPathDichroic.getModel()
         print "  Emission Filters:"
-        for f in lightPath.copyEmissionFilters():
+        for f in lightPath.getEmissionFilters():
             print "    Model:", f.getModel(),
             print "    Type:", f.getType() and f.getType().getValue(),
             tr = f.getTransmittanceRange()
             print "    Transmittance range:", tr.getCutIn(), "-", tr.getCutOut()
         print "  Excitation Filters:"
-        for f in lightPath.copyExcitationFilters():
+        for f in lightPath.getExcitationFilters():
             print "    Model:", f.getModel(),
             print "    Type:", f.getType() and f.getType().getValue(),
             tr = f.getTransmittanceRange()
@@ -107,7 +111,6 @@ for ch in image.getChannels():
 om = image.loadOriginalMetadata()
 if om is not None:
     print "\n\noriginal_metadata"
-    print "    File Annotation ID:", om[0].getId()
     print "global_metadata"
     for keyValue in om[1]:
         if len(keyValue) > 1:
