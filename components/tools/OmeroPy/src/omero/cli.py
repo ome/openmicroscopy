@@ -166,16 +166,16 @@ class Parser(ArgumentParser):
         group.add_argument("-C", "--create", action = "store_true",
             help = "Create a new session regardless of existing ones")
         group.add_argument("-s", "--server",
-            help = "Hostname of the OMERO server")
+            help = "OMERO server hostname")
         group.add_argument("-p", "--port",
-            help = "Port of the OMERO server")
+            help = "OMERO server port")
         group.add_argument("-g", "--group",
             help = "OMERO server default group")
         group.add_argument("-u", "--user",
-            help = "OMERO server login username")
+            help = "OMERO username")
         group.add_argument("-w", "--password",
-            help = "OMERO server login password")
-        group.add_argument("-k", "--key", help = "UUID of an active session")
+            help = "OMERO password")
+        group.add_argument("-k", "--key", help = "OMERO session key (UUID of an active session)")
 
     def _check_value(self, action, value):
         # converted value must be one of the choices (if specified)
@@ -1070,16 +1070,16 @@ class CLI(cmd.Cmd, Context):
     ## Plugin registry
     ##
 
-    def register(self, name, Control, help):
-        self.register_only(name, Control, help)
+    def register(self, name, Control, help, epilog=None):
+        self.register_only(name, Control, help, epilog=epilog)
         self.configure_plugins()
 
-    def register_only(self, name, Control, help):
+    def register_only(self, name, Control, help, epilog=None):
         """ This method is added to the globals when execfile() is
         called on each plugin. A Control class should be
         passed to the register method which will be added to the CLI.
         """
-        self.controls[name] = (Control, help)
+        self.controls[name] = (Control, help, epilog)
 
     def configure_plugins(self):
         """
@@ -1091,11 +1091,13 @@ class CLI(cmd.Cmd, Context):
             if isinstance(control, tuple):
                 Control = control[0]
                 help = control[1]
+                epilog = control[2]
                 control = Control(ctx = self, dir = self.dir)
                 self.controls[name] = control
                 setattr(self, "complete_%s" % name, control._complete)
                 parser = self.subparsers.add_parser(name, help=help)
                 parser.description = help
+                parser.epilog = epilog
                 if hasattr(control, "_configure"):
                     control._configure(parser)
                 elif hasattr(control, "__call__"):
