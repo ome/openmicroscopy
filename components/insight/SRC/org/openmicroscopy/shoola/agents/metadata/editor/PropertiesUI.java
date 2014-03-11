@@ -78,6 +78,7 @@ import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.actions.ViewAction;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.editorpreview.PreviewPanel;
+import org.openmicroscopy.shoola.env.config.IconFactory;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.util.file.modulo.ModuloInfo;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -149,6 +150,9 @@ class PropertiesUI
     /**Text indicating to edit the channels.*/
     private static final String EDIT_CHANNEL_TEXT = "Edit the channels.";
 
+    /**Text indicating that this file is an inplace import*/
+    private static final String[] INPLACE_IMPORT_TEXT = new String[] {"This file is an in-place import.", "The data is not located within the","OMERO data directory. Use the file","path button :/ to see its location."};
+    
     /** The default height of the description.*/
     private static final int HEIGHT = 120;
     
@@ -187,6 +191,9 @@ class PropertiesUI
     
     /** The component hosting the id of the <code>DataObject</code>. */
     private JLabel				idLabel;
+    
+    /** The component hosting the icon for inplace imported images */
+    private JLabel 				inplaceIcon;
     
     /** 
      * The component hosting the owner of the <code>DataObject</code>.
@@ -317,6 +324,8 @@ class PropertiesUI
        	
        	idLabel = UIUtilities.setTextFont("");
        	idLabel.setName("ID label");
+       	inplaceIcon = new JLabel(IconManager.getInstance().getIcon(IconManager.INPLACE_IMPORT));
+       	inplaceIcon.setToolTipText(UIUtilities.formatToolTipText(INPLACE_IMPORT_TEXT));
        	ownerLabel = new JLabel();
        	ownerLabel.setBackground(UIUtilities.BACKGROUND_COLOR);
     	namePane = createTextPane();
@@ -891,9 +900,17 @@ class PropertiesUI
         p.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
         p.setBackground(UIUtilities.BACKGROUND_COLOR);
         p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
+
+        JPanel idPanel = new JPanel();
+        idPanel.setLayout(new BoxLayout(idPanel, BoxLayout.X_AXIS));
+        idPanel.setBackground(UIUtilities.BACKGROUND_COLOR);
         JPanel l = UIUtilities.buildComponentPanel(idLabel, 0, 0);
         l.setBackground(UIUtilities.BACKGROUND_COLOR);
-        p.add(l);
+        idPanel.add(l);
+        idPanel.add(Box.createHorizontalGlue());
+        idPanel.add(inplaceIcon);
+        p.add(idPanel);
+        
         l = UIUtilities.buildComponentPanel(ownerLabel, 0, 0);
         l.setBackground(UIUtilities.BACKGROUND_COLOR);
         p.add(l);
@@ -1164,6 +1181,7 @@ class PropertiesUI
             t += " (Image ID: "+wsd.getImage().getId()+")";
         }
         idLabel.setText(t);
+        inplaceIcon.setVisible(model.isInplaceImport());
         String ownerName = model.getOwnerName();
         ownerLabel.setText("");
         if (ownerName != null && ownerName.length() > 0)
@@ -1427,6 +1445,7 @@ class PropertiesUI
 	    if (!model.isSameObject(oldObject)) {
 	        channelsArea.setText("");
 	        idLabel.setText("");
+	        inplaceIcon.setVisible(false);
 	        ownerLabel.setText("");
 	        parentLabel.setText("");
 	        wellLabel.setText("");

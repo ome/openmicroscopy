@@ -430,11 +430,14 @@ public class IconManager
     /** The <code>Link</code> icon. */
     public static final int LINK = 124;
     
+    /** The <code>Inplace Import</code> icon. */
+    public static final int INPLACE_IMPORT = 125;
+    
     /** 
 	 * The maximum ID used for the icon IDs.
 	 * Allows to correctly build arrays for direct indexing.
 	 */
-	private static final int          MAX_ID = 124;
+	private static final int          MAX_ID = 125;
 
 	/** Paths of the icon files. */
 	private static String[]     relPaths = new String[MAX_ID+1];
@@ -565,6 +568,7 @@ public class IconManager
         relPaths[VIEWER_IJ] = "imageJ16.png";
         relPaths[FILE_PATH] = "icon_fs_path16.png";
         relPaths[LINK] = "nuvola_enhanced_browsing16.png";
+        relPaths[INPLACE_IMPORT] = "red-link-icon-16.png";
 	}
    
 	/** The sole instance. */
