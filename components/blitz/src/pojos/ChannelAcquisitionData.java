@@ -2,10 +2,10 @@
  * pojos.ChannelAcquisitionData 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -30,6 +30,7 @@ package pojos;
 
 //Application-internal dependencies
 import omero.RDouble;
+import omero.RFloat;
 import omero.RInt;
 import omero.model.AcquisitionMode;
 import omero.model.Binning;
@@ -216,10 +217,10 @@ public class ChannelAcquisitionData
 	 * 
 	 * @return See above.
 	 */
-	public Integer getLigthSettingsWavelength()
+	public Float getLigthSettingsWavelength()
 	{
 		if (lightSettings == null) return null;
-		RInt value = lightSettings.getWavelength();
+		RFloat value = lightSettings.getWavelength();
 		if (value == null) return null;
 		return value.getValue();
 	}
