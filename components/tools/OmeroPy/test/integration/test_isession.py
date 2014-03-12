@@ -222,9 +222,9 @@ class TestISession(lib.ITest):
         
         c = omero.client(host=host, port=port)
         try:
-            c.setAgent("aaa")
+            c.setAgent("OMERO.py.root_test")
             c.setIP("127.0.0.1")
-            s = c.createSession("ola","ome")
+            s = c.createSession("root",rootpass)
 
             p = omero.sys.ParametersI()
             p.map = {}
