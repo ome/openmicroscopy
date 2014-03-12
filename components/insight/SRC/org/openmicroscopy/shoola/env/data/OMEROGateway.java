@@ -6381,12 +6381,14 @@ class OMEROGateway
 			String[] paths = new String[1];
 			paths[0] = file.getAbsolutePath();
 			ImportCandidates icans = new ImportCandidates(reader, paths, status);
-			for(ImportContainer ic : icans.getContainers()) {
-    			    if (object.isOverrideName()) {
-                                int depth = object.getDepthForName();
-                                ic.setUserSpecifiedName(UIUtilities.getDisplayedFileName(file.getAbsolutePath(), depth));
-                            }
+			
+			if(object.isOverrideName()) {
+			    String name = UIUtilities.getDisplayedFileName(file.getAbsolutePath(), object.getDepthForName());
+			    for(ImportContainer ic : icans.getContainers()) {
+			        ic.setUserSpecifiedName(name);
+			    }
 			}
+			
 			return icans;
 		} catch (Throwable e) {
 			throw new ImportException(e);
