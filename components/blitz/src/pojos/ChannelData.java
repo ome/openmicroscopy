@@ -30,6 +30,7 @@ package pojos;
 
 //Application-internal dependencies
 import omero.RDouble;
+import omero.RFloat;
 import omero.RInt;
 import omero.RString;
 import omero.model.AcquisitionMode;
@@ -121,7 +122,7 @@ public class ChannelData
     	if (value != null && value.trim().length() != 0) return value;
     	value = getFluor(); 
     	if (value != null && value.trim().length() != 0) return value;
-    	int v = getEmissionWavelength();
+    	float v = getEmissionWavelength();
     	if (v > 0) return ""+v;
     	return ""+index;
     }
@@ -158,13 +159,13 @@ public class ChannelData
      * 
      * @return See above
      */
-    public int getEmissionWavelength()
+    public float getEmissionWavelength()
     { 
     	LogicalChannel lc = asChannel().getLogicalChannel();
     	if (lc == null) return index;
-    	RInt value  = lc.getEmissionWave();
+    	RFloat value  = lc.getEmissionWave();
 		if (value != null) return value.getValue();
-		return -1;//index;
+		return -1;
     }
     
     /**
@@ -172,13 +173,13 @@ public class ChannelData
      * 
      * @return See above
      */
-    public int getExcitationWavelength()
+    public float getExcitationWavelength()
     { 
     	LogicalChannel lc = asChannel().getLogicalChannel();
     	if (lc == null) return getEmissionWavelength();
     	RInt value = lc.getExcitationWave();
     	if (value != null) return value.getValue();
-    	return -1;//getEmissionWavelength();
+    	return -1;
     }
     
     /**
@@ -360,12 +361,12 @@ public class ChannelData
      * 
      * @param value The value to set.
      */
-    public void setEmissionWavelength(int value)
+    public void setEmissionWavelength(float value)
     {
     	if (value < 0) return;
         setDirty(true);
         asChannel().getLogicalChannel().setEmissionWave(
-        		omero.rtypes.rint(value));
+        		omero.rtypes.rfloat(value));
     }
     
     /**
