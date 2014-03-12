@@ -1183,8 +1183,8 @@ public class EditorUtil
         details = new LinkedHashMap<String, Object>(10);
         List<String> notSet = new ArrayList<String>();
         details.put(NAME, "");
-        details.put(EXCITATION, Integer.valueOf(0));
-        details.put(EMISSION, Integer.valueOf(0));
+        details.put(EXCITATION, Float.valueOf(0));
+        details.put(EMISSION, Float.valueOf(0));
         details.put(ND_FILTER, Float.valueOf(0));
         details.put(PIN_HOLE_SIZE, Float.valueOf(0));
         details.put(FLUOR, "");
@@ -1210,7 +1210,7 @@ public class EditorUtil
         if (StringUtils.isBlank(s))
             notSet.add(NAME);
         details.put(NAME, s);
-        int i = data.getEmissionWavelength();
+        float i = data.getEmissionWavelength();
         if (i <= 100) {
             i = 0;
             notSet.add(EMISSION);
@@ -1766,7 +1766,7 @@ public class EditorUtil
         details.putAll(m);
         details.put(ATTENUATION, new Double(0));
         if (data == null) {
-            details.put(WAVELENGTH, Integer.valueOf(0));
+            details.put(WAVELENGTH, Float.valueOf(0));
             notSet.add(ATTENUATION);
             notSet.add(WAVELENGTH);
             details.put(NOT_SET, notSet);
@@ -1777,14 +1777,13 @@ public class EditorUtil
         if (f == null) notSet.add(ATTENUATION);
         else v = f;
         details.put(ATTENUATION, v*PERCENT_FRACTION);
-        Integer i = data.getLigthSettingsWavelength();
+        Float i = data.getLigthSettingsWavelength();
         if (details.containsKey(WAVELENGTH)) {
-
             if (i != null) { //override the value.
                 details.put(WAVELENGTH, i);
             }
         } else {
-            int vi = 0;
+            float vi = 0;
             if (i == null) notSet.add(WAVELENGTH);
             else vi = i;
             details.put(WAVELENGTH, vi);
@@ -1876,7 +1875,7 @@ public class EditorUtil
                 notSet.add(MEDIUM);
             details.put(MEDIUM, s);
 
-            int i = data.getLaserWavelength();
+            float i = data.getLaserWavelength();
             if (i < 0) {
                 i = 0;
                 notSet.add(WAVELENGTH);
