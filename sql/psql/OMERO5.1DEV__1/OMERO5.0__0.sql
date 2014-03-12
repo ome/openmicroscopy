@@ -1,4 +1,4 @@
--- Copyright (C) 2012-3 Glencoe Software, Inc. All rights reserved.
+-- Copyright (C) 2012-4 Glencoe Software, Inc. All rights reserved.
 -- Use is subject to license terms supplied in LICENSE.txt
 --
 -- This program is free software; you can redistribute it and/or modify
@@ -17,7 +17,7 @@
 --
 
 ---
---- OMERO5 development release upgrade from OMERO5.0__0 to OMERO5.1DEV__0.
+--- OMERO5 development release upgrade from OMERO5.0__0 to OMERO5.1DEV__1.
 ---
 
 BEGIN;
@@ -44,13 +44,17 @@ DROP FUNCTION omero_assert_db_version(varchar, int);
 
 
 INSERT INTO dbpatch (currentVersion, currentPatch,   previousVersion,     previousPatch)
-             VALUES ('OMERO5.1DEV',     0,              'OMERO5.0',       0);
+             VALUES ('OMERO5.1DEV',     1,              'OMERO5.0',       0);
 
 --
 -- Actual upgrade
 --
 
 ALTER TABLE session ADD COLUMN userIP varchar(15);
+ALTER TABLE logicalchannel ALTER COLUMN emissionWave TYPE FLOAT8;
+ALTER TABLE logicalchannel ALTER COLUMN excitationWave TYPE FLOAT8;
+ALTER TABLE laser ALTER COLUMN wavelength TYPE FLOAT8;
+ALTER TABLE lightsettings ALTER COLUMN wavelength TYPE FLOAT8;
 
 --
 -- FINISHED
@@ -58,10 +62,10 @@ ALTER TABLE session ADD COLUMN userIP varchar(15);
 
 UPDATE dbpatch SET message = 'Database updated.', finished = clock_timestamp()
     WHERE currentVersion  = 'OMERO5.1DEV'    AND
-          currentPatch    = 0             AND
+          currentPatch    = 1             AND
           previousVersion = 'OMERO5.0' AND
           previousPatch   = 0;
 
-SELECT CHR(10)||CHR(10)||CHR(10)||'YOU HAVE SUCCESSFULLY UPGRADED YOUR DATABASE TO VERSION OMERO5.1DEV__0'||CHR(10)||CHR(10)||CHR(10) AS Status;
+SELECT CHR(10)||CHR(10)||CHR(10)||'YOU HAVE SUCCESSFULLY UPGRADED YOUR DATABASE TO VERSION OMERO5.1DEV__1'||CHR(10)||CHR(10)||CHR(10) AS Status;
 
 COMMIT;
