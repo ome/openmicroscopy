@@ -177,7 +177,7 @@ public class ChannelData
     { 
     	LogicalChannel lc = asChannel().getLogicalChannel();
     	if (lc == null) return getEmissionWavelength();
-    	RInt value = lc.getExcitationWave();
+    	RFloat value = lc.getExcitationWave();
     	if (value != null) return value.getValue();
     	return -1;
     }
@@ -374,12 +374,12 @@ public class ChannelData
      * 
      * @param value The value to set.
      */
-    public void setExcitationWavelength(int value)
+    public void setExcitationWavelength(float value)
     {
     	if (value < 0) return;
         setDirty(true);
         asChannel().getLogicalChannel().setExcitationWave(
-        		omero.rtypes.rint(value));
+        		omero.rtypes.rfloat(value));
     }
  
     /**
