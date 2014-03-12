@@ -138,6 +138,9 @@ already be running. This may automatically restart some server components.""")
         Action(
             "ice", "Drop user into icegridadmin console or execute arguments")
 
+        Action(
+            "kill", "Launch the equivalent of 'admin ice server stop NAME'")
+
         fixpyramids = Action(
             "fixpyramids", "Remove empty pyramid pixels files").parser
         # See cleanse options below
@@ -277,8 +280,12 @@ location.
 
         self.actions["ice"].add_argument(
             "argument", nargs="*",
-            help="""Arguments joined together to make an Ice command. If not \
-present, the user will enter a console""")
+            help=("Arguments joined together to make an Ice command. If not "
+                    "present, the user will enter a console"))
+
+        self.actions["kill"].add_argument(
+            "name", metavar="NAME",
+            help=("Name of the Ice process to stop."))
 
         self.actions["status"].add_argument(
             "node", nargs="?", default="master")
@@ -754,6 +761,13 @@ present, the user will enter a console""")
             return self.ctx.call(command)
         else:
             self.ctx.call(command)
+
+    def kill(self, args):
+        self.check_access()
+        command = self._cmd()
+        command.append("-e")
+        command.append("server stop %s" % args.name)
+        return self.ctx.call(command)
 
     @with_config
     def fixpyramids(self, args, config):
