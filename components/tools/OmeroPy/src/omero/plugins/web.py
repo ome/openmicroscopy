@@ -441,7 +441,7 @@ Alias /omero "%(ROOT)s/var/omero.fcgi/"
         rv = self.ctx.call(args, cwd=location)
         if rv != 0:
             self.ctx.die(607, "Failed to collect static content.\n")
-    
+
     def start(self, args):
         self.collectstatic()
         import omeroweb.settings as settings
