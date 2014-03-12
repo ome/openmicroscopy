@@ -6381,7 +6381,14 @@ class OMEROGateway
 			reader = new OMEROWrapper(config);
 			String[] paths = new String[1];
 			paths[0] = file.getAbsolutePath();
-			return new ImportCandidates(reader, paths, status);
+			ImportCandidates icans = new ImportCandidates(reader, paths, status);
+			for(ImportContainer ic : icans.getContainers()) {
+    			    if (object.isOverrideName()) {
+                                int depth = object.getDepthForName();
+                                ic.setUserSpecifiedName(UIUtilities.getDisplayedFileName(file.getAbsolutePath(), depth));
+                            }
+			}
+			return icans;
 		} catch (Throwable e) {
 			throw new ImportException(e);
 		} finally {
