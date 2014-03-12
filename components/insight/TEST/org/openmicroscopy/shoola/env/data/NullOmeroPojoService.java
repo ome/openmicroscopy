@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.data.NullOmeroPojoService
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -463,7 +463,10 @@ public class NullOmeroPojoService
 		return null;
 	}
 
-    @Override
+	/**
+	     * No-operation implementation
+	     * @see OmeroDataService#findDatasetsByImageId(SecurityContext, long)
+	     */
     public List<DatasetData> findDatasetsByImageId(SecurityContext ctx,
             long imgId) throws DSOutOfServiceException, DSAccessException {
         return null;
