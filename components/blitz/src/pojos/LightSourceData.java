@@ -31,6 +31,7 @@ package pojos;
 //Application-internal dependencies
 import omero.RBool;
 import omero.RDouble;
+import omero.RFloat;
 import omero.RInt;
 import omero.RString;
 import omero.model.Arc;
@@ -202,11 +203,11 @@ public class LightSourceData
 	 * 
 	 * @return See above.
 	 */
-	public int getLaserWavelength()
+	public float getLaserWavelength()
 	{
 		if (!LASER.equals(getKind())) return -1;
 		Laser laser = (Laser) asIObject();
-		RInt value = laser.getWavelength();
+		RFloat value = laser.getWavelength();
 		if (value == null) return -1;
 		return value.getValue();
 	}
