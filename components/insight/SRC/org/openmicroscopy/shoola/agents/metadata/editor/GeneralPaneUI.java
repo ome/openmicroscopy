@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.metadata.editor.GeneralPaneUI 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -351,9 +351,17 @@ class GeneralPaneUI
 				loadParents(true);
 		}
 	}
-
 	
-	/** 
+	/**
+	* Get a reference to the PropertiesUI
+	* 
+	* @return See above
+	*/
+	public PropertiesUI getPropertiesUI() {
+            return propertiesUI;
+        }
+
+    	/** 
 	 * Returns the object hosting the annotation/link to save.
 	 * 
 	 * @return See above.

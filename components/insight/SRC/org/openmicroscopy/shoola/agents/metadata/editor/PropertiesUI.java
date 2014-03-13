@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.util.editor.PropertiesUI 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -48,6 +48,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -62,6 +64,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JToolBar;
 import javax.swing.ScrollPaneConstants;
+import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -76,11 +79,13 @@ import org.openmicroscopy.shoola.agents.events.treeviewer.DataObjectSelectionEve
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.actions.ViewAction;
+import org.openmicroscopy.shoola.agents.metadata.util.FilesetInfoDialog;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.editorpreview.PreviewPanel;
 import org.openmicroscopy.shoola.env.config.IconFactory;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.util.file.modulo.ModuloInfo;
+import org.openmicroscopy.shoola.util.ui.ClickableTooltip;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.UnitsObject;
 import org.openmicroscopy.shoola.util.ui.omeeditpane.OMEWikiComponent;
@@ -151,7 +156,9 @@ class PropertiesUI
     private static final String EDIT_CHANNEL_TEXT = "Edit the channels.";
 
     /**Text indicating that this file is an inplace import*/
-    private static final String[] INPLACE_IMPORT_TEXT = new String[] {"This file is an in-place import.", "The data is not located within the","OMERO data directory. Use the file","path button :/ to see its location."};
+    private static final String INPLACE_IMPORT_TOOLTIP_TEXT = "<html>This file is an in-place import.<br>The data might not be located within the<br>OMERO data directory.</html>";
+    
+    private static final String INPLACE_IMPORT_TOOLTIP_ACTION_TEXT = "Show File Paths...";
     
     /** The default height of the description.*/
     private static final int HEIGHT = 120;
@@ -325,7 +332,9 @@ class PropertiesUI
        	idLabel = UIUtilities.setTextFont("");
        	idLabel.setName("ID label");
        	inplaceIcon = new JLabel(IconManager.getInstance().getIcon(IconManager.INPLACE_IMPORT));
-       	inplaceIcon.setToolTipText(UIUtilities.formatToolTipText(INPLACE_IMPORT_TEXT));
+       	ClickableTooltip inplaceIconTooltip = new ClickableTooltip(INPLACE_IMPORT_TOOLTIP_TEXT, createInplaceIconAction());
+        inplaceIconTooltip.attach(inplaceIcon);
+        
        	ownerLabel = new JLabel();
        	ownerLabel.setBackground(UIUtilities.BACKGROUND_COLOR);
     	namePane = createTextPane();
@@ -373,6 +382,22 @@ class PropertiesUI
 		formatButton(editChannel, EDIT_CHANNEL_TEXT, EDIT_CHANNEL);
 		editChannel.setEnabled(false);
 		descriptionWiki.setEnabled(false);
+    }
+    
+    /**
+     * Creates the action for the inplace import icon tooltip
+     * @return
+     */
+    private Action createInplaceIconAction() {
+        Action inplaceIconAction = new AbstractAction(INPLACE_IMPORT_TOOLTIP_ACTION_TEXT) {
+            @Override
+            public void actionPerformed(ActionEvent arg0) {
+                // Just pass this on to the controller
+                controller.actionPerformed(arg0);
+            }
+        };
+        inplaceIconAction.putValue(Action.ACTION_COMMAND_KEY, ""+EditorControl.FILE_PATH_INPLACE_ICON);
+        return inplaceIconAction;
     }
     
     /**
@@ -1611,4 +1636,17 @@ class PropertiesUI
 	 */
 	public void changedUpdate(DocumentEvent e) {}
 
+	/** Displays the file set associated to the image. */
+        void displayFileset() {
+            Point location = inplaceIcon.getLocation();
+            SwingUtilities.convertPointToScreen(location, inplaceIcon.getParent());
+            // as the inplaceIcon already is on the right edge of the window
+            // move it a bit more to the left
+            location.translate(
+                    -FilesetInfoDialog.DEFAULT_WIDTH + inplaceIcon.getWidth(),
+                    inplaceIcon.getHeight());
+            FilesetInfoDialog d = new FilesetInfoDialog();
+            d.setData(model.getFileset(), model.isInplaceImport());
+            d.open(location);
+        }
 }

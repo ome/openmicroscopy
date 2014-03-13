@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.metadata.editor.EditorComponent 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -119,6 +119,9 @@ class EditorComponent
 	
 	/** The dialog used to display script.*/
 	private ScriptingDialog dialog;
+	
+	/** A pointer to keep track which was the action which triggered the fileset loading */
+	private int filesetLoadTrigger = -1;
 	
 	/**
 	 * Returns the collection of annotation that cannot be removed 
@@ -1187,15 +1190,16 @@ class EditorComponent
 	public void setFileset(Set<FilesetData> set)
 	{
 		model.setFileset(set);
-		view.displayFileset();
+		view.displayFileset(filesetLoadTrigger);
 	}
 
-    /** 
+    	/** 
 	 * Implemented as specified by the {@link Editor} interface.
-	 * @see Editor#loadFileset()
+	 * @see Editor#loadFileset(int)
 	 */
-	public void loadFileset()
+	public void loadFileset(int trigger)
 	{
+	        this.filesetLoadTrigger = trigger;
 		model.fireFilesetLoading();
 	}
 
