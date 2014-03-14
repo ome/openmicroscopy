@@ -84,7 +84,7 @@ class LightSourceComponent
 	/** The component displaying the laser options. */
 	private OMEComboBox							laserMediumBox;
 	
-	/** The component displaying the types of supported ligth. */
+	/** The component displaying the types of supported light. */
 	private OMEComboBox							lightTypeBox;
 	
 	/** The component displaying the types of arc. */
