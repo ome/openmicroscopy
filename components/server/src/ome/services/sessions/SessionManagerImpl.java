@@ -200,7 +200,7 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
     // =========================================================================
 
     protected void define(Session s, String uuid, String message, long started,
-            long idle, long live, String eventType, String agent) {
+            long idle, long live, String eventType, String agent, String ip) {
 
         s.getDetails().setPermissions(Permissions.PRIVATE);
         s.setUuid(uuid);
@@ -210,6 +210,7 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
         s.setTimeToLive(live);
         s.setDefaultEventType(eventType);
         s.setUserAgent(agent);
+        s.setUserIP(ip);
     }
 
     // ~ Session management
@@ -218,7 +219,7 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
     /*
      * Is given trustable values by the {@link SessionBean}
      */
-    public Session createWithAgent(final Principal _principal, final String credentials, String agent) {
+    public Session createWithAgent(final Principal _principal, final String credentials, String agent, String ip) {
 
         // If credentials exist as session, then return that
         try {
@@ -242,14 +243,14 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
         }
 
         // authentication checked. Now delegating to the admin method (no pass)
-        return createWithAgent(_principal, agent);
+        return createWithAgent(_principal, agent, ip);
     }
 
-    public Session createWithAgent(Principal principal, String agent) {
+    public Session createWithAgent(Principal principal, String agent, String ip) {
         Session session = new Session();
         define(session, UUID.randomUUID().toString(), "Initial message.",
                 System.currentTimeMillis(), defaultTimeToIdle,
-                defaultTimeToLive, principal.getEventType(), agent);
+                defaultTimeToLive, principal.getEventType(), agent, ip);
         return createSession(principal, session);
     }
 
@@ -259,7 +260,7 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
         Share share = newShare();
         define(share, UUID.randomUUID().toString(), description, System
                 .currentTimeMillis(), defaultTimeToIdle, timeToLive, eventType,
-                "Share");
+                "Share", null);
         share.setGroup(new ExperimenterGroup(groupId, false));
         share.setActive(enabled);
         share.setData(new byte[] {});
@@ -1027,7 +1028,7 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
                         final Session s = new Session();
                         define(s, internal_uuid, "Session Manager internal",
                                 System.currentTimeMillis(), Long.MAX_VALUE, 0L,
-                                "Sessions", "Internal");
+                                "Sessions", "Internal", null);
 
                         // Set the owner and node specially for an internal sess
                         long nodeId = 0L;
@@ -1054,6 +1055,7 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
                         params.put("node", nodeId);
                         params.put("owner", roles.getRootId());
                         params.put("agent", s.getUserAgent());
+                        params.put("ip", s.getUserIP());
                         int count = sql.insertSession(params);
                         if (count == 0) {
                             throw new InternalException(

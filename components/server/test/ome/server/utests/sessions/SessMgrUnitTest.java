@@ -80,7 +80,7 @@ public class SessMgrUnitTest extends MockObjectTestCase {
             Session s = new Session();
             define(s, "uuid", "message", System.currentTimeMillis(),
                     defaultTimeToIdle, defaultTimeToLive, "Test",
-                    "Test");
+                    "Test", "127.0.0.1");
 
             ExperimenterGroup group = new ExperimenterGroup();
             group.getDetails().setPermissions(Permissions.COLLAB_READLINK);
@@ -161,7 +161,7 @@ public class SessMgrUnitTest extends MockObjectTestCase {
          */
 
         prepareForCreateSession();
-        assert session == mgr.createWithAgent(principal, credentials, "Test");
+        assert session == mgr.createWithAgent(principal, credentials, "Test", "127.0.0.1");
         assertNotNull(session);
         assertNotNull(session.getUuid());
 
@@ -251,7 +251,7 @@ public class SessMgrUnitTest extends MockObjectTestCase {
         cache.setApplicationContext(ctx);
 
         prepareForCreateSession();
-        Session s1 = mgr.createWithAgent(principal, credentials, "Test");
+        Session s1 = mgr.createWithAgent(principal, credentials, "Test", "127.0.0.1");
         s1.setTimeToIdle(2000L);
         mgr.update(s1);
         Thread.sleep(3000L);
@@ -342,7 +342,7 @@ public class SessMgrUnitTest extends MockObjectTestCase {
     public void testReplacesNullGroupAndType() throws Exception {
         prepareForCreateSession();
         Session session = mgr.createWithAgent(new Principal("fake", null, null),
-                credentials, "Test");
+                credentials, "Test", "127.0.0.1");
         assertNotNull(session.getDefaultEventType());
         assertNotNull(session.getDetails().getGroup());
     }
@@ -383,21 +383,21 @@ public class SessMgrUnitTest extends MockObjectTestCase {
     public void testCreateSessionFailsAUEOnNullPrincipal() throws Exception {
         sf.mockAdmin.expects(once()).method("checkPassword").will(
                 returnValue(false));
-        mgr.createWithAgent(null, "password", "Test");
+        mgr.createWithAgent(null, "password", "Test", "127.0.0.1");
     }
 
     @Test(expectedExceptions = AuthenticationException.class)
     public void testCreateSessionFailsAUEOnNullOmeName() throws Exception {
         sf.mockAdmin.expects(once()).method("checkPassword").will(
                 returnValue(false));
-        mgr.createWithAgent(new Principal(null, null, null), "password", "Test");
+        mgr.createWithAgent(new Principal(null, null, null), "password", "Test", "127.0.0.1");
     }
 
     @Test(expectedExceptions = AuthenticationException.class)
     public void testCreateSessionFailsSV() throws Exception {
         sf.mockAdmin.expects(once()).method("checkPassword").will(
                 returnValue(false));
-        mgr.createWithAgent(principal, "password", "Test");
+        mgr.createWithAgent(principal, "password", "Test", "127.0.0.1");
     }
 
     @Test
@@ -408,7 +408,7 @@ public class SessMgrUnitTest extends MockObjectTestCase {
                 returnValue(group));
         sf.mockQuery.expects(once()).method("findAllByQuery").will(
                 returnValue(Collections.EMPTY_LIST));
-        mgr.createWithAgent(new Principal("user", "user", "User"), "user", "Test");
+        mgr.createWithAgent(new Principal("user", "user", "User"), "user", "Test", "127.0.0.1");
     }
 
     @Test
@@ -436,7 +436,7 @@ public class SessMgrUnitTest extends MockObjectTestCase {
         assertEquals(1, ctx.count().get());
         assertNull(ctx.getSession().getClosed());
 
-        mgr.createWithAgent(new Principal(uuid), "Test");
+        mgr.createWithAgent(new Principal(uuid), "Test", "127.0.0.1");
         assertEquals(2, ctx.count().get());
         assertNull(ctx.getSession().getClosed());
 

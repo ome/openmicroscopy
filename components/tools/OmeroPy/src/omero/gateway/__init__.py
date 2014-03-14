@@ -1202,7 +1202,7 @@ class _BlitzGateway (object):
     """
 #    def __init__ (self, username, passwd, server, port, client_obj=None, group=None, clone=False):
     
-    def __init__ (self, username=None, passwd=None, client_obj=None, group=None, clone=False, try_super=False, host=None, port=None, extra_config=None, secure=False, anonymous=True, useragent=None):
+    def __init__ (self, username=None, passwd=None, client_obj=None, group=None, clone=False, try_super=False, host=None, port=None, extra_config=None, secure=False, anonymous=True, useragent=None, userip=None):
         """
         Create the connection wrapper. Does not attempt to connect at this stage
         Initialises the omero.client
@@ -1229,6 +1229,7 @@ class _BlitzGateway (object):
         @param anonymous:   
         @type anonymous:    Boolean
         @param useragent:   Log which python clients use this connection. E.g. 'OMERO.webadmin'
+        @param userip:      Log client ip.
         @type useragent:    String
         """
 
@@ -1247,6 +1248,7 @@ class _BlitzGateway (object):
         self.port = port
         self.secure = secure
         self.useragent = useragent
+        self.userip = userip
 
         self._sessionUuid = None
         self._session_cb = None
@@ -1344,7 +1346,8 @@ class _BlitzGateway (object):
                               clone=True,
                               secure=self.secure,
                               anonymous=self._anonymous, 
-                              useragent=self.useragent)
+                              useragent=self.useragent,
+                              userip=self.userip)
                               #self.server, self.port, clone=True)
 
     def setIdentity (self, username, passwd, _internal=False):
@@ -1603,12 +1606,16 @@ class _BlitzGateway (object):
                 self.c = omero.client(host=str(self.host), args=['--Ice.Config='+','.join(self.ice_config)])
         else:
             self.c = omero.client(args=['--Ice.Config='+','.join(self.ice_config)])
-  
+        
         if hasattr(self.c, "setAgent"):
             if self.useragent is not None:
                 self.c.setAgent(self.useragent)
             else:
                 self.c.setAgent("OMERO.py.gateway")
+
+        if hasattr(self.c, "setIP"):
+            if self.userip is not None:
+                self.c.setIP(self.userip)
 
     def connect (self, sUuid=None):
         """

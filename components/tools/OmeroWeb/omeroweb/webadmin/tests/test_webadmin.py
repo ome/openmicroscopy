@@ -109,7 +109,7 @@ class WebTest(unittest.TestCase):
 
         self.server_id = 1
         connector = Connector(self.server_id, True)
-        self.rootconn = connector.create_connection('TEST.webadmin', 'root', self.root_password)
+        self.rootconn = connector.create_connection('TEST.webadmin', 'root', self.root_password, userip="127.0.0.1")
         if self.rootconn is None or not self.rootconn.isConnected() or not self.rootconn.keepAlive():
             raise Exception("Cannot connect")
 
@@ -123,7 +123,7 @@ class WebTest(unittest.TestCase):
         blitz = Server.get(pk=self.server_id) 
         if blitz is not None:
             connector = Connector(self.server_id, True)
-            conn = connector.create_connection('TEST.webadmin', username, password)
+            conn = connector.create_connection('TEST.webadmin', username, password, userip="127.0.0.1")
             if conn is None or not conn.isConnected() or not conn.keepAlive():
                 raise Exception("Cannot connect")
             return conn
@@ -172,7 +172,7 @@ class WebAdminTest(WebTest):
         is_secure = toBoolean(request.REQUEST.get('ssl'))
 
         connector = Connector(server_id, is_secure)
-        conn = connector.create_connection('TEST.webadmin', username, password)
+        conn = connector.create_connection('TEST.webadmin', username, password, userip="127.0.0.1")
         if conn is None:
             self.fail('Cannot connect')
         
@@ -198,7 +198,7 @@ class WebAdminTest(WebTest):
             is_secure = toBoolean(form.cleaned_data['ssl'])
 
             connector = Connector(server_id, is_secure)
-            conn = connector.create_connection('OMERO.web', username, password)
+            conn = connector.create_connection('OMERO.web', username, password, userip="127.0.0.1")
             if conn is None:
                 self.fail('Cannot connect')
             
@@ -227,7 +227,7 @@ class WebAdminTest(WebTest):
             is_secure = toBoolean(form.cleaned_data['ssl'])
 
             connector = Connector(server_id, is_secure)
-            conn = connector.create_connection('OMERO.web', username, password)
+            conn = connector.create_connection('OMERO.web', username, password, userip="127.0.0.1")
             if conn is not None:
                 self.fail('This user does not exist. Login failure error!')
         

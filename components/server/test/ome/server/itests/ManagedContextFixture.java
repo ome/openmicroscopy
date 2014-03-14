@@ -142,7 +142,7 @@ public class ManagedContextFixture {
 
     public void setCurrentUserAndGroup(String user, String group) {
         Principal p = new Principal(user, group, "Test");
-        Session s = mgr.createWithAgent(p, "ManagedContextFixture");
+        Session s = mgr.createWithAgent(p, "ManagedContextFixture", "127.0.0.1");
         p = new Principal(s.getUuid(), group, "Test");
         login.p = p;        
     }

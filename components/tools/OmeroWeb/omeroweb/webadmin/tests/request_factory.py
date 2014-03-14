@@ -567,7 +567,7 @@ class Client(RequestFactory):
         self.cookies[session_cookie].update(cookie_data)
         
         connector = Connector(request.REQUEST.get('server'), True)
-        conn = connector.create_connection('TEST.webadmin', login, password)
+        conn = connector.create_connection('TEST.webadmin', login, password, userip="127.0.0.1")
 
         if conn is not None and conn.isConnected() and conn.keepAlive():
             request.session.save()

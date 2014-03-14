@@ -55,6 +55,7 @@ import omero.api.StatefulServiceInterface;
 import omero.api.StatefulServiceInterfacePrx;
 import omero.api._ClientCallbackDisp;
 import omero.constants.AGENT;
+import omero.constants.IP;
 import omero.model.ChecksumAlgorithm;
 import omero.model.ChecksumAlgorithmI;
 import omero.model.DetailsI;
@@ -122,6 +123,12 @@ public class client {
      * See {@link #setAgent(String)}
      */
     private volatile String __agent = "OMERO.java";
+    
+    /**
+     * See {@link #setIP(String)}
+     */
+    private volatile String __ip;
+
 
     /**
      * Identifier for this client instance. Multiple client uuids may be
@@ -434,6 +441,16 @@ public class client {
     public void setAgent(String agent) {
         __agent = agent;
     }
+    
+    /**
+     * Sets the {@link omero.model.Session#getUserIP() user ip} string for
+     * this client. Every session creation will be passed this argument. Finding
+     * open sesssions with the same agent can be done via
+     * {@link omero.api.ISessionPrx#getMyOpenIPSessions(String)}.
+     */
+    public void setIP(String ip) {
+        __ip = ip;
+    }
 
     /**
      * Specifies whether or not this client was created via a call to
@@ -690,6 +707,7 @@ public class client {
             try {
                 Map<String, String> ctx = new HashMap<String, String>(getImplicitContext().getContext());
                 ctx.put(AGENT.value, __agent);
+                ctx.put(IP.value, __ip);
                 Glacier2.RouterPrx rtr = getRouter(__ic);
                 prx = rtr.createSession(username, password, ctx);
 

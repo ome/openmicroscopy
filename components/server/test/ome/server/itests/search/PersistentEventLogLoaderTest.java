@@ -36,7 +36,7 @@ public class PersistentEventLogLoaderTest extends AbstractManagedContextTest {
 
     public void testInitialUseWithNoDbEntry() throws Exception {
         ome.model.meta.Session s = sm.createWithAgent(new Principal("root", "system",
-                "FullText"), "Test");
+                "FullText"), "Test", "127.0.0.1");
         final boolean[] result = new boolean[1];
         ex.execute(new Principal(s.getUuid(), "system", "FullText"),
                 new Executor.SimpleWork(this, "with no db entry") {
@@ -60,7 +60,7 @@ public class PersistentEventLogLoaderTest extends AbstractManagedContextTest {
 
     public void testTestExcludes() throws Exception {
         ome.model.meta.Session s = sm.createWithAgent(new Principal("root", "system",
-                "FullText"), "Test");
+                "FullText"), "Test", "127.0.0.1");
         ex.execute(new Principal(s.getUuid(), "system", "FullText"),
                 new Executor.SimpleWork(this, "test excludes") {
                     @Transactional(readOnly = true)
