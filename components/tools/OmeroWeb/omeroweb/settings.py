@@ -491,7 +491,7 @@ PIPELINE_CSS = {
             '3rdparty/farbtastic/farbtastic.css',
             'webgateway/css/ome.colorbtn.css',
             '3rdparty/JQuerySpinBtn.css',
-            '3rdparty/jquery-ui-1.8.19/jquery-ui.min.css',
+            'themes/base/jquery.ui.base.css',
             'webgateway/css/omero_image.css',
             '3rdparty/panojs/panojs.css',
             #'webgateway/css/ome.iehacks.css',
