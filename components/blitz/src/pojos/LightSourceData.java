@@ -203,11 +203,11 @@ public class LightSourceData
 	 * 
 	 * @return See above.
 	 */
-	public float getLaserWavelength()
+	public double getLaserWavelength()
 	{
 		if (!LASER.equals(getKind())) return -1;
 		Laser laser = (Laser) asIObject();
-		RFloat value = laser.getWavelength();
+		RDouble value = laser.getWavelength();
 		if (value == null) return -1;
 		return value.getValue();
 	}

@@ -122,7 +122,7 @@ public class ChannelData
     	if (value != null && value.trim().length() != 0) return value;
     	value = getFluor(); 
     	if (value != null && value.trim().length() != 0) return value;
-    	float v = getEmissionWavelength();
+    	double v = getEmissionWavelength();
     	if (v > 0) return ""+v;
     	return ""+index;
     }
@@ -159,11 +159,11 @@ public class ChannelData
      * 
      * @return See above
      */
-    public float getEmissionWavelength()
+    public double getEmissionWavelength()
     { 
     	LogicalChannel lc = asChannel().getLogicalChannel();
     	if (lc == null) return index;
-    	RFloat value  = lc.getEmissionWave();
+    	RDouble value  = lc.getEmissionWave();
 		if (value != null) return value.getValue();
 		return -1;
     }
@@ -173,11 +173,11 @@ public class ChannelData
      * 
      * @return See above
      */
-    public float getExcitationWavelength()
+    public double getExcitationWavelength()
     { 
     	LogicalChannel lc = asChannel().getLogicalChannel();
     	if (lc == null) return getEmissionWavelength();
-    	RFloat value = lc.getExcitationWave();
+    	RDouble value = lc.getExcitationWave();
     	if (value != null) return value.getValue();
     	return -1;
     }
@@ -361,12 +361,12 @@ public class ChannelData
      * 
      * @param value The value to set.
      */
-    public void setEmissionWavelength(float value)
+    public void setEmissionWavelength(double value)
     {
     	if (value < 0) return;
         setDirty(true);
         asChannel().getLogicalChannel().setEmissionWave(
-        		omero.rtypes.rfloat(value));
+        		omero.rtypes.rdouble(value));
     }
     
     /**
@@ -374,12 +374,12 @@ public class ChannelData
      * 
      * @param value The value to set.
      */
-    public void setExcitationWavelength(float value)
+    public void setExcitationWavelength(double value)
     {
     	if (value < 0) return;
         setDirty(true);
         asChannel().getLogicalChannel().setExcitationWave(
-        		omero.rtypes.rfloat(value));
+        		omero.rtypes.rdouble(value));
     }
  
     /**
