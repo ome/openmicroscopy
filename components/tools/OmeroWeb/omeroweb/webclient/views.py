@@ -1,31 +1,25 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# 
-# 
-# 
-# Copyright (c) 2008-2013 University of Dundee.
-# 
+
+# Copyright (C) 2008-2014 University of Dundee & Open Microscopy Environment.
+# All rights reserved.
+#
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
 # published by the Free Software Foundation, either version 3 of the
 # License, or (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU Affero General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-# 
-# Author: Aleksandra Tarkowska <A(dot)Tarkowska(at)dundee(dot)ac(dot)uk>, 2008.
-# 
-# Version: 1.0
-#
 
-''' A view functions is simply a Python function that takes a Web request and 
-returns a Web response. This response can be the HTML contents of a Web page, 
-or a redirect, or the 404 and 500 error, or an XML document, or an image... 
+''' A view functions is simply a Python function that takes a Web request and
+returns a Web response. This response can be the HTML contents of a Web page,
+or a redirect, or the 404 and 500 error, or an XML document, or an image...
 or anything.'''
 
 import sys
@@ -48,8 +42,10 @@ import json
 from time import time
 from thread import start_new_thread
 
+from omero_version import build_year
 from omero_version import omero_version
-import omero, omero.scripts 
+
+import omero, omero.scripts
 from omero.rtypes import *
 
 from django.conf import settings
@@ -122,19 +118,19 @@ def getIntOrDefault(request, name, default):
 
 def login(request):
     """
-    Webclient Login - Also can be used by other Apps to log in to OMERO. 
+    Webclient Login - Also can be used by other Apps to log in to OMERO.
     Uses the 'server' id from request to lookup the server-id (index), host and port from settings. E.g. "localhost", 4064.
     Stores these details, along with username, password etc in the request.session.
     Resets other data parameters in the request.session.
     Tries to get connection to OMERO and if this works, then we are redirected to the 'index' page or url specified in REQUEST.
     If we can't connect, the login page is returned with appropriate error messages.
     """
-    
+
     request.session.modified = True
-    
+
     conn = None
     error = None
-    
+
     server_id = request.REQUEST.get('server')
     form = LoginForm(data=request.REQUEST.copy())
     useragent = 'OMERO.web'
@@ -143,9 +139,9 @@ def login(request):
         password = form.cleaned_data['password']
         server_id = form.cleaned_data['server']
         is_secure = toBoolean(form.cleaned_data['ssl'])
-        
+
         connector = Connector(server_id, is_secure)
-        
+
         # TODO: version check should be done on the low level, see #5983
         if server_id is not None and username is not None and password is not None \
                 and connector.check_version(useragent):
@@ -179,7 +175,7 @@ def login(request):
                 else:
                     error = "This user is not active."
 
-    
+
     if request.method == 'POST' and server_id is not None:
         connector = Connector(server_id, True)
         if not connector.is_server_up(useragent):
@@ -189,7 +185,7 @@ def login(request):
         else:
             error = "Connection not available, please check your user name and password."
     url = request.REQUEST.get("url")
-    
+
     template = "webclient/login.html"
     if request.method != 'POST':
         if server_id is not None:
@@ -197,11 +193,12 @@ def login(request):
             form = LoginForm(initial=initial)
         else:
             form = LoginForm()
-        
-    context = {"version": omero_version, 'error':error, 'form':form}
+
+    context = {'version': omero_version, 'build_year': build_year,
+               'error':error, 'form':form}
     if url is not None and len(url) != 0:
         context['url'] = urlencode({'url':url})
-    
+
     if hasattr(settings, 'LOGIN_LOGO'):
         context['LOGIN_LOGO'] = settings.LOGIN_LOGO
 
@@ -225,9 +222,9 @@ def feed(request, conn=None, **kwargs):
     Last imports, tag cloud etc are retrived via separate AJAX calls.
     """
     template = "webclient/index/index.html"
-    
+
     controller = BaseIndex(conn)
-    
+
     context = {'controller':controller}
     context['template'] = template
     return context
@@ -239,10 +236,10 @@ def index_last_imports(request, conn=None, **kwargs):
     """
     Gets the most recent imports - Used in an AJAX call by home page.
     """
-    
+
     controller = BaseIndex(conn)
     controller.loadLastAcquisitions()
-    
+
     context = {'controller':controller}
     context['template'] = "webclient/index/index_last_imports.html"
     return context
@@ -254,7 +251,7 @@ def index_most_recent(request, conn=None, **kwargs):
 
     controller = BaseIndex(conn)
     controller.loadMostRecent()
-    
+
     context = {'controller':controller}
     context['template'] = "webclient/index/index_most_recent.html"
     return context
@@ -263,10 +260,10 @@ def index_most_recent(request, conn=None, **kwargs):
 @render_response()
 def index_tag_cloud(request, conn=None, **kwargs):
     """ Gets the most used Tags. Used by the homepage via AJAX call """
-    
+
     controller = BaseIndex(conn)
     controller.loadTagCloud()
-    
+
     context = {'controller':controller }
     context['template'] = "webclient/index/index_tag_cloud.html"
     return context
@@ -274,7 +271,7 @@ def index_tag_cloud(request, conn=None, **kwargs):
 @login_required()
 def change_active_group(request, conn=None, url=None, **kwargs):
     """
-    Simply changes the request.session['active_group'] which is then used by the 
+    Simply changes the request.session['active_group'] which is then used by the
     @login_required decorator to configure conn for any group-based queries.
     Finally this redirects to the 'url'.
     """
@@ -284,7 +281,7 @@ def change_active_group(request, conn=None, url=None, **kwargs):
 
 def switch_active_group(request, active_group=None):
     """
-    Simply changes the request.session['active_group'] which is then used by the 
+    Simply changes the request.session['active_group'] which is then used by the
     @login_required decorator to configure conn for any group-based queries.
     """
     if active_group is None:
@@ -394,10 +391,10 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
     if menu == "search":
         if global_search_form.is_valid():
             init['query'] = global_search_form.cleaned_data['search_query']
-            
+
     # get url without request string - used to refresh page after switch user/group etc
     url = reverse(viewname="load_template", args=[menu])
-    
+
     manager = BaseContainer(conn)
 
     # validate experimenter is in the active group
@@ -451,7 +448,7 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
     for g in context['groups']:
         g.groupSummary()    # load leaders / members
     context['active_user'] = conn.getObject("Experimenter", long(user_id))
-    
+
     context['isLeader'] = conn.isLeader()
     context['current_url'] = url
     context['template'] = template
@@ -463,16 +460,16 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
 @render_response()
 def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_type=None, o3_id=None, conn=None, **kwargs):
     """
-    This loads data for the tree, via AJAX calls. 
+    This loads data for the tree, via AJAX calls.
     The template is specified by query string. E.g. icon, table, tree.
     By default this loads Projects and Datasets.
     E.g. /load_data?view=tree provides data for the tree as <li>.
     """
-    
-    # get page 
+
+    # get page
     page = getIntOrDefault(request, 'page', 1)
-    
-    # get view 
+
+    # get view
     view = str(request.REQUEST.get('view', None))
 
     # get index of the plate
@@ -488,17 +485,17 @@ def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_ty
     if o2_type is not None and o2_id > 0:
         kw[str(o2_type)] = long(o2_id)
     if o3_type is not None and o3_id > 0:
-        kw[str(o3_type)] = long(o3_id)   
+        kw[str(o3_type)] = long(o3_id)
 
     try:
         manager= BaseContainer(conn, **kw)
     except AttributeError, x:
         return handlerInternalError(request, x)
-    
+
     # prepare forms
     filter_user_id = request.session.get('user_id')
     form_well_index = None
-        
+
     context = {'manager':manager, 'form_well_index':form_well_index, 'index':index}
 
     # load data & template
@@ -560,7 +557,7 @@ def load_chgrp_target(request, group_id, target_type, conn=None, **kwargs):
     manager= BaseContainer(conn)
     manager.listContainerHierarchy()
     template = 'webclient/data/chgrp_target_tree.html'
-    
+
     show_projects = target_type in ('project', 'dataset')
     context = {'manager': manager, 'target_type': target_type, 'show_projects':show_projects, 'template': template}
     return context
@@ -569,12 +566,12 @@ def load_chgrp_target(request, group_id, target_type, conn=None, **kwargs):
 @render_response()
 def load_searching(request, form=None, conn=None, **kwargs):
     """
-    Handles AJAX calls to search 
+    Handles AJAX calls to search
     """
-    
+
     manager = BaseSearch(conn)
     # form = 'form' if we are searching. Get query from request...
-    if form is not None: 
+    if form is not None:
         query_search = request.REQUEST.get('query').replace("+", " ")
         template = "webclient/search/search_details.html"
 
@@ -609,7 +606,7 @@ def load_searching(request, form=None, conn=None, **kwargs):
     else:
         # simply display the search home page.
         template = "webclient/search/search.html"
-    
+
     # batch query for searching wells in plates
     batch_query = request.REQUEST.get('batch_query')
     if batch_query is not None:
@@ -619,7 +616,7 @@ def load_searching(request, form=None, conn=None, **kwargs):
         batch_query = [query.split(delimiter) for query in batch_query]
         template = "webclient/search/search_details.html"
         manager.batch_search(batch_query)
-    
+
     context = {'manager':manager}
     context['template'] = template
     return context
@@ -628,39 +625,39 @@ def load_searching(request, form=None, conn=None, **kwargs):
 @login_required(setGroupContext=True)
 @render_response()
 def load_data_by_tag(request, o_type=None, o_id=None, conn=None, **kwargs):
-    """ 
+    """
     Loads data for the tag tree and center panel.
     Either get the P/D/I etc under tags, or the images etc under a tagged Dataset or Project.
     @param o_type       'tag' or 'project', 'dataset'.
     """
-    
+
     if request.REQUEST.get("o_type") is not None and len(request.REQUEST.get("o_type")) > 0:
         o_type = request.REQUEST.get("o_type")
         try:
             o_id = long(request.REQUEST.get("o_id"))
         except:
             pass
-            
+
     # check view
     view = request.REQUEST.get("view")
-    
+
     # the index of a field within a well
     index = getIntOrDefault(request, 'index', 0)
 
-    
+
     # prepare forms
     filter_user_id = request.session.get('user_id')
-    
+
     # prepare data
     kw = dict()
     if o_type is not None and o_id > 0:
         kw[str(o_type)] = long(o_id)
-    
+
     try:
         manager= BaseContainer(conn, **kw)
     except AttributeError, x:
         return handlerInternalError(request, x)
-    
+
     if o_id is not None:
         if o_type == "tag":
             manager.loadDataByTag()
@@ -668,17 +665,17 @@ def load_data_by_tag(request, o_type=None, o_id=None, conn=None, **kwargs):
                 template = "webclient/data/container_tags_containers.html"
             elif view == "icon":
                 template = "webclient/data/containers_icon.html"
-            
+
         elif o_type == "dataset":
             manager.listImagesInDataset(o_id, filter_user_id)
             template = "webclient/data/container_tags_subtree.html"
     else:
         manager.loadTags(filter_user_id)
-        template = "webclient/data/container_tags_tree.html"    
-    # load data  
-    form_well_index = None    
-    
-    
+        template = "webclient/data/container_tags_tree.html"
+    # load data
+    form_well_index = None
+
+
     context = {'manager':manager}
     context['template_view'] = view
     context['isLeader'] = conn.isLeader()
@@ -693,9 +690,9 @@ def open_astex_viewer(request, obj_type, obj_id, conn=None, **kwargs):
     Opens the Open Astex Viewer applet, to display volume masks in a couple of formats:
     - mrc.map files that are attached to images. obj_type = 'file'
     - Convert OMERO image to mrc on the fly. obj_type = 'image_8bit' or 'image'
-        In this case, we may use 'scipy' to scale the image volume. 
+        In this case, we may use 'scipy' to scale the image volume.
     """
-    
+
     # can only populate these for 'image'
     image = None
     data_storage_mode = ""
@@ -816,7 +813,7 @@ def load_metadata_details(request, c_type, c_id, conn=None, share_id=None, **kwa
         'shares':(c_type == "share" or c_type == "discussion") and [c_id] or []}
 
     initial={'selected':selected, 'images':images,  'datasets':datasets, 'projects':projects, 'screens':screens, 'plates':plates, 'acquisitions':acquisitions, 'wells':wells, 'shares': shares}
-    
+
     form_comment = None
     figScripts = None
     if c_type in ("share", "discussion"):
@@ -837,11 +834,11 @@ def load_metadata_details(request, c_type, c_id, conn=None, share_id=None, **kwa
             form_comment = CommentAnnotationForm(initial=initial)
         else:
             template = "webclient/annotations/annotations_share.html"
-    
+
     if c_type in ("tag"):
         context = {'manager':manager}
     else:
-        context = {'manager':manager, 'form_comment':form_comment, 'index':index, 
+        context = {'manager':manager, 'form_comment':form_comment, 'index':index,
             'share_id':share_id}
     context['figScripts'] = figScripts
     context['template'] = template
@@ -853,7 +850,7 @@ def load_metadata_details(request, c_type, c_id, conn=None, share_id=None, **kwa
 @render_response()
 def load_metadata_preview(request, c_type, c_id, conn=None, share_id=None, **kwargs):
     """
-    This is the image 'Preview' tab for the right-hand panel. 
+    This is the image 'Preview' tab for the right-hand panel.
     Currently this doesn't do much except launch the view-port plugin using the image Id (and share Id if necessary)
     """
 
@@ -861,7 +858,7 @@ def load_metadata_preview(request, c_type, c_id, conn=None, share_id=None, **kwa
     index = getIntOrDefault(request, 'index', 0)
 
     manager = BaseContainer(conn, index=index, **{str(c_type): long(c_id)})
-    
+
     if c_type == "well":
         manager.image = manager.well.getImage(index)
 
@@ -880,9 +877,9 @@ def load_metadata_hierarchy(request, c_type, c_id, conn=None, **kwargs):
 
     # the index of a field within a well
     index = getIntOrDefault(request, 'index', 0)
-    
+
     manager = BaseContainer(conn, index=index, **{str(c_type): long(c_id)})
-    
+
     context = {'manager':manager}
     context['template'] = "webclient/annotations/metadata_hierarchy.html"
     return context
@@ -890,7 +887,7 @@ def load_metadata_hierarchy(request, c_type, c_id, conn=None, **kwargs):
 
 @login_required()
 @render_response()
-def load_metadata_acquisition(request, c_type, c_id, conn=None, share_id=None, **kwargs):  
+def load_metadata_acquisition(request, c_type, c_id, conn=None, share_id=None, **kwargs):
     """
     The acquisition tab of the right-hand panel. Only loaded for images.
     TODO: urls regex should make sure that c_type is only 'image' OR 'well'
@@ -938,8 +935,8 @@ def load_metadata_acquisition(request, c_type, c_id, conn=None, share_id=None, *
             if logicalChannel is not None:
                 channel = dict()
                 channel['form'] = MetadataChannelForm(initial={'logicalChannel': logicalChannel,
-                                        'illuminations': list(conn.getEnumerationEntries("IlluminationI")), 
-                                        'contrastMethods': list(conn.getEnumerationEntries("ContrastMethodI")), 
+                                        'illuminations': list(conn.getEnumerationEntries("IlluminationI")),
+                                        'contrastMethods': list(conn.getEnumerationEntries("ContrastMethodI")),
                                         'modes': list(conn.getEnumerationEntries("AcquisitionModeI"))})
                 if share_id is None:        #9853 Much metadata is not available to 'shares'
                     lightPath = logicalChannel.getLightPath()
@@ -965,7 +962,7 @@ def load_metadata_acquisition(request, c_type, c_id, conn=None, share_id=None, *
                     if lightSourceSettings is not None and lightSourceSettings._obj is not None:
                         if lightSourceSettings.getLightSource() is not None:
                             channel['form_light_source'] = MetadataLightSourceForm(initial={'lightSource': lightSourceSettings.getLightSource(),
-                                            'lstypes': list(conn.getEnumerationEntries("LaserType")), 
+                                            'lstypes': list(conn.getEnumerationEntries("LaserType")),
                                             'mediums': list(conn.getEnumerationEntries("LaserMediumI")),
                                             'pulses': list(conn.getEnumerationEntries("PulseI"))})
                 # TODO: We don't display filter sets here yet since they are not populated on Import by BioFormats.
@@ -1029,7 +1026,7 @@ def load_metadata_acquisition(request, c_type, c_id, conn=None, share_id=None, *
                 lasers = list(instrument.getLightSources())
                 if len(lasers) > 0:
                     for l in lasers:
-                        form_laser = MetadataLightSourceForm(initial={'lightSource': l, 
+                        form_laser = MetadataLightSourceForm(initial={'lightSource': l,
                                         'lstypes':list(conn.getEnumerationEntries("LaserType")),
                                         'mediums': list(conn.getEnumerationEntries("LaserMediumI")),
                                         'pulses': list(conn.getEnumerationEntries("PulseI"))})
@@ -1039,8 +1036,8 @@ def load_metadata_acquisition(request, c_type, c_id, conn=None, share_id=None, *
     if c_type in ("share", "discussion", "tag"):
         context = {'manager':manager}
     else:
-        context = {'manager':manager, 
-        'form_channels':form_channels, 'form_environment':form_environment, 'form_objective':form_objective, 
+        context = {'manager':manager,
+        'form_channels':form_channels, 'form_environment':form_environment, 'form_objective':form_objective,
         'form_microscope':form_microscope, 'form_instrument_objectives': form_instrument_objectives, 'form_filters':form_filters,
         'form_dichroics':form_dichroics, 'form_detectors':form_detectors, 'form_lasers':form_lasers, 'form_stageLabel':form_stageLabel}
     context['template'] = template
@@ -1061,8 +1058,8 @@ def load_metadata_acquisition(request, c_type, c_id, conn=None, share_id=None, *
 # All forms inherit from a single form that has these fields.
 
 def getObjects(request, conn=None):
-    """ 
-    Prepare objects for use in the annotation forms. 
+    """
+    Prepare objects for use in the annotation forms.
     These objects are required by the form superclass to populate hidden fields, so we know what we're annotating on submission
     """
     images = len(request.REQUEST.getlist('image')) > 0 and list(conn.getObjects("Image", request.REQUEST.getlist('image'))) or list()
@@ -1079,7 +1076,7 @@ def getObjects(request, conn=None):
         for w in conn.getObjects("Well", request.REQUEST.getlist('well')):
             w.index=index
             wells.append(w)
-    return {'image':images, 'dataset':datasets, 'project':projects, 'screen':screens, 
+    return {'image':images, 'dataset':datasets, 'project':projects, 'screen':screens,
             'plate':plates, 'acquisition':acquisitions, 'well':wells, 'share':shares}
 
 def getIds(request):
@@ -1095,13 +1092,13 @@ def getIds(request):
 @render_response()
 def batch_annotate(request, conn=None, **kwargs):
     """
-    This page gives a form for batch annotation. 
+    This page gives a form for batch annotation.
     Local File form and Comment form are loaded. Other forms are loaded via AJAX
     """
 
     objs = getObjects(request, conn)
     selected = getIds(request)
-    initial = {'selected':selected, 'images':objs['image'], 'datasets': objs['dataset'], 'projects':objs['project'], 
+    initial = {'selected':selected, 'images':objs['image'], 'datasets': objs['dataset'], 'projects':objs['project'],
             'screens':objs['screen'], 'plates':objs['plate'], 'acquisitions':objs['acquisition'], 'wells':objs['well']}
     form_comment = CommentAnnotationForm(initial=initial)
     index = getIntOrDefault(request, 'index', 0)
@@ -1118,7 +1115,7 @@ def batch_annotate(request, conn=None, **kwargs):
             obj_labels.append( {'type':key.title(), 'id':o.id, 'name':o.getName()} )
     obj_string = "&".join(obj_ids)
     link_string = "|".join(obj_ids).replace("=", "-")
-    
+
     context = {'form_comment':form_comment, 'obj_string':obj_string, 'link_string': link_string,
             'obj_labels': obj_labels, 'batchAnns': batchAnns, 'batch_ann':True, 'index': index,
             'figScripts':figScripts}
@@ -1130,18 +1127,18 @@ def batch_annotate(request, conn=None, **kwargs):
 @login_required(setGroupContext=True)
 @render_response()
 def annotate_file(request, conn=None, **kwargs):
-    """ 
-    On 'POST', This handles attaching an existing file-annotation(s) and/or upload of a new file to one or more objects 
+    """
+    On 'POST', This handles attaching an existing file-annotation(s) and/or upload of a new file to one or more objects
     Otherwise it generates the form for choosing file-annotations & local files.
     """
     index = getIntOrDefault(request, 'index', 0)
     oids = getObjects(request, conn)
     selected = getIds(request)
-    initial = {'selected':selected, 'images':oids['image'], 'datasets': oids['dataset'], 'projects':oids['project'], 
+    initial = {'selected':selected, 'images':oids['image'], 'datasets': oids['dataset'], 'projects':oids['project'],
             'screens':oids['screen'], 'plates':oids['plate'], 'acquisitions':oids['acquisition'], 'wells':oids['well']}
-    
+
     obj_count = sum( [len(selected[types]) for types in selected] )
-    
+
     # Get appropriate manager, either to list available Tags to add to single object, or list ALL Tags (multiple objects)
     manager = None
     if obj_count == 1:
@@ -1169,7 +1166,7 @@ def annotate_file(request, conn=None, **kwargs):
                 # NB: we only support a single data-type now. E.g. 'image' OR 'dataset' etc.
                 files = manager.getFilesByObject(parent_type=dtype, parent_ids=[o.getId() for o in objs])
                 break
-    
+
     initial['files'] = files
 
     if request.method == 'POST':
@@ -1216,21 +1213,21 @@ def annotate_file(request, conn=None, **kwargs):
 @login_required(setGroupContext=True)
 @render_response()
 def annotate_comment(request, conn=None, **kwargs):
-    """ Handle adding Comments to one or more objects 
-    Unbound instance of Comment form not available. 
-    If the form has been submitted, a bound instance of the form 
+    """ Handle adding Comments to one or more objects
+    Unbound instance of Comment form not available.
+    If the form has been submitted, a bound instance of the form
     is created using request.POST"""
 
     if request.method != 'POST':
         raise Http404("Unbound instance of form not available.")
-    
+
     index = getIntOrDefault(request, 'index', 0)
     oids = getObjects(request, conn)
     selected = getIds(request)
-    initial = {'selected':selected, 'images':oids['image'], 'datasets': oids['dataset'], 'projects':oids['project'], 
+    initial = {'selected':selected, 'images':oids['image'], 'datasets': oids['dataset'], 'projects':oids['project'],
             'screens':oids['screen'], 'plates':oids['plate'], 'acquisitions':oids['acquisition'], 'wells':oids['well'],
             'shares':oids['share']}
-    
+
     # Handle form submission...
     form_multi = CommentAnnotationForm(initial=initial, data=request.REQUEST.copy())
     if form_multi.is_valid():
@@ -1290,7 +1287,7 @@ def annotate_tags(request, conn=None, **kwargs):
                 tags = manager.getTagsByObject(parent_type=dtype, parent_ids=[o.getId() for o in objs])
                 break
 
-    initial = {'selected':selected, 'images':oids['image'], 'datasets': oids['dataset'], 'projects':oids['project'], 
+    initial = {'selected':selected, 'images':oids['image'], 'datasets': oids['dataset'], 'projects':oids['project'],
             'screens':oids['screen'], 'plates':oids['plate'], 'acquisitions':oids['acquisition'], 'wells':oids['well']}
     initial['tags'] = tags
 
@@ -1375,7 +1372,7 @@ def edit_channel_names(request, imageId, conn=None, **kwargs):
 def manage_action_containers(request, action, o_type=None, o_id=None, conn=None, **kwargs):
     """
     Handles many different actions on various objects.
-    
+
     @param action:      "addnewcontainer", (creates a new Project, Dataset, Screen)
                         "editname", "savename", "editdescription", "savedescription",  (used as GET and POST for in-line editing)
                         "paste", "move", "remove", "removefromshare", (tree P/D/I moving etc)
@@ -1383,10 +1380,10 @@ def manage_action_containers(request, action, o_type=None, o_id=None, conn=None,
     @param o_type:      "dataset", "project", "image", "screen", "plate", "acquisition", "well","comment", "file", "tag", "tagset","share", "sharecomment"
     """
     template = None
-    
+
     # the index of a field within a well
     index = getIntOrDefault(request, 'index', 0)
-    
+
     manager = None
     if o_type in ("dataset", "project", "image", "screen", "plate", "acquisition", "well","comment", "file", "tag", "tagset"):
         if o_type == 'tagset': o_type = 'tag' # TODO: this should be handled by the BaseContainer
@@ -1401,26 +1398,26 @@ def manage_action_containers(request, action, o_type=None, o_id=None, conn=None,
         manager = BaseShare(conn, o_id)
     else:
         manager = BaseContainer(conn)
-        
+
     form = None
     if action == 'addnewcontainer':
         # Used within the jsTree to add a new Project, Dataset etc under a specified parent OR top-level
         if not request.method == 'POST':
             return HttpResponseRedirect(reverse("manage_action_containers", args=["edit", o_type, o_id]))
-        if o_type is not None and hasattr(manager, o_type) and o_id > 0: 
+        if o_type is not None and hasattr(manager, o_type) and o_id > 0:
             # E.g. Parent o_type is 'project'...
             form = ContainerForm(data=request.REQUEST.copy())
             if form.is_valid():
                 logger.debug("Create new in %s: %s" % (o_type, str(form.cleaned_data)))
                 name = form.cleaned_data['name']
-                description = form.cleaned_data['description']              
+                description = form.cleaned_data['description']
                 oid = manager.createDataset(name, description)
                 rdict = {'bad':'false', 'id': oid}
                 return HttpJsonResponse(rdict)
             else:
                 d = dict()
                 for e in form.errors.iteritems():
-                    d.update({e[0]:unicode(e[1])}) 
+                    d.update({e[0]:unicode(e[1])})
                 rdict = {'bad':'true','errs': d }
                 return HttpJsonResponse(rdict)
         elif request.REQUEST.get('folder_type') in ("project", "screen", "dataset"):
@@ -1428,7 +1425,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, conn=None,
             form = ContainerForm(data=request.REQUEST.copy())
             if form.is_valid():
                 logger.debug("Create new: %s" % (str(form.cleaned_data)))
-                name = form.cleaned_data['name']                
+                name = form.cleaned_data['name']
                 description = form.cleaned_data['description']
                 folder_type = request.REQUEST.get('folder_type')
                 if folder_type == "dataset":
@@ -1440,13 +1437,13 @@ def manage_action_containers(request, action, o_type=None, o_id=None, conn=None,
             else:
                 d = dict()
                 for e in form.errors.iteritems():
-                    d.update({e[0]:unicode(e[1])}) 
+                    d.update({e[0]:unicode(e[1])})
                 rdict = {'bad':'true','errs': d }
                 return HttpJsonResponse(rdict)
         else:
             return HttpResponseServerError("Object does not exist")
     elif action == 'edit':
-        # form for editing an Object. E.g. Project etc. TODO: not used now? 
+        # form for editing an Object. E.g. Project etc. TODO: not used now?
         if o_type == "share" and o_id > 0:
             template = "webclient/public/share_form.html"
             manager.getMembers(o_id)
@@ -1521,7 +1518,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, conn=None,
             else:
                 d = dict()
                 for e in form.errors.iteritems():
-                    d.update({e[0]:unicode(e[1])}) 
+                    d.update({e[0]:unicode(e[1])})
                 rdict = {'bad':'true','errs': d }
                 return HttpJsonResponse(rdict)
         else:
@@ -1555,7 +1552,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, conn=None,
             else:
                 d = dict()
                 for e in form.errors.iteritems():
-                    d.update({e[0]:unicode(e[1])}) 
+                    d.update({e[0]:unicode(e[1])})
                 rdict = {'bad':'true','errs': d }
                 return HttpJsonResponse(rdict)
         else:
@@ -1571,7 +1568,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, conn=None,
             rdict = {'bad':'false' }
             return HttpJsonResponse(rdict)
     elif action == 'move':
-        # Handles drag-and-drop moving of objects in jsTree. 
+        # Handles drag-and-drop moving of objects in jsTree.
         # Also handles 'remove' of Datasets (moves to 'Experimenter' parent)
         parent = request.REQUEST['parent'].split('-')
         #source = request.REQUEST['source'].split('-')
@@ -1599,7 +1596,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, conn=None,
             logger.error(traceback.format_exc())
             rdict = {'bad':'true','errs': str(x) }
             return HttpJsonResponse(rdict)
-        
+
         rdict = {'bad':'false' }
         return HttpJsonResponse(rdict)
     elif action == 'removefromshare':
@@ -1666,11 +1663,11 @@ def get_original_file(request, fileId, conn=None, **kwargs):
     orig_file = conn.getObject("OriginalFile", fileId)
     if orig_file is None:
         return handlerInternalError(request, "Original File does not exists (id:%s)." % (fileId))
-    
+
     rsp = ConnCleaningHttpResponse(orig_file.getFileInChunks())
     rsp.conn = conn
     mimetype = orig_file.mimetype
-    if mimetype == "text/x-python": 
+    if mimetype == "text/x-python":
         mimetype = "text/plain" # allows display in browser
     rsp['Content-Type'] =  mimetype
     rsp['Content-Length'] = orig_file.getSize()
@@ -1759,7 +1756,7 @@ def download_annotation(request, annId, conn=None, **kwargs):
     ann = conn.getObject("Annotation", annId)
     if ann is None:
         return handlerInternalError(request, "Annotation does not exist (id:%s)." % (annId))
-    
+
     rsp = ConnCleaningHttpResponse(ann.getFileInChunks())
     rsp.conn = conn
     rsp['Content-Type'] = 'application/force-download'
@@ -1796,14 +1793,14 @@ def download_orig_metadata(request, imageId, conn=None, **kwargs):
 @render_response()
 def load_public(request, share_id=None, conn=None, **kwargs):
     """ Loads data for the tree in the 'public' main page. """
-    
+
     # SUBTREE TODO:
     if share_id is None:
         share_id = request.REQUEST.get("o_id") is not None and long(request.REQUEST.get("o_id")) or None
-    
+
     # check view
     view = request.REQUEST.get("view")
-    
+
     if share_id is not None:
         if view == 'tree':
             template = "webclient/public/share_subtree.html"
@@ -1811,7 +1808,7 @@ def load_public(request, share_id=None, conn=None, **kwargs):
             template = "webclient/public/share_content_icon.html"
         controller = BaseShare(conn, share_id)
         controller.loadShareContent()
-        
+
     else:
         template = "webclient/public/share_tree.html"
         controller = BaseShare(conn)
@@ -1830,19 +1827,19 @@ def load_public(request, share_id=None, conn=None, **kwargs):
 def basket_action (request, action=None, conn=None, **kwargs):
     """
     Various actions for creating a 'share' or 'discussion' (no images).
-    
+
     @param action:      'toshare', 'createshare'    (form to create share and handling the action itself)
                         'todiscuss', 'createdisc'    (form to create discussion and handling the action itself)
     """
-    
+
     if action == "toshare":
         template = "webclient/basket/basket_share_action.html"
         basket = BaseBasket(conn)
         basket.load_basket(request)
         experimenters = list(conn.getExperimenters())
         experimenters.sort(key=lambda x: x.getOmeName().lower())
-        selected = [long(i) for i in request.REQUEST.getlist('image')]        
-        form = BasketShareForm(initial={'experimenters':experimenters, 'images':basket.imageInBasket, 'enable':True, 'selected':selected})            
+        selected = [long(i) for i in request.REQUEST.getlist('image')]
+        form = BasketShareForm(initial={'experimenters':experimenters, 'images':basket.imageInBasket, 'enable':True, 'selected':selected})
         context = {'form':form}
     elif action == "createshare":
         if not request.method == 'POST':
@@ -1871,7 +1868,7 @@ def basket_action (request, action=None, conn=None, **kwargs):
         basket = BaseBasket(conn)
         experimenters = list(conn.getExperimenters())
         experimenters.sort(key=lambda x: x.getOmeName().lower())
-        form = ShareForm(initial={'experimenters':experimenters, 'enable':True})            
+        form = ShareForm(initial={'experimenters':experimenters, 'enable':True})
         context = {'form':form}
     elif action == "createdisc":
         if not request.method == 'POST':
@@ -1895,10 +1892,10 @@ def basket_action (request, action=None, conn=None, **kwargs):
             context = {'form':form}
     else:
         template = kwargs.get("template", "webclient/basket/basket.html")
-        
+
         basket = BaseBasket(conn)
         basket.load_basket(request)
-        
+
         context = {'basket':basket }
     context['template'] = template
     return context
@@ -1921,7 +1918,7 @@ def update_basket(request, **kwargs):
 
     action = None
     if request.method == 'POST':
-        request.session.modified = True        
+        request.session.modified = True
         try:
             action = request.REQUEST['action']
         except Exception, x:
@@ -1972,7 +1969,7 @@ def update_basket(request, **kwargs):
                         request.session['imageInBasket'].remove(long(i))
                     else:
                         rv = "Error: could not remove image from the basket."
-                        return HttpResponse(rv)                
+                        return HttpResponse(rv)
 
         total = len(request.session['imageInBasket'])#+len(request.session['datasetInBasket'])
         request.session['basket_counter'] = total
@@ -1983,14 +1980,14 @@ def update_basket(request, **kwargs):
 @login_required(setGroupContext=True)
 @render_response()
 def load_calendar(request, year=None, month=None, conn=None, **kwargs):
-    """ 
-    Loads the calendar which is displayed in the left panel of the history page. 
-    Shows current month by default. Filter by experimenter 
     """
-    
+    Loads the calendar which is displayed in the left panel of the history page.
+    Shows current month by default. Filter by experimenter
+    """
+
     template = "webclient/history/calendar.html"
     filter_user_id = request.session.get('user_id')
-    
+
     if year is not None and month is not None:
         controller = BaseCalendar(conn=conn, year=year, month=month, eid=filter_user_id)
     else:
@@ -2010,14 +2007,14 @@ def load_history(request, year, month, day, conn=None, **kwargs):
     """ The data for a particular date that is loaded into the center panel """
 
     template = "webclient/history/history_details.html"
-    
-    # get page 
+
+    # get page
     page = int(request.REQUEST.get('page', 1))
-    
+
     filter_user_id = request.session.get('user_id')
     controller = BaseCalendar(conn=conn, year=year, month=month, day=day, eid=filter_user_id)
     controller.get_items(page)
-    
+
     context = {'controller':controller}
     context['template'] = template
     return context
@@ -2027,7 +2024,7 @@ def getObjectUrl(conn, obj):
     """
     This provides a url to browse to the specified omero.model.ObjectI P/D/I, S/P, FileAnnotation etc.
     used to display results from the scripting service
-    E.g webclient/userdata/?path=image-12601 
+    E.g webclient/userdata/?path=image-12601
     If the object is a file annotation, try to browse to the parent P/D/I
     """
     base_url = reverse(viewname="load_template", args=['userdata'])
@@ -2200,7 +2197,7 @@ def activities(request, conn=None, **kwargs):
     for cbString in request.session.get('callback').keys():
         # make a copy of the map in session, so that we can replace non json-compatible objects, without modifying session
         rv[cbString] = copy.copy(request.session['callback'][cbString])
-    
+
     # return json (not used now, but still an option)
     if 'template' in kwargs and kwargs['template'] == 'json':
         for cbString in request.session.get('callback').keys():
@@ -2209,7 +2206,7 @@ def activities(request, conn=None, **kwargs):
         rv['failure'] = failure
         rv['jobs'] = len(request.session['callback'])
         return HttpJsonResponse(json.dumps(rv)) # json
-        
+
     jobs = []
     new_errors = False
     for key, data in rv.items():
@@ -2610,7 +2607,7 @@ def chgrp(request, conn=None, **kwargs):
     Handles submission of chgrp form: all data in POST.
     Adds the callback handle to the request.session['callback']['jobId']
     """
-    
+
     group_id = request.REQUEST.get('group_id', None)
     if group_id is None:
         raise AttributeError("chgrp: No group_id specified")
@@ -2678,13 +2675,13 @@ def script_run(request, scriptId, conn=None, **kwargs):
     for key, param in params.inputs.items():
         prototype = param.prototype
         pclass = prototype.__class__
-        
+
         # handle bool separately, since unchecked checkbox will not be in request.POST
         if pclass == omero.rtypes.RBoolI:
             value = key in request.POST
             inputMap[key] = pclass(value)
             continue
-        
+
         if pclass.__name__ == 'RMapI':
             keyName = "%s_key0" % key
             valueName = "%s_value0" % key
@@ -2759,10 +2756,10 @@ def ome_tiff_script(request, imageId, conn=None, **kwargs):
     """
     #if not request.method == 'POST':
     #    return HttpResponse("Need to use POST")
-    
+
     scriptService = conn.getScriptService()
     sId = scriptService.getScriptID("/omero/export_scripts/Batch_Image_Export.py")
-    
+
     imageIds = [long(imageId)]
     inputMap = {'Data_Type': wrap('Image'), 'IDs': wrap(imageIds)}
     inputMap['Format'] = wrap('OME-TIFF')
