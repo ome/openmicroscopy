@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.data.OmeroMetadataServiceImpl 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -81,6 +81,7 @@ import omero.sys.ParametersI;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.AnnotationLinkData;
+import org.openmicroscopy.shoola.env.data.model.ROIResult;
 import org.openmicroscopy.shoola.env.data.model.TableParameters;
 import org.openmicroscopy.shoola.env.data.model.TableResult;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
@@ -89,6 +90,7 @@ import org.openmicroscopy.shoola.env.data.util.ModelMapper;
 import org.openmicroscopy.shoola.env.data.util.PojoMapper;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
+import org.openmicroscopy.xml.st.FilterNode;
 
 import pojos.AnnotationData;
 import pojos.BooleanAnnotationData;
@@ -105,6 +107,7 @@ import pojos.ImageData;
 import pojos.LongAnnotationData;
 import pojos.PlateData;
 import pojos.ProjectData;
+import pojos.ROIData;
 import pojos.RatingAnnotationData;
 import pojos.TagAnnotationData;
 import pojos.TermAnnotationData;
@@ -1608,7 +1611,8 @@ class OmeroMetadataServiceImpl
 	{
 		if (filter == null)
 			throw new IllegalArgumentException("No filtering context.");
-		int rateIndex = filter.getIndex();
+		int rateIndex = filter.getRateIndex();
+		int roiIndex = filter.getRoiIndex();
 		List<Long> filteredNodes = new ArrayList<Long>();
 
 		List<Long> userIDs = null;
@@ -1716,7 +1720,41 @@ class OmeroMetadataServiceImpl
 				}
 			}
 		}
-
+		
+		if(roiIndex != -1) {
+                    found = new ArrayList<Long>();
+                    for (long imgId : ids) {
+                        List<ROIResult> roiResults = gateway.loadROI(ctx, imgId, null,
+                                userID);
+                        List rois = new ArrayList();
+                        for (ROIResult tmp : roiResults) {
+                            rois.addAll(tmp.getROIs());
+                        }
+                        int numberOfRois = filter.getROIs();
+                        switch (roiIndex) {
+                            case FilterContext.EQUAL:
+                                if (rois.size() == numberOfRois) {
+                                    found.add(imgId);
+                                }
+                                break;
+                            case FilterContext.LOWER_EQUAL:
+                                if (rois.size() <= numberOfRois) {
+                                    found.add(imgId);
+                                }
+                                break;
+                            case FilterContext.GREATER_EQUAL:
+                                if (rois.size() >= numberOfRois) {
+                                    found.add(imgId);
+                                }
+                                break;
+                        }
+                    }
+                    if (resultType == FilterContext.UNION)
+                        filteredNodes.addAll(found);
+                    else if (resultType == FilterContext.INTERSECTION)
+                        r.put(ROIData.class, found);
+		}
+		
 		if (rateIndex != -1) {
 			int rate = filter.getRate();
 			int value;
@@ -1747,7 +1785,7 @@ class OmeroMetadataServiceImpl
 			    		}
 					}
 					break;
-				case FilterContext.LOWER:
+				case FilterContext.LOWER_EQUAL:
 					if (rate == 0) { //unrated element.
 						found.addAll(ids);
 						
@@ -1769,7 +1807,7 @@ class OmeroMetadataServiceImpl
 			    		}
 					}
 					break;
-				case FilterContext.HIGHER:
+				case FilterContext.GREATER_EQUAL:
 					while (i.hasNext()) {
 		    			id = (Long) i.next();
 		    			l = (Collection) map.get(id);
