@@ -281,7 +281,7 @@ location.
         self.actions["ice"].add_argument(
             "argument", nargs="*",
             help=("Arguments joined together to make an Ice command. If not "
-                    "present, the user will enter a console"))
+                  "present, the user will enter a console"))
 
         self.actions["kill"].add_argument(
             "name", metavar="NAME",
