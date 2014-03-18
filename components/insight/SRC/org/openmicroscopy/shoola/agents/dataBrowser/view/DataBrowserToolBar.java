@@ -367,6 +367,9 @@ class DataBrowserToolBar
 	{
 		SearchObject filter = search.getSelectedNode();
 		if (filter == null) return;
+		
+		filteringDialog.unselectAll();
+		
 		switch (filter.getIndex()) {
 			case QuickSearch.UNTAGGED:
 				filteringDialog.setTagsText("");
