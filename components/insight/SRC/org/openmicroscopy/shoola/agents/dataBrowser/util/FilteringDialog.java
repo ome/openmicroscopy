@@ -716,6 +716,18 @@ public class FilteringDialog
         }
 	
 	/**
+	 * Unselects all checkboxes
+	 */
+	public void unselectAll() {
+	    calendarBox.setSelected(false);
+	    commentsBox.setSelected(false);
+	    nameBox.setSelected(false);
+	    ratingBox.setSelected(false);
+	    roiBox.setSelected(false);
+	    tagsBox.setSelected(false);
+	}
+	
+	/**
 	 * Sets the collection of tags and brings up the completion dialog 
 	 * if any.
 	 * 
