@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.util.ui.QuickSearch 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -116,6 +116,12 @@ public class QuickSearch
 	
 	/** Indicates to search for the commented nodes.  */
 	public static final int 	COMMENTED = 13;
+	
+	/** Indicates to search for nodes with ROIs.  */
+        public static final int         HAS_ROIS = 14;
+        
+        /** Indicates to search for nodes without ROIs.  */
+        public static final int         NO_ROIS = 15;
 	
 	/** Bound property indicating to search for given terms. */
 	public static final String	QUICK_SEARCH_PROPERTY = "quickSearch";
@@ -373,6 +379,8 @@ public class QuickSearch
 			case UNCOMMENTED:
 			case TAGGED:
 			case COMMENTED:
+			case HAS_ROIS:
+			case NO_ROIS:
 				setSearchEnabled(false);
 				text = selectedNode.getDescription();
 				cleanBar.setVisible(false);
@@ -531,6 +539,12 @@ public class QuickSearch
     	node = new SearchObject(UNCOMMENTED, null, 
     			SearchComponent.UNCOMMENTED_TEXT);
     	nodes.add(node);
+    	node = new SearchObject(HAS_ROIS, null, 
+                SearchComponent.HAS_ROIS_TEXT);
+        nodes.add(node);
+        node = new SearchObject(NO_ROIS, null, 
+                        SearchComponent.NO_ROIS_TEXT);
+        nodes.add(node);
     	
     	List<SearchObject> ratedNodes = new ArrayList<SearchObject>();
     	node = new SearchObject(RATED_ONE_OR_BETTER, null, "* or better");

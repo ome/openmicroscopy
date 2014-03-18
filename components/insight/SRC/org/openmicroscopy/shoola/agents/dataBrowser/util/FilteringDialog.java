@@ -696,6 +696,26 @@ public class FilteringDialog
 	}
 	
 	/**
+	* Set the state of the dialog to reflect
+	* filtering for images with ROIs
+	*/
+	public void setHasROIs() {
+	    roiSpinner.setValue(1);
+	    roiBox.setSelected(true);
+	    roiOptions.setSelectedIndex(GREATER_EQUAL);
+	}
+	
+	/**
+	* Set the state of the dialog to reflect
+	* filtering for images without ROIs
+	*/
+	public void setNoROIs() {
+            roiSpinner.setValue(0);
+            roiBox.setSelected(true);
+            roiOptions.setSelectedIndex(EQUAL);
+        }
+	
+	/**
 	 * Sets the collection of tags and brings up the completion dialog 
 	 * if any.
 	 * 

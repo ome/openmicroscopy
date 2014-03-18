@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.util.ui.search.SearchComponent 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -108,6 +108,12 @@ public class SearchComponent
 	
 	/** Identifies the text for searching for time. */
 	public static final String		NAME_CUSTOMIZED = "Custom"; 
+	
+	/** Identifies the text to filter by ROIs. */
+        public static final String              HAS_ROIS_TEXT = "Has ROIs";
+        
+        /** Identifies the text to filter by ROIs. */
+        public static final String              NO_ROIS_TEXT = "No ROIs";
 	
 	/** Bound property indicating to search. */
 	public static final String 		SEARCH_PROPERTY = "search";
