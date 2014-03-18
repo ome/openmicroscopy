@@ -164,7 +164,7 @@ public class ChannelProcessor implements ModelProcessor
 		valueFilter = ColorsFactory.getValueFromFilter(f, true);
 	if (valueFilter != null) {
 		setChannelColor(channel, channelIndex,
-				ColorsFactory.determineColor(new java.lang.Double(valueFilter)));
+				ColorsFactory.determineColor(new Double(valueFilter)));
 		if (lc.getName() == null) {
 			name = getNameFromFilter(f);
 			if (name != null) lc.setName(name);
@@ -176,7 +176,7 @@ public class ChannelProcessor implements ModelProcessor
 
 	if (valueFilter != null) {
 		setChannelColor(channel, channelIndex,
-				ColorsFactory.determineColor(new java.lang.Double(valueFilter)));
+				ColorsFactory.determineColor(new Double(valueFilter)));
 		if (lc.getName() == null) {
 			name = getNameFromFilter(f);
 			if (name != null) lc.setName(name);
@@ -213,7 +213,7 @@ public class ChannelProcessor implements ModelProcessor
 
 	if (valueFilter != null) {
 		setChannelColor(channel, channelIndex,
-				ColorsFactory.determineColor(new java.lang.Double(valueFilter)));
+				ColorsFactory.determineColor(new Double(valueFilter)));
 		if (lc.getName() == null) {
 			name = getNameFromFilter(f);
 			if (name != null) lc.setName(name);
@@ -225,7 +225,7 @@ public class ChannelProcessor implements ModelProcessor
 
 	if (valueFilter != null) {
 		setChannelColor(channel, channelIndex,
-				ColorsFactory.determineColor(new java.lang.Double(valueFilter)));
+				ColorsFactory.determineColor(new Double(valueFilter)));
 		if (lc.getName() == null) {
 			name = getNameFromFilter(f);
 			if (name != null) lc.setName(name);

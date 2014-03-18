@@ -303,7 +303,7 @@ public class ColorsFactory {
 		valueFilter = getValueFromFilter(
 				channelData.getFilterSetExcitationFilter(), false);
 
-	int[] toReturn = determineColor(new java.lang.Double(valueFilter));
+	int[] toReturn = determineColor(new Double(valueFilter));
 	if (toReturn != null)
 	{
 		return toReturn;

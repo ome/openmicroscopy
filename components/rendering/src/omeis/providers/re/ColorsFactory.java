@@ -317,7 +317,7 @@ public class ColorsFactory {
     			valueFilter = getValueFromFilter(j.next(), false);
     		}
     	}
-    	return determineColor(new java.lang.Double(valueFilter));
+    	return determineColor(new Double(valueFilter));
     }
  
     /**

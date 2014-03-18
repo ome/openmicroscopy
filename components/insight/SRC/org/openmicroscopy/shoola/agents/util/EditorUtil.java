@@ -1210,15 +1210,15 @@ public class EditorUtil
         if (StringUtils.isBlank(s))
             notSet.add(NAME);
         details.put(NAME, s);
-        Float fWave =  new java.lang.Float(data.getEmissionWavelength());
+        Float fWave =  new Float(data.getEmissionWavelength());
         if (fWave != null && fWave <= 100) {
-            fWave = new java.lang.Float(0);
+            fWave = Float.valueOf(0);
             notSet.add(EMISSION);
         } 
         details.put(EMISSION, fWave);
-        fWave =  new java.lang.Float(data.getExcitationWavelength());
+        fWave =  new Float(data.getExcitationWavelength());
         if (fWave != null && fWave <= 100) {
-            fWave = new java.lang.Float(0);
+            fWave = Float.valueOf(0);
             notSet.add(EXCITATION);
         }
         details.put(EXCITATION, fWave);
@@ -1372,7 +1372,7 @@ public class EditorUtil
         details.put(LOT_NUMBER, "");
         details.put(NOMINAL_MAGNIFICATION, Integer.valueOf(0));
         details.put(CALIBRATED_MAGNIFICATION,Float.valueOf(0));
-        details.put(LENSNA, new Float(0));
+        details.put(LENSNA, Float.valueOf(0));
         details.put(IMMERSION, "");
         details.put(CORRECTION, "");
         details.put(WORKING_DISTANCE, Float.valueOf(0));
@@ -1777,7 +1777,7 @@ public class EditorUtil
         if (f == null) notSet.add(ATTENUATION);
         else v = f;
         details.put(ATTENUATION, v*PERCENT_FRACTION);
-        Float i = new java.lang.Float(data.getLightSettingsWavelength());
+        Float i = new Float(data.getLightSettingsWavelength());
         if (details.containsKey(WAVELENGTH)) {
             if (i != null) { //override the value.
                 details.put(WAVELENGTH, i);
@@ -1875,9 +1875,9 @@ public class EditorUtil
                 notSet.add(MEDIUM);
             details.put(MEDIUM, s);
 
-            Float fWave = new java.lang.Float(data.getLaserWavelength());
+            Float fWave = new Float(data.getLaserWavelength());
             if (fWave != null && fWave < 0) {
-                fWave = new java.lang.Float(0);
+                fWave = Float.valueOf(0);
                 notSet.add(WAVELENGTH);
             }
             details.put(WAVELENGTH, fWave); 
