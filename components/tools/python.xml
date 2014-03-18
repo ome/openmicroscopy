@@ -8,9 +8,13 @@
 
     <defineVariables/>
 
+    <tstamp>
+        <format property="python_build_year" pattern="yyyy"/>
+    </tstamp>
     <echo file="${basedir}/omero_version.py">
 omero_version="${omero.version}"
 ice_compatibility="${versions.ice}"
+build_year="${python_build_year}"
     </echo>
 
     <target name="test-compile" description="Dummy target for python since no compile needed"/>
