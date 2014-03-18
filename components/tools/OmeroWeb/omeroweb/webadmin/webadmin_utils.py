@@ -57,16 +57,16 @@ def upgradeCheck():
     # -------------
     # On each startup OMERO.web checks for possible server upgrades
     # and logs the upgrade url at the WARNING level. If you would
-    # like to disable the checks, change the following to
-    #
-    #   if False:
+    # like to disable the checks, please set 'omero.web.upgrades_url`
+    # to an empty string.
     #
     # For more information, see
     # http://trac.openmicroscopy.org.uk/ome/wiki/UpgradeCheck
     #
     try:
         from omero.util.upgrade_check import UpgradeCheck
-        check = UpgradeCheck("web")
+        from django.conf import settings
+        check = UpgradeCheck("web", url=settings.UPGRADES_URL)
         check.run()
         if check.isUpgradeNeeded():
             logger.error("Upgrade is available. Please visit http://trac.openmicroscopy.org.uk/ome/wiki/MilestoneDownloads.\n")

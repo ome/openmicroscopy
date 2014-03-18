@@ -227,6 +227,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
     "omero.web.webgateway_cache": ["WEBGATEWAY_CACHE", None, leave_none_unset],
     "omero.web.session_engine": ["SESSION_ENGINE", DEFAULT_SESSION_ENGINE, check_session_engine],
     "omero.web.debug": ["DEBUG", "false", parse_boolean],
+    "omero.web.upgrades_url": ["UPGRADES_URL", "http://upgrade.openmicroscopy.org.uk/", str],
     "omero.web.email_host": ["EMAIL_HOST", None, identity],
     "omero.web.email_host_password": ["EMAIL_HOST_PASSWORD", None, identity],
     "omero.web.email_host_user": ["EMAIL_HOST_USER", None, identity],
