@@ -397,6 +397,13 @@ class DataBrowserToolBar
 				break;
 			case QuickSearch.UNRATED:
 				filteringDialog.setRatingLevel(RatingComponent.MIN_VALUE);
+				break;
+			case QuickSearch.HAS_ROIS:
+    			        filteringDialog.setHasROIs();
+    			        break;
+			case QuickSearch.NO_ROIS:
+			        filteringDialog.setNoROIs();
+			        break;
 		}
 	}
 	
@@ -896,6 +903,17 @@ class DataBrowserToolBar
 				search.setSearchContext(QuickSearch.FULL_TEXT);
 				//terms = context.getAnnotation(TextualAnnotationData.class);
 				//if (terms != null) search.setSearchValue(terms);
+				break;
+			case FilterContext.ROI:
+			    if(context.getRoiIndex()==FilterContext.GREATER_EQUAL && context.getROIs()==1) {
+			        search.setSearchContext(QuickSearch.HAS_ROIS);
+			        setFilterLabel(SearchComponent.HAS_ROIS_TEXT);
+			    }
+			    if(context.getRoiIndex()==FilterContext.EQUAL && context.getROIs()==0) {
+			        search.setSearchContext(QuickSearch.NO_ROIS);
+			        setFilterLabel(SearchComponent.NO_ROIS_TEXT);
+			    }
+			    break;
 		}
 	}
 	
