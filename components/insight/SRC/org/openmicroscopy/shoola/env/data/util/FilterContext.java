@@ -119,6 +119,9 @@ public class FilterContext
 	/** The collection of name to filter by. */
 	private List<String>				names;
 	
+	/** Flag indicating that no filtering should be done at all */
+	private boolean showAll;
+	
 	/** Creates a new instance. */
 	public FilterContext()
 	{
@@ -354,5 +357,22 @@ public class FilterContext
 	 * @return See above.
 	 */
 	public List<String> getNames() { return names; }
+
+	/**
+	 * Returns true if no filtering should be applied at all, false otherwise.
+	 * @return See above.
+	 */
+        public boolean showAll() {
+            return showAll;
+        }
+    
+        /**
+         * Sets the flag, that no filtering should be applied at all.
+         * @param showAll See above.
+         */
+        public void setShowAll(boolean showAll) {
+            this.showAll = showAll;
+        }
+	
 	
 }

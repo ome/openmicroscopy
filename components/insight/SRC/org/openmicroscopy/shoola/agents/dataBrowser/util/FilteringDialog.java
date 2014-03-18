@@ -489,9 +489,9 @@ public class FilteringDialog
 				filter = true;
 			}
 		}
-		//Get the text to filter by
-		if (filter)
-			firePropertyChange(FILTER_PROPERTY, null, context);
+		
+		context.setShowAll(!filter);
+		firePropertyChange(FILTER_PROPERTY, null, context);
 		setVisible(false);
 	}
 	
