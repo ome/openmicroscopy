@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-   Copyright (C) 2012 University of Dundee & Open Microscopy Environment.
+   Copyright (C) 2012-2014 University of Dundee & Open Microscopy Environment.
                       All Rights Reserved.
    Copyright 2013 Glencoe Software, Inc. All rights reserved.
    Use is subject to license terms supplied in LICENSE.txt
@@ -169,7 +169,6 @@ def testPDIChgrp(gatewaywrapper):
                    "Image should be available in original group"
 
 
-@pytest.mark.xfail(reason="ticket 11610")
 def testTwoDatasetsChgrpToProject(gatewaywrapper):
     """
     Create a new group with the User as member. Image has 2 Dataset Parents.
