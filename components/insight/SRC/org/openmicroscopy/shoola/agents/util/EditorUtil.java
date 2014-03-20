@@ -1210,18 +1210,31 @@ public class EditorUtil
         if (StringUtils.isBlank(s))
             notSet.add(NAME);
         details.put(NAME, s);
+
         Double wave =  data.getEmissionWavelength();
-        if (wave != null && wave <= 100) {
-            wave = Double.valueOf(0);
-            notSet.add(EMISSION);
-        } 
-        details.put(EMISSION, new Float(wave));
-        wave =  data.getExcitationWavelength();
-        if (wave != null && wave <= 100) {
-            wave = Double.valueOf(0);
-            notSet.add(EXCITATION);
+        if (wave == null) {
+            details.put(EMISSION, null);
+        } else {
+            if (wave <= 100) {
+                notSet.add(EMISSION);
+                details.put(EMISSION, new Float(0));
+            } else {
+                details.put(EMISSION, new Float(wave));
+            }
         }
-        details.put(EXCITATION, new Float(wave));
+
+        wave =  data.getExcitationWavelength();
+        if (wave == null) {
+            details.put(EXCITATION, null);
+        } else {
+            if (wave <= 100) {
+                notSet.add(EXCITATION);
+                details.put(EXCITATION, new Float(0));
+            } else {
+                details.put(EXCITATION, new Float(wave));
+            }
+        }
+
         double f = data.getNDFilter();
         if (f < 0) {
             f = 0;
