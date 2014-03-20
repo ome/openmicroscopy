@@ -122,6 +122,9 @@ public class QuickSearch
         
         /** Indicates to search for nodes without ROIs.  */
         public static final int         NO_ROIS = 15;
+        
+        /** Indicates to search for nodes without ROIs.  */
+        public static final int         NONE = 16;
 	
 	/** Bound property indicating to search for given terms. */
 	public static final String	QUICK_SEARCH_PROPERTY = "quickSearch";
@@ -365,53 +368,42 @@ public class QuickSearch
 	 */
 	private void setSearchContext(SearchObject oldNode)
 	{
-		String text = null;
-		if (selectedNode == null) return;
-		setSearchEnabled(true);
-		switch (selectedNode.getIndex()) {
-			case RATED_ONE_OR_BETTER:
-			case RATED_TWO_OR_BETTER:
-			case RATED_THREE_OR_BETTER:
-			case RATED_FOUR_OR_BETTER:
-			case RATED_FIVE:
-			case UNRATED:
-			case UNTAGGED:
-			case UNCOMMENTED:
-			case TAGGED:
-			case COMMENTED:
-			case HAS_ROIS:
-			case NO_ROIS:
-				setSearchEnabled(false);
-				text = selectedNode.getDescription();
-				cleanBar.setVisible(false);
-				break;
-			case SHOW_ALL:
-				setSearchEnabled(false);
-				text = SHOW_ALL_DESCRIPTION+defaultText;
-				cleanBar.setVisible(false);
-				break;
-				/*
-			case UNRATED:
-			case UNTAGGED:
-			case UNCOMMENTED:
-			case TAGGED:
-			case COMMENTED:
-				setSearchEnabled(false);
-				text = "";
-				cleanBar.setVisible(false);
-				break;
-				*/
-			case TAGS:
-			case COMMENTS:
-			case FULL_TEXT:
-				if (oldNode != null) {
-					int oldIndex = oldNode.getIndex();
-					if (oldIndex != TAGS && oldIndex != COMMENTS &&
-							oldIndex != FULL_TEXT) text = "";
-				}
-				setFocusOnArea();
+		String text = "";
+		setSearchEnabled(false);
+                cleanBar.setVisible(false);
+                
+		if(selectedNode!=null) {
+        		switch (selectedNode.getIndex()) {
+        			case RATED_ONE_OR_BETTER:
+        			case RATED_TWO_OR_BETTER:
+        			case RATED_THREE_OR_BETTER:
+        			case RATED_FOUR_OR_BETTER:
+        			case RATED_FIVE:
+        			case UNRATED:
+        			case UNTAGGED:
+        			case UNCOMMENTED:
+        			case TAGGED:
+        			case COMMENTED:
+        			case HAS_ROIS:
+        			case NO_ROIS:
+        				text = selectedNode.getDescription();
+        				break;
+        			case SHOW_ALL:
+        				text = SHOW_ALL_DESCRIPTION+defaultText;
+        				break;
+        			case TAGS:
+        			case COMMENTS:
+        			case FULL_TEXT:
+        				if (oldNode != null) {
+        					int oldIndex = oldNode.getIndex();
+        					if (oldIndex != TAGS && oldIndex != COMMENTS &&
+        							oldIndex != FULL_TEXT) text = "";
+        				}
+        				setFocusOnArea();
+        				setSearchEnabled(true);
+        		}
 		}
-		if (text == null) return;
+		
 		searchArea.getDocument().removeDocumentListener(this);
 		searchArea.setText(text);
 		searchArea.getDocument().addDocumentListener(this);
@@ -719,13 +711,12 @@ public class QuickSearch
 				}
 			}
 		}
-		if (selectedNode != null) {
-			setFilteringStatus(true);
-			initMenu();
-			menu.setSelectedNode(selectedNode);
-			this.selectedNode = selectedNode;
-			setSearchContext(null);
-		}
+		
+		setFilteringStatus(true);
+		initMenu();
+		menu.setSelectedNode(selectedNode);
+		this.selectedNode = selectedNode;
+		setSearchContext(null);
 	}
 	
 	/**
