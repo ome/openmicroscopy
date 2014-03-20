@@ -1210,18 +1210,18 @@ public class EditorUtil
         if (StringUtils.isBlank(s))
             notSet.add(NAME);
         details.put(NAME, s);
-        Float fWave =  new Float(data.getEmissionWavelength());
-        if (fWave != null && fWave <= 100) {
-            fWave = Float.valueOf(0);
+        Double wave =  data.getEmissionWavelength();
+        if (wave != null && wave <= 100) {
+            wave = Double.valueOf(0);
             notSet.add(EMISSION);
         } 
-        details.put(EMISSION, fWave);
-        fWave =  new Float(data.getExcitationWavelength());
-        if (fWave != null && fWave <= 100) {
-            fWave = Float.valueOf(0);
+        details.put(EMISSION, new Float(wave));
+        wave =  data.getExcitationWavelength();
+        if (wave != null && wave <= 100) {
+            wave = Double.valueOf(0);
             notSet.add(EXCITATION);
         }
-        details.put(EXCITATION, fWave);
+        details.put(EXCITATION, new Float(wave));
         double f = data.getNDFilter();
         if (f < 0) {
             f = 0;
@@ -1777,15 +1777,16 @@ public class EditorUtil
         if (f == null) notSet.add(ATTENUATION);
         else v = f;
         details.put(ATTENUATION, v*PERCENT_FRACTION);
-        Float i = new Float(data.getLightSettingsWavelength());
+ 
+        Double wave = data.getLightSettingsWavelength();
         if (details.containsKey(WAVELENGTH)) {
-            if (i != null) { //override the value.
-                details.put(WAVELENGTH, i);
+            if (wave != null) { //override the value.
+                details.put(WAVELENGTH, new Float(wave));
             }
         } else {
             float vi = 0;
-            if (i == null) notSet.add(WAVELENGTH);
-            else vi = i;
+            if (wave == null) notSet.add(WAVELENGTH);
+            else vi = new Float(wave);
             details.put(WAVELENGTH, vi);
         }
         details.put(NOT_SET, notSet);
@@ -1875,12 +1876,12 @@ public class EditorUtil
                 notSet.add(MEDIUM);
             details.put(MEDIUM, s);
 
-            Float fWave = new Float(data.getLaserWavelength());
-            if (fWave != null && fWave < 0) {
-                fWave = Float.valueOf(0);
+            Double wave = data.getLaserWavelength();
+            if (wave != null && wave < 0) {
+                wave = Double.valueOf(0);
                 notSet.add(WAVELENGTH);
             }
-            details.put(WAVELENGTH, fWave); 
+            details.put(WAVELENGTH, new Float(wave)); 
             int i = data.getLaserFrequencyMultiplication();
             if (i < 0) {
                 i = 0;
