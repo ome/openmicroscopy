@@ -123,7 +123,7 @@ public class QuickSearch
         /** Indicates to search for nodes without ROIs.  */
         public static final int         NO_ROIS = 15;
         
-        /** Indicates to search for nodes without ROIs.  */
+        /** Indicates a customized search where there is no matching quick search option. */
         public static final int         NONE = 16;
 	
 	/** Bound property indicating to search for given terms. */
