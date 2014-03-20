@@ -303,7 +303,18 @@ class SessionsStore(object):
         host = props["omero.host"]
         client = omero.client(props)
         client.setAgent("OMERO.sessions")
-        sf = client.createSession(name, pasw)
+
+        if sudo is not None:
+            sf = client.createSession(sudo, pasw)
+            principal = omero.sys.Principal()
+            principal.name = name
+            principal.eventType = "User"
+            sess = sf.getSessionService().createSessionWithTimeouts(principal, 0, 0)
+            client.closeSession()
+            sf = client.joinSession(sess.getUuid().getValue())
+        else:
+            sf = client.createSession(name, pasw)
+
         ec = sf.getAdminService().getEventContext()
         uuid = sf.ice_getIdentity().name
         sf.detachOnDestroy()
