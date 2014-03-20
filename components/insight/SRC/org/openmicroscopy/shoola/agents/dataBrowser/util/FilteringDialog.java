@@ -424,7 +424,6 @@ public class FilteringDialog
 	private void filter()
 	{
 		FilterContext context = new FilterContext();
-		boolean filter = false;
 		if (ratingBox.isSelected()) {
 			int index = -1;
 			switch (ratingOptions.getSelectedIndex()) {
@@ -437,7 +436,6 @@ public class FilteringDialog
 				case EQUAL:
 					index = FilterContext.EQUAL;
 			};
-			filter = true;
 			context.setRate(index, rating.getCurrentValue());
 		}
 		if (roiBox.isSelected()) {
@@ -452,7 +450,6 @@ public class FilteringDialog
                             case EQUAL:
                                     index = FilterContext.EQUAL;
                     };
-                    filter = true;
                     context.setRois(index, ((Number)roiSpinner.getValue()).intValue());
                 }
 		if (calendarBox.isSelected()) {
@@ -463,14 +460,12 @@ public class FilteringDialog
 			d = toDate.getDate();
 			if (d != null) end = new Timestamp(d.getTime());
 			context.setTimeInterval(start, end);
-			filter = true;
 		}
 		if (tagsBox.isSelected()) {
 			List<String> l = SearchUtil.splitTerms(tagsArea.getText(), 
 					SearchUtil.COMMA_SEPARATOR);
 			if (l != null && l.size() > 0) {
 				context.addAnnotationType(TagAnnotationData.class, l);
-				filter = true;
 			}
 		}
 		if (commentsBox.isSelected()) {
@@ -478,7 +473,6 @@ public class FilteringDialog
 					SearchUtil.COMMA_SEPARATOR);
 			if (l != null && l.size() > 0) {
 				context.addAnnotationType(TextualAnnotationData.class, l);
-				filter = true;
 			}
 		}
 		if (nameBox.isSelected()) {
@@ -486,11 +480,8 @@ public class FilteringDialog
 					SearchUtil.COMMA_SEPARATOR);
 			if (l != null && l.size() > 0) {
 				context.addName(l);
-				filter = true;
 			}
 		}
-		
-		context.setShowAll(!filter);
 		firePropertyChange(FILTER_PROPERTY, null, context);
 		setVisible(false);
 	}
