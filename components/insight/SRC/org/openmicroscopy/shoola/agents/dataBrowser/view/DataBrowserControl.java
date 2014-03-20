@@ -300,6 +300,7 @@ class DataBrowserControl
         case QuickSearch.UNCOMMENTED:
             view.setFilterLabel(SearchComponent.UNCOMMENTED_TEXT);
             model.filterByCommented(false);
+            break;
         case QuickSearch.HAS_ROIS:
             view.setFilterLabel(SearchComponent.HAS_ROIS_TEXT);
             model.filterByROIs(true);
@@ -307,6 +308,7 @@ class DataBrowserControl
         case QuickSearch.NO_ROIS:
             view.setFilterLabel(SearchComponent.NO_ROIS_TEXT);
             model.filterByROIs(false);
+            break;
         }
     }
 

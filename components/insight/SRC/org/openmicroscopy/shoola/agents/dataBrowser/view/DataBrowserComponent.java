@@ -1157,7 +1157,7 @@ class DataBrowserComponent
                 }
                 Browser browser = model.getBrowser();
                 Set<DataObject> nodes = browser.getOriginal();
-                if (nodes != null && nodes.size() > 0) {
+                if (!CollectionUtils.isEmpty(nodes)) {
                     FilterContext context = new FilterContext();
                     if(hasROIs) {
                         context.setRois(FilterContext.GREATER_EQUAL, 1);
