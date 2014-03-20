@@ -532,7 +532,7 @@
         id int8 not null,
         permissions int8 not null,
         gain float8,
-        integration int4,
+        integration positive_int,
         offsetValue float8,
         readOutRate float8,
         version int4,
@@ -545,8 +545,7 @@
         owner_id int8 not null,
         update_id int8 not null,
         detector int8 not null,
-        primary key (id),
-        check (integration > 0)
+        primary key (id)
     );;
 
     create table detectortype (
@@ -956,9 +955,9 @@
     create table imagingenvironment (
         id int8 not null,
         airPressure float8,
-        co2percent float8,
+        co2percent percent_fraction,
         permissions int8 not null,
-        humidity float8,
+        humidity percent_fraction,
         temperature float8,
         version int4,
         creation_id int8 not null,
@@ -966,8 +965,7 @@
         group_id int8 not null,
         owner_id int8 not null,
         update_id int8 not null,
-        primary key (id),
-        check (humidity >= 0 and humidity <= 1 and co2percent >= 0 and co2percent <= 1)
+        primary key (id)
     );;
 
     create table immersion (
@@ -1053,18 +1051,17 @@
     );;
 
     create table laser (
-        frequencyMultiplication int4,
+        frequencyMultiplication positive_int,
         pockelCell bool,
         repetitionRate float8,
         tuneable bool,
-        wavelength float8,
+        wavelength positive_float,
         lightsource_id int8 not null,
         laserMedium int8 not null,
         pulse int8,
         pump int8,
         type int8 not null,
-        primary key (lightsource_id),
-        check (frequencyMultiplication > 0 and wavelength > 0)
+        primary key (lightsource_id)
     );;
 
     create table lasermedium (
@@ -1135,10 +1132,10 @@
 
     create table lightsettings (
         id int8 not null,
-        attenuation float8,
+        attenuation percent_fraction,
         permissions int8 not null,
         version int4,
-        wavelength float8,
+        wavelength positive_float,
         creation_id int8 not null,
         external_id int8 unique,
         group_id int8 not null,
@@ -1146,8 +1143,7 @@
         update_id int8 not null,
         lightSource int8 not null,
         microbeamManipulation int8,
-        primary key (id),
-        check (attenuation >= 0 and attenuation <= 1 and wavelength > 0)
+        primary key (id)
     );;
 
     create table lightsource (
@@ -1183,14 +1179,14 @@
     create table logicalchannel (
         id int8 not null,
         permissions int8 not null,
-        emissionWave float8,
-        excitationWave float8,
+        emissionWave positive_float,
+        excitationWave positive_float,
         fluor varchar(255),
         name varchar(255),
         ndFilter float8,
         pinHoleSize float8,
         pockelCellSetting int4,
-        samplesPerPixel int4,
+        samplesPerPixel positive_int,
         version int4,
         contrastMethod int8,
         creation_id int8 not null,
@@ -1206,8 +1202,7 @@
         "mode" int8,
         otf int8,
         photometricInterpretation int8,
-        primary key (id),
-        check (excitationWave > 0 and emissionWave > 0 and samplesPerPixel > 0)
+        primary key (id)
     );;
 
     create table medium (
@@ -1413,8 +1408,8 @@
         permissions int8 not null,
         opticalAxisAveraged bool not null,
         path varchar(255) not null,
-        sizeX int4 not null,
-        sizeY int4 not null,
+        sizeX positive_int not null,
+        sizeY positive_int not null,
         version int4,
         creation_id int8 not null,
         external_id int8 unique,
@@ -1425,8 +1420,7 @@
         instrument int8 not null,
         objective int8 not null,
         pixelsType int8 not null,
-        primary key (id),
-        check (sizeX > 0 and sizeY > 0)
+        primary key (id)
     );;
 
     create table parsejob (
@@ -1452,16 +1446,16 @@
         id int8 not null,
         permissions int8 not null,
         methodology varchar(255),
-        physicalSizeX float8,
-        physicalSizeY float8,
-        physicalSizeZ float8,
+        physicalSizeX positive_float,
+        physicalSizeY positive_float,
+        physicalSizeZ positive_float,
         sha1 varchar(255) not null,
-        significantBits int4,
-        sizeC int4 not null,
-        sizeT int4 not null,
-        sizeX int4 not null,
-        sizeY int4 not null,
-        sizeZ int4 not null,
+        significantBits positive_int,
+        sizeC positive_int not null,
+        sizeT positive_int not null,
+        sizeX positive_int not null,
+        sizeY positive_int not null,
+        sizeZ positive_int not null,
         timeIncrement float8,
         version int4,
         waveIncrement int4,
@@ -1477,8 +1471,7 @@
         relatedTo int8,
         image_index int4 not null,
         primary key (id),
-        unique (image, image_index),
-        check (significantBits > 0 and sizeX > 0 and sizeY > 0 and sizeZ > 0 and sizeC > 0 and sizeT > 0)
+        unique (image, image_index)
     );;
 
     create table pixelsannotationlink (
@@ -1528,9 +1521,9 @@
         positionX float8,
         positionY float8,
         positionZ float8,
-        theC int4 not null,
-        theT int4 not null,
-        theZ int4 not null,
+        theC nonnegative_int not null,
+        theT nonnegative_int not null,
+        theZ nonnegative_int not null,
         version int4,
         creation_id int8 not null,
         external_id int8 unique,
@@ -1538,8 +1531,7 @@
         owner_id int8 not null,
         update_id int8 not null,
         pixels int8 not null,
-        primary key (id),
-        check (theZ >= 0 and theC >= 0 and theT >= 0)
+        primary key (id)
     );;
 
     create table planeinfoannotationlink (
@@ -2026,20 +2018,19 @@
 
     create table transmittancerange (
         id int8 not null,
-        cutIn int4,
-        cutInTolerance int4,
-        cutOut int4,
-        cutOutTolerance int4,
+        cutIn positive_int,
+        cutInTolerance nonnegative_int,
+        cutOut positive_int,
+        cutOutTolerance nonnegative_int,
         permissions int8 not null,
-        transmittance float8,
+        transmittance percent_fraction,
         version int4,
         creation_id int8 not null,
         external_id int8 unique,
         group_id int8 not null,
         owner_id int8 not null,
         update_id int8 not null,
-        primary key (id),
-        check (cutIn > 0 and cutOut > 0 and cutInTolerance >= 0 and cutOutTolerance >= 0 and transmittance >= 0 and transmittance <= 1)
+        primary key (id)
     );;
 
     create table uploadjob (
