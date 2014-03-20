@@ -82,12 +82,13 @@ class ConfigXml(object):
     DEFAULT = "omero.config.profile"
     IGNORE = (KEY, DEFAULT)
 
-    def __init__(self, filename, env_config = None, exclusive = True):
+    def __init__(self, filename, env_config=None, exclusive=True, read_only=False):
         self.logger = logging.getLogger(self.__class__.__name__)    #: Logs to the class name
         self.XML = None                                             #: Parsed XML Element
         self.filename = filename                                    #: Path to the file to be read and written
         self.env_config = Environment(env_config)                   #: Environment override
         self.exclusive = exclusive                                  #: Whether or not an exclusive lock should be acquired
+        self.read_only = read_only                                  #: Further, if saving should even be allowed.
         self.save_on_close = True
         self.open_source()
 
@@ -121,26 +122,30 @@ class ConfigXml(object):
             _ = SubElement(properties, "property", name=self.KEY, value=self.VERSION)
 
     def open_source(self):
-        try:
-            # Try to open the file for modification
-            # If this fails, then the file is readonly
-            self.source = open(self.filename, "a+")                 #: Open file handle
-            self.lock = self._open_lock()                           #: Open file handle for lock
-        except IOError:
-            self.logger.debug("open('%s', 'a+') failed" % self.filename)
+        self.source = None
+        if not self.read_only:
+            try:
+                # Try to open the file for modification
+                # If this fails, then the file is readonly
+                self.source = open(self.filename, "a+")                 #: Open file handle
+                self.lock = self._open_lock()                           #: Open file handle for lock
+            except IOError:
+                self.logger.debug("open('%s', 'a+') failed" % self.filename)
+
+        if self.source is None:
             self.lock = None
             self.exclusive = False
             self.save_on_close = False
 
-            # Before we open the file read-only we need to check
-            # that no other configuration has been requested because
-            # it will not be possible to modify the __ACTIVE__ setting
-            # once it's read-only
-            val = self.env_config.is_non_default()
-            if val is not None:
-                raise Exception("Non-default OMERO_CONFIG on read-only: %s" % val)
+        # Before we open the file read-only we need to check
+        # that no other configuration has been requested because
+        # it will not be possible to modify the __ACTIVE__ setting
+        # once it's read-only
+        val = self.env_config.is_non_default()
+        if val is not None:
+            raise Exception("Non-default OMERO_CONFIG on read-only: %s" % val)
 
-            self.source = open(self.filename, "r")                       #: Open file handle read-only
+        self.source = open(self.filename, "r")                       #: Open file handle read-only
 
     def _open_lock(self):
         return open("%s.lock" % self.filename, "a+")
