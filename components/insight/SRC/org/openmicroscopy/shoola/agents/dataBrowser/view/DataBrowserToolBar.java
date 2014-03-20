@@ -368,8 +368,6 @@ class DataBrowserToolBar
 		SearchObject filter = search.getSelectedNode();
 		if (filter == null) return;
 		
-		filteringDialog.unselectAll();
-		
 		switch (filter.getIndex()) {
 			case QuickSearch.UNTAGGED:
 				filteringDialog.setTagsText("");
@@ -406,6 +404,9 @@ class DataBrowserToolBar
     			        break;
 			case QuickSearch.NO_ROIS:
 			        filteringDialog.setNoROIs();
+			        break;
+			case QuickSearch.SHOW_ALL:
+			        filteringDialog.unselectAll();
 			        break;
 		}
 	}
@@ -846,6 +847,7 @@ class DataBrowserToolBar
 					text += SearchComponent.NAME_TEXT;
 				}
 				setFilterLabel(text);
+				search.setSearchContext(QuickSearch.NONE);
 				break;
 			case FilterContext.NONE:
 				search.setSearchContext(QuickSearch.SHOW_ALL);
@@ -915,6 +917,9 @@ class DataBrowserToolBar
 			    else if(context.getRoiIndex()==FilterContext.EQUAL && context.getROIs()==0) {
 			        search.setSearchContext(QuickSearch.NO_ROIS);
 			        setFilterLabel(SearchComponent.NO_ROIS_TEXT);
+			    }
+			    else {
+			        search.setSearchContext(QuickSearch.NONE);
 			    }
 			    break;
 		}
