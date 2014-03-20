@@ -166,6 +166,9 @@ class SessionsControl(BaseControl):
     def help(self, args):
         self.ctx.err(LONGHELP % {"prog": args.prog})
 
+    def sudo(self, args):
+        print args
+
     def login(self, args):
         """
         Goals:
@@ -335,9 +338,13 @@ class SessionsControl(BaseControl):
             while True:
                 try:
                     if not pasw:
-                        pasw = self.ctx.input("Password:", hidden=True,
+                        if args.sudo:
+                            prompt = "Password for %s:" % args.sudo
+                        else:
+                            prompt = "Password:"
+                        pasw = self.ctx.input(prompt, hidden=True,
                                               required=True)
-                    rv = store.create(name, pasw, props)
+                    rv = store.create(name, pasw, props, sudo=args.sudo)
                     break
                 except PermissionDeniedException, pde:
                     tries -= 1

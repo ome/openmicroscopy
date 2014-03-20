@@ -1,11 +1,26 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+
+#
+# Copyright (C) 2010-2014 Glencoe Software, Inc.
+# All rights reserved.
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
 """
-   Library for managing user sessions.
-
-   Copyright 2010 Glencoe Software, Inc. All rights reserved.
-   Use is subject to license terms supplied in LICENSE.txt
-
+Library for managing user sessions.
 """
 
 """
@@ -278,7 +293,7 @@ class SessionsStore(object):
         props = self.get(server, name, sess)
         return self.create(sess, sess, props, new = False, set_current = set_current)
 
-    def create(self, name, pasw, props, new = True, set_current = True):
+    def create(self, name, pasw, props, new=True, set_current=True, sudo=None):
         """
         Creates a new omero.client object, and returns:
         (cilent, session_id, timeToIdle, timeToLive)
