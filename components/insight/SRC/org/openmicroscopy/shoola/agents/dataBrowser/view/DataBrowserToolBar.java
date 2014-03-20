@@ -366,7 +366,9 @@ class DataBrowserToolBar
 	private void setFilteringValue()
 	{
 		SearchObject filter = search.getSelectedNode();
-		if (filter == null) return;
+		if (filter == null || filter.getIndex()==QuickSearch.NONE) return;
+		
+		filteringDialog.unselectAll();
 		
 		switch (filter.getIndex()) {
 			case QuickSearch.UNTAGGED:
@@ -404,9 +406,6 @@ class DataBrowserToolBar
     			        break;
 			case QuickSearch.NO_ROIS:
 			        filteringDialog.setNoROIs();
-			        break;
-			case QuickSearch.SHOW_ALL:
-			        filteringDialog.unselectAll();
 			        break;
 		}
 	}
