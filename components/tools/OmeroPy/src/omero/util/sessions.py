@@ -84,7 +84,7 @@ class SessionsStore(object):
                 for sess in name.files():
                     print "    %s" % sess
 
-    def add(self, host, name, id, props):
+    def add(self, host, name, id, props, sudo=None):
         """
         Stores a file containing the properties at
         REPO/host/name/id
@@ -93,6 +93,8 @@ class SessionsStore(object):
         props["omero.host"] = host
         props["omero.user"] = name
         props["omero.sess"] = id
+        if sudo is not None:
+            props["omero.sudo"] = sudo
 
         lines = []
         for k,v in props.items():
@@ -322,7 +324,7 @@ class SessionsStore(object):
         timeToIdle = sess.getTimeToIdle().getValue()
         timeToLive = sess.getTimeToLive().getValue()
         if new:
-            self.add(host, ec.userName, uuid, props)
+            self.add(host, ec.userName, uuid, props, sudo=sudo)
         if set_current:
             self.set_current(host, ec.userName, uuid)
 
