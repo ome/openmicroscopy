@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.data.OMEROGateway
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -6380,7 +6380,16 @@ class OMEROGateway
 			reader = new OMEROWrapper(config);
 			String[] paths = new String[1];
 			paths[0] = file.getAbsolutePath();
-			return new ImportCandidates(reader, paths, status);
+			ImportCandidates icans = new ImportCandidates(reader, paths, status);
+			
+			if(object.isOverrideName()) {
+			    String name = UIUtilities.getDisplayedFileName(file.getAbsolutePath(), object.getDepthForName());
+			    for(ImportContainer ic : icans.getContainers()) {
+			        ic.setUserSpecifiedName(name);
+			    }
+			}
+			
+			return icans;
 		} catch (Throwable e) {
 			throw new ImportException(e);
 		} finally {
