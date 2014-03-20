@@ -912,7 +912,7 @@ class DataBrowserToolBar
 			        search.setSearchContext(QuickSearch.HAS_ROIS);
 			        setFilterLabel(SearchComponent.HAS_ROIS_TEXT);
 			    }
-			    if(context.getRoiIndex()==FilterContext.EQUAL && context.getROIs()==0) {
+			    else if(context.getRoiIndex()==FilterContext.EQUAL && context.getROIs()==0) {
 			        search.setSearchContext(QuickSearch.NO_ROIS);
 			        setFilterLabel(SearchComponent.NO_ROIS_TEXT);
 			    }
