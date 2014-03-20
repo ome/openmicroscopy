@@ -43,6 +43,7 @@
     <dependency org="jakarta-oro" name="jakarta-oro" rev="2.0.8" conf="build->default"/>
     <dependency org="jamon" name="jamon" rev="${versions.jamon}" conf="build->default"/>
     <dependency org="testng" name="testng" rev="${versions.testng}" conf="build->default"/>
+    <dependency org="com.google" name="guava-jdk5" rev="13.0" conf="build->default"/>
     <dependency org="com.google.inject" name="guice" rev="2.0" conf="build->default"/>
     <dependency org="reportng" name="reportng" rev="${versions.reportng}" conf="build->default"/>
     <dependency org="bf-deps" name="testng" rev="${versions.testng}" conf="build->default"/>
