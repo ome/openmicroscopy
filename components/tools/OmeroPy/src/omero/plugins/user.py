@@ -160,7 +160,8 @@ class UserControl(UserGroupControl):
 
             # Handle deactivated users
             if not args.all:
-                group_ids = [x.id.val for x in exp.linkedExperimenterGroupList()]
+                groups = exp.linkedExperimenterGroupList()
+                group_ids = [x.id.val for x in groups]
                 if r.userGroupId not in group_ids:
                     continue
 
