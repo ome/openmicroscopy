@@ -175,7 +175,10 @@ class Parser(ArgumentParser):
             help = "OMERO username")
         group.add_argument("-w", "--password",
             help = "OMERO password")
-        group.add_argument("-k", "--key", help = "OMERO session key (UUID of an active session)")
+        group.add_argument("-k", "--key",
+            help = "OMERO session key (UUID of an active session)")
+        group.add_argument("--sudo", metavar="ADMINUSER",
+            help = "Create session as this admin. Changes meaning of password!")
 
     def _check_value(self, action, value):
         # converted value must be one of the choices (if specified)
