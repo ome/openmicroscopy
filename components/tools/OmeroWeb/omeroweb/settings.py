@@ -135,7 +135,7 @@ event = get_event("websettings")
 
 while True:
     try:
-        CONFIG_XML = omero.config.ConfigXml(CONFIG_XML)
+        CONFIG_XML = omero.config.ConfigXml(CONFIG_XML, read_only=True)
         CUSTOM_SETTINGS = CONFIG_XML.as_map()
         CONFIG_XML.close()
         break
