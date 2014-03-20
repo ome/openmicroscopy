@@ -34,7 +34,7 @@ class MyStore(SessionsStore):
         self.clients = []
         self.exceptions = []
 
-    def create(self, name, pasw, props, new=True, set_current=True):
+    def create(self, name, pasw, props, new=True, set_current=True, sudo=None):
 
         if not isinstance(props, dict):
             raise Exception("Bad type")
