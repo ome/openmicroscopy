@@ -514,10 +514,7 @@ class DataBrowserControl
         } else if (FilteringDialog.FILTER_PROPERTY.equals(name) ||
                 QuickFiltering.FILTER_TAGS_PROPERTY.equals(name)) {
             FilterContext filter = (FilterContext) evt.getNewValue();
-            if(filter.showAll())
-                showAll();
-            else
-                model.filterByContext(filter);
+            model.filterByContext(filter);
         } else if (FilteringDialog.LOAD_TAG_PROPERTY.equals(name) ||
                 QuickFiltering.TAG_LOADING_PROPERTY.equals(name)) {
             model.loadExistingTags();
