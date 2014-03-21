@@ -845,6 +845,10 @@ class DataBrowserToolBar
 					if (text.length() != 0) text += ", ";
 					text += SearchComponent.NAME_TEXT;
 				}
+				if (c.contains(FilterContext.ROI)) {
+				        if (text.length() != 0) text += ", ";
+				        text += SearchComponent.NAME_ROIS;
+				}
 				setFilterLabel(text);
 				search.setSearchContext(QuickSearch.NONE);
 				break;
