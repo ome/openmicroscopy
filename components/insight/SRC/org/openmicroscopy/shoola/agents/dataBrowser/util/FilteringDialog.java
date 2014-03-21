@@ -492,11 +492,11 @@ public class FilteringDialog
 	 * @return See above.
 	 */
 	private JPanel buildRoiPane() {
-	    JPanel p = new JPanel();
-            p.add(roiBox);
-            p.add(roiOptions);
-            p.add(roiSpinner);
-            return UIUtilities.buildComponentPanel(p, 0, 0);
+                JPanel p = new JPanel();
+                p.add(roiBox);
+                p.add(roiOptions);
+                p.add(roiSpinner);
+                return UIUtilities.buildComponentPanel(p, 0, 0);
 	}
 	
 	/**
@@ -604,7 +604,7 @@ public class FilteringDialog
 		p.add(new JSeparator(JSeparator.HORIZONTAL));
 		p.add(buildRatingPane());
 		p.add(new JSeparator(JSeparator.HORIZONTAL));
-                p.add(buildRoiPane());
+		p.add(buildRoiPane());
 		p.add(new JSeparator(JSeparator.HORIZONTAL));
 		p.add(buildCalendarPane());
 		p.add(new JSeparator(JSeparator.HORIZONTAL));

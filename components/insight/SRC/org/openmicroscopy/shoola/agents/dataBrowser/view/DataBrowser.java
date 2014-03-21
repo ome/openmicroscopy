@@ -618,7 +618,7 @@ public interface DataBrowser
          * Shows the nodes with ROIs if the passed value is <code>true</code>,
          * shows the nodes without ROIs if the passed value is <code>false</code>.
          * 
-         * @param commented Pass <code>true</code> to show the nodes with ROIs,
+         * @param hasROIs Pass <code>true</code> to show the nodes with ROIs,
          *                               <code>false</code> to show the nodes without ROIs.
          */
 	public void filterByROIs(boolean hasROIs);
