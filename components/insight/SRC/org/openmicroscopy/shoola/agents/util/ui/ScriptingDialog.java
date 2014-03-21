@@ -413,7 +413,7 @@ public class ScriptingDialog
             type = param.getPrototype();
             values = param.getValues();
             defValue = param.getDefaultValue();
-            if (values != null && values.size() > 0) {
+            if (CollectionUtils.isNotEmpty(values)) {
                 comp = createValuesBox(values, defValue);
             }
             if (Long.class.equals(type) || Integer.class.equals(type) ||
