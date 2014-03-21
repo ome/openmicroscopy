@@ -125,20 +125,17 @@ button::-moz-focus-inner {
 	
 	/* Specific Buttons Images*/  
 	
-	.btn_view {background: url(../../webgateway/img/icon_view.png) center center no-repeat;}
-	.btn_folder {background: url(../../webgateway/img/icon_folder.png) center center no-repeat;}
-	.btn_download {background: url(../../webgateway/img/icon_download.png) center center no-repeat;}
-	.btn_filetype {background: url(../../webgateway/img/icon_filetype.png) center center no-repeat;}
-	.btn_view_error {background: url(../../webgateway/img/icon_view_error.png) center center no-repeat;}
-	.btn_info {background: url(../../webgateway/img/icon_info.png )center center no-repeat;}
-	.btn_add {background: url(../../webgateway/img/icon_add.png )center center no-repeat;}
-	.btn_scientist {background: url(../../webgateway/img/icon_add_scientist.png )center center no-repeat;}
-	.btn_group {background: url(../../webgateway/img/icon_add_group.png )center center no-repeat;}
-	.btn_delete {background: url(../../webgateway/img/icon_delete.png )center center no-repeat;}
-	.btn_edit {background: url(../../webgateway/img/icon_edit.png )center center no-repeat;}
-	.btn_figscripts {background: url(../../webgateway/img/icon_figure_scripts.png) center center no-repeat;}
-	.btn_fspath {background: url(../../webgateway/img/icon_fs_path.png )center center no-repeat;}
-	.btn_link {background: url(../../webgateway/img/icon_link.png )center center no-repeat;}
+    .btn_view {background: url('../../webgateway/img/icon_view.png') center center no-repeat;}
+    .btn_folder {background: url('../../webgateway/img/icon_folder.png') center center no-repeat;}
+    .btn_download {background: url('../../webgateway/img/icon_download.png') center center no-repeat;}
+    .btn_filetype {background: url('../../webgateway/img/icon_filetype.png') center center no-repeat;}
+    .btn_view_error {background: url('../../webgateway/img/icon_view_error.png') center center no-repeat;}
+    .btn_info {background: url('../../webgateway/img/icon_info.png')center center no-repeat;}
+    .btn_add {background: url('../../webgateway/img/icon_add.png')center center no-repeat;}
+    .btn_edit {background: url('../../webgateway/img/icon_edit.png')center center no-repeat;}
+    .btn_figscripts {background: url('../../webgateway/img/icon_figure_scripts.png') center center no-repeat;}
+    .btn_fspath {background: url('../../webgateway/img/icon_fs_path.png')center center no-repeat;}
+    .btn_link {background: url('../../webgateway/img/icon_link.png')center center no-repeat;}
 
 	.btn_fspath, .btn_link {
 	    float:right;
@@ -947,7 +944,7 @@ button::-moz-focus-inner {
 		top:50%;
 		margin-top:-10px;
 		right:7px;
-		background: url(../image//search.png) center center no-repeat;
+		background: url(../image/search.png) center center no-repeat;
 		width:20px;
 		height:20px;
 		border:none !important;
@@ -1063,7 +1060,7 @@ button::-moz-focus-inner {
 	}
 
 		.contextbox_dark::after {
-			background: url(../images/contextbox_arrowup.png) no-repeat;
+			background: url('../../webgateway/img/contextbox_arrowup.png') no-repeat;
 		}
 
 		.contextbox_dark h1 {
