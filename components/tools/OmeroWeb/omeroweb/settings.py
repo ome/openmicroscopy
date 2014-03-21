@@ -295,6 +295,16 @@ CUSTOM_SETTINGS_MAPPINGS = {
 
     # Allowed hosts: https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
     "omero.web.allowed_hosts": ["ALLOWED_HOSTS", '["*"]', json.loads],
+    
+    # PIPELINE 1.3.20
+    # Pipeline is an asset packaging library for Django, providing both CSS and JavaScript 
+    # concatenation and compression, built-in JavaScript template support, and optional 
+    # data-URI image and font embedding.
+    "omero.web.pipeline_js_compressor": ["PIPELINE_JS_COMPRESSOR", None, identity],
+    "omero.web.pipeline_css_compressor": ["PIPELINE_CSS_COMPRESSOR", None, identity],
+    # STATICFILES_STORAGE see http://django-pipeline.readthedocs.org/en/latest/storages.html
+    "omero.web.pipeline_staticfile_storage": ["STATICFILES_STORAGE", "pipeline.storage.PipelineStorage", str],
+
 }
 
 def process_custom_settings(module):
@@ -384,6 +394,8 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
     #'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
+    'django.middleware.gzip.GZipMiddleware',
+    'pipeline.middleware.MinifyHTMLMiddleware',
 )
 
 
@@ -398,7 +410,7 @@ ROOT_URLCONF = 'omeroweb.urls'
 # of each app (using django.contrib.staticfiles.finders.AppDirectoriesFinder)
 STATICFILES_FINDERS = (
     "django.contrib.staticfiles.finders.FileSystemFinder",
-    "django.contrib.staticfiles.finders.AppDirectoriesFinder"
+    "django.contrib.staticfiles.finders.AppDirectoriesFinder",
 )
 
 # STATIC_URL: URL to use when referring to static files located in STATIC_ROOT. 
@@ -460,7 +472,7 @@ INSTALLED_APPS = (
     'omeroweb.webtest',
     'omeroweb.webredirect',
     'omeroweb.webstart',
-    
+    'pipeline',
 )
 
 # ADDITONAL_APPS: We import any settings.py from apps. This allows them to modify settings.
@@ -487,6 +499,67 @@ for app in ADDITIONAL_APPS:
 
 logger.debug('INSTALLED_APPS=%s' % [INSTALLED_APPS])
 
+
+PIPELINE_CSS = {
+    'webgateway_viewer': {
+        'source_filenames': (
+            'webgateway/css/reset.css',
+            'webgateway/css/ome.body.css',
+            'webclient/css/dusty.css',
+            'webgateway/css/ome.viewport.css',
+            'webgateway/css/ome.gs_slider.css',
+            'webgateway/css/base.css',
+            'webgateway/css/ome.snippet_header_logo.css',
+            'webgateway/css/ome.postit.css',
+            'webgateway/css/ome.rangewidget.css',
+            '3rdparty/farbtastic/farbtastic.css',
+            'webgateway/css/ome.colorbtn.css',
+            '3rdparty/JQuerySpinBtn/JQuerySpinBtn.css',
+            '3rdparty/jquery-ui-1.8.19/jquery-ui-1.8.19.custom.css',
+            'webgateway/css/omero_image.css',
+            '3rdparty/panojs/panojs.css',
+            #'webgateway/css/ome.iehacks.css',
+        ),
+        'output_filename': 'omeroweb.viewer.min.css',
+    },
+}
+
+PIPELINE_JS = {
+    'webgateway_viewer': {
+        'source_filenames': (
+            '3rdparty/jquery-1.7.2.js',
+            'webgateway/js/ome.popup.js',
+            '3rdparty/aop.js',
+            '3rdparty/panojs/utils.js',
+            '3rdparty/panojs/PanoJS.js',
+            '3rdparty/panojs/controls.js',
+            '3rdparty/panojs/pyramid_Bisque.js',
+            '3rdparty/panojs/pyramid_imgcnv.js',
+            '3rdparty/panojs/pyramid_Zoomify.js',
+            'webgateway/js/ome.panojs.control_thumbnail.js',
+            '3rdparty/panojs/control_info.js',
+            '3rdparty/panojs/control_svg.js',
+            '3rdparty/panojs/control_roi.js',
+            'webgateway/js/ome.gs_utils.js',
+            'webgateway/js/ome.viewportImage.js',
+            'webgateway/js/ome.gs_slider.js',
+            'webgateway/js/ome.viewport.js',
+            '3rdparty/jquery-ui-1.8.19/jquery-ui.min.js',
+            'webgateway/js/ome.smartdialog.js',
+            '3rdparty/JQuerySpinBtn/JQuerySpinBtn.js',
+            'webgateway/js/ome.colorbtn.js',
+            'webgateway/js/ome.postit.js',
+            '3rdparty/jquery.selectboxes.js',
+            'webgateway/js/ome.rangewidget.js',
+            '3rdparty/farbtastic/farbtastic.js',
+            '3rdparty/raphael/raphael-min.js',
+            '3rdparty/raphael/scale.raphael.js',
+            'webgateway/js/ome.roidisplay.js',
+            '3rdparty/jquery.mousewheel.js',
+        ),
+        'output_filename': 'omeroweb.viewer.min.js',
+    }
+}
 
 # FEEDBACK_URL: Used in feedback.sendfeedback.SendFeedback class in order to submit 
 # error or comment messages to https://qa.openmicroscopy.org.
