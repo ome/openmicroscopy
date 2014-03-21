@@ -94,6 +94,9 @@ public class SearchComponent
 	/** Identifies the text for searching for comments. */
 	public static final String		NAME_COMMENTS = "Comments";
 	
+	/** Identifies the text for searching for ROIs. */
+	public static final String              NAME_ROIS = "ROIs";
+	
 	/** Identifies the text for searching for URLs. */
 	public static final String		NAME_URL = "URL";
 	
