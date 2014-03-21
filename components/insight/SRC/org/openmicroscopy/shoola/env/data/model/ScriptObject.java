@@ -142,6 +142,7 @@ public class ScriptObject
         IDENTIFIER_KEYS = new ArrayList<String>();
         IDENTIFIER_KEYS.add("id");
         IDENTIFIER_KEYS.add("ids");
+        IDENTIFIER_KEYS.add("image_id");//ij support.
     }
 
     /** The id of the script. */
