@@ -44,6 +44,7 @@ import org.openmicroscopy.shoola.env.data.DSAccessException;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.model.ImageCheckerResult;
 import org.openmicroscopy.shoola.env.data.model.MIFResultObject;
+import org.openmicroscopy.shoola.env.data.model.MultiDatasetImageLinkResult;
 import org.openmicroscopy.shoola.env.data.model.ThumbnailData;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
@@ -142,9 +143,9 @@ public class ImageSplitChecker
 				Map<Long, Map<Boolean, List<ImageData>>> r;
 				MIFResultObject mif;
 				List<ImageData> images;
-				List<ImageData> multiLinkImgs;
+				List<ImageData> imagesToCheckForLinks = new ArrayList<ImageData>();
+				MultiDatasetImageLinkResult mdlResult = new MultiDatasetImageLinkResult();
 				while (i.hasNext()) {
-					multiLinkImgs = new ArrayList<ImageData>();
 					e = i.next();
 					j = e.getValue().iterator();
 					ids = new ArrayList<Long>();
@@ -155,11 +156,7 @@ public class ImageSplitChecker
 						ids.add(uo.getId());
 						if(uo instanceof ImageData) {
 							ImageData img = (ImageData)uo;
-							// check if an image is linked to multiple datasets:
-							List<DatasetData> ds = loadDatasets(e.getKey(), img);
-							if(ds.size()>1) {
-								multiLinkImgs.add((img));
-							}
+							imagesToCheckForLinks.add(img);
 						}
 					}
 					r = svc.getImagesBySplitFilesets(e.getKey(),
@@ -171,25 +168,40 @@ public class ImageSplitChecker
 						mif.setThumbnails(loadThumbails(e.getKey(), images));
 						result.getMifResults().add(mif);
 					}
-						
-					if(!multiLinkImgs.isEmpty()) {
-						// adjust the the current count
-						result.setMultiLinkImageCount(result.getMultiLinkImageCount()+multiLinkImgs.size());
-						
-						// determine how many thumbnails to get
-						int limit = ImageCheckerResult.MAX_MULTILINK_THUMBS-result.getMultiLinkImages().size();
-						if(limit>multiLinkImgs.size())
-							limit = multiLinkImgs.size();
-						multiLinkImgs = multiLinkImgs.subList(0, limit);
-												
-						// get/add the thumbnails
-						result.getMultiLinkImages().addAll(
-								loadThumbails(e.getKey(), multiLinkImgs));
-					}
+					
+					performLinkCheck(e.getKey(), imagesToCheckForLinks, mdlResult);
 				}
+				
+				result.setMultiLinkResult(mdlResult);
 			}
 		};
 	} 
+	
+	/**
+	* Checks the given {@link ImageData}s if they are linked to multiple {@link DatasetData}
+	* in the scope of the provided {@link SecurityContext} and adds the results to the 
+	* provided {@link MultiDatasetImageLinkResult}
+	* 
+	*   @param ctx The security context
+	*   @param imgs The images to check
+	*   @param result The {@link MultiDatasetImageLinkResult} the check result should be added to
+	*/
+	private void performLinkCheck(SecurityContext ctx, List<ImageData> imgs, MultiDatasetImageLinkResult result) {
+	    
+	    List<ImageData> thumbsToGet = new ArrayList<ImageData>();
+	    
+	    for(ImageData img : imgs) {
+	        List<DatasetData> ds = loadDatasets(ctx, img);
+                if(ds.size()>1) {
+                        result.addDatasets(img, ds);
+                        thumbsToGet.add(img);
+                }
+	    }
+	    
+	    if(!thumbsToGet.isEmpty()) {
+	        result.addThumbnails(loadThumbails(ctx, thumbsToGet));
+	    }
+	}
 	
 	/**
 	 * Adds the {@link #loadCall} to the computation tree.

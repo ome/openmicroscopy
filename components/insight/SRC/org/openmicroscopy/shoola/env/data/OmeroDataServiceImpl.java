@@ -1134,8 +1134,11 @@ class OmeroDataServiceImpl
 		List<DatasetData> datasets = new ArrayList<DatasetData>();
 		for(IObject obj : objects) {
 			if(obj instanceof DatasetImageLink) {
-				DatasetData ds = (DatasetData) PojoMapper.asDataObject(((DatasetImageLink) obj).getParent());
-				datasets.add(ds);
+			        Dataset ds = ((DatasetImageLink) obj).getParent();
+			        // have to load Dataset otherwise Dataset.name won't be initialized
+				ds = (Dataset) gateway.findIObject(ctx, ds);
+				DatasetData dsd = (DatasetData) PojoMapper.asDataObject(ds);
+				datasets.add(dsd);
 			}
 		}
 		return datasets;
