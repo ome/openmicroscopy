@@ -188,6 +188,7 @@
         <attribute name="Class-Path" value="${dist.jar.manifest.cp}"/>
         <attribute name="Main-Class" value="${app.mainclass}"/>
         <attribute name="Permissions" value="all-permissions"/>
+        <attribute name="Trusted-Only" value="true"/>
       </manifest>
     </jar>
   </target>
