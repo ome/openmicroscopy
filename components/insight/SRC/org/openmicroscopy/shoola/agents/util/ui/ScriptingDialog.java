@@ -38,6 +38,7 @@ import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -420,10 +421,16 @@ public class ScriptingDialog
                     Float.class.equals(type) || Double.class.equals(type)) {
                 if (comp == null) {
                     if (script.isIdentifier(name)) {
-                        identifier = new IdentifierParamPane(Long.class, false);
-                        identifier.setValues(refObjects);
-                        identifier.addDocumentListener(this);
-                        comp = identifier;
+                        comp = new NumericalTextField();
+                        ((NumericalTextField) comp).setNumberType(type);
+                        ((NumericalTextField) comp).setNegativeAccepted(false);
+                        if (CollectionUtils.isNotEmpty(refObjects)) {
+                            //support of image type
+                            DataObject object = refObjects.get(0);
+                            if (script.isSupportedType(object, name)){
+                                defValue = object.getId();
+                            }
+                        }
                     } else {
                         comp = new NumericalTextField();
                         ((NumericalTextField) comp).setNumberType(type);
@@ -469,9 +476,9 @@ public class ScriptingDialog
                                         n.floatValue());
                             } 
                         }
-                        if (defValue != null)
-                            ((NumericalTextField) comp).setText(""+defValue);
                     }
+                    if (defValue != null)
+                        ((NumericalTextField) comp).setText(""+defValue);
                 }
             } else if (String.class.equals(type)) {
                 if (comp == null) {
