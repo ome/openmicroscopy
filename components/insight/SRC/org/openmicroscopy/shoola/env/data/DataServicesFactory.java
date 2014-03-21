@@ -57,6 +57,7 @@ import org.openmicroscopy.shoola.env.cache.CacheServiceFactory;
 import org.openmicroscopy.shoola.env.config.AgentInfo;
 import org.openmicroscopy.shoola.env.config.OMEROInfo;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.config.RegistryFactory;
 import org.openmicroscopy.shoola.env.data.events.ConnectedEvent;
 import org.openmicroscopy.shoola.env.data.events.ReloadRenderingEngine;
 import org.openmicroscopy.shoola.env.data.login.LoginService;
@@ -213,6 +214,11 @@ public class DataServicesFactory
         ms = new OmeroMetadataServiceImpl(omeroGateway, registry);
         admin = new AdminServiceImpl(omeroGateway, registry);
         
+        // pass the adapters on to the registry
+        RegistryFactory.linkOS(ds, registry);
+        RegistryFactory.linkMS(ms, registry);
+        RegistryFactory.linkAdmin(admin, registry);
+        RegistryFactory.linkIS(is, registry);
         
         //fs stuff
         fsConfig = loadConfig(c.getConfigFileRelative(FS_CONFIG_FILE));
