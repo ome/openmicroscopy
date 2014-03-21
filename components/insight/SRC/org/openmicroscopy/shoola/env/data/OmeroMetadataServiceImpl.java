@@ -1848,15 +1848,15 @@ class OmeroMetadataServiceImpl
 		}
 		r.remove(type);
 		*/
-		i = r.entrySet().iterator();
+		i = r.values().iterator();
 		if(!i.hasNext()) {
 		    return filteredNodes;
 		}
-		entry = (Entry)i.next();
-		filteredNodes.addAll((List) entry.getValue());
+		found = (List)i.next();
+		filteredNodes.addAll(found);
 		while (i.hasNext()) {
-			entry = (Entry) i.next();
-			filteredNodes = ListUtils.intersection(filteredNodes, (List) entry.getValue());
+		        found = (List)i.next();
+			filteredNodes = ListUtils.intersection(filteredNodes, found);
 		}
 		
 		return filteredNodes;
