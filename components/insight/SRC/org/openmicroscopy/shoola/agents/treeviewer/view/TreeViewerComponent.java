@@ -80,6 +80,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.finder.Finder;
 import org.openmicroscopy.shoola.agents.treeviewer.util.AdminDialog;
 import org.openmicroscopy.shoola.agents.treeviewer.util.ChgrpObject;
 import org.openmicroscopy.shoola.agents.treeviewer.util.GenericDialog;
+import org.openmicroscopy.shoola.agents.treeviewer.util.LinkNotificationDialog;
 import org.openmicroscopy.shoola.agents.treeviewer.util.MIFNotificationDialog;
 import org.openmicroscopy.shoola.agents.treeviewer.util.MoveGroupSelectionDialog;
 import org.openmicroscopy.shoola.agents.treeviewer.util.MultiLinkNotificationDialog;
@@ -4755,8 +4756,8 @@ class TreeViewerComponent
 			return;
 		}
 		// show a warning if the images to be deleted are linked to multiple datasets:
-		if (ImageCheckerType.DELETE.equals(index) && result.getMultiLinkImageCount()>0) {
-			MultiLinkNotificationDialog dialog = new MultiLinkNotificationDialog(view, result.getMultiLinkImages(), result.getMultiLinkImageCount());
+		if (ImageCheckerType.DELETE.equals(index) && !result.getMultiLinkResult().isEmpty()) {
+		        LinkNotificationDialog dialog = new LinkNotificationDialog(view, result.getMultiLinkResult());
 			dialog.addPropertyChangeListener(new PropertyChangeListener() {
 				
 				/** 

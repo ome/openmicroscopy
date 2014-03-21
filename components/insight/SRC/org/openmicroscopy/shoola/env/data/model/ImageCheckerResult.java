@@ -23,28 +23,21 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * A container holding MIFResultObjects (MIF delete/chgrp check)
- * and the number of images which are linked to multiple 
- * datasets (multiple dataset link check) as well as thumbnails 
- * for the first part of these images if there are any.
+ * A container holding the results of a pre-delete check; in particular 
+ * a list of {@link MIFResultObject}s (MIF delete/chgrp check)
+ * and a {@link MultiDatasetImageLinkResult} (multiple dataset link check);
  * 
  * @author Dominik Lindner &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:d.lindner@dundee.ac.uk">d.lindner@dundee.ac.uk</a>
  * @since 5.0
  */
 public class ImageCheckerResult {
-
-	/** Maximum number of thumbnails to get for the multi-dataset-images */
-	public static final int MAX_MULTILINK_THUMBS = 25;
 	
 	/** Holds all MIFResultObjects */
 	private List<MIFResultObject> mifResults = new ArrayList<MIFResultObject>();
 	
-	/** Holds thumbnails to images linked to multiple datasets */
-	private List<ThumbnailData> multiLinkImages = new ArrayList<ThumbnailData>();
-	
-	/** Count of images which are linked to multiple datasets */
-	private int multiLinkImageCount = 0;
+	/** Holds the result of the Image-Dataset Linkcheck */
+	private MultiDatasetImageLinkResult multiLinkResult;
 	
 	/**
 	 * Get all MIFResultObjects.
@@ -63,36 +56,20 @@ public class ImageCheckerResult {
 	}
 
 	/**
-	 * Get thumbnails of the images linked to multiple datasets.
-	 * This may not be all images! See {@link #getMultiLinkImageCount()}
-	 * @return See above
+	 * Get the link check result
 	 */
-	public List<ThumbnailData> getMultiLinkImages() {
-		return multiLinkImages;
-	}
+        public MultiDatasetImageLinkResult getMultiLinkResult() {
+            return multiLinkResult;
+        }
+        
+        /**
+	 * Set the link check result
+	 * @param mdlResult
+	 */
+        public void setMultiLinkResult(MultiDatasetImageLinkResult mdlResult) {
+            this.multiLinkResult = mdlResult;
+        }
 
-	/**
-	 * Set thumbnails of images linked to multiple datasets.
-	 * @param multiLinkImages
-	 */
-	public void setMultiLinkImages(List<ThumbnailData> multiLinkImages) {
-		this.multiLinkImages = multiLinkImages;
-	}
-
-	/**
-	 * Get the total count of images linked to multiple datasets
-	 * @return See above
-	 */
-	public int getMultiLinkImageCount() {
-		return multiLinkImageCount;
-	}
-
-	/**
-	 * Set the total count of images linked to multiple datasets
-	 * @param multiLinkImageCount
-	 */
-	public void setMultiLinkImageCount(int multiLinkImageCount) {
-		this.multiLinkImageCount = multiLinkImageCount;
-	}
+	
 
 }
