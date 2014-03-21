@@ -60,7 +60,6 @@ hr {
   margin: 0px;
   padding: 0 0 0 0;
   clear: both;
-  background: url('../img/hr_sep_1.gif') repeat-x center;
   height: 10px;
 }
 
@@ -152,11 +151,13 @@ hr {
   display: inline;
   width: 10px;
   height: 16px;
-  background: url('../img/white_arrow_down_bigger.gif') no-repeat center;
+  /* CSS TODO*/
+  background: url('../img/white_arrow_down.gif') no-repeat center;
 }
 
 .popped .drop-img { 
-  background: url('../img/white_arrow_up_bigger.gif') no-repeat center;
+     /* CSS TODO*/
+  background: url('../img/white_arrow_up.gif') no-repeat center;
 }
 
 .drop-left { 
@@ -534,7 +535,7 @@ td.title {
 }
 
 .postit-help-btn {
-  background-image:url(../img/question.gif);
+  background-image:url(../img/question.png);
   background-position:center center;
   background-repeat:no-repeat;
   cursor:pointer;

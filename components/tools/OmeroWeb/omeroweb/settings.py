@@ -38,6 +38,8 @@ import tempfile
 import re
 import json
 
+from omero_version import omero_version
+
 from portalocker import LockException
 
 logger = logging.getLogger(__name__)
@@ -295,6 +297,13 @@ CUSTOM_SETTINGS_MAPPINGS = {
 
     # Allowed hosts: https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
     "omero.web.allowed_hosts": ["ALLOWED_HOSTS", '["*"]', json.loads],
+    
+    # PIPELINE 1.1.27
+    # Pipeline is an asset packaging library for Django, providing both CSS and JavaScript 
+    # concatenation and compression, built-in JavaScript template support, and optional 
+    # data-URI image and font embedding.
+    "omero.web.pipeline": ["PIPELINE", "false", parse_boolean],
+
 }
 
 def process_custom_settings(module):
@@ -384,8 +393,9 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
     #'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
+    'django.middleware.gzip.GZipMiddleware',
+    'pipeline.middleware.MinifyHTMLMiddleware',
 )
-
 
 # ROOT_URLCONF: A string representing the full Python import path to your root URLconf. 
 # For example: "mydjangoapps.urls". Can be overridden on a per-request basis by setting
@@ -398,9 +408,12 @@ ROOT_URLCONF = 'omeroweb.urls'
 # of each app (using django.contrib.staticfiles.finders.AppDirectoriesFinder)
 STATICFILES_FINDERS = (
     "django.contrib.staticfiles.finders.FileSystemFinder",
-    "django.contrib.staticfiles.finders.AppDirectoriesFinder"
+    "django.contrib.staticfiles.finders.AppDirectoriesFinder",
 )
 
+STATICFILES_STORAGE = 'pipeline.storage.PipelineCachedStorage'
+PIPELINE_JS_COMPRESSOR = None
+PIPELINE_CSS_COMPRESSOR = None
 # STATIC_URL: URL to use when referring to static files located in STATIC_ROOT. 
 # Example: "/site_media/static/" or "http://static.example.com/".
 # If not None, this will be used as the base path for media definitions and the staticfiles 
@@ -460,8 +473,71 @@ INSTALLED_APPS = (
     'omeroweb.webtest',
     'omeroweb.webredirect',
     'omeroweb.webstart',
-    
+    "pipeline",
 )
+
+PIPELINE_CSS = {
+    'webgateway_viewer': {
+        'source_filenames': (
+            'webgateway/css/reset.css',
+            'webgateway/css/ome.body.css',
+            'webclient/css/dusty.css',
+            'webgateway/css/ome.viewport.css',
+            'webgateway/css/ome.gs_slider.css',
+            'webgateway/css/base.css',
+            'webgateway/css/ome.snippet_header_logo.css',
+            'webgateway/css/ome.postit.css',
+            'webgateway/css/ome.rangewidget.css',
+            '3rdparty/farbtastic/farbtastic.css',
+            'webgateway/css/ome.colorbtn.css',
+            '3rdparty/JQuerySpinBtn.css',
+            'themes/base/jquery.ui.base.css',
+            'webgateway/css/omero_image.css',
+            '3rdparty/panojs/panojs.css',
+            #'webgateway/css/ome.iehacks.css',
+        ),
+        #'output_filename': ('omeroweb-%s.min.css' % omero_version),
+        'output_filename': 'omeroweb.viewer.min.css',
+    },
+}
+
+PIPELINE_JS = {
+    'webgateway_viewer': {
+        'source_filenames': (
+            '3rdparty/jquery-1.7.2.js',
+            'webgateway/js/ome.popup.js',
+            '3rdparty/aop.js',
+            '3rdparty/panojs/utils.js',
+            '3rdparty/panojs/PanoJS.js',
+            '3rdparty/panojs/controls.js',
+            '3rdparty/panojs/pyramid_Bisque.js',
+            '3rdparty/panojs/pyramid_imgcnv.js',
+            '3rdparty/panojs/pyramid_Zoomify.js',
+            'webgateway/js/ome.panojs.control_thumbnail.js',
+            '3rdparty/panojs/control_info.js',
+            '3rdparty/panojs/control_svg.js',
+            '3rdparty/panojs/control_roi.js',
+            'webgateway/js/ome.gs_utils.js',
+            'webgateway/js/ome.viewportImage.js',
+            'webgateway/js/ome.gs_slider.js',
+            'webgateway/js/ome.viewport.js',
+            '3rdparty/jquery-ui-1.8.19/jquery-ui.min.js',
+            'webgateway/js/ome.smartdialog.js',
+            '3rdparty/JQuerySpinBtn.js',
+            'webgateway/js/ome.colorbtn.js',
+            'webgateway/js/ome.postit.js',
+            '3rdparty/jquery.selectboxes.js',
+            'webgateway/js/ome.rangewidget.js',
+            '3rdparty/farbtastic/farbtastic.js',
+            '3rdparty/raphael/raphael-min.js',
+            '3rdparty/raphael/scale.raphael.js',
+            'webgateway/js/ome.roidisplay.js',            
+            '3rdparty/jquery.mousewheel.js',
+        ),
+        #'output_filename': ('omeroweb-%s.min.js' % omero_version),
+        'output_filename': 'omeroweb.viewer.min.js',
+    }
+}
 
 # ADDITONAL_APPS: We import any settings.py from apps. This allows them to modify settings.
 # We're also processing any CUSTOM_SETTINGS_MAPPINGS defined there.
