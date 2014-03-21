@@ -913,7 +913,6 @@ omero.version=${omero.version}
         </copy>
         <copy file="components/insight/OUT/dist/omero.insight.jar" tofile="${dist.dir}/lib/insight/omero.insight.jar"/>
         <copy file="components/insight/SRC/org/openmicroscopy/shoola/env/ui/graphx/omeabout-bk.png" tofile="${dist.dir}/lib/insight/ome.png"/>
-        <antcall target="webstart-sign" inheritAll="true" inheritRefs="true"/>
     </target>
 
     <target name="hot-blitz" depends="init" description="Re-launch running server with new blitz.jar">
