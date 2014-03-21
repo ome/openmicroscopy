@@ -505,6 +505,10 @@ public abstract class SemanticType {
         for (Property p : getClassProperties()) {
             String check = null;
             
+            if (Property.POSITIVEFLOAT.equals(p._getType())) {
+                check = p.getName() + " > 0";
+            }
+
             if (Property.POSITIVEINTEGER.equals(p._getType())) {
                 check = p.getName() + " > 0";
             }

@@ -397,13 +397,13 @@ public class OmeroReader extends FormatReader {
       for (int c=0; c<channels.size(); c++) {
         LogicalChannel channel = channels.get(c).getLogicalChannel();
 
-        RInt emWave = channel.getEmissionWave();
-        RInt exWave = channel.getExcitationWave();
+        RDouble emWave = channel.getEmissionWave();
+        RDouble exWave = channel.getExcitationWave();
         RDouble pinholeSize = channel.getPinHoleSize();
         RString cname = channel.getName();
 
-        Integer emission = emWave == null ? null : emWave.getValue();
-        Integer excitation = exWave == null ? null : exWave.getValue();
+        Double emission = emWave == null ? null : emWave.getValue();
+        Double excitation = exWave == null ? null : exWave.getValue();
         String channelName = cname == null ? null : cname.getValue();
         Double pinhole = pinholeSize == null ? null : pinholeSize.getValue();
 
@@ -415,11 +415,11 @@ public class OmeroReader extends FormatReader {
         }
         if (emission != null && emission > 0) {
           store.setChannelEmissionWavelength(
-            new PositiveInteger(emission), 0, c);
+            new PositiveFloat(emission), 0, c);
         }
         if (excitation != null && excitation > 0) {
           store.setChannelExcitationWavelength(
-            new PositiveInteger(excitation), 0, c);
+            new PositiveFloat(excitation), 0, c);
         }
       }
     }

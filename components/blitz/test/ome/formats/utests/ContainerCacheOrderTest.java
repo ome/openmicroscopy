@@ -54,7 +54,7 @@ public class ContainerCacheOrderTest extends TestCase
 
         // Populate at least one logical channel field.
         store.setChannelEmissionWavelength(
-            new PositiveInteger(100), IMAGE_INDEX, CHANNEL_INDEX);
+            new PositiveFloat(100.1), IMAGE_INDEX, CHANNEL_INDEX);
 
         // Populate at least one instrument field.
         store.setInstrumentID("Instrument:0", INSTRUMENT_INDEX);
