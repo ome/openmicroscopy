@@ -169,6 +169,8 @@ public class ParamData
             return omero.rtypes.rint((Integer) value);
         if (value instanceof Float)
             return omero.rtypes.rfloat((Float) value);
+        if (value instanceof Double)
+            return omero.rtypes.rdouble((Double) value);
         if (value instanceof pojos.DataObject) {
             IObject o = ((pojos.DataObject) value).asIObject();
             return omero.rtypes.robject(o);
@@ -385,7 +387,7 @@ public class ParamData
     { 
         if (valueToPass instanceof Boolean || valueToPass instanceof String ||
             valueToPass instanceof Long || valueToPass instanceof Integer ||
-            valueToPass instanceof Float)
+            valueToPass instanceof Float || valueToPass instanceof Double)
             return convertBasicValue(valueToPass);
         if (valueToPass instanceof List) {
             List<RType> l = new ArrayList<RType>();
