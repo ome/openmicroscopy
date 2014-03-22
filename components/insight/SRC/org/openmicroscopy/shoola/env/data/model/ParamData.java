@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.data.model.ParamData 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -38,6 +38,7 @@ import org.apache.commons.collections.CollectionUtils;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.util.PojoMapper;
 import omero.RBool;
+import omero.RDouble;
 import omero.RFloat;
 import omero.RInt;
 import omero.RList;
@@ -49,7 +50,7 @@ import omero.RType;
 import omero.grid.Param;
 import omero.model.IObject;
 
-/** 
+/**
  * Wraps up a parameter object.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
@@ -105,6 +106,8 @@ public class ParamData
             type = Boolean.class;
         } else if (o instanceof Float) {
             type = Float.class;
+        } else if (o instanceof Double) {
+            type = Double.class;
         } else if (o instanceof List) {
             type = List.class;
         } else if (o instanceof Map) {
@@ -114,7 +117,7 @@ public class ParamData
         Number n;
         boolean set = false;
         Object value = convertRType(param.min);
-        if (value instanceof Long || value instanceof Integer) {
+        if (value instanceof Number) {
             minValue = value;
             set = true;
             if (defaultValue == null) {
@@ -126,7 +129,7 @@ public class ParamData
             }
         }
         value = convertRType(param.max);
-        if (value instanceof Long || value instanceof Integer) {
+        if (value instanceof Number) {
             maxValue = value;
             if (!set) {
                 if (defaultValue != null) {
@@ -183,9 +186,10 @@ public class ParamData
     {
         if (value instanceof RBool) return ((RBool) value).getValue();
         if (value instanceof RString) return ((RString) value).getValue();
-        if (value instanceof RLong)  return ((RLong) value).getValue();
-        if (value instanceof RInt)  return ((RInt) value).getValue();
-        if (value instanceof RFloat)  return ((RFloat) value).getValue();
+        if (value instanceof RLong) return ((RLong) value).getValue();
+        if (value instanceof RInt) return ((RInt) value).getValue();
+        if (value instanceof RFloat) return ((RFloat) value).getValue();
+        if (value instanceof RDouble) return ((RDouble) value).getValue();
         if (value instanceof RObject) {
             IObject o = ((RObject) value).getValue();
             Object r = PojoMapper.asDataObject(o);
@@ -260,7 +264,7 @@ public class ParamData
      * 
      * @return See above.
      */
-    public Class getKeyType()
+    public Class<?> getKeyType()
     {
         Object o;
         if (List.class.equals(type)) {
@@ -385,8 +389,8 @@ public class ParamData
             return convertBasicValue(valueToPass);
         if (valueToPass instanceof List) {
             List<RType> l = new ArrayList<RType>();
-            List list = (List) valueToPass;
-            Iterator i = list.iterator();
+            List<?> list = (List<?>) valueToPass;
+            Iterator<?> i = list.iterator();
             RType key;
             while (i.hasNext()) {
                 key = convertBasicValue(i.next());
@@ -398,15 +402,15 @@ public class ParamData
         }
         if (valueToPass instanceof Map) {
             Map<String, RType> m = new HashMap<String, RType>();
-            Map map = (Map) valueToPass;
-            Entry entry;
+            Map<String, RType> map = (Map<String, RType>) valueToPass;
+            Entry<String, RType> entry;
             RType type;
-            Iterator i = map.entrySet().iterator();
+            Iterator<Entry<String, RType>> i = map.entrySet().iterator();
             while (i.hasNext()) {
-                entry = (Entry) i.next();
+                entry = i.next();
                 type = convertBasicValue(entry.getValue());
                 if (type != null) 
-                    m.put((String) entry.getKey(), type);
+                    m.put(entry.getKey(), type);
             }
             if (m.size() == 0) return null;
             return omero.rtypes.rmap(m);
@@ -424,7 +428,8 @@ public class ParamData
     {
         if (value instanceof RBool || value instanceof RString ||
                 value instanceof RLong || value instanceof RInt ||
-                value instanceof RFloat || value instanceof RObject)
+                value instanceof RFloat || value instanceof RObject ||
+                value instanceof RDouble)
             return convertBasicRType(value);
         if (value instanceof RList) {
             List<RType> list = ((RList) value).getValue();
@@ -440,15 +445,15 @@ public class ParamData
         if (value instanceof RMap) {
             Map<String, RType> map = ((RMap) value).getValue();
             Map<String, Object> r = new HashMap<String, Object>();
-            Entry entry;
+            Entry<String, RType> entry;
             Object v;
-            Iterator i = map.entrySet().iterator();
+            Iterator<Entry<String, RType>> i = map.entrySet().iterator();
 
             while (i.hasNext()) {
-                entry = (Entry) i.next();
-                v = convertRType((RType) entry.getValue());
+                entry = i.next();
+                v = convertRType(entry.getValue());
                 if (v != null) {
-                    r.put((String) entry.getKey(), v);
+                    r.put(entry.getKey(), v);
                 }
             }
             return r;
