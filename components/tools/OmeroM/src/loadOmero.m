@@ -63,7 +63,7 @@ if exist('omero.client','class') == 0
     
     disp('');
     disp('--------------------------');
-    disp('OmeroMatlab Toolbox ');
+    disp('OMERO.matlab Toolbox ');
     disp(omeroVersion);
     disp('--------------------------');
     disp('');
