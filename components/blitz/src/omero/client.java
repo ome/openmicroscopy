@@ -25,6 +25,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -384,8 +386,11 @@ public class client {
         try {
             __ic = Ice.Util.initialize(id);
         } catch (Ice.EndpointParseException epe) {
+            StringWriter sw = new StringWriter();
+            PrintWriter pw = new PrintWriter(sw);
+            epe.printStackTrace(pw);
             throw new ClientError("No host specified. " +
-                "Use omero.client(HOSTNAME), ICE_CONFIG, or similar.");
+                "Use omero.client(HOSTNAME), ICE_CONFIG, or similar."+ sw.toString());
         }
 
 
