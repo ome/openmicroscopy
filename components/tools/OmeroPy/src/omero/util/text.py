@@ -72,9 +72,16 @@ class ALIGN:
 class Column(list):
 
     def __init__(self, name, data, align=ALIGN.LEFT):
-        list.__init__(self, data)
+        def tostring(x):
+            try:
+                return str(x).decode("utf-8")
+            except UnicodeDecodeError:
+                return '<Invalid UTF-8>'
+
+        decoded = [tostring(d) for d in data]
+        list.__init__(self, decoded)
         self.name = name
-        self.width = max(len(str(x).decode("utf-8")) for x in data + [name])
+        self.width = max(len(x) for x in decoded + [name])
         self.format = ' %%%s%ds ' % (align, self.width)
 
 
