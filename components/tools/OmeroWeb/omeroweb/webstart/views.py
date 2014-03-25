@@ -24,6 +24,8 @@
 #
 
 import os
+import sys
+import traceback
 from glob import glob
 
 from django.conf import settings
@@ -37,16 +39,27 @@ from django.views.decorators.cache import never_cache
 from omeroweb.http import HttpJNLPResponse
 from omero_version import omero_version
 
-def index(request):
-    template = settings.INDEX_TEMPLATE
-    if not isinstance(template, basestring):
-        template = 'webstart/index.html'
+from omeroweb.webclient.decorators import login_required
+from omeroweb.webclient.decorators import render_response
+
+
+@render_response()
+def index(request, conn=None, **kwargs):
+    context = {"version": omero_version}
+    
+    if settings.WEBSTART_TEMPLATE is not None:
+        try:
+            template_loader.get_template(settings.WEBSTART_TEMPLATE)
+            context['template'] = settings.WEBSTART_TEMPLATE
+        except Exception, e:
+            context['template'] = 'webstart/index.html'
+            context["error"] = traceback.format_exception(*sys.exc_info())[-1]
     
     insight_url = None
     if settings.WEBSTART:
-        insight_url = request.build_absolute_uri(reverse("webstart_insight"))
-    
-    return render_to_response(template,{'insight_url':insight_url, "version": omero_version})
+        context['insight_url'] = request.build_absolute_uri(reverse("webstart_insight"))
+
+    return context
 
 @never_cache
 def insight(request):

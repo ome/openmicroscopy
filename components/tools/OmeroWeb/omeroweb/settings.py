@@ -231,7 +231,6 @@ CUSTOM_SETTINGS_MAPPINGS = {
     "omero.web.force_script_name": ["FORCE_SCRIPT_NAME", None, leave_none_unset],
     "omero.web.static_url": ["STATIC_URL", "/static/", str],
     "omero.web.staticfile_dirs": ["STATICFILES_DIRS", '[]', json.loads],
-    "omero.web.index_template": ["INDEX_TEMPLATE", None, identity],
     "omero.web.caches": ["CACHES", '{"default": {"BACKEND": "django.core.cache.backends.dummy.DummyCache"}}', json.loads],
     "omero.web.webgateway_cache": ["WEBGATEWAY_CACHE", None, leave_none_unset],
     "omero.web.session_engine": ["SESSION_ENGINE", DEFAULT_SESSION_ENGINE, check_session_engine],
@@ -282,6 +281,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
     # "omero.web.application_host": ["APPLICATION_HOST", None, remove_slash], 
 
     # WEBSTART
+    "omero.web.webstart_template": ["WEBSTART_TEMPLATE", None, identity],
     "omero.web.webstart_jar": ["WEBSTART_JAR", "omero.insight.jar", str],
     "omero.web.webstart_icon": ["WEBSTART_ICON", "webstart/img/icon-omero-insight.png", str],
     "omero.web.webstart_heap": ["WEBSTART_HEAP", "1024m", str],
@@ -296,6 +296,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
     # Allowed hosts: https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
     "omero.web.allowed_hosts": ["ALLOWED_HOSTS", '["*"]', json.loads],
 }
+
 
 def process_custom_settings(module):
     logging.info('Processing custom settings for module %s' % module.__name__)

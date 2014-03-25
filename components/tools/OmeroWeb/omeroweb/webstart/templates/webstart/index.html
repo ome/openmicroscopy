@@ -38,6 +38,8 @@
   });
 </script>
 
+    {% if error %}<h1 class="error">Following error occured: WEBSTART_TEMPLATE, '{{ error }}'</h1>{% endif %}
+
     <form class="standard_form inlined">
       <h1 style="text-align: center">{% trans "Launch OMERO.insight via webstart" %}: </h1>
       <p style="text-align: center">
