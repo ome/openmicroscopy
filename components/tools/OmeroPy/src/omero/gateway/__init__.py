@@ -6978,7 +6978,7 @@ class _ImageWrapper (BlitzObjectWrapper):
 
         # Lets prepare the channel settings
         channels = self.getChannels()
-        args.append('Channels=%s' % (','.join(["%d|%s:%s$%s" % (x._idx+1,
+        args.append('ChannelsExtended=%s' % (','.join(["%d|%s:%s$%s" % (x._idx+1,
                                                                 Decimal(str(x.getWindowStart())),
                                                                 Decimal(str(x.getWindowEnd())),
                                                                 x.getColor().getHtml())
