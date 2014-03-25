@@ -70,7 +70,8 @@ end
 
 try
     % Remove OMERO jars from Java class path
-    javarmpath(getOmeroJars);
+    omeroJars = getOmeroJars();
+    javarmpath(omeroJars{:});
     [w, wid] = lastwarn;
     if ~strcmp(w, '') && ~isequal(wid, JAVAWARNID)
         disp('  ');
