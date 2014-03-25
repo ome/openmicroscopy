@@ -46,7 +46,7 @@ def redirect_urlpatterns():
     """
     Helper function to return a URL pattern for index page http://host/.
     """
-    if settings.INDEX_TEMPLATE is None:
+    if settings.WEBSTART_TEMPLATE is None:
         return patterns('', url(r'^$', RedirectView.as_view(url=reverse_lazy('webindex')), name="index" ))
     else:
         return patterns('', url( r'^$', 'omeroweb.webstart.views.index', name="index" ),)
