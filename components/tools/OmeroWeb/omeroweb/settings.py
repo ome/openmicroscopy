@@ -394,8 +394,6 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
     #'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.gzip.GZipMiddleware',
-    'pipeline.middleware.MinifyHTMLMiddleware',
 )
 
 
