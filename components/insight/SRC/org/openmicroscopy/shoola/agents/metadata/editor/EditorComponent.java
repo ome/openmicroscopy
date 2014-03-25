@@ -52,6 +52,7 @@ import org.openmicroscopy.shoola.agents.metadata.browser.Browser;
 import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
 import org.openmicroscopy.shoola.agents.metadata.util.AnalysisResultsItem;
 import org.openmicroscopy.shoola.agents.metadata.util.FigureDialog;
+import org.openmicroscopy.shoola.agents.metadata.util.FileAttachmentWarningDialog;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.SelectionWizard;
@@ -513,33 +514,35 @@ class EditorComponent
             model.fireFileAnnotationRemoveCheck(annotations);
     }
 
-    public void handleFileAnnotationRemoveCheck(FileAnnotationCheckResult result) {
+    public void handleFileAnnotationRemoveCheck(final FileAnnotationCheckResult result) {
         if (!result.getSingleParentAnnotations().isEmpty()) {
-            String title, message;
-
-            if (result.getAllAnnotations().size() == 1) {
-                title = "Delete attachment";
-                message = "This attachment is not linked to any other data, so it will\nbe deleted from the data repository."
-                        + "\n\nProceed?";
-            } else {
-                title = "Delete attachments";
-                message = "Some attachments are not linked to any other data, so they will\nbe deleted from the data repository."
-                        + "\n\nProceed?";
-            }
+            
             JFrame f = MetadataViewerAgent.getRegistry().getTaskBar()
                     .getFrame();
-            MessageBox box = new MessageBox(f, title, message);
-            if (box.centerMsgBox() == MessageBox.YES_OPTION) {
-                for (FileAnnotationData fd : result.getSingleParentAnnotations()) {
-                    view.deleteAnnotation(fd);
+            
+            FileAttachmentWarningDialog dlg = new FileAttachmentWarningDialog(f, result);
+            dlg.addPropertyChangeListener(new PropertyChangeListener() {
+                
+                @Override
+                public void propertyChange(PropertyChangeEvent arg0) {
+                    if(arg0.getPropertyName().equals(FileAttachmentWarningDialog.DELETE_PROPERTY)) {
+                        for (FileAnnotationData fd : result.getSingleParentAnnotations()) {
+                          view.deleteAnnotation(fd);
+                        }
+                        for (FileAnnotationData fd : result.getAllAnnotations()) {
+                            view.unlinkAttachedFile(fd);
+                        }
+                    }
+                    
                 }
-            } else {
-                return;
-            }
+            });
+            UIUtilities.centerAndShow(dlg);
         }
 
-        for (FileAnnotationData fd : result.getAllAnnotations()) {
-            view.unlinkAttachedFile(fd);
+        else {
+            for (FileAnnotationData fd : result.getAllAnnotations()) {
+                view.unlinkAttachedFile(fd);
+            }
         }
     }
 	
