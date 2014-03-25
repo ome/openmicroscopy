@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowserToolBar 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -366,7 +366,10 @@ class DataBrowserToolBar
 	private void setFilteringValue()
 	{
 		SearchObject filter = search.getSelectedNode();
-		if (filter == null) return;
+		if (filter == null || filter.getIndex()==QuickSearch.NONE) return;
+		
+		filteringDialog.unselectAll();
+		
 		switch (filter.getIndex()) {
 			case QuickSearch.UNTAGGED:
 				filteringDialog.setTagsText("");
@@ -397,6 +400,13 @@ class DataBrowserToolBar
 				break;
 			case QuickSearch.UNRATED:
 				filteringDialog.setRatingLevel(RatingComponent.MIN_VALUE);
+				break;
+			case QuickSearch.HAS_ROIS:
+    			        filteringDialog.setHasROIs();
+    			        break;
+			case QuickSearch.NO_ROIS:
+			        filteringDialog.setNoROIs();
+			        break;
 		}
 	}
 	
@@ -835,7 +845,12 @@ class DataBrowserToolBar
 					if (text.length() != 0) text += ", ";
 					text += SearchComponent.NAME_TEXT;
 				}
+				if (c.contains(FilterContext.ROI)) {
+				        if (text.length() != 0) text += ", ";
+				        text += SearchComponent.NAME_ROIS;
+				}
 				setFilterLabel(text);
+				search.setSearchContext(QuickSearch.NONE);
 				break;
 			case FilterContext.NONE:
 				search.setSearchContext(QuickSearch.SHOW_ALL);
@@ -846,7 +861,7 @@ class DataBrowserToolBar
 			case FilterContext.RATE:
 				search.setSearchEnabled(false);
 				setFilterLabel(SearchComponent.NAME_RATE);
-				if (context.getIndex() != FilterContext.LOWER) {
+				if (context.getRateIndex() != FilterContext.LOWER_EQUAL) {
 					switch (context.getRate()) {
 						case 0:
 							setFilterLabel(SearchComponent.UNRATED);
@@ -896,6 +911,20 @@ class DataBrowserToolBar
 				search.setSearchContext(QuickSearch.FULL_TEXT);
 				//terms = context.getAnnotation(TextualAnnotationData.class);
 				//if (terms != null) search.setSearchValue(terms);
+				break;
+			case FilterContext.ROI:
+			    if(context.getRoiIndex()==FilterContext.GREATER_EQUAL && context.getROIs()==1) {
+			        search.setSearchContext(QuickSearch.HAS_ROIS);
+			        setFilterLabel(SearchComponent.HAS_ROIS_TEXT);
+			    }
+			    else if(context.getRoiIndex()==FilterContext.EQUAL && context.getROIs()==0) {
+			        search.setSearchContext(QuickSearch.NO_ROIS);
+			        setFilterLabel(SearchComponent.NO_ROIS_TEXT);
+			    }
+			    else {
+			        search.setSearchContext(QuickSearch.NONE);
+			    }
+			    break;
 		}
 	}
 	
