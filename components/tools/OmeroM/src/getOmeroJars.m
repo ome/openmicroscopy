@@ -28,12 +28,9 @@ function jarList = getOmeroJars()
 % Retrieve path to the toolbox libraries
 libpath = fullfile(findOmero(), 'libs');
 
-% Always include omero.client and guava
-omero_client_jar = fullfile(libpath, 'omero_client.jar');
+% Create a cell array with the dependency jars
 guavajdk5_jar = fullfile(libpath, 'guava-jdk5.jar');
-
-% Create a cell array with the basis jars
-jarList = {omero_client_jar, guavajdk5_jar};
+jarList = {guavajdk5_jar};
 
 % For MATLAB versions 7.13 (R2011b) and above, the sl4j-api.jar and
 % sl4j-log4j12.jar JARs are shipped with the external Java libraries of
@@ -43,5 +40,9 @@ if verLessThan('MATLAB', '7.13')
     slf4j_log4j12_jar = fullfile(libpath, 'slf4j-log4j12.jar');
     jarList = horzcat(jarList, {slf4j_api_jar, slf4j_log4j12_jar});
 end
+
+% Finally add omero_client.jar
+omero_client_jar = fullfile(libpath, 'omero_client.jar');
+jarList = horzcat(jarList, {omero_client_jar});
 
 end
