@@ -38,7 +38,6 @@ from django.views.decorators.cache import never_cache
 
 from omero_version import omero_version
 
-from omeroweb.webclient.decorators import login_required
 from omeroweb.webclient.decorators import render_response
 
 
