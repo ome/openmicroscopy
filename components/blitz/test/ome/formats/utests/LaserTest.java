@@ -39,7 +39,7 @@ public class LaserTest extends TestCase
 	{
 		int i = LIGHTSOURCE_INDEX + 10;
 		store.setLaserID("Laser:100", INSTRUMENT_INDEX, i);
-		store.setLaserWavelength(new PositiveInteger(100), INSTRUMENT_INDEX, i);
+		store.setLaserWavelength(new PositiveFloat(100.1), INSTRUMENT_INDEX, i);
 		store.setLaserType(LaserType.METALVAPOR, INSTRUMENT_INDEX, i);
 		store.setLaserLaserMedium(LaserMedium.EMINUS, INSTRUMENT_INDEX, i);
 		store.setLaserPockelCell(true, INSTRUMENT_INDEX, i);

@@ -2764,20 +2764,20 @@ public class OMEROMetadataStoreClient
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setChannelEmissionWavelength(ome.xml.model.primitives.PositiveInteger, int, int)
+     * @see loci.formats.meta.MetadataStore#setChannelEmissionWavelength(ome.xml.model.primitives.PositiveFloat, int, int)
      */
     public void setChannelEmissionWavelength(
-            PositiveInteger emissionWavelength, int imageIndex, int channelIndex)
+            PositiveFloat emissionWavelength, int imageIndex, int channelIndex)
     {
         Channel o = getChannel(imageIndex, channelIndex);
         o.getLogicalChannel().setEmissionWave(toRType(emissionWavelength));
     }
 
     /** (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setChannelExcitationWavelength(ome.xml.model.primitives.PositiveInteger, int, int)
+     * @see loci.formats.meta.MetadataStore#setChannelExcitationWavelength(ome.xml.model.primitives.PositiveFloat, int, int)
      */
     public void setChannelExcitationWavelength(
-            PositiveInteger excitationWavelength, int imageIndex,
+            PositiveFloat excitationWavelength, int imageIndex,
             int channelIndex)
     {
         Channel o = getChannel(imageIndex, channelIndex);
@@ -2917,10 +2917,10 @@ public class OMEROMetadataStoreClient
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setChannelLightSourceSettingsWavelength(ome.xml.model.primitives.PositiveInteger, int, int)
+     * @see loci.formats.meta.MetadataStore#setChannelLightSourceSettingsWavelength(ome.xml.model.primitives.PositiveFloat, int, int)
      */
     public void setChannelLightSourceSettingsWavelength(
-            PositiveInteger wavelength, int imageIndex, int channelIndex)
+            PositiveFloat wavelength, int imageIndex, int channelIndex)
     {
         LightSettings o = getChannelLightSourceSettings(imageIndex, channelIndex);
         o.setWavelength(toRType(wavelength));
@@ -4414,9 +4414,9 @@ public class OMEROMetadataStoreClient
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setLaserWavelength(ome.xml.model.primitives.PositiveInteger, int, int)
+     * @see loci.formats.meta.MetadataStore#setLaserWavelength(ome.xml.model.primitives.PositiveFloat, int, int)
      */
-    public void setLaserWavelength(PositiveInteger wavelength,
+    public void setLaserWavelength(PositiveFloat wavelength,
             int instrumentIndex, int lightSourceIndex)
     {
         Laser o = getLaser(instrumentIndex, lightSourceIndex);
@@ -5059,10 +5059,10 @@ public class OMEROMetadataStoreClient
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setMicrobeamManipulationLightSourceSettingsWavelength(ome.xml.model.primitives.PositiveInteger, int, int, int)
+     * @see loci.formats.meta.MetadataStore#setMicrobeamManipulationLightSourceSettingsWavelength(ome.xml.model.primitives.PositiveFloat, int, int, int)
      */
     public void setMicrobeamManipulationLightSourceSettingsWavelength(
-            PositiveInteger wavelength, int experimentIndex,
+            PositiveFloat wavelength, int experimentIndex,
             int microbeamManipulationIndex, int lightSourceSettingsIndex)
     {
         LightSettings o = getMicrobeamManipulationLightSourceSettings(experimentIndex,
