@@ -28,9 +28,9 @@ the Run_Cecog_4.1.py script.
     """
 
     # [MetaMorph_PlateScanPackage]
-    #regex_subdirectories = re.compile('(?=[^_]).*?(?P<D>\d+).*?')
-    #regex_position = re.compile('P(?P<P>.+?)_')
-    #continuous_frames = 1
+    # regex_subdirectories = re.compile('(?=[^_]).*?(?P<D>\d+).*?')
+    # regex_position = re.compile('P(?P<P>.+?)_')
+    # continuous_frames = 1
     regex_token = re.compile(r'(?P<Token>.+)\.')
     regex_time = re.compile(r'T(?P<T>\d+)')
     regex_channel = re.compile(r'_C(?P<C>.+?)(_|$)')
@@ -52,9 +52,9 @@ the Run_Cecog_4.1.py script.
         for x in (merge, rois):
             x.add_login_arguments()
 
-    ##
-    ## Public methods
-    ##
+    #
+    # Public methods
+    #
     def merge(self, args):
         """Uses PIL to read multiple planes from a local folder.
 

@@ -105,7 +105,7 @@ class ScriptControl(BaseControl):
         parser.add_login_arguments()
         sub = parser.sub()
 
-        ## Disabling for 4.2 release. help = parser.add(sub, self.help,
+        # Disabling for 4.2 release. help = parser.add(sub, self.help,
         # "Extended help")
 
         demo = parser.add(
@@ -657,7 +657,7 @@ http://stackoverflow.com/questions/3471461/raw-input-and-timeout/3911560
 
         client = self.ctx.conn(args)
         ofile = client.sf.getQueryService().get("OriginalFile", ofile)
-        #client.upload(fpath, ofile=ofile)
+        # client.upload(fpath, ofile=ofile)
 
         file = open(fpath)
         scriptText = file.read()
