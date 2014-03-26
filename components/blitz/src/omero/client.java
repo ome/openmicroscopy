@@ -369,7 +369,7 @@ public class client {
                 String[] values = router.split(" ");
                 if (values != null) {
                     for (int i = 0; i < values.length; i++) {
-                        if (values[i].equals("-h")) {
+                        if (values[i].equals("-h") && (i+1) < values.length) {
                             h = values[i+1];
                             break;
                         }
