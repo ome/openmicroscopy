@@ -63,7 +63,6 @@ import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JRootPane;
@@ -388,48 +387,56 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 		}
 	}
 	
-	/**
-	 * Check if the user wants to import more files than the current limit
-	 * @return <code>true</code> if the file limit is exceeded, <code>false</code> otherwise
-	 */
-	private boolean checkFileCount() {
-	    int maxFiles = (Integer) ImporterAgent.getRegistry().lookup("/options/ImportFileLimit");
-	    
-	    File[] files = chooser.getSelectedFiles();
-	    int nFiles = 0;
-	    for(File file : files) {
-	        nFiles += countFiles(file);
-	    }
-	    
-	    nFiles += table.getFilesToImport().size();
-	    
-	    if(nFiles>maxFiles) {
-	        String msg = TEXT_FILE_LIMIT_EXCEEDED.replaceAll(FILE_LIMIT_WILDCARD, ""+maxFiles);
-	        JOptionPane.showMessageDialog(this, msg, TITLE_FILE_LIMIT_EXCEEDED, JOptionPane.ERROR_MESSAGE);
-	        return false;
-	    }
-	    
-	    return true;
-	}
+        /**
+         * Check if the user wants to import more files than the current limit
+         * 
+         * @return <code>true</code> if the file limit is exceeded,
+         *         <code>false</code> otherwise
+         */
+        private boolean checkFileCount() {
+            int maxFiles = (Integer) ImporterAgent.getRegistry().lookup(
+                    "/options/ImportFileLimit");
+    
+            File[] files = chooser.getSelectedFiles();
+            int nFiles = 0;
+            for (File file : files) {
+                nFiles += countFiles(file);
+            }
+    
+            nFiles += table.getFilesToImport().size();
+    
+            if (nFiles > maxFiles) {
+                String msg = TEXT_FILE_LIMIT_EXCEEDED.replaceAll(
+                        FILE_LIMIT_WILDCARD, "" + maxFiles);
+                ImporterAgent.getRegistry().getUserNotifier()
+                        .notifyError(TITLE_FILE_LIMIT_EXCEEDED, msg);
+                return false;
+            }
+    
+            return true;
+        }
 	
-	/**
-	 * Counts the files within the given directory (and sub directories) 
-	 * @param file The directory or file
-	 * @return The number of files within the directory (and sub directories)  or <code>1</code> if the provided argument is a file instead of a directory
-	 */
-	private int countFiles(File file) {
-	    
-	    if(file.isDirectory()) {
-	        int count = 0;
-	        for(File child : file.listFiles()) {
-	            count += countFiles(child);
-	        }
-	        return count;
-	    }
-	    else {
-	        return 1;
-	    }
-	}
+        /**
+         * Counts the files within the given directory (and sub directories)
+         * 
+         * @param file
+         *            The directory or file
+         * @return The number of files within the directory (and sub directories) or
+         *         <code>1</code> if the provided argument is a file instead of a
+         *         directory
+         */
+        private int countFiles(File file) {
+    
+            if (file.isDirectory()) {
+                int count = 0;
+                for (File child : file.listFiles()) {
+                    count += countFiles(child);
+                }
+                return count;
+            }
+            
+            return 1;
+        }
 
 	/**
 	 * Handles <code>Enter</code> key pressed.
