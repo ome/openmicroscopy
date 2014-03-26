@@ -224,7 +224,7 @@ JSON File Format:
                     width = int(output[0].rstrip())
             elif this_system in ['windows', 'win32']:
                 # http://stackoverflow.com/questions/566746/\
-                #how-to-get-console-window-width-in-python
+                # how-to-get-console-window-width-in-python
                 from ctypes import windll, create_string_buffer
                 from struct import unpack
                 # stdin handle is -10
@@ -347,7 +347,7 @@ JSON File Format:
             tc.owners[owner] = "%s %s" % (first, last)
 
         for parent in parent_tags:
-            if not parent.tag_id in tc.tags:
+            if parent.tag_id not in tc.tags:
                 tc.tags[parent.tag_id] = parent
 
         return tc
