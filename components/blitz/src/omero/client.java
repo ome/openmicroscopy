@@ -48,7 +48,6 @@ import ome.util.checksum.ChecksumProviderFactoryImpl;
 import ome.util.checksum.ChecksumType;
 import omero.api.ClientCallback;
 import omero.api.ClientCallbackPrxHelper;
-import omero.api.IAdminPrx;
 import omero.api.ISessionPrx;
 import omero.api.IUpdatePrx;
 import omero.api.RawFileStorePrx;
@@ -61,10 +60,8 @@ import omero.api._ClientCallbackDisp;
 import omero.constants.AGENT;
 import omero.model.ChecksumAlgorithm;
 import omero.model.ChecksumAlgorithmI;
-import omero.model.DetailsI;
 import omero.model.OriginalFile;
 import omero.model.OriginalFileI;
-import omero.model.PermissionsI;
 import omero.model.enums.ChecksumAlgorithmSHA1160;
 import omero.util.ModelObjectFactoryRegistry;
 import omero.util.Resources;
@@ -147,7 +144,7 @@ public class client {
 
     /**
      * Single communicator for this {@link omero.client}. Nullness is used as a
-     * test of what state the client is in, therefore all access is sychronized
+     * test of what state the client is in, therefore all access is synchronized
      * by {@link #lock}
      */
     private volatile Ice.Communicator __ic;
