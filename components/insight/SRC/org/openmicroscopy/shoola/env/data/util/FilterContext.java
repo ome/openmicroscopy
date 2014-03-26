@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.data.util.FilterContext 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -71,11 +71,14 @@ public class FilterContext
 	/** Indicates that the name context selected. */
 	public static final int NAME = 5;
 	
-	/** Indicate to retrieve objects rated higher than the passed level. */
-	public static final int HIGHER = 0;
+	/** Indicates that the ROI context selected. */
+	public static final int ROI = 6;
 	
-	/** Indicate to retrieve objects rated lower than the passed level. */
-	public static final int LOWER = 1;
+	/** Indicate to retrieve objects with a value greater than the passed level. */
+	public static final int GREATER_EQUAL = 0;
+	
+	/** Indicate to retrieve objects with a value lower than the passed level. */
+	public static final int LOWER_EQUAL = 1;
 	
 	/** Indicate to retrieve objects rated with passed level. */
 	public static final int EQUAL = 2;
@@ -89,8 +92,14 @@ public class FilterContext
 	/** The selected rating level. */
 	private int 						rate;
 	
+	/** The selected number of ROIs */
+	private int                                            rois;
+	
 	/** One of the constants defined by this class. */
-	private int							index;
+	private int							rateIndex;
+	
+	/** One of the constants defined by this class. */
+	private int                                                     roiIndex;
 	
 	/** The collection of annotation type. */
 	private Map<Class, List<String>> 	annotationType;
@@ -115,7 +124,9 @@ public class FilterContext
 	{
 		annotationType = new HashMap<Class, List<String>>();
 		rate = -1;
-		index = -1;
+		rateIndex = -1;
+		rois = -1;
+		roiIndex = GREATER_EQUAL;
 		resultType = INTERSECTION;
 		type = new ArrayList<Integer>();
 	}
@@ -149,7 +160,7 @@ public class FilterContext
 	
 	/**
 	 * Returns one of the following constants: {@link #RATE}, {@link #TAG} or
-	 * {@link #COMMENT}, {@link #NAME} or 
+	 * {@link #COMMENT}, {@link #NAME}, {@link #ROI} or 
 	 * <code>-1</code> when more than one type is selected.
 	 * 
 	 * @return See above.
@@ -202,16 +213,28 @@ public class FilterContext
 	public void setRate(int index, int rate)
 	{
 		switch (index) {
-			case LOWER:
-			case HIGHER:
+			case LOWER_EQUAL:
+			case GREATER_EQUAL:
 			case EQUAL:
-				this.index = index;
+				this.rateIndex = index;
 				break;
 			default:
-				this.index = HIGHER;
+				this.rateIndex = GREATER_EQUAL;
 		}
 		this.rate = rate;
 		type.add(RATE);
+	}
+	
+	/**
+	 * Sets the ROI index and the selected number of ROIs.
+	 * 
+	 * @param index	One of the constants defined by this class.
+	 * @param rate	The selected number of ROIs.
+	 */
+	public void setRois(int index, int rois) {
+	    this.roiIndex = index;
+	    this.rois = rois;
+	    type.add(ROI);
 	}
 	
 	/**
@@ -253,11 +276,25 @@ public class FilterContext
 	public int getRate() { return rate; }
 	
 	/**
+	 * Returns the selected number of ROIs.
+	 * 
+	 * @return See above.
+	 */
+	public int getROIs() { return rois; }
+	
+	/**
 	 * Returns one of rating filtering constants defined by this class.
 	 * 
 	 * @return See above.
 	 */
-	public int getIndex() { return index; }
+	public int getRateIndex() { return rateIndex; }
+	
+	/**
+	 * Returns one of rating filtering constants defined by this class.
+	 * 
+	 * @return See above.
+	 */
+	public int getRoiIndex() { return roiIndex; }
 	
 	/**
 	 * Returns the collection of annotations contained text to filter
@@ -317,5 +354,5 @@ public class FilterContext
 	 * @return See above.
 	 */
 	public List<String> getNames() { return names; }
-	
+
 }

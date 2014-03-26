@@ -40,6 +40,7 @@ import ome.formats.model.ModelException;
 import ome.formats.model.ModelProcessor;
 import ome.util.LSID;
 import omero.RInt;
+import omero.RDouble;
 import omero.RString;
 import omero.model.Channel;
 import omero.model.Filter;
@@ -144,24 +145,26 @@ public class ChannelProcessor implements ModelProcessor
 		return;
         }
         //First we check the emission wavelength.
-	Integer value = getValue(lc.getEmissionWave());
-	if (value != null) {
+	Double valueWavelength = getValue(lc.getEmissionWave());
+	if (valueWavelength != null) {
 		setChannelColor(channel, channelIndex,
-				ColorsFactory.determineColor(value));
+				ColorsFactory.determineColor(valueWavelength));
 		if (lc.getName() == null)
-			lc.setName(rstring(value.toString()));
+			lc.setName(rstring(valueWavelength.toString()));
 		return;
 	}
 
+    Integer valueFilter = null;
+    
 	//First check the emission filter.
 	//First check if filter
 	Filter f = getValidFilter(channelData.getLightPathEmissionFilters(),
 			true);
 	if (f != null)
-		value = ColorsFactory.getValueFromFilter(f, true);
-	if (value != null) {
+		valueFilter = ColorsFactory.getValueFromFilter(f, true);
+	if (valueFilter != null) {
 		setChannelColor(channel, channelIndex,
-				ColorsFactory.determineColor(value));
+				ColorsFactory.determineColor(new Double(valueFilter)));
 		if (lc.getName() == null) {
 			name = getNameFromFilter(f);
 			if (name != null) lc.setName(name);
@@ -169,11 +172,11 @@ public class ChannelProcessor implements ModelProcessor
 		return;
 	}
 	f = channelData.getFilterSetEmissionFilter();
-	value = ColorsFactory.getValueFromFilter(f, true);
+	valueFilter = ColorsFactory.getValueFromFilter(f, true);
 
-	if (value != null) {
+	if (valueFilter != null) {
 		setChannelColor(channel, channelIndex,
-				ColorsFactory.determineColor(value));
+				ColorsFactory.determineColor(new Double(valueFilter)));
 		if (lc.getName() == null) {
 			name = getNameFromFilter(f);
 			if (name != null) lc.setName(name);
@@ -184,33 +187,33 @@ public class ChannelProcessor implements ModelProcessor
 	if (channelData.getLightSource() != null) {
 		LightSource ls = channelData.getLightSource();
 		if (ls instanceof Laser) {
-			value = getValue(((Laser) ls).getWavelength());
-			if (value != null) {
+			valueWavelength = getValue(((Laser) ls).getWavelength());
+			if (valueWavelength != null) {
 			setChannelColor(channel, channelIndex,
-					ColorsFactory.determineColor(value));
+					ColorsFactory.determineColor(valueWavelength));
 			if (lc.getName() == null) {
-				lc.setName(rstring(value.toString()));
+				lc.setName(rstring(valueWavelength.toString()));
 			}
 			return;
 		}
 		}
 	}
 	//Excitation
-	value = getValue(lc.getExcitationWave());
-	if (value != null) {
+	valueWavelength = getValue(lc.getExcitationWave());
+	if (valueWavelength != null) {
 		setChannelColor(channel, channelIndex,
-				ColorsFactory.determineColor(value));
+				ColorsFactory.determineColor(valueWavelength));
 		if (lc.getName() == null)
-			lc.setName(rstring(value.toString()));
+			lc.setName(rstring(valueWavelength.toString()));
 		return;
 	}
 	f = getValidFilter(channelData.getLightPathExcitationFilters(), false);
 	if (f != null)
-		value = ColorsFactory.getValueFromFilter(f, false);
+		valueFilter = ColorsFactory.getValueFromFilter(f, false);
 
-	if (value != null) {
+	if (valueFilter != null) {
 		setChannelColor(channel, channelIndex,
-				ColorsFactory.determineColor(value));
+				ColorsFactory.determineColor(new Double(valueFilter)));
 		if (lc.getName() == null) {
 			name = getNameFromFilter(f);
 			if (name != null) lc.setName(name);
@@ -218,11 +221,11 @@ public class ChannelProcessor implements ModelProcessor
 		return;
 	}
 	f = channelData.getFilterSetExcitationFilter();
-	value = ColorsFactory.getValueFromFilter(f, false);
+	valueFilter = ColorsFactory.getValueFromFilter(f, false);
 
-	if (value != null) {
+	if (valueFilter != null) {
 		setChannelColor(channel, channelIndex,
-				ColorsFactory.determineColor(value));
+				ColorsFactory.determineColor(new Double(valueFilter)));
 		if (lc.getName() == null) {
 			name = getNameFromFilter(f);
 			if (name != null) lc.setName(name);
@@ -337,6 +340,18 @@ public class ChannelProcessor implements ModelProcessor
     }
 
     /**
+     * Returns the concrete value of an OMERO rtype.
+     *
+     * @param value OMERO rtype to get the value of.
+     * @return Concrete value of <code>value</code> or <code>null</code> if
+     * <code>value == null</code>.
+     */
+    private Double getValue(RDouble value)
+    {
+	return value == null? null : value.getValue();
+    }
+
+    /**
      * Determines the name of the channel.
      * This method should only be invoked when a color was assigned by
      * Bio-formats.
@@ -347,7 +362,7 @@ public class ChannelProcessor implements ModelProcessor
     private RString getChannelName(ChannelData channelData)
     {
 	LogicalChannel lc = channelData.getLogicalChannel();
-	Integer value = getValue(lc.getEmissionWave());
+	Double value = getValue(lc.getEmissionWave());
 	RString name;
 	if (value != null)
 	{

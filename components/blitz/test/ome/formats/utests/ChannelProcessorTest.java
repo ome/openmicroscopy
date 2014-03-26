@@ -243,7 +243,7 @@ public class ChannelProcessorTest
 	public void testLogicalChannelGreenEmissionWavelength()
 	{
 		store.setChannelEmissionWavelength(
-        new PositiveInteger(525), IMAGE_INDEX, CHANNEL_INDEX);
+        new PositiveFloat(525.5), IMAGE_INDEX, CHANNEL_INDEX);
 		ChannelProcessor processor = new ChannelProcessor();
 		processor.process(store);
 		ChannelData data = ChannelData.fromObjectContainerStore(
@@ -259,7 +259,7 @@ public class ChannelProcessorTest
 		assertEquals(255, data.getChannel().getAlpha().getValue());
 		assertNotNull(data.getLogicalChannel());
 		assertNotNull(data.getLogicalChannel().getName());
-		assertEquals("525", data.getLogicalChannel().getName().getValue());
+		assertEquals("525.5", data.getLogicalChannel().getName().getValue());
 	}
 
 	/** Tests an image with a logical channel with emission wavelength. */
@@ -267,7 +267,7 @@ public class ChannelProcessorTest
 	public void testLogicalChannelBlueEmissionWavelength()
 	{
 		store.setChannelEmissionWavelength(
-        new PositiveInteger(450), IMAGE_INDEX, CHANNEL_INDEX);
+        new PositiveFloat(450.1), IMAGE_INDEX, CHANNEL_INDEX);
 		ChannelProcessor processor = new ChannelProcessor();
 		processor.process(store);
 		ChannelData data = ChannelData.fromObjectContainerStore(
@@ -283,7 +283,7 @@ public class ChannelProcessorTest
 		assertEquals(255, data.getChannel().getAlpha().getValue());
 		assertNotNull(data.getLogicalChannel());
 		assertNotNull(data.getLogicalChannel().getName());
-		assertEquals("450", data.getLogicalChannel().getName().getValue());
+		assertEquals("450.1", data.getLogicalChannel().getName().getValue());
 	}
 
 	/** Tests an image with a logical channel with emission wavelength. */
@@ -291,7 +291,7 @@ public class ChannelProcessorTest
 	public void testLogicalChannelRedEmissionWavelength()
 	{
 		store.setChannelEmissionWavelength(
-        new PositiveInteger(625), IMAGE_INDEX, CHANNEL_INDEX);
+        new PositiveFloat(625.5), IMAGE_INDEX, CHANNEL_INDEX);
 		ChannelProcessor processor = new ChannelProcessor();
 		processor.process(store);
 		ChannelData data = ChannelData.fromObjectContainerStore(
@@ -307,7 +307,7 @@ public class ChannelProcessorTest
 		assertEquals(255, data.getChannel().getAlpha().getValue());
 		assertNotNull(data.getLogicalChannel());
 		assertNotNull(data.getLogicalChannel().getName());
-		assertEquals("625", data.getLogicalChannel().getName().getValue());
+		assertEquals("625.5", data.getLogicalChannel().getName().getValue());
 	}
 
 	/**
@@ -344,7 +344,7 @@ public class ChannelProcessorTest
 	public void testLaserBlueWavelength()
 	{
 		store.setLaserWavelength(
-        new PositiveInteger(435), INSTRUMENT_INDEX, LIGHTSOURCE_INDEX);
+        new PositiveFloat(435.5), INSTRUMENT_INDEX, LIGHTSOURCE_INDEX);
 		ChannelProcessor processor = new ChannelProcessor();
 		processor.process(store);
 		ChannelData data = ChannelData.fromObjectContainerStore(
@@ -360,7 +360,7 @@ public class ChannelProcessorTest
 		assertEquals(255, data.getChannel().getAlpha().getValue());
 		assertNotNull(data.getLogicalChannel());
 		assertNotNull(data.getLogicalChannel().getName());
-		assertEquals("435", data.getLogicalChannel().getName().getValue());
+		assertEquals("435.5", data.getLogicalChannel().getName().getValue());
 	}
 
 	/**
@@ -370,7 +370,7 @@ public class ChannelProcessorTest
 	public void testLogicalChannelGreenExcitationWavelength()
 	{
 		store.setChannelExcitationWavelength(
-        new PositiveInteger(525), IMAGE_INDEX, CHANNEL_INDEX);
+        new PositiveFloat(525.5), IMAGE_INDEX, CHANNEL_INDEX);
 		ChannelProcessor processor = new ChannelProcessor();
 		processor.process(store);
 		ChannelData data = ChannelData.fromObjectContainerStore(
@@ -386,7 +386,7 @@ public class ChannelProcessorTest
 		assertEquals(255, data.getChannel().getAlpha().getValue());
 		assertNotNull(data.getLogicalChannel());
 		assertNotNull(data.getLogicalChannel().getName());
-		assertEquals("525", data.getLogicalChannel().getName().getValue());
+		assertEquals("525.5", data.getLogicalChannel().getName().getValue());
 	}
 
 	/**
@@ -396,7 +396,7 @@ public class ChannelProcessorTest
 	public void testLogicalChannelBlueExcitationWavelength()
 	{
 		store.setChannelExcitationWavelength(
-        new PositiveInteger(450), IMAGE_INDEX, CHANNEL_INDEX);
+        new PositiveFloat(450.1), IMAGE_INDEX, CHANNEL_INDEX);
 		ChannelProcessor processor = new ChannelProcessor();
 		processor.process(store);
 		ChannelData data = ChannelData.fromObjectContainerStore(
@@ -412,7 +412,7 @@ public class ChannelProcessorTest
 		assertEquals(255, data.getChannel().getAlpha().getValue());
 		assertNotNull(data.getLogicalChannel());
 		assertNotNull(data.getLogicalChannel().getName());
-		assertEquals("450", data.getLogicalChannel().getName().getValue());
+		assertEquals("450.1", data.getLogicalChannel().getName().getValue());
 	}
 
 	/**
@@ -422,7 +422,7 @@ public class ChannelProcessorTest
 	public void testLogicalChannelRedExcitationWavelength()
 	{
 		store.setChannelExcitationWavelength(
-        new PositiveInteger(625), IMAGE_INDEX, CHANNEL_INDEX);
+        new PositiveFloat(625.5), IMAGE_INDEX, CHANNEL_INDEX);
 		ChannelProcessor processor = new ChannelProcessor();
 		processor.process(store);
 		ChannelData data = ChannelData.fromObjectContainerStore(
@@ -438,7 +438,7 @@ public class ChannelProcessorTest
 		assertEquals(255, data.getChannel().getAlpha().getValue());
 		assertNotNull(data.getLogicalChannel());
 		assertNotNull(data.getLogicalChannel().getName());
-		assertEquals("625", data.getLogicalChannel().getName().getValue());
+		assertEquals("625.5", data.getLogicalChannel().getName().getValue());
 	}
 
 	/**

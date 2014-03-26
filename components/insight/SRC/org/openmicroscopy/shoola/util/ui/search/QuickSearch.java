@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.util.ui.QuickSearch 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -116,6 +116,15 @@ public class QuickSearch
 	
 	/** Indicates to search for the commented nodes.  */
 	public static final int 	COMMENTED = 13;
+	
+	/** Indicates to search for nodes with ROIs.  */
+        public static final int         HAS_ROIS = 14;
+        
+        /** Indicates to search for nodes without ROIs.  */
+        public static final int         NO_ROIS = 15;
+        
+        /** Indicates a customized search where there is no matching quick search option. */
+        public static final int         NONE = 16;
 	
 	/** Bound property indicating to search for given terms. */
 	public static final String	QUICK_SEARCH_PROPERTY = "quickSearch";
@@ -359,51 +368,42 @@ public class QuickSearch
 	 */
 	private void setSearchContext(SearchObject oldNode)
 	{
-		String text = null;
-		if (selectedNode == null) return;
-		setSearchEnabled(true);
-		switch (selectedNode.getIndex()) {
-			case RATED_ONE_OR_BETTER:
-			case RATED_TWO_OR_BETTER:
-			case RATED_THREE_OR_BETTER:
-			case RATED_FOUR_OR_BETTER:
-			case RATED_FIVE:
-			case UNRATED:
-			case UNTAGGED:
-			case UNCOMMENTED:
-			case TAGGED:
-			case COMMENTED:
-				setSearchEnabled(false);
-				text = selectedNode.getDescription();
-				cleanBar.setVisible(false);
-				break;
-			case SHOW_ALL:
-				setSearchEnabled(false);
-				text = SHOW_ALL_DESCRIPTION+defaultText;
-				cleanBar.setVisible(false);
-				break;
-				/*
-			case UNRATED:
-			case UNTAGGED:
-			case UNCOMMENTED:
-			case TAGGED:
-			case COMMENTED:
-				setSearchEnabled(false);
-				text = "";
-				cleanBar.setVisible(false);
-				break;
-				*/
-			case TAGS:
-			case COMMENTS:
-			case FULL_TEXT:
-				if (oldNode != null) {
-					int oldIndex = oldNode.getIndex();
-					if (oldIndex != TAGS && oldIndex != COMMENTS &&
-							oldIndex != FULL_TEXT) text = "";
-				}
-				setFocusOnArea();
+		String text = "";
+		setSearchEnabled(false);
+                cleanBar.setVisible(false);
+                
+		if(selectedNode!=null) {
+        		switch (selectedNode.getIndex()) {
+        			case RATED_ONE_OR_BETTER:
+        			case RATED_TWO_OR_BETTER:
+        			case RATED_THREE_OR_BETTER:
+        			case RATED_FOUR_OR_BETTER:
+        			case RATED_FIVE:
+        			case UNRATED:
+        			case UNTAGGED:
+        			case UNCOMMENTED:
+        			case TAGGED:
+        			case COMMENTED:
+        			case HAS_ROIS:
+        			case NO_ROIS:
+        				text = selectedNode.getDescription();
+        				break;
+        			case SHOW_ALL:
+        				text = SHOW_ALL_DESCRIPTION+defaultText;
+        				break;
+        			case TAGS:
+        			case COMMENTS:
+        			case FULL_TEXT:
+        				if (oldNode != null) {
+        					int oldIndex = oldNode.getIndex();
+        					if (oldIndex != TAGS && oldIndex != COMMENTS &&
+        							oldIndex != FULL_TEXT) text = "";
+        				}
+        				setFocusOnArea();
+        				setSearchEnabled(true);
+        		}
 		}
-		if (text == null) return;
+		
 		searchArea.getDocument().removeDocumentListener(this);
 		searchArea.setText(text);
 		searchArea.getDocument().addDocumentListener(this);
@@ -531,6 +531,12 @@ public class QuickSearch
     	node = new SearchObject(UNCOMMENTED, null, 
     			SearchComponent.UNCOMMENTED_TEXT);
     	nodes.add(node);
+    	node = new SearchObject(HAS_ROIS, null, 
+                SearchComponent.HAS_ROIS_TEXT);
+        nodes.add(node);
+        node = new SearchObject(NO_ROIS, null, 
+                        SearchComponent.NO_ROIS_TEXT);
+        nodes.add(node);
     	
     	List<SearchObject> ratedNodes = new ArrayList<SearchObject>();
     	node = new SearchObject(RATED_ONE_OR_BETTER, null, "* or better");
@@ -705,13 +711,12 @@ public class QuickSearch
 				}
 			}
 		}
-		if (selectedNode != null) {
-			setFilteringStatus(true);
-			initMenu();
-			menu.setSelectedNode(selectedNode);
-			this.selectedNode = selectedNode;
-			setSearchContext(null);
-		}
+		
+		setFilteringStatus(true);
+		initMenu();
+		menu.setSelectedNode(selectedNode);
+		this.selectedNode = selectedNode;
+		setSearchContext(null);
 	}
 	
 	/**

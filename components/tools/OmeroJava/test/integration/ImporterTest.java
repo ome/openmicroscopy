@@ -327,7 +327,7 @@ public class ImporterTest extends AbstractServerTest {
         assertEquals(settings.getAttenuation().getValue(), xml.getAttenuation()
                 .getValue().doubleValue());
         assertEquals(settings.getWavelength().getValue(), xml.getWavelength()
-                .getValue().intValue());
+                .getValue().doubleValue());
     }
 
     /**
@@ -403,9 +403,9 @@ public class ImporterTest extends AbstractServerTest {
         assertEquals(lc.getContrastMethod().getValue().getValue(), xml
                 .getContrastMethod().getValue());
         assertEquals(lc.getEmissionWave().getValue(), xml
-                .getEmissionWavelength().getValue().intValue());
+                .getEmissionWavelength().getValue().doubleValue());
         assertEquals(lc.getExcitationWave().getValue(), xml
-                .getExcitationWavelength().getValue().intValue());
+                .getExcitationWavelength().getValue().doubleValue());
         assertEquals(lc.getFluor().getValue(), xml.getFluor());
         assertEquals(lc.getNdFilter().getValue(), xml.getNDFilter());
         assertEquals(lc.getPockelCellSetting().getValue(), xml

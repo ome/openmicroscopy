@@ -1,7 +1,7 @@
 /*
  * omeis.providers.re.ColorsFactory
  *
- *   Copyright 2006 University of Dundee. All rights reserved.
+ *   Copyright 2014 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -65,27 +65,17 @@ public class ColorsFactory {
 
     /**
      * Upper bound of the wavelength interval corresponding to a
-     * <code>BLUE</code> color.
+     * <code>BLUE</code> color and lower bound of the wavelength
+     * interval corresponding to a <code>GREEN</code> color.
      */
-    private static final int BLUE_MAX = 500;
-
-    /**
-     * Lower bound of the wavelength interval corresponding to a
-     * <code>GREEN</code> color.
-     */
-    private static final int GREEN_MIN = 501;
+    private static final int BLUE_TO_GREEN_MIN = 500;
 
     /**
      * Upper bound of the wavelength interval corresponding to a
-     * <code>GREEN</code> color.
+     * <code>GREEN</code> color and lower bound of the wavelength
+     * interval corresponding to a <code>RED</code> color.
      */
-    private static final int GREEN_MAX = 559;//600;
-
-    /**
-     * Lower bound of the wavelength interval corresponding to a
-     * <code>RED</code> color.
-     */
-    private static final int RED_MIN = 560;//601;
+    private static final int GREEN_TO_RED_MIN = 560;
 
     /**
      * Upper bound of the wavelength interval corresponding to a
@@ -95,7 +85,7 @@ public class ColorsFactory {
 
     /** The value to add to the cut-in to determine the color. */
     private static final int RANGE = 15;
-    
+
     /**
      * Returns <code>true</code> if the wavelength is in the blue
      * color band, <code>false</code> otherwise.
@@ -103,8 +93,8 @@ public class ColorsFactory {
      * @param wavelength The wavelength to handle.
      * @return See above.
      */
-    private static boolean rangeBlue(int wavelength) {
-        return wavelength <= BLUE_MAX;// && wavelength >= BLUE_MIN;
+    private static boolean rangeBlue(double wavelength) {
+        return wavelength < BLUE_TO_GREEN_MIN;
     }
 
     /**
@@ -114,8 +104,8 @@ public class ColorsFactory {
      * @param wavelength The wavelength to handle.
      * @return See above.
      */
-    private static boolean rangeGreen(int wavelength) {
-        return wavelength >= GREEN_MIN && wavelength <= GREEN_MAX;
+    private static boolean rangeGreen(double wavelength) {
+        return wavelength >= BLUE_TO_GREEN_MIN && wavelength < GREEN_TO_RED_MIN;
     }
 
     /**
@@ -125,8 +115,8 @@ public class ColorsFactory {
      * @param wavelength The wavelength to handle.
      * @return See above.
      */
-    private static boolean rangeRed(int wavelength) {
-        return wavelength >= RED_MIN;//&& wavelength <= RED_MAX;
+    private static boolean rangeRed(double wavelength) {
+        return wavelength >= GREEN_TO_RED_MIN;
     }
 
     /**
@@ -192,7 +182,7 @@ public class ColorsFactory {
     		}
     	}
     	if (lc.getExcitationWave() != null) return true;
-    	//ligth path
+    	//light path
     	if (lp != null) {
     		if (lp.sizeOfExcitationFilterLink() > 0) {
     			filters = new ArrayList<Filter>();
@@ -251,9 +241,11 @@ public class ColorsFactory {
     		}
     		return null;
     	}
-    	Integer value = lc.getEmissionWave();
+    	Double valueWavelength = lc.getEmissionWave();
     	//First we check the emission wavelength.
-    	if (value != null) return determineColor(value);
+    	if (valueWavelength != null) return determineColor(valueWavelength);
+
+      Integer valueFilter = null;
 
     	//First check the emission filter.
     	//First check if filter
@@ -263,7 +255,7 @@ public class ColorsFactory {
     	FilterSet f = null;
     	LightPath lp = null;
     	//LightPath
-    	if (value == null && lc.getLightPath() != null) {
+    	if (valueFilter == null && valueWavelength == null && lc.getLightPath() != null) {
     		filters = new ArrayList<Filter>();
     		lp = lc.getLightPath();
     		j = lp.linkedEmissionFilterIterator();
@@ -271,12 +263,12 @@ public class ColorsFactory {
 				filters.add(j.next());
 			}
     		sortFilters(filters);
-    		while (value == null && j.hasNext()) {
-    			value = getValueFromFilter(j.next(), true);
+    		while (valueFilter == null && j.hasNext()) {
+    			valueFilter = getValueFromFilter(j.next(), true);
     		}
     	}
     	
-    	if (value == null && lc.getFilterSet() != null) {
+    	if (valueFilter == null && valueWavelength == null && lc.getFilterSet() != null) {
     		filters = new ArrayList<Filter>();
     		f = lc.getFilterSet();
     		j = f.linkedEmissionFilterIterator();
@@ -284,48 +276,48 @@ public class ColorsFactory {
 				filters.add(j.next());
 			}
     		sortFilters(filters);
-    		while (value == null && j.hasNext()) {
-    			value = getValueFromFilter(j.next(), true);
+    		while (valueFilter == null && j.hasNext()) {
+    			valueFilter = getValueFromFilter(j.next(), true);
     		}
     	}
     	
     	
     	//Laser
-    	if (value == null && lc.getLightSourceSettings() != null) {
+    	if (valueFilter == null && valueWavelength == null && lc.getLightSourceSettings() != null) {
     		LightSource ls = lc.getLightSourceSettings().getLightSource();
-    		if (ls instanceof Laser) value = ((Laser) ls).getWavelength();
+    		if (ls instanceof Laser) valueWavelength = ((Laser) ls).getWavelength();
     	}
-    	if (value != null) return determineColor(value);
+    	if (valueWavelength != null) return determineColor(valueWavelength);
 
     	//Excitation
-    	value = lc.getExcitationWave();
-    	if (value != null) return determineColor(value);
+    	valueWavelength = lc.getExcitationWave();
+    	if (valueWavelength != null) return determineColor(valueWavelength);
 
     	//light path first
-    	if (value == null && lp != null) {
+    	if (valueFilter == null && valueWavelength == null && lp != null) {
     		filters = new ArrayList<Filter>();
     		j = lp.linkedExcitationFilterIterator();
     		while (j.hasNext()) {
 				filters.add(j.next());
 			}
     		sortFilters(filters);
-    		while (value == null && j.hasNext()) {
-    			value = getValueFromFilter(j.next(), false);
+    		while (valueFilter == null && j.hasNext()) {
+    			valueFilter = getValueFromFilter(j.next(), false);
     		}
     	}
     	
-    	if (value == null && f != null) {
+    	if (valueFilter == null && f != null) {
     		filters = new ArrayList<Filter>();
     		j = f.linkedExcitationFilterIterator();
     		while (j.hasNext()) {
 				filters.add(j.next());
 			}
     		sortFilters(filters);
-    		while (value == null && j.hasNext()) {
-    			value = getValueFromFilter(j.next(), false);
+    		while (valueFilter == null && j.hasNext()) {
+    			valueFilter = getValueFromFilter(j.next(), false);
     		}
     	}
-    	return determineColor(value);
+    	return determineColor(new Double(valueFilter));
     }
  
     /**
@@ -334,7 +326,7 @@ public class ColorsFactory {
      * @param value The value to handle.
      * @return
      */
-    private static int[] determineColor(Integer value)
+    private static int[] determineColor(Double value)
     {
     	if (value == null) return null;
     	if (rangeBlue(value)) return newBlueColor();
@@ -342,7 +334,7 @@ public class ColorsFactory {
     	if (rangeRed(value)) return newRedColor();
     	return null;
     }
-    
+
     /**
      * Returns the range of the wavelength or <code>null</code>.
      * 

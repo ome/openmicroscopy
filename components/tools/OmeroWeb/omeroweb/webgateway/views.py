@@ -41,7 +41,8 @@ from cStringIO import StringIO
 
 from omero import client_wrapper, ApiUsageException
 from omero.gateway import timeit, TimeIt
-from omeroweb.http import HttpJavascriptResponse
+from omeroweb.http import HttpJavascriptResponse, HttpJsonResponse, \
+    HttpJavascriptResponseServerError
 
 import Ice
 import glob
@@ -1383,6 +1384,7 @@ def search_json (request, conn=None, **kwargs):
     @return:            json search results
     TODO: cache
     """
+    server_id = request.session['connector'].server_id
     opts = searchOptFromRequest(request)
     rv = []
     logger.debug("searchObjects(%s)" % (opts['search']))

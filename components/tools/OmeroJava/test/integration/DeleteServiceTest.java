@@ -981,7 +981,7 @@ public class DeleteServiceTest extends AbstractServerTest {
         ids = new ArrayList<Long>();
         long detectorSettingsID = 0;
         long lightSourceSettingsID = 0;
-        long ligthPathID = 0;
+        long lightPathID = 0;
         for (int i = 0; i < pixels.getSizeC().getValue(); i++) {
             channel = pixels.getChannel(i);
             lc = channel.getLogicalChannel();
@@ -996,7 +996,7 @@ public class DeleteServiceTest extends AbstractServerTest {
             detectorSettingsID = lc.getDetectorSettings().getId().getValue();
             lightSourceSettingsID = lc.getLightSourceSettings().getId()
                     .getValue();
-            ligthPathID = lc.getLightPath().getId().getValue();
+            lightPathID = lc.getLightPath().getId().getValue();
         }
 
         // Now we try to delete the image.
@@ -1011,7 +1011,7 @@ public class DeleteServiceTest extends AbstractServerTest {
         param.addId(lightSourceSettingsID);
         sql = "select d from LightSettings as d where d.id = :id";
         assertNull(iQuery.findByQuery(sql, param));
-        param.addId(ligthPathID);
+        param.addId(lightPathID);
         sql = "select d from LightPath as d where d.id = :id";
         assertNull(iQuery.findByQuery(sql, param));
 
@@ -2452,7 +2452,7 @@ public class DeleteServiceTest extends AbstractServerTest {
         ids = new ArrayList<Long>();
         long detectorSettingsID = 0;
         long lightSourceSettingsID = 0;
-        long ligthPathID = 0;
+        long lightPathID = 0;
         for (int i = 0; i < pixels.getSizeC().getValue(); i++) {
             channel = pixels.getChannel(i);
             lc = channel.getLogicalChannel();
@@ -2467,7 +2467,7 @@ public class DeleteServiceTest extends AbstractServerTest {
             detectorSettingsID = lc.getDetectorSettings().getId().getValue();
             lightSourceSettingsID = lc.getLightSourceSettings().getId()
                     .getValue();
-            ligthPathID = lc.getLightPath().getId().getValue();
+            lightPathID = lc.getLightPath().getId().getValue();
         }
 
         // Now we try to delete the image.
@@ -2483,7 +2483,7 @@ public class DeleteServiceTest extends AbstractServerTest {
         param.addId(lightSourceSettingsID);
         sql = "select d from LightSettings as d where d.id = :id";
         assertNull(iQuery.findByQuery(sql, param));
-        param.addId(ligthPathID);
+        param.addId(lightPathID);
         sql = "select d from LightPath as d where d.id = :id";
         assertNull(iQuery.findByQuery(sql, param));
 
@@ -2606,7 +2606,7 @@ public class DeleteServiceTest extends AbstractServerTest {
         ids = new ArrayList<Long>();
         long detectorSettingsID = 0;
         long lightSourceSettingsID = 0;
-        long ligthPathID = 0;
+        long lightPathID = 0;
         for (int i = 0; i < pixels.getSizeC().getValue(); i++) {
             channel = pixels.getChannel(i);
             lc = channel.getLogicalChannel();
@@ -2621,7 +2621,7 @@ public class DeleteServiceTest extends AbstractServerTest {
             detectorSettingsID = lc.getDetectorSettings().getId().getValue();
             lightSourceSettingsID = lc.getLightSourceSettings().getId()
                     .getValue();
-            ligthPathID = lc.getLightPath().getId().getValue();
+            lightPathID = lc.getLightPath().getId().getValue();
         }
 
         // Now we try to delete the image.
@@ -2637,7 +2637,7 @@ public class DeleteServiceTest extends AbstractServerTest {
         param.addId(lightSourceSettingsID);
         sql = "select d from LightSettings as d where d.id = :id";
         assertNull(iQuery.findByQuery(sql, param));
-        param.addId(ligthPathID);
+        param.addId(lightPathID);
         sql = "select d from LightPath as d where d.id = :id";
         assertNull(iQuery.findByQuery(sql, param));
 

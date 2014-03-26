@@ -14,6 +14,7 @@ import java.util.List;
 
 // Application-internal dependencies
 import omero.RInt;
+import omero.RDouble;
 import omero.model.Channel;
 import omero.model.Filter;
 import omero.model.Laser;
@@ -54,27 +55,17 @@ public class ColorsFactory {
 
     /**
      * Upper bound of the wavelength interval corresponding to a
-     * <code>BLUE</code> color.
+     * <code>BLUE</code> color and lower bound of the wavelength
+     * interval corresponding to a <code>GREEN</code> color.
      */
-    private static final int BLUE_MAX = 500;
-
-    /**
-     * Lower bound of the wavelength interval corresponding to a
-     * <code>GREEN</code> color.
-     */
-    private static final int GREEN_MIN = 501;
+    private static final int BLUE_TO_GREEN_MIN = 500;
 
     /**
      * Upper bound of the wavelength interval corresponding to a
-     * <code>GREEN</code> color.
+     * <code>GREEN</code> color and lower bound of the wavelength
+     * interval corresponding to a <code>RED</code> color.
      */
-    private static final int GREEN_MAX = 559;//600;
-
-    /**
-     * Lower bound of the wavelength interval corresponding to a
-     * <code>RED</code> color.
-     */
-    private static final int RED_MIN = 560;//601;
+    private static final int GREEN_TO_RED_MIN = 560;
 
     /**
      * Upper bound of the wavelength interval corresponding to a
@@ -92,8 +83,8 @@ public class ColorsFactory {
      * @param wavelength The wavelength to handle.
      * @return See above.
      */
-    private static boolean rangeBlue(int wavelength) {
-        return wavelength <= BLUE_MAX;// && wavelength >= BLUE_MIN;
+    private static boolean rangeBlue(double wavelength) {
+        return wavelength < BLUE_TO_GREEN_MIN;
     }
 
     /**
@@ -103,8 +94,8 @@ public class ColorsFactory {
      * @param wavelength The wavelength to handle.
      * @return See above.
      */
-    private static boolean rangeGreen(int wavelength) {
-        return wavelength >= GREEN_MIN && wavelength <= GREEN_MAX;
+    private static boolean rangeGreen(double wavelength) {
+        return wavelength >= BLUE_TO_GREEN_MIN && wavelength < GREEN_TO_RED_MIN;
     }
 
     /**
@@ -114,8 +105,8 @@ public class ColorsFactory {
      * @param wavelength The wavelength to handle.
      * @return See above.
      */
-    private static boolean rangeRed(int wavelength) {
-        return wavelength >= RED_MIN;//&& wavelength <= RED_MAX;
+    private static boolean rangeRed(double wavelength) {
+        return wavelength >= GREEN_TO_RED_MIN;
     }
 
     /**
@@ -125,6 +116,17 @@ public class ColorsFactory {
      * <code>value == null</code>.
      */
     private static Integer getValue(RInt value)
+    {
+	return value == null? null : value.getValue();
+    }
+
+    /**
+     * Returns the concrete value of an OMERO rtype.
+     * @param value OMERO rtype to get the value of.
+     * @return Concrete value of <code>value</code> or <code>null</code> if
+     * <code>value == null</code>.
+     */
+    private static Double getValue(RDouble value)
     {
 	return value == null? null : value.getValue();
     }
@@ -254,10 +256,11 @@ public class ColorsFactory {
             // XXX: Is commenting this out right?
             //return null;
 	}
-	Integer value = getValue(lc.getEmissionWave());
+	Double valueWavelength = getValue(lc.getEmissionWave());
         //First we check the emission wavelength.
-        if (value != null) return determineColor(value);
+        if (valueWavelength != null) return determineColor(valueWavelength);
 
+      Integer valueFilter = null;
         //First check the emission filter.
 	//First check if filter
         //light path first
@@ -265,42 +268,42 @@ public class ColorsFactory {
 	Iterator<Filter> i;
         if (filters != null) {
 		i = filters.iterator();
-		while (value == null && i.hasNext()) {
-				value = getValueFromFilter(i.next(), true);
+		while (valueFilter == null && i.hasNext()) {
+				valueFilter = getValueFromFilter(i.next(), true);
 			}
         }
 
-	if (value == null)
-		value = getValueFromFilter(
+	if (valueFilter == null)
+		valueFilter = getValueFromFilter(
 				channelData.getFilterSetEmissionFilter(), true);
 
 	//Laser
-	if (value == null && channelData.getLightSource() != null) {
+	if (valueWavelength == null && valueFilter == null && channelData.getLightSource() != null) {
 		LightSource ls = channelData.getLightSource();
 		if (ls instanceof Laser) {
-			value = getValue(((Laser) ls).getWavelength());
+			valueWavelength = getValue(((Laser) ls).getWavelength());
 		}
 	}
-	if (value != null) return determineColor(value);
+	if (valueWavelength != null) return determineColor(valueWavelength);
 
 	//Excitation
-	value = getValue(lc.getExcitationWave());
-	if (value != null) return determineColor(value);
+	valueWavelength = getValue(lc.getExcitationWave());
+	if (valueWavelength != null) return determineColor(valueWavelength);
 
-	if (value == null) {
+	if (valueFilter == null) {
 		filters = channelData.getLightPathExcitationFilters();
 		if (filters != null) {
 		i = filters.iterator();
-		while (value == null && i.hasNext()) {
-				value = getValueFromFilter(i.next(), false);
+		while (valueFilter == null && i.hasNext()) {
+				valueFilter = getValueFromFilter(i.next(), false);
 			}
             }
 	}
-	if (value == null)
-		value = getValueFromFilter(
+	if (valueFilter == null)
+		valueFilter = getValueFromFilter(
 				channelData.getFilterSetExcitationFilter(), false);
 
-	int[] toReturn = determineColor(value);
+	int[] toReturn = determineColor(new Double(valueFilter));
 	if (toReturn != null)
 	{
 		return toReturn;
@@ -323,7 +326,7 @@ public class ColorsFactory {
      * @param value The value to handle.
      * @return
      */
-    public static int[] determineColor(Integer value)
+    public static int[] determineColor(Double value)
     {
 	if (value == null) return null;
 	if (rangeBlue(value)) return newBlueColor();
