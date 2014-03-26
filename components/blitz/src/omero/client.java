@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 Glencoe Software, Inc. All rights reserved.
+ * Copyright (C) 2008-2014 Glencoe Software, Inc. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -39,6 +39,8 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import org.apache.commons.lang.StringUtils;
 
 import ome.util.Utils;
 import ome.util.checksum.ChecksumProviderFactory;
@@ -360,8 +362,24 @@ public class client {
 
         // Default Router, set a default and then replace
         String router = id.properties.getProperty("Ice.Default.Router");
-        if (router == null || router.length() == 0) {
+        if (StringUtils.isBlank(router)) {
             router = omero.constants.DEFAULTROUTER.value;
+        } else {
+            //Check if the default is set
+            String h = id.properties.getProperty("omero.host");
+            if (StringUtils.isBlank(h)) { //not set
+                //parse the router
+                String[] values = router.split(" ");
+                if (values != null) {
+                    for (int i = 0; i < values.length; i++) {
+                        if (values[i].equals("-h")) {
+                            h = values[i+1];
+                            break;
+                        }
+                    }
+                }
+                id.properties.setProperty("omero.host", h);
+            }
         }
         String host = id.properties.getPropertyWithDefault("omero.host",
                 "<\"omero.host\" not set>");
@@ -369,9 +387,10 @@ public class client {
         router = router.replaceAll("@omero.host@", host);
         id.properties.setProperty("Ice.Default.Router", router);
 
+        
         // Dump properties
         String dump = id.properties.getProperty("omero.dump");
-        if (dump != null && dump.length() > 0) {
+        if (StringUtils.isNotBlank(dump)) {
             Map<String, String> propertyMap = getPropertyMap(id.properties);
             for (String key : propertyMap.keySet()) {
                 System.out.println(String.format("%s=%s", key,
@@ -402,7 +421,7 @@ public class client {
         new ModelObjectFactoryRegistry().setIceCommunicator(__ic, this);
         new rtypes.RTypeObjectFactoryRegistry().setIceCommunicator(__ic);
 
-        // Define our unique identifer (used during close/detach)
+        // Define our unique identifier (used during close/detach)
         __uuid = UUID.randomUUID().toString();
         Ice.ImplicitContext ctx = __ic.getImplicitContext();
         if (ctx == null) {
@@ -433,7 +452,7 @@ public class client {
     /**
      * Sets the {@link omero.model.Session#getUserAgent() user agent} string for
      * this client. Every session creation will be passed this argument. Finding
-     * open sesssions with the same agent can be done via
+     * open sessions with the same agent can be done via
      * {@link omero.api.ISessionPrx#getMyOpenAgentSessions(String)}.
      */
     public void setAgent(String agent) {
