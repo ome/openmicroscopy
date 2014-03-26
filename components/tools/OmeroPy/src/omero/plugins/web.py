@@ -408,7 +408,7 @@ Alias /omero "%(ROOT)s/var/omero.fcgi/"
 
         cargs = [sys.executable, location / appname / "tests" /
                  "seleniumtests.py", seleniumserver, hostname, browser]
-        #cargs += args.arg[1:]
+        # cargs += args.arg[1:]
         self.set_environ(ice_config=ice_config)
         os.environ['DJANGO_SETTINGS_MODULE'] = 'omeroweb.settings'
         self.ctx.call(cargs, cwd=location)

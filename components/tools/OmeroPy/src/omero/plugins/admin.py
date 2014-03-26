@@ -488,7 +488,7 @@ present, the user will enter a console""")
                     except KeyError:
                         user = None
                 if user is not None and len(user) > 0:
-                    if not "\\" in user:
+                    if "\\" not in user:
                         computername = win32api.GetComputerName()
                         user = "\\".join([computername, user])
                     try:
