@@ -53,7 +53,8 @@ def index(request, conn=None, **kwargs):
         except Exception, e:
             context['template'] = 'webstart/index.html'
             context["error"] = traceback.format_exception(*sys.exc_info())[-1]
-    
+    else:
+        context['template'] = 'webstart/index.html'
     insight_url = None
     if settings.WEBSTART:
         context['insight_url'] = request.build_absolute_uri(reverse("webstart_insight"))
