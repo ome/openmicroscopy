@@ -95,7 +95,7 @@ class render_response_admin(omeroweb.webclient.decorators.render_response):
 ################################################################################
 # utils
 
-from omero.rtypes import *
+import omero
 from omero.model import PermissionsI
 
 # experimenter helpers

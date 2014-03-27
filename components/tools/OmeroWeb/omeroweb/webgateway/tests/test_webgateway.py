@@ -9,7 +9,6 @@ import tempfile
 from webgateway.webgateway_cache import FileCache, WebGatewayCache, WebGatewayTempFile
 from webgateway import views
 import omero
-from omero.gateway.scripts.testdb_create import *
 
 from decorators import login_required
 

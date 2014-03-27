@@ -27,7 +27,8 @@ import string
 import datetime
 import time
 
-from omero.rtypes import *
+import omero
+from omero.rtypes import rtime
 from omero.model import ImageI, DatasetI, ProjectI
 
 from webclient.controller import BaseController
