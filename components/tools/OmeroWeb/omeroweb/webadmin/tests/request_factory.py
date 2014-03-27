@@ -112,15 +112,14 @@ class ClientHandler(BaseHandler):
         super(ClientHandler, self).__init__(*args, **kwargs)
 
     def __call__(self, environ):
-        from django.conf import settings
-        from django.core import signals
+        from django.core import signals as dj_core_signals
 
         # Set up middleware if needed. We couldn't do this earlier, because
         # settings weren't available.
         if self._request_middleware is None:
             self.load_middleware()
 
-        signals.request_started.send(sender=self.__class__)
+        dj_core_signals.request_started.send(sender=self.__class__)
         try:
             request = WSGIRequest(environ)
             # sneaky little hack so that we can easily get round
@@ -130,9 +129,9 @@ class ClientHandler(BaseHandler):
             request._dont_enforce_csrf_checks = not self.enforce_csrf_checks
             response = self.get_response(request)
         finally:
-            signals.request_finished.disconnect(close_connection)
-            signals.request_finished.send(sender=self.__class__)
-            signals.request_finished.connect(close_connection)
+            dj_core_signals.request_finished.disconnect(close_connection)
+            dj_core_signals.request_finished.send(sender=self.__class__)
+            dj_core_signals.request_finished.connect(close_connection)
 
         return response
 

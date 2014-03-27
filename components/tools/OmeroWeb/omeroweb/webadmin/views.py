@@ -55,7 +55,6 @@ from django.template import RequestContext as Context
 from django.utils.translation import ugettext as _
 from django.views.defaults import page_not_found, server_error
 from django.views import debug
-from django.core.cache import cache
 from django.utils.encoding import smart_str
 
 from webclient.webclient_gateway import OmeroWebGateway
