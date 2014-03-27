@@ -56,8 +56,8 @@ from omero.model import FileAnnotationI, TagAnnotationI, \
                         DetectorI, FilterI, ObjectiveI, InstrumentI, \
                         LaserI, ExperimenterI, ExperimenterGroupI
 
-from omero.gateway import FileAnnotationWrapper, TagAnnotationWrapper, ExperimenterWrapper, \
-                ExperimenterGroupWrapper, WellWrapper, AnnotationWrapper, \
+from omero.gateway import FileAnnotationWrapper, TagAnnotationWrapper, \
+                AnnotationWrapper, \
                 OmeroGatewaySafeCallWrapper, CommentAnnotationWrapper
 
 from omero.sys import ParametersI
