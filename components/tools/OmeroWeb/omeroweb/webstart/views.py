@@ -42,6 +42,7 @@ from omero_version import omero_version
 from omeroweb.webclient.decorators import render_response
 
 
+@never_cache
 @render_response()
 def index(request, conn=None, **kwargs):
     context = {"version": omero_version}

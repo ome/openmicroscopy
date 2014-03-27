@@ -35,6 +35,7 @@ from django.core.urlresolvers import reverse
 from django.utils.functional import lazy
 from django.http import HttpResponse
 from django.views.generic import RedirectView
+from django.views.decorators.cache import never_cache
 
 # error handler
 handler404 = "omeroweb.feedback.views.handler404"
@@ -47,7 +48,7 @@ def redirect_urlpatterns():
     Helper function to return a URL pattern for index page http://host/.
     """
     if settings.WEBSTART_TEMPLATE is None:
-        return patterns('', url(r'^$', RedirectView.as_view(url=reverse_lazy('webindex')), name="index" ))
+        return patterns('', url(r'^$', never_cache(RedirectView.as_view(url=reverse_lazy('webindex'))), name="index" ))
     else:
         return patterns('', url( r'^$', 'omeroweb.webstart.views.index', name="index" ),)
 
