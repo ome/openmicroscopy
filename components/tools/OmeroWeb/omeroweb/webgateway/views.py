@@ -48,8 +48,6 @@ import Ice
 import glob
 
 
-import settings
-
 #from models import StoredConnection
 
 from webgateway_cache import webgateway_cache, CacheBase, webgateway_tempfile
