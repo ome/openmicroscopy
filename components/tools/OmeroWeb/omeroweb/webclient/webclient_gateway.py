@@ -50,7 +50,7 @@ import Glacier2
 import omero.gateway
 import omero.scripts
 
-from omero.rtypes import *
+from omero.rtypes import rint, rstring, rlong, rlist, rtime
 from omero.model import FileAnnotationI, TagAnnotationI, \
                         DatasetI, ProjectI, ImageI, ScreenI, PlateI, \
                         DetectorI, FilterI, ObjectiveI, InstrumentI, \
@@ -59,6 +59,8 @@ from omero.model import FileAnnotationI, TagAnnotationI, \
 from omero.gateway import FileAnnotationWrapper, TagAnnotationWrapper, ExperimenterWrapper, \
                 ExperimenterGroupWrapper, WellWrapper, AnnotationWrapper, \
                 OmeroGatewaySafeCallWrapper, CommentAnnotationWrapper
+
+from omero.gateway import KNOWN_WRAPPERS
 
 from omero.sys import ParametersI
 

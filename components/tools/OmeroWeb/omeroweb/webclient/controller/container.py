@@ -24,7 +24,7 @@
 #
 
 import omero
-from omero.rtypes import *
+from omero.rtypes import rstring, rlong
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.utils.encoding import smart_str
