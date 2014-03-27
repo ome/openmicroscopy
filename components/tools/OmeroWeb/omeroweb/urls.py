@@ -23,17 +23,13 @@
 # Version: 1.0
 #
 
-import os.path
-
 from django.conf import settings
 from django.conf.urls import url, patterns, include
-from django.views.static import serve
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.shortcuts import redirect
 
 from django.core.urlresolvers import reverse
 from django.utils.functional import lazy
-from django.http import HttpResponse
 from django.views.generic import RedirectView
 from django.views.decorators.cache import never_cache
 

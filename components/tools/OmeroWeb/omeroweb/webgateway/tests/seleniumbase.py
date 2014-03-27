@@ -43,7 +43,7 @@ The values above are just examples.
 __docformat__='epytext' 
 
 from selenium import selenium
-import unittest, time, urllib2, cookielib
+import unittest, time, urllib2
 
 class SeleniumTestServer (object):
     def __init__ (self, base='webgateway', url='http://localhost:8000', host='localhost', port=4444, browser='*firefox'):

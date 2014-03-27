@@ -1,11 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import logging
-import traceback
-import re
-from omero_version import omero_version
-
-from webclient.webclient_gateway import OmeroWebGateway
 
 logger = logging.getLogger(__name__)
 

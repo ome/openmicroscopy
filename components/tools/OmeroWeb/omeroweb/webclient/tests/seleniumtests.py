@@ -20,8 +20,6 @@
 #
 
 from omeroweb.webgateway.tests.seleniumbase import SeleniumTestBase, Utils
-from omero.gateway.scripts import dbhelpers
-from random import random
 
 import sys
 import subprocess
@@ -83,7 +81,7 @@ class WebClientTestBase (SeleniumTestBase):
         
 class WebClientTests (WebClientTestBase):
     
-    from omero.gateway.scripts import dbhelpers
+    #from omero.gateway.scripts import dbhelpers
     
     def setUp(self):
         super(WebClientTests, self).setUp()
