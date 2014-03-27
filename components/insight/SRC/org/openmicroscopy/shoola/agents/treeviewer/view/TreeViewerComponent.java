@@ -38,8 +38,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 import javax.swing.Icon;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
@@ -83,9 +83,11 @@ import org.openmicroscopy.shoola.agents.treeviewer.util.GenericDialog;
 import org.openmicroscopy.shoola.agents.treeviewer.util.LinkNotificationDialog;
 import org.openmicroscopy.shoola.agents.treeviewer.util.MIFNotificationDialog;
 import org.openmicroscopy.shoola.agents.treeviewer.util.MoveGroupSelectionDialog;
-import org.openmicroscopy.shoola.agents.treeviewer.util.MultiLinkNotificationDialog;
 import org.openmicroscopy.shoola.agents.treeviewer.util.NotDeletedObjectDialog;
 import org.openmicroscopy.shoola.agents.treeviewer.util.OpenWithDialog;
+import org.openmicroscopy.shoola.agents.util.DataObjectRegistration;
+import org.openmicroscopy.shoola.agents.util.EditorUtil;
+import org.openmicroscopy.shoola.agents.util.SelectionWizard;
 import org.openmicroscopy.shoola.agents.util.browser.ContainerFinder;
 import org.openmicroscopy.shoola.agents.util.browser.NodesFinder;
 import org.openmicroscopy.shoola.agents.util.browser.TreeFileSet;
@@ -97,9 +99,6 @@ import org.openmicroscopy.shoola.agents.util.browser.TreeViewerTranslator;
 import org.openmicroscopy.shoola.agents.util.ui.EditorDialog;
 import org.openmicroscopy.shoola.agents.util.ui.GroupManagerDialog;
 import org.openmicroscopy.shoola.agents.util.ui.ScriptingDialog;
-import org.openmicroscopy.shoola.agents.util.EditorUtil;
-import org.openmicroscopy.shoola.agents.util.DataObjectRegistration;
-import org.openmicroscopy.shoola.agents.util.SelectionWizard;
 import org.openmicroscopy.shoola.agents.util.ui.UserManagerDialog;
 import org.openmicroscopy.shoola.env.Environment;
 import org.openmicroscopy.shoola.env.LookupNames;
@@ -114,7 +113,6 @@ import org.openmicroscopy.shoola.env.data.model.DeleteActivityParam;
 import org.openmicroscopy.shoola.env.data.model.DownloadActivityParam;
 import org.openmicroscopy.shoola.env.data.model.DownloadArchivedActivityParam;
 import org.openmicroscopy.shoola.env.data.model.ImageCheckerResult;
-import org.openmicroscopy.shoola.env.data.model.MIFResultObject;
 import org.openmicroscopy.shoola.env.data.model.OpenActivityParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
@@ -137,8 +135,8 @@ import pojos.GroupData;
 import pojos.ImageData;
 import pojos.MultiImageData;
 import pojos.PermissionData;
-import pojos.PlateData;
 import pojos.PlateAcquisitionData;
+import pojos.PlateData;
 import pojos.ProjectData;
 import pojos.ScreenData;
 import pojos.TagAnnotationData;
@@ -4756,8 +4754,8 @@ class TreeViewerComponent
 			return;
 		}
 		// show a warning if the images to be deleted are linked to multiple datasets:
-		if (ImageCheckerType.DELETE.equals(index) && !result.getMultiLinkResult().isEmpty()) {
-		        LinkNotificationDialog dialog = new LinkNotificationDialog(view, result.getMultiLinkResult());
+		if (ImageCheckerType.DELETE.equals(index) && !result.getMultiLinkedImages().isEmpty()) {
+		        LinkNotificationDialog dialog = new LinkNotificationDialog(view, result);
 			dialog.addPropertyChangeListener(new PropertyChangeListener() {
 				
 				/** 
@@ -4765,7 +4763,7 @@ class TreeViewerComponent
 				 */
 				public void propertyChange(PropertyChangeEvent evt) {
 					String name = evt.getPropertyName();
-					if (MultiLinkNotificationDialog.DELETE_PROPERTY.equals(name)) {
+					if (LinkNotificationDialog.DELETE_PROPERTY.equals(name)) {
 						delete((List) action);
 					}					
 				}

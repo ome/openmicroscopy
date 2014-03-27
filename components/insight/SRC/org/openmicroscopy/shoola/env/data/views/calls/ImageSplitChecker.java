@@ -36,15 +36,10 @@ import java.util.Map.Entry;
 
 //Third-party libraries
 
-
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.data.OmeroDataService;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
-import org.openmicroscopy.shoola.env.data.DSAccessException;
-import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
+import org.openmicroscopy.shoola.env.data.OmeroDataService;
 import org.openmicroscopy.shoola.env.data.model.ImageCheckerResult;
-import org.openmicroscopy.shoola.env.data.model.MIFResultObject;
-import org.openmicroscopy.shoola.env.data.model.MultiDatasetImageLinkResult;
 import org.openmicroscopy.shoola.env.data.model.ThumbnailData;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
@@ -52,10 +47,13 @@ import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
+import org.openmicroscopy.shoola.env.data.DSAccessException;
+import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
+import org.openmicroscopy.shoola.env.data.model.MIFResultObject;
 
 import pojos.DataObject;
-import pojos.ImageData;
 import pojos.DatasetData;
+import pojos.ImageData;
 
 /**
  * Checks if the images in the specified containers are split between
@@ -143,8 +141,6 @@ public class ImageSplitChecker
 				Map<Long, Map<Boolean, List<ImageData>>> r;
 				MIFResultObject mif;
 				List<ImageData> images;
-				List<ImageData> imagesToCheckForLinks = new ArrayList<ImageData>();
-				MultiDatasetImageLinkResult mdlResult = new MultiDatasetImageLinkResult();
 				while (i.hasNext()) {
 					e = i.next();
 					j = e.getValue().iterator();
@@ -156,7 +152,7 @@ public class ImageSplitChecker
 						ids.add(uo.getId());
 						if(uo instanceof ImageData) {
 							ImageData img = (ImageData)uo;
-							imagesToCheckForLinks.add(img);
+							 result.addDatasets(img, loadDatasets(e.getKey(), img));
 						}
 					}
 					r = svc.getImagesBySplitFilesets(e.getKey(),
@@ -168,40 +164,11 @@ public class ImageSplitChecker
 						mif.setThumbnails(loadThumbails(e.getKey(), images));
 						result.getMifResults().add(mif);
 					}
-					
-					performLinkCheck(e.getKey(), imagesToCheckForLinks, mdlResult);
 				}
-				
-				result.setMultiLinkResult(mdlResult);
 			}
 		};
 	} 
 	
-	/**
-	* Checks the given {@link ImageData}s if they are linked to multiple {@link DatasetData}
-	* in the scope of the provided {@link SecurityContext} and adds the results to the 
-	* provided {@link MultiDatasetImageLinkResult}
-	* 
-	*   @param ctx The security context
-	*   @param imgs The images to check
-	*   @param result The {@link MultiDatasetImageLinkResult} the check result should be added to
-	*/
-	private void performLinkCheck(SecurityContext ctx, List<ImageData> imgs, MultiDatasetImageLinkResult result) {
-	    
-	    List<ImageData> thumbsToGet = new ArrayList<ImageData>();
-	    
-	    for(ImageData img : imgs) {
-	        List<DatasetData> ds = loadDatasets(ctx, img);
-                if(ds.size()>1) {
-                        result.addDatasets(img, ds);
-                        thumbsToGet.add(img);
-                }
-	    }
-	    
-	    if(!thumbsToGet.isEmpty()) {
-	        result.addThumbnails(loadThumbails(ctx, thumbsToGet));
-	    }
-	}
 	
 	/**
 	 * Adds the {@link #loadCall} to the computation tree.
