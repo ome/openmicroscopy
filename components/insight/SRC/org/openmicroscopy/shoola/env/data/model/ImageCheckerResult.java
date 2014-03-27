@@ -20,7 +20,14 @@
 package org.openmicroscopy.shoola.env.data.model;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import ome.model.containers.Dataset;
+import pojos.DatasetData;
+import pojos.ImageData;
 
 /**
  * A container holding the results of a pre-delete check; in particular 
@@ -36,8 +43,8 @@ public class ImageCheckerResult {
 	/** Holds all MIFResultObjects */
 	private List<MIFResultObject> mifResults = new ArrayList<MIFResultObject>();
 	
-	/** Holds the result of the Image-Dataset Linkcheck */
-	private MultiDatasetImageLinkResult multiLinkResult;
+	/** A Map holding the datasets an image is linked to */
+	private Map<ImageData, List<DatasetData>> datasets = new HashMap<ImageData, List<DatasetData>>();
 	
 	/**
 	 * Get all MIFResultObjects.
@@ -54,22 +61,53 @@ public class ImageCheckerResult {
 	public void setMifResults(List<MIFResultObject> mifResults) {
 		this.mifResults = mifResults;
 	}
-
-	/**
-	 * Get the link check result
-	 */
-        public MultiDatasetImageLinkResult getMultiLinkResult() {
-            return multiLinkResult;
-        }
-        
-        /**
-	 * Set the link check result
-	 * @param mdlResult
-	 */
-        public void setMultiLinkResult(MultiDatasetImageLinkResult mdlResult) {
-            this.multiLinkResult = mdlResult;
-        }
-
 	
-
+	
+        /**
+         * Adds Datasets a certain images is linked to
+         * 
+         * @param img
+         *            The image
+         * @param ds
+         *            The datasets this image is linked to
+         */
+        public void addDatasets(ImageData img, Collection<DatasetData> ds) {
+            List<DatasetData> sets = datasets.get(img);
+            if (sets == null) {
+                sets = new ArrayList<DatasetData>();
+                datasets.put(img, sets);
+            }
+            sets.addAll(ds);
+        }
+	
+        /**
+         * Get all datasets the given images is linked to
+         * 
+         * @param img
+         *            The image
+         * @return See above
+         */
+        public List<DatasetData> getDatasets(ImageData img) {
+            List<DatasetData> result = datasets.get(img);
+            if (result == null) {
+                result = new ArrayList<DatasetData>();
+            }
+            return result;
+        }
+	
+        /**
+         * Get the images which are linked to multiple datasets
+         * 
+         * @return See above
+         */
+        public List<ImageData> getMultiLinkedImages() {
+            List<ImageData> result = new ArrayList<ImageData>();
+            for (ImageData img : datasets.keySet()) {
+                Collection<DatasetData> ds = datasets.get(img);
+                if (ds.size() > 1) {
+                    result.add(img);
+                }
+            }
+            return result;
+        }
 }
