@@ -70,7 +70,7 @@ if exist('omero.client','class') == 0
     % Add the JARs required by OMERO.matlab to the Java dynamic classpath
     % This will allow the import omero.* statement to pass successfully.
     omeroJars = getOmeroJars();
-    javaaddpath(omeroJars{:});
+    cellfun(@javaaddpath, omeroJars);
     import omero.*;
     
     % Also add the OmeroM directory and its subdirectories to the path
