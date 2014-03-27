@@ -55,7 +55,7 @@ def index(request, conn=None, **kwargs):
         img = random.choice(all_images)
         images = [img]
     
-    imgIds = ",".join([str(img.getId()) for img in images])
+    imgIds = ",".join([str(img2.getId()) for img2 in images])
     
     # get a random dataset (making sure we get one that has some images in it)
     all_datasets = list(conn.getObjects("Dataset"))

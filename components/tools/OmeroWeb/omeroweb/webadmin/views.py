@@ -274,7 +274,7 @@ def usersData(conn, offset=0):
     
     # archived files
     if len(pixels_list) > 0:
-        pids = omero.rtypes.rlist([p.id for p in pixels_list])
+        pids = omero.rtypes.rlist([px.id for px in pixels_list])
         p2 = omero.sys.ParametersI()
         p2.add("pids", pids)
         pixels_originalFiles_list = conn.getQueryService().findAllByQuery(
