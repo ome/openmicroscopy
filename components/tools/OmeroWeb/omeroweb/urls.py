@@ -50,7 +50,7 @@ def redirect_urlpatterns():
     if settings.WEBSTART_TEMPLATE is None:
         return patterns('', url(r'^$', never_cache(RedirectView.as_view(url=reverse_lazy('webindex'))), name="index" ))
     else:
-        return patterns('', url( r'^$', 'omeroweb.webstart.views.index', name="index" ),)
+        return patterns('', url( r'^$', never_cache(RedirectView.as_view(url=reverse_lazy('webstart_index'))), name="index" ),)
 
 
 # url patterns
