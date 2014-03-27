@@ -28,12 +28,10 @@ returns a Web response. This response can be the HTML contents of a Web page,
 or a redirect, or the 404 and 500 error, or an XML document, or an image... 
 or anything.'''
 
-from django.http import HttpResponseRedirect, HttpResponseServerError
+from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from omeroweb.feedback.views import handlerInternalError
-import settings
 import logging
-import traceback
 
 logger = logging.getLogger(__name__)
 

@@ -1,11 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from django.conf.urls import url, patterns
-from django.views.static import serve
 
 from omeroweb.webtest import views
 
-import os
 
 urlpatterns = patterns('django.views.generic.simple',
 

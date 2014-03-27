@@ -23,9 +23,6 @@
 
 from django.conf import settings
 from django import forms
-from django.forms import ModelForm
-from django.forms.widgets import Textarea
-from django.forms.widgets import HiddenInput
 
 from omeroweb.connector import Server
 
@@ -33,9 +30,8 @@ from omeroweb.custom_forms import NonASCIIForm
 
 from custom_forms import ServerModelChoiceField, \
         GroupModelChoiceField, GroupModelMultipleChoiceField, \
-        ExperimenterModelChoiceField, ExperimenterModelMultipleChoiceField, \
-        DefaultGroupField, OmeNameField
-from custom_widgets import DefaultGroupRadioSelect
+        ExperimenterModelMultipleChoiceField, \
+        OmeNameField
 
 
 #################################################################

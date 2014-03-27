@@ -28,7 +28,6 @@ import datetime
 import time
 
 from django.conf import settings
-from django.core.urlresolvers import reverse
 
 from webclient.controller import BaseController
 

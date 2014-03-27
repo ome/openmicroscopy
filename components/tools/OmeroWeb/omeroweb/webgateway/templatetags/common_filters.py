@@ -30,9 +30,7 @@ import traceback
 import logging
 import json
 
-from django.conf import settings
 from django import template
-from django.utils.translation import ugettext, ungettext
 
 register = template.Library()
 

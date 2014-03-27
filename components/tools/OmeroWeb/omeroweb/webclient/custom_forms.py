@@ -20,16 +20,11 @@
 #
 
 import re
-from itertools import chain
 
 from django import forms
-from django.forms.widgets import SelectMultiple, CheckboxInput, MultipleHiddenInput
-from django.utils.encoding import force_unicode
-from django.utils.html import escape, conditional_escape
-from django.utils.safestring import mark_safe
+from django.forms.widgets import SelectMultiple, MultipleHiddenInput
 
 from django.forms.fields import Field, EMPTY_VALUES
-from django.forms.widgets import Select
 from django.forms import ModelChoiceField, ValidationError
 from django.utils.translation import ugettext_lazy as _
 from django.utils.encoding import smart_unicode
