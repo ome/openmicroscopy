@@ -80,9 +80,6 @@ class BaseCalendar(BaseController):
             self.last_month = now.replace(month=now.month-1)
             self.last_year = self.year
 
-        next_month_name = self.next_month.strftime('%B')
-        last_month_name = self.last_month.strftime('%B')
-
         self.week_day_labels = [x for x in calendar.weekheader(5).split(' ') if x != '']
         self.current_month = datetime.datetime(self.year, self.month, 1)
         self.month_name = calendar.month_name[self.month]
@@ -110,11 +107,9 @@ class BaseCalendar(BaseController):
 
         for week,day in [(week,day) for week in xrange(0,len(self.cal_weeks)) for day in xrange(0,7)]:
             imgCounter = dict()
-            rdCounter = dict()
             dsCounter = dict()
             prCounter = dict()
             imgCounter = 0
-            rdCounter = 0
             dsCounter = 0
             prCounter = 0
             d = int(self.cal_weeks[week][day])

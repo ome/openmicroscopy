@@ -66,7 +66,7 @@ class UrlField(forms.Field):
         return value
     
     def is_valid_url(self, url):
-        url_pat = re_http = re.compile(r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+',re.IGNORECASE)
+        url_pat = re.compile(r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+',re.IGNORECASE)
         return url_pat.match(url) is not None
 
 ##################################################################
