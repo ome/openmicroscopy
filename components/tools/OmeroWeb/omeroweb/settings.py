@@ -280,6 +280,14 @@ CUSTOM_SETTINGS_MAPPINGS = {
     # after testing this line should be removed.
     # "omero.web.application_host": ["APPLICATION_HOST", None, remove_slash], 
 
+    # TEMPLATES
+    # TEMPLATE_DIRS: List of locations of the template source files, in search order. Note that these 
+    # paths should use Unix-style forward slashes, even on Windows.
+    # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates". Always use 
+    # forward slashes, even on Windows. Don't forget to use absolute paths, not relative paths.
+    # TEMPLATE_DIRS = ()
+    "omero.web.template_dirs": ["TEMPLATE_DIRS", '[]', json.loads],
+    
     # WEBSTART
     "omero.web.webstart_template": ["WEBSTART_TEMPLATE", None, identity],
     "omero.web.webstart_jar": ["WEBSTART_JAR", "omero.insight.jar", str],
@@ -438,12 +446,6 @@ TEMPLATE_LOADERS = (
     'django.template.loaders.filesystem.Loader',
     'django.template.loaders.app_directories.Loader',
 )
-
-# TEMPLATE_DIRS: List of locations of the template source files, in search order. Note that these 
-# paths should use Unix-style forward slashes, even on Windows.
-# Put strings here, like "/home/html/django_templates" or "C:/www/django/templates". Always use 
-# forward slashes, even on Windows. Don't forget to use absolute paths, not relative paths.
-# TEMPLATE_DIRS = ()
 
 # INSTALLED_APPS: A tuple of strings designating all applications that are enabled in this Django 
 # installation. Each string should be a full Python path to a Python package that contains 
