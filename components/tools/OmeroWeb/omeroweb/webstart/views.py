@@ -41,6 +41,25 @@ from omero_version import omero_version
 
 from omeroweb.webclient.decorators import render_response
 
+@never_cache
+@render_response()
+def custom_index(request, conn=None, **kwargs):
+    context = {"version": omero_version}
+    
+    if settings.INDEX_TEMPLATE is not None:
+        try:
+            template_loader.get_template(settings.INDEX_TEMPLATE)
+            context['template'] = settings.INDEX_TEMPLATE
+        except Exception, e:
+            context['template'] = 'webstart/start.html'
+            context["error"] = traceback.format_exception(*sys.exc_info())[-1]
+    else:
+        context['template'] = 'webstart/start.html'
+    insight_url = None
+    if settings.WEBSTART:
+        context['insight_url'] = request.build_absolute_uri(reverse("webstart_insight"))
+
+    return context
 
 @never_cache
 @render_response()

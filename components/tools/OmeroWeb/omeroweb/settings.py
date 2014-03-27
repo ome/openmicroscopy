@@ -287,6 +287,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
     # forward slashes, even on Windows. Don't forget to use absolute paths, not relative paths.
     # TEMPLATE_DIRS = ()
     "omero.web.template_dirs": ["TEMPLATE_DIRS", '[]', json.loads],
+    "omero.web.index_template": ["INDEX_TEMPLATE", None, identity],
     
     # WEBSTART
     "omero.web.webstart_template": ["WEBSTART_TEMPLATE", None, identity],
