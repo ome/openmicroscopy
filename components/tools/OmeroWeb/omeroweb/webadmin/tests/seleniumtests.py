@@ -215,9 +215,6 @@ class AdminTests (WebAdminTestBase):
         groupName3 = "Sel-test3%s" % random()
         
         omeName = 'OmeName%s' % random()
-        firstName = 'Selenium'
-        lastName = 'Test'
-        password = 'secretPassword'
         sel = self.selenium
         
         # first create groups and a new experimenter in both groups

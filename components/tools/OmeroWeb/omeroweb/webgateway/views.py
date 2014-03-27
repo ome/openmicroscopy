@@ -703,7 +703,7 @@ def render_image_region(request, iid, z, t, conn=None, **kwargs):
     if tile:
         try:
             img._prepareRenderingEngine()
-            tiles = img._re.requiresPixelsPyramid()
+            #tiles = img._re.requiresPixelsPyramid()
             w, h = img._re.getTileSize()
             levels = img._re.getResolutionLevels()-1
 
@@ -1275,7 +1275,6 @@ def listDatasets_json (request, pid, conn=None, **kwargs):
     """
 
     project = conn.getObject("Project", pid)
-    rv = []
     if project is None:
         return HttpJavascriptResponse('[]')
     return [x.simpleMarshal(xtra={'childCount':0}) for x in project.listChildren()]
@@ -1390,7 +1389,6 @@ def search_json (request, conn=None, **kwargs):
     def urlprefix(iid):
         return reverse('webgateway.views.render_thumbnail', args=(iid,))
     xtra = {'thumbUrlPrefix': kwargs.get('urlprefix', urlprefix)}
-    pks = None
     try:
         if opts['ctx'] == 'imgs':
             sr = conn.searchObjects(["image"], opts['search'], conn.SERVICE_OPTS)
@@ -1638,9 +1636,9 @@ def reset_image_rdef_json (request, iid, conn=None, **kwargs):
         server_id = request.session['connector'].server_id
         webgateway_cache.invalidateObject(server_id, user_id, img)
         return True
-        json_data = 'true'
+#        json_data = 'true'
     else:
-        json_data = 'false'
+#        json_data = 'false'
         return False
 #    if _conn is not None:
 #        return json_data == 'true'      # TODO: really return a boolean? (not json)
@@ -1743,7 +1741,7 @@ def archived_files(request, iid, conn=None, **kwargs):
             rsp['Content-Length'] = temp.tell()
             rsp['Content-Disposition'] = 'attachment; filename=%s' % file_name
             temp.seek(0)
-        except Exception, x:
+        except Exception:
             temp.close()
             stack = traceback.format_exc()
             logger.error(stack)
@@ -1887,7 +1885,7 @@ def _annotations(request, objtype, objid, conn=None, **kwargs):
     try:
         obj = q.findByQuery(query, omero.sys.ParametersI().addId(objid),
                             conn.createServiceOptsDict())
-    except omero.QueryException, ex:
+    except omero.QueryException:
         return dict(error='%s cannot be queried' % objtype,
                     query=query)
 
@@ -1944,7 +1942,7 @@ def _table_query(request, fileid, conn=None, **kwargs):
             query = '(%s==%s)' % (match.group(1), match.group(2))
         try:
             hits = t.getWhereList(query, None, 0, rows, 1)
-        except Exception, e:
+        except Exception:
             return dict(error='Error executing query: %s' % query)
 
     return dict(data=dict(

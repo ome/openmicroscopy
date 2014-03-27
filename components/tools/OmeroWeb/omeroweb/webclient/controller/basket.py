@@ -41,8 +41,8 @@ class BaseBasket(BaseController):
     
     def load_basket(self, request):
         imInBasket = list()
-        dsInBasket = list()
-        prInBasket = list()
+        #dsInBasket = list()
+        #prInBasket = list()
 
         for imgId in request.session['imageInBasket']:
             imInBasket.append(imgId)
