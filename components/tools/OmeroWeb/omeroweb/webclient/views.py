@@ -1088,7 +1088,10 @@ def batch_annotate(request, conn=None, **kwargs):
     manager = BaseContainer(conn)
     batchAnns = manager.loadBatchAnnotations(objs)
     figScripts = manager.listFigureScripts(objs)
-    filesetInfo = manager.getFilesetFileInfo(objs)
+    if 'image' in objs and len(objs) > 0:
+        iids = [i.getId() for i in objs['image']]
+        filesetInfo = manager.getFilesetFileInfo(iids)
+
 
     obj_ids = []
     obj_labels = []
