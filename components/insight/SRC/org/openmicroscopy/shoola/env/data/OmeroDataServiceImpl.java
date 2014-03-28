@@ -341,7 +341,7 @@ class OmeroDataServiceImpl
 				gateway.createObjects(ctx, links);
 		}
 		try {
-			gateway.shutDownDerivedConnector(ctx);
+			gateway.shutDownDerivedConnector(ctx, userName);
 		} catch (Exception e) {
 			context.getLogger().info(this, "Cannot shut down the connectors.");
 		}

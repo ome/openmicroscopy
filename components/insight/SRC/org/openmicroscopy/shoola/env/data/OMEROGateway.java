@@ -8196,18 +8196,20 @@ class OMEROGateway
 	 * Shuts down the connectors created while creating/importing data for
 	 * other users.
 	 *
-	 * @param ctx
+	 * @param ctx The security context.
+	 * @param userName The username the connection is for.
 	 * @throws Exception Thrown if the connector cannot be closed.
 	 */
-	void shutDownDerivedConnector(SecurityContext ctx)
+	void shutDownDerivedConnector(SecurityContext ctx, String userName)
 		throws Exception
 	{
 		Connector c = getConnector(ctx, true, true);
 		if (c == null) return;
 		try {
+		    c = c.getConnector(userName);
 			c.closeDerived(networkup.get());
 		} catch (Throwable e) {
-			new Exception("Cannot close the derived connectors", e);
+			new Exception("Cannot close the derived connector", e);
 		}
 	}
 
