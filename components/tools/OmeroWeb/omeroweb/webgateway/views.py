@@ -1710,9 +1710,12 @@ def archived_files(request, iid=None, conn=None, **kwargs):
         logger.debug("Cannot download archived file becuase Images not found.")
         return HttpResponseServerError("Cannot download archived file becuase Images not found (ids: %s)." % (imgIds))
 
-    files = []
+    # make list of all files, removing duplicates
+    fileMap = {}
     for image in images:
-        files.extend(list(image.getImportedImageFiles()))
+        for f in image.getImportedImageFiles():
+            fileMap[f.getId()] = f
+    files = fileMap.values()
 
     if len(files) == 0:
         logger.debug("Tried downloading archived files from image with no files archived.")
