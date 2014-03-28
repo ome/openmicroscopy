@@ -327,7 +327,7 @@ class OmeroDataServiceImpl
 			}
 		}
 
-		if (children != null && children.size() > 0) {
+		if (CollectionUtils.isNotEmpty(children)) {
 			Iterator i = children.iterator();
 			Object node;
 			List<IObject> links = new ArrayList<IObject>();
