@@ -43,13 +43,15 @@
         <ul class="dropdown">
             {% if manager.image.countImportedImageFiles %}
             <li>
-                <a id="download-origfile" href="{% url 'archived_files' manager.image.id %}"
+                <a id="download-origfile" href="#"
+                onClick="return OME.openPopup('{% url 'download_placeholder' %}?url={% url 'archived_files' manager.image.id %}');"
                 title="Download {{ manager.image.countImportedImageFiles }} Archived file{{ manager.image.countImportedImageFiles|pluralize:'s (zip)' }}">
                 Archived file{{ manager.image.countImportedImageFiles|pluralize:'s (zip)' }}</a>
             </li>
             {% elif filesetInfo %}
             <li>
-              <a id="download-origfile" href="{% url 'archived_files' %}?{{ obj_string }}"
+              <a id="download-origfile" href="#"
+                onClick="return OME.openPopup('{% url 'download_placeholder' %}?url={% url 'archived_files' %}&ids={{ link_string }}');"
                 title="Download {{ filesetInfo.count }} files as a zip">
                 {{ filesetInfo.count }} Archived files ({{ filesetInfo.size|filesizeformat }})</a>
             </li>
