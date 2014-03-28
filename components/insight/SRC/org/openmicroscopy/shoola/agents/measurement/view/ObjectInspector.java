@@ -39,6 +39,7 @@ import javax.swing.ListSelectionModel;
 import javax.swing.table.TableCellEditor;
 
 import org.jhotdraw.draw.AttributeKey;
+import org.jhotdraw.draw.TextHolderFigure;
 import org.openmicroscopy.shoola.agents.measurement.IconManager;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.agents.measurement.util.model.AnnotationDescription;
@@ -188,20 +189,8 @@ class ObjectInspector
             ROIFigure figure = ftm.getFigure();
     
             if (attr.equals(MeasurementAttributes.TEXT)) {
-                if (figure instanceof MeasureLineConnectionFigure) {
-                    ((MeasureLineConnectionFigure) figure).setText(text);
-                } else if (figure instanceof MeasureLineFigure) {
-                    ((MeasureLineFigure) figure).setText(text);
-                } else if (figure instanceof MeasureEllipseFigure) {
-                    ((MeasureEllipseFigure) figure).setText(text);
-                } else if (figure instanceof MeasureRectangleFigure) {
-                    ((MeasureRectangleFigure) figure).setText(text);
-                } else if (figure instanceof MeasureBezierFigure) {
-                    ((MeasureBezierFigure) figure).setText(text);
-                } else if (figure instanceof MeasurePointFigure) {
-                    ((MeasurePointFigure) figure).setText(text);
-                } else if (figure instanceof MeasureTextFigure) {
-                    ((MeasureTextFigure) figure).setText(text);
+                if(TextHolderFigure.class.isAssignableFrom(figure.getClass())) {
+                    ((TextHolderFigure) figure).setText(text);
                 }
             } else if (attr.equals(MeasurementAttributes.WIDTH)) {
                 try {
