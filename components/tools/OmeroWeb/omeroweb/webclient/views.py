@@ -1088,6 +1088,7 @@ def batch_annotate(request, conn=None, **kwargs):
     manager = BaseContainer(conn)
     batchAnns = manager.loadBatchAnnotations(objs)
     figScripts = manager.listFigureScripts(objs)
+    filesetInfo = manager.getFilesetFileInfo(objs)
 
     obj_ids = []
     obj_labels = []
@@ -1100,7 +1101,7 @@ def batch_annotate(request, conn=None, **kwargs):
 
     context = {'form_comment':form_comment, 'obj_string':obj_string, 'link_string': link_string,
             'obj_labels': obj_labels, 'batchAnns': batchAnns, 'batch_ann':True, 'index': index,
-            'figScripts':figScripts}
+            'figScripts':figScripts, 'filesetInfo': filesetInfo}
     context['template'] = "webclient/annotations/batch_annotate.html"
     context['webclient_path'] = request.build_absolute_uri(reverse('webindex'))
     return context
