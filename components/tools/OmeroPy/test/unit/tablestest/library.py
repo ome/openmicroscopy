@@ -4,18 +4,14 @@
 """
    Test of the HDF storage for the Tables API.
 
-   Copyright 2009 Glencoe Software, Inc. All rights reserved.
+   Copyright 2009-2014 Glencoe Software, Inc. All rights reserved.
    Use is subject to license terms supplied in LICENSE.txt
 
 """
 
-import os, tempfile
-import omero.tables
-import portalocker
-import tables
 
-from path import path
 from omero.util.temp_files import create_path
+
 
 class TestCase(object):
 
