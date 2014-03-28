@@ -1289,7 +1289,7 @@ class OMEROGateway
 		Connector c = null;
 		OMEROMetadataStoreClient prx = null;
 		try {
-			c = getConnector(ctx, true, false);
+		    c = getConnector(ctx, true, false);
 			c = c.getConnector(userName);
 			prx = c.getImportStore();
 		} catch (Throwable e) {
@@ -6342,17 +6342,18 @@ class OMEROGateway
 	        status.setFilesetData(new FilesetData(fs));
 	        return library.createCallback(proc, handle, ic);
 		} catch (Throwable e) {
-			try {
-				if (reader != null) reader.close();
-			} catch (Exception ex) {}
-
 			handleConnectionException(e);
 			if (close) closeImport(ctx, userName);
             return new ImportException(e);
 		} finally {
 			try {
 				if (reader != null) reader.close();
-			} catch (Exception ex) {}
+			} catch (Exception ex) {
+			    LogMessage msg = new LogMessage();
+                msg.print("Error closing the reader");
+                msg.print(ex);
+			    dsFactory.getLogger().error(this,msg);
+			}
 			if (omsc != null && close)
 				closeImport(ctx, userName);
 		}
