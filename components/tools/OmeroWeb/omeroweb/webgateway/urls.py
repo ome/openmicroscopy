@@ -285,7 +285,7 @@ Admin method to switch to the specified user, identified by username: <user>
 Returns 'true' if switch went OK.
 """
 
-archived_files = url( r'^archived_files/download/(?P<iid>[0-9]+)/$', 'webgateway.views.archived_files', name="archived_files" )
+archived_files = url( r'^archived_files/download/(?:(?P<iid>[0-9]+)/)?$', 'webgateway.views.archived_files', name="archived_files" )
 """
 This url will download the Original Image File(s) archived at import time. If it's a single file, this will be
 downloaded directly. For multiple files, they are assembled into a zip file on the fly, and this is downloaded.

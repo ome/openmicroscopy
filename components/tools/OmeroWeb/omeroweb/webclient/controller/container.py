@@ -490,7 +490,6 @@ class BaseContainer(BaseController):
                 fsinfo = queryService.projection(query, params, self.conn.SERVICE_OPTS)
                 fsCount = fsinfo[0][0]._val
                 fsSize = fsinfo[0][1]._val
-                print fsSize
                 self.filesetFileInfo = {'count': fsCount, 'size': fsSize}
         return self.filesetFileInfo
 

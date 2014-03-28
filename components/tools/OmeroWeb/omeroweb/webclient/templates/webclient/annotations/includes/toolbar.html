@@ -31,7 +31,10 @@
         <img title="Close" src="{% static 'webgateway/img/close.gif' %}" />
     </div>
 
-    {% if manager.image %}
+    <!-- This is used for 'batch annotate' panel with 'filesetCount'... -->
+    <!-- ... and for single images -->
+
+    {% if manager.image or filesetInfo %}
     <!-- download options -->
     <div class="toolbar_dropdown">
         <button class="btn silver btn_download" title="Download Image as...">
@@ -44,12 +47,20 @@
                 title="Download {{ manager.image.countImportedImageFiles }} Archived file{{ manager.image.countImportedImageFiles|pluralize:'s (zip)' }}">
                 Archived file{{ manager.image.countImportedImageFiles|pluralize:'s (zip)' }}</a>
             </li>
+            {% elif filesetInfo %}
+            <li>
+              <a id="download-origfile" href="{% url 'archived_files' %}?{{ obj_string }}"
+                title="Download {{ filesetInfo.count }} files as a zip">
+                {{ filesetInfo.count }} Archived files ({{ filesetInfo.size|filesizeformat }})</a>
+            </li>
             {% endif %}
+            {% if manager.image %}
             <li>
                 <a id="create-ometiff" href="{% url 'ome_tiff_script' manager.image.id %}" 
                 title="Create OME-TIFF File for Download">OME-TIFF</a>
             </li>
             <li id="download-jpeg"><a href="{% url 'web_render_image_download' manager.image.id %}" title="Download as JPEG">JPEG</a></li>
+            {% endif %}
         </ul>
     </div>
 
