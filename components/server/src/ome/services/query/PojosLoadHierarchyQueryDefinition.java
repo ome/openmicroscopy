@@ -1,7 +1,5 @@
 /*
- *   $Id$
- *
- *   Copyright 2006 University of Dundee. All rights reserved.
+ *   Copyright 2006-2014 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 package ome.services.query;
@@ -80,7 +78,11 @@ public class PojosLoadHierarchyQueryDefinition extends Query {
         }
 
         if (params.isLeaves()) {
-        	sb.append("left outer join fetch img.details.updateEvent as evt ");
+            if (Screen.class.isAssignableFrom(klass) || Plate.class.isAssignableFrom(klass)) {
+                sb.append("left outer join fetch sa.wellSample ws ");
+                sb.append("left outer join fetch ws.image img ");
+            }
+            sb.append("left outer join fetch img.details.updateEvent as evt ");
             sb.append("left outer join fetch img.pixels as pix ");
             sb.append("left outer join fetch img.format as format ");
             sb.append("left outer join fetch pix.pixelsType as pt ");
