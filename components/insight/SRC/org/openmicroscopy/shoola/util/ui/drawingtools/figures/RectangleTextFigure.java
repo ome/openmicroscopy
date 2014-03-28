@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.util.ui.drawingtools.figures.RectangleTextFigure 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -210,8 +210,11 @@ public class RectangleTextFigure
 			
 			//Determine with and height of the text.
 			double width = textWidth;
-			if (textWidth > FigureUtil.TEXT_WIDTH)
-				width = FigureUtil.TEXT_WIDTH;
+			double avgCharWidth = textWidth/text.length();
+                        double maxTextWidth = avgCharWidth*FigureUtil.TEXT_WIDTH;
+                        if(textWidth > maxTextWidth) {
+                            width = maxTextWidth;
+                        }
 			double textHeight = (textWidth/width+1)*(fm.getAscent()
 					+fm.getDescent()+fm.getLeading());
 			double x = rectangle.x+rectangle.width/2-width/2;
