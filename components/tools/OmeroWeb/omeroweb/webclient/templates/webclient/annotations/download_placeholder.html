@@ -1,0 +1,46 @@
+{% extends "webgateway/core_html.html" %}
+
+
+
+{% block title %}
+Download in progress...
+{% endblock %}
+
+
+{% block link %}
+    {{ block.super }}
+    <style>
+        .centre {
+            margin-right: auto;
+            margin-left: auto;
+            position: relative;
+            top: 100px;
+            width: 300px;
+            background-color: #fafafa;
+            text-align: center;
+            padding: 15px;
+        }
+        h1 {
+            text-align: center;
+        }
+        a {
+            text-decoration: underline;
+        }
+    </style>
+{% endblock %}
+
+
+{% block body %}
+
+<div class="centre">
+<h1 style="font-size: 20px;">Preparing download...</h1>
+<img src ="{% static "webgateway/img/spinner_big.gif" %}"/>
+<h1>Download will be available in a moment.</h1>
+<h3>Please <a href="#" onClick="window.close()">close this window</a> once the download is complete</h3>
+</div>
+
+<script>
+    window.location.href = "{{ url }}";
+</script>
+
+{% endblock %}
