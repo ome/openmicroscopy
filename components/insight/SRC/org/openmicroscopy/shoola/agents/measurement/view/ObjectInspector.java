@@ -50,7 +50,6 @@ import org.openmicroscopy.shoola.util.roi.figures.MeasureBezierFigure;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureEllipseFigure;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureLineConnectionFigure;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureLineFigure;
-import org.openmicroscopy.shoola.util.roi.figures.MeasurePointFigure;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureRectangleFigure;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureTextFigure;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
@@ -106,6 +105,9 @@ class ObjectInspector
             attributeFields.add(new AttributeField(MeasurementAttributes.TEXT,
                     AnnotationDescription.annotationDescription
                             .get(AnnotationKeys.TEXT), true));
+            attributeFields.add(new AttributeField(MeasurementAttributes.FONT_SIZE,
+                    AnnotationDescription.annotationDescription
+                            .get(MeasurementAttributes.FONT_SIZE), true));
             attributeFields.add(new AttributeField(MeasurementAttributes.SCALE_PROPORTIONALLY,
                     AnnotationDescription.annotationDescription
                             .get(MeasurementAttributes.SCALE_PROPORTIONALLY), false));
@@ -126,6 +128,9 @@ class ObjectInspector
             attributeFields.add(new AttributeField(MeasurementAttributes.STROKE_COLOR,
                     AnnotationDescription.annotationDescription
                             .get(MeasurementAttributes.STROKE_COLOR), false));
+            attributeFields.add(new AttributeField(MeasurementAttributes.STROKE_WIDTH,
+                    AnnotationDescription.annotationDescription
+                            .get(MeasurementAttributes.STROKE_WIDTH), true));
         }
 	
 	/** Initializes the component composing the display. */
@@ -192,7 +197,15 @@ class ObjectInspector
                 if(TextHolderFigure.class.isAssignableFrom(figure.getClass())) {
                     ((TextHolderFigure) figure).setText(text);
                 }
-            } else if (attr.equals(MeasurementAttributes.WIDTH)) {
+            } else if (attr.equals(MeasurementAttributes.FONT_SIZE)) {
+                double d = Double.parseDouble(text);
+                figure.setAttribute(MeasurementAttributes.FONT_SIZE, d);
+            }
+            else if (attr.equals(MeasurementAttributes.STROKE_WIDTH)) {
+                double d = Double.parseDouble(text);
+                figure.setAttribute(MeasurementAttributes.STROKE_WIDTH, d);
+            }
+            else if (attr.equals(MeasurementAttributes.WIDTH)) {
                 try {
                     double d = Double.parseDouble(text);
                     setFigureDimension(figure, MeasurementAttributes.WIDTH, d);
