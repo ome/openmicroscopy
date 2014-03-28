@@ -1832,6 +1832,21 @@ def download_orig_metadata(request, imageId, conn=None, **kwargs):
     return rsp
 
 
+@render_response()
+def download_placeholder(request):
+    """
+    Page displays a simple "Preparing download..." message and redirects to the 'url'.
+    We construct the url and query string from request: 'url' and 'ids'.
+    """
+
+    download_url = request.REQUEST.get('url')
+    targetIds = request.REQUEST.get('ids')      # E.g. image-1|image-2
+    query = "&".join([i.replace("-", "=") for i in targetIds.split("|")])
+    download_url = download_url + "?" + query
+
+    return {'template': "webclient/annotations/download_placeholder.html", 'url': download_url}
+
+
 @login_required()
 @render_response()
 def load_public(request, share_id=None, conn=None, **kwargs):
