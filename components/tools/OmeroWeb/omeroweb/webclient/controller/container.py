@@ -59,7 +59,6 @@ class BaseContainer(BaseController):
     txannSize = 0
     long_annotations = None
     file_annotations = None
-    filesetFileInfo = None
     
     orphaned = False
     
@@ -474,24 +473,21 @@ class BaseContainer(BaseController):
         return False
 
 
-    def getFilesetFileInfo (self, objDict):
-        """ Counts the Original Files that are part of the FS Fileset linked to this image """
+    def getFilesetFileInfo (self, imageIds):
+        """ Gets summary of Original Files that are part of the FS Fileset linked to images """
 
-        if self.filesetFileInfo is None:
-
-            if 'image' in objDict:
-                params = omero.sys.ParametersI()
-                params.map = {}
-                params.map["ids"] = rlist([rlong(a.getId()) for a in objDict['image']])
-                query = "select count(fse.id), sum(f.size) from FilesetEntry as fse join fse.fileset as fs "\
-                        "left outer join fse.originalFile as f "\
-                        "left outer join fs.images as image where image.id in (:ids)"
-                queryService = self.conn.getQueryService()
-                fsinfo = queryService.projection(query, params, self.conn.SERVICE_OPTS)
-                fsCount = fsinfo[0][0]._val
-                fsSize = fsinfo[0][1]._val
-                self.filesetFileInfo = {'count': fsCount, 'size': fsSize}
-        return self.filesetFileInfo
+        params = omero.sys.ParametersI()
+        params.addIds(imageIds)
+        query = "select distinct(fse) from FilesetEntry as fse "\
+                "left outer join fse.fileset as fs "\
+                "left outer join fetch fse.originalFile as f "\
+                "left outer join fs.images as image where image.id in (:ids)"
+        queryService = self.conn.getQueryService()
+        fsinfo = queryService.findAllByQuery(query, params, self.conn.SERVICE_OPTS)
+        fsCount = len(fsinfo)
+        fsSize = sum([f.originalFile.getSize().val for f in fsinfo])
+        filesetFileInfo = {'count': fsCount, 'size': fsSize}
+        return filesetFileInfo
 
 
     def loadBatchAnnotations(self, objDict, ann_ids=None, addedByMe=False):
