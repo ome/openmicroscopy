@@ -283,7 +283,8 @@
         // Stuff to do on load...
         $(function() 
             {
-                var copy_paste_rdef_url = "{% url 'webgateway.views.copy_image_rdef_json' %}";
+                var copy_paste_rdef_url = "{% url 'webgateway.views.copy_image_rdef_json' %}",
+                    apply_owners_rdef_url = "{% url 'webgateway.views.apply_owners_rdef_json' %}";
                 // Copy the selected Image ID to the 'session' (right-click menu only allows this on 'image')
                 var copyRenderingSettings = function(selected) {
                     if (selected.length == 1) {
@@ -292,10 +293,13 @@
                     }
                 }
                 // Paste settings from 'session' to selected Images
-                var pasteRenderingSettings = function(selected) {
+                var pasteRenderingSettings = function(selected, owner) {
                     var ids = [],
                         rdef_url = copy_paste_rdef_url,
                         rel = selected.attr('rel').replace('-locked','');
+                    if (owner) {
+                        rdef_url = apply_owners_rdef_url;
+                    }
                     selected.each(function(){
                         ids.push(this.id.split('-')[1]);
                     });
@@ -307,6 +311,10 @@
                         // update thumbnails
                         OME.refreshThumbnails();
                     });
+                }
+
+                var applyOwnerRenderingSettings = function(selected) {
+                    pasteRenderingSettings(selected, true);
                 }
 
                 $("#left_panel_tabs").tabs({
@@ -888,6 +896,13 @@
                                         "icon"  : '{% static "webclient/image/icon_basic_paste_16.png" %}',
                                         "action": function() {
                                             pasteRenderingSettings(this.get_selected());
+                                        }
+                                    },
+                                    "owner_rdef": {
+                                        "label" : "Set Owner's",
+                                        "icon"  : '{% static "webclient/image/icon_basic_paste_16.png" %}',
+                                        "action": function() {
+                                            applyOwnerRenderingSettings(this.get_selected());
                                         }
                                     }
                                 }
