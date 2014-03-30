@@ -274,6 +274,11 @@ Copy the rendering settings from one image to a list of images, specified in req
 by 'fromid' and list of 'toids'. See L{views.copy_image_rdef_json}
 """
 
+apply_owners_rdef_json = (r'^applyOwnersRDef/$', 'webgateway.views.apply_owners_rdef_json')
+"""
+Apply the owner's rendering settings to the specified objects.
+"""
+
 webgateway_su = url(r'^su/(?P<user>[^/]+)/$', 'webgateway.views.su', name="webgateway_su")
 """
 Admin method to switch to the specified user, identified by username: <user> 
@@ -323,6 +328,7 @@ urlpatterns = patterns('',
     reset_image_rdef_json,
     list_compatible_imgs_json,
     copy_image_rdef_json,
+    apply_owners_rdef_json,
     # download archived_files
     archived_files,
     original_file_paths,
