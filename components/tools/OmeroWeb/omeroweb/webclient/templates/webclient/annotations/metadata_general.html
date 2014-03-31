@@ -1028,6 +1028,14 @@
                 {% endwith %}
         
                 <table>
+                    {% if manager.tag.getNs %}
+                    {% ifnotequal manager.tag.getNs insight_ns %}
+                    <tr>
+                        <th>Name space:</th>
+                        <td id='namespace'>{{ manager.tag.getNs }}</td>
+                    </tr>
+                    {% endifnotequal %}
+                    {% endif %}
                     <tr>
                         <th>Owner:</th>
                         <td id='owner_fullname'>{{ manager.tag.getOwner.getFullName }}</td>
