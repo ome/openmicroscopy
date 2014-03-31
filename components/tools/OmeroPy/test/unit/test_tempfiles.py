@@ -34,10 +34,6 @@ class TestTemps(object):
         assert p.exists()
         # Logger should print out one file
 
-    def testLocking(self):
-        pass
-        # pytest.raises(LockException, lock, f, LOCK_NB)
-
     def testUsingThePath(self):
         p = t_f.create_path("write", ".txt")
         p.write_text("hi")
@@ -70,13 +66,6 @@ class TestTemps(object):
     def testFolderDelete(self):
         p = self.testFolderWrite()
         p.rmtree()
-
-    #
-    # Folder
-    #
-
-    def testCreateFolder(self):
-        t_f
 
     #
     # Misc
