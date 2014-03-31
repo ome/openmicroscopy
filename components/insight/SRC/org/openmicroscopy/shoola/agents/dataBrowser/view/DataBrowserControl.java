@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowserControl 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -85,6 +85,7 @@ import pojos.ExperimenterData;
 import pojos.GroupData;
 import pojos.ImageData;
 import pojos.PlateAcquisitionData;
+import pojos.WellSampleData;
 
 /** 
  * The DataBrowser's Controller.
@@ -362,7 +363,8 @@ class DataBrowserControl
                 if (o instanceof DataObject) {
                     if (!(o instanceof GroupData ||
                             o instanceof ExperimenterData ||
-                            o instanceof PlateAcquisitionData)) {
+                            o instanceof PlateAcquisitionData ||
+                            o instanceof WellSampleData)) {
                         if (model.canChgrp(o)) {
                             data = (DataObject) o;
                             if (!owners.contains(data.getOwner().getId()))
