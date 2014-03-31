@@ -32,10 +32,25 @@ libpath = fullfile(findOmero(), 'libs');
 guavajdk5_jar = fullfile(libpath, 'guava-jdk5.jar');
 jarList = {guavajdk5_jar};
 
-% For MATLAB versions 7.13 (R2011b) and above, the sl4j-api.jar and
-% sl4j-log4j12.jar JARs are shipped with the external Java libraries of
-% MATLAB under $matlabroot/java/jarext/jxbrowser.
-if verLessThan('MATLAB', '7.13')
+% For recent versions of MATLAB, some JAR dependencies are  shipped with
+% the external Java libraries:
+% * log4j.jar is under $matlabroot/java/jarext,
+% * sl4j-api.jar and sl4j-log4j12.jar are under
+%   $matlabroot/java/jarext/jxbrowser.
+javaPath = javaclasspath('-all');
+has_log4j = any(~cellfun(@isempty, regexp(javaPath, '.*log4j.jar$',...
+    'match', 'once')));
+has_slf4j = any(~cellfun(@isempty, regexp(javaPath, '.*slf4j-api.jar$',...
+    'match', 'once')));
+
+% Include log4j dependency if not present in MATLAB java classpath
+if ~has_log4j
+    log4j_jar = fullfile(libpath, 'log4j.jar');
+    jarList = horzcat(jarList, {log4j_jar});
+end
+
+% Include slf4j dependencies if not present in MATLAB java classpath
+if ~has_slf4j
     slf4j_api_jar = fullfile(libpath, 'slf4j-api.jar');
     slf4j_log4j12_jar = fullfile(libpath, 'slf4j-log4j12.jar');
     jarList = horzcat(jarList, {slf4j_api_jar, slf4j_log4j12_jar});
