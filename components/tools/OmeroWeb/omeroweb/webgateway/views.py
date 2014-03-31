@@ -1755,7 +1755,8 @@ def archived_files(request, iid=None, conn=None, **kwargs):
             finally:
                 shutil.rmtree(temp_zip_dir, ignore_errors=True)
 
-            file_name = "%s.zip" % image.getName().replace(" ","_")
+            zipName = request.REQUEST.get('zipname', image.getName())
+            file_name = "%s.zip" % zipName.replace(" ","_")
 
             # return the zip or single file
             archivedFile_data = FileWrapper(temp)
