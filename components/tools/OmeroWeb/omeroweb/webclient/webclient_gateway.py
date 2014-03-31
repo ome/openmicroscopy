@@ -348,7 +348,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         params.map = {}
         params.map['ns'] = rstring(omero.constants.metadata.NSINSIGHTTAGSET)
         
-        sql = "select tg from TagAnnotation tg where ((ns=:ns) or ((ns is null or ns='') and not exists ( select aal from AnnotationAnnotationLink as aal where aal.child=tg.id))) "
+        sql = "select tg from TagAnnotation tg where ((ns=:ns) or (not exists ( select aal from AnnotationAnnotationLink as aal where aal.child=tg.id))) "
         if eid is not None:
             params.map["eid"] = rlong(long(eid))
             sql+=" and tg.details.owner.id = :eid"
