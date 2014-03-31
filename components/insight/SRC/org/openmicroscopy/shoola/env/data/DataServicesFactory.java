@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.data.DataServicesFactory
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -54,7 +54,6 @@ import org.openmicroscopy.shoola.env.Environment;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.cache.CacheServiceFactory;
 import org.openmicroscopy.shoola.env.config.AgentInfo;
-import org.openmicroscopy.shoola.env.config.OMEROInfo;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.events.ConnectedEvent;
 import org.openmicroscopy.shoola.env.data.events.ReloadRenderingEngine;
@@ -287,7 +286,7 @@ public class DataServicesFactory
         	int c1 = Integer.parseInt(valuesClient[0]);
         	int c2 = Integer.parseInt(valuesClient[1]);
         	if (s1 < c1) return false;
-        	if (s2 < c2) return false;
+        	if (s2 != c2) return false;
 		} catch (Exception e) {
 			//Record error
 			LogMessage msg = new LogMessage();
