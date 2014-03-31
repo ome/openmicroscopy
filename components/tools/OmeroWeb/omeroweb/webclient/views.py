@@ -2205,7 +2205,7 @@ def activities(request, conn=None, **kwargs):
         rv['inprogress'] = in_progress
         rv['failure'] = failure
         rv['jobs'] = len(request.session['callback'])
-        return HttpJsonResponse(json.dumps(rv)) # json
+        return HttpJsonResponse(rv) # json
 
     jobs = []
     new_errors = False
