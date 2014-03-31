@@ -27,8 +27,19 @@
         <span></span>
     </button>
     <div id="link_info_popup" class="info_popup" style="right:0px; top:30px; padding:4px; display:none">
-        <input type="text" size="30">
-        <img title="Close" src="{% static 'webgateway/img/close.gif' %}" />
+
+        <table>
+          <tr><td>
+            <!-- In 'batch_annotate' panel we have 'link_string'. In 'metadata_general' we use js to get value -->
+            <input type="text" size="30"
+              {% if link_string %}
+              value="{{ webclient_path }}?show={{ link_string }}"
+              {% endif %}
+              />
+          </td><td>
+            <img title="Close" src="{% static 'webgateway/img/close.gif' %}" />
+          </td></tr>
+        </table>
     </div>
 
     <!-- This is used for 'batch annotate' panel with 'filesetCount'... -->
