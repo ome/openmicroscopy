@@ -16,6 +16,10 @@ echo Building $OMERO_BRANCH
 ./build.py build-default test-compile
 ./build.py release-all
 
+if [ -z "${RELEASE-}" ]; then
+  docs/hudson/omero_insight_sign.py lib/keystore omedev target/OMERO.server-*.zip -kp omedev -cp omedev -ts no -oz target/OMERO.server-*.zip
+fi
+
 # Log information
 echo BUILD_NUMBER=$BUILD_NUMBER > target/$OMERO_BRANCH.log
 echo OMERO_BRANCH=$OMERO_BRANCH >> target/$OMERO_BRANCH.log
