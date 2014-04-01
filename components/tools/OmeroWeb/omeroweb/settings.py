@@ -516,7 +516,6 @@ PIPELINE_CSS = {
             '3rdparty/jquery-ui-1.8.19/jquery-ui-1.8.19.custom.css',
             'webgateway/css/omero_image.css',
             '3rdparty/panojs/panojs.css',
-            #'webgateway/css/ome.iehacks.css',
         ),
         'output_filename': 'omeroweb.viewer.min.css',
     },
