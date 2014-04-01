@@ -950,7 +950,7 @@ omero.version=${omero.version}
             <jar_update_if destfile="${dist.dir}/lib/client/omero_client.jar" sign="false">
                 <fileset dir="${dist.dir}/etc" includes="omero.properties"/>
             </jar_update_if>
-            <jar_update_if destfile="${dist.dir}/lib/insight/blitz.jar" sign="true">
+            <jar_update_if destfile="${dist.dir}/lib/insight/blitz.jar" sign="false">
                 <fileset dir="${dist.dir}/etc" includes="omero.properties"/>
             </jar_update_if>
         </then>
