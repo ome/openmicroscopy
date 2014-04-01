@@ -29,7 +29,10 @@ import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.swing.Icon;
@@ -38,6 +41,10 @@ import javax.swing.JFrame;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.openmicroscopy.shoola.env.Container;
+import org.openmicroscopy.shoola.env.LookupNames;
+import org.openmicroscopy.shoola.env.data.AdminService;
+import org.openmicroscopy.shoola.env.data.OmeroImageService;
+import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.model.AnalysisActivityParam;
 import org.openmicroscopy.shoola.env.data.model.ApplicationData;
 import org.openmicroscopy.shoola.env.data.model.DeleteActivityParam;
@@ -53,13 +60,17 @@ import org.openmicroscopy.shoola.env.data.model.SaveAsParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptActivityParam;
 import org.openmicroscopy.shoola.env.data.model.TransferableActivityParam;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.log.Logger;
 import org.openmicroscopy.shoola.util.file.ImportErrorObject;
 import org.openmicroscopy.shoola.util.ui.MessengerDialog;
 import org.openmicroscopy.shoola.util.ui.NotificationDialog;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
+import pojos.DataObject;
+import pojos.DatasetData;
 import pojos.ExperimenterData;
+import pojos.ImageData;
 
 /**
  * Implements the {@link UserNotifier} interface.
@@ -414,7 +425,85 @@ public class UserNotifierImpl implements UserNotifier, PropertyChangeListener {
 			uiRegister = p.isUIRegister();
 		} else if (activity instanceof OpenActivityParam) {
 			OpenActivityParam p = (OpenActivityParam) activity;
-			comp = new OpenObjectActivity(this, manager.getRegistry(), ctx, p);
+			ApplicationData data = p.getApplication();
+			AdminService svc = manager.getRegistry().getAdminService();
+			OmeroImageService prx = manager.getRegistry().getImageService();
+			if (data.isRegistered()) { //specified some arguments
+			    List<String> commands = new ArrayList<String>();
+			    Iterable<String> args= data.getCommandLineArguments();
+			    String uuid = null;
+			    try {
+			        uuid = svc.createNewSession(ctx);
+			    } catch (Exception e) {
+			        Logger logger = manager.getRegistry().getLogger();
+			        LogMessage msg = new LogMessage();
+			        msg.append("could not create a session");
+			        msg.print(e);
+			        logger.error(this, msg);
+			    }
+			    UserCredentials lc = (UserCredentials)
+                        manager.getRegistry().lookup(
+                                LookupNames.USER_CREDENTIALS);
+			    StringBuffer buffer = new StringBuffer();
+			    buffer.append(" -s ");
+                buffer.append(lc.getHostName());
+                buffer.append(" -p ");
+                buffer.append(lc.getPort());
+                buffer.append(" -g ");
+                buffer.append(ctx.getGroupID());
+			    if (uuid == null) { //no session pass user credentials
+			        buffer.append(" -u ");
+			        buffer.append(lc.getUserName());
+			        buffer.append(" -w ");
+			        buffer.append(lc.getPassword());
+
+			    } else buffer.append(" -k "+uuid);
+			    String script = data.getScript();
+			    if (StringUtils.isNotBlank(script)) {
+			        buffer.append(" --script "+script);
+			    }
+			    //now data type
+			    Collection<DataObject> objects = p.getObjects();
+			    if (CollectionUtils.isNotEmpty(objects)) {
+			        Iterator<DataObject> i = objects.iterator();
+			        DataObject object;
+			        String name = null;
+			        int n = objects.size();
+			        String id = "";
+			        while (i.hasNext()) {
+			            object = i.next();
+                        if (name == null) {
+                            name = object.asIObject().getClass().getSimpleName();
+                            if (name.endsWith("I"))
+                                name = name.substring(0, name.length()-1);
+                        }
+                        if (n == 1) {
+                            if (object instanceof ImageData) {
+                                buffer.append(" -i "+object.getId());
+                            } else if (object instanceof DatasetData) {
+                                buffer.append(" -d "+object.getId());
+                            } else {
+                                buffer.append(" -t "+name.toLowerCase());
+                                buffer.append(" --id "+object.getId());
+                            }
+                        }
+                        id += object.getId()+" ";
+                    }
+	                if (n > 1) {
+	                    buffer.append(" -t "+name.toLowerCase());
+                        buffer.append(" --id "+id);
+	                }
+			    }
+			    commands.add(buffer.toString());
+			    for (String arg : args) {
+			        commands.add(arg);
+			    }
+			    data.setCommandLineArguments(commands);
+			    openApplication(data, null);
+			} else {
+			    comp = new OpenObjectActivity(this, manager.getRegistry(), ctx,
+			            p);
+			}
 		} else if (activity instanceof DownloadAndZipParam) {
 			DownloadAndZipParam p = (DownloadAndZipParam) activity;
 			if (!canWriteInFolder(p.getFolder()))
@@ -463,19 +552,19 @@ public class UserNotifierImpl implements UserNotifier, PropertyChangeListener {
 	 */
 	public void openApplication(ApplicationData data, String path) {
 
-		if (data == null && path == null)
-			return;
-		
+		if (data == null && path == null) return;
+		if (data == null) data = new ApplicationData();
 		Logger logger = manager.getRegistry().getLogger();
 		try {
-			String[] commandLineElements = ApplicationData.buildCommand(data,
-					new File(path));
+		    File f = null;
+		    if (path != null) f = new File(path);
+			String[] commandLineElements = data.buildCommand(f);
 
 			logger.info(this, "Executing command & args: " + 
 					Arrays.toString(commandLineElements));
 
-			Runtime runtime = Runtime.getRuntime();
-			runtime.exec(commandLineElements);
+			ProcessBuilder builder = new ProcessBuilder(commandLineElements);
+			builder.start();
 		} catch (Exception e) {
 			logger.error(this, e.getMessage());
 		}

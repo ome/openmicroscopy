@@ -46,6 +46,7 @@ import javax.swing.JFrame;
 
 //Third-party libraries
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
 
 //Application-internal dependencies
 import omero.model.OriginalFile;
@@ -3627,50 +3628,84 @@ class TreeViewerComponent
 
 	/** 
 	 * Implemented as specified by the {@link TreeViewer} interface.
+	 * @see TreeViewer#openWith(ApplicationData, String)
+	 */
+    public void openWith(ApplicationData data, String appName)
+    {
+        Browser browser = model.getSelectedBrowser();
+        if (browser == null) return;
+        if (data != null) {
+            //check if the application exist
+            String path = data.getApplicationPath();
+            System.err.println(path);
+            if (StringUtils.isNotBlank(path)) {
+                File f = new File(path);
+                System.err.println(f.exists());
+                if (!f.exists()) {
+                    registerApplication(appName);
+                    return;
+                }
+                return;
+            }
+            Environment env = (Environment) 
+                TreeViewerAgent.getRegistry().lookup(LookupNames.ENV);
+            String dir = env.getTmpDir();
+            List l = browser.getSelectedDataObjects();
+            if (l == null) return;
+            Iterator i = l.iterator();
+            Object object;
+            OpenActivityParam activity;
+            UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
+            SecurityContext ctx = model.getSecurityContext();
+            List<DataObject> objects = new ArrayList<DataObject>();
+            while (i.hasNext()) {
+                object = i.next();
+                if (object instanceof DataObject) {
+                    objects.add((DataObject) object);
+                }
+            }
+            if (CollectionUtils.isNotEmpty(objects)) {
+                activity = new OpenActivityParam(data, objects, dir);
+                un.notifyActivity(ctx, activity);
+            }
+            return;
+        }
+        registerApplication(appName);
+    }
+
+    /**
+     * Pops up the dialog to register the application.
+     *
+     * @param appName
+     */
+    private void registerApplication(String appName)
+    {
+        Browser browser = model.getSelectedBrowser();
+        TreeImageDisplay d = browser.getLastSelectedDisplay();
+        if (d == null && StringUtils.isBlank(appName)) return;
+        Object uo = d.getUserObject();
+        String name = null;
+        if (uo instanceof ImageData) {
+            ImageData img = (ImageData) uo;
+            name = EditorUtil.getObjectName(img.getName());
+        } else if (uo instanceof FileAnnotationData) {
+            FileAnnotationData fa = (FileAnnotationData) uo;
+            name = EditorUtil.getObjectName(fa.getFileName());
+        }
+        if (StringUtils.isBlank(appName)) return;
+        OpenWithDialog dialog = new OpenWithDialog(view,
+                ApplicationData.getDefaultLocation(), appName);
+        dialog.addPropertyChangeListener(controller);
+        UIUtilities.centerAndShow(dialog);
+    }
+
+	/** 
+	 * Implemented as specified by the {@link TreeViewer} interface.
 	 * @see TreeViewer#openWith(ApplicationData)
 	 */
 	public void openWith(ApplicationData data)
 	{
-		Browser browser = model.getSelectedBrowser();
-		if (browser == null) return;
-		if (data != null) {
-			Environment env = (Environment) 
-				TreeViewerAgent.getRegistry().lookup(LookupNames.ENV);
-			String dir = env.getTmpDir();
-			List l = browser.getSelectedDataObjects();
-			if (l == null) return;
-			Iterator i = l.iterator();
-			Object object;
-			OpenActivityParam activity;
-			UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
-			SecurityContext ctx = model.getSecurityContext();
-			while (i.hasNext()) {
-				object = i.next();
-				if (object instanceof ImageData || 
-					object instanceof FileAnnotationData) {
-					activity = new OpenActivityParam(data, (DataObject) object, 
-							dir);
-					un.notifyActivity(ctx, activity);
-				}
-			}
-			return;
-		}
-		TreeImageDisplay d = browser.getLastSelectedDisplay();
-		if (d == null) return;
-		Object uo = d.getUserObject();
-		String name = null;
-		if (uo instanceof ImageData) {
-			ImageData img = (ImageData) uo;
-			name = EditorUtil.getObjectName(img.getName());
-		} else if (uo instanceof FileAnnotationData) {
-			FileAnnotationData fa = (FileAnnotationData) uo;
-			name = EditorUtil.getObjectName(fa.getFileName());
-		}
-		if (name == null) return;
-		OpenWithDialog dialog = new OpenWithDialog(view, 
-				ApplicationData.getDefaultLocation(), name);
-		dialog.addPropertyChangeListener(controller);
-		UIUtilities.centerAndShow(dialog);
+		openWith(data, null);
 	}
 
 	/** 
@@ -4793,5 +4828,14 @@ class TreeViewerComponent
     public boolean isSystemGroup(long groupID, String key)
     {
         return model.isSystemGroup(groupID, key);
+    }
+
+    /** 
+     * Implemented as specified by the {@link TreeViewer} interface.
+     * @see TreeViewer#applicationRegistered()
+     */
+    public void applicationRegistered()
+    {
+        view.resetMenuBar();
     }
 }

@@ -244,6 +244,12 @@
         <class>org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent</class>
         <config>importer.xml</config>
     </agent>
+    <agent>
+        <name>AddOn</name>
+        <active>true</active>
+        <class>org.openmicroscopy.shoola.agents.plugins.PluginAgent</class>
+        <config>plugin.xml</config>
+    </agent>
     </structuredEntry>
   </agents>
 

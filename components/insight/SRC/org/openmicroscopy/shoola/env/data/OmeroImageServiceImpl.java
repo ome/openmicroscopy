@@ -78,6 +78,7 @@ import omero.sys.Parameters;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.RandomStringUtils;
+import org.apache.commons.lang.StringUtils;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
@@ -1889,7 +1890,7 @@ class OmeroImageServiceImpl
 	{
 		if (ctx == null) return null;
 		Connector c = gateway.getConnector(ctx, true, false);
-		// Pass close responsiblity off to the caller.
+		// Pass close responsibility off to the caller.
 		return c.getThumbnailService();
 	}
 	

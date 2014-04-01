@@ -61,6 +61,7 @@ import javax.swing.event.MenuListener;
 import org.jdesktop.swingx.JXTaskPane;
 import org.jdesktop.swingx.JXTaskPaneContainer;
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
+import org.openmicroscopy.shoola.agents.events.RegisteredAddOnEvent;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
@@ -139,6 +140,7 @@ import org.openmicroscopy.shoola.env.data.model.FigureParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptActivityParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.JXTaskPaneContainerSingle;
 import org.openmicroscopy.shoola.util.ui.LoadingWindow;
@@ -1456,14 +1458,27 @@ class TreeViewerControl
 				downloadScript(p);
 			}
 		} else if (OpenWithDialog.OPEN_DOCUMENT_PROPERTY.equals(name)) {
-			ApplicationData data = (ApplicationData) pce.getNewValue();
-			//Register 
+		    File file = (File) pce.getNewValue();
+		    if (file == null) return;
+		    //Now create the application data.
+		    ApplicationData data = null;
+		    try {
+		        data = new ApplicationData(file);
+            } catch (Exception e) {
+                LogMessage msg = new LogMessage();
+                msg.print("An error occurred while creating " +
+                        "the application file.");
+                msg.print(e);
+                TreeViewerAgent.getRegistry().getLogger().error(this, msg);
+            }
 			if (data == null) return;
 			String format = view.getObjectMimeType();
-			//if (format == null) return;
-			if (format != null)	
-				TreeViewerFactory.register(data, format);
+			if (format == null) format = "application/octet-stream";
+			TreeViewerFactory.register(data, format);
+            TreeViewerAgent.getRegistry().getEventBus().post(
+                    new RegisteredAddOnEvent(data));
 			model.openWith(data);
+			//post an event
 		} else if (DataBrowser.OPEN_EXTERNAL_APPLICATION_PROPERTY.equals(name)) {
 			model.openWith((ApplicationData) pce.getNewValue());
 		} else if (AdminDialog.CREATE_ADMIN_PROPERTY.equals(name)) {

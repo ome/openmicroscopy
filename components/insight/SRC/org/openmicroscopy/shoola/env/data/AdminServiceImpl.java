@@ -482,8 +482,9 @@ class AdminServiceImpl
 	{
 		if (experimenters == null)
 			throw new IllegalArgumentException("No experimenters to update");
-		Entry entry;
-		Iterator i = experimenters.entrySet().iterator();
+		Entry<ExperimenterData, UserCredentials> entry;
+		Iterator<Entry<ExperimenterData, UserCredentials>>
+		i = experimenters.entrySet().iterator();
 		Map<ExperimenterData, Exception> 
 		l = new HashMap<ExperimenterData, Exception>();
 		List<Experimenter> ownersToAdd = new ArrayList<Experimenter>();
@@ -500,9 +501,9 @@ class AdminServiceImpl
 		Boolean b;
 		boolean reset = false;
 		while (i.hasNext()) {
-			entry = (Entry) i.next();
-			exp = (ExperimenterData) entry.getKey();
-			uc = (UserCredentials) entry.getValue();
+			entry = i.next();
+			exp = entry.getKey();
+			uc = entry.getValue();
 			try {
 				updateExperimenter(ctx, exp, group, true);
 				//b = uc.isOwner();
@@ -580,13 +581,14 @@ class AdminServiceImpl
 			
 		List<ExperimenterData> l = new ArrayList<ExperimenterData>();
 		UserCredentials uc;
-		Entry entry;
+		Entry<ExperimenterData, UserCredentials> entry;
 		ExperimenterData exp;
-		Iterator i = map.entrySet().iterator();
+		Iterator<Entry<ExperimenterData, UserCredentials>>
+		i = map.entrySet().iterator();
 		while (i.hasNext()) {
-			entry = (Entry) i.next();
-			exp = (ExperimenterData) entry.getKey();
-			uc = (UserCredentials) entry.getValue();
+			entry = i.next();
+			exp = entry.getKey();
+			uc = entry.getValue();
 			try {
 				//check that the user is not ldap
 				String ldap = gateway.lookupLdapAuthExperimenter(ctx,
@@ -621,16 +623,17 @@ class AdminServiceImpl
 			
 		List<ExperimenterData> l = new ArrayList<ExperimenterData>();
 		UserCredentials uc;
-		Entry entry;
+		Entry<ExperimenterData, UserCredentials> entry;
 		ExperimenterData exp;
-		Iterator i = map.entrySet().iterator();
+		Iterator<Entry<ExperimenterData, UserCredentials>>
+		i = map.entrySet().iterator();
 		List<ExperimenterData> toActivate = new ArrayList<ExperimenterData>();
 		List<ExperimenterData> toDeactivate = new ArrayList<ExperimenterData>();
 		
 		while (i.hasNext()) {
-			entry = (Entry) i.next();
-			exp = (ExperimenterData) entry.getKey();
-			uc = (UserCredentials) entry.getValue();
+			entry = i.next();
+			exp = entry.getKey();
+			uc = entry.getValue();
 			if (uc.isActive()) toActivate.add(exp);
 			else toDeactivate.add(exp);
 		}
@@ -638,7 +641,7 @@ class AdminServiceImpl
 			gateway.modifyExperimentersRoles(ctx, true, toActivate,
 					GroupData.USER);
 		if (toDeactivate.size() > 0)
-			gateway.modifyExperimentersRoles(ctx, false, toDeactivate, 
+			gateway.modifyExperimentersRoles(ctx, false, toDeactivate,
 					GroupData.USER);
 		return l;
 	}
@@ -657,7 +660,7 @@ class AdminServiceImpl
 			context.lookup(LookupNames.USER_CREDENTIALS);
 		List<ExperimenterData> exps = new ArrayList<ExperimenterData>();
 		groups = gateway.getAvailableGroups(ctx, exp);
-		//Check if the current experimenter is an administrator 
+		//Check if the current experimenter is an administrator
 		Iterator<GroupData> i = groups.iterator();
 		GroupData g;
 		available = new HashSet<GroupData>();
@@ -689,7 +692,7 @@ class AdminServiceImpl
 				}
 			}
 		}
-		context.bind(LookupNames.USERS_DETAILS, exps);	
+		context.bind(LookupNames.USERS_DETAILS, exps);
 		List<GroupData> result = new ArrayList<GroupData>();
 		Iterator<GroupData> k = available.iterator();
 		while (k.hasNext()) {
@@ -757,7 +760,7 @@ class AdminServiceImpl
 		if (id < 0) return null;
 		List<DataObject> exp = new ArrayList<DataObject>();
 		exp.add(experimenter);
-		Map<DataObject, BufferedImage> map = 
+		Map<DataObject, BufferedImage> map =
 			context.getImageService().getExperimenterThumbnailSet(ctx, exp, 0);
 		return map.get(experimenter);
 	}
@@ -845,4 +848,15 @@ class AdminServiceImpl
         }
         throw new IllegalArgumentException("Key not valid.");
     }
+
+	/**
+	 * Implemented as specified by {@link AdminService}.
+	 * @see AdminService#createNewSession(SecurityContext)
+	 */
+	public String createNewSession(SecurityContext ctx)
+	        throws DSOutOfServiceException, DSAccessException
+	{
+	    return gateway.createSession(ctx);
+	}
+
 }

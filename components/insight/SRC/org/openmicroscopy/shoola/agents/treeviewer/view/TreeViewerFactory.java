@@ -62,6 +62,7 @@ import org.openmicroscopy.shoola.env.data.events.SaveEventResponse;
 import org.openmicroscopy.shoola.env.data.model.ApplicationData;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.log.LogMessage;
+import org.openmicroscopy.shoola.env.log.Logger;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
 import org.openmicroscopy.shoola.util.StringComparator;
 
@@ -457,6 +458,7 @@ public class TreeViewerFactory
 		
 		File f = new File(name);
 		if (!f.exists()) return;
+		Logger logger = TreeViewerAgent.getRegistry().getLogger();
 		try {
 			BufferedReader input = new BufferedReader(new FileReader(f));
 			try {
@@ -485,7 +487,15 @@ public class TreeViewerFactory
 								applications.put(mimeType, list);
 							}
 							File application = new File(buffer.toString());
-							list.add(new ApplicationData(application));
+							try {
+							    list.add(new ApplicationData(application));
+                            } catch (Exception e) {
+                                LogMessage msg = new LogMessage();
+                                msg.print("An error occurred while creating " +
+                                        "the applications file.");
+                                msg.print(e);
+                                logger.error( TreeViewerFactory.class, msg);
+                            }
 						}
 					}
 				}
@@ -504,11 +514,8 @@ public class TreeViewerFactory
 	        msg.print("An error occurred while reading the external " +
 	        		"applications file.");
 	        msg.print(e);
-			TreeViewerAgent.getRegistry().getLogger().error(
-					TreeViewerFactory.class, msg);
+	        logger.error( TreeViewerFactory.class, msg);
 		}
-		
-		
 	}
 	
 	/**

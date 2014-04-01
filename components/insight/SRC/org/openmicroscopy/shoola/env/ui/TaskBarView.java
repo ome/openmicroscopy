@@ -323,6 +323,18 @@ class TaskBarView
 	}
 
 	/**
+	 * Helper method to create the Add-on menu.
+	 *
+	 * @return The Add-on menu.
+	 */
+	private JMenu createAddOnsMenu()
+	{
+	    JMenu file = new JMenu("Add-ons");
+	    file.setMnemonic(KeyEvent.VK_A);
+	    return file;
+	}
+
+	/**
 	 * Helper method to create the window menu.
 	 *
 	 * @return The window menu.
@@ -364,6 +376,7 @@ class TaskBarView
 		menus[FILE_MENU] = createFileMenu();
 		menus[WINDOW_MENU] = createWindowMenu();
 		menus[HELP_MENU] = createHelpMenu();
+		menus[ADD_ON] = createAddOnsMenu();
 		JMenuBar bar = new JMenuBar();
 		for (int i = 0; i < menus.length; ++i)
 			bar.add(menus[i]);
@@ -476,7 +489,7 @@ class TaskBarView
 		super(TITLE);
 		this.manager = manager;
 		buttons = new AbstractButton[MAX_ID+1];
-		menus = new JMenu[3];
+		menus = new JMenu[4];
 		iconManager = im;
         windowMenus = new HashSet<JMenu>();
         helpMenus = new HashSet<JMenu>();
@@ -637,6 +650,7 @@ class TaskBarView
         case HELP_MENU: return getHelpMenu();
         case WINDOW_MENU: return getWindowsMenu();
         case FILE_MENU: return menus[FILE_MENU];
+        case ADD_ON: return menus[ADD_ON];
         }
         return null;
     }

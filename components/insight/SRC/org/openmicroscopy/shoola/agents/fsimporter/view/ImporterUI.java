@@ -343,16 +343,16 @@ class ImporterUI extends TopWindow
     {
     	TaskBar tb = ImporterAgent.getRegistry().getTaskBar();
     	JMenuBar bar = tb.getTaskBarMenuBar();
-    	if (!model.isMaster()) return bar;
     	JMenu[] existingMenus = new JMenu[bar.getMenuCount()];
     	for (int i = 0; i < existingMenus.length; i++) {
     		existingMenus[i] = bar.getMenu(i);
     	}
     	
  		bar.removeAll();
- 		bar.add(createFileMenu());
+ 		if (model.isMaster()) bar.add(createFileMenu());
  		for (int i = 0; i < existingMenus.length; i++) {
- 			if (i != TaskBar.FILE_MENU) bar.add(existingMenus[i]);
+ 			if (i != TaskBar.FILE_MENU && i != TaskBar.ADD_ON)
+ 			    bar.add(existingMenus[i]);
 		}
     	return bar;
     }

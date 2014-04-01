@@ -97,11 +97,14 @@ public interface TaskBar
 	public static final int		WINDOW_MENU = 0;
 	
 	/** Identifies the help menu within the menu bar. */
-	public static final int		HELP_MENU = 1;
+	public static final int		HELP_MENU = 2;
 	
 	/** Identifies the file menu within the menu bar. */
-	public static final int		FILE_MENU = 2;
-	
+	public static final int		FILE_MENU = 3;
+
+	/** Identifies the Add-on menu within the menu bar. */
+	public static final int ADD_ON = 1;
+
 	/** Identifies the <code>Send Comment</code> menu item. */
 	public static final int		COMMENT = 100;
 	

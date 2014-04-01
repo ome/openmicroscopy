@@ -94,6 +94,7 @@ import omero.grid.SharedResourcesPrx;
 import omero.grid.SharedResourcesPrxHelper;
 import omero.model.ExperimenterGroup;
 import omero.model.Session;
+import omero.sys.EventContext;
 import omero.sys.Principal;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.log.Logger;
@@ -575,79 +576,6 @@ class Connector
     // Cleanup
     //
 
-    /**
-     * Closes the session.
-     * 
-     * @param networkup Pass <code>true</code> if the network is up,
-     * <code>false</code> otherwise.
-     */
-    void close(boolean networkup)
-            throws Throwable
-    {
-        secureClient.setFastShutdown(!networkup);
-        if (unsecureClient != null) unsecureClient.setFastShutdown(!networkup);
-        if (networkup) {
-            shutDownServices(true);
-        }
-        secureClient.__del__(); // Won't throw.
-        if (unsecureClient != null) unsecureClient.__del__();
-        closeDerived(networkup);
-    }
-
-    /**
-     * Closes the services initialized by the importer
-     * TODO: along with the TODO on derived, this will need to be reviewed
-     * for race conditions.
-     **/
-    void closeImport()
-    {
-        shutdownImports();
-        try {
-            closeDerived(false);
-        } catch (Throwable e) {
-            log("Exception on closeDerived: " + e);
-        }
-    }
-
-    /**
-     * Closes the connectors associated to the master connector.
-     * 
-     * @param networkup Pass <code>true</code> if the network is up,
-     * <code>false</code> otherwise.
-     */
-    void closeDerived(boolean networkup)
-            throws Throwable
-    {
-        Collection<Connector> list = derived.values();
-        Iterator<Connector> i = list.iterator();
-        while (i.hasNext()) {
-            Connector c = null;
-            try {
-                c = i.next();
-                c.close(networkup);
-            } catch (Throwable e) {
-                log(String.format("Failed to close(%s) service: %s",
-                        networkup, c));
-            }
-        }
-        derived.clear();
-    }
-
-    /** 
-     * Shuts downs the stateful services.
-     * 
-     * @param rendering Pass <code>true</code> to shut down the rendering 
-     * 					services, <code>false</code> otherwise.
-     */
-    void shutDownServices(boolean rendering)
-    {
-        shutdownStateful();
-        shutdownImports();
-        if (!rendering) return;
-        for (Long pixelsId : reServices.keySet()) {
-            shutDownRenderingEngine(pixelsId);
-        }
-    }
 
     /**
      * Prints the stack trace and returns it as a string.
@@ -661,8 +589,81 @@ class Connector
         e.printStackTrace(pw);
         return sw.toString();
     }
-    
-    /**
+
+	/**
+	 * Closes the session.
+	 * 
+	 * @param networkup Pass <code>true</code> if the network is up,
+	 * <code>false</code> otherwise.
+	 */
+	void close(boolean networkup)
+		throws Throwable
+	{
+		secureClient.setFastShutdown(!networkup);
+		if (unsecureClient != null) unsecureClient.setFastShutdown(!networkup);
+		if (networkup) {
+			shutDownServices(true);
+		}
+		secureClient.__del__(); // Won't throw.
+		if (unsecureClient != null) unsecureClient.__del__();
+		closeDerived(networkup);
+	}
+
+	/** Closes the services initialized by the importer
+	 * TODO: along with the TODO on derived, this will need to be reviewed
+	 * for race conditions.
+	 **/
+	void closeImport()
+	{
+	    shutdownImports();
+		try {
+			closeDerived(false);
+		} catch (Throwable e) {
+		    log("Exception on closeDerived: " + e);
+		}
+	}
+	
+	/**
+	 * Closes the connectors associated to the master connector.
+	 * 
+	 * @param networkup Pass <code>true</code> if the network is up,
+	 * <code>false</code> otherwise.
+	 */
+	void closeDerived(boolean networkup)
+		throws Throwable
+	{
+		Collection<Connector> list = derived.values();
+		Iterator<Connector> i = list.iterator();
+		while (i.hasNext()) {
+		    Connector c = null;
+			try {
+				c = i.next();
+				c.close(networkup);
+			} catch (Throwable e) {
+			    log(String.format("Failed to close(%s) dervice: %s",
+			            networkup, c));
+			}
+		}
+		derived.clear();
+	}
+	
+	/** 
+	 * Shuts downs the stateful services.
+	 * 
+	 * @param rendering Pass <code>true</code> to shut down the rendering
+	 * 					services, <code>false</code> otherwise.
+	 */
+	void shutDownServices(boolean rendering)
+	{
+	    shutdownStateful();
+	    shutdownImports();
+		if (!rendering) return;
+		for (Long pixelsId : reServices.keySet()) {
+		    shutDownRenderingEngine(pixelsId);
+		}
+	}
+
+	/**
      * Keeps the services alive.
      * Returns <code>true</code> if success, <code>false</code> otherwise.
      * 
@@ -691,27 +692,27 @@ class Connector
         return success;
     }
 
-    /**
-     * Closes the specified proxy.
-     * 
-     * @param proxy The proxy to close.
-     */
-    void close(StatefulServiceInterfacePrx proxy)
-    {
-        if (proxy == null) {
-            return;
-        }
+	/**
+	 * Closes the specified proxy.
+	 * 
+	 * @param proxy The proxy to close.
+	 */
+	void close(StatefulServiceInterfacePrx proxy)
+	{
+	    if (proxy == null) {
+	        return;
+	    }
 
-        try {
-            proxy.close();
-        } catch (Ice.ObjectNotExistException e) {
-            // ignore
-        } catch (Exception e) {
-            log("Failed to close " + proxy + "(" + getErrorMessage(e) + ")");
-        } finally {
-            if (proxy instanceof RenderingEnginePrx) {
-                Set<Long> keys = reServices.keySet();
-                keys = Sets.newHashSet(keys);
+	    try {
+			proxy.close();
+		} catch (Ice.ObjectNotExistException e) {
+		    // ignore
+		} catch (Exception e) {
+		    log("Failed to close " + proxy + "(" + e + ")");
+		} finally {
+		    if (proxy instanceof RenderingEnginePrx) {
+		        Set<Long> keys = reServices.keySet();
+		        keys = Sets.newHashSet(keys);
                 for (Long key : keys) {
                     reServices.remove(key, proxy);
                 }
@@ -871,12 +872,33 @@ class Connector
     // HELPERS
     //
 
-    /**
-     * Returns <code>true</code> if the services need to be kept alive,
-     * <code>false</code> otherwise.
-     * 
-     * @return See above.
-     */
+	/**
+	 * Creates a new session.
+	 * 
+	 * @return See above.
+	 */
+	String createSession()
+	        throws Throwable
+	{
+	    EventContext ctx = getAdminService().getEventContext();
+	    Principal p = new Principal();
+        p.group = ctx.groupName;
+        p.name = ctx.userName;
+        p.eventType = "Sessions";
+        ISessionPrx prx = entryEncrypted.getSessionService();
+        Session session = prx.createSessionWithTimeout(p, 0L);
+        return session.getUuid().getValue();
+	}
+	//
+	// HELPERS
+	//
+
+	/**
+	 * Returns <code>true</code> if the services need to be kept alive,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
     boolean needsKeepAlive()
     {
         long last = lastKeepAlive.get();

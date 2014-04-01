@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.data.model.ApplicationData 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2009 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -30,6 +30,7 @@ import java.util.List;
 
 import javax.swing.Icon;
 
+import org.apache.commons.lang.StringUtils;
 import org.openmicroscopy.shoola.env.data.model.appdata.ApplicationDataExtractor;
 import org.openmicroscopy.shoola.env.data.model.appdata.LinuxApplicationDataExtractor;
 import org.openmicroscopy.shoola.env.data.model.appdata.MacApplicationDataExtractor;
@@ -46,7 +47,6 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  *         >donald@lifesci.dundee.ac.uk</a>
  * @author Scott Littlewood&nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:sylittlewood@dundee.ac.uk">sylittlewood@dundee.ac.uk</a>
- * @version 3.0 <small> (<b>Internal version:</b> $Revision: $Date: $) </small>
  * @since 3.0-Beta4
  */
 public class ApplicationData {
@@ -71,8 +71,15 @@ public class ApplicationData {
 	/** The commands to add. */
 	private List<String> commands;
 
+	/** The script to use.*/
+	private String script;
+
+	/** Flag indicating if the application is a known application.*/
+	private boolean registered;
+
 	/**
-	 * Static constructor that creates the platform specific app data extractor
+	 * Static constructor that creates the platform specific application
+	 * data extractor.
 	 */
 	static {
 		if (UIUtilities.isWindowsOS())
@@ -92,6 +99,9 @@ public class ApplicationData {
 		return extractor.getDefaultAppDirectory();
 	}
 
+	/** Creates a new instance. */
+    public ApplicationData() {}
+
 	/**
 	 * Creates a new instance.
 	 * 
@@ -105,19 +115,14 @@ public class ApplicationData {
 		this.commands = new ArrayList<String>();
 
 		if (!file.exists())
-			throw new Exception("Application does not exists @ "
+			throw new Exception("Application does not exist @ "
 					+ file.getAbsolutePath());
+		ApplicationData data = extractor.extractAppData(file);
 
-		try {
-			ApplicationData data = extractor.extractAppData(file);
-
-			this.applicationName = data.applicationName;
-			this.executable = data.executable;
-			this.applicationIcon = data.applicationIcon;
-
-		} catch (Exception e) {
-			//TODO register
-		}
+        this.applicationName = data.applicationName;
+        this.executable = data.executable;
+        this.applicationIcon = data.applicationIcon;
+        register();
 	}
 
 	/**
@@ -135,6 +140,8 @@ public class ApplicationData {
 		this.applicationIcon = icon;
 		this.applicationName = applicationName;
 		this.executable = executablePath;
+		this.commands = new ArrayList<String>();
+		register();
 	}
 
 	/**
@@ -143,6 +150,7 @@ public class ApplicationData {
 	 * @return See above.
 	 */
 	public String getApplicationName() {
+	    if (StringUtils.isEmpty(applicationName)) return executable;
 		return applicationName;
 	}
 
@@ -193,35 +201,62 @@ public class ApplicationData {
 	}
 
 	/**
-	 * Builds the command used to open the file based on the
-	 * {@link ApplicationData} passed in, if the {@link ApplicationData} is null
-	 * then the platform specific default command is built
+	 * Builds the command used to open the file,
+	 * if the {@link ApplicationData} is <code>null</code>
+	 * then the platform specific default command is built.
 	 * 
-	 * @param data
-	 *            the Application Data holding details of the application to use
-	 *            to open the file
-	 * @param file
-	 *            the {@link File} representing the location of the file to open
+	 * @param file the {@link File} representing the location of the file to
+	 * open.
 	 * @return the command string that when executed should open the file.
 	 * @throws MalformedURLException
 	 *             when the file referenced is unable to be converted to a URL
 	 *             in the format file://...
 	 */
-	public static String[] buildCommand(ApplicationData data, File file)
+	public String[] buildCommand(File file)
 			throws MalformedURLException {
 
-		if (data == null)
+		if (this.executable == null) //default installation.
 			return extractor.getDefaultOpenCommandFor(file.toURI().toURL());
 
 		List<String> commandLine = new ArrayList<String>();
-		commandLine.add(data.executable);
+		commandLine.add(executable);
 
-		for (String commandArg : data.getCommandLineArguments()) {
+		for (String commandArg : getCommandLineArguments()) {
 			commandLine.add(commandArg);
 		}
 
-		commandLine.add(file.getAbsolutePath());
+		if (file != null) commandLine.add(file.getAbsolutePath());
 
 		return commandLine.toArray(new String[0]);
 	}
+
+	/**
+	 * Returns the script to use if any.
+	 *
+	 * @return See above.
+	 */
+	public String getScript()
+	{
+	    if (StringUtils.isBlank(script)) return script;
+	    return script.toLowerCase().replaceAll("\\s+", "");
+	}
+
+	/**
+	 * Sets the script.
+	 *
+	 * @param script The value to set.
+	 */
+	public void setScript(String script) { this.script = script; }
+
+	/**
+	 * Returns <code>true</code> if the application is a known application
+	 * e.g. FLIMfit, <code>false</code> otherwise.
+	 *
+	 * @return See above.
+	 */
+    public boolean isRegistered() { return registered; }
+
+    /** Registers the application as a known application.*/
+    public void register() { registered = true; }
+
 }

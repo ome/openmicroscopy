@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<agent name="AddOn">
+   <resources>
+     <iconFactories>
+	<!-- This entry is turned into an instance of: 
+       org.openmicroscopy.shoola.env.config.IconFactory
+       This object can then be used to retrieve any image file within
+       the directory pointed by the location tag. -->
+       <structuredEntry name="/resources/icons/Factory" type = "icons">
+         <!-- The location tag specifies the FQN of the package that contains
+         the icon files. -->
+         <location>org.openmicroscopy.shoola.agents.plugins.graphx</location>
+       </structuredEntry>
+
+     </iconFactories>
+     <fonts>
+       <!-- This entry is turned into an instance of java.awt.Font. --> 
+       <structuredEntry name="/resources/fonts/Titles" type="font">
+         <family>SansSerif</family>
+         <size>12</size>
+         <style>bold</style>
+       </structuredEntry>
+     </fonts>
+
+     <addOns>
+     <structuredEntry name="/addOns" type="addOns">
+       <!-- FLIMfit -->
+       <addOn>
+        <name>FLIMfit</name>
+        <description>FLIMfit</description><!-- text display in tooltip -->
+        <download>http://downloads.openmicroscopy.org/FLIMfit/</download>
+        </addOn>
+     <!-- U-track -->
+     <addOn>
+        <name>U-Track</name>
+        <description>to be added</description><!-- text display in tooltip -->
+        <download>http://downloads.openmicroscopy.org/u-track/</download>
+     </addOn>
+     <addOn>
+     <!-- brenda -->
+     <name>Brenda</name>
+        <description>to be added</description><!-- text display in tooltip -->
+        <download>http://downloads.openmicroscopy.org/brenda/</download>
+        <script>BoxIt, Intensity Analysis, Distance Analysis, FRAP, Event Timer,
+        Create Kymograph, ROI Tweak, Label Maker</script>
+     </addOn>
+     </structuredEntry>
+     </addOns>
+</resources>
+</agent>

@@ -112,8 +112,8 @@ abstract class Entry
         contentHandlers.put("color", ColorEntry.class);
         contentHandlers.put("icons", IconFactoryEntry.class);
         contentHandlers.put("agents", AgentsEntry.class);
-        contentHandlers.put("agents", AgentsEntry.class);
         contentHandlers.put("plugins", PluginEntry.class);
+        contentHandlers.put("addOns", AddOnEntry.class);
     }
     
     /**
@@ -153,7 +153,6 @@ abstract class Entry
           
         //Retrieve the handler for type if it's a built-in type.   
         Class<?> handler = contentHandlers.get(ntp.type);
-        
         try {
             if (handler == null)
             	//Then type is not one of built-in types, this means that
