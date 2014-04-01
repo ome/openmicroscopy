@@ -257,12 +257,13 @@ class TestChgrp(lib.ITest):
             assert target_gid ==  img_gid, "Image should be in group: %s, NOT %s" % (target_gid,  img_gid)
 
 
-    def testChgrpOneDatasetFilesetErr(self):
+    def testChgrpOneDatasetSplitFilesetOK(self):
         """
-        Simple example of the MIF chgrp bad case:
+        Example of the MIF chgrp split case:
         A single fileset containing 2 images is split among 2 datasets.
         We try to chgrp ONE Dataset.
-        Each dataset CANNOT be moved independently of the other.
+        Each dataset CAN be moved independently of the other.
+        But the images CANNOT, they must remain in the same group.
         """
         # One user in two groups
         client, user = self.new_client_and_user(perms=PRIVATE)
@@ -271,7 +272,7 @@ class TestChgrp(lib.ITest):
         target_gid = target_grp.id.val
 
         update = client.sf.getUpdateService()
-        datasets = self.createDatasets(2, "testChgrpOneDatasetFilesetErr", client=client)
+        datasets = self.createDatasets(2, "testChgrpOneDatasetSplitFilesetOK", client=client)
         images = self.importMIF(2, client=client)
         for i in range(2):
             link = omero.model.DatasetImageLinkI()
@@ -279,24 +280,29 @@ class TestChgrp(lib.ITest):
             link.setChild(images[i].proxy())
             link = update.saveAndReturnObject(link)
 
-        # Lookup the fileset
+        # Lookup the fileset and get the source group
         img = client.sf.getQueryService().get('Image', images[0].id.val)    # load first image
         filesetId =  img.fileset.id.val
+        source_gid = img.details.group.id.val
 
-        # chgrp should fail...
+        # chgrp should pass...
         chgrp = omero.cmd.Chgrp(type="/Dataset", id=datasets[0].id.val, grp=target_gid)
-        rsp = self.doAllSubmit([chgrp], client, test_should_pass=False)
+        rsp = self.doAllSubmit([chgrp], client, test_should_pass=True)
 
-        # 10846 - multiple constraints are no longer being collected.
-        # in fact, even single constraints are not being directly directed
-        # since fileset cleanup is happening at the end of the transaction
-        # disabling and marking in ticket.
-        # The delete should fail due to the fileset
-        # ...due to the fileset
-        ### assert 'Fileset' in rsp.constraints,  "chgrp should fail due to 'Fileset' constraints"
-        ### failedFilesets = rsp.constraints['Fileset']
-        ### assert len(failedFilesets) ==  1,  "chgrp should fail due to a single Fileset"
-        ### assert failedFilesets[0] ==  filesetId,  "chgrp should fail due to this Fileset"
+        # Query across all groups
+        queryService = client.sf.getQueryService()
+        ctx = {'omero.group': str(-1)}
+
+        # Just one dataset should have moved
+        fileset = queryService.get('Fileset', filesetId, ctx)
+        assert source_gid ==  fileset.details.group.id.val,  "Fileset should be in group: %s" % source_gid
+        dataset = queryService.get('Dataset', datasets[0].id.val, ctx)
+        assert target_gid ==  dataset.details.group.id.val,  "Dataset[0] should be in group: %s" % target_gid
+        dataset = queryService.get('Dataset', datasets[1].id.val, ctx)
+        assert source_gid ==  dataset.details.group.id.val,  "Dataset[1] should be in group: %s" % source_gid
+        for i in range(2):
+            image = queryService.get('Image', images[i].id.val, ctx)
+            assert source_gid == image.details.group.id.val, "Image should be in group: %s" % source_gid
 
 
     def testChgrpAllDatasetsFilesetOK(self):
@@ -396,53 +402,6 @@ class TestChgrp(lib.ITest):
         chgrp1 = omero.cmd.Chgrp(type="/Image", id=imagesFsOne[0].id.val, grp=target_gid)
         chgrp2 = omero.cmd.Chgrp(type="/Image", id=imagesFsTwo[0].id.val, grp=target_gid)
         rsp = self.doAllSubmit([chgrp1,chgrp2], client, test_should_pass=False)
-
-        # 10846 - multiple constraints are no longer being collected.
-        # in fact, even single constraints are not being directly directed
-        # since fileset cleanup is happening at the end of the transaction
-        # disabling and marking in ticket.
-        # The delete should fail due to the fileset
-        # ...due to the filesets
-        ### assert 'Fileset' in rsp.constraints,  "chgrp should fail due to 'Fileset' constraints"
-        ### failedFilesets = rsp.constraints['Fileset']
-        ### assert len(failedFilesets) ==  2,  "chgrp should fail due to a Two Filesets"
-        ### self.assertTrue(filesetOneId in failedFilesets)
-        ### self.assertTrue(filesetTwoId in failedFilesets)
-
-
-    def testChgrpDatasetTwoFilesetsErr(self):
-        """
-        If we try to 'split' 2 Filesets, both should be returned
-        by the chgrp error
-        """
-        # One user in two groups
-        client, user = self.new_client_and_user(perms=PRIVATE)
-        admin = client.sf.getAdminService()
-        target_grp = self.new_group([user],perms=PRIVATE)
-        target_gid = target_grp.id.val
-
-        imagesFsOne = self.importMIF(2, client=client)
-        imagesFsTwo = self.importMIF(2, client=client)
-
-        update = client.sf.getUpdateService()
-        ds = omero.model.DatasetI()
-        ds.name = rstring("testChgrpDatasetTwoFilesetsErr")
-        ds = update.saveAndReturnObject(ds)
-        images = self.importMIF(2, client=client)
-        for i in (imagesFsOne, imagesFsTwo):
-            link = omero.model.DatasetImageLinkI()
-            link.setParent(ds.proxy())
-            link.setChild(i[0].proxy())
-            link = update.saveAndReturnObject(link)
-
-        # Lookup the filesets
-        qs = client.sf.getQueryService()
-        filesetOneId = qs.get('Image', imagesFsOne[0].id.val).fileset.id.val
-        filesetTwoId = qs.get('Image', imagesFsTwo[0].id.val).fileset.id.val
-
-        # chgrp should fail...
-        chgrp = omero.cmd.Chgrp(type="/Dataset", id=ds.id.val, grp=target_gid)
-        rsp = self.doAllSubmit([chgrp], client, test_should_pass=False)
 
         # 10846 - multiple constraints are no longer being collected.
         # in fact, even single constraints are not being directly directed
