@@ -53,3 +53,7 @@ def get_static_webclient_prefix(parser, token):
 
     """
     return PrefixNode.handle_token(parser, token, "STATIC_WEBCLIENT_URL")
+
+@register.filter
+def get_item(dictionary, key):
+    return dictionary.get(key)

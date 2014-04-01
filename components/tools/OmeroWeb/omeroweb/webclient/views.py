@@ -460,7 +460,7 @@ def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_ty
     By default this loads Projects and Datasets.
     E.g. /load_data?view=tree provides data for the tree as <li>.
     """
-    
+
     # get page 
     page = getIntOrDefault(request, 'page', 1)
     
@@ -486,7 +486,7 @@ def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_ty
         manager= BaseContainer(conn, **kw)
     except AttributeError, x:
         return handlerInternalError(request, x)
-    
+
     # prepare forms
     filter_user_id = request.session.get('user_id')
     form_well_index = None
@@ -529,6 +529,43 @@ def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_ty
     else:
         manager.listContainerHierarchy(filter_user_id)
         if view =='tree':
+            qs = conn.getQueryService()
+            pids = [x.id for x in manager.containers['projects']]
+            q = """
+            select project.id,
+                   dataset.id,
+                   dataset.name,
+                   dataset.details.owner.id,
+                   project.details.permissions.perm1,
+                   project.details.owner.id,
+                   (select count(id) from DatasetImageLink dil where dil.parent=dataset.id)
+                   from ProjectDatasetLink pdlink
+                   join pdlink.parent project
+                   join pdlink.child dataset
+            where project.id in (%s)
+            order by dataset.name
+            """ % ','.join((str(x) for x in pids))
+            projects = {}
+            for e in qs.projection(q, None, conn.SERVICE_OPTS):
+                p = projects.setdefault(e[0].val, {'datasets': []})
+                if not p.has_key('permsCss'):
+                    perms = omero.model.PermissionsI(e[4].val)
+                    p['permsCss'] = []
+                    if perms.canEdit(): p['permsCss'].append("canEdit")
+                    if perms.canAnnotate(): p['permsCss'].append("canAnnotate")
+                    if perms.canLink(): p['permsCss'].append("canLink")
+                    if perms.canDelete(): p['permsCss'].append("canDelete")
+                    if e[5].val == conn.getUserId(): p['permsCss'].append("canChgrp")
+                    p['permsCss'] = ' '.join(p['permsCss'])
+                d = {}
+                d['id'] = e[1].val
+                d['name'] = e[2].val
+                d['isOwned'] = e[3].val == conn.getUserId()
+                d['childCount'] = e[6].val
+                p['datasets'].append(d)
+            for p in projects.keys():
+                projects[p]['childCount'] = len(projects[p]['datasets'])
+            context['projects'] = projects
             template = "webclient/data/containers_tree.html"
         elif view =='icon':
             template = "webclient/data/containers_icon.html"

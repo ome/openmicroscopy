@@ -1,6 +1,6 @@
 {% load i18n %}
 {% load common_filters %}
-
+{% load webclient_tags %}
 {% comment %}
 <!--
   Copyright (C) 2011 University of Dundee & Open Microscopy Environment.
@@ -27,17 +27,18 @@
         <a href="#">{% if manager.experimenter %}{{ manager.experimenter.getFullName }}{% else %}All Members{% endif %}</a>
         <ul>
             {% for c in manager.containers.projects %}
+            {% with p=projects|get_item:c.id %}
             <li id='project-{{ c.id }}' rel="project{% if not c.isOwned %}-locked{% endif %}" class="{{ c.getPermsCss }}">
-				<a href="#">{{ c.name|default:"Project"|truncatebefor:"35" }} {% if c.countChildren %}
-					<span class="children_count" id="counter-project-{{ c.id }}">{{ c.countChildren}}</span>{% endif %}
+				<a href="#">{{ c.name|default:"Project"|truncatebefor:"35" }} {% if p.childCount %}
+					<span class="children_count" id="counter-project-{{ c.id }}">{{ p.childCount }}</span>{% endif %}
 				</a>
-                {% if c.countChildren %}
-                <ul>    
-                    {% for d in c.listChildren %}
+                {% if p.datasets %}
+                <ul>
+                    {% for d in p.datasets %}
                         <li id='dataset-{{ d.id }}' rel="dataset{% if not d.isOwned %}-locked{% endif %}" 
-                                class="{{ c.getPermsCss }}{% if d.countChildren %} jstree-closed{% endif %}">
-							<a href="#">{{ d.name|default:"Dataset"|truncatebefor:"35" }} {% if d.countChildren %}
-								<span class="children_count" id="counter-dataset-{{ d.id }}">{{ d.countChildren}}
+                                class="{{ p.permsCss }}{% if d.childCount %} jstree-closed{% endif %}">
+							<a href="#">{{ d.name|default:"Dataset"|truncatebefor:"35" }} {% if d.childCount %}
+								<span class="children_count" id="counter-dataset-{{ d.id }}">{{ d.childCount }}
 									<span id="page-dataset-{{ d.id }}"></span></span>{% endif %}
 							</a>
 						</li>
@@ -45,6 +46,7 @@
                 </ul>
                 {% endif %}
             </li> 
+            {% endwith %}
             {% endfor %}
         
 		
@@ -52,13 +54,15 @@
 		
 		
             {% for d in manager.containers.datasets %}
+                {% with childCount=d.countChildren %}
                 <li id='dataset-{{ d.id }}' rel="dataset{% if not d.isOwned %}-locked{% endif %}" 
-                        class="{{ d.getPermsCss }}{% if d.countChildren %} jstree-closed{% endif %}">
-					<a href="#">{{ d.name|default:"Dataset"|truncatebefor:"35" }} {% if d.countChildren %}
-						<span class="children_count" id="counter-dataset-{{ d.id }}">{{ d.countChildren}}
+                        class="{{ d.getPermsCss }}{% if childCount %} jstree-closed{% endif %}">
+					<a href="#">{{ d.name|default:"Dataset"|truncatebefor:"35" }} {% if childCount %}
+						<span class="children_count" id="counter-dataset-{{ d.id }}">{{ childCount}}
 							<span id="page-dataset-{{ d.id }}"></span></span>{% endif %}
 					</a>
 				</li>
+                {% endwith %}
             {% endfor %}
             
 			
