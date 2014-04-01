@@ -46,7 +46,7 @@ from omero_version import build_year
 from omero_version import omero_version
 
 import omero, omero.scripts
-from omero.rtypes import *
+from omero.rtypes import wrap, unwrap
 
 from django.conf import settings
 from django.contrib.sessions.backends.cache import SessionStore

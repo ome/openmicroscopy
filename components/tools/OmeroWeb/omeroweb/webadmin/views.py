@@ -94,7 +94,7 @@ class render_response_admin(omeroweb.webclient.decorators.render_response):
 ################################################################################
 # utils
 
-from omero.rtypes import *
+import omero
 from omero.model import PermissionsI
 
 # experimenter helpers
@@ -302,7 +302,11 @@ def forgotten_password(request, **kwargs):
     conn = None
     error = None
     blitz = None
-    
+
+    def getGuestConnection(host, port):
+        server_id = request.session['connector'].server_id
+        return Connector(server_id, True).create_guest_connection('OMERO.web')
+
     if request.method == 'POST':
         form = ForgottonPasswordForm(data=request.REQUEST.copy())
         if form.is_valid():
