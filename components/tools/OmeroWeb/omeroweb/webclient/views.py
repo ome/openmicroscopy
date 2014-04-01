@@ -1353,7 +1353,7 @@ def annotate_tags(request, conn=None, **kwargs):
             'form_tags': form_tags,
             'newtags_formset': newtags_formset,
             'index': index,
-            'selected_tags': simplejson.dumps(selected_tags),
+            'selected_tags': json.dumps(selected_tags),
         }
         template = "webclient/annotations/tags_form.html"
     context['template'] = template
