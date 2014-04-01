@@ -31,7 +31,7 @@
   font-weight: bold;
   text-align: center;
   cursor: -moz-grab;
-  cursor: url('../img/openhand.cur'), pointer, auto;
+  cursor: pointer, auto;
 }
 
 .postit h2 { 
