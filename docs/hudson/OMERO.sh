@@ -21,7 +21,9 @@ then
 fi
 
 if [ -z "${RELEASE-}" ]; then
-  docs/hudson/omero_insight_sign.py lib/keystore omedev target/OMERO.server-*.zip -kp omedev -cp omedev -ts no -oz target/OMERO.server-*.zip
+  pushd target
+  ../docs/hudson/omero_insight_sign.py ../lib/keystore omedev OMERO.server-*.zip -kp omedev -cp omedev -ts no -oz OMERO.server-*.zip
+  popd
 fi
 
 # Log information
