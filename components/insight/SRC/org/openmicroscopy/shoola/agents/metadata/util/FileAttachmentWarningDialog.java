@@ -46,17 +46,26 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import edu.emory.mathcs.backport.java.util.Collections;
 import pojos.FileAnnotationData;
 
+/**
+ * 
+ * @author  Dominik Lindner &nbsp;&nbsp;&nbsp;&nbsp;
+ * <a href="mailto:d.lindner@dundee.ac.uk">d.lindner@dundee.ac.uk</a>
+ */
 public class FileAttachmentWarningDialog extends JDialog {
     
+    /** The property which is fired when the delete button is clicked */
     public static final String DELETE_PROPERTY = "delete";
     
+    /** Title of the dialog */
     private static final String TITLE = "Delete Attachments";
     
+    /** Message of the dialgo */
     private static final String MESSAGE = "These attachments are not linked to any other data, removing them means they will be permanently deleted from the data repository.";
     
     /** The button to close the dialog.*/
     private JButton closeButton;
     
+    /** Delete button */
     private JButton deleteButton;
     
     /** The result to display.*/
@@ -82,18 +91,10 @@ public class FileAttachmentWarningDialog extends JDialog {
     {
             closeButton = new JButton("Close");
             closeButton.addActionListener(new ActionListener() {
-                    
-                    /** 
-                     * Closes the dialog.
-                     */
                     public void actionPerformed(ActionEvent evt) { close(); }
             });
             deleteButton = new JButton("Delete");
             deleteButton.addActionListener(new ActionListener() {
-                    
-                    /** 
-                     * Moves the MIF
-                     */
                     public void actionPerformed(ActionEvent evt) { delete();}
             });
     }
@@ -162,7 +163,7 @@ public class FileAttachmentWarningDialog extends JDialog {
             initialize();
             buildGUI();
             pack();
-            setSize(new Dimension(400,400));
+            setSize(new Dimension(400,300));
     }
     
     /**
