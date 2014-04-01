@@ -178,6 +178,7 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id) {
             } else {
                 progressbar_label.text("Complete");
                 progressbar.progressbar("value", 100);
+                finalize_load();
             }
         };
 
@@ -281,7 +282,10 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id) {
                 all_tags[id].d = raw_desc[id];
             }
             update_html();
+            finalize_load();
+        };
 
+        var finalize_load = function() {
             $(":button:contains('Reset'),:button:contains('Save')", $("#add_tags_form").parent()).removeAttr("disabled").removeClass( 'ui-state-disabled' );
             loaded = true;
             update_add_new_button_state();
