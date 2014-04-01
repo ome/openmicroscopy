@@ -76,6 +76,8 @@ from omeroweb.webclient.decorators import render_response
 from omeroweb.connector import Connector
 from omeroweb.decorators import ConnCleaningHttpResponse, parse_url, get_client_ip
 
+import tree
+
 logger = logging.getLogger(__name__)
 
 logger.info("INIT '%s'" % os.getpid())
@@ -510,6 +512,18 @@ def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_ty
     else:
         manager.listContainerHierarchy(filter_user_id)
         if view =='tree':
+            # Projects
+            pids = [x.id for x in manager.containers['projects']]
+            context['projects'] = tree.marshal_datasets_for_projects(conn, pids)
+            # Datasets
+            dids = [x.id for x in manager.containers['datasets']]
+            context['datasets'] = tree.marshal_datasets(conn, dids)
+            # Screens
+            sids = [x.id for x in manager.containers['screens']]
+            context['screens'] = tree.marshal_plates_for_screens(conn, sids)
+            # Plates
+            pids = [x.id for x in manager.containers['plates']]
+            context['plates'] = tree.marshal_plates(conn, pids)
             template = "webclient/data/containers_tree.html"
         elif view =='icon':
             template = "webclient/data/containers_icon.html"
