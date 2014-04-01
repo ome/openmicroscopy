@@ -231,7 +231,6 @@ CUSTOM_SETTINGS_MAPPINGS = {
     "omero.web.force_script_name": ["FORCE_SCRIPT_NAME", None, leave_none_unset],
     "omero.web.static_url": ["STATIC_URL", "/static/", str],
     "omero.web.staticfile_dirs": ["STATICFILES_DIRS", '[]', json.loads],
-    "omero.web.index_template": ["INDEX_TEMPLATE", None, identity],
     "omero.web.caches": ["CACHES", '{"default": {"BACKEND": "django.core.cache.backends.dummy.DummyCache"}}', json.loads],
     "omero.web.webgateway_cache": ["WEBGATEWAY_CACHE", None, leave_none_unset],
     "omero.web.session_engine": ["SESSION_ENGINE", DEFAULT_SESSION_ENGINE, check_session_engine],
@@ -282,7 +281,17 @@ CUSTOM_SETTINGS_MAPPINGS = {
     # after testing this line should be removed.
     # "omero.web.application_host": ["APPLICATION_HOST", None, remove_slash], 
 
+    # TEMPLATES
+    # TEMPLATE_DIRS: List of locations of the template source files, in search order. Note that these 
+    # paths should use Unix-style forward slashes, even on Windows.
+    # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates". Always use 
+    # forward slashes, even on Windows. Don't forget to use absolute paths, not relative paths.
+    # TEMPLATE_DIRS = ()
+    "omero.web.template_dirs": ["TEMPLATE_DIRS", '[]', json.loads],
+    "omero.web.index_template": ["INDEX_TEMPLATE", None, identity],
+    
     # WEBSTART
+    "omero.web.webstart_template": ["WEBSTART_TEMPLATE", None, identity],
     "omero.web.webstart_jar": ["WEBSTART_JAR", "omero.insight.jar", str],
     "omero.web.webstart_icon": ["WEBSTART_ICON", "webstart/img/icon-omero-insight.png", str],
     "omero.web.webstart_heap": ["WEBSTART_HEAP", "1024m", str],
@@ -297,6 +306,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
     # Allowed hosts: https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
     "omero.web.allowed_hosts": ["ALLOWED_HOSTS", '["*"]', json.loads],
 }
+
 
 def process_custom_settings(module):
     logging.info('Processing custom settings for module %s' % module.__name__)
@@ -439,12 +449,6 @@ TEMPLATE_LOADERS = (
     'django.template.loaders.filesystem.Loader',
     'django.template.loaders.app_directories.Loader',
 )
-
-# TEMPLATE_DIRS: List of locations of the template source files, in search order. Note that these 
-# paths should use Unix-style forward slashes, even on Windows.
-# Put strings here, like "/home/html/django_templates" or "C:/www/django/templates". Always use 
-# forward slashes, even on Windows. Don't forget to use absolute paths, not relative paths.
-# TEMPLATE_DIRS = ()
 
 # INSTALLED_APPS: A tuple of strings designating all applications that are enabled in this Django 
 # installation. Each string should be a full Python path to a Python package that contains 
