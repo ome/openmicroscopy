@@ -236,6 +236,7 @@
                 <value>/Image/Pixels;NULL</value>
                 <value>/Image/ImageAnnotationLink;FORCE</value>
                 <value>/Annotation;SOFT;/Image/ImageAnnotationLink</value>
+                <value>/Image/Fileset+Only</value>
                 <value>/Image+Only</value>
                 <value>/Image/ImagingEnvironment</value>
                 <value>/Image/ObjectiveSettings;SOFT</value>
