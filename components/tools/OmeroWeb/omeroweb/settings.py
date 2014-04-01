@@ -264,7 +264,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
     
     # Shows/hides users in dropdown menu; default: '{"LEADERS": "Owners", "COLLEAGUES": "Members", "ALL": "All members"}'
     "omero.web.ui.menu.dropdown": ["UI_MENU_DROPDOWN",'{"LEADERS": "Owners", "COLLEAGUES": "Members", "ALL": "All members"}', json.loads],
-    
+    "omero.web.ui.tree.orphaned": ["UI_TREE_ORPHANED",'{"NAME":"Orphaned images", "DESCRIPTION":"This is a virtual container with orphaned images. These images are not linked anywhere. Just drag them to the selected container."}', json.loads],
     # Add plugins to the right-hand & center panels: plugins are ['Label', 'include.js', 'div_id']. The javascript loads data into $('#div_id').
     "omero.web.ui.right_plugins": ["RIGHT_PLUGINS", '[["Acquisition", "webclient/data/includes/right_plugin.acquisition.js.html", "metadata_tab"],'\
             #'["ROIs", "webtest/webclient_plugins/right_plugin.rois.js.html", "image_roi_tab"],'\
