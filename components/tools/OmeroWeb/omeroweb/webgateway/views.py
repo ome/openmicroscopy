@@ -1756,14 +1756,16 @@ def archived_files(request, iid=None, conn=None, **kwargs):
                 shutil.rmtree(temp_zip_dir, ignore_errors=True)
 
             zipName = request.REQUEST.get('zipname', image.getName())
-            file_name = "%s.zip" % zipName.replace(" ","_")
+            zipName = zipName.replace(" ","_")
+            if not zipName.endswith('.zip'):
+                zipName = "%s.zip" % zipName
 
             # return the zip or single file
             archivedFile_data = FileWrapper(temp)
             rsp = ConnCleaningHttpResponse(archivedFile_data)
             rsp.conn = conn
             rsp['Content-Length'] = temp.tell()
-            rsp['Content-Disposition'] = 'attachment; filename=%s' % file_name
+            rsp['Content-Disposition'] = 'attachment; filename=%s' % zipName
             temp.seek(0)
         except Exception:
             temp.close()

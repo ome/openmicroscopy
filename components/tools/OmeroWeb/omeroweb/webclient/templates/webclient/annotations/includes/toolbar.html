@@ -53,16 +53,26 @@
         </button>
         <ul class="dropdown">
             {% if manager.image.countImportedImageFiles %}
+              {% with fileCount=manager.image.countImportedImageFiles %}
             <li>
-                <a id="download-origfile" href="#"
-                onClick="return OME.openPopup('{% url 'download_placeholder' %}?url={% url 'archived_files' manager.image.id %}');"
-                title="Download {{ manager.image.countImportedImageFiles }} Archived file{{ manager.image.countImportedImageFiles|pluralize:'s (zip)' }}">
-                Archived file{{ manager.image.countImportedImageFiles|pluralize:'s (zip)' }}</a>
+                <!-- if we have a single orig file, download directly. Otherwise popup a 
+                  'preparing zip' download placeholder -->
+                <a id="download-origfile" 
+                  {% ifequal fileCount 1 %}
+                    href="{% url 'archived_files' manager.image.id %}"
+                  {% else %}
+                    href="#"
+                    onClick="return OME.openPopup('{% url 'download_placeholder' %}?ids=image-{{ manager.image.id }}&fileCount={{ fileCount }}&name={{ manager.image.name }}');"
+                  {% endifequal %}
+                title="Download {{ fileCount }} Archived file{{ fileCount|pluralize:'s (zip)' }}">
+                {{ fileCount }}
+                Archived file{{ fileCount|pluralize:'s (zip)' }}</a>
             </li>
+              {% endwith %}
             {% elif filesetInfo %}
             <li>
               <a id="download-origfile" href="#"
-                onClick="return OME.openPopup('{% url 'download_placeholder' %}?url={% url 'archived_files' %}&ids={{ link_string }}');"
+                onClick="return OME.openPopup('{% url 'download_placeholder' %}?ids={{ link_string }}&fileCount={{ filesetInfo.count }}');"
                 title="Download {{ filesetInfo.count }} files as a zip">
                 {{ filesetInfo.count }} Archived files ({{ filesetInfo.size|filesizeformat }})</a>
             </li>
