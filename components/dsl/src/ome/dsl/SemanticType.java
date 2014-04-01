@@ -1,7 +1,7 @@
 /*
  * ome.dsl.SemanticType
  *
- *   Copyright 2006 University of Dundee. All rights reserved.
+ *   Copyright 2006-2014 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -499,39 +499,9 @@ public abstract class SemanticType {
         }
         return rv;
     }
-    
+
     public String getCheck() {
-        StringBuilder sb = new StringBuilder();
-        for (Property p : getClassProperties()) {
-            String check = null;
-            
-            if (Property.POSITIVEFLOAT.equals(p._getType())) {
-                check = p.getName() + " > 0";
-            }
-
-            if (Property.POSITIVEINTEGER.equals(p._getType())) {
-                check = p.getName() + " > 0";
-            }
-
-            else if (Property.NONNEGATIVEINTEGER.equals(p._getType())) {
-                check = p.getName() + " >= 0";
-            }
-            
-            else if (Property.PERCENTFRACTION.equals(p._getType())) {
-                check = p.getName() + " >= 0 and " + p.getName() + " <= 1";
-            }
-
-            if (check != null) {
-                if (sb.length() > 0) {
-                    sb.append(" and ");
-                }
-                sb.append(check);
-            }
-
-        }
-
-        return sb.toString();
-
+        return "";
     }
 
     public void setGlobal(Boolean global) {

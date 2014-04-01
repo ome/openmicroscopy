@@ -67,9 +67,9 @@
 			<required name="sizeT" type="PositiveInteger"/>
 			<required name="sha1" type="string"/>
 			<required name="dimensionOrder" type="ome.model.enums.DimensionOrder"/>
-			<optional name="physicalSizeX" type="double"/>
-			<optional name="physicalSizeY" type="double"/>
-			<optional name="physicalSizeZ" type="double"/>
+			<optional name="physicalSizeX" type="PositiveFloat"/>
+			<optional name="physicalSizeY" type="PositiveFloat"/>
+			<optional name="physicalSizeZ" type="PositiveFloat"/>
 			<optional name="waveStart" type="int"/>
 			<optional name="waveIncrement" type="int"/>
 			<optional name="timeIncrement" type="double"/>

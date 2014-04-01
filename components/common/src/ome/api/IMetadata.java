@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2006-2011 University of Dundee & Open Microscopy Environment.
+ *   Copyright (C) 2006-2014 University of Dundee & Open Microscopy Environment.
  *   All rights reserved.
  *
  *   Use is subject to license terms supplied in LICENSE.txt
@@ -269,5 +269,13 @@ public interface IMetadata
     		@NotNull Class rootNodeType,
     		@NotNull @Validate(Long.class) Set<Long> rootNodeIds,
     		Parameters options);
-    
+
+    /**
+     * Find the original file IDs for the import logs corresponding to the given Image or Fileset IDs.
+     * @param rootNodeType the root node type, may be {@link omero.model.core.Image} or {@link omero.model.fs.Fileset}
+     * @param ids the IDs of the entities for which the import log original file IDs are required
+     * @return the original file IDs of the import logs
+     */
+    public Map<Long, Set<IObject>> loadLogFiles(@NotNull Class<? extends IObject> rootNodeType,
+            @Validate(Long.class) Set<Long> ids);
 }

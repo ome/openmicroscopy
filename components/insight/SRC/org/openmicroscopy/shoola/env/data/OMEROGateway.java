@@ -5,7 +5,7 @@
  *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -8328,4 +8328,30 @@ class OMEROGateway
         }
         return null;
      }
+
+    /**
+     * Loads the log files linked to the specified objects.
+     *
+     * @param ctx The security context.
+     * @param rootType The type of object to handle.
+     * @param rootIDs The collection of object's identifiers.
+     * @return See above.
+     * @throws DSOutOfServiceException If the connection is broken, or logged in
+     * @throws DSAccessException If an error occurred while trying to 
+     * retrieve data from OMERO service.
+     */
+    Map<Long, List<IObject>> loadLogFiles(SecurityContext ctx,
+            Class<?> rootType, List<Long> rootIDs)
+            throws DSOutOfServiceException, DSAccessException
+    {
+        Connector c = getConnector(ctx, true, false);
+        try {
+            IMetadataPrx service = c.getMetadataService();
+            return service.loadLogFiles(
+                            convertPojos(rootType).getName(), rootIDs);
+        } catch (Throwable t) {
+            handleException(t, "Cannot load log files for " + rootType+".");
+        }
+        return new HashMap();
+    }
 }

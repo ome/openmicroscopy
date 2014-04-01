@@ -2251,4 +2251,17 @@ class OmeroMetadataServiceImpl
 		cmd.imageId = id;
 		return gateway.submit(Arrays.<Request>asList(cmd), ctx);
 	}
+
+    /**
+     * Implemented as specified by {@link OmeroDataService}.
+     * @see OmeroDataService#loadLogFiles(SecurityContext, Class, List)
+     */
+    public Map<Long, List<IObject>> loadLogFiles(SecurityContext ctx,
+            Class<?> rootType, List<Long> rootIDs)
+                    throws DSOutOfServiceException, DSAccessException
+   {
+        if (rootType == null || CollectionUtils.isEmpty(rootIDs))
+            throw new IllegalArgumentException("No node specified");
+        return gateway.loadLogFiles(ctx, rootType, rootIDs);
+    }
 }

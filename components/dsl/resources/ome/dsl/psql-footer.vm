@@ -1,5 +1,5 @@
 --
--- Copyright 2006 University of Dundee. All rights reserved.
+-- Copyright 2006-2014 University of Dundee. All rights reserved.
 -- Use is subject to license terms supplied in LICENSE.txt
 --
 
@@ -629,10 +629,8 @@ create table _fs_deletelog (
 create or replace function _fs_log_delete() returns trigger AS $_fs_log_delete$
     begin
         if OLD.repo is not null then
-            insert into _fs_deletelog select
-                _current_or_new_event(),
-                OLD.id, OLD.owner_id, OLD.group_id,
-                OLD.path, OLD.name, OLD.repo, OLD.params;
+            INSERT INTO _fs_deletelog (event_id, file_id, owner_id, group_id, "path", "name", repo, params)
+                SELECT _current_or_new_event(), OLD.id, OLD.owner_id, OLD.group_id, OLD."path", OLD."name", OLD.repo, OLD.params;
         end if;
         return OLD;
     END;
