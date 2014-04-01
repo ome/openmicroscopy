@@ -326,7 +326,7 @@ def process_custom_settings(module):
 process_custom_settings(sys.modules[__name__])
 
 
-if not DEBUG:
+if not DEBUG:  # from CUSTOM_SETTINGS_MAPPINGS  # noqa
     LOGGING['loggers']['django.request']['level'] = 'INFO'
     LOGGING['loggers']['django']['level'] = 'INFO'
     LOGGING['loggers']['']['level'] = 'INFO'
@@ -338,7 +338,7 @@ if not DEBUG:
 # is handled by:
 #    handler404 = "omeroweb.feedback.views.handler404"
 #    handler500 = "omeroweb.feedback.views.handler500"
-TEMPLATE_DEBUG = DEBUG
+TEMPLATE_DEBUG = DEBUG  # from CUSTOM_SETTINGS_MAPPINGS  # noqa
 
 def report_settings(module):
     from django.views.debug import cleanse_setting
@@ -417,7 +417,8 @@ STATIC_ROOT = os.path.join(os.path.dirname(__file__), 'static').replace('\\','/'
 # traverse if the FileSystemFinder finder is enabled, e.g. if you use the collectstatic or 
 # findstatic management command or use the static file serving view.
 if WEBSTART:
-    STATICFILES_DIRS += (("webstart/jars", INSIGHT_JARS),)
+    # from CUSTOM_SETTINGS_MAPPINGS
+    STATICFILES_DIRS += (("webstart/jars", INSIGHT_JARS),)  # noqa
 
 # TEMPLATE_CONTEXT_PROCESSORS: A tuple of callables that are used to populate the context 
 # in RequestContext. These callables take a request object as their argument and return 
@@ -466,7 +467,7 @@ INSTALLED_APPS = (
 
 # ADDITONAL_APPS: We import any settings.py from apps. This allows them to modify settings.
 # We're also processing any CUSTOM_SETTINGS_MAPPINGS defined there.
-for app in ADDITIONAL_APPS:
+for app in ADDITIONAL_APPS:  # from CUSTOM_SETTINGS_MAPPINGS  # noqa
     # Previously the app was added to INSTALLED_APPS as 'omeroweb.app', which
     # then required the app to reside within or be symlinked from within
     # omeroweb, instead of just having to be somewhere on the python path.
@@ -527,11 +528,11 @@ DEFAULT_USER = os.path.join(os.path.dirname(__file__), 'webgateway', 'static', '
 
 # MANAGERS: A tuple in the same format as ADMINS that specifies who should get broken-link notifications when 
 # SEND_BROKEN_LINK_EMAILS=True.
-MANAGERS = ADMINS
+MANAGERS = ADMINS  # from CUSTOM_SETTINGS_MAPPINGS  # noqa
 
 # PAGE: Used in varous locations where large number of data is retrieved from the server.
 try:
-    PAGE
+    PAGE  # noqa
 except:
     PAGE = 200
 
@@ -561,7 +562,7 @@ SESSION_SERIALIZER = 'django.contrib.sessions.serializers.PickleSerializer'
 # Load server list and freeze 
 from connector import Server
 def load_server_list():
-    for s in SERVER_LIST:
+    for s in SERVER_LIST:  # from CUSTOM_SETTINGS_MAPPINGS  # noqa
         server = (len(s) > 2) and unicode(s[2]) or None
         Server(host=unicode(s[0]), port=int(s[1]), server=server)
     Server.freeze()
