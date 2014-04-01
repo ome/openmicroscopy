@@ -27,8 +27,6 @@ import java.util.List;
  * Local-only file transfer mechanism which makes use of hard-linking
  * followed by the deletion of the original source file.
  *
- * This is only useful where the command "ln source target" will work.
- *
  * @since 5.0
  */
 public class MoveFileTransfer extends HardlinkFileTransfer {
