@@ -427,7 +427,7 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id) {
                     var tag = tags.eq(idx);
                     var match = true;
                     var text = all_tags[tag.attr("data-id")].t.toLowerCase();
-                    for (filter in filters) {
+                    for (var filter in filters) {
                         match = match && text.indexOf(filters[filter]) >= 0;
                     }
                     tag.toggleClass("filtered", !match);
@@ -461,6 +461,22 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id) {
         var tagset = get_selected_tagset();
         if (text.length > 0) {
 
+            var select_dialog;
+            var confirm_tag_selection = function() {
+                if (select_dialog.data("clicked_button") == "Yes") {
+                    $("div.ui-selected", div_all_tags).removeClass("ui-selected");
+                    $("[data-id=" + id + "]", div_all_tags).addClass("ui-selected");
+                    select_tags(event);
+                    tag_input.val('');
+                    description_input.val('');
+                }
+            };
+            var confirm_tag_creation = function() {
+                if (select_dialog.data("clicked_button") == "Yes") {
+                    add_new_tag(event, true);
+                }
+            };
+
             // check for tag with same name
             if (!force) {
                 for (var id in all_tags) {
@@ -471,24 +487,12 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id) {
                             } else if (all_tags[id].s) {
                                 OME.alert_dialog("A tag set with the same name and description already exists.");
                             } else {
-                                var select_dialog = OME.confirm_dialog("A tag with the same name and description already exists. " +
-                                    "Would you like to select the existing tag?", function() {
-                                        if (select_dialog.data("clicked_button") == "Yes") {
-                                            $("div.ui-selected", div_all_tags).removeClass("ui-selected");
-                                            $("[data-id=" + id + "]", div_all_tags).addClass("ui-selected");
-                                            select_tags(event);
-                                            tag_input.val('');
-                                            description_input.val('');
-                                        }
-                                    }, "Add new tag", ["Yes", "No"]);
+                                select_dialog = OME.confirm_dialog("A tag with the same name and description already exists. " +
+                                    "Would you like to select the existing tag?", confirm_tag_selection, "Add new tag", ["Yes", "No"]);
                             }
                         } else {
-                            var select_dialog = OME.confirm_dialog("A tag with the same name and a different description already exists. " +
-                                "Would you still like to add a new tag?", function() {
-                                    if (select_dialog.data("clicked_button") == "Yes") {
-                                        add_new_tag(event, true);
-                                    }
-                                }, "Add new tag", ["Yes", "No"]);
+                            select_dialog = OME.confirm_dialog("A tag with the same name and a different description already exists. " +
+                                "Would you still like to add a new tag?", confirm_tag_creation, "Add new tag", ["Yes", "No"]);
                         }
                         return;
                     }
@@ -575,7 +579,7 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id) {
         }
       }).blur(function() {
         var input = $(this);
-        if (input.val() == '' || input.val() == input.attr('placeholder')) {
+        if (input.val() === '' || input.val() == input.attr('placeholder')) {
             input.addClass('placeholder');
             input.val(input.attr('placeholder'));
         }
@@ -585,6 +589,6 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id) {
             if (input.val() == input.attr('placeholder')) {
                 input.val('');
             }
-        })
+        });
     });
 };
