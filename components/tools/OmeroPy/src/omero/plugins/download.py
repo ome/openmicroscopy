@@ -12,6 +12,7 @@
 """
 
 import sys
+import omero
 from omero.cli import BaseControl, CLI
 
 HELP = """Download the given file id to the given filename"""
@@ -32,11 +33,17 @@ class DownloadControl(BaseControl):
         orig_file = OFile(long(args.id))
         target_file = str(args.filename)
         client = self.ctx.conn(args)
-        if target_file == "-":
-            client.download(orig_file, filehandle=sys.stdout)
-            sys.stdout.flush()
-        else:
-            client.download(orig_file, target_file)
+
+        try:
+            if target_file == "-":
+                client.download(orig_file, filehandle=sys.stdout)
+                sys.stdout.flush()
+            else:
+                client.download(orig_file, target_file)
+        except omero.ValidationException, ve:
+            # Possible, though unlikely after previous check
+            self.ctx.die(67, "Unknown ValidationException: %s"
+                         % ve.message)
 
 try:
     register("download", DownloadControl, HELP)
