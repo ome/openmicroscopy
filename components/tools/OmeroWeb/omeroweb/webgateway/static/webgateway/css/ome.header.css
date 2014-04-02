@@ -1115,16 +1115,16 @@ li.menu_back a {
 #trayhandle_left {
     position:absolute;
     top:0px; left:0px; bottom:0px;
-    width:5px;
+    width:15px;
 	z-index:9999;
     background:transparent url(../img/drag_handle_5.png) no-repeat left center scroll;
 }
 #trayhandle_right {
     position:absolute;
     top:0px; right:0px; bottom:0px;
-    width:5px;
+    width:15px;
 	z-index:9999;
-    background:transparent url(../img/drag_handle_5.png) no-repeat left center scroll;
+    background:transparent url(../img/drag_handle_5.png) no-repeat right center scroll;
 }
 #center_container {
     position:absolute;
