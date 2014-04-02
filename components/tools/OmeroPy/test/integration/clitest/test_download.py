@@ -19,8 +19,10 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
+import py.test
 import omero
 from omero.plugins.download import DownloadControl
+from omero.cli import NonZeroReturnCode
 from test.integration.clitest.cli import CLITest
 from omero.rtypes import rstring
 
@@ -34,7 +36,7 @@ class TestDownload(CLITest):
 
     def create_original_file(self, content):
         """
-        Create an object of size 4
+        Create an original file and upload it onto the server
         """
         ofile = omero.model.OriginalFileI()
         ofile.name = rstring("")
@@ -51,10 +53,7 @@ class TestDownload(CLITest):
         finally:
             rfs.close()
 
-    def teardown_method(self, method):
-        super(TestDownload, self).teardown_method(method)
-
-    # Download creation commands
+    # Download commands
     # ========================================================================
     def testOriginalFileTmpfile(self, tmpdir):
         ofile = self.create_original_file("test")
@@ -70,3 +69,9 @@ class TestDownload(CLITest):
         self.cli.invoke(self.args, strict=True)
         out, err = capsys.readouterr()
         assert out == "test"
+
+    def testOriginalFileInvalidID(self, tmpdir):
+        tmpfile = tmpdir.join('test')
+        self.args += ["-1", str(tmpfile)]
+        with py.test.raises(NonZeroReturnCode):
+            self.cli.invoke(self.args, strict=True)
