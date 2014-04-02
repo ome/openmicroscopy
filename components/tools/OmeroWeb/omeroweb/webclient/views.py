@@ -29,8 +29,6 @@ import Ice
 import logging
 import traceback
 
-import json
-
 from time import time
 
 from omero_version import build_year
