@@ -50,15 +50,17 @@ import Glacier2
 import omero.gateway
 import omero.scripts
 
-from omero.rtypes import *
+from omero.rtypes import rint, rstring, rlong, rlist, rtime
 from omero.model import FileAnnotationI, TagAnnotationI, \
                         DatasetI, ProjectI, ImageI, ScreenI, PlateI, \
                         DetectorI, FilterI, ObjectiveI, InstrumentI, \
                         LaserI, ExperimenterI, ExperimenterGroupI
 
-from omero.gateway import FileAnnotationWrapper, TagAnnotationWrapper, ExperimenterWrapper, \
-                ExperimenterGroupWrapper, WellWrapper, AnnotationWrapper, \
+from omero.gateway import FileAnnotationWrapper, TagAnnotationWrapper, \
+                AnnotationWrapper, \
                 OmeroGatewaySafeCallWrapper, CommentAnnotationWrapper
+
+from omero.gateway import KNOWN_WRAPPERS
 
 from omero.sys import ParametersI
 
@@ -348,7 +350,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         params.map = {}
         params.map['ns'] = rstring(omero.constants.metadata.NSINSIGHTTAGSET)
         
-        sql = "select tg from TagAnnotation tg where ((ns=:ns) or ((ns is null or ns='') and not exists ( select aal from AnnotationAnnotationLink as aal where aal.child=tg.id))) "
+        sql = "select tg from TagAnnotation tg where ((ns=:ns) or (not exists ( select aal from AnnotationAnnotationLink as aal where aal.child=tg.id))) "
         if eid is not None:
             params.map["eid"] = rlong(long(eid))
             sql+=" and tg.details.owner.id = :eid"

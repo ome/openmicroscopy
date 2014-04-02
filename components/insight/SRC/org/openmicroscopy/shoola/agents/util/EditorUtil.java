@@ -1183,8 +1183,8 @@ public class EditorUtil
         details = new LinkedHashMap<String, Object>(10);
         List<String> notSet = new ArrayList<String>();
         details.put(NAME, "");
-        details.put(EXCITATION, Integer.valueOf(0));
-        details.put(EMISSION, Integer.valueOf(0));
+        details.put(EXCITATION, Float.valueOf(0));
+        details.put(EMISSION, Float.valueOf(0));
         details.put(ND_FILTER, Float.valueOf(0));
         details.put(PIN_HOLE_SIZE, Float.valueOf(0));
         details.put(FLUOR, "");
@@ -1210,18 +1210,31 @@ public class EditorUtil
         if (StringUtils.isBlank(s))
             notSet.add(NAME);
         details.put(NAME, s);
-        int i = data.getEmissionWavelength();
-        if (i <= 100) {
-            i = 0;
-            notSet.add(EMISSION);
-        } 
-        details.put(EMISSION, i);
-        i = data.getExcitationWavelength();
-        if (i <= 100) {
-            i = 0;
-            notSet.add(EXCITATION);
+
+        Double wave =  data.getEmissionWavelength();
+        if (wave == null) {
+            details.put(EMISSION, null);
+        } else {
+            if (wave <= 100) {
+                notSet.add(EMISSION);
+                details.put(EMISSION, new Float(0));
+            } else {
+                details.put(EMISSION, new Float(wave));
+            }
         }
-        details.put(EXCITATION, i);
+
+        wave =  data.getExcitationWavelength();
+        if (wave == null) {
+            details.put(EXCITATION, null);
+        } else {
+            if (wave <= 100) {
+                notSet.add(EXCITATION);
+                details.put(EXCITATION, new Float(0));
+            } else {
+                details.put(EXCITATION, new Float(wave));
+            }
+        }
+
         double f = data.getNDFilter();
         if (f < 0) {
             f = 0;
@@ -1251,7 +1264,7 @@ public class EditorUtil
         if (StringUtils.isBlank(s))
             notSet.add(MODE);
         details.put(MODE, s);
-        i = data.getPockelCell();
+        int i = data.getPockelCell();
         if (i < 0) {
             i = 0;
             notSet.add(POCKEL_CELL_SETTINGS);
@@ -1372,7 +1385,7 @@ public class EditorUtil
         details.put(LOT_NUMBER, "");
         details.put(NOMINAL_MAGNIFICATION, Integer.valueOf(0));
         details.put(CALIBRATED_MAGNIFICATION,Float.valueOf(0));
-        details.put(LENSNA, new Float(0));
+        details.put(LENSNA, Float.valueOf(0));
         details.put(IMMERSION, "");
         details.put(CORRECTION, "");
         details.put(WORKING_DISTANCE, Float.valueOf(0));
@@ -1766,27 +1779,27 @@ public class EditorUtil
         details.putAll(m);
         details.put(ATTENUATION, new Double(0));
         if (data == null) {
-            details.put(WAVELENGTH, Integer.valueOf(0));
+            details.put(WAVELENGTH, Float.valueOf(0));
             notSet.add(ATTENUATION);
             notSet.add(WAVELENGTH);
             details.put(NOT_SET, notSet);
             return details;
         }
-        Double f = data.getLigthSettingsAttenuation();
+        Double f = data.getLightSettingsAttenuation();
         double v = 0;
         if (f == null) notSet.add(ATTENUATION);
         else v = f;
         details.put(ATTENUATION, v*PERCENT_FRACTION);
-        Integer i = data.getLigthSettingsWavelength();
+ 
+        Double wave = data.getLightSettingsWavelength();
         if (details.containsKey(WAVELENGTH)) {
-
-            if (i != null) { //override the value.
-                details.put(WAVELENGTH, i);
+            if (wave != null) { //override the value.
+                details.put(WAVELENGTH, new Float(wave));
             }
         } else {
-            int vi = 0;
-            if (i == null) notSet.add(WAVELENGTH);
-            else vi = i;
+            float vi = 0;
+            if (wave == null) notSet.add(WAVELENGTH);
+            else vi = new Float(wave);
             details.put(WAVELENGTH, vi);
         }
         details.put(NOT_SET, notSet);
@@ -1876,13 +1889,13 @@ public class EditorUtil
                 notSet.add(MEDIUM);
             details.put(MEDIUM, s);
 
-            int i = data.getLaserWavelength();
-            if (i < 0) {
-                i = 0;
+            Double wave = data.getLaserWavelength();
+            if (wave != null && wave < 0) {
+                wave = Double.valueOf(0);
                 notSet.add(WAVELENGTH);
             }
-            details.put(WAVELENGTH, i); 
-            i = data.getLaserFrequencyMultiplication();
+            details.put(WAVELENGTH, new Float(wave)); 
+            int i = data.getLaserFrequencyMultiplication();
             if (i < 0) {
                 i = 0;
                 notSet.add(FREQUENCY_MULTIPLICATION);

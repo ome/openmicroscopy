@@ -2,10 +2,10 @@
  * org.openmicroscopy.shoola.env.data.OmeroMetadataService 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -42,6 +42,7 @@ import omero.model.DetectorType;
 import omero.model.FilamentType;
 import omero.model.FilterType;
 import omero.model.Format;
+import omero.model.IObject;
 import omero.model.Illumination;
 import omero.model.Immersion;
 import omero.model.LaserMedium;
@@ -734,4 +735,18 @@ public interface OmeroMetadataService
 		List<String> nsExlcude)
 	throws DSOutOfServiceException, DSAccessException;
 
+	/**
+	 * Loads the log files linked to the specified objects.
+	 *
+	 * @param ctx The security context.
+	 * @param rootType The type of object to handle.
+	 * @param rootIDs The collection of object's identifiers.
+	 * @return See above.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occurred while trying to 
+	 * retrieve data from OMERO service.
+	 */
+	public Map<Long, List<IObject>> loadLogFiles(SecurityContext ctx,
+	        Class<?> rootType, List<Long> rootIDs)
+	                throws DSOutOfServiceException, DSAccessException;
 }

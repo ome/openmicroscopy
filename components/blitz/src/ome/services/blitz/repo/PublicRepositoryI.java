@@ -2,7 +2,7 @@
  * ome.services.blitz.repo.PublicRepositoryI
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -57,8 +57,6 @@ import ome.api.IQuery;
 import ome.api.RawFileStore;
 import ome.formats.importer.ImportConfig;
 import ome.formats.importer.OMEROWrapper;
-import ome.model.annotations.FileAnnotation;
-import ome.model.annotations.FilesetAnnotationLink;
 import ome.services.blitz.impl.AbstractAmdServant;
 import ome.services.blitz.impl.ServiceFactoryI;
 import ome.services.blitz.repo.path.FilePathRestrictionInstance;
@@ -101,7 +99,6 @@ import omero.grid._RepositoryOperations;
 import omero.grid._RepositoryTie;
 import omero.model.ChecksumAlgorithm;
 import omero.model.OriginalFile;
-import omero.model.OriginalFileI;
 import omero.model.enums.ChecksumAlgorithmSHA1160;
 import omero.util.IceMapper;
 
@@ -140,7 +137,10 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
     /**
      * Mimetype used to connote a directory {@link OriginalFile} object.
      */
-    public static String DIRECTORY_MIMETYPE = "Directory";
+    public static final String DIRECTORY_MIMETYPE = "Directory";
+
+    /** media type for import logs */
+    public static final String IMPORT_LOG_MIMETYPE = "application/omero-log-file";
 
     private /*final*/ long id;
 
@@ -476,13 +476,13 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
         }
 
     /**
-     * Should be refactored elsewhere.
-     * @param checkedPath 
-     * @param current
+     * Set the repository of the given original file to be this one.
+     * TODO: Should be refactored elsewhere.
+     * @param originalFileId the ID of the log file
+     * @param current the Ice method invocation context
      */
     @Deprecated
-    protected OriginalFile registerLogFile(final String repoUuid, final long filesetId,
-            final CheckedPath checkedPath, Ice.Current current)
+    protected ome.model.core.OriginalFile persistLogFile(final ome.model.core.OriginalFile originalFile, Ice.Current current)
                 throws ServerError {
 
         final Executor executor = this.context.getBean("executor", Executor.class);
@@ -490,35 +490,17 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
         final String session = ctx.get(omero.constants.SESSIONUUID.value);
         final String group = ctx.get(omero.constants.GROUP.value);
         final Principal principal = new Principal(session, group, null);
-        final String LOG_FILE_NS =
-                omero.constants.namespaces.NSLOGFILE.value;
 
         try {
-            FilesetAnnotationLink link = (FilesetAnnotationLink)
-                    executor.execute(ctx, principal, new Executor.SimpleWork(this, "setOriginalFileHasherToSHA1", id) {
+            return (ome.model.core.OriginalFile) executor.execute(ctx, principal,
+                    new Executor.SimpleWork(this, "persistLogFile", id) {
                 @Transactional(readOnly = false)
-                public Object doWork(Session session, ServiceFactory sf) {
-
-                    ome.model.core.OriginalFile logFile = null;
-                    try {
-                         logFile = repositoryDao.register(repoUuid,
-                            checkedPath, "text/plain", sf, getSqlAction());
-                    } catch (ServerError se) {
-                        throw new RuntimeException("Failed to register log file", se);
-                    }
-
-                    // use sf to get the services to link Fileset and the OriginalFile
-                    ome.api.IUpdate iUpdate = sf.getUpdateService();
-                    ome.model.annotations.FileAnnotation fa = new ome.model.annotations.FileAnnotation();
-                    fa.setNs(LOG_FILE_NS);
-                    fa.setFile(logFile.proxy());
-                    FilesetAnnotationLink fsl = new FilesetAnnotationLink();
-                    fsl.link(new ome.model.fs.Fileset(filesetId, false), fa);
-                    return iUpdate.saveAndReturnObject(fsl);
+                public ome.model.core.OriginalFile doWork(Session session, ServiceFactory sf) {
+                    final ome.model.core.OriginalFile persisted = sf.getUpdateService().saveAndReturnObject(originalFile);
+                    getSqlAction().setFileRepo(persisted.getId(), repoUuid);
+                    return persisted;
                 }
             });
-            FileAnnotation fs = (FileAnnotation) link.child();
-            return new OriginalFileI(fs.getFile().getId(), false);
         } catch (Exception e) {
             throw (ServerError) new IceMapper().handleException(e, executor.getContext());
         }

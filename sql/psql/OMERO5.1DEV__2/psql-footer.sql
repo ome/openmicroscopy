@@ -1,5 +1,5 @@
 --
--- Copyright 2006 University of Dundee. All rights reserved.
+-- Copyright 2006-2014 University of Dundee. All rights reserved.
 -- Use is subject to license terms supplied in LICENSE.txt
 --
 
@@ -1249,7 +1249,7 @@ alter table dbpatch alter message set default 'Updating';
 -- running so that if anything goes wrong, we'll have some record.
 --
 insert into dbpatch (currentVersion, currentPatch, previousVersion, previousPatch, message)
-             values ('OMERO5.1DEV',  0,    'OMERO5.1DEV',   0,             'Initializing');
+             values ('OMERO5.1DEV',  2,    'OMERO5.1DEV',   0,             'Initializing');
 
 --
 -- Here we will create the root account and the necessary groups
@@ -2222,10 +2222,8 @@ create table _fs_deletelog (
 create or replace function _fs_log_delete() returns trigger AS $_fs_log_delete$
     begin
         if OLD.repo is not null then
-            insert into _fs_deletelog select
-                _current_or_new_event(),
-                OLD.id, OLD.owner_id, OLD.group_id,
-                OLD.path, OLD.name, OLD.repo, OLD.params;
+            INSERT INTO _fs_deletelog (event_id, file_id, owner_id, group_id, "path", "name", repo, params)
+                SELECT _current_or_new_event(), OLD.id, OLD.owner_id, OLD.group_id, OLD."path", OLD."name", OLD.repo, OLD.params;
         end if;
         return OLD;
     END;
@@ -2239,7 +2237,7 @@ after delete on originalfile
 -- Here we have finished initializing this database.
 update dbpatch set message = 'Database ready.', finished = clock_timestamp()
   where currentVersion = 'OMERO5.1DEV' and
-        currentPatch = 0 and
+        currentPatch = 2 and
         previousVersion = 'OMERO5.1DEV' and
         previousPatch = 0;
 

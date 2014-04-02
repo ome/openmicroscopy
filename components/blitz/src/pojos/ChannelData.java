@@ -2,10 +2,10 @@
  * pojos.ChannelData 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -30,6 +30,7 @@ package pojos;
 
 //Application-internal dependencies
 import omero.RDouble;
+import omero.RFloat;
 import omero.RInt;
 import omero.RString;
 import omero.model.AcquisitionMode;
@@ -121,7 +122,7 @@ public class ChannelData
     	if (value != null && value.trim().length() != 0) return value;
     	value = getFluor(); 
     	if (value != null && value.trim().length() != 0) return value;
-    	int v = getEmissionWavelength();
+    	double v = getEmissionWavelength();
     	if (v > 0) return ""+v;
     	return ""+index;
     }
@@ -158,13 +159,13 @@ public class ChannelData
      * 
      * @return See above
      */
-    public int getEmissionWavelength()
+    public double getEmissionWavelength()
     { 
     	LogicalChannel lc = asChannel().getLogicalChannel();
     	if (lc == null) return index;
-    	RInt value  = lc.getEmissionWave();
+    	RDouble value  = lc.getEmissionWave();
 		if (value != null) return value.getValue();
-		return -1;//index;
+		return -1;
     }
     
     /**
@@ -172,13 +173,13 @@ public class ChannelData
      * 
      * @return See above
      */
-    public int getExcitationWavelength()
+    public double getExcitationWavelength()
     { 
     	LogicalChannel lc = asChannel().getLogicalChannel();
     	if (lc == null) return getEmissionWavelength();
-    	RInt value = lc.getExcitationWave();
+    	RDouble value = lc.getExcitationWave();
     	if (value != null) return value.getValue();
-    	return -1;//getEmissionWavelength();
+    	return -1;
     }
     
     /**
@@ -360,12 +361,12 @@ public class ChannelData
      * 
      * @param value The value to set.
      */
-    public void setEmissionWavelength(int value)
+    public void setEmissionWavelength(double value)
     {
     	if (value < 0) return;
         setDirty(true);
         asChannel().getLogicalChannel().setEmissionWave(
-        		omero.rtypes.rint(value));
+        		omero.rtypes.rdouble(value));
     }
     
     /**
@@ -373,12 +374,12 @@ public class ChannelData
      * 
      * @param value The value to set.
      */
-    public void setExcitationWavelength(int value)
+    public void setExcitationWavelength(double value)
     {
     	if (value < 0) return;
         setDirty(true);
         asChannel().getLogicalChannel().setExcitationWave(
-        		omero.rtypes.rint(value));
+        		omero.rtypes.rdouble(value));
     }
  
     /**

@@ -67,9 +67,9 @@
 			<required name="sizeT" type="PositiveInteger"/>
 			<required name="sha1" type="string"/>
 			<required name="dimensionOrder" type="ome.model.enums.DimensionOrder"/>
-			<optional name="physicalSizeX" type="double"/>
-			<optional name="physicalSizeY" type="double"/>
-			<optional name="physicalSizeZ" type="double"/>
+			<optional name="physicalSizeX" type="PositiveFloat"/>
+			<optional name="physicalSizeY" type="PositiveFloat"/>
+			<optional name="physicalSizeZ" type="PositiveFloat"/>
 			<optional name="waveStart" type="int"/>
 			<optional name="waveIncrement" type="int"/>
 			<optional name="timeIncrement" type="double"/>
@@ -200,9 +200,9 @@
 			<optional name="illumination" type="ome.model.enums.Illumination"/>
 			<!-- Note: illumination is called IlluminationType in model-->
 			<optional name="contrastMethod" type="ome.model.enums.ContrastMethod"/>
-			<optional name="excitationWave" type="PositiveInteger"/>
+			<optional name="excitationWave" type="PositiveFloat"/>
 			<!-- Note: excitationWave is called exWave in model-->
-			<optional name="emissionWave" type="PositiveInteger"/>
+			<optional name="emissionWave" type="PositiveFloat"/>
 			<!-- Note: emissionWave is called emWave in model-->
 			<optional name="fluor" type="string"/>
 			<optional name="ndFilter" type="double"/>
@@ -263,7 +263,7 @@
 		<!-- Note: LightSettings are stored in LightSourceRef in model-->
 		<properties>
 			<optional name="attenuation" type="PercentFraction"/>
-			<optional name="wavelength" type="PositiveInteger"/>
+			<optional name="wavelength" type="PositiveFloat"/>
 			<required name="lightSource" type="ome.model.acquisition.LightSource"/>
 			<!-- Note: lightSource is ID in model-->
 			<manyzero name="microbeamManipulation" type="ome.model.experiment.MicrobeamManipulation"/>
@@ -300,7 +300,7 @@
 			<optional name="frequencyMultiplication" type="PositiveInteger"/>
 			<optional name="tuneable" type="boolean"/>
 			<optional name="pulse" type="ome.model.enums.Pulse"/>
-			<optional name="wavelength" type="PositiveInteger"/>
+			<optional name="wavelength" type="PositiveFloat"/>
 			<optional name="pockelCell" type="boolean"/>
 			<optional name="pump" type="ome.model.acquisition.LightSource"/>
 			<optional name="repetitionRate" type="double"/>

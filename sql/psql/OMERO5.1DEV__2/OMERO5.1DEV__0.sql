@@ -1,4 +1,4 @@
--- Copyright (C) 2012-3 Glencoe Software, Inc. All rights reserved.
+-- Copyright (C) 2012-4 Glencoe Software, Inc. All rights reserved.
 -- Use is subject to license terms supplied in LICENSE.txt
 --
 -- This program is free software; you can redistribute it and/or modify
@@ -17,7 +17,7 @@
 --
 
 ---
---- OMERO5 development release upgrade from OMERO5.0DEV__6 to OMERO5.0__0.
+--- OMERO5 development release upgrade from OMERO5.1DEV__0 to OMERO5.1DEV__2.
 ---
 
 BEGIN;
@@ -39,116 +39,24 @@ BEGIN
 
 END;' LANGUAGE plpgsql;
 
-SELECT omero_assert_db_version('OMERO5.0DEV', 6);
+SELECT omero_assert_db_version('OMERO5.1DEV', 0);
 DROP FUNCTION omero_assert_db_version(varchar, int);
 
 
 INSERT INTO dbpatch (currentVersion, currentPatch,   previousVersion,     previousPatch)
-             VALUES ('OMERO5.0',     0,              'OMERO5.0DEV',       6);
+             VALUES ('OMERO5.1DEV',     2,              'OMERO5.1DEV',       0);
 
 --
 -- Actual upgrade
 --
 
--- Prevent Directory entries in the originalfile table from having their mimetype changed.
-CREATE FUNCTION _fs_directory_mimetype() RETURNS "trigger" AS $$
-    BEGIN
-        IF OLD.mimetype = 'Directory' AND NEW.mimetype != 'Directory' THEN
-            RAISE EXCEPTION '%%', 'Directory('||OLD.id||')='||OLD.path||OLD.name||'/ must remain a Directory';
-        END IF;
-        RETURN NEW;
-    END;
-$$ LANGUAGE plpgsql;
-
-CREATE TRIGGER _fs_directory_mimetype
-    BEFORE UPDATE ON originalfile
-    FOR EACH ROW EXECUTE PROCEDURE _fs_directory_mimetype();
-
--- Prevent SQL DELETE from removing the root experimenter from the system or user group.
-CREATE FUNCTION prevent_root_deactivate_delete() RETURNS "trigger" AS $$
-    BEGIN
-        IF OLD.child = 0 THEN
-            IF OLD.parent = 0 THEN
-                RAISE EXCEPTION 'cannot remove system group membership for root';
-            ELSIF OLD.parent = 1 THEN
-                RAISE EXCEPTION 'cannot remove user group membership for root';
-            END IF;
-        END IF;
-        RETURN OLD;
-    END;
-$$ LANGUAGE plpgsql;
-
-CREATE TRIGGER prevent_root_deactivate_delete
-    BEFORE DELETE ON groupexperimentermap
-    FOR EACH ROW EXECUTE PROCEDURE prevent_root_deactivate_delete();
-
--- Prevent SQL UPDATE from removing the root experimenter from the system or user group.
-CREATE FUNCTION prevent_root_deactivate_update() RETURNS "trigger" AS $$
-    BEGIN
-        IF OLD.child != NEW.child OR OLD.parent != NEW.parent THEN
-            IF OLD.child = 0 THEN
-                IF OLD.parent = 0 THEN
-                    RAISE EXCEPTION 'cannot remove system group membership for root';
-                ELSIF OLD.parent = 1 THEN
-                    RAISE EXCEPTION 'cannot remove user group membership for root';
-                END IF;
-            END IF;
-        END IF;
-        RETURN NEW;
-    END;
-$$ LANGUAGE plpgsql;
-
-CREATE TRIGGER prevent_root_deactivate_update
-    BEFORE UPDATE ON groupexperimentermap
-    FOR EACH ROW EXECUTE PROCEDURE prevent_root_deactivate_update();
-
--- Prevent the root and guest experimenters from being renamed.
-CREATE FUNCTION prevent_experimenter_rename() RETURNS "trigger" AS $$
-    BEGIN
-        IF OLD.omename != NEW.omename THEN
-            IF OLD.id = 0 THEN
-                RAISE EXCEPTION 'cannot rename root experimenter';
-            ELSIF OLD.id = 1 THEN
-                RAISE EXCEPTION 'cannot rename guest experimenter';
-            END IF;
-        END IF;
-        RETURN NEW;
-    END;
-$$ LANGUAGE plpgsql;
-
-CREATE TRIGGER prevent_experimenter_rename
-    BEFORE UPDATE ON experimenter
-    FOR EACH ROW EXECUTE PROCEDURE prevent_experimenter_rename();
-
--- Prevent the system, user and guest groups from being renamed.
-CREATE FUNCTION prevent_experimenter_group_rename() RETURNS "trigger" AS $$
-    BEGIN
-        IF OLD.name != NEW.name THEN
-            IF OLD.id = 0 THEN
-                RAISE EXCEPTION 'cannot rename system experimenter group';
-            ELSIF OLD.id = 1 THEN
-                RAISE EXCEPTION 'cannot rename user experimenter group';
-            ELSIF OLD.id = 2 THEN
-                RAISE EXCEPTION 'cannot rename guest experimenter group';
-            END IF;
-        END IF;
-        RETURN NEW;
-    END;
-$$ LANGUAGE plpgsql;
-
-CREATE TRIGGER prevent_experimenter_group_rename
-    BEFORE UPDATE ON experimentergroup
-    FOR EACH ROW EXECUTE PROCEDURE prevent_experimenter_group_rename();
-
--- #11810 Fix Image.archived flag
-UPDATE image set archived = false where id in (
-    SELECT i.id FROM pixels p, image i
-     WHERE p.image = i.id
-       AND i.archived
-       AND NOT EXISTS ( SELECT 1 FROM pixelsoriginalfilemap m WHERE m.child = p.id));
-
+ALTER TABLE logicalchannel ALTER COLUMN emissionWave TYPE FLOAT8;
+ALTER TABLE logicalchannel ALTER COLUMN excitationWave TYPE FLOAT8;
+ALTER TABLE laser ALTER COLUMN wavelength TYPE FLOAT8;
+ALTER TABLE lightsettings ALTER COLUMN wavelength TYPE FLOAT8;
 
 -- #11877 move import logs to upload jobs so they are no longer file annotations
+-- may have been missed in 5.0 by users starting from 5.0RC1
 CREATE FUNCTION upgrade_import_logs() RETURNS void AS $$
 
     DECLARE
@@ -215,17 +123,84 @@ SELECT upgrade_import_logs();
 
 DROP FUNCTION upgrade_import_logs();
 
+-- #11664 fix brittleness of _fs_deletelog()
+CREATE OR REPLACE FUNCTION _fs_log_delete() RETURNS TRIGGER AS $_fs_log_delete$
+    BEGIN
+        IF OLD.repo IS NOT NULL THEN
+            INSERT INTO _fs_deletelog (event_id, file_id, owner_id, group_id, "path", "name", repo, params)
+                SELECT _current_or_new_event(), OLD.id, OLD.owner_id, OLD.group_id, OLD."path", OLD."name", OLD.repo, OLD.params;
+        END IF;
+        RETURN OLD;
+    END;
+$_fs_log_delete$ LANGUAGE plpgsql;
+
+-- #11663 SQL DOMAIN types
+CREATE DOMAIN nonnegative_int AS INTEGER CHECK (VALUE >= 0);
+CREATE DOMAIN positive_int AS INTEGER CHECK (VALUE > 0);
+CREATE DOMAIN positive_float AS DOUBLE PRECISION CHECK (VALUE > 0);
+CREATE DOMAIN percent_fraction AS DOUBLE PRECISION CHECK (VALUE >= 0 AND VALUE <= 1);
+
+ALTER TABLE detectorsettings ALTER COLUMN integration TYPE positive_int;
+ALTER TABLE detectorsettings DROP CONSTRAINT detectorsettings_integration_check;
+
+ALTER TABLE imagingenvironment ALTER COLUMN co2percent TYPE percent_fraction;
+ALTER TABLE imagingenvironment ALTER COLUMN humidity TYPE percent_fraction;
+ALTER TABLE imagingenvironment DROP CONSTRAINT imagingenvironment_check;
+
+ALTER TABLE laser ALTER COLUMN frequencyMultiplication TYPE positive_int;
+ALTER TABLE laser ALTER COLUMN wavelength TYPE positive_float;
+ALTER TABLE laser DROP CONSTRAINT laser_check;
+
+ALTER TABLE lightsettings ALTER COLUMN attenuation TYPE percent_fraction;
+ALTER TABLE lightsettings ALTER COLUMN wavelength TYPE positive_float;
+ALTER TABLE lightsettings DROP CONSTRAINT lightsettings_check;
+
+ALTER TABLE logicalchannel ALTER COLUMN emissionWave TYPE positive_float;
+ALTER TABLE logicalchannel ALTER COLUMN excitationWave TYPE positive_float;
+ALTER TABLE logicalchannel ALTER COLUMN samplesPerPixel TYPE positive_int;
+ALTER TABLE logicalchannel DROP CONSTRAINT logicalchannel_check;
+
+ALTER TABLE otf ALTER COLUMN sizeX TYPE positive_int;
+ALTER TABLE otf ALTER COLUMN sizeY TYPE positive_int;
+ALTER TABLE otf DROP CONSTRAINT otf_check;
+
+UPDATE pixels SET physicalSizeX = NULL WHERE physicalSizeX <= 0;
+UPDATE pixels SET physicalSizeY = NULL WHERE physicalSizeY <= 0;
+UPDATE pixels SET physicalSizeZ = NULL WHERE physicalSizeZ <= 0;
+
+ALTER TABLE pixels ALTER COLUMN physicalSizeX TYPE positive_float;
+ALTER TABLE pixels ALTER COLUMN physicalSizeY TYPE positive_float;
+ALTER TABLE pixels ALTER COLUMN physicalSizeZ TYPE positive_float;
+ALTER TABLE pixels ALTER COLUMN significantBits TYPE positive_int;
+ALTER TABLE pixels ALTER COLUMN sizeC TYPE positive_int;
+ALTER TABLE pixels ALTER COLUMN sizeT TYPE positive_int;
+ALTER TABLE pixels ALTER COLUMN sizeX TYPE positive_int;
+ALTER TABLE pixels ALTER COLUMN sizeY TYPE positive_int;
+ALTER TABLE pixels ALTER COLUMN sizeZ TYPE positive_int;
+ALTER TABLE pixels DROP CONSTRAINT pixels_check;
+
+ALTER TABLE planeinfo ALTER COLUMN theC TYPE nonnegative_int;
+ALTER TABLE planeinfo ALTER COLUMN theT TYPE nonnegative_int;
+ALTER TABLE planeinfo ALTER COLUMN theZ TYPE nonnegative_int;
+ALTER TABLE planeinfo DROP CONSTRAINT planeinfo_check;
+
+ALTER TABLE transmittancerange ALTER COLUMN cutIn TYPE positive_int;
+ALTER TABLE transmittancerange ALTER COLUMN cutInTolerance TYPE nonnegative_int;
+ALTER TABLE transmittancerange ALTER COLUMN cutOut TYPE positive_int;
+ALTER TABLE transmittancerange ALTER COLUMN cutOutTolerance TYPE nonnegative_int;
+ALTER TABLE transmittancerange ALTER COLUMN transmittance TYPE percent_fraction;
+ALTER TABLE transmittancerange DROP CONSTRAINT transmittancerange_check;
 
 --
 -- FINISHED
 --
 
 UPDATE dbpatch SET message = 'Database updated.', finished = clock_timestamp()
-    WHERE currentVersion  = 'OMERO5.0'    AND
-          currentPatch    = 0             AND
-          previousVersion = 'OMERO5.0DEV' AND
-          previousPatch   = 6;
+    WHERE currentVersion  = 'OMERO5.1DEV' AND
+          currentPatch    = 2             AND
+          previousVersion = 'OMERO5.1DEV' AND
+          previousPatch   = 0;
 
-SELECT CHR(10)||CHR(10)||CHR(10)||'YOU HAVE SUCCESSFULLY UPGRADED YOUR DATABASE TO VERSION OMERO5.0__0'||CHR(10)||CHR(10)||CHR(10) AS Status;
+SELECT CHR(10)||CHR(10)||CHR(10)||'YOU HAVE SUCCESSFULLY UPGRADED YOUR DATABASE TO VERSION OMERO5.1DEV__2'||CHR(10)||CHR(10)||CHR(10) AS Status;
 
 COMMIT;

@@ -41,9 +41,10 @@ class UpgradeCheck(object):
     """
 
     #
-    # Default timeout is 10 seconds.
+    # Default timeout is 3 seconds.
+    #  * http://docs.python.org/2/library/socket.html#socket.setdefaulttimeout
     #
-    DEFAULT_TIMEOUT = 10 * 1000
+    DEFAULT_TIMEOUT = 3.0
 
     def __init__(self, agent, url = "http://upgrade.openmicroscopy.org.uk/", version = omero_version, timeout = DEFAULT_TIMEOUT):
         """
@@ -55,14 +56,15 @@ class UpgradeCheck(object):
                        None or empty string disables check. Defaults to upgrade.openmicroscopy.org.uk
             version := Version to check against the returned value.
                        Defaults to current version as specified in omero_version.py.
-            timeout := How long to wait for the HTTP GET
+            timeout := How long to wait for the HTTP GET in seconds (float).
+                       The default timeout is 3 seconds.
         """
 
         self.log = logging.getLogger("omero.util.UpgradeCheck")
 
         self.url = str(url)
         self.version = str(version)
-        self.timeout = int(timeout)
+        self.timeout = float(timeout)
         self.agent = "OMERO." + str(agent)
 
         self.upgradeUrl = None

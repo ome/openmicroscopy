@@ -553,7 +553,7 @@ public class ModelMockFactory {
         exp.setType((ExperimentType) types.get(0));
         mm.setExperiment(exp);
         // settings.setMicrobeamManipulation(mm);
-        settings.setWavelength(omero.rtypes.rint(500));
+        settings.setWavelength(omero.rtypes.rdouble(500.1));
         return settings;
     }
 
@@ -667,7 +667,7 @@ public class ModelMockFactory {
         laser.setFrequencyMultiplication(omero.rtypes.rint(1));
         laser.setPockelCell(omero.rtypes.rbool(false));
         laser.setTuneable(omero.rtypes.rbool(true));
-        laser.setWavelength(omero.rtypes.rint(500));
+        laser.setWavelength(omero.rtypes.rdouble(500.1));
         laser.setPower(omero.rtypes.rdouble(1));
         laser.setRepetitionRate(omero.rtypes.rdouble(1));
         return laser;
@@ -878,7 +878,7 @@ public class ModelMockFactory {
     public Channel createChannel(int w) throws Exception {
         Channel channel = new ChannelI();
         LogicalChannel lc = new LogicalChannelI();
-        lc.setEmissionWave(omero.rtypes.rint(200));
+        lc.setEmissionWave(omero.rtypes.rdouble(200.1));
         List<IObject> types = pixelsService
                 .getAllEnumerations(ContrastMethod.class.getName());
         ContrastMethod cm = (ContrastMethod) types.get(0);

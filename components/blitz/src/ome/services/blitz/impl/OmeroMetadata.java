@@ -694,19 +694,19 @@ public class OmeroMetadata extends DummyMetadata {
     }
 
     @Override
-    public PositiveInteger getChannelEmissionWavelength(int imageIndex,
+    public PositiveFloat getChannelEmissionWavelength(int imageIndex,
             int channelIndex)
     {
         Channel o = getChannel(imageIndex, channelIndex);
-        return toPositiveInteger(o.getLogicalChannel().getEmissionWave());
+        return toPositiveFloat(o.getLogicalChannel().getEmissionWave());
     }
 
     @Override
-    public PositiveInteger getChannelExcitationWavelength(int imageIndex,
+    public PositiveFloat getChannelExcitationWavelength(int imageIndex,
             int channelIndex)
     {
         Channel o = getChannel(imageIndex, channelIndex);
-        return toPositiveInteger(o.getLogicalChannel().getExcitationWave()); 
+        return toPositiveFloat(o.getLogicalChannel().getExcitationWave()); 
     }
 
     @Override

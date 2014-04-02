@@ -2,10 +2,10 @@
  * pojos.ChannelAcquisitionData 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -30,6 +30,7 @@ package pojos;
 
 //Application-internal dependencies
 import omero.RDouble;
+import omero.RFloat;
 import omero.RInt;
 import omero.model.AcquisitionMode;
 import omero.model.Binning;
@@ -74,13 +75,13 @@ public class ChannelAcquisitionData
 	private LightPathData		lightPath;
 	
 	/** The light source. */
-	private LightSourceData		ligthSource;
+	private LightSourceData		lightSource;
 	
 	/** Flag indicating if the detector settings is dirty. */
 	private boolean				detectorSettingsDirty;
 	
 	/** Flag indicating if the detector settings is dirty. */
-	private boolean				ligthSourceSettingsDirty;
+	private boolean				lightSourceSettingsDirty;
 
 	/** The detector used. */
 	private DetectorData		detector;
@@ -203,7 +204,7 @@ public class ChannelAcquisitionData
 	 * 
 	 * @return See above.
 	 */
-	public Double getLigthSettingsAttenuation()
+	public Double getLightSettingsAttenuation()
 	{
 		if (lightSettings == null) return null;
 		RDouble value = lightSettings.getAttenuation();
@@ -216,10 +217,10 @@ public class ChannelAcquisitionData
 	 * 
 	 * @return See above.
 	 */
-	public Integer getLigthSettingsWavelength()
+	public Double getLightSettingsWavelength()
 	{
 		if (lightSettings == null) return null;
-		RInt value = lightSettings.getWavelength();
+		RDouble value = lightSettings.getWavelength();
 		if (value == null) return null;
 		return value.getValue();
 	}
@@ -253,23 +254,23 @@ public class ChannelAcquisitionData
 	 * 
 	 * @param value The value to set.
 	 */
-	public void setLigthSettingsAttenuation(double value)
+	public void setLightSettingsAttenuation(double value)
 	{
-		ligthSourceSettingsDirty = true;
+		lightSourceSettingsDirty = true;
 		if (lightSettings == null) lightSettings = new LightSettingsI();
 		lightSettings.setAttenuation(omero.rtypes.rdouble(value));
 	}
 	
 	/**
-	 * Returns the wavelength of the light source.
+	 * Sets the wavelength of the light source.
 	 * 
 	 * @param value The value to set.
 	 */
-	public void setLigthSettingsWavelength(int value)
+	public void setLightSettingsWavelength(double value)
 	{
-		ligthSourceSettingsDirty = true;
+		lightSourceSettingsDirty = true;
 		if (lightSettings == null) lightSettings = new LightSettingsI();
-		lightSettings.setWavelength(omero.rtypes.rint(value));
+		lightSettings.setWavelength(omero.rtypes.rdouble(value));
 	}
 	
 	
@@ -358,7 +359,7 @@ public class ChannelAcquisitionData
 	 */
 	public boolean isLightSourceSettingsDirty()
 	{ 
-		return ligthSourceSettingsDirty; 
+		return lightSourceSettingsDirty; 
 	}
 	
 	/**
@@ -369,20 +370,20 @@ public class ChannelAcquisitionData
 	public LightSourceData getLightSource()
 	{
 		if (lightSettings == null) return null;
-		if (ligthSource != null) return ligthSource;
+		if (lightSource != null) return lightSource;
 		LightSource src = lightSettings.getLightSource();
-		if (src != null) ligthSource = new LightSourceData(src);
-		return ligthSource;
+		if (src != null) lightSource = new LightSourceData(src);
+		return lightSource;
 	}
 	
 	/**
 	 * Sets the light source associated to the settings.
 	 * 
-	 * @param ligthSource The value to set.
+	 * @param lightSource The value to set.
 	 */
-	public void setLightSource(LightSourceData ligthSource)
+	public void setLightSource(LightSourceData lightSource)
 	{
-		this.ligthSource = ligthSource;
+		this.lightSource = lightSource;
 	}
 	
 	/**

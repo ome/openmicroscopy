@@ -679,7 +679,7 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
     private String getChannelName(LogicalChannel lc)
     {
 	String name = null;
-    	Integer value = lc.getEmissionWave();
+    	Double value = lc.getEmissionWave();
     	if (value != null) return ""+value.intValue();
     	if (lc.getFilterSet() != null) {
 	    Iterator<Filter> it = lc.getFilterSet().linkedEmissionFilterIterator();
@@ -1049,7 +1049,7 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
             return false;
         Iterator<Channel> i = pFrom.iterateChannels();
         Channel c;
-        List<Integer> wavelengths = new ArrayList<Integer>(pFrom
+        List<Double> wavelengths = new ArrayList<Double>(pFrom
                 .sizeOfChannels());
         // Problem no access to channel index.
         LogicalChannel lc;
