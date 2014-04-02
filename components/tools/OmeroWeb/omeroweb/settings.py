@@ -291,6 +291,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
     "omero.web.index_template": ["INDEX_TEMPLATE", None, identity],
     
     # WEBSTART
+    "omero.web.webstart_curators_only": ["WEBSTART_CURATORS_ONLY", "false", parse_boolean],
     "omero.web.webstart_template": ["WEBSTART_TEMPLATE", None, identity],
     "omero.web.webstart_jar": ["WEBSTART_JAR", "omero.insight.jar", str],
     "omero.web.webstart_icon": ["WEBSTART_ICON", "webstart/img/icon-omero-insight.png", str],
