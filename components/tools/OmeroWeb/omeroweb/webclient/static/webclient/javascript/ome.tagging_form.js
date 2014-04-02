@@ -1,3 +1,5 @@
+/*global $, setTimeout, clearTimeout, OME */
+/*exported tagging_form */
 //
 // Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
 // All rights reserved.
@@ -72,13 +74,13 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id) {
         event.stopPropagation();
     };
 
-    $(".tag_selection_wrapper").on('click', function(event) {
+    $(".tag_selection_wrapper").on('click', function() {
         // when clicking in the blank space of the list, deselect all
         $(".ui-selected", $(this)).removeClass('ui-selected');
         update_selected_labels();
     });
 
-    var take_tag_click = function(event) {
+    var take_tag_click = function() {
         $(this).parent().toggleClass('owner-tagged');
     };
 
