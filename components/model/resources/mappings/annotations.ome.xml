@@ -48,6 +48,11 @@
 			<optional name="boolValue" type="boolean"/>
 		</properties>
 	</type>
+	<type id="ome.model.annotations.MapAnnotation" discriminator="/map/" superclass="ome.model.annotations.Annotation">
+		<properties>
+			<map name="mapValue" type="string"/>
+		</properties>
+	</type>
 	<type id="ome.model.annotations.TimestampAnnotation" discriminator="/basic/time/" superclass="ome.model.annotations.BasicAnnotation">
 		<properties>
 			<optional name="timeValue" type="timestamp"/>

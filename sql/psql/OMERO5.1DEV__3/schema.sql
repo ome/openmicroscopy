@@ -29,6 +29,13 @@
         primary key (id)
     );;
 
+    create table annotation_mapValue (
+        annotation_id int8 not null,
+        mapValue varchar(255),
+        mapValue_KEY varchar(255),
+        primary key (annotation_id, mapValue_KEY)
+    );;
+
     create table annotationannotationlink (
         id int8 not null,
         permissions int8 not null,
@@ -665,6 +672,13 @@
         version int4,
         external_id int8 unique,
         primary key (id)
+    );;
+
+    create table experimentergroup_config (
+        experimentergroup_id int8 not null,
+        config varchar(255),
+        config_KEY varchar(255),
+        primary key (experimentergroup_id, config_KEY)
     );;
 
     create table experimentergroupannotationlink (
@@ -2162,6 +2176,11 @@
         foreign key (owner_id) 
         references experimenter  ;;
 
+    alter table annotation_mapValue 
+        add constraint FKF96E60858062A40 
+        foreign key (annotation_id) 
+        references annotation  ;;
+
     alter table annotationannotationlink 
         add constraint FKannotationannotationlink_creation_id_event 
         foreign key (creation_id) 
@@ -2901,6 +2920,11 @@
         add constraint FKexperimentergroup_external_id_externalinfo 
         foreign key (external_id) 
         references externalinfo  ;;
+
+    alter table experimentergroup_config 
+        add constraint FKDC631B6CF5F0705D 
+        foreign key (experimentergroup_id) 
+        references experimentergroup  ;;
 
     alter table experimentergroupannotationlink 
         add constraint FKexperimentergroupannotationlink_creation_id_event 
