@@ -35,7 +35,6 @@
 
 .viewer .surface {
   z-index: 20;
-  /*background: url(../gfx/center.gif) no-repeat center center;*/
   _background: url(images/blank.gif) no-repeat center center; /* NOTE: required for IE to"see" the surface */
 }
 
