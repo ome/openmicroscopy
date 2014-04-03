@@ -320,7 +320,7 @@ public class client {
 
         // Setting default block size
         String blockSize = id.properties.getProperty("omero.block_size");
-        if (blockSize == null || blockSize.length() == 0) {
+        if (StringUtils.isBlank(blockSize)) {
             id.properties.setProperty("omero.block_size", Integer
                     .toString(omero.constants.DEFAULTBLOCKSIZE.value));
         }
@@ -329,14 +329,14 @@ public class client {
         // and none is set.
         if (Ice.Util.intVersion() >= 30500) {
             String encoding = id.properties.getProperty("Ice.Default.EncodingVersion");
-            if (encoding == null || encoding.length() == 0) {
+            if (StringUtils.isBlank(encoding)) {
                 id.properties.setProperty("Ice.Default.EncodingVersion", "1.0");
             }
         }
 
         // Setting MessageSizeMax
         String messageSize = id.properties.getProperty("Ice.MessageSizeMax");
-        if (messageSize == null || messageSize.length() == 0) {
+        if (StringUtils.isBlank(messageSize)) {
             id.properties.setProperty("Ice.MessageSizeMax", Integer
                     .toString(omero.constants.MESSAGESIZEMAX.value));
         }
@@ -348,7 +348,7 @@ public class client {
         // Set large thread pool max values for all communicators
         for (String x : Arrays.asList("Client", "Server")) {
             String sizemax = id.properties.getProperty(String.format("Ice.ThreadPool.%s.SizeMax", x));
-            if (sizemax == null || sizemax.length() == 0) {
+            if (StringUtils.isBlank(sizemax)) {
                 id.properties.setProperty(String.format("Ice.ThreadPool.%s.SizeMax", x), "50");
             }
         }
@@ -483,7 +483,7 @@ public class client {
         if (!secure) {
             String insecure = getSession().getConfigService().getConfigValue(
                     "omero.router.insecure");
-            if (insecure != null && insecure.length() != 0) {
+            if (StringUtils.isNotBlank(insecure)) {
                 props.put("Ice.Default.Router", insecure);
             } else {
                 getCommunicator().getLogger().warning("Could not retrieve \"omero.router.insecure\"");
@@ -688,7 +688,7 @@ public class client {
         // Check the required properties
         if (username == null) {
             username = getProperty("omero.user");
-            if (username == null || "".equals(username)) {
+            if (StringUtils.isBlank(username)) {
                 throw new ClientError("No username specified");
             }
         }
