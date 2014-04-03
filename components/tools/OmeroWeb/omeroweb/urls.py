@@ -69,6 +69,7 @@ urlpatterns = patterns('',
     
     (r'^(?i)webtest/', include('omeroweb.webtest.urls')),
 
+    url( r'^index/$', 'omeroweb.webstart.views.custom_index', name="webindex_custom" ),
 )
 
 urlpatterns += redirect_urlpatterns()
