@@ -2,9 +2,9 @@
 # -*- coding: utf-8 -*-
 #
 # blitz_gateway - python bindings and wrappers to access an OMERO blitz server
-# 
+#
 # Copyright (c) 2007-2014 Glencoe Software, Inc. All rights reserved.
-# 
+#
 # This software is distributed under the terms described by the LICENCE file
 # you can find at the root of the distribution bundle, which states you are
 # free to use it only for non commercial purposes.
@@ -62,11 +62,11 @@ def omero_type(val):
       - LongType to rlong
     elswere return the argument itself
 
-    @param val: value 
+    @param val: value
     @rtype:     omero.rtype
     @return:    matched RType or value
     """
-    
+
     if isinstance(val, StringType):
         return rstring(val)
     elif isinstance(val, UnicodeType):
@@ -82,7 +82,7 @@ def fileread (fin, fsize, bufsize):
     """
     Reads everything from fin, in chunks of bufsize.
 
-    
+
     @type fin: file
     @param fin: filelike readable object
     @type fsize: int
@@ -101,11 +101,11 @@ def fileread (fin, fsize, bufsize):
         p += s
     fin.close()
     return rv
-    
+
 
 def fileread_gen (fin, fsize, bufsize):
     """
-    Generator helper function that yields chunks of the file of size fsize. 
+    Generator helper function that yields chunks of the file of size fsize.
 
     @type fin: file
     @param fin: filelike readable object
@@ -125,15 +125,15 @@ def fileread_gen (fin, fsize, bufsize):
 
 class BlitzObjectWrapper (object):
     """
-    Object wrapper class which provides various methods for hierarchy traversing, 
-    saving, handling permissions etc. 
-    This is the 'abstract' super class which is subclassed by 
-    E.g. _ProjectWrapper, _DatasetWrapper etc. 
+    Object wrapper class which provides various methods for hierarchy traversing,
+    saving, handling permissions etc.
+    This is the 'abstract' super class which is subclassed by
+    E.g. _ProjectWrapper, _DatasetWrapper etc.
     All ojbects have a reference to the L{BlitzGateway} connection, and therefore all services are
     available for handling calls on the object wrapper. E.g listChildren() uses queryservice etc.
     """
-    
-    OMERO_CLASS = None              # E.g. 'Project', 'Dataset', 'Experimenter' etc. 
+
+    OMERO_CLASS = None              # E.g. 'Project', 'Dataset', 'Experimenter' etc.
     LINK_CLASS = None
     LINK_CHILD = 'child'
     CHILD_WRAPPER_CLASS = None
@@ -146,7 +146,7 @@ class BlitzObjectWrapper (object):
     def __init__ (self, conn=None, obj=None, cache=None, **kwargs):
         """
         Initialises the wrapper object, setting the various class variables etc
-        
+
         @param conn:    The L{omero.gateway.BlitzGateway} connection.
         @type conn:     L{omero.gateway.BlitzGateway}
         @param obj:     The object to wrap. E.g. omero.model.Image
@@ -171,7 +171,7 @@ class BlitzObjectWrapper (object):
     def __eq__ (self, a):
         """
         Returns true if the object is of the same type and has same id and name
-        
+
         @param a:   The object to compare to this one
         @return:    True if objects are same - see above
         @rtype:     Boolean
@@ -188,15 +188,15 @@ class BlitzObjectWrapper (object):
 
     def __repr__ (self):
         """
-        Returns a String representation of the Object, including ID if set. 
-        
+        Returns a String representation of the Object, including ID if set.
+
         @return:    String E.g. '<DatasetWrapper id=123>'
         @rtype:     String
         """
         if hasattr(self, '_oid'):
             return '<%s id=%s>' % (self.__class__.__name__, str(self._oid))
         return super(BlitzObjectWrapper, self).__repr__()
-        
+
     def _getQueryString(self):
         """
         Used for building queries in generic methods such as getObjects("Project")
@@ -206,11 +206,11 @@ class BlitzObjectWrapper (object):
 
     def _getChildWrapper (self):
         """
-        Returns the wrapper class of children of this object. 
+        Returns the wrapper class of children of this object.
         Checks that this is one of the Wrapper objects in the L{omero.gateway} module
         Raises NotImplementedError if this is not true or class is not defined (None)
-        This is used internally by the L{listChildren} and L{countChildren} methods. 
-        
+        This is used internally by the L{listChildren} and L{countChildren} methods.
+
         @return:    The child wrapper class. E.g. omero.gateway.DatasetWrapper.__class__
         @rtype:     class
         """
@@ -226,9 +226,9 @@ class BlitzObjectWrapper (object):
 
     def _getParentWrappers (self):
         """
-        Returns the wrapper classes of the parent of this object. 
+        Returns the wrapper classes of the parent of this object.
         This is used internally by the L{listParents} method.
-        
+
         @return:    List of parent wrapper classes. E.g. omero.gateway.DatasetWrapper.__class__
         @rtype:     class
         """
@@ -241,10 +241,10 @@ class BlitzObjectWrapper (object):
             if isinstance(pwc[i], StringTypes):
                 # resolve class
                 g = globals()
-                if not g.has_key(pwc[i]): #pragma: no cover
+                if not pwc[i] ing: #pragma: no cover
                     raise NotImplementedError
                 pwc[i] = g[pwc[i]]
-                
+
         #if type(self.PARENT_WRAPPER_CLASS) is type(''):
         #    # resolve class
         #    g = globals()
@@ -258,19 +258,19 @@ class BlitzObjectWrapper (object):
 
     def __loadedHotSwap__ (self):
         """
-        Loads the object that is wrapped by this class. This includes linked objects. 
-        This method can be overwritten by subclasses that want to specify how/which linked objects 
-        are loaded. 
+        Loads the object that is wrapped by this class. This includes linked objects.
+        This method can be overwritten by subclasses that want to specify how/which linked objects
+        are loaded.
         """
         self._obj = self._conn.getContainerService().loadContainerHierarchy(self.OMERO_CLASS, (self._oid,), None, self._conn.SERVICE_OPTS)[0]
 
     def _moveLink (self, newParent):
-        """ 
+        """
         Moves this object from a parent container (first one if there are more than one) to a new parent.
         TODO: might be more useful if it didn't assume only 1 parent - option allowed you to specify the oldParent.
-        
-        @param newParent:   The new parent Object Wrapper. 
-        @return:            True if moved from parent to parent. 
+
+        @param newParent:   The new parent Object Wrapper.
+        @return:            True if moved from parent to parent.
                             False if no parent exists or newParent has mismatching type
         @rtype:             Boolean
         """
@@ -290,7 +290,7 @@ class BlitzObjectWrapper (object):
     def findChildByName (self, name, description=None):
         """
         Find the first child object with a matching name, and description if specified.
-        
+
         @param name:    The name which must match the child name
         @param description: If specified, child description must match too
         @return:        The wrapped child object
@@ -305,23 +305,23 @@ class BlitzObjectWrapper (object):
     def getDetails (self):
         """
         Gets the details of the wrapped object
-        
+
         @return:    L{omero.gateway.DetailsWrapper} or None if object not loaded
         @rtype:     L{DetailsWrapper}
         """
         if self._obj.loaded:
             return omero.gateway.DetailsWrapper (self._conn, self._obj.getDetails())
         return None
-    
-    
+
+
     def getDate(self):
         """
         Returns the object's acquisitionDate, or creation date (details.creationEvent.time)
-        
-        @return:    A L{datetime.datetime} object 
+
+        @return:    A L{datetime.datetime} object
         @rtype:     datetime
         """
-        
+
         try:
             if self._obj.acquisitionDate.val is not None and self._obj.acquisitionDate.val > 0:
                 t = self._obj.acquisitionDate.val
@@ -329,14 +329,14 @@ class BlitzObjectWrapper (object):
         except:
             # object doesn't have acquisitionDate
             pass
-        
+
         return self.creationEventDate()
-    
-    
+
+
     def save (self):
-        """ 
+        """
         Uses the updateService to save the wrapped object.
-        
+
         @rtype:     None
         """
         ctx = self._conn.SERVICE_OPTS.copy()
@@ -346,13 +346,13 @@ class BlitzObjectWrapper (object):
         self._obj = self._conn.getUpdateService().saveAndReturnObject(self._obj, ctx)
 
     def saveAs (self, details):
-        """ 
-        Save this object, keeping the object owner the same as the one on provided details 
+        """
+        Save this object, keeping the object owner the same as the one on provided details
         If the current user is an admin but is NOT the owner specified in 'details',
         then create a new connection for that owner, clone the current object under that
-        connection and save. 
-        Otherwise, simply save. 
-        
+        connection and save.
+        Otherwise, simply save.
+
         @param details:     The Details specifying owner to save to
         @type details:      L{DetailsWrapper}
         @return:            None
@@ -380,9 +380,9 @@ class BlitzObjectWrapper (object):
             return self.save()
 
     def canWrite (self):
-        """ 
+        """
         Delegates to the connection L{BlitzGateway.canWrite} method
-        
+
         @rtype:     Boolean
         """
         return self._conn.canWrite(self)
@@ -390,50 +390,50 @@ class BlitzObjectWrapper (object):
     def canOwnerWrite (self):
         """
         Delegates to the connection L{BlitzGateway.canWrite} method
-        
+
         @rtype:     Boolean
         @return:    True if the objects's permissions allow owner to write
         """
         return self._conn.canOwnerWrite(self)
-    
+
     def isOwned(self):
         """
         Returns True if the object owner is the same user specified in the connection's Event Context
-        
+
         @rtype:     Boolean
         @return:    True if current user owns this object
         """
         return (self._obj.details.owner.id.val == self._conn.getUserId())
-    
+
     def isLeaded(self):
         """
         Returns True if the group that this object belongs to is lead by the currently logged-in user
-        
+
         @rtype:     Boolean
         @return:    see above
         """
-        g = self._obj.details.group or self._obj.details 
+        g = self._obj.details.group or self._obj.details
         if g.id.val in self._conn.getEventContext().leaderOfGroups:
             return True
         return False
-    
+
     def isPublic(self):
         """
         Determines if the object permissions are world readable, ie permissions.isWorldRead()
-        
+
         @rtype:     Boolean
         @return:    see above
         """
         g = self.getDetails().getGroup()
         g = g and g.details or self._obj.details
         return g.permissions.isWorldRead()
-    
+
     def isShared(self):
         """
-        Determines if the object is sharable between groups (but not public) 
-        
+        Determines if the object is sharable between groups (but not public)
+
         @rtype:     Boolean
-        @return:    True if the object is not L{public<isPublic>} AND the 
+        @return:    True if the object is not L{public<isPublic>} AND the
                     object permissions allow group read.
         """
         if not self.isPublic():
@@ -441,13 +441,13 @@ class BlitzObjectWrapper (object):
             g = g and g.details or self._obj.details
             return g.permissions.isGroupRead()
         return False
-    
+
     def isPrivate(self):
         """
         Determines if the object is private
-        
+
         @rtype:     Boolean
-        @return:    True if the object is not L{public<isPublic>} and not L{shared<isShared>} and 
+        @return:    True if the object is not L{public<isPublic>} and not L{shared<isShared>} and
                     permissions allow user to read.
         """
         if not self.isPublic() and not self.isShared():
@@ -495,7 +495,7 @@ class BlitzObjectWrapper (object):
 
     def canChgrp(self):
         """
-        Specifies whether the current user can move this object to another group. 
+        Specifies whether the current user can move this object to another group.
         Web client will only allow this for the data Owner.
         Admin CAN move other user's data, but we don't support this in Web yet.
         """
@@ -504,11 +504,11 @@ class BlitzObjectWrapper (object):
     def countChildren (self):
         """
         Counts available number of child objects.
-        
+
         @return:    The number of child objects available
         @rtype:     Long
         """
-        
+
         childw = self._getChildWrapper()
         klass = "%sLinks" % childw().OMERO_CLASS.lower()
         #self._cached_countChildren = len(self._conn.getQueryService().findAllByQuery("from %s as c where c.parent.id=%i" % (self.LINK_CLASS, self._oid), None))
@@ -520,11 +520,11 @@ class BlitzObjectWrapper (object):
         countChildren, but caching the first result, useful if you need to call this multiple times in
         a single sequence, but have no way of storing the value between them.
         It is actually a hack to support django template's lack of break in for loops
-        
+
         @return:    The number of child objects available
         @rtype:     Long
         """
-        
+
         if not hasattr(self, '_cached_countChildren'):
             return self.countChildren()
         return self._cached_countChildren
@@ -611,9 +611,9 @@ class BlitzObjectWrapper (object):
 
     def getAncestry (self):
         """
-        Get a list of Ancestors. First in list is parent of this object. 
-        TODO: Assumes getParent() returns a single parent. 
-        
+        Get a list of Ancestors. First in list is parent of this object.
+        TODO: Assumes getParent() returns a single parent.
+
         @rtype: List of L{BlitzObjectWrapper}
         @return:    List of Ancestor objects
         """
@@ -623,17 +623,17 @@ class BlitzObjectWrapper (object):
             rv.append(p)
             p = p.getParent()
         return rv
-    
+
     def getParentLinks(self, pids=None):
         """
-        Get a list of parent objects links. 
-        
+        Get a list of parent objects links.
+
         @param pids:    List of parent IDs
         @type pids:     L{Long}
         @rtype:         List of L{BlitzObjectWrapper}
         @return:        List of parent object links
         """
-        
+
         if self.PARENT_WRAPPER_CLASS is None:
             raise AttributeError("This object has no parent objects")
         parentwrappers = self._getParentWrappers()
@@ -648,7 +648,7 @@ class BlitzObjectWrapper (object):
         query_serv = self._conn.getQueryService()
         p = omero.sys.Parameters()
         p.map = {}
-        p.map["child"] = rlong(self.id)                    
+        p.map["child"] = rlong(self.id)
         sql = "select pchl from %s as pchl " \
                 "left outer join fetch pchl.parent as parent " \
                 "left outer join fetch pchl.child as child " \
@@ -657,31 +657,31 @@ class BlitzObjectWrapper (object):
             p.map["parent"] = rlist([rlong(pa) for pa in pids])
             sql+=" and parent.id in (:parent)"
         for pchl in query_serv.findAllByQuery(sql, p, self._conn.SERVICE_OPTS):
-            yield BlitzObjectWrapper(self, pchl) 
-        
+            yield BlitzObjectWrapper(self, pchl)
+
     def getChildLinks(self, chids=None):
         """
-        Get a list of child objects links. 
-        
+        Get a list of child objects links.
+
         @param chids:   List of children IDs
         @type chids:    L{Long}
         @rtype:         List of L{BlitzObjectWrapper}
         @return:        List of child object links
         """
-        
+
         if self.CHILD_WRAPPER_CLASS is None:
             raise AttributeError("This object has no child objects")
         query_serv = self._conn.getQueryService()
         p = omero.sys.Parameters()
         p.map = {}
-        p.map["parent"] = rlong(self.id)                    
+        p.map["parent"] = rlong(self.id)
         sql = "select pchl from %s as pchl left outer join fetch pchl.child as child \
                 left outer join fetch pchl.parent as parent where parent.id=:parent" % self.LINK_CLASS
         if isinstance(chids, list) and len(chids) > 0:
             p.map["children"] = rlist([rlong(ch) for ch in chids])
             sql+=" and child.id in (:children)"
         for pchl in query_serv.findAllByQuery(sql, p, self._conn.SERVICE_OPTS):
-            yield BlitzObjectWrapper(self, pchl)       
+            yield BlitzObjectWrapper(self, pchl)
 
     def _loadAnnotationLinks (self):
         """ Loads the annotation links for the object (if not already loaded) and saves them to the object """
@@ -701,12 +701,12 @@ class BlitzObjectWrapper (object):
     # _listAnnotationLinks
     def _getAnnotationLinks (self, ns=None):
         """
-        Checks links are loaded and returns a list of Annotation Links filtered by 
+        Checks links are loaded and returns a list of Annotation Links filtered by
         namespace if specified
-        
+
         @param ns:  Namespace
         @type ns:   String
-        @return:    List of Annotation Links on this object 
+        @return:    List of Annotation Links on this object
         @rtype:     List of Annotation Links
         """
         self._loadAnnotationLinks()
@@ -719,7 +719,7 @@ class BlitzObjectWrapper (object):
     def unlinkAnnotations (self, ns):
         """
         Uses updateService to unlink annotations, with specified ns
-        
+
         @param ns:      Namespace
         @type ns:       String
         """
@@ -747,7 +747,7 @@ class BlitzObjectWrapper (object):
         and their links on the object and any other objects. Will raise a
         L{omero.LockTimeout} if the annotation removal has not finished in
         5 seconds.
-        
+
         @param ns:      Namespace
         @type ns:       String
         """
@@ -761,13 +761,13 @@ class BlitzObjectWrapper (object):
                 self._conn._waitOnCmd(handle)
             finally:
                 handle.close()
-            self._obj.unloadAnnotationLinks()        
-    
+            self._obj.unloadAnnotationLinks()
+
     # findAnnotations(self, ns=[])
     def getAnnotation (self, ns=None):
         """
         Gets the first annotation on the object, filtered by ns if specified
-        
+
         @param ns:      Namespace
         @type ns:       String
         @return:        L{AnnotationWrapper} or None
@@ -780,18 +780,18 @@ class BlitzObjectWrapper (object):
     def listAnnotations (self, ns=None):
         """
         List annotations in the ns namespace, linked to this object
-        
+
         @return:    Generator yielding L{AnnotationWrapper}
         @rtype:     L{AnnotationWrapper} generator
         """
         for ann in self._getAnnotationLinks(ns):
             yield AnnotationWrapper._wrap(self._conn, ann.child, link=ann)
-    
+
     def listOrphanedAnnotations(self, eid=None, ns=None, anntype=None, addedByMe=True):
         """
         Retrieve all Annotations not linked to the given Project, Dataset, Image,
-        Screen, Plate, Well ID controlled by the security system. 
-        
+        Screen, Plate, Well ID controlled by the security system.
+
         @param o_type:      type of Object
         @type o_type:       String
         @param oid:         Object ID
@@ -799,7 +799,7 @@ class BlitzObjectWrapper (object):
         @return:            Generator yielding Tags
         @rtype:             L{AnnotationWrapper} generator
         """
-        
+
         return self._conn.listOrphanedAnnotations(self.OMERO_CLASS, [self.getId()], eid, ns, anntype, addedByMe)
 
 
@@ -808,7 +808,7 @@ class BlitzObjectWrapper (object):
         Saves the object to DB if needed - setting the permissions manually.
         Creates the object link and saves it, setting permissions manually.
         TODO: Can't set permissions manually in 4.2 - Assumes world & group writable
-        
+
         @param obj:     The object to link
         @type obj:      L{BlitzObjectWrapper}
         """
@@ -822,13 +822,13 @@ class BlitzObjectWrapper (object):
         lnk.setChild(obj._obj.__class__(obj._obj.id, False))
         self._conn.getUpdateService().saveObject(lnk, ctx)
         return obj
-        
+
     def _linkAnnotation (self, ann):
         """
         Saves the annotation to DB if needed - setting the permissions manually.
         Creates the annotation link and saves it, setting permissions manually.
         TODO: Can't set permissions manually in 4.2 - Assumes world & group writable
-        
+
         @param ann:     The annotation object
         @type ann:      L{AnnotationWrapper}
         """
@@ -837,7 +837,7 @@ class BlitzObjectWrapper (object):
     def linkAnnotation (self, ann, sameOwner=False):
         """
         Link the annotation to this object.
-        
+
         @param ann:         The Annotation object
         @type ann:          L{AnnotationWrapper}
         @param sameOwner:   If True, try to make sure that the link is created by the object owner
@@ -845,9 +845,9 @@ class BlitzObjectWrapper (object):
         @return:            The annotation
         @rtype:             L{AnnotationWrapper}
         """
-        
+
         """
-        My notes (will) to try and work out what's going on! 
+        My notes (will) to try and work out what's going on!
         If sameOwner:
             if current user is admin AND they are not the object owner,
                 if the object owner and annotation owner are the same:
@@ -857,7 +857,7 @@ class BlitzObjectWrapper (object):
             else:
                 try to switch the current group of this object to the group of the annotation - do linking
         else - just do linking
-        
+
         """
         if sameOwner:
             d = self.getDetails()
@@ -901,7 +901,7 @@ class BlitzObjectWrapper (object):
         Creates a dict representation of this object.
         E.g. for Image: {'description': '', 'author': 'Will Moore', 'date': 1286332557.0,
             'type': 'Image', 'id': 3841L, 'name': 'cb_4_w500_t03_z01.tif'}
-        
+
         @param xtra:        A dict of extra keys to include. E.g. 'childCount'
         @type xtra:         Dict
         @param parents:     If True, include a list of ancestors (in simpleMarshal form) as 'parents'
@@ -940,7 +940,7 @@ class BlitzObjectWrapper (object):
                     wrapper = '|'.join(s[1:])
                 else:
                     wrapper = None
-                    
+
                 if k.startswith('()'):
                     if k == rk:
                         rk = k[2:]
@@ -972,7 +972,7 @@ class BlitzObjectWrapper (object):
 
                 rv[rk] = v
         if xtra: # TODO check if this can be moved to a more specific place
-            if xtra.has_key('childCount'):
+            if 'childCount' in xtra:
                 rv['child_count'] = self.countChildren()
         if parents:
             rv['parents'] = map(lambda x: x.simpleMarshal(), self.getAncestry())
@@ -999,8 +999,8 @@ class BlitzObjectWrapper (object):
         @return:        The named attribute.
         @rtype:         method, value (string, long etc)
         """
-        
-        # handle lookup of 'get' methods, using '_attrs' dict to define how we wrap returned objects. 
+
+        # handle lookup of 'get' methods, using '_attrs' dict to define how we wrap returned objects.
         if attr != 'get' and attr.startswith('get') and hasattr(self, '_attrs'):
             tattr = attr[3].lower() + attr[4:]      # 'getName' -> 'name'
             attrs = filter(lambda x: tattr in x, self._attrs)   # find attr with 'name'
@@ -1043,11 +1043,11 @@ class BlitzObjectWrapper (object):
 
 
     # some methods are accessors in _obj and return and omero:: type. The obvious ones we wrap to return a python type
-    
+
     def getId (self):
         """
         Gets this object ID
-        
+
         @return: Long or None
         """
         oid = self._obj.getId()
@@ -1058,7 +1058,7 @@ class BlitzObjectWrapper (object):
     def getName (self):
         """
         Gets this object name
-        
+
         @return: String or None
         """
         if hasattr(self._obj, 'name'):
@@ -1072,7 +1072,7 @@ class BlitzObjectWrapper (object):
     def getDescription (self):
         """
         Gets this object description
-        
+
         @return: String
         """
         rv = hasattr(self._obj, 'description') and self._obj.getDescription() or None
@@ -1081,7 +1081,7 @@ class BlitzObjectWrapper (object):
     def getOwner (self):
         """
         Gets user who is the owner of this object.
-        
+
         @return: _ExperimenterWrapper
         """
         return self.getDetails().getOwner()
@@ -1089,14 +1089,14 @@ class BlitzObjectWrapper (object):
     def getOwnerFullName (self):
         """
         Gets full name of the owner of this object.
-        
+
         @return: String or None
         """
         try:
             lastName = self.getDetails().getOwner().lastName
             firstName = self.getDetails().getOwner().firstName
             middleName = self.getDetails().getOwner().middleName
-            
+
             if middleName is not None and middleName != '':
                 name = "%s %s. %s" % (firstName, middleName, lastName)
             else:
@@ -1109,23 +1109,23 @@ class BlitzObjectWrapper (object):
     def getOwnerOmeName (self):
         """
         Gets omeName of the owner of this object.
-        
+
         @return: String
         """
         return self.getDetails().getOwner().omeName
 
-    
+
     def creationEventDate(self):
         """
         Gets event time in timestamp format (yyyy-mm-dd hh:mm:ss.fffffff) when object was created.
-        
+
         @return:    The datetime for object creation
         @rtype:     datetime.datetime
         """
-        
+
         if self._creationDate is not None:
             return datetime.fromtimestamp(self._creationDate/1000)
-            
+
         try:
             if self._obj.details.creationEvent._time is not None:
                 self._creationDate = self._obj.details.creationEvent._time.val
@@ -1134,16 +1134,16 @@ class BlitzObjectWrapper (object):
         except:
             self._creationDate = self._conn.getQueryService().get("Event", self._obj.details.creationEvent.id.val, self._conn.SERVICE_OPTS).time.val
         return datetime.fromtimestamp(self._creationDate/1000)
-        
+
 
     def updateEventDate(self):
         """
         Gets event time in timestamp format (yyyy-mm-dd hh:mm:ss.fffffff) when object was updated.
-        
+
         @return:    The datetime for object update
         @rtype:     datetime.datetime
         """
-        
+
         try:
             if self._obj.details.updateEvent.time is not None:
                 t = self._obj.details.updateEvent.time.val
@@ -1155,11 +1155,11 @@ class BlitzObjectWrapper (object):
 
 
     # setters are also provided
-    
+
     def setName (self, value):
         """
         Sets the name of the object
-        
+
         @param value:   New name
         @type value:    String
         """
@@ -1168,7 +1168,7 @@ class BlitzObjectWrapper (object):
     def setDescription (self, value):
         """
         Sets the description of the object
-        
+
         @param value:   New description
         @type value:    String
         """
@@ -1187,9 +1187,9 @@ class NoProxies (object):
 class _BlitzGateway (object):
     """
     Connection wrapper. Handles connecting and keeping the session alive, creation of various services,
-    context switching, security privilidges etc.  
+    context switching, security privilidges etc.
     """
-    
+
     """
     Holder for class wide configuration properties.
     """
@@ -1198,12 +1198,12 @@ class _BlitzGateway (object):
     ICE_CONFIG - Defines the path to the Ice configuration
     """
 #    def __init__ (self, username, passwd, server, port, client_obj=None, group=None, clone=False):
-    
+
     def __init__ (self, username=None, passwd=None, client_obj=None, group=None, clone=False, try_super=False, host=None, port=None, extra_config=None, secure=False, anonymous=True, useragent=None, userip=None):
         """
         Create the connection wrapper. Does not attempt to connect at this stage
         Initialises the omero.client
-        
+
         @param username:    User name.
         @type username:     String
         @param passwd:      Password.
@@ -1213,17 +1213,17 @@ class _BlitzGateway (object):
         @type group:        String
         @param clone:       If True, overwrite anonymous with False
         @type clone:        Boolean
-        @param try_super:   Try to log on as super user ('system' group) 
+        @param try_super:   Try to log on as super user ('system' group)
         @type try_super:    Boolean
-        @param host:        Omero server host. 
+        @param host:        Omero server host.
         @type host:         String
-        @param port:        Omero server port. 
+        @param port:        Omero server port.
         @type port:         Integer
         @param extra_config:    Dictionary of extra configuration
         @type extra_config:     Dict
         @param secure:      Initial underlying omero.client connection type (True=SSL/False=insecure)
         @type secure:       Boolean
-        @param anonymous:   
+        @param anonymous:
         @type anonymous:    Boolean
         @param useragent:   Log which python clients use this connection. E.g. 'OMERO.webadmin'
         @param userip:      Log client ip.
@@ -1309,11 +1309,11 @@ class _BlitzGateway (object):
             self._maxPlaneSize = (int(c.getConfigValue('omero.pixeldata.max_plane_width')),
                                   int(c.getConfigValue('omero.pixeldata.max_plane_height')))
         return self._maxPlaneSize
-    
+
     def isAnonymous (self):
-        """ 
-        Returns the anonymous flag 
-        
+        """
+        Returns the anonymous flag
+
         @return:    Anonymous
         @rtype:     Boolean
         """
@@ -1322,16 +1322,16 @@ class _BlitzGateway (object):
     def getProperty(self, k):
         """
         Returns named property of the wrapped omero.client
-        
+
         @return:    named client property
         """
         return self.c.getProperty(k)
 
     def clone (self):
         """
-        Returns a new instance of this class, with all matching properties. 
+        Returns a new instance of this class, with all matching properties.
         TODO: Add anonymous and userAgent parameters?
-        
+
         @return:    Clone of this connection wrapper
         @rtype:     L{_BlitzGateway}
         """
@@ -1342,7 +1342,7 @@ class _BlitzGateway (object):
                               extra_config=self.extra_config,
                               clone=True,
                               secure=self.secure,
-                              anonymous=self._anonymous, 
+                              anonymous=self._anonymous,
                               useragent=self.useragent,
                               userip=self.userip)
                               #self.server, self.port, clone=True)
@@ -1350,8 +1350,8 @@ class _BlitzGateway (object):
     def setIdentity (self, username, passwd, _internal=False):
         """
         Saves the username and password for later use, creating session etc
-        
-        @param username:    User name. 
+
+        @param username:    User name.
         @type username:     String
         @param passwd:      Password.
         @type passwd:       String
@@ -1362,11 +1362,11 @@ class _BlitzGateway (object):
                           omero.constants.PASSWORD: passwd}
         if not _internal:
             self._anonymous = False
-    
+
     def suConn (self, username, group=None, ttl=60000):
         """
         If current user isAdmin, return new connection owned by 'username'
-        
+
         @param username:    Username for new connection
         @type username:     String
         @param group:       If specified, try to log in to this group
@@ -1393,14 +1393,14 @@ class _BlitzGateway (object):
 
     def keepAlive (self):
         """
-        Keeps service alive. 
+        Keeps service alive.
         Returns True if connected. If connection was lost, reconnecting.
-        If connection failed, returns False and error is logged. 
-        
-        @return:    True if connection alive. 
+        If connection failed, returns False and error is logged.
+
+        @return:    True if connection alive.
         @rtype:     Boolean
         """
-        
+
         try:
             if self.c.sf is None: #pragma: no cover
                 logger.debug('... c.sf is None, reconnecting')
@@ -1447,7 +1447,7 @@ class _BlitzGateway (object):
     def seppuku (self, softclose=False): #pragma: no cover
         """
         Terminates connection with killSession(). If softclose is False, the session is really
-        terminate disregarding its connection refcount. 
+        terminate disregarding its connection refcount.
 
         @param softclose:   Boolean
         """
@@ -1475,14 +1475,14 @@ class _BlitzGateway (object):
 
 #    def __del__ (self):
 #        logger.debug("##GARBAGE COLLECTOR KICK IN")
-    
+
     def _createProxies (self):
         """
         Creates proxies to the server services. Called on connection or security switch.
-        Doesn't actually create any services themselves. Created if/when needed. 
-        If proxies have been created already, they are resynced and reused. 
+        Doesn't actually create any services themselves. Created if/when needed.
+        If proxies have been created already, they are resynced and reused.
         """
-        
+
         if not isinstance(self._proxies, NoProxies):
             logger.debug("## Reusing proxies")
             for k, p in self._proxies.items():
@@ -1525,10 +1525,10 @@ class _BlitzGateway (object):
                 self._session_cb.create(self)
 
     def setSecure (self, secure=True):
-        """ 
+        """
         Switches between SSL and insecure (faster) connections to Blitz.
         The gateway must already be connected.
-        
+
         @param secure:  If False, use an insecure connection
         @type secure:   Boolean
         """
@@ -1565,7 +1565,7 @@ class _BlitzGateway (object):
         self.setSecure(self.secure)
         self.c.sf.detachOnDestroy()
         self.SERVICE_OPTS = self.createServiceOptsDict()
-    
+
     def _closeSession (self):
         """
         Close session.
@@ -1582,7 +1582,7 @@ class _BlitzGateway (object):
             pass
         except:
             logger.warn(traceback.format_exc())
-                        
+
     def _resetOmeroClient (self):
         """
         Creates new omero.client object using self.host or self.ice_config (if host is None)
@@ -1603,7 +1603,7 @@ class _BlitzGateway (object):
                 self.c = omero.client(host=str(self.host), args=['--Ice.Config='+','.join(self.ice_config)])
         else:
             self.c = omero.client(args=['--Ice.Config='+','.join(self.ice_config)])
-        
+
         if hasattr(self.c, "setAgent"):
             if self.useragent is not None:
                 self.c.setAgent(self.useragent)
@@ -1618,11 +1618,11 @@ class _BlitzGateway (object):
         """
         Creates or retrieves connection for the given sessionUuid.
         Returns True if connected.
-        
+
         @param sUuid:   omero_model_SessionI
         @return:        Boolean
         """
-        
+
         logger.debug("Connect attempt, sUuid=%s, group=%s, self.sUuid=%s" % (str(sUuid), str(self.group), self._sessionUuid))
         if not self.c: #pragma: no cover
             self._connected = False
@@ -1652,7 +1652,7 @@ class _BlitzGateway (object):
                         return False
             if self._sessionUuid is None:
                 if sUuid: #pragma: no cover
-                    logger.debug("Uncaptured sUuid failure!") 
+                    logger.debug("Uncaptured sUuid failure!")
                 if self._connected:
                     self._connected = False
                     try:
@@ -1727,19 +1727,19 @@ class _BlitzGateway (object):
     def getLastError (self): #pragma: no cover
         """
         Returns error if thrown by _BlitzGateway.connect connect.
-        
+
         @return: String
         """
-        
+
         return self._last_error
 
     def isConnected (self):
         """
         Returns last status of connection.
-        
+
         @return:    Boolean
         """
-        
+
         return self._connected
 
     ######################
@@ -1748,14 +1748,14 @@ class _BlitzGateway (object):
     def getEventContext (self):
         """
         Returns omero_System_ice.EventContext.
-        It containes:: 
-            shareId, sessionId, sessionUuid, userId, userName, 
-            groupId, groupName, isAdmin, isReadOnly, 
+        It containes::
+            shareId, sessionId, sessionUuid, userId, userName,
+            groupId, groupName, isAdmin, isReadOnly,
             eventId, eventType, eventType,
             memberOfGroups, leaderOfGroups
         Also saves context to self._ctx
-        
-        @return:    Event Context from admin service. 
+
+        @return:    Event Context from admin service.
         @rtype:     L{omero.sys.EventContext}
         """
         if self._ctx is None:
@@ -1779,11 +1779,11 @@ class _BlitzGateway (object):
         """
         self._userid = uid
         self._user = None
-            
+
     def getUser (self):
         """
         Returns current Experimenter.
-         
+
         @return:    Current Experimenter
         @rtype:     L{ExperimenterWrapper}
         """
@@ -1792,40 +1792,40 @@ class _BlitzGateway (object):
             if uid is not None:
                 self._user = self.getObject("Experimenter", self._userid) or None
         return self._user
-    
+
     def getAdministrators(self):
         """
         Returns Experimenters with administration privileges.
-         
+
         @return:    Current Experimenter
         @return:     Generator of L{BlitzObjectWrapper} subclasses
         """
         sysGroup = self.getObject("ExperimenterGroup", self.getAdminService().getSecurityRoles().systemGroupId)
         for gem in sysGroup.copyGroupExperimenterMap():
             yield ExperimenterWrapper(self, gem.child)
-    
+
     def getGroupFromContext(self):
         """
         Returns current omero_model_ExperimenterGroupI.
-         
+
         @return:    omero.model.ExperimenterGroupI
         """
         admin_service = self.getAdminService()
         group = admin_service.getGroup(self.getEventContext().groupId)
         return ExperimenterGroupWrapper(self, group)
-    
+
     def isAdmin (self):
         """
         Checks if a user has administration privileges.
-        
+
         @return:    Boolean
         """
-        
+
         return self.getEventContext().isAdmin
 
     def isLeader(self, gid=None):
         """
-        Is the current group (or a specified group) led by the current user? 
+        Is the current group (or a specified group) led by the current user?
 
         @return:    True if user leads the current group
         @rtype:     Boolean
@@ -1841,7 +1841,7 @@ class _BlitzGateway (object):
     def canBeAdmin (self):
         """
         Checks if a user is in system group, i.e. can have administration privileges.
-        
+
         @return:    Boolean
         """
         return 0 in self.getEventContext().memberOfGroups
@@ -1849,28 +1849,28 @@ class _BlitzGateway (object):
     def canWrite (self, obj):
         """
         Checks if a user has write privileges to the given object.
-        
+
         @param obj: Given object
         @return:    Boolean
         """
-        
+
         return self.isAdmin() or (self.getUserId() == obj.getDetails().getOwner().getId() and
                                   obj.getDetails().getPermissions().isUserWrite())
 
     def canOwnerWrite (self, obj):
         """
         Returns isUserWrite() from the object's permissions
-        
+
         @param obj: Given object
         @return:    True if the objects's permissions allow owner to write
         """
         return obj.getDetails().getPermissions().isUserWrite()
-    
+
     def getSession (self):
         """
         Returns the existing session, or creates a new one if needed
-        
-        @return:    The session from session service 
+
+        @return:    The session from session service
         @rtype:     L{omero.model.session}
         """
         if self._session is None:
@@ -1887,7 +1887,7 @@ class _BlitzGateway (object):
     def setGroupNameForSession (self, group):
         """
         Looks up the group by name, then delegates to L{setGroupForSession}, returning the result
-        
+
         @param group:       Group name
         @type group:        String
         @return:            True if group set successfully
@@ -1900,7 +1900,7 @@ class _BlitzGateway (object):
     def setGroupForSession (self, groupid):
         """
         Sets the security context of this connection to the specified group
-        
+
         @param groupid:     The ID of the group to switch to
         @type groupid:      Long
         @rtype:             Boolean
@@ -1951,16 +1951,16 @@ class _BlitzGateway (object):
     def getAdminService (self):
         """
         Gets reference to the admin service from ProxyObjectWrapper.
-        
+
         @return:    omero.gateway.ProxyObjectWrapper
         """
-        
+
         return self._proxies['admin']
 
     def getQueryService (self):
         """
         Gets reference to the query service from ProxyObjectWrapper.
-        
+
         @return:    omero.gateway.ProxyObjectWrapper
         """
         return self._proxies['query']
@@ -1968,111 +1968,111 @@ class _BlitzGateway (object):
     def getContainerService (self):
         """
         Gets reference to the container service from ProxyObjectWrapper.
-        
+
         @return:    omero.gateway.ProxyObjectWrapper
         """
-        
+
         return self._proxies['container']
 
     def getPixelsService (self):
         """
         Gets reference to the pixels service from ProxyObjectWrapper.
-        
+
         @return:    omero.gateway.ProxyObjectWrapper
         """
-        
+
         return self._proxies['pixel']
-    
+
     def getMetadataService (self):
         """
         Gets reference to the metadata service from ProxyObjectWrapper.
-        
+
         @return:    omero.gateway.ProxyObjectWrapper
         """
-        
+
         return self._proxies['metadata']
-    
+
     def getRoiService (self):
         """
         Gets ROI service.
-        
+
         @return:    omero.gateway.ProxyObjectWrapper
         """
-        
+
         return self._proxies['roi']
-        
+
     def getScriptService (self):
         """
         Gets script service.
-        
+
         @return:    omero.gateway.ProxyObjectWrapper
         """
-        
+
         return self._proxies['script']
-        
+
     def createRawFileStore (self):
         """
         Creates a new raw file store.
         This service is special in that it does not get cached inside BlitzGateway so every call to this function
         returns a new object, avoiding unexpected inherited states.
-        
+
         @return:    omero.gateway.ProxyObjectWrapper
         """
-        
+
         return self._proxies['rawfile']
 
     def getRepositoryInfoService (self):
         """
         Gets reference to the repository info service from ProxyObjectWrapper.
-        
+
         @return:    omero.gateway.ProxyObjectWrapper
         """
-        
+
         return self._proxies['repository']
 
     def getShareService(self):
         """
         Gets reference to the share service from ProxyObjectWrapper.
-        
+
         @return:    omero.gateway.ProxyObjectWrapper
         """
-        
+
         return self._proxies['share']
 
     def getSharedResources(self):
         """
         Gets reference to the sharedresources from ProxyObjectWrapper.
-        
+
         @return:    omero.gateway.ProxyObjectWrapper
         """
-        
+
         return self._proxies['sharedres']
 
     def getTimelineService (self):
         """
         Gets reference to the timeline service from ProxyObjectWrapper.
-        
+
         @return:    omero.gateway.ProxyObjectWrapper
         """
-        
+
         return self._proxies['timeline']
-    
+
     def getTypesService(self):
         """
         Gets reference to the types service from ProxyObjectWrapper.
-        
+
         @return:    omero.gateway.ProxyObjectWrapper
         """
-        
+
         return self._proxies['types']
 
     def getConfigService (self):
         """
         Gets reference to the config service from ProxyObjectWrapper.
-        
+
         @return:    omero.gateway.ProxyObjectWrapper
         """
-        
+
         return self._proxies['config']
 
     def createRenderingEngine (self):
@@ -2080,10 +2080,10 @@ class _BlitzGateway (object):
         Creates a new rendering engine.
         This service is special in that it does not get cached inside BlitzGateway so every call to this function
         returns a new object, avoiding unexpected inherited states.
-        
+
         @return:    omero.gateway.ProxyObjectWrapper
         """
-        
+
         rv = self._proxies['rendering']
         if rv._tainted:
             rv = self._proxies['rendering'] = rv.clone()
@@ -2093,39 +2093,39 @@ class _BlitzGateway (object):
     def getRenderingSettingsService (self):
         """
         Gets reference to the rendering settings service from ProxyObjectWrapper.
-        
+
         @return:    omero.gateway.ProxyObjectWrapper
         """
-        
+
         return self._proxies['rendsettings']
-   
+
     def createRawPixelsStore (self):
         """
         Creates a new raw pixels store.
         This service is special in that it does not get cached inside BlitzGateway so every call to this function
         returns a new object, avoiding unexpected inherited states.
-        
+
         @return:    omero.gateway.ProxyObjectWrapper
         """
-        
+
         return self._proxies['rawpixels']
 
     def createThumbnailStore (self):
         """
         Gets a reference to the thumbnail store on this connection object or creates a new one
         if none exists.
-        
+
         @rtype: omero.gateway.ProxyObjectWrapper
         @return: The proxy wrapper of the thumbnail store
         """
-        
+
         return self._proxies['thumbs']
-    
+
     def createSearchService (self):
         """
         Gets a reference to the searching service on this connection object or creates a new one
         if none exists.
-        
+
         @return: omero.gateway.ProxyObjectWrapper
         """
         return self._proxies['search']
@@ -2133,7 +2133,7 @@ class _BlitzGateway (object):
     def getUpdateService (self):
         """
         Gets reference to the update service from ProxyObjectWrapper.
-        
+
         @return:    omero.gateway.ProxyObjectWrapper
         """
         return self._proxies['update']
@@ -2141,7 +2141,7 @@ class _BlitzGateway (object):
     def getDeleteService (self):
         """
         Gets reference to the delete service from ProxyObjectWrapper.
-        
+
         @return:    omero.gateway.ProxyObjectWrapper
         """
         return self._proxies['delete']
@@ -2149,7 +2149,7 @@ class _BlitzGateway (object):
     def getSessionService (self):
         """
         Gets reference to the session service from ProxyObjectWrapper.
-        
+
         @return:    omero.gateway.ProxyObjectWrapper
         """
         return self._proxies['session']
@@ -2157,7 +2157,7 @@ class _BlitzGateway (object):
     def createExporter (self):
         """
         New instance of non cached Exporter, wrapped in ProxyObjectWrapper.
-        
+
         @return:    omero.gateway.ProxyObjectWrapper
         """
         return ProxyObjectWrapper(self, 'createExporter')
@@ -2200,10 +2200,10 @@ class _BlitzGateway (object):
             params.theFilter.ownerId = rlong(eid)
 
         return self.getObjects("Screen", params=params)
-    
-    def listOrphans (self, obj_type, eid=None, params=None): 
+
+    def listOrphans (self, obj_type, eid=None, params=None):
         """
-        List orphaned Datasets, Images, Plates controlled by the security system, 
+        List orphaned Datasets, Images, Plates controlled by the security system,
         Optionally filter by experimenter 'eid'
 
         @param obj_type:    'Dataset', 'Image', 'Plate'
@@ -2216,7 +2216,7 @@ class _BlitzGateway (object):
 
         """
 
-        links = {'Dataset':('ProjectDatasetLink', DatasetWrapper), 
+        links = {'Dataset':('ProjectDatasetLink', DatasetWrapper),
                 'Image':('DatasetImageLink', ImageWrapper),
                 'Plate':('ScreenPlateLink', PlateWrapper)}
 
@@ -2243,18 +2243,18 @@ class _BlitzGateway (object):
             yield wrapper(self, r)
     #################################################
     ## IAdmin
-    
+
     # GROUPS
-    
+
     def listGroups(self):
-        """ 
+        """
         Look up all experimenters and related groups.
         Groups are also loaded
-        
+
         @return:    All experimenters
         @rtype:     L{ExperimenterWrapper} generator
         """
-        
+
         admin_serv = self.getAdminService()
         for exp in admin_serv.lookupGroups():
             yield ExperimenterGroupWrapper(self, exp)
@@ -2262,40 +2262,40 @@ class _BlitzGateway (object):
     def getDefaultGroup(self, eid):
         """
         Retrieve the default group for the given user id.
-        
+
         @param eid:     Experimenter ID
         @type eid:      Long
         @return:        The default group for user
         @rtype:         L{ExperimenterGroupWrapper}
         """
-        
+
         admin_serv = self.getAdminService()
         dgr = admin_serv.getDefaultGroup(long(eid))
         return ExperimenterGroupWrapper(self, dgr)
-    
+
     def getOtherGroups(self, eid):
-        """ 
-        Fetch all groups of which the given user is a member. 
+        """
+        Fetch all groups of which the given user is a member.
         The returned groups will have all fields filled in and all collections unloaded.
-        
+
         @param eid:         Experimenter ID
         @type eid:          Long
         @return:            Generator of groups for user
         @rtype:             L{ExperimenterGroupWrapper} generator
         """
-        
+
         admin_serv = self.getAdminService()
         for gr in admin_serv.containedGroups(long(eid)):
             yield ExperimenterGroupWrapper(self, gr)
-        
+
     def getGroupsLeaderOf(self):
-        """ 
+        """
         Look up Groups where current user is a leader of.
-        
+
         @return:        Groups that current user leads
         @rtype:         L{ExperimenterGroupWrapper} generator
         """
-         
+
         q = self.getQueryService()
         p = omero.sys.Parameters()
         p.map = {}
@@ -2305,13 +2305,13 @@ class _BlitzGateway (object):
             yield ExperimenterGroupWrapper(self, e)
 
     def getGroupsMemberOf(self):
-        """ 
+        """
         Look up Groups where current user is a member of (except "user" group).
-        
+
         @return:        Current users groups
         @rtype:         L{ExperimenterGroupWrapper} generator
         """
-        
+
         q = self.getQueryService()
         p = omero.sys.Parameters()
         p.map = {}
@@ -2327,7 +2327,7 @@ class _BlitzGateway (object):
     def createGroup(self, name, owner_Ids=None, member_Ids=None, perms=None, description=None):
         """
         Creates a new ExperimenterGroup. Must have Admin permissions to call this.
-        
+
         @param name:        New group name
         @param owner_Ids:   Option to add existing Experimenters as group owners
         @param member_Ids:  Option to add existing Experimenters as group members
@@ -2361,13 +2361,13 @@ class _BlitzGateway (object):
         """
         Return a generator for all Experimenters whose omeName starts with 'start'.
         Experimenters ordered by omeName.
-        
+
         @param start:   omeName must start with these letters
         @type start:    String
         @return:        Generator of experimenters
         @rtype:         L{ExperimenterWrapper} generator
         """
-        
+
         if isinstance(start, UnicodeType):
             start = start.encode('utf8')
         params = omero.sys.Parameters()
@@ -2379,29 +2379,29 @@ class _BlitzGateway (object):
             yield ExperimenterWrapper(self, e)
 
     def containedExperimenters(self, gid):
-        """ 
-        Fetch all users contained in this group. 
+        """
+        Fetch all users contained in this group.
         The returned users will have all fields filled in and all collections unloaded.
-        
+
         @param gid:     Group ID
         @type gid:      Long
         @return:        Generator of experimenters
         @rtype:         L{ExperimenterWrapper} generator
         """
-        
+
         admin_serv = self.getAdminService()
         for exp in admin_serv.containedExperimenters(long(gid)):
             yield ExperimenterWrapper(self, exp)
-    
+
     def listColleagues(self):
         """
         Look up users who are a member of the current user active group.
         Returns None if the group is private and isn't lead by the current user
-        
+
         @return:    Generator of Experimenters or None
         @rtype:     L{ExperimenterWrapper} generator
         """
-                
+
         default = self.getObject("ExperimenterGroup", self.getEventContext().groupId)
         if not default.isPrivate() or self.isLeader():
             for d in default.copyGroupExperimenterMap():
@@ -2445,11 +2445,11 @@ class _BlitzGateway (object):
     def listStaffs(self):
         """
         Look up users who are members of groups lead by the current user.
-        
+
         @return:    Members of groups lead by current user
         @rtype:     L{ExperimenterWrapper} generator
         """
-        
+
         q = self.getQueryService()
         p = omero.sys.Parameters()
         p.map = {}
@@ -2464,30 +2464,30 @@ class _BlitzGateway (object):
     def listOwnedGroups(self):
         """
         Looks up owned groups for the logged user.
-        
+
         @return:    Groups owned by current user
         @rtype:     L{ExperimenterGroupWrapper} generator
         """
-            
+
         exp = self.getUser()
         for gem in exp.copyGroupExperimenterMap():
             if gem is None:
                 continue
             if gem.owner.val:
                 yield ExperimenterGroupWrapper(self, gem.parent)
-    
+
     def getFreeSpace(self):
-        """ 
+        """
         Returns the free or available space on this file system
         including nested subdirectories.
-        
+
         @return:    Free space in bytes
         @rtype:     Int
         """
-        
+
         rep_serv = self.getRepositoryInfoService()
         return rep_serv.getFreeSpaceInKilobytes() * 1024
-    
+
     ############################
     # Timeline service getters #
 
@@ -2495,7 +2495,7 @@ class _BlitzGateway (object):
         """
         List images based on their creation times.
         If both tfrom and tto are None, grab the most recent batch.
-        
+
         @param tfrom:       milliseconds since the epoch for start date
         @param tto:         milliseconds since the epoch for end date
         @param limit:       maximum number of results
@@ -2503,7 +2503,7 @@ class _BlitzGateway (object):
         @return:            Generator yielding _ImageWrapper
         @rtype:             L{ImageWrapper} generator
         """
-        
+
         tm = self.getTimelineService()
         p = omero.sys.Parameters()
         f = omero.sys.Filter()
@@ -2655,7 +2655,7 @@ class _BlitzGateway (object):
 
     def getAnnotationLinks (self, parent_type, parent_ids=None, ann_ids=None, ns=None, params=None):
         """
-        Retrieve Annotation Links by parent_type E.g. "Image". Not Ordered. 
+        Retrieve Annotation Links by parent_type E.g. "Image". Not Ordered.
         Returns generator of L{AnnotationLinkWrapper}
         If parent_ids is None, all available objects will be returned. i.e. listObjects()
 
@@ -2921,7 +2921,7 @@ class _BlitzGateway (object):
 
         @param fromid:      ID of Image to copy settings from.
         @param toids:       List of Image IDs to apply setting to.
-        @param to_type:     toids refers to Images by default, but can refer to 
+        @param to_type:     toids refers to Images by default, but can refer to
                                 Project, Dataset, Image, Plate, Screen, Pixels
         """
         json_data = False
@@ -3059,7 +3059,7 @@ class _BlitzGateway (object):
         finally:
             rawFileStore.close();
         return OriginalFileWrapper(self, originalFile)
-        
+
     def createOriginalFileFromLocalFile (self, localPath, origFilePathAndName=None, mimetype=None, ns=None):
         """
         Creates a L{OriginalFileWrapper} from a local file.
@@ -3101,7 +3101,7 @@ class _BlitzGateway (object):
 
         # create and upload original file
         originalFile = self.createOriginalFileFromLocalFile(localPath, origFilePathAndName, mimetype, ns)
-        
+
         # create FileAnnotation, set ns & description and return wrapped obj
         fa = omero.model.FileAnnotationI()
         fa.setFile(originalFile._obj)
@@ -3116,22 +3116,22 @@ class _BlitzGateway (object):
         """
         Retrieve objects linked to the given annotation IDs
         controlled by the security system.
-        
+
         @param annids:      Annotation IDs
         @type annids:       L{Long}
         @return:            Generator yielding Objects
         @rtype:             L{BlitzObjectWrapper} generator
         """
-        
+
         wrapper = KNOWN_WRAPPERS.get(obj_type.lower(), None)
         if not wrapper:
             raise AttributeError("Don't know how to handle '%s'" % obj_type)
-        
+
         sql = "select ob from %s ob " \
               "left outer join fetch ob.annotationLinks obal " \
               "left outer join fetch obal.child ann " \
               "where ann.id in (:oids)" % wrapper().OMERO_CLASS
-            
+
         q = self.getQueryService()
         p = omero.sys.Parameters()
         p.map = {}
@@ -3142,25 +3142,25 @@ class _BlitzGateway (object):
 
     ################
     # Enumerations #
-    
+
     def getEnumerationEntries(self, klass):
         """
         Get all enumerations by class
-        
+
         @param klass:   Class
         @type klass:    Class or string
         @return:        Generator of Enumerations
         @rtype:         L{EnumerationWrapper} generator
         """
-        
+
         types = self.getTypesService()
         for e in types.allEnumerations(str(klass)):
             yield EnumerationWrapper(self, e)
-    
+
     def getEnumeration(self, klass, string):
         """
         Get enumeration by class and value
-        
+
         @param klass:   Class
         @type klass:    Class or string
         @param string:  Enum value
@@ -3168,18 +3168,18 @@ class _BlitzGateway (object):
         @return:        Enumeration or None
         @rtype:         L{EnumerationWrapper}
         """
-        
+
         types = self.getTypesService()
         obj = types.getEnumeration(str(klass), str(string))
         if obj is not None:
             return EnumerationWrapper(self, obj)
         else:
             return None
-    
+
     def getEnumerationById(self, klass, eid):
         """
         Get enumeration by class and ID
-        
+
         @param klass:   Class
         @type klass:    Class or string
         @param eid:     Enum ID
@@ -3187,22 +3187,22 @@ class _BlitzGateway (object):
         @return:        Enumeration or None
         @rtype:         L{EnumerationWrapper}
         """
-        
+
         query_serv = self.getQueryService()
         obj =  query_serv.find(klass, long(eid), self.SERVICE_OPTS)
         if obj is not None:
             return EnumerationWrapper(self, obj)
         else:
             return None
-            
+
     def getOriginalEnumerations(self):
         """
         Gets original enumerations. Returns a dictionary of enumeration class: list of Enumerations
-        
+
         @return:    Original enums
         @rtype:     Dict of <string: L{EnumerationWrapper} list >
         """
-        
+
         types = self.getTypesService()
         rv = dict()
         for e in types.getOriginalEnumerations():
@@ -3210,26 +3210,26 @@ class _BlitzGateway (object):
                 rv[e.__class__.__name__] = list()
             rv[e.__class__.__name__].append(EnumerationWrapper(self, e))
         return rv
-        
+
     def getEnumerations(self):
         """
         Gets list of enumeration types
-        
+
         @return:    List of enum types
         @rtype:     List of Strings
         """
-        
+
         types = self.getTypesService()
-        return types.getEnumerationTypes() 
-    
+        return types.getEnumerationTypes()
+
     def getEnumerationsWithEntries(self):
         """
         Get enumeration types, with lists of Enum entries
-        
+
         @return:    Dictionary of type: entries
         @rtype:     Dict of <string: L{EnumerationWrapper} list >
         """
-        
+
         types = self.getTypesService()
         rv = dict()
         for key, value in types.getEnumerationsWithEntries().items():
@@ -3238,63 +3238,63 @@ class _BlitzGateway (object):
                 r.append(EnumerationWrapper(self, e))
             rv[key+"I"] = r
         return rv
-    
+
     def deleteEnumeration(self, obj):
         """
         Deletes an enumeration object
-        
+
         @param obj:     Enumeration object
         @type obj:      omero.model.IObject
         """
-        
+
         types = self.getTypesService()
         types.deleteEnumeration(obj)
-        
+
     def createEnumeration(self, obj):
         """
-        Create an enumeration with given object 
-        
+        Create an enumeration with given object
+
         @param obj:     Object
         @type obj:      omero.model.IObject
         """
-        
+
         types = self.getTypesService()
         types.createEnumeration(obj)
-    
+
     def resetEnumerations(self, klass):
         """
         Resets the enumerations by type
-        
+
         @param klass:   Type of enum to reset
         @type klass:    String
         """
-        
+
         types = self.getTypesService()
         types.resetEnumerations(klass)
-    
+
     def updateEnumerations(self, new_entries):
         """
         Updates enumerations with new entries
-        
+
         @param new_entries:   List of objects
         @type new_entries:    List of omero.model.IObject
         """
-        
+
         types = self.getTypesService()
         types.updateEnumerations(new_entries)
-    
+
     ###################
     # Delete          #
-    
+
     def deleteObjectDirect(self, obj):
         """
         Directly Delete object (removes row from database).
         This may fail with various constraint violations if the object is linked to others in the database
-        
+
         @param obj:     Object to delete
         @type obj:      IObject"""
-        
-        u = self.getUpdateService() 
+
+        u = self.getUpdateService()
         u.deleteObject(obj, self.SERVICE_OPTS)
 
     def getAvailableDeleteCommands(self):
@@ -3453,7 +3453,7 @@ class _BlitzGateway (object):
         """
         Search objects of type "Project", "Dataset", "Image", "Screen", "Plate"
         Returns a list of results
-        
+
         @param obj_types:   E.g. ["Dataset", "Image"]
         @param text:        The text to search for
         @param created:     L{omero.rtime} list or tuple (start, stop)
@@ -3556,7 +3556,7 @@ def splitHTMLColor (color):
     - abcd     -> (0xAA, 0xBB, 0xCC, 0xDD)
     - abbccd   -> (0xAB, 0xBC, 0xCD, 0xFF)
     - abbccdde -> (0xAB, 0xBC, 0xCD, 0xDE)
-    
+
     @param color:   Characters to split.
     @return:        rgba
     @rtype:         list of Ints
@@ -3581,15 +3581,15 @@ def splitHTMLColor (color):
 
 class ProxyObjectWrapper (object):
     """
-    Wrapper for services. E.g. Admin Service, Delete Service etc. 
-    Maintains reference to connection. 
-    Handles creation of service when requested. 
+    Wrapper for services. E.g. Admin Service, Delete Service etc.
+    Maintains reference to connection.
+    Handles creation of service when requested.
     """
-    
+
     def __init__ (self, conn, func_str, cast_to=None, service_name=None):
         """
-        Initialisation of proxy object wrapper. 
-        
+        Initialisation of proxy object wrapper.
+
         @param conn:         The L{BlitzGateway} connection
         @type conn:          L{BlitzGateway}
         @param func_str:     The name of the service creation method. E.g 'getAdminService'
@@ -3597,7 +3597,7 @@ class ProxyObjectWrapper (object):
         @param cast_to:      the checkedCast function to call with service name (only if func_str is None)
         @type cast_to:       function
         @param service_name: Service name to use with cast_to (only if func_str is None)
-        
+
         """
         self._obj = None
         self._func_str = func_str
@@ -3605,26 +3605,26 @@ class ProxyObjectWrapper (object):
         self._service_name = service_name
         self._resyncConn(conn)
         self._tainted = False
-    
+
     def clone (self):
         """
-        Creates and returns a new L{ProxyObjectWrapper} with the same connection 
-        and service creation method name as this one. 
-        
+        Creates and returns a new L{ProxyObjectWrapper} with the same connection
+        and service creation method name as this one.
+
         @return:    Cloned service wrapper
         @rtype:     L{ProxyObjectWrapper}
         """
-        
+
         return ProxyObjectWrapper(self._conn, self._func_str, self._cast_to, self._service_name)
 
     def _connect (self, forcejoin=False): #pragma: no cover
         """
-        Returns True if connected. If connection OK, wrapped service is also created. 
+        Returns True if connected. If connection OK, wrapped service is also created.
 
         @param forcejoin: if True forces the connection to only succeed if we can
                           rejoin the current sessionid
         @type forcejoin:  Boolean
-        
+
         @return:    True if connection OK
         @rtype:     Boolean
         """
@@ -3661,16 +3661,16 @@ class ProxyObjectWrapper (object):
         if self._obj and isinstance(self._obj, omero.api.StatefulServiceInterfacePrx):
             self._obj.close(*args, **kwargs)
         self._obj = None
-    
+
     def _resyncConn (self, conn):
         """
-        Reset refs to connection and session factory. Resets session creation function. 
+        Reset refs to connection and session factory. Resets session creation function.
         Attempts to reload the wrapped service - if already created (doesn't create service)
-        
+
         @param conn:    Connection
         @type conn:     L{BlitzGateway}
         """
-        
+
         self._conn = conn
         self._sf = conn.c.sf
         def cf ():
@@ -3689,12 +3689,12 @@ class ProxyObjectWrapper (object):
 
     def _getObj (self):
         """
-        Returns the wrapped service. If it is None, service is created. 
-        
+        Returns the wrapped service. If it is None, service is created.
+
         @return:    The wrapped service
         @rtype:     omero.api.ServiceInterface subclass
         """
-        
+
         if not self._obj:
             try:
                 self._obj = self._create_func()
@@ -3709,12 +3709,12 @@ class ProxyObjectWrapper (object):
     def _ping (self): #pragma: no cover
         """
         For some reason, it seems that keepAlive doesn't, so every so often I need to recreate the objects.
-        Calls serviceFactory.keepAlive(service). If this returns false, attempt to create service. 
-        
-        @return:    True if no exception thrown 
+        Calls serviceFactory.keepAlive(service). If this returns false, attempt to create service.
+
+        @return:    True if no exception thrown
         @rtype:     Boolean
         """
-        
+
         try:
             if not self._sf.keepAlive(self._obj):
                 logger.debug("... died, recreating ...")
@@ -3753,9 +3753,9 @@ class ProxyObjectWrapper (object):
 
     def __getattr__ (self, attr):
         """
-        Returns named attribute of the wrapped service. 
+        Returns named attribute of the wrapped service.
         If attribute is a method, the method is wrapped to handle exceptions, connection etc.
-        
+
         @param attr:    Attribute name
         @type attr:     String
         @return:        Attribute or wrapped method
@@ -3780,14 +3780,14 @@ class AnnotationWrapper (BlitzObjectWrapper):
         Initialises the Annotation wrapper and 'link' if in kwargs
         """
         super(AnnotationWrapper, self).__init__(*args, **kwargs)
-        self.link = kwargs.has_key('link') and kwargs['link'] or None
+        self.link = kwargs.get('link')
         if self._obj is None and self.OMERO_TYPE is not None:
             self._obj = self.OMERO_TYPE()
 
     def __eq__ (self, a):
         """
         Returns true if type, id, value and ns are equal
-        
+
         @param a:   The annotation to compare
         @return:    True if annotations are the same - see above
         @rtype:     Boolean
@@ -3800,23 +3800,23 @@ class AnnotationWrapper (BlitzObjectWrapper):
         """
         return "select obj from Annotation obj join fetch obj.details.owner as owner join fetch obj.details.group "\
                 "join fetch obj.details.creationEvent"
-        
+
     @classmethod
     def _register (klass, regklass):
         """
         Adds the AnnotationWrapper regklass to class registry
-        @param regklass:    The wrapper class, E.g. L{DoubleAnnotationWrapper} 
+        @param regklass:    The wrapper class, E.g. L{DoubleAnnotationWrapper}
         @type regklass:     L{AnnotationWrapper} subclass
         """
-        
+
         klass.registry[regklass.OMERO_TYPE] = regklass
 
     @classmethod
     def _wrap (klass, conn=None, obj=None, link=None):
         """
-        Class method for creating L{AnnotationWrapper} subclasses based on the type of 
+        Class method for creating L{AnnotationWrapper} subclasses based on the type of
         annotation object, using previously registered mapping between OMERO types and wrapper classes
-        
+
         @param conn:    The L{BlitzGateway} connection
         @type conn:     L{BlitzGateway}
         @param obj:     The OMERO annotation object. E.g. omero.model.DoubleAnnotation
@@ -3840,15 +3840,15 @@ class AnnotationWrapper (BlitzObjectWrapper):
     def createAndLink (klass, target, ns, val=None, sameOwner=False):
         """
         Class method for creating an instance of this AnnotationWrapper, setting ns and value
-        and linking to the target. 
-        
+        and linking to the target.
+
         @param target:      The object to link annotation to
         @type target:       L{BlitzObjectWrapper} subclass
         @param ns:          Annotation namespace
         @type ns:           String
-        @param val:         Value of annotation. E.g Long, Text, Boolean etc. 
+        @param val:         Value of annotation. E.g Long, Text, Boolean etc.
         """
-        
+
         this = klass()
         this.setNs(ns)
         if val is not None:
@@ -3858,23 +3858,23 @@ class AnnotationWrapper (BlitzObjectWrapper):
     def getNs (self):
         """
         Gets annotation namespace
-        
+
         @return:    Namespace or None
         @rtype:     String
         """
-        
+
         return self._obj.ns is not None and self._obj.ns.val or None
 
     def setNs (self, val):
         """
         Sets annotation namespace
-        
+
         @param val:     Namespace value
         @type val:      String
         """
-        
+
         self._obj.ns = omero_type(val)
-    
+
     def getValue (self): #pragma: no cover
         """ Needs to be implemented by subclasses """
         raise NotImplementedError
@@ -3882,7 +3882,7 @@ class AnnotationWrapper (BlitzObjectWrapper):
     def setValue (self, val): #pragma: no cover
         """ Needs to be implemented by subclasses """
         raise NotImplementedError
-    
+
     def getParentLinks(self, ptype, pids=None):
         ptype = ptype.title().replace("Plateacquisition", "PlateAcquisition")
         if not ptype in ('Project', 'Dataset', 'Image', 'Screen', 'Plate', 'Well', 'PlateAcquisition'):
@@ -3895,8 +3895,8 @@ class AnnotationWrapper (BlitzObjectWrapper):
                 "where ch.id=:aid " % (ptype)
         if pids is not None:
             p.map["pids"] = rlist([rlong(ob) for ob in pids])
-            sql+=" and pa.id in (:pids)" 
-            
+            sql+=" and pa.id in (:pids)"
+
         for al in self._conn.getQueryService().findAllByQuery(sql, p, self._conn.SERVICE_OPTS):
             yield AnnotationLinkWrapper(self._conn, al)
 
@@ -3919,7 +3919,7 @@ class _AnnotationLinkWrapper (BlitzObjectWrapper):
         return BlitzObjectWrapper(self._conn, self.parent)
 
 AnnotationLinkWrapper = _AnnotationLinkWrapper
-                
+
 from omero_model_FileAnnotationI import FileAnnotationI
 
 class FileAnnotationWrapper (AnnotationWrapper):
@@ -3930,7 +3930,7 @@ class FileAnnotationWrapper (AnnotationWrapper):
     OMERO_TYPE = FileAnnotationI
 
     _attrs = ('file|OriginalFileWrapper',)
-    
+
     def _getQueryString(self):
         """
         Used for building queries in generic methods such as getObjects("FileAnnotation")
@@ -3959,22 +3959,22 @@ class FileAnnotationWrapper (AnnotationWrapper):
     def isOriginalMetadata(self):
         """
         Checks if this file annotation is an 'original_metadata' file
-        
+
         @return:    True if namespace and file name follow metadata convention
         @rtype:     Boolean
         """
-        
+
         try:
             if self._obj.ns is not None and self._obj.ns.val == omero.constants.namespaces.NSCOMPANIONFILE and self.getFile().getName() == omero.constants.annotation.file.ORIGINALMETADATA:
                 return True
         except:
             logger.info(traceback.format_exc())
         return False
-     
+
     def getFileSize(self):
         """
         Looks up the size of the file in bytes
-        
+
         @return:    File size (bytes)
         @rtype:     Long
         """
@@ -3983,7 +3983,7 @@ class FileAnnotationWrapper (AnnotationWrapper):
     def getFileName(self):
         """
         Gets the file name
-        
+
         @return:    File name
         @rtype:     String
         """
@@ -3997,15 +3997,15 @@ class FileAnnotationWrapper (AnnotationWrapper):
         if fpath is not None and len(fpath) > 0:
             return fpath
         return f.id
-    
+
     def getFileInChunks(self):
         """
-        Returns a generator yielding chunks of the file data. 
-        
+        Returns a generator yielding chunks of the file data.
+
         @return:    Data from file in chunks
         @rtype:     Generator
         """
-        
+
         return self.getFile().getFileInChunks();
 
 AnnotationWrapper._register(FileAnnotationWrapper)
@@ -4018,7 +4018,7 @@ class _OriginalFileWrapper (BlitzObjectWrapper):
 
     def __bstrap__ (self):
         self.OMERO_CLASS = 'OriginalFile'
-    
+
     def getFileInChunks(self, buf=2621440):
         """
         Returns a generator yielding chunks of the file data.
@@ -4041,7 +4041,7 @@ class _OriginalFileWrapper (BlitzObjectWrapper):
                     data = store.read(pos, buf)
                 yield data
         store.close()
-    
+
 
 OriginalFileWrapper = _OriginalFileWrapper
 
@@ -4052,7 +4052,7 @@ class TimestampAnnotationWrapper (AnnotationWrapper):
     """
     omero_model_TimestampAnnotatio class wrapper extends AnnotationWrapper.
     """
-    
+
     OMERO_TYPE = TimestampAnnotationI
 
     def _getQueryString(self):
@@ -4065,21 +4065,21 @@ class TimestampAnnotationWrapper (AnnotationWrapper):
     def getValue (self):
         """
         Returns a datetime object of the timestamp in seconds
-        
+
         @return:    Timestamp value
         @rtype:     L{datetime}
         """
-        
+
         return datetime.fromtimestamp(self._obj.timeValue.val / 1000.0)
 
     def setValue (self, val):
         """
         Sets the timestamp value
-        
+
         @param val:     Timestamp value
         @type param:    L{datetime} OR L{omero.RTime} OR Long
         """
-        
+
         if isinstance(val, datetime):
             self._obj.timeValue = rtime(long(time.mktime(val.timetuple())*1000))
         elif isinstance(val, omero.RTime):
@@ -4095,7 +4095,7 @@ class BooleanAnnotationWrapper (AnnotationWrapper):
     """
     omero_model_BooleanAnnotationI class wrapper extends AnnotationWrapper.
     """
-    
+
     OMERO_TYPE = BooleanAnnotationI
 
     def _getQueryString(self):
@@ -4108,7 +4108,7 @@ class BooleanAnnotationWrapper (AnnotationWrapper):
     def getValue (self):
         """
         Gets boolean value
-        
+
         @return:    Value
         @rtype:     Boolean
         """
@@ -4117,11 +4117,11 @@ class BooleanAnnotationWrapper (AnnotationWrapper):
     def setValue (self, val):
         """
         Sets boolean value
-        
+
         @param val:     Value
         @type val:      Boolean
         """
-        
+
         self._obj.boolValue = rbool(not not val)
 
 AnnotationWrapper._register(BooleanAnnotationWrapper)
@@ -4132,7 +4132,7 @@ class TagAnnotationWrapper (AnnotationWrapper):
     """
     omero_model_BooleanAnnotationI class wrapper extends AnnotationWrapper.
     """
-    
+
     OMERO_TYPE = TagAnnotationI
 
     def countTagsInTagset(self):
@@ -4143,20 +4143,20 @@ class TagAnnotationWrapper (AnnotationWrapper):
             params.map['tid'] = self._obj.id
             sql = "select tg from TagAnnotation tg "\
                 "where exists ( select aal from AnnotationAnnotationLink as aal where aal.child=tg.id and aal.parent.id=:tid) "
-             
+
             res = self._conn.getQueryService().findAllByQuery(sql, params, self._conn.SERVICE_OPTS)
             return res is not None and len(res) or 0
-                
+
     def listTagsInTagset(self):
-        # temp solution waiting for #5785  
+        # temp solution waiting for #5785
         if self.ns in (omero.constants.metadata.NSINSIGHTTAGSET):
             params = omero.sys.Parameters()
             params.map = {}
             params.map["tid"] = rlong(self._obj.id)
-            
+
             sql = "select tg from TagAnnotation tg "\
                 "where exists ( select aal from AnnotationAnnotationLink as aal where aal.child.id=tg.id and aal.parent.id=:tid) "
-            
+
             q = self._conn.getQueryService()
             for ann in q.findAllByQuery(sql, params, self._conn.SERVICE_OPTS):
                 yield TagAnnotationWrapper(self._conn, ann)
@@ -4173,7 +4173,7 @@ class TagAnnotationWrapper (AnnotationWrapper):
                 rv.append(omero.gateway.TagAnnotationWrapper(self._conn, l.parent, l))
         return rv
 
-    
+
     def _getQueryString(self):
         """
         Used for building queries in generic methods such as getObjects("TagAnnotation")
@@ -4182,9 +4182,9 @@ class TagAnnotationWrapper (AnnotationWrapper):
                 "join fetch obj.details.creationEvent"
 
     def getValue (self):
-        """ 
+        """
         Gets the value of the Tag
-        
+
         @return:    Value
         @type:      String
         """
@@ -4194,13 +4194,13 @@ class TagAnnotationWrapper (AnnotationWrapper):
     def setValue (self, val):
         """
         Sets Tag value
-        
+
         @param val:     Tag text value
         @type val:      String
         """
-        
+
         self._obj.textValue = omero_type(val)
-    
+
 AnnotationWrapper._register(TagAnnotationWrapper)
 
 from omero_model_CommentAnnotationI import CommentAnnotationI
@@ -4209,7 +4209,7 @@ class CommentAnnotationWrapper (AnnotationWrapper):
     """
     omero_model_CommentAnnotationI class wrapper extends AnnotationWrapper.
     """
-    
+
     OMERO_TYPE = CommentAnnotationI
 
     def _getQueryString(self):
@@ -4220,9 +4220,9 @@ class CommentAnnotationWrapper (AnnotationWrapper):
             "join fetch obj.details.creationEvent"
 
     def getValue (self):
-        """ 
+        """
         Gets the value of the Comment
-        
+
         @return:    Value
         @type:      String
         """
@@ -4231,11 +4231,11 @@ class CommentAnnotationWrapper (AnnotationWrapper):
     def setValue (self, val):
         """
         Sets comment text value
-        
+
         @param val:     Value
         @type val:      String
         """
-        
+
         self._obj.textValue = omero_type(val)
 
 AnnotationWrapper._register(CommentAnnotationWrapper)
@@ -4256,23 +4256,23 @@ class LongAnnotationWrapper (AnnotationWrapper):
                 "join fetch obj.details.creationEvent"
 
     def getValue (self):
-        """ 
+        """
         Gets the value of the Long annotation
-        
+
         @return:    Value
         @type:      Long
         """
-        
+
         return unwrap(self._obj.longValue)
 
     def setValue (self, val):
         """
         Sets long annotation value
-        
+
         @param val:     Value
         @type val:      Long
         """
-        
+
         self._obj.longValue = rlong(val)
 
 AnnotationWrapper._register(LongAnnotationWrapper)
@@ -4293,9 +4293,9 @@ class DoubleAnnotationWrapper (AnnotationWrapper):
                 "join fetch obj.details.creationEvent"
 
     def getValue (self):
-        """ 
+        """
         Gets the value of the Double Annotation
-        
+
         @return:    Value
         @type:      Double
         """
@@ -4304,11 +4304,11 @@ class DoubleAnnotationWrapper (AnnotationWrapper):
     def setValue (self, val):
         """
         Sets Double annotation value
-        
+
         @param val:     Value
         @type val:      Double
         """
-        
+
         self._obj.doubleValue = rdouble(val)
 
 AnnotationWrapper._register(DoubleAnnotationWrapper)
@@ -4331,9 +4331,9 @@ class TermAnnotationWrapper (AnnotationWrapper):
                 "join fetch obj.details.creationEvent"
 
     def getValue (self):
-        """ 
+        """
         Gets the value of the Term
-        
+
         @return:    Value
         @type:      String
         """
@@ -4343,11 +4343,11 @@ class TermAnnotationWrapper (AnnotationWrapper):
     def setValue (self, val):
         """
         Sets term value
-        
+
         @param val:     Value
         @type val:      String
         """
-        
+
         self._obj.termValue = rstring(val)
 
 AnnotationWrapper._register(TermAnnotationWrapper)
@@ -4359,19 +4359,19 @@ class XmlAnnotationWrapper (CommentAnnotationWrapper):
     omero_model_XmlAnnotationI class wrapper extends CommentAnnotationWrapper.
     """
     OMERO_TYPE = XmlAnnotationI
-    
+
 AnnotationWrapper._register(XmlAnnotationWrapper)
 
 class _EnumerationWrapper (BlitzObjectWrapper):
-    
+
     def getType(self):
-        """ 
+        """
         Gets the type (class) of the Enumeration
-        
+
         @return:    The omero class
         @type:      Class
         """
-        
+
         return self._obj.__class__
 
 EnumerationWrapper = _EnumerationWrapper
@@ -4398,8 +4398,8 @@ class _ExperimenterWrapper (BlitzObjectWrapper):
         return rv
 
     def _getQueryString(self):
-        """ 
-        Returns string for building queries, loading Experimenters only. 
+        """
+        Returns string for building queries, loading Experimenters only.
         """
         return "select distinct obj from Experimenter as obj left outer join fetch obj.groupExperimenterMap " \
             "as map left outer join fetch map.parent g"
@@ -4407,11 +4407,11 @@ class _ExperimenterWrapper (BlitzObjectWrapper):
     def getRawPreferences (self):
         """
         Returns the experimenter's preferences annotation contents, as a ConfigParser instance
-        
+
         @return:    See above
         @rtype:     ConfigParser
         """
-        
+
         self._obj.unloadAnnotationLinks()
         cp = ConfigParser.SafeConfigParser()
         prefs = self.getAnnotation('TODO.changeme.preferences')
@@ -4424,11 +4424,11 @@ class _ExperimenterWrapper (BlitzObjectWrapper):
     def setRawPreferences (self, prefs):
         """
         Sets the experimenter's preferences annotation contents, passed in as a ConfigParser instance
-        
+
         @param prefs:       ConfigParser of preferences
         @type prefs:        ConfigParser
         """
-        
+
         ann = self.getAnnotation('TODO.changeme.preferences')
         t = StringIO()
         prefs.write(t)
@@ -4441,17 +4441,17 @@ class _ExperimenterWrapper (BlitzObjectWrapper):
             ann.setValue(t.getvalue())
             ann.save()
             self._obj.unloadAnnotationLinks()
-    
+
     def getPreference (self, key, default='', section=None):
         """
         Gets a preference for the experimenter
-        
+
         @param key:     Preference key
         @param default: Default value to return
         @param section: Preferences section
         @return:        Preference value
         """
-        
+
         if section is None:
             section = 'DEFAULT'
         try:
@@ -4463,11 +4463,11 @@ class _ExperimenterWrapper (BlitzObjectWrapper):
     def getPreferences (self, section=None):
         """
         Gets all preferences for section
-        
+
         @param section: Preferences section
         @return:        Dict of preferences
         """
-        
+
         if section is None:
             section = 'DEFAULT'
         prefs = self.getRawPreferences()
@@ -4478,12 +4478,12 @@ class _ExperimenterWrapper (BlitzObjectWrapper):
     def setPreference (self, key, value, section=None):
         """
         Sets a preference for the experimenter
-        
+
         @param key:     Preference key
         @param value:   Value to set
         @param section: Preferences section - created if needed
         """
-        
+
         if section is None:
             section = 'DEFAULT'
         prefs = self.getRawPreferences()
@@ -4494,37 +4494,37 @@ class _ExperimenterWrapper (BlitzObjectWrapper):
 
     def getName (self):
         """
-        Returns Experimenter's omeName 
-        
+        Returns Experimenter's omeName
+
         @return:    Name
         @rtype:     String
         """
-        
+
         return self.omeName
 
     def getDescription (self):
         """
-        Returns Experimenter's Full Name 
-        
+        Returns Experimenter's Full Name
+
         @return:    Full Name or None
         @rtype:     String
         """
-        
+
         return self.getFullName()
 
     def getFullName (self):
         """
         Gets full name of this experimenter. E.g. 'William James. Moore' or 'William Moore' if no middle name
-        
+
         @return:    Full Name or None
         @rtype:     String
         """
-        
+
         try:
             lastName = self.lastName
             firstName = self.firstName
             middleName = self.middleName
-            
+
             if middleName is not None and middleName != '':
                 name = "%s %s %s" % (firstName, middleName, lastName)
             else:
@@ -4536,15 +4536,15 @@ class _ExperimenterWrapper (BlitzObjectWrapper):
         except:
             logger.error(traceback.format_exc())
             return None
-    
+
     def getNameWithInitial(self):
         """
         Returns first initial and Last name. E.g. 'W. Moore'
-        
+
         @return:    Initial and last name
         @rtype:     String
         """
-        
+
         try:
             if self.firstName is not None and self.lastName is not None:
                 name = "%s. %s" % (self.firstName[:1], self.lastName)
@@ -4554,45 +4554,45 @@ class _ExperimenterWrapper (BlitzObjectWrapper):
         except:
             logger.error(traceback.format_exc())
             return _("Unknown name")
-    
+
     def isAdmin(self):
         """
         Returns true if Experimenter is Admin (if they are in any group named 'system')
-        
+
         @return:    True if experimenter is Admin
         @rtype:     Boolean
         """
-        
+
         for ob in self._obj.copyGroupExperimenterMap():
             if ob is None:
                 continue
             if ob.parent.name.val == "system":
                 return True
         return False
-    
+
     def isActive(self):
         """
         Returns true if Experimenter is Active (if they are in any group named 'user')
-        
+
         @return:    True if experimenter is Active
         @rtype:     Boolean
         """
-        
+
         for ob in self._obj.copyGroupExperimenterMap():
             if ob is None:
                 continue
             if ob.parent.name.val == "user":
                 return True
         return False
-    
+
     def isGuest(self):
         """
         Returns true if Experimenter is Guest (if they are in any group named 'guest')
-        
+
         @return:    True if experimenter is Admin
         @rtype:     Boolean
         """
-        
+
         for ob in self._obj.copyGroupExperimenterMap():
             if ob is None:
                 continue
@@ -4603,14 +4603,14 @@ class _ExperimenterWrapper (BlitzObjectWrapper):
     def is_self(self):
         """ Returns True if this Experimenter is the current user """
         return self.getId() == self._conn.getUserId()
-    
+
 ExperimenterWrapper = _ExperimenterWrapper
 
 class _ExperimenterGroupWrapper (BlitzObjectWrapper):
     """
     omero_model_ExperimenterGroupI class wrapper extends BlitzObjectWrapper.
     """
-    
+
     def __bstrap__ (self):
         self.OMERO_CLASS = 'ExperimenterGroup'
         self.LINK_CLASS = "GroupExperimenterMap"
@@ -4618,13 +4618,13 @@ class _ExperimenterGroupWrapper (BlitzObjectWrapper):
         self.PARENT_WRAPPER_CLASS = None
 
     def _getQueryString(self):
-        """ 
-        Returns string for building queries, loading Experimenters for each group. 
+        """
+        Returns string for building queries, loading Experimenters for each group.
         """
         query = "select distinct obj from ExperimenterGroup as obj left outer join fetch obj.groupExperimenterMap " \
             "as map left outer join fetch map.child e"
         return query
-        
+
 
 ExperimenterGroupWrapper = _ExperimenterGroupWrapper
 
@@ -4632,7 +4632,7 @@ class DetailsWrapper (BlitzObjectWrapper):
     """
     omero_model_DetailsI class wrapper extends BlitzObjectWrapper.
     """
-    
+
     def __init__ (self, *args, **kwargs):
         super(DetailsWrapper, self).__init__ (*args, **kwargs)
         self._owner = None
@@ -4641,7 +4641,7 @@ class DetailsWrapper (BlitzObjectWrapper):
     def getOwner (self):
         """
         Returns the Owner of the object that these details apply to
-        
+
         @return:    Owner
         @rtype:     L{ExperimenterWrapper}
         """
@@ -4653,7 +4653,7 @@ class DetailsWrapper (BlitzObjectWrapper):
     def getGroup (self):
         """
         Returns the Group that these details refer to
-        
+
         @return:    Group
         @rtype:     L{ExperimenterGroupWrapper}
         """
@@ -4666,7 +4666,7 @@ class _DatasetWrapper (BlitzObjectWrapper):
     """
     omero_model_DatasetI class wrapper extends BlitzObjectWrapper.
     """
-    
+
     def __bstrap__ (self):
         self.OMERO_CLASS = 'Dataset'
         self.LINK_CLASS = "DatasetImageLink"
@@ -4675,7 +4675,7 @@ class _DatasetWrapper (BlitzObjectWrapper):
 
     def __loadedHotSwap__ (self):
         """ In addition to loading the Dataset, this method also loads the Images """
-        
+
         super(_DatasetWrapper, self).__loadedHotSwap__()
         if not self._obj.isImageLinksLoaded():
             links = self._conn.getQueryService().findAllByQuery("select l from DatasetImageLink as l join fetch l.child as a where l.parent.id=%i" % (self._oid), None, self._conn.SERVICE_OPTS)
@@ -4688,7 +4688,7 @@ class _ProjectWrapper (BlitzObjectWrapper):
     """
     omero_model_ProjectI class wrapper extends BlitzObjectWrapper.
     """
-    
+
     def __bstrap__ (self):
         self.OMERO_CLASS = 'Project'
         self.LINK_CLASS = "ProjectDatasetLink"
@@ -4701,7 +4701,7 @@ class _ScreenWrapper (BlitzObjectWrapper):
     """
     omero_model_ScreenI class wrapper extends BlitzObjectWrapper.
     """
-    
+
     def __bstrap__ (self):
         self.OMERO_CLASS = 'Screen'
         self.LINK_CLASS = "ScreenPlateLink"
@@ -4724,13 +4724,13 @@ class _PlateWrapper (BlitzObjectWrapper):
     """
     omero_model_PlateI class wrapper extends BlitzObjectWrapper.
     """
-    
+
     def __bstrap__ (self):
         self.OMERO_CLASS = 'Plate'
         self.LINK_CLASS = None
         self.CHILD_WRAPPER_CLASS = 'WellWrapper'
         self.PARENT_WRAPPER_CLASS = 'ScreenWrapper'
-        
+
     def __prepare__ (self):
         self.__reset__()
 
@@ -4748,36 +4748,36 @@ class _PlateWrapper (BlitzObjectWrapper):
         sql = "select pa from PlateAcquisition as pa join fetch pa.plate as p where p.id=:pid"
         self._obj._plateAcquisitionsSeq = self._conn.getQueryService().findAllByQuery(sql, p, self._conn.SERVICE_OPTS)
         self._obj._plateAcquisitionsLoaded = True
-    
+
     def countPlateAcquisitions(self):
         if self._obj.sizeOfPlateAcquisitions() < 0:
             self._loadPlateAcquisitions()
         return self._obj.sizeOfPlateAcquisitions()
-    
+
     def listPlateAcquisitions(self):
         if not self._obj._plateAcquisitionsLoaded:
             self._loadPlateAcquisitions()
         for pa in self._obj.copyPlateAcquisitions():
             yield PlateAcquisitionWrapper(self._conn, pa)
-    
+
     @timeit
     def getNumberOfFields (self, pid=None):
         """
-        Returns tuple of min and max of indexed collection of well samples 
+        Returns tuple of min and max of indexed collection of well samples
         per plate acquisition if exists
         """
-        
+
         q = self._conn.getQueryService()
         sql = "select minIndex(ws), maxIndex(ws) from Well w " \
             "join w.wellSamples ws where w.plate.id=:oid"
-        
+
         p = omero.sys.Parameters()
         p.map = {}
         p.map["oid"] = self._obj.id
         if pid is not None:
             sql += " and ws.plateAcquisition.id=:pid"
             p.map["pid"] = rlong(pid)
-        
+
         fields = None
         try:
             res = [r for r in unwrap(q.projection(sql, p, self._conn.SERVICE_OPTS))[0] if r != None]
@@ -4786,7 +4786,7 @@ class _PlateWrapper (BlitzObjectWrapper):
         except:
             pass
         return fields
-    
+
     def _listChildren (self, **kwargs):
         """
         Lists Wells in this plate, not sorted. Saves wells to _childcache map, where key is (row, column).
@@ -4830,7 +4830,7 @@ _
     def getGridSize (self):
         """
         Iterates all wells on plate to retrieve grid size as {'rows': rSize, 'columns':cSize} dict.
-        
+
         @rtype:     dict of {'rows': rSize, 'columns':cSize}
         """
         if self._gridSize is None:
@@ -4843,7 +4843,7 @@ _
     def getWellGrid (self, index=0):
         """
         Returns a grid of WellWrapper objects, indexed by [row][col].
-        
+
         @rtype:     2D array of L{WellWrapper}s. Empty well positions are None
         """
         grid = self.getGridSize()
@@ -4872,7 +4872,7 @@ _
         else:
             # this should simply be precalculated!
             return [_letterGridLabel(x) for x in range(self.getGridSize()['rows'])]
-    
+
 #        if self._childcache is None:
 #            q = self._conn.getQueryService()
 #            params = omero.sys.Parameters()
@@ -4895,7 +4895,7 @@ _
         TODO: do we want to support this at all?
         """
         return None
-    
+
     def _getQueryString(self):
         """
         Returns a query string for constructing custom queries, loading the screen for each plate.
@@ -4913,7 +4913,7 @@ class _PlateAcquisitionWrapper (BlitzObjectWrapper):
 
     def __bstrap__ (self):
         self.OMERO_CLASS = 'PlateAcquisition'
-    
+
     def getName (self):
         name = super(_PlateAcquisitionWrapper, self).getName()
         if name is None:
@@ -4940,7 +4940,7 @@ class _WellWrapper (BlitzObjectWrapper):
     """
     omero_model_WellI class wrapper extends BlitzObjectWrapper.
     """
-    
+
     def __bstrap__ (self):
         self.OMERO_CLASS = 'Well'
         self.LINK_CLASS = None
@@ -4967,7 +4967,7 @@ class _WellWrapper (BlitzObjectWrapper):
                 "left outer join fetch well.wellSamples as ws " \
                 "left outer join fetch ws.image as img "\
                 "where well.id = %d" % self.getId()
-        
+
         self._obj = self._conn.getQueryService().findByQuery(query, None, self._conn.SERVICE_OPTS)
 
     def _listChildren (self, **kwargs):
@@ -5008,27 +5008,27 @@ class _WellWrapper (BlitzObjectWrapper):
         and w.id=:id"""
         return [omero.gateway.ScreenWrapper(self._conn, x) for x in \
                 self._conn.getQueryService().findAllByQuery(query, params, self._conn.SERVICE_OPTS)]
-        
+
 
     def isWellSample (self):
-        """ 
+        """
         Return True if well samples exist (loaded)
-        
+
         @return:    True if well samples loaded
         @rtype:     Boolean
         """
-        
+
         if self.isWellSamplesLoaded():
             childnodes = self.copyWellSamples()
             logger.debug('listChildren for %s %d: already loaded, %d samples' % (self.OMERO_CLASS, self.getId(), len(childnodes)))
             if len(childnodes) > 0:
                 return True
         return False
-    
+
     def countWellSample (self):
         """
         Return the number of well samples loaded
-        
+
         @return:    well sample count
         @rtype:     Int
         """
@@ -5070,39 +5070,39 @@ class _WellWrapper (BlitzObjectWrapper):
         if wellsample:
             return wellsample.getImage()
         return None
-    
+
     def selectedWellSample (self):
         """
         Return the well sample at the current index (0 if not set)
-        
+
         @return:    The Well Sample wrapper
         @rtype:     L{WellSampleWrapper}
-        
+
         """
         return self.getWellSample()
-    
+
 #    def loadWellSamples (self):
 #        """
 #        Return a generator yielding child objects
-#        
+#
 #        @return:    Well Samples
 #        @rtype:     L{WellSampleWrapper} generator
 #        """
-#        
+#
 #        if getattr(self, 'isWellSamplesLoaded')():
 #            childnodes = getattr(self, 'copyWellSamples')()
 #            logger.debug('listChildren for %s %d: already loaded, %d samples' % (self.OMERO_CLASS, self.getId(), len(childnodes)))
 #            for ch in childnodes:
 #                yield WellSampleWrapper(self._conn, ch)
-#    
+#
 #    def plate(self):
 #        """
-#        Gets the Plate. 
-#        
+#        Gets the Plate.
+#
 #        @return:    The Plate
 #        @rtype:     L{PlateWrapper}
 #        """
-#        
+#
 #        return PlateWrapper(self._conn, self._obj.plate)
 
 WellWrapper = _WellWrapper
@@ -5111,7 +5111,7 @@ class _WellSampleWrapper (BlitzObjectWrapper):
     """
     omero_model_WellSampleI class wrapper extends BlitzObjectWrapper.
     """
-    
+
     def __bstrap__ (self):
         self.OMERO_CLASS = 'WellSample'
         self.CHILD_WRAPPER_CLASS = 'ImageWrapper'
@@ -5125,7 +5125,7 @@ class _WellSampleWrapper (BlitzObjectWrapper):
         Because wellsamples are direct children of wells, with no links in between,
         a special listParents is needed
         """
-        rv = self._conn.getQueryService().findAllByQuery("""select w from Well w 
+        rv = self._conn.getQueryService().findAllByQuery("""select w from Well w
             left outer join fetch w.wellSamples as ws
             where ws.id=%d""" % self.getId(), None, self._conn.SERVICE_OPTS)
         if not len(rv):
@@ -5139,16 +5139,16 @@ class _WellSampleWrapper (BlitzObjectWrapper):
     def getImage (self):
         """
         Gets the Image for this well sample.
-        
+
         @return:    The Image
         @rtype:     L{ImageWrapper}
         """
         return self._getChildWrapper()(self._conn, self._obj.image)
-        
+
     def image(self):
         """
         Gets the Image for this well sample.
-        
+
         @return:    The Image
         @rtype:     L{ImageWrapper}
         """
@@ -5186,17 +5186,17 @@ class ColorHolder (object):
     """
     Stores color internally as (R,G,B,A) and allows setting and getting in multiple formats
     """
-    
+
     _color = {'red': 0, 'green': 0, 'blue': 0, 'alpha': 255}
 
     def __init__ (self, colorname=None):
         """
         If colorname is 'red', 'green' or 'blue', set color accordingly - Otherwise black
-        
+
         @param colorname:   'red', 'green' or 'blue'
         @type colorname:    String
         """
-        
+
         self._color = {'red': 0, 'green': 0, 'blue': 0, 'alpha': 255}
         if colorname and colorname.lower() in self._color.keys():
             self._color[colorname.lower()] = 255
@@ -5205,7 +5205,7 @@ class ColorHolder (object):
     def fromRGBA(klass,r,g,b,a):
         """
         Class method for creating a ColorHolder from r,g,b,a values
-        
+
         @param r:   red 0 - 255
         @type r:    int
         @param g:   green 0 - 255
@@ -5217,7 +5217,7 @@ class ColorHolder (object):
         @return:    new Color object
         @rtype:     L{ColorHolder}
         """
-        
+
         rv = klass()
         rv.setRed(r)
         rv.setGreen(g)
@@ -5228,71 +5228,71 @@ class ColorHolder (object):
     def getRed (self):
         """
         Gets the Red component
-        
+
         @return:    red
         @rtype:     int
         """
-        
+
         return self._color['red']
 
     def setRed (self, val):
         """
-        Set red, as int 0..255 
-        
+        Set red, as int 0..255
+
         @param val: value of Red.
         @type val:  Int
         """
-        
+
         self._color['red'] = max(min(255, int(val)), 0)
 
     def getGreen (self):
         """
         Gets the Green component
-        
+
         @return:    green
         @rtype:     int
         """
-        
+
         return self._color['green']
 
     def setGreen (self, val):
         """
-        Set green, as int 0..255 
-        
+        Set green, as int 0..255
+
         @param val: value of Green.
         @type val:  Int
         """
-        
+
         self._color['green'] = max(min(255, int(val)), 0)
 
     def getBlue (self):
         """
         Gets the Blue component
-        
+
         @return:    blue
         @rtype:     int
         """
-        
+
         return self._color['blue']
 
     def setBlue (self, val):
         """
-        Set Blue, as int 0..255 
-        
+        Set Blue, as int 0..255
+
         @param val: value of Blue.
         @type val:  Int
         """
-        
+
         self._color['blue'] = max(min(255, int(val)), 0)
 
     def getAlpha (self):
         """
         Gets the Alpha component
-        
+
         @return:    alpha
         @rtype:     int
         """
-        
+
         return self._color['alpha']
 
     def setAlpha (self, val):
@@ -5300,39 +5300,39 @@ class ColorHolder (object):
         Set alpha, as int 0..255.
         @param val: value of alpha.
         """
-        
+
         self._color['alpha'] = max(min(255, int(val)), 0)
 
     def getHtml (self):
         """
         Gets the html usable color. Dumps the alpha information. E.g. 'FF0000'
-        
+
         @return:    html color
         @rtype:     String
         """
-        
+
         return "%(red)0.2X%(green)0.2X%(blue)0.2X" % (self._color)
 
     def getCss (self):
         """
         Gets the css string: rgba(r,g,b,a)
-        
+
         @return:    css color
         @rtype:     String
         """
-        
+
         c = self._color.copy()
         c['alpha'] /= 255.0
         return "rgba(%(red)i,%(green)i,%(blue)i,%(alpha)0.3f)" % (c)
 
     def getRGB (self):
         """
-        Gets the (r,g,b) as a tuple. 
-        
+        Gets the (r,g,b) as a tuple.
+
         @return:    Tuple of (r,g,b) values
         @rtype:     tuple of ints
         """
-        
+
         return (self._color['red'], self._color['green'], self._color['blue'])
 
     def getInt (self):
@@ -5387,7 +5387,7 @@ class _LogicalChannelWrapper (BlitzObjectWrapper):
         if self._obj.lightPath is not None:
             return LightPathWrapper(self._conn, self._obj.lightPath)
 
-LogicalChannelWrapper = _LogicalChannelWrapper    
+LogicalChannelWrapper = _LogicalChannelWrapper
 
 class _LightPathWrapper (BlitzObjectWrapper):
     """
@@ -5396,7 +5396,7 @@ class _LightPathWrapper (BlitzObjectWrapper):
     _attrs = ('dichroic|DichroicWrapper',
               '()emissionFilters|',
               '()excitationFilters|')
-    
+
     def __bstrap__ (self):
         self.OMERO_CLASS = 'LightPath'
 
@@ -5414,7 +5414,7 @@ class _PixelsWrapper (BlitzObjectWrapper):
     """
     omero_model_PixelsI class wrapper extends BlitzObjectWrapper.
     """
-    
+
     def __bstrap__ (self):
         self.OMERO_CLASS = 'Pixels'
 
@@ -5434,8 +5434,8 @@ class _PixelsWrapper (BlitzObjectWrapper):
         return BlitzObjectWrapper(self._conn, self._obj.getPixelsType())
 
     def copyPlaneInfo (self, theC=None, theT=None, theZ=None):
-        """ 
-        Loads plane infos and returns sequence of omero.model.PlaneInfo objects wrapped in BlitzObjectWrappers 
+        """
+        Loads plane infos and returns sequence of omero.model.PlaneInfo objects wrapped in BlitzObjectWrappers
         ordered by planeInfo.deltaT.
         Set of plane infos can be filtered by C, T or Z
 
@@ -5469,7 +5469,7 @@ class _PixelsWrapper (BlitzObjectWrapper):
 
         @param zctList:     A list of indexes: [(z,c,t), ]
         """
-        
+
         zctTileList = []
         for zct in zctList:
             z,c,t = zct
@@ -5582,7 +5582,7 @@ class _ChannelWrapper (BlitzObjectWrapper):
     """
     omero_model_ChannelI class wrapper extends BlitzObjectWrapper.
     """
-    
+
     BLUE_MIN = 400
     BLUE_MAX = 500
     GREEN_MIN = 501
@@ -5609,18 +5609,18 @@ class _ChannelWrapper (BlitzObjectWrapper):
         """
         Extends the superclass save method to save Pixels. Returns result of saving superclass (TODO: currently this is None)
         """
-        
+
         self._obj.setPixels(omero.model.PixelsI(self._obj.getPixels().getId(), False))
         return super(_ChannelWrapper, self).save()
 
     def isActive (self):
         """
         Returns True if the channel is active (turned on in rendering settings)
-        
+
         @return:    True if Channel is Active
         @rtype:     Boolean
         """
-        
+
         if self._re is None:
             return False
         return self._re.isActive(self._idx, self._conn.SERVICE_OPTS)
@@ -5628,11 +5628,11 @@ class _ChannelWrapper (BlitzObjectWrapper):
     def getLogicalChannel (self):
         """
         Returns the logical channel
-        
+
         @return:    Logical Channel
         @rtype:     L{LogicalChannelWrapper}
         """
-        
+
         if self._obj.logicalChannel is not None:
             return LogicalChannelWrapper(self._conn, self._obj.logicalChannel)
 
@@ -5661,7 +5661,7 @@ class _ChannelWrapper (BlitzObjectWrapper):
         @return:    The logical channel string representation
         @rtype:     String
         """
-        
+
         lc = self.getLogicalChannel()
         rv = lc.name
         if rv is not None:
@@ -5693,11 +5693,11 @@ class _ChannelWrapper (BlitzObjectWrapper):
     def getColor (self):
         """
         Returns the rendering settings color of this channel
-        
+
         @return:    Channel color
         @rtype:     L{ColorHolder}
         """
-        
+
         if self._re is None:
             return None
         return ColorHolder.fromRGBA(*self._re.getRGBA(self._idx, self._conn.SERVICE_OPTS))
@@ -5705,11 +5705,11 @@ class _ChannelWrapper (BlitzObjectWrapper):
     def getWindowStart (self):
         """
         Returns the rendering settings window-start of this channel
-        
+
         @return:    Window start
         @rtype:     int
         """
-        
+
         return int(self._re.getChannelWindowStart(self._idx, self._conn.SERVICE_OPTS))
 
     def setWindowStart (self, val):
@@ -5718,11 +5718,11 @@ class _ChannelWrapper (BlitzObjectWrapper):
     def getWindowEnd (self):
         """
         Returns the rendering settings window-end of this channel
-        
+
         @return:    Window end
         @rtype:     int
         """
-        
+
         return int(self._re.getChannelWindowEnd(self._idx, self._conn.SERVICE_OPTS))
 
     def setWindowEnd (self, val):
@@ -5734,7 +5734,7 @@ class _ChannelWrapper (BlitzObjectWrapper):
     def getWindowMin (self):
         """
         Returns the minimum pixel value of the channel
-        
+
         @return:    Min pixel value
         @rtype:     double
         """
@@ -5753,7 +5753,7 @@ class _ChannelWrapper (BlitzObjectWrapper):
     def getWindowMax (self):
         """
         Returns the maximum pixel value of the channel
-        
+
         @return:    Min pixel value
         @rtype:     double
         """
@@ -5817,16 +5817,16 @@ class assert_re (object):
 def assert_pixels (func):
     """
     Function decorator to make sure that pixels are loaded before call
-    
+
     @param func:    Function
     @type func:     Function
     @return:        Decorated function
     @rtype:         Function
     """
-    
+
     def wrapped (self, *args, **kwargs):
         """ Tries to load pixels, then call function and return the result"""
-        
+
         if not self._loadPixels():
             return None
         return func(self, *args, **kwargs)
@@ -5837,7 +5837,7 @@ class _ImageWrapper (BlitzObjectWrapper):
     """
     omero_model_ImageI class wrapper extends BlitzObjectWrapper.
     """
-    
+
     _re = None
     _pd = None
     _rm = {}
@@ -5857,14 +5857,14 @@ class _ImageWrapper (BlitzObjectWrapper):
         'intmean': omero.constants.projection.ProjectionType.MEANINTENSITY,
         'intsum': omero.constants.projection.ProjectionType.SUMINTENSITY,
         }
-    
+
     PLANEDEF = omero.romio.XY
 
     @classmethod
     def fromPixelsId (self, conn, pid):
         """
         Creates a new Image wrapper with the image specified by pixels ID
-        
+
         @param conn:    The connection
         @type conn:     L{BlitzGateway}
         @param pid:     Pixles ID
@@ -5872,7 +5872,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         @return:        New Image wrapper
         @rtype:         L{ImageWrapper}
         """
-        
+
         q = conn.getQueryService()
         p = q.find('Pixels', pid, self._conn.SERVICE_OPTS)
         if p is None:
@@ -5885,7 +5885,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         self.CHILD_WRAPPER_CLASS = None
         self.PARENT_WRAPPER_CLASS = ['DatasetWrapper', 'WellSampleWrapper']
         self._thumbInProgress = False
-        
+
     def __del__ (self):
         self._re and self._re.untaint()
 
@@ -5893,15 +5893,15 @@ class _ImageWrapper (BlitzObjectWrapper):
         ctx = self._conn.SERVICE_OPTS.copy()
         ctx.setOmeroGroup(self.getDetails().group.id.val)
         self._obj = self._conn.getContainerService().getImages(self.OMERO_CLASS, (self._oid,), None, ctx)[0]
-    
+
     def getInstrument (self):
         """
-        Returns the Instrument for this image (or None) making sure the instrument is loaded. 
-        
+        Returns the Instrument for this image (or None) making sure the instrument is loaded.
+
         @return:    Instrument (microscope)
         @rtype:     L{InstrumentWrapper}
         """
-        
+
         i = self._obj.instrument
         if i is None:
             return None
@@ -5916,11 +5916,11 @@ class _ImageWrapper (BlitzObjectWrapper):
     def _loadPixels (self):
         """
         Checks that pixels are loaded
-        
+
         @return:    True if loaded
         @rtype:     Boolean
         """
-        
+
         if not self._obj.pixelsLoaded:
             self.__loadedHotSwap__()
         return self._obj.sizeOfPixels() > 0
@@ -5929,7 +5929,7 @@ class _ImageWrapper (BlitzObjectWrapper):
     def _getRDef (self):
         """
         Return a rendering def ID based on custom logic.
-        
+
         @return:            Rendering definition ID or None if no custom
                             logic has found a rendering definition.
         """
@@ -5949,7 +5949,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         """
         Called whenever a reset defaults is called by the preparation of
         the rendering engine or the thumbnail bean.
-        
+
         @param rdid:         Current Rendering Def ID
         @type rdid:          Long
         """
@@ -5965,12 +5965,12 @@ class _ImageWrapper (BlitzObjectWrapper):
 
     def _prepareRE (self, rdid=None):
         """
-        Prepare the rendering engine with pixels ID and existing or new rendering def. 
-        
+        Prepare the rendering engine with pixels ID and existing or new rendering def.
+
         @return:            The Rendering Engine service
         @rtype:             L{ProxyObjectWrapper}
         """
-        
+
         pid = self.getPrimaryPixels().id
         re = self._conn.createRenderingEngine()
         ctx = self._conn.SERVICE_OPTS.copy()
@@ -5995,11 +5995,11 @@ class _ImageWrapper (BlitzObjectWrapper):
         """
         Checks that the rendering engine is prepared, calling L{_prepareRE} if needed.
         Used by the L{assert_re} method to wrap calls requiring rendering engine
-        
+
         @return:    True if rendering engine is created
         @rtype:     Boolean
         """
-        
+
         self._loadPixels()
         if self._re is None:
             if self._obj.sizeOfPixels() < 1:
@@ -6045,12 +6045,12 @@ class _ImageWrapper (BlitzObjectWrapper):
         @return:    Dict
         @rtype:     Dict
         """
-        
+
         rv = super(_ImageWrapper, self).simpleMarshal(xtra=xtra, parents=parents)
         rv.update({'author': self.getAuthor(),
                    'date': time.mktime(self.getDate().timetuple()),})
         if xtra:
-            if xtra.has_key('thumbUrlPrefix'):
+            if 'thumbUrlPrefix' in xtra:
                 if callable(xtra['thumbUrlPrefix']):
                     rv['thumb_url'] = xtra['thumbUrlPrefix'](str(self.id))
                 else:
@@ -6065,26 +6065,26 @@ class _ImageWrapper (BlitzObjectWrapper):
                     rv['tiled'] = (rv['size']['height'] * rv['size']['width']) > (maxplanesize[0] * maxplanesize[1])
                 else:
                     rv['tiles'] = False
-                
+
         return rv
 
     def getStageLabel (self):
         """
         Returns the stage label or None
-        
+
         @return:    Stage label
         @rtype:     L{ImageStageLabelWrapper}
         """
-        
+
         if self._obj.stageLabel is None:
             return None
         else:
             return ImageStageLabelWrapper(self._conn, self._obj.stageLabel)
-    
+
     def shortname(self, length=20, hist=5):
         """
         Provides a truncated name of the image. E.g. ...catedNameOfTheImage.tiff
-        
+
         @param length:  The ideal length to return. If truncated, will be ...length
         @type length:   Int
         @param hist:    The amount of leeway allowed before trunction (avoid truncating 1 or 2 letters)
@@ -6092,7 +6092,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         @return:        Truncated ...name
         @type:          String
         """
-        
+
         name = self.name
         if not name:
             return ""
@@ -6104,11 +6104,11 @@ class _ImageWrapper (BlitzObjectWrapper):
     def getAuthor(self):
         """
         Returns 'Firstname Lastname' of image owner
-        
+
         @return:    Image owner
         @rtype:     String
         """
-        
+
         q = self._conn.getQueryService()
         e = q.findByQuery("select e from Experimenter e where e.id = %i" % self._obj.details.owner.id.val,None, self._conn.SERVICE_OPTS)
         self._author = e.firstName.val + " " + e.lastName.val
@@ -6118,12 +6118,12 @@ class _ImageWrapper (BlitzObjectWrapper):
         """
         XXX: Deprecated since 4.3.2, use listParents(). (See #6660)
         Gets the Dataset that image is in, or None.
-        Returns None if Image is in more than one Dataset. 
-        
+        Returns None if Image is in more than one Dataset.
+
         @return:    Dataset
         @rtype:     L{DatasetWrapper}
         """
-        
+
         try:
             q = """
             select ds from Image i join i.datasetLinks dl join dl.parent ds
@@ -6137,16 +6137,16 @@ class _ImageWrapper (BlitzObjectWrapper):
             logger.debug('on getDataset')
             logger.debug(traceback.format_exc())
             return None
-        
+
     def getProject(self):
         """
         Gets the Project that image is in, or None. TODO: Assumes image is in only 1 Project. Why not use getAncestory()[-1]
-        Returns None if Image is in more than one Dataset & Project. 
-        
+        Returns None if Image is in more than one Dataset & Project.
+
         @return:    Project
         @rtype:     L{ProjectWrapper}
         """
-        
+
         try:
             q = """
             select p from Image i join i.datasetLinks dl join dl.parent ds join ds.projectLinks pl join pl.parent p
@@ -6186,11 +6186,11 @@ class _ImageWrapper (BlitzObjectWrapper):
     def getObjectiveSettings (self):
         """
         Gets the Ojbective Settings of the Image, or None
-        
+
         @return:    Objective Settings
         @rtype:     L{ObjectiveSettingsWrapper}
         """
-        
+
         rv = self.objectiveSettings
         if self.objectiveSettings is not None:
             rv = ObjectiveSettingsWrapper(self._conn, self.objectiveSettings)
@@ -6201,11 +6201,11 @@ class _ImageWrapper (BlitzObjectWrapper):
     def getImagingEnvironment (self):
         """
         Gets the Imaging Environment of the Image, or None
-        
+
         @return:    Imaging Environment
         @rtype:     L{ImagingEnvironmentWrapper}
         """
-        
+
         rv = self.imagingEnvironment
         if self.imagingEnvironment is not None:
             rv = ImagingEnvironmentWrapper(self._conn, self.imagingEnvironment)
@@ -6217,28 +6217,28 @@ class _ImageWrapper (BlitzObjectWrapper):
     def getPixelsId (self):
         """
         Returns the Primary Pixels ID for the image.
-        
+
         @return:    Pixels ID
         @rtype:     Long
         """
-        
+
         return self._obj.getPrimaryPixels().getId().val
 
     #@setsessiongroup
     def _prepareTB (self, _r=False):
         """
         Prepares Thumbnail Store for the image.
-        
+
         @param _r:          If True, don't reset default rendering (return None if no rDef exists)
         @type _r:           Boolean
         @return:            Thumbnail Store or None
         @rtype:             L{ProxyObjectWrapper}
         """
-        
+
         pid = self.getPrimaryPixels().id
         rdid = self._getRDef()
         tb = self._conn.createThumbnailStore()
-        
+
         ctx = self._conn.SERVICE_OPTS.copy()
         ctx.setOmeroGroup(self.details.group.id.val)
         if self._conn.canBeAdmin():
@@ -6307,16 +6307,16 @@ class _ImageWrapper (BlitzObjectWrapper):
     def _getProjectedThumbnail (self, size, pos):
         """
         Returns a string holding a rendered JPEG of the projected image, sized to mimic a thumbnail.
-        This is an 'internal' method of this class, used to generate a thumbnail from a full-sized 
-        projected image (since thumbnails don't support projection). SetProjection should be called 
+        This is an 'internal' method of this class, used to generate a thumbnail from a full-sized
+        projected image (since thumbnails don't support projection). SetProjection should be called
         before this method is called, so that this returns a projected, scaled image.
-        
+
         @param size:    The length of the longest size, in a list or tuple. E.g. (100,)
         @type size:     list or tuple
         @param pos:     The (z, t) position
         @type pos:      Tuple (z,t)
         """
-        
+
         if pos is None:
             t = z = 0
         else:
@@ -6418,13 +6418,13 @@ class _ImageWrapper (BlitzObjectWrapper):
 
     @assert_pixels
     def getPixelRange (self):
-        """ 
+        """
         Returns (min, max) values for the pixels type of this image.
         TODO: Does not handle floats correctly, though.
-        
+
         @return:    Tuple (min, max)
         """
-        
+
         pixels_id = self._obj.getPrimaryPixels().getId().val
         rp = self._conn.createRawPixelsStore()
         rp.setPixelsId(pixels_id, True, self._conn.SERVICE_OPTS)
@@ -6452,7 +6452,7 @@ class _ImageWrapper (BlitzObjectWrapper):
     def getChannels (self):
         """
         Returns a list of Channels, each initialised with rendering engine
-        
+
         @return:    Channels
         @rtype:     List of L{ChannelWrapper}
         """
@@ -6486,7 +6486,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         """
         Sets the active channels on the rendering engine.
         Also sets rendering windows and channel colors (for channels that are active)
-        
+
         Examples:
         # Turn first channel ON, others OFF
         image.setActiveChannels([1])
@@ -6519,33 +6519,33 @@ class _ImageWrapper (BlitzObjectWrapper):
     def getProjections (self):
         """
         Returns list of available keys for projection. E.g. ['intmax', 'intmean']
-        
+
         @return:    Projection options
         @rtype:     List of strings
         """
-        
+
         return self.PROJECTIONS.keys()
 
     def getProjection (self):
         """
         Returns the current projection option (checking it is valid).
-        
+
         @return:    Projection key. E.g. 'intmax'
         @rtype:     String
         """
-        
+
         if self._pr in self.PROJECTIONS.keys():
             return self._pr
         return 'normal'
 
     def setProjection (self, proj):
         """
-        Sets the current projection option. 
-        
+        Sets the current projection option.
+
         @param proj:    Projection Option. E.g. 'intmax' or 'normal'
         @type proj:     String
         """
-        
+
         self._pr = proj
 
     def getProjectionRange (self):
@@ -6569,21 +6569,21 @@ class _ImageWrapper (BlitzObjectWrapper):
     def isInvertedAxis (self):
         """
         Returns the inverted axis flag
-        
+
         @return:    Inverted Axis
         @rtype:     Boolean
         """
-        
+
         return self._invertedAxis
 
     def setInvertedAxis (self, inverted):
         """
         Sets the inverted axis flag
-        
+
         @param inverted:    Inverted Axis
         @type inverted:     Boolean
         """
-        
+
         self._invertedAxis = inverted
 
     LINE_PLOT_DTYPES = {
@@ -6599,7 +6599,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         Grab a horizontal or vertical line from the image pixel data, for the specified channels
         (or 'active' if not specified) and using the specified range (or 1:1 relative to the image size).
         Axis may be 'h' or 'v', for horizontal or vertical respectively.
-        
+
         @param z:           Z index
         @param t:           T index
         @param pos:         X or Y position
@@ -6608,7 +6608,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         @param range:       height of scale (use image height (or width) by default)
         @return: rv         List of lists (one per channel)
         """
-        
+
         if not self._loadPixels():
             logger.debug( "No pixels!")
             return None
@@ -6646,12 +6646,12 @@ class _ImageWrapper (BlitzObjectWrapper):
                 plot = plot.tolist()
             rv.append(plot)
         return rv
-        
+
 
     def getRow (self, z, t, y, channels=None, range=None):
         """
         Grab a horizontal line from the image pixel data, for the specified channels (or active ones)
-        
+
         @param z:           Z index
         @param t:           T index
         @param y:           Y position of row
@@ -6659,13 +6659,13 @@ class _ImageWrapper (BlitzObjectWrapper):
         @param range:       height of scale (use image height by default)
         @return: rv         List of lists (one per channel)
         """
-        
+
         return self.getPixelLine(z,t,y,'h',channels,range)
 
     def getCol (self, z, t, x, channels=None, range=None):
         """
         Grab a horizontal line from the image pixel data, for the specified channels (or active ones)
-        
+
         @param z:           Z index
         @param t:           T index
         @param x:           X position of column
@@ -6673,18 +6673,18 @@ class _ImageWrapper (BlitzObjectWrapper):
         @param range:       height of scale (use image width by default)
         @return: rv         List of lists (one per channel)
         """
-        
+
         return self.getPixelLine(z,t,x,'v',channels,range)
 
     @assert_re()
     def getRenderingModels (self):
         """
         Gets a list of available rendering models.
-        
+
         @return:    Rendering models
-        @rtype:     List of L{BlitzObjectWrapper} 
+        @rtype:     List of L{BlitzObjectWrapper}
         """
-        
+
         if not len(self._rm):
             for m in [BlitzObjectWrapper(self._conn, m) for m in self._re.getAvailableModels()]:
                 self._rm[m.value.lower()] = m
@@ -6694,18 +6694,18 @@ class _ImageWrapper (BlitzObjectWrapper):
     def getRenderingModel (self):
         """
         Get the current rendering model.
-        
+
         @return:    Rendering model
         @rtype:     L{BlitzObjectWrapper}
         """
-        
+
         return BlitzObjectWrapper(self._conn, self._re.getModel())
 
     def setGreyscaleRenderingModel (self):
         """
         Sets the Greyscale rendering model on this image's current renderer
         """
-        
+
         rm = self.getRenderingModels()
         self._re.setModel(self._rm.get('greyscale', rm[0])._obj)
 
@@ -6713,14 +6713,14 @@ class _ImageWrapper (BlitzObjectWrapper):
         """
         Sets the HSB rendering model on this image's current renderer
         """
-        
+
         rm = self.getRenderingModels()
         self._re.setModel(self._rm.get('rgb', rm[0])._obj)
 
     def isGreyscaleRenderingModel (self):
         """
         Returns True if the current rendering model is 'greyscale'
-        
+
         @return:    isGreyscale
         @rtype:     Boolean
         """
@@ -6778,10 +6778,10 @@ class _ImageWrapper (BlitzObjectWrapper):
     def renderJpegRegion (self, z, t, x, y, width, height, level=None, compression=0.9):
         """
         Return the data from rendering a region of an image plane.
-        NB. Projection not supported by the API currently. 
-        
-        @param z:               The Z index. Ignored if projecting image. 
-        @param t:               The T index. 
+        NB. Projection not supported by the API currently.
+
+        @param z:               The Z index. Ignored if projecting image.
+        @param t:               The T index.
         @param x:               The x coordinate of region (int)
         @param y:               The y coordinate of region (int)
         @param width:           The width of region (int)
@@ -6829,13 +6829,13 @@ class _ImageWrapper (BlitzObjectWrapper):
         """
         Return the data from rendering image, compressed (and projected).
         Projection (or not) is specified by calling L{setProjection} before renderJpeg.
-        
+
         @param z:               The Z index. Ignored if projecting image. If None, use defaultZ
         @param t:               The T index. If None, use defaultT
         @param compression:     Compression level for jpeg
         @type compression:      Float
         """
-        
+
         if z is None:
             z = self._re.getDefaultZ()
         self._pd.z = long(z)
@@ -6884,7 +6884,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         @return:        OME-TIFF file data
         @rtype:         String or (size, data generator)
         """
-        
+
         e = self._conn.createExporter()
         e.addImage(self.getId())
         size = e.generateTiff(self._conn.SERVICE_OPTS)
@@ -6897,19 +6897,19 @@ class _ImageWrapper (BlitzObjectWrapper):
 
     def _wordwrap (self, width, text, font):
         """
-        Wraps text into lines that are less than a certain width (when rendered 
+        Wraps text into lines that are less than a certain width (when rendered
         in specified font)
-        
+
         @param width:   The max width to wrap text (pixels)
         @type width:    Int
-        @param text:    The text to wrap 
+        @param text:    The text to wrap
         @type text:     String
-        @param font:    Font to use. 
+        @param font:    Font to use.
         @type font:     E.g. PIL ImageFont
         @return:        List of text lines
         @rtype:         List of Strings
         """
-        
+
         rv = []
         tokens = filter(None, text.split(' '))
         while len(tokens) > 1:
@@ -6944,7 +6944,7 @@ class _ImageWrapper (BlitzObjectWrapper):
                      - fps:int: frames per second
                      - minsize: tuple of (minwidth, minheight, bgcolor)
                     - format:string: one of video/mpeg or video/quicktime
-                    
+
         @return:    Tuple of (file-ext, format)
         @rtype:     (String, String)
         """
@@ -6962,9 +6962,9 @@ class _ImageWrapper (BlitzObjectWrapper):
         args.append('Z_End=%d' % zend)
         args.append('T_Start=%d' % tstart)
         args.append('T_End=%d' % tend)
-        if opts.has_key('fps'):
+        if 'fps' in opts:
             args.append('FPS=%d' % opts['fps'])
-        if opts.has_key('format'):
+        if 'format' in opts:
             if opts['format'] == 'video/mpeg':
                 args.append('Format=MPEG')
             elif opts['format'] == 'video/wmv':
@@ -6981,9 +6981,9 @@ class _ImageWrapper (BlitzObjectWrapper):
             origFile = self._conn.createOriginalFileFromLocalFile(watermark)
             args.append('Watermark=OriginalFile:%d' % origFile.getId())
             todel.append(origFile.getId())
-            
+
         w,h = self.getSizeX(), self.getSizeY()
-        if opts.has_key('minsize'):
+        if 'minsize' in opts:
             args.append('Min_Width=%d' % opts['minsize'][0])
             w = max(w, opts['minsize'][0])
             args.append('Min_Height=%d' % opts['minsize'][1])
@@ -7043,9 +7043,9 @@ class _ImageWrapper (BlitzObjectWrapper):
         finally:
             cb.close()
 
-        if not rv.has_key('File_Annotation'):
+        if not 'File_Annotation' in rv:
             logger.error('Error in createMovie:')
-            if rv.has_key('stderr'):
+            if 'stderr' in rv:
                 x = StringIO()
                 self._conn.c.download(ofile=rv['stderr'].val, filehandle=x)
                 logger.error(x.getvalue())
@@ -7066,19 +7066,19 @@ class _ImageWrapper (BlitzObjectWrapper):
             handle.close()
 
         return os.path.splitext(f.name.val)[-1], f.mimetype.val
-        
+
     def renderImage (self, z, t, compression=0.9):
         """
-        Render the Image, (projected) and compressed. 
-        For projection, call L{setProjection} before renderImage. 
-        
+        Render the Image, (projected) and compressed.
+        For projection, call L{setProjection} before renderImage.
+
         @param z:       Z index
         @param t:       T index
-        @compression:   Image compression level 
+        @compression:   Image compression level
         @return:        A PIL Image or None
-        @rtype:         PIL Image. 
+        @rtype:         PIL Image.
         """
-        
+
         rv = self.renderJpeg(z,t,compression)
         if rv is not None:
             i = StringIO(rv)
@@ -7087,16 +7087,16 @@ class _ImageWrapper (BlitzObjectWrapper):
 
     def renderSplitChannel (self, z, t, compression=0.9, border=2):
         """
-        Prepares a jpeg representation of a 2d grid holding a render of each channel, 
+        Prepares a jpeg representation of a 2d grid holding a render of each channel,
         along with one for all channels at the set Z and T points.
-        
+
         @param z:       Z index
         @param t:       T index
-        @param compression: Image compression level 
+        @param compression: Image compression level
         @param border:
         @return: value
         """
-        
+
         img = self.renderSplitChannelImage(z,t,compression, border)
         rv = StringIO()
         img.save(rv, 'jpeg', quality=int(compression*100))
@@ -7105,14 +7105,14 @@ class _ImageWrapper (BlitzObjectWrapper):
     def splitChannelDims (self, border=2):
         """
         Returns a dict of layout parameters for generating split channel image.
-        E.g. row count, column count etc.  for greyscale and color layouts. 
-        
+        E.g. row count, column count etc.  for greyscale and color layouts.
+
         @param border:  spacing between panels
         @type border:   int
         @return:        Dict of parameters
         @rtype:         Dict
         """
-        
+
         c = self.getSizeC()
         # Greyscale, no channel overlayed image
         x = sqrt(c)
@@ -7147,9 +7147,9 @@ class _ImageWrapper (BlitzObjectWrapper):
 
     def renderSplitChannelImage (self, z, t, compression=0.9, border=2):
         """
-        Prepares a PIL Image with a 2d grid holding a render of each channel, 
+        Prepares a PIL Image with a 2d grid holding a render of each channel,
         along with one for all channels at the set Z and T points.
-        
+
         @param z:   Z index
         @param t:   T index
         @param compression: Compression level
@@ -7157,7 +7157,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         @return:        canvas
         @rtype:         PIL Image
         """
-                
+
         dims = self.splitChannelDims(border=border)[self.isGreyscaleRenderingModel() and 'g' or 'c']
         canvas = Image.new('RGBA', (dims['width'], dims['height']), '#fff')
         cmap = [ch.isActive() and i+1 or 0 for i,ch in enumerate(self.getChannels())]
@@ -7165,7 +7165,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         pxc = 0
         px = dims['border']
         py = dims['border']
-        
+
         # Font sizes depends on image width
         w = self.getSizeX()
         if w >= 640:
@@ -7222,7 +7222,7 @@ class _ImageWrapper (BlitzObjectWrapper):
     def prepareLinePlotCanvas (self):
         """
         Common part of horizontal and vertical line plot rendering.
-        
+
         @returns: (Image, width, height).
         """
         channels = filter(lambda x: x.isActive(), self.getChannels())
@@ -7243,8 +7243,8 @@ class _ImageWrapper (BlitzObjectWrapper):
     @assert_re()
     def renderRowLinePlotGif (self, z, t, y, linewidth=1):
         """
-        Draws the Row plot as a gif file. Returns gif data.  
-        
+        Draws the Row plot as a gif file. Returns gif data.
+
         @param z:   Z index
         @param t:   T index
         @param y:   Y position
@@ -7252,7 +7252,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         @return:    gif data as String
         @rtype:     String
         """
-        
+
         self._pd.z = long(z)
         self._pd.t = long(t)
 
@@ -7282,8 +7282,8 @@ class _ImageWrapper (BlitzObjectWrapper):
     @assert_re()
     def renderColLinePlotGif (self, z, t, x, linewidth=1):
         """
-        Draws the Column plot as a gif file. Returns gif data.  
-        
+        Draws the Column plot as a gif file. Returns gif data.
+
         @param z:   Z index
         @param t:   T index
         @param x:   X position
@@ -7291,7 +7291,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         @return:    gif data as String
         @rtype:     String
         """
-        
+
         self._pd.z = long(z)
         self._pd.t = long(t)
 
@@ -7323,24 +7323,24 @@ class _ImageWrapper (BlitzObjectWrapper):
         Returns the last used value of Z (E.g. for renderingJpeg or line plot)
         Returns 0 if these methods not been used yet.
         TODO: How to get default-Z?
-        
+
         @return:    current Z index
         @rtype:     int
         """
-        
+
         return self._pd.z
 
     @assert_re()
     def getT (self):
         """
         Returns the last used value of T (E.g. for renderingJpeg or line plot)
-        Returns 0 if these methods not been used yet. 
+        Returns 0 if these methods not been used yet.
         TODO: How to get default-T?
-        
+
         @return:    current T index
         @rtype:     int
         """
-        
+
         return self._pd.t
 
     @assert_re()
@@ -7361,18 +7361,18 @@ class _ImageWrapper (BlitzObjectWrapper):
     def getPixelsType (self):
         """
         Gets the physical size X of pixels in microns
-        
+
         @return:    Size of pixel in x or O
         @rtype:     float
         """
         rv = self._obj.getPrimaryPixels().getPixelsType().value
         return rv is not None and rv.val or 'unknown'
-    
+
     @assert_pixels
     def getPixelSizeX (self):
         """
         Gets the physical size X of pixels in microns
-        
+
         @return:    Size of pixel in x or O
         @rtype:     float
         """
@@ -7383,11 +7383,11 @@ class _ImageWrapper (BlitzObjectWrapper):
     def getPixelSizeY (self):
         """
         Gets the physical size Y of pixels in microns
-        
+
         @return:    Size of pixel in y or O
         @rtype:     float
         """
-        
+
         rv = self._obj.getPrimaryPixels().getPhysicalSizeY()
         return rv is not None and rv.val or 0
 
@@ -7395,11 +7395,11 @@ class _ImageWrapper (BlitzObjectWrapper):
     def getPixelSizeZ (self):
         """
         Gets the physical size Z of pixels in microns
-        
+
         @return:    Size of pixel in z or O
         @rtype:     float
         """
-        
+
         rv = self._obj.getPrimaryPixels().getPhysicalSizeZ()
         return rv is not None and rv.val or 0
 
@@ -7407,33 +7407,33 @@ class _ImageWrapper (BlitzObjectWrapper):
     def getSizeX (self):
         """
         Gets width (size X) of the image (in pixels)
-        
+
         @return:    width
         @rtype:     int
         """
-        
+
         return self._obj.getPrimaryPixels().getSizeX().val
 
     @assert_pixels
     def getSizeY (self):
         """
         Gets height (size Y) of the image (in pixels)
-        
+
         @return:    height
         @rtype:     int
         """
-        
+
         return self._obj.getPrimaryPixels().getSizeY().val
 
     @assert_pixels
     def getSizeZ (self):
         """
         Gets Z count of the image
-        
+
         @return:    size Z
         @rtype:     int
         """
-        
+
         if self.isInvertedAxis():
             return self._obj.getPrimaryPixels().getSizeT().val
         else:
@@ -7443,11 +7443,11 @@ class _ImageWrapper (BlitzObjectWrapper):
     def getSizeT (self):
         """
         Gets T count of the image
-        
+
         @return:    size T
         @rtype:     int
         """
-        
+
         if self.isInvertedAxis():
             return self._obj.getPrimaryPixels().getSizeZ().val
         else:
@@ -7457,21 +7457,21 @@ class _ImageWrapper (BlitzObjectWrapper):
     def getSizeC (self):
         """
         Gets C count of the image (number of channels)
-        
+
         @return:    size C
         @rtype:     int
         """
-        
+
         return self._obj.getPrimaryPixels().getSizeC().val
 
     def clearDefaults (self):
         """
         Removes specific color settings from channels
-        
+
         @return:    True if allowed to do this
         @rtype:     Boolean
         """
-        
+
         if not self.canWrite():
             return False
         for c in self.getChannels():
@@ -7492,14 +7492,14 @@ class _ImageWrapper (BlitzObjectWrapper):
 
     def _collectRenderOptions (self):
         """
-        Returns a map of rendering options not stored in rendering settings. 
+        Returns a map of rendering options not stored in rendering settings.
             - 'p' : projection
             - 'ia' : inverted axis (swap Z and T)
-        
+
         @return:    Dict of render options
         @rtype:     Dict
         """
-        
+
         rv = {}
         rv['p'] = self.getProjection()
         rv['ia'] = self.isInvertedAxis() and "1" or "0"
@@ -7508,9 +7508,9 @@ class _ImageWrapper (BlitzObjectWrapper):
     def _loadRenderOptions (self):
         """
         Loads rendering options from an Annotation on the Image.
-        
+
         @return:    Dict of rendering options
-        @rtype:     Dict 
+        @rtype:     Dict
         """
         ns = self._conn.CONFIG.IMG_ROPTSNS
         if ns:
@@ -7523,8 +7523,8 @@ class _ImageWrapper (BlitzObjectWrapper):
     def loadRenderOptions (self):
         """
         Loads rendering options from an Annotation on the Image and applies them
-        to the Image. 
-        
+        to the Image.
+
         @return:    True!    TODO: Always True??
         """
         opts = self._loadRenderOptions()
@@ -7537,10 +7537,10 @@ class _ImageWrapper (BlitzObjectWrapper):
         """
         Limited support for saving the current prepared image rendering defs.
         Right now only channel colors are saved back.
-        
+
         @return: Boolean
         """
-        
+
         if not self.canAnnotate():
             return False
         ns = self._conn.CONFIG.IMG_ROPTSNS
@@ -7557,7 +7557,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         return True
 
     def countArchivedFiles (self):
-        """ 
+        """
         Returns the number of Original 'archived' Files linked to primary pixels.
         Used by L{self.countImportedImageFiles} which also handles FS files.
         """
@@ -7584,7 +7584,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         return self._filesetFileCount
 
     def countImportedImageFiles (self):
-        """ 
+        """
         Returns a count of the number of Imported Image files (Archived files for pre-FS images)
         This will only be 0 if the image was imported pre-FS and original files NOT archived
         """
@@ -7651,7 +7651,7 @@ class _ImageWrapper (BlitzObjectWrapper):
             elif isinstance(shape,getattr(omero.model,shapeType)):
                 return True
             return False
-        
+
         def isValidROI(roi):
             for shape in roi.copyShapes():
                 if isValidType(shape):
@@ -7677,7 +7677,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         roiOptions = omero.api.RoiOptions()
         if filterByCurrentUser:
             roiOptions.userId = omero.rtypes.rlong(self._conn.getUserId())
-        
+
         result = self._conn.getRoiService().findByImage(self.id, roiOptions)
         count = sum(1 for roi in result.rois if isValidROI(roi))
         return count
@@ -7714,7 +7714,7 @@ class _ImagingEnviromentWrapper (BlitzObjectWrapper):
 
     def __bstrap__ (self):
         self.OMERO_CLASS = 'ImagingEnvironment'
-    
+
 ImagingEnviromentWrapper = _ImagingEnviromentWrapper
 
 class _TransmittanceRangeWrapper (BlitzObjectWrapper):
@@ -7781,11 +7781,11 @@ class _DetectorWrapper (BlitzObjectWrapper):
     def getDetectorType(self):
         """
         The type of detector (enum value)
-        
+
         @return:    Detector type
         @rtype:     L{EnumerationWrapper}
         """
-        
+
         rv = self.type
         if self.type is not None:
             rv = EnumerationWrapper(self._conn, self.type)
@@ -7817,26 +7817,26 @@ class _ObjectiveWrapper (BlitzObjectWrapper):
     def getImmersion(self):
         """
         The type of immersion for this objective (enum value)
-        
+
         @return:    Immersion type, or None
         @rtype:     L{EnumerationWrapper}
         """
-        
+
         rv = self.immersion
         if self.immersion is not None:
             rv = EnumerationWrapper(self._conn, self.immersion)
             if not self.immersion.loaded:
                 self.immersion = rv._obj
             return rv
-    
+
     def getCorrection(self):
         """
         The type of Correction for this objective (enum value)
-        
+
         @return:    Correction type, or None
         @rtype:     L{EnumerationWrapper}
         """
-        
+
         rv = self.correction
         if self.correction is not None:
             rv = EnumerationWrapper(self._conn, self.correction)
@@ -7847,11 +7847,11 @@ class _ObjectiveWrapper (BlitzObjectWrapper):
     def getIris(self):
         """
         The type of Iris for this objective (enum value)
-        
+
         @return:    Iris type
         @rtype:     L{EnumerationWrapper}
         """
-        
+
         rv = self.iris
         if self.iris is not None:
             rv = EnumerationWrapper(self._conn, self.iris)
@@ -7876,12 +7876,12 @@ class _ObjectiveSettingsWrapper (BlitzObjectWrapper):
 
     def getObjective (self):
         """
-        Gets the Objective that these settings refer to 
-        
+        Gets the Objective that these settings refer to
+
         @return:    Objective
         @rtype:     L{ObjectiveWrapper}
         """
-        
+
         rv = self.objective
         if self.objective is not None:
             rv = ObjectiveWrapper(self._conn, self.objective)
@@ -7892,11 +7892,11 @@ class _ObjectiveSettingsWrapper (BlitzObjectWrapper):
     def getMedium(self):
         """
         Gets the Medium type that these settings refer to (enum value)
-        
+
         @return:    Medium
         @rtype:     L{EnumerationWrapper}
         """
-        
+
         rv = self.medium
         if self.medium is not None:
             rv = EnumerationWrapper(self._conn, self.medium)
@@ -7921,15 +7921,15 @@ class _FilterWrapper (BlitzObjectWrapper):
 
     def __bstrap__ (self):
         self.OMERO_CLASS = 'Filter'
-    
+
     def getFilterType(self):
         """
         Gets the Filter type for this filter (enum value)
-        
+
         @return:    Filter type
         @rtype:     L{EnumerationWrapper}
         """
-        
+
         rv = self.type
         if self.type is not None:
             rv = EnumerationWrapper(self._conn, self.type)
@@ -7965,7 +7965,7 @@ class _FilterSetWrapper (BlitzObjectWrapper):
 
     def __bstrap__ (self):
         self.OMERO_CLASS = 'FilterSet'
-    
+
     def copyEmissionFilters(self):
         """ TODO: not implemented """
         pass
@@ -7973,7 +7973,7 @@ class _FilterSetWrapper (BlitzObjectWrapper):
     def copyExcitationFilters(self):
         """ TODO: not implemented """
         pass
-    
+
 FilterSetWrapper = _FilterSetWrapper
 
 class _OTFWrapper (BlitzObjectWrapper):
@@ -8039,11 +8039,11 @@ class _LightSourceWrapper (BlitzObjectWrapper):
     def getLightSourceType(self):
         """
         Gets the Light Source type for this light source (enum value)
-        
+
         @return:    Light Source type
         @rtype:     L{EnumerationWrapper}
         """
-        
+
         rv = self.type
         if self.type is not None:
             rv = EnumerationWrapper(self._conn, self.type)
@@ -8056,7 +8056,7 @@ _LightSourceClasses = {}
 def LightSourceWrapper (conn, obj, **kwargs):
     """
     Creates wrapper instances for omero.model light source objects
-    
+
     @param conn:    L{BlitzGateway} connection
     @param obj:     omero.model object
     @return:        L{_LightSourceWrapper} subclass
@@ -8109,11 +8109,11 @@ class _LaserWrapper (_LightSourceWrapper):
     def getLaserMedium(self):
         """
         Gets the laser medium type for this Laser (enum value)
-        
+
         @return:    Laser medium type
         @rtype:     L{EnumerationWrapper}
         """
-        
+
         rv = self.laserMedium
         if self.laserMedium is not None:
             rv = EnumerationWrapper(self._conn, self.laserMedium)
@@ -8150,12 +8150,12 @@ class _MicroscopeWrapper (BlitzObjectWrapper):
 
     def getMicroscopeType(self):
         """
-        Returns the 'type' of microscope this is. 
-        
+        Returns the 'type' of microscope this is.
+
         @return:    Microscope type.
         @rtype:     L{EnumerationWrapper}
         """
-        
+
         rv = self.type
         if self.type is not None:
             rv = EnumerationWrapper(self._conn, self.type)
@@ -8179,84 +8179,84 @@ class _InstrumentWrapper (BlitzObjectWrapper):
 
     def getMicroscope (self):
         """
-        Returns the microscope component of the Instrument. 
-        
+        Returns the microscope component of the Instrument.
+
         @return:    Microscope
         @rtype:     omero.model.Microscope
         """
-        
+
         if self._obj.microscope is not None:
             return MicroscopeWrapper(self._conn, self._obj.microscope)
         return None
-           
+
     def getDetectors (self):
         """
-        Gets the Instrument detectors. 
-        
+        Gets the Instrument detectors.
+
         @return:    List of Detectors
         @rtype:     L{DetectorWrapper} list
         """
-        
+
         return [DetectorWrapper(self._conn, x) for x in self._detectorSeq]
 
     def getObjectives (self):
         """
-        Gets the Instrument Objectives. 
-        
+        Gets the Instrument Objectives.
+
         @return:    List of Objectives
         @rtype:     L{ObjectiveWrapper} list
         """
-        
+
         return [ObjectiveWrapper(self._conn, x) for x in self._objectiveSeq]
 
     def getFilters (self):
         """
-        Gets the Instrument Filters. 
-        
+        Gets the Instrument Filters.
+
         @return:    List of Filters
         @rtype:     L{FilterWrapper} list
         """
-        
+
         return [FilterWrapper(self._conn, x) for x in self._filterSeq]
 
     def getDichroics (self):
         """
-        Gets the Instrument Dichroics. 
-        
+        Gets the Instrument Dichroics.
+
         @return:    List of Dichroics
         @rtype:     L{DichroicWrapper} list
         """
-        
+
         return [DichroicWrapper(self._conn, x) for x in self._dichroicSeq]
 
     def getFilterSets (self):
         """
-        Gets the Instrument FilterSets. 
-        
+        Gets the Instrument FilterSets.
+
         @return:    List of FilterSets
         @rtype:     L{FilterSetWrapper} list
         """
-        
+
         return [FilterSetWrapper(self._conn, x) for x in self._filterSetSeq]
 
     def getOTFs (self):
         """
-        Gets the Instrument OTFs. 
-        
+        Gets the Instrument OTFs.
+
         @return:    List of OTFs
         @rtype:     L{OTFWrapper} list
         """
-        
+
         return [OTFWrapper(self._conn, x) for x in self._otfSeq]
 
     def getLightSources (self):
         """
-        Gets the Instrument LightSources. 
-        
+        Gets the Instrument LightSources.
+
         @return:    List of LightSources
         @rtype:     L{LightSourceWrapper} list
         """
-        
+
         return [LightSourceWrapper(self._conn, x) for x in self._lightSourceSeq]
 
 
