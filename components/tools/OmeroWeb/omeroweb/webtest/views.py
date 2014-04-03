@@ -42,8 +42,12 @@ def dataset(request, datasetId, conn=None, **kwargs):
     return render_to_response('webtest/dataset.html', {'dataset': ds})    # generate html from template
 
 
-@login_required(setGroupContext=True)    # wrapper handles login (or redirects to webclient login). Connection passed in **kwargs
+@login_required()    # wrapper handles login (or redirects to webclient login). Connection passed in **kwargs
 def index(request, conn=None, **kwargs):
+
+    params = omero.sys.ParametersI()
+    params.theFilter = omero.sys.Filter()
+    params.theFilter.limit = rint(10)
     # use Image IDs from request...
     if request.REQUEST.get("Image", None):
         imageIds = request.REQUEST.get("Image", None)
@@ -51,14 +55,14 @@ def index(request, conn=None, **kwargs):
         images = list(conn.getObjects("Image", ids))
     else:
         # OR find a random image and dataset to display & can be used in links to other pages
-        all_images = list(conn.getObjects("Image"))
+        all_images = list(conn.getObjects("Image", params=params))
         img = random.choice(all_images)
         images = [img]
     
     imgIds = ",".join([str(img2.getId()) for img2 in images])
     
     # get a random dataset (making sure we get one that has some images in it)
-    all_datasets = list(conn.getObjects("Dataset"))
+    all_datasets = list(conn.getObjects("Dataset", params=params))
     dataset = random.choice(all_datasets)
     attempts = 0
     while (dataset.countChildren() == 0 and attempts < 10):
