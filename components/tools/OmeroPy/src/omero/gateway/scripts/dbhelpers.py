@@ -88,7 +88,7 @@ class UserEntry (object):
             groupname = self.groupname
         client = omero.gateway.BlitzGateway(self.name, self.passwd, group=groupname, try_super=self.admin)
         if not client.connect():
-            print "Can not connect" 
+            print "Can not connect"
             return None
 
         a = client.getAdminService()
@@ -202,7 +202,7 @@ class UserEntry (object):
     def addGroupToUser (client, groupname, groupperms=None):
         if groupperms is None:
             groupperms = DEFAULT_GROUP_PERMS
-            
+
         a = client.getAdminService()
         admin_gateway = None
         try:
@@ -220,7 +220,7 @@ class UserEntry (object):
     def setGroupForSession (client, groupname, groupperms=None):
         if groupperms is None:
             groupperms = DEFAULT_GROUP_PERMS
-            
+
         a = client.getAdminService()
         if not groupname in [x.name.val for x in a.containedGroups(client.getUserId())]:
             UserEntry.addGroupToUser(client, groupname, groupperms)
@@ -517,4 +517,3 @@ DATASETS = {
 IMAGES = {
     #'alias': ImageEntry entry,
 }
-
