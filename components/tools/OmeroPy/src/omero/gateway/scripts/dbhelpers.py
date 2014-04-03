@@ -5,11 +5,9 @@ sys.path.append('.')
 
 import omero.gateway
 import omero.model
-from omero.rtypes import *
+from omero.rtypes import rtime
 import os
 import subprocess
-import re
-import time
 import urllib2
 
 from types import StringTypes
@@ -211,8 +209,6 @@ class UserEntry (object):
             if not 'system' in [x.name.val for x in a.containedGroups(client.getUserId())]:
                 admin_gateway = loginAsRoot()
                 a = admin_gateway.getAdminService()
-            else:
-                admin = client
             g = UserEntry._getOrCreateGroup(client, groupname, groupperms)
             a.addGroups(a.getExperimenter(client.getUserId()), (g,))
         finally:
@@ -276,7 +272,7 @@ class ProjectEntry (ObjectEntry):
                 groupname = 'project_test'
 
             s = loginAsRoot()
-            g = UserEntry._getOrCreateGroup(s, groupname, self.group_perms)
+            UserEntry._getOrCreateGroup(s, groupname, self.group_perms)
             try:
                 UserEntry.addGroupToUser (s, groupname, self.group_perms)
             finally:
@@ -446,7 +442,7 @@ def getProject (client, alias):
 def assertCommentAnnotation (object, ns, value):
     ann = object.getAnnotation(ns)
     if ann is None or ann.getValue() != value:
-        ann = CommentAnnotationWrapper()
+        ann = omero.gateway.CommentAnnotationWrapper()
         ann.setNs(ns)
         ann.setValue(value)
         object.linkAnnotation(ann)
@@ -500,7 +496,6 @@ def cleanup ():
                 handle.close()
     client.seppuku()
     client = loginAsRoot()
-    admin = client.getAdminService()
     for k, u in USERS.items():
         u.changePassword(client, None, ROOT.passwd)
     client.seppuku()

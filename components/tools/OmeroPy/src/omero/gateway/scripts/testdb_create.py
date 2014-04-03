@@ -9,7 +9,6 @@
 
 """
 
-import os
 import omero
 from omero.rtypes import rstring
 
@@ -216,8 +215,6 @@ class TestDBHelper(object):
         @param dataset:     omero.model.DatasetI OR DatasetWrapper OR dataset ID
         """
         from numpy import fromfunction, int16
-        from omero.util import script_utils
-        import random
 
         def f(x,y):
             return x

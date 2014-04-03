@@ -12,12 +12,10 @@
 # jason@glencoesoftware.com.
 
 # Set up the python include paths
-import os,sys
+import os
 THISPATH = os.path.dirname(os.path.abspath(__file__))
 
 import warnings
-import shutil
-import tempfile
 from types import IntType, LongType, UnicodeType, ListType, TupleType, StringType, StringTypes
 from datetime import datetime
 from cStringIO import StringIO
@@ -25,10 +23,9 @@ import ConfigParser
 
 import omero
 import omero.clients
-from omero.util.decorators import timeit, TimeIt, setsessiongroup
-from omero.cmd import Chgrp, DoAll
+from omero.util.decorators import timeit
+from omero.cmd import DoAll
 from omero.api import Save
-from omero.callbacks import CmdCallbackI
 from omero.gateway.utils import ServiceOptsDict, GatewayConfig
 import omero.scripts as scripts
 
@@ -40,6 +37,8 @@ import time
 import array
 import math
 
+import gettext.gettext as _
+
 import logging
 logger = logging.getLogger(__name__)
 
@@ -50,10 +49,9 @@ except: #pragma: nocover
         import Image, ImageDraw, ImageFont          # see ticket:2597
     except:
         logger.error('No Pillow installed, line plots and split channel will fail!')
-from cStringIO import StringIO
 from math import sqrt
 
-from omero.rtypes import rstring, rint, rlong, rbool, rtime, rlist, rdouble, unwrap, wrap
+from omero.rtypes import rstring, rint, rlong, rbool, rtime, rlist, rdouble, unwrap
 
 def omero_type(val):
     """
@@ -673,7 +671,6 @@ class BlitzObjectWrapper (object):
         
         if self.CHILD_WRAPPER_CLASS is None:
             raise AttributeError("This object has no child objects")
-        childw = self._getChildWrapper()
         query_serv = self._conn.getQueryService()
         p = omero.sys.Parameters()
         p.map = {}
@@ -954,15 +951,15 @@ class BlitzObjectWrapper (object):
 
                 if k.startswith('#'):
                     k = k[1:]
-                    unwrap = True
+                    unwrapit = True
                 else:
-                    unwrap = False
+                    unwrapit = False
 
                 if getter:
                     v = getattr(self, 'get'+k[0].upper()+k[1:])()
                 else:
                     v = getattr(self, k)
-                if unwrap and v is not None:
+                if unwrapit and v is not None:
                     v = v._value
                 if wrapper is not None and v is not None:
                     if wrapper == '':
@@ -2595,7 +2592,6 @@ class _BlitzGateway (object):
         else:
             raise AttributeError("getObjects uses a string to define obj_type, E.g. 'Image'")
 
-        q = self.getQueryService()
         if params is None:
             params = omero.sys.Parameters()
         if params.map is None:
@@ -2931,7 +2927,6 @@ class _BlitzGateway (object):
         json_data = False
         fromimg = self.getObject("Image", fromid)
         frompid = fromimg.getPixelsId()
-        userid = fromimg.getOwner().getId()
         if to_type is None:
             to_type="Image"
         if to_type.lower() == "acquisition":
@@ -3142,7 +3137,6 @@ class _BlitzGateway (object):
         p.map = {}
         p.map["oids"] = rlist([rlong(o) for o in set(annids)])
         for e in q.findAllByQuery(sql,p,self.SERVICE_OPTS):
-            kwargs = {'link': BlitzObjectWrapper(self, e.copyAnnotationLinks()[0])}
             yield wrapper(self, e)
 
 
@@ -4813,9 +4807,6 @@ _
                     "left outer join fetch ws.image as img "\
                     "where well.plate.id = :oid"
 
-            #index = index is None and 0 or index
-            kwargs = {'index': self.defaultSample or 0}
-            childw = self._getChildWrapper()
             self._childcache = {}
             for well in q.findAllByQuery(query, params, self._conn.SERVICE_OPTS):
                 self._childcache[(well.row.val, well.column.val)] = well
@@ -5816,7 +5807,7 @@ class assert_re (object):
                     logger.debug('Preparation of rendering engine failed, ' \
                                  'returning None for %r!' % f)
                     return None
-            except ctx.ignoreExceptions, e:
+            except ctx.ignoreExceptions:
                 logger.debug('Ignoring exception thrown during preparation ' \
                              'of rendering engine for %r!' % f, exc_info=True)
                 pass
@@ -7038,7 +7029,7 @@ class _ImageWrapper (BlitzObjectWrapper):
 
         try:
             proc = svc.runScript(mms.id.val, m, None)
-            job = proc.getJob()
+            proc.getJob()
         except omero.ValidationException, ve:
             logger.error('Bad Parameters:\n%s' % ve)
             return None, None
