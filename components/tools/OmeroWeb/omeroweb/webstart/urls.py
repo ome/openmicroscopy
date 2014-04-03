@@ -31,5 +31,4 @@ urlpatterns = patterns('django.views.generic.simple',
     url( r'^$', views.index, name="webstart_index" ),
     url( r'^jars/insight\.jnlp$', views.insight, name='webstart_insight'),
     
-    url( r'^index$', views.custom_index, name="webindex_custom" ),
 )
