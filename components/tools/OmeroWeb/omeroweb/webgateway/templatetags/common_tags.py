@@ -57,7 +57,8 @@ class SettingNode ( template.Node ):
                         setting = setting.get(name)
                     else:
                         setting = setting.__getattr__(name)
-            
+            if setting is None:
+                return ""
             return str(setting)
         except:
             # if FAILURE then FAIL silently
