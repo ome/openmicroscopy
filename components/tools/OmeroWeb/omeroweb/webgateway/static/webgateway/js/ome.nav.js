@@ -118,6 +118,7 @@ $(document).ready(function()
             if ((moved < $(this).data("cp_width")) && (new_width > 50) && (new_center_w > 50)) {
                 $("#left_panel").css('width', new_width+"px");
                 $("#center_container").css('left', new_width+"px");
+                $("#left_panel").trigger('resize');
             }
         })
         .bind("dragstop", function(event, ui) {

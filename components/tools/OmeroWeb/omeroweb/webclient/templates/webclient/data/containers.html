@@ -266,6 +266,24 @@
             {
                 var copy_paste_rdef_url = "{% url 'webgateway.views.copy_image_rdef_json' %}",
                     apply_owners_rdef_url = "{% url 'webgateway.views.apply_owners_rdef_json' %}";
+
+                $("#left_panel").on('resize', function(event) {
+                    var lp_width = $(event.target).width(),
+                        chars = (lp_width / 7) >> 0;
+
+                    console.log(lp_width, chars);
+
+                    $('.jstree li a').each(function(){
+
+                        var $this = $(this);
+                        var name = $this.attr('data-name');
+                        if (name) {
+                            name = name.slice(-chars);
+                            $this.text(name);
+                        }
+                    })
+                });
+
                 // Copy the selected Image ID to the 'session' (right-click menu only allows this on 'image')
                 var copyRenderingSettings = function(selected) {
                     if (selected.length == 1) {
