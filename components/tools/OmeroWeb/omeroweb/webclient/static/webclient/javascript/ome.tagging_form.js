@@ -1,3 +1,7 @@
+/*jshint browser: true, jquery: true, curly: true, maxlen: 80,
+  eqeqeq: true, immed: true, indent: 4, latedef: true,
+  newcap: true, noarg: true, noempty: true,
+  nonew: true, undef: true, unused: true, trailing: true */
 /*global $, setTimeout, clearTimeout, OME */
 /*exported tagging_form */
 //
@@ -45,10 +49,13 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id) {
     // progress bar
     var progressbar = $("#add_tags_progress .progress-striped").progressbar({
             change: function() {
-                $("#add_tags_progress .progress-value").text($("#add_tags_progress .progress-striped").progressbar("value") + "%");
+                $("#add_tags_progress .progress-value").text(
+                    $("#add_tags_progress .progress-striped")
+                    .progressbar("value") + "%");
             },
             complete: function() {
-                setTimeout(function() { $("#add_tags_progress").remove(); }, 2000);
+                setTimeout(
+                    function() { $("#add_tags_progress").remove(); }, 2000);
             },
             value: -1
         });
@@ -61,15 +68,19 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id) {
 
     var get_selected_tagset = function() {
         var selected = $(".ui-selected", div_all_tags).not(".filtered");
-        if (selected.length == 1 && (selected.hasClass('alltags-tagset') || selected.hasClass('alltags-childtag'))) {
-            return selected.hasClass('alltags-tagset') ? selected : selected.prevAll('.alltags-tagset').eq(0);
+        if (selected.length === 1 && (
+            selected.hasClass('alltags-tagset') ||
+            selected.hasClass('alltags-childtag'))) {
+            return (selected.hasClass('alltags-tagset') ?
+                selected : selected.prevAll('.alltags-tagset').eq(0));
         } else {
             return null;
         }
     };
 
     var tag_click = function(event) {
-        $(this).not('.alltags-locked').toggleClass('ui-selected').siblings('.ui-selected').removeClass('ui-selected');
+        $(this).not('.alltags-locked').toggleClass(
+            'ui-selected').siblings('.ui-selected').removeClass('ui-selected');
         update_selected_labels();
         event.stopPropagation();
     };
@@ -89,14 +100,18 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id) {
         for (var id in all_tags) {
             var tag = all_tags[id];
             if (tag && !(id in child_tags)) {
-                html += create_tag_html(tag.t, tag.d, owners[tag.o], tag.i, null, tag.s);
+                html += create_tag_html(tag.t, tag.d, owners[tag.o], tag.i,
+                                        null, tag.s);
                 tag.sort_key = tag.t.toLowerCase();
                 if (tag.s) {
                     for (var sid in tag.s) {
                         var child = all_tags[tag.s[sid]];
                         if (child) {
-                            child.sort_key = tag.t.toLowerCase() + child.t.toLowerCase();
-                            html += create_tag_html(child.t, child.d, owners[child.o], child.i, tag.i);
+                            child.sort_key = (tag.t.toLowerCase() +
+                                child.t.toLowerCase());
+                            html += create_tag_html(
+                                child.t, child.d, owners[child.o], child.i,
+                                tag.i);
                         }
                     }
                 }
@@ -111,7 +126,8 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id) {
         $(".ui-selected", div_all_tags).not(".filtered").each(function() {
             var $this = $(this);
             if ($this.hasClass('alltags-tagset')) {
-                count += $this.nextUntil(":not(.alltags-childtag)").not(".filtered, .ui-selected").length;
+                count += $this.nextUntil(":not(.alltags-childtag)").not(
+                    ".filtered, .ui-selected").length;
             } else {
                 count++;
             }
@@ -119,7 +135,9 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id) {
         $("#id_tags_selected").text(count ? count + " selected" : "");
         var tagset = get_selected_tagset();
         if (tagset) {
-            $("#id_selected_tag_set").html("Add a new tag in <span class='tagset-title'>" + tagset.text() + "</span> tag set:");
+            $("#id_selected_tag_set").html(
+                "Add a new tag in <span class='tagset-title'>" +
+                tagset.text() + "</span> tag set:");
         } else {
             $("#id_selected_tag_set").text("Add a new tag:");
         }
@@ -131,7 +149,9 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id) {
             var parent_id = all_tags[this.getAttribute("data-set")];
             var link_owner = this.getAttribute("data-linkownername");
             var link_date = this.getAttribute("data-linkdate");
-            this.setAttribute("title", create_tag_title(tag.d, owners[tag.o], parent_id ? parent_id.t : null, link_owner, link_date));
+            this.setAttribute("title", create_tag_title(
+                tag.d, owners[tag.o], parent_id ? parent_id.t : null,
+                link_owner, link_date));
         }).tooltip();
     };
 
@@ -156,10 +176,17 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id) {
             if (offset !== undefined && limit !== undefined) {
                 url += "&offset=" + offset + "&limit=" + limit;
             }
-            $.ajax({ url: url, cache: false, dataType: 'json', success: callback });
+            $.ajax({
+                url: url,
+                cache: false,
+                dataType: 'json',
+                success: callback
+            });
         };
 
-        $(":button:contains('Reset'),:button:contains('Save')", $("#add_tags_form").parent()).attr("disabled", "disabled").addClass( 'ui-state-disabled' );
+        $(":button:contains('Reset'),:button:contains('Save')",
+            $("#add_tags_form").parent()).attr("disabled", "disabled").addClass(
+            'ui-state-disabled');
 
         progressbar_label.text("Initializing");
         progressbar.progressbar("value", 0);
@@ -190,13 +217,14 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id) {
             }
             raw_tags = raw_tags.concat(data);
             /*jsl:ignore*/
-            if (++num_tag_callbacks == batch_steps) {
+            if (++num_tag_callbacks === batch_steps) {
             /*jsl:end*/
                 process_tags();
                 progressbar_label.text("Loading owners");
                 load('owners', owners_callback);
             }
-            progressbar.progressbar("value", Math.ceil(num_tag_callbacks * step_weight));
+            progressbar.progressbar("value", Math.ceil(
+                num_tag_callbacks * step_weight));
         };
 
         var owners_callback = function(data) {
@@ -204,7 +232,8 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id) {
                 return;
             }
             process_owners(data);
-            progressbar.progressbar("value", Math.ceil((batch_steps + 1) * step_weight));
+            progressbar.progressbar("value", Math.ceil((batch_steps + 1) *
+                                                       step_weight));
             progressbar_label.text("Loading descriptions");
             for (var offset = 0; offset < tag_count; offset += batch_size) {
                 load('desc', desc_callback, offset, batch_size);
@@ -217,13 +246,14 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id) {
             }
             $.extend(raw_desc, data);
             /*jsl:ignore*/
-            if (++num_desc_callbacks == batch_steps) {
+            if (++num_desc_callbacks === batch_steps) {
             /*jsl:end*/
                 process_desc();
                 progressbar_label.text("Complete");
                 progressbar.progressbar("value", 100);
             } else {
-                progressbar.progressbar("value", Math.ceil((batch_steps + 1 + num_desc_callbacks) * step_weight));
+                progressbar.progressbar("value", Math.ceil(
+                    (batch_steps + 1 + num_desc_callbacks) * step_weight));
             }
         };
 
@@ -252,18 +282,27 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id) {
             create_html();
 
             for (idx in selected_tags) {
-                var selected_tag = $(".tag_selection div[data-id=" + selected_tags[idx][0] + "]");
+                var selected_tag = $(".tag_selection div[data-id=" +
+                                     selected_tags[idx][0] + "]");
                 if (selected_tag) {
                     selected_tag.appendTo(div_selected_tags);
-                    var others_count = parseInt(selected_tag.attr("data-others_count") || "0", 10) + (selected_tags[idx][5] ? 0 : 1);
+                    var others_count = parseInt(
+                        selected_tag.attr("data-others_count") || "0", 10
+                        ) + (selected_tags[idx][5] ? 0 : 1);
                     selected_tag.attr("data-others_count", others_count);
-                    selected_tag.attr("data-linkownername", others_count ? others_count + " other user" + (others_count > 1 ? "s" : "") : selected_tags[idx][2]);
-                    selected_tag.attr("data-linkdate", others_count ? "" : selected_tags[idx][4]);
+                    selected_tag.attr("data-linkownername", others_count ?
+                        others_count + " other user" +
+                        (others_count > 1 ? "s" : "") : selected_tags[idx][2]);
+                    selected_tag.attr("data-linkdate", others_count ? "" :
+                                      selected_tags[idx][4]);
                     if (selected_tags[idx][5]) {
                         selected_tag.addClass('owner-tagged');
                     }
-                    if ((!selected_tags[idx][3] || !selected_tags[idx][5]) && !selected_tag.hasClass("alltags-locked")) {
-                        selected_tag.addClass('alltags-locked').append($('<span>').addClass('alltags-take').on('click', take_tag_click));
+                    if ((!selected_tags[idx][3] || !selected_tags[idx][5]) &&
+                        !selected_tag.hasClass("alltags-locked")) {
+                        selected_tag.addClass('alltags-locked').append(
+                            $('<span>').addClass('alltags-take').on(
+                                'click', take_tag_click));
                     }
                 }
             }
@@ -288,7 +327,9 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id) {
         };
 
         var finalize_load = function() {
-            $(":button:contains('Reset'),:button:contains('Save')", $("#add_tags_form").parent()).removeAttr("disabled").removeClass( 'ui-state-disabled' );
+            $(":button:contains('Reset'),:button:contains('Save')",
+              $("#add_tags_form").parent()
+              ).removeAttr("disabled").removeClass('ui-state-disabled');
             loaded = true;
             update_add_new_button_state();
         };
@@ -301,7 +342,8 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id) {
         return $('<div/>').text(text).html();
     };
 
-    var create_tag_title = function(description, owner, tagset, link_owner, link_date) {
+    var create_tag_title = function(description, owner, tagset, link_owner,
+                                    link_date) {
         var title = "";
         if (owner) {
             title += "<b>Owner:</b> " + owner + "<br />";
@@ -321,8 +363,10 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id) {
         return title;
     };
 
-    var create_tag_html = function(text, description, owner, id, parent_id, is_tagset) {
-        var cls = is_tagset ? "alltags-tagset" : (parent_id ? "alltags-childtag" : "alltags-tag");
+    var create_tag_html = function(text, description, owner, id, parent_id,
+                                   is_tagset) {
+        var cls = is_tagset ? "alltags-tagset" :
+            (parent_id ? "alltags-childtag" : "alltags-tag");
         var html = "<div class='" + cls + "' data-id='" + id + "'";
         var tagset;
         if (parent_id) {
@@ -344,30 +388,37 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id) {
         // clear selections in right box
         $("div.ui-selected", div_selected_tags).removeClass('ui-selected');
         // move individual tags first
-        $("div.ui-selected.alltags-tag:not(.filtered), div.ui-selected.alltags-childtag:not(.filtered)", div_all_tags).each(function() {
-            $(this).appendTo(div_selected_tags);
-        });
+        $("div.ui-selected.alltags-tag:not(.filtered), " +
+          "div.ui-selected.alltags-childtag:not(.filtered)", div_all_tags).each(
+            function() {
+                $(this).appendTo(div_selected_tags);
+            });
         // move whole tag sets
-        $("div.ui-selected.alltags-tagset:not(.filtered)", div_all_tags).each(function() {
-            var tag = $(this).next("div.alltags-childtag");
-            while (tag.length) {
-                var current = tag;
-                tag = current.next("div.alltags-childtag");
-                if (!current.hasClass("filtered")) {
-                    current.addClass('ui-selected').appendTo(div_selected_tags);
+        $("div.ui-selected.alltags-tagset:not(.filtered)", div_all_tags).each(
+            function() {
+                var tag = $(this).next("div.alltags-childtag");
+                while (tag.length) {
+                    var current = tag;
+                    tag = current.next("div.alltags-childtag");
+                    if (!current.hasClass("filtered")) {
+                        current.addClass(
+                            'ui-selected').appendTo(div_selected_tags);
+                    }
                 }
-            }
-        });
+            });
         sort_tag_list(div_selected_tags);
         update_filter();
         // scroll to first selected tag
         var first_selected = $("div.ui-selected", div_selected_tags);
         if (first_selected.length > 0) {
-            div_selected_tags.parent().scrollTop(first_selected.offset().top - div_selected_tags.offset().top - 40);
+            div_selected_tags.parent().scrollTop(
+                first_selected.offset().top - div_selected_tags.offset().top -
+                40);
         }
         // remove 'take tag' icons
         $("div span", div_selected_tags).each(function() {
-            if ($("div[data-id=" + $(this).parent().attr('data-id') + "]:not(:has(span))", div_selected_tags).length > 0) {
+            if ($("div[data-id=" + $(this).parent().attr('data-id') +
+                  "]:not(:has(span))", div_selected_tags).length > 0) {
                 $(this).remove();
             }
         });
@@ -381,7 +432,8 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id) {
         $("div.ui-selected", div_selected_tags).each(function() {
             var tagset = $(this).attr("data-set");
             if (tagset) {
-                $(this).insertAfter($("div[data-id=" + tagset + "]", div_all_tags));
+                $(this).insertAfter($("div[data-id=" + tagset + "]",
+                                      div_all_tags));
             } else {
                 $(this).appendTo(div_all_tags);
             }
@@ -391,7 +443,8 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id) {
         // scroll to first selected tag
         var first_selected = $("div.ui-selected", div_all_tags);
         if (first_selected.length > 0) {
-            div_all_tags.parent().scrollTop(first_selected.offset().top - div_all_tags.offset().top - 40);
+            div_all_tags.parent().scrollTop(first_selected.offset().top -
+                                            div_all_tags.offset().top - 40);
         }
         event.preventDefault();
     };
@@ -403,21 +456,24 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id) {
             // make sure tagsets with unfiltered tags are also not filtered
             if (!no_filter) {
                 var unfiltered_tagsets = {};
-                $("div.alltags-childtag:not(.filtered)", div_all_tags).each(function() {
-                    unfiltered_tagsets[this.getAttribute("data-set")] = true;
-                });
+                $("div.alltags-childtag:not(.filtered)", div_all_tags).each(
+                    function() {
+                        unfiltered_tagsets[
+                            this.getAttribute("data-set")] = true;
+                    });
                 $("div.alltags-tagset", div_all_tags).each(function() {
-                    $(this).toggleClass('filtered', !unfiltered_tagsets[this.getAttribute("data-id")]);
+                    $(this).toggleClass('filtered', !unfiltered_tagsets[
+                        this.getAttribute("data-id")]);
                 });
             }
             update_selected_labels();
         };
         var input = tag_input_filter.val();
-        if (input == tag_input_filter.attr('placeholder')) {
+        if (input === tag_input_filter.attr('placeholder')) {
             input = '';
         }
         var filters = $.trim(input).toLowerCase().split(/ +/);
-        var no_filter = filters.length == 1 && filters[0] === "";
+        var no_filter = filters.length === 1 && filters[0] === "";
         if (no_filter) {
             $("div.filtered", div_all_tags).removeClass('filtered');
             cleanup();
@@ -435,7 +491,9 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id) {
                     tag.toggleClass("filtered", !match);
                 }
                 if (endpos < tags.length) {
-                    update_timeout = setTimeout(function() { dofilter(endpos); }, 1);
+                    update_timeout = setTimeout(function() {
+                        dofilter(endpos);
+                    }, 1);
                 } else {
                     cleanup();
                 }
@@ -450,12 +508,12 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id) {
         event.preventDefault();
 
         var text = tag_input.val();
-        if (text == tag_input.attr('placeholder')) {
+        if (text === tag_input.attr('placeholder')) {
             text = '';
         }
         text = $.trim(text);
         var description = description_input.val();
-        if (description == description_input.attr('placeholder')) {
+        if (description === description_input.attr('placeholder')) {
             description = '';
         }
         description = $.trim(description);
@@ -465,16 +523,18 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id) {
 
             var select_dialog;
             var confirm_tag_selection = function() {
-                if (select_dialog.data("clicked_button") == "Yes") {
-                    $("div.ui-selected", div_all_tags).removeClass("ui-selected");
-                    $("[data-id=" + id + "]", div_all_tags).addClass("ui-selected");
+                if (select_dialog.data("clicked_button") === "Yes") {
+                    $("div.ui-selected", div_all_tags).removeClass(
+                        "ui-selected");
+                    $("[data-id=" + id + "]", div_all_tags).addClass(
+                        "ui-selected");
                     select_tags(event);
                     tag_input.val('');
                     description_input.val('');
                 }
             };
             var confirm_tag_creation = function() {
-                if (select_dialog.data("clicked_button") == "Yes") {
+                if (select_dialog.data("clicked_button") === "Yes") {
                     add_new_tag(event, true);
                 }
             };
@@ -482,19 +542,32 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id) {
             // check for tag with same name
             if (!force) {
                 for (var id in all_tags) {
-                    if (all_tags[id].t == text) {
-                        if (all_tags[id].d == description) {
-                            if ($("[data-id=" + id + "]", div_selected_tags).length > 0) {
-                                OME.alert_dialog("A tag with the same name and description already exists and is selected.");
+                    if (all_tags[id].t === text) {
+                        if (all_tags[id].d === description) {
+                            if ($("[data-id=" + id + "]",
+                                  div_selected_tags).length > 0) {
+                                OME.alert_dialog(
+                                    "A tag with the same name and description" +
+                                    " already exists and is selected.");
                             } else if (all_tags[id].s) {
-                                OME.alert_dialog("A tag set with the same name and description already exists.");
+                                OME.alert_dialog(
+                                    "A tag set with the same name and " +
+                                    "description already exists.");
                             } else {
-                                select_dialog = OME.confirm_dialog("A tag with the same name and description already exists. " +
-                                    "Would you like to select the existing tag?", confirm_tag_selection, "Add new tag", ["Yes", "No"]);
+                                select_dialog = OME.confirm_dialog(
+                                    "A tag with the same name and description" +
+                                    " already exists. Would you like to " +
+                                    "select the existing tag?",
+                                    confirm_tag_selection, "Add new tag",
+                                    ["Yes", "No"]);
                             }
                         } else {
-                            select_dialog = OME.confirm_dialog("A tag with the same name and a different description already exists. " +
-                                "Would you still like to add a new tag?", confirm_tag_creation, "Add new tag", ["Yes", "No"]);
+                            select_dialog = OME.confirm_dialog(
+                                "A tag with the same name and a different " +
+                                "description already exists. " +
+                                "Would you still like to add a new tag?",
+                                confirm_tag_creation, "Add new tag",
+                                ["Yes", "No"]);
                         }
                         return;
                     }
@@ -502,16 +575,20 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id) {
             }
 
             new_tag_counter -= 1;
-            var tagset_id = tagset ? parseInt(tagset.attr('data-id'), 10) : false;
+            var tagset_id = (tagset ? parseInt(tagset.attr('data-id'), 10) :
+                             false);
             all_tags[new_tag_counter] = {
                 i: new_tag_counter,
                 d: description,
                 t: text,
                 o: null,
                 s: tagset_id,
-                sort_key: (tagset_id ? all_tags[tagset_id].t.toLowerCase() : '') + text.toLowerCase()
+                sort_key: (tagset_id ? all_tags[tagset_id].t.toLowerCase() :
+                           '') + text.toLowerCase()
             };
-            var div = $(create_tag_html(text, description, null, new_tag_counter, tagset ? tagset.attr('data-id') : null));
+            var div = $(create_tag_html(
+                text, description, null, new_tag_counter,
+                tagset ? tagset.attr('data-id') : null));
             div.addClass('ui-selected').on('click', tag_click).tooltip();
             $("div.ui-selected", div_selected_tags).removeClass('ui-selected');
             div_selected_tags.append(div);
@@ -521,7 +598,9 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id) {
         sort_tag_list(div_selected_tags);
         update_filter();
         // scroll to first selected tag
-        div_selected_tags.parent().scrollTop($("div.ui-selected", div_selected_tags).offset().top - div_selected_tags.offset().top - 40);
+        div_selected_tags.parent().scrollTop(
+            $("div.ui-selected", div_selected_tags).offset().top -
+            div_selected_tags.offset().top - 40);
         update_add_new_button_state();
     };
 
@@ -531,12 +610,19 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id) {
         var count = 0;
         $('div', div_selected_tags).each(function() {
             var tag_id = this.getAttribute('data-id');
-            if (tag_id[0] == "-") { // newly created tag
-                new_tags.after($("<input type='hidden' />").attr('name', "newtags-" + count + "-tag").val($(this).text()));
-                new_tags.after($("<input type='hidden' />").attr('name', "newtags-" + count + "-description").val(this.getAttribute('data-description')));
-                new_tags.after($("<input type='hidden' />").attr('name', "newtags-" + count + "-tagset").val(this.getAttribute('data-set')));
+            if (tag_id[0] === "-") { // newly created tag
+                new_tags.after($("<input type='hidden' />").attr(
+                    'name', "newtags-" + count + "-tag").val($(this).text()));
+                new_tags.after($("<input type='hidden' />").attr(
+                    'name', "newtags-" + count + "-description").val(
+                        this.getAttribute('data-description')));
+                new_tags.after($("<input type='hidden' />").attr(
+                    'name', "newtags-" + count + "-tagset").val(
+                        this.getAttribute('data-set')));
                 count += 1;
-            } else if (!$(this).hasClass('alltags-locked') || $(this).hasClass('owner-tagged')) { // previously existing tag link owned by current user
+            } else if (!$(this).hasClass('alltags-locked') ||
+                       $(this).hasClass('owner-tagged')) {
+                // previously existing tag link owned by current user
                 existing_tags.push(tag_id);
             }
         });
@@ -552,7 +638,8 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id) {
     };
 
     var update_add_new_button_state = function() {
-        if (loaded && tag_input.val() !== '' && tag_input.val() != tag_input.attr('placeholder')) {
+        if (loaded && tag_input.val() !== '' &&
+            tag_input.val() !== tag_input.attr('placeholder')) {
             $("#id_add_new_tag").removeAttr('disabled');
         } else {
             $("#id_add_new_tag").attr('disabled','disabled');
@@ -563,11 +650,14 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id) {
     $("#id_tag_deselect_button").click(deselect_tags);
     $("#id_add_new_tag").click(add_new_tag);
     $("#add_tags_form").off('prepare-submit').on('prepare-submit', save_tags);
-    tag_input.keyup(update_add_new_button_state).change(update_add_new_button_state);
+    tag_input.keyup(update_add_new_button_state).change(
+        update_add_new_button_state);
     update_add_new_button_state();
     tag_input_filter.keyup(update_filter).change(update_filter);
 
-    $("#id_tag_info_button").on('click', function(event) { event.preventDefault(); }).tooltip();
+    $("#id_tag_info_button").on('click', function(event) {
+        event.preventDefault();
+    }).tooltip();
 
     //load_tags();
     loader();
@@ -575,20 +665,20 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id) {
     // placeholder fixes - should probably be in a more generic place
     $('[placeholder]').focus(function() {
         var input = $(this);
-        if (input.val() == input.attr('placeholder')) {
+        if (input.val() === input.attr('placeholder')) {
             input.val('');
             input.removeClass('placeholder');
         }
       }).blur(function() {
         var input = $(this);
-        if (input.val() === '' || input.val() == input.attr('placeholder')) {
+        if (input.val() === '' || input.val() === input.attr('placeholder')) {
             input.addClass('placeholder');
             input.val(input.attr('placeholder'));
         }
       }).blur().parents('form').submit(function() {
         $(this).find('[placeholder]').each(function() {
             var input = $(this);
-            if (input.val() == input.attr('placeholder')) {
+            if (input.val() === input.attr('placeholder')) {
                 input.val('');
             }
         });
