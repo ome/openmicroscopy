@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 #
-# Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
+# Copyright (C) 2013-2014 University of Dundee & Open Microscopy Environment.
 # All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
@@ -27,9 +27,11 @@
 import omero.util.script_utils as scriptUtil
 from numpy import arange, uint8
 
+
 def createTestImage(session):
-    
-    plane2D = arange(256, dtype=uint8).reshape(16,16)
-    image = scriptUtil.createNewImage(session, [plane2D], "imageName", "description", dataset=None)
+
+    plane2D = arange(256, dtype=uint8).reshape(16, 16)
+    image = scriptUtil.createNewImage(session, [plane2D], "imageName",
+                                      "description", dataset=None)
 
     return image.getId().getValue()
