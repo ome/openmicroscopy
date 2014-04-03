@@ -283,11 +283,9 @@ public class CommandLineImporter {
             + "  -p PORT\tOMERO server port (default: 4064)\n"
             + "\n"
             + "Naming arguments:\n"
-            + "All naming arguments are optional but only image OR plate values should be set\n"
-            + "  -n NAME\t\t\t\tImage name to use\n"
-            + "  -x DESCRIPTION\t\t\tImage description to use\n"
-            + "  --plate_name NAME\t\t\tPlate name to use\n"
-            + "  --plate_description DESCRIPTION\tPlate description to use\n"
+            + "All naming arguments are optional.\n"
+            + "  -n NAME\t\t\t\tImage or plate name to use\n"
+            + "  -x DESCRIPTION\t\t\tImage or plate description to use\n"
             + "\n"
             + "Optional arguments:\n"
             + "  -h\t\t\t\t\tDisplay this help and exit\n"
@@ -434,44 +432,39 @@ public class CommandLineImporter {
         LongOpt logs = new LongOpt("logs", LongOpt.NO_ARGUMENT, null, 4);
         LongOpt email = new LongOpt(
                 "email", LongOpt.REQUIRED_ARGUMENT, null, 5);
-        LongOpt plateName = new LongOpt(
-                "plate_name", LongOpt.REQUIRED_ARGUMENT, null, 6);
-        LongOpt plateDescription = new LongOpt(
-                "plate_description", LongOpt.REQUIRED_ARGUMENT, null, 7);
         LongOpt noThumbnails = new LongOpt(
-                "no_thumbnails", LongOpt.NO_ARGUMENT, null, 8);
+                "no_thumbnails", LongOpt.NO_ARGUMENT, null, 6);
         LongOpt agent = new LongOpt(
-                "agent", LongOpt.REQUIRED_ARGUMENT, null, 9);
+                "agent", LongOpt.REQUIRED_ARGUMENT, null, 7);
         LongOpt annotationNamespace =
-            new LongOpt("annotation_ns", LongOpt.REQUIRED_ARGUMENT, null, 10);
+            new LongOpt("annotation_ns", LongOpt.REQUIRED_ARGUMENT, null, 8);
         LongOpt annotationText =
             new LongOpt("annotation_text", LongOpt.REQUIRED_ARGUMENT,
-                        null, 11);
+                        null, 9);
         LongOpt annotationLink =
             new LongOpt("annotation_link", LongOpt.REQUIRED_ARGUMENT,
-                        null, 12);
+                        null, 10);
 
         // ADVANCED OPTIONS
         LongOpt advancedHelp =
-                new LongOpt("advanced-help", LongOpt.NO_ARGUMENT, null, 13);
+                new LongOpt("advanced-help", LongOpt.NO_ARGUMENT, null, 11);
         LongOpt transferOpt =
-                new LongOpt("transfer", LongOpt.REQUIRED_ARGUMENT, null, 14);
+                new LongOpt("transfer", LongOpt.REQUIRED_ARGUMENT, null, 12);
         LongOpt checksumAlgorithm =
-                new LongOpt("checksum_algorithm", LongOpt.REQUIRED_ARGUMENT, null, 15);
+                new LongOpt("checksum_algorithm", LongOpt.REQUIRED_ARGUMENT, null, 13);
         LongOpt minutesWait =
-                new LongOpt("minutes_wait", LongOpt.REQUIRED_ARGUMENT, null, 16);
+                new LongOpt("minutes_wait", LongOpt.REQUIRED_ARGUMENT, null, 14);
         LongOpt closeCompleted =
-                new LongOpt("close_completed", LongOpt.NO_ARGUMENT, null, 17);
+                new LongOpt("close_completed", LongOpt.NO_ARGUMENT, null, 15);
         LongOpt waitCompleted =
-                new LongOpt("wait_completed", LongOpt.NO_ARGUMENT, null, 18);
+                new LongOpt("wait_completed", LongOpt.NO_ARGUMENT, null, 16);
 
         Getopt g = new Getopt(APP_NAME, args, "cfl:s:u:w:d:r:k:x:n:p:h",
                 new LongOpt[] { debug, report, upload, logs, email,
-                                plateName, plateDescription, noThumbnails,
-                                agent, annotationNamespace, annotationText,
-                                annotationLink, transferOpt, advancedHelp,
-                                checksumAlgorithm, minutesWait, closeCompleted,
-                                waitCompleted});
+                                noThumbnails, agent, annotationNamespace,
+                                annotationText, annotationLink, transferOpt,
+                                advancedHelp, checksumAlgorithm, minutesWait,
+                                closeCompleted, waitCompleted});
         int a;
 
         boolean doCloseCompleted = false;
@@ -510,68 +503,52 @@ public class CommandLineImporter {
                 break;
             }
             case 6: {
-                if (userSpecifiedNameAlreadySet) {
-                    usage();
-                }
-                config.userSpecifiedName.set(g.getOptarg());
-                userSpecifiedNameAlreadySet = true;
-                break;
-            }
-            case 7: {
-                if (userSpecifiedDescriptionAlreadySet) {
-                    usage();
-                }
-                config.userSpecifiedDescription.set(g.getOptarg());
-                userSpecifiedDescriptionAlreadySet = true;
-                break;
-            }
-            case 8: {
               config.doThumbnails.set(false);
               break;
             }
-            case 9: {
+            case 7: {
                 config.agent.set(g.getOptarg());
                 break;
             }
-            case 10: {
+            case 8: {
                 annotationNamespaces.add(g.getOptarg());
                 break;
             }
-            case 11: {
+            case 9: {
                 textAnnotations.add(g.getOptarg());
                 break;
             }
-            case 12: {
+            case 10: {
                 annotationIds.add(Long.parseLong(g.getOptarg()));
                 break;
             }
-            case 13: {
+            case 11: {
                 advUsage();
                 break;
             }
             // ADVANCED START -------------------------------------------------
-            case 14: {
+            case 12: {
                 String arg = g.getOptarg();
                 log.info("Setting transfer to {}", arg);
                 transfer = AbstractFileTransfer.createTransfer(arg);
                 break;
             }
-            case 15: {
+            case 13: {
                 String arg = g.getOptarg();
                 log.info("Setting checksum algorithm to {}", arg);
                 config.checksumAlgorithm.set(arg);
                 break;
             }
-            case 16: {
+            case 14: {
                 minutesToWait = Integer.parseInt(g.getOptarg());
                 log.info("Setting minutes to wait to {}", minutesToWait);
                 break;
             }
-            case 17: {
+            case 15: {
                 doCloseCompleted = true;
                 break;
             }
-            case 18: {
+            case 16: {
                 doWaitCompleted = true;
                 break;
             }
