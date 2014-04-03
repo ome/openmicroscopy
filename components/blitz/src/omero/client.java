@@ -21,10 +21,12 @@ package omero;
 import static omero.rtypes.rlong;
 import static omero.rtypes.rstring;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.nio.ByteBuffer;
@@ -771,6 +773,18 @@ public class client {
             throw new RuntimeException(e);
         }
 
+        try {
+            String insecure = getSession().getConfigService().getConfigValue(
+                    "omero.router.insecure");
+            if (StringUtils.isNotBlank(insecure)) {
+                String host = getPropertyMap().get("omero.host");
+                insecure = insecure.replaceAll("@omero.host@", host);
+                getSession().getConfigService().setConfigValue(
+                        "omero.router.insecure", insecure);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
         // Set the session uuid in the implicit context
         getImplicitContext().put(omero.constants.SESSIONUUID.value, getSessionId());
         return this.__sf;
