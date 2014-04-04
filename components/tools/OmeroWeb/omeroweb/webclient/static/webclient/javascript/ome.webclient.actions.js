@@ -373,7 +373,39 @@ OME.refreshThumbnails = function(imageId) {
             base_src = $this.attr('src').split('?')[0];
         $this.attr('src', base_src + "?_="+rdm);
     });
-}
+};
+
+OME.truncateNames = (function(){
+    var insHtml;
+    // Resizing of left panel dynamically truncates image names
+    // NB: no images loaded when page first laods. Do everything on resize...
+    var truncateNames = function() {
+        if (!insHtml) {
+            // use the first image to get the html
+            var $ins = $('.jstree li[rel^="image"] a ins').first();
+            if ($ins.length > 0) {
+                insHtml = $ins.get(0).outerHTML;
+            }
+        }
+        // get the panel width, and number of chars that will fit
+        var lp_width = $("#left_panel").width()-100,
+            charWidth = 6,
+            chars = (lp_width / charWidth) >> 0;
+        if (chars < 1)  return;
+        // Go through all images, truncating names...
+        $('.jstree li[rel^="image"] a').each(function(){
+            var $this = $(this);
+            var name = $this.attr('data-name');
+            if (name) {
+                if (name.length > chars) {
+                    name = "..." + name.slice(-chars);
+                }
+                $this.html(insHtml + name);
+            }
+        });
+    };
+    return truncateNames;
+}());
 
 jQuery.fn.tooltip_init = function() {
     $(this).tooltip({
