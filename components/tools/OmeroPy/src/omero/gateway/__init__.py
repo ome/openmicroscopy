@@ -37,7 +37,7 @@ import time
 import array
 import math
 
-import gettext.gettext as _
+from gettext import gettext as _
 
 import logging
 logger = logging.getLogger(__name__)
@@ -241,7 +241,7 @@ class BlitzObjectWrapper (object):
             if isinstance(pwc[i], StringTypes):
                 # resolve class
                 g = globals()
-                if not pwc[i] ing: #pragma: no cover
+                if not pwc[i] in g: #pragma: no cover
                     raise NotImplementedError
                 pwc[i] = g[pwc[i]]
 
