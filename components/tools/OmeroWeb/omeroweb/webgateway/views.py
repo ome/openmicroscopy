@@ -1636,15 +1636,8 @@ def reset_image_rdef_json (request, iid, conn=None, **kwargs):
         server_id = request.session['connector'].server_id
         webgateway_cache.invalidateObject(server_id, user_id, img)
         return True
-#        json_data = 'true'
     else:
-#        json_data = 'false'
         return False
-#    if _conn is not None:
-#        return json_data == 'true'      # TODO: really return a boolean? (not json)
-#    if r.get('callback', None):
-#        json_data = '%s(%s)' % (r['callback'], json_data)
-#    return HttpJavascriptResponse(json_data)
 
 @login_required()
 def full_viewer (request, iid, conn=None, **kwargs):

@@ -457,9 +457,6 @@ def dataset_split_view (request, datasetId, conn=None, **kwargs):
     if channels is None:
         return HttpResponse("<p class='center_message'>No Images in Dataset<p>")
 
-    #indexes = range(1, len(channels)+1)
-    #c_string = ",".join(["-%s" % str(c) for c in indexes])     # E.g. -1,-2,-3,-4
-
     leftFlags = []
     rightFlags = []
     for i, c, in enumerate(channels):
