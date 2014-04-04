@@ -29,8 +29,15 @@
 
     <!-- set-up the jstree, toolbar, left-panel tabs etc -->
     <script type="text/javascript">
-        $(function() 
-            {
+        $(function() {
+
+            // We truncate images when the left panel resizes...
+            $("#left_panel").on('resize', OME.truncateNames);
+            // and also when we load new data in the tree
+            $("#dataTree").on('load_node.jstree', function() {
+                // wait for images to render, then truncate:
+                setTimeout(OME.truncateNames, 30);
+            });
 
                 $("#left_panel_tabs").tabs({
                     select: function(event, ui) {

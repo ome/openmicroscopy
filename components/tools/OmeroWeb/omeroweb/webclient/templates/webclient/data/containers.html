@@ -295,11 +295,11 @@
                     })
                 }
                 // We truncate images when the left panel resizes...
-                $("#left_panel").on('resize', truncateNames);
+                $("#left_panel").on('resize', OME.truncateNames);
                 // and also when we load new data in the tree
                 $("#dataTree").on('load_node.jstree', function() {
                     // wait for images to render, then truncate:
-                    setTimeout(truncateNames, 30);
+                    setTimeout(OME.truncateNames, 30);
                 });
 
                 // Copy the selected Image ID to the 'session' (right-click menu only allows this on 'image')
