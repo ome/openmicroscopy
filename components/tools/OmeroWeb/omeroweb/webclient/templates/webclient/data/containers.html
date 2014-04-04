@@ -267,22 +267,37 @@
                 var copy_paste_rdef_url = "{% url 'webgateway.views.copy_image_rdef_json' %}",
                     apply_owners_rdef_url = "{% url 'webgateway.views.apply_owners_rdef_json' %}";
 
-                $("#left_panel").on('resize', function(event) {
-                    var lp_width = $(event.target).width(),
-                        chars = (lp_width / 7) >> 0;
-
-                    console.log(lp_width, chars);
-
-                    $('.jstree li a').each(function(){
+                var insHtml, charWidth;
+                // Resizing of left panel dynamically truncates image names
+                // NB: no images loaded when page first laods. Do everything on resize...
+                var truncateNames = function() {
+                    if (!insHtml) {
+                        var $ins = $('.jstree li[rel^="image"] a ins').first();
+                        // insHtml = $('<div>').append(ins.clone()).html();
+                        if ($ins.length > 0) {
+                            insHtml = $ins.get(0).outerHTML;
+                            var imageName = $ins.next().text(),
+                                nameWidth = $ins.next().width();
+                            charWidth = (nameWidth/imageName.length) + 1;
+                        }
+                    }
+                    // use the first image to get the html
+                    var lp_width = $("#left_panel").width()-120,
+                        chars = (lp_width / charWidth) >> 0;
+                    // Go through all images
+                    $('.jstree li[rel^="image"] a').each(function(){
 
                         var $this = $(this);
                         var name = $this.attr('data-name');
                         if (name) {
-                            name = name.slice(-chars);
-                            $this.text(name);
+                            if (name.length > chars) {
+                                name = "..." + name.slice(-chars);
+                            }
+                            $this.html(insHtml + name);
                         }
                     })
-                });
+                }
+                $("#left_panel").on('resize', truncateNames);
 
                 // Copy the selected Image ID to the 'session' (right-click menu only allows this on 'image')
                 var copyRenderingSettings = function(selected) {
