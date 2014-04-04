@@ -21,7 +21,7 @@
  *------------------------------------------------------------------------------
  */
 
-package org.openmicroscopy.shoola.env.data.util;
+package pojos.util;
 
 //Java imports
 import java.lang.reflect.InvocationTargetException;
@@ -243,7 +243,7 @@ public class PojoMapper
      * @throws IllegalArgumentException If the set is <code>null</code>, doesn't
      * contain {@link IObject} or if the type {@link IObject} is unknown.
      */
-    public static Set asDataObjects(List objects)
+    public static Set<DataObject> asDataObjects(List objects)
     {
         if (objects == null) return new HashSet<DataObject>();
         Set<DataObject> set = new HashSet<DataObject>(objects.size());

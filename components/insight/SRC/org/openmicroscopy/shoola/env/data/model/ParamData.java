@@ -36,7 +36,6 @@ import java.util.Map.Entry;
 
 import org.apache.commons.collections.CollectionUtils;
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.data.util.PojoMapper;
 import omero.RBool;
 import omero.RFloat;
 import omero.RInt;
@@ -48,6 +47,8 @@ import omero.RString;
 import omero.RType;
 import omero.grid.Param;
 import omero.model.IObject;
+
+import pojos.util.PojoMapper;
 
 /** 
  * Wraps up a parameter object.

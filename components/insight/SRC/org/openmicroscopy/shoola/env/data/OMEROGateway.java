@@ -70,7 +70,6 @@ import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.data.model.TableParameters;
 import org.openmicroscopy.shoola.env.data.model.TableResult;
 import org.openmicroscopy.shoola.env.data.util.ModelMapper;
-import org.openmicroscopy.shoola.env.data.util.PojoMapper;
 import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.util.StatusLabel;
@@ -251,6 +250,7 @@ import pojos.WellData;
 import pojos.WellSampleData;
 import pojos.WorkflowData;
 import pojos.XMLAnnotationData;
+import pojos.util.PojoMapper;
 
 /**
  * Unified access point to the various <i>OMERO</i> services.
@@ -7454,7 +7454,7 @@ class OMEROGateway
 		                + "left outer join fetch m2.parent" +
 		                		" where g.id = :id", p);
 			}
-			pojos.addAll(PojoMapper.asDataObjects(groups));
+			pojos.addAll((Set)PojoMapper.asDataObjects(groups));
 			return pojos;
 		} catch (Throwable t) {
 			handleException(t, "Cannot retrieve the available groups ");
@@ -7488,7 +7488,7 @@ class OMEROGateway
 	                + "left outer join fetch g.groupExperimenterMap m "
 	                + "left outer join fetch m.child u "
 	                + " where u.id = :id", p);
-			pojos.addAll(PojoMapper.asDataObjects(groups));
+			pojos.addAll((Set)PojoMapper.asDataObjects(groups));
 			return pojos;
 		} catch (Throwable t) {
 			handleException(t, "Cannot retrieve the available groups ");
@@ -7516,7 +7516,7 @@ class OMEROGateway
 		try {
 		    IAdminPrx service = c.getAdminService();
 			List<Experimenter> l = service.lookupExperimenters();
-			pojos.addAll(PojoMapper.asDataObjects(l));
+			pojos.addAll((Set)PojoMapper.asDataObjects(l));
 		} catch (Throwable t) {
 			handleException(t, "Cannot retrieve the existing groups.");
 		}

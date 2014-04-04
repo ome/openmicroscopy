@@ -90,7 +90,6 @@ import org.openmicroscopy.shoola.env.data.model.FigureParam;
 import org.openmicroscopy.shoola.env.data.model.SaveAsParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.data.util.ModelMapper;
-import org.openmicroscopy.shoola.env.data.util.PojoMapper;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.util.StatusLabel;
 import org.openmicroscopy.shoola.env.data.util.Target;
@@ -114,6 +113,7 @@ import pojos.ROIData;
 import pojos.ScreenData;
 import pojos.TagAnnotationData;
 import pojos.WorkflowData;
+import pojos.util.PojoMapper;
 
 /** 
 * Implementation of the {@link OmeroImageService} I/F.
