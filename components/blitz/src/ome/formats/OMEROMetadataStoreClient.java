@@ -3970,6 +3970,36 @@ public class OMEROMetadataStoreClient
          o.setSerialNumber(toRType(serialNumber));
     }
 
+    // ID accessor from parent LightSource
+    public void setGenericSourceID(String id, int instrumentIndex, int lightSourceIndex) {
+        // TODO stub
+    }
+
+    // LotNumber accessor from parent LightSource
+    public void setGenericSourceLotNumber(String lotNumber, int instrumentIndex, int lightSourceIndex) {
+        // TODO stub
+    }
+
+    // Manufacturer accessor from parent LightSource
+    public void setGenericSourceManufacturer(String manufacturer, int instrumentIndex, int lightSourceIndex) {
+        // TODO stub
+    }
+
+    // Model accessor from parent LightSource
+    public void setGenericSourceModel(String model, int instrumentIndex, int lightSourceIndex) {
+        // TODO stub
+    }
+
+    // Power accessor from parent LightSource
+    public void setGenericSourcePower(Double power, int instrumentIndex, int lightSourceIndex) {
+        // TODO stub
+    }
+
+    // SerialNumber accessor from parent LightSource
+    public void setGenericSourceSerialNumber(String serialNumber, int instrumentIndex, int lightSourceIndex) {
+        // TODO stub
+    }
+
     ////////ExperimenterGroup/////////
 
     /* (non-Javadoc)
@@ -4807,6 +4837,14 @@ public class OMEROMetadataStoreClient
         {
             o.setBytes(binData);
         }
+    }
+
+    public void setMapAnnotationValue(Map<String, String> value, int mapAnnotationIndex) {
+        // TODO stub
+    }
+
+    public void setGenericSourceMap(Map<String, String> map, int instrumentIndex, int lightSourceIndex) {
+        // TODO stub
     }
 
     /* (non-Javadoc)
@@ -7427,6 +7465,26 @@ public class OMEROMetadataStoreClient
     public void  setLongAnnotationAnnotator(String value, int XMLAnnotationIndex)
     {
         // TODO : not in OMERO model
+    }
+
+    public void setMapAnnotationAnnotationRef(String annotation, int mapAnnotationIndex, int annotationRefIndex) {
+        // TODO stub
+    }
+
+    public void setMapAnnotationAnnotator(String annotator, int mapAnnotationIndex) {
+        // TODO stub
+    }
+
+    public void setMapAnnotationDescription(String description, int mapAnnotationIndex) {
+        // TODO stub
+    }
+
+    public void setMapAnnotationID(String id, int mapAnnotationIndex) {
+        // TODO stub
+    }
+
+    public void setMapAnnotationNamespace(String namespace, int mapAnnotationIndex) {
+        // TODO stub
     }
 
     /**
