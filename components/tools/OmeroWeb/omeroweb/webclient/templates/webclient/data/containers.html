@@ -267,26 +267,23 @@
                 var copy_paste_rdef_url = "{% url 'webgateway.views.copy_image_rdef_json' %}",
                     apply_owners_rdef_url = "{% url 'webgateway.views.apply_owners_rdef_json' %}";
 
-                var insHtml, charWidth;
+                var insHtml;
                 // Resizing of left panel dynamically truncates image names
                 // NB: no images loaded when page first laods. Do everything on resize...
                 var truncateNames = function() {
                     if (!insHtml) {
+                        // use the first image to get the html
                         var $ins = $('.jstree li[rel^="image"] a ins').first();
-                        // insHtml = $('<div>').append(ins.clone()).html();
                         if ($ins.length > 0) {
                             insHtml = $ins.get(0).outerHTML;
-                            var imageName = $ins.next().text(),
-                                nameWidth = $ins.next().width();
-                            charWidth = (nameWidth/imageName.length) + 1;
                         }
                     }
-                    // use the first image to get the html
+                    // get the panel width, and number of chars that will fit
                     var lp_width = $("#left_panel").width()-120,
+                        charWidth = 6,
                         chars = (lp_width / charWidth) >> 0;
-                    // Go through all images
+                    // Go through all images, truncating names...
                     $('.jstree li[rel^="image"] a').each(function(){
-
                         var $this = $(this);
                         var name = $this.attr('data-name');
                         if (name) {
@@ -297,7 +294,13 @@
                         }
                     })
                 }
+                // We truncate images when the left panel resizes...
                 $("#left_panel").on('resize', truncateNames);
+                // and also when we load new data in the tree
+                $("#dataTree").on('load_node.jstree', function() {
+                    // wait for images to render, then truncate:
+                    setTimeout(truncateNames, 30);
+                });
 
                 // Copy the selected Image ID to the 'session' (right-click menu only allows this on 'image')
                 var copyRenderingSettings = function(selected) {
