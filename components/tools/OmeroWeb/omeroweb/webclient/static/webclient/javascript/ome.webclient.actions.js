@@ -388,19 +388,34 @@ OME.truncateNames = (function(){
             }
         }
         // get the panel width, and number of chars that will fit
-        var lp_width = $("#left_panel").width()-100,
-            charWidth = 6,
-            chars = (lp_width / charWidth) >> 0;
-        if (chars < 1)  return;
+        var lp_width = $("#left_panel").width() - 20;  // margin
         // Go through all images, truncating names...
+        // When we find matching size for a name length, cache it
+        var lookup = {};
         $('.jstree li[rel^="image"] a').each(function(){
-            var $this = $(this);
-            var name = $this.attr('data-name');
-            if (name) {
-                if (name.length > chars) {
-                    name = "..." + name.slice(-chars);
-                }
+            var $this = $(this),
+                ofs = $this.offset(),
+                name = $this.attr('data-name'),
+                truncatedName,
+                chars = name.length;
+            // if we know a suitable cut-off for name of this length...
+            if (lookup[name.length]) {
+                chars = lookup[name.length];
+                truncatedName = name.slice(-chars);
+                if (chars < name.length) truncatedName = "..." + truncatedName;
+                $this.html(insHtml + truncatedName);
+            } else {
+                // Trim the full name until it fits!
                 $this.html(insHtml + name);
+                var w = $this.width() + ofs.left;
+                while (w > lp_width) {
+                    chars = chars-2;
+                    truncatedName = "..." + name.slice(-chars);
+                    $this.html(insHtml + truncatedName);
+                    w = $this.width() + ofs.left;
+                }
+                // save for later
+                lookup[name.length] = chars;
             }
         });
     };
