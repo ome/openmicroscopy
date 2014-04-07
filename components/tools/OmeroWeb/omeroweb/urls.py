@@ -26,7 +26,7 @@
 import os.path
 
 from django.conf import settings
-from django.conf.urls import *
+from django.conf.urls import url, patterns, include
 from django.views.static import serve
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.shortcuts import redirect
