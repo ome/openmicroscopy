@@ -301,7 +301,8 @@ class Context:
         """
         sessions = self.controls["sessions"]
 
-        login = self.subparsers.add_parser("login", help="Shortcut for 'sessions login'")
+        login = self.subparsers.add_parser("login", help="Shortcut for 'sessions login'",
+                                           description=sessions.login.__doc__)
         login.set_defaults(func=lambda args:sessions.login(args))
         sessions._configure_login(login)
 

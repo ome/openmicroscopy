@@ -122,8 +122,7 @@ class SessionsControl(BaseControl):
         sub = parser.sub()
         parser.add(sub, self.help, "Extended help")
         login = parser.add(
-            sub, self.login,
-            "Login to a given server, and store session key locally")
+            sub, self.login, self.login.__doc__)
         logout = parser.add(
             sub, self.logout, "Logout and remove current session key")
         self._configure_login(login)
@@ -181,6 +180,19 @@ class SessionsControl(BaseControl):
         self.ctx.err(LONGHELP % {"prog": args.prog})
 
     def login(self, args):
+        ("Login to a given server, and store session key locally.\n\n"
+         "USER, HOST, and PORT are set as args or in a ssh-style connection string.\n"
+         "PASSWORD can be entered interactively, or passed via -w (insecure!).\n"
+         "Alternatively, a session KEY can be passed with '-k'.\n"
+         "Admin users can use --sudo=ADMINUSER to login for others.\n\n"
+         "Examples:\n"
+         "  bin/omero login example.com\n"
+         "  bin/omero login user@example.com\n"
+         "  bin/omero login user@example.com:24064\n"
+         "  bin/omero login -k SESSIONKEY example.com\n"
+         "  bin/omero login --sudo=root user@example\n"
+        "\n")
+
         """
         Goals:
         If server and key, then don't ask any questions.
