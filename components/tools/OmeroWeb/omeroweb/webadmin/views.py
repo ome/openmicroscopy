@@ -68,7 +68,7 @@ from omeroweb.webadmin.webadmin_utils import toBoolean, upgradeCheck
 
 from omeroweb.connector import Server
 from omeroweb.http import HttpJsonResponse, HttpJPEGResponse
-from omeroweb.webclient.decorators import login_required
+from omeroweb.webclient.decorators import login_required, render_response
 from omeroweb.connector import Connector
 
 logger = logging.getLogger(__name__)
@@ -290,6 +290,61 @@ def usersData(conn, offset=0):
             loading = True
     
     return {'loading':loading, 'offset':offset, 'usage':usage_map}
+
+
+@login_required(isAdmin=True)
+@render_response()
+def drivespace_json(request, query='groups', conn=None, **kwargs):
+
+
+    diskUsage = []
+
+    # diskUsage.append({"label": "Free space", "data":conn.getFreeSpace()})
+
+    queryService = conn.getQueryService()
+    ctx = conn.SERVICE_OPTS.copy()
+    params = omero.sys.ParametersI()
+    params.theFilter = omero.sys.Filter()
+
+    def getBytes(ctx, eid=None):
+        bytesInGroup = 0
+
+        pixelsQuery = "select sum(cast( p.sizeX as double ) * p.sizeY * p.sizeZ * p.sizeT * p.sizeC * pt.bitSize / 8) " \
+            "from Pixels p join p.pixelsType as pt join p.image i left outer join i.fileset f " \
+            "join p.details.owner as owner " \
+            "where f is null"
+
+        filesQuery = "select sum(origFile.size) from OriginalFile as origFile " \
+            "join origFile.details.owner as owner"
+
+        if eid is not None:
+            params.add('eid', omero.rtypes.rlong(eid))
+            pixelsQuery = pixelsQuery + " and owner.id = (:eid)"
+            filesQuery = filesQuery + " where owner.id = (:eid)"
+        # Calculate disk usage via Pixels
+        result = queryService.projection(pixelsQuery, params, ctx)
+        if len(result) > 0 and len(result[0]) > 0:
+            bytesInGroup += result[0][0].val / 2      # BUG - see https://trac.openmicroscopy.org.uk/ome/ticket/12126#comment:11
+        # Now get Original File usage
+        result = queryService.projection(filesQuery, params, ctx)
+        if len(result) > 0 and len(result[0]) > 0:
+            bytesInGroup += result[0][0]._val
+        return bytesInGroup
+
+    if query == 'groups':
+        for g in conn.listGroups():
+            ctx.setOmeroGroup(g.getId())
+            b = getBytes(ctx)
+            diskUsage.append({"label": g.getName(), "data": b, "gid": g.getId()});
+
+    elif query == 'users':
+        ctx.setOmeroGroup('-1')
+        for e in conn.getObjects("Experimenter"):
+            b = getBytes(ctx, e.getId())
+            diskUsage.append({"label": e.getName(), "data": b});
+
+    return diskUsage
+
 
 ################################################################################
 # views controll
