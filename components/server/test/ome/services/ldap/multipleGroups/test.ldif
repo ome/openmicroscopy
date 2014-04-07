@@ -1,3 +1,23 @@
+version: 1
+dn: ou=multipleGroups,o=eg
+objectclass: organizationalUnit
+objectClass: top
+ou: multipleGroups
+
+dn: ou=groups,ou=multipleGroups,o=eg
+objectclass: organizationalUnit
+objectClass: top
+ou: groups
+
+dn: cn=jrslab,ou=groups,ou=multipleGroups,o=eg
+objectClass: posixGroup
+objectClass: top
+objectClass: groupManagers
+cn: jrslab
+description: Domain Unix group
+displayName: jrslab
+gidNumber: 1014
+
 dn: cn=omedev,ou=groups,ou=multipleGroups,o=eg
 objectClass: top
 objectClass: posixGroup
@@ -50,3 +70,22 @@ dn: ou=notedir,ou=people,ou=multipleGroups,o=eg
 objectClass: top
 objectClass: organizationalUnit
 ou: notedir
+
+dn: cn=test1,ou=notedir,ou=people,ou=multipleGroups,o=eg
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: sambaAccount
+objectClass: top
+objectClass: radiusProfile
+cn: test1
+gecos: Josh Moore (JS) j.moore@example.com
+givenName: Josh
+homeDirectory: /homes/jmoore
+loginShell: /bin/bash
+mail: josh@example.com
+sn: jmoore
+uid: jmoore
+uidNumber: 5226
+userPassword: password
