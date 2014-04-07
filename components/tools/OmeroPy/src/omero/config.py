@@ -132,20 +132,19 @@ class ConfigXml(object):
             except IOError:
                 self.logger.debug("open('%s', 'a+') failed" % self.filename)
 
+                # Before we're forced to open read-only, we need to check
+                # that no other configuration has been requested because
+                # it will not be possible to modify the __ACTIVE__ setting
+                # once it's read-only
+                val = self.env_config.is_non_default()
+                if val is not None:
+                    raise Exception("Non-default OMERO_CONFIG on read-only: %s" % val)
+
         if self.source is None:
             self.lock = None
             self.exclusive = False
             self.save_on_close = False
-
-        # Before we open the file read-only we need to check
-        # that no other configuration has been requested because
-        # it will not be possible to modify the __ACTIVE__ setting
-        # once it's read-only
-        val = self.env_config.is_non_default()
-        if val is not None:
-            raise Exception("Non-default OMERO_CONFIG on read-only: %s" % val)
-
-        self.source = open(self.filename, "r")                       #: Open file handle read-only
+            self.source = open(self.filename, "r")                       #: Open file handle read-only
 
     def _open_lock(self):
         return open("%s.lock" % self.filename, "a+")
