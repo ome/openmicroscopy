@@ -167,6 +167,55 @@
                     show: true
                 }
             });
+
+            var plotJson = function(jsonUrl) {
+
+                $.getJSON(jsonUrl, function(chart_data) {
+
+                    $("#placeholder").data('chart_data', chart_data);
+                    $.plot($("#placeholder"), chart_data,
+                    {
+                        series: {
+                            pie: {
+                                show: true,
+                                radius: 1,
+                                tilt: 0.7,
+                                label: {
+                                    show: true,
+                                    radius: 0.9,
+                                    formatter: function(label, series){
+                                        return '<div style="font-size:8pt;text-align:center;padding:2px;color:white;">'+Math.round(series.percent)+'%</div>';
+                                    },
+                                    background: { opacity: 0 }
+                                }
+                            }
+                        },
+                        legend: {
+                            show: true
+                        },
+                        grid: {
+                            hoverable: true,
+                            clickable: true
+                        },
+                    });
+                });
+            }
+
+            $("#load_groups").click(function(event) {
+                event.preventDefault();
+                plotJson("{% url 'waloaddrivespace_groups' %}");
+            });
+
+            $("#load_users").click(function(event) {
+                event.preventDefault();
+                plotJson("{% url 'waloaddrivespace_users' %}");
+            });
+
+            $("#placeholder").on('plotclick', function(e, offset, slice){
+                console.log(slice.seriesIndex);
+                var i = $("#placeholder").data('chart_data')[slice.seriesIndex];
+                console.log(i);
+            });
         };
 
     </script>
@@ -189,6 +238,12 @@
     <div class="one_column_header">
         
         <div id="drivespace_settings" class="settings_content">
+
+            <h1>
+                Show disk usage by:
+                <a href="#" id="load_groups">Groups</a> |
+                <a href="#" id="load_users">Users</a>
+            </h1>
 
 
             <div id="placeholder"></div>

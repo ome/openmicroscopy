@@ -45,6 +45,8 @@ urlpatterns = patterns('',
     url( r'^stats/$', views.stats, name="wastats" ),
     url( r'^drivespace/$', views.drivespace, {'template':'json'}, name="wadrivespace"),
     url( r'^load_drivespace/$', views.load_drivespace, name="waloaddrivespace"),
+    url( r'^load_drivespace/groups/$', views.drivespace_json, {'query': 'groups'}, name="waloaddrivespace_groups"),
+    url( r'^load_drivespace/users/$', views.drivespace_json, {'query': 'users'}, name="waloaddrivespace_users"),
 
     url( r'^change_avatar/(?P<eid>[0-9]+)/(?:(?P<action>[a-z]+)/)?$', views.manage_avatar, name="wamanageavatar"),
     url( r'^myphoto/$', views.myphoto, name="wamyphoto"),
