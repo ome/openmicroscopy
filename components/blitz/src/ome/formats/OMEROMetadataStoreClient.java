@@ -372,7 +372,7 @@ public class OMEROMetadataStoreClient
     /**
      * Initialize all services needed
      *
-     * @param manageLifecylce
+     * @param manageLifecycle
      *
      *            Whether or not to call the {@link Thread#start()} method on
      *            the {@link #keepAlive} instance. This will be set to false
