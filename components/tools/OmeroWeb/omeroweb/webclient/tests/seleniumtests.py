@@ -24,6 +24,8 @@ from omero.gateway.scripts import dbhelpers
 from random import random
 
 import sys
+import subprocess
+from path import path
 
 
 class WebClientTestBase (SeleniumTestBase):

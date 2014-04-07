@@ -128,7 +128,7 @@ class WebTest(unittest.TestCase):
                 raise Exception("Cannot connect")
             return conn
         else:
-            raise Exception("'%s' is not on omero.web.server_list"  % omero_host)
+            raise Exception("'%s' is not on omero.web.server_list"  % self.omero_host)
 
 
 class WebAdminConfigTest(unittest.TestCase):
