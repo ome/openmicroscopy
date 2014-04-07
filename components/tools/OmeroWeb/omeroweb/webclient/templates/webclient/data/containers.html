@@ -207,38 +207,19 @@
                 var images = selected.filter('li[id*=image]');      // id='copy_image-123' if just pasted
                 var datasets = selected.filter('li[id*=dataset]');
                 var plates = selected.filter('li[id*=plate]');
-                var removeTxt = "Remove ";
                 if (images.length > 0) {
-                    removeTxt += images.length + " Image" + ((images.length>1) && "s from their" || " from its") +" Dataset";
-                    if (datasets.length > 0) removeTxt += " and<br/>"
+                    tree.move_node(images,$("li#orphaned-0"), undefined, undefined, false, true);
                 }
                 if (datasets.length > 0) {
-                    removeTxt += datasets.length + " Dataset" + ((datasets.length>1) && "s from their" || " from its") +" Project";
+                    var nodeText = OME.jsTreeNodeText($(datasets[0])),
+                        targetIndex = OME.findTreeIndexForNode(tree, 'dataset', nodeText);
+                    tree.move_node(datasets, $("li#experimenter-0"), targetIndex);
                 }
                 if (plates.length > 0) {
-                    removeTxt += plates.length + " Plate" + ((datasets.length>1) && "s from their" || " from its") +" Screen";
+                    var nodeText = OME.jsTreeNodeText($(plates[0])),
+                        targetIndex = OME.findTreeIndexForNode(tree, 'plate', nodeText);
+                    tree.move_node(plates, $("li#experimenter-0"), targetIndex);
                 }
-                removeTxt += "?"
-                var confirm_remove = OME.confirm_dialog(removeTxt,
-                    function() {
-                        if (confirm_remove.data('clicked_button') == "OK") {
-                            if (images.length > 0) {
-                                tree.move_node(images,$("li#orphaned-0"), undefined, undefined, false, true);
-                            }
-                            if (datasets.length > 0) {
-                                var nodeText = OME.jsTreeNodeText($(datasets[0])),
-                                    targetIndex = OME.findTreeIndexForNode(tree, 'dataset', nodeText);
-                                tree.move_node(datasets, $("li#experimenter-0"), targetIndex);
-                            }
-                            if (plates.length > 0) {
-                                var nodeText = OME.jsTreeNodeText($(plates[0])),
-                                    targetIndex = OME.findTreeIndexForNode(tree, 'plate', nodeText);
-                                tree.move_node(plates, $("li#experimenter-0"), targetIndex);
-                            }
-                        }
-                    },
-                    "Remove item"+ ((selected.length>1) && "s" || "") + "?"
-                );
             }
         }
 
@@ -480,7 +461,7 @@
 
                 var buttonsShowHide = function(selected, inst) {
                     var toolbar_config = {"addproject":false, 'adddataset':false, 'addscreen':false, 'copy':false, 'cut':false, 
-                        'paste': false, 'unlink':false, 'delete':false, 'annotation':false, 'basket':false};
+                        'paste': false, 'delete':false, 'annotation':false, 'basket':false};
                     // We 'canCreate' top level items, E.g. Project, Dataset, Screen, if the current userId is self or 'All Members'
                     var userId = {{ ome.user_id }},
                         canCreate = (userId === {{ ome.user.id }} || userId === -1);
@@ -508,14 +489,12 @@
                                 }
                                 if (selected.parent().parent().length > 0 && selected.parent().parent().attr('rel').replace("-locked", "").indexOf("experimenter") < 0) {
                                     toolbar_config["cut"] = true;
-                                    toolbar_config["unlink"] = true;
                                 }
                             } else if(selected.attr("id").indexOf("image")>=0) {
                                 toolbar_config['basket'] = true;
                                 toolbar_config['cut'] = true;
                                 if (selected.parent().parent().length > 0 && selected.parent().parent().attr('rel').replace("-locked", "").indexOf("orphaned") < 0) {
                                     toolbar_config["copy"] = true;
-                                    toolbar_config["unlink"] = true;
                                 }
                             } else if(selected.attr("id").indexOf("screen")>=0) {
                                 if (to_paste && to_paste[0].id.indexOf("plate")>=0) {
@@ -525,7 +504,6 @@
                                 toolbar_config['copy'] = true;
                                 if (selected.parent().parent().length > 0 && selected.parent().parent().attr('rel').replace("-locked", "").indexOf("experimenter") < 0) {
                                     toolbar_config["cut"] = true;
-                                    toolbar_config["unlink"] = true;
                                 }
                             }
                             if ((inst.data.crrm.cp_nodes || inst.data.crrm.ct_nodes) && ($.inArray(selected.attr('rel').replace("-locked", ""), ["project", "dataset", "screen"]) > -1)) {
@@ -550,7 +528,6 @@
                             enableToolbarButton('delete', false);
                             enableToolbarButton('cut', false);
                             enableToolbarButton('copy', false);
-                            enableToolbarButton('unlink', false);
                         }
                     }
                 });
@@ -797,38 +774,29 @@
                                 "action"    : false,
                                 "submenu"   : {
                                     "copy"  : {
-                                        "label" : "Copy",
+                                        "label" : "Copy Link",
                                         "icon"  : '{% static "webclient/image/icon_basic_copy_16.png" %}',
                                         "action": function() {
                                             this.copy(this.get_selected());
                                         }
                                     },
                                     "cut"   :{
-                                        "label" : "Cut",
+                                        "label" : "Cut Link",
                                         "icon"  : '{% static "webclient/image/icon_basic_cut_16.png" %}',
                                         "action": function() {
-                                            this.cut(this.get_selected());
+                                            var tree = this,
+                                                selected = this.get_selected();
+                                            tree.cut(selected);     // jsTree 'cut' doesn't remove...
+                                            OME.remove_nodes(this, selected);
                                         }
                                     },
                                     "paste": {
-                                        "label" : "Paste",
+                                        "label" : "Paste Link",
                                         "icon"  : '{% static "webclient/image/icon_basic_paste_16.png" %}',
                                         "action": function() {
                                             this.paste(this.get_selected());
                                         }
                                     },
-                                    "unlink"    : {
-                                        "label" : "Remove",
-                                        "icon"  : '{% static "webclient/image/icon_basic_remove_16.png" %}',
-                                        "action": function(){
-                                            var tree = this;
-                                            //empty clipboard
-                                            tree.data.crrm.ct_nodes = false;
-                                            tree.data.crrm.cp_nodes = false;
-                                            var selected = tree.get_selected();
-                                            OME.remove_nodes(tree, selected);
-                                        }
-                                    }
                                 }
                             };
                             
@@ -915,7 +883,6 @@
                                 var canCreate = $("#experimenter-0").attr("rel").indexOf("locked")>=0;
                                 // see #8879 config["ccp"]["_disabled"] = true;
                                 config["ccp"]["submenu"]["copy"]["_disabled"] = true;
-                                config["ccp"]["submenu"]["unlink"]["_disabled"] = true;
                                 config["ccp"]["submenu"]["paste"]["_disabled"] = true;
                                 config["ccp"]["submenu"]["cut"]["_disabled"] = true;
                                 config["basket"]["_disabled"] = true;
@@ -934,7 +901,6 @@
                                 config["create"]["submenu"]["dataset"]["_disabled"] = true;
                                 config["create"]["submenu"]["screen"]["_disabled"] = true;
                                 config["ccp"]["submenu"]["copy"]["_disabled"] = true;
-                                config["ccp"]["submenu"]["unlink"]["_disabled"] = true;
                                 config["ccp"]["submenu"]["paste"]["_disabled"] = true;
                                 config["ccp"]["submenu"]["cut"]["_disabled"] = true;
                             } else {
@@ -943,7 +909,6 @@
                                 if(obj.attr("id").indexOf("project")>=0) {
                                     config["ccp"]["submenu"]["cut"]["_disabled"] = true;
                                     config["ccp"]["submenu"]["copy"]["_disabled"] = true;
-                                    config["ccp"]["submenu"]["unlink"]["_disabled"] = true;
                                     config["basket"]["_disabled"] = true;
                                     if (!(to_paste && to_paste[0].id.indexOf("dataset")>=0)) {  // if we don't have a dataset
                                         config["ccp"]["submenu"]["paste"]["_disabled"] = true;  // disable paste
@@ -951,7 +916,6 @@
                                 } else if(obj.attr("id").indexOf("dataset")>=0) {
                                     if (obj.parent().parent().attr('rel').indexOf('experimenter')>=0) {
                                         config["ccp"]["submenu"]["cut"]["_disabled"] = true;
-                                        config["ccp"]["submenu"]["unlink"]["_disabled"] = true;
                                     }
                                     if (!(to_paste && to_paste[0].id.indexOf("image")>=0)) {
                                         config["ccp"]["submenu"]["paste"]["_disabled"] = true;
@@ -961,13 +925,11 @@
                                 } else if(obj.attr("id").indexOf("image")>=0) {
                                     if (obj.parent().parent().attr('rel').indexOf('orphaned')>=0) {
                                         config["ccp"]["submenu"]["copy"]["_disabled"] = true;
-                                        config["ccp"]["submenu"]["unlink"]["_disabled"] = true;
                                     }
                                     config["ccp"]["submenu"]["paste"]["_disabled"] = true;
                                 } else if(obj.attr("id").indexOf("screen")>=0) {
                                     config["ccp"]["submenu"]["cut"]["_disabled"] = true;
                                     config["ccp"]["submenu"]["copy"]["_disabled"] = true;
-                                    config["ccp"]["submenu"]["unlink"]["_disabled"] = true;
                                     // see #8879 config["create"]["_disabled"] = true;
                                     config["create"]["submenu"]["project"]["_disabled"] = true;
                                     config["create"]["submenu"]["dataset"]["_disabled"] = true;
@@ -979,7 +941,6 @@
                                 } else if(obj.attr("id").indexOf("plate")>=0) {
                                     if (obj.parent().parent().attr('rel').indexOf('experimenter')>=0) {
                                         config["ccp"]["submenu"]["cut"]["_disabled"] = true;
-                                        config["ccp"]["submenu"]["unlink"]["_disabled"] = true;
                                     }
                                     // see #8879 config["create"]["_disabled"] = true;
                                     config["create"]["submenu"]["project"]["_disabled"] = true;
@@ -991,7 +952,6 @@
                                     // see #8879 config["ccp"]["_disabled"] = true;
                                     config["ccp"]["submenu"]["cut"]["_disabled"] = true;
                                     config["ccp"]["submenu"]["copy"]["_disabled"] = true;
-                                    config["ccp"]["submenu"]["unlink"]["_disabled"] = true;
                                     config["ccp"]["submenu"]["paste"]["_disabled"] = true;
                                     config["basket"]["_disabled"] = true;
                                     config["chgrp"]["_disabled"] = true;
@@ -1003,7 +963,6 @@
                                     // see #8879 config["ccp"]["_disabled"] = true;
                                     config["ccp"]["submenu"]["cut"]["_disabled"] = true;
                                     config["ccp"]["submenu"]["copy"]["_disabled"] = true;
-                                    config["ccp"]["submenu"]["unlink"]["_disabled"] = true;
                                     config["ccp"]["submenu"]["paste"]["_disabled"] = true;
                                     // see #8879 config["create"]["_disabled"] = true;
                                     config["create"]["submenu"]["project"]["_disabled"] = true;
@@ -1059,6 +1018,9 @@
 
                 })
                 .bind("move_node.jstree", function (e, data) {
+                    // We don't do 'move' in the way that jsTree expects now.
+                    // We 'Cut', which copies and removes. Then 'Paste' to move to new destination.
+                    // So 'move' doesn't need to remove the old parent any more...
                     var refresh = false;
                     data.rslt.o.each(function (i) {
                         var remove = false;
@@ -1069,10 +1031,16 @@
                                 "destination" : data.rslt.np.attr("rel").replace("-locked","") +'-'+data.rslt.np.attr("id").split("-")[1]
                             }
                         } else  {
+                            // 'cr' is destination, 'op' is current parent
                             if (data.rslt.cr.attr('rel')!="orphaned") {
                                 url = '{% url 'manage_action_containers' "move" %}'+$(this).attr("rel").replace("-locked","")+'/'+$(this).attr("id").split("-")[1]+'/';
-                                d = {
-                                    "parent" : data.rslt.op.attr("rel").replace("-locked","")+'-'+data.rslt.op.attr("id").split("-")[1], 
+                                var p = "orphaned-0";
+                                // ...but parent may be project if we are orphaning a dataset or drag'n'drop image
+                                if (data.rslt.op.attr("rel")) {
+                                    p = data.rslt.op.attr("rel").replace("-locked","")+'-'+data.rslt.op.attr("id").split("-")[1];
+                                }
+                                var d = {
+                                    "parent" : p,
                                     "destination" : data.rslt.np.attr("rel").replace("-locked","") +'-'+data.rslt.np.attr("id").split("-")[1]
                                 };
                                 if (data.inst.get_container().find('#'+this.id).length > 1 ) data.inst.delete_node(this);
@@ -1113,8 +1081,8 @@
                     if (refresh) {
                         data.inst.deselect_all();
                         // refresh source
-                        if (!data.inst.is_leaf(data.rslt.op) && $.inArray(data.rslt.op.attr("rel").replace("-locked", ""), ["dataset", "orphaned"]) > -1) {
-                            data.inst.refresh(data.inst._get_node('#'+data.rslt.op.attr('id')));
+                        if (!data.inst.is_leaf(data.rslt.op)) {
+                            data.inst.refresh(data.inst._get_node('#orphaned-0'));
                         }
                         //refresh destination (will already be expanded, even if orphaned)
                         if (!data.inst.is_leaf(data.rslt.cr) && $.inArray(data.rslt.cr.attr("rel").replace("-locked", ""), ["dataset", "orphaned"]) > -1) {
@@ -1152,16 +1120,13 @@
                     break;
                 case "cutButton":
                     $("#dataTree").jstree('cut', $.jstree._focused().get_selected());
+                    var tree = $.jstree._focused(),
+                        selected = tree.get_selected();
+                    tree.cut(selected);     // jsTree 'cut' doesn't remove...
+                    OME.remove_nodes(tree, selected);
                     break;
                 case "pasteButton":
                     $("#dataTree").jstree('paste', $.jstree._focused().get_selected());
-                    break;
-                case "unlinkButton":
-                    var jstree = $.jstree._focused();
-                    jstree.data.crrm.ct_nodes = false;
-                    jstree.data.crrm.cp_nodes = false;
-                    var selected = jstree.get_selected();
-                    OME.remove_nodes(jstree, selected);
                     break;
                 case "deleteButton":
                         OME.handleDelete();
@@ -1250,13 +1215,12 @@
 			
 			<li class="seperator"></li>
 			
-			<li><input id="copyButton" class="button button-disabled" type="image" src="{% static "webclient/image/icon_toolbar_copy.png" %}" alt="Copy" title="Copy" /> </li>
-			<li><input id="cutButton" class="button button-disabled" type="image" src="{% static "webclient/image/icon_toolbar_cut.png" %}" alt="Cut" title="Cut" /> </li>
-			<li><input id="pasteButton" class="button button-disabled" type="image" src="{% static "webclient/image/icon_toolbar_paste.png" %}" alt="Paste" title="Paste" /> </li>
+			<li><input id="copyButton" class="button button-disabled" type="image" src="{% static "webclient/image/icon_toolbar_copy.png" %}" alt="Copy Link" title="Copy a link to the selected object" /> </li>
+			<li><input id="cutButton" class="button button-disabled" type="image" src="{% static "webclient/image/icon_toolbar_cut.png" %}" alt="Cut Link" title="Cut Link" /> </li>
+			<li><input id="pasteButton" class="button button-disabled" type="image" src="{% static "webclient/image/icon_toolbar_paste.png" %}" alt="Paste Link" title="Paste the copied link" /> </li>
 			
 			<li class="seperator">
 			
-			<li><input id="unlinkButton" class="button button-disabled" type="image" src="{% static "webclient/image/icon_toolbar_remove.png" %}" alt="Remove" title="Remove" /></li>
 			<li><input id="deleteButton" class="button button-disabled" type="image" src="{% static "webclient/image/icon_toolbar_delete.png" %}" alt="Delete" title="Delete" /> </li>
 			<li><input id="basketButton" class="button button-disabled" type="image" src="{% static "webclient/image/icon_toolbar_basket.png" %}" alt="Add to basket" title="Add to basket"></li>
 			
