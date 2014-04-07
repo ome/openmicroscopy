@@ -180,9 +180,6 @@ class SessionsControl(BaseControl):
     def help(self, args):
         self.ctx.err(LONGHELP % {"prog": args.prog})
 
-    def sudo(self, args):
-        print args
-
     def login(self, args):
         """
         Goals:
