@@ -1499,6 +1499,29 @@ def list_compatible_imgs_json (request, iid, conn=None, **kwargs):
         json_data = '%s(%s)' % (r['callback'], json_data)
     return HttpJavascriptResponse(json_data)
 
+
+@login_required()
+@jsonp
+def apply_owners_rdef_json (request, conn=None, **kwargs):
+    """
+    Simply takes request 'to_type' and 'toids' and
+    delegates to Rendering Settings service to reset
+    settings according to the owner's settings.
+    """
+
+    r = request.REQUEST
+    toids = r.getlist('toids')
+    to_type = str(r.get('to_type', 'image'))
+
+    to_type = to_type.title()
+    toids = map(lambda x: long(x), toids)
+
+    rss = conn.getRenderingSettingsService()
+    rss.resetDefaultsByOwnerInSet(to_type, toids)
+
+    return {'OK': True}
+
+
 @login_required()
 @jsonp
 def copy_image_rdef_json (request, conn=None, **kwargs):
