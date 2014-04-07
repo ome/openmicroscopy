@@ -145,6 +145,12 @@ class ProcessI(omero.grid.Process, omero.util.SimpleServant):
             "PATH",
             "PYTHONPATH",
         )
+
+        # Since we know the location of our OMERO, we're going to
+        # force the value for OMERO_HOME. This is useful in scripts
+        # which want to be able to find their location.
+        self.env.set("OMERO_HOME", self.omero_home)
+
         # WORKAROUND
         # Currently duplicating the logic here as in the PYTHONPATH
         # setting of the grid application descriptor (see etc/grid/*.xml)

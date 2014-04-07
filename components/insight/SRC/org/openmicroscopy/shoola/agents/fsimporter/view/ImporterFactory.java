@@ -2,10 +2,10 @@
  * org.openmicroscopy.shoola.agents.fsimporter.view.ImporterFactory 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -33,6 +33,8 @@ import javax.swing.event.ChangeListener;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
+import org.openmicroscopy.shoola.env.data.events.RemoveGroupEvent;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
 
 /** 
@@ -144,7 +146,23 @@ public class ImporterFactory
 		if (singleton.importer == null) return;
 		((ImporterComponent) singleton.importer).setDisplayMode(displayMode);
 	}
-	
+
+	/**
+	 * Checks if there are on-going imports into the specified group
+	 * before closing it.
+	 *
+	 * @param ctx The context to handle.
+	 */
+	public static void hasOnGoingImport(SecurityContext ctx)
+	{
+	    if (singleton.importer == null || ctx == null) return;
+	    //no import so we can close the group
+	    if (!((ImporterComponent) singleton.importer).hasOnGoingImport(ctx)) {
+	        ImporterAgent.getRegistry().getEventBus().post(
+	                new RemoveGroupEvent(ctx));
+	    }
+	}
+
 	/** 
 	 * Returns the <code>window</code> menu. 
 	 * 

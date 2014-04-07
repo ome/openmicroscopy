@@ -46,7 +46,7 @@ from omero_version import build_year
 from omero_version import omero_version
 
 import omero, omero.scripts
-from omero.rtypes import *
+from omero.rtypes import wrap, unwrap
 
 from django.conf import settings
 from django.contrib.sessions.backends.cache import SessionStore
@@ -674,7 +674,7 @@ def load_data_by_tag(request, o_type=None, o_id=None, conn=None, **kwargs):
     form_well_index = None
 
 
-    context = {'manager':manager}
+    context = {'manager':manager, 'insight_ns': omero.rtypes.rstring(omero.constants.metadata.NSINSIGHTTAGSET).val}
     context['template_view'] = view
     context['isLeader'] = conn.isLeader()
     context['template'] = template
@@ -833,11 +833,12 @@ def load_metadata_details(request, c_type, c_id, conn=None, share_id=None, **kwa
         else:
             template = "webclient/annotations/annotations_share.html"
 
-    if c_type in ("tag"):
-        context = {'manager':manager}
+    if c_type in ("tag", "tagset"):
+        context = {'manager':manager, 'insight_ns': omero.rtypes.rstring(omero.constants.metadata.NSINSIGHTTAGSET).val}
     else:
         context = {'manager':manager, 'form_comment':form_comment, 'index':index,
             'share_id':share_id}
+            
     context['figScripts'] = figScripts
     context['template'] = template
     context['webclient_path'] = request.build_absolute_uri(reverse('webindex'))

@@ -26,7 +26,7 @@
 import datetime
 import time
 
-from omero.rtypes import *
+from omero.rtypes import rtime
 from webclient.controller import BaseController
 
 class BaseSearch(BaseController):

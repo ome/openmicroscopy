@@ -46,8 +46,6 @@ import Ice
 import glob
 
 
-import settings
-
 #from models import StoredConnection
 
 from webgateway_cache import webgateway_cache, CacheBase, webgateway_tempfile
@@ -653,7 +651,18 @@ def _get_prepared_image (request, iid, server_id=None, conn=None, saveDefs=False
         img.setGreyscaleRenderingModel()
     elif r.get('m', None) == 'c':
         img.setColorRenderingModel()
-    img.setProjection(r.get('p', None))
+    # projection  'intmax' OR 'intmax|5:25'
+    p = r.get('p', None)
+    pStart, pEnd = None, None
+    if p is not None and len(p.split('|')) > 1:
+        p, startEnd = p.split('|', 1)
+        try:
+            pStart, pEnd = [int(s) for s in startEnd.split(':')]
+        except ValueError:
+            pass
+    img.setProjection(p)
+    img.setProjectionRange(pStart, pEnd)
+
     img.setInvertedAxis(bool(r.get('ia', "0") == "1"))
     compress_quality = r.get('q', None)
     if saveDefs:
@@ -1373,6 +1382,7 @@ def search_json (request, conn=None, **kwargs):
     @return:            json search results
     TODO: cache
     """
+    server_id = request.session['connector'].server_id
     opts = searchOptFromRequest(request)
     rv = []
     logger.debug("searchObjects(%s)" % (opts['search']))

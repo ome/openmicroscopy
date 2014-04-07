@@ -23,7 +23,7 @@ before_install:
     - if [[ $BUILD == 'py' ]]; then sudo pip install flake8; fi
     - if [[ $BUILD == 'py' ]]; then flake8 -v components/tools/OmeroPy/src/omero/plugins;  fi
     - if [[ $BUILD == 'py' ]]; then flake8 -v components/tools/OmeroPy/test/integration/clitest;  fi
-    - if [[ $BUILD == 'py' ]]; then flake8 -v components/tools/OmeroPy/test/unit/clitest;  fi
+    - if [[ $BUILD == 'py' ]]; then flake8 -v components/tools/OmeroPy/test/unit;  fi
 
 install: python build.py $BUILD_TARGET
 

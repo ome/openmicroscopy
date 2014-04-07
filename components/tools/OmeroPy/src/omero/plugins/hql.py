@@ -170,9 +170,9 @@ To quit, enter 'q' or just enter.
         from omero.model import IObject
         from omero.model import Details
         from omero.rtypes import RTimeI
-        #if isinstance(object, list):
+        # if isinstance(object, list):
         #    return [self.unwrap(x, cache) for x in object]
-        #elif isinstance(object, RObject):
+        # elif isinstance(object, RObject):
         #    return self.unwrap(object.val, cache)
         unwrapped = unwrap(object, cache)
         if isinstance(unwrapped, IObject):

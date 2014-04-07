@@ -2,10 +2,10 @@
  * org.openmicroscopy.shoola.agents.fsimporter.view.ImporterComponent 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -51,6 +51,7 @@ import org.openmicroscopy.shoola.env.data.model.DiskQuota;
 import org.openmicroscopy.shoola.env.data.model.ImportableFile;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import org.openmicroscopy.shoola.env.data.model.ThumbnailData;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.file.ImportErrorObject;
@@ -204,7 +205,20 @@ class ImporterComponent
 		controller.initialize(view);
 		view.initialize(model, controller);
 	}
-	
+
+	/**
+	 * Checks if there are on-going imports for the specified groups.
+	 *
+	 * @param ctx The security context to handle.
+	 */
+    boolean hasOnGoingImport(SecurityContext ctx)
+    {
+        if (model.getState() != DISCARDED) {
+            return view.hasOnGoingImportFor(ctx);
+        }
+        return false;
+    }
+    
 	/**
 	 * Resets the identifier of the group.
 	 * 

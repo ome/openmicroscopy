@@ -155,7 +155,7 @@ class GroupModelChoiceField(ModelChoiceField):
         try:
             for experimenter_type, experimenters in self.queryset:
                 for experimenter in experimenters:
-                    exp.append(experimenter)
+                    exps.append(experimenter)
         except:
             exps = self.queryset
         for experimenter in exps:
@@ -257,7 +257,13 @@ class ExperimenterQuerySetIterator(object):
                 middleName = None
                 if hasattr(obj.middleName, 'val'):
                     middleName = obj.middleName.val
-                
+
+                # 'myself' was introduced in the commit below, but it's not
+                # clear what it should be.  Setting to blank string to prevent
+                # exception.
+                # https://github.com/openmicroscopy/openmicroscopy/commit/f6b5dcd89ce9e03c7f0c7cdb2abc5e4da5d717ee
+                myself = ''
+
                 if middleName != '' and middleName is not None:
                     name = "%s%s %s. %s (%s)" % (myself, firstName, middleName[:1], lastName, omeName)
                 else:

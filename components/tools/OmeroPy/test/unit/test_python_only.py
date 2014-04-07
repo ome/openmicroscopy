@@ -4,7 +4,7 @@
 """
    Test of the differences in the OmeroPy mapping.
 
-   Copyright 2008 Glencoe Software, Inc. All rights reserved.
+   Copyright 2008-2014 Glencoe Software, Inc. All rights reserved.
    Use is subject to license terms supplied in LICENSE.txt
 
 """
@@ -15,19 +15,22 @@ import Ice
 
 from omero.clients import BaseClient
 
+
 class test_client(BaseClient):
     def __init__(self):
         pass
+
     def __del__(self):
         pass
+
 
 class TestPythonOnly(object):
 
     def testRepairArguments(self):
         t = test_client()
-        ar = [ "a", "b" ]
+        ar = ["a", "b"]
         id = Ice.InitializationData()
-        pm = { 'A':1 }
+        pm = {'A': 1}
         ho = "host"
         po = 4064
         no = None
@@ -42,4 +45,3 @@ class TestPythonOnly(object):
         # Duplicates
         pytest.raises(omero.ClientError, t._repair, id, id, no, no, no)
         pytest.raises(omero.ClientError, t._repair, ho, ho, no, no, no)
-

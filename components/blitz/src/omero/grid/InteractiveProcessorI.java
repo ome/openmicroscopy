@@ -166,13 +166,23 @@ public class InteractiveProcessorI implements _InteractiveProcessorOperations,
                         params = prx.parseJob(session.getUuid(), job, __current.ctx);
                         if (params == null) {
                             StringBuilder sb = new StringBuilder();
-                            sb.append("Can't find params for " + scriptId);
-                            OriginalFile file = loadFileOrNull("stderr", __current);
-                            if (file == null) {
-                                sb.append(". No stderr");
-                            } else {
-                                sb.append(". Stderr is in file " + file.getId());
-                                appendIfText(file, sb, __current);
+                            sb.append("Can't find params for ");
+                            sb.append(scriptId);
+                            sb.append("!\n");
+                            for (String which : new String[]{"stdout", "stderr"}) {
+                                OriginalFile file = loadFileOrNull(which, __current);
+                                if (file == null) {
+                                    sb.append("No ");
+                                    sb.append(which);
+                                    sb.append(".\n");
+                                } else {
+                                    sb.append(which);
+                                    sb.append(" is in file " + file.getId());
+                                    sb.append(":");
+                                    sb.append("\n---------------------------------\n");
+                                    appendIfText(file, sb, __current);
+                                    sb.append("\n---------------------------------\n");
+                                }
                             }
                             throw new omero.ValidationException(null, null,
                                     sb.toString());
@@ -438,7 +448,6 @@ public class InteractiveProcessorI implements _InteractiveProcessorOperations,
                     RawFileStore rfs = sf.createRawFileStore();
                     try {
                         rfs.setFileId(file.getId());
-                        sb.append("\n\n---stderr---\n");
                         sb.append(new String(rfs.read(0, file.getSize().intValue())));
                     } finally {
                         rfs.close();
