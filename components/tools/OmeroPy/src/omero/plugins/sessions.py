@@ -54,40 +54,54 @@ Uses the login parameters from %(prog)s to login.
 
 To list these options, use "%(prog)s -h"
 
-Sample session:
-    $ bin/omero -s localhost sessions login
-    Username:
-    Password:
-    $ bin/omero -s localhost -u john sessions login
-    Password
-    $ bin/omero -s localhost -k 8afe443f-19fc-4cc4-bf4a-850ec94f4650 \
-    sessions login
+Options for logging in:
+
+    # Provide all values interactively
     $ bin/omero sessions login
     Server:
     Username:
     Password:
+
+    # Pass values as the target
     $ bin/omero sessions login user@omero.example.com
     Password:
     $ bin/omero sessions login user@omero.example.com:24064
     Password:
-    $ bin/omero sessions logout
-    $ bin/omero sessions login
-    Reuse current session? [Y/n]
-    $ bin/omero sessions list
-    $ bin/omero sessions logout
-    $ bin/omero sessions login omero.example.com
+
+    # Pass some values via arguments
+    $ bin/omero -s localhost sessions login
     Username:
     Password:
-    $ bin/omero sessions logout
     $ bin/omero -p 24064 sessions login
     Server:
     Username:
     Password:
+
+    # Pass all non-password values via arguments
+    $ bin/omero -s localhost -u john sessions login
+    Password
+
+    # Use a session ID to login without a password
+    $ bin/omero -s localhost -k 8afe443f-19fc-4cc4-bf4a-850ec94f4650 \
+    sessions login
+
+    # Arguments can also go earlier
+    $ bin/omero -k 8afe443f-19fc-4cc4-bf4a-850ec94f4650 sessions login
+
+    # The *last* "@" symbol is used
     $ bin/omero sessions login my.email@example.com@omero.example.com
     Password:
-    $ bin/omero -k 8afe443f-19fc-4cc4-bf4a-850ec94f4650 sessions login
-    $ bin/omero sessions clear
+
+    # System administrators can use "--sudo" to login as others
+    $ bin/omero sessions login --sudo=root example@localhost
+    Password for root:
+
+Other commands:
+
+    $ bin/omero sessions list
     $ bin/omero sessions list --session-dir=/tmp
+    $ bin/omero sessions logout
+    $ bin/omero sessions clear
 """
 
 
