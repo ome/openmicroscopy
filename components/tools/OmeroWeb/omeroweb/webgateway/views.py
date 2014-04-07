@@ -703,7 +703,6 @@ def render_image_region(request, iid, z, t, conn=None, **kwargs):
     if tile:
         try:
             img._prepareRenderingEngine()
-            #tiles = img._re.requiresPixelsPyramid()
             w, h = img._re.getTileSize()
             levels = img._re.getResolutionLevels()-1
 
