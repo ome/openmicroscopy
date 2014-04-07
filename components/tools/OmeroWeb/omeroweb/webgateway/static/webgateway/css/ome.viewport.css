@@ -112,12 +112,12 @@ div.weblitz-viewport-tiles img {
 
 .draggable {
   cursor: -moz-grab;
-  cursor: url('../img/openhand.cur'), pointer, auto;
+  cursor: pointer, auto;
 }
 
 .ondrag {
   cursor: -moz-grabbing;
-  cursor: url('../img/closedhand.cur'), hand, auto;
+  cursor: hand, auto;
 }
 
 .pick-pos {
