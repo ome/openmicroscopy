@@ -181,8 +181,10 @@ class SessionsControl(BaseControl):
 
     def login(self, args):
         ("Login to a given server, and store session key locally.\n\n"
-         "USER, HOST, and PORT are set as args or in a ssh-style connection string.\n"
-         "PASSWORD can be entered interactively, or passed via -w (insecure!).\n"
+         "USER, HOST, and PORT are set as args or in a ssh-style "
+         "connection string.\n"
+         "PASSWORD can be entered interactively, or passed via "
+         "-w (insecure!).\n"
          "Alternatively, a session KEY can be passed with '-k'.\n"
          "Admin users can use --sudo=ADMINUSER to login for others.\n\n"
          "Examples:\n"
@@ -191,7 +193,7 @@ class SessionsControl(BaseControl):
          "  bin/omero login user@example.com:24064\n"
          "  bin/omero login -k SESSIONKEY example.com\n"
          "  bin/omero login --sudo=root user@example\n"
-        "\n")
+         "\n")
 
         """
         Goals:
