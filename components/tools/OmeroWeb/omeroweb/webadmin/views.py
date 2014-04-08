@@ -294,7 +294,7 @@ def usersData(conn, offset=0):
 
 @login_required(isAdmin=True)
 @render_response()
-def drivespace_json(request, query='groups', conn=None, **kwargs):
+def drivespace_json(request, query=None, groupId=None, userId=None, conn=None, **kwargs):
 
 
     diskUsage = []
@@ -335,13 +335,32 @@ def drivespace_json(request, query='groups', conn=None, **kwargs):
         for g in conn.listGroups():
             ctx.setOmeroGroup(g.getId())
             b = getBytes(ctx)
-            diskUsage.append({"label": g.getName(), "data": b, "id": g.getId()});
+            if b > 0:
+                diskUsage.append({"label": g.getName(), "data": b, "groupId": g.getId()});
 
     elif query == 'users':
         ctx.setOmeroGroup('-1')
         for e in conn.getObjects("Experimenter"):
             b = getBytes(ctx, e.getId())
-            diskUsage.append({"label": e.getNameWithInitial(), "data": b, "id": e.getId()});
+            if b > 0:
+                diskUsage.append({"label": e.getNameWithInitial(), "data": b, "userId": e.getId()});
+
+    if userId is not None:
+        eid = long(userId)
+        for g in conn.listGroups():
+            ctx.setOmeroGroup(g.getId())
+            b = getBytes(ctx, eid)
+            if b > 0:
+                diskUsage.append({"label": g.getName(), "data": b, "groupId": g.getId()});
+
+    # users within a single group
+    elif groupId is not None:
+        ctx.setOmeroGroup(groupId)
+        for e in conn.getObjects("Experimenter"):
+            b = getBytes(ctx, e.getId())
+            if b > 0:
+                diskUsage.append({"label": e.getNameWithInitial(), "data": b, "userId": e.getId()});
+
 
     diskUsage.sort(key=lambda x: x['data'], reverse=True)
 

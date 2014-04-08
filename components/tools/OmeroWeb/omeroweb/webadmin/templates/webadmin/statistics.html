@@ -106,10 +106,11 @@
             var fillTable = function(chart_data) {
 
                 var tableRows = [],
-                    rowData;
+                    rowData, rowId;
                 for(i=0; i<chart_data.length; i++) {
                     rowData = chart_data[i];
-                    tableRows.push('<tr><td class="link">' + rowData.label + '(id:'+ rowData.id +')</td>')
+                    rowId = typeof rowData.userId != 'undefined' ? rowData.userId : rowData.groupId
+                    tableRows.push('<tr><td class="link">' + rowData.label + '(id:'+ rowId +')</td>')
                     tableRows.push('<td class="link">' + rowData.data.filesizeformat() + '</td></tr>');
                 }
                 
@@ -186,12 +187,14 @@
             }
 
             var loadGroups = function() {
+                $("#filterBy").hide();
                 $(".usageBy").removeClass('selected');
                 $("#load_groups").addClass('selected');
                 plotJson("{% url 'waloaddrivespace_groups' %}");
             }
 
             var loadUsers = function() {
+                $("#filterBy").hide();
                 $(".usageBy").removeClass('selected');
                 $("#load_users").addClass('selected');
                 plotJson("{% url 'waloaddrivespace_users' %}");
@@ -208,9 +211,17 @@
             });
 
             $("#placeholder").on('plotclick', function(e, offset, slice){
-                console.log(slice.seriesIndex);
                 var i = $("#placeholder").data('chart_data')[slice.seriesIndex];
-                console.log(i);
+                $(".usageBy").removeClass('selected');
+                if (i.groupId) {
+                    var url = "{% url 'waindex' %}" + "drivespace_json/group/" + i.groupId +"/";
+                    $("#filterBy").text("Group: " + i.label).show().addClass('selected');
+                    plotJson(url);
+                } else if (i.userId) {
+                    var url = "{% url 'waindex' %}" + "drivespace_json/user/" + i.userId +"/";
+                    $("#filterBy").text("User: " + i.label).show().addClass('selected');
+                    plotJson(url);
+                }
             });
 
 
@@ -258,7 +269,9 @@
             <h1>
                 Show disk usage by:
                 <a class="usageBy" href="#" id="load_users">Users</a> |
-                <a class="usageBy" href="#" id="load_groups">Groups</a>
+                <a class="usageBy" href="#" id="load_groups">Groups</a> |
+
+                <span class="usageBy selected" id="filterBy"></span>
             </h1>
 
             <div class="status">
