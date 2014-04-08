@@ -24,6 +24,8 @@ import ConfigParser
 import omero
 import omero.clients
 from omero.util.decorators import timeit
+# not used here, but imported from here in other places:
+from omero.util.decorators import TimeIt  # noqa
 from omero.cmd import DoAll
 from omero.api import Save
 from omero.gateway.utils import ServiceOptsDict, GatewayConfig
