@@ -215,82 +215,6 @@ def mergeLists(list1,list2):
     result.extend(list2)
     return set(result)
 
-# Drivespace helpers
-def _bytes_per_pixel(pixel_type):
-    if pixel_type == "int8" or pixel_type == "uint8":
-        return 1
-    elif pixel_type == "int16" or pixel_type == "uint16":
-        return 2
-    elif pixel_type == "int32" or pixel_type == "uint32" or pixel_type == "float":
-        return 4
-    elif pixel_type == "double":
-        return 8;
-    else:
-        raise AttributeError("Unknown pixel type: %s" % (pixel_type))
-    
-def _usage_map_helper(pixels_list, pixels_originalFiles_list, exps):
-    tt = dict()
-    for p in pixels_list:
-        oid = p.details.owner.id.val
-        p_size = p.sizeX.val * p.sizeY.val * p.sizeZ.val * p.sizeC.val * p.sizeT.val
-        p_size = p_size*_bytes_per_pixel(p.pixelsType.value.val)
-        if tt.has_key(oid):
-            tt[oid]['data']+=p_size
-        else:
-            tt[oid] = dict()
-            tt[oid]['label']=exps[oid]
-            tt[oid]['data']=p_size
-    
-    for pof in pixels_originalFiles_list:
-        oid = pof.details.owner.id.val
-        p_size = pof.parent.size.val
-        if tt.has_key(oid):
-            tt[oid]['data']+=p_size
-        
-    return tt #sorted(tt.iteritems(), key=lambda (k,v):(v,k), reverse=True)
-
-def usersData(conn, offset=0):
-    loading = False
-    usage_map = dict()
-    exps = dict()
-    for e in list(conn.getObjects("Experimenter")):
-        exps[e.id] = e.getNameWithInitial()
-        
-    PAGE_SIZE = 1000
-    offset = long(offset)
-    
-    ctx = conn.createServiceOptsDict()
-    if conn.isAdmin():
-        ctx.setOmeroGroup(-1)
-    else:
-        ctx.setOmeroGroup(conn.getEventContext().groupId)
-        
-    p = omero.sys.ParametersI()
-    p.page(offset, PAGE_SIZE)
-    pixels_list = conn.getQueryService().findAllByQuery(
-            "select p from Pixels as p join fetch p.pixelsType " \
-            "order by p.id", p, ctx)
-    
-    # archived files
-    if len(pixels_list) > 0:
-        pids = omero.rtypes.rlist([px.id for px in pixels_list])
-        p2 = omero.sys.ParametersI()
-        p2.add("pids", pids)
-        pixels_originalFiles_list = conn.getQueryService().findAllByQuery(
-            "select m from PixelsOriginalFileMap as m join fetch m.parent " \
-            "where m.child.id in (:pids)", p2, ctx)
-    
-        count = len(pixels_list)
-        usage_map = _usage_map_helper(pixels_list, pixels_originalFiles_list, exps)
-    
-        count = len(pixels_list)
-        offset += count
-    
-        if count == PAGE_SIZE:
-            loading = True
-    
-    return {'loading':loading, 'offset':offset, 'usage':usage_map}
-
 
 @login_required()
 @render_response()
@@ -884,12 +808,6 @@ def stats(request, conn=None, **kwargs):
     freeSpace = conn.getFreeSpace();
     context= {'template': template, 'freeSpace': freeSpace}
     return context
-
-@login_required()
-@render_response_admin()
-def drivespace(request, conn=None, **kwargs):
-    return {'free':conn.getFreeSpace()}
-
 
 @login_required()
 def load_drivespace(request, conn=None, **kwargs):
