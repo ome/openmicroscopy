@@ -163,8 +163,6 @@ def render_channel_overlay (request, conn=None, **kwargs):
     blue = request.REQUEST.get('blue', None)
 
     # kinda like split-view: we want to get single-channel images...
-    # red...
-    redImg = None
 
     def translate(image, deltaX, deltaY):
 
@@ -264,7 +262,6 @@ def add_annotations (request, conn=None, **kwargs):
     if ns != None:
         ann.setNs(rstring( str(ns) ))
     ann = updateService.saveAndReturnObject(ann)
-    annId = ann.getId().getValue()
     
     images = []
     for iId in imageIds:
@@ -459,9 +456,6 @@ def dataset_split_view (request, datasetId, conn=None, **kwargs):
 
     if channels is None:
         return HttpResponse("<p class='center_message'>No Images in Dataset<p>")
-
-    indexes = range(1, len(channels)+1)
-    c_string = ",".join(["-%s" % str(c) for c in indexes])     # E.g. -1,-2,-3,-4
 
     leftFlags = []
     rightFlags = []

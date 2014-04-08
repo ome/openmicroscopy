@@ -395,8 +395,6 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
     # get url without request string - used to refresh page after switch user/group etc
     url = reverse(viewname="load_template", args=[menu])
 
-    manager = BaseContainer(conn)
-
     # validate experimenter is in the active group
     active_group = request.session.get('active_group') or conn.getEventContext().groupId
     # prepare members of group...
@@ -641,10 +639,6 @@ def load_data_by_tag(request, o_type=None, o_id=None, conn=None, **kwargs):
     # check view
     view = request.REQUEST.get("view")
 
-    # the index of a field within a well
-    index = getIntOrDefault(request, 'index', 0)
-
-
     # prepare forms
     filter_user_id = request.session.get('user_id')
 
@@ -673,8 +667,6 @@ def load_data_by_tag(request, o_type=None, o_id=None, conn=None, **kwargs):
         manager.loadTags(filter_user_id)
         template = "webclient/data/container_tags_tree.html"
     # load data
-    form_well_index = None
-
 
     context = {'manager':manager, 'insight_ns': omero.rtypes.rstring(omero.constants.metadata.NSINSIGHTTAGSET).val}
     context['template_view'] = view
@@ -1744,7 +1736,7 @@ def image_as_map(request, imageId, conn=None, **kwargs):
         rsp['Content-Length'] =os.path.getsize(temp.name)
         rsp['Content-Disposition'] = 'attachment; filename=%s' % downloadName
         temp.seek(0)
-    except Exception, x:
+    except Exception:
         temp.close()
         logger.error(traceback.format_exc())
         return handlerInternalError(request, "Cannot generate map (id:%s)." % (imageId))
@@ -1922,7 +1914,7 @@ def update_basket(request, **kwargs):
         request.session.modified = True
         try:
             action = request.REQUEST['action']
-        except Exception, x:
+        except Exception:
             logger.error(traceback.format_exc())
             return handlerInternalError(request, "Attribute error: 'action' is missed.")
         else:
@@ -2030,8 +2022,6 @@ def getObjectUrl(conn, obj):
     """
     base_url = reverse(viewname="load_template", args=['userdata'])
 
-    blitz_obj = None
-    url = None
     # if we have a File Annotation, then we want our URL to be for the parent object...
     if isinstance(obj, omero.model.FileAnnotationI):
         fa = conn.getObject("Annotation", obj.id.val)
@@ -2133,7 +2123,7 @@ def activities(request, conn=None, **kwargs):
                                 request.session['callback'][cbString]['dreport'] = _formatReport(handle)
                     finally:
                         cb.close(close_handle)
-                except Ice.ObjectNotExistException, e:
+                except Ice.ObjectNotExistException:
                     request.session['callback'][cbString]['error'] = 0
                     request.session['callback'][cbString]['status'] = "finished"
                     request.session['callback'][cbString]['dreport'] = None
@@ -2442,9 +2432,7 @@ def script_ui(request, scriptId, conn=None, **kwargs):
         param = inputs[i]
         grouping = param["grouping"]    # E.g  03
         param['children'] = list()
-        c = 1
         while len(inputs) > i+1:
-            nextParam = inputs[i+1]
             nextGrp = inputs[i+1]["grouping"]  # E.g. 03.1
             if nextGrp.split(".")[0] == grouping:
                 param['children'].append(inputs[i+1])

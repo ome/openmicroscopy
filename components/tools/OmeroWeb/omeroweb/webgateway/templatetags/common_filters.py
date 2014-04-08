@@ -125,7 +125,7 @@ def shortening(value, arg):
             return value
         elif l >= length: 
             return value[:front]+"..."+value[l-end:]
-    except Exception, x:
+    except Exception:
         logger.error(traceback.format_exc())
         return value
 
