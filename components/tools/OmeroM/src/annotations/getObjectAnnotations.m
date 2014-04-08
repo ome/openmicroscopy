@@ -18,13 +18,16 @@ function annotations = getObjectAnnotations(session, annotationType, parentType,
 %    'exclude', exclude) excludes annotations with the input namespace.
 %
 %    anns = getObjectAnnotations(session, annotationType, parentType, ids,
+%    'owner', ownerid, ...) searches annotations owned by the user of the
+%    specified identifier. If -1, all annotations are returned
+%    independently of their owner. The default owner is the session owner.
+%    additional options are passed to the OMERO service.
+%
+%    anns = getObjectAnnotations(session, annotationType, parentType, ids,
 %    'flatten', tf) Flatten the list of annotations (default true). If
 %    false a cell array is returned where anns{i} is a list of annotations
 %    linked with ids(i).
 %
-%    anns = getObjectAnnotations(session, annotationType, parentType, ids,
-%    'uid', uid, ...) searches annotations owned by the specified user,
-%    additional options are passed to the OMERO service.
 %
 %    Examples:
 %
@@ -37,12 +40,14 @@ function annotations = getObjectAnnotations(session, annotationType, parentType,
 %        anns = getObjectAnnotations(session, annotationType, parentType,
 %        ids, 'exclude', exclude)
 %        anns = getObjectAnnotations(session, annotationType, parentType,
+%        ids, 'owner', -1)
+%        anns = getObjectAnnotations(session, annotationType, parentType,
 %        ids, 'flatten', true, 'uid', -1, 'omero.group', -1)
 %
 % See also: GETIMAGEFILEANNOTATIONS, GETIMAGETAGANNOTATIONS,
 % GETIMAGECOMMENTANNOTATIONS
 
-% Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
+% Copyright (C) 2013-2014 University of Dundee & Open Microscopy Environment.
 % All rights reserved.
 %
 % This program is free software; you can redistribute it and/or modify
@@ -62,6 +67,7 @@ function annotations = getObjectAnnotations(session, annotationType, parentType,
 % Input check
 annotations = getAnnotationTypes();
 objects = getObjectTypes();
+defaultownerid = session.getAdminService().getEventContext().userId;
 ip = inputParser;
 ip.addRequired('annotationType', @(x) ischar(x) && ismember(x, {annotations.name}));
 ip.addRequired('parentType', @(x) ischar(x) && ismember(x, {objects.name}));
@@ -69,7 +75,7 @@ ip.addRequired('ids', @(x) isvector(x) || isempty(x));
 ip.addParamValue('include', [], @(x) iscellstr(x) || ischar(x));
 ip.addParamValue('exclude', [], @(x) iscellstr(x) || ischar(x));
 ip.addParamValue('flatten', true, @(x) isscalar(x) && (x || ~x));
-ip.addParamValue('uid', [], @(x) isscalar(x) || isempty(x));
+ip.addParamValue('owner', defaultownerid, @isscalar);
 ip.KeepUnmatched = true;
 ip.parse(annotationType, parentType, ids, varargin{:});
 
@@ -85,14 +91,7 @@ include = toJavaList(ip.Results.include, 'java.lang.String');
 exclude = toJavaList(ip.Results.exclude, 'java.lang.String');
 
 parameters = omero.sys.ParametersI;
-
-if isempty(ip.Results.uid)
-    % Load the annotations of the session owner
-    userId = session.getAdminService().getEventContext().userId;
-else
-    userId = ip.Results.uid;
-end
-parameters.exp(rlong(userId));
+parameters.exp(rlong(ip.Results.owner));
 
 % Read annotations
 object = objects(strcmp(parentType, {objects.name}));
