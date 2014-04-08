@@ -31,6 +31,7 @@ from glob import glob
 from django.conf import settings
 from django.template import loader as template_loader
 from django.template import RequestContext as Context
+from django.http import HttpResponse
 from django.core.urlresolvers import reverse
 from django.views.decorators.cache import never_cache
 

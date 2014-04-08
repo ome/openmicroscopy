@@ -24,6 +24,7 @@ Decorators for use with OMERO.web applications.
 """
 
 import logging
+import json
 
 from django.http import Http404, HttpResponse, HttpResponseRedirect, HttpResponseForbidden
 
