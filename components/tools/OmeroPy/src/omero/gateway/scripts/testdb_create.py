@@ -9,7 +9,6 @@
 
 """
 
-import os
 import omero
 from omero.rtypes import rstring
 
@@ -70,7 +69,7 @@ class TestDBHelper(object):
         assert self.gateway.isConnected(), 'Can not connect'
         assert self.gateway.keepAlive(), 'Could not send keepAlive to connection'
         self.gateway.setGroupForSession(self.gateway.getEventContext().memberOfGroups[0])
-    
+
     def doDisconnect(self):
         if self._has_connected and self.gateway:
             self.doConnect()
@@ -171,7 +170,7 @@ class TestDBHelper(object):
         If project OR dataset is specified, the ProjectWrapper or DatasetWrapper is returned.
         If both project and dataset are specified, they will be linked and the
         PD-link is returned as a BlitzObjectWrapper.
-        
+
         @param project:     omero.model.ProjectI OR omero.gateway.ProjectWrapper or name (string)
         @param dataset:     omero.model.DatasetI OR omero.gateway.DatasetWrapper or name (string)
         """
@@ -209,15 +208,13 @@ class TestDBHelper(object):
 
     def createTestImage(self, imageName="testImage", dataset=None, sizeX = 16, sizeY = 16, sizeZ = 1, sizeC = 1, sizeT = 1):
         """
-        Creates a test image of the required dimensions, where each pixel value is set 
+        Creates a test image of the required dimensions, where each pixel value is set
         to the average value of x & y. If dataset (obj or name) is specified, will be linked to image.
         If project (obj or name) is specified, will be created/linked to dataset (if dataset not None)
-        
+
         @param dataset:     omero.model.DatasetI OR DatasetWrapper OR dataset ID
         """
         from numpy import fromfunction, int16
-        from omero.util import script_utils
-        import random
 
         def f(x,y):
             return x
@@ -238,7 +235,6 @@ class TestDBHelper(object):
                     ds = omero.model.DatasetI(dsId, False)
                 except:
                     pass
-        
+
         image = self.gateway.createImageFromNumpySeq (planeGen(), imageName, sizeZ=sizeZ, sizeC=sizeC, sizeT=sizeT, dataset=ds)
         return image
-
