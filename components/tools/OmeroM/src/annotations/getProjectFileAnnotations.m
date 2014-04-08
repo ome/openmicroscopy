@@ -15,17 +15,22 @@ function fas = getProjectFileAnnotations(session, ids, varargin)
 %    fas = getProjectFileAnnotations(session,  ids, 'exclude', exclude)
 %    excludes file annotations with the input namespace.
 %
+%    fas = getProjectFileAnnotations(session, ids, 'owner', ownerid)
+%    returns the file annotations owned by the user specified by ownerid.
+%    Use -1 to return the file annotations owned by all users.
+%
 %    Examples:
 %
 %        fas = getProjectFileAnnotations(session, ids)
 %        fas = getProjectFileAnnotations(session, projects)
 %        fas = getProjectFileAnnotations(session, ids, 'include', include)
 %        fas = getProjectFileAnnotations(session, ids, 'exclude', exclude)
+%        fas = getProjectFileAnnotations(session, ids, 'owner', -1)
 %
 % See also: GETOBJECTANNOTATIONS, GETPROJECTCOMMENTANNOTATIONS,
 % GETPROJECTTAGANNOTATIONS, GETPROJECTXMLANNOTATIONS
 
-% Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
+% Copyright (C) 2013-2014 University of Dundee & Open Microscopy Environment.
 % All rights reserved.
 %
 % This program is free software; you can redistribute it and/or modify

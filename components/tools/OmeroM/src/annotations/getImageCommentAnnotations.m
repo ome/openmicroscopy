@@ -14,17 +14,22 @@ function cas = getImageCommentAnnotations(session, ids, varargin)
 %    cas = getImageCommentAnnotations(session,  ids, 'exclude', exclude)
 %    excludes comment annotations with the input namespace.
 %
+%    cas = getImageCommentAnnotations(session, ids, 'owner', ownerid)
+%    returns the comment annotations owned by the user specified by
+%    ownerid. Use -1 to return the comment annotations owned by all users.
+%
 %    Examples:
 %
 %        cas = getImageCommentAnnotations(session, ids)
 %        cas = getImageCommentAnnotations(session, images)
 %        cas = getImageCommentAnnotations(session, ids, 'include', include)
 %        cas = getImageCommentAnnotations(session, ids, 'exclude', exclude)
+%        cas = getImageCommentAnnotations(session, ids, 'owner', -1)
 %
 % See also: GETOBJECTANNOTATIONS, GETIMAGEFILEANNOTATIONS,
 % GETIMAGETAGANNOTATIONS, GETIMAGEXMLANNOTATIONS
 
-% Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
+% Copyright (C) 2013-2014 University of Dundee & Open Microscopy Environment.
 % All rights reserved.
 %
 % This program is free software; you can redistribute it and/or modify

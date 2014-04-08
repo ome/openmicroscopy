@@ -14,17 +14,22 @@ function fas = getPlateFileAnnotations(session, ids, varargin)
 %    fas = getPlateFileAnnotations(session,  ids, 'exclude', exclude)
 %    excludes file annotations with the input namespace.
 %
+%    fas = getPlateFileAnnotations(session, ids, 'owner', ownerid)
+%    returns the file annotations owned by the user specified by ownerid.
+%    Use -1 to return the file annotations owned by all users.
+%
 %    Examples:
 %
 %        fas = getPlateFileAnnotations(session, ids)
 %        fas = getPlateFileAnnotations(session, plates)
 %        fas = getPlateFileAnnotations(session, ids, 'include', include)
 %        fas = getPlateFileAnnotations(session, ids, 'exclude', exclude)
+%        fas = getPlateFileAnnotations(session, ids, 'owner', -1)
 %
 % See also: GETOBJECTANNOTATIONS, GETPLATECOMMENTANNOTATIONS,
 % GETPLATETAGANNOTATIONS, GETPLATEXMLANNOTATIONS
 
-% Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
+% Copyright (C) 2013-2014 University of Dundee & Open Microscopy Environment.
 % All rights reserved.
 %
 % This program is free software; you can redistribute it and/or modify

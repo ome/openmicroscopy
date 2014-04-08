@@ -15,17 +15,22 @@ function tas = getProjectTagAnnotations(session, ids, varargin)
 %    tas = getProjectTagAnnotations(session,  ids, 'exclude', exclude)
 %    excludes tag annotations with the input namespace.
 %
+%    tas = getProjectTagAnnotations(session, ids, 'owner', ownerid)
+%    returns the tag annotations owned by the user specified by ownerid.
+%    Use -1 to return the tag annotations owned by all users.
+%
 %    Examples:
 %
 %        tas = getProjectTagAnnotations(session, ids)
 %        tas = getProjectTagAnnotations(session, projects)
 %        tas = getProjectTagAnnotations(session, ids, 'include', include)
 %        tas = getProjectTagAnnotations(session, ids, 'exclude', exclude)
+%        tas = getProjectTagAnnotations(session, ids, 'owner', -1)
 %
 % See also: GETOBJECTANNOTATIONS, GETPROJECTCOMMENTANNOTATIONS,
 % GETPROJECTFILEANNOTATIONS, GETPROJECTXMLANNOTATIONS
 
-% Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
+% Copyright (C) 2013-2014 University of Dundee & Open Microscopy Environment.
 % All rights reserved.
 %
 % This program is free software; you can redistribute it and/or modify

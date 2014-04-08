@@ -15,17 +15,22 @@ function cas = getPlateCommentAnnotations(session, ids, varargin)
 %    cas = getPlateCommentAnnotations(session,  ids, 'exclude', exclude)
 %    excludes comment annotations with the input namespace.
 %
+%    cas = getPlateCommentAnnotations(session, ids, 'owner', ownerid)
+%    returns the comment annotations owned by the user specified by
+%    ownerid. Use -1 to return the comment annotations owned by all users.
+%
 %    Examples:
 %
 %        cas = getPlateCommentAnnotations(session, ids)
 %        cas = getPlateCommentAnnotations(session, plates)
 %        cas = getPlateCommentAnnotations(session, ids, 'include', include)
 %        cas = getPlateCommentAnnotations(session, ids, 'exclude', exclude)
+%        cas = getPlateCommentAnnotations(session, ids, 'owner', -1)
 %
 % See also: GETOBJECTANNOTATIONS, GETPLATEFILEANNOTATIONS,
 % GETPLATETAGANNOTATIONS, GETPLATEXMLANNOTATIONS
 
-% Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
+% Copyright (C) 2013-2014 University of Dundee & Open Microscopy Environment.
 % All rights reserved.
 %
 % This program is free software; you can redistribute it and/or modify

@@ -15,17 +15,22 @@ function xas = getDatasetXmlAnnotations(session, ids, varargin)
 %    xas = getDatasetXmlAnnotations(session,  ids, 'exclude', exclude)
 %    excludes xml annotations with the input namespace.
 %
+%    xas = getDatasetXmlAnnotations(session, ids, 'owner', ownerid)
+%    returns the xml annotations owned by the user specified by ownerid.
+%    Use -1 to return the xml annotations owned by all users.
+%
 %    Examples:
 %
 %        xas = getDatasetXmlAnnotations(session, ids)
 %        xas = getDatasetXmlAnnotations(session, datasets)
 %        xas = getDatasetXmlAnnotations(session, ids, 'include', include)
 %        xas = getDatasetXmlAnnotations(session, ids, 'exclude', exclude)
+%        xas = getDatasetXmlAnnotations(session, ids, 'owner', -1)
 %
 % See also: GETOBJECTANNOTATIONS, GETDATASETCOMMENTANNOTATIONS,
 % GETDATASETTAGANNOTATIONS, GETDATASETFILEANNOTATIONS
 
-% Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
+% Copyright (C) 2013-2014 University of Dundee & Open Microscopy Environment.
 % All rights reserved.
 %
 % This program is free software; you can redistribute it and/or modify
