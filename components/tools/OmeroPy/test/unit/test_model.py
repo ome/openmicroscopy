@@ -5,7 +5,7 @@
    Simple unit test which makes various calls on the code
    generated model.
 
-   Copyright 2007 Glencoe Software, Inc. All rights reserved.
+   Copyright 2007-2014 Glencoe Software, Inc. All rights reserved.
    Use is subject to license terms supplied in LICENSE.txt
 
 """
@@ -23,9 +23,7 @@ from omero_model_GroupExperimenterMapI import GroupExperimenterMapI
 from omero_model_DatasetImageLinkI import DatasetImageLinkI
 from omero_model_ScriptJobI import ScriptJobI
 from omero_model_DetailsI import DetailsI
-from omero_model_BooleanAnnotationI import BooleanAnnotationI
-from omero_model_ImageAnnotationLinkI import ImageAnnotationLinkI
-from omero.rtypes import *
+from omero.rtypes import rlong, rstring
 
 
 class TestModel(object):
@@ -48,7 +46,7 @@ class TestModel(object):
         assert img.sizeOfPixels() >= 0
 
     def testUnloadedCtor(self):
-        img = ImageI(rlong(1),False)
+        img = ImageI(rlong(1), False)
         assert not img.isLoaded()
         try:
             assert img.sizeOfDatasetLinks() < 0
@@ -60,11 +58,11 @@ class TestModel(object):
     def testUnloadCheckPtr(self):
         img = ImageI()
         assert img.isLoaded()
-        assert img.getDetails() # details are auto instantiated
-        assert not img.getName() # no other single-valued field is
+        assert img.getDetails()  # details are auto instantiated
+        assert not img.getName()  # no other single-valued field is
         img.unload()
         assert not img.isLoaded()
-        pytest.raises( omero.UnloadedEntityException, img.getDetails )
+        pytest.raises(omero.UnloadedEntityException, img.getDetails)
 
     def testUnloadField(self):
         img = ImageI()
@@ -89,7 +87,7 @@ class TestModel(object):
         name = rstring("name")
         img = ImageI()
         assert not img.getName()
-        img.setName( name )
+        img.setName(name)
         assert img.getName()
         name = img.getName()
         assert name.val == "name"
@@ -108,8 +106,8 @@ class TestModel(object):
             pass
 
     def testUnloadedAccessThrows(self):
-        unloaded = ImageI(rlong(1),False)
-        pytest.raises( omero.UnloadedEntityException, unloaded.getName )
+        unloaded = ImageI(rlong(1), False)
+        pytest.raises(omero.UnloadedEntityException, unloaded.getName)
 
     def testIterators(self):
         d = DatasetI()
@@ -124,32 +122,31 @@ class TestModel(object):
     def testClearSet(self):
         img = ImageI()
         assert img.sizeOfPixels() >= 0
-        img.addPixels( PixelsI() )
-        assert 1==img.sizeOfPixels()
+        img.addPixels(PixelsI())
+        assert 1 == img.sizeOfPixels()
         img.clearPixels()
         assert img.sizeOfPixels() >= 0
-        assert 0==img.sizeOfPixels()
+        assert 0 == img.sizeOfPixels()
 
     def testUnloadSet(self):
         img = ImageI()
         assert img.sizeOfPixels() >= 0
-        img.addPixels( PixelsI() )
-        assert 1==img.sizeOfPixels()
+        img.addPixels(PixelsI())
+        assert 1 == img.sizeOfPixels()
         img.unloadPixels()
         assert img.sizeOfPixels() < 0
         # Can't check size assert 0==img.sizeOfPixels()
-
 
     def testRemoveFromSet(self):
         pix = PixelsI()
         img = ImageI()
         assert img.sizeOfPixels() >= 0
 
-        img.addPixels( pix )
-        assert 1==img.sizeOfPixels()
+        img.addPixels(pix)
+        assert 1 == img.sizeOfPixels()
 
-        img.removePixels( pix )
-        assert 0==img.sizeOfPixels()
+        img.removePixels(pix)
+        assert 0 == img.sizeOfPixels()
 
     def testLinkGroupAndUser(self):
         user = ExperimenterI()
@@ -157,9 +154,9 @@ class TestModel(object):
         link = GroupExperimenterMapI()
 
         link.id = rlong(1)
-        link.link(group,user)
-        user.addGroupExperimenterMap( link, False )
-        group.addGroupExperimenterMap( link, False )
+        link.link(group, user)
+        user.addGroupExperimenterMap(link, False)
+        group.addGroupExperimenterMap(link, False)
 
         count = 0
         for i in user.iterateGroupExperimenterMap():
@@ -180,7 +177,7 @@ class TestModel(object):
         # TODOuser.linkExperimenterGroup(group)
         link = GroupExperimenterMapI()
         link.parent = group
-        link.child  = user
+        link.child = user
 
     def testLinkingAndUnlinking(self):
         d = DatasetI()
@@ -201,7 +198,7 @@ class TestModel(object):
         d = DatasetI()
         i = ImageI()
         dil = DatasetImageLinkI()
-        dil.link(d,i)
+        dil.link(d, i)
         d.addDatasetImageLink(dil, False)
         assert d.sizeOfImageLinks() == 1
         assert i.sizeOfDatasetLinks() == 0
@@ -215,31 +212,34 @@ class TestModel(object):
     #
 
     def testGetAttrGood(self):
-       i = ImageI()
-       assert i.loaded
-       assert i.isLoaded()
-       assert not i.name
-       i.name = rstring("name")
-       assert i.name
-       i.setName( None )
-       assert not i.getName()
-       i.copyAnnotationLinks()
-       i.linkAnnotation( omero.model.BooleanAnnotationI() )
+        i = ImageI()
+        assert i.loaded
+        assert i.isLoaded()
+        assert not i.name
+        i.name = rstring("name")
+        assert i.name
+        i.setName(None)
+        assert not i.getName()
+        i.copyAnnotationLinks()
+        i.linkAnnotation(omero.model.BooleanAnnotationI())
 
     def testGetAttrBad(self):
-       i = ImageI()
-       def assign_loaded():
+        i = ImageI()
+
+        def assign_loaded():
             i.loaded = False
-       pytest.raises( AttributeError, assign_loaded )
-       pytest.raises( AttributeError, lambda: i.foo )
-       def assign_foo():
+        pytest.raises(AttributeError, assign_loaded)
+        pytest.raises(AttributeError, lambda: i.foo)
+
+        def assign_foo():
             i.foo = 1
-       pytest.raises( AttributeError, assign_foo )
-       pytest.raises( AttributeError, lambda: i.annotationLinks )
-       pytest.raises( AttributeError, lambda: i.getAnnotationLinks() )
-       def assign_links():
+        pytest.raises(AttributeError, assign_foo)
+        pytest.raises(AttributeError, lambda: i.annotationLinks)
+        pytest.raises(AttributeError, lambda: i.getAnnotationLinks())
+
+        def assign_links():
             i.annotationLinks = []
-       pytest.raises( AttributeError, assign_links)
+        pytest.raises(AttributeError, assign_links)
 
     def testGetAttrSetAttrDetails(self):
         d = DetailsI()
@@ -268,4 +268,3 @@ class TestModel(object):
         old = pixels.setChannel(0, channels[1])
         assert old == channels[0]
         assert 1 == pixels.sizeOfChannels()
-

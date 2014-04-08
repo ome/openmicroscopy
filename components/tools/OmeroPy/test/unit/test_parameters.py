@@ -5,14 +5,14 @@
    Simple unit test which makes various calls on the code
    generated model.
 
-   Copyright 2007 Glencoe Software, Inc. All rights reserved.
+   Copyright 2007-2014 Glencoe Software, Inc. All rights reserved.
    Use is subject to license terms supplied in LICENSE.txt
 
 """
 
-import omero
-from omero.rtypes import *
+from omero.rtypes import rlong, rint, rbool, rstring, rtime
 from omero_sys_ParametersI import ParametersI
+
 
 class TestParameters(object):
 
@@ -20,7 +20,7 @@ class TestParameters(object):
         assert None == arg
 
     def assertNotNull(self, arg):
-        assert arg != None
+        assert arg is not None
 
     #
     # From PojoOptionsTest
@@ -66,7 +66,7 @@ class TestParameters(object):
         p = ParametersI()
         p.noPage()
         assert None == p.theFilter
-        p.page(2,3)
+        p.page(2, 3)
         assert p.isPagination()
         assert rint(2) == p.theFilter.offset
         assert rint(3) == p.theFilter.limit
@@ -150,7 +150,6 @@ class TestParameters(object):
         assert rbool(False) == p.noLeaves().getLeaves()
         self.assertNotNull(p.getLeaves())
 
-
     #
     # Parameters.map
     #
@@ -158,10 +157,10 @@ class TestParameters(object):
     def testDistinctMaps(self):
         p1 = ParametersI()
         p2 = ParametersI()
-        assert not p1.map is p2.map
+        assert p1.map is not p2.map
 
     def testSameMap(self):
-        m = {'key':0}
+        m = {'key': 0}
         p1 = ParametersI(parammap=m)
         p2 = ParametersI(parammap=m)
         assert p1.map is p2.map
@@ -188,7 +187,7 @@ class TestParameters(object):
 
     def testAddLongRaw(self):
         p = ParametersI()
-        p.addLong("long",1)
+        p.addLong("long", 1)
         assert rlong(1) == p.map["long"]
 
     def testAddLongRType(self):
@@ -198,13 +197,12 @@ class TestParameters(object):
 
     def testAddIds(self):
         p = ParametersI()
-        p.addIds([1,2])
+        p.addIds([1, 2])
         p.map["ids"].val.index(rlong(1))
         p.map["ids"].val.index(rlong(2))
 
     def testAddLongs(self):
         p = ParametersI()
-        p.addLongs("longs", [1,2])
+        p.addLongs("longs", [1, 2])
         p.map["longs"].val.index(rlong(1))
         p.map["longs"].val.index(rlong(2))
-

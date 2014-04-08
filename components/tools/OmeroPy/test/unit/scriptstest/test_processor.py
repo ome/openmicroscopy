@@ -4,12 +4,15 @@
 """
    Test of the Process facility independent of Ice.
 
-   Copyright 2008 Glencoe Software, Inc. All rights reserved.
+   Copyright 2008-2014 Glencoe Software, Inc. All rights reserved.
    Use is subject to license terms supplied in LICENSE.txt
 
 """
 
-import os, sys, logging, subprocess
+import os
+import sys
+import logging
+import subprocess
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -19,12 +22,15 @@ import omero.util
 import omero.util.concurrency
 from omero_ext.functional import wraps
 
+
 def pass_through(arg):
     return arg
+
 
 def make_client(self):
     self.client = None
     self.uuid = "mock_uuid"
+
 
 def _term(self, *args):
     self.rcode = -9
@@ -32,21 +38,28 @@ def _term(self, *args):
 omero.processor.ProcessI._term = _term
 omero.processor.ProcessI.make_client = make_client
 
+
 class Callback(object):
     def __init__(self):
         self._finished = None
         self._cancelled = None
         self._killed = None
+
     def ice_getIdentity(self):
-        return Ice.Identity("a","b")
+        return Ice.Identity("a", "b")
+
     def ice_oneway(self):
         return self
+
     def processFinished(self, rc):
         self._finished = rc
+
     def processCancelled(self, success):
         self._cancelled = success
+
     def processKilled(self, success):
         self._killed = success
+
 
 class MockPopen(object):
     def __init__(self, *args, **kwargs):
@@ -54,37 +67,49 @@ class MockPopen(object):
         self.kwargs = kwargs
         self.rcode = None
         self.pid = 1
+
     def poll(self):
         return self.rcode
+
     def wait(self):
         return self.rcode
+
     def kill(self, *args):
         self.rcode = -9
         return self.rcode
 
-def with_process(func, Popen = MockPopen):
+
+def with_process(func, Popen=MockPopen):
     """ Decorator for running a test with a Process """
     def handler(*args, **kwargs):
         self = args[0]
-        self.process = omero.processor.ProcessI(self.ctx, sys.executable, self.props(), self.params(), Popen = Popen, callback_cast = pass_through)
+        self.process = omero.processor.ProcessI(
+            self.ctx, sys.executable, self.props(), self.params(),
+            Popen=Popen, callback_cast=pass_through)
         try:
-            rv = func(*args, **kwargs)
+            func(*args, **kwargs)
         finally:
             self.process.cleanup()
     return wraps(func)(handler)
+
 
 class TestProcess(object):
 
     def setup_method(self, method):
         self.log = logging.getLogger("TestProcess")
-        self.ctx = omero.util.ServerContext(server_id='mock', communicator=None, stop_event=omero.util.concurrency.get_event())
+        self.ctx = omero.util.ServerContext(
+            server_id='mock', communicator=None,
+            stop_event=omero.util.concurrency.get_event())
 
     def teardown_method(self, method):
         self.log.info("stop_event")
         self.ctx.stop_event.set()
 
     def props(self):
-        p = {"omero.user":"sessionId","omero.pass":"sessionId", "Ice.Default.Router":"foo"}
+        p = {
+            "omero.user": "sessionId",
+            "omero.pass": "sessionId",
+            "Ice.Default.Router": "foo"}
         return p
 
     def params(self):
@@ -103,11 +128,12 @@ class TestProcess(object):
 
     def testEnvironment(self):
         env = omero.util.Environment("PATH")
-        env.append("PATH", os.pathsep.join(["bob","cat"]))
+        env.append("PATH", os.pathsep.join(["bob", "cat"]))
         env.append("PATH", os.path.join(os.getcwd(), "lib"))
 
-    def testEnvironemnt2(self):
-        process = omero.processor.ProcessI(self.ctx, sys.executable, self.props(), self.params())
+    def testEnvironment2(self):
+        omero.processor.ProcessI(self.ctx, sys.executable,
+                                 self.props(), self.params())
 
     #
     # MockPopen
@@ -188,4 +214,3 @@ client = s.client("name","description",s.Long("l"))
         assert not self.process.poll()
         self.process.cleanup()
     testKillProcess = with_process(testKillProcess, subprocess.Popen)
-

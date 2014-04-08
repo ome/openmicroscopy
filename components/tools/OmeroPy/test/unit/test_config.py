@@ -4,7 +4,7 @@
 /*
  *   $Id$
  *
- *   Copyright 2008 Glencoe Software, Inc. All rights reserved.
+ *   Copyright 2008-2014 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 """
@@ -12,10 +12,10 @@
 import os
 import portalocker
 import pytest
-from omero.config import *
+from omero.config import ConfigXml, xml
 from omero.util.temp_files import create_path
 
-from xml.etree.ElementTree import XML, Element, SubElement, Comment, ElementTree, tostring, dump
+from xml.etree.ElementTree import XML, Element, SubElement, tostring
 
 
 class TestConfig(object):
@@ -53,13 +53,16 @@ class TestConfig(object):
 
         %s""" % (self.totext(elemA), self.totext(elemB))
 
-    def initial(self, default = "default"):
+    def initial(self, default="default"):
         icegrid = Element("icegrid")
         properties = SubElement(icegrid, "properties", id=ConfigXml.INTERNAL)
-        _ = SubElement(properties, "property", name=ConfigXml.DEFAULT, value=default)
-        _ = SubElement(properties, "property", name=ConfigXml.KEY, value=ConfigXml.VERSION)
+        SubElement(properties, "property", name=ConfigXml.DEFAULT,
+                   value=default)
+        SubElement(properties, "property", name=ConfigXml.KEY,
+                   value=ConfigXml.VERSION)
         properties = SubElement(icegrid, "properties", id=default)
-        _ = SubElement(properties, "property", name=ConfigXml.KEY, value=ConfigXml.VERSION)
+        SubElement(properties, "property", name=ConfigXml.KEY,
+                   value=ConfigXml.VERSION)
         return icegrid
 
     def totext(self, elem):
@@ -100,7 +103,7 @@ class TestConfig(object):
         p = create_path()
 
         current = os.environ.get("OMERO_CONFIG", "default")
-        assert current != "FOO" # Just in case.
+        assert current != "FOO"  # Just in case.
 
         config = ConfigXml(filename=str(p))
         config.close()
@@ -145,7 +148,8 @@ class TestConfig(object):
         config["omero.data.dir"] = "HOME"
         config.close()
         initial = self.initial("DICT")
-        _ = SubElement(initial[0][0], "property", name="omero.data.dir", value="HOME")
+        _ = SubElement(initial[0][0], "property", name="omero.data.dir",
+                       value="HOME")
         _ = SubElement(initial, "properties", id="DICT")
         _ = SubElement(_, "property", name="omero.data.dir", value="HOME")
         self.assertXml(initial, XML(p.text()))
@@ -154,7 +158,7 @@ class TestConfig(object):
         p = create_path()
         config1 = ConfigXml(filename=str(p))
         try:
-            config2 = ConfigXml(filename=str(p))
+            ConfigXml(filename=str(p))
             assert False, "No exception"
         except portalocker.LockException:
             pass
@@ -174,8 +178,8 @@ class TestConfig(object):
         p = create_path()
         config = ConfigXml(filename=str(p))
         X = config.XML
-        O = SubElement(X, "properties", {"id":"old"})
-        SubElement(O, "property", {"omero.ldap.keystore":"/Foo"})
+        O = SubElement(X, "properties", {"id": "old"})
+        SubElement(O, "property", {"omero.ldap.keystore": "/Foo"})
         config.close()
 
         try:
@@ -197,9 +201,15 @@ class TestConfig(object):
         active = SubElement(XML, "properties", id="__ACTIVE__")
         default = SubElement(XML, "properties", id="default")
         for properties in (active, default):
-            SubElement(properties, "property", name="omero.config.version", value="4.2.0")
-            SubElement(properties, "property", name="omero.ldap.new_user_group", value="member=${dn}")
-            SubElement(properties, "property", name="omero.ldap.new_user_group_2", value="member=$${omero.dollar}{dn}")
+            SubElement(
+                properties, "property", name="omero.config.version",
+                value="4.2.0")
+            SubElement(
+                properties, "property", name="omero.ldap.new_user_group",
+                value="member=${dn}")
+            SubElement(
+                properties, "property", name="omero.ldap.new_user_group_2",
+                value="member=$${omero.dollar}{dn}")
         string = tostring(XML, 'utf-8')
         txt = xml.dom.minidom.parseString(string).toprettyxml("  ", "\n", None)
         p.write_text(txt)
@@ -221,7 +231,8 @@ class TestConfig(object):
     def testReadOnlyConfigFailsOnEnv1(self):
         p = create_path()
         p.chmod(0444)  # r--r--r--
-        pytest.raises(Exception, ConfigXml, filename=str(p), env_config="default")
+        pytest.raises(Exception, ConfigXml, filename=str(p),
+                      env_config="default")
 
     def testReadOnlyConfigFailsOnEnv2(self):
         old = os.environ.get("OMERO_CONFIG")

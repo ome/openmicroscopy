@@ -4,25 +4,24 @@
 """
    Test of the omero.scripts.parse functionality
 
-   Copyright 2009 Glencoe Software, Inc. All rights reserved.
+   Copyright 2009-2014 Glencoe Software, Inc. All rights reserved.
    Use is subject to license terms supplied in LICENSE.txt
 
 """
 
-import os
 import pytest
-import sys
-import logging
 
 from path import path
 
 import omero
 
-from omero.grid import *
-from omero.scripts import *
-from omero.util.temp_files import create_path
+from omero.grid import JobParams
+from omero.scripts import String, List, Bool, Long, MissingInputs, ParseExit
+from omero.scripts import client, parse_inputs, validate_inputs, parse_text
+from omero.scripts import parse_file, group_params, rlong, rint, wrap, unwrap
 
 SCRIPTS = path(".") / "scripts" / "omero"
+
 
 class TestParse(object):
 
@@ -31,37 +30,50 @@ class TestParse(object):
             class mock(object):
                 def setAgent(self, *args):
                     pass
+
                 def createSession(self, *args):
                     return self
+
                 def detachOnDestroy(self, *args):
                     pass
+
                 def getProperty(self, *args):
                     return "true"
+
                 def setOutput(self, *args):
                     pass
-            script_client = client("testParse", "simple ping script", Long("a").inout(), String("b").inout(), client = mock())
-            print "IN CLIENT: " + script_client.getProperty("omero.scripts.parse")
+            script_client = client(
+                "testParse", "simple ping script", Long("a").inout(),
+                String("b").inout(), client=mock())
+            print "IN CLIENT: " + \
+                script_client.getProperty("omero.scripts.parse")
             assert False, "Should have raised ParseExit"
-        except ParseExit, pe:
+        except ParseExit:
             pass
 
     def testMinMaxTicket2318(self):
         # Duplicating from some of the scripts to reproduce problem
-        def makeParam(paramClass, name, description=None, optional=True, min=None, max=None, values=None):
-             param = paramClass(name, optional, description=description, min=min, max=max, values=values)
-             return param
-        p = makeParam(Long, "thumbSize", "The dimension of each thumbnail. Default is 100", True, 10, 250)
+        def makeParam(paramClass, name, description=None, optional=True,
+                      min=None, max=None, values=None):
+            param = paramClass(name, optional, description=description,
+                               min=min, max=max, values=values)
+            return param
+        p = makeParam(Long, "thumbSize", "The dimension of each thumbnail."
+                      " Default is 100", True, 10, 250)
         assert 10 == p.min.val
         assert 250 == p.max.val
 
     def testTicket2323(self):
-        SCRIPT = """if True:
-            import omero
-            from omero.rtypes import rstring, rlong
-            import omero.scripts as scripts
-            client = scripts.client('HelloWorld.py', 'Hello World example script',
-            scripts.Long('longParam', True, description='theDesc', min=long(1), max=long(10), values=[rlong(5)]) )
-            client.setOutput('returnMessage', rstring('Script ran OK!'))"""
+        SCRIPT = """
+if True:
+    import omero
+    from omero.rtypes import rstring, rlong
+    import omero.scripts as scripts
+    client = scripts.client(
+        'HelloWorld.py', 'Hello World example script',
+        scripts.Long('longParam', True, description='theDesc', min=long(1),
+        max=long(10), values=[rlong(5)]) )
+    client.setOutput('returnMessage', rstring('Script ran OK!'))"""
         params = parse_text(SCRIPT)
         longParam = params.inputs["longParam"]
         assert 1 == unwrap(longParam.min), str(longParam.min)
@@ -69,14 +81,16 @@ class TestParse(object):
         assert [5] == unwrap(longParam.values), str(longParam.values)
 
     def testObjectType(self):
-        SCRIPT = """if True:
-            import omero
-            import omero.all
-            import omero.scripts as scripts
-            from omero.rtypes import robject
+        SCRIPT = """
+if True:
+    import omero
+    import omero.all
+    import omero.scripts as scripts
+    from omero.rtypes import robject
 
-            client = scripts.client('RObjectExample.py', 'Example script passing an robject',
-            scripts.Object('objParam', True, description='theDesc'))"""
+    client = scripts.client(
+        'RObjectExample.py', 'Example script passing an robject',
+        scripts.Object('objParam', True, description='theDesc'))"""
         params = parse_text(SCRIPT)
         objParam = params.inputs["objParam"]
         assert isinstance(objParam.prototype, omero.RObject)
@@ -87,28 +101,33 @@ class TestParse(object):
         assert rv["objParam"].val.id.val == 1
 
     def testObjectTypeWithDefault(self):
-        SCRIPT = """if True:
-            import omero
-            import omero.all
-            import omero.scripts as scripts
-            from omero.rtypes import robject
+        SCRIPT = """
+if True:
+    import omero
+    import omero.all
+    import omero.scripts as scripts
+    from omero.rtypes import robject
 
-            client = scripts.client('RObjectExampleWithDefault.py', 'Example script passing an robject',
-            scripts.Object('objParam', True, description='theDesc', default=omero.model.ImageI()))"""
+    client = scripts.client(
+        'RObjectExampleWithDefault.py', 'Example script passing an robject',
+        scripts.Object('objParam', True, description='theDesc',
+                       default=omero.model.ImageI()))"""
         params = parse_text(SCRIPT)
         objParam = params.inputs["objParam"]
         assert isinstance(objParam.prototype, omero.RObject)
         assert isinstance(objParam.prototype.val, omero.model.ImageI)
 
     def testListOfType(self):
-        SCRIPT = """if True:
-            import omero
-            import omero.all
-            from omero.rtypes import rstring, rlong
-            import omero.scripts as scripts
-            client = scripts.client('HelloWorld.py', 'Hello World example script',
-                scripts.List('Image_List').ofType(omero.model.ImageI))
-            client.setOutput('returnMessage', rstring('Script ran OK!'))"""
+        SCRIPT = """
+if True:
+    import omero
+    import omero.all
+    from omero.rtypes import rstring, rlong
+    import omero.scripts as scripts
+    client = scripts.client(
+        'HelloWorld.py', 'Hello World example script',
+        scripts.List('Image_List').ofType(omero.model.ImageI))
+    client.setOutput('returnMessage', rstring('Script ran OK!'))"""
         params = parse_text(SCRIPT)
         listParam = params.inputs["Image_List"]
         assert isinstance(listParam.prototype.val[0].val, omero.model.Image)
@@ -165,7 +184,7 @@ class TestParse(object):
     def testParseAllOfficialScripts(self):
         for script in SCRIPTS.walk("*.py"):
             try:
-                params = parse_file(str(script))
+                parse_file(str(script))
             except Exception, e:
                 assert False, "%s\n%s" % (script, e)
 
@@ -188,20 +207,23 @@ class TestParse(object):
                 Long('l', default=10))"""
         params = parse_text(SCRIPT)
         l = params.inputs["l"]
-        assert None !=  l.prototype, str(l)
+        assert None != l.prototype, str(l)
 
         # Copied from testUploadOfficialScript
         scriptLines = [
-        "import omero",
-        "from omero.rtypes import rstring, rlong",
-        "import omero.scripts as scripts",
-        "if __name__ == '__main__':",
-        "    client = scripts.client('HelloWorld.py', 'Hello World example script',",
-        "    scripts.Long('longParam', True, description='theDesc', min=rlong(1), max=rlong(10), values=[rlong(5)]) )",
-        "    client.setOutput('returnMessage', rstring('Script ran OK!'))"]
+            "import omero",
+            "from omero.rtypes import rstring, rlong",
+            "import omero.scripts as scripts",
+            "if __name__ == '__main__':",
+            "    client = scripts.client('HelloWorld.py',"
+            " 'Hello World example script',",
+            "    scripts.Long('longParam', True, description='theDesc',"
+            " min=rlong(1), max=rlong(10), values=[rlong(5)]) )",
+            "    client.setOutput('returnMessage', rstring('Script ran"
+            " OK!'))"]
         params = parse_text("\n".join(scriptLines))
         l = params.inputs["longParam"]
-        assert None !=  l.prototype, str(l)
+        assert None != l.prototype, str(l)
 
     def parse_list(self, SCRIPT):
         params = parse_text(SCRIPT)
@@ -210,59 +232,60 @@ class TestParse(object):
         assert ["a"] == unwrap(l.prototype)
 
     def test2405_String(self):
-        SCRIPT = """if True:
-            from omero.scripts import *
-            from omero.rtypes import *
-            cOptions = wrap(["a","b","c"])
+        SCRIPT = """
+if True:
+    from omero.scripts import *
+    from omero.rtypes import *
+    cOptions = wrap(["a","b","c"])
 
-            c = client('2405', List("l", default="White", values=cOptions).ofType(rstring("")))"""
-        self.parse_list(SCRIPT)
-
-    def test2405_String(self):
-        SCRIPT = """if True:
-            from omero.scripts import *
-            from omero.rtypes import *
-            cOptions = wrap(["a","b","c"])
-
-            c = client('2405', List("l", default=rstring("a"), values=cOptions).ofType(rstring("")))"""
+    c = client('2405', List("l", default=rstring("a"),
+               values=cOptions).ofType(rstring("")))"""
         self.parse_list(SCRIPT)
 
     def test2405_List(self):
-        SCRIPT = """if True:
-            from omero.scripts import *
-            from omero.rtypes import *
-            cOptions = wrap(["a","b","c"])
+        SCRIPT = """
+if True:
+    from omero.scripts import *
+    from omero.rtypes import *
+    cOptions = wrap(["a","b","c"])
 
-            c = client('2405', List("l", default=["a"], values=cOptions).ofType(rstring("")))"""
+    c = client('2405', List("l", default=["a"],
+               values=cOptions).ofType(rstring("")))"""
         self.parse_list(SCRIPT)
 
     def test2405_RList(self):
-        SCRIPT = """if True:
-            from omero.scripts import *
-            from omero.rtypes import *
-            cOptions = wrap(["a","b","c"])
+        SCRIPT = """
+if True:
+    from omero.scripts import *
+    from omero.rtypes import *
+    cOptions = wrap(["a","b","c"])
 
-            c = client('2405', List("l", default=wrap(["a"]), values=cOptions).ofType(rstring("")))"""
+    c = client('2405', List("l", default=wrap(["a"]),
+               values=cOptions).ofType(rstring("")))"""
         self.parse_list(SCRIPT)
 
     def test2405BadMixOfOfType(self):
-        SCRIPT = """if True:
-            from omero.scripts import *
-            from omero.rtypes import *
+        SCRIPT = """
+if True:
+    from omero.scripts import *
+    from omero.rtypes import *
 
-            c = client('2405', List("Channel_Colours", grouping="7",
-                     description="List of Colours for channels.", default="White").ofType(rint(0))) """
+    c = client('2405', List("Channel_Colours", grouping="7",
+               description="List of Colours for channels.",
+               default="White").ofType(rint(0))) """
 
         pytest.raises(ValueError, parse_text, SCRIPT)
 
     def test2405BadMixOfValues(self):
-        SCRIPT = """if True:
-            from omero.scripts import *
-            from omero.rtypes import *
-            cOptions = wrap([1,2,3])
+        SCRIPT = """
+if True:
+    from omero.scripts import *
+    from omero.rtypes import *
+    cOptions = wrap([1,2,3])
 
-            c = client('2405', List("Channel_Colours", grouping="7",
-                     description="List of Colours for channels.", default="White", values=cOptions))"""
+    c = client('2405', List("Channel_Colours", grouping="7",
+               description="List of Colours for channels.", default="White",
+               values=cOptions))"""
 
         pytest.raises(ValueError, parse_text, SCRIPT)
 
