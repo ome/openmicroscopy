@@ -846,64 +846,6 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
             <ivy:retrieve conf="server" pattern="${dist.dir}/lib/server/[artifact].[ext]" sync="false" log="quiet" settingsRef="ivy.toplevel"/>
     </target>
 
-    <macrodef name="signjar_password">
-        <attribute name="target"/>
-        <sequential>
-            <if>
-                <isset property="jarsign.storepassfile"/>
-                <then>
-                    <if>
-                        <isset property="jarsign.tsa"/>
-                        <then>
-                            <echo message="Signing jar: @{target} as ${jarsign.alias} with timestamping"/>
-                            <exec executable="jarsigner" failonerror="true">
-                                <arg value="-keystore"/>
-                                <arg value="${jarsign.keystore}"/>
-                                <arg value="-storepass:file"/>
-                                <arg value="${jarsign.storepassfile}"/>
-                                <arg value="-tsa"/>
-                                <arg value="${jarsign.tsa}"/>
-                                <arg value="@{target}"/>
-                                <arg value="${jarsign.alias}"/>
-                            </exec>
-                        </then>
-                        <else>
-                            <echo message="Signing jar: @{target} as ${jarsign.alias}"/>
-                            <exec executable="jarsigner" failonerror="true">
-                                <arg value="-keystore"/>
-                                <arg value="${jarsign.keystore}"/>
-                                <arg value="-storepass:file"/>
-                                <arg value="${jarsign.storepassfile}"/>
-                                <arg value="@{target}"/>
-                                <arg value="${jarsign.alias}"/>
-                            </exec>
-                        </else>
-                    </if>
-                </then>
-                <else>
-                    <if>
-                        <isset property="jarsign.tsa"/>
-                        <then>
-                            <signjar alias="${jarsign.alias}"
-                                keystore="${jarsign.keystore}"
-                                storepass="${jarsign.storepass}"
-                                tsaurl="${jarsign.tsa}"
-                                preservelastmodified="true"
-                                jar="@{target}"/>
-                        </then>
-                        <else>
-                            <signjar alias="${jarsign.alias}"
-                                keystore="${jarsign.keystore}"
-                                storepass="${jarsign.storepass}"
-                                preservelastmodified="true"
-                                jar="@{target}"/>
-                        </else>
-                    </if>
-                </else>
-            </if>
-        </sequential>
-    </macrodef>
-
     <macrodef name="jar_update_if">
         <attribute name="destfile"/>
         <element name="filesets" implicit="yes"/>
