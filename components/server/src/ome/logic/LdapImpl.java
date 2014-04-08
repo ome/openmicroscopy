@@ -376,52 +376,44 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap,
         }
     }
 
+    /**
+     * Creates an {@link Experimenter} based on the supplied LDAP username.
+     * Doesn't validate the user's password and can be only executed by admin
+     * users.
+     *
+     * @param username
+     *            The user's LDAP username.
+     * @return boolean <tt>true</tt> if operation succeeded.
+     */
     @RolesAllowed("system")
     public boolean createUserFromLdap(String username) {
-        Experimenter exp = findExperimenter(username);
-        String ldapDn = getContextMapper().getDn(exp);
-        DistinguishedName dn = new DistinguishedName(ldapDn);
-
-        List<Long> groups = loadLdapGroups(username, dn);
-
-        if (groups.size() == 0) {
-            throw new ValidationException("No group found for: " + dn);
-        }
-
-        // Create the unloaded groups for creation
-        Long gid = groups.remove(0);
-        ExperimenterGroup grp1 = new ExperimenterGroup(gid, false);
-        Set<Long> otherGroupIds = new HashSet<Long>(groups);
-        ExperimenterGroup grpOther[] = new ExperimenterGroup[otherGroupIds
-                .size() + 1];
-
-        int count = 0;
-        for (Long id : otherGroupIds) {
-            grpOther[count++] = new ExperimenterGroup(id, false);
-        }
-        grpOther[count] = new ExperimenterGroup(roles.getUserGroupId(), false);
-
-        long uid = provider.createExperimenter(exp, grp1, grpOther);
-        setDN(uid, dn.toString());
-        return true;
+        return createUserFromLdap(username, null, false);
     }
 
     /**
-     * Gets user from LDAP for checking him by requirements and setting his
-     * details on DB
+     * Creates an {@link Experimenter} based on the supplied LDAP username.
+     * A boolean flag controls if password checks should be performed.
      *
-     * @return {@link ome.system.ServiceFactory}
+     * @param username
+     *            The user's LDAP username.
+     * @param password
+     *            The user's password.
+     * @param checkPassword
+     *            Flag indicating if password check should be performed.
+     * @return boolean <tt>true</tt> if operation succeeded.
      */
-    public boolean createUserFromLdap(String username, String password) {
-
+    public boolean createUserFromLdap(String username, String password,
+            boolean checkPassword) {
         Experimenter exp = findExperimenter(username);
         String ldapDn = getContextMapper().getDn(exp);
         DistinguishedName dn = new DistinguishedName(ldapDn);
 
-        boolean access = validatePassword(dn.toString(), password);
+        boolean access = true;
+        if (checkPassword) {
+            access = validatePassword(dn.toString(), password);
+        }
 
         if (access) {
-
             List<Long> groups = loadLdapGroups(username, dn);
 
             if (groups.size() == 0) {
