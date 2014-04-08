@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.Container
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -77,6 +77,13 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  */
 public final class Container
 {
+        static {
+            // Workaround for Java 7 bug http://bugs.java.com/bugdatabase/view_bug.do?bug_id=7075600
+            // TODO: Remove again when switching to Java 8
+            if(System.getProperty("java.version").startsWith("1.7")) {
+                System.setProperty("java.util.Arrays.useLegacyMergeSort", "true");
+            }
+        }
 
 	/** The title of the splash screens. */
 	public static final String		TITLE = "Open Microscopy Environment";
