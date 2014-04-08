@@ -150,6 +150,23 @@ class Args:
         return m.groupdict()
 
 
+def check_jarsigner():
+    """
+    Checks whether jarsigner can be run
+    """
+    cmd = ['jarsigner']
+    logging.debug('Running: %s', cmd)
+    with open(os.devnull, 'w') as devnull:
+        try:
+            r = subprocess.call(cmd, stdout=devnull)
+        except Exception as e:
+            raise Stop(2, 'Unable to execute jarsigner: %s' % e)
+        if r != 0:
+            raise Stop(r, 'jarsigner returned non-zero : %d' % r)
+    logging.debug('jarsigner is runnable')
+
+
+
 def jarsign(jar, alias, keystore, keypass, certpass, timestamper, proxy=None):
     # Additional jarsigner args must come before the jar and alias
     cmd1 = ['jarsigner', '-keystore', keystore, '-storepass', keypass,
@@ -263,6 +280,8 @@ def md5sum(filename):
 def sign_server(args):
     if args.verbose:
         logging.getLogger().setLevel(logging.DEBUG)
+
+    check_jarsigner()
 
     additional_args = get_proxy_args(args.httpproxy, args.httpsproxy)
 
