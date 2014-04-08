@@ -427,8 +427,8 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
         </scons_py>
     </target>
 
-    <target name="release-all" description="Produce all binary release artifacts"
-        depends="release-clients,release-webstart,release-zip,release-docs">
+    <target name="release-all" description="Produce all binary release artifacts (unsigned)"
+        depends="release-clients,release-webstart-unsigned,release-zip,release-docs">
         <!-- Clients must come first to produce the zips needed by webstart,
         followed by webstart in order to add jars to dist/, followed by zip -->
     </target>
@@ -998,14 +998,17 @@ omero.version=${omero.version}
     </target>
 
     <target name="webstart-sign">
-        <for param="target">
-            <path>
-                <fileset dir="${dist.dir}/lib/insight" includes="*.jar"/>
-            </path>
-            <sequential>
-                <signjar_password target="@{target}"/>
-            </sequential>
-        </for>
+        <exec executable="docs/hudson/omero_insight_sign.py">
+            <arg value="lib/keystore"/>
+            <arg value="omedev"/>
+            <arg value="${dist.dir}"/>
+            <arg value="-kp"/>
+            <arg value="omedev"/>
+            <arg value="-cp"/>
+            <arg value="omedev"/>
+            <arg value="-ts"/>
+            <arg value="no"/>
+        </exec>
     </target>
 
     <target name="webstart-verify">
@@ -1015,7 +1018,17 @@ omero.version=${omero.version}
         </apply>
     </target>
 
-    <target name="release-webstart" depends="init" description="Generates webstart jars under dist/lib/insight">
+    <target name="release-webstart-signed" depends="init" description="Generates self-signed webstart jars under dist/lib/insight">
+        <mkdir dir="${dist.dir}/lib/insight"/>
+        <copy todir="${dist.dir}/lib/insight">
+            <fileset dir="components/insight/OUT/app/libs/" includes="*.jar"/>
+        </copy>
+        <copy file="components/insight/OUT/dist/omero.insight.jar" tofile="${dist.dir}/lib/insight/omero.insight.jar"/>
+        <copy file="components/insight/SRC/org/openmicroscopy/shoola/env/ui/graphx/omeabout-bk.png" tofile="${dist.dir}/lib/insight/ome.png"/>
+        <antcall target="webstart-sign" inheritRefs="true" inheritAll="true"/>
+    </target>
+
+    <target name="release-webstart-unsigned" depends="init" description="Generates unsigned webstart jars under dist/lib/insight">
         <mkdir dir="${dist.dir}/lib/insight"/>
         <copy todir="${dist.dir}/lib/insight">
             <fileset dir="components/insight/OUT/app/libs/" includes="*.jar"/>
