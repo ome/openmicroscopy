@@ -161,7 +161,7 @@ public class LdapIntegrationTest extends LdapTest {
 
             @Override
             public boolean createUserFromLdap(final String user,
-                    final String password) {
+                    final String password, final boolean checkPassword) {
                 // To keep things simple, if a user already exists,
                 // it gets renamed. Otherwise, it would be necessary to generate
                 // the ldif on every execution.
@@ -193,7 +193,8 @@ public class LdapIntegrationTest extends LdapTest {
                     @Transactional(readOnly = false)
                     public Object doWork(org.hibernate.Session session,
                             ServiceFactory sf) {
-                        return ldap.createUserFromLdap(user, "password");
+                        return ldap.createUserFromLdap(user, "password",
+                                checkPassword);
                     }
                 });
             }
