@@ -18,16 +18,17 @@ function annotations = getObjectAnnotations(session, annotationType, parentType,
 %    'exclude', exclude) excludes annotations with the input namespace.
 %
 %    anns = getObjectAnnotations(session, annotationType, parentType, ids,
-%    'owner', ownerid, ...) searches annotations owned by the user of the
-%    specified identifier. If -1, all annotations are returned
-%    independently of their owner. The default owner is the session owner.
-%    additional options are passed to the OMERO service.
+%    'owner', ownerid) returns annotations owned by the user with
+%    identifier ownerid. Use -1 to return the annotations owned by all
+%    users. Default: identifier of the session owner.
 %
 %    anns = getObjectAnnotations(session, annotationType, parentType, ids,
-%    'flatten', tf) Flatten the list of annotations (default true). If
-%    false a cell array is returned where anns{i} is a list of annotations
-%    linked with ids(i).
+%    'flatten', tf) flattens the returns annotations as an vector if true.
+%    If false, a cell array is returned where the i-th element is a vector
+%    of annotations linked to the i-th object. Default: true.
 %
+%    All additional options input as parameter/value pairs are passed to
+%    the OMERO service.
 %
 %    Examples:
 %
