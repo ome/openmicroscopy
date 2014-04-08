@@ -69,19 +69,20 @@
 			
 			
             {% for c in manager.containers.screens %}
+            {% with s=screens|get_item:c.id %}
             <li id='screen-{{ c.id }}' rel="screen{% if not c.isOwned %}-locked{% endif %}" class="{{ c.getPermsCss }}">
-				<a href="#">{{ c.name|default:"Screen"|truncatebefor:"35" }} {% if c.countChildren %}
-					<span class="children_count" id="counter-screen-{{ c.id }}">{{ c.countChildren}}</span>{% endif %}</a>
-                {% if c.countChildren %}
+				<a href="#">{{ c.name|default:"Screen"|truncatebefor:"35" }} {% if s.childCount %}
+					<span class="children_count" id="counter-screen-{{ c.id }}">{{ s.childCount}}</span>{% endif %}</a>
+                {% if s.childCount %}
                 <ul>
-                    {% for d in c.listChildren %}
-                        <li id='plate-{{ d.id }}' rel="plate{% if not d.isOwned %}-locked{% endif %}" class="{{ d.getPermsCss }}">
-                            <a href="#">{{ d.name|default:"Plate"|truncatebefor:"35" }}</a>
-                            {% if d.countPlateAcquisitions %}
+                    {% for p in s.plates %}
+                        <li id='plate-{{ p.id }}' rel="plate{% if not p.isOwned %}-locked{% endif %}" class="{{ p.permsCss }}">
+                            <a href="#">{{ p.name|default:"Plate"|truncatebefor:"35" }}</a>
+                            {% if p.plateAcquisitionsCount %}
                             <ul>
-                                {% for e in d.listPlateAcquisitions %}
-                                    <li id='acquisition-{{ e.id }}' rel="acquisition{% if not e.isOwned %}-locked{% endif %}" class="{{ e.getPermsCss }}">
-                                        <a href="#">{{ e.name|default:"Run"|truncatebefor:"35" }}</a>
+                                {% for a in p.plateacquisitions %}
+                                    <li id='acquisition-{{ a.id }}' rel="acquisition{% if not a.isOwned %}-locked{% endif %}" class="{{ a.permsCss }}">
+                                        <a href="#">{{ a.name|default:"Run"|truncatebefor:"35" }}</a>
                                     </li>
                                 {% endfor %}
                             </ul>
@@ -91,6 +92,7 @@
                 </ul>
                 {% endif %}
             </li>
+            {% endwith %}
             {% endfor %}
             
 			

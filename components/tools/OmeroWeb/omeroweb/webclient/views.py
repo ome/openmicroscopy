@@ -529,43 +529,103 @@ def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_ty
     else:
         manager.listContainerHierarchy(filter_user_id)
         if view =='tree':
+            def parsePermsCss (perms, ownerid):
+                perms = omero.model.PermissionsI(perms)
+                permsCss = []
+                if perms.canEdit(): permsCss.append("canEdit")
+                if perms.canAnnotate(): permsCss.append("canAnnotate")
+                if perms.canLink(): permsCss.append("canLink")
+                if perms.canDelete(): permsCss.append("canDelete")
+                if ownerid == conn.getUserId(): permsCss.append("canChgrp")
+                return ' '.join(permsCss)
+            projects = {}
             qs = conn.getQueryService()
             pids = [x.id for x in manager.containers['projects']]
-            q = """
-            select project.id,
-                   dataset.id,
-                   dataset.name,
-                   dataset.details.owner.id,
-                   project.details.permissions.perm1,
-                   project.details.owner.id,
-                   (select count(id) from DatasetImageLink dil where dil.parent=dataset.id)
-                   from ProjectDatasetLink pdlink
-                   join pdlink.parent project
-                   join pdlink.child dataset
-            where project.id in (%s)
-            order by dataset.name
-            """ % ','.join((str(x) for x in pids))
-            projects = {}
-            for e in qs.projection(q, None, conn.SERVICE_OPTS):
-                p = projects.setdefault(e[0].val, {'datasets': []})
-                if not p.has_key('permsCss'):
-                    perms = omero.model.PermissionsI(e[4].val)
-                    p['permsCss'] = []
-                    if perms.canEdit(): p['permsCss'].append("canEdit")
-                    if perms.canAnnotate(): p['permsCss'].append("canAnnotate")
-                    if perms.canLink(): p['permsCss'].append("canLink")
-                    if perms.canDelete(): p['permsCss'].append("canDelete")
-                    if e[5].val == conn.getUserId(): p['permsCss'].append("canChgrp")
-                    p['permsCss'] = ' '.join(p['permsCss'])
-                d = {}
-                d['id'] = e[1].val
-                d['name'] = e[2].val
-                d['isOwned'] = e[3].val == conn.getUserId()
-                d['childCount'] = e[6].val
-                p['datasets'].append(d)
-            for p in projects.keys():
-                projects[p]['childCount'] = len(projects[p]['datasets'])
+            if len(pids):
+                q = """
+                select project.id,
+                       dataset.id,
+                       dataset.name,
+                       dataset.details.owner.id,
+                       project.details.permissions.perm1,
+                       project.details.owner.id,
+                       (select count(id) from DatasetImageLink dil where dil.parent=dataset.id)
+                       from ProjectDatasetLink pdlink
+                       join pdlink.parent project
+                       join pdlink.child dataset
+                where project.id in (%s)
+                order by dataset.name
+                """ % ','.join((str(x) for x in pids))
+                for e in qs.projection(q, None, conn.SERVICE_OPTS):
+                    p = projects.setdefault(e[0].val, {'datasets': []})
+                    if not p.has_key('permsCss'):
+                        p['permsCss'] = parsePermsCss(e[4].val, e[5].val)
+                    d = {}
+                    d['id'] = e[1].val
+                    d['name'] = e[2].val
+                    d['isOwned'] = e[3].val == conn.getUserId()
+                    d['childCount'] = e[6].val
+                    p['datasets'].append(d)
+                for p in projects.keys():
+                    projects[p]['childCount'] = len(projects[p]['datasets'])
             context['projects'] = projects
+            sids = [x.id for x in manager.containers['screens']]
+            screens = {}
+            if len(sids):
+                plates = {}
+                q = """
+                select screen.id,
+                       plate.id,
+                       plate.name,
+                       plate.details.owner.id,
+                       plate.details.permissions.perm1,
+                       pa.id,
+                       pa.name,
+                       pa.details.owner.id,
+                       pa.details.permissions.perm1,
+                       pa.startTime,
+                       pa.endTime
+                       from Screen screen
+                       join screen.plateLinks splink
+                       join splink.child plate
+                       join plate.plateAcquisitions pa
+                where screen.id in (%s)
+                order by screen.name, plate.name, pa.id
+                """ % ','.join((str(x) for x in sids))
+                for e in qs.projection(q, None, conn.SERVICE_OPTS):
+                    s = screens.setdefault(e[0].val, {'plateids': [], 'plates': {}})
+                    pid = e[1].val
+                    if pid in s['plateids']:
+                        p = s['plates'][pid]
+                    else:
+                        s['plateids'].append(pid)
+                        p = {}
+                        s['plates'][pid] = p
+                        p['permsCss'] = parsePermsCss(e[4].val, e[3].val)
+                        p['isOwned'] = e[3].val == conn.getUserId()
+                        p['id'] = e[1].val
+                        p['name'] = e[2].val
+                        p['plateacquisitions'] = []
+                    pa = {}
+                    pa['id'] = e[5].val
+                    if e[6] is not None:
+                        pa['name'] = e[6].val
+                    else:
+                        if e[9] is not None and e[10] is not None:
+                            pa['name'] = "%s - %s" % (datetime.fromtimestamp(e[9].val/1000),
+                                                      datetime.fromtimestamp(e[10].val/1000))
+                        else:
+                            pa['name'] = 'Run %d' % pa['id']
+                    pa['permsCss'] = parsePermsCss(e[8].val, e[7].val)
+                    pa['isOwned'] = e[7].val == conn.getUserId()
+                    p['plateacquisitions'].append(pa)
+                for s in screens.keys():
+                    screens[s]['childCount'] = len(screens[s]['plates'])
+                    # keeping plates ordered
+                    screens[s]['plates'] = [screens[s]['plates'][x] for x in screens[s]['plateids']]
+                    for p in screens[s]['plates']:
+                        p['plateAcquisitionsCount'] = len(p['plateacquisitions'])
+            context['screens'] = screens
             template = "webclient/data/containers_tree.html"
         elif view =='icon':
             template = "webclient/data/containers_icon.html"
