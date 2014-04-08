@@ -98,7 +98,6 @@
                 progressbar.progressbar({
                   value: false,
                   change: function() {
-                    console.log('change', progressbar.progressbar( "value" ), progressLabel);
                     progressLabel.text( progressbar.progressbar( "value" ) + "%" );
                   },
                 });

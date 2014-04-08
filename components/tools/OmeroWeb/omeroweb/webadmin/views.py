@@ -324,7 +324,7 @@ def drivespace_json(request, query=None, groupId=None, userId=None, conn=None, *
         # Calculate disk usage via Pixels
         result = queryService.projection(pixelsQuery, params, ctx)
         if len(result) > 0 and len(result[0]) > 0:
-            bytesInGroup += result[0][0].val / 2      # BUG - see https://trac.openmicroscopy.org.uk/ome/ticket/12126#comment:11
+            bytesInGroup += result[0][0].val
         # Now get Original File usage
         result = queryService.projection(filesQuery, params, ctx)
         if len(result) > 0 and len(result[0]) > 0:
