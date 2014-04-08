@@ -43,7 +43,7 @@ zip is specified.
 Passwords can be specified on the command line (-kp, -cp), in a file (-kf, -cf)
 or by entering at the command line when prompted (default).
 
-Use -v for verbose output.
+Use -v for verbose output (note this will print out passwords).
 
 If no timestamping option is given timestamping will be enabled using
 %s.
@@ -226,6 +226,9 @@ def get_proxy_args(http, https):
         if https['pass']:
             args.append('-J-Dhttps.proxyPassword=%s' % https['pass'])
 
+    if args:
+        logging.info('Using proxy args: %s', args)
+
     return args
 
 
@@ -250,7 +253,7 @@ def unzip(zipname):
 
 def zip(zipname, d):
     cmd = ['zip', '-q', '-r', zipname, d]
-    logging.info('Zipping %s', zipname)
+    logging.info('Zipping %s %s', zipname, d)
     r = subprocess.call(cmd)
     if r != 0:
         raise Stop(r, 'Failed to zip: %s %s' % (zipname, d))
