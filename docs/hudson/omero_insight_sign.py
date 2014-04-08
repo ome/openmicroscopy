@@ -11,6 +11,7 @@ import glob
 import hashlib
 import logging
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -40,7 +41,14 @@ zip is specified.
 Passwords can be specified on the command line (-kp, -cp), in a file (-kf, -cf)
 or by entering at the command line when prompted (default).
 If no timestamping option is given timestamping will be enabled using
-%s""" % (os.path.basename(__file__), DEFAULT_TIMESTAMP_SERVER))
+%s.
+
+If the http_proxy/https_proxy environment variables are set they will be
+automatically used.
+
+If jarsigner fails, for example due to a timestamping error, it will
+automatically retry %d times before aborting the whole signing process""" % (
+        os.path.basename(__file__), DEFAULT_TIMESTAMP_SERVER, FAILURE_RETRIES))
 
 
 def getLogFormatter():
@@ -51,6 +59,7 @@ def getLogFormatter():
 class Args:
     """
     Parse command line arguments
+    Check environment variables
     Minimise dependencies, argparse isn't distributed with Python 2.6
     """
     def __init__(self, args):
@@ -77,6 +86,9 @@ class Args:
         self.certpass = None
         self.timestamper = DEFAULT_TIMESTAMP_SERVER
         self.zipout = None
+
+        self.httpproxy = self.parse_proxy_envvar('http_proxy')
+        self.httpsproxy = self.parse_proxy_envvar('https_proxy')
 
         n = 4
         while n < len(args):
@@ -112,13 +124,35 @@ class Args:
                 raise Stop(2, 'Unknown argument: %s\n%s' % (arg, usage()))
             n += 2
 
+    def parse_proxy_envvar(self, var):
+        """
+        Parse a system proxy environment variable
+        E.g. http://username:password@example.org:8080
+        """
+        proxy = os.getenv(var)
+        if not proxy:
+            return None
+        m = re.match('(?P<protocol>.*://)((?P<user>.+):(?P<pass>.+)@)?'
+                     '(?P<host>[^:]+)(:(?P<port>\d+))?$', proxy)
+        if not m:
+            raise Stop(2, 'Invalid proxy variable %s=%s' % (var, proxy))
+        return m.groupdict()
 
-def jarsign(jar, alias, keystore, keypass, certpass, timestamper):
+
+def jarsign(jar, alias, keystore, keypass, certpass, timestamper, proxy=None):
+    # Additional jarsigner args must come before the jar and alias
+    cmd1 = ['jarsigner', '-keystore', keystore, '-storepass', keypass,
+            '-keypass', certpass]
+    cmd2 = [jar, alias]
+
     if timestamper:
+        tsargs = ['-tsa', timestamper]
+        if proxy:
+            tsargs += proxy
+
         failures = 0
         while failures < FAILURE_RETRIES:
-            cmd = ['jarsigner', '-keystore', keystore, '-storepass', keypass,
-                   '-keypass', certpass, '-tsa', timestamper, jar, alias]
+            cmd = cmd1 + tsargs + cmd2
             logging.info('Signing %s', jar)
             r = subprocess.call(cmd)
             if r == 0:
@@ -133,13 +167,36 @@ def jarsign(jar, alias, keystore, keypass, certpass, timestamper):
         raise Stop(2, 'Failed to sign %s after %d attempts' % (
             jar, failures))
     else:
-        cmd = ['jarsigner', '-keystore', keystore, '-storepass', keypass,
-               '-keypass', certpass, jar, alias]
+        cmd = cmd1 + cmd2
         logging.info('Signing %s', jar)
         r = subprocess.call(cmd)
         if r != 0:
             raise Stop(r, 'Failed to sign %s' % jar)
         logging.info('Signed %s', jar)
+
+
+def get_proxy_args(http, https):
+    args = []
+    if http:
+        args.append(
+            '-J-Dhttp.proxyHost=%s' % http['host'])
+        if http['port']:
+            args.append('-J-Dhttp.proxyPort=%s' % http['port'])
+        if http['user']:
+            args.append('-J-Dhttp.proxyUser=%s' % http['user'])
+        if http['pass']:
+            args.append('-J-Dhttp.proxyPassword=%s' % http['pass'])
+    if https:
+        args.append(
+            '-J-Dhttps.proxyHost=%s' % https['host'])
+        if https['port']:
+            args.append('-J-Dhttps.proxyPort=%s' % https['port'])
+        if https['user']:
+            args.append('-J-Dhttps.proxyUser=%s' % https['user'])
+        if https['pass']:
+            args.append('-J-Dhttps.proxyPassword=%s' % https['pass'])
+
+    return args
 
 
 def getpassword(arg, what):
@@ -191,6 +248,8 @@ def md5sum(filename):
 
 
 def sign_server(args):
+    additional_args = get_proxy_args(args.httpproxy, args.httpsproxy)
+
     if not os.path.exists(args.server):
         raise Stop('Server path %s does not exist' % args.server)
     iszip = not os.path.isdir(args.server)
@@ -226,7 +285,7 @@ def sign_server(args):
 
     for jar in jars:
         jarsign(jar, args.alias, args.keystore, keypass, certpass,
-                args.timestamper)
+                args.timestamper, additional_args)
 
     if args.zipout:
         if os.path.exists(args.zipout):
