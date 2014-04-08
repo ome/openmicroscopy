@@ -125,6 +125,41 @@ public class LdapIntegrationTest extends LdapTest {
             }
 
             @Override
+            public boolean createUserFromLdap(final String user) {
+                executor.execute(p,
+                        new Executor.SimpleWork(this, "renameUser") {
+                            @Transactional(readOnly = false)
+                            public Object doWork(org.hibernate.Session session,
+                                    ServiceFactory sf) {
+
+                                Experimenter exp = null;
+                                try {
+                                    exp = sf.getAdminService()
+                                            .lookupExperimenter(user);
+                                } catch (Exception e) {
+                                    // good
+                                }
+
+                                if (exp != null) {
+                                    exp.setOmeName(UUID.randomUUID().toString());
+                                    sf.getAdminService()
+                                            .updateExperimenter(exp);
+                                }
+                                return null;
+                            }
+                        });
+
+                return (Boolean) executor.execute(p, new Executor.SimpleWork(
+                        this, "createUserFromLdap") {
+                    @Transactional(readOnly = false)
+                    public Object doWork(org.hibernate.Session session,
+                            ServiceFactory sf) {
+                        return ldap.createUserFromLdap(user);
+                    }
+                });
+            }
+
+            @Override
             public boolean createUserFromLdap(final String user,
                     final String password) {
                 // To keep things simple, if a user already exists,

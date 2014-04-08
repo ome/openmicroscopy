@@ -69,10 +69,13 @@ public class LdapTest extends MockObjectTestCase {
                     .will(returnValue(101L));
         }
 
+        public boolean createUserFromLdap(String user) {
+            return ldap.createUserFromLdap(user);
+        }
+
         public boolean createUserFromLdap(String user, String string) {
             return ldap.createUserFromLdap(user, "password");
         }
-
 
         public EventContext login(String username, String group, String password) {
             return null;
@@ -125,6 +128,7 @@ public class LdapTest extends MockObjectTestCase {
                     Map.class);
             assertPasses(fixture, good);
             assertFails(fixture, bad);
+            assertCreateUserFromLdap(fixture, good);
         } finally {
             fixture.close();
         }
@@ -213,6 +217,31 @@ public class LdapTest extends MockObjectTestCase {
                 // e.g. User 466 is not a member of group 54 and cannot login
                 // Also good.
             }
+        }
+    }
+
+    protected void assertCreateUserFromLdap(Fixture fixture,
+            Map<String, List<String>> users) {
+        LdapImpl ldap = fixture.ldap;
+        for (String user : users.keySet()) {
+            String dn = null;
+            try {
+                dn = ldap.findDN(user);
+            } catch (ApiUsageException aue) {
+                throw aue;
+            }
+
+            assertNotNull(dn);
+            assertEquals(user, ldap.findExperimenter(user).getOmeName());
+            fixture.createUserWithGroup(this, dn, users.get(user).get(0));
+            assertTrue(fixture.createUserFromLdap(user));
+            try {
+                fixture.createUserFromLdap("nonExistingUserShouldNotBeCreated");
+            } catch (ApiUsageException aue) {
+                // Expected
+                continue;
+            }
+            fail("This user shouldn't have been created!");
         }
     }
 
