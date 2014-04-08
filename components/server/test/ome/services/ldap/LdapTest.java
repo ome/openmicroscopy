@@ -73,8 +73,9 @@ public class LdapTest extends MockObjectTestCase {
             return ldap.createUserFromLdap(user);
         }
 
-        public boolean createUserFromLdap(String user, String string) {
-            return ldap.createUserFromLdap(user, "password");
+        public boolean createUserFromLdap(String user, String string,
+                boolean checkPassword) {
+            return ldap.createUserFromLdap(user, "password", checkPassword);
         }
 
         public EventContext login(String username, String group, String password) {
@@ -182,7 +183,7 @@ public class LdapTest extends MockObjectTestCase {
             assertNotNull(dn);
             assertEquals(user, ldap.findExperimenter(user).getOmeName());
             fixture.createUserWithGroup(this, dn, users.get(user).get(0));
-            assertTrue(fixture.createUserFromLdap(user, "password"));
+            assertTrue(fixture.createUserFromLdap(user, "password", true));
             fixture.login(user, users.get(user).get(0), "password");
         }
     }
@@ -195,7 +196,7 @@ public class LdapTest extends MockObjectTestCase {
                 String dn = ldap.findDN(user);
                 assertNotNull(dn);
                 fixture.createUserWithGroup(this, dn, users.get(user).get(0));
-                assertTrue(fixture.createUserFromLdap(user, "password"));
+                assertTrue(fixture.createUserFromLdap(user, "password", true));
                 fixture.login(user, users.get(user).get(0), "password");
                 // Parsing afterwards to force an explosion to reproduce #2557
                 assertEquals(user, ldap.findExperimenter(user).getOmeName());
