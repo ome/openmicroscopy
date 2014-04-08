@@ -1,7 +1,7 @@
 /*
  *   $Id$
  *
- *   Copyright 2007 University of Dundee. All rights reserved.
+ *   Copyright 2007 - 2014 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -376,6 +376,35 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap,
         }
     }
 
+    @RolesAllowed("system")
+    public boolean createUserFromLdap(String username) {
+        Experimenter exp = findExperimenter(username);
+        String ldapDn = getContextMapper().getDn(exp);
+        DistinguishedName dn = new DistinguishedName(ldapDn);
+
+        List<Long> groups = loadLdapGroups(username, dn);
+
+        if (groups.size() == 0) {
+            throw new ValidationException("No group found for: " + dn);
+        }
+
+        // Create the unloaded groups for creation
+        Long gid = groups.remove(0);
+        ExperimenterGroup grp1 = new ExperimenterGroup(gid, false);
+        Set<Long> otherGroupIds = new HashSet<Long>(groups);
+        ExperimenterGroup grpOther[] = new ExperimenterGroup[otherGroupIds
+                .size() + 1];
+
+        int count = 0;
+        for (Long id : otherGroupIds) {
+            grpOther[count++] = new ExperimenterGroup(id, false);
+        }
+        grpOther[count] = new ExperimenterGroup(roles.getUserGroupId(), false);
+
+        long uid = provider.createExperimenter(exp, grp1, grpOther);
+        setDN(uid, dn.toString());
+        return true;
+    }
 
     /**
      * Gets user from LDAP for checking him by requirements and setting his
