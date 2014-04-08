@@ -57,6 +57,7 @@ import ome.system.Roles;
 import ome.system.ServiceFactory;
 import ome.util.SqlAction;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
@@ -747,19 +748,19 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
         }
 
         String type = p.getEventType();
-        if (type == null) {
+        if (StringUtils.isEmpty(type)) {
             type = "User";
         }
 
         // Null or bad event type values as well as umasks are handled
         // within the SessionManager and EventHandler. It is necessary
         String group = p.getGroup();
-        if (group == null) {
+        if (StringUtils.isEmpty(group)) {
             group = "user";
         }
 
         // ticket:404 -- preventing users from logging into "user" group
-        else if (roles.getUserGroupName().equals(p.getGroup())) {
+        else if (roles.getUserGroupName().equals(group)) {
             // Throws an exception if no properly defined default group
             ExperimenterGroup g = _getDefaultGroup(sf, p.getName());
             if (g == null) {
