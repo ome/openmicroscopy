@@ -31,15 +31,20 @@ class Stop(Exception):
 
 def usage():
     return ("""\
-%s keystore.jks alias server-zip|server-dir
+%s keystore.jks alias server-zip|server-dir [-v]
   [-kp keystore-password] [-cp certificate-password] [-kf keystore-passfile]
   [-cf certificate-passfile] [-ts yes|no|timestamp-server] [-oz output.zip]
+
 If a zip is given and no -oz option is given a new zip will be created called
 <server>-signed.zip, if -oz is passed an empty string then no zip will be
 created. If a directory is given then no zip will be created unless an output
 zip is specified.
+
 Passwords can be specified on the command line (-kp, -cp), in a file (-kf, -cf)
 or by entering at the command line when prompted (default).
+
+Use -v for verbose output.
+
 If no timestamping option is given timestamping will be enabled using
 %s.
 
@@ -79,6 +84,8 @@ class Args:
         if len(args) < 4:
             raise Stop(2, usage())
 
+        self.verbose = False
+
         self.keystore = args[1]
         self.alias = args[2]
         self.server = args[3]
@@ -93,7 +100,11 @@ class Args:
         n = 4
         while n < len(args):
             arg = args[n]
-            if arg == '-kp':
+            if arg == '-v':
+                self.verbose = True
+                n += 1
+                continue
+            elif arg == '-kp':
                 check_password_unset(arg, 'keypass')
                 val = getarg(args, n + 1, arg)
                 self.keypass = ('pass', val)
@@ -154,6 +165,7 @@ def jarsign(jar, alias, keystore, keypass, certpass, timestamper, proxy=None):
         while failures < FAILURE_RETRIES:
             cmd = cmd1 + tsargs + cmd2
             logging.info('Signing %s', jar)
+            logging.debug('Running: %s', cmd)
             r = subprocess.call(cmd)
             if r == 0:
                 logging.info('Signed %s', jar)
@@ -169,6 +181,7 @@ def jarsign(jar, alias, keystore, keypass, certpass, timestamper, proxy=None):
     else:
         cmd = cmd1 + cmd2
         logging.info('Signing %s', jar)
+        logging.debug('Running: %s', cmd)
         r = subprocess.call(cmd)
         if r != 0:
             raise Stop(r, 'Failed to sign %s' % jar)
@@ -248,6 +261,9 @@ def md5sum(filename):
 
 
 def sign_server(args):
+    if args.verbose:
+        logging.getLogger().setLevel(logging.DEBUG)
+
     additional_args = get_proxy_args(args.httpproxy, args.httpsproxy)
 
     if not os.path.exists(args.server):
