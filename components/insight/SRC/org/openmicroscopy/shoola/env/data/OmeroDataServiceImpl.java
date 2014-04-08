@@ -1128,20 +1128,27 @@ class OmeroDataServiceImpl
 	 * Implemented as specified by {@link OmeroDataService}.
 	 * @see OmeroDataService#findDatasetsByImageId(SecurityContext ctx, imgId)
 	 */
-	public List<DatasetData> findDatasetsByImageId(SecurityContext ctx, long imgId) throws DSOutOfServiceException, DSAccessException
+	public Map<Long, List<DatasetData>> findDatasetsByImageId(SecurityContext ctx, List<Long> imgIds) throws DSOutOfServiceException, DSAccessException
 		{
-		List<IObject> objects = gateway.findLinks(ctx, Dataset.class, Arrays.asList(new Long[] {imgId}) , -1);
-		List<DatasetData> datasets = new ArrayList<DatasetData>();
-		for(IObject obj : objects) {
-			if(obj instanceof DatasetImageLink) {
-			        Dataset ds = ((DatasetImageLink) obj).getParent();
-			        // have to load Dataset otherwise Dataset.name won't be initialized
-				ds = (Dataset) gateway.findIObject(ctx, ds);
-				DatasetData dsd = (DatasetData) PojoMapper.asDataObject(ds);
-				datasets.add(dsd);
+	    Map<Long, List<DatasetData>> result = new HashMap<Long, List<DatasetData>>();
+		List queryResult = gateway.findDatasetLinks(ctx, imgIds, -1);
+		for(Object tmp : queryResult) {
+			if(tmp instanceof DatasetImageLink) {
+			        DatasetImageLink dl = ((DatasetImageLink) tmp);
+				DatasetData dsd = (DatasetData) PojoMapper.asDataObject(dl.getParent());
+				long imgId = dl.getChild().getId().getValue();
+				
+				List<DatasetData> sets = result.get(imgId);
+				if(sets == null) {
+				    sets = new ArrayList<DatasetData>();
+				    result.put(imgId, sets);
+				}
+				
+				sets.add(dsd);
 			}
 		}
-		return datasets;
-		}
+                
+		return result;
+	}
 
 }

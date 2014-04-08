@@ -27,7 +27,6 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 //Java imports
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -141,7 +140,9 @@ public class ImageSplitChecker
 				Map<Long, Map<Boolean, List<ImageData>>> r;
 				MIFResultObject mif;
 				List<ImageData> images;
+				List<ImageData> linkCheckImages = new ArrayList<ImageData>();
 				while (i.hasNext()) {
+				        linkCheckImages.clear();;
 					e = i.next();
 					j = e.getValue().iterator();
 					ids = new ArrayList<Long>();
@@ -152,7 +153,7 @@ public class ImageSplitChecker
 						ids.add(uo.getId());
 						if(uo instanceof ImageData) {
 							ImageData img = (ImageData)uo;
-							 result.addDatasets(img, loadDatasets(e.getKey(), img));
+							linkCheckImages.add(img);
 						}
 					}
 					r = svc.getImagesBySplitFilesets(e.getKey(),
@@ -164,12 +165,53 @@ public class ImageSplitChecker
 						mif.setThumbnails(loadThumbails(e.getKey(), images));
 						result.getMifResults().add(mif);
 					}
+					
+					if(!linkCheckImages.isEmpty()) {
+					    loadDatasetLinks(e.getKey(), linkCheckImages);
+					}
 				}
 			}
 		};
 	} 
 	
-	
+	/**
+	 * Loads the datasets the given images are linked to
+	 * @param ctx The security context to use for the query
+	 * @param imgs The images 
+	 */
+        private void loadDatasetLinks(SecurityContext ctx, List<ImageData> imgs) {
+            try {
+                List<Long> imgIds = new ArrayList<Long>();
+                for(ImageData img : imgs) {
+                    imgIds.add(img.getId());
+                }
+                
+                OmeroDataService svc = context.getDataService();
+                Map<Long, List<DatasetData>> queryResult = svc.findDatasetsByImageId(ctx, imgIds);
+
+                for(Long imgId: queryResult.keySet()) {
+                    List<DatasetData> ds = queryResult.get(imgId);
+                    ImageData img = null;
+                    for(ImageData tmp : imgs) {
+                        if(tmp.getId()==imgId) {
+                            img = tmp;
+                            break;
+                        }
+                    }
+                    if(img!=null) {
+                        result.addDatasets(img, ds);
+                    }
+                }
+                
+            } catch (DSOutOfServiceException e) {
+                context.getLogger().error(this,
+                        "Cannot retrieve datasets: " + e.getMessage());
+            } catch (DSAccessException e) {
+                context.getLogger().error(this,
+                        "Cannot retrieve datasets: " + e.getMessage());
+            }
+        }
+        
 	/**
 	 * Adds the {@link #loadCall} to the computation tree.
 	 * 
@@ -197,20 +239,5 @@ public class ImageSplitChecker
 			throw new IllegalArgumentException("No object to check.");
 		service = context.getImageService();
 		loadCall = makeBatchCall(objects);
-	}
-	
-	private List<DatasetData> loadDatasets(SecurityContext ctx, ImageData img) {
-		try {
-			OmeroDataService svc = context.getDataService();
-			return svc.findDatasetsByImageId(ctx, img.getId());
-		} catch (DSOutOfServiceException e) {
-			context.getLogger().error(this, 
-    				"Cannot retrieve thumbnail: "+e.getMessage());
-		} catch (DSAccessException e) {
-			context.getLogger().error(this, 
-    				"Cannot retrieve thumbnail: "+e.getMessage());
-		}
-		
-		return Collections.emptyList();
 	}
 }

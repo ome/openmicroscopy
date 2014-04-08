@@ -111,6 +111,7 @@ public class LinkNotificationDialog extends JDialog {
              */
             public void actionPerformed(ActionEvent evt) {
                 firePropertyChange(DELETE_PROPERTY, null, null);
+                close();
             }
         });
     }
