@@ -335,13 +335,15 @@ def drivespace_json(request, query='groups', conn=None, **kwargs):
         for g in conn.listGroups():
             ctx.setOmeroGroup(g.getId())
             b = getBytes(ctx)
-            diskUsage.append({"label": g.getName(), "data": b, "gid": g.getId()});
+            diskUsage.append({"label": g.getName(), "data": b, "id": g.getId()});
 
     elif query == 'users':
         ctx.setOmeroGroup('-1')
         for e in conn.getObjects("Experimenter"):
             b = getBytes(ctx, e.getId())
-            diskUsage.append({"label": e.getName(), "data": b});
+            diskUsage.append({"label": e.getNameWithInitial(), "data": b, "id": e.getId()});
+
+    diskUsage.sort(key=lambda x: x['data'], reverse=True)
 
     return diskUsage
 
@@ -859,7 +861,8 @@ def manage_avatar(request, action=None, conn=None, **kwargs):
 @render_response_admin()
 def stats(request, conn=None, **kwargs):
     template = "webadmin/statistics.html"
-    context= {'template': template}
+    freeSpace = conn.getFreeSpace();
+    context= {'template': template, 'freeSpace': freeSpace}
     return context
 
 @login_required()
