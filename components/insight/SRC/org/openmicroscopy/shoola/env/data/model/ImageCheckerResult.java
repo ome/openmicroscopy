@@ -32,7 +32,7 @@ import pojos.ImageData;
 /**
  * A container holding the results of a pre-delete check; in particular 
  * a list of {@link MIFResultObject}s (MIF delete/chgrp check)
- * and a {@link MultiDatasetImageLinkResult} (multiple dataset link check);
+ * and a map of {@link DatasetData}s to which the images are linked to;
  * 
  * @author Dominik Lindner &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:d.lindner@dundee.ac.uk">d.lindner@dundee.ac.uk</a>

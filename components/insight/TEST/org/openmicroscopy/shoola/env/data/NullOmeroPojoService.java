@@ -467,9 +467,9 @@ public class NullOmeroPojoService
 	     * No-operation implementation
 	     * @see OmeroDataService#findDatasetsByImageId(SecurityContext, long)
 	     */
-    public List<DatasetData> findDatasetsByImageId(SecurityContext ctx,
-            long imgId) throws DSOutOfServiceException, DSAccessException {
-        return null;
-    }
+        public Map<Long, List<DatasetData>> findDatasetsByImageId(SecurityContext ctx,
+                List<Long> imgIds) throws DSOutOfServiceException, DSAccessException {
+            return null;
+        }
 
 }

@@ -501,13 +501,13 @@ public interface OmeroDataService
 		throws DSOutOfServiceException, DSAccessException;
 
 	/**
-	* Finds all Datasets the given Image id is linked to
+	* Finds all Datasets the given image ids are linked to
 	* @param ctx The security context, necessary to determine the service.
-	* @param imgId The id of the Image
+	* @param imgIds The ids of the images
 	* @return See above.
 	* @throws DSOutOfServiceException If the connection is broken, or logged in
 	 * @throws DSAccessException If an error occurred while trying to
 	 * retrieve data from OMERO service.
 	*/
-	public List<DatasetData> findDatasetsByImageId(SecurityContext ctx, long imgId) throws DSOutOfServiceException, DSAccessException;
+	public Map<Long, List<DatasetData>> findDatasetsByImageId(SecurityContext ctx, List<Long> imgIds) throws DSOutOfServiceException, DSAccessException;
 }
