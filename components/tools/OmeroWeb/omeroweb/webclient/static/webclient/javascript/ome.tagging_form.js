@@ -92,7 +92,9 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id) {
     });
 
     var take_tag_click = function() {
-        $(this).parent().toggleClass('owner-tagged');
+        var tag = $(this).parent();
+        tag.toggleClass('owner-tagged');
+        update_tooltip.call(tag.get(0));
     };
 
     var create_html = function() {
@@ -144,16 +146,22 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id) {
         }
     };
 
+    var update_tooltip = function() {
+        var tag = all_tags[this.getAttribute("data-id")];
+        var parent_id = all_tags[this.getAttribute("data-set")];
+        var link_owner = this.getAttribute("data-linkownername");
+        if ($(this).hasClass('owner-tagged')) {
+            link_owner = 'you and ' + link_owner;
+        }
+        var link_date = this.getAttribute("data-linkdate");
+        this.setAttribute("title", create_tag_title(
+            tag.d, owners[tag.o], parent_id ? parent_id.t : null,
+            link_owner, link_date));
+        $(this).tooltip();
+    };
+
     var update_html_list = function(list) {
-        $("div", list).each(function() {
-            var tag = all_tags[this.getAttribute("data-id")];
-            var parent_id = all_tags[this.getAttribute("data-set")];
-            var link_owner = this.getAttribute("data-linkownername");
-            var link_date = this.getAttribute("data-linkdate");
-            this.setAttribute("title", create_tag_title(
-                tag.d, owners[tag.o], parent_id ? parent_id.t : null,
-                link_owner, link_date));
-        }).tooltip();
+        $("div", list).each(update_tooltip);
     };
 
     var update_html = function() {
