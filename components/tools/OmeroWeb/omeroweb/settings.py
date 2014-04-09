@@ -259,23 +259,6 @@ CUSTOM_SETTINGS_MAPPINGS = {
             '"/omero/figure_scripts/Split_View_Figure.py", "/omero/figure_scripts/Thumbnail_Figure.py", '\
             '"/omero/figure_scripts/ROI_Split_Figure.py", "/omero/export_scripts/Make_Movie.py",'\
             '"/omero/setup_scripts/FLIM_initialise.py", "/omero/import_scripts/Populate_ROI.py"]', parse_paths],
-    
-    # Add links to the top header: links are ['Link Text', 'link'], where the url is reverse("link") OR simply 'link' (for external urls)
-    "omero.web.ui.top_links": ["TOP_LINKS", '[]', json.loads],  # E.g. '[["Webtest", "webtest_index"]]'
-    
-    # Shows/hides users in dropdown menu; default: '{"LEADERS": "Owners", "COLLEAGUES": "Members", "ALL": "All members"}'
-    "omero.web.ui.menu.dropdown": ["UI_MENU_DROPDOWN",'{"LEADERS": "Owners", "COLLEAGUES": "Members", "ALL": "All members"}', json.loads],
-    
-    # Add plugins to the right-hand & center panels: plugins are ['Label', 'include.js', 'div_id']. The javascript loads data into $('#div_id').
-    "omero.web.ui.right_plugins": ["RIGHT_PLUGINS", '[["Acquisition", "webclient/data/includes/right_plugin.acquisition.js.html", "metadata_tab"],'\
-            #'["ROIs", "webtest/webclient_plugins/right_plugin.rois.js.html", "image_roi_tab"],'\
-            '["Preview", "webclient/data/includes/right_plugin.preview.js.html", "preview_tab"]]', json.loads],
-            
-    # E.g. Center plugin: ["Channel overlay", "webtest/webclient_plugins/center_plugin.overlay.js.html", "channel_overlay_panel"]
-    "omero.web.ui.center_plugins": ["CENTER_PLUGINS", '['\
-            #'["Split View", "webclient/data/includes/center_plugin.splitview.js.html", "split_view_panel"],'\
-            ']'
-            , json.loads],
 
     # sharing no longer use this variable. replaced by request.build_absolute_uri
     # after testing this line should be removed.
@@ -317,10 +300,28 @@ CUSTOM_SETTINGS_MAPPINGS = {
 
 }
 
+HIDDEN_SETTINGS_MAPPINGS = {
+    # Add links to the top header: links are ['Link Text', 'link'], where the url is reverse("link") OR simply 'link' (for external urls)
+    "omero.web.ui.top_links": ["TOP_LINKS", '[]', json.loads],  # E.g. '[["Webtest", "webtest_index"]]'
+    
+    # Shows/hides users in dropdown menu; default: '{"LEADERS": "Owners", "COLLEAGUES": "Members", "ALL": "All members"}'
+    "omero.web.ui.menu.dropdown": ["UI_MENU_DROPDOWN",'{"LEADERS": "Owners", "COLLEAGUES": "Members", "ALL": "All members"}', json.loads],
+    
+    # Add plugins to the right-hand & center panels: plugins are ['Label', 'include.js', 'div_id']. The javascript loads data into $('#div_id').
+    "omero.web.ui.right_plugins": ["RIGHT_PLUGINS", '[["Acquisition", "webclient/data/includes/right_plugin.acquisition.js.html", "metadata_tab"],'\
+            #'["ROIs", "webtest/webclient_plugins/right_plugin.rois.js.html", "image_roi_tab"],'\
+            '["Preview", "webclient/data/includes/right_plugin.preview.js.html", "preview_tab"]]', json.loads],
+            
+    # E.g. Center plugin: ["Channel overlay", "webtest/webclient_plugins/center_plugin.overlay.js.html", "channel_overlay_panel"]
+    "omero.web.ui.center_plugins": ["CENTER_PLUGINS", '['\
+            #'["Split View", "webclient/data/includes/center_plugin.splitview.js.html", "split_view_panel"],'\
+            ']'
+            , json.loads],
+}
 
-def process_custom_settings(module):
+def process_custom_settings(module, settings):
     logging.info('Processing custom settings for module %s' % module.__name__)
-    for key, values in getattr(module, 'CUSTOM_SETTINGS_MAPPINGS', {}).items():
+    for key, values in getattr(module, settings, {}).items():
         # Django may import settings.py more than once, see:
         # http://blog.dscpl.com.au/2010/03/improved-wsgi-script-for-use-with.html
         # In that case, the custom settings have already been processed.
@@ -343,7 +344,8 @@ def process_custom_settings(module):
         except LeaveUnset:
             pass
 
-process_custom_settings(sys.modules[__name__])
+process_custom_settings(sys.modules[__name__], 'CUSTOM_SETTINGS_MAPPINGS')
+process_custom_settings(sys.modules[__name__], 'HIDDEN_SETTINGS_MAPPINGS')
 
 
 if not DEBUG:  # from CUSTOM_SETTINGS_MAPPINGS  # noqa
