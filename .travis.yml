@@ -1,8 +1,8 @@
 language: java
 
 env:
-    - BUILD=py BUILD_TARGET="build-default" TEST_TARGET="-py test -Dtest.with.fail=true"
-    - BUILD=java BUILD_TARGET="build-default test-compile" TEST_TARGET="-p"
+    - BUILD="build-java"
+    - BUILD="build-python"
 
 matrix:
       fast_finish: true
@@ -25,8 +25,8 @@ before_install:
     - if [[ $BUILD == 'py' ]]; then flake8 -v components/tools/OmeroPy/test/integration/clitest;  fi
     - if [[ $BUILD == 'py' ]]; then flake8 -v components/tools/OmeroPy/test/unit;  fi
 
-install: python build.py $BUILD_TARGET
+install:
 
 # Running python tests as script, since there's no compile step.
 script:
-    - python build.py $TEST_TARGET
+    - ./components/tools/travis-build $BUILD
