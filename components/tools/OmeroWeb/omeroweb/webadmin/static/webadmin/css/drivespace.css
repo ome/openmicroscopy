@@ -54,7 +54,7 @@
         .summary h3 {
             padding: 2px 0;
         }
-        .status {
+        .diskUsageStatus {
             position: absolute;
             top: 50px;
             left: 20px;
