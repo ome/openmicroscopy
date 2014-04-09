@@ -56,7 +56,7 @@ class ServerModelTest (unittest.TestCase):
         # without any params
         try:
             Server()
-        except Exception, x:
+        except Exception:
             pass
         else:
             self.fail('Error:Parameters required')
@@ -86,7 +86,7 @@ class ServerModelTest (unittest.TestCase):
         
         try:
             Server(host=u'example5.com', port=4064)
-        except Exception, x:
+        except Exception:
             pass
         else:
             self.fail('Error:No more instances allowed')
@@ -315,14 +315,13 @@ class WebAdminTest(WebTest):
     
     def test_badCreateGroup(self):
         conn = self.rootconn
-        uuid = conn._sessionUuid
         
         # empty fields
         params = {}
         request = fakeRequest(method="post", params=params)
         try:
-            gid = _createGroup(request, conn)
-        except Exception, e:
+            _createGroup(request, conn)
+        except Exception:
             pass
         else:
             self.fail("Can't create group with no parameters")
@@ -483,7 +482,7 @@ class WebAdminTest(WebTest):
         try:
             _updateGroup(request, conn, gid)
             self.fail("Can't remove user from the group members if this it's hs default group")
-        except omero.ValidationException, ve:
+        except omero.ValidationException:
             pass
         
         # check if group updated
@@ -597,14 +596,13 @@ class WebAdminTest(WebTest):
     
     def test_badCreateExperimenters(self):
         conn = self.rootconn
-        uuid = conn._sessionUuid
         
         # empty fields
         params = {}
         request = fakeRequest(method="post", params=params)
         try:
-            eid = _createExperimenter(request, conn)
-        except Exception, e:
+            _createExperimenter(request, conn)
+        except Exception:
             pass
         else:
             self.fail("Can't create user with no parameters")
@@ -804,7 +802,7 @@ class WebAdminTest(WebTest):
             "confirmation":"123" 
         }
         request = fakeRequest(method="post", params=params)
-        eid = _createExperimenter(request, conn)
+        _createExperimenter(request, conn)
         
         # login as user and change my password
         user_conn = self.loginAsUser(params['omename'], params['password'])
