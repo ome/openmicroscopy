@@ -24,6 +24,7 @@ import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
@@ -43,7 +44,6 @@ import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
-import edu.emory.mathcs.backport.java.util.Collections;
 import pojos.FileAnnotationData;
 
 /**
@@ -59,7 +59,7 @@ public class FileAttachmentWarningDialog extends JDialog {
     /** Title of the dialog */
     private static final String TITLE = "Delete Attachments";
     
-    /** Message of the dialgo */
+    /** Message of the dialog */
     private static final String MESSAGE = "These attachments are not linked to any other data, removing them means they will be permanently deleted from the data repository.";
     
     /** The button to close the dialog.*/
