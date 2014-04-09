@@ -90,7 +90,7 @@ public:
         }
         ERRPtr err = ERRPtr::dynamicCast(rsp);
         if (err) {
-            stringstream ss;
+            ostringstream ss;
             omero::cmd::StringMap::iterator it;
             for (it=err->parameters.begin(); it != err->parameters.end(); it++ ) {
                 ss << (*it).first << " => " << (*it).second << endl;
@@ -99,7 +99,7 @@ public:
              << "ERR!"
              << "cat:" << err->category << "\n"
              << "name:" << err->name << "\n"
-             << "params:" << ss << "\n";
+             << "params:" << ss.str() << "\n";
         }
 
         if (testSteps) {
