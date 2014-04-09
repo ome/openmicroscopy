@@ -82,19 +82,11 @@ class ImportControl(BaseControl):
         name_group = parser.add_argument_group(
             'Naming arguments', 'Optional arguments passed strictly to Java.')
         name_group.add_argument(
-            "-n", dest="java_n",
+            "-n", "--name", dest="java_n",
             help="Image or plate name to use (**)",
             metavar="NAME")
         name_group.add_argument(
-            "-x", dest="java_x",
-            help="Image or plate description to use (**)",
-            metavar="DESCRIPTION")
-        name_group.add_argument(
-            "--name", dest="java_name",
-            help="Image or plate name to use (**)",
-            metavar="NAME")
-        name_group.add_argument(
-            "--description", dest="java_description",
+            "-x", "--description", dest="java_x",
             help="Image or plate description to use (**)",
             metavar="DESCRIPTION")
 
@@ -211,8 +203,6 @@ class ImportControl(BaseControl):
             "java_r": "-r",
             "java_n": "-n",
             "java_x": "-x",
-            "java_name": "--name",
-            "java_description": "--description",
             "java_plate_name": "--plate_name",
             "java_plate_description": "--plate_description",
             "java_report": "--report",
