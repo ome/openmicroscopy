@@ -41,16 +41,16 @@ TEST(MapAnnotationTest, mapStringField)
     string uuid = generate_uuid();
     ExperimenterGroupPtr group = new ExperimenterGroupI();
     ParametersIPtr params = new ParametersI();
-    StringStringMap map = StringStringMap();
+    StringRStringMap map = StringRStringMap();
     group->setName(rstring(uuid));
-    map["foo"] = "bar";
+    map["foo"] = rstring("bar");
     // Setting must happen after map updated, since a copy is made
     group->setConfig(map);
-    ASSERT_EQ("bar", group->getConfig()["foo"]);
+    ASSERT_EQ("bar", group->getConfig()["foo"]->getValue());
 
     group = ExperimenterGroupPtr::dynamicCast(u->saveAndReturnObject(group));
     params->addId(group->getId()->getValue());
     group = ExperimenterGroupPtr::dynamicCast(q->findByQuery(
             "select g from ExperimenterGroup g left outer join fetch g.config where g.id = :id", params));
-    ASSERT_EQ("bar", group->getConfig()["foo"]);
+    ASSERT_EQ("bar", group->getConfig()["foo"]->getValue());
 }
