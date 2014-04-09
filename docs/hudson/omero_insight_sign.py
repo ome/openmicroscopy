@@ -163,7 +163,7 @@ def check_jarsigner():
             raise Stop(2, 'Unable to execute jarsigner: %s' % e)
         if r != 0 and r != 1:
             # jarsigner with no args returns 0 on Java 1.7, 1 on Java 1.6
-            raise Stop(r, 'jarsigner returned non-zero : %d' % r)
+            raise Stop(r, 'jarsigner unexpected exit code: %d' % r)
     logging.debug('jarsigner is runnable')
 
 
