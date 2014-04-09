@@ -81,8 +81,6 @@ class WebClientTestBase (SeleniumTestBase):
         
 class WebClientTests (WebClientTestBase):
     
-    #from omero.gateway.scripts import dbhelpers
-    
     def setUp(self):
         super(WebClientTests, self).setUp()
         #dbhelpers.refreshConfig()
