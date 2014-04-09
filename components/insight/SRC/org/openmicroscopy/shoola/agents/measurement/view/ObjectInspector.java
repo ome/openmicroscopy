@@ -200,6 +200,7 @@ class ObjectInspector
             } else if (attr.equals(MeasurementAttributes.FONT_SIZE)) {
                 double d = Double.parseDouble(text);
                 figure.setAttribute(MeasurementAttributes.FONT_SIZE, d);
+               figure.changed();
             }
             else if (attr.equals(MeasurementAttributes.STROKE_WIDTH)) {
                 double d = Double.parseDouble(text);

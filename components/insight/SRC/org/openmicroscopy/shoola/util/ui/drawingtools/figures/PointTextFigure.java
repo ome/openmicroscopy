@@ -122,6 +122,8 @@ public class PointTextFigure
 				if (text.length() == 0) return;
 				Rectangle2D.Double r = getBounds();
 				Font font = AttributeKeys.FONT_FACE.get(this);
+				font = font.deriveFont(
+			                    AttributeKeys.FONT_SIZE.get(this).floatValue());
 				FontMetrics fm = g.getFontMetrics(font);
 				double textWidth = fm.stringWidth(text);
 				
@@ -136,8 +138,6 @@ public class PointTextFigure
 						+fm.getDescent()+fm.getLeading());
 				double x = r.x+r.width/2-width/2;
 				double y = r.y+textHeight/2;
-				font = font.deriveFont(
-						AttributeKeys.FONT_SIZE.get(this).intValue());
 				textBounds = new Rectangle2D.Double(x, y, width, textHeight);
 				FontRenderContext frc = g.getFontRenderContext();
 
