@@ -137,9 +137,10 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id) {
         if (tagset) {
             $("#id_selected_tag_set").html(
                 "Add a new tag in <span class='tagset-title'>" +
-                tagset.text() + "</span> tag set:");
+                tagset.text() + "</span> tag set and select it immediately:");
         } else {
-            $("#id_selected_tag_set").text("Add a new tag:");
+            $("#id_selected_tag_set").text(
+                "Add a new tag and select it immediately:");
         }
     };
 
