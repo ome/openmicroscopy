@@ -540,6 +540,7 @@ def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_ty
                 return ' '.join(permsCss)
             projects = {}
             qs = conn.getQueryService()
+            # Projects
             pids = [x.id for x in manager.containers['projects']]
             if len(pids):
                 q = """
@@ -569,6 +570,29 @@ def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_ty
                 for p in projects.keys():
                     projects[p]['childCount'] = len(projects[p]['datasets'])
             context['projects'] = projects
+            # Datasets
+            dids = [x.id for x in manager.containers['datasets']]
+            datasets = []
+            if len(dids):
+                q = """
+                select dataset.id,
+                       dataset.name,
+                       dataset.details.permissions.perm1,
+                       dataset.details.owner.id,
+                       (select count(id) from DatasetImageLink dil where dil.parent=dataset.id)
+                       from Dataset dataset
+                where dataset.id in (%s)
+                order by dataset.name
+                """ % ','.join((str(x) for x in dids))
+                for e in qs.projection(q, None, conn.SERVICE_OPTS):
+                    d = {}
+                    d['id'] = e[0].val
+                    d['name'] = e[1].val
+                    d['isOwned'] = e[3].val == conn.getUserId()
+                    d['childCount'] = e[4].val
+                    d['permsCss'] = parsePermsCss(e[2].val, e[3].val)
+                    datasets.append(d)
+            context['datasets'] = datasets
             sids = [x.id for x in manager.containers['screens']]
             screens = {}
             if len(sids):
