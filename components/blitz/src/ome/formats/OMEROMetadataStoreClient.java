@@ -2,7 +2,7 @@
  * ome.formats.OMEROMetadataStoreClient
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -21,6 +21,7 @@
  *------------------------------------------------------------------------------
  *
  */
+
 package ome.formats;
 
 import static omero.rtypes.rbool;
@@ -143,6 +144,7 @@ import omero.model.Filter;
 import omero.model.FilterSet;
 import omero.model.FilterType;
 import omero.model.Format;
+import omero.model.GenericSource;
 import omero.model.IObject;
 import omero.model.Illumination;
 import omero.model.Image;
@@ -164,6 +166,7 @@ import omero.model.Line;
 import omero.model.ListAnnotation;
 import omero.model.LogicalChannel;
 import omero.model.LongAnnotation;
+import omero.model.MapAnnotation;
 import omero.model.Mask;
 import omero.model.Medium;
 import omero.model.MicrobeamManipulation;
@@ -202,6 +205,7 @@ import omero.model.WellSample;
 import omero.model.XmlAnnotation;
 import omero.sys.EventContext;
 import omero.sys.ParametersI;
+import omero.util.IceMapper;
 
 import org.apache.commons.io.FilenameUtils;
 
@@ -3970,34 +3974,58 @@ public class OMEROMetadataStoreClient
          o.setSerialNumber(toRType(serialNumber));
     }
 
+    private GenericSource getGenericSource(int instrumentIndex, int lightSourceIndex) {
+        final LinkedHashMap<Index, Integer> indexes = new LinkedHashMap<Index, Integer>();
+        indexes.put(Index.INSTRUMENT_INDEX, instrumentIndex);
+        indexes.put(Index.LIGHT_SOURCE_INDEX, lightSourceIndex);
+        return getSourceObject(GenericSource.class, indexes);
+    }
+
+
     // ID accessor from parent LightSource
     public void setGenericSourceID(String id, int instrumentIndex, int lightSourceIndex) {
-        // TODO stub
+        checkDuplicateLSID(GenericSource.class, id);
+        final LinkedHashMap<Index, Integer> indexes = new LinkedHashMap<Index, Integer>();
+        indexes.put(Index.INSTRUMENT_INDEX, instrumentIndex);
+        indexes.put(Index.LIGHT_SOURCE_INDEX, lightSourceIndex);
+        IObjectContainer o = getIObjectContainer(GenericSource.class, indexes);
+        o.LSID = id;
+        addAuthoritativeContainer(GenericSource.class, id, o);
     }
 
     // LotNumber accessor from parent LightSource
     public void setGenericSourceLotNumber(String lotNumber, int instrumentIndex, int lightSourceIndex) {
-        // TODO stub
+        final GenericSource o = getGenericSource(instrumentIndex, lightSourceIndex);
+        o.setLotNumber(toRType(lotNumber));
+    }
+
+    public void setGenericSourceMap(Map<String, String> map, int instrumentIndex, int lightSourceIndex) {
+        final GenericSource o = getGenericSource(instrumentIndex, lightSourceIndex);
+        o.setMap(IceMapper.convertStringStringMap(map));
     }
 
     // Manufacturer accessor from parent LightSource
     public void setGenericSourceManufacturer(String manufacturer, int instrumentIndex, int lightSourceIndex) {
-        // TODO stub
+        final GenericSource o = getGenericSource(instrumentIndex, lightSourceIndex);
+        o.setManufacturer(toRType(manufacturer));
     }
 
     // Model accessor from parent LightSource
     public void setGenericSourceModel(String model, int instrumentIndex, int lightSourceIndex) {
-        // TODO stub
+        final GenericSource o = getGenericSource(instrumentIndex, lightSourceIndex);
+        o.setModel(toRType(model));
     }
 
     // Power accessor from parent LightSource
     public void setGenericSourcePower(Double power, int instrumentIndex, int lightSourceIndex) {
-        // TODO stub
+        final GenericSource o = getGenericSource(instrumentIndex, lightSourceIndex);
+        o.setPower(toRType(power));
     }
 
     // SerialNumber accessor from parent LightSource
     public void setGenericSourceSerialNumber(String serialNumber, int instrumentIndex, int lightSourceIndex) {
-        // TODO stub
+        final GenericSource o = getGenericSource(instrumentIndex, lightSourceIndex);
+        o.setSerialNumber(toRType(serialNumber));
     }
 
     ////////ExperimenterGroup/////////
@@ -4249,6 +4277,11 @@ public class OMEROMetadataStoreClient
     {
         ImagingEnvironment o = getImagingEnvironment(imageIndex);
         o.setHumidity(toRType(humidity));
+    }
+
+    public void setImagingEnvironmentMap(Map<String, String> map, int imageIndex) {
+        final ImagingEnvironment o = getImagingEnvironment(imageIndex);
+        o.setMap(IceMapper.convertStringStringMap(map));
     }
 
     /* (non-Javadoc)
@@ -4840,11 +4873,16 @@ public class OMEROMetadataStoreClient
     }
 
     public void setMapAnnotationValue(Map<String, String> value, int mapAnnotationIndex) {
-        // TODO stub
-    }
-
-    public void setGenericSourceMap(Map<String, String> map, int instrumentIndex, int lightSourceIndex) {
-        // TODO stub
+        final MapAnnotation o = getMapAnnotation(mapAnnotationIndex);
+        if (o == null || o.getMapValue() == null) {
+            o.setMapValue(null);
+        } else {
+            final Map<String, RString> stringRStringMap = new HashMap<String, RString>(o.getMapValue().size());
+            for (final Entry<String, String> mapEntry : value.entrySet()) {
+                stringRStringMap.put(mapEntry.getKey(), toRType(mapEntry.getValue()));
+            }
+            o.setMapValue(stringRStringMap);
+        }
     }
 
     /* (non-Javadoc)
@@ -7467,24 +7505,39 @@ public class OMEROMetadataStoreClient
         // TODO : not in OMERO model
     }
 
+    private MapAnnotation getMapAnnotation(int mapAnnotationIndex)
+    {
+        final LinkedHashMap<Index, Integer> indexes = new LinkedHashMap<Index, Integer>(1);
+        indexes.put(Index.MAP_ANNOTATION_INDEX, mapAnnotationIndex);
+        return getSourceObject(MapAnnotation.class, indexes);
+    }
+
     public void setMapAnnotationAnnotationRef(String annotation, int mapAnnotationIndex, int annotationRefIndex) {
-        // TODO stub
+        final LSID key = new LSID(MapAnnotation.class, mapAnnotationIndex);
+        addReference(key, new LSID(annotation));
     }
 
     public void setMapAnnotationAnnotator(String annotator, int mapAnnotationIndex) {
-        // TODO stub
+        // TODO : not in OMERO model
     }
 
     public void setMapAnnotationDescription(String description, int mapAnnotationIndex) {
-        // TODO stub
+        final MapAnnotation o = getMapAnnotation(mapAnnotationIndex);
+        o.setDescription(toRType(description));
     }
 
     public void setMapAnnotationID(String id, int mapAnnotationIndex) {
-        // TODO stub
+        checkDuplicateLSID(MapAnnotation.class, id);
+        final LinkedHashMap<Index, Integer> indexes = new LinkedHashMap<Index, Integer>(1);
+        indexes.put(Index.MAP_ANNOTATION_INDEX, mapAnnotationIndex);
+        final IObjectContainer o = getIObjectContainer(MapAnnotation.class, indexes);
+        o.LSID = id;
+        addAuthoritativeContainer(MapAnnotation.class, id, o);
     }
 
     public void setMapAnnotationNamespace(String namespace, int mapAnnotationIndex) {
-        // TODO stub
+        final MapAnnotation o = getMapAnnotation(mapAnnotationIndex);
+        o.setNs(toRType(namespace));
     }
 
     /**
