@@ -29,7 +29,6 @@ or a redirect, or the 404 and 500 error, or an XML document, or an image...
 or anything.'''
 
 import sys
-import locale
 import datetime
 import traceback
 import logging
@@ -38,9 +37,8 @@ from django.conf import settings
 from django.template import loader as template_loader
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponseServerError, HttpResponseNotFound
 from django.shortcuts import render_to_response
-from django.template import RequestContext, Context
-from django.views.defaults import page_not_found, server_error
-from django.views import debug
+from django.template import RequestContext
+from django.views.defaults import page_not_found
 from django.core.urlresolvers import reverse
 
 from omeroweb.feedback.sendfeedback import SendFeedback

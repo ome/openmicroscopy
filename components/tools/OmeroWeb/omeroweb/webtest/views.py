@@ -1,23 +1,18 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from django.http import HttpResponseRedirect, HttpResponse, Http404
-from django.core.urlresolvers import reverse
+from django.http import HttpResponse, Http404
 from django.shortcuts import render_to_response
 from omeroweb.webgateway import views as webgateway_views
 from omeroweb.webgateway.views import _get_prepared_image
-from omeroweb.connector import Server
 
 from omeroweb.webclient.decorators import login_required, render_response
-from omeroweb.connector import Connector
 from omeroweb.http import HttpJPEGResponse
 
 from cStringIO import StringIO
 
-import settings
 import logging
-import traceback
 import omero
-from omero.rtypes import rint, rstring
+from omero.rtypes import rstring
 import omero.gateway
 import random
 import math

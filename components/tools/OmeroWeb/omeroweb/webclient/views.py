@@ -22,25 +22,14 @@ returns a Web response. This response can be the HTML contents of a Web page,
 or a redirect, or the 404 and 500 error, or an XML document, or an image...
 or anything.'''
 
-import sys
 import copy
-import re
 import os
-import calendar
-import cStringIO
 import datetime
-import httplib
 import Ice
-import locale
 import logging
 import traceback
 
-import shutil
-import zipfile
-import json
-
 from time import time
-from thread import start_new_thread
 
 from omero_version import build_year
 from omero_version import omero_version
@@ -49,43 +38,30 @@ import omero, omero.scripts
 from omero.rtypes import wrap, unwrap
 
 from django.conf import settings
-from django.contrib.sessions.backends.cache import SessionStore
 from django.template import loader as template_loader
-from django.core.cache import cache
-from django.http import Http404, HttpResponse, HttpResponseRedirect, HttpResponseServerError, HttpResponseForbidden
-from django.shortcuts import render_to_response
+from django.http import Http404, HttpResponse, HttpResponseRedirect, HttpResponseServerError
 from django.template import RequestContext as Context
 from django.utils.http import urlencode
-from django.views.defaults import page_not_found, server_error
-from django.views import debug
 from django.core.urlresolvers import reverse
-from django.utils.translation import ugettext_lazy as _
 from django.utils.encoding import smart_str
 from django.core.servers.basehttp import FileWrapper
-
-from webclient.webclient_gateway import OmeroWebGateway
 
 from webclient_utils import _formatReport, _purgeCallback
 from forms import GlobalSearchForm, ShareForm, BasketShareForm, \
                     ContainerForm, ContainerNameForm, ContainerDescriptionForm, \
                     CommentAnnotationForm, TagsAnnotationForm, \
-                    UsersForm, ActiveGroupForm, \
+                    UsersForm, \
                     MetadataFilterForm, MetadataDetectorForm, MetadataChannelForm, \
                     MetadataEnvironmentForm, MetadataObjectiveForm, MetadataObjectiveSettingsForm, MetadataStageLabelForm, \
                     MetadataLightSourceForm, MetadataDichroicForm, MetadataMicroscopeForm, \
                     FilesAnnotationForm, WellIndexForm
 
-from controller import BaseController
 from controller.index import BaseIndex
 from controller.basket import BaseBasket
 from controller.container import BaseContainer
-from controller.help import BaseHelp
 from controller.history import BaseCalendar
-from controller.impexp import BaseImpexp
 from controller.search import BaseSearch
 from controller.share import BaseShare
-
-from omeroweb.connector import Server
 
 from omeroweb.webadmin.forms import LoginForm
 from omeroweb.webadmin.webadmin_utils import toBoolean, upgradeCheck
@@ -717,7 +693,7 @@ def open_astex_viewer(request, obj_type, obj_id, conn=None, **kwargs):
         imgSize = image.getSizeX() * image.getSizeY() * image.getSizeZ()
         if imgSize > targetSize:
             try:
-                import scipy.ndimage
+                import scipy.ndimage  # keep to raise exception if not available  # noqa
                 sizeOptions = {}
                 factor = float(targetSize)/ imgSize
                 f = pow(factor,1.0/3)

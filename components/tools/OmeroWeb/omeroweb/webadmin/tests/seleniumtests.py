@@ -23,7 +23,6 @@ import os
 import omero
 from omeroweb.webgateway.tests.seleniumbase import SeleniumTestBase, Utils
 from random import random
-from django.conf import settings
 
 def createGroup(sel, groupName):
     """

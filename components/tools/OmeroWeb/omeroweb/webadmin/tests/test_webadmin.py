@@ -19,26 +19,20 @@
 #
 
 
-import unittest, time, os, datetime
-import tempfile
-import pytest
+import unittest, os
 import omero
 
-from django.conf import settings
 from request_factory import fakeRequest
 
-from webgateway import views as webgateway_views
-from webadmin import views as webadmin_views
 from webadmin.webadmin_utils import toBoolean
 from webadmin.forms import LoginForm, GroupForm, ExperimenterForm, \
-                ContainedExperimentersForm, ChangePassword
+                ChangePassword
 
 from connector import Server, Connector
 from webadmin.views import getActualPermissions, setActualPermissions, \
                         otherGroupsInitialList, prepare_experimenter, \
-                        getSelectedExperimenters, getSelectedGroups, \
+                        getSelectedExperimenters, \
                         mergeLists
-from django.core.urlresolvers import reverse
 
 # Test model
 class ServerModelTest (unittest.TestCase):

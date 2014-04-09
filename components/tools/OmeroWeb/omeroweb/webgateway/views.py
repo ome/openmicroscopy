@@ -19,15 +19,12 @@ import omero
 import omero.clients
 
 from django.http import HttpResponse, HttpResponseServerError, HttpResponseRedirect, Http404
-from django.utils.encoding import smart_str
-from django.utils.http import urlquote
-from django.views.decorators.http import require_POST
 from django.template import loader as template_loader
 from django.core.urlresolvers import reverse
 from django.conf import settings
 from django.template import RequestContext as Context
 from django.core.servers.basehttp import FileWrapper
-from omero.rtypes import rint, rlong, unwrap
+from omero.rtypes import rlong, unwrap
 from omero.constants.namespaces import NSBULKANNOTATIONS
 from omero_version import build_year
 from marshal import imageMarshal, shapeMarshal
@@ -39,12 +36,11 @@ except:
 
 from cStringIO import StringIO
 
-from omero import client_wrapper, ApiUsageException
+from omero import ApiUsageException
 from omero.gateway import timeit, TimeIt
 from omeroweb.http import HttpJavascriptResponse, HttpJsonResponse, \
     HttpJavascriptResponseServerError
 
-import Ice
 import glob
 
 

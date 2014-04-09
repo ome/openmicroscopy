@@ -27,13 +27,9 @@ import logging
 
 import omeroweb.decorators
 
-from django.http import HttpResponse, HttpResponseServerError, Http404
-from django.utils.http import urlencode
+from django.http import HttpResponse
 from django.conf import settings
 from django.core.urlresolvers import reverse
-
-from omeroweb.webgateway import views as webgateway_views
-from omeroweb.connector import Server
 
 from omeroweb.webclient.forms import GlobalSearchForm
 

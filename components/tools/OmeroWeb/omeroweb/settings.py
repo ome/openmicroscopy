@@ -29,7 +29,6 @@
 
 import os.path
 import sys
-import datetime
 import logging
 import omero
 import omero.config

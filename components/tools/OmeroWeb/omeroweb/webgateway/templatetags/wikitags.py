@@ -26,8 +26,6 @@
 import re
 
 from django.template import Library
-from django.conf import settings
-from django.core.urlresolvers import reverse
 from django.templatetags.static import PrefixNode
 
 register = Library()
