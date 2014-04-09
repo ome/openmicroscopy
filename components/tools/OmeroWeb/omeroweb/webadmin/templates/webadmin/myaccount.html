@@ -30,6 +30,7 @@
     
     <link rel="stylesheet" href="{% static "3rdparty/jquery.chosen/chosen.css" %}" type="text/css" media="screen"/>
     <link rel="stylesheet" href="{% static "webadmin/css/chosen.css" %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% static "webadmin/css/drivespace.css" %}" type="text/css"/>
     
     <!--[if lte IE 8]>
         <link rel="stylesheet" type="text/css" href="{% static "webgateway/css/ome.table_ie.css" %}" />
@@ -167,135 +168,122 @@
     </script>
     
     <script type="text/javascript">
-        
-        var load_drivespace = function(freespace) {
-            $("#status").html('loading...');
-            $("#progress").show();
-            var usage = true;
-            var offsetQuery = '';
-            var piechart_data = {};
-            while (usage){ 
-                $.ajax({  
-                    type: "GET",  
-                    url: "{% url 'waloaddrivespace' %}",  
-                    contentType: "application/json; charset=utf-8",  
-                    data: offsetQuery,
-                    dataType: "json",
-                    timeout: 10000, 
-                    async: false,
-                    success: function(data){  
-                        if (!data.loading) {
-                            usage = false;
-                            $("#usage").remove();
-                            $("#placeholder").css('width',700).css('height',300);
-                        }
-                        
-                        offsetQuery = "offset="+(data.offset);
-                        
-                        jQuery.each(data.usage, function(i, val) {
-                            if(val.label in piechart_data) {
-                                piechart_data[val.label] += val.data;
-                            } else {
-                                piechart_data[val.label] = val.data;
-                            }
-                        });
-                        
-                        $("#status").html('loading...');
-                        $("#progress").show();
-                        
-                    }
-                });
-            };
-            
-            $("#status").html('');
-            $("#progress").hide();
-            
-            
-            
-            
-            // do piechart
-            function sortByValue(keyArray, valueMap) {
-                return keyArray.sort(function(a,b){return valueMap[b]-valueMap[a];});
-            }
-            
-            var keyArray = [];
-            var sum = 0;
-            var i=0;
-            for (l=0; l<piechart_data.length; l++) { 
-                sum = sum + (piechart_data[l]);
-                keyArray[i]=l;
-                i++;
-            }
-            
-            keyArray = sortByValue(keyArray, piechart_data);
-            
-            var l = $('table#drivespaceTable');            
-            
-            //var chart_data = [{label:'Free space', data:{{ driveSpace.free}} }];
-            var chart_data = [{label:'Free space', data:freespace}];
-            for(i=0; i<keyArray.length; i++) {
-                
-                var key = keyArray[i];
-                if(i>10){
-                    var d = chart_data[11].data;
-                    chart_data[11] = {label:'Others', data:d+piechart_data[key]};
-                } else {
-                    chart_data[i+1]={label:key, data:piechart_data[key]};
-                }
-                
-                l.append('<tr id="'+i+'"><td class="link">' + key + '(id:'+i+')</td><td id="usage" class="link">' + (piechart_data[key]).filesizeformat() + '</td></tr>');
-            }
-            
-            $('#total').text('{% trans "Total usage" %}: ' + sum.filesizeformat())
-            
-            $('table#drivespaceTable').show();
-            
 
-            $.plot($("#placeholder"), chart_data, 
-            {
-                
-                series: {
-                    pie: {
-                        show: true,
-                        radius: 1,
-                        tilt: 0.7,
-                        label: {
-                            show: true,
-                            radius: 0.9,
-                            formatter: function(label, series){
-                                return '<div style="font-size:8pt;text-align:center;padding:2px;color:white;">'+Math.round(series.percent)+'%</div>';
-                            },
-                            background: { opacity: 0 }
-                        }
-                    }
-                },
-                legend: {
-                    show: true
-                }
-            });
-        };
-        
-        var drivespace_loaded = false;
         $(function() {
+
+            var FREE_SPACE = {{ freeSpace }};
+            $("#free_space").text(FREE_SPACE.filesizeformat());
+
+            var progressbar = $( "#progressbar" ),
+                progressLabel = $( ".progress-label" );
+
+            progressbar.progressbar({
+              value: 1,
+              change: function() {
+                progressLabel.text( progressbar.progressbar( "value" ) + "%" );
+              },
+            });
+
+            var fillTable = function(chart_data) {
+
+                var tableRows = [],
+                    rowData, rowId;
+                for(i=0; i<chart_data.length; i++) {
+                    rowData = chart_data[i];
+                    rowId = typeof rowData.userId != 'undefined' ? rowData.userId : rowData.groupId
+                    tableRows.push('<tr><td class="link">' + rowData.label + '(id:'+ rowId +')</td>')
+                    tableRows.push('<td class="link">' + rowData.data.filesizeformat() + '</td></tr>');
+                }
+                
+                $('#drivespaceTable tbody').html(tableRows.join(""));
+                $('#drivespaceTable').show();
+                // $('#total').text('{% trans "Total usage" %}: ' + sum.filesizeformat())
+            }
+
+            var plotJson = function(jsonUrl) {
+
+                // show 'loading...'
+                $("#status").html('loading...');
+                $("#progress").show();
+
+                $.getJSON(jsonUrl, function(data) {
+
+                    // hide 'loading...'
+                    $("#status").html('');
+                    $("#progress").hide();
+
+                    // save the data to use for chart click handling etc.
+                    $("#placeholder").data('chart_data', data);
+
+                    fillTable(data);
+
+                    // bin all data > 11 users/groups
+                    var total = 0,
+                        chart_data = [],
+                        MAX_SLICES = 10;
+
+                    for(i=0; i<data.length; i++) {
+                        var slice = data[i];
+                        if(i === MAX_SLICES){
+                            chart_data.push({label:'Others', data:slice.data});
+                        } else if (i > MAX_SLICES) {
+                            chart_data[MAX_SLICES].data = chart_data[MAX_SLICES].data + slice.data
+                        } else {
+                            chart_data.push(slice);
+                        }
+                        total += slice.data;
+                    }
+
+                    $('#total').text(total.filesizeformat());
+                    var usagePercent = 100 * total/(total + FREE_SPACE);
+                    progressbar.progressbar( "value", parseInt(usagePercent, 10));
+
+                    $("#placeholder").css('width',700).css('height',300);
+                    $.plot($("#placeholder"), chart_data,
+                    {
+                        series: {
+                            pie: {
+                                show: true,
+                                radius: 1,
+                                tilt: 0.7,
+                                label: {
+                                    show: true,
+                                    radius: 0.9,
+                                    formatter: function(label, series){
+                                        return '<div class="pieLabel">'+Math.round(series.percent)+'%</div>';
+                                    },
+                                    background: { opacity: 0 }
+                                }
+                            }
+                        },
+                        legend: {
+                            show: true
+                        },
+                        grid: {
+                            hoverable: true,
+                            clickable: true
+                        },
+                    });
+                });
+            }
+
+
+            var drivespace_loaded = false;
             $( "#admin" ).tabs({
                 select: function(event, ui) {
                     if ( $(ui.tab).attr('title') == "Drivespace" ){
                         
                         if (!drivespace_loaded) {
                             drivespace_loaded = true;
-                            $.getJSON("{% url 'wadrivespace' %}", function(data){
-                                load_drivespace(data.free);
-                                $("#drivespace_free").text(parseInt(data.free).filesizeformat());
-                            });
+                            // on load, we show user's data in groups
+                            var url = "{% url 'waloaddrivespace_user' experimenter.id %}";
+                            plotJson(url);
                         }
                     }
-                    return true;
                 }
             });
-            
-            //load_drivespace();
+
         });
-        
         
     </script>
     
@@ -445,26 +433,8 @@
     
     
     <div id="drivespace_settings" class="settings_content">
-        
 
-        <div id="placeholder"></div>
-
-        <h2>{% trans "Drive space usage" %}:</h2>
-
-        <div>{% trans "Free space" %}: <span id="drivespace_free"></span></div>
-        <div id="total"></div>
-
-        <div id="usage">
-            <img src="{% static "webgateway/img/spinner.gif" %}" id="progress" style="float:left"/>
-            <div id="status">loading...</div>
-        </div>
-
-
-        <table id="drivespaceTable" class="tablesorter" style="display: none;">
-            <thead>
-                <tr><th>User</th><th>Usage</th></tr>
-            </thead>
-        </table>
+        {% include 'webadmin/includes/drivespaceStats.html' %}
     </div>
 
 </div>

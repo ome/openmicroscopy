@@ -292,7 +292,7 @@ def usersData(conn, offset=0):
     return {'loading':loading, 'offset':offset, 'usage':usage_map}
 
 
-@login_required(isAdmin=True)
+@login_required()
 @render_response()
 def drivespace_json(request, query=None, groupId=None, userId=None, conn=None, **kwargs):
 
@@ -347,7 +347,7 @@ def drivespace_json(request, query=None, groupId=None, userId=None, conn=None, *
 
     if userId is not None:
         eid = long(userId)
-        for g in conn.listGroups():
+        for g in conn.getOtherGroups(eid):
             ctx.setOmeroGroup(g.getId())
             b = getBytes(ctx, eid)
             if b > 0:
@@ -830,6 +830,7 @@ def my_account(request, action=None, conn=None, **kwargs):
                                     'default_group':defaultGroupId, 'groups':otherGroups})
     
     context = {'form':form, 'ldapAuth': isLdapUser, 'experimenter':experimenter, 'ownedGroups':ownedGroups, 'password_form':password_form}
+    context['freeSpace'] = conn.getFreeSpace()
     context['template'] = template
     return context
 

@@ -27,52 +27,9 @@
 {% block link %}
     {{ block.super }}
     <link rel="stylesheet" href="{% static "webgateway/css/ome.table.css" %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% static "webadmin/css/drivespace.css" %}" type="text/css"/>
     <link rel="stylesheet" href="{% static "3rdparty/jquery.tablesorter/jquery.tablesorter.css" %}" type="text/css" media="screen"/>
 
-    <style type="text/css">
-        .usageBy.selected {
-            text-decoration: underline;
-        }
-        .legendLabel {
-            font-size: 16px;
-            padding: 2px;
-        }
-
-        #progressbar .ui-progressbar-value {
-            background-color: #e94237;
-            margin: 0px;
-        }
-        #progressbar {
-            border: 1px solid #aaaaaa;
-            position: relative;
-            border-radius: 3px;
-        }
-        .progress-label {
-            position: absolute;
-            left: 50%;
-            top: 4px;
-            font-weight: bold;
-            text-shadow: 1px 1px 0 #fff;
-            color: black;
-            font-size: 12px;
-        }
-        .pieLabel {
-            font-size:10pt;
-            text-align:center;
-            color:white;
-        }
-        .summary {
-            padding: 10px 0;
-        }
-        .summary h3 {
-            padding: 2px 0;
-        }
-        .status {
-            position: absolute;
-            top: 50px;
-            left: 20px;
-        }
-    </style>
     
 	<!--[if lte IE 8]>
 		<link rel="stylesheet" type="text/css" href="{% static "webgateway/css/ome.table_ie.css" %}" />
@@ -95,12 +52,12 @@
             var progressbar = $( "#progressbar" ),
                 progressLabel = $( ".progress-label" );
 
-                progressbar.progressbar({
-                  value: false,
-                  change: function() {
-                    progressLabel.text( progressbar.progressbar( "value" ) + "%" );
-                  },
-                });
+            progressbar.progressbar({
+              value: 1,
+              change: function() {
+                progressLabel.text( progressbar.progressbar( "value" ) + "%" );
+              },
+            });
 
             var fillTable = function(chart_data) {
 
@@ -224,10 +181,6 @@
             });
 
 
-            $( "#progressbar" ).progressbar({
-                value: 20
-            });
-
             // On ready - start by loading Users
             loadUsers();
 
@@ -273,30 +226,8 @@
                 <span class="usageBy selected" id="filterBy"></span>
             </h1>
 
-            <div class="status">
-                <img src="{% static "webgateway/img/spinner.gif" %}" id="progress" style="float:left"/>
-                <div id="status">loading...</div>
-            </div>
 
-
-            <div id="placeholder"></div>
-
-            <h2>{% trans "Drive space usage" %}:</h2>
-
-            <div id="progressbar"><div class="progress-label"></div></div>
-
-            <div class="summary">
-                <h3>{% trans "Total usage" %}: <span id="total"></span></h3>
-                <h3>{% trans "Free space" %}: <span id="free_space"></span></h3>
-            </div>
-
-            <table id="drivespaceTable" class="tablesorter" style="display: none;">
-                <thead>
-                    <tr><th>User</th><th>Usage</th></tr>
-                </thead>
-                <tbody>
-                </tbody>
-            </table>
+            {% include 'webadmin/includes/drivespaceStats.html' %}
         </div>
         
     </div>
