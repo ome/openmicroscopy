@@ -31,7 +31,7 @@
 
     create table annotation_mapValue (
         annotation_id int8 not null,
-        mapValue varchar(255),
+        mapValue varchar(255) not null,
         mapValue_KEY varchar(255),
         primary key (annotation_id, mapValue_KEY)
     );;
@@ -676,7 +676,7 @@
 
     create table experimentergroup_config (
         experimentergroup_id int8 not null,
-        config varchar(255),
+        config varchar(255) not null,
         config_KEY varchar(255),
         primary key (experimentergroup_id, config_KEY)
     );;
