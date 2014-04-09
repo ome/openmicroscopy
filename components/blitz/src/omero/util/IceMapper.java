@@ -1,7 +1,7 @@
 /*
  *   $Id$
  *
- *   Copyright 2007-2013 Glencoe Software, Inc. All rights reserved.
+ *   Copyright 2007-2014 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  *
  */
@@ -51,6 +51,7 @@ import omeis.providers.re.RGBBuffer;
 import omeis.providers.re.data.PlaneDef;
 import omeis.providers.re.data.RegionDef;
 import omero.ApiUsageException;
+import omero.RString;
 import omero.RTime;
 import omero.RType;
 import omero.ServerError;
@@ -732,6 +733,24 @@ public class IceMapper extends ome.util.ModelMapper implements
     }
 
     /**
+     * Convert a String&rarr;String map's values to {@link RString}s.
+     * @param map a map
+     * @return the converted map, or <code>null</code> if <code>map == null</code>
+     */
+    public static Map<String, RString> convertStringStringMap(Map<String, String> map) {
+        if (map == null) {
+            return null;
+        }
+        final Map<String, RString> rMap = new HashMap<String, RString>(map.size());
+        for (final Map.Entry<String, String> mapEntry : map.entrySet()) {
+            final String key = mapEntry.getKey();
+            final String value = mapEntry.getValue();
+            rMap.put(key, value == null ? null : rstring(value));
+        }
+        return rMap;
+    }
+
+    /**
      * Overrides the findCollection logic of {@link ModelMapper}, since all
      * {@link Collection}s should be {@link List}s in Ice.
      * 
@@ -961,6 +980,24 @@ public class IceMapper extends ome.util.ModelMapper implements
             return object;
 
         }
+    }
+
+    /**
+     * Reverse a String&rarr;String map's values from {@link RString}s.
+     * @param rMap a map
+     * @return the reversed map, or <code>null</code> if <code>rMap == null</code>
+     */
+    public static Map<String, String> reverseStringStringMap(Map<String, RString> rMap) {
+        if (rMap == null) {
+            return null;
+        }
+        final Map<String, String> map = new HashMap<String, String>(rMap.size());
+        for (final Map.Entry<String, RString> rMapEntry : rMap.entrySet()) {
+            final String key = rMapEntry.getKey();
+            final RString value = rMapEntry.getValue();
+            map.put(key, value == null ? null : value.getValue());
+        }
+        return map;
     }
 
     public void store(Object source, Object target) {
