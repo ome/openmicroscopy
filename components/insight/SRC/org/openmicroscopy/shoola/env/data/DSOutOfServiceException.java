@@ -48,6 +48,9 @@ package org.openmicroscopy.shoola.env.data;
 public class DSOutOfServiceException
 	extends Exception
 {
+        public DSOutOfServiceException(omero.gateway.exception.DSOutOfServiceException gatewayException) {
+            super(gatewayException.getMessage(), gatewayException.getCause());
+        }
 	
 	/**
 	 * Constructs a new exception with the specified detail message.

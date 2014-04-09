@@ -46,7 +46,10 @@ package org.openmicroscopy.shoola.env.data;
 public class DSAccessException
 	extends Exception
 {
-
+        public DSAccessException(omero.gateway.exception.DSAccessException gatewayException) {
+            super(gatewayException.getMessage(), gatewayException.getCause());
+        }
+        
 	/**
 	 * Constructs a new exception with the specified detail message.
 	 * 
