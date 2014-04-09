@@ -147,17 +147,19 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id) {
     };
 
     var update_tooltip = function() {
+        var $this = $(this);
         var tag = all_tags[this.getAttribute("data-id")];
         var parent_id = all_tags[this.getAttribute("data-set")];
         var link_owner = this.getAttribute("data-linkownername");
-        if ($(this).hasClass('owner-tagged')) {
+        if ($this.hasClass('owner-tagged') &&
+            $this.has('span.alltags-take').length > 0) {
             link_owner = 'you and ' + link_owner;
         }
         var link_date = this.getAttribute("data-linkdate");
         this.setAttribute("title", create_tag_title(
             tag.d, owners[tag.o], parent_id ? parent_id.t : null,
             link_owner, link_date));
-        $(this).tooltip();
+        $this.tooltip();
     };
 
     var update_html_list = function(list) {
