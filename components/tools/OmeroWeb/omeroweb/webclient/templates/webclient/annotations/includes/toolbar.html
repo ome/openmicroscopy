@@ -52,6 +52,7 @@
             <span></span>
         </button>
         <ul class="dropdown">
+            <!-- Here we handle a single image (in metadata general) - see below for multiple images (batch annotate) -->
             {% if manager.image.countImportedImageFiles %}
               {% with fileCount=manager.image.countImportedImageFiles %}
             <li>
@@ -69,11 +70,22 @@
                 Archived file{{ fileCount|pluralize:'s (zip)' }}</a>
             </li>
               {% endwith %}
+            <!-- Here we handle multiple images (batch annotate panel) -->
             {% elif filesetInfo %}
             <li>
-              <a id="download-origfile" href="#"
-                onClick="return OME.openPopup('{% url 'download_placeholder' %}?ids={{ link_string }}&fileCount={{ filesetInfo.count }}');"
-                title="Download {{ filesetInfo.count }} files as a zip">
+              <a id="download-origfile"
+                {% ifequal filesetInfo.count 0 %}
+                  href="#"
+                {% else %}
+                  {% ifequal filesetInfo.count 1 %}
+                    href="{% url 'archived_files' %}?{{ obj_string }}"
+                  {% else %}
+                    href="#"
+                    onClick="return OME.openPopup('{% url 'download_placeholder' %}?ids={{ link_string }}&fileCount={{ filesetInfo.count }}');"
+                    title="Download {{ filesetInfo.count }} files as a zip"
+                  {% endifequal %}
+                {% endifequal %}
+                >
                 {{ filesetInfo.count }} Archived files ({{ filesetInfo.size|filesizeformat }})</a>
             </li>
             {% endif %}
