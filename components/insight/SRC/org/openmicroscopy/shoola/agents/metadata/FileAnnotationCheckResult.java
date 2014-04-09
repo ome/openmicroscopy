@@ -20,10 +20,11 @@
 package org.openmicroscopy.shoola.agents.metadata;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
+
+import com.google.common.collect.HashMultimap;
 
 import pojos.DataObject;
 import pojos.FileAnnotationData;
@@ -38,19 +39,19 @@ import pojos.FileAnnotationData;
  */
 public class FileAnnotationCheckResult {
 
-    /** Map holding the results; key: {@link FileAnnotationData}, value: List of {@link DataObject}s the {@link FileAnnotationData} is linked to */
-    private Map<FileAnnotationData, List<DataObject>> linkMap = new HashMap<FileAnnotationData, List<DataObject>>();
-
+    /** Map holding the results; */
+    private HashMultimap<FileAnnotationData, DataObject> linkMap = HashMultimap.create();
+    
     /**
      * Get all {@link DataObject}s the given {@link FileAnnotationData} is linked to.
      * This method will never return null, but rather will return an empty list.
      * @param fd The {@link FileAnnotationData}
      * @return See above.
      */
-    public List<DataObject> getLinks(FileAnnotationData fd) {
-        List<DataObject> existingLinks = this.linkMap.get(fd);
+    public Set<DataObject> getLinks(FileAnnotationData fd) {
+        Set<DataObject> existingLinks = this.linkMap.get(fd);
         if (existingLinks == null) {
-            existingLinks = new ArrayList<DataObject>();
+            existingLinks = Collections.emptySet();
         }
         return existingLinks;
     }
@@ -61,12 +62,7 @@ public class FileAnnotationCheckResult {
      * @param links The {@link DataObject}s fd is linked to
      */
     public void addLinks(FileAnnotationData fd, List<DataObject> links) {
-        List<DataObject> existingLinks = this.linkMap.get(fd);
-        if (existingLinks == null) {
-            existingLinks = new ArrayList<DataObject>();
-            this.linkMap.put(fd, existingLinks);
-        }
-        existingLinks.addAll(links);
+        linkMap.putAll(fd, links);
     }
 
     /**
@@ -77,7 +73,7 @@ public class FileAnnotationCheckResult {
     public List<FileAnnotationData> getSingleParentAnnotations() {
         List<FileAnnotationData> result = new ArrayList<FileAnnotationData>();
         for(FileAnnotationData fd : linkMap.keySet()) {
-            List<DataObject> parents = linkMap.get(fd);
+            Set<DataObject> parents = linkMap.get(fd);
             if(parents!=null && parents.size()==1) {
                 result.add(fd);
             }
