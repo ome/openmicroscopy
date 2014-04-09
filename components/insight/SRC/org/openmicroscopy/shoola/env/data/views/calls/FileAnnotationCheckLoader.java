@@ -1,7 +1,4 @@
 /*
- * org.openmicroscopy.shoola.env.data.views.calls.AnnotationParentLoader 
- *
- *------------------------------------------------------------------------------
  *  Copyright (C) 2014 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
  *

@@ -37,6 +37,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -665,7 +666,7 @@ class EditorControl
 				
 				
 				if (data instanceof FileAnnotationData) {
-				    model.removeFileAnnotations(Arrays.asList(new FileAnnotationData[] {(FileAnnotationData)data}));
+				    model.removeFileAnnotations(Collections.singletonList((FileAnnotationData)data));
 				}
 				
 				else if (data instanceof TagAnnotationData ||
