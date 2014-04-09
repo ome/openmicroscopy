@@ -1289,27 +1289,27 @@ class EditorModel
 	 * @param level The level to handle.
 	 * @return See above.
 	 */
-    List<FileAnnotationData> getFileAnnotatationsByLevel(int level) {
-        List<FileAnnotationData> result = new ArrayList<FileAnnotationData>();
-        Collection<FileAnnotationData> all = getAllAttachments();
-        for (FileAnnotationData f : all) {
-            switch (level) {
-                case ALL:
-                    result.add(f);
-                    break;
-                case ME:
-                    if (getUserID() == f.getOwner().getId()) {
+        List<FileAnnotationData> getFileAnnotatationsByLevel(int level) {
+            List<FileAnnotationData> result = new ArrayList<FileAnnotationData>();
+            Collection<FileAnnotationData> all = getAllAttachments();
+            for (FileAnnotationData f : all) {
+                switch (level) {
+                    case ALL:
                         result.add(f);
-                    }
-                    break;
-                case OTHER:
-                    if (getUserID() != f.getOwner().getId()) {
-                        result.add(f);
-                    }
+                        break;
+                    case ME:
+                        if (getUserID() == f.getOwner().getId()) {
+                            result.add(f);
+                        }
+                        break;
+                    case OTHER:
+                        if (getUserID() != f.getOwner().getId()) {
+                            result.add(f);
+                        }
+                }
             }
+            return result;
         }
-        return result;
-    }
 
 	/**
 	 * Returns <code>true</code> if the annotation is already used by the 
