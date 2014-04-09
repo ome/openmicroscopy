@@ -161,7 +161,8 @@ def check_jarsigner():
             r = subprocess.call(cmd, stdout=devnull)
         except Exception as e:
             raise Stop(2, 'Unable to execute jarsigner: %s' % e)
-        if r != 0:
+        if r != 0 and r != 1:
+            # jarsigner with no args returns 0 on Java 1.7, 1 on Java 1.6
             raise Stop(r, 'jarsigner returned non-zero : %d' % r)
     logging.debug('jarsigner is runnable')
 
