@@ -47,9 +47,11 @@ import java.util.Set;
 import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+
 //Third-party libraries
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
+
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.ListMultimap;
@@ -79,6 +81,7 @@ import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.util.NetworkChecker;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
 import omero.ResourceError;
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.ImportCandidates;
@@ -89,7 +92,6 @@ import ome.formats.importer.ImportLibrary;
 import ome.formats.importer.OMEROWrapper;
 import ome.formats.importer.util.ProportionalTimeEstimatorImpl;
 import ome.formats.importer.util.TimeEstimator;
-
 import ome.system.UpgradeCheck;
 import ome.util.checksum.ChecksumProvider;
 import ome.util.checksum.ChecksumProviderFactory;
@@ -138,6 +140,7 @@ import omero.cmd.Chmod;
 import omero.cmd.HandlePrx;
 import omero.cmd.Request;
 import omero.constants.projection.ProjectionType;
+import omero.gateway.Gateway;
 import omero.grid.BoolColumn;
 import omero.grid.Column;
 import omero.grid.Data;
@@ -424,9 +427,8 @@ class OMEROGateway
 	/** Tells whether or not the network is up.*/
 	private final AtomicBoolean networkup = new AtomicBoolean(true);
 
-	/** Checks if the network is up or not.*/
-	private NetworkChecker networkChecker;
-
+	private Gateway gateway = new Gateway();
+	
 	/**
 	 * Creates the query to load the file set corresponding to a given image.
 	 *
@@ -478,8 +480,8 @@ class OMEROGateway
         throws Exception
     {
         try {
-            if (networkChecker != null)
-                networkup.set(networkChecker.isNetworkup(useCachedValue));
+            if (gateway != null)
+                gateway.isNetworkUp(useCachedValue);
         } catch (Throwable t) {
             log("Error on isNetworkUp check:" + t);
             networkup.set(false);
@@ -1648,7 +1650,9 @@ class OMEROGateway
 		enumerations = new HashMap<String, List<EnumerationObject>>();
 	}
 
-	NetworkChecker getChecker() { return networkChecker; }
+	public Gateway getGateway() {
+	     return this.gateway;
+	}
 
 	/**
 	 * Converts the specified POJO into the corresponding model.
@@ -1818,6 +1822,12 @@ class OMEROGateway
 	}
 	
 	public ExperimenterData connect(UserCredentials uc, String agentName, float compression) throws DSOutOfServiceException {
+	    try {
+                gateway.connect(uc, agentName, compression);
+            } catch (omero.gateway.exception.DSOutOfServiceException e) {
+                throw new DSOutOfServiceException(e);
+            }
+	    
             client client = createSession(uc.getUserName(), uc.getPassword(), uc.getHostName(), encrypted,
                     agentName, uc.getPort());
             return login(client, uc.getUserName(), uc.getHostName(), compression, uc.getGroup(), uc.getPort());
@@ -1858,15 +1868,15 @@ class OMEROGateway
 			ServiceFactoryPrx entryEncrypted
 			    = secureClient.createSession(userName, password);
 			serverVersion = entryEncrypted.getConfigService().getVersion();
-			String ip = null;
-	        try {
-				ip = InetAddress.getByName(hostName).getHostAddress();
-			} catch (Exception e) {
-				log("Failed to get inet address: " + hostName);
-			}
-
-	        boolean b = dsFactory.runAsPlugin() == LookupNames.IMAGE_J;
-			networkChecker = new NetworkChecker(ip, b);
+//			String ip = null;
+//	        try {
+//				ip = InetAddress.getByName(hostName).getHostAddress();
+//			} catch (Exception e) {
+//				log("Failed to get inet address: " + hostName);
+//			}
+//
+//	        boolean b = dsFactory.runAsPlugin() == LookupNames.IMAGE_J;
+//			networkChecker = new NetworkChecker(ip, b);
 		} catch (Throwable e) {
 		    if (secureClient != null) {
 		        secureClient.__del__();
@@ -2225,16 +2235,25 @@ class OMEROGateway
 			List rootIDs, Parameters options)
 		throws DSOutOfServiceException, DSAccessException
 	{
-	    Connector c = getConnector(ctx, true, false);
-		try {
-		    IContainerPrx service = c.getPojosService();
-			return PojoMapper.asDataObjects(
-					service.loadContainerHierarchy(
-							convertPojos(rootType).getName(), rootIDs, options));
-		} catch (Throwable t) {
-			handleException(t, "Cannot load hierarchy for " + rootType+".");
-		}
-		return new HashSet();
+	    try {
+                return gateway.loadContainerHierarchy(ctx, rootType, rootIDs,
+                        options);
+            } catch (omero.gateway.exception.DSOutOfServiceException e) {
+                throw new DSOutOfServiceException(e);
+            } catch (omero.gateway.exception.DSAccessException e) {
+                throw new DSAccessException(e);
+            }
+	    
+//	    Connector c = getConnector(ctx, true, false);
+//		try {
+//		    IContainerPrx service = c.getPojosService();
+//			return PojoMapper.asDataObjects(
+//					service.loadContainerHierarchy(
+//							convertPojos(rootType).getName(), rootIDs, options));
+//		} catch (Throwable t) {
+//			handleException(t, "Cannot load hierarchy for " + rootType+".");
+//		}
+//		return new HashSet();
 	}
 
 	/**
