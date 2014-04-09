@@ -6,7 +6,7 @@
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # 
 # 
-# Copyright (c) 2008-2013 University of Dundee. 
+# Copyright (c) 2008-2014 University of Dundee. 
 # 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -265,7 +265,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
     # Shows/hides users in dropdown menu; default: '{"LEADERS": "Owners", "COLLEAGUES": "Members", "ALL": "All members"}'
     "omero.web.ui.menu.dropdown": ["UI_MENU_DROPDOWN",'{"LEADERS": "Owners", "COLLEAGUES": "Members", "ALL": "All members"}', json.loads],
     
-    # Rename Orphanes in data manager; default: '{"NAME":"Orphaned images", "DESCRIPTION":"This is a virtual container with orphaned images. These images are not linked anywhere. Just drag them to the selected container."}'
+    # Rename Orphans in data manager; default: '{"NAME":"Orphaned images", "DESCRIPTION":"This is a virtual container with orphaned images. These images are not linked anywhere. Just drag them to the selected container."}'
     "omero.web.ui.tree.orphaned": ["UI_TREE_ORPHANED",'{"NAME":"Orphaned images", "DESCRIPTION":"This is a virtual container with orphaned images. These images are not linked anywhere. Just drag them to the selected container."}', json.loads],
     
     # Add plugins to the right-hand & center panels: plugins are ['Label', 'include.js', 'div_id']. The javascript loads data into $('#div_id').
