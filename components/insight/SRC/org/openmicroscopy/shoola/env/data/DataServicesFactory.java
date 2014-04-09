@@ -587,39 +587,41 @@ public class DataServicesFactory
 		String name = (String) 
 		 container.getRegistry().lookup(LookupNames.MASTER);
 		if (name == null) name = LookupNames.MASTER_INSIGHT;
-		client client = omeroGateway.createSession(uc.getUserName(),
-				uc.getPassword(), uc.getHostName(), uc.isEncrypted(), name,
-				uc.getPort());
-		if (client == null || singleton == null) {
-			omeroGateway.logout();
-        	return;
-		}
-		//check client server version
-		compatible = true;
-        //Register into log file.
-        Object v = container.getRegistry().lookup(LookupNames.VERSION);
-    	String clientVersion = "";
-    	if (v != null && v instanceof String)
-    		clientVersion = (String) v;
-    	
-        //Check if client and server are compatible.
-        String version = omeroGateway.getServerVersion();
-        Boolean check = checkClientServerCompatibility(version, clientVersion);
-        if (check == null) {
-        	compatible = false;
-        	omeroGateway.logout();
-        	return;
-        }
-        if (!check.booleanValue()) {
-        	compatible = false;
-        	notifyIncompatibility(clientVersion, version, uc.getHostName());
-        	omeroGateway.logout();
-        	return;
-        }
+//		client client = omeroGateway.createSession(uc.getUserName(),
+//				uc.getPassword(), uc.getHostName(), uc.isEncrypted(), name,
+//				uc.getPort());
+//		if (client == null || singleton == null) {
+//			omeroGateway.logout();
+//        	return;
+//		}
+//		//check client server version
+//		compatible = true;
+//        //Register into log file.
+//        Object v = container.getRegistry().lookup(LookupNames.VERSION);
+//    	String clientVersion = "";
+//    	if (v != null && v instanceof String)
+//    		clientVersion = (String) v;
+//    	
+//        //Check if client and server are compatible.
+//        String version = omeroGateway.getServerVersion();
+//        Boolean check = checkClientServerCompatibility(version, clientVersion);
+//        if (check == null) {
+//        	compatible = false;
+//        	omeroGateway.logout();
+//        	return;
+//        }
+//        if (!check.booleanValue()) {
+//        	compatible = false;
+//        	notifyIncompatibility(clientVersion, version, uc.getHostName());
+//        	omeroGateway.logout();
+//        	return;
+//        }
         
-        ExperimenterData exp = omeroGateway.login(client, uc.getUserName(), 
-        		uc.getHostName(), determineCompression(uc.getSpeedLevel()),
-        		uc.getGroup(), uc.getPort());
+        ExperimenterData exp = omeroGateway.connect(uc, name, determineCompression(uc.getSpeedLevel()));
+        
+//        ExperimenterData exp = omeroGateway.login(client, uc.getUserName(), 
+//        		uc.getHostName(), determineCompression(uc.getSpeedLevel()),
+//        		uc.getGroup(), uc.getPort());
         //Post an event to indicate that the user is connected.
         EventBus bus = container.getRegistry().getEventBus();
         bus.post(new ConnectedEvent());
@@ -628,8 +630,8 @@ public class DataServicesFactory
         //Register into log file.
         Map<String, String> info = ProxyUtil.collectOsInfoAndJavaVersion();
         LogMessage msg = new LogMessage();
-        msg.println("Server version: "+version);
-        msg.println("Client version: "+clientVersion);
+//        msg.println("Server version: "+version);
+//        msg.println("Client version: "+clientVersion);
         Entry<String, String> entry;
         Iterator<Entry<String, String>> k = info.entrySet().iterator();
         while (k.hasNext()) {

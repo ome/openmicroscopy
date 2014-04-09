@@ -1816,6 +1816,13 @@ class OMEROGateway
 	    check.run();
 	    return check.isUpgradeNeeded();
 	}
+	
+	public ExperimenterData connect(UserCredentials uc, String agentName, float compression) throws DSOutOfServiceException {
+            client client = createSession(uc.getUserName(), uc.getPassword(), uc.getHostName(), encrypted,
+                    agentName, uc.getPort());
+            return login(client, uc.getUserName(), uc.getHostName(), compression, uc.getGroup(), uc.getPort());
+        }
+	
 
 	/**
 	 * Tries to connect to <i>OMERO</i> and log in by using the supplied
@@ -1837,7 +1844,7 @@ class OMEROGateway
 	 * @see #getUserDetails(String)
 	 * TODO: could be refactored to return a Connector for later use in login()
 	 */
-	client createSession(String userName, String password, String hostName,
+	private client createSession(String userName, String password, String hostName,
 		boolean encrypted, String agentName, int port)
 	throws DSOutOfServiceException
 	{
@@ -1891,7 +1898,7 @@ class OMEROGateway
 	 *                                  or the credentials are invalid.
 	 * @see #createSession(String, String, String, long, boolean, String)
 	 */
-	ExperimenterData login(client secureClient, String userName, String hostName,
+	private ExperimenterData login(client secureClient, String userName, String hostName,
 		float compression, long groupID, int port)
 		throws DSOutOfServiceException
 	{
