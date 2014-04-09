@@ -96,13 +96,13 @@
 			
 			
 			
-            {% for d in manager.containers.plates %}
-            <li id='plate-{{ d.id }}' rel="plate{% if not d.isOwned %}-locked{% endif %}" class="{{ d.getPermsCss }}">
+            {% for d in plates %}
+            <li id='plate-{{ d.id }}' rel="plate{% if not d.isOwned %}-locked{% endif %}" class="{{ d.permsCss }}">
                 <a href="#">{{ d.name|default:"Plate"|truncatebefor:"35" }}</a>
-                {% if d.countPlateAcquisitions %}
+                {% if d.plateAcquisitionsCount %}
                 <ul>
-                    {% for e in d.listPlateAcquisitions %}
-                        <li id='acquisition-{{ e.id }}' rel="acquisition{% if not e.isOwned %}-locked{% endif %}" class="{{ e.getPermsCss }}">
+                    {% for e in d.plateacquisitions %}
+                        <li id='acquisition-{{ e.id }}' rel="acquisition{% if not e.isOwned %}-locked{% endif %}" class="{{ e.permsCss }}">
                             <a href="#">{{ e.name|default:"Run"|truncatebefor:"35" }}</a>
                         </li>
                     {% endfor %}

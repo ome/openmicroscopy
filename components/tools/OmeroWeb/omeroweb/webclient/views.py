@@ -593,6 +593,7 @@ def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_ty
                     d['permsCss'] = parsePermsCss(e[2].val, e[3].val)
                     datasets.append(d)
             context['datasets'] = datasets
+            # Screens
             sids = [x.id for x in manager.containers['screens']]
             screens = {}
             if len(sids):
@@ -650,6 +651,58 @@ def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_ty
                     for p in screens[s]['plates']:
                         p['plateAcquisitionsCount'] = len(p['plateacquisitions'])
             context['screens'] = screens
+            # Plates
+            pids = [x.id for x in manager.containers['plates']]
+            plates = {}
+            plateids = []
+            if len(pids):
+                q = """
+                select plate.id,
+                       plate.name,
+                       plate.details.owner.id,
+                       plate.details.permissions.perm1,
+                       pa.id,
+                       pa.name,
+                       pa.details.owner.id,
+                       pa.details.permissions.perm1,
+                       pa.startTime,
+                       pa.endTime
+                       from Plate plate
+                       join plate.plateAcquisitions pa
+                where plate.id in (%s)
+                order by plate.name, pa.id
+                """ % ','.join((str(x) for x in pids))
+                for e in qs.projection(q, None, conn.SERVICE_OPTS):
+                    pid = e[0].val
+                    if pid in plateids:
+                        p = plates[pid]
+                    else:
+                        plateids.append(pid)
+                        p = {}
+                        plates[pid] = p
+                        p['permsCss'] = parsePermsCss(e[3].val, e[2].val)
+                        p['isOwned'] = e[2].val == conn.getUserId()
+                        p['id'] = pid
+                        p['name'] = e[1].val
+                        p['plateacquisitions'] = []
+                    pa = {}
+                    pa['id'] = e[4].val
+                    if e[5] is not None:
+                        pa['name'] = e[5].val
+                    else:
+                        if e[8] is not None and e[9] is not None:
+                            pa['name'] = "%s - %s" % (datetime.fromtimestamp(e[8].val/1000),
+                                                      datetime.fromtimestamp(e[9].val/1000))
+                        else:
+                            pa['name'] = 'Run %d' % pa['id']
+                    pa['permsCss'] = parsePermsCss(e[7].val, e[6].val)
+                    pa['isOwned'] = e[6].val == conn.getUserId()
+                    p['plateacquisitions'].append(pa)
+                # keeping plates ordered
+                plates = [plates[x] for x in plateids]
+                for p in plates:
+                    p['plateAcquisitionsCount'] = len(p['plateacquisitions'])
+            context['plates'] = plates
             template = "webclient/data/containers_tree.html"
         elif view =='icon':
             template = "webclient/data/containers_icon.html"
