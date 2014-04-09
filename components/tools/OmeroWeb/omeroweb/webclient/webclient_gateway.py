@@ -43,31 +43,23 @@ from StringIO import StringIO
 
 import time
 from datetime import datetime
-from types import IntType, ListType, TupleType, UnicodeType, StringType
 
 import Ice
-import Glacier2
 import omero.gateway
 import omero.scripts
 
 from omero.rtypes import rint, rstring, rlong, rlist, rtime
-from omero.model import FileAnnotationI, TagAnnotationI, \
-                        DatasetI, ProjectI, ImageI, ScreenI, PlateI, \
-                        DetectorI, FilterI, ObjectiveI, InstrumentI, \
-                        LaserI, ExperimenterI, ExperimenterGroupI
+from omero.model import \
+                        ExperimenterI, ExperimenterGroupI
 
-from omero.gateway import FileAnnotationWrapper, TagAnnotationWrapper, \
+from omero.gateway import TagAnnotationWrapper, \
                 AnnotationWrapper, \
                 OmeroGatewaySafeCallWrapper, CommentAnnotationWrapper
 
 from omero.gateway import KNOWN_WRAPPERS
 
-from omero.sys import ParametersI
-
 from django.utils.encoding import smart_str
-from django.utils.translation import ugettext as _
 from django.conf import settings
-from django.core.mail import send_mail
 from django.core.mail import EmailMultiAlternatives
 
 try:

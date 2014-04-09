@@ -31,7 +31,6 @@ from glob import glob
 from django.conf import settings
 from django.template import loader as template_loader
 from django.template import RequestContext as Context
-from django.shortcuts import render_to_response
 from django.http import HttpResponse
 from django.core.urlresolvers import reverse
 from django.views.decorators.cache import never_cache
@@ -117,4 +116,3 @@ def insight(request):
 
     c = Context(request, context)
     return HttpResponse(t.render(c), content_type="application/x-java-jnlp-file")
-    

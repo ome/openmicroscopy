@@ -23,8 +23,6 @@
 # Version: 1.0
 #
 
-from django.core.urlresolvers import reverse
-
 from webclient.controller import BaseController
 
 class BaseBasket(BaseController):

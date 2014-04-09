@@ -26,7 +26,6 @@
 import omero
 from omero.rtypes import rstring, rlong
 from django.conf import settings
-from django.core.urlresolvers import reverse
 from django.utils.encoding import smart_str
 import logging
 
@@ -235,7 +234,7 @@ class BaseContainer(BaseController):
         if voxelCount > MAX_VOXELS: return False
 
         try:    # if scipy ndimage is not available for interpolation, can only handle smaller images
-            import scipy.ndimage
+            import scipy.ndimage  # noqa
         except ImportError:
             logger.debug("Failed to import scipy.ndimage - Open Astex Viewer limited to display of smaller images.")
             MAX_VOXELS = (160 * 160 * 160)
