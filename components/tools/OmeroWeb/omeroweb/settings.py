@@ -325,7 +325,7 @@ HIDDEN_SETTINGS_MAPPINGS = {
     
 }
 
-def process_custom_settings(module, settings):
+def process_custom_settings(module, settings='CUSTOM_SETTINGS_MAPPINGS'):
     logging.info('Processing custom settings for module %s' % module.__name__)
     for key, values in getattr(module, settings, {}).items():
         # Django may import settings.py more than once, see:
