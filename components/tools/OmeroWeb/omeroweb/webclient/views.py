@@ -22,25 +22,16 @@ returns a Web response. This response can be the HTML contents of a Web page,
 or a redirect, or the 404 and 500 error, or an XML document, or an image...
 or anything.'''
 
-import sys
 import copy
-import re
 import os
-import calendar
-import cStringIO
 import datetime
-import httplib
 import Ice
-import locale
 import logging
 import traceback
 
-import shutil
-import zipfile
 import json
 
 from time import time
-from thread import start_new_thread
 
 from omero_version import build_year
 from omero_version import omero_version
@@ -49,45 +40,30 @@ import omero, omero.scripts
 from omero.rtypes import wrap, unwrap
 
 from django.conf import settings
-from django.contrib.sessions.backends.cache import SessionStore
 from django.template import loader as template_loader
-from django.core.cache import cache
-from django.http import Http404, HttpResponse, HttpResponseRedirect, HttpResponseServerError, HttpResponseForbidden
-from django.shortcuts import render_to_response
+from django.http import Http404, HttpResponse, HttpResponseRedirect, HttpResponseServerError
 from django.template import RequestContext as Context
 from django.utils.http import urlencode
-from django.views.defaults import page_not_found, server_error
-from django.views import debug
 from django.core.urlresolvers import reverse
-from django.utils.translation import ugettext_lazy as _
 from django.utils.encoding import smart_str
 from django.core.servers.basehttp import FileWrapper
-
-from webclient.webclient_gateway import OmeroWebGateway
-
-from webclient_http import HttpJavascriptRedirect, HttpJavascriptResponse, HttpLoginRedirect
 
 from webclient_utils import _formatReport, _purgeCallback
 from forms import GlobalSearchForm, ShareForm, BasketShareForm, \
                     ContainerForm, ContainerNameForm, ContainerDescriptionForm, \
                     CommentAnnotationForm, TagsAnnotationForm, \
-                    UsersForm, ActiveGroupForm, \
+                    UsersForm, \
                     MetadataFilterForm, MetadataDetectorForm, MetadataChannelForm, \
                     MetadataEnvironmentForm, MetadataObjectiveForm, MetadataObjectiveSettingsForm, MetadataStageLabelForm, \
                     MetadataLightSourceForm, MetadataDichroicForm, MetadataMicroscopeForm, \
                     FilesAnnotationForm, WellIndexForm
 
-from controller import BaseController
 from controller.index import BaseIndex
 from controller.basket import BaseBasket
 from controller.container import BaseContainer
-from controller.help import BaseHelp
 from controller.history import BaseCalendar
-from controller.impexp import BaseImpexp
 from controller.search import BaseSearch
 from controller.share import BaseShare
-
-from omeroweb.connector import Server
 
 from omeroweb.webadmin.forms import LoginForm
 from omeroweb.webadmin.webadmin_utils import toBoolean, upgradeCheck
@@ -393,8 +369,6 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
     # get url without request string - used to refresh page after switch user/group etc
     url = reverse(viewname="load_template", args=[menu])
 
-    manager = BaseContainer(conn)
-
     # validate experimenter is in the active group
     active_group = request.session.get('active_group') or conn.getEventContext().groupId
     # prepare members of group...
@@ -639,10 +613,6 @@ def load_data_by_tag(request, o_type=None, o_id=None, conn=None, **kwargs):
     # check view
     view = request.REQUEST.get("view")
 
-    # the index of a field within a well
-    index = getIntOrDefault(request, 'index', 0)
-
-
     # prepare forms
     filter_user_id = request.session.get('user_id')
 
@@ -671,8 +641,6 @@ def load_data_by_tag(request, o_type=None, o_id=None, conn=None, **kwargs):
         manager.loadTags(filter_user_id)
         template = "webclient/data/container_tags_tree.html"
     # load data
-    form_well_index = None
-
 
     context = {'manager':manager, 'insight_ns': omero.rtypes.rstring(omero.constants.metadata.NSINSIGHTTAGSET).val}
     context['template_view'] = view
@@ -723,7 +691,7 @@ def open_astex_viewer(request, obj_type, obj_id, conn=None, **kwargs):
         imgSize = image.getSizeX() * image.getSizeY() * image.getSizeZ()
         if imgSize > targetSize:
             try:
-                import scipy.ndimage
+                import scipy.ndimage  # keep to raise exception if not available  # noqa
                 sizeOptions = {}
                 factor = float(targetSize)/ imgSize
                 f = pow(factor,1.0/3)
@@ -1759,7 +1727,7 @@ def image_as_map(request, imageId, conn=None, **kwargs):
         rsp['Content-Length'] =os.path.getsize(temp.name)
         rsp['Content-Disposition'] = 'attachment; filename=%s' % downloadName
         temp.seek(0)
-    except Exception, x:
+    except Exception:
         temp.close()
         logger.error(traceback.format_exc())
         return handlerInternalError(request, "Cannot generate map (id:%s)." % (imageId))
@@ -1937,7 +1905,7 @@ def update_basket(request, **kwargs):
         request.session.modified = True
         try:
             action = request.REQUEST['action']
-        except Exception, x:
+        except Exception:
             logger.error(traceback.format_exc())
             return handlerInternalError(request, "Attribute error: 'action' is missed.")
         else:
@@ -2045,8 +2013,6 @@ def getObjectUrl(conn, obj):
     """
     base_url = reverse(viewname="load_template", args=['userdata'])
 
-    blitz_obj = None
-    url = None
     # if we have a File Annotation, then we want our URL to be for the parent object...
     if isinstance(obj, omero.model.FileAnnotationI):
         fa = conn.getObject("Annotation", obj.id.val)
@@ -2148,7 +2114,7 @@ def activities(request, conn=None, **kwargs):
                                 request.session['callback'][cbString]['dreport'] = _formatReport(handle)
                     finally:
                         cb.close(close_handle)
-                except Ice.ObjectNotExistException, e:
+                except Ice.ObjectNotExistException:
                     request.session['callback'][cbString]['error'] = 0
                     request.session['callback'][cbString]['status'] = "finished"
                     request.session['callback'][cbString]['dreport'] = None
@@ -2457,9 +2423,7 @@ def script_ui(request, scriptId, conn=None, **kwargs):
         param = inputs[i]
         grouping = param["grouping"]    # E.g  03
         param['children'] = list()
-        c = 1
         while len(inputs) > i+1:
-            nextParam = inputs[i+1]
             nextGrp = inputs[i+1]["grouping"]  # E.g. 03.1
             if nextGrp.split(".")[0] == grouping:
                 param['children'].append(inputs[i+1])

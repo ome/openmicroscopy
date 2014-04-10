@@ -1,21 +1,16 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from django.http import HttpResponseRedirect, HttpResponse, Http404
-from django.core.urlresolvers import reverse
+from django.http import HttpResponse, Http404
 from django.shortcuts import render_to_response
 from omeroweb.webgateway import views as webgateway_views
-from omeroweb.connector import Server
 
 from omeroweb.webclient.decorators import login_required, render_response
-from omeroweb.connector import Connector
 
 from cStringIO import StringIO
 
-import settings
 import logging
-import traceback
 import omero
-from omero.rtypes import rint, rstring
+from omero.rtypes import rstring
 import omero.gateway
 import random
 
@@ -160,8 +155,6 @@ def render_channel_overlay (request, conn=None, **kwargs):
     blue = request.REQUEST.get('blue', None)
 
     # kinda like split-view: we want to get single-channel images...
-    # red...
-    redImg = None
 
     def translate(image, deltaX, deltaY):
 
@@ -261,7 +254,6 @@ def add_annotations (request, conn=None, **kwargs):
     if ns != None:
         ann.setNs(rstring( str(ns) ))
     ann = updateService.saveAndReturnObject(ann)
-    annId = ann.getId().getValue()
     
     images = []
     for iId in imageIds:
@@ -456,9 +448,6 @@ def dataset_split_view (request, datasetId, conn=None, **kwargs):
 
     if channels is None:
         return HttpResponse("<p class='center_message'>No Images in Dataset<p>")
-
-    indexes = range(1, len(channels)+1)
-    c_string = ",".join(["-%s" % str(c) for c in indexes])     # E.g. -1,-2,-3,-4
 
     leftFlags = []
     rightFlags = []

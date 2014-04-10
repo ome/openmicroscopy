@@ -23,7 +23,6 @@ import os
 import omero
 from omeroweb.webgateway.tests.seleniumbase import SeleniumTestBase, Utils
 from random import random
-from django.conf import settings
 
 def createGroup(sel, groupName):
     """
@@ -215,9 +214,6 @@ class AdminTests (WebAdminTestBase):
         groupName3 = "Sel-test3%s" % random()
         
         omeName = 'OmeName%s' % random()
-        firstName = 'Selenium'
-        lastName = 'Test'
-        password = 'secretPassword'
         sel = self.selenium
         
         # first create groups and a new experimenter in both groups

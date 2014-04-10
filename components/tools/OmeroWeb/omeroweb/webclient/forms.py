@@ -26,16 +26,13 @@
 import datetime
 import time
 import logging
-import traceback
 
 from django.conf import settings
 from django import forms
-from django.forms.widgets import Textarea
-from django.forms.widgets import HiddenInput
 from django.core.urlresolvers import reverse
 
 from omeroweb.custom_forms import NonASCIIForm
-from custom_forms import UrlField, MetadataModelChoiceField, \
+from custom_forms import MetadataModelChoiceField, \
                         AnnotationModelMultipleChoiceField, \
                         ObjectModelMultipleChoiceField
 from omeroweb.webadmin.custom_forms import ExperimenterModelChoiceField, \

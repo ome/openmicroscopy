@@ -2,15 +2,12 @@
 # -*- coding: utf-8 -*-
 # coding=utf-8
 
-import time, os, datetime
+import time, os
 import pytest
-import tempfile
 
 from webgateway.webgateway_cache import FileCache, WebGatewayCache, WebGatewayTempFile
 from webgateway import views
 import omero
-
-from decorators import login_required
 
 from django.test.client import Client
 from django.core.handlers.wsgi import WSGIRequest

@@ -316,7 +316,7 @@ def forgotten_password(request, **kwargs):
                 if not conn.isForgottenPasswordSet():
                     error = "This server cannot reset password. Please contact your administrator."
                     conn = None
-            except Exception, x:
+            except Exception:
                 logger.error(traceback.format_exc())
                 error = "Internal server error, please contact administrator."
         
@@ -325,7 +325,7 @@ def forgotten_password(request, **kwargs):
                     conn.reportForgottenPassword(smart_str(request.REQUEST.get('username')), smart_str(request.REQUEST.get('email')))
                     error = "Password was reseted. Check you mailbox."
                     form = None
-                except Exception, x:
+                except Exception:
                     logger.error(traceback.format_exc())
                     error = "Internal server error, please contact administrator."
     else:
@@ -752,8 +752,6 @@ def my_account(request, action=None, conn=None, **kwargs):
                                     'middle_name':experimenter.middleName, 'last_name':experimenter.lastName,
                                     'email':experimenter.email, 'institution':experimenter.institution,
                                     'default_group':defaultGroupId, 'groups':otherGroups})
-    
-    photo_size = conn.getExperimenterPhotoSize()
     
     context = {'form':form, 'ldapAuth': isLdapUser, 'experimenter':experimenter, 'ownedGroups':ownedGroups, 'password_form':password_form}
     context['template'] = template

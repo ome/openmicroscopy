@@ -23,8 +23,6 @@
 # Version: 1.0
 #
 
-from django.core.urlresolvers import reverse
-
 from webclient.controller import BaseController
 
 class BaseBasket(BaseController):
@@ -41,8 +39,6 @@ class BaseBasket(BaseController):
     
     def load_basket(self, request):
         imInBasket = list()
-        dsInBasket = list()
-        prInBasket = list()
 
         for imgId in request.session['imageInBasket']:
             imInBasket.append(imgId)

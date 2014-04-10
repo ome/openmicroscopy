@@ -2,7 +2,8 @@
 # -*- coding: utf-8 -*-
 
 #
-# Copyright (C) 2008-2014 Glencoe Software, Inc. All rights reserved.
+# Copyright (C) 2008-2014 Glencoe Software, Inc. All Rights Reserved.
+# Use is subject to license terms supplied in LICENSE.txt
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -212,7 +213,9 @@ class ITest(object):
             if x and x.find("Created") < 0 and x.find("#") < 0:
                 try:    # if the line has an image ID...
                     imageId = str(long(x.strip()))
-                    pix_ids.append(imageId)
+                    # Occasionally during tests an id is duplicated on stdout
+                    if imageId not in pix_ids:
+                        pix_ids.append(imageId)
                 except:
                     pass
         return pix_ids

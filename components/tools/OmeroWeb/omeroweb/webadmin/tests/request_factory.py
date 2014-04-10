@@ -20,7 +20,7 @@
 #
 
 import urllib
-from urlparse import urlparse, urlunparse, urlsplit
+from urlparse import urlparse, urlsplit
 import sys
 import os
 import re
@@ -32,12 +32,11 @@ except ImportError:
     from StringIO import StringIO
     
 from django.conf import settings
-from django.contrib.auth import authenticate, login
 from django.core.handlers.base import BaseHandler
 from django.core.handlers.wsgi import WSGIRequest
 from django.core.signals import got_request_exception
 from django.core.urlresolvers import reverse
-from django.http import SimpleCookie, HttpRequest, QueryDict
+from django.http import SimpleCookie, QueryDict
 from django.template import TemplateDoesNotExist
 from django.test import signals
 from django.utils.functional import curry
@@ -45,7 +44,7 @@ from django.utils.encoding import smart_str
 from django.utils.http import urlencode
 from django.utils.importlib import import_module
 from django.utils.itercompat import is_iterable
-from django.db import transaction, close_connection
+from django.db import close_connection
 from django.test.utils import ContextList
 
 from omeroweb.connector import Connector

@@ -26,7 +26,6 @@
 import omero
 from omero.rtypes import rstring, rlong
 from django.conf import settings
-from django.core.urlresolvers import reverse
 from django.utils.encoding import smart_str
 import logging
 
@@ -235,7 +234,7 @@ class BaseContainer(BaseController):
         if voxelCount > MAX_VOXELS: return False
 
         try:    # if scipy ndimage is not available for interpolation, can only handle smaller images
-            import scipy.ndimage
+            import scipy.ndimage  # noqa
         except ImportError:
             logger.debug("Failed to import scipy.ndimage - Open Astex Viewer limited to display of smaller images.")
             MAX_VOXELS = (160 * 160 * 160)
@@ -451,7 +450,6 @@ class BaseContainer(BaseController):
         if group is None:
             return False
         perms = str(group.getDetails().getPermissions())
-        rv = False
         if perms in ("rwrw--", "rwra--"):
             return True
         if perms == "rwr---" and (self.conn.isAdmin() or self.conn.isLeader(group.id)):
@@ -719,7 +717,7 @@ class BaseContainer(BaseController):
             # If we retrieved an existing Tag above, link may already exist...
             try:
                 self.conn.saveArray(new_links)
-            except omero.ValidationException, x:
+            except omero.ValidationException:
                 for l in new_links:
                     try:
                         self.conn.saveObject(l)
@@ -746,7 +744,6 @@ class BaseContainer(BaseController):
         fa = self.conn.saveAndReturnObject(fa)
         
         new_links = list()
-        otype = None    # needed if we only have a single Object
         for k in oids:
             if len(oids[k]) > 0:
                 for ob in oids[k]:
@@ -759,7 +756,6 @@ class BaseContainer(BaseController):
                     else:
                         t = k.lower().title()
                         obj = ob
-                    otype = t
                     l_ann = getattr(omero.model, t+"AnnotationLinkI")()
                     l_ann.setParent(obj._obj)
                     l_ann.setChild(fa._obj)
@@ -817,7 +813,7 @@ class BaseContainer(BaseController):
         try:
             # will fail if any of the links already exist
             saved_links = self.conn.getUpdateService().saveAndReturnArray(new_links, self.conn.SERVICE_OPTS)
-        except omero.ValidationException, x:
+        except omero.ValidationException:
             for l in new_links:
                 try:
                     saved_links.append(self.conn.getUpdateService().saveAndReturnObject(l, self.conn.SERVICE_OPTS))

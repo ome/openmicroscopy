@@ -24,7 +24,6 @@
 #
 
 
-import traceback
 import logging
 
 from urlparse import urljoin
