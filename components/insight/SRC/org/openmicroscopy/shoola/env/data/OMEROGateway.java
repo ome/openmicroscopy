@@ -2329,27 +2329,35 @@ class OMEROGateway
 			List<Class> annotationTypes, List annotatorIDs, Parameters options)
 	throws DSOutOfServiceException, DSAccessException
 	{
-		List<String> types = new ArrayList<String>();
-		if (annotationTypes != null && annotationTypes.size() > 0) {
-			types = new ArrayList<String>(annotationTypes.size());
-			Iterator<Class> i = annotationTypes.iterator();
-			String k;
-			while (i.hasNext()) {
-				k = convertAnnotation(i.next());
-				if (k != null)
-					types.add(k);
-			}
-		}
-		Connector c = getConnector(ctx, true, false);
-		try {
-		    IMetadataPrx service = c.getMetadataService();
-			return PojoMapper.asDataObjects(
-					service.loadAnnotations(convertPojos(nodeType).getName(),
-							nodeIDs, types, annotatorIDs, options));
-		} catch (Throwable t) {
-			handleException(t, "Cannot find annotations for "+nodeType+".");
-		}
-		return new HashMap();
+	    try {
+            return gateway.loadAnnotations(ctx, nodeType, nodeIDs, annotationTypes, annotatorIDs, options);
+        } catch (omero.gateway.exception.DSOutOfServiceException e) {
+            throw new DSOutOfServiceException(e);
+        } catch (omero.gateway.exception.DSAccessException e) {
+            throw new DSAccessException(e);
+        }
+	    
+//		List<String> types = new ArrayList<String>();
+//		if (annotationTypes != null && annotationTypes.size() > 0) {
+//			types = new ArrayList<String>(annotationTypes.size());
+//			Iterator<Class> i = annotationTypes.iterator();
+//			String k;
+//			while (i.hasNext()) {
+//				k = convertAnnotation(i.next());
+//				if (k != null)
+//					types.add(k);
+//			}
+//		}
+//		Connector c = getConnector(ctx, true, false);
+//		try {
+//		    IMetadataPrx service = c.getMetadataService();
+//			return PojoMapper.asDataObjects(
+//					service.loadAnnotations(convertPojos(nodeType).getName(),
+//							nodeIDs, types, annotatorIDs, options));
+//		} catch (Throwable t) {
+//			handleException(t, "Cannot find annotations for "+nodeType+".");
+//		}
+//		return new HashMap();
 	}
 
 	/**
@@ -2515,21 +2523,30 @@ class OMEROGateway
 			String property, List ids, Parameters options)
 		throws DSOutOfServiceException, DSAccessException
 	{
-        Connector c = getConnector(ctx, true, false);
-		try {
-		      IMetadataPrx service = c.getMetadataService();
-		        IContainerPrx svc = c.getPojosService();
-			if (TagAnnotationData.class.equals(rootNodeType)) {
-				return service.getTaggedObjectsCount(ids, options);
-			}
-			String p = convertProperty(rootNodeType, property);
-			if (p == null) return null;
-			return PojoMapper.asDataObjects(svc.getCollectionCount(
-					convertPojos(rootNodeType).getName(), p, ids, options));
-		} catch (Throwable t) {
-			handleException(t, "Cannot count the collection.");
-		}
-		return new HashMap();
+    
+            try {
+                return gateway.getCollectionCount(ctx, rootNodeType, property, ids,
+                        options);
+            } catch (omero.gateway.exception.DSOutOfServiceException e) {
+                throw new DSOutOfServiceException(e);
+            } catch (omero.gateway.exception.DSAccessException e) {
+                throw new DSAccessException(e);
+            }
+//        Connector c = getConnector(ctx, true, false);
+//		try {
+//		      IMetadataPrx service = c.getMetadataService();
+//		        IContainerPrx svc = c.getPojosService();
+//			if (TagAnnotationData.class.equals(rootNodeType)) {
+//				return service.getTaggedObjectsCount(ids, options);
+//			}
+//			String p = convertProperty(rootNodeType, property);
+//			if (p == null) return null;
+//			return PojoMapper.asDataObjects(svc.getCollectionCount(
+//					convertPojos(rootNodeType).getName(), p, ids, options));
+//		} catch (Throwable t) {
+//			handleException(t, "Cannot count the collection.");
+//		}
+//		return new HashMap();
 	}
 
 	/**
