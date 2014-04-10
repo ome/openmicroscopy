@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.util.ui.PermissionMenu 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2012 University of Dundee & Open Microscopy Environment.
+ *  Copyright (C) 2006-2014 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
  *
  *
@@ -52,7 +52,7 @@ public class PermissionMenu
 	/**
 	 * The term used to remove links.
 	 */
-	public static final String UNLINK = "Unlink";
+	public static final String UNLINK = "Remove";
 	
 	/**
 	 * The term used to remove links.

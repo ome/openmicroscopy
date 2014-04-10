@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.data.util.StructuredDataResults 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -81,6 +81,9 @@ public class StructuredDataResults
 	/** The object the results are for. */
 	private DataObject					relatedObject;
 	
+	/** The collection of links  for in-place imports.*/
+	private Collection<AnnotationData> transferlinks;
+
 	/** 
 	 * Collection of parents. 
 	 * Filled when the related object is an <code>image</code> or
@@ -318,4 +321,22 @@ public class StructuredDataResults
 		this.annotationLinks = annotationLinks;
 	}
 	
+	/**
+	 * Sets the collection of transferlink annotations (in-place imports)
+	 * @param transferlinks Transferlink annotations to set
+	 */
+	public void setTransferlinks(Collection<AnnotationData> transferlinks)
+	{
+		this.transferlinks = transferlinks;
+	}
+	
+	/**
+	 * Returns the collection of links (in-place imports).
+	 * 
+	 * @return See above.
+	 */
+	public Collection<AnnotationData> getTransferLinks()
+	{
+		return transferlinks;
+	}
 }

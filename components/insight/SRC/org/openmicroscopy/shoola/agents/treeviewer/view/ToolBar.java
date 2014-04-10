@@ -28,7 +28,6 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Point;
-import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -60,10 +59,7 @@ import javax.swing.JSeparator;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.SwingConstants;
-import javax.swing.SwingUtilities;
 import javax.swing.border.BevelBorder;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 
 //Third-party libraries
 import org.apache.commons.collections.CollectionUtils;
@@ -83,6 +79,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.util.DataMenuItem;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.util.ui.ScriptMenuItem;
+import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -155,9 +152,6 @@ class ToolBar
     /** Used to sort the list of users.*/
     private ViewerSorter sorter;
 
-    /** Button indicating to add the user to the display.*/
-    private JButton addToDisplay;
-
     /** The menu displaying the users option.*/
     private JPopupMenu popupMenu;
 
@@ -170,6 +164,77 @@ class ToolBar
     /** Label indicating the import status.*/
     private JXBusyLabel importLabel;
 
+    /**
+     * Sets either the user display or group display.
+     *
+     * @param userDisplay Pass <code>true</code> for user display,
+     *                    <code>false</code> for group display.
+     */
+    private void handleSelectionDisplay(boolean userDisplay)
+    {
+        int n = popupMenu.getComponentCount();
+        GroupItem item;
+        Component c;
+        for (int i = 0; i < n; i++) {
+            c = popupMenu.getComponent(i);
+            if (c instanceof GroupItem) {
+                item = (GroupItem) c;
+                item.setDisplay(userDisplay);
+            }
+        }
+        int mode = LookupNames.EXPERIMENTER_DISPLAY;
+        if (!userDisplay) mode = LookupNames.GROUP_DISPLAY;
+        controller.setDisplayMode(mode);
+    }
+
+    /**
+     * Selects or de-selects all the groups.
+     *
+     * @param select Pass <code>true</code> to select all the groups,
+     *               <code>false</code> otherwise.
+     */
+    private void handleAllGroupsSelection(boolean select)
+    {
+        int n = popupMenu.getComponentCount();
+        GroupItem item;
+        Component c;
+        for (int i = 0; i < n; i++) {
+            c = popupMenu.getComponent(i);
+            if (c instanceof GroupItem) {
+                item = (GroupItem) c;
+                if (item.getGroup() != null) {
+                    item.setMenuSelected(select, false);
+                    if (select) item.selectUsers(false, true);
+                }
+            }
+        }
+        handleSelection();
+    }
+
+    /**
+     * Selects or de-selects all the users.
+     *
+     * @param select Pass <code>true</code> to select all the groups,
+     *               <code>false</code> otherwise.
+     */
+    private void handleAllUsersSelection(boolean select)
+    {
+        int n = popupMenu.getComponentCount();
+        GroupItem item;
+        Component c;
+        for (int i = 0; i < n; i++) {
+            c = popupMenu.getComponent(i);
+            if (c instanceof GroupItem) {
+                item = (GroupItem) c;
+                if (item.getGroup() != null) {
+                    item.setMenuSelected(true, false);
+                    item.selectUsers(true, select);
+                }
+            }
+        }
+        handleSelection();
+    }
+
     /** Handles the selection of users.*/
     private void handleSelection()
     {
@@ -178,20 +243,35 @@ class ToolBar
         Component c;
         boolean b;
         List<ExperimenterData> users;
+        int count = 0;
+        int total = 0;
+        GroupItem allGroups = null;
         for (int i = 0; i < n; i++) {
             c = popupMenu.getComponent(i);
             if (c instanceof GroupItem) {
                 item = (GroupItem) c;
-                b = !item.isMenuSelected();
-                users = item.getSeletectedUsers();
-                if (n == 1) {
-                    if (b) { //group not selected
-                        users = new ArrayList<ExperimenterData>();
+                if (item.getGroup() != null) {
+                    total++;
+                    b = !item.isMenuSelected();
+                    users = item.getSeletectedUsers();
+                    
+                    if (n == 1) {
+                        if (b) { //group not selected
+                            users = new ArrayList<ExperimenterData>();
+                        }
+                        b = false;
                     }
-                    b = false;
+                    if (!b) count++;
+                    controller.setSelection(item.getGroup(), users, b);
+                } else {
+                    if (GroupItem.ALL_GROUPS.equals(item.getText())) {
+                        allGroups = item;
+                    }
                 }
-                controller.setSelection(item.getGroup(), users, b);
             }
+        }
+        if (allGroups != null) {
+            allGroups.setMenuSelected(total == count, false);
         }
     }
 
@@ -234,12 +314,14 @@ class ToolBar
 
     /**
      * Creates the menu hosting the users belonging to the specified group.
+     * Returns <code>true</code> if the group is selected, <code>false</code>
+     * otherwise.
      * 
      * @param groupItem The item hosting the group.
      * @param size The number of groups.
      * @return See above.
      */
-    private void createGroupMenu(GroupItem groupItem, int size)
+    private boolean createGroupMenu(GroupItem groupItem, int size)
     {
         long loggedUserID = model.getUserDetails().getId();
         GroupData group = groupItem.getGroup();
@@ -248,46 +330,55 @@ class ToolBar
         TreeImageDisplay refNode = null;
         List<TreeImageDisplay> nodes;
         ExperimenterVisitor visitor;
-        //Find the group already displayed
-        visitor = new ExperimenterVisitor(browser, group.getId());
-        browser.accept(visitor);
-        nodes = visitor.getNodes();
-        if (nodes.size() == 1) {
-            refNode = nodes.get(0);
-        }
-        visitor = new ExperimenterVisitor(browser, -1, -1);
-        if (refNode != null) refNode.accept(visitor);
-        else if (size == 1) browser.accept(visitor);
-        nodes = visitor.getNodes();
         List<Long> users = new ArrayList<Long>();
-        TreeImageDisplay n;
-        if (CollectionUtils.isNotEmpty(nodes)) {
-            Iterator<TreeImageDisplay> j = nodes.iterator();
-            while (j.hasNext()) {
-                n = j.next();
-                if (n.getUserObject() instanceof ExperimenterData) {
-                    users.add(((ExperimenterData) n.getUserObject()).getId());
+        //Find the group already displayed
+        if (group != null && size > 0) {
+            visitor = new ExperimenterVisitor(browser, group.getId());
+            browser.accept(visitor);
+            nodes = visitor.getNodes();
+            if (nodes.size() == 1) {
+                refNode = nodes.get(0);
+            }
+            visitor = new ExperimenterVisitor(browser, -1, -1);
+            if (refNode != null) refNode.accept(visitor);
+            else if (size == 1) browser.accept(visitor);
+            nodes = visitor.getNodes();
+            
+            TreeImageDisplay n;
+            if (CollectionUtils.isNotEmpty(nodes)) {
+                Iterator<TreeImageDisplay> j = nodes.iterator();
+                while (j.hasNext()) {
+                    n = j.next();
+                    if (n.getUserObject() instanceof ExperimenterData) {
+                        users.add(((ExperimenterData) n.getUserObject()).getId());
+                    }
+                }
+                if (size == 1) {
+                    groupItem.setMenuSelected(true, false);
                 }
             }
-            if (size == 1) {
-                groupItem.setMenuSelected(true, false);
-            }
         }
+        
         //now add the users
         List<DataMenuItem> items = new ArrayList<DataMenuItem>();
         JPanel p = new JPanel();
         p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
-        List l = sorter.sort(group.getLeaders());
+        List l = null;
+        if (group != null) l = sorter.sort(group.getLeaders());
         Iterator i;
         ExperimenterData exp;
 
         DataMenuItem item, allUser;
         JPanel list;
-        int level = group.getPermissions().getPermissionsLevel();
+        
         boolean view = true;
-        if (level == GroupData.PERMISSIONS_PRIVATE) {
-            view = model.isAdministrator() || model.isGroupOwner(group);
+        if (group != null) {
+            int level = group.getPermissions().getPermissionsLevel();
+            if (level == GroupData.PERMISSIONS_PRIVATE) {
+                view = model.isAdministrator() || model.isGroupOwner(group);
+            }
         }
+
         list = new JPanel();
         list.setLayout(new BoxLayout(list, BoxLayout.Y_AXIS));
         allUser = new DataMenuItem(DataMenuItem.ALL_USERS_TEXT, true);
@@ -318,7 +409,7 @@ class ToolBar
             }
         }
 
-        l = sorter.sort(group.getMembersOnly());
+        if (group != null) l = sorter.sort(group.getMembersOnly());
         if (CollectionUtils.isNotEmpty(l)) {
             total += l.size();
             i = l.iterator();
@@ -340,7 +431,7 @@ class ToolBar
                 p.add(UIUtilities.buildComponentPanel(list));
             }
         }
-        allUser.setSelected(total == count);
+        allUser.setSelected(total != 0 && total == count);
         allUser.addPropertyChangeListener(groupItem);
         groupItem.add(new JScrollPane(p));
         groupItem.setUsersItem(items);
@@ -351,67 +442,15 @@ class ToolBar
                 String name = evt.getPropertyName();
                 if (GroupItem.USER_SELECTION_PROPERTY.equals(name))
                     handleSelection();
+                else if (GroupItem.ALL_GROUPS_SELECTION_PROPERTY.equals(name))
+                    handleAllGroupsSelection(true);
+                else if (GroupItem.ALL_GROUPS_DESELECTION_PROPERTY.equals(name))
+                    handleAllGroupsSelection(false);
+                else if (GroupItem.ALL_USERS_SELECTION_PROPERTY.equals(name))
+                    handleAllUsersSelection((Boolean) evt.getNewValue());
             }
         });
-    }
-
-    /**
-     * Creates the menu displaying the groups
-     * 
-     * @param source The invoker.
-     * @param p The location of the mouse clicked.
-     */
-    private void createGroupsMenu(Component source, Point p)
-    {
-        if (!source.isEnabled()) return;
-        Collection groups = model.getGroups();
-        if (CollectionUtils.isEmpty(groups)) return;
-        List sortedGroups = sorter.sort(groups);
-        popupMenu.removeAll();
-        GroupData group;
-        //Determine the group already displayed.
-        Browser browser = model.getBrowser(Browser.PROJECTS_EXPLORER);
-        List<TreeImageDisplay> nodes;
-        ExperimenterVisitor visitor;
-        //Find the group.
-        visitor = new ExperimenterVisitor(browser, -1);
-        browser.accept(visitor);
-        nodes = visitor.getNodes();
-        Iterator<TreeImageDisplay> k = nodes.iterator();
-        List<Long> groupIds = new ArrayList<Long>();
-        long id;
-        while (k.hasNext()) {
-            id = k.next().getUserObjectId();
-            if (id >= 0) groupIds.add(id);
-        }
-
-        //Create the group menu.
-        Iterator i = sortedGroups.iterator();
-        DataMenuItem item;
-        while (i.hasNext()) {
-            group = (GroupData) i.next();
-            item = new DataMenuItem(group, true);
-            item.setSelected(groupIds.contains(group.getId()));
-            item.addChangeListener(new ChangeListener() {
-
-                @Override
-                public void stateChanged(ChangeEvent evt) {
-                    handleGroupSelection();
-                }
-            });
-            popupMenu.add(item);
-        }
-        //Check the size of the menu
-        Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
-
-        //Set the size
-        Dimension d = popupMenu.getPreferredSize();
-        Point p1 = source.getLocation();
-        SwingUtilities.convertPointToScreen(p1, source);
-        int h = dim.height-p1.y-30; //max size.
-        int diff = p1.y+d.height;
-        if (diff > h) popupMenu.setPopupSize(d.width+20, h);
-        popupMenu.show(source, p.x, p.y);
+        return groupItem.isMenuSelected();
     }
 
     /**
@@ -447,16 +486,57 @@ class ToolBar
 
         //Create the group menu.
         Iterator i = sortedGroups.iterator();
-        GroupItem item;
         int size = sortedGroups.size();
         long userID = model.getExperimenter().getId();
+
+        //First add item to toggle between users and group display
+        DataMenuItem data = new DataMenuItem(DataMenuItem.USERS_TEXT, null);
+        data.setSelected(
+                model.getDisplayMode() == LookupNames.EXPERIMENTER_DISPLAY);
+        data.addPropertyChangeListener(new PropertyChangeListener() {
+
+            @Override
+            public void propertyChange(PropertyChangeEvent evt) {
+                String name = evt.getPropertyName();
+                if (DataMenuItem.ITEM_SELECTED_PROPERTY.equals(name)) {
+                    DataMenuItem data = (DataMenuItem) evt.getNewValue();
+                    handleSelectionDisplay(data.isSelected());
+                }
+            }
+        });
+        JPanel panel = new JPanel();
+        panel.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
+        panel.setBorder(null);
+        IconManager icons= IconManager.getInstance();
+        panel.add(new JLabel(icons.getIcon(IconManager.TRANSPARENT)));
+        panel.add(data);
+        popupMenu.add(panel);
+        popupMenu.add(new JSeparator());
+        GroupItem item;
+        GroupItem allGroup = null;
+        //First add option to add all the groups.
+        if (size > 1) {
+            item = new GroupItem(false);
+            item.setUserID(userID);
+            createGroupMenu(item, 0);
+            popupMenu.add(item);
+            popupMenu.add(new JSeparator());
+            allGroup = item;
+        }
+
+        boolean selected;
+        int count = 0;
         while (i.hasNext()) {
             group = (GroupData) i.next();
             boolean b = groupIds.contains(group.getId());
             item = new GroupItem(group, b, size > 1);
             item.setUserID(userID);
-            createGroupMenu(item, size);
+            selected = createGroupMenu(item, size);
             popupMenu.add(item);
+            if (selected) count++;
+        }
+        if (allGroup != null) {
+            allGroup.setMenuSelected(count == sortedGroups.size(), false);
         }
         popupMenu.show(source, p.x, p.y);
     }
@@ -573,16 +653,8 @@ class ToolBar
              */
             public void mousePressed(MouseEvent me)
             {
-                switch (model.getDisplayMode()) {
-                case TreeViewer.GROUP_DISPLAY:
-                    createGroupsMenu((Component) me.getSource(),
-                            me.getPoint());
-                    break;
-                case TreeViewer.EXPERIMENTER_DISPLAY:
-                default:
-                    createGroupsAndUsersMenu((Component) me.getSource(),
-                            me.getPoint());
-                }
+                createGroupsAndUsersMenu((Component) me.getSource(),
+                        me.getPoint());
             }
         };
 
@@ -987,23 +1059,11 @@ class ToolBar
     {
         Browser browser = model.getSelectedBrowser();
         if (browser != null &&
-                browser.getBrowserType() == Browser.ADMIN_EXPLORER)
+                browser.getBrowserType() == Browser.ADMIN_EXPLORER) {
+            menuButton.setEnabled(false);
             return;
-        Collection set = TreeViewerAgent.getAvailableUserGroups();
-        boolean b = set != null && set.size() > 1;
+        }
         menuButton.setEnabled(true);
-        if (model.getDisplayMode() == TreeViewer.GROUP_DISPLAY) {
-            b = true;
-        }
-
-        if (!b) {
-            GroupData group = model.getSelectedGroup();
-            if (group.getPermissions().getPermissionsLevel() ==
-                    GroupData.PERMISSIONS_PRIVATE)
-                menuButton.setEnabled(model.isAdministrator() ||
-                        model.isGroupOwner(group));
-        }
-        repaint();
     }
 
     /** Invokes when import is going on or finished.*/

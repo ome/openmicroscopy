@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.treeviewer.actions.BrowserManageAction
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -103,16 +103,22 @@ public class BrowserManageAction
     private static final String DESCRIPTION_ADMIN = "Create new Group or User.";
 
     /** The description of the action if the index is {@link #COPY}. */
-    private static final String DESCRIPTION_COPY = 
-    											"Copy the selected elements.";
-
+    private static final String DESCRIPTION_COPY_LINK = "Copy link(s) to the selected element(s) into the clipboard.";
+    
+    /** Alternative description of the action if the index is {@link #COPY}. */
+    private static final String DESCRIPTION_COPY = "Copy the selected element(s) into the clipboard.";
+    
     /** The description of the action if the index is {@link #PASTE}. */
-    private static final String DESCRIPTION_PASTE = 
-    									"Paste the selected elements.";
+    private static final String DESCRIPTION_PASTE_LINK = "Paste link(s) from the clipboard.";
+    
+    /** Alternative description of the action if the index is {@link #PASTE}. */
+    private static final String DESCRIPTION_PASTE = "Paste element(s) from the clipboard.";
 
     /** The description of the action if the index is {@link #CUT}. */
-    private static final String DESCRIPTION_CUT = 
-    								"Cut the selected elements.";
+    private static final String DESCRIPTION_CUT_LINK = "Cut the selected link(s).";
+    
+    /** Alternative description of the action if the index is {@link #CUT}. */
+    private static final String DESCRIPTION_CUT = "Cut the selected element(s).";
 
     /** The location of the mouse pressed. */
     private Point 	point;
@@ -345,6 +351,9 @@ public class BrowserManageAction
     		setEnabled(TreeViewerAgent.isAdministrator());
     		return;
     	}
+    	
+    	adaptActionNameDescription(model.getBrowserType());
+    	
     	if (selectedDisplay == null) {
     		handleExperimenter(model.getLastSelectedDisplay());
     		return;
@@ -367,6 +376,47 @@ public class BrowserManageAction
 	    			setEnabled(exp.getId() == id);
 	    		} else setEnabled(model.canLink(ho));
 		}
+    }
+    
+    /**
+     * Adapt the name and description of this action with respect to the
+     * selected browser
+     * 
+     * @param browserType
+     *            The type of the {@link Browser}
+     */
+    private void adaptActionNameDescription(int browserType) {
+        if (browserType == Browser.ADMIN_EXPLORER) {
+            switch (index) {
+                case CUT:
+                    putValue(Action.SHORT_DESCRIPTION,
+                            UIUtilities.formatToolTipText(DESCRIPTION_CUT));
+                    break;
+                case COPY:
+                    putValue(Action.SHORT_DESCRIPTION,
+                            UIUtilities.formatToolTipText(DESCRIPTION_COPY));
+                    break;
+                case PASTE:
+                    putValue(Action.SHORT_DESCRIPTION,
+                            UIUtilities.formatToolTipText(DESCRIPTION_PASTE));
+            }
+        } else {
+            switch (index) {
+                case CUT:
+                    putValue(Action.SHORT_DESCRIPTION,
+                            UIUtilities.formatToolTipText(DESCRIPTION_CUT_LINK));
+                    break;
+                case COPY:
+                    putValue(Action.SHORT_DESCRIPTION,
+                            UIUtilities
+                                    .formatToolTipText(DESCRIPTION_COPY_LINK));
+                    break;
+                case PASTE:
+                    putValue(Action.SHORT_DESCRIPTION,
+                            UIUtilities
+                                    .formatToolTipText(DESCRIPTION_PASTE_LINK));
+            }
+        }
     }
     
 	/**

@@ -37,9 +37,9 @@ function [client, session] = loadOmero(varargin)
 %   [client, session] = loadOmero(config_file) alsoe creates a session
 %   using the configuration file located in the input config_file path.
 %
-% See also: CONNECTOMERO, UNLOADOMERO
+% See also: CONNECTOMERO, UNLOADOMERO, GETOMEROJARS
 
-% Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
+% Copyright (C) 2013-2014 University of Dundee & Open Microscopy Environment.
 % All rights reserved.
 %
 % This program is free software; you can redistribute it and/or modify
@@ -56,27 +56,22 @@ function [client, session] = loadOmero(varargin)
 % with this program; if not, write to the Free Software Foundation, Inc.,
 % 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-
 % Check if "omero.client" is already on the classpath, if not
 % then add the omero_client.jar to the javaclasspath.
 if exist('omero.client','class') == 0
     
     disp('');
     disp('--------------------------');
-    disp('OmeroMatlab Toolbox ');
+    disp('OMERO.matlab Toolbox ');
     disp(omeroVersion);
     disp('--------------------------');
     disp('');
     
-    % Add the omero_client and guava-jdk5 jar to the Java dynamic classpath
-    % This will allow the import omero.* statement to pass
-    % successfully.
-    libpath = fullfile(findOmero, 'libs');
-    omero_client_jar = fullfile(libpath, 'omero_client.jar');
-    guavajdk5_jar = fullfile(libpath, 'guava-jdk5.jar');
-    javaaddpath(omero_client_jar);
+    % Add the JARs required by OMERO.matlab to the Java dynamic classpath
+    % This will allow the import omero.* statement to pass successfully.
+    omeroJars = getOmeroJars();
+    cellfun(@javaaddpath, omeroJars);
     import omero.*;
-    javaaddpath(guavajdk5_jar);
     
     % Also add the OmeroM directory and its subdirectories to the path
     % so that functions and demos are available even if the user changes

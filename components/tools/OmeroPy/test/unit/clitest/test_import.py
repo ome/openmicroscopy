@@ -20,7 +20,7 @@ omeroDir = rootDir / "build"
 pluginDir = rootDir / "src" / "omero" / "plugins"
 
 
-def register(key, klass, help):
+def register(key, klass, help, epilog=None):
     map[key] = klass
 loc = {"register": register}
 execfile(str(pluginDir/"import.py"), loc)

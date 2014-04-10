@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.metadata.editor.EditorModel 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -4356,5 +4356,15 @@ class EditorModel
     boolean isSystemGroup(long id, String key)
     {
         return MetadataViewerAgent.getRegistry().getAdminService().isSecuritySystemGroup(id, key);
+    }
+    
+    /**
+     * Returns <code>true</code> if the file is an inplace import <code>false</code> otherwise.
+     * @return See above.
+     */
+    boolean isInplaceImport() {
+    	StructuredDataResults data = parent.getStructuredData();
+		if (data == null) return false;
+    	return CollectionUtils.isNotEmpty(data.getTransferLinks());
     }
 }

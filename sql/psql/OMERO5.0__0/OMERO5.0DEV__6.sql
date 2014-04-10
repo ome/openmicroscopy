@@ -185,8 +185,27 @@ CREATE FUNCTION upgrade_import_logs() RETURNS void AS $$
 
             UPDATE originalfile SET mimetype = 'application/omero-log-file' WHERE id = import.log_id;
 
-            DELETE FROM filesetannotationlink WHERE id = import.old_link_id;
-
+            DELETE FROM annotationannotationlink WHERE parent = import.annotation_id OR child = import.annotation_id;
+            DELETE FROM channelannotationlink WHERE child = import.annotation_id;
+            DELETE FROM datasetannotationlink WHERE child = import.annotation_id;
+            DELETE FROM experimenterannotationlink WHERE child = import.annotation_id;
+            DELETE FROM experimentergroupannotationlink WHERE child = import.annotation_id;
+            DELETE FROM filesetannotationlink WHERE child = import.annotation_id;
+            DELETE FROM imageannotationlink WHERE child = import.annotation_id;
+            DELETE FROM namespaceannotationlink WHERE child = import.annotation_id;
+            DELETE FROM nodeannotationlink WHERE child = import.annotation_id;
+            DELETE FROM originalfileannotationlink WHERE child = import.annotation_id;
+            DELETE FROM pixelsannotationlink WHERE child = import.annotation_id;
+            DELETE FROM planeinfoannotationlink WHERE child = import.annotation_id;
+            DELETE FROM plateacquisitionannotationlink WHERE child = import.annotation_id;
+            DELETE FROM plateannotationlink WHERE child = import.annotation_id;
+            DELETE FROM projectannotationlink WHERE child = import.annotation_id;
+            DELETE FROM reagentannotationlink WHERE child = import.annotation_id;
+            DELETE FROM roiannotationlink WHERE child = import.annotation_id;
+            DELETE FROM screenannotationlink WHERE child = import.annotation_id;
+            DELETE FROM sessionannotationlink WHERE child = import.annotation_id;
+            DELETE FROM wellannotationlink WHERE child = import.annotation_id;
+            DELETE FROM wellsampleannotationlink WHERE child = import.annotation_id;
             DELETE FROM annotation WHERE id = import.annotation_id;
         END LOOP;
     END;

@@ -1,9 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # 
-# 
-# 
-# Copyright (c) 2008 University of Dundee. 
+# Copyright (c) 2008-2014 University of Dundee. 
 # 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -53,7 +51,7 @@ class LoginForm(NonASCIIForm):
             
     username = forms.CharField(max_length=50, widget=forms.TextInput(attrs={'size':22}))
     password = forms.CharField(max_length=50, widget=forms.PasswordInput(attrs={'size':22, 'autocomplete': 'off'}))
-    ssl = forms.BooleanField(required=False, help_text='<img src="%swebgateway/img/nuvola_encrypted_grey16.png" title="Real-time encrypted data transfer can be turned on by checking the box, but it will slow down the data access. Turning it off does not affect the connection to the server which is always secure." alt="SSL"' % settings.STATIC_URL)
+    ssl = forms.BooleanField(required=False, help_text='<img src="%swebgateway/img/nuvola_encrypted_grey16.png" title="Real-time encrypted data transfer can be turned on by checking the box, but it will slow down the data access. Turning it off does not affect the connection to the server which is always secure." alt="SSL"/>' % settings.STATIC_URL)
 
 class ForgottonPasswordForm(NonASCIIForm):
     

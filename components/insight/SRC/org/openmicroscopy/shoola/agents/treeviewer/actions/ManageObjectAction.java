@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.treeviewer.actions.ManageObjectAction 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -83,32 +83,47 @@ public class ManageObjectAction
     public static final int CUT = 3;
 
     /** The default name of the action if the index is {@link #COPY}. */
+    private static final String NAME_COPY_LINK = "Copy Link";
+    
+    /** The description of the action if the index is {@link #COPY}. */
+    private static final String DESCRIPTION_COPY_LINK =
+            "Copy link(s) to the selected element(s) into the clipboard.";
+    
+    /** Alternative name of the action if the index is {@link #COPY} */
     private static final String NAME_COPY = "Copy";
 
-    /** The description of the action if the index is {@link #COPY}. */
-    private static final String DESCRIPTION_COPY =
-            "Copy the selected elements.";
+    /** Alternative description of the action if the index is {@link #COPY}. */
+    private static final String DESCRIPTION_COPY = "Copy the selected element(s) into the clipboard.";
 
     /** The default name of the action if the index is {@link #PASTE}. */
+    private static final String NAME_PASTE_LINK = "Paste Link";
+    
+    /** The description of the action if the index is {@link #PASTE}. */
+    private static final String DESCRIPTION_PASTE_LINK = "Paste link(s) from the clipboard.";
+    
+    /** Alternative default name of the action if the index is {@link #PASTE}. */
     private static final String NAME_PASTE = "Paste";
 
-    /** The description of the action if the index is {@link #PASTE}. */
-    private static final String DESCRIPTION_PASTE =
-            "Paste the selected elements.";
+    /** Alternative description of the action if the index is {@link #PASTE}. */
+    private static final String DESCRIPTION_PASTE = "Paste element(s) from the clipboard.";
 
     /** The default name of the action if the index is {@link #REMOVE}. */
     private static final String NAME_REMOVE = "Delete";
 
     /** The description of the action if the index is {@link #REMOVE}. */
-    private static final String DESCRIPTION_REMOVE =
-            "Delete the selected elements.";
+    private static final String DESCRIPTION_REMOVE = "Delete the selected elements.";
 
     /** The default name of the action if the index is {@link #CUT}. */
-    private static final String NAME_CUT = "Cut";
+    private static final String NAME_CUT_LINK = "Cut Link";
 
     /** The description of the action if the index is {@link #CUT}. */
-    private static final String DESCRIPTION_CUT =
-            "Cut the selected elements.";
+    private static final String DESCRIPTION_CUT_LINK = "Cut the selected link(s).";
+    
+    /** Alternative default name of the action if the index is {@link #CUT}. */
+    private static final String NAME_CUT = "Cut";
+
+    /** Alternative description of the action if the index is {@link #CUT}. */
+    private static final String DESCRIPTION_CUT = "Cut the selected element(s).";
 
     /** The system group to check.*/
     private static final String[] KEYS = {GroupData.SYSTEM, GroupData.GUEST};
@@ -131,17 +146,17 @@ public class ManageObjectAction
     {
         switch (value) {
         case COPY:
-            name = NAME_COPY;
-            putValue(Action.NAME, NAME_COPY);
+            name = NAME_COPY_LINK;
+            putValue(Action.NAME, NAME_COPY_LINK);
             putValue(Action.SHORT_DESCRIPTION,
-                    UIUtilities.formatToolTipText(DESCRIPTION_COPY));
+                    UIUtilities.formatToolTipText(DESCRIPTION_COPY_LINK));
             putValue(Action.SMALL_ICON, icons.getIcon(IconManager.COPY));
             break;
         case PASTE:
-            name = NAME_PASTE;
-            putValue(Action.NAME, NAME_PASTE);
+            name = NAME_PASTE_LINK;
+            putValue(Action.NAME, NAME_PASTE_LINK);
             putValue(Action.SHORT_DESCRIPTION,
-                    UIUtilities.formatToolTipText(DESCRIPTION_PASTE));
+                    UIUtilities.formatToolTipText(DESCRIPTION_PASTE_LINK));
             putValue(Action.SMALL_ICON, icons.getIcon(IconManager.PASTE));
             break;
         case REMOVE:
@@ -152,10 +167,10 @@ public class ManageObjectAction
             putValue(Action.SMALL_ICON, icons.getIcon(IconManager.DELETE));
             break;
         case CUT:
-            name = NAME_CUT;
-            putValue(Action.NAME, NAME_CUT);
+            name = NAME_CUT_LINK;
+            putValue(Action.NAME, NAME_CUT_LINK);
             putValue(Action.SHORT_DESCRIPTION,
-                    UIUtilities.formatToolTipText(DESCRIPTION_CUT));
+                    UIUtilities.formatToolTipText(DESCRIPTION_CUT_LINK));
             putValue(Action.SMALL_ICON, icons.getIcon(IconManager.CUT));
             break;
         default:
@@ -203,6 +218,59 @@ public class ManageObjectAction
     }
 
     /**
+     * Adapt the name and description of this action with respect to the
+     * selected browser
+     * 
+     * @param browserType
+     *            The type of the {@link Browser}
+     */
+    private void adaptActionNameDescription(int browserType) {
+        if (browserType == Browser.ADMIN_EXPLORER) {
+            switch (index) {
+                case CUT:
+                    name = NAME_CUT;
+                    putValue(Action.NAME, NAME_CUT);
+                    putValue(Action.SHORT_DESCRIPTION,
+                            UIUtilities.formatToolTipText(DESCRIPTION_CUT));
+                    break;
+                case COPY:
+                    name = NAME_COPY;
+                    putValue(Action.NAME, NAME_COPY);
+                    putValue(Action.SHORT_DESCRIPTION,
+                            UIUtilities.formatToolTipText(DESCRIPTION_COPY));
+                    break;
+                case PASTE:
+                    name = NAME_PASTE;
+                    putValue(Action.NAME, NAME_PASTE);
+                    putValue(Action.SHORT_DESCRIPTION,
+                            UIUtilities.formatToolTipText(DESCRIPTION_PASTE));
+            }
+        } else {
+            switch (index) {
+                case CUT:
+                    name = NAME_CUT_LINK;
+                    putValue(Action.NAME, NAME_CUT_LINK);
+                    putValue(Action.SHORT_DESCRIPTION,
+                            UIUtilities.formatToolTipText(DESCRIPTION_CUT_LINK));
+                    break;
+                case COPY:
+                    name = NAME_COPY_LINK;
+                    putValue(Action.NAME, NAME_COPY_LINK);
+                    putValue(Action.SHORT_DESCRIPTION,
+                            UIUtilities
+                                    .formatToolTipText(DESCRIPTION_COPY_LINK));
+                    break;
+                case PASTE:
+                    name = NAME_PASTE_LINK;
+                    putValue(Action.NAME, NAME_PASTE_LINK);
+                    putValue(Action.SHORT_DESCRIPTION,
+                            UIUtilities
+                                    .formatToolTipText(DESCRIPTION_PASTE_LINK));
+            }
+        }
+    }
+    
+    /**
      * Sets the action enabled depending on the selected type.
      * @see TreeViewerAction#onDisplayChange(TreeImageDisplay)
      */
@@ -217,6 +285,9 @@ public class ManageObjectAction
             setEnabled(false);
             return;
         }
+        
+        adaptActionNameDescription(browser.getBrowserType());
+        
         Object ho = selectedDisplay.getUserObject();
         TreeImageDisplay[] selected;
         int count = 0;

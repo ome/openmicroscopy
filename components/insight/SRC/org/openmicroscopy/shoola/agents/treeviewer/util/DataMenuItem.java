@@ -53,12 +53,16 @@ public class DataMenuItem
     /** The default text to select all the users.*/
     public static final String ALL_USERS_TEXT;
 
+    /** The default text to toggle between users and group display.*/
+    public static final String USERS_TEXT;
+    
     /** Bound property indicating if the item is selected or not.*/
     public static final String ITEM_SELECTED_PROPERTY;
 
     static {
         ITEM_SELECTED_PROPERTY = "itemSelectedProperty";
         ALL_USERS_TEXT = "Show All Users";
+        USERS_TEXT = "Display Users";
     }
 
     /** The object to host.*/

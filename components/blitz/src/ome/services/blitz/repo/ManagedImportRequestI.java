@@ -37,6 +37,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
+import ch.qos.logback.classic.ClassicConstants;
+
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.OverlayMetadataStore;
 import ome.formats.importer.ImportConfig;
@@ -266,6 +268,7 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
         } catch (Throwable e) {
             log.error(e.toString()); // slf4j migration: toString()
         }
+        log.info(ClassicConstants.FINALIZE_SESSION_MARKER, "Finalizing log file.");
         MDC.clear();
     }
 
