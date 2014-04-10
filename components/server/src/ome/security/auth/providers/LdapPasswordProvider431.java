@@ -93,8 +93,7 @@ public class LdapPasswordProvider431 extends ConfigurablePasswordProvider {
                 if (readOnly == true) {
                     throw new IllegalStateException("Cannot create user!");
                 }
-                boolean login = ldapUtil.createUserFromLdap(user, password,
-                        true);
+                boolean login = ldapUtil.createUserFromLdap(user, password);
                 // Use default logic if the user creation did not exist,
                 // because there may be another non-database login mechanism
                 // which should also be given a chance.
