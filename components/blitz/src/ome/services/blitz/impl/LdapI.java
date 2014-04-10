@@ -13,6 +13,7 @@ import java.util.List;
 import ome.api.ILdap;
 import ome.services.blitz.util.BlitzExecutor;
 import omero.ServerError;
+import omero.api.AMD_ILdap_createUserFromLdap;
 import omero.api.AMD_ILdap_findDN;
 import omero.api.AMD_ILdap_findExperimenter;
 import omero.api.AMD_ILdap_getSetting;
@@ -101,5 +102,10 @@ public class LdapI extends AbstractAmdServant implements _ILdapOperations {
             throws ServerError {
         callInvokerOnRawArgs(__cb, __current);
 
+    }
+
+    public void createUserFromLdap_async(AMD_ILdap_createUserFromLdap __cb,
+            String username, Current __current) throws ServerError {
+        callInvokerOnRawArgs(__cb, __current, username);
     }
 }
