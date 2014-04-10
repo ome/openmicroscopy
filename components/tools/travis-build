@@ -24,7 +24,8 @@ build_python()
     flake8 -v components/tools/OmeroPy/src/omero/plugins
     flake8 -v components/tools/OmeroPy/test/integration/clitest
     flake8 -v components/tools/OmeroPy/test/unit
-    TEST="-py test -Dtest.with.fail=true" ./build.py build-default
+    ./build.py build-default
+    ./build.py -py test -Dtest.with.fail=true
 }
 
 for arg in "$@"
