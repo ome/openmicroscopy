@@ -19,11 +19,13 @@
 package integration;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNull;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import omero.ServerError;
 import omero.api.IQueryPrx;
 import omero.api.IUpdatePrx;
 import omero.model.ExperimenterGroup;
@@ -40,20 +42,63 @@ import org.testng.annotations.Test;
  */
 public class MapAnnotationTest extends AbstractServerTest {
 
+    /**
+     * Test persistence of a foo &rarr; bar map.
+     * @throws ServerError unexpected
+     */
     @Test
-    public void testStringMapField() throws Exception {
+    public void testStringMapField() throws ServerError {
         String uuid = UUID.randomUUID().toString();
         IQueryPrx queryService = root.getSession().getQueryService();
         IUpdatePrx updateService = root.getSession().getUpdateService();
         ExperimenterGroup group = new ExperimenterGroupI();
         group.setName(omero.rtypes.rstring(uuid));
-        group.setConfig(new HashMap<String, String>());
-        group.getConfig().put("foo", "bar");
+        group.setConfig(new HashMap<String, omero.RString>());
+        group.getConfig().put("foo", omero.rtypes.rstring("bar"));
         group = (ExperimenterGroup) updateService.saveAndReturnObject(group);
         group = (ExperimenterGroup) queryService.findByQuery(
                 "select g from ExperimenterGroup g join fetch g.config " +
                 "where g.id = " + group.getId().getValue(), null);
-        assertEquals("bar", group.getConfig().get("foo"));
+        assertEquals("bar", group.getConfig().get("foo").getValue());
     }
 
+    /**
+     * Test persistence of a foo &rarr; empty string map.
+     * @throws ServerError unexpected
+     */
+    @Test
+    public void testStringMapEmptyField() throws Exception {
+        String uuid = UUID.randomUUID().toString();
+        IQueryPrx queryService = root.getSession().getQueryService();
+        IUpdatePrx updateService = root.getSession().getUpdateService();
+        ExperimenterGroup group = new ExperimenterGroupI();
+        group.setName(omero.rtypes.rstring(uuid));
+        group.setConfig(new HashMap<String, omero.RString>());
+        group.getConfig().put("foo", omero.rtypes.rstring(""));
+        group = (ExperimenterGroup) updateService.saveAndReturnObject(group);
+        group = (ExperimenterGroup) queryService.findByQuery(
+                "select g from ExperimenterGroup g join fetch g.config " +
+                "where g.id = " + group.getId().getValue(), null);
+        assertEquals("", group.getConfig().get("foo").getValue());
+    }
+
+    /**
+     * Test persistence of a foo &rarr; <code>null</code> map.
+     * @throws ServerError unexpected
+     */
+    @Test
+    public void testNulledMapValue() throws Exception {
+        String uuid = UUID.randomUUID().toString();
+        IQueryPrx queryService = root.getSession().getQueryService();
+        IUpdatePrx updateService = root.getSession().getUpdateService();
+        ExperimenterGroup group = new ExperimenterGroupI();
+        group.setName(omero.rtypes.rstring(uuid));
+        group.setConfig(new HashMap<String, omero.RString>());
+        group.getConfig().put("foo", omero.rtypes.rstring(null));
+        group = (ExperimenterGroup) updateService.saveAndReturnObject(group);
+        group = (ExperimenterGroup) queryService.findByQuery(
+                "select g from ExperimenterGroup g join fetch g.config " +
+                "where g.id = " + group.getId().getValue(), null);
+        assertNull(group.getConfig().get("foo").getValue());
+    }
 }

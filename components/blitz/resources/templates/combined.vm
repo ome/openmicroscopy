@@ -1,7 +1,7 @@
 #*
  *   $Id$
  *
- *   Copyright 2007-2011 Glencoe Software, Inc. All rights reserved.
+ *   Copyright 2007-2014 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  *
  *#
@@ -900,6 +900,7 @@ Properties used throughout the accessor generation
 [$Ice]       long ${property.name};
 
 #elseif( $javaType.startsWith("java.util.Map") )
+#set( $javaType = "java.util.Map<String, omero.RString>" )
 #set( $copyMethod = "this.${fieldName} = ($javaType) mapper.findMap(source.get${PropertyName}());" );
 [$Ice]       dictionary ${property.name};
 
@@ -911,11 +912,11 @@ Properties used throughout the accessor generation
 [$Ice]       omero::RTime ${property.name};
 
 #elseif( $property.class.name == "ome.dsl.MapField" )
-#set( $javaType = "java.util.Map<String, String>");
-#set( $iceType = "omero::api::StringStringMap" )
+#set( $javaType = "java.util.Map<String, omero.RString>");
+#set( $iceType = "omero::api::StringRStringMap" )
 #set( $cppType = "${iceType}" )
-#set( $copyMethod = "this.${fieldName} = source.get${PropertyName}() == null ? null : new java.util.HashMap(source.get${PropertyName}());" );
-[$Ice]       omero::api::StringStringMap ${property.name};
+#set( $copyMethod = "this.${fieldName} = omero.util.IceMapper.convertStringStringMap(source.get${PropertyName}());" );
+[$Ice]       omero::api::StringRStringMap ${property.name};
 
 #elseif( $javaType.startsWith("java.lang.String")) ## for Event
 #set( $javaType = "omero.RString");
@@ -1051,6 +1052,8 @@ ticket:684 This is necessary to map back and forth from sets.
  ----------------> ERROR
 #elseif( $javaType.startsWith("String[]"))
 [$jav]             target.set${PropertyName}( this.get${PropertyName}() == null ? null : java.util.Arrays.asList(this.get${PropertyName}() ));
+#elseif( $javaType.startsWith("java.util.Map"))
+[$jav]             target.set${PropertyName}( omero.util.IceMapper.reverseStringStringMap(this.get${PropertyName}() ));
 #else
 [$jav]             target.set${PropertyName}( this.get${PropertyName}() );
 #end

@@ -2,7 +2,7 @@
  * ome.formats.Index
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -52,6 +52,7 @@ public enum Index implements StringEnumeration
     LIGHT_SOURCE_SETTINGS_INDEX("lightSourceSettingsIndex"),
     LIST_ANNOTATION_INDEX("listAnnotationIndex"),
     LONG_ANNOTATION_INDEX("longAnnotationIndex"),
+    MAP_ANNOTATION_INDEX("mapAnnotationIndex"),
     MICROBEAM_MANIPULATION_INDEX("microbeamManipulationIndex"),
     OBJECTIVE_INDEX("objectiveIndex"),
     ORIGINAL_FILE_INDEX("originalFileIndex"),

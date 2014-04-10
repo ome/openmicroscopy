@@ -137,6 +137,7 @@ module omero {
         dictionary<string, omero::model::Experimenter> UserMap;
         dictionary<string, omero::model::OriginalFile> OriginalFileMap;
         dictionary<string, string>                     StringStringMap;
+        dictionary<string, omero::RString>             StringRStringMap;
         dictionary<string, StringArray>                StringStringArrayMap;
         dictionary<string, long>                       StringLongMap;
         dictionary<string, int>                        StringIntMap;
