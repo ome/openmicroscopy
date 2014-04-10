@@ -30,6 +30,8 @@ import omero
 
 from omero_model_ExperimenterGroupI import ExperimenterGroupI
 from omero.rtypes import rstring
+from omero.rtypes import unwrap
+
 
 class TestMapAnnotation(lib.ITest):
 
@@ -40,9 +42,45 @@ class TestMapAnnotation(lib.ITest):
         group = ExperimenterGroupI()
         group.setName(rstring(uuid))
         group.setConfig(dict())
-        group.getConfig()["language"] = "python"
+        group.getConfig()["language"] = rstring("python")
         group = updateService.saveAndReturnObject(group)
         group = queryService.findByQuery(
             ("select g from ExperimenterGroup g join fetch g.config "
              "where g.id = %s" % group.getId().getValue()), None)
-        assert "python" == group.getConfig().get("language")
+        assert "python" == group.getConfig().get("language").val
+
+    @pytest.mark.parametrize("data", (
+        ({"a": rstring("")}, {"a": ""}),
+        ({"a": None}, {}),
+        ({"a": rstring("b")}, {"a": "b"}),
+    ))
+    def testGroupConfig(self, data):
+
+        save_value, expect_value = data
+
+        LOAD = ("select g from ExperimenterGroup g "
+                "left outer join fetch g.config where g.id = :id")
+
+        queryService = self.root.sf.getQueryService()
+        updateService = self.root.sf.getUpdateService()
+        params = omero.sys.ParametersI()
+
+        def load_group(id):
+            params.addId(id)
+            return queryService.findByQuery(LOAD, params)
+
+        group = self.new_group()
+        gid = group.id.val
+        group.config = save_value
+
+        updateService.saveObject(group)
+        group = load_group(gid)
+        config = unwrap(group.config)
+
+        assert expect_value == config
+
+        print queryService.projection(
+            """
+            select m from ExperimenterGroup g
+            left outer join g.config m where index(m) = 'a'
+            """, None)
