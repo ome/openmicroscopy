@@ -905,6 +905,18 @@
         primary key (id)
     );;
 
+    create table genericexcitationsource (
+        lightsource_id int8 not null,
+        primary key (lightsource_id)
+    );;
+
+    create table genericexcitationsource_map (
+        genericexcitationsource_id int8 not null,
+        map varchar(255) not null,
+        map_KEY varchar(255),
+        primary key (genericexcitationsource_id, map_KEY)
+    );;
+
     create table groupexperimentermap (
         id int8 not null,
         permissions int8 not null,
@@ -980,6 +992,13 @@
         owner_id int8 not null,
         update_id int8 not null,
         primary key (id)
+    );;
+
+    create table imagingenvironment_map (
+        imagingenvironment_id int8 not null,
+        map varchar(255) not null,
+        map_KEY varchar(255),
+        primary key (imagingenvironment_id, map_KEY)
     );;
 
     create table immersion (
@@ -3316,6 +3335,16 @@
         foreign key (external_id) 
         references externalinfo  ;;
 
+    alter table genericexcitationsource 
+        add constraint FKgenericexcitationsource_lightsource_id_lightsource 
+        foreign key (lightsource_id) 
+        references lightsource  ;;
+
+    alter table genericexcitationsource_map 
+        add constraint FK7B28ABA9C1805FCD 
+        foreign key (genericexcitationsource_id) 
+        references genericexcitationsource  ;;
+
     alter table groupexperimentermap 
         add constraint FKgroupexperimentermap_child_experimenter 
         foreign key (child) 
@@ -3455,6 +3484,11 @@
         add constraint FKimagingenvironment_owner_id_experimenter 
         foreign key (owner_id) 
         references experimenter  ;;
+
+    alter table imagingenvironment_map 
+        add constraint FK7C8DCED8CDF68A87 
+        foreign key (imagingenvironment_id) 
+        references imagingenvironment  ;;
 
     alter table immersion 
         add constraint FKimmersion_external_id_externalinfo 
