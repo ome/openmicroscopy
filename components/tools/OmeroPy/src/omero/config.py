@@ -82,34 +82,15 @@ class ConfigXml(object):
     DEFAULT = "omero.config.profile"
     IGNORE = (KEY, DEFAULT)
 
-    def __init__(self, filename, env_config = None, exclusive = True):
+    def __init__(self, filename, env_config=None, exclusive=True, read_only=False):
         self.logger = logging.getLogger(self.__class__.__name__)    #: Logs to the class name
         self.XML = None                                             #: Parsed XML Element
         self.filename = filename                                    #: Path to the file to be read and written
         self.env_config = Environment(env_config)                   #: Environment override
         self.exclusive = exclusive                                  #: Whether or not an exclusive lock should be acquired
+        self.read_only = read_only                                  #: Further, if saving should even be allowed.
         self.save_on_close = True
-
-        try:
-            # Try to open the file for modification
-            # If this fails, then the file is readonly
-            self.source = open(filename, "a+")                      #: Open file handle
-            self.lock = self._open_lock()                           #: Open file handle for lock
-        except IOError:
-            self.logger.debug("open('%s', 'a+') failed" % filename)
-            self.lock = None
-            self.exclusive = False
-            self.save_on_close = False
-
-            # Before we open the file read-only we need to check
-            # that no other configuration has been requested because
-            # it will not be possible to modify the __ACTIVE__ setting
-            # once it's read-only
-            val = self.env_config.is_non_default()
-            if val is not None:
-                raise Exception("Non-default OMERO_CONFIG on read-only: %s" % val)
-
-            self.source = open(filename, "r")                       #: Open file handle read-only
+        self.open_source()
 
         if self.exclusive:  # must be "a+"
             try:
@@ -139,6 +120,31 @@ class ConfigXml(object):
             _ = SubElement(properties, "property", name=self.KEY, value=self.VERSION)
             properties = SubElement(self.XML, "properties", id=default)
             _ = SubElement(properties, "property", name=self.KEY, value=self.VERSION)
+
+    def open_source(self):
+        self.source = None
+        if not self.read_only:
+            try:
+                # Try to open the file for modification
+                # If this fails, then the file is readonly
+                self.source = open(self.filename, "a+")                 #: Open file handle
+                self.lock = self._open_lock()                           #: Open file handle for lock
+            except IOError:
+                self.logger.debug("open('%s', 'a+') failed" % self.filename)
+
+                # Before we're forced to open read-only, we need to check
+                # that no other configuration has been requested because
+                # it will not be possible to modify the __ACTIVE__ setting
+                # once it's read-only
+                val = self.env_config.is_non_default()
+                if val is not None:
+                    raise Exception("Non-default OMERO_CONFIG on read-only: %s" % val)
+
+        if self.source is None:
+            self.lock = None
+            self.exclusive = False
+            self.save_on_close = False
+            self.source = open(self.filename, "r")                       #: Open file handle read-only
 
     def _open_lock(self):
         return open("%s.lock" % self.filename, "a+")
@@ -267,10 +273,22 @@ class ConfigXml(object):
         for k, p in prop_list:
             self.clear_text(p)
             icegrid.append(p)
-        self.source.seek(0)
-        self.source.truncate()
-        self.source.write(self.element_to_xml(icegrid))
-        self.source.flush()
+
+        temp_file = path.path(self.filename + ".temp")
+        try:
+            temp_file.write_text(self.element_to_xml(icegrid))
+            temp_file.rename(self.filename)
+            try:
+                self._close_lock()
+            except:
+                self.logger.error("Failed to close lock", exc_info=1)
+            self.open_source()
+        except Exception, e:
+            try:
+                temp_file.remove()
+            except:
+                self.logger.error("Failed to remove temp file")
+            raise e
 
     def close(self):
         try:

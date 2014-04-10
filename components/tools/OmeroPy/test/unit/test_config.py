@@ -228,6 +228,13 @@ class TestConfig(object):
         config = ConfigXml(filename=str(p), env_config=None)  # Must be None
         config.close()  # Shouldn't save
 
+    def testReadOnlyConfigPassesOnExplicitReadOnly(self):
+        p = create_path()
+        p.chmod(0444)  # r--r--r--
+        ConfigXml(filename=str(p),
+                  env_config="default",
+                  read_only=True).close()
+
     def testReadOnlyConfigFailsOnEnv1(self):
         p = create_path()
         p.chmod(0444)  # r--r--r--

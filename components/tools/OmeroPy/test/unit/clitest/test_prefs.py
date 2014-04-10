@@ -23,7 +23,7 @@ subcommands = [
 @pytest.fixture
 def configxml(monkeypatch):
     class MockConfigXml(object):
-        def __init__(self, path):
+        def __init__(self, path, **kwargs):
             pass
 
         def as_map(self):
