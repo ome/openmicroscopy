@@ -38,11 +38,11 @@ class TestMapAnnotation(lib.ITest):
         queryService = self.root.getSession().getQueryService()
         updateService = self.root.getSession().getUpdateService()
         group = ExperimenterGroupI()
-        group.setName(rstring(uuid));
+        group.setName(rstring(uuid))
         group.setConfig(dict())
         group.getConfig()["language"] = "python"
-        group = updateService.saveAndReturnObject(group);
+        group = updateService.saveAndReturnObject(group)
         group = queryService.findByQuery(
-                ("select g from ExperimenterGroup g join fetch g.config "
-                "where g.id = %s" % group.getId().getValue()), None);
+            ("select g from ExperimenterGroup g join fetch g.config "
+             "where g.id = %s" % group.getId().getValue()), None)
         assert "python" == group.getConfig().get("language")
