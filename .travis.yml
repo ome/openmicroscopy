@@ -1,8 +1,8 @@
 language: java
 
 env:
-    - BUILD="build-java"
     - BUILD="build-python"
+    - BUILD="build-java"
 
 matrix:
       fast_finish: true
