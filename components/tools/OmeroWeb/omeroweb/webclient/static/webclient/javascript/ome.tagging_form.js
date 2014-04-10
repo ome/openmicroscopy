@@ -483,21 +483,29 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id) {
         if (input === tag_input_filter.attr('placeholder')) {
             input = '';
         }
-        var filters = $.trim(input).toLowerCase().split(/ +/);
-        var no_filter = filters.length === 1 && filters[0] === "";
+        var filters = $.trim(input).toLowerCase();
+        var filters_split = filters.split(/ +/);
+        var no_filter = filters === "";
         if (no_filter) {
             $("div.filtered", div_all_tags).removeClass('filtered');
             cleanup();
         } else {
+            var mode = $("input[name=filter_mode]:radio:checked").val();
             var tags = $("div.alltags-childtag,div.alltags-tag", div_all_tags);
             var dofilter = function(pos) {
                 var endpos = Math.min(pos + 1000, tags.length);
                 for (var idx = pos; idx < endpos; idx++) {
                     var tag = tags.eq(idx);
                     var match = true;
-                    var text = all_tags[tag.attr("data-id")].t.toLowerCase();
-                    for (var filter in filters) {
-                        match = match && text.indexOf(filters[filter]) >= 0;
+                    var text = $.trim(
+                        all_tags[tag.attr("data-id")].t.toLowerCase());
+                    if (mode === "any") {
+                        for (var filter in filters_split) {
+                            match = match && text.indexOf(
+                                filters_split[filter]) >= 0;
+                        }
+                    } else {
+                        match = (text.substr(0, filters.length) === filters);
                     }
                     tag.toggleClass("filtered", !match);
                 }
@@ -665,6 +673,7 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id) {
         update_add_new_button_state);
     update_add_new_button_state();
     tag_input_filter.keyup(update_filter).change(update_filter);
+    $("input[name=filter_mode]:radio").change(update_filter);
 
     $("#id_tag_info_button").on('click', function(event) {
         event.preventDefault();
