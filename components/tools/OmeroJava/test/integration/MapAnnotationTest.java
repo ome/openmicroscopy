@@ -19,7 +19,8 @@
 package integration;
 
 import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertNull;
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -83,7 +84,7 @@ public class MapAnnotationTest extends AbstractServerTest {
     }
 
     /**
-     * Test persistence of a foo &rarr; <code>null</code> map.
+     * Test persistence of a bar &rarr; <code>null</code> map.
      * @throws ServerError unexpected
      */
     @Test
@@ -94,11 +95,13 @@ public class MapAnnotationTest extends AbstractServerTest {
         ExperimenterGroup group = new ExperimenterGroupI();
         group.setName(omero.rtypes.rstring(uuid));
         group.setConfig(new HashMap<String, omero.RString>());
-        group.getConfig().put("foo", omero.rtypes.rstring(null));
+        group.getConfig().put("foo", omero.rtypes.rstring(""));
+        group.getConfig().put("bar", null);
         group = (ExperimenterGroup) updateService.saveAndReturnObject(group);
         group = (ExperimenterGroup) queryService.findByQuery(
                 "select g from ExperimenterGroup g join fetch g.config " +
                 "where g.id = " + group.getId().getValue(), null);
-        assertNull(group.getConfig().get("foo").getValue());
+        assertTrue(group.getConfig().containsKey("foo"));
+        assertFalse(group.getConfig().containsKey("bar"));
     }
 }
