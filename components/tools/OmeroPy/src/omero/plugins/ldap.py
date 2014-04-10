@@ -3,7 +3,7 @@
 """
    User administration plugin (LDAP extension)
 
-   Copyright 2011 Glencoe Software, Inc. All rights reserved.
+   Copyright 2011 - 2014 Glencoe Software, Inc. All rights reserved.
    Use is subject to license terms supplied in LICENSE.txt
 
 """
@@ -75,7 +75,13 @@ user never had a password, one will need to be set!""")
         discover.add_argument(
             "--base", help="Override OMERO omero.ldap.base setting")
 
-        for x in (active, list, getdn, setdn, discover):
+        create = parser.add(
+            sub, self.create,
+            help="Create a local OMERO user based on the supplied LDAP username (admins only)"
+            )
+        create.add_argument("username", help="LDAP username of user to be created")
+
+        for x in (active, list, getdn, setdn, discover, create):
             x.add_login_arguments()
 
     def __import_ldap__(self):
@@ -281,6 +287,16 @@ user never had a password, one will need to be set!""")
                         else:
                             self.ctx.out("Experimenter:%s\tomeName=%s\t%s"
                                          % (eid, omeName, dn))
+
+    def create(self, args):
+        c = self.ctx.conn(args)
+        ildap = c.sf.getLdapService()
+
+        import omero
+        try:
+            ildap.createUserFromLdap(args.username)
+        except omero.SecurityViolation:
+            self.ctx.die(136, "SecurityViolation: Admins only!")
 
 try:
     register("ldap", LdapControl, HELP)
