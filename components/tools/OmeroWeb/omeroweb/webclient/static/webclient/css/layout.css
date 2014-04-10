@@ -2414,7 +2414,7 @@ div.tag_selection div.alltags-childtag {
     margin-left: 20px;
 }
 div.tag_selection div.alltags-locked {
-    background: url(../image/left_sidebar_icon_tag_locked.png) no-repeat left center;
+    background: url(../image/icon_tag_unremovable.png) no-repeat left center;
 }
 div#id_selected_tags div.alltags-childtag {
     margin-left: 0;
