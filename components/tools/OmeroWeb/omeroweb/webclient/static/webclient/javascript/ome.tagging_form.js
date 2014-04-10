@@ -389,7 +389,7 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id) {
         }
         var title = create_tag_title(description, owner, tagset);
         if (title) {
-            html += " title='" + title + "'";
+            html += " title='" + title.replace(/'/g, "&#39;") + "'";
         }
         html += ">" + text + "</div>";
         return html;
