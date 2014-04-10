@@ -311,7 +311,7 @@
 		<properties>
 		</properties>
 	</type>
-	<type id="ome.model.acquisition.GenericSource" superclass="ome.model.acquisition.LightSource">
+	<type id="ome.model.acquisition.GenericExcitationSource" superclass="ome.model.acquisition.LightSource">
 		<properties>
 			<map name="map" type="string"/>
 		</properties>

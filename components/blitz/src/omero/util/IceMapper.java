@@ -734,6 +734,7 @@ public class IceMapper extends ome.util.ModelMapper implements
 
     /**
      * Convert a String&rarr;String map's values to {@link RString}s.
+     * <code>null</code> values are dropped completely.
      * @param map a map
      * @return the converted map, or <code>null</code> if <code>map == null</code>
      */
@@ -745,7 +746,9 @@ public class IceMapper extends ome.util.ModelMapper implements
         for (final Map.Entry<String, String> mapEntry : map.entrySet()) {
             final String key = mapEntry.getKey();
             final String value = mapEntry.getValue();
-            rMap.put(key, value == null ? null : rstring(value));
+            if (value != null) {
+                rMap.put(key, rstring(value));
+            }
         }
         return rMap;
     }
@@ -984,6 +987,7 @@ public class IceMapper extends ome.util.ModelMapper implements
 
     /**
      * Reverse a String&rarr;String map's values from {@link RString}s.
+     * <code>null</code> values are dropped completely.
      * @param rMap a map
      * @return the reversed map, or <code>null</code> if <code>rMap == null</code>
      */
@@ -994,8 +998,11 @@ public class IceMapper extends ome.util.ModelMapper implements
         final Map<String, String> map = new HashMap<String, String>(rMap.size());
         for (final Map.Entry<String, RString> rMapEntry : rMap.entrySet()) {
             final String key = rMapEntry.getKey();
-            final RString value = rMapEntry.getValue();
-            map.put(key, value == null ? null : value.getValue());
+            final RString rValue = rMapEntry.getValue();
+            final String value = rValue == null ? null : rValue.getValue();
+            if (value != null) {
+                map.put(key, value);
+            }
         }
         return map;
     }

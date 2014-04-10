@@ -144,7 +144,7 @@ import omero.model.Filter;
 import omero.model.FilterSet;
 import omero.model.FilterType;
 import omero.model.Format;
-import omero.model.GenericSource;
+import omero.model.GenericExcitationSource;
 import omero.model.IObject;
 import omero.model.Illumination;
 import omero.model.Image;
@@ -3974,57 +3974,57 @@ public class OMEROMetadataStoreClient
          o.setSerialNumber(toRType(serialNumber));
     }
 
-    private GenericSource getGenericSource(int instrumentIndex, int lightSourceIndex) {
+    private GenericExcitationSource getGenericExcitationSource(int instrumentIndex, int lightSourceIndex) {
         final LinkedHashMap<Index, Integer> indexes = new LinkedHashMap<Index, Integer>();
         indexes.put(Index.INSTRUMENT_INDEX, instrumentIndex);
         indexes.put(Index.LIGHT_SOURCE_INDEX, lightSourceIndex);
-        return getSourceObject(GenericSource.class, indexes);
+        return getSourceObject(GenericExcitationSource.class, indexes);
     }
 
 
     // ID accessor from parent LightSource
-    public void setGenericSourceID(String id, int instrumentIndex, int lightSourceIndex) {
-        checkDuplicateLSID(GenericSource.class, id);
+    public void setGenericExcitationSourceID(String id, int instrumentIndex, int lightSourceIndex) {
+        checkDuplicateLSID(GenericExcitationSource.class, id);
         final LinkedHashMap<Index, Integer> indexes = new LinkedHashMap<Index, Integer>();
         indexes.put(Index.INSTRUMENT_INDEX, instrumentIndex);
         indexes.put(Index.LIGHT_SOURCE_INDEX, lightSourceIndex);
-        IObjectContainer o = getIObjectContainer(GenericSource.class, indexes);
+        IObjectContainer o = getIObjectContainer(GenericExcitationSource.class, indexes);
         o.LSID = id;
-        addAuthoritativeContainer(GenericSource.class, id, o);
+        addAuthoritativeContainer(GenericExcitationSource.class, id, o);
     }
 
     // LotNumber accessor from parent LightSource
-    public void setGenericSourceLotNumber(String lotNumber, int instrumentIndex, int lightSourceIndex) {
-        final GenericSource o = getGenericSource(instrumentIndex, lightSourceIndex);
+    public void setGenericExcitationSourceLotNumber(String lotNumber, int instrumentIndex, int lightSourceIndex) {
+        final GenericExcitationSource o = getGenericExcitationSource(instrumentIndex, lightSourceIndex);
         o.setLotNumber(toRType(lotNumber));
     }
 
-    public void setGenericSourceMap(Map<String, String> map, int instrumentIndex, int lightSourceIndex) {
-        final GenericSource o = getGenericSource(instrumentIndex, lightSourceIndex);
+    public void setGenericExcitationSourceMap(Map<String, String> map, int instrumentIndex, int lightSourceIndex) {
+        final GenericExcitationSource o = getGenericExcitationSource(instrumentIndex, lightSourceIndex);
         o.setMap(IceMapper.convertStringStringMap(map));
     }
 
     // Manufacturer accessor from parent LightSource
-    public void setGenericSourceManufacturer(String manufacturer, int instrumentIndex, int lightSourceIndex) {
-        final GenericSource o = getGenericSource(instrumentIndex, lightSourceIndex);
+    public void setGenericExcitationSourceManufacturer(String manufacturer, int instrumentIndex, int lightSourceIndex) {
+        final GenericExcitationSource o = getGenericExcitationSource(instrumentIndex, lightSourceIndex);
         o.setManufacturer(toRType(manufacturer));
     }
 
     // Model accessor from parent LightSource
-    public void setGenericSourceModel(String model, int instrumentIndex, int lightSourceIndex) {
-        final GenericSource o = getGenericSource(instrumentIndex, lightSourceIndex);
+    public void setGenericExcitationSourceModel(String model, int instrumentIndex, int lightSourceIndex) {
+        final GenericExcitationSource o = getGenericExcitationSource(instrumentIndex, lightSourceIndex);
         o.setModel(toRType(model));
     }
 
     // Power accessor from parent LightSource
-    public void setGenericSourcePower(Double power, int instrumentIndex, int lightSourceIndex) {
-        final GenericSource o = getGenericSource(instrumentIndex, lightSourceIndex);
+    public void setGenericExcitationSourcePower(Double power, int instrumentIndex, int lightSourceIndex) {
+        final GenericExcitationSource o = getGenericExcitationSource(instrumentIndex, lightSourceIndex);
         o.setPower(toRType(power));
     }
 
     // SerialNumber accessor from parent LightSource
-    public void setGenericSourceSerialNumber(String serialNumber, int instrumentIndex, int lightSourceIndex) {
-        final GenericSource o = getGenericSource(instrumentIndex, lightSourceIndex);
+    public void setGenericExcitationSourceSerialNumber(String serialNumber, int instrumentIndex, int lightSourceIndex) {
+        final GenericExcitationSource o = getGenericExcitationSource(instrumentIndex, lightSourceIndex);
         o.setSerialNumber(toRType(serialNumber));
     }
 
