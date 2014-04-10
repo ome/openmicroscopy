@@ -363,6 +363,7 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap,
      * @return boolean <tt>true</tt> if operation succeeded.
      */
     @RolesAllowed("system")
+    @Transactional(readOnly = false)
     public boolean createUserFromLdap(String username) {
         return createUserFromLdap(username, null, false);
     }
