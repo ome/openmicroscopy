@@ -1066,6 +1066,7 @@ OMERO Diagnostics %s
         env_val("OMERO_MASTER")
         env_val("OMERO_TEMPDIR")
         env_val("PATH")
+        env_val("PYTHONPATH")
         env_val("ICE_HOME")
         env_val("LD_LIBRARY_PATH")
         env_val("DYLD_LIBRARY_PATH")
