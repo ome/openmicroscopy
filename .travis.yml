@@ -20,10 +20,10 @@ before_install:
     - git config --global user.name 'Snoopy Crime Cop'
     - sudo pip install scc
     - scc travis-merge
-    - if [[ $BUILD == 'py' ]]; then sudo pip install flake8; fi
-    - if [[ $BUILD == 'py' ]]; then flake8 -v components/tools/OmeroPy/src/omero/plugins;  fi
-    - if [[ $BUILD == 'py' ]]; then flake8 -v components/tools/OmeroPy/test/integration/clitest;  fi
-    - if [[ $BUILD == 'py' ]]; then flake8 -v components/tools/OmeroPy/test/unit;  fi
+    - if [[ $BUILD == 'build-python' ]]; then sudo pip install flake8; fi
+    - if [[ $BUILD == 'build-python' ]]; then flake8 -v components/tools/OmeroPy/src/omero/plugins;  fi
+    - if [[ $BUILD == 'build-python' ]]; then flake8 -v components/tools/OmeroPy/test/integration/clitest;  fi
+    - if [[ $BUILD == 'build-python' ]]; then flake8 -v components/tools/OmeroPy/test/unit;  fi
 
 install:
 
