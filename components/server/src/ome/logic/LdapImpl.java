@@ -369,6 +369,20 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap,
 
     /**
      * Creates an {@link Experimenter} based on the supplied LDAP username.
+     * Enforces user password validation.
+     *
+     * @param username
+     *            The user's LDAP username.
+     * @param password
+     *            The user's LDAP password, not null.
+     * @return boolean <tt>true</tt> if operation succeeded.
+     */
+    public boolean createUserFromLdap(String username, String password) {
+        return createUserFromLdap(username, password, true);
+    }
+
+    /**
+     * Creates an {@link Experimenter} based on the supplied LDAP username.
      * A boolean flag controls if password checks should be performed.
      *
      * @param username
