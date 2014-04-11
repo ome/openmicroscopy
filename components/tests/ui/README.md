@@ -27,13 +27,13 @@ installed by default when using pip install, see the above page for
 more details.
 
 Jython can be installed using the installer JAR at
-http://www.jython.org/downloads.html You may need to set `JYTHON_HOME`
+http://www.jython.org/downloads.html. You may need to set `JYTHON_HOME`
 and `JYTHONPATH` depending on your installation.
 
-If you are planning to run the OMERO.insight and OMERO.web tests, 
+If you are planning to run the OMERO.insight and OMERO.web tests,
 you will have to run robotframework with Python and with Jython.
-In that case it is easier to install robotframework using the 
-setup.py scripts provided.
+In that case it is easier to install robotframework using the
+`setup.py` scripts provided.
 
 After installing the robotframework,  you need to install the
 robotframework-selenium2library, we are not planning to use Selenium1.
@@ -128,8 +128,12 @@ To run all the Insight tests, use
 ```
 
 The output of the tests can be found under
-`components/tests/ui/target/reports/insight/*` with one output directory
-created for each testcase directory.
+
+```
+components/tests/ui/target/reports/insight/
+```
+
+with one output directory created for each testcase directory.
 
 To run the tests in a given directory, those under `testcases/insight/icons`
 for example, use
@@ -143,7 +147,6 @@ The output of the tests can be found under
 ```
 components/tests/ui/target/reports/insight/icons/
 ```
-
 
 To run the tests in a given test
 
