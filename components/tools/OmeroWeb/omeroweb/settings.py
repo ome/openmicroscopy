@@ -317,7 +317,9 @@ CUSTOM_SETTINGS_MAPPINGS = {
 
 }
 
-
+# DEVELOPMENT_SETTINGS_MAPPINGS - WARNING: For each setting developer MUST open
+# a ticket that needs to be resolved before a release either by moving the
+# setting to CUSTOM_SETTINGS_MAPPINGS or by removing the setting at all.
 DEVELOPMENT_SETTINGS_MAPPINGS = {
     
     # Rename Orphans in data manager; default: '{"NAME":"Orphaned images", "DESCRIPTION":"This is a virtual container with orphaned images. These images are not linked anywhere. Just drag them to the selected container."}'
