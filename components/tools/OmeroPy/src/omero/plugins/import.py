@@ -28,6 +28,7 @@ import os
 import sys
 from omero.cli import BaseControl, CLI
 import omero.java
+from omero_ext.argparse import SUPPRESS
 
 START_CLASS = "ome.formats.importer.cli.CommandLineImporter"
 TEST_CLASS = "ome.formats.test.util.TestEngine"
@@ -91,18 +92,13 @@ class ImportControl(BaseControl):
             metavar="DESCRIPTION")
 
         # DEPRECATED OPTIONS
-        deprecated_name_group = parser.add_argument_group(
-            'Deprecated naming arguments',
-            'Optional arguments passed strictly to Java. '
-            'Please use general naming arguments above.')
+        deprecated_name_group = parser.add_argument_group()
         deprecated_name_group.add_argument(
             "--plate_name", dest="java_plate_name",
-            help="Image or plate name to use (**)",
-            metavar="NAME")
+            help=SUPPRESS)
         deprecated_name_group.add_argument(
             "--plate_description", dest="java_plate_description",
-            help="Image or plate description to use (**)",
-            metavar="DESCRIPTION")
+            help=SUPPRESS)
 
         java_group = parser.add_argument_group(
             'Java arguments', 'Optional arguments passed strictly to Java')
