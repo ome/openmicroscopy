@@ -390,14 +390,22 @@ jQuery.fn.viewportImage = function(options) {
         return viewerBean;
     };
     
-    this.setUpTiles = function (imagewidth, imageheight, xtilesize, ytilesize, init_zoom, levels, hrefProvider, thref, init_cx, init_cy, zoomLevelScaling) {
+    this.setUpTiles = function (imagewidth, imageheight, xtilesize, ytilesize, init_zoom, levels, hrefProvider, thref, init_cx, init_cy, zoomLevelScaling, nominalMagnification) {
         InfoControl.prototype.viewerZoomed = function(e) {
             if (this.dom_info) {
-                var scale = e.scale * 100;
-                if (scale % 1 !== 0) {
-                    scale = scale.toFixed(2);
+                if (nominalMagnification && typeof nominalMagnification != "undefined") {
+                    var scale = e.scale * nominalMagnification;
+                    if (scale % 1 !== 0) {
+                        scale = scale.toFixed(2);
+                    }
+                    this.dom_info.innerHTML = 'Magnification: x'+ scale ;
+                } else {
+                    var scale = e.scale * 100;
+                    if (scale % 1 !== 0) {
+                        scale = scale.toFixed(2);
+                    }
+                    this.dom_info.innerHTML = 'Scale: '+ scale +'%';
                 }
-                this.dom_info.innerHTML = 'Scale: '+ scale +'%';
             }
         };
         
