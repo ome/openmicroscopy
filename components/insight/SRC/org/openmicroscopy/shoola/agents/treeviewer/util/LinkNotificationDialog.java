@@ -173,14 +173,14 @@ public class LinkNotificationDialog extends JDialog {
                 if (i < MAX_DATASETS_PER_IMAGE) {
                     JLabel dsLabel = new JLabel(dsIcon);
                     dsLabel.setText(dd.getName());
-                    // intend
+                    // indent
                     dsLabel.setBorder(BorderFactory.createEmptyBorder(0, 20, 0,
                             0));
                     row.add(dsLabel);
                 } else {
                     JLabel dsLabel = new JLabel("... (" + (ds.size() - i)
                             + " more)");
-                    // intend
+                    // indent
                     dsLabel.setBorder(BorderFactory.createEmptyBorder(0, 20, 0,
                             0));
                     row.add(dsLabel);
