@@ -92,7 +92,7 @@ The results can then be aggregated using
 The aggregated output of the tests can be found under
 
 ```
-components/tests/ui/target/reports/*
+components/tests/ui/target/reports/
 ```
 
 OMERO.insight
@@ -154,7 +154,7 @@ To run the tests in a given test
 The output of the test can be found under 
 
 ```
-components/tests/ui/target/reports/insight/menus
+components/tests/ui/target/reports/insight/menus/
 ```
 
 i.e. the parent directory of the test itself.
@@ -203,8 +203,8 @@ To run all the web tests on both Firefox and Chrome, use
 The output of the tests can be found under
 
 ```
-components/tests/ui/target/reports/web/firefox
-components/tests/ui/target/reports/web/chrome
+components/tests/ui/target/reports/web/firefox/
+components/tests/ui/target/reports/web/chrome/
 ```
 
 for each browser.
@@ -219,8 +219,8 @@ To run all the web tests on only Firefox or Chrome respectively, use
 The output of the tests can be found repectively under
 
 ```
-components/tests/ui/target/reports/web/firefox
-components/tests/ui/target/reports/web/chrome
+components/tests/ui/target/reports/web/firefox/
+components/tests/ui/target/reports/web/chrome/
 ```
 
 To run a single test under `testcases/web`, for example
@@ -232,7 +232,7 @@ To run a single test under `testcases/web`, for example
 with the ouput being available under
 
 ```
-components/tests/ui/target/reports/web/firefox
+components/tests/ui/target/reports/web/firefox/
 ```
 
 
@@ -248,5 +248,5 @@ To run all the CLI tests, from the top level
 The output of the tests can be found under
 
 ```
-components/tests/ui/target/reports/cli
+components/tests/ui/target/reports/cli/
 ```
