@@ -46,8 +46,11 @@ import javax.swing.JFrame;
 
 //Third-party libraries
 
+
 //Application-internal dependencies
 import omero.client;
+import omero.gateway.exception.VersionMismatchException;
+
 import org.openmicroscopy.shoola.env.Agent;
 import org.openmicroscopy.shoola.env.Container;
 import org.openmicroscopy.shoola.env.Environment;
@@ -75,6 +78,7 @@ import org.openmicroscopy.shoola.util.ui.NotificationDialog;
 import org.openmicroscopy.shoola.util.ui.ShutDownDialog;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.file.IOUtil;
+
 import pojos.ExperimenterData;
 import pojos.GroupData;
 
@@ -584,49 +588,32 @@ public class DataServicesFactory
 	    
 		if (uc == null)
             throw new NullPointerException("No user credentials.");
-		String name = (String) 
+		String clientName = (String) 
 		 container.getRegistry().lookup(LookupNames.MASTER);
-		if (name == null) name = LookupNames.MASTER_INSIGHT;
-//		client client = omeroGateway.createSession(uc.getUserName(),
-//				uc.getPassword(), uc.getHostName(), uc.isEncrypted(), name,
-//				uc.getPort());
-//		if (client == null || singleton == null) {
-//			omeroGateway.logout();
-//        	return;
-//		}
-//		//check client server version
-//		compatible = true;
-//        //Register into log file.
-//        Object v = container.getRegistry().lookup(LookupNames.VERSION);
-//    	String clientVersion = "";
-//    	if (v != null && v instanceof String)
-//    		clientVersion = (String) v;
-//    	
-//        //Check if client and server are compatible.
-//        String version = omeroGateway.getServerVersion();
-//        Boolean check = checkClientServerCompatibility(version, clientVersion);
-//        if (check == null) {
-//        	compatible = false;
-//        	omeroGateway.logout();
-//        	return;
-//        }
-//        if (!check.booleanValue()) {
-//        	compatible = false;
-//        	notifyIncompatibility(clientVersion, version, uc.getHostName());
-//        	omeroGateway.logout();
-//        	return;
-//        }
+		if (clientName == null) clientName = LookupNames.MASTER_INSIGHT;
+		
+		
+            Object v = container.getRegistry().lookup(LookupNames.VERSION);
+            String clientVersion = "";
+            if (v != null && v instanceof String)
+                clientVersion = (String) v;
+            
         
-        ExperimenterData exp = omeroGateway.connect(uc, name, determineCompression(uc.getSpeedLevel()));
+        ExperimenterData exp;
+        try {
+            exp = omeroGateway.connect(uc, clientName, clientVersion, determineCompression(uc.getSpeedLevel()));
+            compatible = true;
+        } catch (VersionMismatchException e1) {
+            notifyIncompatibility(e1.getClientVersion(), e1.getServerVersion(), uc.getHostName());
+            compatible = false;
+            return;
+        }
         
-//        ExperimenterData exp = omeroGateway.login(client, uc.getUserName(), 
-//        		uc.getHostName(), determineCompression(uc.getSpeedLevel()),
-//        		uc.getGroup(), uc.getPort());
         //Post an event to indicate that the user is connected.
         EventBus bus = container.getRegistry().getEventBus();
         bus.post(new ConnectedEvent());
         //Post an event to notify 
-        compatible = true;
+        
         //Register into log file.
         Map<String, String> info = ProxyUtil.collectOsInfoAndJavaVersion();
         LogMessage msg = new LogMessage();

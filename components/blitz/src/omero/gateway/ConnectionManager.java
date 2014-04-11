@@ -22,7 +22,6 @@ package omero.gateway;
 import static omero.gateway.util.GatewayUtils.printErrorText;
 
 import java.net.InetAddress;
-import java.security.SecureClassLoader;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -41,6 +40,7 @@ import omero.api.IAdminPrx;
 import omero.api.ServiceFactoryPrx;
 import omero.gateway.exception.DSAccessException;
 import omero.gateway.exception.DSOutOfServiceException;
+import omero.gateway.exception.VersionMismatchException;
 import omero.gateway.util.ConnectionExceptionHandler;
 import omero.gateway.util.ConnectionStatus;
 import omero.gateway.util.NetworkChecker;
@@ -61,8 +61,6 @@ public abstract class ConnectionManager {
 
     private Logger log = LoggerFactory.getLogger(ConnectionManager.class
             .getName());
-
-    private String serverVersion = "";
 
     private NetworkChecker networkChecker;
 
@@ -118,11 +116,13 @@ public abstract class ConnectionManager {
      * @see #getUserDetails(String) TODO: could be refactored to return a
      *      Connector for later use in login()
      */
-    client createSession(UserCredentials uc,
-            String agentName) throws DSOutOfServiceException {
+    client createSession(UserCredentials uc, String agentName,
+            String clientVersion, boolean skipVersionCheck)
+            throws DSOutOfServiceException, VersionMismatchException {
         this.encrypted = uc.isEncrypted();
         this.userCredentials = uc;
         client secureClient = null;
+        String serverVersion = null;
         try {
             // client must be cleaned up by caller.
             if (uc.getPort() > 0)
@@ -132,7 +132,9 @@ public abstract class ConnectionManager {
             secureClient.setAgent(agentName);
             ServiceFactoryPrx entryEncrypted = secureClient.createSession(
                     uc.getUserName(), uc.getPassword());
+
             serverVersion = entryEncrypted.getConfigService().getVersion();
+
             String ip = null;
             try {
                 ip = InetAddress.getByName(uc.getHostName()).getHostAddress();
@@ -149,6 +151,10 @@ public abstract class ConnectionManager {
             String s = "Can't connect to OMERO. OMERO info not valid.\n\n";
             s += printErrorText(e);
             throw new DSOutOfServiceException(s, e);
+        }
+
+        if (!skipVersionCheck) {
+            checkClientServerCompatibility(serverVersion, clientVersion);
         }
 
         Runnable r = new Runnable() {
@@ -170,11 +176,21 @@ public abstract class ConnectionManager {
         return secureClient;
     }
 
-    public ExperimenterData connect(UserCredentials uc, String agentName,  float compression) throws DSOutOfServiceException {
-        client client = createSession(uc, agentName);
-        return login(client, uc.getUserName(), uc.getHostName(), compression, uc.getGroup(), uc.getPort());
+    public ExperimenterData connect(UserCredentials uc, String agentName,
+            String clientVersion, float compression)
+            throws DSOutOfServiceException, VersionMismatchException {
+        return connect(uc, agentName, clientVersion, compression, false);
     }
-    
+
+    public ExperimenterData connect(UserCredentials uc, String agentName,
+            String clientVersion, float compression, boolean skipVersionCheck)
+            throws DSOutOfServiceException, VersionMismatchException {
+        client client = createSession(uc, agentName, clientVersion,
+                skipVersionCheck);
+        return login(client, uc.getUserName(), uc.getHostName(), compression,
+                uc.getGroup(), uc.getPort());
+    }
+
     /**
      * Tries to connect to <i>OMERO</i> and log in by using the supplied
      * credentials. The <code>createSession</code> method must be invoked
@@ -410,10 +426,11 @@ public abstract class ConnectionManager {
         }
     }
 
-    public Connector getConnector(SecurityContext ctx) throws DSOutOfServiceException {
-       return getConnector(ctx, false, false);
+    public Connector getConnector(SecurityContext ctx)
+            throws DSOutOfServiceException {
+        return getConnector(ctx, false, false);
     }
-    
+
     /**
      * Returns the connector corresponding to the passed context.
      * 
@@ -428,7 +445,7 @@ public abstract class ConnectionManager {
      *            no {@link Connector} is available by the end of the execution.
      * @return
      */
-     Connector getConnector(SecurityContext ctx, boolean recreate,
+    Connector getConnector(SecurityContext ctx, boolean recreate,
             boolean permitNull) throws DSOutOfServiceException {
         try {
             isNetworkUp(true); // Need safe version?
@@ -623,6 +640,50 @@ public abstract class ConnectionManager {
     }
 
     /**
+     * Checks if the client's version is compatible to the server
+     * @param server The server version
+     * @param client The client version
+     * @throws VersionMismatchException
+     */
+    private void checkClientServerCompatibility(String server, String client)
+            throws VersionMismatchException {
+        if (server == null || client == null)
+            throw new VersionMismatchException(
+                    "No version information provided");
+
+        if (client.startsWith("@"))
+            return;
+
+        if (server.contains("-"))
+            server = server.split("-")[0];
+        if (client.contains("-"))
+            client = client.split("-")[0];
+        String[] values = server.split("\\.");
+        String[] valuesClient = client.split("\\.");
+        if (values.length < 2 || valuesClient.length < 2)
+            throw new VersionMismatchException(
+                    "Invalid version information provided");
+        ;
+        int s1, s2, c1, c2;
+        try {
+            s1 = Integer.parseInt(values[0]);
+            s2 = Integer.parseInt(values[1]);
+            c1 = Integer.parseInt(valuesClient[0]);
+            c2 = Integer.parseInt(valuesClient[1]);
+        } catch (Exception e) {
+            String msg = "Client server compatibility";
+            msg += "\n" + printErrorText(e);
+            log.debug(msg);
+            throw new VersionMismatchException("Could not check versions");
+        }
+
+        if (s1 < c1)
+            throw new VersionMismatchException(client, server);
+        if (s2 != c2)
+            throw new VersionMismatchException(client, server);
+    }
+
+    /**
      * Checks if the network is up.
      * 
      * @throws Exception
@@ -641,12 +702,11 @@ public abstract class ConnectionManager {
     public boolean isConnected() {
         return this.connected;
     }
-    
+
     public boolean isAvailable() throws Exception {
-        if(networkChecker==null) {
+        if (networkChecker == null) {
             return false;
-        }
-        else {
+        } else {
             return networkChecker.isAvailable();
         }
     }

@@ -48,6 +48,7 @@ import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 
+
 //Third-party libraries
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
@@ -141,6 +142,7 @@ import omero.cmd.HandlePrx;
 import omero.cmd.Request;
 import omero.constants.projection.ProjectionType;
 import omero.gateway.Gateway;
+import omero.gateway.exception.VersionMismatchException;
 import omero.grid.BoolColumn;
 import omero.grid.Column;
 import omero.grid.Data;
@@ -1821,9 +1823,13 @@ class OMEROGateway
 	    return check.isUpgradeNeeded();
 	}
 	
-	public ExperimenterData connect(UserCredentials uc, String agentName, float compression) throws DSOutOfServiceException {
+	public ExperimenterData connect(UserCredentials uc, String agentName, String clientVersion, float compression) throws DSOutOfServiceException, VersionMismatchException {
+            return connect(uc, agentName, clientVersion, compression, false);
+        }
+	
+	public ExperimenterData connect(UserCredentials uc, String agentName, String clientVersion, float compression, boolean skipVersionCheck) throws DSOutOfServiceException, VersionMismatchException {
 	    try {
-                gateway.connect(uc, agentName, compression);
+                gateway.connect(uc, agentName, clientVersion, compression, skipVersionCheck);
             } catch (omero.gateway.exception.DSOutOfServiceException e) {
                 throw new DSOutOfServiceException(e);
             }
