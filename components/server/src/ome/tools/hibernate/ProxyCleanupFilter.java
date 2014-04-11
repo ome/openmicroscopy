@@ -1,5 +1,5 @@
 /*
- *   Copyright 2006-2012 University of Dundee. All rights reserved.
+ *   Copyright 2006-2014 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -91,7 +91,7 @@ public class ProxyCleanupFilter extends ContextFilter {
 
             if (f instanceof IObject) {
                 IObject proxy = (IObject) f;
-                IObject unloaded = (IObject) Utils.trueInstance(f.getClass());
+                IObject unloaded = Utils.trueInstance(f.getClass().asSubclass(IObject.class));
                 unloaded.setId(proxy.getId());
                 unloaded.unload();
                 unloadedObjectCache.put(f, unloaded);
