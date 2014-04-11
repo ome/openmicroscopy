@@ -56,6 +56,17 @@ try
     imageNew = getImages(session, idNew.getValue());
     assert(~isempty(imageNew), 'OMERO:CreateImage', 'Image Id not valid');
     
+    % Set channel properties
+    disp('Adding metadata to the channels')
+    channels = loadChannels(session, imageNew);
+    for i = 1: numel(channels)
+        channelName = ['Channel ' num2str(i)'];
+        emissionWave = 550;
+        channels(i).getLogicalChannel().setName(rstring(channelName));
+        channels(i).getLogicalChannel().setEmissionWave(rint(emissionWave));
+    end
+    session.getUpdateService().saveArray(toJavaList(channels));
+    
     % load the dataset
     fprintf(1, 'Reading dataset: %g\n', datasetId);
     dataset = getDatasets(session, datasetId, false);
