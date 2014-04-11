@@ -24,17 +24,16 @@
 
 """
 
-import os
 import Ice
 import sys
 import time
 import weakref
 import logging
-import traceback
 import subprocess
 import Glacier2
 
-import omero, omero.gateway
+import omero
+import omero.gateway
 
 from omero.util.temp_files import create_path
 from omero.rtypes import rstring, rtime, rint, unwrap
@@ -49,7 +48,7 @@ class Clients(object):
     def __init__(self):
         self.__clients = set()
 
-    def  __del__(self):
+    def __del__(self):
         try:
             for client_ref in self.__clients:
                 client = client_ref()
@@ -78,7 +77,7 @@ class ITest(object):
         name = None
         pasw = None
         if rootpass:
-            self.root = omero.client() # ok because adds self
+            self.root = omero.client()  # ok because adds self
             self.__clients.add(self.root)
             self.root.setAgent("OMERO.py.root_test")
             self.root.createSession("root", rootpass)
@@ -88,7 +87,7 @@ class ITest(object):
         else:
             self.root = None
 
-        self.client = omero.client() # ok because adds self
+        self.client = omero.client()  # ok because adds self
         self.__clients.add(self.client)
         self.client.setAgent("OMERO.py.test")
         self.sf = self.client.createSession(name, pasw)
@@ -96,14 +95,14 @@ class ITest(object):
         self.update = self.sf.getUpdateService()
         self.query = self.sf.getQueryService()
 
-
     def omeropydir(self):
         count = 10
         searched = []
         p = path(".").abspath()
-        while str(p.basename()) not in ("OmeroPy", ""): # "" means top of directory
+        # "" means top of directory
+        while str(p.basename()) not in ("OmeroPy", ""):
             searched.append(p)
-            p = p / ".." # Walk up, in case test runner entered a subdirectory
+            p = p / ".."  # Walk up, in case test runner entered a subdirectory
             p = p.abspath()
             count -= 1
             if not count:
@@ -114,7 +113,7 @@ class ITest(object):
             assert False, "Could not find OmeroPy/; searched %s" % searched
 
     def uuid(self):
-        import omero_ext.uuid as _uuid # see ticket:3774
+        import omero_ext.uuid as _uuid  # see ticket:3774
         return str(_uuid.uuid4())
 
     def login_args(self):
@@ -134,7 +133,7 @@ class ITest(object):
     def tmpfile(self):
         return str(create_path())
 
-    def new_group(self, experimenters = None, perms = None):
+    def new_group(self, experimenters=None, perms=None):
         admin = self.root.sf.getAdminService()
         gname = self.uuid()
         group = omero.model.ExperimenterGroupI()
@@ -172,17 +171,19 @@ class ITest(object):
         rv = client.getStatefulServices()
         for prx in rv:
             prx.close()
-        client.sf.setSecurityContext(omero.model.ExperimenterGroupI(gid, False))
+        client.sf.setSecurityContext(
+            omero.model.ExperimenterGroupI(gid, False))
 
-    def new_image(self, name = ""):
+    def new_image(self, name=""):
         img = omero.model.ImageI()
         img.name = rstring(name)
         img.acquisitionDate = rtime(0)
         return img
 
-    def import_image(self, filename = None, client = None, extra_args=None):
+    def import_image(self, filename=None, client=None, extra_args=None):
         if filename is None:
-            filename = self.OmeroPy / ".." / ".." / ".." / "components" / "common" / "test" / "tinyTest.d3d.dv"
+            filename = self.OmeroPy / ".." / ".." / ".." / \
+                "components" / "common" / "test" / "tinyTest.d3d.dv"
         if client is None:
             client = self.client
 
@@ -200,7 +201,9 @@ class ITest(object):
             args.extend(extra_args)
         args.append(filename)
 
-        popen = subprocess.Popen(args, cwd=str(dist_dir), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        popen = subprocess.Popen(args, cwd=str(dist_dir),
+                                 stdout=subprocess.PIPE,
+                                 stderr=subprocess.PIPE)
         out, err = popen.communicate()
         rc = popen.wait()
         if rc != 0:
@@ -213,13 +216,15 @@ class ITest(object):
                     # Occasionally during tests an id is duplicated on stdout
                     if imageId not in pix_ids:
                         pix_ids.append(imageId)
-                except: pass
+                except:
+                    pass
         return pix_ids
 
     """
     Creates a fake file with one image, imports
     the file and then return the image.
     """
+
     def importSingleImage(self, name=None, client=None):
         if client is None:
             client = self.client
@@ -233,6 +238,7 @@ class ITest(object):
     Creates a fake file with a seriesCount of images, imports
     the file and then return the list of images.
     """
+
     def importMIF(self, seriesCount, name=None, client=None):
         if client is None:
             client = self.client
@@ -255,6 +261,7 @@ class ITest(object):
     names of the form "name [1]", "name [2]", etc. and
     returns them in a list.
     """
+
     def createDatasets(self, count, baseName, client=None):
         if client is None:
             client = self.client
@@ -268,16 +275,16 @@ class ITest(object):
             dsets.append(ds)
         return update.saveAndReturnArray(dsets)
 
-    def createTestImage(self, sizeX = 16, sizeY = 16, sizeZ = 1, sizeC = 1, sizeT = 1, session=None):
+    def createTestImage(self, sizeX=16, sizeY=16, sizeZ=1, sizeC=1, sizeT=1,
+                        session=None):
         """
-        Creates a test image of the required dimensions, where each pixel value is set 
-        to the value of x+y. 
+        Creates a test image of the required dimensions, where each pixel
+        value is set to the value of x+y.
         Returns the image (omero.model.ImageI)
         """
         from numpy import fromfunction, int16
         from omero.util import script_utils
-        import random
-        
+
         if session is None:
             session = self.root.sf
         renderingEngine = session.createRenderingEngine()
@@ -286,33 +293,42 @@ class ITest(object):
         rawPixelStore = session.createRawPixelsStore()
         containerService = session.getContainerService()
 
-        def f1(x,y):
+        def f1(x, y):
             return y
-        def f2(x,y):
-            return (x+y)/2
-        def f3(x,y):
+
+        def f2(x, y):
+            return (x + y) / 2
+
+        def f3(x, y):
             return x
 
         pType = "int16"
         # look up the PixelsType object from DB
-        pixelsType = queryService.findByQuery("from PixelsType as p where p.value='%s'" % pType, None) # omero::model::PixelsType
-        if pixelsType == None and pType.startswith("float"):    # e.g. float32
-            pixelsType = queryService.findByQuery("from PixelsType as p where p.value='%s'" % "float", None) # omero::model::PixelsType
-        if pixelsType == None:
+        # omero::model::PixelsType
+        pixelsType = queryService.findByQuery(
+            "from PixelsType as p where p.value='%s'" % pType, None)
+        if pixelsType is None and pType.startswith("float"):    # e.g. float32
+            # omero::model::PixelsType
+            pixelsType = queryService.findByQuery(
+                "from PixelsType as p where p.value='%s'" % "float", None)
+        if pixelsType is None:
             print "Unknown pixels type for: " % pType
             raise Exception("Unknown pixels type for: " % pType)
 
         # code below here is very similar to combineImages.py
         # create an image in OMERO and populate the planes with numpy 2D arrays
-        channelList = range(1, sizeC+1)
-        iId = pixelsService.createImage(sizeX, sizeY, sizeZ, sizeT, channelList, pixelsType, "testImage", "description")
+        channelList = range(1, sizeC + 1)
+        iId = pixelsService.createImage(sizeX, sizeY, sizeZ, sizeT,
+                                        channelList, pixelsType,
+                                        "testImage", "description")
         imageId = iId.getValue()
         image = containerService.getImages("Image", [imageId], None)[0]
 
         pixelsId = image.getPrimaryPixels().getId().getValue()
         rawPixelStore.setPixelsId(pixelsId, True)
 
-        colourMap = {0: (0,0,255,255), 1:(0,255,0,255), 2:(255,0,0,255), 3:(255,0,255,255)}
+        colourMap = {0: (0, 0, 255, 255), 1: (0, 255, 0, 255),
+                     2: (255, 0, 0, 255), 3: (255, 0, 255, 255)}
         fList = [f1, f2, f3]
         for theC in range(sizeC):
             minValue = 0
@@ -320,16 +336,19 @@ class ITest(object):
             f = fList[theC % len(fList)]
             for theZ in range(sizeZ):
                 for theT in range(sizeT):
-                    plane2D = fromfunction(f,(sizeY,sizeX),dtype=int16)
-                    script_utils.uploadPlane(rawPixelStore, plane2D, theZ, theC, theT)
+                    plane2D = fromfunction(f, (sizeY, sizeX), dtype=int16)
+                    script_utils.uploadPlane(
+                        rawPixelStore, plane2D, theZ, theC, theT)
                     minValue = min(minValue, plane2D.min())
                     maxValue = max(maxValue, plane2D.max())
-            pixelsService.setChannelGlobalMinMax(pixelsId, theC, float(minValue), float(maxValue))
+            pixelsService.setChannelGlobalMinMax(
+                pixelsId, theC, float(minValue), float(maxValue))
             rgba = None
             if theC in colourMap:
                 rgba = colourMap[theC]
         for theC in range(sizeC):
-            script_utils.resetRenderingSettings(renderingEngine, pixelsId, theC, minValue, maxValue, rgba)
+            script_utils.resetRenderingSettings(
+                renderingEngine, pixelsId, theC, minValue, maxValue, rgba)
 
         renderingEngine.close()
         rawPixelStore.close()
@@ -343,7 +362,6 @@ class ITest(object):
         finally:
             tb.close()
 
-
         # Reloading image to prevent error on old pixels updateEvent
         image = containerService.getImages("Image", [imageId], None)[0]
         return image
@@ -351,7 +369,8 @@ class ITest(object):
     def index(self, *objs):
         if objs:
             for obj in objs:
-                self.root.sf.getUpdateService().indexObject(obj, {"omero.group":"-1"})
+                self.root.sf.getUpdateService().indexObject(
+                    obj, {"omero.group": "-1"})
 
     def waitOnCmd(self, client, handle, loops=10, ms=500, passes=True):
         """
@@ -360,14 +379,14 @@ class ITest(object):
         for accessing the Response and Status elements.
         """
         callback = omero.callbacks.CmdCallbackI(client, handle)
-        callback.loop(loops, ms) # throws on timeout
+        callback.loop(loops, ms)  # throws on timeout
         rsp = callback.getResponse()
         is_ok = isinstance(rsp, omero.cmd.OK)
-        assert passes ==  is_ok, str(rsp)
+        assert passes == is_ok, str(rsp)
         return callback
 
-    def new_user(self, group = None, perms = None,
-            admin = False, system = False):
+    def new_user(self, group=None, perms=None,
+                 admin=False, system=False):
         """
         admin: If user is to be an admin of the created group
         system: If user is to be a system admin
@@ -381,7 +400,7 @@ class ITest(object):
 
         # Create group if necessary
         if not group:
-            g = self.new_group(perms = perms)
+            g = self.new_group(perms=perms)
             group = g.name.val
         else:
             g, group = self.group_and_name(group)
@@ -396,13 +415,13 @@ class ITest(object):
         if admin:
             adminService.setGroupOwner(g, e)
         if system:
-            adminService.addGroups(e, \
-                    [omero.model.ExperimenterGroupI(0, False)])
+            adminService.addGroups(e,
+                                   [omero.model.ExperimenterGroupI(0, False)])
 
         return adminService.getExperimenter(uid)
 
     def new_client(self, group=None, user=None, perms=None,
-            admin=False, system=False, session=None, password=None):
+                   admin=False, system=False, session=None, password=None):
         """
         Like new_user() but returns an active client.
 
@@ -434,10 +453,11 @@ class ITest(object):
         client.createSession()
         return client
 
-    def new_client_and_user(self, group = None, perms = None,
-            admin = False, system = False):
+    def new_client_and_user(self, group=None, perms=None,
+                            admin=False, system=False):
         user = self.new_user(group, admin=admin, system=system, perms=perms)
-        client = self.new_client(group, user, perms=perms, admin=admin, system=system)
+        client = self.new_client(
+            group, user, perms=perms, admin=admin, system=system)
         return client, user
 
     def timeit(self, func, *args, **kwargs):
@@ -515,7 +535,7 @@ class ITest(object):
         try:
             rps.setPixelsId(pix.id.val, True)
             for t in range(4000):
-                rps.setTimepoint([5]*4000, t) # Assuming int8
+                rps.setTimepoint([5] * 4000, t)  # Assuming int8
             pix = rps.save()
         finally:
             rps.close()
@@ -562,15 +582,15 @@ class ITest(object):
         """
         if not rps.requiresPixelsPyramid():
             # By plane
-            bytes_per_plane = pix.sizeX.val * pix.sizeY.val # Assuming int8
+            bytes_per_plane = pix.sizeX.val * pix.sizeY.val  # Assuming int8
             for z in range(pix.sizeZ.val):
                 for c in range(pix.sizeC.val):
                     for t in range(pix.sizeT.val):
-                        rps.setPlane([5]*bytes_per_plane, z, c, t)
+                        rps.setPlane([5] * bytes_per_plane, z, c, t)
         else:
             # By tile
             w, h = rps.getTileSize()
-            bytes_per_tile = w * h # Assuming int8
+            bytes_per_tile = w * h  # Assuming int8
             for z in range(pix.sizeZ.val):
                 for c in range(pix.sizeC.val):
                     for t in range(pix.sizeT.val):
@@ -578,29 +598,31 @@ class ITest(object):
                             for y in range(0, pix.sizeY.val, h):
 
                                 changed = False
-                                if x+w > pix.sizeX.val:
+                                if x + w > pix.sizeX.val:
                                     w = pix.sizeX.val - x
                                     changed = True
-                                if y+h > pix.sizeY.val:
+                                if y + h > pix.sizeY.val:
                                     h = pix.sizeY.val - y
                                     changed = True
                                 if changed:
-                                    bytes_per_tile = w * h # Again assuming int8
+                                    # Again assuming int8
+                                    bytes_per_tile = w * h
 
-                                args = ([5]*bytes_per_tile, z, c, t, x, y, w, h)
+                                args = ([5] * bytes_per_tile,
+                                        z, c, t, x, y, w, h)
                                 rps.setTile(*args)
 
     def open_jpeg_buffer(self, buf):
         try:
-            from PIL import Image, ImageDraw # see ticket:2597
+            from PIL import Image
         except ImportError:
             try:
-                import Image, ImageDraw # see ticket:2597
+                import Image
             except ImportError:
                 print "Pillow not installed"
         from cStringIO import StringIO
         tfile = StringIO(buf)
-        jpeg = Image.open(tfile) # Raises if invalid
+        jpeg = Image.open(tfile)  # Raises if invalid
         return jpeg
 
     def loginAttempt(self, name, t, pw="BAD", less=False):
@@ -616,7 +638,7 @@ class ITest(object):
 
         See integration.tickets4000 and 5000
         """
-        c = omero.client() # ok because followed by __del__
+        c = omero.client()  # ok because followed by __del__
         try:
             t1 = time.time()
             try:
@@ -627,7 +649,7 @@ class ITest(object):
                 if pw != "BAD":
                     raise
             t2 = time.time()
-            T = (t2-t1)
+            T = (t2 - t1)
             if less:
                 assert T < t, "%s > %s" % (T, t)
             else:
@@ -635,7 +657,8 @@ class ITest(object):
         finally:
             c.__del__()
 
-    def doSubmit(self, request, client, test_should_pass=True, omero_group=None):
+    def doSubmit(self, request, client, test_should_pass=True,
+                 omero_group=None):
         """
         Performs the request waits on completion and checks that the
         result is not an error.
@@ -646,14 +669,13 @@ class ITest(object):
         else:
             prx = sf.submit(request)
 
-        assert not State.FAILURE in prx.getStatus().flags
+        assert State.FAILURE not in prx.getStatus().flags
 
         cb = CmdCallbackI(client, prx)
         cb.loop(20, 500)
 
-        assert prx.getResponse() !=  None
+        assert prx.getResponse() is not None
 
-        status = prx.getStatus()
         rsp = prx.getResponse()
 
         if test_should_pass:
@@ -661,7 +683,7 @@ class ITest(object):
                 assert False,\
                     "Found ERR when test_should_pass==true: %s (%s) params=%s" %\
                     (rsp.category, rsp.name, rsp.parameters)
-            assert not State.FAILURE in prx.getStatus().flags
+            assert State.FAILURE not in prx.getStatus().flags
         else:
             if isinstance(rsp, OK):
                 assert False, "Found OK when test_should_pass==false: %s" % rsp
@@ -669,12 +691,13 @@ class ITest(object):
 
         return rsp
 
-    def doAllSubmit(self, requests, client, test_should_pass=True, omero_group=None):
+    def doAllSubmit(self, requests, client, test_should_pass=True,
+                    omero_group=None):
         da = DoAll()
         da.requests = requests
-        rsp = self.doSubmit(da, client, test_should_pass=test_should_pass, omero_group=omero_group)
+        rsp = self.doSubmit(da, client, test_should_pass=test_should_pass,
+                            omero_group=omero_group)
         return rsp
 
     def teardown_method(self, method):
-        failure = False
         self.__clients.__del__()
