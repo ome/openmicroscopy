@@ -124,6 +124,10 @@ def imageMarshal (image, key=None):
     width, height = image._re.getTileSize()
     levels = image._re.getResolutionLevels()
     zoomLevelScaling = image.getZoomLevelScaling()
+    nominalMagnification = image.getObjectiveSettings() is not None \
+        and image.getObjectiveSettings().getObjective().getNominalMagnification() \
+        or None
+
     init_zoom = None
     if hasattr(settings, 'VIEWER_INITIAL_ZOOM_LEVEL'):
         init_zoom = settings.VIEWER_INITIAL_ZOOM_LEVEL
@@ -149,6 +153,8 @@ def imageMarshal (image, key=None):
             rv['init_zoom'] = init_zoom
         if zoomLevelScaling is not None:
             rv.update({'zoomLevelScaling': zoomLevelScaling})
+        if nominalMagnification is not None:
+            rv.update({'nominalMagnification': nominalMagnification})
         try:
             rv['pixel_range'] = image.getPixelRange()
             rv['channels'] = map(lambda x: channelMarshal(x), image.getChannels())
