@@ -27,8 +27,8 @@ installed by default when using pip install, see the above page for
 more details.
 
 Jython can be installed using the installer JAR at
-http://www.jython.org/downloads.html You may need to set JYTHON_HOME
-and JYTHONPATH depending on your installation.
+http://www.jython.org/downloads.html You may need to set `JYTHON_HOME`
+and `JYTHONPATH` depending on your installation.
 
 If you are planning to run the OMERO.insight and OMERO.web tests, 
 you will have to run robotframework with Python and with Jython.
@@ -41,7 +41,9 @@ See http://github.com/rtomac/robotframework-selenium2library
 
 If you have pip installed, you can install the library with the following
 
+```
 pip install robotframework-selenium2library
+```
 
 By default, the tests are run using the default browser i.e. Firefox
 If you want to run the tests on Chrome, you need to install the chromedriver.
@@ -49,7 +51,9 @@ See https://code.google.com/p/chromedriver/downloads/list
 
 If you are running the tests on Mac OS X, you can install with the following
 
+```
 brew install chromedriver
+```
 
 Setting up
 ----------
@@ -57,11 +61,15 @@ Setting up
 If you wish to set-up data, i.e. create a Project, dataset and
 import few images in the dataset, you first need to run
 
+```
 ./build.py test-compile
+```
 
 then start your server and run
 
+```
 ./build.py -f components/tests/ui/build.xml setup-db
+```
 
 If you need more images, run the last command again. The images will be
 imported in the dataset created the first time.
@@ -71,14 +79,21 @@ All components
 
 To run the entire test suite for Insight, Web and CLI you should use
 
+```
 ./build.py -f components/tests/ui/build.xml test-all
+```
 
 The results can then be aggregated using
 
+```
 ./build.py -f components/tests/ui/build.xml aggregate-results
+```
 
 The aggregated output of the tests can be found under
+
+```
 components/tests/ui/target/reports/*
+```
 
 OMERO.insight
 -------------
@@ -108,26 +123,40 @@ our code.
 
 To run all the Insight tests, use
 
+```
 ./build.py -f components/tests/ui/build.xml ui-test-insight
+```
 
 The output of the tests can be found under
-components/tests/ui/target/reports/insight/* with one output directory
-created for each of the testcases directory.
+`components/tests/ui/target/reports/insight/*` with one output directory
+created for each testcase directory.
 
-To run the tests in a given directory, those under testcases/insight/icons
+To run the tests in a given directory, those under `testcases/insight/icons`
 for example, use
+
+```
 ./build.py -f components/tests/ui/build.xml ui-test-insight -DTEST=icons
+```
 
 The output of the tests can be found under
+
+```
 components/tests/ui/target/reports/insight/icons/
+```
 
 
 To run the tests in a given test
 
+```
 ./build.py -f components/tests/ui/build.xml ui-test-insight -DTEST=menus/context-menus.txt
+```
 
 The output of the test can be found under 
+
+```
 components/tests/ui/target/reports/insight/menus
+```
+
 i.e. the parent directory of the test itself.
 
 OMERO.web
@@ -145,48 +174,66 @@ for more information.
 
 If you need to specify the port used for OMERO.web e.g. if you are running the
 lightweight development server, you will need to modify a few values in
-config.txt located under components/tests/ui/testcases
+`components/tests/ui/testcases/config.txt`
 
 Replace
 
+```
 ${LOGIN URL}              http://${WEB HOST}/webclient/login/
 ${WELCOME URL}            http://${WEB HOST}/webclient/
 ${WEBADMIN WELCOME URL}   http://${WEB HOST}/webadmin/
+```
 
 by 
 
+```
 ${LOGIN URL}              http://${WEB HOST}:${WEB PORT}/webclient/login/
 ${WELCOME URL}            http://${WEB HOST}:${WEB PORT}/webclient/
 ${WEBADMIN WELCOME URL}   http://${WEB HOST}:${WEB PORT}/webadmin/
+```
 
-and modify the value of ${WEB PORT} if required.
+and modify the value of `${WEB PORT}` if required.
 
 To run all the web tests on both Firefox and Chrome, use
 
+```
 ./build.py -f components/tests/ui/build.xml ui-test-web
+```
 
 The output of the tests can be found under
 
+```
 components/tests/ui/target/reports/web/firefox
 components/tests/ui/target/reports/web/chrome
+```
 
 for each browser.
 
 To run all the web tests on only Firefox or Chrome respectively, use
 
+```
 ./build.py -f components/tests/ui/build.xml web-firefox
 ./build.py -f components/tests/ui/build.xml web-chrome
+```
 
 The output of the tests can be found repectively under
 
+```
 components/tests/ui/target/reports/web/firefox
 components/tests/ui/target/reports/web/chrome
+```
 
-To run a single test under testcases/web, for example
+To run a single test under `testcases/web`, for example
 
+```
 ./build.py -f components/tests/ui/build.xml web-firefox -DTEST=tree_test.txt
+```
 
 with the ouput being available under
+
+```
+components/tests/ui/target/reports/web/firefox
+```
 
 
 OMERO CLI
@@ -194,8 +241,12 @@ OMERO CLI
 
 To run all the CLI tests, from the top level
 
+```
 ./build.py -f components/tests/ui/build.xml test-cli
+```
 
 The output of the tests can be found under
 
+```
 components/tests/ui/target/reports/cli
+```
