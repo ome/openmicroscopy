@@ -24,7 +24,7 @@ import omero
 from omero.plugins.download import DownloadControl
 from omero.cli import NonZeroReturnCode
 from test.integration.clitest.cli import CLITest
-from omero.rtypes import rstring
+from omero.rtypes import rstring, unwrap
 
 
 class TestDownload(CLITest):
@@ -53,7 +53,23 @@ class TestDownload(CLITest):
         finally:
             rfs.close()
 
-    # Download commands
+    def testInvalidIDInput(self):
+        self.args += ["file", 'test']
+        with py.test.raises(NonZeroReturnCode):
+            self.cli.invoke(self.args, strict=True)
+
+    def testInvalidObject(self):
+        self.args += ["object:name", 'test']
+        with py.test.raises(NonZeroReturnCode):
+            self.cli.invoke(self.args, strict=True)
+
+    def testOriginalFileInvalidID(self, tmpdir):
+        tmpfile = tmpdir.join('test')
+        self.args += ["-1", str(tmpfile)]
+        with py.test.raises(NonZeroReturnCode):
+            self.cli.invoke(self.args, strict=True)
+
+    # OriginalFile test
     # ========================================================================
     def testOriginalFileTmpfile(self, tmpdir):
         ofile = self.create_original_file("test")
@@ -70,8 +86,22 @@ class TestDownload(CLITest):
         out, err = capsys.readouterr()
         assert out == "test"
 
-    def testOriginalFileInvalidID(self, tmpdir):
+    # Image test
+    # ========================================================================
+    def testImage(self, tmpdir):
+        filename = self.OmeroPy / ".." / ".." / ".." / \
+            "components" / "common" / "test" / "tinyTest.d3d.dv"
+        pix_ids = self.import_image(filename)
+        params = omero.sys.ParametersI().addId(pix_ids[0])
+        image_id = unwrap(self.query.projection(
+            "select i.id from Image i "
+            "join i.pixels p where p.id = :id", params)[0])[0]
         tmpfile = tmpdir.join('test')
-        self.args += ["-1", str(tmpfile)]
-        with py.test.raises(NonZeroReturnCode):
-            self.cli.invoke(self.args, strict=True)
+        self.args += ["Image:%s" % image_id, str(tmpfile)]
+        self.cli.invoke(self.args, strict=True)
+        with open(str(tmpfile)) as f:
+            bytes1 = f.read()
+        with open(filename) as f:
+            bytes2 = f.read()
+
+        assert bytes1 == bytes2
