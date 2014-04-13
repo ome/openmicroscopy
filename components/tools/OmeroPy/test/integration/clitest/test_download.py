@@ -71,17 +71,19 @@ class TestDownload(CLITest):
 
     # OriginalFile test
     # ========================================================================
-    def testOriginalFileTmpfile(self, tmpdir):
+    @py.test.mark.parametrize('prefix', ['', 'OriginalFile:'])
+    def testOriginalFileTmpfile(self, prefix, tmpdir):
         ofile = self.create_original_file("test")
         tmpfile = tmpdir.join('test')
-        self.args += [str(ofile.id.val), str(tmpfile)]
+        self.args += ['%s%s' % (prefix, str(ofile.id.val)), str(tmpfile)]
         self.cli.invoke(self.args, strict=True)
         with open(str(tmpfile)) as f:
             assert f.read() == "test"
 
-    def testOriginalFileStdout(self, capsys):
+    @py.test.mark.parametrize('prefix', ['', 'OriginalFile:'])
+    def testOriginalFileStdout(self, prefix, capsys):
         ofile = self.create_original_file("test")
-        self.args += [str(ofile.id.val), '-']
+        self.args += ['%s%s' % (prefix, str(ofile.id.val)), '-']
         self.cli.invoke(self.args, strict=True)
         out, err = capsys.readouterr()
         assert out == "test"
