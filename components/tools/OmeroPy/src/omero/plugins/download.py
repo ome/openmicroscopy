@@ -64,9 +64,16 @@ class DownloadControl(BaseControl):
         if file_id:
             return file_id
 
-        # Assume input is of form OriginalFile:id
         query = session.getQueryService()
         params = omero.sys.ParametersI()
+
+        # Assume input is of form FileAnnotation:id
+        fa_id = self.parse_object_id("FileAnnotation", value)
+        if fa_id:
+            fa = query.get("FileAnnotation", fa_id)
+            return fa.getFile().id.val
+
+        # Assume input is of form Image:id
         image_id = self.parse_object_id("Image", value)
         if image_id:
             params.addLong('iid', image_id)
