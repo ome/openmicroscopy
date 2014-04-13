@@ -69,7 +69,7 @@ class TestDownload(CLITest):
         with py.test.raises(NonZeroReturnCode):
             self.cli.invoke(self.args, strict=True)
 
-    # OriginalFile test
+    # OriginalFile tests
     # ========================================================================
     @py.test.mark.parametrize('prefix', ['', 'OriginalFile:'])
     def testOriginalFileTmpfile(self, prefix, tmpdir):
@@ -88,7 +88,30 @@ class TestDownload(CLITest):
         out, err = capsys.readouterr()
         assert out == "test"
 
-    # Image test
+    # FileAnnotation tests
+    # ========================================================================
+    def testFileAnnotationTmpfile(self, tmpdir):
+        ofile = self.create_original_file("test")
+        fa = omero.model.FileAnnotationI()
+        fa.setFile(ofile)
+        fa = self.update.saveAndReturnObject(fa)
+        tmpfile = tmpdir.join('test')
+        self.args += ['FileAnnotation:%s' % str(fa.id.val), str(tmpfile)]
+        self.cli.invoke(self.args, strict=True)
+        with open(str(tmpfile)) as f:
+            assert f.read() == "test"
+
+    def testFileAnnotationStdout(self, capsys):
+        ofile = self.create_original_file("test")
+        fa = omero.model.FileAnnotationI()
+        fa.setFile(ofile)
+        fa = self.update.saveAndReturnObject(fa)
+        self.args += ['FileAnnotation:%s' % str(fa.id.val), '-']
+        self.cli.invoke(self.args, strict=True)
+        out, err = capsys.readouterr()
+        assert out == "test"
+
+    # Image tests
     # ========================================================================
     def testImage(self, tmpdir):
         filename = self.OmeroPy / ".." / ".." / ".." / \
