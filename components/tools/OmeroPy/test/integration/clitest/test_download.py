@@ -24,7 +24,7 @@ import omero
 from omero.plugins.download import DownloadControl
 from omero.cli import NonZeroReturnCode
 from test.integration.clitest.cli import CLITest
-from omero.rtypes import rstring, unwrap
+from omero.rtypes import rstring
 
 
 class TestDownload(CLITest):
@@ -91,17 +91,22 @@ class TestDownload(CLITest):
     def testImage(self, tmpdir):
         filename = self.OmeroPy / ".." / ".." / ".." / \
             "components" / "common" / "test" / "tinyTest.d3d.dv"
+        with open(filename) as f:
+            bytes1 = f.read()
         pix_ids = self.import_image(filename)
-        params = omero.sys.ParametersI().addId(pix_ids[0])
-        image_id = unwrap(self.query.projection(
-            "select i.id from Image i "
-            "join i.pixels p where p.id = :id", params)[0])[0]
+        pixels = self.query.get("Pixels", long(pix_ids[0]))
         tmpfile = tmpdir.join('test')
-        self.args += ["Image:%s" % image_id, str(tmpfile)]
+        self.args += ["Image:%s" % pixels.getImage().id.val, str(tmpfile)]
         self.cli.invoke(self.args, strict=True)
         with open(str(tmpfile)) as f:
-            bytes1 = f.read()
-        with open(filename) as f:
             bytes2 = f.read()
-
         assert bytes1 == bytes2
+
+    def testMIF(self, tmpdir):
+        images = self.importMIF(2)
+        tmpfile = tmpdir.join('test')
+        self.args += ["Image:%s" % images[0].id.val, str(tmpfile)]
+        self.cli.invoke(self.args, strict=True)
+        with open(str(tmpfile)) as f:
+            bytes = f.read()
+        assert not bytes
