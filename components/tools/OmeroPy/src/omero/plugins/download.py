@@ -34,22 +34,9 @@ class DownloadControl(BaseControl):
     def __call__(self, args):
         from omero_model_OriginalFileI import OriginalFileI as OFile
 
+        # Retrieve connection
         client = self.ctx.conn(args)
-        if ':' in args.object:
-            image_id = self.parse_image_id(args.object)
-            query = client.sf.getQueryService()
-            params = omero.sys.ParametersI()
-            params.addLong('iid', image_id)
-            sql = "select f from Image i" \
-                " join i.fileset as fs" \
-                " join fs.usedFiles as uf" \
-                " join uf.originalFile as f" \
-                " where i.id = :iid"
-            query_out = query.projection(sql, params)
-            file_id = unwrap(query_out[0])[0].id.val
-        else:
-            file_id = self.parse_file_id(args.object)
-
+        file_id = self.get_file_id(client.sf, args.object)
         orig_file = OFile(file_id)
         target_file = str(args.filename)
 
@@ -64,22 +51,43 @@ class DownloadControl(BaseControl):
             self.ctx.die(67, "Unknown ValidationException: %s"
                          % ve.message)
 
-    def parse_file_id(self, value):
+    def get_file_id(self, session, value):
 
-        try:
-            return long(value)
-        except ValueError:
-            self.ctx.die(601, 'Invalid OriginalFile ID input')
+        if ':' not in value:
+            try:
+                return long(value)
+            except ValueError:
+                self.ctx.die(601, 'Invalid OriginalFile ID input')
 
-    def parse_image_id(self, value):
+        # Assume input is of form OriginalFile:id
+        file_id = self.parse_object_id("OriginalFile", value)
+        if file_id:
+            return file_id
 
-        pattern = r'Image:(?P<id>\d+)'
+        # Assume input is of form OriginalFile:id
+        query = session.getQueryService()
+        params = omero.sys.ParametersI()
+        image_id = self.parse_object_id("Image", value)
+        if image_id:
+            params.addLong('iid', image_id)
+            sql = "select f from Image i" \
+                " join i.fileset as fs" \
+                " join fs.usedFiles as uf" \
+                " join uf.originalFile as f" \
+                " where i.id = :iid"
+            query_out = query.projection(sql, params)
+            return unwrap(query_out[0])[0].id.val
+
+        self.ctx.die(601, 'Invalid object input')
+
+    def parse_object_id(self, object_type, value):
+
+        pattern = r'%s:(?P<id>\d+)' % object_type
         pattern = re.compile('^' + pattern + '$')
         m = pattern.match(value)
         if not m:
-            self.ctx.die(601, 'Invalid object input')
+            return
         return long(m.group('id'))
-
 
 try:
     register("download", DownloadControl, HELP)
