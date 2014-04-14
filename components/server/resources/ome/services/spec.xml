@@ -265,7 +265,6 @@
                 <value>/OriginalFile;HARD;/Fileset/FilesetJobLink/Job/JobOriginalFileLink</value>
                 <value>/Fileset/FilesetJobLink</value>
                 <value>/Fileset/FilesetJobLink/Job;NULL</value>
-                <value>/Fileset/FilesetJobLink/Job/FilesetVersionInfo</value>
                 <value>/Fileset/FilesetAnnotationLink</value>
                 <value>/Annotation;SOFT;/Fileset/FilesetAnnotationLink</value>
                 <value>/Fileset+Only</value>
