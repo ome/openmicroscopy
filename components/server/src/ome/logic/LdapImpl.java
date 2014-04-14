@@ -396,6 +396,10 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap,
      */
     public boolean createUserFromLdap(String username, String password,
             boolean checkPassword) {
+        if (iQuery.findByString(Experimenter.class, "omeName", username) != null) {
+            throw new ValidationException("User already exists: " + username);
+        }
+
         Experimenter exp = findExperimenter(username);
         String ldapDn = getContextMapper().getDn(exp);
         DistinguishedName dn = new DistinguishedName(ldapDn);
