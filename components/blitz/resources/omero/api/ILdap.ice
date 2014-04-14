@@ -29,7 +29,7 @@ module omero {
                 idempotent omero::model::Experimenter findExperimenter(string username) throws ServerError;
                 idempotent void setDN(omero::RLong experimenterID, string dn) throws ServerError;
                 idempotent bool getSetting() throws ServerError;
-                idempotent bool createUserFromLdap(string username) throws ServerError;
+                bool createUserFromLdap(string username) throws ServerError;
             };
 
     };
