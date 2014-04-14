@@ -83,6 +83,8 @@ class DownloadControl(BaseControl):
                 " join uf.originalFile as f" \
                 " where i.id = :iid"
             query_out = query.projection(sql, params)
+            if not query_out:
+                self.ctx.die(602, 'Input image has no associated Fileset')
             return unwrap(query_out[0])[0].id.val
 
         self.ctx.die(601, 'Invalid object input')
