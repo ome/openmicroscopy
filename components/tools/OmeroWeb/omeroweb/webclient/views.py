@@ -1090,8 +1090,8 @@ def batch_annotate(request, conn=None, **kwargs):
     figScripts = manager.listFigureScripts(objs)
     if 'image' in objs and len(objs) > 0:
         iids = [i.getId() for i in objs['image']]
-        filesetInfo = manager.getFilesetFileInfo(iids)
-        archivedInfo = manager.getArchivedFilesInfo(iids)
+        filesetInfo = conn.getFilesetFilesInfo(iids)
+        archivedInfo = conn.getArchivedFilesInfo(iids)
         filesetInfo['count'] += archivedInfo['count']
         filesetInfo['size'] += archivedInfo['size']
 
