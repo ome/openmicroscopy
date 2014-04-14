@@ -22,6 +22,7 @@ package omero.gateway.util;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
+import omero.model.Annotation;
 import omero.model.BooleanAnnotation;
 import omero.model.CommentAnnotation;
 import omero.model.Dataset;
@@ -32,11 +33,15 @@ import omero.model.ExperimenterGroup;
 import omero.model.FileAnnotation;
 import omero.model.Fileset;
 import omero.model.Image;
+import omero.model.ImageI;
 import omero.model.LongAnnotation;
 import omero.model.OriginalFile;
+import omero.model.Pixels;
+import omero.model.PixelsI;
 import omero.model.Plate;
 import omero.model.PlateAcquisition;
 import omero.model.PlateAcquisitionI;
+import omero.model.PlateI;
 import omero.model.Project;
 import omero.model.ProjectI;
 import omero.model.Screen;
@@ -59,6 +64,7 @@ import pojos.GroupData;
 import pojos.ImageData;
 import pojos.LongAnnotationData;
 import pojos.MultiImageData;
+import pojos.PixelsData;
 import pojos.PlateAcquisitionData;
 import pojos.PlateData;
 import pojos.ProjectData;
@@ -72,6 +78,12 @@ import pojos.WellData;
 import pojos.WellSampleData;
 import pojos.XMLAnnotationData;
 
+/**
+ * Provides some utility/convenient methods for the {@link Gateway}
+ * 
+ * @author Dominik Lindner &nbsp;&nbsp;&nbsp;&nbsp;
+ * <a href="mailto:d.lindner@dundee.ac.uk">d.lindner@dundee.ac.uk</a>
+ */
 public abstract class GatewayUtils {
 
     /** Identifies the count property. */
@@ -123,6 +135,24 @@ public abstract class GatewayUtils {
         else if (TagAnnotationI.class.equals(klass))
             table = "AnnotationAnnotationLink";
         return table;
+    }
+    
+    /**
+     * Determines the table name corresponding to the specified class.
+     *
+     * @param klass The class to analyze.
+     * @return See above.
+     */
+    public static String getTableForClass(Class klass)
+    {
+            if (DatasetData.class.equals(klass)) return "Dataset";
+            else if (ProjectData.class.equals(klass)) return "Project";
+            else if (ImageData.class.equals(klass)) return "Image";
+            else if (ScreenData.class.equals(klass)) return "Screen";
+            else if (PlateData.class.equals(klass)) return "Plate";
+            else if (PlateAcquisitionData.class.equals(klass))
+                    return "PlateAcquisition";
+            return null;
     }
 
     /**
@@ -236,5 +266,68 @@ public abstract class GatewayUtils {
             else if (BooleanAnnotationData.class.equals(pojo))
                     return "ome.model.annotations.BooleanAnnotation";
             return null;
+    }
+    
+    /**
+     * Determines the table name corresponding to the specified class.
+     *
+     * @param klass The class to analyze.
+     * @return See above.
+     */
+    public static String getTableForAnnotationLink(String klass)
+    {
+            String table = null;
+            if (klass == null) return table;
+            if (klass.equals(Dataset.class.getName()))
+                    table = "DatasetAnnotationLink";
+            else if (klass.equals(Project.class.getName()))
+                    table = "ProjectAnnotationLink";
+            else if (klass.equals(Image.class.getName()))
+                    table = "ImageAnnotationLink";
+            else if (klass.equals(Pixels.class.getName()))
+                    table = "PixelAnnotationLink";
+            else if (klass.equals(Annotation.class.getName()))
+                    table = "AnnotationAnnotationLink";
+            else if (klass.equals(DatasetData.class.getName()))
+                    table = "DatasetAnnotationLink";
+            else if (klass.equals(ProjectData.class.getName()))
+                    table = "ProjectAnnotationLink";
+            else if (klass.equals(ImageData.class.getName()))
+                    table = "ImageAnnotationLink";
+            else if (klass.equals(PixelsData.class.getName()))
+                    table = "PixelAnnotationLink";
+            else if (klass.equals(Screen.class.getName())) table =
+                    "ScreenAnnotationLink";
+            else if (klass.equals(Plate.class.getName()))
+                    table = "PlateAnnotationLink";
+            else if (klass.equals(ScreenData.class.getName()))
+                    table = "ScreenAnnotationLink";
+            else if (klass.equals(PlateData.class.getName()))
+                    table = "PlateAnnotationLink";
+            else if (klass.equals(DatasetI.class.getName()))
+                    table = "DatasetAnnotationLink";
+            else if (klass.equals(ProjectI.class.getName()))
+                    table = "ProjectAnnotationLink";
+            else if (klass.equals(ImageI.class.getName()))
+                    table = "ImageAnnotationLink";
+            else if (klass.equals(PixelsI.class.getName()))
+                    table = "PixelAnnotationLink";
+            else if (klass.equals(ScreenI.class.getName()))
+                    table = "ScreenAnnotationLink";
+            else if (klass.equals(PlateI.class.getName()))
+                    table = "PlateAnnotationLink";
+            else if (klass.equals(ScreenData.class.getName()))
+                    table = "ScreenAnnotationLink";
+            else if (klass.equals(PlateData.class.getName()))
+                    table = "PlateAnnotationLink";
+            else if (klass.equals(TagAnnotationData.class.getName()))
+                    table = "AnnotationAnnotationLink";
+            else if (klass.equals(PlateAcquisitionData.class.getName()))
+                    table = "PlateAcquisitionAnnotationLink";
+            else if (klass.equals(PlateAcquisitionI.class.getName()))
+                    table = "PlateAcquisitionAnnotationLink";
+            else if (klass.equals(PlateAcquisition.class.getName()))
+                    table = "PlateAcquisitionAnnotationLink";
+            return table;
     }
 }
