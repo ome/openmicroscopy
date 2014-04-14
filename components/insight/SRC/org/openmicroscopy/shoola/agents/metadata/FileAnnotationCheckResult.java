@@ -49,11 +49,7 @@ public class FileAnnotationCheckResult {
      * @return See above.
      */
     public Set<DataObject> getLinks(FileAnnotationData fd) {
-        Set<DataObject> existingLinks = this.linkMap.get(fd);
-        if (existingLinks == null) {
-            existingLinks = Collections.emptySet();
-        }
-        return existingLinks;
+        return linkMap.get(fd);
     }
 
     /**
