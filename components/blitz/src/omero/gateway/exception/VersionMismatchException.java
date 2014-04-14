@@ -19,26 +19,51 @@
 
 package omero.gateway.exception;
 
+/**
+ * Indicates that there is a version mismatch between client and server
+ * 
+ * @author Dominik Lindner &nbsp;&nbsp;&nbsp;&nbsp;
+ * <a href="mailto:d.lindner@dundee.ac.uk">d.lindner@dundee.ac.uk</a>
+ */
 public class VersionMismatchException extends Exception {
     
+    /** the client's version */
     private String clientVersion;
 
+    /** the server's version */
     private String serverVersion;
 
+    /**
+     * See {@link Exception#Exception(String)}
+     * @param message
+     */
     public VersionMismatchException(String message) {
         super(message);
     }
 
+    /**
+     * Createa a new instance, providing client and server version number
+     * @param clientVersion the client's version 
+     * @param serverVersion the server's version
+     */
     public VersionMismatchException(String clientVersion, String serverVersion) {
         super();
         this.clientVersion = clientVersion;
         this.serverVersion = serverVersion;
     }
 
+    /**
+     * Get the client's version number
+     * @return See above
+     */
     public String getClientVersion() {
         return clientVersion;
     }
 
+    /**
+     * Get the server's version number
+     * @return See above
+     */
     public String getServerVersion() {
         return serverVersion;
     }

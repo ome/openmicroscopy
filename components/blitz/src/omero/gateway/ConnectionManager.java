@@ -57,6 +57,15 @@ import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Multimaps;
 
+/**
+ * Manages all the connection related stuff for the Gateway:
+ * Session creation, keep alive, etc.
+ * 
+ * Should not be instantiated directly, therefore abstract.
+ * 
+ * @author Dominik Lindner &nbsp;&nbsp;&nbsp;&nbsp;
+ * <a href="mailto:d.lindner@dundee.ac.uk">d.lindner@dundee.ac.uk</a>
+ */
 public abstract class ConnectionManager {
 
     private Logger log = LoggerFactory.getLogger(ConnectionManager.class

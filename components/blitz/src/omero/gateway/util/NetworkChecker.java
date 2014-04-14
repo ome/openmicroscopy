@@ -44,7 +44,6 @@ import java.util.concurrent.atomic.AtomicLong;
  *         href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @since 4.4
  */
-@SuppressWarnings("unchecked")
 public class NetworkChecker {
 
     private final AtomicLong lastCheck = new AtomicLong(
