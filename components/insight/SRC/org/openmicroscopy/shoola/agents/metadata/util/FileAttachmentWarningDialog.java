@@ -41,6 +41,7 @@ import javax.swing.JScrollPane;
 
 import org.openmicroscopy.shoola.agents.metadata.FileAnnotationCheckResult;
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
+import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -136,7 +137,7 @@ public class FileAttachmentWarningDialog extends JDialog {
             Collections.sort(annos, new FileAnnotationDataComparator());
             for(FileAnnotationData fd :annos) {
                 JLabel label = new JLabel(attachIcon);
-                label.setText(fd.getFileName());
+                label.setText(EditorUtil.truncate(fd.getFileName()));
                 p.add(label);
             }
             p.add(Box.createVerticalGlue());
