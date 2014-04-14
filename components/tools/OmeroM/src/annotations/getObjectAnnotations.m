@@ -20,12 +20,15 @@ function annotations = getObjectAnnotations(session, annotationType, parentType,
 %    anns = getObjectAnnotations(session, annotationType, parentType, ids,
 %    'owner', ownerid) returns annotations owned by the user with
 %    identifier ownerid. Use -1 to return the annotations owned by all
-%    users. Default: identifier of the session owner.
+%    users.
+%    Default: identifier of the session owner.
 %
 %    anns = getObjectAnnotations(session, annotationType, parentType, ids,
-%    'flatten', tf) flattens the returns annotations as an vector if true.
-%    If false, a cell array is returned where the i-th element is a vector
-%    of annotations linked to the i-th object. Default: true.
+%    'flatten', tf) sets the flatting option for the ouptut. If true, all
+%    found annotations are returned as a single array of annotations. If
+%    false, they are returned as  a cell array where the i-th element is an
+%    array of all the annotations linked to the i-th object.
+%    Default: true.
 %
 %    All additional options input as parameter/value pairs are passed to
 %    the OMERO service.
