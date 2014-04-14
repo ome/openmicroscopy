@@ -7641,25 +7641,16 @@ class _ImageWrapper (BlitzObjectWrapper):
         Used by L{self.countImportedImageFiles} which also handles FS files.
         """
         if self._archivedFileCount == None:
-            pid = self.getPixelsId()
-            params = omero.sys.Parameters()
-            params.map = {"pid": rlong(pid)}
-            query = "select count(link.id) from PixelsOriginalFileMap as link where link.child.id=:pid"
-            count = self._conn.getQueryService().projection(query, params, self._conn.SERVICE_OPTS)
-            self._archivedFileCount = count[0][0]._val
+            info = self._conn.getArchivedFilesInfo([self.getId()])
+            self._archivedFileCount = info['count']
         return self._archivedFileCount
 
     def countFilesetFiles (self):
         """ Counts the Original Files that are part of the FS Fileset linked to this image """
 
         if self._filesetFileCount == None:
-            params = omero.sys.Parameters()
-            params.map = {'imageId': rlong(self.getId())}
-            query = "select count(fse.id) from FilesetEntry as fse join fse.fileset as fs "\
-                    "left outer join fs.images as image where image.id=:imageId"
-            queryService = self._conn.getQueryService()
-            fscount = queryService.projection(query, params, self._conn.SERVICE_OPTS)
-            self._filesetFileCount = fscount[0][0]._val
+            info = self._conn.getFilesetFilesInfo([self.getId()])
+            self._filesetFileCount = info['count']
         return self._filesetFileCount
 
     def countImportedImageFiles (self):
