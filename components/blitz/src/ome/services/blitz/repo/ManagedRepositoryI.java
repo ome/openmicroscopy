@@ -47,6 +47,7 @@ import ome.system.ServiceFactory;
 import ome.util.SqlAction;
 import ome.util.checksum.ChecksumProviderFactory;
 import ome.util.checksum.ChecksumProviderFactoryImpl;
+import omero.RString;
 import omero.ResourceError;
 import omero.ServerError;
 import omero.grid.ImportLocation;
@@ -59,8 +60,6 @@ import omero.model.Fileset;
 import omero.model.FilesetEntry;
 import omero.model.FilesetI;
 import omero.model.FilesetJobLink;
-import omero.model.FilesetVersionInfo;
-import omero.model.FilesetVersionInfoI;
 import omero.model.IndexingJobI;
 import omero.model.Job;
 import omero.model.MetadataImportJob;
@@ -290,8 +289,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
 
         // Initialization version info
         final ImportConfig config = new ImportConfig();
-        final FilesetVersionInfo serverVersionInfo = new FilesetVersionInfoI();
-        serverVersionInfo.setBioformatsReader(rstring("Unknown"));
+        final Map<String, RString> serverVersionInfo = new HashMap<String, RString>();
         config.fillVersionInfo(serverVersionInfo);
 
         // Create and validate jobs
@@ -358,8 +356,11 @@ public class ManagedRepositoryI extends PublicRepositoryI
     protected Class<? extends FormatReader> getReaderClass(Fileset fs, Current __current) {
         for (final Job job : fs.linkedJobList()) {
             if (job instanceof UploadJob) {
-                final FilesetVersionInfo versionInfo = ((UploadJob) job).getVersionInfo(__current);
-                final String readerName = versionInfo.getBioformatsReader(__current).getValue();
+                final Map<String, RString> versionInfo = ((UploadJob) job).getVersionInfo(__current);
+                if (versionInfo == null || !versionInfo.containsKey(ImportConfig.VersionInfo.BIO_FORMATS_READER.key)) {
+                    continue;
+                }
+                final String readerName = versionInfo.get(ImportConfig.VersionInfo.BIO_FORMATS_READER.key).getValue();
                 final Class<?> potentialReaderClass;
                 try {
                     potentialReaderClass = Class.forName(readerName);
