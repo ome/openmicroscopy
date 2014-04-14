@@ -498,7 +498,7 @@ class BaseContainer(BaseController):
         query = "select distinct(link) from PixelsOriginalFileMap as link "\
                 "left outer join fetch link.parent as f "\
                 "left outer join link.child as pixels "\
-                "where pixels.image in (:ids)"
+                "where pixels.image.id in (:ids)"
         # count = self._conn.getQueryService().projection(query, params, self._conn.SERVICE_OPTS)
         queryService = self.conn.getQueryService()
         fsinfo = queryService.findAllByQuery(query, params, self.conn.SERVICE_OPTS)
