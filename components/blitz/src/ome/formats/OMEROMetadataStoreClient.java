@@ -4874,10 +4874,9 @@ public class OMEROMetadataStoreClient
 
     public void setMapAnnotationValue(Map<String, String> value, int mapAnnotationIndex) {
         final MapAnnotation o = getMapAnnotation(mapAnnotationIndex);
-        if (o == null || o.getMapValue() == null) {
-            o.setMapValue(null);
-        } else {
-            final Map<String, RString> stringRStringMap = new HashMap<String, RString>(o.getMapValue().size());
+        if (o != null) {
+            final Map<String, RString> stringRStringMap = new HashMap<String, RString>();
+
             for (final Entry<String, String> mapEntry : value.entrySet()) {
                 stringRStringMap.put(mapEntry.getKey(), toRType(mapEntry.getValue()));
             }
