@@ -135,3 +135,10 @@ class TestDownload(CLITest):
         with open(str(tmpfile)) as f:
             bytes = f.read()
         assert not bytes
+
+    def testImageNoFileset(self, tmpdir):
+        pixels = self.pix()
+        tmpfile = tmpdir.join('test')
+        self.args += ["Image:%s" % pixels.getImage().id.val, str(tmpfile)]
+        with  py.test.raises(NonZeroReturnCode):
+            self.cli.invoke(self.args, strict=True)
