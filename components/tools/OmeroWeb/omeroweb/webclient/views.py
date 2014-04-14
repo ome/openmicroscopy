@@ -1091,7 +1091,9 @@ def batch_annotate(request, conn=None, **kwargs):
     if 'image' in objs and len(objs) > 0:
         iids = [i.getId() for i in objs['image']]
         filesetInfo = manager.getFilesetFileInfo(iids)
-
+        archivedInfo = manager.getArchivedFilesInfo(iids)
+        filesetInfo['count'] += archivedInfo['count']
+        filesetInfo['size'] += archivedInfo['size']
 
     obj_ids = []
     obj_labels = []
