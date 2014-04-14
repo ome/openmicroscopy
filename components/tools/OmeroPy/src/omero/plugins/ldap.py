@@ -298,6 +298,8 @@ user never had a password, one will need to be set!""")
             ildap.createUserFromLdap(args.username)
         except omero.SecurityViolation:
             self.ctx.die(131, "SecurityViolation: Admins only!")
+        except omero.ValidationException as ve:
+            self.ctx.die(132, ve.message)
 
 try:
     register("ldap", LdapControl, HELP)
