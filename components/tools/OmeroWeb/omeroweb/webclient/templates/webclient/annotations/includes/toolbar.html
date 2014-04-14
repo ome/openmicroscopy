@@ -53,21 +53,21 @@
         </button>
         <ul class="dropdown">
             <!-- Here we handle a single image (in metadata general) - see below for multiple images (batch annotate) -->
-            {% if manager.image.countImportedImageFiles %}
-              {% with fileCount=manager.image.countImportedImageFiles %}
+            {% if manager.image.getImportedFilesInfo.count %}
+              {% with filesetInfo=manager.image.getImportedFilesInfo %}
             <li>
                 <!-- if we have a single orig file, download directly. Otherwise popup a 
                   'preparing zip' download placeholder -->
                 <a id="download-origfile" 
-                  {% ifequal fileCount 1 %}
+                  {% ifequal filesetInfo.count 1 %}
                     href="{% url 'archived_files' manager.image.id %}"
                   {% else %}
                     href="#"
                     onClick="return OME.openPopup('{% url 'download_placeholder' %}?ids=image-{{ manager.image.id }}&fileCount={{ fileCount }}&name={{ manager.image.name }}');"
                   {% endifequal %}
                 title="Download {{ fileCount }} Archived file{{ fileCount|pluralize:'s (zip)' }}">
-                {{ fileCount }}
-                Archived file{{ fileCount|pluralize:'s (zip)' }}</a>
+                {{ filesetInfo.count }}
+                Archived file{{ filesetInfo.count|pluralize:'s' }} ({{ filesetInfo.size|filesizeformat }})</a>
             </li>
               {% endwith %}
             <!-- Here we handle multiple images (batch annotate panel) -->
