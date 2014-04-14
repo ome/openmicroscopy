@@ -77,9 +77,10 @@ user never had a password, one will need to be set!""")
 
         create = parser.add(
             sub, self.create,
-            help="Create a local OMERO user based on the supplied LDAP username (admins only)"
+            help="Create a local user based on LDAP username (admins only)"
             )
-        create.add_argument("username", help="LDAP username of user to be created")
+        create.add_argument(
+            "username", help="LDAP username of user to be created")
 
         for x in (active, list, getdn, setdn, discover, create):
             x.add_login_arguments()
@@ -296,7 +297,7 @@ user never had a password, one will need to be set!""")
         try:
             ildap.createUserFromLdap(args.username)
         except omero.SecurityViolation:
-            self.ctx.die(136, "SecurityViolation: Admins only!")
+            self.ctx.die(131, "SecurityViolation: Admins only!")
 
 try:
     register("ldap", LdapControl, HELP)
