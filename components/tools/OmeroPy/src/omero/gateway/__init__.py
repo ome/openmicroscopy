@@ -5898,6 +5898,7 @@ class _ImageWrapper (BlitzObjectWrapper):
     _pixels = None
     _archivedFileCount = None
     _filesetFileCount = None
+    _importedFilesInfo = None
 
     _pr = None # projection
     _prStart = None
@@ -7652,6 +7653,19 @@ class _ImageWrapper (BlitzObjectWrapper):
             info = self._conn.getFilesetFilesInfo([self.getId()])
             self._filesetFileCount = info['count']
         return self._filesetFileCount
+
+    def getImportedFilesInfo(self):
+        """
+        Returns a dict of 'count' and 'size' of the Fileset files (OMERO 5) or
+        the Original Archived files (OMERO 4)
+
+        @return:        A dict of 'count' and sum 'size' of the files.
+        """
+        if self._importedFilesInfo == None:
+            self._importedFilesInfo = self._conn.getArchivedFilesInfo([self.getId()])
+            if (self._importedFilesInfo['count'] == 0):
+                self._importedFilesInfo = self._conn.getFilesetFilesInfo([self.getId()])
+        return self._importedFilesInfo
 
     def countImportedImageFiles (self):
         """
