@@ -140,5 +140,5 @@ class TestDownload(CLITest):
         pixels = self.pix()
         tmpfile = tmpdir.join('test')
         self.args += ["Image:%s" % pixels.getImage().id.val, str(tmpfile)]
-        with  py.test.raises(NonZeroReturnCode):
+        with py.test.raises(NonZeroReturnCode):
             self.cli.invoke(self.args, strict=True)
