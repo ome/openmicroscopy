@@ -107,6 +107,10 @@
            classpathref="insight.tools.path"/>
 
   <typedef file="${base.build.dir}/lib.xml"/>
+
+  <!-- Needed for javac.version for <myjavac> -->
+  <property file="${base.build.dir}/../../../etc/local.properties.example" />
+
   <import file="${base.build.dir}/app.xml"/>
   <import file="${base.build.dir}/test.xml"/>
   <import file="${base.build.dir}/dist.xml"/>
