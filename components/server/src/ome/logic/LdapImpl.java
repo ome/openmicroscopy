@@ -142,7 +142,7 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap,
             filter.and(new EqualsFilter(attr, value));
             return ldap.search(dn, filter.encode(), getContextMapper());
         } else {
-            return Collections.EMPTY_LIST;
+            return Collections.emptyList();
         }
     }
 
@@ -204,7 +204,7 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap,
             return ldap.search("", filter.encode(), new GroupAttributeMapper(
                     config));
         } else {
-            return Collections.EMPTY_LIST;
+            return Collections.emptyList();
         }
     }
 
@@ -213,7 +213,7 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap,
     public List<Experimenter> searchByAttributes(String dn,
             String[] attributes, String[] values) {
         if (attributes.length != values.length) {
-            return Collections.EMPTY_LIST;
+            return Collections.emptyList();
         }
         AndFilter filter = new AndFilter();
         for (int i = 0; i < attributes.length; i++) {
