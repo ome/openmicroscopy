@@ -686,6 +686,7 @@ public abstract class ConnectionManager {
             throw new VersionMismatchException("Could not check versions");
         }
 
+        // TODO: This would allow a 4.1.0 client to connect to a 5.1.0 server, but not a 5.0.0 client to a 5.1.0 server. Is this really intended? 
         if (s1 < c1)
             throw new VersionMismatchException(client, server);
         if (s2 != c2)

@@ -31,9 +31,12 @@ import java.util.Set;
 
 import omero.api.IContainerPrx;
 import omero.api.IMetadataPrx;
+import omero.api.IQueryPrx;
 import omero.gateway.exception.DSAccessException;
 import omero.gateway.exception.DSOutOfServiceException;
+import omero.model.IObject;
 import omero.sys.Parameters;
+import omero.sys.ParametersI;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -183,5 +186,82 @@ public class Gateway extends ConnectionManager {
                     handleException(t, "Cannot find annotations for "+nodeType+".");
             }
             return new HashMap();
+    }
+    
+    /**
+     * Finds the links if any between the specified parent and children.
+     *
+     * @param ctx The security context.
+     * @param parent The parent.
+     * @param children Collection of children as identifiers.
+     * @return See above.
+     * @throws DSOutOfServiceException If the connection is broken, or logged in
+     * @throws DSAccessException If an error occurred while trying to
+     * retrieve data from OMERO service.
+     */
+    public List findLinks(SecurityContext ctx, IObject parent, List children)
+            throws DSOutOfServiceException, DSAccessException
+    {
+        Connector c = getConnector(ctx, true, false);
+            try {
+                IQueryPrx service = c.getQueryService();
+                    String table = getTableForLink(parent.getClass());
+                    if (table == null) return null;
+
+                    ParametersI param = new ParametersI();
+                    param.map.put("parentID", parent.getId());
+
+                    String sql = "select link from "+table+" as link where " +
+                    "link.parent.id = :parentID";
+                    if (children != null && children.size() > 0) {
+                            sql += " and link.child.id in (:childIDs)";
+                            param.addLongs("childIDs", children);
+
+                    }
+                    return service.findAllByQuery(sql, param);
+            } catch (Throwable t) {
+                    handleException(t, "Cannot retrieve the requested link for "+
+                                    "parent ID: "+parent.getId());
+            }
+            return new ArrayList();
+    }
+    
+    /**
+     * Finds the links if any between the specified parent and children.
+     *
+     * @param ctx The security context.
+     * @param parentClass The parent.
+     * @param children Collection of children as identifiers.
+     * @param userID The id of the user.
+     * @return See above.
+     * @throws DSOutOfServiceException If the connection is broken, or logged in
+     * @throws DSAccessException If an error occurred while trying to
+     * retrieve data from OMERO service.
+     */
+    public List findLinks(SecurityContext ctx, Class parentClass, List children,
+                    long userID)
+            throws DSOutOfServiceException, DSAccessException
+    {
+        
+        Connector c = getConnector(ctx, true, false);
+            try {
+                IQueryPrx service = c.getQueryService();
+                    String table = getTableForLink(parentClass);
+                    if (table == null) return null;
+                    String sql = "select link from "+table+" as link where " +
+                    "link.child.id in (:childIDs)";
+                    ParametersI param = new ParametersI();
+                    param.addLongs("childIDs", children);
+
+                    if (userID >= 0) {
+                            sql += " and link.details.owner.id = :userID";
+                            param.map.put("userID", omero.rtypes.rlong(userID));
+                    }
+                    return service.findAllByQuery(sql, param);
+            } catch (Throwable t) {
+                    handleException(t, "Cannot retrieve the requested link for "+
+                    "the specified children");
+            }
+            return new ArrayList();
     }
 }
