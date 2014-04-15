@@ -38,8 +38,10 @@ from omeroweb.http import HttpJNLPResponse
 from omero_version import omero_version
 
 from omeroweb.webclient.decorators import render_response
+from omeroweb.webclient.decorators import login_required
 
 @never_cache
+@login_required(ignore_login_fail=True)
 @render_response()
 def custom_index(request, conn=None, **kwargs):
     context = {"version": omero_version}
@@ -53,10 +55,11 @@ def custom_index(request, conn=None, **kwargs):
             context["error"] = traceback.format_exception(*sys.exc_info())[-1]
     else:
         context['template'] = 'webstart/start.html'
-    
+
     return context
 
 @never_cache
+@login_required(ignore_login_fail=True)
 @render_response()
 def index(request, conn=None, **kwargs):
     context = {"version": omero_version}
