@@ -78,21 +78,21 @@ public class ManageRndSettingsAction
     public static final int SET_OWNER = 4;
 
     /** The default name of the action if the index is {@link #COPY}. */
-    private static final String NAME_COPY = "Copy Settings";
+    private static final String NAME_COPY = "Copy";
 
     /** The description of the action if the index is {@link #COPY}. */
     private static final String DESCRIPTION_COPY =
             "Copy the rendering settings.";
 
     /** The default name of the action if the index is {@link #PASTE}. */
-    private static final String NAME_PASTE = "Paste Settings";
+    private static final String NAME_PASTE = "Paste";
 
     /** The description of the action if the index is {@link #PASTE}. */
     private static final String DESCRIPTION_PASTE =
             "Paste the rendering settings.";
 
     /** The default name of the action if the index is {@link #RESET}. */
-    private static final String NAME_RESET = "Reset Default Settings";
+    private static final String NAME_RESET = "Reset Default";
 
     /** The description of the action if the index is {@link #RESET}. */
     private static final String DESCRIPTION_RESET =
@@ -106,7 +106,7 @@ public class ManageRndSettingsAction
             "Set the Pixels Intensity interval to min/max for all channels.";
 
     /** The name of the action if the index is {@link #SET_OWNER}. */
-    private static final String NAME_SET_OWNER = "Set Owner's Settings";
+    private static final String NAME_SET_OWNER = "Set Owner's";
 
     /** 
      * The description of the action if the index is {@link #SET_OWNER}.
