@@ -291,7 +291,6 @@ CUSTOM_SETTINGS_MAPPINGS = {
     "omero.web.index_template": ["INDEX_TEMPLATE", None, identity],
     
     # WEBSTART
-    "omero.web.webstart_curators_only": ["WEBSTART_CURATORS_ONLY", "false", parse_boolean],
     "omero.web.webstart_template": ["WEBSTART_TEMPLATE", None, identity],
     "omero.web.webstart_jar": ["WEBSTART_JAR", "omero.insight.jar", str],
     "omero.web.webstart_icon": ["WEBSTART_ICON", "webstart/img/icon-omero-insight.png", str],
@@ -325,7 +324,7 @@ DEVELOPMENT_SETTINGS_MAPPINGS = {
     
     # Rename Orphans in data manager; default: '{"NAME":"Orphaned images", "DESCRIPTION":"This is a virtual container with orphaned images. These images are not linked anywhere. Just drag them to the selected container."}'
     "omero.web.ui.tree.orphaned": ["UI_TREE_ORPHANED",'{"NAME":"Orphaned images", "DESCRIPTION":"This is a virtual container with orphaned images. These images are not linked anywhere. Just drag them to the selected container."}', json.loads],
-    
+    "omero.web.webstart_admins_only": ["WEBSTART_ADMINS_ONLY", "false", parse_boolean],
 }
 
 def process_custom_settings(module, settings='CUSTOM_SETTINGS_MAPPINGS'):
