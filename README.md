@@ -1,6 +1,6 @@
 [![Build Status](https://travis-ci.org/openmicroscopy/openmicroscopy.png)](http://travis-ci.org/openmicroscopy/openmicroscopy)
 
-Also see ./CONTRIBUTING.md
+Also see [CONTRIBUTING.md](./CONTRIBUTING.md)
 
 Full developer documentation for OMERO is available from
 http://www.openmicroscopy.org/site/support/omero5/developers/
