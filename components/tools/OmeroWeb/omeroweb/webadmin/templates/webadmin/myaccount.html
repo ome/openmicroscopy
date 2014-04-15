@@ -173,6 +173,8 @@
 
             var FREE_SPACE = {{ freeSpace }};
 
+            $(".totalUsage").text('User');
+
             {% include 'webadmin/includes/drivespaceStats.js' %}
 
             var drivespace_loaded = false;

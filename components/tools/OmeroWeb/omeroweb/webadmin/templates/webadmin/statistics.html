@@ -54,6 +54,7 @@
                 $("#filterBy").hide();
                 $(".usageBy").removeClass('selected');
                 $("#load_groups").addClass('selected');
+                $(".totalUsage").text('Total');
                 plotJson("{% url 'waloaddrivespace_groups' %}");
             }
 
@@ -61,6 +62,7 @@
                 $("#filterBy").hide();
                 $(".usageBy").removeClass('selected');
                 $("#load_users").addClass('selected');
+                $(".totalUsage").text('Total');
                 plotJson("{% url 'waloaddrivespace_users' %}");
             }
 
@@ -80,10 +82,12 @@
                 if (i.groupId) {
                     var url = "{% url 'waindex' %}" + "drivespace_json/group/" + i.groupId +"/";
                     $("#filterBy").text("Group: " + i.label).show().addClass('selected');
+                    $(".totalUsage").text('Group');
                     plotJson(url);
                 } else if (i.userId) {
                     var url = "{% url 'waindex' %}" + "drivespace_json/user/" + i.userId +"/";
                     $("#filterBy").text("User: " + i.label).show().addClass('selected');
+                    $(".totalUsage").text('User');
                     plotJson(url);
                 }
             });
