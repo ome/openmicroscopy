@@ -129,8 +129,8 @@ public class SelectionWizard
      */
     private void initComponents()
     {
-        acceptButton = new JButton("Accept");
-        acceptButton.setToolTipText("Accept the selection.");
+        acceptButton = new JButton("Save");
+        acceptButton.setToolTipText("Save the selection.");
         cancelButton = new JButton("Cancel");
         cancelButton.setToolTipText("Cancel the selection.");
         resetButton = new JButton("Reset");
