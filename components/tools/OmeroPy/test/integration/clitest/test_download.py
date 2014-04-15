@@ -127,6 +127,13 @@ class TestDownload(CLITest):
             bytes2 = f.read()
         assert bytes1 == bytes2
 
+    def testSingleImageWithCompanion(self, tmpdir):
+        image = self.importSingleImageWithCompanion()
+        tmpfile = tmpdir.join('test')
+        self.args += ["Image:%s" % image.id.val, str(tmpfile)]
+        with py.test.raises(NonZeroReturnCode):
+            self.cli.invoke(self.args, strict=True)
+
     def testMIF(self, tmpdir):
         images = self.importMIF(2)
         tmpfile = tmpdir.join('test')
