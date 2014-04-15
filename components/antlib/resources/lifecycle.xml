@@ -252,14 +252,11 @@ omero.version=${omero.version}
 		<property name="emma.enabled"   value="true"/>
 	        <property name="unit.suite" value="unit.testng.xml"/>
 		<copyTestResources/>
-		<javac
-			fork="yes"
-			debug="on"
+		<myjavac
 			destdir="${testclasses.dir}"
-			encoding="UTF-8"
 			classpathref="omero.test.classpath" >
 			<src path="${test.dir}"/>
-		</javac>
+		</myjavac>
 		<jar destfile="${target.dir}/${ivy.module}.jar">
 			<fileset dir="${testclasses.dir}" includes="**/*.class,**/*.xml,**/*.txt,**/*.properties,**/*.dv,**/*.bmp,**/*.jpg,**/*.png"/>
 		</jar>
