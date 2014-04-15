@@ -473,7 +473,8 @@ public class SelectionWizardUI
 	{
 		JPanel p = new JPanel();
 		p.setLayout(new BorderLayout());
-		p.add(UIUtilities.setTextFont("Available:"), BorderLayout.NORTH);
+		p.add(UIUtilities.setTextFont(createText("Available")),
+		        BorderLayout.NORTH);
 		p.add(new JScrollPane(availableItemsListbox), BorderLayout.CENTER);
 		populateAvailableItems();
 		return p;
@@ -509,12 +510,31 @@ public class SelectionWizardUI
 	{
 		JPanel p = new JPanel();
 		p.setLayout(new BorderLayout());
-		p.add(UIUtilities.setTextFont("Selected:"), BorderLayout.NORTH);
+		p.add(UIUtilities.setTextFont(createText("Selected")),
+		        BorderLayout.NORTH);
 		p.add(new JScrollPane(selectedItemsListbox), BorderLayout.CENTER);
 		populateSelectedItems();
 		return p;
 	}
-	
+
+	/**
+	 * Creates the text displayed above the selections.
+	 *
+	 * @param txt The text to display.
+	 * @return See above.
+	 */
+	private String createText(String txt)
+	{
+	    StringBuilder b = new StringBuilder();
+	    b.append(txt);
+        if (TagAnnotationData.class.equals(type)) {
+            b.append(" tags");
+        } else if (FileAnnotationData.class.equals(type)) {
+            b.append(" attachments");
+        }
+        b.append(":");
+        return b.toString();
+	}
 	/**
 	 * Creates a new instance. 
 	 * 
