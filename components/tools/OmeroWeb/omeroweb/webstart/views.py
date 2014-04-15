@@ -37,11 +37,10 @@ from django.views.decorators.cache import never_cache
 from omeroweb.http import HttpJNLPResponse
 from omero_version import omero_version
 
-from omeroweb.webclient.decorators import render_response
-from omeroweb.webclient.decorators import login_required
+from decorators import login_required, render_response
 
 @never_cache
-@login_required(ignore_login_fail=True)
+@login_required()
 @render_response()
 def custom_index(request, conn=None, **kwargs):
     context = {"version": omero_version}
@@ -59,7 +58,7 @@ def custom_index(request, conn=None, **kwargs):
     return context
 
 @never_cache
-@login_required(ignore_login_fail=True)
+@login_required()
 @render_response()
 def index(request, conn=None, **kwargs):
     context = {"version": omero_version}
