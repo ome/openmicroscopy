@@ -46,8 +46,9 @@ def dataset(request, datasetId, conn=None, **kwargs):
 def index(request, conn=None, **kwargs):
 
     params = omero.sys.ParametersI()
-    params.theFilter = omero.sys.Filter()
-    params.theFilter.limit = rint(10)
+    # limit the number of objects we retrieve
+    params.page(0, 10)
+
     # use Image IDs from request...
     if request.REQUEST.get("Image", None):
         imageIds = request.REQUEST.get("Image", None)
