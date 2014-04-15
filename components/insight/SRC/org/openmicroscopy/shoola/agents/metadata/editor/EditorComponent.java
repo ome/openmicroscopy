@@ -215,17 +215,13 @@ class EditorComponent
 		String title = "";
 		String text = "";
 		Icon icon = null;
-		boolean single = model.isSingleMode();
 		if (TagAnnotationData.class.equals(type)) {
 			title = "Tags Selection";
-			if (single)
-				text = "Select the Tags to add or remove, \nor Create new Tags";
-			else text = "Select the Tags to add, \nor Create new Tags";
+			text = "Select from available tags:";
 			icon = icons.getIcon(IconManager.TAGS_48);
 		} else if (FileAnnotationData.class.equals(type)) {
 			title = "Attachments Selection";
-			if (single) text = "Select the Attachments to add or remove.";
-			else text = "Select the Attachments to add.";
+			text = "Select from available attachments:";
 			icon = icons.getIcon(IconManager.ATTACHMENT_48);
 		}
 		SelectionWizard wizard = new SelectionWizard(
