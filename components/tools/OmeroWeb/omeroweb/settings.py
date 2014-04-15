@@ -6,7 +6,7 @@
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # 
 # 
-# Copyright (c) 2008-2013 University of Dundee. 
+# Copyright (c) 2008-2014 University of Dundee. 
 # 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -265,6 +265,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
     # Shows/hides users in dropdown menu; default: '{"LEADERS": "Owners", "COLLEAGUES": "Members", "ALL": "All members"}'
     "omero.web.ui.menu.dropdown": ["UI_MENU_DROPDOWN",'{"LEADERS": "Owners", "COLLEAGUES": "Members", "ALL": "All members"}', json.loads],
     
+    
     # Add plugins to the right-hand & center panels: plugins are ['Label', 'include.js', 'div_id']. The javascript loads data into $('#div_id').
     "omero.web.ui.right_plugins": ["RIGHT_PLUGINS", '[["Acquisition", "webclient/data/includes/right_plugin.acquisition.js.html", "metadata_tab"],'\
             #'["ROIs", "webtest/webclient_plugins/right_plugin.rois.js.html", "image_roi_tab"],'\
@@ -316,10 +317,19 @@ CUSTOM_SETTINGS_MAPPINGS = {
 
 }
 
+# DEVELOPMENT_SETTINGS_MAPPINGS - WARNING: For each setting developer MUST open
+# a ticket that needs to be resolved before a release either by moving the
+# setting to CUSTOM_SETTINGS_MAPPINGS or by removing the setting at all.
+DEVELOPMENT_SETTINGS_MAPPINGS = {
+    
+    # Rename Orphans in data manager; default: '{"NAME":"Orphaned images", "DESCRIPTION":"This is a virtual container with orphaned images. These images are not linked anywhere. Just drag them to the selected container."}'
+    "omero.web.ui.tree.orphaned": ["UI_TREE_ORPHANED",'{"NAME":"Orphaned images", "DESCRIPTION":"This is a virtual container with orphaned images. These images are not linked anywhere. Just drag them to the selected container."}', json.loads],
+    
+}
 
-def process_custom_settings(module):
+def process_custom_settings(module, settings='CUSTOM_SETTINGS_MAPPINGS'):
     logging.info('Processing custom settings for module %s' % module.__name__)
-    for key, values in getattr(module, 'CUSTOM_SETTINGS_MAPPINGS', {}).items():
+    for key, values in getattr(module, settings, {}).items():
         # Django may import settings.py more than once, see:
         # http://blog.dscpl.com.au/2010/03/improved-wsgi-script-for-use-with.html
         # In that case, the custom settings have already been processed.
@@ -342,7 +352,8 @@ def process_custom_settings(module):
         except LeaveUnset:
             pass
 
-process_custom_settings(sys.modules[__name__])
+process_custom_settings(sys.modules[__name__], 'CUSTOM_SETTINGS_MAPPINGS')
+process_custom_settings(sys.modules[__name__], 'DEVELOPMENT_SETTINGS_MAPPINGS')
 
 
 if not DEBUG:  # from CUSTOM_SETTINGS_MAPPINGS  # noqa

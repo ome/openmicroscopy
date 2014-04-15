@@ -3,7 +3,7 @@
 # 
 # 
 # 
-# Copyright (c) 2008 University of Dundee. 
+# Copyright (c) 2008-2014 University of Dundee. 
 # 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -57,7 +57,8 @@ class SettingNode ( template.Node ):
                         setting = setting.get(name)
                     else:
                         setting = setting.__getattr__(name)
-            
+            if setting is None:
+                return ""
             return str(setting)
         except:
             # if FAILURE then FAIL silently

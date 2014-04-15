@@ -3,7 +3,7 @@
 # 
 # container
 # 
-# Copyright (c) 2008-2011 University of Dundee.
+# Copyright (c) 2008-2014 University of Dundee.
 # 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -923,7 +923,7 @@ class BaseContainer(BaseController):
                         up_pdl = p
                         self.conn.deleteObjectDirect(up_pdl._obj)
             elif destination[0] == 'orphaned':
-                return 'Cannot move dataset to orphaned images.'
+                return 'Cannot move dataset to %s.' % settings.UI_TREE_ORPHANED.NAME
             else:
                 return 'Destination not supported.'
         elif self.image is not None:
