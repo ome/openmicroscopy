@@ -219,7 +219,14 @@ def mergeLists(list1,list2):
 @login_required()
 @render_response()
 def drivespace_json(request, query=None, groupId=None, userId=None, conn=None, **kwargs):
-
+    """
+    Returns a json list of {"label":<Name>, "data": <Value>, "groupId / userId": <id>}
+    for plotting disk usage by users or groups.
+    If 'query' is "groups" or "users", this is for an Admin to show all data on server
+    divided into groups or users.
+    Else, if groupId is not None, we return data for that group, split by user.
+    Else, if userId is not None, we return data for that user, split by group.
+    """
 
     diskUsage = []
 
@@ -269,7 +276,7 @@ def drivespace_json(request, query=None, groupId=None, userId=None, conn=None, *
             if b > 0:
                 diskUsage.append({"label": e.getNameWithInitial(), "data": b, "userId": e.getId()});
 
-    if userId is not None:
+    elif userId is not None:
         eid = long(userId)
         for g in conn.getOtherGroups(eid):
             ctx.setOmeroGroup(g.getId())
