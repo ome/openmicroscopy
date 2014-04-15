@@ -33,7 +33,8 @@
             <div id="progressbar"><div class="progress-label"></div></div>
 
             <div class="summary">
-                <h3>{% trans "Total usage" %}: <span id="total"></span></h3>
+                <!-- show 'Total usage' or 'Group usage' or 'User usage' -->
+                <h3><span class="totalUsage">Total</span> {% trans "usage" %}: <span id="total"></span></h3>
                 <h3>{% trans "Free space" %}: <span id="free_space"></span></h3>
             </div>
 
