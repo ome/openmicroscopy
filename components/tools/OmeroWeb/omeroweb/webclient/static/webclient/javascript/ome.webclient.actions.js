@@ -408,7 +408,7 @@ OME.truncateNames = (function(){
                 // Trim the full name until it fits!
                 $this.html(insHtml + name);
                 var w = $this.width() + ofs.left;
-                while (w > lp_width) {
+                while (w > lp_width && chars > 2) {
                     chars = chars-2;
                     truncatedName = "..." + name.slice(-chars);
                     $this.html(insHtml + truncatedName);
