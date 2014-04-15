@@ -42,12 +42,15 @@ import java.util.Map;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.ButtonGroup;
 import javax.swing.Icon;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 import javax.swing.JTextField;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -126,6 +129,71 @@ public class SelectionWizard
     /** The component displaying the selection. */
     private SelectionWizardUI uiDelegate;
 
+    /** Flag indicating to filter with letter anywhere in the text.*/
+    private boolean filterAnywhere;
+
+    /**
+     * Creates the filtering controls.
+     *
+     * @return See above.
+     */
+    private JPanel createFilteringControl()
+    {
+        JPanel p = new JPanel();
+        p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
+        p.add(new JLabel("Filter by"));
+        String txt = null;
+        if (TagAnnotationData.class.equals(type)) {
+            txt = "tag";
+        } else if (TagAnnotationData.class.equals(type)) {
+            txt = "attachment";
+        }
+        String[] values = new String[2];
+        StringBuilder builder = new StringBuilder();
+        builder.append("start of ");
+        if (txt != null) {
+            builder.append(txt);
+            builder.append(" ");
+        }
+        builder.append("name");
+        values[0] = builder.toString();
+        
+        
+        ButtonGroup group = new ButtonGroup();
+        JRadioButton b = new JRadioButton(builder.toString());
+        b.setSelected(filterAnywhere);
+        group.add(b);
+        //p.add(b);
+        //b.setActionCommand(""+)
+        builder = new StringBuilder();
+        builder.append("anywhere in ");
+        if (txt != null) {
+            builder.append(txt);
+            builder.append(" ");
+        }
+        builder.append("name");
+        values[1] = builder.toString();
+        b = new JRadioButton(builder.toString());
+        b.setSelected(filterAnywhere);
+        group.add(b);
+        //p.add(b);
+        JComboBox box = new JComboBox(values);
+        int selected = 0;
+        if (filterAnywhere) selected = 1;
+        box.setSelectedIndex(selected);
+        box.addActionListener(new ActionListener() {
+            
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JComboBox src = (JComboBox) e.getSource();
+                if (src.getSelectedIndex() == 0) filterAnywhere = false;
+                else filterAnywhere = true;
+            }
+        });
+        p.add(box);
+        return UIUtilities.buildComponentPanel(p);
+    }
+
     /** 
      * Initializes the components composing the display.
      * 
@@ -133,6 +201,7 @@ public class SelectionWizard
      */
     private void initComponents()
     {
+        filterAnywhere = true;
         acceptButton = new JButton("Save");
         acceptButton.setToolTipText("Save the selection.");
         cancelButton = new JButton("Cancel");
@@ -142,7 +211,7 @@ public class SelectionWizard
 
         addNewButton = new JButton("Add");
         addNewButton.setEnabled(false);
-        addNewButton.setToolTipText("Add the new elements to the selection.");
+        addNewButton.setToolTipText("Add to the selection.");
         addNewButton.setActionCommand(""+ADD_NEW);
         addNewButton.addActionListener(this);
 
@@ -209,16 +278,14 @@ public class SelectionWizard
     {
         Container c = getContentPane();
         c.setLayout(new BorderLayout());
-
-        if (!addCreation || !TagAnnotationData.class.equals(type)) 
-            c.add(uiDelegate, BorderLayout.CENTER);
-        else {
-            JPanel container = new JPanel();
-            container.setLayout(new BoxLayout(container, BoxLayout.Y_AXIS));
-            container.add(uiDelegate);
+        JPanel container = new JPanel();
+        container.setLayout(new BoxLayout(container, BoxLayout.Y_AXIS));
+        container.add(uiDelegate);
+        container.add(createFilteringControl());
+        if (addCreation && TagAnnotationData.class.equals(type)) {
             container.add(createAdditionPane());
-            c.add(container, BorderLayout.CENTER);
         }
+        c.add(container, BorderLayout.CENTER);
         c.add(createControlsPane(), BorderLayout.SOUTH);
     }
 
