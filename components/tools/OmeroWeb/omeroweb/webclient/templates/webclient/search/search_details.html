@@ -94,7 +94,9 @@
                     </td>
                     <td class="desc"><a>{{ c.name|truncatebefor:"65" }}</a></td>
                     <td class="date">{{ c.getDate }}</td>
-                    <td><a href="{% url 'webindex' %}?show={{ byId.otype }}-{{ c.id }}" title="Show in hierarchy view">Browse</a></td>
+                    <td><a href="{% url 'webindex' %}?show={{ byId.otype }}-{{ c.id }}" title="{% trans 'Show in hierarchy view' %}">
+                        {% trans "Browse" %}
+                    </a></td>
                 </tr>
                 {% endwith %}
             {% endfor %}
@@ -105,7 +107,9 @@
                     </td>
                     <td class="desc"><a>{{ c.name|truncatebefor:"65" }}</a></td>
                     <td class="date">{{ c.getDate }}</td>                    
-                    <td><a href="{% url 'webindex' %}?show=project-{{ c.id }}" title="Show in hierarchy view">Browse</a></td>
+                    <td><a href="{% url 'webindex' %}?show=project-{{ c.id }}" title="{% trans 'Show in hierarchy view' %}">
+                        {% trans "Browse" %}
+                    </a></td>
                 </tr>
             {% endfor %}
             {% for c in manager.containers.screens %}
@@ -115,7 +119,9 @@
                     </td>
                     <td class="desc"><a>{{ c.name|truncatebefor:"65" }}</a></td>
                     <td class="date">{{ c.getDate }}</td>                    
-                    <td><a href="{% url 'webindex' %}?show=screen-{{ c.id }}" title="Show in hierarchy view">Browse</a></td>
+                    <td><a href="{% url 'webindex' %}?show=screen-{{ c.id }}" title="{% trans 'Show in hierarchy view' %}">
+                        {% trans "Browse" %}
+                    </a></td>
                 </tr>
             {% endfor %}
             {% for c in manager.containers.datasets %}
@@ -125,7 +131,9 @@
                     </td>
                     <td class="desc"><a>{{ c.name|truncatebefor:"65" }}</a></td>
                     <td class="date">{{ c.getDate }}</td>                    
-                    <td><a href="{% url 'webindex' %}?show=dataset-{{ c.id }}" title="Show in hierarchy view">Browse</a></td>
+                    <td><a href="{% url 'webindex' %}?show=dataset-{{ c.id }}" title="{% trans 'Show in hierarchy view' %}">
+                        {% trans "Browse" %}
+                    </a></td>
                 </tr>
             {% endfor %}
             {% for c in manager.containers.plates %}
@@ -135,7 +143,9 @@
                     </td>
                     <td class="desc"><a>{{ c.name|truncatebefor:"65" }}</a></td>
                     <td class="date">{{ c.getDate }}</td>                    
-                    <td><a href="{% url 'webindex' %}?show=plate-{{ c.id }}" title="Show in hierarchy view">Browse</a></td>
+                    <td><a href="{% url 'webindex' %}?show=plate-{{ c.id }}" title="{% trans 'Show in hierarchy view' %}">
+                        {% trans "Browse" %}
+                    </a></td>
                 </tr>
             {% endfor %}
             {% for c in manager.containers.images %}
@@ -145,7 +155,9 @@
                     </td>
                     <td class="desc"><a>{{ c.name|truncatebefor:"65" }}</a></td>
                     <td class="date">{{ c.getDate }}</td>                    
-                    <td><a href="{% url 'webindex' %}?show=image-{{ c.id }}" title="Show in hierarchy view">Browse</a></td>
+                    <td><a href="{% url 'webindex' %}?show=image-{{ c.id }}" title="{% trans 'Show in hierarchy view' %}">
+                        {% trans "Browse" %}
+                    </a></td>
                 </tr>
             {% endfor %}
             </tbody>
