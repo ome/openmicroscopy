@@ -40,6 +40,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.swing.BorderFactory;
+import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.Icon;
 import javax.swing.JButton;
@@ -116,9 +117,12 @@ public class SelectionWizard
     /** Button to add new tag to the selection. */
     private JButton addNewButton;
 
-    /** The component used to add new objects. */
+    /** The component used to add a new object. */
     private JTextField addField;
 
+    /** The component used to add a new description to the object. */
+    private JTextField descriptionField;
+    
     /** The component displaying the selection. */
     private SelectionWizardUI uiDelegate;
 
@@ -153,7 +157,7 @@ public class SelectionWizard
 
 
         //Field creation
-        addField = new JTextField(20);
+        addField = new JTextField(10);
         addField.addKeyListener(new KeyAdapter() {
             public void keyPressed(KeyEvent e)
             {
@@ -163,6 +167,7 @@ public class SelectionWizard
                 }
             }
         });
+        descriptionField = new JTextField(15);
         addField.getDocument().addDocumentListener(this);
     }
 
@@ -243,21 +248,17 @@ public class SelectionWizard
     {
         JPanel p = new JPanel();
         p.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-        String text = null;
         String tip = null;
         p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
         if (TagAnnotationData.class.equals(type)) {
-            tip = "Enter the new Tags, use comma to separate them.";
-            text = "New Tag: ";
-        }
-        if (tip != null) {
-            p.add(UIUtilities.buildComponentPanel(new JLabel(tip)));
-        }
-        if (text != null) {
+            tip = "Add a new tag and select it immediately:";
+            p.add(UIUtilities.buildComponentPanel(
+                    UIUtilities.setTextFont(tip)));
             JPanel pane = new JPanel();
             pane.setLayout(new BoxLayout(pane, BoxLayout.X_AXIS));
-            pane.add(UIUtilities.setTextFont(text));
             pane.add(addField);
+            pane.add(Box.createHorizontalStrut(5));
+            pane.add(descriptionField);
             pane.add(addNewButton);
             p.add(pane);
         }
