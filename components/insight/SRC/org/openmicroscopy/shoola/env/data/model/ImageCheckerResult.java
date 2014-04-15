@@ -25,7 +25,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import ome.model.containers.Dataset;
 import pojos.DatasetData;
 import pojos.ImageData;
 
