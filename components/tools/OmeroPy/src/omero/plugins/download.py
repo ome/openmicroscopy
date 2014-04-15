@@ -85,6 +85,9 @@ class DownloadControl(BaseControl):
             query_out = query.projection(sql, params)
             if not query_out:
                 self.ctx.die(602, 'Input image has no associated Fileset')
+            if len(query_out) > 1:
+                self.ctx.die(603, 'Input image has more than 1 associated '
+                             'file: %s' % len(query_out))
             return unwrap(query_out[0])[0].id.val
 
         self.ctx.die(601, 'Invalid object input')
