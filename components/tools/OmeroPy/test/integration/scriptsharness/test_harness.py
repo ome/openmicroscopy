@@ -25,17 +25,20 @@
 
 """
 
-import omero
 import omero.cli
 import test.integration.library as lib
 
+
 def call(*args):
-    omero.cli.argv(["omero","script"]+list(args))
+    omero.cli.argv(["omero", "script"] + list(args))
+
 
 class TestScriptsViaOmeroCli(lib.ITest):
 
     def testDefinition(self):
-        call("test/scripts/definition.py","--Ice.Config=test/scripts/definition.cfg")
-    def testSimpleScript(self):
-        call("test/scripts/simple_script.py","--Ice.Config=test/scripts/simple_script.cfg")
+        call("test/scripts/definition.py",
+             "--Ice.Config=test/scripts/definition.cfg")
 
+    def testSimpleScript(self):
+        call("test/scripts/simple_script.py",
+             "--Ice.Config=test/scripts/simple_script.cfg")
