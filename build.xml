@@ -950,7 +950,7 @@ omero.version=${omero.version}
             <jar_update_if destfile="${dist.dir}/lib/client/omero_client.jar" sign="false">
                 <fileset dir="${dist.dir}/etc" includes="omero.properties"/>
             </jar_update_if>
-            <jar_update_if destfile="${dist.dir}/lib/insight/blitz.jar" sign="true">
+            <jar_update_if destfile="${dist.dir}/lib/insight/blitz.jar" sign="false">
                 <fileset dir="${dist.dir}/etc" includes="omero.properties"/>
             </jar_update_if>
         </then>
@@ -1022,7 +1022,6 @@ omero.version=${omero.version}
         </copy>
         <copy file="components/insight/OUT/dist/omero.insight.jar" tofile="${dist.dir}/lib/insight/omero.insight.jar"/>
         <copy file="components/insight/SRC/org/openmicroscopy/shoola/env/ui/graphx/omeabout-bk.png" tofile="${dist.dir}/lib/insight/ome.png"/>
-        <antcall target="webstart-sign" inheritAll="true" inheritRefs="true"/>
     </target>
 
     <target name="hot-bio-formats" depends="init" description="Re-launch running server with new bio-formats">

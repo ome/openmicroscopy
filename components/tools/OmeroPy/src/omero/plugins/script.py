@@ -486,8 +486,10 @@ class ScriptControl(BaseControl):
 
         try:
             job_params = svc.getParams(script_id)
+        except omero.ValidationException, ve:
+            self.ctx.die(454, "ValidationException: %s" % ve.message)
         except omero.ResourceError, re:
-            self.ctx.die(455, "Could not get params: %s" % re.message)
+            self.ctx.die(455, "ResourceError: %s" % re.message)
 
         if job_params:
             self.ctx.out("")

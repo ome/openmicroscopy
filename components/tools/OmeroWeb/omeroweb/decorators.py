@@ -93,7 +93,7 @@ class login_required(object):
     def get_share_connection (self, request, conn, share_id):
         try:
             conn.SERVICE_OPTS.setOmeroShare(share_id)
-            share = conn.getShare(share_id)
+            conn.getShare(share_id)
             return conn
         except:
             logger.error('Error activating share.', exc_info=True)

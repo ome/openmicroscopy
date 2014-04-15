@@ -5,11 +5,9 @@ sys.path.append('.')
 
 import omero.gateway
 import omero.model
-from omero.rtypes import *
+from omero.rtypes import rtime
 import os
 import subprocess
-import re
-import time
 import urllib2
 
 from types import StringTypes
@@ -90,7 +88,7 @@ class UserEntry (object):
             groupname = self.groupname
         client = omero.gateway.BlitzGateway(self.name, self.passwd, group=groupname, try_super=self.admin)
         if not client.connect():
-            print "Can not connect" 
+            print "Can not connect"
             return None
 
         a = client.getAdminService()
@@ -204,15 +202,13 @@ class UserEntry (object):
     def addGroupToUser (client, groupname, groupperms=None):
         if groupperms is None:
             groupperms = DEFAULT_GROUP_PERMS
-            
+
         a = client.getAdminService()
         admin_gateway = None
         try:
             if not 'system' in [x.name.val for x in a.containedGroups(client.getUserId())]:
                 admin_gateway = loginAsRoot()
                 a = admin_gateway.getAdminService()
-            else:
-                admin = client
             g = UserEntry._getOrCreateGroup(client, groupname, groupperms)
             a.addGroups(a.getExperimenter(client.getUserId()), (g,))
         finally:
@@ -224,7 +220,7 @@ class UserEntry (object):
     def setGroupForSession (client, groupname, groupperms=None):
         if groupperms is None:
             groupperms = DEFAULT_GROUP_PERMS
-            
+
         a = client.getAdminService()
         if not groupname in [x.name.val for x in a.containedGroups(client.getUserId())]:
             UserEntry.addGroupToUser(client, groupname, groupperms)
@@ -276,7 +272,7 @@ class ProjectEntry (ObjectEntry):
                 groupname = 'project_test'
 
             s = loginAsRoot()
-            g = UserEntry._getOrCreateGroup(s, groupname, self.group_perms)
+            UserEntry._getOrCreateGroup(s, groupname, self.group_perms)
             try:
                 UserEntry.addGroupToUser (s, groupname, self.group_perms)
             finally:
@@ -446,7 +442,7 @@ def getProject (client, alias):
 def assertCommentAnnotation (object, ns, value):
     ann = object.getAnnotation(ns)
     if ann is None or ann.getValue() != value:
-        ann = CommentAnnotationWrapper()
+        ann = omero.gateway.CommentAnnotationWrapper()
         ann.setNs(ns)
         ann.setValue(value)
         object.linkAnnotation(ann)
@@ -500,7 +496,6 @@ def cleanup ():
                 handle.close()
     client.seppuku()
     client = loginAsRoot()
-    admin = client.getAdminService()
     for k, u in USERS.items():
         u.changePassword(client, None, ROOT.passwd)
     client.seppuku()
@@ -522,4 +517,3 @@ DATASETS = {
 IMAGES = {
     #'alias': ImageEntry entry,
 }
-

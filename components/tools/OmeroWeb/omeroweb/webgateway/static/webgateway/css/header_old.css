@@ -107,7 +107,7 @@
 
 				
 			#logout a{
-				background: url(../image/logout.png) center center no-repeat;
+				background: url(../img/logout.png) center center no-repeat;
 				display:block;
 				text-indent: -9999px;
 				width:8px;
@@ -269,7 +269,7 @@
 		position:absolute;
 		top:6px;
 		right:7px;
-		background: url(../image/search.png) no-repeat;
+		background: url(../img/search.png) no-repeat;
 		width:20px;
 		height:20px;
 		border:none;
@@ -309,7 +309,7 @@
 }
 
 #footer {
-    background: url(../image/header_bg2.png) repeat-x scroll left top #efefef;
+    background: url(../img/header_bg2.png) repeat-x scroll left top #efefef;
     clear: both;
     font-size: 1em;
     text-align: center;
@@ -365,13 +365,13 @@
     position:absolute;
     top:0px; left:0px; bottom:0px;
     width:5px;
-    background:transparent url(../image/drag_handle_5.png) no-repeat left center scroll;
+    background:transparent url(../img/drag_handle_5.png) no-repeat left center scroll;
 }
 #trayhandle_right {
     position:absolute;
     top:0px; right:0px; bottom:0px;
     width:5px;
-    background:transparent url(../image/drag_handle_5.png) no-repeat left center scroll;
+    background:transparent url(../img/drag_handle_5.png) no-repeat left center scroll;
 }
 #center_container {
     position:absolute;
@@ -398,16 +398,16 @@
 }
 
 .expanded-left {
-    background:transparent url(../image/tray_collapse_left.png) no-repeat scroll;
+    background:transparent url(../img/tray_collapse_left.png) no-repeat scroll;
 }
 .expanded-right {
-    background:transparent url(../image/tray_collapse_left.png) no-repeat scroll;
+    background:transparent url(../img/tray_collapse_left.png) no-repeat scroll;
 }
 .collapsed-left {
-    background:transparent url(../image/tray_collapse_right.png) no-repeat scroll;
+    background:transparent url(../img/tray_collapse_right.png) no-repeat scroll;
 }
 .collapsed-right {
-    background:transparent url(../image/tray_collapse_right.png) no-repeat scroll;
+    background:transparent url(../img/tray_collapse_right.png) no-repeat scroll;
 }
 
 #dragLeft {

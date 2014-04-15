@@ -19,15 +19,12 @@ import omero
 import omero.clients
 
 from django.http import HttpResponse, HttpResponseServerError, HttpResponseRedirect, Http404
-from django.utils.encoding import smart_str
-from django.utils.http import urlquote
-from django.views.decorators.http import require_POST
 from django.template import loader as template_loader
 from django.core.urlresolvers import reverse
 from django.conf import settings
 from django.template import RequestContext as Context
 from django.core.servers.basehttp import FileWrapper
-from omero.rtypes import rint, rlong, unwrap
+from omero.rtypes import rlong, unwrap
 from omero.constants.namespaces import NSBULKANNOTATIONS
 from omero_version import build_year
 from marshal import imageMarshal, shapeMarshal
@@ -39,14 +36,11 @@ except:
 
 from cStringIO import StringIO
 
-from omero import client_wrapper, ApiUsageException
+from omero import ApiUsageException
 from omero.gateway import timeit, TimeIt
 
-import Ice
 import glob
 
-
-import settings
 
 #from models import StoredConnection
 
@@ -653,7 +647,18 @@ def _get_prepared_image (request, iid, server_id=None, conn=None, saveDefs=False
         img.setGreyscaleRenderingModel()
     elif r.get('m', None) == 'c':
         img.setColorRenderingModel()
-    img.setProjection(r.get('p', None))
+    # projection  'intmax' OR 'intmax|5:25'
+    p = r.get('p', None)
+    pStart, pEnd = None, None
+    if p is not None and len(p.split('|')) > 1:
+        p, startEnd = p.split('|', 1)
+        try:
+            pStart, pEnd = [int(s) for s in startEnd.split(':')]
+        except ValueError:
+            pass
+    img.setProjection(p)
+    img.setProjectionRange(pStart, pEnd)
+
     img.setInvertedAxis(bool(r.get('ia', "0") == "1"))
     compress_quality = r.get('q', None)
     if saveDefs:
@@ -694,7 +699,6 @@ def render_image_region(request, iid, z, t, conn=None, **kwargs):
     if tile:
         try:
             img._prepareRenderingEngine()
-            tiles = img._re.requiresPixelsPyramid()
             w, h = img._re.getTileSize()
             levels = img._re.getResolutionLevels()-1
 
@@ -1266,7 +1270,6 @@ def listDatasets_json (request, pid, conn=None, **kwargs):
     """
 
     project = conn.getObject("Project", pid)
-    rv = []
     if project is None:
         return HttpResponse('[]', mimetype='application/javascript')
     return [x.simpleMarshal(xtra={'childCount':0}) for x in project.listChildren()]
@@ -1373,6 +1376,7 @@ def search_json (request, conn=None, **kwargs):
     @return:            json search results
     TODO: cache
     """
+    server_id = request.session['connector'].server_id
     opts = searchOptFromRequest(request)
     rv = []
     logger.debug("searchObjects(%s)" % (opts['search']))
@@ -1380,7 +1384,6 @@ def search_json (request, conn=None, **kwargs):
     def urlprefix(iid):
         return reverse('webgateway.views.render_thumbnail', args=(iid,))
     xtra = {'thumbUrlPrefix': kwargs.get('urlprefix', urlprefix)}
-    pks = None
     try:
         if opts['ctx'] == 'imgs':
             sr = conn.searchObjects(["image"], opts['search'], conn.SERVICE_OPTS)
@@ -1628,15 +1631,8 @@ def reset_image_rdef_json (request, iid, conn=None, **kwargs):
         server_id = request.session['connector'].server_id
         webgateway_cache.invalidateObject(server_id, user_id, img)
         return True
-        json_data = 'true'
     else:
-        json_data = 'false'
         return False
-#    if _conn is not None:
-#        return json_data == 'true'      # TODO: really return a boolean? (not json)
-#    if r.get('callback', None):
-#        json_data = '%s(%s)' % (r['callback'], json_data)
-#    return HttpResponse(json_data, mimetype='application/javascript')
 
 @login_required()
 def full_viewer (request, iid, conn=None, **kwargs):
@@ -1748,7 +1744,7 @@ def archived_files(request, iid=None, conn=None, **kwargs):
             rsp['Content-Length'] = temp.tell()
             rsp['Content-Disposition'] = 'attachment; filename=%s' % zipName
             temp.seek(0)
-        except Exception, x:
+        except Exception:
             temp.close()
             stack = traceback.format_exc()
             logger.error(stack)
@@ -1893,7 +1889,7 @@ def _annotations(request, objtype, objid, conn=None, **kwargs):
     try:
         obj = q.findByQuery(query, omero.sys.ParametersI().addId(objid),
                             conn.createServiceOptsDict())
-    except omero.QueryException, ex:
+    except omero.QueryException:
         return dict(error='%s cannot be queried' % objtype,
                     query=query)
 
@@ -1950,7 +1946,7 @@ def _table_query(request, fileid, conn=None, **kwargs):
             query = '(%s==%s)' % (match.group(1), match.group(2))
         try:
             hits = t.getWhereList(query, None, 0, rows, 1)
-        except Exception, e:
+        except Exception:
             return dict(error='Error executing query: %s' % query)
 
     return dict(data=dict(

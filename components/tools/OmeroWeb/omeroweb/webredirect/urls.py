@@ -23,7 +23,7 @@
 # Version: 1.0
 #
 
-from django.conf.urls import *
+from django.conf.urls import url, patterns
 from omeroweb.webredirect import views
 
 urlpatterns = patterns('django.views.generic.simple',

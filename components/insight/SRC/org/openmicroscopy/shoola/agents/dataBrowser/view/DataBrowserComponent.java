@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowserComponent 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -1144,6 +1144,32 @@ class DataBrowserComponent
 		}
 	}
 	
+	/**
+         * Implemented as specified by the {@link DataBrowser} interface.
+         * @see DataBrowser#filterByROIs(boolean)
+         */
+        public void filterByROIs(boolean hasROIs)
+        {
+                if (model.getState() == FILTERING) {
+                        UserNotifier un = DataBrowserAgent.getRegistry().getUserNotifier();
+                        un.notifyInfo("Filtering", FILTERING_MSG);
+                        return;
+                }
+                Browser browser = model.getBrowser();
+                Set<DataObject> nodes = browser.getOriginal();
+                if (!CollectionUtils.isEmpty(nodes)) {
+                    FilterContext context = new FilterContext();
+                    if(hasROIs) {
+                        context.setRois(FilterContext.GREATER_EQUAL, 1);
+                    }
+                    else {
+                        context.setRois(FilterContext.EQUAL, 0);
+                    }
+                    model.fireFilteringByContext(context, nodes);
+                    fireStateChange();
+                }
+        }
+        
 	/**
 	 * Implemented as specified by the {@link DataBrowser} interface.
 	 * @see DataBrowser#setComponentTitle(String)

@@ -8,10 +8,8 @@
    Use is subject to license terms supplied in LICENSE.txt
 
 """
-import omero
-from omero.rtypes import rstring
 
-from omero.gateway.scripts.testdb_create import *
+from omero.gateway.scripts.testdb_create import TestDBHelper, dbhelpers
 
 
 import pytest

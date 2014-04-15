@@ -5,11 +5,12 @@
    Simple unit test which stipulates what the default permissions
    values should be.
 
-   Copyright 2007 Glencoe Software, Inc. All rights reserved.
+   Copyright 2007-2014 Glencoe Software, Inc. All rights reserved.
    Use is subject to license terms supplied in LICENSE.txt
 
 """
-import omero.model, omero_model_PermissionsI
+import omero.model
+
 
 class TestPermissions(object):
 
@@ -30,15 +31,15 @@ class TestPermissions(object):
 
         # All off
         self.p._perm1 = 0L
-        assert not  self.p.isUserRead()
-        assert not  self.p.isUserAnnotate()
-        assert not  self.p.isUserWrite()
-        assert not  self.p.isGroupRead()
-        assert not  self.p.isGroupAnnotate()
-        assert not  self.p.isGroupWrite()
-        assert not  self.p.isWorldRead()
-        assert not  self.p.isWorldAnnotate()
-        assert not  self.p.isWorldWrite()
+        assert not self.p.isUserRead()
+        assert not self.p.isUserAnnotate()
+        assert not self.p.isUserWrite()
+        assert not self.p.isGroupRead()
+        assert not self.p.isGroupAnnotate()
+        assert not self.p.isGroupWrite()
+        assert not self.p.isWorldRead()
+        assert not self.p.isWorldAnnotate()
+        assert not self.p.isWorldWrite()
 
         # All on
         self.p._perm1 = -1L
@@ -68,8 +69,8 @@ class TestPermissions(object):
         # start with everythin false
         p = omero.model.PermissionsI('------')
 
-        ## read flags are easy, straight binary
-        ## user flags
+        # read flags are easy, straight binary
+        # user flags
         p.setUserRead(True)
         assert p.isUserRead()
         assert 'r' == str(p)[0]
@@ -77,7 +78,7 @@ class TestPermissions(object):
         assert not p.isUserRead()
         assert '-' == str(p)[0]
 
-        ## group flags
+        # group flags
         p.setGroupRead(True)
         assert p.isGroupRead()
         assert 'r' == str(p)[2]
@@ -85,7 +86,7 @@ class TestPermissions(object):
         assert not p.isGroupRead()
         assert '-' == str(p)[2]
 
-        ## world flags
+        # world flags
         p.setWorldRead(True)
         assert p.isWorldRead()
         assert 'r' == str(p)[4]
@@ -93,9 +94,9 @@ class TestPermissions(object):
         assert not p.isWorldRead()
         assert '-' == str(p)[4]
 
-        ## write flags are trickier as the string
-        ## representation is ternary
-        ## user flags
+        # write flags are trickier as the string
+        # representation is ternary
+        # user flags
         p.setUserAnnotate(True)
         assert p.isUserAnnotate()
         assert not p.isUserWrite()
@@ -113,7 +114,7 @@ class TestPermissions(object):
         assert not p.isUserWrite()
         assert '-' == str(p)[1]
 
-        ## group flags
+        # group flags
         p.setGroupAnnotate(True)
         assert p.isGroupAnnotate()
         assert not p.isGroupWrite()
@@ -131,7 +132,7 @@ class TestPermissions(object):
         assert not p.isGroupWrite()
         assert '-' == str(p)[3]
 
-        ## world flags
+        # world flags
         p.setWorldAnnotate(True)
         assert p.isWorldAnnotate()
         assert not p.isWorldWrite()
@@ -184,13 +185,13 @@ class TestPermissions(object):
         isAnno = getattr(p, "is%sAnnotate" % role)()
         isEdit = getattr(p, "is%sWrite" % role)()
 
-        msg = """Permissions: %s Role: %s
-          Expected READ: %s \t Found: %s
-          Expected ANNO: %s \t Found: %s
-          Expected EDIT: %s \t Found: %s""" % \
-                  (p, role, read, isRead, annotate, isAnno, edit, isEdit)
+        msg = """
+Permissions: %s Role: %s
+Expected READ: %s \t Found: %s
+Expected ANNO: %s \t Found: %s
+Expected EDIT: %s \t Found: %s""" % \
+            (p, role, read, isRead, annotate, isAnno, edit, isEdit)
 
         assert read == isRead, msg
         assert annotate == isAnno, msg
         assert edit == isEdit, msg
-

@@ -663,7 +663,7 @@ TEST(SearchTest, testAnnotatedWithMultiple ) {
     TagAnnotationIPtr ta = new TagAnnotationI();
     ta->setTextValue(rstring(uuid));
     BooleanAnnotationIPtr ba = new BooleanAnnotationI();
-    ba->setBoolValue(false);
+    ba->setBoolValue(rbool(false));
     i1->linkAnnotation(ta);
     i2->linkAnnotation(ta);
     i2->linkAnnotation(ba);
@@ -674,7 +674,7 @@ TEST(SearchTest, testAnnotatedWithMultiple ) {
     ta = new TagAnnotationI();
     ta->setTextValue(rstring(uuid));
     ba = new BooleanAnnotationI();
-    ba->setBoolValue(false);
+    ba->setBoolValue(rbool(false));
 
     SearchPrx search = f.search();
     search->onlyType("Image");
