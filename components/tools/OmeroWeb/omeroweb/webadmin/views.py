@@ -262,8 +262,13 @@ def drivespace_json(request, query=None, groupId=None, userId=None, conn=None, *
             bytesInGroup += result[0][0]._val
         return bytesInGroup
 
+    sr = conn.getAdminService().getSecurityRoles()
+
     if query == 'groups':
         for g in conn.listGroups():
+            # ignore 'user' and 'guest' groups
+            if g.getId() in (sr.guestGroupId, sr.userGroupId):
+                continue
             ctx.setOmeroGroup(g.getId())
             b = getBytes(ctx)
             if b > 0:
@@ -279,6 +284,9 @@ def drivespace_json(request, query=None, groupId=None, userId=None, conn=None, *
     elif userId is not None:
         eid = long(userId)
         for g in conn.getOtherGroups(eid):
+            # ignore 'user' and 'guest' groups
+            if g.getId() in (sr.guestGroupId, sr.userGroupId):
+                continue
             ctx.setOmeroGroup(g.getId())
             b = getBytes(ctx, eid)
             if b > 0:
