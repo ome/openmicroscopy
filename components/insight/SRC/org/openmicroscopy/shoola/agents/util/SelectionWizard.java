@@ -227,9 +227,9 @@ public class SelectionWizard
         JPanel controlPanel = new JPanel();
         controlPanel.setOpaque(false);
         controlPanel.setLayout(new FlowLayout());
-        controlPanel.add(resetButton);
         controlPanel.add(acceptButton);
         controlPanel.add(cancelButton);
+        controlPanel.add(resetButton);
         return UIUtilities.buildComponentPanelRight(controlPanel);
     }
 
