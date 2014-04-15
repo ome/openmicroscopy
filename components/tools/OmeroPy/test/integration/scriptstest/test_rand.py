@@ -1,12 +1,27 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+#
+# Copyright (C) 2008-2014 Glencoe Software, Inc. All Rights Reserved.
+# Use is subject to license terms supplied in LICENSE.txt
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
 """
    Integration test testing distributed processing via
    ServiceFactoryI.acquireProcessor().
-
-   Copyright 2008-2013 Glencoe Software, Inc. All rights reserved.
-   Use is subject to license terms supplied in LICENSE.txt
 
 """
 
@@ -14,7 +29,7 @@ import test.integration.library as lib
 import omero
 import omero.processor
 import omero.scripts
-from omero.rtypes import *
+from omero.rtypes import rlong
 
 SENDFILE = """
 #<script>
@@ -43,7 +58,8 @@ SENDFILE = """
 import omero, omero.scripts as s
 import random
 
-client = s.client("rand.py", "get Random", s.Long("x").inout(), s.Long("y").inout())
+client = s.client(
+    "rand.py", "get Random", s.Long("x").inout(), s.Long("y").inout())
 client.createSession()
 print "Session"
 print client.getSession()
@@ -60,17 +76,19 @@ print val
 
 """
 
+
 class TestRand(lib.ITest):
 
     def testRand(self):
         scripts = self.root.getSession().getScriptService()
-        id = scripts.uploadScript("/tests/rand_py/%s.py" % self.uuid(), SENDFILE)
-        input = {"x":rlong(3), "y":rlong(3)}
+        id = scripts.uploadScript(
+            "/tests/rand_py/%s.py" % self.uuid(), SENDFILE)
+        input = {"x": rlong(3), "y": rlong(3)}
         impl = omero.processor.usermode_processor(self.root)
         try:
             process = scripts.runScript(id, input, None)
             cb = omero.scripts.ProcessCallbackI(self.root, process)
-            cb.block(2000) # ms
+            cb.block(2000)  # ms
             cb.close()
             try:
                 output = process.getResults(0)
