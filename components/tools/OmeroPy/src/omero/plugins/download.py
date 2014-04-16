@@ -87,7 +87,7 @@ class DownloadControl(BaseControl):
         if image_id:
             params.addLong('iid', image_id)
             sql = "select f from Image i" \
-                " join i.fileset as fs" \
+                " left outer join i.fileset as fs" \
                 " join fs.usedFiles as uf" \
                 " join uf.originalFile as f" \
                 " where i.id = :iid"
