@@ -29,6 +29,13 @@
         primary key (id)
     );;
 
+    create table annotation_mapValue (
+        annotation_id int8 not null,
+        mapValue varchar(255) not null,
+        mapValue_KEY varchar(255),
+        primary key (annotation_id, mapValue_KEY)
+    );;
+
     create table annotationannotationlink (
         id int8 not null,
         permissions int8 not null,
@@ -667,6 +674,13 @@
         primary key (id)
     );;
 
+    create table experimentergroup_config (
+        experimentergroup_id int8 not null,
+        config varchar(255) not null,
+        config_KEY varchar(255),
+        primary key (experimentergroup_id, config_KEY)
+    );;
+
     create table experimentergroupannotationlink (
         id int8 not null,
         permissions int8 not null,
@@ -891,6 +905,18 @@
         primary key (id)
     );;
 
+    create table genericexcitationsource (
+        lightsource_id int8 not null,
+        primary key (lightsource_id)
+    );;
+
+    create table genericexcitationsource_map (
+        genericexcitationsource_id int8 not null,
+        map varchar(255) not null,
+        map_KEY varchar(255),
+        primary key (genericexcitationsource_id, map_KEY)
+    );;
+
     create table groupexperimentermap (
         id int8 not null,
         permissions int8 not null,
@@ -966,6 +992,13 @@
         owner_id int8 not null,
         update_id int8 not null,
         primary key (id)
+    );;
+
+    create table imagingenvironment_map (
+        imagingenvironment_id int8 not null,
+        map varchar(255) not null,
+        map_KEY varchar(255),
+        primary key (imagingenvironment_id, map_KEY)
     );;
 
     create table immersion (
@@ -2162,6 +2195,11 @@
         foreign key (owner_id) 
         references experimenter  ;;
 
+    alter table annotation_mapValue 
+        add constraint FKF96E60858062A40 
+        foreign key (annotation_id) 
+        references annotation  ;;
+
     alter table annotationannotationlink 
         add constraint FKannotationannotationlink_creation_id_event 
         foreign key (creation_id) 
@@ -2902,6 +2940,11 @@
         foreign key (external_id) 
         references externalinfo  ;;
 
+    alter table experimentergroup_config 
+        add constraint FKDC631B6CF5F0705D 
+        foreign key (experimentergroup_id) 
+        references experimentergroup  ;;
+
     alter table experimentergroupannotationlink 
         add constraint FKexperimentergroupannotationlink_creation_id_event 
         foreign key (creation_id) 
@@ -3292,6 +3335,16 @@
         foreign key (external_id) 
         references externalinfo  ;;
 
+    alter table genericexcitationsource 
+        add constraint FKgenericexcitationsource_lightsource_id_lightsource 
+        foreign key (lightsource_id) 
+        references lightsource  ;;
+
+    alter table genericexcitationsource_map 
+        add constraint FK7B28ABA9C1805FCD 
+        foreign key (genericexcitationsource_id) 
+        references genericexcitationsource  ;;
+
     alter table groupexperimentermap 
         add constraint FKgroupexperimentermap_child_experimenter 
         foreign key (child) 
@@ -3431,6 +3484,11 @@
         add constraint FKimagingenvironment_owner_id_experimenter 
         foreign key (owner_id) 
         references experimenter  ;;
+
+    alter table imagingenvironment_map 
+        add constraint FK7C8DCED8CDF68A87 
+        foreign key (imagingenvironment_id) 
+        references imagingenvironment  ;;
 
     alter table immersion 
         add constraint FKimmersion_external_id_externalinfo 

@@ -1,7 +1,7 @@
 #*
  *   $Id$
  *
- *   Copyright 2007-2011 Glencoe Software, Inc. All rights reserved.
+ *   Copyright 2007-2014 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  *
  *#
@@ -900,6 +900,7 @@ Properties used throughout the accessor generation
 [$Ice]       long ${property.name};
 
 #elseif( $javaType.startsWith("java.util.Map") )
+#set( $javaType = "java.util.Map<String, omero.RString>" )
 #set( $copyMethod = "this.${fieldName} = ($javaType) mapper.findMap(source.get${PropertyName}());" );
 [$Ice]       dictionary ${property.name};
 
@@ -909,6 +910,13 @@ Properties used throughout the accessor generation
 #set( $cppType = "${iceType}Ptr" )
 #set( $copyMethod = "this.${fieldName} = source.get${PropertyName}() == null ? null : rtime(source.get${PropertyName}().getTime() );" );
 [$Ice]       omero::RTime ${property.name};
+
+#elseif( $property.class.name == "ome.dsl.MapField" )
+#set( $javaType = "java.util.Map<String, omero.RString>");
+#set( $iceType = "omero::api::StringRStringMap" )
+#set( $cppType = "${iceType}" )
+#set( $copyMethod = "this.${fieldName} = omero.util.IceMapper.convertStringStringMap(source.get${PropertyName}());" );
+[$Ice]       omero::api::StringRStringMap ${property.name};
 
 #elseif( $javaType.startsWith("java.lang.String")) ## for Event
 #set( $javaType = "omero.RString");
@@ -979,7 +987,11 @@ Unload
 [$hdr]       virtual void unload${PropertyName}($HDR_CURRENT_COLL);
 [$cpp]       void ${Pojo}I::unload${PropertyName}($CPP_CURRENT_COLL) {
 [$cpp]           ${unloadIfIsSet}
+#if( $property.class.name == "ome.dsl.MapField" )
+[$cpp]           ${fieldName} = $cppType();
+#else
 [$cpp]           ${fieldName} = ($cppType) 0;
+#end
 [$cpp]       }
 [$pyc]       def unload${PropertyName}(self, $PYC_CURRENT_COLL):
 [$pyc]           self._${property.name}Loaded = False
@@ -1026,7 +1038,7 @@ ticket:684 This is necessary to map back and forth from sets.
 
 #elseif( $javaType.startsWith("omero.R") )
 [$jav]             try {
-[$jav]                 target.set${PropertyName}( (${property.type}) mapper.fromRType( this.get${PropertyName}() ));
+[$jav]                 target.set${PropertyName}( (${property.fieldType}) mapper.fromRType( this.get${PropertyName}() ));
 [$jav]             } catch (omero.ApiUsageException aue) {
 [$jav]                 throw new omero.ClientError(aue.message);
 [$jav]             }
@@ -1040,6 +1052,8 @@ ticket:684 This is necessary to map back and forth from sets.
  ----------------> ERROR
 #elseif( $javaType.startsWith("String[]"))
 [$jav]             target.set${PropertyName}( this.get${PropertyName}() == null ? null : java.util.Arrays.asList(this.get${PropertyName}() ));
+#elseif( $javaType.startsWith("java.util.Map"))
+[$jav]             target.set${PropertyName}( omero.util.IceMapper.reverseStringStringMap(this.get${PropertyName}() ));
 #else
 [$jav]             target.set${PropertyName}( this.get${PropertyName}() );
 #end
