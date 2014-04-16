@@ -110,7 +110,7 @@ class Show(object):
                 "%s-%s" % (parent_type, parent_node.getId())
             ]
             self.initially_select = self.initially_open[:]
-        self.initially_open_owner = self.first_sel.details.owner.id.val
+        self.initially_open_owner = first_sel.details.owner.id.val
         return first_sel
 
     def get_first_selected(self):
@@ -121,19 +121,20 @@ class Show(object):
         self.initially_open = [self.initially_select[0]]
         first_obj, first_id = self.initially_open[0].split("-", 1)
         # if we're showing a tag, make sure we're on the tags page...
-        if self.first_obj == "tag" and self.menu != "usertags":
+        if first_obj == "tag" and self.menu != "usertags":
             return HttpResponseRedirect(
                 reverse(viewname="load_template", args=['usertags']) +
                 "?show=" + self.initially_select[0]
             )
+        first_sel = None
         try:
-            self.first_id = long(self.first_id)
+            first_id = long(first_id)
             # Set context to 'cross-group'
             self.conn.SERVICE_OPTS.setOmeroGroup('-1')
             first_sel = self.load_first_sel(first_obj, first_id)
         except:
             pass
-        if self.first_obj not in self.TOP_LEVEL_PREFIXES:
+        if first_obj not in self.TOP_LEVEL_PREFIXES:
             # Need to see if first item has parents
             if first_sel is not None:
                 for p in first_sel.getAncestry():
