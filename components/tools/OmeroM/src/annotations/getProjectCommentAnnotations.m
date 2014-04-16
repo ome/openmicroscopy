@@ -15,17 +15,22 @@ function cas = getProjectCommentAnnotations(session, ids, varargin)
 %    cas = getProjectCommentAnnotations(session,  ids, 'exclude', exclude)
 %    excludes comment annotations with the input namespace.
 %
+%    cas = getProjectCommentAnnotations(session, ids, 'owner', ownerid)
+%    returns the comment annotations owned by the user specified by
+%    ownerid. Use -1 to return the comment annotations owned by all users.
+%
 %    Examples:
 %
 %        cas = getProjectCommentAnnotations(session, ids)
 %        cas = getProjectCommentAnnotations(session, projects)
 %        cas = getProjectCommentAnnotations(session, ids, 'include', include)
 %        cas = getProjectCommentAnnotations(session, ids, 'exclude', exclude)
+%        cas = getProjectCommentAnnotations(session, ids, 'owner', -1)
 %
 % See also: GETOBJECTANNOTATIONS, GETPROJECTFILEANNOTATIONS,
 % GETPROJECTTAGANNOTATIONS, GETPROJECTXMLANNOTATIONS
 
-% Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
+% Copyright (C) 2013-2014 University of Dundee & Open Microscopy Environment.
 % All rights reserved.
 %
 % This program is free software; you can redistribute it and/or modify
