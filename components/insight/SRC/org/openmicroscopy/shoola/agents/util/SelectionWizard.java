@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.util.SelectionWizard 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -58,8 +58,8 @@ import javax.swing.event.DocumentListener;
 
 
 //Third-party libraries
-
 import org.apache.commons.lang.StringUtils;
+
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
@@ -70,7 +70,7 @@ import pojos.ExperimenterData;
 import pojos.GroupData;
 import pojos.TagAnnotationData;
 
-/** 
+/**
  * A modal dialog to select collection of objects.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
@@ -81,8 +81,9 @@ import pojos.TagAnnotationData;
  * @since OME3.0
  */
 public class SelectionWizard
-	extends JDialog 
-	implements ActionListener, DocumentListener, PropertyChangeListener
+    extends JDialog
+    implements ActionListener, DocumentListener, FocusListener,
+    PropertyChangeListener
 {
 
     /** Bound property indicating the selected items. */
@@ -261,44 +262,8 @@ public class SelectionWizard
         descriptionField = new JTextField(15);
         setTextFieldDefault(descriptionField, DEFAULT_DESCRIPTION);
         addField.getDocument().addDocumentListener(this);
-        addField.addFocusListener(new FocusListener() {
-            
-            @Override
-            public void focusLost(FocusEvent evt) {
-                String value = addField.getText();
-                if (StringUtils.isBlank(value)) {
-                    setTextFieldDefault(addField, DEFAULT_TEXT);
-                }
-            }
-            
-            @Override
-            public void focusGained(FocusEvent evt) {
-                String value = addField.getText();
-                if (DEFAULT_TEXT.equals(value)) {
-                    addField.setCaretPosition(0);
-                    setTextFieldDefault(addField, null);
-                }
-            }
-        });
-        descriptionField.addFocusListener(new FocusListener() {
-            
-            @Override
-            public void focusLost(FocusEvent evt) {
-                String value = descriptionField.getText();
-                if (StringUtils.isBlank(value)) {
-                    setTextFieldDefault(descriptionField, DEFAULT_DESCRIPTION);
-                }
-            }
-            
-            @Override
-            public void focusGained(FocusEvent evt) {
-                String value = descriptionField.getText();
-                if (DEFAULT_DESCRIPTION.equals(value)) {
-                    descriptionField.setCaretPosition(0);
-                    setTextFieldDefault(descriptionField, null);
-                }
-            }
-        });
+        addField.addFocusListener(this);
+        descriptionField.addFocusListener(this);
     }
 
     /** Closes and disposes. */
@@ -579,6 +544,10 @@ public class SelectionWizard
      */
     public void removeUpdate(DocumentEvent e) { setControls(); }
 
+    /**
+     * Sets the controls.
+     * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
+     */
     public void propertyChange(PropertyChangeEvent evt)
     {
         String name = evt.getPropertyName();
@@ -586,6 +555,47 @@ public class SelectionWizard
             Boolean b = (Boolean) evt.getNewValue();
             acceptButton.setEnabled(b.booleanValue());
             resetButton.setEnabled(b.booleanValue());
+        }
+    }
+
+    /**
+     * Resets the values when losing the focus
+     * @see FocusListener#focusLost(FocusEvent)
+     */
+    public void focusLost(FocusEvent evt) {
+        Object src = evt.getSource();
+        if (src == addField) {
+            String value = addField.getText();
+            if (StringUtils.isBlank(value)) {
+                setTextFieldDefault(addField, DEFAULT_TEXT);
+            }
+        } else if (src == descriptionField) {
+            String value = descriptionField.getText();
+            if (StringUtils.isBlank(value)) {
+                setTextFieldDefault(descriptionField, DEFAULT_DESCRIPTION);
+            }
+        }
+    }
+
+    /**
+     * Resets the values when losing the focus
+     * @see FocusListener#focusGained(FocusEvent)
+     */
+    public void focusGained(FocusEvent evt)
+    {
+        Object src = evt.getSource();
+        if (src == addField) {
+            String value = addField.getText();
+            if (DEFAULT_TEXT.equals(value)) {
+                addField.setCaretPosition(0);
+                setTextFieldDefault(addField, null);
+            }
+        } else if (src == descriptionField) {
+            String value = descriptionField.getText();
+            if (DEFAULT_DESCRIPTION.equals(value)) {
+                descriptionField.setCaretPosition(0);
+                setTextFieldDefault(descriptionField, null);
+            }
         }
     }
 
