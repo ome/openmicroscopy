@@ -3,7 +3,7 @@
  *
  * Depends on jquery
  *
- * Copyright (c) 2007, 2008, 2009 Glencoe Software, Inc. All rights reserved.
+ * Copyright (c) 2007-2014 Glencoe Software, Inc. All rights reserved.
  *
  * This software is distributed under the terms described by the LICENCE file
  * you can find at the root of the distribution bundle, which states you are
