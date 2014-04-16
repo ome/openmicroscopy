@@ -2336,6 +2336,8 @@ input#id_tag_filter {
     border: 1px solid #9ea5ac;
 }
 input#id_tag {
+    margin-top: 0;
+    height: 1.1em;
     float: left;
     width: 200px;
     vertical-align: top;
