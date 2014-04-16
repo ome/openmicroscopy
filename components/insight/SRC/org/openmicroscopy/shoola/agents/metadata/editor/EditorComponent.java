@@ -217,11 +217,11 @@ class EditorComponent
 		Icon icon = null;
 		if (TagAnnotationData.class.equals(type)) {
 			title = "Tags Selection";
-			text = "Select from available tags:";
+			text = "Select from available tags";
 			icon = icons.getIcon(IconManager.TAGS_48);
 		} else if (FileAnnotationData.class.equals(type)) {
 			title = "Attachments Selection";
-			text = "Select from available attachments:";
+			text = "Select from available attachments";
 			icon = icons.getIcon(IconManager.ATTACHMENT_48);
 		}
 		SelectionWizard wizard = new SelectionWizard(
