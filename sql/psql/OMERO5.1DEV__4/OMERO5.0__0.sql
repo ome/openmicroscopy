@@ -17,7 +17,7 @@
 --
 
 ---
---- OMERO5 development release upgrade from OMERO5.0__0 to OMERO5.1DEV__3.
+--- OMERO5 development release upgrade from OMERO5.0__0 to OMERO5.1DEV__4.
 ---
 
 BEGIN;
@@ -244,6 +244,104 @@ CREATE TABLE imagingenvironment_map (
         FOREIGN KEY (imagingenvironment_id) 
         REFERENCES imagingenvironment
 );
+
+-- #12193: replace FilesetVersionInfo with map property on Fileset
+
+CREATE TABLE metadataimportjob_versioninfo (
+    metadataimportjob_id INT8 NOT NULL,
+    versioninfo VARCHAR(255) NOT NULL,
+    versioninfo_key VARCHAR(255),
+    PRIMARY KEY (metadataimportjob_id, versioninfo_key),
+    CONSTRAINT FK947FE61023506BCE 
+        FOREIGN KEY (metadataimportjob_id) 
+        REFERENCES metadataimportjob
+);
+
+CREATE TABLE uploadjob_versioninfo (
+    uploadjob_id INT8 NOT NULL,
+    versioninfo VARCHAR(255) NOT NULL,
+    versioninfo_key VARCHAR(255),
+    PRIMARY KEY (uploadjob_id, versioninfo_key),
+    CONSTRAINT FK3B5720031800070E 
+        FOREIGN KEY (uploadjob_id) 
+        REFERENCES uploadjob
+);
+
+INSERT INTO metadataimportjob_versioninfo (metadataimportjob_id, versioninfo_key, versioninfo)
+    SELECT metadataimportjob.job_id, 'bioformats.reader', filesetversioninfo.bioformatsreader
+    FROM filesetversioninfo, metadataimportjob
+    WHERE filesetversioninfo.id = metadataimportjob.versioninfo;
+
+INSERT INTO metadataimportjob_versioninfo (metadataimportjob_id, versioninfo_key, versioninfo)
+    SELECT metadataimportjob.job_id, 'bioformats.version', filesetversioninfo.bioformatsversion
+    FROM filesetversioninfo, metadataimportjob
+    WHERE filesetversioninfo.id = metadataimportjob.versioninfo;
+
+INSERT INTO metadataimportjob_versioninfo (metadataimportjob_id, versioninfo_key, versioninfo)
+    SELECT metadataimportjob.job_id, 'locale', filesetversioninfo.locale
+    FROM filesetversioninfo, metadataimportjob
+    WHERE filesetversioninfo.id = metadataimportjob.versioninfo;
+
+INSERT INTO metadataimportjob_versioninfo (metadataimportjob_id, versioninfo_key, versioninfo)
+    SELECT metadataimportjob.job_id, 'omero.version', filesetversioninfo.omeroversion
+    FROM filesetversioninfo, metadataimportjob
+    WHERE filesetversioninfo.id = metadataimportjob.versioninfo;
+
+INSERT INTO metadataimportjob_versioninfo (metadataimportjob_id, versioninfo_key, versioninfo)
+    SELECT metadataimportjob.job_id, 'os.name', filesetversioninfo.osname
+    FROM filesetversioninfo, metadataimportjob
+    WHERE filesetversioninfo.id = metadataimportjob.versioninfo;
+
+INSERT INTO metadataimportjob_versioninfo (metadataimportjob_id, versioninfo_key, versioninfo)
+    SELECT metadataimportjob.job_id, 'os.version', filesetversioninfo.osversion
+    FROM filesetversioninfo, metadataimportjob
+    WHERE filesetversioninfo.id = metadataimportjob.versioninfo;
+
+INSERT INTO metadataimportjob_versioninfo (metadataimportjob_id, versioninfo_key, versioninfo)
+    SELECT metadataimportjob.job_id, 'os.architecture', filesetversioninfo.osarchitecture
+    FROM filesetversioninfo, metadataimportjob
+    WHERE filesetversioninfo.id = metadataimportjob.versioninfo;
+
+INSERT INTO uploadjob_versioninfo (uploadjob_id, versioninfo_key, versioninfo)
+    SELECT uploadjob.job_id, 'bioformats.reader', filesetversioninfo.bioformatsreader
+    FROM filesetversioninfo, uploadjob
+    WHERE filesetversioninfo.id = uploadjob.versioninfo;
+
+INSERT INTO uploadjob_versioninfo (uploadjob_id, versioninfo_key, versioninfo)
+    SELECT uploadjob.job_id, 'bioformats.version', filesetversioninfo.bioformatsversion
+    FROM filesetversioninfo, uploadjob
+    WHERE filesetversioninfo.id = uploadjob.versioninfo;
+
+INSERT INTO uploadjob_versioninfo (uploadjob_id, versioninfo_key, versioninfo)
+    SELECT uploadjob.job_id, 'locale', filesetversioninfo.locale
+    FROM filesetversioninfo, uploadjob
+    WHERE filesetversioninfo.id = uploadjob.versioninfo;
+
+INSERT INTO uploadjob_versioninfo (uploadjob_id, versioninfo_key, versioninfo)
+    SELECT uploadjob.job_id, 'omero.version', filesetversioninfo.omeroversion
+    FROM filesetversioninfo, uploadjob
+    WHERE filesetversioninfo.id = uploadjob.versioninfo;
+
+INSERT INTO uploadjob_versioninfo (uploadjob_id, versioninfo_key, versioninfo)
+    SELECT uploadjob.job_id, 'os.name', filesetversioninfo.osname
+    FROM filesetversioninfo, uploadjob
+    WHERE filesetversioninfo.id = uploadjob.versioninfo;
+
+INSERT INTO uploadjob_versioninfo (uploadjob_id, versioninfo_key, versioninfo)
+    SELECT uploadjob.job_id, 'os.version', filesetversioninfo.osversion
+    FROM filesetversioninfo, uploadjob
+    WHERE filesetversioninfo.id = uploadjob.versioninfo;
+
+INSERT INTO uploadjob_versioninfo (uploadjob_id, versioninfo_key, versioninfo)
+    SELECT uploadjob.job_id, 'os.architecture', filesetversioninfo.osarchitecture
+    FROM filesetversioninfo, uploadjob
+    WHERE filesetversioninfo.id = uploadjob.versioninfo;
+
+ALTER TABLE metadataimportjob DROP COLUMN versioninfo;
+ALTER TABLE uploadjob DROP COLUMN versioninfo;
+
+DROP SEQUENCE seq_filesetversioninfo;
+DROP TABLE filesetversioninfo;
 
 --
 -- FINISHED
