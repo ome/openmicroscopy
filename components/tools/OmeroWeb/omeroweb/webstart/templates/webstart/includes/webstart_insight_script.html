@@ -27,4 +27,6 @@
     var url = "{{ insight_url }}";
     deployJava.createWebStartLaunchButton(url, '1.6.0');
 </script>
+{% else %}
+    <h1 class="error">Webstart is not available</h1>
 {% endif %}

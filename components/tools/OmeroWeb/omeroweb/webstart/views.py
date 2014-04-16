@@ -37,9 +37,10 @@ from django.views.decorators.cache import never_cache
 from omeroweb.http import HttpJNLPResponse
 from omero_version import omero_version
 
-from omeroweb.webclient.decorators import render_response
+from decorators import login_required, render_response
 
 @never_cache
+@login_required()
 @render_response()
 def custom_index(request, conn=None, **kwargs):
     context = {"version": omero_version}
@@ -53,13 +54,11 @@ def custom_index(request, conn=None, **kwargs):
             context["error"] = traceback.format_exception(*sys.exc_info())[-1]
     else:
         context['template'] = 'webstart/start.html'
-    insight_url = None
-    if settings.WEBSTART:
-        context['insight_url'] = request.build_absolute_uri(reverse("webstart_insight"))
 
     return context
 
 @never_cache
+@login_required()
 @render_response()
 def index(request, conn=None, **kwargs):
     context = {"version": omero_version}
@@ -73,9 +72,6 @@ def index(request, conn=None, **kwargs):
             context["error"] = traceback.format_exception(*sys.exc_info())[-1]
     else:
         context['template'] = 'webstart/index.html'
-    insight_url = None
-    if settings.WEBSTART:
-        context['insight_url'] = request.build_absolute_uri(reverse("webstart_insight"))
 
     return context
 
