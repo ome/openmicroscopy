@@ -79,7 +79,7 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id) {
     };
 
     var tag_click = function(event) {
-        $(this).not('.alltags-locked').toggleClass(
+        $(this).toggleClass(
             'ui-selected').siblings('.ui-selected').removeClass('ui-selected');
         update_selected_labels();
         event.stopPropagation();
@@ -90,12 +90,6 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id) {
         $(".ui-selected", $(this)).removeClass('ui-selected');
         update_selected_labels();
     });
-
-    var take_tag_click = function() {
-        var tag = $(this).parent();
-        tag.toggleClass('owner-tagged');
-        update_tooltip.call(tag.get(0));
-    };
 
     var create_html = function() {
         var html = "";
@@ -150,10 +144,12 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id) {
         var $this = $(this);
         var tag = all_tags[this.getAttribute("data-id")];
         var parent_id = all_tags[this.getAttribute("data-set")];
-        var link_owner = this.getAttribute("data-linkownername");
-        if ($this.hasClass('owner-tagged') &&
-            $this.has('span.alltags-take').length > 0) {
-            link_owner = 'you and ' + link_owner;
+        var link_owner = null;
+        if ($this.parent().attr("id") === "id_selected_tags") {
+            link_owner = this.getAttribute("data-linkownername");
+            if (link_owner && $this.hasClass('owner-tagged')) {
+                link_owner = 'you and ' + link_owner;
+            }
         }
         var link_date = this.getAttribute("data-linkdate");
         this.setAttribute("title", create_tag_title(
@@ -292,29 +288,33 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id) {
             }
             create_html();
 
+            var others_tags = []; // track ids of tags linked by other users
             for (idx in selected_tags) {
+                if (!selected_tags[idx][5]) {
+                    others_tags.push(selected_tags[idx][0])
+                    continue; // not owned by current user, don't add to list
+                }
                 var selected_tag = $(".tag_selection div[data-id=" +
                                      selected_tags[idx][0] + "]");
-                if (selected_tag) {
+                if (selected_tag.length) { // not yet selected
                     selected_tag.appendTo(div_selected_tags);
+                    selected_tag.attr("data-linkdate", selected_tags[idx][4]);
+                    selected_tag.addClass('owner-tagged');
+                }
+            }
+
+            // add others_count to selected tags
+            for (idx in others_tags) {
+                var tag_to_update = $(".tag_selection div[data-id=" +
+                                      others_tags[idx] + "]");
+                if (tag_to_update.length) {
                     var others_count = parseInt(
-                        selected_tag.attr("data-others_count") || "0", 10
-                        ) + (selected_tags[idx][5] ? 0 : 1);
-                    selected_tag.attr("data-others_count", others_count);
-                    selected_tag.attr("data-linkownername", others_count ?
+                        tag_to_update.attr("data-others_count") || "0", 10
+                        ) + 1;
+                    tag_to_update.attr("data-others_count", others_count);
+                    tag_to_update.attr("data-linkownername", others_count ?
                         others_count + " other user" +
                         (others_count > 1 ? "s" : "") : selected_tags[idx][2]);
-                    selected_tag.attr("data-linkdate", others_count ? "" :
-                                      selected_tags[idx][4]);
-                    if (selected_tags[idx][5]) {
-                        selected_tag.addClass('owner-tagged');
-                    }
-                    if ((!selected_tags[idx][3] || !selected_tags[idx][5]) &&
-                        !selected_tag.hasClass("alltags-locked")) {
-                        selected_tag.addClass('alltags-locked').append(
-                            $('<span>').addClass('alltags-take').on(
-                                'click', take_tag_click));
-                    }
                 }
             }
 
@@ -403,7 +403,7 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id) {
           "div.ui-selected.alltags-childtag:not(.filtered)", div_all_tags).each(
             function() {
                 $(this).appendTo(div_selected_tags);
-            });
+            }).each(update_tooltip);
         // move whole tag sets
         $("div.ui-selected.alltags-tagset:not(.filtered)", div_all_tags).each(
             function() {
@@ -413,7 +413,8 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id) {
                     tag = current.next("div.alltags-childtag");
                     if (!current.hasClass("filtered")) {
                         current.addClass(
-                            'ui-selected').appendTo(div_selected_tags);
+                            'ui-selected').appendTo(div_selected_tags).each(
+                                update_tooltip);
                     }
                 }
             });
@@ -426,13 +427,6 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id) {
                 first_selected.offset().top - div_selected_tags.offset().top -
                 40);
         }
-        // remove 'take tag' icons
-        $("div span", div_selected_tags).each(function() {
-            if ($("div[data-id=" + $(this).parent().attr('data-id') +
-                  "]:not(:has(span))", div_selected_tags).length > 0) {
-                $(this).remove();
-            }
-        });
         event.preventDefault();
     };
 
@@ -448,7 +442,7 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id) {
             } else {
                 $(this).appendTo(div_all_tags);
             }
-        });
+        }).each(update_tooltip);
         sort_tag_list(div_all_tags);
         update_filter();
         // scroll to first selected tag
@@ -639,8 +633,7 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id) {
                     'name', "newtags-" + count + "-tagset").val(
                         this.getAttribute('data-set')));
                 count += 1;
-            } else if (!$(this).hasClass('alltags-locked') ||
-                       $(this).hasClass('owner-tagged')) {
+            } else if ($(this).hasClass('owner-tagged')) {
                 // previously existing tag link owned by current user
                 existing_tags.push(tag_id);
             }
