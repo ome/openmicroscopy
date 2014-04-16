@@ -30,6 +30,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -78,6 +79,10 @@ import omero.api.ServiceInterfacePrx;
 import omero.api.StatefulServiceInterfacePrx;
 import omero.api.ThumbnailStorePrx;
 import omero.api.ThumbnailStorePrxHelper;
+import omero.cmd.CmdCallback;
+import omero.cmd.CmdCallbackI;
+import omero.cmd.DoAll;
+import omero.cmd.Request;
 import omero.gateway.exception.DSOutOfServiceException;
 import omero.grid.SharedResourcesPrx;
 import omero.grid.SharedResourcesPrxHelper;
@@ -85,6 +90,7 @@ import omero.model.ExperimenterGroup;
 import omero.model.Session;
 import omero.sys.Principal;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -242,7 +248,7 @@ public class Connector {
      * @throws Throwable
      *             Thrown if the service cannot be initialized.
      */
-    SharedResourcesPrx getSharedResources() throws DSOutOfServiceException {
+    public SharedResourcesPrx getSharedResources() throws DSOutOfServiceException {
         return SharedResourcesPrxHelper.uncheckedCast(get(
                 omero.constants.SHAREDRESOURCES.value, true));
     }
@@ -254,7 +260,7 @@ public class Connector {
      * @throws Throwable
      *             Thrown if the service cannot be initialized.
      */
-    IRenderingSettingsPrx getRenderingSettingsService()
+    public IRenderingSettingsPrx getRenderingSettingsService()
             throws DSOutOfServiceException {
         return IRenderingSettingsPrxHelper
                 .uncheckedCast(get(omero.constants.RENDERINGSETTINGS.value,
@@ -268,7 +274,7 @@ public class Connector {
      * @throws Throwable
      *             Thrown if the service cannot be initialized.
      */
-    IRepositoryInfoPrx getRepositoryService() throws DSOutOfServiceException {
+    public IRepositoryInfoPrx getRepositoryService() throws DSOutOfServiceException {
         return IRepositoryInfoPrxHelper.uncheckedCast(get(
                 omero.constants.REPOSITORYINFO.value, unsecureClient == null));
     }
@@ -280,7 +286,7 @@ public class Connector {
      * @throws Throwable
      *             Thrown if the service cannot be initialized.
      */
-    IScriptPrx getScriptService() throws DSOutOfServiceException {
+    public IScriptPrx getScriptService() throws DSOutOfServiceException {
         return IScriptPrxHelper.uncheckedCast(get(
                 omero.constants.SCRIPTSERVICE.value, unsecureClient == null));
     }
@@ -292,7 +298,7 @@ public class Connector {
      * @throws Throwable
      *             Thrown if the service cannot be initialized.
      */
-    IContainerPrx getPojosService() throws DSOutOfServiceException {
+    public IContainerPrx getPojosService() throws DSOutOfServiceException {
         return IContainerPrxHelper
                 .uncheckedCast(get(omero.constants.CONTAINERSERVICE.value,
                         unsecureClient == null));
@@ -305,7 +311,7 @@ public class Connector {
      * @throws Throwable
      *             Thrown if the service cannot be initialized.
      */
-    IQueryPrx getQueryService() throws DSOutOfServiceException {
+    public IQueryPrx getQueryService() throws DSOutOfServiceException {
         return IQueryPrxHelper.uncheckedCast(get(
                 omero.constants.QUERYSERVICE.value, unsecureClient == null));
     }
@@ -317,7 +323,7 @@ public class Connector {
      * @throws Throwable
      *             Thrown if the service cannot be initialized.
      */
-    IUpdatePrx getUpdateService() throws DSOutOfServiceException {
+    public IUpdatePrx getUpdateService() throws DSOutOfServiceException {
         return IUpdatePrxHelper.uncheckedCast(get(
                 omero.constants.UPDATESERVICE.value, unsecureClient == null));
     }
@@ -329,7 +335,7 @@ public class Connector {
      * @throws Throwable
      *             Thrown if the service cannot be initialized.
      */
-    IMetadataPrx getMetadataService() throws DSOutOfServiceException {
+    public IMetadataPrx getMetadataService() throws DSOutOfServiceException {
         return IMetadataPrxHelper.uncheckedCast(get(
                 omero.constants.METADATASERVICE.value, unsecureClient == null));
     }
@@ -341,7 +347,7 @@ public class Connector {
      * @throws Throwable
      *             Thrown if the service cannot be initialized.
      */
-    IRoiPrx getROIService() throws DSOutOfServiceException {
+    public IRoiPrx getROIService() throws DSOutOfServiceException {
         return IRoiPrxHelper.uncheckedCast(get(
                 omero.constants.ROISERVICE.value, unsecureClient == null));
     }
@@ -353,7 +359,7 @@ public class Connector {
      * @throws Throwable
      *             Thrown if the service cannot be initialized.
      */
-    IConfigPrx getConfigService() throws DSOutOfServiceException {
+    public IConfigPrx getConfigService() throws DSOutOfServiceException {
         return IConfigPrxHelper.uncheckedCast(get(
                 omero.constants.CONFIGSERVICE.value, unsecureClient == null));
     }
@@ -365,7 +371,7 @@ public class Connector {
      * @throws Throwable
      *             Thrown if the service cannot be initialized.
      */
-    ThumbnailStorePrx getThumbnailService() throws DSOutOfServiceException {
+    public ThumbnailStorePrx getThumbnailService() throws DSOutOfServiceException {
         return ThumbnailStorePrxHelper.uncheckedCast(create(
                 omero.constants.THUMBNAILSTORE.value, unsecureClient == null));
     }
@@ -376,7 +382,7 @@ public class Connector {
      * @return See above.
      * @throws @throws Throwable Thrown if the service cannot be initialized.
      */
-    ExporterPrx getExporterService() throws DSOutOfServiceException {
+    public ExporterPrx getExporterService() throws DSOutOfServiceException {
         return ExporterPrxHelper.uncheckedCast(create(
                 omero.constants.EXPORTERSERVICE.value, unsecureClient == null));
     }
@@ -387,7 +393,7 @@ public class Connector {
      * @return See above.
      * @throws @throws Throwable Thrown if the service cannot be initialized.
      */
-    RawFileStorePrx getRawFileService() throws DSOutOfServiceException {
+    public RawFileStorePrx getRawFileService() throws DSOutOfServiceException {
         return RawFileStorePrxHelper.uncheckedCast(create(
                 omero.constants.RAWFILESTORE.value, unsecureClient == null));
     }
@@ -399,7 +405,7 @@ public class Connector {
      * @throws Throwable
      *             Thrown if the service cannot be initialized.
      */
-    RawPixelsStorePrx getPixelsStore() throws DSOutOfServiceException {
+    public RawPixelsStorePrx getPixelsStore() throws DSOutOfServiceException {
         return RawPixelsStorePrxHelper.uncheckedCast(create(
                 omero.constants.RAWPIXELSSTORE.value, unsecureClient == null));
     }
@@ -411,7 +417,7 @@ public class Connector {
      * @throws Throwable
      *             Thrown if the service cannot be initialized.
      */
-    IPixelsPrx getPixelsService() throws DSOutOfServiceException {
+    public IPixelsPrx getPixelsService() throws DSOutOfServiceException {
         return IPixelsPrxHelper.uncheckedCast(get(
                 omero.constants.PIXELSSERVICE.value, unsecureClient == null));
     }
@@ -423,7 +429,7 @@ public class Connector {
      * @throws Throwable
      *             Thrown if the service cannot be initialized.
      */
-    SearchPrx getSearchService() throws DSOutOfServiceException {
+    public SearchPrx getSearchService() throws DSOutOfServiceException {
         return SearchPrxHelper.uncheckedCast(create(
                 omero.constants.SEARCH.value, unsecureClient == null));
     }
@@ -435,7 +441,7 @@ public class Connector {
      * @throws Throwable
      *             Thrown if the service cannot be initialized.
      */
-    IProjectionPrx getProjectionService() throws DSOutOfServiceException {
+    public IProjectionPrx getProjectionService() throws DSOutOfServiceException {
         return IProjectionPrxHelper
                 .uncheckedCast(get(omero.constants.PROJECTIONSERVICE.value,
                         unsecureClient == null));
@@ -448,7 +454,7 @@ public class Connector {
      * @throws Throwable
      *             Thrown if the service cannot be initialized.
      */
-    IAdminPrx getAdminService() throws DSOutOfServiceException {
+    public IAdminPrx getAdminService() throws DSOutOfServiceException {
         return IAdminPrxHelper.uncheckedCast(get(
                 omero.constants.ADMINSERVICE.value, unsecureClient == null));
     }
@@ -464,7 +470,7 @@ public class Connector {
      * @throws Throwable
      *             Thrown if the service cannot be initialized.
      */
-    OMEROMetadataStoreClient getImportStore() throws DSOutOfServiceException {
+    public OMEROMetadataStoreClient getImportStore() throws DSOutOfServiceException {
         OMEROMetadataStoreClient importStore = new OMEROMetadataStoreClient();
         try {
             if (entryUnencrypted != null) {
@@ -488,7 +494,7 @@ public class Connector {
      * @throws Throwable
      *             Thrown if the service cannot be initialized.
      */
-    RenderingEnginePrx getRenderingService(long pixelsID)
+    public RenderingEnginePrx getRenderingService(long pixelsID)
             throws DSOutOfServiceException, ServerError {
         RenderingEnginePrx prx = null;
         try {
@@ -552,7 +558,7 @@ public class Connector {
      *            Pass <code>true</code> if the network is up,
      *            <code>false</code> otherwise.
      */
-    void close(boolean networkup) throws Throwable {
+    public void close(boolean networkup) throws Throwable {
         secureClient.setFastShutdown(!networkup);
         if (unsecureClient != null)
             unsecureClient.setFastShutdown(!networkup);
@@ -569,7 +575,7 @@ public class Connector {
      * Closes the services initialized by the importer TODO: along with the TODO
      * on derived, this will need to be reviewed for race conditions.
      **/
-    void closeImport() {
+    public void closeImport() {
         shutdownImports();
         try {
             closeDerived(false);
@@ -585,7 +591,7 @@ public class Connector {
      *            Pass <code>true</code> if the network is up,
      *            <code>false</code> otherwise.
      */
-    void closeDerived(boolean networkup) throws Throwable {
+    public void closeDerived(boolean networkup) throws Throwable {
         Collection<Connector> list = derived.values();
         Iterator<Connector> i = list.iterator();
         while (i.hasNext()) {
@@ -664,7 +670,7 @@ public class Connector {
      * @param proxy
      *            The proxy to close.
      */
-    void close(StatefulServiceInterfacePrx proxy) {
+    public void close(StatefulServiceInterfacePrx proxy) {
         if (proxy == null) {
             return;
         }
@@ -693,12 +699,37 @@ public class Connector {
     }
 
     /**
+     * Executes the commands.
+     * 
+     * @param commands The commands to execute.
+     * @param target The target context is any.
+     * @return See above.
+     */
+    public CmdCallbackI submit(List<Request> commands, SecurityContext target)
+            throws Throwable
+    {
+        if (CollectionUtils.isEmpty(commands)) return null;
+        DoAll all = new DoAll();
+        all.requests = commands;
+        Map<String, String> callContext = new HashMap<String, String>();
+        if (target != null) {
+            callContext.put("omero.group", ""+target.getGroupID());
+        }
+        if (entryUnencrypted != null) {
+            return new CmdCallbackI(getClient(),
+                    entryUnencrypted.submit(all, callContext));
+        }
+        return new CmdCallbackI(getClient(),
+                entryEncrypted.submit(all, callContext));
+    }
+    
+    /**
      * Shuts downs the rendering engine.
      * 
      * @param pixelsId
      *            The id of the pixels set.
      */
-    void shutDownRenderingEngine(long pixelsId) {
+    public void shutDownRenderingEngine(long pixelsId) {
         Collection<RenderingEnginePrx> proxies = reServices.removeAll(pixelsId);
         for (RenderingEnginePrx prx : proxies) {
             close(prx);
@@ -740,7 +771,7 @@ public class Connector {
      * 
      * @return See above.
      */
-    client getClient() {
+    public client getClient() {
         if (unsecureClient != null)
             return unsecureClient;
         return secureClient;
@@ -751,7 +782,7 @@ public class Connector {
      * 
      * @return See above.
      */
-    Map<SecurityContext, Set<Long>> getRenderingEngines() {
+    public Map<SecurityContext, Set<Long>> getRenderingEngines() {
         Map<SecurityContext, Set<Long>> map = new HashMap<SecurityContext, Set<Long>>();
         Set<Long> list = new HashSet<Long>();
         Iterator<Long> i = reServices.keySet().iterator();
@@ -770,7 +801,7 @@ public class Connector {
      *            The name of the user. To be replaced by user's id.
      * @return See above.
      */
-    Connector getConnector(String userName) throws Throwable {
+    public Connector getConnector(String userName) throws Throwable {
         if (StringUtils.isBlank(userName))
             return this;
         Connector c = derived.get(userName);

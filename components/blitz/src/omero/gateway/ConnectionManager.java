@@ -454,7 +454,7 @@ public abstract class ConnectionManager {
      *            no {@link Connector} is available by the end of the execution.
      * @return
      */
-    Connector getConnector(SecurityContext ctx, boolean recreate,
+    public Connector getConnector(SecurityContext ctx, boolean recreate,
             boolean permitNull) throws DSOutOfServiceException {
         try {
             isNetworkUp(true); // Need safe version?

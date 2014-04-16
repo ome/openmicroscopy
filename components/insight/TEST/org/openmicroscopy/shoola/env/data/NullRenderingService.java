@@ -513,7 +513,6 @@ public class NullRenderingService
 			long userID)
 			throws DSAccessException, DSOutOfServiceException
 	{
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -561,7 +560,6 @@ public class NullRenderingService
 	@Override
 	public Long getRenderingDef(SecurityContext ctx, long pixelsID, long userID)
 			throws DSOutOfServiceException, DSAccessException {
-		// TODO Auto-generated method stub
 		return null;
 	}
 

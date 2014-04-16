@@ -215,7 +215,7 @@ public interface OmeroImageService
 	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	public RenderingControl reloadRenderingService(SecurityContext ctx,
+	public RenderingControl reloadRenderingService(omero.gateway.SecurityContext ctx,
 		long pixelsID)
 		throws DSAccessException, RenderingServiceException;
 	

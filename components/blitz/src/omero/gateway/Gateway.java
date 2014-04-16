@@ -19,9 +19,11 @@
 
 package omero.gateway;
 
-import static omero.gateway.util.GatewayUtils.*;
+import static omero.gateway.util.GatewayUtils.convertAnnotation;
+import static omero.gateway.util.GatewayUtils.convertPojos;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -31,23 +33,14 @@ import java.util.Set;
 
 import omero.api.IContainerPrx;
 import omero.api.IMetadataPrx;
-import omero.api.IQueryPrx;
 import omero.gateway.exception.DSAccessException;
 import omero.gateway.exception.DSOutOfServiceException;
-import omero.model.IObject;
 import omero.sys.Parameters;
-import omero.sys.ParametersI;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import pojos.DataObject;
-import pojos.TagAnnotationData;
 import pojos.util.PojoMapper;
 
+@SuppressWarnings("unchecked")
 public class Gateway extends ConnectionManager {
-
-    private Logger log = LoggerFactory.getLogger(Gateway.class.getName());
 
     /**
      * Retrieves hierarchy trees rooted by a given node. i.e. the requested node
@@ -76,9 +69,9 @@ public class Gateway extends ConnectionManager {
      *             service.
      * @see IPojos#loadContainerHierarchy(Class, List, Map)
      */
-    public Set<DataObject> loadContainerHierarchy(SecurityContext ctx,
-            Class rootType, List<Long> rootIDs, Parameters options)
-            throws DSOutOfServiceException, DSAccessException {
+    public Set loadContainerHierarchy(SecurityContext ctx, Class rootType,
+            List rootIDs, Parameters options) throws DSOutOfServiceException,
+            DSAccessException {
         Connector c = getConnector(ctx, true, false);
         try {
             IContainerPrx service = c.getPojosService();
@@ -87,46 +80,48 @@ public class Gateway extends ConnectionManager {
         } catch (Throwable t) {
             handleException(t, "Cannot load hierarchy for " + rootType + ".");
         }
-        return new HashSet<DataObject>();
+        return Collections.emptySet();
     }
-    
+
     /**
-     * Counts the number of items in a collection for a given object.
-     * Returns a map which key is the passed rootNodeID and the value is
-     * the number of items contained in this object and
-     * maps the result calling {@link PojoMapper#asDataObjects(Map)}.
-     *
-     * @param ctx The security context.
-     * @param rootNodeType  The type of container.
-     * @param property              One of the properties defined by this class.
-     * @param ids           The identifiers of the objects.
-     * @param options               Options to retrieve the data.
-     * @param rootNodeIDs   Set of root node IDs.
-     * @return See above.
-     * @throws DSOutOfServiceException If the connection is broken, or logged in
-     * @throws DSAccessException If an error occurred while trying to
-     * retrieve data from OMERO service.
-     * @see IPojos#getCollectionCount(String, String, List, Map)
+     * Retrieves hierarchy trees in various hierarchies that contain the
+     * specified Images. The annotation for the current user is also linked to
+     * the object. Annotations are currently possible only for Image and
+     * Dataset. Wraps the call to the
+     * {@link IPojos#findContainerHierarchies(Class, List, Map)} and maps the
+     * result calling {@link PojoMapper#asDataObjects(Set)}.
+     * 
+     * @param ctx
+     *            The security context, necessary to determine the service.
+     * @param rootNodeType
+     *            top-most type which will be searched for Can be
+     *            <code>Project</code> Mustn't be <code>null</code>.
+     * @param leavesIDs
+     *            Set of identifiers of the Images that sit at the bottom of the
+     *            trees. Mustn't be <code>null</code>.
+     * @param options
+     *            Options to retrieve the data.
+     * @return A <code>Set</code> with all root nodes that were found.
+     * @throws DSOutOfServiceException
+     *             If the connection is broken, or logged in
+     * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
+     * @see IPojos#findContainerHierarchies(Class, List, Map)
      */
-    public Map getCollectionCount(SecurityContext ctx, Class rootNodeType,
-                    String property, List ids, Parameters options)
-            throws DSOutOfServiceException, DSAccessException
-    {
-    Connector c = getConnector(ctx, true, false);
-            try {
-                  IMetadataPrx service = c.getMetadataService();
-                    IContainerPrx svc = c.getPojosService();
-                    if (TagAnnotationData.class.equals(rootNodeType)) {
-                            return service.getTaggedObjectsCount(ids, options);
-                    }
-                    String p = convertProperty(rootNodeType, property);
-                    if (p == null) return null;
-                    return PojoMapper.asDataObjects(svc.getCollectionCount(
-                                    convertPojos(rootNodeType).getName(), p, ids, options));
-            } catch (Throwable t) {
-                    handleException(t, "Cannot count the collection.");
-            }
-            return new HashMap();
+    public Set findContainerHierarchy(SecurityContext ctx, Class rootNodeType,
+            List leavesIDs, Parameters options) throws DSOutOfServiceException,
+            DSAccessException {
+        Connector c = getConnector(ctx, true, false);
+        try {
+            IContainerPrx service = c.getPojosService();
+            return PojoMapper.asDataObjects(service.findContainerHierarchies(
+                    convertPojos(rootNodeType).getName(), leavesIDs, options));
+        } catch (Throwable t) {
+            handleException(t, "Cannot find hierarchy for " + rootNodeType
+                    + ".");
+        }
+        return Collections.emptySet();
     }
 
     /**
@@ -136,132 +131,90 @@ public class Gateway extends ConnectionManager {
      * then maps each <code>rootNodeID</code> onto the set of all annotations
      * that were found for that node. If no annotations were found for that
      * node, then the entry will be <code>null</code>. Otherwise it will be a
-     * <code>Set</code> containing <code>Annotation</code> objects.
-     * Wraps the call to the
-     * {@link IMetadataPrx#loadAnnotations(String, List, List, List)}
-     * and maps the result calling {@link PojoMapper#asDataObjects(Parameters)}.
-     *
-     * @param ctx The security context.
-     * @param nodeType      The type of the rootNodes.
-     *                      Mustn't be <code>null</code>.
-     * @param nodeIDs       TheIds of the objects of type
-     *                      <code>rootNodeType</code>.
-     *                      Mustn't be <code>null</code>.
-     * @param annotationTypes The collection of annotations to retrieve or
-     *                                                passed an empty list if we retrieve all the
-     *                                                annotations.
-     * @param annotatorIDs  The identifiers of the users for whom annotations
-     *                                              should be retrieved. If <code>null</code>,
-     *                                              all annotations are returned.
-     * @param options       Options to retrieve the data.
+     * <code>Set</code> containing <code>Annotation</code> objects. Wraps the
+     * call to the
+     * {@link IMetadataPrx#loadAnnotations(String, List, List, List)} and maps
+     * the result calling {@link PojoMapper#asDataObjects(Parameters)}.
+     * 
+     * @param ctx
+     *            The security context.
+     * @param nodeType
+     *            The type of the rootNodes. Mustn't be <code>null</code>.
+     * @param nodeIDs
+     *            TheIds of the objects of type <code>rootNodeType</code>.
+     *            Mustn't be <code>null</code>.
+     * @param annotationTypes
+     *            The collection of annotations to retrieve or passed an empty
+     *            list if we retrieve all the annotations.
+     * @param annotatorIDs
+     *            The identifiers of the users for whom annotations should be
+     *            retrieved. If <code>null</code>, all annotations are returned.
+     * @param options
+     *            Options to retrieve the data.
      * @return A map whose key is rootNodeID and value the <code>Set</code> of
      *         all annotations for that node or <code>null</code>.
-     * @throws DSOutOfServiceException If the connection is broken, or logged in
-     * @throws DSAccessException If an error occurred while trying to
-     * retrieve data from OMERO service.
+     * @throws DSOutOfServiceException
+     *             If the connection is broken, or logged in
+     * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
      * @see IPojos#findAnnotations(Class, List, List, Map)
      */
-    public Map loadAnnotations(SecurityContext ctx, Class nodeType, List nodeIDs,
-                    List<Class> annotationTypes, List annotatorIDs, Parameters options)
-    throws DSOutOfServiceException, DSAccessException
-    {
-            List<String> types = new ArrayList<String>();
-            if (annotationTypes != null && annotationTypes.size() > 0) {
-                    types = new ArrayList<String>(annotationTypes.size());
-                    Iterator<Class> i = annotationTypes.iterator();
-                    String k;
-                    while (i.hasNext()) {
-                            k = convertAnnotation(i.next());
-                            if (k != null)
-                                    types.add(k);
-                    }
+    public Map loadAnnotations(SecurityContext ctx, Class nodeType,
+            List nodeIDs, List<Class> annotationTypes, List annotatorIDs,
+            Parameters options) throws DSOutOfServiceException,
+            DSAccessException {
+        List<String> types = new ArrayList<String>();
+        if (annotationTypes != null && annotationTypes.size() > 0) {
+            types = new ArrayList<String>(annotationTypes.size());
+            Iterator<Class> i = annotationTypes.iterator();
+            String k;
+            while (i.hasNext()) {
+                k = convertAnnotation(i.next());
+                if (k != null)
+                    types.add(k);
             }
-            Connector c = getConnector(ctx, true, false);
-            try {
-                IMetadataPrx service = c.getMetadataService();
-                    return PojoMapper.asDataObjects(
-                                    service.loadAnnotations(convertPojos(nodeType).getName(),
-                                                    nodeIDs, types, annotatorIDs, options));
-            } catch (Throwable t) {
-                    handleException(t, "Cannot find annotations for "+nodeType+".");
-            }
-            return new HashMap();
-    }
-    
-    /**
-     * Finds the links if any between the specified parent and children.
-     *
-     * @param ctx The security context.
-     * @param parent The parent.
-     * @param children Collection of children as identifiers.
-     * @return See above.
-     * @throws DSOutOfServiceException If the connection is broken, or logged in
-     * @throws DSAccessException If an error occurred while trying to
-     * retrieve data from OMERO service.
-     */
-    public List findLinks(SecurityContext ctx, IObject parent, List children)
-            throws DSOutOfServiceException, DSAccessException
-    {
+        }
         Connector c = getConnector(ctx, true, false);
-            try {
-                IQueryPrx service = c.getQueryService();
-                    String table = getTableForLink(parent.getClass());
-                    if (table == null) return null;
-
-                    ParametersI param = new ParametersI();
-                    param.map.put("parentID", parent.getId());
-
-                    String sql = "select link from "+table+" as link where " +
-                    "link.parent.id = :parentID";
-                    if (children != null && children.size() > 0) {
-                            sql += " and link.child.id in (:childIDs)";
-                            param.addLongs("childIDs", children);
-
-                    }
-                    return service.findAllByQuery(sql, param);
-            } catch (Throwable t) {
-                    handleException(t, "Cannot retrieve the requested link for "+
-                                    "parent ID: "+parent.getId());
-            }
-            return new ArrayList();
+        try {
+            IMetadataPrx service = c.getMetadataService();
+            return PojoMapper.asDataObjects(service.loadAnnotations(
+                    convertPojos(nodeType).getName(), nodeIDs, types,
+                    annotatorIDs, options));
+        } catch (Throwable t) {
+            handleException(t, "Cannot find annotations for " + nodeType + ".");
+        }
+        return Collections.emptyMap();
     }
-    
-    /**
-     * Finds the links if any between the specified parent and children.
-     *
-     * @param ctx The security context.
-     * @param parentClass The parent.
-     * @param children Collection of children as identifiers.
-     * @param userID The id of the user.
-     * @return See above.
-     * @throws DSOutOfServiceException If the connection is broken, or logged in
-     * @throws DSAccessException If an error occurred while trying to
-     * retrieve data from OMERO service.
-     */
-    public List findLinks(SecurityContext ctx, Class parentClass, List children,
-                    long userID)
-            throws DSOutOfServiceException, DSAccessException
-    {
-        
-        Connector c = getConnector(ctx, true, false);
-            try {
-                IQueryPrx service = c.getQueryService();
-                    String table = getTableForLink(parentClass);
-                    if (table == null) return null;
-                    String sql = "select link from "+table+" as link where " +
-                    "link.child.id in (:childIDs)";
-                    ParametersI param = new ParametersI();
-                    param.addLongs("childIDs", children);
 
-                    if (userID >= 0) {
-                            sql += " and link.details.owner.id = :userID";
-                            param.map.put("userID", omero.rtypes.rlong(userID));
-                    }
-                    return service.findAllByQuery(sql, param);
-            } catch (Throwable t) {
-                    handleException(t, "Cannot retrieve the requested link for "+
-                    "the specified children");
-            }
-            return new ArrayList();
+    /**
+     * Loads the specified annotations.
+     * 
+     * @param ctx
+     *            The security context.
+     * @param annotationIds
+     *            The annotation to load.
+     * @return See above.
+     * @throws DSOutOfServiceException
+     *             If the connection is broken, or logged in
+     * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.s
+     */
+    public Set<DataObject> loadAnnotation(SecurityContext ctx,
+            List<Long> annotationIds) throws DSOutOfServiceException,
+            DSAccessException {
+        if (annotationIds == null || annotationIds.size() == 0)
+            return new HashSet<DataObject>();
+
+        Connector c = getConnector(ctx, true, false);
+        try {
+            IMetadataPrx service = c.getMetadataService();
+            return PojoMapper.asDataObjects(service
+                    .loadAnnotation(annotationIds));
+        } catch (Throwable t) {
+            handleException(t, "Cannot find the annotations.");
+        }
+        return Collections.emptySet();
     }
 }

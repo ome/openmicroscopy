@@ -56,14 +56,14 @@ public class ReloadRenderingEngine
 {
 
 	/** The pixels for which the rendering engine could not be reloaded.*/
-	private Map<SecurityContext, List<Long>> pixels;
+	private Map<omero.gateway.SecurityContext, List<Long>> pixels;
 	
 	/**
 	 * Creates a new instance.
 	 * 
 	 * @param pixels The pixels to handle.
 	 */
-	public ReloadRenderingEngine(Map<SecurityContext, List<Long>> pixels)
+	public ReloadRenderingEngine(Map<omero.gateway.SecurityContext, List<Long>> pixels)
 	{
 		this.pixels = pixels;
 	}
@@ -73,7 +73,7 @@ public class ReloadRenderingEngine
 	 * 
 	 * @return See above.
 	 */
-	public Map<SecurityContext, List<Long>> getPixels() { return pixels; }
+	public Map<omero.gateway.SecurityContext, List<Long>> getPixels() { return pixels; }
 	
 	/**
 	 * Returns the re-activated images.

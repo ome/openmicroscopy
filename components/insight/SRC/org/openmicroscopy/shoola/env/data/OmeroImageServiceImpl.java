@@ -148,7 +148,7 @@ class OmeroImageServiceImpl
 	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	private int getNumberOfRenderingEngines(SecurityContext ctx, long pixelsID)
+	private int getNumberOfRenderingEngines(omero.gateway.SecurityContext ctx, long pixelsID)
 			throws DSOutOfServiceException, DSAccessException
 	{
 		int number = 1;
@@ -663,7 +663,7 @@ class OmeroImageServiceImpl
 	 * Implemented as specified by {@link OmeroImageService}.
 	 * @see OmeroImageService#reloadRenderingService(SecurityContext, long)
 	 */
-	public RenderingControl reloadRenderingService(SecurityContext ctx,
+	public RenderingControl reloadRenderingService(omero.gateway.SecurityContext ctx,
 		long pixelsID)
 		throws RenderingServiceException
 	{
@@ -1883,10 +1883,15 @@ class OmeroImageServiceImpl
 	public ThumbnailStorePrx createThumbnailStore(SecurityContext ctx)
 			throws DSAccessException, DSOutOfServiceException
 	{
-		if (ctx == null) return null;
-		Connector c = gateway.getConnector(ctx, true, false);
-		// Pass close responsiblity off to the caller.
-		return c.getThumbnailService();
+            if (ctx == null)
+                return null;
+            omero.gateway.Connector c = gateway.getConnector(ctx, true, false);
+            // Pass close responsiblity off to the caller.
+            try {
+                return c.getThumbnailService();
+            } catch (omero.gateway.exception.DSOutOfServiceException e) {
+                throw new DSOutOfServiceException(e);
+            }
 	}
 	
 	/**

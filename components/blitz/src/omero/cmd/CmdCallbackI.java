@@ -102,6 +102,11 @@ public class CmdCallbackI extends _CmdCallbackDisp {
      */
     protected final HandlePrx handle;
 
+    public CmdCallbackI(CmdCallbackI ccb)
+            throws ServerError {
+                this(ccb.adapter, ccb.id.category, ccb.handle);
+            }
+    
     public CmdCallbackI(omero.client client, HandlePrx handle)
     throws ServerError {
         this(client.getAdapter(), client.getCategory(), handle);

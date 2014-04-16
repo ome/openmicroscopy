@@ -46,6 +46,9 @@ import java.util.Set;
 import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+
+
+
 //Third-party libraries
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
@@ -55,6 +58,9 @@ import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
+
+
+
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
@@ -76,6 +82,7 @@ import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.rnd.PixelsServicesFactory;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
+import org.openmicroscopy.shoola.env.rnd.data.DataSourceException;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 import omero.ResourceError;
@@ -133,9 +140,11 @@ import omero.api.StatefulServiceInterfacePrx;
 import omero.api.ThumbnailStorePrx;
 import omero.cmd.Chgrp;
 import omero.cmd.Chmod;
+import omero.cmd.CmdCallback;
 import omero.cmd.HandlePrx;
 import omero.cmd.Request;
 import omero.constants.projection.ProjectionType;
+import omero.gateway.Connector;
 import omero.gateway.Gateway;
 import omero.gateway.exception.VersionMismatchException;
 import omero.grid.BoolColumn;
@@ -392,9 +401,6 @@ class OMEROGateway
 	        Multimaps.<Long, Connector>synchronizedListMultimap(
 	                LinkedListMultimap.<Long, Connector>create());
 
-	/** Tells whether we're currently connected and logged into <i>OMERO</i>.*/
-	private boolean connected;
-
 	/**
 	 * Flag used during reconnecting process if a connection failure
 	 * occurred.
@@ -491,7 +497,7 @@ class OMEROGateway
 	 */
 	boolean isServerRunning(SecurityContext ctx)
 	{
-		if (!connected) return false;
+		if (!gateway.isConnected()) return false;
 		try {
             return null != getConnector(ctx, true, true);
         } catch (Throwable t) {
@@ -830,7 +836,7 @@ class OMEROGateway
 	{
 		boolean b = handleConnectionException(t);
 		if (!b) return;
-		if (!connected) return;
+		if (!gateway.isConnected()) return;
 		Throwable cause = t.getCause();
 		if (cause instanceof SecurityViolation) {
 			String s = "For security reasons, cannot access data. \n";
@@ -893,7 +899,7 @@ class OMEROGateway
 	{
 		boolean b = handleConnectionException(t);
 		if (!b) return;
-		if (!connected) return;
+		if (!gateway.isConnected()) return;
 		Throwable cause = t.getCause();
 		String s = "\nImage not ready. Please try again later.";
 		if (cause instanceof ConcurrencyException) {
@@ -1153,6 +1159,25 @@ class OMEROGateway
 	}
 
 	/**
+         * Transforms the specified <code>property</code> into the
+         * corresponding server value.
+         * The transformation depends on the specified class.
+         *
+         * @param nodeType The type of node this property corresponds to.
+         * @param property The name of the property.
+         * @return See above.
+         */
+        private String convertProperty(Class nodeType, String property)
+        {
+                if (nodeType.equals(DatasetData.class)) {
+                        if (property.equals(OmeroDataService.IMAGES_PROPERTY))
+                                return DatasetData.IMAGE_LINKS;
+                }  else throw new IllegalArgumentException("NodeType or " +
+                                "property not supported");
+                return null;
+        }
+        
+	/**
 	 * Loads the links.
 	 *
 	 * @param ctx The security context.
@@ -1318,94 +1343,17 @@ class OMEROGateway
 	 *     by the end of the execution.
 	 * @return
 	 */
-	Connector getConnector(SecurityContext ctx, boolean recreate,
+	<T extends omero.gateway.SecurityContext> Connector getConnector(T ctx, boolean recreate,
 	        boolean permitNull)
 		throws DSOutOfServiceException
 	{
-	    try {
-            isNetworkUp(true); // Need safe version?
-        } catch (Exception e1) {
-            if (permitNull) {
-                log("Failed to check network. Returning null connector");
-                return null;
+            try {
+                return gateway.getConnector(ctx, recreate, permitNull);
+            } catch (omero.gateway.exception.DSOutOfServiceException e) {
+                throw new DSOutOfServiceException(e);
             }
-            dsFactory.sessionExpiredExit(ConnectionExceptionHandler.NETWORK,
-                    null);
-        }
-
-	    if (!networkup.get()) {
-            if (permitNull) {
-                log("Network down. Returning null connector");
-                return null;
-            }
-            dsFactory.sessionExpiredExit(ConnectionExceptionHandler.NETWORK,
-                    null);
-        }
-
-        if (ctx == null) {
-            if (permitNull) {
-                log("Null SecurityContext. Returning null connector");
-                return null;
-            }
-            throw new DSOutOfServiceException("Null SecurityContext");
-		}
-
-		Connector c = null;
-		List<Connector> clist = groupConnectorMap.get(ctx.getGroupID());
-		if (clist.size() > 0) {
-		    c = clist.get(0);
-	        if (c.needsKeepAlive()) {
-	            //Check if network is up before keeping service otherwise
-	            //we block until timeout.
-	            try {
-	                isNetworkUp(false);
-                } catch (Exception e) {
-                    dsFactory.sessionExpiredExit(
-                            ConnectionExceptionHandler.NETWORK, null);
-                }
-	            if (!c.keepSessionAlive()) {
-	                dsFactory.sessionExpiredExit(
-                            ConnectionExceptionHandler.LOST_CONNECTION, null);
-	            }
-	        }
-	        return c;
-		}
-
-		//We are going to create a connector and activate a session.
-		if (!recreate) {
-		    if (permitNull) {
-		        log("Cannot re-create. Returning null connector");
-		        return null;
-		    }
-		    throw new DSOutOfServiceException("Not allowed to recreate");
-		}
-		return createConnector(ctx, permitNull);
 	}
 
-	private Connector createConnector(SecurityContext ctx, boolean permitNull)
-	        throws DSOutOfServiceException
-	{
-	    Connector c = null;
-	    try {
-            UserCredentials uc = dsFactory.getCredentials();
-            ctx.setServerInformation(uc.getHostName(), uc.getPort());
-            // client will be cleaned up by connector
-            client client = new client(uc.getHostName(), uc.getPort());
-            ServiceFactoryPrx prx = client.createSession(uc.getUserName(),
-                    uc.getPassword());
-            prx.setSecurityContext(
-                    new ExperimenterGroupI(ctx.getGroupID(), false));
-            c = new Connector(ctx, client, prx, encrypted,
-                    dsFactory.getLogger(), dsFactory.getElapseTime());
-            groupConnectorMap.put(ctx.getGroupID(), c);
-        } catch (Throwable e) {
-            // TODO: This previously was via handleException??
-            if (!permitNull) {
-                throw new DSOutOfServiceException("Failed to create connector", e);
-            }
-        }
-	    return c;
-	}
 	
 	/**
 	 * Checks if some default rendering settings have to be created
@@ -1728,7 +1676,7 @@ class OMEROGateway
 	 *
 	 * @return  <code>true</code> if connected, <code>false</code> otherwise.
 	 */
-	boolean isConnected() { return connected; }
+	boolean isConnected() { return gateway.isConnected(); }
 
 	/**
 	 * Retrieves the details on the current user and maps the result calling
@@ -1782,149 +1730,12 @@ class OMEROGateway
 	public ExperimenterData connect(UserCredentials uc, String agentName, String clientVersion, float compression, boolean skipVersionCheck) throws DSOutOfServiceException, VersionMismatchException {
 	    // connect to the gateway
 	    try {
-                gateway.connect(uc, agentName, clientVersion, compression, skipVersionCheck);
+                return gateway.connect(uc, agentName, clientVersion, compression, skipVersionCheck);
             } catch (omero.gateway.exception.DSOutOfServiceException e) {
                 throw new DSOutOfServiceException(e);
             }
-	    
-	 // TODO: Remove this after all methods have been changed to use the Gateway; but for now we also have to do the conventional login procedure
-            client client = createSession(uc.getUserName(), uc.getPassword(), uc.getHostName(), encrypted,
-                    agentName, uc.getPort());
-            return login(client, uc.getUserName(), uc.getHostName(), compression, uc.getGroup(), uc.getPort());
         }
 	
-
-	/**
-	 * Tries to connect to <i>OMERO</i> and log in by using the supplied
-	 * credentials.
-	 *
-	 * @param userName The user name to be used for login.
-	 * @param password The password to be used for login.
-	 * @param hostName The name of the server.
-	 * @param compression The compression level used for images and
-	 * 					  thumbnails depending on the connection speed.
-	 * @param groupID The id of the group or <code>-1</code>.
-	 * @param encrypted Pass <code>true</code> to encrypt data transfer,
-     * 					<code>false</code> otherwise.
-     * @param agentName The name to register with the server.
-     * @param port The port to use.
-	 * @return The user's details.
-	 * @throws DSOutOfServiceException If the connection can't be established
-	 *                                  or the credentials are invalid.
-	 * @see #getUserDetails(String)
-	 * TODO: could be refactored to return a Connector for later use in login()
-	 */
-	private client createSession(String userName, String password, String hostName,
-		boolean encrypted, String agentName, int port)
-	throws DSOutOfServiceException
-	{
-		this.encrypted = encrypted;
-		client secureClient = null;
-		try {
-		    // client must be cleaned up by caller.
-			if (port > 0) secureClient = new client(hostName, port);
-			else secureClient = new client(hostName);
-			secureClient.setAgent(agentName);
-			ServiceFactoryPrx entryEncrypted
-			    = secureClient.createSession(userName, password);
-			serverVersion = entryEncrypted.getConfigService().getVersion();
-//			String ip = null;
-//	        try {
-//				ip = InetAddress.getByName(hostName).getHostAddress();
-//			} catch (Exception e) {
-//				log("Failed to get inet address: " + hostName);
-//			}
-//
-//	        boolean b = dsFactory.runAsPlugin() == LookupNames.IMAGE_J;
-//			networkChecker = new NetworkChecker(ip, b);
-		} catch (Throwable e) {
-		    if (secureClient != null) {
-		        secureClient.__del__();
-		    }
-			connected = false;
-			String s = "Can't connect to OMERO. OMERO info not valid.\n\n";
-			s += printErrorText(e);
-			throw new DSOutOfServiceException(s, e);
-		}
-		return secureClient;
-	}
-
-	/**
-	 * Tries to connect to <i>OMERO</i> and log in by using the supplied
-	 * credentials. The <code>createSession</code> method must be invoked before.
-	 *
-	 * @param userName The user name to be used for login.
-	 * @param secureClient Reference to the client
-	 * @param hostName The name of the server.
-	 * @param compression The compression level used for images and
-	 * 					  thumbnails depending on the connection speed.
-	 * @param groupID The id of the group or <code>-1</code>.
-	 * @param encrypted Pass <code>true</code> to encrypt data transfer,
-     * 					<code>false</code> otherwise.
-     * @param agentName The name to register with the server.
-     * @param port The port to use
-	 * @return The user's details.
-	 * @throws DSOutOfServiceException If the connection can't be established
-	 *                                  or the credentials are invalid.
-	 * @see #createSession(String, String, String, long, boolean, String)
-	 */
-	private ExperimenterData login(client secureClient, String userName, String hostName,
-		float compression, long groupID, int port)
-		throws DSOutOfServiceException
-	{
-		Connector connector = null;
-		SecurityContext ctx = null;
-		try {
-			connected = true;
-			ServiceFactoryPrx entryEncrypted = secureClient.getSession();
-			IAdminPrx prx = entryEncrypted.getAdminService();
-			ExperimenterData exp = (ExperimenterData) PojoMapper.asDataObject(
-					prx.lookupExperimenter(userName));
-			if (groupID >= 0) {
-				long defaultID = -1;
-				try {
-					defaultID = exp.getDefaultGroup().getId();
-				} catch (Exception e) {}
-				ctx = new SecurityContext(defaultID);
-				ctx.setServerInformation(hostName, port);
-				ctx.setCompression(compression);
-				connector = new Connector(ctx, secureClient, entryEncrypted,
-						encrypted, dsFactory.getLogger(),
-						dsFactory.getElapseTime());
-				groupConnectorMap.put(ctx.getGroupID(), connector);
-				if (defaultID == groupID) return exp;
-				try {
-					changeCurrentGroup(ctx, exp, groupID);
-					ctx = new SecurityContext(groupID);
-					ctx.setServerInformation(hostName, port);
-					ctx.setCompression(compression);
-					connector = new Connector(ctx, secureClient, entryEncrypted,
-							encrypted, dsFactory.getLogger(),
-							dsFactory.getElapseTime());
-					exp = getUserDetails(ctx, userName, true);
-					groupConnectorMap.put(ctx.getGroupID(), connector);
-				} catch (Exception e) {
-				    LogMessage msg = new LogMessage();
-				    msg.print("Error while changing group.");
-				    msg.print(e);
-				    dsFactory.getLogger().debug(this, msg);
-				}
-			}
-			// Connector now controls the secureClient for closing.
-			ctx = new SecurityContext(exp.getDefaultGroup().getId());
-			ctx.setServerInformation(hostName, port);
-			ctx.setCompression(compression);
-			connector = new Connector(ctx, secureClient, entryEncrypted,
-					encrypted, dsFactory.getLogger(), dsFactory.getElapseTime());
-			groupConnectorMap.put(ctx.getGroupID(), connector);
-			return exp;
-		} catch (Throwable e) {
-			connected = false;
-			String s = "Cannot log in. User credentials not valid.\n\n";
-			s += printErrorText(e);
-			throw new DSOutOfServiceException(s, e);
-		}
-	}
 
 	/**
 	 * Retrieves the system view hosting the repositories.
@@ -2079,10 +1890,10 @@ class OMEROGateway
 	 *
 	 * @return See above.
 	 */
-	Map<SecurityContext, Set<Long>> getRenderingEngines()
+	Map<omero.gateway.SecurityContext, Set<Long>> getRenderingEngines()
 	{
-		Map<SecurityContext, Set<Long>> l =
-			new HashMap<SecurityContext, Set<Long>>();
+		Map<omero.gateway.SecurityContext, Set<Long>> l =
+			new HashMap<omero.gateway.SecurityContext, Set<Long>>();
 		Iterator<Connector> i = getAllConnectors().iterator();
 		while (i.hasNext()) {
 			l.putAll(i.next().getRenderingEngines());
@@ -2097,105 +1908,23 @@ class OMEROGateway
 	 */
     boolean joinSession()
     {
-        log("joinSession ");
-        try {
-            isNetworkUp(false); // Force re-check to prevent hang
-        } catch (Exception e) {
-            // no need to handle the exception.
-        }
-        boolean networkup = this.networkup.get(); // our copy
-        connected = false;
-        if (!networkup) {
-            log("Network is down");
-            return false;
-        }
-        List<Connector> connectors = removeAllConnectors();
-        Iterator<Connector> i = connectors.iterator();
-        Connector c;
-        int index = 0;
-        while (i.hasNext()) {
-            c = i.next();
-            try {
-                log("joining the session ");
-                c.joinSession();
-                groupConnectorMap.put(c.getGroupID(), c);
-            } catch (Throwable t) {
-                log("Failed to join the session "+printErrorText(t));
-                //failed to join so we create a new one, first we shut down
-                try {
-                    c.shutDownServices(true);
-                    c.close(networkup);
-                } catch (Throwable e) {
-                    log("Failed to close the session "+printErrorText(e));
-                }
-                if (!groupConnectorMap.containsKey(c.getGroupID())) {
-                    try {
-                        createConnector(new SecurityContext(c.getGroupID()),
-                                false);
-                    } catch (Exception e) {
-                        log("Failed to create connector "+printErrorText(e));
-                        index++;
-                    }
-                }
-            }
-        }
-        connected = index == 0;
-        reconnecting.set(true);
-        return connected;
+        return gateway.joinSession();
     }
 
 	/** Logs out. */
 	void logout()
 	{
-		try {
-			isNetworkUp(false); // Force re-check to prevent hang.
-		} catch (Exception e) {
-			//ignore already registered.
-		}
-		connected = false;
-		List<Connector> connectors = getAllConnectors();
-		Iterator<Connector> i = connectors.iterator();
-        while (i.hasNext())
-            i.next().shutDownServices(true);
-        i = connectors.iterator();
-        while (i.hasNext()) {
-            try {
-                i.next().close(networkup.get());
-            } catch (Throwable e) {
-                log("Cannot close connector: "+printErrorText(e));
-            }
-        }
-        groupConnectorMap.clear();
+    	    gateway.disconnect();
 	}
 
 	/**
-	 * Retrieves hierarchy trees rooted by a given node.
-	 * i.e. the requested node as root and all of its descendants.
-	 * The annotation for the current user is also linked to the object.
-	 * Annotations are currently possible only for Image and Dataset.
-	 * Wraps the call to the
-	 * {@link IPojos#loadContainerHierarchy(Class, List, Map)}
-	 * and maps the result calling {@link PojoMapper#asDataObjects(Set)}.
-	 *
-	 * @param ctx The security context, necessary to determine the service.
-	 * @param rootType  The top-most type which will be searched for
-	 *                  Can be <code>Project</code>.
-	 *                  Mustn't be <code>null</code>.
-	 * @param rootIDs   A set of the IDs of top-most containers.
-	 *                  Passed <code>null</code> to retrieve all container
-	 *                  of the type specified by the rootNodetype parameter.
-	 * @param options   The Options to retrieve the data.
-	 * @return  A set of hierarchy trees.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occurred while trying to
-	 * retrieve data from OMERO service.
-	 * @see IPojos#loadContainerHierarchy(Class, List, Map)
+	 * {@link Gateway#loadContainerHierarchy(omero.gateway.SecurityContext, Class, List, Parameters)}
 	 */
 	Set loadContainerHierarchy(SecurityContext ctx, Class rootType,
 			List rootIDs, Parameters options)
 		throws DSOutOfServiceException, DSAccessException
 	{
-	    try {
+            try {
                 return gateway.loadContainerHierarchy(ctx, rootType, rootIDs,
                         options);
             } catch (omero.gateway.exception.DSOutOfServiceException e) {
@@ -2206,113 +1935,51 @@ class OMEROGateway
 	}
 
 	/**
-	 * Retrieves hierarchy trees in various hierarchies that
-	 * contain the specified Images.
-	 * The annotation for the current user is also linked to the object.
-	 * Annotations are currently possible only for Image and Dataset.
-	 * Wraps the call to the
-	 * {@link IPojos#findContainerHierarchies(Class, List, Map)}
-	 * and maps the result calling {@link PojoMapper#asDataObjects(Set)}.
-	 *
-	 * @param ctx The security context, necessary to determine the service.
-	 * @param rootNodeType  top-most type which will be searched for
-	 *                      Can be <code>Project</code>
-	 *                      Mustn't be <code>null</code>.
-	 * @param leavesIDs     Set of identifiers of the Images that sit at the
-	 * 						bottom of the trees. Mustn't be <code>null</code>.
-	 * @param options Options to retrieve the data.
-	 * @return A <code>Set</code> with all root nodes that were found.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occurred while trying to
-	 * retrieve data from OMERO service.
-	 * @see IPojos#findContainerHierarchies(Class, List, Map)
+	 * {@link Gateway#findContainerHierarchy(omero.gateway.SecurityContext, Class, List, Parameters)}
 	 */
 	Set findContainerHierarchy(SecurityContext ctx, Class rootNodeType,
 			List leavesIDs, Parameters options)
 		throws DSOutOfServiceException, DSAccessException
 	{
-	    Connector c = getConnector(ctx, true, false);
-		try {
-		    IContainerPrx service = c.getPojosService();
-			return PojoMapper.asDataObjects(service.findContainerHierarchies(
-					convertPojos(rootNodeType).getName(), leavesIDs, options));
-		} catch (Throwable t) {
-			handleException(t, "Cannot find hierarchy for "+rootNodeType+".");
-		}
-		return new HashSet();
+	    try {
+                return gateway.findContainerHierarchy(ctx, rootNodeType, leavesIDs, options);
+            } catch (omero.gateway.exception.DSOutOfServiceException e) {
+                throw new DSOutOfServiceException(e);
+            } catch (omero.gateway.exception.DSAccessException e) {
+                throw new DSAccessException(e);
+            }
 	}
 
 	/**
-	 * Loads all the annotations that have been attached to the specified
-	 * <code>rootNodes</code>. This method looks for all the <i>valid</i>
-	 * annotations that have been attached to each of the specified objects. It
-	 * then maps each <code>rootNodeID</code> onto the set of all annotations
-	 * that were found for that node. If no annotations were found for that
-	 * node, then the entry will be <code>null</code>. Otherwise it will be a
-	 * <code>Set</code> containing <code>Annotation</code> objects.
-	 * Wraps the call to the
-	 * {@link IMetadataPrx#loadAnnotations(String, List, List, List)}
-	 * and maps the result calling {@link PojoMapper#asDataObjects(Parameters)}.
-	 *
-	 * @param ctx The security context.
-	 * @param nodeType      The type of the rootNodes.
-	 *                      Mustn't be <code>null</code>.
-	 * @param nodeIDs       TheIds of the objects of type
-	 *                      <code>rootNodeType</code>.
-	 *                      Mustn't be <code>null</code>.
-	 * @param annotationTypes The collection of annotations to retrieve or
-	 * 						  passed an empty list if we retrieve all the
-	 * 						  annotations.
-	 * @param annotatorIDs  The identifiers of the users for whom annotations
-	 * 						should be retrieved. If <code>null</code>,
-	 * 						all annotations are returned.
-	 * @param options       Options to retrieve the data.
-	 * @return A map whose key is rootNodeID and value the <code>Set</code> of
-	 *         all annotations for that node or <code>null</code>.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occurred while trying to
-	 * retrieve data from OMERO service.
-	 * @see IPojos#findAnnotations(Class, List, List, Map)
+	 * {@link Gateway#loadAnnotations(omero.gateway.SecurityContext, Class, List, List, List, Parameters)}
 	 */
 	Map loadAnnotations(SecurityContext ctx, Class nodeType, List nodeIDs,
 			List<Class> annotationTypes, List annotatorIDs, Parameters options)
 	throws DSOutOfServiceException, DSAccessException
 	{
 	    try {
-            return gateway.loadAnnotations(ctx, nodeType, nodeIDs, annotationTypes, annotatorIDs, options);
-        } catch (omero.gateway.exception.DSOutOfServiceException e) {
-            throw new DSOutOfServiceException(e);
-        } catch (omero.gateway.exception.DSAccessException e) {
-            throw new DSAccessException(e);
-        }
+                return gateway.loadAnnotations(ctx, nodeType, nodeIDs,annotationTypes, annotatorIDs, options);
+            } catch (omero.gateway.exception.DSOutOfServiceException e) {
+                throw new DSOutOfServiceException(e);
+            } catch (omero.gateway.exception.DSAccessException e) {
+                throw new DSAccessException(e);
+            }
 	}
 
 	/**
-	 * Loads the specified annotations.
-	 *
-	 * @param ctx The security context.
-	 * @param annotationIds The annotation to load.
-	 * @return See above.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occurred while trying to
-	 * retrieve data from OMERO service.s
-	 */
+         * {@link Gateway#loadAnnotation(omero.gateway.SecurityContext, List)} 
+         */
 	Set<DataObject> loadAnnotation(SecurityContext ctx,
 			List<Long> annotationIds)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		if (annotationIds == null || annotationIds.size() == 0)
-			return new HashSet<DataObject>();
-
-        Connector c = getConnector(ctx, true, false);
-		try {
-		    IMetadataPrx service = c.getMetadataService();
-			return PojoMapper.asDataObjects(
-					service.loadAnnotation(annotationIds));
-		} catch (Throwable t) {
-			handleException(t, "Cannot find the annotations.");
-		}
-		return new HashSet<DataObject>();
+	    try {
+                return gateway.loadAnnotation(ctx, annotationIds);
+            } catch (omero.gateway.exception.DSOutOfServiceException e) {
+                throw new DSOutOfServiceException(e);
+            } catch (omero.gateway.exception.DSAccessException e) {
+                throw new DSAccessException(e);
+            }
 	}
 
 	/**
@@ -2451,14 +2118,21 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
     
+	    Connector c = getConnector(ctx, true, false);
             try {
-                return gateway.getCollectionCount(ctx, rootNodeType, property, ids,
-                        options);
-            } catch (omero.gateway.exception.DSOutOfServiceException e) {
-                throw new DSOutOfServiceException(e);
-            } catch (omero.gateway.exception.DSAccessException e) {
-                throw new DSAccessException(e);
+                  IMetadataPrx service = c.getMetadataService();
+                    IContainerPrx svc = c.getPojosService();
+                    if (TagAnnotationData.class.equals(rootNodeType)) {
+                            return service.getTaggedObjectsCount(ids, options);
+                    }
+                    String p = convertProperty(rootNodeType, property);
+                    if (p == null) return null;
+                    return PojoMapper.asDataObjects(svc.getCollectionCount(
+                                    convertPojos(rootNodeType).getName(), p, ids, options));
+            } catch (Throwable t) {
+                    handleException(t, "Cannot count the collection.");
             }
+            return new HashMap();
 	}
 
 	/**
@@ -2952,7 +2626,7 @@ class OMEROGateway
 	 * @throws FSAccessException If an error occurred when trying to build a
 	 * pyramid or access file not available.
 	 */
-	RenderingEnginePrx createRenderingEngine(SecurityContext ctx,
+	<T extends omero.gateway.SecurityContext> RenderingEnginePrx createRenderingEngine(T ctx,
 			long pixelsID)
 		throws DSOutOfServiceException, DSAccessException, FSAccessException
 	{
@@ -2971,8 +2645,8 @@ class OMEROGateway
 	 * @throws FSAccessException If an error occurred when trying to build a
 	 * pyramid or access file not available.
 	 */
-	private RenderingEnginePrx generateRenderingEngine(
-			SecurityContext ctx, long pixelsID)
+	<T extends omero.gateway.SecurityContext> RenderingEnginePrx generateRenderingEngine(
+			T ctx, long pixelsID)
 		throws DSOutOfServiceException, DSAccessException, FSAccessException
 	{
 	    Connector c = getConnector(ctx, true, false);
@@ -3137,13 +2811,28 @@ class OMEROGateway
 	 */
         List findLinks(SecurityContext ctx, IObject parent, List children)
                 throws DSOutOfServiceException, DSAccessException {
+            Connector c = getConnector(ctx, true, false);
             try {
-                return gateway.findLinks(ctx, parent, children);
-            } catch (omero.gateway.exception.DSOutOfServiceException e) {
-                throw new DSOutOfServiceException(e);
-            } catch (omero.gateway.exception.DSAccessException e) {
-                throw new DSAccessException(e);
+                IQueryPrx service = c.getQueryService();
+                    String table = getTableForLink(parent.getClass());
+                    if (table == null) return null;
+
+                    ParametersI param = new ParametersI();
+                    param.map.put("parentID", parent.getId());
+
+                    String sql = "select link from "+table+" as link where " +
+                    "link.parent.id = :parentID";
+                    if (children != null && children.size() > 0) {
+                            sql += " and link.child.id in (:childIDs)";
+                            param.addLongs("childIDs", children);
+
+                    }
+                    return service.findAllByQuery(sql, param);
+            } catch (Throwable t) {
+                    handleException(t, "Cannot retrieve the requested link for "+
+                                    "parent ID: "+parent.getId());
             }
+            return new ArrayList();
         }
 
 	/**
@@ -3160,13 +2849,26 @@ class OMEROGateway
 	 */
         List findLinks(SecurityContext ctx, Class parentClass, List children,
                 long userID) throws DSOutOfServiceException, DSAccessException {
+            Connector c = getConnector(ctx, true, false);
             try {
-                return gateway.findLinks(ctx, parentClass, children, userID);
-            } catch (omero.gateway.exception.DSOutOfServiceException e) {
-                throw new DSOutOfServiceException(e);
-            } catch (omero.gateway.exception.DSAccessException e) {
-                throw new DSAccessException(e);
+                IQueryPrx service = c.getQueryService();
+                    String table = getTableForLink(parentClass);
+                    if (table == null) return null;
+                    String sql = "select link from "+table+" as link where " +
+                    "link.child.id in (:childIDs)";
+                    ParametersI param = new ParametersI();
+                    param.addLongs("childIDs", children);
+
+                    if (userID >= 0) {
+                            sql += " and link.details.owner.id = :userID";
+                            param.map.put("userID", omero.rtypes.rlong(userID));
+                    }
+                    return service.findAllByQuery(sql, param);
+            } catch (Throwable t) {
+                    handleException(t, "Cannot retrieve the requested link for "+
+                    "the specified children");
             }
+            return new ArrayList();
         }
 	
 	/**
@@ -3648,7 +3350,11 @@ class OMEROGateway
 					notDownloaded.add(of.getName().getValue());
 					handleConnectionException(e);
 				}
-			} catch (IOException e) {
+			} 
+			catch (omero.gateway.exception.DSOutOfServiceException ose) {
+                            throw new DSOutOfServiceException(ose);
+                        }
+			catch (IOException e) {
 				if (f != null) {
 					f.delete();
 					results.remove(f);
@@ -3658,7 +3364,9 @@ class OMEROGateway
 						e);
 			} catch (ServerError sr) {
 			    throw new DSAccessException("ServerError on retrieveArchived", sr);
-			} finally {
+			} 
+			
+			finally {
 			    c.close(store);
 			}
 		}
@@ -4045,7 +3753,7 @@ class OMEROGateway
 	 * @throws DSAccessException If an error occurred while trying to
 	 * retrieve data from OMERO service.
 	 */
-	RequestCallback updateGroup(SecurityContext ctx, GroupData group,
+	CmdCallback updateGroup(SecurityContext ctx, GroupData group,
 			int permissions)
 		throws DSOutOfServiceException, DSAccessException
 	{
@@ -5284,31 +4992,6 @@ class OMEROGateway
 		} catch (Exception e) {
 			handleException(e, "Cannot remove the tag description.");
 		}
-	}
-
-	/** Keeps the services alive. */
-	void keepSessionAlive()
-	{
-        //Check if network is up before keeping service otherwise
-        //we block until timeout.
-        try {
-            isNetworkUp(false);
-        } catch (Exception e) {
-            dsFactory.sessionExpiredExit(
-                    ConnectionExceptionHandler.NETWORK, null);
-        }
-	    Iterator<Connector> i = getAllConnectors().iterator();
-	    Connector c;
-	    while (i.hasNext()) {
-	        c = i.next();
-	        if (c.needsKeepAlive()) {
-	            if (!c.keepSessionAlive()) {
-	                dsFactory.sessionExpiredExit(
-                            ConnectionExceptionHandler.LOST_CONNECTION, null);
-	                break;
-	            }
-	        }
-	    }
 	}
 
 	/**
@@ -7756,17 +7439,21 @@ class OMEROGateway
 			throws DSOutOfServiceException, DSAccessException
 	{
 	    Connector c = getConnector(ctx, true, false);
-	    IUpdatePrx updateService = c.getUpdateService();
-		for (WorkflowData workflow : workflows)
-			if (workflow.isDirty())
-			{
-				try {
-					updateService.saveObject(workflow.asIObject());
-				} catch (Throwable e) {
-					handleException(e, "Unable to save Object : "+ workflow);
-				}
-			}
-		return Boolean.valueOf(true);
+	    try {
+            IUpdatePrx updateService = c.getUpdateService();
+            for (WorkflowData workflow : workflows)
+            	if (workflow.isDirty())
+            	{
+            		try {
+            			updateService.saveObject(workflow.asIObject());
+            		} catch (Throwable e) {
+            			handleException(e, "Unable to save Object : "+ workflow);
+            		}
+            	}
+            return Boolean.valueOf(true);
+        } catch (omero.gateway.exception.DSOutOfServiceException e) {
+            throw new DSOutOfServiceException(e);
+        }
 	}
 
 	/**
@@ -7833,33 +7520,42 @@ class OMEROGateway
 			long experimenterID)
 		throws DSOutOfServiceException, DSAccessException
 	{
-	    Connector c = getConnector(ctx, true, false);
-		IAdminPrx svc = c.getAdminService();
-		FileInputStream stream = null;
-		try {
-			stream = new FileInputStream(file);
-			long length = file.length();
-			//Make sure the file is not too big.
-			byte[] bytes = new byte[(int) length];
-			int offset = 0; int r = 0;
-			while (offset < bytes.length &&
-					(r = stream.read(bytes, offset, bytes.length-offset)) >= 0)
-				offset += r;
-			if (offset < bytes.length)
-				throw new IOException("Could not completely read file "+
-						file.getName());
-			
-			return svc.uploadMyUserPhoto(file.getName(), format, bytes);
-		} catch (Exception e) {
-			handleException(e, "Cannot upload the photo.");
-		} finally {
-		    try {
-		        if (stream != null) stream.close();
-            } catch (Exception e2) {
-                dsFactory.getLogger().debug(this, "Cannot close stream.");
+            Connector c = getConnector(ctx, true, false);
+            
+            IAdminPrx svc;
+            try {
+                svc = c.getAdminService();
+            } catch (omero.gateway.exception.DSOutOfServiceException e1) {
+                    throw new DSOutOfServiceException(e1);
             }
-		}
-		return -1;
+            
+            FileInputStream stream = null;
+            try {
+                stream = new FileInputStream(file);
+                long length = file.length();
+                // Make sure the file is not too big.
+                byte[] bytes = new byte[(int) length];
+                int offset = 0;
+                int r = 0;
+                while (offset < bytes.length
+                        && (r = stream.read(bytes, offset, bytes.length - offset)) >= 0)
+                    offset += r;
+                if (offset < bytes.length)
+                    throw new IOException("Could not completely read file "
+                            + file.getName());
+    
+                return svc.uploadMyUserPhoto(file.getName(), format, bytes);
+            } catch (Exception e) {
+                handleException(e, "Cannot upload the photo.");
+            } finally {
+                try {
+                    if (stream != null)
+                        stream.close();
+                } catch (Exception e2) {
+                    dsFactory.getLogger().debug(this, "Cannot close stream.");
+                }
+            }
+            return -1;
 	}
 
 	/**
@@ -7874,7 +7570,7 @@ class OMEROGateway
 	 * @throws DSAccessException        If an error occurred while trying to
 	 *                                  retrieve data from OMEDS service.
 	 */
-	Boolean isLargeImage(SecurityContext ctx, long pixelsId)
+	Boolean isLargeImage(omero.gateway.SecurityContext ctx, long pixelsId)
 		throws DSOutOfServiceException, DSAccessException
 	{
         Connector c = getConnector(ctx, true, false);
@@ -8052,7 +7748,7 @@ class OMEROGateway
 					}
 				}
 			}
-			return c.submit(commands, target);
+			return new RequestCallback(c.submit(commands, target));
 		} catch (Throwable e) {
 			handleException(e, "Cannot transfer the data.");
 		}
@@ -8275,7 +7971,7 @@ class OMEROGateway
 		try {
 			Connector c = getConnector(ctx, true, true);
 			if (c == null) return null;
-			return c.submit(commands, null);
+			return new RequestCallback(c.submit(commands, null));
 		} catch (Throwable e) {
 			handleException(e, "Cannot execute the command.");
 			// Never reached
@@ -8330,10 +8026,14 @@ class OMEROGateway
             throws DSOutOfServiceException, DSAccessException
     {
         Connector c = getConnector(ctx, true, false);
-        IAdminPrx svc = c.getAdminService();
         try {
+            IAdminPrx svc = c.getAdminService();
             return svc.getSecurityRoles();
-        } catch (Throwable t) {
+        }
+        catch (omero.gateway.exception.DSOutOfServiceException e) {
+            throw new DSOutOfServiceException(e);
+        }
+        catch (Throwable t) {
             handleException(t, "Cannot load system users.");
         }
         return null;

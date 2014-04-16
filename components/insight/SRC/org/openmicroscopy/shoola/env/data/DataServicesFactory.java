@@ -156,8 +156,6 @@ public class DataServicesFactory
 	/** The Administration service adapter. */
 	private AdminService				admin;
 	
-    /** Keeps the client's session alive. */
-	private ScheduledThreadPoolExecutor	executor;
 	
     /** The fs properties. */
     private Properties 					fsConfig;
@@ -406,20 +404,20 @@ public class DataServicesFactory
     {
         JFrame f = registry.getTaskBar().getFrame();
         String message;
-        Map<SecurityContext, Set<Long>> l =
+        Map<omero.gateway.SecurityContext, Set<Long>> l =
                 omeroGateway.getRenderingEngines();
         boolean b = omeroGateway.joinSession();
         if (b) {
             //reactivate the rendering engine. Need to review that
-            Iterator<Entry<SecurityContext, Set<Long>>> i =
+            Iterator<Entry<omero.gateway.SecurityContext, Set<Long>>> i =
                     l.entrySet().iterator();
             OmeroImageService svc = registry.getImageService();
             Long id;
-            Entry<SecurityContext, Set<Long>> entry;
-            Map<SecurityContext, List<Long>> 
-            failures = new HashMap<SecurityContext, List<Long>>();
+            Entry<omero.gateway.SecurityContext, Set<Long>> entry;
+            Map<omero.gateway.SecurityContext, List<Long>> 
+            failures = new HashMap<omero.gateway.SecurityContext, List<Long>>();
             Iterator<Long> j;
-            SecurityContext ctx;
+            omero.gateway.SecurityContext ctx;
             List<Long> failure;
             RenderingControl p;
             while (i.hasNext()) {
@@ -627,10 +625,6 @@ public class DataServicesFactory
 		}
         registry.getLogger().info(this, msg);
         
-        KeepClientAlive kca = new KeepClientAlive(container, omeroGateway);
-        executor = new ScheduledThreadPoolExecutor(1);
-        executor.scheduleWithFixedDelay(kca, 60, 60, TimeUnit.SECONDS);
-        
         //String ldap = omeroGateway.lookupLdapAuthExperimenter(exp.getId());
         //registry.bind(LookupNames.USER_AUTHENTICATION, ldap);
         registry.bind(LookupNames.CURRENT_USER_DETAILS, exp);
@@ -745,10 +739,7 @@ public class DataServicesFactory
 		omeroGateway.logout();
 		DataServicesFactory.registry.getCacheService().clearAllCaches();
 		PixelsServicesFactory.shutDownRenderingControls(container.getRegistry());
-		 
-        if (executor != null) executor.shutdown();
         singleton = null;
-        executor = null;
         omeroGateway = null;
     }
 	
