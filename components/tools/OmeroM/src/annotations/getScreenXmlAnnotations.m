@@ -14,17 +14,22 @@ function xas = getScreenXmlAnnotations(session, ids, varargin)
 %    xas = getScreenXmlAnnotations(session,  ids, 'exclude', exclude)
 %    excludes xml annotations with the input namespace.
 %
+%    xas = getScreenXmlAnnotations(session, ids, 'owner', ownerid)
+%    returns the xml annotations owned by the user specified by ownerid.
+%    Use -1 to return the xml annotations owned by all users.
+%
 %    Examples:
 %
 %        xas = getScreenXmlAnnotations(session, ids)
 %        xas = getScreenXmlAnnotations(session, screens)
 %        xas = getScreenXmlAnnotations(session, ids, 'include', include)
 %        xas = getScreenXmlAnnotations(session, ids, 'exclude', exclude)
+%        xas = getScreenXmlAnnotations(session, ids, 'owner', -1)
 %
 % See also: GETOBJECTANNOTATIONS, GETSCREENCOMMENTANNOTATIONS,
 % GETSCREENTAGANNOTATIONS, GETSCREENFILEANNOTATIONS
 
-% Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
+% Copyright (C) 2013-2014 University of Dundee & Open Microscopy Environment.
 % All rights reserved.
 %
 % This program is free software; you can redistribute it and/or modify

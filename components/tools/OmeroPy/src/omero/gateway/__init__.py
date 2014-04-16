@@ -24,8 +24,6 @@ import ConfigParser
 import omero
 import omero.clients
 from omero.util.decorators import timeit
-# not used here, but imported from here in other places:
-from omero.util.decorators import TimeIt  # noqa
 from omero.cmd import DoAll
 from omero.api import Save
 from omero.gateway.utils import ServiceOptsDict, GatewayConfig
@@ -38,6 +36,7 @@ import traceback
 import time
 import array
 import math
+from decimal import Decimal
 
 from gettext import gettext as _
 
@@ -6968,6 +6967,14 @@ class _ImageWrapper (BlitzObjectWrapper):
         rdid = self._getRDef()
         if rdid is not None:
             args.append('RenderingDef_ID=%d' % rdid)
+
+        # Lets prepare the channel settings
+        channels = self.getChannels()
+        args.append('ChannelsExtended=%s' % (','.join(["%d|%s:%s$%s" % (x._idx+1,
+                                                                Decimal(str(x.getWindowStart())),
+                                                                Decimal(str(x.getWindowEnd())),
+                                                                x.getColor().getHtml())
+                                     for x in channels if x.isActive()])))
 
         watermark = opts.get('watermark', None)
         logger.debug('watermark: %s' % watermark)
