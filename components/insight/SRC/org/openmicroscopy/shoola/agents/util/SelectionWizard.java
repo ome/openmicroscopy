@@ -25,11 +25,14 @@ package org.openmicroscopy.shoola.agents.util;
 
 //Java imports
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.beans.PropertyChangeEvent;
@@ -88,6 +91,12 @@ public class SelectionWizard
     /** Bound property indicating to cancel the selection. */
     public static final String CANCEL_SELECTION_PROPERTY = "cancelSelection";
 
+    /** The default text for the tag.*/
+    private static final String DEFAULT_TEXT = "Tag";
+
+    /** The default text for the tag's description.*/
+    private static final String DEFAULT_DESCRIPTION = "Description";
+
     /** Action command ID to Accept the current field selection. */
     private static final int ACCEPT = 0;
 
@@ -127,6 +136,35 @@ public class SelectionWizard
     /** The component displaying the selection. */
     private SelectionWizardUI uiDelegate;
 
+    /** The original color of a text field.*/
+    private Color originalColor;
+
+    /** Sets the controls.*/
+    private void setControls()
+    {
+        String text = addField.getText();
+        addNewButton.setEnabled(StringUtils.isNotBlank(text) &&
+                !DEFAULT_TEXT.equals(text));
+    }
+
+    /**
+     * Sets the default text for the specified field.
+     *
+     * @param field The field to handle.
+     * @param text The text to display.
+     */
+    private void setTextFieldDefault(JTextField field, String text)
+    {
+        if (text == null) {
+            field.setText("");
+            field.setForeground(originalColor);
+        } else {
+            field.setText(text);
+            field.setForeground(Color.LIGHT_GRAY);
+        }
+        setControls();
+    }
+    
     /**
      * Creates the filtering controls.
      *
@@ -209,6 +247,8 @@ public class SelectionWizard
 
         //Field creation
         addField = new JTextField(10);
+        originalColor = addField.getForeground();
+        setTextFieldDefault(addField, DEFAULT_TEXT);
         addField.addKeyListener(new KeyAdapter() {
             public void keyPressed(KeyEvent e)
             {
@@ -219,7 +259,46 @@ public class SelectionWizard
             }
         });
         descriptionField = new JTextField(15);
+        setTextFieldDefault(descriptionField, DEFAULT_DESCRIPTION);
         addField.getDocument().addDocumentListener(this);
+        addField.addFocusListener(new FocusListener() {
+            
+            @Override
+            public void focusLost(FocusEvent evt) {
+                String value = addField.getText();
+                if (StringUtils.isBlank(value)) {
+                    setTextFieldDefault(addField, DEFAULT_TEXT);
+                }
+            }
+            
+            @Override
+            public void focusGained(FocusEvent evt) {
+                String value = addField.getText();
+                if (DEFAULT_TEXT.equals(value)) {
+                    addField.setCaretPosition(0);
+                    setTextFieldDefault(addField, null);
+                }
+            }
+        });
+        descriptionField.addFocusListener(new FocusListener() {
+            
+            @Override
+            public void focusLost(FocusEvent evt) {
+                String value = descriptionField.getText();
+                if (StringUtils.isBlank(value)) {
+                    setTextFieldDefault(descriptionField, DEFAULT_DESCRIPTION);
+                }
+            }
+            
+            @Override
+            public void focusGained(FocusEvent evt) {
+                String value = descriptionField.getText();
+                if (DEFAULT_DESCRIPTION.equals(value)) {
+                    descriptionField.setCaretPosition(0);
+                    setTextFieldDefault(descriptionField, null);
+                }
+            }
+        });
     }
 
     /** Closes and disposes. */
@@ -492,21 +571,13 @@ public class SelectionWizard
      * Sets the enabled flag of the {@link #addNewButton}.
      * @see DocumentListener#insertUpdate(DocumentEvent)
      */
-    public void insertUpdate(DocumentEvent e)
-    {
-        String text = addField.getText();
-        addNewButton.setEnabled(!StringUtils.isEmpty(text));
-    }
+    public void insertUpdate(DocumentEvent e) { setControls(); }
 
     /**
      * Sets the enabled flag of the {@link #addNewButton}.
      * @see DocumentListener#removeUpdate(DocumentEvent)
      */
-    public void removeUpdate(DocumentEvent e)
-    {
-        String text = addField.getText();
-        addNewButton.setEnabled(!StringUtils.isEmpty(text));
-    }
+    public void removeUpdate(DocumentEvent e) { setControls(); }
 
     public void propertyChange(PropertyChangeEvent evt)
     {

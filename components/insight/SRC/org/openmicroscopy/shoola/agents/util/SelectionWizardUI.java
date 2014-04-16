@@ -25,8 +25,11 @@ package org.openmicroscopy.shoola.agents.util;
 
 //Java imports
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -52,7 +55,7 @@ import javax.swing.event.DocumentListener;
 //Third-party libraries
 import info.clearthought.layout.TableLayout;
 import org.apache.commons.collections.CollectionUtils;
-import org.hibernate.tool.hbm2x.StringUtils;
+import org.apache.commons.lang.StringUtils;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.IconManager;
@@ -77,11 +80,14 @@ import pojos.TagAnnotationData;
  */
 public class SelectionWizardUI
     extends JPanel
-    implements ActionListener
+    implements ActionListener, DocumentListener
 {
 
     /** Bound property indicating that the selection has changed. */
     public static final String SELECTION_CHANGE = "selectionChange";
+
+    /** The default text for the filter dialog.*/
+    private static final String DEFAULT_FILTER_TEXT = "Filter";
 
     /** Action command ID to add a field to the result table. */
     private static final int ADD = 0;
@@ -149,6 +155,16 @@ public class SelectionWizardUI
     /** Flag indicating to filter with letter anywhere in the text.*/
     private boolean filterAnywhere;
 
+    /** The original color of a text field.*/
+    private Color originalColor;
+
+    /**
+     * Returns <code>true</code> if the item is already selected or is
+     * an item to create, <code>false</code> otherwise.
+     *
+     * @param elt The element to handle.
+     * @return See above.
+     */
     private boolean isSelected(Object elt)
     {
         for (Object item : selectedItems) {
@@ -167,6 +183,10 @@ public class SelectionWizardUI
      */
     private void filter(boolean insert)
     {
+        String txt = filterArea.getText();
+        if (DEFAULT_FILTER_TEXT.equals(txt)) {
+            return;
+        }
         Collection<Object> ref;
         Iterator<Object> i;
         Object ho;
@@ -183,10 +203,7 @@ public class SelectionWizardUI
             }
         }
         i = ref.iterator();
-        String txt = filterArea.getText();
-        if (StringUtils.isEmpty(txt)) {
-            
-        }
+
         txt = txt.toLowerCase();
         List<Object> toKeep = new ArrayList<Object>();
         while (i.hasNext()) {
@@ -260,6 +277,24 @@ public class SelectionWizardUI
         return false;
     }
 
+    /**
+     * Sets the default text for the specified field.
+     *
+     * @param text The text to display
+     */
+    private void setTextFieldDefault(String text)
+    {
+        filterArea.getDocument().removeDocumentListener(this);
+        if (text == null) {
+            filterArea.setText("");
+            filterArea.setForeground(originalColor);
+        } else {
+            filterArea.setText(text);
+            filterArea.setForeground(Color.LIGHT_GRAY);
+        }
+        filterArea.getDocument().addDocumentListener(this);
+    }
+
     /** 
      * Initializes the components composing the display. 
      *
@@ -269,24 +304,32 @@ public class SelectionWizardUI
     {
         filterAnywhere = true;
         filterArea = new JTextField();
-        filterArea.getDocument().addDocumentListener(new DocumentListener() {
-
+        originalColor = filterArea.getForeground();
+        setTextFieldDefault(DEFAULT_FILTER_TEXT);
+        filterArea.getDocument().addDocumentListener(this);
+        filterArea.addFocusListener(new FocusListener() {
+            
             @Override
-            public void removeUpdate(DocumentEvent e) {
-                filter(false);
+            public void focusLost(FocusEvent evt) {
+                String value = filterArea.getText();
+                if (StringUtils.isBlank(value)) {
+                    setTextFieldDefault(DEFAULT_FILTER_TEXT);
+                }
             }
-
+            
             @Override
-            public void insertUpdate(DocumentEvent e) {
-                filter(false);
+            public void focusGained(FocusEvent evt) {
+                String value = filterArea.getText();
+                if (DEFAULT_FILTER_TEXT.equals(value)) {
+                    filterArea.setCaretPosition(0);
+                    setTextFieldDefault(null);
+                }
             }
-
-            @Override
-            public void changedUpdate(DocumentEvent e) {}
         });
-        UIUtilities.setTextAreaDefault(filterArea);
         sorter = new ViewerSorter();
         availableItemsListbox = new JList();
+        availableItemsListbox.requestFocusInWindow();
+        availableItemsListbox.requestFocus();
         availableItemsListbox.addKeyListener(new KeyAdapter() {
 
             /**
@@ -835,5 +878,14 @@ public class SelectionWizardUI
             removeAllItems();
         }
     }
+
+    @Override
+    public void removeUpdate(DocumentEvent e) { filter(false); }
+
+    @Override
+    public void insertUpdate(DocumentEvent e) { filter(true); }
+
+    @Override
+    public void changedUpdate(DocumentEvent e) {}
 
 }
