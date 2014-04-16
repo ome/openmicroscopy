@@ -53,24 +53,23 @@ class TestDownload(CLITest):
         finally:
             rfs.close()
 
-    def testInvalidIDInput(self):
-        self.args += ["file", 'test']
-        with py.test.raises(NonZeroReturnCode):
-            self.cli.invoke(self.args, strict=True)
-
-    def testInvalidObject(self):
-        self.args += ["object:name", 'test']
-        with py.test.raises(NonZeroReturnCode):
-            self.cli.invoke(self.args, strict=True)
-
-    def testOriginalFileInvalidID(self, tmpdir):
-        tmpfile = tmpdir.join('test')
-        self.args += ["-1", str(tmpfile)]
+    @py.test.mark.parametrize(
+        'bad_input',
+        ['-1', 'OriginalFile:-1', 'FileAnnotation:-1', 'Image:-1'])
+    def testInvalidInput(self, bad_input):
+        self.args += [bad_input, '-']
         with py.test.raises(NonZeroReturnCode):
             self.cli.invoke(self.args, strict=True)
 
     # OriginalFile tests
     # ========================================================================
+    @py.test.mark.parametrize('prefix', ['', 'OriginalFile:'])
+    def testNonExistingOriginalFile(self, tmpdir, prefix):
+        ofile = self.create_original_file("test")
+        self.args += ['%s%s' % (prefix, str(ofile.id.val + 1)), '-']
+        with py.test.raises(NonZeroReturnCode):
+            self.cli.invoke(self.args, strict=True)
+
     @py.test.mark.parametrize('prefix', ['', 'OriginalFile:'])
     def testOriginalFileTmpfile(self, prefix, tmpdir):
         ofile = self.create_original_file("test")
@@ -90,6 +89,15 @@ class TestDownload(CLITest):
 
     # FileAnnotation tests
     # ========================================================================
+    def testNonExistingFileAnnotation(self, tmpdir):
+        ofile = self.create_original_file("test")
+        fa = omero.model.FileAnnotationI()
+        fa.setFile(ofile)
+        fa = self.update.saveAndReturnObject(fa)
+        self.args += ['FileAnnotation:%s' % str(fa.id.val + 1), '-']
+        with py.test.raises(NonZeroReturnCode):
+            self.cli.invoke(self.args, strict=True)
+
     def testFileAnnotationTmpfile(self, tmpdir):
         ofile = self.create_original_file("test")
         fa = omero.model.FileAnnotationI()
@@ -113,6 +121,12 @@ class TestDownload(CLITest):
 
     # Image tests
     # ========================================================================
+    def testNonExistingImage(self, tmpdir):
+        image = self.importSingleImageWithCompanion()
+        self.args += ["Image:%s" % str(image.id.val + 1), '-']
+        with py.test.raises(NonZeroReturnCode):
+            self.cli.invoke(self.args, strict=True)
+
     def testImage(self, tmpdir):
         filename = self.OmeroPy / ".." / ".." / ".." / \
             "components" / "common" / "test" / "tinyTest.d3d.dv"

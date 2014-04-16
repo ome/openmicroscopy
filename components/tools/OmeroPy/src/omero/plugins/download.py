@@ -53,28 +53,37 @@ class DownloadControl(BaseControl):
 
     def get_file_id(self, session, value):
 
+        query = session.getQueryService()
         if ':' not in value:
             try:
-                return long(value)
+                ofile = query.get("OriginalFile", long(value))
+                return ofile.id.val
             except ValueError:
                 self.ctx.die(601, 'Invalid OriginalFile ID input')
+            except omero.ValidationException:
+                self.ctx.die(601, 'No OriginalFile with input ID')
 
         # Assume input is of form OriginalFile:id
         file_id = self.parse_object_id("OriginalFile", value)
         if file_id:
-            return file_id
-
-        query = session.getQueryService()
-        params = omero.sys.ParametersI()
+            try:
+                ofile = query.get("OriginalFile", file_id)
+            except omero.ValidationException:
+                self.ctx.die(601, 'No OriginalFile with input ID')
+            return ofile.id.val
 
         # Assume input is of form FileAnnotation:id
         fa_id = self.parse_object_id("FileAnnotation", value)
         if fa_id:
-            fa = query.get("FileAnnotation", fa_id)
+            try:
+                fa = query.get("FileAnnotation", fa_id)
+            except omero.ValidationException:
+                self.ctx.die(601, 'No FileAnnotation with input ID')
             return fa.getFile().id.val
 
         # Assume input is of form Image:id
         image_id = self.parse_object_id("Image", value)
+        params = omero.sys.ParametersI()
         if image_id:
             params.addLong('iid', image_id)
             sql = "select f from Image i" \
