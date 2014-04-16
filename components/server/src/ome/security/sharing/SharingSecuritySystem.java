@@ -120,7 +120,7 @@ public class SharingSecuritySystem implements SecuritySystem {
         return false;
     }
 
-    public void loadEventContext(boolean isReadyOnly) {
+    public void loadEventContext(boolean isReadOnly) {
         // TODO Auto-generated method stub
 
     }

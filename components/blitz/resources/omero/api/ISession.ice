@@ -48,6 +48,7 @@ module omero {
 
                 omero::model::Session getSession(string sessionUuid) throws ServerError;
                 int getReferenceCount(string sessionUuid) throws ServerError;
+                omero::api::EventContextList getOpenSessions() throws ServerError;
                 int closeSession(omero::model::Session sess) throws ServerError;
 
                 // Listing

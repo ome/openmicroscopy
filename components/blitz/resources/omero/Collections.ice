@@ -104,6 +104,9 @@ module omero {
         ["java:type:java.util.ArrayList<omero.model.ChecksumAlgorithm>:java.util.List<omero.model.ChecksumAlgorithm>"]
             sequence<omero::model::ChecksumAlgorithm> ChecksumAlgorithmList;
 
+        ["java:type:java.util.ArrayList<omero.sys.EventContext>:java.util.List<omero.sys.EventContext>"]
+            sequence<omero::sys::EventContext> EventContextList;
+
         // Arrays
 
         sequence<bool> BoolArray;

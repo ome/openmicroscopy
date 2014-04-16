@@ -22,6 +22,7 @@ import omero.api.AMD_ISession_getInputs;
 import omero.api.AMD_ISession_getMyOpenAgentSessions;
 import omero.api.AMD_ISession_getMyOpenClientSessions;
 import omero.api.AMD_ISession_getMyOpenSessions;
+import omero.api.AMD_ISession_getOpenSessions;
 import omero.api.AMD_ISession_getOutput;
 import omero.api.AMD_ISession_getOutputKeys;
 import omero.api.AMD_ISession_getOutputs;
@@ -157,6 +158,11 @@ public class SessionI extends AbstractAmdServant implements _ISessionOperations 
     }
 
     public void getMyOpenSessions_async(AMD_ISession_getMyOpenSessions __cb,
+            Current __current) throws ServerError {
+        callInvokerOnRawArgs(__cb, __current);
+    }
+
+    public void getOpenSessions_async(AMD_ISession_getOpenSessions __cb,
             Current __current) throws ServerError {
         callInvokerOnRawArgs(__cb, __current);
     }

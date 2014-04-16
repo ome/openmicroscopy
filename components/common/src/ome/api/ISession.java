@@ -19,6 +19,7 @@ import ome.conditions.SecurityViolation;
 import ome.conditions.SessionTimeoutException;
 import ome.model.internal.Permissions;
 import ome.model.meta.Session;
+import ome.system.EventContext;
 import ome.system.Principal;
 
 /**
@@ -142,6 +143,14 @@ public interface ISession extends ServiceInterface {
      * started by official OMERO clients.
      */
     List<Session> getMyOpenClientSessions();
+
+    /**
+     * Administration method for loading all open sessions. The
+     * {@link EventContext#isReadOnly()} flag is useful for determining
+     * if any transactions can be taking place. If all open sessions are
+     * read-only, then the server can be safely restarted.
+     */
+    List<EventContext> getOpenSessions();
 
     // void addNotification(String notification);
     // void removeNotification(String notification);

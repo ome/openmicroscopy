@@ -536,8 +536,7 @@ public class IceMapper extends ome.util.ModelMapper implements
         ec.leaderOfGroups = ctx.getLeaderOfGroupsList();
         ec.memberOfGroups = ctx.getMemberOfGroupsList();
         ec.isAdmin = ctx.isCurrentUserAdmin();
-        // ticket:2265 Removing from public interface
-        // ec.isReadOnly = ctx.isReadOnly();
+        ec.isReadOnly = ctx.isReadOnly();
         ec.groupPermissions = convert(ctx.getCurrentGroupPermissions());
         return ec;
     }
@@ -729,6 +728,17 @@ public class IceMapper extends ome.util.ModelMapper implements
         }
 
         return filter;
+    }
+
+    /**
+     * Overrides findTarget to handle contents of collections
+     */
+    @Override
+    public Object findTarget(Object current) {
+        if (current instanceof ome.system.EventContext) {
+            return convert((ome.system.EventContext)current); 
+        }
+        return super.findTarget(current);
     }
 
     /**

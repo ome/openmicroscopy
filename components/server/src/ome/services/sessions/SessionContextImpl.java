@@ -17,7 +17,8 @@ import ome.services.sessions.stats.SessionStats;
 import ome.system.Roles;
 
 public class SessionContextImpl implements SessionContext {
-    
+
+    private final boolean isReadOnly;
     private final Count count;
     private final Roles _roles;
     private final Session session;
@@ -37,6 +38,7 @@ public class SessionContextImpl implements SessionContext {
     public SessionContextImpl(Session session, List<Long> lGroups,
             List<Long> mGroups, List<String> roles, SessionStats stats,
             Roles _roles, SessionContext previous) {
+        this.isReadOnly = false;
         this._roles = _roles;
         this.stats = stats;
         this.session = session;
@@ -89,7 +91,7 @@ public class SessionContextImpl implements SessionContext {
     }
 
     public Long getCurrentEventId() {
-        throw new UnsupportedOperationException();
+        return -1L;
     }
 
     public String getCurrentEventType() {
@@ -136,10 +138,10 @@ public class SessionContextImpl implements SessionContext {
     }
 
     public boolean isReadOnly() {
-        throw new UnsupportedOperationException();
+        return isReadOnly;
     }
 
     public Permissions getCurrentUmask() {
-        throw new UnsupportedOperationException();
+        return null;
     }
 }
