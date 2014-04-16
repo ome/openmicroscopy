@@ -44,6 +44,7 @@ import javax.swing.JButton;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTextField;
 
 
 //Third-party libraries
@@ -139,7 +140,10 @@ public class SelectionWizardUI
 	
 	/** The group available.*/
 	private Collection<GroupData> groups;
-	
+
+	/** Filter the data.*/
+	private JTextField filterArea;
+
 	/**
 	 * Returns <code>true</code> if an object object of the same type 
 	 * already exist in the list, <code>false</code> otherwise.
@@ -184,6 +188,8 @@ public class SelectionWizardUI
 	 */
 	private void initComponents(ExperimenterData user)
 	{
+        filterArea = new JTextField();
+        UIUtilities.setTextAreaDefault(filterArea);
 		sorter = new ViewerSorter();
 		availableItemsListbox = new JList();
 		availableItemsListbox.addKeyListener(new KeyAdapter() {
@@ -473,8 +479,12 @@ public class SelectionWizardUI
 	{
 		JPanel p = new JPanel();
 		p.setLayout(new BorderLayout());
-		p.add(UIUtilities.setTextFont(createText("Available")),
-		        BorderLayout.NORTH);
+		JPanel panel = new JPanel();
+		panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+		panel.add(UIUtilities.setTextFont(createText("Available")));
+		panel.add(filterArea);
+		panel.add(Box.createVerticalStrut(2));
+		p.add(panel, BorderLayout.NORTH);
 		p.add(new JScrollPane(availableItemsListbox), BorderLayout.CENTER);
 		populateAvailableItems();
 		return p;
