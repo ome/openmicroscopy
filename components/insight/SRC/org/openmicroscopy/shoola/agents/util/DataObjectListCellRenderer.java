@@ -188,8 +188,7 @@ public class DataObjectListCellRenderer
      */
     private void createTooltip(ExperimenterData exp)
     {
-        String s = "Created by: "+EditorUtil.formatExperimenter(exp);
-        setToolTipText(s);
+        setToolTipText("Owner: "+EditorUtil.formatExperimenter(exp));
     }
 
     /**
