@@ -52,7 +52,7 @@ Integration tests
 Integration tests are stored under `test/integration` and depend on the
 OMERO integration testing framework.  They can be run by calling::
 
-  ./build.py -f components/tools/OmeroWeb/build.xml test
+  ./build.py -f components/tools/OmeroWeb/build.xml integration
 
 Reading about `Running and writing tests`_ in the `OMERO`_ documentation
 is essential.
