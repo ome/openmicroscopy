@@ -40,7 +40,7 @@ class ShapeMarshalTest(unittest.TestCase):
         marshaled = shapeMarshal(shape)
         self.assertEqual('PolyLine', marshaled['type'])
         self.assertEqual(self.DEFAULT_ID, marshaled['id'])
-        self.assertEquals('M 1 2 L 2 3 L 4 5' , marshaled['points'])
+        self.assertEquals('M 1 2 L 2 3 L 4 5', marshaled['points'])
 
     def testOmeXmlPolyLineFloatMarshal(self):
         shape = omero.model.PolylineI()
@@ -49,7 +49,7 @@ class ShapeMarshalTest(unittest.TestCase):
         marshaled = shapeMarshal(shape)
         self.assertEqual('PolyLine', marshaled['type'])
         self.assertEqual(self.DEFAULT_ID, marshaled['id'])
-        self.assertEquals('M 1.5 2.5 L 2 3 L 4.1 5.1' , marshaled['points'])
+        self.assertEquals('M 1.5 2.5 L 2 3 L 4.1 5.1', marshaled['points'])
 
     def testOmeXmlPolygonMarshal(self):
         shape = omero.model.PolygonI()
@@ -58,34 +58,43 @@ class ShapeMarshalTest(unittest.TestCase):
         marshaled = shapeMarshal(shape)
         self.assertEqual('Polygon', marshaled['type'])
         self.assertEqual(self.DEFAULT_ID, marshaled['id'])
-        self.assertEquals('M 1 2 L 2 3 L 4 5 z' , marshaled['points'])
+        self.assertEquals('M 1 2 L 2 3 L 4 5 z', marshaled['points'])
 
     def testInsightPolyLineMarshal(self):
         shape = omero.model.PolylineI()
         shape.id = rlong(self.DEFAULT_ID)
-        shape.points = rstring('points[1,2 2,3 4,5] points1[1,2 2,3 4,5] points2[1,2 2,3 4,5] mask[0,0,0]')
+        shape.points = rstring(
+            'points[1,2 2,3 4,5] points1[1,2 2,3 4,5] '
+            'points2[1,2 2,3 4,5] mask[0,0,0]'
+        )
         marshaled = shapeMarshal(shape)
         self.assertEqual('PolyLine', marshaled['type'])
         self.assertEqual(self.DEFAULT_ID, marshaled['id'])
-        self.assertEquals('M 1 2 L 2 3 L 4 5' , marshaled['points'])
+        self.assertEquals('M 1 2 L 2 3 L 4 5', marshaled['points'])
 
     def testInsightPolyLineFloatMarshal(self):
         shape = omero.model.PolylineI()
         shape.id = rlong(self.DEFAULT_ID)
-        shape.points = rstring('points[1.5,2.5 2,3 4.1,5.1] points1[1.5,2.5 2,3 4.1,5.1] points2[1.5,2.5 2,3 4.1,5.1] mask[0,0,0]')
+        shape.points = rstring(
+            'points[1.5,2.5 2,3 4.1,5.1] points1[1.5,2.5 2,3 4.1,5.1] '
+            'points2[1.5,2.5 2,3 4.1,5.1] mask[0,0,0]'
+        )
         marshaled = shapeMarshal(shape)
         self.assertEqual('PolyLine', marshaled['type'])
         self.assertEqual(self.DEFAULT_ID, marshaled['id'])
-        self.assertEquals('M 1.5 2.5 L 2 3 L 4.1 5.1' , marshaled['points'])
+        self.assertEquals('M 1.5 2.5 L 2 3 L 4.1 5.1',  marshaled['points'])
 
     def testInsightPolygonMarshal(self):
         shape = omero.model.PolygonI()
         shape.id = rlong(self.DEFAULT_ID)
-        shape.points = rstring('points[1,2 2,3 4,5] points1[1,2 2,3 4,5] points2[1,2 2,3 4,5] mask[0,0,0]')
+        shape.points = rstring(
+            'points[1,2 2,3 4,5] points1[1,2 2,3 4,5] '
+            'points2[1,2 2,3 4,5] mask[0,0,0]'
+        )
         marshaled = shapeMarshal(shape)
         self.assertEqual('Polygon', marshaled['type'])
         self.assertEqual(self.DEFAULT_ID, marshaled['id'])
-        self.assertEquals('M 1 2 L 2 3 L 4 5 z' , marshaled['points'])
+        self.assertEquals('M 1 2 L 2 3 L 4 5 z', marshaled['points'])
 
     def testShapeUnrecognisedRoiShapePointsString(self):
         shape = omero.model.PolygonI()
@@ -93,7 +102,6 @@ class ShapeMarshalTest(unittest.TestCase):
         shape.points = rstring('')
         marshaled = shapeMarshal(shape)
         self.assertEquals(' z', marshaled['points'])
-    
+
 if __name__ == '__main__':
     unittest.main()
-
