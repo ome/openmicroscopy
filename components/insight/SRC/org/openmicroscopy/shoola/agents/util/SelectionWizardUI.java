@@ -45,16 +45,20 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 
 
 //Third-party libraries
 import info.clearthought.layout.TableLayout;
 import org.apache.commons.collections.CollectionUtils;
+import org.hibernate.tool.hbm2x.StringUtils;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.DataObject;
+import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
 import pojos.GroupData;
@@ -101,7 +105,7 @@ public class SelectionWizardUI
     private Collection<Object> availableItems;
 
     /** Collection of all the selected items. */
-    private Collection<Object>	selectedItems;
+    private Collection<Object> selectedItems;
 
     /** The list box showing the available items. */
     private JList availableItemsListbox;
@@ -144,6 +148,80 @@ public class SelectionWizardUI
 
     /** Flag indicating to filter with letter anywhere in the text.*/
     private boolean filterAnywhere;
+
+    private boolean isSelected(Object elt)
+    {
+        for (Object item : selectedItems) {
+            DataObject data = (DataObject) item;
+            if (elt == item || data.getId() < 0) {
+                return true;
+            }
+        }
+        return false;
+    }
+    /**
+     * Filters the list of displayed items.
+     *
+     * @param insert Pass <code>true</code> when inserting new character
+     *               <code>false</code> when removing.
+     */
+    private void filter(boolean insert)
+    {
+        Collection<Object> ref;
+        Iterator<Object> i;
+        Object ho;
+        String value;
+        if (insert) {
+            ref = availableItems;
+        } else {
+            ref = new ArrayList<Object>();
+            for (Object item : originalItems)
+                ref.add(item);
+            for (Object item : originalSelectedItems) {
+                if (!isSelected(item))
+                    ref.add(item);
+            }
+        }
+        i = ref.iterator();
+        String txt = filterArea.getText();
+        if (StringUtils.isEmpty(txt)) {
+            
+        }
+        txt = txt.toLowerCase();
+        List<Object> toKeep = new ArrayList<Object>();
+        while (i.hasNext()) {
+            ho = i.next();
+            value = null;
+            if (ho instanceof TagAnnotationData) {
+                TagAnnotationData tag = (TagAnnotationData) ho;
+                if (!TagAnnotationData.INSIGHT_TAGSET_NS.equals(
+                        tag.getNameSpace())) {
+                    value = tag.getTagValue();
+                }
+            } else if (ho instanceof FileAnnotationData) {
+                value = ((FileAnnotationData) ho).getFileName();
+            } else if (ho instanceof DatasetData) {
+                value = ((DatasetData) ho).getName();
+            }
+            if (value != null) {
+                value = value.toLowerCase();
+                if (filterAnywhere) {
+                    if (value.contains(txt)) {
+                        toKeep.add(ho);
+                    }
+                } else {
+                    if (value.startsWith(txt)) {
+                        toKeep.add(ho);
+                    }
+                }
+            }
+        }
+        
+        availableItems.clear();
+        availableItems.addAll(toKeep);
+        availableItems = sorter.sort(availableItems);
+        populateAvailableItems();
+    }
 
     /**
      * Returns <code>true</code> if an object object of the same type 
@@ -191,6 +269,21 @@ public class SelectionWizardUI
     {
         filterAnywhere = true;
         filterArea = new JTextField();
+        filterArea.getDocument().addDocumentListener(new DocumentListener() {
+
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                filter(false);
+            }
+
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                filter(false);
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent e) {}
+        });
         UIUtilities.setTextAreaDefault(filterArea);
         sorter = new ViewerSorter();
         availableItemsListbox = new JList();
