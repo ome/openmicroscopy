@@ -37,7 +37,7 @@ except:
 from cStringIO import StringIO
 
 from omero import ApiUsageException
-from omero.gateway import timeit, TimeIt
+from omero.util.decorators import timeit, TimeIt
 from omeroweb.http import HttpJavascriptResponse, HttpJsonResponse, \
     HttpJavascriptResponseServerError
 
