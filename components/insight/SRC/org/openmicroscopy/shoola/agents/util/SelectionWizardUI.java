@@ -142,6 +142,9 @@ public class SelectionWizardUI
     /** Filter the data.*/
     private JTextField filterArea;
 
+    /** Flag indicating to filter with letter anywhere in the text.*/
+    private boolean filterAnywhere;
+
     /**
      * Returns <code>true</code> if an object object of the same type 
      * already exist in the list, <code>false</code> otherwise.
@@ -186,6 +189,7 @@ public class SelectionWizardUI
      */
     private void initComponents(ExperimenterData user)
     {
+        filterAnywhere = true;
         filterArea = new JTextField();
         UIUtilities.setTextAreaDefault(filterArea);
         sorter = new ViewerSorter();
@@ -672,6 +676,24 @@ public class SelectionWizardUI
     void setGroups(Collection<GroupData> groups)
     {
         this.groups = groups;
+    }
+
+    /**
+     * Returns <code>true</code> to filter by term anywhere in the word,
+     * <code>false</code> otherwise.
+     * @return
+     */
+    boolean isFilterAnywhere() { return filterAnywhere; }
+
+    /**
+     * Sets to <code>true</code> to filter by term anywhere in the word,
+     * <code>false</code> otherwise.
+     *
+     * @param filterAnywhere The value to set.
+     */
+    void setFilterAnywhere(boolean filterAnywhere)
+    { 
+        this.filterAnywhere = filterAnywhere;
     }
 
     /**

@@ -42,7 +42,6 @@ import java.util.Map;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
-import javax.swing.ButtonGroup;
 import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -50,7 +49,6 @@ import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JRadioButton;
 import javax.swing.JTextField;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -129,9 +127,6 @@ public class SelectionWizard
     /** The component displaying the selection. */
     private SelectionWizardUI uiDelegate;
 
-    /** Flag indicating to filter with letter anywhere in the text.*/
-    private boolean filterAnywhere;
-
     /**
      * Creates the filtering controls.
      *
@@ -157,14 +152,7 @@ public class SelectionWizard
         }
         builder.append("name");
         values[0] = builder.toString();
-        
-        
-        ButtonGroup group = new ButtonGroup();
-        JRadioButton b = new JRadioButton(builder.toString());
-        b.setSelected(filterAnywhere);
-        group.add(b);
-        //p.add(b);
-        //b.setActionCommand(""+)
+
         builder = new StringBuilder();
         builder.append("anywhere in ");
         if (txt != null) {
@@ -173,21 +161,16 @@ public class SelectionWizard
         }
         builder.append("name");
         values[1] = builder.toString();
-        b = new JRadioButton(builder.toString());
-        b.setSelected(filterAnywhere);
-        group.add(b);
-        //p.add(b);
         JComboBox box = new JComboBox(values);
         int selected = 0;
-        if (filterAnywhere) selected = 1;
+        if (uiDelegate.isFilterAnywhere()) selected = 1;
         box.setSelectedIndex(selected);
         box.addActionListener(new ActionListener() {
             
             @Override
             public void actionPerformed(ActionEvent e) {
                 JComboBox src = (JComboBox) e.getSource();
-                if (src.getSelectedIndex() == 0) filterAnywhere = false;
-                else filterAnywhere = true;
+                uiDelegate.setFilterAnywhere(src.getSelectedIndex() == 1);
             }
         });
         p.add(box);
@@ -201,7 +184,6 @@ public class SelectionWizard
      */
     private void initComponents()
     {
-        filterAnywhere = true;
         acceptButton = new JButton("Save");
         acceptButton.setToolTipText("Save the selection.");
         cancelButton = new JButton("Cancel");
