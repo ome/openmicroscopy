@@ -17,15 +17,30 @@ import re
 from omero.cli import BaseControl, CLI
 from omero.rtypes import unwrap
 
-HELP = """Download the given file id to the given filename"""
+HELP = """Download the given file id to the given filename
+
+Examples:
+
+    # Download OriginalFile 2 to local_file
+    bin/omero download OriginalFile:2 local_file
+    # Download Original File 2 to the stdout
+    bin/omero download 2 my_file
+
+    # Download the OriginalFile linked to FileAnnotation 20 to local_file
+    bin/omero download FileAnnotation:20 my_file
+
+    # Download the OriginalFile linked to Image 5
+    # Works only with single files imported with OMERO 5.0.0 and above
+    bin/omero download Image:5 original_image
+"""
 
 
 class DownloadControl(BaseControl):
 
     def _configure(self, parser):
         parser.add_argument(
-            "object", help="ID of the OriginalFile to download or object of"
-            " form <object>:<image_id>")
+            "object", help="Object to download of form <object>:<image_id>. "
+            "OriginalFile is assumed if <object>: is omitted.")
         parser.add_argument(
             "filename", help="Local filename to be saved to. '-' for stdout")
         parser.set_defaults(func=self.__call__)
