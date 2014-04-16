@@ -294,12 +294,16 @@ user never had a password, one will need to be set!""")
         ildap = c.sf.getLdapService()
 
         import omero
+        import Ice
         try:
             ildap.createUserFromLdap(args.username)
         except omero.SecurityViolation:
             self.ctx.die(131, "SecurityViolation: Admins only!")
         except omero.ValidationException as ve:
             self.ctx.die(132, ve.message)
+        except Ice.OperationNotExistException as onee:
+            self.ctx.die(133, "Operation not supported by the server: %s" %
+                         onee.operation)
 
 try:
     register("ldap", LdapControl, HELP)
