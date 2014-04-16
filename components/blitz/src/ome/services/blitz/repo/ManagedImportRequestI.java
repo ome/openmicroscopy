@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012-2013 Glencoe Software, Inc. All rights reserved.
+ * Copyright (C) 2012-2014 Glencoe Software, Inc. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,6 +33,7 @@ import loci.formats.UnknownFormatException;
 import loci.formats.UnsupportedCompressionException;
 import loci.formats.in.MIASReader;
 
+import org.apache.commons.codec.binary.Hex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -48,7 +49,6 @@ import ome.formats.importer.OMEROWrapper;
 import ome.formats.importer.util.ErrorHandler;
 import ome.io.nio.TileSizes;
 import ome.services.blitz.fire.Registry;
-import ome.util.Utils;
 
 import omero.ServerError;
 import omero.api.ServiceFactoryPrx;
@@ -437,7 +437,7 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
             Pixels pixels = pixList.get(series);
             MessageDigest md = parseData(fileName, series, size);
             if (md != null) {
-                String s = Utils.bytesToHex(md.digest());
+                final String s = Hex.encodeHexString(md.digest());
                 pixels.setSha1(store.toRType(s));
                 saveSha1 = true;
             }

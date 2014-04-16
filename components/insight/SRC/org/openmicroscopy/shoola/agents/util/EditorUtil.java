@@ -202,11 +202,6 @@ public class EditorUtil
     /** String to represent the celsius symbol. */
     public static final String CELSIUS = "(℃)";
 
-    /** String to represent the celsius symbol.
-     * @deprecated use {@link #CELSIUS} instead
-     */
-    public static final String  CELCIUS = CELSIUS;
-
     /** String to represent the percent symbol. */
     public static final String PERCENT = "(%)";
 
