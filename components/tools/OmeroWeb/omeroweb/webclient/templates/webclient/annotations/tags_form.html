@@ -45,9 +45,11 @@
             <div id="id_all_tags" class="tag_selection"></div>
         </div>
         <div>
-            Filter text
-            <input type="radio" name="filter_mode" value="start" /> at start of tag
-            <input type="radio" name="filter_mode" value="any" checked="checked" /> anywhere in text
+            Filter by
+            <select name="filter_mode">
+                <option value="start">start of tag name</option>
+                <option value="any" selected="selected">anywhere in tag name</option>
+            </select>
         </div>
     </div>
 

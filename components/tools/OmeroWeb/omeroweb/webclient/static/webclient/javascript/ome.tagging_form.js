@@ -490,7 +490,7 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id) {
             $("div.filtered", div_all_tags).removeClass('filtered');
             cleanup();
         } else {
-            var mode = $("input[name=filter_mode]:radio:checked").val();
+            var mode = $("select[name=filter_mode] option:selected").val();
             var tags = $("div.alltags-childtag,div.alltags-tag", div_all_tags);
             var dofilter = function(pos) {
                 var endpos = Math.min(pos + 1000, tags.length);
@@ -673,7 +673,7 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id) {
         update_add_new_button_state);
     update_add_new_button_state();
     tag_input_filter.keyup(update_filter).change(update_filter);
-    $("input[name=filter_mode]:radio").change(update_filter);
+    $("select[name=filter_mode]").change(update_filter);
 
     $("#id_tag_info_button").on('click', function(event) {
         event.preventDefault();
