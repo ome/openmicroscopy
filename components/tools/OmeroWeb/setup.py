@@ -19,6 +19,8 @@ for tools in glob.glob("../../../lib/repository/setuptools*.egg"):
 
 LIB = os.path.join("..", "target", "lib", "python")
 sys.path.insert(0, LIB)
+OMEROPY_LIB = os.path.join("..", "OmeroPy")
+sys.path.insert(1, OMEROPY_LIB)
 
 from ez_setup import use_setuptools
 use_setuptools(to_dir='../../../lib/repository')
