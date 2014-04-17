@@ -134,7 +134,7 @@ class Show(object):
             # Need to see if first item has parents
             if first_sel is not None:
                 for p in first_sel.getAncestry():
-                    if self.first_obj == "tag":
+                    if first_obj == "tag":
                         # Parents of tags must be tags (no OMERO_CLASS)
                         self.initially_open.insert(0, "tag-%s" % p.getId())
                     else:
@@ -142,6 +142,6 @@ class Show(object):
                             0, "%s-%s" % (p.OMERO_CLASS.lower(), p.getId())
                         )
                         self.initially_open_owner = p.details.owner.id.val
-                if self.initially_open.split("-")[0] == 'image':
+                if self.initially_open[0].split("-")[0] == 'image':
                     self.initially_open.insert(0, "orphaned-0")
         return first_sel
