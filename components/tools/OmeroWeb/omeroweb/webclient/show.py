@@ -64,10 +64,6 @@ class Show(object):
         self.conn = conn
         self.request = request
         self.menu = menu
-        # TODO
-        if len(self.initially_select) > 1:
-            print self.initially_select
-            self.init_first_sel()
 
         # E.g. backwards compatible support for
         # path=project=51|dataset=502|image=607 (select the image)
