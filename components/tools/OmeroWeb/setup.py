@@ -19,8 +19,12 @@ for tools in glob.glob("../../../lib/repository/setuptools*.egg"):
 
 LIB = os.path.join("..", "target", "lib", "python")
 sys.path.insert(0, LIB)
+OMEROWEB_LIB = os.path.join(LIB, "omeroweb")
+sys.path.insert(1, OMEROWEB_LIB)
 OMEROPY_LIB = os.path.join("..", "OmeroPy")
-sys.path.insert(1, OMEROPY_LIB)
+sys.path.insert(2, OMEROPY_LIB)
+
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "omeroweb.settings")
 
 from ez_setup import use_setuptools
 use_setuptools(to_dir='../../../lib/repository')
