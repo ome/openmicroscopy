@@ -19,16 +19,11 @@
 
 package ome.services.util;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.sql.Statement;
-
 import ome.conditions.InternalException;
 
 import org.hibernate.HibernateException;
 import org.hibernate.SessionFactory;
 import org.hibernate.classic.Session;
-import org.hibernate.jdbc.Work;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,7 +38,7 @@ public class DBUInt16Check {
 
     private static final Logger log = LoggerFactory.getLogger(DBUInt16Check.class);
 
-    private static final String SQL_UPDATE = "UPDATE pixelstype SET bitsize = 16 WHERE value = 'uint16' AND bitsize != 16";
+    private static final String HQL_UPDATE = "UPDATE PixelsType SET bitSize = 16 WHERE value = 'uint16' AND bitSize != 16";
 
     private final SessionFactory sessionFactory;
 
@@ -51,21 +46,16 @@ public class DBUInt16Check {
         this.sessionFactory = sessionFactory;
     }
 
-    public void start() throws Exception {
+    public void start() {
         Session session = null;
         try {
             session = sessionFactory.openSession();
-            session.doWork(new Work() {
-                public void execute(Connection connection) throws SQLException {
-                    final Statement statement = connection.createStatement();
-                    final int updateCount = statement.executeUpdate(SQL_UPDATE);
-                    statement.close();
-                    if (updateCount > 0) {
-                        log.info("updated bit-size of uint16 among pixel types");
-                    } else if (log.isDebugEnabled()) {
-                        log.debug("verified bit-size of uint16 among pixel types");
-                    }
-                }});
+            final int updateCount = session.createQuery(HQL_UPDATE).executeUpdate();
+            if (updateCount > 0) {
+                log.info("updated bit-size of uint16 among pixel types");
+            } else if (log.isDebugEnabled()) {
+                log.debug("verified bit-size of uint16 among pixel types");
+            }
         } catch (HibernateException e) {
             final String message = "error in ensuring bit-size correctness of uint16";
             log.error(message, e);
