@@ -14,8 +14,9 @@ import omero.clients
 import pytest
 import test.integration.library as lib
 
-from omero.gateway import BlitzGateway, ProjectWrapper, DatasetWrapper
-from omero.model import ProjectI, DatasetI, ImageI
+from omero.gateway import BlitzGateway, ProjectWrapper, DatasetWrapper, \
+                          ImageWrapper
+from omero.model import ProjectI, DatasetI, ImageI, TagAnnotationI
 from omero.rtypes import rstring
 from omeroweb.webclient.show import Show
 from django.test.client import RequestFactory
@@ -76,6 +77,25 @@ def project_dataset(request, itest, update_service):
 
 
 @pytest.fixture(scope='function')
+def project_dataset_image(request, itest, update_service):
+    project = ProjectI()
+    project.name = rstring(itest.uuid())
+    dataset = DatasetI()
+    dataset.name = rstring(itest.uuid())
+    image = itest.new_image(name=itest.uuid())
+    dataset.linkImage(image)
+    project.linkDataset(dataset)
+    return update_service.saveAndReturnObject(project)
+
+
+@pytest.fixture(scope='function')
+def tag(request, itest, update_service):
+    tag = TagAnnotationI()
+    tag.textValue = rstring(itest.uuid())
+    return update_service.saveAndReturnObject(tag)
+
+
+@pytest.fixture(scope='function')
 def project_path_request(request, project, request_factory, path):
     """
     Returns a simple GET request object with the 'path' query string
@@ -95,7 +115,7 @@ def project_dataset_path_request(
         request, project_dataset, request_factory, path):
     """
     Returns a simple GET request object with the 'path' query string
-    variable set in the legacy ("project=id|dataset=1") form.
+    variable set in the legacy ("project=id|dataset=id") form.
     """
     dataset, = project_dataset.linkedDatasetList()
     as_string = 'project=%d|dataset=%d' % \
@@ -112,21 +132,47 @@ def project_dataset_path_request(
     }
 
 
-@pytest.fixture(scope='function', params=[
-    ('project-1', ['project-1']),
-    ('project-1|project-2', ['project-1', 'project-2'])
-])
-def show_request(request, request_factory, path):
+@pytest.fixture(scope='function')
+def project_dataset_image_path_request(
+        request, project_dataset_image, request_factory, path):
     """
-    Returns a simple GET request object with the 'show' query string
-    variable set.
+    Returns a simple GET request object with the 'path' query string
+    variable set in the legacy ("project=id|dataset=id|image=id") form.
     """
-    as_string, initially_select = request.param
+    dataset, = project_dataset_image.linkedDatasetList()
+    image, = dataset.linkedImageList()
+    as_string = 'project=%d|dataset=%d|image=%d' % \
+        (project_dataset_image.id.val, dataset.id.val, image.id.val)
+    initially_select = ['image-%d' % image.id.val]
+    initially_open = [
+        'project-%d' % project_dataset_image.id.val,
+        'dataset-%d' % dataset.id.val,
+        'image-%d' % image.id.val
+    ]
     return {
-        'request': request_factory.get(path, data={'show': as_string}),
-        'initially_select': initially_select
+        'request': request_factory.get(path, data={'path': as_string}),
+        'initially_select': initially_select,
+        'initially_open': initially_open
     }
 
+
+@pytest.fixture(scope='function')
+def tag_path_request_wrong_menu(
+        request, tag, request_factory, path):
+    """
+    Returns a simple GET request object with the 'path' query string
+    variable set in the legacy ("tag=id") form with the wrong (not 'usertags')
+    menu.
+    """
+    as_string = 'tag=%d' % tag.id.val
+    initially_select = ['tag-%d' % tag.id.val]
+    initially_open = ['tag-%d' % tag.id.val]
+    data = {'path': as_string, 'menu': 'userdata'}
+    return {
+        'request': request_factory.get(path, data=data),
+        'initially_select': initially_select,
+        'initially_open': initially_open
+    }
 
 class TestIntegrationShow(object):
     """
@@ -167,3 +213,31 @@ class TestIntegrationShow(object):
             project_dataset_path_request['initially_open']
         assert show.initially_open_owner == project_dataset.details.owner.id.val
         assert show.first_sel is None
+
+    def test_project_dataset_image_legacy_path(
+            self, conn, project_dataset_image_path_request,
+            project_dataset_image):
+        show = Show(conn, project_dataset_image_path_request['request'], None)
+        self.assert_instantiation(
+            show, project_dataset_image_path_request, conn
+        )
+
+        dataset, = project_dataset_image.linkedDatasetList()
+        image, = dataset.linkedImageList()
+        first_selected = show.get_first_selected()
+        assert first_selected is not None
+        assert isinstance(first_selected, ImageWrapper)
+        assert first_selected.getId() == image.id.val
+        assert show.initially_open == \
+            project_dataset_image_path_request['initially_open']
+        assert show.initially_open_owner == \
+            project_dataset_image.details.owner.id.val
+        assert show.first_sel is None
+
+    def test_tag_redirect(self, tag_path_request_wrong_menu):
+        show = Show(conn, tag_path_request_wrong_menu['request'], None)
+        self.assert_instantiation(
+            show, tag_path_request_wrong_menu, conn
+        )
+
+        show.get_first_selected()
