@@ -359,7 +359,7 @@ def screen_plate_run_well_show_request(
     }
 
 
-class TestIntegrationShow(object):
+class TestShow(object):
     """
     Tests to ensure that OMERO.web "show" infrastructure is working
     correctly.
