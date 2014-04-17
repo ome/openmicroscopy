@@ -301,9 +301,8 @@ user never had a password, one will need to be set!""")
             self.ctx.die(131, "SecurityViolation: Admins only!")
         except omero.ValidationException as ve:
             self.ctx.die(132, ve.message)
-        except Ice.OperationNotExistException as onee:
-            self.ctx.die(133, "Operation not supported by the server: %s" %
-                         onee.operation)
+        except Ice.RequestFailedException as rfe:
+            self.ctx.die(133, self.exc.handle_failed_request(rfe))
 
 try:
     register("ldap", LdapControl, HELP)
