@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.data.OmeroDataService
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -37,12 +37,16 @@ import java.util.Set;
 
 
 
+
 //Application-internal dependencies
 import omero.api.StatefulServiceInterfacePrx;
+
 import org.openmicroscopy.shoola.env.data.model.DeletableObject;
 import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+
 import pojos.DataObject;
+import pojos.DatasetData;
 import pojos.ImageData;
 import pojos.PlateData;
 
@@ -496,4 +500,14 @@ public interface OmeroDataService
 			SecurityContext ctx, Class<?> rootType, List<Long> rootIDs)
 		throws DSOutOfServiceException, DSAccessException;
 
+	/**
+	* Finds all Datasets the given image ids are linked to
+	* @param ctx The security context, necessary to determine the service.
+	* @param imgIds The ids of the images
+	* @return See above.
+	* @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occurred while trying to
+	 * retrieve data from OMERO service.
+	*/
+	public Map<Long, List<DatasetData>> findDatasetsByImageId(SecurityContext ctx, List<Long> imgIds) throws DSOutOfServiceException, DSAccessException;
 }
