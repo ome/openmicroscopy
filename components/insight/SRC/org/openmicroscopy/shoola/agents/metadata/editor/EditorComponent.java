@@ -43,6 +43,7 @@ import javax.swing.JFrame;
 
 //Third-party libraries
 
+import org.apache.commons.collections.CollectionUtils;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.FileAnnotationCheckResult;
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
@@ -307,12 +308,9 @@ class EditorComponent
 	public void setExistingTags(Collection tags)
 	{
 		model.setExistingTags(tags);
-		
 		List<Long> ids = new ArrayList<Long>();
-		
 		TagAnnotationData tag;
-		Collection<TagAnnotationData> setTags = 
-				model.getCommonTags();
+		Collection<TagAnnotationData> setTags = model.getCommonTags();
 		if (setTags != null) {
 			Iterator<TagAnnotationData> k = setTags.iterator();
 			while (k.hasNext()) {
@@ -323,35 +321,24 @@ class EditorComponent
 		}
 		
 		List<TagAnnotationData> available = new ArrayList<TagAnnotationData>();
-		if (tags != null) {
+		if (CollectionUtils.isNotEmpty(tags)) {
 			Iterator i = tags.iterator();
 			TagAnnotationData data;
-			String ns;
 			Set<TagAnnotationData> l;
 			Iterator<TagAnnotationData> j;
 			while (i.hasNext()) {
 				data = (TagAnnotationData) i.next();
-				ns = data.getNameSpace();
-				if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(ns)) {
-					l = data.getTags();
-					if (l != null) {
-						j = l.iterator();
-						while (j.hasNext()) {
-							tag = j.next();
-							if (!ids.contains(tag.getId()))
-								available.add(tag);
-						}
-					}
-				} else {
-					if (!ids.contains(data.getId()))
-						available.add(data);
+				if (!ids.contains(data.getId())) {
+                    available.add(data);
 				}
 			}
 		}
 		if (controller.getFigureDialog() != null) {
 			List<TagAnnotationData> all = new ArrayList<TagAnnotationData>();
 			all.addAll(available);
-			if (setTags != null && setTags.size() > 0) all.addAll(setTags);
+			if (CollectionUtils.isNotEmpty(setTags)) {
+			    all.addAll(setTags);
+			}
 			controller.getFigureDialog().setTags(all);
 			return;
 		}
