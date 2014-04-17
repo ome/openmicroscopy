@@ -235,11 +235,27 @@ class ITest(object):
         return images[0]
 
     """
+    Creates a fake file with one image and a companion file, imports
+    the file and then return the image..
+    """
+
+    def importSingleImageWithCompanion(self, name=None, client=None):
+        if client is None:
+            client = self.client
+        if name is None:
+            name = "importSingleImageWithCompanion"
+
+        images = self.importMIF(1, name=name, client=client,
+                                with_companion=True)
+        return images[0]
+
+    """
     Creates a fake file with a seriesCount of images, imports
     the file and then return the list of images.
     """
 
-    def importMIF(self, seriesCount, name=None, client=None):
+    def importMIF(self, seriesCount, name=None, client=None,
+                  with_companion=False):
         if client is None:
             client = self.client
         if name is None:
@@ -247,6 +263,8 @@ class ITest(object):
 
         query = client.sf.getQueryService()
         fake = create_path(name, "&series=%d.fake" % seriesCount)
+        if with_companion:
+            open(fake.abspath() + ".ini", "w")
         pixelIds = self.import_image(filename=fake.abspath(), client=client)
         assert seriesCount == len(pixelIds)
 
