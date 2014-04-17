@@ -84,9 +84,10 @@ class Show(object):
     def load_first_sel(self, first_obj, first_id):
         first_sel = None
         if first_obj == "tag":
-            # Tags have an "Annotation" suffix to the object name
+            # Tags have an "Annotation" suffix added to the object name so
+            # need to be loaded differently.
             first_sel = self.conn.getObject(
-                "TagAnnotation", self.first_id
+                "TagAnnotation", first_id
             )
         else:
             first_sel = self.conn.getObject(
