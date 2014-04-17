@@ -44,7 +44,7 @@ DROP FUNCTION omero_assert_db_version(varchar, int);
 
 
 INSERT INTO dbpatch (currentVersion, currentPatch,   previousVersion,     previousPatch)
-             VALUES ('OMERO5.1DEV',     3,              'OMERO5.0',       0);
+             VALUES ('OMERO5.1DEV',     4,              'OMERO5.0',       0);
 
 --
 -- Actual upgrade
@@ -349,10 +349,10 @@ DROP TABLE filesetversioninfo;
 
 UPDATE dbpatch SET message = 'Database updated.', finished = clock_timestamp()
     WHERE currentVersion  = 'OMERO5.1DEV' AND
-          currentPatch    = 3             AND
+          currentPatch    = 4             AND
           previousVersion = 'OMERO5.0'    AND
           previousPatch   = 0;
 
-SELECT CHR(10)||CHR(10)||CHR(10)||'YOU HAVE SUCCESSFULLY UPGRADED YOUR DATABASE TO VERSION OMERO5.1DEV__3'||CHR(10)||CHR(10)||CHR(10) AS Status;
+SELECT CHR(10)||CHR(10)||CHR(10)||'YOU HAVE SUCCESSFULLY UPGRADED YOUR DATABASE TO VERSION OMERO5.1DEV__4'||CHR(10)||CHR(10)||CHR(10) AS Status;
 
 COMMIT;
