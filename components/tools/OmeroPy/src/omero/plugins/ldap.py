@@ -25,8 +25,9 @@ Examples:
   bin/omero ldap getdn jack
   bin/omero ldap getdn beth || echo "No DN"
   bin/omero ldap setdn jack uid=me,ou=example,o=com
-  bin/omero ldap setdn jack ""                        # Disables LDAP login.
-  bin/omero ldap discover --commands                  # Requires "ldap" module
+  bin/omero ldap setdn jack ""                  # Disables LDAP login.
+  bin/omero ldap discover --commands            # Requires "ldap" module
+  bin/omero ldap create jack                    # User jack must exist in LDAP
 
 """
 
@@ -292,11 +293,16 @@ user never had a password, one will need to be set!""")
     def create(self, args):
         c = self.ctx.conn(args)
         ildap = c.sf.getLdapService()
+        iadmin = c.sf.getAdminService()
 
         import omero
         import Ice
         try:
             ildap.createUserFromLdap(args.username)
+            exp = iadmin.lookupExperimenter(args.username)
+            dn = iadmin.lookupLdapAuthExperimenter(exp.id.val)
+            self.ctx.out("Added user %s (id=%s) with DN=%s" %
+                         (exp.omeName.val, exp.id.val, dn))
         except omero.SecurityViolation:
             self.ctx.die(131, "SecurityViolation: Admins only!")
         except omero.ValidationException as ve:
