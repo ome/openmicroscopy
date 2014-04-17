@@ -96,8 +96,15 @@ class Show(object):
 
         if first_obj == "well":
             # Wells aren't in the tree, so we need parent
-            parent_node = first_sel.getWellSample().getPlateAcquisition()
-            parent_type = "acquisition"
+            ws = first_sel.getWellSample()
+            parent_node = None
+            parent_type = None
+            # It's possible that the Well that we've been requested to show
+            # has no fields (WellSample instances).  In that case the Plate
+            # will be used but we don't have much choice.
+            if ws is not None:
+                parent_node = ws.getPlateAcquisition()
+                parent_type = "acquisition"
             if parent_node is None:
                 # No Acquisition for this well, use Plate instead
                 parent_node = first_sel.getParent()
