@@ -54,6 +54,18 @@ class Show(object):
     )
 
     def __init__(self, conn, request, menu):
+        """
+        Constructs a Show instance.  The instance will not be fully
+        initialised until the first retrieval of the L{Show.first_selected}
+        property.
+
+        @param conn OMERO gateway.
+        @type conn L{omero.gateway.BlitzGateway}
+        @param request Django HTTP request.
+        @type request L{django.http.HttpRequest}
+        @param menu Literal representing the current menu we are on.
+        @type menu String
+        """
         # The nodes of the tree that will be initially open based on the
         # nodes that are initially selected.
         self.initially_open = None
@@ -63,7 +75,10 @@ class Show(object):
         # The list of "paths" ("type-id") we have been requested to
         # show/select in the user interface.
         self.initially_select = list()
-        self.first_sel = None
+        # First selected node from the requested initially open "paths"
+        # that is first loaded on first retrieval of the "first_selected"
+        # property.
+        self._first_selected = None
 
         self.conn = conn
         self.request = request
@@ -85,19 +100,19 @@ class Show(object):
                 i = i.replace('run', 'acquisition')
                 self.initially_select.append(str(i))
 
-    def load_first_sel(self, first_obj, first_id):
-        first_sel = None
+    def load_first_selected(self, first_obj, first_id):
+        first_selected = None
         if first_obj == "tag":
             # Tags have an "Annotation" suffix added to the object name so
             # need to be loaded differently.
-            first_sel = self.conn.getObject("TagAnnotation", first_id)
+            first_selected = self.conn.getObject("TagAnnotation", first_id)
         else:
             # All other objects can be loaded by prefix and id.
-            first_sel = self.conn.getObject(first_obj, first_id)
+            first_selected = self.conn.getObject(first_obj, first_id)
 
         if first_obj == "well":
             # Wells aren't in the tree, so we need to look up the parent
-            well_sample = first_sel.getWellSample()
+            well_sample = first_selected.getWellSample()
             parent_node = None
             parent_type = None
             # It's possible that the Well that we've been requested to show
@@ -108,17 +123,17 @@ class Show(object):
                 parent_type = "acquisition"
             if parent_node is None:
                 # No PlateAcquisition for this well, use Plate instead
-                parent_node = first_sel.getParent()
+                parent_node = first_selected.getParent()
                 parent_type = "plate"
-            first_sel = parent_node
+            first_selected = parent_node
             self.initially_open = [
                 "%s-%s" % (parent_type, parent_node.getId())
             ]
             self.initially_select = self.initially_open[:]
-        self.initially_open_owner = first_sel.details.owner.id.val
-        return first_sel
+        self.initially_open_owner = first_selected.details.owner.id.val
+        return first_selected
 
-    def get_first_selected(self):
+    def find_first_selected(self):
         if len(self.initially_select) == 0:
             return list()
 
@@ -131,18 +146,18 @@ class Show(object):
                 reverse(viewname="load_template", args=['usertags']) +
                 "?show=" + self.initially_select[0]
             )
-        first_sel = None
+        first_selected = None
         try:
             first_id = long(first_id)
             # Set context to 'cross-group'
             self.conn.SERVICE_OPTS.setOmeroGroup('-1')
-            first_sel = self.load_first_sel(first_obj, first_id)
+            first_selected = self.load_first_selected(first_obj, first_id)
         except:
             pass
         if first_obj not in self.TOP_LEVEL_PREFIXES:
             # Need to see if first item has parents
-            if first_sel is not None:
-                for p in first_sel.getAncestry():
+            if first_selected is not None:
+                for p in first_selected.getAncestry():
                     if first_obj == "tag":
                         # Parents of tags must be tags (no OMERO_CLASS)
                         self.initially_open.insert(0, "tag-%s" % p.getId())
@@ -153,4 +168,10 @@ class Show(object):
                         self.initially_open_owner = p.details.owner.id.val
                 if self.initially_open[0].split("-")[0] == 'image':
                     self.initially_open.insert(0, "orphaned-0")
-        return first_sel
+        return first_selected
+
+    @property
+    def first_selected(self):
+        if self._first_selected is None:
+            self._first_selected = self.find_first_selected()
+        return self._first_selected
