@@ -20,6 +20,7 @@
 package omero.gateway;
 
 import static omero.gateway.util.GatewayUtils.*;
+import static omero.gateway.util.CmdUtil.*;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -87,6 +88,9 @@ import omero.gateway.exception.FSAccessException;
 import omero.gateway.exception.ImportException;
 import omero.gateway.exception.ProcessException;
 import omero.gateway.exception.RenderingServiceException;
+import omero.gateway.model.ExportFormat;
+import omero.gateway.model.SearchDataContext;
+import omero.gateway.model.SecurityContext;
 import omero.grid.ProcessCallbackI;
 import omero.grid.ScriptProcessPrx;
 import omero.grid.SharedResourcesPrx;
@@ -111,68 +115,20 @@ import omero.model.enums.ChecksumAlgorithmSHA1160;
 import omero.sys.Parameters;
 import omero.sys.ParametersI;
 import pojos.DataObject;
-import pojos.DatasetData;
 import pojos.ExperimenterData;
-import pojos.FileAnnotationData;
 import pojos.FilesetData;
 import pojos.GroupData;
 import pojos.ImageData;
-import pojos.PlateAcquisitionData;
-import pojos.PlateData;
-import pojos.ProjectData;
 import pojos.ROICoordinate;
 import pojos.ROIData;
-import pojos.ScreenData;
 import pojos.ShapeData;
-import pojos.TagAnnotationData;
-import pojos.TermAnnotationData;
-import pojos.TextualAnnotationData;
-import pojos.WellData;
 import pojos.util.PojoMapper;
 
 @SuppressWarnings("unchecked")
 public class Gateway extends ConnectionManager {
     
-    /** Indicates to export the image as OME TIFF. */
-    public static final int EXPORT_AS_OMETIFF = 0;
-    
-    /** Indicates to export the image as OME XML. */
-    public static final int EXPORT_AS_OME_XML = 1;
-    
-    /** Identifies the fileset as root. */
-    private static final String REF_FILESET = "/Fileset";
-
-    /** Identifies the image as root. */
-    private static final String REF_IMAGE = "/Image";
-
-    /** Identifies the dataset as root. */
-    private static final String REF_DATASET = "/Dataset";
-
-    /** Identifies the project as root. */
-    private static final String REF_PROJECT = "/Project";
-
-    /** Identifies the screen as root. */
-    private static final String REF_SCREEN = "/Screen";
-
-    /** Identifies the plate as root. */
-    private static final String REF_PLATE = "/Plate";
-
-    /** Identifies the ROI as root. */
-    private static final String REF_ROI = "/Roi";
-
-    /** Identifies the PlateAcquisition as root. */
-    private static final String REF_PLATE_ACQUISITION = "/PlateAcquisition";
-
-    /** Identifies the PlateAcquisition as root. */
-    private static final String REF_WELL = "/Well";
-
-    /** Identifies the Tag. */
-    private static final String REF_ANNOTATION = "/Annotation";
-
-    
     /** The default MIME type. */
-    private static final String                             DEFAULT_MIMETYPE =
-            "application/octet-stream";
+    private static final String DEFAULT_MIMETYPE = "application/octet-stream";
     
     /* checksum provider factory for verifying file integrity in upload */
     private static final ChecksumProviderFactory checksumProviderFactory = new ChecksumProviderFactoryImpl();
@@ -180,34 +136,6 @@ public class Gateway extends ConnectionManager {
     /** Maximum size of pixels read at once. */
     private static final int                                INC = 262144;//256000;
     
-    /** Identifies the group. */
-    private static final String REF_GROUP = "/ExperimenterGroup";
-    
-    /** The collection of escaping characters we allow in the search. */
-    private static final List<Character>    SUPPORTED_SPECIAL_CHAR;
-
-    /** The collection of escaping characters we allow in the search. */
-    private static final List<String>               WILD_CARDS;
-    
-    static {
-        SUPPORTED_SPECIAL_CHAR = new ArrayList<Character>();
-        SUPPORTED_SPECIAL_CHAR.add(Character.valueOf('-'));
-        SUPPORTED_SPECIAL_CHAR.add(Character.valueOf('+'));
-        SUPPORTED_SPECIAL_CHAR.add(Character.valueOf('['));
-        SUPPORTED_SPECIAL_CHAR.add(Character.valueOf(']'));
-        SUPPORTED_SPECIAL_CHAR.add(Character.valueOf(')'));
-        SUPPORTED_SPECIAL_CHAR.add(Character.valueOf('('));
-        SUPPORTED_SPECIAL_CHAR.add(Character.valueOf(':'));
-        SUPPORTED_SPECIAL_CHAR.add(Character.valueOf('|'));
-        SUPPORTED_SPECIAL_CHAR.add(Character.valueOf('!'));
-        SUPPORTED_SPECIAL_CHAR.add(Character.valueOf('{'));
-        SUPPORTED_SPECIAL_CHAR.add(Character.valueOf('}'));
-        SUPPORTED_SPECIAL_CHAR.add(Character.valueOf('^'));
-        WILD_CARDS = new ArrayList<String>();
-        WILD_CARDS.add("*");
-        WILD_CARDS.add("?");
-        WILD_CARDS.add("~");
-    }
     //
     // Regular service lookups
     //
@@ -1845,34 +1773,6 @@ public class Gateway extends ConnectionManager {
             return null;
     }
     
-     /**
-     * Creates the string corresponding to the object to delete.
-    *
-    * @param data The object to handle.
-    * @return See above.
-    */
-    private String createDeleteCommand(String data)
-   {
-           if (ImageData.class.getName().equals(data)) return REF_IMAGE;
-           else if (DatasetData.class.getName().equals(data)) return REF_DATASET;
-           else if (ProjectData.class.getName().equals(data)) return REF_PROJECT;
-           else if (ScreenData.class.getName().equals(data)) return REF_SCREEN;
-           else if (PlateData.class.getName().equals(data)) return REF_PLATE;
-           else if (ROIData.class.getName().equals(data)) return REF_ROI;
-           else if (PlateAcquisitionData.class.getName().equals(data))
-                   return REF_PLATE_ACQUISITION;
-           else if (FilesetData.class.getName().equals(data)) return REF_FILESET;
-           else if (WellData.class.getName().equals(data))
-                   return REF_WELL;
-           else if (PlateAcquisitionData.class.getName().equals(data))
-                   return REF_PLATE_ACQUISITION;
-           else if (TagAnnotationData.class.getName().equals(data) ||
-                           TermAnnotationData.class.getName().equals(data) ||
-                           FileAnnotationData.class.getName().equals(data) ||
-                           TextualAnnotationData.class.getName().equals(data))
-                   return REF_ANNOTATION;
-           throw new IllegalArgumentException("Cannot delete the speficied type.");
-   }
     
     /**
      * Returns the collection of annotations of a given type.
@@ -2277,7 +2177,7 @@ public class Gateway extends ConnectionManager {
      * @throws DSAccessException        If an error occurred while trying to
      *                                  retrieve data from OMEDS service.
      */
-    public File exportImageAsOMEObject(SecurityContext ctx, int index, File f,
+    public File exportImageAsOMEObject(SecurityContext ctx, ExportFormat format, File f,
                     long imageID)
             throws DSAccessException, DSOutOfServiceException
     {
@@ -2291,7 +2191,7 @@ public class Gateway extends ConnectionManager {
                             store.addImage(imageID);
                             try {
                                     long size = 0;
-                                    if (index == EXPORT_AS_OME_XML)
+                                    if (format == ExportFormat.OME_XML)
                                             size = store.generateXml();
                                     else size = store.generateTiff();
                                     long offset = 0;

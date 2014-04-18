@@ -36,6 +36,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
+
 //Application-internal dependencies
 import ome.formats.OMEROMetadataStoreClient;
 import omero.ServerError;
@@ -83,6 +84,7 @@ import omero.cmd.CmdCallbackI;
 import omero.cmd.DoAll;
 import omero.cmd.Request;
 import omero.gateway.exception.DSOutOfServiceException;
+import omero.gateway.model.SecurityContext;
 import omero.grid.SharedResourcesPrx;
 import omero.grid.SharedResourcesPrxHelper;
 import omero.model.ExperimenterGroup;

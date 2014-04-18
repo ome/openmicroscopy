@@ -44,6 +44,8 @@ import java.util.Set;
 import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+
+
 //Third-party libraries
 import org.apache.commons.collections.CollectionUtils;
 
@@ -52,6 +54,8 @@ import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
+
+
 
 
 //Application-internal dependencies
@@ -123,6 +127,7 @@ import omero.constants.projection.ProjectionType;
 import omero.gateway.Connector;
 import omero.gateway.Gateway;
 import omero.gateway.exception.VersionMismatchException;
+import omero.gateway.model.ExportFormat;
 import omero.grid.BoolColumn;
 import omero.grid.Column;
 import omero.grid.Data;
@@ -1456,10 +1461,10 @@ class OMEROGateway
 	 *
 	 * @return See above.
 	 */
-	Map<omero.gateway.SecurityContext, Set<Long>> getRenderingEngines()
+	Map<omero.gateway.model.SecurityContext, Set<Long>> getRenderingEngines()
 	{
-		Map<omero.gateway.SecurityContext, Set<Long>> l =
-			new HashMap<omero.gateway.SecurityContext, Set<Long>>();
+		Map<omero.gateway.model.SecurityContext, Set<Long>> l =
+			new HashMap<omero.gateway.model.SecurityContext, Set<Long>>();
 		Iterator<Connector> i = getAllConnectors().iterator();
 		while (i.hasNext()) {
 			l.putAll(i.next().getRenderingEngines());
@@ -2090,7 +2095,7 @@ class OMEROGateway
 	 * @throws FSAccessException If an error occurred when trying to build a
 	 * pyramid or access file not available.
 	 */
-	RenderingEnginePrx createRenderingEngine(omero.gateway.SecurityContext ctx, long pixelsID)
+	RenderingEnginePrx createRenderingEngine(omero.gateway.model.SecurityContext ctx, long pixelsID)
 		throws DSOutOfServiceException, DSAccessException, FSAccessException
 	{
 		return generateRenderingEngine(ctx, pixelsID);
@@ -2109,7 +2114,7 @@ class OMEROGateway
 	 * pyramid or access file not available.
 	 */
 	RenderingEnginePrx generateRenderingEngine(
-	        omero.gateway.SecurityContext ctx, long pixelsID)
+	        omero.gateway.model.SecurityContext ctx, long pixelsID)
 		throws DSOutOfServiceException, DSAccessException, FSAccessException
 	{
             try {
@@ -3631,7 +3636,7 @@ class OMEROGateway
 	 * @throws DSAccessException        If an error occurred while trying to
 	 *                                  retrieve data from OMEDS service.
 	 */
-	Object performSearch(SecurityContext ctx, SearchDataContext context)
+	Object performSearch(omero.gateway.model.SecurityContext ctx, omero.gateway.model.SearchDataContext context)
 		throws DSOutOfServiceException, DSAccessException
 	{
             try {
@@ -5259,12 +5264,12 @@ class OMEROGateway
 	 * @throws DSAccessException        If an error occurred while trying to
 	 *                                  retrieve data from OMEDS service.
 	 */
-	File exportImageAsOMEObject(SecurityContext ctx, int index, File f,
+	File exportImageAsOMEObject(SecurityContext ctx, ExportFormat format, File f,
 			long imageID)
 		throws DSAccessException, DSOutOfServiceException
 	{
             try {
-                return gateway.exportImageAsOMEObject(ctx, index, f, imageID);
+                return gateway.exportImageAsOMEObject(ctx, format, f, imageID);
             } catch (omero.gateway.exception.DSAccessException e) {
                 throw new DSAccessException(e);
             } catch (omero.gateway.exception.DSOutOfServiceException e) {
@@ -6154,7 +6159,7 @@ class OMEROGateway
 	 * @throws DSAccessException        If an error occurred while trying to
 	 *                                  retrieve data from OMEDS service.
 	 */
-	Boolean isLargeImage(omero.gateway.SecurityContext ctx, long pixelsId)
+	Boolean isLargeImage(omero.gateway.model.SecurityContext ctx, long pixelsId)
 		throws DSOutOfServiceException, DSAccessException
 	{
             try {

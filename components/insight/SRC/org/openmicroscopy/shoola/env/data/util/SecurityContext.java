@@ -23,16 +23,6 @@
  */
 package org.openmicroscopy.shoola.env.data.util;
 
-
-
-//Java imports
-
-import com.google.common.base.Objects;
-
-
-//Application-internal dependencies
-import pojos.ExperimenterData;
-
 /** 
  * Hosts information required to access correct connector.
  *
@@ -40,7 +30,7 @@ import pojos.ExperimenterData;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @since Beta4.4
  */
-public class SecurityContext extends omero.gateway.SecurityContext
+public class SecurityContext extends omero.gateway.model.SecurityContext
 {
 
     public SecurityContext(long groupID) {

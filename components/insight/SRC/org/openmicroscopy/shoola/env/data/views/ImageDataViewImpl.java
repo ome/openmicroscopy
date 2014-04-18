@@ -33,9 +33,12 @@ import java.util.Map;
 
 //Third-party libraries
 
+
+import omero.gateway.model.ExportFormat;
 //Application-internal dependencies
 import omero.romio.PlaneDef;
 import pojos.WorkflowData;
+
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
@@ -376,7 +379,7 @@ class ImageDataViewImpl
 			File file, Target target, AgentEventListener observer)
 	{
 		BatchCallTree cmd = new ExportLoader(ctx, imageID, file,
-				ExportLoader.EXPORT_AS_OMETIFF, target);
+				ExportFormat.OME_TIFF, target);
 		return cmd.exec(observer);
 	}
 

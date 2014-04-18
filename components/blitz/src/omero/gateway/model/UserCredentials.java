@@ -20,7 +20,7 @@
  *
  *------------------------------------------------------------------------------
  */
-package omero.gateway;
+package omero.gateway.model;
 
 //Java imports
 //Third-party libraries

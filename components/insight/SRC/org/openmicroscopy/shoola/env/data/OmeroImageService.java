@@ -34,12 +34,15 @@ import java.util.Set;
 
 import javax.swing.filechooser.FileFilter;
 
+
 //Third-party libraries
 import com.sun.opengl.util.texture.TextureData;
 
 import omero.api.ThumbnailStorePrx;
 //Application-internal dependencies
 import omero.constants.projection.ProjectionType;
+import omero.gateway.model.ExportFormat;
+import omero.model.RenderingDef;
 import omero.romio.PlaneDef;
 import org.openmicroscopy.shoola.env.data.model.ImportableFile;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
@@ -53,6 +56,7 @@ import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
+
 import pojos.DataObject;
 import pojos.ImageData;
 import pojos.PixelsData;
@@ -215,7 +219,7 @@ public interface OmeroImageService
 	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	public RenderingControl reloadRenderingService(omero.gateway.SecurityContext ctx,
+	public RenderingControl reloadRenderingService(omero.gateway.model.SecurityContext ctx,
 		long pixelsID)
 		throws DSAccessException, RenderingServiceException;
 	
@@ -588,7 +592,7 @@ public interface OmeroImageService
 	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	public Object exportImageAsOMEFormat(SecurityContext ctx, int index,
+	public Object exportImageAsOMEFormat(SecurityContext ctx, ExportFormat format,
 			long imageID, File folder, Target target)
 		throws DSOutOfServiceException, DSAccessException;
 

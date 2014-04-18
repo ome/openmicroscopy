@@ -47,7 +47,7 @@ import pojos.GroupData;
  * </small>
  * @since OME2.2
  */
-public class UserCredentials extends omero.gateway.UserCredentials
+public class UserCredentials extends omero.gateway.model.UserCredentials
 {
     
 	/** Identifies a high speed connection. */

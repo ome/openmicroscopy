@@ -404,20 +404,20 @@ public class DataServicesFactory
     {
         JFrame f = registry.getTaskBar().getFrame();
         String message;
-        Map<omero.gateway.SecurityContext, Set<Long>> l =
+        Map<omero.gateway.model.SecurityContext, Set<Long>> l =
                 omeroGateway.getRenderingEngines();
         boolean b = omeroGateway.joinSession();
         if (b) {
             //reactivate the rendering engine. Need to review that
-            Iterator<Entry<omero.gateway.SecurityContext, Set<Long>>> i =
+            Iterator<Entry<omero.gateway.model.SecurityContext, Set<Long>>> i =
                     l.entrySet().iterator();
             OmeroImageService svc = registry.getImageService();
             Long id;
-            Entry<omero.gateway.SecurityContext, Set<Long>> entry;
-            Map<omero.gateway.SecurityContext, List<Long>> 
-            failures = new HashMap<omero.gateway.SecurityContext, List<Long>>();
+            Entry<omero.gateway.model.SecurityContext, Set<Long>> entry;
+            Map<omero.gateway.model.SecurityContext, List<Long>> 
+            failures = new HashMap<omero.gateway.model.SecurityContext, List<Long>>();
             Iterator<Long> j;
-            omero.gateway.SecurityContext ctx;
+            omero.gateway.model.SecurityContext ctx;
             List<Long> failure;
             RenderingControl p;
             while (i.hasNext()) {

@@ -28,6 +28,9 @@ import java.io.File;
 
 //Third-party libraries
 
+
+import omero.gateway.model.ExportFormat;
+
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.util.Target;
@@ -52,15 +55,7 @@ public class ExportLoader
 	extends BatchCallTree
 {
 
-	/** Indicates to export the image as OME TIFF. */
-	public static final int	EXPORT_AS_OMETIFF = 
-		OmeroImageService.EXPORT_AS_OMETIFF;
-	
-	/** Indicates to export the image as OME XML. */
-	public static final int	EXPORT_AS_OME_XML = 
-		OmeroImageService.EXPORT_AS_OME_XML;
-	
-	/** Loads the specified annotations. */
+    /** Loads the specified annotations. */
     private BatchCall loadCall;
     
     /** The result of the call. */
@@ -77,14 +72,14 @@ public class ExportLoader
 	 * @param target The selected schema.
      * @return The {@link BatchCall}.
      */
-    private BatchCall makeAsOMETiffBatchCall(final int index, final File file, 
+    private BatchCall makeAsOMETiffBatchCall(final ExportFormat format, final File file, 
     						final long imageID, final Target target)
     {
         return new BatchCall("Export image as OME-TIFF or OME-XML.") {
             public void doCall() throws Exception
             {
                 OmeroImageService service = context.getImageService();
-                result = service.exportImageAsOMEFormat(ctx, index, imageID,
+                result = service.exportImageAsOMEFormat(ctx, format, imageID,
                 		file, target);
             }
         };
@@ -111,11 +106,11 @@ public class ExportLoader
 	 * @param index	  One of the constants defined by this class.
 	 * @param target The selected schema.
      */
-    public ExportLoader(SecurityContext ctx, long imageID, File file, int index,
+    public ExportLoader(SecurityContext ctx, long imageID, File file, ExportFormat format,
     		Target target)
     {
     	this.ctx = ctx;
-    	loadCall = makeAsOMETiffBatchCall(index, file, imageID, target);
+    	loadCall = makeAsOMETiffBatchCall(format, file, imageID, target);
     }
 
 }

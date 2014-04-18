@@ -48,7 +48,7 @@ import pojos.ExperimenterData;
  * </small>
  * @since OME3.0
  */
-public class SearchDataContext extends omero.gateway.SearchDataContext
+public class SearchDataContext extends omero.gateway.model.SearchDataContext
 {
 
     public SearchDataContext(List<Integer> scope, List<Class> types,

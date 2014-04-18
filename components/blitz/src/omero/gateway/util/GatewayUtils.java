@@ -21,6 +21,8 @@ package omero.gateway.util;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.List;
 
 import omero.model.Annotation;
 import omero.model.BooleanAnnotation;
@@ -94,7 +96,36 @@ public abstract class GatewayUtils {
 
     /** Identifies the count property. */
     public static final String IMAGES_PROPERTY = "images";
+    
+    /** The collection of escaping characters we allow in the search. */
+    public static final List<Character>    SUPPORTED_SPECIAL_CHAR;
 
+    /** The collection of escaping characters we allow in the search. */
+    public static final List<String>               WILD_CARDS;
+    
+    static {
+        SUPPORTED_SPECIAL_CHAR = new ArrayList<Character>();
+        SUPPORTED_SPECIAL_CHAR.add(Character.valueOf('-'));
+        SUPPORTED_SPECIAL_CHAR.add(Character.valueOf('+'));
+        SUPPORTED_SPECIAL_CHAR.add(Character.valueOf('['));
+        SUPPORTED_SPECIAL_CHAR.add(Character.valueOf(']'));
+        SUPPORTED_SPECIAL_CHAR.add(Character.valueOf(')'));
+        SUPPORTED_SPECIAL_CHAR.add(Character.valueOf('('));
+        SUPPORTED_SPECIAL_CHAR.add(Character.valueOf(':'));
+        SUPPORTED_SPECIAL_CHAR.add(Character.valueOf('|'));
+        SUPPORTED_SPECIAL_CHAR.add(Character.valueOf('!'));
+        SUPPORTED_SPECIAL_CHAR.add(Character.valueOf('{'));
+        SUPPORTED_SPECIAL_CHAR.add(Character.valueOf('}'));
+        SUPPORTED_SPECIAL_CHAR.add(Character.valueOf('^'));
+        WILD_CARDS = new ArrayList<String>();
+        WILD_CARDS.add("*");
+        WILD_CARDS.add("?");
+        WILD_CARDS.add("~");
+    }
+    
+
+    
+    
     /**
      * Utility method to print an error message
      * 
@@ -367,4 +398,6 @@ public abstract class GatewayUtils {
                     table = "PlateAcquisitionAnnotationLink";
             return table;
     }
+    
+    
 }

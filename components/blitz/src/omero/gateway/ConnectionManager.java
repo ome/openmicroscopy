@@ -41,6 +41,8 @@ import omero.api.ServiceFactoryPrx;
 import omero.gateway.exception.DSAccessException;
 import omero.gateway.exception.DSOutOfServiceException;
 import omero.gateway.exception.VersionMismatchException;
+import omero.gateway.model.SecurityContext;
+import omero.gateway.model.UserCredentials;
 import omero.gateway.util.ConnectionExceptionHandler;
 import omero.gateway.util.ConnectionStatus;
 import omero.gateway.util.NetworkChecker;
