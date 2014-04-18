@@ -377,8 +377,8 @@ public class SelectionWizardUI
             public void focusGained(FocusEvent evt) {
                 String value = filterArea.getText();
                 if (DEFAULT_FILTER_TEXT.equals(value)) {
-                    //filterArea.setCaretPosition(0);
-                    //setTextFieldDefault(null);
+                    filterArea.setCaretPosition(0);
+                    setTextFieldDefault(null);
                 }
             }
         });
@@ -553,7 +553,6 @@ public class SelectionWizardUI
         Object ho;
         DataObject data;
         List<TreeImageDisplay> toRemove = new ArrayList<TreeImageDisplay>();
-        System.err.println("children:" +children);
         for (int i = 0; i < paths.length; i++) {
             c = paths[i].getLastPathComponent();
             if (c instanceof TreeImageDisplay) {
