@@ -17,6 +17,7 @@ from django.test.client import RequestFactory
 
 @pytest.fixture(scope='module')
 def path():
+    """Returns the root OMERO.web webclient path."""
     return '/webclient'
 
 
