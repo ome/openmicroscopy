@@ -27,6 +27,7 @@ from django.test.client import RequestFactory
 
 @pytest.fixture(scope='module')
 def path():
+    """Returns the root OMERO.web webclient path."""
     return '/webclient'
 
 
@@ -38,6 +39,10 @@ def request_factory():
 
 @pytest.fixture(scope='function')
 def itest(request):
+    """
+    Returns a new L{test.integration.library.ITest} instance.  With
+    attached finalizer so that pytest will clean it up.
+    """
     o = lib.ITest()
     o.setup_method(None)
 
@@ -49,21 +54,25 @@ def itest(request):
 
 @pytest.fixture(scope='function')
 def client(request, itest):
+    """Returns a new user client."""
     return itest.new_client()
 
 
 @pytest.fixture(scope='function')
 def conn(request, client):
+    """Returns a new OMERO gateway."""
     return BlitzGateway(client_obj=client)
 
 
 @pytest.fixture(scope='function')
 def update_service(request, client):
+    """Returns a new OMERO update service."""
     return client.getSession().getUpdateService()
 
 
 @pytest.fixture(scope='function')
 def project(request, itest, update_service):
+    """Returns a new OMERO Project with required fields set."""
     project = ProjectI()
     project.name = rstring(itest.uuid())
     return update_service.saveAndReturnObject(project)
@@ -71,6 +80,9 @@ def project(request, itest, update_service):
 
 @pytest.fixture(scope='function')
 def project_dataset(request, itest, update_service):
+    """
+    Returns a new OMERO Project and linked Dataset with required fields set.
+    """
     project = ProjectI()
     project.name = rstring(itest.uuid())
     dataset = DatasetI()
@@ -81,6 +93,11 @@ def project_dataset(request, itest, update_service):
 
 @pytest.fixture(scope='function')
 def project_dataset_image(request, itest, update_service):
+    """
+    Returns a new OMERO Project, linked Dataset and linked Image populated
+    by an L{test.integration.library.ITest} instance with required fields
+    set.
+    """
     project = ProjectI()
     project.name = rstring(itest.uuid())
     dataset = DatasetI()
@@ -93,6 +110,7 @@ def project_dataset_image(request, itest, update_service):
 
 @pytest.fixture(scope='function')
 def tag(request, itest, update_service):
+    """Returns a new OMERO TagAnnotation with required fields set."""
     tag = TagAnnotationI()
     tag.textValue = rstring(itest.uuid())
     return update_service.saveAndReturnObject(tag)
@@ -100,6 +118,10 @@ def tag(request, itest, update_service):
 
 @pytest.fixture(scope='function')
 def tagset_tag(request, itest, update_service):
+    """
+    Returns a new OMERO TagAnnotation, with the OMERO.insight tagset
+    namespace set, and linked TagAnnotation with required fields set.
+    """
     tagset = TagAnnotationI()
     tagset.ns = rstring(omero.constants.metadata.NSINSIGHTTAGSET)
     tagset.textValue = rstring(itest.uuid())
@@ -111,12 +133,17 @@ def tagset_tag(request, itest, update_service):
 
 @pytest.fixture(scope='function')
 def image(request, itest, update_service):
+    """
+    Returns a new OMERO Image populated by an
+    L{test.integration.library.ITest} instance.
+    """
     image = itest.new_image(name=itest.uuid())
     return update_service.saveAndReturnObject(image)
 
 
 @pytest.fixture(scope='function')
 def screen(request, itest, update_service):
+    """Returns a new OMERO Screen with required fields set."""
     screen = ScreenI()
     screen.name = rstring(itest.uuid())
     return update_service.saveAndReturnObject(screen)
@@ -124,6 +151,9 @@ def screen(request, itest, update_service):
 
 @pytest.fixture(scope='function')
 def screen_plate(request, itest, update_service):
+    """
+    Returns a new OMERO Screen and linked Plate with required fields set.
+    """
     screen = ScreenI()
     screen.name = rstring(itest.uuid())
     plate = PlateI()
@@ -134,6 +164,10 @@ def screen_plate(request, itest, update_service):
 
 @pytest.fixture(scope='function')
 def screen_plate_well(request, itest, update_service):
+    """
+    Returns a new OMERO Screen, linked Plate and linked Well with required
+    fields set.
+    """
     screen = ScreenI()
     screen.name = rstring(itest.uuid())
     plate = PlateI()
@@ -146,6 +180,11 @@ def screen_plate_well(request, itest, update_service):
 
 @pytest.fixture(scope='function')
 def screen_plate_run_well(request, itest, update_service):
+    """
+    Returns a new OMERO Screen, linked Plate, linked Well, linked WellSample,
+    linked Image populate by an L{test.integration.library.ITest} instance and
+    linked PlateAcquisition with all required fields set.
+    """
     screen = ScreenI()
     screen.name = rstring(itest.uuid())
     plate = PlateI()
@@ -363,6 +402,14 @@ class TestShow(object):
     """
     Tests to ensure that OMERO.web "show" infrastructure is working
     correctly.
+
+    These tests make __extensive__ use of pytest fixtures.  In particular
+    the scoping semantics allowing re-use of instances populated by the
+    *request fixtures.  It is recommended that the pytest fixture
+    documentation be studied in detail before modifications or attempts to
+    fix failing tests are made:
+
+     * https://pytest.org/latest/fixture.html
     """
 
     def assert_instantiation(self, show, request, conn):
