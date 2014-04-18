@@ -655,52 +655,6 @@ public class SelectionWizardUI
                 */
     }
 
-    /** Updates the remaining fields list box. */
-    private void populateSelectedItems()
-    {
-        DefaultTreeModel dtm = (DefaultTreeModel) selectedItemsListbox.getModel();
-        TreeImageDisplay root = (TreeImageDisplay) dtm.getRoot();
-        root.removeAllChildrenDisplay();
-        root.removeAllChildren();
-        dtm.reload();
-        buildTree(root, selectedItems, dtm);
-        dtm.reload();
-    }
-
-    /** 
-     * Populates the tree.
-     *
-     * @param parent The node to attach element to.
-     * @param nodes The nodes to link.
-     * @param dtm The tree model.
-     */
-    private void buildTree(TreeImageDisplay parent,
-            Collection<TreeImageDisplay> nodes, DefaultTreeModel dtm)
-    {
-        Iterator<TreeImageDisplay> i = nodes.iterator();
-        TreeImageDisplay node, child;
-        Iterator<TreeImageDisplay> j;
-        while (i.hasNext()) {
-            node = i.next();
-            node.setDisplayItems(false);
-            dtm.insertNodeInto(node, parent, parent.getChildCount());
-            dtm.reload(parent);
-            if (node.hasChildrenDisplay()) {
-                //build children
-                node.removeAllChildren();
-                Collection<TreeImageDisplay> l = node.getChildrenDisplay();
-                j = l.iterator();
-                while (j.hasNext()) {
-                    child = j.next();
-                    child.setDisplayItems(false);
-                    if (!children.contains(child)) {
-                        dtm.insertNodeInto(child, node, node.getChildCount());
-                        dtm.reload(node);
-                    }
-                }
-            }
-        }
-    }
     /**
      * Updates the specified tree.
      *
@@ -710,11 +664,31 @@ public class SelectionWizardUI
     private void populateTreeItems(JTree tree, List<TreeImageDisplay> nodes)
     {
         DefaultTreeModel dtm = (DefaultTreeModel) tree.getModel();
-        TreeImageDisplay root = (TreeImageDisplay) dtm.getRoot();
-        root.removeAllChildrenDisplay();
-        root.removeAllChildren();
-        dtm.reload(root);
-        buildTree(root, nodes, dtm);
+        TreeImageDisplay parent = (TreeImageDisplay) dtm.getRoot();
+        parent.removeAllChildrenDisplay();
+        parent.removeAllChildren();
+        Iterator<TreeImageDisplay> i = nodes.iterator();
+        TreeImageDisplay node, child;
+        Iterator<TreeImageDisplay> j;
+        while (i.hasNext()) {
+            node = i.next();
+            node.setDisplayItems(false);
+            dtm.insertNodeInto(node, parent, parent.getChildCount());
+            if (node.hasChildrenDisplay()) {
+                node.removeAllChildren();
+                tree.expandPath(new TreePath(node.getPath()));
+                Collection<TreeImageDisplay> l = node.getChildrenDisplay();
+                j = l.iterator();
+                while (j.hasNext()) {
+                    child = j.next();
+                    child.setDisplayItems(false);
+                    if (!children.contains(child)) {
+                        dtm.insertNodeInto(child, node, node.getChildCount());
+                    }
+                }
+            }
+        }
+        dtm.reload();
     }
 
     /** Sorts the lists. */
@@ -790,7 +764,7 @@ public class SelectionWizardUI
         p.add(UIUtilities.setTextFont(createText("Selected")),
                 BorderLayout.NORTH);
         p.add(new JScrollPane(selectedItemsListbox), BorderLayout.CENTER);
-        populateSelectedItems();
+        populateTreeItems(selectedItemsListbox, selectedItems);
         return p;
     }
 
@@ -883,7 +857,7 @@ public class SelectionWizardUI
             }
         }
         sortLists();
-        populateSelectedItems();
+        populateTreeItems(selectedItemsListbox, selectedItems);
         setSelectionChange();
     }
 
