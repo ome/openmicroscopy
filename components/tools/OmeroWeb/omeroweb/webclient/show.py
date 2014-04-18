@@ -34,12 +34,12 @@ from django.core.urlresolvers import reverse
 class Show(object):
     """
     This object is used by most of the top-level pages.  The "show" and
-    "path" query strings are used by this object to set direct OMERO.web to
-    the correct locations in the hierarchy and selected the correct objects
+    "path" query strings are used by this object to both direct OMERO.web to
+    the correct locations in the hierarchy and select the correct objects
     in that hierarchy.
     """
 
-    # List of prefiexes that are at the top level of the tree
+    # List of prefixes that are at the top level of the tree
     TOP_LEVEL_PREFIXES = ('project', 'screen')
 
     # List of supported prefixes for the "path" query string variable
@@ -54,10 +54,14 @@ class Show(object):
     )
 
     def __init__(self, conn, request, menu):
-        # Whether or not the tree was initially open
+        # The nodes of the tree that will be initially open based on the
+        # nodes that are initially selected.
         self.initially_open = None
+        # The owner of the node closest to the root of the tree from the
+        # list of initially open nodes.
         self.initially_open_owner = None
-        # The first "path" to select
+        # The list of "paths" ("type-id") we have been requested to
+        # show/select in the user interface.
         self.initially_select = list()
         self.first_sel = None
 
@@ -86,27 +90,24 @@ class Show(object):
         if first_obj == "tag":
             # Tags have an "Annotation" suffix added to the object name so
             # need to be loaded differently.
-            first_sel = self.conn.getObject(
-                "TagAnnotation", first_id
-            )
+            first_sel = self.conn.getObject("TagAnnotation", first_id)
         else:
-            first_sel = self.conn.getObject(
-                first_obj, first_id
-            )
+            # All other objects can be loaded by prefix and id.
+            first_sel = self.conn.getObject(first_obj, first_id)
 
         if first_obj == "well":
-            # Wells aren't in the tree, so we need parent
-            ws = first_sel.getWellSample()
+            # Wells aren't in the tree, so we need to look up the parent
+            well_sample = first_sel.getWellSample()
             parent_node = None
             parent_type = None
             # It's possible that the Well that we've been requested to show
             # has no fields (WellSample instances).  In that case the Plate
             # will be used but we don't have much choice.
-            if ws is not None:
-                parent_node = ws.getPlateAcquisition()
+            if well_sample is not None:
+                parent_node = well_sample.getPlateAcquisition()
                 parent_type = "acquisition"
             if parent_node is None:
-                # No Acquisition for this well, use Plate instead
+                # No PlateAcquisition for this well, use Plate instead
                 parent_node = first_sel.getParent()
                 parent_type = "plate"
             first_sel = parent_node
