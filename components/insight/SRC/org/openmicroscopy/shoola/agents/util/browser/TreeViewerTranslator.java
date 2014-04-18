@@ -397,7 +397,7 @@ public class TreeViewerTranslator
         formatToolTipFor(node);
         return node;
     }
-    
+
     /**
      * Transforms a set of {@link DataObject}s into their corresponding 
      * visualization objects. The elements of the set can either be
@@ -407,14 +407,14 @@ public class TreeViewerTranslator
      * @return A set of visualization objects.
      */
     public static Set<TreeImageDisplay> transformHierarchy(
-    		Collection<DataObject> dataObjects)
+    		Collection<Object> dataObjects)
     {
         if (dataObjects == null)
             throw new IllegalArgumentException("No objects.");
         Set<TreeImageDisplay> results = 
         		new HashSet<TreeImageDisplay>(dataObjects.size());
-        Iterator<DataObject> i = dataObjects.iterator();
-        DataObject ho;
+        Iterator<Object> i = dataObjects.iterator();
+        Object ho;
         TreeImageDisplay child;
         while (i.hasNext()) {
             ho = i.next();
