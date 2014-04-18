@@ -80,18 +80,18 @@ class TestShow(object):
         assert show.initially_open is None
         assert show.initially_open_owner is None
         assert show.initially_select == list()
-        assert show.first_sel is None
+        assert show._first_selected is None
 
     def test_legacy_path_instantiation(self, path_request):
         show = Show(None, path_request['request'], None)
         assert show.initially_open is None
         assert show.initially_open_owner is None
         assert show.initially_select == path_request['initially_select']
-        assert show.first_sel is None
+        assert show._first_selected is None
 
     def test_show_instantiation(self, show_request):
         show = Show(None, show_request['request'], None)
         assert show.initially_open is None
         assert show.initially_open_owner is None
         assert show.initially_select == show_request['initially_select']
-        assert show.first_sel is None
+        assert show._first_selected is None
