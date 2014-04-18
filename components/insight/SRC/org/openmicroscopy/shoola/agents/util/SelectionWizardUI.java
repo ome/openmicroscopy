@@ -37,19 +37,24 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
+
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
-import javax.swing.DefaultListModel;
 import javax.swing.JButton;
-import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
+import javax.swing.JTree;
+import javax.swing.ToolTipManager;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreePath;
 
 
 //Third-party libraries
@@ -57,6 +62,10 @@ import info.clearthought.layout.TableLayout;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 
+import org.openmicroscopy.shoola.agents.treeviewer.util.TreeCellRenderer;
+import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
+import org.openmicroscopy.shoola.agents.util.browser.TreeImageSet;
+import org.openmicroscopy.shoola.agents.util.browser.TreeViewerTranslator;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -102,22 +111,25 @@ public class SelectionWizardUI
     private static final int REMOVE_ALL = 3;
 
     /** The original items before the user selects items. */
-    private List<Object> originalItems;
+    private List<TreeImageDisplay> originalItems;
 
     /** The original selected items before the user selects items. */
-    private List<Object> originalSelectedItems;
+    private List<TreeImageDisplay> originalSelectedItems;
+
+    /** Collection of items, removed and/or added.*/
+    private Set<TreeImageDisplay> children;
 
     /** Collection of available items. */
-    private Collection<Object> availableItems;
+    private List<TreeImageDisplay> availableItems;
 
     /** Collection of all the selected items. */
-    private Collection<Object> selectedItems;
+    private List<TreeImageDisplay> selectedItems;
 
     /** The list box showing the available items. */
-    private JList availableItemsListbox;
+    private JTree availableItemsListbox;
 
     /** The list box showing the selected items. */
-    private JList selectedItemsListbox;
+    private JTree selectedItemsListbox;
 
     /** The button to move an item from the remaining items to current items. */
     private JButton addButton;
@@ -140,12 +152,6 @@ public class SelectionWizardUI
     /** The collection of immutable  nodes. */
     private Collection immutable;
 
-    /** The renderer used. */
-    private DataObjectListCellRenderer cellRendererLeft;
-
-    /** The renderer used. */
-    private DataObjectListCellRenderer cellRendererRight;
-
     /** The group available.*/
     private Collection<GroupData> groups;
 
@@ -167,8 +173,8 @@ public class SelectionWizardUI
      */
     private boolean isSelected(Object elt)
     {
-        for (Object item : selectedItems) {
-            DataObject data = (DataObject) item;
+        for (TreeImageDisplay item : selectedItems) {
+            DataObject data = (DataObject) item.getUserObject();
             if (elt == item || data.getId() < 0) {
                 return true;
             }
@@ -187,17 +193,18 @@ public class SelectionWizardUI
         if (DEFAULT_FILTER_TEXT.equals(txt)) {
             return;
         }
-        Collection<Object> ref;
-        Iterator<Object> i;
+        List<TreeImageDisplay> ref;
+        Iterator<TreeImageDisplay> i;
+        TreeImageDisplay node;
         Object ho;
         String value;
         if (insert) {
             ref = availableItems;
         } else {
-            ref = new ArrayList<Object>();
-            for (Object item : originalItems)
+            ref = new ArrayList<TreeImageDisplay>();
+            for (TreeImageDisplay item : originalItems)
                 ref.add(item);
-            for (Object item : originalSelectedItems) {
+            for (TreeImageDisplay item : originalSelectedItems) {
                 if (!isSelected(item))
                     ref.add(item);
             }
@@ -205,15 +212,19 @@ public class SelectionWizardUI
         i = ref.iterator();
 
         txt = txt.toLowerCase();
-        List<Object> toKeep = new ArrayList<Object>();
+        List<TreeImageDisplay> toKeep = new ArrayList<TreeImageDisplay>();
         while (i.hasNext()) {
-            ho = i.next();
+            node = i.next();
+            ho = node.getUserObject();
             value = null;
             if (ho instanceof TagAnnotationData) {
                 TagAnnotationData tag = (TagAnnotationData) ho;
                 if (!TagAnnotationData.INSIGHT_TAGSET_NS.equals(
                         tag.getNameSpace())) {
                     value = tag.getTagValue();
+                } else {
+                    value = null;
+                    toKeep.add(node);
                 }
             } else if (ho instanceof FileAnnotationData) {
                 value = ((FileAnnotationData) ho).getFileName();
@@ -224,11 +235,11 @@ public class SelectionWizardUI
                 value = value.toLowerCase();
                 if (filterAnywhere) {
                     if (value.contains(txt)) {
-                        toKeep.add(ho);
+                        toKeep.add(node);
                     }
                 } else {
                     if (value.startsWith(txt)) {
-                        toKeep.add(ho);
+                        toKeep.add(node);
                     }
                 }
             }
@@ -237,7 +248,7 @@ public class SelectionWizardUI
         availableItems.clear();
         availableItems.addAll(toKeep);
         availableItems = sorter.sort(availableItems);
-        populateAvailableItems();
+        populateTreeItems(availableItemsListbox, availableItems);
     }
 
     /**
@@ -251,13 +262,15 @@ public class SelectionWizardUI
     {
         if (object == null) return false;
         if (object instanceof TagAnnotationData) {
-            Iterator<Object> i = availableItems.iterator();
+            Iterator<TreeImageDisplay> i = availableItems.iterator();
             TagAnnotationData ob;
             String value = ((TagAnnotationData) object).getTagValue();
             if (value == null) return false;
             String v;
+            TreeImageDisplay node;
             while (i.hasNext()) {
-                ob = (TagAnnotationData) i.next();
+                node = i.next();
+                ob = (TagAnnotationData) node.getUserObject();
                 if (ob != null) {
                     v = ob.getTagValue();
                     if (v != null && v.equals(value))
@@ -266,7 +279,8 @@ public class SelectionWizardUI
             }
             i = selectedItems.iterator();
             while (i.hasNext()) {
-                ob = (TagAnnotationData) i.next();
+                node = i.next();
+                ob = (TagAnnotationData) node.getUserObject();
                 if (ob != null) {
                     v = ob.getTagValue();
                     if (v != null && v.equals(value))
@@ -295,6 +309,23 @@ public class SelectionWizardUI
         filterArea.getDocument().addDocumentListener(this);
     }
 
+    /**
+     * Initializes the specified tree
+     * 
+     * @param tree The tree to handle.
+     * @param user The user currently logged in.
+     */
+    private void initializeTree(JTree tree, ExperimenterData user)
+    {
+        tree.setVisible(true);
+        tree.setRootVisible(false);
+        ToolTipManager.sharedInstance().registerComponent(tree);
+        tree.setCellRenderer(new TreeCellRenderer(user.getId()));
+        tree.setShowsRootHandles(true);
+        TreeImageSet root = new TreeImageSet("");
+        tree.setModel(new DefaultTreeModel(root));
+    }
+
     /** 
      * Initializes the components composing the display. 
      *
@@ -321,15 +352,14 @@ public class SelectionWizardUI
             public void focusGained(FocusEvent evt) {
                 String value = filterArea.getText();
                 if (DEFAULT_FILTER_TEXT.equals(value)) {
-                    filterArea.setCaretPosition(0);
-                    setTextFieldDefault(null);
+                    //filterArea.setCaretPosition(0);
+                    //setTextFieldDefault(null);
                 }
             }
         });
         sorter = new ViewerSorter();
-        availableItemsListbox = new JList();
-        availableItemsListbox.requestFocusInWindow();
-        availableItemsListbox.requestFocus();
+        availableItemsListbox = new JTree();
+        initializeTree(availableItemsListbox, user);
         availableItemsListbox.addKeyListener(new KeyAdapter() {
 
             /**
@@ -358,9 +388,8 @@ public class SelectionWizardUI
                 }
             }
         });
-        cellRendererLeft = new DataObjectListCellRenderer(user, this);
-        availableItemsListbox.setCellRenderer(cellRendererLeft);
-        selectedItemsListbox = new JList();
+        selectedItemsListbox = new JTree();
+        initializeTree(selectedItemsListbox, user);
         selectedItemsListbox.addKeyListener(new KeyAdapter() {
 
             /**
@@ -389,8 +418,6 @@ public class SelectionWizardUI
                 }
             }
         });
-        cellRendererRight = new DataObjectListCellRenderer(user, this);
-        selectedItemsListbox.setCellRenderer(cellRendererRight);
         IconManager icons = IconManager.getInstance();
         addButton = new JButton(icons.getIcon(IconManager.RIGHT_ARROW));
         removeButton = new JButton(icons.getIcon(IconManager.LEFT_ARROW));
@@ -413,15 +440,15 @@ public class SelectionWizardUI
     /** Creates a copy of the original selections. */
     private void createOriginalSelections()
     {
-        originalItems = new ArrayList<Object>();
+        originalItems = new ArrayList<TreeImageDisplay>();
         if (availableItems != null) {
-            for (Object item : availableItems)
+            for (TreeImageDisplay item : availableItems)
                 originalItems.add(item);
         }
 
-        originalSelectedItems  = new ArrayList<Object>();
+        originalSelectedItems  = new ArrayList<TreeImageDisplay>();
         if (selectedItems != null) {
-            for (Object item : selectedItems)
+            for (TreeImageDisplay item : selectedItems)
                 originalSelectedItems.add(item);
         }
     }
@@ -429,12 +456,35 @@ public class SelectionWizardUI
     /** Adds all the items to the selection. */
     private void addAllItems()
     {
-        for (Object item: availableItems)
-            selectedItems.add(item);
-        availableItems.clear();
+        TreeImageDisplay child;
+        List<TreeImageDisplay> toKeep = new ArrayList<TreeImageDisplay>();
+        for (TreeImageDisplay node: availableItems) {
+            if (node.hasChildrenDisplay()) { //tagset
+                toKeep.add(node);
+                List l = node.getChildrenDisplay();
+                Iterator j = l.iterator();
+                while (j.hasNext()) {
+                    child = (TreeImageDisplay) j.next();
+                    if (!isSelected(child)) {
+                        selectedItems.add(child);
+                        children.add(child);
+                    }
+                }
+            } else {
+                if (!isSelected(node)) {
+                    selectedItems.add(node);
+                    TreeImageDisplay parent = node.getParentDisplay();
+                    if (parent != null &&
+                            parent.getUserObject() instanceof DataObject) {
+                        children.add(node);
+                    }
+                }
+            }
+        }
+        availableItems.retainAll(toKeep);
         sortLists();
-        populateAvailableItems();
-        populateSelectedItems();
+        populateTreeItems(availableItemsListbox, availableItems);
+        populateTreeItems(selectedItemsListbox, selectedItems);
         setSelectionChange();
     }
 
@@ -456,104 +506,139 @@ public class SelectionWizardUI
         return false;
     }
 
+    /**
+     * Returns <code>true</code> if the node is the child of an available node,
+     * <code>false</code> otherwise.
+     * 
+     * @param node The node to handle.
+     * @return See above.
+     */
+    private boolean isChild(TreeImageDisplay node)
+    {
+        return false;
+    }
+
     /** Removes an item from the selection. */
     private void removeItem()
     {
-        if (selectedItemsListbox.getSelectedIndex() == -1) return;
-        DefaultListModel model = (DefaultListModel)
-                selectedItemsListbox.getModel();
-        int [] indexes = selectedItemsListbox.getSelectedIndices();
-        Object object; 
+        TreePath[] paths = selectedItemsListbox.getSelectionPaths();
+        if (paths == null || paths.length == 0) return;
+        Object c;
+        TreeImageDisplay node;
+        Object ho;
         DataObject data;
-        for (int i = 0 ; i < indexes.length ; i++) {
-            object = model.getElementAt(indexes[i]);
-            if (selectedItems.contains(object)) {
-                if (TagAnnotationData.class.equals(type) || 
-                        FileAnnotationData.class.equals(type)) {
-                    data = (DataObject) object;
-                    //not in original list so can be removed
-                    if (!originalSelectedItems.contains(object)) {
-                        selectedItems.remove(object);
-                        if (data.getId() > 0) availableItems.add(object);
-                    } else {
-                        if (!isImmutable(data)) {
-                            selectedItems.remove(object);
-                            availableItems.add(object);
+        List<TreeImageDisplay> toRemove = new ArrayList<TreeImageDisplay>();
+        System.err.println("children:" +children);
+        for (int i = 0; i < paths.length; i++) {
+            c = paths[i].getLastPathComponent();
+            if (c instanceof TreeImageDisplay) {
+                node = (TreeImageDisplay) c;
+                ho = node.getUserObject();
+                if (ho instanceof DataObject) {
+                    data = (DataObject) ho;
+                    if (!isImmutable(data)) {
+                        if (data.getId() >= 0) {
+                            if (children.contains(node)) {
+                                children.remove(node);
+                            } else {
+                                //Check if node is in a tagset.
+                                if (!isChild(node)) {
+                                    availableItems.add(node);
+                                }
+                            }
                         }
+                        toRemove.add(node);
                     }
                 } else {
-                    selectedItems.remove(object);
-                    availableItems.add(object);
+                    toRemove.add(node);
                 }
             }
         }
-
+        selectedItems.removeAll(toRemove);
         sortLists();
-        populateAvailableItems();
-        populateSelectedItems();
-        setSelectionChange();
+        populateTreeItems(availableItemsListbox, availableItems);
+        populateTreeItems(selectedItemsListbox, selectedItems);
     }
 
     /** Removes all items from the selection. */
     private void removeAllItems()
     {
-        List<Object> toRemove = new ArrayList<Object>();
-        if (TagAnnotationData.class.equals(type) || 
-                FileAnnotationData.class.equals(type)) {
-            DataObject data;
-            for (Object item: selectedItems) {
-                data = (DataObject) item;
-                if (!originalSelectedItems.contains(data)) {
-                    if (data.getId() > 0) {
-                        availableItems.add(item);
-                        toRemove.add(item);
-                    }
+        List<TreeImageDisplay> toKeep = new ArrayList<TreeImageDisplay>();
+        Object ho;
+        DataObject data;
+        for (TreeImageDisplay node: selectedItems) {
+            ho = node.getUserObject();
+            if (ho instanceof DataObject) {
+                data = (DataObject) ho;
+                if (isImmutable(data)) {
+                    toKeep.add(node);
                 } else {
-                    if (!isImmutable(data)) {
-                        toRemove.add(item);
-                        availableItems.add(data);
+                    if (data.getId() >= 0) {
+                        if (children.contains(node)) {
+                            children.remove(node);
+                        } else {
+                            //Check if node is in a tagset.
+                            if (!isChild(node)) {
+                                availableItems.add(node);
+                            }
+                        }
                     }
                 }
             }
-            Iterator<Object> i = toRemove.iterator();
-            while (i.hasNext())
-                selectedItems.remove(i.next());
-        } else {
-            for (Object item: selectedItems)
-                availableItems.add(item);
-            selectedItems.clear();
         }
-
+        selectedItems.retainAll(toKeep);
         sortLists();
-        populateAvailableItems();
-        populateSelectedItems();
+        populateTreeItems(availableItemsListbox, availableItems);
+        populateTreeItems(selectedItemsListbox, selectedItems);
         setSelectionChange();
     }
 
     /** Adds an item to the list and then sorts the list to maintain order.*/
     private void addItem()
     {
-        if (availableItemsListbox.getSelectedIndex() == -1) return;
-        int [] indexes = availableItemsListbox.getSelectedIndices();
-        DefaultListModel model = 
-                (DefaultListModel) availableItemsListbox.getModel();
-        Object object;
-        for (int i = 0 ; i < indexes.length ; i++) {
-            object = model.getElementAt(indexes[i]);
-            if (availableItems.contains(object)) {
-                selectedItems.add(object);
-                availableItems.remove(object);
+        TreePath[] paths = availableItemsListbox.getSelectionPaths();
+        if (paths == null || paths.length == 0) return;
+        Object c;
+        TreeImageDisplay node, child;
+        //List
+        List<TreeImageDisplay> toRemove = new ArrayList<TreeImageDisplay>();
+        for (int i = 0; i < paths.length; i++) {
+            c = paths[i].getLastPathComponent();
+            if (c instanceof TreeImageDisplay) {
+                node = (TreeImageDisplay) c;
+                if (node.hasChildrenDisplay()) { //tagset
+                    List l = node.getChildrenDisplay();
+                    Iterator j = l.iterator();
+                    while (j.hasNext()) {
+                        child = (TreeImageDisplay) j.next();
+                        if (!isSelected(child)) {
+                            selectedItems.add(child);
+                            children.add(child);
+                        }
+                    }
+                } else {
+                    if (!isSelected(node)) {
+                        toRemove.add(node);
+                        selectedItems.add(node);
+                        TreeImageDisplay parent = node.getParentDisplay();
+                        if (parent != null &&
+                                parent.getUserObject() instanceof DataObject) {
+                            children.add(node);
+                        }
+                    }
+                }
             }
         }
+        availableItems.removeAll(toRemove);
         sortLists();
-        populateSelectedItems();
-        populateAvailableItems();
-        setSelectionChange();
+        populateTreeItems(availableItemsListbox, availableItems);
+        populateTreeItems(selectedItemsListbox, selectedItems);
     }
 
     /** Notifies that the selection has changed. */
     private void setSelectionChange()
     {
+        /*
         boolean b = false;
         if (originalSelectedItems.size() != selectedItems.size()) {
             b = true;
@@ -567,25 +652,69 @@ public class SelectionWizardUI
         }
         firePropertyChange(SELECTION_CHANGE, Boolean.valueOf(!b),
                 Boolean.valueOf(b));
+                */
     }
 
     /** Updates the remaining fields list box. */
     private void populateSelectedItems()
     {
-        DefaultListModel listModel = new DefaultListModel();
-        for (Object item : selectedItems)
-            listModel.addElement(item);
-
-        selectedItemsListbox.setModel(listModel);
+        DefaultTreeModel dtm = (DefaultTreeModel) selectedItemsListbox.getModel();
+        TreeImageDisplay root = (TreeImageDisplay) dtm.getRoot();
+        root.removeAllChildrenDisplay();
+        root.removeAllChildren();
+        dtm.reload();
+        buildTree(root, selectedItems, dtm);
+        dtm.reload();
     }
 
-    /** Updates the currentFields list box. */
-    private void populateAvailableItems()
+    /** 
+     * Populates the tree.
+     *
+     * @param parent The node to attach element to.
+     * @param nodes The nodes to link.
+     * @param dtm The tree model.
+     */
+    private void buildTree(TreeImageDisplay parent,
+            Collection<TreeImageDisplay> nodes, DefaultTreeModel dtm)
     {
-        DefaultListModel listModel = new DefaultListModel();
-        for (Object item : availableItems)
-            listModel.addElement(item);
-        availableItemsListbox.setModel(listModel);
+        Iterator<TreeImageDisplay> i = nodes.iterator();
+        TreeImageDisplay node, child;
+        Iterator<TreeImageDisplay> j;
+        while (i.hasNext()) {
+            node = i.next();
+            node.setDisplayItems(false);
+            dtm.insertNodeInto(node, parent, parent.getChildCount());
+            dtm.reload(parent);
+            if (node.hasChildrenDisplay()) {
+                //build children
+                node.removeAllChildren();
+                Collection<TreeImageDisplay> l = node.getChildrenDisplay();
+                j = l.iterator();
+                while (j.hasNext()) {
+                    child = j.next();
+                    child.setDisplayItems(false);
+                    if (!children.contains(child)) {
+                        dtm.insertNodeInto(child, node, node.getChildCount());
+                        dtm.reload(node);
+                    }
+                }
+            }
+        }
+    }
+    /**
+     * Updates the specified tree.
+     *
+     * @param tree The tree to update.
+     * @param nodes The collection of nodes to handle.
+     */
+    private void populateTreeItems(JTree tree, List<TreeImageDisplay> nodes)
+    {
+        DefaultTreeModel dtm = (DefaultTreeModel) tree.getModel();
+        TreeImageDisplay root = (TreeImageDisplay) dtm.getRoot();
+        root.removeAllChildrenDisplay();
+        root.removeAllChildren();
+        dtm.reload(root);
+        buildTree(root, nodes, dtm);
     }
 
     /** Sorts the lists. */
@@ -624,7 +753,7 @@ public class SelectionWizardUI
         panel.add(Box.createVerticalStrut(2));
         p.add(panel, BorderLayout.NORTH);
         p.add(new JScrollPane(availableItemsListbox), BorderLayout.CENTER);
-        populateAvailableItems();
+        populateTreeItems(availableItemsListbox, availableItems);
         return p;
     }
 
@@ -709,8 +838,11 @@ public class SelectionWizardUI
     {
         if (selected == null) selected = new ArrayList<Object>();
         if (available == null) available = new ArrayList<Object>();
-        this.availableItems = available;
-        this.selectedItems = selected;
+        children = new HashSet<TreeImageDisplay>();
+        this.availableItems = new ArrayList<TreeImageDisplay>(
+                TreeViewerTranslator.transformHierarchy(available));
+        this.selectedItems = new ArrayList<TreeImageDisplay>(
+                TreeViewerTranslator.transformHierarchy(selected));
         this.type = type;
         createOriginalSelections();
         initComponents(user);
@@ -723,13 +855,13 @@ public class SelectionWizardUI
     {
         availableItems.clear();
         selectedItems.clear();
-        for (Object item : originalItems)
+        for (TreeImageDisplay item : originalItems)
             availableItems.add(item);
-        for (Object item : originalSelectedItems)
+        for (TreeImageDisplay item : originalSelectedItems)
             selectedItems.add(item);
 
-        populateAvailableItems();
-        populateSelectedItems();
+        populateTreeItems(availableItemsListbox, availableItems);
+        populateTreeItems(selectedItemsListbox, selectedItems);
         setSelectionChange();
     }
 
@@ -746,7 +878,8 @@ public class SelectionWizardUI
         while (i.hasNext()) {
             data = i.next();
             if (!doesObjectExist(data)) {
-                selectedItems.add(data);
+                selectedItems.add(TreeViewerTranslator.transformDataObject
+                        (data));
             }
         }
         sortLists();
@@ -763,7 +896,6 @@ public class SelectionWizardUI
     {
         if (immutable == null) immutable = new ArrayList();
         this.immutable = immutable;
-        cellRendererRight.setImmutableElements(immutable);
     }
 
     /**
@@ -839,7 +971,7 @@ public class SelectionWizardUI
      */
     public Collection<Object> getSelection()
     { 
-        Iterator<Object> i = selectedItems.iterator();
+        Iterator<TreeImageDisplay> i = selectedItems.iterator();
         List<Object> results = new ArrayList<Object>();
         Object object;
         while (i.hasNext()) {
@@ -854,7 +986,7 @@ public class SelectionWizardUI
                 } else results.add(object);
             }
         }
-        return selectedItems;
+        return results;
     }
 
     /**
