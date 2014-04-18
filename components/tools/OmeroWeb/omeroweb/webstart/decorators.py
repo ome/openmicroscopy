@@ -90,7 +90,6 @@ class login_required(omeroweb.webclient.decorators.login_required):
                             return ctx.on_not_logged_in(request, url, error)
                         else:
                             pass
-                    #kwargs['error'] = request.REQUEST.get('error')
                     kwargs['url'] = url
 
             retval = f(request, *args, **kwargs)
