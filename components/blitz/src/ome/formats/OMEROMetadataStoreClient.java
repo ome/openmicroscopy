@@ -208,7 +208,6 @@ import omero.sys.ParametersI;
 import omero.util.IceMapper;
 
 import org.apache.commons.io.FilenameUtils;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -8495,6 +8494,94 @@ public class OMEROMetadataStoreClient
     public void setCurrentLogFile(String logFilename, String token) {
         this.logFilename = logFilename;
         this.token = token;
+    }
+
+    @Override
+    public void setGenericExcitationSourceID(String arg0, int arg1, int arg2) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void setGenericExcitationSourceLotNumber(String arg0, int arg1,
+            int arg2) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void setGenericExcitationSourceManufacturer(String arg0, int arg1,
+            int arg2) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void setGenericExcitationSourceMap(Map<String, String> arg0,
+            int arg1, int arg2) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void setGenericExcitationSourceModel(String arg0, int arg1, int arg2) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void setGenericExcitationSourcePower(Double arg0, int arg1, int arg2) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void setGenericExcitationSourceSerialNumber(String arg0, int arg1,
+            int arg2) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void setImagingEnvironmentMap(Map<String, String> arg0, int arg1) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void setMapAnnotationAnnotationRef(String arg0, int arg1, int arg2) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void setMapAnnotationAnnotator(String arg0, int arg1) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void setMapAnnotationDescription(String arg0, int arg1) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void setMapAnnotationID(String arg0, int arg1) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void setMapAnnotationNamespace(String arg0, int arg1) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void setMapAnnotationValue(Map<String, String> arg0, int arg1) {
+        // TODO Auto-generated method stub
+        
     }
 
 }
