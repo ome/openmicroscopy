@@ -24,6 +24,7 @@ build_python()
     flake8 -v components/tools/OmeroPy/src/omero/plugins
     flake8 -v components/tools/OmeroPy/test
     flake8 -v components/tools/OmeroWeb/omeroweb/webstart
+    flake8 -v components/tools/OmeroWeb/omeroweb/webredirect
     ./build.py build-default
     ./build.py -py test -Dtest.with.fail=true
 }
