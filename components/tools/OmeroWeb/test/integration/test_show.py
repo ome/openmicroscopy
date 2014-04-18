@@ -370,19 +370,19 @@ class TestShow(object):
         assert show.initially_open is None
         assert show.initially_open_owner is None
         assert show.initially_select == request['initially_select']
-        assert show.first_sel is None
+        assert show._first_selected is None
 
     def test_project_legacy_path(self, conn, project_path_request, project):
         show = Show(conn, project_path_request['request'], None)
         self.assert_instantiation(show, project_path_request, conn)
 
-        first_selected = show.get_first_selected()
+        first_selected = show.first_selected
         assert first_selected is not None
         assert isinstance(first_selected, ProjectWrapper)
         assert first_selected.getId() == project.id.val
         assert show.initially_open == project_path_request['initially_open']
         assert show.initially_open_owner == project.details.owner.id.val
-        assert show.first_sel is None
+        assert show._first_selected == first_selected
 
     def test_project_dataset_legacy_path(
             self, conn, project_dataset_path_request, project_dataset):
@@ -390,7 +390,7 @@ class TestShow(object):
         self.assert_instantiation(show, project_dataset_path_request, conn)
 
         dataset, = project_dataset.linkedDatasetList()
-        first_selected = show.get_first_selected()
+        first_selected = show.first_selected
         assert first_selected is not None
         assert isinstance(first_selected, DatasetWrapper)
         assert first_selected.getId() == dataset.id.val
@@ -398,7 +398,7 @@ class TestShow(object):
             project_dataset_path_request['initially_open']
         assert show.initially_open_owner == \
             project_dataset.details.owner.id.val
-        assert show.first_sel is None
+        assert show._first_selected == first_selected
 
     def test_project_dataset_image_legacy_path(
             self, conn, project_dataset_image_path_request,
@@ -410,7 +410,7 @@ class TestShow(object):
 
         dataset, = project_dataset_image.linkedDatasetList()
         image, = dataset.linkedImageList()
-        first_selected = show.get_first_selected()
+        first_selected = show.first_selected
         assert first_selected is not None
         assert isinstance(first_selected, ImageWrapper)
         assert first_selected.getId() == image.id.val
@@ -418,13 +418,13 @@ class TestShow(object):
             project_dataset_image_path_request['initially_open']
         assert show.initially_open_owner == \
             project_dataset_image.details.owner.id.val
-        assert show.first_sel is None
+        assert show._first_selected == first_selected
 
     def test_tag_redirect(self, tag_path_request):
         show = Show(conn, tag_path_request['request'], None)
         self.assert_instantiation(show, tag_path_request, conn)
 
-        first_selected = show.get_first_selected()
+        first_selected = show.first_selected
         assert first_selected is not None
         assert isinstance(first_selected, HttpResponseRedirect)
 
@@ -432,7 +432,7 @@ class TestShow(object):
         show = Show(conn, tag_path_request['request'], 'usertags')
         self.assert_instantiation(show, tag_path_request, conn)
 
-        first_selected = show.get_first_selected()
+        first_selected = show.first_selected
         assert first_selected is not None
         assert isinstance(first_selected, TagAnnotationWrapper)
         assert first_selected.getId() == tag.id.val
@@ -440,7 +440,7 @@ class TestShow(object):
             tag_path_request['initially_open']
         assert show.initially_open_owner == \
             tag.details.owner.id.val
-        assert show.first_sel is None
+        assert show._first_selected == first_selected
 
     def testset_tag_legacy_path(
             self, conn, tagset_tag_path_request, tagset_tag):
@@ -448,7 +448,7 @@ class TestShow(object):
         self.assert_instantiation(show, tagset_tag_path_request, conn)
 
         tag, = tagset_tag.linkedAnnotationList()
-        first_selected = show.get_first_selected()
+        first_selected = show.first_selected
         assert first_selected is not None
         assert isinstance(first_selected, TagAnnotationWrapper)
         assert first_selected.getId() == tag.id.val
@@ -456,13 +456,13 @@ class TestShow(object):
             tagset_tag_path_request['initially_open']
         assert show.initially_open_owner == \
             tag.details.owner.id.val
-        assert show.first_sel is None
+        assert show._first_selected == first_selected
 
     def test_image_legacy_path(self, conn, image_path_request, image):
         show = Show(conn, image_path_request['request'], None)
         self.assert_instantiation(show, image_path_request, conn)
 
-        first_selected = show.get_first_selected()
+        first_selected = show.first_selected
         assert first_selected is not None
         assert isinstance(first_selected, ImageWrapper)
         assert first_selected.getId() == image.id.val
@@ -470,13 +470,13 @@ class TestShow(object):
             image_path_request['initially_open']
         assert show.initially_open_owner == \
             image.details.owner.id.val
-        assert show.first_sel is None
+        assert show._first_selected == first_selected
 
     def test_screen_legacy_path(self, conn, screen_path_request, screen):
         show = Show(conn, screen_path_request['request'], None)
         self.assert_instantiation(show, screen_path_request, conn)
 
-        first_selected = show.get_first_selected()
+        first_selected = show.first_selected
         assert first_selected is not None
         assert isinstance(first_selected, ScreenWrapper)
         assert first_selected.getId() == screen.id.val
@@ -484,7 +484,7 @@ class TestShow(object):
             screen_path_request['initially_open']
         assert show.initially_open_owner == \
             screen.details.owner.id.val
-        assert show.first_sel is None
+        assert show._first_selected == first_selected
 
     def test_screen_plate_legacy_path(
             self, conn, screen_plate_path_request, screen_plate):
@@ -492,7 +492,7 @@ class TestShow(object):
         self.assert_instantiation(show, screen_plate_path_request, conn)
 
         plate, = screen_plate.linkedPlateList()
-        first_selected = show.get_first_selected()
+        first_selected = show.first_selected
         assert first_selected is not None
         assert isinstance(first_selected, PlateWrapper)
         assert first_selected.getId() == plate.id.val
@@ -500,7 +500,7 @@ class TestShow(object):
             screen_plate_path_request['initially_open']
         assert show.initially_open_owner == \
             screen_plate.details.owner.id.val
-        assert show.first_sel is None
+        assert show._first_selected == first_selected
 
     def test_screen_plate_well_show(
             self, conn, screen_plate_well_show_request, screen_plate_well):
@@ -509,7 +509,7 @@ class TestShow(object):
 
         plate, = screen_plate_well.linkedPlateList()
         well, = plate.copyWells()
-        first_selected = show.get_first_selected()
+        first_selected = show.first_selected
         assert first_selected is not None
         assert isinstance(first_selected, PlateWrapper)
         assert first_selected.getId() == plate.id.val
@@ -517,7 +517,7 @@ class TestShow(object):
             screen_plate_well_show_request['initially_open']
         assert show.initially_open_owner == \
             plate.details.owner.id.val
-        assert show.first_sel is None
+        assert show._first_selected == first_selected
 
     def test_screen_plate_run_well_show(
             self, conn, screen_plate_run_well_show_request,
@@ -531,7 +531,7 @@ class TestShow(object):
         well, = plate.copyWells()
         ws, = well.copyWellSamples()
         plate_acquisition = ws.plateAcquisition
-        first_selected = show.get_first_selected()
+        first_selected = show.first_selected
         assert first_selected is not None
         assert isinstance(first_selected, PlateAcquisitionWrapper)
         assert first_selected.getId() == plate_acquisition.id.val
@@ -539,4 +539,4 @@ class TestShow(object):
             screen_plate_run_well_show_request['initially_open']
         assert show.initially_open_owner == \
             plate_acquisition.details.owner.id.val
-        assert show.first_sel is None
+        assert show._first_selected == first_selected
