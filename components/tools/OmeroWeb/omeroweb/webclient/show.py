@@ -67,14 +67,14 @@ class Show(object):
         @type menu String
         """
         # The list of "paths" ("type-id") we have been requested to
-        # show/select in the user interface.
-        self.initially_select = list()
+        # show/select in the user interface.  May be modified if
+        self._initially_select = list()
         # The nodes of the tree that will be initially open based on the
         # nodes that are initially selected.
-        self.initially_open = None
+        self._initially_open = None
         # The owner of the node closest to the root of the tree from the
         # list of initially open nodes.
-        self.initially_open_owner = None
+        self._initially_open_owner = None
         # First selected node from the requested initially open "paths"
         # that is first loaded on first retrieval of the "first_selected"
         # property.
@@ -90,7 +90,7 @@ class Show(object):
         i = path.split("|")[-1]
         if i.split("=")[0] in self.SUPPORTED_PATH_PREFIXES:
             # Backwards compatible with image=607 etc
-            self.initially_select.append(str(i).replace("=", '-'))
+            self._initially_select.append(str(i).replace("=", '-'))
 
         # Now we support show=image-607|image-123  (multi-objects selected)
         show = self.request.REQUEST.get('show', '')
@@ -98,7 +98,7 @@ class Show(object):
             if i.split("-")[0] in self.SUPPORTED_SHOW_PREFIXES:
                 # 'run' is an alternative for 'acquisition'
                 i = i.replace('run', 'acquisition')
-                self.initially_select.append(str(i))
+                self._initially_select.append(str(i))
 
     def _load_first_selected(self, first_obj, first_id):
         """
@@ -134,26 +134,27 @@ class Show(object):
                 parent_node = first_selected.getParent()
                 parent_type = "plate"
             first_selected = parent_node
-            self.initially_open = [
+            self._initially_open = [
                 "%s-%s" % (parent_type, parent_node.getId())
             ]
-            self.initially_select = self.initially_open[:]
-        self.initially_open_owner = first_selected.details.owner.id.val
+            # TODO: Fucking with this here?
+            self._initially_select = self._initially_open[:]
+        self._initially_open_owner = first_selected.details.owner.id.val
         return first_selected
 
     def _find_first_selected(self):
         """Finds the first selected object."""
-        if len(self.initially_select) == 0:
+        if len(self._initially_select) == 0:
             return list()
 
         # tree hierarchy open to first selected object
-        self.initially_open = [self.initially_select[0]]
-        first_obj, first_id = self.initially_open[0].split("-", 1)
+        self._initially_open = [self._initially_select[0]]
+        first_obj, first_id = self._initially_open[0].split("-", 1)
         # if we're showing a tag, make sure we're on the tags page...
         if first_obj == "tag" and self.menu != "usertags":
             return HttpResponseRedirect(
                 reverse(viewname="load_template", args=['usertags']) +
-                "?show=" + self.initially_select[0]
+                "?show=" + self._initially_select[0]
             )
         first_selected = None
         try:
@@ -162,21 +163,21 @@ class Show(object):
             self.conn.SERVICE_OPTS.setOmeroGroup('-1')
             first_selected = self._load_first_selected(first_obj, first_id)
         except:
-            pass
+            raise#pass
         if first_obj not in self.TOP_LEVEL_PREFIXES:
             # Need to see if first item has parents
             if first_selected is not None:
                 for p in first_selected.getAncestry():
                     if first_obj == "tag":
                         # Parents of tags must be tags (no OMERO_CLASS)
-                        self.initially_open.insert(0, "tag-%s" % p.getId())
+                        self._initially_open.insert(0, "tag-%s" % p.getId())
                     else:
-                        self.initially_open.insert(
+                        self._initially_open.insert(
                             0, "%s-%s" % (p.OMERO_CLASS.lower(), p.getId())
                         )
-                        self.initially_open_owner = p.details.owner.id.val
-                if self.initially_open[0].split("-")[0] == 'image':
-                    self.initially_open.insert(0, "orphaned-0")
+                        self._initially_open_owner = p.details.owner.id.val
+                if self._initially_open[0].split("-")[0] == 'image':
+                    self._initially_open.insert(0, "orphaned-0")
         return first_selected
 
     @property
@@ -189,3 +190,32 @@ class Show(object):
         if self._first_selected is None:
             self._first_selected = self._find_first_selected()
         return self._first_selected
+
+    @property
+    def initially_select(self):
+        """
+        Retrieves the list of "paths" ("type-id") we have been requested to
+        show/select in the user interface.  May be different than we were
+        first initialised with due to certain nodes of the Screen-Plate-Well
+        hierachy not being present in the tree.  Should not be invoked until
+        after first retrieval of the L{Show.first_selected} property.
+        """
+        return self._initially_select
+
+    @property
+    def initially_open(self):
+        """
+        Retrieves the nodes of the tree that will be initially open based on
+        the nodes that are initially selected.  Should not be invoked until
+        after first retrieval of the L{Show.first_selected} property.
+        """
+        return self._initially_open
+
+    @property
+    def initially_open_owner(self):
+        """
+        Retrieves the owner of the node closest to the root of the tree from
+        the list of initially open nodes.  Should not be invoked until
+        after first retrieval of the L{Show.first_selected} property.
+        """
+        return self._initially_open_owner
