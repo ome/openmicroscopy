@@ -100,7 +100,15 @@ class Show(object):
                 i = i.replace('run', 'acquisition')
                 self.initially_select.append(str(i))
 
-    def load_first_selected(self, first_obj, first_id):
+    def _load_first_selected(self, first_obj, first_id):
+        """
+        Loads the first selected object from the server.
+
+        @param first_obj Type of the first selected object.
+        @type first_obj String
+        @param first_id ID of the first selected object.
+        @type first_id Long
+        """
         first_selected = None
         if first_obj == "tag":
             # Tags have an "Annotation" suffix added to the object name so
@@ -133,7 +141,8 @@ class Show(object):
         self.initially_open_owner = first_selected.details.owner.id.val
         return first_selected
 
-    def find_first_selected(self):
+    def _find_first_selected(self):
+        """Finds the first selected object."""
         if len(self.initially_select) == 0:
             return list()
 
@@ -151,7 +160,7 @@ class Show(object):
             first_id = long(first_id)
             # Set context to 'cross-group'
             self.conn.SERVICE_OPTS.setOmeroGroup('-1')
-            first_selected = self.load_first_selected(first_obj, first_id)
+            first_selected = self._load_first_selected(first_obj, first_id)
         except:
             pass
         if first_obj not in self.TOP_LEVEL_PREFIXES:
@@ -172,6 +181,11 @@ class Show(object):
 
     @property
     def first_selected(self):
+        """
+        Retrieves the first selected object.  The first time this method is
+        invoked on the instance the actual retrieval is performed.  All other
+        invocations retrieve a the same instance without server interaction.
+        """
         if self._first_selected is None:
-            self._first_selected = self.find_first_selected()
+            self._first_selected = self._find_first_selected()
         return self._first_selected
