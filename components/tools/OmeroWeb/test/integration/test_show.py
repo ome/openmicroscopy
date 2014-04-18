@@ -398,6 +398,29 @@ def screen_plate_run_well_show_request(
     }
 
 
+@pytest.fixture(scope='function')
+def project_dataset_image_show_request(
+        request, project_dataset_image, request_factory, path):
+    """
+    Returns a simple GET request object with the 'show' query string
+    variable set in the new ("image-id") form.
+    """
+    dataset, = project_dataset_image.linkedDatasetList()
+    image, = dataset.linkedImageList()
+    as_string = 'image-%d' % image.id.val
+    initially_select = ['image-%d' % image.id.val]
+    initially_open = [
+        'project-%d' % project_dataset_image.id.val,
+        'dataset-%d' % dataset.id.val,
+        'image-%d' % image.id.val
+    ]
+    return {
+        'request': request_factory.get(path, data={'show': as_string}),
+        'initially_select': initially_select,
+        'initially_open': initially_open
+    }
+
+
 class TestShow(object):
     """
     Tests to ensure that OMERO.web "show" infrastructure is working
@@ -430,6 +453,8 @@ class TestShow(object):
         assert show.initially_open == project_path_request['initially_open']
         assert show.initially_open_owner == project.details.owner.id.val
         assert show._first_selected == first_selected
+        assert show.initially_select == \
+            project_path_request['initially_select']
 
     def test_project_dataset_legacy_path(
             self, conn, project_dataset_path_request, project_dataset):
@@ -446,6 +471,8 @@ class TestShow(object):
         assert show.initially_open_owner == \
             project_dataset.details.owner.id.val
         assert show._first_selected == first_selected
+        assert show.initially_select == \
+            project_dataset_path_request['initially_select']
 
     def test_project_dataset_image_legacy_path(
             self, conn, project_dataset_image_path_request,
@@ -466,6 +493,8 @@ class TestShow(object):
         assert show.initially_open_owner == \
             project_dataset_image.details.owner.id.val
         assert show._first_selected == first_selected
+        assert show.initially_select == \
+            project_dataset_image_path_request['initially_select']
 
     def test_tag_redirect(self, tag_path_request):
         show = Show(conn, tag_path_request['request'], None)
@@ -488,6 +517,7 @@ class TestShow(object):
         assert show.initially_open_owner == \
             tag.details.owner.id.val
         assert show._first_selected == first_selected
+        assert show.initially_select == tag_path_request['initially_select']
 
     def testset_tag_legacy_path(
             self, conn, tagset_tag_path_request, tagset_tag):
@@ -504,6 +534,8 @@ class TestShow(object):
         assert show.initially_open_owner == \
             tag.details.owner.id.val
         assert show._first_selected == first_selected
+        assert show.initially_select == \
+            tagset_tag_path_request['initially_select']
 
     def test_image_legacy_path(self, conn, image_path_request, image):
         show = Show(conn, image_path_request['request'], None)
@@ -518,6 +550,7 @@ class TestShow(object):
         assert show.initially_open_owner == \
             image.details.owner.id.val
         assert show._first_selected == first_selected
+        assert show.initially_select == image_path_request['initially_select']
 
     def test_screen_legacy_path(self, conn, screen_path_request, screen):
         show = Show(conn, screen_path_request['request'], None)
@@ -532,6 +565,9 @@ class TestShow(object):
         assert show.initially_open_owner == \
             screen.details.owner.id.val
         assert show._first_selected == first_selected
+        assert show.initially_select == \
+            screen_path_request['initially_select']
+
 
     def test_screen_plate_legacy_path(
             self, conn, screen_plate_path_request, screen_plate):
@@ -548,6 +584,8 @@ class TestShow(object):
         assert show.initially_open_owner == \
             screen_plate.details.owner.id.val
         assert show._first_selected == first_selected
+        assert show.initially_select == \
+            screen_plate_path_request['initially_select']
 
     def test_screen_plate_well_show(
             self, conn, screen_plate_well_show_request, screen_plate_well):
@@ -565,6 +603,7 @@ class TestShow(object):
         assert show.initially_open_owner == \
             plate.details.owner.id.val
         assert show._first_selected == first_selected
+        assert show.initially_select == ['plate-%d' % plate.id.val]
 
     def test_screen_plate_run_well_show(
             self, conn, screen_plate_run_well_show_request,
@@ -587,3 +626,27 @@ class TestShow(object):
         assert show.initially_open_owner == \
             plate_acquisition.details.owner.id.val
         assert show._first_selected == first_selected
+        assert show.initially_select == \
+            ['acquisition-%d' % plate_acquisition.id.val]
+
+    def test_project_dataset_image_show(
+            self, conn, project_dataset_image_show_request,
+            project_dataset_image):
+        show = Show(conn, project_dataset_image_show_request['request'], None)
+        self.assert_instantiation(
+            show, project_dataset_image_show_request, conn
+        )
+
+        dataset, = project_dataset_image.linkedDatasetList()
+        image, = dataset.linkedImageList()
+        first_selected = show.first_selected
+        assert first_selected is not None
+        assert isinstance(first_selected, ImageWrapper)
+        assert first_selected.getId() == image.id.val
+        assert show.initially_open == \
+            project_dataset_image_show_request['initially_open']
+        assert show.initially_open_owner == \
+            project_dataset_image.details.owner.id.val
+        assert show._first_selected == first_selected
+        assert show.initially_select == \
+            project_dataset_image_show_request['initially_select']
