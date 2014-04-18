@@ -125,7 +125,7 @@ public abstract class ConnectionManager {
      * @see #getUserDetails(String) TODO: could be refactored to return a
      *      Connector for later use in login()
      */
-    client createSession(UserCredentials uc, String agentName,
+    private client createSession(UserCredentials uc, String agentName,
             String clientVersion, boolean skipVersionCheck)
             throws DSOutOfServiceException, VersionMismatchException {
         this.encrypted = uc.isEncrypted();
@@ -229,7 +229,7 @@ public abstract class ConnectionManager {
      *             invalid.
      * @see #createSession(String, String, String, long, boolean, String)
      */
-    ExperimenterData login(client secureClient, String userName,
+    private ExperimenterData login(client secureClient, String userName,
             String hostName, float compression, long groupID, int port)
             throws DSOutOfServiceException {
         Connector connector = null;
@@ -435,7 +435,7 @@ public abstract class ConnectionManager {
         }
     }
 
-    public Connector getConnector(SecurityContext ctx)
+    Connector getConnector(SecurityContext ctx)
             throws DSOutOfServiceException {
         return getConnector(ctx, false, false);
     }
@@ -454,7 +454,7 @@ public abstract class ConnectionManager {
      *            no {@link Connector} is available by the end of the execution.
      * @return
      */
-    public Connector getConnector(SecurityContext ctx, boolean recreate,
+    Connector getConnector(SecurityContext ctx, boolean recreate,
             boolean permitNull) throws DSOutOfServiceException {
         try {
             isNetworkUp(true); // Need safe version?
@@ -708,7 +708,34 @@ public abstract class ConnectionManager {
             networkup.set(false);
         }
     }
+    
+    /**
+     * Manually set network status
+     * 
+     * @throws Exception
+     *             Throw
+     */
+    public void setNetworkUp(boolean value) {
+          networkup.set(value);
+    }
 
+    /**
+     * Returns <code>true</code> if the server is running.
+     * 
+     * @param ctx
+     *            The security context.
+     * @return See above.
+     */
+    public boolean isServerRunning(SecurityContext ctx) {
+        if (!isConnected())
+            return false;
+        try {
+            return null != getConnector(ctx, true, true);
+        } catch (Throwable t) {
+            return false;
+        }
+    }
+    
     public boolean isConnected() {
         return this.connected;
     }

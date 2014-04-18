@@ -1,8 +1,8 @@
 /*
- * org.openmicroscopy.shoola.env.data.util.SearchDataContext 
+ * org.openmicroscopy.shoola.env.data.ProcessException 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -20,23 +20,18 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.env.data.util;
-
+package omero.gateway.exception;
 
 
 //Java imports
-import java.sql.Timestamp;
-import java.util.List;
-
 
 //Third-party libraries
 
-
 //Application-internal dependencies
-import pojos.ExperimenterData;
+import omero.ResourceError;
 
 /** 
- * Helper class hosting the context of a data search.
+ * Reports an error occurred while trying to run a script.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -46,15 +41,52 @@ import pojos.ExperimenterData;
  * <small>
  * (<b>Internal version:</b> $Revision: $Date: $)
  * </small>
- * @since OME3.0
+ * @since 3.0-Beta4
  */
-public class SearchDataContext extends omero.gateway.SearchDataContext
+public class ProcessException 
+	extends Exception
 {
 
-    public SearchDataContext(List<Integer> scope, List<Class> types,
-            String[] some, String[] must, String[] none) {
-        super(scope, types, some, must, none);
-    }
-    
+	/** Indicates that no processor available to run the script.*/
+	public static final int NO_PROCESSOR = 0;
+	
+	/**
+	 * Constructs a new exception with the specified detail message.
+	 * 
+	 * @param message	Short explanation of the problem.
+	 */
+	public ProcessException(String message)
+	{
+		super(message);
+	}
+	
+	/**
+	 * Constructs a new exception with the specified detail message and cause.
+	 * 
+	 * @param message	Short explanation of the problem.
+	 * @param cause		The exception that caused this one to be risen.
+	 */
+	public ProcessException(String message, Throwable cause) 
+	{
+		super(message, cause);
+	}
+
+	/**
+	 * Returns one of the constant defined by this class.
+	 * 
+	 * @return See above.
+	 */
+	public int getStatus()
+	{
+		Throwable cause = getCause();
+		if (cause instanceof ResourceError) {
+			ResourceError error = (ResourceError) cause;
+			String message = error.message;
+			if (message != null && message.toLowerCase().contains(
+					"no processor available"))
+				return NO_PROCESSOR;
+		}
+		return -1;
+	}
 	
 }

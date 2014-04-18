@@ -530,7 +530,7 @@ class OmeroImageServiceImpl
 	 */
 	public boolean isAlive(SecurityContext ctx) throws DSOutOfServiceException
 	{
-	    return null != gateway.getConnector(ctx, true, true);
+	    return gateway.isServerRunning(ctx);
 	}
 
 	/** 
@@ -1885,13 +1885,9 @@ class OmeroImageServiceImpl
 	{
             if (ctx == null)
                 return null;
-            omero.gateway.Connector c = gateway.getConnector(ctx, true, false);
             // Pass close responsiblity off to the caller.
-            try {
-                return c.getThumbnailService();
-            } catch (omero.gateway.exception.DSOutOfServiceException e) {
-                throw new DSOutOfServiceException(e);
-            }
+            return gateway.getThumbnailService(ctx);
+
 	}
 	
 	/**

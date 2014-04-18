@@ -123,4 +123,10 @@ public class ProcessCallbackI extends _ProcessCallbackDisp {
     public void close() {
          adapter.remove(id); // OK ADAPTER USAGE
      }
+
+    public ProcessPrx getProcess() {
+        return process;
+    }
+    
+    
 }

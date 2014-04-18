@@ -24,13 +24,16 @@ import java.io.StringWriter;
 
 import omero.model.Annotation;
 import omero.model.BooleanAnnotation;
+import omero.model.BooleanAnnotationI;
 import omero.model.CommentAnnotation;
+import omero.model.CommentAnnotationI;
 import omero.model.Dataset;
 import omero.model.DatasetI;
 import omero.model.DoubleAnnotation;
 import omero.model.Experimenter;
 import omero.model.ExperimenterGroup;
 import omero.model.FileAnnotation;
+import omero.model.FileAnnotationI;
 import omero.model.Fileset;
 import omero.model.Image;
 import omero.model.ImageI;
@@ -49,6 +52,9 @@ import omero.model.ScreenI;
 import omero.model.TagAnnotation;
 import omero.model.TagAnnotationI;
 import omero.model.TermAnnotation;
+import omero.model.TermAnnotationI;
+import omero.model.TimestampAnnotation;
+import omero.model.TimestampAnnotationI;
 import omero.model.Well;
 import omero.model.WellSample;
 import omero.model.XmlAnnotation;
@@ -135,6 +141,37 @@ public abstract class GatewayUtils {
         else if (TagAnnotationI.class.equals(klass))
             table = "AnnotationAnnotationLink";
         return table;
+    }
+    
+    /**
+     * Converts the specified type to its corresponding type for search.
+     *
+     * @param nodeType The type to convert.
+     * @return See above.
+     */
+    public static String convertTypeForSearch(Class nodeType)
+    {
+            if (nodeType.equals(Image.class))
+                    return ImageI.class.getName();
+            else if (nodeType.equals(TagAnnotation.class) ||
+                            nodeType.equals(TagAnnotationData.class))
+                    return TagAnnotationI.class.getName();
+            else if (nodeType.equals(BooleanAnnotation.class) ||
+                            nodeType.equals(BooleanAnnotationData.class))
+                    return BooleanAnnotationI.class.getName();
+            else if (nodeType.equals(TermAnnotation.class) ||
+                            nodeType.equals(TermAnnotationData.class))
+                    return TermAnnotationI.class.getName();
+            else if (nodeType.equals(FileAnnotation.class) ||
+                            nodeType.equals(FileAnnotationData.class))
+                    return FileAnnotationI.class.getName();
+            else if (nodeType.equals(CommentAnnotation.class) ||
+                            nodeType.equals(TextualAnnotationData.class))
+                    return CommentAnnotationI.class.getName();
+            else if (nodeType.equals(TimestampAnnotation.class) ||
+                            nodeType.equals(TimeAnnotationData.class))
+                    return TimestampAnnotationI.class.getName();
+            throw new IllegalArgumentException("type not supported");
     }
     
     /**

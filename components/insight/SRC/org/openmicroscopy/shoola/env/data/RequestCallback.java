@@ -30,6 +30,8 @@ import java.util.List;
 //Third-party libraries
 
 
+import java.util.concurrent.TimeUnit;
+
 //Application-internal dependencies
 import omero.ServerError;
 import omero.client;
@@ -54,7 +56,6 @@ import Ice.Current;
  * @since Beta4.4
  */
 public class RequestCallback
-	extends CmdCallbackI
 {
 
 	/** Helper reference to the adapter to notify. */
@@ -66,6 +67,8 @@ public class RequestCallback
 	/** Flag indicating that the results have been submitted. */
 	private boolean submitted;
 	
+	private CmdCallbackI cmdCallback;
+	
 	/** 
 	 * Handles the response of the data transfer.
 	 * 
@@ -73,7 +76,7 @@ public class RequestCallback
 	 */
 	private Object handleResponse()
 	{
-		Response response = getResponse();
+		Response response = cmdCallback.getResponse();
 		if (response == null) return Boolean.valueOf(false);
 		if (response instanceof DoAllRsp) {
 			List<Response> responses = ((DoAllRsp) response).responses;
@@ -97,7 +100,7 @@ public class RequestCallback
 	RequestCallback(client client, final HandlePrx process)
 		throws ServerError
 	{
-		super(client, process);
+	    cmdCallback = new CmdCallbackI(client, process);
 	}
 	
 	/**
@@ -111,7 +114,7 @@ public class RequestCallback
         RequestCallback(CmdCallbackI ccb)
                 throws ServerError
         {
-                super(ccb);
+                this.cmdCallback = ccb;
         }
         
 	/**
@@ -126,7 +129,7 @@ public class RequestCallback
 			Object ho = handleResponse();
 			if (ho != null) adapter.handleResult(ho);
 			try {
-				close(false); 
+			    cmdCallback.close(false); 
 			} catch (Exception e) {}
 		}
 	}
@@ -137,7 +140,7 @@ public class RequestCallback
 	 */
 	public void onFinished(Response rsp, Status status, Current c)
 	{
-		super.onFinished(rsp, status, c);
+	        cmdCallback.onFinished(rsp, status, c);
 		finished = true;
 		if (adapter != null) {
 			submitted = true;
@@ -146,9 +149,16 @@ public class RequestCallback
 		}
 		if (submitted) {
 			try {
-				close(true);
+			    cmdCallback.close(true);
 			} catch (Exception e) {}
 		}
 	}
 
+        public boolean block(long ms) throws InterruptedException {
+            return cmdCallback.block(ms);
+        }
+	
+	public void close(boolean b) {
+	    cmdCallback.close(b);
+	}
 }

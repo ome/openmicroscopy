@@ -46,75 +46,24 @@ import java.io.StringWriter;
  * @since OME2.2
  */
 public class RenderingServiceException
-    extends Exception
+    extends omero.gateway.exception.RenderingServiceException
 {
 
-    /** Indicates that the error occurred due to a connection failure.*/
-    public static final int CONNECTION = 1;
+    public RenderingServiceException() {
+        super();
+    }
 
-    /**
-     * Indicates that the error occurred due to an operation not being
-     * supported.
-     */
-    public static final int OPERATION_NOT_SUPPORTED = 2;
-
-    /** The index of the exception.*/
-    private int index = 0;
-
-    /** Creates a new exception. */
-    public RenderingServiceException() { super(); }
-
-    /**
-     * Constructs a new exception with the specified detail message.
-     * 
-     * @param message Short explanation of the problem.
-     */
-    public RenderingServiceException(String message) { super(message); }
-
-    /**
-     * Constructs a new exception with the specified cause.
-     * 
-     * @param cause The exception that caused this one to be risen.
-     */
-    public RenderingServiceException(Throwable cause) { super(cause); }
-
-    /**
-     * Constructs a new exception with the specified detail message and cause.
-     * 
-     * @param message Short explanation of the problem.
-     * @param cause The exception that caused this one to be risen.
-     */
-    public RenderingServiceException(String message, Throwable cause)
-    {
+    public RenderingServiceException(String message, Throwable cause) {
         super(message, cause);
     }
 
-    /**
-     * Prints the stack trace and returns it as a string.
-     * 
-     * @return See above.
-     */
-    public String getExtendedMessage()
-    {
-        StringWriter sw = new StringWriter();
-        PrintWriter pw = new PrintWriter(sw);
-        printStackTrace(pw);
-        return sw.toString();
+    public RenderingServiceException(String message) {
+        super(message);
     }
 
-    /**
-     * Sets the index indicating if the error occurred due to a network 
-     * failure.
-     * 
-     * @param index The value to set.
-     */
-    public void setIndex(int index) { this.index = index; }
+    public RenderingServiceException(Throwable cause) {
+        super(cause);
+    }
 
-    /**
-     * Returns the index.
-     * 
-     * @return See above.
-     */
-    public int getIndex() { return index; }
-
+    
 }

@@ -79,7 +79,6 @@ import omero.api.ServiceInterfacePrx;
 import omero.api.StatefulServiceInterfacePrx;
 import omero.api.ThumbnailStorePrx;
 import omero.api.ThumbnailStorePrxHelper;
-import omero.cmd.CmdCallback;
 import omero.cmd.CmdCallbackI;
 import omero.cmd.DoAll;
 import omero.cmd.Request;
