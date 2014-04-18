@@ -195,7 +195,7 @@ public class SelectionWizardUI
         }
         List<TreeImageDisplay> ref;
         Iterator<TreeImageDisplay> i;
-        TreeImageDisplay node;
+        TreeImageDisplay node, child;
         Object ho;
         String value;
         if (insert) {
@@ -223,8 +223,33 @@ public class SelectionWizardUI
                         tag.getNameSpace())) {
                     value = tag.getTagValue();
                 } else {
+                    
+                    //toKeep.add(node);
+                    List l = node.getChildrenDisplay();
+                    Iterator j = l.iterator();
+                    while (j.hasNext()) {
+                        child = (TreeImageDisplay) j.next();
+                        if (!children.contains(child)) {
+                            ho = child.getUserObject();
+                            if (ho instanceof TagAnnotationData) {
+                                tag = (TagAnnotationData) ho;
+                                value = tag.getTagValue();
+                                value = value.toLowerCase();
+                                if (filterAnywhere) {
+                                    if (value.contains(txt)) {
+                                        toKeep.add(node);
+                                        break;
+                                    }
+                                } else {
+                                    if (value.startsWith(txt)) {
+                                        toKeep.add(node);
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }
                     value = null;
-                    toKeep.add(node);
                 }
             } else if (ho instanceof FileAnnotationData) {
                 value = ((FileAnnotationData) ho).getFileName();
