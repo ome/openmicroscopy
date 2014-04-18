@@ -28,6 +28,7 @@ import logging
 from functools import update_wrapper
 
 import omeroweb.decorators
+import omeroweb.webclient.decorators
 
 from django.conf import settings
 from django.core.urlresolvers import reverse
