@@ -41,7 +41,7 @@ public class ProcessCallbackI extends _ProcessCallbackDisp {
      * freely. The object will not be nulled, but may be closed server-side.
      */
     protected final ProcessPrx process;
-
+    
     public ProcessCallbackI(omero.client client, ProcessPrx process)
     throws ServerError {
         this(client, process, true);
@@ -57,6 +57,13 @@ public class ProcessCallbackI extends _ProcessCallbackDisp {
         this(adapter, category, process, true);
     }
 
+    public ProcessCallbackI(ProcessCallbackI p) {
+        this.adapter = p.adapter;
+        this.poll = p.poll;
+        this.process = p.process;
+        this.id = p.id;
+    }
+            
     public ProcessCallbackI(Ice.ObjectAdapter adapter, String category,
             ProcessPrx process, boolean poll)
         throws ServerError {

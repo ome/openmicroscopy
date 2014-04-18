@@ -31,12 +31,9 @@ import java.util.Map.Entry;
 
 //Third-party libraries
 
-import java.util.concurrent.TimeUnit;
-
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
 import org.openmicroscopy.shoola.env.data.model.ParamData;
-
 import Ice.Current;
 import omero.RString;
 import omero.RType;
@@ -44,7 +41,6 @@ import omero.ServerError;
 import omero.client;
 import omero.grid.ProcessCallbackI;
 import omero.grid.ScriptProcessPrx;
-import omero.grid.ProcessCallbackI.Action;
 
 /** 
  * A handle to a script computation.
@@ -60,6 +56,7 @@ import omero.grid.ProcessCallbackI.Action;
  * @since 3.0-Beta4
  */
 public class ScriptCallback 
+	extends ProcessCallbackI
 {
 
 	/** The identifier of the script. */
@@ -77,25 +74,6 @@ public class ScriptCallback
 	/** The results of the script. */
 	private Map<String, Object> results;
 	
-	private ProcessCallbackI procCallback;
-	
-	/**
-         * Creates a new instance.
-         * 
-         * @param scriptID The identifier of the script to run.
-         * @param client   Reference to the client.
-         * @param process  The process to handle.
-         * @throws ServerError Thrown if an error occurred while initializing the
-         *                                         call-back.
-         */
-        public ScriptCallback(long scriptID, ProcessCallbackI cb)
-                throws ServerError
-        {
-                this.procCallback = cb;
-                this.scriptID = scriptID;
-                results = null;
-        }
-        
 	/**
 	 * Creates a new instance.
 	 * 
@@ -109,10 +87,16 @@ public class ScriptCallback
 			final ScriptProcessPrx process)
 		throws ServerError
 	{
-	        this.procCallback = new ProcessCallbackI(client, process);
+		super(client, process);
 		this.scriptID = scriptID;
 		results = null;
 	}
+	
+        public ScriptCallback(long scriptID, ProcessCallbackI p) throws ServerError {
+            super(p);
+            this.scriptID = scriptID;
+            results = null;
+        }
 	
 	/**
 	 * Sets the adapter. 
@@ -126,7 +110,7 @@ public class ScriptCallback
 			if (!submitted) {
 				adapter.handleResult(results);
 				try {
-				    procCallback.close();
+					close();
 				} catch (Exception e) {}
 			}
 		}	
@@ -142,7 +126,7 @@ public class ScriptCallback
 		String value = "";
 		try {
 			RString desc = 
-				((ScriptProcessPrx) procCallback.getProcess()).getJob().getDescription();
+				((ScriptProcessPrx) process).getJob().getDescription();
 			if (desc != null) value = desc.getValue();
 		} catch (Exception e) {
 		}
@@ -154,8 +138,8 @@ public class ScriptCallback
 		throws ProcessException
 	{
 		try {
-		        procCallback.getProcess().cancel();
-			procCallback.close();
+			process.cancel();
+			close();
 		} catch (Exception e) {
 			throw new ProcessException("Cannot cancel the following " +
 					"script:"+getName());
@@ -168,10 +152,10 @@ public class ScriptCallback
 	 */
 	public void processFinished(int value, Current current)
 	{
-	        procCallback.processFinished(value, current);
+		super.processFinished(value, current);
 		finished = true;
 		try {
-			Map<String, RType> r = ((ScriptProcessPrx) procCallback.getProcess()).getResults(0);
+			Map<String, RType> r = ((ScriptProcessPrx) process).getResults(0);
 			if (r != null) {
 				results = new HashMap<String, Object>();
 				Iterator i = r.entrySet().iterator();
@@ -193,7 +177,7 @@ public class ScriptCallback
 		
 		if (finished && submitted) {
 			try {
-			    procCallback.close();
+				close();
 			} catch (Exception e) {}
 		}
 	}
@@ -204,7 +188,7 @@ public class ScriptCallback
 	 */
 	public void processCancelled(boolean value, Current current)
 	{
-	        procCallback.processCancelled(value, current);
+		super.processCancelled(value, current);
 		if (adapter != null) adapter.handleResult(null);
 	}
 
@@ -214,15 +198,8 @@ public class ScriptCallback
 	 */
 	public void processKilled(boolean value, Current current)
 	{
-	        procCallback.processKilled(value, current);
+		super.processKilled(value, current);
 		if (adapter != null) adapter.handleResult(null);
 	}
 	
-        public Action block(long ms) throws InterruptedException {
-            return procCallback.block(ms);
-        }
-        
-        public void close() {
-            procCallback.close();
-        }
 }

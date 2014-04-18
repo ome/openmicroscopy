@@ -991,7 +991,8 @@ public class Gateway extends ConnectionManager {
 
             if (options == null)
                 obj = service.saveAndReturnObject(object);
-            return service.saveAndReturnObject(object, options);
+            else
+                obj = service.saveAndReturnObject(object, options);
         } catch (Throwable t) {
             handleException(t, "Cannot update the object.");
         }

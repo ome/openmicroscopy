@@ -43,6 +43,7 @@ import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicBoolean;
+
 //Third-party libraries
 import org.apache.commons.collections.CollectionUtils;
 
@@ -51,6 +52,7 @@ import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
+
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
@@ -114,6 +116,7 @@ import omero.api.StatefulServiceInterfacePrx;
 import omero.api.ThumbnailStorePrx;
 import omero.cmd.Chgrp;
 import omero.cmd.CmdCallback;
+import omero.cmd.CmdCallbackI;
 import omero.cmd.HandlePrx;
 import omero.cmd.Request;
 import omero.constants.projection.ProjectionType;
@@ -6528,7 +6531,8 @@ class OMEROGateway
 		throws ProcessException, DSOutOfServiceException, DSAccessException
 	{
 		try {
-			return new RequestCallback(gateway.submit(commands, null));
+		    CmdCallbackI ccb = gateway.submit(commands, ctx);
+		    return new RequestCallback(ccb);
 		} catch (Throwable e) {
 			handleException(e, "Cannot execute the command.");
 			// Never reached
