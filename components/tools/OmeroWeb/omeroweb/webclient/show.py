@@ -66,15 +66,15 @@ class Show(object):
         @param menu Literal representing the current menu we are on.
         @type menu String
         """
+        # The list of "paths" ("type-id") we have been requested to
+        # show/select in the user interface.
+        self.initially_select = list()
         # The nodes of the tree that will be initially open based on the
         # nodes that are initially selected.
         self.initially_open = None
         # The owner of the node closest to the root of the tree from the
         # list of initially open nodes.
         self.initially_open_owner = None
-        # The list of "paths" ("type-id") we have been requested to
-        # show/select in the user interface.
-        self.initially_select = list()
         # First selected node from the requested initially open "paths"
         # that is first loaded on first retrieval of the "first_selected"
         # property.
