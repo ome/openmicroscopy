@@ -248,6 +248,7 @@ public class SelectionWizard
 
         //Field creation
         addField = new JTextField(10);
+        addField.setToolTipText("Tag Name");
         originalColor = addField.getForeground();
         setTextFieldDefault(addField, DEFAULT_TEXT);
         addField.addKeyListener(new KeyAdapter() {
@@ -260,6 +261,7 @@ public class SelectionWizard
             }
         });
         descriptionField = new JTextField(15);
+        descriptionField.setToolTipText("Tag Description");
         setTextFieldDefault(descriptionField, DEFAULT_DESCRIPTION);
         addField.getDocument().addDocumentListener(this);
         addField.addFocusListener(this);
