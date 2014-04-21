@@ -1,11 +1,26 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+#
+# Copyright (C) 2012-2014 Glencoe Software, Inc. All Rights Reserved.
+# Use is subject to license terms supplied in LICENSE.txt
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
 """
    Tests of the changing permissions on groups
-
-   Copyright 2012-2013 Glencoe Software, Inc. All rights reserved.
-   Use is subject to license terms supplied in LICENSE.txt
 
 """
 
@@ -13,10 +28,10 @@ import time
 import pytest
 import test.integration.library as lib
 import omero
-from omero.rtypes import *
 
 
 class BaseChmodTest(lib.ITest):
+
     """
     """
 
@@ -83,13 +98,14 @@ class BaseChmodTest(lib.ITest):
         perms = details.permissions
 
         # Check the new perms state
-        assert canAnnotate ==  perms.canAnnotate()
-        assert canEdit ==  perms.canEdit()
+        assert canAnnotate == perms.canAnnotate()
+        assert canEdit == perms.canEdit()
         assert details.getCallContext() is not None
         assert details.getEventContext() is not None
 
 
 class TestChmodEasy(BaseChmodTest):
+
     """
     Tests all the transitions which are known to be trivial.
     These mostly center around *adding* read permissions
@@ -113,6 +129,7 @@ class TestChmodEasy(BaseChmodTest):
 
 
 class TestChmodHard(BaseChmodTest):
+
     """
     Tests all the transitions which require runtime checks.
     These mostly center around *removing* read permissions
@@ -122,5 +139,3 @@ class TestChmodHard(BaseChmodTest):
 
     pass
     # What to do about non-group chmod
-
-
