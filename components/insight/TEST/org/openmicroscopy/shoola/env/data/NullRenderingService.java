@@ -37,11 +37,13 @@ import java.util.Set;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileSystemView;
 
+
 //Third-party libraries
 import com.sun.opengl.util.texture.TextureData;
 
 import omero.api.StatefulServiceInterfacePrx;
 import omero.api.ThumbnailStorePrx;
+import omero.gateway.model.ExportFormat;
 //Application-internal dependencies
 import omero.romio.PlaneDef;
 
@@ -57,6 +59,7 @@ import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
+
 import pojos.DataObject;
 import pojos.ImageData;
 import pojos.PixelsData;
@@ -569,5 +572,19 @@ public class NullRenderingService
         // TODO Auto-generated method stub
         return null;
     }
+        @Override
+        public RenderingControl reloadRenderingService(
+                omero.gateway.model.SecurityContext ctx, long pixelsID)
+                throws DSAccessException, RenderingServiceException {
+            return null;
+        }
+
+        @Override
+        public Object exportImageAsOMEFormat(SecurityContext ctx,
+                ExportFormat format, long imageID, File folder, Target target)
+                throws DSOutOfServiceException, DSAccessException {
+            // TODO Auto-generated method stub
+            return null;
+        }
 
 }
