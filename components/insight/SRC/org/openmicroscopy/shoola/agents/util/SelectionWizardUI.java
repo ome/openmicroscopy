@@ -520,7 +520,7 @@ public class SelectionWizardUI
         sortLists();
         populateTreeItems(availableItemsListbox, availableItems);
         populateTreeItems(selectedItemsListbox, selectedItems);
-        setSelectionChange();
+        onSelectionChange();
     }
 
     /**
@@ -592,6 +592,7 @@ public class SelectionWizardUI
         sortLists();
         populateTreeItems(availableItemsListbox, availableItems);
         populateTreeItems(selectedItemsListbox, selectedItems);
+        onSelectionChange();
     }
 
     /** Removes all items from the selection. */
@@ -624,7 +625,7 @@ public class SelectionWizardUI
         sortLists();
         populateTreeItems(availableItemsListbox, availableItems);
         populateTreeItems(selectedItemsListbox, selectedItems);
-        setSelectionChange();
+        onSelectionChange();
     }
 
     /** Adds an item to the list and then sorts the list to maintain order.*/
@@ -667,18 +668,18 @@ public class SelectionWizardUI
         sortLists();
         populateTreeItems(availableItemsListbox, availableItems);
         populateTreeItems(selectedItemsListbox, selectedItems);
+        onSelectionChange();
     }
 
     /** Notifies that the selection has changed. */
-    private void setSelectionChange()
+    private void onSelectionChange()
     {
-        /*
         boolean b = false;
         if (originalSelectedItems.size() != selectedItems.size()) {
             b = true;
         } else {
             int n = 0;
-            Iterator<Object> i = selectedItems.iterator();
+            Iterator<TreeImageDisplay> i = selectedItems.iterator();
             while (i.hasNext()) {
                 if (originalSelectedItems.contains(i.next())) n++;
             }
@@ -686,7 +687,6 @@ public class SelectionWizardUI
         }
         firePropertyChange(SELECTION_CHANGE, Boolean.valueOf(!b),
                 Boolean.valueOf(b));
-                */
     }
 
     /**
@@ -870,7 +870,7 @@ public class SelectionWizardUI
 
         populateTreeItems(availableItemsListbox, availableItems);
         populateTreeItems(selectedItemsListbox, selectedItems);
-        setSelectionChange();
+        onSelectionChange();
     }
 
     /**
@@ -892,7 +892,7 @@ public class SelectionWizardUI
         }
         sortLists();
         populateTreeItems(selectedItemsListbox, selectedItems);
-        setSelectionChange();
+        onSelectionChange();
     }
 
     /**
