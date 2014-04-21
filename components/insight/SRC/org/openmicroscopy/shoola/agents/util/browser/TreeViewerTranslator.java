@@ -212,38 +212,19 @@ public class TreeViewerTranslator
      *                retrieving the data.
      * @return See above.
      */
-    private static TreeImageDisplay transformTag(TagAnnotationData data,
-            TagAnnotationData parent)
+    private static TreeImageDisplay transformTag(TagAnnotationData data)
     {
         if (data == null)
             throw new IllegalArgumentException("Cannot be null");
         TreeImageSet tag = new TreeImageSet(data);
-        StringBuilder buf = new StringBuilder();
-        buf.append("<html><body>");
-        ExperimenterData exp = data.getOwner();
-        if (exp != null) {
-            buf.append("<b>");
-            buf.append("Owner: ");
-            buf.append("</b>");
-            buf.append(EditorUtil.formatExperimenter(exp));
-            buf.append("<br>");
-        }
-        if (parent != null) {
-            buf.append("<b>");
-            buf.append("Tag Set: ");
-            buf.append("</b>");
-            buf.append(parent.getTagValue());
-            buf.append("<br>");
-        }
-        buf.append("</body></html>");
-        tag.setToolTip(buf.toString());
+        formatToolTipFor(tag);
         if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(data.getNameSpace())) {
             Set<TagAnnotationData> tags = data.getTags();
             if (!CollectionUtils.isEmpty(tags)) {
                 tag.setChildrenLoaded(Boolean.valueOf(true));
                 Iterator<TagAnnotationData> i = tags.iterator();
                 while (i.hasNext()) {
-                    tag.addChildDisplay(transformTag(i.next(), data));
+                    tag.addChildDisplay(transformTag(i.next()));
                 }
                 tag.setNumberItems(tags.size());
                 return tag;
@@ -421,7 +402,7 @@ public class TreeViewerTranslator
                     child = transformDataset((DatasetData) ho);
                     results.add(child);
                 } else if (ho instanceof TagAnnotationData) {
-                    child = transformTag((TagAnnotationData) ho, null);
+                    child = transformTag((TagAnnotationData) ho);
                     results.add(child);
                 } else if (ho instanceof ScreenData) {
                     results.add(transformScreen((ScreenData) ho,
@@ -501,7 +482,7 @@ public class TreeViewerTranslator
                         TagAnnotationData element;
                         while (k.hasNext()) {
                             element = (TagAnnotationData) k.next();
-                            display = transformTag(element, null);
+                            display = transformTag(element);
                             if (expanded != null)
                                 display.setExpanded(expanded.contains(ho.getId()));
                             results.add(display);
@@ -534,7 +515,7 @@ public class TreeViewerTranslator
                     if (EditorUtil.isReadable(ho)) {
                         if (ho instanceof TagAnnotationData) {
                             display.addChildDisplay(
-                                    transformTag((TagAnnotationData) ho, null));
+                                    transformTag((TagAnnotationData) ho));
                         } else if (ho instanceof ImageData) {
                             display.addChildDisplay(
                                     transformImage((ImageData) ho));
@@ -574,7 +555,7 @@ public class TreeViewerTranslator
         else if (object instanceof PlateData)
             return transformPlate((PlateData) object, null);
         else if (object instanceof TagAnnotationData)
-            return transformTag((TagAnnotationData) object, null);
+            return transformTag((TagAnnotationData) object);
         throw new IllegalArgumentException("Data Type not supported.");
     }
 
