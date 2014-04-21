@@ -711,8 +711,18 @@ public class SelectionWizardUI
         } else {
             int n = 0;
             Iterator<TreeImageDisplay> i = selectedItems.iterator();
+            DataObject ref, original;
+            Iterator<TreeImageDisplay> j;
             while (i.hasNext()) {
-                if (originalSelectedItems.contains(i.next())) n++;
+                ref = (DataObject) i.next().getUserObject();
+                j = originalSelectedItems.iterator();
+                while (j.hasNext()) {
+                    original = (DataObject) j.next().getUserObject();
+                    if (original.getId() == ref.getId()) {
+                        n++;
+                        break;
+                    }
+                }
             }
             b = (n != originalSelectedItems.size());
         }
