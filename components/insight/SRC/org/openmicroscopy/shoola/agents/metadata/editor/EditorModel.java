@@ -1329,7 +1329,7 @@ class EditorModel
 		Iterator<AnnotationLinkData> i;
 		AnnotationLinkData link;
 		
-		long id = getUserID();
+		long id = MetadataViewerAgent.getUserDetails().getId();
 		DataObject ann = (DataObject) annotation;
 		
 		while (j.hasNext()) {
