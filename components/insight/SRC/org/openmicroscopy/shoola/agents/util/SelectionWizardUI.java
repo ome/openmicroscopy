@@ -490,7 +490,12 @@ public class SelectionWizardUI
         if (data == null) return "";
         StringBuilder buf = new StringBuilder();
         buf.append("<html><body>");
-        ExperimenterData exp = data.getOwner();
+        ExperimenterData exp = null;
+        try {
+            exp = data.getOwner();
+        } catch (Exception e) {
+            //owner not loaded
+        }
         if (exp != null) {
             buf.append("<b>");
             buf.append("Owner: ");
@@ -545,14 +550,11 @@ public class SelectionWizardUI
                 originalItems.add(item);
                 if (item.getUserObject() instanceof TagAnnotationData) {
                     tag = (TagAnnotationData) item.getUserObject();
-                    if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(
-                            tag.getNameSpace())) {
-                        item.setToolTip(formatTagToolip(tag, null));
-                        List<TreeImageDisplay> l = item.getChildrenDisplay();
-                        List<TagAnnotationData> p = Arrays.asList(tag);
-                        for (TreeImageDisplay j : l) {
-                            j.setToolTip(formatTagToolip(tag, p));
-                        }
+                    item.setToolTip(formatTagToolip(tag, null));
+                    List<TreeImageDisplay> l = item.getChildrenDisplay();
+                    List<TagAnnotationData> p = Arrays.asList(tag);
+                    for (TreeImageDisplay j : l) {
+                        j.setToolTip(formatTagToolip(tag, p));
                     }
                 }
             }
