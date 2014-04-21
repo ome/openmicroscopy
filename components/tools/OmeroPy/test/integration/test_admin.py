@@ -1,25 +1,34 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+#
+# Copyright (C) 2008-2014 Glencoe Software, Inc. All Rights Reserved.
+# Use is subject to license terms supplied in LICENSE.txt
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
 """
    Tests of the admin service
-
-   Copyright 2008-2013 Glencoe Software, Inc. All rights reserved.
-   Use is subject to license terms supplied in LICENSE.txt
 
 """
 
 import test.integration.library as lib
 import pytest
 import omero
-from omero_model_PixelsI import PixelsI
-from omero_model_ImageI import ImageI
-from omero_model_DatasetI import DatasetI
-from omero_model_ExperimenterI import ExperimenterI
-from omero_model_ExperimenterGroupI import ExperimenterGroupI
-from omero_model_GroupExperimenterMapI import GroupExperimenterMapI
-from omero_model_DatasetImageLinkI import DatasetImageLinkI
-from omero.rtypes import *
+from omero.rtypes import rstring
+
 
 class TestAdmin(lib.ITest):
 
@@ -27,7 +36,7 @@ class TestAdmin(lib.ITest):
         a = self.client.getSession().getAdminService()
         l = a.lookupGroups()
         g = a.getGroup(l[0].getId().val)
-        assert  0 != g.sizeOfGroupExperimenterMap()
+        assert 0 != g.sizeOfGroupExperimenterMap()
 
     def testSetGroup(self):
         a = self.client.getSession().getAdminService()
@@ -43,7 +52,7 @@ class TestAdmin(lib.ITest):
         a.setDefaultGroup(e, grp)
 
         dg = self.client.getSession().getAdminService().getDefaultGroup(uid)
-        assert dg.id.val ==  grp.id.val
+        assert dg.id.val == grp.id.val
 
     def testChangePassword(self):
         """
@@ -54,8 +63,6 @@ class TestAdmin(lib.ITest):
 
         admin = client.sf.getAdminService()
         admin.changePassword(rstring("ome"))
-
-        uuid = client.getSessionId()
 
         # Now login without a passowrd
         client2 = client.createClient(True)
@@ -69,12 +76,13 @@ class TestAdmin(lib.ITest):
             client2.closeSession()
 
         # Now try to change password without a secure session
-        if False: # Waiting on ticket:3232
+        if False:  # Waiting on ticket:3232
             client3 = client.createClient(False)
             try:
                 admin = client3.sf.getAdminService()
                 with pytest.raises(omero.SecurityViolation):
-                    admin.changePasswordWithOldPassword(rstring("foo"), rstring("foo"))
+                    admin.changePasswordWithOldPassword(
+                        rstring("foo"), rstring("foo"))
             finally:
                 client3.closeSession()
 
@@ -94,7 +102,8 @@ class TestAdmin(lib.ITest):
         admin.changePassword(rstring(""))
         admin.changePasswordWithOldPassword(rstring("IGNORED"), rstring("ome"))
         with pytest.raises(omero.SecurityViolation):
-            admin.changePasswordWithOldPassword(rstring("BADPW"), rstring("foo"))
+            admin.changePasswordWithOldPassword(
+                rstring("BADPW"), rstring("foo"))
         admin.changePasswordWithOldPassword(rstring("ome"), rstring("foo"))
 
         # None disables user. No further password checks will pass.
@@ -110,10 +119,11 @@ class TestAdmin(lib.ITest):
         joined_client = client.createClient(True)
         try:
             with pytest.raises(omero.SecurityViolation):
-                joined_client.sf.getAdminService().changePasswordWithOldPassword(rstring(""), rstring("ome"))
+                joined_client.sf.getAdminService()\
+                    .changePasswordWithOldPassword(rstring(""), rstring("ome"))
         finally:
             joined_client.__del__()
-        admin.changePassword(rstring("ome")) # could be an admin
+        admin.changePassword(rstring("ome"))  # could be an admin
 
     def testGetEventContext4011(self):
         """
@@ -135,11 +145,11 @@ class TestAdmin(lib.ITest):
         grps2 = root_admin.getMemberOfGroupIds(exp)
 
         # Check via the groups
-        assert len(grps1)+1 ==  len(grps2)
+        assert len(grps1)+1 == len(grps2)
         assert group.id.val in grps2
 
         # Check again via the contexts
-        assert len(ec1.memberOfGroups)+1 ==  len(ec2.memberOfGroups)
+        assert len(ec1.memberOfGroups)+1 == len(ec2.memberOfGroups)
         assert group.id.val in ec2.memberOfGroups
 
     @pytest.mark.xfail(reason="This test fails since #11465")
@@ -170,10 +180,11 @@ class TestAdmin(lib.ITest):
         See #3202
         See @RolesAllow("HasPassword")
         """
-        experimenter = self.new_user() # To have password changed
+        experimenter = self.new_user()  # To have password changed
 
         password = self.root.getProperty("omero.rootpass")
-        new_client = self.root.createClient(True) # Secure, but not password-auth'd
+        # Secure, but not password-auth'd
+        new_client = self.root.createClient(True)
 
         admin = new_client.sf.getAdminService()
         new_password = omero.rtypes.rstring("FOO")
@@ -197,7 +208,7 @@ class TestAdmin(lib.ITest):
     def new_client_RESTRICTED(self, user):
         c = self.new_client(user=user)
         with pytest.raises(omero.SecurityViolation):
-            c.sf.getQueryService().find("Image", -1) # Should be disallowed
+            c.sf.getQueryService().find("Image", -1)  # Should be disallowed
 
     # This test is no longer valid as it shpuld not be possible to remove
     # users from their only remaining group. It would be easy to may the
@@ -241,5 +252,3 @@ class TestAdmin(lib.ITest):
 
         admin.addGroups(u, [UG, g])
         c = self.new_client(user=u)
-
-
