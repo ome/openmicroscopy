@@ -362,6 +362,16 @@ public class SelectionWizardUI
         filterArea = new JTextField();
         originalColor = filterArea.getForeground();
         setTextFieldDefault(DEFAULT_FILTER_TEXT);
+        StringBuilder builder = new StringBuilder();
+        builder.append("Filter");
+        if (TagAnnotationData.class.equals(type)) {
+            builder.append(" Tags.");
+        } else if (FileAnnotationData.class.equals(type)) {
+            builder.append(" Attachments.");
+        } else if (DatasetData.class.equals(type)) {
+            builder.append(" Datasets.");
+        } else builder.append(".");
+        filterArea.setToolTipText(builder.toString());
         filterArea.getDocument().addDocumentListener(this);
         filterArea.addFocusListener(new FocusListener() {
             
