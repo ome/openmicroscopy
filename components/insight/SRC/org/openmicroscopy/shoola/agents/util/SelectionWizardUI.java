@@ -981,17 +981,19 @@ public class SelectionWizardUI
     { 
         Iterator<TreeImageDisplay> i = selectedItems.iterator();
         List<Object> results = new ArrayList<Object>();
-        Object object;
+        TreeImageDisplay object;
+        Object uo;
         while (i.hasNext()) {
             object = i.next();
+            uo = object.getUserObject();
             if (isAddedNode(object))
-                results.add(object);
+                results.add(uo);
             else {
                 //was there but is immutable
-                if (object instanceof DataObject) {
-                    if (!isImmutable((DataObject) object))
-                        results.add(object);
-                } else results.add(object);
+                if (uo instanceof DataObject) {
+                    if (!isImmutable((DataObject) uo))
+                        results.add(uo);
+                } else results.add(uo);
             }
         }
         return results;
