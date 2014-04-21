@@ -173,14 +173,18 @@ public class SelectionWizardUI
      */
     private boolean isSelected(Object elt)
     {
-        for (TreeImageDisplay item : selectedItems) {
-            DataObject data = (DataObject) item.getUserObject();
-            if (elt == item || data.getId() < 0) {
-                return true;
+        if (elt instanceof TreeImageDisplay) {
+            DataObject n = (DataObject) ((TreeImageDisplay) elt).getUserObject();
+            for (TreeImageDisplay item : selectedItems) {
+                DataObject data = (DataObject) item.getUserObject();
+                if (n.getId() == data.getId() || data.getId() < 0) {
+                    return true;
+                }
             }
         }
         return false;
     }
+
     /**
      * Filters the list of displayed items.
      *
@@ -565,8 +569,8 @@ public class SelectionWizardUI
                 TagAnnotationData tag = (TagAnnotationData) data;
                 if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(
                         tag.getNameSpace())) {
-                    Set<DataObject> children = tag.getDataObjects();
-                    Iterator<DataObject> j = children.iterator();
+                    Set<TagAnnotationData> children = tag.getTags();
+                    Iterator<TagAnnotationData> j = children.iterator();
                     DataObject o;
                     while (j.hasNext()) {
                         o = j.next();
@@ -743,7 +747,7 @@ public class SelectionWizardUI
                 while (j.hasNext()) {
                     child = j.next();
                     child.setDisplayItems(false);
-                    if (!children.contains(child)) {
+                    if (!children.contains(child) && !isSelected(child)) {
                         dtm.insertNodeInto(child, node, node.getChildCount());
                     }
                 }
@@ -848,7 +852,7 @@ public class SelectionWizardUI
         return b.toString();
     }
     /**
-     * Creates a new instance. 
+     * Creates a new instance.
      * 
      * @param available The collection of available items.
      * @param type The type of object to handle.
@@ -861,7 +865,7 @@ public class SelectionWizardUI
     }
 
     /**
-     * Creates a new instance. 
+     * Creates a new instance.
      *
      * @param available The collection of available items.
      * @param selected The collection of selected items.
