@@ -550,6 +550,33 @@ public class SelectionWizardUI
      */
     private boolean isChild(TreeImageDisplay node)
     {
+        if (node == null) return false;
+        Object uo = node.getUserObject();
+        if (!(uo instanceof DataObject)) return false;
+        DataObject ref = (DataObject) uo;
+        Iterator<TreeImageDisplay> i = originalItems.iterator();
+        TreeImageDisplay n;
+        Object data;
+
+        while (i.hasNext()) {
+            n = i.next();
+            data = n.getUserObject();
+            if (data instanceof TagAnnotationData) {
+                TagAnnotationData tag = (TagAnnotationData) data;
+                if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(
+                        tag.getNameSpace())) {
+                    Set<DataObject> children = tag.getDataObjects();
+                    Iterator<DataObject> j = children.iterator();
+                    DataObject o;
+                    while (j.hasNext()) {
+                        o = j.next();
+                        if (o.getClass().equals(ref.getClass()) &&
+                            o.getId() == ref.getId())
+                            return true;
+                    }
+                }
+            }
+        }
         return false;
     }
 
