@@ -303,6 +303,7 @@ class EditorComponent
 	public void setExistingTags(Collection tags)
 	{
 		model.setExistingTags(tags);
+		List<TagAnnotationData> selected = new ArrayList<TagAnnotationData>();
 		List<Long> ids = new ArrayList<Long>();
 		TagAnnotationData tag;
 		Collection<TagAnnotationData> setTags = model.getCommonTags();
@@ -310,8 +311,10 @@ class EditorComponent
 			Iterator<TagAnnotationData> k = setTags.iterator();
 			while (k.hasNext()) {
 				tag = k.next();
-				if (model.isAnnotationUsedByUser(tag))
-					ids.add(tag.getId());
+				if (model.isAnnotationUsedByUser(tag)) {
+				    ids.add(tag.getId());
+				    selected.add(tag);
+				}
 			}
 		}
 		
@@ -337,11 +340,10 @@ class EditorComponent
 			controller.getFigureDialog().setTags(all);
 			return;
 		}
-		showSelectionWizard(TagAnnotationData.class, available, setTags,
-							true);
+		showSelectionWizard(TagAnnotationData.class, available, selected, true);
 		setStatus(false);
 	}
-	
+
 	/** 
 	 * Implemented as specified by the {@link Editor} interface.
 	 * @see Editor#setChannelsData(Map, boolean)
@@ -420,19 +422,22 @@ class EditorComponent
 		if (attachments == null) return;
 		model.setExistingAttachments(attachments);
 		Collection setAttachments = model.getCommonAttachments();
-		
+		List selected = new ArrayList();
 		List<Long> ids = new ArrayList<Long>();
 		if (setAttachments != null) {
 			Iterator<FileAnnotationData> k = setAttachments.iterator();
 			FileAnnotationData file;
 			while (k.hasNext()) {
 				file = k.next();
-				if (model.isAnnotationUsedByUser(file))
-					ids.add(file.getId());
+				if (model.isAnnotationUsedByUser(file)) {
+				    selected.add(file);
+				    ids.add(file.getId());
+				}
 			}
 		}
 		
 		List available = new ArrayList();
+		
 		if (attachments != null) {
 			Iterator i = attachments.iterator();
 			FileAnnotationData data;
@@ -442,7 +447,7 @@ class EditorComponent
 					available.add(data);
 			}
 		}
-		showSelectionWizard(FileAnnotationData.class, available, setAttachments,
+		showSelectionWizard(FileAnnotationData.class, available, selected,
 							true);
 		setStatus(false);
 	}
