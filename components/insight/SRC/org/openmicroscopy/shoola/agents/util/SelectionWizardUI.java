@@ -824,6 +824,7 @@ public class SelectionWizardUI
         Iterator<TreeImageDisplay> i = nodes.iterator();
         TreeImageDisplay node, child;
         Iterator<TreeImageDisplay> j;
+        Set<TreeImageDisplay> toExpand = new HashSet<TreeImageDisplay>();
         while (i.hasNext()) {
             node = i.next();
             node.setDisplayItems(false);
@@ -838,11 +839,17 @@ public class SelectionWizardUI
                     child.setDisplayItems(false);
                     if (!children.contains(child) && !isSelected(child)) {
                         dtm.insertNodeInto(child, node, node.getChildCount());
+                        toExpand.add(node);
+                        tree.expandPath(new TreePath(node.getPath()));
                     }
                 }
             }
         }
         dtm.reload();
+        i = toExpand.iterator();
+        while (i.hasNext()) {
+            tree.expandPath(new TreePath(i.next().getPath()));
+        }
     }
 
     /** Sorts the lists. */
