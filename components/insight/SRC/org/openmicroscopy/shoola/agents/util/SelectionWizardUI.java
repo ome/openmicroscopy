@@ -36,6 +36,7 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -476,19 +477,97 @@ public class SelectionWizardUI
         setImmutableElements(null);
     }
 
+    /**
+     * Formats the tooltip of a tag.
+     *
+     * @param data The tag to handle.
+     * @param parent Its parent.
+     * @return See
+     */
+    public String formatTagToolip(TagAnnotationData data,
+            List<TagAnnotationData> parents)
+    {
+        if (data == null) return "";
+        StringBuilder buf = new StringBuilder();
+        buf.append("<html><body>");
+        ExperimenterData exp = data.getOwner();
+        if (exp != null) {
+            buf.append("<b>");
+            buf.append("Owner: ");
+            buf.append("</b>");
+            buf.append(EditorUtil.formatExperimenter(exp));
+            buf.append("<br>");
+        }
+        if (CollectionUtils.isNotEmpty(parents)) {
+            buf.append("<b>");
+            buf.append("Tag Set: ");
+            buf.append("</b>");
+            for (TagAnnotationData item : parents) {
+                buf.append(item.getTagValue());
+                buf.append(" ");
+            }
+            buf.append("<br>");
+        }
+        buf.append("</body></html>");
+        return buf.toString();
+    }
+
+    /**
+     * Returns the list of tag sets the tag is linked to.
+     *
+     * @param tag The tag to handle.
+     * @return See above
+     */
+    private List<TagAnnotationData> getParents(TagAnnotationData tag)
+    {
+        List<TagAnnotationData> parents = new ArrayList<TagAnnotationData>();
+        for (TreeImageDisplay item : originalItems) {
+            TagAnnotationData t = (TagAnnotationData) item.getUserObject();
+            if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(t.getNameSpace())) {
+                Set<TagAnnotationData> tags = t.getTags();
+                for (TagAnnotationData n : tags) {
+                    if (n.getId() == tag.getId()) {
+                        parents.add(t);
+                    }
+                }
+            }
+        }
+        return parents;
+    }
+
     /** Creates a copy of the original selections. */
     private void createOriginalSelections()
     {
         originalItems = new ArrayList<TreeImageDisplay>();
+        TagAnnotationData tag;
         if (availableItems != null) {
-            for (TreeImageDisplay item : availableItems)
+            for (TreeImageDisplay item : availableItems) {
                 originalItems.add(item);
+                if (item.getUserObject() instanceof TagAnnotationData) {
+                    tag = (TagAnnotationData) item.getUserObject();
+                    if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(
+                            tag.getNameSpace())) {
+                        item.setToolTip(formatTagToolip(tag, null));
+                        List<TreeImageDisplay> l = item.getChildrenDisplay();
+                        List<TagAnnotationData> p = Arrays.asList(tag);
+                        for (TreeImageDisplay j : l) {
+                            j.setToolTip(formatTagToolip(tag, p));
+                        }
+                    }
+                }
+            }
         }
 
         originalSelectedItems  = new ArrayList<TreeImageDisplay>();
         if (selectedItems != null) {
-            for (TreeImageDisplay item : selectedItems)
+            for (TreeImageDisplay item : selectedItems) {
+                //format tooltip of tag.
                 originalSelectedItems.add(item);
+                if (item.getUserObject() instanceof TagAnnotationData) {
+                    tag = (TagAnnotationData) item.getUserObject();
+                    item.setToolTip(formatTagToolip(tag, getParents(tag)));
+                }
+            }
         }
     }
 
