@@ -490,17 +490,17 @@ public class SelectionWizardUI
         if (data == null) return "";
         StringBuilder buf = new StringBuilder();
         buf.append("<html><body>");
-        ExperimenterData exp = null;
+        String exp = "";
         try {
-            exp = data.getOwner();
+            exp = EditorUtil.formatExperimenter(data.getOwner());
         } catch (Exception e) {
             //owner not loaded
         }
-        if (exp != null) {
+        if (StringUtils.isNotBlank(exp)) {
             buf.append("<b>");
             buf.append("Owner: ");
             buf.append("</b>");
-            buf.append(EditorUtil.formatExperimenter(exp));
+            buf.append(exp);
             buf.append("<br>");
         }
         if (CollectionUtils.isNotEmpty(parents)) {
