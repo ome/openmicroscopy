@@ -63,11 +63,11 @@ import info.clearthought.layout.TableLayout;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 
+//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.util.TreeCellRenderer;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageSet;
 import org.openmicroscopy.shoola.agents.util.browser.TreeViewerTranslator;
-//Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.DataObject;
