@@ -37,6 +37,9 @@ class HqlControl(BaseControl):
         parser.add_argument(
             "--admin", help="Run an admin query", default=False,
             action="store_true")
+        parser.add_argument(
+            "--csv", help="Use csv table style", default=False,
+            action="store_true")
         parser.add_login_arguments()
 
     def __call__(self, args):
@@ -64,7 +67,7 @@ class HqlControl(BaseControl):
         p = ParametersI()
         p.page(args.offset, args.limit)
         rv = self.project(q, args.query, p, ice_map)
-        has_details = self.display(rv)
+        has_details = self.display(rv, csv=args.csv)
         if args.quiet or not sys.stdout.isatty():
             return
 
@@ -93,9 +96,9 @@ To quit, enter 'q' or just enter.
                 self.ctx.dbg("\nCurrent page: offset=%s, limit=%s\n" %
                              (p.theFilter.offset.val, p.theFilter.limit.val))
                 rv = self.project(q, args.query, p, ice_map)
-                self.display(rv)
+                self.display(rv, csv=args.self.csv)
             elif id.startswith("r"):
-                self.display(rv)
+                self.display(rv, csv=args.self.csv)
             else:
                 try:
                     id = long(id)
@@ -122,13 +125,15 @@ To quit, enter 'q' or just enter.
                     self.ctx.out("%s = %s" % (key, value))
             continue
 
-    def display(self, rv, cols=None):
+    def display(self, rv, cols=None, csv=False):
         import omero.all
         import omero.rtypes
         from omero.util.text import TableBuilder
 
         has_details = []
         tb = TableBuilder("#")
+        if csv:
+            tb.set_style("csv")
         for idx, object_list in enumerate(rv):
             klass = "Null"
             id = ""
