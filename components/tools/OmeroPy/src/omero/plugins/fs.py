@@ -61,12 +61,21 @@ class FsControl(BaseControl):
         sets.add_argument(
             "--with-transfer", nargs="*", action="append")
 
+        for x in (repos, sets):
+            x.add_argument("--csv", action="store_true")
+
+    def table(self, args):
+        from omero.util.text import TableBuilder
+        tb = TableBuilder("#")
+        if args.csv:
+            tb.set_style("csv")
+        return tb
+
     def repos(self, args):
         """
         List all repositories.
         """
 
-        from omero.util.text import TableBuilder
         from omero.grid import ManagedRepositoryPrx as MRepo
 
         client = self.ctx.conn(args)
@@ -75,7 +84,7 @@ class FsControl(BaseControl):
         repos = zip(repos.descriptions, repos.proxies)
         repos.sort(lambda a, b: cmp(a[0].id.val, b[0].id.val))
 
-        tb = TableBuilder("#")
+        tb = self.table(args)
         tb.cols(["Id", "Type", "Path"])
         for idx, pair in enumerate(repos):
             desc, prx = pair
@@ -99,7 +108,6 @@ class FsControl(BaseControl):
 
         from omero.constants.namespaces import NSFILETRANSFER
         from omero_sys_ParametersI import ParametersI
-        from omero.util.text import TableBuilder
         from omero.rtypes import unwrap
 
         client = self.ctx.conn(args)
@@ -125,7 +133,7 @@ class FsControl(BaseControl):
         objs = service.projection(query, params, {"omero.group": "-1"})
         objs = unwrap(objs)
 
-        tb = TableBuilder("#")
+        tb = self.table(args)
         tb.cols(["Id", "Prefix", "File count", "Transfer"])
         for idx, obj in enumerate(objs):
 
