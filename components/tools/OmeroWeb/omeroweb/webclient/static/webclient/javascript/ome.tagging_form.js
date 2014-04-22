@@ -338,9 +338,6 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id) {
         };
 
         var finalize_load = function() {
-            $(":button:contains('Reset'),:button:contains('Save')",
-              $("#add_tags_form").parent()
-              ).removeAttr("disabled").removeClass('ui-state-disabled');
             loaded = true;
             update_add_new_button_state();
         };
@@ -348,6 +345,13 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id) {
         load('tagcount', tag_count_callback);
     };
 
+    var enable_buttons = function() {
+        if (loaded) {
+            $(":button:contains('Reset'),:button:contains('Save')",
+              $("#add_tags_form").parent()
+              ).removeAttr("disabled").removeClass('ui-state-disabled');
+        }
+    };
 
     var encode_html = function(text) {
         return $('<div/>').text(text).html();
@@ -427,6 +431,7 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id) {
                 first_selected.offset().top - div_selected_tags.offset().top -
                 40);
         }
+        enable_buttons();
         event.preventDefault();
     };
 
@@ -451,6 +456,7 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id) {
             div_all_tags.parent().scrollTop(first_selected.offset().top -
                                             div_all_tags.offset().top - 40);
         }
+        enable_buttons();
         event.preventDefault();
     };
 
@@ -544,11 +550,13 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id) {
                     select_tags(event);
                     tag_input.val('');
                     description_input.val('');
+                    enable_buttons();
                 }
             };
             var confirm_tag_creation = function() {
                 if (select_dialog.data("clicked_button") === "Yes") {
                     add_new_tag(event, true);
+                    enable_buttons();
                 }
             };
 
@@ -607,6 +615,7 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id) {
             div_selected_tags.append(div);
             tag_input.val('');
             description_input.val('');
+            enable_buttons();
         }
         sort_tag_list(div_selected_tags);
         update_filter();
