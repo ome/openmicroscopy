@@ -71,7 +71,8 @@ class DownloadControl(BaseControl):
         query = session.getQueryService()
         if ':' not in value:
             try:
-                ofile = query.get("OriginalFile", long(value))
+                ofile = query.get("OriginalFile", long(value),
+                    {'omero.group': '-1'})
                 return ofile.id.val
             except ValueError:
                 self.ctx.die(601, 'Invalid OriginalFile ID input')
