@@ -24,7 +24,7 @@
 #
 
 import omero
-from omero.rtypes import rstring, rlong
+from omero.rtypes import rstring, rlong, unwrap
 from django.conf import settings
 from django.utils.encoding import smart_str
 import logging
