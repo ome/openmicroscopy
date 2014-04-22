@@ -31,6 +31,17 @@ from omero.cli import CLI
 
 HELP = """Filesystem utilities"""
 
+#
+# Copied from:
+# blitz/src/ome/formats/importer/transfers/AbstractFileTransfer.java
+#
+TRANSFERS = {
+    "ome.formats.importer.transfers.HardLinkFileTransfer": "ln",
+    "ome.formats.importer.transfers.MoveFileTransfer": "ln_rm",
+    "ome.formats.importer.transfers.SymlinkFileTransfer": "ln_s",
+    "ome.formats.importer.transfers.UploadFileTransfer": "",
+    }
+
 
 class FsControl(BaseControl):
 
@@ -48,7 +59,7 @@ class FsControl(BaseControl):
         sets.add_argument(
             "--by-age", action="store_true")
         sets.add_argument(
-            "--with-transfer")
+            "--with-transfer", nargs="*", action="append")
 
     def repos(self, args):
         """
@@ -115,11 +126,26 @@ class FsControl(BaseControl):
         tb = TableBuilder("#")
         tb.cols(["Id", "Prefix", "File count", "Transfer"])
         for idx, obj in enumerate(objs):
+
+            # Map the transfer name to the CLI symbols
             ns = obj[-1]
             if ns is None:
                 ns = ""
-            if args.with_transfer and not ns:
-                continue
+            elif ns in TRANSFERS:
+                ns = TRANSFERS[ns]
+            obj[-1] = ns
+
+            # Map any requested transfers as well
+            allowed = []
+            for x in args.with_transfer:
+                x = x[0]  # Strip argparse wrapper
+                x = TRANSFERS.get(x, x)  # map
+                allowed.append(x)
+
+            # Filter based on the ns symbols
+            if args.with_transfer:
+                if ns not in allowed:
+                    continue
             tb.row(idx, *tuple(obj))
         self.ctx.out(str(tb.build()))
 
