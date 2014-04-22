@@ -36,7 +36,7 @@ HELP = """Filesystem utilities"""
 # blitz/src/ome/formats/importer/transfers/AbstractFileTransfer.java
 #
 TRANSFERS = {
-    "ome.formats.importer.transfers.HardLinkFileTransfer": "ln",
+    "ome.formats.importer.transfers.HardlinkFileTransfer": "ln",
     "ome.formats.importer.transfers.MoveFileTransfer": "ln_rm",
     "ome.formats.importer.transfers.SymlinkFileTransfer": "ln_s",
     "ome.formats.importer.transfers.UploadFileTransfer": "",
@@ -109,16 +109,18 @@ class FsControl(BaseControl):
         params.page(0, 25)
         params.addString("ns", NSFILETRANSFER)
 
+        query = (
+            "select fs.id, fs.templatePrefix, count(uf.id), ann.textValue "
+            "from Fileset fs "
+            "join fs.usedFiles uf "
+            "left outer join fs.annotationLinks fal "
+            "left outer join fal.child ann "
+            "where (ann is null or ann.ns = :ns) "
+            "group by fs.id, fs.templatePrefix, ann.textValue "
+            "order by fs.id desc")
+
         if args.by_age:
-            query = (
-                "select fs.id, fs.templatePrefix, count(uf.id), ann.textValue "
-                "from Fileset fs "
-                "join fs.usedFiles uf "
-                "left outer join fs.annotationLinks fal "
-                "left outer join fal.child ann "
-                "where (ann is null or ann.ns = :ns) "
-                "group by fs.id, fs.templatePrefix, ann.textValue "
-                "order by fs.id desc")
+            pass  # Unused
 
         objs = service.projection(query, params, {"omero.group": "-1"})
         objs = unwrap(objs)
@@ -136,14 +138,15 @@ class FsControl(BaseControl):
             obj[-1] = ns
 
             # Map any requested transfers as well
-            allowed = []
-            for x in args.with_transfer:
+            allowed = args.with_transfer is not None \
+                and args.with_transfer or []
+            for idx, x in enumerate(allowed):
                 x = x[0]  # Strip argparse wrapper
                 x = TRANSFERS.get(x, x)  # map
-                allowed.append(x)
+                allowed[idx] = x
 
             # Filter based on the ns symbols
-            if args.with_transfer:
+            if []:
                 if ns not in allowed:
                     continue
             tb.row(idx, *tuple(obj))
