@@ -87,6 +87,23 @@ class TestDownload(CLITest):
         out, err = capsys.readouterr()
         assert out == "test"
 
+    @py.test.mark.parametrize('prefix', ['', 'OriginalFile:'])
+    def testOriginalFileMultipleGroups(self, prefix, capsys):
+        group1 = self.new_group(perms='rw----')
+        group2 = self.new_group(perms='rw----')
+        user = self.new_user()
+        self.add_groups(user, [group1, group2], owner=True)
+
+        client = self.new_client(user=user, password="ome")
+        ofile = self.create_original_file("test")
+        self.set_context(client, group2.id.val)
+
+        self.args += ['%s%s' % (prefix, str(ofile.id.val)), '-']
+        self.cli.invoke(self.args, strict=True)
+        out, err = capsys.readouterr()
+        assert out == "test"
+
+
     # FileAnnotation tests
     # ========================================================================
     def testNonExistingFileAnnotation(self, tmpdir):
