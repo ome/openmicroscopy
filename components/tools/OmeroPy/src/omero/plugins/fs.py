@@ -44,6 +44,12 @@ class FsControl(BaseControl):
             "--managed", action="store_true",
             help="repos only managed repositories")
 
+        sets = parser.add(sub, self.sets, self.sets.__doc__)
+        sets.add_argument(
+            "--by-age", action="store_true")
+        sets.add_argument(
+            "--with-transfer")
+
     def repos(self, args):
         """
         List all repositories.
@@ -74,6 +80,49 @@ class FsControl(BaseControl):
                 type = "Script"
             tb.row(idx, *(desc.id.val, type, path))
         self.ctx.out(str(tb.build()))
+
+    def sets(self, args):
+        """
+        List filesets by various criteria
+        """
+
+        from omero.constants.namespaces import NSFILETRANSFER
+        from omero_sys_ParametersI import ParametersI
+        from omero.util.text import TableBuilder
+        from omero.rtypes import unwrap
+
+        client = self.ctx.conn(args)
+        service = client.sf.getQueryService()
+
+        params = ParametersI()
+        params.page(0, 25)
+        params.addString("ns", NSFILETRANSFER)
+
+        if args.by_age:
+            query = (
+                "select fs.id, fs.templatePrefix, count(uf.id), ann.textValue "
+                "from Fileset fs "
+                "join fs.usedFiles uf "
+                "left outer join fs.annotationLinks fal "
+                "left outer join fal.child ann "
+                "where (ann is null or ann.ns = :ns) "
+                "group by fs.id, fs.templatePrefix, ann.textValue "
+                "order by fs.id desc")
+
+        objs = service.projection(query, params, {"omero.group": "-1"})
+        objs = unwrap(objs)
+
+        tb = TableBuilder("#")
+        tb.cols(["Id", "Prefix", "File count", "Transfer"])
+        for idx, obj in enumerate(objs):
+            ns = obj[-1]
+            if ns is None:
+                ns = ""
+            if args.with_transfer and not ns:
+                continue
+            tb.row(idx, *tuple(obj))
+        self.ctx.out(str(tb.build()))
+
 
 try:
     register("fs", FsControl, HELP)
