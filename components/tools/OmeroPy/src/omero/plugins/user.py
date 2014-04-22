@@ -50,6 +50,10 @@ class UserControl(UserGroupControl):
             help="Create user with empty password")
 
         list = parser.add(sub, self.list, help="List current users")
+        list.add_argument(
+            "--csv", help="Use csv table style", default=False,
+            action="store_true")
+
         printgroup = list.add_mutually_exclusive_group()
         printgroup.add_argument(
             "--long", action="store_true", default=True,
@@ -233,6 +237,8 @@ class UserControl(UserGroupControl):
             tb = TableBuilder("id", "login", "first name", "last name",
                               "email", "active", "admin", "member of",
                               "owner of")
+        if args.csv:
+            tb.set_style("csv")
 
         # Sort users
         if args.sort_by_login:
