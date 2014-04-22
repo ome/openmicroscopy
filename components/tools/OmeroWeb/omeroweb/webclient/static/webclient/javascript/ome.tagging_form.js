@@ -633,7 +633,7 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id) {
                     'name', "newtags-" + count + "-tagset").val(
                         this.getAttribute('data-set')));
                 count += 1;
-            } else if ($(this).hasClass('owner-tagged')) {
+            } else {
                 // previously existing tag link owned by current user
                 existing_tags.push(tag_id);
             }
