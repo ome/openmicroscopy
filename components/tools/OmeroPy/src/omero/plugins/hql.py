@@ -35,8 +35,11 @@ class HqlControl(BaseControl):
         parser.add_argument(
             "--offset", help="Number of entries to skip", type=int, default=0)
         parser.add_argument(
-            "--admin", help="Run an admin query", default=False,
-            action="store_true")
+            "--admin", help="Run an admin query (deprecated; use 'all')",
+            default=False, action="store_true")
+        parser.add_argument(
+            "--all", help="Perform query on all groups", default=False,
+            action="store_true", dest="admin")
         parser.add_style_argument()
         parser.add_login_arguments()
 
