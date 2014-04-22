@@ -765,12 +765,13 @@ class BaseClient(object):
         try:
             if not ofile or not ofile.id:
                 raise omero.ClientError("No file to download")
-            ofile = self.__sf.getQueryService().get("OriginalFile", ofile.id.val)
+            ofile = self.__sf.getQueryService().get("OriginalFile",
+                ofile.id.val, {'omero.group': '-1'})
 
             if block_size > ofile.size.val:
                 block_size = ofile.size.val
 
-            prx.setFileId(ofile.id.val)
+            prx.setFileId(ofile.id.val, {'omero.group': '-1'})
 
             size = ofile.size.val
             offset = 0
