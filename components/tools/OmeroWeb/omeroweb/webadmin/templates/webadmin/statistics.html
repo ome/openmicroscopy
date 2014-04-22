@@ -55,7 +55,11 @@
                 $(".usageBy").removeClass('selected');
                 $("#load_groups").addClass('selected');
                 $(".totalUsage").text('Total');
-                plotJson("{% url 'waloaddrivespace_groups' %}");
+                plotJson("{% url 'waloaddrivespace_groups' %}", {
+                    success: function(){
+                        $(".totalUsage").text('Total');
+                    }
+                });
             }
 
             var loadUsers = function() {
@@ -63,7 +67,11 @@
                 $(".usageBy").removeClass('selected');
                 $("#load_users").addClass('selected');
                 $(".totalUsage").text('Total');
-                plotJson("{% url 'waloaddrivespace_users' %}");
+                plotJson("{% url 'waloaddrivespace_users' %}", {
+                    success: function(){
+                        $(".totalUsage").text('Total');
+                    }
+                });
             }
 
             $("#load_groups").click(function(event) {
@@ -82,13 +90,19 @@
                 if (i.groupId) {
                     var url = "{% url 'waindex' %}" + "drivespace_json/group/" + i.groupId +"/";
                     $("#filterBy").text("Group: " + i.label).show().addClass('selected');
-                    $(".totalUsage").text('Group');
-                    plotJson(url);
+                    plotJson(url, {
+                        success: function(){
+                            $(".totalUsage").text('Group');
+                        }
+                    });
                 } else if (i.userId) {
                     var url = "{% url 'waindex' %}" + "drivespace_json/user/" + i.userId +"/";
                     $("#filterBy").text("User: " + i.label).show().addClass('selected');
-                    $(".totalUsage").text('User');
-                    plotJson(url);
+                    plotJson(url, {
+                        success: function(){
+                            $(".totalUsage").text('User');
+                        }
+                    });
                 }
             });
 
