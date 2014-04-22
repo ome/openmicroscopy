@@ -546,7 +546,7 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id) {
                     $("div.ui-selected", div_all_tags).removeClass(
                         "ui-selected");
                     $("[data-id=" + id + "]", div_all_tags).addClass(
-                        "ui-selected");
+                        "ui-selected").removeClass("filtered");
                     select_tags(event);
                     tag_input.val('');
                     description_input.val('');
