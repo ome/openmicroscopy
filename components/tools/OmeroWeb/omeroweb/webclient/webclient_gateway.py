@@ -48,7 +48,7 @@ import Ice
 import omero.gateway
 import omero.scripts
 
-from omero.rtypes import rint, rstring, rlong, rlist, rtime
+from omero.rtypes import rint, rstring, rlong, rlist, rtime, unwrap
 from omero.model import \
                         ExperimenterI, ExperimenterGroupI
 
