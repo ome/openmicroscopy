@@ -47,6 +47,7 @@ import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
@@ -69,6 +70,8 @@ import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageSet;
 import org.openmicroscopy.shoola.agents.util.browser.TreeViewerTranslator;
 import org.openmicroscopy.shoola.util.ui.IconManager;
+import org.openmicroscopy.shoola.util.ui.MessageBox;
+import org.openmicroscopy.shoola.util.ui.NotificationDialog;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.DataObject;
 import pojos.DatasetData;
@@ -148,7 +151,7 @@ public class SelectionWizardUI
     private ViewerSorter sorter;
 
     /** The type to handle. */
-    private Class type;
+    private Class<?> type;
 
     /** The collection of immutable  nodes. */
     private Collection immutable;
@@ -164,6 +167,9 @@ public class SelectionWizardUI
 
     /** The original color of a text field.*/
     private Color originalColor;
+
+    /** The parent dialog.*/
+    private JDialog view;
 
     /**
      * Returns <code>true</code> if the item is already selected or is
@@ -282,43 +288,58 @@ public class SelectionWizardUI
     }
 
     /**
-     * Returns <code>true</code> if an object object of the same type 
-     * already exist in the list, <code>false</code> otherwise.
+     * Returns the node found if any.
      *
      * @param object The object to handle.
+     * @param selected From the currently selected tag.
      * @return See above.
      */
-    private boolean doesObjectExist(DataObject object)
+    private TreeImageDisplay doesObjectExist(DataObject object, boolean selected)
     {
-        if (object == null) return false;
+        if (object == null) return null;
         if (object instanceof TagAnnotationData) {
-            Iterator<TreeImageDisplay> i = availableItems.iterator();
+            Iterator<TreeImageDisplay> i;
             TagAnnotationData ob;
             String value = ((TagAnnotationData) object).getTagValue();
-            if (value == null) return false;
+            if (value == null) return null;
             String v;
             TreeImageDisplay node;
-            while (i.hasNext()) {
-                node = i.next();
-                ob = (TagAnnotationData) node.getUserObject();
-                if (ob != null) {
-                    v = ob.getTagValue();
-                    if (v != null && v.equals(value))
-                        return true;
+            if (!selected) {
+                i = originalItems.iterator();
+                while (i.hasNext()) {
+                    node = i.next();
+                    ob = (TagAnnotationData) node.getUserObject();
+                    if (ob != null) {
+                        v = ob.getTagValue();
+                        if (v != null && v.equals(value))
+                            return node;
+                    }
                 }
-            }
-            i = selectedItems.iterator();
-            while (i.hasNext()) {
-                node = i.next();
-                ob = (TagAnnotationData) node.getUserObject();
-                if (ob != null) {
-                    v = ob.getTagValue();
-                    if (v != null && v.equals(value))
-                        return true;
+                //not in the original selection. Might have been moved.
+                i = availableItems.iterator();
+                while (i.hasNext()) {
+                    node = i.next();
+                    ob = (TagAnnotationData) node.getUserObject();
+                    if (ob != null) {
+                        v = ob.getTagValue();
+                        if (v != null && v.equals(value))
+                            return node;
+                    }
+                }
+            } else {
+                i = selectedItems.iterator();
+                while (i.hasNext()) {
+                    node = i.next();
+                    ob = (TagAnnotationData) node.getUserObject();
+                    if (ob != null) {
+                        v = ob.getTagValue();
+                        if (v != null && v.equals(value))
+                            return node;
+                    }
                 }
             }
         }
-        return false;
+        return null;
     }
 
     /**
@@ -951,15 +972,16 @@ public class SelectionWizardUI
     }
     /**
      * Creates a new instance.
-     * 
+     *
+     * @param view The parent.
      * @param available The collection of available items.
      * @param type The type of object to handle.
      * @param user The current user.
      */
-    public SelectionWizardUI(Collection<Object> available, Class type,
-            ExperimenterData user)
+    public SelectionWizardUI(JDialog view,
+            Collection<Object> available, Class<?> type, ExperimenterData user)
     {
-        this(available, null, type, user);
+        this(view, available, null, type, user);
     }
 
     /**
@@ -970,11 +992,12 @@ public class SelectionWizardUI
      * @param type The type of object to handle.
      * @param user The current user.
      */
-    public SelectionWizardUI(Collection<Object> available,
-            Collection<Object> selected, Class type, ExperimenterData user)
+    public SelectionWizardUI(JDialog view, Collection<Object> available,
+            Collection<Object> selected, Class<?> type, ExperimenterData user)
     {
         if (selected == null) selected = new ArrayList<Object>();
         if (available == null) available = new ArrayList<Object>();
+        this.view = view;
         children = new HashSet<TreeImageDisplay>();
         this.availableItems = new ArrayList<TreeImageDisplay>(
                 TreeViewerTranslator.transformHierarchy(available));
@@ -1012,12 +1035,50 @@ public class SelectionWizardUI
         if (CollectionUtils.isEmpty(toAdd)) return;
         Iterator<DataObject> i = toAdd.iterator();
         DataObject data;
+        TreeImageDisplay node = null;
         while (i.hasNext()) {
             data = i.next();
-            if (!doesObjectExist(data)) {
-                selectedItems.add(TreeViewerTranslator.transformDataObject
-                        (data));
+            node = doesObjectExist(data, false);
+            if (node != null) {
+                break;
             }
+        }
+        if (node != null) { //warning
+            MessageBox msg = new MessageBox(view, "Add new tag", 
+             "A tag with the same name and description already exists.\n" +
+                 "Would you like to select the existing tag?");
+            int option = msg.centerMsgBox();
+            if (option == MessageBox.YES_OPTION) {
+                availableItemsListbox.setSelectionPath(new TreePath(node.getPath()));
+                addItem();
+                availableItemsListbox.requestFocus();
+                return;
+            }
+        }
+        //now check that it is not in the Selected.
+        if (node == null) {
+            i = toAdd.iterator();
+            while (i.hasNext()) {
+                data = i.next();
+                node = doesObjectExist(data, true);
+                if (node != null) {
+                    break;
+                }
+            }
+            if (node != null) { //warning
+                NotificationDialog msg = new NotificationDialog(view,
+                        "Add new tag", 
+                        "A tag with the same name and description already " +
+                        "exists and is selected.", null);
+                       UIUtilities.centerAndShow(msg);
+                return;
+            }
+        }
+        //We create a new tag.
+        i = toAdd.iterator();
+        while (i.hasNext()) {
+            selectedItems.add(TreeViewerTranslator.transformDataObject(
+                    i.next()));
         }
         sortLists();
         populateTreeItems(selectedItemsListbox, selectedItems);

@@ -156,6 +156,7 @@ public class SelectionWizard
      */
     private void setTextFieldDefault(JTextField field, String text)
     {
+        field.getDocument().removeDocumentListener(this);
         if (text == null) {
             field.setText("");
             field.setForeground(originalColor);
@@ -163,6 +164,7 @@ public class SelectionWizard
             field.setText(text);
             field.setForeground(Color.LIGHT_GRAY);
         }
+        field.getDocument().addDocumentListener(this);
         setControls();
     }
     
@@ -376,7 +378,7 @@ public class SelectionWizard
                 }
             }
             uiDelegate.addObjects(objects);
-            addField.setText("");
+            setTextFieldDefault(addField, DEFAULT_TEXT);
         }
     }
 
@@ -445,7 +447,7 @@ public class SelectionWizard
     {
         super(owner);
         setModal(true);
-        uiDelegate = new SelectionWizardUI(available, selected, type, user);
+        uiDelegate = new SelectionWizardUI(this, available, selected, type, user);
         uiDelegate.addPropertyChangeListener(this);
         this.type = type;
         initComponents();
