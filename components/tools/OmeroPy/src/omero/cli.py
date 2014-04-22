@@ -1225,12 +1225,8 @@ def argv(args=sys.argv):
                 for g in glob.glob(p):
                     cli._plugin_paths.append(g)
 
-        class PluginLoader(Thread):
-            def run(self):
-                cli.loadplugins()
-	# Disabling background loading
-	# until 2.4 hangs are fixed
-        PluginLoader().run() # start()
+        # For argparse dispatch, this cannot be done lazily
+        cli.loadplugins()
 
         if len(args) > 1:
             cli.invoke(args[1:])
