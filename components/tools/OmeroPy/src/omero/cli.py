@@ -443,6 +443,26 @@ class Context:
 
 #####################################################
 #
+
+
+def admin_only(func):
+    """
+    Checks that the current user is an admin or throws an exception.
+    """
+    def _check_admin(*args, **kwargs):
+        args = list(args)
+        self = args[0]
+        plugin_args = args[1]
+        client = self.ctx.conn(plugin_args)
+        ec = client.sf.getAdminService().getEventContext()
+        if not ec.isAdmin:
+            self.ctx.die(111, "Admins only!")
+
+    from omero.util.decorators import wraps
+    _check_admin = wraps(func)(_check_admin)
+    return _check_admin
+
+
 class BaseControl(object):
     """Controls get registered with a CLI instance on loadplugins().
 
