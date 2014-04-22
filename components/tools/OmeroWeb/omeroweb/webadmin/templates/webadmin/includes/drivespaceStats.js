@@ -26,7 +26,7 @@
                 $('#drivespaceTable').show();
             };
 
-            var plotJson = function(jsonUrl) {
+            var plotJson = function(jsonUrl, options) {
 
                 // show 'loading...'
                 $("#status").html('loading...');
@@ -90,5 +90,9 @@
                             clickable: true
                         },
                     });
+
+                    if (options && options.success) {
+                        options.success();
+                    }
                 });
             };
