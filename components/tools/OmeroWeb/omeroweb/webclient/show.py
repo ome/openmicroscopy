@@ -137,7 +137,6 @@ class Show(object):
             self._initially_open = [
                 "%s-%s" % (parent_type, parent_node.getId())
             ]
-            # TODO: Fucking with this here?
             self._initially_select = self._initially_open[:]
         self._initially_open_owner = first_selected.details.owner.id.val
         return first_selected
