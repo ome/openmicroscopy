@@ -651,34 +651,23 @@ class AdminServiceImpl
 			ExperimenterData exp)
 			throws DSOutOfServiceException, DSAccessException
 	{
-		Set<GroupData> groups;
-		Set<GroupData> available;
 		UserCredentials uc = (UserCredentials)
 			context.lookup(LookupNames.USER_CREDENTIALS);
+		
 		List<ExperimenterData> exps = new ArrayList<ExperimenterData>();
-		groups = gateway.getAvailableGroups(ctx, exp);
+		
+		Set<GroupData> groups = gateway.getAvailableGroups(ctx, exp, true);
+		context.bind(LookupNames.USER_GROUP_DETAILS, groups);
 		//Check if the current experimenter is an administrator 
-		Iterator<GroupData> i = groups.iterator();
-		GroupData g;
-		available = new HashSet<GroupData>();
-		Roles roles = (Roles) context.lookup(LookupNames.SYSTEM_ROLES);
-		while (i.hasNext()) {
-			g = i.next();
-			if (!isSecuritySystemGroup(g.getId())) {
-				available.add(g);
-			} else {
-				if (g.getId() == roles.systemGroupId)
-					uc.setAdministrator(true);
-			}
-		}
-		context.bind(LookupNames.USER_GROUP_DETAILS, available);
+		uc.setAdministrator(gateway.isAdministrator(ctx, exp));
+
 		List<Long> ids = new ArrayList<Long>();
-		i = available.iterator();
+		Iterator<GroupData> i = groups.iterator();
 		Set set;
 		Iterator j;
 		ExperimenterData e;
 		while (i.hasNext()) {
-			g = (GroupData) i.next();
+		    GroupData g = (GroupData) i.next();
 			set = g.getExperimenters();
 			j = set.iterator();
 			while (j.hasNext()) {
@@ -691,25 +680,22 @@ class AdminServiceImpl
 		}
 		context.bind(LookupNames.USERS_DETAILS, exps);	
 		List<GroupData> result = new ArrayList<GroupData>();
-		Iterator<GroupData> k = available.iterator();
-		while (k.hasNext()) {
-			result.add(k.next());
-		}
+		result.addAll(groups);
 		
-        //Bind user details to all agents' registry.
-        List agents = (List) context.lookup(LookupNames.AGENTS);
-		j = agents.iterator();
-		AgentInfo agentInfo;
-		Registry reg;
-		while (i.hasNext()) {
-			agentInfo = (AgentInfo) j.next();
-			if (agentInfo.isActive()) {
-				reg = agentInfo.getRegistry();
-				reg.bind(LookupNames.USER_GROUP_DETAILS, available);
-				reg.bind(LookupNames.USERS_DETAILS, exps);
-			}
-		}
-		return result;
+                // Bind user details to all agents' registry.
+                List agents = (List) context.lookup(LookupNames.AGENTS);
+                j = agents.iterator();
+                AgentInfo agentInfo;
+                Registry reg;
+                while (i.hasNext()) {
+                    agentInfo = (AgentInfo) j.next();
+                    if (agentInfo.isActive()) {
+                        reg = agentInfo.getRegistry();
+                        reg.bind(LookupNames.USER_GROUP_DETAILS, groups);
+                        reg.bind(LookupNames.USERS_DETAILS, exps);
+                    }
+                }
+                return result;
 	}
 
 	/**

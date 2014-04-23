@@ -632,46 +632,27 @@ public class DataServicesFactory
         		isFastConnection(uc.getSpeedLevel()));
         
         Collection<GroupData> groups;
-        Set<GroupData> available;
         List<ExperimenterData> exps = new ArrayList<ExperimenterData>();
         try {
-            GroupData defaultGroup = null;
-            long gid = exp.getDefaultGroup().getId();
+                long gid = exp.getDefaultGroup().getId();
         	SecurityContext ctx = new SecurityContext(gid);
-        	groups = omeroGateway.getAvailableGroups(ctx, exp);
+        	
+        	groups = omeroGateway.getAvailableGroups(ctx, exp, true);
+        	registry.bind(LookupNames.USER_GROUP_DETAILS, groups);
+        	
         	registry.bind(LookupNames.SYSTEM_ROLES,
                     omeroGateway.getSystemRoles(ctx));
+        	
         	//Check if the current experimenter is an administrator 
-        	Iterator<GroupData> i = groups.iterator();
-        	GroupData g;
-        	available = new HashSet<GroupData>();
-        	while (i.hasNext()) {
-        		g = i.next();
-        		if (gid == g.getId()) defaultGroup = g;
-        		if (!admin.isSecuritySystemGroup(g.getId())) {
-        			available.add(g);
-        		} else {
-        			if (admin.isSecuritySystemGroup(g.getId(),
-        			        GroupData.SYSTEM)) {
-        				available.add(g);
-        				uc.setAdministrator(true);
-        			}
-        		}
-        	}
-        	//to be on the safe side.
-        	if (available.size() ==  0) {
-        	    //group with loaded users.
-        	    if (defaultGroup != null) available.add(defaultGroup);
-        	    else available.add(exp.getDefaultGroup());
-        	}
-        	registry.bind(LookupNames.USER_GROUP_DETAILS, available);
+        	uc.setAdministrator(omeroGateway.isAdministrator(ctx, exp));
+        	
         	List<Long> ids = new ArrayList<Long>();
-        	i = available.iterator();
+        	Iterator<GroupData> i = groups.iterator();
         	Set set;
         	Iterator j;
         	ExperimenterData e;
         	while (i.hasNext()) {
-        		g = (GroupData) i.next();
+        	    GroupData g = (GroupData) i.next();
         		set = g.getExperimenters();
         		j = set.iterator();
         		while (j.hasNext()) {
@@ -699,7 +680,7 @@ public class DataServicesFactory
 				reg = agentInfo.getRegistry();
 				//reg.bind(LookupNames.USER_AUTHENTICATION, ldap);
 				reg.bind(LookupNames.CURRENT_USER_DETAILS, exp);
-				reg.bind(LookupNames.USER_GROUP_DETAILS, available);
+				reg.bind(LookupNames.USER_GROUP_DETAILS, groups);
 				reg.bind(LookupNames.USERS_DETAILS, exps);
 				reg.bind(LookupNames.USER_ADMINISTRATOR, uc.isAdministrator());
 				reg.bind(LookupNames.CONNECTION_SPEED, 

@@ -19,8 +19,13 @@
 
 package omero.gateway;
 
-import static omero.gateway.util.GatewayUtils.*;
-import static omero.gateway.util.CmdUtil.*;
+import static omero.gateway.util.CmdUtil.REF_GROUP;
+import static omero.gateway.util.CmdUtil.createDeleteCommand;
+import static omero.gateway.util.GatewayUtils.SUPPORTED_SPECIAL_CHAR;
+import static omero.gateway.util.GatewayUtils.WILD_CARDS;
+import static omero.gateway.util.GatewayUtils.convertAnnotation;
+import static omero.gateway.util.GatewayUtils.convertPojos;
+import static omero.gateway.util.GatewayUtils.convertTypeForSearch;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -36,12 +41,10 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
-
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
-import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
+import java.util.Set;
 
 import ome.formats.OMEROMetadataStoreClient;
 import ome.util.checksum.ChecksumProvider;
@@ -67,6 +70,7 @@ import omero.api.IRenderingSettingsPrx;
 import omero.api.IRepositoryInfoPrx;
 import omero.api.IRoiPrx;
 import omero.api.IScriptPrx;
+import omero.api.IUpdate;
 import omero.api.IUpdatePrx;
 import omero.api.RawFileStorePrx;
 import omero.api.RawPixelsStorePrx;
@@ -114,6 +118,11 @@ import omero.model.Shape;
 import omero.model.enums.ChecksumAlgorithmSHA1160;
 import omero.sys.Parameters;
 import omero.sys.ParametersI;
+import omero.sys.Roles;
+
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
+
 import pojos.DataObject;
 import pojos.ExperimenterData;
 import pojos.FilesetData;
@@ -2407,6 +2416,136 @@ public class Gateway extends ConnectionManager {
         return null;
     }
     
+    public boolean isAdministrator(SecurityContext ctx, ExperimenterData exp) throws DSOutOfServiceException, DSAccessException {
+        Collection<GroupData> groups = getAvailableGroups(ctx, exp, false);
+        Iterator<GroupData> i = groups.iterator();
+        GroupData g;
+        while (i.hasNext()) {
+            g = i.next();
+                if (isSecuritySystemGroup(ctx, g.getId(), GroupData.SYSTEM)) {
+                    return true;
+                }
+        }
+        return false;
+    }
+    
+    public boolean isSecuritySystemGroup(SecurityContext ctx, long groupID, String key) throws DSOutOfServiceException, DSAccessException
+    {
+        Roles roles = getSystemRoles(ctx);
+        
+        if (roles == null) return false;
+        if (GroupData.USER.equals(key)) {
+            return roles.userGroupId == groupID;
+        } else if (GroupData.SYSTEM.equals(key)) {
+            return roles.systemGroupId == groupID;
+        } else if (GroupData.GUEST.equals(key)) {
+            return roles.guestGroupId == groupID;
+        }
+        throw new IllegalArgumentException("Key not valid.");
+    }
+    
+    /**
+     * Retrieves the groups visible by the current experimenter.
+     * 
+     * @param ctx
+     *            The security context.
+     * @param loggedInUser
+     *            The user currently logged in.
+     * @return See above.
+     * @throws DSOutOfServiceException
+     *             If the connection is broken, or logged in
+     * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
+     */
+    public Set<GroupData> getAvailableGroups(SecurityContext ctx,
+            ExperimenterData user, boolean excludeSystemGroups) throws DSOutOfServiceException,
+            DSAccessException {
+
+        Connector c = getConnector(ctx);
+        Set<GroupData> pojos = new HashSet<GroupData>();
+        try {
+            IQueryPrx service = c.getQueryService();
+            // Need method server side.
+            ParametersI p = new ParametersI();
+            p.addId(user.getId());
+            List<IObject> groups = service
+                    .findAllByQuery(
+                            "select distinct g from ExperimenterGroup as g "
+                                    + "join fetch g.groupExperimenterMap as map "
+                                    + "join fetch map.parent e "
+                                    + "left outer join fetch map.child u "
+                                    + "left outer join fetch u.groupExperimenterMap m2 "
+                                    + "left outer join fetch m2.parent p "
+                                    + "where g.id in "
+                                    + "  (select m.parent from GroupExperimenterMap m "
+                                    + "  where m.child.id = :id )", p);
+            ExperimenterGroup group;
+            GroupData defaultGroup = null;
+            long gid = user.getDefaultGroup().getId();
+            
+            // GroupData pojoGroup;
+            Iterator<IObject> i = groups.iterator();
+            while (i.hasNext()) {
+                group = (ExperimenterGroup) i.next();
+                GroupData g = (GroupData) PojoMapper.asDataObject(group);
+                pojos.add(g);
+                if (gid == g.getId()) 
+                    defaultGroup = g;
+            }
+            
+            if(excludeSystemGroups) {
+                Roles roles = getSystemRoles(ctx);
+                Iterator<GroupData> it = pojos.iterator();
+                while(it.hasNext()) {
+                    GroupData next = it.next();
+                    long id = next.getGroupId();
+                    if(id==roles.userGroupId || id==roles.systemGroupId || id==roles.guestId) {
+                        it.remove();
+                    }
+                }
+            }
+            
+          //to be on the safe side.
+            if (pojos.size() ==  0) {
+                //group with loaded users.
+                if (defaultGroup != null) 
+                    pojos.add(defaultGroup);
+                else 
+                    pojos.add(user.getDefaultGroup());
+            }
+            
+            return pojos;
+        } catch (Throwable t) {
+            handleException(t, "Cannot retrieve the available groups ");
+        }
+        return pojos;
+    }
+    
+    /**
+     * Returns the system groups and users
+     * 
+     * @param ctx
+     *            The security context.
+     * @return See above.
+     * @throws DSOutOfServiceException
+     *             If the connection is broken, or logged in
+     * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
+     * @throws ServerError
+     */
+    public Roles getSystemRoles(SecurityContext ctx)
+            throws DSOutOfServiceException, DSAccessException {
+       
+        try {
+            IAdminPrx svc = getAdminService(ctx);
+            return svc.getSecurityRoles();
+        } catch (ServerError e) {
+            throw new DSOutOfServiceException("", e);
+        }
+    }
+
     /**
      * Formats the elements of the passed array. Adds the
      * passed field in front of each term.

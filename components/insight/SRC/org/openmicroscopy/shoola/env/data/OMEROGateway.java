@@ -2640,39 +2640,29 @@ class OMEROGateway
 	 * retrieve data from OMERO service.
 	 */
 	Set<GroupData> getAvailableGroups(SecurityContext ctx,
-			ExperimenterData user)
+			ExperimenterData user, boolean excludeSystemGroups)
 		throws DSOutOfServiceException, DSAccessException
 	{
 
-		Set<GroupData> pojos = new HashSet<GroupData>();
-		try {
-		    IQueryPrx service = gateway.getQueryService(ctx);
-			//Need method server side.
-			ParametersI p = new ParametersI();
-			p.addId(user.getId());
-			List<IObject> groups = service.findAllByQuery(
-                    "select distinct g from ExperimenterGroup as g "
-                    + "join fetch g.groupExperimenterMap as map "
-                    + "join fetch map.parent e "
-                    + "left outer join fetch map.child u "
-                    + "left outer join fetch u.groupExperimenterMap m2 "
-                    + "left outer join fetch m2.parent p "
-                    + "where g.id in "
-                    + "  (select m.parent from GroupExperimenterMap m "
-                    + "  where m.child.id = :id )", p);
-			ExperimenterGroup group;
-			//GroupData pojoGroup;
-			Iterator<IObject> i = groups.iterator();
-			while (i.hasNext()) {
-				group = (ExperimenterGroup) i.next();
-				pojos.add((GroupData) PojoMapper.asDataObject(group));
-			}
-			return pojos;
-		} catch (Throwable t) {
-			handleException(t, "Cannot retrieve the available groups ");
-		}
-		return pojos;
+            try {
+                return gateway.getAvailableGroups(ctx, user, excludeSystemGroups);
+            } catch (omero.gateway.exception.DSOutOfServiceException e) {
+                throw new DSOutOfServiceException(e);
+            } catch (omero.gateway.exception.DSAccessException e) {
+                throw new DSAccessException(e);
+            }
 	}
+	
+        boolean isAdministrator(SecurityContext ctx, ExperimenterData exp)
+                throws DSOutOfServiceException, DSAccessException {
+            try {
+                return gateway.isAdministrator(ctx, exp);
+            } catch (omero.gateway.exception.DSOutOfServiceException e) {
+                throw new DSOutOfServiceException(e);
+            } catch (omero.gateway.exception.DSAccessException e) {
+                throw new DSAccessException(e);
+            }
+        }
 
 	/**
 	 * Retrieves the archived files if any for the specified set of pixels.

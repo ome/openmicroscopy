@@ -60,13 +60,13 @@ import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Multimaps;
 
 /**
- * Manages all the connection related stuff for the Gateway:
- * Session creation, keep alive, etc.
+ * Manages all the connection related stuff for the Gateway: Session creation,
+ * keep alive, etc.
  * 
  * Should not be instantiated directly, therefore abstract.
  * 
- * @author Dominik Lindner &nbsp;&nbsp;&nbsp;&nbsp;
- * <a href="mailto:d.lindner@dundee.ac.uk">d.lindner@dundee.ac.uk</a>
+ * @author Dominik Lindner &nbsp;&nbsp;&nbsp;&nbsp; <a
+ *         href="mailto:d.lindner@dundee.ac.uk">d.lindner@dundee.ac.uk</a>
  */
 public abstract class ConnectionManager {
 
@@ -234,50 +234,62 @@ public abstract class ConnectionManager {
     private ExperimenterData login(client secureClient, String userName,
             String hostName, float compression, long groupID, int port)
             throws DSOutOfServiceException {
+
         Connector connector = null;
         SecurityContext ctx = null;
+
         try {
+
             connected = true;
+
             ServiceFactoryPrx entryEncrypted = secureClient.getSession();
             IAdminPrx prx = entryEncrypted.getAdminService();
             ExperimenterData exp = (ExperimenterData) PojoMapper
                     .asDataObject(prx.lookupExperimenter(userName));
-            if (groupID >= 0) {
-                long defaultID = -1;
-                try {
-                    defaultID = exp.getDefaultGroup().getId();
-                } catch (Exception e) {
-                }
-                ctx = new SecurityContext(defaultID);
+
+            if (groupID <= 0) {
+
+                ctx = new SecurityContext(exp.getDefaultGroup().getId());
                 ctx.setServerInformation(hostName, port);
                 ctx.setCompression(compression);
                 connector = new Connector(ctx, secureClient, entryEncrypted,
                         encrypted, elapseTime);
                 groupConnectorMap.put(ctx.getGroupID(), connector);
-                if (defaultID == groupID)
-                    return exp;
+
+            } else {
+
+                long defaultID = -1;
                 try {
-                    changeCurrentGroup(ctx, exp, groupID);
-                    ctx = new SecurityContext(groupID);
+                    defaultID = exp.getDefaultGroup().getId();
+                } catch (Exception e) {
+                }
+
+                if (defaultID == groupID) {
+                    ctx = new SecurityContext(defaultID);
                     ctx.setServerInformation(hostName, port);
                     ctx.setCompression(compression);
                     connector = new Connector(ctx, secureClient,
                             entryEncrypted, encrypted, elapseTime);
-                    exp = getUserDetails(ctx, userName, true);
                     groupConnectorMap.put(ctx.getGroupID(), connector);
-                } catch (Exception e) {
-                    String msg = "Error while changing group.\n";
-                    msg += printErrorText(e);
-                    log(msg);
+                } else {
+                    try {
+                        changeCurrentGroup(ctx, exp, groupID);
+                        ctx = new SecurityContext(groupID);
+                        ctx.setServerInformation(hostName, port);
+                        ctx.setCompression(compression);
+                        connector = new Connector(ctx, secureClient,
+                                entryEncrypted, encrypted, elapseTime);
+                        exp = getUserDetails(ctx, userName, true);
+                        groupConnectorMap.put(ctx.getGroupID(), connector);
+                    } catch (Exception e) {
+                        String msg = "Error while changing group.\n";
+                        msg += printErrorText(e);
+                        log(msg);
+                    }
                 }
+
             }
-            // Connector now controls the secureClient for closing.
-            ctx = new SecurityContext(exp.getDefaultGroup().getId());
-            ctx.setServerInformation(hostName, port);
-            ctx.setCompression(compression);
-            connector = new Connector(ctx, secureClient, entryEncrypted,
-                    encrypted, elapseTime);
-            groupConnectorMap.put(ctx.getGroupID(), connector);
+
             return exp;
         } catch (Throwable e) {
             connected = false;
@@ -437,8 +449,7 @@ public abstract class ConnectionManager {
         }
     }
 
-    Connector getConnector(SecurityContext ctx)
-            throws DSOutOfServiceException {
+    Connector getConnector(SecurityContext ctx) throws DSOutOfServiceException {
         return getConnector(ctx, false, false);
     }
 
@@ -652,8 +663,11 @@ public abstract class ConnectionManager {
 
     /**
      * Checks if the client's version is compatible to the server
-     * @param server The server version
-     * @param client The client version
+     * 
+     * @param server
+     *            The server version
+     * @param client
+     *            The client version
      * @throws VersionMismatchException
      */
     private void checkClientServerCompatibility(String server, String client)
@@ -688,7 +702,8 @@ public abstract class ConnectionManager {
             throw new VersionMismatchException("Could not check versions");
         }
 
-        // TODO: This would allow a 4.1.0 client to connect to a 5.1.0 server, but not a 5.0.0 client to a 5.1.0 server. Is this really intended? 
+        // TODO: This would allow a 4.1.0 client to connect to a 5.1.0 server,
+        // but not a 5.0.0 client to a 5.1.0 server. Is this really intended?
         if (s1 < c1)
             throw new VersionMismatchException(client, server);
         if (s2 != c2)
@@ -710,7 +725,7 @@ public abstract class ConnectionManager {
             networkup.set(false);
         }
     }
-    
+
     /**
      * Manually set network status
      * 
@@ -718,7 +733,7 @@ public abstract class ConnectionManager {
      *             Throw
      */
     public void setNetworkUp(boolean value) {
-          networkup.set(value);
+        networkup.set(value);
     }
 
     /**
@@ -737,7 +752,7 @@ public abstract class ConnectionManager {
             return false;
         }
     }
-    
+
     public boolean isConnected() {
         return this.connected;
     }
