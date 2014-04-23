@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.metadata.editor.ToolBar 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -67,6 +67,7 @@ import org.jdesktop.swingx.JXBusyLabel;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
+import org.openmicroscopy.shoola.agents.metadata.util.FilesetInfoDialog;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.ui.ScriptSubMenu;
@@ -89,6 +90,8 @@ import pojos.FilesetData;
 import pojos.GroupData;
 import pojos.ImageData;
 import pojos.WellSampleData;
+
+import omero.model.Fileset;
 
 /** 
  * The tool bar of the editor.
@@ -203,7 +206,7 @@ class ToolBar
 		pathButton.setText("Show File Paths...");
 		pathButton.setToolTipText("Show file paths on the server.");
 		pathButton.addActionListener(controller);
-		pathButton.setActionCommand(""+EditorControl.FILE_PATH);
+		pathButton.setActionCommand(""+EditorControl.FILE_PATH_TOOLBAR);
 		pathButton.setEnabled(model.isSingleMode() && model.getImage() != null);
 		linkMenu.add(pathButton);
     	return linkMenu;
@@ -804,58 +807,12 @@ class ToolBar
 		}
 	}
 	
-	/** Displays the file set associated to the image.*/
-	void displayFileset()
-	{
-		Set<FilesetData> set = model.getFileset();
-		if (set == null) return;
-		Iterator<FilesetData> i = set.iterator();
-		FilesetData data;
-		MultilineLabel label = new MultilineLabel();
-		StringBuffer buffer = new StringBuffer();
-		List<String> paths;
-		Iterator<String> j;
-		int n = 0;
-		while (i.hasNext()) {
-			data = i.next();
-			paths = data.getAbsolutePaths();
-			j = paths.iterator();
-			n += paths.size();
-			while (j.hasNext()) {
-				buffer.append(j.next());
-				buffer.append(System.getProperty("line.separator"));
-			}
-		}
-		label.setText(buffer.toString());
-		TinyDialog d = new TinyDialog(null, new JScrollPane(label),
-				TinyDialog.CLOSE_ONLY);
-		d.setTitle(n+" File path(s)");
-		
-		d.addWindowFocusListener(new WindowFocusListener() {
-			
-			/** 
-			 * Closes the dialog when the window loses focus.
-			 * @see WindowFocusListener#windowLostFocus(WindowEvent)
-			 */
-			public void windowLostFocus(WindowEvent evt) {
-				TinyDialog d = (TinyDialog) evt.getSource();
-				d.setClosed(true);
-				d.closeWindow();
-			}
-			
-			/** 
-			 * Required by the I/F but no-operation in our case.
-			 * @see WindowFocusListener#windowGainedFocus(WindowEvent)
-			 */
-			public void windowGainedFocus(WindowEvent evt) {}
-		});
-		d.setResizable(true);
-		d.getContentPane().setBackground(UIUtilities.BACKGROUND_COLOUR_EVEN);
-		SwingUtilities.convertPointToScreen(location, component);
-		d.setSize(400, 100);
-		d.setLocation(location);
-		d.setVisible(true);
-	}
-	
+        /** Displays the file set associated to the image. */
+        void displayFileset() {
+            SwingUtilities.convertPointToScreen(location, component);
+            FilesetInfoDialog d = new FilesetInfoDialog();
+            d.setData(model.getFileset(), model.isInplaceImport());
+            d.open(location);
+        }
 }
 
