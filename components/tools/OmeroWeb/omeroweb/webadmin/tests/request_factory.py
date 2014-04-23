@@ -95,7 +95,9 @@ class FakePayload(object):
     def read(self, num_bytes=None):
         if num_bytes is None:
             num_bytes = self.__len or 1
-        assert self.__len >= num_bytes, "Cannot read more than the available bytes from the HTTP incoming data."
+        assert self.__len >= num_bytes, \
+            "Cannot read more than the available bytes " + \
+            "from the HTTP incoming data."
         content = self.__content.read(num_bytes)
         self.__len -= num_bytes
         return content
@@ -136,7 +138,8 @@ class ClientHandler(BaseHandler):
         return response
 
 
-def store_rendered_templates(store, signal, sender, template, context, **kwargs):
+def store_rendered_templates(
+        store, signal, sender, template, context, **kwargs):
     """
     Stores templates and contexts that are rendered.
     """
@@ -171,7 +174,8 @@ def encode_multipart(boundary, data):
                 else:
                     lines.extend([
                         '--' + boundary,
-                        'Content-Disposition: form-data; name="%s"' % to_str(key),
+                        'Content-Disposition: form-data; name="%s"' %
+                        to_str(key),
                         '',
                         to_str(item)
                     ])
@@ -415,9 +419,11 @@ class Client(RequestFactory):
         # callback function.
         data = {}
         on_template_render = curry(store_rendered_templates, data)
-        signals.template_rendered.connect(on_template_render, dispatch_uid="template-render")
+        signals.template_rendered.connect(
+            on_template_render, dispatch_uid="template-render")
         # Capture exceptions created by the handler.
-        got_request_exception.connect(self.store_exc_info, dispatch_uid="request-exception")
+        got_request_exception.connect(
+            self.store_exc_info, dispatch_uid="request-exception")
         try:
 
             try:
@@ -455,10 +461,13 @@ class Client(RequestFactory):
             if response.context and len(response.context) == 1:
                 response.context = response.context[0]
 
-            # Provide a backwards-compatible (but pending deprecation) response.template
+            # Provide a backwards-compatible (but pending deprecation)
+            # response.template
             def _get_template(self):
-                warnings.warn("response.template is deprecated; use response.templates instead (which is always a list)",
-                              PendingDeprecationWarning, stacklevel=2)
+                warnings.warn(
+                    "response.template is deprecated; use " +
+                    "response.templates instead (which is always a list)",
+                    PendingDeprecationWarning, stacklevel=2)
                 if not self.templates:
                     return None
                 elif len(self.templates) == 1:
@@ -472,7 +481,8 @@ class Client(RequestFactory):
 
             return response
         finally:
-            signals.template_rendered.disconnect(dispatch_uid="template-render")
+            signals.template_rendered.disconnect(
+                dispatch_uid="template-render")
             got_request_exception.disconnect(dispatch_uid="request-exception")
 
     def get(self, path, data={}, follow=False, **extra):
@@ -489,7 +499,8 @@ class Client(RequestFactory):
         """
         Requests a response from the server using POST.
         """
-        response = super(Client, self).post(path, data=data, content_type=content_type, **extra)
+        response = super(Client, self).post(
+            path, data=data, content_type=content_type, **extra)
         if follow:
             response = self._handle_redirects(response, **extra)
         return response
@@ -517,7 +528,8 @@ class Client(RequestFactory):
         """
         Send a resource to the server using PUT.
         """
-        response = super(Client, self).put(path, data=data, content_type=content_type, **extra)
+        response = super(Client, self).put(
+            path, data=data, content_type=content_type, **extra)
         if follow:
             response = self._handle_redirects(response, **extra)
         return response
@@ -533,7 +545,8 @@ class Client(RequestFactory):
 
     def login(self, login, password, server_id=1, secure=True):
         """
-        Sets the Factory to appear as if it has successfully logged into a site.
+        Sets the Factory to appear as if it has successfully logged into a
+        site.
 
         Returns True if login is possible; False if the provided credentials
         are incorrect, or the user is inactive, or if the sessions framework is
@@ -547,7 +560,8 @@ class Client(RequestFactory):
             'server': server_id,
             'ssl': 'on'
         }
-        request = fakeRequest(method="post", path=(reverse(viewname="walogin")), params=params)
+        request = fakeRequest(
+            method="post", path=(reverse(viewname="walogin")), params=params)
 
         if self.session:
             request.session = self.session
@@ -567,7 +581,8 @@ class Client(RequestFactory):
         self.cookies[session_cookie].update(cookie_data)
 
         connector = Connector(request.REQUEST.get('server'), True)
-        conn = connector.create_connection('TEST.webadmin', login, password, userip="127.0.0.1")
+        conn = connector.create_connection(
+            'TEST.webadmin', login, password, userip="127.0.0.1")
 
         if conn is not None and conn.isConnected() and conn.keepAlive():
             request.session.save()
@@ -610,7 +625,10 @@ class Client(RequestFactory):
             request.session.flush()
 
     def _handle_redirects(self, response, **extra):
-        "Follows any redirects by requesting responses from the server using GET."
+        """
+        Follows any redirects by requesting responses from the server
+        using GET.
+        """
 
         response.redirect_chain = []
         while response.status_code in (301, 302, 303, 307):

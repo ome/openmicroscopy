@@ -29,7 +29,8 @@ def createGroup(sel, groupName):
     """
     Helper method for creating a new group with the give name.
     Must be logged in as root. Creates a private group.
-    Returns groupId if creation sucessful (the groups page displays new group name)
+    Returns groupId if creation sucessful (the groups page displays
+    new group name)
     Otherwise returns 0
     """
     sel.open("/webadmin/groups")
@@ -40,22 +41,30 @@ def createGroup(sel, groupName):
     sel.wait_for_page_to_load("30000")
 
     gId = 0
-    if sel.is_element_present("jquery=#groupTable tbody tr td:containsExactly(%s)" % groupName):
+    if sel.is_element_present(
+            "jquery=#groupTable tbody tr td:containsExactly(%s)" % groupName):
         # find group in the table
         i = 1
-        while sel.get_text("//table[@id='groupTable']/tbody/tr[%s]/td[2]" % i) != groupName:
+        while (
+                sel.get_text(
+                    "//table[@id='groupTable']/tbody/tr[%s]/td[2]" % i) !=
+                groupName):
             i += 1
             # raises exception if out of bounds for the html table
-        idTxt = sel.get_text("//table[@id='groupTable']/tbody/tr[%s]/td[1]" % i)
+        idTxt = sel.get_text(
+            "//table[@id='groupTable']/tbody/tr[%s]/td[1]" % i)
         gId = long(idTxt.strip("id:"))
     return gId
 
 
-def createExperimenter(sel, omeName, groupNames, password="ome", firstName="Selenium", lastName="Test"):
+def createExperimenter(
+        sel, omeName, groupNames, password="ome", firstName="Selenium",
+        lastName="Test"):
     """
     Helper method for creating an experimenter in the specified group.
     The group 'groupName' must already exist.
-    Returns the expId if experimenter created successfully (omeName is found in table of experimenters)
+    Returns the expId if experimenter created successfully (omeName is found
+    in table of experimenters)
     Otherwise returns 0
     """
     sel.open("/webadmin/experimenters")
@@ -76,13 +85,18 @@ def createExperimenter(sel, omeName, groupNames, password="ome", firstName="Sele
     sel.wait_for_page_to_load("30000")
 
     eId = 0
-    if sel.is_element_present("jquery=#experimenterTable tbody tr td:containsExactly(%s)" % omeName):
+    if sel.is_element_present(
+            "jquery=#experimenterTable tbody tr td:containsExactly(%s)" %
+            omeName):
         # try to get experimenter ID, look in the table
         i = 0   # jquery selector uses 0-based index
-        while sel.get_text('jquery=#experimenterTable tbody tr td.action+td+td:eq(%d)' % i) != omeName:
+        while sel.get_text(
+                'jquery=#experimenterTable tbody tr td.action+td+td:eq(%d)' %
+                i) != omeName:
             i += 1
             # raises exception if out of bounds for the html table
-        idTxt = sel.get_text("//table[@id='experimenterTable']/tbody/tr[%d]/td[1]" % (i+1))  # 1-based index
+        idTxt = sel.get_text(  # 1-based index
+            "//table[@id='experimenterTable']/tbody/tr[%d]/td[1]" % (i+1))
         eId = long(idTxt.strip("id:"))  # 'id:123'
 
     return eId
@@ -126,7 +140,8 @@ class AdminTests (WebAdminTestBase):
     def testPages(self):
         """
         This checks that the links exist for the main pages.
-        Visits each page in turn. Starts at experimenters and clicks links to each other main page '
+        Visits each page in turn. Starts at experimenters and clicks links
+        to each other main page '
         """
         # login done already in setUp()
 
@@ -143,8 +158,8 @@ class AdminTests (WebAdminTestBase):
 
     def testCreateExperimenter(self):
         """
-        Creates a new experimenter (creates group first). Tests that ommiting to fill
-        in 'ome-name' gives a correct message to user.
+        Creates a new experimenter (creates group first). Tests that
+        ommiting to fill in 'ome-name' gives a correct message to user.
         Checks that the new user is displayed in the table of experimenters.
         """
 
@@ -177,7 +192,8 @@ class AdminTests (WebAdminTestBase):
         sel.click("//input[@value='Save']")
         sel.wait_for_page_to_load("30000")
 
-        # check that we failed to create experimenter - ome-name wasn't filled out
+        # check that we failed to create experimenter -
+        # ome-name wasn't filled out
         self.failUnless(sel.is_text_present("This field is required."))
         sel.type("id_omename", omeName)
         sel.click("//input[@value='Save']")
@@ -188,7 +204,10 @@ class AdminTests (WebAdminTestBase):
         self.failUnless(sel.is_text_present(omeName))
         self.failUnless(sel.is_text_present("%s %s" % (firstName, lastName)))
         # better to check text in right place
-        self.assert_(sel.is_element_present("jquery=#experimenterTable tbody tr td:containsExactly(%s)" % omeName))
+        self.assert_(
+            sel.is_element_present(
+                "jquery=#experimenterTable tbody tr td:containsExactly(%s)" %
+                omeName))
 
     def testCreateGroup(self):
         """
@@ -225,17 +244,21 @@ class AdminTests (WebAdminTestBase):
         sel.wait_for_page_to_load("30000")
         self.assertEqual("WebAdmin - Edit scientist", sel.get_title())
 
-        # try promoting the user to admin and adding to new group, making that group the default
+        # try promoting the user to admin and adding to new group,
+        # making that group the default
         sel.click("id_administrator")
         sel.add_selection("id_available_groups", "label=%s" % groupName3)
         sel.click("add")
-        self.waitForElementVisibility('id_default_group_%d' % group3Id, True)  # radio button for 'default group'
+        # radio button for 'default group'
+        self.waitForElementVisibility('id_default_group_%d' % group3Id, True)
         sel.click('id_default_group_%d' % group3Id)
 
         # try remove one of the original groups
         sel.click("default_group_%d" % group1Id)
-        # self.waitForElementVisibility('id_default_group_%d' % group1Id, False)
-        self.waitForElementVisibility('default_group_%d' % group1Id, False)     # BUG: this is not working at the moment.
+        # self.waitForElementVisibility(
+        #     'id_default_group_%d' % group1Id, False)
+        # BUG: this is not working at the moment.
+        self.waitForElementVisibility('default_group_%d' % group1Id, False)
 
         # save
         sel.click("//input[@value='Save']")
@@ -243,10 +266,16 @@ class AdminTests (WebAdminTestBase):
 
         # find experimenter in table - look for 'admin' icon
         i = 1
-        while sel.get_text("//table[@id='experimenterTable']/tbody/tr[%s]/td[3]" % i) != omeName:
+        while sel.get_text(
+                "//table[@id='experimenterTable']/tbody/tr[%s]/td[3]" %
+                i) != omeName:
             i += 1
             # raises exception if out of bounds for the html table
-        self.assert_(sel.is_element_present("//table[@id='experimenterTable']/tbody/tr[%s]/td[5]/img[@alt='admin']" % i))
+        self.assert_(
+            sel.is_element_present(
+                "//table[@id='experimenterTable']/tbody/tr[%s]/td[5]/" +
+                "img[@alt='admin']" % i)
+            )
 
     def tearDown(self):
         self.logout()

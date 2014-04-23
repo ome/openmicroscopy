@@ -18,7 +18,8 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
-# Author: Aleksandra Tarkowska <A(dot)Tarkowska(at)dundee(dot)ac(dot)uk>, 2008-2013.
+# Author: Aleksandra Tarkowska <A(dot)Tarkowska(at)dundee(dot)ac(dot)uk>,
+#         2008-2013.
 #
 # Version: 1.0
 #
@@ -53,26 +54,34 @@ from omeroweb.connector import Connector
 
 logger = logging.getLogger(__name__)
 
-################################################################################
+###############################################################################
 # decorators
 
 
 class render_response_admin(omeroweb.webclient.decorators.render_response):
-    """ Subclass for adding additional data to the 'context' dict passed to templates """
+    """
+    Subclass for adding additional data to the 'context' dict passed to
+    templates
+    """
 
     def prepare_context(self, request, context, *args, **kwargs):
         """
-        We extend the webclient render_response to check if any groups are created.
+        We extend the webclient render_response to check if any groups are
+        created.
         If not, add an appropriate message to the template context
         """
-        super(render_response_admin, self).prepare_context(request, context, *args, **kwargs)
+        super(render_response_admin, self).prepare_context(
+            request, context, *args, **kwargs)
 
         noGroupsCreated = kwargs["conn"].isAnythingCreated()
         if noGroupsCreated:
-            msg = _('User must be in a group - You have not created any groups yet. Click <a href="%s">here</a> to create a group') % (reverse(viewname="wamanagegroupid", args=["new"]))
+            msg = (_(
+                'User must be in a group - You have not created any groups ' +
+                'yet. Click <a href="%s">here</a> to create a group') %
+                (reverse(viewname="wamanagegroupid", args=["new"])))
             context['ome']['message'] = msg
 
-################################################################################
+###############################################################################
 # utils
 
 import omero
@@ -113,7 +122,8 @@ def prepare_experimenter(conn, eid=None):
     return experimenter, defaultGroup, otherGroups, isLdapUser, hasAvatar
 
 
-def otherGroupsInitialList(groups, excluded_names=("user", "guest"), excluded_ids=list()):
+def otherGroupsInitialList(
+        groups, excluded_names=("user", "guest"), excluded_ids=list()):
     formGroups = list()
     for gr in groups:
         flag = False
@@ -126,7 +136,8 @@ def otherGroupsInitialList(groups, excluded_names=("user", "guest"), excluded_id
     return formGroups
 
 
-def ownedGroupsInitial(conn, excluded_names=("user", "guest", "system"), excluded_ids=list()):
+def ownedGroupsInitial(
+        conn, excluded_names=("user", "guest", "system"), excluded_ids=list()):
     groupsList = list(conn.listOwnedGroups())
     ownedGroups = list()
     for gr in groupsList:
@@ -215,7 +226,8 @@ def _bytes_per_pixel(pixel_type):
         return 1
     elif pixel_type == "int16" or pixel_type == "uint16":
         return 2
-    elif pixel_type == "int32" or pixel_type == "uint32" or pixel_type == "float":
+    elif (pixel_type == "int32" or pixel_type == "uint32" or
+          pixel_type == "float"):
         return 4
     elif pixel_type == "double":
         return 8
@@ -227,7 +239,8 @@ def _usage_map_helper(pixels_list, pixels_originalFiles_list, exps):
     tt = dict()
     for p in pixels_list:
         oid = p.details.owner.id.val
-        p_size = p.sizeX.val * p.sizeY.val * p.sizeZ.val * p.sizeC.val * p.sizeT.val
+        p_size = (p.sizeX.val * p.sizeY.val * p.sizeZ.val * p.sizeC.val *
+                  p.sizeT.val)
         p_size = p_size * _bytes_per_pixel(p.pixelsType.value.val)
         if oid in tt:
             tt[oid]['data'] += p_size
@@ -277,7 +290,8 @@ def usersData(conn, offset=0):
             "where m.child.id in (:pids)", p2, ctx)
 
         count = len(pixels_list)
-        usage_map = _usage_map_helper(pixels_list, pixels_originalFiles_list, exps)
+        usage_map = _usage_map_helper(
+            pixels_list, pixels_originalFiles_list, exps)
 
         count = len(pixels_list)
         offset += count
@@ -288,7 +302,7 @@ def usersData(conn, offset=0):
     return {'loading': loading, 'offset': offset, 'usage': usage_map}
 
 
-################################################################################
+###############################################################################
 # views controll
 
 def forgotten_password(request, **kwargs):
@@ -311,7 +325,8 @@ def forgotten_password(request, **kwargs):
             try:
                 conn = getGuestConnection(blitz.host, blitz.port)
                 if not conn.isForgottenPasswordSet():
-                    error = "This server cannot reset password. Please contact your administrator."
+                    error = "This server cannot reset password. Please " + \
+                            "contact your administrator."
                     conn = None
             except Exception:
                 logger.error(traceback.format_exc())
@@ -319,12 +334,15 @@ def forgotten_password(request, **kwargs):
 
             if conn is not None:
                 try:
-                    conn.reportForgottenPassword(smart_str(request.REQUEST.get('username')), smart_str(request.REQUEST.get('email')))
+                    conn.reportForgottenPassword(
+                        smart_str(request.REQUEST.get('username')),
+                        smart_str(request.REQUEST.get('email')))
                     error = "Password was reseted. Check you mailbox."
                     form = None
                 except Exception:
                     logger.error(traceback.format_exc())
-                    error = "Internal server error, please contact administrator."
+                    error = "Internal server error, please contact " + \
+                            "administrator."
     else:
         form = ForgottonPasswordForm()
 
@@ -376,19 +394,33 @@ def manage_experimenter(request, action, eid=None, conn=None, **kwargs):
     groups.sort(key=lambda x: x.getName().lower())
 
     if action == 'new':
-        form = ExperimenterForm(initial={'with_password': True, 'active': True, 'groups': otherGroupsInitialList(groups)})
+        form = ExperimenterForm(
+            initial={
+                'with_password': True,
+                'active': True,
+                'groups': otherGroupsInitialList(groups)}
+            )
         context = {'form': form}
     elif action == 'create':
         if request.method != 'POST':
-            return HttpResponseRedirect(reverse(viewname="wamanageexperimenterid", args=["new"]))
+            return HttpResponseRedirect(
+                reverse(viewname="wamanageexperimenterid", args=["new"]))
         else:
             name_check = conn.checkOmeName(request.REQUEST.get('omename'))
             email_check = conn.checkEmail(request.REQUEST.get('email'))
 
-            initial = {'with_password': True, 'groups': otherGroupsInitialList(groups)}
-            form = ExperimenterForm(initial=initial, data=request.REQUEST.copy(), name_check=name_check, email_check=email_check)
+            initial = {
+                'with_password': True,
+                'groups': otherGroupsInitialList(groups)
+                }
+            form = ExperimenterForm(
+                initial=initial,
+                data=request.REQUEST.copy(),
+                name_check=name_check,
+                email_check=email_check)
             if form.is_valid():
-                logger.debug("Create experimenter form:" + str(form.cleaned_data))
+                logger.debug(
+                    "Create experimenter form:" + str(form.cleaned_data))
                 omename = form.cleaned_data['omename']
                 firstName = form.cleaned_data['first_name']
                 middleName = form.cleaned_data['middle_name']
@@ -420,42 +452,82 @@ def manage_experimenter(request, action, eid=None, conn=None, **kwargs):
                         elif long(og) == g.id:
                             listOfOtherGroups.add(g)
 
-                conn.createExperimenter(omename, firstName, lastName, email, admin, active, dGroup, listOfOtherGroups, password, middleName, institution)
+                conn.createExperimenter(
+                    omename, firstName, lastName, email, admin, active,
+                    dGroup, listOfOtherGroups, password, middleName,
+                    institution)
                 return HttpResponseRedirect(reverse("waexperimenters"))
             context = {'form': form}
     elif action == 'edit':
-        experimenter, defaultGroup, otherGroups, isLdapUser, hasAvatar = prepare_experimenter(conn, eid)
+        experimenter, defaultGroup, otherGroups, isLdapUser, hasAvatar = \
+            prepare_experimenter(conn, eid)
         try:
             defaultGroupId = defaultGroup.id
         except:
             defaultGroupId = None
 
-        initial = {'omename': experimenter.omeName, 'first_name': experimenter.firstName,
-                   'middle_name': experimenter.middleName, 'last_name': experimenter.lastName,
-                   'email': experimenter.email, 'institution': experimenter.institution,
-                   'administrator': experimenter.isAdmin(), 'active': experimenter.isActive(),
-                   'default_group': defaultGroupId, 'other_groups': [g.id for g in otherGroups],
-                   'groups': otherGroupsInitialList(groups)}
+        initial = {
+            'omename': experimenter.omeName,
+            'first_name': experimenter.firstName,
+            'middle_name': experimenter.middleName,
+            'last_name': experimenter.lastName,
+            'email': experimenter.email,
+            'institution': experimenter.institution,
+            'administrator': experimenter.isAdmin(),
+            'active': experimenter.isActive(),
+            'default_group': defaultGroupId,
+            'other_groups': [g.id for g in otherGroups],
+            'groups': otherGroupsInitialList(groups)
+            }
         system_users = [conn.getAdminService().getSecurityRoles().rootId,
                         conn.getAdminService().getSecurityRoles().guestId]
-        experimenter_is_me_or_system = (conn.getEventContext().userId == long(eid)) or (long(eid) in system_users)
-        form = ExperimenterForm(experimenter_is_me_or_system=experimenter_is_me_or_system, initial=initial)
+        experimenter_is_me_or_system = (
+            (conn.getEventContext().userId == long(eid)) or
+            (long(eid) in system_users)
+            )
+        form = ExperimenterForm(
+            experimenter_is_me_or_system=experimenter_is_me_or_system,
+            initial=initial)
         password_form = ChangePassword()
 
-        admin_groups = experimenter_is_me_or_system and [conn.getAdminService().getSecurityRoles().systemGroupId] or list()
-        context = {'form': form, 'eid': eid, 'ldapAuth': isLdapUser, 'password_form': password_form, 'admin_groups': admin_groups}
+        admin_groups = (
+            experimenter_is_me_or_system and
+            [conn.getAdminService().getSecurityRoles().systemGroupId] or
+            list()
+            )
+        context = {
+            'form': form,
+            'eid': eid,
+            'ldapAuth': isLdapUser,
+            'password_form': password_form,
+            'admin_groups': admin_groups
+            }
     elif action == 'save':
-        experimenter, defaultGroup, otherGroups, isLdapUser, hasAvatar = prepare_experimenter(conn, eid)
+        experimenter, defaultGroup, otherGroups, isLdapUser, hasAvatar = \
+            prepare_experimenter(conn, eid)
         if request.method != 'POST':
-            return HttpResponseRedirect(reverse(viewname="wamanageexperimenterid", args=["edit", experimenter.id]))
+            return HttpResponseRedirect(
+                reverse(
+                    viewname="wamanageexperimenterid",
+                    args=["edit", experimenter.id])
+                )
         else:
-            name_check = conn.checkOmeName(request.REQUEST.get('omename'), experimenter.omeName)
-            email_check = conn.checkEmail(request.REQUEST.get('email'), experimenter.email)
-            initial = {'active': True, 'groups': otherGroupsInitialList(groups)}
-            form = ExperimenterForm(initial=initial, data=request.POST.copy(), name_check=name_check, email_check=email_check)
+            name_check = conn.checkOmeName(
+                request.REQUEST.get('omename'), experimenter.omeName)
+            email_check = conn.checkEmail(
+                request.REQUEST.get('email'), experimenter.email)
+            initial = {
+                'active': True,
+                'groups': otherGroupsInitialList(groups)
+                }
+            form = ExperimenterForm(
+                initial=initial,
+                data=request.POST.copy(),
+                name_check=name_check, email_check=email_check)
 
             if form.is_valid():
-                logger.debug("Update experimenter form:" + str(form.cleaned_data))
+                logger.debug(
+                    "Update experimenter form:" + str(form.cleaned_data))
                 omename = form.cleaned_data['omename']
                 firstName = form.cleaned_data['first_name']
                 middleName = form.cleaned_data['middle_name']
@@ -488,7 +560,9 @@ def manage_experimenter(request, action, eid=None, conn=None, **kwargs):
                         elif long(og) == g.id:
                             listOfOtherGroups.add(g)
 
-                conn.updateExperimenter(experimenter, omename, firstName, lastName, email, admin, active, dGroup, listOfOtherGroups, middleName, institution)
+                conn.updateExperimenter(
+                    experimenter, omename, firstName, lastName, email, admin,
+                    active, dGroup, listOfOtherGroups, middleName, institution)
                 return HttpResponseRedirect(reverse("waexperimenters"))
             context = {'form': form, 'eid': eid, 'ldapAuth': isLdapUser}
     else:
@@ -520,11 +594,14 @@ def manage_password(request, eid, conn=None, **kwargs):
             elif conn.isAdmin():
                 exp = conn.getObject("Experimenter", eid)
                 try:
-                    conn.changeUserPassword(exp.omeName, password, old_password)
+                    conn.changeUserPassword(
+                        exp.omeName, password, old_password)
                 except Exception, x:
                     error = x.message
             else:
-                raise AttributeError("Can't change another user's password unless you are an Admin")
+                raise AttributeError(
+                    "Can't change another user's password unless you are " +
+                    "an Admin")
 
     context = {'error': error, 'password_form': password_form, 'eid': eid}
     context['template'] = template
@@ -556,10 +633,15 @@ def manage_group(request, action, gid=None, conn=None, **kwargs):
         ownerIds = [e.id for e in group.getOwners()]
         memberIds = [m.id for m in group.getMembers()]
         permissions = getActualPermissions(group)
-        system_groups = [conn.getAdminService().getSecurityRoles().systemGroupId,
-                         conn.getAdminService().getSecurityRoles().userGroupId,
-                         conn.getAdminService().getSecurityRoles().guestGroupId]
-        group_is_current_or_system = (conn.getEventContext().groupId == long(gid)) or (long(gid) in system_groups)
+        system_groups = [
+            conn.getAdminService().getSecurityRoles().systemGroupId,
+            conn.getAdminService().getSecurityRoles().userGroupId,
+            conn.getAdminService().getSecurityRoles().guestGroupId
+            ]
+        group_is_current_or_system = (
+            (conn.getEventContext().groupId == long(gid)) or
+            (long(gid) in system_groups)
+            )
         form = GroupForm(initial={
             'name': group.name,
             'description': group.description,
@@ -570,19 +652,29 @@ def manage_group(request, action, gid=None, conn=None, **kwargs):
             group_is_current_or_system=group_is_current_or_system)
         admins = [conn.getAdminService().getSecurityRoles().rootId]
         if long(gid) in system_groups:
-            # prevent removing 'root' or yourself from group if it's a system group
+            # prevent removing 'root' or yourself from group
+            # if it's a system group
             admins.append(conn.getUserId())
-        return {'form': form, 'gid': gid, 'permissions': permissions, "admins": admins}
+        return {
+            'form': form,
+            'gid': gid,
+            'permissions': permissions,
+            "admins": admins
+            }
 
     if action == 'new':
-        form = GroupForm(initial={'experimenters': experimenters, 'permissions': 0})
+        form = GroupForm(
+            initial={'experimenters': experimenters, 'permissions': 0})
         context = {'form': form}
     elif action == 'create':
         if request.method != 'POST':
-            return HttpResponseRedirect(reverse(viewname="wamanagegroupid", args=["new"]))
+            return HttpResponseRedirect(
+                reverse(viewname="wamanagegroupid", args=["new"]))
         else:
             name_check = conn.checkGroupName(request.REQUEST.get('name'))
-            form = GroupForm(initial={'experimenters': experimenters}, data=request.POST.copy(), name_check=name_check)
+            form = GroupForm(
+                initial={'experimenters': experimenters},
+                data=request.POST.copy(), name_check=name_check)
             if form.is_valid():
                 logger.debug("Create group form:" + str(form.cleaned_data))
                 name = form.cleaned_data['name']
@@ -594,7 +686,8 @@ def manage_group(request, action, gid=None, conn=None, **kwargs):
                 perm = setActualPermissions(permissions)
                 listOfOwners = getSelectedExperimenters(conn, owners)
                 gid = conn.createGroup(name, perm, listOfOwners, description)
-                new_members = getSelectedExperimenters(conn, mergeLists(members, owners))
+                new_members = getSelectedExperimenters(
+                    conn, mergeLists(members, owners))
                 group = conn.getObject("ExperimenterGroup", gid)
                 conn.setMembersOfGroup(group, new_members)
 
@@ -606,12 +699,16 @@ def manage_group(request, action, gid=None, conn=None, **kwargs):
         group = conn.getObject("ExperimenterGroup", gid)
 
         if request.method != 'POST':
-            return HttpResponseRedirect(reverse(viewname="wamanagegroupid", args=["edit", group.id]))
+            return HttpResponseRedirect(
+                reverse(viewname="wamanagegroupid", args=["edit", group.id]))
         else:
             permissions = getActualPermissions(group)
 
-            name_check = conn.checkGroupName(request.REQUEST.get('name'), group.name)
-            form = GroupForm(initial={'experimenters': experimenters}, data=request.POST.copy(), name_check=name_check)
+            name_check = conn.checkGroupName(
+                request.REQUEST.get('name'), group.name)
+            form = GroupForm(
+                initial={'experimenters': experimenters},
+                data=request.POST.copy(), name_check=name_check)
             context = {'form': form, 'gid': gid, 'permissions': permissions}
             if form.is_valid():
                 logger.debug("Update group form:" + str(form.cleaned_data))
@@ -628,7 +725,8 @@ def manage_group(request, action, gid=None, conn=None, **kwargs):
                     perm = None
                 conn.updateGroup(group, name, perm, listOfOwners, description)
 
-                new_members = getSelectedExperimenters(conn, mergeLists(members, owners))
+                new_members = getSelectedExperimenters(
+                    conn, mergeLists(members, owners))
                 removalFails = conn.setMembersOfGroup(group, new_members)
                 if len(removalFails) == 0:
                     return HttpResponseRedirect(reverse("wagroups"))
@@ -636,9 +734,11 @@ def manage_group(request, action, gid=None, conn=None, **kwargs):
                 msgs = []
                 # prepare error messages
                 for e in removalFails:
-                    url = reverse("wamanageexperimenterid", args=["edit", e.id])
-                    msgs.append("Can't remove user <a href='%s'>%s</a> from their only group"
-                                % (url, e.getFullName()))
+                    url = reverse(
+                        "wamanageexperimenterid", args=["edit", e.id])
+                    msgs.append(
+                        "Can't remove user <a href='%s'>%s</a> from their " +
+                        "only group" % (url, e.getFullName()))
                 # refresh the form and add messages
                 context = getEditFormContext()
                 context['ome'] = {}
@@ -663,19 +763,39 @@ def manage_group_owner(request, action, gid, conn=None, **kwargs):
 
     experimenterDefaultIds = list()
     for e in experimenters:
-        if e != userId and e.getDefaultGroup() is not None and e.getDefaultGroup().id == group.id:
+        if e != userId and e.getDefaultGroup() is not None and \
+                e.getDefaultGroup().id == group.id:
             experimenterDefaultIds.append(str(e.id))
 
     msgs = []
     if action == 'edit':
         permissions = getActualPermissions(group)
-        form = GroupOwnerForm(initial={'permissions': permissions, 'members': memberIds, 'owners': ownerIds, 'experimenters': experimenters})
-        context = {'form': form, 'gid': gid, 'permissions': permissions, 'group': group, 'experimenterDefaultGroups': ",".join(experimenterDefaultIds), 'ownerIds': (",".join(str(x) for x in ownerIds if x != userId)), 'userId': userId}
+        form = GroupOwnerForm(
+            initial={
+                'permissions': permissions,
+                'members': memberIds,
+                'owners': ownerIds,
+                'experimenters': experimenters}
+            )
+        context = {
+            'form': form,
+            'gid': gid,
+            'permissions': permissions,
+            'group': group,
+            'experimenterDefaultGroups': ",".join(experimenterDefaultIds),
+            'ownerIds': (",".join(str(x) for x in ownerIds if x != userId)),
+            'userId': userId
+            }
     elif action == "save":
         if request.method != 'POST':
-            return HttpResponseRedirect(reverse(viewname="wamanagegroupownerid", args=["edit", group.id]))
+            return HttpResponseRedirect(
+                reverse(
+                    viewname="wamanagegroupownerid", args=["edit", group.id]))
         else:
-            form = GroupOwnerForm(data=request.POST.copy(), initial={'experimenters': experimenters})
+            form = GroupOwnerForm(
+                data=request.POST.copy(),
+                initial={'experimenters': experimenters}
+                )
             if form.is_valid():
                 members = form.cleaned_data['members']
                 owners = form.cleaned_data['owners']
@@ -697,12 +817,28 @@ def manage_group_owner(request, action, gid, conn=None, **kwargs):
                 # If we've failed to remove user...
                 # prepare error messages
                 for e in removalFails:
-                    url = reverse("wamanageexperimenterid", args=["edit", e.id])
-                    msgs.append("Can't remove user <a href='%s'>%s</a> from their only group"
-                                % (url, e.getFullName()))
+                    url = reverse(
+                        "wamanageexperimenterid", args=["edit", e.id])
+                    msgs.append(
+                        "Can't remove user <a href='%s'>%s</a> from their " +
+                        "only group" % (url, e.getFullName()))
                 # refresh the form and add messages
-                form = GroupOwnerForm(initial={'permissions': permissions, 'members': memberIds, 'owners': ownerIds, 'experimenters': experimenters})
-            context = {'form': form, 'gid': gid, 'permissions': permissions, 'group': group, 'experimenterDefaultGroups': ",".join(experimenterDefaultIds), 'ownerIds': (",".join(str(x) for x in ownerIds if x != userId)), 'userId': userId}
+                form = GroupOwnerForm(
+                    initial={
+                        'permissions': permissions,
+                        'members': memberIds,
+                        'owners': ownerIds,
+                        'experimenters': experimenters}
+                    )
+            context = {
+                'form': form,
+                'gid': gid,
+                'permissions': permissions,
+                'group': group,
+                'experimenterDefaultGroups': ",".join(experimenterDefaultIds),
+                'ownerIds': (
+                    ",".join(str(x) for x in ownerIds if x != userId)),
+                'userId': userId}
     else:
         return HttpResponseRedirect(reverse("wamyaccount"))
 
@@ -718,7 +854,8 @@ def manage_group_owner(request, action, gid, conn=None, **kwargs):
 def my_account(request, action=None, conn=None, **kwargs):
     template = "webadmin/myaccount.html"
 
-    experimenter, defaultGroup, otherGroups, isLdapUser, hasAvatar = prepare_experimenter(conn)
+    experimenter, defaultGroup, otherGroups, isLdapUser, hasAvatar = \
+        prepare_experimenter(conn)
     try:
         defaultGroupId = defaultGroup.id
     except:
@@ -731,10 +868,14 @@ def my_account(request, action=None, conn=None, **kwargs):
     form = None
     if action == "save":
         if request.method != 'POST':
-            return HttpResponseRedirect(reverse(viewname="wamyaccount", args=["edit"]))
+            return HttpResponseRedirect(
+                reverse(viewname="wamyaccount", args=["edit"]))
         else:
-            email_check = conn.checkEmail(request.REQUEST.get('email'), experimenter.email)
-            form = MyAccountForm(data=request.POST.copy(), initial={'groups': otherGroups}, email_check=email_check)
+            email_check = conn.checkEmail(
+                request.REQUEST.get('email'), experimenter.email)
+            form = MyAccountForm(
+                data=request.POST.copy(),
+                initial={'groups': otherGroups}, email_check=email_check)
             if form.is_valid():
                 firstName = form.cleaned_data['first_name']
                 middleName = form.cleaned_data['middle_name']
@@ -742,16 +883,30 @@ def my_account(request, action=None, conn=None, **kwargs):
                 email = form.cleaned_data['email']
                 institution = form.cleaned_data['institution']
                 defaultGroupId = form.cleaned_data['default_group']
-                conn.updateMyAccount(experimenter, firstName, lastName, email, defaultGroupId, middleName, institution)
+                conn.updateMyAccount(
+                    experimenter, firstName, lastName, email, defaultGroupId,
+                    middleName, institution)
                 return HttpResponseRedirect(reverse("wamyaccount"))
 
     else:
-        form = MyAccountForm(initial={'omename': experimenter.omeName, 'first_name': experimenter.firstName,
-                                      'middle_name': experimenter.middleName, 'last_name': experimenter.lastName,
-                                      'email': experimenter.email, 'institution': experimenter.institution,
-                                      'default_group': defaultGroupId, 'groups': otherGroups})
+        form = MyAccountForm(
+            initial={
+                'omename': experimenter.omeName,
+                'first_name': experimenter.firstName,
+                'middle_name': experimenter.middleName,
+                'last_name': experimenter.lastName,
+                'email': experimenter.email,
+                'institution': experimenter.institution,
+                'default_group': defaultGroupId,
+                'groups': otherGroups}
+            )
 
-    context = {'form': form, 'ldapAuth': isLdapUser, 'experimenter': experimenter, 'ownedGroups': ownedGroups, 'password_form': password_form}
+    context = {
+        'form': form,
+        'ldapAuth': isLdapUser,
+        'experimenter': experimenter,
+        'ownedGroups': ownedGroups,
+        'password_form': password_form}
     context['template'] = template
     return context
 
@@ -776,7 +931,11 @@ def manage_avatar(request, action=None, conn=None, **kwargs):
             form_file = UploadPhotoForm(request.POST, request.FILES)
             if form_file.is_valid():
                 attach_photo(conn, request.FILES['photo'])
-                return HttpResponseRedirect(reverse(viewname="wamanageavatar", args=[conn.getEventContext().userId]))
+                return HttpResponseRedirect(
+                    reverse(
+                        viewname="wamanageavatar",
+                        args=[conn.getEventContext().userId])
+                    )
     elif action == "crop":
         x1 = long(request.REQUEST.get('x1'))
         x2 = long(request.REQUEST.get('x2'))
@@ -794,7 +953,10 @@ def manage_avatar(request, action=None, conn=None, **kwargs):
         return HttpResponseRedirect(reverse("wamyaccount"))
 
     photo_size = conn.getExperimenterPhotoSize()
-    context = {'form_file': form_file, 'edit_mode': edit_mode, 'photo_size': photo_size}
+    context = {
+        'form_file': form_file,
+        'edit_mode': edit_mode,
+        'photo_size': photo_size}
     context['template'] = template
     return context
 

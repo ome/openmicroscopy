@@ -58,7 +58,12 @@ class ServerModelTest (unittest.TestCase):
             self.fail('Error:Parameters required')
 
     def test_get_and_find(self):
-        SERVER_LIST = [[u'example1.com', 4064, u'omero1'], [u'example2.com', 4064, u'omero2'], [u'example3.com', 4064], [u'example4.com', 4064]]
+        SERVER_LIST = [
+            [u'example1.com', 4064, u'omero1'],
+            [u'example2.com', 4064, u'omero2'],
+            [u'example3.com', 4064],
+            [u'example4.com', 4064]
+            ]
         for s in SERVER_LIST:
             server = (len(s) > 2) and s[2] or None
             Server(host=s[0], port=s[1], server=server)
@@ -74,7 +79,12 @@ class ServerModelTest (unittest.TestCase):
         self.assertEquals(s2.server, u'omero2')
 
     def test_load_server_list(self):
-        SERVER_LIST = [[u'example1.com', 4064, u'omero1'], [u'example2.com', 4064, u'omero2'], [u'example3.com', 4064], [u'example4.com', 4064]]
+        SERVER_LIST = [
+            [u'example1.com', 4064, u'omero1'],
+            [u'example2.com', 4064, u'omero2'],
+            [u'example3.com', 4064],
+            [u'example4.com', 4064]
+            ]
         for s in SERVER_LIST:
             server = (len(s) > 2) and s[2] or None
             Server(host=s[0], port=s[1], server=server)
@@ -95,9 +105,12 @@ class WebTest(unittest.TestCase):
     def setUp(self):
         c = omero.client(pmap=['--Ice.Config='+(os.environ.get("ICE_CONFIG"))])
         try:
-            self.root_password = c.ic.getProperties().getProperty('omero.rootpass')
-            self.omero_host = c.ic.getProperties().getProperty('omero.host')
-            self.omero_port = c.ic.getProperties().getProperty('omero.port')
+            self.root_password = c.ic.getProperties().getProperty(
+                'omero.rootpass')
+            self.omero_host = c.ic.getProperties().getProperty(
+                'omero.host')
+            self.omero_port = c.ic.getProperties().getProperty(
+                'omero.port')
             Server.reset()
             Server(host=self.omero_host, port=self.omero_port)
         finally:
@@ -105,8 +118,11 @@ class WebTest(unittest.TestCase):
 
         self.server_id = 1
         connector = Connector(self.server_id, True)
-        self.rootconn = connector.create_connection('TEST.webadmin', 'root', self.root_password, userip="127.0.0.1")
-        if self.rootconn is None or not self.rootconn.isConnected() or not self.rootconn.keepAlive():
+        self.rootconn = connector.create_connection(
+            'TEST.webadmin', 'root', self.root_password, userip="127.0.0.1")
+        if (self.rootconn is None or
+                not self.rootconn.isConnected() or
+                not self.rootconn.keepAlive()):
             raise Exception("Cannot connect")
 
     def tearDown(self):
@@ -119,12 +135,14 @@ class WebTest(unittest.TestCase):
         blitz = Server.get(pk=self.server_id)
         if blitz is not None:
             connector = Connector(self.server_id, True)
-            conn = connector.create_connection('TEST.webadmin', username, password, userip="127.0.0.1")
+            conn = connector.create_connection(
+                'TEST.webadmin', username, password, userip="127.0.0.1")
             if conn is None or not conn.isConnected() or not conn.keepAlive():
                 raise Exception("Cannot connect")
             return conn
         else:
-            raise Exception("'%s' is not on omero.web.server_list" % self.omero_host)
+            raise Exception(
+                "'%s' is not on omero.web.server_list" % self.omero_host)
 
 
 class WebAdminConfigTest(unittest.TestCase):
@@ -132,7 +150,8 @@ class WebAdminConfigTest(unittest.TestCase):
     def setUp(self):
         c = omero.client(pmap=['--Ice.Config='+(os.environ.get("ICE_CONFIG"))])
         try:
-            self.root_password = c.ic.getProperties().getProperty('omero.rootpass')
+            self.root_password = c.ic.getProperties().getProperty(
+                'omero.rootpass')
             self.omero_host = c.ic.getProperties().getProperty('omero.host')
             self.omero_port = c.ic.getProperties().getProperty('omero.port')
             Server.reset()
@@ -161,7 +180,8 @@ class WebAdminTest(WebTest):
             'server': self.server_id,
             'ssl': 'on'
         }
-        request = fakeRequest(method="post", path="/webadmin/login", params=params)
+        request = fakeRequest(
+            method="post", path="/webadmin/login", params=params)
 
         server_id = request.REQUEST.get('server')
         username = request.REQUEST.get('username')
@@ -169,7 +189,8 @@ class WebAdminTest(WebTest):
         is_secure = toBoolean(request.REQUEST.get('ssl'))
 
         connector = Connector(server_id, is_secure)
-        conn = connector.create_connection('TEST.webadmin', username, password, userip="127.0.0.1")
+        conn = connector.create_connection(
+            'TEST.webadmin', username, password, userip="127.0.0.1")
         if conn is None:
             self.fail('Cannot connect')
 
@@ -195,7 +216,8 @@ class WebAdminTest(WebTest):
             is_secure = toBoolean(form.cleaned_data['ssl'])
 
             connector = Connector(server_id, is_secure)
-            conn = connector.create_connection('OMERO.web', username, password, userip="127.0.0.1")
+            conn = connector.create_connection(
+                'OMERO.web', username, password, userip="127.0.0.1")
             if conn is None:
                 self.fail('Cannot connect')
 
@@ -224,7 +246,8 @@ class WebAdminTest(WebTest):
             is_secure = toBoolean(form.cleaned_data['ssl'])
 
             connector = Connector(server_id, is_secure)
-            conn = connector.create_connection('OMERO.web', username, password, userip="127.0.0.1")
+            conn = connector.create_connection(
+                'OMERO.web', username, password, userip="127.0.0.1")
             if conn is not None:
                 self.fail('This user does not exist. Login failure error!')
 
@@ -407,7 +430,9 @@ class WebAdminTest(WebTest):
         self.assertEquals(params['name'], group.name)
         self.assertEquals(params['description'], group.description)
         self.assertEquals(params['owners'], sorted(ownerIds))
-        self.assertEquals(sorted(mergeLists(params['owners'], params['members'])), sorted(memberIds))
+        self.assertEquals(
+            sorted(mergeLists(params['owners'], params['members'])),
+            sorted(memberIds))
         self.assertEquals(params['permissions'], permissions)
 
         # upgrade group to collaborative
@@ -430,7 +455,9 @@ class WebAdminTest(WebTest):
         self.assertEquals(params['name'], group.name)
         self.assertEquals(params['description'], group.description)
         self.assertEquals(params['owners'], sorted(ownerIds))
-        self.assertEquals(sorted(mergeLists(params['owners'], params['members'])), sorted(memberIds))
+        self.assertEquals(
+            sorted(mergeLists(params['owners'], params['members'])),
+            sorted(memberIds))
         self.assertEquals(params['permissions'], permissions)
 
     def test_badUpdateGroup(self):
@@ -469,7 +496,9 @@ class WebAdminTest(WebTest):
         ownerIds = [e.id for e in group.getOwners()]
         memberIds = [e.id for e in group.getMembers()]
         self.assertEquals(params['owners'], sorted(ownerIds))
-        self.assertEquals(sorted(mergeLists(params['owners'], [eid])), sorted(memberIds))
+        self.assertEquals(
+            sorted(mergeLists(params['owners'], [eid])),
+            sorted(memberIds))
 
         # remove user from the group
         params["members"] = [0]
@@ -477,7 +506,9 @@ class WebAdminTest(WebTest):
 
         try:
             _updateGroup(request, conn, gid)
-            self.fail("Can't remove user from the group members if this it's hs default group")
+            self.fail(
+                "Can't remove user from the group members if this it's " +
+                "hs default group")
         except omero.ValidationException:
             pass
 
@@ -485,7 +516,9 @@ class WebAdminTest(WebTest):
         group = conn.getObject("ExperimenterGroup", gid)
         memberIds = [e.id for e in group.getMembers()]
         if eid not in memberIds:
-            self.fail("Can't remove user from the group members if this it's hs default group")
+            self.fail(
+                "Can't remove user from the group members if this it's " +
+                "hs default group")
 
     def test_createExperimenters(self):
         conn = self.rootconn
@@ -527,8 +560,10 @@ class WebAdminTest(WebTest):
         self.assertEquals(params['institution'], experimenter.institution)
         self.assert_(not experimenter.isAdmin())
         self.assertEquals(params['active'], experimenter.isActive())
-        self.assertEquals(params['default_group'], experimenter.getDefaultGroup().id)
-        self.assertEquals(sorted(params['other_groups']), sorted(otherGroupIds))
+        self.assertEquals(
+            params['default_group'], experimenter.getDefaultGroup().id)
+        self.assertEquals(
+            sorted(params['other_groups']), sorted(otherGroupIds))
 
         params = {
             "omename": "webadmin_test_admin %s" % uuid,
@@ -558,8 +593,10 @@ class WebAdminTest(WebTest):
         self.assertEquals(params['institution'], experimenter.institution)
         self.assertEquals(params['administrator'], experimenter.isAdmin())
         self.assertEquals(params['active'], experimenter.isActive())
-        self.assertEquals(params['default_group'], experimenter.getDefaultGroup().id)
-        self.assertEquals(sorted(params['other_groups']), sorted(otherGroupIds))
+        self.assertEquals(
+            params['default_group'], experimenter.getDefaultGroup().id)
+        self.assertEquals(
+            sorted(params['other_groups']), sorted(otherGroupIds))
 
         params = {
             "omename": "webadmin_test_off %s" % uuid,
@@ -587,8 +624,10 @@ class WebAdminTest(WebTest):
         self.assertEquals(params['institution'], experimenter.institution)
         self.assert_(not experimenter.isAdmin())
         self.assert_(not experimenter.isActive())
-        self.assertEquals(params['default_group'], experimenter.getDefaultGroup().id)
-        self.assertEquals(sorted(params['other_groups']), sorted(otherGroupIds))
+        self.assertEquals(
+            params['default_group'], experimenter.getDefaultGroup().id)
+        self.assertEquals(
+            sorted(params['other_groups']), sorted(otherGroupIds))
 
     def test_badCreateExperimenters(self):
         conn = self.rootconn
@@ -673,8 +712,10 @@ class WebAdminTest(WebTest):
         self.assertEquals(params['institution'], experimenter.institution)
         self.assert_(experimenter.isAdmin())
         self.assert_(experimenter.isActive())
-        self.assertEquals(params['default_group'], experimenter.getDefaultGroup().id)
-        self.assertEquals(sorted(params['other_groups']), sorted(otherGroupIds))
+        self.assertEquals(
+            params['default_group'], experimenter.getDefaultGroup().id)
+        self.assertEquals(
+            sorted(params['other_groups']), sorted(otherGroupIds))
 
         # remove admin privilages and deactivate account
         params = {
@@ -705,8 +746,10 @@ class WebAdminTest(WebTest):
         self.assertEquals(params['institution'], experimenter.institution)
         self.assert_(not experimenter.isAdmin())
         self.assert_(not experimenter.isActive())
-        self.assertEquals(params['default_group'], experimenter.getDefaultGroup().id)
-        self.assertEquals(sorted(params['other_groups']), sorted(otherGroupIds))
+        self.assertEquals(
+            params['default_group'], experimenter.getDefaultGroup().id)
+        self.assertEquals(
+            sorted(params['other_groups']), sorted(otherGroupIds))
 
         try:
             self.loginAsUser(params['omename'], params['password'])
@@ -756,7 +799,8 @@ class WebAdminTest(WebTest):
         _changePassword(request, conn, eid)
 
         # login as user and change my password
-        user_conn = self.loginAsUser(params['omename'], params_passwd['password'])
+        user_conn = self.loginAsUser(
+            params['omename'], params_passwd['password'])
         params_passwd = {
             "old_password": "abc",
             "password": "foo",
@@ -834,7 +878,10 @@ def _createGroup(request, conn):
     # create group
     experimenters = list(conn.getObjects("Experimenter"))
     name_check = conn.checkGroupName(request.REQUEST.get('name'))
-    form = GroupForm(initial={'experimenters': experimenters}, data=request.POST.copy(), name_check=name_check)
+    form = GroupForm(
+        initial={'experimenters': experimenters},
+        data=request.POST.copy(),
+        name_check=name_check)
     if form.is_valid():
         name = form.cleaned_data['name']
         description = form.cleaned_data['description']
@@ -845,7 +892,8 @@ def _createGroup(request, conn):
         perm = setActualPermissions(permissions)
         listOfOwners = getSelectedExperimenters(conn, owners)
         gid = conn.createGroup(name, perm, listOfOwners, description)
-        new_members = getSelectedExperimenters(conn, mergeLists(members, owners))
+        new_members = getSelectedExperimenters(
+            conn, mergeLists(members, owners))
         group = conn.getObject("ExperimenterGroup", gid)
         conn.setMembersOfGroup(group, new_members)
         return gid
@@ -858,7 +906,10 @@ def _updateGroup(request, conn, gid):
     experimenters = list(conn.getObjects("Experimenter"))
     group = conn.getObject("ExperimenterGroup", gid)
     name_check = conn.checkGroupName(request.REQUEST.get('name'), group.name)
-    form = GroupForm(initial={'experimenters': experimenters}, data=request.POST.copy(), name_check=name_check)
+    form = GroupForm(
+        initial={'experimenters': experimenters},
+        data=request.POST.copy(),
+        name_check=name_check)
     if form.is_valid():
         name = form.cleaned_data['name']
         description = form.cleaned_data['description']
@@ -873,7 +924,8 @@ def _updateGroup(request, conn, gid):
             perm = None
         conn.updateGroup(group, name, perm, listOfOwners, description)
 
-        new_members = getSelectedExperimenters(conn, mergeLists(members, owners))
+        new_members = getSelectedExperimenters(
+            conn, mergeLists(members, owners))
         conn.setMembersOfGroup(group, new_members)
     else:
         raise Exception(form.errors.as_text())
@@ -888,7 +940,11 @@ def _createExperimenter(request, conn):
     email_check = conn.checkEmail(request.REQUEST.get('email'))
 
     initial = {'with_password': True, 'groups': otherGroupsInitialList(groups)}
-    form = ExperimenterForm(initial=initial, data=request.REQUEST.copy(), name_check=name_check, email_check=email_check)
+    form = ExperimenterForm(
+        initial=initial,
+        data=request.REQUEST.copy(),
+        name_check=name_check,
+        email_check=email_check)
     if form.is_valid():
         omename = form.cleaned_data['omename']
         firstName = form.cleaned_data['first_name']
@@ -918,7 +974,9 @@ def _createExperimenter(request, conn):
                 elif long(og) == g.id:
                     listOfOtherGroups.add(g)
 
-        return conn.createExperimenter(omename, firstName, lastName, email, admin, active, dGroup, listOfOtherGroups, password, middleName, institution)
+        return conn.createExperimenter(
+            omename, firstName, lastName, email, admin, active, dGroup,
+            listOfOtherGroups, password, middleName, institution)
     else:
         raise Exception(form.errors.as_text())
 
@@ -927,13 +985,20 @@ def _updateExperimenter(request, conn, eid):
     groups = list(conn.getObjects("ExperimenterGroup"))
     groups.sort(key=lambda x: x.getName().lower())
 
-    experimenter, defaultGroup, otherGroups, isLdapUser, hasAvatar = prepare_experimenter(conn, eid)
+    experimenter, defaultGroup, otherGroups, isLdapUser, hasAvatar = \
+        prepare_experimenter(conn, eid)
 
-    name_check = conn.checkOmeName(request.REQUEST.get('omename'), experimenter.omeName)
-    email_check = conn.checkEmail(request.REQUEST.get('email'), experimenter.email)
+    name_check = conn.checkOmeName(
+        request.REQUEST.get('omename'), experimenter.omeName)
+    email_check = conn.checkEmail(
+        request.REQUEST.get('email'), experimenter.email)
     initial = {'active': True, 'groups': otherGroupsInitialList(groups)}
 
-    form = ExperimenterForm(initial=initial, data=request.POST.copy(), name_check=name_check, email_check=email_check)
+    form = ExperimenterForm(
+        initial=initial,
+        data=request.POST.copy(),
+        name_check=name_check,
+        email_check=email_check)
 
     if form.is_valid():
         omename = form.cleaned_data['omename']
@@ -963,6 +1028,8 @@ def _updateExperimenter(request, conn, eid):
                 elif long(og) == g.id:
                     listOfOtherGroups.add(g)
 
-        conn.updateExperimenter(experimenter, omename, firstName, lastName, email, admin, active, dGroup, listOfOtherGroups, middleName, institution)
+        conn.updateExperimenter(
+            experimenter, omename, firstName, lastName, email, admin, active,
+            dGroup, listOfOtherGroups, middleName, institution)
     else:
         raise Exception(form.errors.as_text())

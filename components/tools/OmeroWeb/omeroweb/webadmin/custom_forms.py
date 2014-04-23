@@ -47,7 +47,7 @@ class OmeNameField(forms.CharField):
         return omeName
 
     def is_valid_omeName(self, omeName):
-        omeName_pattern = re.compile(r"(?:^|\s)[a-zA-Z0-9_.]")  # TODO: PATTERN !!!!!!!
+        omeName_pattern = re.compile(r"(?:^|\s)[a-zA-Z0-9_.]")  # TODO: PATTERN
         return omeName_pattern.match(omeName) is not None
 
 
@@ -180,8 +180,8 @@ class GroupModelMultipleChoiceField(GroupModelChoiceField):
     hidden_widget = MultipleHiddenInput
     default_error_messages = {
         'list': _(u'Enter a list of values.'),
-        'invalid_choice': _(u'Select a valid choice. That choice is not one of the'
-                            u' available choices.'),
+        'invalid_choice': _(u'Select a valid choice. That choice is not one'
+                            u' of the available choices.'),
     }
 
     def __init__(self, queryset, cache_choices=False, required=True,
@@ -215,7 +215,8 @@ class GroupModelMultipleChoiceField(GroupModelChoiceField):
                         if long(val) == q.id:
                             res = True
                 if not res:
-                    raise ValidationError(self.error_messages['invalid_choice'])
+                    raise ValidationError(
+                        self.error_messages['invalid_choice'])
                 else:
                     final_values.append(val)
         return final_values
@@ -232,7 +233,8 @@ class ExperimenterQuerySetIterator(object):
         if self.empty_label is not None:
             self.rendered_set.append((u"", self.empty_label))
 
-        # queryset may be a list of Experimenters 'exp_list' OR may be (  ("Leaders", exp_list), ("Members", exp_list)  )
+        # queryset may be a list of Experimenters 'exp_list' OR may be
+        # (  ("Leaders", exp_list), ("Members", exp_list)  )
         for obj in queryset:
             if hasattr(obj, 'id'):
                 self.rendered_set.append(self.render(obj))
@@ -246,9 +248,6 @@ class ExperimenterQuerySetIterator(object):
 
     def render(self, obj):
         try:
-            # lastName = obj.details.owner.lastName.val if hasattr(obj.details.owner.lastName, 'val') else ""
-            # firstName = obj.details.owner.firstName.val if hasattr(obj.details.owner.firstName, 'val') else ""
-            # middleName = obj.details.owner.middleName.val if hasattr(obj.details.owner.middleName, 'val') else ""
             if hasattr(obj, 'getFullName'):
                 name = "%s (%s)" % (obj.getFullName(), obj.omeName)
             else:
@@ -268,13 +267,16 @@ class ExperimenterQuerySetIterator(object):
                 # 'myself' was introduced in the commit below, but it's not
                 # clear what it should be.  Setting to blank string to prevent
                 # exception.
-                # https://github.com/openmicroscopy/openmicroscopy/commit/f6b5dcd89ce9e03c7f0c7cdb2abc5e4da5d717ee
+                # https://github.com/openmicroscopy/openmicroscopy/commit
+                #                   /f6b5dcd89ce9e03c7f0c7cdb2abc5e4da5d717ee
                 myself = ''
 
                 if middleName != '' and middleName is not None:
-                    name = "%s%s %s. %s (%s)" % (myself, firstName, middleName[:1], lastName, omeName)
+                    name = "%s%s %s. %s (%s)" % (
+                        myself, firstName, middleName[:1], lastName, omeName)
                 else:
-                    name = "%s%s %s (%s)" % (myself, firstName, lastName, omeName)
+                    name = "%s%s %s (%s)" % (
+                        myself, firstName, lastName, omeName)
 
             l = len(name)
             if l > 50:
@@ -314,7 +316,8 @@ class ExperimenterModelChoiceField(ModelChoiceField):
 
     def to_python(self, value):
         """
-        Go through all values in queryset, looking to find 'value'. If not found raise ValidationError.
+        Go through all values in queryset, looking to find 'value'.
+        If not found raise ValidationError.
 
         @return value:      The input value
         """
@@ -355,8 +358,8 @@ class ExperimenterModelMultipleChoiceField(ExperimenterModelChoiceField):
     hidden_widget = MultipleHiddenInput
     default_error_messages = {
         'list': _(u'Enter a list of values.'),
-        'invalid_choice': _(u'Select a valid choice. That choice is not one of the'
-                            u' available choices.'),
+        'invalid_choice': _(u'Select a valid choice. That choice is not one'
+                            u' of the available choices.'),
     }
 
     def __init__(self, queryset, cache_choices=False, required=True,
@@ -390,7 +393,8 @@ class ExperimenterModelMultipleChoiceField(ExperimenterModelChoiceField):
                         if long(val) == q.id:
                             res = True
                 if not res:
-                    raise ValidationError(self.error_messages['invalid_choice'])
+                    raise ValidationError(
+                        self.error_messages['invalid_choice'])
                 else:
                     final_values.append(val)
         return final_values
@@ -403,7 +407,9 @@ class DefaultGroupField(ChoiceField):
         Check that the field was selected.
         """
         if not value:
-            raise forms.ValidationError("Choose one of the 'Selected groups' to specify 'Default Group'.")
+            raise forms.ValidationError(
+                "Choose one of the 'Selected groups' " +
+                "to specify 'Default Group'.")
 
         # Always return the cleaned data.
         return value
