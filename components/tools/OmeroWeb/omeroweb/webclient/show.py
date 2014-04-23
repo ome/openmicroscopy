@@ -64,7 +64,10 @@ class Show(object):
         @type menu String
         """
         # The list of "paths" ("type-id") we have been requested to
-        # show/select in the user interface.  May be modified if
+        # show/select in the user interface.  May be modified if one or
+        # more of the elements is not in the tree.  This is currently the
+        # case for all Screen-Plate-Well hierarchy elements below Plate
+        # (Well for example).
         self._initially_select = list()
         # The nodes of the tree that will be initially open based on the
         # nodes that are initially selected.
