@@ -586,7 +586,6 @@ class TestShow(object):
         assert show.initially_select == \
             screen_path_request['initially_select']
 
-
     def test_screen_plate_legacy_path(
             self, conn, screen_plate_path_request, screen_plate):
         show = Show(conn, screen_plate_path_request['request'], None)
