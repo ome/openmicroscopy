@@ -46,9 +46,7 @@ class LdapControl(BaseControl):
         list = parser.add(
             sub, self.list,
             help="List all OMERO users with DNs")
-        list.add_argument(
-            "--csv", help="Use csv table style", default=False,
-            action="store_true")
+        list.add_style_argument()
 
         getdn = parser.add(sub, self.getdn, help="Get DN for user on stdout")
         setdn = parser.add(
@@ -115,8 +113,8 @@ user never had a password, one will need to be set!""")
 
             count = 0
             tb = TableBuilder("#")
-            if args.csv:
-                tb.set_style("csv")
+            if args.style:
+                tb.set_style(args.style)
             tb.cols(["Id", "OmeName", "DN"])
             for map in list_of_dn_user_maps:
                 for dn, id in map.items():
