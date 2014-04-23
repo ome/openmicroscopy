@@ -163,7 +163,7 @@ class Show(object):
             self.conn.SERVICE_OPTS.setOmeroGroup('-1')
             first_selected = self._load_first_selected(first_obj, first_id)
         except:
-            raise#pass
+            pass
         if first_obj not in self.TOP_LEVEL_PREFIXES:
             # Need to see if first item has parents
             if first_selected is not None:
