@@ -19,20 +19,22 @@
 #
 
 
-import unittest, os
+import unittest
+import os
 import omero
 
 from request_factory import fakeRequest
 
 from webadmin.webadmin_utils import toBoolean
 from webadmin.forms import LoginForm, GroupForm, ExperimenterForm, \
-                ChangePassword
+    ChangePassword
 
 from connector import Server, Connector
 from webadmin.views import getActualPermissions, setActualPermissions, \
-                        otherGroupsInitialList, prepare_experimenter, \
-                        getSelectedExperimenters, \
-                        mergeLists
+    otherGroupsInitialList, prepare_experimenter, \
+    getSelectedExperimenters, \
+    mergeLists
+
 
 # Test model
 class ServerModelTest (unittest.TestCase):
@@ -90,7 +92,7 @@ class ServerModelTest (unittest.TestCase):
 
 class WebTest(unittest.TestCase):
 
-    def setUp (self):
+    def setUp(self):
         c = omero.client(pmap=['--Ice.Config='+(os.environ.get("ICE_CONFIG"))])
         try:
             self.root_password = c.ic.getProperties().getProperty('omero.rootpass')
@@ -110,7 +112,7 @@ class WebTest(unittest.TestCase):
     def tearDown(self):
         try:
             self.rootconn.seppuku()
-        except Exception,e:
+        except Exception, e:
             self.fail(e)
 
     def loginAsUser(self, username, password):
@@ -122,12 +124,12 @@ class WebTest(unittest.TestCase):
                 raise Exception("Cannot connect")
             return conn
         else:
-            raise Exception("'%s' is not on omero.web.server_list"  % self.omero_host)
+            raise Exception("'%s' is not on omero.web.server_list" % self.omero_host)
 
 
 class WebAdminConfigTest(unittest.TestCase):
 
-    def setUp (self):
+    def setUp(self):
         c = omero.client(pmap=['--Ice.Config='+(os.environ.get("ICE_CONFIG"))])
         try:
             self.root_password = c.ic.getProperties().getProperty('omero.rootpass')
@@ -148,6 +150,7 @@ class WebAdminConfigTest(unittest.TestCase):
         if not connector.check_version('omero-webadmin-test'):
             self.fail('Client version does not match server')
 
+
 # Testing controllers, and forms
 class WebAdminTest(WebTest):
 
@@ -155,8 +158,8 @@ class WebAdminTest(WebTest):
         params = {
             'username': 'root',
             'password': self.root_password,
-            'server':self.server_id,
-            'ssl':'on'
+            'server': self.server_id,
+            'ssl': 'on'
         }
         request = fakeRequest(method="post", path="/webadmin/login", params=params)
 
@@ -178,8 +181,8 @@ class WebAdminTest(WebTest):
         params = {
             'username': 'root',
             'password': self.root_password,
-            'server':self.server_id,
-            'ssl':'on'
+            'server': self.server_id,
+            'ssl': 'on'
         }
         request = fakeRequest(method="post", params=params)
 
@@ -208,7 +211,7 @@ class WebAdminTest(WebTest):
         params = {
             'username': 'notauser',
             'password': 'nonsence',
-            'server':self.server_id
+            'server': self.server_id
         }
         request = fakeRequest(method="post", params=params)
 
@@ -235,11 +238,11 @@ class WebAdminTest(WebTest):
 
         # private group
         params = {
-            "name":u"русский_алфавит %s" % uuid,
-            "description":u"Frühstück-Śniadanie. Tschüß-Cześć",
+            "name": u"русский_алфавит %s" % uuid,
+            "description": u"Frühstück-Śniadanie. Tschüß-Cześć",
             "owners": [0L],
             "members": [0L],
-            "permissions":0
+            "permissions": 0
         }
         request = fakeRequest(method="post", params=params)
         gid = _createGroup(request, conn)
@@ -261,9 +264,9 @@ class WebAdminTest(WebTest):
 
         # private group
         params = {
-            "name":"webadmin_test_group_private %s" % uuid,
-            "description":"test group",
-            "permissions":0
+            "name": "webadmin_test_group_private %s" % uuid,
+            "description": "test group",
+            "permissions": 0
         }
         request = fakeRequest(method="post", params=params)
         gid = _createGroup(request, conn)
@@ -277,9 +280,9 @@ class WebAdminTest(WebTest):
 
         # collaborative read-only group
         params = {
-            "name":"webadmin_test_group_read-only %s" % uuid,
-            "description":"test group",
-            "permissions":1
+            "name": "webadmin_test_group_read-only %s" % uuid,
+            "description": "test group",
+            "permissions": 1
         }
         request = fakeRequest(method="post", params=params)
         gid = _createGroup(request, conn)
@@ -293,9 +296,9 @@ class WebAdminTest(WebTest):
 
         # collaborative read-annotate group
         params = {
-            "name":"webadmin_test_group_read-ann %s" % uuid,
-            "description":"test group",
-            "permissions":2
+            "name": "webadmin_test_group_read-ann %s" % uuid,
+            "description": "test group",
+            "permissions": 2
         }
         request = fakeRequest(method="post", params=params)
         gid = _createGroup(request, conn)
@@ -326,53 +329,53 @@ class WebAdminTest(WebTest):
 
         # default group - helper
         params = {
-            "name":"webadmin_test_default %s" % uuid,
-            "description":"test group default",
+            "name": "webadmin_test_default %s" % uuid,
+            "description": "test group default",
             "owners": [0L],
-            "permissions":0
+            "permissions": 0
         }
         request = fakeRequest(method="post", params=params)
         default_gid = _createGroup(request, conn)
 
         # create new user
         params = {
-            "omename":"webadmin_test_owner %s" % uuid,
-            "first_name":uuid,
+            "omename": "webadmin_test_owner %s" % uuid,
+            "first_name": uuid,
             "middle_name": uuid,
-            "last_name":uuid,
-            "email":"owner_%s@domain.com" % uuid,
-            "institution":"Laboratory",
-            "active":True,
-            "default_group":default_gid,
-            "other_groups":[default_gid],
-            "password":"123",
-            "confirmation":"123"
+            "last_name": uuid,
+            "email": "owner_%s@domain.com" % uuid,
+            "institution": "Laboratory",
+            "active": True,
+            "default_group": default_gid,
+            "other_groups": [default_gid],
+            "password": "123",
+            "confirmation": "123"
         }
         request = fakeRequest(method="post", params=params)
         eid = _createExperimenter(request, conn)
 
         # create new user2
         params = {
-            "omename":"webadmin_test_member %s" % uuid,
-            "first_name":uuid,
+            "omename": "webadmin_test_member %s" % uuid,
+            "first_name": uuid,
             "middle_name": uuid,
-            "last_name":uuid,
-            "email":"member_%s@domain.com" % uuid,
-            "institution":"Laboratory",
-            "active":True,
-            "default_group":default_gid,
-            "other_groups":[default_gid],
-            "password":"123",
-            "confirmation":"123"
+            "last_name": uuid,
+            "email": "member_%s@domain.com" % uuid,
+            "institution": "Laboratory",
+            "active": True,
+            "default_group": default_gid,
+            "other_groups": [default_gid],
+            "password": "123",
+            "confirmation": "123"
         }
         request = fakeRequest(method="post", params=params)
         eid2 = _createExperimenter(request, conn)
 
         # create private group
         params = {
-            "name":"webadmin_test_group_private %s" % uuid,
-            "description":"test group",
-            "permissions":0
+            "name": "webadmin_test_group_private %s" % uuid,
+            "description": "test group",
+            "permissions": 0
         }
         request = fakeRequest(method="post", params=params)
         gid = _createGroup(request, conn)
@@ -387,11 +390,11 @@ class WebAdminTest(WebTest):
         # upgrade group to collaborative
         # read-only group and add new owner and members
         params = {
-            "name":"webadmin_test_group_read-only %s" % uuid,
-            "description":"test group changed",
+            "name": "webadmin_test_group_read-only %s" % uuid,
+            "description": "test group changed",
             "owners": [eid],
             "members": [eid2],
-            "permissions":1
+            "permissions": 1
         }
         request = fakeRequest(method="post", params=params)
         _updateGroup(request, conn, gid)
@@ -410,11 +413,11 @@ class WebAdminTest(WebTest):
         # upgrade group to collaborative
         # read-ann group and change owners and members
         params = {
-            "name":"webadmin_test_group_read-only %s" % uuid,
-            "description":"test group changed",
+            "name": "webadmin_test_group_read-only %s" % uuid,
+            "description": "test group changed",
             "owners": [eid2],
-            "members": [0,eid],
-            "permissions":1
+            "members": [0, eid],
+            "permissions": 1
         }
         request = fakeRequest(method="post", params=params)
         _updateGroup(request, conn, gid)
@@ -430,34 +433,33 @@ class WebAdminTest(WebTest):
         self.assertEquals(sorted(mergeLists(params['owners'], params['members'])), sorted(memberIds))
         self.assertEquals(params['permissions'], permissions)
 
-
     def test_badUpdateGroup(self):
         conn = self.rootconn
         uuid = conn._sessionUuid
 
         # create group
         params = {
-            "name":"webadmin_test_group_private %s" % uuid,
-            "description":"test group",
+            "name": "webadmin_test_group_private %s" % uuid,
+            "description": "test group",
             "owners": [0L],
-            "permissions":0
+            "permissions": 0
         }
         request = fakeRequest(method="post", params=params)
         gid = _createGroup(request, conn)
 
         # create new users
         params2 = {
-            "omename":"webadmin_test_user1 %s" % uuid,
-            "first_name":uuid,
+            "omename": "webadmin_test_user1 %s" % uuid,
+            "first_name": uuid,
             "middle_name": uuid,
-            "last_name":uuid,
-            "email":"user1_%s@domain.com" % uuid,
-            "institution":"Laboratory",
-            "active":True,
-            "default_group":gid,
-            "other_groups":[gid],
-            "password":"123",
-            "confirmation":"123"
+            "last_name": uuid,
+            "email": "user1_%s@domain.com" % uuid,
+            "institution": "Laboratory",
+            "active": True,
+            "default_group": gid,
+            "other_groups": [gid],
+            "password": "123",
+            "confirmation": "123"
         }
         request = fakeRequest(method="post", params=params2)
         eid = _createExperimenter(request, conn)
@@ -491,25 +493,25 @@ class WebAdminTest(WebTest):
 
         # private group
         params = {
-            "name":"webadmin_test_group_private %s" % uuid,
-            "description":"test group",
-            "permissions":0
+            "name": "webadmin_test_group_private %s" % uuid,
+            "description": "test group",
+            "permissions": 0
         }
         request = fakeRequest(method="post", params=params)
         gid = _createGroup(request, conn)
 
         params = {
-            "omename":"webadmin_test_user %s" % uuid,
-            "first_name":uuid,
+            "omename": "webadmin_test_user %s" % uuid,
+            "first_name": uuid,
             "middle_name": uuid,
-            "last_name":uuid,
-            "email":"user_%s@domain.com" % uuid,
-            "institution":"Laboratory",
-            "active":True,
-            "default_group":gid,
-            "other_groups":[gid],
-            "password":"123",
-            "confirmation":"123"
+            "last_name": uuid,
+            "email": "user_%s@domain.com" % uuid,
+            "institution": "Laboratory",
+            "active": True,
+            "default_group": gid,
+            "other_groups": [gid],
+            "password": "123",
+            "confirmation": "123"
         }
         request = fakeRequest(method="post", params=params)
         eid = _createExperimenter(request, conn)
@@ -529,18 +531,18 @@ class WebAdminTest(WebTest):
         self.assertEquals(sorted(params['other_groups']), sorted(otherGroupIds))
 
         params = {
-            "omename":"webadmin_test_admin %s" % uuid,
-            "first_name":uuid,
+            "omename": "webadmin_test_admin %s" % uuid,
+            "first_name": uuid,
             "middle_name": uuid,
-            "last_name":uuid,
-            "email":"admin_%s@domain.com" % uuid,
-            "institution":"Laboratory",
+            "last_name": uuid,
+            "email": "admin_%s@domain.com" % uuid,
+            "institution": "Laboratory",
             "administrator": True,
-            "active":True,
-            "default_group":gid,
-            "other_groups":[0,gid],
-            "password":"123",
-            "confirmation":"123"
+            "active": True,
+            "default_group": gid,
+            "other_groups": [0, gid],
+            "password": "123",
+            "confirmation": "123"
         }
         request = fakeRequest(method="post", params=params)
         eid = _createExperimenter(request, conn)
@@ -560,16 +562,16 @@ class WebAdminTest(WebTest):
         self.assertEquals(sorted(params['other_groups']), sorted(otherGroupIds))
 
         params = {
-            "omename":"webadmin_test_off %s" % uuid,
-            "first_name":uuid,
+            "omename": "webadmin_test_off %s" % uuid,
+            "first_name": uuid,
             "middle_name": uuid,
-            "last_name":uuid,
-            "email":"off_%s@domain.com" % uuid,
-            "institution":"Laboratory",
-            "default_group":gid,
-            "other_groups":[gid],
-            "password":"123",
-            "confirmation":"123"
+            "last_name": uuid,
+            "email": "off_%s@domain.com" % uuid,
+            "institution": "Laboratory",
+            "default_group": gid,
+            "other_groups": [gid],
+            "password": "123",
+            "confirmation": "123"
         }
         request = fakeRequest(method="post", params=params)
         eid = _createExperimenter(request, conn)
@@ -607,9 +609,9 @@ class WebAdminTest(WebTest):
 
         # private group
         params = {
-            "name":"webadmin_test_group_private %s" % uuid,
-            "description":"test group",
-            "permissions":0
+            "name": "webadmin_test_group_private %s" % uuid,
+            "description": "test group",
+            "permissions": 0
         }
 
         request = fakeRequest(method="post", params=params)
@@ -617,45 +619,45 @@ class WebAdminTest(WebTest):
 
         # default group - helper
         params = {
-            "name":"webadmin_test_default %s" % uuid,
-            "description":"test group default",
-            "permissions":0
+            "name": "webadmin_test_default %s" % uuid,
+            "description": "test group default",
+            "permissions": 0
         }
         request = fakeRequest(method="post", params=params)
         default_gid = _createGroup(request, conn)
 
         # create experimenter
         params = {
-            "omename":"webadmin_test_user %s" % uuid,
-            "first_name":uuid,
+            "omename": "webadmin_test_user %s" % uuid,
+            "first_name": uuid,
             "middle_name": uuid,
-            "last_name":uuid,
-            "email":"user_%s@domain.com" % uuid,
-            "institution":"Laboratory",
-            "active":True,
-            "administrator":False,
-            "default_group":gid,
-            "other_groups":[gid],
-            "password":"123",
-            "confirmation":"123"
+            "last_name": uuid,
+            "email": "user_%s@domain.com" % uuid,
+            "institution": "Laboratory",
+            "active": True,
+            "administrator": False,
+            "default_group": gid,
+            "other_groups": [gid],
+            "password": "123",
+            "confirmation": "123"
         }
         request = fakeRequest(method="post", params=params)
         eid = _createExperimenter(request, conn)
 
         # add admin privilages and change default group
         params = {
-            "omename":"webadmin_test_admin %s" % uuid,
-            "first_name":uuid,
+            "omename": "webadmin_test_admin %s" % uuid,
+            "first_name": uuid,
             "middle_name": uuid,
-            "last_name":uuid,
-            "email":"admin_%s@domain.com" % uuid,
-            "institution":"Laboratory",
+            "last_name": uuid,
+            "email": "admin_%s@domain.com" % uuid,
+            "institution": "Laboratory",
             "administrator": True,
-            "active":True,
-            "default_group":default_gid,
-            "other_groups":[0,gid,default_gid],
-            "password":"123",
-            "confirmation":"123"
+            "active": True,
+            "default_group": default_gid,
+            "other_groups": [0, gid, default_gid],
+            "password": "123",
+            "confirmation": "123"
         }
         request = fakeRequest(method="post", params=params)
         _updateExperimenter(request, conn, eid)
@@ -676,18 +678,18 @@ class WebAdminTest(WebTest):
 
         # remove admin privilages and deactivate account
         params = {
-            "omename":"webadmin_test_admin %s" % uuid,
-            "first_name":uuid,
+            "omename": "webadmin_test_admin %s" % uuid,
+            "first_name": uuid,
             "middle_name": uuid,
-            "last_name":uuid,
-            "email":"admin_%s@domain.com" % uuid,
-            "institution":"Laboratory",
+            "last_name": uuid,
+            "email": "admin_%s@domain.com" % uuid,
+            "institution": "Laboratory",
             "administrator": False,
-            "active":False,
-            "default_group":default_gid,
-            "other_groups":[gid,default_gid],
-            "password":"123",
-            "confirmation":"123"
+            "active": False,
+            "default_group": default_gid,
+            "other_groups": [gid, default_gid],
+            "password": "123",
+            "confirmation": "123"
         }
         request = fakeRequest(method="post", params=params)
         _updateExperimenter(request, conn, eid)
@@ -706,10 +708,9 @@ class WebAdminTest(WebTest):
         self.assertEquals(params['default_group'], experimenter.getDefaultGroup().id)
         self.assertEquals(sorted(params['other_groups']), sorted(otherGroupIds))
 
-
         try:
-           self.loginAsUser(params['omename'], params['password'])
-           self.fail('This user was deactivated. Login failure error!')
+            self.loginAsUser(params['omename'], params['password'])
+            self.fail('This user was deactivated. Login failure error!')
         except:
             pass
 
@@ -720,8 +721,8 @@ class WebAdminTest(WebTest):
         # private group
         params = {
             "name": uuid,
-            "description":"password test",
-            "permissions":0
+            "description": "password test",
+            "permissions": 0
         }
 
         request = fakeRequest(method="post", params=params)
@@ -729,27 +730,27 @@ class WebAdminTest(WebTest):
 
         # create experimenter
         params = {
-            "omename":'password%s' % uuid,
-            "first_name":uuid,
+            "omename": 'password%s' % uuid,
+            "first_name": uuid,
             "middle_name": uuid,
-            "last_name":uuid,
-            "email":"password_%s@domain.com" % uuid,
-            "institution":"Laboratory",
+            "last_name": uuid,
+            "email": "password_%s@domain.com" % uuid,
+            "institution": "Laboratory",
             "administrator": False,
-            "active":True,
-            "default_group":gid,
-            "other_groups":[gid],
-            "password":"123",
-            "confirmation":"123"
+            "active": True,
+            "default_group": gid,
+            "other_groups": [gid],
+            "password": "123",
+            "confirmation": "123"
         }
         request = fakeRequest(method="post", params=params)
         eid = _createExperimenter(request, conn)
 
-        #change password as root
+        # change password as root
         params_passwd = {
-            "password":"abc",
-            "confirmation":"abc",
-            "old_password":self.root_password
+            "password": "abc",
+            "confirmation": "abc",
+            "old_password": self.root_password
         }
         request = fakeRequest(method="post", params=params_passwd)
         _changePassword(request, conn, eid)
@@ -757,9 +758,9 @@ class WebAdminTest(WebTest):
         # login as user and change my password
         user_conn = self.loginAsUser(params['omename'], params_passwd['password'])
         params_passwd = {
-            "old_password":"abc",
-            "password":"foo",
-            "confirmation":"foo"
+            "old_password": "abc",
+            "password": "foo",
+            "confirmation": "foo"
         }
         request = fakeRequest(method="post", params=params_passwd)
         _changePassword(request, user_conn)
@@ -773,8 +774,8 @@ class WebAdminTest(WebTest):
         # private group
         params = {
             "name": uuid,
-            "description":"password test",
-            "permissions":0
+            "description": "password test",
+            "permissions": 0
         }
 
         request = fakeRequest(method="post", params=params)
@@ -782,18 +783,18 @@ class WebAdminTest(WebTest):
 
         # create experimenter
         params = {
-            "omename":'password%s' % uuid,
-            "first_name":uuid,
+            "omename": 'password%s' % uuid,
+            "first_name": uuid,
             "middle_name": uuid,
-            "last_name":uuid,
-            "email":"password_%s@domain.com" % uuid,
-            "institution":"Laboratory",
+            "last_name": uuid,
+            "email": "password_%s@domain.com" % uuid,
+            "institution": "Laboratory",
             "administrator": False,
-            "active":True,
-            "default_group":gid,
-            "other_groups":[gid],
-            "password":"123",
-            "confirmation":"123"
+            "active": True,
+            "default_group": gid,
+            "other_groups": [gid],
+            "password": "123",
+            "confirmation": "123"
         }
         request = fakeRequest(method="post", params=params)
         _createExperimenter(request, conn)
@@ -811,6 +812,7 @@ class WebAdminTest(WebTest):
 
         self.loginAsUser(params['omename'], params['password'])
 
+
 ####################################
 # helpers
 
@@ -827,11 +829,12 @@ def _changePassword(request, conn, eid=None):
     else:
         raise Exception(password_form.errors.as_text())
 
+
 def _createGroup(request, conn):
-    #create group
+    # create group
     experimenters = list(conn.getObjects("Experimenter"))
     name_check = conn.checkGroupName(request.REQUEST.get('name'))
-    form = GroupForm(initial={'experimenters':experimenters}, data=request.POST.copy(), name_check=name_check)
+    form = GroupForm(initial={'experimenters': experimenters}, data=request.POST.copy(), name_check=name_check)
     if form.is_valid():
         name = form.cleaned_data['name']
         description = form.cleaned_data['description']
@@ -842,19 +845,20 @@ def _createGroup(request, conn):
         perm = setActualPermissions(permissions)
         listOfOwners = getSelectedExperimenters(conn, owners)
         gid = conn.createGroup(name, perm, listOfOwners, description)
-        new_members = getSelectedExperimenters(conn, mergeLists(members,owners))
+        new_members = getSelectedExperimenters(conn, mergeLists(members, owners))
         group = conn.getObject("ExperimenterGroup", gid)
         conn.setMembersOfGroup(group, new_members)
         return gid
     else:
         raise Exception(form.errors.as_text())
 
+
 def _updateGroup(request, conn, gid):
     # update group
     experimenters = list(conn.getObjects("Experimenter"))
     group = conn.getObject("ExperimenterGroup", gid)
     name_check = conn.checkGroupName(request.REQUEST.get('name'), group.name)
-    form = GroupForm(initial={'experimenters':experimenters}, data=request.POST.copy(), name_check=name_check)
+    form = GroupForm(initial={'experimenters': experimenters}, data=request.POST.copy(), name_check=name_check)
     if form.is_valid():
         name = form.cleaned_data['name']
         description = form.cleaned_data['description']
@@ -869,10 +873,11 @@ def _updateGroup(request, conn, gid):
             perm = None
         conn.updateGroup(group, name, perm, listOfOwners, description)
 
-        new_members = getSelectedExperimenters(conn, mergeLists(members,owners))
+        new_members = getSelectedExperimenters(conn, mergeLists(members, owners))
         conn.setMembersOfGroup(group, new_members)
     else:
         raise Exception(form.errors.as_text())
+
 
 def _createExperimenter(request, conn):
     # create experimenter
@@ -882,7 +887,7 @@ def _createExperimenter(request, conn):
     name_check = conn.checkOmeName(request.REQUEST.get('omename'))
     email_check = conn.checkEmail(request.REQUEST.get('email'))
 
-    initial={'with_password':True, 'groups':otherGroupsInitialList(groups)}
+    initial = {'with_password': True, 'groups': otherGroupsInitialList(groups)}
     form = ExperimenterForm(initial=initial, data=request.REQUEST.copy(), name_check=name_check, email_check=email_check)
     if form.is_valid():
         omename = form.cleaned_data['omename']
@@ -917,6 +922,7 @@ def _createExperimenter(request, conn):
     else:
         raise Exception(form.errors.as_text())
 
+
 def _updateExperimenter(request, conn, eid):
     groups = list(conn.getObjects("ExperimenterGroup"))
     groups.sort(key=lambda x: x.getName().lower())
@@ -925,7 +931,7 @@ def _updateExperimenter(request, conn, eid):
 
     name_check = conn.checkOmeName(request.REQUEST.get('omename'), experimenter.omeName)
     email_check = conn.checkEmail(request.REQUEST.get('email'), experimenter.email)
-    initial={'active':True, 'groups':otherGroupsInitialList(groups)}
+    initial = {'active': True, 'groups': otherGroupsInitialList(groups)}
 
     form = ExperimenterForm(initial=initial, data=request.POST.copy(), name_check=name_check, email_check=email_check)
 

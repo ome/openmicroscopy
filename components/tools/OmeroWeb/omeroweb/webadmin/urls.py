@@ -29,24 +29,25 @@ from omeroweb.webadmin import views
 from omeroweb.webclient import views as webclient_views
 
 # url patterns
-urlpatterns = patterns('',
+urlpatterns = patterns(
+    '',
 
-    url( r'^$', views.index, name="waindex" ),
-    url( r'^login/$', webclient_views.login, name="walogin" ),
-    url( r'^logout/$', views.logout, name="walogout" ),
-    url( r'^forgottenpassword/$', views.forgotten_password, name="waforgottenpassword" ),
-    url( r'^experimenters/$', views.experimenters, name="waexperimenters" ),
-    url( r'^experimenter/(?P<action>[a-z]+)/(?:(?P<eid>[0-9]+)/)?$', views.manage_experimenter, name="wamanageexperimenterid" ),
-    url( r'^change_password/(?P<eid>[0-9]+)/$', views.manage_password, name="wamanagechangepasswordid" ),
-    url( r'^groups/$', views.groups, name="wagroups" ),
-    url( r'^group/(?P<action>((?i)new|create|edit|save))/(?:(?P<gid>[0-9]+)/)?$', views.manage_group, name="wamanagegroupid" ),
-    url( r'^group_owner/(?P<action>((?i)edit|save))/(?P<gid>[0-9]+)/$', views.manage_group_owner, name="wamanagegroupownerid" ),
-    url( r'^myaccount/(?:(?P<action>[a-z]+)/)?$', views.my_account, name="wamyaccount" ),
-    url( r'^stats/$', views.stats, name="wastats" ),
-    url( r'^drivespace/$', views.drivespace, {'template':'json'}, name="wadrivespace"),
-    url( r'^load_drivespace/$', views.load_drivespace, name="waloaddrivespace"),
+    url(r'^$', views.index, name="waindex"),
+    url(r'^login/$', webclient_views.login, name="walogin"),
+    url(r'^logout/$', views.logout, name="walogout"),
+    url(r'^forgottenpassword/$', views.forgotten_password, name="waforgottenpassword"),
+    url(r'^experimenters/$', views.experimenters, name="waexperimenters"),
+    url(r'^experimenter/(?P<action>[a-z]+)/(?:(?P<eid>[0-9]+)/)?$', views.manage_experimenter, name="wamanageexperimenterid"),
+    url(r'^change_password/(?P<eid>[0-9]+)/$', views.manage_password, name="wamanagechangepasswordid"),
+    url(r'^groups/$', views.groups, name="wagroups"),
+    url(r'^group/(?P<action>((?i)new|create|edit|save))/(?:(?P<gid>[0-9]+)/)?$', views.manage_group, name="wamanagegroupid"),
+    url(r'^group_owner/(?P<action>((?i)edit|save))/(?P<gid>[0-9]+)/$', views.manage_group_owner, name="wamanagegroupownerid"),
+    url(r'^myaccount/(?:(?P<action>[a-z]+)/)?$', views.my_account, name="wamyaccount"),
+    url(r'^stats/$', views.stats, name="wastats"),
+    url(r'^drivespace/$', views.drivespace, {'template': 'json'}, name="wadrivespace"),
+    url(r'^load_drivespace/$', views.load_drivespace, name="waloaddrivespace"),
 
-    url( r'^change_avatar/(?P<eid>[0-9]+)/(?:(?P<action>[a-z]+)/)?$', views.manage_avatar, name="wamanageavatar"),
-    url( r'^myphoto/$', views.myphoto, name="wamyphoto"),
+    url(r'^change_avatar/(?P<eid>[0-9]+)/(?:(?P<action>[a-z]+)/)?$', views.manage_avatar, name="wamanageavatar"),
+    url(r'^myphoto/$', views.myphoto, name="wamyphoto"),
 
 )

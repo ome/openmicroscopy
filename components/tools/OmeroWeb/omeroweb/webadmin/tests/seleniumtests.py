@@ -24,6 +24,7 @@ import omero
 from omeroweb.webgateway.tests.seleniumbase import SeleniumTestBase, Utils
 from random import random
 
+
 def createGroup(sel, groupName):
     """
     Helper method for creating a new group with the give name.
@@ -43,8 +44,8 @@ def createGroup(sel, groupName):
         # find group in the table
         i = 1
         while sel.get_text("//table[@id='groupTable']/tbody/tr[%s]/td[2]" % i) != groupName:
-           i+=1
-           # raises exception if out of bounds for the html table
+            i += 1
+            # raises exception if out of bounds for the html table
         idTxt = sel.get_text("//table[@id='groupTable']/tbody/tr[%s]/td[1]" % i)
         gId = long(idTxt.strip("id:"))
     return gId
@@ -79,16 +80,17 @@ def createExperimenter(sel, omeName, groupNames, password="ome", firstName="Sele
         # try to get experimenter ID, look in the table
         i = 0   # jquery selector uses 0-based index
         while sel.get_text('jquery=#experimenterTable tbody tr td.action+td+td:eq(%d)' % i) != omeName:
-           i+=1
-           # raises exception if out of bounds for the html table
-        idTxt = sel.get_text("//table[@id='experimenterTable']/tbody/tr[%d]/td[1]" % (i+1) ) # 1-based index
+            i += 1
+            # raises exception if out of bounds for the html table
+        idTxt = sel.get_text("//table[@id='experimenterTable']/tbody/tr[%d]/td[1]" % (i+1))  # 1-based index
         eId = long(idTxt.strip("id:"))  # 'id:123'
 
     return eId
 
+
 class WebAdminTestBase (SeleniumTestBase):
 
-    def login (self, u, p, sid):
+    def login(self, u, p, sid):
         sel = self.selenium
         if self.selenium.is_element_present('link=Log out'):
             self.logout()
@@ -99,7 +101,7 @@ class WebAdminTestBase (SeleniumTestBase):
         sel.click("//input[@value='Connect']")
         self.waitForElementPresence('link=Scientists')
 
-    def logout (self):
+    def logout(self):
         self.selenium.click("link=Logout")
         self.selenium.wait_for_page_to_load("30000")
         self.waitForElementPresence("//input[@value='Connect']")
@@ -121,8 +123,7 @@ class AdminTests (WebAdminTestBase):
         server_id = Server.find(server_host=omero_host)[0].id
         self.login('root', root_password, server_id)
 
-
-    def testPages (self):
+    def testPages(self):
         """
         This checks that the links exist for the main pages.
         Visits each page in turn. Starts at experimenters and clicks links to each other main page '
@@ -140,14 +141,12 @@ class AdminTests (WebAdminTestBase):
         sel.click("link=Drive Space")
         sel.wait_for_page_to_load("30000")
 
-
-    def testCreateExperimenter (self):
+    def testCreateExperimenter(self):
         """
         Creates a new experimenter (creates group first). Tests that ommiting to fill
         in 'ome-name' gives a correct message to user.
         Checks that the new user is displayed in the table of experimenters.
         """
-        #print "testCreateExperimenter"  #print
 
         groupName = "Selenium-testCreateExp%s" % random()
 
@@ -191,12 +190,10 @@ class AdminTests (WebAdminTestBase):
         # better to check text in right place
         self.assert_(sel.is_element_present("jquery=#experimenterTable tbody tr td:containsExactly(%s)" % omeName))
 
-
     def testCreateGroup(self):
         """
         This needs to run before testCreateExperimenter()
         """
-        #print "testCreateGroup"
         groupName = "Selenium-testCreateGroup%s" % random()
 
         sel = self.selenium
@@ -204,10 +201,7 @@ class AdminTests (WebAdminTestBase):
         gId = createGroup(sel, groupName)
         self.assertTrue(gId > 0)
 
-
     def testRemoveExpFromGroup(self):
-
-        #print "testRemoveExpFromGroup"
 
         groupName1 = "Sel-test1%s" % random()
         groupName2 = "Sel-test2%s" % random()
@@ -240,7 +234,7 @@ class AdminTests (WebAdminTestBase):
 
         # try remove one of the original groups
         sel.click("default_group_%d" % group1Id)
-        #self.waitForElementVisibility('id_default_group_%d' % group1Id, False)
+        # self.waitForElementVisibility('id_default_group_%d' % group1Id, False)
         self.waitForElementVisibility('default_group_%d' % group1Id, False)     # BUG: this is not working at the moment.
 
         # save
@@ -250,10 +244,9 @@ class AdminTests (WebAdminTestBase):
         # find experimenter in table - look for 'admin' icon
         i = 1
         while sel.get_text("//table[@id='experimenterTable']/tbody/tr[%s]/td[3]" % i) != omeName:
-           i+=1
-           # raises exception if out of bounds for the html table
+            i += 1
+            # raises exception if out of bounds for the html table
         self.assert_(sel.is_element_present("//table[@id='experimenterTable']/tbody/tr[%s]/td[5]/img[@alt='admin']" % i))
-
 
     def tearDown(self):
         self.logout()
@@ -261,4 +254,4 @@ class AdminTests (WebAdminTestBase):
 
 
 if __name__ == "__main__":
-   Utils.runAsScript('webadmin')
+    Utils.runAsScript('webadmin')

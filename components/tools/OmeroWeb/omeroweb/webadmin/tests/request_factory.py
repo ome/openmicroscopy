@@ -56,7 +56,8 @@ BOUNDARY = 'BoUnDaRyStRiNg'
 MULTIPART_CONTENT = 'multipart/form-data; boundary=%s' % BOUNDARY
 CONTENT_TYPE_RE = re.compile('.*; charset=([\w\d-]+);?')
 
-def fakeRequest (method, path="/", params={}, **kwargs):
+
+def fakeRequest(method, path="/", params={}, **kwargs):
     def bogus_request(self, **request):
         """
         Usage:
@@ -134,12 +135,14 @@ class ClientHandler(BaseHandler):
 
         return response
 
+
 def store_rendered_templates(store, signal, sender, template, context, **kwargs):
     """
     Stores templates and contexts that are rendered.
     """
     store.setdefault('templates', []).append(template)
     store.setdefault('context', ContextList()).append(context)
+
 
 def encode_multipart(boundary, data):
     """
@@ -186,6 +189,7 @@ def encode_multipart(boundary, data):
     ])
     return '\r\n'.join(lines)
 
+
 def encode_file(boundary, key, file):
     to_str = lambda s: smart_str(s, settings.DEFAULT_CHARSET)
     content_type = mimetypes.guess_type(file.name)[0]
@@ -193,13 +197,12 @@ def encode_file(boundary, key, file):
         content_type = 'application/octet-stream'
     return [
         '--' + boundary,
-        'Content-Disposition: form-data; name="%s"; filename="%s"' \
-            % (to_str(key), to_str(os.path.basename(file.name))),
+        'Content-Disposition: form-data; name="%s"; filename="%s"'
+        % (to_str(key), to_str(os.path.basename(file.name))),
         'Content-Type: %s' % content_type,
         '',
         file.read()
     ]
-
 
 
 class RequestFactory(object):
@@ -234,7 +237,7 @@ class RequestFactory(object):
             'SERVER_NAME':       'testserver',
             'SERVER_PORT':       '80',
             'SERVER_PROTOCOL':   'HTTP/1.1',
-            'wsgi.version':      (1,0),
+            'wsgi.version':      (1, 0),
             'wsgi.url_scheme':   'http',
             'wsgi.errors':       self.errors,
             'wsgi.multiprocess': True,
@@ -399,7 +402,6 @@ class Client(RequestFactory):
         return {}
     session = property(_session)
 
-
     def request(self, **request):
         """
         The master request method. Composes the environment dictionary
@@ -542,8 +544,8 @@ class Client(RequestFactory):
         params = {
             'username': login,
             'password': password,
-            'server':server_id,
-            'ssl':'on'
+            'server': server_id,
+            'ssl': 'on'
         }
         request = fakeRequest(method="post", path=(reverse(viewname="walogin")), params=params)
 
@@ -596,6 +598,7 @@ class Client(RequestFactory):
         from omeroweb.webclient.decorators import login_required
 
         request = fakeRequest(method="get", path=reverse(viewname="weblogout"))
+
         @login_required()
         def foo(request, conn=None):
             return conn

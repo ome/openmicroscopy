@@ -29,7 +29,7 @@ class DefaultGroupRadioFieldRenderer(RadioFieldRenderer):
             yield DefaultGroupRadioInput(self.name, self.value, self.attrs.copy(), choice, i)
 
     def __getitem__(self, idx):
-        choice = self.choices[idx] # Let the IndexError propogate
+        choice = self.choices[idx]  # Let the IndexError propogate
         return DefaultGroupRadioInput(self.name, self.value, self.attrs.copy(), choice, idx)
 
 

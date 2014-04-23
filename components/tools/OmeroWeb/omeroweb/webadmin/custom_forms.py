@@ -36,6 +36,7 @@ from django.utils.encoding import smart_unicode
 ##################################################################
 # Fields
 
+
 class OmeNameField(forms.CharField):
     def to_python(self, value):
         omeName = value
@@ -46,8 +47,9 @@ class OmeNameField(forms.CharField):
         return omeName
 
     def is_valid_omeName(self, omeName):
-        omeName_pattern = re.compile(r"(?:^|\s)[a-zA-Z0-9_.]") #TODO: PATTERN !!!!!!!
+        omeName_pattern = re.compile(r"(?:^|\s)[a-zA-Z0-9_.]")  # TODO: PATTERN !!!!!!!
         return omeName_pattern.match(omeName) is not None
+
 
 # Group queryset iterator for group form
 
@@ -61,10 +63,11 @@ class ServerQuerySetIterator(object):
             yield (u"", self.empty_label)
         for obj in self.queryset:
             if obj.server is None:
-                name = "%s:%s" % (obj.host,obj.port)
+                name = "%s:%s" % (obj.host, obj.port)
             else:
-                name = "%s:%s" % (obj.server,obj.port)
+                name = "%s:%s" % (obj.server, obj.port)
             yield (smart_unicode(obj.id), smart_unicode(name))
+
 
 class ServerModelChoiceField(ModelChoiceField):
 
@@ -100,6 +103,7 @@ class ServerModelChoiceField(ModelChoiceField):
             raise ValidationError(self.error_messages['invalid_choice'])
         return value
 
+
 # Group queryset iterator for group form
 class GroupQuerySetIterator(object):
     def __init__(self, queryset, empty_label):
@@ -123,6 +127,7 @@ class GroupQuerySetIterator(object):
             else:
                 oid = obj.id
             yield (smart_unicode(oid), smart_unicode(name))
+
 
 class GroupModelChoiceField(ModelChoiceField):
 
@@ -169,6 +174,7 @@ class GroupModelChoiceField(ModelChoiceField):
             raise ValidationError(self.error_messages['invalid_choice'])
         return value
 
+
 class GroupModelMultipleChoiceField(GroupModelChoiceField):
     """A MultipleChoiceField whose choices are a model QuerySet."""
     hidden_widget = MultipleHiddenInput
@@ -181,7 +187,8 @@ class GroupModelMultipleChoiceField(GroupModelChoiceField):
     def __init__(self, queryset, cache_choices=False, required=True,
                  widget=SelectMultiple, label=None, initial=None,
                  help_text=None, *args, **kwargs):
-        super(GroupModelMultipleChoiceField, self).__init__(queryset, None,
+        super(GroupModelMultipleChoiceField, self).__init__(
+            queryset, None,
             cache_choices, required, widget, label, initial, help_text,
             *args, **kwargs)
 
@@ -213,6 +220,7 @@ class GroupModelMultipleChoiceField(GroupModelChoiceField):
                     final_values.append(val)
         return final_values
 
+
 # Experimenter queryset iterator for experimenter form
 class ExperimenterQuerySetIterator(object):
     def __init__(self, queryset, empty_label):
@@ -222,7 +230,7 @@ class ExperimenterQuerySetIterator(object):
 
         self.rendered_set = []
         if self.empty_label is not None:
-            self.rendered_set.append( (u"", self.empty_label) )
+            self.rendered_set.append((u"", self.empty_label))
 
         # queryset may be a list of Experimenters 'exp_list' OR may be (  ("Leaders", exp_list), ("Members", exp_list)  )
         for obj in queryset:
@@ -230,12 +238,11 @@ class ExperimenterQuerySetIterator(object):
                 self.rendered_set.append(self.render(obj))
             else:
                 subset = [self.render(m) for m in obj[1]]
-                self.rendered_set.append( (obj[0], subset) )
+                self.rendered_set.append((obj[0], subset))
 
     def __iter__(self):
         for obj in self.rendered_set:
             yield obj
-
 
     def render(self, obj):
         try:
@@ -269,7 +276,6 @@ class ExperimenterQuerySetIterator(object):
                 else:
                     name = "%s%s %s (%s)" % (myself, firstName, lastName, omeName)
 
-
             l = len(name)
             if l > 50:
                 name = name[:50] + "..."
@@ -281,6 +287,7 @@ class ExperimenterQuerySetIterator(object):
         else:
             oid = obj.id
         return (smart_unicode(oid), smart_unicode(name))
+
 
 class ExperimenterModelChoiceField(ModelChoiceField):
 
@@ -342,6 +349,7 @@ class ExperimenterModelChoiceField(ModelChoiceField):
             raise ValidationError(self.error_messages['invalid_choice'])
         return value
 
+
 class ExperimenterModelMultipleChoiceField(ExperimenterModelChoiceField):
     """A MultipleChoiceField whose choices are a model QuerySet."""
     hidden_widget = MultipleHiddenInput
@@ -354,10 +362,10 @@ class ExperimenterModelMultipleChoiceField(ExperimenterModelChoiceField):
     def __init__(self, queryset, cache_choices=False, required=True,
                  widget=SelectMultiple, label=None, initial=None,
                  help_text=None, *args, **kwargs):
-        super(ExperimenterModelMultipleChoiceField, self).__init__(queryset, None,
+        super(ExperimenterModelMultipleChoiceField, self).__init__(
+            queryset, None,
             cache_choices, required, widget, label, initial, help_text,
             *args, **kwargs)
-
 
     def to_python(self, value):
         if self.required and not value:
@@ -386,6 +394,7 @@ class ExperimenterModelMultipleChoiceField(ExperimenterModelChoiceField):
                 else:
                     final_values.append(val)
         return final_values
+
 
 class DefaultGroupField(ChoiceField):
 

@@ -5,6 +5,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+
 def upgradeCheck():
     # upgrade check:
     # -------------
@@ -28,6 +29,7 @@ def upgradeCheck():
     except Exception, x:
         logger.error("Upgrade check error: %s" % x)
 
+
 def toBoolean(val):
     """
     Get the boolean value of the provided input.
@@ -41,6 +43,6 @@ def toBoolean(val):
     if val is True or val is False:
         return val
 
-    falseItems = ["false", "f", "no", "n", "none", "0", "[]", "{}", "" ]
+    falseItems = ["false", "f", "no", "n", "none", "0", "[]", "{}", ""]
 
-    return not str( val ).strip().lower() in falseItems
+    return not str(val).strip().lower() in falseItems

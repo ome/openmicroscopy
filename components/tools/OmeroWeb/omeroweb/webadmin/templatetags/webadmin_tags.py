@@ -33,6 +33,7 @@ register = template.Library()
 
 logger = logging.getLogger(__name__)
 
+
 @register.tag()
 def get_static_webadmin_prefix(parser, token):
     """
