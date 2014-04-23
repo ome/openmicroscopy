@@ -134,9 +134,11 @@ event = get_event("websettings")
 
 while True:
     try:
-        CONFIG_XML = omero.config.ConfigXml(CONFIG_XML, read_only=True)
-        CUSTOM_SETTINGS = CONFIG_XML.as_map()
-        CONFIG_XML.close()
+        CUSTOM_SETTINGS = dict()
+        if os.path.exists(CONFIG_XML):
+            CONFIG_XML = omero.config.ConfigXml(CONFIG_XML, read_only=True)
+            CUSTOM_SETTINGS = CONFIG_XML.as_map()
+            CONFIG_XML.close()
         break
     except LockException:
         #logger.error("Exception while loading configuration retrying...", exc_info=True)
