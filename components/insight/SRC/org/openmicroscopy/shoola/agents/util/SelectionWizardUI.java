@@ -714,8 +714,7 @@ public class SelectionWizardUI
                     DataObject o;
                     while (j.hasNext()) {
                         o = j.next();
-                        if (o.getClass().equals(ref.getClass()) &&
-                            o.getId() == ref.getId())
+                        if (o.getId() == ref.getId())
                             return true;
                     }
                 }
