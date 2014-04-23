@@ -925,6 +925,7 @@ public class SelectionWizardUI
                 node.removeAllChildren();
                 tree.expandPath(new TreePath(node.getPath()));
                 Collection<TreeImageDisplay> l = node.getChildrenDisplay();
+                l = sorter.sort(l);
                 j = l.iterator();
                 while (j.hasNext()) {
                     child = j.next();
