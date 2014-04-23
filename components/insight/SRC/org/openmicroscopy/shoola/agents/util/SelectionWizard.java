@@ -111,7 +111,7 @@ public class SelectionWizard
     private static final int ADD_NEW = 3;
 
     /** The default size. */
-    private static final Dimension DEFAULT_SIZE = new Dimension(500, 500);
+    private static final Dimension DEFAULT_SIZE = new Dimension(700, 700);
 
     /** The button to accept the current selection. */
     private JButton acceptButton;
