@@ -1,11 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Generic functionality for handling particular links and "showing" objects
-# in the OMERO.web tree view.
 #
-#
-# Copyright (c) 2014 University of Dundee.
+# Copyright (c) 2014 University of Dundee & Open Microscopy Environment.
 # All rights reserved.
 #
 # This program is free software: you can redistribute it and/or modify
