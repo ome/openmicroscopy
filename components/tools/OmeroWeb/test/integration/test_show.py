@@ -203,6 +203,18 @@ def screen_plate_run_well(request, itest, update_service):
 
 
 @pytest.fixture(scope='function')
+def empty_request(request, request_factory, path):
+    """
+    Returns a simple GET request object with no 'path' query string.
+    """
+    return {
+        'request': request_factory.get(path),
+        'initially_select': list(),
+        'initially_open': None
+    }
+
+
+@pytest.fixture(scope='function')
 def project_path_request(request, project, request_factory, path):
     """
     Returns a simple GET request object with the 'path' query string
@@ -441,6 +453,12 @@ class TestShow(object):
         assert show.initially_open_owner is None
         assert show.initially_select == request['initially_select']
         assert show._first_selected is None
+
+    def test_empty_path(self, empty_request):
+        show = Show(conn, empty_request['request'], None)
+        self.assert_instantiation(show, empty_request, conn)
+        first_selected = show.first_selected
+        assert first_selected is None
 
     def test_project_legacy_path(self, conn, project_path_request, project):
         show = Show(conn, project_path_request['request'], None)
