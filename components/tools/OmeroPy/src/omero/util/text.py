@@ -44,7 +44,8 @@ class SQLStyle(Style):
         yield self.status(table)
 
 
-class CSVStyle(Style):
+class PlainStyle(Style):
+
     SEPARATOR = ","
 
     def width(self, name, data):
@@ -54,9 +55,16 @@ class CSVStyle(Style):
         return '%s'
 
     def get_rows(self, table):
-        yield self.headers(table)
         for i in range(0, table.length):
             yield self.SEPARATOR.join(table.get_row(i))
+
+
+class CSVStyle(PlainStyle):
+
+    def get_rows(self, table):
+        yield self.headers(table)
+        for row in PlainStyle.get_rows(self, table):
+            yield row
 
 
 def find_style(style):
@@ -70,6 +78,8 @@ def find_style(style):
         return SQLStyle()
     elif "csv" == style:
         return CSVStyle()
+    elif "plain" == style:
+        return PlainStyle()
 
 
 class TableBuilder(object):

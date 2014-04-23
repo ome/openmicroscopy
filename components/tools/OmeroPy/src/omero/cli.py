@@ -163,7 +163,8 @@ class Parser(ArgumentParser):
     def add_style_argument(self):
         from omero.util.text import find_style
         self.add_argument(
-            "--style", help="Use alternative output style (e.g. csv, sql)",
+            "--style", help=
+            "Use alternative output style, e.g. plain, csv, sql(default)",
             default="sql", type=find_style)
 
     def add_login_arguments(self):
