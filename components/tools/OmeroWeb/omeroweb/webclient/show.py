@@ -185,7 +185,7 @@ class Show(object):
         """
         Retrieves the first selected object.  The first time this method is
         invoked on the instance the actual retrieval is performed.  All other
-        invocations retrieve a the same instance without server interaction.
+        invocations retrieve the same instance without server interaction.
         """
         if self._first_selected is None:
             self._first_selected = self._find_first_selected()
