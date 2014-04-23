@@ -339,7 +339,7 @@ class TestDelete(lib.ITest):
                 if delete_report.warning:
                     rv.append(delete_report.warning)
             if len(rv) > 0:
-                return " ".join(rv)
+                return "; ".join(rv)
             return None
 
         failure = list()
@@ -377,7 +377,7 @@ class TestDelete(lib.ITest):
                         failure.append(traceback.format_exc())
 
         if len(failure) > 0:
-            assert False, "".join(failure)
+            assert False, ";".join(failure)
         assert not query_o.find('Dataset', dataset.id.val)
 
     def test5793(self):

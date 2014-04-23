@@ -62,9 +62,8 @@ class TestISession(lib.ITest):
         client = omero.client()  # ok rather than new_client since has __del__
         try:
             user_sess = client.createSession(sess.uuid, sess.uuid)
-            new_uuid = user_sess.getAdminService(
-            ).getEventContext().sessionUuid
-            assert sess.uuid.val == new_uuid
+            uuid = user_sess.getAdminService().getEventContext().sessionUuid
+            assert sess.uuid.val == uuid
             client.closeSession()
         finally:
             client.__del__()
