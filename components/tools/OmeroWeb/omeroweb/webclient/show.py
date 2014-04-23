@@ -145,7 +145,7 @@ class Show(object):
     def _find_first_selected(self):
         """Finds the first selected object."""
         if len(self._initially_select) == 0:
-            return list()
+            return None
 
         # tree hierarchy open to first selected object
         self._initially_open = [self._initially_select[0]]
