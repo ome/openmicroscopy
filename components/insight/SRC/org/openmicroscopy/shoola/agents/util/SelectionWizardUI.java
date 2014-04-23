@@ -302,15 +302,32 @@ public class SelectionWizardUI
             if (value == null) return null;
             String v;
             TreeImageDisplay node;
+            List children;
+            Iterator j;
             if (!selected) {
                 i = originalItems.iterator();
                 while (i.hasNext()) {
                     node = i.next();
                     ob = (TagAnnotationData) node.getUserObject();
                     if (ob != null) {
-                        v = ob.getTagValue();
-                        if (v != null && v.equals(value))
-                            return node;
+                        if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(
+                                ob.getNameSpace())) {
+                            children = node.getChildrenDisplay();
+                            j = children.iterator();
+                            while (j.hasNext()) {
+                                node = (TreeImageDisplay) j.next();
+                                ob = (TagAnnotationData) node.getUserObject();
+                                v = ob.getTagValue();
+                                if (value.equals(v)) {
+                                    return node;
+                                }
+                            }
+                        } else {
+                            v = ob.getTagValue();
+                            if (value.equals(v)) {
+                                return node;
+                            }
+                        }
                     }
                 }
                 //not in the original selection. Might have been moved.
@@ -319,9 +336,24 @@ public class SelectionWizardUI
                     node = i.next();
                     ob = (TagAnnotationData) node.getUserObject();
                     if (ob != null) {
-                        v = ob.getTagValue();
-                        if (v != null && v.equals(value))
-                            return node;
+                        if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(
+                                ob.getNameSpace())) {
+                            children = node.getChildrenDisplay();
+                            j = children.iterator();
+                            while (j.hasNext()) {
+                                node = (TreeImageDisplay) j.next();
+                                ob = (TagAnnotationData) node.getUserObject();
+                                v = ob.getTagValue();
+                                if (value.equals(v)) {
+                                    return node;
+                                }
+                            }
+                        } else {
+                            v = ob.getTagValue();
+                            if (value.equals(v)) {
+                                return node;
+                            }
+                        }
                     }
                 }
             } else {
