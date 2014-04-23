@@ -2,7 +2,7 @@
  * pojos.FilesetData 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
+ *  Copyright (C) 2013-2014 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
  *
  *
@@ -84,6 +84,26 @@ public class FilesetData
 		}
 		return paths;
 	}
+	
+	/**
+	 * Returns the collection of file paths used for importing the files
+	 * (in case of in-place imports these are the targets of the (sym)links)
+	 * 
+	 * @return See above.
+	 */
+	public List<String> getUsedFilePaths()
+        {
+	    List<String> paths = new ArrayList<String>();
+            Fileset set = (Fileset) asIObject();
+            List<FilesetEntry> entries = set.copyUsedFiles();
+            Iterator<FilesetEntry> i = entries.iterator();
+            while (i.hasNext()) {
+                FilesetEntry next = i.next();
+                paths.add(next.getClientPath().getValue());
+            }
+            return paths;
+        }
+	
 
 	/**
 	 * Returns the collection of images related to the file set.

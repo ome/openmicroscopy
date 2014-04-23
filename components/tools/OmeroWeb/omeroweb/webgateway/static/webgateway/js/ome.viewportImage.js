@@ -3,7 +3,7 @@
  *
  * Depends on jquery
  *
- * Copyright (c) 2007, 2008, 2009 Glencoe Software, Inc. All rights reserved.
+ * Copyright (c) 2007-2014 Glencoe Software, Inc. All rights reserved.
  *
  * This software is distributed under the terms described by the LICENCE file
  * you can find at the root of the distribution bundle, which states you are
@@ -390,14 +390,24 @@ jQuery.fn.viewportImage = function(options) {
         return viewerBean;
     };
     
-    this.setUpTiles = function (imagewidth, imageheight, xtilesize, ytilesize, init_zoom, levels, hrefProvider, thref, init_cx, init_cy, zoomLevelScaling) {
+    this.setUpTiles = function (imagewidth, imageheight, xtilesize, ytilesize, init_zoom, levels, hrefProvider, thref, init_cx, init_cy, zoomLevelScaling, nominalMagnification) {
         InfoControl.prototype.viewerZoomed = function(e) {
             if (this.dom_info) {
-                var scale = e.scale * 100;
-                if (scale % 1 !== 0) {
-                    scale = scale.toFixed(2);
+                if (nominalMagnification && typeof nominalMagnification != "undefined") {
+                    var scale = e.scale * nominalMagnification;
+                    if (scale % 1 !== 0)
+                    //smart float formatting
+                        if (scale < 1)
+                            scale = Math.round(scale*10)/10;
+                        else
+                            scale = Math.round(scale*100)/100;
+                    this.dom_info.innerHTML = 'Magnification: '+ scale + 'x';
+                } else {
+                    var scale = e.scale * 100;
+                    if (scale % 1 !== 0)
+                        scale = scale.toFixed(2);
+                    this.dom_info.innerHTML = 'Scale: '+ scale +'%';
                 }
-                this.dom_info.innerHTML = 'Scale: '+ scale +'%';
             }
         };
         
