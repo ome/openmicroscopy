@@ -3,7 +3,7 @@
 #
 #
 #
-# Copyright (c) 2008 University of Dundee. 
+# Copyright (c) 2008 University of Dundee.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -30,7 +30,7 @@ try:
     from cStringIO import StringIO
 except ImportError:
     from StringIO import StringIO
-    
+
 from django.conf import settings
 from django.core.handlers.base import BaseHandler
 from django.core.handlers.wsgi import WSGIRequest
@@ -56,7 +56,8 @@ BOUNDARY = 'BoUnDaRyStRiNg'
 MULTIPART_CONTENT = 'multipart/form-data; boundary=%s' % BOUNDARY
 CONTENT_TYPE_RE = re.compile('.*; charset=([\w\d-]+);?')
 
-def fakeRequest (method, path="/", params={}, **kwargs):
+
+def fakeRequest(method, path="/", params={}, **kwargs):
     def bogus_request(self, **request):
         """
         Usage:
@@ -65,10 +66,10 @@ def fakeRequest (method, path="/", params={}, **kwargs):
         post_request = rf.post('/submit/', {'foo': 'bar'})
         """
         if not method.lower() in ('post', 'get'):
-            raise AttributeError("Method must be 'get' or 'post'")                
+            raise AttributeError("Method must be 'get' or 'post'")
         if not isinstance(params, dict):
             raise AttributeError("Params must be a dictionary")
-                
+
         rf = RequestFactory()
         r = getattr(rf, method.lower())(path, params)
         if 'django.contrib.sessions' in settings.INSTALLED_APPS:
@@ -94,7 +95,9 @@ class FakePayload(object):
     def read(self, num_bytes=None):
         if num_bytes is None:
             num_bytes = self.__len or 1
-        assert self.__len >= num_bytes, "Cannot read more than the available bytes from the HTTP incoming data."
+        assert self.__len >= num_bytes, \
+            "Cannot read more than the available bytes " + \
+            "from the HTTP incoming data."
         content = self.__content.read(num_bytes)
         self.__len -= num_bytes
         return content
@@ -134,12 +137,15 @@ class ClientHandler(BaseHandler):
 
         return response
 
-def store_rendered_templates(store, signal, sender, template, context, **kwargs):
+
+def store_rendered_templates(
+        store, signal, sender, template, context, **kwargs):
     """
     Stores templates and contexts that are rendered.
     """
     store.setdefault('templates', []).append(template)
     store.setdefault('context', ContextList()).append(context)
+
 
 def encode_multipart(boundary, data):
     """
@@ -168,7 +174,8 @@ def encode_multipart(boundary, data):
                 else:
                     lines.extend([
                         '--' + boundary,
-                        'Content-Disposition: form-data; name="%s"' % to_str(key),
+                        'Content-Disposition: form-data; name="%s"' %
+                        to_str(key),
                         '',
                         to_str(item)
                     ])
@@ -186,6 +193,7 @@ def encode_multipart(boundary, data):
     ])
     return '\r\n'.join(lines)
 
+
 def encode_file(boundary, key, file):
     to_str = lambda s: smart_str(s, settings.DEFAULT_CHARSET)
     content_type = mimetypes.guess_type(file.name)[0]
@@ -193,13 +201,12 @@ def encode_file(boundary, key, file):
         content_type = 'application/octet-stream'
     return [
         '--' + boundary,
-        'Content-Disposition: form-data; name="%s"; filename="%s"' \
-            % (to_str(key), to_str(os.path.basename(file.name))),
+        'Content-Disposition: form-data; name="%s"; filename="%s"'
+        % (to_str(key), to_str(os.path.basename(file.name))),
         'Content-Type: %s' % content_type,
         '',
         file.read()
     ]
-
 
 
 class RequestFactory(object):
@@ -234,7 +241,7 @@ class RequestFactory(object):
             'SERVER_NAME':       'testserver',
             'SERVER_PORT':       '80',
             'SERVER_PROTOCOL':   'HTTP/1.1',
-            'wsgi.version':      (1,0),
+            'wsgi.version':      (1, 0),
             'wsgi.url_scheme':   'http',
             'wsgi.errors':       self.errors,
             'wsgi.multiprocess': True,
@@ -399,7 +406,6 @@ class Client(RequestFactory):
         return {}
     session = property(_session)
 
-
     def request(self, **request):
         """
         The master request method. Composes the environment dictionary
@@ -413,9 +419,11 @@ class Client(RequestFactory):
         # callback function.
         data = {}
         on_template_render = curry(store_rendered_templates, data)
-        signals.template_rendered.connect(on_template_render, dispatch_uid="template-render")
+        signals.template_rendered.connect(
+            on_template_render, dispatch_uid="template-render")
         # Capture exceptions created by the handler.
-        got_request_exception.connect(self.store_exc_info, dispatch_uid="request-exception")
+        got_request_exception.connect(
+            self.store_exc_info, dispatch_uid="request-exception")
         try:
 
             try:
@@ -453,10 +461,13 @@ class Client(RequestFactory):
             if response.context and len(response.context) == 1:
                 response.context = response.context[0]
 
-            # Provide a backwards-compatible (but pending deprecation) response.template
+            # Provide a backwards-compatible (but pending deprecation)
+            # response.template
             def _get_template(self):
-                warnings.warn("response.template is deprecated; use response.templates instead (which is always a list)",
-                              PendingDeprecationWarning, stacklevel=2)
+                warnings.warn(
+                    "response.template is deprecated; use " +
+                    "response.templates instead (which is always a list)",
+                    PendingDeprecationWarning, stacklevel=2)
                 if not self.templates:
                     return None
                 elif len(self.templates) == 1:
@@ -470,7 +481,8 @@ class Client(RequestFactory):
 
             return response
         finally:
-            signals.template_rendered.disconnect(dispatch_uid="template-render")
+            signals.template_rendered.disconnect(
+                dispatch_uid="template-render")
             got_request_exception.disconnect(dispatch_uid="request-exception")
 
     def get(self, path, data={}, follow=False, **extra):
@@ -487,7 +499,8 @@ class Client(RequestFactory):
         """
         Requests a response from the server using POST.
         """
-        response = super(Client, self).post(path, data=data, content_type=content_type, **extra)
+        response = super(Client, self).post(
+            path, data=data, content_type=content_type, **extra)
         if follow:
             response = self._handle_redirects(response, **extra)
         return response
@@ -515,7 +528,8 @@ class Client(RequestFactory):
         """
         Send a resource to the server using PUT.
         """
-        response = super(Client, self).put(path, data=data, content_type=content_type, **extra)
+        response = super(Client, self).put(
+            path, data=data, content_type=content_type, **extra)
         if follow:
             response = self._handle_redirects(response, **extra)
         return response
@@ -531,27 +545,29 @@ class Client(RequestFactory):
 
     def login(self, login, password, server_id=1, secure=True):
         """
-        Sets the Factory to appear as if it has successfully logged into a site.
+        Sets the Factory to appear as if it has successfully logged into a
+        site.
 
         Returns True if login is possible; False if the provided credentials
         are incorrect, or the user is inactive, or if the sessions framework is
         not available.
         """
         engine = import_module(settings.SESSION_ENGINE)
-        
+
         params = {
             'username': login,
             'password': password,
-            'server':server_id,
-            'ssl':'on'
-        }        
-        request = fakeRequest(method="post", path=(reverse(viewname="walogin")), params=params)
-        
+            'server': server_id,
+            'ssl': 'on'
+        }
+        request = fakeRequest(
+            method="post", path=(reverse(viewname="walogin")), params=params)
+
         if self.session:
             request.session = self.session
         else:
             request.session = engine.SessionStore()
-            
+
         # Set the cookie to represent the session.
         session_cookie = settings.SESSION_COOKIE_NAME
         self.cookies[session_cookie] = request.session.session_key
@@ -563,9 +579,10 @@ class Client(RequestFactory):
             'expires': None,
         }
         self.cookies[session_cookie].update(cookie_data)
-        
+
         connector = Connector(request.REQUEST.get('server'), True)
-        conn = connector.create_connection('TEST.webadmin', login, password, userip="127.0.0.1")
+        conn = connector.create_connection(
+            'TEST.webadmin', login, password, userip="127.0.0.1")
 
         if conn is not None and conn.isConnected() and conn.keepAlive():
             request.session.save()
@@ -579,14 +596,14 @@ class Client(RequestFactory):
             finally:
                 request.session.flush()
             return False
-    
+
     def logout(self):
         """
         Removes the authenticated user's cookies and session object.
 
         Causes the authenticated user to be logged out.
         """
-        
+
         session = import_module(settings.SESSION_ENGINE).SessionStore()
         session_cookie = self.cookies.get(settings.SESSION_COOKIE_NAME)
         if session_cookie:
@@ -594,20 +611,24 @@ class Client(RequestFactory):
         self.cookies = SimpleCookie()
 
         from omeroweb.webclient.decorators import login_required
-        
+
         request = fakeRequest(method="get", path=reverse(viewname="weblogout"))
+
         @login_required()
         def foo(request, conn=None):
             return conn
-        
+
         try:
             conn = foo(request)
             conn.seppuku()
         finally:
             request.session.flush()
-    
+
     def _handle_redirects(self, response, **extra):
-        "Follows any redirects by requesting responses from the server using GET."
+        """
+        Follows any redirects by requesting responses from the server
+        using GET.
+        """
 
         response.redirect_chain = []
         while response.status_code in (301, 302, 303, 307):
