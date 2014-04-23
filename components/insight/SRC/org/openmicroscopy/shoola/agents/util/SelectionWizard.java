@@ -378,7 +378,13 @@ public class SelectionWizard
                 }
             }
             boolean reset = uiDelegate.addObjects(objects);
-            if (reset) setTextFieldDefault(addField, DEFAULT_TEXT);
+            if (reset) {
+                addField.setCaretPosition(0);
+                setTextFieldDefault(addField, DEFAULT_TEXT);
+                descriptionField.setCaretPosition(0);
+                setTextFieldDefault(descriptionField, DEFAULT_DESCRIPTION);
+                acceptButton.requestFocus();
+            }
         }
     }
 
