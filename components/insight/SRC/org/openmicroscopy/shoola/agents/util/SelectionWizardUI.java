@@ -234,8 +234,6 @@ public class SelectionWizardUI
                         tag.getNameSpace())) {
                     value = tag.getTagValue();
                 } else {
-                    
-                    //toKeep.add(node);
                     List l = node.getChildrenDisplay();
                     Iterator j = l.iterator();
                     while (j.hasNext()) {
@@ -841,6 +839,34 @@ public class SelectionWizardUI
     }
 
     /**
+     * Returns <true> if the node should be filtered, <code>false</code>
+     * otherwise.
+     *
+     * @param child The node to handle.
+     * @return See above.
+     */
+    private boolean isFiltered(TreeImageDisplay child)
+    {
+        if (child == null) return false;
+        String txt = filterArea.getText();
+        if (StringUtils.isBlank(txt) || DEFAULT_FILTER_TEXT.equals(txt))
+            return false;
+        txt = txt.toLowerCase();
+        Object ho = child.getUserObject();
+        String value;
+        if (ho instanceof TagAnnotationData) {
+            TagAnnotationData tag = (TagAnnotationData) ho;
+            value = tag.getTagValue();
+            value = value.toLowerCase();
+            if (filterAnywhere) {
+                return !value.contains(txt);
+            }
+            return !value.startsWith(txt);
+        }
+        return true;
+    }
+
+    /**
      * Updates the specified tree.
      *
      * @param tree The tree to update.
@@ -868,7 +894,8 @@ public class SelectionWizardUI
                 while (j.hasNext()) {
                     child = j.next();
                     child.setDisplayItems(false);
-                    if (!children.contains(child) && !isSelected(child)) {
+                    if (!children.contains(child) && !isSelected(child) &&
+                            !isFiltered(child)) {
                         dtm.insertNodeInto(child, node, node.getChildCount());
                         toExpand.add(node);
                         tree.expandPath(new TreePath(node.getPath()));
