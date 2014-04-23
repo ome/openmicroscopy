@@ -74,7 +74,7 @@ class ExperimenterForm(NonASCIIForm):
             self.fields['default_group'] = GroupModelChoiceField(queryset=kwargs['initial']['groups'], empty_label=u"---------", required=False)
         self.fields['default_group'].widget.attrs['class'] = 'hidden'
 
-        if kwargs['initial'].has_key('with_password') and kwargs['initial']['with_password']:
+        if 'with_password' in kwargs['initial'] and kwargs['initial']['with_password']:
             self.fields['password'] = forms.CharField(max_length=50, widget=forms.PasswordInput(attrs={'size':30, 'autocomplete': 'off'}))
             self.fields['confirmation'] = forms.CharField(max_length=50, widget=forms.PasswordInput(attrs={'size':30, 'autocomplete': 'off'}))
 
@@ -271,4 +271,3 @@ class EnumerationEntries(NonASCIIForm):
                 self.fields[str(e.id)] = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':30}), label=i+1)
 
         self.fields.keyOrder = [str(k) for k in self.fields.keys()]
-

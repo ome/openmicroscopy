@@ -50,4 +50,3 @@ urlpatterns = patterns('',
     url( r'^myphoto/$', views.myphoto, name="wamyphoto"),
 
 )
-

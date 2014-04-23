@@ -214,7 +214,7 @@ def _usage_map_helper(pixels_list, pixels_originalFiles_list, exps):
         oid = p.details.owner.id.val
         p_size = p.sizeX.val * p.sizeY.val * p.sizeZ.val * p.sizeC.val * p.sizeT.val
         p_size = p_size*_bytes_per_pixel(p.pixelsType.value.val)
-        if tt.has_key(oid):
+        if oid in tt:
             tt[oid]['data']+=p_size
         else:
             tt[oid] = dict()
@@ -224,7 +224,7 @@ def _usage_map_helper(pixels_list, pixels_originalFiles_list, exps):
     for pof in pixels_originalFiles_list:
         oid = pof.details.owner.id.val
         p_size = pof.parent.size.val
-        if tt.has_key(oid):
+        if oid in tt:
             tt[oid]['data']+=p_size
 
     return tt #sorted(tt.iteritems(), key=lambda (k,v):(v,k), reverse=True)
