@@ -59,9 +59,7 @@ server-permissions.html
         self.add_permissions_arguments(perms)
 
         list = parser.add(sub, self.list, "List current groups")
-        list.add_argument(
-            "--csv", help="Use csv table style", default=False,
-            action="store_true")
+        list.add_style_argument()
 
         printgroup = list.add_mutually_exclusive_group()
         printgroup.add_argument(
@@ -222,8 +220,8 @@ server-permissions.html
         else:
             tb = TableBuilder("id", "name", "perms", "# of owners",
                               "# of members")
-        if args.csv:
-            tb.set_style("csv")
+        if args.style:
+            tb.set_style(args.style)
 
         for group in groups:
             row = [group.id.val, group.name.val,
