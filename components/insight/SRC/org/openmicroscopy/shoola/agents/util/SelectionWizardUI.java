@@ -316,10 +316,12 @@ public class SelectionWizardUI
                             j = children.iterator();
                             while (j.hasNext()) {
                                 node = (TreeImageDisplay) j.next();
-                                ob = (TagAnnotationData) node.getUserObject();
-                                v = ob.getTagValue();
-                                if (value.equals(v)) {
-                                    return node;
+                                if (!isSelected(node)) {
+                                    ob = (TagAnnotationData) node.getUserObject();
+                                    v = ob.getTagValue();
+                                    if (value.equals(v)) {
+                                        return node;
+                                    }
                                 }
                             }
                         } else {
@@ -342,10 +344,12 @@ public class SelectionWizardUI
                             j = children.iterator();
                             while (j.hasNext()) {
                                 node = (TreeImageDisplay) j.next();
-                                ob = (TagAnnotationData) node.getUserObject();
-                                v = ob.getTagValue();
-                                if (value.equals(v)) {
-                                    return node;
+                                if (!isSelected(node)) {
+                                    ob = (TagAnnotationData) node.getUserObject();
+                                    v = ob.getTagValue();
+                                    if (value.equals(v)) {
+                                        return node;
+                                    }
                                 }
                             }
                         } else {
