@@ -1092,13 +1092,15 @@ public class SelectionWizardUI
     }
 
     /**
-     * Adds the passed objects.
+     * Adds the passed objects. Returns <code>true</code> to clear the text
+     * and resets the default, <code>false</code> otherwise.
      * 
      * @param toAdd The objects to add.
+     * @return See above.
      */
-    void addObjects(List<DataObject> toAdd)
+    boolean addObjects(List<DataObject> toAdd)
     {
-        if (CollectionUtils.isEmpty(toAdd)) return;
+        if (CollectionUtils.isEmpty(toAdd)) return true;
         Iterator<DataObject> i = toAdd.iterator();
         DataObject data;
         TreeImageDisplay node = null;
@@ -1118,7 +1120,7 @@ public class SelectionWizardUI
                 availableItemsListbox.setSelectionPath(new TreePath(node.getPath()));
                 addItem();
                 availableItemsListbox.requestFocus();
-                return;
+                return true;
             }
         }
         //now check that it is not in the Selected.
@@ -1137,7 +1139,7 @@ public class SelectionWizardUI
                         "A tag with the same name and description already " +
                         "exists and is selected.", null);
                        UIUtilities.centerAndShow(msg);
-                return;
+                return false;
             }
         }
         //We create a new tag.
@@ -1149,6 +1151,7 @@ public class SelectionWizardUI
         sortLists();
         populateTreeItems(selectedItemsListbox, selectedItems);
         onSelectionChange();
+        return true;
     }
 
     /**

@@ -377,8 +377,8 @@ public class SelectionWizard
                     objects.add(new TagAnnotationData(v.trim()));
                 }
             }
-            uiDelegate.addObjects(objects);
-            setTextFieldDefault(addField, DEFAULT_TEXT);
+            boolean reset = uiDelegate.addObjects(objects);
+            if (reset) setTextFieldDefault(addField, DEFAULT_TEXT);
         }
     }
 
