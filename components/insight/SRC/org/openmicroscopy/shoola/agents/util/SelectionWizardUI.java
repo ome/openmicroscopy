@@ -511,17 +511,25 @@ public class SelectionWizardUI
         if (data == null) return "";
         StringBuilder buf = new StringBuilder();
         buf.append("<html><body>");
-        String exp = "";
+        String txt = "";
         try {
-            exp = EditorUtil.formatExperimenter(data.getOwner());
+            txt = EditorUtil.formatExperimenter(data.getOwner());
         } catch (Exception e) {
             //owner not loaded
         }
-        if (StringUtils.isNotBlank(exp)) {
+        if (StringUtils.isNotBlank(txt)) {
             buf.append("<b>");
             buf.append("Owner: ");
             buf.append("</b>");
-            buf.append(exp);
+            buf.append(txt);
+            buf.append("<br>");
+        }
+        txt = data.getTagDescription();
+        if (StringUtils.isNotBlank(txt)) {
+            buf.append("<b>");
+            buf.append("Description: ");
+            buf.append("</b>");
+            buf.append(txt);
             buf.append("<br>");
         }
         if (CollectionUtils.isNotEmpty(parents)) {
