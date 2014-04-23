@@ -31,13 +31,13 @@ def upgradeCheck():
             logger.debug("Up to date.\n")
     except Exception, x:
         logger.error("Upgrade check error: %s" % x)
-    
+
 def toBoolean(val):
-    """ 
+    """
     Get the boolean value of the provided input.
 
         If the value is a boolean return the value.
-        Otherwise check to see if the value is in 
+        Otherwise check to see if the value is in
         ["false", "f", "no", "n", "none", "0", "[]", "{}", "" ]
         and returns True if value is not in the list
     """

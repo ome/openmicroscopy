@@ -1,25 +1,25 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# 
-# 
-# 
-# Copyright (c) 2008 University of Dundee. 
-# 
+#
+#
+#
+# Copyright (c) 2008 University of Dundee.
+#
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
 # published by the Free Software Foundation, either version 3 of the
 # License, or (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU Affero General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-# 
+#
 # Author: Aleksandra Tarkowska <A(dot)Tarkowska(at)dundee(dot)ac(dot)uk>, 2008.
-# 
+#
 # Version: 1.0
 #
 
@@ -99,7 +99,7 @@ class ServerModelChoiceField(ModelChoiceField):
         if not res:
             raise ValidationError(self.error_messages['invalid_choice'])
         return value
-           
+
 # Group queryset iterator for group form
 class GroupQuerySetIterator(object):
     def __init__(self, queryset, empty_label):
@@ -217,9 +217,9 @@ class GroupModelMultipleChoiceField(GroupModelChoiceField):
 class ExperimenterQuerySetIterator(object):
     def __init__(self, queryset, empty_label):
         self.queryset = queryset
-        
+
         self.empty_label = empty_label
-        
+
         self.rendered_set = []
         if self.empty_label is not None:
             self.rendered_set.append( (u"", self.empty_label) )
@@ -283,7 +283,7 @@ class ExperimenterQuerySetIterator(object):
         return (smart_unicode(oid), smart_unicode(name))
 
 class ExperimenterModelChoiceField(ModelChoiceField):
-    
+
     def _get_choices(self):
         # If self._choices is set, then somebody must have manually set
         # the property self.choices. In this case, just return self._choices.
@@ -308,7 +308,7 @@ class ExperimenterModelChoiceField(ModelChoiceField):
     def to_python(self, value):
         """
         Go through all values in queryset, looking to find 'value'. If not found raise ValidationError.
-        
+
         @return value:      The input value
         """
 
@@ -357,7 +357,7 @@ class ExperimenterModelMultipleChoiceField(ExperimenterModelChoiceField):
         super(ExperimenterModelMultipleChoiceField, self).__init__(queryset, None,
             cache_choices, required, widget, label, initial, help_text,
             *args, **kwargs)
-        
+
 
     def to_python(self, value):
         if self.required and not value:
@@ -388,7 +388,7 @@ class ExperimenterModelMultipleChoiceField(ExperimenterModelChoiceField):
         return final_values
 
 class DefaultGroupField(ChoiceField):
-    
+
     def to_python(self, value):
         """
         Check that the field was selected.

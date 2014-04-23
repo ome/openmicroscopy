@@ -3,7 +3,7 @@
 #
 #
 #
-# Copyright (c) 2008 University of Dundee. 
+# Copyright (c) 2008 University of Dundee.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -30,7 +30,7 @@ try:
     from cStringIO import StringIO
 except ImportError:
     from StringIO import StringIO
-    
+
 from django.conf import settings
 from django.core.handlers.base import BaseHandler
 from django.core.handlers.wsgi import WSGIRequest
@@ -65,10 +65,10 @@ def fakeRequest (method, path="/", params={}, **kwargs):
         post_request = rf.post('/submit/', {'foo': 'bar'})
         """
         if not method.lower() in ('post', 'get'):
-            raise AttributeError("Method must be 'get' or 'post'")                
+            raise AttributeError("Method must be 'get' or 'post'")
         if not isinstance(params, dict):
             raise AttributeError("Params must be a dictionary")
-                
+
         rf = RequestFactory()
         r = getattr(rf, method.lower())(path, params)
         if 'django.contrib.sessions' in settings.INSTALLED_APPS:
@@ -538,20 +538,20 @@ class Client(RequestFactory):
         not available.
         """
         engine = import_module(settings.SESSION_ENGINE)
-        
+
         params = {
             'username': login,
             'password': password,
             'server':server_id,
             'ssl':'on'
-        }        
+        }
         request = fakeRequest(method="post", path=(reverse(viewname="walogin")), params=params)
-        
+
         if self.session:
             request.session = self.session
         else:
             request.session = engine.SessionStore()
-            
+
         # Set the cookie to represent the session.
         session_cookie = settings.SESSION_COOKIE_NAME
         self.cookies[session_cookie] = request.session.session_key
@@ -563,7 +563,7 @@ class Client(RequestFactory):
             'expires': None,
         }
         self.cookies[session_cookie].update(cookie_data)
-        
+
         connector = Connector(request.REQUEST.get('server'), True)
         conn = connector.create_connection('TEST.webadmin', login, password, userip="127.0.0.1")
 
@@ -579,14 +579,14 @@ class Client(RequestFactory):
             finally:
                 request.session.flush()
             return False
-    
+
     def logout(self):
         """
         Removes the authenticated user's cookies and session object.
 
         Causes the authenticated user to be logged out.
         """
-        
+
         session = import_module(settings.SESSION_ENGINE).SessionStore()
         session_cookie = self.cookies.get(settings.SESSION_COOKIE_NAME)
         if session_cookie:
@@ -594,18 +594,18 @@ class Client(RequestFactory):
         self.cookies = SimpleCookie()
 
         from omeroweb.webclient.decorators import login_required
-        
+
         request = fakeRequest(method="get", path=reverse(viewname="weblogout"))
         @login_required()
         def foo(request, conn=None):
             return conn
-        
+
         try:
             conn = foo(request)
             conn.seppuku()
         finally:
             request.session.flush()
-    
+
     def _handle_redirects(self, response, **extra):
         "Follows any redirects by requesting responses from the server using GET."
 
