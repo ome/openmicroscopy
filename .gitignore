@@ -58,3 +58,4 @@ temp-testng-customsuite.xml
 omero_version.py
 eclipse.log
 velocity.log*
+.idea
