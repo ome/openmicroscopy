@@ -57,13 +57,19 @@
         });    
     </script>
 
+    <style type="text/css">
+        .search_thumb {
+            max-width: 32px;
+            max-height: 32px;
+        }
+    </style>
 
 	
     
 
     <div>
     {% block search_results %}
-        {% if manager.c_size %}
+        {% if manager.c_size or foundById %}
         
         <table id="dataTable" class="tablesorter">
             <thead> 
@@ -71,10 +77,29 @@
                     <th class="table_images">{% trans "Object" %}</th> 
                     <th class="table_desc">{% trans "Name" %}</th> 
                     <th class="table_date">{% trans "Date" %}</th> 
+                    <th>{% trans "Link" %}</th>
                 </tr> 
             </thead>
             <tbody>
             <!-- NB: E.g. "#project-123 td.desc a" etc is used to update names if edited in right-panel 'editinplace.js' -->
+            {% for byId in foundById %}
+                {% with c=byId.obj %}
+                <tr id="{{ byId.otype }}-{{ c.id }}" class="{{ c.getPermsCss }}">
+                    <td class="image">
+                        {% ifequal byId.otype 'image' %}
+                        <img class="search_thumb" id="{{ c.id }}" src="{% url 'render_thumbnail_resize' 96 c.id  %}" alt="image" title="{{ c.name }}"/>
+                        {% else %}
+                        <img src="{% static "webgateway/img/folder16.png" %}" alt="{{ byId.otype }}" title="{{ c.name }}"/>
+                        {% endifequal %}
+                    </td>
+                    <td class="desc"><a>{{ c.name|truncatebefor:"65" }}</a></td>
+                    <td class="date">{{ c.getDate }}</td>
+                    <td><a href="{% url 'webindex' %}?show={{ byId.otype }}-{{ c.id }}" title="{% trans 'Show in hierarchy view' %}">
+                        {% trans "Browse" %}
+                    </a></td>
+                </tr>
+                {% endwith %}
+            {% endfor %}
             {% for c in manager.containers.projects %}
                 <tr id="project-{{ c.id }}" class="{{ c.getPermsCss }}">
                     <td class="image">
@@ -82,6 +107,9 @@
                     </td>
                     <td class="desc"><a>{{ c.name|truncatebefor:"65" }}</a></td>
                     <td class="date">{{ c.getDate }}</td>                    
+                    <td><a href="{% url 'webindex' %}?show=project-{{ c.id }}" title="{% trans 'Show in hierarchy view' %}">
+                        {% trans "Browse" %}
+                    </a></td>
                 </tr>
             {% endfor %}
             {% for c in manager.containers.screens %}
@@ -91,6 +119,9 @@
                     </td>
                     <td class="desc"><a>{{ c.name|truncatebefor:"65" }}</a></td>
                     <td class="date">{{ c.getDate }}</td>                    
+                    <td><a href="{% url 'webindex' %}?show=screen-{{ c.id }}" title="{% trans 'Show in hierarchy view' %}">
+                        {% trans "Browse" %}
+                    </a></td>
                 </tr>
             {% endfor %}
             {% for c in manager.containers.datasets %}
@@ -100,6 +131,9 @@
                     </td>
                     <td class="desc"><a>{{ c.name|truncatebefor:"65" }}</a></td>
                     <td class="date">{{ c.getDate }}</td>                    
+                    <td><a href="{% url 'webindex' %}?show=dataset-{{ c.id }}" title="{% trans 'Show in hierarchy view' %}">
+                        {% trans "Browse" %}
+                    </a></td>
                 </tr>
             {% endfor %}
             {% for c in manager.containers.plates %}
@@ -109,15 +143,21 @@
                     </td>
                     <td class="desc"><a>{{ c.name|truncatebefor:"65" }}</a></td>
                     <td class="date">{{ c.getDate }}</td>                    
+                    <td><a href="{% url 'webindex' %}?show=plate-{{ c.id }}" title="{% trans 'Show in hierarchy view' %}">
+                        {% trans "Browse" %}
+                    </a></td>
                 </tr>
             {% endfor %}
             {% for c in manager.containers.images %}
                 <tr id="image-{{ c.id }}" class="{{ c.getPermsCss }}">
                     <td class="image">
-                        <img id="{{ c.id }}" src="{% url 'render_thumbnail_resize' 32 c.id  %}" alt="image" title="{{ c.name }}"/>
+                        <img class="search_thumb" id="{{ c.id }}" src="{% url 'render_thumbnail_resize' 96 c.id  %}" alt="image" title="{{ c.name }}"/>
                     </td>
                     <td class="desc"><a>{{ c.name|truncatebefor:"65" }}</a></td>
                     <td class="date">{{ c.getDate }}</td>                    
+                    <td><a href="{% url 'webindex' %}?show=image-{{ c.id }}" title="{% trans 'Show in hierarchy view' %}">
+                        {% trans "Browse" %}
+                    </a></td>
                 </tr>
             {% endfor %}
             </tbody>
