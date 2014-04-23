@@ -14,17 +14,22 @@ function fas = getImageFileAnnotations(session, ids, varargin)
 %    fas = getImageFileAnnotations(session,  ids, 'exclude', exclude)
 %    excludes file annotations with the input namespace.
 %
+%    fas = getImageFileAnnotations(session, ids, 'owner', ownerid)
+%    returns the file annotations owned by the user specified by ownerid.
+%    Use -1 to return the file annotations owned by all users.
+%
 %    Examples:
 %
 %        fas = getImageFileAnnotations(session, ids)
 %        fas = getImageFileAnnotations(session, images)
 %        fas = getImageFileAnnotations(session, ids, 'include', include)
 %        fas = getImageFileAnnotations(session, ids, 'exclude', exclude)
+%        fas = getImageFileAnnotations(session, ids, 'owner', -1)
 %
 % See also: GETOBJECTANNOTATIONS, GETIMAGECOMMENTANNOTATIONS,
 % GETIMAGETAGANNOTATIONS, GETIMAGEXMLANNOTATIONS
 
-% Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
+% Copyright (C) 2013-2014 University of Dundee & Open Microscopy Environment.
 % All rights reserved.
 %
 % This program is free software; you can redistribute it and/or modify
