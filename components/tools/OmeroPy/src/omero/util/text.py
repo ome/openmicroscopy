@@ -82,6 +82,13 @@ def find_style(style):
         return PlainStyle()
 
 
+def list_style():
+    """
+    List the styles that are known by find_style
+    """
+    return ("sql", "csv", "plain")
+
+
 class TableBuilder(object):
     """
     OMERO-addition to make working with Tables easier
