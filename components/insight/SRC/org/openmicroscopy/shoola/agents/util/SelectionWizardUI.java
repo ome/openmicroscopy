@@ -680,7 +680,7 @@ public class SelectionWizardUI
                                 children.add(node);
                             }
                         }
-                    }
+                    } else toKeep.add(node);
                 } else {
                     if (!isSelected(node)) {
                         selectedItems.add(node);
