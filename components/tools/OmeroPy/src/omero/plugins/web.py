@@ -314,7 +314,7 @@ Alias /omero "%(ROOT)s/var/omero.fcgi/"
         location = self.ctx.dir / "lib" / "python" / "omeroweb"
         if not args.appname:
             apps = [x.name for x in filter(
-                lambda x: x.isdir() and
+                lambda x: os.path.isdir(x) and
                 (x / 'scripts' / 'enable.py').exists(), location.listdir())]
             iapps = map(lambda x: x.startswith('omeroweb.') and x[9:] or
                         x, settings.INSTALLED_APPS)

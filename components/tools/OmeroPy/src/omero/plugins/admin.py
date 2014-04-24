@@ -805,7 +805,7 @@ OMERO Diagnostics %s
             self.ctx.out(msg, False)
 
         def exists(p):
-            if p.isdir():
+            if os.path.isdir(p):
                 if not p.exists():
                     self.ctx.out("doesn't exist")
                 else:
