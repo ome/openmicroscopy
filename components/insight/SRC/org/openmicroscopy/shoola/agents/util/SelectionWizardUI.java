@@ -121,9 +121,6 @@ public class SelectionWizardUI
     /** The original selected items before the user selects items. */
     private List<TreeImageDisplay> originalSelectedItems;
 
-    /** Collection of items, removed and/or added.*/
-    private Set<TreeImageDisplay> children;
-
     /** Collection of available items. */
     private List<TreeImageDisplay> availableItems;
 
@@ -243,7 +240,7 @@ public class SelectionWizardUI
                     Iterator j = l.iterator();
                     while (j.hasNext()) {
                         child = (TreeImageDisplay) j.next();
-                        if (!children.contains(child) && !isSelected(child)) {
+                        if (!isSelected(child)) {
                             ho = child.getUserObject();
                             if (ho instanceof TagAnnotationData) {
                                 tag = (TagAnnotationData) ho;
@@ -445,12 +442,7 @@ public class SelectionWizardUI
             }
 
             @Override
-            public void focusGained(FocusEvent evt) {
-                String value = filterArea.getText();
-                if (DEFAULT_FILTER_TEXT.equals(value)) {
-                    //filterArea.setCaretPosition(0);
-                }
-            }
+            public void focusGained(FocusEvent evt) {}
         });
         filterArea.addMouseListener(new MouseAdapter() {
 
@@ -662,7 +654,6 @@ public class SelectionWizardUI
                     child = (TreeImageDisplay) j.next();
                     if (!isSelected(child)) {
                         selectedItems.add(child);
-                        children.add(child);
                     }
                 }
             } else {
@@ -672,21 +663,11 @@ public class SelectionWizardUI
                     if (!TagAnnotationData.INSIGHT_TAGSET_NS.equals(tag.getNameSpace())) {
                         if (!isSelected(node)) {
                             selectedItems.add(node);
-                            TreeImageDisplay parent = node.getParentDisplay();
-                            if (parent != null &&
-                                    parent.getUserObject() instanceof DataObject) {
-                                children.add(node);
-                            }
                         }
                     } else toKeep.add(node);
                 } else {
                     if (!isSelected(node)) {
                         selectedItems.add(node);
-                        TreeImageDisplay parent = node.getParentDisplay();
-                        if (parent != null &&
-                                parent.getUserObject() instanceof DataObject) {
-                            children.add(node);
-                        }
                     }
                 }
             }
@@ -772,15 +753,8 @@ public class SelectionWizardUI
                 if (ho instanceof DataObject) {
                     data = (DataObject) ho;
                     if (!isImmutable(data)) {
-                        if (data.getId() >= 0) {
-                            if (children.contains(node)) {
-                                children.remove(node);
-                            } else {
-                                //Check if node is in a tagset.
-                                if (!isChild(node)) {
-                                    availableItems.add(node);
-                                }
-                            }
+                        if (data.getId() >= 0 && !isChild(node)) {
+                            availableItems.add(node);
                         }
                         toRemove.add(node);
                     }
@@ -809,15 +783,8 @@ public class SelectionWizardUI
                 if (isImmutable(data)) {
                     toKeep.add(node);
                 } else {
-                    if (data.getId() >= 0) {
-                        if (children.contains(node)) {
-                            children.remove(node);
-                        } else {
-                            //Check if node is in a tagset.
-                            if (!isChild(node)) {
-                                availableItems.add(node);
-                            }
-                        }
+                    if (data.getId() >= 0 && !isChild(node)) {
+                        availableItems.add(node);
                     }
                 }
             }
@@ -849,18 +816,12 @@ public class SelectionWizardUI
                         child = (TreeImageDisplay) j.next();
                         if (!isSelected(child)) {
                             selectedItems.add(child);
-                            children.add(child);
                         }
                     }
                 } else {
                     if (!isSelected(node)) {
                         toRemove.add(node);
                         selectedItems.add(node);
-                        TreeImageDisplay parent = node.getParentDisplay();
-                        if (parent != null &&
-                                parent.getUserObject() instanceof DataObject) {
-                            children.add(node);
-                        }
                     }
                 }
             }
@@ -967,8 +928,7 @@ public class SelectionWizardUI
                 while (j.hasNext()) {
                     child = j.next();
                     child.setDisplayItems(false);
-                    if (!children.contains(child) && !isSelected(child) &&
-                            !isFiltered(child)) {
+                    if (!isSelected(child) && !isFiltered(child)) {
                         dtm.insertNodeInto(child, node, node.getChildCount());
                         toExpand.add(node);
                         tree.expandPath(new TreePath(node.getPath()));
@@ -1107,7 +1067,6 @@ public class SelectionWizardUI
         if (available == null) available = new ArrayList<Object>();
         this.view = view;
         this.user = user;
-        children = new HashSet<TreeImageDisplay>();
         this.availableItems = new ArrayList<TreeImageDisplay>(
                 TreeViewerTranslator.transformHierarchy(available));
         this.selectedItems = new ArrayList<TreeImageDisplay>(
