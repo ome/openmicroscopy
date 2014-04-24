@@ -2,10 +2,10 @@
  * org.openmicroscopy.shoola.agents.fsimporter.view.ImporterUI 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -68,6 +68,8 @@ import javax.swing.text.StyledDocument;
 
 //Third-party libraries
 import info.clearthought.layout.TableLayout;
+
+import org.apache.commons.collections.CollectionUtils;
 import org.jdesktop.swingx.JXLabel;
 import org.jdesktop.swingx.JXPanel;
 
@@ -78,7 +80,9 @@ import org.openmicroscopy.shoola.agents.fsimporter.actions.GroupSelectionAction;
 import org.openmicroscopy.shoola.agents.fsimporter.chooser.ImportDialog;
 import org.openmicroscopy.shoola.agents.fsimporter.util.FileImportComponent;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
+import org.openmicroscopy.shoola.env.data.model.ImportableFile;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
 import org.openmicroscopy.shoola.util.ui.ClosableTabbedPane;
@@ -617,7 +621,39 @@ class ImporterUI extends TopWindow
 	{
 		return uiElements.values();
 	}
-	
+
+	/**
+	 * Returns <code>true</code> if there is an on-going import for a given
+	 * group or one schedule.
+	 *
+	 * @return See above.
+	 */
+	boolean hasOnGoingImportFor(SecurityContext ctx)
+	{
+	    Collection<ImporterUIElement> values = uiElements.values();
+	    Iterator<ImporterUIElement> i = values.iterator();
+	    ImporterUIElement elt;
+	    ImportableObject data;
+	    List<ImportableFile> files;
+	    ImportableFile f;
+	    Iterator<ImportableFile> j;
+	    while (i.hasNext()) {
+            elt = i.next();
+            data = elt.getData();
+            files = data.getFiles();
+            if (CollectionUtils.isNotEmpty(files) && !elt.isDone()) {
+                j = files.iterator();
+                while (j.hasNext()) {
+                    f = j.next();
+                    if (f.getGroup().getId() == ctx.getGroupID()) {
+                        return true;
+                    }
+                }
+            }
+        }
+	    return false;
+	}
+    
 	/**
 	 * Returns <code>true</code> if errors to send, <code>false</code>
 	 * otherwise.

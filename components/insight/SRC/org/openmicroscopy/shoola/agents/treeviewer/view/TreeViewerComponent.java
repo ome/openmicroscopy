@@ -57,6 +57,7 @@ import org.openmicroscopy.shoola.agents.events.editor.EditFileEvent;
 import org.openmicroscopy.shoola.agents.events.editor.ShowEditorEvent;
 import org.openmicroscopy.shoola.agents.events.iviewer.CopyRndSettings;
 import org.openmicroscopy.shoola.agents.events.iviewer.RndSettingsCopied;
+import org.openmicroscopy.shoola.agents.events.treeviewer.ActivitiesEvent;
 import org.openmicroscopy.shoola.agents.events.treeviewer.BrowserSelectionEvent;
 import org.openmicroscopy.shoola.agents.events.treeviewer.ChangeUserGroupEvent;
 import org.openmicroscopy.shoola.agents.events.treeviewer.CopyItems;
@@ -104,7 +105,6 @@ import org.openmicroscopy.shoola.env.Environment;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.events.ExitApplication;
-import org.openmicroscopy.shoola.env.data.events.RemoveGroupEvent;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.model.ApplicationData;
@@ -4565,7 +4565,7 @@ class TreeViewerComponent
 		}
 		if (node == null) return;
 		TreeViewerAgent.getRegistry().getEventBus().post(
-				new RemoveGroupEvent(model.getSecurityContext(node)));
+				new ActivitiesEvent(model.getSecurityContext(node)));
 		GroupData group = (GroupData) node.getUserObject();
 		Map<Integer, Browser> browsers = model.getBrowsers();
 		Iterator i = browsers.entrySet().iterator();
