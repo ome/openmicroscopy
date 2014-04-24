@@ -1,5 +1,5 @@
 /*
- *   Copyright 2011 Glencoe Software, Inc. All rights reserved.
+ *   Copyright 2011-2014 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  *
  */
@@ -13,6 +13,8 @@ import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.mail.MailSender;
+import org.springframework.mail.SimpleMailMessage;
 
 import ome.io.nio.PixelsService;
 import ome.io.nio.ThumbnailService;
@@ -24,7 +26,7 @@ import ome.services.delete.Deletion;
 import ome.system.OmeroContext;
 import ome.system.Roles;
 import ome.tools.hibernate.ExtendedMetadata;
-
+import omero.cmd.admin.SendEmailRequestI;
 import omero.cmd.basic.DoAllI;
 import omero.cmd.basic.ListRequestsI;
 import omero.cmd.basic.TimingI;
@@ -57,19 +59,26 @@ public class RequestObjectFactoryRegistry extends
 
     private final ThumbnailService thumbnailService;
 
+    protected final MailSender mailSender;
+
+    protected final SimpleMailMessage templateMessage;
+
     private/* final */OmeroContext ctx;
 
     public RequestObjectFactoryRegistry(ExtendedMetadata em,
             ACLVoter voter,
             Roles roles,
             PixelsService pixelsService,
-            ThumbnailService thumbnailService) {
+            ThumbnailService thumbnailService,
+            MailSender mailSender, SimpleMailMessage templateMessage) {
 
         this.em = em;
         this.voter = voter;
         this.roles = roles;
         this.pixelsService = pixelsService;
         this.thumbnailService = thumbnailService;
+        this.mailSender = mailSender;
+        this.templateMessage = templateMessage;
 
     }
 
@@ -172,6 +181,13 @@ public class RequestObjectFactoryRegistry extends
                     @Override
                     public Ice.Object create(String name) {
                         return new DiskUsageI(pixelsService, thumbnailService);
+                    }
+                });
+        factories.put(SendEmailRequestI.ice_staticId(),
+                new ObjectFactory(SendEmailRequestI.ice_staticId()) {
+                    @Override
+                    public Ice.Object create(String name) {
+                    	return new SendEmailRequestI(mailSender, templateMessage);
                     }
                 });
         return factories;

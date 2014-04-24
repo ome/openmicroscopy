@@ -1,5 +1,5 @@
 /*
- *   Copyright 2011 Glencoe Software, Inc. All rights reserved.
+ *   Copyright 2011-2014 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -9,6 +9,9 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.springframework.mail.MailSender;
+import org.springframework.mail.SimpleMailMessage;
 
 import org.jmock.Mock;
 import org.testng.annotations.BeforeClass;
@@ -57,7 +60,9 @@ public class AbstractGraphTest extends AbstractServantTest {
                 user.ctx.getBean(ACLVoter.class),
                 user.ctx.getBean(Roles.class),
                 user.ctx.getBean("/OMERO/Pixels", PixelsService.class),
-                user.ctx.getBean("/OMERO/Thumbs", ThumbnailService.class)
+                user.ctx.getBean("/OMERO/Thumbs", ThumbnailService.class),
+                user.ctx.getBean(MailSender.class),
+                user.ctx.getBean(SimpleMailMessage.class)
                 );
         rofr.setApplicationContext(ctx);
         rofr.setIceCommunicator(ic);

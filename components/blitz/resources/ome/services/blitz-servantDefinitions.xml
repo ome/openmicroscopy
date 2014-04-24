@@ -5,7 +5,7 @@
 #
 # $Id$
 #
-# Copyright 2007 Glencoe Software, Inc. All rights reserved.
+# Copyright 2007-2014 Glencoe Software, Inc. All rights reserved.
 # Use is subject to license terms supplied in LICENSE.txt
 #
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -367,6 +367,8 @@
       <constructor-arg ref="roles"/>
       <constructor-arg ref="/OMERO/Pixels"/>
       <constructor-arg ref="/OMERO/Thumbs"/>
+      <constructor-arg ref="mailSender"/>
+      <constructor-arg ref="templateMessage"/>
       <property name="iceCommunicator" ref="Ice.Communicator"/>
   </bean>
 
@@ -384,7 +386,7 @@
      <constructor-arg ref="/OMERO/Pixels"/>
      <property name="iceCommunicator" ref="Ice.Communicator"/>
   </bean>
-
+ 
   <!-- Other data objects
   ==============================================================================
   -->

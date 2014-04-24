@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 
-   Copyright 2010 Glencoe Software, Inc. All rights reserved.
+   Copyright 2010-2014 Glencoe Software, Inc. All rights reserved.
    Use is subject to license terms supplied in LICENSE.txt
 
 """
@@ -48,6 +48,7 @@ if omero.__import_style__ is None:
     IceImport.load("omero_api_RenderingEngine_ice")
     IceImport.load("omero_api_Search_ice")
     IceImport.load("omero_api_ThumbnailStore_ice")
+    IceImport.load("omero_cmd_Admin_ice")
     IceImport.load("omero_cmd_API_ice")
     IceImport.load("omero_cmd_Basic_ice")
     IceImport.load("omero_cmd_FS_ice")
