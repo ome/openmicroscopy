@@ -450,7 +450,7 @@ public class SelectionWizardUI
             public void focusGained(FocusEvent evt) {
                 String value = filterArea.getText();
                 if (DEFAULT_FILTER_TEXT.equals(value)) {
-                    filterArea.setCaretPosition(0);
+                    //filterArea.setCaretPosition(0);
                 }
             }
         });
