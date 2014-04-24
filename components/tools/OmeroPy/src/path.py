@@ -34,6 +34,9 @@ Notes:
 
  * Improved listdir to handle unreadable directories. See #9156. (2013/03/06)
 
+ * Replaced usage of p.isdir() with os.path.isdir(p) due to the former
+   being broken on Windows with Python 2.7. (2014/04/24)
+
 """
 
 
