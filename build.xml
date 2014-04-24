@@ -125,6 +125,7 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
         <delete includeemptydirs="true" quiet="true">
             <fileset dir="${omero.home}/examples" includes="config.log,**/*.o,**/*.class,**/*.exe"/>
         </delete>
+        <ant antfile="build.xml" dir="docs/sphinx" target="clean" inheritAll="false"/>
     </target>
 
     <macrodef name="setup-py-install">
@@ -567,11 +568,14 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
             <zipfileset dir="${dist.dir}/docs" prefix="OMERO.docs-${omero.version}"/>
         </zip>
 
-        <exec executable="make" failonerror="true" dir="${sphinx.dir}">
-            <env key="SOURCE_BRANCH" value="v.${omero.shortversion}"/>
-            <env key="OMERO_RELEASE" value="${omero.shortversion}"/>
-            <arg line="clean html latexpdf"/>
-        </exec>
+        <ant antfile="build.xml" dir="docs/sphinx" target="clean" inheritAll="false"/>
+        <ant antfile="build.xml" dir="docs/sphinx" target="html" inheritAll="false">
+            <property name="omero.shortversion" value="${omero.shortversion}"/>
+        </ant>
+        <ant antfile="build.xml" dir="docs/sphinx" target="latexpdf" inheritAll="false">
+            <property name="omero.shortversion" value="${omero.shortversion}"/>
+        </ant>
+
         <copy file="${sphinx.dir}/_build/latex/OMERO-${omero.shortversion}.pdf" tofile="${omero.home}/target/OMERO-${omero.shortversion}.pdf" overwrite="true"/>
         <zip destfile="${omero.home}/target/OMERO.sphinx-${omero.version}.zip">
             <zipfileset dir="${sphinx.dir}/_build/html/" prefix="OMERO.sphinx-${omero.version}"/>
