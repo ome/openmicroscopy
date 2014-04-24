@@ -10,6 +10,7 @@
 """
 
 import logging
+import os
 logging.basicConfig(level=0)
 
 import omero.util.temp_files as t_f
@@ -54,7 +55,7 @@ class TestTemps(object):
     def testFolderSimple(self):
         p = t_f.create_path("close", ".dir", folder=True)
         assert p.exists()
-        assert p.isdir()
+        assert os.path.isdir(p)
         return p
 
     def testFolderWrite(self):
