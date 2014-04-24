@@ -1120,7 +1120,7 @@ public class SelectionWizardUI
             availableItems.add(item);
         for (TreeImageDisplay item : originalSelectedItems)
             selectedItems.add(item);
-
+        sortLists();
         populateTreeItems(availableItemsListbox, availableItems);
         populateTreeItems(selectedItemsListbox, selectedItems);
         onSelectionChange();
