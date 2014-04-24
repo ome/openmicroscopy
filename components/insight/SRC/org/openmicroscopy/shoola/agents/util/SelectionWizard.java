@@ -371,10 +371,19 @@ public class SelectionWizard
             String[] names = text.split(SearchUtil.COMMA_SEPARATOR);
             List<DataObject> objects = new ArrayList<DataObject>();
             String v;
+            String description = descriptionField.getText();
+            if (DEFAULT_DESCRIPTION.equals(description)) {
+                description = null;
+            }
             for (int i = 0; i < names.length; i++) {
                 v = names[i];
+                TagAnnotationData tag;
                 if (v != null && v.trim().length() != 0) {
-                    objects.add(new TagAnnotationData(v.trim()));
+                    tag = new TagAnnotationData(v.trim());
+                    if (description != null) {
+                        tag.setTagDescription(description);
+                    }
+                    objects.add(tag);
                 }
             }
             boolean reset = uiDelegate.addObjects(objects);
