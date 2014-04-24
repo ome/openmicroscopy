@@ -236,6 +236,7 @@
                 <value>/Image/Pixels;NULL</value>
                 <value>/Image/ImageAnnotationLink;FORCE</value>
                 <value>/Annotation;SOFT;/Image/ImageAnnotationLink</value>
+                <value>/Image/Fileset+Only</value>
                 <value>/Image+Only</value>
                 <value>/Image/ImagingEnvironment</value>
                 <value>/Image/ObjectiveSettings;SOFT</value>
@@ -285,7 +286,7 @@
         <constructor-arg>
             <list>
                 <value>/Dataset/DatasetImageLink;FORCE</value>
-                <value>/Image+Only;HARD;/Dataset/DatasetImageLink</value>
+                <value>/Image+Only;SOFT;/Dataset/DatasetImageLink</value>
                 <value>/Dataset/DatasetAnnotationLink;FORCE</value>
                 <value>/Annotation;SOFT;/Dataset/DatasetAnnotationLink</value>
                 <value>/Dataset+Only</value>

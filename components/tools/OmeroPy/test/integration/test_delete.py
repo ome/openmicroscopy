@@ -411,15 +411,20 @@ class TestDelete(lib.ITest):
         with pytest.raises(omero.ServerError):
             self.client.sf.getQueryService().get("FileAnnotation", fa.id.val)
 
-    def testDeleteOneDatasetFilesetErr(self):
+    def testDeleteOneDatasetSplitFilesetOK(self):
         """
-        Simple example of the MIF delete bad case:
-        a single fileset containing 2 images is split among 2 datasets.
-        Delete one dataset, delete fails.
+        Example of the MIF chgrp split case:
+        A single fileset containing 2 images is split among 2 datasets.
+        We try to delete ONE Dataset.
+        Each dataset CAN be deleted independently of the other.
+        But the images CANNOT, they must remain.
         """
+        # One user in two groups
         client, user = self.new_client_and_user(perms="rw----")
         update = client.sf.getUpdateService()
-        datasets = self.createDatasets(2, "testDeleteOneDatasetFilesetErr", client=client)
+        query = client.sf.getQueryService()
+        datasets = self.createDatasets(
+            2, "testDeleteOneDatasetSplitFilesetOK", client=client)
         images = self.importMIF(2, client=client)
         for i in range(2):
             link = omero.model.DatasetImageLinkI()
@@ -427,29 +432,14 @@ class TestDelete(lib.ITest):
             link.setChild(images[i].proxy())
             link = update.saveAndReturnObject(link)
 
-        # Lookup the fileset
-        query = client.sf.getQueryService()
-        img = query.get('Image', images[0].id.val)    # load first image
-        filesetId =  img.fileset.id.val
-
         # Now delete one dataset
         delete = omero.cmd.Delete("/Dataset", datasets[0].id.val, None)
-        rsp = self.doAllSubmit([delete], client, test_should_pass=False)
+        self.doAllSubmit([delete], client, test_should_pass=True)
 
-        # 10846 - multiple constraints are no longer being collected.
-        # in fact, even single constraints are not being directly directed
-        # since fileset cleanup is happening at the end of the transaction
-        # disabling and marking in ticket.
-        # The delete should fail due to the fileset
-        ### assert 'Fileset' in rsp.constraints,  "delete should fail due to 'Fileset' constraints"
-        ### failedFilesets = rsp.constraints['Fileset']
-        ### assert len(failedFilesets) ==  1,  "delete should fail due to a single Fileset"
-        ### assert failedFilesets[0] ==  filesetId,  "delete should fail due to this Fileset"
-
-        # Neither image or the dataset should be deleted.
-        assert datasets[0].id.val ==  query.find("Dataset", datasets[0].id.val).id.val
-        assert images[0].id.val ==  query.find("Image", images[0].id.val).id.val
-        assert images[1].id.val ==  query.find("Image", images[1].id.val).id.val
+        # The dataset should be deleted, but neither image should.
+        assert not query.find("Dataset", datasets[0].id.val)
+        assert images[0].id.val == query.find("Image", images[0].id.val).id.val
+        assert images[1].id.val == query.find("Image", images[1].id.val).id.val
 
     def testDeleteOneImageFilesetErr(self):
         """
@@ -605,48 +595,6 @@ class TestDelete(lib.ITest):
         delete1 = omero.cmd.Delete("/Image", imagesFsOne[0].id.val, None)
         delete2 = omero.cmd.Delete("/Image", imagesFsTwo[0].id.val, None)
         rsp = self.doAllSubmit([delete1,delete2], client, test_should_pass=False)
-
-        # 10846 - multiple constraints are no longer being collected.
-        # in fact, even single constraints are not being directly directed
-        # since fileset cleanup is happening at the end of the transaction
-        # disabling and marking in ticket.
-        # ...due to the filesets
-        ### assert 'Fileset' in rsp.constraints,  "Delete should fail due to 'Fileset' constraints"
-        ### failedFilesets = rsp.constraints['Fileset']
-        ### assert len(failedFilesets) ==  2,  "Delete should fail due to a Two Filesets"
-        ### assert filesetOneId in failedFilesets
-        ### assert filesetTwoId in failedFilesets
-
-    def testDeleteDatasetTwoFilesetsErr(self):
-        """
-        If we try to partially delete 2 Filesets, both should be returned
-        by the delete error
-        """
-        # One user in two groups
-        client, user = self.new_client_and_user(perms="rw----")
-        # 2 filesets, each with 2 images
-        imagesFsOne = self.importMIF(2, client=client)
-        imagesFsTwo = self.importMIF(2, client=client)
-
-        update = client.sf.getUpdateService()
-        ds = omero.model.DatasetI()
-        ds.name = omero.rtypes.rstring("testDeleteDatasetTwoFilesetsErr")
-        ds = update.saveAndReturnObject(ds)
-        images = self.importMIF(2, client=client)
-        for i in (imagesFsOne, imagesFsTwo):
-            link = omero.model.DatasetImageLinkI()
-            link.setParent(ds.proxy())
-            link.setChild(i[0].proxy())
-            link = update.saveAndReturnObject(link)
-
-        # Lookup the filesets
-        qs = client.sf.getQueryService()
-        filesetOneId = qs.get('Image', imagesFsOne[0].id.val).fileset.id.val
-        filesetTwoId = qs.get('Image', imagesFsTwo[0].id.val).fileset.id.val
-
-        # delete should fail...
-        delete = omero.cmd.Delete("/Dataset", ds.id.val, None)
-        rsp = self.doAllSubmit([delete], client, test_should_pass=False)
 
         # 10846 - multiple constraints are no longer being collected.
         # in fact, even single constraints are not being directly directed
