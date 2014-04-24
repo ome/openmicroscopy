@@ -171,6 +171,9 @@ public class SelectionWizardUI
     /** The parent dialog.*/
     private JDialog view;
 
+    /** The user currently logged in.*/
+    private ExperimenterData user;
+
     /**
      * Returns <code>true</code> if the item is already selected or is
      * an item to create, <code>false</code> otherwise.
@@ -411,12 +414,8 @@ public class SelectionWizardUI
         tree.setModel(new DefaultTreeModel(root));
     }
 
-    /** 
-     * Initializes the components composing the display. 
-     *
-     * @param user The user currently logged in.
-     */
-    private void initComponents(ExperimenterData user)
+    /** Initializes the components composing the display.*/
+    private void initComponents()
     {
         filterAnywhere = true;
         filterArea = new JTextField();
@@ -537,19 +536,20 @@ public class SelectionWizardUI
      *
      * @param data The tag to handle.
      * @param parent Its parent.
+     * @param exp The experimenter associated to the tag.
      * @return See
      */
     public String formatTagToolip(TagAnnotationData data,
-            List<TagAnnotationData> parents)
+            List<TagAnnotationData> parents, ExperimenterData exp)
     {
         if (data == null) return "";
         StringBuilder buf = new StringBuilder();
         buf.append("<html><body>");
         String txt = "";
-        try {
+        if (exp != null) {
+            txt = EditorUtil.formatExperimenter(exp);
+        } else {
             txt = EditorUtil.formatExperimenter(data.getOwner());
-        } catch (Exception e) {
-            //owner not loaded
         }
         if (StringUtils.isNotBlank(txt)) {
             buf.append("<b>");
@@ -613,11 +613,11 @@ public class SelectionWizardUI
                 originalItems.add(item);
                 if (item.getUserObject() instanceof TagAnnotationData) {
                     tag = (TagAnnotationData) item.getUserObject();
-                    item.setToolTip(formatTagToolip(tag, null));
+                    item.setToolTip(formatTagToolip(tag, null, null));
                     List<TreeImageDisplay> l = item.getChildrenDisplay();
                     List<TagAnnotationData> p = Arrays.asList(tag);
                     for (TreeImageDisplay j : l) {
-                        j.setToolTip(formatTagToolip(tag, p));
+                        j.setToolTip(formatTagToolip(tag, p, null));
                     }
                 }
             }
@@ -630,7 +630,8 @@ public class SelectionWizardUI
                 originalSelectedItems.add(item);
                 if (item.getUserObject() instanceof TagAnnotationData) {
                     tag = (TagAnnotationData) item.getUserObject();
-                    item.setToolTip(formatTagToolip(tag, getParents(tag)));
+                    item.setToolTip(formatTagToolip(tag, getParents(tag),
+                            null));
                 }
             }
         }
@@ -1069,6 +1070,7 @@ public class SelectionWizardUI
         if (selected == null) selected = new ArrayList<Object>();
         if (available == null) available = new ArrayList<Object>();
         this.view = view;
+        this.user = user;
         children = new HashSet<TreeImageDisplay>();
         this.availableItems = new ArrayList<TreeImageDisplay>(
                 TreeViewerTranslator.transformHierarchy(available));
@@ -1076,7 +1078,7 @@ public class SelectionWizardUI
                 TreeViewerTranslator.transformHierarchy(selected));
         this.type = type;
         createOriginalSelections();
-        initComponents(user);
+        initComponents();
         sortLists();
         buildGUI();
     }
@@ -1149,9 +1151,15 @@ public class SelectionWizardUI
         }
         //We create a new tag.
         i = toAdd.iterator();
+        DataObject ho;
         while (i.hasNext()) {
-            selectedItems.add(TreeViewerTranslator.transformDataObject(
-                    i.next()));
+            ho = i.next();
+            node = TreeViewerTranslator.transformDataObject(ho);
+            if (ho instanceof TagAnnotationData) {
+                String txt = formatTagToolip((TagAnnotationData) ho, null, user);
+                node.setToolTip(txt);
+            }
+            selectedItems.add(node);
         }
         sortLists();
         populateTreeItems(selectedItemsListbox, selectedItems);
