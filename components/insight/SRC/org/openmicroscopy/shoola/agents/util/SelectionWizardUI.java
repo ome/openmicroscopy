@@ -213,7 +213,6 @@ public class SelectionWizardUI
         TreeImageDisplay node, child;
         Object ho;
         String value;
-        System.err.println(insert+" txt:"+txt);
         if (insert) {
             ref = availableItems;
         } else {
@@ -657,7 +656,7 @@ public class SelectionWizardUI
         TreeImageDisplay child;
         List<TreeImageDisplay> toKeep = new ArrayList<TreeImageDisplay>();
         for (TreeImageDisplay node: availableItems) {
-            if (node.hasChildrenDisplay()) { //tagset
+            if (node.hasChildrenDisplay()) { //tagset with tag.
                 toKeep.add(node);
                 List l = node.getChildrenDisplay();
                 Iterator j = l.iterator();
@@ -669,12 +668,27 @@ public class SelectionWizardUI
                     }
                 }
             } else {
-                if (!isSelected(node)) {
-                    selectedItems.add(node);
-                    TreeImageDisplay parent = node.getParentDisplay();
-                    if (parent != null &&
-                            parent.getUserObject() instanceof DataObject) {
-                        children.add(node);
+                Object ho = node.getUserObject();
+                if (ho instanceof TagAnnotationData) {
+                    TagAnnotationData tag = (TagAnnotationData) ho;
+                    if (!TagAnnotationData.INSIGHT_TAGSET_NS.equals(tag.getNameSpace())) {
+                        if (!isSelected(node)) {
+                            selectedItems.add(node);
+                            TreeImageDisplay parent = node.getParentDisplay();
+                            if (parent != null &&
+                                    parent.getUserObject() instanceof DataObject) {
+                                children.add(node);
+                            }
+                        }
+                    }
+                } else {
+                    if (!isSelected(node)) {
+                        selectedItems.add(node);
+                        TreeImageDisplay parent = node.getParentDisplay();
+                        if (parent != null &&
+                                parent.getUserObject() instanceof DataObject) {
+                            children.add(node);
+                        }
                     }
                 }
             }
