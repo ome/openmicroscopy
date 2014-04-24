@@ -239,9 +239,7 @@ public class SelectionWizardUI
                     value = tag.getTagValue();
                 } else {
                     List l = node.getChildrenDisplay();
-                    Iterator j = l.iterator();
-                    if (CollectionUtils.isEmpty(l) && StringUtils.isEmpty(txt))
-                        toKeep.add(node);
+                    Iterator j = l.iterator();;
                     while (j.hasNext()) {
                         child = (TreeImageDisplay) j.next();
                         if (!children.contains(child)) {
@@ -949,7 +947,17 @@ public class SelectionWizardUI
         while (i.hasNext()) {
             node = i.next();
             node.setDisplayItems(false);
-            dtm.insertNodeInto(node, parent, parent.getChildCount());
+            Object ho = node.getUserObject();
+            if (ho instanceof TagAnnotationData) {
+                TagAnnotationData tag = (TagAnnotationData) ho;
+                if (!TagAnnotationData.INSIGHT_TAGSET_NS.equals(
+                        tag.getNameSpace()) ||
+                        node.hasChildrenDisplay()) {
+                    dtm.insertNodeInto(node, parent, parent.getChildCount());
+                }
+            } else {
+                dtm.insertNodeInto(node, parent, parent.getChildCount());
+            }
             if (node.hasChildrenDisplay()) {
                 node.removeAllChildren();
                 tree.expandPath(new TreePath(node.getPath()));
