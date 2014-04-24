@@ -97,15 +97,15 @@ class TestBackwardsCompatibility(lib.ITest):
         for i in range(len(x)):
             assert x[i] == y[i]
 
-    def createAllColumns_4_4_5(self):
+    def testCreateAllColumns_4_4_5(self):
         """
         Call this method to create the reference HDF5 table under a 4.4.5
         or older server. The OriginalFile ID of the table will be printed,
         and can be used to find the file under ${omero.data.dir}/Files/.
 
-        E.g. from the command goto ``components/tools/OmeroPy/test``, and run:
-        ``python -m unittest tablestest.backwards_compatibility.\
-        BackwardsCompatibilityTest.createAllColumns_4_4_5``
+        To run manually goto ``components/tools/OmeroPy``, and run:
+        ``py.test test/integration/tablestest/test_backwards_compatibility.py\
+        -s -k testCreateAllColumns_4_4_5``
         """
         grid = self.client.sf.sharedResources()
         repoMap = grid.repositories()
