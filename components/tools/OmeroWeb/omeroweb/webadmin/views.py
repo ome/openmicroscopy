@@ -68,7 +68,7 @@ from omeroweb.webadmin.webadmin_utils import toBoolean, upgradeCheck
 
 from omeroweb.connector import Server
 from omeroweb.http import HttpJsonResponse, HttpJPEGResponse
-from omeroweb.webclient.decorators import login_required
+from omeroweb.webclient.decorators import login_required, render_response
 from omeroweb.connector import Connector
 
 logger = logging.getLogger(__name__)
@@ -215,81 +215,96 @@ def mergeLists(list1,list2):
     result.extend(list2)
     return set(result)
 
-# Drivespace helpers
-def _bytes_per_pixel(pixel_type):
-    if pixel_type == "int8" or pixel_type == "uint8":
-        return 1
-    elif pixel_type == "int16" or pixel_type == "uint16":
-        return 2
-    elif pixel_type == "int32" or pixel_type == "uint32" or pixel_type == "float":
-        return 4
-    elif pixel_type == "double":
-        return 8;
-    else:
-        raise AttributeError("Unknown pixel type: %s" % (pixel_type))
-    
-def _usage_map_helper(pixels_list, pixels_originalFiles_list, exps):
-    tt = dict()
-    for p in pixels_list:
-        oid = p.details.owner.id.val
-        p_size = p.sizeX.val * p.sizeY.val * p.sizeZ.val * p.sizeC.val * p.sizeT.val
-        p_size = p_size*_bytes_per_pixel(p.pixelsType.value.val)
-        if tt.has_key(oid):
-            tt[oid]['data']+=p_size
-        else:
-            tt[oid] = dict()
-            tt[oid]['label']=exps[oid]
-            tt[oid]['data']=p_size
-    
-    for pof in pixels_originalFiles_list:
-        oid = pof.details.owner.id.val
-        p_size = pof.parent.size.val
-        if tt.has_key(oid):
-            tt[oid]['data']+=p_size
-        
-    return tt #sorted(tt.iteritems(), key=lambda (k,v):(v,k), reverse=True)
 
-def usersData(conn, offset=0):
-    loading = False
-    usage_map = dict()
-    exps = dict()
-    for e in list(conn.getObjects("Experimenter")):
-        exps[e.id] = e.getNameWithInitial()
-        
-    PAGE_SIZE = 1000
-    offset = long(offset)
-    
-    ctx = conn.createServiceOptsDict()
-    if conn.isAdmin():
-        ctx.setOmeroGroup(-1)
-    else:
-        ctx.setOmeroGroup(conn.getEventContext().groupId)
-        
-    p = omero.sys.ParametersI()
-    p.page(offset, PAGE_SIZE)
-    pixels_list = conn.getQueryService().findAllByQuery(
-            "select p from Pixels as p join fetch p.pixelsType " \
-            "order by p.id", p, ctx)
-    
-    # archived files
-    if len(pixels_list) > 0:
-        pids = omero.rtypes.rlist([px.id for px in pixels_list])
-        p2 = omero.sys.ParametersI()
-        p2.add("pids", pids)
-        pixels_originalFiles_list = conn.getQueryService().findAllByQuery(
-            "select m from PixelsOriginalFileMap as m join fetch m.parent " \
-            "where m.child.id in (:pids)", p2, ctx)
-    
-        count = len(pixels_list)
-        usage_map = _usage_map_helper(pixels_list, pixels_originalFiles_list, exps)
-    
-        count = len(pixels_list)
-        offset += count
-    
-        if count == PAGE_SIZE:
-            loading = True
-    
-    return {'loading':loading, 'offset':offset, 'usage':usage_map}
+@login_required()
+@render_response()
+def drivespace_json(request, query=None, groupId=None, userId=None, conn=None, **kwargs):
+    """
+    Returns a json list of {"label":<Name>, "data": <Value>, "groupId / userId": <id>}
+    for plotting disk usage by users or groups.
+    If 'query' is "groups" or "users", this is for an Admin to show all data on server
+    divided into groups or users.
+    Else, if groupId is not None, we return data for that group, split by user.
+    Else, if userId is not None, we return data for that user, split by group.
+    """
+
+    diskUsage = []
+
+    # diskUsage.append({"label": "Free space", "data":conn.getFreeSpace()})
+
+    queryService = conn.getQueryService()
+    ctx = conn.SERVICE_OPTS.copy()
+    params = omero.sys.ParametersI()
+    params.theFilter = omero.sys.Filter()
+
+    def getBytes(ctx, eid=None):
+        bytesInGroup = 0
+
+        pixelsQuery = "select sum(cast( p.sizeX as double ) * p.sizeY * p.sizeZ * p.sizeT * p.sizeC * pt.bitSize / 8) " \
+            "from Pixels p join p.pixelsType as pt join p.image i left outer join i.fileset f " \
+            "join p.details.owner as owner " \
+            "where f is null"
+
+        filesQuery = "select sum(origFile.size) from OriginalFile as origFile " \
+            "join origFile.details.owner as owner"
+
+        if eid is not None:
+            params.add('eid', omero.rtypes.rlong(eid))
+            pixelsQuery = pixelsQuery + " and owner.id = (:eid)"
+            filesQuery = filesQuery + " where owner.id = (:eid)"
+        # Calculate disk usage via Pixels
+        result = queryService.projection(pixelsQuery, params, ctx)
+        if len(result) > 0 and len(result[0]) > 0:
+            bytesInGroup += result[0][0].val
+        # Now get Original File usage
+        result = queryService.projection(filesQuery, params, ctx)
+        if len(result) > 0 and len(result[0]) > 0:
+            bytesInGroup += result[0][0]._val
+        return bytesInGroup
+
+    sr = conn.getAdminService().getSecurityRoles()
+
+    if query == 'groups':
+        for g in conn.listGroups():
+            # ignore 'user' and 'guest' groups
+            if g.getId() in (sr.guestGroupId, sr.userGroupId):
+                continue
+            ctx.setOmeroGroup(g.getId())
+            b = getBytes(ctx)
+            if b > 0:
+                diskUsage.append({"label": g.getName(), "data": b, "groupId": g.getId()});
+
+    elif query == 'users':
+        ctx.setOmeroGroup('-1')
+        for e in conn.getObjects("Experimenter"):
+            b = getBytes(ctx, e.getId())
+            if b > 0:
+                diskUsage.append({"label": e.getNameWithInitial(), "data": b, "userId": e.getId()});
+
+    elif userId is not None:
+        eid = long(userId)
+        for g in conn.getOtherGroups(eid):
+            # ignore 'user' and 'guest' groups
+            if g.getId() in (sr.guestGroupId, sr.userGroupId):
+                continue
+            ctx.setOmeroGroup(g.getId())
+            b = getBytes(ctx, eid)
+            if b > 0:
+                diskUsage.append({"label": g.getName(), "data": b, "groupId": g.getId()});
+
+    # users within a single group
+    elif groupId is not None:
+        ctx.setOmeroGroup(groupId)
+        for e in conn.getObjects("Experimenter"):
+            b = getBytes(ctx, e.getId())
+            if b > 0:
+                diskUsage.append({"label": e.getNameWithInitial(), "data": b, "userId": e.getId()});
+
+
+    diskUsage.sort(key=lambda x: x['data'], reverse=True)
+
+    return diskUsage
+
 
 ################################################################################
 # views controll
@@ -754,6 +769,7 @@ def my_account(request, action=None, conn=None, **kwargs):
                                     'default_group':defaultGroupId, 'groups':otherGroups})
     
     context = {'form':form, 'ldapAuth': isLdapUser, 'experimenter':experimenter, 'ownedGroups':ownedGroups, 'password_form':password_form}
+    context['freeSpace'] = conn.getFreeSpace()
     context['template'] = template
     return context
 
@@ -804,14 +820,9 @@ def manage_avatar(request, action=None, conn=None, **kwargs):
 @render_response_admin()
 def stats(request, conn=None, **kwargs):
     template = "webadmin/statistics.html"
-    context= {'template': template}
+    freeSpace = conn.getFreeSpace();
+    context= {'template': template, 'freeSpace': freeSpace}
     return context
-
-@login_required()
-@render_response_admin()
-def drivespace(request, conn=None, **kwargs):
-    return {'free':conn.getFreeSpace()}
-
 
 @login_required()
 def load_drivespace(request, conn=None, **kwargs):
