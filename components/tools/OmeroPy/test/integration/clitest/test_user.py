@@ -59,7 +59,7 @@ class TestUser(CLITest):
     # ========================================================================
     @pytest.mark.parametrize("sort_key", sort_keys)
     @pytest.mark.parametrize("group_format", [None, "count", "long"])
-    def testList(self, capsys, sort_key, group_format):
+    def testList(self, capsys, sort_key, group_format, style):
         self.args += ["list"]
         if sort_key:
             self.args += ["--sort-by-%s" % sort_key]
@@ -99,6 +99,13 @@ class TestUser(CLITest):
         else:
             users.sort(key=lambda x: x.id.val)
         assert ids == [user.id.val for user in users]
+
+    @pytest.mark.parametrize("style", [None, "sql", "csv", "plain"])
+    def testListWithStyles(self, capsys, style):
+        self.args += ["list"]
+        if style:
+            self.args += ["--style=%s" % style]
+        self.cli.invoke(self.args, strict=True)
 
     # Email subcommand
     # ========================================================================

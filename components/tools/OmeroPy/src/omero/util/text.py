@@ -15,15 +15,22 @@
 
 class Style(object):
 
+    NAME = "unknown"
+
     def headers(self, table):
         return self.SEPARATOR.join(table.get_row(None))
 
+    def __str__(self):
+        return self.NAME
+
 
 class SQLStyle(Style):
+
+    NAME = "sql"
     SEPARATOR = "|"
 
-    def width(self, name, data):
-        return max(len(str(x).decode("utf-8")) for x in data + [name])
+    def width(self, name, decoded_data):
+        return max(len(x) for x in decorded_data + [name])
 
     def format(self, width, align):
         return ' %%%s%ds ' % (align, width)
@@ -46,10 +53,8 @@ class SQLStyle(Style):
 
 class PlainStyle(Style):
 
+    NAME = "plain"
     SEPARATOR = ","
-
-    def width(self, name, data):
-        return max(len(str(x).decode("utf-8")) for x in data + [name])
 
     def format(self, width, align):
         return '%s'
@@ -61,10 +66,24 @@ class PlainStyle(Style):
 
 class CSVStyle(PlainStyle):
 
+    NAME = "csv"
+
     def get_rows(self, table):
         yield self.headers(table)
         for row in PlainStyle.get_rows(self, table):
             yield row
+
+
+class StyleRegistry(dict):
+
+    def __init__(self):
+        dict.__init__(self)
+        self["csv"] = CSVStyle()
+        self["sql"] = SQLStyle()
+        self["plain"] = PlainStyle()
+
+
+STYLE_REGISTRY = StyleRegistry()
 
 
 def find_style(style):
@@ -74,19 +93,15 @@ def find_style(style):
     """
     if isinstance(style, Style):
         return style
-    elif "sql" == style:
-        return SQLStyle()
-    elif "csv" == style:
-        return CSVStyle()
-    elif "plain" == style:
-        return PlainStyle()
+    else:
+        return STYLE_REGISTRY.get(style, None)
 
 
-def list_style():
+def list_styles():
     """
     List the styles that are known by find_style
     """
-    return ("sql", "csv", "plain")
+    return STYLE_REGISTRY.values()
 
 
 class TableBuilder(object):

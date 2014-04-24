@@ -37,9 +37,6 @@ class HqlControl(BaseControl):
         parser.add_argument(
             "--admin", help="Run an admin query", default=False,
             action="store_true")
-        parser.add_argument(
-            "--csv", help="Use csv table style", default=False,
-            action="store_true")
         parser.add_style_argument()
         parser.add_login_arguments()
 
