@@ -1,20 +1,37 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+#
+# Copyright (C) 2008-2014 Glencoe Software, Inc. All Rights Reserved.
+# Use is subject to license terms supplied in LICENSE.txt
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
 """
    Tests of the omero.client constructors
-
-   Copyright 2008-2013 Glencoe Software, Inc. All rights reserved.
-   Use is subject to license terms supplied in LICENSE.txt
 
 """
 
 import os
 import pytest
 import test.integration.library as lib
-import omero, Ice
+import omero
+import Ice
 
-here = os.path.abspath( os.path.dirname(__file__) )
+here = os.path.abspath(os.path.dirname(__file__))
+
 
 class TestClientConstructors(lib.ITest):
 
@@ -24,7 +41,8 @@ class TestClientConstructors(lib.ITest):
         try:
             self.host = c.ic.getProperties().getProperty('omero.host')
             self.port = int(c.ic.getProperties().getProperty('omero.port'))
-            self.rootpasswd = c.ic.getProperties().getProperty('omero.rootpass')
+            self.rootpasswd = c.ic.getProperties().getProperty(
+                'omero.rootpass')
         finally:
             c.__del__()
 
@@ -44,7 +62,7 @@ class TestClientConstructors(lib.ITest):
         id.properties.setProperty("omero.host", self.host)
         id.properties.setProperty("omero.user", "root")
         id.properties.setProperty("omero.pass", self.rootpasswd)
-        c = omero.client(id = id)
+        c = omero.client(id=id)
         try:
             c.createSession()
             c.closeSession()
@@ -54,7 +72,8 @@ class TestClientConstructors(lib.ITest):
             c.__del__()
 
     def testMainArgsConstructor(self):
-        args = ["--omero.host="+self.host,"--omero.user=root", "--omero.pass="+self.rootpasswd]
+        args = ["--omero.host="+self.host,
+                "--omero.user=root", "--omero.pass=" + self.rootpasswd]
         c = omero.client(args)
         try:
             c.createSession()
@@ -69,7 +88,7 @@ class TestClientConstructors(lib.ITest):
         p["omero.host"] = self.host
         p["omero.user"] = "root"
         p["omero.pass"] = self.rootpasswd
-        c = omero.client(pmap = p)
+        c = omero.client(pmap=p)
         try:
             c.createSession()
             c.closeSession()
@@ -79,12 +98,13 @@ class TestClientConstructors(lib.ITest):
             c.__del__()
 
     def testMainArgsGetsIcePrefix(self):
-        args = ["--omero.host="+self.host,"--omero.user=root", "--omero.pass="+self.rootpasswd]
+        args = ["--omero.host="+self.host,
+                "--omero.user=root", "--omero.pass=" + self.rootpasswd]
         args.append("--Ice.MessageSizeMax=10")
         c = omero.client(args)
         try:
             c.createSession()
-            assert "10" ==  c.getProperty("Ice.MessageSizeMax")
+            assert "10" == c.getProperty("Ice.MessageSizeMax")
             c.closeSession()
         finally:
             c.__del__()
@@ -93,12 +113,12 @@ class TestClientConstructors(lib.ITest):
         cfg = os.path.join(here, "client_ctors.cfg")
         if not os.path.exists(cfg):
             assert False, cfg + " does not exist"
-        args = ["--Ice.Config=" + cfg,"--omero.host=unimportant"]
+        args = ["--Ice.Config=" + cfg, "--omero.host=unimportant"]
         c = omero.client(args)
         try:
             assert "true" == c.getProperty("in.ice.config")
-            #c.createSession()
-            #c.closeSession()
+            # c.createSession()
+            # c.closeSession()
         finally:
             c.__del__()
 
@@ -125,13 +145,14 @@ class TestClientConstructors(lib.ITest):
         finally:
             c.__del__()
 
-        c = omero.client("localhost",["--omero.port=2222"])
+        c = omero.client("localhost", ["--omero.port=2222"])
         try:
             assert "2222" == c.ic.getProperties().getProperty("omero.port")
         finally:
             c.__del__()
-        #c = omero.client("localhost")
-        #assert str(omero.constants.GLACIER2PORT) == c.ic.getProperties().getProperty("omero.port")
+        # c = omero.client("localhost")
+        # assert str(omero.constants.GLACIER2PORT) ==\
+        #     c.ic.getProperties().getProperty("omero.port")
 
     def testBlockSize(self):
         c = omero.client("localhost")
@@ -139,18 +160,17 @@ class TestClientConstructors(lib.ITest):
             assert 5000000 == c.getDefaultBlockSize()
         finally:
             c.__del__()
-        c = omero.client("localhost",["--omero.block_size=1000000"])
+        c = omero.client("localhost", ["--omero.block_size=1000000"])
         try:
             assert 1000000 == c.getDefaultBlockSize()
         finally:
             c.__del__()
 
     def testPythonCtorRepair(self):
-        #c = omero.client(self.host, omero.constants.GLACIER2PORT)
+        # c = omero.client(self.host, omero.constants.GLACIER2PORT)
         c = omero.client(self.host, self.port)
         try:
             c.createSession("root", self.rootpasswd)
             c.closeSession()
         finally:
             c.__del__()
-

@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 #
-# Copyright (C) 2012-2013 Glencoe Software, Inc. All Rights Reserved.
+# Copyright (C) 2012-2014 Glencoe Software, Inc. All Rights Reserved.
 # Use is subject to license terms supplied in LICENSE.txt
 #
 # This program is free software; you can redistribute it and/or modify
@@ -47,7 +47,7 @@ class Fixture(object):
         self.update = self.client.sf.getUpdateService()
         self.context = self.admin.getEventContext()
         self.img = create_path("cliimportfixture.", ".png")
-        i = Image.new(mode="1", size=[8,8])
+        i = Image.new(mode="1", size=[8, 8])
         i.save(self.img)
 
     def dataset(self, name, ctx=None):
@@ -72,24 +72,24 @@ class Fixture(object):
             join i.pixels p
             where p.id = %s""" % pix_ids[0], None)
 
+
 class TestCliImport(lib.ITest):
 
     def assertGroup(self, group, *objects):
         for obj in objects:
-            assert group ==  obj.details.group.id.val
+            assert group == obj.details.group.id.val
 
     def cliimport(self, fixture, *extra_args):
         extra_args = [str(x) for x in extra_args]
-        pix = self.import_image(filename=fixture.img, \
-                client=fixture.client, \
-                extra_args=extra_args)
+        pix = self.import_image(
+            filename=fixture.img, client=fixture.client, extra_args=extra_args)
         if not pix:
             raise Exception("No pixels found!")
         return pix
 
     def testBasic(self):
         fixture = Fixture(*self.new_client_and_user())
-        pix = self.cliimport(fixture)
+        self.cliimport(fixture)
 
     def testDatasetTarget(self):
         fixture = Fixture(*self.new_client_and_user())
@@ -102,9 +102,9 @@ class TestCliImport(lib.ITest):
     def testTargetInDifferentGroup(self):
         fixture = Fixture(*self.new_client_and_user())
         group = self.new_group(experimenters=[fixture.user])
-        fixture.admin.getEventContext() # Refresh
-        dataset = fixture.dataset("testTargetInDifferentGroup", \
-                {"omero.group": str(group.id.val)})
+        fixture.admin.getEventContext()  # Refresh
+        dataset = fixture.dataset(
+            "testTargetInDifferentGroup", {"omero.group": str(group.id.val)})
         with pytest.raises(omero.SecurityViolation):
             fixture.query.find("Dataset", dataset.id.val)
 
@@ -117,26 +117,23 @@ class TestCliImport(lib.ITest):
 
     def testAnnotationTextSimple(self):
         fixture = Fixture(*self.new_client_and_user())
-        pix = self.cliimport(fixture, \
-                "--annotation_ns=test", \
-                "--annotation_text=test")
+        pix = self.cliimport(
+            fixture, "--annotation_ns=test", "--annotation_text=test")
         ann = fixture.load_pixel_annotations(pix)
-        assert 1 ==  len(ann)
-        assert "test" ==  ann[0].ns.val
-        assert "test" ==  ann[0].textValue.val
+        assert 1 == len(ann)
+        assert "test" == ann[0].ns.val
+        assert "test" == ann[0].textValue.val
 
     def testAnnotationTextMultiple(self):
         fixture = Fixture(*self.new_client_and_user())
-        pix = self.cliimport(fixture, \
-                "--annotation_ns=test", \
-                "--annotation_text=test", \
-                "--annotation_ns=test", \
-                "--annotation_text=test")
+        pix = self.cliimport(
+            fixture, "--annotation_ns=test", "--annotation_text=test",
+            "--annotation_ns=test", "--annotation_text=test")
         ann = fixture.load_pixel_annotations(pix)
-        assert 2 ==  len(ann)
+        assert 2 == len(ann)
         for x in ann:
-            assert "test" ==  x.ns.val
-            assert "test" ==  x.textValue.val
+            assert "test" == x.ns.val
+            assert "test" == x.textValue.val
 
     def testAnnotationComment(self):
         fixture = Fixture(*self.new_client_and_user())
@@ -144,10 +141,9 @@ class TestCliImport(lib.ITest):
         comment.ns = rstring("test")
         comment.textValue = rstring("test")
         comment = fixture.update.saveAndReturnObject(comment)
-        pix = self.cliimport(fixture, \
-                "--annotation_link=%s" % comment.id.val)
+        pix = self.cliimport(
+            fixture, "--annotation_link=%s" % comment.id.val)
         ann = fixture.load_pixel_annotations(pix)
-        assert 1 ==  len(ann)
-        assert "test" ==  ann[0].ns.val
-        assert "test" ==  ann[0].textValue.val
-
+        assert 1 == len(ann)
+        assert "test" == ann[0].ns.val
+        assert "test" == ann[0].textValue.val
