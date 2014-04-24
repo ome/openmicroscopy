@@ -303,6 +303,7 @@ public class SelectionWizardUI
             TagAnnotationData ob;
             String value = ((TagAnnotationData) object).getTagValue();
             if (value == null) return null;
+            value = value.toLowerCase();
             String v;
             TreeImageDisplay node;
             List children;
@@ -321,14 +322,14 @@ public class SelectionWizardUI
                                 node = (TreeImageDisplay) j.next();
                                 if (!isSelected(node)) {
                                     ob = (TagAnnotationData) node.getUserObject();
-                                    v = ob.getTagValue();
+                                    v = ob.getTagValue().toLowerCase();
                                     if (value.equals(v)) {
                                         return node;
                                     }
                                 }
                             }
                         } else {
-                            v = ob.getTagValue();
+                            v = ob.getTagValue().toLowerCase();
                             if (value.equals(v)) {
                                 return node;
                             }
@@ -349,14 +350,14 @@ public class SelectionWizardUI
                                 node = (TreeImageDisplay) j.next();
                                 if (!isSelected(node)) {
                                     ob = (TagAnnotationData) node.getUserObject();
-                                    v = ob.getTagValue();
+                                    v = ob.getTagValue().toLowerCase();
                                     if (value.equals(v)) {
                                         return node;
                                     }
                                 }
                             }
                         } else {
-                            v = ob.getTagValue();
+                            v = ob.getTagValue().toLowerCase();
                             if (value.equals(v)) {
                                 return node;
                             }
@@ -369,8 +370,8 @@ public class SelectionWizardUI
                     node = i.next();
                     ob = (TagAnnotationData) node.getUserObject();
                     if (ob != null) {
-                        v = ob.getTagValue();
-                        if (v != null && v.equals(value))
+                        v = ob.getTagValue().toLowerCase();
+                        if (value.equals(v))
                             return node;
                     }
                 }
