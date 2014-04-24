@@ -162,11 +162,11 @@ class Parser(ArgumentParser):
 
     def add_style_argument(self):
         from omero.util.text import find_style
-        from omero.util.text import list_style
+        from omero.util.text import list_styles
         self.add_argument(
             "--style", help=
-            "Use alternative output style (default=sql)",
-            default="sql", choices=list_style(), type=find_style)
+            "Use alternative output style",
+            choices=list_styles(), type=find_style)
 
     def add_login_arguments(self):
         group = self.add_argument_group('Login arguments',
