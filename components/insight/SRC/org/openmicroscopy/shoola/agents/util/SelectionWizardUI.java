@@ -35,6 +35,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -212,6 +213,7 @@ public class SelectionWizardUI
         TreeImageDisplay node, child;
         Object ho;
         String value;
+        System.err.println(insert+" txt:"+txt);
         if (insert) {
             ref = availableItems;
         } else {
@@ -239,6 +241,8 @@ public class SelectionWizardUI
                 } else {
                     List l = node.getChildrenDisplay();
                     Iterator j = l.iterator();
+                    if (CollectionUtils.isEmpty(l) && StringUtils.isEmpty(txt))
+                        toKeep.add(node);
                     while (j.hasNext()) {
                         child = (TreeImageDisplay) j.next();
                         if (!children.contains(child)) {
@@ -434,7 +438,7 @@ public class SelectionWizardUI
         filterArea.setToolTipText(builder.toString());
         filterArea.getDocument().addDocumentListener(this);
         filterArea.addFocusListener(new FocusListener() {
-            
+
             @Override
             public void focusLost(FocusEvent evt) {
                 String value = filterArea.getText();
@@ -442,12 +446,21 @@ public class SelectionWizardUI
                     setTextFieldDefault(DEFAULT_FILTER_TEXT);
                 }
             }
-            
+
             @Override
             public void focusGained(FocusEvent evt) {
                 String value = filterArea.getText();
                 if (DEFAULT_FILTER_TEXT.equals(value)) {
                     filterArea.setCaretPosition(0);
+                }
+            }
+        });
+        filterArea.addMouseListener(new MouseAdapter() {
+
+            @Override
+            public void mousePressed(MouseEvent evt) {
+                String value = filterArea.getText();
+                if (DEFAULT_FILTER_TEXT.equals(value)) {
                     setTextFieldDefault(null);
                 }
             }
