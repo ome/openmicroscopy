@@ -574,6 +574,7 @@ public class SelectionWizard
             Boolean b = (Boolean) evt.getNewValue();
             acceptButton.setEnabled(b.booleanValue());
             resetButton.setEnabled(b.booleanValue());
+            acceptButton.requestFocus();
         }
     }
 
