@@ -208,6 +208,7 @@ public class SelectionWizardUI
         if (DEFAULT_FILTER_TEXT.equals(txt)) {
             return;
         }
+        filterArea.setForeground(originalColor);
         List<TreeImageDisplay> ref;
         Iterator<TreeImageDisplay> i;
         TreeImageDisplay node, child;
@@ -239,10 +240,10 @@ public class SelectionWizardUI
                     value = tag.getTagValue();
                 } else {
                     List l = node.getChildrenDisplay();
-                    Iterator j = l.iterator();;
+                    Iterator j = l.iterator();
                     while (j.hasNext()) {
                         child = (TreeImageDisplay) j.next();
-                        if (!children.contains(child)) {
+                        if (!children.contains(child) && !isSelected(child)) {
                             ho = child.getUserObject();
                             if (ho instanceof TagAnnotationData) {
                                 tag = (TagAnnotationData) ho;
@@ -282,7 +283,6 @@ public class SelectionWizardUI
                 }
             }
         }
-        
         availableItems.clear();
         availableItems.addAll(toKeep);
         availableItems = sorter.sort(availableItems);
