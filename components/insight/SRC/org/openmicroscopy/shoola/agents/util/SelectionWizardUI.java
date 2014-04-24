@@ -1114,12 +1114,29 @@ public class SelectionWizardUI
         TreeImageDisplay node = null;
         while (i.hasNext()) {
             data = i.next();
-            node = doesObjectExist(data, false);
+            node = doesObjectExist(data, true);
             if (node != null) {
                 break;
             }
         }
-        if (node != null) { //warning
+        //now check if the node is already selected.
+        if (node != null) {
+            NotificationDialog msg = new NotificationDialog(view,
+                    "Add new tag", 
+                    "A tag with the same name and description already " +
+                    "exists and is selected.", null);
+                   UIUtilities.centerAndShow(msg);
+            return false;
+        }
+        if (node == null) { //warning
+            i = toAdd.iterator();
+            while (i.hasNext()) {
+                data = i.next();
+                node = doesObjectExist(data, false);
+                if (node != null) {
+                    break;
+                }
+            }
             MessageBox msg = new MessageBox(view, "Add new tag", 
              "A tag with the same name and description already exists.\n" +
                  "Would you like to select the existing tag?");
@@ -1129,25 +1146,6 @@ public class SelectionWizardUI
                 addItem();
                 availableItemsListbox.requestFocus();
                 return true;
-            }
-        }
-        //now check that it is not in the Selected.
-        if (node == null) {
-            i = toAdd.iterator();
-            while (i.hasNext()) {
-                data = i.next();
-                node = doesObjectExist(data, true);
-                if (node != null) {
-                    break;
-                }
-            }
-            if (node != null) { //warning
-                NotificationDialog msg = new NotificationDialog(view,
-                        "Add new tag", 
-                        "A tag with the same name and description already " +
-                        "exists and is selected.", null);
-                       UIUtilities.centerAndShow(msg);
-                return false;
             }
         }
         //We create a new tag.
