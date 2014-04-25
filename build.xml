@@ -564,7 +564,7 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
         </emma>
     </target>
 
-    <target name="release-docs" depends="release-javadoc,release-epydoc,release-slice2html" description="Generate Docs for all components under dist/docs/api">
+    <target name="release-docs" depends="release-javadoc,release-epydoc,release-sphinx-api,release-slice2html" description="Generate Docs for all components under dist/docs/api">
         <zip destfile="${omero.home}/target/OMERO.docs-${omero.version}.zip">
             <zipfileset dir="${dist.dir}/docs" prefix="OMERO.docs-${omero.version}"/>
         </zip>
@@ -653,14 +653,9 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
         <ant antfile="build.xml" dir="docs/sphinx-api" target="html" inheritAll="false">
             <property name="omero.shortversion" value="${omero.shortversion}"/>
         </ant>
-        <ant antfile="build.xml" dir="docs/sphinx-api" target="latexpdf" inheritAll="false">
-            <property name="omero.shortversion" value="${omero.shortversion}"/>
-        </ant>
 
         <copy todir="${dist.dir}/docs/api/python">
-            <fileset dir="docs/sphinx-api/_build">
-                <include name="html/**"/>
-            </fileset>
+            <fileset dir="docs/sphinx-api/_build/html"/>
         </copy>
     </target>
 
