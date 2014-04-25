@@ -20,6 +20,9 @@ class Style(object):
     def headers(self, table):
         return self.SEPARATOR.join(table.get_row(None))
 
+    def width(self, name, decoded_data):
+        return max(len(x) for x in decoded_data + [name])
+
     def __str__(self):
         return self.NAME
 
@@ -28,9 +31,6 @@ class SQLStyle(Style):
 
     NAME = "sql"
     SEPARATOR = "|"
-
-    def width(self, name, decoded_data):
-        return max(len(x) for x in decoded_data + [name])
 
     def format(self, width, align):
         return ' %%%s%ds ' % (align, width)
