@@ -11,8 +11,11 @@ import java.security.Permissions;
 
 import ome.conditions.ApiUsageException;
 import ome.logic.LdapImpl;
+import ome.model.meta.Experimenter;
 import ome.security.SecuritySystem;
-import ome.security.auth.*;
+import ome.security.auth.ConfigurablePasswordProvider;
+import ome.security.auth.PasswordProvider;
+import ome.security.auth.PasswordUtil;
 
 import org.springframework.util.Assert;
 
@@ -93,11 +96,12 @@ public class LdapPasswordProvider431 extends ConfigurablePasswordProvider {
                 if (readOnly == true) {
                     throw new IllegalStateException("Cannot create user!");
                 }
-                boolean login = ldapUtil.createUserFromLdap(user, password);
+                Experimenter experimenter = ldapUtil.createUserFromLdap(user,
+                        password);
                 // Use default logic if the user creation did not exist,
                 // because there may be another non-database login mechanism
                 // which should also be given a chance.
-                if (login) {
+                if (experimenter != null) {
                     loginAttempt(user, true);
                     return true;
                 }
