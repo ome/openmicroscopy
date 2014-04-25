@@ -183,6 +183,7 @@ public class SelectionWizardUI
     private ExperimenterData user;
 
     private int ownerFilterIndex;
+
     /**
      * Returns <code>true</code> if the item is already selected or is
      * an item to create, <code>false</code> otherwise.
@@ -196,7 +197,7 @@ public class SelectionWizardUI
             DataObject n = (DataObject) ((TreeImageDisplay) elt).getUserObject();
             for (TreeImageDisplay item : selectedItems) {
                 DataObject data = (DataObject) item.getUserObject();
-                if (n.getId() == data.getId() || data.getId() < 0) {
+                if (n.getId() == data.getId()) {
                     return true;
                 }
             }
@@ -249,12 +250,14 @@ public class SelectionWizardUI
         } else {
             ref = new ArrayList<TreeImageDisplay>();
             for (TreeImageDisplay item : originalItems) {
-                if (!isSelected(item))
+                if (!isSelected(item)) {
                     ref.add(item);
+                }
             }
             for (TreeImageDisplay item : originalSelectedItems) {
-                if (!isSelected(item))
+                if (!isSelected(item) && !isChild(item)) {
                     ref.add(item);
+                }
             }
         }
         i = ref.iterator();
