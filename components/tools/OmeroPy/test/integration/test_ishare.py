@@ -1,24 +1,34 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""
-   Integration test focused on the omero.api.IShare interface
-   a running server.
+#
+# Copyright (C) 2008-2014 Glencoe Software, Inc. All Rights Reserved.
+# Use is subject to license terms supplied in LICENSE.txt
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-   Copyright 2008-2013 Glencoe Software, Inc. All rights reserved.
-   Use is subject to license terms supplied in LICENSE.txt
+"""
+   Integration test focused on the omero.api.IShare interface.
 
 """
+
 import time
 import test.integration.library as lib
 import pytest
 import omero
-from omero_model_PixelsI import PixelsI
 from omero_model_ImageI import ImageI
-from omero_model_DatasetI import DatasetI
-from omero_model_ExperimenterI import ExperimenterI
-from omero_model_ExperimenterGroupI import ExperimenterGroupI
-from omero_model_GroupExperimenterMapI import GroupExperimenterMapI
 from omero_model_DatasetImageLinkI import DatasetImageLinkI
 from omero.rtypes import rtime, rlong, rstring, rlist
 
@@ -32,14 +42,13 @@ class TestIShare(lib.ITest):
         i.name = rstring("name")
         i.acquisitionDate = rtime(0)
         i = self.client.sf.getUpdateService().saveAndReturnObject(i)
-        assert  not i.details.permissions.isGroupRead()
-        assert  not i.details.permissions.isGroupWrite()
-        assert  not i.details.permissions.isWorldRead()
+        assert not i.details.permissions.isGroupRead()
+        assert not i.details.permissions.isGroupWrite()
+        assert not i.details.permissions.isWorldRead()
 
     def testBasicUsage(self):
         share = self.client.sf.getShareService()
         update = self.client.sf.getUpdateService()
-        admin = self.client.sf.getAdminService()
 
         test_user = self.new_user()
         # create share
@@ -49,9 +58,10 @@ class TestIShare(lib.ITest):
         experimenters = [test_user]
         guests = ["ident@emaildomain.com"]
         enabled = True
-        self.share_id = share.createShare(description, timeout, objects,experimenters, guests, enabled)
+        self.share_id = share.createShare(
+            description, timeout, objects, experimenters, guests, enabled)
 
-        assert 0 ==  len(share.getContents(self.share_id))
+        assert 0 == len(share.getContents(self.share_id))
 
         d = omero.model.DatasetI()
         d.setName(rstring("d"))
@@ -61,7 +71,7 @@ class TestIShare(lib.ITest):
         assert len(share.getContents(self.share_id)) == 1
 
         ds = []
-        for i in range(0,4):
+        for i in range(0, 4):
             ds.append(omero.model.DatasetI())
             ds[i].setName(rstring("ds%i" % i))
         ds = update.saveAndReturnArray(ds)
@@ -71,29 +81,30 @@ class TestIShare(lib.ITest):
 
         assert len(share.getAllUsers(self.share_id)) == 2
 
-        #check access by a member to see the content
-        client_guest_read_only = self.new_client(user=test_user, password="ome")
+        # check access by a member to see the content
+        client_guest_read_only = self.new_client(
+            user=test_user, password="ome")
         try:
 
-            #get dataset - not allowed
+            # get dataset - not allowed
             query = client_guest_read_only.sf.getQueryService()
             try:
-                query.find("Dataset",d.id.val)
-            except Exception, x:
+                query.find("Dataset", d.id.val)
+            except Exception:
                 pass
 
             share_read_only = client_guest_read_only.sf.getShareService()
             share_read_only.activate(self.share_id)
-            content = share_read_only.getContents(self.share_id)
             assert share_read_only.getContentSize(self.share_id) == 5
         finally:
             client_guest_read_only.__del__()
 
-        #check access by a member to add comments
+        # check access by a member to add comments
         client_guest = self.new_client(user=test_user, password="ome")
         try:
             share_guest = client_guest.sf.getShareService()
-            share_guest.addComment(self.share_id,"comment for share %i" % self.share_id)
+            share_guest.addComment(
+                self.share_id, "comment for share %i" % self.share_id)
             assert 1 == len(share_guest.getComments(self.share_id))
         finally:
             client_guest.__del__()
@@ -104,25 +115,28 @@ class TestIShare(lib.ITest):
         client_share = self.new_client(session=s.uuid)
         try:
             share1 = client_share.sf.getShareService()
-            assert 1 ==  len(share1.getOwnShares(True))
+            assert 1 == len(share1.getOwnShares(True))
         finally:
             client_share.__del__()
 
-## Removing test for 'guest' user.
-## This currently fails but there is some question
-## as to whether we should have a guest user.
-##
-##        # guest looks in to the share
-##        guest_email = "ident@emaildomain.com"
-##        token =  s.uuid
-##        client_share_guest = omero.client()
-##        client_share_guest.createSession("guest","guest") # maybe there can be some verification of identity by (share_key, email) - both params could be sent to email
-##
-##        share2 = client_share_guest.sf.getShareService()
-##        # Doesn't exist # share2.getAllGuestShares(guest_email)
-##        # Doesn't exist # assert share2.getGuestShare(token) > 0
-##        share2.addComment(self.share_id,"guest comment for share %i" % self.share_id)
-##        assert 1 == len(share2.getComments(self.share_id))
+# Removing test for 'guest' user.
+# This currently fails but there is some question
+# as to whether we should have a guest user.
+#
+# guest looks in to the share
+# #        guest_email = "ident@emaildomain.com"
+# #        token =  s.uuid
+# #        client_share_guest = omero.client()
+# maybe there can be some verification of identity by (share_key, email)
+# - both params could be sent to email
+# #        client_share_guest.createSession("guest","guest")
+#
+# #        share2 = client_share_guest.sf.getShareService()
+# Doesn't exist # share2.getAllGuestShares(guest_email)
+# Doesn't exist # assert share2.getGuestShare(token) > 0
+# #        share2.addComment(
+# #            self.share_id,"guest comment for share %i" % self.share_id)
+# #        assert 1 == len(share2.getComments(self.share_id))
 
     def test8118(self):
         uuid = self.root.sf.getAdminService().getEventContext().sessionUuid
@@ -146,7 +160,8 @@ class TestIShare(lib.ITest):
         experimenters = [user1]
         guests = []
         enabled = True
-        sid = share_serv.createShare(description, timeout, objects,experimenters, guests, enabled)
+        sid = share_serv.createShare(
+            description, timeout, objects, experimenters, guests, enabled)
         suuid = share_serv.getShare(sid).uuid
 
         assert 1 == len(share_serv.getContents(sid))
@@ -154,22 +169,21 @@ class TestIShare(lib.ITest):
         # join share
         user1_client = omero.client()
         try:
-            user1_client.createSession(suuid,suuid)
+            user1_client.createSession(suuid, suuid)
             user1_share = user1_client.sf.getShareService()
             user1_share.activate(sid)
-            assert 1 ==  len(user1_share.getContents(sid))
+            assert 1 == len(user1_share.getContents(sid))
         finally:
             user1_client.__del__()
 
     def test1154(self):
         uuid = self.root.sf.getAdminService().getEventContext().sessionUuid
 
-
-        ### create two users in one group
+        # create two users in one group
         client_share1, user1 = self.new_client_and_user()
         client_share2, user2 = self.new_client_and_user()
 
-        ## login as user1
+        # login as user1
         share1 = client_share1.sf.getShareService()
         update1 = client_share1.sf.getUpdateService()
 
@@ -187,15 +201,15 @@ class TestIShare(lib.ITest):
         experimenters = [user2]
         guests = []
         enabled = True
-        sid = share1.createShare(description, timeout, objects,experimenters, guests, enabled)
+        sid = share1.createShare(
+            description, timeout, objects, experimenters, guests, enabled)
 
         assert 1 == len(share1.getContents(sid))
 
-        ## login as user2
+        # login as user2
         share2 = client_share2.sf.getShareService()
         query2 = client_share2.sf.getQueryService()
 
-        content = share2.getContents(sid)
         assert 1 == len(share2.getContents(sid))
 
         # get shared image when share is activated
@@ -214,11 +228,11 @@ class TestIShare(lib.ITest):
         uuid = self.root.sf.getAdminService().getEventContext().sessionUuid
         share = self.root.sf.getShareService()
 
-        ### create two users in one group
+        # create two users in one group
         client_share1, user1 = self.new_client_and_user()
         client_share2, user2 = self.new_client_and_user()
 
-        ## login as user1
+        # login as user1
         share1 = client_share1.sf.getShareService()
         update1 = client_share1.sf.getUpdateService()
 
@@ -236,21 +250,21 @@ class TestIShare(lib.ITest):
         experimenters = [user2]
         guests = []
         enabled = True
-        sid = share1.createShare(description, timeout, objects,experimenters, guests, enabled)
+        sid = share1.createShare(
+            description, timeout, objects, experimenters, guests, enabled)
         assert len(share1.getContents(sid)) == 1
         # add comment by the owner
         share.addComment(sid, 'test comment by the owner %s' % (uuid))
 
-        ## login as user2
+        # login as user2
         share2 = client_share2.sf.getShareService()
-        query2 = client_share2.sf.getQueryService()
 
         # add comment by the member
         share2.addComment(sid, 'test comment by the member %s' % (uuid))
 
         # Don't have to activate share2
 
-        #get comments
+        # get comments
         # by user1
         c1 = len(share.getComments(sid))
         assert 2 == c1
@@ -264,11 +278,11 @@ class TestIShare(lib.ITest):
         query = self.root.sf.getQueryService()
         update = self.root.sf.getUpdateService()
 
-        ### create user
+        # create user
         client_share1, user1 = self.new_client_and_user()
 
-        #create dataset with image
-        #dataset with image
+        # create dataset with image
+        # dataset with image
         ds = omero.model.DatasetI()
         ds.setName(rstring("dataset-%s" % (uuid)))
         ds = update.saveAndReturnObject(ds)
@@ -298,33 +312,37 @@ class TestIShare(lib.ITest):
               "left outer join fetch ds.imageLinks dil left outer join fetch dil.child i " \
               "where ds.id=:oid"
         items.extend(query.findAllByQuery(sql, p))
-        assert 1 ==  len(items)
+        assert 1 == len(items)
 
-        #members
+        # members
         p.map["eid"] = rlong(user1.id.val)
-        sql = "select e from Experimenter e where e.id =:eid order by e.omeName"
+        sql = "select e from Experimenter e " \
+              "where e.id =:eid order by e.omeName"
         ms = query.findAllByQuery(sql, p)
-        sid = share.createShare(("test-share-%s" % uuid), rtime(long(time.time()*1000 + 86400)) , items, ms, [], True)
+        sid = share.createShare(
+            ("test-share-%s" % uuid), rtime(long(time.time()*1000 + 86400)),
+            items, ms, [], True)
 
         # USER RETRIEVAL
-        ## login as user1
+        # login as user1
         share1 = client_share1.sf.getShareService()
         query1 = client_share1.sf.getQueryService()
-        cntar1 = client_share1.sf.getContainerService()
 
         content = share1.getContents(sid)
         # Content now contains just the dataset with nothing loaded
-        assert 1 ==  len(content)
+        assert 1 == len(content)
 
         # get shared dataset and image when share is activated
         share1.activate(sid)
 
-        #retrieve dataset
+        # retrieve dataset
         p = omero.sys.Parameters()
         p.map = {}
         p.map["ids"] = rlist([ds.id])
-        sql = "select ds from Dataset ds join fetch ds.details.owner join fetch ds.details.group " \
-              "left outer join fetch ds.imageLinks dil left outer join fetch dil.child i " \
+        sql = "select ds from Dataset ds join fetch ds.details.owner " \
+              "join fetch ds.details.group " \
+              "left outer join fetch ds.imageLinks dil " \
+              "left outer join fetch dil.child i " \
               "where ds.id in (:ids) order by ds.name"
         try:
             res1 = query1.findAllByQuery(sql, p)
@@ -337,11 +355,13 @@ class TestIShare(lib.ITest):
         # the security violation
         #
         # Not working imgs = cntar.getImages("Dataset",[ds.id.val], None)
-        img = query.findByQuery("select i from Image i join fetch i.datasetLinks dil join dil.parent d where d.id = %s " % ds.id.val, None)
+        img = query.findByQuery(
+            "select i from Image i join fetch i.datasetLinks dil join \
+            dil.parent d where d.id = %s " % ds.id.val, None)
         assert img
         share.addObject(sid, img)
         share.addObjects(sid, img.copyDatasetLinks())
-        assert 3 ==  len(share.getContents(sid))
+        assert 3 == len(share.getContents(sid))
 
         #
         # And try again to load them
@@ -377,12 +397,8 @@ class TestIShare(lib.ITest):
 
     @pytest.mark.xfail(reason="See ticket #11537")
     def test1201(self):
-        uuid = self.root.sf.getAdminService().getEventContext().sessionUuid
-        share = self.client.sf.getShareService()
-        update = self.root.sf.getUpdateService()
-        admin = self.root.sf.getAdminService()
 
-        ### create two users in one group
+        # create two users in one group
         client_share1, user1 = self.new_client_and_user()
         share1 = client_share1.sf.getShareService()
 
@@ -394,29 +410,30 @@ class TestIShare(lib.ITest):
         experimenters = [test_user]
         guests = ["ident@emaildomain.com"]
         enabled = True
-        sid = share1.createShare(description, timeout, objects,experimenters, guests, enabled)
+        sid = share1.createShare(
+            description, timeout, objects, experimenters, guests, enabled)
 
-        #re - login as user1
+        # re - login as user1
         share2 = client_share2.sf.getShareService()
 
         new_description = "new description"
         share1.setDescription(sid, new_description)
         try:
-            assert share2.getShare(sid).message.val ==  new_description
-        except omero.ValidationException, ve:
-            pass # This user can't see the share
+            assert share2.getShare(sid).message.val == new_description
+        except omero.ValidationException:
+            pass  # This user can't see the share
 
-        assert share1.getShare(sid).message.val ==  new_description
+        assert share1.getShare(sid).message.val == new_description
 
-        expiration = long(time.time()*1000)+86400
+        expiration = long(time.time() * 1000) + 86400
         share1.setExpiration(sid, rtime(expiration))
         self.assertExpiration(expiration, share1.getShare(sid))
 
         share1.setActive(sid, False)
-        assert share1.getShare(sid).active.val == False
+        assert not share1.getShare(sid).active.val
 
         owned = share1.getOwnShares(False)
-        assert 1 ==  len(owned)
+        assert 1 == len(owned)
         return (client_share1, sid, expiration)
 
     def test1201b(self):
@@ -428,17 +445,18 @@ class TestIShare(lib.ITest):
         experimenters = []
         guests = ["ident@emaildomain.com"]
         enabled = True
-        sid = share.createShare(description, timeout, objects,experimenters, guests, enabled)
+        sid = share.createShare(
+            description, timeout, objects, experimenters, guests, enabled)
 
-        assert share.getShare(sid).active.val == True
+        assert share.getShare(sid).active.val
         share.setActive(sid, False)
-        assert share.getShare(sid).active.val == False
+        assert not share.getShare(sid).active.val
         owned = share.getOwnShares(False)
-        assert 1 ==  len(owned)
+        assert 1 == len(owned)
 
     def test1207(self):
 
-        ### create two users in one group
+        # create two users in one group
         new_gr1 = self.new_group()
         client_share1, new_exp = self.new_client_and_user(new_gr1)
         client_share3, new_exp3 = self.new_client_and_user(new_gr1)
@@ -455,19 +473,17 @@ class TestIShare(lib.ITest):
         experimenters = [test_user]
         guests = ["ident@emaildomain.com"]
         enabled = True
-        sid = share1.createShare(description, timeout, objects, experimenters, guests, enabled)
+        sid = share1.createShare(
+            description, timeout, objects, experimenters, guests, enabled)
 
-        res = None
         try:
-            share = share3.getShare(sid)
+            share3.getShare(sid)
             assert False, "Share returned to non-member"
         except:
             pass
 
     def test1227(self):
         share = self.client.sf.getShareService()
-        update = self.client.sf.getUpdateService()
-        admin = self.client.sf.getAdminService()
 
         test_user = self.new_user()
         # create share
@@ -477,9 +493,10 @@ class TestIShare(lib.ITest):
         experimenters = [test_user]
         guests = ["ident@emaildomain.com"]
         enabled = True
-        self.share_id = share.createShare(description, timeout, objects,experimenters, guests, enabled)
+        self.share_id = share.createShare(
+            description, timeout, objects, experimenters, guests, enabled)
 
-        share.addComment(self.share_id,"comment for share %i" % self.share_id)
+        share.addComment(self.share_id, "comment for share %i" % self.share_id)
         assert 1 == len(share.getComments(self.share_id))
 
         assert 1 == share.getCommentCount([self.share_id])[self.share_id]
@@ -491,20 +508,24 @@ class TestIShare(lib.ITest):
         experimenters = [test_user]
         guests = ["ident@emaildomain.com"]
         enabled = True
-        self.share_id2 = share.createShare(description, timeout, objects,experimenters, guests, enabled)
+        self.share_id2 = share.createShare(
+            description, timeout, objects, experimenters, guests, enabled)
 
-        assert 0 == share.getCommentCount([self.share_id, self.share_id2])[self.share_id2]
-        share.addComment(self.share_id2,"comment for share %i" % self.share_id2)
-        assert 1 == share.getCommentCount([self.share_id, self.share_id2])[self.share_id2]
+        assert 0 == share.getCommentCount(
+            [self.share_id, self.share_id2])[self.share_id2]
+        share.addComment(self.share_id2, "comment for share %i" %
+                         self.share_id2)
+        assert 1 == share.getCommentCount(
+            [self.share_id, self.share_id2])[self.share_id2]
 
     @pytest.mark.xfail(reason="See ticket #11537")
     def test2327(self):
 
-        ### create two users in two groups
+        # create two users in two groups
         client_share1, user1 = self.new_client_and_user()
         client_share2, user2 = self.new_client_and_user()
 
-        ## login as user1
+        # login as user1
         share1 = client_share1.sf.getShareService()
         update1 = client_share1.sf.getUpdateService()
 
@@ -522,38 +543,39 @@ class TestIShare(lib.ITest):
         experimenters = [user2]
         guests = []
         enabled = True
-        sid = share1.createShare(description, timeout, objects, experimenters, guests, enabled)
+        sid = share1.createShare(
+            description, timeout, objects, experimenters, guests, enabled)
         assert len(share1.getContents(sid)) == 1
         # add comment by the owner
         share1.addComment(sid, 'test comment by the owner %s' % user1.id.val)
 
-        ## login as user2
+        # login as user2
         share2 = client_share2.sf.getShareService()
-        query2 = client_share2.sf.getQueryService()
 
         l = share2.getMemberShares(False)
-        assert 1 ==  len(l)
+        assert 1 == len(l)
 
         # add comment by the member
-        share2.addComment(sid, 'test comment by the member %s' % (user2.id.val))
+        share2.addComment(sid, 'test comment by the member %s' %
+                          (user2.id.val))
 
         # Don't have to activate share2
 
-        #get comments
+        # get comments
         # by user1
         c1 = len(share1.getComments(sid))
-        assert 2 ==  c1
+        assert 2 == c1
         # by user2
         c2 = len(share2.getComments(sid))
-        assert 2 ==  c2
+        assert 2 == c2
 
     def test2733(self):
 
-        ### create two users in two groups
+        # create two users in two groups
         client_share1, user1 = self.new_client_and_user()
         client_share2, user2 = self.new_client_and_user()
 
-        ## login as user1
+        # login as user1
         share1 = client_share1.sf.getShareService()
         update1 = client_share1.sf.getUpdateService()
 
@@ -569,10 +591,11 @@ class TestIShare(lib.ITest):
         experimenters = [user2]
         guests = []
         enabled = True
-        sid = share1.createShare(description, timeout, objects, experimenters, guests, enabled)
+        sid = share1.createShare(
+            description, timeout, objects, experimenters, guests, enabled)
 
         share2 = client_share2.sf.getShareService()
-        share = share2.getShare(sid)
+        share2.getShare(sid)
 
     @pytest.mark.xfail(reason="See ticket #11537")
     def test2733Access(self):
@@ -583,17 +606,18 @@ class TestIShare(lib.ITest):
         This test makes sure it is not too open.
         """
 
-        ### create three users in three groups
+        # create three users in three groups
         group = self.new_group(perms="rwrw--")
 
-        smember, smember_obj = self.new_client_and_user() # Member of share
+        smember, smember_obj = self.new_client_and_user()  # Member of share
 
-        owner = self.new_client(group=group) # Owner of share
-        gmember = self.new_client(group=group) # Member of user1's group
-        gowner = self.new_client(group=group, admin=True) # Owner of user1's group
-        oowner = self.new_client(admin = True) # Admin of a different group
+        owner = self.new_client(group=group)  # Owner of share
+        gmember = self.new_client(group=group)  # Member of user1's group
+        # Owner of user1's group
+        gowner = self.new_client(group=group, admin=True)
+        oowner = self.new_client(admin=True)  # Admin of a different group
 
-        ## login as user1
+        # login as user1
         share1 = owner.sf.getShareService()
         update1 = owner.sf.getUpdateService()
 
@@ -609,7 +633,8 @@ class TestIShare(lib.ITest):
         experimenters = [smember_obj]
         guests = []
         enabled = True
-        sid = share1.createShare(description, timeout, objects, experimenters, guests, enabled)
+        sid = share1.createShare(
+            description, timeout, objects, experimenters, guests, enabled)
 
         self.assertAccess(owner, sid)
         self.assertAccess(smember, sid)
@@ -625,15 +650,14 @@ class TestIShare(lib.ITest):
         unloaded shares.
         """
 
-        ### create three users in three groups
+        # create three users in three groups
         group = self.new_group(perms="rwrw--")
 
-        smember, smember_obj = self.new_client_and_user() # Member of share
+        smember, smember_obj = self.new_client_and_user()  # Member of share
 
-        owner = self.new_client(group=group) # Owner of share
-        gmember = self.new_client(group=group) # Member of user1's group
+        owner = self.new_client(group=group)  # Owner of share
 
-        ## login as user1
+        # login as user1
         share1 = owner.sf.getShareService()
         update1 = owner.sf.getUpdateService()
 
@@ -649,14 +673,15 @@ class TestIShare(lib.ITest):
         experimenters = [smember_obj]
         guests = []
         enabled = True
-        sid = share1.createShare(description, timeout, objects, experimenters, guests, enabled)
+        share1.createShare(
+            description, timeout, objects, experimenters, guests, enabled)
 
         shares = share1.getOwnShares(True)
-        assert 1 ==  len(shares)
+        assert 1 == len(shares)
         assert shares[0].isLoaded()
 
         shares = smember.sf.getShareService().getMemberShares(True)
-        assert 1 ==  len(shares)
+        assert 1 == len(shares)
         assert shares[0].isLoaded()
 
     def test5711(self):
@@ -664,13 +689,13 @@ class TestIShare(lib.ITest):
         Recent changes have caused shares to be disabled.
         """
         share = self.client.sf.getShareService()
-        update = self.client.sf.getUpdateService()
         admin = self.client.sf.getAdminService()
 
         self.share_id = share.createShare("", None, [], [], [], True)
-        self.client.sf.setSecurityContext(omero.model.ShareI(self.share_id, False))
+        self.client.sf.setSecurityContext(
+            omero.model.ShareI(self.share_id, False))
         ec = admin.getEventContext()
-        assert self.share_id ==  ec.shareId
+        assert self.share_id == ec.shareId
 
     def test5756Raw(self):
         """
@@ -717,8 +742,8 @@ class TestIShare(lib.ITest):
 
         from omero.gateway import ImageWrapper, BlitzGateway
 
-        conn = BlitzGateway(client_obj = self.client)
-        wrapper = ImageWrapper(conn = conn, obj = image)
+        conn = BlitzGateway(client_obj=self.client)
+        wrapper = ImageWrapper(conn=conn, obj=image)
 
         self.client.sf.setSecurityContext(old_context)
         update.deleteObject(image)
@@ -742,15 +767,15 @@ class TestIShare(lib.ITest):
         # Regular reloading
         shareService.setActive(sid, True)
         shareService.activate(sid)
-        adminService.getEventContext() # Refreshes
+        adminService.getEventContext()  # Refreshes
         shareService.deactivate()
-        adminService.getEventContext() # Refreshes
+        adminService.getEventContext()  # Refreshes
         self.assertExpiration(expiration, shareService.getShare(sid))
 
         # Forced closing
-        assert -2 ==  sessionService.closeSession(shareService.getShare(sid))
+        assert -2 == sessionService.closeSession(shareService.getShare(sid))
         shareService.activate(sid)
-        adminService.getEventContext() # Refreshes
+        adminService.getEventContext()  # Refreshes
         self.assertExpiration(expiration, shareService.getShare(sid))
 
     def test2513(self):
@@ -761,22 +786,28 @@ class TestIShare(lib.ITest):
 
         # Create a bad screen
         with pytest.raises(omero.ValidationException):
-            shares.createShare("my description", None, [omero.model.ScreenI()], [], [], True)
+            shares.createShare("my description", None,
+                               [omero.model.ScreenI()], [], [], True)
 
-    ########################################
+    #
     # Test omero.share functionality (#3527)
-    ########################################
+    #
 
     def create_share(self, share, description="desc", timeout=None,
-            objects=None, experimenters=None, guests=None, enabled=True):
-        return share.createShare(description, timeout, objects, experimenters, guests, enabled)
+                     objects=None, experimenters=None,
+                     guests=None, enabled=True):
+        rv = share.createShare(
+            description, timeout, objects, experimenters, guests, enabled)
+        return rv
 
     @pytest.mark.xfail(reason="See ticket #11537")
     def testOSRegularUser(self):
         # """ test regular user can activate a share """
 
-        owner, owner_obj = self.new_client_and_user(perms="rw----") # Owner of share
-        member, member_obj = self.new_client_and_user(perms="rw----") # Different group!
+        # Owner of share
+        owner, owner_obj = self.new_client_and_user(perms="rw----")
+        # Different group!
+        member, member_obj = self.new_client_and_user(perms="rw----")
         share1 = owner.sf.getShareService()
         update1 = owner.sf.getUpdateService()
 
@@ -785,7 +816,7 @@ class TestIShare(lib.ITest):
         img = update1.saveAndReturnObject(img)
         img.unload()
         sid = self.create_share(share1, objects=[img],
-                experimenters=[owner_obj, member_obj])
+                                experimenters=[owner_obj, member_obj])
 
         self.assertAccess(owner, sid)
         self.assertAccess(member, sid)
@@ -795,7 +826,7 @@ class TestIShare(lib.ITest):
             member_query.get("Image", img.id.val)
 
         # But if we let the user pass omero.share it should work.
-        member_query.get("Image", img.id.val, {"omero.share":"%s" % sid})
+        member_query.get("Image", img.id.val, {"omero.share": "%s" % sid})
 
         return img, sid
 
@@ -814,7 +845,8 @@ class TestIShare(lib.ITest):
 
         # Now try to access via omero.share
         with pytest.raises(omero.SecurityViolation):
-            non_member_query.get("Image", img.id.val, {"omero.share":"%s" % sid})
+            non_member_query.get(
+                "Image", img.id.val, {"omero.share": "%s" % sid})
 
     @pytest.mark.xfail(reason="See ticket #11537")
     def testOSAdminUser(self):
@@ -827,29 +859,30 @@ class TestIShare(lib.ITest):
             root_query.get("Image", img.id.val)
 
         # Now try to access via omero.share
-        root_query.get("Image", img.id.val, {"omero.share":"%s" % sid})
+        root_query.get("Image", img.id.val, {"omero.share": "%s" % sid})
 
     def testBadShare(self):
         # Try to access a non-extant share
         # Since the security violation is thrown
         # first, we no longer get a validation exc.
         with pytest.raises(omero.SecurityViolation):
-            self.client.sf.getQueryService().get("Image", -1, {"omero.share":"-100"})
+            self.client.sf.getQueryService().get(
+                "Image", -1, {"omero.share": "-100"})
 
     @pytest.mark.xfail(reason="See ticket #11537")
     def test8513(self):
-        owner, owner_obj = self.new_client_and_user(perms="rw----") # Owner of share
-        member, member_obj = self.new_client_and_user(perms="rw----") # Different group!
+        # Owner of share
+        owner, owner_obj = self.new_client_and_user(perms="rw----")
+        # Different group!
+        member, member_obj = self.new_client_and_user(perms="rw----")
 
-        member_suuid = member.sf.getAdminService().getEventContext().sessionUuid
+        member_suuid = member.sf.getAdminService(
+        ).getEventContext().sessionUuid
         owner_suuid = owner.sf.getAdminService().getEventContext().sessionUuid
 
-        member_groupId = member.sf.getAdminService().getEventContext().groupId
-        owner_groupId = owner.sf.getAdminService().getEventContext().groupId
+        assert member_suuid != owner_suuid  # just in case
 
-        assert member_suuid != owner_suuid # just in case
-
-        assert owner_obj.id.val != member_obj.id.val # just in case
+        assert owner_obj.id.val != member_obj.id.val  # just in case
 
         owner_update = owner.sf.getUpdateService()
         image = self.new_image()
@@ -860,70 +893,73 @@ class TestIShare(lib.ITest):
         image2 = member_update.saveAndReturnObject(image2)
 
         share = owner.sf.getShareService()
-        sid = self.create_share(share, objects=[image], experimenters=[member_obj])
+        sid = self.create_share(
+            share, objects=[image], experimenters=[member_obj])
 
         self.assertAccess(owner, sid)
         self.assertAccess(member, sid)
-
-        member_share = member.sf.getShareService()
-        share_obj = member_share.getShare(sid)
-        # Activation shouldn't be needed any more as we pass {'omero.share': <sid>}
-        #member_share.activate(long(sid))
 
         # And the member should be able to use omero.share:sid
         member_query = member.sf.getQueryService()
 
         try:
             rv = member.sf.getQueryService().find("Image", image.id.val, None)
-        except omero.SecurityViolation, sv:
+        except omero.SecurityViolation:
             pass
         else:
             assert False, "Error: Member shouldn't access image in share!"
 
-        rv = member_query.find("Image", image.id.val, {'omero.share': str(sid), 'omero.group':str(image.details.group.id.val)})
-        assert image.id.val ==  rv.id.val
+        rv = member_query.find("Image", image.id.val, {'omero.share': str(
+            sid), 'omero.group': str(image.details.group.id.val)})
+        assert image.id.val == rv.id.val
 
         # join share
         user_client = self.new_client(session=member_suuid)
         try:
-            # Deactivation shouldn't be needed any more as we pass {'omero.share': <sid>}
+            # Deactivation shouldn't be needed any more
+            # as we pass {'omero.share': <sid>}
             # user_client.sf.getShareService().deactivate()
             user_query = user_client.sf.getQueryService()
-            rv = user_query.find("Image", image2.id.val, {'omero.group':str(image2.details.group.id.val)})
-            assert image2.id.val ==  rv.id.val
+            rv = user_query.find(
+                "Image", image2.id.val,
+                {'omero.group': str(image2.details.group.id.val)})
+            assert image2.id.val == rv.id.val
         finally:
             user_client.__del__()
 
-        ### Note: The following fails with a security violation since
-        ### it is expected that the user first check the contents of
-        ### the share and then load those values.
-        ### =========================================================
-        ## rv = member_query.findAll("Image", None, {"omero.share":"%s" % sid})
-        ## assert 0 ==  len(rv)
+        # Note: The following fails with a security violation since
+        # it is expected that the user first check the contents of
+        # the share and then load those values.
+        # =========================================================
+        # rv = member_query.findAll("Image", None, {"omero.share":"%s" % sid})
+        # assert 0 ==  len(rv)
 
     @pytest.mark.xfail(reason="See ticket #11537")
     def test8704(self):
-        owner, owner_obj = self.new_client_and_user(perms="rw----") # Owner of share
-        member, member_obj = self.new_client_and_user(perms="rw----") # Different group!
+        # Owner of share
+        owner, owner_obj = self.new_client_and_user(perms="rw----")
+        # Different group!
+        member, member_obj = self.new_client_and_user(perms="rw----")
 
-        member_suuid = member.sf.getAdminService().getEventContext().sessionUuid
+        member_suuid = member.sf.getAdminService(
+        ).getEventContext().sessionUuid
         owner_suuid = owner.sf.getAdminService().getEventContext().sessionUuid
 
-        member_groupId = member.sf.getAdminService().getEventContext().groupId
         owner_groupId = owner.sf.getAdminService().getEventContext().groupId
 
-        assert member_suuid != owner_suuid # just in case
+        assert member_suuid != owner_suuid  # just in case
 
-        assert owner_obj.id.val != member_obj.id.val # just in case
+        assert owner_obj.id.val != member_obj.id.val  # just in case
 
         # create image by owner
-        owner_update = owner.sf.getUpdateService()
         image_id = createTestImage(owner.sf)
 
         p = omero.sys.Parameters()
         p.map = {"id": rlong(long(image_id))}
-        sql = "select im from Image im join fetch im.details.owner join fetch im.details.group where im.id=:id order by im.name"
-        image = owner.sf.getQueryService().findAllByQuery(sql, p, {'omero.group':str(owner_groupId)})[0]
+        sql = "select im from Image im join fetch im.details.owner join " \
+              "fetch im.details.group where im.id=:id order by im.name"
+        image = owner.sf.getQueryService().findAllByQuery(
+            sql, p, {'omero.group': str(owner_groupId)})[0]
 
         rdefs = owner.sf.getQueryService().findAll("RenderingDef", None)
 
@@ -933,60 +969,60 @@ class TestIShare(lib.ITest):
         image2 = member_update.saveAndReturnObject(image2)
 
         share = owner.sf.getShareService()
-        sid = self.create_share(share, objects=[image], experimenters=[member_obj])
+        sid = self.create_share(
+            share, objects=[image], experimenters=[member_obj])
 
         self.assertAccess(owner, sid)
         self.assertAccess(member, sid)
-
-        member_share = member.sf.getShareService()
-        share_obj = member_share.getShare(sid)
-        # Activation shouldn't be needed any more as we pass {'omero.share': <sid>}
-        #member_share.activate(long(sid))
 
         # And the member should be able to use omero.share:sid
         member_query = member.sf.getQueryService()
 
         try:
             rv = member.sf.getQueryService().find("Image", image.id.val, None)
-        except omero.SecurityViolation, sv:
+        except omero.SecurityViolation:
             pass
         else:
             assert False, "Error: Member shouldn't access image in share!"
 
-        rv = member_query.find("Image", image.id.val, {'omero.share': str(sid)})
-        # Not sure which group to set 'omero.group':str(image.details.group.id.val)
-        #  or'omero.group':str(member_groupId)
+        rv = member_query.find(
+            "Image", image.id.val, {'omero.share': str(sid)})
+        # Not sure which group to set
+        # 'omero.group':str(image.details.group.id.val)
+        # or'omero.group':str(member_groupId)
 
-        assert image.id.val ==  rv.id.val
+        assert image.id.val == rv.id.val
 
         member_tb = member.sf.createThumbnailStore()
-        member_tb.setPixelsId(rdefs[0].pixels.id.val, {'omero.share': str(sid)})
+        member_tb.setPixelsId(
+            rdefs[0].pixels.id.val, {'omero.share': str(sid)})
 
         # join share
         user_client = self.new_client(session=member_suuid)
         try:
-            # Deactivation shouldn't be needed any more as we pass {'omero.share': <sid>}
+            # Deactivation shouldn't be needed any more
+            # as we pass {'omero.share': <sid>}
             # user_client.sf.getShareService().deactivate()
             user_query = user_client.sf.getQueryService()
-            rv = user_query.find("Image", image2.id.val, {'omero.group':str(image2.details.group.id.val)})
-            assert image2.id.val ==  rv.id.val
+            rv = user_query.find(
+                "Image", image2.id.val,
+                {'omero.group': str(image2.details.group.id.val)})
+            assert image2.id.val == rv.id.val
         finally:
             user_client.__del__()
 
     # Helpers
 
-    def assertAccess(self, client, sid, success = True):
+    def assertAccess(self, client, sid, success=True):
         share = client.sf.getShareService()
         query = client.sf.getQueryService()
 
         share_from_ishare = share.getShare(sid)
-        assert success ==  (share_from_ishare is not None)
+        assert success == (share_from_ishare is not None)
 
         # For the moment, preventing all non-IShare download.
         share_from_iquery = query.get("Share", sid)
         assert not share_from_iquery.isLoaded()
 
     def assertExpiration(self, expiration, share):
-        assert expiration ==  (share.started.val+share.timeToLive.val)
-
-
+        assert expiration == (share.started.val + share.timeToLive.val)
