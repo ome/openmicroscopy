@@ -47,12 +47,12 @@ class AnnotationPermissions(lib.ITest):
 
         self.users = set(["member1", "member2", "owner", "admin"])
         # create group and users
-        group = self.new_group(perms=perms)
+        self.group = self.new_group(perms=perms)
         self.exps = {}
-        self.exps["owner"] = self.new_user(group=group, admin=True)
-        self.exps["member1"] = self.new_user(group=group)
-        self.exps["member2"] = self.new_user(group=group)
-        self.exps["admin"] = self.new_user(group=group, system=True)
+        self.exps["owner"] = self.new_user(group=self.group, admin=True)
+        self.exps["member1"] = self.new_user(group=self.group)
+        self.exps["member2"] = self.new_user(group=self.group)
+        self.exps["admin"] = self.new_user(group=self.group, system=True)
 
         # clients and services
         self.clients = {}
@@ -61,7 +61,7 @@ class AnnotationPermissions(lib.ITest):
         self.project = {}
         for user in self.users:
             self.clients[user] = self.new_client(
-                user=self.exps[user], group=group)
+                user=self.exps[user], group=self.group)
             self.updateServices[user] = self.clients[
                 user].sf.getUpdateService()
             self.queryServices[user] = self.clients[user].sf.getQueryService()
