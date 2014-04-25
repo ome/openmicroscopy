@@ -761,17 +761,26 @@ class BaseClient(object):
         return ofile
 
     def download(self, ofile, filename = None, block_size = 1024*1024, filehandle = None):
+        if not self.__sf:
+            raise omero.ClientError("No session. Use createSession first.")
+
+        # Search for objects in all groups. See #12146
+        ctx = self.getImplicitContext().getContext()
+        ctx = dict(ctx)
+        ctx["omero.group"] = "-1"
+
         prx = self.__sf.createRawFileStore()
+
         try:
             if not ofile or not ofile.id:
                 raise omero.ClientError("No file to download")
-            ofile = self.__sf.getQueryService().get("OriginalFile",
-                ofile.id.val, {'omero.group': '-1'})
+            ofile = self.__sf.getQueryService().get("OriginalFile", ofile.id.val,
+                                                    ctx)
 
             if block_size > ofile.size.val:
                 block_size = ofile.size.val
 
-            prx.setFileId(ofile.id.val, {'omero.group': '-1'})
+            prx.setFileId(ofile.id.val, ctx)
 
             size = ofile.size.val
             offset = 0
