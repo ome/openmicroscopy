@@ -43,13 +43,16 @@ import java.util.Map.Entry;
 import javax.swing.Icon;
 import javax.swing.JFrame;
 
+
 //Third-party libraries
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 
+
 //Application-internal dependencies
 import omero.model.OriginalFile;
 import omero.model.PlaneInfo;
+
 import org.openmicroscopy.shoola.agents.metadata.AcquisitionDataLoader;
 import org.openmicroscopy.shoola.agents.metadata.AnalysisResultsFileLoader;
 import org.openmicroscopy.shoola.agents.metadata.FileAnnotationChecker;
@@ -86,6 +89,7 @@ import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.agents.util.ui.PermissionMenu;
 import org.openmicroscopy.shoola.env.Environment;
 import org.openmicroscopy.shoola.env.LookupNames;
+import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.AdminService;
 import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
@@ -105,6 +109,7 @@ import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.file.modulo.ModuloInfo;
 import org.openmicroscopy.shoola.util.file.modulo.ModuloParser;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
+
 import pojos.AnnotationData;
 import pojos.BooleanAnnotationData;
 import pojos.ChannelAcquisitionData;
@@ -1291,6 +1296,7 @@ class EditorModel
 	 */
         List<FileAnnotationData> getFileAnnotatationsByLevel(int level) {
             List<FileAnnotationData> result = new ArrayList<FileAnnotationData>();
+            
             Collection<FileAnnotationData> all = getAllAttachments();
             for (FileAnnotationData f : all) {
                 switch (level) {
@@ -1298,12 +1304,12 @@ class EditorModel
                         result.add(f);
                         break;
                     case ME:
-                        if (getUserID() == f.getOwner().getId()) {
+                        if (MetadataViewerAgent.getUserDetails().getId() == f.getOwner().getId()) {
                             result.add(f);
                         }
                         break;
                     case OTHER:
-                        if (getUserID() != f.getOwner().getId()) {
+                        if (MetadataViewerAgent.getUserDetails().getId() != f.getOwner().getId()) {
                             result.add(f);
                         }
                 }
