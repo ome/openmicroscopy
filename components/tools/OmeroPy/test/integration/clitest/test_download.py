@@ -53,6 +53,13 @@ class TestDownload(CLITest):
         finally:
             rfs.close()
 
+    def setup_user_and_two_groups(self):
+        group1 = self.new_group(perms='rw----')
+        group2 = self.new_group(perms='rw----')
+        user = self.new_user()
+        self.add_groups(user, [group1, group2], owner=True)
+        return user, group1, group2
+
     @py.test.mark.parametrize(
         'bad_input',
         ['-1', 'OriginalFile:-1', 'FileAnnotation:-1', 'Image:-1'])
@@ -89,15 +96,10 @@ class TestDownload(CLITest):
 
     @py.test.mark.parametrize('prefix', ['', 'OriginalFile:'])
     def testOriginalFileMultipleGroups(self, prefix, capsys):
-        group1 = self.new_group(perms='rw----')
-        group2 = self.new_group(perms='rw----')
-        user = self.new_user()
-        self.add_groups(user, [group1, group2], owner=True)
-
+        user, group1, group2 = self.setup_user_and_two_groups()
         client = self.new_client(user=user, password="ome")
         ofile = self.create_original_file("test")
         self.set_context(client, group2.id.val)
-
         self.args += ['%s%s' % (prefix, str(ofile.id.val)), '-']
         self.cli.invoke(self.args, strict=True)
         out, err = capsys.readouterr()
@@ -131,6 +133,19 @@ class TestDownload(CLITest):
         fa = omero.model.FileAnnotationI()
         fa.setFile(ofile)
         fa = self.update.saveAndReturnObject(fa)
+        self.args += ['FileAnnotation:%s' % str(fa.id.val), '-']
+        self.cli.invoke(self.args, strict=True)
+        out, err = capsys.readouterr()
+        assert out == "test"
+
+    def testFileAnnotationMultipleGroups(self, capsys):
+        user, group1, group2 = self.setup_user_and_two_groups()
+        client = self.new_client(user=user, password="ome")
+        ofile = self.create_original_file("test")
+        fa = omero.model.FileAnnotationI()
+        fa.setFile(ofile)
+        fa = self.update.saveAndReturnObject(fa)
+        self.set_context(client, group2.id.val)
         self.args += ['FileAnnotation:%s' % str(fa.id.val), '-']
         self.cli.invoke(self.args, strict=True)
         out, err = capsys.readouterr()
@@ -180,3 +195,20 @@ class TestDownload(CLITest):
         self.args += ["Image:%s" % pixels.getImage().id.val, str(tmpfile)]
         with py.test.raises(NonZeroReturnCode):
             self.cli.invoke(self.args, strict=True)
+
+    def testImageMultipleGroups(self, tmpdir):
+        user, group1, group2 = self.setup_user_and_two_groups()
+        client = self.new_client(user=user, password="ome")
+        filename = self.OmeroPy / ".." / ".." / ".." / \
+            "components" / "common" / "test" / "tinyTest.d3d.dv"
+        with open(filename) as f:
+            bytes1 = f.read()
+        pix_ids = self.import_image(filename)
+        pixels = self.query.get("Pixels", long(pix_ids[0]))
+        tmpfile = tmpdir.join('test')
+        self.set_context(client, group2.id.val)
+        self.args += ["Image:%s" % pixels.getImage().id.val, str(tmpfile)]
+        self.cli.invoke(self.args, strict=True)
+        with open(str(tmpfile)) as f:
+            bytes2 = f.read()
+        assert bytes1 == bytes2
