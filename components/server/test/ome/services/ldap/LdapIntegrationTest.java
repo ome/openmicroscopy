@@ -125,7 +125,7 @@ public class LdapIntegrationTest extends LdapTest {
             }
 
             @Override
-            public boolean createUserFromLdap(final String user) {
+            public Experimenter createUserFromLdap(final String user) {
                 executor.execute(p,
                         new Executor.SimpleWork(this, "renameUser") {
                             @Transactional(readOnly = false)
@@ -149,18 +149,18 @@ public class LdapIntegrationTest extends LdapTest {
                             }
                         });
 
-                return (Boolean) executor.execute(p, new Executor.SimpleWork(
-                        this, "createUserFromLdap") {
-                    @Transactional(readOnly = false)
-                    public Object doWork(org.hibernate.Session session,
-                            ServiceFactory sf) {
-                        return ldap.createUserFromLdap(user);
-                    }
-                });
+                return (Experimenter) executor.execute(p,
+                        new Executor.SimpleWork(this, "createUserFromLdap") {
+                            @Transactional(readOnly = false)
+                            public Object doWork(org.hibernate.Session session,
+                                    ServiceFactory sf) {
+                                return ldap.createUserFromLdap(user);
+                            }
+                        });
             }
 
             @Override
-            public boolean createUserFromLdap(final String user,
+            public Experimenter createUserFromLdap(final String user,
                     final String password, final boolean checkPassword) {
                 // To keep things simple, if a user already exists,
                 // it gets renamed. Otherwise, it would be necessary to generate
@@ -188,15 +188,15 @@ public class LdapIntegrationTest extends LdapTest {
                             }
                         });
 
-                return (Boolean) executor.execute(p, new Executor.SimpleWork(
-                        this, "createUserFromLdap") {
-                    @Transactional(readOnly = false)
-                    public Object doWork(org.hibernate.Session session,
-                            ServiceFactory sf) {
-                        return ldap.createUserFromLdap(user, "password",
-                                checkPassword);
-                    }
-                });
+                return (Experimenter) executor.execute(p,
+                        new Executor.SimpleWork(this, "createUserFromLdap") {
+                            @Transactional(readOnly = false)
+                            public Object doWork(org.hibernate.Session session,
+                                    ServiceFactory sf) {
+                                return ldap.createUserFromLdap(user,
+                                        "password", checkPassword);
+                            }
+                        });
             }
 
             @Override
