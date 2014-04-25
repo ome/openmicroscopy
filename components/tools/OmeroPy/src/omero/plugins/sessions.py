@@ -1,14 +1,28 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+
+#
+# Copyright (C) 2008-2014 Glencoe Software, Inc. All rights reserved.
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
 """
    Plugin for viewing and controlling active sessions for a local user.
 
    Plugin read by omero.cli.Cli during initialization. The method(s)
    defined here will be added to the Cli class for later use.
-
-   Copyright 2008 Glencoe Software, Inc. All rights reserved.
-   Use is subject to license terms supplied in LICENSE.txt
-
 """
 
 
@@ -40,40 +54,54 @@ Uses the login parameters from %(prog)s to login.
 
 To list these options, use "%(prog)s -h"
 
-Sample session:
-    $ bin/omero -s localhost sessions login
-    Username:
-    Password:
-    $ bin/omero -s localhost -u john sessions login
-    Password
-    $ bin/omero -s localhost -k 8afe443f-19fc-4cc4-bf4a-850ec94f4650 \
-    sessions login
+Options for logging in:
+
+    # Provide all values interactively
     $ bin/omero sessions login
     Server:
     Username:
     Password:
+
+    # Pass values as the target
     $ bin/omero sessions login user@omero.example.com
     Password:
     $ bin/omero sessions login user@omero.example.com:24064
     Password:
-    $ bin/omero sessions logout
-    $ bin/omero sessions login
-    Reuse current session? [Y/n]
-    $ bin/omero sessions list
-    $ bin/omero sessions logout
-    $ bin/omero sessions login omero.example.com
+
+    # Pass some values via arguments
+    $ bin/omero -s localhost sessions login
     Username:
     Password:
-    $ bin/omero sessions logout
     $ bin/omero -p 24064 sessions login
     Server:
     Username:
     Password:
+
+    # Pass all non-password values via arguments
+    $ bin/omero -s localhost -u john sessions login
+    Password
+
+    # Use a session ID to login without a password
+    $ bin/omero -s localhost -k 8afe443f-19fc-4cc4-bf4a-850ec94f4650 \
+    sessions login
+
+    # Arguments can also go earlier
+    $ bin/omero -k 8afe443f-19fc-4cc4-bf4a-850ec94f4650 sessions login
+
+    # The *last* "@" symbol is used
     $ bin/omero sessions login my.email@example.com@omero.example.com
     Password:
-    $ bin/omero -k 8afe443f-19fc-4cc4-bf4a-850ec94f4650 sessions login
-    $ bin/omero sessions clear
+
+    # System administrators can use "--sudo" to login as others
+    $ bin/omero sessions login --sudo=root example@localhost
+    Password for root:
+
+Other commands:
+
+    $ bin/omero sessions list
     $ bin/omero sessions list --session-dir=/tmp
+    $ bin/omero sessions logout
+    $ bin/omero sessions clear
 """
 
 
@@ -94,8 +122,7 @@ class SessionsControl(BaseControl):
         sub = parser.sub()
         parser.add(sub, self.help, "Extended help")
         login = parser.add(
-            sub, self.login,
-            "Login to a given server, and store session key locally")
+            sub, self.login, self.login.__doc__)
         logout = parser.add(
             sub, self.logout, "Logout and remove current session key")
         self._configure_login(login)
@@ -153,6 +180,21 @@ class SessionsControl(BaseControl):
         self.ctx.err(LONGHELP % {"prog": args.prog})
 
     def login(self, args):
+        ("Login to a given server, and store session key locally.\n\n"
+         "USER, HOST, and PORT are set as args or in a ssh-style "
+         "connection string.\n"
+         "PASSWORD can be entered interactively, or passed via "
+         "-w (insecure!).\n"
+         "Alternatively, a session KEY can be passed with '-k'.\n"
+         "Admin users can use --sudo=ADMINUSER to login for others.\n\n"
+         "Examples:\n"
+         "  bin/omero login example.com\n"
+         "  bin/omero login user@example.com\n"
+         "  bin/omero login user@example.com:24064\n"
+         "  bin/omero login -k SESSIONKEY example.com\n"
+         "  bin/omero login --sudo=root user@example\n"
+         "\n")
+
         """
         Goals:
         If server and key, then don't ask any questions.
@@ -321,9 +363,13 @@ class SessionsControl(BaseControl):
             while True:
                 try:
                     if not pasw:
-                        pasw = self.ctx.input("Password:", hidden=True,
+                        if args.sudo:
+                            prompt = "Password for %s:" % args.sudo
+                        else:
+                            prompt = "Password:"
+                        pasw = self.ctx.input(prompt, hidden=True,
                                               required=True)
-                    rv = store.create(name, pasw, props)
+                    rv = store.create(name, pasw, props, sudo=args.sudo)
                     break
                 except PermissionDeniedException, pde:
                     tries -= 1

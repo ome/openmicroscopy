@@ -44,6 +44,7 @@ public class MeasurementTable {
 
         } finally {
             client.closeSession();
+            System.exit(0);
         }
     }
 

@@ -29,7 +29,6 @@
 
 import os.path
 import sys
-import datetime
 import logging
 import omero
 import omero.config
@@ -135,9 +134,11 @@ event = get_event("websettings")
 
 while True:
     try:
-        CONFIG_XML = omero.config.ConfigXml(CONFIG_XML)
-        CUSTOM_SETTINGS = CONFIG_XML.as_map()
-        CONFIG_XML.close()
+        CUSTOM_SETTINGS = dict()
+        if os.path.exists(CONFIG_XML):
+            CONFIG_XML = omero.config.ConfigXml(CONFIG_XML, read_only=True)
+            CUSTOM_SETTINGS = CONFIG_XML.as_map()
+            CONFIG_XML.close()
         break
     except LockException:
         #logger.error("Exception while loading configuration retrying...", exc_info=True)
@@ -230,7 +231,6 @@ CUSTOM_SETTINGS_MAPPINGS = {
     "omero.web.force_script_name": ["FORCE_SCRIPT_NAME", None, leave_none_unset],
     "omero.web.static_url": ["STATIC_URL", "/static/", str],
     "omero.web.staticfile_dirs": ["STATICFILES_DIRS", '[]', json.loads],
-    "omero.web.index_template": ["INDEX_TEMPLATE", None, identity],
     "omero.web.caches": ["CACHES", '{"default": {"BACKEND": "django.core.cache.backends.dummy.DummyCache"}}', json.loads],
     "omero.web.webgateway_cache": ["WEBGATEWAY_CACHE", None, leave_none_unset],
     "omero.web.session_engine": ["SESSION_ENGINE", DEFAULT_SESSION_ENGINE, check_session_engine],
@@ -279,7 +279,17 @@ CUSTOM_SETTINGS_MAPPINGS = {
     # after testing this line should be removed.
     # "omero.web.application_host": ["APPLICATION_HOST", None, remove_slash], 
 
+    # TEMPLATES
+    # TEMPLATE_DIRS: List of locations of the template source files, in search order. Note that these 
+    # paths should use Unix-style forward slashes, even on Windows.
+    # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates". Always use 
+    # forward slashes, even on Windows. Don't forget to use absolute paths, not relative paths.
+    # TEMPLATE_DIRS = ()
+    "omero.web.template_dirs": ["TEMPLATE_DIRS", '[]', json.loads],
+    "omero.web.index_template": ["INDEX_TEMPLATE", None, identity],
+    
     # WEBSTART
+    "omero.web.webstart_template": ["WEBSTART_TEMPLATE", None, identity],
     "omero.web.webstart_jar": ["WEBSTART_JAR", "omero.insight.jar", str],
     "omero.web.webstart_icon": ["WEBSTART_ICON", "webstart/img/icon-omero-insight.png", str],
     "omero.web.webstart_heap": ["WEBSTART_HEAP", "1024m", str],
@@ -294,6 +304,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
     # Allowed hosts: https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
     "omero.web.allowed_hosts": ["ALLOWED_HOSTS", '["*"]', json.loads],
 }
+
 
 def process_custom_settings(module):
     logging.info('Processing custom settings for module %s' % module.__name__)
@@ -323,7 +334,7 @@ def process_custom_settings(module):
 process_custom_settings(sys.modules[__name__])
 
 
-if not DEBUG:
+if not DEBUG:  # from CUSTOM_SETTINGS_MAPPINGS  # noqa
     LOGGING['loggers']['django.request']['level'] = 'INFO'
     LOGGING['loggers']['django']['level'] = 'INFO'
     LOGGING['loggers']['']['level'] = 'INFO'
@@ -335,7 +346,7 @@ if not DEBUG:
 # is handled by:
 #    handler404 = "omeroweb.feedback.views.handler404"
 #    handler500 = "omeroweb.feedback.views.handler500"
-TEMPLATE_DEBUG = DEBUG
+TEMPLATE_DEBUG = DEBUG  # from CUSTOM_SETTINGS_MAPPINGS  # noqa
 
 def report_settings(module):
     from django.views.debug import cleanse_setting
@@ -414,7 +425,8 @@ STATIC_ROOT = os.path.join(os.path.dirname(__file__), 'static').replace('\\','/'
 # traverse if the FileSystemFinder finder is enabled, e.g. if you use the collectstatic or 
 # findstatic management command or use the static file serving view.
 if WEBSTART:
-    STATICFILES_DIRS += (("webstart/jars", INSIGHT_JARS),)
+    # from CUSTOM_SETTINGS_MAPPINGS
+    STATICFILES_DIRS += (("webstart/jars", INSIGHT_JARS),)  # noqa
 
 # TEMPLATE_CONTEXT_PROCESSORS: A tuple of callables that are used to populate the context 
 # in RequestContext. These callables take a request object as their argument and return 
@@ -435,12 +447,6 @@ TEMPLATE_LOADERS = (
     'django.template.loaders.filesystem.Loader',
     'django.template.loaders.app_directories.Loader',
 )
-
-# TEMPLATE_DIRS: List of locations of the template source files, in search order. Note that these 
-# paths should use Unix-style forward slashes, even on Windows.
-# Put strings here, like "/home/html/django_templates" or "C:/www/django/templates". Always use 
-# forward slashes, even on Windows. Don't forget to use absolute paths, not relative paths.
-# TEMPLATE_DIRS = ()
 
 # INSTALLED_APPS: A tuple of strings designating all applications that are enabled in this Django 
 # installation. Each string should be a full Python path to a Python package that contains 
@@ -463,7 +469,7 @@ INSTALLED_APPS = (
 
 # ADDITONAL_APPS: We import any settings.py from apps. This allows them to modify settings.
 # We're also processing any CUSTOM_SETTINGS_MAPPINGS defined there.
-for app in ADDITIONAL_APPS:
+for app in ADDITIONAL_APPS:  # from CUSTOM_SETTINGS_MAPPINGS  # noqa
     # Previously the app was added to INSTALLED_APPS as 'omeroweb.app', which
     # then required the app to reside within or be symlinked from within
     # omeroweb, instead of just having to be somewhere on the python path.
@@ -524,11 +530,11 @@ DEFAULT_USER = os.path.join(os.path.dirname(__file__), 'webgateway', 'static', '
 
 # MANAGERS: A tuple in the same format as ADMINS that specifies who should get broken-link notifications when 
 # SEND_BROKEN_LINK_EMAILS=True.
-MANAGERS = ADMINS
+MANAGERS = ADMINS  # from CUSTOM_SETTINGS_MAPPINGS  # noqa
 
 # PAGE: Used in varous locations where large number of data is retrieved from the server.
 try:
-    PAGE
+    PAGE  # noqa
 except:
     PAGE = 200
 
@@ -558,7 +564,7 @@ SESSION_SERIALIZER = 'django.contrib.sessions.serializers.PickleSerializer'
 # Load server list and freeze 
 from connector import Server
 def load_server_list():
-    for s in SERVER_LIST:
+    for s in SERVER_LIST:  # from CUSTOM_SETTINGS_MAPPINGS  # noqa
         server = (len(s) > 2) and unicode(s[2]) or None
         Server(host=unicode(s[0]), port=int(s[1]), server=server)
     Server.freeze()

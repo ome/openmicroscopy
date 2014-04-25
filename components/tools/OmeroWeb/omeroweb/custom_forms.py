@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from django import forms
-from django.utils.encoding import smart_str, smart_unicode
+from django.utils.encoding import smart_str
 
 from django.forms.util import ErrorDict, ValidationError
 from django.forms.fields import FileField, CharField

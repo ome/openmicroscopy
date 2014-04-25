@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 #
-# Copyright (C) 2012-2013 Glencoe Software, Inc. All Rights Reserved.
+# Copyright (C) 2012-2014 Glencoe Software, Inc. All Rights Reserved.
 # Use is subject to license terms supplied in LICENSE.txt
 #
 # This program is free software; you can redistribute it and/or modify
@@ -23,14 +23,11 @@
 Test of the CmdCallbackI object
 """
 
-import Ice
-import time
 import threading
 
 import test.integration.library as lib
 import omero
 import omero.all
-from omero.rtypes import *
 from omero.util.concurrency import get_event
 
 
@@ -65,7 +62,7 @@ class CmdCallback(omero.callbacks.CmdCallbackI):
         finally:
             self.t_lock.release()
 
-    def assertFinished(self, expectedSteps = None):
+    def assertFinished(self, expectedSteps=None):
         self.t_lock.acquire()
         try:
             assert self.t_finished != 0
@@ -77,7 +74,7 @@ class CmdCallback(omero.callbacks.CmdCallbackI):
 
             elif isinstance(rsp, omero.cmd.ERR):
                 msg = "%s\ncat:%s\nname:%s\nparams:%s\n" % \
-                        (err, err.category, err.name, err.parameters)
+                    (rsp, rsp.category, rsp.name, rsp.parameters)
                 assert False, msg
         finally:
             self.t_lock.release()
@@ -116,7 +113,7 @@ class TestCmdCallback(lib.ITest):
     def testTimingFinishesOnLatch(self):
         cb = self.timing(25, 4 * 10)  # Runs 1 second
         cb.t_event.wait(1.500)
-        assert 1 ==  cb.t_finished
+        assert 1 == cb.t_finished
         cb.assertFinished(10)  # Modulus-10
 
     def testTimingFinishesOnBlock(self):
@@ -155,5 +152,3 @@ class TestCmdCallback(lib.ITest):
         cb.loop(5, 1000)
         cb.assertFinished()
         # For some reason the number of steps is varying between 10 and 15
-
-

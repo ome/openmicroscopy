@@ -29,10 +29,6 @@ import httplib, urllib, urlparse
 
 from omero_version import omero_version
 
-from email.MIMEMultipart import MIMEMultipart
-from email.MIMEText import MIMEText
-from email.MIMEImage import MIMEImage
-
 from django.conf import settings
 
 logger = logging.getLogger(__name__)

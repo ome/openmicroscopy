@@ -125,6 +125,7 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
         <delete includeemptydirs="true" quiet="true">
             <fileset dir="${omero.home}/examples" includes="config.log,**/*.o,**/*.class,**/*.exe"/>
         </delete>
+        <ant antfile="build.xml" dir="docs/sphinx" target="clean" inheritAll="false"/>
     </target>
 
     <macrodef name="setup-py-install">
@@ -427,8 +428,8 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
         </scons_py>
     </target>
 
-    <target name="release-all" description="Produce all binary release artifacts"
-        depends="release-clients,release-webstart,release-zip,release-docs">
+    <target name="release-all" description="Produce all binary release artifacts (unsigned)"
+        depends="release-clients,release-webstart-unsigned,release-zip,release-docs">
         <!-- Clients must come first to produce the zips needed by webstart,
         followed by webstart in order to add jars to dist/, followed by zip -->
     </target>
@@ -567,11 +568,14 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
             <zipfileset dir="${dist.dir}/docs" prefix="OMERO.docs-${omero.version}"/>
         </zip>
 
-        <exec executable="make" failonerror="true" dir="${sphinx.dir}">
-            <env key="SOURCE_BRANCH" value="v.${omero.shortversion}"/>
-            <env key="OMERO_RELEASE" value="${omero.shortversion}"/>
-            <arg line="clean html latexpdf"/>
-        </exec>
+        <ant antfile="build.xml" dir="docs/sphinx" target="clean" inheritAll="false"/>
+        <ant antfile="build.xml" dir="docs/sphinx" target="html" inheritAll="false">
+            <property name="omero.shortversion" value="${omero.shortversion}"/>
+        </ant>
+        <ant antfile="build.xml" dir="docs/sphinx" target="latexpdf" inheritAll="false">
+            <property name="omero.shortversion" value="${omero.shortversion}"/>
+        </ant>
+
         <copy file="${sphinx.dir}/_build/latex/OMERO-${omero.shortversion}.pdf" tofile="${omero.home}/target/OMERO-${omero.shortversion}.pdf" overwrite="true"/>
         <zip destfile="${omero.home}/target/OMERO.sphinx-${omero.version}.zip">
             <zipfileset dir="${sphinx.dir}/_build/html/" prefix="OMERO.sphinx-${omero.version}"/>
@@ -665,7 +669,8 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
                 docencoding="UTF-8"
                 windowtitle="OMERO (OME Remote Objects) Server"
                 overview="target/docs/overview.html"
-                stylesheetfile="docs/javadocsstyle.css">
+                stylesheetfile="docs/javadocsstyle.css"
+                useexternalfile="true">
 
                 <classpath>
                     <fileset dir="lib">
@@ -846,67 +851,8 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
             <ivy:retrieve conf="server" pattern="${dist.dir}/lib/server/[artifact].[ext]" sync="false" log="quiet" settingsRef="ivy.toplevel"/>
     </target>
 
-    <macrodef name="signjar_password">
-        <attribute name="target"/>
-        <sequential>
-            <if>
-                <isset property="jarsign.storepassfile"/>
-                <then>
-                    <if>
-                        <isset property="jarsign.tsa"/>
-                        <then>
-                            <echo message="Signing jar: @{target} as ${jarsign.alias} with timestamping"/>
-                            <exec executable="jarsigner" failonerror="true">
-                                <arg value="-keystore"/>
-                                <arg value="${jarsign.keystore}"/>
-                                <arg value="-storepass:file"/>
-                                <arg value="${jarsign.storepassfile}"/>
-                                <arg value="-tsa"/>
-                                <arg value="${jarsign.tsa}"/>
-                                <arg value="@{target}"/>
-                                <arg value="${jarsign.alias}"/>
-                            </exec>
-                        </then>
-                        <else>
-                            <echo message="Signing jar: @{target} as ${jarsign.alias}"/>
-                            <exec executable="jarsigner" failonerror="true">
-                                <arg value="-keystore"/>
-                                <arg value="${jarsign.keystore}"/>
-                                <arg value="-storepass:file"/>
-                                <arg value="${jarsign.storepassfile}"/>
-                                <arg value="@{target}"/>
-                                <arg value="${jarsign.alias}"/>
-                            </exec>
-                        </else>
-                    </if>
-                </then>
-                <else>
-                    <if>
-                        <isset property="jarsign.tsa"/>
-                        <then>
-                            <signjar alias="${jarsign.alias}"
-                                keystore="${jarsign.keystore}"
-                                storepass="${jarsign.storepass}"
-                                tsaurl="${jarsign.tsa}"
-                                preservelastmodified="true"
-                                jar="@{target}"/>
-                        </then>
-                        <else>
-                            <signjar alias="${jarsign.alias}"
-                                keystore="${jarsign.keystore}"
-                                storepass="${jarsign.storepass}"
-                                preservelastmodified="true"
-                                jar="@{target}"/>
-                        </else>
-                    </if>
-                </else>
-            </if>
-        </sequential>
-    </macrodef>
-
     <macrodef name="jar_update_if">
         <attribute name="destfile"/>
-        <attribute name="sign" default="true"/>
         <element name="filesets" implicit="yes"/>
         <sequential>
             <if>
@@ -915,11 +861,6 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
                     <jar update="true" destfile="@{destfile}">
                         <filesets/>
                     </jar>
-                    <if><equals arg1="@{sign}" arg2="true"/>
-                        <then>
-                            <signjar_password target="@{destfile}"/>
-                        </then>
-                    </if>
                 </then>
             </if>
         </sequential>
@@ -944,13 +885,13 @@ omero.version=${omero.version}
             </echo>
 
             <!-- Must update the jars with the modified omero.properties file in order for the version to be updated -->
-            <jar_update_if destfile="${dist.dir}/lib/server/blitz.jar" sign="false">
+            <jar_update_if destfile="${dist.dir}/lib/server/blitz.jar">
                 <fileset dir="${dist.dir}/etc" includes="omero.properties"/>
             </jar_update_if>
-            <jar_update_if destfile="${dist.dir}/lib/client/omero_client.jar" sign="false">
+            <jar_update_if destfile="${dist.dir}/lib/client/omero_client.jar">
                 <fileset dir="${dist.dir}/etc" includes="omero.properties"/>
             </jar_update_if>
-            <jar_update_if destfile="${dist.dir}/lib/insight/blitz.jar" sign="false">
+            <jar_update_if destfile="${dist.dir}/lib/insight/blitz.jar">
                 <fileset dir="${dist.dir}/etc" includes="omero.properties"/>
             </jar_update_if>
         </then>
@@ -998,14 +939,17 @@ omero.version=${omero.version}
     </target>
 
     <target name="webstart-sign">
-        <for param="target">
-            <path>
-                <fileset dir="${dist.dir}/lib/insight" includes="*.jar"/>
-            </path>
-            <sequential>
-                <signjar_password target="@{target}"/>
-            </sequential>
-        </for>
+        <exec executable="docs/hudson/omero_insight_sign.py">
+            <arg value="lib/keystore"/>
+            <arg value="omedev"/>
+            <arg value="${dist.dir}"/>
+            <arg value="-kp"/>
+            <arg value="omedev"/>
+            <arg value="-cp"/>
+            <arg value="omedev"/>
+            <arg value="-ts"/>
+            <arg value="no"/>
+        </exec>
     </target>
 
     <target name="webstart-verify">
@@ -1015,7 +959,17 @@ omero.version=${omero.version}
         </apply>
     </target>
 
-    <target name="release-webstart" depends="init" description="Generates webstart jars under dist/lib/insight">
+    <target name="release-webstart-signed" depends="init" description="Generates self-signed webstart jars under dist/lib/insight">
+        <mkdir dir="${dist.dir}/lib/insight"/>
+        <copy todir="${dist.dir}/lib/insight">
+            <fileset dir="components/insight/OUT/app/libs/" includes="*.jar"/>
+        </copy>
+        <copy file="components/insight/OUT/dist/omero.insight.jar" tofile="${dist.dir}/lib/insight/omero.insight.jar"/>
+        <copy file="components/insight/SRC/org/openmicroscopy/shoola/env/ui/graphx/omeabout-bk.png" tofile="${dist.dir}/lib/insight/ome.png"/>
+        <antcall target="webstart-sign" inheritRefs="true" inheritAll="true"/>
+    </target>
+
+    <target name="release-webstart-unsigned" depends="init" description="Generates unsigned webstart jars under dist/lib/insight">
         <mkdir dir="${dist.dir}/lib/insight"/>
         <copy todir="${dist.dir}/lib/insight">
             <fileset dir="components/insight/OUT/app/libs/" includes="*.jar"/>

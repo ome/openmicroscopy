@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowserControl 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -85,6 +85,7 @@ import pojos.ExperimenterData;
 import pojos.GroupData;
 import pojos.ImageData;
 import pojos.PlateAcquisitionData;
+import pojos.WellSampleData;
 
 /** 
  * The DataBrowser's Controller.
@@ -300,6 +301,15 @@ class DataBrowserControl
         case QuickSearch.UNCOMMENTED:
             view.setFilterLabel(SearchComponent.UNCOMMENTED_TEXT);
             model.filterByCommented(false);
+            break;
+        case QuickSearch.HAS_ROIS:
+            view.setFilterLabel(SearchComponent.HAS_ROIS_TEXT);
+            model.filterByROIs(true);
+            break;
+        case QuickSearch.NO_ROIS:
+            view.setFilterLabel(SearchComponent.NO_ROIS_TEXT);
+            model.filterByROIs(false);
+            break;
         }
     }
 
@@ -362,7 +372,8 @@ class DataBrowserControl
                 if (o instanceof DataObject) {
                     if (!(o instanceof GroupData ||
                             o instanceof ExperimenterData ||
-                            o instanceof PlateAcquisitionData)) {
+                            o instanceof PlateAcquisitionData ||
+                            o instanceof WellSampleData)) {
                         if (model.canChgrp(o)) {
                             data = (DataObject) o;
                             if (!owners.contains(data.getOwner().getId()))
@@ -504,7 +515,8 @@ class DataBrowserControl
             showAll();
         } else if (FilteringDialog.FILTER_PROPERTY.equals(name) ||
                 QuickFiltering.FILTER_TAGS_PROPERTY.equals(name)) {
-            model.filterByContext((FilterContext) evt.getNewValue());
+            FilterContext filter = (FilterContext) evt.getNewValue();
+            model.filterByContext(filter);
         } else if (FilteringDialog.LOAD_TAG_PROPERTY.equals(name) ||
                 QuickFiltering.TAG_LOADING_PROPERTY.equals(name)) {
             model.loadExistingTags();
