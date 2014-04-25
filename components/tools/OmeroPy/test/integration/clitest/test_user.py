@@ -59,7 +59,7 @@ class TestUser(CLITest):
     # ========================================================================
     @pytest.mark.parametrize("sort_key", sort_keys)
     @pytest.mark.parametrize("group_format", [None, "count", "long"])
-    def testList(self, capsys, sort_key, group_format, style):
+    def testList(self, capsys, sort_key, group_format):
         self.args += ["list"]
         if sort_key:
             self.args += ["--sort-by-%s" % sort_key]
