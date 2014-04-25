@@ -418,19 +418,29 @@ class TestSessions(object):
 
 class TestParseConn(object):
 
-    @pytest.mark.parametrize('name', [None, 'user'])
-    @pytest.mark.parametrize('user_prefix', ['', 'user@', '£ü@'])
+    @pytest.mark.parametrize('default_user', [None, 'default_user'])
+    def testEmptyString(self, default_user):
+        out_server, out_name, out_port = SessionsControl._parse_conn(
+            '', default_user)
+
+        assert not out_server
+        assert out_name == default_user
+        assert not out_port
+
+    @pytest.mark.parametrize('default_user', [None, 'default_user'])
+    @pytest.mark.parametrize('user_prefix', ['', 'user@', 'üser-1£@'])
     @pytest.mark.parametrize('server', ['localhost', 'server.domain'])
     @pytest.mark.parametrize('port_suffix', ['', ':4064', ':14064'])
-    def testParseConn(self, name, user_prefix, server, port_suffix):
+    def testConnectionString(self, default_user, user_prefix, server,
+                             port_suffix):
         in_server = '%s%s%s' % (user_prefix, server, port_suffix)
         out_server, out_name, out_port = SessionsControl._parse_conn(
-            in_server, name)
+            in_server, default_user)
         assert out_server == server
         if user_prefix:
             assert out_name == user_prefix[:-1]
         else:
-            assert out_name == name
+            assert out_name == default_user
         if port_suffix:
             assert out_port == port_suffix[1:]
         else:
