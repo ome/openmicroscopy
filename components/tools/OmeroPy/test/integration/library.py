@@ -258,15 +258,19 @@ class ITest(object):
     the file and then return the list of images.
     """
 
-    def importMIF(self, seriesCount, name=None, client=None,
-                  with_companion=False):
+    def importMIF(self, seriesCount=1, name=None, client=None,
+                  with_companion=False, **kwargs):
         if client is None:
             client = self.client
         if name is None:
             name = "importMIF"
+        if kwargs:
+            append = ""
+            for k, v in kwargs.items():
+                append += "&%s=%s" % (k, v)
 
         query = client.sf.getQueryService()
-        fake = create_path(name, "&series=%d.fake" % seriesCount)
+        fake = create_path(name, "&series=%d%s.fake" % (seriesCount, append))
         if with_companion:
             open(fake.abspath() + ".ini", "w")
         pixelIds = self.import_image(filename=fake.abspath(), client=client)
