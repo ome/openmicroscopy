@@ -298,8 +298,7 @@ user never had a password, one will need to be set!""")
         import omero
         import Ice
         try:
-            ildap.createUserFromLdap(args.username)
-            exp = iadmin.lookupExperimenter(args.username)
+            exp = ildap.createUserFromLdap(args.username)
             dn = iadmin.lookupLdapAuthExperimenter(exp.id.val)
             self.ctx.out("Added user %s (id=%s) with DN=%s" %
                          (exp.omeName.val, exp.id.val, dn))
