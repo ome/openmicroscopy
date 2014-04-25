@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.data.util.SecurityContext 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee & Open Microscopy Environment.
+ *  Copyright (C) 2006-2014 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
  *
  *
@@ -29,6 +29,7 @@ package omero.gateway.model;
 
 //Third-party libraries
 import com.google.common.base.Objects;
+
 
 //Application-internal dependencies
 import pojos.ExperimenterData;
@@ -69,7 +70,27 @@ public class SecurityContext
 		experimenter = null;
 	}
 	
+	
 	/**
+	 * Creates a new instance.
+	 * @param groupID The identifier of the group.
+	 * @param experimenter The experimenter.
+	 * @param host Server host
+	 * @param port Server port
+	 * @param compression compression factor
+	 */
+        public SecurityContext(long groupID, ExperimenterData experimenter,
+                String host, int port, float compression) {
+            super();
+            this.groupID = groupID;
+            this.experimenter = experimenter;
+            this.host = host;
+            this.port = port;
+            this.compression = compression;
+        }
+
+
+    /**
 	 * Sets the experimenter
 	 * 
 	 * @param experimenter The experimenter.

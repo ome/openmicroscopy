@@ -19,13 +19,7 @@
 
 package omero.gateway;
 
-import static omero.gateway.util.CmdUtil.REF_GROUP;
-import static omero.gateway.util.CmdUtil.createDeleteCommand;
-import static omero.gateway.util.GatewayUtils.SUPPORTED_SPECIAL_CHAR;
-import static omero.gateway.util.GatewayUtils.WILD_CARDS;
-import static omero.gateway.util.GatewayUtils.convertAnnotation;
-import static omero.gateway.util.GatewayUtils.convertPojos;
-import static omero.gateway.util.GatewayUtils.convertTypeForSearch;
+import static omero.gateway.util.GatewayUtils.*;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -1713,7 +1707,7 @@ public class Gateway extends ConnectionManager {
                             if (data instanceof ImageData) {
                                     images.put(data.getId(), l);
                             } else {
-                                    cmd = new Chgrp(createDeleteCommand(
+                                    cmd = new Chgrp(getReferenceName(
                                             data.getClass().getName()), data.getId(), options,
                                             target.getGroupID());
                                     commands.add(cmd);
@@ -1736,7 +1730,7 @@ public class Gateway extends ConnectionManager {
                                     fs = (FilesetData) kk.next();
                                     imageIds = fs.getImageIds();
                                     if (imageIds.size() > 0) {
-                                            cmd = new Chgrp(createDeleteCommand(
+                                            cmd = new Chgrp(getReferenceName(
                                                             FilesetData.class.getName()), fs.getId(),
                                                             options, target.getGroupID());
                                             commands.add(cmd);
@@ -1761,7 +1755,7 @@ public class Gateway extends ConnectionManager {
                             while (e.hasNext()) {
                                     ee = e.next();
                                     if (!all.contains(ee.getKey())) { //pre-fs data.
-                                            cmd = new Chgrp(createDeleteCommand(
+                                            cmd = new Chgrp(getReferenceName(
                                                             ImageData.class.getName()), ee.getKey(),
                                                             options, target.getGroupID());
                                             commands.add(cmd);

@@ -295,6 +295,8 @@ public class DataServicesFactory
         	int c2 = Integer.parseInt(valuesClient[1]);
         	if (s1 < c1) return false;
         	if (s2 != c2) return false;
+        	// TODO: This would allow a 4.1.0 client to connect to a 5.1.0 server,
+                // but not a 5.0.0 client to a 5.1.0 server. Is this really intended?
 		} catch (Exception e) {
 			//Record error
 			LogMessage msg = new LogMessage();
@@ -597,13 +599,19 @@ public class DataServicesFactory
                 clientVersion = (String) v;
             
         
-        ExperimenterData exp;
-        try {
-            exp = omeroGateway.connect(uc, clientName, clientVersion, determineCompression(uc.getSpeedLevel()));
-            compatible = true;
-        } catch (VersionMismatchException e1) {
-            notifyIncompatibility(e1.getClientVersion(), e1.getServerVersion(), uc.getHostName());
-            compatible = false;
+        ExperimenterData exp = omeroGateway.connect(uc, clientName, determineCompression(uc.getSpeedLevel()));
+        String version = omeroGateway.getServerVersion();
+        
+        Boolean versionCheck = checkClientServerCompatibility(version, clientVersion);
+        if(versionCheck == null) {
+            return;
+        }
+        else {
+            compatible = versionCheck.booleanValue();
+	}
+	
+        if(!compatible) {
+            notifyIncompatibility(clientVersion, version, uc.getHostName());
             return;
         }
         
@@ -615,8 +623,8 @@ public class DataServicesFactory
         //Register into log file.
         Map<String, String> info = ProxyUtil.collectOsInfoAndJavaVersion();
         LogMessage msg = new LogMessage();
-//        msg.println("Server version: "+version);
-//        msg.println("Client version: "+clientVersion);
+        msg.println("Server version: "+version);
+        msg.println("Client version: "+clientVersion);
         Entry<String, String> entry;
         Iterator<Entry<String, String>> k = info.entrySet().iterator();
         while (k.hasNext()) {

@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.data.login.UserCredentials
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -22,9 +22,6 @@
  */
 package omero.gateway.model;
 
-//Java imports
-//Third-party libraries
-//Application-internal dependencies
 
 /**
  * Holds the user's credentials for logging onto <i>OMERO</i>.

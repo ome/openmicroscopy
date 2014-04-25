@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.data.ImportException 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -21,22 +21,6 @@
  *------------------------------------------------------------------------------
  */
 package org.openmicroscopy.shoola.env.data;
-
-
-
-//Java imports
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-
-import ome.conditions.ResourceError;
-import omero.ChecksumValidationException;
-
-//Third-party libraries
-import loci.formats.FormatException;
-import loci.formats.UnsupportedCompressionException;
-
-//Application-internal dependencies
 
 /** 
  * Reports an error occurred while importing an image.

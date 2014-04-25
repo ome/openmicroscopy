@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.data.NullRenderingService
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -41,7 +41,6 @@ import javax.swing.filechooser.FileSystemView;
 //Third-party libraries
 import com.sun.opengl.util.texture.TextureData;
 
-import omero.api.StatefulServiceInterfacePrx;
 import omero.api.ThumbnailStorePrx;
 import omero.gateway.model.ExportFormat;
 //Application-internal dependencies

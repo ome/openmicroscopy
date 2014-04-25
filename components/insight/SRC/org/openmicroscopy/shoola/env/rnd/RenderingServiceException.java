@@ -23,15 +23,6 @@
 
 package org.openmicroscopy.shoola.env.rnd;
 
-
-//Java imports
-import java.io.PrintWriter;
-import java.io.StringWriter;
-
-//Third-party libraries
-
-//Application-internal dependencies
-
 /** 
  * Reports an error occurred while trying to render a plane.
  *

@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.data.DSAccessException
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -22,12 +22,6 @@
  */
 
 package org.openmicroscopy.shoola.env.data;
-
-//Java imports
-
-//Third-party libraries
-
-//Application-internal dependencies
 
 /** 
  * Reports an error occurred while trying to pull out data from the server.

@@ -115,9 +115,9 @@ public class Connector {
             .getName());
 
     /**
-     * The elapsed time before checking if the services need to be kept alive.
+     * The default elapsed time before checking if the services need to be kept alive.
      */
-    private final int ELAPSED_TIME = 30000;
+    private final static int DEFAULT_ELAPSE_TIME = 30000;
 
     /** Keeps track of the last keep alive action. */
     private final AtomicLong lastKeepAlive = new AtomicLong(
@@ -198,6 +198,25 @@ public class Connector {
      *            The entry point to access the various services.
      * @param encrypted
      *            The entry point to access the various services.
+     * @throws Throwable
+     *             Thrown if entry points cannot be initialized.
+     */
+    Connector(SecurityContext context, client secureClient,
+            ServiceFactoryPrx entryEncrypted, boolean encrypted) throws Throwable {
+        this(context, secureClient, entryEncrypted, encrypted, DEFAULT_ELAPSE_TIME);
+    }
+    
+    /**
+     * Creates a new instance.
+     * 
+     * @param context
+     *            The context hosting information about the user.
+     * @param secureClient
+     *            The entry point to server.
+     * @param entryEncrypted
+     *            The entry point to access the various services.
+     * @param encrypted
+     *            The entry point to access the various services.
      * @param logger
      *            Reference to the logger.
      * @param elapseTime
@@ -207,15 +226,13 @@ public class Connector {
      */
     Connector(SecurityContext context, client secureClient,
             ServiceFactoryPrx entryEncrypted, boolean encrypted,
-            Integer elapseTime) throws Throwable {
+            int elapseTime) throws Throwable {
         if (context == null)
             throw new IllegalArgumentException("No Security context.");
         if (secureClient == null)
             throw new IllegalArgumentException("No Server entry point.");
         if (entryEncrypted == null)
             throw new IllegalArgumentException("No Services entry point.");
-        if (elapseTime == null || elapseTime.intValue() <= 0)
-            elapseTime = ELAPSED_TIME;
         this.elapseTime = elapseTime;
         if (!encrypted) {
             unsecureClient = secureClient.createClient(false);

@@ -22,18 +22,7 @@
  */
 package org.openmicroscopy.shoola.env.data.util;
 
-
-
-//Java imports
-import java.sql.Timestamp;
 import java.util.List;
-
-
-//Third-party libraries
-
-
-//Application-internal dependencies
-import pojos.ExperimenterData;
 
 /** 
  * Helper class hosting the context of a data search.

@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.data.events.ReloadRenderingEngine 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2011 University of Dundee & Open Microscopy Environment.
+ *  Copyright (C) 2006-2014 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
  *
  *
@@ -34,7 +34,7 @@ import java.util.Map;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+import omero.gateway.model.SecurityContext;
 import org.openmicroscopy.shoola.env.event.RequestEvent;
 
 /** 
@@ -56,14 +56,14 @@ public class ReloadRenderingEngine
 {
 
 	/** The pixels for which the rendering engine could not be reloaded.*/
-	private Map<omero.gateway.model.SecurityContext, List<Long>> pixels;
+	private Map<SecurityContext, List<Long>> pixels;
 	
 	/**
 	 * Creates a new instance.
 	 * 
 	 * @param pixels The pixels to handle.
 	 */
-	public ReloadRenderingEngine(Map<omero.gateway.model.SecurityContext, List<Long>> pixels)
+	public ReloadRenderingEngine(Map<SecurityContext, List<Long>> pixels)
 	{
 		this.pixels = pixels;
 	}
@@ -73,7 +73,7 @@ public class ReloadRenderingEngine
 	 * 
 	 * @return See above.
 	 */
-	public Map<omero.gateway.model.SecurityContext, List<Long>> getPixels() { return pixels; }
+	public Map<SecurityContext, List<Long>> getPixels() { return pixels; }
 	
 	/**
 	 * Returns the re-activated images.

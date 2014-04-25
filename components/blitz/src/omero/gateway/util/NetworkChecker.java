@@ -108,6 +108,9 @@ public class NetworkChecker {
      * Returns <code>true</code> if the network is still up, otherwise throws an
      * <code>UnknownHostException</code>. This tests if the adapter is ready.
      * 
+     * @param useCachedValue
+     *            Uses the result of the last check instead of really performing the test if
+     *            the last check is not older than 5 sec
      * @return See above.
      * @throws Exception
      *             Thrown if the network is down.

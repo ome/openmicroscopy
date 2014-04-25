@@ -19,6 +19,12 @@
 
 package omero.gateway.model;
 
+/**
+ * Indicates wether a image should be exported as OME Tiff or OME XML.
+ * 
+ * @author Dominik Lindner &nbsp;&nbsp;&nbsp;&nbsp; <a
+ *  href="mailto:d.lindner@dundee.ac.uk">d.lindner@dundee.ac.uk</a>
+ */
 public enum ExportFormat {
     OME_TIFF, OME_XML
 }

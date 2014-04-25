@@ -28,7 +28,6 @@ package org.openmicroscopy.shoola.env.data;
 import java.io.File;
 import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;

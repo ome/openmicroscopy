@@ -126,7 +126,6 @@ import omero.cmd.Request;
 import omero.constants.projection.ProjectionType;
 import omero.gateway.Connector;
 import omero.gateway.Gateway;
-import omero.gateway.exception.VersionMismatchException;
 import omero.gateway.model.ExportFormat;
 import omero.grid.BoolColumn;
 import omero.grid.Column;
@@ -372,9 +371,6 @@ class OMEROGateway
 
 	/** Keep track of the file system view. */
 	private Map<Long, FSFileSystemView> fsViews;
-
-	/** The version of the server the user is currently logged to.*/
-	private String serverVersion; // TODO: remove?
 
 	private Gateway gateway = new Gateway();
 
@@ -1295,20 +1291,16 @@ class OMEROGateway
 	    return check.isUpgradeNeeded();
 	}
 	
-	public ExperimenterData connect(UserCredentials uc, String agentName, String clientVersion, float compression) throws DSOutOfServiceException, VersionMismatchException {
-            return connect(uc, agentName, clientVersion, compression, false);
-        }
 	
-	public ExperimenterData connect(UserCredentials uc, String agentName, String clientVersion, float compression, boolean skipVersionCheck) throws DSOutOfServiceException, VersionMismatchException {
+	public ExperimenterData connect(UserCredentials uc, String agentName, float compression) throws DSOutOfServiceException {
 	    // connect to the gateway
 	    try {
-                return gateway.connect(uc, agentName, clientVersion, compression, skipVersionCheck);
+                return gateway.connect(uc, agentName, compression);
             } catch (omero.gateway.exception.DSOutOfServiceException e) {
                 throw new DSOutOfServiceException(e);
             }
         }
 	
-
 	/**
 	 * Retrieves the system view hosting the repositories.
 	 *
@@ -1403,8 +1395,8 @@ class OMEROGateway
 		throws DSOutOfServiceException
 	{
 		try {
-			return serverVersion;
-		} catch (Exception e) {
+			return gateway.getServerVersion();
+		} catch (omero.gateway.exception.DSOutOfServiceException e) {
 			handleConnectionException(e);
 			String s = "Can't retrieve the server version.\n\n";
 			s += printErrorText(e);

@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.data.FSAccessException 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -21,12 +21,6 @@
  *------------------------------------------------------------------------------
  */
 package org.openmicroscopy.shoola.env.data;
-
-//Java imports
-
-//Third-party libraries
-
-//Application-internal dependencies
 
 /** 
  * Reports an error occurred while trying to interact w/ the File System.

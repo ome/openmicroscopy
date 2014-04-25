@@ -40,7 +40,6 @@ import omero.api.IAdminPrx;
 import omero.api.ServiceFactoryPrx;
 import omero.gateway.exception.DSAccessException;
 import omero.gateway.exception.DSOutOfServiceException;
-import omero.gateway.exception.VersionMismatchException;
 import omero.gateway.model.SecurityContext;
 import omero.gateway.model.UserCredentials;
 import omero.gateway.util.ConnectionExceptionHandler;
@@ -63,6 +62,8 @@ import com.google.common.collect.Multimaps;
  * Manages all the connection related stuff for the Gateway: Session creation,
  * keep alive, etc.
  * 
+ * TODO: Is not yet capable of handling connections to different servers!
+ *  
  * Should not be instantiated directly, therefore abstract.
  * 
  * @author Dominik Lindner &nbsp;&nbsp;&nbsp;&nbsp; <a
@@ -73,16 +74,24 @@ public abstract class ConnectionManager {
     private Logger log = LoggerFactory.getLogger(ConnectionManager.class
             .getName());
 
+    /** Checks if the network is alive */
     private NetworkChecker networkChecker;
 
+    /** Indicates if the session is encrypted */
     private boolean encrypted = true;
 
+    /** Indicates if a session was created and the user is logged in */
     private boolean connected = false;
 
+    
     private int elapseTime = -1;
 
+    /** The user credentials of the logged in user */
     private UserCredentials userCredentials;
 
+    /** The server version the user is connected to */
+    private String serverVersion = null;
+    
     /**
      * Flag used during reconnecting process if a connection failure occurred.
      */
@@ -127,13 +136,11 @@ public abstract class ConnectionManager {
      * @see #getUserDetails(String) TODO: could be refactored to return a
      *      Connector for later use in login()
      */
-    private client createSession(UserCredentials uc, String agentName,
-            String clientVersion, boolean skipVersionCheck)
-            throws DSOutOfServiceException, VersionMismatchException {
+    private client createSession(UserCredentials uc, String agentName)
+            throws DSOutOfServiceException {
         this.encrypted = uc.isEncrypted();
         this.userCredentials = uc;
         client secureClient = null;
-        String serverVersion = null;
         try {
             // client must be cleaned up by caller.
             if (uc.getPort() > 0)
@@ -164,10 +171,6 @@ public abstract class ConnectionManager {
             throw new DSOutOfServiceException(s, e);
         }
 
-        if (!skipVersionCheck) {
-            checkClientServerCompatibility(serverVersion, clientVersion);
-        }
-
         Runnable r = new Runnable() {
             public void run() {
 
@@ -187,21 +190,20 @@ public abstract class ConnectionManager {
         return secureClient;
     }
 
-    public ExperimenterData connect(UserCredentials uc, String agentName,
-            String clientVersion, float compression)
-            throws DSOutOfServiceException, VersionMismatchException {
-        return connect(uc, agentName, clientVersion, compression, false);
-    }
-
-    public ExperimenterData connect(UserCredentials uc, String agentName,
-            String clientVersion, float compression, boolean skipVersionCheck)
-            throws DSOutOfServiceException, VersionMismatchException {
-        client client = createSession(uc, agentName, clientVersion,
-                skipVersionCheck);
+    public ExperimenterData connect(UserCredentials uc, String agentName, float compression)
+            throws DSOutOfServiceException {
+        client client = createSession(uc, agentName);
         return login(client, uc.getUserName(), uc.getHostName(), compression,
                 uc.getGroup(), uc.getPort());
     }
 
+    public String getServerVersion() throws DSOutOfServiceException{
+        if(serverVersion==null) {
+            throw new DSOutOfServiceException("Not logged in.");
+        }
+        return serverVersion;
+    }
+    
     /**
      * Tries to connect to <i>OMERO</i> and log in by using the supplied
      * credentials. The <code>createSession</code> method must be invoked
@@ -662,59 +664,12 @@ public abstract class ConnectionManager {
     }
 
     /**
-     * Checks if the client's version is compatible to the server
+     * Checks if the network interface is up.
      * 
-     * @param server
-     *            The server version
-     * @param client
-     *            The client version
-     * @throws VersionMismatchException
-     */
-    private void checkClientServerCompatibility(String server, String client)
-            throws VersionMismatchException {
-        if (server == null || client == null)
-            throw new VersionMismatchException(
-                    "No version information provided");
-
-        if (client.startsWith("@"))
-            return;
-
-        if (server.contains("-"))
-            server = server.split("-")[0];
-        if (client.contains("-"))
-            client = client.split("-")[0];
-        String[] values = server.split("\\.");
-        String[] valuesClient = client.split("\\.");
-        if (values.length < 2 || valuesClient.length < 2)
-            throw new VersionMismatchException(
-                    "Invalid version information provided");
-        ;
-        int s1, s2, c1, c2;
-        try {
-            s1 = Integer.parseInt(values[0]);
-            s2 = Integer.parseInt(values[1]);
-            c1 = Integer.parseInt(valuesClient[0]);
-            c2 = Integer.parseInt(valuesClient[1]);
-        } catch (Exception e) {
-            String msg = "Client server compatibility";
-            msg += "\n" + printErrorText(e);
-            log.debug(msg);
-            throw new VersionMismatchException("Could not check versions");
-        }
-
-        // TODO: This would allow a 4.1.0 client to connect to a 5.1.0 server,
-        // but not a 5.0.0 client to a 5.1.0 server. Is this really intended?
-        if (s1 < c1)
-            throw new VersionMismatchException(client, server);
-        if (s2 != c2)
-            throw new VersionMismatchException(client, server);
-    }
-
-    /**
-     * Checks if the network is up.
-     * 
+     * @param useCachedValue
+     *            Uses the result of the last check instead of really performing
+     *            the test if the last check is not older than 5 sec
      * @throws Exception
-     *             Throw
      */
     public void isNetworkUp(boolean useCachedValue) throws Exception {
         try {
@@ -753,10 +708,19 @@ public abstract class ConnectionManager {
         }
     }
 
+    /**
+     * 
+     * @return <code>true</code> if a session has been created and a user is logged in, <code>false</code> otherwise
+     */
     public boolean isConnected() {
         return this.connected;
     }
 
+    /**
+     * 
+     * @return <code>true</code> if the network is accessable, <code>false</code> otherwise
+     * @throws Exception
+     */
     public boolean isAvailable() throws Exception {
         if (networkChecker == null) {
             return false;

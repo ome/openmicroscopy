@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.util.ui.ShutDownDialog
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2012 University of Dundee & Open Microscopy Environment.
+ *  Copyright (C) 2006-2014 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
  *
  *
@@ -24,22 +24,16 @@
 package org.openmicroscopy.shoola.util.ui;
 
 
-
 //Java imports
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.Timer;
 
-//Third-party libraries
-
-
+//Application-internal dependencies
 import omero.gateway.Gateway;
 
-//Application-internal dependencies
-import org.openmicroscopy.shoola.util.NetworkChecker;
 
 /**
  *  Window uses to let the user know the time before the application will shut

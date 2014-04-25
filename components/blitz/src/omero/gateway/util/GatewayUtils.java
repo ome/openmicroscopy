@@ -76,6 +76,7 @@ import pojos.PixelsData;
 import pojos.PlateAcquisitionData;
 import pojos.PlateData;
 import pojos.ProjectData;
+import pojos.ROIData;
 import pojos.RatingAnnotationData;
 import pojos.ScreenData;
 import pojos.TagAnnotationData;
@@ -96,6 +97,40 @@ public abstract class GatewayUtils {
 
     /** Identifies the count property. */
     public static final String IMAGES_PROPERTY = "images";
+    
+    /** Identifies the fileset as root. */
+    public static final String REF_FILESET = "/Fileset";
+
+    /** Identifies the image as root. */
+    public static final String REF_IMAGE = "/Image";
+
+    /** Identifies the dataset as root. */
+    public static final String REF_DATASET = "/Dataset";
+
+    /** Identifies the project as root. */
+    public static final String REF_PROJECT = "/Project";
+
+    /** Identifies the screen as root. */
+    public static final String REF_SCREEN = "/Screen";
+
+    /** Identifies the plate as root. */
+    public static final String REF_PLATE = "/Plate";
+
+    /** Identifies the ROI as root. */
+    public static final String REF_ROI = "/Roi";
+
+    /** Identifies the PlateAcquisition as root. */
+    public static final String REF_PLATE_ACQUISITION = "/PlateAcquisition";
+
+    /** Identifies the PlateAcquisition as root. */
+    public static final String REF_WELL = "/Well";
+
+    /** Identifies the Tag. */
+    public static final String REF_ANNOTATION = "/Annotation";
+    
+    /** Identifies the group. */
+    public static final String REF_GROUP = "/ExperimenterGroup";
+    
     
     /** The collection of escaping characters we allow in the search. */
     public static final List<Character>    SUPPORTED_SPECIAL_CHAR;
@@ -398,6 +433,35 @@ public abstract class GatewayUtils {
                     table = "PlateAcquisitionAnnotationLink";
             return table;
     }
+    
+    /**
+     * Creates the string corresponding to the object to delete.
+    *
+    * @param data The object to handle.
+    * @return See above.
+    */
+    public static String getReferenceName(String dataObjectName)
+   {
+           if (ImageData.class.getName().equals(dataObjectName)) return REF_IMAGE;
+           else if (DatasetData.class.getName().equals(dataObjectName)) return REF_DATASET;
+           else if (ProjectData.class.getName().equals(dataObjectName)) return REF_PROJECT;
+           else if (ScreenData.class.getName().equals(dataObjectName)) return REF_SCREEN;
+           else if (PlateData.class.getName().equals(dataObjectName)) return REF_PLATE;
+           else if (ROIData.class.getName().equals(dataObjectName)) return REF_ROI;
+           else if (PlateAcquisitionData.class.getName().equals(dataObjectName))
+                   return REF_PLATE_ACQUISITION;
+           else if (FilesetData.class.getName().equals(dataObjectName)) return REF_FILESET;
+           else if (WellData.class.getName().equals(dataObjectName))
+                   return REF_WELL;
+           else if (PlateAcquisitionData.class.getName().equals(dataObjectName))
+                   return REF_PLATE_ACQUISITION;
+           else if (TagAnnotationData.class.getName().equals(dataObjectName) ||
+                           TermAnnotationData.class.getName().equals(dataObjectName) ||
+                           FileAnnotationData.class.getName().equals(dataObjectName) ||
+                           TextualAnnotationData.class.getName().equals(dataObjectName))
+                   return REF_ANNOTATION;
+           throw new IllegalArgumentException("Cannot delete the speficied type.");
+   }
     
     
 }
