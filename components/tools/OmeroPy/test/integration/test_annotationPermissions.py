@@ -365,3 +365,20 @@ class TestReadAnnotateGroup(AnnotationPermissions):
                 # Link should still be there
                 tag = self.getTagViaLinkAs(creator, self.project[creator])
                 assert tag.getTextValue().getValue() == self.tag_text
+
+
+class TestMovePrivatePermissions(AnnotationPermissions):
+
+    def setup_method(self, method):
+        AnnotationPermissions.setup_method(self, method, 'rwra--')
+
+    def testAddTagMakePrivate(self):
+        """ see ticket:11479 """
+        project = self.createProjectAs("member1")
+        tag = self.createTagAs("member2")
+        self.linkTagAs("member1", project, tag)
+        self.chmodGroupAs("owner", "rw----")
+        # Check reading
+        self.getTagLinkAs("member1", project)
+        self.getTagViaLinkAs("member1", project)
+        self.getTagAs("member1", tag.id.val)
