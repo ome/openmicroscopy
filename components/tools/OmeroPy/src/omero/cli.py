@@ -166,7 +166,7 @@ class Parser(ArgumentParser):
         self.add_argument(
             "--style", help=
             "Use alternative output style",
-            choices=list_styles(), type=find_style)
+            choices=list_styles())
 
     def add_login_arguments(self):
         group = self.add_argument_group('Login arguments',

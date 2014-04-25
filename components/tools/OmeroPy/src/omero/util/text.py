@@ -86,7 +86,7 @@ class StyleRegistry(dict):
 STYLE_REGISTRY = StyleRegistry()
 
 
-def find_style(style):
+def find_style(style, error_strategy=None):
     """
     Lookup method for well-known styles by name.
     None may be returned.
@@ -94,14 +94,19 @@ def find_style(style):
     if isinstance(style, Style):
         return style
     else:
-        return STYLE_REGISTRY.get(style, None)
+        if error_strategy == "pass-through":
+            return STYLE_REGISTRY.get(style, style)
+        elif error_strategy == "throw":
+            return STYLE_REGISTRY[style]
+        else:
+            return STYLE_REGISTRY.get(style, None)
 
 
 def list_styles():
     """
     List the styles that are known by find_style
     """
-    return STYLE_REGISTRY.values()
+    return STYLE_REGISTRY.keys()
 
 
 class TableBuilder(object):
