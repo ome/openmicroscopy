@@ -618,7 +618,8 @@ class SessionsControl(BaseControl):
     # Private methods
     #
 
-    def _parse_conn(self, server, name):
+    @staticmethod
+    def _parse_conn(server, name):
         import re
         pat = '^((.+)@)?(.*?)(:(.*))?$'
         match = re.match(pat, server)
