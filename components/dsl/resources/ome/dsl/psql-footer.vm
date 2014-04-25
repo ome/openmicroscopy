@@ -428,7 +428,6 @@ update pixelstype set bitsize = 8 where value = 'uint8';
 update pixelstype set bitsize = 16 where value = 'int16';
 update pixelstype set bitsize = 16 where value = 'uint16';
 update pixelstype set bitsize = 32 where value = 'int32';
-update pixelstype set bitsize = 32 where value = 'uint16';
 update pixelstype set bitsize = 32 where value = 'uint32';
 update pixelstype set bitsize = 32 where value = 'float';
 update pixelstype set bitsize = 64 where value = 'double';

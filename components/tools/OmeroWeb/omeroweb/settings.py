@@ -134,9 +134,11 @@ event = get_event("websettings")
 
 while True:
     try:
-        CONFIG_XML = omero.config.ConfigXml(CONFIG_XML, read_only=True)
-        CUSTOM_SETTINGS = CONFIG_XML.as_map()
-        CONFIG_XML.close()
+        CUSTOM_SETTINGS = dict()
+        if os.path.exists(CONFIG_XML):
+            CONFIG_XML = omero.config.ConfigXml(CONFIG_XML, read_only=True)
+            CUSTOM_SETTINGS = CONFIG_XML.as_map()
+            CONFIG_XML.close()
         break
     except LockException:
         #logger.error("Exception while loading configuration retrying...", exc_info=True)
@@ -324,7 +326,7 @@ DEVELOPMENT_SETTINGS_MAPPINGS = {
     
     # Rename Orphans in data manager; default: '{"NAME":"Orphaned images", "DESCRIPTION":"This is a virtual container with orphaned images. These images are not linked anywhere. Just drag them to the selected container."}'
     "omero.web.ui.tree.orphaned": ["UI_TREE_ORPHANED",'{"NAME":"Orphaned images", "DESCRIPTION":"This is a virtual container with orphaned images. These images are not linked anywhere. Just drag them to the selected container."}', json.loads],
-    
+    "omero.web.webstart_admins_only": ["WEBSTART_ADMINS_ONLY", "false", parse_boolean],
 }
 
 def process_custom_settings(module, settings='CUSTOM_SETTINGS_MAPPINGS'):

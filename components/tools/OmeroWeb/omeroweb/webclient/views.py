@@ -544,6 +544,8 @@ def load_searching(request, form=None, conn=None, **kwargs):
     """
 
     manager = BaseSearch(conn)
+
+    foundById = []
     # form = 'form' if we are searching. Get query from request...
     if form is not None:
         query_search = request.REQUEST.get('query').replace("+", " ")
@@ -577,6 +579,18 @@ def load_searching(request, form=None, conn=None, **kwargs):
 
         # search is carried out and results are stored in manager.containers.images etc.
         manager.search(query_search, onlyTypes, date)
+
+        try:
+            searchById = long(query_search)
+            for t in onlyTypes:
+                t = t[0:-1] # remove 's'
+                if t in ('project', 'dataset', 'image', 'screen', 'plate'):
+                    obj = conn.getObject(t, searchById)
+                    if obj is not None:
+                        foundById.append({'otype': t, 'obj': obj})
+        except ValueError:
+            pass
+
     else:
         # simply display the search home page.
         template = "webclient/search/search.html"
@@ -591,7 +605,7 @@ def load_searching(request, form=None, conn=None, **kwargs):
         template = "webclient/search/search_details.html"
         manager.batch_search(batch_query)
 
-    context = {'manager':manager}
+    context = {'manager':manager, 'foundById': foundById}
     context['template'] = template
     return context
 

@@ -39,6 +39,7 @@ import javax.swing.JMenuItem;
 import org.apache.commons.collections.CollectionUtils;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.importer.LoadImporter;
+import org.openmicroscopy.shoola.agents.events.treeviewer.ActivitiesEvent;
 import org.openmicroscopy.shoola.agents.events.treeviewer.BrowserSelectionEvent;
 import org.openmicroscopy.shoola.agents.events.treeviewer.ChangeUserGroupEvent;
 import org.openmicroscopy.shoola.agents.events.treeviewer.DisplayModeEvent;
@@ -282,9 +283,21 @@ public class ImporterAgent
      */
     private void handleDisplayModeEvent(DisplayModeEvent evt)
     {
+        if (evt == null) return;
         displayMode = evt.getDisplayMode();
         Environment env = (Environment) registry.lookup(LookupNames.ENV);
         if (!env.isServerAvailable()) return;
+        ImporterFactory.setDiplayMode(displayMode);
+    }
+
+    /**
+     * Updates the view when the mode is changed.
+     * 
+     * @param evt The event to handle.
+     */
+    private void handleActivitiesEvent(ActivitiesEvent evt)
+    {
+        if (evt == null) return;
         ImporterFactory.setDiplayMode(displayMode);
     }
 
@@ -394,6 +407,7 @@ public class ImporterAgent
         bus.register(this, ExperimenterLoadedDataEvent.class);
         bus.register(this, ChangeUserGroupEvent.class);
         bus.register(this, DisplayModeEvent.class);
+        bus.register(this, ActivitiesEvent.class);
         browserType = getDefaultBrowser();
         groupId = -1;
         register();
@@ -444,8 +458,11 @@ public class ImporterAgent
         } else if (e instanceof ChangeUserGroupEvent) {
             ChangeUserGroupEvent evt = (ChangeUserGroupEvent) e;
             groupId = evt.getGroupID();
-        } else if (e instanceof DisplayModeEvent)
+        } else if (e instanceof DisplayModeEvent) {
             handleDisplayModeEvent((DisplayModeEvent) e);
+        } else if (e instanceof ActivitiesEvent) {
+            handleActivitiesEvent((ActivitiesEvent) e);
+        }
     }
 
 }

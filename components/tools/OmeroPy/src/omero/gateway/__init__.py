@@ -36,6 +36,7 @@ import traceback
 import time
 import array
 import math
+from decimal import Decimal
 
 from gettext import gettext as _
 
@@ -6974,6 +6975,14 @@ class _ImageWrapper (BlitzObjectWrapper):
         rdid = self._getRDef()
         if rdid is not None:
             args.append('RenderingDef_ID=%d' % rdid)
+
+        # Lets prepare the channel settings
+        channels = self.getChannels()
+        args.append('ChannelsExtended=%s' % (','.join(["%d|%s:%s$%s" % (x._idx+1,
+                                                                Decimal(str(x.getWindowStart())),
+                                                                Decimal(str(x.getWindowEnd())),
+                                                                x.getColor().getHtml())
+                                     for x in channels if x.isActive()])))
 
         watermark = opts.get('watermark', None)
         logger.debug('watermark: %s' % watermark)

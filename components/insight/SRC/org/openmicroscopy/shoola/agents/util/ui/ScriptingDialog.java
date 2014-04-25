@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.metadata.util.ScriptingDialog 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -208,7 +208,7 @@ public class ScriptingDialog
         DataObject object = refObjects.get(0);
         Class<?> klass = object.getClass();
         Class<?> c;
-        int selected = 0;
+        int selected = dataTypes.getSelectedIndex();
         for (int i = 0; i < dataTypes.getItemCount(); i++) {
             c = script.convertDataType(dataTypes.getItemAt(i).toString());
             if (klass.equals(c)) {
@@ -343,13 +343,16 @@ public class ScriptingDialog
         Object[] v = new Object[values.size()];
         Iterator<Object> i = values.iterator();
         int j = 0;
+        int index = 0;
         while (i.hasNext()) {
             v[j] = i.next();
+            if (v[j].equals(defValue)) {
+                index = j;
+            }
             j++;
         }
         JComboBox box = new JComboBox(v);
-        if (defValue != null)
-            box.setSelectedItem(defValue);
+        box.setSelectedIndex(index);
         return box;
     }
 
@@ -413,7 +416,7 @@ public class ScriptingDialog
             type = param.getPrototype();
             values = param.getValues();
             defValue = param.getDefaultValue();
-            if (values != null && values.size() > 0) {
+            if (CollectionUtils.isNotEmpty(values)) {
                 comp = createValuesBox(values, defValue);
             }
             if (Long.class.equals(type) || Integer.class.equals(type) ||

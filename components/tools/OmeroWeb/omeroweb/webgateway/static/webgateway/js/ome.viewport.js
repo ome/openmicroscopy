@@ -4,7 +4,7 @@
  * Depends on jquery, jquery-plugin-viewportImage, gs_utils, gs_slider
  * Uses weblitz.css
  *
- * Copyright (c) 2007, 2008, 2009 Glencoe Software, Inc. All rights reserved.
+ * Copyright (c) 2007-2014 Glencoe Software, Inc. All rights reserved.
  *
  * This software is distributed under the terms described by the LICENCE file
  * you can find at the root of the distribution bundle, which states you are
@@ -306,6 +306,7 @@ jQuery._WeblitzViewport = function (container, server, options) {
           init_zoom = _this.loadedImg.init_zoom,
           zoom_levels = _this.loadedImg.levels,
           zoomLevelScaling = _this.loadedImg.zoomLevelScaling;  // may be 'undefined'
+          nominalMagnification = _this.loadedImg.nominalMagnification;  // may be 'undefined'
           // If zm set in query, see if this is a supported zoom level
           if (typeof _this.loadedImg.query_zoom != "undefined") {
             var query_zm = _this.loadedImg.query_zoom / 100;
@@ -330,7 +331,7 @@ jQuery._WeblitzViewport = function (container, server, options) {
               init_zoom--;
             }
           }
-        _this.viewportimg.get(0).setUpTiles(img_w, img_h, tile_w, tile_h, init_zoom, zoom_levels, hrefProvider, thref, cx, cy, zoomLevelScaling);
+        _this.viewportimg.get(0).setUpTiles(img_w, img_h, tile_w, tile_h, init_zoom, zoom_levels, hrefProvider, thref, cx, cy, zoomLevelScaling, nominalMagnification);
     }
 
 
