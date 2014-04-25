@@ -59,9 +59,20 @@ class PlainStyle(Style):
     def format(self, width, align):
         return '%s'
 
+    def _write_row(self, table, i):
+        try:
+            import csv
+            import StringIO
+            output = StringIO.StringIO()
+            writer = csv.writer(output)
+            writer.writerow(table.get_row(i))
+            return output.getvalue()
+        except Exception:
+            return self.SEPARATOR.join(table.get_row(i))
+
     def get_rows(self, table):
         for i in range(0, table.length):
-            yield self.SEPARATOR.join(table.get_row(i))
+            yield self._write_row(table, i)
 
 
 class CSVStyle(PlainStyle):
