@@ -30,7 +30,7 @@ class SQLStyle(Style):
     SEPARATOR = "|"
 
     def width(self, name, decoded_data):
-        return max(len(x) for x in decorded_data + [name])
+        return max(len(x) for x in decoded_data + [name])
 
     def format(self, width, align):
         return ' %%%s%ds ' % (align, width)
