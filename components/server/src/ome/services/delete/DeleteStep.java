@@ -91,12 +91,14 @@ public class DeleteStep extends GraphStep {
             filesetId = (Long) fsQb.query(session).uniqueResult();
         }
 
-        // Delete any map property entries so that the holder can then be deleted.
-        final Object proxy = session.createQuery("FROM " + iObjectType.getName() + " WHERE id = " + id).uniqueResult();
-        if (proxy != null) {
-            final Class<?> realClass = Hibernate.getClass(proxy);
-            for (final String property : em.getMapProperties(realClass.getName())) {
-                sql.deleteMapProperty(realClass.getSimpleName(), property, id);
+        if (em.mayHaveMapProperties(iObjectType)) {
+            // Delete any map property entries so that the holder can then be deleted.
+            final Object proxy = session.createQuery("FROM " + iObjectType.getName() + " WHERE id = " + id).uniqueResult();
+            if (proxy != null) {
+                final Class<?> realClass = Hibernate.getClass(proxy);
+                for (final String property : em.getMapProperties(realClass.getName())) {
+                    sql.deleteMapProperty(realClass.getSimpleName(), property, id);
+                }
             }
         }
 
