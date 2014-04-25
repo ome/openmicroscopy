@@ -22,6 +22,9 @@ import time
 import logging
 import portalocker
 
+# To avoid conflict with omero.sys
+sys = __import__("sys")
+
 import xml.dom.minidom
 
 from xml.etree.ElementTree import XML, Element, SubElement, Comment, ElementTree, tostring
@@ -102,6 +105,7 @@ class ConfigXml(object):
 
         self.source.seek(0)
         text = self.source.read()
+        self.source.close()
 
         if text:
             self.XML = XML(text)
@@ -277,12 +281,13 @@ class ConfigXml(object):
         temp_file = path.path(self.filename + ".temp")
         try:
             temp_file.write_text(self.element_to_xml(icegrid))
+            if sys.platform == "win32":
+                os.remove(self.filename)
             temp_file.rename(self.filename)
             try:
                 self._close_lock()
             except:
                 self.logger.error("Failed to close lock", exc_info=1)
-            self.open_source()
         except Exception, e:
             try:
                 temp_file.remove()
