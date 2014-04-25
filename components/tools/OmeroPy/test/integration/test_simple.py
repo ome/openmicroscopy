@@ -1,24 +1,32 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+#
+# Copyright (C) 2008-2014 Glencoe Software, Inc. All Rights Reserved.
+# Use is subject to license terms supplied in LICENSE.txt
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
 """
    Simple integration test which makes various calls on the
    a running server.
 
-   Copyright 2008-2013 Glencoe Software, Inc. All rights reserved.
-   Use is subject to license terms supplied in LICENSE.txt
-
 """
 
 import test.integration.library as lib
-import omero
-from omero_model_PixelsI import PixelsI
-from omero_model_ImageI import ImageI
-from omero_model_DatasetI import DatasetI
-from omero_model_ExperimenterI import ExperimenterI
-from omero_model_ExperimenterGroupI import ExperimenterGroupI
-from omero_model_GroupExperimenterMapI import GroupExperimenterMapI
-from omero_model_DatasetImageLinkI import DatasetImageLinkI
+
 
 class TestSimple(lib.ITest):
 
@@ -26,4 +34,3 @@ class TestSimple(lib.ITest):
         admin = self.client.sf.getAdminService()
         ec = admin.getEventContext()
         assert ec
-
