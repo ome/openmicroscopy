@@ -2,9 +2,22 @@
 # -*- coding: utf-8 -*-
 
 #
-# Copyright (C) 2011-2013 Glencoe Software, Inc. All Rights Reserved.
+# Copyright (C) 2011-2014 Glencoe Software, Inc. All Rights Reserved.
 # Use is subject to license terms supplied in LICENSE.txt
 #
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 """
    Test of the omero.cmd.Chgrp and Chown Request types
@@ -23,13 +36,10 @@ except that they should be able to delete users and data from their group."
 
 """
 
-import omero
 import test.integration.library as lib
 
-from omero.callbacks import CmdCallbackI
 
-
-class ColumbusTest(lib.ITest):
+class TestColumbus(lib.ITest):
     """
     The following tests all assume the following
     user configuration:
@@ -43,19 +53,19 @@ class ColumbusTest(lib.ITest):
     def userconfig(self, perms="rwr---"):
         self.group_a = self.new_group(perms=perms)
         self.client_A, self.user_A = \
-                self.new_client_and_user(group=self.group_a, admin=True)
+            self.new_client_and_user(group=self.group_a, admin=True)
         self.client_B, self.user_B = \
-                self.new_client_and_user(group=self.group_a, admin=False)
+            self.new_client_and_user(group=self.group_a, admin=False)
 
         self.group_b = self.new_group(perms=perms)
         self.client_C, self.user_C = \
-                self.new_client_and_user(group=self.group_b, admin=True)
+            self.new_client_and_user(group=self.group_b, admin=True)
         self.client_D, self.user_D = \
-                self.new_client_and_user(group=self.group_b, admin=False)
+            self.new_client_and_user(group=self.group_b, admin=False)
 
         self.group_c = self.new_group(perms=perms)
         self.client_E, self.user_E = \
-                self.new_client_and_user(group=self.group_c)
+            self.new_client_and_user(group=self.group_c)
 
     def data(self, client):
         up = client.sf.getUpdateService()

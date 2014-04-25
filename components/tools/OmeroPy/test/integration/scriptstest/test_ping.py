@@ -1,27 +1,42 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+#
+# Copyright (C) 2008-2014 Glencoe Software, Inc. All Rights Reserved.
+# Use is subject to license terms supplied in LICENSE.txt
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
 """
    Integration test testing distributed processing via
    ServiceFactoryI.acquireProcessor().
-
-   Copyright 2008-2013 Glencoe Software, Inc. All rights reserved.
-   Use is subject to license terms supplied in LICENSE.txt
 
 """
 
 import test.integration.library as lib
 import pytest
-import os, sys
+import os
 
 import omero
 import omero.clients
 import omero.model
 import omero.api
-import omero_ext.uuid as uuid # see ticket:3774
+import omero_ext.uuid as uuid  # see ticket:3774
 
 from omero.util.temp_files import create_path, remove_path
-from omero.rtypes import *
+from omero.rtypes import rlong, rstring, rmap
 from omero.scripts import wait
 
 PINGFILE = """
@@ -41,7 +56,8 @@ print "I am the script named %s" % uuid
 #
 # Creation
 #
-client = s.client(uuid, "simple ping script", s.Long("a", optional=True).inout(), s.String("b", optional=True).inout())
+client = s.client(uuid, "simple ping script",
+    s.Long("a", optional=True).inout(), s.String("b", optional=True).inout())
 print "Session", client.getSession()
 
 #
@@ -84,6 +100,7 @@ sys.stderr.write("Oh, and this is stderr.");
 
 """
 
+
 class CallbackI(omero.grid.ProcessCallback):
 
     def __init__(self):
@@ -91,16 +108,18 @@ class CallbackI(omero.grid.ProcessCallback):
         self.cancel = []
         self.kill = []
 
-    def processFinished(self, rv, current = True):
+    def processFinished(self, rv, current=True):
         self.finish.append(rv)
 
-    def processCancelled(self, rv, current = True):
+    def processCancelled(self, rv, current=True):
         self.cancel.append(rv)
 
-    def processKilled(self, rv, current = True):
+    def processKilled(self, rv, current=True):
         self.kill.append(rv)
 
+
 class TestPing(lib.ITest):
+
     """
     Tests which use the trivial script defined by PINGFILE to
     test the scripts API.
@@ -112,9 +131,10 @@ class TestPing(lib.ITest):
 
     def _getProcessor(self):
         scripts = self.root.getSession().getScriptService()
-        id = scripts.uploadOfficialScript("/tests/ping_py/%s.py" % self.uuid(), PINGFILE)
+        id = scripts.uploadOfficialScript(
+            "/tests/ping_py/%s.py" % self.uuid(), PINGFILE)
         j = omero.model.ScriptJobI()
-        j.linkOriginalFile(omero.model.OriginalFileI(rlong(id),False))
+        j.linkOriginalFile(omero.model.OriginalFileI(rlong(id), False))
         p = self.client.sf.sharedResources().acquireProcessor(j, 100)
         return p
 
@@ -126,7 +146,7 @@ class TestPing(lib.ITest):
         tmppath = create_path("pingtest")
         try:
             self.client.download(ofile, str(tmppath))
-            assert  os.path.getsize(str(tmppath))
+            assert os.path.getsize(str(tmppath))
             return tmppath.text()
         finally:
             remove_path(tmppath)
@@ -173,7 +193,7 @@ class TestPing(lib.ITest):
         assert params.stdoutFormat
 
         process = p.execute(rmap({}))
-        output = self.assertSuccess(p, process)
+        self.assertSuccess(p, process)
 
     @pytest.mark.xfail(reason="ticket 11494")
     def testProcessCallback(self):
@@ -189,7 +209,7 @@ class TestPing(lib.ITest):
 
         process = p.execute(rmap({}))
         process.registerCallback(cb)
-        output = self.assertSuccess(p, process)
+        self.assertSuccess(p, process)
 
         assert len(callback.finish) > 0
 
@@ -198,23 +218,26 @@ class TestPing(lib.ITest):
         process = p.execute(rmap({}))
         process.shutdown()
 
-        output = p.getResults(process)
+        p.getResults(process)
+
+        # Line above was: output = p.getResults(process)
         # Probably doesn't have IO since killed
         # self.assertIO(output)
 
     def testProcessShutdownOneway(self):
         p = self._getProcessor()
         process = p.execute(rmap({}))
-        oneway = omero.grid.ProcessPrx.uncheckedCast( process.ice_oneway() )
+        oneway = omero.grid.ProcessPrx.uncheckedCast(process.ice_oneway())
         oneway.shutdown()
         # Depending on what's faster this may or may not throw
         try:
             p.getResults(process)
             assert process.poll()
-            output = p.getResults(process)
+            p.getResults(process)
         except omero.ServerError:
             pass
 
+        # Line above was: output = p.getResults(process)
         # Probably doesn't have IO since killed
         # self.assertIO(output)
 
@@ -223,7 +246,7 @@ class TestPing(lib.ITest):
         process = p.execute(None)
         with pytest.raises(omero.ServerError):
             p.getResults(process)
-        output = self.assertSuccess(p, process)
+        self.assertSuccess(p, process)
 
     #
     # Execution-less tests
@@ -239,11 +262,11 @@ class TestPing(lib.ITest):
 
     def testProcessorStop(self):
         p = self._getProcessor()
-        process = p.execute(rmap({}))
+        p.execute(rmap({}))
         p.stop()
 
     def testProcessorDetach(self):
         p = self._getProcessor()
-        process = p.execute(rmap({}))
+        p.execute(rmap({}))
         p.setDetach(True)
         p.stop()

@@ -1,12 +1,27 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+#
+# Copyright (C) 2010-2014 Glencoe Software, Inc. All Rights Reserved.
+# Use is subject to license terms supplied in LICENSE.txt
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
 """
    Integration test focused on the registering of official
    scripts in the ScriptRepo. (see ticket:#2073)
-
-   Copyright 2010-2013 Glencoe Software, Inc. All rights reserved.
-   Use is subject to license terms supplied in LICENSE.txt
 
 """
 
@@ -14,8 +29,7 @@ import test.integration.library as lib
 import pytest
 import omero
 import omero.all
-from omero_model_ScriptJobI import ScriptJobI
-from omero.rtypes import *
+
 
 class TestScriptRepo(lib.ITest):
 
@@ -36,16 +50,20 @@ class TestScriptRepo(lib.ITest):
     def testGetUserScripts(self):
         prx = self.scriptPrx()
         myUserScripts = prx.getUserScripts([])
-        sid = prx.uploadScript("/test/foo.py", """if True:
-        import omero, omero.scripts as OS
-        OS.client("name")
-        """)
+        sid = prx.uploadScript(
+            "/test/foo.py",
+            """if True:
+            import omero, omero.scripts as OS
+            OS.client("name")
+            """)
+
         myUserScripts = prx.getUserScripts([])
         assert sid in [x.id.val for x in myUserScripts]
 
         admin = self.client.sf.getAdminService()
         oid = admin.getEventContext().userId
-        myUserScripts = prx.getUserScripts([omero.model.ExperimenterI(oid, False)])
+        myUserScripts = prx.getUserScripts(
+            [omero.model.ExperimenterI(oid, False)])
         assert sid in [x.id.val for x in myUserScripts]
 
     @pytest.mark.xfail(reason="ticket 11494")
@@ -57,9 +75,12 @@ class TestScriptRepo(lib.ITest):
         grp = omero.model.ExperimenterGroupI(gid, False)
         client = self.new_client(gname)
 
-        sid = client.sf.getScriptService().uploadScript("/test/otheruser.py", """if True:
-        import omero, omero.scripts as OS
-        OS.client("testGetGroupScripts")""")
+        sid = client.sf.getScriptService().uploadScript(
+            "/test/otheruser.py",
+            """if True:
+            import omero, omero.scripts as OS
+            OS.client("testGetGroupScripts")
+            """)
 
         myGroupScripts = prx.getUserScripts([grp])
         assert sid in [x.id.val for x in myGroupScripts]
