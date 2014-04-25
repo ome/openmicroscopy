@@ -72,6 +72,17 @@ class AnnotationPermissions(lib.ITest):
         for user in self.users:
             self.clients[user].closeSession()
 
+    def chmodGroupAs(self, user, perms):
+        client = self.clients[user]
+        from omero.gateway import BlitzGateway
+        from omero.cmd import ERR
+        gateway = BlitzGateway(client_obj=client)
+        handle = gateway.chmodGroup(self.group.id.val, perms)
+        cb = gateway._waitOnCmd(handle)
+        rsp = cb.getResult()
+        if isinstance(rsp, ERR):
+            raise Exception(rsp)
+
     def createProjectAs(self, user):
         """ Adds a Project. """
         project = ProjectI()
@@ -79,11 +90,21 @@ class AnnotationPermissions(lib.ITest):
         project = self.updateServices[user].saveAndReturnObject(project)
         return project
 
-    def addTagAs(self, user, project):
-        """ Adds and links a Tag. """
+    def makeTag(self):
         tag = TagAnnotationI()
         tag.setTextValue(rstring(self.tag_text))
         tag.setNs(rstring(self.tag_ns))
+        return tag
+
+    def createTagAs(self, user):
+        """ Create a tag linked to nothing """
+        tag = self.makeTag()
+        tag = self.updateServices[user].saveAndReturnObject(tag)
+        return tag
+
+    def addTagAs(self, user, project):
+        """ Adds and links a Tag. """
+        tag = self.makeTag()
         tag = self.updateServices[user].saveAndReturnObject(tag)
         self.linkTagAs(user, project, tag)
         return tag
