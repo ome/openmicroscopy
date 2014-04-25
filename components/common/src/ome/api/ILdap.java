@@ -162,5 +162,5 @@ public interface ILdap extends ServiceInterface {
      * @param username
      * @return boolean
      */
-    boolean createUserFromLdap(@NotNull String username);
+    Experimenter createUserFromLdap(@NotNull String username);
 }
