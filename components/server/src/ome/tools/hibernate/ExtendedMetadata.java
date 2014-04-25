@@ -178,11 +178,19 @@ public interface ExtendedMetadata {
     String getSQLJoin(String fromType, String fromAlias, String toType, String toAlias);
 
     /**
+     * Check if an object of this class may have map properties.
+     * @param iObjectClass a class
+     * @return if this object or any of its mapped subclasses have any map properties
+     */
+    boolean mayHaveMapProperties(Class<? extends IObject> iObjectClass);
+
+    /**
      * Get the names of any String&rarr;RString map properties this class has, otherwise an empty set if none.
      * @param className the name of a class, as from {@link Class#getName()}
      * @return the class' map property names
      */
     Set<String> getMapProperties(String className);
+
 /**
  * Sole implementation of ExtendedMetadata. The separation is intended to make
  * unit testing without a full {@link ExtendedMetadata} possible.
@@ -208,6 +216,8 @@ public static class Impl extends OnContextRefreshedEventListener implements Exte
     private final Map<String, Map<String, Relationship>> relationships = new HashMap<String, Map<String, Relationship>>();
 
     private final Map<String, Class<IObject>> hibernateClasses = new HashMap<String, Class<IObject>>();
+
+    private final Set<Class<?>> mapPropertyClasses = new HashSet<Class<?>>();
 
     private final SetMultimap<String, String> mapProperties = HashMultimap.create();
 
@@ -300,6 +310,8 @@ public static class Impl extends OnContextRefreshedEventListener implements Exte
             }
             relationships.put(key.substring(key.lastIndexOf(".")+1), value2);
 
+            /* note map properties */
+            boolean hasMapProperty = false;
             final String[] propertyNames = cm.getPropertyNames();
             final Type[] propertyTypes = cm.getPropertyTypes();
             for (int i = 0; i < propertyNames.length; i++) {
@@ -308,7 +320,13 @@ public static class Impl extends OnContextRefreshedEventListener implements Exte
                     final Type elementType = propertyType.getElementType((SessionFactoryImplementor) sessionFactory);
                     if (String.class == elementType.getReturnedClass()) {
                         mapProperties.put(key, propertyNames[i]);
+                        hasMapProperty = true;
                     }
+                }
+            }
+            if (hasMapProperty) {
+                for (Class<?> mc = cm.getMappedClass(EntityMode.POJO); mc != null; mc = mc.getSuperclass()) {
+                    mapPropertyClasses.add(mc);
                 }
             }
         }
@@ -556,6 +574,11 @@ public static class Impl extends OnContextRefreshedEventListener implements Exte
             throw new ApiUsageException(field + field_msg);
         }
         return k;
+    }
+
+    @Override
+    public boolean mayHaveMapProperties(Class<? extends IObject> iObjectClass) {
+        return mapPropertyClasses.contains(iObjectClass);
     }
 
     @Override
