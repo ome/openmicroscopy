@@ -60,7 +60,7 @@ if [ $TESTING_MODE ]; then
     bin/pip install -U scc || echo "scc installed"
 
     # Merge homebrew-alt PRs
-    cd Library/Taps/ome-alt
+    cd Library/Taps/ome/homebrew-alt
     /usr/local/bin/scc merge master
 
     # Repair formula symlinks after merge
