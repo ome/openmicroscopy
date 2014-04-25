@@ -248,3 +248,39 @@ class TestThumbnailPerms(lib.ITest):
         """
         group = self.new_group(perms="rw----")
         self.assert10618(group, self.root, True)
+
+    def test12145ShareSettings(self):
+        """
+        Rendering settings should be shared when possible.
+        Rather than regenerating the min/max per viewer,
+        these should be used unless requested otherwise.
+        """
+        group = self.new_group(perms="rwra--")
+        owner = self.new_client(group=group)
+        other = self.new_client(group=group)
+
+        def assert_exists(for_owner, for_other):
+            for sf, exists in ((owner.sf, for_owner), (other.sf, for_other)):
+                if exists:
+                    assert sf.getPixelsService().retrieveRndSettings(pixels)
+                else:
+                    assert not sf.getPixelsService().retrieveRndSettings(pixels)
+
+        # creation generates a first rendering image
+        image = self.createTestImage(session=owner.sf)
+        pixels = image.getPrimaryPixels().getId().getValue()
+
+        owner_prx = owner.sf.createThumbnailStore()
+        other_prx = other.sf.createThumbnailStore()
+
+        # Before thumbnailing there should be no rendering settings
+        assert_exists(True, False)
+
+        owner_tb = owner_prx.getThumbnailByLongestSideSet(rint(16), [pixels])
+        assert owner_tb[pixels] != ''
+
+        other_tb = other_prx.getThumbnailByLongestSideSet(rint(16), [pixels])
+        assert other_tb[pixels] != ''
+
+        # After thumbnailing there should be no rendering settings
+        assert_exists(True, False)
