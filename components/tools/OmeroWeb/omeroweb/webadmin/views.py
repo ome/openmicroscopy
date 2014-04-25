@@ -292,7 +292,7 @@ def usersData(conn, offset=0):
     return {'loading':loading, 'offset':offset, 'usage':usage_map}
 
 ################################################################################
-# views controll
+# views control
 
 def forgotten_password(request, **kwargs):
     request.session.modified = True
@@ -323,7 +323,7 @@ def forgotten_password(request, **kwargs):
             if conn is not None:
                 try:
                     conn.reportForgottenPassword(smart_str(request.REQUEST.get('username')), smart_str(request.REQUEST.get('email')))
-                    error = "Password was reseted. Check you mailbox."
+                    error = "Password was reset. Check your mailbox."
                     form = None
                 except Exception:
                     logger.error(traceback.format_exc())
