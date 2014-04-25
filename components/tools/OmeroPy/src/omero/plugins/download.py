@@ -72,7 +72,7 @@ class DownloadControl(BaseControl):
         if ':' not in value:
             try:
                 ofile = query.get("OriginalFile", long(value),
-                    {'omero.group': '-1'})
+                                  {'omero.group': '-1'})
                 return ofile.id.val
             except ValueError:
                 self.ctx.die(601, 'Invalid OriginalFile ID input')
@@ -83,7 +83,8 @@ class DownloadControl(BaseControl):
         file_id = self.parse_object_id("OriginalFile", value)
         if file_id:
             try:
-                ofile = query.get("OriginalFile", file_id)
+                ofile = query.get("OriginalFile", file_id,
+                                  {'omero.group': '-1'})
             except omero.ValidationException:
                 self.ctx.die(601, 'No OriginalFile with input ID')
             return ofile.id.val
@@ -92,7 +93,7 @@ class DownloadControl(BaseControl):
         fa_id = self.parse_object_id("FileAnnotation", value)
         if fa_id:
             try:
-                fa = query.get("FileAnnotation", fa_id)
+                fa = query.get("FileAnnotation", fa_id, {'omero.group': '-1'})
             except omero.ValidationException:
                 self.ctx.die(601, 'No FileAnnotation with input ID')
             return fa.getFile().id.val
@@ -107,7 +108,7 @@ class DownloadControl(BaseControl):
                 " join fs.usedFiles as uf" \
                 " join uf.originalFile as f" \
                 " where i.id = :iid"
-            query_out = query.projection(sql, params)
+            query_out = query.projection(sql, params, {'omero.group': '-1'})
             if not query_out:
                 self.ctx.die(602, 'Input image has no associated Fileset')
             if len(query_out) > 1:
