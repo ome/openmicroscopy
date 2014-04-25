@@ -248,8 +248,10 @@ public class SelectionWizardUI
             ref = availableItems;
         } else {
             ref = new ArrayList<TreeImageDisplay>();
-            for (TreeImageDisplay item : originalItems)
-                ref.add(item);
+            for (TreeImageDisplay item : originalItems) {
+                if (!isSelected(item))
+                    ref.add(item);
+            }
             for (TreeImageDisplay item : originalSelectedItems) {
                 if (!isSelected(item))
                     ref.add(item);
