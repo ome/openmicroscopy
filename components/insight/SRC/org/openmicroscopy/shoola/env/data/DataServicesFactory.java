@@ -49,7 +49,6 @@ import javax.swing.JFrame;
 
 //Application-internal dependencies
 import omero.client;
-import omero.gateway.exception.VersionMismatchException;
 
 import org.openmicroscopy.shoola.env.Agent;
 import org.openmicroscopy.shoola.env.Container;
