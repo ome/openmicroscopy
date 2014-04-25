@@ -1,7 +1,7 @@
 /*
  *   $Id$
  *
- *   Copyright 2010-2013 University of Dundee. All rights reserved.
+ *   Copyright 2010-2014 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -28,7 +28,6 @@ import ome.api.IQuery;
 import ome.api.IRenderingSettings;
 import ome.api.IUpdate;
 import ome.conditions.ApiUsageException;
-import ome.conditions.InternalException;
 import ome.conditions.ResourceError;
 import ome.conditions.ValidationException;
 import ome.io.nio.ThumbnailService;
@@ -39,7 +38,6 @@ import ome.model.display.RenderingDef;
 import ome.model.display.Thumbnail;
 import ome.model.internal.Details;
 import ome.model.internal.Permissions;
-import ome.model.meta.Session;
 import ome.parameters.Parameters;
 import ome.security.SecuritySystem;
 import ome.system.EventContext;
@@ -343,10 +341,18 @@ public class ThumbnailCtx
         StopWatch s1 = new Slf4JStopWatch("omero.loadAllMetadata");
         List<Thumbnail> toReturn = queryService.findAllByQuery(
                 "select t from Thumbnail as t " +
-                "join t.pixels " +
+                "join t.pixels p " +
                 "join fetch t.details.updateEvent " +
                 "where t.details.owner.id = :o_id " +
-                "and t.pixels.id = :id", params);
+                "and p.id = :id", params);
+        if (toReturn.isEmpty()) {
+            toReturn = queryService.findAllByQuery(
+                    "select t from Thumbnail as t " +
+                    "join t.pixels p " +
+                    "join fetch t.details.updateEvent " +
+                    "where t.details.owner.id = p.details.owner.id " +
+                    "and p.id = :id", params);
+        }
         s1.stop();
         return toReturn;
     }
@@ -757,6 +763,17 @@ public class ThumbnailCtx
                 "where r.details.owner.id = :id and r.pixels.id in (:ids) " +
                 "order by r.details.updateEvent.time asc",
                 new Parameters().addId(userId).addIds(pixelsIds));
+        if (toReturn.isEmpty()) {
+            toReturn = queryService.findAllByQuery(
+                    "select r from RenderingDef as r " +
+                    "join fetch r.pixels as p " +
+                    "join fetch r.details.updateEvent " +
+                    "join p.details.updateEvent " +
+                    "where r.details.owner.id = p.details.owner.id " +
+                    "and r.pixels.id in (:ids) " +
+                    "order by r.details.updateEvent.time asc",
+                    new Parameters().addId(userId).addIds(pixelsIds));
+        }
         s1.stop();
         return toReturn;
     }
@@ -780,6 +797,17 @@ public class ThumbnailCtx
                 "and r.pixels.image.id in (:ids) " +
                 "order by r.details.updateEvent.time asc",
                 new Parameters().addId(userId).addIds(imageIds));
+        if (toReturn.isEmpty()) {
+            toReturn = queryService.findAllByQuery(
+                    "select r from RenderingDef as r " +
+                    "join fetch r.pixels as p " +
+                    "join fetch r.details.updateEvent " +
+                    "join fetch p.details.updateEvent " +
+                    "where r.details.owner.id = p.details.owner.id " +
+                    "and r.pixels.image.id in (:ids) " +
+                    "order by r.details.updateEvent.time asc",
+                    new Parameters().addId(userId).addIds(imageIds));
+        }
         s1.stop();
         return toReturn;
     }
@@ -794,6 +822,7 @@ public class ThumbnailCtx
     {
         StopWatch s1 = new Slf4JStopWatch(
                 "omero.bulkLoadOwnerRenderingSettings");
+        // Why doesn't this first try by userId?
         List<RenderingDef> toReturn = queryService.findAllByQuery(
                 "select r from RenderingDef as r " +
                 "join fetch r.pixels as p " +
@@ -825,11 +854,21 @@ public class ThumbnailCtx
         StopWatch s1 = new Slf4JStopWatch("omero.bulkLoadMetadata");
         List<Thumbnail> toReturn = queryService.findAllByQuery(
                 "select t from Thumbnail as t " +
-                "join t.pixels " +
+                "join t.pixels p " +
                 "join fetch t.details.updateEvent " +
                 "where t.sizeX = :x and t.sizeY = :y " +
                 "and t.details.owner.id = :o_id " +
-                "and t.pixels.id in (:ids)", params);
+                "and p.id in (:ids)", params);
+        if (toReturn.isEmpty()) {
+            toReturn = queryService.findAllByQuery(
+                    "select t from Thumbnail as t " +
+                    "join t.pixels p " +
+                    "join fetch t.details.updateEvent " +
+                    "where t.sizeX = :x and t.sizeY = :y " +
+                    "and t.details.owner.id = p.details.owner.id " +
+                    "and p.id in (:ids)", params);
+
+        }
         s1.stop();
         return toReturn;
     }
@@ -850,6 +889,7 @@ public class ThumbnailCtx
         params.addInteger("y", (int) dimensions.getHeight());
         params.addIds(pixelsIds);
         StopWatch s1 = new Slf4JStopWatch("omero.bulkLoadOwnerMetadata");
+        // Why is does this not try userId first?
         List<Thumbnail> toReturn = queryService.findAllByQuery(
                 "select t from Thumbnail as t " +
                 "join t.pixels as p " +
