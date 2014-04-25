@@ -360,11 +360,11 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap,
      *
      * @param username
      *            The user's LDAP username.
-     * @return boolean <tt>true</tt> if operation succeeded.
+     * @return The newly created {@link Experimenter} object.
      */
     @RolesAllowed("system")
     @Transactional(readOnly = false)
-    public boolean createUserFromLdap(String username) {
+    public Experimenter createUserFromLdap(String username) {
         return createUserFromLdap(username, null, false);
     }
 
@@ -376,9 +376,9 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap,
      *            The user's LDAP username.
      * @param password
      *            The user's LDAP password, not null.
-     * @return boolean <tt>true</tt> if operation succeeded.
+     * @return The newly created {@link Experimenter} object.
      */
-    public boolean createUserFromLdap(String username, String password) {
+    public Experimenter createUserFromLdap(String username, String password) {
         return createUserFromLdap(username, password, true);
     }
 
@@ -392,9 +392,9 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap,
      *            The user's password.
      * @param checkPassword
      *            Flag indicating if password check should be performed.
-     * @return boolean <tt>true</tt> if operation succeeded.
+     * @return The newly created {@link Experimenter} object.
      */
-    public boolean createUserFromLdap(String username, String password,
+    public Experimenter createUserFromLdap(String username, String password,
             boolean checkPassword) {
         if (iQuery.findByString(Experimenter.class, "omeName", username) != null) {
             throw new ValidationException("User already exists: " + username);
@@ -432,7 +432,7 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap,
             long uid = provider.createExperimenter(exp, grp1, grpOther);
             setDN(uid, dn.toString());
         }
-        return access;
+        return iQuery.findByString(Experimenter.class, "omeName", username);
     }
 
     static private final Pattern p = Pattern.compile(
