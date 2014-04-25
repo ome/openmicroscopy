@@ -249,7 +249,7 @@ class TestThumbnailPerms(lib.ITest):
         group = self.new_group(perms="rw----")
         self.assert10618(group, self.root, True)
 
-    def test12145ShareSettings(self):
+    def test12145ShareSettingsThumbs(self):
         """
         Rendering settings should be shared when possible.
         Rather than regenerating the min/max per viewer,
@@ -284,3 +284,34 @@ class TestThumbnailPerms(lib.ITest):
 
         # After thumbnailing there should be no rendering settings
         assert_exists(True, False)
+
+    def test12145ShareSettingsRnd(self):
+        """
+        Rendering settings should be shared when possible.
+        Rather than regenerating the min/max per viewer,
+        these should be used unless requested otherwise.
+        """
+        group = self.new_group(perms="rwra--")
+        owner = self.new_client(group=group)
+        other = self.new_client(group=group)
+
+        def assert_exists(for_owner, for_other):
+            for sf, exists in ((owner.sf, for_owner), (other.sf, for_other)):
+                if exists:
+                    assert sf.getPixelsService().retrieveRndSettings(pixels)
+                else:
+                    assert not sf.getPixelsService().retrieveRndSettings(pixels)
+
+        # creation generates a first rendering image
+        image = self.createTestImage(session=owner.sf)
+        pixels = image.getPrimaryPixels().getId().getValue()
+
+        owner_prx = owner.sf.createRenderingEngine()
+        other_prx = other.sf.createRenderingEngine()
+
+        owner_prx.lookupPixels(pixels)
+        assert owner_prx.lookupRenderingDef(pixels)
+
+        other_prx.lookupPixels(pixels)
+        import pdb; pdb.set_trace()
+        assert other_prx.lookupRenderingDef(pixels)
