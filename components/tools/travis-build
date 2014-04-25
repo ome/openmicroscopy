@@ -21,7 +21,7 @@ build_java()
 
 build_python()
 {
-    flake8 -v components/tools/OmeroPy/src/omero/plugins
+    flake8 -v components/tools/OmeroPy/src
     flake8 -v components/tools/OmeroPy/test
     flake8 -v components/tools/OmeroWeb/omeroweb/webstart
     flake8 -v components/tools/OmeroWeb/omeroweb/webredirect
