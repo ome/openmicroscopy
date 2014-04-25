@@ -431,8 +431,10 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap,
                     false);
             long uid = provider.createExperimenter(exp, grp1, grpOther);
             setDN(uid, dn.toString());
+            return iQuery.get(Experimenter.class, uid);
+        } else {
+            return null;
         }
-        return iQuery.findByString(Experimenter.class, "omeName", username);
     }
 
     static private final Pattern p = Pattern.compile(
