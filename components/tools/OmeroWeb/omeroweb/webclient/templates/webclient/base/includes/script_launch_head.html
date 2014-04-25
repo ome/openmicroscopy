@@ -59,7 +59,7 @@
         // format script name by replacing '_' with ' '
         var format_script_name = function(name) {
             name = name.replace(/_/g, " ");
-            if (name.endsWith(".py")) {
+            if (name.endsWith(".py") || name.endsWith(".jy")) {
                 name = name.slice(0,-2) + "..";
             }
             return name
