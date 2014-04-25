@@ -226,6 +226,8 @@ import Glacier2.PermissionDeniedException;
 public class OMEROMetadataStoreClient
     implements MetadataStore, IMinMaxStore, IObjectContainerStore
 {
+    private static final int OBJECT_BATCH_SIZE = 2000;
+
     /** Logger for this class */
     private Logger log = LoggerFactory.getLogger(OMEROMetadataStoreClient.class);
 
@@ -1771,8 +1773,32 @@ public class OMEROMetadataStoreClient
                           + " entries.");
             }
 
-            delegate.updateObjects(containerArray);
-            delegate.updateReferences(referenceStringCache);
+            int containerPointer = 0;
+            while (containerPointer < containerArray.length) {
+              int nObjects = (int) Math.min(
+                OBJECT_BATCH_SIZE, containerArray.length - containerPointer);
+              IObjectContainer[] batch = new IObjectContainer[nObjects];
+              System.arraycopy(
+                containerArray, containerPointer, batch, 0, nObjects);
+              delegate.updateObjects(batch);
+              containerPointer += nObjects;
+            }
+
+            int referencePointer = 0;
+            String[] referenceKeys = referenceStringCache.keySet().toArray(
+              new String[referenceStringCache.size()]);
+            while (referencePointer < referenceKeys.length) {
+              Map<String, String[]> referenceBatch =
+                new HashMap<String, String[]>();
+              int batchSize = (int) Math.min(
+                OBJECT_BATCH_SIZE, referenceKeys.length - referencePointer);
+              for (int i=0; i<batchSize; i++) {
+                String key = referenceKeys[referencePointer + i];
+                referenceBatch.put(key, referenceStringCache.get(key));
+              }
+              delegate.updateReferences(referenceBatch);
+              referencePointer += batchSize;
+            }
             Map<String, List<IObject>> rv = delegate.saveToDB(link);
             pixelsList = new OMEROMetadataStoreClientRoot((List) rv.get("Pixels"));
 
