@@ -14,3 +14,16 @@
 .standard_form .hidden {
     display: none;
 }
+
+/*
+It seems to be impossible to style select to fill remaining
+space in a line. chosen calculates the size of the select and
+replaces it with the chosen select with the same width.
+*/
+#email_content select {
+  width: 70%;
+  background-color: red;
+}
+#email_content .chzn-choices {
+  width: 100%;
+}

@@ -1,0 +1,83 @@
+{% extends "webadmin/base.html" %}
+{% load i18n %}
+{% load common_tags %}
+
+{% comment %}
+<!--
+  Copyright (C) 2011 University of Dundee & Open Microscopy Environment.
+  All rights reserved.
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU Affero General Public License as
+  published by the Free Software Foundation, either version 3 of the
+  License, or (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU Affero General Public License for more details.
+
+  You should have received a copy of the GNU Affero General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+{% endcomment %}
+
+{% block title %}{% trans "OMERO Users" %}{% endblock %}
+
+{% block link %}
+    {{ block.super }}
+{% endblock %}
+
+{% block script %}
+    {{ block.super }}
+
+    <script type="text/javascript">
+      $(document).ready(function()
+      {
+        $("#admin_tabs").tabs({
+          selected : 3,
+          select: function(event, ui) {
+            var url = $.data(ui.tab, 'load.tabs');
+            if( url ) {
+              location.href = url;
+                return false;
+              }
+              return true;
+            }
+          });
+      });
+    </script>
+{% endblock %}
+
+{% block center_details %}
+{{ block.super }}
+
+<div id="admin_tabs">
+
+    <ul id="webadmin_main_tabs">
+        <li id="experimenters_tab"><a href='{% url waexperimenters %}' title="Edit Users">{% trans "Users" %}</a></li>
+        <li id="groups_tab"><a href="{% url wagroups %}" title="Edit Groups">{% trans "Groups" %}</a></li>
+        <li id="drivespace_tab"><a href="{% url wastats %}" title="Statistics">{% trans "Statistics" %}</a></li>
+        <li id="announce_tab"><a href="{% url waannounce %}">{% trans "Email" %}</a></li>
+    </ul>
+
+    <div id="announce_content">
+        <div class="one_column_content">
+          <h1>{% trans "Email Announcement Unavailable" %}</h1>
+          <p> This is because there are not sufficient settings configured to facilitate sending emails. Please configure OMERO web according to the documentation and restart the web server.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block metadata_details %}
+
+    <div>
+        <img src="{% static "webadmin/image/admin.png" %}" alt="admin" title="admin"> - Admin; 
+        <img src="{% static "webadmin/image/guest.png" %}" alt="guest" title="guest"> - Guest; 
+        <img src="{% static "webadmin/image/ldap.png" %}" alt="ldap" title="ldap"> - ldap; 
+        <img src="{% static "webadmin/image/active.png" %}" alt="active" title="active"> - active; 
+        <img src="{% static "webadmin/image/notactive.png" %}" alt="notactive" title="notactive"> - not active;
+    <div>
+
+{% endblock %}
