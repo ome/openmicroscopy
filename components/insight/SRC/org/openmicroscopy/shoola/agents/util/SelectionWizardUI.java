@@ -80,6 +80,7 @@ import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
 import pojos.GroupData;
 import pojos.TagAnnotationData;
+import sun.security.acl.OwnerImpl;
 
 
 /**
@@ -99,6 +100,15 @@ public class SelectionWizardUI
 
     /** Bound property indicating that the selection has changed. */
     public static final String SELECTION_CHANGE = "selectionChange";
+
+    /** All tags regardless of who is the owner will be displayed.*/
+    static Integer ALL = 0;
+
+    /** Tags owned by logged in user will be displayed.*/
+    static int CURRENT = 1;
+
+    /** Tags not owned by logged in user will be displayed.*/
+    static int OTHERS = 2;
 
     /** The default text for the filter dialog.*/
     private static final String DEFAULT_FILTER_TEXT = "Filter";
@@ -172,6 +182,7 @@ public class SelectionWizardUI
     /** The user currently logged in.*/
     private ExperimenterData user;
 
+    private int ownerFilterIndex;
     /**
      * Returns <code>true</code> if the item is already selected or is
      * an item to create, <code>false</code> otherwise.
@@ -191,6 +202,28 @@ public class SelectionWizardUI
             }
         }
         return false;
+    }
+
+    /**
+     * Filters the data according to ownership.
+     *
+     * @param value The value to check
+     * @param txt The text of reference.
+     * @param data The data object of reference.
+     * @return
+     */
+    private boolean filterItem(String value, String txt, DataObject data)
+    {
+        ExperimenterData exp = data.getOwner();
+        if (ownerFilterIndex == CURRENT) {
+            if (exp.getId() != user.getId()) return false;
+        } else if (ownerFilterIndex == OTHERS) {
+            if (exp.getId() == user.getId()) return false;
+        }
+        if (filterAnywhere) {
+            return value.contains(txt);
+        }
+        return value.startsWith(txt);
     }
 
     /**
@@ -246,16 +279,9 @@ public class SelectionWizardUI
                                 tag = (TagAnnotationData) ho;
                                 value = tag.getTagValue();
                                 value = value.toLowerCase();
-                                if (filterAnywhere) {
-                                    if (value.contains(txt)) {
-                                        toKeep.add(node);
-                                        break;
-                                    }
-                                } else {
-                                    if (value.startsWith(txt)) {
-                                        toKeep.add(node);
-                                        break;
-                                    }
+                                if (filterItem(value, txt, (DataObject) ho)) {
+                                    toKeep.add(node);
+                                    break;
                                 }
                             }
                         }
@@ -269,14 +295,8 @@ public class SelectionWizardUI
             }
             if (value != null) {
                 value = value.toLowerCase();
-                if (filterAnywhere) {
-                    if (value.contains(txt)) {
-                        toKeep.add(node);
-                    }
-                } else {
-                    if (value.startsWith(txt)) {
-                        toKeep.add(node);
-                    }
+                if (filterItem(value, txt, (DataObject) ho)) {
+                    toKeep.add(node);
                 }
             }
         }
@@ -1235,6 +1255,21 @@ public class SelectionWizardUI
     void setFilterAnywhere(boolean filterAnywhere)
     { 
         this.filterAnywhere = filterAnywhere;
+        String text = filterArea.getText();
+        if (!DEFAULT_FILTER_TEXT.equals(text)) {
+            filter(false);
+        }
+    }
+
+    /**
+     * Sets the owner's filtering index.
+     *
+     * @param index The value to set.
+     */
+    void setOwnerIndex(int index)
+    {
+        ownerFilterIndex = index;
+        filter(true);
     }
 
     /**
