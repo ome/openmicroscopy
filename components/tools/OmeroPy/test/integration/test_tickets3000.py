@@ -1,17 +1,35 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+#
+# Copyright (C) 2010-2014 Glencoe Software, Inc. All Rights Reserved.
+# Use is subject to license terms supplied in LICENSE.txt
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
 """
    Integration tests for tickets between 2000 and 2999.
 
-   Copyright 2010-2013 Glencoe Software, Inc. All rights reserved.
-   Use is subject to license terms supplied in LICENSE.txt
-
 """
-import time
+
 import test.integration.library as lib
 import pytest
-from omero.rtypes import *
+import Ice
+import omero
+from omero.rtypes import rint, rlong, rstring
+
 
 class TestTickets3000(lib.ITest):
 
@@ -27,18 +45,18 @@ class TestTickets3000(lib.ITest):
         format = "txt"
         binary = "12345678910"
         oFile = omero.model.OriginalFileI()
-        oFile.setName(rstring(str("txt-name")));
-        oFile.setPath(rstring(str("txt-name")));
-        oFile.setSize(rlong(len(binary)));
-        oFile.setHash(rstring("pending"));
-        oFile.setMimetype(rstring(str(format)));
+        oFile.setName(rstring(str("txt-name")))
+        oFile.setPath(rstring(str("txt-name")))
+        oFile.setSize(rlong(len(binary)))
+        oFile.setHash(rstring("pending"))
+        oFile.setMimetype(rstring(str(format)))
 
-        of = self.update.saveAndReturnObject(oFile);
+        of = self.update.saveAndReturnObject(oFile)
 
         store = self.client.sf.createRawFileStore()
-        store.setFileId(of.id.val);
+        store.setFileId(of.id.val)
         store.write(binary, 0, 0)
-        of = store.save() # See ticket:1501
+        of = store.save()  # See ticket:1501
         store.close()
 
         fa = omero.model.FileAnnotationI()
@@ -49,11 +67,11 @@ class TestTickets3000(lib.ITest):
         self.update.saveObject(l_ia)
 
         # Alternatively, unload the file
-        of = self.update.saveAndReturnObject(oFile);
+        of = self.update.saveAndReturnObject(oFile)
         of.unload()
 
         store = self.client.sf.createRawFileStore()
-        store.setFileId(of.id.val);
+        store.setFileId(of.id.val)
         store.write(binary, 0, 0)
         # Don't capture from save, but will be saved anyway.
         store.close()
@@ -74,7 +92,7 @@ class TestTickets3000(lib.ITest):
         admin = self.root.sf.getAdminService()
         user = self.new_user()
         grps = admin.containedGroups(user.id.val)
-        assert 2 ==  len(grps)
+        assert 2 == len(grps)
         non_user = [x for x in grps if x.id.val != 1][0]
         grp = self.new_group()
         admin.addGroups(user, [grp])
@@ -87,7 +105,8 @@ class TestTickets3000(lib.ITest):
               "from EventLog evl join evl.event ev join ev.session s"
 
         # This was never supported
-        with pytest.raises((Ice.UnmarshalOutOfBoundsException, Ice.UnknownUserException)):
+        with pytest.raises(
+                (Ice.UnmarshalOutOfBoundsException, Ice.UnknownUserException)):
             q.findAllByQuery(sql, None)
 
         p1 = omero.sys.Parameters()
@@ -116,7 +135,7 @@ class TestTickets3000(lib.ITest):
         search.byFullText(s)
         res = search.results()
 
-        assert  la.id.val in [x.id.val for x in res]
+        assert la.id.val in [x.id.val for x in res]
 
     @pytest.mark.xfail(reason="See ticket #11539")
     def test2762(self):
@@ -125,7 +144,7 @@ class TestTickets3000(lib.ITest):
         are properly handled by IQuery.findAllByFullText
         """
 
-        uuid = self.uuid().replace("-","")
+        uuid = self.uuid().replace("-", "")
         tas = []
         for x in range(15):
             ta = omero.model.TagAnnotationI()
@@ -135,11 +154,9 @@ class TestTickets3000(lib.ITest):
             self.root.sf.getUpdateService().indexObject(ta)
 
         results = self.query.findAllByFullText("TagAnnotation", uuid, None)
-        assert len(tas) ==  len(results)
+        assert len(tas) == len(results)
 
         params = omero.sys.ParametersI()
         params.page(0, 10)
         results = self.query.findAllByFullText("TagAnnotation", uuid, params)
-        assert 10 ==  len(results)
-
-
+        assert 10 == len(results)
