@@ -349,9 +349,11 @@ public class SelectionWizardUI
                                 }
                             }
                         } else {
-                            v = ob.getTagValue().toLowerCase();
-                            if (value.equals(v)) {
-                                return node;
+                           if (!isSelected(node)) {
+                               v = ob.getTagValue().toLowerCase();
+                               if (value.equals(v)) {
+                                   return node;
+                               } 
                             }
                         }
                     }
@@ -377,9 +379,11 @@ public class SelectionWizardUI
                                 }
                             }
                         } else {
-                            v = ob.getTagValue().toLowerCase();
-                            if (value.equals(v)) {
-                                return node;
+                            if (!isSelected(node)) {
+                                v = ob.getTagValue().toLowerCase();
+                                if (value.equals(v)) {
+                                    return node;
+                                } 
                             }
                         }
                     }
@@ -1153,15 +1157,18 @@ public class SelectionWizardUI
                     break;
                 }
             }
-            MessageBox msg = new MessageBox(view, "Add new tag", 
-             "A tag with the same name and description already exists.\n" +
-                 "Would you like to select the existing tag?");
-            int option = msg.centerMsgBox();
-            if (option == MessageBox.YES_OPTION) {
-                availableItemsListbox.setSelectionPath(new TreePath(node.getPath()));
-                addItem();
-                availableItemsListbox.requestFocus();
-                return true;
+            if (node != null) {
+                MessageBox msg = new MessageBox(view, "Add new tag", 
+                        "A tag with the same name and description already exists.\n" +
+                            "Would you like to select the existing tag?");
+                int option = msg.centerMsgBox();
+                if (option == MessageBox.YES_OPTION) {
+                    availableItemsListbox.setSelectionPath(
+                            new TreePath(node.getPath()));
+                    addItem();
+                    availableItemsListbox.requestFocus();
+                    return true;
+                }
             }
         }
         //We create a new tag.
