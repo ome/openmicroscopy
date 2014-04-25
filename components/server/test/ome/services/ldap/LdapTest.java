@@ -16,6 +16,7 @@ import ome.conditions.ApiUsageException;
 import ome.conditions.SecurityViolation;
 import ome.conditions.ValidationException;
 import ome.logic.LdapImpl;
+import ome.model.meta.Experimenter;
 import ome.security.auth.LdapConfig;
 import ome.security.auth.LdapPasswordProvider;
 import ome.security.auth.PasswordUtil;
@@ -69,11 +70,11 @@ public class LdapTest extends MockObjectTestCase {
                     .will(returnValue(101L));
         }
 
-        public boolean createUserFromLdap(String user) {
+        public Experimenter createUserFromLdap(String user) {
             return ldap.createUserFromLdap(user);
         }
 
-        public boolean createUserFromLdap(String user, String string,
+        public Experimenter createUserFromLdap(String user, String string,
                 boolean checkPassword) {
             return ldap.createUserFromLdap(user, "password", checkPassword);
         }
@@ -183,7 +184,7 @@ public class LdapTest extends MockObjectTestCase {
             assertNotNull(dn);
             assertEquals(user, ldap.findExperimenter(user).getOmeName());
             fixture.createUserWithGroup(this, dn, users.get(user).get(0));
-            assertTrue(fixture.createUserFromLdap(user, "password", true));
+            assertNotNull(fixture.createUserFromLdap(user, "password", true));
             fixture.login(user, users.get(user).get(0), "password");
         }
     }
@@ -196,7 +197,7 @@ public class LdapTest extends MockObjectTestCase {
                 String dn = ldap.findDN(user);
                 assertNotNull(dn);
                 fixture.createUserWithGroup(this, dn, users.get(user).get(0));
-                assertTrue(fixture.createUserFromLdap(user, "password", true));
+                assertNotNull(fixture.createUserFromLdap(user, "password", true));
                 fixture.login(user, users.get(user).get(0), "password");
                 // Parsing afterwards to force an explosion to reproduce #2557
                 assertEquals(user, ldap.findExperimenter(user).getOmeName());
@@ -235,7 +236,7 @@ public class LdapTest extends MockObjectTestCase {
             assertNotNull(dn);
             assertEquals(user, ldap.findExperimenter(user).getOmeName());
             fixture.createUserWithGroup(this, dn, users.get(user).get(0));
-            assertTrue(fixture.createUserFromLdap(user));
+            assertNotNull(fixture.createUserFromLdap(user));
             try {
                 fixture.createUserFromLdap("nonExistingUserShouldNotBeCreated");
             } catch (ApiUsageException aue) {
