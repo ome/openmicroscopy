@@ -59,8 +59,8 @@
         <target name="retrieve" unless="retrieve.done">
                 <property name="retrieve.done" value="true"/>
                 <installIvy/>
-		<ivy:retrieve settingsRef="ivy.${ant.project.name}" pattern="${deps.lib.dir}/[artifact].[ext]" log="quiet" sync="false" symlink="true"/>
-	</target>
+                <ivy:retrieve settingsRef="ivy.${ant.project.name}" pattern="${deps.lib.dir}/[artifact](-[classifier]).[ext]" log="quiet" sync="false" symlink="true"/>
+        </target>
 
 	<target name="prepare" depends="retrieve">
 		<mkdir dir="${deps.lib.dir}"/>
@@ -359,7 +359,7 @@ omero.version=${omero.version}
 	</target>
 
 
-	<target name="package" depends="compile">
+	<target name="package" depends="compile,package-extra">
 		<pathconvert property="mf.classpath"
 			refid="omero.compile.classpath"
 			pathsep=" " dirsep="/">
@@ -376,6 +376,30 @@ omero.version=${omero.version}
 				<exclude name="logback.xml"/>
 				<exclude name="logback-build.xml"/>
 			</fileset>
+		</jar>
+	</target>
+
+	<target name="package-extra">
+		<jar destfile="${target.dir}/${ivy.module}-sources.jar">
+			<fileset dir="${src.dir}" includes="**/*.java"/>
+			<fileset dir="${src.dest}" includes="**/*.java"/>
+		</jar>
+		<mkdir dir="${target.dir}/javadocs"/>
+		<javadoc
+			classpathref="omero.classpath"
+			failonerror="true"
+			Verbose="false"
+			maxmemory="${javadoc.maxmem}"
+			destdir="${target.dir}/javadocs"
+			author="true"
+			version="true"
+			use="true"
+			breakiterator="true">
+			<fileset dir="${src.dir}" includes="**/*.java"/>
+			<fileset dir="${src.dest}" includes="**/*.java"/>
+		</javadoc>
+		<jar destfile="${target.dir}/${ivy.module}-javadoc.jar">
+				<fileset dir="${target.dir}/javadocs"/>
 		</jar>
 	</target>
 
@@ -432,6 +456,14 @@ omero.version=${omero.version}
 	</target>
 
 	<target name="install" depends="package">
+		<ivy:makepom ivyfile="${basedir}/ivy.xml" pomfile="${target.dir}/${ivy.module}.pom">
+			<mapping conf="build" scope="compile"/>
+			<mapping conf="runtime" scope="compile"/>
+			<mapping conf="client" scope="compile"/>
+			<mapping conf="server" scope="compile"/>
+			<mapping conf="default" scope="compile"/>
+			<mapping conf="*" scope="compile"/>
+		</ivy:makepom>
 		<publishArtifact/>
 	</target>
 

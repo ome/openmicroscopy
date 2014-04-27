@@ -106,6 +106,14 @@
                 includes="**/*.class,omero.properties"/>
             <fileset dir="${target.dir}/generated-classes"/>
         </jar>
+        <jar destfile="${target.dir}/${ivy.module}-sources.jar">
+            <!-- FIXME: Start off with some of the source classes -->
+            <fileset dir="${blitz.comp}/src">
+                <include name="ome/formats/**/*.java"/>
+                <include name="pojos/*.java"/>
+                <include name="omero/**/*.java"/>
+            </fileset>
+        </jar>
     </target>
 
     <target name="tools-build" depends="tools-init,install"
