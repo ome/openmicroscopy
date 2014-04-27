@@ -35,7 +35,7 @@
     <!-- From classpath -->
     <dependency org="insight" name="ai_path" rev="${versions.ai_path}"/>
     <dependency org="insight" name="axis" rev="${versions.axis}"/>
-    <dependency org="insight" name="backport-util-concurrent" rev="${versions.backport}"/>
+    <dependency org="backport-util-concurrent" name="backport-util-concurrent" rev="${versions.backport}"/>
     <dependency org="insight" name="commons-collections" rev="${versions.commons-collections}"/>
     <dependency org="insight" name="commons-digester" rev="${versions.commons-digester}"/>
     <dependency org="insight" name="commons-discovery" rev="${versions.commons-discovery}"/>
