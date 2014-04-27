@@ -394,6 +394,8 @@ omero.version=${omero.version}
 			author="true"
 			version="true"
 			use="true"
+			encoding="UTF-8"
+			docencoding="UTF-8"
 			breakiterator="true">
 			<fileset dir="${src.dir}" includes="**/*.java"/>
 			<fileset dir="${src.dest}" includes="**/*.java"/>
