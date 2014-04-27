@@ -58,7 +58,6 @@ def java_omero(args):
     command.append(BUILD_PY)
     command.extend( calculate_memory_args() )
     command.extend(["omero"])
-    command.extend(choose_omero_version())
     if isinstance(args,str):
         command.append(args)
     else:
@@ -70,12 +69,6 @@ def find_java():
 
 def calculate_memory_args():
     return "-Xmx600M -XX:MaxPermSize=256m".split(" ")
-
-def choose_omero_version():
-    """
-    No-op. Now handled by components/antlib/resources/version.{py,xml}
-    """
-    return []
 
 def handle_tools(args):
     _ = os.path.sep.join
