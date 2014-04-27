@@ -418,6 +418,7 @@ omero.version=${omero.version}
 	</target>
 
 	<target name="install" depends="package">
+		<property name="ivy.pom.version" value="${omero.version}"/>
 		<ivy:makepom ivyfile="${basedir}/ivy.xml" pomfile="${target.dir}/${ivy.module}.pom">
 			<mapping conf="build" scope="compile"/>
 			<mapping conf="runtime" scope="compile"/>
