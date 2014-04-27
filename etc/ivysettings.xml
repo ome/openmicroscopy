@@ -24,8 +24,8 @@
     where all our jars will be published -->
     <chain name="omero-resolver" returnFirst="true">
       <filesystem name="main" checkmodified="true" changingMatcher="regexp" changingPattern=".*DEV.*">
-        <artifact pattern="${ivy.settings.dir}/../target/repository/[artifact]-[revision].[type]" />
-        <ivy pattern="${ivy.settings.dir}/../target/repository/[module]-[revision].ivy"/>
+        <artifact pattern="${ivy.settings.dir}/../target/repository/[organisation]/[module]/[revision]/[artifact]-[revision](-[classifier]).[ext]" />
+        <ivy pattern="${ivy.settings.dir}/../target/repository/[organisation]/[module]/[revision]/[module]-[revision](-[classifier]).ivy"/>
       </filesystem>
       <filesystem name="repo">
         <artifact pattern="${ivy.settings.dir}/../lib/repository/[artifact]-[revision].[type]" />
