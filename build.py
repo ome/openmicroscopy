@@ -98,8 +98,8 @@ def choose_omero_version():
         #
         # See gh-67 for the discussion.
         if not omero_build:
-            omero_version = re.sub("([-]DEV)?-\d+-[a-f0-9]+(-dirty)?",\
-                    "-DEV", omero_version)
+            omero_version = re.sub("([-]DEV)?-\d+-[a-f0-9]+(-dirty)?-ice[0-9]+",\
+                    "-SNAPSHOT", omero_version)
         return [ "-Domero.version=%s%s" % (omero_version, omero_build) ]
     except:
         print "Error getting version for BUILD_NUMBER=%s" % omero_build
