@@ -1,4 +1,4 @@
-<ivy-module version="1.0">
+<ivy-module version="1.0" xmlns:m="http://ant.apache.org/ivy/maven">
   <info
       organisation="omero"
       module="OmeroImporter"
@@ -9,6 +9,9 @@
   </configurations>
   <publications>
     <artifact name="OmeroImporter" type="jar"/>
+    <artifact name="OmeroImporter" type="pom"/>
+    <artifact name="OmeroImporter" type="source" ext="jar" m:classifier="sources"/>
+    <artifact name="OmeroImporter" type="javadoc" ext="jar" m:classifier="javadoc"/>
   </publications>
   <dependencies defaultconfmapping="build,client->default">
     <!-- Internal -->

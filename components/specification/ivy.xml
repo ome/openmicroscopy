@@ -8,6 +8,7 @@
   </configurations>
   <publications>
     <artifact name="specification" type="jar"/>
+    <artifact name="specification" type="pom"/>
   </publications>
   <dependencies/>
 </ivy-module>

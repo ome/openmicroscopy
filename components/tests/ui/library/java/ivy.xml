@@ -1,4 +1,4 @@
-<ivy-module version="1.0">
+<ivy-module version="1.0" xmlns:m="http://ant.apache.org/ivy/maven">
   <info
       organisation="omero"
       module="java-ui-libraries"
@@ -9,6 +9,9 @@
   </configurations>
   <publications>
     <artifact name="java-ui-libraries" type="jar"/>
+    <artifact name="java-ui-libraries" type="pom"/>
+    <artifact name="java-ui-libraries" type="source" ext="jar" m:classifier="sources"/>
+    <artifact name="java-ui-libraries" type="javadoc" ext="jar" m:classifier="javadoc"/>
   </publications>
   <dependencies defaultconfmapping="build,client->default">
     <dependency org="robot-framework" name="swinglibrary" rev="${versions.robotframework.swinglibrary}"/>

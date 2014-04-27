@@ -34,6 +34,10 @@
         <publishArtifact haltonmissing="false"/>
     </target>
 
+    <target name="package-extra">
+        <!-- no-op -->
+    </target>
+
     <target name="tools-build" depends="tools-init,package,install" description="Creates all artifacts for tools/target"/>
 
     <target name="release-zip" depends="package"

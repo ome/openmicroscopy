@@ -1,4 +1,4 @@
-<ivy-module version="1.0">
+<ivy-module version="1.0" xmlns:m="http://ant.apache.org/ivy/maven">
   <info
       organisation="omero"
       module="blitz"
@@ -10,6 +10,9 @@
   </configurations>
   <publications>
     <artifact name="blitz" type="jar"/>
+    <artifact name="blitz" type="pom"/>
+    <artifact name="blitz" type="source" ext="jar" m:classifier="sources"/>
+    <artifact name="blitz" type="javadoc" ext="jar" m:classifier="javadoc"/>
   </publications>
   <dependencies>
     <!-- Internal -->

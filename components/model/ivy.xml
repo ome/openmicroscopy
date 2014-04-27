@@ -1,4 +1,4 @@
-<ivy-module version="1.0">
+<ivy-module version="1.0" xmlns:m="http://ant.apache.org/ivy/maven">
   <info
       organisation="omero"
       module="model-${omero.db.profile}"
@@ -10,6 +10,9 @@
   </configurations>
   <publications>
     <artifact name="model-${omero.db.profile}" type="jar"/>
+    <artifact name="model-${omero.db.profile}" type="pom"/>
+    <artifact name="model-${omero.db.profile}" type="source" ext="jar" m:classifier="sources"/>
+    <artifact name="model-${omero.db.profile}" type="javadoc" ext="jar" m:classifier="javadoc"/>
   </publications>
   <dependencies defaultconfmapping="build,client,server->default">
     <!-- Internal -->

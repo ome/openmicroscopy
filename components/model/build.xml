@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<project name="model" default="install" basedir=".">
+<project name="model" default="install" basedir="." xmlns:ivy="antlib:org.apache.ivy.ant">
 
     <property name="import.dir" value="${basedir}/../antlib/resources"/>
     <import file="${import.dir}/global.xml"/>

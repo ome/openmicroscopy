@@ -448,16 +448,16 @@ with OMERO.
             </sequential>
         </macrodef>
 
-	<macrodef name="publishArtifact">
-		<attribute name="pattern" default="${target.dir}/[artifact].[ext]"/>
-                <attribute name="haltonmissing" default="true"/>
-		<sequential>
-		<delete file="${target.dir}/${ivy.module}.xml"/> <!-- delete last produced ivy file to be sure a new one will be generated -->
-		<ivy:publish settingsRef="ivy.${ant.project.name}" artifactspattern="@{pattern}" resolver="${omero.resolver}"
+        <macrodef name="publishArtifact">
+            <attribute name="pattern" default="${target.dir}/[artifact].[ext]"/>
+            <attribute name="haltonmissing" default="true"/>
+            <sequential>
+                <delete file="${target.dir}/${ivy.module}.xml"/> <!-- delete last produced ivy file to be sure a new one will be generated -->
+                <ivy:publish settingsRef="ivy.${ant.project.name}" artifactspattern="@{pattern}" resolver="${omero.resolver}"
                     pubrevision="${omero.version}" pubdate="${now}" status="integration" overwrite="true" forcedeliver="true"
                     haltonmissing="@{haltonmissing}" warnonmissing="@{haltonmissing}"/>
-		</sequential>
-	</macrodef>
+            </sequential>
+        </macrodef>
 
         <macrodef name="tryEclipse">
             <attribute name="settingsRef"/>
@@ -494,7 +494,7 @@ with OMERO.
         <macrodef name="defineClasspath">
            <sequential>
             <path id="omero.compile.classpath">
-              <fileset dir="${deps.lib.dir}" />
+              <fileset dir="${deps.lib.dir}" excludes="**/*-sources.jar"/>
             </path>
             <path id="omero.classpath">
               <path location="${target.dir}/generated-classes" />
