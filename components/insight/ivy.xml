@@ -42,7 +42,7 @@
     <dependency org="insight" name="commons-httpclient" rev="${versions.commons-httpclient}"/>
     <dependency org="insight" name="commons-io" rev="${versions.commons-io}"/>
     <dependency org="insight" name="commons-lang" rev="${versions.commons-lang}"/>
-    <dependency org="insight" name="commons-logging" rev="${versions.commons-logging}"/>
+    <dependency org="insight" name="commons-logging" rev="${versi:ons.commons-logging}"/>
     <dependency org="insight" name="commons-validator" rev="${versions.commons-validator}"/>
     <dependency org="insight" name="commons-logging" rev="${versions.commons-logging}"/>
     <dependency org="insight" name="ehcache-core" rev="${versions.ehcache}"/>
@@ -64,7 +64,7 @@
     <dependency org="org.swinglabs" name="swingx" rev="${versions.swingx}"/>
     <dependency org="insight" name="TableLayout" rev="${versions.TableLayout}"/>
     <dependency org="insight" name="wsdl4j" rev="${versions.wsdl4j}"/>
-    <dependency org="insight" name="java-image-scaling" rev="${versions.java-image-scaling}"/>
+    <dependency org="com.mortennobel" name="java-image-scaling" rev="${versions.java-image-scaling}"/>
     <dependency org="insight" name="jna" rev="${versions.jna}"/>
     <dependency org="insight" name="platform" rev="${versions.platform}"/>
     <dependency org="insight" name="nanoxml" rev="${versions.nanoxml}"/>
