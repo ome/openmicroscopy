@@ -1,4 +1,4 @@
-<ivy-module version="1.0">
+<ivy-module version="1.0" xmlns:m="http://ant.apache.org/ivy/maven">
   <info
       organisation="omero"
       module="dsl"
@@ -9,6 +9,9 @@
   </configurations>
   <publications>
     <artifact name="dsl" type="jar"/>
+    <artifact name="dsl" type="pom"/>
+    <artifact name="dsl" type="source" ext="jar" m:classifier="sources"/>
+    <artifact name="dsl" type="javadoc" ext="jar" m:classifier="javadoc"/>
   </publications>
   <dependencies defaultconfmapping="build->default">
     <!-- runtime dependencies for all modules, since dsl is the base of our DAG -->

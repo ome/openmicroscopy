@@ -1,4 +1,4 @@
-<ivy-module version="1.0">
+<ivy-module version="1.0" xmlns:m="http://ant.apache.org/ivy/maven">
   <info
       organisation="omero"
       module="insight"
@@ -9,7 +9,10 @@
   </configurations>
   <publications>
     <artifact name="insight" type="jar"/>
+    <artifact name="insight" type="pom"/>
     <artifact name="insight" type="zip"/>
+    <artifact name="insight" type="source" ext="jar" m:classifier="sources"/>
+    <artifact name="insight" type="javadoc" ext="jar" m:classifier="javadoc"/>
     <artifact name="insight-win" type="zip"/>
     <artifact name="insight-win-openGL" type="zip"/>
     <artifact name="insight-win64-openGL" type="zip"/>

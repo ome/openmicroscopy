@@ -1,4 +1,4 @@
-<ivy-module version="1.0">
+<ivy-module version="1.0" xmlns:m="http://ant.apache.org/ivy/maven">
   <info
       organisation="omero"
       module="server"
@@ -9,6 +9,9 @@
   </configurations>
   <publications>
     <artifact name="server" type="jar"/>
+    <artifact name="server" type="pom"/>
+    <artifact name="server" type="source" ext="jar" m:classifier="sources"/>
+    <artifact name="server" type="javadoc" ext="jar" m:classifier="javadoc"/>
   </publications>
   <dependencies defaultconfmapping="build,server->default">
     <!-- Internal -->

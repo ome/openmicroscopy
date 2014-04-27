@@ -1,4 +1,4 @@
-<ivy-module version="1.0">
+<ivy-module version="1.0" xmlns:m="http://ant.apache.org/ivy/maven">
 <!--
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
@@ -24,6 +24,9 @@
   </configurations>
   <publications>
     <artifact name="omero_client" type="jar"/>
+    <artifact name="omero_client" type="pom"/>
+    <artifact name="omero_client" type="source" ext="jar" m:classifier="sources"/>
+    <artifact name="omero_client" type="javadoc" ext="jar" m:classifier="javadoc"/>
   </publications>
   <dependencies>
     <!-- Internal -->
