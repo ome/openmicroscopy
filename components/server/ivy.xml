@@ -45,7 +45,7 @@
     <dependency org="xerces" name="xercesImpl" rev="${versions.xercesImpl}"/>
     <dependency org="xml-apis" name="xml-apis" rev="${versions.xml-apis}"/>
     <dependency org="xml-apis" name="xml-apis-ext" rev="${versions.xml-apis}"/>
-    <dependency org="mail" name="mail" rev="${versions.mail}"/>
+    <dependency org="javax.mail" name="mail" rev="${versions.mail}"/>
     <dependency org="activation" name="activation" rev="${versions.activation}"/>
     <dependency org="PDFBox" name="PDFBox" rev="${versions.PDFBox}"/>
     <dependency org="FontBox" name="FontBox" rev="${versions.FontBox}"/>
