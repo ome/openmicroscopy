@@ -50,7 +50,7 @@
     <dependency org="PDFBox" name="PDFBox" rev="${versions.PDFBox}"/>
     <dependency org="FontBox" name="FontBox" rev="${versions.FontBox}"/>
     <!-- spring -->
-    <dependency org="org.springframework" name="com.springsource.org.aopalliance" rev="1.0.0"/>
+    <dependency org="org.aopalliance" name="com.springsource.org.aopalliance" rev="1.0.0"/>
     <dependency org="org.springframework" name="org.springframework.aop" rev="${versions.spring}"/>
     <dependency org="org.springframework" name="org.springframework.context.support" rev="${versions.spring}"/>
     <dependency org="spring" name="spring-security-core" rev="${versions.spring-security}"/>
