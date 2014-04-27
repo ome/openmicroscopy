@@ -56,6 +56,9 @@
         <ivy pattern="http://repository.springsource.com/ivy/bundles/external/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]" />
         <artifact pattern="http://repository.springsource.com/ivy/bundles/external/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]" />
       </url>
+      <url name="maven" m2compatible="true" cache="maven">
+        <artifact pattern="http://repo1.maven.org/maven2/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]"/>
+      </url>
    </chain>
 
    <!-- Optional resolver which can be modified for using non-SCM jars -->
