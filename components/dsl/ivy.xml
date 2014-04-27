@@ -42,7 +42,7 @@
     <dependency org="commons-beanutils" name="commons-beanutils" rev="${versions.commons-beanutils}" conf="build->default"/>
     <dependency org="jmock" name="jmock" rev="1.0.1" conf="build->default"/>
     <dependency org="junit" name="junit" rev="3.8.1" conf="build->default"/>
-    <dependency org="findbugs" name="findbugs-ant" rev="${versions.findbugs}" conf="build->default"/>
+    <dependency org="net.sourceforge.findbugs" name="findbugs-ant" rev="${versions.findbugs}" conf="build->default"/>
     <dependency org="oro" name="oro" rev="${versions.oro}" conf="build->default"/>
     <dependency org="com.jamonapi" name="jamon" rev="${versions.jamon}" conf="build->default"/>
     <dependency org="org.testng" name="testng" rev="${versions.testng}" conf="build->default"/>
