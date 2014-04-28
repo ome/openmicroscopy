@@ -509,6 +509,12 @@ public interface RenderingEngine extends StatefulServiceInterface {
     /** Saves the current rendering settings in the database. */
     public void saveCurrentSettings();
 
+    /** Saves the current rendering settings in the database
+     * <em>as a new {@link RenderingDef} and loads the object
+     * into the current {@link RenderingEngine}.
+     */
+    public long saveAsNewSettings();
+
     /**
      * Resets the default settings i.e. the default values internal to the
      * Rendering engine. The settings will be saved.

@@ -51,6 +51,7 @@ import omero.api.AMD_RenderingEngine_renderProjectedAsPackedInt;
 import omero.api.AMD_RenderingEngine_renderProjectedCompressed;
 import omero.api.AMD_RenderingEngine_resetDefaults;
 import omero.api.AMD_RenderingEngine_resetDefaultsNoSave;
+import omero.api.AMD_RenderingEngine_saveAsNewSettings;
 import omero.api.AMD_RenderingEngine_saveCurrentSettings;
 import omero.api.AMD_RenderingEngine_setActive;
 import omero.api.AMD_RenderingEngine_setChannelWindow;
@@ -373,6 +374,12 @@ public class RenderingEngineI extends AbstractPyramidServant implements
 
     public void resetDefaults_async(AMD_RenderingEngine_resetDefaults __cb,
             Current __current) throws ServerError {
+        callInvokerOnRawArgs(__cb, __current);
+    }
+
+    public void saveAsNewSettings_async(
+            AMD_RenderingEngine_saveAsNewSettings __cb, Current __current)
+            throws ServerError {
         callInvokerOnRawArgs(__cb, __current);
     }
 

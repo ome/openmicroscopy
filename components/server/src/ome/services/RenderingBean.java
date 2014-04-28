@@ -745,6 +745,17 @@ public class RenderingBean implements RenderingEngine, Serializable {
 
     /**
      * Implemented as specified by the {@link RenderingEngine} interface.
+     *
+     * @see RenderingEngine#saveAsNewSettings()
+     */
+    @RolesAllowed("user")
+    @Transactional(readOnly = false)
+    public long saveAsNewSettings() {
+        return -1;
+    }
+
+    /**
+     * Implemented as specified by the {@link RenderingEngine} interface.
      * 
      * @see RenderingEngine#saveCurrentSettings()
      */
