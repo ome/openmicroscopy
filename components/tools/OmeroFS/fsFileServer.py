@@ -8,7 +8,6 @@
 
 """
 import logging
-import os
 import sys, traceback
 
 try:
@@ -393,7 +392,7 @@ class FileServerI(monitors.FileServer):
             raise omero.OmeroFSError(reason='File ID  ' + str(fileId) + ' not on this FSServer')       
    
         try:
-            isdir = os.path.isdir(pathModule.path(pathString))
+            isdir = pathModule.path(pathString).isdir
         except Exception, e:
             self.log.error('Failed to get  ' + str(fileId) + ' isdir : ' + str(e))
             raise omero.OmeroFSError(reason='Failed to get  ' + str(fileId) + ' isdir : ' + str(e))       
@@ -523,7 +522,7 @@ class FileServerI(monitors.FileServer):
         stats.aTime = pathModule.path(pathString).atime
         if pathModule.path(pathString).isfile():
             stats.type = monitors.FileType.File
-        elif os.path.isdir(pathModule.path(pathString)):
+        elif pathModule.path(pathString).isdir():
             stats.type = monitors.FileType.Dir
         elif pathModule.path(pathString).islink():
             stats.type = monitors.FileType.Link

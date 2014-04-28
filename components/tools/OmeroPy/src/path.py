@@ -392,7 +392,7 @@ class path(_base):
         directories whose names match the given pattern.  For
         example, d.dirs('build-*').
         """
-        return [p for p in self.listdir(pattern) if os.path.isdir(p)]
+        return [p for p in self.listdir(pattern) if p.isdir()]
 
     def files(self, pattern=None):
         """ D.files() -> List of the files in this directory.
@@ -412,7 +412,7 @@ class path(_base):
 
         The iterator yields path objects naming each child item of
         this directory and its descendants.  This requires that
-        os.path.isdir(D).
+        D.isdir().
 
         This performs a depth-first traversal of the directory tree.
         Each directory is returned just before all its children.
@@ -443,7 +443,7 @@ class path(_base):
             if pattern is None or child.fnmatch(pattern):
                 yield child
             try:
-                isdir = os.path.isdir(child)
+                isdir = child.isdir()
             except Exception:
                 if errors == 'ignore':
                     isdir = False
@@ -524,7 +524,7 @@ class path(_base):
         for child in childList:
             try:
                 isfile = child.isfile()
-                isdir = not isfile and os.path.isdir(child)
+                isdir = not isfile and child.isdir()
             except:
                 if errors == 'ignore':
                     continue

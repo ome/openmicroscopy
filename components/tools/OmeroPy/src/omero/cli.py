@@ -28,7 +28,6 @@ import string, re, os, subprocess, socket, traceback, glob, platform, time
 import shlex
 from threading import Thread, Lock
 from path import path
-import os
 
 from omero_ext.argparse import ArgumentError
 from omero_ext.argparse import ArgumentParser
@@ -234,7 +233,7 @@ class DirectoryType(FileType):
         p = path(string)
         if not p.exists():
             raise ValueError("Directory does not exist: %s" % string)
-        elif not os.path.isdir(p):
+        elif not p.isdir():
             raise ValueError("Path is not a directory: %s" % string)
         return str(p.abspath())
 
@@ -365,7 +364,7 @@ class Context:
         dir = path(os.path.expanduser("~")) / "omero" / "cli"
         if not dir.exists():
             dir.mkdir()
-        elif not os.path.isdir(dir):
+        elif not dir.isdir():
             raise Exception("%s is not a directory"%dir)
         dir.chmod(0700)
         return dir
@@ -644,7 +643,7 @@ class BaseControl(object):
         else:
             dir = path(dir)
         p = path(f)
-        if p.exists() and os.path.isdir(p):
+        if p.exists() and p.isdir():
             if not f.endswith(os.sep):
                 return [p.basename()+os.sep]
             return [ str(x)[len(f):] for x in p.listdir() ]
@@ -653,7 +652,7 @@ class BaseControl(object):
             if len(results) == 1:
                 # Relative to cwd
                 maybe_dir = path(results[0])
-                if maybe_dir.exists() and os.path.isdir(maybe_dir):
+                if maybe_dir.exists() and maybe_dir.isdir():
                     return [ results[0] + os.sep ]
             return results
 
@@ -1133,7 +1132,7 @@ class CLI(cmd.Cmd, Context):
         self.post_process()
 
     def loadpath(self, pathobj):
-        if os.path.isdir(pathobj):
+        if pathobj.isdir():
             for plugin in pathobj.walkfiles("*.py"):
                 if -1 == plugin.find("#"): # Omit emacs files
                     self.loadpath(path(plugin))

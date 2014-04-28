@@ -12,7 +12,6 @@
 """
 
 import logging
-import os
 from time import localtime, strftime
 
 # Third party path package. It provides much of the 
@@ -587,7 +586,7 @@ class DirNode(Node):
         if path.isfile():
             if self.base.onWhitelist(path.ext): 
                 self.children[path.name] = FileNode(path)
-        elif os.path.isdir(path):
+        elif path.isdir():
             if self.mode == 'Flat':
                 self.children[path.name] = DirStub(path)
             elif self.mode == 'Follow':
