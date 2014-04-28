@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.data.views.MetadataHandlerViewImpl 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -36,11 +36,13 @@ import org.openmicroscopy.shoola.env.data.model.TableParameters;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.data.util.FilterContext;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+import org.openmicroscopy.shoola.env.data.views.calls.AnnotationParentLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ArchivedFilesLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ArchivedFilesSaver;
 import org.openmicroscopy.shoola.env.data.views.calls.ArchivedImageLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.DataFilter;
 import org.openmicroscopy.shoola.env.data.views.calls.DataObjectSaver;
+import org.openmicroscopy.shoola.env.data.views.calls.FileAnnotationCheckLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.FileUploader;
 import org.openmicroscopy.shoola.env.data.views.calls.FilesLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.FilesetLoader;
@@ -141,6 +143,15 @@ class MetadataHandlerViewImpl
 		return cmd.exec(observer);
 	}
 
+	/**
+	 * Implemented as specified by the view interface.
+	 * @see MetadataHandlerView#loadAnnotationParents(SecurityContext, long, AgentEventListener)
+	 */
+	public CallHandle loadFileAnnotationParents(SecurityContext ctx, List<FileAnnotationData> annotations, AgentEventListener observer) {
+		BatchCallTree cmd = new FileAnnotationCheckLoader(ctx, annotations);
+		return cmd.exec(observer);
+	}
+	
 	/**
 	 * Implemented as specified by the view interface.
 	 * @see MetadataHandlerView#loadExistingAnnotations(SecurityContext,
