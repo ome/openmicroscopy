@@ -1,10 +1,26 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+
+#
+# Copyright (C) 2009-2014 Glencoe Software, Inc. All Rights Reserved.
+# Use is subject to license terms supplied in LICENSE.txt
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
 """
    Startup plugin for command-line importer.
-
-   Copyright 2009 Glencoe Software, Inc. All rights reserved.
-   Use is subject to license terms supplied in LICENSE.txt
 
 """
 
@@ -12,6 +28,7 @@ import os
 import sys
 from omero.cli import BaseControl, CLI
 import omero.java
+from omero_ext.argparse import SUPPRESS
 
 START_CLASS = "ome.formats.importer.cli.CommandLineImporter"
 TEST_CLASS = "ome.formats.test.util.TestEngine"
@@ -64,24 +81,24 @@ class ImportControl(BaseControl):
             help="File for storing the standard err of the Java process")
         # The following arguments are strictly passed to Java
         name_group = parser.add_argument_group(
-            'Naming arguments', 'Optional arguments passed strictly to Java. '
-            'Only image OR plate arguments should be set')
+            'Naming arguments', 'Optional arguments passed strictly to Java.')
         name_group.add_argument(
-            "-n", dest="java_n",
-            help="Image name to use (**)",
-            metavar="IMAGE_NAME")
+            "-n", "--name", dest="java_n",
+            help="Image or plate name to use (**)",
+            metavar="NAME")
         name_group.add_argument(
-            "-x", dest="java_x",
-            help="Image description to use (**)",
-            metavar="IMAGE_DESCRIPTION")
-        name_group.add_argument(
+            "-x", "--description", dest="java_x",
+            help="Image or plate description to use (**)",
+            metavar="DESCRIPTION")
+
+        # DEPRECATED OPTIONS
+        deprecated_name_group = parser.add_argument_group()
+        deprecated_name_group.add_argument(
             "--plate_name", dest="java_plate_name",
-            help="Plate name to use (**)",
-            metavar="PLATE_NAME")
-        name_group.add_argument(
+            help=SUPPRESS)
+        deprecated_name_group.add_argument(
             "--plate_description", dest="java_plate_description",
-            help="Plate description to use (**)",
-            metavar="PLATE_DESCRIPTION")
+            help=SUPPRESS)
 
         java_group = parser.add_argument_group(
             'Java arguments', 'Optional arguments passed strictly to Java')
@@ -134,6 +151,7 @@ class ImportControl(BaseControl):
         parser.add_argument(
             "path", nargs="*",
             help="Path to be passed to the Java process")
+
         parser.set_defaults(func=self.importer)
 
     def importer(self, args):

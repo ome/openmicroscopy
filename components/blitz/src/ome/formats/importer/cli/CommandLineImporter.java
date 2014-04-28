@@ -283,11 +283,11 @@ public class CommandLineImporter {
             + "  -p PORT\tOMERO server port (default: 4064)\n"
             + "\n"
             + "Naming arguments:\n"
-            + "All naming arguments are optional but only image OR plate values should be set\n"
-            + "  -n NAME\t\t\t\tImage name to use\n"
-            + "  -x DESCRIPTION\t\t\tImage description to use\n"
-            + "  --plate_name NAME\t\t\tPlate name to use\n"
-            + "  --plate_description DESCRIPTION\tPlate description to use\n"
+            + "All naming arguments are optional\n"
+            + "  -n NAME\t\t\t\tImage or plate name to use\n"
+            + "  -x DESCRIPTION\t\t\tImage or plate description to use\n"
+            + "  --name NAME\t\t\t\tImage or plate name to use\n"
+            + "  --description DESCRIPTION\t\tImage or plate description to use\n"
             + "\n"
             + "Optional arguments:\n"
             + "  -h\t\t\t\t\tDisplay this help and exit\n"
@@ -434,10 +434,10 @@ public class CommandLineImporter {
         LongOpt logs = new LongOpt("logs", LongOpt.NO_ARGUMENT, null, 4);
         LongOpt email = new LongOpt(
                 "email", LongOpt.REQUIRED_ARGUMENT, null, 5);
-        LongOpt plateName = new LongOpt(
-                "plate_name", LongOpt.REQUIRED_ARGUMENT, null, 6);
-        LongOpt plateDescription = new LongOpt(
-                "plate_description", LongOpt.REQUIRED_ARGUMENT, null, 7);
+        LongOpt name = new LongOpt(
+                "name", LongOpt.REQUIRED_ARGUMENT, null, 6);
+        LongOpt description = new LongOpt(
+                "description", LongOpt.REQUIRED_ARGUMENT, null, 7);
         LongOpt noThumbnails = new LongOpt(
                 "no_thumbnails", LongOpt.NO_ARGUMENT, null, 8);
         LongOpt agent = new LongOpt(
@@ -465,13 +465,19 @@ public class CommandLineImporter {
         LongOpt waitCompleted =
                 new LongOpt("wait_completed", LongOpt.NO_ARGUMENT, null, 18);
 
+        // DEPRECATED OPTIONS
+        LongOpt plateName = new LongOpt(
+                "plate_name", LongOpt.REQUIRED_ARGUMENT, null, 19);
+        LongOpt plateDescription = new LongOpt(
+                "plate_description", LongOpt.REQUIRED_ARGUMENT, null, 20);
+
         Getopt g = new Getopt(APP_NAME, args, "cfl:s:u:w:d:r:k:x:n:p:h",
                 new LongOpt[] { debug, report, upload, logs, email,
-                                plateName, plateDescription, noThumbnails,
+                                name, description, noThumbnails,
                                 agent, annotationNamespace, annotationText,
                                 annotationLink, transferOpt, advancedHelp,
                                 checksumAlgorithm, minutesWait, closeCompleted,
-                                waitCompleted});
+                                waitCompleted, plateName, plateDescription});
         int a;
 
         boolean doCloseCompleted = false;
@@ -576,6 +582,24 @@ public class CommandLineImporter {
                 break;
             }
             // ADVANCED END ---------------------------------------------------
+            // DEPRECATED OPTIONS
+            case 19: {
+                if (userSpecifiedNameAlreadySet) {
+                    usage();
+                }
+                config.userSpecifiedName.set(g.getOptarg());
+                userSpecifiedNameAlreadySet = true;
+                break;
+            }
+            case 20: {
+                if (userSpecifiedDescriptionAlreadySet) {
+                    usage();
+                }
+                config.userSpecifiedDescription.set(g.getOptarg());
+                userSpecifiedDescriptionAlreadySet = true;
+                break;
+            }
+            // END OF DEPRECATED OPTIONS
             case 's': {
                 config.hostname.set(g.getOptarg());
                 break;
