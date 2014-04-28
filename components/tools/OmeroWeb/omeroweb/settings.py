@@ -551,7 +551,7 @@ PIPELINE_JS = {
             '3rdparty/panojs/pyramid_Bisque.js',
             '3rdparty/panojs/pyramid_imgcnv.js',
             '3rdparty/panojs/pyramid_Zoomify.js',
-            'webgateway/js/ome.panojs.control_thumbnail.js',
+            '3rdparty/panojs/control_thumbnail.js',
             '3rdparty/panojs/control_info.js',
             '3rdparty/panojs/control_svg.js',
             '3rdparty/panojs/control_roi.js',
