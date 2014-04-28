@@ -23,6 +23,7 @@ import ome.annotations.RevisionNumber;
 import ome.annotations.RolesAllowed;
 import ome.api.IPixels;
 import ome.api.IRenderingSettings;
+import ome.api.IUpdate;
 import ome.api.ServiceInterface;
 import ome.api.local.LocalCompress;
 import ome.conditions.ApiUsageException;
@@ -751,7 +752,7 @@ public class RenderingBean implements RenderingEngine, Serializable {
     @RolesAllowed("user")
     @Transactional(readOnly = false)
     public long saveAsNewSettings() {
-        return -1;
+        return internalSave(true);
     }
 
     /**
@@ -762,6 +763,10 @@ public class RenderingBean implements RenderingEngine, Serializable {
     @RolesAllowed("user")
     @Transactional(readOnly = false)
     public void saveCurrentSettings() {
+        internalSave(false);
+    }
+
+    private long internalSave(boolean saveAs) {
         rwl.writeLock().lock();
 
         try {
@@ -774,20 +779,23 @@ public class RenderingBean implements RenderingEngine, Serializable {
             // or similar once that functionality exists.
             RenderingDef old = rendDefObj;
             rendDefObj = createNewRenderingDef(pixelsObj);
-            rendDefObj.setId(old.getId());
+            if (!saveAs) {
+                rendDefObj.setId(old.getId());
+                rendDefObj.setVersion(old.getVersion() + 1);
+            }
             rendDefObj.setDefaultZ(old.getDefaultZ());
             rendDefObj.setDefaultT(old.getDefaultT());
             rendDefObj.setCompression(old.getCompression());
             rendDefObj.setName(old.getName());
             QuantumDef qDefNew = rendDefObj.getQuantization();
             QuantumDef qDefOld = old.getQuantization();
-            qDefNew.setId(qDefOld.getId());
+            if (!saveAs) {
+                qDefNew.setId(qDefOld.getId());
+            }
             qDefNew.setBitResolution(qDefOld.getBitResolution());
             qDefNew.setCdStart(qDefOld.getCdStart());
             qDefNew.setCdEnd(qDefOld.getCdEnd());
             
-            rendDefObj.setVersion(old.getVersion() + 1);
-
             // Unload the model object to avoid transactional headaches
             
            
@@ -795,16 +803,9 @@ public class RenderingBean implements RenderingEngine, Serializable {
                     .getModel().getId(), false);
             
             rendDefObj.setModel(unloadedModel);
+
             // Unload the family of each channel binding to avoid transactional
             // headaches.
-            /*
-            for (ChannelBinding binding : old
-                    .unmodifiableWaveRendering()) {
-                Family unloadedFamily = new Family(binding.getFamily().getId(),
-                        false);
-                binding.setFamily(unloadedFamily);
-            }
-            */
             Family family;
             int index = 0;
             ChannelBinding cb;
@@ -817,7 +818,9 @@ public class RenderingBean implements RenderingEngine, Serializable {
                 cb.setBlue(binding.getBlue());
                 cb.setRed(binding.getRed());
                 cb.setGreen(binding.getGreen());
-                cb.setId(binding.getId());
+                if (!saveAs) {
+                    cb.setId(binding.getId());
+                }
                 cb.setInputStart(binding.getInputStart());
                 cb.setInputEnd(binding.getInputEnd());
                 cb.setCoefficient(binding.getCoefficient());
@@ -827,26 +830,33 @@ public class RenderingBean implements RenderingEngine, Serializable {
             }
             
             // Actually save the rendering settings
-            ex.execute(/*ex*/null/*principal*/,
+            Long id = (Long) ex.execute(/*ex*/null/*principal*/,
                     new Executor.SimpleWork(this,"saveCurrentSettings"){
                         @Transactional(readOnly = false) // ticket:1434
                         public Object doWork(Session session, ServiceFactory sf) {
-                            IPixels pixMetaSrv = sf.getPixelsService();
-                            pixMetaSrv.saveRndSettings(rendDefObj);
-                            return null;
+                            IUpdate update = sf.getUpdateService();
+                            return update.saveAndReturnObject(rendDefObj).getId();
                         }});
-            rendDefObj = retrieveRndSettings(pixelsObj.getId());
-            
-            // Unload the linked pixels set to avoid transactional headaches on
-            // the next save.
-            Pixels unloadedPixels = new Pixels(pixelsObj.getId(), false);
-            rendDefObj.setPixels(unloadedPixels);
-            // The above save and reload step sets the rendDefObj instance
-            // (for which the renderer hold a reference) unloaded, which *will*
-            // cause IllegalStateExceptions if we're not careful. To compensate
-            // we will now reload the renderer.
-            // *** Ticket #848 -- Chris Allan <callan@blackcat.ca> ***
-            load();
+
+            if (saveAs) {
+                loadRenderingDef(id);
+            } else {
+
+
+                rendDefObj = retrieveRndSettings(pixelsObj.getId());
+
+                // Unload the linked pixels set to avoid transactional headaches on
+                // the next save.
+                Pixels unloadedPixels = new Pixels(pixelsObj.getId(), false);
+                rendDefObj.setPixels(unloadedPixels);
+                // The above save and reload step sets the rendDefObj instance
+                // (for which the renderer hold a reference) unloaded, which *will*
+                // cause IllegalStateExceptions if we're not careful. To compensate
+                // we will now reload the renderer.
+                // *** Ticket #848 -- Chris Allan <callan@blackcat.ca> ***
+                load();
+            }
+            return id;
         } finally {
             rwl.writeLock().unlock();
         }

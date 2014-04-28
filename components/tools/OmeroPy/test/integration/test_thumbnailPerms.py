@@ -295,23 +295,26 @@ class TestThumbnailPerms(lib.ITest):
         owner = self.new_client(group=group)
         other = self.new_client(group=group)
 
-        def assert_exists(for_owner, for_other):
-            for sf, exists in ((owner.sf, for_owner), (other.sf, for_other)):
-                if exists:
-                    assert sf.getPixelsService().retrieveRndSettings(pixels)
-                else:
-                    assert not sf.getPixelsService().retrieveRndSettings(pixels)
-
         # creation generates a first rendering image
         image = self.createTestImage(session=owner.sf)
         pixels = image.getPrimaryPixels().getId().getValue()
 
-        owner_prx = owner.sf.createRenderingEngine()
-        other_prx = other.sf.createRenderingEngine()
+        def assert_rdef(sf=None, prx=None):
+            if prx is None:
+                prx = sf.createRenderingEngine()
+            prx.lookupPixels(pixels)
+            assert prx.lookupRenderingDef(pixels)
+            return prx, prx.getRenderingDefId()
 
-        owner_prx.lookupPixels(pixels)
-        assert owner_prx.lookupRenderingDef(pixels)
+        # The owner has a rdef, and other
+        # users see the same value
+        a_prx, a_rdef = assert_rdef(owner.sf)
+        b_prx, b_rdef= assert_rdef(other.sf)
+        assert a_rdef == b_rdef
 
-        other_prx.lookupPixels(pixels)
-        import pdb; pdb.set_trace()
-        assert other_prx.lookupRenderingDef(pixels)
+        # But other users can create new rdefs
+        # That have new ids
+        c_rdef = b_prx.saveAsNewSettings()
+        ignore, d_rdef = assert_rdef(prx=b_prx)
+        assert a_rdef != c_rdef
+        assert c_rdef == d_rdef
