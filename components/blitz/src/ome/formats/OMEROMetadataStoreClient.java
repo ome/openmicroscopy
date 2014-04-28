@@ -1792,20 +1792,22 @@ public class OMEROMetadataStoreClient
             int containerBatchCount = 0;
             int containerPointer = 0;
             log.info("Handling # of containers: {}", containerArray.length);
-            while (containerPointer < containerArray.length) {
-              int nObjects = (int) Math.min(
-                OBJECT_BATCH_SIZE, containerArray.length - containerPointer);
-              IObjectContainer[] batch = new IObjectContainer[nObjects];
-              System.arraycopy(
-                containerArray, containerPointer, batch, 0, nObjects);
-              delegate.updateObjects(batch);
-              containerPointer += nObjects;
+            while (containerPointer < containerArray.length)
+            {
+                int nObjects = (int) Math.min(
+                    OBJECT_BATCH_SIZE, containerArray.length - containerPointer);
 
-              containerBatchCount += 1;
-              if (containerBatchCount > 1) {
-                log.info("Starting containerBatch #{}", containerBatchCount);
-              }
+                IObjectContainer[] batch = new IObjectContainer[nObjects];
+                System.arraycopy(
+                    containerArray, containerPointer, batch, 0, nObjects);
+                delegate.updateObjects(batch);
+                containerPointer += nObjects;
 
+                containerBatchCount += 1;
+                if (containerBatchCount > 1)
+                {
+                    log.info("Starting containerBatch #{}", containerBatchCount);
+                }
             }
 
             int referenceBatchCount = 0;
@@ -1816,24 +1818,23 @@ public class OMEROMetadataStoreClient
             log.info("Handling # of references: {}", referenceKeys.length);
             while (referencePointer < referenceKeys.length) {
 
-              referenceBatchCount += 1;
-              if (referenceBatchCount > 1) {
-                log.info("Starting referenceBatch #{}", referenceBatchCount);
-              }
+                referenceBatchCount += 1;
+                if (referenceBatchCount > 1)
+                {
+                    log.info("Starting referenceBatch #{}", referenceBatchCount);
+                }
 
-              Map<String, String[]> referenceBatch =
-                new HashMap<String, String[]>();
-              int batchSize = (int) Math.min(
-                OBJECT_BATCH_SIZE, referenceKeys.length - referencePointer);
-              for (int i=0; i<batchSize; i++) {
-                String key = referenceKeys[referencePointer + i];
-                referenceBatch.put(key, referenceStringCache.get(key));
-              }
-              delegate.updateReferences(referenceBatch);
-              referencePointer += batchSize;
-
-
+                Map<String, String[]> referenceBatch = new HashMap<String, String[]>();
+                int batchSize = (int) Math.min(
+                    OBJECT_BATCH_SIZE, referenceKeys.length - referencePointer);
+                for (int i=0; i<batchSize; i++) {
+                    String key = referenceKeys[referencePointer + i];
+                    referenceBatch.put(key, referenceStringCache.get(key));
+                }
+                delegate.updateReferences(referenceBatch);
+                referencePointer += batchSize;
             }
+
             Map<String, List<IObject>> rv = delegate.saveToDB(link);
             pixelsList = new OMEROMetadataStoreClientRoot((List) rv.get("Pixels"));
 
