@@ -312,9 +312,19 @@ class TestThumbnailPerms(lib.ITest):
         b_prx, b_rdef= assert_rdef(other.sf)
         assert a_rdef == b_rdef
 
+        # If the other users try to save with
+        # that prx though, they'll get a
+        # ValidationException
+        with pytest.raises(omero.ValidationException):
+            b_prx.saveCurrentSettings()
+
         # But other users can create new rdefs
-        # That have new ids
-        c_rdef = b_prx.saveAsNewSettings()
-        ignore, d_rdef = assert_rdef(prx=b_prx)
-        assert a_rdef != c_rdef
-        assert c_rdef == d_rdef
+        # with new ids using the new method
+        try:
+            c_rdef = b_prx.saveAsNewSettings()
+            ignore, d_rdef = assert_rdef(prx=b_prx)
+            assert a_rdef != c_rdef
+            assert c_rdef == d_rdef
+        except Ice.OperationNotExistException:
+            # Not supported by this server
+            pass
