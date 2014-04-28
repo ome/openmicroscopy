@@ -70,13 +70,13 @@ public class LdapTest extends MockObjectTestCase {
                     .will(returnValue(101L));
         }
 
-        public Experimenter createUserFromLdap(String user) {
-            return ldap.createUserFromLdap(user);
+        public Experimenter createUser(String user) {
+            return ldap.createUser(user);
         }
 
-        public Experimenter createUserFromLdap(String user, String string,
+        public Experimenter createUser(String user, String string,
                 boolean checkPassword) {
-            return ldap.createUserFromLdap(user, "password", checkPassword);
+            return ldap.createUser(user, "password", checkPassword);
         }
 
         public EventContext login(String username, String group, String password) {
@@ -184,7 +184,7 @@ public class LdapTest extends MockObjectTestCase {
             assertNotNull(dn);
             assertEquals(user, ldap.findExperimenter(user).getOmeName());
             fixture.createUserWithGroup(this, dn, users.get(user).get(0));
-            assertNotNull(fixture.createUserFromLdap(user, "password", true));
+            assertNotNull(fixture.createUser(user, "password", true));
             fixture.login(user, users.get(user).get(0), "password");
         }
     }
@@ -197,7 +197,7 @@ public class LdapTest extends MockObjectTestCase {
                 String dn = ldap.findDN(user);
                 assertNotNull(dn);
                 fixture.createUserWithGroup(this, dn, users.get(user).get(0));
-                assertNotNull(fixture.createUserFromLdap(user, "password", true));
+                assertNotNull(fixture.createUser(user, "password", true));
                 fixture.login(user, users.get(user).get(0), "password");
                 // Parsing afterwards to force an explosion to reproduce #2557
                 assertEquals(user, ldap.findExperimenter(user).getOmeName());
@@ -236,9 +236,9 @@ public class LdapTest extends MockObjectTestCase {
             assertNotNull(dn);
             assertEquals(user, ldap.findExperimenter(user).getOmeName());
             fixture.createUserWithGroup(this, dn, users.get(user).get(0));
-            assertNotNull(fixture.createUserFromLdap(user));
+            assertNotNull(fixture.createUser(user));
             try {
-                fixture.createUserFromLdap("nonExistingUserShouldNotBeCreated");
+                fixture.createUser("nonExistingUserShouldNotBeCreated");
             } catch (ApiUsageException aue) {
                 // Expected
                 continue;

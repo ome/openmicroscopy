@@ -160,7 +160,7 @@ public interface ILdap extends ServiceInterface {
      * Creates an {@link ome.model.meta.Experimenter} entry in the OMERO DB
      * based on the supplied LDAP username.
      * @param username
-     * @return boolean
+     * @return created Experimenter or null
      */
-    Experimenter createUserFromLdap(@NotNull String username);
+    Experimenter createUser(@NotNull String username);
 }

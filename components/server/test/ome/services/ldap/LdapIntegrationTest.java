@@ -125,7 +125,7 @@ public class LdapIntegrationTest extends LdapTest {
             }
 
             @Override
-            public Experimenter createUserFromLdap(final String user) {
+            public Experimenter createUser(final String user) {
                 executor.execute(p,
                         new Executor.SimpleWork(this, "renameUser") {
                             @Transactional(readOnly = false)
@@ -150,17 +150,17 @@ public class LdapIntegrationTest extends LdapTest {
                         });
 
                 return (Experimenter) executor.execute(p,
-                        new Executor.SimpleWork(this, "createUserFromLdap") {
+                        new Executor.SimpleWork(this, "createUser") {
                             @Transactional(readOnly = false)
                             public Object doWork(org.hibernate.Session session,
                                     ServiceFactory sf) {
-                                return ldap.createUserFromLdap(user);
+                                return ldap.createUser(user);
                             }
                         });
             }
 
             @Override
-            public Experimenter createUserFromLdap(final String user,
+            public Experimenter createUser(final String user,
                     final String password, final boolean checkPassword) {
                 // To keep things simple, if a user already exists,
                 // it gets renamed. Otherwise, it would be necessary to generate
@@ -189,11 +189,11 @@ public class LdapIntegrationTest extends LdapTest {
                         });
 
                 return (Experimenter) executor.execute(p,
-                        new Executor.SimpleWork(this, "createUserFromLdap") {
+                        new Executor.SimpleWork(this, "createUser") {
                             @Transactional(readOnly = false)
                             public Object doWork(org.hibernate.Session session,
                                     ServiceFactory sf) {
-                                return ldap.createUserFromLdap(user,
+                                return ldap.createUser(user,
                                         "password", checkPassword);
                             }
                         });

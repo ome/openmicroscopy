@@ -65,7 +65,7 @@ public class LdapPasswordProvider431 extends ConfigurablePasswordProvider {
      * the password table. Note: after a call to
      * {@link #checkPassword(String, String)} with this same user value, this
      * method might begin to return true due to a call to
-     * {@link LocalLdap#createUserFromLdap(String, String)}.
+     * {@link LocalLdap#createUser(String, String)}.
      */
     @Override
     public boolean hasPassword(String user) {
@@ -96,8 +96,7 @@ public class LdapPasswordProvider431 extends ConfigurablePasswordProvider {
                 if (readOnly == true) {
                     throw new IllegalStateException("Cannot create user!");
                 }
-                Experimenter experimenter = ldapUtil.createUserFromLdap(user,
-                        password);
+                Experimenter experimenter = ldapUtil.createUser(user, password);
                 // Use default logic if the user creation did not exist,
                 // because there may be another non-database login mechanism
                 // which should also be given a chance.
