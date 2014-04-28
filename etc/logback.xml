@@ -154,6 +154,11 @@
     <appender-ref ref="SIFT"/>
   </logger>
 
+  <logger name="ome.formats">
+    <level value="INFO"/>
+    <appender-ref ref="SIFT"/>
+  </logger>
+
   <logger name="ome.logic">
     <level value="INFO"/>
     <appender-ref ref="SIFT"/>

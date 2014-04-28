@@ -1773,7 +1773,9 @@ public class OMEROMetadataStoreClient
                           + " entries.");
             }
 
+            int containerBatchCount = 0;
             int containerPointer = 0;
+            log.info("Handling # of containers: {}", containerArray.length);
             while (containerPointer < containerArray.length) {
               int nObjects = (int) Math.min(
                 OBJECT_BATCH_SIZE, containerArray.length - containerPointer);
@@ -1782,12 +1784,27 @@ public class OMEROMetadataStoreClient
                 containerArray, containerPointer, batch, 0, nObjects);
               delegate.updateObjects(batch);
               containerPointer += nObjects;
+
+              containerBatchCount += 1;
+              if (containerBatchCount > 1) {
+                log.info("Starting containerBatch #{}", containerBatchCount);
+              }
+
             }
 
+            int referenceBatchCount = 0;
             int referencePointer = 0;
             String[] referenceKeys = referenceStringCache.keySet().toArray(
               new String[referenceStringCache.size()]);
+
+            log.info("Handling # of references: {}", referenceKeys.length);
             while (referencePointer < referenceKeys.length) {
+
+              referenceBatchCount += 1;
+              if (referenceBatchCount > 1) {
+                log.info("Starting referenceBatch #{}", referenceBatchCount);
+              }
+
               Map<String, String[]> referenceBatch =
                 new HashMap<String, String[]>();
               int batchSize = (int) Math.min(
@@ -1798,6 +1815,8 @@ public class OMEROMetadataStoreClient
               }
               delegate.updateReferences(referenceBatch);
               referencePointer += batchSize;
+
+
             }
             Map<String, List<IObject>> rv = delegate.saveToDB(link);
             pixelsList = new OMEROMetadataStoreClientRoot((List) rv.get("Pixels"));
