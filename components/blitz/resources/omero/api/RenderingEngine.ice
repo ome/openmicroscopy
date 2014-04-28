@@ -68,6 +68,7 @@ module omero {
                 void updateCodomainMap(omero::romio::CodomainMapContext mapCtx) throws ServerError;
                 void removeCodomainMap(omero::romio::CodomainMapContext mapCtx) throws ServerError;
                 void saveCurrentSettings() throws ServerError;
+                long saveAsNewSettings() throws ServerError;
                 void resetDefaults() throws ServerError;
                 void resetDefaultsNoSave() throws ServerError;
                 void setCompressionLevel(float percentage) throws ServerError;
