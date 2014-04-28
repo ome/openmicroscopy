@@ -385,7 +385,7 @@ class ToolBar
 			ImViewerAgent.getRegistry().lookup(LookupNames.CONNECTION_SPEED);
 		int setUp = view.convertCompressionLevel(value);
 		if (compression != setUp) compression = setUp;
-		if (view.isBigImage()) {
+		if (view.isLargePlane()) {
 			compression = ImViewer.LOW;
 		}
 		int index = view.convertCompressionLevel();

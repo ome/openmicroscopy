@@ -2766,7 +2766,7 @@ class ImViewerComponent
 		int index = view.getUICompressionLevel();
 		if (old == index) return;
 		view.setCompressionLevel(index);
-		if (!model.isBigImage())
+		if (!model.isLargePlane())
 			ImViewerFactory.setCompressionLevel(index);
 		renderXYPlane();
 	}
@@ -3134,7 +3134,7 @@ class ImViewerComponent
 			default:
 				controller.setPreferences();
 				//tmp store compression
-				if (!model.isBigImage())
+				if (!model.isLargePlane())
 				ImViewerFactory.setCompressionLevel(
 						view.getUICompressionLevel());
 				if (!saveOnClose(notifyUser)) {

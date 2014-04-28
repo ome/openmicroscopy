@@ -2587,6 +2587,14 @@ class ImViewerUI
 	boolean isBigImage() { return model.isBigImage(); }
 
 	/**
+	 * Returns <code>true</code> if it is a large image,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean isLargePlane() { return model.isLargePlane(); }
+
+	/**
 	 * Returns the view as a component.
 	 * 
 	 * @return See above.
