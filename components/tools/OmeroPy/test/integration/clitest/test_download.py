@@ -105,7 +105,6 @@ class TestDownload(CLITest):
         out, err = capsys.readouterr()
         assert out == "test"
 
-
     # FileAnnotation tests
     # ========================================================================
     def testNonExistingFileAnnotation(self, tmpdir):
