@@ -42,6 +42,7 @@ import ome.model.display.RenderingDef;
 import ome.model.enums.Family;
 import ome.model.enums.RenderingModel;
 import ome.model.internal.Permissions;
+import ome.parameters.Parameters;
 import ome.security.SecuritySystem;
 import ome.services.util.Executor;
 import ome.system.EventContext;
@@ -767,6 +768,31 @@ public class RenderingBean implements RenderingEngine, Serializable {
     }
 
     private long internalSave(boolean saveAs) {
+
+        if (!saveAs) {
+            // Before we begin, check that the current settings belong
+            // to the current user. Though this is not strictly necessary
+            // and certain users certainly *can* modify rendering settings
+            // for others, allowing it to happen silently would be a breaking
+            // change that could lead to serious surprises.
+            ex.execute(/*ex*/null/*principal*/,
+              new Executor.SimpleWork(this,"checkSettingsOwner"){
+                @Transactional(readOnly = true)
+                public Object doWork(Session session, ServiceFactory sf) {
+                    List<Object[]> rv = sf.getQueryService().projection(
+                        "select o.id from RenderingDef r join r.details.owner o " +
+                        "where r.id = :id", new Parameters().addId(rendDefObj.getId()));
+                    Long currentUser = getCurrentEventContext().getCurrentUserId();
+                    Long ownerId = (Long) rv.get(0)[0];
+                    if (!ownerId.equals(currentUser)) {
+                        throw new ValidationException(String.format(
+                            "%s belongs to %s and not the current user %s",
+                            rendDefObj, ownerId, currentUser));
+                    }
+                    return null;
+            }});
+        }
+
         rwl.writeLock().lock();
 
         try {
