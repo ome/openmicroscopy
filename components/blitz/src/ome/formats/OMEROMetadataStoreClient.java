@@ -226,7 +226,6 @@ import Glacier2.PermissionDeniedException;
 public class OMEROMetadataStoreClient
     implements MetadataStore, IMinMaxStore, IObjectContainerStore
 {
-    private static final int OBJECT_BATCH_SIZE = 2000;
 
     /** Logger for this class */
     private Logger log = LoggerFactory.getLogger(OMEROMetadataStoreClient.class);
@@ -456,16 +455,16 @@ public class OMEROMetadataStoreClient
     }
 
     /**
-     * @return user-configured "omero.block_size" or {@link omero.constants.DEFAULTBLOCKSIZE}
-     * if none is set.
+     * simpler helper for the {@link #getDefaultBatchSize()} and
+     * {@link #getDefaultBlockSize()} methods.
      */
-    public int getDefaultBlockSize()
+    private int getDefaultInt(String key, int def)
     {
         if (c != null)
         {
             try
             {
-                return Integer.valueOf(c.getProperty("omero.block_size"));
+                return Integer.valueOf(c.getProperty(key));
             }
 
             catch (Exception e)
@@ -474,7 +473,25 @@ public class OMEROMetadataStoreClient
             }
 
         }
-        return omero.constants.DEFAULTBLOCKSIZE.value;
+        return def;
+    }
+
+    /**
+     * @return user-configured "omero.batch_size" or {@link omero.constants.DEFAULTBATCHSIZE}
+     * if none is set.
+     */
+    public int getDefaultBatchSize()
+    {
+        return getDefaultInt("omero.batch_size", omero.constants.DEFAULTBATCHSIZE.value);
+    }
+
+    /**
+     * @return user-configured "omero.block_size" or {@link omero.constants.DEFAULTBLOCKSIZE}
+     * if none is set.
+     */
+    public int getDefaultBlockSize()
+    {
+        return getDefaultInt("omero.block_size", omero.constants.DEFAULTBLOCKSIZE.value);
     }
 
     /**
