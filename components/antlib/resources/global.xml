@@ -247,19 +247,6 @@
             </else>
         </if>
 
-        <!-- prevent direct use of ant -->
-        <if><not><isset property="build.py"/></not>
-            <then>
-                <fail> ERROR!
-
-========================================================
-Please use ./build.py which uses the ant version bundled
-with OMERO.
-========================================================
-                </fail>
-            </then>
-        </if>
-
         <!-- Now, if the memory settings have not been changed
         check the defaults passed in on the command line -->
         <if><and><not><isset property="javac.maxmem"/></not>

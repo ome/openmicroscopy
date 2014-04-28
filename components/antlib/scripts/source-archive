@@ -24,14 +24,15 @@ import zipfile
 # polluting the release with version control files.
 
 if __name__ == "__main__":
-    if len(sys.argv) != 6:
-        raise Exception('Usage: %s releasename shortversion fullversion versionfile targetdir')
+    if len(sys.argv) != 7:
+        raise Exception('Usage: %s releasename version shortversion fullversion versionfile targetdir')
 
     release = sys.argv[1]
-    shortversion = sys.argv[2]
-    version = sys.argv[3]
-    versionfile = sys.argv[4]
-    target = os.path.abspath(sys.argv[5])
+    omero_version = sys.argv[2]
+    shortversion = sys.argv[3]
+    version = sys.argv[4]
+    versionfile = sys.argv[5]
+    target = os.path.abspath(sys.argv[6])
     release = "%s-%s" % (release,version)
 
     if not os.path.isdir('.git'):
@@ -91,7 +92,12 @@ if __name__ == "__main__":
     basezip.writestr("%s/%s" % (release, versionfile),
 """<?xml version="1.0" encoding="utf-8"?>
 <project name="gitversion" basedir=".">
+        <property name="omero.version" value="%s"/>
         <property name="omero.shortversion" value="%s"/>
         <property name="omero.plainversion" value="%s"/>
+        <!-- Properties for detecting where these properties were read from -->
+        <property name="omero.version.source" value="embedded"/>
+        <property name="omero.shortversion.source" value="embedded"/>
+        <property name="omero.plainversion.source" value="embedded"/>
 </project>
-""" % (shortversion, version))
+""" % (omero_version, shortversion, version))
