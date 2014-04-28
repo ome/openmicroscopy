@@ -1789,13 +1789,14 @@ public class OMEROMetadataStoreClient
                           + " entries.");
             }
 
+            int maxBatchSize = getDefaultBatchSize();
             int containerBatchCount = 0;
             int containerPointer = 0;
             log.info("Handling # of containers: {}", containerArray.length);
             while (containerPointer < containerArray.length)
             {
                 int nObjects = (int) Math.min(
-                    OBJECT_BATCH_SIZE, containerArray.length - containerPointer);
+                    maxBatchSize, containerArray.length - containerPointer);
 
                 IObjectContainer[] batch = Arrays.copyOfRange(
                         containerArray, containerPointer, containerPointer+nObjects);
@@ -1826,7 +1827,7 @@ public class OMEROMetadataStoreClient
 
                 Map<String, String[]> referenceBatch = new HashMap<String, String[]>();
                 int batchSize = (int) Math.min(
-                    OBJECT_BATCH_SIZE, referenceKeys.length - referencePointer);
+                    maxBatchSize, referenceKeys.length - referencePointer);
                 for (int i=0; i<batchSize; i++) {
                     String key = referenceKeys[referencePointer + i];
                     referenceBatch.put(key, referenceStringCache.get(key));
