@@ -1764,7 +1764,7 @@ public class OMEROMetadataStoreClient
 
             if (log.isDebugEnabled())
             {
-		log.debug("Starting containers....");
+                log.debug("Starting containers....");
                 for (LSID key : containerCache.keySet())
                 {
                     String s = String.format("%s == %s,%s",
@@ -1776,17 +1776,16 @@ public class OMEROMetadataStoreClient
                 log.debug("Starting references....");
                 for (String key : referenceStringCache.keySet())
                 {
-			for (String value : referenceStringCache.get(key))
-			{
-				String s = String.format("%s == %s", key, value);
-				log.debug(s);
-			}
+                    for (String value : referenceStringCache.get(key))
+                    {
+                        String s = String.format("%s == %s", key, value);
+                        log.debug(s);
+                    }
                 }
 
                 log.debug("containerCache contains " + containerCache.size()
                           + " entries.");
-                log.debug("referenceCache contains "
-				  + countCachedReferences(null, null)
+                log.debug("referenceCache contains " + countCachedReferences(null, null)
                           + " entries.");
             }
 
