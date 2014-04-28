@@ -91,21 +91,61 @@ def choose_omero_version():
         p = popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         omero_version, err = p.communicate()
         omero_version = omero_version.split()[1]
-
-        # If we're not on hudson, then we don't want to force
-        # users to deal with rebuilding after each commit.
-        # Instead, drop everything except for "-DEV"
-        #
-        # See gh-67 for the discussion.
         if not omero_build:
-            omero_version = re.sub("([-]DEV)?-\d+-[a-f0-9]+(-dirty)?-ice[0-9]+",\
-                    "-SNAPSHOT", omero_version)
+            try:
+                omero_version = snapshot_logic(omero_version)
+            except:
+                pass
         return [ "-Domero.version=%s%s" % (omero_version, omero_build) ]
     except:
         print "Error getting version for BUILD_NUMBER=%s" % omero_build
         if err:
             print err
         sys.exit(1)
+
+def snapshot_logic(omero_version):
+    """
+    If we're not on hudson, then we don't want to force
+    users to deal with rebuilding after each commit.
+    Instead, drop everything except for "-DEV"
+
+    See gh-67 for the discussion.
+    """
+
+    omero_version = re.sub("([-]DEV)?-\d+-[a-f0-9]+(-dirty)?-ice[0-9]+$",
+            "-SNAPSHOT", omero_version)
+
+    # For maven-compatibility, we take "SNAPSHOT" of the _next_ version
+    try:
+        # First we try to use distutils
+        from distutils.version import LooseVersion
+        version = LooseVersion(omero_version).version
+        # Find the last index which is an int
+        for idx in range(len(version)-1, 0, -1):
+            val = version[idx]
+            if isinstance(val, int):
+                version[idx] += 1
+                break
+
+        last_int = False
+        new_vers = ""
+        for val in version:
+            if isinstance(val, int):
+                if last_int:
+                    new_vers += "."
+                else:
+                    last_int = True
+            else:
+                last_int = False
+            new_vers += str(val)
+        omero_version = new_vers
+    except:
+        # But if that doesn't work, we brute force with regex
+        m = re.match("^([^\d]*\d+[.]\d+[.])(\d+)-SNAPSHOT$", omero_version)
+        if m:
+            next = int(m.group(2)) + 1
+            omero_version = "%s%s-SNAPSHOT" % (m.group(1), next)
+    return omero_version
 
 
 def handle_tools(args):
