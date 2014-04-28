@@ -139,7 +139,7 @@ class PlatformMonitor(AbstractPlatformMonitor):
                 for action, file in results:
                     filename = os.path.join(self.pathsToMonitor, file)
                     self.log.info("Event : %s %s", str(self.actions[action]), filename)    
-                    if self.ignoreDirEvents and os.path.isdir(pathModule.path(filename)):
+                    if self.ignoreDirEvents and pathModule.path(filename).isdir():
                         self.log.info('Directory event, not propagated.')
                     else:
                         if action == 1:

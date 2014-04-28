@@ -283,7 +283,7 @@ class Simulator(monitors.MonitorClient):
                 if not file.exists():
                     raise Exception("%s doesn't exist" % file)
                 if hasattr(event, "dir"):
-                    if not os.path.isdir(file):
+                    if not file.isdir():
                         raise Exception("%s is not a directory" % file)
                     self.log.info("Creating file in dir %s", file)
                     new_file = file / str(uuid.uuid4())
@@ -295,7 +295,7 @@ class Simulator(monitors.MonitorClient):
                 if not file.exists():
                     raise Exception("%s doesn't exist" % file)
                 if hasattr(event, "dir"):
-                    if not os.path.isdir(file):
+                    if not file.isdir():
                         raise Exception("%s is not a directory" % file)
                     self.log.info("Deleting dir %s", file)
                     file.rmtree()

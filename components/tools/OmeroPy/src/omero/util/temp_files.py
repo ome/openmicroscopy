@@ -153,11 +153,11 @@ class TempFileManager(object):
 
                 # 2805
                 omero_dir = path(target) / "omero"
-                if omero_dir.exists() and not os.path.isdir(omero_dir):
+                if omero_dir.exists() and not omero_dir.isdir():
                     self.logger.debug(""""omero" is not a directory: %s""" % omero_dir)
                     continue
                 tmp_dir = omero_dir / "tmp"
-                if tmp_dir.exists() and not os.path.isdir(tmp_dir):
+                if tmp_dir.exists() and not tmp_dir.isdir():
                     self.logger.debug(""""tmp" is not a directory: %s""" % tmp_dir)
                     continue
 
@@ -276,7 +276,7 @@ class TempFileManager(object):
             raise Exception("%s is not in %s" % (p, self.dir))
 
         if p.exists():
-            if os.path.isdir(p):
+            if p.isdir():
                 try:
                     p.rmtree(onerror = self.on_rmtree)
                     self.logger.debug("Removed folder %s", name)
