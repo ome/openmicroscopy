@@ -4,12 +4,13 @@
 """
    Test of the sessions plugin
 
-   Copyright 2009 Glencoe Software, Inc. All rights reserved.
+   Copyright 2009-2014 Glencoe Software, Inc. All rights reserved.
    Use is subject to license terms supplied in LICENSE.txt
 
 """
 
 import os
+import pytest
 import Glacier2
 import omero_ext.uuid as uuid  # see ticket:3774
 
@@ -413,3 +414,45 @@ class TestSessions(object):
 
         cli.invoke("s logout")
         self.assert5975(key, cli)
+
+
+class TestParseConn(object):
+
+    @pytest.mark.parametrize('default_user', [None, 'default_user'])
+    def testEmptyString(self, default_user):
+        out_server, out_name, out_port = SessionsControl._parse_conn(
+            '', default_user)
+
+        assert not out_server
+        assert out_name == default_user
+        assert not out_port
+
+    @pytest.mark.parametrize('default_user', [None, 'default_user'])
+    @pytest.mark.parametrize('port', ['bad_port', '12323414232'])
+    def testBadPort(self, default_user, port):
+        out_server, out_name, out_port = SessionsControl._parse_conn(
+            'localhost:%s' % port, default_user)
+
+        assert out_server == 'localhost:%s' % port
+        assert out_name == default_user
+        assert not out_port
+
+    @pytest.mark.parametrize('default_user', [None, 'default_user'])
+    @pytest.mark.parametrize(
+        'user_prefix', ['', 'user@', 'üser-1£@', 'user:4@email@'])
+    @pytest.mark.parametrize('server', ['localhost', 'server.domain'])
+    @pytest.mark.parametrize('port_suffix', ['', ':4064', ':14064'])
+    def testConnectionString(self, default_user, user_prefix, server,
+                             port_suffix):
+        in_server = '%s%s%s' % (user_prefix, server, port_suffix)
+        out_server, out_name, out_port = SessionsControl._parse_conn(
+            in_server, default_user)
+        assert out_server == server
+        if user_prefix:
+            assert out_name == user_prefix[:-1]
+        else:
+            assert out_name == default_user
+        if port_suffix:
+            assert out_port == port_suffix[1:]
+        else:
+            assert not out_port
