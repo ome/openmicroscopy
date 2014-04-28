@@ -153,6 +153,7 @@ import pojos.GroupData;
 import pojos.ImageData;
 import pojos.PlateAcquisitionData;
 import pojos.PlateData;
+import pojos.TagAnnotationData;
 import pojos.WellData;
 import pojos.WellSampleData;
 
@@ -792,7 +793,8 @@ class TreeViewerControl
 				if (o instanceof DataObject) {
 					if (!(o instanceof GroupData ||
 						o instanceof ExperimenterData ||
-						o instanceof PlateAcquisitionData)) {
+						o instanceof PlateAcquisitionData ||
+						o instanceof TagAnnotationData)) {
 						if (model.canChgrp(o)) {
 							data = (DataObject) o;
 							if (!owners.contains(data.getOwner().getId()))
