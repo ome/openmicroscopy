@@ -13,6 +13,7 @@ Workaround for 3.3 / 3.4 differences in Ice importing.
 import Ice
 update = getattr(Ice, "updateModules", None)
 
+
 def load(target):
     """
     uses __import__ followed by Ice.updateModules if available.
