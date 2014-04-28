@@ -38,6 +38,7 @@ build_python()
         grep -v __init__ |
         tr / . |
         xargs -n 1 echo import |
+        tee /dev/stderr |
         python omeroweb/manage.py shell 2>&1 >/dev/null |
         grep -B2 ImportError
       )
