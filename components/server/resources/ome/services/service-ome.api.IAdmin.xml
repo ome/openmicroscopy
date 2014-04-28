@@ -139,7 +139,7 @@
     <property name="target" ref="internal-ome.api.IAdmin"/>
   </bean>
 
-  <alias name="${omero.resetpassword.bean}" alias="mailSender"/>
+  <alias name="${omero.mail.bean}" alias="mailSender"/>
 
   <bean id="mailSenderTargetSource"
       class="org.springframework.aop.target.HotSwappableTargetSource">
@@ -157,9 +157,9 @@
   <!-- configure the MailSender with the authenticated session -->
   <bean id="javaMailSenderImpl"
       class="org.springframework.mail.javamail.JavaMailSenderImpl">
-    <property name="host" value="${omero.resetpassword.host}" />
-    <property name="port" value="${omero.resetpassword.port}" />
-    <property name="protocol" value="${omero.resetpassword.mail.transport.protocol}" />
+    <property name="host" value="${omero.mail.host}" />
+    <property name="port" value="${omero.mail.port}" />
+    <property name="protocol" value="${omero.mail.transport.protocol}" />
     <property name="session" ref="mailSession" />    
   </bean>
   
@@ -167,13 +167,13 @@
 	<bean id="mailSession" class="javax.mail.Session" factory-method="getInstance">
 		<constructor-arg>
 			<props>
-				<prop key="mail.smtp.auth">${omero.resetpassword.mail.smtp.auth}</prop>
-				<prop key="mail.debug">${omero.resetpassword.mail.debug}</prop>
-				<prop key="mail.smtp.starttls.enable">${omero.resetpassword.mail.smtp.starttls.enable}</prop>
-				<prop key="mail.smtp.socketFactory.port">${omero.resetpassword.mail.smtp.socketFactory.port}</prop>
-				<prop key="mail.smtp.socketFactory.class">${omero.resetpassword.mail.smtp.socketFactory.class}</prop>
-				<prop key="mail.smtp.socketFactory.fallback">${omero.resetpassword.mail.smtp.socketFactory.fallback}</prop>	
-				<prop key="mail.smtp.timeout">${omero.resetpassword.mail.smtp.timeout}</prop>			
+				<prop key="mail.smtp.auth">${omero.mail.smtp.auth}</prop>
+				<prop key="mail.debug">${omero.mail.debug}</prop>
+				<prop key="mail.smtp.starttls.enable">${omero.mail.smtp.starttls.enable}</prop>
+				<prop key="mail.smtp.socketFactory.port">${omero.mail.smtp.socketFactory.port}</prop>
+				<prop key="mail.smtp.socketFactory.class">${omero.mail.smtp.socketFactory.class}</prop>
+				<prop key="mail.smtp.socketFactory.fallback">${omero.mail.smtp.socketFactory.fallback}</prop>
+				<prop key="mail.smtp.timeout">${omero.mail.smtp.timeout}</prop>
 			</props>
 		</constructor-arg>
 		<constructor-arg ref="smtpAuthenticator" />
@@ -181,13 +181,13 @@
   
   <!-- Authenticator implementation -->
     <bean id="smtpAuthenticator" class="ome.security.SmtpAuthenticator">
-		<constructor-arg value="${omero.resetpassword.username}" />
-		<constructor-arg value="${omero.resetpassword.password}" />
+		<constructor-arg value="${omero.mail.username}" />
+		<constructor-arg value="${omero.mail.password}" />
 	</bean>
 
   <!-- this is a template message that we can pre-load with default state -->
   <bean id="templateMessage" class="org.springframework.mail.SimpleMailMessage">
-    <property name="from" value="${omero.resetpassword.from}" />
+    <property name="from" value="${omero.mail.from}" />
   </bean>
   
 </beans>

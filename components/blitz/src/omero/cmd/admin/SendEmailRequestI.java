@@ -119,7 +119,7 @@ public class SendEmailRequestI extends SendEmailRequest implements
                             + ex.getMessage()
                             + ". "
                             + ". Please turn on the debug "
-                            + "mode in omero.properties by the: omero.resetpassword.mail.debug=true");
+                            + "mode in omero.properties by the: omero.mail.debug=true");
         }
 	}
 }
