@@ -169,6 +169,9 @@ public class LookupNames
     /** Field to indicate if the connection is fast or not. */
     public static final String CONNECTION_SPEED = "/connection/speed";
 
+    /** Field to indicate the default size of a plane. */
+    public static final String PLANE_SIZE = "/services/RE/planeSize";
+    
     /** Field to access the <code>agents</code> package. */
     public static final String AGENTS = "/agents";
 
