@@ -160,6 +160,14 @@ class Parser(ArgumentParser):
         parser.set_defaults(func=func, **kwargs)
         return parser
 
+    def add_style_argument(self):
+        from omero.util.text import find_style
+        from omero.util.text import list_styles
+        self.add_argument(
+            "--style", help=
+            "Use alternative output style",
+            choices=list_styles())
+
     def add_login_arguments(self):
         group = self.add_argument_group('Login arguments',
             'Optional session arguments')

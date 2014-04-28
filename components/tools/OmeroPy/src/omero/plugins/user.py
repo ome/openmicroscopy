@@ -50,6 +50,8 @@ class UserControl(UserGroupControl):
             help="Create user with empty password")
 
         list = parser.add(sub, self.list, help="List current users")
+        list.add_style_argument()
+
         printgroup = list.add_mutually_exclusive_group()
         printgroup.add_argument(
             "--long", action="store_true", default=True,
@@ -233,6 +235,8 @@ class UserControl(UserGroupControl):
             tb = TableBuilder("id", "login", "first name", "last name",
                               "email", "active", "admin", "member of",
                               "owner of")
+        if args.style:
+            tb.set_style(args.style)
 
         # Sort users
         if args.sort_by_login:
