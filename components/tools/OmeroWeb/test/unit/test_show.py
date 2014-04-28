@@ -34,10 +34,10 @@ def empty_request(request_factory, path):
 
 
 @pytest.fixture(scope='function', params=[
-    ('project=1', ['project-1']),
-    ('project=1|dataset=1', ['dataset-1']),
-    ('project=1|dataset=1|image=1', ['image-1']),
-    ('illegal=1', list())
+    ('project=1', ('project-1',)),
+    ('project=1|dataset=1', ('dataset-1',)),
+    ('project=1|dataset=1|image=1', ('image-1',)),
+    ('illegal=1', tuple())
 ])
 def path_request(request, request_factory, path):
     """
@@ -52,11 +52,11 @@ def path_request(request, request_factory, path):
 
 
 @pytest.fixture(scope='function', params=[
-    ('project-1', ['project-1']),
-    ('project-1|project-2', ['project-1', 'project-2']),
-    ('acquisition-1', ['acquisition-1']),
-    ('run-1', ['acquisition-1']),
-    ('illegal-1', list())
+    ('project-1', ('project-1',)),
+    ('project-1|project-2', ('project-1', 'project-2',)),
+    ('acquisition-1', ('acquisition-1',)),
+    ('run-1', ('acquisition-1',)),
+    ('illegal-1', tuple())
 ])
 def show_request(request, request_factory, path):
     """
@@ -87,12 +87,12 @@ class TestShow(object):
         show = Show(None, path_request['request'], None)
         assert show.initially_open is None
         assert show.initially_open_owner is None
-        assert show.initially_select == path_request['initially_select']
+        assert show.initially_select == list(path_request['initially_select'])
         assert show._first_selected is None
 
     def test_show_instantiation(self, show_request):
         show = Show(None, show_request['request'], None)
         assert show.initially_open is None
         assert show.initially_open_owner is None
-        assert show.initially_select == show_request['initially_select']
+        assert show.initially_select == list(show_request['initially_select'])
         assert show._first_selected is None
