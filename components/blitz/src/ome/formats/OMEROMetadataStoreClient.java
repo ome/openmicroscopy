@@ -1797,9 +1797,9 @@ public class OMEROMetadataStoreClient
                 int nObjects = (int) Math.min(
                     OBJECT_BATCH_SIZE, containerArray.length - containerPointer);
 
-                IObjectContainer[] batch = new IObjectContainer[nObjects];
-                System.arraycopy(
-                    containerArray, containerPointer, batch, 0, nObjects);
+                IObjectContainer[] batch = Arrays.copyOfRange(
+                        containerArray, containerPointer, containerPointer+nObjects);
+
                 delegate.updateObjects(batch);
                 containerPointer += nObjects;
 
