@@ -428,7 +428,18 @@ class TestParseConn(object):
         assert not out_port
 
     @pytest.mark.parametrize('default_user', [None, 'default_user'])
-    @pytest.mark.parametrize('user_prefix', ['', 'user@', 'üser-1£@'])
+    @pytest.mark.parametrize('port', ['bad_port', '12323414232'])
+    def testBadPort(self, default_user, port):
+        out_server, out_name, out_port = SessionsControl._parse_conn(
+            'localhost:%s' % port, default_user)
+
+        assert out_server == 'localhost:%s' % port
+        assert out_name == default_user
+        assert not out_port
+
+    @pytest.mark.parametrize('default_user', [None, 'default_user'])
+    @pytest.mark.parametrize(
+        'user_prefix', ['', 'user@', 'üser-1£@', 'user:4@email@'])
     @pytest.mark.parametrize('server', ['localhost', 'server.domain'])
     @pytest.mark.parametrize('port_suffix', ['', ':4064', ':14064'])
     def testConnectionString(self, default_user, user_prefix, server,
