@@ -360,12 +360,30 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap,
      *
      * @param username
      *            The user's LDAP username.
+     * @param password
+     *            The user's LDAP password, not null.
+     * @return true if a user is created
+     */
+    @Deprecated
+    @RolesAllowed("system")
+    @Transactional(readOnly = false)
+    public boolean createUserFromLdap(String username, String password) {
+        return null != createUser(username, password, true);
+    }
+
+    /**
+     * Creates an {@link Experimenter} based on the supplied LDAP username.
+     * Doesn't validate the user's password and can be only executed by admin
+     * users.
+     *
+     * @param username
+     *            The user's LDAP username.
      * @return The newly created {@link Experimenter} object.
      */
     @RolesAllowed("system")
     @Transactional(readOnly = false)
-    public Experimenter createUserFromLdap(String username) {
-        return createUserFromLdap(username, null, false);
+    public Experimenter createUser(String username) {
+        return createUser(username, null, false);
     }
 
     /**
@@ -378,8 +396,8 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap,
      *            The user's LDAP password, not null.
      * @return The newly created {@link Experimenter} object.
      */
-    public Experimenter createUserFromLdap(String username, String password) {
-        return createUserFromLdap(username, password, true);
+    public Experimenter createUser(String username, String password) {
+        return createUser(username, password, true);
     }
 
     /**
@@ -394,7 +412,7 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap,
      *            Flag indicating if password check should be performed.
      * @return The newly created {@link Experimenter} object.
      */
-    public Experimenter createUserFromLdap(String username, String password,
+    public Experimenter createUser(String username, String password,
             boolean checkPassword) {
         if (iQuery.findByString(Experimenter.class, "omeName", username) != null) {
             throw new ValidationException("User already exists: " + username);
