@@ -229,19 +229,6 @@
         <taskdef resource="net/sf/antcontrib/antlib.xml"
                  classpath="${lib.dir}/repository/ant-contrib-1.0b3.jar"/>
 
-        <!-- prevent direct use of ant -->
-        <if><not><isset property="build.py"/></not>
-            <then>
-                <fail> ERROR!
-
-========================================================
-Please use ./build.py which uses the ant version bundled
-with OMERO.
-========================================================
-                </fail>
-            </then>
-        </if>
-
         <!-- Now, if the memory settings have not been changed
         check the defaults passed in on the command line -->
         <if><and><not><isset property="javac.maxmem"/></not>

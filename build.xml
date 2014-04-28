@@ -54,6 +54,7 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
 
     <property name="import.dir" value="${basedir}/components/antlib/resources"/>
     <import file="${import.dir}/global.xml"/>
+    <import file="${import.dir}/version.xml"/>
 
     <target name="init" depends="check-bioformats,check-ivy,check-scons,check-ice">
         <mkdir dir="${blitz.comp}/generated"/>
@@ -542,9 +543,6 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
         <zip destfile="${omero.home}/target/OMERO.docs-${omero.version}.zip">
             <zipfileset dir="${dist.dir}/docs" prefix="OMERO.docs-${omero.version}"/>
         </zip>
-
-        <gitdescribe select="\2"> </gitdescribe>
-
         <exec executable="make" failonerror="true" dir="${sphinx.dir}">
             <env key="SOURCE_BRANCH" value="v.${version.describe}"/>
             <env key="OMERO_RELEASE" value="${version.describe}"/>
@@ -982,32 +980,8 @@ omero.version=${omero.version}
         </sequential>
     </macrodef>
 
-    <macrodef name="gitdescribe">
-
-        <attribute name="regexp" default="^(v.)?(.*?)(-[0-9]+)?((-)g(.*?))?$"/>
-        <attribute name="select" default="\2"/>
-        <sequential>
-        <trycatch>
-            <try>
-                <git command="describe" output="fullversion" failonerror="true">
-                    <args>
-                        <arg line="--dirty"/>
-                    </args>
-                </git>
-                <propertyregex property="version.describe" input="${fullversion}" regexp="@{regexp}" select="@{select}"/>
-            </try>
-            <catch>
-                <echo>UNKNOWN</echo>
-            </catch>
-        </trycatch>
-        </sequential>
-    </macrodef>
-
     <target name="version">
-
-        <gitdescribe select="\2\3\5\6">
-        </gitdescribe>
-        <echo>${version.describe}-ice${versions.ice_lib}</echo>
+        <echo>${omero.version}</echo>
     </target>
 
     <target name="print-mem">
@@ -1016,4 +990,5 @@ omero.version=${omero.version}
             javadoc.maxmem=${javadoc.maxmem}
         </echo>
     </target>
+
 </project>

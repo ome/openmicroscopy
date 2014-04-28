@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project name="version" default="version" basedir=".">
+<!--
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#
+# Copyright 2014 Glencoe Software, Inc. All rights reserved.
+# Use is subject to license terms supplied in LICENSE.txt
+#
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Written by:  Josh Moore, josh at glencoesoftware.com
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+-->
+    <description>
+        Provides git-based version strings. These can be overwritten on the
+        command-line by setting the following properties:
+
+        fullversion -           Full-version string
+        omero.version -         Official version
+
+    </description>
+
+    <if>
+        <equals arg1="${omero.version}" arg2="UNKNOWN"/>
+        <then>
+            <var name="omero.version" unset="true"/>
+        </then>
+    </if>
+
+    <macrodef name="gitdescribe">
+        <attribute name="regexp" default="^(v.)?(.*?)(-[0-9]+)?((-)g(.*?))?$"/>
+        <attribute name="select" default="\2"/>
+        <sequential>
+        <trycatch>
+            <try>
+                <git command="describe" output="fullversion" failonerror="true">
+                    <args>
+                        <arg line="--dirty"/>
+                    </args>
+                </git>
+                <propertyregex property="version.describe" input="${fullversion}" regexp="@{regexp}" select="@{select}"/>
+            </try>
+            <catch>
+                <property name="version.describe" value="UNKNOWN"/>
+            </catch>
+        </trycatch>
+        </sequential>
+    </macrodef>
+
+    <var name="version.describe" unset="true"/>
+    <gitdescribe select="\2\3\5\6"/>
+    <property name="omero.version" value="${version.describe}-ice${versions.ice_lib}"/>
+    <exec executable = "python" dir = "${basedir}"
+        outputproperty = "omero.version.parsed"
+        errorproperty = "omero.version.err"
+        resultproperty = "omero.version.rc"
+        failonerror = "true">
+        <arg value = "${import.dir}/version.py" />
+        <arg value = "${omero.version}" />
+    </exec>
+    <var name="omero.version" unset="true"/>
+    <property name="omero.version" value="${omero.version.parsed}"/>
+
+</project>
