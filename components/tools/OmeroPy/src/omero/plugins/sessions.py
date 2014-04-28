@@ -321,7 +321,7 @@ class SessionsControl(BaseControl):
         # If they've omitted some required value, we must ask for it.
         #
         if not server:
-            server, name, prt = self._get_server(store, name)
+            server, name, port = self._get_server(store, name)
         if not name:
             name = self._get_username(previous[1])
 
@@ -619,20 +619,17 @@ class SessionsControl(BaseControl):
     #
 
     def _parse_conn(self, server, name):
-        try:
-            idx = server.rindex("@")
-            name = server[0:idx]  # user which may also contain an @
-            server = server[idx+1:]  # server which may also contain the port
-        except ValueError:
-            pass
-
-        try:
-            idx = server.rindex(":")
-            port = server[idx+1:]
-            server = server[0:idx]
-        except ValueError:
-            port = None
-
+        import re
+        pat = '^((.+)@)?(.*?)(:(.*))?$'
+        match = re.match(pat, server)
+        port = None
+        if match:
+            if match.group(2):
+                name = match.group(2)
+            if match.group(3):
+                server = match.group(3)
+            if match.group(5):
+                port = match.group(5)
         return server, name, port
 
     def _get_server(self, store, name):
