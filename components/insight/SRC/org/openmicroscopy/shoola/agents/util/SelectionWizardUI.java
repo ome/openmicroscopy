@@ -1280,7 +1280,16 @@ public class SelectionWizardUI
     void setOwnerIndex(int index)
     {
         ownerFilterIndex = index;
-        filter(true);
+        String text = filterArea.getText();
+        boolean reset = false;
+        if (DEFAULT_FILTER_TEXT.equals(text)) {
+            setTextFieldDefault(null);
+            reset = true;
+        }
+        filter(false);
+        if (reset) {
+            setTextFieldDefault(DEFAULT_FILTER_TEXT);
+        }
     }
 
     /**
