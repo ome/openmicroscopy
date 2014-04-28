@@ -169,8 +169,8 @@ public interface MetadataHandlerView
 	/**
 	 * Loads all {@link DataObject}s the given annotations ({@link FileAnnotationData}) are linked to
 	 * @param ctx The security context.
-	 * @param annotations The annotations ({@link FileAnnotationData}) 
-         * @param observer Call-back handler.
+	 * @param annotations The annotations ({@link FileAnnotationData})
+	 * @param observer Call-back handler.
 	 * @return See above.
 	 */
 	public CallHandle loadFileAnnotationParents(SecurityContext ctx, List<FileAnnotationData> annotations,
