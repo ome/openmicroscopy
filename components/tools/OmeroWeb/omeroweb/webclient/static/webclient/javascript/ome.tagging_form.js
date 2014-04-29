@@ -22,7 +22,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-var tagging_form = function(selected_tags, formset_prefix, tags_field_id) {
+var tagging_form = function(selected_tags, formset_prefix, tags_field_id, me) {
 
     var div_all_tags = $("#id_all_tags");
     var div_selected_tags = $("#id_selected_tags");
@@ -291,7 +291,7 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id) {
             var others_tags = []; // track ids of tags linked by other users
             for (idx in selected_tags) {
                 if (!selected_tags[idx][5]) {
-                    others_tags.push(selected_tags[idx][0])
+                    others_tags.push(selected_tags[idx][0]);
                     continue; // not owned by current user, don't add to list
                 }
                 var selected_tag = $(".tag_selection div[data-id=" +
@@ -483,9 +483,11 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id) {
         if (input === tag_input_filter.attr('placeholder')) {
             input = '';
         }
+        var owner_mode = $(
+            "select[name=filter_owner_mode] option:selected").val();
         var filters = $.trim(input).toLowerCase();
         var filters_split = filters.split(/ +/);
-        var no_filter = filters === "";
+        var no_filter = filters === "" && owner_mode === "any";
         if (no_filter) {
             $("div.filtered", div_all_tags).removeClass('filtered');
             cleanup();
@@ -496,9 +498,9 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id) {
                 var endpos = Math.min(pos + 1000, tags.length);
                 for (var idx = pos; idx < endpos; idx++) {
                     var tag = tags.eq(idx);
+                    var tagobj = all_tags[tag.attr("data-id")];
                     var match = true;
-                    var text = $.trim(
-                        all_tags[tag.attr("data-id")].t.toLowerCase());
+                    var text = $.trim(tagobj.t.toLowerCase());
                     if (mode === "any") {
                         for (var filter in filters_split) {
                             match = match && text.indexOf(
@@ -506,6 +508,10 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id) {
                         }
                     } else {
                         match = (text.substr(0, filters.length) === filters);
+                    }
+                    if (match && owner_mode !== "all") {
+                        match = ((owner_mode === "me" && tagobj.o === me) ||
+                                 (owner_mode === "others" && tagobj.o !== me));
                     }
                     tag.toggleClass("filtered", !match);
                 }
@@ -677,7 +683,8 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id) {
         update_add_new_button_state);
     update_add_new_button_state();
     tag_input_filter.keyup(update_filter).change(update_filter);
-    $("select[name=filter_mode]").change(update_filter);
+    $("select[name=filter_mode],select[name=filter_owner_mode]").change(
+        update_filter);
 
     $("#id_tag_info_button").on('click', function(event) {
         event.preventDefault();
