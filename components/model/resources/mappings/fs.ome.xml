@@ -25,17 +25,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <required name="clientPath" type="text"/>
         </properties>
     </type>
-    <type id="ome.model.fs.FilesetVersionInfo">
-        <properties>
-            <required name="bioformatsReader" type="string"/>
-            <required name="bioformatsVersion" type="string"/>
-            <required name="omeroVersion" type="string"/>
-            <required name="osArchitecture" type="string"/>
-            <required name="osName" type="string"/>
-            <required name="osVersion" type="string"/>
-            <required name="locale" type="string"/>
-        </properties>
-    </type>
     <link id="ome.model.fs.FilesetJobLink">
         <properties>
             <from_parent type="ome.model.fs.Fileset" ordered="true"/>

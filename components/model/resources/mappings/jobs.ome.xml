@@ -4,7 +4,7 @@
 # 
 # $Id$
 # 
-# Copyright 2007 Glencoe Software, Inc. All rights reserved.
+# Copyright 2007-2014 Glencoe Software, Inc. All rights reserved.
 # Use is subject to license terms supplied in LICENSE.txt
 #
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -42,13 +42,13 @@
 	<type id="ome.model.jobs.UploadJob" superclass="ome.model.jobs.Job">
 		<!-- Note: UploadJob is not in model-->
 		<properties>
-                    <optional name="versionInfo" type="ome.model.fs.FilesetVersionInfo"/>
+		    <map name="versionInfo" type="string"/>
 		</properties>
 	</type>
 	<type id="ome.model.jobs.MetadataImportJob" superclass="ome.model.jobs.Job">
 		<!-- Note: MetadataImportJob is not in model-->
 		<properties>
-                    <required name="versionInfo" type="ome.model.fs.FilesetVersionInfo"/>
+		    <map name="versionInfo" type="string"/>
 		</properties>
 	</type>
 	<type id="ome.model.jobs.ThumbnailGenerationJob" superclass="ome.model.jobs.Job">

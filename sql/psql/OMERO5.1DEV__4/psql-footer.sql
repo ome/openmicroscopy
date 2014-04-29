@@ -383,8 +383,6 @@
   CREATE INDEX i_filesetjoblink_group ON filesetjoblink(group_id);
   CREATE INDEX i_FilesetJobLink_parent ON filesetjoblink(parent);
   CREATE INDEX i_FilesetJobLink_child ON filesetjoblink(child);
-  CREATE INDEX i_filesetversioninfo_owner ON filesetversioninfo(owner_id);
-  CREATE INDEX i_filesetversioninfo_group ON filesetversioninfo(group_id);
   CREATE INDEX i_filter_owner ON filter(owner_id);
   CREATE INDEX i_filter_group ON filter(group_id);
   CREATE INDEX i_Filter_type ON filter(type);
@@ -465,7 +463,6 @@
   CREATE INDEX i_LogicalChannel_mode ON logicalchannel("mode");
   CREATE INDEX i_LogicalChannel_lightPath ON logicalchannel(lightPath);
   CREATE INDEX i_Mask_pixels ON shape(pixels);
-  CREATE INDEX i_MetadataImportJob_versionInfo ON metadataimportjob(versionInfo);
   CREATE INDEX i_microbeammanipulation_owner ON microbeammanipulation(owner_id);
   CREATE INDEX i_microbeammanipulation_group ON microbeammanipulation(group_id);
   CREATE INDEX i_MicrobeamManipulation_type ON microbeammanipulation(type);
@@ -602,7 +599,6 @@
   CREATE INDEX i_Thumbnail_pixels ON thumbnail(pixels);
   CREATE INDEX i_transmittancerange_owner ON transmittancerange(owner_id);
   CREATE INDEX i_transmittancerange_group ON transmittancerange(group_id);
-  CREATE INDEX i_UploadJob_versionInfo ON uploadjob(versionInfo);
   CREATE INDEX i_well_owner ON well(owner_id);
   CREATE INDEX i_well_group ON well(group_id);
   CREATE INDEX i_Well_plate ON well(plate);
@@ -771,7 +767,6 @@ CREATE SEQUENCE seq_fileset; INSERT INTO _lock_ids (name, id) SELECT 'seq_filese
 CREATE SEQUENCE seq_filesetannotationlink; INSERT INTO _lock_ids (name, id) SELECT 'seq_filesetannotationlink', nextval('_lock_seq');
 CREATE SEQUENCE seq_filesetentry; INSERT INTO _lock_ids (name, id) SELECT 'seq_filesetentry', nextval('_lock_seq');
 CREATE SEQUENCE seq_filesetjoblink; INSERT INTO _lock_ids (name, id) SELECT 'seq_filesetjoblink', nextval('_lock_seq');
-CREATE SEQUENCE seq_filesetversioninfo; INSERT INTO _lock_ids (name, id) SELECT 'seq_filesetversioninfo', nextval('_lock_seq');
 CREATE SEQUENCE seq_filter; INSERT INTO _lock_ids (name, id) SELECT 'seq_filter', nextval('_lock_seq');
 CREATE SEQUENCE seq_filterset; INSERT INTO _lock_ids (name, id) SELECT 'seq_filterset', nextval('_lock_seq');
 CREATE SEQUENCE seq_filtersetemissionfilterlink; INSERT INTO _lock_ids (name, id) SELECT 'seq_filtersetemissionfilterlink', nextval('_lock_seq');
@@ -1249,7 +1244,7 @@ alter table dbpatch alter message set default 'Updating';
 -- running so that if anything goes wrong, we'll have some record.
 --
 insert into dbpatch (currentVersion, currentPatch, previousVersion, previousPatch, message)
-             values ('OMERO5.1DEV',  3,    'OMERO5.1DEV',   0,             'Initializing');
+             values ('OMERO5.1DEV',  4,    'OMERO5.1DEV',   0,             'Initializing');
 
 --
 -- Here we will create the root account and the necessary groups
@@ -2236,7 +2231,7 @@ after delete on originalfile
 -- Here we have finished initializing this database.
 update dbpatch set message = 'Database ready.', finished = clock_timestamp()
   where currentVersion = 'OMERO5.1DEV' and
-        currentPatch = 3 and
+        currentPatch = 4 and
         previousVersion = 'OMERO5.1DEV' and
         previousPatch = 0;
 

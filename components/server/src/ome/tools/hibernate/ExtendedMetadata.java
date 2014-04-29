@@ -1,7 +1,5 @@
 /*
- *   $Id$
- *
- *   Copyright 2006 University of Dundee. All rights reserved.
+ *   Copyright 2006-2014 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 package ome.tools.hibernate;
@@ -10,7 +8,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -31,8 +28,9 @@ import org.hibernate.type.Type;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.event.ContextRefreshedEvent;
 
-import ome.annotations.RevisionDate;
-import ome.annotations.RevisionNumber;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.SetMultimap;
+
 import ome.conditions.ApiUsageException;
 import ome.conditions.InternalException;
 import ome.model.IAnnotated;
@@ -47,12 +45,9 @@ import ome.tools.spring.OnContextRefreshedEventListener;
  * construction, the metadata is created and cached for later use.
  * 
  * @author Josh Moore, josh.moore at gmx.de
- * @version $Revision$, $Date$
  * @see SessionFactory
  * @since 3.0-M3
  */
-@RevisionDate("$Date$")
-@RevisionNumber("$Revision$")
 public interface ExtendedMetadata {
 
     Set<String> getClasses();
@@ -182,6 +177,20 @@ public interface ExtendedMetadata {
      */
     String getSQLJoin(String fromType, String fromAlias, String toType, String toAlias);
 
+    /**
+     * Check if an object of this class may have map properties.
+     * @param iObjectClass a class
+     * @return if this object or any of its mapped subclasses have any map properties
+     */
+    boolean mayHaveMapProperties(Class<? extends IObject> iObjectClass);
+
+    /**
+     * Get the names of any String&rarr;RString map properties this class has, otherwise an empty set if none.
+     * @param className the name of a class, as from {@link Class#getName()}
+     * @return the class' map property names
+     */
+    Set<String> getMapProperties(String className);
+
 /**
  * Sole implementation of ExtendedMetadata. The separation is intended to make
  * unit testing without a full {@link ExtendedMetadata} possible.
@@ -207,6 +216,10 @@ public static class Impl extends OnContextRefreshedEventListener implements Exte
     private final Map<String, Map<String, Relationship>> relationships = new HashMap<String, Map<String, Relationship>>();
 
     private final Map<String, Class<IObject>> hibernateClasses = new HashMap<String, Class<IObject>>();
+
+    private final Set<Class<?>> mapPropertyClasses = new HashSet<Class<?>>();
+
+    private final SetMultimap<String, String> mapProperties = HashMultimap.create();
 
     private boolean initialized = false;
 
@@ -296,6 +309,26 @@ public static class Impl extends OnContextRefreshedEventListener implements Exte
                 value2.put(k, i.getValue());
             }
             relationships.put(key.substring(key.lastIndexOf(".")+1), value2);
+
+            /* note map properties */
+            boolean hasMapProperty = false;
+            final String[] propertyNames = cm.getPropertyNames();
+            final Type[] propertyTypes = cm.getPropertyTypes();
+            for (int i = 0; i < propertyNames.length; i++) {
+                if (propertyTypes[i] instanceof CollectionType && Map.class == propertyTypes[i].getReturnedClass()) {
+                    final CollectionType propertyType = (CollectionType) propertyTypes[i];
+                    final Type elementType = propertyType.getElementType((SessionFactoryImplementor) sessionFactory);
+                    if (String.class == elementType.getReturnedClass()) {
+                        mapProperties.put(key, propertyNames[i]);
+                        hasMapProperty = true;
+                    }
+                }
+            }
+            if (hasMapProperty) {
+                for (Class<?> mc = cm.getMappedClass(EntityMode.POJO); mc != null; mc = mc.getSuperclass()) {
+                    mapPropertyClasses.add(mc);
+                }
+            }
         }
 
         Set<Class<IAnnotated>> anns = new HashSet<Class<IAnnotated>>();
@@ -343,7 +376,7 @@ public static class Impl extends OnContextRefreshedEventListener implements Exte
 
     /**
      * Walks both the {@link #locksHolder} and the {@link #lockedByHolder} data
-     * for "from" argument to see if there is any direct relationship to th
+     * for "from" argument to see if there is any direct relationship to the
      * "to" argument. If there is, the name will be returned. Otherwise, null.
      */
     public String getRelationship(String from, String to) {
@@ -541,6 +574,16 @@ public static class Impl extends OnContextRefreshedEventListener implements Exte
             throw new ApiUsageException(field + field_msg);
         }
         return k;
+    }
+
+    @Override
+    public boolean mayHaveMapProperties(Class<? extends IObject> iObjectClass) {
+        return mapPropertyClasses.contains(iObjectClass);
+    }
+
+    @Override
+    public Set<String> getMapProperties(String className) {
+        return mapProperties.get(className);
     }
 
     // ~ Helpers

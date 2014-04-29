@@ -31,9 +31,10 @@ import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.util.IniFileLoader;
 import ome.system.PreferenceContext;
 import ome.system.UpgradeCheck;
+import omero.RString;
 import omero.model.Annotation;
-import omero.model.FilesetVersionInfo;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -130,6 +131,32 @@ public class ImportConfig {
 
     public final AnnotationListValue annotations;
     public final DoubleArrayValue userPixels;
+
+    /**
+     * Keys for fileset version information entries.
+     * @author m.t.b.carroll@dundee.ac.uk
+     * @since 5.1
+     */
+    public static enum VersionInfo {
+        BIO_FORMATS_READER("bioformats.reader"),
+        BIO_FORMATS_VERSION("bioformats.version"),
+        CLIENT_LANGUAGE_NAME("client.language.name"),
+        CLIENT_LANGUAGE_VENDOR("client.language.vendor"),
+        CLIENT_LANGUAGE_COMPILER("client.language.compiler"),
+        CLIENT_LANGUAGE_VERSION("client.language.version"),
+        OMERO_VERSION("omero.version"),
+        OS_NAME("os.name"),
+        OS_VERSION("os.version"),
+        OS_ARCHITECTURE("os.architecture"),
+        LOCALE("locale");
+
+        /** the map key corresponding to this instance */
+        public final String key;
+
+        private VersionInfo(String key) {
+            this.key = key;
+        }
+    }
 
     /**
      * Static method for creating {@link Preferences} during construction if
@@ -255,14 +282,29 @@ public class ImportConfig {
         return omeroVersion;
     }
 
-    public void fillVersionInfo(FilesetVersionInfo versionInfo) {
-        versionInfo.setBioformatsVersion(rstring(getBioFormatsVersion()));
-        versionInfo.setOmeroVersion(rstring(getOmeroVersion()));
-        versionInfo.setOsArchitecture(rstring(System.getProperty("os.arch")));
-        versionInfo.setOsName(rstring(System.getProperty("os.name")));
-        versionInfo.setOsVersion(rstring(System.getProperty("os.version")));
-        versionInfo.setLocale(rstring(Locale.getDefault().toString()));
-        // TODO: add java version info
+    /**
+     * Note useful version information that can be extracted from this system,
+     * as provenance that is useful for debugging.
+     * @param versionInfo the map into which version information is to be added
+     */
+    public void fillVersionInfo(Map<String, RString> versionInfo) {
+        final Map<VersionInfo, String> properties = new HashMap<VersionInfo, String>();
+        properties.put(VersionInfo.BIO_FORMATS_VERSION, getBioFormatsVersion());
+        properties.put(VersionInfo.CLIENT_LANGUAGE_NAME, "Java");
+        properties.put(VersionInfo.CLIENT_LANGUAGE_VENDOR, System.getProperty("java.vendor"));
+        properties.put(VersionInfo.CLIENT_LANGUAGE_COMPILER, System.getProperty("java.compiler"));
+        properties.put(VersionInfo.CLIENT_LANGUAGE_VERSION, System.getProperty("java.version"));
+        properties.put(VersionInfo.LOCALE, Locale.getDefault().toString());
+        properties.put(VersionInfo.OMERO_VERSION, getOmeroVersion());
+        properties.put(VersionInfo.OS_NAME, System.getProperty("os.name"));
+        properties.put(VersionInfo.OS_VERSION, System.getProperty("os.version"));
+        properties.put(VersionInfo.OS_ARCHITECTURE, System.getProperty("os.arch"));
+        /* fill any useful information for Ice to serialize */
+        for (final Map.Entry<VersionInfo, String> property : properties.entrySet()) {
+            if (StringUtils.isNotEmpty(property.getValue())) {
+                versionInfo.put(property.getKey().key, rstring(property.getValue()));
+            }
+        }
     }
 
     /**

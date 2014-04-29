@@ -802,25 +802,6 @@
         unique (parent, child, owner_id)
     );;
 
-    create table filesetversioninfo (
-        id int8 not null,
-        bioformatsReader varchar(255) not null,
-        bioformatsVersion varchar(255) not null,
-        permissions int8 not null,
-        locale varchar(255) not null,
-        omeroVersion varchar(255) not null,
-        osArchitecture varchar(255) not null,
-        osName varchar(255) not null,
-        osVersion varchar(255) not null,
-        version int4,
-        creation_id int8 not null,
-        external_id int8 unique,
-        group_id int8 not null,
-        owner_id int8 not null,
-        update_id int8 not null,
-        primary key (id)
-    );;
-
     create table filter (
         id int8 not null,
         permissions int8 not null,
@@ -1248,8 +1229,14 @@
 
     create table metadataimportjob (
         job_id int8 not null,
-        versionInfo int8 not null,
         primary key (job_id)
+    );;
+
+    create table metadataimportjob_versionInfo (
+        metadataimportjob_id int8 not null,
+        versionInfo varchar(255) not null,
+        versionInfo_KEY varchar(255),
+        primary key (metadataimportjob_id, versionInfo_KEY)
     );;
 
     create table microbeammanipulation (
@@ -2068,8 +2055,14 @@
 
     create table uploadjob (
         job_id int8 not null,
-        versionInfo int8,
         primary key (job_id)
+    );;
+
+    create table uploadjob_versionInfo (
+        uploadjob_id int8 not null,
+        versionInfo varchar(255) not null,
+        versionInfo_KEY varchar(255),
+        primary key (uploadjob_id, versionInfo_KEY)
     );;
 
     create table well (
@@ -3155,31 +3148,6 @@
         foreign key (parent) 
         references fileset  ;;
 
-    alter table filesetversioninfo 
-        add constraint FKfilesetversioninfo_creation_id_event 
-        foreign key (creation_id) 
-        references event  ;;
-
-    alter table filesetversioninfo 
-        add constraint FKfilesetversioninfo_update_id_event 
-        foreign key (update_id) 
-        references event  ;;
-
-    alter table filesetversioninfo 
-        add constraint FKfilesetversioninfo_external_id_externalinfo 
-        foreign key (external_id) 
-        references externalinfo  ;;
-
-    alter table filesetversioninfo 
-        add constraint FKfilesetversioninfo_group_id_experimentergroup 
-        foreign key (group_id) 
-        references experimentergroup  ;;
-
-    alter table filesetversioninfo 
-        add constraint FKfilesetversioninfo_owner_id_experimenter 
-        foreign key (owner_id) 
-        references experimenter  ;;
-
     alter table filter 
         add constraint FKfilter_creation_id_event 
         foreign key (creation_id) 
@@ -3916,14 +3884,14 @@
         references externalinfo  ;;
 
     alter table metadataimportjob 
-        add constraint FKmetadataimportjob_versionInfo_filesetversioninfo 
-        foreign key (versionInfo) 
-        references filesetversioninfo  ;;
-
-    alter table metadataimportjob 
         add constraint FKmetadataimportjob_job_id_job 
         foreign key (job_id) 
         references job  ;;
+
+    alter table metadataimportjob_versionInfo 
+        add constraint FK947FE61023506BCE 
+        foreign key (metadataimportjob_id) 
+        references metadataimportjob  ;;
 
     alter table microbeammanipulation 
         add constraint FKmicrobeammanipulation_creation_id_event 
@@ -5246,14 +5214,14 @@
         references experimenter  ;;
 
     alter table uploadjob 
-        add constraint FKuploadjob_versionInfo_filesetversioninfo 
-        foreign key (versionInfo) 
-        references filesetversioninfo  ;;
-
-    alter table uploadjob 
         add constraint FKuploadjob_job_id_job 
         foreign key (job_id) 
         references job  ;;
+
+    alter table uploadjob_versionInfo 
+        add constraint FK3B5720031800070E 
+        foreign key (uploadjob_id) 
+        references uploadjob  ;;
 
     alter table well 
         add constraint FKwell_creation_id_event 
