@@ -120,7 +120,7 @@ class BaseClient(object):
         if id.properties == None:
             id.properties = Ice.createProperties(args)
 
-        id.properties.parseCommandLineOptions("omero", args);
+        id.properties.parseCommandLineOptions("omero", args)
         if host:
             id.properties.setProperty("omero.host", str(host))
         if not port:
@@ -175,7 +175,7 @@ class BaseClient(object):
         """
 
         if not id:
-            raise omero.ClientError("No initialization data provided.");
+            raise omero.ClientError("No initialization data provided.")
 
         # Strictly necessary for this class to work
         id.properties.setProperty("Ice.ImplicitContext", "Shared")
@@ -907,7 +907,7 @@ class BaseClient(object):
         except:
             self.__logger.warning("Cannot get session service for killSession. Using closeSession")
             self.closeSession()
-            return -1;
+            return -1
 
         count = 0
         try:
@@ -1044,7 +1044,7 @@ class BaseClient(object):
             pass
         def _closeSession(self):
             try:
-                self.oa.deactivate();
+                self.oa.deactivate()
             except Exception, e:
                 sys.err.write("On session closed: " + str(e))
 
