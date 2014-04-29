@@ -103,7 +103,7 @@ public class ScriptingDialog
        "selecting only data from a single group to run the script on each time.";
 
     /** Bound property indicating to run the script. */
-    public static final String RUN_SELECTED_SCRIPT_PROPERTY = 
+    public static final String RUN_SELECTED_SCRIPT_PROPERTY =
             "runSelectedScript";
 
     /** Bound property indicating to download the script. */
@@ -120,7 +120,7 @@ public class ScriptingDialog
     /** The background of the description. */
     static final Color BG_COLOR = Color.LIGHT_GRAY;
 
-    /** 
+    /**
      * The size of the invisible components used to separate buttons
      * horizontally.
      */
@@ -235,10 +235,9 @@ public class ScriptingDialog
 
     /**
      * Creates a button.
-     * 
+     *
      * @param text The text of the button.
      * @param actionID The action command id.
-     * @param l The action listener.
      * @return See above.
      */
     private JButton createButton(String text, int actionID)
@@ -261,7 +260,7 @@ public class ScriptingDialog
 
     /**
      * Displays information of the identifier.
-     * 
+     *
      * @param location Indicates where to display the component.
      */
     private void displayIdentifierInformation(Point location)
@@ -330,9 +329,9 @@ public class ScriptingDialog
         close();
     }
 
-    /** 
+    /**
      * Creates a component displaying the various options.
-     * 
+     *
      * @param values The values to display.
      * @param defValue The default value.
      * @return See above.
@@ -422,48 +421,62 @@ public class ScriptingDialog
             if (Long.class.equals(type) || Integer.class.equals(type) ||
                     Float.class.equals(type) || Double.class.equals(type)) {
                 if (comp == null) {
-                    comp = new NumericalTextField();
-                    ((NumericalTextField) comp).setNumberType(type);
-                    n = param.getMinValue();
-                    if (n != null) {
-                        if (Long.class.equals(type)) {
-                            text += "Min: "+n.longValue()+" ";
-                            ((NumericalTextField) comp).setMinimum(
-                                    n.longValue());
-                        } else if (Integer.class.equals(type)) {
-                            text += "Min: "+n.intValue()+" ";
-                            ((NumericalTextField) comp).setMinimum(
-                                    n.intValue());
-                        } else if (Double.class.equals(type)) {
-                            text += "Min: "+n.doubleValue()+" ";
-                            ((NumericalTextField) comp).setMinimum(
-                                    n.doubleValue());
-                        } else if (Float.class.equals(type)) {
-                            text += "Min: "+n.floatValue()+" ";
-                            ((NumericalTextField) comp).setMinimum(
-                                    n.floatValue());
-                        } 
-                    } else 
-                        ((NumericalTextField) comp).setNegativeAccepted(true);
-                    n = param.getMaxValue();
-                    if (n != null) {
-                        if (Long.class.equals(type)) {
-                            text += "Max: "+n.longValue()+" ";
-                            ((NumericalTextField) comp).setMaximum(
-                                    n.longValue());
-                        } else if (Integer.class.equals(type)) {
-                            text += "Max: "+n.intValue()+" ";
-                            ((NumericalTextField) comp).setMaximum(
-                                    n.intValue());
-                        } else if (Double.class.equals(type)) {
-                            text += "Max: "+n.doubleValue()+" ";
-                            ((NumericalTextField) comp).setMaximum(
-                                    n.doubleValue());
-                        } else if (Float.class.equals(type)) {
-                            text += "Max: "+n.floatValue()+" ";
-                            ((NumericalTextField) comp).setMaximum(
-                                    n.floatValue());
-                        } 
+                    if (script.isIdentifier(name)) {
+                        comp = new NumericalTextField();
+                        ((NumericalTextField) comp).setNumberType(type);
+                        ((NumericalTextField) comp).setNegativeAccepted(false);
+                        if (CollectionUtils.isNotEmpty(refObjects)) {
+                            //support of image type
+                            DataObject object = refObjects.get(0);
+                            if (script.isSupportedType(object, name)){
+                                defValue = object.getId();
+                            }
+                        }
+                    } else {
+                        comp = new NumericalTextField();
+                        ((NumericalTextField) comp).setNumberType(type);
+                        n = param.getMinValue();
+                        if (n != null) {
+                            if (Long.class.equals(type)) {
+                                text += "Min: "+n.longValue()+" ";
+                                ((NumericalTextField) comp).setMinimum(
+                                        n.longValue());
+                            } else if (Integer.class.equals(type)) {
+                                text += "Min: "+n.intValue()+" ";
+                                ((NumericalTextField) comp).setMinimum(
+                                        n.intValue());
+                            } else if (Double.class.equals(type)) {
+                                text += "Min: "+n.doubleValue()+" ";
+                                ((NumericalTextField) comp).setMinimum(
+                                        n.doubleValue());
+                            } else if (Float.class.equals(type)) {
+                                text += "Min: "+n.floatValue()+" ";
+                                ((NumericalTextField) comp).setMinimum(
+                                        n.floatValue());
+                            }
+                        } else {
+                            ((NumericalTextField) comp).setNegativeAccepted(true);
+                        }
+                        n = param.getMaxValue();
+                        if (n != null) {
+                            if (Long.class.equals(type)) {
+                                text += "Max: "+n.longValue()+" ";
+                                ((NumericalTextField) comp).setMaximum(
+                                        n.longValue());
+                            } else if (Integer.class.equals(type)) {
+                                text += "Max: "+n.intValue()+" ";
+                                ((NumericalTextField) comp).setMaximum(
+                                        n.intValue());
+                            } else if (Double.class.equals(type)) {
+                                text += "Max: "+n.doubleValue()+" ";
+                                ((NumericalTextField) comp).setMaximum(
+                                        n.doubleValue());
+                            } else if (Float.class.equals(type)) {
+                                text += "Max: "+n.floatValue()+" ";
+                                ((NumericalTextField) comp).setMaximum(
+                                        n.floatValue());
+                            } 
+                        }
                     }
                     if (defValue != null)
                         ((NumericalTextField) comp).setText(""+defValue);
@@ -476,7 +489,6 @@ public class ScriptingDialog
                         String s = defValue.toString().trim();
                         ((JTextField) comp).setColumns(length);
                         ((JTextField) comp).setText(s);
-
                         columnsSet = s.length() > 0;
                     }
                 }
@@ -591,7 +603,7 @@ public class ScriptingDialog
 
     /**
      * Builds the panel hosting the components.
-     * 
+     *
      * @return See above.
      */
     private JPanel buildControlPanel()
@@ -616,7 +628,7 @@ public class ScriptingDialog
 
     /**
      * Returns the component displaying the description of the script.
-     * 
+     *
      * @return See above.
      */
     private JComponent buildDescriptionPane()
@@ -698,9 +710,9 @@ public class ScriptingDialog
         return p;
     }
 
-    /** 
+    /**
      * Builds the component displaying the parameters.
-     * 
+     *
      * @return See above.
      */
     private JPanel buildBody()
@@ -774,7 +786,7 @@ public class ScriptingDialog
 
     /**
      * Creates a new instance.
-     * 
+     *
      * @param parent The parent of the frame.
      * @param script The script to run. Mustn't be <code>null</code>.
      * @param refObjects The objects of reference.
@@ -790,7 +802,7 @@ public class ScriptingDialog
 
     /**
      * Resets the value.
-     * 
+     *
      * @param script The script to run. Mustn't be <code>null</code>.
      * @param refObjects The objects of reference.
      */
