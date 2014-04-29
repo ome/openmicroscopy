@@ -55,7 +55,7 @@ class AnnotationPermissions(lib.ITest):
         self.exps["admin"] = self.new_user(group=self.group, system=True)
 
         # clients and services
-        self.clients = {}
+        self.clients = {"root": self.root}
         self.updateServices = {}
         self.queryServices = {}
         self.project = {}
@@ -74,14 +74,18 @@ class AnnotationPermissions(lib.ITest):
 
     def chmodGroupAs(self, user, perms):
         client = self.clients[user]
-        from omero.gateway import BlitzGateway
-        from omero.cmd import ERR
-        gateway = BlitzGateway(client_obj=client)
-        handle = gateway.chmodGroup(self.group.id.val, perms)
-        cb = gateway._waitOnCmd(handle)
-        rsp = cb.getResult()
-        if isinstance(rsp, ERR):
-            raise Exception(rsp)
+        if True:  # Note: deprecated
+            client.sf.getAdminService().changePermissions(
+                self.group, omero.model.PermissionsI(perms))
+        else:
+            from omero.gateway import BlitzGateway
+            from omero.cmd import ERR
+            gateway = BlitzGateway(client_obj=client)
+            handle = gateway.chmodGroup(self.group.id.val, perms)
+            cb = gateway._waitOnCmd(handle)
+            rsp = cb.getResponse()
+            if isinstance(rsp, ERR):
+                raise Exception(rsp)
 
     def createProjectAs(self, user):
         """ Adds a Project. """
@@ -372,13 +376,17 @@ class TestMovePrivatePermissions(AnnotationPermissions):
     def setup_method(self, method):
         AnnotationPermissions.setup_method(self, method, 'rwra--')
 
-    def testAddTagMakePrivate(self):
+    @pytest.mark.parametrize("admin_type", ("root", "admin"))
+    def testAddTagMakePrivate(self, admin_type):
         """ see ticket:11479 """
         project = self.createProjectAs("member1")
         tag = self.createTagAs("member2")
         self.linkTagAs("member1", project, tag)
-        self.chmodGroupAs("owner", "rw----")
-        # Check reading
-        self.getTagLinkAs("member1", project)
-        self.getTagViaLinkAs("member1", project)
-        self.getTagAs("member1", tag.id.val)
+        with pytest.raises(omero.SecurityViolation):
+            self.chmodGroupAs(admin_type, "rw----")
+
+        for x in ("member1", "member2"):
+            # Check reading
+            self.getTagLinkAs(x, project)
+            self.getTagViaLinkAs(x, project)
+            self.getTagAs(x, tag.id.val)
