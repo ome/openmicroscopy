@@ -208,7 +208,6 @@ import omero.sys.ParametersI;
 import omero.util.IceMapper;
 
 import org.apache.commons.io.FilenameUtils;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -8433,5 +8432,120 @@ public class OMEROMetadataStoreClient
         this.logFilename = logFilename;
         this.token = token;
     }
+
+	@Override
+    public void setArcAnnotationRef(String annotation, int instrumentIndex, int lightSourceIndex, int annotationRefIndex) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+    public void setDetectorAnnotationRef(String annotation, int instrumentIndex, int detectorIndex, int annotationRefIndex) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+    public void setDichroicAnnotationRef(String annotation, int instrumentIndex, int dichroicIndex, int annotationRefIndex) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+    public void setEllipseAnnotationRef(String annotation, int ROIIndex, int shapeIndex, int annotationRefIndex) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+    public void setFilamentAnnotationRef(String annotation, int instrumentIndex, int lightSourceIndex, int annotationRefIndex) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+    public void setFilterAnnotationRef(String annotation, int instrumentIndex, int filterIndex, int annotationRefIndex) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+    public void setGenericExcitationSourceAnnotationRef(String annotation, int instrumentIndex, int lightSourceIndex, int annotationRefIndex) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+    public void setInstrumentAnnotationRef(String annotation, int instrumentIndex, int annotationRefIndex) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+    public void setLabelAnnotationRef(String annotation, int ROIIndex, int shapeIndex, int annotationRefIndex) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+    public void setLaserAnnotationRef(String annotation, int instrumentIndex, int lightSourceIndex, int annotationRefIndex) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+    public void setLightEmittingDiodeAnnotationRef(String annotation, int instrumentIndex, int lightSourceIndex, int annotationRefIndex) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+    public void setLightPathAnnotationRef(String annotation, int imageIndex, int channelIndex, int annotationRefIndex) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+    public void setLineAnnotationRef(String annotation, int ROIIndex, int shapeIndex, int annotationRefIndex) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+    public void setMaskAnnotationRef(String annotation, int ROIIndex, int shapeIndex, int annotationRefIndex) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+    public void setObjectiveAnnotationRef(String annotation, int instrumentIndex, int objectiveIndex, int annotationRefIndex) {
+			int arg3) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+    public void setPointAnnotationRef(String annotation, int ROIIndex, int shapeIndex, int annotationRefIndex) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+    public void setPolygonAnnotationRef(String annotation, int ROIIndex, int shapeIndex, int annotationRefIndex) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+    public void setPolylineAnnotationRef(String annotation, int ROIIndex, int shapeIndex, int annotationRefIndex) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+    public void setRectangleAnnotationRef(String annotation, int ROIIndex, int shapeIndex, int annotationRefIndex) {
+		// TODO Auto-generated method stub
+		
+	}
 
 }
