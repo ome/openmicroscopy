@@ -309,7 +309,7 @@ location.
                 help="Service Log On As user password. If none given, the"
                 " value of omero.windows.pass will be used. (Windows-only)")
 
-        for k in ("start", "startasync", "deploy", "restart", "restartasync"):
+        for k in ("start", "restart", "stop"):
             self.actions[k].add_argument(
                 "--service",
                 help="Service to operate on.")
@@ -319,6 +319,7 @@ location.
             self.actions[k].add_argument(
                 "--target", action="append", dest="explicit_targets",
                 help=("See 'target'"))
+        for k in ("start", "startasync", "deploy", "restart", "restartasync", "stop"):
             self.actions[k].add_argument(
                 "file", nargs="?",
                 help="Application descriptor. If not provided, a default"
@@ -506,12 +507,35 @@ location.
     # Commands
     #
 
+    def _service_action(self, service, descript, actions):
+        """
+        Similar to `def ice(self, args)`
+        """
+        if descript:
+            pass  # could print debugging
+
+        self.check_access()
+        command = self._cmd()
+        command.append("-e")
+        for action in actions:
+            copy = list(command)
+            copy.append("server %s %s" % (action, service))
+            rc = self.ctx.call(copy)
+            if rc:
+                self.ctx.die(rc, "Failed on '%s %s'" \
+                             % (action, service))
+
     @with_config
     def startasync(self, args, config):
         """
         First checks for a valid installation, then checks the grid,
         then registers the action: "node HOST start"
         """
+
+        service, descript = self._descript(args)
+        if service:
+            self._service_action(service, descript, ["enable"])
+            return self.stop
 
         self.check_access(config=config)
         self.checkice()
@@ -529,7 +553,6 @@ location.
 
         user = args.user
         pasw = args.password
-        service, descript = self._descript(args)
 
         if self._isWindows():
             svc_name = "OMERO.%s" % args.node
@@ -623,7 +646,11 @@ location.
 
     @with_config
     def start(self, args, config):
-        self.startasync(args, config)
+
+        rv = self.startasync(args, config)
+        if rv == self.stop:
+            return  # Likely a service start
+
         try:
             self.waitup(args)
         except NonZeroReturnCode, nzrc:
@@ -639,6 +666,8 @@ location.
         self.check_access()
         self.checkice()
         service, descript = self._descript(args)
+        if service:
+            self.ctx.die(456, "--service not implemented for deploy")
 
         # TODO : Doesn't properly handle whitespace
         # Though users can workaround with something like:
@@ -691,6 +720,11 @@ location.
 
     @with_config
     def restart(self, args, config):
+
+        service, descript = self._descript(args)
+        if service:
+            return self._service_action(service, descript, ["stop"])
+
         if not self.stop(args, config):
             self.ctx.die(54, "Failed to shutdown")
         self.wait_for_icedb(args, config)
@@ -797,6 +831,12 @@ location.
 
     @with_config
     def stop(self, args, config):
+
+        service, descript = self._descript(args)
+        if service:
+            self._service_action(service, descript, ["disable", "stop"])
+            return
+
         if not self.stopasync(args, config):
             return self.waitdown(args)
         return True
