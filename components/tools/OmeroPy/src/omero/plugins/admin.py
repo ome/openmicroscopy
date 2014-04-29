@@ -407,7 +407,15 @@ location.
             if val.startswith(x):
                 return True
 
-    def _descript(self, args):
+    def _descript(self, args, supress_output=False):
+        """
+        Returns 'service, descript' either of which
+        can be None. Also updates args.targets in place.
+
+        In some cases the descript return value will
+        be ignored. If supress_output is True,
+        then no notifications will be printed.
+        """
         service = None
         descript = None
 
@@ -444,8 +452,9 @@ location.
             if args.file:
                 descript = path(args.file).abspath()
                 if not descript.exists():
-                    self.ctx.dbg("No such file: %s -- Using as target"
-                                 % descript)
+                    if not supress_output:
+                        self.ctx.dbg("No such file: %s -- Using as target"
+                                     % descript)
                     args.targets.insert(0, args.file)
                     descript = None
 
@@ -455,8 +464,9 @@ location.
             if self._isWindows():
                 __d__ = "windefault.xml"
             descript = self.ctx.dir / "etc" / "grid" / __d__
-            self.ctx.err("No descriptor given. Using %s"
-                         % os.path.sep.join(["etc", "grid", __d__]))
+            if not supress_output:
+                self.ctx.err("No descriptor given. Using %s"
+                             % os.path.sep.join(["etc", "grid", __d__]))
 
         return service, descript
 
@@ -827,7 +837,7 @@ location.
     @with_config
     def stop(self, args, config):
 
-        service, descript = self._descript(args)
+        service, descript = self._descript(args, supress_output=True)
         if service:
             self._service_action(service, descript, ["disable", "stop"])
             return
