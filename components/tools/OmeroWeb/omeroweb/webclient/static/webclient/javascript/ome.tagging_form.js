@@ -562,9 +562,11 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id) {
 
             // check for tag with same name
             if (!force) {
+                var lowertext = text.toLowerCase();
+                var lowerdesc = description.toLowerCase();
                 for (var id in all_tags) {
-                    if (all_tags[id].t === text) {
-                        if (all_tags[id].d === description) {
+                    if (all_tags[id].t.toLowerCase() === lowertext) {
+                        if (all_tags[id].d.toLowerCase() === lowerdesc) {
                             if ($("[data-id=" + id + "]",
                                   div_selected_tags).length > 0) {
                                 OME.alert_dialog(
