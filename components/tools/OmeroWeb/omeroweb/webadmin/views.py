@@ -881,11 +881,11 @@ def email(request, conn=None, **kwargs):
     # Check that the appropriate web settings are available
     if not (settings.SERVER_EMAIL or settings.EMAIL_HOST or
         settings.EMAIL_PORT):
-        return HttpResponseRedirect(reverse("wanoemail"))
+        return {'template': 'webadmin/noemail.html'}
 
     if settings.EMAIL_USE_TLS and not (settings.EMAIL_HOST_USER or
         settings.EMAIL_HOST_PASSWORD):
-        return HttpResponseRedirect(reverse("wanoemail"))
+        return {'template': 'webadmin/noemail.html'}
 
     # Get experimenters and groups.
     experimenters = list(conn.getObjects("Experimenter"))
@@ -920,7 +920,4 @@ def email(request, conn=None, **kwargs):
 # I think maybe the render_response decorator should not be adding context
 # because it fails in situations like this, better to insert that context
 # using a template tag when required
-
-class NoEmailView(TemplateView):
-    template_name = 'webadmin/noemail.html'
 
