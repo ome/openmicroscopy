@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewerControl
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -153,6 +153,7 @@ import pojos.GroupData;
 import pojos.ImageData;
 import pojos.PlateAcquisitionData;
 import pojos.PlateData;
+import pojos.TagAnnotationData;
 import pojos.WellData;
 import pojos.WellSampleData;
 
@@ -792,7 +793,8 @@ class TreeViewerControl
 				if (o instanceof DataObject) {
 					if (!(o instanceof GroupData ||
 						o instanceof ExperimenterData ||
-						o instanceof PlateAcquisitionData)) {
+						o instanceof PlateAcquisitionData ||
+						o instanceof TagAnnotationData)) {
 						if (model.canChgrp(o)) {
 							data = (DataObject) o;
 							if (!owners.contains(data.getOwner().getId()))
