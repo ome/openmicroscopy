@@ -78,9 +78,15 @@
         </try>
         <catch>
             <!-- *OR* we'll finally fall back to UNKNOWN -->
-            <property name="omero.version" value="UNKNOWN"/>
             <property name="omero.plainversion" value="UNKNOWN"/>
             <property name="omero.shortversion" value="UNKNOWN"/>
+
+            <!-- And compose omero.version from those -->
+            <property name="omero.version" value="${omero.plainversion}-ice${versions.ice_lib}"/>
+
+            <property name="omero.plainversion.source" value="ant"/>
+            <property name="omero.shortversion.source" value="ant"/>
+            <property name="omero.version.source" value="ant"/>
         </catch>
     </trycatch>
 
