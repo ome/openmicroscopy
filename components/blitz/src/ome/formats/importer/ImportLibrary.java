@@ -476,6 +476,14 @@ public class ImportLibrary implements IObservable
             failingChecksums = cve.failingChecksums;
             throw cve;
         } finally {
+
+            try {
+                proc.close();
+            } catch (Exception e) {
+                log.warn("Exception while closing proc", e);
+            }
+
+
             notifyObservers(new ImportEvent.FILESET_UPLOAD_END(
                     null, index, srcFiles.length, null, null, srcFiles,
                     checksums, failingChecksums, null));
