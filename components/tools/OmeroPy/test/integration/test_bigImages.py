@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 
 #
-# Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
-# All rights reserved.
+# Copyright (C) 2013-2014 University of Dundee & Open Microscopy Environment.
+# All rights reserved. Use is subject to license terms supplied in LICENSE.txt
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -30,7 +30,7 @@ import test.integration.library as lib
 
 try:
     from PIL import Image  # see ticket:2597
-except:  #pragma: nocover
+except:  # pragma: nocover
     try:
         import Image  # see ticket:2597
     except:
@@ -90,8 +90,8 @@ class TestFigureExportScripts(lib.ITest):
         y = 0
         width = 2
         height = 2
-        x2 = x+width
-        y2 = y+height
+        x2 = x + width
+        y2 = y + height
 
         regionDef.x = x
         regionDef.y = y
