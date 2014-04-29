@@ -51,7 +51,7 @@ module omero {
     /**
      * Determines the batch size for sending
      * objects to the server. Too many can
-     *result in MessageSizeMax errors.
+     * result in MessageSizeMax errors.
      **/
     const int DEFAULTBATCHSIZE = 2000;
 
