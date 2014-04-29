@@ -27,13 +27,15 @@ import os
 import re
 import sys
 
+
 def choose_omero_version(omero_version):
     """
     Returns an array specifying the build parameter for
     ant. Returned as an array so that an empty value can
     be extended into the build command.
 
-    If BUILD_NUMER is set, then "-Domero.version=${omero.version}-b${BUILD_NUMBER}"
+    If BUILD_NUMER is set, then
+    "-Domero.version=${omero.version}-b${BUILD_NUMBER}"
     otherwise nothing.
     """
 
@@ -55,6 +57,7 @@ def choose_omero_version(omero_version):
             print err
         sys.exit(1)
 
+
 def snapshot_logic(omero_version):
     """
     If we're not on hudson, then we don't want to force
@@ -64,10 +67,12 @@ def snapshot_logic(omero_version):
     See gh-67 for the discussion.
     """
 
-    m = re.match(("^"
+    m = re.match((
+        "^"
         "(?P<BASE>.*?)"
         "(?P<STRIP>([-]DEV)?-\d+-[a-f0-9]+(-dirty)?)"
-        "(?P<ICE>-ice[0-9]+)?$"), omero_version)
+        "(?P<ICE>-ice[0-9]+)?"
+        "$"), omero_version)
     if m:
         base = incr_version(m.group("BASE"))
         omero_version = "%s%s-SNAPSHOT" % (
@@ -75,6 +80,7 @@ def snapshot_logic(omero_version):
     else:
         omero_version = incr_version(omero_version)
     return omero_version
+
 
 def incr_version(omero_version):
     """
@@ -110,6 +116,7 @@ def incr_version(omero_version):
             next = int(m.group(2)) + 1
             omero_version = "%s%s-SNAPSHOT" % (m.group(1), next)
     return omero_version
+
 
 if __name__ == "__main__":
     print choose_omero_version(sys.argv[1]),
