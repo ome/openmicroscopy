@@ -13,6 +13,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -25,6 +26,7 @@ import ome.api.IPixels;
 import ome.api.IRenderingSettings;
 import ome.api.IUpdate;
 import ome.api.ServiceInterface;
+import ome.api.ThumbnailStore;
 import ome.api.local.LocalCompress;
 import ome.conditions.ApiUsageException;
 import ome.conditions.InternalException;
@@ -775,22 +777,7 @@ public class RenderingBean implements RenderingEngine, Serializable {
             // and certain users certainly *can* modify rendering settings
             // for others, allowing it to happen silently would be a breaking
             // change that could lead to serious surprises.
-            ex.execute(/*ex*/null/*principal*/,
-              new Executor.SimpleWork(this,"checkSettingsOwner"){
-                @Transactional(readOnly = true)
-                public Object doWork(Session session, ServiceFactory sf) {
-                    List<Object[]> rv = sf.getQueryService().projection(
-                        "select o.id from RenderingDef r join r.details.owner o " +
-                        "where r.id = :id", new Parameters().addId(rendDefObj.getId()));
-                    Long currentUser = getCurrentEventContext().getCurrentUserId();
-                    Long ownerId = (Long) rv.get(0)[0];
-                    if (!ownerId.equals(currentUser)) {
-                        throw new ValidationException(String.format(
-                            "%s belongs to %s and not the current user %s",
-                            rendDefObj, ownerId, currentUser));
-                    }
-                    return null;
-            }});
+            checkSettingsOwner();
         }
 
         rwl.writeLock().lock();
@@ -866,6 +853,7 @@ public class RenderingBean implements RenderingEngine, Serializable {
 
             if (saveAs) {
                 loadRenderingDef(id);
+                getThumbnail(id);
             } else {
 
 
@@ -1904,5 +1892,45 @@ public class RenderingBean implements RenderingEngine, Serializable {
                 return pixDataSrv.getPixelBuffer(pixelsObj, false);
             }
         });
+    }
+
+    /**
+     * Throw an exception if the current user is not the owner of the current
+     * rendering def.
+     */
+    private void checkSettingsOwner() {
+        ex.execute(/*ex*/null/*principal*/,
+          new Executor.SimpleWork(this,"checkSettingsOwner"){
+            @Transactional(readOnly = true)
+            public Object doWork(Session session, ServiceFactory sf) {
+                List<Object[]> rv = sf.getQueryService().projection(
+                    "select o.id from RenderingDef r join r.details.owner o " +
+                    "where r.id = :id", new Parameters().addId(rendDefObj.getId()));
+                Long currentUser = getCurrentEventContext().getCurrentUserId();
+                Long ownerId = (Long) rv.get(0)[0];
+                if (!ownerId.equals(currentUser)) {
+                    throw new ValidationException(String.format(
+                        "%s belongs to %s and not the current user %s",
+                        rendDefObj, ownerId, currentUser));
+                }
+                return null;
+        }});
+    }
+
+    /**
+     * Generate a thumbnail for the current rendering def
+     */
+    private void getThumbnail(final long rid) {
+        final long pid = pixelsObj.getId();
+        ex.execute(/*ex*/null/*principal*/,
+          new Executor.SimpleWork(this,"generateThumbnail"){
+            @Transactional(readOnly = false)
+            public Object doWork(Session session, ServiceFactory sf) {
+                ThumbnailStore tb = sf.createThumbnailService();
+                tb.setPixelsId(pid);
+                tb.setRenderingDefId(rid);
+                tb.getThumbnailByLongestSide(96);
+                return null;
+        }});
     }
 }
