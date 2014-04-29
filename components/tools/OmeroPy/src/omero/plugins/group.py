@@ -59,6 +59,8 @@ server-permissions.html
         self.add_permissions_arguments(perms)
 
         list = parser.add(sub, self.list, "List current groups")
+        list.add_style_argument()
+
         printgroup = list.add_mutually_exclusive_group()
         printgroup.add_argument(
             "--count", action="store_true", default=True,
@@ -218,6 +220,9 @@ server-permissions.html
         else:
             tb = TableBuilder("id", "name", "perms", "# of owners",
                               "# of members")
+        if args.style:
+            tb.set_style(args.style)
+
         for group in groups:
             row = [group.id.val, group.name.val,
                    str(group.details.permissions)]

@@ -12,14 +12,126 @@
 # http://code.activestate.com/recipes/577202-render-tables-for-text-interface/
 #
 
+
+class Style(object):
+
+    NAME = "unknown"
+
+    def headers(self, table):
+        return self.SEPARATOR.join(table.get_row(None))
+
+    def width(self, name, decoded_data):
+        return max(len(x) for x in decoded_data + [name])
+
+    def __str__(self):
+        return self.NAME
+
+
+class SQLStyle(Style):
+
+    NAME = "sql"
+    SEPARATOR = "|"
+
+    def format(self, width, align):
+        return ' %%%s%ds ' % (align, width)
+
+    def line(self, table):
+        return "+".join(["-" * (x.width+2) for x in table.columns])
+
+    def status(self, table):
+        return "(%s %s)" % (
+            table.length,
+            (table.length == 1 and "row" or "rows"))
+
+    def get_rows(self, table):
+        yield self.headers(table)
+        yield self.line(table)
+        for i in range(0, table.length):
+            yield self.SEPARATOR.join(table.get_row(i))
+        yield self.status(table)
+
+
+class PlainStyle(Style):
+
+    NAME = "plain"
+    SEPARATOR = ","
+
+    def format(self, width, align):
+        return '%s'
+
+    def _write_row(self, table, i):
+        try:
+            import csv
+            import StringIO
+            output = StringIO.StringIO()
+            writer = csv.writer(output)
+            writer.writerow(table.get_row(i))
+            return output.getvalue()
+        except Exception:
+            return self.SEPARATOR.join(table.get_row(i))
+
+    def get_rows(self, table):
+        for i in range(0, table.length):
+            yield self._write_row(table, i)
+
+
+class CSVStyle(PlainStyle):
+
+    NAME = "csv"
+
+    def get_rows(self, table):
+        yield self.headers(table)
+        for row in PlainStyle.get_rows(self, table):
+            yield row
+
+
+class StyleRegistry(dict):
+
+    def __init__(self):
+        dict.__init__(self)
+        self["csv"] = CSVStyle()
+        self["sql"] = SQLStyle()
+        self["plain"] = PlainStyle()
+
+
+STYLE_REGISTRY = StyleRegistry()
+
+
+def find_style(style, error_strategy=None):
+    """
+    Lookup method for well-known styles by name.
+    None may be returned.
+    """
+    if isinstance(style, Style):
+        return style
+    else:
+        if error_strategy == "pass-through":
+            return STYLE_REGISTRY.get(style, style)
+        elif error_strategy == "throw":
+            return STYLE_REGISTRY[style]
+        else:
+            return STYLE_REGISTRY.get(style, None)
+
+
+def list_styles():
+    """
+    List the styles that are known by find_style
+    """
+    return STYLE_REGISTRY.keys()
+
+
 class TableBuilder(object):
     """
     OMERO-addition to make working with Tables easier
     """
 
     def __init__(self, *headers):
+        self.style = SQLStyle()
         self.headers = list(headers)
         self.results = [[] for x in self.headers]
+
+    def set_style(self, style):
+        self.style = find_style(style)
 
     def col(self, name):
         """
@@ -39,7 +151,8 @@ class TableBuilder(object):
     def row(self, *items, **by_name):
 
         if len(items) > len(self.headers):
-            raise ValueError("Size mismatch: %s != %s" % (len(items), len(self.headers)))
+            raise ValueError("Size mismatch: %s != %s" %
+                             (len(items), len(self.headers)))
 
         # Fill in all values, even if missing
         for idx in range(len(self.results)):
@@ -48,7 +161,6 @@ class TableBuilder(object):
                 value = items[idx]
             self.results[idx].append(value)
 
-        size = len(self.results[0])
         for k, v in by_name.items():
             if k not in self.headers:
                 raise KeyError("%s not in %s" % (k, self.headers))
@@ -58,8 +170,10 @@ class TableBuilder(object):
     def build(self):
         columns = []
         for i, x in enumerate(self.headers):
-            columns.append(Column(x, self.results[i]))
-        return Table(*columns)
+            columns.append(Column(x, self.results[i], style=self.style))
+        table = Table(*columns)
+        table.set_style(self.style)
+        return table
 
     def __str__(self):
         return str(self.build())
@@ -71,7 +185,7 @@ class ALIGN:
 
 class Column(list):
 
-    def __init__(self, name, data, align=ALIGN.LEFT):
+    def __init__(self, name, data, align=ALIGN.LEFT, style=SQLStyle()):
         def tostring(x):
             try:
                 return str(x).decode("utf-8")
@@ -81,15 +195,19 @@ class Column(list):
         decoded = [tostring(d) for d in data]
         list.__init__(self, decoded)
         self.name = name
-        self.width = max(len(x) for x in decoded + [name])
-        self.format = ' %%%s%ds ' % (align, self.width)
+        self.width = style.width(name, decoded)
+        self.format = style.format(self.width, align)
 
 
 class Table:
 
     def __init__(self, *columns):
+        self.style = SQLStyle()
         self.columns = columns
         self.length = max(len(x) for x in columns)
+
+    def set_style(self, style):
+        self.style = find_style(style)
 
     def get_row(self, i=None):
         for x in self.columns:
@@ -98,21 +216,16 @@ class Table:
             else:
                 try:
                     x[i].decode("ascii")
-                except UnicodeDecodeError: # Unicode characters are present
+                except UnicodeDecodeError:  # Unicode characters are present
                     yield (x.format % x[i].decode("utf-8")).encode("utf-8")
-                except AttributeError: # Unicode characters are present
+                except AttributeError:  # Unicode characters are present
                     yield x.format % x[i]
                 else:
                     yield x.format % x[i]
 
     def get_rows(self):
-        yield '|'.join(self.get_row(None))
-        yield "+".join(["-"* (x.width+2) for x in self.columns])
-        for i in range(0, self.length):
-            yield '|'.join(self.get_row(i))
-        yield "(%s %s)" % (self.length, (self.length == 1 and "row" or "rows"))
+        for row in self.style.get_rows(self):
+            yield row
 
     def __str__(self):
         return '\n'.join(self.get_rows())
-
-
