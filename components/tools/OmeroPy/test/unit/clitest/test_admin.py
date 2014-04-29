@@ -170,69 +170,71 @@ class TestAdmin(object):
     # SERVICE/FILE/TARGET Parsing
     #
 
-    @pytest.mark.parametrize(
-        "data",
-        (
+    @pytest.mark.parametrize("data", (
+
         # None
-         ("a deploy",
-          None, None, []),
+
+        ("a start",
+         None, None, []),
 
         # One pos; no optional
-         ("a deploy Processor-0",
-          "Processor-0", None, []),
 
-         ("a deploy exists",
-          None, "exists", []),
+        ("a start Processor-0",
+         "Processor-0", None, []),
 
-         ("a deploy bar",
-          None, None, ["bar"]),
+        ("a start exists",
+         None, "exists", []),
+
+        ("a start bar",
+         None, None, ["bar"]),
 
         # Two pos; no optional
 
-         ("a deploy Processor-0 exists",
-          "Processor-0", "exists", []),
+        ("a start Processor-0 exists",
+         "Processor-0", "exists", []),
 
-         ("a deploy exists bar",
-          None, "exists", ["bar"]),
+        ("a start exists bar",
+         None, "exists", ["bar"]),
 
-         ("a deploy bar boom",
-          None, None, ["bar", "boom"]),
+        ("a start bar boom",
+         None, None, ["bar", "boom"]),
 
         # Three pos; no optional
 
-         ("a deploy Processor-0 exists bar",
-          "Processor-0", "exists", ["bar"]),
+        ("a start Processor-0 exists bar",
+         "Processor-0", "exists", ["bar"]),
 
-         ("a deploy Processor-0 bar boom",
-          "Processor-0", None, ["bar", "boom"]),
+        ("a start Processor-0 bar boom",
+         "Processor-0", None, ["bar", "boom"]),
 
-         ("a deploy exists bar boom",
-          None, "exists", ["bar", "boom"]),
+        ("a start exists bar boom",
+         None, "exists", ["bar", "boom"]),
 
-         ("a deploy bar boom baz",
-          None, None, ["bar", "boom", "baz"]),
+        ("a start bar boom baz",
+         None, None, ["bar", "boom", "baz"]),
 
         # No pos; all optional
 
-         ("a deploy --service=Processor-0 --file=exists --target bar",
-          "Processor-0", "exists", ["bar"]),
+        ("a start --service=Processor-0 --file=exists --target bar",
+         "Processor-0", "exists", ["bar"]),
 
-         ("a deploy --service=Processor-0 --file=exists --target bar --target boom",
-          "Processor-0", "exists", ["bar", "boom"]),
+        (("a start --service=Processor-0 "
+          "--file=exists --target bar --target boom"),
+         "Processor-0", "exists", ["bar", "boom"]),
 
         # 1 pos; 2 optional
 
-         ("a deploy --service=Processor-0 exists --target bar",
-          "Processor-0", "exists", ["bar"]),
+        ("a start --service=Processor-0 exists --target bar",
+         "Processor-0", "exists", ["bar"]),
 
-         ("a deploy Processor-0 --file=exists --target bar",
-          "Processor-0", "exists", ["bar"]),
+        ("a start Processor-0 --file=exists --target bar",
+         "Processor-0", "exists", ["bar"]),
 
-         ))
+        ))
     def testParsing(self, data):
 
         class InterceptingAdmin(AdminControl):
-            def deploy(self, args):
+            def start(self, args):
                 self.intercepted = args
 
         data_in = data[0]

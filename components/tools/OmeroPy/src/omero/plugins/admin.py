@@ -60,11 +60,11 @@ Configuration properties:
 
 """ + "\n" + "="*50 + "\n"
 
-START_ARG_HELP = """If the first argument matches a service name ("Processor-0" etc), it will
-be used as such. If the first non-service argument matches an existing file,
-it will be deployed as the application descriptor rather than etc/grid/default.xml.
-All other arguments will be used as targets to enable optional sections of the
-descriptor"""
+SRV_HELP = """If the first argument matches a service name ("Processor-0" etc),
+it will be used as such. If the first non-service argument matches an existing
+file, it will be deployed as the application descriptor rather than
+etc/grid/default.xml. All other arguments will be used as targets to enable
+optional sections of the descriptor"""
 
 
 class AdminControl(BaseControl):
@@ -102,7 +102,7 @@ class AdminControl(BaseControl):
             """Start icegridnode daemon and waits for required components to \
 come up, i.e. status == 0
 
-%s""" % START_ARG_HELP,
+%s""" % SRV_HELP,
             wait=True)
 
         Action("startasync", "The same as start but returns immediately",)
@@ -139,7 +139,7 @@ non-0 value""",
 
 This functions the same as as 'start', but requires that the node
 already be running. This may automatically restart some server components.""" %
-            START_ARG_HELP)
+            SRV_HELP)
 
         Action(
             "ice", "Drop user into icegridadmin console or execute arguments")
@@ -311,8 +311,9 @@ location.
                 help=("See 'file'"))
             self.actions[k].add_argument(
                 "--target", action="append", dest="explicit_targets",
-                help=("See 'target'"))
-        for k in ("start", "startasync", "deploy", "restart", "restartasync", "stop"):
+                help=("See 'target'"), default=[])
+        for k in ("start", "startasync", "deploy",
+                  "restart", "restartasync", "stop"):
             self.actions[k].add_argument(
                 "file", nargs="?",
                 help="Application descriptor. If not provided, a default"
@@ -443,7 +444,8 @@ location.
             if args.file:
                 descript = path(args.file).abspath()
                 if not descript.exists():
-                    self.ctx.dbg("No such file: %s -- Using as target" % descript)
+                    self.ctx.dbg("No such file: %s -- Using as target"
+                                 % descript)
                     args.targets.insert(0, args.file)
                     descript = None
 
@@ -515,7 +517,7 @@ location.
             copy.append("server %s %s" % (action, service))
             rc = self.ctx.call(copy)
             if rc:
-                self.ctx.die(rc, "Failed on '%s %s'" \
+                self.ctx.die(rc, "Failed on '%s %s'"
                              % (action, service))
 
     @with_config
