@@ -21,6 +21,7 @@ package ome.security.basic;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -41,6 +42,7 @@ import ome.model.internal.Permissions.Right;
 import ome.model.internal.Permissions.Role;
 import ome.model.meta.ExperimenterGroup;
 import ome.security.ChmodStrategy;
+import ome.services.messages.ContextMessage;
 import ome.services.messages.EventLogMessage;
 import ome.system.OmeroContext;
 import ome.tools.hibernate.ExtendedMetadata;
@@ -211,7 +213,7 @@ public class GroupChmodStrategy implements ChmodStrategy,
             throw new InternalException("Bad check:" + check);
         }
         Check c = ((Check) check);
-        Map<String, Long> counts = c.run(osf.getSession(), em);
+        Map<String, Long> counts = performRun(c);
 
         long total = counts.get("*");
         if (total > 0) {
@@ -219,6 +221,27 @@ public class GroupChmodStrategy implements ChmodStrategy,
                     "Cannot change permissions on %s to %s due to locks:\n%s",
                     obj, c.perms, counts));
         }
+    }
+
+    private Map<String, Long> performRun(Check c) {
+        // Perform the operation across all groups.
+        Map<String, Long> counts = null;
+        Map<String, String> grpCtx = new HashMap<String, String>();
+        grpCtx.put("omero.group", "-1");
+
+        try {
+            ctx.publishMessage(new ContextMessage.Push(this, grpCtx));
+            try {
+                counts = c.run(osf.getSession(), em);
+            } finally {
+                ctx.publishMessage(new ContextMessage.Pop(this, grpCtx));
+            }
+        } catch (Throwable t) {
+            log.error("Could not perform check!", t);
+            throw new InternalException("Could not perform check! See server logs");
+        }
+
+        return counts;
     }
 
     // Helpers
