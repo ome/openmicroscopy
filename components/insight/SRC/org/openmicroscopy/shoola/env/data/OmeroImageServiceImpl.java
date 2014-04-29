@@ -1906,4 +1906,17 @@ class OmeroImageServiceImpl
 		return def.getId().getValue();
 	}
 
+	/**
+	 * Implemented as specified by {@link OmeroDataService}.
+	 * @see OmeroImageService#getRenderingDef(SecurityContext, long)
+	 */
+	public RndProxyDef getSettings(SecurityContext ctx, long rndID)
+        throws DSOutOfServiceException, DSAccessException
+    {
+	    if (rndID < 0) return null;
+	    RenderingDef def = gateway.getRenderingDef(ctx, rndID);
+        if (def == null) return null;
+        return PixelsServicesFactory.convert(def);
+    }
+
 }

@@ -898,4 +898,17 @@ public interface OmeroImageService
 	Long getRenderingDef(SecurityContext ctx, long pixelsID, long userID)
 		throws DSOutOfServiceException, DSAccessException;
 
+    /**
+     * Retrieves the rendering settings for the specified pixels set.
+     *
+     * @param ctx The security context.
+     * @param rndID  The rendering settings ID.
+     * @return See above.
+     * @throws DSOutOfServiceException If the connection is broken, or logged
+     *                                 in.
+     * @throws DSAccessException       If an error occurred while trying to
+     *                                 retrieve data from OMEDS service.
+     */
+	RndProxyDef getSettings(SecurityContext ctx, long rndID)
+        throws DSOutOfServiceException, DSAccessException;
 }

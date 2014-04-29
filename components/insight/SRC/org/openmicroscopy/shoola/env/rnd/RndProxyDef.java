@@ -86,12 +86,24 @@ public class RndProxyDef
     /** Indicates when the settings was last modified. */
     private Timestamp lastModified;
 
-    /** The name associated to the rendering def. */
+    /** The name associated to the rendering settings. */
     private String name;
 
-    /** Creates a new instance. */
-    RndProxyDef()
+    /** The identifier of the rendering settings.*/
+    private long id;
+
+    /** The owner's identifier of the rendering settings.*/
+    private long ownerID;
+
+    /** Creates a new instance.
+     * 
+     * @param id The identifier of the rendering settings.
+     * @param ownerID The owner's identifier of the rendering settings.
+     * */
+    RndProxyDef(long id, long ownerID)
     {
+        this.id = id;
+        this.ownerID = ownerID;
         compression = 1.0;
         channels = new HashMap<Integer, ChannelBindingsProxy>();
         name = "";
@@ -263,7 +275,7 @@ public class RndProxyDef
      */
     RndProxyDef copy()
     {
-        RndProxyDef copy = new RndProxyDef();
+        RndProxyDef copy = new RndProxyDef(this.id, this.ownerID);
         copy.setLastModified(this.getLastModified());
         copy.setCompression(this.getCompression());
         copy.setTypeSigned(this.isTypeSigned());
@@ -315,5 +327,12 @@ public class RndProxyDef
      * @return See above.
      */
     public Timestamp getLastModified() { return lastModified; }
+
+    /** 
+     * Returns the owner's identifier of the rendering settings.
+     *
+     * @return See above.
+     */
+    public long getOwnerID() { return ownerID; }
 
 }

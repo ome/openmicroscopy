@@ -8387,4 +8387,28 @@ class OMEROGateway
         }
         return new HashMap();
     }
+
+    /**
+     * Retrieves the rendering settings for the specified pixels set.
+     *
+     * @param ctx The security context.
+     * @param rndID The rendering settings ID.
+     * @return See above.
+     * @throws DSOutOfServiceException If the connection is broken, or logged
+     *                                 in.
+     * @throws DSAccessException       If an error occurred while trying to
+     *                                 retrieve data from OMEDS service.
+     */
+    RenderingDef getRenderingDef(SecurityContext ctx, long rndID)
+        throws DSOutOfServiceException, DSAccessException
+    {
+        Connector c = getConnector(ctx, true, false);
+        try {
+            IPixelsPrx service = c.getPixelsService();
+            return service.loadRndSettings(rndID);
+        } catch (Exception e) {
+            handleException(e, "Cannot retrieve the rendering settings");
+        }
+        return null;
+    }
 }
