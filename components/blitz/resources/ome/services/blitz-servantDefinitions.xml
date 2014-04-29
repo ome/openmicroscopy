@@ -368,7 +368,6 @@
       <constructor-arg ref="/OMERO/Pixels"/>
       <constructor-arg ref="/OMERO/Thumbs"/>
       <constructor-arg ref="mailSender"/>
-      <constructor-arg ref="templateMessage"/>
       <property name="iceCommunicator" ref="Ice.Communicator"/>
   </bean>
 

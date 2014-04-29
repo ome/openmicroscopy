@@ -12,10 +12,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.mail.MailSender;
-import org.springframework.mail.SimpleMailMessage;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.mail.MailException;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.mail.javamail.MimeMessagePreparator;
 
 import omero.cmd.HandleI.Cancel;
 import omero.cmd.Helper;
@@ -42,17 +47,13 @@ public class SendEmailRequestI extends SendEmailRequest implements
 
 	private final SendEmailResponse rsp = new SendEmailResponse();
 
-
-	protected final MailSender mailSender;
-
-	protected final SimpleMailMessage templateMessage;
+	protected final JavaMailSender mailSender;
     
 	private Helper helper;
 
 
-	public SendEmailRequestI(MailSender mailSender, SimpleMailMessage templateMessage) {
+	public SendEmailRequestI(JavaMailSender mailSender) {
 		this.mailSender = mailSender;
-		this.templateMessage = templateMessage;
 	}
     
 	
@@ -64,7 +65,6 @@ public class SendEmailRequestI extends SendEmailRequest implements
 	public Map<String, String> getCallContext() {
 		Map<String, String> all = new HashMap<String, String>();
 		all.put("omero.group", "-1");
-		log.error("getCallContext ");
 		return all;
 	}
 
@@ -95,31 +95,25 @@ public class SendEmailRequestI extends SendEmailRequest implements
 		return helper.getResponse();
 	}
 	
-	private String[] getRecepiest() {
-		List<String> receipiest = new ArrayList<String>();
-		for (Experimenter u : users) {
-			if (u.getEmail() != null)
-				receipiest.add(u.getEmail().getValue());
-		}
-		String[] simpleArray = new String[receipiest.size()];
-		return receipiest.toArray( simpleArray );
-	}
-	
 	private void sendEmail() {
-        // Create a thread safe "copy" of the template message and customize it
-        SimpleMailMessage msg = new SimpleMailMessage(this.templateMessage);
-        msg.setSubject(subject);
-        msg.setTo(getRecepiest());
-        msg.setText(body);
-        try {
-            this.mailSender.send(msg);
-        } catch (Exception ex) {
-            throw new RuntimeException(
-                    "Exception: "
-                            + ex.getMessage()
-                            + ". "
-                            + ". Please turn on the debug "
-                            + "mode in omero.properties by the: omero.mail.debug=true");
-        }
+		for (final Experimenter u : users) {
+			if (u.getEmail() != null) {
+				MimeMessagePreparator preparator = new MimeMessagePreparator() {
+					public void prepare(MimeMessage mimeMessage) throws Exception {
+						MimeMessageHelper message = new MimeMessageHelper(mimeMessage);
+						message.setFrom(new InternetAddress(
+								helper.getServiceFactory().getConfigService().getConfigValue("omero.mail.from")));
+						message.setSubject(subject);
+						message.setTo(u.getEmail().getValue());
+						message.setText(body, true);
+					}
+				};
+				try {
+					this.mailSender.send(preparator);
+				} catch (Exception ex) {
+					log.error( ex.getMessage());
+				}
+			}
+		}
 	}
 }

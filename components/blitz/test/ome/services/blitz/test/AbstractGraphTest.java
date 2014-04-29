@@ -10,8 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.mail.MailSender;
-import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 
 import org.jmock.Mock;
 import org.testng.annotations.BeforeClass;
@@ -61,8 +60,7 @@ public class AbstractGraphTest extends AbstractServantTest {
                 user.ctx.getBean(Roles.class),
                 user.ctx.getBean("/OMERO/Pixels", PixelsService.class),
                 user.ctx.getBean("/OMERO/Thumbs", ThumbnailService.class),
-                user.ctx.getBean(MailSender.class),
-                user.ctx.getBean(SimpleMailMessage.class)
+                user.ctx.getBean(JavaMailSender.class)
                 );
         rofr.setApplicationContext(ctx);
         rofr.setIceCommunicator(ic);

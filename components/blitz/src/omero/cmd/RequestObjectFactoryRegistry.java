@@ -13,8 +13,7 @@ import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
-import org.springframework.mail.MailSender;
-import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 
 import ome.io.nio.PixelsService;
 import ome.io.nio.ThumbnailService;
@@ -59,9 +58,7 @@ public class RequestObjectFactoryRegistry extends
 
     private final ThumbnailService thumbnailService;
 
-    protected final MailSender mailSender;
-
-    protected final SimpleMailMessage templateMessage;
+    protected final JavaMailSender mailSender;
 
     private/* final */OmeroContext ctx;
 
@@ -70,7 +67,7 @@ public class RequestObjectFactoryRegistry extends
             Roles roles,
             PixelsService pixelsService,
             ThumbnailService thumbnailService,
-            MailSender mailSender, SimpleMailMessage templateMessage) {
+            JavaMailSender mailSender) {
 
         this.em = em;
         this.voter = voter;
@@ -78,7 +75,6 @@ public class RequestObjectFactoryRegistry extends
         this.pixelsService = pixelsService;
         this.thumbnailService = thumbnailService;
         this.mailSender = mailSender;
-        this.templateMessage = templateMessage;
 
     }
 
@@ -187,7 +183,7 @@ public class RequestObjectFactoryRegistry extends
                 new ObjectFactory(SendEmailRequestI.ice_staticId()) {
                     @Override
                     public Ice.Object create(String name) {
-                    	return new SendEmailRequestI(mailSender, templateMessage);
+                    	return new SendEmailRequestI(mailSender);
                     }
                 });
         return factories;
