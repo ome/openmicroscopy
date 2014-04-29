@@ -20,13 +20,25 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 """
-   Minimal script to test the {g,s}et{In,Out}put functionality
+   Harness for calling scripts via `omero script`
    of omero.client
 
 """
 
-import omero.scripts
+import omero.cli
+import test.integration.library as lib
 
-client = omero.scripts.client("test_harness")
-pixelsID = client.getInput("pixelsID")
-client.setOutput("newPixelsID", -1)
+
+def call(*args):
+    omero.cli.argv(["omero", "script"] + list(args))
+
+
+class TestScriptsViaOmeroCli(lib.ITest):
+
+    def testDefinition(self):
+        call("test/scripts/definition.py",
+             "--Ice.Config=test/scripts/definition.cfg")
+
+    def testSimpleScript(self):
+        call("test/scripts/simple_script.py",
+             "--Ice.Config=test/scripts/simple_script.cfg")
