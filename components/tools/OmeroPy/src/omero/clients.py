@@ -408,6 +408,18 @@ class BaseClient(object):
         """
         return self.getCommunicator().getImplicitContext()
 
+    def getContext(self, group=None):
+        """
+        Returns a copy of the implicit context's context, i.e.
+        dict(getImplicitContext().getContext()) for use as the
+        last argument to any remote method.
+        """
+        ctx = self.getImplicitContext().getContext()
+        ctx = dict(ctx)
+        if group is not None:
+            ctx["omero.group"] = str(group)
+        return ctx
+
     def getProperties(self):
         """
         Returns the active properties for this instance
@@ -504,7 +516,7 @@ class BaseClient(object):
                     self.__logger.warning(\
                     "%s - createSession retry: %s"% (reason, retries) )
                 try:
-                    ctx = dict(self.getImplicitContext().getContext())
+                    ctx = self.getContext()
                     ctx[omero.constants.AGENT] = self.__agent
                     if self.__ip is not None:
                         ctx[omero.constants.IP] = self.__ip
@@ -765,10 +777,7 @@ class BaseClient(object):
             raise omero.ClientError("No session. Use createSession first.")
 
         # Search for objects in all groups. See #12146
-        ctx = self.getImplicitContext().getContext()
-        ctx = dict(ctx)
-        ctx["omero.group"] = "-1"
-
+        ctx = self.getContext(group=-1)
         prx = self.__sf.createRawFileStore()
 
         try:
