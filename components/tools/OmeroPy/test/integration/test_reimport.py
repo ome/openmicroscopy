@@ -112,8 +112,20 @@ class TestReimportAttachedFiles(lib.ITest):
             finally:
                 cb.close(True)
 
+    def attachedFiles(self, img):
+        files = \
+            self.client.sf.getQueryService().project((
+                "select o.id from Image i join i.pixels p "
+                "join p.originalFileMap m join m.parent o "
+                "where i.id = :id"), ParametersI().addId(img))
+        return [x[0] for x in unwrap(files)]
+
     @pytestmark
     def testConvertSynthetic(self):
         """ Convert a pre-FS file to FS """
 
         new_img = self.createSynthetic()
+        files = self.attached_Files(new_img)
+        new_fs = self.uploadFileset(files)
+        # Now link image to fileset.
+        # How to delete Pixel files?!

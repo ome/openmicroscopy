@@ -199,7 +199,27 @@ public class ManagedRepositoryI extends PublicRepositoryI
      * Return a template based directory path. The path will be created
      * by calling {@link #makeDir(String, boolean, Ice.Current)}.
      */
+    public ImportProcessPrx uploadFileset(Fileset fs, ImportSettings settings,
+            Ice.Current __current) throws omero.ServerError {
+
+        ImportLocation location = internalImport(fs, settings, __current);
+        return createUploadProcess(fs, location, settings, __current, true);
+
+    }
+
+    /**
+     * Return a template based directory path. The path will be created
+     * by calling {@link #makeDir(String, boolean, Ice.Current)}.
+     */
     public ImportProcessPrx importFileset(Fileset fs, ImportSettings settings,
+            Ice.Current __current) throws omero.ServerError {
+
+        ImportLocation location = internalImport(fs, settings, __current);
+        return createImportProcess(fs, location, settings, __current);
+
+    }
+
+    private ImportLocation internalImport(Fileset fs, ImportSettings settings,
             Ice.Current __current) throws omero.ServerError {
 
         if (fs == null || fs.sizeOfUsedFiles() < 1) {
@@ -240,10 +260,9 @@ public class ManagedRepositoryI extends PublicRepositoryI
 
         // If any two files clash in that chosen basePath directory, then
         // we want to suggest a similar alternative.
-        ImportLocation location =
-                suggestImportPaths(relPath, basePath, paths, readerClass, settings.checksumAlgorithm, __current);
+        return suggestImportPaths(relPath, basePath, paths, readerClass,
+                settings.checksumAlgorithm, __current);
 
-        return createImportProcess(fs, location, settings, __current);
     }
 
     public ImportProcessPrx importPaths(List<String> paths,
@@ -372,6 +391,19 @@ public class ManagedRepositoryI extends PublicRepositoryI
             job.linkOriginalFile((omero.model.OriginalFile) new IceMapper().map(of));
         }
 
+        return createUploadProcess(fs, location, settings, __current, false);
+    }
+
+    /**
+     * Creating the process will register itself in an appropriate
+     * container (i.e. a SessionI or similar) for the current
+     * user and therefore this instance no longer needs to worry
+     * about the maintenance of the object.
+     */
+    protected ImportProcessPrx createUploadProcess(Fileset fs,
+            ImportLocation location, ImportSettings settings,
+            Current __current, boolean uploadOnly) throws ServerError {
+
         // Create CheckedPath objects for use by saveFileset
         final int size = fs.sizeOfUsedFiles();
         final List<CheckedPath> checked = new ArrayList<CheckedPath>();
@@ -384,8 +416,8 @@ public class ManagedRepositoryI extends PublicRepositoryI
         // Since the fileset saved validly, we create a session for the user
         // and return the process.
 
-        final ManagedImportProcessI proc = new ManagedImportProcessI(this, managedFs,
-                location, settings, __current);
+        final ManagedImportProcessI proc = new ManagedImportProcessI(this,
+                managedFs, location, settings, __current, uploadOnly);
         processes.addProcess(proc);
         return proc.getProxy();
     }
