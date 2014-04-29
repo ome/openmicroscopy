@@ -316,6 +316,20 @@ public class ThumbnailCtx
     public void loadAndPrepareMetadata(Set<Long> pixelsIds,
                                        Dimension dimensions)
     {
+        loadAndPrepareMetadata(pixelsIds, dimensions);
+    }
+
+    /**
+     * Bulk loads and prepares metadata for a group of pixels sets. Calling
+     * this method guarantees that metadata are available, creating them if
+     * they are not.
+     * @param pixelsIds Pixels IDs to prepare metadata for.
+     * @param dimensions X-Y dimensions of the thumbnails requested.
+     */
+    public void loadAndPrepareMetadata(Set<Long> pixelsIds,
+                                       Dimension dimensions,
+                                       boolean createMissing)
+    {
         // Now we're going to attempt to efficiently retrieve the thumbnail
         // metadata based on our dimension pools above. To save significant
         // time later we're also going to pre-create thumbnail metadata where
@@ -324,7 +338,10 @@ public class ThumbnailCtx
             new HashMap<Dimension, Set<Long>>();
         dimensionPools.put(dimensions, pixelsIds);
         loadMetadataByDimensionPool(dimensionPools);
-        createMissingThumbnailMetadata(dimensionPools);
+        if (createMissing)
+        {
+                createMissingThumbnailMetadata(dimensionPools);
+        }
     }
 
     /**
@@ -486,6 +503,9 @@ public class ThumbnailCtx
             log.debug("Thumb time: " + metadataLastUpdated);
             log.debug("Settings time: " + settingsLastUpdated);
         }
+        if (metadataLastUpdated == null) {
+           return true;
+        }
         return settingsLastUpdated.after(metadataLastUpdated);
     }
 
@@ -498,6 +518,9 @@ public class ThumbnailCtx
     public boolean isThumbnailCached(long pixelsId)
     {
         Thumbnail metadata = pixelsIdMetadataMap.get(pixelsId);
+        if (metadata == null) {
+            return false;
+        }
         try
         {
             boolean dirtyMetadata = dirtyMetadata(pixelsId);

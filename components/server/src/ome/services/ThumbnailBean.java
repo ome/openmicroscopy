@@ -1237,7 +1237,7 @@ public class ThumbnailBean extends AbstractLevel2Service
 
         Set<Long> pixelsIds = new HashSet<Long>();
         pixelsIds.add(pixelsId);
-        ctx.loadAndPrepareMetadata(pixelsIds, dimensions);
+        ctx.loadAndPrepareMetadata(pixelsIds, dimensions, false);
         // Ensure that we do not have "dirty" pixels or rendering settings
         // left around in the Hibernate session cache.
         iQuery.clear();
