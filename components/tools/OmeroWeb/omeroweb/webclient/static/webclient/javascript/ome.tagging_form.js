@@ -97,7 +97,7 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id) {
             var tag = all_tags[id];
             if (tag && !(id in child_tags)) {
                 html += create_tag_html(tag.t, tag.d, owners[tag.o], tag.i,
-                                        null, tag.s);
+                                        null, tag.s !== 0);
                 tag.sort_key = tag.t.toLowerCase();
                 if (tag.s) {
                     for (var sid in tag.s) {
@@ -570,7 +570,7 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id) {
                                 OME.alert_dialog(
                                     "A tag with the same name and description" +
                                     " already exists and is selected.");
-                            } else if (all_tags[id].s) {
+                            } else if (all_tags[id].s !== 0) {
                                 OME.alert_dialog(
                                     "A tag set with the same name and " +
                                     "description already exists.");
