@@ -66,19 +66,19 @@ def snapshot_logic(omero_version):
 
     See gh-67 for the discussion.
     """
-
     m = re.match((
         "^"
         "(?P<BASE>.*?)"
-        "(?P<STRIP>([-]DEV)?-\d+-[a-f0-9]+(-dirty)?)"
+        "(?P<STRIP>([-]DEV)?-\d+-[a-f0-9]+?(-dirty)?)"
         "(?P<ICE>-ice[0-9]+)?"
         "$"), omero_version)
     if m:
+        # Non-tag version
         base = incr_version(m.group("BASE"))
         omero_version = "%s%s-SNAPSHOT" % (
             base, m.group("ICE"))
     else:
-        omero_version = incr_version(omero_version)
+        return omero_version
     return omero_version
 
 
