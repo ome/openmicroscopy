@@ -60,6 +60,12 @@ Configuration properties:
 
 """ + "\n" + "="*50 + "\n"
 
+START_ARG_HELP = """If the first argument matches a service name ("Processor-0" etc), it will
+be used as such. If the first non-service argument matches an existing file,
+it will be deployed as the application descriptor rather than etc/grid/default.xml.
+All other arguments will be used as targets to enable optional sections of the
+descriptor"""
+
 
 class AdminControl(BaseControl):
 
@@ -96,9 +102,7 @@ class AdminControl(BaseControl):
             """Start icegridnode daemon and waits for required components to \
 come up, i.e. status == 0
 
-If the first argument can be found as a file, it will be deployed as the
-application descriptor rather than etc/grid/default.xml. All other arguments
-will be used as targets to enable optional sections of the descriptor""",
+%s""" % START_ARG_HELP,
             wait=True)
 
         Action("startasync", "The same as start but returns immediately",)
@@ -131,9 +135,11 @@ non-0 value""",
             "deploy",
             """Deploy the given deployment descriptor. See etc/grid/*.xml
 
-If the first argument is not a file path, etc/grid/default.xml will be
-deployed by default. Same functionality as start, but requires that the node
-already be running. This may automatically restart some server components.""")
+%s
+
+This functions the same as as 'start', but requires that the node
+already be running. This may automatically restart some server components.""" %
+            START_ARG_HELP)
 
         Action(
             "ice", "Drop user into icegridadmin console or execute arguments")
@@ -305,11 +311,20 @@ location.
 
         for k in ("start", "startasync", "deploy", "restart", "restartasync"):
             self.actions[k].add_argument(
+                "--service",
+                help="Service to operate on.")
+            self.actions[k].add_argument(
+                "--file", dest="explicit_file",
+                help=("See 'file'"))
+            self.actions[k].add_argument(
+                "--target", action="append", dest="explicit_targets",
+                help=("See 'target'"))
+            self.actions[k].add_argument(
                 "file", nargs="?",
                 help="Application descriptor. If not provided, a default"
                 " will be used")
             self.actions[k].add_argument(
-                "targets", nargs="*",
+                "targets", nargs="*", default=[],
                 help="Targets within the application descriptor which "
                 " should  be activated. Common values are: \"debug\", "
                 "\"trace\" ")
@@ -392,17 +407,53 @@ location.
         command.extend(command_arguments)
         return command
 
-    def _descript(self, args):
-        if args.file is not None:
-            # Relative to cwd
-            descript = path(args.file).abspath()
-            if not descript.exists():
-                self.ctx.dbg("No such file: %s -- Using as target" % descript)
-                args.targets.insert(0, args.file)
-                descript = None
-        else:
-            descript = None
+    def _isservice(self, val):
+        for x in ("Processor", "Blitz", "PixelData", "Indexer"):
+            if val.startswith(x):
+                return True
 
+    def _descript(self, args):
+        service = None
+        descript = None
+
+        if args.explicit_targets:
+            if args.targets is not None:
+                args.targets.extend(args.explicit_targets)
+            else:
+                args.targets = args.explicit_targets
+
+        if args.service is not None:
+            service = args.service
+
+        if args.explicit_file:
+            descript = args.explicit_file
+            if args.file:
+                if self._isservice(args.file):
+                    service = args.file
+                else:
+                    args.targets.insert(0, args.file)
+
+        elif args.file is not None:
+
+            # If we still don't have a service, first check for one
+            # If it exists, then use it as service and replace file
+            # with the first target if available
+            if service is None:
+                if self._isservice(args.file):
+                    service = args.file
+                    args.file = None
+                    if args.targets:
+                        args.file = args.targets.pop(0)
+
+            # Relative to cwd
+            if args.file:
+                descript = path(args.file).abspath()
+                if not descript.exists():
+                    self.ctx.dbg("No such file: %s -- Using as target" % descript)
+                    args.targets.insert(0, args.file)
+                    descript = None
+
+        # No file was detected, so use the default
         if descript is None:
             __d__ = "default.xml"
             if self._isWindows():
@@ -410,7 +461,8 @@ location.
             descript = self.ctx.dir / "etc" / "grid" / __d__
             self.ctx.err("No descriptor given. Using %s"
                          % os.path.sep.join(["etc", "grid", __d__]))
-        return descript
+
+        return service, descript
 
     def checkwindows(self, args):
         """
@@ -477,7 +529,7 @@ location.
 
         user = args.user
         pasw = args.password
-        descript = self._descript(args)
+        service, descript = self._descript(args)
 
         if self._isWindows():
             svc_name = "OMERO.%s" % args.node
@@ -586,7 +638,7 @@ location.
     def deploy(self, args, config):
         self.check_access()
         self.checkice()
-        descript = self._descript(args)
+        service, descript = self._descript(args)
 
         # TODO : Doesn't properly handle whitespace
         # Though users can workaround with something like:
