@@ -43,6 +43,7 @@
   <logger name="OMERO" level="INFO"/>
   <!-- Quieter indexing -->
   <logger name="ome.security.basic.EventHandler" level="WARN"/>
+  <logger name="ome.security.basic.BasicEventContext" level="WARN"/>
   <logger name="ome.services.util.ServiceHandler" level="WARN"/>
   <logger name="ome.services.sessions.state" level="WARN"/>
   <!-- Inherit from Spring/etc and so are a bit verbose -->

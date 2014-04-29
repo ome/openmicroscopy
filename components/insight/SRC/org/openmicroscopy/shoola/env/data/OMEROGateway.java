@@ -3244,6 +3244,38 @@ class OMEROGateway
 		}
 		return new ArrayList();
 	}
+	
+	/**
+	 * Finds all DatasetImageLinks for a given list of image ids
+	 * @param ctx The security context.
+	 * @param children A list of image ids.
+	 * @param userID The id of the user.
+	 * @return See above.
+	 * @throws DSOutOfServiceException
+	 * @throws DSAccessException
+	 */
+        List findDatasetLinks(SecurityContext ctx, List children, long userID) throws DSOutOfServiceException,
+                DSAccessException {
+            Connector c = getConnector(ctx, true, false);
+            try {
+                IQueryPrx service = c.getQueryService();
+                // have to fetch the Dataset, too; otherwise Dataset.name won't be initialized
+                String sql = "SELECT link FROM DatasetImageLink AS link LEFT JOIN FETCH link.parent dataset WHERE "
+                        + "link.child.id IN (:childIDs)";
+                ParametersI param = new ParametersI();
+                param.addLongs("childIDs", children);
+    
+                if (userID >= 0) {
+                    sql += " and link.details.owner.id = :userID";
+                    param.map.put("userID", omero.rtypes.rlong(userID));
+                }
+                return service.findAllByQuery(sql, param);
+            } catch (Throwable t) {
+                handleException(t, "Cannot retrieve the requested datasets for "
+                        + "the specified children");
+            }
+            return new ArrayList();
+        }
 
 	/**
 	 * Finds all the links.
@@ -6381,7 +6413,16 @@ class OMEROGateway
 			reader = new OMEROWrapper(config);
 			String[] paths = new String[1];
 			paths[0] = file.getAbsolutePath();
-			return new ImportCandidates(reader, paths, status);
+			ImportCandidates icans = new ImportCandidates(reader, paths, status);
+			
+			if(object.isOverrideName()) {
+			    String name = UIUtilities.getDisplayedFileName(file.getAbsolutePath(), object.getDepthForName());
+			    for(ImportContainer ic : icans.getContainers()) {
+			        ic.setUserSpecifiedName(name);
+			    }
+			}
+			
+			return icans;
 		} catch (Throwable e) {
 			throw new ImportException(e);
 		} finally {

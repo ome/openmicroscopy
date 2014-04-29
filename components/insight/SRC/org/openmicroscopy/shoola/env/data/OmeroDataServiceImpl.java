@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.data.OmeroDataServiceImpl
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * This program is free software; you can redistribute it and/or modify
@@ -28,18 +28,16 @@ package org.openmicroscopy.shoola.env.data;
 import java.io.File;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 
-//Third-party libraries
-
-import omero.api.StatefulServiceInterfacePrx;
 //Application-internal dependencies
 import omero.cmd.Delete;
 import omero.cmd.Request;
@@ -94,6 +92,8 @@ import pojos.ScreenData;
 import pojos.TagAnnotationData;
 import pojos.WellData;
 import pojos.WellSampleData;
+//Third-party libraries
+import omero.api.StatefulServiceInterfacePrx;
 
 /**
  * Implementation of the {@link OmeroDataService} I/F.
@@ -1122,6 +1122,33 @@ class OmeroDataServiceImpl
 			r.put(e.getKey(), converted);
 		}
 		return r;
+	}
+	
+	/**
+	 * Implemented as specified by {@link OmeroDataService}.
+	 * @see OmeroDataService#findDatasetsByImageId(SecurityContext ctx, imgId)
+	 */
+	public Map<Long, List<DatasetData>> findDatasetsByImageId(SecurityContext ctx, List<Long> imgIds) throws DSOutOfServiceException, DSAccessException
+		{
+	    Map<Long, List<DatasetData>> result = new HashMap<Long, List<DatasetData>>();
+		List queryResult = gateway.findDatasetLinks(ctx, imgIds, -1);
+		for(Object tmp : queryResult) {
+			if(tmp instanceof DatasetImageLink) {
+			        DatasetImageLink dl = ((DatasetImageLink) tmp);
+				DatasetData dsd = (DatasetData) PojoMapper.asDataObject(dl.getParent());
+				long imgId = dl.getChild().getId().getValue();
+				
+				List<DatasetData> sets = result.get(imgId);
+				if(sets == null) {
+				    sets = new ArrayList<DatasetData>();
+				    result.put(imgId, sets);
+				}
+				
+				sets.add(dsd);
+			}
+		}
+                
+		return result;
 	}
 
 }

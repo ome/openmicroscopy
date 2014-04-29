@@ -10,15 +10,14 @@
  */
 """
 
-import sys
-
 import Ice
 import omero
-from omero.rtypes import *
+from omero.rtypes import rint, rbool, rtime, rlist, rstring, rlong
 
 _omero = Ice.openModule("omero")
 _omero_sys = Ice.openModule("omero.sys")
 __name__ = "omero.sys"
+
 
 class ParametersI(omero.sys.Parameters):
     """
@@ -26,12 +25,12 @@ class ParametersI(omero.sys.Parameters):
     parameter creation.
     """
 
-    def __init__(self, parammap = None):
+    def __init__(self, parammap=None):
         """
         If no argument is provided, creates an instance to prevent later
         NoneType exceptions. To save memory, it is possible to pass None
-        as the first argument. 
-        
+        as the first argument.
+
         In order to prevent a single dict being referenced by several
         instances of ParametersI a new dict is created if an empty one is
         passed in either implicitly or explicitly.
@@ -53,7 +52,7 @@ class ParametersI(omero.sys.Parameters):
         if arg is None, return None, otherwise use the
         rt callable to wrap the argument.
         """
-        if arg == None:
+        if arg is None:
             return None
         else:
             return rt(arg)
@@ -87,7 +86,8 @@ class ParametersI(omero.sys.Parameters):
         False otherwise.
         """
         if self.theFilter:
-            return None != self.theFilter.limit or None != self.theFilter.offset
+            return None != self.theFilter.limit or \
+                None != self.theFilter.offset
         return False
 
     def getOffset(self):

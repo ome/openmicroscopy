@@ -24,11 +24,8 @@
 #
 
 
-import datetime
-import traceback
 import logging
 
-from django.conf import settings
 from django import template
 from django.templatetags.static import PrefixNode
 

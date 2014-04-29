@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.data.NullOmeroPojoService
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -35,7 +35,9 @@ import java.util.Set;
 
 //Third-party libraries
 
+
 import omero.api.StatefulServiceInterfacePrx;
+
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.model.DeletableObject;
@@ -44,6 +46,7 @@ import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 
 import pojos.AnnotationData;
 import pojos.DataObject;
+import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.GroupData;
 import pojos.ImageData;
@@ -459,5 +462,14 @@ public class NullOmeroPojoService
 			throws DSOutOfServiceException, DSAccessException {
 		return null;
 	}
+
+	/**
+	     * No-operation implementation
+	     * @see OmeroDataService#findDatasetsByImageId(SecurityContext, long)
+	     */
+        public Map<Long, List<DatasetData>> findDatasetsByImageId(SecurityContext ctx,
+                List<Long> imgIds) throws DSOutOfServiceException, DSAccessException {
+            return null;
+        }
 
 }

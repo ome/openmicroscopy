@@ -1,4 +1,4 @@
-% Copyright (C) 2011-2013 University of Dundee & Open Microscopy Environment.
+% Copyright (C) 2011-2014 University of Dundee & Open Microscopy Environment.
 % All rights reserved.
 %
 % This program is free software; you can redistribute it and/or modify
@@ -55,6 +55,17 @@ try
     disp('Checking the created image');
     imageNew = getImages(session, idNew.getValue());
     assert(~isempty(imageNew), 'OMERO:CreateImage', 'Image Id not valid');
+    
+    % Set channel properties
+    disp('Adding metadata to the channels')
+    channels = loadChannels(session, imageNew);
+    for i = 1: numel(channels)
+        channelName = ['Channel ' num2str(i)'];
+        emissionWave = 550;
+        channels(i).getLogicalChannel().setName(rstring(channelName));
+        channels(i).getLogicalChannel().setEmissionWave(rint(emissionWave));
+    end
+    session.getUpdateService().saveArray(toJavaList(channels));
     
     % load the dataset
     fprintf(1, 'Reading dataset: %g\n', datasetId);

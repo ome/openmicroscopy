@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.fsimporter.chooser.ImportDialog 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -227,6 +227,15 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 	private static final String TEXT_REFRESH_FILES =
 			"Refresh";
 	
+	/** Title for the warning dialog if the file limit is exceeded */
+	private static final String TITLE_FILE_LIMIT_EXCEEDED = "File limit exceeded";
+	
+	/** Wildcard for the file limit used in the warning message */
+	private static final String FILE_LIMIT_WILDCARD = "@@FILE_LIMIT@@";
+	
+	/** Warning if the file limit is exceeded */
+	private static final String TEXT_FILE_LIMIT_EXCEEDED = "The import is limited to "+FILE_LIMIT_WILDCARD+" files at once.\n\nFor importing a large number of files you may\nconsider using the command line tools.";
+	
 	/** Warning when de-selecting the name overriding option. */
 	private static final List<String> WARNING;
 	
@@ -373,10 +382,61 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 	/** Displays the location of the import.*/
 	private void showLocationDialog()
 	{
-		if (locationDialog.centerLocation() == LocationDialog.CMD_ADD) {
+		if (checkFileCount() && (locationDialog.centerLocation() == LocationDialog.CMD_ADD)) {
 			addFiles(locationDialog.getImportSettings());
 		}
 	}
+	
+        /**
+         * Check if the user wants to import more files than the current limit
+         * 
+         * @return <code>true</code> if the file limit is exceeded,
+         *         <code>false</code> otherwise
+         */
+        private boolean checkFileCount() {
+            int maxFiles = (Integer) ImporterAgent.getRegistry().lookup(
+                    "/options/ImportFileLimit");
+    
+            File[] files = chooser.getSelectedFiles();
+            int nFiles = 0;
+            for (File file : files) {
+                nFiles += countFiles(file);
+            }
+    
+            nFiles += table.getFilesToImport().size();
+    
+            if (nFiles > maxFiles) {
+                String msg = TEXT_FILE_LIMIT_EXCEEDED.replaceAll(
+                        FILE_LIMIT_WILDCARD, "" + maxFiles);
+                ImporterAgent.getRegistry().getUserNotifier()
+                        .notifyError(TITLE_FILE_LIMIT_EXCEEDED, msg);
+                return false;
+            }
+    
+            return true;
+        }
+	
+        /**
+         * Counts the files within the given directory (and sub directories)
+         * 
+         * @param file
+         *            The directory or file
+         * @return The number of files within the directory (and sub directories) or
+         *         <code>1</code> if the provided argument is a file instead of a
+         *         directory
+         */
+        private int countFiles(File file) {
+    
+            if (file.isDirectory()) {
+                int count = 0;
+                for (File child : file.listFiles()) {
+                    count += countFiles(child);
+                }
+                return count;
+            }
+            
+            return 1;
+        }
 
 	/**
 	 * Handles <code>Enter</code> key pressed.

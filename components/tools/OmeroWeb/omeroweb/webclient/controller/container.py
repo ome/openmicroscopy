@@ -24,9 +24,8 @@
 #
 
 import omero
-from omero.rtypes import *
+from omero.rtypes import rstring, rlong
 from django.conf import settings
-from django.core.urlresolvers import reverse
 from django.utils.encoding import smart_str
 import logging
 
@@ -54,6 +53,8 @@ class BaseContainer(BaseController):
     
     c_size = 0
     
+    obj_type = None
+    
     text_annotations = None
     txannSize = 0
     long_annotations = None
@@ -64,52 +65,64 @@ class BaseContainer(BaseController):
     def __init__(self, conn, project=None, dataset=None, image=None, screen=None, plate=None, acquisition=None, well=None, tag=None, tagset=None, file=None, comment=None, annotation=None, index=None, orphaned=None, **kw):
         BaseController.__init__(self, conn)
         if project is not None:
+            self.obj_type = "project"
             self.project = self.conn.getObject("Project", project)
             self.assertNotNone(self.project, project, "Project")
             self.assertNotNone(self.project._obj, project, "Project")
         if dataset is not None:
+            self.obj_type = "dataset"
             self.dataset = self.conn.getObject("Dataset", dataset)
             self.assertNotNone(self.dataset, dataset, "Dataset")
             self.assertNotNone(self.dataset._obj, dataset, "Dataset")
         if screen is not None:
+            self.obj_type = "screen"
             self.screen = self.conn.getObject("Screen", screen)
             self.assertNotNone(self.screen, screen, "Screen")
             self.assertNotNone(self.screen._obj, screen, "Screen")
         if plate is not None:
+            self.obj_type = "plate"
             self.plate = self.conn.getObject("Plate", plate)
             self.assertNotNone(self.plate, plate, "Plate")
             self.assertNotNone(self.plate._obj, plate, "Plate")
         if acquisition is not None:
+            self.obj_type = "acquisition"
             self.acquisition = self.conn.getObject("PlateAcquisition", acquisition)
             self.assertNotNone(self.acquisition, acquisition, "Plate Acquisition")
             self.assertNotNone(self.acquisition._obj, acquisition, "Plate Acquisition")
         if image is not None:
+            self.obj_type = "image"
             self.image = self.conn.getObject("Image", image)
             self.assertNotNone(self.image, image, "Image")
             self.assertNotNone(self.image._obj, image, "Image")
         if well is not None:
+            self.obj_type = "well"
             self.well = self.conn.getObject("Well", well)
             self.assertNotNone(self.well, well, "Well")
             self.assertNotNone(self.well._obj, well, "Well")
             if index is not None:
                 self.well.index = index
         if tag is not None:
+            self.obj_type = "tag"
             self.tag = self.conn.getObject("Annotation", tag)
             self.assertNotNone(self.tag, tag, "Tag")
             self.assertNotNone(self.tag._obj, tag, "Tag")
         if tagset is not None:
+            self.obj_type = "tagset"
             self.tag = self.conn.getObject("Annotation", tagset)
             self.assertNotNone(self.tag, tagset, "Tag")
             self.assertNotNone(self.tag._obj, tagset, "Tag")
         if comment is not None:
+            self.obj_type = "comment"
             self.comment = self.conn.getObject("Annotation", comment)
             self.assertNotNone(self.comment, comment, "Comment")
             self.assertNotNone(self.comment._obj, comment, "Comment")
         if file is not None:
+            self.obj_type = "file"
             self.file = self.conn.getObject("Annotation", file)
             self.assertNotNone(self.file, file, "File")
             self.assertNotNone(self.file._obj, file, "File")
         if annotation is not None:
+            self.obj_type = "annotation"
             self.annotation = self.conn.getObject("Annotation", annotation)
             self.assertNotNone(self.annotation, annotation, "Annotation")
             self.assertNotNone(self.annotation._obj, annotation, "Annotation")
@@ -136,17 +149,6 @@ class BaseContainer(BaseController):
         if self.well is not None: return self.well
         if self.tag is not None: return self.tag
         if self.file is not None: return self.file
-        
-    def obj_type(self):
-        if self.project is not None: return "project"
-        if self.dataset is not None: return "dataset"
-        if self.image is not None: return "image"
-        if self.screen is not None: return "screen"
-        if self.acquisition is not None: return "acquisition"
-        if self.plate is not None: return "plate"
-        if self.well is not None: return "well"
-        if self.tag is not None: return "tag"
-        if self.file is not None: return "file"
 
     def obj_id(self):
         obj = self._get_object()
@@ -232,7 +234,7 @@ class BaseContainer(BaseController):
         if voxelCount > MAX_VOXELS: return False
 
         try:    # if scipy ndimage is not available for interpolation, can only handle smaller images
-            import scipy.ndimage
+            import scipy.ndimage  # noqa
         except ImportError:
             logger.debug("Failed to import scipy.ndimage - Open Astex Viewer limited to display of smaller images.")
             MAX_VOXELS = (160 * 160 * 160)
@@ -293,6 +295,7 @@ class BaseContainer(BaseController):
         else:            
             eid = self.conn.getEventContext().userId
         self.tags = list(self.conn.listTags(eid))
+        self.tags.sort(key=lambda x: x.getTextValue() and x.getTextValue().lower())
         self.t_size = len(self.tags)
     
     def loadDataByTag(self):
@@ -447,7 +450,6 @@ class BaseContainer(BaseController):
         if group is None:
             return False
         perms = str(group.getDetails().getPermissions())
-        rv = False
         if perms in ("rwrw--", "rwra--"):
             return True
         if perms == "rwr---" and (self.conn.isAdmin() or self.conn.isLeader(group.id)):
@@ -715,7 +717,7 @@ class BaseContainer(BaseController):
             # If we retrieved an existing Tag above, link may already exist...
             try:
                 self.conn.saveArray(new_links)
-            except omero.ValidationException, x:
+            except omero.ValidationException:
                 for l in new_links:
                     try:
                         self.conn.saveObject(l)
@@ -742,7 +744,6 @@ class BaseContainer(BaseController):
         fa = self.conn.saveAndReturnObject(fa)
         
         new_links = list()
-        otype = None    # needed if we only have a single Object
         for k in oids:
             if len(oids[k]) > 0:
                 for ob in oids[k]:
@@ -755,7 +756,6 @@ class BaseContainer(BaseController):
                     else:
                         t = k.lower().title()
                         obj = ob
-                    otype = t
                     l_ann = getattr(omero.model, t+"AnnotationLinkI")()
                     l_ann.setParent(obj._obj)
                     l_ann.setChild(fa._obj)
@@ -813,7 +813,7 @@ class BaseContainer(BaseController):
         try:
             # will fail if any of the links already exist
             saved_links = self.conn.getUpdateService().saveAndReturnArray(new_links, self.conn.SERVICE_OPTS)
-        except omero.ValidationException, x:
+        except omero.ValidationException:
             for l in new_links:
                 try:
                     saved_links.append(self.conn.getUpdateService().saveAndReturnObject(l, self.conn.SERVICE_OPTS))

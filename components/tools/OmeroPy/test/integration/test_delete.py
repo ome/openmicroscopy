@@ -1,11 +1,26 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+#
+# Copyright (C) 2010-2014 Glencoe Software, Inc. All Rights Reserved.
+# Use is subject to license terms supplied in LICENSE.txt
+#
+# This program is free software you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
 """
    Integration test for delete testing
-
-   Copyright 2010-2013 Glencoe Software, Inc. All rights reserved.
-   Use is subject to license terms supplied in LICENSE.txt
 
 """
 
@@ -17,19 +32,20 @@ import omero.callbacks
 import Ice
 import sys
 import os
-from omero.cmd import DoAll
+from omero.rtypes import rstring, rtime, rlist, rlong
+
 
 @pytest.mark.fs_suite
 class TestDelete(lib.ITest):
 
     def testBasicUsage(self):
         img = omero.model.ImageI()
-        img.name = omero.rtypes.rstring("delete test")
-        img.acquisitionDate = omero.rtypes.rtime(0)
+        img.name = rstring("delete test")
+        img.acquisitionDate = rtime(0)
         tag = omero.model.TagAnnotationI()
-        img.linkAnnotation( tag )
+        img.linkAnnotation(tag)
 
-        img = self.client.sf.getUpdateService().saveAndReturnObject( img )
+        img = self.client.sf.getUpdateService().saveAndReturnObject(img)
 
         command = omero.cmd.Delete("/Image", img.id.val, None)
         handle = self.client.sf.submit(command)
@@ -37,14 +53,15 @@ class TestDelete(lib.ITest):
 
     def testDeleteMany(self):
         images = list()
-        for i in range(0,5):
+        for i in range(0, 5):
             img = omero.model.ImageI()
-            img.name = omero.rtypes.rstring("delete test")
-            img.acquisitionDate = omero.rtypes.rtime(0)
+            img.name = rstring("delete test")
+            img.acquisitionDate = rtime(0)
             tag = omero.model.TagAnnotationI()
-            img.linkAnnotation( tag )
+            img.linkAnnotation(tag)
 
-            images.append(self.client.sf.getUpdateService().saveAndReturnObject( img ))
+            images.append(
+                self.client.sf.getUpdateService().saveAndReturnObject(img))
 
         commands = list()
         for img in images:
@@ -61,23 +78,23 @@ class TestDelete(lib.ITest):
         update = self.client.sf.getUpdateService()
 
         images = list()
-        for i in range(0,5):
+        for i in range(0, 5):
             img = omero.model.ImageI()
-            img.name = omero.rtypes.rstring("test-delete-image-%i" % i)
-            img.acquisitionDate = omero.rtypes.rtime(0)
+            img.name = rstring("test-delete-image-%i" % i)
+            img.acquisitionDate = rtime(0)
             tag = omero.model.TagAnnotationI()
-            img.linkAnnotation( tag )
-            images.append(update.saveAndReturnObject( img ).id.val)
-            
+            img.linkAnnotation(tag)
+            images.append(update.saveAndReturnObject(img).id.val)
+
         # create dataset
         dataset = omero.model.DatasetI()
-        dataset.name = omero.rtypes.rstring('DS-test-2936-%s' % (uuid))
+        dataset.name = rstring('DS-test-2936-%s' % (uuid))
         dataset = update.saveAndReturnObject(dataset)
         # create project
         project = omero.model.ProjectI()
-        project.name = omero.rtypes.rstring('PR-test-2936-%s' % (uuid))
+        project.name = rstring('PR-test-2936-%s' % (uuid))
         project = update.saveAndReturnObject(project)
-        # put dataset in project 
+        # put dataset in project
         link = omero.model.ProjectDatasetLinkI()
         link.parent = omero.model.ProjectI(project.id.val, False)
         link.child = omero.model.DatasetI(dataset.id.val, False)
@@ -88,7 +105,7 @@ class TestDelete(lib.ITest):
             dlink.parent = omero.model.DatasetI(dataset.id.val, False)
             dlink.child = omero.model.ImageI(iid, False)
             update.saveAndReturnObject(dlink)
-                
+
         op = dict()
         op["/TagAnnotation"] = "KEEP"
         op["/TermAnnotation"] = "KEEP"
@@ -98,47 +115,48 @@ class TestDelete(lib.ITest):
 
         dc = omero.cmd.Delete('/Project', long(project.id.val), op)
         handle = self.client.sf.submit(dc)
-        cb = self.waitOnCmd(self.client, handle)
+        self.waitOnCmd(self.client, handle)
 
         assert not query.find('Project', project.id.val)
-        assert dataset.id.val ==  query.find('Dataset', dataset.id.val).id.val
+        assert dataset.id.val == query.find('Dataset', dataset.id.val).id.val
 
         p = omero.sys.Parameters()
         p.map = {}
         p.map["oid"] = dataset.id
-        
+
         sql = "select im from Image im "\
-                "left outer join fetch im.datasetLinks dil "\
-                "left outer join fetch dil.parent d " \
-                "where d.id = :oid " \
-                "order by im.id asc"
+              "left outer join fetch im.datasetLinks dil "\
+              "left outer join fetch dil.parent d " \
+              "where d.id = :oid " \
+              "order by im.id asc"
         res = query.findAllByQuery(sql, p)
         assert 5 == len(res)
         for e in res:
             if e.id.val not in images:
-                self.assertRaises('Image %i is not in the [%s]' % (e.id.val, ",".join(images)))
-    
+                self.assertRaises(
+                    'Image %i is not in the [%s]'
+                    % (e.id.val, ",".join(images)))
+
     def testCheckIfDeleted(self):
         uuid = self.client.sf.getAdminService().getEventContext().sessionUuid
         userName = self.client.sf.getAdminService().getEventContext().userName
         query = self.client.sf.getQueryService()
         update = self.client.sf.getUpdateService()
-        delete = self.client.sf.getDeleteService()
-        
+
         img = omero.model.ImageI()
-        img.name = omero.rtypes.rstring("to delete - test")
-        img.acquisitionDate = omero.rtypes.rtime(0)
+        img.name = rstring("to delete - test")
+        img.acquisitionDate = rtime(0)
         tag = omero.model.TagAnnotationI()
-        img.linkAnnotation( tag )
-        
-        iid = update.saveAndReturnObject( img ).id.val
-        
+        img.linkAnnotation(tag)
+
+        iid = update.saveAndReturnObject(img).id.val
+
         cmd = omero.cmd.Delete("/Image", iid, None)
         handle = self.client.sf.submit(cmd)
         callback = self.waitOnCmd(self.client, handle)
         cbString = str(handle)
 
-        callback.close(True) # Don't close handle
+        callback.close(True)  # Don't close handle
 
         assert not query.find("Image", iid)
 
@@ -149,38 +167,38 @@ class TestDelete(lib.ITest):
         host = c.ic.getProperties().getProperty('omero.host')
         port = int(c.ic.getProperties().getProperty('omero.port'))
         cl1 = omero.client(host=host, port=port)
-        sf1 = cl1.createSession(userName,userName)
+        cl1.createSession(userName, userName)
 
         with pytest.raises(Ice.ObjectNotExistException):
-            handle1 = omero.cmd.HandlePrx.checkedCast(cl1.ic.stringToProxy(cbString))
+            omero.cmd.HandlePrx.checkedCast(
+                cl1.ic.stringToProxy(cbString))
 
         # join session and double check
         cl2 = omero.client(host=host, port=port)
-        sf2 = cl2.joinSession(uuid)
+        cl2.joinSession(uuid)
 
         with pytest.raises(Ice.ObjectNotExistException):
-            handle2 = omero.cmd.HandlePrx.checkedCast(cl2.ic.stringToProxy(cbString))
+            omero.cmd.HandlePrx.checkedCast(
+                cl2.ic.stringToProxy(cbString))
 
     def testCheckIfDeleted2(self):
         uuid = self.client.sf.getAdminService().getEventContext().sessionUuid
-        userName = self.client.sf.getAdminService().getEventContext().userName
         query = self.client.sf.getQueryService()
         update = self.client.sf.getUpdateService()
-        delete = self.client.sf.getDeleteService()
 
-        #dataset with many images
+        # dataset with many images
         images = list()
-        for i in range(0,50):
+        for i in range(0, 50):
             img = omero.model.ImageI()
-            img.name = omero.rtypes.rstring("test-delete-image-%i" % i)
-            img.acquisitionDate = omero.rtypes.rtime(0)
+            img.name = rstring("test-delete-image-%i" % i)
+            img.acquisitionDate = rtime(0)
             tag = omero.model.TagAnnotationI()
-            img.linkAnnotation( tag )
-            images.append(update.saveAndReturnObject( img ))
+            img.linkAnnotation(tag)
+            images.append(update.saveAndReturnObject(img))
 
         # create dataset
         dataset = omero.model.DatasetI()
-        dataset.name = omero.rtypes.rstring('DS-test-%s' % (uuid))
+        dataset.name = rstring('DS-test-%s' % (uuid))
         dataset = update.saveAndReturnObject(dataset)
         # put image in dataset
         for img in images:
@@ -197,7 +215,6 @@ class TestDelete(lib.ITest):
 
         handle = self.client.sf.submit(doall)
         callback = self.waitOnCmd(self.client, handle, ms=1000, loops=50)
-        cbString = str(handle)
 
         callback.close(True)
 
@@ -206,14 +223,13 @@ class TestDelete(lib.ITest):
         p.map["oid"] = dataset.id
 
         sql = "select im from Image im "\
-                "left outer join fetch im.datasetLinks dil "\
-                "left outer join fetch dil.parent d " \
-                "where d.id = :oid " \
-                "order by im.id asc"
-        assert 0 ==  len(query.findAllByQuery(sql, p))
+              "left outer join fetch im.datasetLinks dil "\
+              "left outer join fetch dil.parent d " \
+              "where d.id = :oid " \
+              "order by im.id asc"
+        assert 0 == len(query.findAllByQuery(sql, p))
 
     def testOddMessage(self):
-        query = self.client.sf.getQueryService()
         update = self.client.sf.getUpdateService()
         store = self.client.sf.createRawFileStore()
 
@@ -229,29 +245,27 @@ class TestDelete(lib.ITest):
             return ""
 
         images = list()
-        for i in range(0,10):
+        for i in range(0, 10):
             img = self.new_image()
             img = update.saveAndReturnObject(img)
             iid = img.getId().getValue()
-            
-            oFile = omero.model.OriginalFileI()
-            oFile.setName(omero.rtypes.rstring('companion_file.txt'));
-            oFile.setPath(omero.rtypes.rstring('/my/path/to/the/file/'));
-            oFile.setSize(omero.rtypes.rlong(7471));
-            oFile.setHash(omero.rtypes.rstring("pending"));
-            oFile.setMimetype(omero.rtypes.rstring('Companion/Deltavision'));
 
-            ofid = update.saveAndReturnObject(oFile).id.val;
-                        
-            store.setFileId(ofid);
+            oFile = omero.model.OriginalFileI()
+            oFile.setName(rstring('companion_file.txt'))
+            oFile.setPath(rstring('/my/path/to/the/file/'))
+            oFile.setSize(rlong(7471))
+            oFile.setHash(rstring("pending"))
+            oFile.setMimetype(rstring('Companion/Deltavision'))
+
+            ofid = update.saveAndReturnObject(oFile).id.val
+
+            store.setFileId(ofid)
             binary = 'aaa\naaaa\naaaaa'
-            pos = 0
-            rlen = 0
             store.write(binary, 0, 0)
             of = store.save()
-            
+
             fa = omero.model.FileAnnotationI()
-            fa.setNs(omero.rtypes.rstring(omero.constants.namespaces.NSCOMPANIONFILE))
+            fa.setNs(rstring(omero.constants.namespaces.NSCOMPANIONFILE))
             fa.setFile(of)
             l_ia = omero.model.ImageAnnotationLinkI()
             l_ia.setParent(img)
@@ -259,7 +273,7 @@ class TestDelete(lib.ITest):
             l_ia = update.saveAndReturnObject(l_ia)
 
             images.append(iid)
-            
+
         commands = list()
         for iid in images:
             commands.append(omero.cmd.Delete("/Image", iid, None))
@@ -272,40 +286,37 @@ class TestDelete(lib.ITest):
 
     def test3639(self):
         uuid = self.client.sf.getAdminService().getEventContext().sessionUuid
-        group = self.client.sf.getAdminService().getGroup(self.client.sf.getAdminService().getEventContext().groupId)
-        query = self.client.sf.getQueryService()
+        group = self.client.sf.getAdminService().getGroup(
+            self.client.sf.getAdminService().getEventContext().groupId)
         update = self.client.sf.getUpdateService()
-        
+
         images = list()
-        for i in range(0,5):
+        for i in range(0, 5):
             img = self.new_image()
             img = update.saveAndReturnObject(img)
             images.append(img.id.val)
-        
+
         p = omero.sys.Parameters()
         p.map = {}
-        p.map["oids"] = omero.rtypes.rlist([omero.rtypes.rlong(s) for s in images])
-            
+        p.map["oids"] = rlist([rlong(s) for s in images])
+
         # create dataset
         dataset = omero.model.DatasetI()
-        dataset.name = omero.rtypes.rstring('DS-test-2936-%s' % (uuid))
+        dataset.name = rstring('DS-test-2936-%s' % (uuid))
         dataset = update.saveAndReturnObject(dataset)
-        
+
         # put image in dataset
         for iid in images:
             dlink = omero.model.DatasetImageLinkI()
             dlink.parent = omero.model.DatasetI(dataset.id.val, False)
             dlink.child = omero.model.ImageI(iid, False)
             update.saveAndReturnObject(dlink)
-        
-        
-        #log in as group owner:
-        client_o, owner = self.new_client_and_user(group=group,admin=True)
-        delete_o = client_o.sf.getDeleteService()
+
+        # log in as group owner:
+        client_o, owner = self.new_client_and_user(group=group, admin=True)
         query_o = client_o.sf.getQueryService()
-        
-        
-        handlers = list()        
+
+        handlers = list()
         op = dict()
         op["/Image"] = "KEEP"
         dc = omero.cmd.Delete('/Dataset', long(dataset.id.val), op)
@@ -331,20 +342,22 @@ class TestDelete(lib.ITest):
                 return "; ".join(rv)
             return None
 
-        failure = list();
+        failure = list()
         in_progress = 0
         r = None
 
-        while(len(handlers)>0):
+        while(len(handlers) > 0):
             for cbString in handlers:
                 try:
                     with pytest.raises(Ice.ObjectNotExistException):
-                        handle = omero.cmd.HandlePrx.checkedCast(client_o.ic.stringToProxy(cbString))
+                        handle = omero.cmd.HandlePrx.checkedCast(
+                            client_o.ic.stringToProxy(cbString))
                         cb = omero.callbacks.CmdCallbackI(client_o, handle)
-                        if not cb.block(500): # ms.
-                            # No errors possible if in progress (since no response)
+                        if not cb.block(500):  # ms.
+                            # No errors possible if in progress(
+                            # (since no response)
                             print "in progress", _formatReport(handle)
-                            in_progress+=1
+                            in_progress += 1
                         else:
                             rsp = cb.getResponse()
                             if isinstance(rsp, omero.cmd.ERR):
@@ -357,9 +370,9 @@ class TestDelete(lib.ITest):
                                 r = _formatReport(handle)
                                 if r is not None:
                                     failure.append(r)
-                                cb.close(True) # Close handle
+                                cb.close(True)  # Close handle
                             handlers.remove(cbString)
-                except Exception, x:
+                except Exception:
                     if r is not None:
                         failure.append(traceback.format_exc())
 
@@ -370,30 +383,29 @@ class TestDelete(lib.ITest):
     def test5793(self):
         uuid = self.client.sf.getAdminService().getEventContext().sessionUuid
         query = self.client.sf.getQueryService()
-        update = self.client.sf.getUpdateService()
 
         img = self.new_image(name="delete tagset test")
 
         tag = omero.model.TagAnnotationI()
-        tag.textValue = omero.rtypes.rstring("tag %s" % uuid)
-        tag = self.client.sf.getUpdateService().saveAndReturnObject( tag )
+        tag.textValue = rstring("tag %s" % uuid)
+        tag = self.client.sf.getUpdateService().saveAndReturnObject(tag)
 
-        img.linkAnnotation( tag )
-        img = self.client.sf.getUpdateService().saveAndReturnObject( img )
+        img.linkAnnotation(tag)
+        img = self.client.sf.getUpdateService().saveAndReturnObject(img)
 
         tagset = omero.model.TagAnnotationI()
-        tagset.textValue = omero.rtypes.rstring("tagset %s" % uuid)
+        tagset.textValue = rstring("tagset %s" % uuid)
         tagset.linkAnnotation(tag)
-        tagset = self.client.sf.getUpdateService().saveAndReturnObject( tagset )
+        tagset = self.client.sf.getUpdateService().saveAndReturnObject(tagset)
 
         tag = tagset.linkedAnnotationList()[0]
 
         command = omero.cmd.Delete("/Annotation", tagset.id.val, None)
         handle = self.client.sf.submit(command)
-        callback = self.waitOnCmd(self.client, handle)
+        self.waitOnCmd(self.client, handle)
 
         assert not query.find("TagAnnotation", tagset.id.val)
-        assert tag.id.val ==  query.find("TagAnnotation", tag.id.val).id.val
+        assert tag.id.val == query.find("TagAnnotation", tag.id.val).id.val
 
     def test7314(self):
         """
@@ -419,7 +431,8 @@ class TestDelete(lib.ITest):
         """
         client, user = self.new_client_and_user(perms="rw----")
         update = client.sf.getUpdateService()
-        datasets = self.createDatasets(2, "testDeleteOneDatasetFilesetErr", client=client)
+        datasets = self.createDatasets(
+            2, "testDeleteOneDatasetFilesetErr", client=client)
         images = self.importMIF(2, client=client)
         for i in range(2):
             link = omero.model.DatasetImageLinkI()
@@ -427,29 +440,30 @@ class TestDelete(lib.ITest):
             link.setChild(images[i].proxy())
             link = update.saveAndReturnObject(link)
 
-        # Lookup the fileset
         query = client.sf.getQueryService()
-        img = query.get('Image', images[0].id.val)    # load first image
-        filesetId =  img.fileset.id.val
 
         # Now delete one dataset
         delete = omero.cmd.Delete("/Dataset", datasets[0].id.val, None)
-        rsp = self.doAllSubmit([delete], client, test_should_pass=False)
+        self.doAllSubmit([delete], client, test_should_pass=False)
 
         # 10846 - multiple constraints are no longer being collected.
         # in fact, even single constraints are not being directly directed
         # since fileset cleanup is happening at the end of the transaction
         # disabling and marking in ticket.
         # The delete should fail due to the fileset
-        ### assert 'Fileset' in rsp.constraints,  "delete should fail due to 'Fileset' constraints"
-        ### failedFilesets = rsp.constraints['Fileset']
-        ### assert len(failedFilesets) ==  1,  "delete should fail due to a single Fileset"
-        ### assert failedFilesets[0] ==  filesetId,  "delete should fail due to this Fileset"
+        # ## assert 'Fileset' in rsp.constraints,\
+        # ##     "delete should fail due to 'Fileset' constraints"
+        # ## failedFilesets = rsp.constraints['Fileset']
+        # ## assert len(failedFilesets) ==  1,\
+        # ##     "delete should fail due to a single Fileset"
+        # ## assert failedFilesets[0] ==  filesetId,\
+        # ##     "delete should fail due to this Fileset"
 
         # Neither image or the dataset should be deleted.
-        assert datasets[0].id.val ==  query.find("Dataset", datasets[0].id.val).id.val
-        assert images[0].id.val ==  query.find("Image", images[0].id.val).id.val
-        assert images[1].id.val ==  query.find("Image", images[1].id.val).id.val
+        assert datasets[0].id.val == \
+            query.find("Dataset", datasets[0].id.val).id.val
+        assert images[0].id.val == query.find("Image", images[0].id.val).id.val
+        assert images[1].id.val == query.find("Image", images[1].id.val).id.val
 
     def testDeleteOneImageFilesetErr(self):
         """
@@ -458,31 +472,30 @@ class TestDelete(lib.ITest):
         Delete one image, the delete should fail.
         """
         client, user = self.new_client_and_user(perms="rw----")
-        update = client.sf.getUpdateService()
         images = self.importMIF(2, client=client)
 
         # Lookup the fileset
         query = client.sf.getQueryService()
-        img = query.get('Image', images[0].id.val)    # load first image
-        filesetId =  img.fileset.id.val
 
         # Now delete one image
-        delete = omero.cmd.Delete("/Image", images[0].id.val, None)
-        rsp = self.doAllSubmit([delete], client, test_should_pass=False)
+        omero.cmd.Delete("/Image", images[0].id.val, None)
 
         # 10846 - multiple constraints are no longer being collected.
         # in fact, even single constraints are not being directly directed
         # since fileset cleanup is happening at the end of the transaction
         # disabling and marking in ticket.
-        ### # The delete should fail due to the fileset
-        ### assert 'Fileset' in rsp.constraints,  "delete should fail due to 'Fileset' constraints"
-        ### failedFilesets = rsp.constraints['Fileset']
-        ### assert len(failedFilesets) ==  1,  "delete should fail due to a single Fileset"
-        ### assert failedFilesets[0] ==  filesetId,  "delete should fail due to this Fileset"
+        # ## # The delete should fail due to the fileset
+        # ## assert 'Fileset' in rsp.constraints,\
+        # ##     "delete should fail due to 'Fileset' constraints"
+        # ## failedFilesets = rsp.constraints['Fileset']
+        # ## assert len(failedFilesets) ==  1,\
+        # ##     "delete should fail due to a single Fileset"
+        # ## assert failedFilesets[0] ==  filesetId,\
+        # ##     "delete should fail due to this Fileset"
 
         # Neither image should be deleted.
-        assert images[0].id.val ==  query.find("Image", images[0].id.val).id.val
-        assert images[1].id.val ==  query.find("Image", images[1].id.val).id.val
+        assert images[0].id.val == query.find("Image", images[0].id.val).id.val
+        assert images[1].id.val == query.find("Image", images[1].id.val).id.val
 
     def testDeleteDatasetFilesetOK(self):
         """
@@ -494,7 +507,7 @@ class TestDelete(lib.ITest):
         update = client.sf.getUpdateService()
         query = client.sf.getQueryService()
         ds = omero.model.DatasetI()
-        ds.name = omero.rtypes.rstring("testDeleteDatasetFilesetOK")
+        ds.name = rstring("testDeleteDatasetFilesetOK")
         ds = update.saveAndReturnObject(ds)
         images = self.importMIF(2, client=client)
         fsId = query.get("Image", images[0].id.val).fileset.id.val
@@ -523,7 +536,8 @@ class TestDelete(lib.ITest):
         client, user = self.new_client_and_user(perms="rw----")
         update = client.sf.getUpdateService()
         query = client.sf.getQueryService()
-        datasets = self.createDatasets(2, "testDeleteAllDatasetsFilesetOK", client=client)
+        datasets = self.createDatasets(
+            2, "testDeleteAllDatasetsFilesetOK", client=client)
         images = self.importMIF(2, client=client)
         fsId = query.get("Image", images[0].id.val).fileset.id.val
         for i in range(2):
@@ -535,7 +549,7 @@ class TestDelete(lib.ITest):
         # Now delete all datasets, should succeed
         delete1 = omero.cmd.Delete("/Dataset", datasets[0].id.val, None)
         delete2 = omero.cmd.Delete("/Dataset", datasets[1].id.val, None)
-        self.doAllSubmit([delete1,delete2], client)
+        self.doAllSubmit([delete1, delete2], client)
 
         # Both datasets, the fileset and both images should be deleted.
         assert not query.find("Dataset", datasets[0].id.val)
@@ -551,7 +565,6 @@ class TestDelete(lib.ITest):
         Delete all images, the delete should succeed.
         """
         client, user = self.new_client_and_user(perms="rw----")
-        update = client.sf.getUpdateService()
         query = client.sf.getQueryService()
         images = self.importMIF(2, client=client)
         fsId = query.get("Image", images[0].id.val).fileset.id.val
@@ -559,7 +572,7 @@ class TestDelete(lib.ITest):
         # Now delete all images, should succeed
         delete1 = omero.cmd.Delete("/Image", images[0].id.val, None)
         delete2 = omero.cmd.Delete("/Image", images[1].id.val, None)
-        self.doAllSubmit([delete1,delete2], client)
+        self.doAllSubmit([delete1, delete2], client)
 
         # The fileset and both images should be deleted.
         assert not query.find("Fileset", fsId)
@@ -596,26 +609,23 @@ class TestDelete(lib.ITest):
         imagesFsOne = self.importMIF(2, client=client)
         imagesFsTwo = self.importMIF(2, client=client)
 
-        # Lookup the filesets
-        qs = client.sf.getQueryService()
-        filesetOneId = qs.get('Image', imagesFsOne[0].id.val).fileset.id.val
-        filesetTwoId = qs.get('Image', imagesFsTwo[0].id.val).fileset.id.val
-
         # delete should fail...
         delete1 = omero.cmd.Delete("/Image", imagesFsOne[0].id.val, None)
         delete2 = omero.cmd.Delete("/Image", imagesFsTwo[0].id.val, None)
-        rsp = self.doAllSubmit([delete1,delete2], client, test_should_pass=False)
+        self.doAllSubmit([delete1, delete2], client, test_should_pass=False)
 
         # 10846 - multiple constraints are no longer being collected.
         # in fact, even single constraints are not being directly directed
         # since fileset cleanup is happening at the end of the transaction
         # disabling and marking in ticket.
         # ...due to the filesets
-        ### assert 'Fileset' in rsp.constraints,  "Delete should fail due to 'Fileset' constraints"
-        ### failedFilesets = rsp.constraints['Fileset']
-        ### assert len(failedFilesets) ==  2,  "Delete should fail due to a Two Filesets"
-        ### assert filesetOneId in failedFilesets
-        ### assert filesetTwoId in failedFilesets
+        # ## assert 'Fileset' in rsp.constraints,\
+        # ##     "Delete should fail due to 'Fileset' constraints"
+        # ## failedFilesets = rsp.constraints['Fileset']
+        # ## assert len(failedFilesets) ==  2,\
+        # ##     "Delete should fail due to a Two Filesets"
+        # ## assert filesetOneId in failedFilesets
+        # ## assert filesetTwoId in failedFilesets
 
     def testDeleteDatasetTwoFilesetsErr(self):
         """
@@ -630,34 +640,31 @@ class TestDelete(lib.ITest):
 
         update = client.sf.getUpdateService()
         ds = omero.model.DatasetI()
-        ds.name = omero.rtypes.rstring("testDeleteDatasetTwoFilesetsErr")
+        ds.name = rstring("testDeleteDatasetTwoFilesetsErr")
         ds = update.saveAndReturnObject(ds)
-        images = self.importMIF(2, client=client)
+        self.importMIF(2, client=client)
         for i in (imagesFsOne, imagesFsTwo):
             link = omero.model.DatasetImageLinkI()
             link.setParent(ds.proxy())
             link.setChild(i[0].proxy())
             link = update.saveAndReturnObject(link)
 
-        # Lookup the filesets
-        qs = client.sf.getQueryService()
-        filesetOneId = qs.get('Image', imagesFsOne[0].id.val).fileset.id.val
-        filesetTwoId = qs.get('Image', imagesFsTwo[0].id.val).fileset.id.val
-
         # delete should fail...
         delete = omero.cmd.Delete("/Dataset", ds.id.val, None)
-        rsp = self.doAllSubmit([delete], client, test_should_pass=False)
+        self.doAllSubmit([delete], client, test_should_pass=False)
 
         # 10846 - multiple constraints are no longer being collected.
         # in fact, even single constraints are not being directly directed
         # since fileset cleanup is happening at the end of the transaction
         # disabling and marking in ticket.
         # ...due to the filesets
-        ### assert 'Fileset' in rsp.constraints,  "Delete should fail due to 'Fileset' constraints"
-        ### failedFilesets = rsp.constraints['Fileset']
-        ### assert len(failedFilesets) ==  2,  "Delete should fail due to a Two Filesets"
-        ### assert filesetOneId in failedFilesets
-        ### assert filesetTwoId in failedFilesets
+        # ## assert 'Fileset' in rsp.constraints,\
+        # ##     "Delete should fail due to 'Fileset' constraints"
+        # ## failedFilesets = rsp.constraints['Fileset']
+        # ## assert len(failedFilesets) ==  2,\
+        # ##     "Delete should fail due to a Two Filesets"
+        # ## assert filesetOneId in failedFilesets
+        # ## assert filesetTwoId in failedFilesets
 
 if __name__ == '__main__':
     if "TRACE" in os.environ:

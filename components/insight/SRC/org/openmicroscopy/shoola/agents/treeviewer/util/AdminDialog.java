@@ -320,6 +320,7 @@ implements ActionListener, PropertyChangeListener
         setProperties(type);
         this.ctx = ctx;
         this.type = type;
+        AdminService svc = TreeViewerAgent.getRegistry().getAdminService();
         if (ExperimenterData.class.equals(type)) {
             List<DataObject> selected = null;
             if (parent instanceof GroupData) {
@@ -329,15 +330,19 @@ implements ActionListener, PropertyChangeListener
                 //Remove from the groups.
                 Iterator<DataObject> i = groups.iterator();
                 DataObject data;
-                DataObject toRemove = null;
                 while (i.hasNext()) {
                     data = i.next();
-                    if (data.getId() == p.getId()) {
-                        toRemove = data;
-                        break;
+                    if(data.getId() == p.getId() || svc.isSecuritySystemGroup(data.getId(), GroupData.USER)) {
+                        i.remove();
                     }
                 }
-                if (toRemove != null) groups.remove(toRemove);
+                i = selected.iterator();
+                while (i.hasNext()) {
+                    data = i.next();
+                    if(svc.isSecuritySystemGroup(data.getId(), GroupData.USER)) {
+                        i.remove();
+                    }
+                }
             }
             body = new ExperimenterPane(true, groups, selected);
         } else if (GroupData.class.equals(type)) {

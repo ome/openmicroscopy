@@ -30,7 +30,7 @@
     <link rel="stylesheet" type="text/css" href="{% static "webgateway/css/ome.rangewidget.css" %}" />
     <link rel="stylesheet" type="text/css" href="{% static "3rdparty/farbtastic/farbtastic.css" %}" media="all" />
     <link rel="stylesheet" type="text/css" href="{% static "webgateway/css/ome.colorbtn.css" %}" />
-    <link rel="stylesheet" type="text/css" href="{% static "3rdparty/JQuerySpinBtn.css" %}" />
+    <link rel="stylesheet" type="text/css" href="{% static "3rdparty/JQuerySpinBtn/JQuerySpinBtn.css" %}" />
     <link rel="stylesheet" type="text/css" href="{% static "3rdparty/jquery-ui-1.8.19/jquery-ui-1.8.19.custom.css" %}" media="all" />
     <link rel="stylesheet" type="text/css" href="{% static "webgateway/css/omero_image.css" %}" media="all" />
     <link rel="stylesheet" type="text/css" href="{% static "3rdparty/panojs/panojs.css" %}" media="all" />
@@ -57,9 +57,9 @@
 	<script type="text/javascript" src="{% static "webgateway/js/ome.gs_slider.js" %}"></script>
 	<script type="text/javascript" src="{% static "webgateway/js/ome.viewport.js" %}"></script>
 	
-    <script type="text/javascript" src="{% static "3rdparty/jquery-ui-1.8.19/jquery-ui-1.8.19.custom.min.js" %}"></script>
+    <script type="text/javascript" src="{% static "3rdparty/jquery-ui-1.8.19/ui/jquery-ui.js" %}"></script>
     <script type="text/javascript" src="{% static "webgateway/js/ome.smartdialog.js" %}"></script>
-    <script type="text/javascript" src="{% static "3rdparty/JQuerySpinBtn.js" %}"></script>
+    <script type="text/javascript" src="{% static "3rdparty/JQuerySpinBtn/JQuerySpinBtn.js" %}"></script>
     <script type="text/javascript" src="{% static "webgateway/js/ome.colorbtn.js" %}"></script>
     <script type="text/javascript" src="{% static "webgateway/js/ome.postit.js" %}"></script>
     <script type="text/javascript" src="{% static "3rdparty/jquery.selectboxes.js" %}"></script>
@@ -80,7 +80,7 @@
     <script type="text/javascript" src="{% static "3rdparty/panojs/pyramid_Bisque.js" %}"></script>
     <script type="text/javascript" src="{% static "3rdparty/panojs/pyramid_imgcnv.js" %}"></script>
     <script type="text/javascript" src="{% static "3rdparty/panojs/pyramid_Zoomify.js" %}"></script>        
-    <script type="text/javascript" src="{% static "webgateway/js/ome.panojs.control_thumbnail.js" %}"></script>
+    <script type="text/javascript" src="{% static "3rdparty/panojs/control_thumbnail.js" %}"></script>
     <script type="text/javascript" src="{% static "3rdparty/panojs/control_info.js" %}"></script>
     <script type="text/javascript" src="{% static "3rdparty/panojs/control_svg.js" %}"></script>
     <script type="text/javascript" src="{% static "3rdparty/panojs/control_roi.js" %}"></script>
@@ -1186,7 +1186,7 @@
     </div>
     <div id="footer">
     {% block footer_content %}
-      &copy; 2007-{% now "Y" %} Glencoe Software Inc. All rights reserved.
+      &copy; 2007-{{ build_year }} Glencoe Software Inc. All rights reserved.
     {% endblock %}
     </div>
 {% endblock full_body %}

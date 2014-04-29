@@ -116,6 +116,11 @@
   <logger name="ome.dsl.utests" level="WARN"/>
   <logger name="ome.util.utests.PojoOptionsTest" level="WARN"/>
 
+  <!-- IMAGEJ /////////////////////////////////////////////////////////////// -->
+  <!-- These categories are omitted by ImageJ components which pick up our
+       slf4j/logback configuration during scripting -->
+  <logger name="org.bushe" level="INFO"/>
+
   <!-- DATABASE /////////////////////////////////////////////////////////////// -->
   <logger name="bitronix" level="WARN"/>
   <!-- Limit memory WARNing -->
@@ -145,6 +150,11 @@
   </logger>
 
   <logger name="ome.annotations">
+    <level value="INFO"/>
+    <appender-ref ref="SIFT"/>
+  </logger>
+
+  <logger name="ome.formats">
     <level value="INFO"/>
     <appender-ref ref="SIFT"/>
   </logger>

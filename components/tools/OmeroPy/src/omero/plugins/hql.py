@@ -37,6 +37,7 @@ class HqlControl(BaseControl):
         parser.add_argument(
             "--admin", help="Run an admin query", default=False,
             action="store_true")
+        parser.add_style_argument()
         parser.add_login_arguments()
 
     def __call__(self, args):
@@ -64,7 +65,7 @@ class HqlControl(BaseControl):
         p = ParametersI()
         p.page(args.offset, args.limit)
         rv = self.project(q, args.query, p, ice_map)
-        has_details = self.display(rv)
+        has_details = self.display(rv, style=args.style)
         if args.quiet or not sys.stdout.isatty():
             return
 
@@ -93,9 +94,9 @@ To quit, enter 'q' or just enter.
                 self.ctx.dbg("\nCurrent page: offset=%s, limit=%s\n" %
                              (p.theFilter.offset.val, p.theFilter.limit.val))
                 rv = self.project(q, args.query, p, ice_map)
-                self.display(rv)
+                self.display(rv, style=args.style)
             elif id.startswith("r"):
-                self.display(rv)
+                self.display(rv, style=args.style)
             else:
                 try:
                     id = long(id)
@@ -122,13 +123,15 @@ To quit, enter 'q' or just enter.
                     self.ctx.out("%s = %s" % (key, value))
             continue
 
-    def display(self, rv, cols=None):
+    def display(self, rv, cols=None, style=None):
         import omero.all
         import omero.rtypes
         from omero.util.text import TableBuilder
 
         has_details = []
         tb = TableBuilder("#")
+        if style:
+            tb.set_style(style)
         for idx, object_list in enumerate(rv):
             klass = "Null"
             id = ""
@@ -170,9 +173,9 @@ To quit, enter 'q' or just enter.
         from omero.model import IObject
         from omero.model import Details
         from omero.rtypes import RTimeI
-        #if isinstance(object, list):
+        # if isinstance(object, list):
         #    return [self.unwrap(x, cache) for x in object]
-        #elif isinstance(object, RObject):
+        # elif isinstance(object, RObject):
         #    return self.unwrap(object.val, cache)
         unwrapped = unwrap(object, cache)
         if isinstance(unwrapped, IObject):

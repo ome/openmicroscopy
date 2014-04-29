@@ -100,6 +100,13 @@ class TestUser(CLITest):
             users.sort(key=lambda x: x.id.val)
         assert ids == [user.id.val for user in users]
 
+    @pytest.mark.parametrize("style", [None, "sql", "csv", "plain"])
+    def testListWithStyles(self, capsys, style):
+        self.args += ["list"]
+        if style:
+            self.args += ["--style=%s" % style]
+        self.cli.invoke(self.args, strict=True)
+
     # Email subcommand
     # ========================================================================
     @pytest.mark.parametrize("oneperline_arg", [None, "-1", "--one"])

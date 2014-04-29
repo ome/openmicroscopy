@@ -160,6 +160,14 @@ class Parser(ArgumentParser):
         parser.set_defaults(func=func, **kwargs)
         return parser
 
+    def add_style_argument(self):
+        from omero.util.text import find_style
+        from omero.util.text import list_styles
+        self.add_argument(
+            "--style", help=
+            "Use alternative output style",
+            choices=list_styles())
+
     def add_login_arguments(self):
         group = self.add_argument_group('Login arguments',
             'Optional session arguments')
@@ -175,7 +183,10 @@ class Parser(ArgumentParser):
             help = "OMERO username")
         group.add_argument("-w", "--password",
             help = "OMERO password")
-        group.add_argument("-k", "--key", help = "OMERO session key (UUID of an active session)")
+        group.add_argument("-k", "--key",
+            help = "OMERO session key (UUID of an active session)")
+        group.add_argument("--sudo", metavar="ADMINUSER",
+            help = "Create session as this admin. Changes meaning of password!")
 
     def _check_value(self, action, value):
         # converted value must be one of the choices (if specified)
@@ -298,7 +309,8 @@ class Context:
         """
         sessions = self.controls["sessions"]
 
-        login = self.subparsers.add_parser("login", help="Shortcut for 'sessions login'")
+        login = self.subparsers.add_parser("login", help="Shortcut for 'sessions login'",
+                                           description=sessions.login.__doc__)
         login.set_defaults(func=lambda args:sessions.login(args))
         sessions._configure_login(login)
 

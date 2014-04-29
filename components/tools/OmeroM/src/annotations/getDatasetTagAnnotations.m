@@ -15,17 +15,22 @@ function tas = getDatasetTagAnnotations(session, ids, varargin)
 %    tas = getDatasetTagAnnotations(session,  ids, 'exclude', exclude)
 %    excludes tag annotations with the input namespace.
 %
+%    tas = getDatasetTagAnnotations(session, ids, 'owner', ownerid)
+%    returns the tag annotations owned by the user specified by ownerid.
+%    Use -1 to return the tag annotations owned by all users.
+%
 %    Examples:
 %
 %        tas = getDatasetTagAnnotations(session, ids)
 %        tas = getDatasetTagAnnotations(session, datasets)
 %        tas = getDatasetTagAnnotations(session, ids, 'include', include)
 %        tas = getDatasetTagAnnotations(session, ids, 'exclude', exclude)
+%        tas = getDatasetTagAnnotations(session, ids, 'owner', -1)
 %
 % See also: GETOBJECTANNOTATIONS, GETDATASETCOMMENTANNOTATIONS,
 % GETDATASETFILEANNOTATIONS, GETDATASETXMLANNOTATIONS
 
-% Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
+% Copyright (C) 2013-2014 University of Dundee & Open Microscopy Environment.
 % All rights reserved.
 %
 % This program is free software; you can redistribute it and/or modify

@@ -264,8 +264,7 @@ public class DoAllI extends DoAll implements IRequest {
             ctx.publishMessage(new ContextMessage.Push(this, allgroups));
             try {
                 // Process within -1 block.
-                Ice.Communicator ic = ctx.getBean(Ice.Communicator.class);
-                new Preprocessor(ic, this.requests, this.helper);
+                new Preprocessor(this.requests, this.helper);
             } finally {
                 ctx.publishMessage(new ContextMessage.Pop(this, allgroups));
             }

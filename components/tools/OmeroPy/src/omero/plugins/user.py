@@ -50,6 +50,8 @@ class UserControl(UserGroupControl):
             help="Create user with empty password")
 
         list = parser.add(sub, self.list, help="List current users")
+        list.add_style_argument()
+
         printgroup = list.add_mutually_exclusive_group()
         printgroup.add_argument(
             "--long", action="store_true", default=True,
@@ -91,6 +93,9 @@ class UserControl(UserGroupControl):
         email.add_argument(
             "-i", "--ignore", action="store_true", default=False,
             help="Ignore users without email addresses")
+        email.add_argument(
+            "--all", action="store_true", default=False,
+            help="Include all users, including deactivated accounts")
 
         joingroup = parser.add(sub, self.joingroup, "Join one or more groups")
         self.add_user_arguments(joingroup)
@@ -143,6 +148,7 @@ class UserControl(UserGroupControl):
     def email(self, args):
         c = self.ctx.conn(args)
         a = c.sf.getAdminService()
+        r = a.getSecurityRoles()
 
         skipped = []
         records = []
@@ -153,6 +159,13 @@ class UserControl(UserGroupControl):
                 if not args.ignore:
                     skipped.append(exp)
                 continue
+
+            # Handle deactivated users
+            if not args.all:
+                groups = exp.linkedExperimenterGroupList()
+                group_ids = [x.id.val for x in groups]
+                if r.userGroupId not in group_ids:
+                    continue
 
             record = ""
             if args.names:
@@ -222,6 +235,8 @@ class UserControl(UserGroupControl):
             tb = TableBuilder("id", "login", "first name", "last name",
                               "email", "active", "admin", "member of",
                               "owner of")
+        if args.style:
+            tb.set_style(args.style)
 
         # Sort users
         if args.sort_by_login:

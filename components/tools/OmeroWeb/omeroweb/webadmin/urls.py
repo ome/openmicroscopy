@@ -23,10 +23,7 @@
 # Version: 1.0
 #
 
-import os.path
-
-from django.conf.urls import *
-from django.views.static import serve
+from django.conf.urls import url, patterns
 
 from omeroweb.webadmin import views
 from omeroweb.webclient import views as webclient_views

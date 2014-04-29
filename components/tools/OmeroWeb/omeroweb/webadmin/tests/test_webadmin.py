@@ -19,26 +19,20 @@
 #
 
 
-import unittest, time, os, datetime
-import tempfile
-import pytest
+import unittest, os
 import omero
 
-from django.conf import settings
 from request_factory import fakeRequest
 
-from webgateway import views as webgateway_views
-from webadmin import views as webadmin_views
 from webadmin.webadmin_utils import toBoolean
 from webadmin.forms import LoginForm, GroupForm, ExperimenterForm, \
-                ContainedExperimentersForm, ChangePassword
+                ChangePassword
 
 from connector import Server, Connector
 from webadmin.views import getActualPermissions, setActualPermissions, \
                         otherGroupsInitialList, prepare_experimenter, \
-                        getSelectedExperimenters, getSelectedGroups, \
+                        getSelectedExperimenters, \
                         mergeLists
-from django.core.urlresolvers import reverse
 
 # Test model
 class ServerModelTest (unittest.TestCase):
@@ -56,7 +50,7 @@ class ServerModelTest (unittest.TestCase):
         # without any params
         try:
             Server()
-        except Exception, x:
+        except Exception:
             pass
         else:
             self.fail('Error:Parameters required')
@@ -86,7 +80,7 @@ class ServerModelTest (unittest.TestCase):
         
         try:
             Server(host=u'example5.com', port=4064)
-        except Exception, x:
+        except Exception:
             pass
         else:
             self.fail('Error:No more instances allowed')
@@ -128,7 +122,7 @@ class WebTest(unittest.TestCase):
                 raise Exception("Cannot connect")
             return conn
         else:
-            raise Exception("'%s' is not on omero.web.server_list"  % omero_host)
+            raise Exception("'%s' is not on omero.web.server_list"  % self.omero_host)
 
 
 class WebAdminConfigTest(unittest.TestCase):
@@ -315,14 +309,13 @@ class WebAdminTest(WebTest):
     
     def test_badCreateGroup(self):
         conn = self.rootconn
-        uuid = conn._sessionUuid
         
         # empty fields
         params = {}
         request = fakeRequest(method="post", params=params)
         try:
-            gid = _createGroup(request, conn)
-        except Exception, e:
+            _createGroup(request, conn)
+        except Exception:
             pass
         else:
             self.fail("Can't create group with no parameters")
@@ -483,7 +476,7 @@ class WebAdminTest(WebTest):
         try:
             _updateGroup(request, conn, gid)
             self.fail("Can't remove user from the group members if this it's hs default group")
-        except omero.ValidationException, ve:
+        except omero.ValidationException:
             pass
         
         # check if group updated
@@ -597,14 +590,13 @@ class WebAdminTest(WebTest):
     
     def test_badCreateExperimenters(self):
         conn = self.rootconn
-        uuid = conn._sessionUuid
         
         # empty fields
         params = {}
         request = fakeRequest(method="post", params=params)
         try:
-            eid = _createExperimenter(request, conn)
-        except Exception, e:
+            _createExperimenter(request, conn)
+        except Exception:
             pass
         else:
             self.fail("Can't create user with no parameters")
@@ -804,7 +796,7 @@ class WebAdminTest(WebTest):
             "confirmation":"123" 
         }
         request = fakeRequest(method="post", params=params)
-        eid = _createExperimenter(request, conn)
+        _createExperimenter(request, conn)
         
         # login as user and change my password
         user_conn = self.loginAsUser(params['omename'], params['password'])

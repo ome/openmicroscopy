@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -614,6 +614,15 @@ public interface DataBrowser
 	 */
 	public void filterByCommented(boolean commented);
 
+	/**
+         * Shows the nodes with ROIs if the passed value is <code>true</code>,
+         * shows the nodes without ROIs if the passed value is <code>false</code>.
+         * 
+         * @param hasROIs Pass <code>true</code> to show the nodes with ROIs,
+         *                               <code>false</code> to show the nodes without ROIs.
+         */
+	public void filterByROIs(boolean hasROIs);
+	
 	/** 
 	 * Sets the passed title in the header of the browser.
 	 * 

@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.fsimporter.view.ImporterControl 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -23,6 +23,7 @@
 package org.openmicroscopy.shoola.agents.fsimporter.view;
 
 //Java imports
+import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
@@ -39,6 +40,7 @@ import java.util.Map;
 import javax.swing.Action;
 import javax.swing.JComboBox;
 import javax.swing.JMenu;
+import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
 import javax.swing.event.MenuEvent;
 import javax.swing.event.MenuKeyEvent;
@@ -343,48 +345,66 @@ class ImporterControl
         cancelAction.setEnabled(false);
 	}
 
-	/**
-	 * Reacts to property changes.
-	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
-	 */
-	public void propertyChange(PropertyChangeEvent evt)
-	{
-		String name = evt.getPropertyName();
-		if (ImportDialog.IMPORT_PROPERTY.equals(name)) {
-		    actionsMap.get(CANCEL_BUTTON).setEnabled(true);
-		    model.importData((ImportableObject) evt.getNewValue());
-		} else if (ImportDialog.LOAD_TAGS_PROPERTY.equals(name)) {
-			model.loadExistingTags();
-		} else if (ImportDialog.CANCEL_SELECTION_PROPERTY.equals(name)) {
-			model.close();
-		} else if (ClosableTabbedPane.CLOSE_TAB_PROPERTY.equals(name)) {
-			model.removeImportElement(evt.getNewValue());
-		} else if (FileImportComponent.SUBMIT_ERROR_PROPERTY.equals(name)) {
-			submitFiles((FileImportComponent) evt.getNewValue());
-		} else if (ImportDialog.REFRESH_LOCATION_PROPERTY.equals(name)) {
-			model.refreshContainers((ImportLocationDetails) evt.getNewValue());
-		} else if (ImportDialog.CREATE_OBJECT_PROPERTY.equals(name)) {
-			ObjectToCreate l = (ObjectToCreate) evt.getNewValue();
-			model.createDataObject(l);
-		} else if (StatusLabel.DEBUG_TEXT_PROPERTY.equals(name)) {
-			view.appendDebugText((String) evt.getNewValue());
-		} else if (MacOSMenuHandler.QUIT_APPLICATION_PROPERTY.equals(name)) {
-			Action a = getAction(EXIT);
-			ActionEvent event = 
-				new ActionEvent(this, ActionEvent.ACTION_PERFORMED, "");
-			a.actionPerformed(event);
-		} else if (ImportDialog.PROPERTY_GROUP_CHANGED.equals(name)) {
-			GroupData newGroup = (GroupData) evt.getNewValue();
-			model.setUserGroup(newGroup);
-		} else if (StatusLabel.FILE_IMPORT_STARTED_PROPERTY.equals(name) ||
-		        FileImportComponent.CANCEL_IMPORT_PROPERTY.equals(name)) {
-		    checkDisableCancelAllButtons();
-		} else if (StatusLabel.IMPORT_DONE_PROPERTY.equals(name)) {
-			model.onImportComplete((FileImportComponent) evt.getNewValue());
-		} else if (StatusLabel.UPLOAD_DONE_PROPERTY.equals(name)) {
-			model.onUploadComplete((FileImportComponent) evt.getNewValue());
-		}
-	}
+        /**
+         * Reacts to property changes.
+         * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
+         */
+        public void propertyChange(final PropertyChangeEvent evt) {
+            if (EventQueue.isDispatchThread()) {
+                // only handle this event directly if we are in the EDT!
+                handlePropertyChangedEvent(evt);
+            } else {
+                Runnable run = new Runnable() {
+                    @Override
+                    public void run() {
+                        handlePropertyChangedEvent(evt);
+                    }
+                };
+                SwingUtilities.invokeLater(run);
+            }
+        }
+    
+        /**
+         * Handles a PropertyChangedEvent
+         * @param evt The event
+         */
+        private void handlePropertyChangedEvent(PropertyChangeEvent evt) {
+            String name = evt.getPropertyName();
+            if (ImportDialog.IMPORT_PROPERTY.equals(name)) {
+                actionsMap.get(CANCEL_BUTTON).setEnabled(true);
+                model.importData((ImportableObject) evt.getNewValue());
+            } else if (ImportDialog.LOAD_TAGS_PROPERTY.equals(name)) {
+                    model.loadExistingTags();
+            } else if (ImportDialog.CANCEL_SELECTION_PROPERTY.equals(name)) {
+                    model.close();
+            } else if (ClosableTabbedPane.CLOSE_TAB_PROPERTY.equals(name)) {
+                    model.removeImportElement(evt.getNewValue());
+            } else if (FileImportComponent.SUBMIT_ERROR_PROPERTY.equals(name)) {
+                    submitFiles((FileImportComponent) evt.getNewValue());
+            } else if (ImportDialog.REFRESH_LOCATION_PROPERTY.equals(name)) {
+                    model.refreshContainers((ImportLocationDetails) evt.getNewValue());
+            } else if (ImportDialog.CREATE_OBJECT_PROPERTY.equals(name)) {
+                    ObjectToCreate l = (ObjectToCreate) evt.getNewValue();
+                    model.createDataObject(l);
+            } else if (StatusLabel.DEBUG_TEXT_PROPERTY.equals(name)) {
+                    view.appendDebugText((String) evt.getNewValue());
+            } else if (MacOSMenuHandler.QUIT_APPLICATION_PROPERTY.equals(name)) {
+                    Action a = getAction(EXIT);
+                    ActionEvent event = 
+                            new ActionEvent(this, ActionEvent.ACTION_PERFORMED, "");
+                    a.actionPerformed(event);
+            } else if (ImportDialog.PROPERTY_GROUP_CHANGED.equals(name)) {
+                    GroupData newGroup = (GroupData) evt.getNewValue();
+                    model.setUserGroup(newGroup);
+            } else if (StatusLabel.FILE_IMPORT_STARTED_PROPERTY.equals(name) ||
+                    FileImportComponent.CANCEL_IMPORT_PROPERTY.equals(name)) {
+                checkDisableCancelAllButtons();
+            } else if (StatusLabel.IMPORT_DONE_PROPERTY.equals(name)) {
+                    model.onImportComplete((FileImportComponent) evt.getNewValue());
+            } else if (StatusLabel.UPLOAD_DONE_PROPERTY.equals(name)) {
+                    model.onUploadComplete((FileImportComponent) evt.getNewValue());
+            }
+        }
 
 	/** 
 	 * Re-uploads the file.
