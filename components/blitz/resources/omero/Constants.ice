@@ -49,6 +49,13 @@ module omero {
     const int MESSAGESIZEMAX = 65536;
 
     /**
+     * Determines the batch size for sending
+     * objects to the server. Too many can
+     * result in MessageSizeMax errors.
+     **/
+    const int DEFAULTBATCHSIZE = 2000;
+
+    /**
      * Default size for byte arrays during upload and download
      * of binary data.
      **/
