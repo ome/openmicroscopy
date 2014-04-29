@@ -358,7 +358,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
           1: description
           2: text
           3: owner id
-          4: list of child tag ids, or 0 if this is not a tag set
+          4: list of child tag ids (possibly empty), or 0 if this is not a tag set
         * A dictionary of user ids mapped to user names
         """
 
@@ -375,7 +375,8 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             params.page(offset, limit)
 
         sql = """
-            select ann.id, ann.description, ann.textValue, ann.details.owner.id,
+            select ann.id, ann.description, ann.textValue, ann.ns,
+            ann.details.owner.id,
             ann.details.owner.firstName, ann.details.owner.lastName
             from TagAnnotation ann
             """
@@ -386,13 +387,14 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         tags = []
         owners = dict()
         for element in q.projection(sql, params, self.SERVICE_OPTS):
-            tag_id, description, text, owner, first, last = map(unwrap, element)
+            tag_id, description, text, ns, owner, first, last = map(unwrap, element)
             tags.append([
                 tag_id,
                 description,
                 text,
                 owner,
-                None, # this will be filled in after next query
+                # if tagset, list to be filled in later, otherwise 0
+                [] if ns == omero.constants.metadata.NSINSIGHTTAGSET else 0,
             ])
             owners[owner] = "%s %s" % (first, last)
 
@@ -418,7 +420,9 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             mapping.setdefault(parent, []).append(child)
 
         for idx in range(len(tags)):
-            tags[idx][4] = mapping.get(tags[idx][0], 0)
+            children = mapping.get(tags[idx][0])
+            if children:
+                tags[idx][4] = children
 
         return tags, owners
 
