@@ -328,3 +328,10 @@ class TestThumbnailPerms(lib.ITest):
         except Ice.OperationNotExistException:
             # Not supported by this server
             pass
+
+        # And once they do that, they will also
+        # have a new thumbnail available.
+        tb = other.sf.createThumbnailStore()
+        tb.setPixelsId(pixels)
+        tb.setRenderingDefId(c_rdef)
+        assert tb.thumbnailExists(rint(96), rint(96))
