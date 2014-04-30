@@ -5008,6 +5008,10 @@ class OMEROGateway
 					fSome = formatText(some, "url");
 					fMust = formatText(must, "url");
 					fNone = formatText(none, "url");
+				} else if (key == SearchDataContext.ID) {
+    				        fSome = formatText(some, "id");
+    				        fMust = formatText(must, "id");
+    				        fNone = formatText(none, "id");
 				} else {
 					fSome = formatText(some, "");
 					fMust = formatText(must, "");
