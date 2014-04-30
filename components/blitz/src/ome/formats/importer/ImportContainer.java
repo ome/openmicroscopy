@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.lang.StringUtils;
 
 import ome.formats.importer.transfers.FileTransfer;
 import ome.formats.importer.transfers.UploadFileTransfer;
@@ -275,8 +276,12 @@ public class ImportContainer
         // ImportUserSettings rather than misusing ImportContainer.
         settings.doThumbnails = rbool(getDoThumbnails());
         settings.userSpecifiedTarget = getTarget();
-        settings.userSpecifiedName = rstring(getUserSpecifiedName());
-        settings.userSpecifiedDescription = rstring(getUserSpecifiedDescription());
+        settings.userSpecifiedName = StringUtils
+                .isNotEmpty(getUserSpecifiedName()) ? rstring(getUserSpecifiedName())
+                : null;
+        settings.userSpecifiedDescription = StringUtils
+                .isNotEmpty(getUserSpecifiedDescription()) ? rstring(getUserSpecifiedDescription())
+                : null;
         settings.userSpecifiedAnnotationList = getCustomAnnotationList();
 
         if (getUserPixels() != null) {
