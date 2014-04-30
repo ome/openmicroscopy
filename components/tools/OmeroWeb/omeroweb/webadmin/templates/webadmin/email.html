@@ -86,8 +86,6 @@
         {% if form.non_field_errors %}
           Error: {{ form.non_field_errors }}
         {% endif %}
-        <br />
-        <br />
 
         {% for field in form %}
           {% if field.errors %}<div style="clear:both">{{ field.errors }}</div>{% endif %}
