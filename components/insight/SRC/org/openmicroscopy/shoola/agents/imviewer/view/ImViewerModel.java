@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.iviewer.view.ImViewerModel
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -322,7 +322,10 @@ class ImViewerModel
     
     /** The number of tiles already loaded.*/
     private int tileLoadedCount;
-  
+
+    /** The default plane size.*/
+    private int planeSize;
+
     /**
      * Returns the default resolution level.
      * 
@@ -527,6 +530,8 @@ class ImViewerModel
 		selectedUserID = -1;
 		lastProjTime = -1;
 		lastProjRef = null;
+		planeSize = (Integer)
+		        ImViewerAgent.getRegistry().lookup(LookupNames.PLANE_SIZE);
 		checkDefaultDisplayMode();
 	}
 	
@@ -1237,6 +1242,18 @@ class ImViewerModel
 		Renderer rnd = metadataViewer.getRenderer();
 		if (rnd == null) return false;
 		return rnd.isBigImage();
+	}
+
+
+	/**
+	 * Returns <code>true</code> if it is a large image,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean isLargePlane()
+	{
+	    return getMaxX()*getMaxY() > planeSize;
 	}
 	
 	/**
