@@ -19,12 +19,11 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-import pytest
+
 import omero
 
 from test.integration.clitest.cli import CLITest
 from omero.plugins.tx import TxControl
-from omero.rtypes import rstring, rlong
 from omero.util.temp_files import create_path
 
 
@@ -43,8 +42,9 @@ class TestTx(CLITest):
     def create_script(self):
         path = create_path()
         for x in ("Screen", "Plate", "Project", "Dataset"):
-            path.write_text("new %s name=test" % x)
-            path.write_text("new %s name=test description=foo" % x)
+            path.write_text("new %s name=test\n" % x, append=True)
+            path.write_text("new %s name=test description=foo\n" % x,
+                            append=True)
         return path
 
     def test_create_from_file(self):
@@ -53,3 +53,12 @@ class TestTx(CLITest):
         self.cli.invoke(self.args, strict=True)
         rv = self.cli.get("tx.out")
         assert 8 == len(rv)
+
+    def test_create_from_args(self):
+        self.args.append("new")
+        self.args.append("Dataset")
+        self.args.append("name=foo")
+        self.cli.invoke(self.args, strict=True)
+        rv = self.cli.get("tx.out")
+        assert 1 == len(rv)
+        assert isinstance(rv[0], omero.model.DatasetI)
