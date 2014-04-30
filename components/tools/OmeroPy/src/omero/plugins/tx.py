@@ -27,11 +27,40 @@ and tests.
 """
 
 
+import re
 import sys
 import shlex
 import fileinput
 
 from omero.cli import BaseControl, CLI, ExceptionHandler
+
+
+class TxArg(object):
+
+    ARG_RE = re.compile(("(?P<FIELD>[a-zA-Z]+)"
+                         "(?P<OPER>[@])?="
+                         "(?P<VALUE>.*)"))
+
+    def __init__(self, ctx, arg):
+        self.ctx = ctx
+        self.arg = arg
+        self.parse_arg(ctx, arg)
+
+    def parse_arg(self, ctx, arg):
+        m = self.ARG_RE.match(arg)
+        if not m:
+            raise Exception("Unparseable argument: %s", arg)
+        self.argname = m.group("FIELD")
+        capitalized = self.argname[0].upper() + self.argname[1:]
+        self.setter = "set%s" % capitalized
+        self.value = m.group("VALUE")
+        self.oper = m.group("OPER")
+        if self.oper == "@":
+            # Treat value like an array lookup
+            self.value = ctx.get("tx.out")[int(self.value)]
+
+    def call_setter(self, obj):
+        getattr(obj, self.setter)(self.value, wrap=True)
 
 
 class TxAction(object):
@@ -76,18 +105,15 @@ class NewObjectTxAction(TxAction):
         if kls.endswith("I"):
             kls = kls[0:-1]
         for arg in self.arg_list[1:]:
-            parts = arg.split("=", 1)
-            argname = parts[0]
-            capitalized = argname[0].upper() + argname[1:]
-            setter = "set%s" % capitalized
-            value = parts[1]
+            arg = TxArg(ctx, arg)
             try:
-                getattr(obj, setter)(value, wrap=True)
+                arg.call_setter(obj)
             except AttributeError:
-                ctx.die(500, "No field %s for %s" % (argname, kls))
+                ctx.die(500, "No field %s for %s" % (arg.argname, kls))
         out = up.saveAndReturnObject(obj)
-        ctx.out("Created %s:%s" % (kls, out.id.val))
-        ctx.get("tx.out").append(out.proxy())
+        proxy = "%s:%s" % (kls, out.id.val)
+        ctx.out("Created %s" % proxy)
+        ctx.get("tx.out").append(proxy)
 
 
 class TxState(object):
@@ -111,6 +137,7 @@ omero tx new Dataset name=foo
 omero tx << EOF
 new Project name=bar
 new Dataset name=foo
+new ProjectDatasetLink parent@=0 child @=1
 EOF
     """
 

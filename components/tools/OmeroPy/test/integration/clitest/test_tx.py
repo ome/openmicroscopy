@@ -20,8 +20,6 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 
-import omero
-
 from test.integration.clitest.cli import CLITest
 from omero.plugins.tx import TxControl
 from omero.util.temp_files import create_path
@@ -39,6 +37,10 @@ class TestTx(CLITest):
         self.teardown_mock()
         super(TestTx, self).teardown_method(method)
 
+    def go(self):
+        self.cli.invoke(self.args, strict=True)
+        return self.cli.get("tx.out")
+
     def create_script(self):
         path = create_path()
         for x in ("Screen", "Plate", "Project", "Dataset"):
@@ -53,12 +55,28 @@ class TestTx(CLITest):
         self.cli.invoke(self.args, strict=True)
         rv = self.cli.get("tx.out")
         assert 8 == len(rv)
+        path.remove()
 
     def test_create_from_args(self):
         self.args.append("new")
         self.args.append("Dataset")
         self.args.append("name=foo")
-        self.cli.invoke(self.args, strict=True)
-        rv = self.cli.get("tx.out")
+        rv = self.go()
         assert 1 == len(rv)
-        assert isinstance(rv[0], omero.model.DatasetI)
+        assert rv[0].startswith("Dataset")
+
+    def test_linkage(self):
+        path = create_path()
+        path.write_text(
+            """
+            new Project name=foo
+            new Dataset name=bar
+            new ProjectDatasetLink parent@=0 child@=1
+            """)
+        self.args.append("--file=%s" % path)
+        rv = self.go()
+        assert 3 == len(rv)
+        assert rv[0].startswith("Project")
+        assert rv[1].startswith("Dataset")
+        assert rv[2].startswith("ProjectDatasetLink")
+        path.remove()
