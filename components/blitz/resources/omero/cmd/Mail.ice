@@ -6,10 +6,11 @@
  *
  */
 
-#ifndef OMERO_CMD_ADMIN_ICE
-#define OMERO_CMD_ADMIN_ICE
+#ifndef OMERO_CMD_MAIL_ICE
+#define OMERO_CMD_MAIL_ICE
 
 #include <omero/Collections.ice>
+#include <omero/System.ice>
 #include <omero/cmd/API.ice>
 
 module omero {
@@ -17,8 +18,8 @@ module omero {
     module cmd {
 		
 		class SendEmailRequest extends Request {
-			omero::api::ExperimenterList users;
-			omero::api::ExperimenterGroupList groups;
+			omero::sys::LongList userIds;
+			omero::sys::LongList groupIds;
 			omero::api::StringSet cc;
 			string subject;
 			string body;

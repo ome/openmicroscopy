@@ -48,10 +48,10 @@ if omero.__import_style__ is None:
     IceImport.load("omero_api_RenderingEngine_ice")
     IceImport.load("omero_api_Search_ice")
     IceImport.load("omero_api_ThumbnailStore_ice")
-    IceImport.load("omero_cmd_Admin_ice")
     IceImport.load("omero_cmd_API_ice")
     IceImport.load("omero_cmd_Basic_ice")
     IceImport.load("omero_cmd_FS_ice")
     IceImport.load("omero_cmd_Graphs_ice")
+    IceImport.load("omero_cmd_Mail_ice")
     import omero_sys_ParametersI
     import omero_model_PermissionsI

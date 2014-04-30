@@ -25,7 +25,6 @@ import ome.services.delete.Deletion;
 import ome.system.OmeroContext;
 import ome.system.Roles;
 import ome.tools.hibernate.ExtendedMetadata;
-import omero.cmd.admin.SendEmailRequestI;
 import omero.cmd.basic.DoAllI;
 import omero.cmd.basic.ListRequestsI;
 import omero.cmd.basic.TimingI;
@@ -37,6 +36,7 @@ import omero.cmd.graphs.ChownI;
 import omero.cmd.graphs.DeleteI;
 import omero.cmd.graphs.DiskUsageI;
 import omero.cmd.graphs.GraphSpecListI;
+import omero.cmd.mail.SendEmailRequestI;
 
 /**
  * SPI type picked up from the Spring configuration and given a chance to

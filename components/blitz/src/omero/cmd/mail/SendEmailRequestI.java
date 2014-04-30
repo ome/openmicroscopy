@@ -5,31 +5,33 @@
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
-package omero.cmd.admin;
+package omero.cmd.mail;
 
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.mail.javamail.MimeMessagePreparator;
 
+import ome.api.IQuery;
+import ome.parameters.Parameters;
 import omero.cmd.HandleI.Cancel;
 import omero.cmd.Helper;
 import omero.cmd.IRequest;
 import omero.cmd.Response;
 import omero.cmd.SendEmailRequest;
 import omero.cmd.SendEmailResponse;
-import omero.model.Experimenter;
-
+import ome.model.meta.Experimenter;
+import ome.model.meta.ExperimenterGroup;
 
 
 /**
@@ -50,13 +52,11 @@ public class SendEmailRequestI extends SendEmailRequest implements
 	protected final JavaMailSender mailSender;
     
 	private Helper helper;
-
-
+	
+	
 	public SendEmailRequestI(JavaMailSender mailSender) {
 		this.mailSender = mailSender;
 	}
-    
-	
 	
 	//
 	// CMD API
@@ -75,7 +75,7 @@ public class SendEmailRequestI extends SendEmailRequest implements
 
 	public Object step(int step) {
 		helper.assertStep(step);
-		sendEmail();
+		sendEmail(parseReceipients());
 		return null;
 	}
 
@@ -95,16 +95,35 @@ public class SendEmailRequestI extends SendEmailRequest implements
 		return helper.getResponse();
 	}
 	
-	private void sendEmail() {
-		for (final Experimenter u : users) {
-			if (u.getEmail() != null) {
+	private Set<String> parseReceipients(){
+		
+		IQuery iquery = helper.getServiceFactory().getQueryService();
+		List<Experimenter> exps =  iquery.findAllByQuery(
+				"select distinct e from Experimenter e "
+				+ "left outer join fetch e.groupExperimenterMap m "
+                + "left outer join fetch m.parent g where g.id in (:gids) or e.id in (:eids)",
+				new Parameters().addSet("gids", new HashSet<Long>(groupIds))
+							.addSet("eids", new HashSet<Long>(userIds)));
+		
+		Set<String> receipients = new HashSet<String>();
+		for (final Experimenter e : exps) {
+			if (e.getEmail() != null) {
+				receipients.add(e.getEmail());
+			}
+		}		
+		return receipients;
+	}
+	
+	private void sendEmail(Set<String> receipiest) {
+		for (final String r : receipiest) {
+			if (r != null) {
 				MimeMessagePreparator preparator = new MimeMessagePreparator() {
 					public void prepare(MimeMessage mimeMessage) throws Exception {
 						MimeMessageHelper message = new MimeMessageHelper(mimeMessage);
 						message.setFrom(new InternetAddress(
 								helper.getServiceFactory().getConfigService().getConfigValue("omero.mail.from")));
 						message.setSubject(subject);
-						message.setTo(u.getEmail().getValue());
+						message.setTo(r);
 						message.setText(body, true);
 					}
 				};
