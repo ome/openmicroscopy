@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.util.ui.search.SearchPanel 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -730,7 +730,7 @@ public class SearchPanel
 				n = nodes.get(i);
 				box = new JCheckBox(n.getDescription());
 				box.setBackground(UIUtilities.BACKGROUND_COLOR);
-				if (i == 0) box.setSelected(true);
+				if (i < 2) box.setSelected(true); // select NAME and ID by default 
 				if (i%2 == 0) c.gridy++;
 				
 				p.add(box, c);

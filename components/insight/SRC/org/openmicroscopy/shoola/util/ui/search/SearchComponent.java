@@ -112,6 +112,9 @@ public class SearchComponent
 	/** Identifies the text for searching for time. */
 	public static final String		NAME_CUSTOMIZED = "Custom"; 
 	
+        /** Identifies the text for searching for ID. */
+        public static final String              NAME_ID = "ID"; 
+	
 	/** Identifies the text to filter by ROIs. */
         public static final String              HAS_ROIS_TEXT = "Has ROIs";
         
@@ -309,7 +312,10 @@ public class SearchComponent
 	private void setDefaultContext()
 	{
 		nodes = new ArrayList<SearchObject>();
-    	SearchObject node = new SearchObject(SearchContext.NAME, 
+		
+	SearchObject node = new SearchObject(SearchContext.ID, null, NAME_ID);
+	nodes.add(node);
+    	node = new SearchObject(SearchContext.NAME, 
 				null, NAME_TEXT);
     	nodes.add(node);
     	node = new SearchObject(SearchContext.DESCRIPTION, 
