@@ -340,14 +340,50 @@ DEFAULT CONSTRUCTOR BLOCK:
 [$cpp]       }
 
 Python combines the two constructors. See below for a comparison.
-[$pyc]       def __init__(self, id = None, loaded = True):
+[$pyc]       def __init__(self, id=None, loaded=True, proxy_string=None):
 [$pyc]           super(${Pojo}I, self).__init__()
+[$pyc]           if proxy_string != None:
+[$pyc]               parts = proxy_string.split(":")
+[$pyc]               if len(parts) != 2:
+[$pyc]                   raise Exception("Invalid proxy string: %s", proxy_string)
+[$pyc]               if parts[0] != self.__class__.__name__:
+[$pyc]                   raise Exception("Proxy class mismatch: %s<>%s" %
+[$pyc]                   self.__class__.__name__, parts[0])
+[$pyc]               self._id = rlong(parts[1])
 [$pyc]           # Relying on omero.rtypes.rlong's error-handling
 [$pyc]           self._id = rlong(id)
 [$pyc]           self._loaded = loaded
 [$pyc]           if self._loaded:
 [$pyc]              self._details = _omero_model.DetailsI()
 [$pyc]              self._toggleCollectionsLoaded(True)
+#foreach($property in $type.propertyClosure)#############
+#set( $javaType = $property.type )
+#set( $shortType = $type.unqualify($javaType) )
+#if( $javaType.startsWith("ome"))
+[$pyc]           try:
+[$pyc]               self._${property.name}_wrapper = omero.model.${shortType}I
+[$pyc]           except:
+[$pyc]               self._${property.name}_wrapper = None  # Likely an abstract type
+#elseif( $javaType.startsWith("java.lang.Boolean"))
+[$pyc]           self._${property.name}_wrapper = omero.rtypes.rbool
+#elseif( $javaType.startsWith("java.lang.Integer"))
+[$pyc]           self._${property.name}_wrapper = omero.rtypes.rint
+#elseif( $javaType.startsWith("java.lang.Long"))
+[$pyc]           self._${property.name}_wrapper = omero.rtypes.rlong
+#elseif( $javaType.startsWith("java.lang.Double"))
+[$pyc]           self._${property.name}_wrapper = omero.rtypes.rdouble
+#elseif( $javaType.startsWith("java.lang.Float"))
+[$pyc]           self._${property.name}_wrapper = omero.rtypes.rfloat
+#elseif( $javaType.startsWith("long")) ## for Permissions
+[$pyc]           self._${property.name}_wrapper = long
+#elseif( $javaType.startsWith("java.sql.Timestamp"))
+[$pyc]           self._${property.name}_wrapper = omero.rtypes.rtime
+#elseif( $javaType.startsWith("java.lang.String"))
+[$pyc]           self._${property.name}_wrapper = omero.rtypes.rstring
+#else
+[$pyc]           self._${property.name}_wrapper = None
+#end
+#end
 [$pyc]
 
 ICE CLASS BLOCK:
@@ -1093,8 +1129,11 @@ It's unclear if these methods are useful at all, but for the moment lowering the
 [$pyc]           self.errorIfUnloaded()
 [$pyc]           return self._${fieldName}
 [$pyc]
-[$pyc]       def ${pyaccess}set${PropertyName}(self, _${property.name}, $PYC_CURRENT):
+[$pyc]       def ${pyaccess}set${PropertyName}(self, _${property.name}, $PYC_CURRENT, wrap=False):
 [$pyc]           self.errorIfUnloaded()
+[$pyc]           if wrap and self._${fieldName}_wrapper is not None:
+[$pyc]               if _${property.name} is not None:
+[$pyc]                   _${property.name} = self._${fieldName}_wrapper(_${property.name})
 [$pyc]           self._${fieldName} = _${property.name}
 [$pyc]           $unloadedPython
 [$pyc]
@@ -1556,10 +1595,13 @@ super class where the property was defined.
 [$pyc]           if not self._${propLoaded}: self.throwNullCollectionException("${fieldName}")
 [$pyc]           return self._${fieldName}[index]
 [$pyc]
-[$pyc]       def set${property.shortType}(self, index, element, $PYC_CURRENT):
+[$pyc]       def set${property.shortType}(self, index, element, $PYC_CURRENT, wrap=False):
 [$pyc]           self.errorIfUnloaded()
 [$pyc]           if not self._${propLoaded}: self.throwNullCollectionException("${fieldName}")
 [$pyc]           old = self._${fieldName}[index]
+[$pyc]           if wrap and self._${fieldName}_wrapper is not None:
+[$pyc]               if element is not None:
+[$pyc]                   element = self._${fieldName}_wrapper(_${property.name})
 [$pyc]           self._${fieldName}[index] =  element
 [$pyc]           if element is not None and element.isLoaded():
 [$pyc]               element.set${property.inverseCapped}( self )
@@ -1992,6 +2034,8 @@ MISCELLANEOUS METHODS BLOCK:
 [$pyc]           """
 [$pyc]           Reroutes all access to object.field through object.getField() or object.isField()
 [$pyc]           """
+[$pyc]           if "_" in name:  # Ice disallows underscores, so these should be treated normally.
+[$pyc]               return object.__getattribute__(self, name)
 [$pyc]           field  = "_" + name
 [$pyc]           capitalized = name[0].capitalize() + name[1:]
 [$pyc]           getter = "get" + capitalized
