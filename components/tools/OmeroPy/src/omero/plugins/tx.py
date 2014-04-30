@@ -61,17 +61,22 @@ class NewObjectTxAction(TxAction):
         import omero.all
         try:
             kls = getattr(omero.model, self.class_name())
+            return kls()
         except AttributeError:
             ctx.die(102, "No class named '%s'" % self.class_name())
 
     def go(self, ctx, args):
+        c = ctx.conn(args)
+        up = c.sf.getUpdateService()
         obj = self.instance(ctx)
         for arg in self.arg_list[1:]:
             parts = arg.split("=", 1)
             argname = parts[0]
             value = parts[1]
             setattr(obj, argname, value)
-            print obj
+        out = up.saveAndReturnObject(obj)
+        self.ctx.out("Created %s:id=%s" % (out.__class__.__name__, out.id.val))
+        self.ctx.get("tx.out").append(out.proxy())
 
 
 class TxState(object):
@@ -94,6 +99,7 @@ class TxControl(BaseControl):
 
         self.exc = ExceptionHandler()
         parser.add_login_arguments()
+        parser.add_argument("-f", "--file")
         parser.add_argument(
             "item",
             nargs="*",
@@ -101,16 +107,20 @@ class TxControl(BaseControl):
         parser.set_defaults(func=self.process)
 
     def process(self, args):
+        self.ctx.set("tx.out", [])
         state = TxState()
         actions = []
         if len(args.item) == 0:
-            for line in fileinput.input(["-"]):
+            path = "-"
+            if args.file:
+                path = args.file
+            for line in fileinput.input([path]):
                 line = line.strip()
                 if line and not line.startswith("#"):
                     actions.append(self.parse(state, shlex.split(line)))
-        elif len(args.item) == 1:
-            raise Exception("likely stdin '-'")
         else:
+            if args.file:
+                self.ctx.err("Ignoring %s" % args.file)
             actions.append(self.parse(state, args.item))
 
         for action in actions:
