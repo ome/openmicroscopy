@@ -23,7 +23,9 @@ from omero_model_GroupExperimenterMapI import GroupExperimenterMapI
 from omero_model_DatasetImageLinkI import DatasetImageLinkI
 from omero_model_ScriptJobI import ScriptJobI
 from omero_model_DetailsI import DetailsI
-from omero.rtypes import rlong, rstring
+from omero.rtypes import rlong
+from omero.rtypes import rstring
+from omero.rtypes import rtime
 
 
 class TestModel(object):
@@ -268,3 +270,27 @@ class TestModel(object):
         old = pixels.setChannel(0, channels[1])
         assert old == channels[0]
         assert 1 == pixels.sizeOfChannels()
+
+    def testWrappers(self):
+        image = ImageI()
+        assert image._name_wrapper == rstring
+        assert image._acquisitionDate_wrapper == rtime
+
+        image.setAcquisitionDate("1", wrap=True)
+        assert type(image.acquisitionDate) == type(rtime(0))
+
+        # The following causes pytest to fail!
+        # image.setAcquisitionDate("", wrap=True)
+
+        # Note: collections still don't work well
+        if False:
+            image.addPixels(PixelsI())
+            image.setPixels(0, "Pixels:1", wrap=True)
+            assert type(image.pixels) == omero.model.PixelsI
+
+            image.setPixels(0, "Pixels", wrap=True)
+            image.setPixels(0, "Unknown", wrap=True)
+
+        link = DatasetImageLinkI()
+        link.setParent("Dataset:1")
+        link.setChild("Image:1")
