@@ -54,7 +54,10 @@ class TxAction(object):
 class NewObjectTxAction(TxAction):
 
     def class_name(self):
-        return "%sI" % self.arg_list[0]
+        kls = self.arg_list[0]
+        if not kls.endswith("I"):
+            kls = "%sI" % kls
+        return kls
 
     def instance(self, ctx):
         import omero
@@ -69,14 +72,22 @@ class NewObjectTxAction(TxAction):
         c = ctx.conn(args)
         up = c.sf.getUpdateService()
         obj = self.instance(ctx)
+        kls = obj.__class__.__name__
+        if kls.endswith("I"):
+            kls = kls[0:-1]
         for arg in self.arg_list[1:]:
             parts = arg.split("=", 1)
             argname = parts[0]
+            capitalized = argname[0].upper() + argname[1:]
+            setter = "set%s" % capitalized
             value = parts[1]
-            setattr(obj, argname, value)
+            try:
+                getattr(obj, setter)(value, wrap=True)
+            except AttributeError:
+                ctx.die(500, "No field %s for %s" % (argname, kls))
         out = up.saveAndReturnObject(obj)
-        self.ctx.out("Created %s:id=%s" % (out.__class__.__name__, out.id.val))
-        self.ctx.get("tx.out").append(out.proxy())
+        ctx.out("Created %s:%s" % (kls, out.id.val))
+        ctx.get("tx.out").append(out.proxy())
 
 
 class TxState(object):
@@ -91,8 +102,16 @@ class TxState(object):
 
 
 class TxControl(BaseControl):
-    """
-    Transactional modification command
+    """Object manipulation tool
+
+Examples:
+
+omero tx new Dataset name=foo
+
+omero tx << EOF
+new Project name=bar
+new Dataset name=foo
+EOF
     """
 
     def _configure(self, parser):
