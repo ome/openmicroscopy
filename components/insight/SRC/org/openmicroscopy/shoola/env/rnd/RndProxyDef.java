@@ -33,6 +33,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import omero.model.RenderingDef;
+
 //Third-party libraries
 
 //Application-internal dependencies
@@ -89,21 +91,17 @@ public class RndProxyDef
     /** The name associated to the rendering settings. */
     private String name;
 
-    /** The identifier of the rendering settings.*/
-    private long id;
+    /** The original object.*/
+    private RenderingDef data;
 
-    /** The owner's identifier of the rendering settings.*/
-    private long ownerID;
-
-    /** Creates a new instance.
-     * 
-     * @param id The identifier of the rendering settings.
-     * @param ownerID The owner's identifier of the rendering settings.
+    /**
+     * Creates a new instance.
+     *
+     * @param data The original object
      * */
-    RndProxyDef(long id, long ownerID)
+    RndProxyDef(RenderingDef data)
     {
-        this.id = id;
-        this.ownerID = ownerID;
+        this.data = data;
         compression = 1.0;
         channels = new HashMap<Integer, ChannelBindingsProxy>();
         name = "";
@@ -275,7 +273,7 @@ public class RndProxyDef
      */
     RndProxyDef copy()
     {
-        RndProxyDef copy = new RndProxyDef(this.id, this.ownerID);
+        RndProxyDef copy = new RndProxyDef(this.data);
         copy.setLastModified(this.getLastModified());
         copy.setCompression(this.getCompression());
         copy.setTypeSigned(this.isTypeSigned());
@@ -333,6 +331,16 @@ public class RndProxyDef
      *
      * @return See above.
      */
-    public long getOwnerID() { return ownerID; }
+    public long getOwnerID()
+    {
+        return data.getDetails().getOwner().getId().getValue();
+    }
+
+    /**
+     * Returns the data hosted by this class.
+     *
+     * @return See above.
+     */
+    RenderingDef getData() { return data; }
 
 }
