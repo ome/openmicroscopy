@@ -316,7 +316,7 @@ public class ThumbnailCtx
     public void loadAndPrepareMetadata(Set<Long> pixelsIds,
                                        Dimension dimensions)
     {
-        loadAndPrepareMetadata(pixelsIds, dimensions);
+        loadAndPrepareMetadata(pixelsIds, dimensions, true);
     }
 
     /**
