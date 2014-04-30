@@ -242,12 +242,12 @@ public class OMEROMetadataStoreClient
 
     /** Our LSID reference cache. */
     private Map<LSID, List<LSID>> referenceCache =
-	new HashMap<LSID, List<LSID>>();
+        new HashMap<LSID, List<LSID>>();
 
     /** Our authoritative LSID container cache. */
     private Map<Class<? extends IObject>, Map<String, IObjectContainer>>
-	authoritativeContainerCache =
-		new HashMap<Class<? extends IObject>, Map<String, IObjectContainer>>();
+        authoritativeContainerCache =
+            new HashMap<Class<? extends IObject>, Map<String, IObjectContainer>>();
 
     /**
      * Our string based reference cache. This will be populated after all
@@ -311,16 +311,16 @@ public class OMEROMetadataStoreClient
     /** Image channel minimums and maximums. */
     private double[][][] imageChannelGlobalMinMax;
 
-	/** Executor that will run our keep alive task. */
+    /** Executor that will run our keep alive task. */
     private ScheduledThreadPoolExecutor executor;
 
     /** Emission filter LSID suffix. */
     public static final String OMERO_EMISSION_FILTER_SUFFIX =
-	":OMERO_EMISSION_FILTER";
+        ":OMERO_EMISSION_FILTER";
 
     /** Excitation filter LSID suffix. */
     public static final String OMERO_EXCITATION_FILTER_SUFFIX =
-	":OMERO_EXCITATION_FILTER";
+        ":OMERO_EXCITATION_FILTER";
 
     /** Original metadata text file key */
     private static final String ORIGINAL_METADATA_KEY =
@@ -345,8 +345,8 @@ public class OMEROMetadataStoreClient
      * @return current ClientKeepAlive
      */
     public ClientKeepAlive getKeepAlive() {
-		return keepAlive;
-	}
+        return keepAlive;
+    }
 
     private void resetPixelsId(Long pixId) throws ServerError
     {
@@ -358,18 +358,18 @@ public class OMEROMetadataStoreClient
     }
 
     public void logVersionInfo(String clientVersion) throws ServerError {
-    	if (serviceFactory != null)
-    		log.info("Server: " + serviceFactory.getConfigService().getVersion());
-    	else
-    		log.info("Unknown server version (no service factory)");
-    	if (clientVersion != null)
-    		log.info("Client: " + clientVersion);
-    	else
-    		log.info("Unknown client version (null sent)");
-        log.info("Java Version: " + System.getProperty("java.version"));
-        log.info("OS Name: " + System.getProperty("os.name"));
-        log.info("OS Arch: " + System.getProperty("os.arch"));
-        log.info("OS Version: " + System.getProperty("os.version"));
+        if (serviceFactory != null)
+            log.info("Server: " + serviceFactory.getConfigService().getVersion());
+        else
+            log.info("Unknown server version (no service factory)");
+        if (clientVersion != null)
+            log.info("Client: " + clientVersion);
+        else
+            log.info("Unknown client version (null sent)");
+            log.info("Java Version: " + System.getProperty("java.version"));
+            log.info("OS Name: " + System.getProperty("os.name"));
+            log.info("OS Arch: " + System.getProperty("os.arch"));
+            log.info("OS Version: " + System.getProperty("os.version"));
     }
 
     /**
@@ -483,29 +483,29 @@ public class OMEROMetadataStoreClient
     }
 
 
-	public void setEncryptedConnection(boolean encryptedConnection) {
-		this.encryptedConnection = encryptedConnection;
-	}
+    public void setEncryptedConnection(boolean encryptedConnection) {
+        this.encryptedConnection = encryptedConnection;
+    }
 
-	public boolean isEncryptedConnection() {
-		return encryptedConnection;
-	}
+    public boolean isEncryptedConnection() {
+        return encryptedConnection;
+    }
 
-	/**
-	 * Sets the id which will be used by {@link #initializeServices(boolean)}
-	 * to set the call context for all services. If null, the call context
-	 * will be left which will then use the context of the session.
-	 *
-	 * @param groupID
-	 * @return
-	 */
-	public Long setGroup(Long groupID) {
-	    Long old = this.groupID;
-	    this.groupID = groupID;
-	    return old;
-	}
+    /**
+     * Sets the id which will be used by {@link #initializeServices(boolean)}
+     * to set the call context for all services. If null, the call context
+     * will be left which will then use the context of the session.
+     *
+     * @param groupID
+     * @return
+     */
+    public Long setGroup(Long groupID) {
+        Long old = this.groupID;
+        this.groupID = groupID;
+        return old;
+    }
 
-	/**
+    /**
      * Initializes the MetadataStore with an already logged in, ready to go
      * service factory. When finished with this instance, close stateful
      * services via {@link #closeServices()}.
@@ -557,7 +557,7 @@ public class OMEROMetadataStoreClient
                            String server, int port)
         throws CannotCreateSessionException, PermissionDeniedException, ServerError
     {
-	// Always make this an unsecure session
+    // Always make this an unsecure session
         initialize(username, password, server, port, false);
     }
 
@@ -579,18 +579,18 @@ public class OMEROMetadataStoreClient
      * @throws ServerError If there is a critical error communicating with the
      * server.
      */
-	public void initialize(String username, String password,
+    public void initialize(String username, String password,
             String server, int port, boolean isSecure)
-	throws CannotCreateSessionException, PermissionDeniedException, ServerError
-	{
+    throws CannotCreateSessionException, PermissionDeniedException, ServerError
+    {
         secure(server, port);
         c.createSession(username, password);
-	if (!isSecure)
-	{
-	    unsecure();
-	}
+    if (!isSecure)
+    {
+        unsecure();
+    }
         initializeServices(true);
-	}
+    }
 
     /**
      * Initializes the MetadataStore taking string parameters to feed to the
@@ -612,19 +612,19 @@ public class OMEROMetadataStoreClient
      * @throws ServerError If there is a critical error communicating with the
      * server.
      */
-	public void initialize(String username, String password,
+    public void initialize(String username, String password,
             String server, int port, Long group, boolean isSecure)
-	throws CannotCreateSessionException, PermissionDeniedException, ServerError
-	{
+    throws CannotCreateSessionException, PermissionDeniedException, ServerError
+    {
         secure(server, port);
         serviceFactory = c.createSession(username, password);
-	if (!isSecure)
-	{
-	    unsecure();
-	}
-	    setGroup(group);
+    if (!isSecure)
+    {
+        unsecure();
+    }
+        setGroup(group);
         initializeServices(true);
-	}
+    }
 
     /**
      * Initializes the MetadataStore by joining an existing session.
@@ -638,7 +638,7 @@ public class OMEROMetadataStoreClient
     public void initialize(String server, int port, String sessionKey)
         throws CannotCreateSessionException, PermissionDeniedException, ServerError
     {
-	// Always make this an 'unsecure' session
+    // Always make this an 'unsecure' session
         initialize(server, port, sessionKey, false);
     }
 
@@ -656,10 +656,10 @@ public class OMEROMetadataStoreClient
     {
         secure(server, port);
         serviceFactory = c.joinSession(sessionKey);
-	if (!isSecure)
-	{
+    if (!isSecure)
+    {
             unsecure();
-	}
+    }
         initializeServices(true);
     }
 
@@ -706,7 +706,7 @@ public class OMEROMetadataStoreClient
      */
     public ServiceFactoryPrx getServiceFactory()
     {
-	return serviceFactory;
+        return serviceFactory;
     }
 
     /**
@@ -717,12 +717,12 @@ public class OMEROMetadataStoreClient
     {
         try {
             serviceFactory.keepAllAlive(new ServiceInterfacePrx[]
-                    {iQuery, iAdmin, rawFileStore, rawPixelStore, thumbnailStore,
-			 iRepoInfo, iContainer, iUpdate, iSettings, delegate});
+                {iQuery, iAdmin, rawFileStore, rawPixelStore, thumbnailStore,
+                iRepoInfo, iContainer, iUpdate, iSettings, delegate});
             log.debug("KeepAlive ping.");
 
         } catch (Exception e) {
-		log.debug("KeepAlive failed.");
+            log.debug("KeepAlive failed.");
             throw new RuntimeException(e);
         }
     }
@@ -1125,7 +1125,7 @@ public class OMEROMetadataStoreClient
             log.debug("Creating root!");
             initializeServices(false); // Reset group
             authoritativeContainerCache =
-		new HashMap<Class<? extends IObject>, Map<String, IObjectContainer>>();
+                new HashMap<Class<? extends IObject>, Map<String, IObjectContainer>>();
             containerCache =
                 new TreeMap<LSID, IObjectContainer>(new OMEXMLModelComparator());
             referenceCache = new HashMap<LSID, List<LSID>>();
@@ -1177,19 +1177,19 @@ public class OMEROMetadataStoreClient
      */
     private void checkDuplicateLSID(Class<? extends IObject> klass, String lsid)
     {
-	if (log.isTraceEnabled())
-	{
-		List<IObjectContainer> containers = getIObjectContainers(klass);
-		for (IObjectContainer container : containers)
-		{
-			if (container.LSID.equals(lsid))
-			{
-				log.trace(String.format("Duplicate LSID %s exists in %s,%s",
-						lsid, container.sourceObject, container.LSID));
-					return;
-			}
-		}
-	}
+        if (log.isTraceEnabled())
+        {
+            List<IObjectContainer> containers = getIObjectContainers(klass);
+            for (IObjectContainer container : containers)
+            {
+                if (container.LSID.equals(lsid))
+                {
+                    log.trace(String.format("Duplicate LSID %s exists in %s,%s",
+                            lsid, container.sourceObject, container.LSID));
+                        return;
+                }
+            }
+        }
     }
 
     /* (non-Javadoc)
@@ -1229,7 +1229,7 @@ public class OMEROMetadataStoreClient
      */
     public List<Annotation> getUserSpecifiedAnnotations()
     {
-	return userSpecifiedAnnotations;
+        return userSpecifiedAnnotations;
     }
 
     /* (non-Javadoc)
@@ -1237,7 +1237,7 @@ public class OMEROMetadataStoreClient
      */
     public void setUserSpecifiedAnnotations(List<Annotation> annotations)
     {
-	this.userSpecifiedAnnotations = annotations;
+        this.userSpecifiedAnnotations = annotations;
     }
 
     /* (non-Javadoc)
@@ -1381,9 +1381,9 @@ public class OMEROMetadataStoreClient
      * @see ome.formats.model.IObjectContainerStore#getAuthoritativeContainerCache()
      */
     public Map<Class<? extends IObject>, Map<String, IObjectContainer>>
-	getAuthoritativeContainerCache()
+        getAuthoritativeContainerCache()
     {
-	return authoritativeContainerCache;
+        return authoritativeContainerCache;
     }
 
     /**
@@ -1393,17 +1393,17 @@ public class OMEROMetadataStoreClient
      * @param container Container to add.
      */
     private void addAuthoritativeContainer(Class<? extends IObject> klass,
-		                               String lsid,
-		                               IObjectContainer container)
+        String lsid,
+        IObjectContainer container)
     {
-	Map<String, IObjectContainer> lsidContainerMap =
-		authoritativeContainerCache.get(klass);
-	if (lsidContainerMap == null)
-	{
-		lsidContainerMap = new HashMap<String, IObjectContainer>();
-		authoritativeContainerCache.put(klass, lsidContainerMap);
-	}
-	lsidContainerMap.put(lsid, container);
+      Map<String, IObjectContainer> lsidContainerMap =
+          authoritativeContainerCache.get(klass);
+      if (lsidContainerMap == null)
+      {
+          lsidContainerMap = new HashMap<String, IObjectContainer>();
+          authoritativeContainerCache.put(klass, lsidContainerMap);
+      }
+      lsidContainerMap.put(lsid, container);
     }
 
     /**
@@ -1413,20 +1413,20 @@ public class OMEROMetadataStoreClient
      */
     public void addReference(LSID source, LSID target)
     {
-	List<LSID> targets = null;
-	if (referenceCache.containsKey(source))
-	{
-		targets = referenceCache.get(source);
-	}
-	else
-	{
-		targets = new ArrayList<LSID>();
-		referenceCache.put(source, targets);
-	}
-	if (!targets.contains(target))
-	{
-	    targets.add(target);
-	}
+        List<LSID> targets = null;
+        if (referenceCache.containsKey(source))
+        {
+            targets = referenceCache.get(source);
+        }
+        else
+        {
+            targets = new ArrayList<LSID>();
+            referenceCache.put(source, targets);
+        }
+        if (!targets.contains(target))
+        {
+            targets.add(target);
+        }
     }
 
     /* (non-Javadoc)
@@ -1543,163 +1543,163 @@ public class OMEROMetadataStoreClient
         }
     }
 
-	/**
-	 * Changes the default group of the currently logged in user.
-	 *
-	 * @param groupID The id of the group.
-	 * @throws Exception If an error occurred while trying to
-	 * retrieve data from OMERO service.
-	 */
-	public void setCurrentGroup(long groupID)
-		throws ServerError
-	{
-	    setGroup(groupID);
-	    initializeServices(false);
-	}
+    /**
+     * Changes the default group of the currently logged in user.
+     *
+     * @param groupID The id of the group.
+     * @throws Exception If an error occurred while trying to
+     * retrieve data from OMERO service.
+     */
+    public void setCurrentGroup(long groupID)
+        throws ServerError
+    {
+        setGroup(groupID);
+        initializeServices(false);
+    }
 
-	/**
-	 * Retrieves the groups visible by the current experimenter.
-	 *
-	 * @return List of ExperimenterGroups the user is in
-	 * @throws Exception If an error occurred while trying to
-	 * retrieve data from OMERO service.
-	 */
-	List<ExperimenterGroup> getUserGroups()
-		throws ServerError
-	{
-		List<ExperimenterGroup> myGroups = new ArrayList<ExperimenterGroup>();
-			//Need method server side.
-			ParametersI p = new ParametersI();
-			p.addId(eventContext.userId);
-			List<IObject> groups = iQuery.findAllByQuery(
-                    "select distinct g from ExperimenterGroup as g "
-                    + "join fetch g.groupExperimenterMap as map "
-                    + "join fetch map.parent e "
-                    + "left outer join fetch map.child u "
-                    + "left outer join fetch u.groupExperimenterMap m2 "
-                    + "left outer join fetch m2.parent p "
-                    + "where g.id in "
-                    + "  (select m.parent from GroupExperimenterMap m "
-                    + "  where m.child.id = :id )", p);
+    /**
+     * Retrieves the groups visible by the current experimenter.
+     *
+     * @return List of ExperimenterGroups the user is in
+     * @throws Exception If an error occurred while trying to
+     * retrieve data from OMERO service.
+     */
+    List<ExperimenterGroup> getUserGroups()
+        throws ServerError
+    {
+        List<ExperimenterGroup> myGroups = new ArrayList<ExperimenterGroup>();
+        //Need method server side.
+        ParametersI p = new ParametersI();
+        p.addId(eventContext.userId);
+        List<IObject> groups = iQuery.findAllByQuery(
+            "select distinct g from ExperimenterGroup as g "
+            + "join fetch g.groupExperimenterMap as map "
+            + "join fetch map.parent e "
+            + "left outer join fetch map.child u "
+            + "left outer join fetch u.groupExperimenterMap m2 "
+            + "left outer join fetch m2.parent p "
+            + "where g.id in "
+            + "  (select m.parent from GroupExperimenterMap m "
+            + "  where m.child.id = :id )", p);
 
-			ExperimenterGroup group;
-			Iterator<IObject> i = groups.iterator();
-			while (i.hasNext()) {
-				group = (ExperimenterGroup) i.next();
-				myGroups.add(group);
-			}
-		return myGroups;
-	}
+        ExperimenterGroup group;
+        Iterator<IObject> i = groups.iterator();
+        while (i.hasNext()) {
+            group = (ExperimenterGroup) i.next();
+            myGroups.add(group);
+        }
+        return myGroups;
+    }
 
-	/**
-	 * Maps the user's groups for use by ScreenLogin.registerGroup()
-	 * Also strips system groups from this map
-	 *
-	 * @return map of group id & name
-	 * @throws ServerError
-	 */
-	public Map<Long, String> mapUserGroups() throws ServerError
-	{
-		List<String> systemGroups = new ArrayList<String>();
-		systemGroups.add("system");
-		systemGroups.add("user");
-		systemGroups.add("guest");
+    /**
+     * Maps the user's groups for use by ScreenLogin.registerGroup()
+     * Also strips system groups from this map
+     *
+     * @return map of group id & name
+     * @throws ServerError
+     */
+    public Map<Long, String> mapUserGroups() throws ServerError
+    {
+        List<String> systemGroups = new ArrayList<String>();
+        systemGroups.add("system");
+        systemGroups.add("user");
+        systemGroups.add("guest");
 
-		Map<Long, String> names = new LinkedHashMap<Long, String>();
+        Map<Long, String> names = new LinkedHashMap<Long, String>();
 
-		List<ExperimenterGroup> groups = getUserGroups();
+        List<ExperimenterGroup> groups = getUserGroups();
 
-		if (groups == null || groups.size() == 0)
-			return null;
+        if (groups == null || groups.size() == 0)
+            return null;
 
-		ExperimenterGroup currentDefaultGroup =
-			iAdmin.getDefaultGroup(eventContext.userId);
+        ExperimenterGroup currentDefaultGroup =
+            iAdmin.getDefaultGroup(eventContext.userId);
 
-		Iterator<ExperimenterGroup> i = groups.iterator();
-		ExperimenterGroup group = null;
+        Iterator<ExperimenterGroup> i = groups.iterator();
+        ExperimenterGroup group = null;
 
-		// Add all groups excluding the default group
-		while (i.hasNext()) {
-			group = i.next();
+        // Add all groups excluding the default group
+        while (i.hasNext()) {
+            group = i.next();
 
-			String n = group.getName() == null ? null : group.getName().getValue();
+            String n = group.getName() == null ? null : group.getName().getValue();
 
-			if (!systemGroups.contains(n) && group.getId().getValue() != currentDefaultGroup.getId().getValue()) {
-				names.put(group.getId().getValue(), group.getName().getValue());
-			}
-		}
+            if (!systemGroups.contains(n) && group.getId().getValue() != currentDefaultGroup.getId().getValue()) {
+                names.put(group.getId().getValue(), group.getName().getValue());
+            }
+        }
 
-		String dn = currentDefaultGroup.getName() == null ? null
-				: currentDefaultGroup.getName().getValue();
+        String dn = currentDefaultGroup.getName() == null ? null
+            : currentDefaultGroup.getName().getValue();
 
-		// Add the default group last (unless its a system group)
-		if (!systemGroups.contains(dn))
-			names.put(currentDefaultGroup.getId().getValue(),
-					currentDefaultGroup.getName().getValue());
+        // Add the default group last (unless its a system group)
+        if (!systemGroups.contains(dn))
+            names.put(currentDefaultGroup.getId().getValue(),
+            currentDefaultGroup.getName().getValue());
 
-		if (names.size() == 0) names = null;
-		return names;
-	}
+        if (names.size() == 0) names = null;
+        return names;
+    }
 
-	/**
-	 * Retrieve the default group's name
-	 *
-	 * @return name
-	 * @throws ServerError
-	 */
-	public String getDefaultGroupName() throws ServerError
-	{
-		ExperimenterGroup currentDefaultGroup =
-			iAdmin.getDefaultGroup(eventContext.userId);
+    /**
+     * Retrieve the default group's name
+     *
+     * @return name
+     * @throws ServerError
+     */
+    public String getDefaultGroupName() throws ServerError
+    {
+        ExperimenterGroup currentDefaultGroup =
+            iAdmin.getDefaultGroup(eventContext.userId);
 
-		String dn = currentDefaultGroup.getName() == null ? ""
-				: currentDefaultGroup.getName().getValue();
+        String dn = currentDefaultGroup.getName() == null ? ""
+            : currentDefaultGroup.getName().getValue();
 
-		return dn;
-	}
+        return dn;
+    }
 
-	/**
-	 * Retrieve the default group's permission 'level'.
-	 *
-	 * @return ImportEvent's group level
-	 * @throws ServerError
-	 */
-	public int getDefaultGroupLevel() throws ServerError {
+    /**
+     * Retrieve the default group's permission 'level'.
+     *
+     * @return ImportEvent's group level
+     * @throws ServerError
+     */
+    public int getDefaultGroupLevel() throws ServerError {
 
-		int groupLevel = 0;
+        int groupLevel = 0;
 
-		ExperimenterGroup currentDefaultGroup =
-			iAdmin.getDefaultGroup(eventContext.userId);
+        ExperimenterGroup currentDefaultGroup =
+            iAdmin.getDefaultGroup(eventContext.userId);
 
-		Permissions perm = currentDefaultGroup.getDetails().getPermissions();
+        Permissions perm = currentDefaultGroup.getDetails().getPermissions();
 
-		if (perm.isGroupRead()) {
-			if (perm.isGroupWrite())  groupLevel = ImportEvent.GROUP_COLLAB_READ_LINK;
-			else groupLevel = ImportEvent.GROUP_COLLAB_READ;
-		}
-		else if (perm.isWorldRead()) {
-			if (perm.isWorldWrite())  groupLevel = ImportEvent.GROUP_PUBLIC;
-			else groupLevel = ImportEvent.GROUP_PUBLIC;
-		} else {
-			groupLevel = ImportEvent.GROUP_PRIVATE;
-		}
+        if (perm.isGroupRead()) {
+            if (perm.isGroupWrite())  groupLevel = ImportEvent.GROUP_COLLAB_READ_LINK;
+            else groupLevel = ImportEvent.GROUP_COLLAB_READ;
+        }
+        else if (perm.isWorldRead()) {
+            if (perm.isWorldWrite())  groupLevel = ImportEvent.GROUP_PUBLIC;
+            else groupLevel = ImportEvent.GROUP_PUBLIC;
+        } else {
+            groupLevel = ImportEvent.GROUP_PRIVATE;
+        }
 
-		/* TODO: add private icon
-		//Check if the user is owner of the group.
-		Set leaders = group.getLeaders();
-		if (leaders == null || leaders.size() == 0)
-			return AdminObject.PERMISSIONS_PRIVATE;
-		Iterator j = leaders.iterator();
-		long id = exp.getId();
-		while (j.hasNext()) {
-			exp = (ExperimenterData) j.next();
-			if (exp.getId() == id)
-				return AdminObject.PERMISSIONS_GROUP_READ;
-		}
-		return AdminObject.PERMISSIONS_PRIVATE;
-		*/
-		return groupLevel;
-	}
+        /* TODO: add private icon
+        //Check if the user is owner of the group.
+        Set leaders = group.getLeaders();
+        if (leaders == null || leaders.size() == 0)
+            return AdminObject.PERMISSIONS_PRIVATE;
+        Iterator j = leaders.iterator();
+        long id = exp.getId();
+        while (j.hasNext()) {
+            exp = (ExperimenterData) j.next();
+            if (exp.getId() == id)
+                return AdminObject.PERMISSIONS_GROUP_READ;
+        }
+        return AdminObject.PERMISSIONS_PRIVATE;
+        */
+        return groupLevel;
+    }
 
     /**
      * @return repository space as a long
@@ -1744,7 +1744,7 @@ public class OMEROMetadataStoreClient
 
             if (log.isDebugEnabled())
             {
-		log.debug("Starting containers....");
+                log.debug("Starting containers....");
                 for (LSID key : containerCache.keySet())
                 {
                     String s = String.format("%s == %s,%s",
@@ -1756,18 +1756,18 @@ public class OMEROMetadataStoreClient
                 log.debug("Starting references....");
                 for (String key : referenceStringCache.keySet())
                 {
-			for (String value : referenceStringCache.get(key))
-			{
-				String s = String.format("%s == %s", key, value);
-				log.debug(s);
-			}
+                    for (String value : referenceStringCache.get(key))
+                    {
+                        String s = String.format("%s == %s", key, value);
+                        log.debug(s);
+                    }
                 }
 
                 log.debug("containerCache contains " + containerCache.size()
                           + " entries.");
                 log.debug("referenceCache contains "
-				  + countCachedReferences(null, null)
-                          + " entries.");
+                    + countCachedReferences(null, null)
+                    + " entries.");
             }
 
             delegate.updateObjects(containerArray);
@@ -1866,8 +1866,8 @@ public class OMEROMetadataStoreClient
         if (datasetDescription.length() != 0)
             dataset.setDescription(toRType(datasetDescription));
         if (project.getId() != null) {
-		Project p = new ProjectI(project.getId().getValue(), false);
-		dataset.linkProject(p);
+            Project p = new ProjectI(project.getId().getValue(), false);
+            dataset.linkProject(p);
         }
 
         try
@@ -1900,18 +1900,18 @@ public class OMEROMetadataStoreClient
      */
     private OriginalFile useOriginalFile(
         OriginalFile ofile, LinkedHashMap<Index, Integer> indexes,
-		String formatString)
+        String formatString)
     {
         IObjectContainer ioc = getIObjectContainer(OriginalFile.class, indexes);
-		ofile.setMimetype(toRType(formatString));
+        ofile.setMimetype(toRType(formatString));
         ioc.sourceObject = ofile;
         if (ofile.sizeOfPixelsFileMaps() < 0) { // Required for handleReference
             try {
                 OriginalFile toCopy = (OriginalFile) iQuery.findByQuery
                     ("select o from OriginalFile o " +
-                    		"left outer join fetch o.pixelsFileMaps " +
-                    		"where o.id = :id",
-                    		new ParametersI().addId(ofile.getId().getValue()));
+                        "left outer join fetch o.pixelsFileMaps " +
+                        "where o.id = :id",
+                        new ParametersI().addId(ofile.getId().getValue()));
                 ofile.reloadPixelsFileMaps(toCopy);
                 ofile.getDetails().setUpdateEvent(null); // Optimistic lock
             } catch (ServerError se) {
@@ -1919,7 +1919,7 @@ public class OMEROMetadataStoreClient
             }
 
         }
-		return ofile;
+        return ofile;
     }
 
     /**
@@ -1997,8 +1997,8 @@ public class OMEROMetadataStoreClient
      */
     public List<Dataset> getDatasets(Project p)
     {
-	if (p.getId() == null || p.getId().getValue() == 0)
-		return getDatasetsWithoutProjects();
+        if (p.getId() == null || p.getId().getValue() == 0)
+            return getDatasetsWithoutProjects();
         try
         {
             List<Long> ids = new ArrayList<Long>(1);
@@ -2028,16 +2028,16 @@ public class OMEROMetadataStoreClient
     {
         try
         {
-		ParametersI param = new ParametersI();
-		param.exp(rlong(getExperimenterID()));
-		param.orphan();
+            ParametersI param = new ParametersI();
+            param.exp(rlong(getExperimenterID()));
+            param.orphan();
             List<IObject> objects =
                 iContainer.loadContainerHierarchy(Project.class.getName(), null, param);
             List<Dataset> datasets = new ArrayList<Dataset>(0);
             for (IObject object : objects)
             {
-		if (object instanceof DatasetI)
-			datasets.add((Dataset) object);
+                if (object instanceof DatasetI)
+                    datasets.add((Dataset) object);
             }
             return datasets;
         }
@@ -2264,31 +2264,31 @@ public class OMEROMetadataStoreClient
      * @param pixelsIds Set of Pixels IDs to reset defaults and thumbnails for.
      */
     public void resetDefaultsAndGenerateThumbnails(List<Long> plateIds,
-		                                       List<Long> pixelsIds)
+        List<Long> pixelsIds)
     {
-	try
-	{
-		if (plateIds.size() > 0)
-		{
-			iSettings.resetDefaultsInSet("Plate", plateIds);
-		}
-		else
-		{
-			iSettings.resetDefaultsInSet("Pixels", pixelsIds);
-		}
-		thumbnailStore.createThumbnailsByLongestSideSet(
-				rint(DEFAULT_INSIGHT_THUMBNAIL_LONGEST_SIDE), pixelsIds);
-	}
-	catch (ServerError e)
-	{
-		throw new RuntimeException(e);
-	}
+        try
+        {
+            if (plateIds.size() > 0)
+            {
+                iSettings.resetDefaultsInSet("Plate", plateIds);
+            }
+            else
+            {
+                iSettings.resetDefaultsInSet("Pixels", pixelsIds);
+            }
+            thumbnailStore.createThumbnailsByLongestSideSet(
+                rint(DEFAULT_INSIGHT_THUMBNAIL_LONGEST_SIDE), pixelsIds);
+        }
+        catch (ServerError e)
+        {
+            throw new RuntimeException(e);
+        }
     }
 
 
     /*-------------------*/
 
-	/**
+    /**
      * Based on immmersion table bug in 4.0 this is a hack to fix in code those enums missing/broken
      *
      *  replace l1[0:3] (['Gly', 'Hl', 'Oel']) l2[0:3] (['Air', 'Glycerol', 'Multi'])
@@ -2392,7 +2392,7 @@ public class OMEROMetadataStoreClient
      */
     public void removeIObjectContainer(LSID lsid)
     {
-	containerCache.remove(lsid);
+        containerCache.remove(lsid);
     }
 
     /* (non-Javadoc)
@@ -2445,13 +2445,13 @@ public class OMEROMetadataStoreClient
             {
                 if (indexes == null)
                 {
-			// We're just doing a class match, increment the count
-			count++;
+                    // We're just doing a class match, increment the count
+                    count++;
                 }
                 else
                 {
-			// We're doing a class and index match, loop over and
-			// check the indexes based on the shortest array.
+                    // We're doing a class and index match, loop over and
+                    // check the indexes based on the shortest array.
                     int[] lsidIndexes = lsid.getIndexes();
                     int n = Math.min(indexes.length, lsidIndexes.length);
                     boolean match = true;
@@ -2465,7 +2465,7 @@ public class OMEROMetadataStoreClient
                     }
                     if (match)
                     {
-			count++;
+                        count++;
                     }
                 }
             }
@@ -2481,12 +2481,12 @@ public class OMEROMetadataStoreClient
     {
         if (source == null && target == null)
         {
-		int count = 0;
-		for (LSID key : referenceCache.keySet())
-		{
-			count += referenceCache.get(key).size();
-		}
-		return count;
+            int count = 0;
+            for (LSID key : referenceCache.keySet())
+            {
+                count += referenceCache.get(key).size();
+            }
+            return count;
         }
 
         int count = 0;
@@ -2505,17 +2505,17 @@ public class OMEROMetadataStoreClient
 
         if (source == null)
         {
-		for (LSID sourceLSID : referenceCache.keySet())
-		{
-			for (LSID targetLSID : referenceCache.get(sourceLSID))
-			{
-				Class<?> containerClass = targetLSID.getJavaClass();
-				if (containerClass.equals(target))
-				{
-					count++;
-				}
-			}
-		}
+            for (LSID sourceLSID : referenceCache.keySet())
+            {
+                for (LSID targetLSID : referenceCache.get(sourceLSID))
+                {
+                    Class<?> containerClass = targetLSID.getJavaClass();
+                    if (containerClass.equals(target))
+                    {
+                        count++;
+                    }
+                }
+            }
             return count;
         }
 
@@ -2524,14 +2524,14 @@ public class OMEROMetadataStoreClient
             Class<?> sourceClass = sourceLSID.getJavaClass();
             if (sourceClass.equals(source))
             {
-		for (LSID targetLSID : referenceCache.get(sourceLSID))
-		{
-			Class<?> targetClass = targetLSID.getJavaClass();
-			if (targetClass.equals(target))
-			{
-				count++;
-			}
-		}
+            for (LSID targetLSID : referenceCache.get(sourceLSID))
+                {
+                    Class<?> targetClass = targetLSID.getJavaClass();
+                    if (targetClass.equals(target))
+                    {
+                        count++;
+                    }
+                }
             }
         }
         return count;
@@ -2585,7 +2585,7 @@ public class OMEROMetadataStoreClient
     public void setArcLotNumber(String lotNumber, int instrumentIndex,
             int lightSourceIndex)
     {
-    	Arc o = getArc(instrumentIndex, lightSourceIndex);
+        Arc o = getArc(instrumentIndex, lightSourceIndex);
         o.setLotNumber(toRType(lotNumber));
     }
 
@@ -3033,7 +3033,7 @@ public class OMEROMetadataStoreClient
     public void setDetectorLotNumber(String lotNumber, int instrumentIndex,
             int detectorIndex)
     {
-    	Detector o = getDetector(instrumentIndex, detectorIndex);
+        Detector o = getDetector(instrumentIndex, detectorIndex);
         o.setLotNumber(toRType(lotNumber));
     }
 
@@ -3271,7 +3271,7 @@ public class OMEROMetadataStoreClient
     public void setDichroicSerialNumber(String serialNumber,
             int instrumentIndex, int dichroicIndex)
     {
-    	Dichroic o = getDichroic(instrumentIndex, dichroicIndex);
+        Dichroic o = getDichroic(instrumentIndex, dichroicIndex);
         o.setSerialNumber(toRType(serialNumber));
     }
 
@@ -3661,7 +3661,7 @@ public class OMEROMetadataStoreClient
     public void setFilamentLotNumber(String lotNumber, int instrumentIndex,
             int lightSourceIndex)
     {
-    	Filament o = getFilament(instrumentIndex, lightSourceIndex);
+        Filament o = getFilament(instrumentIndex, lightSourceIndex);
         o.setLotNumber(toRType(lotNumber));
     }
 
@@ -3849,7 +3849,7 @@ public class OMEROMetadataStoreClient
     public void setFilterSerialNumber(String serialNumber, int instrumentIndex,
             int filterIndex)
     {
-    	Filter o = getFilter(instrumentIndex, filterIndex);
+        Filter o = getFilter(instrumentIndex, filterIndex);
         o.setSerialNumber(toRType(serialNumber));
     }
 
@@ -3969,8 +3969,8 @@ public class OMEROMetadataStoreClient
     public void setFilterSetSerialNumber(String serialNumber,
             int instrumentIndex, int filterSetIndex)
     {
-    	 FilterSet o = getFilterSet(instrumentIndex, filterSetIndex);
-         o.setSerialNumber(toRType(serialNumber));
+        FilterSet o = getFilterSet(instrumentIndex, filterSetIndex);
+        o.setSerialNumber(toRType(serialNumber));
     }
 
     private GenericExcitationSource getGenericExcitationSource(int instrumentIndex, int lightSourceIndex) {
@@ -4371,7 +4371,7 @@ public class OMEROMetadataStoreClient
     public void setLaserLotNumber(String lotNumber, int instrumentIndex,
             int lightSourceIndex)
     {
-    	Laser o = getLaser(instrumentIndex, lightSourceIndex);
+        Laser o = getLaser(instrumentIndex, lightSourceIndex);
         o.setLotNumber(toRType(lotNumber));
     }
 
@@ -4519,7 +4519,7 @@ public class OMEROMetadataStoreClient
             int instrumentIndex, int lightSourceIndex)
     {
         LightEmittingDiode o = getLightEmittingDiode(instrumentIndex,
-        		lightSourceIndex);
+            lightSourceIndex);
         o.setLotNumber(toRType(lotNumber));
     }
 
@@ -5116,7 +5116,7 @@ public class OMEROMetadataStoreClient
                 experimentIndex, microbeamManipulationIndex,
                 lightSourceSettingsIndex);
         LSID key = new LSID(LightSettings.class, experimentIndex,
-			microbeamManipulationIndex, lightSourceSettingsIndex);
+            microbeamManipulationIndex, lightSourceSettingsIndex);
         addReference(key, new LSID(id));
     }
 
@@ -8428,124 +8428,126 @@ public class OMEROMetadataStoreClient
         // TODO : not in OMERO model
     }
 
-    public void setCurrentLogFile(String logFilename, String token) {
+    public void setCurrentLogFile(String logFilename, String token)
+    {
         this.logFilename = logFilename;
         this.token = token;
     }
 
-	@Override
-    public void setArcAnnotationRef(String annotation, int instrumentIndex, int lightSourceIndex, int annotationRefIndex) {
-		// TODO Auto-generated method stub
-		
-	}
+    @Override
+    public void setArcAnnotationRef(String annotation, int instrumentIndex, int lightSourceIndex, int annotationRefIndex)
+    {
+      // TODO Auto-generated method stub
 
-	@Override
+    }
+
+    @Override
     public void setDetectorAnnotationRef(String annotation, int instrumentIndex, int detectorIndex, int annotationRefIndex) {
-		// TODO Auto-generated method stub
-		
-	}
+    // TODO Auto-generated method stub
 
-	@Override
+    }
+
+    @Override
     public void setDichroicAnnotationRef(String annotation, int instrumentIndex, int dichroicIndex, int annotationRefIndex) {
-		// TODO Auto-generated method stub
-		
-	}
+    // TODO Auto-generated method stub
 
-	@Override
+    }
+
+    @Override
     public void setEllipseAnnotationRef(String annotation, int ROIIndex, int shapeIndex, int annotationRefIndex) {
-		// TODO Auto-generated method stub
-		
-	}
+    // TODO Auto-generated method stub
 
-	@Override
+    }
+
+    @Override
     public void setFilamentAnnotationRef(String annotation, int instrumentIndex, int lightSourceIndex, int annotationRefIndex) {
-		// TODO Auto-generated method stub
-		
-	}
+    // TODO Auto-generated method stub
 
-	@Override
+    }
+
+    @Override
     public void setFilterAnnotationRef(String annotation, int instrumentIndex, int filterIndex, int annotationRefIndex) {
-		// TODO Auto-generated method stub
-		
-	}
+    // TODO Auto-generated method stub
 
-	@Override
+    }
+
+    @Override
     public void setGenericExcitationSourceAnnotationRef(String annotation, int instrumentIndex, int lightSourceIndex, int annotationRefIndex) {
-		// TODO Auto-generated method stub
-		
-	}
+    // TODO Auto-generated method stub
 
-	@Override
+    }
+
+    @Override
     public void setInstrumentAnnotationRef(String annotation, int instrumentIndex, int annotationRefIndex) {
-		// TODO Auto-generated method stub
-		
-	}
+    // TODO Auto-generated method stub
 
-	@Override
+    }
+
+    @Override
     public void setLabelAnnotationRef(String annotation, int ROIIndex, int shapeIndex, int annotationRefIndex) {
-		// TODO Auto-generated method stub
-		
-	}
+    // TODO Auto-generated method stub
 
-	@Override
+    }
+
+    @Override
     public void setLaserAnnotationRef(String annotation, int instrumentIndex, int lightSourceIndex, int annotationRefIndex) {
-		// TODO Auto-generated method stub
-		
-	}
+    // TODO Auto-generated method stub
 
-	@Override
+    }
+
+    @Override
     public void setLightEmittingDiodeAnnotationRef(String annotation, int instrumentIndex, int lightSourceIndex, int annotationRefIndex) {
-		// TODO Auto-generated method stub
-		
-	}
+    // TODO Auto-generated method stub
 
-	@Override
+    }
+
+    @Override
     public void setLightPathAnnotationRef(String annotation, int imageIndex, int channelIndex, int annotationRefIndex) {
-		// TODO Auto-generated method stub
-		
-	}
+    // TODO Auto-generated method stub
 
-	@Override
+    }
+
+    @Override
     public void setLineAnnotationRef(String annotation, int ROIIndex, int shapeIndex, int annotationRefIndex) {
-		// TODO Auto-generated method stub
-		
-	}
+    // TODO Auto-generated method stub
 
-	@Override
+    }
+
+    @Override
     public void setMaskAnnotationRef(String annotation, int ROIIndex, int shapeIndex, int annotationRefIndex) {
-		// TODO Auto-generated method stub
-		
-	}
+    // TODO Auto-generated method stub
 
-	@Override
+    }
+
+    @Override
     public void setObjectiveAnnotationRef(String annotation, int instrumentIndex, int objectiveIndex, int annotationRefIndex) {
-			int arg3) {
-		// TODO Auto-generated method stub
-		
-	}
+    int arg3) {
+    // TODO Auto-generated method stub
 
-	@Override
+    }
+
+    @Override
     public void setPointAnnotationRef(String annotation, int ROIIndex, int shapeIndex, int annotationRefIndex) {
-		// TODO Auto-generated method stub
-		
-	}
+    // TODO Auto-generated method stub
 
-	@Override
+    }
+
+    @Override
     public void setPolygonAnnotationRef(String annotation, int ROIIndex, int shapeIndex, int annotationRefIndex) {
-		// TODO Auto-generated method stub
-		
-	}
+    // TODO Auto-generated method stub
 
-	@Override
+    }
+
+    @Override
     public void setPolylineAnnotationRef(String annotation, int ROIIndex, int shapeIndex, int annotationRefIndex) {
-		// TODO Auto-generated method stub
-		
-	}
+    // TODO Auto-generated method stub
 
-	@Override
+    }
+
+    @Override
     public void setRectangleAnnotationRef(String annotation, int ROIIndex, int shapeIndex, int annotationRefIndex) {
-		// TODO Auto-generated method stub
-		
-	}
+    // TODO Auto-generated method stub
+
+    }
 
 }
