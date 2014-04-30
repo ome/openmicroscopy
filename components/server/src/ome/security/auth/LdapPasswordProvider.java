@@ -12,6 +12,7 @@ import java.security.Permissions;
 import ome.conditions.ApiUsageException;
 import ome.conditions.ValidationException;
 import ome.logic.LdapImpl;
+import ome.model.meta.Experimenter;
 import ome.security.SecuritySystem;
 
 import org.springframework.util.Assert;
@@ -55,7 +56,7 @@ public class LdapPasswordProvider extends ConfigurablePasswordProvider {
      * the password table. Note: after a call to
      * {@link #checkPassword(String, String)} with this same user value, this
      * method might begin to return true due to a call to
-     * {@link LocalLdap#createUserFromLdap(String, String)}.
+     * {@link LocalLdap#createUser(String, String)}.
      */
     @Override
     public boolean hasPassword(String user) {
@@ -109,11 +110,11 @@ public class LdapPasswordProvider extends ConfigurablePasswordProvider {
                 if (readOnly == true) {
                     throw new IllegalStateException("Cannot create user!");
                 }
-                boolean login = ldapUtil.createUserFromLdap(user, password);
+                Experimenter experimenter = ldapUtil.createUser(user, password);
                 // Use default logic if the user creation did not exist,
                 // because there may be another non-database login mechanism
                 // which should also be given a chance.
-                if (login) {
+                if (experimenter != null) {
                     loginAttempt(user, true);
                     return true;
                 }

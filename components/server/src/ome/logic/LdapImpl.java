@@ -1,7 +1,7 @@
 /*
  *   $Id$
  *
- *   Copyright 2007 University of Dundee. All rights reserved.
+ *   Copyright 2007 - 2014 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -25,8 +25,6 @@ import javax.naming.NamingException;
 import javax.naming.ldap.InitialLdapContext;
 
 import ome.annotations.NotNull;
-import ome.annotations.RevisionDate;
-import ome.annotations.RevisionNumber;
 import ome.annotations.RolesAllowed;
 import ome.api.ILdap;
 import ome.api.ServiceInterface;
@@ -60,7 +58,6 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.ldap.core.ContextSource;
 import org.springframework.ldap.core.DistinguishedName;
 import org.springframework.ldap.core.LdapOperations;
-import org.springframework.ldap.core.LdapRdn;
 import org.springframework.ldap.filter.AndFilter;
 import org.springframework.ldap.filter.EqualsFilter;
 import org.springframework.ldap.filter.Filter;
@@ -69,21 +66,17 @@ import org.springframework.transaction.annotation.Transactional;
 /**
  * Provides methods for administering user accounts, passwords, as well as
  * methods which require special privileges.
- * 
+ *
  * Developer note: As can be expected, to perform these privileged the Admin
  * service has access to several resources that should not be generally used
  * while developing services. Misuse could circumvent security or auditing.
- * 
+ *
  * @author Aleksandra Tarkowska, A.Tarkowska@dundee.ac.uk
- * @version $Revision: 1552 $, $Date: 2007-05-23 09:43:33 +0100 (Wed, 23 May
- *          2007) $
  * @see SecuritySystem
  * @see Permissions
  * @since 3.0-M3
  */
 @Transactional(readOnly = true)
-@RevisionDate("$Date: 2007-05-23 09:43:33 +0100 (Wed, 23 May 2007) $")
-@RevisionNumber("$Revision: 1552 $")
 public class LdapImpl extends AbstractLevel2Service implements ILdap,
     ApplicationContextAware {
 
@@ -101,12 +94,8 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap,
 
     private OmeroContext appContext;
 
-    public LdapImpl(
-            ContextSource ctx,
-            LdapOperations ldap, Roles roles,
-            LdapConfig config,
-            RoleProvider roleProvider,
-            SqlAction sql) {
+    public LdapImpl(ContextSource ctx, LdapOperations ldap, Roles roles,
+            LdapConfig config, RoleProvider roleProvider, SqlAction sql) {
         this.ctx = ctx;
         this.sql = sql;
         this.ldap = ldap;
@@ -139,6 +128,7 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap,
     public List<Experimenter> searchByAttribute(String dns, String attr,
             String value) {
         DistinguishedName dn;
+
         if (dns == null) {
             dn = DistinguishedName.EMPTY_PATH;
         } else {
@@ -150,11 +140,9 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap,
             AndFilter filter = new AndFilter();
             filter.and(config.getUserFilter());
             filter.and(new EqualsFilter(attr, value));
-
-            return ldap.search(dn, filter.encode(),
-                    getContextMapper());
+            return ldap.search(dn, filter.encode(), getContextMapper());
         } else {
-            return Collections.EMPTY_LIST;
+            return Collections.emptyList();
         }
     }
 
@@ -165,41 +153,34 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap,
     }
 
     @RolesAllowed("system")
-    @SuppressWarnings("unchecked")
     public String findDN(String username) {
-
         PersonContextMapper mapper = getContextMapper();
         Experimenter exp = mapUserName(username, mapper);
         return mapper.getDn(exp);
-
     }
 
-
     @RolesAllowed("system")
-    @SuppressWarnings("unchecked")
     public Experimenter findExperimenter(String username) {
-
         PersonContextMapper mapper = getContextMapper();
         return mapUserName(username, mapper);
-
     }
 
     /**
      * Mapping a username to an {@link Experimenter}. This handles checking the
      * username for case exactness. This should be done at the LDAP level, but
-     * Apache DS (the testing framework used) does not yet support :caseExactMatch:.
-     *
-     * When it does, the check here can be removed.
+     * Apache DS (the testing framework used) does not yet support
+     * :caseExactMatch:. When it does, the check here can be removed.
      *
      * @param username
      * @param mapper
      * @return a non null Experimenter.
      * @see ticket:2557
      */
+    @SuppressWarnings("unchecked")
     private Experimenter mapUserName(String username, PersonContextMapper mapper) {
         Filter filter = config.usernameFilter(username);
         List<Experimenter> p = ldap.search("", filter.encode(),
-            mapper.getControls(), mapper);
+                mapper.getControls(), mapper);
 
         if (p.size() == 1 && p.get(0) != null) {
             Experimenter e = p.get(0);
@@ -208,7 +189,7 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap,
             }
         }
         throw new ApiUsageException(
-                    "Cannot find unique DistinguishedName: found=" + p.size());
+                "Cannot find unique DistinguishedName: found=" + p.size());
 
     }
 
@@ -220,10 +201,10 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap,
             AndFilter filter = new AndFilter();
             filter.and(config.getGroupFilter());
             filter.and(new EqualsFilter(attr, value));
-            return ldap.search("", filter.encode(),
-                    new GroupAttributeMapper(config));
+            return ldap.search("", filter.encode(), new GroupAttributeMapper(
+                    config));
         } else {
-            return Collections.EMPTY_LIST;
+            return Collections.emptyList();
         }
     }
 
@@ -232,19 +213,20 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap,
     public List<Experimenter> searchByAttributes(String dn,
             String[] attributes, String[] values) {
         if (attributes.length != values.length) {
-            return Collections.EMPTY_LIST;
+            return Collections.emptyList();
         }
         AndFilter filter = new AndFilter();
         for (int i = 0; i < attributes.length; i++) {
             filter.and(new EqualsFilter(attributes[i], values[i]));
         }
-        return ldap.search(new DistinguishedName(dn),
-                filter.encode(), getContextMapper());
+        return ldap.search(new DistinguishedName(dn), filter.encode(),
+                getContextMapper());
     }
 
     @RolesAllowed("system")
     @Transactional(readOnly = false)
-    public void setDN(@NotNull Long experimenterID, String dn) {
+    public void setDN(@NotNull
+    Long experimenterID, String dn) {
         sql.setUserDn(experimenterID, dn);
     }
 
@@ -262,7 +244,6 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap,
     //
 
     public void synchronizeLdapUser(String username) {
-
         if (!config.isSyncOnLogin()) {
             if (getBeanHelper().getLogger().isTraceEnabled()) {
                 getBeanHelper().getLogger().trace("sync_on_login=false");
@@ -270,16 +251,17 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap,
             return;
         }
 
-        Experimenter omeExp = iQuery.findByString(Experimenter.class, "omeName", username);
-
+        Experimenter omeExp = iQuery.findByString(Experimenter.class,
+                "omeName", username);
         Experimenter ldapExp = findExperimenter(username);
         String ldapDN = getContextMapper().getDn(ldapExp);
         DistinguishedName dn = new DistinguishedName(ldapDN);
         List<Long> ldapGroups = loadLdapGroups(username, dn);
-        List<Object[]> omeGroups = iQuery.projection(
-                "select g.id from ExperimenterGroup g " +
-			"join g.groupExperimenterMap m join m.child e where e.id = :id",
-                new Parameters().addId(omeExp.getId()));
+        List<Object[]> omeGroups = iQuery
+                .projection(
+                        "select g.id from ExperimenterGroup g "
+                                + "join g.groupExperimenterMap m join m.child e where e.id = :id",
+                        new Parameters().addId(omeExp.getId()));
 
         Set<Long> omeGroupIds = new HashSet<Long>();
         for (Object[] objs : omeGroups) {
@@ -291,23 +273,20 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap,
         // All the ldapGroups not in omeGroups shoud be added.
         modifyGroups(omeExp, ldapGroups, omeGroupIds, true);
 
-        List<String> fields = Arrays.asList(
-                Experimenter.FIRSTNAME,
-                Experimenter.MIDDLENAME,
-                Experimenter.LASTNAME,
-                Experimenter.EMAIL,
-                Experimenter.INSTITUTION);
+        List<String> fields = Arrays.asList(Experimenter.FIRSTNAME,
+                Experimenter.MIDDLENAME, Experimenter.LASTNAME,
+                Experimenter.EMAIL, Experimenter.INSTITUTION);
 
         for (String field : fields) {
-            String fieldname = field.substring(field.indexOf("_")+1);
+            String fieldname = field.substring(field.indexOf("_") + 1);
             String ome = (String) omeExp.retrieve(field);
             String ldap = (String) ldapExp.retrieve(field);
 
             if (ome == null) {
                 if (ldap != null) {
                     getBeanHelper().getLogger().info(
-                        String.format("Nulling %s for %s, was:",
-                                fieldname, username, ome));
+                            String.format("Nulling %s for %s, was:", fieldname,
+                                    username, ome));
                     omeExp.putAt(field, ldap);
                 }
             } else if (!ome.equals(ldap)) {
@@ -321,7 +300,7 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap,
     }
 
     /**
-     * The ids in "minus" will be removed from the ids in "base" and then
+     * The IDs in "minus" will be removed from the IDs in "base" and then
      * the operation chosen by "add" will be run on them. This method
      * ignores all methods known by Roles.
      *
@@ -332,20 +311,17 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap,
      */
     private void modifyGroups(Experimenter e, Collection<Long> base,
             Collection<Long> minus, boolean add) {
-
         final Logger log = getBeanHelper().getLogger();
-
         Set<Long> ids = new HashSet<Long>(base);
+
         ids.removeAll(minus);
         // Take no actions on system/user group.
         ids.remove(roles.getSystemGroupId());
         ids.remove(roles.getUserGroupId());
 
         if (ids.size() > 0) {
-            log.info(String.format(
-                    "%s groups for %s: %s",
-                    add ? "Adding" : "Removing",
-                    e.getOmeName(), ids));
+            log.info(String.format("%s groups for %s: %s", add ? "Adding"
+                    : "Removing", e.getOmeName(), ids));
             Set<ExperimenterGroup> grps = new HashSet<ExperimenterGroup>();
             for (Long id : ids) {
                 grps.add(new ExperimenterGroup(id, false));
@@ -358,10 +334,11 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap,
 
             if (add) {
                 // If we have just added groups, then it's possible that
-                // the "user" groupis at the front of the list, in which
+                // the "user" group is at the front of the list, in which
                 // case we should assign another specific group.
                 e = iQuery.get(Experimenter.class, e.getId());
-                log.debug("sizeOfGroupExperimenterMap=" + e.sizeOfGroupExperimenterMap());
+                log.debug("sizeOfGroupExperimenterMap="
+                        + e.sizeOfGroupExperimenterMap());
                 if (e.sizeOfGroupExperimenterMap() > 1) {
                     GroupExperimenterMap primary = e.getGroupExperimenterMap(0);
                     GroupExperimenterMap next = e.getGroupExperimenterMap(1);
@@ -376,23 +353,81 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap,
         }
     }
 
+    /**
+     * Creates an {@link Experimenter} based on the supplied LDAP username.
+     * Doesn't validate the user's password and can be only executed by admin
+     * users.
+     *
+     * @param username
+     *            The user's LDAP username.
+     * @param password
+     *            The user's LDAP password, not null.
+     * @return true if a user is created
+     */
+    @Deprecated
+    @RolesAllowed("system")
+    @Transactional(readOnly = false)
+    public boolean createUserFromLdap(String username, String password) {
+        return null != createUser(username, password, true);
+    }
 
     /**
-     * Gets user from LDAP for checking him by requirements and setting his
-     * details on DB
+     * Creates an {@link Experimenter} based on the supplied LDAP username.
+     * Doesn't validate the user's password and can be only executed by admin
+     * users.
      *
-     * @return {@link ome.system.ServiceFactory}
+     * @param username
+     *            The user's LDAP username.
+     * @return The newly created {@link Experimenter} object.
      */
-    public boolean createUserFromLdap(String username, String password) {
+    @RolesAllowed("system")
+    @Transactional(readOnly = false)
+    public Experimenter createUser(String username) {
+        return createUser(username, null, false);
+    }
+
+    /**
+     * Creates an {@link Experimenter} based on the supplied LDAP username.
+     * Enforces user password validation.
+     *
+     * @param username
+     *            The user's LDAP username.
+     * @param password
+     *            The user's LDAP password, not null.
+     * @return The newly created {@link Experimenter} object.
+     */
+    public Experimenter createUser(String username, String password) {
+        return createUser(username, password, true);
+    }
+
+    /**
+     * Creates an {@link Experimenter} based on the supplied LDAP username.
+     * A boolean flag controls if password checks should be performed.
+     *
+     * @param username
+     *            The user's LDAP username.
+     * @param password
+     *            The user's password.
+     * @param checkPassword
+     *            Flag indicating if password check should be performed.
+     * @return The newly created {@link Experimenter} object.
+     */
+    public Experimenter createUser(String username, String password,
+            boolean checkPassword) {
+        if (iQuery.findByString(Experimenter.class, "omeName", username) != null) {
+            throw new ValidationException("User already exists: " + username);
+        }
 
         Experimenter exp = findExperimenter(username);
         String ldapDn = getContextMapper().getDn(exp);
         DistinguishedName dn = new DistinguishedName(ldapDn);
 
-        boolean access = validatePassword(dn.toString(), password);
+        boolean access = true;
+        if (checkPassword) {
+            access = validatePassword(dn.toString(), password);
+        }
 
         if (access) {
-
             List<Long> groups = loadLdapGroups(username, dn);
 
             if (groups.size() == 0) {
@@ -403,18 +438,21 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap,
             Long gid = groups.remove(0);
             ExperimenterGroup grp1 = new ExperimenterGroup(gid, false);
             Set<Long> otherGroupIds = new HashSet<Long>(groups);
-            ExperimenterGroup grpOther[] = new ExperimenterGroup[otherGroupIds.size()+1];
+            ExperimenterGroup grpOther[] = new ExperimenterGroup[otherGroupIds
+                    .size() + 1];
 
             int count = 0;
             for (Long id : otherGroupIds) {
                 grpOther[count++] = new ExperimenterGroup(id, false);
             }
-            grpOther[count] = new ExperimenterGroup(roles.getUserGroupId(), false);
-
+            grpOther[count] = new ExperimenterGroup(roles.getUserGroupId(),
+                    false);
             long uid = provider.createExperimenter(exp, grp1, grpOther);
             setDN(uid, dn.toString());
+            return iQuery.get(Experimenter.class, uid);
+        } else {
+            return null;
         }
-        return access;
     }
 
     static private final Pattern p = Pattern.compile(
@@ -435,7 +473,8 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap,
 
         final Matcher m = p.matcher(grpSpec);
         if (!m.matches()) {
-            throw new ValidationException(grpSpec + " spec currently not supported.");
+            throw new ValidationException(grpSpec
+                    + " spec currently not supported.");
         }
 
         final String type = m.group(1);
@@ -472,7 +511,8 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap,
         return groups;
     }
 
-    private AttributeSet getAttributeSet(String username, PersonContextMapper mapper) {
+    private AttributeSet getAttributeSet(String username,
+            PersonContextMapper mapper) {
         Experimenter exp = mapUserName(username, mapper);
         String dn = mapper.getDn(exp);
         AttributeSet attrSet = mapper.getAttributeSet(exp);
@@ -535,13 +575,11 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap,
      */
     @SuppressWarnings("unchecked")
     private void isAuthContext(String username, String password) {
-
         Hashtable<String, String> env = new Hashtable<String, String>(5, 0.75f);
         try {
-
             // See discussion on anonymous bind in LdapPasswordProvider
-            if (username == null || username.equals("") ||
-                    password == null || password.equals("")) {
+            if (username == null || username.equals("") || password == null
+                    || password.equals("")) {
                 throw new SecurityViolation(
                         "Refused to authenticate without username and password!");
             }
@@ -569,7 +607,6 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap,
                             + e.toString());
         }
         return base;
-
     }
 
 }

@@ -257,6 +257,13 @@ class ExceptionHandler(object):
             if "org.hibernate.exception.ConstraintViolationException: could not insert" in str(ve):
                 return True
 
+    def handle_failed_request(self, rfe):
+        import Ice
+        if isinstance(rfe, Ice.OperationNotExistException):
+            return "Operation not supported by the server: %s" % rfe.operation
+        else:
+            return "Unknown Ice.RequestFailedException"
+
 
 class Context:
     """Simple context used for default logic. The CLI registry which registers
