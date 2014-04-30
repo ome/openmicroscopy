@@ -340,18 +340,26 @@ DEFAULT CONSTRUCTOR BLOCK:
 [$cpp]       }
 
 Python combines the two constructors. See below for a comparison.
-[$pyc]       def __init__(self, id=None, loaded=True, proxy_string=None):
+[$pyc]       def __init__(self, id=None, loaded=None):
 [$pyc]           super(${Pojo}I, self).__init__()
-[$pyc]           if proxy_string != None:
-[$pyc]               parts = proxy_string.split(":")
+[$pyc]           if id is not None and isinstance(id, (str, unicode)) and ":" in id:
+[$pyc]               parts = id.split(":")
 [$pyc]               if len(parts) != 2:
-[$pyc]                   raise Exception("Invalid proxy string: %s", proxy_string)
-[$pyc]               if parts[0] != self.__class__.__name__:
+[$pyc]                   raise Exception("Invalid proxy string: %s", id)
+[$pyc]               if parts[0] != self.__class__.__name__ and \
+[$pyc]                  parts[0]+"I" != self.__class__.__name__:
 [$pyc]                   raise Exception("Proxy class mismatch: %s<>%s" %
-[$pyc]                   self.__class__.__name__, parts[0])
+[$pyc]                   (self.__class__.__name__, parts[0]))
 [$pyc]               self._id = rlong(parts[1])
-[$pyc]           # Relying on omero.rtypes.rlong's error-handling
-[$pyc]           self._id = rlong(id)
+[$pyc]               if loaded is None:
+[$pyc]                   # If no loadedness was requested with
+[$pyc]                   # a proxy string, then assume False.
+[$pyc]                   loaded = False
+[$pyc]           else:
+[$pyc]               # Relying on omero.rtypes.rlong's error-handling
+[$pyc]               self._id = rlong(id)
+[$pyc]               if loaded is None:
+[$pyc]                   loaded = True  # Assume true as previously
 [$pyc]           self._loaded = loaded
 [$pyc]           if self._loaded:
 [$pyc]              self._details = _omero_model.DetailsI()
