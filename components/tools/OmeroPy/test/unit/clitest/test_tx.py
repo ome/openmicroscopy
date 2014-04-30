@@ -23,40 +23,61 @@
 Test of the omero/plugins/tx.py module
 """
 
+from omero.api import IUpdatePrx
+from omero.api import ServiceFactoryPrx
 from omero.cli import CLI
+from omero.clients import BaseClient
+from omero.model import ProjectI
 from omero.plugins.tx import NewObjectTxAction
 from omero.plugins.tx import TxControl
 from omero.plugins.tx import TxState
+from omero_ext.mox import IgnoreArg
 from omero_ext.mox import Mox
 
 
-class TestNewObjectTxAction(object):
+class MockCLI(CLI):
 
-    def test_unknown_class(self):
-        self.cli = CLI()
-        state = TxState()
-        action = NewObjectTxAction(state, ["new", "foo"])
-        action.go(self.cli.ctx)
+    def conn(self, *args, **kwargs):
+        return self._client
 
-class TestTxControl(object):
+
+class TxBase(object):
 
     def setup_method(self, method):
-        self.cli = CLI()
-        self.cli.register("tx", TxControl, "TEST")
         self.mox = Mox()
+        self.client = self.mox.CreateMock(BaseClient)
+        self.sf = self.mox.CreateMock(ServiceFactoryPrx)
+        self.update = self.mox.CreateMock(IUpdatePrx)
+        self.client.sf = self.sf
+        self.cli = MockCLI()
+        self.cli._client = self.client
+        self.cli.set("tx.out", [])
 
     def teardown_method(self, method):
         self.mox.UnsetStubs()
         self.mox.VerifyAll()
 
+    def saves(self, obj):
+        self.sf.getUpdateService().AndReturn(self.update)
+        self.update.saveAndReturnObject(IgnoreArg()).AndReturn(obj)
+        self.mox.ReplayAll()
+
+
+class TestNewObjectTxAction(TxBase):
+
+    def test_unknown_class(self):
+        self.saves(ProjectI(1, False))
+        state = TxState()
+        action = NewObjectTxAction(state, ["Project", "name=foo"])
+        action.go(self.cli, None)
+
+
+class TestTxControl(TxBase):
+
+    def setup_method(self, method):
+        super(TestTxControl, self).setup_method(method)
+        self.cli.register("tx", TxControl, "TEST")
+
     def test_simple_usage(self):
+        self.saves(ProjectI(1, False))
         self.cli.invoke("tx new Project name=foo", strict=True)
-
-    def test_here_doc_usage(self):
-        pass
-
-    def test_multiline_usage(self):
-        pass
-
-    def test_file_usage(self):
-        pass
