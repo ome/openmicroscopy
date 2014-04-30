@@ -1,36 +1,52 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+#
+# Copyright (C) 2011-2014 Glencoe Software, Inc. All Rights Reserved.
+# Use is subject to license terms supplied in LICENSE.txt
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
 """
    Tests for the stateful ThumbnailStore service.
 
-   Copyright 2011-2013 Glencoe Software, Inc. All rights reserved.
-   Use is subject to license terms supplied in LICENSE.txt
-
 """
 
-import omero
 import pytest
 import test.integration.library as lib
 
-from omero.rtypes import rstring, rlong, rint, unwrap
-from omero.util.concurrency import get_event
-from binascii import hexlify as hex
+from omero.rtypes import rint, unwrap
+
 
 @pytest.mark.long_running
 class TestThumbs(lib.ITest):
 
     def assertTb(self, buf, x=64, y=64):
             try:
-                from PIL import Image, ImageDraw # see ticket:2597
+                from PIL import Image, ImageDraw  # see ticket:2597
             except ImportError:
                 try:
-                    import Image, ImageDraw # see ticket:2597
+                    # Marking as noqa for now as these unused imports
+                    # check for Pillow.
+                    import Image  # noqa
+                    import ImageDraw  # noqa # see ticket:2597
                 except ImportError:
                     print "Pillow not installed"
             thumb = self.open_jpeg_buffer(buf)
-            assert unwrap(x) ==  thumb.size[0]
-            assert unwrap(y) ==  thumb.size[1]
+            assert unwrap(x) == thumb.size[0]
+            assert unwrap(y) == thumb.size[1]
 
     #
     # MissingPyramid tests
@@ -46,7 +62,7 @@ class TestThumbs(lib.ITest):
         pix = self.missing_pyramid()
         tb = self.client.sf.createThumbnailStore()
         tb.setPixelsId(pix.id.val)
-        tb.resetDefaults() # Sets new missingPyramid flag
+        tb.resetDefaults()  # Sets new missingPyramid flag
         return tb
 
     def testCreateThumbnails(self):
@@ -68,7 +84,8 @@ class TestThumbs(lib.ITest):
         pix2 = self.missing_pyramid()
         tb = self.client.sf.createThumbnailStore()
         try:
-            tb.createThumbnailsByLongestSideSet(rint(64), [pix1.id.val, pix2.id.val])
+            tb.createThumbnailsByLongestSideSet(
+                rint(64), [pix1.id.val, pix2.id.val])
         finally:
             tb.close()
 
@@ -78,6 +95,7 @@ class TestThumbs(lib.ITest):
             assert not tb.thumbnailExists(rint(64), rint(64))
         finally:
             tb.close()
+
 
 def assign(f, method, *args):
     name = "test%s" % method[0].upper()
@@ -90,6 +108,7 @@ def assign(f, method, *args):
             name += "x%s" % unwrap(i)
     f.func_name = name
     setattr(TestThumbs, name, f)
+
 
 def make_test_single(method, x, y, *args):
     def f(self):
@@ -122,12 +141,12 @@ def make_test_set(method, x, y, *args):
 make_test_single("getThumbnail", 64, 64, rint(64), rint(64))
 make_test_single("getThumbnailByLongestSide", 64, 64, rint(64))
 make_test_single("getThumbnailDirect", 64, 64, rint(64), rint(64))
-make_test_single("getThumbnailForSectionDirect", 64, 64, 0, 0, rint(64), rint(64))
+make_test_single("getThumbnailForSectionDirect",
+                 64, 64, 0, 0, rint(64), rint(64))
 make_test_single("getThumbnail", 64, 64, rint(64), rint(60))
 make_test_single("getThumbnailByLongestSide", 60, 60, rint(60))
 make_test_single("getThumbnailDirect", 64, 64, rint(64), rint(60))
-make_test_single("getThumbnailForSectionDirect", 64, 64, 0, 0, rint(64), rint(60))
+make_test_single("getThumbnailForSectionDirect",
+                 64, 64, 0, 0, rint(64), rint(60))
 make_test_set("getThumbnailSet", 64, 64, rint(64), rint(64))
 make_test_set("getThumbnailByLongestSideSet", 64, 64, rint(64))
-
-
