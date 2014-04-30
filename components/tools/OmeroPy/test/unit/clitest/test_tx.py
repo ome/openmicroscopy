@@ -40,6 +40,9 @@ class MockCLI(CLI):
     def conn(self, *args, **kwargs):
         return self._client
 
+    def close(self, *args, **kwargs):
+        pass
+
 
 class TxBase(object):
 
