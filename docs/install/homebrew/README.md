@@ -1,1 +1,0 @@
-The instructions for installing OMERO on Mac OS X using Homebrew are available in the [OMERO documentation](http://www.openmicroscopy.org/site/support/omero5/sysadmins/unix/server-install-homebrew.html).
