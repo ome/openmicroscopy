@@ -59,6 +59,12 @@
      <constructor-arg ref="sessionFactory"/>
   </bean>
 
+  <bean id="dbBadAnnotationCheck"
+     class="ome.services.util.DBBadAnnotationCheck"
+     init-method="start" lazy-init="false">
+     <constructor-arg ref="sessionFactory"/>
+  </bean>
+
   <!--
 
   Disabling DropBox directory creation for 4.1. The directories
