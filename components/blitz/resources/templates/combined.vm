@@ -162,6 +162,41 @@ Note how the whitespace for the python definitions is important.
 
 [$pyc] class ${PojoI}(_omero_model.$Pojo):
 [$pyc]
+[$pyc]      # Property Metadata
+#foreach($property in $type.propertyClosure)#############
+#set( $javaType = $property.type )
+#if($property.nullable)
+#set( $metanullable = "True")
+#else
+#set( $metanullable = "False")
+#end
+#set( $shortType = $type.unqualify($javaType) )
+#if( $javaType.startsWith("ome"))
+[$pyc]       try:
+[$pyc]           _${property.name}_info = (omero.model.${shortType}I, $metanullable)
+[$pyc]       except:
+[$pyc]           _${property.name}_info = (None, $metanullable)  # Likely an abstract type
+#elseif( $javaType.startsWith("java.lang.Boolean"))
+[$pyc]       _${property.name}_info = (omero.rtypes.rbool, $metanullable)
+#elseif( $javaType.startsWith("java.lang.Integer"))
+[$pyc]       _${property.name}_info = (omero.rtypes.rint, $metanullable)
+#elseif( $javaType.startsWith("java.lang.Long"))
+[$pyc]       _${property.name}_info = (omero.rtypes.rlong, $metanullable)
+#elseif( $javaType.startsWith("java.lang.Double"))
+[$pyc]       _${property.name}_info = (omero.rtypes.rdouble, $metanullable)
+#elseif( $javaType.startsWith("java.lang.Float"))
+[$pyc]       _${property.name}_info = (omero.rtypes.rfloat, $metanullable)
+#elseif( $javaType.startsWith("long")) ## for Permissions
+[$pyc]       _${property.name}_info = (long, $metanullable)
+#elseif( $javaType.startsWith("java.sql.Timestamp"))
+[$pyc]       _${property.name}_info = (omero.rtypes.rtime, $metanullable)
+#elseif( $javaType.startsWith("java.lang.String"))
+[$pyc]       _${property.name}_info = (omero.rtypes.rstring, $metanullable)
+#else
+[$pyc]       _${property.name}_info = (None, $metanullable)
+[$pyc]
+#end
+#end
 [$hdr] namespace omero {
 [$hdr]   namespace model {
 [$hdr]     class OMERO_API ${PojoI};
@@ -364,34 +399,6 @@ Python combines the two constructors. See below for a comparison.
 [$pyc]           if self._loaded:
 [$pyc]              self._details = _omero_model.DetailsI()
 [$pyc]              self._toggleCollectionsLoaded(True)
-#foreach($property in $type.propertyClosure)#############
-#set( $javaType = $property.type )
-#set( $shortType = $type.unqualify($javaType) )
-#if( $javaType.startsWith("ome"))
-[$pyc]           try:
-[$pyc]               self._${property.name}_wrapper = omero.model.${shortType}I
-[$pyc]           except:
-[$pyc]               self._${property.name}_wrapper = None  # Likely an abstract type
-#elseif( $javaType.startsWith("java.lang.Boolean"))
-[$pyc]           self._${property.name}_wrapper = omero.rtypes.rbool
-#elseif( $javaType.startsWith("java.lang.Integer"))
-[$pyc]           self._${property.name}_wrapper = omero.rtypes.rint
-#elseif( $javaType.startsWith("java.lang.Long"))
-[$pyc]           self._${property.name}_wrapper = omero.rtypes.rlong
-#elseif( $javaType.startsWith("java.lang.Double"))
-[$pyc]           self._${property.name}_wrapper = omero.rtypes.rdouble
-#elseif( $javaType.startsWith("java.lang.Float"))
-[$pyc]           self._${property.name}_wrapper = omero.rtypes.rfloat
-#elseif( $javaType.startsWith("long")) ## for Permissions
-[$pyc]           self._${property.name}_wrapper = long
-#elseif( $javaType.startsWith("java.sql.Timestamp"))
-[$pyc]           self._${property.name}_wrapper = omero.rtypes.rtime
-#elseif( $javaType.startsWith("java.lang.String"))
-[$pyc]           self._${property.name}_wrapper = omero.rtypes.rstring
-#else
-[$pyc]           self._${property.name}_wrapper = None
-#end
-#end
 [$pyc]
 
 ICE CLASS BLOCK:
@@ -1139,9 +1146,9 @@ It's unclear if these methods are useful at all, but for the moment lowering the
 [$pyc]
 [$pyc]       def ${pyaccess}set${PropertyName}(self, _${property.name}, $PYC_CURRENT, wrap=False):
 [$pyc]           self.errorIfUnloaded()
-[$pyc]           if wrap and self._${fieldName}_wrapper is not None:
+[$pyc]           if wrap and self._${fieldName}_info[0] is not None:
 [$pyc]               if _${property.name} is not None:
-[$pyc]                   _${property.name} = self._${fieldName}_wrapper(_${property.name})
+[$pyc]                   _${property.name} = self._${fieldName}_info[0](_${property.name})
 [$pyc]           self._${fieldName} = _${property.name}
 [$pyc]           $unloadedPython
 [$pyc]
@@ -1607,9 +1614,9 @@ super class where the property was defined.
 [$pyc]           self.errorIfUnloaded()
 [$pyc]           if not self._${propLoaded}: self.throwNullCollectionException("${fieldName}")
 [$pyc]           old = self._${fieldName}[index]
-[$pyc]           if wrap and self._${fieldName}_wrapper is not None:
+[$pyc]           if wrap and self._${fieldName}_info[0] is not None:
 [$pyc]               if element is not None:
-[$pyc]                   element = self._${fieldName}_wrapper(_${property.name})
+[$pyc]                   element = self._${fieldName}_info[0](_${property.name})
 [$pyc]           self._${fieldName}[index] =  element
 [$pyc]           if element is not None and element.isLoaded():
 [$pyc]               element.set${property.inverseCapped}( self )
