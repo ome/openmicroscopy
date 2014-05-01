@@ -59,181 +59,161 @@ DELETE FROM uploadjob_versioninfo WHERE versioninfo = 'Unknown';
 -- #11479: https://github.com/openmicroscopy/openmicroscopy/pull/2369#issuecomment-41701620
 -- So, remove annotations with bad discriminators or inter-group links.
 
-DELETE FROM annotationannotationlink link USING annotation parent
-      WHERE link.parent = parent.id
-        AND (parent.discriminator IN ('/basic/text/uri/', '/basic/text/url/')
-             OR parent.group_id != link.group_id);
+-- return if the group IDs include multiple non-user groups
+CREATE FUNCTION is_too_many_group_ids(VARIADIC group_ids BIGINT[]) RETURNS BOOLEAN AS $$
 
-DELETE FROM annotationannotationlink link USING annotation child
+    DECLARE
+        user_group  BIGINT;
+        other_group BIGINT;
+        curr_group  BIGINT;
+
+    BEGIN
+        SELECT id INTO user_group FROM experimentergroup WHERE name = 'user';
+
+        FOREACH curr_group IN ARRAY group_ids LOOP
+            CONTINUE WHEN user_group = curr_group;
+            IF other_group IS NULL THEN
+                other_group := curr_group;
+            ELSIF other_group != curr_group THEN
+                RETURN TRUE;
+            END IF;
+        END LOOP;
+
+        RETURN FALSE;
+    END;
+
+$$ LANGUAGE plpgsql;
+
+DELETE FROM annotationannotationlink link
+      USING annotation parent, annotation child
+      WHERE link.parent = parent.id AND link.child = child.id
+        AND (parent.discriminator IN ('/basic/text/uri/', '/basic/text/url/') OR
+             child.discriminator  IN ('/basic/text/uri/', '/basic/text/url/') OR
+             is_too_many_group_ids(parent.group_id, link.group_id, child.group_id));
+
+DELETE FROM channelannotationlink link
+      USING channel parent, annotation child
+      WHERE link.parent = parent.id AND link.child = child.id
+        AND (child.discriminator IN ('/basic/text/uri/', '/basic/text/url/') OR
+             is_too_many_group_ids(parent.group_id, link.group_id, child.group_id));
+
+DELETE FROM datasetannotationlink link
+      USING dataset parent, annotation child
+      WHERE link.parent = parent.id AND link.child = child.id
+        AND (child.discriminator IN ('/basic/text/uri/', '/basic/text/url/') OR
+             is_too_many_group_ids(parent.group_id, link.group_id, child.group_id));
+
+DELETE FROM experimenterannotationlink link
+      USING annotation child
       WHERE link.child = child.id
-        AND (child.discriminator IN ('/basic/text/uri/', '/basic/text/url/')
-             OR child.group_id != link.group_id);
+        AND (child.discriminator IN ('/basic/text/uri/', '/basic/text/url/') OR
+             is_too_many_group_ids(link.group_id, child.group_id));
 
-DELETE FROM channelannotationlink link USING channel parent
-      WHERE link.parent = parent.id
-        AND parent.group_id != link.group_id;
-
-DELETE FROM channelannotationlink link USING annotation child
+DELETE FROM experimentergroupannotationlink link
+      USING annotation child
       WHERE link.child = child.id
-        AND child.discriminator IN ('/basic/text/uri/', '/basic/text/url/')
-             OR child.group_id != link.group_id;
+        AND (child.discriminator IN ('/basic/text/uri/', '/basic/text/url/') OR
+             is_too_many_group_ids(link.group_id, child.group_id));
 
-DELETE FROM datasetannotationlink link USING dataset parent
-      WHERE link.parent = parent.id
-        AND parent.group_id != link.group_id;
+DELETE FROM filesetannotationlink link
+      USING fileset parent, annotation child
+      WHERE link.parent = parent.id AND link.child = child.id
+        AND (child.discriminator IN ('/basic/text/uri/', '/basic/text/url/') OR
+             is_too_many_group_ids(parent.group_id, link.group_id, child.group_id));
 
-DELETE FROM datasetannotationlink link USING annotation child
+DELETE FROM imageannotationlink link
+      USING image parent, annotation child
+      WHERE link.parent = parent.id AND link.child = child.id
+        AND (child.discriminator IN ('/basic/text/uri/', '/basic/text/url/') OR
+             is_too_many_group_ids(parent.group_id, link.group_id, child.group_id));
+
+DELETE FROM namespaceannotationlink link
+      USING namespace parent, annotation child
+      WHERE link.parent = parent.id AND link.child = child.id
+        AND (child.discriminator IN ('/basic/text/uri/', '/basic/text/url/') OR
+             is_too_many_group_ids(parent.group_id, link.group_id, child.group_id));
+
+DELETE FROM nodeannotationlink link
+      USING annotation child
       WHERE link.child = child.id
-        AND child.discriminator IN ('/basic/text/uri/', '/basic/text/url/')
-             OR child.group_id != link.group_id;
+        AND (child.discriminator IN ('/basic/text/uri/', '/basic/text/url/') OR
+             is_too_many_group_ids(link.group_id, child.group_id));
 
-DELETE FROM experimenterannotationlink link USING annotation child
+DELETE FROM originalfileannotationlink link
+      USING originalfile parent, annotation child
+      WHERE link.parent = parent.id AND link.child = child.id
+        AND (child.discriminator IN ('/basic/text/uri/', '/basic/text/url/') OR
+             is_too_many_group_ids(parent.group_id, link.group_id, child.group_id));
+
+DELETE FROM pixelsannotationlink link
+      USING pixels parent, annotation child
+      WHERE link.parent = parent.id AND link.child = child.id
+        AND (child.discriminator IN ('/basic/text/uri/', '/basic/text/url/') OR
+             is_too_many_group_ids(parent.group_id, link.group_id, child.group_id));
+
+DELETE FROM planeinfoannotationlink link
+      USING planeinfo parent, annotation child
+      WHERE link.parent = parent.id AND link.child = child.id
+        AND (child.discriminator IN ('/basic/text/uri/', '/basic/text/url/') OR
+             is_too_many_group_ids(parent.group_id, link.group_id, child.group_id));
+
+DELETE FROM plateacquisitionannotationlink link
+      USING plateacquisition parent, annotation child
+      WHERE link.parent = parent.id AND link.child = child.id
+        AND (child.discriminator IN ('/basic/text/uri/', '/basic/text/url/') OR
+             is_too_many_group_ids(parent.group_id, link.group_id, child.group_id));
+
+DELETE FROM plateannotationlink link
+      USING plate parent, annotation child
+      WHERE link.parent = parent.id AND link.child = child.id
+        AND (child.discriminator IN ('/basic/text/uri/', '/basic/text/url/') OR
+             is_too_many_group_ids(parent.group_id, link.group_id, child.group_id));
+
+DELETE FROM projectannotationlink link
+      USING project parent, annotation child
+      WHERE link.parent = parent.id AND link.child = child.id
+        AND (child.discriminator IN ('/basic/text/uri/', '/basic/text/url/') OR
+             is_too_many_group_ids(parent.group_id, link.group_id, child.group_id));
+
+DELETE FROM reagentannotationlink link
+      USING reagent parent, annotation child
+      WHERE link.parent = parent.id AND link.child = child.id
+        AND (child.discriminator IN ('/basic/text/uri/', '/basic/text/url/') OR
+             is_too_many_group_ids(parent.group_id, link.group_id, child.group_id));
+
+DELETE FROM roiannotationlink link
+      USING roi parent, annotation child
+      WHERE link.parent = parent.id AND link.child = child.id
+        AND (child.discriminator IN ('/basic/text/uri/', '/basic/text/url/') OR
+             is_too_many_group_ids(parent.group_id, link.group_id, child.group_id));
+
+DELETE FROM screenannotationlink link
+      USING screen parent, annotation child
+      WHERE link.parent = parent.id AND link.child = child.id
+        AND (child.discriminator IN ('/basic/text/uri/', '/basic/text/url/') OR
+             is_too_many_group_ids(parent.group_id, link.group_id, child.group_id));
+
+DELETE FROM sessionannotationlink link
+      USING annotation child
       WHERE link.child = child.id
-        AND child.discriminator IN ('/basic/text/uri/', '/basic/text/url/')
-             OR child.group_id != link.group_id;
+        AND (child.discriminator IN ('/basic/text/uri/', '/basic/text/url/') OR
+             is_too_many_group_ids(link.group_id, child.group_id));
 
-DELETE FROM experimentergroupannotationlink link USING annotation child
-      WHERE link.child = child.id
-        AND child.discriminator IN ('/basic/text/uri/', '/basic/text/url/')
-             OR child.group_id != link.group_id;
+DELETE FROM wellannotationlink link
+      USING well parent, annotation child
+      WHERE link.parent = parent.id AND link.child = child.id
+        AND (child.discriminator IN ('/basic/text/uri/', '/basic/text/url/') OR
+             is_too_many_group_ids(parent.group_id, link.group_id, child.group_id));
 
-DELETE FROM filesetannotationlink link USING fileset parent
-      WHERE link.parent = parent.id
-        AND parent.group_id != link.group_id;
+DELETE FROM wellsampleannotationlink link
+      USING wellsample parent, annotation child
+      WHERE link.parent = parent.id AND link.child = child.id
+        AND (child.discriminator IN ('/basic/text/uri/', '/basic/text/url/') OR
+             is_too_many_group_ids(parent.group_id, link.group_id, child.group_id));
 
-DELETE FROM filesetannotationlink link USING annotation child
-      WHERE link.child = child.id
-        AND child.discriminator IN ('/basic/text/uri/', '/basic/text/url/')
-             OR child.group_id != link.group_id;
+DROP FUNCTION is_too_many_group_ids(VARIADIC group_ids BIGINT[]);
 
-DELETE FROM imageannotationlink link USING image parent
-      WHERE link.parent = parent.id
-        AND parent.group_id != link.group_id;
-
-DELETE FROM imageannotationlink link USING annotation child
-      WHERE link.child = child.id
-        AND child.discriminator IN ('/basic/text/uri/', '/basic/text/url/')
-             OR child.group_id != link.group_id;
-
-DELETE FROM namespaceannotationlink link USING namespace parent
-      WHERE link.parent = parent.id
-        AND parent.group_id != link.group_id;
-
-DELETE FROM namespaceannotationlink link USING annotation child
-      WHERE link.child = child.id
-        AND child.discriminator IN ('/basic/text/uri/', '/basic/text/url/')
-             OR child.group_id != link.group_id;
-
-DELETE FROM nodeannotationlink link USING annotation child
-      WHERE link.child = child.id
-        AND child.discriminator IN ('/basic/text/uri/', '/basic/text/url/')
-             OR child.group_id != link.group_id;
-
-DELETE FROM originalfileannotationlink link USING originalfile parent
-      WHERE link.parent = parent.id
-        AND parent.group_id != link.group_id;
-
-DELETE FROM originalfileannotationlink link USING annotation child
-      WHERE link.child = child.id
-        AND child.discriminator IN ('/basic/text/uri/', '/basic/text/url/')
-             OR child.group_id != link.group_id;
-
-DELETE FROM pixelsannotationlink link USING pixels parent
-      WHERE link.parent = parent.id
-        AND parent.group_id != link.group_id;
-
-DELETE FROM pixelsannotationlink link USING annotation child
-      WHERE link.child = child.id
-        AND child.discriminator IN ('/basic/text/uri/', '/basic/text/url/')
-             OR child.group_id != link.group_id;
-
-DELETE FROM planeinfoannotationlink link USING planeinfo parent
-      WHERE link.parent = parent.id
-        AND parent.group_id != link.group_id;
-
-DELETE FROM planeinfoannotationlink link USING annotation child
-      WHERE link.child = child.id
-        AND child.discriminator IN ('/basic/text/uri/', '/basic/text/url/')
-             OR child.group_id != link.group_id;
-
-DELETE FROM plateacquisitionannotationlink link USING plateacquisition parent
-      WHERE link.parent = parent.id
-        AND parent.group_id != link.group_id;
-
-DELETE FROM plateacquisitionannotationlink link USING annotation child
-      WHERE link.child = child.id
-        AND child.discriminator IN ('/basic/text/uri/', '/basic/text/url/')
-             OR child.group_id != link.group_id;
-
-DELETE FROM plateannotationlink link USING plate parent
-      WHERE link.parent = parent.id
-        AND parent.group_id != link.group_id;
-
-DELETE FROM plateannotationlink link USING annotation child
-      WHERE link.child = child.id
-        AND child.discriminator IN ('/basic/text/uri/', '/basic/text/url/')
-             OR child.group_id != link.group_id;
-
-DELETE FROM projectannotationlink link USING project parent
-      WHERE link.parent = parent.id
-        AND parent.group_id != link.group_id;
-
-DELETE FROM projectannotationlink link USING annotation child
-      WHERE link.child = child.id
-        AND child.discriminator IN ('/basic/text/uri/', '/basic/text/url/')
-             OR child.group_id != link.group_id;
-
-DELETE FROM reagentannotationlink link USING reagent parent
-      WHERE link.parent = parent.id
-        AND parent.group_id != link.group_id;
-
-DELETE FROM reagentannotationlink link USING annotation child
-      WHERE link.child = child.id
-        AND child.discriminator IN ('/basic/text/uri/', '/basic/text/url/')
-             OR child.group_id != link.group_id;
-
-DELETE FROM roiannotationlink link USING roi parent
-      WHERE link.parent = parent.id
-        AND parent.group_id != link.group_id;
-
-DELETE FROM roiannotationlink link USING annotation child
-      WHERE link.child = child.id
-        AND child.discriminator IN ('/basic/text/uri/', '/basic/text/url/')
-             OR child.group_id != link.group_id;
-
-DELETE FROM screenannotationlink link USING screen parent
-      WHERE link.parent = parent.id
-        AND parent.group_id != link.group_id;
-
-DELETE FROM screenannotationlink link USING annotation child
-      WHERE link.child = child.id
-        AND child.discriminator IN ('/basic/text/uri/', '/basic/text/url/')
-             OR child.group_id != link.group_id;
-
-DELETE FROM sessionannotationlink link USING annotation child
-      WHERE link.child = child.id
-        AND child.discriminator IN ('/basic/text/uri/', '/basic/text/url/')
-             OR child.group_id != link.group_id;
-
-DELETE FROM wellannotationlink link USING well parent
-      WHERE link.parent = parent.id
-        AND parent.group_id != link.group_id;
-
-DELETE FROM wellannotationlink link USING annotation child
-      WHERE link.child = child.id
-        AND child.discriminator IN ('/basic/text/uri/', '/basic/text/url/')
-             OR child.group_id != link.group_id;
-
-DELETE FROM wellsampleannotationlink link USING wellsample parent
-      WHERE link.parent = parent.id
-        AND parent.group_id != link.group_id;
-
-DELETE FROM wellsampleannotationlink link USING annotation child
-      WHERE link.child = child.id
-        AND child.discriminator IN ('/basic/text/uri/', '/basic/text/url/')
-             OR child.group_id != link.group_id;
-
-DELETE FROM annotation 
+DELETE FROM annotation
       WHERE discriminator IN ('/basic/text/uri/', '/basic/text/url/');
 
 --
