@@ -97,6 +97,19 @@ class NewObjectTxAction(TxAction):
         except AttributeError:
             ctx.die(102, "No class named '%s'" % self.class_name())
 
+    def check_requirements(self, ctx, obj, completed):
+        missing = []
+        total = list(obj._info_list)
+        for arg in completed:
+            total.remove(arg.argname)
+        for remaining in total:
+            info = getattr(obj, "_%s_info" % remaining)
+            if info[1] is False:
+                missing.append(remaining)
+        if missing:
+            ctx.die(103, "required arguments: %s" %
+                    ", ".join(missing))
+
     def go(self, ctx, args):
         c = ctx.conn(args)
         up = c.sf.getUpdateService()
@@ -104,12 +117,17 @@ class NewObjectTxAction(TxAction):
         kls = obj.__class__.__name__
         if kls.endswith("I"):
             kls = kls[0:-1]
+
+        completed = []
         for arg in self.arg_list[1:]:
             arg = TxArg(ctx, arg)
             try:
                 arg.call_setter(obj)
+                completed.append(arg)
             except AttributeError:
                 ctx.die(500, "No field %s for %s" % (arg.argname, kls))
+
+        self.check_requirements(ctx, obj, completed)
         out = up.saveAndReturnObject(obj)
         proxy = "%s:%s" % (kls, out.id.val)
         ctx.out("Created %s" % proxy)
