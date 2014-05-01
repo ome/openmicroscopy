@@ -108,7 +108,9 @@ public class BlobShareStoreTest extends TestCase {
                 .getFile("classpath:ome/server/utests/sharing/33.blob");
         File f34 = ResourceUtils
                 .getFile("classpath:ome/server/utests/sharing/34.blob");
-        return new File[] { f33, f34 };
+        File f35 = ResourceUtils
+                .getFile("classpath:ome/server/utests/sharing/35.blob");
+        return new File[] { f35, f34, f33 };
     }
 
 }
