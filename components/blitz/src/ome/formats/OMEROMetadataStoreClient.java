@@ -2641,6 +2641,15 @@ public class OMEROMetadataStoreClient
         o.setType((ArcType) getEnumeration(ArcType.class, type.toString()));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setArcType(ome.xml.model.enums.ArcType, int, int)
+     */
+    @Override
+    public void setArcAnnotationRef(String annotation, int instrumentIndex, int lightSourceIndex, int annotationRefIndex)
+    {
+        LSID key = new LSID(Arc.class, instrumentIndex, lightSourceIndex, annotationRefIndex);
+        addReference(key, new LSID(annotation));
+    }
 
     //////// BooleanAnnotation /////////
 
@@ -8436,120 +8445,166 @@ public class OMEROMetadataStoreClient
         this.token = token;
     }
 
-    @Override
-    public void setArcAnnotationRef(String annotation, int instrumentIndex, int lightSourceIndex, int annotationRefIndex)
-    {
-      // TODO Auto-generated method stub
-
-    }
-
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setDetectorAnnotationRef(String, int, int, int)
+     */
     @Override
     public void setDetectorAnnotationRef(String annotation, int instrumentIndex, int detectorIndex, int annotationRefIndex) {
-    // TODO Auto-generated method stub
-
+        LSID key = new LSID(Detector.class, instrumentIndex, detectorIndex, annotationRefIndex);
+        addReference(key, new LSID(annotation));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setDichroicAnnotationRef(String, int, int, int)
+     */
     @Override
     public void setDichroicAnnotationRef(String annotation, int instrumentIndex, int dichroicIndex, int annotationRefIndex) {
-    // TODO Auto-generated method stub
-
+        LSID key = new LSID(Dichroic.class, instrumentIndex, dichroicIndex, annotationRefIndex);
+        addReference(key, new LSID(annotation));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setEllipseAnnotationRef(String, int, int, int)
+     */
     @Override
     public void setEllipseAnnotationRef(String annotation, int ROIIndex, int shapeIndex, int annotationRefIndex) {
-    // TODO Auto-generated method stub
-
+        LSID key = new LSID(Ellipse.class, ROIIndex, shapeIndex, annotationRefIndex);
+        addReference(key, new LSID(annotation));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setFilamentAnnotationRef(String, int, int, int)
+     */
     @Override
     public void setFilamentAnnotationRef(String annotation, int instrumentIndex, int lightSourceIndex, int annotationRefIndex) {
-    // TODO Auto-generated method stub
-
+        LSID key = new LSID(Filament.class, instrumentIndex, lightSourceIndex, annotationRefIndex);
+        addReference(key, new LSID(annotation));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setFilterAnnotationRef(String, int, int, int)
+     */
     @Override
     public void setFilterAnnotationRef(String annotation, int instrumentIndex, int filterIndex, int annotationRefIndex) {
-    // TODO Auto-generated method stub
-
+        LSID key = new LSID(Filter.class, instrumentIndex, filterIndex, annotationRefIndex);
+        addReference(key, new LSID(annotation));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setGenericExcitationSourceAnnotationRef(String, int, int, int)
+     */
     @Override
     public void setGenericExcitationSourceAnnotationRef(String annotation, int instrumentIndex, int lightSourceIndex, int annotationRefIndex) {
-    // TODO Auto-generated method stub
-
+        LSID key = new LSID(GenericExcitationSource.class, instrumentIndex, lightSourceIndex, annotationRefIndex);
+        addReference(key, new LSID(annotation));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setInstrumentAnnotationRef(String, int, int)
+     */
     @Override
     public void setInstrumentAnnotationRef(String annotation, int instrumentIndex, int annotationRefIndex) {
-    // TODO Auto-generated method stub
-
+        LSID key = new LSID(Instrument.class, instrumentIndex, annotationRefIndex);
+        addReference(key, new LSID(annotation));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setLabelAnnotationRef(String, int, int, int)
+     */
     @Override
     public void setLabelAnnotationRef(String annotation, int ROIIndex, int shapeIndex, int annotationRefIndex) {
-    // TODO Auto-generated method stub
-
+        LSID key = new LSID(Label.class, ROIIndex, shapeIndex, annotationRefIndex);
+        addReference(key, new LSID(annotation));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setLaserAnnotationRef(String, int, int, int)
+     */
     @Override
     public void setLaserAnnotationRef(String annotation, int instrumentIndex, int lightSourceIndex, int annotationRefIndex) {
-    // TODO Auto-generated method stub
-
+        LSID key = new LSID(Laser.class, instrumentIndex, lightSourceIndex, annotationRefIndex);
+        addReference(key, new LSID(annotation));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setLightEmittingDiodeAnnotationRef(String, int, int, int)
+     */
     @Override
     public void setLightEmittingDiodeAnnotationRef(String annotation, int instrumentIndex, int lightSourceIndex, int annotationRefIndex) {
-    // TODO Auto-generated method stub
-
+        LSID key = new LSID(LightEmittingDiode.class, instrumentIndex, lightSourceIndex, annotationRefIndex);
+        addReference(key, new LSID(annotation));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setLightPathAnnotationRef(String, int, int, int)
+     */
     @Override
     public void setLightPathAnnotationRef(String annotation, int imageIndex, int channelIndex, int annotationRefIndex) {
-    // TODO Auto-generated method stub
-
+        LSID key = new LSID(LightPath.class, imageIndex, channelIndex, annotationRefIndex);
+        addReference(key, new LSID(annotation));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setLineAnnotationRef(String, int, int, int)
+     */
     @Override
     public void setLineAnnotationRef(String annotation, int ROIIndex, int shapeIndex, int annotationRefIndex) {
-    // TODO Auto-generated method stub
-
+        LSID key = new LSID(Line.class, ROIIndex, shapeIndex, annotationRefIndex);
+        addReference(key, new LSID(annotation));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setMaskAnnotationRef(String, int, int, int)
+     */
     @Override
     public void setMaskAnnotationRef(String annotation, int ROIIndex, int shapeIndex, int annotationRefIndex) {
-    // TODO Auto-generated method stub
-
+        LSID key = new LSID(Mask.class, ROIIndex, shapeIndex, annotationRefIndex);
+        addReference(key, new LSID(annotation));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setObjectiveAnnotationRef(String, int, int, int)
+     */
     @Override
     public void setObjectiveAnnotationRef(String annotation, int instrumentIndex, int objectiveIndex, int annotationRefIndex) {
-    int arg3) {
-    // TODO Auto-generated method stub
-
+        LSID key = new LSID(Objective.class, instrumentIndex, objectiveIndex, annotationRefIndex);
+        addReference(key, new LSID(annotation));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPointAnnotationRef(String, int, int, int)
+     */
     @Override
     public void setPointAnnotationRef(String annotation, int ROIIndex, int shapeIndex, int annotationRefIndex) {
-    // TODO Auto-generated method stub
-
+        LSID key = new LSID(Point.class, ROIIndex, shapeIndex, annotationRefIndex);
+        addReference(key, new LSID(annotation));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPolygonAnnotationRef(String, int, int, int)
+     */
     @Override
     public void setPolygonAnnotationRef(String annotation, int ROIIndex, int shapeIndex, int annotationRefIndex) {
-    // TODO Auto-generated method stub
-
+        LSID key = new LSID(Polygon.class, ROIIndex, shapeIndex, annotationRefIndex);
+        addReference(key, new LSID(annotation));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPolylineAnnotationRef(String, int, int, int)
+     */
     @Override
     public void setPolylineAnnotationRef(String annotation, int ROIIndex, int shapeIndex, int annotationRefIndex) {
-    // TODO Auto-generated method stub
-
+        LSID key = new LSID(Polyline.class, ROIIndex, shapeIndex, annotationRefIndex);
+        addReference(key, new LSID(annotation));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setRectangleAnnotationRef(String, int, int, int)
+     */
     @Override
     public void setRectangleAnnotationRef(String annotation, int ROIIndex, int shapeIndex, int annotationRefIndex) {
-    // TODO Auto-generated method stub
-
+        LSID key = new LSID(Rect.class, ROIIndex, shapeIndex, annotationRefIndex);
+        addReference(key, new LSID(annotation));
     }
 
 }
