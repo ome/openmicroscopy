@@ -174,7 +174,7 @@ public class DBBadAnnotationCheck {
             hql = "DELETE FROM Annotation annotation WHERE annotation.class IN (:classes)";
             deleteCount += session.createQuery(hql).setParameterList("classes", badDiscriminators).executeUpdate();
             if (deleteCount > 0) {
-                log.info("deleted bad annotations or links, count = " + deleteCount);
+                log.warn("deleted bad annotations or links, count = " + deleteCount);
             } else if (log.isDebugEnabled()) {
                 log.debug("verified annotations and links");
             }
