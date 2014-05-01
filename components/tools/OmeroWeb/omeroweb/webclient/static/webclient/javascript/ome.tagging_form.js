@@ -435,6 +435,12 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id, me) {
         event.preventDefault();
     };
 
+    tag_input_filter.keypress(function(event) {
+        if (event.which === 13) {
+            select_tags(event);
+        }
+    });
+
     var deselect_tags = function(event) {
         // clear selections in left box
         $("div.ui-selected", div_all_tags).removeClass('ui-selected');
@@ -449,7 +455,7 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id, me) {
             }
         }).each(update_tooltip);
         sort_tag_list(div_all_tags);
-        update_filter();
+        update_filter(true);
         // scroll to first selected tag
         var first_selected = $("div.ui-selected", div_all_tags);
         if (first_selected.length > 0) {
@@ -461,7 +467,7 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id, me) {
     };
 
     var update_timeout = null;
-    var update_filter = function() {
+    var update_filter = function(keep_selection) {
         clearTimeout(update_timeout);
         var cleanup = function() {
             // make sure tagsets with unfiltered tags are also not filtered
@@ -476,6 +482,11 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id, me) {
                     $(this).toggleClass('filtered', !unfiltered_tagsets[
                         this.getAttribute("data-id")]);
                 });
+            }
+            if (!keep_selection) {
+                $("div.ui-selected", div_all_tags).removeClass("ui-selected");
+                $("div.alltags-tag,div.alltags-childtag", div_all_tags).not(
+                    ".filtered").first().addClass("ui-selected");
             }
             update_selected_labels();
         };
