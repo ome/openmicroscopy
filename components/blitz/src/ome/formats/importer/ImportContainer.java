@@ -29,7 +29,6 @@ import static omero.rtypes.rstring;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
-import org.apache.commons.lang.StringUtils;
 
 import ome.formats.importer.transfers.FileTransfer;
 import ome.formats.importer.transfers.UploadFileTransfer;
@@ -278,12 +277,10 @@ public class ImportContainer
         // ImportUserSettings rather than mis-using ImportContainer.
         settings.doThumbnails = rbool(getDoThumbnails());
         settings.userSpecifiedTarget = getTarget();
-        settings.userSpecifiedName = StringUtils
-                .isNotEmpty(getUserSpecifiedName()) ? rstring(getUserSpecifiedName())
-                : null;
-        settings.userSpecifiedDescription = StringUtils
-                .isNotEmpty(getUserSpecifiedDescription()) ? rstring(getUserSpecifiedDescription())
-                : null;
+        settings.userSpecifiedName = getUserSpecifiedName() == null ? null
+                : rstring(getUserSpecifiedName());
+        settings.userSpecifiedDescription = getUserSpecifiedDescription() == null ? null
+                : rstring(getUserSpecifiedDescription());
         settings.userSpecifiedAnnotationList = getCustomAnnotationList();
 
         if (getUserPixels() != null) {
