@@ -2631,7 +2631,7 @@ public class OMEROMetadataStoreClient
     @Override
     public void setBinaryOnlyUUID(String uuid)
     {
-        // XXX: Not handled by OMERO.
+        ignoreUnneeded("BinaryOnlyUUID", uuid);
     }
 
     /* (non-Javadoc)
@@ -2640,7 +2640,7 @@ public class OMEROMetadataStoreClient
     @Override
     public void setBinaryOnlyMetadataFile(String metadataFile)
     {
-        // XXX: Not handled by OMERO.
+        ignoreUnneeded("BinaryMetadataFile", metadataFile);
     }
 
     //////// Channel /////////
@@ -2891,7 +2891,7 @@ public class OMEROMetadataStoreClient
     @Override
     public void setDatasetID(String id, int datasetIndex)
     {
-        // XXX: Not handled by OMERO.
+        ignoreUnsupported("setDatasetID", id, datasetIndex);
     }
 
     /* (non-Javadoc)
@@ -2901,7 +2901,8 @@ public class OMEROMetadataStoreClient
     public void setDatasetAnnotationRef(String annotation, int datasetIndex,
             int annotationRefIndex)
     {
-        // XXX: Not handled by OMERO.
+        ignoreUnsupported("setDatasetAnnotationRef", annotation, datasetIndex,
+                annotationRefIndex);
     }
 
     /* (non-Javadoc)
@@ -2910,7 +2911,7 @@ public class OMEROMetadataStoreClient
     @Override
     public void setDatasetDescription(String description, int datasetIndex)
     {
-        // XXX: Not handled by OMERO.
+        ignoreUnsupported("setDatasetDescription", description, datasetIndex);
     }
 
     /* (non-Javadoc)
@@ -2919,6 +2920,8 @@ public class OMEROMetadataStoreClient
     @Override
     public void setDatasetExperimenterRef(String experimenter, int datasetIndex)
     {
+        ignoreUnsupported("setDatasetExperimenterRef", experimenter,
+                datasetIndex);
     }
 
     /* (non-Javadoc)
@@ -2927,7 +2930,8 @@ public class OMEROMetadataStoreClient
     @Override
     public void setDatasetExperimenterGroupRef(String group, int datasetIndex)
     {
-        // XXX: Not handled by OMERO.
+        ignoreUnsupported("setDatasetExperimenterGroupRef",
+                group, datasetIndex);
     }
 
     /* (non-Javadoc)
@@ -2936,7 +2940,7 @@ public class OMEROMetadataStoreClient
     @Override
     public void setDatasetName(String name, int datasetIndex)
     {
-        // XXX: Not handled by OMERO.
+        ignoreUnsupported("setDatasetName", name, datasetIndex);
     }
 
     ////////Detector/////////
@@ -3527,7 +3531,8 @@ public class OMEROMetadataStoreClient
     public void setExperimentExperimenterRef(String experimenter,
             int experimentIndex)
     {
-        // XXX: Not handled by OMERO.
+        ignoreInsecure("setExperimenterExperiemnterRef", experimenter,
+                experimentIndex);
     }
 
     /* (non-Javadoc)
@@ -3549,7 +3554,7 @@ public class OMEROMetadataStoreClient
     @Override
     public void setExperimenterID(String id, int experimenterIndex)
     {
-        // XXX: Not handled by OMERO.
+        ignoreUnsupported("setExperimenterID", id, experimenterIndex);
     }
 
     /* (non-Javadoc)
@@ -3559,7 +3564,8 @@ public class OMEROMetadataStoreClient
     public void setExperimenterAnnotationRef(String annotation,
             int experimenterIndex, int annotationRefIndex)
     {
-        // XXX: Not handled by OMERO.
+        ignoreUnsupported("setExperimenterAnnotationRef",
+                annotation, experimenterIndex, annotationRefIndex);
     }
 
     /* (non-Javadoc)
@@ -3568,7 +3574,7 @@ public class OMEROMetadataStoreClient
     @Override
     public void setExperimenterEmail(String email, int experimenterIndex)
     {
-        // XXX: Not handled by OMERO.
+        ignoreUnsupported("setExperimenterEmail", email, experimenterIndex);
     }
 
     /* (non-Javadoc)
@@ -3577,7 +3583,8 @@ public class OMEROMetadataStoreClient
     @Override
     public void setExperimenterFirstName(String firstName, int experimenterIndex)
     {
-        // XXX: Not handled by OMERO.
+        ignoreUnsupported("setExperimenterFirstName",
+                firstName, experimenterIndex);
     }
 
     /* (non-Javadoc)
@@ -3587,7 +3594,8 @@ public class OMEROMetadataStoreClient
     public void setExperimenterInstitution(String institution,
             int experimenterIndex)
     {
-        // XXX: Not handled by OMERO.
+        ignoreUnsupported("setExperimenterInstitution",
+                institution, experimenterIndex);
     }
 
     /* (non-Javadoc)
@@ -3596,7 +3604,8 @@ public class OMEROMetadataStoreClient
     @Override
     public void setExperimenterLastName(String lastName, int experimenterIndex)
     {
-        // XXX: Not handled by OMERO.
+        ignoreUnsupported("setExperimenterLastName",
+                lastName, experimenterIndex);
     }
 
     /* (non-Javadoc)
@@ -3606,7 +3615,8 @@ public class OMEROMetadataStoreClient
     public void setExperimenterMiddleName(String middleName,
             int experimenterIndex)
     {
-        // XXX: Not handled by OMERO.
+        ignoreUnsupported("setExperimenterMiddleName",
+                middleName, experimenterIndex);
     }
 
     /* (non-Javadoc)
@@ -3615,7 +3625,8 @@ public class OMEROMetadataStoreClient
     @Override
     public void setExperimenterUserName(String userName, int experimenterIndex)
     {
-        // XXX: Not handled by OMERO.
+        ignoreUnsupported("setExperimenterUserName",
+                userName, experimenterIndex);
     }
 
     ////////Filament/////////
@@ -4028,7 +4039,7 @@ public class OMEROMetadataStoreClient
     @Override
     public void setExperimenterGroupID(String id, int groupIndex)
     {
-        // XXX: Not handled by OMERO.
+        ignoreInsecure("setExperimenterGroupID", id, groupIndex);
     }
 
     /* (non-Javadoc)
@@ -4037,7 +4048,7 @@ public class OMEROMetadataStoreClient
     @Override
     public void setExperimenterGroupDescription(String description, int groupIndex)
     {
-        // XXX: Not handled by OMERO.
+        ignoreInsecure("setExperimenterGroupDescription", description, groupIndex);
     }
 
     /* (non-Javadoc)
@@ -4047,7 +4058,7 @@ public class OMEROMetadataStoreClient
     public void setExperimenterGroupLeader(String leader, int groupIndex,
             int leaderIndex)
     {
-        // XXX: Not handled by OMERO.
+        ignoreInsecure("setExperimenterGroupLeader", leader, groupIndex, leaderIndex);
     }
 
     /* (non-Javadoc)
@@ -4056,7 +4067,7 @@ public class OMEROMetadataStoreClient
     @Override
     public void setExperimenterGroupName(String name, int groupIndex)
     {
-        // XXX: Not handled by OMERO.
+        ignoreInsecure("setExperimenterGroupName",name, groupIndex);
     }
 
     //////// Image /////////
@@ -4142,8 +4153,7 @@ public class OMEROMetadataStoreClient
     @Override
     public void setImageExperimenterRef(String experimenter, int imageIndex)
     {
-        //LSID key = new LSID(Image.class, imageIndex);
-        //addReference(key, new LSID(experimenter));
+        ignoreInsecure("setImageExperimenterRef", experimenter, imageIndex);
     }
 
     /* (non-Javadoc)
@@ -4152,7 +4162,7 @@ public class OMEROMetadataStoreClient
     @Override
     public void setImageExperimenterGroupRef(String group, int imageIndex)
     {
-        // XXX: Not handled by OMERO.
+        ignoreInsecure("setImageExperimenterGroupRef", group, imageIndex);
     }
 
     /* (non-Javadoc)
@@ -5484,9 +5494,7 @@ public class OMEROMetadataStoreClient
     @Override
     public void  setPixelsBigEndian(Boolean value,  int index)
     {
-        // TODO : not in OMERO model
-        //Pixels o = getPixels(imageIndex);
-        //o.setBigEndian(value);
+        ignoreUnneeded("setPixelsBigEndian", value, index);
     }
 
     /* (non-Javadoc)
@@ -5496,9 +5504,7 @@ public class OMEROMetadataStoreClient
     public void setPixelsBinDataBigEndian(Boolean bigEndian, int imageIndex,
             int binDataIndex)
     {
-        // TODO : not in OMERO model
-        //Pixels o = getPixels(imageIndex);
-        //o.setBinDataBigEndian(value);
+        ignoreUnneeded("setPixelsBinDataBigEndian", bigEndian, imageIndex);
     }
 
     /* (non-Javadoc)
@@ -5521,9 +5527,7 @@ public class OMEROMetadataStoreClient
     @Override
     public void  setPixelsInterleaved(Boolean value,  int index)
     {
-        // TODO: not in OMERO model
-        //Pixels o = getPixels(imageIndex);
-        //o.setInterleaved(value);
+        ignoreUnneeded("setPixelsInterleaved", value, index);
     }
 
 
@@ -5688,9 +5692,7 @@ public class OMEROMetadataStoreClient
     @Override
     public void setPlaneHashSHA1(String hashSHA1, int imageIndex, int planeIndex)
     {
-        // TODO : not in the OMERO model
-        //PlaneInfo o = getPlane(imageIndex, planeIndex);
-        //o.setHashSHA1(toRType(exposureTime));
+        ignoreUnneeded("setPlaneHashSHA1", hashSHA1, imageIndex, planeIndex);
     }
 
     /* (non-Javadoc)
@@ -6309,7 +6311,7 @@ public class OMEROMetadataStoreClient
     @Override
     public void setProjectID(String id, int projectIndex)
     {
-        // XXX: Not handled by OMERO.
+        ignoreUnsupported("setProjectID", id, projectIndex);
     }
 
     /* (non-Javadoc)
@@ -6319,7 +6321,8 @@ public class OMEROMetadataStoreClient
     public void setProjectAnnotationRef(String annotation, int projectIndex,
             int annotationRefIndex)
     {
-        // XXX: Not handled by OMERO.
+        ignoreUnsupported("setProjectAnnotationRef", annotation, projectIndex,
+                annotationRefIndex);
     }
 
     /* (non-Javadoc)
@@ -6328,7 +6331,7 @@ public class OMEROMetadataStoreClient
     @Override
     public void setProjectDescription(String description, int projectIndex)
     {
-        // XXX: Not handled by OMERO.
+        ignoreUnsupported("setProjectDescription", description, projectIndex);
     }
 
     /* (non-Javadoc)
@@ -6337,7 +6340,7 @@ public class OMEROMetadataStoreClient
     @Override
     public void setProjectExperimenterRef(String experimenter, int projectIndex)
     {
-        // XXX: Not handled by OMERO.
+        ignoreInsecure("setProjectExperimenterRef", experimenter, projectIndex);
     }
 
     /* (non-Javadoc)
@@ -6346,7 +6349,7 @@ public class OMEROMetadataStoreClient
     @Override
     public void setProjectExperimenterGroupRef(String group, int projectIndex)
     {
-        // XXX: Not handled by OMERO.
+        ignoreInsecure("setProjectExperimenterGroupRef", group, projectIndex);
     }
 
     /* (non-Javadoc)
@@ -6355,7 +6358,7 @@ public class OMEROMetadataStoreClient
     @Override
     public void setProjectName(String name, int projectIndex)
     {
-        // XXX: Not handled by OMERO.
+        ignoreInsecure("setProjectName", name, projectIndex);
     }
 
     //////// ROI /////////
@@ -6410,9 +6413,7 @@ public class OMEROMetadataStoreClient
     @Override
     public void setROIName(String name, int ROIIndex)
     {
-//        Roi o = getROI(ROIIndex);
-//        o.set(toRType(name));
-        // TODO not in OMERO model
+        ignoreMissing("setROIName", name, ROIIndex);
     }
 
     /* (non-Javadoc)
@@ -6687,7 +6688,7 @@ public class OMEROMetadataStoreClient
     @Override
     public void setRoot(MetadataRoot root)
     {
-        // TODO Auto-generated method stub
+        ignoreUnneeded("setRoot", root);
     }
 
     /* (non-Javadoc)
@@ -6697,7 +6698,7 @@ public class OMEROMetadataStoreClient
     @Override
     public void setRoot(Object root)
     {
-        // TODO Auto-generated method stub
+        ignoreUnneeded("setRoot", root);
     }
 
     //////// Screen /////////
@@ -6928,9 +6929,7 @@ public class OMEROMetadataStoreClient
     @Override
     public void  setCommentAnnotationAnnotator(String value, int index)
     {
-        // TODO : not in OMERO model
-        //CommentAnnotation o = getCommentAnnotation(commentAnnotationIndex);
-        //o.setAnnotator(toRType(value));
+        ignoreAnnotator("setCommentAnnotationAnnotator", value, index);
     }
 
     /* (non-Javadoc)
@@ -7109,7 +7108,7 @@ public class OMEROMetadataStoreClient
     public void setTiffDataFirstC(NonNegativeInteger firstC, int imageIndex,
             int tiffDataIndex)
     {
-        // TODO not in OMERO Model
+        ignoreUnneeded("setTiffDataFirstC", firstC, imageIndex, tiffDataIndex);
     }
 
     /* (non-Javadoc)
@@ -7119,7 +7118,7 @@ public class OMEROMetadataStoreClient
     public void setTiffDataFirstT(NonNegativeInteger firstT, int imageIndex,
             int tiffDataIndex)
     {
-        // TODO not in OMERO Model
+        ignoreUnneeded("setTiffDataFirstT", firstT, imageIndex, tiffDataIndex);
     }
 
     /* (non-Javadoc)
@@ -7129,7 +7128,7 @@ public class OMEROMetadataStoreClient
     public void setTiffDataFirstZ(NonNegativeInteger firstZ, int imageIndex,
             int tiffDataIndex)
     {
-        // TODO not in OMERO Model
+        ignoreUnneeded("setTiffDataFirstZ", firstZ, imageIndex, tiffDataIndex);
     }
 
     /* (non-Javadoc)
@@ -7138,7 +7137,7 @@ public class OMEROMetadataStoreClient
     @Override
     public void setTiffDataIFD(NonNegativeInteger ifd, int imageIndex, int tiffDataIndex)
     {
-        // TODO not in OMERO Model
+        ignoreUnneeded("setTiffDataIFD", ifd, imageIndex, tiffDataIndex);
     }
 
     /* (non-Javadoc)
@@ -7148,7 +7147,7 @@ public class OMEROMetadataStoreClient
     public void setTiffDataPlaneCount(NonNegativeInteger planeCount, int imageIndex,
             int tiffDataIndex)
     {
-        // TODO not in OMERO Model
+        ignoreUnneeded("setTiffDataPlaneCount", planeCount, imageIndex, tiffDataIndex);
     }
 
     //////// Timestamp /////////
@@ -7279,7 +7278,7 @@ public class OMEROMetadataStoreClient
     @Override
     public void setUUID(String uuid)
     {
-        // TODO not in OMERO Model
+        ignoreUnneeded("setUUID", uuid);
     }
 
     /* (non-Javadoc)
@@ -7289,14 +7288,14 @@ public class OMEROMetadataStoreClient
     public void setUUIDFileName(String fileName, int imageIndex,
             int tiffDataIndex)
     {
-        // TODO not in OMERO Model
+        ignoreUnneeded("setUUIDFileName", fileName, imageIndex, tiffDataIndex);
     }
 
     @Override
     public void setUUIDValue(String fileName, int imageIndex,
             int tiffDataIndex)
     {
-        // TODO not in OMERO Model
+        ignoreUnneeded("setUUIDValue", fileName, imageIndex, tiffDataIndex);
     }
 
     //////// Well /////////
@@ -7466,7 +7465,9 @@ public class OMEROMetadataStoreClient
     public void setWellSampleIndex(NonNegativeInteger index, int plateIndex,
             int wellIndex, int wellSampleIndex)
     {
-        // TODO not in OMERO Model
+        ignoreMissing("setWellSampleIndex", index, plateIndex, wellIndex,
+                wellSampleIndex);
+        // Perhaps "unneeded"?
     }
 
     /* (non-Javadoc)
@@ -7565,7 +7566,7 @@ public class OMEROMetadataStoreClient
    @Override
     public void  setXMLAnnotationAnnotator(String value, int index)
     {
-        // TODO : not in OMERO model
+        ignoreAnnotator("setXMLAnnotationAnnotator", value, index);
     }
 
     /* (non-Javadoc)
@@ -7618,7 +7619,7 @@ public class OMEROMetadataStoreClient
    @Override
     public void  setBooleanAnnotationAnnotator(String value, int index)
     {
-        // TODO : not in OMERO model
+        ignoreAnnotator("setBooleanAnnotationAnnotator", value, index);
     }
 
     /* (non-Javadoc)
@@ -7671,7 +7672,7 @@ public class OMEROMetadataStoreClient
    @Override
     public void  setDoubleAnnotationAnnotator(String value, int index)
     {
-        // TODO : not in OMERO model
+        ignoreAnnotator("setDoubleAnnotationAnnotator", value, index);
     }
 
     /* (non-Javadoc)
@@ -7702,7 +7703,7 @@ public class OMEROMetadataStoreClient
    @Override
     public void  setFileAnnotationAnnotator(String value, int index)
     {
-        // TODO : not in OMERO model
+        ignoreAnnotator("setFileAnnotationAnnotator", value, index);
     }
 
     /* (non-Javadoc)
@@ -7722,7 +7723,7 @@ public class OMEROMetadataStoreClient
    @Override
     public void  setListAnnotationAnnotator(String value, int index)
     {
-        // TODO : not in OMERO model
+        ignoreAnnotator("setListAnnotationAnnotator", value, index);
     }
 
 
@@ -7754,7 +7755,7 @@ public class OMEROMetadataStoreClient
    @Override
     public void  setLongAnnotationAnnotator(String value, int XMLAnnotationIndex)
     {
-        // TODO : not in OMERO model
+        ignoreAnnotator("setLongAnnotationAnnotator", value, XMLAnnotationIndex);
     }
 
     private MapAnnotation getMapAnnotation(int mapAnnotationIndex)
@@ -7772,7 +7773,7 @@ public class OMEROMetadataStoreClient
 
     @Override
     public void setMapAnnotationAnnotator(String annotator, int mapAnnotationIndex) {
-        // TODO : not in OMERO model
+        ignoreAnnotator("setMapAnnotationAnnotator", annotator, mapAnnotationIndex);
     }
 
     @Override
@@ -7864,7 +7865,7 @@ public class OMEROMetadataStoreClient
     @Override
     public void  setTagAnnotationAnnotator(String value, int index)
     {
-        // TODO : not in OMERO model
+        ignoreAnnotator("setTagAnnotationAnnotator", value, index);
     }
 
     /* (non-Javadoc)
@@ -7944,7 +7945,7 @@ public class OMEROMetadataStoreClient
     @Override
     public void  setTermAnnotationAnnotator(String value, int index)
     {
-        // TODO : not in OMERO model
+        ignoreAnnotator("setTermAnnotationAnnotator", value, index);
     }
 
     /* (non-Javadoc)
@@ -7998,8 +7999,7 @@ public class OMEROMetadataStoreClient
     @Override
     public void setPlateFieldIndex(NonNegativeInteger fieldIndex, int plateIndex)
     {
-        Plate plate = getPlate(plateIndex);
-        // TODO Not in OMERO model
+        ignoreMissing("setPlateFieldIndex", fieldIndex, plateIndex);
     }
 
     /* (non-Javadoc)
@@ -8008,7 +8008,8 @@ public class OMEROMetadataStoreClient
     @Override
     public void setBinaryFileFileName(String fileName, int fileAnnotationIndex)
     {
-        // XXX: Not handled by OMERO.
+        ignoreUnneeded("setBinaryFileFileName", fileName,
+                fileAnnotationIndex);
     }
 
     /* (non-Javadoc)
@@ -8017,7 +8018,7 @@ public class OMEROMetadataStoreClient
     @Override
     public void setBinaryFileMIMEType(String mimeType, int fileAnnotationIndex)
     {
-        // XXX: Not handled by OMERO.
+        ignoreUnneeded("setBinaryFileMIMEType", mimeType, fileAnnotationIndex);
     }
 
     /* (non-Javadoc)
@@ -8026,7 +8027,7 @@ public class OMEROMetadataStoreClient
     @Override
     public void setBinaryFileSize(NonNegativeLong size, int fileAnnotationIndex)
     {
-        // XXX: Not handled by OMERO.
+        ignoreUnneeded("setBinaryFileSize", size, fileAnnotationIndex);
     }
 
     /* (non-Javadoc)
@@ -8036,7 +8037,7 @@ public class OMEROMetadataStoreClient
     public void setDatasetImageRef(String image, int datasetIndex,
             int imageRefIndex)
     {
-        // XXX: Not handled by OMERO.
+        ignoreUnsupported("setDatasetImageRef", image, datasetIndex, imageRefIndex);
     }
 
     /* (non-Javadoc)
@@ -8078,7 +8079,7 @@ public class OMEROMetadataStoreClient
     @Override
     public void setEllipseLineCap(LineCap lineCap, int ROIIndex, int shapeIndex)
     {
-        // TODO Not in OMERO model
+        ignoreMissing("setEllipseLineCap", lineCap, ROIIndex, shapeIndex);
     }
 
     /* (non-Javadoc)
@@ -8108,7 +8109,8 @@ public class OMEROMetadataStoreClient
     public void setExperimenterGroupAnnotationRef(String annotation,
             int experimenterGroupIndex, int annotationRefIndex)
     {
-        // XXX: Not handled by OMERO.
+        ignoreInsecure("setExperimenterGroupAnnotationRef", annotation,
+                experimenterGroupIndex, annotationRefIndex);
     }
 
     /* (non-Javadoc)
@@ -8118,7 +8120,8 @@ public class OMEROMetadataStoreClient
     public void setExperimenterGroupExperimenterRef(String experimenter,
             int experimenterGroupIndex, int experimenterRefIndex)
     {
-        // XXX: Not handled by OMERO.
+        ignoreInsecure("setExperimenterGroupExperimenterRef", experimenter,
+                experimenterGroupIndex, experimenterRefIndex);
     }
 
     /* (non-Javadoc)
@@ -8159,7 +8162,7 @@ public class OMEROMetadataStoreClient
     @Override
     public void setLabelLineCap(LineCap lineCap, int ROIIndex, int shapeIndex)
     {
-        // TODO Not in OMERO model
+        ignoreMissing("setLabelLineCap", lineCap, ROIIndex, shapeIndex);
     }
 
     /* (non-Javadoc)
@@ -8220,7 +8223,7 @@ public class OMEROMetadataStoreClient
     @Override
     public void setLineLineCap(LineCap lineCap, int ROIIndex, int shapeIndex)
     {
-        // TODO Not in OMERO model
+        ignoreMissing("setLineLineCap", lineCap, ROIIndex, shapeIndex);
     }
 
     /* (non-Javadoc)
@@ -8249,7 +8252,7 @@ public class OMEROMetadataStoreClient
     @Override
     public void setLineMarkerEnd(Marker markerEnd, int ROIIndex, int shapeIndex)
     {
-        // TODO Not in OMERO model
+        ignoreMissing("setLineMarkerEnd", markerEnd, ROIIndex, shapeIndex);
     }
 
     /* (non-Javadoc)
@@ -8259,7 +8262,7 @@ public class OMEROMetadataStoreClient
     public void setLineMarkerStart(Marker markerStart, int ROIIndex,
             int shapeIndex)
     {
-        // TODO Not in OMERO model
+        ignoreMissing("setLineMarkerStart", markerStart, ROIIndex, shapeIndex);
     }
 
     /* (non-Javadoc)
@@ -8300,7 +8303,7 @@ public class OMEROMetadataStoreClient
     @Override
     public void setMaskLineCap(LineCap lineCap, int ROIIndex, int shapeIndex)
     {
-        // TODO Not in OMERO model
+        ignoreMissing("setMaskLineCap", lineCap, ROIIndex, shapeIndex);
     }
 
     /* (non-Javadoc)
@@ -8361,7 +8364,7 @@ public class OMEROMetadataStoreClient
     @Override
     public void setPointLineCap(LineCap lineCap, int ROIIndex, int shapeIndex)
     {
-        // TODO Not in OMERO model
+        ignoreMissing("setPointLineCap", lineCap, ROIIndex, shapeIndex);
     }
 
     /* (non-Javadoc)
@@ -8472,7 +8475,7 @@ public class OMEROMetadataStoreClient
     @Override
     public void setPolygonLineCap(LineCap lineCap, int ROIIndex, int shapeIndex)
     {
-        // TODO Not in OMERO model
+        ignoreMissing("setPolygonLineCap", lineCap, ROIIndex, shapeIndex);
     }
 
     /* (non-Javadoc)
@@ -8632,7 +8635,7 @@ public class OMEROMetadataStoreClient
     @Override
     public void setPolylineLineCap(LineCap lineCap, int ROIIndex, int shapeIndex)
     {
-        // TODO Not in OMERO model
+        ignoreMissing("setPolylineLineCap", lineCap, ROIIndex, shapeIndex);
     }
 
     /* (non-Javadoc)
@@ -8662,7 +8665,7 @@ public class OMEROMetadataStoreClient
     public void setPolylineMarkerEnd(Marker markerEnd, int ROIIndex,
             int shapeIndex)
     {
-        // TODO Not in OMERO model
+        ignoreMissing("setPolylineMarkerEnd", markerEnd, ROIIndex, shapeIndex);
     }
 
     /* (non-Javadoc)
@@ -8672,7 +8675,7 @@ public class OMEROMetadataStoreClient
     public void setPolylineMarkerStart(Marker markerStart, int ROIIndex,
             int shapeIndex)
     {
-        // TODO Not in OMERO model
+        ignoreMissing("setPolylineMarkerStart", markerStart, ROIIndex, shapeIndex);
     }
 
     /* (non-Javadoc)
@@ -8682,7 +8685,8 @@ public class OMEROMetadataStoreClient
     public void setProjectDatasetRef(String dataset, int projectIndex,
             int datasetRefIndex)
     {
-        // XXX: Not handled by OMERO.
+        ignoreUnsupported("setProjectDatasetRef", dataset, projectIndex,
+                datasetRefIndex);
     }
 
     /* (non-Javadoc)
@@ -8725,7 +8729,7 @@ public class OMEROMetadataStoreClient
     public void setRectangleLineCap(LineCap lineCap, int ROIIndex,
             int shapeIndex)
     {
-        // TODO Not in OMERO model
+        ignoreMissing("setRectangleLineCap", lineCap, ROIIndex, shapeIndex);
     }
 
     /* (non-Javadoc)
@@ -8765,7 +8769,7 @@ public class OMEROMetadataStoreClient
     @Override
     public void  setRightsRightsHeld(String value)
     {
-        // TODO : not in OMERO model
+        ignoreMissing("setRightsRightsHeld", value);
     }
 
     /* (non-Javadoc)
@@ -8774,7 +8778,8 @@ public class OMEROMetadataStoreClient
     @Override
     public void  setRightsRightsHolder(String value)
     {
-        // TODO : not in OMERO model
+        ignoreMissing("setRightsRightsHolder", value);
+        // Now with FS, shouldn't we attach to this file/fileset?
     }
 
 
@@ -8940,4 +8945,71 @@ public class OMEROMetadataStoreClient
         addReference(key, new LSID(annotation));
     }
 
+    //
+    // LOGGING OF UNIMPLEMENTED METHODS
+    //
+
+    private String ignoreMessage(String reason, String method, Object...args) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(reason);
+        sb.append("Ignoring ");
+        sb.append(method);
+        sb.append("(");
+        boolean added = false;
+        for (int i = 0; i < args.length; i++) {
+            if (added) {
+                sb.append(", ");
+            } else {
+                added = true;
+            }
+            sb.append("{}");
+        }
+        sb.append("(");
+        return sb.toString();
+    }
+
+    /**
+     * Called when a property is missing from the OMERO model (WARN).
+     */
+    protected void ignoreMissing(String method, Object...args) {
+        String msg = ignoreMessage("Unneeded in OMERO. ", method, args);
+        log.warn(msg, args);
+    }
+
+    /**
+     * Called when a property is not needed in OMERO since the data can
+     * be gotten elsewhere, as in directly from the file itself (DEBUG).
+     */
+    protected void ignoreUnneeded(String method, Object...args) {
+        String msg = ignoreMessage("Unneeded in OMERO. ", method, args);
+        log.debug(msg, args);
+    }
+
+    /**
+     * Called when a property is not expected in a file to be imported.
+     * log.warn is used to signal to the user that something is being missed
+     * (WARN).
+     */
+    protected void ignoreUnsupported(String method, Object...args) {
+        String msg = ignoreMessage("Unsupported in OMERO. ", method, args);
+        log.warn(msg, args);
+    }
+
+    /**
+     * Called when saving a property to OMERO would result in a SecurityViolation
+     * (DEBUG). These are logged at debug since there's nothing the user need
+     * worry about.
+     */
+    protected void ignoreInsecure(String method, Object...args) {
+        String msg = ignoreMessage("Disallowed in OMERO. ", method, args);
+        log.debug(msg, args);
+    }
+
+    /**
+     * For all cases of an annotator being ignore (WARN).
+     */
+    protected void ignoreAnnotator(String method, Object...args) {
+        String msg = ignoreMessage("No annotators linked. ", method, args);
+        log.warn(msg, args);
+    }
 }
