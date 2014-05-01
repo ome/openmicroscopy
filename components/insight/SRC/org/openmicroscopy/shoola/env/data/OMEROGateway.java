@@ -6367,7 +6367,7 @@ class OMEROGateway
 	            try {
 	                proc.close();
 	            } catch (Exception e) {
-	                e.printStackTrace();
+	                dsFactory.getLogger().error(this, "Cannot close import process.");
 	            }
 	            library.notifyObservers(new ImportEvent.FILESET_UPLOAD_END(
 	                    null, 0, srcFiles.length, null, null, srcFiles,
