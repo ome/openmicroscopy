@@ -46,7 +46,7 @@
     <dependency org="oro" name="oro" rev="${versions.oro}" conf="build->default"/>
     <dependency org="com.jamonapi" name="jamon" rev="${versions.jamon}" conf="build->default"/>
     <dependency org="org.testng" name="testng" rev="${versions.testng}" conf="build->default"/>
-    <dependency org="com.google.guava" name="guava-jdk5" rev="${versions.guava}" conf="build->default"/>
+    <dependency org="com.google.guava" name="guava" rev="${versions.guava}" conf="build->default"/>
     <dependency org="com.google.inject" name="guice" rev="2.0" conf="build->default"/>
     <dependency org="org.uncommons" name="reportng" rev="${versions.reportng}" conf="build->default"/>
  </dependencies>
