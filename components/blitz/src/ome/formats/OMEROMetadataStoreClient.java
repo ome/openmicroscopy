@@ -983,8 +983,37 @@ public class OMEROMetadataStoreClient
      */
     public RString toRType(AffineTransform value)
     {
-        // TODO: Needs to be implemented
-        return null;
+        if (value == null) {
+            return null;
+        }
+        try {
+            // TODO: this format should be documented in the spec.
+            // a00 a01 a02 a10 a11 a12
+            String a00 = value.getA00().toString();
+            String a01 = value.getA01().toString();
+            String a02 = value.getA02().toString();
+            String a10 = value.getA10().toString();
+            String a11 = value.getA11().toString();
+            String a12 = value.getA12().toString();
+            StringBuilder sb = new StringBuilder();
+            sb.append("[ ");
+            sb.append(a00);
+            sb.append(" ");
+            sb.append(a01);
+            sb.append(" ");
+            sb.append(a02);
+            sb.append(" ");
+            sb.append(a10);
+            sb.append(" ");
+            sb.append(a11);
+            sb.append(" ");
+            sb.append(a12);
+            sb.append(" ]");
+            return rstring(sb.toString());
+        } catch (NullPointerException npe) {
+            log.warn("Failed to parse transform: {}", value);
+            return null;
+        }
     }
 
     /**
@@ -6389,8 +6418,8 @@ public class OMEROMetadataStoreClient
     public void setROIAnnotationRef(String annotation, int ROIIndex,
             int annotationRefIndex)
     {
-        // TODO Auto-generated method stub
-
+        LSID key = new LSID(Roi.class, ROIIndex);
+        addReference(key, new LSID(annotation));
     }
 
     /* (non-Javadoc)
@@ -6418,8 +6447,8 @@ public class OMEROMetadataStoreClient
     @Override
     public void setROINamespace(String namespace, int ROIIndex)
     {
-        // TODO Auto-generated method stub
-
+        Roi o = getROI(ROIIndex);
+        o.setNamespaces(new String[]{namespace});
     }
 
     //////// Reagent /////////
@@ -8775,7 +8804,7 @@ public class OMEROMetadataStoreClient
     public void  setRightsRightsHolder(String value)
     {
         ignoreMissing("setRightsRightsHolder", value);
-        // Now with FS, shouldn't we attach to this file/fileset?
+        // TODO: Now with FS, shouldn't we attach to this file/fileset?
     }
 
 
