@@ -645,9 +645,9 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id, me) {
         update_add_new_button_state();
     };
 
-    var add_new_tag_on_enter_key = function(e) {
-        if (e.which == 13 && !$("#id_add_new_tag").attr('disabled')) {
-            add_new_tag(e);
+    var add_new_tag_on_enter_key = function(event) {
+        if (event.which === 13 && !$("#id_add_new_tag").attr('disabled')) {
+            add_new_tag(event);
         }
     };
     tag_input.keypress(add_new_tag_on_enter_key);
