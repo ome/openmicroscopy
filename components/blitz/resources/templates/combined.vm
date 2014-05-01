@@ -180,7 +180,7 @@ Note how the whitespace for the python definitions is important.
 [$pyc]       try:
 [$pyc]           _${property.name}_info = (omero.model.${shortType}I, $metanullable)
 [$pyc]       except:
-[$pyc]           _${property.name}_info = (None, $metanullable)  # Likely an abstract type
+[$pyc]           _${property.name}_info = (omero.proxy_to_instance, $metanullable)  # Likely an abstract type
 #elseif( $javaType.startsWith("java.lang.Boolean"))
 [$pyc]       _${property.name}_info = (omero.rtypes.rbool, $metanullable)
 #elseif( $javaType.startsWith("java.lang.Integer"))

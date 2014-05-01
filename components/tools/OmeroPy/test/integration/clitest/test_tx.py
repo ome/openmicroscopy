@@ -94,3 +94,19 @@ class TestTx(CLITest):
         self.args.extend(list(input))
         with pytest.raises(NonZeroReturnCode):
             self.go()
+
+    def test_link_annotation(self):
+        path = create_path()
+        path.write_text(
+            """
+            new Dataset name=bar
+            new CommentAnnotation ns=test textValue=foo
+            new DatasetAnnotationLink parent@=0 child@=1
+            """)
+        self.args.append("--file=%s" % path)
+        rv = self.go()
+        assert 3 == len(rv)
+        assert rv[0].startswith("Dataset")
+        assert rv[1].startswith("CommentAnnotation")
+        assert rv[2].startswith("DatasetAnnotationLink")
+        path.remove()
