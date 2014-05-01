@@ -33,7 +33,10 @@ import java.util.List;
 import java.util.Map;
 
 import omero.ClientError;
+import omero.RList;
 import omero.RLong;
+import omero.RMap;
+import omero.RString;
 import omero.RType;
 import omero.grid.JobParams;
 import omero.model.ImageI;
@@ -273,4 +276,25 @@ public class RTypesTest{
 
     }
 
+    @Test
+    public void testWrapRListString() {
+        List<String> input = Arrays.asList("A", "B");
+        RList rlist = (RList) omero.rtypes.wrap(input);
+        assertEquals(2, rlist.getValue().size());
+        assertEquals("A", ((RString) rlist.getValue().get(0)).getValue());
+        assertEquals("B", ((RString) rlist.getValue().get(1)).getValue());
+    }
+ 
+    @SuppressWarnings("unchecked")
+    @Test
+    public void testWrapUnwrapMap() {
+        Map<String, Object> input = new HashMap<String, Object>();
+        input.put("int", new Integer(0));
+        input.put("float", new Float(0.0f));
+        RMap output = (RMap) omero.rtypes.wrap(input);
+        Map<String, Object> test = (Map<String, Object>) omero.rtypes.unwrap(output);
+        assertEquals(new Integer(0), test.get("int"));
+        assertEquals(new Float(0.0f), test.get("float"));
+        
+    }
 }
