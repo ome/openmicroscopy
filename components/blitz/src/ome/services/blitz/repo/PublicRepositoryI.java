@@ -162,7 +162,7 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
     public PublicRepositoryI(RepositoryDao repositoryDao,
             ChecksumProviderFactory checksumProviderFactory,
             String checksumAlgorithmSupported,
-            String pathRules) throws Exception {
+            String pathRules) throws ServerError {
         this.repositoryDao = repositoryDao;
         this.checksumProviderFactory = checksumProviderFactory;
         this.repoUuid = null;

@@ -126,6 +126,8 @@ public class ManagedRepositoryI extends PublicRepositoryI
 
     private final ProcessContainer processes;
 
+    private final String rootSessionUuid;
+
     /**
      * Creates a {@link ProcessContainer} internally that will not be managed
      * by background threads. Used primarily during testing.
@@ -134,18 +136,20 @@ public class ManagedRepositoryI extends PublicRepositoryI
      */
     public ManagedRepositoryI(String template, RepositoryDao dao) throws Exception {
         this(template, dao, new ProcessContainer(), new ChecksumProviderFactoryImpl(),
-                ALL_CHECKSUM_ALGORITHMS, FilePathRestrictionInstance.UNIX_REQUIRED.name);
+                ALL_CHECKSUM_ALGORITHMS, FilePathRestrictionInstance.UNIX_REQUIRED.name, null);
     }
 
     public ManagedRepositoryI(String template, RepositoryDao dao,
             ProcessContainer processes,
             ChecksumProviderFactory checksumProviderFactory,
             String checksumAlgorithmSupported,
-            String pathRules) throws Exception {
+            String pathRules,
+            String rootSessionUuid) throws ServerError {
         super(dao, checksumProviderFactory, checksumAlgorithmSupported, pathRules);
         this.template = template;
         this.processes = processes;
         this.filePathNamingValidator = new FilePathNamingValidator(this.filePathRestrictions);
+        this.rootSessionUuid = rootSessionUuid;
         log.info("Repository template: " + this.template);
     }
 
