@@ -322,10 +322,6 @@ public class OMEROMetadataStoreClient
     public static final String OMERO_EXCITATION_FILTER_SUFFIX =
         ":OMERO_EXCITATION_FILTER";
 
-    /** Original metadata text file key */
-    private static final String ORIGINAL_METADATA_KEY =
-        "ORIGINAL_METADATA_TXT";
-
     /** The default longest side of a thumbnail in OMERO.insight. */
     private static final int DEFAULT_INSIGHT_THUMBNAIL_LONGEST_SIDE = 96;
 
@@ -1482,6 +1478,7 @@ public class OMEROMetadataStoreClient
      * @param indexes Indexes into the OME-XML data model.
      * @return See above.
      */
+    @SuppressWarnings("unchecked")
     private <T extends IObject> T getSourceObject(Class<T> klass, LinkedHashMap<Index, Integer> indexes)
     {
         return (T) getIObjectContainer(klass, indexes).sourceObject;
@@ -1919,40 +1916,6 @@ public class OMEROMetadataStoreClient
     }
 
     /**
-     * Creates an original file object from a Java file object along with some
-     * metadata specific to OMERO in the container cache or returns the
-     * original file as already created in the supplied map.
-     * @param ofile OriginalFile object populated.
-     * @param indexes Container cache indexes to use.
-     * @param formatString Original file format as a string. Possibly null.
-     * @param existing Existing original files keyed by absolute path.
-     * @return Created original file source object.
-     */
-    private OriginalFile useOriginalFile(
-        OriginalFile ofile, LinkedHashMap<Index, Integer> indexes,
-        String formatString)
-    {
-        IObjectContainer ioc = getIObjectContainer(OriginalFile.class, indexes);
-        ofile.setMimetype(toRType(formatString));
-        ioc.sourceObject = ofile;
-        if (ofile.sizeOfPixelsFileMaps() < 0) { // Required for handleReference
-            try {
-                OriginalFile toCopy = (OriginalFile) iQuery.findByQuery
-                    ("select o from OriginalFile o " +
-                        "left outer join fetch o.pixelsFileMaps " +
-                        "where o.id = :id",
-                        new ParametersI().addId(ofile.getId().getValue()));
-                ofile.reloadPixelsFileMaps(toCopy);
-                ofile.getDetails().setUpdateEvent(null); // Optimistic lock
-            } catch (ServerError se) {
-                throw new RuntimeException(se);
-            }
-
-        }
-        return ofile;
-    }
-
-    /**
      * Retrieves a configuration value from the <code>IConfig</code> service.
      * @param key Key for the string encoded value.
      * @return String encoded configuration value.
@@ -2255,7 +2218,6 @@ public class OMEROMetadataStoreClient
         try
         {
             List<IObject> objectList = new ArrayList<IObject>(pixelsList.size());
-            Image unloadedImage;
             for (Pixels pixels : pixelsList)
             {
                 pixels.unloadCollections();
@@ -2315,68 +2277,6 @@ public class OMEROMetadataStoreClient
             throw new RuntimeException(e);
         }
     }
-
-
-    /*-------------------*/
-
-    /**
-     * Based on immmersion table bug in 4.0 this is a hack to fix in code those enums missing/broken
-     *
-     *  replace l1[0:3] (['Gly', 'Hl', 'Oel']) l2[0:3] (['Air', 'Glycerol', 'Multi'])
-     *  insert l1[4:4] ([]) l2[4:5] (['Other'])
-     *   delete l1[5:6] (['Wasser']) l2[6:6] ([])
-     *  replace l1[7:8] (['Wl']) l2[7:8] (['WaterDipping'])
-     */
-    private void checkImmersions()
-    {
-        String[] immersionAddStrings = {"Air", "Glycerol", "Multi", "WaterDipping", "Other"};
-        List<String> immersionAdds = Arrays.asList(immersionAddStrings);
-
-        String[] immersionDeleteStrings = {"Gly", "Hl", "Oel", "Wasser", "Wl"};
-        List<String> immersionDeletes = Arrays.asList(immersionDeleteStrings);
-
-        try
-        {
-            ITypesPrx types = serviceFactory.getTypesService();
-            List<IObject> immersionList = types.allEnumerations("omero.model.Immersion");
-            List<String> immersionStrings = new ArrayList<String>();
-
-            for (IObject immersion: immersionList)
-            {
-                Immersion immersion2 = (Immersion) immersion;
-                immersionStrings.add(immersion2.getValue().getValue());
-                log.info("Found immersion: " + immersion2.getValue().getValue());
-            }
-
-            for (String i: immersionAdds)
-            {
-                if (!immersionStrings.contains(i))
-                {
-                    Immersion immersion  = new ImmersionI();
-                    immersion.setValue(rstring(i));
-                    //types.createEnumeration(immersion);
-                    log.info("Adding missing immersion: " + i);
-                }
-
-            }
-
-            for (String i: immersionDeletes)
-            {
-                int index = immersionStrings.indexOf(i);
-
-                if (index != -1)
-                {
-                    //types.deleteEnumeration(immersionList.get(index));
-                    log.info("Deleting bad immersion: " + i);
-                }
-            }
-
-        } catch (ServerError e)
-        {
-            log.error("checkImmersions() failure", e);
-        }
-    }
-
 
     //////////////////////////////////////////////
 
