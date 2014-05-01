@@ -61,6 +61,8 @@ class FsControl(BaseControl):
         sets.add_argument(
             "--by-age", action="store_true")
         sets.add_argument(
+            "--without-images", action="store_true")
+        sets.add_argument(
             "--with-transfer", nargs="*", action="append")
         sets.add_argument(
             "--check", action="store_true",
@@ -124,18 +126,21 @@ class FsControl(BaseControl):
         params.page(args.offset, args.limit)
         params.addString("ns", NSFILETRANSFER)
 
-        query = (
-            "select fs.id, fs.templatePrefix, count(uf.id), ann.textValue "
+        query1 = (
+            "select fs.id, fs.templatePrefix, "
+            "(select size(f2.images) from Fileset f2 where f2.id = fs.id),"
+            "(select size(f3.usedFiles) from Fileset f3 where f3.id = fs.id),"
+            "ann.textValue "
             "from Fileset fs "
-            "join fs.usedFiles uf "
             "left outer join fs.annotationLinks fal "
             "left outer join fal.child ann "
-            "where (ann is null or ann.ns = :ns) "
+            "where (ann is null or ann.ns = :ns) ")
+        query2 = (
             "group by fs.id, fs.templatePrefix, ann.textValue "
             "order by fs.id desc")
 
-        ## TODO: limit the above to just the latest annotation.
-        ## OTHER TODOS:
+        ## TODO:
+        # - limit the above to just the latest annotation.
         # - list which repo a fileset lives in (--in-repo={oid|uuid})
         # - push filters into query
         # - --check for symlinks
@@ -148,10 +153,15 @@ class FsControl(BaseControl):
         if args.by_age:
             pass  # Unused
 
+        if args.without_images:
+            query = "%s and fs.images is empty %s" % (query1, query2)
+        else:
+            query = "%s %s" % (query1, query2)
+
         objs = service.projection(query, params, {"omero.group": "-1"})
         objs = unwrap(objs)
 
-        cols = ["Id", "Prefix", "File count", "Transfer"]
+        cols = ["Id", "Prefix", "Images", "Files", "Transfer"]
         if args.check:
             cols.append("Check")
         tb = self._table(args)
