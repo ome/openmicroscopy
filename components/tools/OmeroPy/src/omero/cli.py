@@ -160,6 +160,13 @@ class Parser(ArgumentParser):
         parser.set_defaults(func=func, **kwargs)
         return parser
 
+    def add_limit_arguments(self):
+        self.add_argument(
+            "--limit", help="Maximum number of return values", type=int,
+            default=25)
+        self.add_argument(
+            "--offset", help="Number of entries to skip", type=int, default=0)
+
     def add_style_argument(self):
         from omero.util.text import find_style
         from omero.util.text import list_styles

@@ -30,16 +30,12 @@ class HqlControl(BaseControl):
         parser.add_argument(
             "-q", "--quiet", action="store_true", help="No user input")
         parser.add_argument(
-            "--limit", help="Maximum number of return values", type=int,
-            default=25)
-        parser.add_argument(
-            "--offset", help="Number of entries to skip", type=int, default=0)
-        parser.add_argument(
             "--admin", help="Run an admin query (deprecated; use 'all')",
             default=False, action="store_true")
         parser.add_argument(
             "--all", help="Perform query on all groups", default=False,
             action="store_true", dest="admin")
+        parser.add_limit_arguments()
         parser.add_style_argument()
         parser.add_login_arguments()
 

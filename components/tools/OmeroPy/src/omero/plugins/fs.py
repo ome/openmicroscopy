@@ -55,6 +55,7 @@ class FsControl(BaseControl):
         repos.add_argument(
             "--managed", action="store_true",
             help="repos only managed repositories")
+        repos.add_style_argument()
 
         sets = parser.add(sub, self.sets, self.sets.__doc__)
         sets.add_argument(
@@ -64,17 +65,16 @@ class FsControl(BaseControl):
         sets.add_argument(
             "--check", action="store_true",
             help="Checks each fileset for validity.")
-
-        for x in (repos, sets):
-            x.add_argument("--csv", action="store_true")
+        sets.add_style_argument()
+        sets.add_limit_arguments()
 
     def _table(self, args):
         """
         """
         from omero.util.text import TableBuilder
         tb = TableBuilder("#")
-        if args.csv:
-            tb.set_style("csv")
+        if args.style:
+            tb.set_style(args.style)
         return tb
 
     def repos(self, args):
@@ -120,7 +120,7 @@ class FsControl(BaseControl):
         service = client.sf.getQueryService()
 
         params = ParametersI()
-        params.page(0, 25)
+        params.page(args.offset, args.limit)
         params.addString("ns", NSFILETRANSFER)
 
         query = (
