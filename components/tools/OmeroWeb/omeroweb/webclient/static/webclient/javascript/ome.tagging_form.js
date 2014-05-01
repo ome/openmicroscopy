@@ -621,7 +621,7 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id, me) {
             div.addClass('ui-selected').on('click', tag_click).tooltip();
             $("div.ui-selected", div_selected_tags).removeClass('ui-selected');
             div_selected_tags.append(div);
-            tag_input.val('');
+            tag_input.val('').focus();
             description_input.val('');
             enable_buttons();
         }
@@ -633,6 +633,14 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id, me) {
             div_selected_tags.offset().top - 40);
         update_add_new_button_state();
     };
+
+    var add_new_tag_on_enter_key = function(e) {
+        if (e.which == 13 && !$("#id_add_new_tag").attr('disabled')) {
+            add_new_tag(e);
+        }
+    };
+    tag_input.keypress(add_new_tag_on_enter_key);
+    description_input.keypress(add_new_tag_on_enter_key);
 
     var save_tags = function() {
         var existing_tags = [];
