@@ -199,6 +199,8 @@ public class ExperimenterData extends DataObject {
             List<GroupExperimenterMap> links = asExperimenter()
                     .copyGroupExperimenterMap();
             for (GroupExperimenterMap link : links) {
+                    // if you somehow managed to delete a user's default group
+                    // link can be null!
                     if(link!=null) {
                         groups.add(new GroupData(link.getParent()));
                     }
