@@ -1903,7 +1903,11 @@ class TreeViewerComponent
 		} else b = EditorUtil.isUserOwner(ho, id);
 		if (b) return b; //user is the owner.
 		GroupData group = null;
-		if (ho instanceof DataObject) {
+		if(ho instanceof ExperimenterData || ho instanceof GroupData) {
+		    // users and groups should not be deleted at all
+		    return false;
+		}
+		else if (ho instanceof DataObject) {
 			DataObject data = (DataObject) ho;
 			return data.canDelete();
 		} else if (ho instanceof TreeImageTimeSet) {
