@@ -349,6 +349,8 @@ DELETE FROM metadataimportjob_versioninfo WHERE versioninfo = 'Unknown';
 DELETE FROM uploadjob_versioninfo WHERE versioninfo = 'Unknown';
 
 -- #12242: Bug: broken upgrade of nightshade
+-- #11479: https://github.com/openmicroscopy/openmicroscopy/pull/2369#issuecomment-41701620
+-- So, remove annotations with bad discriminators or inter-group links.
 
 DELETE FROM annotationannotationlink link USING annotation parent
       WHERE link.parent = parent.id
