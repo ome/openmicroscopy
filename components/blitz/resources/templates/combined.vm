@@ -162,7 +162,12 @@ Note how the whitespace for the python definitions is important.
 
 [$pyc] class ${PojoI}(_omero_model.$Pojo):
 [$pyc]
-[$pyc]      # Property Metadata
+[$pyc]       # Property Metadata
+[$pyc]       _info_list = (
+#foreach($property in $type.propertyClosure)#############
+[$pyc]           "${property.name}",
+#end
+[$pyc]       )
 #foreach($property in $type.propertyClosure)#############
 #set( $javaType = $property.type )
 #if($property.nullable)

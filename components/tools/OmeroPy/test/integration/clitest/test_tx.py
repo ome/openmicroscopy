@@ -20,9 +20,12 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 
+import pytest
+
 from test.integration.clitest.cli import CLITest
 from omero.plugins.tx import TxControl
 from omero.util.temp_files import create_path
+from omero.cli import NonZeroReturnCode
 
 
 class TestTx(CLITest):
@@ -80,3 +83,14 @@ class TestTx(CLITest):
         assert rv[1].startswith("Dataset")
         assert rv[2].startswith("ProjectDatasetLink")
         path.remove()
+
+    @pytest.mark.parametrize(
+        "input", (
+            ("new", "Image"),
+            ("new", "Image", "name=foo"),
+            ("new", "ProjectDatasetLink", "parent=Project:1"),
+        ))
+    def test_required(self, input):
+        self.args.extend(list(input))
+        with pytest.raises(NonZeroReturnCode):
+            self.go()
