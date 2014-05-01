@@ -7544,10 +7544,12 @@ class _ImageWrapper (BlitzObjectWrapper):
     @assert_re()
     def saveDefaults (self):
         """
-        Limited support for saving the current prepared image rendering defs.
-        Right now only channel colors are saved back.
+        Saves the current image rendering defs.
+        If the user does not own the rendering def
+        then they 'save as' a new rdef that they
+        own. This will be loaded by default next time.
 
-        @return: Boolean
+        @return: Boolean    True if saved (if we canAnnotate)
         """
 
         if not self.canAnnotate():
@@ -7562,7 +7564,15 @@ class _ImageWrapper (BlitzObjectWrapper):
             self.linkAnnotation(ann)
         ctx = self._conn.SERVICE_OPTS.copy()
         ctx.setOmeroGroup(self.details.group.id.val)
-        self._re.saveCurrentSettings(ctx)
+        # get rdef from rendering engine
+        rdefId = self._re.getRenderingDefId(ctx)
+        rdef = self._conn.getPixelsService().loadRndSettings(rdefId, ctx)
+        # if user owns rdef, save. Otherwise saveAs
+        ownerId = rdef.getDetails().owner.id.val
+        if ownerId == self._conn.getUserId():
+            self._re.saveCurrentSettings(ctx)
+        else:
+            self._re.saveAsNewSettings(ctx)
         return True
 
     def countArchivedFiles (self):
