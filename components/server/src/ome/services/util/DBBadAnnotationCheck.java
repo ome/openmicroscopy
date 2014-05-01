@@ -19,6 +19,10 @@
 
 package ome.services.util;
 
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 import ome.conditions.InternalException;
 import ome.model.annotations.AnnotationAnnotationLink;
 import ome.model.annotations.ChannelAnnotationLink;
@@ -41,6 +45,7 @@ import ome.model.annotations.ScreenAnnotationLink;
 import ome.model.annotations.SessionAnnotationLink;
 import ome.model.annotations.WellAnnotationLink;
 import ome.model.annotations.WellSampleAnnotationLink;
+import ome.system.Roles;
 
 import org.hibernate.HibernateException;
 import org.hibernate.SessionFactory;
@@ -49,6 +54,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Iterables;
 
 /**
  * Spring bean run on start-up to make sure that there are no annotations with a bad discriminator,
@@ -95,8 +101,30 @@ public class DBBadAnnotationCheck {
 
     private final SessionFactory sessionFactory;
 
-    public DBBadAnnotationCheck(SessionFactory sessionFactory) {
+    private final long userGroupId;
+
+    public DBBadAnnotationCheck(SessionFactory sessionFactory, Roles roles) {
         this.sessionFactory = sessionFactory;
+        this.userGroupId = roles.getUserGroupId();
+    }
+
+    /**
+     * Check if the group IDs include multiple non-user groups.
+     * @param groupIds some group IDs
+     * @return if they include multiple non-user groups
+     */
+    private boolean isTooManyGroupIds(long... groupIds) {
+        Long otherGroupId = null;
+        for (final long currGroupId : groupIds) {
+            if (userGroupId != currGroupId) {
+                if (otherGroupId == null) {
+                    otherGroupId = currGroupId;
+                } else if (otherGroupId != currGroupId) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     public void start() {
@@ -105,19 +133,42 @@ public class DBBadAnnotationCheck {
             session = sessionFactory.openSession();
             int deleteCount = 0;
             String hql;
-            hql = "DELETE FROM AnnotationAnnotationLink WHERE id IN "
-                    +"(SELECT link.id FROM AnnotationAnnotationLink link WHERE link.parent.class IN (:classes))";
+            hql = "DELETE FROM AnnotationAnnotationLink WHERE id IN " +
+                    "(SELECT link.id FROM AnnotationAnnotationLink link WHERE link.parent.class IN (:classes))";
             deleteCount += session.createQuery(hql).setParameterList("classes", badDiscriminators).executeUpdate(); 
             for (final String annotationLinkClass : annotationLinkClasses) {
                 hql = "DELETE FROM " + annotationLinkClass + " WHERE id IN " +
-                        "(SELECT link.id FROM " + annotationLinkClass + " link " +
-                         "WHERE link.child.class IN (:classes) OR link.details.group != link.child.details.group)";
+                        "(SELECT link.id FROM " + annotationLinkClass + " link WHERE link.child.class IN (:classes))";
                 deleteCount += session.createQuery(hql).setParameterList("classes", badDiscriminators).executeUpdate();
+
+                final StringBuffer sb = new StringBuffer();
+                sb.append("SELECT id, ");
                 if (!noParentGroup.contains(annotationLinkClass)) {
-                    hql = "DELETE FROM " + annotationLinkClass + " WHERE id IN " +
-                            "(SELECT link.id FROM " + annotationLinkClass + " link " +
-                             "WHERE link.details.group != link.parent.details.group)";
-                    deleteCount += session.createQuery(hql).executeUpdate();
+                    sb.append("parent.details.group.id, ");
+                }
+                sb.append("child.details.group.id, details.group.id");
+                sb.append(" FROM ");
+                sb.append(annotationLinkClass);
+                hql = sb.toString();
+
+                final Set<Long> toDelete = new HashSet<Long>();
+                for (final Object resultRow : session.createQuery(hql).list()) {
+                    final Object[] resultArray = (Object[]) resultRow;
+                    final long[] ids = new long[resultArray.length];
+                    for (int index = 0; index < resultArray.length; index++) {
+                        ids[index] = (Long) resultArray[index];
+                    }
+                    final long actualLinkId = ids[0];
+                    ids[0] = ids[1];
+                    if (isTooManyGroupIds(ids)) {
+                        toDelete.add(actualLinkId);
+                    }
+                }
+                if (!toDelete.isEmpty()) {
+                    hql = "DELETE FROM " + annotationLinkClass + " WHERE id IN (:ids)";
+                    for (final List<Long> toDeleteBatch : Iterables.partition(toDelete, 256)) {
+                        deleteCount += session.createQuery(hql).setParameterList("ids", toDeleteBatch).executeUpdate();
+                    }
                 }
             }
             hql = "DELETE FROM Annotation annotation WHERE annotation.class IN (:classes)";
