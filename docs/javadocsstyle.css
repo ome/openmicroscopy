@@ -1,7 +1,3 @@
-/* @override 
-	http://hudson.openmicroscopy.org.uk/job/OMERO/javadoc/javadocsstyle.css
-*/
-
 /* Javadoc style sheet */
 
 /* Define colors, fonts and other style attributes here to override the defaults */
@@ -101,7 +97,7 @@ body table tr td.NavBarCell1 table tbody tr td.NavBarCell1{
 body table tr td.NavBarCell1 {
 	padding-top:71px;
 	background-color: #000066;
-	background-image: url(http://validator.openmicroscopy.org.uk/static/images/ome_trac_back_top.png);
+	background-image: url(http://ci.openmicroscopy.org/userContent/ome_trac_back_top.png);
 	background-repeat: no-repeat;
 	background-position: top right;
 margin: 2px 0px 2px 0px;
