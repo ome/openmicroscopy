@@ -18,10 +18,8 @@
 package ome.services.blitz.repo;
 
 import java.nio.ByteBuffer;
-import java.util.Arrays;
 import java.util.Map;
 
-import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -131,8 +129,8 @@ public class RawAccessRequestI extends RawAccessRequest implements IRequest {
             log.debug("Calling raw access for command " + command);
             return repo.rawAccess(this);
         }
-        catch (ServerError e) {
-            throw helper.cancel(new ERR(), e, "raw-access");
+        catch (Throwable t) {
+            throw helper.cancel(new ERR(), t, "raw-access");
         } finally {
             log.debug("Done calling raw access for command " + command);
         }
