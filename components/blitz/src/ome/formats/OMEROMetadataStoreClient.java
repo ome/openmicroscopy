@@ -32,7 +32,6 @@ import static omero.rtypes.rstring;
 import static omero.rtypes.rtime;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -99,7 +98,6 @@ import omero.api.IContainerPrx;
 import omero.api.IQueryPrx;
 import omero.api.IRenderingSettingsPrx;
 import omero.api.IRepositoryInfoPrx;
-import omero.api.ITypesPrx;
 import omero.api.IUpdatePrx;
 import omero.api.MetadataStorePrx;
 import omero.api.MetadataStorePrxHelper;
@@ -153,7 +151,6 @@ import omero.model.ImageAnnotationLinkI;
 import omero.model.ImageI;
 import omero.model.ImagingEnvironment;
 import omero.model.Immersion;
-import omero.model.ImmersionI;
 import omero.model.Instrument;
 import omero.model.Label;
 import omero.model.Laser;
@@ -225,6 +222,7 @@ import Glacier2.PermissionDeniedException;
 public class OMEROMetadataStoreClient
     implements MetadataStore, IMinMaxStore, IObjectContainerStore
 {
+
     /** Logger for this class */
     private Logger log = LoggerFactory.getLogger(OMEROMetadataStoreClient.class);
 
@@ -314,11 +312,17 @@ public class OMEROMetadataStoreClient
     /** Executor that will run our keep alive task. */
     private ScheduledThreadPoolExecutor executor;
 
-    /** Emission filter LSID suffix. */
+    /** Emission filter LSID suffix. 
+     * See {@link #setFilterSetEmissionFilterRef(String, int, int, int)}
+     * for an explanation of its usage.
+     */
     public static final String OMERO_EMISSION_FILTER_SUFFIX =
         ":OMERO_EMISSION_FILTER";
 
-    /** Excitation filter LSID suffix. */
+    /** Excitation filter LSID suffix.
+     * See {@link #setFilterSetExcitationFilterRef(String, int, int, int)}
+     * for an explanation of its usage.
+     */
     public static final String OMERO_EXCITATION_FILTER_SUFFIX =
         ":OMERO_EXCITATION_FILTER";
 
@@ -3898,7 +3902,7 @@ public class OMEROMetadataStoreClient
     public void setFilterSetEmissionFilterRef(String emissionFilter,
             int instrumentIndex, int filterSetIndex, int emissionFilterRefIndex)
     {
-        // XXX: Using this suffix is kind of a gross hack but the reference
+        // Using this suffix is kind of a gross hack but the reference
         // processing logic does not easily handle multiple A --> B or B --> A
         // linkages of the same type so we'll compromise.
         // Thu Jul 16 13:34:37 BST 2009 -- Chris Allan <callan@blackcat.ca>
@@ -3916,7 +3920,7 @@ public class OMEROMetadataStoreClient
             int instrumentIndex, int filterSetIndex,
             int excitationFilterRefIndex)
     {
-        // XXX: Using this suffix is kind of a gross hack but the reference
+        // Using this suffix is kind of a gross hack but the reference
         // processing logic does not easily handle multiple A --> B or B --> A
         // linkages of the same type so we'll compromise.
         // Thu Jul 16 13:34:37 BST 2009 -- Chris Allan <callan@blackcat.ca>
@@ -4322,14 +4326,6 @@ public class OMEROMetadataStoreClient
 
     //////// Instrument /////////
 
-    private Instrument getInstrument(int instrumentIndex)
-    {
-        LinkedHashMap<Index, Integer> indexes =
-            new LinkedHashMap<Index, Integer>();
-        indexes.put(Index.INSTRUMENT_INDEX, instrumentIndex);
-        return getSourceObject(Instrument.class, indexes);
-    }
-
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setInstrumentID(java.lang.String, int)
      */
@@ -4633,7 +4629,7 @@ public class OMEROMetadataStoreClient
     public void setLightPathEmissionFilterRef(String emissionFilter,
             int imageIndex, int channelIndex, int emissionFilterRefIndex)
     {
-        // XXX: Using this suffix is kind of a gross hack but the reference
+        // Using this suffix is kind of a gross hack but the reference
         // processing logic does not easily handle multiple A --> B or B --> A
         // linkages of the same type so we'll compromise.
         // Tue 18 May 2010 17:07:51 BST -- Chris Allan <callan@blackcat.ca>
@@ -4649,7 +4645,7 @@ public class OMEROMetadataStoreClient
     public void setLightPathExcitationFilterRef(String excitationFilter,
             int imageIndex, int channelIndex, int excitationFilterRefIndex)
     {
-        // XXX: Using this suffix is kind of a gross hack but the reference
+        // Using this suffix is kind of a gross hack but the reference
         // processing logic does not easily handle multiple A --> B or B --> A
         // linkages of the same type so we'll compromise.
         // Tue 18 May 2010 17:07:51 BST -- Chris Allan <callan@blackcat.ca>
@@ -7986,11 +7982,11 @@ public class OMEROMetadataStoreClient
     @Override
     public void  setTimestampAnnotationAnnotator(String value, int index)
     {
-        // TODO : not in OMERO model
+        ignoreAnnotator("setTimestampAnnotationAnnotator", value, index);
     }
 
     //
-    // XXX: 4.4.0 additions
+    // 4.4.0 additions
     //
 
     /* (non-Javadoc)
