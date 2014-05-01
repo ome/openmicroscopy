@@ -3,7 +3,7 @@
 """
    User administration plugin (LDAP extension)
 
-   Copyright 2011 Glencoe Software, Inc. All rights reserved.
+   Copyright 2011 - 2014 Glencoe Software, Inc. All rights reserved.
    Use is subject to license terms supplied in LICENSE.txt
 
 """
@@ -25,8 +25,9 @@ Examples:
   bin/omero ldap getdn jack
   bin/omero ldap getdn beth || echo "No DN"
   bin/omero ldap setdn jack uid=me,ou=example,o=com
-  bin/omero ldap setdn jack ""                        # Disables LDAP login.
-  bin/omero ldap discover --commands                  # Requires "ldap" module
+  bin/omero ldap setdn jack ""                  # Disables LDAP login.
+  bin/omero ldap discover --commands            # Requires "ldap" module
+  bin/omero ldap create jack                    # User jack must exist in LDAP
 
 """
 
@@ -75,7 +76,14 @@ user never had a password, one will need to be set!""")
         discover.add_argument(
             "--base", help="Override OMERO omero.ldap.base setting")
 
-        for x in (active, list, getdn, setdn, discover):
+        create = parser.add(
+            sub, self.create,
+            help="Create a local user based on LDAP username (admins only)"
+            )
+        create.add_argument(
+            "username", help="LDAP username of user to be created")
+
+        for x in (active, list, getdn, setdn, discover, create):
             x.add_login_arguments()
 
     def __import_ldap__(self):
@@ -281,6 +289,25 @@ user never had a password, one will need to be set!""")
                         else:
                             self.ctx.out("Experimenter:%s\tomeName=%s\t%s"
                                          % (eid, omeName, dn))
+
+    def create(self, args):
+        c = self.ctx.conn(args)
+        ildap = c.sf.getLdapService()
+        iadmin = c.sf.getAdminService()
+
+        import omero
+        import Ice
+        try:
+            exp = ildap.createUser(args.username)
+            dn = iadmin.lookupLdapAuthExperimenter(exp.id.val)
+            self.ctx.out("Added user %s (id=%s) with DN=%s" %
+                         (exp.omeName.val, exp.id.val, dn))
+        except omero.SecurityViolation:
+            self.ctx.die(131, "SecurityViolation: Admins only!")
+        except omero.ValidationException as ve:
+            self.ctx.die(132, ve.message)
+        except Ice.RequestFailedException as rfe:
+            self.ctx.die(133, self.exc.handle_failed_request(rfe))
 
 try:
     register("ldap", LdapControl, HELP)

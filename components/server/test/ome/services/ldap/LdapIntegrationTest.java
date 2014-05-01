@@ -1,5 +1,5 @@
 /*
- *   Copyright 2010 Glencoe Software, Inc. All rights reserved.
+ *   Copyright 2010 - 2014 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -29,7 +29,6 @@ import ome.system.Roles;
 import ome.system.ServiceFactory;
 import ome.tools.spring.InternalServiceFactory;
 import ome.util.SqlAction;
-import ome.util.checksum.ChecksumProviderFactory;
 
 import org.springframework.aop.target.HotSwappableTargetSource;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
@@ -43,7 +42,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 /**
- * Extends {@link LdapTest} to use a real db.
+ * Extends {@link LdapTest} to use a real DB.
  */
 @Test(groups = "integration")
 public class LdapIntegrationTest extends LdapTest {
@@ -79,21 +78,20 @@ public class LdapIntegrationTest extends LdapTest {
 
     public Principal newSession(final Fixture fixture, final String username,
             final String group, final String password) {
-
         if (fixture != null && password != null) {
             // Will cause synchronization.
-            Boolean check =
-                (Boolean) executor.execute(p, new Executor.SimpleWork(this, "newSession"){
-                @Transactional(readOnly = false)
-                public Object doWork(org.hibernate.Session session,
-                        ServiceFactory sf) {
-                    return fixture.provider.checkPassword(username, password, true);
-                }});
-
+            Boolean check = (Boolean) executor.execute(p,
+                    new Executor.SimpleWork(this, "newSession") {
+                        @Transactional(readOnly = false)
+                        public Object doWork(org.hibernate.Session session,
+                                ServiceFactory sf) {
+                            return fixture.provider.checkPassword(username,
+                                    password, true);
+                        }
+                    });
             if (check != null && Boolean.FALSE.equals(check.booleanValue())) {
                 throw new SecurityViolation("false returned.");
             }
-
         }
 
         Principal tmp = new Principal(username, group, "Test");
@@ -108,10 +106,9 @@ public class LdapIntegrationTest extends LdapTest {
     }
 
     @Override
-    // Critical that this is overriding.
     protected Fixture createFixture(File ctxFile) throws Exception {
-
         Fixture fixture = new Fixture() {
+
             @Override
             public void createUserWithGroup(final LdapTest t, String dn,
                     final String group) {
@@ -128,9 +125,43 @@ public class LdapIntegrationTest extends LdapTest {
             }
 
             @Override
-            public boolean createUserFromLdap(final String user,
-                    final String password) {
+            public Experimenter createUser(final String user) {
+                executor.execute(p,
+                        new Executor.SimpleWork(this, "renameUser") {
+                            @Transactional(readOnly = false)
+                            public Object doWork(org.hibernate.Session session,
+                                    ServiceFactory sf) {
 
+                                Experimenter exp = null;
+                                try {
+                                    exp = sf.getAdminService()
+                                            .lookupExperimenter(user);
+                                } catch (Exception e) {
+                                    // good
+                                }
+
+                                if (exp != null) {
+                                    exp.setOmeName(UUID.randomUUID().toString());
+                                    sf.getAdminService()
+                                            .updateExperimenter(exp);
+                                }
+                                return null;
+                            }
+                        });
+
+                return (Experimenter) executor.execute(p,
+                        new Executor.SimpleWork(this, "createUser") {
+                            @Transactional(readOnly = false)
+                            public Object doWork(org.hibernate.Session session,
+                                    ServiceFactory sf) {
+                                return ldap.createUser(user);
+                            }
+                        });
+            }
+
+            @Override
+            public Experimenter createUser(final String user,
+                    final String password, final boolean checkPassword) {
                 // To keep things simple, if a user already exists,
                 // it gets renamed. Otherwise, it would be necessary to generate
                 // the ldif on every execution.
@@ -145,7 +176,7 @@ public class LdapIntegrationTest extends LdapTest {
                                     exp = sf.getAdminService()
                                             .lookupExperimenter(user);
                                 } catch (Exception e) {
-                                    // goodl
+                                    // good
                                 }
 
                                 if (exp != null) {
@@ -153,23 +184,24 @@ public class LdapIntegrationTest extends LdapTest {
                                     sf.getAdminService()
                                             .updateExperimenter(exp);
                                 }
-
                                 return null;
                             }
                         });
 
-                return (Boolean) executor.execute(p, new Executor.SimpleWork(
-                        this, "createUserFromLdap") {
-                    @Transactional(readOnly = false)
-                    public Object doWork(org.hibernate.Session session,
-                            ServiceFactory sf) {
-                        return ldap.createUserFromLdap(user, "password");
-                    }
-                });
+                return (Experimenter) executor.execute(p,
+                        new Executor.SimpleWork(this, "createUser") {
+                            @Transactional(readOnly = false)
+                            public Object doWork(org.hibernate.Session session,
+                                    ServiceFactory sf) {
+                                return ldap.createUser(user,
+                                        "password", checkPassword);
+                            }
+                        });
             }
 
             @Override
-            public EventContext login(String username, String group, String password) {
+            public EventContext login(String username, String group,
+                    String password) {
                 Principal user = newSession(this, username, group, password);
                 EventContext ec = (EventContext) executor.execute(user,
                         new Executor.SimpleWork(this, "simpleCall") {
@@ -186,7 +218,6 @@ public class LdapIntegrationTest extends LdapTest {
             public Object execute(Work work) {
                 return executor.execute(p, work);
             }
-
         };
 
         fixture.ctx = new FileSystemXmlApplicationContext("file:"
@@ -213,8 +244,8 @@ public class LdapIntegrationTest extends LdapTest {
         fixture.ldap.setQueryService((LocalQuery) isf.getQueryService());
         fixture.ldap.setUpdateService((LocalUpdate) isf.getUpdateService());
 
-        fixture.provider = new LdapPasswordProvider(
-                new PasswordUtil(sql), fixture.ldap);
+        fixture.provider = new LdapPasswordProvider(new PasswordUtil(sql),
+                fixture.ldap);
         fixture.provider.setApplicationContext(mCtx);
         return fixture;
     }
