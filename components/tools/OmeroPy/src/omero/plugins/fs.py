@@ -115,6 +115,7 @@ class FsControl(BaseControl):
         from omero.constants.namespaces import NSFILETRANSFER
         from omero_sys_ParametersI import ParametersI
         from omero.rtypes import unwrap
+        from omero.cmd import OK
 
         client = self.ctx.conn(args)
         service = client.sf.getQueryService()
@@ -180,8 +181,9 @@ class FsControl(BaseControl):
 
             # Now perform check if required
             if args.check:
-                from omero.gateway import BlitzGateway
                 from omero.grid import RawAccessRequest
+                desc, prx = self.get_managed_repo(client)
+                ctx = client.getContext(group=-1)
                 check_params = ParametersI()
                 check_params.addId(obj[0])
                 rows = service.projection((
@@ -190,20 +192,31 @@ class FsControl(BaseControl):
                     "from Fileset fs join fs.usedFiles uf "
                     "join uf.originalFile f join f.hasher h "
                     "where fs.id = :id"
-                    ), check_params)
+                    ), check_params, ctx)
 
+                if not rows:
+                    obj.append("Empty")
+
+                err = None
                 for row in rows:
                     row = unwrap(row)
                     raw = RawAccessRequest()
-                    raw.repoUuid = "285c556e-dd30-417d-8888-6a2cd6526c65"  # TODO
+                    raw.repoUuid = desc.hash.val
                     raw.command = "checksum"
                     raw.args = map(str, row)
-                    g = BlitzGateway(client_obj=client)
-                    handle = client.sf.submit(raw)
-                    cb = g._waitOnCmd(handle)
-                    rsp = cb.getResponse()
-                    obj.append(rsp)
-                    cb.close(True)
+                    cb = client.submit(raw)
+                    try:
+                        rsp = cb.getResponse()
+                        if not isinstance(rsp, OK):
+                            err = rsp
+                            break
+                    finally:
+                        cb.close(True)
+
+                if err:
+                    obj.append("ERROR!")
+                elif rows:
+                    obj.append("OK")
 
             tb.row(idx, *tuple(obj))
         self.ctx.out(str(tb.build()))
@@ -215,6 +228,20 @@ class FsControl(BaseControl):
         """
         pass
 
+    def get_managed_repo(self, client):
+        """
+        For the moment this assumes there's only one.
+        """
+        from omero.grid import ManagedRepositoryPrx as MRepo
+
+        shared = client.sf.sharedResources()
+        repos = shared.repositories()
+        repos = zip(repos.descriptions, repos.proxies)
+        repos.sort(lambda a, b: cmp(a[0].id.val, b[0].id.val))
+
+        for idx, pair in enumerate(repos):
+            if MRepo.checkedCast(pair[1]):
+                return pair
 
 try:
     register("fs", FsControl, HELP)
