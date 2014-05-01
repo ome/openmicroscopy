@@ -901,6 +901,28 @@ class RenderingControlProxy
     }
 
     /**
+     * Reloads the settings after a saveAs w/o creating a thumbnail
+     * This method should only be invoked after a save as to update the
+     * other rendering engine.
+     *
+     * @param rndId The identifier of the rendering settigns.
+     *  @throws RenderingServiceException If an error occurred while setting
+     *                                    the value.
+     * @throws DSOutOfServiceException    If the connection is broken.
+     */
+    void loadRenderingSettings(long rndId)
+       throws RenderingServiceException, DSOutOfServiceException
+    {
+        isSessionAlive();
+        try {
+            servant.loadRenderingDef(rndId);
+            servant.load();
+        } catch (Throwable e) {
+            handleException(e, "An error occurred while loading the settings.");
+        }
+    }
+
+    /**
      * Returns <code>true</code> if the rendering engine is still active,
      * <code>false</code> otherwise.
      * 
@@ -1415,30 +1437,32 @@ class RenderingControlProxy
      * @see RenderingControl#saveCurrentSettings()
      */
     public RndProxyDef saveCurrentSettings()
-    	throws RenderingServiceException, DSOutOfServiceException
-    {
-    	isSessionAlive();
-    	try {
-    	    long userID = getUserID();
-    	    long ownerID = rndDef.getOwnerID();
-    	    if (userID == ownerID) {
-    	        servant.saveCurrentSettings();
-                Iterator<RenderingControl> i = slaves.iterator();
+            throws RenderingServiceException, DSOutOfServiceException
+            {
+        isSessionAlive();
+        Iterator<RenderingControl> i = slaves.iterator();
+        try {
+            long userID = getUserID();
+            long ownerID = rndDef.getOwnerID();
+            if (userID == ownerID) {
+                servant.saveCurrentSettings();
                 while (i.hasNext())
                     i.next().saveCurrentSettings();
                 return rndDef.copy();
-    	    } else {
-    	        long id = servant.saveAsNewSettings();
-    	        rndDef = context.getImageService().getSettings(ctx, id);
-    	        return rndDef.copy();
-    	    }
-    		
-		} catch (Throwable e) {
-			handleException(e, "An error occurred while saving the current " +
-					"settings.");
-		}
-		return null;
-    }
+            } else {
+                long id = servant.saveAsNewSettings();
+                rndDef = context.getImageService().getSettings(ctx, id);
+                while (i.hasNext()) {
+                    ((RenderingControlProxy) i.next()).loadRenderingSettings(id);
+                }
+                return rndDef.copy();
+            }
+        } catch (Throwable e) {
+            handleException(e, "An error occurred while saving the current " +
+                    "settings.");
+        }
+        return null;
+            }
 
     /** 
      * Implemented as specified by {@link RenderingControl}.
