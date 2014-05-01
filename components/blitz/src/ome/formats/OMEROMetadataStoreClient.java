@@ -226,6 +226,7 @@ import Glacier2.PermissionDeniedException;
 public class OMEROMetadataStoreClient
     implements MetadataStore, IMinMaxStore, IObjectContainerStore
 {
+
     /** Logger for this class */
     private Logger log = LoggerFactory.getLogger(OMEROMetadataStoreClient.class);
 
@@ -454,16 +455,16 @@ public class OMEROMetadataStoreClient
     }
 
     /**
-     * @return user-configured "omero.block_size" or {@link omero.constants.DEFAULTBLOCKSIZE}
-     * if none is set.
+     * simpler helper for the {@link #getDefaultBatchSize()} and
+     * {@link #getDefaultBlockSize()} methods.
      */
-    public int getDefaultBlockSize()
+    private int getDefaultInt(String key, int def)
     {
         if (c != null)
         {
             try
             {
-                return Integer.valueOf(c.getProperty("omero.block_size"));
+                return Integer.valueOf(c.getProperty(key));
             }
 
             catch (Exception e)
@@ -472,7 +473,25 @@ public class OMEROMetadataStoreClient
             }
 
         }
-        return omero.constants.DEFAULTBLOCKSIZE.value;
+        return def;
+    }
+
+    /**
+     * @return user-configured "omero.batch_size" or {@link omero.constants.DEFAULTBATCHSIZE}
+     * if none is set.
+     */
+    public int getDefaultBatchSize()
+    {
+        return getDefaultInt("omero.batch_size", omero.constants.DEFAULTBATCHSIZE.value);
+    }
+
+    /**
+     * @return user-configured "omero.block_size" or {@link omero.constants.DEFAULTBLOCKSIZE}
+     * if none is set.
+     */
+    public int getDefaultBlockSize()
+    {
+        return getDefaultInt("omero.block_size", omero.constants.DEFAULTBLOCKSIZE.value);
     }
 
     /**
@@ -1745,7 +1764,7 @@ public class OMEROMetadataStoreClient
 
             if (log.isDebugEnabled())
             {
-		log.debug("Starting containers....");
+                log.debug("Starting containers....");
                 for (LSID key : containerCache.keySet())
                 {
                     String s = String.format("%s == %s,%s",
@@ -1757,22 +1776,66 @@ public class OMEROMetadataStoreClient
                 log.debug("Starting references....");
                 for (String key : referenceStringCache.keySet())
                 {
-			for (String value : referenceStringCache.get(key))
-			{
-				String s = String.format("%s == %s", key, value);
-				log.debug(s);
-			}
+                    for (String value : referenceStringCache.get(key))
+                    {
+                        String s = String.format("%s == %s", key, value);
+                        log.debug(s);
+                    }
                 }
 
                 log.debug("containerCache contains " + containerCache.size()
                           + " entries.");
-                log.debug("referenceCache contains "
-				  + countCachedReferences(null, null)
+                log.debug("referenceCache contains " + countCachedReferences(null, null)
                           + " entries.");
             }
 
-            delegate.updateObjects(containerArray);
-            delegate.updateReferences(referenceStringCache);
+            int maxBatchSize = getDefaultBatchSize();
+            int containerBatchCount = 0;
+            int containerPointer = 0;
+            log.info("Handling # of containers: {}", containerArray.length);
+            while (containerPointer < containerArray.length)
+            {
+                int nObjects = (int) Math.min(
+                    maxBatchSize, containerArray.length - containerPointer);
+
+                IObjectContainer[] batch = Arrays.copyOfRange(
+                        containerArray, containerPointer, containerPointer+nObjects);
+
+                delegate.updateObjects(batch);
+                containerPointer += nObjects;
+
+                containerBatchCount += 1;
+                if (containerBatchCount > 1)
+                {
+                    log.info("Starting containerBatch #{}", containerBatchCount);
+                }
+            }
+
+            int referenceBatchCount = 0;
+            int referencePointer = 0;
+            String[] referenceKeys = referenceStringCache.keySet().toArray(
+              new String[referenceStringCache.size()]);
+
+            log.info("Handling # of references: {}", referenceKeys.length);
+            while (referencePointer < referenceKeys.length) {
+
+                referenceBatchCount += 1;
+                if (referenceBatchCount > 1)
+                {
+                    log.info("Starting referenceBatch #{}", referenceBatchCount);
+                }
+
+                Map<String, String[]> referenceBatch = new HashMap<String, String[]>();
+                int batchSize = (int) Math.min(
+                    maxBatchSize, referenceKeys.length - referencePointer);
+                for (int i=0; i<batchSize; i++) {
+                    String key = referenceKeys[referencePointer + i];
+                    referenceBatch.put(key, referenceStringCache.get(key));
+                }
+                delegate.updateReferences(referenceBatch);
+                referencePointer += batchSize;
+            }
+
             Map<String, List<IObject>> rv = delegate.saveToDB(link);
             pixelsList = new OMEROMetadataStoreClientRoot((List) rv.get("Pixels"));
 
