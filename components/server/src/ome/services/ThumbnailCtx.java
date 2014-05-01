@@ -550,7 +550,7 @@ public class ThumbnailCtx
             else if (thumbnailExists && !isMyMetadata)
             {
                 //we need thumbnail for new settings
-                if (userId != metadataOwnerId) {
+                if (sessionUserId == userId && userId != metadataOwnerId) {
                    return false;
                 }
                 log.warn(String.format(
