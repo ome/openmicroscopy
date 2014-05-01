@@ -120,7 +120,7 @@ class BaseClient(object):
         if id.properties == None:
             id.properties = Ice.createProperties(args)
 
-        id.properties.parseCommandLineOptions("omero", args);
+        id.properties.parseCommandLineOptions("omero", args)
         if host:
             id.properties.setProperty("omero.host", str(host))
         if not port:
@@ -175,7 +175,7 @@ class BaseClient(object):
         """
 
         if not id:
-            raise omero.ClientError("No initialization data provided.");
+            raise omero.ClientError("No initialization data provided.")
 
         # Strictly necessary for this class to work
         id.properties.setProperty("Ice.ImplicitContext", "Shared")
@@ -408,6 +408,18 @@ class BaseClient(object):
         """
         return self.getCommunicator().getImplicitContext()
 
+    def getContext(self, group=None):
+        """
+        Returns a copy of the implicit context's context, i.e.
+        dict(getImplicitContext().getContext()) for use as the
+        last argument to any remote method.
+        """
+        ctx = self.getImplicitContext().getContext()
+        ctx = dict(ctx)
+        if group is not None:
+            ctx["omero.group"] = str(group)
+        return ctx
+
     def getProperties(self):
         """
         Returns the active properties for this instance
@@ -504,7 +516,7 @@ class BaseClient(object):
                     self.__logger.warning(\
                     "%s - createSession retry: %s"% (reason, retries) )
                 try:
-                    ctx = dict(self.getImplicitContext().getContext())
+                    ctx = self.getContext()
                     ctx[omero.constants.AGENT] = self.__agent
                     if self.__ip is not None:
                         ctx[omero.constants.IP] = self.__ip
@@ -761,16 +773,23 @@ class BaseClient(object):
         return ofile
 
     def download(self, ofile, filename = None, block_size = 1024*1024, filehandle = None):
+        if not self.__sf:
+            raise omero.ClientError("No session. Use createSession first.")
+
+        # Search for objects in all groups. See #12146
+        ctx = self.getContext(group=-1)
         prx = self.__sf.createRawFileStore()
+
         try:
             if not ofile or not ofile.id:
                 raise omero.ClientError("No file to download")
-            ofile = self.__sf.getQueryService().get("OriginalFile", ofile.id.val)
+            ofile = self.__sf.getQueryService().get("OriginalFile", ofile.id.val,
+                                                    ctx)
 
             if block_size > ofile.size.val:
                 block_size = ofile.size.val
 
-            prx.setFileId(ofile.id.val)
+            prx.setFileId(ofile.id.val, ctx)
 
             size = ofile.size.val
             offset = 0
@@ -888,7 +907,7 @@ class BaseClient(object):
         except:
             self.__logger.warning("Cannot get session service for killSession. Using closeSession")
             self.closeSession()
-            return -1;
+            return -1
 
         count = 0
         try:
@@ -1025,7 +1044,7 @@ class BaseClient(object):
             pass
         def _closeSession(self):
             try:
-                self.oa.deactivate();
+                self.oa.deactivate()
             except Exception, e:
                 sys.err.write("On session closed: " + str(e))
 
