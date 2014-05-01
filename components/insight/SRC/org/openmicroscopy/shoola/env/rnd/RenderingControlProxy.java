@@ -1430,7 +1430,7 @@ class RenderingControlProxy
     	    } else {
     	        long id = servant.saveAsNewSettings();
     	        rndDef = context.getImageService().getSettings(ctx, id);
-    	        return rndDef;
+    	        return rndDef.copy();
     	    }
     		
 		} catch (Throwable e) {
