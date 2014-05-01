@@ -15,8 +15,6 @@
 #   Environment Variables:
 #
 #     ICE_CONFIG=dist/etc/ice.config
-#     CPPPATH=<locations for headers to be added>
-#     LIBPATH=<location of libraries to be added>
 #     PYTHONPATH=<location of modules to be added>
 #
 #     On Windows, use ";" to separate your paths, otherwise ":"
@@ -26,8 +24,6 @@
 #     builddir=../omero  # Path to a build directory other than ../dist
 #     run=1              # Causes all the files to be executed
 #     run_java=1         # Causes Java files to be executed
-#     run_cpp=1          # Causes C++ files to be executed
-#     no_cpp=1           # Prevents building the C++ files
 #     no_java=1          # Prevents building the Java files
 #     run_py=1           # Causes Python files to be executed
 #
@@ -56,8 +52,6 @@ mode = ARGUMENTS.get('mode', "debug")
 link = ARGUMENTS.get("link","omero_client").split()
 builddir = os.path.abspath(os.path.join(os.pardir,"dist"))
 builddir = ARGUMENTS.get("builddir",builddir)
-cpppath = env_path("CPPPATH")
-libpath = env_path("DYLD_LIBRARY_PATH") + env_path("LD_LIBRARY_PATH") + env_path("LIBPATH")
 pypath  = env_path("PYTHONPATH")
 if os.environ.has_key("ICE_CONFIG"):
     ice_config = os.environ["ICE_CONFIG"]
@@ -71,9 +65,7 @@ ice_config = os.path.abspath( ice_config )
 opts = Variables()
 opts.Add(BoolVariable('run', 'Execute all build artifacts', 0))
 opts.Add(BoolVariable('run_java', 'Execute Java build artifacts', 0))
-opts.Add(BoolVariable('run_cpp', 'Execute C++ build artifacts', 0))
 opts.Add(BoolVariable('run_py', 'Execute Python build artifacts', 0))
-opts.Add(BoolVariable('no_cpp', 'Skip building all C++ artifacts', 0))
 opts.Add(BoolVariable('no_java', 'Skip building all Java artifacts', 0))
 
 # Adding to allow re-use of scons_py Ant macro
@@ -96,87 +88,13 @@ AddOption('--arch',
 # ENVIRONMENT: ===================================================
 #
 map = { "options" : opts,
-        "CPPPATH" : cpppath + [os.path.join(builddir,"include"), os.path.curdir],
-        "LIBPATH" : libpath + [os.path.join(builddir,"lib")],
-        "CXXFLAGS" : [],
-        "CPPDEFINES" : [],
-        "LINKFLAGS" : [],
         "JAVACFLAGS" : [],
         "ENV" : {
             "ICE_CONFIG" : ice_config,
             "PATH": os.environ["PATH"],
             "PYTHONPATH" : os.pathsep.join(pypath + [os.path.join(builddir,"lib","python")]) }}
 
-if platform.name == "posix" or platform.name == "linux" or platform.name == "darwin":
-    #
-    map["CPPPATH"].append(os.path.join(builddir, 'include'))
-    #
-    map["LIBPATH"].append(os.path.join(builddir, 'lib'))
-    #
-    map["ENV"].update({
-        "LD_LIBRARY_PATH": map["LIBPATH"],
-        "DYLD_LIBRARY_PATH": map["LIBPATH"],
-    })
-
-    if mode == "debug":
-        map["CXXFLAGS"] = ["-g","-O0"]
-
-# Windows
-else:
-    # from components/blitz/blitz_tools.py
-    if "LIB" in os.environ:
-        # Only LIB contains the path to the Windows SDK x64 library when starting
-        # from the VS2008 x64 command line batch.
-        map["LIBPATH"]    = map["LIBPATH"] + os.environ["LIB"].split(os.path.pathsep)
-
-    if mode == "debug":
-        map["CXXFLAGS"]   = ['-W1', '-EHsc', '/MDd', '/Zi']
-        map["LIBPATH"]    = map["LIBPATH"] + ["bin/windows/debug"]
-        map["CPPDEFINES"] = ["WIN32_LEAN_AND_MEAN", "DEBUG"],
-        map["LINKFLAGS"]  = '/DEBUG'
-
-    else:
-        map["CXXFLAGS"]   = ['-O2', '-EHsc', '-DNDEBUG', '/MD']
-        map["LIBPATH"]    = map["LIBPATH"] + ["bin/windows/release"]
-        map["CPPDEFINES"] = ["WIN32_LEAN_AND_MEAN", "NDEBUG"]
-
-
 env = Environment(**map)
-
-# Support for ICE_HOME
-if os.environ.has_key("ICE_HOME"):
-    ice_home = os.environ["ICE_HOME"]
-    env.AppendUnique( CPPPATH = [os.path.join(ice_home, "include")] )
-    env.AppendUnique( LIBPATH = [os.path.join(ice_home, "lib"    )] )
-
-# env.Decider('MD5-timestamp')
-
-# CONFIGURATION: ==============================================
-
-if not env["no_cpp"]:
-    #
-    # Check C++ libraries
-    #
-    conf = Configure(env)
-    if not conf.CheckCXXHeader('Ice/Ice.h'):
-        print 'Ice must be installed!'
-        Exit(1)
-
-    if platform.name == "posix" or platform.name == "linux":
-        if not conf.CheckLib('Ice'):
-            print 'Ice library must be in path'
-            Exit(1)
-
-    #
-    # Use C++ libraries
-    #
-    if platform.name == "posix" or platform.name == "linux" or platform.name == "darwin":
-        libs = Split("Ice IceUtil Glacier2 omero_client")+link
-    else:
-        libs = Split("Ice.lib IceUtil.lib Glacier2.lib omero_client.lib")
-else:
-    libs = [] # Placeholder for no_cpp builds
-
 
 # TARGETS / EXECUTION: ==========================================
 
@@ -203,16 +121,6 @@ def get_targets(env, subdir, name):
         run = env.Alias(_(["%s"%subdir, "%s.py"%name]), [], "python " + _(["%s"%subdir, "%s.py "%name]))
         env.AlwaysBuild(run)
         targets.append(run)
-
-    # C++
-    if not env["no_cpp"]:
-        make = env.Program("%s.exe" % subdir, "%s.cpp" % name, LIBS = libs)
-        targets.append(make)
-        if env["run"] or env["run_cpp"]:
-            run = env.Command(_(["%s"%subdir, "%s.out"%name]), "%s.exe" % subdir, _([".","$SOURCE "]))
-            env.Depends(run, make)
-            env.AlwaysBuild(run)
-            targets.append(run)
 
     return targets
 
@@ -275,22 +183,6 @@ for src_dir in glob.glob("*"):
                     run = env.Alias(file, [], "python %s" % file)
                     env.AlwaysBuild(run)
                     targets.append(run)
-
-        #
-        # C++
-        #
-        if not env["no_cpp"]:
-            cpp_files = glob.glob(os.path.join(src_dir,"*.cpp"))
-            for file in cpp_files:
-                base = os.path.splitext(file)[0]
-                make = env.Program(base+".exe", file, LIBS=libs)
-                targets.append(make)
-                if env["run"] or env["run_cpp"]:
-                    run = env.Command(base+".out", base+".exe",  _([".","$SOURCE"]))
-                    env.Depends(run, make)
-                    env.AlwaysBuild(run)
-                    targets.append(run)
-
 
 # PREPARING SCONS EXECUTION: =================================
 #
