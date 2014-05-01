@@ -25,6 +25,7 @@ fs plugin for querying repositories, filesets, and the like.
 
 import sys
 
+from omero.cli import admin_only
 from omero.cli import BaseControl
 from omero.cli import CLI
 
@@ -60,11 +61,16 @@ class FsControl(BaseControl):
             "--by-age", action="store_true")
         sets.add_argument(
             "--with-transfer", nargs="*", action="append")
+        sets.add_argument(
+            "--check", action="store_true",
+            help="Checks each fileset for validity.")
 
         for x in (repos, sets):
             x.add_argument("--csv", action="store_true")
 
-    def table(self, args):
+    def _table(self, args):
+        """
+        """
         from omero.util.text import TableBuilder
         tb = TableBuilder("#")
         if args.csv:
@@ -84,8 +90,8 @@ class FsControl(BaseControl):
         repos = zip(repos.descriptions, repos.proxies)
         repos.sort(lambda a, b: cmp(a[0].id.val, b[0].id.val))
 
-        tb = self.table(args)
-        tb.cols(["Id", "Type", "Path"])
+        tb = self._table(args)
+        tb.cols(["Id", "UUID", "Type", "Path"])
         for idx, pair in enumerate(repos):
             desc, prx = pair
             path = "/".join([desc.path.val, desc.name.val])
@@ -98,7 +104,7 @@ class FsControl(BaseControl):
                 continue
             if desc.hash.val == "ScriptRepo":
                 type = "Script"
-            tb.row(idx, *(desc.id.val, type, path))
+            tb.row(idx, *(desc.id.val, desc.hash.val, type, path))
         self.ctx.out(str(tb.build()))
 
     def sets(self, args):
@@ -127,14 +133,28 @@ class FsControl(BaseControl):
             "group by fs.id, fs.templatePrefix, ann.textValue "
             "order by fs.id desc")
 
+        ## TODO: limit the above to just the latest annotation.
+        ## OTHER TODOS:
+        # - list which repo a fileset lives in (--in-repo={oid|uuid})
+        # - push filters into query
+        # - --check for symlinks
+        # - do a quick pre-check for SLICEPATH
+        # - add rank for repositories (or boolean?)
+        #     \___> in 5.1 should be part of model?
+        #      __> anything to be done (NS, etc) in 5.0
+        #          to allow upgrading a map?
+
         if args.by_age:
             pass  # Unused
 
         objs = service.projection(query, params, {"omero.group": "-1"})
         objs = unwrap(objs)
 
-        tb = self.table(args)
-        tb.cols(["Id", "Prefix", "File count", "Transfer"])
+        cols = ["Id", "Prefix", "File count", "Transfer"]
+        if args.check:
+            cols.append("Check")
+        tb = self._table(args)
+        tb.cols(cols)
         for idx, obj in enumerate(objs):
 
             # Map the transfer name to the CLI symbols
@@ -157,8 +177,43 @@ class FsControl(BaseControl):
             if []:
                 if ns not in allowed:
                     continue
+
+            # Now perform check if required
+            if args.check:
+                from omero.gateway import BlitzGateway
+                from omero.grid import RawAccessRequest
+                check_params = ParametersI()
+                check_params.addId(obj[0])
+                rows = service.projection((
+                    "select h.value, f.hash, "
+                    "f.path || '/' || f.name "
+                    "from Fileset fs join fs.usedFiles uf "
+                    "join uf.originalFile f join f.hasher h "
+                    "where fs.id = :id"
+                    ), check_params)
+
+                for row in rows:
+                    row = unwrap(row)
+                    raw = RawAccessRequest()
+                    raw.repoUuid = "285c556e-dd30-417d-8888-6a2cd6526c65"  # TODO
+                    raw.command = "checksum"
+                    raw.args = map(str, row)
+                    g = BlitzGateway(client_obj=client)
+                    handle = client.sf.submit(raw)
+                    cb = g._waitOnCmd(handle)
+                    rsp = cb.getResponse()
+                    obj.append(rsp)
+                    cb.close(True)
+
             tb.row(idx, *tuple(obj))
         self.ctx.out(str(tb.build()))
+
+    @admin_only
+    def set_repo(self, args):
+        """
+        Change configuration properties for single repositories
+        """
+        pass
 
 
 try:
