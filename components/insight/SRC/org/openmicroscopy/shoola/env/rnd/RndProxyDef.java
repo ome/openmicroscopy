@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.rnd.RndProxyDef
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -32,6 +32,8 @@ import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+
+import omero.model.RenderingDef;
 
 //Third-party libraries
 
@@ -86,12 +88,20 @@ public class RndProxyDef
     /** Indicates when the settings was last modified. */
     private Timestamp lastModified;
 
-    /** The name associated to the rendering def. */
+    /** The name associated to the rendering settings. */
     private String name;
 
-    /** Creates a new instance. */
-    RndProxyDef()
+    /** The original object.*/
+    private RenderingDef data;
+
+    /**
+     * Creates a new instance.
+     *
+     * @param data The original object
+     * */
+    RndProxyDef(RenderingDef data)
     {
+        this.data = data;
         compression = 1.0;
         channels = new HashMap<Integer, ChannelBindingsProxy>();
         name = "";
@@ -263,7 +273,7 @@ public class RndProxyDef
      */
     RndProxyDef copy()
     {
-        RndProxyDef copy = new RndProxyDef();
+        RndProxyDef copy = new RndProxyDef(this.data);
         copy.setLastModified(this.getLastModified());
         copy.setCompression(this.getCompression());
         copy.setTypeSigned(this.isTypeSigned());
@@ -315,5 +325,22 @@ public class RndProxyDef
      * @return See above.
      */
     public Timestamp getLastModified() { return lastModified; }
+
+    /** 
+     * Returns the owner's identifier of the rendering settings.
+     *
+     * @return See above.
+     */
+    public long getOwnerID()
+    {
+        return data.getDetails().getOwner().getId().getValue();
+    }
+
+    /**
+     * Returns the data hosted by this class.
+     *
+     * @return See above.
+     */
+    RenderingDef getData() { return data; }
 
 }

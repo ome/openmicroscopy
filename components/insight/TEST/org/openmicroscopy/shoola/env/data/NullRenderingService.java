@@ -565,4 +565,11 @@ public class NullRenderingService
 		return null;
 	}
 
+    @Override
+    public RndProxyDef getSettings(SecurityContext ctx, long rndID)
+            throws DSOutOfServiceException, DSAccessException {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
 }

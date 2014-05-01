@@ -854,9 +854,8 @@ public class RenderingBean implements RenderingEngine, Serializable {
             if (saveAs) {
                 loadRenderingDef(id);
                 getThumbnail(id);
+                
             } else {
-
-
                 rendDefObj = retrieveRndSettings(pixelsObj.getId());
 
                 // Unload the linked pixels set to avoid transactional headaches on
@@ -868,8 +867,8 @@ public class RenderingBean implements RenderingEngine, Serializable {
                 // cause IllegalStateExceptions if we're not careful. To compensate
                 // we will now reload the renderer.
                 // *** Ticket #848 -- Chris Allan <callan@blackcat.ca> ***
-                load();
             }
+            load();
             return id;
         } finally {
             rwl.writeLock().unlock();
