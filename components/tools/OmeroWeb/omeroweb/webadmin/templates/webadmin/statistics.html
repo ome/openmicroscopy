@@ -27,7 +27,9 @@
 {% block link %}
     {{ block.super }}
     <link rel="stylesheet" href="{% static "webgateway/css/ome.table.css" %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% static "webadmin/css/drivespace.css" %}" type="text/css"/>
     <link rel="stylesheet" href="{% static "3rdparty/jquery.tablesorter/jquery.tablesorter.css" %}" type="text/css" media="screen"/>
+
     
 	<!--[if lte IE 8]>
 		<link rel="stylesheet" type="text/css" href="{% static "webgateway/css/ome.table_ie.css" %}" />
@@ -42,132 +44,84 @@
     <!--[if lte IE 8]><script language="javascript" type="text/javascript" src="{% static "3rdparty/jquery.flot/excanvas.js" %}"></script><![endif]-->
     
     <script type="text/javascript">
-        $(document).ready(function() 
-            { 
-                $.getJSON("{% url 'wadrivespace' %}", function(data){
-                    load_drivespace(data.free);
-                });
-                
-                $("#admin_tabs").tabs({
-                    selected : 2,
-                    select: function(event, ui) {
-                        var url = $.data(ui.tab, 'load.tabs');
-                        if( url ) {
-                            location.href = url;
-                            return false;
-                        }
-                        return true;
-                    }
-                });
-        })
-        
-        var load_drivespace = function(freespace) {
-            $("#free_space").text(freespace.filesizeformat());
-            $("#status").html('loading...');
-            $("#progress").show();
-            var usage = true;
-            var offsetQuery = '';
-            var piechart_data = {};
-            while (usage){ 
-                $.ajax({  
-                    type: "GET",  
-                    url: "{% url 'waloaddrivespace' %}",  
-                    contentType: "application/json; charset=utf-8",  
-                    data: offsetQuery,
-                    dataType: "json",
-                    timeout: 10000, 
-                    async: false,
-                    success: function(data){  
-                        if (!data.loading) {
-                            usage = false;
-                            $("#usage").remove();
-                            $("#placeholder").css('width',700).css('height',300);
-                        }
-                        
-                        offsetQuery = "offset="+(data.offset);
-                        
-                        jQuery.each(data.usage, function(i, val) {
-                            if(val.label in piechart_data) {
-                                piechart_data[val.label] += val.data;
-                            } else {
-                                piechart_data[val.label] = val.data;
-                            }
-                        });
-                        
-                        $("#status").html('loading...');
-                        $("#progress").show();
-                        
-                    }
-                });
-            };
-            
-            $("#status").html('');
-            $("#progress").hide();
-            
-            
-            
-            
-            // do piechart
-            function sortByValue(keyArray, valueMap) {
-                return keyArray.sort(function(a,b){return valueMap[b]-valueMap[a];});
-            }
-            
-            var keyArray = [];
-            var sum = 0;
-            var i=0;
-            for (var l in piechart_data) { 
-                sum = sum + (piechart_data[l]);
-                keyArray[i]=l;
-                i++;
-            }
-            
-            keyArray = sortByValue(keyArray, piechart_data);
-            
-            var l = $('table#drivespaceTable');            
-            
-            //var chart_data = [{label:'Free space', data:{{ driveSpace.free}} }];
-            var chart_data = [{label:'Free space', data:freespace}];
-            for(i=0; i<keyArray.length; i++) {
-                
-                var key = keyArray[i];
-                if(i>10){
-                    var d = chart_data[11].data;
-                    chart_data[11] = {label:'Others', data:d+piechart_data[key]};
-                } else {
-                    chart_data[i+1]={label:key, data:piechart_data[key]};
-                }
-                
-                l.append('<tr id="'+i+'"><td class="link">' + key + '(id:'+i+')</td><td id="usage" class="link">' + (piechart_data[key]).filesizeformat() + '</td></tr>');
-            }
-            
-            $('#total').text('{% trans "Total usage" %}: ' + sum.filesizeformat())
-            
-            $('table#drivespaceTable').show();
-            
+        $(document).ready(function() {
 
-            $.plot($("#placeholder"), chart_data, 
-            {
-                
-                series: {
-                    pie: {
-                        show: true,
-                        radius: 1,
-                        tilt: 0.7,
-                        label: {
-                            show: true,
-                            radius: 0.9,
-                            formatter: function(label, series){
-                                return '<div style="font-size:8pt;text-align:center;padding:2px;color:white;">'+Math.round(series.percent)+'%</div>';
-                            },
-                            background: { opacity: 0 }
-                        }
+            var FREE_SPACE = {{ freeSpace }};
+
+            {% include 'webadmin/includes/drivespaceStats.js' %}
+
+            var loadGroups = function() {
+                $("#filterBy").hide();
+                $(".usageBy").removeClass('selected');
+                $("#load_groups").addClass('selected');
+                $(".totalUsage").text('Total');
+                plotJson("{% url 'waloaddrivespace_groups' %}", {
+                    success: function(){
+                        $(".totalUsage").text('Total');
                     }
-                },
-                legend: {
-                    show: true
+                });
+            }
+
+            var loadUsers = function() {
+                $("#filterBy").hide();
+                $(".usageBy").removeClass('selected');
+                $("#load_users").addClass('selected');
+                $(".totalUsage").text('Total');
+                plotJson("{% url 'waloaddrivespace_users' %}", {
+                    success: function(){
+                        $(".totalUsage").text('Total');
+                    }
+                });
+            }
+
+            $("#load_groups").click(function(event) {
+                event.preventDefault();
+                loadGroups();
+            });
+
+            $("#load_users").click(function(event) {
+                event.preventDefault();
+                loadUsers();
+            });
+
+            $("#placeholder").on('plotclick', function(e, offset, slice){
+                var i = $("#placeholder").data('chart_data')[slice.seriesIndex];
+                $(".usageBy").removeClass('selected');
+                if (i.groupId) {
+                    var url = "{% url 'waindex' %}" + "drivespace_json/group/" + i.groupId +"/";
+                    $("#filterBy").text("Group: " + i.label).show().addClass('selected');
+                    plotJson(url, {
+                        success: function(){
+                            $(".totalUsage").text('Group');
+                        }
+                    });
+                } else if (i.userId) {
+                    var url = "{% url 'waindex' %}" + "drivespace_json/user/" + i.userId +"/";
+                    $("#filterBy").text("User: " + i.label).show().addClass('selected');
+                    plotJson(url, {
+                        success: function(){
+                            $(".totalUsage").text('User');
+                        }
+                    });
                 }
             });
-        };
+
+
+            // On ready - start by loading Users
+            loadUsers();
+
+            $("#admin_tabs").tabs({
+                selected : 2,
+                select: function(event, ui) {
+                    var url = $.data(ui.tab, 'load.tabs');
+                    if( url ) {
+                        location.href = url;
+                        return false;
+                    }
+                    return true;
+                }
+            });
+        });
 
     </script>
     
@@ -190,25 +144,16 @@
         
         <div id="drivespace_settings" class="settings_content">
 
+            <h1>
+                Show disk usage by:
+                <a class="usageBy" href="#" id="load_users">Users</a> |
+                <a class="usageBy" href="#" id="load_groups">Groups</a> |
 
-            <div id="placeholder"></div>
-
-            <h2>{% trans "Drive space usage" %}:</h2>
-
-            <div>{% trans "Free space" %}: <span id="free_space"></span></div>
-            <div id="total"></div>
-
-            <div id="usage">
-                <img src="{% static "webgateway/img/spinner.gif" %}" id="progress" style="float:left"/>
-                <div id="status">loading...</div>
-            </div>
+                <span class="usageBy selected" id="filterBy"></span>
+            </h1>
 
 
-            <table id="drivespaceTable" class="tablesorter" style="display: none;">
-                <thead>
-                    <tr><th>User</th><th>Usage</th></tr>
-                </thead>
-            </table>
+            {% include 'webadmin/includes/drivespaceStats.html' %}
         </div>
         
     </div>
