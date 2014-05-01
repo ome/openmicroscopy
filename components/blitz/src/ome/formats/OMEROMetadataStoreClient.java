@@ -733,6 +733,12 @@ public class OMEROMetadataStoreClient
     // SERVER-SIDE API
     //
 
+    public void setCurrentLogFile(String logFilename, String token)
+    {
+        this.logFilename = logFilename;
+        this.token = token;
+    }
+
     public void updateFileSize(OriginalFile file, long size) throws ServerError {
         file = (OriginalFile) iQuery.get("OriginalFile", file.getId().getValue());
         file.setSize(rlong(size));
@@ -783,7 +789,7 @@ public class OMEROMetadataStoreClient
 
 
     //
-    // METADATASTORE INTERFACE
+    // ENUMERATIONS
     //
 
     /**
@@ -826,7 +832,12 @@ public class OMEROMetadataStoreClient
         return instanceProvider;
     }
 
-    /**
+
+    //
+    // RTYPES
+    //
+
+  /**
      * Transforms a Java type into the corresponding OMERO RType.
      *
      * @param value Java concrete type value.
@@ -990,6 +1001,10 @@ public class OMEROMetadataStoreClient
         return toRType(javaColor.getRGB());
     }
 
+    //
+    // CLOSING
+    //
+
     private void closeQuietly(omero.api.StatefulServiceInterfacePrx prx)
     {
         if (prx != null) {
@@ -1116,6 +1131,10 @@ public class OMEROMetadataStoreClient
             }
         }
     }
+
+    //
+    // MetadataStore INTERFACE
+    //
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#createRoot()
@@ -8434,16 +8453,12 @@ public class OMEROMetadataStoreClient
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setRightsRightsHolder(java.lang.String)
      */
+    @Override
     public void  setRightsRightsHolder(String value)
     {
         // TODO : not in OMERO model
     }
 
-    public void setCurrentLogFile(String logFilename, String token)
-    {
-        this.logFilename = logFilename;
-        this.token = token;
-    }
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setDetectorAnnotationRef(String, int, int, int)
