@@ -5,7 +5,7 @@ Populate bulk metadata tables from delimited text files.
 """
 
 #
-#  Copyright (C) 2011 University of Dundee. All rights reserved.
+#  Copyright (C) 2011-2014 University of Dundee. All rights reserved.
 #
 #
 #  This program is free software; you can redistribute it and/or modify
@@ -439,6 +439,8 @@ class ParsingContext(object):
 
     def write_to_omero(self):
         sf = self.client.getSession()
+        group = str(self.value_resolver.target_object.details.group.id.val)
+        sf.setSecurityContext(omero.model.ExperimenterGroupI(group, False))
         sr = sf.sharedResources()
         update_service = sf.getUpdateService()
         name = 'bulk_annotations'
@@ -461,8 +463,7 @@ class ParsingContext(object):
         link = self.create_annotation_link()
         link.parent = self.target_object
         link.child = file_annotation
-        group = str(self.value_resolver.target_object.details.group.id.val)
-        update_service.saveObject(link, {'omero.group': group})
+        update_service.saveObject(link)
 
 def parse_target_object(target_object):
     type, id = target_object.split(':')
