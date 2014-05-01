@@ -52,6 +52,7 @@ import omero.model.OriginalFile;
 import omero.model.PlaneInfo;
 import org.openmicroscopy.shoola.agents.metadata.AcquisitionDataLoader;
 import org.openmicroscopy.shoola.agents.metadata.AnalysisResultsFileLoader;
+import org.openmicroscopy.shoola.agents.metadata.FileAnnotationChecker;
 import org.openmicroscopy.shoola.agents.metadata.AttachmentsLoader;
 import org.openmicroscopy.shoola.agents.metadata.ChannelDataLoader;
 import org.openmicroscopy.shoola.agents.metadata.ChannelDataSaver;
@@ -1281,6 +1282,35 @@ class EditorModel
 		}
 		return results;
 	}
+	
+	/**
+	 * Returns the FileAnnotations corresponding to the given level.
+	 * 
+	 * @param level The level to handle.
+	 * @return See above.
+	 */
+        List<FileAnnotationData> getFileAnnotatationsByLevel(int level) {
+            List<FileAnnotationData> result = new ArrayList<FileAnnotationData>();
+            Collection<FileAnnotationData> all = getAllAttachments();
+            for (FileAnnotationData f : all) {
+                switch (level) {
+                    case ALL:
+                        result.add(f);
+                        break;
+                    case ME:
+                        if (MetadataViewerAgent.getUserDetails().getId() == f.getOwner().getId()) {
+                            result.add(f);
+                        }
+                        break;
+                    case OTHER:
+                        if (MetadataViewerAgent.getUserDetails().getId() != f.getOwner().getId()) {
+                            result.add(f);
+                        }
+                }
+            }
+            return result;
+        }
+
 	/**
 	 * Returns <code>true</code> if the annotation is already used by the 
 	 * current user, <code>false</code> otherwise.
@@ -2930,6 +2960,16 @@ class EditorModel
 			parent.saveData(null, annotations, new ArrayList<Object>(), data,
 					true);
 		}
+	}
+	
+	/**
+	 * Starts an asynchronous call to check the removal of the given FileAnnotations.
+	 * 
+	 * @param data 	 The annotations to check
+	 */
+	void fireFileAnnotationRemoveCheck(List<FileAnnotationData> annotations) {
+	    FileAnnotationChecker check = new FileAnnotationChecker(component, getSecurityContext(), annotations);
+	    check.load();
 	}
 	
 	/**

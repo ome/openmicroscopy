@@ -34,8 +34,8 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import javax.swing.Icon;
 import javax.swing.JComponent;
@@ -44,6 +44,7 @@ import javax.swing.JFrame;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.metadata.FileAnnotationCheckResult;
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.RenderingControlLoader;
@@ -51,20 +52,21 @@ import org.openmicroscopy.shoola.agents.metadata.browser.Browser;
 import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
 import org.openmicroscopy.shoola.agents.metadata.util.AnalysisResultsItem;
 import org.openmicroscopy.shoola.agents.metadata.util.FigureDialog;
-import org.openmicroscopy.shoola.agents.util.ui.ScriptingDialog;
+import org.openmicroscopy.shoola.agents.metadata.util.FileAttachmentWarningDialog;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.SelectionWizard;
 import org.openmicroscopy.shoola.agents.util.flim.FLIMResultsDialog;
+import org.openmicroscopy.shoola.agents.util.ui.ScriptingDialog;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.AnnotationLinkData;
 import org.openmicroscopy.shoola.env.data.model.DiskQuota;
 import org.openmicroscopy.shoola.env.data.model.ExportActivityParam;
 import org.openmicroscopy.shoola.env.data.model.ROIResult;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
 import org.openmicroscopy.shoola.env.data.util.Target;
-import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
@@ -501,28 +503,6 @@ class EditorComponent
 
 	/** 
 	 * Implemented as specified by the {@link Editor} interface.
-	 * @see Editor#deleteAnnotation(AnnotationData)
-	 */
-	public void deleteAnnotation(AnnotationData data)
-	{
-		if (data == null) return;
-		String s = null;
-		if (data instanceof FileAnnotationData) 
-			s = "Do you want to delete the attachment?";
-		if (s == null) return;
-		JFrame owner = 
-			MetadataViewerAgent.getRegistry().getTaskBar().getFrame();
-		MessageBox msg = new MessageBox(owner, "Delete", s);
-		int option = msg.centerMsgBox();
-		if (option == MessageBox.YES_OPTION) {
-			List<AnnotationData> toRemove = new ArrayList<AnnotationData>(1);
-			toRemove.add(data);
-			//model.fireAnnotationSaving(toAdd, toRemove);
-		}
-	}
-
-	/** 
-	 * Implemented as specified by the {@link Editor} interface.
 	 * @see Editor#setImageAcquisitionData(ImageAcquisitionData)
 	 */
 	public void setImageAcquisitionData(ImageAcquisitionData map)
@@ -533,6 +513,43 @@ class EditorComponent
 		view.setStatus(false);
 	}
 
+    public void removeFileAnnotations(List<FileAnnotationData> annotations) {
+            model.fireFileAnnotationRemoveCheck(annotations);
+    }
+
+    public void handleFileAnnotationRemoveCheck(final FileAnnotationCheckResult result) {
+        if (!result.getSingleParentAnnotations().isEmpty()) {
+            
+            JFrame f = MetadataViewerAgent.getRegistry().getTaskBar()
+                    .getFrame();
+            
+            FileAttachmentWarningDialog dlg = new FileAttachmentWarningDialog(f, result);
+            dlg.addPropertyChangeListener(new PropertyChangeListener() {
+                
+                @Override
+                public void propertyChange(PropertyChangeEvent arg0) {
+                    if(arg0.getPropertyName().equals(FileAttachmentWarningDialog.DELETE_PROPERTY)) {
+                        for (FileAnnotationData fd : result.getSingleParentAnnotations()) {
+                          view.deleteAnnotation(fd);
+                        }
+                        for (FileAnnotationData fd : result.getAllAnnotations()) {
+                            view.unlinkAttachedFile(fd);
+                        }
+                    }
+                    
+                }
+            });
+            UIUtilities.centerAndShow(dlg);
+        }
+
+        else {
+            for (FileAnnotationData fd : result.getAllAnnotations()) {
+                view.unlinkAttachedFile(fd);
+            }
+        }
+    }
+	
+	
 	/** 
 	 * Implemented as specified by the {@link Editor} interface.
 	 * @see Editor#loadImageAcquisitionData()

@@ -646,8 +646,8 @@ public interface OmeroMetadataService
 		throws DSOutOfServiceException, DSAccessException;
 	
 	/**
-	 * Loads the parents of the specified annotation.
-	 * 
+	 * Loads the parents of the specified annotation
+	 * (taking the current user context into account).
 	 * @param ctx The security context.
 	 * @param annotationId The annotation to handle.
 	 * @return See above.
@@ -660,6 +660,22 @@ public interface OmeroMetadataService
 		long annotationId)
 		throws DSOutOfServiceException, DSAccessException;
 	
+	/**
+         * Loads the parents of the specified annotation
+         * (in the scope of the given user context)
+         * 
+         * @param ctx The security context.
+         * @param annotationId The annotation to handle.
+         * @param userId The id of the user
+         * @return See above.
+         * @throws DSOutOfServiceException  If the connection is broken, or logged
+         *                                  in.
+         * @throws DSAccessException        If an error occurred while trying to 
+         *                                  retrieve data from OMEDS service.
+         */
+	public List<DataObject> loadParentsOfAnnotations(SecurityContext ctx,
+                long annotationId, long userId) throws DSOutOfServiceException, DSAccessException;
+                
 	/**
 	 * Saves the channels. Applies the changes to the images contained in
 	 * the specified objects whose number of channels matches the number of 
