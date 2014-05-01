@@ -199,7 +199,9 @@ public class ExperimenterData extends DataObject {
             List<GroupExperimenterMap> links = asExperimenter()
                     .copyGroupExperimenterMap();
             for (GroupExperimenterMap link : links) {
-                groups.add(new GroupData(link.getParent()));
+                    if(link!=null) {
+                        groups.add(new GroupData(link.getParent()));
+                    }
             }
         }
 
