@@ -81,3 +81,4 @@ if(NOT EXISTS ${PROJECT_SOURCE_DIR}/components/blitz/generated/omero/model/Image
 endif(NOT EXISTS ${PROJECT_SOURCE_DIR}/components/blitz/generated/omero/model/Image.ice)
 
 add_subdirectory(components/tools/OmeroCpp)
+add_subdirectory(examples)

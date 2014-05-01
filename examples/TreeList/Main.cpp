@@ -1,7 +1,7 @@
 #include <omero/client.h>
-#include <Usage.h>
-#include <AllProjects.h>
-#include <PrintProjects.h>
+#include "Usage.h"
+#include "AllProjects.h"
+#include "PrintProjects.h"
 
 int main(int argc, char* argv[]) {
 
