@@ -139,17 +139,6 @@ class FsControl(BaseControl):
             "group by fs.id, fs.templatePrefix, ann.textValue "
             "order by fs.id desc")
 
-        ## TODO:
-        # - limit the above to just the latest annotation.
-        # - list which repo a fileset lives in (--in-repo={oid|uuid})
-        # - push filters into query
-        # - --check for symlinks
-        # - do a quick pre-check for SLICEPATH
-        # - add rank for repositories (or boolean?)
-        #     \___> in 5.1 should be part of model?
-        #      __> anything to be done (NS, etc) in 5.0
-        #          to allow upgrading a map?
-
         if args.by_age:
             pass  # Unused
 
