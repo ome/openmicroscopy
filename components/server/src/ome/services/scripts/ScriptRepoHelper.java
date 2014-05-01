@@ -49,7 +49,7 @@ import org.apache.commons.io.filefilter.HiddenFileFilter;
 import org.apache.commons.io.filefilter.IOFileFilter;
 import org.apache.commons.io.filefilter.OrFileFilter;
 import org.apache.commons.io.filefilter.TrueFileFilter;
-import org.apache.commons.io.filefilter.WildcardFileFilter;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.hibernate.Session;
@@ -422,6 +422,22 @@ public class ScriptRepoHelper extends OnContextRefreshedEventListener {
 
     @SuppressWarnings("unchecked")
     public Iterator<File> iterate() {
+        List<String> problems = new ArrayList<String>();
+        // Can occur if lib/scripts is deleted (#9785)
+        if (!dir.exists()) {
+            problems.add("does not exist");
+        } else {
+            if (!dir.canRead()) {
+                problems.add("is not readable");
+            }
+            if (!dir.isDirectory()) {
+                problems.add("is not a directory");
+            }
+        }
+        if (!problems.isEmpty()) {
+            throw new InternalException(String.format("Cannot list %s " +
+                    "since it %s", dir, StringUtils.join(problems, " and ")));
+        }
         return FileUtils.iterateFiles(dir, scriptFilter, TrueFileFilter.TRUE);
     }
 
