@@ -160,6 +160,14 @@ class Parser(ArgumentParser):
         parser.set_defaults(func=func, **kwargs)
         return parser
 
+    def add_style_argument(self):
+        from omero.util.text import find_style
+        from omero.util.text import list_styles
+        self.add_argument(
+            "--style", help=
+            "Use alternative output style",
+            choices=list_styles())
+
     def add_login_arguments(self):
         group = self.add_argument_group('Login arguments',
             'Optional session arguments')
@@ -248,6 +256,13 @@ class ExceptionHandler(object):
         if isinstance(ve, omero.ValidationException):
             if "org.hibernate.exception.ConstraintViolationException: could not insert" in str(ve):
                 return True
+
+    def handle_failed_request(self, rfe):
+        import Ice
+        if isinstance(rfe, Ice.OperationNotExistException):
+            return "Operation not supported by the server: %s" % rfe.operation
+        else:
+            return "Unknown Ice.RequestFailedException"
 
 
 class Context:

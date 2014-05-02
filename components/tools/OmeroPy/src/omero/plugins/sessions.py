@@ -618,18 +618,18 @@ class SessionsControl(BaseControl):
     # Private methods
     #
 
-    def _parse_conn(self, server, name):
+    @staticmethod
+    def _parse_conn(server, default_name):
+        """Parse a connection string of form (user@)server(:port)"""
+
         import re
-        pat = '^((.+)@)?(.*?)(:(.*))?$'
+        pat = '^((?P<name>.+)@)?(?P<server>.*?)(:(?P<port>\d{1,5}))?$'
         match = re.match(pat, server)
-        port = None
-        if match:
-            if match.group(2):
-                name = match.group(2)
-            if match.group(3):
-                server = match.group(3)
-            if match.group(5):
-                port = match.group(5)
+        server = match.group('server')
+        name = match.group('name')
+        port = match.group('port')
+        if not name:
+            name = default_name
         return server, name, port
 
     def _get_server(self, store, name):

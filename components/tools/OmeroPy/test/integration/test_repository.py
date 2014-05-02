@@ -188,21 +188,19 @@ class AbstractRepoTest(lib.ITest):
             entry.setClientPath(rstring(str(f.abspath())))
             fileset.addFilesetEntry(entry)
 
-        # Fill BF info
+        # Fill version info
         system, node, release, version, machine, processor = platform.uname()
-        try:
-            preferred_locale = locale.getdefaultlocale()[0]
-        except:
-            preferred_locale = "Unknown"
 
-        clientVersionInfo = omero.model.FilesetVersionInfoI()
-        clientVersionInfo.setBioformatsReader(rstring("DirectoryReader"))
-        clientVersionInfo.setBioformatsVersion(rstring("Unknown"))
-        clientVersionInfo.setOmeroVersion(rstring(omero_version));
-        clientVersionInfo.setOsArchitecture(rstring(machine))
-        clientVersionInfo.setOsName(rstring(system))
-        clientVersionInfo.setOsVersion(rstring(release))
-        clientVersionInfo.setLocale(rstring(preferred_locale))
+        clientVersionInfo = {
+            'omero.version' : rstring(omero_version),
+            'os.name' : rstring(system),
+            'os.version' : rstring(release),
+            'os.architecture' : rstring(machine)
+        }
+        try:
+            clientVersionInfo['locale'] = rstring(locale.getdefaultlocale()[0])
+        except:
+            pass
 
         upload = omero.model.UploadJobI()
         upload.setVersionInfo(clientVersionInfo)

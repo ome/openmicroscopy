@@ -6364,6 +6364,11 @@ class OMEROGateway
 	            failingChecksums = cve.failingChecksums;
 	            return new ImportException(cve);
 	        } finally {
+	            try {
+	                proc.close();
+	            } catch (Exception e) {
+	                dsFactory.getLogger().error(this, "Cannot close import process.");
+	            }
 	            library.notifyObservers(new ImportEvent.FILESET_UPLOAD_END(
 	                    null, 0, srcFiles.length, null, null, srcFiles,
 	                    checksums, failingChecksums, null));

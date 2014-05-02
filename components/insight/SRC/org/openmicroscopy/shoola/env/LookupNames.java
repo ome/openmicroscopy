@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.LookupNames
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -169,6 +169,9 @@ public class LookupNames
     /** Field to indicate if the connection is fast or not. */
     public static final String CONNECTION_SPEED = "/connection/speed";
 
+    /** Field to indicate the default size of a plane. */
+    public static final String PLANE_SIZE = "/services/RE/planeSize";
+    
     /** Field to access the <code>agents</code> package. */
     public static final String AGENTS = "/agents";
 

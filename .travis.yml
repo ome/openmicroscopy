@@ -18,7 +18,7 @@ before_install:
     - git config github.token 3bc7fc530b01081559eb911f59ccfec7f4fb2592
     - git config --global user.email snoopycrimecop@gmail.com
     - git config --global user.name 'Snoopy Crime Cop'
-    - sudo pip install scc
+    - sudo pip install scc pytest
     - scc travis-merge
     - if [[ $BUILD == 'build-python' ]]; then sudo pip install flake8; fi
 
