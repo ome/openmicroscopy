@@ -512,8 +512,8 @@ public class SelectionWizardUI
              */
             public void keyPressed(KeyEvent e)
             {
-                if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-                    if (filterArea.isFocusOwner())
+                if (e.getKeyCode() == KeyEvent.VK_ENTER &&
+                        filterArea.isFocusOwner()) {
                         addItem();
                 }
             }
@@ -529,9 +529,9 @@ public class SelectionWizardUI
              */
             public void keyPressed(KeyEvent e)
             {
-                if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-                    if (availableItemsListbox.isFocusOwner())
-                        addItem();
+                if (e.getKeyCode() == KeyEvent.VK_ENTER &&
+                        availableItemsListbox.isFocusOwner()) {
+                    addItem();
                 }
             }
         });
@@ -559,9 +559,9 @@ public class SelectionWizardUI
              */
             public void keyPressed(KeyEvent e)
             {
-                if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-                    if (selectedItemsListbox.isFocusOwner())
-                        removeItem();
+                if (e.getKeyCode() == KeyEvent.VK_ENTER &&
+                        selectedItemsListbox.isFocusOwner()) {
+                    removeItem();
                 }
             }
         });
