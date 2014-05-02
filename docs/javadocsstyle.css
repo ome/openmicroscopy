@@ -73,83 +73,111 @@ hr {
 
 /* Navigation bar fonts and colors */
 
-body table tr td.NavBarCell1 table tbody tr td.NavBarCell1 {
-	padding-top: 0px;
-	height: auto;
+.topNav ul.navList {
+	background-color: #9797be;
+	margin: 2px 0px 2px 0;
+	background-image: none;
+	height: 2.5ex;
+	padding-top: 0;
 }
 
-body table tr td.NavBarCell1 table{
+.bottomNav ul.navList {
+	background-color: #9797be;
+	margin: 2px 0px -2px 0;
+	background-image: none;
+	height: 2.5ex;
+	padding-top: 0;
+	border-top-color: navy;
+	border-top-style: solid;
+	border-bottom-style: solid;
+}
+
+ul#allclasses_navbar_top.navList {
+	height: 2.2ex;
+}
+.subNav {
+	clear: both;
+}
+
+.subNav ul.navList {
 	padding-top: 0px;
-	padding-right: 40%;
 	background-color: #9797be;
 	margin: 2px 0px 2px 0px;
 	background-image: none;
-	width: 100%;
 }
 
-body table tr td.NavBarCell1 table tbody tr td.NavBarCell1{
+.subNav ul.subNavList {
+	clear: both;
 	padding-top: 0px;
 	background-color: #9797be;
 	margin: 2px 0px 2px 0px;
 	background-image: none;
+	height: 2.5ex;
 }
 
-body table tr td.NavBarCell1 {
+.topNav {
 	padding-top:71px;
 	background-color: #000066;
 	background-image: url(http://ci.openmicroscopy.org/userContent/ome_trac_back_top.png);
 	background-repeat: no-repeat;
 	background-position: top right;
 margin: 2px 0px 2px 0px;
-	height: 0px;
-
 }
 
-.NavBarCell1 {
+div.header {
+	clear: both;
+}
+
+.topNav ul.navList li {
 	background-color: #EEEEFF;
 	color: #9797be;
 	width: inherit;
 	height: inherit;
+	position: relative;
+	float: left;
+	padding-right: 10px;
+	list-style-type: none;
 }
 
-/* Light mauve */
-
-.NavBarCell1Rev {
-	background-color: #00008B;
-	color: #FFFFFF
+.subNav ul.navList li {
+	background-color: #EEEEFF;
+	color: #9797be;
+	width: inherit;
+	height: inherit;
+	position: relative;
+	float: left;
+	padding-right: 10px;
+	list-style-type: none;
 }
 
-/* Dark Blue */
-
-.NavBarFont1 {
-	font-family: "Lucida Grande", Lucida, Verdana, sans-serif;
-	color: #bbbbc8;
+.subNav ul.subNavList li {
+	background-color: #EEEEFF;
+	color: #9797be;
+	width: inherit;
+	height: inherit;
+	position: relative;
+	float: left;
+	padding-right: 10px;
+	list-style-type: none;
 }
 
-td.NavBarCell1 a {
+.bottomNav ul.navList li {
+	background-color: #EEEEFF;
+	color: #9797be;
+	width: inherit;
+	height: inherit;
+	position: relative;
+	float: left;
+	padding-right: 10px;
+	list-style-type: none;
+}
+
+ul.navList li a {
 	text-decoration: none;
 }
 
-a font.NavBarFont1 {
-	color: #000066
-}
-
-.NavBarFont1Rev {
-	font-family: "Lucida Grande", Lucida, Verdana, sans-serif;
-	color: #FFFFFF;
-	color: #FFFFFF;
-}
-
-.NavBarCell2 {
-	font-family: "Lucida Grande", Lucida, Verdana, sans-serif;
-	background-color: #FFFFFF;
-	color: #000000
-}
-
-.NavBarCell3 {
-	font-family: "Lucida Grande", Lucida, Verdana, sans-serif;
-	background-color: #FFFFFF;
-	color: #000000
+ul.subNavList li a {
+	text-decoration: none;
 }
 
 #omero-static-logo {
@@ -164,9 +192,9 @@ div#omero-spacer {
 	background-color: #FFFFFF;
 	float: left;
 	position: absolute;
-	top: 150px;
+	top: 130px;
 	margin-right: 15px;
-	width: 800px;
+	width: 900px;
 	z-index: 1;
 	height: 24em;
 }
@@ -176,4 +204,3 @@ display: inline !important;	position: absolute;
 	top: 13px;
 	left: 10px;
 }
-
