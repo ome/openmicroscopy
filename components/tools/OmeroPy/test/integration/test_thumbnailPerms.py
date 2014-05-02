@@ -25,6 +25,8 @@
 
 """
 
+import Ice
+
 import pytest
 
 import test.integration.library as lib
@@ -285,7 +287,8 @@ class TestThumbnailPerms(lib.ITest):
         # After thumbnailing there should be no rendering settings
         assert_exists(True, False)
 
-    def test12145ShareSettingsRnd(self):
+    @pytest.mark.parametrize("method", ("saveCurrent", "saveAs"))
+    def test12145ShareSettingsRnd(self, method):
         """
         Rendering settings should be shared when possible.
         Rather than regenerating the min/max per viewer,
@@ -309,29 +312,30 @@ class TestThumbnailPerms(lib.ITest):
         # The owner has a rdef, and other
         # users see the same value
         a_prx, a_rdef = assert_rdef(owner.sf)
-        b_prx, b_rdef= assert_rdef(other.sf)
+        b_prx, b_rdef = assert_rdef(other.sf)
         assert a_rdef == b_rdef
 
-        # If the other users try to save with
-        # that prx though, they'll get a
-        # ValidationException
-        with pytest.raises(omero.ValidationException):
+        if method == "saveCurrent":
+            # If the other users try to save with
+            # that prx though, they'll create a new rdef
             b_prx.saveCurrentSettings()
+            c_rdef = b_prx.getRenderingDefId()
+            assert c_rdef != b_rdef
 
-        # But other users can create new rdefs
-        # with new ids using the new method
-        try:
-            c_rdef = b_prx.saveAsNewSettings()
-            ignore, d_rdef = assert_rdef(prx=b_prx)
-            assert a_rdef != c_rdef
-            assert c_rdef == d_rdef
-        except Ice.OperationNotExistException:
-            # Not supported by this server
-            pass
+        elif method == "saveAs":
+            # But other users can create new rdefs
+            # with new ids using the new method
+            try:
+                c_rdef = b_prx.saveAsNewSettings()
+                ignore, d_rdef = assert_rdef(prx=b_prx)
+                assert a_rdef != c_rdef
+                assert c_rdef == d_rdef
+            except Ice.OperationNotExistException:
+                # Not supported by this server
+                pass
 
-        # And once they do that, they will also
-        # have a new thumbnail available.
+        # But they won't have a thumbnail generated
         tb = other.sf.createThumbnailStore()
         tb.setPixelsId(pixels)
         tb.setRenderingDefId(c_rdef)
-        assert tb.thumbnailExists(rint(96), rint(96))
+        assert not tb.thumbnailExists(rint(96), rint(96))

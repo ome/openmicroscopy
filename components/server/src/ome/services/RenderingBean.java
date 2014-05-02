@@ -766,19 +766,10 @@ public class RenderingBean implements RenderingEngine, Serializable {
     @RolesAllowed("user")
     @Transactional(readOnly = false)
     public void saveCurrentSettings() {
-        internalSave(false);
+        internalSave(!settingsBelongToCurrentUser());
     }
 
     private long internalSave(boolean saveAs) {
-
-        if (!saveAs) {
-            // Before we begin, check that the current settings belong
-            // to the current user. Though this is not strictly necessary
-            // and certain users certainly *can* modify rendering settings
-            // for others, allowing it to happen silently would be a breaking
-            // change that could lead to serious surprises.
-            checkSettingsOwner();
-        }
 
         rwl.writeLock().lock();
 
@@ -853,8 +844,8 @@ public class RenderingBean implements RenderingEngine, Serializable {
 
             if (saveAs) {
                 loadRenderingDef(id);
-                getThumbnail(id);
-                
+                // Note: no thumbnails are generated. This may be corrected
+                // in later versions.
             } else {
                 rendDefObj = retrieveRndSettings(pixelsObj.getId());
 
@@ -1894,11 +1885,11 @@ public class RenderingBean implements RenderingEngine, Serializable {
     }
 
     /**
-     * Throw an exception if the current user is not the owner of the current
+     * Return true if the current user is the owner of the current
      * rendering def.
      */
-    private void checkSettingsOwner() {
-        ex.execute(/*ex*/null/*principal*/,
+    private boolean settingsBelongToCurrentUser() {
+        return (Boolean) ex.execute(/*ex*/null/*principal*/,
           new Executor.SimpleWork(this,"checkSettingsOwner"){
             @Transactional(readOnly = true)
             public Object doWork(Session session, ServiceFactory sf) {
@@ -1907,12 +1898,7 @@ public class RenderingBean implements RenderingEngine, Serializable {
                     "where r.id = :id", new Parameters().addId(rendDefObj.getId()));
                 Long currentUser = getCurrentEventContext().getCurrentUserId();
                 Long ownerId = (Long) rv.get(0)[0];
-                if (!ownerId.equals(currentUser)) {
-                    throw new ValidationException(String.format(
-                        "%s belongs to %s and not the current user %s",
-                        rendDefObj, ownerId, currentUser));
-                }
-                return null;
+                return ownerId.equals(currentUser);
         }});
     }
 
