@@ -74,6 +74,18 @@ class ClientError(Exception):
     pass
 
 
+class CmdError(ClientError):
+    """
+    Thrown by omero.client.waitOnCmd() when
+    failonerror is True and an omero.cmd.ERR
+    is returned. The only argument
+    """
+
+    def __init__(self, err, *args, **kwargs):
+        ClientError.__init__(self, *args, **kwargs)
+        self.err = err
+
+
 class UnloadedEntityException(ClientError):
     pass
 

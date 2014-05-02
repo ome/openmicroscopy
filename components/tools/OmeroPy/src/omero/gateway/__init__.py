@@ -3379,7 +3379,7 @@ class _BlitzGateway (object):
         return handle
 
     def _waitOnCmd(self, handle, loops=10, ms=500, failonerror=True):
-        self.c.waitOnCmd(handle, loops=loops, ms=ms, failonerror=failonerror)
+        return self.c.waitOnCmd(handle, loops=loops, ms=ms, failonerror=failonerror)
 
     def chmodGroup(self, group_Id, permissions):
         """

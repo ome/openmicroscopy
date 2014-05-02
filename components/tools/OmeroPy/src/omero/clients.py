@@ -824,7 +824,7 @@ class BaseClient(object):
         rsp = callback.getResponse()
         if isinstance(rsp, omero.cmd.ERR):
             if failonerror:
-                raise Exception(rsp) # ???
+                raise omero.CmdError(rsp)
         return callback
 
     def getStatefulServices(self):
