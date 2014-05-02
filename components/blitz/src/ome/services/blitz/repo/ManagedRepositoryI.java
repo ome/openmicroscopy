@@ -199,7 +199,8 @@ public class ManagedRepositoryI extends PublicRepositoryI
             rootPath = new FsFile(templatePath.substring(0, splitPoint));
             userPath = new FsFile(templatePath.substring(splitPoint));
         }
-        // at this point, relPath should not yet exist on the filesystem
+
+        // at this point, the template path should not yet exist on the filesystem
         createTemplateDir(rootPath, userPath, __current);
 
         final FsFile relPath = FsFile.concatenate(rootPath, userPath);
@@ -511,13 +512,14 @@ public class ManagedRepositoryI extends PublicRepositoryI
                 break;
             case 1:
                 makeDir(rootPath.toString(), true, rootCurr);
-                makeDir(userPath.toString(), false, curr);
+                makeDir(rootPath.toString() + FsFile.separatorChar + userPath.toString(), false, curr);
                 break;
             default:
                 makeDir(rootPath.toString(), true, rootCurr);
-                final List<String> userPathPrefix = userPath.getComponents().subList(0, userPathSize - 1);
-                makeDir(new FsFile(userPathPrefix).toString(), true, curr);
-                makeDir(userPath.toString(), false, curr);
+                final FsFile fullPath = FsFile.concatenate(rootPath, userPath);
+                final List<String> pathPrefix = fullPath.getComponents().subList(0, rootPathSize + userPathSize - 1);
+                makeDir(new FsFile(pathPrefix).toString(), true, curr);
+                makeDir(fullPath.toString(), false, curr);
                 break;
             }
             break;
@@ -530,13 +532,14 @@ public class ManagedRepositoryI extends PublicRepositoryI
                 break;
             case 1:
                 makeDir(rootPath.toString(), true, rootCurr);
-                makeDir(userPath.toString(), false, curr);
+                makeDir(rootPath.toString() + FsFile.separatorChar + userPath.toString(), false, curr);
                 break;
             default:
                 makeDir(rootPath.toString(), true, rootCurr);
-                final List<String> userPathPrefix = userPath.getComponents().subList(0, userPathSize - 1);
-                makeDir(new FsFile(userPathPrefix).toString(), true, curr);
-                makeDir(userPath.toString(), false, curr);
+                final FsFile fullPath = FsFile.concatenate(rootPath, userPath);
+                final List<String> pathPrefix = fullPath.getComponents().subList(0, rootPathSize + userPathSize - 1);
+                makeDir(new FsFile(pathPrefix).toString(), true, curr);
+                makeDir(fullPath.toString(), false, curr);
                 break;
             }
             break;
