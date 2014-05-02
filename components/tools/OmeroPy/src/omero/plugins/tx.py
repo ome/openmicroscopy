@@ -99,13 +99,13 @@ class NewObjectTxAction(TxAction):
 
     def check_requirements(self, ctx, obj, completed):
         missing = []
-        total = list(obj._info_list)
+        total = dict(obj._field_info._asdict())
         for arg in completed:
-            total.remove(arg.argname)
-        for remaining in total:
-            info = getattr(obj, "_%s_info" % remaining)
-            if info[1] is False:
+            del total[arg.argname]
+        for remaining, info in total.items():
+            if info.nullable is False:
                 missing.append(remaining)
+
         if missing:
             ctx.die(103, "required arguments: %s" %
                     ", ".join(missing))
