@@ -43,8 +43,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
-import javax.swing.Action;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
@@ -69,7 +67,6 @@ import org.jdesktop.swingx.JXTaskPane;
 import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.SeparatorPane;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import org.openmicroscopy.shoola.agents.util.finder.AdvancedFinder;
 
 /** 
  * The Component hosting the various fields used to collect the 
@@ -1504,9 +1501,7 @@ public class SearchPanel
                     creationTime.setEnabled(false);
                     updatedTime.setEnabled(false);
                     for(JButton b : controls) {
-                        if(b.getAction()!=null && b.getAction().getValue(Action.ACTION_COMMAND_KEY).equals(AdvancedFinder.LOADTAGS_ACTION)) {
-                            b.setEnabled(false);
-                        }
+                        b.setEnabled(false);
                     }
                 }
                 else {
@@ -1524,9 +1519,7 @@ public class SearchPanel
                     creationTime.setEnabled(true);
                     updatedTime.setEnabled(true);
                     for(JButton b : controls) {
-                        if(b.getAction()!=null && b.getAction().getValue(Action.ACTION_COMMAND_KEY).equals(AdvancedFinder.LOADTAGS_ACTION)) {
-                            b.setEnabled(true);
-                        }
+                        b.setEnabled(true);
                     }
                 }
             }
