@@ -282,7 +282,9 @@ public class SelectionWizard
             {
                 switch (e.getKeyCode()) {
                 case KeyEvent.VK_ENTER:
-                    addNewObjects();
+                    if (addField.isFocusOwner()) {
+                        addNewObjects();
+                    }
                 }
             }
         });
@@ -292,6 +294,17 @@ public class SelectionWizard
         addField.getDocument().addDocumentListener(this);
         addField.addFocusListener(this);
         descriptionField.addFocusListener(this);
+        descriptionField.addKeyListener(new KeyAdapter() {
+            public void keyPressed(KeyEvent e)
+            {
+                switch (e.getKeyCode()) {
+                case KeyEvent.VK_ENTER:
+                    if (descriptionField.isFocusOwner()) {
+                        addNewObjects();
+                    }
+                }
+            }
+        });
     }
 
     /** Closes and disposes. */
