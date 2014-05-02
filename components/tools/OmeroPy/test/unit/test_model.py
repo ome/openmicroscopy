@@ -273,10 +273,13 @@ class TestModel(object):
 
     def testWrappers(self):
         image = ImageI()
-        assert image._name_info[0] == rstring
-        assert image._acquisitionDate_info[0] == rtime
-        assert not image._name_info[1]  # i.e. required
-        assert not image._acquisitionDate_info[1]  # ditto
+        info = image._field_info
+
+        assert info.name.wrapper == rstring
+        assert info.acquisitionDate.wrapper == rtime
+
+        assert not info.name.nullable
+        assert not info.acquisitionDate.nullable
 
         image.setAcquisitionDate("1", wrap=True)
         assert type(image.acquisitionDate) == type(rtime(0))
