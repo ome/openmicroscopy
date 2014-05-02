@@ -3371,7 +3371,7 @@ class _BlitzGateway (object):
         return handle
 
     def _waitOnCmd(self, handle, loops=10, ms=500, failonerror=True):
-        self.c.waitOnCmd(handle, loops=loops, ms=ms, failonerror=failonerror)
+        return self.c.waitOnCmd(handle, loops=loops, ms=ms, failonerror=failonerror)
 
     def chmodGroup(self, group_Id, permissions):
         """
@@ -3644,7 +3644,7 @@ class ProxyObjectWrapper (object):
         Closes the underlaying service, so next call to the proxy will create a new
         instance of it.
         """
-        
+
         if self._obj and isinstance(self._obj, omero.api.StatefulServiceInterfacePrx):
             self._obj.close()
         self._obj = None
