@@ -27,6 +27,7 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.Insets;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -49,6 +50,7 @@ import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComponent;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
@@ -59,6 +61,7 @@ import javax.swing.JSeparator;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 import javax.swing.border.BevelBorder;
 
 //Third-party libraries
@@ -82,6 +85,7 @@ import org.openmicroscopy.shoola.agents.util.ui.ScriptMenuItem;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
+import org.openmicroscopy.shoola.util.ui.ScrollablePopupMenu;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 import pojos.ExperimenterData;
@@ -433,7 +437,16 @@ class ToolBar
         }
         allUser.setSelected(total != 0 && total == count);
         allUser.addPropertyChangeListener(groupItem);
-        groupItem.add(new JScrollPane(p));
+        JScrollPane pane = new JScrollPane(p);
+        Dimension d = p.getPreferredSize();
+        int max = 500;
+        if (d.height > max) {
+            Insets insets = pane.getInsets();
+            pane.setPreferredSize(
+                    new Dimension(d.width+insets.left+insets.right+20, max));
+        }
+        
+        groupItem.add(pane);
         groupItem.setUsersItem(items);
         groupItem.addPropertyChangeListener(new PropertyChangeListener() {
 
@@ -756,7 +769,7 @@ class ToolBar
         importLabel.setBusy(false);
         sorter = new ViewerSorter();
         sorter.setCaseSensitive(true);
-        popupMenu = new JPopupMenu();
+        popupMenu = new ScrollablePopupMenu();
     }
 
     /**
