@@ -471,7 +471,7 @@ class MaskColumnI(AbstractColumn, omero.grid.MaskColumn):
         n = tbl._v_name
         f = tbl._v_file
         p = tbl._v_parent
-        # http://www.zeroc.com/doc/Ice-3.3.1/manual/Slice.5.8.html#200
+        # http://doc.zeroc.com/display/Ice/Basic+Types
         # Ice::Byte can be -128 to 127 OR 0 to 255, but using UInt8 for the moment
         try:
             masks = getattr(p, "%s_masks" % n)
