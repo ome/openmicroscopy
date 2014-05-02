@@ -50,7 +50,7 @@ class TxArg(object):
     def parse_arg(self, ctx, arg):
         m = self.ARG_RE.match(arg)
         if not m:
-            raise Exception("Unparseable argument: %s", arg)
+            raise Exception("Unparseable argument: %s" % arg)
         self.argname = m.group("FIELD")
         capitalized = self.argname[0].upper() + self.argname[1:]
         self.setter = "set%s" % capitalized
@@ -63,7 +63,7 @@ class TxArg(object):
             elif re.match(self.VAR_PATTERN + '$', self.value):
                 self.value = ctx.get("tx.vars")[self.value]
             else:
-                raise Exception("Invalid reference: %s", self.value)
+                raise Exception("Invalid reference: %s" % self.value)
 
     def call_setter(self, obj):
         getattr(obj, self.setter)(self.value, wrap=True)
