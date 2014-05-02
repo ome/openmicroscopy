@@ -310,7 +310,8 @@ public class SelectionWizardUI
         populateTreeItems(availableItemsListbox, availableItems);
         //Select the first not
         //Get the first node.
-        if (CollectionUtils.isNotEmpty(availableItems)) {
+        if (CollectionUtils.isNotEmpty(availableItems) &&
+                StringUtils.isNotBlank(txt)) {
             node = availableItems.get(0);
             TreePath path = null;
             if (node.hasChildrenDisplay() && node.getChildCount() > 0) {
@@ -320,7 +321,6 @@ public class SelectionWizardUI
                 path = new TreePath(node.getPath());
             }
             if (path != null) {
-                TreePath[] paths = {path};
                 availableItemsListbox.setSelectionPath(path);
                 availableItemsListbox.scrollPathToVisible(path);
                 availableItemsListbox.repaint();
