@@ -825,9 +825,8 @@ class TestPermissions(lib.ITest):
         assert script.size.val ==  len(data)
         try:
             store.close()
-        finally:
-            self.root.killSession()
-            self.root = None
+        except:
+            pass
 
     def testUseOfRawFileBeanScriptReadGroupMinusOne(self):
         self.assertValidScript(lambda v: {'omero.group': '-1'})
