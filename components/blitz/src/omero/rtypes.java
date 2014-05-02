@@ -16,6 +16,8 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -95,7 +97,7 @@ public abstract class rtypes {
         if (value == null) {
             return null;
         }
-        Map<Object, RType> cache = new HashMap<Object, RType>();
+        Map<Object, RType> cache = new IdentityHashMap<Object, RType>();
         return wrap(value, cache);
     }
 
@@ -160,7 +162,7 @@ public abstract class rtypes {
         if (value == null) {
             return null;
         }
-        Map<RType, Object> cache = new HashMap<RType, Object>();
+        Map<RType, Object> cache = new IdentityHashMap<RType, Object>();
         return unwrap(value, cache);
     }
 
@@ -177,49 +179,42 @@ public abstract class rtypes {
             List<RType> rtypes = ((RArray) value).getValue();
             List<Object> rv = new ArrayList<Object>(rtypes.size());
             cache.put(value, rv);
-            return unwrapList(rtypes, rv, cache);
+            unwrapCollection(rtypes, rv, cache);
+            return rv;
         } else if (value instanceof RList) {
             List<RType> rtypes = ((RList) value).getValue();
             List<Object> rv = new ArrayList<Object>(rtypes.size());
             cache.put(value, rv);
-            return unwrapList(rtypes, rv, cache);
-        } else if (value instanceof Set) {
+            unwrapCollection(rtypes, rv, cache);
+            return rv;
+        } else if (value instanceof RSet) {
             List<RType> rtypes = ((RSet) value).getValue();
-            List<Object> rv = new ArrayList<Object>(rtypes.size());
+            Set<Object> rv = new HashSet<Object>(rtypes.size());
             cache.put(value, rv);
-            return unwrapList(rtypes, rv, cache);
+            unwrapCollection(rtypes, rv, cache);
+            return rv;
         } else if (value instanceof RMap) {
             Map<String, RType> map = ((RMap) value).getValue();
-            List<String> keys = new ArrayList<String>();
-            List<RType> vals = new ArrayList<RType>();
-            List<Object> target = new ArrayList<Object>();
             Map<String, Object> rv = new HashMap<String, Object>();
             cache.put(value, rv);
             for (Map.Entry<String, RType> entry : map.entrySet()) {
-                keys.add(entry.getKey());
-                vals.add(entry.getValue());
-            }
-            List<Object> parsed = unwrapList(vals, target, cache);
-            for (int i = 0; i < keys.size(); i++) {
-                rv.put(keys.get(i), parsed.get(i));
+                rv.put(entry.getKey(), unwrap(entry.getValue(), cache));
             }
             return rv;
         } else {
             Field f = ReflectionUtils.findField(value.getClass(), "val");
             f.setAccessible(true);
-            return ReflectionUtils.getField(f, value);
+            Object rv = ReflectionUtils.getField(f, value);
+            cache.put(value, rv);
+            return rv;
         }
     }
 
-    protected static List<Object> unwrapList(final List<RType> rtypes,
-            final List<Object> rv, final Map<RType, Object> cache) {
-        if (rtypes == null) {
-            return null;
+    protected static void unwrapCollection(final Collection<RType> rtypes,
+            final Collection<Object> rv, final Map<RType, Object> cache) {
+        for (RType rtype : rtypes) {
+            rv.add(unwrap(rtype, cache));
         }
-        for (int i = 0; i < rtypes.size(); i++) {
-            rv.add(unwrap(rtypes.get(i), cache));
-        }
-        return rv;
     }
 
     // =========================================================================
