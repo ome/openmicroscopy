@@ -59,7 +59,8 @@ class FsControl(BaseControl):
 
         sets = parser.add(sub, self.sets, self.sets.__doc__)
         sets.add_argument(
-            "--by-age", action="store_true")
+            "--order", default="newest",
+            choices=("newest", "oldest", "prefix"))
         sets.add_argument(
             "--without-images", action="store_true")
         sets.add_argument(
@@ -136,11 +137,15 @@ class FsControl(BaseControl):
             "left outer join fal.child ann "
             "where (ann is null or ann.ns = :ns) ")
         query2 = (
-            "group by fs.id, fs.templatePrefix, ann.textValue "
-            "order by fs.id desc")
+            "group by fs.id, fs.templatePrefix, ann.textValue ")
 
-        if args.by_age:
-            pass  # Unused
+        if args.order:
+            if args.order == "newest":
+                query2 += "order by fs.id desc"
+            elif args.order == "oldest":
+                query2 += "order by fs.id asc"
+            elif args.order == "prefix":
+                query2 += "order by fs.templatePrefix"
 
         if args.without_images:
             query = "%s and fs.images is empty %s" % (query1, query2)
