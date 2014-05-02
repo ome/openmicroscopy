@@ -23,12 +23,15 @@
 Test of the omero/plugins/tx.py module
 """
 
+import pytest
+
 from omero.api import IUpdatePrx
 from omero.api import ServiceFactoryPrx
 from omero.cli import CLI
 from omero.clients import BaseClient
 from omero.model import ProjectI
 from omero.plugins.tx import NewObjectTxAction
+from omero.plugins.tx import TxCmd
 from omero.plugins.tx import TxControl
 from omero.plugins.tx import TxState
 from omero_ext.mox import IgnoreArg
@@ -44,6 +47,7 @@ class MockCLI(CLI):
         pass
 
 
+@pytest.mark.clitx
 class TxBase(object):
 
     def setup_method(self, method):
@@ -54,7 +58,7 @@ class TxBase(object):
         self.client.sf = self.sf
         self.cli = MockCLI()
         self.cli._client = self.client
-        self.cli.set("tx.out", [])
+        self.cli.set("tx.state", TxState(self.cli))
 
     def teardown_method(self, method):
         self.mox.UnsetStubs()
@@ -70,8 +74,9 @@ class TestNewObjectTxAction(TxBase):
 
     def test_unknown_class(self):
         self.saves(ProjectI(1, False))
-        state = TxState()
-        action = NewObjectTxAction(state, ["Project", "name=foo"])
+        state = TxState(self.cli)
+        cmd = TxCmd(state, arg_list=["new", "Project", "name=foo"])
+        action = NewObjectTxAction(state, cmd)
         action.go(self.cli, None)
 
 

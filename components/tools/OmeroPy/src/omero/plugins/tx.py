@@ -35,19 +35,14 @@ import fileinput
 from omero.cli import BaseControl, CLI, ExceptionHandler
 
 
-class TxArg(object):
+class TxField(object):
 
-    VAR_PATTERN = "[a-zA-Z][a-zA-Z0-9]*"
     ARG_RE = re.compile(("(?P<FIELD>[a-zA-Z]+)"
                          "(?P<OPER>[@])?="
                          "(?P<VALUE>.*)"))
 
-    def __init__(self, ctx, arg):
-        self.ctx = ctx
-        self.arg = arg
-        self.parse_arg(ctx, arg)
-
-    def parse_arg(self, ctx, arg):
+    def __init__(self, tx_state, arg):
+        self.tx_state = tx_state
         m = self.ARG_RE.match(arg)
         if not m:
             raise Exception("Unparseable argument: %s" % arg)
@@ -59,14 +54,68 @@ class TxArg(object):
         if self.oper == "@":
             # Treat value like an array lookup
             if re.match('\d+$', self.value):
-                self.value = ctx.get("tx.out")[int(self.value)]
-            elif re.match(self.VAR_PATTERN + '$', self.value):
-                self.value = ctx.get("tx.vars")[self.value]
+                self.value = tx_state.get_row(int(self.value))
+            elif re.match(TxCmd.VAR_NAME + '$', self.value):
+                self.value = tx_state.get_var(self.value)
             else:
                 raise Exception("Invalid reference: %s" % self.value)
 
-    def call_setter(self, obj):
-        getattr(obj, self.setter)(self.value, wrap=True)
+    def __call__(self, obj):
+        return getattr(obj, self.setter)(self.value, wrap=True)
+
+
+class TxCmd(object):
+
+    VAR_NAME = "(?P<DEST>[a-zA-Z][a-zA-Z0-9]*)"
+    VAR_RE = re.compile(("^\s*%s"
+                         "\s*=\s"
+                         "(?P<REST>.*)$") % VAR_NAME)
+
+    def __init__(self, tx_state, arg_list=None, line=None):
+        """
+        Command of the form:
+
+            (var = ) action type ( field(@)=value ... )
+
+        where parentheses denote optional values.
+        """
+        self.tx_state = tx_state
+        self.arg_list = arg_list
+        self.orig_line = line
+        self.dest = None
+        self.action = None
+        self.type = None
+        self.fields = []
+        self._parse_early()
+
+    def _parse_early(self):
+        line = self.orig_line
+        if self.arg_list and line:
+            raise Exception("Both arg_list and line specified")
+        elif not self.arg_list and not line:
+            raise Exception("Neither arg_list nor line specified")
+        elif line:
+            m = re.match(self.VAR_RE, line)
+            if m:
+                self.dest = m.group("DEST")
+                line = m.group("REST")
+            self.arg_list = shlex.split(line)
+        self.action = self.arg_list[0]
+        if len(self.arg_list) > 1:
+            self.type = self.arg_list[1]
+
+    def _parse_late(self):
+        if len(self.arg_list) > 2:
+            for arg in self.arg_list[2:]:
+                self.fields.append(TxField(self.tx_state, arg))
+
+    def setters(self):
+        self._parse_late()
+        for field in self.fields:
+            yield (field.argname, field)
+
+    def __str__(self):
+        return " ".join(self.arg_list)
 
 
 class TxAction(object):
@@ -78,10 +127,9 @@ class TxAction(object):
     a single transaction.
     """
 
-    def __init__(self, tx_state, arg_list, dest):
-        self.order = tx_state.next()
-        self.arg_list = arg_list
-        self.dest = dest
+    def __init__(self, tx_state, tx_cmd):
+        self.tx_state = tx_state
+        self.tx_cmd = tx_cmd
 
     def go(self, ctx, args):
         raise Exception("Unimplemented")
@@ -90,7 +138,7 @@ class TxAction(object):
 class NewObjectTxAction(TxAction):
 
     def class_name(self):
-        kls = self.arg_list[0]
+        kls = self.tx_cmd.type
         if not kls.endswith("I"):
             kls = "%sI" % kls
         return kls
@@ -108,7 +156,7 @@ class NewObjectTxAction(TxAction):
         missing = []
         total = dict(obj._field_info._asdict())
         for arg in completed:
-            del total[arg.argname]
+            del total[arg]
         for remaining, info in total.items():
             if info.nullable is False:
                 missing.append(remaining)
@@ -118,6 +166,7 @@ class NewObjectTxAction(TxAction):
                     ", ".join(missing))
 
     def go(self, ctx, args):
+        self.tx_state.add(self)
         c = ctx.conn(args)
         up = c.sf.getUpdateService()
         obj = self.instance(ctx)
@@ -126,32 +175,43 @@ class NewObjectTxAction(TxAction):
             kls = kls[0:-1]
 
         completed = []
-        for arg in self.arg_list[1:]:
-            arg = TxArg(ctx, arg)
-            try:
-                arg.call_setter(obj)
-                completed.append(arg)
-            except AttributeError:
-                ctx.die(500, "No field %s for %s" % (arg.argname, kls))
+        for field, setter in self.tx_cmd.setters():
+            setter(obj)
+            completed.append(field)
 
         self.check_requirements(ctx, obj, completed)
         out = up.saveAndReturnObject(obj)
         proxy = "%s:%s" % (kls, out.id.val)
-        ctx.out("Created %s" % proxy)
-        ctx.get("tx.out").append(proxy)
-        if self.dest:
-            ctx.get("tx.vars")[self.dest] = proxy
+        self.tx_state.set_value(proxy, dest=self.tx_cmd.dest)
 
 
 class TxState(object):
 
-    def __init__(self):
-        self.count = 0
+    def __init__(self, ctx):
+        self.ctx = ctx
+        self._commands = []
+        self._vars = {}
         self.is_stdin = sys.stdin.isatty()
 
-    def next(self):
-        self.count += 1
-        return self.count
+    def add(self, command):
+        self._commands.append([command, None])
+        return len(self._commands)
+
+    def set_value(self, proxy, dest=None):
+        idx = len(self._commands) - 1
+        self.ctx.out("Created #%s %s" % (idx, proxy))
+        self._commands[idx][1] = proxy
+        if dest:
+            self._vars[dest] = proxy
+
+    def get_row(self, i):
+        return self._commands[i][1]
+
+    def get_var(self, key):
+        return self._vars[key]
+
+    def __len__(self):
+        return len(self._commands)
 
 
 class TxControl(BaseControl):
@@ -183,9 +243,8 @@ EOF
         parser.set_defaults(func=self.process)
 
     def process(self, args):
-        self.ctx.set("tx.out", [])
-        self.ctx.set("tx.vars", {})
-        state = TxState()
+        state = TxState(self.ctx)
+        self.ctx.set("tx.state", state)
         actions = []
         if len(args.item) == 0:
             path = "-"
@@ -194,29 +253,26 @@ EOF
             for line in fileinput.input([path]):
                 line = line.strip()
                 if line and not line.startswith("#"):
-                    actions.append(self.parse(state, shlex.split(line)))
+                    actions.append(self.parse(state, line=line))
         else:
             if args.file:
                 self.ctx.err("Ignoring %s" % args.file)
-            actions.append(self.parse(state, args.item))
+            actions.append(self.parse(state, arg_list=args.item))
 
         for action in actions:
             action.go(self.ctx, args)
         return actions
 
-    def parse(self, tx_state, arg_list):
+    def parse(self, tx_state, arg_list=None, line=None):
         """
         Takes a single command list and turns
         it into a TxAction object
         """
-        m = re.match("(?P<VARNAME>%s):$" % TxArg.VAR_PATTERN, arg_list[0])
-        if m:
-            m = m.group('VARNAME')
-            arg_list = arg_list[1:]
-        if arg_list[0] == "new":
-            return NewObjectTxAction(tx_state, arg_list[1:], m)
+        tx_cmd = TxCmd(tx_state, arg_list=arg_list, line=line)
+        if tx_cmd.action == "new":
+            return NewObjectTxAction(tx_state, tx_cmd)
         else:
-            raise self.ctx.die(100, "Unknown command: " + arg_list[0])
+            raise self.ctx.die(100, "Unknown command: %s" % tx_cmd)
 
 
 try:
