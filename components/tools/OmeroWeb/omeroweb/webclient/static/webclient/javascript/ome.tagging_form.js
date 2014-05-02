@@ -438,6 +438,7 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id, me) {
     tag_input_filter.keypress(function(event) {
         if (event.which === 13) {
             select_tags(event);
+            tag_input_filter.val('');
         }
     });
 
@@ -455,7 +456,7 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id, me) {
             }
         }).each(update_tooltip);
         sort_tag_list(div_all_tags);
-        update_filter(true);
+        update_filter(undefined, true);
         // scroll to first selected tag
         var first_selected = $("div.ui-selected", div_all_tags);
         if (first_selected.length > 0) {
@@ -467,8 +468,9 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id, me) {
     };
 
     var update_timeout = null;
-    var update_filter = function(keep_selection) {
+    var update_filter = function(event, keep_selection) {
         clearTimeout(update_timeout);
+        var filters;
         var cleanup = function() {
             // make sure tagsets with unfiltered tags are also not filtered
             if (!no_filter) {
@@ -485,8 +487,10 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id, me) {
             }
             if (!keep_selection) {
                 $("div.ui-selected", div_all_tags).removeClass("ui-selected");
-                $("div.alltags-tag,div.alltags-childtag", div_all_tags).not(
-                    ".filtered").first().addClass("ui-selected");
+                if (filters !== '') {
+                    $("div.alltags-tag,div.alltags-childtag", div_all_tags).not(
+                        ".filtered").first().addClass("ui-selected");
+                }
             }
             update_selected_labels();
         };
@@ -496,7 +500,7 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id, me) {
         }
         var owner_mode = $(
             "select[name=filter_owner_mode] option:selected").val();
-        var filters = $.trim(input).toLowerCase();
+        filters = $.trim(input).toLowerCase();
         var filters_split = filters.split(/ +/);
         var no_filter = filters === "" && owner_mode === "any";
         if (no_filter) {
