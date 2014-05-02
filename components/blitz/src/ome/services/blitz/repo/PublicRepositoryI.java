@@ -557,8 +557,8 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
      */
     protected Current sudo(Current current, String sessionUuid) {
         final Current sudoCurrent =  makeAdjustedCurrent(current);
-        current.ctx = new HashMap<String, String>(current.ctx);
-        current.ctx.put(omero.constants.SESSIONUUID.value, sessionUuid);
+        sudoCurrent.ctx = new HashMap<String, String>(current.ctx);
+        sudoCurrent.ctx.put(omero.constants.SESSIONUUID.value, sessionUuid);
         return sudoCurrent;
     }
 
