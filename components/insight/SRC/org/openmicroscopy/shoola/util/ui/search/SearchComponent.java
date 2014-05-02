@@ -30,6 +30,7 @@ import java.awt.event.ActionListener;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import javax.swing.Box;
@@ -442,43 +443,64 @@ public class SearchComponent
 		firePropertyChange(NODES_EXPANDED_PROPERTY,Boolean.FALSE, Boolean.TRUE);
 	}
 	
-	/** Fires a property change to search. */
-	void search()
-	{
-		//Terms cannot be null
-		String[] some = uiDelegate.getSome();
-		String[] must = uiDelegate.getMust();
-		String[] none = uiDelegate.getNone();
-		List<Integer> scope = uiDelegate.getScope();
-		SearchContext ctx = new SearchContext(some, must, none, scope);
-		int index = uiDelegate.getSelectedDate();
-		Timestamp start, end;
-		
-		switch (index) {
-			case SearchContext.RANGE:
-				start = uiDelegate.getFromDate();
-				end = uiDelegate.getToDate();
-				if (start != null && end != null && start.after(end)) 
-					ctx.setTime(end, start);
-				else ctx.setTime(start, end);
-				break;
-			default:
-				ctx.setTime(index);
-		}
-		ctx.setOwnerSearchContext(uiDelegate.getOwnerSearchContext());
-		ctx.setAnnotatorSearchContext(uiDelegate.getAnnotatorSearchContext());
-		ctx.setOwners(uiDelegate.getOwners());
-		ctx.setGroups(uiDelegate.getSelectedGroups());
-		ctx.setAnnotators(uiDelegate.getAnnotators());
-		ctx.setCaseSensitive(uiDelegate.isCaseSensitive());
-		ctx.setType(uiDelegate.getType());
-		ctx.setAttachmentType(uiDelegate.getAttachment());
-		ctx.setTimeType(uiDelegate.getTimeIndex());
-		ctx.setExcludedOwners(uiDelegate.getExcludedOwners());
-		ctx.setExcludedAnnotators(uiDelegate.getExcludedAnnotators());
-		ctx.setGroups(uiDelegate.getSelectedGroups());
-		firePropertyChange(SEARCH_PROPERTY, null, ctx);
-	}
+        /** Fires a property change to search. */
+        void search() {
+            
+            List<Integer> scope = uiDelegate.getScope();
+            SearchContext ctx;
+    
+            if (scope.contains(SearchContext.ID)) {
+                // create search context with search by ID only
+                ctx = new SearchContext(uiDelegate.getSome(), new String[] {},
+                        new String[] {},
+                        Collections.singletonList(SearchContext.ID));
+    
+                // search in all groups
+                List<Long> l = new ArrayList<Long>();
+                for (GroupContext g : getGroups()) {
+                    l.add(g.getId());
+                }
+                ctx.setGroups(l);
+            } else {
+                // Terms cannot be null
+                String[] some = uiDelegate.getSome();
+                String[] must = uiDelegate.getMust();
+                String[] none = uiDelegate.getNone();
+                ctx = new SearchContext(some, must, none, scope);
+    
+                int index = uiDelegate.getSelectedDate();
+                Timestamp start, end;
+    
+                switch (index) {
+                    case SearchContext.RANGE:
+                        start = uiDelegate.getFromDate();
+                        end = uiDelegate.getToDate();
+                        if (start != null && end != null && start.after(end))
+                            ctx.setTime(end, start);
+                        else
+                            ctx.setTime(start, end);
+                        break;
+                    default:
+                        ctx.setTime(index);
+                }
+                ctx.setOwnerSearchContext(uiDelegate.getOwnerSearchContext());
+                ctx.setAnnotatorSearchContext(uiDelegate
+                        .getAnnotatorSearchContext());
+                ctx.setOwners(uiDelegate.getOwners());
+                ctx.setGroups(uiDelegate.getSelectedGroups());
+                ctx.setAnnotators(uiDelegate.getAnnotators());
+                ctx.setCaseSensitive(uiDelegate.isCaseSensitive());
+                ctx.setAttachmentType(uiDelegate.getAttachment());
+                ctx.setTimeType(uiDelegate.getTimeIndex());
+                ctx.setExcludedOwners(uiDelegate.getExcludedOwners());
+                ctx.setExcludedAnnotators(uiDelegate.getExcludedAnnotators());
+                ctx.setGroups(uiDelegate.getSelectedGroups());
+            }
+            
+            ctx.setType(uiDelegate.getType());
+    
+            firePropertyChange(SEARCH_PROPERTY, null, ctx);
+        }
 	
 	/**
 	 * Returns the list of possible groups.

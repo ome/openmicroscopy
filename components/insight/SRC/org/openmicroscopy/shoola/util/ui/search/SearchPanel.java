@@ -42,6 +42,9 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import javax.swing.Action;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
@@ -66,7 +69,7 @@ import org.jdesktop.swingx.JXTaskPane;
 import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.SeparatorPane;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-
+import org.openmicroscopy.shoola.agents.util.finder.AdvancedFinder;
 
 /** 
  * The Component hosting the various fields used to collect the 
@@ -296,6 +299,8 @@ public class SearchPanel
 	private List<JComboBox> groupsBoxes;
 	
 	private JPanel groupRow;
+	
+	private JXTaskPane datePane;
 	
 	/**
 	 * Returns the selected groups.
@@ -730,7 +735,16 @@ public class SearchPanel
 				n = nodes.get(i);
 				box = new JCheckBox(n.getDescription());
 				box.setBackground(UIUtilities.BACKGROUND_COLOR);
-				if (i < 2) box.setSelected(true); // select NAME and ID by default 
+				if(i==0) {
+				    // 'ID' checkbox
+				    // if gets selected, disable all other search options (see IDBoxListener)
+				    final JCheckBox idBox = box;
+				    idBox.addActionListener(new IDBoxListener(idBox));
+				}
+				if (i == 1) {
+				    // 'Name' checkbox, check it by default
+				    box.setSelected(true); 
+				}  
 				if (i%2 == 0) c.gridy++;
 				
 				p.add(box, c);
@@ -752,7 +766,7 @@ public class SearchPanel
 		//UIUtilities.setBoldTitledBorder(SCOPE_TITLE, p);
 		return p;
 	}
-	
+
 	/** 
 	 * Builds and lays out the component displaying the various types.
 	 * 
@@ -1077,10 +1091,10 @@ public class SearchPanel
 		c.gridy++;
 		add(pane, c);//, "0, 2");
 		//add(UIUtilities.buildTaskPane(buildUsers(), USER_TITLE, true), "0, 3");
-		pane = UIUtilities.createTaskPane(DATE_TITLE, null); 
-		pane.add(buildDate());
+		datePane = UIUtilities.createTaskPane(DATE_TITLE, null); 
+		datePane.add(buildDate());
 		c.gridy++;
-		add(pane, c);//, "0, 4");
+		add(datePane, c);//, "0, 4");
 
 		setDateIndex();
 	}
@@ -1462,4 +1476,120 @@ public class SearchPanel
 		repaint();
 	}
 	
+	/**
+	 * Disables all the advanced search options when the ID checkbox is selected,
+	 * and 'restores' the advanced search when ID checkbox is deselected again.
+	 */
+	class IDBoxListener implements ActionListener {
+	    JCheckBox box;
+	    Map<Integer, Boolean> previousState;
+	    
+	    IDBoxListener(JCheckBox box) {
+	        this.box = box;
+	    }
+	   
+            @Override
+            public void actionPerformed(ActionEvent arg0) {
+                if(box.isSelected()) {
+                    Map<Integer, Boolean> checkMap = createIDOnlyStateMap();
+                    previousState = setContextCheckBoxStates(checkMap);
+                    setAllCheckBoxesEnabled(false);
+                    box.setEnabled(true);
+                    groupsBox.setEnabled(false);
+                    advancedSearch(false);
+                    searchBasicButton.setEnabled(false);
+                    fromDate.setEnabled(false);
+                    toDate.setEnabled(false);
+                    dates.setEnabled(false);
+                    creationTime.setEnabled(false);
+                    updatedTime.setEnabled(false);
+                    for(JButton b : controls) {
+                        if(b.getAction()!=null && b.getAction().getValue(Action.ACTION_COMMAND_KEY).equals(AdvancedFinder.LOADTAGS_ACTION)) {
+                            b.setEnabled(false);
+                        }
+                    }
+                }
+                else {
+                    if(previousState!=null) {
+                        setContextCheckBoxStates(previousState);
+                        box.setSelected(false);
+                    }
+                    setAllCheckBoxesEnabled(true);
+                    groupsBox.setEnabled(true);
+                    datePane.setEnabled(true);
+                    searchBasicButton.setEnabled(true);
+                    fromDate.setEnabled(true);
+                    toDate.setEnabled(true);
+                    dates.setEnabled(true);
+                    creationTime.setEnabled(true);
+                    updatedTime.setEnabled(true);
+                    for(JButton b : controls) {
+                        if(b.getAction()!=null && b.getAction().getValue(Action.ACTION_COMMAND_KEY).equals(AdvancedFinder.LOADTAGS_ACTION)) {
+                            b.setEnabled(true);
+                        }
+                    }
+                }
+            }
+            
+            /**
+             * Sets all checkboxes to a certain state (checked/unchecked);
+             * Returns the previous state;
+             * @param states
+             * @return
+             */
+            private Map<Integer, Boolean> setContextCheckBoxStates(Map<Integer, Boolean> states) {
+                Map<Integer, Boolean> prevStatus = new HashMap<Integer, Boolean>();
+                for(Entry<Integer, Boolean> entry : states.entrySet()) {
+                    JCheckBox box = getContextCheckBox(entry.getKey());
+                    if(box==null) {
+                        continue;
+                    }
+                    prevStatus.put(entry.getKey(), box.isSelected());
+                    box.setSelected(entry.getValue());
+                }
+                return prevStatus;
+            }
+            
+            /**
+             * Creates a 'state map' in which only the ID checkbox is checked;
+             * @return
+             */
+            private Map<Integer, Boolean> createIDOnlyStateMap() {
+                Map<Integer, Boolean> result = new HashMap<Integer, Boolean>();
+                for(Entry<Integer, JCheckBox> entry : scopes.entrySet()) {
+                    if(entry.getKey().intValue()==SearchContext.ID) {
+                        result.put(entry.getKey(), true);
+                    }
+                    else {
+                        result.put(entry.getKey(), false);
+                    }
+                }
+                return result;
+            }
+            
+            /**
+             * Helper method for retrieving the checkbox corresponding to a 
+             * certain search context
+             * @param index
+             * @return
+             */
+            private JCheckBox getContextCheckBox(int index) {
+                for(Entry<Integer, JCheckBox> entry : scopes.entrySet()) {
+                    if(entry.getKey().intValue()==index) {
+                        return entry.getValue();
+                    }
+                }
+                return null;
+            }
+            
+            /**
+             * Helper method for en-/disabling all checkboxes
+             * @param enabled
+             */
+            private void setAllCheckBoxesEnabled(boolean enabled) {
+                for(Entry<Integer, JCheckBox> entry : scopes.entrySet()) {
+                    entry.getValue().setEnabled(enabled);
+                }
+            }
+	}
 }
