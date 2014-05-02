@@ -30,6 +30,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -546,6 +547,19 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
         adjustedCurr.operation = __current.operation;
         adjustedCurr.id = new Ice.Identity(__current.id.name, sessionUuid);
         return adjustedCurr;
+    }
+
+    /**
+     * Provide a {@link Ice.Current} like the given one, except with the request context session UUID replaced.
+     * @param current an {@link Ice.Current} instance
+     * @param sessionUuid a new session UUID for the instance
+     * @return a new {@link Ice.Current} instance like the given one but with the new session UUID
+     */
+    protected Current sudo(Current current, String sessionUuid) {
+        final Current sudoCurrent =  makeAdjustedCurrent(current);
+        current.ctx = new HashMap<String, String>(current.ctx);
+        current.ctx.put(omero.constants.SESSIONUUID.value, sessionUuid);
+        return sudoCurrent;
     }
 
     /**
