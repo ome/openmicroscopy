@@ -188,9 +188,21 @@ public class ManagedRepositoryI extends PublicRepositoryI
         // This is the first part of the string which comes after:
         // ManagedRepository/, e.g. %user%/%year%/etc.
         final EventContext ec = repositoryDao.getEventContext(__current);
-        final FsFile relPath = new FsFile(expandTemplate(template, ec));
+        final String templatePath = expandTemplate(template, ec);
+        // check for the // split between root- and user-owned directories
+        final FsFile rootPath, userPath;
+        final int splitPoint = templatePath.indexOf("//");
+        if (splitPoint < 0) {
+            rootPath = new FsFile();
+            userPath = new FsFile(templatePath);
+        } else {
+            rootPath = new FsFile(templatePath.substring(0, splitPoint));
+            userPath = new FsFile(templatePath.substring(splitPoint));
+        }
         // at this point, relPath should not yet exist on the filesystem
-        createTemplateDir(relPath, __current);
+        createTemplateDir(rootPath, userPath, __current);
+
+        final FsFile relPath = FsFile.concatenate(rootPath, userPath);
         fs.setTemplatePrefix(rstring(relPath.toString() + FsFile.separatorChar));
 
         final Class<? extends FormatReader> readerClass = getReaderClass(fs, __current);
@@ -473,16 +485,62 @@ public class ManagedRepositoryI extends PublicRepositoryI
      * starting at the top, until all the directories have been created.
      * The full path must not already exist, although a prefix of it may.
      */
-    protected void createTemplateDir(FsFile relPath, Ice.Current curr) throws ServerError {
-        final List<String> relPathComponents = relPath.getComponents();
-        final int relPathSize = relPathComponents.size();
-        if (relPathSize == 0)
-            throw new IllegalArgumentException("no template directory");
-        if (relPathSize > 1) {
-            final List<String> pathPrefix = relPathComponents.subList(0, relPathSize - 1);
-            makeDir(new FsFile(pathPrefix).toString(), true, curr);
+    protected void createTemplateDir(FsFile rootPath, FsFile userPath, Ice.Current curr) throws ServerError {
+        final Current rootCurr = sudo(curr, rootSessionUuid);
+        final int rootPathSize = rootPath.getComponents().size();
+        final int userPathSize = userPath.getComponents().size();
+        switch (rootPathSize) {
+        case 0:
+            switch (userPathSize) {
+            case 0:
+                throw new IllegalArgumentException("no template directory");
+            case 1:
+                makeDir(userPath.toString(), false, curr);
+                break;
+            default:
+                final List<String> userPathPrefix = userPath.getComponents().subList(0, userPathSize - 1);
+                makeDir(new FsFile(userPathPrefix).toString(), true, curr);
+                makeDir(userPath.toString(), false, curr);
+                break;
+            }
+            break;
+        case 1:
+            switch (userPathSize) {
+            case 0:
+                makeDir(rootPath.toString(), false, rootCurr);
+                break;
+            case 1:
+                makeDir(rootPath.toString(), true, rootCurr);
+                makeDir(userPath.toString(), false, curr);
+                break;
+            default:
+                makeDir(rootPath.toString(), true, rootCurr);
+                final List<String> userPathPrefix = userPath.getComponents().subList(0, userPathSize - 1);
+                makeDir(new FsFile(userPathPrefix).toString(), true, curr);
+                makeDir(userPath.toString(), false, curr);
+                break;
+            }
+            break;
+        default:
+            switch (userPathSize) {
+            case 0:
+                final List<String> rootPathPrefix = userPath.getComponents().subList(0, rootPathSize - 1);
+                makeDir(new FsFile(rootPathPrefix).toString(), true, rootCurr);
+                makeDir(rootPath.toString(), false, rootCurr);
+                break;
+            case 1:
+                makeDir(rootPath.toString(), true, rootCurr);
+                makeDir(userPath.toString(), false, curr);
+                break;
+            default:
+                makeDir(rootPath.toString(), true, rootCurr);
+                final List<String> userPathPrefix = userPath.getComponents().subList(0, userPathSize - 1);
+                makeDir(new FsFile(userPathPrefix).toString(), true, curr);
+                makeDir(userPath.toString(), false, curr);
+                break;
+            }
+            break;
         }
-        makeDir(relPath.toString(), false, curr);
     }
 
     /** Return value for {@link #trimPaths}. */
