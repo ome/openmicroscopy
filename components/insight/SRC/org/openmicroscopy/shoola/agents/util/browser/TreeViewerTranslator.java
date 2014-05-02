@@ -415,6 +415,11 @@ public class TreeViewerTranslator
                     child = transformFile((FileAnnotationData) ho);
                     results.add(child);
                 }
+            } else {
+                if (ho instanceof ExperimenterData) {
+                    child = transformExperimenter((ExperimenterData) ho);
+                    results.add(child);
+                }
             }
         }
         return results;
@@ -737,6 +742,19 @@ public class TreeViewerTranslator
     }
 
     /**
+     * Transforms the specified experimenter.
+     *
+     * @param exp The experimenter to transform.
+     * @return See above.
+     */
+    public static TreeImageNode transformExperimenter(ExperimenterData exp)
+    {
+        TreeImageNode node = new TreeImageNode(exp);
+        node.setToolTip("Login Name: "+exp.getUserName());
+        return node;
+    }
+
+    /**
      * Transforms the passed collection.
      *
      * @param list The experimenters to handle.
@@ -749,15 +767,10 @@ public class TreeViewerTranslator
         Collection l;
         Iterator j = list.iterator();
         Object ho;
-        ExperimenterData exp;
-        TreeImageNode node;
         while (j.hasNext()) {
             ho = j.next();
             if (ho instanceof ExperimenterData) {
-                exp = (ExperimenterData) ho;
-                node = new TreeImageNode(exp);
-                node.setToolTip("Login Name: "+exp.getUserName());
-                nodes.add(node);
+                nodes.add(transformExperimenter((ExperimenterData) ho));
             }
         }
         return nodes;

@@ -216,11 +216,13 @@ public class SelectionWizardUI
      */
     private boolean filterItem(String value, String txt, DataObject data)
     {
-        ExperimenterData exp = data.getOwner();
-        if (ownerFilterIndex == CURRENT) {
-            if (exp.getId() != user.getId()) return false;
-        } else if (ownerFilterIndex == OTHERS) {
-            if (exp.getId() == user.getId()) return false;
+        if (!(data instanceof ExperimenterData)) {
+            ExperimenterData exp = data.getOwner();
+            if (ownerFilterIndex == CURRENT) {
+                if (exp.getId() != user.getId()) return false;
+            } else if (ownerFilterIndex == OTHERS) {
+                if (exp.getId() == user.getId()) return false;
+            }
         }
         if (filterAnywhere) {
             return value.contains(txt);
@@ -296,9 +298,9 @@ public class SelectionWizardUI
                 }
             } else if (ho instanceof FileAnnotationData) {
                 value = ((FileAnnotationData) ho).getFileName();
-            } else if (ho instanceof DatasetData) {
-                value = ((DatasetData) ho).getName();
-            }
+            } else if (ho instanceof DataObject) {
+                value = node.getNodeName();
+            } 
             if (value != null) {
                 value = value.toLowerCase();
                 if (filterItem(value, txt, (DataObject) ho)) {

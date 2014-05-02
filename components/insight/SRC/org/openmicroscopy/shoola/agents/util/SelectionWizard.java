@@ -218,25 +218,27 @@ public class SelectionWizard
         rows.setLayout(new BoxLayout(rows, BoxLayout.Y_AXIS));
         p.add(box);
         rows.add(p);
-        //Filter by owner
-        p = new JPanel();
-        p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
-        p.add(new JLabel("Filter by owner"));
-        values = new String[3];
-        values[SelectionWizardUI.ALL] = "All";
-        values[SelectionWizardUI.CURRENT] = "Owned by me";
-        values[SelectionWizardUI.OTHERS] = "Owned by others";
-        box = new JComboBox(values);
-        box.addActionListener(new ActionListener() {
-            
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                JComboBox src = (JComboBox) e.getSource();
-                uiDelegate.setOwnerIndex(src.getSelectedIndex());
-            }
-        });
-        p.add(box);
-        rows.add(p);
+        if (!ExperimenterData.class.equals(type)) {
+          //Filter by owner
+            p = new JPanel();
+            p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
+            p.add(new JLabel("Filter by owner"));
+            values = new String[3];
+            values[SelectionWizardUI.ALL] = "All";
+            values[SelectionWizardUI.CURRENT] = "Owned by me";
+            values[SelectionWizardUI.OTHERS] = "Owned by others";
+            box = new JComboBox(values);
+            box.addActionListener(new ActionListener() {
+                
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    JComboBox src = (JComboBox) e.getSource();
+                    uiDelegate.setOwnerIndex(src.getSelectedIndex());
+                }
+            });
+            p.add(box);
+            rows.add(p);
+        }
         return UIUtilities.buildComponentPanel(rows);
     }
 
