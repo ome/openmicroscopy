@@ -40,19 +40,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 
-import javax.swing.AbstractAction;
-import javax.swing.Action;
 import javax.swing.BoxLayout;
-import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 //Third-party libraries
-
-
-
-
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent;
@@ -99,9 +92,7 @@ public class AdvancedFinder
 	extends SearchComponent
 	implements Finder, PropertyChangeListener
 {
-        
-        public final static String LOADTAGS_ACTION = "LoadTagsAction";
-    
+	
 	/** The default title of the notification message. */
 	private static final String TITLE = "Search";
 	
@@ -406,8 +397,16 @@ public class AdvancedFinder
 	private List<JButton> createControls()
 	{
 		List<JButton> list = new ArrayList<JButton>();
-		JButton button = new JButton(new LoadTagsAction());
+		IconManager icons = IconManager.getInstance();
+		JButton button = new JButton(icons.getIcon(IconManager.TAG));
 		UIUtilities.unifiedButtonLookAndFeel(button);
+		button.setToolTipText("Load existing Tags to search by.");
+		button.addActionListener(new ActionListener() {
+			
+			public void actionPerformed(ActionEvent e) {
+				loadTags();
+			}
+		});
 		list.add(button);
 		return list;
 	}
@@ -715,22 +714,4 @@ public class AdvancedFinder
 		}
 	}
 	
-	/**
-	 * The action which is executed when the LoadTags button is clicked
-	 */
-        class LoadTagsAction extends AbstractAction {
-    
-            public LoadTagsAction() {
-                super("", IconManager.getInstance().getIcon(IconManager.TAG));
-                putValue(SHORT_DESCRIPTION,
-                        "Load existing Tags to search by.");
-                putValue(ACTION_COMMAND_KEY, LOADTAGS_ACTION);
-            }
-    
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                loadTags();
-            }
-    
-        }
- }
+}
