@@ -440,11 +440,10 @@ class ParsingContext(object):
     def write_to_omero(self):
         sf = self.client.getSession()
         group = str(self.value_resolver.target_object.details.group.id.val)
-        sf.setSecurityContext(omero.model.ExperimenterGroupI(group, False))
         sr = sf.sharedResources()
         update_service = sf.getUpdateService()
         name = 'bulk_annotations'
-        table = sr.newTable(1, name)
+        table = sr.newTable(1, name, {'omero.group': group})
         if table is None:
             raise MetadataError(
                 "Unable to create table: %s" % name)
@@ -463,7 +462,7 @@ class ParsingContext(object):
         link = self.create_annotation_link()
         link.parent = self.target_object
         link.child = file_annotation
-        update_service.saveObject(link)
+        update_service.saveObject(link, {'omero.group': group})
 
 def parse_target_object(target_object):
     type, id = target_object.split(':')
