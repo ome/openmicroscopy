@@ -74,6 +74,8 @@ import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.NotificationDialog;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
+import pojos.AnnotationData;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
@@ -602,7 +604,7 @@ public class SelectionWizardUI
      * @param exp The experimenter associated to the tag.
      * @return See
      */
-    public String formatTagToolip(TagAnnotationData data,
+    public String formatTooltip(AnnotationData data,
             List<TagAnnotationData> parents, ExperimenterData exp)
     {
         if (data == null) return "";
@@ -621,13 +623,15 @@ public class SelectionWizardUI
             buf.append(txt);
             buf.append("<br>");
         }
-        txt = data.getTagDescription();
-        if (StringUtils.isNotBlank(txt)) {
-            buf.append("<b>");
-            buf.append("Description: ");
-            buf.append("</b>");
-            buf.append(txt);
-            buf.append("<br>");
+        if (data instanceof TagAnnotationData) {
+            txt = ((TagAnnotationData) data).getTagDescription();
+            if (StringUtils.isNotBlank(txt)) {
+                buf.append("<b>");
+                buf.append("Description: ");
+                buf.append("</b>");
+                buf.append(txt);
+                buf.append("<br>");
+            }
         }
         if (CollectionUtils.isNotEmpty(parents)) {
             buf.append("<b>");
@@ -676,11 +680,11 @@ public class SelectionWizardUI
                 originalItems.add(item);
                 if (item.getUserObject() instanceof TagAnnotationData) {
                     tag = (TagAnnotationData) item.getUserObject();
-                    item.setToolTip(formatTagToolip(tag, null, null));
+                    item.setToolTip(formatTooltip(tag, null, null));
                     List<TreeImageDisplay> l = item.getChildrenDisplay();
                     List<TagAnnotationData> p = Arrays.asList(tag);
                     for (TreeImageDisplay j : l) {
-                        j.setToolTip(formatTagToolip(tag, p, null));
+                        j.setToolTip(formatTooltip(tag, p, null));
                     }
                 }
             }
@@ -693,8 +697,7 @@ public class SelectionWizardUI
                 originalSelectedItems.add(item);
                 if (item.getUserObject() instanceof TagAnnotationData) {
                     tag = (TagAnnotationData) item.getUserObject();
-                    item.setToolTip(formatTagToolip(tag, getParents(tag),
-                            null));
+                    item.setToolTip(formatTooltip(tag, getParents(tag), null));
                 }
             }
         }
@@ -1212,7 +1215,7 @@ public class SelectionWizardUI
             ho = i.next();
             node = TreeViewerTranslator.transformDataObject(ho);
             if (ho instanceof TagAnnotationData) {
-                String txt = formatTagToolip((TagAnnotationData) ho, null, user);
+                String txt = formatTooltip((TagAnnotationData) ho, null, user);
                 node.setToolTip(txt);
             }
             selectedItems.add(node);
