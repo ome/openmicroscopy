@@ -308,6 +308,24 @@ public class SelectionWizardUI
         availableItems.addAll(toKeep);
         availableItems = sorter.sort(availableItems);
         populateTreeItems(availableItemsListbox, availableItems);
+        //Select the first not
+        //Get the first node.
+        if (CollectionUtils.isNotEmpty(availableItems)) {
+            node = availableItems.get(0);
+            TreePath path = null;
+            if (node.hasChildrenDisplay() && node.getChildCount() > 0) {
+                child = (TreeImageDisplay) node.getFirstChild();
+                path = new TreePath(child.getPath());
+            } else {
+                path = new TreePath(node.getPath());
+            }
+            if (path != null) {
+                TreePath[] paths = {path};
+                availableItemsListbox.setSelectionPath(path);
+                availableItemsListbox.scrollPathToVisible(path);
+                availableItemsListbox.repaint();
+            }
+        }
     }
 
     /**
@@ -479,6 +497,20 @@ public class SelectionWizardUI
                 String value = filterArea.getText();
                 if (DEFAULT_FILTER_TEXT.equals(value)) {
                     setTextFieldDefault(null);
+                }
+            }
+        });
+        filterArea.addKeyListener(new KeyAdapter() {
+
+            /**
+             * Adds the items to the selected list.
+             * @see KeyListener#keyPressed(KeyEvent)
+             */
+            public void keyPressed(KeyEvent e)
+            {
+                if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                    if (filterArea.isFocusOwner())
+                        addItem();
                 }
             }
         });
