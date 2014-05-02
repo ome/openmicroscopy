@@ -63,7 +63,6 @@ import omero.model.Well;
 import omero.model.WellAnnotationLink;
 import omero.model.WellReagentLink;
 import omero.model.WellSample;
-import omero.model.WellSampleAnnotationLink;
 
 import org.hibernate.Session;
 import org.hibernate.engine.LoadQueryInfluencers;
@@ -575,8 +574,6 @@ public class MockGraphTest extends MockObjectTestCase {
                     return WellReagentLink.class;
                 } else if (name.equals("WellSample")) {
                     return WellSample.class;
-                } else if (name.equals("WellSampleAnnotationLink")) {
-                    return WellSampleAnnotationLink.class;
                 } else if (name.equals("Reagent")) {
                     return Reagent.class;
                 } else if (name.equals("ReagentAnnotationLink")) {

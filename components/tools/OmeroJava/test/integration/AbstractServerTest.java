@@ -103,8 +103,6 @@ import omero.model.Well;
 import omero.model.WellAnnotationLink;
 import omero.model.WellAnnotationLinkI;
 import omero.model.WellSample;
-import omero.model.WellSampleAnnotationLink;
-import omero.model.WellSampleAnnotationLinkI;
 import omero.sys.EventContext;
 import omero.sys.ParametersI;
 
@@ -1341,32 +1339,6 @@ public class AbstractServerTest extends AbstractTest {
                 link.setParent((Well) parent2);
                 links.add(link);
             }
-        } else if (parent1 instanceof WellSample) {
-            WellSampleAnnotationLink link = new WellSampleAnnotationLinkI();
-            link.setChild(new TagAnnotationI(c.getId().getValue(), false));
-            link.setParent((WellSample) parent1);
-            links.add(link);
-            link = new WellSampleAnnotationLinkI();
-            link.setChild(new TermAnnotationI(t.getId().getValue(), false));
-            link.setParent((WellSample) parent1);
-            links.add(link);
-            link = new WellSampleAnnotationLinkI();
-            link.setChild(new FileAnnotationI(f.getId().getValue(), false));
-            link.setParent((WellSample) parent1);
-            links.add(link);
-            if (parent2 != null) {
-                link.setChild(new TagAnnotationI(c.getId().getValue(), false));
-                link.setParent((WellSample) parent2);
-                links.add(link);
-                link = new WellSampleAnnotationLinkI();
-                link.setChild(new TermAnnotationI(t.getId().getValue(), false));
-                link.setParent((WellSample) parent2);
-                links.add(link);
-                link = new WellSampleAnnotationLinkI();
-                link.setChild(new FileAnnotationI(f.getId().getValue(), false));
-                link.setParent((WellSample) parent2);
-                links.add(link);
-            }
         } else if (parent1 instanceof PlateAcquisition) {
             PlateAcquisitionAnnotationLink link = new PlateAcquisitionAnnotationLinkI();
             link.setChild(new TagAnnotationI(c.getId().getValue(), false));
@@ -1521,19 +1493,6 @@ public class AbstractServerTest extends AbstractTest {
             link = new WellAnnotationLinkI();
             link.setChild(b);
             link.setParent((Well) parent);
-            links.add(link);
-        } else if (parent instanceof WellSample) {
-            WellSampleAnnotationLink link = new WellSampleAnnotationLinkI();
-            link.setChild(c);
-            link.setParent((WellSample) parent);
-            links.add(link);
-            link = new WellSampleAnnotationLinkI();
-            link.setChild(l);
-            link.setParent((WellSample) parent);
-            links.add(link);
-            link = new WellSampleAnnotationLinkI();
-            link.setChild(b);
-            link.setParent((WellSample) parent);
             links.add(link);
         } else if (parent instanceof PlateAcquisition) {
             PlateAcquisitionAnnotationLink link = new PlateAcquisitionAnnotationLinkI();

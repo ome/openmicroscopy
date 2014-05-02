@@ -450,12 +450,6 @@ public class OMEROMetadataStore
     							(OriginalFile) referenceObject);
     					continue;
     				}
-						if (referenceObject instanceof Annotation)
-						{
-								handleReference(
-										(Pixels) targetObject, (Annotation) referenceObject);
-								continue;
-						}
     			}
     			else if (targetObject instanceof FilterSet)
     			{
@@ -1292,17 +1286,6 @@ public class OMEROMetadataStore
     {
         target.linkOriginalFile(reference);
     }
-
-		/**
-		 * Handles linking a specific reference object to a target object in our
-		 * object graph.
-		 * @param target Target model object.
-		 * @param reference Reference model object.
-		 */
-		private void handleReference(Pixels target, Annotation reference)
-		{
-				target.linkAnnotation(reference);
-		}
 
     /**
      * Handles linking a specific reference object to a target object in our
