@@ -277,8 +277,10 @@ public class ImportContainer
         // ImportUserSettings rather than mis-using ImportContainer.
         settings.doThumbnails = rbool(getDoThumbnails());
         settings.userSpecifiedTarget = getTarget();
-        settings.userSpecifiedName = rstring(getUserSpecifiedName());
-        settings.userSpecifiedDescription = rstring(getUserSpecifiedDescription());
+        settings.userSpecifiedName = getUserSpecifiedName() == null ? null
+                : rstring(getUserSpecifiedName());
+        settings.userSpecifiedDescription = getUserSpecifiedDescription() == null ? null
+                : rstring(getUserSpecifiedDescription());
         settings.userSpecifiedAnnotationList = getCustomAnnotationList();
 
         if (getUserPixels() != null) {
