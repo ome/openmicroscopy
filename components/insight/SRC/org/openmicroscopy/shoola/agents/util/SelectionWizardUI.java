@@ -599,7 +599,7 @@ public class SelectionWizardUI
     /**
      * Formats the tooltip of a tag.
      *
-     * @param data The tag to handle.
+     * @param data The annotation to handle.
      * @param parent Its parent.
      * @param exp The experimenter associated to the tag.
      * @return See
@@ -675,17 +675,22 @@ public class SelectionWizardUI
     {
         originalItems = new ArrayList<TreeImageDisplay>();
         TagAnnotationData tag;
+        Object ho;
         if (availableItems != null) {
             for (TreeImageDisplay item : availableItems) {
                 originalItems.add(item);
-                if (item.getUserObject() instanceof TagAnnotationData) {
-                    tag = (TagAnnotationData) item.getUserObject();
+                ho = item.getUserObject();
+                if (ho instanceof TagAnnotationData) {
+                    tag = (TagAnnotationData) ho;
                     item.setToolTip(formatTooltip(tag, null, null));
                     List<TreeImageDisplay> l = item.getChildrenDisplay();
                     List<TagAnnotationData> p = Arrays.asList(tag);
                     for (TreeImageDisplay j : l) {
                         j.setToolTip(formatTooltip(tag, p, null));
                     }
+                } else if (ho instanceof AnnotationData) {
+                    item.setToolTip(formatTooltip((AnnotationData) ho, null,
+                            null));
                 }
             }
         }
@@ -693,11 +698,15 @@ public class SelectionWizardUI
         originalSelectedItems  = new ArrayList<TreeImageDisplay>();
         if (selectedItems != null) {
             for (TreeImageDisplay item : selectedItems) {
-                //format tooltip of tag.
+                //format tooltip of annotation.
                 originalSelectedItems.add(item);
-                if (item.getUserObject() instanceof TagAnnotationData) {
+                ho = item.getUserObject();
+                if (ho instanceof TagAnnotationData) {
                     tag = (TagAnnotationData) item.getUserObject();
                     item.setToolTip(formatTooltip(tag, getParents(tag), null));
+                } else if (ho instanceof AnnotationData) {
+                    item.setToolTip(formatTooltip((AnnotationData) ho, null,
+                            null));
                 }
             }
         }
