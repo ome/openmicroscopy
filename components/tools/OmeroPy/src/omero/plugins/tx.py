@@ -37,6 +37,7 @@ from omero.cli import BaseControl, CLI, ExceptionHandler
 
 class TxArg(object):
 
+    VAR_PATTERN = "[a-zA-Z][a-zA-Z0-9]*"
     ARG_RE = re.compile(("(?P<FIELD>[a-zA-Z]+)"
                          "(?P<OPER>[@])?="
                          "(?P<VALUE>.*)"))
@@ -57,7 +58,12 @@ class TxArg(object):
         self.oper = m.group("OPER")
         if self.oper == "@":
             # Treat value like an array lookup
-            self.value = ctx.get("tx.out")[int(self.value)]
+            if re.match('\d+$', self.value):
+                self.value = ctx.get("tx.out")[int(self.value)]
+            elif re.match(self.VAR_PATTERN + '$', self.value):
+                self.value = ctx.get("tx.vars")[self.value]
+            else:
+                raise Exception("Invalid reference: %s", self.value)
 
     def call_setter(self, obj):
         getattr(obj, self.setter)(self.value, wrap=True)
@@ -72,9 +78,10 @@ class TxAction(object):
     a single transaction.
     """
 
-    def __init__(self, tx_state, arg_list):
+    def __init__(self, tx_state, arg_list, dest):
         self.order = tx_state.next()
         self.arg_list = arg_list
+        self.dest = dest
 
     def go(self, ctx, args):
         raise Exception("Unimplemented")
@@ -132,6 +139,8 @@ class NewObjectTxAction(TxAction):
         proxy = "%s:%s" % (kls, out.id.val)
         ctx.out("Created %s" % proxy)
         ctx.get("tx.out").append(proxy)
+        if self.dest:
+            ctx.get("tx.vars")[self.dest] = proxy
 
 
 class TxState(object):
@@ -155,7 +164,10 @@ omero tx new Dataset name=foo
 omero tx << EOF
 new Project name=bar
 new Dataset name=foo
-new ProjectDatasetLink parent@=0 child @=1
+new ProjectDatasetLink parent@=0 child@=1
+
+comment1: new CommentAnnotation textValue=baz
+new DatasetAnnotationLink parent@=1 child@=comment1
 EOF
     """
 
@@ -172,6 +184,7 @@ EOF
 
     def process(self, args):
         self.ctx.set("tx.out", [])
+        self.ctx.set("tx.vars", {})
         state = TxState()
         actions = []
         if len(args.item) == 0:
@@ -196,8 +209,12 @@ EOF
         Takes a single command list and turns
         it into a TxAction object
         """
+        m = re.match("(?P<VARNAME>%s):$" % TxArg.VAR_PATTERN, arg_list[0])
+        if m:
+            m = m.group('VARNAME')
+            arg_list = arg_list[1:]
         if arg_list[0] == "new":
-            return NewObjectTxAction(tx_state, arg_list[1:])
+            return NewObjectTxAction(tx_state, arg_list[1:], m)
         else:
             raise self.ctx.die(100, "Unknown command: " + arg_list[0])
 
