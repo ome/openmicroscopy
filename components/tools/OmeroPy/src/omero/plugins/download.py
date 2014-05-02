@@ -66,6 +66,9 @@ class DownloadControl(BaseControl):
             # Possible, though unlikely after previous check
             self.ctx.die(67, "Unknown ValidationException: %s"
                          % ve.message)
+        except omero.ResourceError, re:
+            # ID exists in DB, but not on FS
+            self.ctx.die(67, "ResourceError: %s" % re.message)
 
     def get_file_id(self, session, value):
 
