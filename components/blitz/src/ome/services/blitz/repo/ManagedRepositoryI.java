@@ -703,20 +703,6 @@ public class ManagedRepositoryI extends PublicRepositoryI
                 break;
             }
 
-            if (checked.parent().isRoot) {
-                // This is a top-level directory. This must equal
-                // "%USERNAME%_%USERID%", in which case if it doesn't exist, it will
-                // be created for the user in the "user" group so that it is
-                // visible globally.
-                String userDirectory = getUserDirectoryName(ec);
-                if (!userDirectory.equals(checked.getName())) {
-                    throw new omero.ValidationException(null, null, String.format(
-                            "User-directory name mismatch! (%s<>%s)",
-                            userDirectory, checked.getName()));
-                            
-                }
-            }
-
             pathsToFix.add(checked);
         }
         
