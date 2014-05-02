@@ -191,7 +191,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
         final String templatePath = expandTemplate(template, ec);
         // check for the // split between root- and user-owned directories
         final FsFile rootPath, userPath;
-        final int splitPoint = templatePath.indexOf("//");
+        final int splitPoint = templatePath.lastIndexOf("//");
         if (splitPoint < 0) {
             rootPath = new FsFile();
             userPath = new FsFile(templatePath);
