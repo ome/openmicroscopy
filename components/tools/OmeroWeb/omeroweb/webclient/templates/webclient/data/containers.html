@@ -491,12 +491,12 @@
                                     toolbar_config['paste'] = true;                // allow paste
                                 }
                             } else if(selected.attr("id").indexOf("dataset")>=0) {
-                                toolbar_config['copy'] = true;
+                                toolbar_config['cut'] = true;
                                 if (to_paste && to_paste[0].id.indexOf("image")>=0) {
                                     toolbar_config['paste'] = true;
                                 }
                                 if (selected.parent().parent().length > 0 && selected.parent().parent().attr('rel').replace("-locked", "").indexOf("experimenter") < 0) {
-                                    toolbar_config["cut"] = true;
+                                    toolbar_config["copy"] = true;
                                 }
                             } else if(selected.attr("id").indexOf("image")>=0) {
                                 toolbar_config['basket'] = true;
@@ -930,7 +930,7 @@
                                     }
                                 } else if(obj.attr("id").indexOf("dataset")>=0) {
                                     if (obj.parent().parent().attr('rel').indexOf('experimenter')>=0) {
-                                        config["ccp"]["submenu"]["cut"]["_disabled"] = true;
+                                        config["ccp"]["submenu"]["copy"]["_disabled"] = true;
                                     }
                                     if (!(to_paste && to_paste[0].id.indexOf("image")>=0)) {
                                         config["ccp"]["submenu"]["paste"]["_disabled"] = true;
