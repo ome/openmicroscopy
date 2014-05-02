@@ -185,7 +185,7 @@ class FsControl(BaseControl):
                 allowed[idx] = x
 
             # Filter based on the ns symbols
-            if []:
+            if allowed:
                 if ns not in allowed:
                     continue
 
