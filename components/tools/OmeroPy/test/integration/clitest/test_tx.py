@@ -28,6 +28,7 @@ from omero.util.temp_files import create_path
 from omero.cli import NonZeroReturnCode
 
 
+@pytest.mark.clitx
 class TestTx(CLITest):
 
     def setup_method(self, method):
@@ -42,7 +43,7 @@ class TestTx(CLITest):
 
     def go(self):
         self.cli.invoke(self.args, strict=True)
-        return self.cli.get("tx.out")
+        return self.cli.get("tx.state")
 
     def create_script(self):
         path = create_path()
@@ -56,17 +57,17 @@ class TestTx(CLITest):
         path = self.create_script()
         self.args.append("--file=%s" % path)
         self.cli.invoke(self.args, strict=True)
-        rv = self.cli.get("tx.out")
-        assert 8 == len(rv)
+        state = self.cli.get("tx.state")
+        assert 8 == len(state)
         path.remove()
 
     def test_create_from_args(self):
         self.args.append("new")
         self.args.append("Dataset")
         self.args.append("name=foo")
-        rv = self.go()
-        assert 1 == len(rv)
-        assert rv[0].startswith("Dataset")
+        state = self.go()
+        assert 1 == len(state)
+        assert state.get_row(0).startswith("Dataset")
 
     def test_linkage(self):
         path = create_path()
@@ -77,11 +78,27 @@ class TestTx(CLITest):
             new ProjectDatasetLink parent@=0 child@=1
             """)
         self.args.append("--file=%s" % path)
-        rv = self.go()
-        assert 3 == len(rv)
-        assert rv[0].startswith("Project")
-        assert rv[1].startswith("Dataset")
-        assert rv[2].startswith("ProjectDatasetLink")
+        state = self.go()
+        assert 3 == len(state)
+        assert state.get_row(0).startswith("Project")
+        assert state.get_row(1).startswith("Dataset")
+        assert state.get_row(2).startswith("ProjectDatasetLink")
+        path.remove()
+
+    def test_linkage_via_variables(self):
+        path = create_path()
+        path.write_text(
+            """
+            foo = new Project name=foo
+            bar = new Dataset name=bar
+            new ProjectDatasetLink parent@=foo child@=bar
+            """)
+        self.args.append("--file=%s" % path)
+        state = self.go()
+        assert 3 == len(state)
+        assert state.get_row(0).startswith("Project")
+        assert state.get_row(1).startswith("Dataset")
+        assert state.get_row(2).startswith("ProjectDatasetLink")
         path.remove()
 
     @pytest.mark.parametrize(
@@ -104,9 +121,9 @@ class TestTx(CLITest):
             new DatasetAnnotationLink parent@=0 child@=1
             """)
         self.args.append("--file=%s" % path)
-        rv = self.go()
-        assert 3 == len(rv)
-        assert rv[0].startswith("Dataset")
-        assert rv[1].startswith("CommentAnnotation")
-        assert rv[2].startswith("DatasetAnnotationLink")
+        state = self.go()
+        assert 3 == len(state)
+        assert state.get_row(0).startswith("Dataset")
+        assert state.get_row(1).startswith("CommentAnnotation")
+        assert state.get_row(2).startswith("DatasetAnnotationLink")
         path.remove()
