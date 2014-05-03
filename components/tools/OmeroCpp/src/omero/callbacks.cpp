@@ -24,6 +24,13 @@ using namespace omero::api::_cpp_delete;
 ::Ice::Object* IceInternal::upCast(::omero::callbacks::CmdCallbackI* p) { return p; }
 #endif
 
+namespace
+{
+    const std::string FINISHED("FINISHED");
+    const std::string CANCELLED("CANCELLED");
+    const std::string KILLED("KILLED");
+}
+
 namespace omero {
 
     namespace callbacks {
