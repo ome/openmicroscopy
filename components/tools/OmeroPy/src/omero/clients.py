@@ -771,19 +771,22 @@ class BaseClient(object):
             try:
                 prx.setFileId(ofile.id.val)
                 prx.truncate(size) # ticket:2337
-                offset = 0
-                while True:
-                    block = file.read(block_size)
-                    if not block:
-                        break
-                    prx.write(block, offset, len(block))
-                    offset += len(block)
+                self.write_stream(file, prx, block_size)
             finally:
                 prx.close()
         finally:
             file.close()
 
         return ofile
+
+    def write_stream(self, file, prx, block_size=1024*1024):
+        offset = 0
+        while True:
+            block = file.read(block_size)
+            if not block:
+                break
+            prx.write(block, offset, len(block))
+            offset += len(block)
 
     def download(self, ofile, filename = None, block_size = 1024*1024, filehandle = None):
         if not self.__sf:
