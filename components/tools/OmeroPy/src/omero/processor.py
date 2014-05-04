@@ -877,7 +877,6 @@ class ProcessorI(omero.grid.Processor, omero.util.Servant):
             except:
                 self.logger.error("File lookup failed: user=%s, group=%s, script=%s",\
                     userID, groupID, scriptID, exc_info=1)
-                return # EARlY EXIT !
         else:
             valid = False
             for x in self.accepts_list:
