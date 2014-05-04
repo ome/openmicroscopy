@@ -287,7 +287,7 @@ class TestThumbnailPerms(lib.ITest):
         # After thumbnailing there should be no rendering settings
         assert_exists(True, False)
 
-    @pytest.mark.parametrize("method", ("saveCurrent", "saveAs"))
+    @pytest.mark.parametrize("method", ("saveCurrent", "saveAs", "request"))
     def test12145ShareSettingsRnd(self, method):
         """
         Rendering settings should be shared when possible.
@@ -333,6 +333,18 @@ class TestThumbnailPerms(lib.ITest):
             except Ice.OperationNotExistException:
                 # Not supported by this server
                 pass
+
+        elif method == "request":
+            # If a user explicitly requests a rdef
+            # then it will *not* saveAs and the rdefs
+            # should match.
+            b_prx.loadRenderingDef(b_rdef)
+            try:
+                b_prx.saveCurrentSettings()
+            except omero.SecurityViolation:
+                pass  # You can't do this!
+            c_rdef = b_prx.getRenderingDefId()
+            assert c_rdef == b_rdef
 
         # But they won't have a thumbnail generated
         tb = other.sf.createThumbnailStore()
