@@ -96,7 +96,7 @@ class FsControl(BaseControl):
         from omero.sys import ParametersI
         from omero.util.text import filesizeformat
 
-        query =(
+        query = (
             "select i.id, i.name, fs.id,"
             "count(f.id), sum(f.size) "
             "from Image i join i.pixels p "
@@ -113,7 +113,8 @@ class FsControl(BaseControl):
 
         client = self.ctx.conn(args)
         service = client.sf.getQueryService()
-        rows = unwrap(service.projection(query,
+        rows = unwrap(service.projection(
+            query,
             ParametersI().page(args.offset, args.limit),
             {"omero.group": "-1"}))
 
