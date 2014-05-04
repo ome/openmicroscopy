@@ -100,7 +100,8 @@ class ProcessI(omero.grid.Process, omero.util.SimpleServant):
     def __init__(self, ctx, interpreter, properties, params, iskill=False,
                  Popen=subprocess.Popen,
                  callback_cast=omero.grid.ProcessCallbackPrx.uncheckedCast,
-                 omero_home=path.getcwd()):
+                 omero_home=path.getcwd(),
+                 secure_props=None):
         """
         Popen and callback_Cast are primarily for testing.
         """
@@ -108,6 +109,7 @@ class ProcessI(omero.grid.Process, omero.util.SimpleServant):
         self.omero_home = omero_home          #: Location for OMERO_HOME/lib/python
         self.interpreter = interpreter        #: Executable which will be used on the script
         self.properties = properties          #: Properties used to create an Ice.Config
+        self.secure_props = secure_props      #: Properties used by subclasses for connecting.
         self.params = params                  #: JobParams for this script. Possibly None if a ParseJob
         self.iskill = iskill                  #: Whether or not, cleanup should kill the session
         self.Popen = Popen                    #: Function which should be used for creating processes
@@ -665,6 +667,55 @@ class ProcessI(omero.grid.Process, omero.util.SimpleServant):
         return "<proc:%s,rc=%s,uuid=%s>" % (self.pid, (self.rcode is None and "-" or self.rcode), self.uuid)
 
 
+class DockerProcessI(ProcessI):
+
+    def make_config(self):
+        """
+        Rewrite the config so that docker containers
+        can connect to OMERO.
+
+        TODO: this needs a better workaround.
+        """
+        router = self.properties["Ice.Default.Router"]
+        host = self.secure_props.get("omero.process.docker.host", "172.17.42.1")
+        router = router.replace("localhost", host)
+        self.properties["Ice.Default.Router"] = router
+        ProcessI.make_config(self)
+
+    def command(self):
+        """
+        Overrides ProcessI to call docker.
+        """
+        self.properties["working.dir"] = self.dir
+        secure = dict(self.secure_props)
+        secure["working.dir"] = self.dir
+        self.script_path.rename("%s.run" % self.script_path)
+        self.script_path.write_text(
+            """if True:
+
+            import sys
+            import docker
+
+            client = docker.Client(
+                base_url='%(omero.process.docker.url)s',
+                version='%(omero.process.docker.version)s')
+
+            container = client.create_container(
+                '%(omero.process.docker.image)s',
+                volumes=['/omero-process'], detach=False)
+
+            client.start(container,
+                binds={'%(working.dir)s': '/omero-process'})
+
+            rc = client.wait(container)
+
+            print >>sys.stdout, client.logs(container, stderr=False, stdout=True),
+            print >>sys.stderr, client.logs(container, stderr=True, stdout=False),
+
+            sys.exit(rc)""" % secure)
+        return ProcessI.command(self)
+
+
 class MATLABProcessI(ProcessI):
 
     def make_files(self):
@@ -703,9 +754,9 @@ class UseSessionHolder(object):
 
 class ProcessorI(omero.grid.Processor, omero.util.Servant):
 
-    def __init__(self, ctx, needs_session = True,
-                 use_session = None, accepts_list = None, cfg = None,
-                 omero_home = path.getcwd(), category = None):
+    def __init__(self, ctx, needs_session=True,
+                 use_session=None, accepts_list=None, cfg=None,
+                 omero_home=path.getcwd(), category=None):
 
         if accepts_list is None: accepts_list = []
 
@@ -933,13 +984,22 @@ class ProcessorI(omero.grid.Processor, omero.util.Servant):
                     errors = "Invalid parameters:\n%s" % errors
                     raise omero.ValidationException(None, None, errors)
 
+            secure_props = dict()
+            cfg = self.ctx.getSession().getConfigService()
+            for x in ("image", "url", "version"):
+                key = "omero.process.docker.%s" % x
+                secure_props[key] = cfg.getConfigValue(key)
+
             properties["omero.job"] = str(job.id.val)
             properties["omero.user"] = session
             properties["omero.pass"] = session
             properties["Ice.Default.Router"] = client.getProperty("Ice.Default.Router")
 
             launcher, ProcessClass = self.find_launcher(current)
-            process = ProcessClass(self.ctx, launcher, properties, params, iskill, omero_home = self.omero_home)
+
+            process = ProcessClass(self.ctx, launcher, dict(properties), params, iskill,
+                                   omero_home=self.omero_home,
+                                   secure_props=dict(secure_props))
             self.resources.add(process)
 
             # client.download(file, str(process.script_path))
