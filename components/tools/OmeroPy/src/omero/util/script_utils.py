@@ -24,6 +24,7 @@ Utility methods for dealing with scripts.
 
 import logging
 import os
+import warnings
 
 from struct import unpack
 
@@ -1089,14 +1090,19 @@ def createNewImage(session, plane2Dlist, imageName, description, dataset=None):
     return image
 
 
-def parseInputs(client, session, processFn=IdentityFn):
+def parseInputs(client, session=None, processFn=IdentityFn):
     """
     parse the inputs from the client object and map it to some other form, values may be transformed by function.
     @param client The client object
-    @param session The current session.
+    @param session The current session (deprecated).
     @param processFn A function to transform data to some other form.
     @return Parsed inputs as defined by ProcessFn.
     """
+    if session:
+        warnings.warn(
+            "argument `session' is no longer required and may be removed from future versions of OMERO",
+            DeprecationWarning
+        )
     inputKeys = client.getInputKeys();
     commandArgs = {};
     for key in inputKeys:
