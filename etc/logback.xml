@@ -128,7 +128,7 @@
   <!-- Limit fail-safe cleanup -->
   <logger name="org.hibernate.engine.loading.LoadContexts" level="ERROR"/>
   <!-- This is bogus, and will be caught by our exception handlers anyway -->
-  <logger name="org.hibernate.util.JDBCExceptionReporter" level="ERROR"/>
+  <logger name="org.hibernate.util.JDBCExceptionReporter" level="OFF" additivity="false"/>
   <!-- Printed on startup -->
   <logger name="org.hibernate.search.engine.DocumentBuilderContainedEntity" level="ERROR"/>
   <!-- Other overly verbose messages -->
