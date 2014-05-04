@@ -350,10 +350,12 @@
     <server-template id="ProcessorTemplate">
       <parameter name="index"/>
       <parameter name="dir"/>
+      <parameter name="impl" default=""/>
       <parameter name="exe" default="${PYTHON}"/>
       <server id="Processor-${index}" exe="${exe}" activation="always" pwd="${OMERO_HOME}">
         <option>${OMEROPY_HOME}runProcessor.py</option>
         <env>${PYTHONPATH}</env>
+        <env>OMERO_PROCESSOR=${impl}</env>
         <adapter name="ProcessorAdapter" endpoints="tcp">
           <object identity="Processor-${index}" type="::omero::grid::Processor"/>
         </adapter>

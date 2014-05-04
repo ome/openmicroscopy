@@ -1040,22 +1040,25 @@ class ProcessorI(omero.grid.Processor, omero.util.Servant):
 
         self.logger.info("Using launcher: %s", launcher)
         self.logger.info("Using process: %s", process_class)
+        ProcessClass = self.load_class(process_class, ProcessI)
+        return launcher, ProcessClass
 
+    @staticmethod
+    def load_class(class_name, default):
         # Imports in omero.util don't work well for this class
         # Handling classes from this module specially.
         internal = False
-        parts = process_class.split(".")
+        parts = class_name.split(".")
         if len(parts) == 3:
             if parts[0:2] == ("omero", "processor"):
                 internal = True
 
-        if not process_class:
-            ProcessClass = ProcessI
+        if not class_name:
+            return default
         elif internal:
-            ProcessClass = globals()[parts[-1]]
+            return globals()[parts[-1]]
         else:
-            ProcessClass = load_dotted_class(process_class)
-        return launcher, ProcessClass
+            return load_dotted_class(class_name)
 
 
 def usermode_processor(client, serverid = "UsermodeProcessor",\
