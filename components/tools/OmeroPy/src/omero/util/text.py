@@ -229,3 +229,39 @@ class Table:
 
     def __str__(self):
         return '\n'.join(self.get_rows())
+
+
+def filesizeformat(bytes):
+    """
+    Formats the value like a 'human-readable' file size (i.e. 13 KB, 4.1 MB,
+    102 bytes, etc).
+
+    Copied largely from django.template.defaultfilters
+    """
+    try:
+        bytes = float(bytes)
+    except (TypeError, ValueError, UnicodeDecodeError):
+        return "0 bytes"
+
+    filesize_number_format = lambda value: round(value, 1)
+
+    KB = 1<<10
+    MB = 1<<20
+    GB = 1<<30
+    TB = 1<<40
+    PB = 1<<50
+
+    if bytes < KB:
+        value = "%(size)d B" % {'size': bytes}
+    elif bytes < MB:
+        value = "%s KB" % filesize_number_format(bytes / KB)
+    elif bytes < GB:
+        value = "%s MB" % filesize_number_format(bytes / MB)
+    elif bytes < TB:
+        value = "%s GB" % filesize_number_format(bytes / GB)
+    elif bytes < PB:
+        value = "%s TB" % filesize_number_format(bytes / TB)
+    else:
+        value = "%s PB" % filesize_number_format(bytes / PB)
+
+    return value

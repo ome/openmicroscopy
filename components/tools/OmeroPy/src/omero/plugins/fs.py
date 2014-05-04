@@ -51,6 +51,13 @@ class FsControl(BaseControl):
         parser.add_login_arguments()
         sub = parser.sub()
 
+        archived = parser.add(sub, self.archived, self.archived.__doc__)
+        archived.add_style_argument()
+        archived.add_limit_arguments()
+        archived.add_argument(
+            "--order", default="newest",
+            choices=("newest", "oldest", "largest"))
+
         repos = parser.add(sub, self.repos, self.repos.__doc__)
         repos.add_argument(
             "--managed", action="store_true",
@@ -79,6 +86,49 @@ class FsControl(BaseControl):
         if args.style:
             tb.set_style(args.style)
         return tb
+
+    def archived(self, args):
+        """
+        List images with archived files.
+        """
+
+        from omero.rtypes import unwrap
+        from omero.sys import ParametersI
+        from omero.util.text import filesizeformat
+
+        query =(
+            "select i.id, i.name, fs.id,"
+            "count(f.id), sum(f.size) "
+            "from Image i join i.pixels p "
+            "join p.pixelsFileMaps m join m.parent f "
+            "left outer join i.fileset as fs "
+            "group by i.id, i.name, fs.id ")
+
+        if args.order == "newest":
+            query += "order by i.id desc"
+        elif args.order == "oldest":
+            query += "order by i.id asc"
+        elif args.order == "largest":
+            query += "order by sum(f.size) desc"
+
+        client = self.ctx.conn(args)
+        service = client.sf.getQueryService()
+        rows = unwrap(service.projection(query,
+            ParametersI().page(args.offset, args.limit),
+            {"omero.group": "-1"}))
+
+        # Formatting
+        for row in rows:
+            if row[2] is None:
+                row[2] = ""
+            bytes = row[4]
+            row[4] = filesizeformat(bytes)
+
+        tb = self._table(args)
+        tb.cols(["Image", "Name", "FS", "# Files", "Size"])
+        for idx, row in enumerate(rows):
+            tb.row(idx, *row)
+        self.ctx.out(str(tb.build()))
 
     def repos(self, args):
         """
