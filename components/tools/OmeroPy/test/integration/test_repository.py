@@ -57,18 +57,9 @@ class AbstractRepoTest(lib.ITest):
     def getManagedRepo(self, client=None):
         if client is None:
             client = self.client
-        repoMap = client.sf.sharedResources().repositories()
-        prx = None
-        found = False
-        for prx in repoMap.proxies:
-            if not prx:
-                continue
-            prx = omero.grid.ManagedRepositoryPrx.checkedCast(prx)
-            if prx:
-                found = True
-                break
-        assert found
-        return prx
+        mrepo = client.getManagedRepository()
+        assert mrepo
+        return mrepo
 
     def createFile(self, mrepo1, filename):
         rfs = mrepo1.file(filename, "rw")

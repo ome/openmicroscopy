@@ -663,6 +663,19 @@ class BaseClient(object):
         finally:
             self.__lock.release()
 
+    def getManagedRepository(self):
+        repoMap = self.getSession().sharedResources().repositories()
+        prx = None
+        found = False
+        for prx in repoMap.proxies:
+            if not prx:
+                continue
+            prx = omero.grid.ManagedRepositoryPrx.checkedCast(prx)
+            if prx:
+                found = True
+                break
+        return prx
+
     def getRouter(self, comm):
         """
         Acquires the default router, and throws an exception
