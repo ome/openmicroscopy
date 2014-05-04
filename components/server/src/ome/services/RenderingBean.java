@@ -161,6 +161,14 @@ public class RenderingBean implements RenderingEngine, Serializable {
     private Integer resolutionLevel;
 
     /**
+     * True when an explicit rendering def ID was passed into the
+     * server. In this case, a call to {@link #saveCurrentSettings()}
+     * will <em>not</em> redirect to {@link #saveAsNewSettings()} if
+     * the rendering def does not belong to the current user.
+     */
+    private boolean requestedRenderingDef = false;
+
+    /**
      * Compression service Bean injector.
      * 
      * @param compressionService
@@ -275,6 +283,7 @@ public class RenderingBean implements RenderingEngine, Serializable {
 
         try {
             rendDefObj = retrieveRndSettings(pixelsId);
+            requestedRenderingDef = false;
             closeRenderer();
             renderer = null;
 
@@ -323,6 +332,7 @@ public class RenderingBean implements RenderingEngine, Serializable {
 
         try {
             rendDefObj = loadRndSettings(renderingDefId);
+            requestedRenderingDef = true;
             if (rendDefObj == null) {
                 throw new ValidationException(
                         "No rendering definition exists with ID: "
@@ -675,6 +685,7 @@ public class RenderingBean implements RenderingEngine, Serializable {
             // lookupRenderingDef().
             if (rendDefObj == null) {
                 rendDefObj = retrieveRndSettings(pixelsId);
+                requestedRenderingDef = false;
                 if (rendDefObj != null) {
                     // We've been called before lookupRenderingDef() or
                     // loadRenderingDef(), report an error.
@@ -766,7 +777,7 @@ public class RenderingBean implements RenderingEngine, Serializable {
     @RolesAllowed("user")
     @Transactional(readOnly = false)
     public void saveCurrentSettings() {
-        internalSave(!settingsBelongToCurrentUser());
+        internalSave(!requestedRenderingDef && !settingsBelongToCurrentUser());
     }
 
     private long internalSave(boolean saveAs) {
