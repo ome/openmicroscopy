@@ -24,6 +24,7 @@ import omero.util.concurrency
 
 import omero_ext.uuid as uuid  # see ticket:3774
 
+from omero.sys import ParametersI
 from omero.util import load_dotted_class
 from omero.util.temp_files import create_path, remove_path
 from omero.util.decorators import remoted, perf, locked
@@ -752,6 +753,7 @@ class UseSessionHolder(object):
     def cleanup(self):
         pass
 
+
 class ProcessorI(omero.grid.Processor, omero.util.Servant):
 
     def __init__(self, ctx, needs_session=True,
@@ -836,6 +838,7 @@ class ProcessorI(omero.grid.Processor, omero.util.Servant):
         session.sharedResources().addProcessor(prx)
 
     def lookup(self, job):
+
         sf = self.internal_session()
         gid = job.details.group.id.val
         handle = WithGroup(sf.createJobHandle(), gid)
@@ -887,6 +890,10 @@ class ProcessorI(omero.grid.Processor, omero.util.Servant):
 
         self.logger.debug("Accepts called on: user:%s group:%s scriptjob:%s - Valid: %s",
             userID, groupID, scriptID, valid)
+
+        return self.handleAccept(valid, cb)
+
+    def handleAccept(self, valid, cb):
 
         try:
             id = self.internal_session().ice_getIdentity().name
@@ -1058,6 +1065,58 @@ class ProcessorI(omero.grid.Processor, omero.util.Servant):
             return globals()[parts[-1]]
         else:
             return load_dotted_class(class_name)
+
+
+class DockerProcessorI(ProcessorI):
+
+    def lookup(self, job):
+        sf = self.internal_session()
+        gid = job.details.group.id.val
+        handle = WithGroup(sf.createJobHandle(), gid)
+        handle.attach(job.id.val)
+        if handle.jobFinished():
+            handle.close()
+            raise omero.ApiUsageException("Job already finished.")
+
+        query = WithGroup(sf.getQueryService(), gid)
+        file = query.findByQuery((
+            "select o from Job j "
+            "join j.originalFileLinks links "
+            "join links.child o "
+            "where j.id = :id"),
+            ParametersI().addId(job.id.val))
+        return file, handle
+
+    @remoted
+    def willAccept(self, userContext, groupContext, scriptContext, cb, current=None):
+        """
+        Accept any Python scripts.
+        """
+
+        valid = False
+        scriptID = None
+        if scriptContext != None:
+            scriptID = scriptContext.id.val
+
+        if scriptID:
+            try:
+                file, handle = self.lookup(scriptContext)
+                if (file is not None) and file.mimetype.val == "text/x-python":
+                    valid = True
+            except:
+                self.logger.error("File lookup failed: script=%s",\
+                    scriptID, exc_info=1)
+
+        self.logger.debug("Accepts called on docker: scriptjob:%s - Valid: %s",
+            scriptID, valid)
+
+        return self.handleAccept(valid, cb)
+
+    def find_launcher(self, current):
+        """
+        Only handle Python processing.
+        """
+        return sys.executable, DockerProcessI
 
 
 def usermode_processor(client, serverid = "UsermodeProcessor",\
