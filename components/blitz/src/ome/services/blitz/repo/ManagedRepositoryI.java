@@ -390,12 +390,12 @@ public class ManagedRepositoryI extends PublicRepositoryI
     protected Class<? extends FormatReader> getReaderClass(Fileset fs, Current __current) {
         for (final Job job : fs.linkedJobList()) {
             if (job instanceof UploadJob) {
-                final FilesetVersionInfo versionInfo = ((UploadJob) job).getVersionInfo(__current);
-                final String readerName = versionInfo.getBioformatsReader(__current).getValue();
-                final Class<?> potentialReaderClass;
+                Class<?> potentialReaderClass;
                 try {
+                    final FilesetVersionInfo versionInfo = ((UploadJob) job).getVersionInfo(__current);
+                    final String readerName = versionInfo.getBioformatsReader(__current).getValue();
                     potentialReaderClass = Class.forName(readerName);
-                } catch (ClassNotFoundException e) {
+                } catch (Exception e) { // Class cast, Null pointer, etc.
                     continue;
                 }
                 if (FormatReader.class.isAssignableFrom(potentialReaderClass)) {
