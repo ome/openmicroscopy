@@ -172,12 +172,29 @@ public class PreferenceContext extends PropertyPlaceholderConfigurer {
     private Preference getPreferenceOrDefault(String key) {
         Preference preference = preferences.get(key);
 
+        // Find a wildcard
+        if (preference == null) {
+            String[] parts = key.split("[.]");
+            for (int l = parts.length-1; l >= 0; l--) {
+                StringBuilder b = new StringBuilder();
+                for (int i = 0; i < l; i++) {
+                    b.append(parts[i]);
+                    b.append(".");
+                }
+                b.append("ALL");
+                preference = preferences.get(b);
+                if (preference != null) {
+                    break;
+                }
+            }
+        }
+
         if (preference == null) {
             preference = new Preference();
         }
         return preference;
     }
-    
+
     // Copied from PropertyPlaceholderConfigurer
     private class PropertyPlaceholderConfigurerResolver implements PlaceholderResolver {
 
