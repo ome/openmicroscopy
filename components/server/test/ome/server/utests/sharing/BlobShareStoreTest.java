@@ -36,7 +36,7 @@ public class BlobShareStoreTest extends TestCase {
      */
     public void testReadBlobs() throws Exception {
         ShareData[] data = loadData();
-        assertEquals(2, data.length);
+        assertEquals(3, data.length);
         ShareData d = data[0];
         for (int i = 1; i < data.length; i++) {
             ShareData t = data[i];
