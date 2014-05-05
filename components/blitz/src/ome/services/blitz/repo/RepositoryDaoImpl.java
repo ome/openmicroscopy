@@ -860,8 +860,13 @@ public class RepositoryDaoImpl implements RepositoryDao {
         final ome.model.core.OriginalFile parentObject
             = new ome.model.core.OriginalFile(parentId, false);
 
+        final String query = "SELECT details.group.id FROM OriginalFile WHERE id = :id";
+        final Parameters parameters = new Parameters().addId(parentId);
+        final List<Object[]> results = sf.getQueryService().projection(query, parameters);
+        final long parentObjectGroupId = (Long) results.get(0)[0];
+
         final LocalAdmin admin = (LocalAdmin) sf.getAdminService();
-        if (!admin.canAnnotate(parentObject)) {
+        if (parentObjectGroupId != roles.getUserGroupId() && !admin.canAnnotate(parentObject)) {
             throw new ome.conditions.SecurityViolation(
                     "No annotate access for parent directory: "
                             + parentId);
