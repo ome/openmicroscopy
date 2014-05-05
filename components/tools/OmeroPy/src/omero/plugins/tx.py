@@ -32,6 +32,7 @@ import sys
 import shlex
 import fileinput
 
+from omero_ext.argparse import SUPPRESS
 from omero.cli import BaseControl, CLI, ExceptionHandler
 from omero.rtypes import rlong
 
@@ -246,38 +247,52 @@ class TxState(object):
 
 
 class TxControl(BaseControl):
-    """Object manipulation tool
+    """Create and Update OMERO objects
+
+The tx command allows insert any objects into the OMERO
+database as well as updating existing ones. This is likely
+useful for preparing datasets for import and similar.
 
 Examples:
 
-omero tx new Dataset name=foo
+    $ bin/omero tx new Dataset name=foo
+    Dataset:123
 
-omero tx << EOF
-new Project name=bar
-new Dataset name=foo
-new ProjectDatasetLink parent@=0 child@=1
+    $ bin/omero tx update Dataset:123 description=bar
+    Dataset:123
 
-comment1: new CommentAnnotation textValue=baz
-new DatasetAnnotationLink parent@=1 child@=comment1
-EOF
+Bash examples:
+
+    $ project=$(bin/omero tx new Project name='my Project')
+    $ dataset=$(bin/omero tx new Dataset name='my Dataset')
+    $ bin/omero tx new ProjectDatasetLink parent=$project child=$dataset
+    ProjectDatasetLink=456
+
     """
 
     def _configure(self, parser):
 
         self.exc = ExceptionHandler()
         parser.add_login_arguments()
-        parser.add_argument("-f", "--file")
         parser.add_argument(
-            "item",
-            nargs="*",
-        )
+            "--file", help=SUPPRESS)
+        parser.add_argument(
+            "command", nargs="?",
+            choices=("new", "update"),
+            help="operation to be performed")
+        parser.add_argument(
+            "Class", nargs="?",
+            help="OMERO model object name, e.g. Project")
+        parser.add_argument(
+            "fields", nargs="+",
+            help="fields to be set, e.g. name=foo")
         parser.set_defaults(func=self.process)
 
     def process(self, args):
         state = TxState(self.ctx)
         self.ctx.set("tx.state", state)
         actions = []
-        if len(args.item) == 0:
+        if not args.command:
             path = "-"
             if args.file:
                 path = args.file
@@ -288,7 +303,10 @@ EOF
         else:
             if args.file:
                 self.ctx.err("Ignoring %s" % args.file)
-            actions.append(self.parse(state, arg_list=args.item))
+            actions.append(
+                self.parse(state,
+                           arg_list=[args.command, args.Class] +
+                           args.fields))
 
         for action in actions:
             action.go(self.ctx, args)
