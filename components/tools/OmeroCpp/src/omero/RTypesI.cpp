@@ -115,9 +115,9 @@ namespace omero {
         // =========================================================================
 
         template<typename T, typename P>
-        Ice::Int compareRTypes(T lhs, omero::RTypePtr rhs) {
+        Ice::Int compareRTypes(const T& lhs, const omero::RTypePtr& rhs) {
 
-            T rhsCasted = T::dynamicCast(rhs);
+            T rhsCasted(T::dynamicCast(rhs));
             if (!rhsCasted) {
                 throw std::bad_cast();
             }
@@ -261,15 +261,15 @@ namespace omero {
             return compareRTypes<RStringPtr, std::string>(this, rhs);
         }
 
-        int operator==(const RStringPtr& lhs, const RStringPtr& rhs) {
+        bool operator==(const RStringPtr& lhs, const RStringPtr& rhs) {
             return compareRTypes<RStringPtr, std::string>(lhs, rhs) == 0;
         }
 
-        int operator<(const RStringPtr& lhs, const RStringPtr& rhs) {
+        bool operator<(const RStringPtr& lhs, const RStringPtr& rhs) {
             return compareRTypes<RStringPtr, std::string>(lhs, rhs) < 0;
         }
 
-        int operator>(const RStringPtr& lhs, const RStringPtr& rhs) {
+        bool operator>(const RStringPtr& lhs, const RStringPtr& rhs) {
             return compareRTypes<RStringPtr, std::string>(lhs, rhs) > 0;
         }
 
