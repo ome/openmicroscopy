@@ -74,7 +74,7 @@ class TxBase(object):
 
     def queries(self, obj):
         self.sf.getQueryService().AndReturn(self.query)
-        self.query.get(IgnoreArg(), IgnoreArg()).AndReturn(obj)
+        self.query.get(IgnoreArg(), IgnoreArg(), IgnoreArg()).AndReturn(obj)
 
     def saves(self, obj):
         self.sf.getUpdateService().AndReturn(self.update)
