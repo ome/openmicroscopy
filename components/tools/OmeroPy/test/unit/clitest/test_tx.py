@@ -25,6 +25,7 @@ Test of the omero/plugins/tx.py module
 
 import pytest
 
+from omero.api import IQueryPrx
 from omero.api import IUpdatePrx
 from omero.api import ServiceFactoryPrx
 from omero.cli import CLI
@@ -60,6 +61,7 @@ class TxBase(object):
         self.mox = Mox()
         self.client = self.mox.CreateMock(BaseClient)
         self.sf = self.mox.CreateMock(ServiceFactoryPrx)
+        self.query = self.mox.CreateMock(IQueryPrx)
         self.update = self.mox.CreateMock(IUpdatePrx)
         self.client.sf = self.sf
         self.cli = MockCLI()
@@ -70,16 +72,20 @@ class TxBase(object):
         self.mox.UnsetStubs()
         self.mox.VerifyAll()
 
+    def queries(self, obj):
+        self.sf.getQueryService().AndReturn(self.query)
+        self.query.get(IgnoreArg(), IgnoreArg()).AndReturn(obj)
+
     def saves(self, obj):
         self.sf.getUpdateService().AndReturn(self.update)
         self.update.saveAndReturnObject(IgnoreArg()).AndReturn(obj)
-        self.mox.ReplayAll()
 
 
 class TestNewObjectTxAction(TxBase):
 
     def test_unknown_class(self):
         self.saves(ProjectI(1, False))
+        self.mox.ReplayAll()
         state = TxState(self.cli)
         cmd = TxCmd(state, arg_list=["new", "Project", "name=foo"])
         action = NewObjectTxAction(state, cmd)
@@ -92,7 +98,16 @@ class TestTxControl(TxBase):
         super(TestTxControl, self).setup_method(method)
         self.cli.register("tx", TxControl, "TEST")
 
-    def test_simple_usage(self):
+    def test_simple_new_usage(self):
         self.saves(ProjectI(1, False))
+        self.mox.ReplayAll()
         self.cli.invoke("tx new Project name=foo", strict=True)
+        assert self.cli._out == ["Project:1"]
+
+    def test_simple_update_usage(self):
+        self.queries(ProjectI(1, True))
+        self.saves(ProjectI(1, False))
+        self.mox.ReplayAll()
+        self.cli.invoke(("tx update Project:1 name=bar "
+                        "description=loooong"), strict=True)
         assert self.cli._out == ["Project:1"]

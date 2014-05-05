@@ -33,6 +33,7 @@ import shlex
 import fileinput
 
 from omero.cli import BaseControl, CLI, ExceptionHandler
+from omero.rtypes import rlong
 
 
 class TxField(object):
@@ -75,7 +76,7 @@ class TxCmd(object):
         """
         Command of the form:
 
-            (var = ) action type ( field(@)=value ... )
+            (var = ) action type(:id) ( field(@)=value ... )
 
         where parentheses denote optional values.
         """
@@ -134,23 +135,38 @@ class TxAction(object):
     def go(self, ctx, args):
         raise Exception("Unimplemented")
 
-
-class NewObjectTxAction(TxAction):
-
     def class_name(self):
-        kls = self.tx_cmd.type
+        kls = self.tx_cmd.type.split(":")[0]
         if not kls.endswith("I"):
             kls = "%sI" % kls
         return kls
+
+    def obj_id(self):
+        parts = self.tx_cmd.type.split(":")
+        try:
+            return long(parts[1])
+        except:
+            return None
 
     def instance(self, ctx):
         import omero
         import omero.all
         try:
             kls = getattr(omero.model, self.class_name())
-            return kls()
+            obj = kls()
+            oid = self.obj_id()
+            if oid is not None:
+                obj.setId(rlong(oid))
+                obj.unload()
+            kls = kls.__name__
+            if kls.endswith("I"):
+                kls = kls[0:-1]
+            return obj, kls
         except AttributeError:
             ctx.die(102, "No class named '%s'" % self.class_name())
+
+
+class NewObjectTxAction(TxAction):
 
     def check_requirements(self, ctx, obj, completed):
         missing = []
@@ -169,10 +185,7 @@ class NewObjectTxAction(TxAction):
         self.tx_state.add(self)
         c = ctx.conn(args)
         up = c.sf.getUpdateService()
-        obj = self.instance(ctx)
-        kls = obj.__class__.__name__
-        if kls.endswith("I"):
-            kls = kls[0:-1]
+        obj, kls = self.instance(ctx)
 
         completed = []
         for field, setter in self.tx_cmd.setters():
@@ -180,6 +193,24 @@ class NewObjectTxAction(TxAction):
             completed.append(field)
 
         self.check_requirements(ctx, obj, completed)
+        out = up.saveAndReturnObject(obj)
+        proxy = "%s:%s" % (kls, out.id.val)
+        self.tx_state.set_value(proxy, dest=self.tx_cmd.dest)
+
+
+class UpdateObjectTxAction(TxAction):
+
+    def go(self, ctx, args):
+        self.tx_state.add(self)
+        c = ctx.conn(args)
+        q = c.sf.getQueryService()
+        up = c.sf.getUpdateService()
+        obj, kls = self.instance(ctx)
+        obj = q.get(kls, obj.id.val, {"omero.group": "-1"})
+
+        for field, setter in self.tx_cmd.setters():
+            setter(obj)
+
         out = up.saveAndReturnObject(obj)
         proxy = "%s:%s" % (kls, out.id.val)
         self.tx_state.set_value(proxy, dest=self.tx_cmd.dest)
@@ -271,6 +302,8 @@ EOF
         tx_cmd = TxCmd(tx_state, arg_list=arg_list, line=line)
         if tx_cmd.action == "new":
             return NewObjectTxAction(tx_state, tx_cmd)
+        if tx_cmd.action == "update":
+            return UpdateObjectTxAction(tx_state, tx_cmd)
         else:
             raise self.ctx.die(100, "Unknown command: %s" % tx_cmd)
 
