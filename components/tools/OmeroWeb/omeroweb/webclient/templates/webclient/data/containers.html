@@ -781,13 +781,6 @@
                                 "label"     : "Edit",
                                 "action"    : false,
                                 "submenu"   : {
-                                    "copy"  : {
-                                        "label" : "Copy Link",
-                                        "icon"  : '{% static "webclient/image/icon_basic_copy_16.png" %}',
-                                        "action": function() {
-                                            this.copy(this.get_selected());
-                                        }
-                                    },
                                     "cut"   :{
                                         "label" : "Cut Link",
                                         "icon"  : '{% static "webclient/image/icon_basic_cut_16.png" %}',
@@ -796,6 +789,13 @@
                                                 selected = this.get_selected();
                                             tree.cut(selected);     // jsTree 'cut' doesn't remove...
                                             OME.remove_nodes(this, selected);
+                                        }
+                                    },
+                                    "copy"  : {
+                                        "label" : "Copy Link",
+                                        "icon"  : '{% static "webclient/image/icon_basic_copy_16.png" %}',
+                                        "action": function() {
+                                            this.copy(this.get_selected());
                                         }
                                     },
                                     "paste": {
