@@ -88,6 +88,7 @@ public abstract class rtypes {
 
     /**
      * Descends into data structures wrapping all elements as it goes. 
+     * Limitation: All map keys will be converted to strings!
      *
      * Calls {@link #wrap(Object, Map)} with a new cache argument.
      * @param value
@@ -103,6 +104,7 @@ public abstract class rtypes {
 
     /**
      * Descends into data structures wrapping all elements as it goes. 
+     * Limitation: All map keys will be converted to strings!
      *
      * The cache argument is used to prevent cycles.
      * @param value
@@ -153,6 +155,7 @@ public abstract class rtypes {
 
     /**
      * Descends into data structures unwrapping all RType objects as it goes.
+     * Limitation: RArrays are turned into {@link List} instances!
      *
      * Calls {@link #unwrap(Object, Map)} with a new cache argument.
      * @param value
@@ -168,6 +171,7 @@ public abstract class rtypes {
 
     /**
      * Descends into data structures wrapping all elements as it goes. 
+     * Limitation: RArrays are turned into {@link List} instances!
      *
      * The cache argument is used to prevent cycles.
      * @param value
