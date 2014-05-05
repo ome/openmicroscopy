@@ -494,7 +494,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
         case 0:
             switch (userPathSize) {
             case 0:
-                throw new IllegalArgumentException("no template directory");
+                throw new omero.ApiUsageException(null, null, "no directories in managed repository template path");
             case 1:
                 makeDir(userPath.toString(), false, curr);
                 break;
@@ -508,8 +508,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
         case 1:
             switch (userPathSize) {
             case 0:
-                makeDir(rootPath.toString(), false, rootCurr);
-                break;
+                throw new omero.ApiUsageException(null, null, "no user-owned directories in managed repository template path");
             case 1:
                 makeDir(rootPath.toString(), true, rootCurr);
                 makeDir(rootPath.toString() + FsFile.separatorChar + userPath.toString(), false, curr);
@@ -526,10 +525,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
         default:
             switch (userPathSize) {
             case 0:
-                final List<String> rootPathPrefix = userPath.getComponents().subList(0, rootPathSize - 1);
-                makeDir(new FsFile(rootPathPrefix).toString(), true, rootCurr);
-                makeDir(rootPath.toString(), false, rootCurr);
-                break;
+                throw new omero.ApiUsageException(null, null, "no user-owned directories in managed repository template path");
             case 1:
                 makeDir(rootPath.toString(), true, rootCurr);
                 makeDir(rootPath.toString() + FsFile.separatorChar + userPath.toString(), false, curr);
