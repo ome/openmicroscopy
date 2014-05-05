@@ -57,6 +57,7 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
 
+import org.apache.commons.collections.CollectionUtils;
 //Third-party libraries
 import org.apache.commons.lang.StringUtils;
 
@@ -139,6 +140,9 @@ public class SelectionWizard
 
     /** The original color of a text field.*/
     private Color originalColor;
+
+    /** The label displaying the message indicating what will be added.*/
+    private JLabel addLabel;
 
     /** Sets the controls.*/
     private void setControls()
@@ -249,6 +253,7 @@ public class SelectionWizard
      */
     private void initComponents()
     {
+        addLabel = UIUtilities.setTextFont("");
         acceptButton = new JButton("Save");
         acceptButton.setToolTipText("Save the selection.");
         cancelButton = new JButton("Cancel");
@@ -372,6 +377,25 @@ public class SelectionWizard
         return UIUtilities.buildComponentPanelRight(controlPanel);
     }
 
+    /**
+     * Modifies the text of the component displaying the <code>Add</code>
+     * component.
+     */
+    private void formatAddLabelText()
+    {
+        String s = "";
+        Collection<DataObject> list = uiDelegate.getAvailableSelectedNodes();
+        if (CollectionUtils.isNotEmpty(list)) {
+            DataObject data = list.iterator().next();
+            if (data instanceof TagAnnotationData) {
+                s = String.format(" in the %s Tag set",
+                        ((TagAnnotationData) data).getTagValue());
+            }
+        }
+        String tip = String.format(
+                "Add a new tag%s and select it immediately:", s);
+        addLabel.setText(tip);
+    }
 
     /**
      * Builds and lays out the component to add new objects to the selection.
@@ -382,12 +406,10 @@ public class SelectionWizard
     {
         JPanel p = new JPanel();
         p.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-        String tip = null;
         p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
         if (TagAnnotationData.class.equals(type)) {
-            tip = "Add a new tag and select it immediately:";
-            p.add(UIUtilities.buildComponentPanel(
-                    UIUtilities.setTextFont(tip)));
+            formatAddLabelText();
+            p.add(UIUtilities.buildComponentPanel(addLabel));
             JPanel pane = new JPanel();
             pane.setLayout(new BoxLayout(pane, BoxLayout.X_AXIS));
             pane.add(addField);
@@ -612,6 +634,8 @@ public class SelectionWizard
             acceptButton.setEnabled(b.booleanValue());
             resetButton.setEnabled(b.booleanValue());
             acceptButton.requestFocus();
+        } else if (SelectionWizardUI.AVAILABLE_SELECTION_CHANGE.equals(name)) {
+            formatAddLabelText();
         }
     }
 
