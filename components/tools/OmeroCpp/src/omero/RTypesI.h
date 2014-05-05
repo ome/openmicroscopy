@@ -170,6 +170,12 @@ namespace omero {
             virtual std::string getValue(const Ice::Current& current = Ice::Current());
             virtual Ice::Int compare(const RTypePtr& rhs, const Ice::Current& current = Ice::Current());
         };
+        int operator<(const RStringPtr& lhs,
+                      const RStringPtr& rhs);
+        int operator>(const RStringPtr& lhs,
+                      const RStringPtr& rhs);
+        int operator==(const RStringPtr& lhs,
+                       const RStringPtr& rhs);
 
         class OMERO_API RClassI : virtual public omero::RClass {
         protected:

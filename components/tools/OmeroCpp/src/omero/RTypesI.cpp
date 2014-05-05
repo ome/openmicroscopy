@@ -261,6 +261,18 @@ namespace omero {
             return compareRTypes<RStringPtr, std::string>(this, rhs);
         }
 
+        int operator==(const RStringPtr& lhs, const RStringPtr& rhs) {
+            return compareRTypes<RStringPtr, std::string>(lhs, rhs) == 0;
+        }
+
+        int operator<(const RStringPtr& lhs, const RStringPtr& rhs) {
+            return compareRTypes<RStringPtr, std::string>(lhs, rhs) < 0;
+        }
+
+        int operator>(const RStringPtr& lhs, const RStringPtr& rhs) {
+            return compareRTypes<RStringPtr, std::string>(lhs, rhs) > 0;
+        }
+
         // RCLASS
 
         RClassI::RClassI(const std::string& val) {
