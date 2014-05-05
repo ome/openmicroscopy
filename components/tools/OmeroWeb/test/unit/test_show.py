@@ -34,9 +34,9 @@ def empty_request(request_factory, path):
 
 
 @pytest.fixture(scope='function', params=[
-    ('project=1', ('project=1',)),
-    ('project=1|dataset=1', ('dataset=1',)),
-    ('project=1|dataset=1|image=1', ('image=1',)),
+    ('project=1', ('project.id-1',)),
+    ('project=1|dataset=1', ('dataset.id-1',)),
+    ('project=1|dataset=1|image=1', ('image.id-1',)),
     ('illegal=1', tuple())
 ])
 def path_request(request, request_factory, path):
@@ -52,10 +52,10 @@ def path_request(request, request_factory, path):
 
 
 @pytest.fixture(scope='function', params=[
-    ('project-1', ('project-1',)),
-    ('project-1|project-2', ('project-1', 'project-2',)),
-    ('acquisition-1', ('acquisition-1',)),
-    ('run-1', ('acquisition-1',)),
+    ('project-1', ('project.id-1',)),
+    ('project-1|project-2', ('project.id-1', 'project.id-2',)),
+    ('acquisition-1', ('acquisition.id-1',)),
+    ('run-1', ('acquisition.id-1',)),
     ('illegal-1', tuple())
 ])
 def show_request(request, request_factory, path):

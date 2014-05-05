@@ -101,10 +101,17 @@ class Show(object):
         m = self.PATH_REGEX.match(path)
         if m is None:
             return
-        if m.group('object_type') in self.SUPPORTED_OBJECT_TYPES:
+        object_type = m.group('object_type')
+        key = m.group('key')
+        value = m.group('value')
+        if key is None:
+            key = 'id'
+        if object_type in self.SUPPORTED_OBJECT_TYPES:
             # 'run' is an alternative for 'acquisition'
-            path = path.replace('run', 'acquisition')
-            self._initially_select.append(str(path))
+            object_type = object_type.replace('run', 'acquisition')
+            self._initially_select.append(
+                '%s.%s-%s' % (object_type, key, value)
+            )
 
     def _load_first_selected(self, first_obj, attributes):
         """
@@ -147,7 +154,11 @@ class Show(object):
             self._initially_open = [
                 "%s-%s" % (parent_type, parent_node.getId())
             ]
-            self._initially_select = self._initially_open[:]
+        else:
+            self._initially_open = [
+                '%s-%s' % (first_obj, first_selected.getId())
+            ]
+        self._initially_select = self._initially_open[:]
         self._initially_open_owner = first_selected.details.owner.id.val
         return first_selected
 
@@ -172,12 +183,12 @@ class Show(object):
         try:
             key = m.group('key')
             value = m.group('value')
-            if key is None or key == 'id':
-                key = 'id'
+            if key == 'id':
                 value = long(value)
+            attributes = {key: value}
             # Set context to 'cross-group'
             self.conn.SERVICE_OPTS.setOmeroGroup('-1')
-            first_selected = self._load_first_selected(first_obj, {key: value})
+            first_selected = self._load_first_selected(first_obj, attributes)
         except:
             pass
         if first_obj not in self.TOP_LEVEL_PREFIXES:
