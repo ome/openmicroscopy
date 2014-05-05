@@ -46,6 +46,12 @@ class MockCLI(CLI):
     def close(self, *args, **kwargs):
         pass
 
+    def out(self, out):
+        if hasattr(self, "_out"):
+            self._out.append(out)
+        else:
+            self._out = [out]
+
 
 @pytest.mark.clitx
 class TxBase(object):
@@ -89,3 +95,4 @@ class TestTxControl(TxBase):
     def test_simple_usage(self):
         self.saves(ProjectI(1, False))
         self.cli.invoke("tx new Project name=foo", strict=True)
+        assert self.cli._out == ["Project:1"]
