@@ -487,59 +487,20 @@ public class ManagedRepositoryI extends PublicRepositoryI
      * The full path must not already exist, although a prefix of it may.
      */
     protected void createTemplateDir(FsFile rootPath, FsFile userPath, Ice.Current curr) throws ServerError {
-        final Current rootCurr = sudo(curr, rootSessionUuid);
-        final int rootPathSize = rootPath.getComponents().size();
         final int userPathSize = userPath.getComponents().size();
-        switch (rootPathSize) {
-        case 0:
-            switch (userPathSize) {
-            case 0:
-                throw new omero.ApiUsageException(null, null, "no directories in managed repository template path");
-            case 1:
-                makeDir(userPath.toString(), false, curr);
-                break;
-            default:
-                final List<String> userPathPrefix = userPath.getComponents().subList(0, userPathSize - 1);
-                makeDir(new FsFile(userPathPrefix).toString(), true, curr);
-                makeDir(userPath.toString(), false, curr);
-                break;
-            }
-            break;
-        case 1:
-            switch (userPathSize) {
-            case 0:
-                throw new omero.ApiUsageException(null, null, "no user-owned directories in managed repository template path");
-            case 1:
-                makeDir(rootPath.toString(), true, rootCurr);
-                makeDir(rootPath.toString() + FsFile.separatorChar + userPath.toString(), false, curr);
-                break;
-            default:
-                makeDir(rootPath.toString(), true, rootCurr);
-                final FsFile fullPath = FsFile.concatenate(rootPath, userPath);
-                final List<String> pathPrefix = fullPath.getComponents().subList(0, rootPathSize + userPathSize - 1);
-                makeDir(new FsFile(pathPrefix).toString(), true, curr);
-                makeDir(fullPath.toString(), false, curr);
-                break;
-            }
-            break;
-        default:
-            switch (userPathSize) {
-            case 0:
-                throw new omero.ApiUsageException(null, null, "no user-owned directories in managed repository template path");
-            case 1:
-                makeDir(rootPath.toString(), true, rootCurr);
-                makeDir(rootPath.toString() + FsFile.separatorChar + userPath.toString(), false, curr);
-                break;
-            default:
-                makeDir(rootPath.toString(), true, rootCurr);
-                final FsFile fullPath = FsFile.concatenate(rootPath, userPath);
-                final List<String> pathPrefix = fullPath.getComponents().subList(0, rootPathSize + userPathSize - 1);
-                makeDir(new FsFile(pathPrefix).toString(), true, curr);
-                makeDir(fullPath.toString(), false, curr);
-                break;
-            }
-            break;
+        if (userPathSize == 0) {
+            throw new omero.ApiUsageException(null, null, "no directories in managed repository template path");
         }
+        if (!FsFile.emptyPath.equals(rootPath)) {
+            final Current rootCurr = sudo(curr, rootSessionUuid);
+            makeDir(rootPath.toString(), true, rootCurr);
+            userPath = FsFile.concatenate(rootPath, userPath);
+        }
+        if (userPathSize > 1) {
+            final List<String> userPathPrefix = userPath.getComponents().subList(0, userPathSize - 1);
+            makeDir(new FsFile(userPathPrefix).toString(), true, curr);
+        }
+        makeDir(userPath.toString(), false, curr);
     }
 
     /** Return value for {@link #trimPaths}. */
