@@ -68,6 +68,7 @@
               <constructor-arg value="${omero.checksum.supported}"/>
               <constructor-arg value="${omero.fs.repo.path_rules}"/>
               <constructor-arg ref="uuid"/>
+              <constructor-arg ref="roles"/>
           </bean>
       </constructor-arg>
   </bean>
