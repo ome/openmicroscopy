@@ -26,8 +26,21 @@ in the OMERO.web tree view.
 
 import re
 
-from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
+
+
+class IncorrectMenuError(Exception):
+    """Exception to signal that we are on the wrong menu."""
+
+    def __init__(self, uri):
+        """
+        Constructs a new Exception instance.
+
+        @param uri URI to redirect to.
+        @type uri String
+        """
+        super(Exception, self).__init__()
+        self.uri = uri
 
 
 class Show(object):
@@ -175,7 +188,7 @@ class Show(object):
         first_obj = m.group('object_type')
         # if we're showing a tag, make sure we're on the tags page...
         if first_obj == "tag" and self.menu != "usertags":
-            return HttpResponseRedirect(
+            raise IncorrectMenuError(
                 reverse(viewname="load_template", args=['usertags']) +
                 "?show=" + self._initially_select[0]
             )

@@ -20,8 +20,7 @@ from omero.gateway import BlitzGateway, ProjectWrapper, DatasetWrapper, \
 from omero.model import ProjectI, DatasetI, TagAnnotationI, ScreenI, PlateI, \
     WellI, WellSampleI, PlateAcquisitionI
 from omero.rtypes import rstring
-from omeroweb.webclient.show import Show
-from django.http import HttpResponseRedirect
+from omeroweb.webclient.show import Show, IncorrectMenuError
 from django.test.client import RequestFactory
 
 
@@ -562,9 +561,9 @@ class TestShow(object):
         show = Show(conn, tag_path_request['request'], None)
         self.assert_instantiation(show, tag_path_request, conn)
 
-        first_selected = show.first_selected
-        assert first_selected is not None
-        assert isinstance(first_selected, HttpResponseRedirect)
+        with pytest.raises(IncorrectMenuError) as excinfo:
+            show.first_selected
+        assert excinfo.value.uri is not None
 
     def test_tag_legacy_path(self, conn, tag_path_request, tag):
         show = Show(conn, tag_path_request['request'], 'usertags')
@@ -757,4 +756,5 @@ class TestShow(object):
         assert show.initially_open_owner == \
             tag.details.owner.id.val
         assert show._first_selected == first_selected
-        assert show.initially_select == tag_by_textvalue_path_request['initially_select']
+        assert show.initially_select == \
+            tag_by_textvalue_path_request['initially_select']
