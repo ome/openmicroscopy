@@ -64,7 +64,7 @@ import com.google.common.collect.Iterables;
  * @author m.t.b.carroll@dundee.ac.uk
  * @since 5.0.2
  */
-public class DBBadAnnotationCheck {
+public class DBBadAnnotationCheck extends BaseDBCheck {
 
     private static final Logger log = LoggerFactory.getLogger(DBBadAnnotationCheck.class);
 
@@ -103,7 +103,8 @@ public class DBBadAnnotationCheck {
 
     private final long userGroupId;
 
-    public DBBadAnnotationCheck(SessionFactory sessionFactory, Roles roles) {
+    public DBBadAnnotationCheck(Executor executor, SessionFactory sessionFactory, Roles roles) {
+        super(executor);
         this.sessionFactory = sessionFactory;
         this.userGroupId = roles.getUserGroupId();
     }
@@ -127,7 +128,7 @@ public class DBBadAnnotationCheck {
         return false;
     }
 
-    public void start() {
+    protected void doCheck() {
         Session session = null;
         try {
             session = sessionFactory.openSession();

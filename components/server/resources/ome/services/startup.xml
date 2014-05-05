@@ -62,6 +62,7 @@
   <bean id="dbBadAnnotationCheck" depends-on="dbPatchCheck"
      class="ome.services.util.DBBadAnnotationCheck"
      init-method="start" lazy-init="false">
+     <constructor-arg ref="executor"/>
      <constructor-arg ref="sessionFactory"/>
      <constructor-arg ref="roles"/>
   </bean>
