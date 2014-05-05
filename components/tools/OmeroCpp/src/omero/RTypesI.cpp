@@ -115,11 +115,9 @@ namespace omero {
         // =========================================================================
 
         template<typename T, typename P>
-        Ice::Int compareRTypes(T* lhs, omero::RTypePtr rhs) {
-            if (lhs == rhs.get())
-                return 0;
+        Ice::Int compareRTypes(T lhs, omero::RTypePtr rhs) {
 
-            T* rhsCasted = dynamic_cast<T*>(rhs.get());
+            T rhsCasted = T::dynamicCast(rhs);
             if (!rhsCasted) {
                 throw std::bad_cast();
             }
@@ -127,10 +125,11 @@ namespace omero {
             P val = lhs->getValue();
             P valR = rhsCasted->getValue();
 
-            if (val < valR)
-                return -1;
-
-            return val > valR? 1 : 0;
+            if (val == valR) {
+                return 0;
+            } else {
+                return val > valR? 1 : -1;
+            }
         }
 
         // RBOOL
@@ -144,7 +143,7 @@ namespace omero {
         bool RBoolI::getValue(const Ice::Current& current) { return this->val; }
 
         Ice::Int RBoolI::compare(const omero::RTypePtr& rhs, const Ice::Current& current) {
-        return compareRTypes<RBoolI, bool>(this, rhs);
+        return compareRTypes<RBoolPtr, bool>(this, rhs);
         }
 
         // RDOUBLE
@@ -158,7 +157,7 @@ namespace omero {
         Ice::Double RDoubleI::getValue(const Ice::Current& current) { return this->val; }
 
         Ice::Int RDoubleI::compare(const omero::RTypePtr& rhs, const Ice::Current& current) {
-        return compareRTypes<RDoubleI, Ice::Double>(this, rhs);
+        return compareRTypes<RDoublePtr, Ice::Double>(this, rhs);
         }
 
         // RFLOAT
@@ -172,7 +171,7 @@ namespace omero {
         Ice::Float RFloatI::getValue(const Ice::Current& current) { return this->val; }
 
         Ice::Int RFloatI::compare(const omero::RTypePtr& rhs, const Ice::Current& current) {
-            return compareRTypes<RFloatI, Ice::Float>(this, rhs);
+            return compareRTypes<RFloatPtr, Ice::Float>(this, rhs);
         }
 
         // RINT
@@ -186,7 +185,7 @@ namespace omero {
         Ice::Int RIntI::getValue(const Ice::Current& current) { return this->val; }
 
         Ice::Int RIntI::compare(const omero::RTypePtr& rhs, const Ice::Current& current) {
-            return compareRTypes<RIntI, Ice::Int>(this, rhs);
+            return compareRTypes<RIntPtr, Ice::Int>(this, rhs);
         }
 
         // RLONG
@@ -200,7 +199,7 @@ namespace omero {
         Ice::Long RLongI::getValue(const Ice::Current& current) { return this->val; }
 
         Ice::Int RLongI::compare(const omero::RTypePtr& rhs, const Ice::Current& current) {
-            return compareRTypes<RLongI, Ice::Long>(this, rhs);
+            return compareRTypes<RLongPtr, Ice::Long>(this, rhs);
         }
 
         // RTIME
@@ -214,7 +213,7 @@ namespace omero {
         Ice::Long RTimeI::getValue(const Ice::Current& current) { return this->val; }
 
         Ice::Int RTimeI::compare(const omero::RTypePtr& rhs, const Ice::Current& current) {
-            return compareRTypes<RTimeI, Ice::Long>(this, rhs);
+            return compareRTypes<RTimePtr, Ice::Long>(this, rhs);
         }
 
         // Implementations (objects)
@@ -259,7 +258,7 @@ namespace omero {
         std::string RStringI::getValue(const Ice::Current& current) { return this->val; }
 
         Ice::Int RStringI::compare(const omero::RTypePtr& rhs, const Ice::Current& current) {
-            return compareRTypes<RStringI, std::string>(this, rhs);
+            return compareRTypes<RStringPtr, std::string>(this, rhs);
         }
 
         // RCLASS
@@ -296,7 +295,7 @@ namespace omero {
         RTypeSeq RArrayI::getValue(const Ice::Current& current) { return this->val; }
 
         Ice::Int RArrayI::compare(const omero::RTypePtr& rhs, const Ice::Current& current) {
-            return compareRTypes<RArrayI, RTypeSeq>(this, rhs);
+            return compareRTypes<RArrayPtr, RTypeSeq>(this, rhs);
         }
 
         // Collection methods
@@ -335,7 +334,7 @@ namespace omero {
         RTypeSeq RListI::getValue(const Ice::Current& current) { return this->val; }
 
         Ice::Int RListI::compare(const omero::RTypePtr& rhs, const Ice::Current& current) {
-        return compareRTypes<RListI, RTypeSeq>(this, rhs);
+        return compareRTypes<RListPtr, RTypeSeq>(this, rhs);
         }
 
         // Collection methods
@@ -374,7 +373,7 @@ namespace omero {
         RTypeSeq RSetI::getValue(const Ice::Current& current) { return this->val; }
 
         Ice::Int RSetI::compare(const omero::RTypePtr& rhs, const Ice::Current& current) {
-            return compareRTypes<RSetI, RTypeSeq>(this, rhs);
+            return compareRTypes<RSetPtr, RTypeSeq>(this, rhs);
         }
 
         // Collection methods
@@ -413,7 +412,7 @@ namespace omero {
         RTypeDict RMapI::getValue(const Ice::Current& current) { return this->val; }
 
         Ice::Int RMapI::compare(const omero::RTypePtr& rhs, const Ice::Current& current) {
-            return compareRTypes<RMapI, RTypeDict>(this, rhs);
+            return compareRTypes<RMapPtr, RTypeDict>(this, rhs);
         }
 
         // Collection methods
