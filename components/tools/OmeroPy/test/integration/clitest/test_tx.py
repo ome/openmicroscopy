@@ -127,3 +127,12 @@ class TestTx(CLITest):
         assert state.get_row(1).startswith("CommentAnnotation")
         assert state.get_row(2).startswith("DatasetAnnotationLink")
         path.remove()
+
+    def test_new_and_update(self):
+        self.args = self.login_args() + [
+            "tx", "new", "Project", "name=foo"]
+        state = self.go()
+        project = state.get_row(0)
+        self.args = self.login_args() + [
+            "tx", "update", project, "description=bar"]
+        self.go()
