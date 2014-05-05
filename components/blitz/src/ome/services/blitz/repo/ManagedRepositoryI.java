@@ -493,7 +493,8 @@ public class ManagedRepositoryI extends PublicRepositoryI
      */
     protected void createTemplateDir(FsFile rootPath, FsFile userPath, Ice.Current curr) throws ServerError {
         if (FsFile.emptyPath.equals(userPath)) {
-            throw new omero.ApiUsageException(null, null, "no directories in managed repository template path");
+            throw new omero.ApiUsageException(null, null,
+                    "no user-owned directories in managed repository template path");
         }
         final boolean makeUserParents = userPath.getComponents().size() > 1;
         if (!FsFile.emptyPath.equals(rootPath)) {
