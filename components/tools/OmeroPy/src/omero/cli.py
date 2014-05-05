@@ -162,17 +162,17 @@ class Parser(ArgumentParser):
 
     def add_limit_arguments(self):
         self.add_argument(
-            "--limit", help="Maximum number of return values", type=int,
+            "--limit", help="maximum number of return values (default=25)", type=int,
             default=25)
         self.add_argument(
-            "--offset", help="Number of entries to skip", type=int, default=0)
+            "--offset", help="number of entries to skip (default=0)", type=int, default=0)
 
     def add_style_argument(self):
         from omero.util.text import find_style
         from omero.util.text import list_styles
         self.add_argument(
             "--style", help=
-            "Use alternative output style",
+            "use alternative output style (default=sql)",
             choices=list_styles())
 
     def add_login_arguments(self):

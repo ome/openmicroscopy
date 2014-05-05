@@ -56,27 +56,31 @@ class FsControl(BaseControl):
         archived.add_limit_arguments()
         archived.add_argument(
             "--order", default="newest",
-            choices=("newest", "oldest", "largest"))
+            choices=("newest", "oldest", "largest"),
+            help="order of the rows returned")
 
         repos = parser.add(sub, self.repos, self.repos.__doc__)
+        repos.add_style_argument()
         repos.add_argument(
             "--managed", action="store_true",
             help="repos only managed repositories")
-        repos.add_style_argument()
 
         sets = parser.add(sub, self.sets, self.sets.__doc__)
-        sets.add_argument(
-            "--order", default="newest",
-            choices=("newest", "oldest", "prefix"))
-        sets.add_argument(
-            "--without-images", action="store_true")
-        sets.add_argument(
-            "--with-transfer", nargs="*", action="append")
-        sets.add_argument(
-            "--check", action="store_true",
-            help="Checks each fileset for validity.")
         sets.add_style_argument()
         sets.add_limit_arguments()
+        sets.add_argument(
+            "--order", default="newest",
+            choices=("newest", "oldest", "prefix"),
+            help="order of the rows returned")
+        sets.add_argument(
+            "--without-images", action="store_true",
+            help="list only sets without images (i.e. corrupt)")
+        sets.add_argument(
+            "--with-transfer", nargs="*", action="append",
+            help="list sets by their in-place import method")
+        sets.add_argument(
+            "--check", action="store_true",
+            help="checks each fileset for validity.")
 
     def _table(self, args):
         """
