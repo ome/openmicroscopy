@@ -146,6 +146,18 @@ namespace omero {
         return compareRTypes<RBoolPtr, bool>(this, rhs);
         }
 
+        bool operator==(const RBoolPtr& lhs, const RBoolPtr& rhs) {
+            return compareRTypes<RBoolPtr, bool>(lhs, rhs) == 0;
+        }
+
+        bool operator<(const RBoolPtr& lhs, const RBoolPtr& rhs) {
+            return compareRTypes<RBoolPtr, bool>(lhs, rhs) < 0;
+        }
+
+        bool operator>(const RBoolPtr& lhs, const RBoolPtr& rhs) {
+            return compareRTypes<RBoolPtr, bool>(lhs, rhs) > 0;
+        }
+
         // RDOUBLE
 
         RDoubleI::RDoubleI(Ice::Double val) {
@@ -158,6 +170,18 @@ namespace omero {
 
         Ice::Int RDoubleI::compare(const omero::RTypePtr& rhs, const Ice::Current& current) {
         return compareRTypes<RDoublePtr, Ice::Double>(this, rhs);
+        }
+
+        bool operator==(const RDoublePtr& lhs, const RDoublePtr& rhs) {
+            return compareRTypes<RDoublePtr, Ice::Double>(lhs, rhs) == 0;
+        }
+
+        bool operator<(const RDoublePtr& lhs, const RDoublePtr& rhs) {
+            return compareRTypes<RDoublePtr, Ice::Double>(lhs, rhs) < 0;
+        }
+
+        bool operator>(const RDoublePtr& lhs, const RDoublePtr& rhs) {
+            return compareRTypes<RDoublePtr, Ice::Double>(lhs, rhs) > 0;
         }
 
         // RFLOAT
@@ -174,6 +198,18 @@ namespace omero {
             return compareRTypes<RFloatPtr, Ice::Float>(this, rhs);
         }
 
+        bool operator==(const RFloatPtr& lhs, const RFloatPtr& rhs) {
+            return compareRTypes<RFloatPtr, Ice::Float>(lhs, rhs) == 0;
+        }
+
+        bool operator<(const RFloatPtr& lhs, const RFloatPtr& rhs) {
+            return compareRTypes<RFloatPtr, Ice::Float>(lhs, rhs) < 0;
+        }
+
+        bool operator>(const RFloatPtr& lhs, const RFloatPtr& rhs) {
+            return compareRTypes<RFloatPtr, Ice::Float>(lhs, rhs) > 0;
+        }
+
         // RINT
 
         RIntI::RIntI(Ice::Int val) {
@@ -186,6 +222,18 @@ namespace omero {
 
         Ice::Int RIntI::compare(const omero::RTypePtr& rhs, const Ice::Current& current) {
             return compareRTypes<RIntPtr, Ice::Int>(this, rhs);
+        }
+
+        bool operator==(const RIntPtr& lhs, const RIntPtr& rhs) {
+            return compareRTypes<RIntPtr, Ice::Int>(lhs, rhs) == 0;
+        }
+
+        bool operator<(const RIntPtr& lhs, const RIntPtr& rhs) {
+            return compareRTypes<RIntPtr, Ice::Int>(lhs, rhs) < 0;
+        }
+
+        bool operator>(const RIntPtr& lhs, const RIntPtr& rhs) {
+            return compareRTypes<RIntPtr, Ice::Int>(lhs, rhs) > 0;
         }
 
         // RLONG
@@ -202,6 +250,18 @@ namespace omero {
             return compareRTypes<RLongPtr, Ice::Long>(this, rhs);
         }
 
+        bool operator==(const RLongPtr& lhs, const RLongPtr& rhs) {
+            return compareRTypes<RLongPtr, Ice::Long>(lhs, rhs) == 0;
+        }
+
+        bool operator<(const RLongPtr& lhs, const RLongPtr& rhs) {
+            return compareRTypes<RLongPtr, Ice::Long>(lhs, rhs) < 0;
+        }
+
+        bool operator>(const RLongPtr& lhs, const RLongPtr& rhs) {
+            return compareRTypes<RLongPtr, Ice::Long>(lhs, rhs) > 0;
+        }
+
         // RTIME
 
         RTimeI::RTimeI(Ice::Long val) {
@@ -214,6 +274,18 @@ namespace omero {
 
         Ice::Int RTimeI::compare(const omero::RTypePtr& rhs, const Ice::Current& current) {
             return compareRTypes<RTimePtr, Ice::Long>(this, rhs);
+        }
+
+        bool operator==(const RTimePtr& lhs, const RTimePtr& rhs) {
+            return compareRTypes<RTimePtr, Ice::Long>(lhs, rhs) == 0;
+        }
+
+        bool operator<(const RTimePtr& lhs, const RTimePtr& rhs) {
+            return compareRTypes<RTimePtr, Ice::Long>(lhs, rhs) < 0;
+        }
+
+        bool operator>(const RTimePtr& lhs, const RTimePtr& rhs) {
+            return compareRTypes<RTimePtr, Ice::Long>(lhs, rhs) > 0;
         }
 
         // Implementations (objects)

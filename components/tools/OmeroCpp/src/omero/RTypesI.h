@@ -92,6 +92,12 @@ namespace omero {
             virtual bool getValue(const Ice::Current& current = Ice::Current());
             virtual Ice::Int compare(const RTypePtr& rhs, const Ice::Current& current = Ice::Current());
         };
+        bool operator<(const RBoolPtr& lhs,
+                       const RBoolPtr& rhs);
+        bool operator>(const RBoolPtr& lhs,
+                       const RBoolPtr& rhs);
+        bool operator==(const RBoolPtr& lhs,
+                        const RBoolPtr& rhs);
 
         class OMERO_API RDoubleI : virtual public omero::RDouble {
         protected:
@@ -101,6 +107,12 @@ namespace omero {
             virtual Ice::Double getValue(const Ice::Current& current = Ice::Current());
             virtual Ice::Int compare(const RTypePtr& rhs, const Ice::Current& current = Ice::Current());
         };
+        bool operator<(const RDoublePtr& lhs,
+                       const RDoublePtr& rhs);
+        bool operator>(const RDoublePtr& lhs,
+                       const RDoublePtr& rhs);
+        bool operator==(const RDoublePtr& lhs,
+                        const RDoublePtr& rhs);
 
         class OMERO_API RFloatI : virtual public omero::RFloat {
         protected:
@@ -109,8 +121,13 @@ namespace omero {
             RFloatI(Ice::Float value);
             virtual Ice::Float getValue(const Ice::Current& current = Ice::Current());
             virtual Ice::Int compare(const RTypePtr& rhs, const Ice::Current& current = Ice::Current());
-
         };
+        bool operator<(const RFloatPtr& lhs,
+                       const RFloatPtr& rhs);
+        bool operator>(const RFloatPtr& lhs,
+                       const RFloatPtr& rhs);
+        bool operator==(const RFloatPtr& lhs,
+                        const RFloatPtr& rhs);
 
         class OMERO_API RIntI : virtual public omero::RInt {
         protected:
@@ -119,8 +136,13 @@ namespace omero {
             RIntI(Ice::Int value);
             virtual Ice::Int getValue(const Ice::Current& current = Ice::Current());
             virtual Ice::Int compare(const RTypePtr& rhs, const Ice::Current& current = Ice::Current());
-
         };
+        bool operator<(const RIntPtr& lhs,
+                       const RIntPtr& rhs);
+        bool operator>(const RIntPtr& lhs,
+                       const RIntPtr& rhs);
+        bool operator==(const RIntPtr& lhs,
+                        const RIntPtr& rhs);
 
         class OMERO_API RLongI : virtual public omero::RLong {
         protected:
@@ -129,8 +151,13 @@ namespace omero {
             RLongI(Ice::Long value);
             virtual Ice::Long getValue(const Ice::Current& current = Ice::Current());
             virtual Ice::Int compare(const RTypePtr& rhs, const Ice::Current& current = Ice::Current());
-
         };
+        bool operator<(const RLongPtr& lhs,
+                       const RLongPtr& rhs);
+        bool operator>(const RLongPtr& lhs,
+                       const RLongPtr& rhs);
+        bool operator==(const RLongPtr& lhs,
+                        const RLongPtr& rhs);
 
         class OMERO_API RTimeI : virtual public omero::RTime {
         protected:
@@ -140,6 +167,12 @@ namespace omero {
             virtual Ice::Long getValue(const Ice::Current& current = Ice::Current());
             virtual Ice::Int compare(const RTypePtr& rhs, const Ice::Current& current = Ice::Current());
         };
+        bool operator<(const RTimePtr& lhs,
+                       const RTimePtr& rhs);
+        bool operator>(const RTimePtr& lhs,
+                       const RTimePtr& rhs);
+        bool operator==(const RTimePtr& lhs,
+                        const RTimePtr& rhs);
 
         // Implementations (objects)
         // =========================================================================
