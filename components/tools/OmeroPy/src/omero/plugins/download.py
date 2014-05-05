@@ -6,7 +6,7 @@
    Plugin read by omero.cli.Cli during initialization. The method(s)
    defined here will be added to the Cli class for later use.
 
-   Copyright 2007 Glencoe Software, Inc. All rights reserved.
+   Copyright 2007 - 2014 Glencoe Software, Inc. All rights reserved.
    Use is subject to license terms supplied in LICENSE.txt
 
 """
@@ -17,17 +17,18 @@ import re
 from omero.cli import BaseControl, CLI
 from omero.rtypes import unwrap
 
-HELP = """Download the given file id to the given filename
+HELP = """Download the given file with a specified ID to a target file with
+a specified filename.
 
 Examples:
 
     # Download OriginalFile 2 to local_file
-    bin/omero download OriginalFile:2 local_file
+    bin/omero download 2 local_file
     # Download Original File 2 to the stdout
-    bin/omero download 2 my_file
+    bin/omero download 2 -
 
     # Download the OriginalFile linked to FileAnnotation 20 to local_file
-    bin/omero download FileAnnotation:20 my_file
+    bin/omero download FileAnnotation:20 local_file
 
     # Download the OriginalFile linked to Image 5
     # Works only with single files imported with OMERO 5.0.0 and above
@@ -39,7 +40,7 @@ class DownloadControl(BaseControl):
 
     def _configure(self, parser):
         parser.add_argument(
-            "object", help="Object to download of form <object>:<image_id>. "
+            "object", help="Object to download of form <object>:<id>. "
             "OriginalFile is assumed if <object>: is omitted.")
         parser.add_argument(
             "filename", help="Local filename to be saved to. '-' for stdout")
@@ -65,6 +66,9 @@ class DownloadControl(BaseControl):
             # Possible, though unlikely after previous check
             self.ctx.die(67, "Unknown ValidationException: %s"
                          % ve.message)
+        except omero.ResourceError, re:
+            # ID exists in DB, but not on FS
+            self.ctx.die(67, "ResourceError: %s" % re.message)
 
     def get_file_id(self, session, value):
 
