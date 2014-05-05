@@ -39,9 +39,13 @@ class SQLStyle(Style):
         return "+".join(["-" * (x.width+2) for x in table.columns])
 
     def status(self, table):
-        return "(%s %s)" % (
+        s = "(%s %s%%s)" % (
             table.length,
             (table.length == 1 and "row" or "rows"))
+        if table.page_info is None:
+            return s % ""
+        return s % (", starting at %s of approx. %s" %
+                    (table.page_info[0], table.page_info[2]))
 
     def get_rows(self, table):
         yield self.headers(table)
@@ -129,6 +133,10 @@ class TableBuilder(object):
         self.style = SQLStyle()
         self.headers = list(headers)
         self.results = [[] for x in self.headers]
+        self.page_info = None
+
+    def page(self, offset, limit, total):
+        self.page_info = (offset, limit, total)
 
     def set_style(self, style):
         self.style = find_style(style)
@@ -172,6 +180,8 @@ class TableBuilder(object):
         for i, x in enumerate(self.headers):
             columns.append(Column(x, self.results[i], style=self.style))
         table = Table(*columns)
+        if self.page_info:
+            table.page(*self.page_info)
         table.set_style(self.style)
         return table
 
@@ -205,6 +215,10 @@ class Table:
         self.style = SQLStyle()
         self.columns = columns
         self.length = max(len(x) for x in columns)
+        self.page_info = None
+
+    def page(self, offset, limit, total):
+        self.page_info = (offset, limit, total)
 
     def set_style(self, style):
         self.style = find_style(style)
