@@ -221,7 +221,7 @@ def project_path_request(request, project, request_factory, path):
     variable set in the legacy ("project=id") form.
     """
     as_string = 'project=%d' % project.id.val
-    initially_select = ['project=%d' % project.id.val]
+    initially_select = ['project-%d' % project.id.val]
     return {
         'request': request_factory.get(path, data={'path': as_string}),
         'initially_select': initially_select,
@@ -239,10 +239,10 @@ def project_dataset_path_request(
     dataset, = project_dataset.linkedDatasetList()
     as_string = 'project=%d|dataset=%d' % \
         (project_dataset.id.val, dataset.id.val)
-    initially_select = ['dataset=%d' % dataset.id.val]
+    initially_select = ['dataset-%d' % dataset.id.val]
     initially_open = [
         'project-%d' % project_dataset.id.val,
-        'dataset=%d' % dataset.id.val
+        'dataset-%d' % dataset.id.val
     ]
     return {
         'request': request_factory.get(path, data={'path': as_string}),
@@ -262,11 +262,11 @@ def project_dataset_image_path_request(
     image, = dataset.linkedImageList()
     as_string = 'project=%d|dataset=%d|image=%d' % \
         (project_dataset_image.id.val, dataset.id.val, image.id.val)
-    initially_select = ['image=%d' % image.id.val]
+    initially_select = ['image-%d' % image.id.val]
     initially_open = [
         'project-%d' % project_dataset_image.id.val,
         'dataset-%d' % dataset.id.val,
-        'image=%d' % image.id.val
+        'image-%d' % image.id.val
     ]
     return {
         'request': request_factory.get(path, data={'path': as_string}),
@@ -282,8 +282,8 @@ def tag_path_request(request, tag, request_factory, path):
     variable set in the legacy ("tag=id") form.
     """
     as_string = 'tag=%d' % tag.id.val
-    initially_select = ['tag=%d' % tag.id.val]
-    initially_open = ['tag=%d' % tag.id.val]
+    initially_select = ['tag-%d' % tag.id.val]
+    initially_open = ['tag-%d' % tag.id.val]
     return {
         'request': request_factory.get(path, data={'path': as_string}),
         'initially_select': initially_select,
@@ -299,10 +299,10 @@ def tagset_tag_path_request(request, tagset_tag, request_factory, path):
     """
     tag, = tagset_tag.linkedAnnotationList()
     as_string = 'tag=%d|tag=%d' % (tagset_tag.id.val, tag.id.val)
-    initially_select = ['tag=%d' % tag.id.val]
+    initially_select = ['tag-%d' % tag.id.val]
     initially_open = [
         'tag-%d' % tagset_tag.id.val,
-        'tag=%d' % tag.id.val
+        'tag-%d' % tag.id.val
     ]
     return {
         'request': request_factory.get(path, data={'path': as_string}),
@@ -319,8 +319,8 @@ def image_path_request(request, image, request_factory, path):
     'orphaned-0' container.
     """
     as_string = 'image=%d' % image.id.val
-    initially_select = ['image=%d' % image.id.val]
-    initially_open = ['orphaned-0', 'image=%d' % image.id.val]
+    initially_select = ['image-%d' % image.id.val]
+    initially_open = ['orphaned-0', 'image-%d' % image.id.val]
     return {
         'request': request_factory.get(path, data={'path': as_string}),
         'initially_select': initially_select,
@@ -335,7 +335,7 @@ def screen_path_request(request, screen, request_factory, path):
     variable set in the legacy ("screen=id") form.
     """
     as_string = 'screen=%d' % screen.id.val
-    initially_select = ['screen=%d' % screen.id.val]
+    initially_select = ['screen-%d' % screen.id.val]
     return {
         'request': request_factory.get(path, data={'path': as_string}),
         'initially_select': initially_select,
@@ -351,10 +351,10 @@ def screen_plate_path_request(request, screen_plate, request_factory, path):
     """
     plate, = screen_plate.linkedPlateList()
     as_string = 'screen=%d|plate=%d' % (screen_plate.id.val, plate.id.val)
-    initially_select = ['plate=%d' % plate.id.val]
+    initially_select = ['plate-%d' % plate.id.val]
     initially_open = [
         'screen-%d' % screen_plate.id.val,
-        'plate=%d' % plate.id.val
+        'plate-%d' % plate.id.val
     ]
     return {
         'request': request_factory.get(path, data={'path': as_string}),
@@ -440,7 +440,7 @@ def project_by_id_path_request(request, project, request_factory, path):
     variable set in the key / value ("project.key=value") form.
     """
     as_string = 'project.id=%d' % project.id.val
-    initially_select = ['project.id=%d' % project.id.val]
+    initially_select = ['project-%d' % project.id.val]
     return {
         'request': request_factory.get(path, data={'path': as_string}),
         'initially_select': initially_select,
@@ -455,7 +455,7 @@ def project_by_name_path_request(request, project, request_factory, path):
     variable set in the key / value ("project.key=value") form.
     """
     as_string = 'project.name=%s' % project.name.val
-    initially_select = ['project.name=%s' % project.name.val]
+    initially_select = ['project-%d' % project.id.val]
     return {
         'request': request_factory.get(path, data={'path': as_string}),
         'initially_select': initially_select,
@@ -470,7 +470,7 @@ def tag_by_textvalue_path_request(request, tag, request_factory, path):
     variable set in the key / value ("tag.key=value") form.
     """
     as_string = 'tag.textValue=%s' % tag.textValue.val
-    initially_select = ['tag.textValue=%s' % tag.textValue.val]
+    initially_select = ['tag-%d' % tag.id.val]
     return {
         'request': request_factory.get(path, data={'path': as_string}),
         'initially_select': initially_select,
@@ -496,7 +496,6 @@ class TestShow(object):
         assert show.conn == conn
         assert show.initially_open is None
         assert show.initially_open_owner is None
-        assert show.initially_select == request['initially_select']
         assert show._first_selected is None
 
     def test_empty_path(self, empty_request):
