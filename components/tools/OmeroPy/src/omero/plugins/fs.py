@@ -100,25 +100,32 @@ class FsControl(BaseControl):
         from omero.sys import ParametersI
         from omero.util.text import filesizeformat
 
-        query = (
+        select = (
             "select i.id, i.name, fs.id,"
-            "count(f.id), sum(f.size) "
+            "count(f.id), sum(f.size) ")
+        query1 = (
             "from Image i join i.pixels p "
             "join p.pixelsFileMaps m join m.parent f "
-            "left outer join i.fileset as fs "
+            "left outer join i.fileset as fs ")
+        query2 = (
             "group by i.id, i.name, fs.id ")
 
         if args.order == "newest":
-            query += "order by i.id desc"
+            query3 = "order by i.id desc"
         elif args.order == "oldest":
-            query += "order by i.id asc"
+            query3 = "order by i.id asc"
         elif args.order == "largest":
-            query += "order by sum(f.size) desc"
+            query3 = "order by sum(f.size) desc"
 
         client = self.ctx.conn(args)
         service = client.sf.getQueryService()
+
+        count = unwrap(service.projection(
+            "select count(i) " + query1,
+            None, {"omero.group": "-1"}))[0][0]
+        print count
         rows = unwrap(service.projection(
-            query,
+            select + query1 + query2 + query3,
             ParametersI().page(args.offset, args.limit),
             {"omero.group": "-1"}))
 
@@ -130,6 +137,7 @@ class FsControl(BaseControl):
             row[4] = filesizeformat(bytes)
 
         tb = self._table(args)
+        tb.page(args.offset, args.limit, count)
         tb.cols(["Image", "Name", "FS", "# Files", "Size"])
         for idx, row in enumerate(rows):
             tb.row(idx, *row)
@@ -178,15 +186,12 @@ class FsControl(BaseControl):
         client = self.ctx.conn(args)
         service = client.sf.getQueryService()
 
-        params = ParametersI()
-        params.page(args.offset, args.limit)
-        params.addString("ns", NSFILETRANSFER)
-
-        query1 = (
+        select = (
             "select fs.id, fs.templatePrefix, "
             "(select size(f2.images) from Fileset f2 where f2.id = fs.id),"
             "(select size(f3.usedFiles) from Fileset f3 where f3.id = fs.id),"
-            "ann.textValue "
+            "ann.textValue ")
+        query1 = (
             "from Fileset fs "
             "left outer join fs.annotationLinks fal "
             "left outer join fal.child ann "
@@ -207,14 +212,23 @@ class FsControl(BaseControl):
         else:
             query = "%s %s" % (query1, query2)
 
-        objs = service.projection(query, params, {"omero.group": "-1"})
+        params = ParametersI()
+        params.addString("ns", NSFILETRANSFER)
+        count = service.projection("select count(fs) " + query1,
+                                   params, {"omero.group": "-1"})
+
+        params.page(args.offset, args.limit)
+        objs = service.projection(select + query,
+                                  params, {"omero.group": "-1"})
         objs = unwrap(objs)
+        count = unwrap(count)[0][0]
 
         cols = ["Id", "Prefix", "Images", "Files", "Transfer"]
         if args.check:
             cols.append("Check")
         tb = self._table(args)
         tb.cols(cols)
+        tb.page(args.offset, args.limit, count)
         for idx, obj in enumerate(objs):
 
             # Map the transfer name to the CLI symbols
