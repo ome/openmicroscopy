@@ -1219,6 +1219,7 @@ public class SelectionWizardUI
                     availableItemsListbox.requestFocus();
                     return true;
                 }
+                return false;
             }
         }
         //We create a new tag.
