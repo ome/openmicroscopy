@@ -1,7 +1,5 @@
 /*
- *   $Id$
- *
- *   Copyright 2009 Glencoe Software, Inc. All rights reserved.
+ *   Copyright 2009-2014 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -32,7 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
  * @author Josh Moore, josh at glencoesoftware.com
  * @since Beta4.1.1
  */
-public class DBEnumCheck {
+public class DBEnumCheck extends BaseDBCheck {
 
     public final static Logger log = LoggerFactory.getLogger(DBEnumCheck.class);
 
@@ -88,13 +86,11 @@ public class DBEnumCheck {
         return omitlist.contains(name);
     }
 
-    final Executor executor;
-
     public DBEnumCheck(Executor executor) {
-        this.executor = executor;
+        super(executor);
     }
 
-    public void start() throws Exception {
+    protected void doCheck() {
         try {
             executor.executeSql(new Executor.SimpleSqlWork(this,
                     "DBEnumCheck") {
