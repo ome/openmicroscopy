@@ -56,6 +56,8 @@ import javax.swing.JTree;
 import javax.swing.ToolTipManager;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.event.TreeSelectionEvent;
+import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 
@@ -101,6 +103,12 @@ public class SelectionWizardUI
 
     /** Bound property indicating that the selection has changed. */
     public static final String SELECTION_CHANGE = "selectionChange";
+
+    /**
+     * Bound property indicating that a new item is selected in the
+     * available items tree.
+     */
+    static final String AVAILABLE_SELECTION_CHANGE = "availableSelectionChange";
 
     /** All tags regardless of who is the owner will be displayed.*/
     static Integer ALL = 0;
@@ -549,6 +557,14 @@ public class SelectionWizardUI
                     if (availableItemsListbox.isFocusOwner())
                         addItem();
                 }
+            }
+        });
+        availableItemsListbox.addTreeSelectionListener(new TreeSelectionListener() {
+            
+            @Override
+            public void valueChanged(TreeSelectionEvent evt) {
+                firePropertyChange(AVAILABLE_SELECTION_CHANGE, Boolean.TRUE,
+                        Boolean.FALSE);
             }
         });
         selectedItemsListbox = new JTree();
@@ -1364,6 +1380,35 @@ public class SelectionWizardUI
         if (reset) {
             setTextFieldDefault(DEFAULT_FILTER_TEXT);
         }
+    }
+
+    /**
+     * Returns the collection of nodes selected in the "Available" pane.
+     *
+     * @return See above.
+     */
+    Collection<DataObject> getAvailableSelectedNodes()
+    {
+        TreePath[] paths = availableItemsListbox.getSelectionPaths();
+        if (paths == null || paths.length == 0) return null;
+        Object c;
+        List<DataObject> nodes = new ArrayList<DataObject>();
+        TreeImageDisplay node;
+        for (int i = 0; i < paths.length; i++) {
+            c = paths[i].getLastPathComponent();
+            if (c instanceof TreeImageDisplay) {
+                node = (TreeImageDisplay) c;
+                if (node.hasChildrenDisplay()) { //tagset
+                    nodes.add((DataObject) node.getUserObject());
+                } else {
+                    if (isChild(node)) {
+                        nodes.add((DataObject)
+                                node.getParentDisplay().getUserObject());
+                    }
+                }
+            }
+        }
+        return nodes;
     }
 
     /**
