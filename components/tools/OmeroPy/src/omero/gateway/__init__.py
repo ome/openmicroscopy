@@ -2593,12 +2593,12 @@ class _BlitzGateway (object):
         @return:            (query, params, wrapper)
         """
 
-        if type(obj_type) is type(''):
+        if isinstance(obj_type, StringTypes):
             wrapper = KNOWN_WRAPPERS.get(obj_type.lower(), None)
             if wrapper is None:
                 raise KeyError("obj_type of %s not supported by getOjbects(). E.g. use 'Image' etc" % obj_type)
         else:
-            raise AttributeError("getObjects uses a string to define obj_type, E.g. 'Image'")
+            raise AttributeError("getObjects uses a string to define obj_type, E.g. 'Image' not %r" % obj_type)
 
         if params is None:
             params = omero.sys.Parameters()
