@@ -25,6 +25,7 @@
 #end
 
 namespace omero {
+  namespace model {
 
 #foreach($type in $types)
 #if(!$type.abstract)
@@ -58,25 +59,6 @@ namespace omero {
 
     };
 
-    class DetailsObjectFactory : virtual public Ice::ObjectFactory {
-    protected:
-    // This must be stored as a raw pointer to prevent circular ref with client
-	const omero::client* client;
-    public:
-	DetailsObjectFactory(
-            const omero::client* client = NULL)
-                : Ice::ObjectFactory(), client(client) { }
-
-	~DetailsObjectFactory() {}
-
-	Ice::ObjectPtr create(const std::string& type) {
-	    return new omero::model::DetailsI(client);
-	}
-
-	void destroy() {}
-
-    };
-
   void conditionalAdd(const std::string& name, const Ice::CommunicatorPtr& ic, const Ice::ObjectFactoryPtr& of) {
 
     if (0==ic->findObjectFactory(name)) {
@@ -85,10 +67,8 @@ namespace omero {
 
   }
 
-  void registerObjectFactory(const Ice::CommunicatorPtr ic,
-        const omero::client* client) {
+  void registerObjectFactory(const Ice::CommunicatorPtr ic) {
     conditionalAdd("::omero::model::Permissions", ic, new PermissionsObjectFactory());
-    conditionalAdd("::omero::model::Details", ic, new DetailsObjectFactory(client));
 #foreach($type in $types)
 #if(!$type.abstract)
     conditionalAdd("::omero::model::${type.shortname}", ic,  new ${type.shortname}ObjectFactory());
@@ -96,5 +76,6 @@ namespace omero {
 #end
   }
 
+    } // End model
 } // End omero
 #stop
