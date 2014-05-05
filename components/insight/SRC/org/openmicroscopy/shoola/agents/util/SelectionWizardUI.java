@@ -1217,12 +1217,12 @@ public class SelectionWizardUI
             if (data instanceof TagAnnotationData) {
                 value = ((TagAnnotationData) data).getTagDescription();
                 if (!desc.equals(value)) {
-                    s = "a different";
+                    s = " a different";
                 }
             }
             NotificationDialog msg = new NotificationDialog(view,
                     "Add new tag", String.format(
-                            "A tag with the same name and %s description " +
+                            "A tag with the same name and%s description " +
                             "already exists\nand is selected.", s), null);
                    UIUtilities.centerAndShow(msg);
             return false;
@@ -1245,11 +1245,11 @@ public class SelectionWizardUI
                 if (data instanceof TagAnnotationData) {
                     value = ((TagAnnotationData) data).getTagDescription();
                     if (!desc.equals(value)) {
-                        s = "a different";
+                        s = " a different";
                     }
                 }
                 MessageBox msg = new MessageBox(view, "Add new tag", 
-                        String.format("A tag with the same name and " +
+                        String.format("A tag with the same name and" +
                                 "%s description already exists.\n" +
                                 "Would you like to select the existing tag?", s));
                 int option = msg.centerMsgBox();
