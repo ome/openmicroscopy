@@ -199,7 +199,7 @@ class TxState(object):
 
     def set_value(self, proxy, dest=None):
         idx = len(self._commands) - 1
-        self.ctx.out("Created #%s %s" % (idx, proxy))
+        self.ctx.out("%s" % proxy)
         self._commands[idx][1] = proxy
         if dest:
             self._vars[dest] = proxy
