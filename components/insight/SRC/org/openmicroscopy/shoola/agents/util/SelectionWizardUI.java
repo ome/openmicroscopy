@@ -1182,19 +1182,32 @@ public class SelectionWizardUI
         Iterator<DataObject> i = toAdd.iterator();
         DataObject data;
         TreeImageDisplay node = null;
+        String desc = "";
+        String s = "", value;
         while (i.hasNext()) {
             data = i.next();
             node = doesObjectExist(data, true);
             if (node != null) {
+                if (data instanceof TagAnnotationData) {
+                    desc = ((TagAnnotationData) data).getTagDescription();
+                }
                 break;
             }
         }
         //now check if the node is already selected.
         if (node != null) {
+            //check the description for the txt
+            data = (DataObject) node.getUserObject();
+            if (data instanceof TagAnnotationData) {
+                value = ((TagAnnotationData) data).getTagDescription();
+                if (!desc.equals(value)) {
+                    s = "a different";
+                }
+            }
             NotificationDialog msg = new NotificationDialog(view,
-                    "Add new tag", 
-                    "A tag with the same name and description already " +
-                    "exists and is selected.", null);
+                    "Add new tag", String.format(
+                            "A tag with the same name and %s description " +
+                            "already exists\nand is selected.", s), null);
                    UIUtilities.centerAndShow(msg);
             return false;
         }
@@ -1204,13 +1217,25 @@ public class SelectionWizardUI
                 data = i.next();
                 node = doesObjectExist(data, false);
                 if (node != null) {
+                    if (data instanceof TagAnnotationData) {
+                        desc = ((TagAnnotationData) data).getTagDescription();
+                    }
                     break;
                 }
             }
             if (node != null) {
+              //check the description for the txt
+                data = (DataObject) node.getUserObject();
+                if (data instanceof TagAnnotationData) {
+                    value = ((TagAnnotationData) data).getTagDescription();
+                    if (!desc.equals(value)) {
+                        s = "a different";
+                    }
+                }
                 MessageBox msg = new MessageBox(view, "Add new tag", 
-                        "A tag with the same name and description already exists.\n" +
-                            "Would you like to select the existing tag?");
+                        String.format("A tag with the same name and " +
+                                "%s description already exists.\n" +
+                                "Would you like to select the existing tag?", s));
                 int option = msg.centerMsgBox();
                 if (option == MessageBox.YES_OPTION) {
                     availableItemsListbox.setSelectionPath(
