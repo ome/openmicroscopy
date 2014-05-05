@@ -216,6 +216,8 @@ DROP FUNCTION is_too_many_group_ids(VARIADIC group_ids BIGINT[]);
 DELETE FROM annotation
       WHERE discriminator IN ('/basic/text/uri/', '/basic/text/url/');
 
+DELETE FROM configuration
+      WHERE name = 'DB check DBBadAnnotationCheck';
 --
 -- FINISHED
 --
