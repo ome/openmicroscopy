@@ -32,6 +32,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.hibernate.tool.hbm2x.StringUtils;
+
 //Third-party libraries
 
 
@@ -499,7 +501,7 @@ public class ModelMapper
     		annotation.setDescription(omero.rtypes.rstring(
     				((TagAnnotationData) data).getTagDescription()));
     		String ns = data.getNameSpace();
-    		if (ns != null && ns.length() > 0) {
+    		if (StringUtils.isNotEmpty(ns)) {
     			annotation.setNs(omero.rtypes.rstring(ns));
     		}
     	} else if (data instanceof BooleanAnnotationData) {

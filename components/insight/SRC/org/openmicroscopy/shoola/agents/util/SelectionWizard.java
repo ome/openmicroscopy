@@ -42,6 +42,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -388,7 +390,7 @@ public class SelectionWizard
         if (CollectionUtils.isNotEmpty(list)) {
             DataObject data = list.iterator().next();
             if (data instanceof TagAnnotationData) {
-                s = String.format(" in the %s Tag set",
+                s = String.format(" in %s Tag set",
                         ((TagAnnotationData) data).getTagValue());
             }
         }
@@ -434,13 +436,17 @@ public class SelectionWizard
             if (DEFAULT_DESCRIPTION.equals(description)) {
                 description = null;
             }
+            Set<DataObject> parents = uiDelegate.getAvailableSelectedNodes();
             for (int i = 0; i < names.length; i++) {
                 v = names[i];
                 TagAnnotationData tag;
-                if (v != null && v.trim().length() != 0) {
+                if (StringUtils.isNotBlank(v)) {
                     tag = new TagAnnotationData(v.trim());
                     if (description != null) {
                         tag.setTagDescription(description);
+                    }
+                    if (CollectionUtils.isNotEmpty(parents)) {
+                        tag.setDataObjects(parents);
                     }
                     objects.add(tag);
                 }

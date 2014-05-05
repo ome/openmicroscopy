@@ -49,6 +49,7 @@ import org.apache.commons.collections.ListUtils;
 import omero.cmd.OriginalMetadataRequest;
 import omero.cmd.Request;
 import omero.model.Annotation;
+import omero.model.AnnotationAnnotationLink;
 import omero.model.BooleanAnnotation;
 import omero.model.Channel;
 import omero.model.DatasetAnnotationLink;
@@ -459,8 +460,7 @@ class OmeroMetadataServiceImpl
 		FileAnnotationData fileAnn;
 		FileAnnotation fa;
 		OriginalFile of;
-		List<Annotation> toCreate = new ArrayList<Annotation>();
-		//List<IObject> links = new ArrayList<IObject>();
+		List<IObject> toCreate = new ArrayList<IObject>();
 		//TextualAnnotationData desc;
 		AnnotationData tag;
 		//IObject link = null;
@@ -477,9 +477,34 @@ class OmeroMetadataServiceImpl
 					iobject = fa;
 				} else {
 					iobject = ModelMapper.createAnnotation(ann);
-				} 
-				if (iobject != null)
-					toCreate.add(iobject);
+				}
+				if (iobject != null) {
+				    boolean added = false;
+				    //Check for tagset - tag link
+				    if (ann instanceof TagAnnotationData) {
+				        TagAnnotationData t = (TagAnnotationData) ann;
+				        Set<DataObject> parents = t.getDataObjects();
+				        if (CollectionUtils.isNotEmpty(parents)) {
+				            Iterator<DataObject> j = parents.iterator();
+				            DataObject d;
+				            IObject link;
+				            while (j.hasNext()) {
+				                d = j.next();
+				                if (d instanceof TagAnnotationData) {
+				                    link = ModelMapper.linkParentToChild(
+				                            t.asIObject(), d.asIObject());
+				                    if (link != null) {
+				                        toCreate.add(link);
+				                        added = true;
+				                    }
+				                }
+				            }
+				        }
+				    }
+				    if (!added) {
+				        toCreate.add(iobject);
+				    }
+				}
 			} else {
 				if (ann instanceof TagAnnotationData ||
 					ann instanceof TermAnnotationData ||
@@ -499,6 +524,17 @@ class OmeroMetadataServiceImpl
 				l.add((IObject) i.next());
 
 			List<IObject> r = gateway.createObjects(ctx, l);
+			toCreate.clear();
+			i = r.iterator();
+			while (i.hasNext()) {
+                Object object = i.next();
+                if (object instanceof AnnotationAnnotationLink) {
+                    AnnotationAnnotationLink link =
+                            (AnnotationAnnotationLink) object;
+                    annotations.add((AnnotationData)
+                            PojoMapper.asDataObject(link.getChild()));
+                }
+            }
 			annotations.addAll(PojoMapper.asDataObjects(r));
 		}
 		return annotations;
