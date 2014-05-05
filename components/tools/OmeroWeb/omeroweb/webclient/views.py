@@ -73,7 +73,7 @@ from omeroweb.feedback.views import handlerInternalError
 from omeroweb.http import HttpJsonResponse
 from omeroweb.webclient.decorators import login_required
 from omeroweb.webclient.decorators import render_response
-from omeroweb.webclient.show import Show
+from omeroweb.webclient.show import Show, IncorrectMenuError
 from omeroweb.connector import Connector
 from omeroweb.decorators import ConnCleaningHttpResponse, parse_url, get_client_ip
 
@@ -311,7 +311,10 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
     show = Show(conn, request, menu)
     # Constructor does no loading.  Show.first_selected must be called first
     # in order to set up our initial state correctly.
-    first_sel = show.first_selected
+    try:
+        first_sel = show.first_selected
+    except IncorrectMenuError, e:
+        return HttpResponseRedirect(e.uri)
     init = {
         'initially_open': show.initially_open,
         'initially_select': show.initially_select
