@@ -292,9 +292,9 @@
                         // For UI & core - the nodes to initially select and open will be overwritten by the cookie plugin
                         // the UI plugin - it handles selecting/deselecting/hovering nodes
                         "ui" : {
-                            "select_limit" : 1,
-                            "select_multiple_modifier" : false,
-                            "select_range_modifier" : false,
+                            "select_limit" : -1,
+                            "select_multiple_modifier": OME.multi_key(),
+                            "disable_selecting_children": true,
                             "initially_select" : [ {% if init.initially_select %}{% for s in init.initially_select%}"{{s}}",{% endfor %}""{% else %}"experimenter-0"{% endif %}  ],
                         },
                         // the core plugin - not many options here
