@@ -92,8 +92,18 @@ class FsControl(BaseControl):
         return tb
 
     def archived(self, args):
-        """
-        List images with archived files.
+        """List images with archived files.
+
+This command is useful for showing pre-FS (i.e. OMERO 4.4
+and before) images which have original data archived with
+them. It *may* be possible to convert these to OMERO 5
+filesets.
+
+Examples:
+
+    bin/omero fs archived --order=newest   # Default
+    bin/omero fs archived --order=largest  # Most used space
+    bin/omero fs archived --limit=500      # Longer listings
         """
 
         from omero.rtypes import unwrap
@@ -144,8 +154,21 @@ class FsControl(BaseControl):
         self.ctx.out(str(tb.build()))
 
     def repos(self, args):
-        """
-        List all repositories.
+        """List all repositories.
+
+These repositories are where OMERO stores all binary data for your
+system. Most useful is likely the "ManagedRepository" where OMERO 5
+imports to.
+
+Examples:
+
+    bin/omero fs repos            # Show all
+    bin/omero fs repos --managed  # Show only the managed repo
+                                  # Or to print only the directory
+                                  # under Unix:
+
+    bin/omero fs repos --managed --style=plain | cut -d, -f5
+
         """
 
         from omero.grid import ManagedRepositoryPrx as MRepo
@@ -174,8 +197,19 @@ class FsControl(BaseControl):
         self.ctx.out(str(tb.build()))
 
     def sets(self, args):
-        """
-        List filesets by various criteria
+        """List filesets by various criteria
+
+Filesets are bundles of original data imported into OMERO 5 and above
+which represent 1 *or more* images.
+
+Examples:
+
+    bin/omero fs sets --order=newest        # Default
+    bin/omero fs sets --order=oldest
+    bin/omero fs sets --order=largest
+    bin/omero fs sets --without-images      # Corrupt filesets
+    bin/omero fs sets --with-transfer=ln_s  # Symlinked filesets
+    bin/omero fs sets --check               # Proof the checksums
         """
 
         from omero.constants.namespaces import NSFILETRANSFER
@@ -296,8 +330,7 @@ class FsControl(BaseControl):
 
     @admin_only
     def set_repo(self, args):
-        """
-        Change configuration properties for single repositories
+        """Change configuration properties for single repositories
         """
         pass
 
