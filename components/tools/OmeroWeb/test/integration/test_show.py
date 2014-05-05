@@ -582,7 +582,7 @@ class TestShow(object):
         assert show._first_selected == first_selected
         assert show.initially_select == tag_path_request['initially_select']
 
-    def testset_tag_legacy_path(
+    def test_tagset_tag_legacy_path(
             self, conn, tagset_tag_path_request, tagset_tag):
         show = Show(conn, tagset_tag_path_request['request'], 'usertags')
         self.assert_instantiation(show, tagset_tag_path_request, conn)
