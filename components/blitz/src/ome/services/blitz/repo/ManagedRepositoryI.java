@@ -43,6 +43,7 @@ import ome.services.blitz.repo.path.FilePathNamingValidator;
 import ome.services.blitz.repo.path.FilePathRestrictionInstance;
 import ome.services.blitz.repo.path.FsFile;
 import ome.services.blitz.util.ChecksumAlgorithmMapper;
+import ome.system.Roles;
 import ome.system.ServiceFactory;
 import ome.util.SqlAction;
 import ome.util.checksum.ChecksumProviderFactory;
@@ -128,6 +129,8 @@ public class ManagedRepositoryI extends PublicRepositoryI
 
     private final String rootSessionUuid;
 
+    private final long userGroupId;
+
     /**
      * Creates a {@link ProcessContainer} internally that will not be managed
      * by background threads. Used primarily during testing.
@@ -136,7 +139,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
      */
     public ManagedRepositoryI(String template, RepositoryDao dao) throws Exception {
         this(template, dao, new ProcessContainer(), new ChecksumProviderFactoryImpl(),
-                ALL_CHECKSUM_ALGORITHMS, FilePathRestrictionInstance.UNIX_REQUIRED.name, null);
+                ALL_CHECKSUM_ALGORITHMS, FilePathRestrictionInstance.UNIX_REQUIRED.name, null, new Roles());
     }
 
     public ManagedRepositoryI(String template, RepositoryDao dao,
@@ -144,12 +147,14 @@ public class ManagedRepositoryI extends PublicRepositoryI
             ChecksumProviderFactory checksumProviderFactory,
             String checksumAlgorithmSupported,
             String pathRules,
-            String rootSessionUuid) throws ServerError {
+            String rootSessionUuid,
+            Roles roles) throws ServerError {
         super(dao, checksumProviderFactory, checksumAlgorithmSupported, pathRules);
         this.template = template;
         this.processes = processes;
         this.filePathNamingValidator = new FilePathNamingValidator(this.filePathRestrictions);
         this.rootSessionUuid = rootSessionUuid;
+        this.userGroupId = roles.getUserGroupId();
         log.info("Repository template: " + this.template);
     }
 
@@ -487,17 +492,19 @@ public class ManagedRepositoryI extends PublicRepositoryI
      * The full path must not already exist, although a prefix of it may.
      */
     protected void createTemplateDir(FsFile rootPath, FsFile userPath, Ice.Current curr) throws ServerError {
-        final int userPathSize = userPath.getComponents().size();
-        if (userPathSize == 0) {
+        if (FsFile.emptyPath.equals(userPath)) {
             throw new omero.ApiUsageException(null, null, "no directories in managed repository template path");
         }
+        final boolean makeUserParents = userPath.getComponents().size() > 1;
         if (!FsFile.emptyPath.equals(rootPath)) {
             final Current rootCurr = sudo(curr, rootSessionUuid);
+            rootCurr.ctx.put(omero.constants.GROUP.value, Long.toString(userGroupId));
             makeDir(rootPath.toString(), true, rootCurr);
             userPath = FsFile.concatenate(rootPath, userPath);
         }
-        if (userPathSize > 1) {
-            final List<String> userPathPrefix = userPath.getComponents().subList(0, userPathSize - 1);
+        if (makeUserParents) {
+            final int fullPathSize = userPath.getComponents().size();
+            final List<String> userPathPrefix = userPath.getComponents().subList(0, fullPathSize - 1);
             makeDir(new FsFile(userPathPrefix).toString(), true, curr);
         }
         makeDir(userPath.toString(), false, curr);
