@@ -515,6 +515,8 @@ public class SelectionWizardUI
                 if (e.getKeyCode() == KeyEvent.VK_ENTER &&
                         filterArea.isFocusOwner()) {
                         addItem();
+                        //reset filter
+                        setTextFieldDefault(DEFAULT_FILTER_TEXT);
                 }
             }
         });
