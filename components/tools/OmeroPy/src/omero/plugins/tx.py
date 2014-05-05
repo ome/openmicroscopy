@@ -267,6 +267,7 @@ Bash examples:
     $ dataset=$(bin/omero tx new Dataset name='my Dataset')
     $ bin/omero tx new ProjectDatasetLink parent=$project child=$dataset
     ProjectDatasetLink=456
+    $ bin/omero import -d $dataset ...
 
     """
 
