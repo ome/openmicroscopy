@@ -2908,7 +2908,7 @@ class EditorModel
 				data = ((WellSampleData) ref).getImage();
 			}
 			List<AnnotationData> list = null;
-			if (toDelete != null && toDelete.size() > 0) {
+			if (CollectionUtils.isNotEmpty(toDelete)) {
 				list = new ArrayList<AnnotationData>();
 				Iterator<AnnotationData> i = toDelete.iterator();
 				while (i.hasNext())

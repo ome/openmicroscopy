@@ -1387,12 +1387,12 @@ public class SelectionWizardUI
      *
      * @return See above.
      */
-    Collection<DataObject> getAvailableSelectedNodes()
+    Set<DataObject> getAvailableSelectedNodes()
     {
         TreePath[] paths = availableItemsListbox.getSelectionPaths();
         if (paths == null || paths.length == 0) return null;
         Object c;
-        List<DataObject> nodes = new ArrayList<DataObject>();
+        Set<DataObject> nodes = new HashSet<DataObject>();
         TreeImageDisplay node;
         for (int i = 0; i < paths.length; i++) {
             c = paths[i].getLastPathComponent();
