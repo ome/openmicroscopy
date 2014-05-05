@@ -17,6 +17,7 @@
 import omero
 import omero_ext.uuid as uuid
 import time
+import pytest
 
 class TestDeleteObject (object):
     
@@ -84,6 +85,24 @@ class TestDeleteObject (object):
             assert gatewaywrapper.gateway.getObject("Dataset", dId) is None
 
 class TestFindObject (object):
+
+
+    def testIllegalObjTypeInt(self, gatewaywrapper):
+        gatewaywrapper.loginAsAuthor()
+        with pytest.raises(AttributeError):
+            gatewaywrapper.gateway.getObject(1, 1L)
+
+    def testObjTypeUnicode(self, gatewaywrapper):
+        gatewaywrapper.loginAsAuthor()
+        a = gatewaywrapper.getTestProject()
+        b = gatewaywrapper.gateway.getObject(u'Project', a.getId())
+        assert a.getId() == b.getId()
+
+    def testObjTypeString(self, gatewaywrapper):
+        gatewaywrapper.loginAsAuthor()
+        a = gatewaywrapper.getTestProject()
+        b = gatewaywrapper.gateway.getObject('Project', a.getId())
+        assert a.getId() == b.getId()
 
     def testFindProject(self, gatewaywrapper):
         gatewaywrapper.loginAsAuthor()
