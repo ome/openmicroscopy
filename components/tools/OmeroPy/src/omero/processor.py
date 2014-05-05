@@ -860,6 +860,7 @@ class ProcessorI(omero.grid.Processor, omero.util.Servant):
     @remoted
     def willAccept(self, userContext, groupContext, scriptContext, cb, current = None):
 
+        valid = False
         userID = None
         if userContext != None:
             userID = userContext.id.val
@@ -881,7 +882,6 @@ class ProcessorI(omero.grid.Processor, omero.util.Servant):
                 self.logger.error("File lookup failed: user=%s, group=%s, script=%s",\
                     userID, groupID, scriptID, exc_info=1)
         else:
-            valid = False
             for x in self.accepts_list:
                 if isinstance(x, omero.model.Experimenter) and x.id.val == userID:
                     valid = True
