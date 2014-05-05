@@ -24,6 +24,8 @@ Generic functionality for handling particular links and "showing" objects
 in the OMERO.web tree view.
 """
 
+import re
+
 from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
 
@@ -39,15 +41,18 @@ class Show(object):
     # List of prefixes that are at the top level of the tree
     TOP_LEVEL_PREFIXES = ('project', 'screen')
 
-    # List of supported prefixes for the "path" query string variable
-    SUPPORTED_PATH_PREFIXES = (
-        'project', 'dataset', 'image', 'screen', 'plate', 'tag'
-    )
-
-    # List of supported prefixes for the "show" query string variable
-    SUPPORTED_SHOW_PREFIXES = (
+    # List of supported object types
+    SUPPORTED_OBJECT_TYPES = (
         'project', 'dataset', 'image', 'screen', 'plate', 'tag',
         'acquisition', 'run', 'well'
+    )
+
+    # Regular expression which declares the format for a "path" used either
+    # in the "path" or "show" query string.  No modifications should be made
+    # to this regex without corresponding unit tests in
+    # "tests/unit/test_show.py".
+    PATH_REGEX = re.compile(
+        r'^(?P<object_type>\w+)\.?(?P<key>\w+)?[-=](?P<value>.*)'
     )
 
     def __init__(self, conn, request, menu):
@@ -84,23 +89,24 @@ class Show(object):
         self.request = request
         self.menu = menu
 
-        # E.g. backwards compatible support for
-        # path=project=51|dataset=502|image=607 (select the image)
-        path = self.request.REQUEST.get('path', '')
-        i = path.split("|")[-1]
-        if i.split("=")[0] in self.SUPPORTED_PATH_PREFIXES:
-            # Backwards compatible with image=607 etc
-            self._initially_select.append(str(i).replace("=", '-'))
+        path = self.request.REQUEST.get('path', '').split('|')[-1]
+        self._add_if_supported(path)
 
-        # Now we support show=image-607|image-123  (multi-objects selected)
         show = self.request.REQUEST.get('show', '')
-        for i in show.split("|"):
-            if i.split("-")[0] in self.SUPPORTED_SHOW_PREFIXES:
-                # 'run' is an alternative for 'acquisition'
-                i = i.replace('run', 'acquisition')
-                self._initially_select.append(str(i))
+        for path in show.split('|'):
+            self._add_if_supported(path)
 
-    def _load_first_selected(self, first_obj, first_id):
+    def _add_if_supported(self, path):
+        """Adds a path to the initially selected list if it is supported."""
+        m = self.PATH_REGEX.match(path)
+        if m is None:
+            return
+        if m.group('object_type') in self.SUPPORTED_OBJECT_TYPES:
+            # 'run' is an alternative for 'acquisition'
+            path = path.replace('run', 'acquisition')
+            self._initially_select.append(str(path))
+
+    def _load_first_selected(self, first_obj, attributes):
         """
         Loads the first selected object from the server.
 
@@ -113,10 +119,14 @@ class Show(object):
         if first_obj == "tag":
             # Tags have an "Annotation" suffix added to the object name so
             # need to be loaded differently.
-            first_selected = self.conn.getObject("TagAnnotation", first_id)
+            first_selected = self.conn.getObject(
+                "TagAnnotation", attributes=attributes
+            )
         else:
             # All other objects can be loaded by prefix and id.
-            first_selected = self.conn.getObject(first_obj, first_id)
+            first_selected = self.conn.getObject(
+                first_obj, attributes=attributes
+            )
 
         if first_obj == "well":
             # Wells aren't in the tree, so we need to look up the parent
@@ -148,7 +158,10 @@ class Show(object):
 
         # tree hierarchy open to first selected object
         self._initially_open = [self._initially_select[0]]
-        first_obj, first_id = self._initially_open[0].split("-", 1)
+        m = self.PATH_REGEX.match(self._initially_open[0])
+        if m is None:
+            return None
+        first_obj = m.group('object_type')
         # if we're showing a tag, make sure we're on the tags page...
         if first_obj == "tag" and self.menu != "usertags":
             return HttpResponseRedirect(
@@ -157,10 +170,14 @@ class Show(object):
             )
         first_selected = None
         try:
-            first_id = long(first_id)
+            key = m.group('key')
+            value = m.group('value')
+            if key is None or key == 'id':
+                key = 'id'
+                value = long(value)
             # Set context to 'cross-group'
             self.conn.SERVICE_OPTS.setOmeroGroup('-1')
-            first_selected = self._load_first_selected(first_obj, first_id)
+            first_selected = self._load_first_selected(first_obj, {key: value})
         except:
             pass
         if first_obj not in self.TOP_LEVEL_PREFIXES:
@@ -175,7 +192,8 @@ class Show(object):
                             0, "%s-%s" % (p.OMERO_CLASS.lower(), p.getId())
                         )
                         self._initially_open_owner = p.details.owner.id.val
-                if self._initially_open[0].split("-")[0] == 'image':
+                m = self.PATH_REGEX.match(self._initially_open[0])
+                if m.group('object_type') == 'image':
                     self._initially_open.insert(0, "orphaned-0")
         return first_selected
 

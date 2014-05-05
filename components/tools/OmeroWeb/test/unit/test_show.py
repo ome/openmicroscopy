@@ -34,9 +34,9 @@ def empty_request(request_factory, path):
 
 
 @pytest.fixture(scope='function', params=[
-    ('project=1', ('project-1',)),
-    ('project=1|dataset=1', ('dataset-1',)),
-    ('project=1|dataset=1|image=1', ('image-1',)),
+    ('project=1', ('project=1',)),
+    ('project=1|dataset=1', ('dataset=1',)),
+    ('project=1|dataset=1|image=1', ('image=1',)),
     ('illegal=1', tuple())
 ])
 def path_request(request, request_factory, path):
@@ -70,6 +70,20 @@ def show_request(request, request_factory, path):
     }
 
 
+@pytest.fixture(scope='function', params=('project-1', 'project=1'))
+def project_path(request):
+    """Returns a Project based path in both supported forms."""
+    return request.param
+
+
+@pytest.fixture(scope='function', params=(
+    'project.name-the_name', 'project.name=the_name'
+))
+def project_path_key(request):
+    """Returns a Project, key based path in both supported forms."""
+    return request.param
+
+
 class TestShow(object):
     """
     Tests to ensure that OMERO.web "show" infrastructure is working
@@ -96,3 +110,21 @@ class TestShow(object):
         assert show.initially_open_owner is None
         assert show.initially_select == list(show_request['initially_select'])
         assert show._first_selected is None
+
+    def test_path_regex_no_key(self, project_path):
+        m = Show.PATH_REGEX.match(project_path)
+        assert m.group('object_type') == 'project'
+        assert m.group('key') is None
+        assert m.group('value') == '1'
+
+    def test_path_regex_key(self, project_path_key):
+        m = Show.PATH_REGEX.match(project_path_key)
+        assert m.group('object_type') == 'project'
+        assert m.group('key') == 'name'
+        assert m.group('value') == 'the_name'
+
+    def test_path_regex_name_includes_separator(self):
+        m = Show.PATH_REGEX.match('project.name-blah-blah-blah')
+        assert m.group('object_type') == 'project'
+        assert m.group('key') == 'name'
+        assert m.group('value') == 'blah-blah-blah'
