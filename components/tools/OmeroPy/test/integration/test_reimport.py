@@ -85,19 +85,31 @@ class TestReimportAttachedFiles(lib.ITest):
         # to the synthetic image
         params = ParametersI()
         params.addId(orig_img.id.val)
-        file_ids = unwrap(self.query.projection((
-            "select f.id from Image i join i.fileset fs join fs.usedFiles uf "
+        rows = unwrap(self.query.projection((
+            "select f.id, f.name from Image i "
+            "join i.fileset fs join fs.usedFiles uf "
             "join uf.originalFile f where i.id = :id"), params))
-        for row in file_ids:
+        for row in rows:
             file_id = row[0]
+            file_name = row[1]
             target = create_path()
             src = OriginalFileI(file_id, False)
             self.client.download(ofile=src, filename=str(target))
-            copy = self.client.upload(filename=str(target))
+            copy = self.client.upload(filename=str(target),
+                                      name=file_name)
             link = PixelsOriginalFileMapI()
             link.parent = copy.proxy()
             link.child = new_pix
             self.update.saveObject(link)
+
+    def delete(self, type, obj):
+            delete = Delete(type, obj.id.val)
+            handle = self.client.sf.submit(delete)
+            cb = CmdCallbackI(self.client, handle)
+            try:
+                cb.loop(50, 1000)
+            finally:
+                cb.close(True)
 
     def createSynthetic(self):
         """ Create a image with archived files (i.e. pre-FS) """
@@ -112,6 +124,9 @@ class TestReimportAttachedFiles(lib.ITest):
         orig_pix = self.query.findByQuery(
             "select p from Pixels p where p.image.id = :id",
             ParametersI().addId(orig_img.id.val))
+        orig_fs = self.query.findByQuery(
+            "select f from Image i join i.fileset f where i.id = :id",
+            ParametersI().addId(orig_img.id.val))
 
         try:
             new_img, new_pix = self.duplicateMIF(orig_img)
@@ -119,13 +134,7 @@ class TestReimportAttachedFiles(lib.ITest):
             self.copyFiles(orig_img, new_img, new_pix)
             return new_img
         finally:
-            delete = Delete("/Image", orig_img.id.val)
-            handle = self.client.sf.submit(delete)
-            cb = CmdCallbackI(self.client, handle)
-            try:
-                cb.loop(50, 1000)
-            finally:
-                cb.close(True)
+            self.delete("/Fileset", orig_fs)
 
     def attachedFiles(self, img_obj):
         return \
@@ -214,8 +223,24 @@ class TestReimportAttachedFiles(lib.ITest):
         files.insert(0, readme_obj)
         proc = self.startUpload(files, with_import=True)
         handle = self.uploadFileset(proc, files)
-        fs = handle.getRequest().activity.parent
-        self.linkImageToFileset(new_img, fs)
-        # Make sure files are named ".fake"
-        # How to delete Pixel files?!
-        # And original files (later!) <-- easy.
+        try:
+            fs = handle.getRequest().activity.parent
+            self.linkImageToFileset(new_img, fs)
+            fs = self.client.sf.getQueryService().findByQuery((
+                "select fs from Fileset fs "
+                "join fetch fs.usedFiles "
+                "where fs.id = :id"), ParametersI().addId(fs.id.val))
+            used = fs.copyUsedFiles()
+            fs.clearUsedFiles()
+            for idx in range(1,3):  # omit readme
+                fs.addFilesetEntry(used[idx])
+                #fs.unloadJobLinks()
+                #fs.unloadImage()
+                #fs.unloadAnnotationLinks()
+                used[idx].originalFile.unload()
+            self.client.sf.getUpdateService().saveObject(fs)
+            for file in files:
+                self.delete("/OriginalFile", file)
+            # How to delete Pixel files?!
+        finally:
+            handle.close()
