@@ -67,7 +67,7 @@ class Show(object):
     # to this regex without corresponding unit tests in
     # "tests/unit/test_show.py".
     PATH_REGEX = re.compile(
-        r'(?P<object_type>\w+)\.?(?P<key>\w+)?[-=](?P<value>.*)'
+        r'(?P<object_type>\w+)\.?(?P<key>\w+)?[-=](?P<value>[^\|]*)\|?'
     )
 
     # A-Z
@@ -183,8 +183,8 @@ class Show(object):
             return self.conn.getObject('Well', attributes=attributes)
         if 'name' in attributes:
             row, column = self.get_well_row_column(attributes['name'])
-            paths = self.request.REQUEST.get('path', '').split('|')
-            for m in [self.PATH_REGEX.match(path) for path in paths]:
+            path = self.request.REQUEST.get('path', '')
+            for m in self.PATH_REGEX.finditer(path):
                 if m.group('object_type') != 'plate':
                     continue
                 plate_attributes = {m.group('key'): m.group('value')}
