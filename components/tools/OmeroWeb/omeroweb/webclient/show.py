@@ -196,7 +196,6 @@ class Show(object):
                 params.map['row'] = rint(row)
                 params.map['column'] = rint(column)
                 params.addId(plate.id)
-                print params
                 row, = query_service.projection(
                     'select w.id from Well as w '
                     'where w.row = :row and w.column = :column '
