@@ -310,6 +310,7 @@ public class CommandLineImporter {
             + "Examples:\n"
             + "\n"
             + "  $ %s -s localhost -u user -w password -d 50 foo.tiff\n"
+            + "  $ %s -s localhost -u user -w password -d Dataset:50 foo.tiff\n"
             + "  $ %s -f foo.tiff\n"
             + "  $ %s -s localhost -u username -w password -d 50 --debug ALL foo.tiff\n"
             + "\n"
@@ -621,8 +622,13 @@ public class CommandLineImporter {
                 break;
             }
             case 'd': {
+                String datasetString = g.getOptarg();
+                if (datasetString.startsWith("Dataset:")) {
+                    datasetString = datasetString.substring(
+                            "Dataset:".length());
+                }
+                config.targetId.set(Long.parseLong(datasetString));
                 config.targetClass.set(Dataset.class.getName());
-                config.targetId.set(Long.parseLong(g.getOptarg()));
                 break;
             }
             case 'r': {
