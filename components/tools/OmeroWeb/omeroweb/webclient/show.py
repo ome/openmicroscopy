@@ -24,8 +24,10 @@ Generic functionality for handling particular links and "showing" objects
 in the OMERO.web tree view.
 """
 
+import omero
 import re
 
+from omero.rtypes import rint
 from django.core.urlresolvers import reverse
 
 
@@ -65,7 +67,16 @@ class Show(object):
     # to this regex without corresponding unit tests in
     # "tests/unit/test_show.py".
     PATH_REGEX = re.compile(
-        r'^(?P<object_type>\w+)\.?(?P<key>\w+)?[-=](?P<value>.*)'
+        r'(?P<object_type>\w+)\.?(?P<key>\w+)?[-=](?P<value>.*)'
+    )
+
+    # A-Z
+    AS_ALPHA = [chr(v) for v in range(97, 122 + 1)]
+
+    # Regular expression for matching Well names
+    WELL_REGEX = re.compile(
+        '^(?:(?P<alpha_row>[a-zA-Z]+)(?P<digit_column>\d+))|'
+        '(?:(?P<digit_row>\d+)(?P<alpha_column>[a-zA-Z]+))$'
     )
 
     def __init__(self, conn, request, menu):
@@ -126,24 +137,92 @@ class Show(object):
                 '%s.%s-%s' % (object_type, key, value)
             )
 
+    def _load_tag(self, attributes):
+        """
+        Loads a Tag based on a certain set of attributes from the server.
+
+        @param attributes Set of attributes to filter on.
+        @type attributes L{dict}
+        """
+        # Tags have an "Annotation" suffix added to the object name so
+        # need to be loaded differently.
+        return self.conn.getObject(
+            "TagAnnotation", attributes=attributes
+        )
+
+    def get_well_row_column(self, well):
+        """
+        Retrieves a tuple of row and column as L{int} for a given Well name
+        ("A1" or "1A") string.
+
+        @param well Well name string to retrieve the row and column tuple for.
+        @type well L{str}
+        """
+        m = self.WELL_REGEX.match(well)
+        if m is None:
+            return None
+        if m.group('alpha_row') is not None:
+            return (
+                self.AS_ALPHA.index(m.group('alpha_row').lower()),
+                int(m.group('digit_column')) - 1
+            )
+        else:
+            return (
+                int(m.group('digit_row')) - 1,
+                self.AS_ALPHA.index(m.group('alpha_column').lower())
+            )
+
+    def _load_well(self, attributes):
+        """
+        Loads a Well based on a certain set of attributes from the server.
+
+        @param attributes Set of attributes to filter on.
+        @type attributes L{dict}
+        """
+        if 'id' in attributes:
+            return self.conn.getObject('Well', attributes=attributes)
+        if 'name' in attributes:
+            row, column = self.get_well_row_column(attributes['name'])
+            paths = self.request.REQUEST.get('path', '').split('|')
+            for m in [self.PATH_REGEX.match(path) for path in paths]:
+                if m.group('object_type') != 'plate':
+                    continue
+                plate_attributes = {m.group('key'): m.group('value')}
+                plate = self.conn.getObject(
+                    'Plate', attributes=plate_attributes
+                )
+                query_service = self.conn.getQueryService()
+                params = omero.sys.ParametersI()
+                params.map['row'] = rint(row)
+                params.map['column'] = rint(column)
+                params.addId(plate.id)
+                print params
+                row, = query_service.projection(
+                    'select w.id from Well as w '
+                    'where w.row = :row and w.column = :column '
+                    'and w.plate.id = :id', params, self.conn.SERVICE_OPTS
+                )
+                well_id, = row
+                return self.conn.getObject(
+                    'Well', well_id.val
+                )
+
     def _load_first_selected(self, first_obj, attributes):
         """
         Loads the first selected object from the server.
 
         @param first_obj Type of the first selected object.
         @type first_obj String
-        @param first_id ID of the first selected object.
-        @type first_id Long
+        @param attributes Set of attributes to filter on.
+        @type attributes L{dict}
         """
         first_selected = None
         if first_obj == "tag":
-            # Tags have an "Annotation" suffix added to the object name so
-            # need to be loaded differently.
-            first_selected = self.conn.getObject(
-                "TagAnnotation", attributes=attributes
-            )
+            first_selected = self._load_tag(attributes)
+        elif first_obj == "well":
+            first_selected = self._load_well(attributes)
         else:
-            # All other objects can be loaded by prefix and id.
+            # All other objects can be loaded by type and attributes.
             first_selected = self.conn.getObject(
                 first_obj, attributes=attributes
             )
@@ -156,6 +235,7 @@ class Show(object):
             # It's possible that the Well that we've been requested to show
             # has no fields (WellSample instances).  In that case the Plate
             # will be used but we don't have much choice.
+
             if well_sample is not None:
                 parent_node = well_sample.getPlateAcquisition()
                 parent_type = "acquisition"

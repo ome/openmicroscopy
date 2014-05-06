@@ -128,3 +128,19 @@ class TestShow(object):
         assert m.group('object_type') == 'project'
         assert m.group('key') == 'name'
         assert m.group('value') == 'blah-blah-blah'
+
+    def test_well_regex_alpha_digit(self):
+        m = Show.WELL_REGEX.match('A1')
+        assert m is not None
+        assert m.group('alpha_row') == 'A'
+        assert m.group('digit_row') is None
+        assert m.group('alpha_column') is None
+        assert m.group('digit_column') == '1'
+
+    def test_well_regex_digit_alpha(self):
+        m = Show.WELL_REGEX.match('1A')
+        assert m is not None
+        assert m.group('alpha_row') is None
+        assert m.group('digit_row') == '1'
+        assert m.group('alpha_column') == 'A'
+        assert m.group('digit_column') is None

@@ -19,7 +19,7 @@ from omero.gateway import BlitzGateway, ProjectWrapper, DatasetWrapper, \
     PlateAcquisitionWrapper
 from omero.model import ProjectI, DatasetI, TagAnnotationI, ScreenI, PlateI, \
     WellI, WellSampleI, PlateAcquisitionI
-from omero.rtypes import rstring
+from omero.rtypes import rstring, rint
 from omeroweb.webclient.show import Show, IncorrectMenuError
 from django.test.client import RequestFactory
 
@@ -172,6 +172,9 @@ def screen_plate_well(request, itest, update_service):
     plate = PlateI()
     plate.name = rstring(itest.uuid())
     well = WellI()
+    # Well A10
+    well.row = rint(0)
+    well.column = rint(9)
     plate.addWell(well)
     screen.linkPlate(plate)
     return update_service.saveAndReturnObject(screen)
@@ -189,6 +192,9 @@ def screen_plate_run_well(request, itest, update_service):
     plate = PlateI()
     plate.name = rstring(itest.uuid())
     well = WellI()
+    # Well A10
+    well.row = rint(0)
+    well.column = rint(9)
     ws = WellSampleI()
     image = itest.new_image(name=itest.uuid())
     plate_acquisition = PlateAcquisitionI()
@@ -477,6 +483,54 @@ def tag_by_textvalue_path_request(request, tag, request_factory, path):
     }
 
 
+@pytest.fixture(scope='function', params=['A10', '1J'])
+def well_by_name_path_request(
+        request, screen_plate_well, request_factory, path):
+    """
+    Returns a simple GET request object with the 'path' query string
+    variable set in the key / value ("well.key=value") form.
+    """
+    plate, = screen_plate_well.linkedPlateList()
+    well, = plate.copyWells()
+    as_string = 'plate.name=%s|well.name=%s' % (plate.name.val, request.param)
+    initially_select = ['well-%d' % well.id.val]
+    initially_open = [
+        'screen-%d' % screen_plate_well.id.val,
+        'plate-%d' % plate.id.val
+    ]
+    return {
+        'request': request_factory.get(path, data={'path': as_string}),
+        'initially_select': initially_select,
+        'initially_open': initially_open
+    }
+
+
+@pytest.fixture(scope='function', params=['A10', '1J'])
+def screen_plate_run_well_by_name_path_request(
+        request, screen_plate_run_well, request_factory, path):
+    """
+    Returns a simple GET request object with the 'path' query string
+    variable set in the new ("well.key=valueid") form with a PlateAcquisition
+    'run'.
+    """
+    plate, = screen_plate_run_well.linkedPlateList()
+    well, = plate.copyWells()
+    ws, = well.copyWellSamples()
+    plate_acquisition = ws.plateAcquisition
+    as_string = 'plate.name=%s|well.name=%s' % (plate.name.val, request.param)
+    initially_select = ['well-%d' % well.id.val]
+    initially_open = [
+        'screen-%d' % screen_plate_run_well.id.val,
+        'plate-%d' % plate.id.val,
+        'acquisition-%d' % plate_acquisition.id.val
+    ]
+    return {
+        'request': request_factory.get(path, data={'path': as_string}),
+        'initially_select': initially_select,
+        'initially_open': initially_open
+    }
+
+
 class TestShow(object):
     """
     Tests to ensure that OMERO.web "show" infrastructure is working
@@ -758,3 +812,47 @@ class TestShow(object):
         assert show._first_selected == first_selected
         assert show.initially_select == \
             tag_by_textvalue_path_request['initially_select']
+
+    def test_well_by_name(
+            self, conn, well_by_name_path_request, screen_plate_well):
+        show = Show(conn, well_by_name_path_request['request'], 'usertags')
+        self.assert_instantiation(show, well_by_name_path_request, conn)
+
+        plate, = screen_plate_well.linkedPlateList()
+        well, = plate.copyWells()
+        first_selected = show.first_selected
+        assert first_selected is not None
+        assert isinstance(first_selected, PlateWrapper)
+        assert first_selected.getId() == plate.id.val
+        assert show.initially_open == \
+            well_by_name_path_request['initially_open']
+        assert show.initially_open_owner == \
+            plate.details.owner.id.val
+        assert show._first_selected == first_selected
+        assert show.initially_select == ['plate-%d' % plate.id.val]
+
+    def test_screen_plate_run_well_by_name(
+            self, conn, screen_plate_run_well_by_name_path_request,
+            screen_plate_run_well):
+        show = Show(
+            conn, screen_plate_run_well_by_name_path_request['request'], None
+        )
+        self.assert_instantiation(
+            show, screen_plate_run_well_by_name_path_request, conn
+        )
+
+        plate, = screen_plate_run_well.linkedPlateList()
+        well, = plate.copyWells()
+        ws, = well.copyWellSamples()
+        plate_acquisition = ws.plateAcquisition
+        first_selected = show.first_selected
+        assert first_selected is not None
+        assert isinstance(first_selected, PlateAcquisitionWrapper)
+        assert first_selected.getId() == plate_acquisition.id.val
+        assert show.initially_open == \
+            screen_plate_run_well_by_name_path_request['initially_open']
+        assert show.initially_open_owner == \
+            plate_acquisition.details.owner.id.val
+        assert show._first_selected == first_selected
+        assert show.initially_select == \
+            ['acquisition-%d' % plate_acquisition.id.val]
