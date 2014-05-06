@@ -860,16 +860,25 @@ public class RepositoryDaoImpl implements RepositoryDao {
         final ome.model.core.OriginalFile parentObject
             = new ome.model.core.OriginalFile(parentId, false);
 
-        final String query = "SELECT details.group.id FROM OriginalFile WHERE id = :id";
-        final Parameters parameters = new Parameters().addId(parentId);
-        final List<Object[]> results = sf.getQueryService().projection(query, parameters);
-        final long parentObjectGroupId = (Long) results.get(0)[0];
+        long parentObjectOwnerId = -1;
+        long parentObjectGroupId = -1;
+        try {
+            final String query = "SELECT details.owner.id, details.group.id FROM OriginalFile WHERE id = :id";
+            final Parameters parameters = new Parameters().addId(parentId);
+            final Object[] results = sf.getQueryService().projection(query, parameters).get(0);
+            parentObjectOwnerId = (Long) results[0];
+            parentObjectGroupId = (Long) results[1];
+        } catch (Exception e) {
+            log.warn("failed to retrieve owner and group details for original file #" + parentId, e);
+        }
 
-        final LocalAdmin admin = (LocalAdmin) sf.getAdminService();
-        if (parentObjectGroupId != roles.getUserGroupId() && !admin.canAnnotate(parentObject)) {
-            throw new ome.conditions.SecurityViolation(
-                    "No annotate access for parent directory: "
-                            + parentId);
+        if (parentObjectOwnerId != roles.getRootId() || parentObjectGroupId != roles.getUserGroupId()) {
+            final LocalAdmin admin = (LocalAdmin) sf.getAdminService();
+            if (!admin.canAnnotate(parentObject)) {
+                throw new ome.conditions.SecurityViolation(
+                        "No annotate access for parent directory: "
+                                + parentId);
+            }
         }
     }
 
