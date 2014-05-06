@@ -1,7 +1,7 @@
 /*
  * omeis.providers.re.RenderingEngine
  *
- *   Copyright 2006 University of Dundee. All rights reserved.
+ *   Copyright 2006-2014 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -527,7 +527,16 @@ public interface RenderingEngine extends StatefulServiceInterface {
      * be saved.
      */
     public void resetDefaultsNoSave();
-    
+
+    /**
+     * Resets the default settings i.e. the default values internal to the
+     * Rendering engine. The settings will be saved.
+     *
+     * @param save Pass <code>true</code> to save the settings,
+     *             <code>false</code> otherwise.
+     */
+    public long resetDefaultsSettings(boolean save);
+
 	/**
 	 * Sets the current compression level for the service. (The default is 85%)
 	 * 

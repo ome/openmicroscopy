@@ -741,6 +741,70 @@ public class RenderingBean implements RenderingEngine, Serializable {
     /**
      * Implemented as specified by the {@link RenderingEngine} interface.
      * 
+     * @see RenderingEngine#resetDefaultsSettigns(boolean)
+     */
+    @RolesAllowed("user")
+    public long resetDefaultsSettings(boolean save) {
+        return internalReset(save);
+    }
+
+    private long internalReset(boolean save) {
+
+        if (save) { //check first that we can do it.
+            save = !requestedRenderingDef && !settingsBelongToCurrentUser();
+        }
+        rwl.writeLock().lock();
+        try {
+            if (!save) {
+                errorIfInvalidState();
+                ex.execute(/*ex*/null/*principal*/, new Executor.SimpleWork(this,
+                        "resetDefaultsNoSave"){
+                    @Transactional(readOnly = true)
+                    public Object doWork(Session session, ServiceFactory sf) {
+                        IRenderingSettings settingsSrv = 
+                            sf.getRenderingSettingsService();
+                        settingsSrv.resetDefaultsNoSave(rendDefObj, pixelsObj);
+                        return null;
+                    }});
+                load();
+            } else {
+                errorIfNullPixels();
+                final long pixelsId = pixelsObj.getId();
+                // Ensure that we haven't just been called before
+                // lookupRenderingDef().
+                if (rendDefObj == null) {
+                    rendDefObj = retrieveRndSettings(pixelsId);
+                    requestedRenderingDef = false;
+                    if (rendDefObj != null) {
+                        // We've been called before lookupRenderingDef() or
+                        // loadRenderingDef(), report an error.
+                        errorIfInvalidState();
+                    }
+                    
+                    rendDefObj = createNewRenderingDef(pixelsObj);
+                    _resetDefaults(rendDefObj, pixelsObj);
+                } else {
+                    errorIfInvalidState();
+                    _resetDefaults(rendDefObj, pixelsObj);
+
+                    rendDefObj = retrieveRndSettings(pixelsObj.getId());
+                    // The above save step sets the rendDefObj instance (for which
+                    // the renderer holds a reference) unloaded, which *will* cause
+                    // IllegalStateExceptions if we're not careful. To compensate
+                    // we will now reload the renderer.
+                    // *** Ticket #848 -- Chris Allan <callan@blackcat.ca> ***
+                    load();
+                }
+            }
+            return rendDefObj.getId();
+        } finally {
+            rwl.writeLock().unlock();
+        }
+    }
+    
+    /**
+     * Implemented as specified by the {@link RenderingEngine} interface.
+     * 
      * @see RenderingEngine#setCompressionLevel()
      */
     @RolesAllowed("user")
