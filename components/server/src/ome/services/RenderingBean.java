@@ -701,7 +701,7 @@ public class RenderingBean implements RenderingEngine, Serializable {
     private long internalReset(boolean save) {
 
         if (save) { //check first that we can do it.
-            save = !requestedRenderingDef && !settingsBelongToCurrentUser();
+            save = !requestedRenderingDef;
         }
         rwl.writeLock().lock();
         try {
@@ -738,7 +738,7 @@ public class RenderingBean implements RenderingEngine, Serializable {
                     //first need to check if we need a set for the owner.
                     Long ownerId = rendDefObj.getDetails().getOwner().getId();
                     Long sessionUserId = secSys.getEffectiveUID();
-                    if (!sessionUserId.equals(ownerId)) {
+                    if (!settingsBelongToCurrentUser()) {
                         rendDefObj = createNewRenderingDef(pixelsObj);
                     }
                     _resetDefaults(rendDefObj, pixelsObj);
