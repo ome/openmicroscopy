@@ -258,10 +258,49 @@ class TestThumbnailPerms(lib.ITest):
         these should be used unless requested otherwise.
         """
         group = self.new_group(perms="rwra--")
-        owner1 = self.new_user(group=group, admin=True)
-        other1 = self.new_user(group=group)
-        owner = self.new_client(user=owner1, group=group)
-        other = self.new_client(user=other1, group=group)
+        owner = self.new_client(group=group)
+        other = self.new_client(group=group)
+
+        def assert_exists(for_owner, for_other):
+            for sf, exists in ((owner.sf, for_owner), (other.sf, for_other)):
+                if exists:
+                    id = sf.getAdminService().getEventContext().userId
+                    rnd = sf.getPixelsService().retrieveRndSettingsFor(pixels, id)
+                    assert rnd is not None
+                else:
+                    id = sf.getAdminService().getEventContext().userId
+                    rnd = sf.getPixelsService().retrieveRndSettingsFor(pixels, id)
+                    assert rnd is None
+
+        # creation generates a first rendering image
+        image = self.createTestImage(session=owner.sf)
+        pixels = image.getPrimaryPixels().getId().getValue()
+
+        owner_prx = owner.sf.createThumbnailStore()
+        other_prx = other.sf.createThumbnailStore()
+
+        # Before thumbnailing there should be no rendering settings
+        assert_exists(True, False)
+
+        owner_tb = owner_prx.getThumbnailByLongestSideSet(rint(16), [pixels])
+        assert owner_tb[pixels] != ''
+
+        other_tb = other_prx.getThumbnailByLongestSideSet(rint(16), [pixels])
+        assert other_tb[pixels] != ''
+
+        # After thumbnailing there should be no rendering settings
+        assert_exists(True, False)
+
+    def test12145ShareSettingsThumbsReadOnly(self):
+        """
+        Rendering settings should be shared when possible.
+        Rather than regenerating the min/max per viewer,
+        these should be used unless requested otherwise.
+        """
+        group = self.new_group(perms="rwr---")
+        groupOwner = self.new_user(group=group, admin=True)
+        owner = self.new_client(group=group)
+        other = self.new_client(user=groupOwner, group=group)
 
         def assert_exists(for_owner, for_other):
             for sf, exists in ((owner.sf, for_owner), (other.sf, for_other)):
@@ -300,7 +339,7 @@ class TestThumbnailPerms(lib.ITest):
         Rather than regenerating the min/max per viewer,
         these should be used unless requested otherwise.
         """
-        group = self.new_group(perms="rwr---")
+        group = self.new_group(perms="rwra--")
         owner = self.new_client(group=group)
         other = self.new_client(group=group)
 
