@@ -378,10 +378,14 @@ def screen_plate_well_show_request(
     plate, = screen_plate_well.linkedPlateList()
     well, = plate.copyWells()
     as_string = 'well-%d' % well.id.val
-    initially_select = ['well-%d' % well.id.val]
+    initially_select = [
+        'plate-%d' % plate.id.val,
+        'well-%d' % well.id.val
+    ]
     initially_open = [
         'screen-%d' % screen_plate_well.id.val,
-        'plate-%d' % plate.id.val
+        'plate-%d' % plate.id.val,
+        'well-%d' % well.id.val
     ]
     return {
         'request': request_factory.get(path, data={'show': as_string}),
@@ -402,11 +406,15 @@ def screen_plate_run_well_show_request(
     ws, = well.copyWellSamples()
     plate_acquisition = ws.plateAcquisition
     as_string = 'well-%d' % well.id.val
-    initially_select = ['well-%d' % well.id.val]
+    initially_select = [
+        'acquisition-%d' % plate_acquisition.id.val,
+        'well-%d' % well.id.val
+    ]
     initially_open = [
         'screen-%d' % screen_plate_run_well.id.val,
         'plate-%d' % plate.id.val,
-        'acquisition-%d' % plate_acquisition.id.val
+        'acquisition-%d' % plate_acquisition.id.val,
+        'well-%d' % well.id.val
     ]
     return {
         'request': request_factory.get(path, data={'show': as_string}),
@@ -493,10 +501,14 @@ def well_by_name_path_request(
     plate, = screen_plate_well.linkedPlateList()
     well, = plate.copyWells()
     as_string = 'plate.name=%s|well.name=%s' % (plate.name.val, request.param)
-    initially_select = ['well-%d' % well.id.val]
+    initially_select = [
+        'plate-%d' % plate.id.val,
+        'well-%d' % well.id.val
+    ]
     initially_open = [
         'screen-%d' % screen_plate_well.id.val,
-        'plate-%d' % plate.id.val
+        'plate-%d' % plate.id.val,
+        'well-%d' % well.id.val
     ]
     return {
         'request': request_factory.get(path, data={'path': as_string}),
@@ -518,11 +530,15 @@ def screen_plate_run_well_by_name_path_request(
     ws, = well.copyWellSamples()
     plate_acquisition = ws.plateAcquisition
     as_string = 'plate.name=%s|well.name=%s' % (plate.name.val, request.param)
-    initially_select = ['well-%d' % well.id.val]
+    initially_select = [
+        'acquisition-%d' % plate_acquisition.id.val,
+        'well-%d' % well.id.val
+    ]
     initially_open = [
         'screen-%d' % screen_plate_run_well.id.val,
         'plate-%d' % plate.id.val,
-        'acquisition-%d' % plate_acquisition.id.val
+        'acquisition-%d' % plate_acquisition.id.val,
+        'well-%d' % well.id.val
     ]
     return {
         'request': request_factory.get(path, data={'path': as_string}),
@@ -717,7 +733,8 @@ class TestShow(object):
         assert show.initially_open_owner == \
             plate.details.owner.id.val
         assert show._first_selected == first_selected
-        assert show.initially_select == ['plate-%d' % plate.id.val]
+        assert show.initially_select == \
+            screen_plate_well_show_request['initially_select']
 
     def test_screen_plate_run_well_show(
             self, conn, screen_plate_run_well_show_request,
@@ -741,7 +758,7 @@ class TestShow(object):
             plate_acquisition.details.owner.id.val
         assert show._first_selected == first_selected
         assert show.initially_select == \
-            ['acquisition-%d' % plate_acquisition.id.val]
+            screen_plate_run_well_show_request['initially_select']
 
     def test_project_dataset_image_show(
             self, conn, project_dataset_image_show_request,
@@ -829,7 +846,8 @@ class TestShow(object):
         assert show.initially_open_owner == \
             plate.details.owner.id.val
         assert show._first_selected == first_selected
-        assert show.initially_select == ['plate-%d' % plate.id.val]
+        assert show.initially_select == \
+            well_by_name_path_request['initially_select']
 
     def test_screen_plate_run_well_by_name(
             self, conn, screen_plate_run_well_by_name_path_request,
@@ -855,4 +873,4 @@ class TestShow(object):
             plate_acquisition.details.owner.id.val
         assert show._first_selected == first_selected
         assert show.initially_select == \
-            ['acquisition-%d' % plate_acquisition.id.val]
+            screen_plate_run_well_by_name_path_request['initially_select']

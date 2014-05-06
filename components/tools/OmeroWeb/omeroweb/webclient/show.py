@@ -244,10 +244,11 @@ class Show(object):
                 # No PlateAcquisition for this well, use Plate instead
                 parent_node = first_selected.getParent()
                 parent_type = "plate"
-            first_selected = parent_node
             self._initially_open = [
-                "%s-%s" % (parent_type, parent_node.getId())
+                "%s-%s" % (parent_type, parent_node.getId()),
+                "%s-%s" % (first_obj, first_selected.getId())
             ]
+            first_selected = parent_node
         else:
             self._initially_open = [
                 '%s-%s' % (first_obj, first_selected.getId())
