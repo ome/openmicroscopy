@@ -209,7 +209,9 @@ class Show(object):
 
     def _load_first_selected(self, first_obj, attributes):
         """
-        Loads the first selected object from the server.
+        Loads the first selected object from the server.  Will raise
+        L{IncorrectMenuError} if the initialized menu was incorrect for
+        the loaded objects.
 
         @param first_obj Type of the first selected object.
         @type first_obj String
@@ -307,6 +309,8 @@ class Show(object):
         Retrieves the first selected object.  The first time this method is
         invoked on the instance the actual retrieval is performed.  All other
         invocations retrieve the same instance without server interaction.
+        Will raise L{IncorrectMenuError} if the initialized menu was
+        incorrect for the loaded objects.
         """
         if self._first_selected is None:
             self._first_selected = self._find_first_selected()
