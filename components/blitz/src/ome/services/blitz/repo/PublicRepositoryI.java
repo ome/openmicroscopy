@@ -81,7 +81,6 @@ import omero.InternalException;
 import omero.RLong;
 import omero.RMap;
 import omero.RType;
-import omero.ResourceError;
 import omero.SecurityViolation;
 import omero.ServerError;
 import omero.ValidationException;
@@ -127,6 +126,12 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
         }
 
     }
+
+    /** key for finding the real event context */
+    static final String SUDO_REAL_SESSIONUUID = "omero.internal.real:" + omero.constants.SESSIONUUID.value;
+
+    /** key for finding the real event principal */
+    static final String SUDO_REAL_GROUP = "omero.internal.real:" + omero.constants.GROUP.value;
 
     private final static Logger log = LoggerFactory.getLogger(PublicRepositoryI.class);
 
@@ -558,6 +563,8 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
     protected Current sudo(Current current, String sessionUuid) {
         final Current sudoCurrent =  makeAdjustedCurrent(current);
         sudoCurrent.ctx = new HashMap<String, String>(current.ctx);
+        sudoCurrent.ctx.put(SUDO_REAL_SESSIONUUID, current.ctx.get(omero.constants.SESSIONUUID.value));
+        sudoCurrent.ctx.put(SUDO_REAL_GROUP, current.ctx.get(omero.constants.GROUP.value));
         sudoCurrent.ctx.put(omero.constants.SESSIONUUID.value, sessionUuid);
         return sudoCurrent;
     }
@@ -684,7 +691,8 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
     }
 
     public void makeDir(CheckedPath checked, boolean parents,
-            Session s, ServiceFactory sf, SqlAction sql) throws ServerError {
+            Session s, ServiceFactory sf, SqlAction sql,
+            ome.system.EventContext effectiveEventContext) throws ServerError {
 
         final LinkedList<CheckedPath> paths = new LinkedList<CheckedPath>();
         while (!checked.isRoot) {
@@ -704,7 +712,7 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
             }
         }
 
-        makeCheckedDirs(paths, parents, s, sf, sql);
+        makeCheckedDirs(paths, parents, s, sf, sql, effectiveEventContext);
 
     }
 
@@ -718,9 +726,8 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
      * @param __current
      */
     protected void makeCheckedDirs(final LinkedList<CheckedPath> paths,
-            boolean parents, Session s, ServiceFactory sf, SqlAction sql)
-                    throws ResourceError,
-            ServerError {
+            boolean parents, Session s, ServiceFactory sf, SqlAction sql,
+            ome.system.EventContext effectiveEventContext) throws ServerError {
 
         CheckedPath checked;
 
