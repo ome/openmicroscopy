@@ -111,23 +111,35 @@ class TestShow(object):
         assert show.initially_select == list(show_request['initially_select'])
         assert show._first_selected is None
 
-    def test_path_regex_no_key(self, project_path):
+    def test_path_regex_single_no_key(self, project_path):
         m = Show.PATH_REGEX.match(project_path)
         assert m.group('object_type') == 'project'
         assert m.group('key') is None
         assert m.group('value') == '1'
 
-    def test_path_regex_key(self, project_path_key):
+    def test_path_regex_single_key(self, project_path_key):
         m = Show.PATH_REGEX.match(project_path_key)
         assert m.group('object_type') == 'project'
         assert m.group('key') == 'name'
         assert m.group('value') == 'the_name'
 
-    def test_path_regex_name_includes_separator(self):
+    def test_path_regex_single_name_includes_separator(self):
         m = Show.PATH_REGEX.match('project.name-blah-blah-blah')
         assert m.group('object_type') == 'project'
         assert m.group('key') == 'name'
         assert m.group('value') == 'blah-blah-blah'
+
+    def test_path_regex_multiple(self, project_path_key):
+        matches = Show.PATH_REGEX.finditer(
+            '%s|%s' % (project_path_key, project_path_key)
+        )
+        count = 0
+        for m in matches:
+            assert m.group('object_type') == 'project'
+            assert m.group('key') == 'name'
+            assert m.group('value') == 'the_name'
+            count += 1
+        assert count == 2
 
     def test_well_regex_alpha_digit(self):
         m = Show.WELL_REGEX.match('A1')
