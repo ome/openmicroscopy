@@ -395,7 +395,7 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id, me) {
         if (title) {
             html += " title='" + title.replace(/'/g, "&#39;") + "'";
         }
-        html += ">" + text + "</div>";
+        html += ">" + encode_html(text) + "</div>";
         return html;
     };
 
