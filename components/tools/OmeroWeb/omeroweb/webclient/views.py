@@ -463,10 +463,27 @@ def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_ty
                     form_well_index = WellIndexForm(initial={'index':index, 'range':fields})
                     if index == 0:
                         index = fields[0]
-                show = request.REQUEST.get('show', None)
-                if show is not None:
-                    select_wells = [w.split("-")[1] for w in show.split("|") if w.startswith("well-")]
-                    context['select_wells'] = ",".join(select_wells)
+
+                # We don't know what our menu is so we're setting it to None.
+                # Should only raise an exception below if we've been asked to
+                # show some tags which we don't care about anyway in this
+                # context.
+                show = Show(conn, request, None)
+                # Constructor does no loading.  Show.first_selected must be
+                # called first in order to set up our initial state correctly.
+                try:
+                    first_selected = show.first_selected
+                    if first_selected is not None:
+                        wells_to_select = list()
+                        paths = show.initially_open + show.initially_select
+                        for path in paths:
+                            m = Show.PATH_REGEX.match(path)
+                            if m.group('object_type') == 'well':
+                                wells_to_select.append(m.group('value'))
+                        context['select_wells'] = ','.join(wells_to_select)
+                except IncorrectMenuError, e:
+                    pass
+
                 context['baseurl'] = reverse('webgateway').rstrip('/')
                 context['form_well_index'] = form_well_index
                 template = "webclient/data/plate.html"
