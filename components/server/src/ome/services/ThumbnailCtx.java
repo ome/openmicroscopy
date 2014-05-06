@@ -686,7 +686,9 @@ public class ThumbnailCtx
                             "not exist or the user id:%d has insufficient " +
                             "permissions to retrieve it.", pixelsId, userId));
                 }
-                if (pixelsOwner != userId)
+                if (pixelsOwner != userId &&
+                        !(ec.getLeaderOfGroupsList().contains(userId) ||
+                                ec.isCurrentUserAdmin()))
                 {
                     return true;
                 }
