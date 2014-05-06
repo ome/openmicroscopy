@@ -632,8 +632,13 @@ public class CommandLineImporter {
                 break;
             }
             case 'r': {
+                String screenString = g.getOptarg();
+                if (screenString.startsWith("Screen:")) {
+                    screenString = screenString.substring(
+                            "Screen:".length());
+                }
+                config.targetId.set(Long.parseLong(screenString));
                 config.targetClass.set(Screen.class.getName());
-                config.targetId.set(Long.parseLong(g.getOptarg()));
                 break;
             }
             case 'n': {
