@@ -258,15 +258,21 @@ class TestThumbnailPerms(lib.ITest):
         these should be used unless requested otherwise.
         """
         group = self.new_group(perms="rwra--")
-        owner = self.new_client(group=group)
-        other = self.new_client(group=group)
+        owner1 = self.new_user(group=group, admin=True)
+        other1 = self.new_user(group=group)
+        owner = self.new_client(user=owner1, group=group)
+        other = self.new_client(user=other1, group=group)
 
         def assert_exists(for_owner, for_other):
             for sf, exists in ((owner.sf, for_owner), (other.sf, for_other)):
                 if exists:
-                    assert sf.getPixelsService().retrieveRndSettings(pixels)
+                    id = sf.getAdminService().getEventContext().userId
+                    rnd = sf.getPixelsService().retrieveRndSettingsFor(pixels, id)
+                    assert rnd is not None
                 else:
-                    assert not sf.getPixelsService().retrieveRndSettings(pixels)
+                    id = sf.getAdminService().getEventContext().userId
+                    rnd = sf.getPixelsService().retrieveRndSettingsFor(pixels, id)
+                    assert rnd is None
 
         # creation generates a first rendering image
         image = self.createTestImage(session=owner.sf)
