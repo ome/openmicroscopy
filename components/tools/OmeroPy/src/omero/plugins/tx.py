@@ -285,7 +285,7 @@ Bash examples:
             "Class", nargs="?",
             help="OMERO model object name, e.g. Project")
         parser.add_argument(
-            "fields", nargs="+",
+            "fields", nargs="*",
             help="fields to be set, e.g. name=foo")
         parser.set_defaults(func=self.process)
 
