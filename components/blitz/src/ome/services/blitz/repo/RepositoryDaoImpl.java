@@ -661,14 +661,40 @@ public class RepositoryDaoImpl implements RepositoryDao {
             final boolean parents,
             final Ice.Current __current) throws ServerError {
         try {
+            /* first check for sudo to find real user's event context */
+            final EventContext effectiveEventContext;
+            final String realSessionUuid = __current.ctx.get(PublicRepositoryI.SUDO_REAL_SESSIONUUID);
+            if (realSessionUuid != null) {
+                final String realGroup = __current.ctx.get(PublicRepositoryI.SUDO_REAL_GROUP);
+                final Principal realPrincipal = new Principal(realSessionUuid, realGroup, null);
+                final Map<String, String> realCtx = new HashMap<String, String>(__current.ctx);
+                realCtx.put(omero.constants.SESSIONUUID.value, realSessionUuid);
+                effectiveEventContext = (EventContext) executor.execute(realCtx, realPrincipal,
+                        new Executor.SimpleWork(this, "makeDirs", dirs) {
+                    @Transactional(readOnly = true)
+                    public Object doWork(Session session, ServiceFactory sf) {
+                        return ((LocalAdmin) sf.getAdminService()).getEventContextQuiet();
+                    }
+                });
+            } else {
+                effectiveEventContext = null;
+            }
+            /* now actually make the directories */
             executor.execute(__current.ctx, currentUser(__current),
                 new Executor.SimpleWork(this, "makeDirs", dirs) {
             @Transactional(readOnly = false)
             public Object doWork(Session session, ServiceFactory sf) {
+                final ome.system.EventContext eventContext;
+                if (effectiveEventContext == null) {
+                    eventContext =
+                        ((LocalAdmin) sf.getAdminService()).getEventContextQuiet();
+                } else {
+                    eventContext = effectiveEventContext;  /* sudo */
+                }
                 for (CheckedPath checked : dirs) {
                     try {
                         repo.makeDir(checked, parents,
-                            session, sf, getSqlAction());
+                            session, sf, getSqlAction(), eventContext);
                     } catch (ServerError se) {
                         throw new Rethrow(se);
                     }

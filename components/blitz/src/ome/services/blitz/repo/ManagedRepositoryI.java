@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -33,7 +34,6 @@ import java.util.Set;
 
 import loci.formats.FormatReader;
 
-import ome.api.local.LocalAdmin;
 import ome.formats.importer.ImportConfig;
 import ome.formats.importer.ImportContainer;
 import ome.model.core.OriginalFile;
@@ -49,6 +49,7 @@ import ome.util.SqlAction;
 import ome.util.checksum.ChecksumProviderFactory;
 import ome.util.checksum.ChecksumProviderFactoryImpl;
 import omero.RString;
+import omero.ApiUsageException;
 import omero.ResourceError;
 import omero.ServerError;
 import omero.grid.ImportLocation;
@@ -82,6 +83,7 @@ import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 import Ice.Current;
 
@@ -163,6 +165,33 @@ public class ManagedRepositoryI extends PublicRepositoryI
         return new _ManagedRepositoryTie(this);
     }
 
+    /**
+     * Split a template path into the root- and user-owned segments
+     * @param templatePath a template path
+     * @return the root- and user-owned segments
+     * @throws ApiUsageException if there is not a <q>//</q> with directories on each side
+     */
+    private static Map.Entry<FsFile, FsFile> splitPath(String templatePath) throws ApiUsageException {
+        final int splitPoint = templatePath.lastIndexOf("//");
+        if (splitPoint < 0) {
+            throw new omero.ApiUsageException(null, null, "must separate root- and user-owned directories using //");
+        }
+
+        final FsFile rootPath = new FsFile(templatePath.substring(0, splitPoint));
+        if (FsFile.emptyPath.equals(rootPath)) {
+            throw new omero.ApiUsageException(null, null,
+                    "no root-owned directories in managed repository template path");
+        }
+
+        final FsFile userPath = new FsFile(templatePath.substring(splitPoint));
+        if (FsFile.emptyPath.equals(userPath)) {
+            throw new omero.ApiUsageException(null, null,
+                    "no user-owned directories in managed repository template path");
+        }
+
+        return Maps.immutableEntry(rootPath, userPath);
+    }
+
     //
     // INTERFACE METHODS
     //
@@ -194,21 +223,14 @@ public class ManagedRepositoryI extends PublicRepositoryI
         // ManagedRepository/, e.g. %user%/%year%/etc.
         final EventContext ec = repositoryDao.getEventContext(__current);
         final String templatePath = expandTemplate(template, ec);
-        // check for the // split between root- and user-owned directories
-        final FsFile rootPath, userPath;
-        final int splitPoint = templatePath.lastIndexOf("//");
-        if (splitPoint < 0) {
-            rootPath = new FsFile();
-            userPath = new FsFile(templatePath);
-        } else {
-            rootPath = new FsFile(templatePath.substring(0, splitPoint));
-            userPath = new FsFile(templatePath.substring(splitPoint));
-        }
+        final Map.Entry<FsFile, FsFile> pathSegments = splitPath(templatePath);
+        final FsFile rootOwnedPath = pathSegments.getKey();
+        final FsFile userOwnedPath = pathSegments.getValue();
 
         // at this point, the template path should not yet exist on the filesystem
-        createTemplateDir(rootPath, userPath, __current);
+        createTemplateDir(rootOwnedPath, userOwnedPath, __current);
 
-        final FsFile relPath = FsFile.concatenate(rootPath, userPath);
+        final FsFile relPath = FsFile.concatenate(rootOwnedPath, userOwnedPath);
         fs.setTemplatePrefix(rstring(relPath.toString() + FsFile.separatorChar));
 
         final Class<? extends FormatReader> readerClass = getReaderClass(fs, __current);
@@ -491,24 +513,19 @@ public class ManagedRepositoryI extends PublicRepositoryI
      * starting at the top, until all the directories have been created.
      * The full path must not already exist, although a prefix of it may.
      */
-    protected void createTemplateDir(FsFile rootPath, FsFile userPath, Ice.Current curr) throws ServerError {
-        if (FsFile.emptyPath.equals(userPath)) {
-            throw new omero.ApiUsageException(null, null,
-                    "no user-owned directories in managed repository template path");
+    protected void createTemplateDir(FsFile rootOwnedPath, FsFile userOwnedPath, Ice.Current curr) throws ServerError {
+        final Current rootCurr = sudo(curr, rootSessionUuid);
+        rootCurr.ctx.put(omero.constants.GROUP.value, Long.toString(userGroupId));
+        makeDir(rootOwnedPath.toString(), true, rootCurr);
+
+        final FsFile relPath = FsFile.concatenate(rootOwnedPath, userOwnedPath);
+
+        if (userOwnedPath.getComponents().size() > 1) {
+            final int relPathSize = relPath.getComponents().size();
+            final List<String> relPathPrefix = relPath.getComponents().subList(0, relPathSize - 1);
+            makeDir(new FsFile(relPathPrefix).toString(), true, curr);
         }
-        final boolean makeUserParents = userPath.getComponents().size() > 1;
-        if (!FsFile.emptyPath.equals(rootPath)) {
-            final Current rootCurr = sudo(curr, rootSessionUuid);
-            rootCurr.ctx.put(omero.constants.GROUP.value, Long.toString(userGroupId));
-            makeDir(rootPath.toString(), true, rootCurr);
-            userPath = FsFile.concatenate(rootPath, userPath);
-        }
-        if (makeUserParents) {
-            final int fullPathSize = userPath.getComponents().size();
-            final List<String> userPathPrefix = userPath.getComponents().subList(0, fullPathSize - 1);
-            makeDir(new FsFile(userPathPrefix).toString(), true, curr);
-        }
-        makeDir(userPath.toString(), false, curr);
+        makeDir(relPath.toString(), false, curr);
     }
 
     /** Return value for {@link #trimPaths}. */
@@ -638,24 +655,35 @@ public class ManagedRepositoryI extends PublicRepositoryI
     }
 
     /**
+     * @param x a collection of items, not {@code null}
+     * @param y a collection of items, not {@code null}
+     * @return if the collections have the same items in the same order, or if one is a prefix of the other
+     */
+    private static boolean isConsistentPrefixes(Iterable<?> x, Iterable<?> y) {
+        final Iterator<?> xIterator = x.iterator();
+        final Iterator<?> yIterator = y.iterator();
+        while (xIterator.hasNext() && yIterator.hasNext()) {
+            if (!xIterator.next().equals(yIterator.next())) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
      * Checks for the top-level user directory restriction before calling
      * {@link PublicRepositoryI#makeCheckedDirs(LinkedList<CheckedPath>, boolean, Current)}
      */
+    @Override
     protected void makeCheckedDirs(final LinkedList<CheckedPath> paths,
-            boolean parents, Session s, ServiceFactory sf, SqlAction sql)
-                    throws ResourceError, ServerError {
+            boolean parents, Session s, ServiceFactory sf, SqlAction sql,
+            ome.system.EventContext effectiveEventContext) throws ServerError {
 
-        final ome.system.EventContext _ec
-            = ((LocalAdmin) sf.getAdminService()).getEventContextQuiet();
-        final EventContext ec = IceMapper.convert(_ec);
+        final EventContext ec = IceMapper.convert(effectiveEventContext);
         final String expanded = expandTemplate(template, ec);
-        final FsFile asfsfile = new FsFile(expanded);
-        final List<String> components = asfsfile.getComponents();
+        final FsFile rootOwnedPath = splitPath(expanded).getKey();
         final List<CheckedPath> pathsToFix = new ArrayList<CheckedPath>();
 
-        // hard-coded assumptions: the first element of the template must match
-        // user_id and the last is unique in someway (and therefore won't be
-        // handled specially.
         for (int i = 0; i < paths.size(); i++) {
 
             CheckedPath checked = paths.get(i);
@@ -663,26 +691,22 @@ public class ManagedRepositoryI extends PublicRepositoryI
                 // This shouldn't happen but just in case.
                 throw new ResourceError(null, null, "Cannot re-create root!");
             }
-            
-            if (i>0 && i>(components.size()-1)) {
-                // we always check at least one path element, but after that
-                // we only need to check as far as one less than the size of
-                // the template
-                break;
+
+            /* check that the path is consistent with the root-owned template path directories */
+            if (!isConsistentPrefixes(rootOwnedPath.getComponents(), checked.fsFile.getComponents())) {
+                throw new omero.ValidationException(null, null,
+                        "cannot create directory \"" + checked.fsFile
+                        + "\" with template path's root-owned \"" + rootOwnedPath + "\"");
             }
 
             pathsToFix.add(checked);
         }
         
-        super.makeCheckedDirs(paths, parents, s, sf, sql);
+        super.makeCheckedDirs(paths, parents, s, sf, sql, effectiveEventContext);
         
         // Now that we know that these are the right directories for
         // the current user, we make sure that the directories are in
         // the user group.
         repositoryDao.createOrFixUserDir(getRepoUuid(), pathsToFix, s, sf, sql);
-    }
-
-    protected String getUserDirectoryName(EventContext ec) {
-        return String.format("%s_%s", ec.userName, ec.userId);
     }
 }
