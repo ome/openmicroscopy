@@ -300,9 +300,75 @@ class TestThumbnailPerms(lib.ITest):
         Rather than regenerating the min/max per viewer,
         these should be used unless requested otherwise.
         """
-        group = self.new_group(perms="rwra--")
+        group = self.new_group(perms="rwr---")
         owner = self.new_client(group=group)
         other = self.new_client(group=group)
+
+        # creation generates a first rendering image
+        image = self.createTestImage(session=owner.sf)
+        pixels = image.getPrimaryPixels().getId().getValue()
+
+        def assert_rdef(sf=None, prx=None):
+            if prx is None:
+                prx = sf.createRenderingEngine()
+            prx.lookupPixels(pixels)
+            assert prx.lookupRenderingDef(pixels)
+            return prx, prx.getRenderingDefId()
+
+        # The owner has a rdef, and other
+        # users see the same value
+        a_prx, a_rdef = assert_rdef(owner.sf)
+        b_prx, b_rdef = assert_rdef(other.sf)
+        assert a_rdef == b_rdef
+
+        if method == "saveCurrent":
+            # If the other users try to save with
+            # that prx though, they'll create a new rdef
+            b_prx.saveCurrentSettings()
+            c_rdef = b_prx.getRenderingDefId()
+            assert c_rdef != b_rdef
+
+        elif method == "saveAs":
+            # But other users can create new rdefs
+            # with new ids using the new method
+            try:
+                c_rdef = b_prx.saveAsNewSettings()
+                ignore, d_rdef = assert_rdef(prx=b_prx)
+                assert a_rdef != c_rdef
+                assert c_rdef == d_rdef
+            except Ice.OperationNotExistException:
+                # Not supported by this server
+                pass
+
+        elif method == "request":
+            # If a user explicitly requests a rdef
+            # then it will *not* saveAs and the rdefs
+            # should match.
+            b_prx.loadRenderingDef(b_rdef)
+            try:
+                b_prx.saveCurrentSettings()
+            except omero.SecurityViolation:
+                pass  # You can't do this!
+            c_rdef = b_prx.getRenderingDefId()
+            assert c_rdef == b_rdef
+
+        # But they won't have a thumbnail generated
+        tb = other.sf.createThumbnailStore()
+        tb.setPixelsId(pixels)
+        tb.setRenderingDefId(c_rdef)
+        assert not tb.thumbnailExists(rint(96), rint(96))
+    
+    @pytest.mark.parametrize("method", ("saveCurrent", "saveAs", "request"))
+    def test12145ShareSettingsRndReadOnly(self, method):
+        """
+        Rendering settings should be shared when possible.
+        Rather than regenerating the min/max per viewer,
+        these should be used unless requested otherwise.
+        """
+        group = self.new_group(perms="rwr---")
+        groupOwner = self.new_user(group=group, admin=True)
+        owner = self.new_client(group=group)
+        other = self.new_client(user=groupOwner, group=group)
 
         # creation generates a first rendering image
         image = self.createTestImage(session=owner.sf)
