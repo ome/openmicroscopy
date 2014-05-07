@@ -1299,14 +1299,7 @@ class TreeViewerComponent
 		if (display != null) {
 			Object object = display.getUserObject();
 			metadata.setSelectionMode(single);
-			if (!single) {
-				List<Object> l = new ArrayList<Object>(selection.length);
-				for (int i = 0; i < selection.length; i++) {
-					l.add(selection[i].getUserObject());
-				}
-				if (l.size() > 0)
-					metadata.setRelatedNodes(l);
-			} else {
+			if (single) {
 				ExperimenterData exp = browser.getNodeOwner(display);
 				if (exp == null) exp = model.getUserDetails();
 				// setRootObject relies on selection mode set above
