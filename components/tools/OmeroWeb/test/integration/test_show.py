@@ -874,7 +874,6 @@ class TestShow(object):
         self.assert_instantiation(show, well_by_name_path_request, conn)
 
         plate, = screen_plate_well.linkedPlateList()
-        well = plate.copyWells()
         first_selected = show.first_selected
         assert first_selected is not None
         assert isinstance(first_selected, PlateWrapper)
