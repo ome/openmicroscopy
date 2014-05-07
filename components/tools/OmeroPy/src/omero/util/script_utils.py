@@ -1100,9 +1100,8 @@ def parseInputs(client, session, processFn=IdentityFn):
     inputKeys = client.getInputKeys();
     commandArgs = {};
     for key in inputKeys:
-        commandArgs[key]=client.getInput(key).getValue();
+        commandArgs[key] = unwrap(client.getInput(key));
     return processFn(commandArgs);
-
 
 def getROIFromImage(iROIService, imageId, namespace=None):
     """
