@@ -397,16 +397,18 @@ CREATE VIEW count_shape_annotationlinks_by_owner (shape_id, owner_id, count)
     FROM shapeannotationlink GROUP BY parent, owner_id ORDER BY parent;
 
 INSERT INTO imageannotationlink (id, permissions, version, child, creation_id, external_id, group_id, owner_id, update_id, parent)
-    SELECT ome_nextval('seq_imageannotationlink'), permissions, version, child, creation_id, external_id, group_id, owner_id, update_id, parent
-    FROM pixelsannotationlink;
+    SELECT ome_nextval('seq_imageannotationlink'), pal.permissions, pal.version, pal.child, pal.creation_id, pal.external_id, pal.group_id, pal.owner_id, pal.update_id, pixels.image
+    FROM pixelsannotationlink pal, pixels
+    WHERE pal.parent = pixels.id;
 
 DROP VIEW count_Pixels_annotationLinks_by_owner;
 DROP SEQUENCE seq_pixelsannotationlink;
 DROP TABLE pixelsannotationlink;
 
 INSERT INTO imageannotationlink (id, permissions, version, child, creation_id, external_id, group_id, owner_id, update_id, parent)
-    SELECT ome_nextval('seq_imageannotationlink'), permissions, version, child, creation_id, external_id, group_id, owner_id, update_id, parent
-    FROM wellsampleannotationlink;
+    SELECT ome_nextval('seq_imageannotationlink'), wsl.permissions, wsl.version, wsl.child, wsl.creation_id, wsl.external_id, wsl.group_id, wsl.owner_id, wsl.update_id, wellsample.image
+    FROM wellsampleannotationlink wsl, wellsample
+    WHERE wsl.parent = wellsample.id;
 
 DROP VIEW count_WellSample_annotationLinks_by_owner;
 DROP SEQUENCE seq_wellsampleannotationlink;
