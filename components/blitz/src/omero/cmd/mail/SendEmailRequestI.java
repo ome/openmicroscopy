@@ -31,7 +31,6 @@ import omero.cmd.Response;
 import omero.cmd.SendEmailRequest;
 import omero.cmd.SendEmailResponse;
 import ome.model.meta.Experimenter;
-import ome.model.meta.ExperimenterGroup;
 
 
 /**
@@ -49,6 +48,8 @@ public class SendEmailRequestI extends SendEmailRequest implements
 
 	private final SendEmailResponse rsp = new SendEmailResponse();
 
+	private String [] receipients = null;
+	
 	protected final JavaMailSender mailSender;
     
 	private Helper helper;
@@ -70,12 +71,13 @@ public class SendEmailRequestI extends SendEmailRequest implements
 
 	public void init(Helper helper) {
 		this.helper = helper;
-		this.helper.setSteps(1);
+		this.receipients = parseReceipients();
+		this.helper.setSteps(this.receipients.length);
 	}
 
 	public Object step(int step) {
 		helper.assertStep(step);
-		sendEmail(parseReceipients());
+		sendEmail(this.receipients[step]);
 		return null;
 	}
 
@@ -95,7 +97,7 @@ public class SendEmailRequestI extends SendEmailRequest implements
 		return helper.getResponse();
 	}
 	
-	private Set<String> parseReceipients(){
+	private String [] parseReceipients(){
 		
 		IQuery iquery = helper.getServiceFactory().getQueryService();
 		List<Experimenter> exps =  iquery.findAllByQuery(
@@ -111,28 +113,24 @@ public class SendEmailRequestI extends SendEmailRequest implements
 				receipients.add(e.getEmail());
 			}
 		}		
-		return receipients;
+		return receipients.toArray(new String[receipients.size()]);
 	}
 	
-	private void sendEmail(Set<String> receipiest) {
-		for (final String r : receipiest) {
-			if (r != null) {
-				MimeMessagePreparator preparator = new MimeMessagePreparator() {
-					public void prepare(MimeMessage mimeMessage) throws Exception {
-						MimeMessageHelper message = new MimeMessageHelper(mimeMessage);
-						message.setFrom(new InternetAddress(
-								helper.getServiceFactory().getConfigService().getConfigValue("omero.mail.from")));
-						message.setSubject(subject);
-						message.setTo(r);
-						message.setText(body, true);
-					}
-				};
-				try {
-					this.mailSender.send(preparator);
-				} catch (Exception ex) {
-					log.error( ex.getMessage());
-				}
+	private void sendEmail(final String receipiest) {
+		MimeMessagePreparator preparator = new MimeMessagePreparator() {
+			public void prepare(MimeMessage mimeMessage) throws Exception {
+				MimeMessageHelper message = new MimeMessageHelper(mimeMessage);
+				message.setFrom(new InternetAddress(
+						helper.getServiceFactory().getConfigService().getConfigValue("omero.mail.from")));
+				message.setSubject(subject);
+				message.setTo(receipiest);
+				message.setText(body, true);
 			}
+		};
+		try {
+			this.mailSender.send(preparator);
+		} catch (Exception ex) {
+			log.error( ex.getMessage());
 		}
 	}
 }
