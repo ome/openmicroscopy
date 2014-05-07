@@ -772,6 +772,108 @@ class OmeroMetadataServiceImpl
 	}
 
 	/**
+	 * Organizes the results and load more annotation is required.
+	 *
+	 * @param ctx The security context.
+	 * @param userID The user of reference.
+	 * @param annotations The collections of annotations for that object.
+	 * @param results Placeholder for the results.
+	 * @throws DSOutOfServiceException
+	 * @throws DSAccessException
+	 */
+    private void loadStructuredData(SecurityContext ctx,
+            long userID, Collection annotations, StructuredDataResults results)
+        throws DSOutOfServiceException, DSAccessException
+    {
+        Object object = results.getRelatedObject();
+        if (CollectionUtils.isNotEmpty(annotations)) {
+            List<TextualAnnotationData> 
+                texts = new ArrayList<TextualAnnotationData>();
+            List<TagAnnotationData> tags = new ArrayList<TagAnnotationData>();
+            List<TermAnnotationData> 
+            terms = new ArrayList<TermAnnotationData>();
+            List<FileAnnotationData> 
+            attachments = new ArrayList<FileAnnotationData>();
+            List<RatingAnnotationData> 
+            ratings = new ArrayList<RatingAnnotationData>();
+            List<XMLAnnotationData> 
+            xml = new ArrayList<XMLAnnotationData>();
+            
+            List<AnnotationData> 
+            other = new ArrayList<AnnotationData>();
+            
+            Iterator i = annotations.iterator();
+            AnnotationData data;
+            BooleanAnnotationData b;
+            Map<Long, AnnotationData> map = new HashMap<Long, AnnotationData>();
+            //Check link when not owner 
+            List<Long> annotationIds = new ArrayList<Long>();
+            while (i.hasNext()) {
+                data = (AnnotationData) i.next();
+                if (data instanceof TermAnnotationData) {
+                    annotationIds.add(data.getId());
+                    terms.add((TermAnnotationData) data);
+                } else if (data instanceof TextualAnnotationData)
+                    texts.add((TextualAnnotationData) data);
+                else if (data instanceof TagAnnotationData) {
+                    annotationIds.add(data.getId());
+                    map.put(data.getId(), data);
+                    tags.add((TagAnnotationData) data);
+                } else if (data instanceof RatingAnnotationData)
+                    ratings.add((RatingAnnotationData) data);
+                else if (data instanceof FileAnnotationData) {
+                    annotationIds.add(data.getId());
+                    map.put(data.getId(), data);
+                    attachments.add((FileAnnotationData) data);
+                } else if (data instanceof XMLAnnotationData) {
+                    annotationIds.add(data.getId());
+                    xml.add((XMLAnnotationData) data);
+                } else {
+                    annotationIds.add(data.getId());
+                    other.add(data);
+                }
+            }
+            //load the links tags and attachments
+            if (annotationIds.size() > 0 && 
+                !(object instanceof TagAnnotationData
+                    || object instanceof FileAnnotationData)) {
+                List links = gateway.findAnnotationLinks(ctx, object.getClass(),
+                        results.getObjectId(), annotationIds, -1);
+                if (links != null) {
+                    Map<DataObject, ExperimenterData>
+                        m = new HashMap<DataObject, ExperimenterData>();
+                    Iterator j = links.iterator();
+                    IObject link;
+                    DataObject d;
+                    List<AnnotationLinkData>
+                    l = new ArrayList<AnnotationLinkData>();
+                    IObject ho;
+                    while (j.hasNext()) {
+                        link = (IObject) j.next();
+                        ho = ModelMapper.getChildFromLink(link);
+                        d = PojoMapper.asDataObject(ho);
+                        l.add(new AnnotationLinkData(link, d,
+                                PojoMapper.asDataObject(
+                                        ModelMapper.getParentFromLink(link))));
+                        if (d != null)
+                            m.put(d, (ExperimenterData) PojoMapper.asDataObject(
+                                    link.getDetails().getOwner()));
+                    }
+                    results.setLinks(m);
+                    results.setAnnotationLinks(l);
+                }
+            }
+            results.setOtherAnnotation(other);
+            results.setXMLAnnotations(xml);
+            results.setTextualAnnotations(texts);
+            results.setTerms(terms);
+            results.setTags(tags);
+            results.setRatings(ratings);
+            results.setAttachments(attachments);
+        }
+    }
+    
+	/**
 	 * Implemented as specified by {@link OmeroDataService}.
 	 * @see OmeroMetadataService#loadStructuredData(SecurityContext, DataObject, long, boolean)
 	 */
@@ -787,8 +889,7 @@ class OmeroMetadataServiceImpl
 			File f = (File) object;
 			DataObject fd = gateway.loadFolder(f.getAbsolutePath());
 			//load the data object if any.
-			results = new StructuredDataResults(fd);
-			return results;
+			return new StructuredDataResults(fd);
 		} else if (object instanceof DataObject) {
 			r = (DataObject) object;
 			results = new StructuredDataResults(r);
@@ -798,91 +899,7 @@ class OmeroMetadataServiceImpl
 		
 		Collection annotations = loadStructuredAnnotations(ctx,
 				object.getClass(), r.getId(), userID);
-		if (CollectionUtils.isNotEmpty(annotations)) {
-			List<TextualAnnotationData> 
-				texts = new ArrayList<TextualAnnotationData>();
-			List<TagAnnotationData> tags = new ArrayList<TagAnnotationData>();
-			List<TermAnnotationData> 
-			terms = new ArrayList<TermAnnotationData>();
-			List<FileAnnotationData> 
-			attachments = new ArrayList<FileAnnotationData>();
-			List<RatingAnnotationData> 
-			ratings = new ArrayList<RatingAnnotationData>();
-			List<XMLAnnotationData> 
-			xml = new ArrayList<XMLAnnotationData>();
-			
-			List<AnnotationData> 
-			other = new ArrayList<AnnotationData>();
-			
-			Iterator i = annotations.iterator();
-			AnnotationData data;
-			BooleanAnnotationData b;
-			Map<Long, AnnotationData> map = new HashMap<Long, AnnotationData>();
-			//Check link when not owner 
-			List<Long> annotationIds = new ArrayList<Long>();
-			while (i.hasNext()) {
-				data = (AnnotationData) i.next();
-				if (data instanceof TermAnnotationData) {
-					annotationIds.add(data.getId());
-					terms.add((TermAnnotationData) data);
-				} else if (data instanceof TextualAnnotationData)
-					texts.add((TextualAnnotationData) data);
-				else if (data instanceof TagAnnotationData) {
-					annotationIds.add(data.getId());
-					map.put(data.getId(), data);
-					tags.add((TagAnnotationData) data);
-				} else if (data instanceof RatingAnnotationData)
-					ratings.add((RatingAnnotationData) data);
-				else if (data instanceof FileAnnotationData) {
-					annotationIds.add(data.getId());
-					map.put(data.getId(), data);
-					attachments.add((FileAnnotationData) data);
-				} else if (data instanceof XMLAnnotationData) {
-					annotationIds.add(data.getId());
-					xml.add((XMLAnnotationData) data);
-				} else {
-					annotationIds.add(data.getId());
-					other.add(data);
-				}
-			}
-			//load the links tags and attachments
-			if (annotationIds.size() > 0 && 
-				!(object instanceof TagAnnotationData
-					|| object instanceof FileAnnotationData)) {
-				List links = gateway.findAnnotationLinks(ctx, object.getClass(),
-						r.getId(), annotationIds, -1);
-				if (links != null) {
-					Map<DataObject, ExperimenterData> 
-						m = new HashMap<DataObject, ExperimenterData>();
-					Iterator j = links.iterator();
-					IObject link;
-					DataObject d;
-					List<AnnotationLinkData>
-					l = new ArrayList<AnnotationLinkData>();
-					IObject ho;
-					while (j.hasNext()) {
-						link = (IObject) j.next();
-						ho = ModelMapper.getChildFromLink(link);
-						d = PojoMapper.asDataObject(ho);
-						l.add(new AnnotationLinkData(link, d,
-								PojoMapper.asDataObject(
-										ModelMapper.getParentFromLink(link))));
-						if (d != null)
-							m.put(d, (ExperimenterData) PojoMapper.asDataObject(
-									link.getDetails().getOwner()));
-					}
-					results.setLinks(m);
-					results.setAnnotationLinks(l);
-				}
-			}
-			results.setOtherAnnotation(other);
-			results.setXMLAnnotations(xml);
-			results.setTextualAnnotations(texts);
-			results.setTerms(terms);
-			results.setTags(tags);
-			results.setRatings(ratings);
-			results.setAttachments(attachments);
-		}
+		loadStructuredData(ctx, userID, annotations, results);
 		//in-place import check
 		if (object instanceof ImageData) {
 			ImageData img = (ImageData) object;
@@ -909,17 +926,61 @@ class OmeroMetadataServiceImpl
 	{
 		if (data == null)
 			throw new IllegalArgumentException("Object not valid.");
-		
 		Map<DataObject, StructuredDataResults> 
 			results = new HashMap<DataObject, StructuredDataResults>();
 		Iterator<DataObject> i = data.iterator();
 		DataObject n;
+		List<Long> ids = new ArrayList<Long>();
+		Class<?> klass = null;
+		List<Long> fids = new ArrayList<Long>();
+		ImageData img;
 		while (i.hasNext()) {
 			n = i.next();
 			if (n != null) {
-				results.put(n, loadStructuredData(ctx, n, userID, viewed));
+			    ids.add(n.getId());
+			    if (klass == null) {
+			        klass = n.getClass();
+			    }
+			    if (n instanceof ImageData) {
+			        img = (ImageData) n;
+			        long fID = img.getFilesetId();
+			        if (fID >=0 && !fids.contains(fID)) {
+			            fids.add(fID);
+			        }
+			    }
 			}
 		}
+		Map<Long, Collection<AnnotationData>> filesetMap =
+		        new HashMap<Long, Collection<AnnotationData>>();
+		if (fids.size() > 0) {
+		    filesetMap = loadAnnotations(ctx, FilesetData.class, fids,
+                    TextualAnnotationData.class,
+                    Arrays.asList(AnnotationData.FILE_TRANSFER_NS), null);
+		}
+		//load all the annotations
+		List<Long> usersIDs = null;
+        if (userID != -1) {
+            usersIDs = new ArrayList<Long>(1);
+            usersIDs.add(userID);
+        }
+        Map map = gateway.loadAnnotations(ctx, klass, ids, null, usersIDs,
+                new Parameters());
+        //format the results
+        i = data.iterator();
+        StructuredDataResults r;
+        while (i.hasNext()) {
+            n = i.next();
+            if (n != null) {
+                r = new StructuredDataResults(n);
+                loadStructuredData(ctx, userID,
+                        (Collection) map.get(n.getId()), r);
+                results.put(n, r);
+                if (n instanceof ImageData) {
+                    img = (ImageData) n;
+                    r.setTransferlinks(filesetMap.get(img.getFilesetId()));
+                }
+            }
+        }
 		return results;
 	}
 
