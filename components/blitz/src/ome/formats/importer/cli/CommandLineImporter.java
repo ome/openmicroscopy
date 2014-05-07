@@ -317,7 +317,7 @@ public class CommandLineImporter {
             + "For additional information, see:\n"
             + "http://www.openmicroscopy.org/site/support/omero5/users/command-line-import.html\n"
             + "Report bugs to <ome-users@lists.openmicroscopy.org.uk>",
-            APP_NAME, APP_NAME, APP_NAME, APP_NAME, APP_NAME));
+            APP_NAME, APP_NAME, APP_NAME, APP_NAME, APP_NAME, APP_NAME));
         System.exit(1);
     }
 
