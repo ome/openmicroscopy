@@ -1006,8 +1006,11 @@ public class OMEROMetadataStoreClient
             return null;
         }
         try {
-            // TODO: this format should be documented in the spec.
-            // a00 a01 a02 a10 a11 a12
+            // AffineTransform from ROI.xsd:
+            // A matrix used to transform the shape.
+            // ⎡ A00, A01, A02 ⎤
+            // ⎢ A10, A11, A12 ⎥
+            // ⎣ 0,   0,   1   ⎦
             String a00 = value.getA00().toString();
             String a01 = value.getA01().toString();
             String a02 = value.getA02().toString();
@@ -3521,7 +3524,7 @@ public class OMEROMetadataStoreClient
     {
         Ellipse o = getEllipse(ROIIndex, shapeIndex);
         o.setStrokeWidth(toRType(strokeWidth.intValue()));
-        // TODO: OMERO data type mismatch
+        // TODO: OMERO data type mismatch Ellipse.setStrokeWidth(int)
     }
 
     /* (non-Javadoc)
@@ -4834,7 +4837,7 @@ public class OMEROMetadataStoreClient
     {
         Line o = getLine(ROIIndex, shapeIndex);
         o.setStrokeWidth(toRType(strokeWidth.intValue()));
-        // TODO: OMERO data type mismatch
+        // TODO: OMERO data type mismatch Line.setStrokeWidth(int)
     }
 
     /* (non-Javadoc)
@@ -5123,7 +5126,7 @@ public class OMEROMetadataStoreClient
     {
         Mask o = getMask(ROIIndex, shapeIndex);
         o.setStrokeWidth(toRType(strokeWidth.intValue()));
-        // TODO: OMERO data type mismatch
+        // TODO: OMERO data type mismatch Mask.setStrokeWidth(int)
     }
 
     /* (non-Javadoc)
@@ -6186,7 +6189,7 @@ public class OMEROMetadataStoreClient
     {
         Point o = getPoint(ROIIndex, shapeIndex);
         o.setStrokeWidth(toRType(strokeWidth.intValue()));
-        // TODO: OMERO data type mismatch
+        // TODO: OMERO data type mismatch Point.setStrokeWidth(int)
     }
 
     /* (non-Javadoc)
@@ -6347,7 +6350,7 @@ public class OMEROMetadataStoreClient
     {
         Polyline o = getPolyline(ROIIndex, shapeIndex);
         o.setStrokeWidth(toRType(strokeWidth.intValue()));
-        // TODO: OMERO data type mismatch
+        // TODO: OMERO data type mismatch Polyline.setStrokeWidth(int)
     }
 
     /* (non-Javadoc)
@@ -6696,7 +6699,7 @@ public class OMEROMetadataStoreClient
     {
         Rect o = getRectangle(ROIIndex, shapeIndex);
         o.setStrokeWidth(toRType(strokeWidth.intValue()));
-        // TODO: OMERO data type mismatch
+        // TODO: OMERO data type mismatch Rect.setStrokeWidth(int)
     }
 
     /* (non-Javadoc)
@@ -7124,7 +7127,7 @@ public class OMEROMetadataStoreClient
     {
         Label o = getLabel(ROIIndex, shapeIndex);
         o.setStrokeWidth(toRType(strokeWidth.intValue()));
-        // TODO: OMERO data type mismatch
+        // TODO: OMERO data type mismatch Label.setStrokeWidth(int)
     }
 
     /* (non-Javadoc)
@@ -8607,7 +8610,7 @@ public class OMEROMetadataStoreClient
     {
         Polygon o = getPolygon(ROIIndex, shapeIndex);
         o.setStrokeWidth(toRType(strokeWidth.intValue()));
-        // TODO: OMERO data type mismatch
+        // TODO: OMERO data type mismatch Polygon.setStrokeWidth(int)
     }
 
     /* (non-Javadoc)
