@@ -118,6 +118,15 @@ public class SendEmailRequestI extends SendEmailRequest implements
 				p.addSet("eids", new HashSet<Long>(userIds));
 			}
 		}
+		
+		if (activeonly) {
+			if (groupIds.size() == 0 && userIds.size() == 0) sql.append(" where ");
+			else sql.append(" and ");
+			
+			sql.append(" g.id = :active ");
+			p.addLong("active", helper.getServiceFactory().getAdminService()
+					.getSecurityRoles().getUserGroupId());
+		}
 
 		IQuery iquery = helper.getServiceFactory().getQueryService();
 		

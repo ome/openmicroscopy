@@ -21,6 +21,7 @@ module omero {
 			omero::sys::LongList userIds;
 			omero::sys::LongList groupIds;
 			omero::api::StringSet cc;
+			bool activeonly;
 			string subject;
 			string body;
 			string mimetype;
