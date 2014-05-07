@@ -547,6 +547,30 @@ def screen_plate_run_well_by_name_path_request(
     }
 
 
+@pytest.fixture(scope='function')
+def screen_plate_run_illegal_run_request(
+        request, screen_plate_run_well, request_factory, path):
+    """
+    Returns a simple GET request object with the 'path' query string
+    variable set to an illegal ("run.name=value") form with a
+    PlateAcquisition 'run'.
+    """
+    plate, = screen_plate_run_well.linkedPlateList()
+    well, = plate.copyWells()
+    ws, = well.copyWellSamples()
+    plate_acquisition = ws.plateAcquisition
+    as_string = 'plate.name-%s|run.name-Run%d' % (
+        plate.name.val, plate_acquisition.id.val
+    )
+    initially_select = [
+        'acquisition.name-Run%d' % plate_acquisition.id.val
+    ]
+    return {
+        'request': request_factory.get(path, data={'path': as_string}),
+        'initially_select': initially_select
+    }
+
+
 class TestShow(object):
     """
     Tests to ensure that OMERO.web "show" infrastructure is working
@@ -874,3 +898,19 @@ class TestShow(object):
         assert show._first_selected == first_selected
         assert show.initially_select == \
             screen_plate_run_well_by_name_path_request['initially_select']
+
+    def test_screen_plate_run_illegal_run(
+            self, conn, screen_plate_run_illegal_run_request,
+            screen_plate_run_well):
+        show = Show(
+            conn, screen_plate_run_illegal_run_request['request'], None
+        )
+        self.assert_instantiation(
+            show, screen_plate_run_illegal_run_request, conn
+        )
+
+        first_selected = show.first_selected
+        assert first_selected is None
+        assert show.initially_open is None
+        assert show.initially_select == \
+            screen_plate_run_illegal_run_request['initially_select']
