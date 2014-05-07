@@ -246,26 +246,26 @@ class TxState(object):
         return len(self._commands)
 
 
-class TxControl(BaseControl):
+class ObjControl(BaseControl):
     """Create and Update OMERO objects
 
-The tx command allows insert any objects into the OMERO
+The obj command allows inserting any objects into the OMERO
 database as well as updating existing ones. This is likely
 useful for preparing datasets for import and similar.
 
 Examples:
 
-    $ bin/omero tx new Dataset name=foo
+    $ bin/omero obj new Dataset name=foo
     Dataset:123
 
-    $ bin/omero tx update Dataset:123 description=bar
+    $ bin/omero obj update Dataset:123 description=bar
     Dataset:123
 
 Bash examples:
 
-    $ project=$(bin/omero tx new Project name='my Project')
-    $ dataset=$(bin/omero tx new Dataset name='my Dataset')
-    $ bin/omero tx new ProjectDatasetLink parent=$project child=$dataset
+    $ project=$(bin/omero obj new Project name='my Project')
+    $ dataset=$(bin/omero obj new Dataset name='my Dataset')
+    $ bin/omero obj new ProjectDatasetLink parent=$project child=$dataset
     ProjectDatasetLink:456
     $ bin/omero import -d $dataset ...
 
@@ -328,9 +328,9 @@ Bash examples:
 
 
 try:
-    register("tx", TxControl, TxControl.__doc__)
+    register("obj", ObjControl, ObjControl.__doc__)
 except NameError:
     if __name__ == "__main__":
         cli = CLI()
-        cli.register("tx", TxControl, TxControl.__doc__)
+        cli.register("obj", ObjControl, ObjControl.__doc__)
         cli.invoke(sys.argv[1:])
