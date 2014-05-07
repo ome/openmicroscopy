@@ -35,7 +35,9 @@
   <script type="text/javascript">
     $(document).ready(function()
     {
-      $('#webadmin_main_tabs a[href*="' + location.pathname.split("/")[2] + '"]').addClass('selected_admin_tab');
+      var pathparts = location.pathname.split("/");
+      // Get the 2nd last component as the last component will be an empty string after the trailing '/'
+      $('#webadmin_main_tabs a[href*="' + pathparts[pathparts.length-2] + '"]').addClass('selected_admin_tab');
     });
   </script>
 
