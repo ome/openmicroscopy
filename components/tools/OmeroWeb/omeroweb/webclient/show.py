@@ -70,9 +70,6 @@ class Show(object):
         r'(?P<object_type>\w+)\.?(?P<key>\w+)?[-=](?P<value>[^\|]*)\|?'
     )
 
-    # A-Z
-    AS_ALPHA = [chr(v) for v in range(97, 122 + 1)]
-
     # Regular expression for matching Well names
     WELL_REGEX = re.compile(
         '^(?:(?P<alpha_row>[a-zA-Z]+)(?P<digit_column>\d+))|'
@@ -161,16 +158,31 @@ class Show(object):
         m = self.WELL_REGEX.match(well)
         if m is None:
             return None
+        is_reversed = False
         if m.group('alpha_row') is not None:
-            return (
-                self.AS_ALPHA.index(m.group('alpha_row').lower()),
-                int(m.group('digit_column')) - 1
-            )
+            a = m.group('alpha_row').upper()
+            b = m.group('digit_column')
+            is_reversed = True
         else:
-            return (
-                int(m.group('digit_row')) - 1,
-                self.AS_ALPHA.index(m.group('alpha_column').lower())
-            )
+            a = m.group('alpha_column').upper()
+            b = m.group('digit_row')
+
+        # Convert base26 column string to number.  Adapted from XlsxWriter:
+        #   * https://github.com/jmcnamara/XlsxWriter
+        #     * xlsxwriter/utility.py
+        n = 0
+        column = 0
+        for character in reversed(a):
+            column += (ord(character) - ord('A') + 1) * (26 ** n)
+            n += 1
+
+        # Convert 1-index to zero-index
+        row = int(b) - 1
+        column -= 1
+
+        if is_reversed:
+            return column, row
+        return row, column
 
     def _load_well(self, attributes):
         """
