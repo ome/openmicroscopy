@@ -95,4 +95,4 @@ if __name__ == "__main__":
     clean()
     slice()
     compile()
-    print "Be sure to run for Ice 3.3 and Ice 3.4 and Ice 3.5"
+    print "Be sure to run for Ice 3.4 and Ice 3.5"
