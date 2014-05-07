@@ -158,6 +158,10 @@ class Show(object):
         m = self.WELL_REGEX.match(well)
         if m is None:
             return None
+        # We are using an algorithm that expects alpha columns and digit
+        # rows (like a spreadsheet).  is_reversed will be True if those
+        # conditions are not met, signifying that the row and column
+        # calculated needs to be reversed before returning.
         is_reversed = False
         if m.group('alpha_row') is not None:
             a = m.group('alpha_row').upper()
