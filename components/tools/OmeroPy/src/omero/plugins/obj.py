@@ -122,11 +122,10 @@ class TxCmd(object):
 
 class TxAction(object):
     """
-    Parsed transaction operation provided by the user.
-    In the current implementation these actions are
-    handled client-side, but eventually a list of them
-    should be provided to the server for processing in
-    a single transaction.
+    Parsed operation provided by the user chosen
+    based on the first non-variable field of the
+    command. Implementations can choose how they
+    will handle the fields parsed by TxCmd.
     """
 
     def __init__(self, tx_state, tx_cmd):
