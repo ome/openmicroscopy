@@ -332,7 +332,7 @@ class TestThumbnailPerms(lib.ITest):
         # After thumbnailing there should be no rendering settings
         assert_exists(True, False)
 
-    @pytest.mark.parametrize("method", ("saveCurrent", "saveAs", "request"))
+    @pytest.mark.parametrize("method", ("saveCurrent", "saveAs", "request", "resetDefault", "resetDefaultNoSave"))
     def test12145ShareSettingsRnd(self, method):
         """
         Rendering settings should be shared when possible.
@@ -391,13 +391,31 @@ class TestThumbnailPerms(lib.ITest):
             c_rdef = b_prx.getRenderingDefId()
             assert c_rdef == b_rdef
 
+        elif method == "resetDefault":
+            # If the other users try to save with
+            # that prx though, they'll create a new rdef
+            b_prx.load()
+            b_prx.resetDefaults()
+            c_rdef = b_prx.getRenderingDefId()
+            b_prx.close()
+            assert c_rdef != b_rdef
+
+        elif method == "resetDefaultNoSave":
+            # If the other users try to save with
+            # that prx though, they'll create a new rdef
+            b_prx.load()
+            b_prx.resetDefaultsNoSave()        
+            c_rdef = b_prx.getRenderingDefId()
+            b_prx.close()
+            assert c_rdef == b_rdef
+
         # But they won't have a thumbnail generated
         tb = other.sf.createThumbnailStore()
         tb.setPixelsId(pixels)
         tb.setRenderingDefId(c_rdef)
         assert not tb.thumbnailExists(rint(96), rint(96))
     
-    @pytest.mark.parametrize("method", ("saveCurrent", "saveAs", "request"))
+    @pytest.mark.parametrize("method", ("saveCurrent", "saveAs", "request", "resetDefault", "resetDefaultNoSave"))
     def test12145ShareSettingsRndReadOnly(self, method):
         """
         Rendering settings should be shared when possible.
@@ -455,6 +473,24 @@ class TestThumbnailPerms(lib.ITest):
             except omero.SecurityViolation:
                 pass  # You can't do this!
             c_rdef = b_prx.getRenderingDefId()
+            assert c_rdef == b_rdef
+
+        elif method == "resetDefault":
+            # If the other users try to save with
+            # that prx though, they'll create a new rdef
+            b_prx.load()
+            b_prx.resetDefaults()
+            c_rdef = b_prx.getRenderingDefId()
+            b_prx.close()
+            assert c_rdef != b_rdef
+
+        elif method == "resetDefaultNoSave":
+            # If the other users try to save with
+            # that prx though, they'll create a new rdef
+            b_prx.load()
+            b_prx.resetDefaultsNoSave()        
+            c_rdef = b_prx.getRenderingDefId()
+            b_prx.close()
             assert c_rdef == b_rdef
 
         # But they won't have a thumbnail generated
