@@ -67,8 +67,7 @@
                 <exclude name="omero/sys/_*Del*.class"/>
             </fileset>
             <fileset dir="${common.comp}/target/classes">
-                <include name="ome/system/UpgradeCheck.class"/>
-                <include name="ome/system/OmeroContext.class"/>
+                <include name="ome/system/*.class"/>
                 <include name="ome/util/checksum/*.class"/>
             </fileset>
             <fileset dir="${model.comp}/target/classes">
