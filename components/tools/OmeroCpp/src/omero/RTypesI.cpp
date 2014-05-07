@@ -8,6 +8,7 @@
 
 #include <typeinfo>
 
+#include <algorithm>
 #include <omero/RTypesI.h>
 #include <omero/ClientErrors.h>
 #include <omero/ObjectFactoryRegistrar.h>
@@ -129,6 +130,37 @@ namespace omero {
                 return 0;
             } else {
                 return val > valR? 1 : -1;
+            }
+        }
+
+        Ice::Int compareRTypeSeq(const RTypeSeq& lhs, const omero::RTypeSeq& rhs) {
+
+            RTypeSeq val(lhs);
+            RTypeSeq valR(rhs);
+
+            bool reversed(false);
+            if (valR.size() < val.size()) {
+                reversed = true;
+                RTypeSeq tmp(val);
+                valR = val;
+                val = tmp;
+            }
+
+            std::pair<RTypeSeq::iterator, RTypeSeq::iterator> idx = std::mismatch(
+                    val.begin(), val.end(), valR.begin());
+
+            if (idx.first == val.end() &&
+                    idx.second == valR.end()) {
+                return 0;
+            }
+
+            bool lessThan = std::lexicographical_compare(
+                    val.begin(), val.end(),
+                    valR.begin(), valR.end());
+            if (reversed) {
+                return lessThan ? 1 : -1;
+            } else {
+                return lessThan ? -1 : 1;
             }
         }
 
@@ -363,6 +395,18 @@ namespace omero {
         // Implementations (collections)
         // =========================================================================
 
+        bool operator==(const RTypeSeq& lhs, const RTypeSeq& rhs) {
+            return compareRTypeSeq(lhs, rhs) == 0;
+        }
+
+        bool operator<(const RTypeSeq& lhs, const RTypeSeq& rhs) {
+            return compareRTypeSeq(lhs, rhs) < 0;
+        }
+
+        bool operator>(const RTypeSeq& lhs, const RTypeSeq& rhs) {
+            return compareRTypeSeq(lhs, rhs) > 0;
+        }
+
         // RARRAY
 
         RArrayI::RArrayI(const omero::RTypePtr& value) {
@@ -381,6 +425,19 @@ namespace omero {
         Ice::Int RArrayI::compare(const omero::RTypePtr& rhs, const Ice::Current& current) {
             return compareRTypes<RArrayPtr, RTypeSeq>(this, rhs);
         }
+
+        bool operator==(const RArrayPtr& lhs, const RArrayPtr& rhs) {
+            return compareRTypes<RArrayPtr, RTypeSeq>(lhs, rhs) == 0;
+        }
+
+        bool operator<(const RArrayPtr& lhs, const RArrayPtr& rhs) {
+            return compareRTypes<RArrayPtr, RTypeSeq>(lhs, rhs) < 0;
+        }
+
+        bool operator>(const RArrayPtr& lhs, const RArrayPtr& rhs) {
+            return compareRTypes<RArrayPtr, RTypeSeq>(lhs, rhs) > 0;
+        }
+
 
         // Collection methods
         omero::RTypePtr RArrayI::get(Ice::Int idx, const Ice::Current& current) {
@@ -421,6 +478,18 @@ namespace omero {
         return compareRTypes<RListPtr, RTypeSeq>(this, rhs);
         }
 
+        bool operator==(const RListPtr& lhs, const RListPtr& rhs) {
+            return compareRTypes<RListPtr, RTypeSeq>(lhs, rhs) == 0;
+        }
+
+        bool operator<(const RListPtr& lhs, const RListPtr& rhs) {
+            return compareRTypes<RListPtr, RTypeSeq>(lhs, rhs) < 0;
+        }
+
+        bool operator>(const RListPtr& lhs, const RListPtr& rhs) {
+            return compareRTypes<RListPtr, RTypeSeq>(lhs, rhs) > 0;
+        }
+
         // Collection methods
         omero::RTypePtr RListI::get(Ice::Int idx, const Ice::Current& current) {
             return this->val[idx];
@@ -458,6 +527,18 @@ namespace omero {
 
         Ice::Int RSetI::compare(const omero::RTypePtr& rhs, const Ice::Current& current) {
             return compareRTypes<RSetPtr, RTypeSeq>(this, rhs);
+        }
+
+        bool operator==(const RSetPtr& lhs, const RSetPtr& rhs) {
+            return compareRTypes<RSetPtr, RTypeSeq>(lhs, rhs) == 0;
+        }
+
+        bool operator<(const RSetPtr& lhs, const RSetPtr& rhs) {
+            return compareRTypes<RSetPtr, RTypeSeq>(lhs, rhs) < 0;
+        }
+
+        bool operator>(const RSetPtr& lhs, const RSetPtr& rhs) {
+            return compareRTypes<RSetPtr, RTypeSeq>(lhs, rhs) > 0;
         }
 
         // Collection methods
