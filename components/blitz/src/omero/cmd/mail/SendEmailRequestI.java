@@ -48,7 +48,7 @@ public class SendEmailRequestI extends SendEmailRequest implements
 
 	private final SendEmailResponse rsp = new SendEmailResponse();
 
-	private String [] receipients = null;
+	private String [] recipients = null;
 	
 	protected final JavaMailSender mailSender;
     
@@ -71,13 +71,13 @@ public class SendEmailRequestI extends SendEmailRequest implements
 
 	public void init(Helper helper) {
 		this.helper = helper;
-		this.receipients = parseReceipients();
-		this.helper.setSteps(this.receipients.length);
+		this.recipients = parseRecipients();
+		this.helper.setSteps(this.recipients.length);
 	}
 
 	public Object step(int step) {
 		helper.assertStep(step);
-		sendEmail(this.receipients[step]);
+		sendEmail(this.recipients[step]);
 		return null;
 	}
 
@@ -97,7 +97,7 @@ public class SendEmailRequestI extends SendEmailRequest implements
 		return helper.getResponse();
 	}
 	
-	private String [] parseReceipients(){
+	private String [] parseRecipients(){
 		
 		IQuery iquery = helper.getServiceFactory().getQueryService();
 		List<Experimenter> exps =  iquery.findAllByQuery(
@@ -107,23 +107,23 @@ public class SendEmailRequestI extends SendEmailRequest implements
 				new Parameters().addSet("gids", new HashSet<Long>(groupIds))
 							.addSet("eids", new HashSet<Long>(userIds)));
 		
-		Set<String> receipients = new HashSet<String>();
+		Set<String> recipients = new HashSet<String>();
 		for (final Experimenter e : exps) {
 			if (e.getEmail() != null) {
-				receipients.add(e.getEmail());
+				recipients.add(e.getEmail());
 			}
 		}		
-		return receipients.toArray(new String[receipients.size()]);
+		return recipients.toArray(new String[recipients.size()]);
 	}
 	
-	private void sendEmail(final String receipiest) {
+	private void sendEmail(final String recipient) {
 		MimeMessagePreparator preparator = new MimeMessagePreparator() {
 			public void prepare(MimeMessage mimeMessage) throws Exception {
 				MimeMessageHelper message = new MimeMessageHelper(mimeMessage);
 				message.setFrom(new InternetAddress(
 						helper.getServiceFactory().getConfigService().getConfigValue("omero.mail.from")));
 				message.setSubject(subject);
-				message.setTo(receipiest);
+				message.setTo(recipient);
 				message.setText(body, true);
 			}
 		};
