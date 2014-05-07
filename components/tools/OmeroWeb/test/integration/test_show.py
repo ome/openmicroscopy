@@ -522,7 +522,7 @@ def screen_plate_run_well_by_name_path_request(
         request, screen_plate_run_well, request_factory, path):
     """
     Returns a simple GET request object with the 'path' query string
-    variable set in the new ("well.key=valueid") form with a PlateAcquisition
+    variable set in the new ("well.key=value") form with a PlateAcquisition
     'run'.
     """
     plate, = screen_plate_run_well.linkedPlateList()
