@@ -133,7 +133,7 @@ namespace omero {
             }
         }
 
-        Ice::Int compareRTypeSeq(const RTypeSeq& lhs, const omero::RTypeSeq& rhs) {
+        Ice::Int compareRTypes(const RTypeSeq& lhs, const omero::RTypeSeq& rhs) {
 
             RTypeSeq val(lhs);
             RTypeSeq valR(rhs);
@@ -396,15 +396,15 @@ namespace omero {
         // =========================================================================
 
         bool operator==(const RTypeSeq& lhs, const RTypeSeq& rhs) {
-            return compareRTypeSeq(lhs, rhs) == 0;
+            return compareRTypes(lhs, rhs) == 0;
         }
 
         bool operator<(const RTypeSeq& lhs, const RTypeSeq& rhs) {
-            return compareRTypeSeq(lhs, rhs) < 0;
+            return compareRTypes(lhs, rhs) < 0;
         }
 
         bool operator>(const RTypeSeq& lhs, const RTypeSeq& rhs) {
-            return compareRTypeSeq(lhs, rhs) > 0;
+            return compareRTypes(lhs, rhs) > 0;
         }
 
         // RARRAY
