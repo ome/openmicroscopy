@@ -141,7 +141,14 @@ public class StructuredDataResults
 	 * @return See above.
 	 */
 	public Object getRelatedObject() { return relatedObject; }
-	
+
+	/**
+	 * Returns the identifier of the data object.
+	 *
+	 * @return See above.
+	 */
+	public long getObjectId() { return relatedObject.getId(); }
+
 	/**
 	 * Returns the collection of parents.
 	 * 
