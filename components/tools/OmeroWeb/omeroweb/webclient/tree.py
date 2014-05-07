@@ -29,22 +29,15 @@ def parse_permissions_css(permissions, ownerid, conn):
         CSS classes.
 
         @param permissions Permissions to parse
-        @type permissions Integer
+        @type permissions L{omero.rtypes.rmap}
         @param ownerid Owner Id for the object having Permissions
         @type ownerId Integer
         @param conn OMERO gateway.
         @type conn L{omero.gateway.BlitzGateway}
     '''
-    permissions = omero.model.PermissionsI(permissions)
-    permissionsCss = []
-    if permissions.canEdit():
-        permissionsCss.append("canEdit")
-    if permissions.canAnnotate():
-        permissionsCss.append("canAnnotate")
-    if permissions.canLink():
-        permissionsCss.append("canLink")
-    if permissions.canDelete():
-        permissionsCss.append("canDelete")
+
+    restrictions = ('canEdit', 'canAnnotate', 'canLink', 'canDelete')
+    permissionsCss = [r for r in restrictions if permissions.get(r)]
     if ownerid == conn.getUserId():
         permissionsCss.append("canChgrp")
     return ' '.join(permissionsCss)
@@ -68,7 +61,7 @@ def marshal_datasets_for_projects(conn, project_ids):
                dataset.id,
                dataset.name,
                dataset.details.owner.id,
-               project.details.permissions.perm1,
+               project.details.permissions,
                project.details.owner.id,
                (select count(id) from DatasetImageLink dil
                   where dil.parent=dataset.id)
@@ -108,7 +101,7 @@ def marshal_datasets(conn, dataset_ids):
     q = """
         select dataset.id,
                dataset.name,
-               dataset.details.permissions.perm1,
+               dataset.details.permissions,
                dataset.details.owner.id,
                (select count(id) from DatasetImageLink dil
                  where dil.parent=dataset.id)
@@ -145,11 +138,11 @@ def marshal_plates_for_screens(conn, screen_ids):
                plate.id,
                plate.name,
                plate.details.owner.id,
-               plate.details.permissions.perm1,
+               plate.details.permissions,
                pa.id,
                pa.name,
                pa.details.owner.id,
-               pa.details.permissions.perm1,
+               pa.details.permissions,
                pa.startTime,
                pa.endTime
                from Screen screen
@@ -214,11 +207,11 @@ def marshal_plates(conn, plate_ids):
         select plate.id,
                plate.name,
                plate.details.owner.id,
-               plate.details.permissions.perm1,
+               plate.details.permissions,
                pa.id,
                pa.name,
                pa.details.owner.id,
-               pa.details.permissions.perm1,
+               pa.details.permissions,
                pa.startTime,
                pa.endTime
                from Plate plate
