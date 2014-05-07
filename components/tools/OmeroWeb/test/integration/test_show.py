@@ -404,27 +404,30 @@ def screen_plate_well_show_request(
     }
 
 
-@pytest.fixture(scope='function')
+@pytest.fixture(scope='function', params=[0, 1])
 def screen_plate_run_well_show_request(
         request, screen_plate_run_well, request_factory, path):
     """
     Returns a simple GET request object with the 'show' query string
     variable set in the new ("well-id") form with a PlateAcquisition 'run'.
     """
+    well_index = request.param
     plate, = screen_plate_run_well.linkedPlateList()
-    well_a, well_b = sorted(plate.copyWells(), cmp_well_column)
-    ws, = well_a.copyWellSamples()
+    wells = sorted(plate.copyWells(), cmp_well_column)
+    # Only the first Well has a WellSample and is linked to the
+    # PlateAcquisition.
+    ws, = wells[0].copyWellSamples()
     plate_acquisition = ws.plateAcquisition
-    as_string = 'well-%d' % well_a.id.val
+    as_string = 'well-%d' % wells[well_index].id.val
     initially_select = [
         'acquisition-%d' % plate_acquisition.id.val,
-        'well-%d' % well_a.id.val
+        'well-%d' % wells[well_index].id.val
     ]
     initially_open = [
         'screen-%d' % screen_plate_run_well.id.val,
         'plate-%d' % plate.id.val,
         'acquisition-%d' % plate_acquisition.id.val,
-        'well-%d' % well_a.id.val
+        'well-%d' % wells[well_index].id.val
     ]
     return {
         'request': request_factory.get(path, data={'show': as_string}),
