@@ -3325,6 +3325,59 @@ class OMEROGateway
 		return new ArrayList();
 	}
 
+	Map<Long, List<IObject>> findAnnotationLinks(SecurityContext ctx,
+	        Class<?> node, List<Long> nodeIDs,
+            List<Long> children, long userID)
+        throws DSOutOfServiceException, DSAccessException
+    {
+        Connector c = getConnector(ctx, true, false);
+        Map<Long, List<IObject>> map = new HashMap<Long, List<IObject>>();
+        try {
+            IQueryPrx service = c.getQueryService();
+            String table = getAnnotationTableLink(node);
+            if (table == null) return null;
+            StringBuffer sb = new StringBuffer();
+            sb.append("select link from "+table+" as link ");
+            sb.append("left outer join fetch link.child child ");
+            sb.append("left outer join fetch link.parent parent ");
+            sb.append("left outer join fetch parent.details.owner ");
+            sb.append("left outer join fetch child.details.owner ");
+            sb.append("left outer join fetch link.details.owner ");
+            sb.append("where link.child.id in (:childIDs)");
+
+            ParametersI param = new ParametersI();
+            param.addLongs("childIDs", children);
+            sb.append(" and link.parent.id in (:parentIDs)");
+            param.addLongs("parentIDs", nodeIDs);
+            if (userID >= 0) {
+                sb.append(" and link.details.owner.id = :userID");
+                param.map.put("userID", omero.rtypes.rlong(userID));
+            }
+            List<IObject> list = service.findAllByQuery(sb.toString(), param);
+            if (CollectionUtils.isNotEmpty(list)) {
+                Iterator<IObject> j = list.iterator();
+                IObject link;
+                while (j.hasNext()) {
+                    link = (IObject) j.next();
+                    IObject p = ModelMapper.getParentFromLink(link);
+                    long id = p.getId().getValue();
+                    List<IObject> links = map.get(id);
+                    if (links == null) {
+                        links = new ArrayList<IObject>();
+                        map.put(id, links);
+                    }
+                    links.add((IObject) link);
+                }
+            }
+            return map;
+        } catch (Throwable t) {
+            t.printStackTrace();
+            handleException(t, "Cannot retrieve the requested link for "+
+            "the specified children");
+        }
+        return map;
+    }
+	
 	/**
 	 * Finds the links if any between the specified parent and children.
 	 *

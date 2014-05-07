@@ -782,7 +782,8 @@ class OmeroMetadataServiceImpl
 	 * @throws DSAccessException
 	 */
     private void loadStructuredData(SecurityContext ctx,
-            long userID, Collection annotations, StructuredDataResults results)
+            long userID, Collection annotations, StructuredDataResults results,
+            boolean loadLinks)
         throws DSOutOfServiceException, DSAccessException
     {
         Object object = results.getRelatedObject();
@@ -834,34 +835,12 @@ class OmeroMetadataServiceImpl
                 }
             }
             //load the links tags and attachments
-            if (annotationIds.size() > 0 && 
+            if (loadLinks && annotationIds.size() > 0 && 
                 !(object instanceof TagAnnotationData
                     || object instanceof FileAnnotationData)) {
                 List links = gateway.findAnnotationLinks(ctx, object.getClass(),
                         results.getObjectId(), annotationIds, -1);
-                if (links != null) {
-                    Map<DataObject, ExperimenterData>
-                        m = new HashMap<DataObject, ExperimenterData>();
-                    Iterator j = links.iterator();
-                    IObject link;
-                    DataObject d;
-                    List<AnnotationLinkData>
-                    l = new ArrayList<AnnotationLinkData>();
-                    IObject ho;
-                    while (j.hasNext()) {
-                        link = (IObject) j.next();
-                        ho = ModelMapper.getChildFromLink(link);
-                        d = PojoMapper.asDataObject(ho);
-                        l.add(new AnnotationLinkData(link, d,
-                                PojoMapper.asDataObject(
-                                        ModelMapper.getParentFromLink(link))));
-                        if (d != null)
-                            m.put(d, (ExperimenterData) PojoMapper.asDataObject(
-                                    link.getDetails().getOwner()));
-                    }
-                    results.setLinks(m);
-                    results.setAnnotationLinks(l);
-                }
+                formatAnnotationLinks(links, results);
             }
             results.setOtherAnnotation(other);
             results.setXMLAnnotations(xml);
@@ -899,7 +878,7 @@ class OmeroMetadataServiceImpl
 		
 		Collection annotations = loadStructuredAnnotations(ctx,
 				object.getClass(), r.getId(), userID);
-		loadStructuredData(ctx, userID, annotations, results);
+		loadStructuredData(ctx, userID, annotations, results, true);
 		//in-place import check
 		if (object instanceof ImageData) {
 			ImageData img = (ImageData) object;
@@ -965,23 +944,73 @@ class OmeroMetadataServiceImpl
         }
         Map map = gateway.loadAnnotations(ctx, klass, ids, null, usersIDs,
                 new Parameters());
+        Map<Long, List<IObject>> linkMap = new HashMap<Long, List<IObject>>();
+        if (!(klass.equals(TagAnnotationData.class) ||
+                klass.equals(FileAnnotationData.class))) {
+            Collection values = map.values();
+            Iterator k = values.iterator();
+            List<Long> annotationIds = new ArrayList<Long>();
+            while (k.hasNext()) {
+                Collection l = (Collection) k.next();
+                Iterator j = l.iterator();
+                while (j.hasNext()) {
+                    AnnotationData object = (AnnotationData) j.next();
+                    if (!annotationIds.contains(object.getId()))
+                        annotationIds.add(object.getId());
+                    
+                }
+               
+            }
+            if (annotationIds.size() > 0) {
+                linkMap = gateway.findAnnotationLinks(ctx, klass, ids,
+                        annotationIds, userID);
+            }
+        }
         //format the results
         i = data.iterator();
         StructuredDataResults r;
+        List<IObject> links;
         while (i.hasNext()) {
             n = i.next();
             if (n != null) {
                 r = new StructuredDataResults(n);
                 loadStructuredData(ctx, userID,
-                        (Collection) map.get(n.getId()), r);
+                        (Collection) map.get(n.getId()), r, false);
                 results.put(n, r);
                 if (n instanceof ImageData) {
                     img = (ImageData) n;
                     r.setTransferlinks(filesetMap.get(img.getFilesetId()));
                 }
+                formatAnnotationLinks(linkMap.get(n.getId()), r);
             }
         }
 		return results;
+	}
+
+	private void formatAnnotationLinks(List links, StructuredDataResults results)
+	{
+	    if (CollectionUtils.isEmpty(links)) return;
+	    Map<DataObject, ExperimenterData>
+	    m = new HashMap<DataObject, ExperimenterData>();
+	    Iterator j = links.iterator();
+	    IObject link;
+	    DataObject d;
+	    List<AnnotationLinkData>
+	    l = new ArrayList<AnnotationLinkData>();
+	    IObject ho;
+	    while (j.hasNext()) {
+	        link = (IObject) j.next();
+	        ho = ModelMapper.getChildFromLink(link);
+	        d = PojoMapper.asDataObject(ho);
+	        l.add(new AnnotationLinkData(link, d,
+	                PojoMapper.asDataObject(
+	                        ModelMapper.getParentFromLink(link))));
+	        if (d != null)
+	            m.put(d, (ExperimenterData) PojoMapper.asDataObject(
+	                    link.getDetails().getOwner()));
+	    }
+	    results.setLinks(m);
+	    results.setAnnotationLinks(l);
 	}
 
 	/**
