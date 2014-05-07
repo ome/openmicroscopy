@@ -236,7 +236,6 @@ class Show(object):
             # It's possible that the Well that we've been requested to show
             # has no fields (WellSample instances).  In that case the Plate
             # will be used but we don't have much choice.
-
             if well_sample is not None:
                 parent_node = well_sample.getPlateAcquisition()
                 parent_type = "acquisition"
