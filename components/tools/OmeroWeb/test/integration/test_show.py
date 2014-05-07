@@ -24,6 +24,11 @@ from omeroweb.webclient.show import Show, IncorrectMenuError
 from django.test.client import RequestFactory
 
 
+def cmp_well_column(x, y):
+    """Well column comparator."""
+    return cmp(x.column.val, y.column.val)
+
+
 @pytest.fixture(scope='module')
 def path():
     """Returns the root OMERO.web webclient path."""
@@ -171,8 +176,8 @@ def screen_plate_well(request, itest, update_service):
     screen.name = rstring(itest.uuid())
     plate = PlateI()
     plate.name = rstring(itest.uuid())
-    well = WellI()
     # Well A10
+    well = WellI()
     well.row = rint(0)
     well.column = rint(9)
     plate.addWell(well)
@@ -191,18 +196,23 @@ def screen_plate_run_well(request, itest, update_service):
     screen.name = rstring(itest.uuid())
     plate = PlateI()
     plate.name = rstring(itest.uuid())
-    well = WellI()
-    # Well A10
-    well.row = rint(0)
-    well.column = rint(9)
+    # Well A10 (will have a WellSample)
+    well_a = WellI()
+    well_a.row = rint(0)
+    well_a.column = rint(9)
+    # Well A11 (will not have a WellSample)
+    well_b = WellI()
+    well_b.row = rint(0)
+    well_b.column = rint(10)
     ws = WellSampleI()
     image = itest.new_image(name=itest.uuid())
     plate_acquisition = PlateAcquisitionI()
     plate_acquisition.plate = plate
     ws.image = image
     ws.plateAcquisition = plate_acquisition
-    well.addWellSample(ws)
-    plate.addWell(well)
+    well_a.addWellSample(ws)
+    plate.addWell(well_a)
+    plate.addWell(well_b)
     screen.linkPlate(plate)
     return update_service.saveAndReturnObject(screen)
 
@@ -402,19 +412,19 @@ def screen_plate_run_well_show_request(
     variable set in the new ("well-id") form with a PlateAcquisition 'run'.
     """
     plate, = screen_plate_run_well.linkedPlateList()
-    well, = plate.copyWells()
-    ws, = well.copyWellSamples()
+    well_a, well_b = sorted(plate.copyWells(), cmp_well_column)
+    ws, = well_a.copyWellSamples()
     plate_acquisition = ws.plateAcquisition
-    as_string = 'well-%d' % well.id.val
+    as_string = 'well-%d' % well_a.id.val
     initially_select = [
         'acquisition-%d' % plate_acquisition.id.val,
-        'well-%d' % well.id.val
+        'well-%d' % well_a.id.val
     ]
     initially_open = [
         'screen-%d' % screen_plate_run_well.id.val,
         'plate-%d' % plate.id.val,
         'acquisition-%d' % plate_acquisition.id.val,
-        'well-%d' % well.id.val
+        'well-%d' % well_a.id.val
     ]
     return {
         'request': request_factory.get(path, data={'show': as_string}),
@@ -526,19 +536,19 @@ def screen_plate_run_well_by_name_path_request(
     'run'.
     """
     plate, = screen_plate_run_well.linkedPlateList()
-    well, = plate.copyWells()
-    ws, = well.copyWellSamples()
+    well_a, well_b = sorted(plate.copyWells(), cmp_well_column)
+    ws, = well_a.copyWellSamples()
     plate_acquisition = ws.plateAcquisition
     as_string = 'plate.name=%s|well.name=%s' % (plate.name.val, request.param)
     initially_select = [
         'acquisition-%d' % plate_acquisition.id.val,
-        'well-%d' % well.id.val
+        'well-%d' % well_a.id.val
     ]
     initially_open = [
         'screen-%d' % screen_plate_run_well.id.val,
         'plate-%d' % plate.id.val,
         'acquisition-%d' % plate_acquisition.id.val,
-        'well-%d' % well.id.val
+        'well-%d' % well_a.id.val
     ]
     return {
         'request': request_factory.get(path, data={'path': as_string}),
@@ -556,8 +566,8 @@ def screen_plate_run_illegal_run_request(
     PlateAcquisition 'run'.
     """
     plate, = screen_plate_run_well.linkedPlateList()
-    well, = plate.copyWells()
-    ws, = well.copyWellSamples()
+    well_a, well_b = sorted(plate.copyWells(), cmp_well_column)
+    ws, = well_a.copyWellSamples()
     plate_acquisition = ws.plateAcquisition
     as_string = 'plate.name-%s|run.name-Run%d' % (
         plate.name.val, plate_acquisition.id.val
@@ -769,8 +779,9 @@ class TestShow(object):
         )
 
         plate, = screen_plate_run_well.linkedPlateList()
-        well, = plate.copyWells()
-        ws, = well.copyWellSamples()
+        well_a, well_b = \
+            sorted(plate.copyWells(), cmp_well_column)
+        ws, = well_a.copyWellSamples()
         plate_acquisition = ws.plateAcquisition
         first_selected = show.first_selected
         assert first_selected is not None
@@ -860,7 +871,7 @@ class TestShow(object):
         self.assert_instantiation(show, well_by_name_path_request, conn)
 
         plate, = screen_plate_well.linkedPlateList()
-        well, = plate.copyWells()
+        well = plate.copyWells()
         first_selected = show.first_selected
         assert first_selected is not None
         assert isinstance(first_selected, PlateWrapper)
@@ -884,8 +895,9 @@ class TestShow(object):
         )
 
         plate, = screen_plate_run_well.linkedPlateList()
-        well, = plate.copyWells()
-        ws, = well.copyWellSamples()
+        well_a, well_b = \
+            sorted(plate.copyWells(), cmp_well_column)
+        ws, = well_a.copyWellSamples()
         plate_acquisition = ws.plateAcquisition
         first_selected = show.first_selected
         assert first_selected is not None
