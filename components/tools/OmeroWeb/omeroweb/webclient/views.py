@@ -478,6 +478,8 @@ def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_ty
                         paths = show.initially_open + show.initially_select
                         for path in paths:
                             m = Show.PATH_REGEX.match(path)
+                            if m is None:
+                                continue
                             if m.group('object_type') == 'well':
                                 wells_to_select.append(m.group('value'))
                         context['select_wells'] = ','.join(wells_to_select)
