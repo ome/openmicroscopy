@@ -244,12 +244,15 @@ class Show(object):
                 # No PlateAcquisition for this well, use Plate instead
                 parent_node = first_selected.getParent()
                 parent_type = "plate"
+            # Tree hierarchy open to first selected "real" object available
+            # in the tree.
             self._initially_open = [
                 "%s-%s" % (parent_type, parent_node.getId()),
                 "%s-%s" % (first_obj, first_selected.getId())
             ]
             first_selected = parent_node
         else:
+            # Tree hierarchy open to first selected object.
             self._initially_open = [
                 '%s-%s' % (first_obj, first_selected.getId())
             ]
@@ -263,8 +266,7 @@ class Show(object):
             return None
 
         # tree hierarchy open to first selected object
-        self._initially_open = [self._initially_select[0]]
-        m = self.PATH_REGEX.match(self._initially_open[0])
+        m = self.PATH_REGEX.match(self._initially_select[0])
         if m is None:
             return None
         first_obj = m.group('object_type')
