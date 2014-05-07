@@ -22,7 +22,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-var tagging_form = function(selected_tags, formset_prefix, tags_field_id, me) {
+var tagging_form = function(
+    selected_tags, formset_prefix, tags_field_id, me, my_name
+    ) {
 
     var div_all_tags = $("#id_all_tags");
     var div_selected_tags = $("#id_selected_tags");
@@ -621,17 +623,18 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id, me) {
             new_tag_counter -= 1;
             var tagset_id = (tagset ? parseInt(tagset.attr('data-id'), 10) :
                              false);
+            owners[me] = owners[me] || my_name;
             all_tags[new_tag_counter] = {
                 i: new_tag_counter,
                 d: description,
                 t: text,
-                o: null,
+                o: me,
                 s: tagset_id,
                 sort_key: (tagset_id ? all_tags[tagset_id].t.toLowerCase() :
                            '') + text.toLowerCase()
             };
             var div = $(create_tag_html(
-                text, description, null, new_tag_counter,
+                text, description, my_name, new_tag_counter,
                 tagset ? tagset.attr('data-id') : null));
             div.addClass('ui-selected').on('click', tag_click).tooltip();
             $("div.ui-selected", div_selected_tags).removeClass('ui-selected');
