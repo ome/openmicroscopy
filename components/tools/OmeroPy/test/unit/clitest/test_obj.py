@@ -31,10 +31,10 @@ from omero.api import ServiceFactoryPrx
 from omero.cli import CLI
 from omero.clients import BaseClient
 from omero.model import ProjectI
-from omero.plugins.tx import NewObjectTxAction
-from omero.plugins.tx import TxCmd
-from omero.plugins.tx import TxControl
-from omero.plugins.tx import TxState
+from omero.plugins.obj import NewObjectTxAction
+from omero.plugins.obj import TxCmd
+from omero.plugins.obj import ObjControl
+from omero.plugins.obj import TxState
 from omero_ext.mox import IgnoreArg
 from omero_ext.mox import Mox
 
@@ -54,7 +54,7 @@ class MockCLI(CLI):
             self._out = [out]
 
 
-@pytest.mark.clitx
+@pytest.mark.cliobj
 class TxBase(object):
 
     def setup_method(self, method):
@@ -92,22 +92,22 @@ class TestNewObjectTxAction(TxBase):
         action.go(self.cli, None)
 
 
-class TestTxControl(TxBase):
+class TestObjControl(TxBase):
 
     def setup_method(self, method):
-        super(TestTxControl, self).setup_method(method)
-        self.cli.register("tx", TxControl, "TEST")
+        super(TestObjControl, self).setup_method(method)
+        self.cli.register("obj", ObjControl, "TEST")
 
     def test_simple_new_usage(self):
         self.saves(ProjectI(1, False))
         self.mox.ReplayAll()
-        self.cli.invoke("tx new Project name=foo", strict=True)
+        self.cli.invoke("obj new Project name=foo", strict=True)
         assert self.cli._out == ["Project:1"]
 
     def test_simple_update_usage(self):
         self.queries(ProjectI(1, True))
         self.saves(ProjectI(1, False))
         self.mox.ReplayAll()
-        self.cli.invoke(("tx update Project:1 name=bar "
+        self.cli.invoke(("obj update Project:1 name=bar "
                         "description=loooong"), strict=True)
         assert self.cli._out == ["Project:1"]

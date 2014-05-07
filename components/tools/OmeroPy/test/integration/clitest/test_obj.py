@@ -23,23 +23,23 @@
 import pytest
 
 from test.integration.clitest.cli import CLITest
-from omero.plugins.tx import TxControl
+from omero.plugins.obj import ObjControl
 from omero.util.temp_files import create_path
 from omero.cli import NonZeroReturnCode
 
 
-@pytest.mark.clitx
-class TestTx(CLITest):
+@pytest.mark.cliobj
+class TestObj(CLITest):
 
     def setup_method(self, method):
-        super(TestTx, self).setup_method(method)
-        self.cli.register("tx", TxControl, "TEST")
-        self.args += ["tx"]
+        super(TestObj, self).setup_method(method)
+        self.cli.register("obj", ObjControl, "TEST")
+        self.args += ["obj"]
         self.setup_mock()
 
     def teardown_method(self, method):
         self.teardown_mock()
-        super(TestTx, self).teardown_method(method)
+        super(TestObj, self).teardown_method(method)
 
     def go(self):
         self.cli.invoke(self.args, strict=True)
@@ -130,9 +130,9 @@ class TestTx(CLITest):
 
     def test_new_and_update(self):
         self.args = self.login_args() + [
-            "tx", "new", "Project", "name=foo"]
+            "obj", "new", "Project", "name=foo"]
         state = self.go()
         project = state.get_row(0)
         self.args = self.login_args() + [
-            "tx", "update", project, "description=bar"]
+            "obj", "update", project, "description=bar"]
         self.go()
