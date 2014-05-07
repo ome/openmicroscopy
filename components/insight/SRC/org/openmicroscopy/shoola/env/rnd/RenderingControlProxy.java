@@ -231,6 +231,11 @@ class RenderingControlProxy
     {
     	if (shutDown) return;
     	retry = 0;
+    	if (e instanceof Ice.OperationNotExistException) {
+    	    RenderingServiceException ex = new RenderingServiceException(e);
+            ex.setIndex(RenderingServiceException.OPERATION_NOT_SUPPORTED);
+            throw ex;
+    	}
     	if (!handleConnectionException(e))
 			throw new RenderingServiceException(message+"\n\n"+ 
 					printErrorText(e), e);
