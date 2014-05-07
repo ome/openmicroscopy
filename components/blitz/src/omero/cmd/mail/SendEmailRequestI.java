@@ -98,21 +98,37 @@ public class SendEmailRequestI extends SendEmailRequest implements
 	}
 	
 	private String [] parseRecipients(){
-		
-		IQuery iquery = helper.getServiceFactory().getQueryService();
-		List<Experimenter> exps =  iquery.findAllByQuery(
-				"select distinct e from Experimenter e "
+		StringBuffer sql = new StringBuffer();
+		sql.append("select distinct e from Experimenter e "
 				+ "left outer join fetch e.groupExperimenterMap m "
-                + "left outer join fetch m.parent g where g.id in (:gids) or e.id in (:eids)",
-				new Parameters().addSet("gids", new HashSet<Long>(groupIds))
-							.addSet("eids", new HashSet<Long>(userIds)));
+				+ "left outer join fetch m.parent g ");
+
+		Parameters p = new Parameters();
+		if (groupIds.size() > 0 && userIds.size() > 0) {
+			sql.append(" where (g.id in (:gids) or e.id in (:eids)) ");
+			p.addSet("gids", new HashSet<Long>(groupIds));
+			p.addSet("eids", new HashSet<Long>(userIds));
+		} else {
+			if (groupIds.size() > 0) {
+				sql.append(" where g.id in (:gids) ");
+				p.addSet("gids", new HashSet<Long>(groupIds));
+			}
+			if (userIds.size() > 0) {
+				sql.append("where e.id in (:eids) ");
+				p.addSet("eids", new HashSet<Long>(userIds));
+			}
+		}
+
+		IQuery iquery = helper.getServiceFactory().getQueryService();
+		
+		List<Experimenter> exps = iquery.findAllByQuery(sql.toString(), p);
 		
 		Set<String> recipients = new HashSet<String>();
 		for (final Experimenter e : exps) {
 			if (e.getEmail() != null) {
 				recipients.add(e.getEmail());
 			}
-		}		
+		}
 		return recipients.toArray(new String[recipients.size()]);
 	}
 	
