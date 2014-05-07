@@ -252,9 +252,16 @@ class Show(object):
                 parent_node = well_sample.getPlateAcquisition()
                 parent_type = "acquisition"
             if parent_node is None:
-                # No PlateAcquisition for this well, use Plate instead
-                parent_node = first_selected.getParent()
-                parent_type = "plate"
+                # No WellSample for this well, try and retrieve the
+                # PlateAcquisition from the parent Plate.
+                plate = first_selected.getParent()
+                try:
+                    parent_node, = plate.listPlateAcquisitions()
+                    parent_type = "acquisition"
+                except ValueError:
+                    # No PlateAcquisition for this well, use Plate instead
+                    parent_node = plate
+                    parent_type = "plate"
             # Tree hierarchy open to first selected "real" object available
             # in the tree.
             self._initially_open = [
