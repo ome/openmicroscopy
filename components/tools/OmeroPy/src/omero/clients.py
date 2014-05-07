@@ -991,6 +991,7 @@ class BaseClient(object):
         Returns all items in the "output" shared (session) memory
         """
         return self._env(unwrap, "getOutputKeys")
+
     #
     # Misc.
     #
