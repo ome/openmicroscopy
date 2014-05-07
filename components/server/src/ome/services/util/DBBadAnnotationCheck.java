@@ -128,6 +128,7 @@ public class DBBadAnnotationCheck extends BaseDBCheck {
         return false;
     }
 
+    @Override
     protected void doCheck() {
         Session session = null;
         try {

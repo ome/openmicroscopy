@@ -90,6 +90,7 @@ public class DBEnumCheck extends BaseDBCheck {
         super(executor);
     }
 
+    @Override
     protected void doCheck() {
         try {
             executor.executeSql(new Executor.SimpleSqlWork(this,
@@ -145,5 +146,10 @@ public class DBEnumCheck extends BaseDBCheck {
         log.info("Added format: " + name);
         return true;
 
+    }
+
+    @Override
+    protected String getCheckDone() {
+        return "done for Bio-Formats revision " + loci.formats.FormatTools.VCS_REVISION;
     }
 }

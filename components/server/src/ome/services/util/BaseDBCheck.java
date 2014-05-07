@@ -37,6 +37,7 @@ abstract class BaseDBCheck {
     protected final Executor executor;
 
     private final String configKey = "DB check " + getClass().getSimpleName();
+    private final String configValue = getCheckDone();
 
     /**
      * @param executor executor to use for configuration map check
@@ -53,7 +54,7 @@ abstract class BaseDBCheck {
                 new Executor.SimpleSqlWork(this, "BaseDBCheck") {
                     @Transactional(readOnly = true)
                     public Boolean doWork(SqlAction sql) {
-                        return sql.configValue(configKey) == null;
+                        return !configValue.equals(sql.configValue(configKey));
                     }
                 });
     }
@@ -67,7 +68,7 @@ abstract class BaseDBCheck {
                 new Executor.SimpleSqlWork(this, "BaseDBCheck") {
                     @Transactional(readOnly = false)
                     public Object doWork(SqlAction sql) {
-                        sql.updateOrInsertConfigValue(configKey, Long.toString(System.currentTimeMillis()));
+                        sql.updateOrInsertConfigValue(configKey, configValue);
                         return null;
                     }
                 });
@@ -80,7 +81,7 @@ abstract class BaseDBCheck {
         if (isCheckRequired()) {
             doCheck();
             checkIsDone();
-            log.info("performed " + configKey);
+            log.info("performed " + configKey + ": " + configValue);
         } else if (log.isDebugEnabled()) {
             log.debug("skipped " + configKey);
         }
@@ -90,4 +91,11 @@ abstract class BaseDBCheck {
      * Do the database adjustment.
      */
     protected abstract void doCheck();
+
+    /**
+     * @return a string identifying that the check is done, never {@code null}
+     */
+    protected String getCheckDone() {
+        return "done";
+    }
 }
