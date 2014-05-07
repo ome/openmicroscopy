@@ -1270,7 +1270,20 @@ public class SelectionWizardUI
             ho = i.next();
             node = TreeViewerTranslator.transformDataObject(ho);
             if (ho instanceof TagAnnotationData) {
-                String txt = formatTooltip((TagAnnotationData) ho, null, user);
+                TagAnnotationData tag = (TagAnnotationData) ho;
+                Set<DataObject> set = tag.getDataObjects();
+                List<TagAnnotationData> p = new ArrayList<TagAnnotationData>();
+                if (CollectionUtils.isNotEmpty(set)) {
+                    Iterator<DataObject> j = set.iterator();
+                    DataObject d;
+                    while (j.hasNext()) {
+                        d = j.next();
+                        if (d instanceof TagAnnotationData) {
+                            p.add((TagAnnotationData) d);
+                        }
+                    }
+                }
+                String txt = formatTooltip(tag, p, user);
                 node.setToolTip(txt);
             }
             selectedItems.add(node);
