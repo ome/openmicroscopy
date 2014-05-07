@@ -525,6 +525,7 @@ public class SelectionWizardUI
                         addItem();
                         //reset filter
                         setTextFieldDefault(DEFAULT_FILTER_TEXT);
+                        availableItemsListbox.requestFocus();
                 }
             }
         });
