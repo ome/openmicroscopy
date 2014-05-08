@@ -47,16 +47,24 @@
      <constructor-arg ref="roles"/>
   </bean>
 
-  <bean id="dbEnumerationCheck"
+  <bean id="dbEnumerationCheck" depends-on="dbPatchCheck"
      class="ome.services.util.DBEnumCheck"
      init-method="start" lazy-init="false">
      <constructor-arg ref="executor"/>
   </bean>
 
-  <bean id="dbUnsignedInt16BitSizeCheck"
+  <bean id="dbUnsignedInt16BitSizeCheck" depends-on="dbPatchCheck"
      class="ome.services.util.DBUInt16Check"
      init-method="start" lazy-init="false">
      <constructor-arg ref="sessionFactory"/>
+  </bean>
+
+  <bean id="dbBadAnnotationCheck" depends-on="dbPatchCheck"
+     class="ome.services.util.DBBadAnnotationCheck"
+     init-method="start" lazy-init="false">
+     <constructor-arg ref="executor"/>
+     <constructor-arg ref="sessionFactory"/>
+     <constructor-arg ref="roles"/>
   </bean>
 
   <!--
