@@ -198,7 +198,8 @@ class TestTree(object):
                     'childCount': 0L,
                     'id': dataset.id.val,
                     'isOwned': True,
-                    'name': dataset.name.val
+                    'name': dataset.name.val,
+                    'permsCss': 'canEdit canAnnotate canLink canDelete canChgrp'
                 }],
                 'permsCss': 'canEdit canAnnotate canLink canDelete canChgrp'
             }
@@ -224,7 +225,8 @@ class TestTree(object):
                     'childCount': 0L,
                     'id': dataset.id.val,
                     'isOwned': True,
-                    'name': dataset.name.val
+                    'name': dataset.name.val,
+                    'permsCss': 'canEdit canAnnotate canLink canDelete canChgrp'
                 })
 
         marshaled = marshal_datasets_for_projects(
