@@ -29,7 +29,7 @@ from omero.model import ProjectI, DatasetI, ScreenI, PlateI, \
     PlateAcquisitionI
 from omero.rtypes import rstring
 from omeroweb.webclient.tree import marshal_datasets_for_projects, \
-    marshal_datasets, marshal_plates_for_screens
+    marshal_datasets, marshal_plates_for_screens, marshal_plates
 
 
 def cmp_id(x, y):
@@ -161,6 +161,19 @@ def screen_plate(request, itest, update_service):
     return update_service.saveAndReturnObject(screen)
 
 
+@pytest.fixture(scope='function')
+def plate_run(request, itest, update_service):
+    """
+    Returns a new OMERO Plate and linked PlateAcquisition with all required
+    fields set.
+    """
+    plate = PlateI()
+    plate.name = rstring(itest.uuid())
+    plate_acquisition = PlateAcquisitionI()
+    plate.addPlateAcquisition(plate_acquisition)
+    return update_service.saveAndReturnObject(plate)
+
+
 class TestTree(object):
     """
     Tests to ensure that OMERO.web "tree" infrastructure is working
@@ -264,4 +277,25 @@ class TestTree(object):
         }
 
         marshaled = marshal_plates_for_screens(conn, [screen_id])
+        assert marshaled == expected
+
+    def test_marshal_plate_run(self, conn, plate_run):
+        plate_id = plate_run.id.val
+        plate_acquisition, = plate_run.copyPlateAcquisitions()
+        perms_css = 'canEdit canAnnotate canLink canDelete canChgrp'
+        expected = [{
+            'id': plate_id,
+            'isOwned': True,
+            'name': plate_run.name.val,
+            'plateacquisitions': [{
+                'id': plate_acquisition.id.val,
+                'name': 'Run %d' % plate_acquisition.id.val,
+                'isOwned': True,
+                'permsCss': perms_css
+            }],
+            'plateAcquisitionsCount': 1,
+            'permsCss': perms_css
+        }]
+
+        marshaled = marshal_plates(conn, [plate_id])
         assert marshaled == expected
