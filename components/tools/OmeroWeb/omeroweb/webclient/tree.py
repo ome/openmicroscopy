@@ -21,7 +21,7 @@
 
 import omero
 
-import datetime
+from datetime import datetime
 
 
 def parse_permissions_css(permissions, ownerid, conn):
