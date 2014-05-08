@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2006-2008 University of Dundee & Open Microscopy Environment.
+ *   Copyright (C) 2006-2014 University of Dundee & Open Microscopy Environment.
  *   All rights reserved.
  *
  *   Use is subject to license terms supplied in LICENSE.txt
@@ -344,7 +344,60 @@ public class OMEROMetadataStore
     							(LightSource) referenceObject);
     					continue;
     				}
+                    if (referenceObject instanceof Annotation) {
+                        handleReference((LightSource) targetObject,
+                            (Annotation) referenceObject);
+                        continue;
+                    }
     			}
+                else if (targetObject instanceof Detector)
+                {
+                    if (referenceObject instanceof Annotation) {
+                        handleReference((Detector) targetObject,
+                            (Annotation) referenceObject);
+                        continue;
+                    }
+                }
+                else if (targetObject instanceof Dichroic)
+                {
+                    if (referenceObject instanceof Annotation) {
+                        handleReference((Dichroic) targetObject,
+                            (Annotation) referenceObject);
+                        continue;
+                    }
+                }
+                else if (targetObject instanceof Filter)
+                {
+                    if (referenceObject instanceof Annotation) {
+                        handleReference((Filter) targetObject,
+                            (Annotation) referenceObject);
+                        continue;
+                    }
+                }
+                else if (targetObject instanceof Instrument)
+                {
+                    if (referenceObject instanceof Annotation) {
+                        handleReference((Instrument) targetObject,
+                            (Annotation) referenceObject);
+                        continue;
+                    }
+                }
+                else if (targetObject instanceof Objective)
+                {
+                    if (referenceObject instanceof Annotation) {
+                        handleReference((Objective) targetObject,
+                            (Annotation) referenceObject);
+                        continue;
+                    }
+                }
+                else if (targetObject instanceof Shape)
+                {
+                    if (referenceObject instanceof Annotation) {
+                        handleReference((Shape) targetObject,
+                            (Annotation) referenceObject);
+                        continue;
+                    }
+                }
     			else if (targetObject instanceof LightSettings)
     			{
     				if (referenceObject instanceof LightSource)
@@ -366,6 +419,11 @@ public class OMEROMetadataStore
                     {
                         handleReference((LightPath) targetObject,
                                 (Filter) referenceObject, referenceLSID);
+                        continue;
+                    }
+                    if (referenceObject instanceof Annotation) {
+                        handleReference((LightPath) targetObject,
+                            (Annotation) referenceObject);
                         continue;
                     }
                 }
@@ -435,12 +493,12 @@ public class OMEROMetadataStore
                                 (WellSample) referenceObject);
                         continue;
                     }
-										if (referenceObject instanceof Annotation)
-										{
-												handleReference((PlateAcquisition) targetObject,
-														(Annotation) referenceObject);
-												continue;
-										}
+                    if (referenceObject instanceof Annotation)
+                    {
+                        handleReference((PlateAcquisition) targetObject,
+                            (Annotation) referenceObject);
+                        continue;
+                    }
                 }
     			else if (targetObject instanceof Pixels)
     			{
@@ -1391,6 +1449,97 @@ public class OMEROMetadataStore
     {
         target.linkAnnotation(reference);
     }
+
+///
+    /**
+     * Handles linking a specific reference object to a target object in our
+     * object graph.
+     * @param target Target model object.
+     * @param reference Reference model object.
+     */
+    private void handleReference(Detector target, Annotation reference)
+    {
+        target.linkAnnotation(reference);
+    }
+
+    /**
+     * Handles linking a specific reference object to a target object in our
+     * object graph.
+     * @param target Target model object.
+     * @param reference Reference model object.
+     */
+    private void handleReference(Dichroic target, Annotation reference)
+    {
+        target.linkAnnotation(reference);
+    }
+
+    /**
+     * Handles linking a specific reference object to a target object in our
+     * object graph.
+     * @param target Target model object.
+     * @param reference Reference model object.
+     */
+    private void handleReference(Filter target, Annotation reference)
+    {
+        target.linkAnnotation(reference);
+    }
+
+    /**
+     * Handles linking a specific reference object to a target object in our
+     * object graph.
+     * @param target Target model object.
+     * @param reference Reference model object.
+     */
+    private void handleReference(Instrument target, Annotation reference)
+    {
+        target.linkAnnotation(reference);
+    }
+
+    /**
+     * Handles linking a specific reference object to a target object in our
+     * object graph.
+     * @param target Target model object.
+     * @param reference Reference model object.
+     */
+    private void handleReference(LightPath target, Annotation reference)
+    {
+        target.linkAnnotation(reference);
+    }
+
+    /**
+     * Handles linking a specific reference object to a target object in our
+     * object graph.
+     * @param target Target model object.
+     * @param reference Reference model object.
+     */
+    private void handleReference(Objective target, Annotation reference)
+    {
+        target.linkAnnotation(reference);
+    }
+
+    /**
+     * Handles linking a specific reference object to a target object in our
+     * object graph.
+     * @param target Target model object.
+     * @param reference Reference model object.
+     */
+    private void handleReference(Shape target, Annotation reference)
+    {
+        target.linkAnnotation(reference);
+    }
+
+    /**
+     * Handles linking a specific reference object to a target object in our
+     * object graph.
+     * @param target Target model object.
+     * @param reference Reference model object.
+     */
+    private void handleReference(LightSource target, Annotation reference)
+    {
+        target.linkAnnotation(reference);
+    }
+
+///
 
     /**
      * Handles linking a specific reference object to a target object in our
