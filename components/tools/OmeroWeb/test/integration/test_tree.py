@@ -25,10 +25,11 @@ import pytest
 import test.integration.library as lib
 
 from omero.gateway import BlitzGateway
-from omero.model import ProjectI, DatasetI
+from omero.model import ProjectI, DatasetI, ScreenI, PlateI, \
+    PlateAcquisitionI
 from omero.rtypes import rstring
 from omeroweb.webclient.tree import marshal_datasets_for_projects, \
-    marshal_datasets
+    marshal_datasets, marshal_plates_for_screens
 
 
 def cmp_id(x, y):
@@ -131,6 +132,35 @@ def datasets(request, itest, update_service):
     return update_service.saveAndReturnArray(datasets)
 
 
+@pytest.fixture(scope='function')
+def screen_plate_run(request, itest, update_service):
+    """
+    Returns a new OMERO Screen, linked Plate, and linked PlateAcquisition
+    with all required fields set.
+    """
+    screen = ScreenI()
+    screen.name = rstring(itest.uuid())
+    plate = PlateI()
+    plate.name = rstring(itest.uuid())
+    plate_acquisition = PlateAcquisitionI()
+    plate.addPlateAcquisition(plate_acquisition)
+    screen.linkPlate(plate)
+    return update_service.saveAndReturnObject(screen)
+
+
+@pytest.fixture(scope='function')
+def screen_plate(request, itest, update_service):
+    """
+    Returns a new OMERO Screen and linked Plate with required fields set.
+    """
+    screen = ScreenI()
+    screen.name = rstring(itest.uuid())
+    plate = PlateI()
+    plate.name = rstring(itest.uuid())
+    screen.linkPlate(plate)
+    return update_service.saveAndReturnObject(screen)
+
+
 class TestTree(object):
     """
     Tests to ensure that OMERO.web "tree" infrastructure is working
@@ -206,4 +236,32 @@ class TestTree(object):
         marshaled = marshal_datasets(
             conn, [dataset_a.id.val, dataset_b.id.val]
         )
+        assert marshaled == expected
+
+    def test_marshal_screen_plate_run(self, conn, screen_plate_run):
+        screen_id = screen_plate_run.id.val
+        plate, = screen_plate_run.linkedPlateList()
+        plate_acquisition, = plate.copyPlateAcquisitions()
+        perms_css = 'canEdit canAnnotate canLink canDelete canChgrp'
+        expected = {
+            screen_id: {
+                'childCount': 1,
+                'plates': [{
+                    'id': plate.id.val,
+                    'isOwned': True,
+                    'name': plate.name.val,
+                    'plateacquisitions': [{
+                        'id': plate_acquisition.id.val,
+                        'name': 'Run %d' % plate_acquisition.id.val,
+                        'isOwned': True,
+                        'permsCss': perms_css
+                    }],
+                    'plateAcquisitionsCount': 1,
+                    'permsCss': perms_css
+                }],
+                'plateids': [plate.id.val]
+            }
+        }
+
+        marshaled = marshal_plates_for_screens(conn, [screen_id])
         assert marshaled == expected
