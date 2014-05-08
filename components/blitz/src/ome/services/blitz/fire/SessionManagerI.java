@@ -184,7 +184,7 @@ public final class SessionManagerI extends Glacier2._SessionManagerDisp
             Principal sp = new Principal(s.getUuid(), group, event);
             // Event raised to add to Ring
 
-            ServantHolder holder = new ServantHolder(s.getUuid());
+            ServantHolder holder = new ServantHolder(s.getUuid(), servantsPerSession);
             ServantHolder previous = sessionToHolder.putIfAbsent(s.getUuid(), holder);
             if (previous != null) {
                 holder = previous;
