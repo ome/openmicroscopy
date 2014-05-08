@@ -32,6 +32,16 @@
   CREATE OR REPLACE VIEW count_Dataset_annotationLinks_by_owner (Dataset_id, owner_id, count) AS select parent, owner_id, count(*)
     FROM datasetannotationlink GROUP BY parent, owner_id ORDER BY parent;
 
+  DROP TABLE count_Detector_annotationLinks_by_owner;
+
+  CREATE OR REPLACE VIEW count_Detector_annotationLinks_by_owner (Detector_id, owner_id, count) AS select parent, owner_id, count(*)
+    FROM detectorannotationlink GROUP BY parent, owner_id ORDER BY parent;
+
+  DROP TABLE count_Dichroic_annotationLinks_by_owner;
+
+  CREATE OR REPLACE VIEW count_Dichroic_annotationLinks_by_owner (Dichroic_id, owner_id, count) AS select parent, owner_id, count(*)
+    FROM dichroicannotationlink GROUP BY parent, owner_id ORDER BY parent;
+
   DROP TABLE count_Fileset_jobLinks_by_owner;
 
   CREATE OR REPLACE VIEW count_Fileset_jobLinks_by_owner (Fileset_id, owner_id, count) AS select parent, owner_id, count(*)
@@ -51,6 +61,11 @@
 
   CREATE OR REPLACE VIEW count_Filter_emissionFilterLink_by_owner (Filter_id, owner_id, count) AS select child, owner_id, count(*)
     FROM filtersetemissionfilterlink GROUP BY child, owner_id ORDER BY child;
+
+  DROP TABLE count_Filter_annotationLinks_by_owner;
+
+  CREATE OR REPLACE VIEW count_Filter_annotationLinks_by_owner (Filter_id, owner_id, count) AS select parent, owner_id, count(*)
+    FROM filterannotationlink GROUP BY parent, owner_id ORDER BY parent;
 
   DROP TABLE count_FilterSet_excitationFilterLink_by_owner;
 
@@ -72,6 +87,11 @@
   CREATE OR REPLACE VIEW count_Image_annotationLinks_by_owner (Image_id, owner_id, count) AS select parent, owner_id, count(*)
     FROM imageannotationlink GROUP BY parent, owner_id ORDER BY parent;
 
+  DROP TABLE count_Instrument_annotationLinks_by_owner;
+
+  CREATE OR REPLACE VIEW count_Instrument_annotationLinks_by_owner (Instrument_id, owner_id, count) AS select parent, owner_id, count(*)
+    FROM instrumentannotationlink GROUP BY parent, owner_id ORDER BY parent;
+
   DROP TABLE count_Job_originalFileLinks_by_owner;
 
   CREATE OR REPLACE VIEW count_Job_originalFileLinks_by_owner (Job_id, owner_id, count) AS select parent, owner_id, count(*)
@@ -87,10 +107,25 @@
   CREATE OR REPLACE VIEW count_LightPath_emissionFilterLink_by_owner (LightPath_id, owner_id, count) AS select parent, owner_id, count(*)
     FROM lightpathemissionfilterlink GROUP BY parent, owner_id ORDER BY parent;
 
+  DROP TABLE count_LightPath_annotationLinks_by_owner;
+
+  CREATE OR REPLACE VIEW count_LightPath_annotationLinks_by_owner (LightPath_id, owner_id, count) AS select parent, owner_id, count(*)
+    FROM lightpathannotationlink GROUP BY parent, owner_id ORDER BY parent;
+
+  DROP TABLE count_LightSource_annotationLinks_by_owner;
+
+  CREATE OR REPLACE VIEW count_LightSource_annotationLinks_by_owner (LightSource_id, owner_id, count) AS select parent, owner_id, count(*)
+    FROM lightsourceannotationlink GROUP BY parent, owner_id ORDER BY parent;
+
   DROP TABLE count_Namespace_annotationLinks_by_owner;
 
   CREATE OR REPLACE VIEW count_Namespace_annotationLinks_by_owner (Namespace_id, owner_id, count) AS select parent, owner_id, count(*)
     FROM namespaceannotationlink GROUP BY parent, owner_id ORDER BY parent;
+
+  DROP TABLE count_Objective_annotationLinks_by_owner;
+
+  CREATE OR REPLACE VIEW count_Objective_annotationLinks_by_owner (Objective_id, owner_id, count) AS select parent, owner_id, count(*)
+    FROM objectiveannotationlink GROUP BY parent, owner_id ORDER BY parent;
 
   DROP TABLE count_OriginalFile_pixelsFileMaps_by_owner;
 
@@ -106,11 +141,6 @@
 
   CREATE OR REPLACE VIEW count_Pixels_pixelsFileMaps_by_owner (Pixels_id, owner_id, count) AS select child, owner_id, count(*)
     FROM pixelsoriginalfilemap GROUP BY child, owner_id ORDER BY child;
-
-  DROP TABLE count_Pixels_annotationLinks_by_owner;
-
-  CREATE OR REPLACE VIEW count_Pixels_annotationLinks_by_owner (Pixels_id, owner_id, count) AS select parent, owner_id, count(*)
-    FROM pixelsannotationlink GROUP BY parent, owner_id ORDER BY parent;
 
   DROP TABLE count_PlaneInfo_annotationLinks_by_owner;
 
@@ -167,6 +197,11 @@
   CREATE OR REPLACE VIEW count_Screen_annotationLinks_by_owner (Screen_id, owner_id, count) AS select parent, owner_id, count(*)
     FROM screenannotationlink GROUP BY parent, owner_id ORDER BY parent;
 
+  DROP TABLE count_Shape_annotationLinks_by_owner;
+
+  CREATE OR REPLACE VIEW count_Shape_annotationLinks_by_owner (Shape_id, owner_id, count) AS select parent, owner_id, count(*)
+    FROM shapeannotationlink GROUP BY parent, owner_id ORDER BY parent;
+
   DROP TABLE count_Well_reagentLinks_by_owner;
 
   CREATE OR REPLACE VIEW count_Well_reagentLinks_by_owner (Well_id, owner_id, count) AS select parent, owner_id, count(*)
@@ -176,9 +211,4 @@
 
   CREATE OR REPLACE VIEW count_Well_annotationLinks_by_owner (Well_id, owner_id, count) AS select parent, owner_id, count(*)
     FROM wellannotationlink GROUP BY parent, owner_id ORDER BY parent;
-
-  DROP TABLE count_WellSample_annotationLinks_by_owner;
-
-  CREATE OR REPLACE VIEW count_WellSample_annotationLinks_by_owner (WellSample_id, owner_id, count) AS select parent, owner_id, count(*)
-    FROM wellsampleannotationlink GROUP BY parent, owner_id ORDER BY parent;
 
