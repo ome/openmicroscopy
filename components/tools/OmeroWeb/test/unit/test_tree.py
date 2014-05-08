@@ -160,7 +160,7 @@ class TestTree(object):
         # checking each with and without expected canChgrp
         for i in range(2**len(restrictions)):
             expected = []
-            permissions_dict = {'perm':'------'}
+            permissions_dict = {'perm': '------'}
             for j in range(len(restrictions)):
                 if i & 2**j != 0:
                     expected.append(restrictions[j])
