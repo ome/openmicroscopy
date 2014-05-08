@@ -80,7 +80,7 @@ class FsControl(BaseControl):
             help="list sets by their in-place import method")
         sets.add_argument(
             "--check", action="store_true",
-            help="checks each fileset for validity.")
+            help="checks each fileset for validity")
 
     def _table(self, args):
         """
