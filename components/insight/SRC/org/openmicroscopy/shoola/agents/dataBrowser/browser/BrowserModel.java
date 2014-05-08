@@ -687,15 +687,20 @@ class BrowserModel
 	{
 		if (nodes == null) return;
 		setNodesColor(nodes, getSelectedDisplays());
-		final HashSet<ImageDisplay> previouslySelectedDisplays = new HashSet<ImageDisplay>(this.selectedDisplays);
+		final HashSet<ImageDisplay> previouslySelectedDisplays =
+		        new HashSet<ImageDisplay>(this.selectedDisplays);
 		previouslySelectedDisplays.removeAll(nodes);
 		for (final ImageDisplay previouslySelectedDisplay : previouslySelectedDisplays)
 			removeSelectedDisplay(previouslySelectedDisplay);
 		boolean multiSelection = false;
+		Set<ImageDisplay> oldValue =
+                new HashSet<ImageDisplay>(selectedDisplays);
 		for (final ImageDisplay node : nodes) {
-			setSelectedDisplay(node, multiSelection, true);
+			setSelectedDisplay(node, multiSelection, false);
 			multiSelection = true;
 		}
+        firePropertyChange(SELECTED_DATA_BROWSER_NODES_DISPLAY_PROPERTY,
+                oldValue, selectedDisplays);
 	}
 	
 	/**
