@@ -235,6 +235,7 @@ class TestTree(object):
             conn, [project_a.id.val, project_b.id.val]
         )
         assert marshaled == expected
+        assert marshal_datasets_for_projects(conn, []) == {}
 
     def test_marshal_datasets(self, conn, datasets):
         dataset_a, dataset_b = datasets
@@ -254,6 +255,7 @@ class TestTree(object):
             conn, [dataset_a.id.val, dataset_b.id.val]
         )
         assert marshaled == expected
+        assert marshal_datasets(conn, []) == []
 
     def test_marshal_screen_plate_run(self, conn, screen_plate_run):
         screen_id = screen_plate_run.id.val
@@ -282,6 +284,7 @@ class TestTree(object):
 
         marshaled = marshal_plates_for_screens(conn, [screen_id])
         assert marshaled == expected
+        assert marshal_plates_for_screens(conn, []) == {}
 
     def test_marshal_plate_run(self, conn, plate_run):
         plate_id = plate_run.id.val
@@ -303,3 +306,5 @@ class TestTree(object):
 
         marshaled = marshal_plates(conn, [plate_id])
         assert marshaled == expected
+        assert marshal_plates(conn, []) == []
+
