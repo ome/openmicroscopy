@@ -126,6 +126,7 @@ import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 
+
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
@@ -1358,6 +1359,8 @@ class TreeViewerComponent
 		Object parent = null;
 		if (n == 2) parent = l.get(1);
 		if (selection == null || selection.size() == 0) return;
+		Object selected = selection.get(0);
+		
 		MetadataViewer mv = model.getMetadataViewer();
 		if (hasDataToSave()) {
 			MessageBox dialog = new MessageBox(view, "Save data", 
@@ -1366,11 +1369,15 @@ class TreeViewerComponent
 			if (dialog.centerMsgBox() == MessageBox.YES_OPTION) mv.saveData();
 			else mv.clearDataToSave();
 		}
-		Object selected = selection.get(0);
+		boolean sameSelection = true;
 		if (view.getDisplayMode() != SEARCH_MODE) {
 			Browser browser = model.getSelectedBrowser();
+			List<Object> oldSelection = browser.getSelectedDataObjects();
 			browser.onSelectedNode(parent, selection, selection.size() > 0);
+			List<Object> newSelection = browser.getSelectedDataObjects();
+			sameSelection = isSameSelection(oldSelection, newSelection);
 		}
+		
 		int size = selection.size();
 		if (size == 1) {
 			Browser browser = model.getSelectedBrowser();
@@ -1400,9 +1407,119 @@ class TreeViewerComponent
 		result.add(selection);
 		result.add(selected);
 		result.add(parent);
-		setSelectedNode(result);
+		setSelectedNode(result, sameSelection);
 	}
 
+	/**
+	 * Sets the selected node and loads the annotations if requested.
+	 *
+	 * @param object The object to handle.
+	 * @param sameSelection Pass <code>true</code> if it is the same selection.
+	 *                      Annotation will not be loaded, <code>false</code>
+	 *                      otherwise.
+	 */
+	private void setSelectedNode(Object object, boolean sameSelection)
+	{
+	    if (object == null) return;
+        if (!(object instanceof List)) return;
+        List l = (List) object;
+        int n = l.size();
+        if (n > 3) return;
+        Object selected = l.get(1);
+        Object parent = null;
+        if (n == 3) parent = l.get(2);
+        if (selected instanceof ImageData) {
+            ImageData img = (ImageData) selected;
+            try {
+                img.getDefaultPixels();
+            } catch (Exception e) {
+                UserNotifier un =
+                        TreeViewerAgent.getRegistry().getUserNotifier();
+                un.notifyInfo("Image Not valid", 
+                        "The selected image is not valid.");
+                return;
+            }
+        } else if (selected instanceof WellSampleData) {
+            WellSampleData ws = (WellSampleData) selected;
+            if (ws.getId() < 0) {
+                UserNotifier un =
+                        TreeViewerAgent.getRegistry().getUserNotifier();
+                un.notifyInfo("Well Not valid", 
+                        "The selected well is not valid.");
+                return;
+            }
+        }
+        MetadataViewer mv = model.getMetadataViewer();
+        if (hasDataToSave()) {
+            MessageBox dialog = new MessageBox(view, "Save data",
+                    "Do you want to save the modified " +
+                    "data \n before selecting a new item?");
+            if (dialog.centerMsgBox() == MessageBox.YES_OPTION) mv.saveData();
+            else mv.clearDataToSave();
+        }
+        List<Object> siblings = (List<Object>) l.get(0);
+        int size = siblings.size();
+        if (view.getDisplayMode() != SEARCH_MODE) {
+            Browser browser = model.getSelectedBrowser();
+            browser.onSelectedNode(parent, selected, size > 0);
+        }
+        mv.setSelectionMode(size == 0);
+        Browser browser = model.getSelectedBrowser();
+        ExperimenterData exp = null;
+        TreeImageDisplay last = null;
+        if (browser != null) last = browser.getLastSelectedDisplay();
+        if (last != null) exp = browser.getNodeOwner(last);
+        if (exp == null) exp = model.getUserDetails();
+        Object grandParent = null;
+        if (selected instanceof WellSampleData) {
+            if (parent instanceof WellData) 
+                grandParent = ((WellData) parent).getPlate();
+        }
+
+        if (!sameSelection) {
+            if (browser == null) {
+                if (selected instanceof DataObject) {
+                    SecurityContext ctx = new SecurityContext(
+                            ((DataObject) selected).getGroupId());
+                    mv.setRootObject(selected, exp.getId(), ctx);
+                }
+            } else {
+                mv.setRootObject(selected, exp.getId(),
+                        browser.getSecurityContext(last));
+            }
+            mv.setParentRootObject(parent, grandParent);
+        }
+
+        TreeImageDisplay[] selection = null;
+        if (browser != null) selection = browser.getSelectedDisplays();
+        if (selection != null && selection.length > 0) {
+            if (selected instanceof WellSampleData) {
+                siblings.add(selected);
+                if (siblings.size() > 1 && !sameSelection)
+                    mv.setRelatedNodes(siblings);
+            } else {
+                siblings = new ArrayList<Object>(selection.length);
+                for (int i = 0; i < selection.length; i++) {
+                    siblings.add(selection[i].getUserObject());
+                }
+                if (siblings.size() > 1 && !sameSelection)
+                    mv.setRelatedNodes(siblings);
+            }
+
+        }
+        if (model.getDataViewer() != null)
+            model.getDataViewer().setApplications(
+                    TreeViewerFactory.getApplications(
+                            model.getObjectMimeType(selected)));
+        if (!model.isFullScreen()) {
+            browse(browser.getLastSelectedDisplay(), null, false);
+        }
+
+        //Notifies actions.
+        firePropertyChange(SELECTION_PROPERTY, Boolean.valueOf(false),
+                Boolean.valueOf(true));
+	}
+	
 	/**
 	 * Checks if the specified lists contained the same elements.
 	 * Returns <code>true</code> if it is the same selection,
@@ -1415,6 +1532,7 @@ class TreeViewerComponent
 	private boolean isSameSelection(List<Object> oldSelection,
 	        List<Object> newSelection)
 	{
+	    if (oldSelection == null || newSelection == null) return false;
 	    int s1 = oldSelection.size();
 	    int s2 = newSelection.size();
 	    if (s1 != s2 || (s1 == 0 && s2 > 0) || (s1 > 0 && s2 == 0)) {
@@ -1449,7 +1567,7 @@ class TreeViewerComponent
                 }
             }
         }
-	    return count == s1;
+	    return count == ids.size();
 	}
 
 	/**
@@ -1459,111 +1577,24 @@ class TreeViewerComponent
 	public void setSelectedNode(Object object)
 	{
 	    if (object == null) return;
-	    if (!(object instanceof List)) return;
-	    List l = (List) object;
-	    int n = l.size();
-	    if (n > 3) return;
-	    Object selected = l.get(1);
-	    Object parent = null;
-	    if (n == 3) parent = l.get(2);
-	    if (selected instanceof ImageData) {
-	        ImageData img = (ImageData) selected;
-	        try {
-	            img.getDefaultPixels();
-	        } catch (Exception e) {
-	            UserNotifier un =
-	                    TreeViewerAgent.getRegistry().getUserNotifier();
-	            un.notifyInfo("Image Not valid", 
-	                    "The selected image is not valid.");
-	            return;
-	        }
-	    } else if (selected instanceof WellSampleData) {
-	        WellSampleData ws = (WellSampleData) selected;
-	        if (ws.getId() < 0) {
-	            UserNotifier un =
-	                    TreeViewerAgent.getRegistry().getUserNotifier();
-	            un.notifyInfo("Well Not valid", 
-	                    "The selected well is not valid.");
-	            return;
-	        }
-	    }
-	    MetadataViewer mv = model.getMetadataViewer();
-	    if (hasDataToSave()) {
-	        MessageBox dialog = new MessageBox(view, "Save data",
-	                "Do you want to save the modified " +
-	                "data \n before selecting a new item?");
-	        if (dialog.centerMsgBox() == MessageBox.YES_OPTION) mv.saveData();
-	        else mv.clearDataToSave();
-	    }
-
-	    boolean sameSelection = false;
-	    List<Object> oldSelection = new ArrayList<Object>();
-	    List<Object> newSelection = new ArrayList<Object>();
-	    List<Object> siblings = (List<Object>) l.get(0);
-	    int size = siblings.size();
-	    if (view.getDisplayMode() != SEARCH_MODE) {
-	        Browser browser = model.getSelectedBrowser();
-	        oldSelection = browser.getSelectedDataObjects();
-	        browser.onSelectedNode(parent, selected, size > 0);
-	        newSelection = browser.getSelectedDataObjects();
-	        sameSelection = isSameSelection(oldSelection, newSelection);
-	    }
-	    mv.setSelectionMode(size == 0);
-	    Browser browser = model.getSelectedBrowser();
-	    ExperimenterData exp = null;
-	    TreeImageDisplay last = null;
-	    if (browser != null) last = browser.getLastSelectedDisplay();
-	    if (last != null) exp = browser.getNodeOwner(last);
-	    if (exp == null) exp = model.getUserDetails();
-	    Object grandParent = null;
-	    if (selected instanceof WellSampleData) {
-	        if (parent instanceof WellData) 
-	            grandParent = ((WellData) parent).getPlate();
-	    }
-
-	    
-	    if (!sameSelection) {
-	        if (browser == null) {
-	            if (selected instanceof DataObject) {
-	                SecurityContext ctx = new SecurityContext(
-	                        ((DataObject) selected).getGroupId());
-	                mv.setRootObject(selected, exp.getId(), ctx);
-	            }
-	        } else {
-	            mv.setRootObject(selected, exp.getId(),
-	                    browser.getSecurityContext(last));
-	        }
-	        mv.setParentRootObject(parent, grandParent);
-	    }
-
-	    TreeImageDisplay[] selection = null;
-	    if (browser != null) selection = browser.getSelectedDisplays();
-	    if (selection != null && selection.length > 0) {
-	        if (selected instanceof WellSampleData) {
-	            siblings.add(selected);
-	            if (siblings.size() > 1 && !sameSelection)
-	                mv.setRelatedNodes(siblings);
-	        } else {
-	            siblings = new ArrayList<Object>(selection.length);
-	            for (int i = 0; i < selection.length; i++) {
-	                siblings.add(selection[i].getUserObject());
-	            }
-	            if (siblings.size() > 1 && !sameSelection)
-	                mv.setRelatedNodes(siblings);
-	        }
-
-	    }
-	    if (model.getDataViewer() != null)
-	        model.getDataViewer().setApplications(
-	                TreeViewerFactory.getApplications(
-	                        model.getObjectMimeType(selected)));
-	    if (!model.isFullScreen()) {
-	        browse(browser.getLastSelectedDisplay(), null, false);
-	    }
-
-	    //Notifies actions.
-	    firePropertyChange(SELECTION_PROPERTY, Boolean.valueOf(false),
-	            Boolean.valueOf(true));
+        if (!(object instanceof List)) return;
+        List l = (List) object;
+        int n = l.size();
+        if (n > 3) return;
+        Object selected = l.get(1);
+        Object parent = null;
+        if (n == 3) parent = l.get(2);
+        List<Object> siblings = (List<Object>) l.get(0);
+        boolean sameSelection = true;
+        if (view.getDisplayMode() != SEARCH_MODE) {
+            Browser browser = model.getSelectedBrowser();
+            List<Object> oldSelection = browser.getSelectedDataObjects();
+            List<Object> newSelection = new ArrayList<Object>();
+            newSelection.add(selected);
+            sameSelection = isSameSelection(oldSelection, newSelection);
+        }
+        
+	    setSelectedNode(object, sameSelection);
 	}
 
 	/**
