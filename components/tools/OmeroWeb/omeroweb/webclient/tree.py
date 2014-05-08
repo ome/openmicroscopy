@@ -175,6 +175,8 @@ def marshal_datasets(conn, dataset_ids):
     if len(dataset_ids) == 0:
         return []
     datasets = []
+    params = omero.sys.ParametersI()
+    params.addIds(dataset_ids)
     qs = conn.getQueryService()
     q = """
         select dataset.id,
@@ -184,10 +186,10 @@ def marshal_datasets(conn, dataset_ids):
                (select count(id) from DatasetImageLink dil
                  where dil.parent=dataset.id)
                from Dataset dataset
-        where dataset.id in (%s)
+        where dataset.id in (:ids)
         order by dataset.name
-        """ % ','.join((str(x) for x in dataset_ids))
-    for e in qs.projection(q, None, conn.SERVICE_OPTS):
+        """
+    for e in qs.projection(q, params, conn.SERVICE_OPTS):
         datasets.append(marshal_dataset(conn, e[0:5]))
     return datasets
 
@@ -204,6 +206,8 @@ def marshal_plates_for_screens(conn, screen_ids):
     if len(screen_ids) == 0:
         return {}
     screens = {}
+    params = omero.sys.ParametersI()
+    params.addIds(screen_ids)
     qs = conn.getQueryService()
     q = """
         select screen.id,
@@ -221,10 +225,10 @@ def marshal_plates_for_screens(conn, screen_ids):
                join screen.plateLinks splink
                join splink.child plate
                join plate.plateAcquisitions pa
-        where screen.id in (%s)
+        where screen.id in (:ids)
         order by screen.name, plate.name, pa.id
-        """ % ','.join((str(x) for x in screen_ids))
-    for e in qs.projection(q, None, conn.SERVICE_OPTS):
+        """
+    for e in qs.projection(q, params, conn.SERVICE_OPTS):
         s = screens.setdefault(e[0].val, {'plateids': [], 'plates': {}})
         pid = e[1].val
         p = s['plates'].setdefault(pid, marshal_plate(conn, e[1:5]))
@@ -255,6 +259,8 @@ def marshal_plates(conn, plate_ids):
         return []
     plates = {}
     plateids = []
+    params = omero.sys.ParametersI()
+    params.addIds(plate_ids)
     qs = conn.getQueryService()
     q = """
         select plate.id,
@@ -269,10 +275,10 @@ def marshal_plates(conn, plate_ids):
                pa.endTime
                from Plate plate
                join plate.plateAcquisitions pa
-        where plate.id in (%s)
+        where plate.id in (:ids)
         order by plate.name, pa.id
-        """ % ','.join((str(x) for x in plate_ids))
-    for e in qs.projection(q, None, conn.SERVICE_OPTS):
+        """
+    for e in qs.projection(q, params, conn.SERVICE_OPTS):
         pid = e[0].val
         p = plates.setdefault(pid, marshal_plate(conn, e[0:4]))
         if pid not in plateids:
