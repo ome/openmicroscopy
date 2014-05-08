@@ -25,6 +25,7 @@ import ome.api.IUpdate;
 import ome.api.RawFileStore;
 import ome.api.local.LocalAdmin;
 import ome.model.core.OriginalFile;
+import ome.model.enums.ChecksumAlgorithm;
 import ome.services.blitz.util.BlitzExecutor;
 import ome.services.blitz.util.BlitzOnly;
 import ome.services.blitz.util.ServiceFactoryAware;
@@ -586,6 +587,7 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
         file.setName(FilenameUtils.getName(path));
         file.setPath(FilenameUtils.getFullPath(path));
         file.setSize((long) script.getBytes().length);
+        file.setHasher(new ChecksumAlgorithm("SHA1-160"));
         file.setHash(cpf.getProvider(ChecksumType.SHA1)
                 .putBytes(script.getBytes()).checksumAsString());
         scripts.setMimetype(file);
