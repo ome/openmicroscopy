@@ -27,7 +27,8 @@ import test.integration.library as lib
 from omero.gateway import BlitzGateway
 from omero.model import ProjectI, DatasetI
 from omero.rtypes import rstring
-from omeroweb.webclient.tree import marshal_datasets_for_projects
+from omeroweb.webclient.tree import marshal_datasets_for_projects, \
+    marshal_datasets
 
 
 def cmp_id(x, y):
@@ -119,6 +120,17 @@ def project_dataset_image(request, itest, update_service):
     return update_service.saveAndReturnObject(project)
 
 
+@pytest.fixture(scope='function')
+def datasets(request, itest, update_service):
+    """
+    Returns a two new OMERO Datasets with required fields set.
+    """
+    datasets = [DatasetI(), DatasetI()]
+    for dataset in datasets:
+        dataset.name = rstring(itest.uuid())
+    return update_service.saveAndReturnArray(datasets)
+
+
 class TestTree(object):
     """
     Tests to ensure that OMERO.web "tree" infrastructure is working
@@ -174,5 +186,24 @@ class TestTree(object):
 
         marshaled = marshal_datasets_for_projects(
             conn, [project_a.id.val, project_b.id.val]
+        )
+        assert marshaled == expected
+
+    def test_marshal_datasets(self, conn, datasets):
+        dataset_a, dataset_b = datasets
+        expected = list()
+        # The underlying query explicitly orders the Datasets list by
+        # name.
+        for dataset in sorted((dataset_a, dataset_b), cmp_name):
+            expected.append({
+                'id': dataset.id.val,
+                'name': dataset.name.val,
+                'isOwned': True,
+                'childCount': 0L,
+                'permsCss': 'canEdit canAnnotate canLink canDelete canChgrp'
+            })
+
+        marshaled = marshal_datasets(
+            conn, [dataset_a.id.val, dataset_b.id.val]
         )
         assert marshaled == expected
