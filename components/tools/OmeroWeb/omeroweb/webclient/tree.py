@@ -43,6 +43,38 @@ def parse_permissions_css(permissions, ownerid, conn):
     return ' '.join(permissionsCss)
 
 
+def marshal_plate_acquisition(conn, row):
+    ''' Given a PlateAcquisition row (list) marshals it into a
+        dictionary.  Order and type of columns in row is:
+          * id (rlong)
+          * name (rstring)
+          * details.owner.id (rlong)
+          * details.permissions (dict)
+          * startTime (rtime)
+          * endTime (rtime)
+
+        @param conn OMERO gateway.
+        @type conn L{omero.gateway.BlitzGateway}
+        @param row The ProjectAcquisition row to marshal
+        @type row L{list}
+    '''
+    pa_id, name, owner_id, permissions, start_time, end_time = row
+    plate_acquisition = dict()
+    plate_acquisition['id'] = pa_id.val
+    if name is not None:
+        plate_acquisition['name'] = name.val
+    elif start_time is not None and end_time is not None:
+        start_time = datetime.fromtimestamp(start_time.val / 1000.0)
+        end_time = datetime.fromtimestamp(end_time.val / 1000.0)
+        plate_acquisition['name'] = '%s - %s' % (start_time, end_time)
+    else:
+        plate_acquisition['name'] = 'Run %d' % pa_id.val
+    plate_acquisition['permsCss'] = \
+        parse_permissions_css(permissions, owner_id.val, conn)
+    plate_acquisition['isOwned'] = owner_id.val == conn.getUserId()
+    return plate_acquisition
+
+
 def marshal_datasets_for_projects(conn, project_ids):
     ''' Given a list of project ids, marshals the contained datasets, grouping
         by parent project.
@@ -166,20 +198,9 @@ def marshal_plates_for_screens(conn, screen_ids):
             p['id'] = e[1].val
             p['name'] = e[2].val
             p['plateacquisitions'] = []
-        pa = {}
-        pa['id'] = e[5].val
-        if e[6] is not None:
-            pa['name'] = e[6].val
-        else:
-            if e[9] is not None and e[10] is not None:
-                pa['name'] = "%s - %s" % \
-                    (datetime.fromtimestamp(e[9].val/1000),
-                     datetime.fromtimestamp(e[10].val/1000))
-            else:
-                pa['name'] = 'Run %d' % pa['id']
-        pa['permsCss'] = parse_permissions_css(e[8].val, e[7].val, conn)
-        pa['isOwned'] = e[7].val == conn.getUserId()
-        p['plateacquisitions'].append(pa)
+        p['plateacquisitions'].append(
+            marshal_plate_acquisition(conn, e[5:11])
+        )
     for s in screens.keys():
         screens[s]['childCount'] = len(screens[s]['plates'])
         # keeping plates ordered
@@ -232,20 +253,9 @@ def marshal_plates(conn, plate_ids):
             p['id'] = pid
             p['name'] = e[1].val
             p['plateacquisitions'] = []
-        pa = {}
-        pa['id'] = e[4].val
-        if e[5] is not None:
-            pa['name'] = e[5].val
-        else:
-            if e[8] is not None and e[9] is not None:
-                pa['name'] = "%s - %s" % \
-                    (datetime.fromtimestamp(e[8].val/1000),
-                     datetime.fromtimestamp(e[9].val/1000))
-            else:
-                pa['name'] = 'Run %d' % pa['id']
-        pa['permsCss'] = parse_permissions_css(e[7].val, e[6].val, conn)
-        pa['isOwned'] = e[6].val == conn.getUserId()
-        p['plateacquisitions'].append(pa)
+        p['plateacquisitions'].append(
+            marshal_plate_acquisition(conn, e[4:10])
+        )
     # keeping plates ordered
     plates = [plates[x] for x in plateids]
     for p in plates:
