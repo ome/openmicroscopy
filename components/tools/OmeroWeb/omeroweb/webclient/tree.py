@@ -88,6 +88,8 @@ def marshal_datasets_for_projects(conn, project_ids):
         return {}
     projects = {}
     qs = conn.getQueryService()
+    params = omero.sys.ParametersI()
+    params.addIds(project_ids)
     q = """
         select project.id,
                dataset.id,
@@ -100,10 +102,10 @@ def marshal_datasets_for_projects(conn, project_ids):
                from ProjectDatasetLink pdlink
                join pdlink.parent project
                join pdlink.child dataset
-        where project.id in (%s)
+        where project.id in (:ids)
         order by dataset.name
-        """ % ','.join((str(x) for x in project_ids))
-    for e in qs.projection(q, None, conn.SERVICE_OPTS):
+        """
+    for e in qs.projection(q, params, conn.SERVICE_OPTS):
         p = projects.setdefault(e[0].val, {'datasets': []})
         if 'permsCss' not in p:
             p['permsCss'] = parse_permissions_css(e[4].val, e[5].val, conn)
