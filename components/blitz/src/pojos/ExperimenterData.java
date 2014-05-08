@@ -201,7 +201,7 @@ public class ExperimenterData extends DataObject {
             for (GroupExperimenterMap link : links) {
                     // if you somehow managed to delete a user's default group
                     // link can be null!
-                    if(link!=null) {
+                    if (link != null) {
                         groups.add(new GroupData(link.getParent()));
                     }
             }
