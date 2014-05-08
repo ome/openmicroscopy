@@ -1312,6 +1312,14 @@ class TreeViewerComponent
 					if (pp != null) gpp = pp.getUserObject();
 					metadata.setParentRootObject(p.getUserObject(), gpp);
 				}
+			} else {
+			    List<Object> l = new ArrayList<Object>(selection.length);
+			    for (int i = 0; i < selection.length; i++) {
+			        l.add(selection[i].getUserObject());
+			    }
+			    if (l.size() > 0) {
+			        metadata.setRelatedNodes(l);
+			    }
 			}
 			if (!model.isFullScreen()) {
 				showDataBrowser(object, display, false);
@@ -1383,7 +1391,7 @@ class TreeViewerComponent
 				browse(browser.getLastSelectedDisplay(), null, false);
 			}
 			//Notifies actions.
-			firePropertyChange(SELECTION_PROPERTY, Boolean.valueOf(false), 
+			firePropertyChange(SELECTION_PROPERTY, Boolean.valueOf(false),
 					Boolean.valueOf(true));
 			return;
 		}
@@ -1393,6 +1401,55 @@ class TreeViewerComponent
 		result.add(selected);
 		result.add(parent);
 		setSelectedNode(result);
+	}
+
+	/**
+	 * Checks if the specified lists contained the same elements.
+	 * Returns <code>true</code> if it is the same selection,
+	 * <code>false</code> otherwise.
+	 *
+	 * @param oldSelection The selection prior to change.
+	 * @param newSelection The new selection
+	 * @return See above.
+	 */
+	private boolean isSameSelection(List<Object> oldSelection,
+	        List<Object> newSelection)
+	{
+	    int s1 = oldSelection.size();
+	    int s2 = newSelection.size();
+	    if (s1 != s2 || (s1 == 0 && s2 > 0) || (s1 > 0 && s2 == 0)) {
+	        return false;
+	    }
+	    List<Long> ids = new ArrayList<Long>();
+	    Class<?> klass = null;
+	    Object object;
+	    DataObject data;
+	    Iterator<Object> i = oldSelection.iterator();
+	    while (i.hasNext()) {
+	        object = i.next();
+	        klass = object.getClass();
+            if (object instanceof DataObject) {
+                data = (DataObject) object;
+                if (!ids.contains(data.getId())) {
+                    ids.add(data.getId());
+                }
+            }
+        }
+	    int count = 0;
+	    i = newSelection.iterator();
+	    while (i.hasNext()) {
+            object = i.next();
+            if (!klass.equals(object.getClass())) {
+                return false;
+            }
+            if (object instanceof DataObject) {
+                data = (DataObject) object;
+                if (ids.contains(data.getId())) {
+                    count++;
+                }
+            }
+        }
+	    return count == s1;
 	}
 
 	/**
@@ -1439,11 +1496,17 @@ class TreeViewerComponent
 	        else mv.clearDataToSave();
 	    }
 
+	    boolean sameSelection = false;
+	    List<Object> oldSelection = new ArrayList<Object>();
+	    List<Object> newSelection = new ArrayList<Object>();
 	    List<Object> siblings = (List<Object>) l.get(0);
 	    int size = siblings.size();
 	    if (view.getDisplayMode() != SEARCH_MODE) {
 	        Browser browser = model.getSelectedBrowser();
+	        oldSelection = browser.getSelectedDataObjects();
 	        browser.onSelectedNode(parent, selected, size > 0);
+	        newSelection = browser.getSelectedDataObjects();
+	        sameSelection = isSameSelection(oldSelection, newSelection);
 	    }
 	    mv.setSelectionMode(size == 0);
 	    Browser browser = model.getSelectedBrowser();
@@ -1458,31 +1521,34 @@ class TreeViewerComponent
 	            grandParent = ((WellData) parent).getPlate();
 	    }
 
-	    if (browser == null) {
-	        if (selected instanceof DataObject) {
-	            SecurityContext ctx = new SecurityContext(
-	                    ((DataObject) selected).getGroupId());
-	            mv.setRootObject(selected, exp.getId(), ctx);
+	    
+	    if (!sameSelection) {
+	        if (browser == null) {
+	            if (selected instanceof DataObject) {
+	                SecurityContext ctx = new SecurityContext(
+	                        ((DataObject) selected).getGroupId());
+	                mv.setRootObject(selected, exp.getId(), ctx);
+	            }
+	        } else {
+	            mv.setRootObject(selected, exp.getId(),
+	                    browser.getSecurityContext(last));
 	        }
-	    } else {
-	        mv.setRootObject(selected, exp.getId(),
-	                browser.getSecurityContext(last));
+	        mv.setParentRootObject(parent, grandParent);
 	    }
-	    mv.setParentRootObject(parent, grandParent);
 
 	    TreeImageDisplay[] selection = null;
 	    if (browser != null) selection = browser.getSelectedDisplays();
 	    if (selection != null && selection.length > 0) {
 	        if (selected instanceof WellSampleData) {
 	            siblings.add(selected);
-	            if (siblings.size() > 1)
+	            if (siblings.size() > 1 && !sameSelection)
 	                mv.setRelatedNodes(siblings);
 	        } else {
 	            siblings = new ArrayList<Object>(selection.length);
 	            for (int i = 0; i < selection.length; i++) {
 	                siblings.add(selection[i].getUserObject());
 	            }
-	            if (siblings.size() > 1)
+	            if (siblings.size() > 1 && !sameSelection)
 	                mv.setRelatedNodes(siblings);
 	        }
 
