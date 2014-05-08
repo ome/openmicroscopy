@@ -191,6 +191,7 @@ class TestTree(object):
     def test_marshal_project_dataset(self, conn, project_dataset):
         project_id = project_dataset.id.val
         dataset, = project_dataset.linkedDatasetList()
+        perms_css = 'canEdit canAnnotate canLink canDelete canChgrp'
         expected = {
             project_id: {
                 'childCount': 1L,
@@ -199,9 +200,9 @@ class TestTree(object):
                     'id': dataset.id.val,
                     'isOwned': True,
                     'name': dataset.name.val,
-                    'permsCss': 'canEdit canAnnotate canLink canDelete canChgrp'
+                    'permsCss': perms_css
                 }],
-                'permsCss': 'canEdit canAnnotate canLink canDelete canChgrp'
+                'permsCss': perms_css
             }
         }
 
@@ -211,12 +212,13 @@ class TestTree(object):
     def test_marshal_projects_datasets(self, conn, projects_datasets):
         project_a, project_b = projects_datasets
         expected = dict()
+        perms_css = 'canEdit canAnnotate canLink canDelete canChgrp'
         for project in (project_a, project_b):
             datasets = list()
             expected[project.id.val] = {
                 'childCount': 2L,
                 'datasets': datasets,
-                'permsCss': 'canEdit canAnnotate canLink canDelete canChgrp'
+                'permsCss': perms_css
             }
             # The underlying query explicitly orders the Datasets list by
             # name.
@@ -226,7 +228,7 @@ class TestTree(object):
                     'id': dataset.id.val,
                     'isOwned': True,
                     'name': dataset.name.val,
-                    'permsCss': 'canEdit canAnnotate canLink canDelete canChgrp'
+                    'permsCss': perms_css
                 })
 
         marshaled = marshal_datasets_for_projects(
