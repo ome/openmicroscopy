@@ -43,8 +43,12 @@ sys.path.insert(0, os.path.join(rundir, "target"))
 import omero.scripts as s
 import omero.util.script_utils as su
 
-client = s.client(
-    "test_inputs.py")
+
+client = s.client("test_inputs.py",
+    s.Int("a"),
+    s.String("b", default="c"),
+    s.String("d"),
+)
 
 for method, inputs in (
         ('arg', client.getInputs(True)),
@@ -52,13 +56,41 @@ for method, inputs in (
         ('util', su.parseInputs(client))
     ):
 
+    # The params object contains all the metadata
+    # passed to the constructor above.
+    defined = client.params.inputs.keys()
+    if set(["a", "b", "d"]) != set(defined):
+        raise Exception("Failed!")
+
     a = inputs["a"]
     if not isinstance(a, (int, long)):
         raise Exception("Failed!")
+
+    b = inputs.get("b")
+    if b != "c":
+        raise Exception("Failed!")
+
+    d = inputs.get("d")
+    if d is not None:
+        raise Exception("Failed!")
+
 """
 
 
 class TestInputs(lib.ITest):
+
+    def output(self, results, which):
+        out = results.get(which, None)
+        if out:
+            rfs = self.root.sf.createRawFileStore()
+            try:
+                rfs.setFileId(out.val.id.val)
+                text = rfs.read(0, rfs.size())
+                if text.strip():
+                    print "===", which, "==="
+                    print text
+            finally:
+                rfs.close()
 
     def testInputs(self):
         import logging
@@ -78,6 +110,9 @@ class TestInputs(lib.ITest):
                     count -= 1
                     assert count != 0
                 rc = process.poll()
+                results = process.getResults(0)
+                self.output(results, "stdout")
+                self.output(results, "stderr")
                 assert rc is not None
                 assert rc.val == 0
             finally:
