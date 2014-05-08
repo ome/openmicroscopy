@@ -25,6 +25,7 @@ import pytest
 
 from omero.rtypes import rlong, rstring, rtime
 from omeroweb.webclient.tree import marshal_plate_acquisition
+from omeroweb.webclient.tree import parse_permissions_css
 
 
 class MockConnection(object):
@@ -151,3 +152,36 @@ class TestTree(object):
 
         marshaled = marshal_plate_acquisition(mock_conn, row)
         assert marshaled == expected
+
+    def test_parse_permissions_css(
+            self, mock_conn):
+        restrictions = ('canEdit', 'canAnnotate', 'canLink', 'canDelete')
+        # Iterate through every combination of the restrictions' flags,
+        # checking each with and without expected canChgrp
+        for i in range(2**len(restrictions)):
+            expected = []
+            permissions_dict = {'perm':'------'}
+            for j in range(len(restrictions)):
+                if i & 2**j != 0:
+                    expected.append(restrictions[j])
+                    permissions_dict[restrictions[j]] = True
+                else:
+                    permissions_dict[restrictions[j]] = False
+            expected.sort()
+            owner_id = mock_conn.getUserId()
+            # Test with different owner_ids, which means canChgrp is False
+            received = parse_permissions_css(permissions_dict,
+                                             owner_id+1,
+                                             mock_conn)
+            received = filter(None, received.split(' '))
+            received.sort()
+            assert expected == received
+            # Test with matching owner_ids, which means canChgrp is True
+            expected.append('canChgrp')
+            expected.sort()
+            received = parse_permissions_css(permissions_dict,
+                                             owner_id,
+                                             mock_conn)
+            received = filter(None, received.split(' '))
+            received.sort()
+            assert expected == received
