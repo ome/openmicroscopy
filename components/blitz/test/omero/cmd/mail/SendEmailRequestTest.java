@@ -88,6 +88,7 @@ public class SendEmailRequestTest extends AbstractServantTest {
 		req.userIds = new ArrayList<Long>(Arrays.asList(0L));
 		req.groupIds = new ArrayList<Long>(Arrays.asList(0L));
 		req.cc = new ArrayList<String>(Arrays.asList("user@mail"));
+		req.bcc = new ArrayList<String>(Arrays.asList("user@mail"));
 		req.subject = "topic";
 		req.body = "text";
 		

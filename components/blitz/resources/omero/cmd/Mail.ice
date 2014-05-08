@@ -18,13 +18,14 @@ module omero {
     module cmd {
 		
 		class SendEmailRequest extends Request {
+			string subject;
+			string body;
+			bool html;
 			omero::sys::LongList userIds;
 			omero::sys::LongList groupIds;
 			omero::api::StringSet cc;
+			omero::api::StringSet bcc;
 			bool activeonly;
-			string subject;
-			string body;
-			string mimetype;
 		};
 
 		class SendEmailResponse extends Response {

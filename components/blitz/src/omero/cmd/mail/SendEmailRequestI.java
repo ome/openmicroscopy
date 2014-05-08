@@ -50,7 +50,10 @@ public class SendEmailRequestI extends SendEmailRequest implements
 
 	private final SendEmailResponse rsp = new SendEmailResponse();
 
+	private String sender = null;
 	private String [] recipients = null;
+	private String [] ccrecipients = null;
+	private String [] bccrecipients = null;
 	
 	protected final JavaMailSender mailSender;
     
@@ -73,9 +76,21 @@ public class SendEmailRequestI extends SendEmailRequest implements
 
 	public void init(Helper helper) {
 		this.helper = helper;
+		
+		this.sender = helper.getServiceFactory().getConfigService().getConfigValue("omero.mail.from");
+		if (this.sender.length() < 1) 
+			throw helper.cancel(new ERR(), null, "no-sender");
+		if (subject.length() < 1) 
+			throw helper.cancel(new ERR(), null, "no-subject");
+		if (body.length() < 1) 
+			throw helper.cancel(new ERR(), null, "no-body");
+		
 		this.recipients = parseRecipients();
+		this.ccrecipients = parseCCRecipients();
+		this.bccrecipients = parseBccRecipients();
 		if (this.recipients.length < 1)
 			throw helper.cancel(new ERR(), null, "no-recipiest");
+		
 		this.helper.setSteps(this.recipients.length);
 	}
 
@@ -144,15 +159,37 @@ public class SendEmailRequestI extends SendEmailRequest implements
 		return recipients.toArray(new String[recipients.size()]);
 	}
 	
+	private String [] parseCCRecipients(){
+		Set<String> ccrecipients = new HashSet<String>();
+		for (final String e : cc) {
+			if (e.length() > 5) {
+				ccrecipients.add(e);
+			}
+		}
+		return ccrecipients.toArray(new String[ccrecipients.size()]);
+	}
+	
+	private String [] parseBccRecipients(){
+		Set<String> bccrecipients = new HashSet<String>();
+		for (final String e : bcc) {
+			if (e.length() > 5) {
+				bccrecipients.add(e);
+			}
+		}
+		return bccrecipients.toArray(new String[bccrecipients.size()]);
+	}
+	
 	private boolean sendEmail(final String recipient) {
 		MimeMessagePreparator preparator = new MimeMessagePreparator() {
 			public void prepare(MimeMessage mimeMessage) throws Exception {
+				
 				MimeMessageHelper message = new MimeMessageHelper(mimeMessage);
-				message.setFrom(new InternetAddress(
-						helper.getServiceFactory().getConfigService().getConfigValue("omero.mail.from")));
+				message.setFrom(new InternetAddress(sender));
 				message.setSubject(subject);
-				message.setTo(recipient);
-				message.setText(body, true);
+				message.setTo(new InternetAddress(recipient));
+				if (ccrecipients.length > 0) message.setCc(ccrecipients);
+				if (bccrecipients.length > 0) message.setCc(bccrecipients);
+				message.setText(body, html);
 			}
 		};
 		
