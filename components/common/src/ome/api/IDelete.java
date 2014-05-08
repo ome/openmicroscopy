@@ -188,7 +188,7 @@ public interface IDelete extends ServiceInterface {
      * so that all Dataset and Annotation links are broken, with WellSamples removed
      * first. Then all Wells in the Plate and the Plate itself are removed.
      *
-     * WellSampleAnnotationLinks, WellAnnotationLinks, and PlateAnnotationLinks are
+     * WellAnnotationLinks, and PlateAnnotationLinks are
      * deleted as necessary.
      *
      * @param plateId

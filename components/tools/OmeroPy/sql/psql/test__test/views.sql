@@ -51,11 +51,6 @@
   CREATE OR REPLACE VIEW count_Pixels_pixelsFileMaps_by_owner (Pixels_id, owner_id, count) AS select child, owner_id, count(*)
     FROM PixelsOriginalFileMap GROUP BY child, owner_id ORDER BY child;
 
-  DROP TABLE count_Pixels_annotationLinks_by_owner;
-
-  CREATE OR REPLACE VIEW count_Pixels_annotationLinks_by_owner (Pixels_id, owner_id, count) AS select parent, owner_id, count(*)
-    FROM PixelsAnnotationLink GROUP BY parent, owner_id ORDER BY parent;
-
   CREATE OR REPLACE FUNCTION channelbinding_renderingDef_index_move() RETURNS "trigger" AS '
     DECLARE
       duplicate INT8;
@@ -202,11 +197,6 @@
 
   CREATE OR REPLACE VIEW count_WellSample_screenAcquisitionLinks_by_owner (WellSample_id, owner_id, count) AS select child, owner_id, count(*)
     FROM ScreenAcquisitionWellSampleLink GROUP BY child, owner_id ORDER BY child;
-
-  DROP TABLE count_WellSample_annotationLinks_by_owner;
-
-  CREATE OR REPLACE VIEW count_WellSample_annotationLinks_by_owner (WellSample_id, owner_id, count) AS select parent, owner_id, count(*)
-    FROM WellSampleAnnotationLink GROUP BY parent, owner_id ORDER BY parent;
 
   DROP TABLE count_Job_originalFileLinks_by_owner;
 
