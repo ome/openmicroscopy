@@ -308,12 +308,7 @@ public class MockGraphTest extends MockObjectTestCase {
         values.put("RenderingDef", "settings");
         values.put("Channel", "channels");
         values.put("Thumbnail", "thumbnails");
-        values.put("PixelsAnnotationLink", "annotationLinks");
         relationships.put("Pixels", values);
-
-        values = new HashMap<String, String>();
-        values.put("Annotation", "child");
-        relationships.put("PixelsAnnotationLink", values);
 
         values = new HashMap<String, String>();
         values.put("ChannelAnnotationLink", "annotationLinks");
@@ -413,13 +408,8 @@ public class MockGraphTest extends MockObjectTestCase {
         relationships.put("WellAnnotationLink", values);
 
         values = new HashMap<String, String>();
-        values.put("WellSampleAnnotationLink", "annotationLinks");
         values.put("Image", "image");
         relationships.put("WellSample", values);
-
-        values = new HashMap<String, String>();
-        values.put("Annotation", "child");
-        relationships.put("WellSampleAnnotationLink", values);
 
 
         // INSTRUMENTS

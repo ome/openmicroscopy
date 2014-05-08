@@ -174,8 +174,6 @@ public class MetadataImpl
 			sb.append("select l from PlateAcquisitionAnnotationLink as l ");
 		else if (Well.class.getName().equals(rootType.getName()))
 			sb.append("select l from WellAnnotationLink as l ");
-		else if (Pixels.class.getName().equals(rootType.getName()))
-				sb.append("select l from PixelsAnnotationLink as l ");
 		else if (Fileset.class.getName().equals(rootType.getName()))
 		        sb.append("select l from FilesetAnnotationLink as l ");
 
