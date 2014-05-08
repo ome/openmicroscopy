@@ -18,6 +18,7 @@ import javax.mail.internet.MimeMessage;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.mail.javamail.MimeMessagePreparator;
@@ -25,6 +26,7 @@ import org.springframework.mail.javamail.MimeMessagePreparator;
 import ome.api.IQuery;
 import ome.parameters.Parameters;
 import omero.cmd.HandleI.Cancel;
+import omero.cmd.ERR;
 import omero.cmd.Helper;
 import omero.cmd.IRequest;
 import omero.cmd.Response;
@@ -72,13 +74,14 @@ public class SendEmailRequestI extends SendEmailRequest implements
 	public void init(Helper helper) {
 		this.helper = helper;
 		this.recipients = parseRecipients();
+		if (this.recipients.length < 1)
+			throw helper.cancel(new ERR(), null, "no-recipiest");
 		this.helper.setSteps(this.recipients.length);
 	}
 
-	public Object step(int step) {
+	public Object step(int step) throws Cancel {
 		helper.assertStep(step);
-		sendEmail(this.recipients[step]);
-		return null;
+		return sendEmail(this.recipients[step]);
 	}
 
 	@Override
@@ -141,7 +144,7 @@ public class SendEmailRequestI extends SendEmailRequest implements
 		return recipients.toArray(new String[recipients.size()]);
 	}
 	
-	private void sendEmail(final String recipient) {
+	private boolean sendEmail(final String recipient) {
 		MimeMessagePreparator preparator = new MimeMessagePreparator() {
 			public void prepare(MimeMessage mimeMessage) throws Exception {
 				MimeMessageHelper message = new MimeMessageHelper(mimeMessage);
@@ -152,10 +155,14 @@ public class SendEmailRequestI extends SendEmailRequest implements
 				message.setText(body, true);
 			}
 		};
+		
 		try {
 			this.mailSender.send(preparator);
-		} catch (Exception ex) {
-			log.error( ex.getMessage());
-		}
+		} catch (MailException me) {
+			log.error(me.getMessage());
+			throw helper.cancel(new ERR(), null, "mail-send-failed", "MailException",
+                    String.format(me.getMessage()));
+        }
+		return true;
 	}
 }
