@@ -75,6 +75,31 @@ def marshal_plate_acquisition(conn, row):
     return plate_acquisition
 
 
+def marshal_dataset(conn, row):
+    ''' Given a Dataset row (list) marshals it into a dictionary.  Order
+        and type of columns in row is:
+          * id (rlong)
+          * name (rstring)
+          * details.permissions (dict)
+          * details.owner.id (rlong)
+          * child_count (rlong)
+
+        @param conn OMERO gateway.
+        @type conn L{omero.gateway.BlitzGateway}
+        @param row The Dataset row to marshal
+        @type row L{list}
+    '''
+    dataset_id, name, owner_id, permissions, child_count = row
+    dataset = dict()
+    dataset['id'] = dataset_id.val
+    dataset['name'] = name.val
+    dataset['isOwned'] = owner_id.val == conn.getUserId()
+    dataset['childCount'] = child_count.val
+    dataset['permsCss'] = \
+        parse_permissions_css(permissions, owner_id.val, conn)
+    return dataset
+
+
 def marshal_datasets_for_projects(conn, project_ids):
     ''' Given a list of project ids, marshals the contained datasets, grouping
         by parent project.
@@ -109,12 +134,9 @@ def marshal_datasets_for_projects(conn, project_ids):
         p = projects.setdefault(e[0].val, {'datasets': []})
         if 'permsCss' not in p:
             p['permsCss'] = parse_permissions_css(e[4].val, e[5].val, conn)
-        d = {}
-        d['id'] = e[1].val
-        d['name'] = e[2].val
-        d['isOwned'] = e[3].val == conn.getUserId()
-        d['childCount'] = e[6].val
-        p['datasets'].append(d)
+        p['datasets'].append(marshal_dataset(
+            conn, e[1:5] + [e[6]]
+        ))
     for p in projects.keys():
         projects[p]['childCount'] = len(projects[p]['datasets'])
     return projects
@@ -135,8 +157,8 @@ def marshal_datasets(conn, dataset_ids):
     q = """
         select dataset.id,
                dataset.name,
-               dataset.details.permissions,
                dataset.details.owner.id,
+               dataset.details.permissions,
                (select count(id) from DatasetImageLink dil
                  where dil.parent=dataset.id)
                from Dataset dataset
@@ -144,13 +166,7 @@ def marshal_datasets(conn, dataset_ids):
         order by dataset.name
         """ % ','.join((str(x) for x in dataset_ids))
     for e in qs.projection(q, None, conn.SERVICE_OPTS):
-        d = {}
-        d['id'] = e[0].val
-        d['name'] = e[1].val
-        d['isOwned'] = e[3].val == conn.getUserId()
-        d['childCount'] = e[4].val
-        d['permsCss'] = parse_permissions_css(e[2].val, e[3].val, conn)
-        datasets.append(d)
+        datasets.append(marshal_dataset(conn, e[0:5]))
     return datasets
 
 

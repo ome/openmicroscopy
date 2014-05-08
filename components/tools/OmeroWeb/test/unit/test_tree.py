@@ -24,8 +24,8 @@ Simple unit tests for the "tree" module.
 import pytest
 
 from omero.rtypes import rlong, rstring, rtime
-from omeroweb.webclient.tree import marshal_plate_acquisition
-from omeroweb.webclient.tree import parse_permissions_css
+from omeroweb.webclient.tree import marshal_plate_acquisition, \
+    marshal_dataset, parse_permissions_css
 
 
 class MockConnection(object):
@@ -185,3 +185,41 @@ class TestTree(object):
             received = filter(None, received.split(' '))
             received.sort()
             assert expected == received
+
+    def test_marshal_dataset(self, mock_conn, owner_permissions):
+        row = [
+            rlong(1L),
+            rstring('name'),
+            rlong(1L),
+            owner_permissions,
+            rlong(1L)
+        ]
+        expected = {
+            'id': 1L,
+            'isOwned': True,
+            'name': 'name',
+            'permsCss': 'canEdit canAnnotate canLink canDelete canChgrp',
+            'childCount': 1
+        }
+
+        marshaled = marshal_dataset(mock_conn, row)
+        assert marshaled == expected
+
+    def test_marshal_dataset_not_owner(self, mock_conn, owner_permissions):
+        row = [
+            rlong(1L),
+            rstring('name'),
+            rlong(2L),
+            owner_permissions,
+            rlong(1L)
+        ]
+        expected = {
+            'id': 1L,
+            'isOwned': False,
+            'name': 'name',
+            'permsCss': 'canEdit canAnnotate canLink canDelete',
+            'childCount': 1
+        }
+
+        marshaled = marshal_dataset(mock_conn, row)
+        assert marshaled == expected
