@@ -35,12 +35,34 @@ def parse_permissions_css(permissions, ownerid, conn):
         @param conn OMERO gateway.
         @type conn L{omero.gateway.BlitzGateway}
     '''
-
     restrictions = ('canEdit', 'canAnnotate', 'canLink', 'canDelete')
     permissionsCss = [r for r in restrictions if permissions.get(r)]
     if ownerid == conn.getUserId():
         permissionsCss.append("canChgrp")
     return ' '.join(permissionsCss)
+
+
+def marshal_plate(conn, row):
+    ''' Given a Plate row (list) marshals it into a dictionary.  Order and
+        type of columns in row is:
+          * id (rlong)
+          * name (rstring)
+          * details.owner.id (rlong)
+          * details.permissions (dict)
+
+        @param conn OMERO gateway.
+        @type conn L{omero.gateway.BlitzGateway}
+        @param row The ProjectAcquisition row to marshal
+        @type row L{list}
+    '''
+    plate_id, name, owner_id, permissions = row
+    plate = dict()
+    plate['id'] = plate_id.val
+    plate['name'] = name.val
+    plate['permsCss'] = parse_permissions_css(permissions, owner_id.val, conn)
+    plate['isOwned'] = owner_id.val == conn.getUserId()
+    plate['plateacquisitions'] = list()
+    return plate
 
 
 def marshal_plate_acquisition(conn, row):
@@ -205,17 +227,9 @@ def marshal_plates_for_screens(conn, screen_ids):
     for e in qs.projection(q, None, conn.SERVICE_OPTS):
         s = screens.setdefault(e[0].val, {'plateids': [], 'plates': {}})
         pid = e[1].val
-        if pid in s['plateids']:
-            p = s['plates'][pid]
-        else:
+        p = s['plates'].setdefault(pid, marshal_plate(conn, e[1:5]))
+        if pid not in s['plateids']:
             s['plateids'].append(pid)
-            p = {}
-            s['plates'][pid] = p
-            p['permsCss'] = parse_permissions_css(e[4].val, e[3].val, conn)
-            p['isOwned'] = e[3].val == conn.getUserId()
-            p['id'] = e[1].val
-            p['name'] = e[2].val
-            p['plateacquisitions'] = []
         p['plateacquisitions'].append(
             marshal_plate_acquisition(conn, e[5:11])
         )
@@ -260,17 +274,9 @@ def marshal_plates(conn, plate_ids):
         """ % ','.join((str(x) for x in plate_ids))
     for e in qs.projection(q, None, conn.SERVICE_OPTS):
         pid = e[0].val
-        if pid in plateids:
-            p = plates[pid]
-        else:
+        p = plates.setdefault(pid, marshal_plate(conn, e[0:4]))
+        if pid not in plateids:
             plateids.append(pid)
-            p = {}
-            plates[pid] = p
-            p['permsCss'] = parse_permissions_css(e[3].val, e[2].val, conn)
-            p['isOwned'] = e[2].val == conn.getUserId()
-            p['id'] = pid
-            p['name'] = e[1].val
-            p['plateacquisitions'] = []
         p['plateacquisitions'].append(
             marshal_plate_acquisition(conn, e[4:10])
         )
