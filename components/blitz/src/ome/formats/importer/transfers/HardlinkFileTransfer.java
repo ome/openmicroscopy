@@ -47,13 +47,17 @@ public class HardlinkFileTransfer extends AbstractExecFileTransfer {
         ProcessBuilder pb = new ProcessBuilder();
         List<String> args = new ArrayList<String>();
         if (isWindows()) {
+            args.add("cmd");
+            args.add("/c");
             args.add("mklink");
-            args.add("//H");
+            args.add("/H");
+            args.add(location.getAbsolutePath());
+            args.add(file.getAbsolutePath());
         } else {
             args.add("ln");
+            args.add(file.getAbsolutePath());
+            args.add(location.getAbsolutePath());
         }
-        args.add(file.getAbsolutePath());
-        args.add(location.getAbsolutePath());
         pb.command(args);
         return pb;
     }
