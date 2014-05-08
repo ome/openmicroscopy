@@ -25,7 +25,7 @@ import pytest
 
 from omero.rtypes import rlong, rstring, rtime
 from omeroweb.webclient.tree import marshal_plate_acquisition, \
-    marshal_dataset, parse_permissions_css
+    marshal_dataset, marshal_plate, parse_permissions_css
 
 
 class MockConnection(object):
@@ -222,4 +222,40 @@ class TestTree(object):
         }
 
         marshaled = marshal_dataset(mock_conn, row)
+        assert marshaled == expected
+
+    def test_marshal_plate(self, mock_conn, owner_permissions):
+        row = [
+            rlong(1L),
+            rstring('name'),
+            rlong(1L),
+            owner_permissions,
+        ]
+        expected = {
+            'id': 1L,
+            'isOwned': True,
+            'name': 'name',
+            'permsCss': 'canEdit canAnnotate canLink canDelete canChgrp',
+            'plateacquisitions': list()
+        }
+
+        marshaled = marshal_plate(mock_conn, row)
+        assert marshaled == expected
+
+    def test_marshal_plate_not_owner(self, mock_conn, owner_permissions):
+        row = [
+            rlong(1L),
+            rstring('name'),
+            rlong(2L),
+            owner_permissions,
+        ]
+        expected = {
+            'id': 1L,
+            'isOwned': False,
+            'name': 'name',
+            'permsCss': 'canEdit canAnnotate canLink canDelete',
+            'plateacquisitions': list()
+        }
+
+        marshaled = marshal_plate(mock_conn, row)
         assert marshaled == expected
