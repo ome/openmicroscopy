@@ -913,6 +913,7 @@ class OmeroMetadataServiceImpl
 		Class<?> klass = null;
 		List<Long> fids = new ArrayList<Long>();
 		ImageData img;
+		long start = System.currentTimeMillis();
 		while (i.hasNext()) {
 			n = i.next();
 			if (n != null) {
@@ -984,9 +985,16 @@ class OmeroMetadataServiceImpl
                 formatAnnotationLinks(linkMap.get(n.getId()), r);
             }
         }
+        System.err.println(System.currentTimeMillis()-start);
 		return results;
 	}
 
+	/**
+	 * Formats the annotation links.
+	 *
+	 * @param links The links to handle.
+	 * @param results The placeholder for result.
+	 */
 	private void formatAnnotationLinks(List links, StructuredDataResults results)
 	{
 	    if (CollectionUtils.isEmpty(links)) return;
