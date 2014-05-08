@@ -645,8 +645,9 @@ http://stackoverflow.com/questions/3471461/raw-input-and-timeout/3911560
         else:
             id = scriptSvc.uploadScript(args.file, p.text())
 
-        self.ctx.out("Uploaded %sscript as original file #%s"
-                     % ((args.official and "official " or ""), id))
+        self.ctx.err("Uploaded %sscript"
+                     % (args.official and "official " or ""))
+        self.ctx.out("OriginalFile:%s" % id)
         self.ctx.set("script.file.id", id)
 
     def replace(self, args):
