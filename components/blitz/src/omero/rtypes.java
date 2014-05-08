@@ -9,20 +9,24 @@
 package omero;
 
 import java.lang.reflect.Array;
+import java.lang.reflect.Field;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.springframework.util.ReflectionUtils;
+
 import omero.model.IObject;
 import omero.util.IceMapper;
 import omero.util.ObjectFactoryRegistry;
-import omero.util.ObjectFactoryRegistry.ObjectFactory;
 import Ice.Current;
 
 /**
@@ -50,8 +54,8 @@ public abstract class rtypes {
     public static omero.RType rtype(Object obj) {
         if (obj == null) {
             return null;
-	} else if (obj instanceof omero.RType) {
-	    return (omero.RType) obj;
+        } else if (obj instanceof omero.RType) {
+            return (omero.RType) obj;
         } else if (obj instanceof Boolean) {
             return rbool((Boolean) obj);
         } else if (obj instanceof Double) {
@@ -82,7 +86,141 @@ public abstract class rtypes {
         }
     }
 
-    // Static factory methods (primitives)
+    /**
+     * Descends into data structures wrapping all elements as it goes. 
+     * Limitation: All map keys will be converted to strings!
+     *
+     * Calls {@link #wrap(Object, Map)} with a new cache argument.
+     * @param value
+     * @return
+     */
+    public static omero.RType wrap(final Object value) {
+        if (value == null) {
+            return null;
+        }
+        Map<Object, RType> cache = new IdentityHashMap<Object, RType>();
+        return wrap(value, cache);
+    }
+
+    /**
+     * Descends into data structures wrapping all elements as it goes. 
+     * Limitation: All map keys will be converted to strings!
+     *
+     * The cache argument is used to prevent cycles.
+     * @param value
+     * @throws omero.ClientError if all else fails.
+     */
+    public static omero.RType wrap(final Object value, final Map<Object, RType> cache) {
+        if (cache.containsKey(value)) {
+            return cache.get(value);
+        } else if (value.getClass().isArray()) {
+            final int length = Array.getLength(value);
+            final RArray rv = omero.rtypes.rarray();
+            cache.put(value,  rv);
+            for (int i = 0; i < length; i++) {
+                rv.getValue().add(
+                        wrap(Array.get(value, i), cache));
+            }
+            return rv;
+        } else if (value instanceof List) {
+            final List<?> list = (List<?>) value;
+            final RList rv = omero.rtypes.rlist();
+            cache.put(value, rv);
+            for (int i = 0; i < list.size(); i++) {
+                rv.getValue().add(wrap(list.get(i), cache));
+            }
+            return rv;
+        } else if (value instanceof Map) {
+            final Map<?, ?> map = (Map<?, ?>) value;
+            final RMap rv = omero.rtypes.rmap();
+            cache.put(value, rv);
+            final Map<String, omero.RType> val = rv.getValue();
+            for (final Object key : map.keySet()) {
+                val.put(key.toString(), wrap(map.get(key), cache));
+            }
+            return rv;
+        } else if (value instanceof Set) {
+            final Set<?> set = (Set<?>) value;
+            final RSet rv = omero.rtypes.rset();
+            cache.put(value, rv);
+            for (final Object element : set) {
+                rv.getValue().add(wrap(element, cache));
+            }
+            return rv;
+        } else {
+            return omero.rtypes.rtype(value);
+        }
+    }
+
+
+    /**
+     * Descends into data structures unwrapping all RType objects as it goes.
+     * Limitation: RArrays are turned into {@link List} instances!
+     *
+     * Calls {@link #unwrap(Object, Map)} with a new cache argument.
+     * @param value
+     * @return
+     */
+    public static Object unwrap(final RType value) {
+        if (value == null) {
+            return null;
+        }
+        Map<RType, Object> cache = new IdentityHashMap<RType, Object>();
+        return unwrap(value, cache);
+    }
+
+    /**
+     * Descends into data structures wrapping all elements as it goes. 
+     * Limitation: RArrays are turned into {@link List} instances!
+     *
+     * The cache argument is used to prevent cycles.
+     * @param value
+     */
+    public static Object unwrap(final RType value, final Map<RType, Object> cache) {
+        if (cache.containsKey(value)) {
+            return cache.get(value);
+        } else if (value instanceof RArray) {
+            List<RType> rtypes = ((RArray) value).getValue();
+            List<Object> rv = new ArrayList<Object>(rtypes.size());
+            cache.put(value, rv);
+            unwrapCollection(rtypes, rv, cache);
+            return rv;
+        } else if (value instanceof RList) {
+            List<RType> rtypes = ((RList) value).getValue();
+            List<Object> rv = new ArrayList<Object>(rtypes.size());
+            cache.put(value, rv);
+            unwrapCollection(rtypes, rv, cache);
+            return rv;
+        } else if (value instanceof RSet) {
+            List<RType> rtypes = ((RSet) value).getValue();
+            Set<Object> rv = new HashSet<Object>(rtypes.size());
+            cache.put(value, rv);
+            unwrapCollection(rtypes, rv, cache);
+            return rv;
+        } else if (value instanceof RMap) {
+            Map<String, RType> map = ((RMap) value).getValue();
+            Map<String, Object> rv = new HashMap<String, Object>();
+            cache.put(value, rv);
+            for (Map.Entry<String, RType> entry : map.entrySet()) {
+                rv.put(entry.getKey(), unwrap(entry.getValue(), cache));
+            }
+            return rv;
+        } else {
+            Field f = ReflectionUtils.findField(value.getClass(), "val");
+            f.setAccessible(true);
+            Object rv = ReflectionUtils.getField(f, value);
+            cache.put(value, rv);
+            return rv;
+        }
+    }
+
+    protected static void unwrapCollection(final Collection<RType> rtypes,
+            final Collection<Object> rv, final Map<RType, Object> cache) {
+        for (RType rtype : rtypes) {
+            rv.add(unwrap(rtype, cache));
+        }
+    }
+
     // =========================================================================
 
     public static omero.RBool rbool(boolean val) {
