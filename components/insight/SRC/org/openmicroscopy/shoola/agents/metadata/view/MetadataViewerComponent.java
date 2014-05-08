@@ -1074,9 +1074,7 @@ class MetadataViewerComponent
 	{
 		Object ref = model.getRefObject();
 		if (ref instanceof ImageData || ref instanceof WellSampleData) {
-			if (model.getViewedBy() != null)
-			    setViewedBy(model.getViewedBy(), source, location);
-			else model.fireViewedByLoading(source, location);
+		    model.fireViewedByLoading(source, location);
 		}
 	}
 	
