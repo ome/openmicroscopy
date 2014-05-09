@@ -557,8 +557,8 @@ public class AdvancedFinder
 					if (value instanceof Integer) {
 						v = (Integer) value;
 						if (v < 0)
-							l = UIUtilities.setTextFont(term+": Not supported."
-									+" Refine criteria");
+							l = UIUtilities.setTextFont(term+": Unable to perform search,"
+									+" please refine criteria");
 						else 
 							l = UIUtilities.setTextFont(term+": " +
 									"Too many results.");
