@@ -732,7 +732,7 @@ public class SearchPanel
 				n = nodes.get(i);
 				box = new JCheckBox(n.getDescription());
 				box.setBackground(UIUtilities.BACKGROUND_COLOR);
-				if(i==0) {
+				if (i == 0) {
 				    // 'ID' checkbox
 				    // if gets selected, disable all other search options (see IDBoxListener)
 				    final JCheckBox idBox = box;
@@ -1487,7 +1487,7 @@ public class SearchPanel
 	   
             @Override
             public void actionPerformed(ActionEvent arg0) {
-                if(box.isSelected()) {
+                if (box.isSelected()) {
                     Map<Integer, Boolean> checkMap = createIDOnlyStateMap();
                     previousState = setContextCheckBoxStates(checkMap);
                     setAllCheckBoxesEnabled(false);
@@ -1499,12 +1499,12 @@ public class SearchPanel
                     dates.setEnabled(false);
                     creationTime.setEnabled(false);
                     updatedTime.setEnabled(false);
-                    for(JButton b : controls) {
+                    for (JButton b : controls) {
                         b.setEnabled(false);
                     }
                 }
                 else {
-                    if(previousState!=null) {
+                    if (previousState != null) {
                         setContextCheckBoxStates(previousState);
                         box.setSelected(false);
                     }
@@ -1516,7 +1516,7 @@ public class SearchPanel
                     dates.setEnabled(true);
                     creationTime.setEnabled(true);
                     updatedTime.setEnabled(true);
-                    for(JButton b : controls) {
+                    for (JButton b : controls) {
                         b.setEnabled(true);
                     }
                 }
@@ -1530,9 +1530,9 @@ public class SearchPanel
              */
             private Map<Integer, Boolean> setContextCheckBoxStates(Map<Integer, Boolean> states) {
                 Map<Integer, Boolean> prevStatus = new HashMap<Integer, Boolean>();
-                for(Entry<Integer, Boolean> entry : states.entrySet()) {
+                for (Entry<Integer, Boolean> entry : states.entrySet()) {
                     JCheckBox box = getContextCheckBox(entry.getKey());
-                    if(box==null) {
+                    if (box == null) {
                         continue;
                     }
                     prevStatus.put(entry.getKey(), box.isSelected());
@@ -1547,8 +1547,8 @@ public class SearchPanel
              */
             private Map<Integer, Boolean> createIDOnlyStateMap() {
                 Map<Integer, Boolean> result = new HashMap<Integer, Boolean>();
-                for(Entry<Integer, JCheckBox> entry : scopes.entrySet()) {
-                    if(entry.getKey().intValue()==SearchContext.ID) {
+                for (Entry<Integer, JCheckBox> entry : scopes.entrySet()) {
+                    if (entry.getKey().intValue() == SearchContext.ID) {
                         result.put(entry.getKey(), true);
                     }
                     else {
@@ -1565,8 +1565,8 @@ public class SearchPanel
              * @return
              */
             private JCheckBox getContextCheckBox(int index) {
-                for(Entry<Integer, JCheckBox> entry : scopes.entrySet()) {
-                    if(entry.getKey().intValue()==index) {
+                for (Entry<Integer, JCheckBox> entry : scopes.entrySet()) {
+                    if (entry.getKey().intValue() == index) {
                         return entry.getValue();
                     }
                 }
@@ -1578,7 +1578,7 @@ public class SearchPanel
              * @param enabled
              */
             private void setAllCheckBoxesEnabled(boolean enabled) {
-                for(Entry<Integer, JCheckBox> entry : scopes.entrySet()) {
+                for (Entry<Integer, JCheckBox> entry : scopes.entrySet()) {
                     entry.getValue().setEnabled(enabled);
                 }
             }
