@@ -49,7 +49,6 @@ import ome.util.SqlAction;
 import ome.util.checksum.ChecksumProviderFactory;
 import ome.util.checksum.ChecksumProviderFactoryImpl;
 import omero.RString;
-import omero.ApiUsageException;
 import omero.ResourceError;
 import omero.ServerError;
 import omero.grid.ImportLocation;
@@ -171,7 +170,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
      * @return the root- and user-owned segments
      * @throws ApiUsageException if there is not a <q>//</q> with directories on each side
      */
-    private static Map.Entry<FsFile, FsFile> splitPath(String templatePath) throws ApiUsageException {
+    private static Map.Entry<FsFile, FsFile> splitPath(String templatePath) throws omero.ApiUsageException {
         final int splitPoint = templatePath.lastIndexOf("//");
         if (splitPoint < 0) {
             throw new omero.ApiUsageException(null, null, "must separate root- and user-owned directories using //");
