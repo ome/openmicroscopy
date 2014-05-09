@@ -182,6 +182,7 @@ class NewObjectTxAction(TxAction):
                     ", ".join(missing))
 
     def go(self, ctx, args):
+        import omero
         self.tx_state.add(self)
         c = ctx.conn(args)
         up = c.sf.getUpdateService()
@@ -189,8 +190,11 @@ class NewObjectTxAction(TxAction):
 
         completed = []
         for field, setter in self.tx_cmd.setters():
-            setter(obj)
-            completed.append(field)
+            try:
+                setter(obj)
+                completed.append(field)
+            except omero.ClientError, ce:
+                ctx.die(333, "%s" % ce)
 
         self.check_requirements(ctx, obj, completed)
         out = up.saveAndReturnObject(obj)
@@ -201,15 +205,22 @@ class NewObjectTxAction(TxAction):
 class UpdateObjectTxAction(TxAction):
 
     def go(self, ctx, args):
+        import omero
         self.tx_state.add(self)
         c = ctx.conn(args)
         q = c.sf.getQueryService()
         up = c.sf.getUpdateService()
         obj, kls = self.instance(ctx)
+        if obj.id is None:
+            ctx.die(334, "No id given for %s. Use e.g. '%s:123'"
+                    % (kls, kls))
         obj = q.get(kls, obj.id.val, {"omero.group": "-1"})
 
         for field, setter in self.tx_cmd.setters():
-            setter(obj)
+            try:
+                setter(obj)
+            except omero.ClientError, ce:
+                ctx.die(333, "%s" % ce)
 
         out = up.saveAndReturnObject(obj)
         proxy = "%s:%s" % (kls, out.id.val)
