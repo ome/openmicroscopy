@@ -224,7 +224,7 @@ def marshal_plates_for_screens(conn, screen_ids):
                from Screen screen
                join screen.plateLinks splink
                join splink.child plate
-               join plate.plateAcquisitions pa
+               left join plate.plateAcquisitions pa
         where screen.id in (:ids)
         order by screen.name, plate.name, pa.id
         """
