@@ -454,13 +454,6 @@ public class SearchComponent
                 ctx = new SearchContext(uiDelegate.getSome(), new String[] {},
                         new String[] {},
                         Collections.singletonList(SearchContext.ID));
-    
-                // search in all groups
-                List<Long> l = new ArrayList<Long>();
-                for (GroupContext g : getGroups()) {
-                    l.add(g.getId());
-                }
-                ctx.setGroups(l);
             } else {
                 // Terms cannot be null
                 String[] some = uiDelegate.getSome();
@@ -498,7 +491,8 @@ public class SearchComponent
             }
             
             ctx.setType(uiDelegate.getType());
-    
+            ctx.setGroups(uiDelegate.getSelectedGroups());
+            
             firePropertyChange(SEARCH_PROPERTY, null, ctx);
         }
 	
