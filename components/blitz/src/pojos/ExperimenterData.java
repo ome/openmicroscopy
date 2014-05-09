@@ -1,7 +1,7 @@
 /*
  * pojos.Experimenter
  *
- *   Copyright 2006-2013 University of Dundee. All rights reserved.
+ *   Copyright 2006-2014 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -199,7 +199,11 @@ public class ExperimenterData extends DataObject {
             List<GroupExperimenterMap> links = asExperimenter()
                     .copyGroupExperimenterMap();
             for (GroupExperimenterMap link : links) {
-                groups.add(new GroupData(link.getParent()));
+                    // if you somehow managed to delete a user's default group
+                    // link can be null!
+                    if (link != null) {
+                        groups.add(new GroupData(link.getParent()));
+                    }
             }
         }
 
