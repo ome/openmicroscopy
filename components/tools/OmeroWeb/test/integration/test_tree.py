@@ -317,13 +317,13 @@ class TestTree(object):
                     'id': plate.id.val,
                     'isOwned': True,
                     'name': plate.name.val,
-                    'plateacquisitions': [{
+                    'plateAcquisitions': [{
                         'id': plate_acquisition.id.val,
                         'name': 'Run %d' % plate_acquisition.id.val,
                         'isOwned': True,
                         'permsCss': perms_css
                     }],
-                    'plateAcquisitionsCount': 1,
+                    'plateAcquisitionCount': 1,
                     'permsCss': perms_css
                 }],
                 'plateids': [plate.id.val]
@@ -352,8 +352,8 @@ class TestTree(object):
                     'id': plate_id,
                     'isOwned': True,
                     'name': plate.name.val,
-                    'plateacquisitions': list(),
-                    'plateAcquisitionsCount': 2,
+                    'plateAcquisitions': list(),
+                    'plateAcquisitionCount': 2,
                     'permsCss': perms_css
                 })
                 expected[screen_id]['plateids'].append(plate_id)
@@ -362,7 +362,7 @@ class TestTree(object):
                 plate_acquisitions = \
                     sorted(plate.copyPlateAcquisitions(), cmp_id)
                 for plate_acquisition in plate_acquisitions:
-                    expected_plates[-1]['plateacquisitions'].append({
+                    expected_plates[-1]['plateAcquisitions'].append({
                         'id': plate_acquisition.id.val,
                         'name': 'Run %d' % plate_acquisition.id.val,
                         'isOwned': True,
@@ -388,8 +388,8 @@ class TestTree(object):
                     'id': plate.id.val,
                     'isOwned': True,
                     'name': plate.name.val,
-                    'plateacquisitions': list(),
-                    'plateAcquisitionsCount': 0,
+                    'plateAcquisitions': list(),
+                    'plateAcquisitionCount': 0,
                     'permsCss': perms_css
                 }],
                 'plateids': [plate.id.val]
@@ -407,13 +407,13 @@ class TestTree(object):
             'id': plate_id,
             'isOwned': True,
             'name': plate_run.name.val,
-            'plateacquisitions': [{
+            'plateAcquisitions': [{
                 'id': plate_acquisition.id.val,
                 'name': 'Run %d' % plate_acquisition.id.val,
                 'isOwned': True,
                 'permsCss': perms_css
             }],
-            'plateAcquisitionsCount': 1,
+            'plateAcquisitionCount': 1,
             'permsCss': perms_css
         }]
 
@@ -431,8 +431,8 @@ class TestTree(object):
                 'id': plate_id,
                 'isOwned': True,
                 'name': plate.name.val,
-                'plateacquisitions': list(),
-                'plateAcquisitionsCount': 2,
+                'plateAcquisitions': list(),
+                'plateAcquisitionCount': 2,
                 'permsCss': perms_css
             })
             # The underlying query explicitly orders the PlateAcquisitions
@@ -440,7 +440,7 @@ class TestTree(object):
             plate_acquisitions = \
                 sorted(plate.copyPlateAcquisitions(), cmp_id)
             for plate_acquisition in plate_acquisitions:
-                expected[-1]['plateacquisitions'].append({
+                expected[-1]['plateAcquisitions'].append({
                     'id': plate_acquisition.id.val,
                     'name': 'Run %d' % plate_acquisition.id.val,
                     'isOwned': True,
@@ -462,8 +462,8 @@ class TestTree(object):
             'id': plate_id,
             'isOwned': True,
             'name': plate.name.val,
-            'plateacquisitions': list(),
-            'plateAcquisitionsCount': 0,
+            'plateAcquisitions': list(),
+            'plateAcquisitionCount': 0,
             'permsCss': perms_css
         }]
 

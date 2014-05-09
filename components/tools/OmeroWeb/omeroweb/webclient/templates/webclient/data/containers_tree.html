@@ -78,9 +78,9 @@
                     {% for p in s.plates %}
                         <li id='plate-{{ p.id }}' rel="plate{% if not p.isOwned %}-locked{% endif %}" class="{{ p.permsCss }}">
                             <a href="#">{{ p.name|default:"Plate"|truncatebefor:"35" }}</a>
-                            {% if p.plateAcquisitionsCount %}
+                            {% if p.plateAcquisitionCount %}
                             <ul>
-                                {% for a in p.plateacquisitions %}
+                                {% for a in p.plateAcquisitions %}
                                     <li id='acquisition-{{ a.id }}' rel="acquisition{% if not a.isOwned %}-locked{% endif %}" class="{{ a.permsCss }}">
                                         <a href="#">{{ a.name|default:"Run"|truncatebefor:"35" }}</a>
                                     </li>
@@ -101,9 +101,9 @@
             {% for d in plates %}
             <li id='plate-{{ d.id }}' rel="plate{% if not d.isOwned %}-locked{% endif %}" class="{{ d.permsCss }}">
                 <a href="#">{{ d.name|default:"Plate"|truncatebefor:"35" }}</a>
-                {% if d.plateAcquisitionsCount %}
+                {% if d.plateAcquisitionCount %}
                 <ul>
-                    {% for e in d.plateacquisitions %}
+                    {% for e in d.plateAcquisitions %}
                         <li id='acquisition-{{ e.id }}' rel="acquisition{% if not e.isOwned %}-locked{% endif %}" class="{{ e.permsCss }}">
                             <a href="#">{{ e.name|default:"Run"|truncatebefor:"35" }}</a>
                         </li>
