@@ -308,7 +308,7 @@ public class SearchPanel
 	{
 		if (groupsBox == null) return model.getGroups();
 		GroupContext ctx = (GroupContext) groupsBox.getSelectedItem();
-		if (ctx.getId() < 0) return model.getGroups();
+		if (ctx.getId() < 0 || ctx.getId() == GroupContext.ALL_GROUPS_ID) return model.getGroups();
 		List<GroupContext> groups = new ArrayList<GroupContext>();
 		groups.add(ctx);
 		Iterator<JComboBox> i = groupsBoxes.iterator();
@@ -330,9 +330,9 @@ public class SearchPanel
 	private JComboBox createBox()
 	{
 		List<GroupContext> groups = model.getGroups();
-		Object[] values = new Object[groups.size()];
-		//values[0] = new GroupContext("All your groups", -1);
-		int j = 0;
+		Object[] values = new Object[groups.size()+1];
+		values[0] = new GroupContext("All groups", GroupContext.ALL_GROUPS_ID);
+		int j = 1;
 		Iterator<GroupContext> i = groups.iterator();
 		while (i.hasNext()) {
 			values[j] = i.next();
@@ -1492,7 +1492,6 @@ public class SearchPanel
                     previousState = setContextCheckBoxStates(checkMap);
                     setAllCheckBoxesEnabled(false);
                     box.setEnabled(true);
-                    groupsBox.setEnabled(false);
                     advancedSearch(false);
                     searchBasicButton.setEnabled(false);
                     fromDate.setEnabled(false);
@@ -1510,7 +1509,6 @@ public class SearchPanel
                         box.setSelected(false);
                     }
                     setAllCheckBoxesEnabled(true);
-                    groupsBox.setEnabled(true);
                     datePane.setEnabled(true);
                     searchBasicButton.setEnabled(true);
                     fromDate.setEnabled(true);
