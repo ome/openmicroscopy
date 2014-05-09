@@ -174,6 +174,16 @@ def plate_run(request, itest, update_service):
     return update_service.saveAndReturnObject(plate)
 
 
+@pytest.fixture(scope='function')
+def plate(request, itest, update_service):
+    """
+    Returns a new OMERO Plate with all required fields set.
+    """
+    plate = PlateI()
+    plate.name = rstring(itest.uuid())
+    return update_service.saveAndReturnObject(plate)
+
+
 class TestTree(object):
     """
     Tests to ensure that OMERO.web "tree" infrastructure is working
@@ -308,3 +318,18 @@ class TestTree(object):
         assert marshaled == expected
         assert marshal_plates(conn, []) == []
 
+    def test_marshal_plate(self, conn, plate):
+        plate_id = plate.id.val
+        perms_css = 'canEdit canAnnotate canLink canDelete canChgrp'
+        expected = [{
+            'id': plate_id,
+            'isOwned': True,
+            'name': plate.name.val,
+            'plateacquisitions': list(),
+            'plateAcquisitionsCount': 0,
+            'permsCss': perms_css
+        }]
+
+        marshaled = marshal_plates(conn, [plate_id])
+        assert marshaled == expected
+        assert marshal_plates(conn, []) == []
