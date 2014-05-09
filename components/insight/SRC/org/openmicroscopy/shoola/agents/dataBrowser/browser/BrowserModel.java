@@ -687,8 +687,11 @@ class BrowserModel
 		final HashSet<ImageDisplay> previouslySelectedDisplays =
 		        new HashSet<ImageDisplay>(this.selectedDisplays);
 		previouslySelectedDisplays.removeAll(nodes);
-		for (final ImageDisplay previouslySelectedDisplay : previouslySelectedDisplays)
-			removeSelectedDisplay(previouslySelectedDisplay);
+		Colors colors = Colors.getInstance();
+		for (final ImageDisplay node : previouslySelectedDisplays) {
+	        node.setHighlight(colors.getDeselectedHighLight(node));
+	        selectedDisplays.remove(node);
+		}
 		boolean multiSelection = false;
 		Set<ImageDisplay> oldValue =
                 new HashSet<ImageDisplay>(selectedDisplays);
