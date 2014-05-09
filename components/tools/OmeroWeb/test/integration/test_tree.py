@@ -149,6 +149,25 @@ def screen_plate_run(request, itest, update_service):
 
 
 @pytest.fixture(scope='function')
+def screens_plates_runs(request, itest, update_service):
+    """
+    Returns a two new OMERO Screens, two linked Plates, and two linked
+    PlateAcquisitions with all required fields set.
+    """
+    screens = [ScreenI(), ScreenI()]
+    for screen in screens:
+        screen.name = rstring(itest.uuid())
+        plates = [PlateI(), PlateI()]
+        for plate in plates:
+            plate.name = rstring(itest.uuid())
+            plate_acquisitions = [PlateAcquisitionI(), PlateAcquisitionI()]
+            for plate_acquisition in plate_acquisitions:
+                plate.addPlateAcquisition(plate_acquisition)
+            screen.linkPlate(plate)
+    return update_service.saveAndReturnArray(screens)
+
+
+@pytest.fixture(scope='function')
 def screen_plate(request, itest, update_service):
     """
     Returns a new OMERO Screen and linked Plate with required fields set.
@@ -159,6 +178,21 @@ def screen_plate(request, itest, update_service):
     plate.name = rstring(itest.uuid())
     screen.linkPlate(plate)
     return update_service.saveAndReturnObject(screen)
+
+
+@pytest.fixture(scope='function')
+def plates_runs(request, itest, update_service):
+    """
+    Returns a two new Plates, and two linked PlateAcquisitions with all
+    required fields set.
+    """
+    plates = [PlateI(), PlateI()]
+    for plate in plates:
+        plate.name = rstring(itest.uuid())
+        plate_acquisitions = [PlateAcquisitionI(), PlateAcquisitionI()]
+        for plate_acquisition in plate_acquisitions:
+            plate.addPlateAcquisition(plate_acquisition)
+    return update_service.saveAndReturnArray(plates)
 
 
 @pytest.fixture(scope='function')
@@ -299,6 +333,47 @@ class TestTree(object):
         marshaled = marshal_plates_for_screens(conn, [screen_id])
         assert marshaled == expected
 
+    def test_marshal_screens_plates_runs(self, conn, screens_plates_runs):
+        screen_a, screen_b = screens_plates_runs
+        perms_css = 'canEdit canAnnotate canLink canDelete canChgrp'
+        expected = dict()
+        for screen in (screen_a, screen_b):
+            screen_id = screen.id.val
+            expected[screen_id] = {
+                'childCount': 2,
+                'plates': list(),
+                'plateids': list()
+            }
+            # The underlying query explicitly orders the Plates by name.
+            for plate in sorted(screen.linkedPlateList(), cmp_name):
+                plate_id = plate.id.val
+                expected_plates = expected[screen_id]['plates']
+                expected_plates.append({
+                    'id': plate_id,
+                    'isOwned': True,
+                    'name': plate.name.val,
+                    'plateacquisitions': list(),
+                    'plateAcquisitionsCount': 2,
+                    'permsCss': perms_css
+                })
+                expected[screen_id]['plateids'].append(plate_id)
+                # The underlying query explicitly orders the PlateAcquisitions
+                # by id.
+                plate_acquisitions = \
+                    sorted(plate.copyPlateAcquisitions(), cmp_id)
+                for plate_acquisition in plate_acquisitions:
+                    expected_plates[-1]['plateacquisitions'].append({
+                        'id': plate_acquisition.id.val,
+                        'name': 'Run %d' % plate_acquisition.id.val,
+                        'isOwned': True,
+                        'permsCss': perms_css
+                    })
+
+        marshaled = marshal_plates_for_screens(
+            conn, [screen_a.id.val, screen_b.id.val]
+        )
+        assert marshaled == expected
+
     def test_marshal_plates_for_screens_no_results(self, conn):
         assert marshal_plates_for_screens(conn, []) == {}
 
@@ -343,6 +418,38 @@ class TestTree(object):
         }]
 
         marshaled = marshal_plates(conn, [plate_id])
+        assert marshaled == expected
+
+    def test_marshal_plates_runs(self, conn, plates_runs):
+        plate_a, plate_b = plates_runs
+        perms_css = 'canEdit canAnnotate canLink canDelete canChgrp'
+        expected = list()
+        # The underlying query explicitly orders the Plates by name.
+        for plate in sorted((plate_a, plate_b), cmp_name):
+            plate_id = plate.id.val
+            expected.append({
+                'id': plate_id,
+                'isOwned': True,
+                'name': plate.name.val,
+                'plateacquisitions': list(),
+                'plateAcquisitionsCount': 2,
+                'permsCss': perms_css
+            })
+            # The underlying query explicitly orders the PlateAcquisitions
+            # by id.
+            plate_acquisitions = \
+                sorted(plate.copyPlateAcquisitions(), cmp_id)
+            for plate_acquisition in plate_acquisitions:
+                expected[-1]['plateacquisitions'].append({
+                    'id': plate_acquisition.id.val,
+                    'name': 'Run %d' % plate_acquisition.id.val,
+                    'isOwned': True,
+                    'permsCss': perms_css
+                })
+
+        marshaled = marshal_plates(
+            conn, [plate_a.id.val, plate_b.id.val]
+        )
         assert marshaled == expected
 
     def test_marshal_plates_no_results(self, conn):
