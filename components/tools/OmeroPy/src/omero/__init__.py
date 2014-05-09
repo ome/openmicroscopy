@@ -89,6 +89,9 @@ def proxy_to_instance(proxy_string):
     if not kls.endswith("I"):
         kls += "I"
     kls = getattr(omero.model, kls, None)
+    if kls is None:
+        raise ClientError(("Invalid proxy string: %s. "
+                          "Correct format is Class:ID") % proxy_string)
     return kls(proxy_string)
 
 #
