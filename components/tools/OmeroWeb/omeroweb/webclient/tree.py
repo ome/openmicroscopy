@@ -61,7 +61,7 @@ def marshal_plate(conn, row):
     plate['name'] = name.val
     plate['permsCss'] = parse_permissions_css(permissions, owner_id.val, conn)
     plate['isOwned'] = owner_id.val == conn.getUserId()
-    plate['plateacquisitions'] = list()
+    plate['plateAcquisitions'] = list()
     return plate
 
 
@@ -237,7 +237,7 @@ def marshal_plates_for_screens(conn, screen_ids):
         plate_acquisition_id = e[5]
         if plate_acquisition_id is not None:
             # We have a Plate that has PlateAcquisitions
-            p['plateacquisitions'].append(
+            p['plateAcquisitions'].append(
                 marshal_plate_acquisition(conn, e[5:11])
             )
     for s in screens.keys():
@@ -246,7 +246,7 @@ def marshal_plates_for_screens(conn, screen_ids):
         screens[s]['plates'] = [screens[s]['plates'][x]
                                 for x in screens[s]['plateids']]
         for p in screens[s]['plates']:
-            p['plateAcquisitionsCount'] = len(p['plateacquisitions'])
+            p['plateAcquisitionCount'] = len(p['plateAcquisitions'])
     return screens
 
 
@@ -289,11 +289,11 @@ def marshal_plates(conn, plate_ids):
         plate_acquisition_id = e[4]
         if plate_acquisition_id is not None:
             # We have a Plate that has PlateAcquisitions
-            p['plateacquisitions'].append(
+            p['plateAcquisitions'].append(
                 marshal_plate_acquisition(conn, e[4:10])
             )
     # keeping plates ordered
     plates = [plates[x] for x in plateids]
     for p in plates:
-        p['plateAcquisitionsCount'] = len(p['plateacquisitions'])
+        p['plateAcquisitionCount'] = len(p['plateAcquisitions'])
     return plates

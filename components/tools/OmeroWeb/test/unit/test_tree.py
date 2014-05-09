@@ -236,7 +236,7 @@ class TestTree(object):
             'isOwned': True,
             'name': 'name',
             'permsCss': 'canEdit canAnnotate canLink canDelete canChgrp',
-            'plateacquisitions': list()
+            'plateAcquisitions': list()
         }
 
         marshaled = marshal_plate(mock_conn, row)
@@ -254,7 +254,7 @@ class TestTree(object):
             'isOwned': False,
             'name': 'name',
             'permsCss': 'canEdit canAnnotate canLink canDelete',
-            'plateacquisitions': list()
+            'plateAcquisitions': list()
         }
 
         marshaled = marshal_plate(mock_conn, row)
