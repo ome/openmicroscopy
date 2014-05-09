@@ -72,7 +72,7 @@
             {% with s=screens|get_item:c.id %}
             <li id='screen-{{ c.id }}' rel="screen{% if not c.isOwned %}-locked{% endif %}" class="{{ c.getPermsCss }}">
 				<a href="#">{{ c.name|default:"Screen"|truncatebefor:"35" }} {% if s.childCount %}
-					<span class="children_count" id="counter-screen-{{ c.id }}">{{ s.childCount}}</span>{% endif %}</a>
+					<span class="children_count" id="counter-screen-{{ c.id }}">{{ s.childCount }}</span>{% endif %}</a>
                 {% if s.childCount %}
                 <ul>
                     {% for p in s.plates %}
