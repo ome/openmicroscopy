@@ -296,6 +296,29 @@ class TestTree(object):
         assert marshaled == expected
         assert marshal_plates_for_screens(conn, []) == {}
 
+    def test_marshal_screen_plate(self, conn, screen_plate):
+        screen_id = screen_plate.id.val
+        plate, = screen_plate.linkedPlateList()
+        perms_css = 'canEdit canAnnotate canLink canDelete canChgrp'
+        expected = {
+            screen_id: {
+                'childCount': 1,
+                'plates': [{
+                    'id': plate.id.val,
+                    'isOwned': True,
+                    'name': plate.name.val,
+                    'plateacquisitions': list(),
+                    'plateAcquisitionsCount': 0,
+                    'permsCss': perms_css
+                }],
+                'plateids': [plate.id.val]
+            }
+        }
+
+        marshaled = marshal_plates_for_screens(conn, [screen_id])
+        assert marshaled == expected
+        assert marshal_plates_for_screens(conn, []) == {}
+
     def test_marshal_plate_run(self, conn, plate_run):
         plate_id = plate_run.id.val
         plate_acquisition, = plate_run.copyPlateAcquisitions()
