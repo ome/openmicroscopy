@@ -153,10 +153,9 @@ var tagging_form = function(
                 link_owner = 'you and ' + link_owner;
             }
         }
-        var link_date = this.getAttribute("data-linkdate");
         this.setAttribute("title", create_tag_title(
             tag.d, owners[tag.o], parent_id ? parent_id.t : null,
-            link_owner, link_date));
+            link_owner));
         $this.tooltip();
     };
 
@@ -300,7 +299,6 @@ var tagging_form = function(
                                      selected_tags[idx][0] + "]");
                 if (selected_tag.length) { // not yet selected
                     selected_tag.appendTo(div_selected_tags);
-                    selected_tag.attr("data-linkdate", selected_tags[idx][4]);
                     selected_tag.addClass('owner-tagged');
                 }
             }
@@ -359,17 +357,13 @@ var tagging_form = function(
         return $('<div/>').text(text).html();
     };
 
-    var create_tag_title = function(description, owner, tagset, link_owner,
-                                    link_date) {
+    var create_tag_title = function(description, owner, tagset, link_owner) {
         var title = "";
         if (owner) {
             title += "<b>Owner:</b> " + owner + "<br />";
         }
         if (link_owner) {
             title += "<b>Linked by:</b> " + link_owner + "<br />";
-        }
-        if (link_date) {
-            title += "<b>On:</b> " + link_date + "<br />";
         }
         if (description) {
             title += "<b>Description:</b> " + description + "<br />";
