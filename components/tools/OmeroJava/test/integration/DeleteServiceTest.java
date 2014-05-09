@@ -1,8 +1,6 @@
 /*
- * $Id$
- *
- *   Copyright 2006-2013 University of Dundee. All rights reserved.
- *   Use is subject to license terms supplied in LICENSE.txt
+ * Copyright 2006-2014 University of Dundee. All rights reserved.
+ * Use is subject to license terms supplied in LICENSE.txt
  */
 package integration;
 
@@ -1286,11 +1284,11 @@ public class DeleteServiceTest extends AbstractServerTest {
                 annotationIds.addAll(r);
             for (int f = 0; f < well.sizeOfWellSamples(); f++) {
                 field = well.getWellSample(f);
-                r = createSharableAnnotation(field, null);
+                assertNotNull(field.getImage());
+                r = createSharableAnnotation(field.getImage(), null);
                 if (r.size() > 0)
                     annotationIds.addAll(r);
                 wellSampleIds.add(field.getId().getValue());
-                assertNotNull(field.getImage());
                 imageIds.add(field.getImage().getId().getValue());
             }
         }
@@ -1458,11 +1456,11 @@ public class DeleteServiceTest extends AbstractServerTest {
                         annotationIds.addAll(r);
                     for (int f = 0; f < well.sizeOfWellSamples(); f++) {
                         field = well.getWellSample(f);
-                        r = createSharableAnnotation(field, null);
+                        assertNotNull(field.getImage());
+                        r = createSharableAnnotation(field.getImage(), null);
                         if (r.size() > 0)
                             annotationIds.addAll(r);
                         wellSampleIds.add(field.getId().getValue());
-                        assertNotNull(field.getImage());
                         imageIds.add(field.getImage().getId().getValue());
                     }
                 }
@@ -2749,7 +2747,7 @@ public class DeleteServiceTest extends AbstractServerTest {
         while (i.hasNext()) {
             ws = (WellSample) i.next();
             imageIds.add(ws.getImage().getId().getValue());
-            annotationIds.addAll(createNonSharableAnnotation(ws, null));
+            annotationIds.addAll(createNonSharableAnnotation(ws.getImage(), null));
         }
         assertTrue(imageIds.size() == fields);
         assertTrue(annotationIds.size() > 0);

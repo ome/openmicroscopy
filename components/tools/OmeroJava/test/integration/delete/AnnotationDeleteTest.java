@@ -31,7 +31,6 @@ import omero.model.ImageAnnotationLinkI;
 import omero.model.LongAnnotation;
 import omero.model.LongAnnotationI;
 import omero.model.OriginalFile;
-import omero.model.Pixels;
 import omero.model.PlaneInfo;
 import omero.model.Roi;
 import omero.model.TagAnnotationI;
@@ -278,23 +277,6 @@ public class AnnotationDeleteTest extends AbstractServerTest {
                 .saveAndReturnObject(mmFactory.createOriginalFile());
         annotateSaveDeleteAndCheck(file, DeleteServiceTest.REF_ORIGINAL_FILE,
                 file.getId());
-    }
-
-    /**
-     * Test to make sure that the annotations linked to a pixels set are deleted
-     * when the pixels set is deleted.
-     *
-     * @throws Exception
-     *             Thrown if an error occurred.
-     */
-    @Test(groups = { "ticket:3002" })
-    public void testAnnotationsRemovedFromPixels() throws Exception {
-        newUserAndGroup("rw----");
-        Image image = (Image) iUpdate.saveAndReturnObject(mmFactory
-                .createImage());
-        Pixels pixels = image.getPrimaryPixels();
-        annotateSaveDeleteAndCheck(pixels, DeleteServiceTest.REF_IMAGE,
-                image.getId());
     }
 
     /**
