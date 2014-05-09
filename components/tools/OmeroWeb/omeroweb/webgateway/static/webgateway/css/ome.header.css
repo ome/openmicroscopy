@@ -1190,6 +1190,8 @@ li.menu_back a {
 }
 
 .dragHandle {
+    background: url("../img/drag_handle_5.png") center center no-repeat scroll;
+    /* and now for browsers that support background opacity... */
     background: url("../img/drag_handle_5.png") no-repeat scroll center center rgba(250, 250, 250, 0.5);
     position: absolute;
     top: 50%;
