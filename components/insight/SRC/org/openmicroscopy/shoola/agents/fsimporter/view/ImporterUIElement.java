@@ -881,6 +881,14 @@ class ImporterUIElement
 	boolean hasStarted() { return uploadStarted; }
 	
 	/**
+	 * Manually sets the uploadStarted flag
+	 * @param uploadStarted
+	 */
+	void setUploadStarted(boolean uploadStarted) {
+	    this.uploadStarted = uploadStarted;
+	}
+	
+	/**
 	 * Returns <code>true</code> if the component has imports in the queue that
 	 * have not yet started or been cancelled, <code>false</code> otherwise.
 	 * 
