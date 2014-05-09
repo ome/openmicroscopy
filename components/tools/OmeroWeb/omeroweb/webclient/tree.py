@@ -234,9 +234,12 @@ def marshal_plates_for_screens(conn, screen_ids):
         p = s['plates'].setdefault(pid, marshal_plate(conn, e[1:5]))
         if pid not in s['plateids']:
             s['plateids'].append(pid)
-        p['plateacquisitions'].append(
-            marshal_plate_acquisition(conn, e[5:11])
-        )
+        plate_acquisition_id = e[5]
+        if plate_acquisition_id is not None:
+            # We have a Plate that has PlateAcquisitions
+            p['plateacquisitions'].append(
+                marshal_plate_acquisition(conn, e[5:11])
+            )
     for s in screens.keys():
         screens[s]['childCount'] = len(screens[s]['plates'])
         # keeping plates ordered
@@ -274,7 +277,7 @@ def marshal_plates(conn, plate_ids):
                pa.startTime,
                pa.endTime
                from Plate plate
-               join plate.plateAcquisitions pa
+               left join plate.plateAcquisitions pa
         where plate.id in (:ids)
         order by plate.name, pa.id
         """
@@ -283,9 +286,12 @@ def marshal_plates(conn, plate_ids):
         p = plates.setdefault(pid, marshal_plate(conn, e[0:4]))
         if pid not in plateids:
             plateids.append(pid)
-        p['plateacquisitions'].append(
-            marshal_plate_acquisition(conn, e[4:10])
-        )
+        plate_acquisition_id = e[4]
+        if plate_acquisition_id is not None:
+            # We have a Plate that has PlateAcquisitions
+            p['plateacquisitions'].append(
+                marshal_plate_acquisition(conn, e[4:10])
+            )
     # keeping plates ordered
     plates = [plates[x] for x in plateids]
     for p in plates:
