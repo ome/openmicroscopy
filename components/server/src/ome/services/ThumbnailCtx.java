@@ -562,11 +562,14 @@ public class ThumbnailCtx
             }
             else if (thumbnailExists && isExtendedGraphCritical)
             {
+                if (dirtyMetadata && userId == metadataOwnerId) {
+                    return false;
+                 }
                 log.warn(String.format(
                         "Thumbnail metadata is dirty for Pixels Id:%d and " +
                         "graph is critical for User id:%d. Ignoring this " +
-                        "and returning the cached thumbnail.",
-                        pixelsId, userId));
+                        "and returning the cached thumbnail.owner %d dirty %d",
+                        pixelsId, userId, metadataOwnerId, dirtyMetadata));
                 return true;
             }
         }
