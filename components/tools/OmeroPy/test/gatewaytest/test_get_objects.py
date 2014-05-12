@@ -544,3 +544,25 @@ class TestGetObject (object):
             gatewaywrapper.gateway._waitOnCmd(handle)
         finally:
             handle.close()
+
+
+class TestGetImages (object):
+
+    def testGetImages (self, gatewaywrapper, author_testimg_tiny):
+        testImageId = author_testimg_tiny.getId()
+        iids = [i.id for i in gatewaywrapper.gateway.getImages("Image", [testImageId])]
+        assert iids == [testImageId]
+
+        dsId = author_testimg_tiny.getDataset().getId()
+        iids = [i.id for i in gatewaywrapper.gateway.getImages("Dataset", [dsId])]
+        assert testImageId in iids
+
+        imageIds = list()
+        for i in range(0,3):
+            iid = gatewaywrapper.createTestImage("%s-testOrderById" % i).getId()
+            imageIds.append(iid)
+        # check that kwargs are passed to getObjects, E.g. respect_order
+        imageIds.reverse()
+        reverseImages = gatewaywrapper.gateway.getImages("Image", imageIds, respect_order=True)
+        reverseIds = [i.id for i in reverseImages]
+        assert imageIds == reverseIds, "Images not ordered by ID"
