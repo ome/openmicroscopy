@@ -214,13 +214,17 @@ class UpdateObjectTxAction(TxAction):
         if obj.id is None:
             ctx.die(334, "No id given for %s. Use e.g. '%s:123'"
                     % (kls, kls))
-        obj = q.get(kls, obj.id.val, {"omero.group": "-1"})
+        try:
+            obj = q.get(kls, obj.id.val, {"omero.group": "-1"})
+        except omero.ValidationException, ve:
+            ctx.die(334, "No object found: %s:%s" %
+                    (kls, obj.id.val))
 
         for field, setter in self.tx_cmd.setters():
             try:
                 setter(obj)
             except omero.ClientError, ce:
-                ctx.die(333, "%s" % ce)
+                ctx.die(335, "%s" % ce)
 
         out = up.saveAndReturnObject(obj)
         proxy = "%s:%s" % (kls, out.id.val)
