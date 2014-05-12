@@ -220,7 +220,7 @@ class UpdateObjectTxAction(TxAction):
                     % (kls, kls))
         try:
             obj = q.get(kls, obj.id.val, {"omero.group": "-1"})
-        except omero.ValidationException:
+        except omero.ServerError:
             ctx.die(334, "No object found: %s:%s" %
                     (kls, obj.id.val))
 
@@ -232,9 +232,9 @@ class UpdateObjectTxAction(TxAction):
 
         try:
             out = up.saveAndReturnObject(obj)
-        except omero.ValidationException, ve:
+        except omero.ServerError, se:
             ctx.die(336, "Failed to update %s:%s - %s" %
-                    (kls, obj.id.val, ve.message))
+                    (kls, obj.id.val, se.message))
         proxy = "%s:%s" % (kls, out.id.val)
         self.tx_state.set_value(proxy, dest=self.tx_cmd.dest)
 
