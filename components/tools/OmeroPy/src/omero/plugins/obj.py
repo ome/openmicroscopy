@@ -226,7 +226,11 @@ class UpdateObjectTxAction(TxAction):
             except omero.ClientError, ce:
                 ctx.die(335, "%s" % ce)
 
-        out = up.saveAndReturnObject(obj)
+        try:
+            out = up.saveAndReturnObject(obj)
+        except omero.ValidationException, ve:
+            ctx.die(336, "Failed to update %s:%s - %s" %
+                    (kls, obj.id.val, ve.message))
         proxy = "%s:%s" % (kls, out.id.val)
         self.tx_state.set_value(proxy, dest=self.tx_cmd.dest)
 
