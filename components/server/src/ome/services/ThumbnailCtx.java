@@ -550,8 +550,8 @@ public class ThumbnailCtx
             else if (thumbnailExists && !isMyMetadata)
             {
                 //we need thumbnail for new settings
-                if (sessionUserId == userId && userId != metadataOwnerId) {
-                   return false;
+                if (userId != metadataOwnerId) {
+                    return false;
                 }
                 log.warn(String.format(
                         "Thumbnail metadata is dirty for Pixels Id:%d and " +
