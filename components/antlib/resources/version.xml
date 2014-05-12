@@ -67,7 +67,8 @@
                 input="${omero.v.git}" regexp="${omero.v.regexp}" select="\2"/>
             <propertyregex property="omero.plainversion"
                 input="${omero.v.git}" regexp="${omero.v.regexp}" select="\2\3\5\6"/>
-            <exec executable = "python" dir = "${basedir}/components/antlib/scripts"
+            <property name="ant.script.dir" value="${import.dir}/../scripts"/>
+            <exec executable = "python" dir = "${ant.script.dir}"
                 outputproperty = "omero.version"
                 failonerror = "true">
                 <arg value = "parse_version" />
