@@ -50,16 +50,15 @@ public abstract class AbstractExecFileTransfer extends AbstractFileTransfer {
      */
     public String transfer(TransferState state) throws IOException, ServerError {
         RawFileStorePrx rawFileStore = start(state);
-        final OriginalFile root = state.getRootFile();
-        final OriginalFile ofile = state.getOriginalFile();
-        final File location = getLocalLocation(root, ofile);
-        final File file = state.getFile();
-        final long length = state.getLength();
-        final ChecksumProvider cp = state.getChecksumProvider();
         try {
+            final OriginalFile root = state.getRootFile();
+            final OriginalFile ofile = state.getOriginalFile();
+            final File location = getLocalLocation(root, ofile);
+            final File file = state.getFile();
+            final long length = state.getLength();
+            final ChecksumProvider cp = state.getChecksumProvider();
             state.uploadStarted();
             checkLocation(location, rawFileStore);
-            rawFileStore = state.getUploader(); // Re-open
             exec(file, location);
             cp.putFile(file.getAbsolutePath());
             state.stop(length);
