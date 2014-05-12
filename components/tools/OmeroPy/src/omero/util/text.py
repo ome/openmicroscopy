@@ -39,9 +39,13 @@ class SQLStyle(Style):
         return "+".join(["-" * (x.width+2) for x in table.columns])
 
     def status(self, table):
-        return "(%s %s)" % (
+        s = "(%s %s%%s)" % (
             table.length,
             (table.length == 1 and "row" or "rows"))
+        if table.page_info is None:
+            return s % ""
+        return s % (", starting at %s of approx. %s" %
+                    (table.page_info[0], table.page_info[2]))
 
     def get_rows(self, table):
         yield self.headers(table)
@@ -129,6 +133,10 @@ class TableBuilder(object):
         self.style = SQLStyle()
         self.headers = list(headers)
         self.results = [[] for x in self.headers]
+        self.page_info = None
+
+    def page(self, offset, limit, total):
+        self.page_info = (offset, limit, total)
 
     def set_style(self, style):
         self.style = find_style(style)
@@ -172,6 +180,8 @@ class TableBuilder(object):
         for i, x in enumerate(self.headers):
             columns.append(Column(x, self.results[i], style=self.style))
         table = Table(*columns)
+        if self.page_info:
+            table.page(*self.page_info)
         table.set_style(self.style)
         return table
 
@@ -205,6 +215,10 @@ class Table:
         self.style = SQLStyle()
         self.columns = columns
         self.length = max(len(x) for x in columns)
+        self.page_info = None
+
+    def page(self, offset, limit, total):
+        self.page_info = (offset, limit, total)
 
     def set_style(self, style):
         self.style = find_style(style)
@@ -229,3 +243,39 @@ class Table:
 
     def __str__(self):
         return '\n'.join(self.get_rows())
+
+
+def filesizeformat(bytes):
+    """
+    Formats the value like a 'human-readable' file size (i.e. 13 KB, 4.1 MB,
+    102 bytes, etc).
+
+    Copied largely from django.template.defaultfilters
+    """
+    try:
+        bytes = float(bytes)
+    except (TypeError, ValueError, UnicodeDecodeError):
+        return "0 bytes"
+
+    filesize_number_format = lambda value: round(value, 1)
+
+    KB = 1<<10
+    MB = 1<<20
+    GB = 1<<30
+    TB = 1<<40
+    PB = 1<<50
+
+    if bytes < KB:
+        value = "%(size)d B" % {'size': bytes}
+    elif bytes < MB:
+        value = "%s KB" % filesize_number_format(bytes / KB)
+    elif bytes < GB:
+        value = "%s MB" % filesize_number_format(bytes / MB)
+    elif bytes < TB:
+        value = "%s GB" % filesize_number_format(bytes / GB)
+    elif bytes < PB:
+        value = "%s TB" % filesize_number_format(bytes / TB)
+    else:
+        value = "%s PB" % filesize_number_format(bytes / PB)
+
+    return value
