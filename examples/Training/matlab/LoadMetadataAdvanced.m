@@ -19,13 +19,15 @@
 try
     % Create a connection
     [client, session] = loadOmero();
-    fprintf(1, 'Created connection to %s\n', char(client.getProperty('omero.host')));
-    fprintf(1, 'Created session for user %s using group %s\n',...
-        char(session.getAdminService().getEventContext().userName),...
-        char(session.getAdminService().getEventContext().groupName));
+    p = parseOmeroProperties();
+    eventContext = session.getAdminService().getEventContext();
+    fprintf(1, 'Created connection to %s\n', p.hostname);
+    msg = 'Created session for user %s (id: %g) using group %s (id: %g)\n';
+    fprintf(1, msg, char(eventContext.userName), eventContext.userId,...
+        char(eventContext.groupName), eventContext.groupId);
     
     % Information to edit
-    imageId = str2double(client.getProperty('image.id'));
+    imageId = p.imageid;
     
     % Load image acquisition data.
     fprintf(1, 'Reading image: %g\n', imageId);

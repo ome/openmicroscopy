@@ -1,4 +1,4 @@
-% Copyright (C) 2011-2013 University of Dundee & Open Microscopy Environment.
+% Copyright (C) 2011-2014 University of Dundee & Open Microscopy Environment.
 % All rights reserved.
 %
 % This program is free software; you can redistribute it and/or modify
@@ -20,17 +20,17 @@ try
     % Connect to a server
     % Use the ice.config file defined in the path
     client = loadOmero();
-    hostname = char(client.getProperty('omero.host'));
-    fprintf(1, 'Created connection to %s\n', hostname);
+    p = parseOmeroProperties(client);
+    fprintf(1, 'Created connection to %s\n', p.hostname);
     
     % Alternate ways to create clients
     % client = loadOmero(hostname);
     % client = loadOmero('path/to/ice.config');
     
     % Information to edit
-    username = char(client.getProperty('omero.user'));
-    password = char(client.getProperty('omero.pass'));
-    
+    username = p.username;
+    password = p.password;
+   
     % Create OMERO session
     session = client.createSession(username, password);
     adminService = session.getAdminService();

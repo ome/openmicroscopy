@@ -1,4 +1,4 @@
-% Copyright (C) 2011-2013 University of Dundee & Open Microscopy Environment.
+% Copyright (C) 2011-2014 University of Dundee & Open Microscopy Environment.
 % All rights reserved.
 %
 % This program is free software; you can redistribute it and/or modify
@@ -22,11 +22,12 @@
 try
     disp('Creating connection');
     [client, session] = loadOmero();
-    fprintf(1, 'Created session for  %s', char(client.getProperty('omero.host')));
-    fprintf(1, ' for user %s',...
-        char(session.getAdminService().getEventContext().userName));
-    fprintf(1, ' using group %s\n',...
-        char(session.getAdminService().getEventContext().groupName));
+    p = parseOmeroProperties();
+    eventContext = session.getAdminService().getEventContext();
+    fprintf(1, 'Created connection to %s\n', p.hostname);
+    msg = 'Created session for user %s (id: %g) using group %s (id: %g)\n';
+    fprintf(1, msg, char(eventContext.userName), eventContext.userId,...
+        char(eventContext.groupName), eventContext.groupId);
     
     % Delete Image. In the following example, we create an image and delete it.
     % First create the image.
