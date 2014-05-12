@@ -435,6 +435,11 @@ public class OMEROMetadataStore
                                         (OTF) referenceObject);
                         continue;
                     }
+                    if (referenceObject instanceof Annotation) {
+                        handleReference((Reagent) targetObject,
+                            (Annotation) referenceObject);
+                        continue;
+                    }
                 }
     			else if (targetObject instanceof LogicalChannel)
     			{
@@ -573,6 +578,14 @@ public class OMEROMetadataStore
     					continue;
     				}
     			}
+                else if (targetObject instanceof Reagent)
+                {
+                    if (referenceObject instanceof Annotation) {
+                        handleReference((Reagent) targetObject,
+                            (Annotation) referenceObject);
+                        continue;
+                    }
+                }
     			else if (targetObject instanceof FileAnnotation)
     			{
     				if (referenceObject instanceof OriginalFile)
