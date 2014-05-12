@@ -49,7 +49,7 @@ public abstract class AbstractExecFileTransfer extends AbstractFileTransfer {
      * {@link #createProcessBuilder(File, File)} and the other protected methods here.
      */
     public String transfer(TransferState state) throws IOException, ServerError {
-        final RawFileStorePrx rawFileStore = start(state);
+        RawFileStorePrx rawFileStore = start(state);
         final OriginalFile root = state.getRootFile();
         final OriginalFile ofile = state.getOriginalFile();
         final File location = getLocalLocation(root, ofile);
@@ -59,6 +59,7 @@ public abstract class AbstractExecFileTransfer extends AbstractFileTransfer {
         try {
             state.uploadStarted();
             checkLocation(location, rawFileStore);
+            rawFileStore = state.getUploader(); // Re-open
             exec(file, location);
             cp.putFile(file.getAbsolutePath());
             state.stop(length);
@@ -110,11 +111,20 @@ public abstract class AbstractExecFileTransfer extends AbstractFileTransfer {
 
         // First we guarantee that we have the right file
         // If so, we remove it
-        rawFileStore.write(uuid.getBytes(), 0, uuid.getBytes().length);
-        if (!uuid.equals(FileUtils.readFileToString(location))) {
-            throw new RuntimeException("Check text not found in " + location);
+        try {
+            rawFileStore.write(uuid.getBytes(), 0, uuid.getBytes().length);
+        } finally {
+            rawFileStore.close();
         }
-        FileUtils.deleteQuietly(location);
+        try {
+            if (!uuid.equals(FileUtils.readFileToString(location))) {
+                throw new RuntimeException("Check text not found in " + location);
+            }
+        } finally {
+            if (!FileUtils.deleteQuietly(location)) {
+                log.warn("Failed to deleted {}", location);
+            }
+        }
     }
 
     /**
