@@ -216,9 +216,11 @@ class ImportControl(BaseControl):
         for attr_name, arg_name in java_args.items():
             arg_value = getattr(args, attr_name)
             if arg_value:
-                login_args.append(arg_name)
                 if isinstance(arg_value, (str, unicode)):
-                    login_args.append(arg_value)
+                    login_args.append("%s=%s" %
+                                      (arg_name, arg_value))
+                else:
+                    login_args.append(arg_name)
 
         a = self.COMMAND + login_args + args.path
         p = omero.java.popen(
