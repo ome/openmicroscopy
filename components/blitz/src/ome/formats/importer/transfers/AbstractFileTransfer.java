@@ -121,6 +121,8 @@ public abstract class AbstractFileTransfer implements FileTransfer {
             if (rawFileStore != null) {
                 try {
                     rawFileStore.close();
+                } catch (Ice.ObjectNotExistException onne) {
+                    // already closed by checkLocation or similar.
                 } catch (Exception e) {
                     log.error("error in closing raw file store", e);
                 }
