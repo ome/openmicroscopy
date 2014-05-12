@@ -2669,7 +2669,7 @@ public class OMEROMetadataStoreClient
     @Override
     public void setArcAnnotationRef(String annotation, int instrumentIndex, int lightSourceIndex, int annotationRefIndex)
     {
-        LSID key = new LSID(Arc.class, instrumentIndex, lightSourceIndex, annotationRefIndex);
+        LSID key = new LSID(Arc.class, instrumentIndex, lightSourceIndex);
         addReference(key, new LSID(annotation));
     }
 
@@ -8879,7 +8879,7 @@ public class OMEROMetadataStoreClient
      */
     @Override
     public void setDetectorAnnotationRef(String annotation, int instrumentIndex, int detectorIndex, int annotationRefIndex) {
-        LSID key = new LSID(Detector.class, instrumentIndex, detectorIndex, annotationRefIndex);
+        LSID key = new LSID(Detector.class, instrumentIndex, detectorIndex);
         addReference(key, new LSID(annotation));
     }
 
@@ -8888,7 +8888,7 @@ public class OMEROMetadataStoreClient
      */
     @Override
     public void setDichroicAnnotationRef(String annotation, int instrumentIndex, int dichroicIndex, int annotationRefIndex) {
-        LSID key = new LSID(Dichroic.class, instrumentIndex, dichroicIndex, annotationRefIndex);
+        LSID key = new LSID(Dichroic.class, instrumentIndex, dichroicIndex);
         addReference(key, new LSID(annotation));
     }
 
@@ -8897,7 +8897,7 @@ public class OMEROMetadataStoreClient
      */
     @Override
     public void setEllipseAnnotationRef(String annotation, int ROIIndex, int shapeIndex, int annotationRefIndex) {
-        LSID key = new LSID(Ellipse.class, ROIIndex, shapeIndex, annotationRefIndex);
+        LSID key = new LSID(Ellipse.class, ROIIndex, shapeIndex);
         addReference(key, new LSID(annotation));
     }
 
@@ -8906,7 +8906,7 @@ public class OMEROMetadataStoreClient
      */
     @Override
     public void setFilamentAnnotationRef(String annotation, int instrumentIndex, int lightSourceIndex, int annotationRefIndex) {
-        LSID key = new LSID(Filament.class, instrumentIndex, lightSourceIndex, annotationRefIndex);
+        LSID key = new LSID(Filament.class, instrumentIndex, lightSourceIndex);
         addReference(key, new LSID(annotation));
     }
 
@@ -8915,7 +8915,7 @@ public class OMEROMetadataStoreClient
      */
     @Override
     public void setFilterAnnotationRef(String annotation, int instrumentIndex, int filterIndex, int annotationRefIndex) {
-        LSID key = new LSID(Filter.class, instrumentIndex, filterIndex, annotationRefIndex);
+        LSID key = new LSID(Filter.class, instrumentIndex, filterIndex);
         addReference(key, new LSID(annotation));
     }
 
@@ -8924,7 +8924,7 @@ public class OMEROMetadataStoreClient
      */
     @Override
     public void setGenericExcitationSourceAnnotationRef(String annotation, int instrumentIndex, int lightSourceIndex, int annotationRefIndex) {
-        LSID key = new LSID(GenericExcitationSource.class, instrumentIndex, lightSourceIndex, annotationRefIndex);
+        LSID key = new LSID(GenericExcitationSource.class, instrumentIndex, lightSourceIndex);
         addReference(key, new LSID(annotation));
     }
 
@@ -8933,7 +8933,7 @@ public class OMEROMetadataStoreClient
      */
     @Override
     public void setInstrumentAnnotationRef(String annotation, int instrumentIndex, int annotationRefIndex) {
-        LSID key = new LSID(Instrument.class, instrumentIndex, annotationRefIndex);
+        LSID key = new LSID(Instrument.class, instrumentIndex);
         addReference(key, new LSID(annotation));
     }
 
@@ -8942,7 +8942,7 @@ public class OMEROMetadataStoreClient
      */
     @Override
     public void setLabelAnnotationRef(String annotation, int ROIIndex, int shapeIndex, int annotationRefIndex) {
-        LSID key = new LSID(Label.class, ROIIndex, shapeIndex, annotationRefIndex);
+        LSID key = new LSID(Label.class, ROIIndex, shapeIndex);
         addReference(key, new LSID(annotation));
     }
 
@@ -8951,7 +8951,7 @@ public class OMEROMetadataStoreClient
      */
     @Override
     public void setLaserAnnotationRef(String annotation, int instrumentIndex, int lightSourceIndex, int annotationRefIndex) {
-        LSID key = new LSID(Laser.class, instrumentIndex, lightSourceIndex, annotationRefIndex);
+        LSID key = new LSID(Laser.class, instrumentIndex, lightSourceIndex);
         addReference(key, new LSID(annotation));
     }
 
@@ -8960,7 +8960,7 @@ public class OMEROMetadataStoreClient
      */
     @Override
     public void setLightEmittingDiodeAnnotationRef(String annotation, int instrumentIndex, int lightSourceIndex, int annotationRefIndex) {
-        LSID key = new LSID(LightEmittingDiode.class, instrumentIndex, lightSourceIndex, annotationRefIndex);
+        LSID key = new LSID(LightEmittingDiode.class, instrumentIndex, lightSourceIndex);
         addReference(key, new LSID(annotation));
     }
 
@@ -8969,7 +8969,7 @@ public class OMEROMetadataStoreClient
      */
     @Override
     public void setLightPathAnnotationRef(String annotation, int imageIndex, int channelIndex, int annotationRefIndex) {
-        LSID key = new LSID(LightPath.class, imageIndex, channelIndex, annotationRefIndex);
+        LSID key = new LSID(LightPath.class, imageIndex, channelIndex);
         addReference(key, new LSID(annotation));
     }
 
@@ -8978,7 +8978,7 @@ public class OMEROMetadataStoreClient
      */
     @Override
     public void setLineAnnotationRef(String annotation, int ROIIndex, int shapeIndex, int annotationRefIndex) {
-        LSID key = new LSID(Line.class, ROIIndex, shapeIndex, annotationRefIndex);
+        LSID key = new LSID(Line.class, ROIIndex, shapeIndex);
         addReference(key, new LSID(annotation));
     }
 
@@ -8987,7 +8987,7 @@ public class OMEROMetadataStoreClient
      */
     @Override
     public void setMaskAnnotationRef(String annotation, int ROIIndex, int shapeIndex, int annotationRefIndex) {
-        LSID key = new LSID(Mask.class, ROIIndex, shapeIndex, annotationRefIndex);
+        LSID key = new LSID(Mask.class, ROIIndex, shapeIndex);
         addReference(key, new LSID(annotation));
     }
 
@@ -8996,7 +8996,7 @@ public class OMEROMetadataStoreClient
      */
     @Override
     public void setObjectiveAnnotationRef(String annotation, int instrumentIndex, int objectiveIndex, int annotationRefIndex) {
-        LSID key = new LSID(Objective.class, instrumentIndex, objectiveIndex, annotationRefIndex);
+        LSID key = new LSID(Objective.class, instrumentIndex, objectiveIndex);
         addReference(key, new LSID(annotation));
     }
 
@@ -9005,7 +9005,7 @@ public class OMEROMetadataStoreClient
      */
     @Override
     public void setPointAnnotationRef(String annotation, int ROIIndex, int shapeIndex, int annotationRefIndex) {
-        LSID key = new LSID(Point.class, ROIIndex, shapeIndex, annotationRefIndex);
+        LSID key = new LSID(Point.class, ROIIndex, shapeIndex);
         addReference(key, new LSID(annotation));
     }
 
@@ -9014,7 +9014,7 @@ public class OMEROMetadataStoreClient
      */
     @Override
     public void setPolygonAnnotationRef(String annotation, int ROIIndex, int shapeIndex, int annotationRefIndex) {
-        LSID key = new LSID(Polygon.class, ROIIndex, shapeIndex, annotationRefIndex);
+        LSID key = new LSID(Polygon.class, ROIIndex, shapeIndex);
         addReference(key, new LSID(annotation));
     }
 
@@ -9023,7 +9023,7 @@ public class OMEROMetadataStoreClient
      */
     @Override
     public void setPolylineAnnotationRef(String annotation, int ROIIndex, int shapeIndex, int annotationRefIndex) {
-        LSID key = new LSID(Polyline.class, ROIIndex, shapeIndex, annotationRefIndex);
+        LSID key = new LSID(Polyline.class, ROIIndex, shapeIndex);
         addReference(key, new LSID(annotation));
     }
 
@@ -9032,7 +9032,7 @@ public class OMEROMetadataStoreClient
      */
     @Override
     public void setRectangleAnnotationRef(String annotation, int ROIIndex, int shapeIndex, int annotationRefIndex) {
-        LSID key = new LSID(Rect.class, ROIIndex, shapeIndex, annotationRefIndex);
+        LSID key = new LSID(Rect.class, ROIIndex, shapeIndex);
         addReference(key, new LSID(annotation));
     }
 
