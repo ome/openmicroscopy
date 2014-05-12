@@ -327,7 +327,7 @@ public class ImportLibrary implements IObservable
 
         final ImportSettings settings = new ImportSettings();
         final Fileset fs = new FilesetI();
-        container.fillData(new ImportConfig(), settings, fs, sanitizer, transfer);
+        container.fillData(settings, fs, sanitizer, transfer);
 
         String caStr = container.getChecksumAlgorithm();
         if (caStr != null) {
