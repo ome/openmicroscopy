@@ -17,7 +17,7 @@
 
 
 try
-    % Connect to a server
+    %% Connect to a server
     % Use the ice.config file defined in the path
     client = loadOmero();
     p = parseOmeroProperties(client);
@@ -52,11 +52,12 @@ try
     stop(t);
     delete(t);
     
+    %% Admin service
     % List groups the user is member of
     user = adminService.getExperimenter(userId);
     groupIds = toMatlabList(adminService.getMemberOfGroupIds(user), 'double');
     
-    % switch between groups the user is member of
+    % Switch between groups the user is member of
     for groupId = groupIds'
         group = adminService.getGroup(groupId);
         fprintf(1, 'Switching to group %s (id: %g)\n',...
@@ -67,10 +68,19 @@ try
         assert(groupId == adminService.getEventContext().groupId);
     end
     
+    %% Unsecure client
+    % Create an unsecure client and session
+    unsecureClient = client.createClient(false);
+    sessionUnencrypted = unsecureClient.getSession();
+    fprintf(1, 'Created encryted session for user %s (id: %g)\n',...
+        userName, userId);
+    
 catch err
     client.closeSession();
+    unsecureClient.closeSession();
     throw(err);
 end
 
-% Close the session
+% Close the sessions
 client.closeSession();
+unsecureClient.closeSession();
