@@ -8,6 +8,7 @@ set -x
 export PSQL_DIR=${PSQL_DIR:-/usr/local/var/postgres}
 export OMERO_DATA_DIR=${OMERO_DATA_DIR:-/tmp/var/OMERO.data}
 export SCRIPT_NAME=${SCRIPT_NAME:-OMERO.sql}
+export ICE=${ICE:-3.5}
 
 # Test whether this script is run in a job environment
 JOB_NAME=${JOB_NAME:-}
@@ -78,19 +79,28 @@ showinf -version
 ###################################################################
 
 # Install PostgreSQL and OMERO
-bin/brew install omero44
+OMERO_PYTHONPATH=$(bin/brew --prefix omero)/lib/python
+if [ "$ICE" == "3.3" ]; then
+    bin/brew install omero44 --with-ice33
+    ICE_HOME=$(bin/brew --prefix zeroc-ice33)
+    export PYTHONPATH=$OMERO_PYTHONPATH:$ICE_HOME/python
+    export DYLD_LIBRARY_PATH=$ICE_HOME/lib
+elif [ "$ICE" == "3.4" ]; then
+    bin/brew install omero44 --with-ice34
+    ICE_HOME=$(bin/brew --prefix zeroc-ice34)
+    export PYTHONPATH=$OMERO_PYTHONPATH:$ICE_HOME/python
+    export DYLD_LIBRARY_PATH=$ICE_HOME/lib
+else
+    bin/brew install omero44
+    export PYTHONPATH=$OMERO_PYTHONPATH
+fi
 bin/brew install postgres
 
 # Install OMERO Python dependencies
 bash bin/omero_python_deps
 
-# Set environment variables
-ICE_VERSION=$(bin/brew deps omero44 | grep ice)
+# Set additional environment variables
 export ICE_CONFIG=$(bin/brew --prefix omero44)/etc/ice.config
-export ICE_HOME=$(bin/brew --prefix $ICE_VERSION)
-export PYTHONPATH=$(bin/brew --prefix omero44)/lib/python:$ICE_HOME/python
-export PATH=$(bin/brew --prefix)/bin:$(bin/brew --prefix)/sbin:/usr/local/lib/node_modules:$ICE_HOME/bin:$PATH
-export DYLD_LIBRARY_PATH=$ICE_HOME/lib:$ICE_HOME/python:${DYLD_LIBRARY_PATH-}
 
 # Note: If postgres startup fails it's probably because there was an old
 # process still running.
@@ -122,3 +132,9 @@ bin/omero config set omero.data.dir $OMERO_DATA_DIR
 
 # Start the server
 bin/omero admin start
+
+# Test simple fake import
+bin/omero login -s localhost -u root -w root_password
+touch test.fake
+bin/omero import test.fake
+bin/omero logout
