@@ -216,7 +216,7 @@ class UpdateObjectTxAction(TxAction):
                     % (kls, kls))
         try:
             obj = q.get(kls, obj.id.val, {"omero.group": "-1"})
-        except omero.ValidationException, ve:
+        except omero.ValidationException:
             ctx.die(334, "No object found: %s:%s" %
                     (kls, obj.id.val))
 
