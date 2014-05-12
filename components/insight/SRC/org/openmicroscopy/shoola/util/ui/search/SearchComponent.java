@@ -33,6 +33,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -41,13 +42,17 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
 
+
 //Third-party libraries
 import info.clearthought.layout.TableLayout;
+
+import org.apache.commons.lang.ArrayUtils;
 import org.jdesktop.swingx.JXBusyLabel;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.SeparatorPane;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
 import pojos.GroupData;
 
 /** 
@@ -451,7 +456,7 @@ public class SearchComponent
     
             if (scope.contains(SearchContext.ID)) {
                 // create search context with search by ID only
-                ctx = new SearchContext(uiDelegate.getSome(), new String[] {},
+                ctx = new SearchContext(uiDelegate.getSome(), ArrayUtils.EMPTY_STRING_ARRAY,
                         new String[] {},
                         Collections.singletonList(SearchContext.ID));
             } else {
