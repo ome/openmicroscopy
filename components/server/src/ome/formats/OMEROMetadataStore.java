@@ -1552,6 +1552,17 @@ public class OMEROMetadataStore
         target.linkAnnotation(reference);
     }
 
+    /**
+     * Handles linking a specific reference object to a target object in our
+     * object graph.
+     * @param target Target model object.
+     * @param reference Reference model object.
+     */
+    private void handleReference(Reagent target, Annotation reference)
+    {
+        target.linkAnnotation(reference);
+    }
+
 ///
 
     /**
