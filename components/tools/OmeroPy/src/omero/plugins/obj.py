@@ -197,7 +197,11 @@ class NewObjectTxAction(TxAction):
                 ctx.die(333, "%s" % ce)
 
         self.check_requirements(ctx, obj, completed)
-        out = up.saveAndReturnObject(obj)
+        try:
+            out = up.saveAndReturnObject(obj)
+        except omero.ServerError, se:
+            ctx.die(336, "Failed to create %s - %s" %
+                    (kls, se.message))
         proxy = "%s:%s" % (kls, out.id.val)
         self.tx_state.set_value(proxy, dest=self.tx_cmd.dest)
 
