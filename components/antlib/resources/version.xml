@@ -53,18 +53,55 @@
         </sequential>
     </macrodef>
 
-    <var name="version.describe" unset="true"/>
-    <gitdescribe select="\2\3\5\6"/>
-    <property name="omero.version" value="${version.describe}-ice${versions.ice_lib}"/>
-    <exec executable = "python" dir = "${basedir}"
-        outputproperty = "omero.version.parsed"
-        errorproperty = "omero.version.err"
-        resultproperty = "omero.version.rc"
-        failonerror = "true">
-        <arg value = "${import.dir}/version.py" />
-        <arg value = "${omero.version}" />
-    </exec>
-    <var name="omero.version" unset="true"/>
-    <property name="omero.version" value="${omero.version.parsed}"/>
+    <trycatch>
+        <try>
+            <!-- *EITHER* these values are preset -->
+            <omero_v_was_preset property="omero.version"/>
+            <omero_v_was_preset property="omero.plainversion"/>
+            <omero_v_was_preset property="omero.shortversion"/>
+
+            <!-- *OR* they'll be set by git -->
+            <git command="describe" output="omero.v.git" failonerror="true">
+                <args>
+                    <arg value="--match"/>
+                    <arg value="${gitmatch}"/>
+                    <arg line="--dirty"/>
+                </args>
+            </git>
+            <propertyregex property="omero.shortversion"
+                input="${omero.v.git}" regexp="${omero.v.regexp}" select="\2"/>
+            <propertyregex property="omero.plainversion"
+                input="${omero.v.git}" regexp="${omero.v.regexp}" select="\2\3\5\6"/>
+            <property name="ant.script.dir" value="${import.dir}/../scripts"/>
+            <exec executable = "python" dir = "${ant.script.dir}"
+                outputproperty = "omero.version"
+                failonerror = "true">
+                <arg value = "parse_version" />
+                <arg value = "${omero.plainversion}-ice${versions.ice_lib}"/>
+            </exec>
+            <property name="omero.version.source" value="git"/>
+            <property name="omero.plainversion.source" value="git"/>
+            <property name="omero.shortversion.source" value="git"/>
+        </try>
+        <catch>
+            <!-- *OR* we'll finally fall back to UNKNOWN -->
+            <property name="omero.plainversion" value="UNKNOWN"/>
+            <property name="omero.shortversion" value="UNKNOWN"/>
+
+            <!-- And compose omero.version from those -->
+            <property name="omero.version" value="${omero.plainversion}-ice${versions.ice_lib}"/>
+
+            <property name="omero.plainversion.source" value="ant"/>
+            <property name="omero.shortversion.source" value="ant"/>
+            <property name="omero.version.source" value="ant"/>
+        </catch>
+    </trycatch>
+
+    <target name="version-info">
+        <echo>Git describe output:    ${omero.v.git}</echo>
+        <echo>Official:               ${omero.version} (${omero.version.source})</echo>
+        <echo>Plain:                  ${omero.plainversion} (${omero.plainversion.source})</echo>
+        <echo>Short:                  ${omero.shortversion} (${omero.shortversion.source})</echo>
+    </target>
 
 </project>
