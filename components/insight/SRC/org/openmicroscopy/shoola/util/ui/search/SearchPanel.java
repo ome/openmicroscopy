@@ -738,11 +738,14 @@ public class SearchPanel
 				    final JCheckBox idBox = box;
 				    idBox.addActionListener(new IDBoxListener(idBox));
 				}
-				if (i == 1) {
+				else if (i == 1) {
 				    // 'Name' checkbox, check it by default
 				    box.setSelected(true); 
 				}  
-				if (i%2 == 0) c.gridy++;
+				
+				if (i%2 == 0) {
+				    c.gridy++;
+				}
 				
 				p.add(box, c);
 				scopes.put(n.getIndex(), box);
@@ -1474,13 +1477,26 @@ public class SearchPanel
 	}
 	
 	/**
-	 * Disables all the advanced search options when the ID checkbox is selected,
-	 * and 'restores' the advanced search when ID checkbox is deselected again.
+	 * Disables all other search options when the ID checkbox is selected.
+	 * Enables them again, when the ID checkbox is deselected again; also restores the
+	 * state of the checkboxes (i.e. if they were checked or unchecked) before the
+	 * user selected the ID checkbox.
 	 */
 	class IDBoxListener implements ActionListener {
+	    
+	    /** Reference to the ID checkbox */
 	    JCheckBox box;
+	    
+	    /** 
+	     * Variable for holding a certain state of all checkboxes (which are checked and
+	     * which are unchecked), where key:scope and value:checked(true)/unchecked(false)
+	     */
 	    Map<Integer, Boolean> previousState;
 	    
+	    /**
+	     * Creates a new ActionListener for the ID checkbox
+	     * @param box The JCheckbox marking the ID search scope
+	     */
 	    IDBoxListener(JCheckBox box) {
 	        this.box = box;
 	    }
@@ -1523,15 +1539,15 @@ public class SearchPanel
             }
             
             /**
-             * Sets all checkboxes to a certain state (checked/unchecked);
+             * Sets all checkboxes to a certain state (i. e. check/unchecks them);
              * Returns the previous state;
-             * @param states
-             * @return
+             * @param states The states to apply to the checkboxes (key:scope, value:checked(true)/unchecked(false)
+             * @return The previous state of the checkboxes
              */
             private Map<Integer, Boolean> setContextCheckBoxStates(Map<Integer, Boolean> states) {
                 Map<Integer, Boolean> prevStatus = new HashMap<Integer, Boolean>();
                 for (Entry<Integer, Boolean> entry : states.entrySet()) {
-                    JCheckBox box = getContextCheckBox(entry.getKey());
+                    JCheckBox box = scopes.get(entry.getKey());
                     if (box == null) {
                         continue;
                     }
@@ -1542,8 +1558,10 @@ public class SearchPanel
             }
             
             /**
-             * Creates a 'state map' in which only the ID checkbox is checked;
-             * @return
+             * Helper method: Creates a 'state map' in which only the ID checkbox is checked;
+             * By applying this state map (see {@link #setContextCheckBoxStates(Map)} only
+             * the ID checkbox will be checked, all other checkboxes will be unchecked.
+             * @return See above
              */
             private Map<Integer, Boolean> createIDOnlyStateMap() {
                 Map<Integer, Boolean> result = new HashMap<Integer, Boolean>();
@@ -1559,22 +1577,8 @@ public class SearchPanel
             }
             
             /**
-             * Helper method for retrieving the checkbox corresponding to a 
-             * certain search context
-             * @param index
-             * @return
-             */
-            private JCheckBox getContextCheckBox(int index) {
-                for (Entry<Integer, JCheckBox> entry : scopes.entrySet()) {
-                    if (entry.getKey().intValue() == index) {
-                        return entry.getValue();
-                    }
-                }
-                return null;
-            }
-            
-            /**
-             * Helper method for en-/disabling all checkboxes
+             * Helper method for enabling (enabled==<code>true</code>), respectively
+             * disabling(enabled==<code>false</code>) all checkboxes
              * @param enabled
              */
             private void setAllCheckBoxesEnabled(boolean enabled) {
