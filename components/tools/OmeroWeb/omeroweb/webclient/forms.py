@@ -29,6 +29,9 @@ import logging
 
 from django.conf import settings
 from django import forms
+from django.forms.widgets import Textarea
+from django.forms.widgets import HiddenInput
+from django.forms.formsets import formset_factory
 from django.core.urlresolvers import reverse
 
 from omeroweb.custom_forms import NonASCIIForm
@@ -188,11 +191,27 @@ class TagsAnnotationForm(BaseAnnotationForm):
 
     def __init__(self, *args, **kwargs):
         super(TagsAnnotationForm, self).__init__(*args, **kwargs)
-        self.fields['tags'] = AnnotationModelMultipleChoiceField(queryset=kwargs['initial']['tags'], 
-                widget=forms.SelectMultiple(attrs={'size':6, 'class':'existing'}), required=False)
 
-    tag = forms.CharField(widget=forms.TextInput(attrs={'size':36}), required=False)
-    description = forms.CharField(widget=forms.Textarea(attrs={'rows': 3, 'cols': 31}), required=False, label="Desc")
+    tags = forms.CharField(required=False, widget=forms.HiddenInput)
+
+    def clean_tags(self):
+        data = self.cleaned_data['tags']
+        if not data:
+            return []
+        try:
+            data = map(int, data.split(','))
+        except Exception:
+            raise forms.ValidationError()
+        return data
+
+
+class NewTagsAnnotationForm(forms.Form):
+    """ Helper form for new tags """
+    tag = forms.CharField(required=True, widget=forms.HiddenInput)
+    description = forms.CharField(required=False, widget=forms.HiddenInput)
+    tagset = forms.IntegerField(min_value=1, required=False, widget=forms.HiddenInput)
+
+NewTagsAnnotationFormSet = formset_factory(NewTagsAnnotationForm, extra=0)
 
 
 class FilesAnnotationForm(BaseAnnotationForm):
