@@ -6,15 +6,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.mail.MailException;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.MimeMessageHelper;
-import org.springframework.mail.javamail.MimeMessagePreparator;
 
 import ome.api.IQuery;
 import ome.conditions.ApiUsageException;
@@ -23,6 +17,7 @@ import ome.model.meta.Experimenter;
 import ome.parameters.Parameters;
 import ome.security.AdminAction;
 import ome.security.auth.PasswordUtil;
+import ome.services.util.MailUtil;
 import omero.cmd.HandleI.Cancel;
 import omero.cmd.ERR;
 import omero.cmd.Helper;
@@ -45,13 +40,13 @@ public class ResetPasswordRequestI extends ResetPasswordRequest implements
 	
 	private Experimenter e = null;
 	
-	protected final JavaMailSender mailSender;
+	protected final MailUtil mailUtil;
 	protected final PasswordUtil passwordUtil;
     
 	private Helper helper;
 	
-	public ResetPasswordRequestI(JavaMailSender mailSender, PasswordUtil passwordUtil) {
-		this.mailSender = mailSender;
+	public ResetPasswordRequestI(MailUtil mailUtil, PasswordUtil passwordUtil) {
+		this.mailUtil = mailUtil;
 		this.passwordUtil = passwordUtil;
 	}
 	
@@ -134,21 +129,15 @@ public class ResetPasswordRequestI extends ResetPasswordRequest implements
                 + this.e.getOmeName() + ")" + " your new password is: "
                 + newPassword;
         
-        return sendEmail(helper.prepareEmail(this.sender, this.e.getEmail(), 
-        		subject, body, false, null, null));
-        
-	}
-	
-	private boolean sendEmail(final MimeMessagePreparator email) {
-		
-		try {
-			this.mailSender.send(email);
+        try {
+        	mailUtil.sendEmail(this.sender, this.e.getEmail(), subject, body, false, null, null);
 		} catch (MailException me) {
 			log.error(me.getMessage());
 			throw helper.cancel(new ERR(), null, "mail-send-failed", "MailException",
                     String.format(me.getMessage()));
         }
-		return true;
+        return true;
+        
 	}
 	
 }

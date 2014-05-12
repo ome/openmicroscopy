@@ -323,16 +323,15 @@ def forgotten_password(request, **kwargs):
     error = None
     blitz = None
 
-    def getGuestConnection(host, port):
-        server_id = request.session['connector'].server_id
+    def getGuestConnection(server_id):
         return Connector(server_id, True).create_guest_connection('OMERO.web')
 
     if request.method == 'POST':
         form = ForgottonPasswordForm(data=request.REQUEST.copy())
         if form.is_valid():
-            blitz = Server.get(pk=request.REQUEST.get('server'))
+            server_id = request.REQUEST.get('server')
             try:
-                conn = getGuestConnection(blitz.host, blitz.port)
+                conn = getGuestConnection(server_id)
                 if not conn.isForgottenPasswordSet():
                     error = "This server cannot reset password. Please contact your administrator."
                     conn = None
@@ -342,7 +341,12 @@ def forgotten_password(request, **kwargs):
         
             if conn is not None:
                 try:
-                    conn.reportForgottenPassword(smart_str(request.REQUEST.get('username')), smart_str(request.REQUEST.get('email')))
+                    req = omero.cmd.ResetPasswordRequest(smart_str(request.REQUEST.get('username')), smart_str(request.REQUEST.get('email')))
+                    handle = conn.c.sf.submit(req)
+                    try:
+                        conn._waitOnCmd(handle)
+                    finally:
+                        handle.close()
                     error = "Password was reset. Check your mailbox."
                     form = None
                 except Exception:

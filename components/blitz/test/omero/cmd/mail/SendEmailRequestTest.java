@@ -7,6 +7,7 @@ import java.util.Map;
 
 import ome.services.blitz.test.AbstractServantTest;
 import ome.services.util.Executor;
+import ome.services.util.MailUtil;
 import ome.system.ServiceFactory;
 import omero.cmd.ERR;
 import omero.cmd.HandleI.Cancel;
@@ -17,7 +18,6 @@ import omero.cmd.SendEmailResponse;
 import omero.cmd.Status;
 
 import org.hibernate.Session;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.transaction.annotation.Transactional;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -84,7 +84,7 @@ public class SendEmailRequestTest extends AbstractServantTest {
 	public void testSendEmail() throws Exception {
 		
 		SendEmailRequestI req = new SendEmailRequestI(
-				(JavaMailSender) user.ctx.getBean("mailSender"));
+				(MailUtil) user.ctx.getBean("mailUtil"));
 		req.userIds = new ArrayList<Long>(Arrays.asList(0L));
 		req.groupIds = new ArrayList<Long>(Arrays.asList(0L));
 		req.cc = new ArrayList<String>(Arrays.asList("user@mail"));

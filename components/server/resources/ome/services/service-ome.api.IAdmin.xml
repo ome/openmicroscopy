@@ -128,6 +128,10 @@
   <bean id="passwordUtil" class="ome.security.auth.PasswordUtil">
     <constructor-arg ref="simpleSqlAction"/>
   </bean>
+  
+  <bean id="mailUtil" class="ome.services.util.MailUtil">
+    <constructor-arg ref="mailSender"/>
+  </bean>
 
   <bean name="managed-ome.api.IAdmin" parent="managedService">
     <property name="proxyInterfaces">

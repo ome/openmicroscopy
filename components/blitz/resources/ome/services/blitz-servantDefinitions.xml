@@ -367,7 +367,7 @@
       <constructor-arg ref="roles"/>
       <constructor-arg ref="/OMERO/Pixels"/>
       <constructor-arg ref="/OMERO/Thumbs"/>
-      <constructor-arg ref="mailSender"/>
+      <constructor-arg ref="mailUtil"/>
       <constructor-arg ref="passwordUtil"/>
       <property name="iceCommunicator" ref="Ice.Communicator"/>
   </bean>

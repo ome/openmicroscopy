@@ -13,7 +13,6 @@ import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
-import org.springframework.mail.javamail.JavaMailSender;
 
 import ome.io.nio.PixelsService;
 import ome.io.nio.ThumbnailService;
@@ -23,6 +22,7 @@ import ome.security.auth.PasswordUtil;
 import ome.services.chgrp.ChgrpStepFactory;
 import ome.services.chown.ChownStepFactory;
 import ome.services.delete.Deletion;
+import ome.services.util.MailUtil;
 import ome.system.OmeroContext;
 import ome.system.Roles;
 import ome.tools.hibernate.ExtendedMetadata;
@@ -60,7 +60,7 @@ public class RequestObjectFactoryRegistry extends
 
     private final ThumbnailService thumbnailService;
 
-    protected final JavaMailSender mailSender;
+    protected final MailUtil mailUtil;
 
     protected final PasswordUtil passwordUtil;
 
@@ -71,7 +71,7 @@ public class RequestObjectFactoryRegistry extends
             Roles roles,
             PixelsService pixelsService,
             ThumbnailService thumbnailService,
-            JavaMailSender mailSender,
+            MailUtil mailUtil,
             PasswordUtil passwordUtil) {
 
         this.em = em;
@@ -79,7 +79,7 @@ public class RequestObjectFactoryRegistry extends
         this.roles = roles;
         this.pixelsService = pixelsService;
         this.thumbnailService = thumbnailService;
-        this.mailSender = mailSender;
+        this.mailUtil = mailUtil;
         this.passwordUtil = passwordUtil;
     }
 
@@ -188,14 +188,14 @@ public class RequestObjectFactoryRegistry extends
                 new ObjectFactory(SendEmailRequestI.ice_staticId()) {
                     @Override
                     public Ice.Object create(String name) {
-                    	return new SendEmailRequestI(mailSender);
+                    	return new SendEmailRequestI(mailUtil);
                     }
                 });
         factories.put(ResetPasswordRequestI.ice_staticId(),
                 new ObjectFactory(ResetPasswordRequestI.ice_staticId()) {
                     @Override
                     public Ice.Object create(String name) {
-                    	return new ResetPasswordRequestI(mailSender, passwordUtil);
+                    	return new ResetPasswordRequestI(mailUtil, passwordUtil);
                     }
                 });
         return factories;

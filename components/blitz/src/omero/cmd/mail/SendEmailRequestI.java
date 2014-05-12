@@ -13,18 +13,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.mail.MailException;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.MimeMessageHelper;
-import org.springframework.mail.javamail.MimeMessagePreparator;
 
 import ome.api.IQuery;
 import ome.parameters.Parameters;
+import ome.services.util.MailUtil;
 import omero.cmd.HandleI.Cancel;
 import omero.cmd.ERR;
 import omero.cmd.Helper;
@@ -55,13 +50,13 @@ public class SendEmailRequestI extends SendEmailRequest implements
 	private String [] ccrecipients = null;
 	private String [] bccrecipients = null;
 	
-	protected final JavaMailSender mailSender;
+	protected final MailUtil mailUtil;
     
 	private Helper helper;
 	
 	
-	public SendEmailRequestI(JavaMailSender mailSender) {
-		this.mailSender = mailSender;
+	public SendEmailRequestI(MailUtil mailUtil) {
+		this.mailUtil = mailUtil;
 	}
 	
 	//
@@ -96,8 +91,16 @@ public class SendEmailRequestI extends SendEmailRequest implements
 
 	public Object step(int step) throws Cancel {
 		helper.assertStep(step);
-		return sendEmail(helper.prepareEmail(this.sender, this.recipients[step], 
-				subject, body, html, this.ccrecipients, this.bccrecipients));
+		
+		try {
+			mailUtil.sendEmail(this.sender, this.recipients[step], 
+					subject, body, html, this.ccrecipients, this.bccrecipients);
+		} catch (MailException me) {
+			log.error(me.getMessage());
+			throw helper.cancel(new ERR(), null, "mail-send-failed", "MailException",
+                    String.format(me.getMessage()));
+        }
+		return null;
 	}
 
 	@Override
@@ -179,16 +182,5 @@ public class SendEmailRequestI extends SendEmailRequest implements
 		}
 		return bccrecipients.toArray(new String[bccrecipients.size()]);
 	}
-	
-	private boolean sendEmail(final MimeMessagePreparator email) {
-		
-		try {
-			this.mailSender.send(email);
-		} catch (MailException me) {
-			log.error(me.getMessage());
-			throw helper.cancel(new ERR(), null, "mail-send-failed", "MailException",
-                    String.format(me.getMessage()));
-        }
-		return true;
-	}
+
 }

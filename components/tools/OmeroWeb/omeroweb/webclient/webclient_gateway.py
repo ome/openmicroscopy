@@ -181,7 +181,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         
         conf = self.getConfigService()
         try:
-            return bool(conf.getConfigValue("omero.resetpassword.config").title())
+            return bool(conf.getConfigValue("omero.mail.config").title()) and bool(conf.getConfigValue("omero.mail.from").title())
         except:
             logger.error(traceback.format_exc())
             return False
