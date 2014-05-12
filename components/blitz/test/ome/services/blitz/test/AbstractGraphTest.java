@@ -18,6 +18,7 @@ import org.testng.annotations.BeforeClass;
 import ome.io.nio.PixelsService;
 import ome.io.nio.ThumbnailService;
 import ome.security.ACLVoter;
+import ome.security.auth.PasswordUtil;
 import ome.system.Roles;
 import ome.tools.hibernate.ExtendedMetadata;
 import omero.RType;
@@ -60,7 +61,8 @@ public class AbstractGraphTest extends AbstractServantTest {
                 user.ctx.getBean(Roles.class),
                 user.ctx.getBean("/OMERO/Pixels", PixelsService.class),
                 user.ctx.getBean("/OMERO/Thumbs", ThumbnailService.class),
-                user.ctx.getBean(JavaMailSender.class)
+                user.ctx.getBean(JavaMailSender.class),
+                user.ctx.getBean(PasswordUtil.class)
                 );
         rofr.setApplicationContext(ctx);
         rofr.setIceCommunicator(ic);

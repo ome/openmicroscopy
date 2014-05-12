@@ -19,12 +19,14 @@ import ome.io.nio.PixelsService;
 import ome.io.nio.ThumbnailService;
 import ome.security.ACLVoter;
 import ome.security.ChmodStrategy;
+import ome.security.auth.PasswordUtil;
 import ome.services.chgrp.ChgrpStepFactory;
 import ome.services.chown.ChownStepFactory;
 import ome.services.delete.Deletion;
 import ome.system.OmeroContext;
 import ome.system.Roles;
 import ome.tools.hibernate.ExtendedMetadata;
+import omero.cmd.admin.ResetPasswordRequestI;
 import omero.cmd.basic.DoAllI;
 import omero.cmd.basic.ListRequestsI;
 import omero.cmd.basic.TimingI;
@@ -60,6 +62,8 @@ public class RequestObjectFactoryRegistry extends
 
     protected final JavaMailSender mailSender;
 
+    protected final PasswordUtil passwordUtil;
+
     private/* final */OmeroContext ctx;
 
     public RequestObjectFactoryRegistry(ExtendedMetadata em,
@@ -67,7 +71,8 @@ public class RequestObjectFactoryRegistry extends
             Roles roles,
             PixelsService pixelsService,
             ThumbnailService thumbnailService,
-            JavaMailSender mailSender) {
+            JavaMailSender mailSender,
+            PasswordUtil passwordUtil) {
 
         this.em = em;
         this.voter = voter;
@@ -75,7 +80,7 @@ public class RequestObjectFactoryRegistry extends
         this.pixelsService = pixelsService;
         this.thumbnailService = thumbnailService;
         this.mailSender = mailSender;
-
+        this.passwordUtil = passwordUtil;
     }
 
     public void setApplicationContext(ApplicationContext ctx)
@@ -184,6 +189,13 @@ public class RequestObjectFactoryRegistry extends
                     @Override
                     public Ice.Object create(String name) {
                     	return new SendEmailRequestI(mailSender);
+                    }
+                });
+        factories.put(ResetPasswordRequestI.ice_staticId(),
+                new ObjectFactory(ResetPasswordRequestI.ice_staticId()) {
+                    @Override
+                    public Ice.Object create(String name) {
+                    	return new ResetPasswordRequestI(mailSender, passwordUtil);
                     }
                 });
         return factories;

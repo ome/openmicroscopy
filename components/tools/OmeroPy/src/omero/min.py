@@ -13,6 +13,7 @@ if omero.__import_style__ is None:
     omero.__import_style__ = "min"
 
 # New Command API
+IceImport.load("omero_cmd_Admin_ice")
 IceImport.load("omero_cmd_API_ice")
 IceImport.load("omero_cmd_Basic_ice")
 IceImport.load("omero_cmd_FS_ice")
