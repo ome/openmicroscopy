@@ -643,23 +643,30 @@ def manage_group(request, action, gid=None, conn=None, **kwargs):
                     perm = setActualPermissions(permissions)
                 else:
                     perm = None
-                conn.updateGroup(group, name, perm, listOfOwners, description)
-                
-                new_members = getSelectedExperimenters(conn, mergeLists(members,owners))
-                removalFails = conn.setMembersOfGroup(group, new_members)
-                if len(removalFails) == 0:
-                    return HttpResponseRedirect(reverse("wagroups"))
-                # If we've failed to remove user...
-                msgs = []
-                # prepare error messages
-                for e in removalFails:
-                    url = reverse("wamanageexperimenterid", args=["edit", e.id])
-                    msgs.append("Can't remove user <a href='%s'>%s</a> from their only group"
-                        % (url, e.getFullName()))
-                # refresh the form and add messages
+
                 context = getEditFormContext()
                 context['ome'] = {}
-                context['ome']['message'] = "<br>".join(msgs)
+                try:
+                    conn.updateGroup(group, name, perm, listOfOwners, description)
+
+                    new_members = getSelectedExperimenters(conn, mergeLists(members,owners))
+                    removalFails = conn.setMembersOfGroup(group, new_members)
+                    if len(removalFails) == 0:
+                        return HttpResponseRedirect(reverse("wagroups"))
+                    # If we've failed to remove user...
+                    msgs = []
+                    # prepare error messages
+                    for e in removalFails:
+                        url = reverse("wamanageexperimenterid", args=["edit", e.id])
+                        msgs.append("Can't remove user <a href='%s'>%s</a> from their only group"
+                            % (url, e.getFullName()))
+                    # refresh the form and add messages
+                    context['ome']['message'] = "<br>".join(msgs)
+                except omero.SecurityViolation, ex:
+                    if ex.message.startswith('Cannot change permissions'):
+                        context['ome']['message'] = "Downgrade to private group not currently possible"
+                    else:
+                        raise
     else:
         return HttpResponseRedirect(reverse("wagroups"))
     
