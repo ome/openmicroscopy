@@ -37,6 +37,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JViewport;
 
+import org.apache.commons.collections.CollectionUtils;
 //Third-party libraries
 import org.jdesktop.swingx.JXTaskPane;
 import org.jdesktop.swingx.JXTaskPaneContainer;
@@ -373,17 +374,17 @@ class GeneralPaneUI
 		List<Object> toRemove = new ArrayList<Object>();
 		List<AnnotationData> l = annotationUI.getAnnotationToSave();
 		//To add
-		if (l != null && l.size() > 0)
+		if (CollectionUtils.isNotEmpty(l))
 			toAdd.addAll(l);
 		l = textualAnnotationsUI.getAnnotationToSave();
-		if (l != null && l.size() > 0)
+		if (CollectionUtils.isNotEmpty(l))
 			toAdd.addAll(l);
 		//To remove
 		List<Object> ll = annotationUI.getAnnotationToRemove();
-		if (ll != null && ll.size() > 0)
+		if (CollectionUtils.isNotEmpty(ll))
 			toRemove.addAll(ll);
 		ll = textualAnnotationsUI.getAnnotationToRemove();
-		if (ll != null && ll.size() > 0)
+		if (CollectionUtils.isNotEmpty(ll))
 			toRemove.addAll(ll);
 		
 		return new DataToSave(toAdd, toRemove);

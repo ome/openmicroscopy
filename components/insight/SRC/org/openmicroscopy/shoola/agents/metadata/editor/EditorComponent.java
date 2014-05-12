@@ -43,6 +43,7 @@ import javax.swing.JFrame;
 
 //Third-party libraries
 
+import org.apache.commons.collections.CollectionUtils;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.FileAnnotationCheckResult;
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
@@ -215,17 +216,13 @@ class EditorComponent
 		String title = "";
 		String text = "";
 		Icon icon = null;
-		boolean single = model.isSingleMode();
 		if (TagAnnotationData.class.equals(type)) {
 			title = "Tags Selection";
-			if (single)
-				text = "Select the Tags to add or remove, \nor Create new Tags";
-			else text = "Select the Tags to add, \nor Create new Tags";
+			text = "Select from available tags";
 			icon = icons.getIcon(IconManager.TAGS_48);
 		} else if (FileAnnotationData.class.equals(type)) {
 			title = "Attachments Selection";
-			if (single) text = "Select the Attachments to add or remove.";
-			else text = "Select the Attachments to add.";
+			text = "Select from available attachments";
 			icon = icons.getIcon(IconManager.ATTACHMENT_48);
 		}
 		SelectionWizard wizard = new SelectionWizard(
@@ -311,59 +308,47 @@ class EditorComponent
 	public void setExistingTags(Collection tags)
 	{
 		model.setExistingTags(tags);
-		
+		List<TagAnnotationData> selected = new ArrayList<TagAnnotationData>();
 		List<Long> ids = new ArrayList<Long>();
-		
 		TagAnnotationData tag;
-		Collection<TagAnnotationData> setTags = 
-				model.getCommonTags();
+		Collection<TagAnnotationData> setTags = model.getCommonTags();
 		if (setTags != null) {
 			Iterator<TagAnnotationData> k = setTags.iterator();
 			while (k.hasNext()) {
 				tag = k.next();
-				if (model.isAnnotationUsedByUser(tag))
-					ids.add(tag.getId());
+				if (model.isAnnotationUsedByUser(tag)) {
+				    ids.add(tag.getId());
+				    selected.add(tag);
+				}
 			}
 		}
 		
 		List<TagAnnotationData> available = new ArrayList<TagAnnotationData>();
-		if (tags != null) {
+		if (CollectionUtils.isNotEmpty(tags)) {
 			Iterator i = tags.iterator();
 			TagAnnotationData data;
-			String ns;
 			Set<TagAnnotationData> l;
 			Iterator<TagAnnotationData> j;
 			while (i.hasNext()) {
 				data = (TagAnnotationData) i.next();
-				ns = data.getNameSpace();
-				if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(ns)) {
-					l = data.getTags();
-					if (l != null) {
-						j = l.iterator();
-						while (j.hasNext()) {
-							tag = j.next();
-							if (!ids.contains(tag.getId()))
-								available.add(tag);
-						}
-					}
-				} else {
-					if (!ids.contains(data.getId()))
-						available.add(data);
+				if (!ids.contains(data.getId())) {
+                    available.add(data);
 				}
 			}
 		}
 		if (controller.getFigureDialog() != null) {
 			List<TagAnnotationData> all = new ArrayList<TagAnnotationData>();
 			all.addAll(available);
-			if (setTags != null && setTags.size() > 0) all.addAll(setTags);
+			if (CollectionUtils.isNotEmpty(setTags)) {
+			    all.addAll(setTags);
+			}
 			controller.getFigureDialog().setTags(all);
 			return;
 		}
-		showSelectionWizard(TagAnnotationData.class, available, setTags,
-							true);
+		showSelectionWizard(TagAnnotationData.class, available, selected, true);
 		setStatus(false);
 	}
-	
+
 	/** 
 	 * Implemented as specified by the {@link Editor} interface.
 	 * @see Editor#setChannelsData(Map, boolean)
@@ -442,19 +427,22 @@ class EditorComponent
 		if (attachments == null) return;
 		model.setExistingAttachments(attachments);
 		Collection setAttachments = model.getCommonAttachments();
-		
+		List selected = new ArrayList();
 		List<Long> ids = new ArrayList<Long>();
 		if (setAttachments != null) {
 			Iterator<FileAnnotationData> k = setAttachments.iterator();
 			FileAnnotationData file;
 			while (k.hasNext()) {
 				file = k.next();
-				if (model.isAnnotationUsedByUser(file))
-					ids.add(file.getId());
+				if (model.isAnnotationUsedByUser(file)) {
+				    selected.add(file);
+				    ids.add(file.getId());
+				}
 			}
 		}
 		
 		List available = new ArrayList();
+		
 		if (attachments != null) {
 			Iterator i = attachments.iterator();
 			FileAnnotationData data;
@@ -464,7 +452,7 @@ class EditorComponent
 					available.add(data);
 			}
 		}
-		showSelectionWizard(FileAnnotationData.class, available, setAttachments,
+		showSelectionWizard(FileAnnotationData.class, available, selected,
 							true);
 		setStatus(false);
 	}

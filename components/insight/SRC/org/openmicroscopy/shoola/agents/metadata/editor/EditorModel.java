@@ -1329,7 +1329,7 @@ class EditorModel
 		Iterator<AnnotationLinkData> i;
 		AnnotationLinkData link;
 		
-		long id = getUserID();
+		long id = MetadataViewerAgent.getUserDetails().getId();
 		DataObject ann = (DataObject) annotation;
 		
 		while (j.hasNext()) {
@@ -2908,7 +2908,7 @@ class EditorModel
 				data = ((WellSampleData) ref).getImage();
 			}
 			List<AnnotationData> list = null;
-			if (toDelete != null && toDelete.size() > 0) {
+			if (CollectionUtils.isNotEmpty(toDelete)) {
 				list = new ArrayList<AnnotationData>();
 				Iterator<AnnotationData> i = toDelete.iterator();
 				while (i.hasNext())

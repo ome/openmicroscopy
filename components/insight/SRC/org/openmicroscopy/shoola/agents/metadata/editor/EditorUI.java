@@ -47,6 +47,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
 
+import org.apache.commons.collections.CollectionUtils;
 //Third-party libraries
 import org.jdesktop.swingx.JXTaskPane;
 
@@ -683,14 +684,42 @@ class EditorUI
 	/**
 	 * Handles the selection of objects via the selection wizard.
 	 * 
-	 * @param type		The type of objects to handle.
-	 * @param objects 	The objects to handle.
+	 * @param type The type of objects to handle.
+	 * @param objects The objects to handle.
 	 */
-	void handleObjectsSelection(Class type, Collection objects)
+	void handleObjectsSelection(Class<?> type, Collection objects)
 	{
 		if (objects == null) return;
-		generalPane.handleObjectsSelection(type, objects);
-		saveData(true);	
+		List<Object> selection = new ArrayList<Object>();
+		if (CollectionUtils.isNotEmpty(objects)) {
+		    selection.addAll(objects);
+		}
+		 AnnotationData data;
+		if (TagAnnotationData.class.equals(type)) {
+		    Collection<TagAnnotationData> l = model.getCommonTags();
+	        if (CollectionUtils.isNotEmpty(l)) {
+	            Iterator<TagAnnotationData> k = l.iterator();
+	            while (k.hasNext()) {
+	                data = k.next();
+	                if (!model.isAnnotationUsedByUser(data)) {
+	                    selection.add(data);
+	                }
+	            }
+	        }
+		} else if (FileAnnotationData.class.equals(type)) {
+		    Collection<FileAnnotationData> l = model.getCommonAttachments();
+            if (CollectionUtils.isNotEmpty(l)) {
+                Iterator<FileAnnotationData> k = l.iterator();
+                while (k.hasNext()) {
+                    data = k.next();
+                    if (!model.isAnnotationUsedByUser(data)) {
+                        selection.add(data);
+                    }
+                }
+            }
+		}
+		generalPane.handleObjectsSelection(type, selection);
+		saveData(true);
 	}
 	
 	/** 
