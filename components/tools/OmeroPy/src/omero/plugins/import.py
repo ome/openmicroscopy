@@ -55,6 +55,8 @@ Examples:
   $ bin/omero import foo.tiff -- --debug=ALL
   # Display used files for importing foo.tiff
   $ bin/omero import foo.tiff -f
+  # Limit debugging output
+  $ bin/omero import -- --debug=ERROR foo.tiff
 
 For additional information, see:
 http://www.openmicroscopy.org/site/support/omero5/users/\
