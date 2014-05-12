@@ -96,7 +96,8 @@ public class SendEmailRequestI extends SendEmailRequest implements
 
 	public Object step(int step) throws Cancel {
 		helper.assertStep(step);
-		return sendEmail(this.recipients[step]);
+		return sendEmail(helper.prepareEmail(this.sender, this.recipients[step], 
+				subject, body, html, this.ccrecipients, this.bccrecipients));
 	}
 
 	@Override
@@ -179,22 +180,10 @@ public class SendEmailRequestI extends SendEmailRequest implements
 		return bccrecipients.toArray(new String[bccrecipients.size()]);
 	}
 	
-	private boolean sendEmail(final String recipient) {
-		MimeMessagePreparator preparator = new MimeMessagePreparator() {
-			public void prepare(MimeMessage mimeMessage) throws Exception {
-				
-				MimeMessageHelper message = new MimeMessageHelper(mimeMessage);
-				message.setFrom(new InternetAddress(sender));
-				message.setSubject(subject);
-				message.setTo(new InternetAddress(recipient));
-				if (ccrecipients.length > 0) message.setCc(ccrecipients);
-				if (bccrecipients.length > 0) message.setCc(bccrecipients);
-				message.setText(body, html);
-			}
-		};
+	private boolean sendEmail(final MimeMessagePreparator email) {
 		
 		try {
-			this.mailSender.send(preparator);
+			this.mailSender.send(email);
 		} catch (MailException me) {
 			log.error(me.getMessage());
 			throw helper.cancel(new ERR(), null, "mail-send-failed", "MailException",

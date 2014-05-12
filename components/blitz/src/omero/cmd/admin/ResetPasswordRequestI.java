@@ -129,32 +129,20 @@ public class ResetPasswordRequestI extends ResetPasswordRequest implements
         final String newPassword = passwordUtil.generateRandomPasswd();
         helper.getServiceFactory().getAdminService().changeUserPassword(this.e.getOmeName(), newPassword);
         
+        String subject = "OMERO - Reset password";
         String body = "Dear " + this.e.getFirstName() + " " + this.e.getLastName() + " ("
                 + this.e.getOmeName() + ")" + " your new password is: "
                 + newPassword;
-        String topic = "OMERO - Reset password";
-        return sendEmail(this.sender, this.e.getEmail(), topic, body, false, null, null);
+        
+        return sendEmail(helper.prepareEmail(this.sender, this.e.getEmail(), 
+        		subject, body, false, null, null));
         
 	}
 	
-	private boolean sendEmail(final String from, final String to,
-			final String topic, final String body, final boolean html,
-			final String [] ccrecipients, final String [] bccrecipients) {
-		MimeMessagePreparator preparator = new MimeMessagePreparator() {
-			public void prepare(MimeMessage mimeMessage) throws Exception {
-				
-				MimeMessageHelper message = new MimeMessageHelper(mimeMessage);
-				message.setFrom(new InternetAddress(from));
-				message.setSubject(topic);
-				message.setTo(new InternetAddress(to));
-				if (null != ccrecipients && ccrecipients.length > 0) message.setCc(ccrecipients);
-				if (null != bccrecipients && bccrecipients.length > 0) message.setCc(bccrecipients);
-				message.setText(body, html);
-			}
-		};
+	private boolean sendEmail(final MimeMessagePreparator email) {
 		
 		try {
-			this.mailSender.send(preparator);
+			this.mailSender.send(email);
 		} catch (MailException me) {
 			log.error(me.getMessage());
 			throw helper.cancel(new ERR(), null, "mail-send-failed", "MailException",
