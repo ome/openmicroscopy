@@ -457,7 +457,7 @@ public class SearchComponent
             if (scope.contains(SearchContext.ID)) {
                 // create search context with search by ID only
                 ctx = new SearchContext(uiDelegate.getSome(), ArrayUtils.EMPTY_STRING_ARRAY,
-                        new String[] {},
+                        ArrayUtils.EMPTY_STRING_ARRAY,
                         Collections.singletonList(SearchContext.ID));
             } else {
                 // Terms cannot be null
