@@ -29,7 +29,8 @@ from omero.model import ProjectI, DatasetI, ScreenI, PlateI, \
     PlateAcquisitionI
 from omero.rtypes import rstring
 from omeroweb.webclient.tree import marshal_datasets_for_projects, \
-    marshal_datasets, marshal_plates_for_screens, marshal_plates
+    marshal_datasets, marshal_plates_for_screens, marshal_plates, \
+    marshal_projects
 
 
 def cmp_id(x, y):
@@ -468,4 +469,26 @@ class TestTree(object):
         }]
 
         marshaled = marshal_plates(conn, [plate_id])
+        assert marshaled == expected
+
+    def test_marshal_project_dataset_image(self, conn, project_dataset_image):
+        project_id = project_dataset_image.id.val
+        dataset, = project_dataset_image.linkedDatasetList()
+        perms_css = 'canEdit canAnnotate canLink canDelete canChgrp'
+        expected = [{
+            'id': project_id,
+            'isOwned': True,
+            'name': project_dataset_image.name.val,
+            'datasets': [{
+                'childCount': 1L,
+                'id': dataset.id.val,
+                'isOwned': True,
+                'name': dataset.name.val,
+                'permsCss': perms_css
+            }],
+            'childCount': 1,
+            'permsCss': perms_css
+        }]
+
+        marshaled = marshal_projects(conn, conn.getUserId())
         assert marshaled == expected

@@ -122,6 +122,58 @@ def marshal_dataset(conn, row):
     return dataset
 
 
+def marshal_projects(conn, experimenter_id):
+    ''' Marshals projects and contained datasets for a given user.
+
+        @param conn OMERO gateway.
+        @type conn L{omero.gateway.BlitzGateway}
+        @param experimenter_id The Experimenter (user) ID to marshal
+        Projects for.
+        @type experimenter_id L{long}
+    '''
+    projects = list()
+    query_service = conn.getQueryService()
+    params = omero.sys.ParametersI()
+    params.addId(experimenter_id)
+    q = """
+        select project.id,
+               project.name,
+               project.details.permissions,
+               dataset.id,
+               dataset.name,
+               dataset.details.owner.id,
+               (select count(id) from DatasetImageLink dil
+                  where dil.parent = dataset.id)
+               from ProjectDatasetLink pdlink
+               join pdlink.parent project
+               join pdlink.child dataset
+        where project.details.owner.id = :id
+        order by project.name
+        """
+    for row in query_service.projection(q, params, conn.SERVICE_OPTS):
+        project_id, project_name, project_permissions, \
+            dataset_id, dataset_name, dataset_owner_id, child_count = row
+
+        if len(projects) == 0 or projects[-1]['id'] != project_id:
+            is_owned = experimenter_id == conn.getUserId()
+            perms_css = parse_permissions_css(
+                project_permissions, experimenter_id, conn
+            )
+            project = {
+                'id': project_id.val, 'name': project_name.val,
+                'isOwned': is_owned, 'permsCss': perms_css, 'datasets': list()
+            }
+            projects.append(project)
+
+        project = projects[-1]
+        project['datasets'].append(marshal_dataset(conn, (
+            dataset_id, dataset_name, dataset_owner_id,
+            project_permissions, child_count
+        )))
+        project['childCount'] = len(project['datasets'])
+    return projects
+
+
 def marshal_datasets_for_projects(conn, project_ids):
     ''' Given a list of project ids, marshals the contained datasets, grouping
         by parent project.
