@@ -396,7 +396,8 @@ omero.version=${omero.version}
 			use="true"
 			encoding="UTF-8"
 			docencoding="UTF-8"
-			breakiterator="true">
+			breakiterator="true"
+			useexternalfile="true">
 			<fileset dir="${src.dir}" includes="**/*.java"/>
 			<fileset dir="${src.dest}" includes="**/*.java"/>
 		</javadoc>
