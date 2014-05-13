@@ -43,6 +43,11 @@ def cmp_name(x, y):
     return cmp(x.name.val, y.name.val)
 
 
+def cmp_name_insensitive(x, y):
+    """Case-insensitive name comparator."""
+    return cmp(x.name.val.lower(), y.name.val.lower())
+
+
 @pytest.fixture(scope='function')
 def itest(request):
     """
@@ -76,26 +81,37 @@ def update_service(request, client):
     return client.getSession().getUpdateService()
 
 
+@pytest.fixture(scope='module')
+def names(request):
+    return ('Apple', 'bat', 'atom', 'Butter')
+
+
 @pytest.fixture(scope='function')
-def projects(request, itest, update_service):
+def projects(request, itest, update_service, names):
     """
-    Returns four new OMERO Projects with required fields set with names
+    Returns four new OMERO Projects with required fields set and with names
     that can be used to exercise sorting semantics.
     """
-    to_save = list()
-    project = ProjectI()
-    project.name = rstring('Apple')
-    to_save.append(project)
-    project = ProjectI()
-    project.name = rstring('bat')
-    to_save.append(project)
-    project = ProjectI()
-    project.name = rstring('atom')
-    to_save.append(project)
-    project = ProjectI()
-    project.name = rstring('Butter')
-    to_save.append(project)
+    to_save = [ProjectI(), ProjectI(), ProjectI(), ProjectI()]
+    for index, project in enumerate(to_save):
+        project.name = rstring(names[index])
     return update_service.saveAndReturnArray(to_save)
+
+
+@pytest.fixture(scope='function')
+def projects_datasets_new(request, itest, update_service, names):
+    """
+    Returns four new OMERO Projects and four linked Datasets with required
+    fields set and with names that can be used to exercise sorting semantics.
+    """
+    projects = [ProjectI(), ProjectI(), ProjectI(), ProjectI()]
+    for index, project in enumerate(projects):
+        project.name = rstring(names[index])
+        datasets = [DatasetI(), DatasetI(), DatasetI(), DatasetI()]
+        for index, dataset in enumerate(datasets):
+            dataset.name = rstring(names[index])
+            project.linkDataset(dataset)
+    return update_service.saveAndReturnArray(projects)
 
 
 @pytest.fixture(scope='function')
@@ -548,6 +564,38 @@ class TestTree(object):
             'childCount': 0,
             'permsCss': perms_css
         }]
+
+        marshaled = marshal_projects(conn, conn.getUserId())
+        assert marshaled == expected
+
+    def test_marshal_projects_datasets_new(self, conn, projects_datasets_new):
+        project_a, project_b, project_c, project_d = projects_datasets_new
+        expected = list()
+        perms_css = 'canEdit canAnnotate canLink canDelete canChgrp'
+        # The underlying query explicitly orders the Projects list by
+        # case-insensitive name.
+        for project in sorted(projects_datasets_new, cmp_name_insensitive):
+            expected.append({
+                'id': project.id.val,
+                'isOwned': True,
+                'name': project.name.val,
+                'childCount': 4,
+                'permsCss': perms_css
+            })
+            # The underlying query explicitly orders the Datasets list by
+            # case-insensitive name.
+            source = project.linkedDatasetList()
+            source.sort(cmp_name_insensitive)
+            datasets = list()
+            for dataset in source:
+                datasets.append({
+                    'childCount': 0L,
+                    'id': dataset.id.val,
+                    'isOwned': True,
+                    'name': dataset.name.val,
+                    'permsCss': perms_css
+                })
+            expected[-1]['datasets'] = datasets
 
         marshaled = marshal_projects(conn, conn.getUserId())
         assert marshaled == expected
