@@ -454,7 +454,7 @@
         </macrodef>
 
         <macrodef name="publishArtifact">
-            <attribute name="pattern" default="${target.dir}/[artifact].[ext]"/>
+            <attribute name="pattern" default="${target.dir}/[artifact](-[classifier]).[ext]"/>
             <attribute name="haltonmissing" default="true"/>
             <sequential>
                 <delete file="${target.dir}/${ivy.module}.xml"/> <!-- delete last produced ivy file to be sure a new one will be generated -->

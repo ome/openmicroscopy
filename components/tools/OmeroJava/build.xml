@@ -103,6 +103,8 @@
                 <include name="omero/**/*.java"/>
             </fileset>
         </jar>
+        <copy file="${blitz.comp}/target/blitz-javadoc.jar"
+            tofile="${target.dir}/${ivy.module}-javadoc.jar"/>
     </target>
 
     <target name="tools-build" depends="tools-init,install"
