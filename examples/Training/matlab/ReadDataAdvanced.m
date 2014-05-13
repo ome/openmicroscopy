@@ -22,7 +22,7 @@ tagName = 'myTagName';
 % Load Data
 try
     [client, session] = loadOmero();
-    p = parseOmeroProperties();
+    p = parseOmeroProperties(client);
     eventContext = session.getAdminService().getEventContext();
     fprintf(1, 'Created connection to %s\n', p.hostname);
     msg = 'Created session for user %s (id: %g) using group %s (id: %g)\n';
