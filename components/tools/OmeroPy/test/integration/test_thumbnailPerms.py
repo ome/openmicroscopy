@@ -498,3 +498,64 @@ class TestThumbnailPerms(lib.ITest):
         tb.setPixelsId(pixels)
         tb.setRenderingDefId(c_rdef)
         assert not tb.thumbnailExists(rint(96), rint(96))
+
+    @pytest.mark.parametrize("method", ("readOnly", "readAnnotate", "readWrite"))
+    def test12145ShareSettingsGetThumbnail(self, method):
+        """
+        Check that a new thumbnail is created when new
+        settings are created.
+        """
+        if method == "readOnly":
+            group = self.new_group(perms="rwr---")
+            groupOwner = self.new_user(group=group, admin=True)
+            owner = self.new_client(group=group)
+            other = self.new_client(user=groupOwner, group=group)
+        elif method == "readAnnotate":
+            group = self.new_group(perms="rwra--")
+            owner = self.new_client(group=group)
+            other = self.new_client(group=group)
+        elif method == "readWrite":
+            group = self.new_group(perms="rwrw--")
+            owner = self.new_client(group=group)
+            other = self.new_client(group=group)
+                
+        # creation generates a first rendering image
+        image = self.createTestImage(session=owner.sf)
+        pixels = image.getPrimaryPixels().getId().getValue()
+        # create thumbnail for image owner 16x16
+        tb = owner.sf.createThumbnailStore()
+        tb.setPixelsId(pixels)
+        tb.getThumbnail(rint(16), rint(16))
+        assert tb.thumbnailExists(rint(16), rint(16))
+
+        def assert_rdef(sf=None, prx=None):
+            if prx is None:
+                prx = sf.createRenderingEngine()
+            prx.lookupPixels(pixels)
+            assert prx.lookupRenderingDef(pixels)
+            return prx, prx.getRenderingDefId()
+
+        # The owner has a rdef, and other
+        # users see the same value
+        a_prx, a_rdef = assert_rdef(owner.sf)
+        b_prx, b_rdef = assert_rdef(other.sf)
+        assert a_rdef == b_rdef
+
+        # save settings for group onwer.
+        b_prx.saveCurrentSettings()
+
+        # retrieve thumbnail and check that it is created.
+        tb = other.sf.createThumbnailStore()
+        tb.setPixelsId(pixels)
+        tb.getThumbnail(rint(16), rint(16))
+        query = other.sf.getQueryService()
+        p = omero.sys.Parameters()
+        p.map = {}
+        p.map["oid"] = omero.rtypes.rlong(other.sf.getAdminService().getEventContext().userId)
+        p.map["pid"] = omero.rtypes.rlong(pixels)
+        thumbs = query.findAllByQuery(
+            "select t from Thumbnail t join t.pixels p where t.details.owner.id = :oid and p.id = :pid", p)
+        #check that one has been created for the group owner.
+        assert 1 == len(thumbs)
+        #check that a thum
+        tb.close()
