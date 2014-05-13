@@ -251,7 +251,7 @@ public class ManageRndSettingsAction
 		if (index != SET_OWNER_SETTING) return;
 		Object source = me.getSource();
 		if (source instanceof Component) 
-			model.retrieveRelatedSettings((Component) source, me.getPoint());
+			model.retrieveRelatedSettings();
 	}
 	
 	/**

@@ -36,6 +36,7 @@ import javax.swing.JPanel;
 //Third-party libraries
 
 import org.apache.commons.collections.CollectionUtils;
+import org.openmicroscopy.shoola.agents.util.ViewedByItem;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -269,7 +270,7 @@ class RendererUI
      *
      * @param results The thumbnails to lay out.
      */
-    void displayViewedBy(List results)
+    void displayViewedBy(List<ViewedByItem> results)
     {
         if (CollectionUtils.isEmpty(results)) return;
         DomainPane pane = (DomainPane) controlPanes.get(DOMAIN);

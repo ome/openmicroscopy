@@ -164,8 +164,6 @@ class GraphicsPane
     {
         IconManager icons = IconManager.getInstance();
         viewedBy = new JXTaskPane();
-        viewedBy.setCollapsed(true);
-        viewedBy.setVisible(false);
         Font font = viewedBy.getFont();
         viewedBy.setFont(font.deriveFont(font.getSize2D()-2));
         viewedBy.setTitle(ManageRndSettingsAction.NAME_OWNER);
@@ -483,7 +481,7 @@ class GraphicsPane
      *  
      * @param results The thumbnails to lay out.
      */
-    void displayViewedBy(List results)
+    void displayViewedBy(List<ViewedByItem> results)
     {
         if (results == null) return;
         JPanel p = new JPanel();
@@ -516,8 +514,6 @@ class GraphicsPane
         JPanel content = UIUtilities.buildComponentPanel(p);
         content.setBackground(UIUtilities.BACKGROUND_COLOR);
         viewedBy.add(content);
-        viewedBy.setVisible(true);
-        viewedBy.setCollapsed(false);
     }
 
     /**
