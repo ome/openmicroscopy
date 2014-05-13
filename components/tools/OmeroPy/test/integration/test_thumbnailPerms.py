@@ -333,188 +333,115 @@ class TestThumbnailPerms(lib.ITest):
         assert_exists(True, False)
 
     @pytest.mark.parametrize("method", ("saveCurrent", "saveAs", "request", "resetDefault", "resetDefaultNoSave"))
-    def test12145ShareSettingsRnd(self, method):
+    @pytest.mark.parametrize("perms", ("readOnly", "readAnnotate", "readWrite"))
+    def test12145ShareSettingsRnd(self, method, perms):
         """
         Rendering settings should be shared when possible.
         Rather than regenerating the min/max per viewer,
         these should be used unless requested otherwise.
         """
-        group = self.new_group(perms="rwra--")
-        owner = self.new_client(group=group)
-        other = self.new_client(group=group)
-
-        # creation generates a first rendering image
-        image = self.createTestImage(session=owner.sf)
-        pixels = image.getPrimaryPixels().getId().getValue()
-
-        def assert_rdef(sf=None, prx=None):
-            if prx is None:
-                prx = sf.createRenderingEngine()
-            prx.lookupPixels(pixels)
-            assert prx.lookupRenderingDef(pixels)
-            return prx, prx.getRenderingDefId()
-
-        # The owner has a rdef, and other
-        # users see the same value
-        a_prx, a_rdef = assert_rdef(owner.sf)
-        b_prx, b_rdef = assert_rdef(other.sf)
-        assert a_rdef == b_rdef
-
-        if method == "saveCurrent":
-            # If the other users try to save with
-            # that prx though, they'll create a new rdef
-            b_prx.saveCurrentSettings()
-            c_rdef = b_prx.getRenderingDefId()
-            assert c_rdef != b_rdef
-
-        elif method == "saveAs":
-            # But other users can create new rdefs
-            # with new ids using the new method
-            try:
-                c_rdef = b_prx.saveAsNewSettings()
-                ignore, d_rdef = assert_rdef(prx=b_prx)
-                assert a_rdef != c_rdef
-                assert c_rdef == d_rdef
-            except Ice.OperationNotExistException:
-                # Not supported by this server
-                pass
-
-        elif method == "request":
-            # If a user explicitly requests a rdef
-            # then it will *not* saveAs and the rdefs
-            # should match.
-            b_prx.loadRenderingDef(b_rdef)
-            try:
-                b_prx.saveCurrentSettings()
-            except omero.SecurityViolation:
-                pass  # You can't do this!
-            c_rdef = b_prx.getRenderingDefId()
-            assert c_rdef == b_rdef
-
-        elif method == "resetDefault":
-            # If the other users try to save with
-            # that prx though, they'll create a new rdef
-            b_prx.load()
-            b_prx.resetDefaults()
-            c_rdef = b_prx.getRenderingDefId()
-            b_prx.close()
-            assert c_rdef != b_rdef
-
-        elif method == "resetDefaultNoSave":
-            # If the other users try to save with
-            # that prx though, they'll create a new rdef
-            b_prx.load()
-            b_prx.resetDefaultsNoSave()        
-            c_rdef = b_prx.getRenderingDefId()
-            b_prx.close()
-            assert c_rdef == b_rdef
-
-        # But they won't have a thumbnail generated
-        tb = other.sf.createThumbnailStore()
-        tb.setPixelsId(pixels)
-        tb.setRenderingDefId(c_rdef)
-        assert not tb.thumbnailExists(rint(96), rint(96))
-    
-    @pytest.mark.parametrize("method", ("saveCurrent", "saveAs", "request", "resetDefault", "resetDefaultNoSave"))
-    def test12145ShareSettingsRndReadOnly(self, method):
-        """
-        Rendering settings should be shared when possible.
-        Rather than regenerating the min/max per viewer,
-        these should be used unless requested otherwise.
-        """
-        group = self.new_group(perms="rwr---")
-        groupOwner = self.new_user(group=group, admin=True)
-        owner = self.new_client(group=group)
-        other = self.new_client(user=groupOwner, group=group)
-
-        # creation generates a first rendering image
-        image = self.createTestImage(session=owner.sf)
-        pixels = image.getPrimaryPixels().getId().getValue()
-
-        def assert_rdef(sf=None, prx=None):
-            if prx is None:
-                prx = sf.createRenderingEngine()
-            prx.lookupPixels(pixels)
-            assert prx.lookupRenderingDef(pixels)
-            return prx, prx.getRenderingDefId()
-
-        # The owner has a rdef, and other
-        # users see the same value
-        a_prx, a_rdef = assert_rdef(owner.sf)
-        b_prx, b_rdef = assert_rdef(other.sf)
-        assert a_rdef == b_rdef
-
-        if method == "saveCurrent":
-            # If the other users try to save with
-            # that prx though, they'll create a new rdef
-            b_prx.saveCurrentSettings()
-            c_rdef = b_prx.getRenderingDefId()
-            assert c_rdef != b_rdef
-
-        elif method == "saveAs":
-            # But other users can create new rdefs
-            # with new ids using the new method
-            try:
-                c_rdef = b_prx.saveAsNewSettings()
-                ignore, d_rdef = assert_rdef(prx=b_prx)
-                assert a_rdef != c_rdef
-                assert c_rdef == d_rdef
-            except Ice.OperationNotExistException:
-                # Not supported by this server
-                pass
-
-        elif method == "request":
-            # If a user explicitly requests a rdef
-            # then it will *not* saveAs and the rdefs
-            # should match.
-            b_prx.loadRenderingDef(b_rdef)
-            try:
-                b_prx.saveCurrentSettings()
-            except omero.SecurityViolation:
-                pass  # You can't do this!
-            c_rdef = b_prx.getRenderingDefId()
-            assert c_rdef == b_rdef
-
-        elif method == "resetDefault":
-            # If the other users try to save with
-            # that prx though, they'll create a new rdef
-            b_prx.load()
-            b_prx.resetDefaults()
-            c_rdef = b_prx.getRenderingDefId()
-            b_prx.close()
-            assert c_rdef != b_rdef
-
-        elif method == "resetDefaultNoSave":
-            # If the other users try to save with
-            # that prx though, they'll create a new rdef
-            b_prx.load()
-            b_prx.resetDefaultsNoSave()        
-            c_rdef = b_prx.getRenderingDefId()
-            b_prx.close()
-            assert c_rdef == b_rdef
-
-        # But they won't have a thumbnail generated
-        tb = other.sf.createThumbnailStore()
-        tb.setPixelsId(pixels)
-        tb.setRenderingDefId(c_rdef)
-        assert not tb.thumbnailExists(rint(96), rint(96))
-
-    @pytest.mark.parametrize("method", ("readOnly", "readAnnotate", "readWrite"))
-    def test12145ShareSettingsGetThumbnail(self, method):
-        """
-        Check that a new thumbnail is created when new
-        settings are created.
-        """
-        if method == "readOnly":
+        if perms == "readOnly":
             group = self.new_group(perms="rwr---")
             groupOwner = self.new_user(group=group, admin=True)
             owner = self.new_client(group=group)
             other = self.new_client(user=groupOwner, group=group)
-        elif method == "readAnnotate":
+        elif perms == "readAnnotate":
             group = self.new_group(perms="rwra--")
             owner = self.new_client(group=group)
             other = self.new_client(group=group)
-        elif method == "readWrite":
+        elif perms == "readWrite":
+            group = self.new_group(perms="rwrw--")
+            owner = self.new_client(group=group)
+            other = self.new_client(group=group)
+
+        # creation generates a first rendering image
+        image = self.createTestImage(session=owner.sf)
+        pixels = image.getPrimaryPixels().getId().getValue()
+
+        def assert_rdef(sf=None, prx=None):
+            if prx is None:
+                prx = sf.createRenderingEngine()
+            prx.lookupPixels(pixels)
+            assert prx.lookupRenderingDef(pixels)
+            return prx, prx.getRenderingDefId()
+
+        # The owner has a rdef, and other
+        # users see the same value
+        a_prx, a_rdef = assert_rdef(owner.sf)
+        b_prx, b_rdef = assert_rdef(other.sf)
+        assert a_rdef == b_rdef
+
+        if method == "saveCurrent":
+            # If the other users try to save with
+            # that prx though, they'll create a new rdef
+            b_prx.saveCurrentSettings()
+            c_rdef = b_prx.getRenderingDefId()
+            assert c_rdef != b_rdef
+
+        elif method == "saveAs":
+            # But other users can create new rdefs
+            # with new ids using the new method
+            try:
+                c_rdef = b_prx.saveAsNewSettings()
+                ignore, d_rdef = assert_rdef(prx=b_prx)
+                assert a_rdef != c_rdef
+                assert c_rdef == d_rdef
+            except Ice.OperationNotExistException:
+                # Not supported by this server
+                pass
+
+        elif method == "request":
+            # If a user explicitly requests a rdef
+            # then it will *not* saveAs and the rdefs
+            # should match.
+            b_prx.loadRenderingDef(b_rdef)
+            try:
+                b_prx.saveCurrentSettings()
+            except omero.SecurityViolation:
+                pass  # You can't do this!
+            c_rdef = b_prx.getRenderingDefId()
+            assert c_rdef == b_rdef
+
+        elif method == "resetDefault":
+            # If the other users try to save with
+            # that prx though, they'll create a new rdef
+            b_prx.load()
+            b_prx.resetDefaults()
+            c_rdef = b_prx.getRenderingDefId()
+            b_prx.close()
+            assert c_rdef != b_rdef
+
+        elif method == "resetDefaultNoSave":
+            # If the other users try to save with
+            # that prx though, they'll create a new rdef
+            b_prx.load()
+            b_prx.resetDefaultsNoSave()        
+            c_rdef = b_prx.getRenderingDefId()
+            b_prx.close()
+            assert c_rdef == b_rdef
+
+        # But they won't have a thumbnail generated
+        tb = other.sf.createThumbnailStore()
+        tb.setPixelsId(pixels)
+        tb.setRenderingDefId(c_rdef)
+        assert not tb.thumbnailExists(rint(96), rint(96))
+
+    @pytest.mark.parametrize("perms", ("readOnly", "readAnnotate", "readWrite"))
+    def test12145ShareSettingsGetThumbnail(self, perms):
+        """
+        Check that a new thumbnail is created when new
+        settings are created.
+        """
+        if perms == "readOnly":
+            group = self.new_group(perms="rwr---")
+            groupOwner = self.new_user(group=group, admin=True)
+            owner = self.new_client(group=group)
+            other = self.new_client(user=groupOwner, group=group)
+        elif perms == "readAnnotate":
+            group = self.new_group(perms="rwra--")
+            owner = self.new_client(group=group)
+            other = self.new_client(group=group)
+        elif perms == "readWrite":
             group = self.new_group(perms="rwrw--")
             owner = self.new_client(group=group)
             other = self.new_client(group=group)
