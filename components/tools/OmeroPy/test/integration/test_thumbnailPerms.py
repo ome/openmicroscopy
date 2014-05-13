@@ -334,7 +334,8 @@ class TestThumbnailPerms(lib.ITest):
 
     @pytest.mark.parametrize("method", ("saveCurrent", "saveAs", "request", "resetDefault", "resetDefaultNoSave"))
     @pytest.mark.parametrize("perms", ("readOnly", "readAnnotate", "readWrite"))
-    def test12145ShareSettingsRnd(self, method, perms):
+    @pytest.mark.parametrize("roles", ("owner", "admin"))
+    def test12145ShareSettingsRnd(self, method, perms, roles):
         """
         Rendering settings should be shared when possible.
         Rather than regenerating the min/max per viewer,
@@ -342,13 +343,22 @@ class TestThumbnailPerms(lib.ITest):
         """
         if perms == "readOnly":
             group = self.new_group(perms="rwr---")
-            groupOwner = self.new_user(group=group, admin=True)
             owner = self.new_client(group=group)
-            other = self.new_client(user=groupOwner, group=group)
+            if roles == "owner":
+                user = self.new_user(group=group, admin=True)
+                other = self.new_client(user=user, group=group)
+            elif roles == "admin":
+                user = self.new_user(group=group, system=True)
+                other = self.new_client(user=user, group=group)
         elif perms == "readAnnotate":
             group = self.new_group(perms="rwra--")
             owner = self.new_client(group=group)
-            other = self.new_client(group=group)
+            if roles == "owner":
+                user = self.new_user(group=group, admin=True)
+                other = self.new_client(user=user, group=group)
+            elif roles == "admin":
+                user = self.new_user(group=group, system=True)
+                other = self.new_client(user=user, group=group)
         elif perms == "readWrite":
             group = self.new_group(perms="rwrw--")
             owner = self.new_client(group=group)
@@ -426,22 +436,31 @@ class TestThumbnailPerms(lib.ITest):
         tb.setRenderingDefId(c_rdef)
         assert not tb.thumbnailExists(rint(96), rint(96))
 
+    @pytest.mark.parametrize("roles", ("owner", "admin"))
     @pytest.mark.parametrize("perms", ("readOnly", "readAnnotate", "readWrite"))
-    def test12145ShareSettingsGetThumbnail(self, perms):
+    def test12145ShareSettingsGetThumbnail(self, perms, roles):
         """
         Check that a new thumbnail is created when new
         settings are created.
         """
         if perms == "readOnly":
             group = self.new_group(perms="rwr---")
-            groupOwner = self.new_user(group=group, admin=True)
             owner = self.new_client(group=group)
-            other = self.new_client(user=groupOwner, group=group)
+            if roles == "owner":
+                user = self.new_user(group=group, admin=True)
+                other = self.new_client(user=user, group=group)
+            elif roles == "admin":
+                user = self.new_user(group=group, system=True)
+                other = self.new_client(user=user, group=group)
         elif perms == "readAnnotate":
             group = self.new_group(perms="rwra--")
-            groupOwner = self.new_user(group=group, admin=True)
             owner = self.new_client(group=group)
-            other = self.new_client(user=groupOwner, group=group)
+            if roles == "owner":
+                user = self.new_user(group=group, admin=True)
+                other = self.new_client(user=user, group=group)
+            elif roles == "admin":
+                user = self.new_user(group=group, system=True)
+                other = self.new_client(user=user, group=group)
         elif perms == "readWrite":
             group = self.new_group(perms="rwrw--")
             owner = self.new_client(group=group)
@@ -488,22 +507,31 @@ class TestThumbnailPerms(lib.ITest):
         #check that a thum
         tb.close()
 
+    @pytest.mark.parametrize("roles", ("owner", "admin"))
     @pytest.mark.parametrize("perms", ("readOnly", "readAnnotate", "readWrite"))
-    def test12145ShareSettingsSetRnd(self, perms):
+    def test12145ShareSettingsSetRnd(self, perms, roles):
         """
         Check that a new thumbnail is created when new
         settings are created.
         """
         if perms == "readOnly":
             group = self.new_group(perms="rwr---")
-            groupOwner = self.new_user(group=group, admin=True)
             owner = self.new_client(group=group)
-            other = self.new_client(user=groupOwner, group=group)
+            if roles == "owner":
+                user = self.new_user(group=group, admin=True)
+                other = self.new_client(user=user, group=group)
+            elif roles == "admin":
+                user = self.new_user(group=group, system=True)
+                other = self.new_client(user=user, group=group)
         elif perms == "readAnnotate":
             group = self.new_group(perms="rwra--")
-            groupOwner = self.new_user(group=group, admin=True)
             owner = self.new_client(group=group)
-            other = self.new_client(user=groupOwner, group=group)
+            if roles == "owner":
+                user = self.new_user(group=group, admin=True)
+                other = self.new_client(user=user, group=group)
+            elif roles == "admin":
+                user = self.new_user(group=group, system=True)
+                other = self.new_client(user=user, group=group)
         elif perms == "readWrite":
             group = self.new_group(perms="rwrw--")
             owner = self.new_client(group=group)
