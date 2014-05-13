@@ -414,10 +414,11 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             sql += " and ann.details.owner.id = :eid"
 
         mapping = dict()
-        for element in q.projection(sql, params, self.SERVICE_OPTS):
-            parent = unwrap(element[0])
-            child = unwrap(element[1])
-            mapping.setdefault(parent, []).append(child)
+        if ids:
+            for element in q.projection(sql, params, self.SERVICE_OPTS):
+                parent = unwrap(element[0])
+                child = unwrap(element[1])
+                mapping.setdefault(parent, []).append(child)
 
         for idx in range(len(tags)):
             children = mapping.get(tags[idx][0])
