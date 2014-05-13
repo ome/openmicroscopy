@@ -927,7 +927,7 @@ class MetadataViewerModel
 	 * @param source The component invoking the loading.
      * @param location The location of the mouse pressed.
 	 */
-	void fireViewedByLoading(Component source, Point location)
+	void fireViewedByLoading()
 	{
 		ImageData img = null;
 		if (refObject instanceof ImageData) img = (ImageData) refObject;
@@ -939,7 +939,6 @@ class MetadataViewerModel
 		ctx = retrieveContext(img);
 		RenderingSettingsLoader loader = new RenderingSettingsLoader(component,
 				ctx, img.getDefaultPixels().getId(), loaderID);
-		loader.setLocation(source, location);
 		loaders.put(loaderID, loader);
 		loader.load();
 	}

@@ -228,9 +228,7 @@ class MetadataViewerControl
 					break;
 			}
 		} else if (Renderer.VIEWED_BY_PROPERTY.equals(name)) {
-			List l = (List) evt.getNewValue();
-			view.setLocationAndSource((Component) l.get(0), (Point) l.get(1));
-			model.loadViewedBy((Component) l.get(0), (Point) l.get(1));
+		        model.loadViewedBy();
 		} else if (Renderer.SAVE_SETTINGS_PROPERTY.equals(name)) {
 			model.saveSettings() ;
 		}

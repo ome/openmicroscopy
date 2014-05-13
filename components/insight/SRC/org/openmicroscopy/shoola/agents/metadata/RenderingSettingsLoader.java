@@ -63,12 +63,6 @@ public class RenderingSettingsLoader
     /** Handle to the asynchronous call so that we can cancel it. */
     private CallHandle  handle;
 
-    /** The component invoking the loading.*/
-    private Component source;
-
-    /** The location of the mouse pressed.*/
-    private Point location;
-
     /**
      * Creates a new instance.
      * 
@@ -83,18 +77,6 @@ public class RenderingSettingsLoader
     {
         super(viewer, ctx, loaderID);
         this.pixelsID = pixelsID;
-    }
-
-    /**
-     * Sets where to display the result.
-     * 
-     * @param source The component invoking the loading.
-     * @param location The location of the mouse pressed.
-     */
-    public void setLocation(Component source, Point location)
-    {
-        this.source = source;
-        this.location = location;
     }
 
     /** 
@@ -133,7 +115,7 @@ public class RenderingSettingsLoader
             if (CollectionUtils.isNotEmpty(def))
                 m.put(entry.getKey(), def.iterator().next());
         }
-        viewer.setViewedBy(m, source, location);
+        viewer.setViewedBy(m);
     }
 
 }
