@@ -249,6 +249,79 @@ def marshal_datasets(conn, dataset_ids):
         datasets.append(marshal_dataset(conn, e[0:5]))
     return datasets
 
+def marshal_screens(conn, experimenter_id=None):
+    ''' Marshals screens and contained plates and aquisitions for a given user.
+
+        @param conn OMERO gateway.
+        @type conn L{omero.gateway.BlitzGateway}
+        @param experimenter_id The Experimenter (user) ID to marshal
+        Screens for.
+        @type experimenter_id L{long}
+    '''
+    screens = list()
+    query_service = conn.getQueryService()
+    params = omero.sys.ParametersI()
+    if experimenter_id is not None:
+        params.addId(experimenter_id)
+    q = """
+        select screen.id,
+               screen.name,
+               screen.details.owner.id,
+               screen.details.permissions,
+               plate.id,
+               plate.name,
+               plate.details.owner.id,
+               plate.details.permissions,
+               pa.id,
+               pa.name,
+               pa.details.owner.id,
+               pa.details.permissions,
+               pa.startTime,
+               pa.endTime
+               from Screen screen
+               join screen.plateLinks splink
+               join splink.child plate
+               left join plate.plateAcquisitions pa
+        """
+    if experimenter_id is not None:
+        q += """ where screen.details.owner.id = :id """
+    q += """ order by lower(screen.name), lower(plate.name), pa.id """
+    for row in query_service.projection(q, params, conn.SERVICE_OPTS):
+        screen_id, screen_name, screen_owner_id, screen_permissions, \
+            plate_id, plate_name, plate_owner_id, plate_permissions, \
+            acquisition_id, acquisition_name, acquisition_owner_id, \
+            acquisition_permissions, acquisition_start_time, \
+            acquisition_end_time = row
+        if len(screens) == 0 or screen_id.val != screens[-1]['id']:
+            is_owned = screen_owner_id.val == conn.getUserId()
+            perms_css = parse_permissions_css(
+                screen_permissions, screen_owner_id.val, conn
+            )
+            screen = {
+                'id': screen_id.val, 'name': screen_name.val,
+                'isOwned': is_owned, 'permsCss': perms_css,
+                'plates': list()
+            }
+            screens.append(screen)
+        screen = screens[-1]
+        if plate_id is not None and ( \
+                len(screen['plates']) == 0 or \
+                screen['plates'][-1]['id'] != plate_id.val
+                ):
+            screen['plates'].append(marshal_plate(conn, (
+                plate_id, plate_name, plate_owner_id, plate_permissions
+            )))
+            screen['plates'][-1]['plateAcquisitionCount'] = 0
+        if acquisition_id is not None:
+            plate = screen['plates'][-1]
+            plate['plateAcquisitions'].append(marshal_plate_acquisition(conn, (
+                acquisition_id, acquisition_name, acquisition_owner_id,
+                acquisition_permissions, acquisition_start_time,
+                acquisition_end_time
+            )))
+            plate['plateAcquisitionCount'] = len(plate['plateAcquisitions'])
+        screen['childCount'] = len(screen['plates'])
+    return screens
 
 def marshal_plates_for_screens(conn, screen_ids):
     ''' Given a list of screen ids, marshals the contained plates, grouping

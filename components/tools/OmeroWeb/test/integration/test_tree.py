@@ -30,7 +30,7 @@ from omero.model import ProjectI, DatasetI, ScreenI, PlateI, \
 from omero.rtypes import rstring
 from omeroweb.webclient.tree import marshal_datasets_for_projects, \
     marshal_datasets, marshal_plates_for_screens, marshal_plates, \
-    marshal_projects
+    marshal_projects, marshal_screens
 
 
 def cmp_id(x, y):
@@ -400,29 +400,28 @@ class TestTree(object):
         assert marshaled == expected
 
     def test_marshal_screens_plates_runs(self, conn, screens_plates_runs):
-        screen_a, screen_b = screens_plates_runs
         perms_css = 'canEdit canAnnotate canLink canDelete canChgrp'
-        expected = dict()
-        for screen in (screen_a, screen_b):
-            screen_id = screen.id.val
-            expected[screen_id] = {
+        expected = []
+        for screen in sorted(screens_plates_runs, cmp_name):
+            expected_screen = {
+                'id': screen.id.val,
+                'name': screen.name.val,
+                'isOwned': True,
+                'permsCss': perms_css,
                 'childCount': 2,
-                'plates': list(),
-                'plateids': list()
+                'plates': list()
             }
             # The underlying query explicitly orders the Plates by name.
             for plate in sorted(screen.linkedPlateList(), cmp_name):
-                plate_id = plate.id.val
-                expected_plates = expected[screen_id]['plates']
+                expected_plates = expected_screen['plates']
                 expected_plates.append({
-                    'id': plate_id,
+                    'id': plate.id.val,
                     'isOwned': True,
                     'name': plate.name.val,
                     'plateAcquisitions': list(),
                     'plateAcquisitionCount': 2,
                     'permsCss': perms_css
                 })
-                expected[screen_id]['plateids'].append(plate_id)
                 # The underlying query explicitly orders the PlateAcquisitions
                 # by id.
                 plate_acquisitions = \
@@ -434,21 +433,22 @@ class TestTree(object):
                         'isOwned': True,
                         'permsCss': perms_css
                     })
-
-        marshaled = marshal_plates_for_screens(
-            conn, [screen_a.id.val, screen_b.id.val]
-        )
+            expected.append(expected_screen)
+        marshaled = marshal_screens(conn, conn.getUserId())
         assert marshaled == expected
 
     def test_marshal_plates_for_screens_no_results(self, conn):
         assert marshal_plates_for_screens(conn, []) == {}
 
     def test_marshal_screen_plate(self, conn, screen_plate):
-        screen_id = screen_plate.id.val
         plate, = screen_plate.linkedPlateList()
         perms_css = 'canEdit canAnnotate canLink canDelete canChgrp'
-        expected = {
-            screen_id: {
+        expected = [
+            {
+                'id': screen_plate.id.val,
+                'name': screen_plate.name.val,
+                'isOwned': True,
+                'permsCss': perms_css,
                 'childCount': 1,
                 'plates': [{
                     'id': plate.id.val,
@@ -458,11 +458,10 @@ class TestTree(object):
                     'plateAcquisitionCount': 0,
                     'permsCss': perms_css
                 }],
-                'plateids': [plate.id.val]
             }
-        }
+        ]
 
-        marshaled = marshal_plates_for_screens(conn, [screen_id])
+        marshaled = marshal_screens(conn, conn.getUserId())
         assert marshaled == expected
 
     def test_marshal_plate_run(self, conn, plate_run):
