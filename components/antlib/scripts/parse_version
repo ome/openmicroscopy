@@ -40,17 +40,21 @@ def choose_omero_version(omero_version):
     """
 
     omero_build = os.environ.get("BUILD_NUMBER", "")
-    if omero_build:
-        omero_build = "-b%s" % omero_build
+    use_snapshot = os.environ.get("USE_SNAPSHOT", "")
 
     err = ""
     try:
-        if not omero_build:
+        if use_snapshot or not omero_build:
+            omero_build = ""  # Unset on use_snapshot
             try:
                 omero_version = snapshot_logic(omero_version)
             except:
                 pass
+        elif omero_build:
+            omero_build = "-b%s" % omero_build
+
         return "%s%s" % (omero_version, omero_build)
+
     except:
         print "Error getting version for BUILD_NUMBER=%s" % omero_build
         if err:
