@@ -93,6 +93,19 @@ class UnloadedEntityException(ClientError):
 class UnloadedCollectionException(ClientError):
     pass
 
+
+def proxy_to_instance(proxy_string):
+    import omero
+    parts = proxy_string.split(":")
+    kls = parts[0]
+    if not kls.endswith("I"):
+        kls += "I"
+    kls = getattr(omero.model, kls, None)
+    if kls is None:
+        raise ClientError(("Invalid proxy string: %s. "
+                          "Correct format is Class:ID") % proxy_string)
+    return kls(proxy_string)
+
 #
 # Workaround for warning messages produced in
 # code-generated Ice files.

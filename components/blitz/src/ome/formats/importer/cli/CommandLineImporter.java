@@ -310,13 +310,14 @@ public class CommandLineImporter {
             + "Examples:\n"
             + "\n"
             + "  $ %s -s localhost -u user -w password -d 50 foo.tiff\n"
+            + "  $ %s -s localhost -u user -w password -d Dataset:50 foo.tiff\n"
             + "  $ %s -f foo.tiff\n"
             + "  $ %s -s localhost -u username -w password -d 50 --debug ALL foo.tiff\n"
             + "\n"
             + "For additional information, see:\n"
             + "http://www.openmicroscopy.org/site/support/omero5/users/command-line-import.html\n"
             + "Report bugs to <ome-users@lists.openmicroscopy.org.uk>",
-            APP_NAME, APP_NAME, APP_NAME, APP_NAME, APP_NAME));
+            APP_NAME, APP_NAME, APP_NAME, APP_NAME, APP_NAME, APP_NAME));
         System.exit(1);
     }
 
@@ -621,13 +622,23 @@ public class CommandLineImporter {
                 break;
             }
             case 'd': {
+                String datasetString = g.getOptarg();
+                if (datasetString.startsWith("Dataset:")) {
+                    datasetString = datasetString.substring(
+                            "Dataset:".length());
+                }
+                config.targetId.set(Long.parseLong(datasetString));
                 config.targetClass.set(Dataset.class.getName());
-                config.targetId.set(Long.parseLong(g.getOptarg()));
                 break;
             }
             case 'r': {
+                String screenString = g.getOptarg();
+                if (screenString.startsWith("Screen:")) {
+                    screenString = screenString.substring(
+                            "Screen:".length());
+                }
+                config.targetId.set(Long.parseLong(screenString));
                 config.targetClass.set(Screen.class.getName());
-                config.targetId.set(Long.parseLong(g.getOptarg()));
                 break;
             }
             case 'n': {

@@ -1102,6 +1102,9 @@ class CLI(cmd.Cmd, Context):
                 self._client = None
 
         if args is not None:
+            if "sessions" not in self.controls:
+                # Most likely to happen during development
+                self.die(111, "No sessions control! Cannot login")
             self.controls["sessions"].login(args)
 
         return self._client # Possibly added by "login"
