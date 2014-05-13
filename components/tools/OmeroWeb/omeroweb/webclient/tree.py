@@ -144,11 +144,11 @@ def marshal_projects(conn, experimenter_id):
                dataset.details.owner.id,
                (select count(id) from DatasetImageLink dil
                   where dil.parent = dataset.id)
-               from ProjectDatasetLink pdlink
-               join pdlink.parent project
-               join pdlink.child dataset
+               from Project as project
+               left join project.datasetLinks as pdlink
+               left join pdlink.child dataset
         where project.details.owner.id = :id
-        order by project.name
+        order by lower(project.name)
         """
     for row in query_service.projection(q, params, conn.SERVICE_OPTS):
         project_id, project_name, project_permissions, \
@@ -166,10 +166,11 @@ def marshal_projects(conn, experimenter_id):
             projects.append(project)
 
         project = projects[-1]
-        project['datasets'].append(marshal_dataset(conn, (
-            dataset_id, dataset_name, dataset_owner_id,
-            project_permissions, child_count
-        )))
+        if dataset_id is not None:
+            project['datasets'].append(marshal_dataset(conn, (
+                dataset_id, dataset_name, dataset_owner_id,
+                project_permissions, child_count
+            )))
         project['childCount'] = len(project['datasets'])
     return projects
 
