@@ -249,20 +249,23 @@ def marshal_datasets(conn, dataset_ids):
         datasets.append(marshal_dataset(conn, e[0:5]))
     return datasets
 
+
 def marshal_screens(conn, experimenter_id=None):
     ''' Marshals screens and contained plates and aquisitions for a given user.
 
         @param conn OMERO gateway.
         @type conn L{omero.gateway.BlitzGateway}
         @param experimenter_id The Experimenter (user) ID to marshal
-        Screens for.
+        Screens for or `None` if we are not to filter by a specific user.
         @type experimenter_id L{long}
     '''
     screens = list()
     query_service = conn.getQueryService()
     params = omero.sys.ParametersI()
+    where_clause = ''
     if experimenter_id is not None:
         params.addId(experimenter_id)
+        where_clause = 'where screen.details.owner.id = :id'
     q = """
         select screen.id,
                screen.name,
@@ -282,10 +285,9 @@ def marshal_screens(conn, experimenter_id=None):
                join screen.plateLinks splink
                join splink.child plate
                left join plate.plateAcquisitions pa
-        """
-    if experimenter_id is not None:
-        q += """ where screen.details.owner.id = :id """
-    q += """ order by lower(screen.name), lower(plate.name), pa.id """
+        %s
+        order by lower(screen.name), lower(plate.name), pa.id
+        """ % (where_clause)
     for row in query_service.projection(q, params, conn.SERVICE_OPTS):
         screen_id, screen_name, screen_owner_id, screen_permissions, \
             plate_id, plate_name, plate_owner_id, plate_permissions, \
@@ -304,8 +306,8 @@ def marshal_screens(conn, experimenter_id=None):
             }
             screens.append(screen)
         screen = screens[-1]
-        if plate_id is not None and ( \
-                len(screen['plates']) == 0 or \
+        if plate_id is not None and (
+                len(screen['plates']) == 0 or
                 screen['plates'][-1]['id'] != plate_id.val
                 ):
             screen['plates'].append(marshal_plate(conn, (
@@ -322,6 +324,7 @@ def marshal_screens(conn, experimenter_id=None):
             plate['plateAcquisitionCount'] = len(plate['plateAcquisitions'])
         screen['childCount'] = len(screen['plates'])
     return screens
+
 
 def marshal_plates_for_screens(conn, screen_ids):
     ''' Given a list of screen ids, marshals the contained plates, grouping
