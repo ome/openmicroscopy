@@ -77,6 +77,28 @@ def update_service(request, client):
 
 
 @pytest.fixture(scope='function')
+def projects(request, itest, update_service):
+    """
+    Returns four new OMERO Projects with required fields set with names
+    that can be used to exercise sorting semantics.
+    """
+    to_save = list()
+    project = ProjectI()
+    project.name = rstring('Apple')
+    to_save.append(project)
+    project = ProjectI()
+    project.name = rstring('bat')
+    to_save.append(project)
+    project = ProjectI()
+    project.name = rstring('atom')
+    to_save.append(project)
+    project = ProjectI()
+    project.name = rstring('Butter')
+    to_save.append(project)
+    return update_service.saveAndReturnArray(to_save)
+
+
+@pytest.fixture(scope='function')
 def project_dataset(request, itest, update_service):
     """
     Returns a new OMERO Project and linked Dataset with required fields set.
@@ -487,6 +509,43 @@ class TestTree(object):
                 'permsCss': perms_css
             }],
             'childCount': 1,
+            'permsCss': perms_css
+        }]
+
+        marshaled = marshal_projects(conn, conn.getUserId())
+        assert marshaled == expected
+
+    def test_marshal_projects(self, conn, projects):
+        project_a, project_b, project_c, project_d = projects
+        perms_css = 'canEdit canAnnotate canLink canDelete canChgrp'
+        # Order is important to test desired HQL sorting semantics.
+        expected = [{
+            'id': project_a.id.val,
+            'isOwned': True,
+            'name': 'Apple',
+            'datasets': list(),
+            'childCount': 0,
+            'permsCss': perms_css
+        }, {
+            'id': project_c.id.val,
+            'isOwned': True,
+            'name': 'atom',
+            'datasets': list(),
+            'childCount': 0,
+            'permsCss': perms_css
+        }, {
+            'id': project_b.id.val,
+            'isOwned': True,
+            'name': 'bat',
+            'datasets': list(),
+            'childCount': 0,
+            'permsCss': perms_css
+        }, {
+            'id': project_d.id.val,
+            'isOwned': True,
+            'name': 'Butter',
+            'datasets': list(),
+            'childCount': 0,
             'permsCss': perms_css
         }]
 
