@@ -721,7 +721,7 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
      * the listed of {@link CheckedPath} instances before allowing the creation
      * of directories.
      *
-     * @param paths Not null, not empty.
+     * @param paths Not null, not empty. (Will be emptied by this method.)
      * @param parents "mkdir -p" like flag.
      * @param __current
      */
