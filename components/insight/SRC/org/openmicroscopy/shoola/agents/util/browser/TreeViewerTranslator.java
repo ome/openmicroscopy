@@ -748,7 +748,7 @@ public class TreeViewerTranslator
         if (group == null) return null;
         TreeImageSet n = new TreeImageSet(group);
         Collection l = group.getExperimenters();
-        if (withExperimenters && l != null && l.size() > 0) {
+        if (withExperimenters && CollectionUtils.isNotEmpty(l)) {
             n.setChildrenLoaded(Boolean.valueOf(true));
             Iterator j = l.iterator();
             while (j.hasNext()) 
