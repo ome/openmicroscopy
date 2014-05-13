@@ -128,13 +128,16 @@ def marshal_projects(conn, experimenter_id):
         @param conn OMERO gateway.
         @type conn L{omero.gateway.BlitzGateway}
         @param experimenter_id The Experimenter (user) ID to marshal
-        Projects for.
+        Projects for or `None` if we are not to filter by a specific user.
         @type experimenter_id L{long}
     '''
     projects = list()
     query_service = conn.getQueryService()
     params = omero.sys.ParametersI()
-    params.addId(experimenter_id)
+    where_clause = ''
+    if experimenter_id is not None:
+        params.addId(experimenter_id)
+        where_clause = 'where project.details.owner.id = :id'
     q = """
         select project.id,
                project.name,
@@ -147,9 +150,9 @@ def marshal_projects(conn, experimenter_id):
                from Project as project
                left join project.datasetLinks as pdlink
                left join pdlink.child dataset
-        where project.details.owner.id = :id
+        %s
         order by lower(project.name), lower(dataset.name)
-        """
+        """ % (where_clause)
     for row in query_service.projection(q, params, conn.SERVICE_OPTS):
         project_id, project_name, project_permissions, \
             dataset_id, dataset_name, dataset_owner_id, child_count = row
