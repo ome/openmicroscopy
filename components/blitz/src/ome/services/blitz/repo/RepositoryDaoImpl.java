@@ -665,8 +665,8 @@ public class RepositoryDaoImpl implements RepositoryDao {
             final EventContext effectiveEventContext;
             final String realSessionUuid = __current.ctx.get(PublicRepositoryI.SUDO_REAL_SESSIONUUID);
             if (realSessionUuid != null) {
-                final String realGroup = __current.ctx.get(PublicRepositoryI.SUDO_REAL_GROUP);
-                final Principal realPrincipal = new Principal(realSessionUuid, realGroup, null);
+                final String realGroupName = __current.ctx.get(PublicRepositoryI.SUDO_REAL_GROUP_NAME);
+                final Principal realPrincipal = new Principal(realSessionUuid, realGroupName, null);
                 final Map<String, String> realCtx = new HashMap<String, String>(__current.ctx);
                 realCtx.put(omero.constants.SESSIONUUID.value, realSessionUuid);
                 effectiveEventContext = (EventContext) executor.execute(realCtx, realPrincipal,
