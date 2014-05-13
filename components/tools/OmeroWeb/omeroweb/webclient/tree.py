@@ -102,8 +102,8 @@ def marshal_dataset(conn, row):
         and type of columns in row is:
           * id (rlong)
           * name (rstring)
-          * details.permissions (dict)
           * details.owner.id (rlong)
+          * details.permissions (dict)
           * child_count (rlong)
 
         @param conn OMERO gateway.
