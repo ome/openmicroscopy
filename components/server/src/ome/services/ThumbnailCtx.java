@@ -549,15 +549,19 @@ public class ThumbnailCtx
             }
             else if (thumbnailExists && !isMyMetadata)
             {
-                //we need thumbnail for new settings
+                //we need thumbnail for new settings. User creating his own
                 if (sessionUserId == userId && userId != metadataOwnerId) {
-                   return false;
+                    return false;
+                }
+                //session user updating someone else thumbnail if allowed
+                if (userId == metadataOwnerId && sessionUserId != userId) {
+                    return false;
                 }
                 log.warn(String.format(
                         "Thumbnail metadata is dirty for Pixels Id:%d and " +
                         "the metadata is owned User id:%d which is not " +
                         "User id:%d. Ignoring this and returning the cached " +
-                        "thumbnail.", pixelsId, metadataOwnerId, sessionUserId));
+                        "thumbnail.", pixelsId, metadataOwnerId, userId));
                 return true;
             }
             else if (thumbnailExists && isExtendedGraphCritical)
