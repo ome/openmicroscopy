@@ -224,7 +224,7 @@ public class SelectionWizardUI
      */
     private boolean filterItem(String value, String txt, DataObject data)
     {
-        if (!(data instanceof ExperimenterData)) {
+        if (!(data instanceof ExperimenterData || data instanceof GroupData)) {
             ExperimenterData exp = data.getOwner();
             if (ownerFilterIndex == CURRENT) {
                 if (exp.getId() != user.getId()) return false;
