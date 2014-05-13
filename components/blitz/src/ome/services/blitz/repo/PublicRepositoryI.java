@@ -127,11 +127,11 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
 
     }
 
-    /** key for finding the real event context */
-    static final String SUDO_REAL_SESSIONUUID = "omero.internal.real:" + omero.constants.SESSIONUUID.value;
+    /** key for finding the real session UUID under sudo */
+    static final String SUDO_REAL_SESSIONUUID = "omero.internal.sudo.real:" + omero.constants.SESSIONUUID.value;
 
-    /** key for finding the real event principal */
-    static final String SUDO_REAL_GROUP = "omero.internal.real:" + omero.constants.GROUP.value;
+    /** key for finding the real group name under sudo */
+    static final String SUDO_REAL_GROUP_NAME = "omero.internal.sudo.real:" + omero.constants.GROUP.value;
 
     private final static Logger log = LoggerFactory.getLogger(PublicRepositoryI.class);
 
@@ -564,7 +564,7 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
         final Current sudoCurrent =  makeAdjustedCurrent(current);
         sudoCurrent.ctx = new HashMap<String, String>(current.ctx);
         sudoCurrent.ctx.put(SUDO_REAL_SESSIONUUID, current.ctx.get(omero.constants.SESSIONUUID.value));
-        sudoCurrent.ctx.put(SUDO_REAL_GROUP, current.ctx.get(omero.constants.GROUP.value));
+        sudoCurrent.ctx.put(SUDO_REAL_GROUP_NAME, current.ctx.get(omero.constants.GROUP.value));
         sudoCurrent.ctx.put(omero.constants.SESSIONUUID.value, sessionUuid);
         return sudoCurrent;
     }
