@@ -669,6 +669,7 @@ public class RepositoryDaoImpl implements RepositoryDao {
                 final Principal realPrincipal = new Principal(realSessionUuid, realGroupName, null);
                 final Map<String, String> realCtx = new HashMap<String, String>(__current.ctx);
                 realCtx.put(omero.constants.SESSIONUUID.value, realSessionUuid);
+                realCtx.put(omero.constants.GROUP.value, realGroupName);
                 effectiveEventContext = (EventContext) executor.execute(realCtx, realPrincipal,
                         new Executor.SimpleWork(this, "makeDirs", dirs) {
                     @Transactional(readOnly = true)
