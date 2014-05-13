@@ -402,6 +402,7 @@ class TestTree(object):
     def test_marshal_screens_plates_runs(self, conn, screens_plates_runs):
         perms_css = 'canEdit canAnnotate canLink canDelete canChgrp'
         expected = []
+        # The underlying query explicitly orders the Screens by name.
         for screen in sorted(screens_plates_runs, cmp_name):
             expected_screen = {
                 'id': screen.id.val,
