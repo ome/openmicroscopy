@@ -148,13 +148,13 @@ def marshal_projects(conn, experimenter_id):
                left join project.datasetLinks as pdlink
                left join pdlink.child dataset
         where project.details.owner.id = :id
-        order by lower(project.name)
+        order by lower(project.name), lower(dataset.name)
         """
     for row in query_service.projection(q, params, conn.SERVICE_OPTS):
         project_id, project_name, project_permissions, \
             dataset_id, dataset_name, dataset_owner_id, child_count = row
 
-        if len(projects) == 0 or projects[-1]['id'] != project_id:
+        if len(projects) == 0 or projects[-1]['id'] != project_id.val:
             is_owned = experimenter_id == conn.getUserId()
             perms_css = parse_permissions_css(
                 project_permissions, experimenter_id, conn
