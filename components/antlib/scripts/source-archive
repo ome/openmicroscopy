@@ -93,5 +93,8 @@ if __name__ == "__main__":
 <project name="gitversion" basedir=".">
         <property name="omero.shortversion" value="%s"/>
         <property name="omero.plainversion" value="%s"/>
+        <!-- Properties for detecting where these properties were read from -->
+        <property name="omero.shortversion.source" value="embedded"/>
+        <property name="omero.plainversion.source" value="embedded"/>
 </project>
 """ % (shortversion, version))
