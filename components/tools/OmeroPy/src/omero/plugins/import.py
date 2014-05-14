@@ -207,11 +207,10 @@ class ImportControl(BaseControl):
             "java_l": "-l",
             "java_d": "-d",
             "java_r": "-r",
-            "java_r": "-r",
-            "java_name": "--name",
-            "java_description": "--description",
-            "java_plate_name": "--plate_name",
-            "java_plate_description": "--plate_description",
+            "java_name": ("--name",),
+            "java_description": ("--description",),
+            "java_plate_name": ("--plate_name",),
+            "java_plate_description": ("--plate_description",),
             "java_report": "--report",
             "java_upload": "--upload",
             "java_logs": "--logs",
@@ -225,11 +224,14 @@ class ImportControl(BaseControl):
         for attr_name, arg_name in java_args.items():
             arg_value = getattr(args, attr_name)
             if arg_value:
-                if isinstance(arg_value, (str, unicode)):
+                if isinstance(arg_name, tuple):
+                    arg_name = arg_name[0]
                     login_args.append("%s=%s" %
                                       (arg_name, arg_value))
                 else:
                     login_args.append(arg_name)
+                    if isinstance(arg_value, (str, unicode)):
+                        login_args.append(arg_value)
 
         a = self.COMMAND + login_args + args.path
         p = omero.java.popen(
