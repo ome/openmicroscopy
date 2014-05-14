@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.fsimporter.view.ImporterUIElement 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -879,6 +879,14 @@ class ImporterUIElement
 	 * @return See above.
 	 */
 	boolean hasStarted() { return uploadStarted; }
+	
+	/**
+	 * Manually sets the uploadStarted flag
+	 * @param uploadStarted
+	 */
+	void setUploadStarted(boolean uploadStarted) {
+	    this.uploadStarted = uploadStarted;
+	}
 	
 	/**
 	 * Returns <code>true</code> if the component has imports in the queue that
