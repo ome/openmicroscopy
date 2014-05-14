@@ -433,16 +433,6 @@ module omero {
 
             /**
              * Returns an [ImportProcess*] which can be used to upload files.
-             * On [ImportProcess::verifyUpload], a null handle will be
-             * returned meaning no further action takes place. Once done,
-             * close the [ImportProcess*].
-             *
-             * From the [ImportSettings] instance, only the checksum is used.
-             **/
-            ImportProcess* uploadFileset(omero::model::Fileset fs, ImportSettings settings) throws ServerError;
-
-            /**
-             * Returns an [ImportProcess*] which can be used to upload files.
              * On [ImportProcess::verifyUpload], an [omero::cmd::Handle*] will be
              * returned which can be watched for knowing when the server-side import
              * is complete.
