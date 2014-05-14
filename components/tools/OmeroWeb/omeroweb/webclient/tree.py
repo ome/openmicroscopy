@@ -298,14 +298,13 @@ def marshal_plates(conn, experimenter_id):
         Plates for or `None` if we are not to filter by a specific user.
         @type experimenter_id L{long}
     '''
-    plates = {}
-    plateids = []
+    plates = list()
     params = omero.sys.ParametersI()
     where_clause = ''
     if experimenter_id is not None:
         params.addId(experimenter_id)
         where_clause = 'and plate.details.owner.id = :id'
-    qs = conn.getQueryService()
+    query_service = conn.getQueryService()
     q = """
         select plate.id,
                plate.name,
@@ -325,19 +324,22 @@ def marshal_plates(conn, experimenter_id):
         ) %s
         order by lower(plate.name), pa.id
         """ % (where_clause)
-    for e in qs.projection(q, params, conn.SERVICE_OPTS):
-        pid = e[0].val
-        p = plates.setdefault(pid, marshal_plate(conn, e[0:4]))
-        if pid not in plateids:
-            plateids.append(pid)
-        plate_acquisition_id = e[4]
-        if plate_acquisition_id is not None:
-            # We have a Plate that has PlateAcquisitions
-            p['plateAcquisitions'].append(
-                marshal_plate_acquisition(conn, e[4:10])
-            )
-    # keeping plates ordered
-    plates = [plates[x] for x in plateids]
-    for p in plates:
-        p['plateAcquisitionCount'] = len(p['plateAcquisitions'])
+    for row in query_service.projection(q, params, conn.SERVICE_OPTS):
+        plate_id, plate_name, plate_owner_id, plate_permissions, \
+            acquisition_id, acquisition_name, acquisition_owner_id, \
+            acquisition_permissions, acquisition_start_time, \
+            acquisition_end_time = row
+        if len(plates) == 0 or plate_id.val != plates[-1]['id']:
+            plates.append(marshal_plate(conn, (
+                plate_id, plate_name, plate_owner_id, plate_permissions
+            )))
+            plates[-1]['plateAcquisitionCount'] = 0
+        plate = plates[-1]
+        if acquisition_id is not None:
+            plate['plateAcquisitions'].append(marshal_plate_acquisition(conn, (
+                acquisition_id, acquisition_name, acquisition_owner_id,
+                acquisition_permissions, acquisition_start_time,
+                acquisition_end_time
+            )))
+            plate['plateAcquisitionCount'] = len(plate['plateAcquisitions'])
     return plates
