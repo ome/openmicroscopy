@@ -187,18 +187,14 @@ class TestReimportAttachedFiles(lib.ITest):
         self.client.sf.getUpdateService().saveObject(new_img)
 
     def imageBinaries(self, imageId,
-                      deleteAttached=False,
                       deletePixels=False,
-                      deletePyramid=False,
-                      deleteThumbnails=False):
+                      deletePyramid=False):
 
         import omero
         req = omero.cmd.ImageBinariesRequest()
         req.imageId = imageId
-        req.deleteAttached = deleteAttached
         req.deletePixels = deletePixels
         req.deletePyramid = deletePyramid
-        req.deleteThumbnails = deleteThumbnails
         return self.submit(req)
 
     def assertImageBinaries(self, rsp,
