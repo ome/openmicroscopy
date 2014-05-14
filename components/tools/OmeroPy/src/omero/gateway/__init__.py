@@ -6255,6 +6255,8 @@ class _ImageWrapper (BlitzObjectWrapper):
                 rdid = None
         if rdid is None:
             if not has_rendering_settings:
+                if self._conn.canBeAdmin():
+                   ctx.setOmeroUser(self.details.owner.id.val)
                 try:
                     tb.resetDefaults(ctx)      # E.g. May throw Missing Pyramid Exception
                 except omero.ConcurrencyException, ce:
