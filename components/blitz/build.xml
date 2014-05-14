@@ -130,7 +130,7 @@
 		<dsl template="${resrc.dir}/templates/java_obj_reg.vm" filepattern="${gen.dir}/omero/util/ModelObjectFactoryRegistry.java">
 			<fileset dir="${model.comp}/resources" includes="${dsl.pat}"/>
 		</dsl>
-		<dsl template="${resrc.dir}/templates/cpp_obj_reg.vm" filepattern="${gen.dir}/omero/ObjectFactoryRegistrar.cpp">
+		<dsl template="${resrc.dir}/templates/cpp_obj_reg.vm" filepattern="${gen.dir}/omero/model/ObjectFactory.cpp">
 			<fileset dir="${model.comp}/resources" includes="${dsl.pat}"/>
 		</dsl>
 		<dsl template="${resrc.dir}/templates/py_obj_reg.vm" filepattern="${gen.dir}/omero/ObjectFactoryRegistrar.py">
