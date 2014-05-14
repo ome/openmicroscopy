@@ -49,6 +49,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 //Third-party libraries
 import org.apache.commons.collections.CollectionUtils;
+
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.ListMultimap;
@@ -3326,13 +3327,25 @@ class OMEROGateway
 		return new ArrayList();
 	}
 
-	Map<Long, List<IObject>> findAnnotationLinks(SecurityContext ctx,
+	/**
+	 * Returns the annotations links.
+	 *
+	 * @param ctx
+	 * @param node
+	 * @param nodeIDs
+	 * @param children
+	 * @param userID
+	 * @return
+	 * @throws DSOutOfServiceException
+	 * @throws DSAccessException
+	 */
+	Multimap<Long, IObject> findAnnotationLinks(SecurityContext ctx,
 	        Class<?> node, List<Long> nodeIDs,
             List<Long> children, long userID)
         throws DSOutOfServiceException, DSAccessException
     {
         Connector c = getConnector(ctx, true, false);
-        Map<Long, List<IObject>> map = new HashMap<Long, List<IObject>>();
+        Multimap<Long, IObject> map = ArrayListMultimap.create();
         try {
             IQueryPrx service = c.getQueryService();
             String table = getAnnotationTableLink(node);
@@ -3361,18 +3374,11 @@ class OMEROGateway
                 while (j.hasNext()) {
                     link = (IObject) j.next();
                     IObject p = ModelMapper.getParentFromLink(link);
-                    long id = p.getId().getValue();
-                    List<IObject> links = map.get(id);
-                    if (links == null) {
-                        links = new ArrayList<IObject>();
-                        map.put(id, links);
-                    }
-                    links.add((IObject) link);
+                    map.put(p.getId().getValue(), link);
                 }
             }
             return map;
         } catch (Throwable t) {
-            t.printStackTrace();
             handleException(t, "Cannot retrieve the requested link for "+
             "the specified children");
         }
