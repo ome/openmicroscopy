@@ -302,6 +302,7 @@ public class ImportContainer
         settings.userSpecifiedDescription = getUserSpecifiedDescription() == null ? null
                 : rstring(getUserSpecifiedDescription());
         settings.userSpecifiedAnnotationList = getCustomAnnotationList();
+        settings.autoClose = config.autoClose.get();
 
         if (getUserPixels() != null) {
             Double[] source = getUserPixels();

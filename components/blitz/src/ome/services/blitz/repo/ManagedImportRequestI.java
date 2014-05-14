@@ -54,6 +54,7 @@ import omero.ServerError;
 import omero.api.ServiceFactoryPrx;
 import omero.cmd.ERR;
 import omero.cmd.HandleI.Cancel;
+import omero.cmd.HandlePrx;
 import omero.cmd.Helper;
 import omero.cmd.IRequest;
 import omero.cmd.Response;
@@ -237,36 +238,77 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
         } finally {
             MDC.clear();
         }
+    }
 
+    private void cleanupReader() {
+        try {
+            if (reader != null) {
+                try {
+                    reader.close();
+                } finally {
+                    reader = null;
+                }
+            }
+        } catch (Throwable e){
+            log.error("Failed on cleanupReader", e);
+        }
+    }
 
+    private void cleanupStore() {
+        try {
+            if (store != null) {
+                try {
+                    store.logout();
+                } finally {
+                    store = null;
+                }
+            }
+        } catch (Throwable e) {
+            log.error("Failed on cleanupStore", e);
+        }
+    }
+
+    private void cleanupSession() {
+        try {
+            if (sf != null) {
+                try {
+                    sf.destroy();
+                } finally {
+                    sf = null;
+                }
+            }
+        } catch (Throwable e) {
+            log.error("Failed on cleanupSession", e);
+        }
+    }
+
+    private void autoClose() {
+        if (settings.autoClose) {
+            log.info("Auto-closing...");
+            try {
+                HandlePrx handle = process.getHandle();
+                try {
+                    handle.close();
+                } finally {
+                    process.close();
+                }
+            } catch (Throwable t) {
+                log.error("Failed on autoClose", t);
+            }
+        }
     }
 
     /**
      * Called during {@link #getResponse()}.
      */
     private void cleanup() {
-
         MDC.put("fileset", logFilename);
         try {
-            if (reader != null) {
-                reader.close();
-            }
-        } catch (Throwable e){
-            log.error(e.toString()); // slf4j migration: toString()
-        }
-        try {
-            if (store != null) {
-                store.logout();
-            }
-        } catch (Throwable e) {
-            log.error(e.toString()); // slf4j migration: toString()
-        }
-        try {
-            if (sf != null) {
-                sf.destroy();
-            }
-        } catch (Throwable e) {
-            log.error(e.toString()); // slf4j migration: toString()
+            cleanupReader();
+            cleanupStore();
+            cleanupSession();
+        } finally {
+            autoClose();
         }
         log.info(ClassicConstants.FINALIZE_SESSION_MARKER, "Finalizing log file.");
         MDC.clear();
@@ -372,8 +414,11 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
     }
 
     public Response getResponse() {
-        cleanup();
-        return helper.getResponse();
+        Response rsp = helper.getResponse();
+        if (rsp != null) {
+            cleanup();
+        }
+        return rsp;
     }
 
     //

@@ -128,6 +128,7 @@ public class ImportConfig {
     public final StrValue checksumAlgorithm;
 
     public final BoolValue encryptedConnection;
+    public final BoolValue autoClose;
 
     public final AnnotationListValue annotations;
     public final DoubleArrayValue userPixels;
@@ -263,6 +264,7 @@ public class ImportConfig {
         savedDirectory = new FileValue("savedDirectory", this);
 
         encryptedConnection = new BoolValue("ecryptedConnection", this, true);
+        autoClose = new BoolValue("autoClose", this, false);
 
         annotations = new AnnotationListValue(
                 "annotations", this, new ArrayList<Annotation>());
