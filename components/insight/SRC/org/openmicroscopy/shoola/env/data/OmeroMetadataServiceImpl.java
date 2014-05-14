@@ -92,6 +92,9 @@ import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
 import org.openmicroscopy.xml.st.FilterNode;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
+
 import pojos.AnnotationData;
 import pojos.BooleanAnnotationData;
 import pojos.ChannelAcquisitionData;
@@ -944,7 +947,7 @@ class OmeroMetadataServiceImpl
         }
         Map map = gateway.loadAnnotations(ctx, klass, ids, null, usersIDs,
                 new Parameters());
-        Map<Long, List<IObject>> linkMap = new HashMap<Long, List<IObject>>();
+        Multimap<Long, IObject> linkMap = ArrayListMultimap.create();
         if (!(klass.equals(TagAnnotationData.class) ||
                 klass.equals(FileAnnotationData.class))) {
             Collection values = map.values();
@@ -993,7 +996,8 @@ class OmeroMetadataServiceImpl
 	 * @param links The links to handle.
 	 * @param results The placeholder for result.
 	 */
-	private void formatAnnotationLinks(List links, StructuredDataResults results)
+	private void formatAnnotationLinks(Collection<IObject> links,
+	        StructuredDataResults results)
 	{
 	    if (CollectionUtils.isEmpty(links)) return;
 	    Map<DataObject, ExperimenterData>
