@@ -29,6 +29,7 @@ import sys
 from omero.cli import BaseControl, CLI
 import omero.java
 from omero_ext.argparse import SUPPRESS
+from path import path
 
 START_CLASS = "ome.formats.importer.cli.CommandLineImporter"
 TEST_CLASS = "ome.formats.test.util.TestEngine"
@@ -164,7 +165,7 @@ class ImportControl(BaseControl):
     def importer(self, args):
 
         if args.clientdir:
-            client_dir = args.clientdir
+            client_dir = path(args.clientdir)
         else:
             client_dir = self.ctx.dir / "lib" / "client"
         etc_dir = self.ctx.dir / "etc"
