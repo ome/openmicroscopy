@@ -3328,14 +3328,15 @@ class OMEROGateway
 	/**
 	 * Returns the annotations links.
 	 *
-	 * @param ctx
-	 * @param node
-	 * @param nodeIDs
-	 * @param children
-	 * @param userID
-	 * @return
-	 * @throws DSOutOfServiceException
-	 * @throws DSAccessException
+	 * @param ctx The security context.
+     * @param node The type of node to handle.
+     * @param nodeIDs The id of the nodes if any.
+     * @param children The collection of annotations' identifiers
+     * @param userID The user's identifier or <code>-1</code>.
+	 * @return See above.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+     * @throws DSAccessException If an error occurred while trying to
+     *                           retrieve data from OMERO service.
 	 */
 	Multimap<Long, IObject> findAnnotationLinks(SecurityContext ctx,
 	        Class<?> node, List<Long> nodeIDs,
