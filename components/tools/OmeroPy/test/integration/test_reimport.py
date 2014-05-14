@@ -144,7 +144,7 @@ class TestReimportAttachedFiles(lib.ITest):
                 "where i.id = :id"), ParametersI().addId(
                     img_obj.id.val))
 
-    def startUpload(self, files, with_import=False):
+    def startUpload(self, files):
         mrepo = self.client.getManagedRepository()
         fs = FilesetI()
         fs.linkJob(UploadJobI())
@@ -157,10 +157,7 @@ class TestReimportAttachedFiles(lib.ITest):
         settings = ImportSettings()
         settings.checksumAlgorithm = ChecksumAlgorithmI()
         settings.checksumAlgorithm.value = rstring("SHA1-160")
-        if with_import:
-            return mrepo.importFileset(fs, settings)
-        else:
-            return mrepo.uploadFileset(fs, settings)
+        return mrepo.importFileset(fs, settings)
 
     def uploadFileset(self, proc, files):
         tmp = create_path()
@@ -182,27 +179,7 @@ class TestReimportAttachedFiles(lib.ITest):
         self.client.sf.getUpdateService().saveObject(new_img)
 
     @pytestmark
-    def testCreateSynthetic(self):
-        """ Convert a pre-FS file to FS """
-
-        self.createSynthetic()
-
-    @pytestmark
     def testConvertSynthetic(self):
-        """ Convert a pre-FS file to FS """
-
-        new_img = self.createSynthetic()
-        files = self.attachedFiles(new_img)
-        proc = self.startUpload(files)
-        handle = self.uploadFileset(proc, files)
-        assert not handle
-        new_img.setFileset(fs)
-        self.client.getUpdateService().saveObject(new_img)
-        # How to delete Pixel files?!
-        # And original files (later!)
-
-    @pytestmark
-    def testConvertSynthetic2(self):
         """
         Convert a pre-FS file to FS
         using a README.txt as the first
@@ -221,7 +198,7 @@ class TestReimportAttachedFiles(lib.ITest):
         new_img = self.createSynthetic()
         files = self.attachedFiles(new_img)
         files.insert(0, readme_obj)
-        proc = self.startUpload(files, with_import=True)
+        proc = self.startUpload(files)
         handle = self.uploadFileset(proc, files)
         try:
             fs = handle.getRequest().activity.parent
