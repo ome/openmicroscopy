@@ -52,7 +52,7 @@ def marshal_plate(conn, row):
 
         @param conn OMERO gateway.
         @type conn L{omero.gateway.BlitzGateway}
-        @param row The ProjectAcquisition row to marshal
+        @param row The Plate row to marshal
         @type row L{list}
     '''
     plate_id, name, owner_id, permissions = row
@@ -77,7 +77,7 @@ def marshal_plate_acquisition(conn, row):
 
         @param conn OMERO gateway.
         @type conn L{omero.gateway.BlitzGateway}
-        @param row The ProjectAcquisition row to marshal
+        @param row The PlateAcquisition row to marshal
         @type row L{list}
     '''
     pa_id, name, owner_id, permissions, start_time, end_time = row
