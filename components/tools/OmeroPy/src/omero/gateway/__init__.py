@@ -2569,7 +2569,7 @@ class _BlitzGateway (object):
         """
         query, params, wrapper = self.buildQuery(obj_type, ids, params, attributes)
         result = self.getQueryService().findAllByQuery(query, params, self.SERVICE_OPTS)
-        if respect_order:
+        if respect_order and ids is not None:
             idMap = {r.id.val: r for r in result}
             ids = unwrap(ids)       # in case we had a list of rlongs
             result = [idMap.get(i) for i in ids if i in idMap]
