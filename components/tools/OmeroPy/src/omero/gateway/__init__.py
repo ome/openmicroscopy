@@ -2717,25 +2717,6 @@ class _BlitzGateway (object):
             yield AnnotationLinkWrapper(self, r)
 
 
-    def getImages(self, data_type, ids, **kwargs):
-        """
-        Convenience method for getting images directly or by Dataset.
-        Keyword args are passed to getObjects()
-
-        @param data_type:       'Image' or 'Dataset'
-        @param ids:             Image or Dataset IDs
-        @return:                L{ImageWrapper} generator
-        """
-        if data_type not in ('Image', 'Dataset'):
-            raise AttributeError("data_type must be 'Image' or 'Dataset'")
-        objs = self.getObjects(data_type, ids, **kwargs)
-        if data_type == "Image":
-            imgs = objs
-        else:
-            imgs = [img for ds in objs for img in ds.listChildren()]
-        return imgs
-
-
     def listOrphanedAnnotations(self, parent_type, parent_ids, eid=None, ns=None, anntype=None, addedByMe=True):
         """
         Retrieve all Annotations not linked to the given parents: Projects, Datasets, Images,
