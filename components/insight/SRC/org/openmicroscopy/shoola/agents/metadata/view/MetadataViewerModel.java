@@ -913,8 +913,11 @@ class MetadataViewerModel
 				}
 			}
 		}
-		this.viewedBy = m; 
-		getEditor().getRenderer().loadRndSettings(true, null);
+		this.viewedBy = m;
+		Renderer rnd = getEditor().getRenderer();
+		if (rnd != null) {
+		    rnd.loadRndSettings(true, null);
+		}
 	}
 	
 	/**
