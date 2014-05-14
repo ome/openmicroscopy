@@ -28,8 +28,7 @@ from omero.gateway import BlitzGateway
 from omero.model import ProjectI, DatasetI, ScreenI, PlateI, \
     PlateAcquisitionI, PermissionsI
 from omero.rtypes import rstring
-from omeroweb.webclient.tree import marshal_datasets_for_projects, \
-    marshal_datasets, marshal_plates_for_screens, marshal_plates, \
+from omeroweb.webclient.tree import marshal_datasets, marshal_plates, \
     marshal_projects, marshal_screens
 
 
@@ -126,22 +125,6 @@ def projects_different_users(request, itest, conn):
 
 
 @pytest.fixture(scope='function')
-def projects_datasets_new(request, itest, update_service, names):
-    """
-    Returns four new OMERO Projects and four linked Datasets with required
-    fields set and with names that can be used to exercise sorting semantics.
-    """
-    projects = [ProjectI(), ProjectI(), ProjectI(), ProjectI()]
-    for index, project in enumerate(projects):
-        project.name = rstring(names[index])
-        datasets = [DatasetI(), DatasetI(), DatasetI(), DatasetI()]
-        for index, dataset in enumerate(datasets):
-            dataset.name = rstring(names[index])
-            project.linkDataset(dataset)
-    return update_service.saveAndReturnArray(projects)
-
-
-@pytest.fixture(scope='function')
 def project_dataset(request, itest, update_service):
     """
     Returns a new OMERO Project and linked Dataset with required fields set.
@@ -152,22 +135,6 @@ def project_dataset(request, itest, update_service):
     dataset.name = rstring(itest.uuid())
     project.linkDataset(dataset)
     return update_service.saveAndReturnObject(project)
-
-
-@pytest.fixture(scope='function')
-def projects_datasets(request, itest, update_service):
-    """
-    Returns a two new OMERO Projects and two linked Datasets for each Project
-    with required fields set.
-    """
-    projects = [ProjectI(), ProjectI()]
-    for project in projects:
-        project.name = rstring(itest.uuid())
-        datasets = [DatasetI(), DatasetI()]
-        for dataset in datasets:
-            dataset.name = rstring(itest.uuid())
-            project.linkDataset(dataset)
-    return update_service.saveAndReturnArray(projects)
 
 
 @pytest.fixture(scope='function')
@@ -185,6 +152,22 @@ def project_dataset_image(request, itest, update_service):
     dataset.linkImage(image)
     project.linkDataset(dataset)
     return update_service.saveAndReturnObject(project)
+
+
+@pytest.fixture(scope='function')
+def projects_datasets(request, itest, update_service, names):
+    """
+    Returns four new OMERO Projects and four linked Datasets with required
+    fields set and with names that can be used to exercise sorting semantics.
+    """
+    projects = [ProjectI(), ProjectI(), ProjectI(), ProjectI()]
+    for index, project in enumerate(projects):
+        project.name = rstring(names[index])
+        datasets = [DatasetI(), DatasetI(), DatasetI(), DatasetI()]
+        for index, dataset in enumerate(datasets):
+            dataset.name = rstring(names[index])
+            project.linkDataset(dataset)
+    return update_service.saveAndReturnArray(projects)
 
 
 @pytest.fixture(scope='function')
@@ -403,37 +386,44 @@ class TestTree(object):
         project_id = project_dataset.id.val
         dataset, = project_dataset.linkedDatasetList()
         perms_css = 'canEdit canAnnotate canLink canDelete canChgrp'
-        expected = {
-            project_id: {
-                'childCount': 1L,
-                'datasets': [{
-                    'childCount': 0L,
-                    'id': dataset.id.val,
-                    'isOwned': True,
-                    'name': dataset.name.val,
-                    'permsCss': perms_css
-                }],
+        expected = [{
+            'id': project_id,
+            'childCount': 1L,
+            'name': project_dataset.name.val,
+            'isOwned': True,
+            'datasets': [{
+                'childCount': 0L,
+                'id': dataset.id.val,
+                'isOwned': True,
+                'name': dataset.name.val,
                 'permsCss': perms_css
-            }
-        }
+            }],
+            'permsCss': perms_css
+        }]
 
-        marshaled = marshal_datasets_for_projects(conn, [project_id])
+        marshaled = marshal_projects(conn, conn.getUserId())
         assert marshaled == expected
 
-    def test_marshal_projects_datasets(self, conn, projects_datasets):
-        project_a, project_b = projects_datasets
-        expected = dict()
+    def test_marshal_projects_datasetsew(self, conn, projects_datasets):
+        project_a, project_b, project_c, project_d = projects_datasets
+        expected = list()
         perms_css = 'canEdit canAnnotate canLink canDelete canChgrp'
-        for project in (project_a, project_b):
-            datasets = list()
-            expected[project.id.val] = {
-                'childCount': 2L,
-                'datasets': datasets,
+        # The underlying query explicitly orders the Projects list by
+        # case-insensitive name.
+        for project in sorted(projects_datasets, cmp_name_insensitive):
+            expected.append({
+                'id': project.id.val,
+                'isOwned': True,
+                'name': project.name.val,
+                'childCount': 4,
                 'permsCss': perms_css
-            }
+            })
             # The underlying query explicitly orders the Datasets list by
-            # name.
-            for dataset in sorted(project.linkedDatasetList(), cmp_name):
+            # case-insensitive name.
+            source = project.linkedDatasetList()
+            source.sort(cmp_name_insensitive)
+            datasets = list()
+            for dataset in source:
                 datasets.append({
                     'childCount': 0L,
                     'id': dataset.id.val,
@@ -441,14 +431,34 @@ class TestTree(object):
                     'name': dataset.name.val,
                     'permsCss': perms_css
                 })
+            expected[-1]['datasets'] = datasets
 
-        marshaled = marshal_datasets_for_projects(
-            conn, [project_a.id.val, project_b.id.val]
-        )
+        marshaled = marshal_projects(conn, conn.getUserId())
         assert marshaled == expected
 
-    def test_marshal_datasets_for_projects_no_results(self, conn):
-        assert marshal_datasets_for_projects(conn, []) == {}
+    def test_marshal_projects_different_users_as_other_user(
+            self, conn, projects_different_users):
+        project_a, project_b = projects_different_users
+        expected = list()
+        perms_css = 'canEdit canAnnotate canLink canDelete'
+        # The underlying query explicitly orders the Projects list by
+        # case-insensitive name.
+        for project in sorted(projects_different_users, cmp_name_insensitive):
+            expected.append({
+                'id': project.id.val,
+                'isOwned': False,
+                'name': project.name.val,
+                'childCount': 0,
+                'permsCss': perms_css,
+                'datasets': list()
+            })
+
+        conn.SERVICE_OPTS.setOmeroGroup(project_a.details.group.id.val)
+        marshaled = marshal_projects(conn, None)
+        assert marshaled == expected
+
+    def test_marshal_projects_no_results(self, conn):
+        assert marshal_projects(conn, -1) == []
 
     def test_marshal_datasets(self, conn, datasets):
         dataset_a, dataset_b, dataset_c, dataset_d = datasets
@@ -514,27 +524,31 @@ class TestTree(object):
         plate, = screen_plate_run.linkedPlateList()
         plate_acquisition, = plate.copyPlateAcquisitions()
         perms_css = 'canEdit canAnnotate canLink canDelete canChgrp'
-        expected = {
-            screen_id: {
-                'childCount': 1,
-                'plates': [{
-                    'id': plate.id.val,
+        expected = [{
+            'id': screen_id,
+            'childCount': 1,
+            'isOwned': True,
+            'name': screen_plate_run.name.val,
+            'permsCss': perms_css,
+            'plates': [{
+                'id': plate.id.val,
+                'isOwned': True,
+                'name': plate.name.val,
+                'plateAcquisitions': [{
+                    'id': plate_acquisition.id.val,
+                    'name': 'Run %d' % plate_acquisition.id.val,
                     'isOwned': True,
-                    'name': plate.name.val,
-                    'plateAcquisitions': [{
-                        'id': plate_acquisition.id.val,
-                        'name': 'Run %d' % plate_acquisition.id.val,
-                        'isOwned': True,
-                        'permsCss': perms_css
-                    }],
-                    'plateAcquisitionCount': 1,
                     'permsCss': perms_css
                 }],
-                'plateids': [plate.id.val]
-            }
-        }
+                'plateAcquisitionCount': 1,
+                'permsCss': perms_css
+            }],
+        }]
 
-        marshaled = marshal_plates_for_screens(conn, [screen_id])
+        marshaled = marshal_screens(conn, conn.getUserId())
+        import pprint
+        pprint.pprint(marshaled, indent=4)
+        pprint.pprint(expected, indent=4)
         assert marshaled == expected
 
     def test_marshal_screens_plates_runs(self, conn, screens_plates_runs):
@@ -576,8 +590,8 @@ class TestTree(object):
         marshaled = marshal_screens(conn, conn.getUserId())
         assert marshaled == expected
 
-    def test_marshal_plates_for_screens_no_results(self, conn):
-        assert marshal_plates_for_screens(conn, []) == {}
+    def test_marshal_screens_no_results(self, conn):
+        assert marshal_screens(conn, -1L) == []
 
     def test_marshal_screen_plate(self, conn, screen_plate):
         plate, = screen_plate.linkedPlateList()
@@ -750,59 +764,6 @@ class TestTree(object):
         }]
 
         marshaled = marshal_projects(conn, conn.getUserId())
-        assert marshaled == expected
-
-    def test_marshal_projects_datasets_new(self, conn, projects_datasets_new):
-        project_a, project_b, project_c, project_d = projects_datasets_new
-        expected = list()
-        perms_css = 'canEdit canAnnotate canLink canDelete canChgrp'
-        # The underlying query explicitly orders the Projects list by
-        # case-insensitive name.
-        for project in sorted(projects_datasets_new, cmp_name_insensitive):
-            expected.append({
-                'id': project.id.val,
-                'isOwned': True,
-                'name': project.name.val,
-                'childCount': 4,
-                'permsCss': perms_css
-            })
-            # The underlying query explicitly orders the Datasets list by
-            # case-insensitive name.
-            source = project.linkedDatasetList()
-            source.sort(cmp_name_insensitive)
-            datasets = list()
-            for dataset in source:
-                datasets.append({
-                    'childCount': 0L,
-                    'id': dataset.id.val,
-                    'isOwned': True,
-                    'name': dataset.name.val,
-                    'permsCss': perms_css
-                })
-            expected[-1]['datasets'] = datasets
-
-        marshaled = marshal_projects(conn, conn.getUserId())
-        assert marshaled == expected
-
-    def test_marshal_projects_different_users_as_other_user(
-            self, conn, projects_different_users):
-        project_a, project_b = projects_different_users
-        expected = list()
-        perms_css = 'canEdit canAnnotate canLink canDelete'
-        # The underlying query explicitly orders the Projects list by
-        # case-insensitive name.
-        for project in sorted(projects_different_users, cmp_name_insensitive):
-            expected.append({
-                'id': project.id.val,
-                'isOwned': False,
-                'name': project.name.val,
-                'childCount': 0,
-                'permsCss': perms_css,
-                'datasets': list()
-            })
-
-        conn.SERVICE_OPTS.setOmeroGroup(project_a.details.group.id.val)
-        marshaled = marshal_projects(conn, None)
         assert marshaled == expected
 
     def test_marshal_screens(self, conn, screens):
