@@ -259,6 +259,22 @@ def screen_plate(request, itest, update_service):
 
 
 @pytest.fixture(scope='function')
+def screens_plates(request, itest, update_service, names):
+    """
+    Returns four new OMERO Screens and four linked Plates with required
+    fields set and with names that can be used to exercise sorting semantics.
+    """
+    screens = [ScreenI(), ScreenI(), ScreenI(), ScreenI()]
+    for index, screen in enumerate(screens):
+        screen.name = rstring(names[index])
+        plates = [PlateI(), PlateI(), PlateI(), PlateI()]
+        for index, plate in enumerate(plates):
+            plate.name = rstring(names[index])
+            screen.linkPlate(plate)
+    return update_service.saveAndReturnArray(screens)
+
+
+@pytest.fixture(scope='function')
 def plates_runs(request, itest, update_service):
     """
     Returns a two new Plates, and two linked PlateAcquisitions with all
@@ -693,6 +709,39 @@ class TestTree(object):
             'childCount': 0,
             'permsCss': perms_css
         }]
+
+        marshaled = marshal_screens(conn, conn.getUserId())
+        assert marshaled == expected
+
+    def test_marshal_screens_plates(self, conn, screens_plates):
+        screen_a, screen_b, screen_c, screen_d = screens_plates
+        expected = list()
+        perms_css = 'canEdit canAnnotate canLink canDelete canChgrp'
+        # The underlying query explicitly orders the Screens list by
+        # case-insensitive name.
+        for screen in sorted(screens_plates, cmp_name_insensitive):
+            expected.append({
+                'id': screen.id.val,
+                'isOwned': True,
+                'name': screen.name.val,
+                'childCount': 4,
+                'permsCss': perms_css
+            })
+            # The underlying query explicitly orders the Plate list by
+            # case-insensitive name.
+            source = screen.linkedPlateList()
+            source.sort(cmp_name_insensitive)
+            plates = list()
+            for plate in source:
+                plates.append({
+                    'id': plate.id.val,
+                    'isOwned': True,
+                    'name': plate.name.val,
+                    'permsCss': perms_css,
+                    'plateAcquisitions': list(),
+                    'plateAcquisitionCount': 0
+                })
+            expected[-1]['plates'] = plates
 
         marshaled = marshal_screens(conn, conn.getUserId())
         assert marshaled == expected
