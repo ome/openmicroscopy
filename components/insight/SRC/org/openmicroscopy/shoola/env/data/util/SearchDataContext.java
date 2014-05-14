@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.data.util.SearchDataContext 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -73,6 +73,9 @@ public class SearchDataContext
 	
 	/** Identifying the <code>Name</code> context. */
 	public static final int			CUSTOMIZED = 7;
+	
+	/** Identifying the <code>ID</code> context. */
+	public static final int                 ID = 8;
 	
 	/** Indicates to set the creation time interval. */
 	public static final int			CREATION_TIME = 0;

@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.util.ui.search.SearchContext 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -100,6 +100,9 @@ public class SearchContext
 	
 	/** Identifying the <code>Description</code> context. */
 	public static final int			CUSTOMIZED = 13;
+	
+	/** Identifying the <code>ID</code> context. */
+	public static final int                 ID = 14;
 	
 	/** Indicates not to take into account the time criteria. */
 	static final int				ANY_DATE = 0;
