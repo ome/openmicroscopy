@@ -192,7 +192,7 @@ def marshal_datasets(conn, experimenter_id):
     where_clause = ''
     if experimenter_id is not None:
         params.addId(experimenter_id)
-        where_clause = 'where dataset.details.owner.id = :id'
+        where_clause = 'and dataset.details.owner.id = :id'
     qs = conn.getQueryService()
     q = """
         select dataset.id,
@@ -202,7 +202,10 @@ def marshal_datasets(conn, experimenter_id):
                (select count(id) from DatasetImageLink dil
                  where dil.parent=dataset.id)
                from Dataset dataset
-        %s
+        where not exists (
+            select pdlink from ProjectDatasetLink as pdlink
+            where pdlink.child = dataset.id
+        ) %s
         order by lower(dataset.name)
         """ % (where_clause)
     for e in qs.projection(q, params, conn.SERVICE_OPTS):
