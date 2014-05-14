@@ -72,6 +72,51 @@ module omero {
              **/
             omero::RTypeDict seriesMetadata;
         };
+
+        /**
+         * Queries and modifies the various binary artifacts
+         * which may be linked to an [omero::model::Image].
+         *
+         * This can be useful, e.g., after converting pre-OMERO-5
+         * attached original files into [omero::model::Fileset].
+         *
+         * The command works in several stages:
+         *
+         *   1. turns attached files into a fileset if none is present;
+         *   2. deletes attached files if present;
+         *   3. deletes Pyramid files if preset.
+         *   4. deletes existing Pixel files if preset;
+         *
+         * This command can be run multiple times with different settings
+         * to iteratively test if the migration is working.
+         **/
+        class ImageBinariesRequest extends Request {
+
+            long imageId;
+            bool deleteAttached;
+            bool deletePixels;
+            bool deletePyramid;
+            bool deleteThumbnails;
+
+        };
+
+        /**
+         * [Response] from a [ImageBinariesRequest] [Request].
+         * If no action is requested, then the fields of this
+         * instance can be examined to see what would be done
+         * if requested.
+         */
+        class ImageBinariesResponse extends Response {
+
+            omero::RLong filesetId;
+            omero::api::LongList attachedFiles;
+            long pixelSize;
+            long pyramidSize;
+            long thumbnailSize;
+
+        };
+
+
     };
 };
 

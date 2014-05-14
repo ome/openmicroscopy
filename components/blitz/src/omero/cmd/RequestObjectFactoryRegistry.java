@@ -16,6 +16,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import ome.io.nio.AbstractFileSystemService;
 import ome.io.nio.PixelsService;
+import ome.security.ACLVoter;
 import ome.security.ChmodStrategy;
 import ome.services.chgrp.ChgrpStepFactory;
 import ome.services.chown.ChownStepFactory;
@@ -28,6 +29,7 @@ import ome.tools.hibernate.ExtendedMetadata;
 import omero.cmd.basic.DoAllI;
 import omero.cmd.basic.ListRequestsI;
 import omero.cmd.basic.TimingI;
+import omero.cmd.fs.ImageBinariesRequestI;
 import omero.cmd.fs.OriginalMetadataRequestI;
 import omero.cmd.graphs.ChgrpI;
 import omero.cmd.graphs.ChmodI;
@@ -47,16 +49,21 @@ public class RequestObjectFactoryRegistry extends
 
     private final ExtendedMetadata em;
 
+    private final ACLVoter voter;
+
     private final Roles roles;
 
     private final PixelsService pixelsService;
 
     private/* final */OmeroContext ctx;
 
-    public RequestObjectFactoryRegistry(ExtendedMetadata em, Roles roles,
+    public RequestObjectFactoryRegistry(ExtendedMetadata em,
+            ACLVoter voter,
+            Roles roles,
             PixelsService pixelsService) {
 
         this.em = em;
+        this.voter = voter;
         this.roles = roles;
         this.pixelsService = pixelsService;
 
@@ -147,6 +154,13 @@ public class RequestObjectFactoryRegistry extends
                     @Override
                     public Ice.Object create(String name) {
                         return new OriginalMetadataRequestI(pixelsService);
+                    }
+                });
+        factories.put(ImageBinariesRequestI.ice_staticId(),
+                new ObjectFactory(ImageBinariesRequestI.ice_staticId()) {
+                    @Override
+                    public Ice.Object create(String name) {
+                        return new ImageBinariesRequestI(pixelsService, voter);
                     }
                 });
         return factories;
