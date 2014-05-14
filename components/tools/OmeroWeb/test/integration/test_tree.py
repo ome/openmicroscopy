@@ -179,6 +179,14 @@ def datasets(request, itest, update_service, names):
     to_save = [DatasetI(), DatasetI(), DatasetI(), DatasetI()]
     for index, dataset in enumerate(to_save):
         dataset.name = rstring(names[index])
+    # Non-orphaned Project to catch issues with queries where non-orphaned
+    # datasets are included in the results.
+    project = ProjectI()
+    project.name = rstring(itest.uuid())
+    dataset = DatasetI()
+    dataset.name = rstring(itest.uuid())
+    project.linkDataset(dataset)
+    update_service.saveAndReturnObject(project)
     return update_service.saveAndReturnArray(to_save)
 
 
