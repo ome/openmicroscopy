@@ -324,14 +324,14 @@ def screens_plates(request, itest, update_service, names):
 
 
 @pytest.fixture(scope='function')
-def plates_runs(request, itest, update_service):
+def plates_runs(request, itest, update_service, names):
     """
-    Returns a two new Plates, and two linked PlateAcquisitions with all
-    required fields set.
+    Returns a four new Plates, and two linked PlateAcquisitions with required
+    fields set and with names that can be used to exercise sorting semantics.
     """
-    plates = [PlateI(), PlateI()]
-    for plate in plates:
-        plate.name = rstring(itest.uuid())
+    plates = [PlateI(), PlateI(), PlateI(), PlateI()]
+    for index, plate in enumerate(plates):
+        plate.name = rstring(names[index])
         plate_acquisitions = [PlateAcquisitionI(), PlateAcquisitionI()]
         for plate_acquisition in plate_acquisitions:
             plate.addPlateAcquisition(plate_acquisition)
@@ -597,15 +597,15 @@ class TestTree(object):
             'permsCss': perms_css
         }]
 
-        marshaled = marshal_plates(conn, [plate_id])
+        marshaled = marshal_plates(conn, conn.getUserId())
         assert marshaled == expected
 
     def test_marshal_plates_runs(self, conn, plates_runs):
-        plate_a, plate_b = plates_runs
+        plate_a, plate_b, plate_c, plate_d = plates_runs
         perms_css = 'canEdit canAnnotate canLink canDelete canChgrp'
         expected = list()
         # The underlying query explicitly orders the Plates by name.
-        for plate in sorted((plate_a, plate_b), cmp_name):
+        for plate in sorted(plates_runs, cmp_name_insensitive):
             plate_id = plate.id.val
             expected.append({
                 'id': plate_id,
@@ -627,13 +627,11 @@ class TestTree(object):
                     'permsCss': perms_css
                 })
 
-        marshaled = marshal_plates(
-            conn, [plate_a.id.val, plate_b.id.val]
-        )
+        marshaled = marshal_plates(conn, conn.getUserId())
         assert marshaled == expected
 
     def test_marshal_plates_no_results(self, conn):
-        assert marshal_plates(conn, []) == []
+        assert marshal_plates(conn, -1L) == []
 
     def test_marshal_plate(self, conn, plate):
         plate_id = plate.id.val
@@ -647,7 +645,7 @@ class TestTree(object):
             'permsCss': perms_css
         }]
 
-        marshaled = marshal_plates(conn, [plate_id])
+        marshaled = marshal_plates(conn, conn.getUserId())
         assert marshaled == expected
 
     def test_marshal_project_dataset_image(self, conn, project_dataset_image):

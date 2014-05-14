@@ -226,7 +226,7 @@ def marshal_datasets(conn, experimenter_id):
         @param conn OMERO gateway.
         @type conn L{omero.gateway.BlitzGateway}
         @param experimenter_id The Experimenter (user) ID to marshal
-        Projects for or `None` if we are not to filter by a specific user.
+        Datasets for or `None` if we are not to filter by a specific user.
         @type experimenter_id L{long}
     '''
     datasets = []
@@ -384,20 +384,22 @@ def marshal_plates_for_screens(conn, screen_ids):
     return screens
 
 
-def marshal_plates(conn, plate_ids):
-    ''' Marshal plates with ids matching plate_ids.
+def marshal_plates(conn, experimenter_id):
+    ''' Marshal plates for a given user.
 
         @param conn OMERO gateway.
         @type conn L{omero.gateway.BlitzGateway}
-        @param plate_ids The plate IDs to marshal
-        @type plate_ids list of longs
+        @param experimenter_id The Experimenter (user) ID to marshal
+        Plates for or `None` if we are not to filter by a specific user.
+        @type experimenter_id L{long}
     '''
-    if len(plate_ids) == 0:
-        return []
     plates = {}
     plateids = []
     params = omero.sys.ParametersI()
-    params.addIds(plate_ids)
+    where_clause = ''
+    if experimenter_id is not None:
+        params.addId(experimenter_id)
+        where_clause = 'where plate.details.owner.id = :id'
     qs = conn.getQueryService()
     q = """
         select plate.id,
@@ -412,9 +414,9 @@ def marshal_plates(conn, plate_ids):
                pa.endTime
                from Plate plate
                left join plate.plateAcquisitions pa
-        where plate.id in (:ids)
-        order by plate.name, pa.id
-        """
+        %s
+        order by lower(plate.name), pa.id
+        """ % (where_clause)
     for e in qs.projection(q, params, conn.SERVICE_OPTS):
         pid = e[0].val
         p = plates.setdefault(pid, marshal_plate(conn, e[0:4]))
