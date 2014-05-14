@@ -143,9 +143,9 @@ class Show(object):
         """
         # Tags have an "Annotation" suffix added to the object name so
         # need to be loaded differently.
-        return self.conn.getObject(
+        return next(self.conn.getObjects(
             "TagAnnotation", attributes=attributes
-        )
+        ))
 
     def get_well_row_column(self, well):
         """
@@ -217,7 +217,7 @@ class Show(object):
                 if key == 'id':
                     value = long(value)
                 parent_attributes = {key: value}
-                parent = self.conn.getObject(
+                parent, = self.conn.getObjects(
                     object_type, attributes=parent_attributes
                 )
 
@@ -264,7 +264,7 @@ class Show(object):
             first_selected = self._load_well(attributes)
         else:
             # All other objects can be loaded by type and attributes.
-            first_selected = self.conn.getObject(
+            first_selected, = self.conn.getObjects(
                 first_obj, attributes=attributes
             )
 
