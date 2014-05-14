@@ -201,22 +201,46 @@ class Show(object):
             row, column = self.get_well_row_column(attributes['name'])
             path = self.request.REQUEST.get('path', '')
             for m in self.PATH_REGEX.finditer(path):
-                if m.group('object_type') != 'plate':
+                object_type = m.group('object_type')
+                # May have 'run' here rather than 'acquisition' because
+                # the path will not have been validated and replaced.
+                if object_type not in ('plate', 'run', 'acquisition'):
                     continue
-                plate_attributes = {m.group('key'): m.group('value')}
-                plate = self.conn.getObject(
-                    'Plate', attributes=plate_attributes
+                # 'run' is an alternative for 'acquisition'
+                object_type = object_type.replace('run', 'acquisition')
+
+                # Try and load the potential parent first
+                key = m.group('key')
+                value = m.group('value')
+                if key is None:
+                    key = 'id'
+                if key == 'id':
+                    value = long(value)
+                parent_attributes = {key: value}
+                parent = self.conn.getObject(
+                    object_type, attributes=parent_attributes
                 )
+
+                # Now use the parent to try and locate the Well
                 query_service = self.conn.getQueryService()
                 params = omero.sys.ParametersI()
                 params.map['row'] = rint(row)
                 params.map['column'] = rint(column)
-                params.addId(plate.id)
-                row, = query_service.projection(
-                    'select w.id from Well as w '
-                    'where w.row = :row and w.column = :column '
-                    'and w.plate.id = :id', params, self.conn.SERVICE_OPTS
-                )
+                params.addId(parent.id)
+                if object_type == 'plate':
+                    row, = query_service.projection(
+                        'select w.id from Well as w '
+                        'where w.row = :row and w.column = :column '
+                        'and w.plate.id = :id', params, self.conn.SERVICE_OPTS
+                    )
+                if object_type == 'acquisition':
+                    row, = query_service.projection(
+                        'select w.id from Well as w '
+                        'join w.wellSamples as ws '
+                        'where w.row = :row and w.column = :column '
+                        'and ws.plateAcquisition.id = :id',
+                        params, self.conn.SERVICE_OPTS
+                    )
                 well_id, = row
                 return self.conn.getObject(
                     'Well', well_id.val
