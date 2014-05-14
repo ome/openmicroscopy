@@ -27,6 +27,46 @@ import pytest
 import re
 
 
+class NamingFixture(object):
+    """
+    Fixture to test naming arguments of bin/omero import
+    """
+
+    def __init__(self, obj_type, name_arg, description_arg):
+        self.obj_type = obj_type
+        self.name_arg = name_arg
+        self.description_arg = description_arg
+
+NF = NamingFixture
+NFS = (
+    NF("Image", None, None),
+    NF("Image", None, "-x"),
+    NF("Image", None, "--description"),
+    NF("Image", "-n", None),
+    NF("Image", "-n", "-x"),
+    NF("Image", "-n", "--description"),
+    NF("Image", "--name", None),
+    NF("Image", "--name", "-x"),
+    NF("Image", "--name", "--description"),
+    NF("Plate", None, None),
+    NF("Plate", None, "-x"),
+    NF("Plate", None, "--description"),
+    NF("Plate", None, "--plate_description"),
+    NF("Plate", "-n", None),
+    NF("Plate", "-n", "-x"),
+    NF("Plate", "-n", "--description"),
+    NF("Plate", "-n", "--plate_description"),
+    NF("Plate", "--name", None),
+    NF("Plate", "--name", "-x"),
+    NF("Plate", "--name", "--description"),
+    NF("Plate", "--name", "--plate_description"),
+    NF("Plate", "--plate_name", None),
+    NF("Plate", "--plate_name", "-x"),
+    NF("Plate", "--plate_name", "--description"),
+    NF("Plate", "--plate_name", "--plate_description"),
+)
+
+
 class TestImport(CLITest):
 
     def setup_method(self, method):
@@ -41,35 +81,31 @@ class TestImport(CLITest):
         self.args += ["-h"]
         self.cli.invoke(self.args, strict=True)
 
-    @pytest.mark.parametrize("obj_type", ["Image", "Plate"])
-    @pytest.mark.parametrize("name", [None, '-n', '--name', '--plate_name'])
-    @pytest.mark.parametrize(
-        "description", [None, '-x', '--description', '--plate_description'])
-    def testNamingArguments(self, obj_type, name, description, tmpdir,
-                            capfd):
+    @pytest.mark.parametrize("fixture", NFS)
+    def testNamingArguments(self, fixture, tmpdir, capfd):
 
-        if obj_type == 'Image':
+        if fixture.obj_type == 'Image':
             fakefile = tmpdir.join("test.fake")
         else:
             fakefile = tmpdir.join("SPW&plates=1&plateRows=1&plateCols=1&"
                                    "fields=1&plateAcqs=1.fake")
         fakefile.write('')
         self.args += [str(fakefile)]
-        if name:
-            self.args += [name, 'name']
-        if description:
-            self.args += [description, 'description']
+        if fixture.name_arg:
+            self.args += [fixture.name_arg, 'name']
+        if fixture.description_arg:
+            self.args += [fixture.description_arg, 'description']
 
         # Invoke CLI import command and retrieve stdout/stderr
         self.cli.invoke(self.args, strict=True)
         o, e = capfd.readouterr()
 
         # Retrieve the created object
-        pattern = re.compile('^%s:(?P<id>\d+)$' % obj_type)
+        pattern = re.compile('^%s:(?P<id>\d+)$' % fixture.obj_type)
         match = re.match(pattern, e.split()[-1])
-        obj = self.query.get(obj_type, int(match.group('id')))
+        obj = self.query.get(fixture.obj_type, int(match.group('id')))
 
-        if name:
+        if fixture.name_arg:
             assert obj.getName().val == 'name'
-        if description:
+        if fixture.description_arg:
             assert obj.getDescription().val == 'description'
