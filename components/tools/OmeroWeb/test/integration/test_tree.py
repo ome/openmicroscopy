@@ -211,6 +211,30 @@ def screens(request, itest, update_service, names):
 
 
 @pytest.fixture(scope='function')
+def screens_different_users(request, itest, conn):
+    """
+    Returns two new OMERO Screens created by different users with
+    required fields set.
+    """
+    client = conn.c
+    group = conn.getGroupFromContext()._obj
+    screens = list()
+    # User that has already been created by the "client" fixture
+    user, name = itest.user_and_name(client)
+    itest.add_experimenters(group, [user])
+    for name in (rstring(itest.uuid()), rstring(itest.uuid())):
+        client, user = itest.new_client_and_user(group=group)
+        try:
+            screen = ScreenI()
+            screen.name = name
+            update_service = client.getSession().getUpdateService()
+            screens.append(update_service.saveAndReturnObject(screen))
+        finally:
+            client.closeSession()
+    return screens
+
+
+@pytest.fixture(scope='function')
 def screen_plate_run(request, itest, update_service):
     """
     Returns a new OMERO Screen, linked Plate, and linked PlateAcquisition
@@ -744,4 +768,25 @@ class TestTree(object):
             expected[-1]['plates'] = plates
 
         marshaled = marshal_screens(conn, conn.getUserId())
+        assert marshaled == expected
+
+    def test_marshal_screens_different_users_as_other_user(
+            self, conn, screens_different_users):
+        screen_a, screen_b = screens_different_users
+        expected = list()
+        perms_css = 'canEdit canAnnotate canLink canDelete'
+        # The underlying query explicitly orders the Screens list by
+        # case-insensitive name.
+        for screen in sorted(screens_different_users, cmp_name_insensitive):
+            expected.append({
+                'id': screen.id.val,
+                'isOwned': False,
+                'name': screen.name.val,
+                'childCount': 0,
+                'permsCss': perms_css,
+                'plates': list()
+            })
+
+        conn.SERVICE_OPTS.setOmeroGroup(screen_a.details.group.id.val)
+        marshaled = marshal_screens(conn, None)
         assert marshaled == expected
