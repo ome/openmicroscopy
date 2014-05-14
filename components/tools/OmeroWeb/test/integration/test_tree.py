@@ -491,9 +491,6 @@ class TestTree(object):
         }]
 
         marshaled = marshal_datasets(conn, conn.getUserId())
-        import pprint
-        pprint.pprint(marshaled, indent=4)
-        pprint.pprint(expected, indent=4)
         assert marshaled == expected
 
     def test_marshal_datasets_different_users_as_other_user(
@@ -546,9 +543,6 @@ class TestTree(object):
         }]
 
         marshaled = marshal_screens(conn, conn.getUserId())
-        import pprint
-        pprint.pprint(marshaled, indent=4)
-        pprint.pprint(expected, indent=4)
         assert marshaled == expected
 
     def test_marshal_screens_plates_runs(self, conn, screens_plates_runs):
