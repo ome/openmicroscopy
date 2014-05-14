@@ -304,7 +304,7 @@ def marshal_plates(conn, experimenter_id):
     where_clause = ''
     if experimenter_id is not None:
         params.addId(experimenter_id)
-        where_clause = 'where plate.details.owner.id = :id'
+        where_clause = 'and plate.details.owner.id = :id'
     qs = conn.getQueryService()
     q = """
         select plate.id,
@@ -319,7 +319,10 @@ def marshal_plates(conn, experimenter_id):
                pa.endTime
                from Plate plate
                left join plate.plateAcquisitions pa
-        %s
+        where not exists (
+            select splink from ScreenPlateLink as splink
+            where splink.child = plate.id
+        ) %s
         order by lower(plate.name), pa.id
         """ % (where_clause)
     for e in qs.projection(q, params, conn.SERVICE_OPTS):

@@ -179,7 +179,7 @@ def datasets(request, itest, update_service, names):
     to_save = [DatasetI(), DatasetI(), DatasetI(), DatasetI()]
     for index, dataset in enumerate(to_save):
         dataset.name = rstring(names[index])
-    # Non-orphaned Project to catch issues with queries where non-orphaned
+    # Non-orphaned Dataset to catch issues with queries where non-orphaned
     # datasets are included in the results.
     project = ProjectI()
     project.name = rstring(itest.uuid())
@@ -350,6 +350,14 @@ def plates_runs(request, itest, update_service, names):
         plate_acquisitions = [PlateAcquisitionI(), PlateAcquisitionI()]
         for plate_acquisition in plate_acquisitions:
             plate.addPlateAcquisition(plate_acquisition)
+    # Non-orphaned Plate to catch issues with queries where non-orphaned
+    # plates are included in the results.
+    screen = ScreenI()
+    screen.name = rstring(itest.uuid())
+    plate = PlateI()
+    plate.name = rstring(itest.uuid())
+    screen.linkPlate(plate)
+    update_service.saveAndReturnObject(screen)
     return update_service.saveAndReturnArray(plates)
 
 
