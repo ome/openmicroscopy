@@ -19,7 +19,7 @@
 
   <settings defaultResolver="${omero.resolver}"/>
 
-  <caches>
+  <caches defaultCacheDir="${ivy.settings.dir}/../lib/cache">
       <!-- local is intended for all products built from this repository,
            while maven is for any stable, unchanging jar that is being
            downloaded -->
