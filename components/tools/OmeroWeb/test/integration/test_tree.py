@@ -199,6 +199,18 @@ def datasets(request, itest, update_service):
 
 
 @pytest.fixture(scope='function')
+def screens(request, itest, update_service, names):
+    """
+    Returns four new OMERO Screens with required fields set and with names
+    that can be used to exercise sorting semantics.
+    """
+    to_save = [ScreenI(), ScreenI(), ScreenI(), ScreenI()]
+    for index, screen in enumerate(to_save):
+        screen.name = rstring(names[index])
+    return update_service.saveAndReturnArray(to_save)
+
+
+@pytest.fixture(scope='function')
 def screen_plate_run(request, itest, update_service):
     """
     Returns a new OMERO Screen, linked Plate, and linked PlateAcquisition
@@ -646,4 +658,41 @@ class TestTree(object):
 
         conn.SERVICE_OPTS.setOmeroGroup(project_a.details.group.id.val)
         marshaled = marshal_projects(conn, None)
+        assert marshaled == expected
+
+    def test_marshal_screens(self, conn, screens):
+        screen_a, screen_b, screen_c, screen_d = screens
+        perms_css = 'canEdit canAnnotate canLink canDelete canChgrp'
+        # Order is important to test desired HQL sorting semantics.
+        expected = [{
+            'id': screen_a.id.val,
+            'isOwned': True,
+            'name': 'Apple',
+            'plates': list(),
+            'childCount': 0,
+            'permsCss': perms_css
+        }, {
+            'id': screen_c.id.val,
+            'isOwned': True,
+            'name': 'atom',
+            'plates': list(),
+            'childCount': 0,
+            'permsCss': perms_css
+        }, {
+            'id': screen_b.id.val,
+            'isOwned': True,
+            'name': 'bat',
+            'plates': list(),
+            'childCount': 0,
+            'permsCss': perms_css
+        }, {
+            'id': screen_d.id.val,
+            'isOwned': True,
+            'name': 'Butter',
+            'plates': list(),
+            'childCount': 0,
+            'permsCss': perms_css
+        }]
+
+        marshaled = marshal_screens(conn, conn.getUserId())
         assert marshaled == expected
