@@ -213,27 +213,38 @@ public class ImageBinariesRequestI extends ImageBinariesRequest implements
 
     private void deletePixels() {
         if (deletePixels) {
-
-            if (!pixelsFile.exists()) {
-                return; // Nothing to do
-            }
-
-            IQuery query = helper.getServiceFactory().getQueryService();
-            Image image = query.get(Image.class, imageId);
-            if (!voter.allowDelete(image, image.getDetails())) {
-                throw helper.cancel(new ERR(), null, "pixels-delete-disallowed");
-            }
-            if (!pixelsFile.delete()) {
-                // TODO: should we schedule for deleteOnExit here?
-                throw helper.cancel(new ERR(), null, "pixels-delete-false");
-            }
+            requireFileset("pixels");
+            deleteFile("pixels", pixelsFile);
             rsp.pixelSize = pixelsFile.length();
         }
     }
 
     private void deletePyramid() {
         if (deletePyramid) {
-            throw helper.cancel(new ERR(), null, "NYI");
+            requireFileset("pyramid");
+            deleteFile("pyramid", pyramidFile);
+            rsp.pyramidSize = pyramidFile.length();
+        }
+    }
+
+    private void requireFileset(String which) {
+        throw helper.cancel(new ERR(), null, which + "-requires-fileset");
+    }
+
+    private void deleteFile(String which, File file) {
+
+        if (!file.exists()) {
+            return; // Nothing to do
+        }
+
+        IQuery query = helper.getServiceFactory().getQueryService();
+        Image image = query.get(Image.class, imageId);
+        if (!voter.allowDelete(image, image.getDetails())) {
+            throw helper.cancel(new ERR(), null, which + "-delete-disallowed");
+        }
+        if (!file.delete()) {
+            // TODO: should we schedule for deleteOnExit here?
+            throw helper.cancel(new ERR(), null, which + "-delete-false");
         }
     }
 }
