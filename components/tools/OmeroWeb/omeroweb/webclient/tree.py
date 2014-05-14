@@ -282,8 +282,8 @@ def marshal_screens(conn, experimenter_id=None):
                pa.startTime,
                pa.endTime
                from Screen screen
-               join screen.plateLinks splink
-               join splink.child plate
+               left join screen.plateLinks splink
+               left join splink.child plate
                left join plate.plateAcquisitions pa
         %s
         order by lower(screen.name), lower(plate.name), pa.id
