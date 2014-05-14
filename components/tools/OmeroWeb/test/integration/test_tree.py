@@ -26,7 +26,7 @@ import test.integration.library as lib
 
 from omero.gateway import BlitzGateway
 from omero.model import ProjectI, DatasetI, ScreenI, PlateI, \
-    PlateAcquisitionI
+    PlateAcquisitionI, PermissionsI
 from omero.rtypes import rstring
 from omeroweb.webclient.tree import marshal_datasets_for_projects, \
     marshal_datasets, marshal_plates_for_screens, marshal_plates, \
@@ -65,8 +65,11 @@ def itest(request):
 
 @pytest.fixture(scope='function')
 def client(request, itest):
-    """Returns a new user client."""
-    return itest.new_client()
+    """Returns a new user client in a read-only group."""
+    # Use group read-only permissions (not private) by default
+    perms = PermissionsI()
+    perms.setGroupRead(True)
+    return itest.new_client(perms=perms.getPerm1())
 
 
 @pytest.fixture(scope='function')
@@ -96,6 +99,30 @@ def projects(request, itest, update_service, names):
     for index, project in enumerate(to_save):
         project.name = rstring(names[index])
     return update_service.saveAndReturnArray(to_save)
+
+
+@pytest.fixture(scope='function')
+def projects_different_users(request, itest, conn):
+    """
+    Returns two new OMERO Projects created by different users with
+    required fields set.
+    """
+    client = conn.c
+    group = conn.getGroupFromContext()._obj
+    projects = list()
+    # User that has already been created by the "client" fixture
+    user, name = itest.user_and_name(client)
+    itest.add_experimenters(group, [user])
+    for name in (rstring(itest.uuid()), rstring(itest.uuid())):
+        client, user = itest.new_client_and_user(group=group)
+        try:
+            project = ProjectI()
+            project.name = name
+            update_service = client.getSession().getUpdateService()
+            projects.append(update_service.saveAndReturnObject(project))
+        finally:
+            client.closeSession()
+    return projects
 
 
 @pytest.fixture(scope='function')
@@ -598,4 +625,25 @@ class TestTree(object):
             expected[-1]['datasets'] = datasets
 
         marshaled = marshal_projects(conn, conn.getUserId())
+        assert marshaled == expected
+
+    def test_marshal_projects_different_users_as_other_user(
+            self, conn, projects_different_users):
+        project_a, project_b = projects_different_users
+        expected = list()
+        perms_css = 'canEdit canAnnotate canLink canDelete'
+        # The underlying query explicitly orders the Projects list by
+        # case-insensitive name.
+        for project in sorted(projects_different_users, cmp_name_insensitive):
+            expected.append({
+                'id': project.id.val,
+                'isOwned': False,
+                'name': project.name.val,
+                'childCount': 0,
+                'permsCss': perms_css,
+                'datasets': list()
+            })
+
+        conn.SERVICE_OPTS.setOmeroGroup(project_a.details.group.id.val)
+        marshaled = marshal_projects(conn, None)
         assert marshaled == expected
