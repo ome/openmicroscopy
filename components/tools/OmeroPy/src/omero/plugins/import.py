@@ -81,6 +81,11 @@ class ImportControl(BaseControl):
         parser.add_argument(
             "---errs", nargs="?",
             help="File for storing the standard err of the Java process")
+        parser.add_argument(
+            "--clientdir", type="str",
+            help="Path the the directory containing the client JARs. "
+            " Default: lib/client")
+
         # The following arguments are strictly passed to Java
         name_group = parser.add_argument_group(
             'Naming arguments', 'Optional arguments passed strictly to Java.')
@@ -158,7 +163,10 @@ class ImportControl(BaseControl):
 
     def importer(self, args):
 
-        client_dir = self.ctx.dir / "lib" / "client"
+        if args.clientdir:
+            client_dir = args.clientdir
+        else:
+            client_dir = self.ctx.dir / "lib" / "client"
         etc_dir = self.ctx.dir / "etc"
         xml_file = etc_dir / "logback-cli.xml"
         logback = "-Dlogback.configurationFile=%s" % xml_file
