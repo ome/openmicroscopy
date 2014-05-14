@@ -944,6 +944,7 @@ class MetadataViewerModel
 	/** Starts an asynchronous retrieval of the thumbnails. */
 	void fireThumbnailsLoading()
 	{
+	    if (viewedBy == null) return;
 		ImageData image = null;
 		if (refObject instanceof ImageData) image = (ImageData) refObject;
 		else if (refObject instanceof WellSampleData)
