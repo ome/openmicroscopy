@@ -89,7 +89,7 @@ public class ImageBinariesRequestI extends ImageBinariesRequest implements
 
     public void init(Helper helper) {
         this.helper = helper;
-        this.helper.setSteps(7);
+        this.helper.setSteps(6);
     }
 
     public Object step(int step) {
@@ -99,9 +99,8 @@ public class ImageBinariesRequestI extends ImageBinariesRequest implements
         case 1: findAttached(); break;
         case 2: findBinary(); break;
         case 3: findFileset(); break;
-        case 4: deleteAttached(); break;
-        case 5: deletePixels(); break;
-        case 6: deletePyramid(); break;
+        case 4: deletePixels(); break;
+        case 5: deletePyramid(); break;
         default:
             throw helper.cancel(new ERR(), null, "unknown-step", "step" , ""+step);
         }
@@ -203,12 +202,6 @@ public class ImageBinariesRequestI extends ImageBinariesRequest implements
                     "" + imageId);
         }
 
-    }
-
-    private void deleteAttached() {
-        if (deleteAttached) {
-            throw helper.cancel(new ERR(), null, "NYI");
-        }
     }
 
     private void deletePixels() {

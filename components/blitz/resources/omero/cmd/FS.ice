@@ -93,10 +93,8 @@ module omero {
         class ImageBinariesRequest extends Request {
 
             long imageId;
-            bool deleteAttached;
             bool deletePixels;
             bool deletePyramid;
-            bool deleteThumbnails;
 
         };
 
