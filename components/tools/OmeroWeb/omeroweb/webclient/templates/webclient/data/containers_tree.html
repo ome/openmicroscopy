@@ -28,17 +28,16 @@
     <li id="experimenter-0" rel="experimenter{% ifnotequal manager.experimenter.id ome.eventContext.userId %}-locked{% endifnotequal %}">
         <a href="#">{% if manager.experimenter %}{{ manager.experimenter.getFullName }}{% else %}{% setting UI_MENU_DROPDOWN.ALL %}{% endif %}</a>
         <ul>
-            {% for c in manager.containers.projects %}
-            {% with p=projects|get_item:c.id %}
+            {% for c in projects %}
             <li id='project-{{ c.id }}' rel="project{% if not c.isOwned %}-locked{% endif %}" class="{{ c.getPermsCss }}">
-				<a href="#">{{ c.name|default:"Project"|truncatebefor:"35" }} {% if p.childCount %}
-					<span class="children_count" id="counter-project-{{ c.id }}">{{ p.childCount }}</span>{% endif %}
+				<a href="#">{{ c.name|default:"Project"|truncatebefor:"35" }} {% if c.childCount %}
+					<span class="children_count" id="counter-project-{{ c.id }}">{{ c.childCount }}</span>{% endif %}
 				</a>
-                {% if p.childCount %}
+                {% if c.childCount %}
                 <ul>
-                    {% for d in p.datasets %}
+                    {% for d in c.datasets %}
                         <li id='dataset-{{ d.id }}' rel="dataset{% if not d.isOwned %}-locked{% endif %}" 
-                                class="{{ p.permsCss }}{% if d.childCount %} jstree-closed{% endif %}">
+                                class="{{ c.permsCss }}{% if d.childCount %} jstree-closed{% endif %}">
 							<a href="#">{{ d.name|default:"Dataset"|truncatebefor:"35" }} {% if d.childCount %}
 								<span class="children_count" id="counter-dataset-{{ d.id }}">{{ d.childCount }}
 									<span id="page-dataset-{{ d.id }}"></span></span>{% endif %}
@@ -48,7 +47,6 @@
                 </ul>
                 {% endif %}
             </li> 
-            {% endwith %}
             {% endfor %}
         
 		
@@ -68,14 +66,13 @@
 			
 			
 			
-            {% for c in manager.containers.screens %}
-            {% with s=screens|get_item:c.id %}
+            {% for c in screens %}
             <li id='screen-{{ c.id }}' rel="screen{% if not c.isOwned %}-locked{% endif %}" class="{{ c.getPermsCss }}">
-				<a href="#">{{ c.name|default:"Screen"|truncatebefor:"35" }} {% if s.childCount %}
-					<span class="children_count" id="counter-screen-{{ c.id }}">{{ s.childCount }}</span>{% endif %}</a>
-                {% if s.childCount %}
+				<a href="#">{{ c.name|default:"Screen"|truncatebefor:"35" }} {% if c.childCount %}
+					<span class="children_count" id="counter-screen-{{ c.id }}">{{ c.childCount }}</span>{% endif %}</a>
+                {% if c.childCount %}
                 <ul>
-                    {% for p in s.plates %}
+                    {% for p in c.plates %}
                         <li id='plate-{{ p.id }}' rel="plate{% if not p.isOwned %}-locked{% endif %}" class="{{ p.permsCss }}">
                             <a href="#">{{ p.name|default:"Plate"|truncatebefor:"35" }}</a>
                             {% if p.plateAcquisitionCount %}
@@ -92,7 +89,6 @@
                 </ul>
                 {% endif %}
             </li>
-            {% endwith %}
             {% endfor %}
             
 			
@@ -112,9 +108,8 @@
                 {% endif %}
             </li>
             {% endfor %}
-            
-            <li id='orphaned-0' rel="orphaned" {% if manager.orphans %}class="jstree-closed"{% endif %}><a href="#">{% setting UI_TREE_ORPHANED.NAME %}</a></li>
-            
+
+            <li id='orphaned-0' rel="orphaned" {% if orphans %}class="jstree-closed"{% endif %}><a href="#">{% setting UI_TREE_ORPHANED.NAME %}</a></li>
         </ul>
     </li>
 </ul>

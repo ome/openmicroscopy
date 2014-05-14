@@ -510,20 +510,28 @@ def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_ty
                 context['form_well_index'] = form_well_index
                 template = "webclient/data/plate.html"
     else:
-        manager.listContainerHierarchy(filter_user_id)
         if view =='tree':
+            # Replicate the semantics of listContainerHierarchy's filtering
+            # and experimenter population.
+            if filter_user_id is not None:
+                if filter_user_id == -1:
+                    filter_user_id = None
+                else:
+                    manager.experimenter = conn.getObject(
+                        "Experimenter", filter_user_id
+                    )
+            else:
+                filter_user_id = conn.getEventContext().userId
             # Projects
-            pids = [x.id for x in manager.containers['projects']]
-            context['projects'] = tree.marshal_datasets_for_projects(conn, pids)
+            context['projects'] = tree.marshal_projects(conn, filter_user_id)
             # Datasets
-            dids = [x.id for x in manager.containers['datasets']]
-            context['datasets'] = tree.marshal_datasets(conn, dids)
+            context['datasets'] = tree.marshal_datasets(conn, filter_user_id)
             # Screens
-            sids = [x.id for x in manager.containers['screens']]
-            context['screens'] = tree.marshal_plates_for_screens(conn, sids)
+            context['screens'] = tree.marshal_screens(conn, filter_user_id)
             # Plates
-            pids = [x.id for x in manager.containers['plates']]
-            context['plates'] = tree.marshal_plates(conn, pids)
+            context['plates'] = tree.marshal_plates(conn, filter_user_id)
+            # Images (orphaned)
+            context['orphans'] = conn.countOrphans("Image", filter_user_id)
             template = "webclient/data/containers_tree.html"
         elif view =='icon':
             template = "webclient/data/containers_icon.html"
