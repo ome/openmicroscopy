@@ -188,14 +188,39 @@ def project_dataset_image(request, itest, update_service):
 
 
 @pytest.fixture(scope='function')
-def datasets(request, itest, update_service):
+def datasets(request, itest, update_service, names):
     """
-    Returns a two new OMERO Datasets with required fields set.
+    Returns four new OMERO Datasets with required fields set and with names
+    that can be used to exercise sorting semantics.
     """
-    datasets = [DatasetI(), DatasetI()]
-    for dataset in datasets:
-        dataset.name = rstring(itest.uuid())
-    return update_service.saveAndReturnArray(datasets)
+    to_save = [DatasetI(), DatasetI(), DatasetI(), DatasetI()]
+    for index, dataset in enumerate(to_save):
+        dataset.name = rstring(names[index])
+    return update_service.saveAndReturnArray(to_save)
+
+
+@pytest.fixture(scope='function')
+def datasets_different_users(request, itest, conn):
+    """
+    Returns two new OMERO Datasets created by different users with
+    required fields set.
+    """
+    client = conn.c
+    group = conn.getGroupFromContext()._obj
+    datasets = list()
+    # User that has already been created by the "client" fixture
+    user, name = itest.user_and_name(client)
+    itest.add_experimenters(group, [user])
+    for name in (rstring(itest.uuid()), rstring(itest.uuid())):
+        client, user = itest.new_client_and_user(group=group)
+        try:
+            dataset = DatasetI()
+            dataset.name = name
+            update_service = client.getSession().getUpdateService()
+            datasets.append(update_service.saveAndReturnObject(dataset))
+        finally:
+            client.closeSession()
+    return datasets
 
 
 @pytest.fixture(scope='function')
@@ -402,26 +427,63 @@ class TestTree(object):
         assert marshal_datasets_for_projects(conn, []) == {}
 
     def test_marshal_datasets(self, conn, datasets):
-        dataset_a, dataset_b = datasets
+        dataset_a, dataset_b, dataset_c, dataset_d = datasets
+        perms_css = 'canEdit canAnnotate canLink canDelete canChgrp'
+        # Order is important to test desired HQL sorting semantics.
+        expected = [{
+            'id': dataset_a.id.val,
+            'isOwned': True,
+            'name': 'Apple',
+            'childCount': 0L,
+            'permsCss': perms_css
+        }, {
+            'id': dataset_c.id.val,
+            'isOwned': True,
+            'name': 'atom',
+            'childCount': 0L,
+            'permsCss': perms_css
+        }, {
+            'id': dataset_b.id.val,
+            'isOwned': True,
+            'name': 'bat',
+            'childCount': 0L,
+            'permsCss': perms_css
+        }, {
+            'id': dataset_d.id.val,
+            'isOwned': True,
+            'name': 'Butter',
+            'childCount': 0L,
+            'permsCss': perms_css
+        }]
+
+        marshaled = marshal_datasets(conn, conn.getUserId())
+        import pprint
+        pprint.pprint(marshaled, indent=4)
+        pprint.pprint(expected, indent=4)
+        assert marshaled == expected
+
+    def test_marshal_datasets_different_users_as_other_user(
+            self, conn, datasets_different_users):
+        dataset_a, dataset_b = datasets_different_users
         expected = list()
-        # The underlying query explicitly orders the Datasets list by
-        # name.
-        for dataset in sorted((dataset_a, dataset_b), cmp_name):
+        perms_css = 'canEdit canAnnotate canLink canDelete'
+        # The underlying query explicitly orders the Screens list by
+        # case-insensitive name.
+        for dataset in sorted(datasets_different_users, cmp_name_insensitive):
             expected.append({
                 'id': dataset.id.val,
+                'isOwned': False,
                 'name': dataset.name.val,
-                'isOwned': True,
                 'childCount': 0L,
-                'permsCss': 'canEdit canAnnotate canLink canDelete canChgrp'
+                'permsCss': perms_css,
             })
 
-        marshaled = marshal_datasets(
-            conn, [dataset_a.id.val, dataset_b.id.val]
-        )
+        conn.SERVICE_OPTS.setOmeroGroup(dataset_a.details.group.id.val)
+        marshaled = marshal_datasets(conn, None)
         assert marshaled == expected
 
     def test_marshal_datasets_no_results(self, conn):
-        assert marshal_datasets(conn, []) == []
+        assert marshal_datasets(conn, -1L) == []
 
     def test_marshal_screen_plate_run(self, conn, screen_plate_run):
         screen_id = screen_plate_run.id.val

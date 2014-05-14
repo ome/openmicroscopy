@@ -220,19 +220,21 @@ def marshal_datasets_for_projects(conn, project_ids):
     return projects
 
 
-def marshal_datasets(conn, dataset_ids):
-    ''' Marshal datasets with ids matching dataset_ids.
+def marshal_datasets(conn, experimenter_id):
+    ''' Marshal datasets for a given user.
 
         @param conn OMERO gateway.
         @type conn L{omero.gateway.BlitzGateway}
-        @param dataset_ids The dataset IDs to marshal
-        @type dataset_ids list of longs
+        @param experimenter_id The Experimenter (user) ID to marshal
+        Projects for or `None` if we are not to filter by a specific user.
+        @type experimenter_id L{long}
     '''
-    if len(dataset_ids) == 0:
-        return []
     datasets = []
     params = omero.sys.ParametersI()
-    params.addIds(dataset_ids)
+    where_clause = ''
+    if experimenter_id is not None:
+        params.addId(experimenter_id)
+        where_clause = 'where dataset.details.owner.id = :id'
     qs = conn.getQueryService()
     q = """
         select dataset.id,
@@ -242,9 +244,9 @@ def marshal_datasets(conn, dataset_ids):
                (select count(id) from DatasetImageLink dil
                  where dil.parent=dataset.id)
                from Dataset dataset
-        where dataset.id in (:ids)
-        order by dataset.name
-        """
+        %s
+        order by lower(dataset.name)
+        """ % (where_clause)
     for e in qs.projection(q, params, conn.SERVICE_OPTS):
         datasets.append(marshal_dataset(conn, e[0:5]))
     return datasets
