@@ -342,6 +342,7 @@ class MetadataViewerUI
 				}
 			}
 		}
+		if (items != null) showViewedBy();
 		thumbnailsMenuItem.setEnabled(items.size() > 0);
 		model.getEditor().getRenderer().loadRndSettings(true, null);
 	}

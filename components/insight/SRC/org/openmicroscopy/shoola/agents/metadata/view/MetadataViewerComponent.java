@@ -1123,6 +1123,9 @@ class MetadataViewerComponent
 	{
 		//Previewed the image.
 		Renderer rnd = model.getEditor().getRenderer();
+		if (rnd != null) {
+		    model.fireThumbnailsLoading();
+		}
 		if (rnd != null && getRndIndex() == RND_GENERAL) {
 			//save settings 
 			long imageID = -1;
