@@ -264,9 +264,9 @@ class MetadataViewerUI
             viewedByMenu.add(item);
         }
         if (list.size() == 0) {
-            thumbnailsMenuItem = new JMenuItem("Not viewed");
+            thumbnailsMenuItem = new JMenuItem("No settings saved");
             thumbnailsMenuItem.setToolTipText("No other users " +
-                    "viewed the image.");
+                    "saved the rendering settings.");
         } else {
             IconManager icons = IconManager.getInstance();
             thumbnailsMenuItem = new JMenuItem("Show thumbnails");
@@ -342,6 +342,7 @@ class MetadataViewerUI
 				}
 			}
 		}
+		if (items != null) showViewedBy();
 		thumbnailsMenuItem.setEnabled(items.size() > 0);
 		model.getEditor().getRenderer().loadRndSettings(true, null);
 	}
