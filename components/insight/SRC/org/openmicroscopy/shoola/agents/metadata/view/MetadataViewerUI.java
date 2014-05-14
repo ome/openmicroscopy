@@ -264,7 +264,7 @@ class MetadataViewerUI
             viewedByMenu.add(item);
         }
         if (list.size() == 0) {
-            thumbnailsMenuItem = new JMenuItem("Not settings saved");
+            thumbnailsMenuItem = new JMenuItem("No settings saved");
             thumbnailsMenuItem.setToolTipText("No other users " +
                     "saved the rendering settings.");
         } else {
