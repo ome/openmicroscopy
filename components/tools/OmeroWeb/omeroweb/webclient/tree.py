@@ -178,48 +178,6 @@ def marshal_projects(conn, experimenter_id):
     return projects
 
 
-def marshal_datasets_for_projects(conn, project_ids):
-    ''' Given a list of project ids, marshals the contained datasets, grouping
-        by parent project.
-
-        @param conn OMERO gateway.
-        @type conn L{omero.gateway.BlitzGateway}
-        @param project_ids The Project IDs to marshal
-        @type project_ids list of longs
-    '''
-    if len(project_ids) == 0:
-        return {}
-    projects = {}
-    qs = conn.getQueryService()
-    params = omero.sys.ParametersI()
-    params.addIds(project_ids)
-    q = """
-        select project.id,
-               dataset.id,
-               dataset.name,
-               dataset.details.owner.id,
-               project.details.permissions,
-               project.details.owner.id,
-               (select count(id) from DatasetImageLink dil
-                  where dil.parent=dataset.id)
-               from ProjectDatasetLink pdlink
-               join pdlink.parent project
-               join pdlink.child dataset
-        where project.id in (:ids)
-        order by dataset.name
-        """
-    for e in qs.projection(q, params, conn.SERVICE_OPTS):
-        p = projects.setdefault(e[0].val, {'datasets': []})
-        if 'permsCss' not in p:
-            p['permsCss'] = parse_permissions_css(e[4].val, e[5].val, conn)
-        p['datasets'].append(marshal_dataset(
-            conn, e[1:5] + [e[6]]
-        ))
-    for p in projects.keys():
-        projects[p]['childCount'] = len(projects[p]['datasets'])
-    return projects
-
-
 def marshal_datasets(conn, experimenter_id):
     ''' Marshal datasets for a given user.
 
@@ -325,62 +283,6 @@ def marshal_screens(conn, experimenter_id=None):
             )))
             plate['plateAcquisitionCount'] = len(plate['plateAcquisitions'])
         screen['childCount'] = len(screen['plates'])
-    return screens
-
-
-def marshal_plates_for_screens(conn, screen_ids):
-    ''' Given a list of screen ids, marshals the contained plates, grouping
-        by parent screen.
-
-        @param conn OMERO gateway.
-        @type conn L{omero.gateway.BlitzGateway}
-        @param screen_ids The screen IDs to marshal
-        @type screen_ids list of longs
-    '''
-    if len(screen_ids) == 0:
-        return {}
-    screens = {}
-    params = omero.sys.ParametersI()
-    params.addIds(screen_ids)
-    qs = conn.getQueryService()
-    q = """
-        select screen.id,
-               plate.id,
-               plate.name,
-               plate.details.owner.id,
-               plate.details.permissions,
-               pa.id,
-               pa.name,
-               pa.details.owner.id,
-               pa.details.permissions,
-               pa.startTime,
-               pa.endTime
-               from Screen screen
-               join screen.plateLinks splink
-               join splink.child plate
-               left join plate.plateAcquisitions pa
-        where screen.id in (:ids)
-        order by screen.name, plate.name, pa.id
-        """
-    for e in qs.projection(q, params, conn.SERVICE_OPTS):
-        s = screens.setdefault(e[0].val, {'plateids': [], 'plates': {}})
-        pid = e[1].val
-        p = s['plates'].setdefault(pid, marshal_plate(conn, e[1:5]))
-        if pid not in s['plateids']:
-            s['plateids'].append(pid)
-        plate_acquisition_id = e[5]
-        if plate_acquisition_id is not None:
-            # We have a Plate that has PlateAcquisitions
-            p['plateAcquisitions'].append(
-                marshal_plate_acquisition(conn, e[5:11])
-            )
-    for s in screens.keys():
-        screens[s]['childCount'] = len(screens[s]['plates'])
-        # keeping plates ordered
-        screens[s]['plates'] = [screens[s]['plates'][x]
-                                for x in screens[s]['plateids']]
-        for p in screens[s]['plates']:
-            p['plateAcquisitionCount'] = len(p['plateAcquisitions'])
     return screens
 
 
