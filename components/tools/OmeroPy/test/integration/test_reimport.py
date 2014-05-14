@@ -103,13 +103,21 @@ class TestReimportAttachedFiles(lib.ITest):
             self.update.saveObject(link)
 
     def delete(self, type, obj):
-            delete = Delete(type, obj.id.val)
-            handle = self.client.sf.submit(delete)
-            cb = CmdCallbackI(self.client, handle)
-            try:
-                cb.loop(50, 1000)
-            finally:
-                cb.close(True)
+        delete = Delete(type, obj.id.val)
+        return self.submit(delete)
+
+    def submit(self, req):
+        import omero
+        handle = self.client.sf.submit(req)
+        cb = CmdCallbackI(self.client, handle)
+        try:
+            cb.loop(50, 1000)
+            rsp = cb.getResponse()
+            if isinstance(rsp, omero.cmd.ERR):
+                raise Exception(rsp)
+            return rsp
+        finally:
+            cb.close(True)
 
     def createSynthetic(self):
         """ Create a image with archived files (i.e. pre-FS) """
@@ -178,6 +186,32 @@ class TestReimportAttachedFiles(lib.ITest):
         new_img.setFileset(fs.proxy())
         self.client.sf.getUpdateService().saveObject(new_img)
 
+    def imageBinaries(self, imageId,
+                      deleteAttached=False,
+                      deletePixels=False,
+                      deletePyramid=False,
+                      deleteThumbnails=False):
+
+        import omero
+        req = omero.cmd.ImageBinariesRequest()
+        req.imageId = imageId
+        req.deleteAttached = deleteAttached
+        req.deletePixels = deletePixels
+        req.deletePyramid = deletePyramid
+        req.deleteThumbnails = deleteThumbnails
+        return self.submit(req)
+
+    def assertImageBinaries(self, rsp,
+                            lenAttached=2,
+                            pixelSize=256,
+                            pyramidSize=0,
+                            thumbnailSize=0):
+
+        assert lenAttached == len(rsp.attachedFiles)
+        assert pixelSize == rsp.pixelSize
+        assert pyramidSize == rsp.pyramidSize
+        assert thumbnailSize == rsp.thumbnailSize
+
     @pytestmark
     def testConvertSynthetic(self):
         """
@@ -196,6 +230,9 @@ class TestReimportAttachedFiles(lib.ITest):
                                         name="README.txt")
 
         new_img = self.createSynthetic()
+        binaries = self.imageBinaries(new_img.id.val)
+        self.assertImageBinaries(binaries)
+
         files = self.attachedFiles(new_img)
         files.insert(0, readme_obj)
         proc = self.startUpload(files)
@@ -211,13 +248,17 @@ class TestReimportAttachedFiles(lib.ITest):
             fs.clearUsedFiles()
             for idx in range(1,3):  # omit readme
                 fs.addFilesetEntry(used[idx])
-                #fs.unloadJobLinks()
-                #fs.unloadImage()
-                #fs.unloadAnnotationLinks()
                 used[idx].originalFile.unload()
             self.client.sf.getUpdateService().saveObject(fs)
             for file in files:
                 self.delete("/OriginalFile", file)
-            # How to delete Pixel files?!
+            binaries = self.imageBinaries(new_img.id.val)
+            self.assertImageBinaries(binaries, lenAttached=0)
         finally:
             handle.close()
+
+        binaries = self.imageBinaries(new_img.id.val,
+                                      deletePixels=True)
+        self.assertImageBinaries(binaries,
+                                 lenAttached=0,
+                                 pixelSize=0)
