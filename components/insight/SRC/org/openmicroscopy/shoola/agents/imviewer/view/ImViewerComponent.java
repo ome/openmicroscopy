@@ -3331,6 +3331,9 @@ class ImViewerComponent
     	if (tiles == null) return;
     	//invalidate images.
     	Dimension d = model.getTileSize();
+    	if(d==null) {
+    	    throw new RuntimeException("Could not get tile size for image "+model.getImageName()+" (id="+model.getImageID()+")");
+    	}
     	int width = d.width;
     	int height = d.height;
     	int cs = region.x/width;
