@@ -112,12 +112,15 @@ def project_dataset_image(request, itest, update_service):
     return update_service.saveAndReturnObject(project)
 
 
-@pytest.fixture(scope='function')
+@pytest.fixture(scope='function', params=[1, 2])
 def tag(request, itest, update_service):
     """Returns a new OMERO TagAnnotation with required fields set."""
-    tag = TagAnnotationI()
-    tag.textValue = rstring(itest.uuid())
-    return update_service.saveAndReturnObject(tag)
+    name = rstring(itest.uuid())
+    for index in range(request.param):
+        tag = TagAnnotationI()
+        tag.textValue = name
+        tag = update_service.saveAndReturnObject(tag)
+    return tag
 
 
 @pytest.fixture(scope='function')
@@ -907,14 +910,14 @@ class TestShow(object):
         first_selected = show.first_selected
         assert first_selected is not None
         assert isinstance(first_selected, TagAnnotationWrapper)
-        assert first_selected.getId() == tag.id.val
-        assert show.initially_open == \
-            tag_by_textvalue_path_request['initially_open']
+        assert first_selected.getValue() == tag.textValue.val
+        assert len(show.initially_open) == \
+            len(tag_by_textvalue_path_request['initially_open'])
         assert show.initially_open_owner == \
             tag.details.owner.id.val
         assert show._first_selected == first_selected
-        assert show.initially_select == \
-            tag_by_textvalue_path_request['initially_select']
+        assert len(show.initially_select) == \
+            len(tag_by_textvalue_path_request['initially_select'])
 
     def test_well_by_name(
             self, conn, well_by_name_path_request, screen_plate_well):
