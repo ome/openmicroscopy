@@ -19,49 +19,55 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-import omero
+plugin = __import__('omero.plugins.import', globals(), locals(),
+                    ['ImportControl'], -1)
+ImportControl = plugin.ImportControl
 from test.integration.clitest.cli import CLITest
 import pytest
+import re
 
 
 class TestImport(CLITest):
 
-    def get_plate_id(self, image_id):
-        params = omero.sys.ParametersI()
-        params.addIds([image_id])
-        query = "select well from Well as well "
-        query += "left outer join well.wellSamples as ws "
-        query += "left outer join ws.image as img "
-        query += "where ws.image.id in (:ids)"
-        wells = self.query.findAllByQuery(query, params)
-        return wells[0].plate.id.val
+    def setup_method(self, method):
+        super(TestImport, self).setup_method(method)
+        self.cli.register("import", plugin.ImportControl, "TEST")
+        self.args += ["import"]
+        dist_dir = self.OmeroPy / ".." / ".." / ".." / "dist"
+        client_dir = dist_dir / "lib" / "client"
+        self.args += ["--clientdir", client_dir]
 
-    @pytest.mark.parametrize("obj_type", ["image", "plate"])
+    def testHelp(self):
+        self.args += ["-h"]
+        self.cli.invoke(self.args, strict=True)
+
+    @pytest.mark.parametrize("obj_type", ["Image", "Plate"])
     @pytest.mark.parametrize("name", [None, '-n', '--name', '--plate_name'])
     @pytest.mark.parametrize(
         "description", [None, '-x', '--description', '--plate_description'])
-    def testNamingArguments(self, obj_type, name, description, tmpdir):
+    def testNamingArguments(self, obj_type, name, description, tmpdir,
+                            capfd):
 
-        if obj_type == 'image':
+        if obj_type == 'Image':
             fakefile = tmpdir.join("test.fake")
         else:
             fakefile = tmpdir.join("SPW&plates=1&plateRows=1&plateCols=1&"
                                    "fields=1&plateAcqs=1.fake")
         fakefile.write('')
-
-        extra_args = []
+        self.args += [str(fakefile)]
         if name:
-            extra_args += [name, 'name']
+            self.args += [name, 'name']
         if description:
-            extra_args += [description, 'description']
+            self.args += [description, 'description']
 
-        pixIds = self.import_image(str(fakefile), extra_args=extra_args)
-        pixels = self.query.get("Pixels", long(pixIds[0]))
-        if obj_type == 'image':
-            obj = self.query.get("Image", pixels.getImage().id.val)
-        else:
-            plateid = self.get_plate_id(pixels.getImage().id.val)
-            obj = self.query.get("Plate", plateid)
+        # Invoke CLI import command and retrieve stdout/stderr
+        self.cli.invoke(self.args, strict=True)
+        o, e = capfd.readouterr()
+
+        # Retrieve the created object
+        pattern = re.compile('^%s:(?P<id>\d+)$' % obj_type)
+        match = re.match(pattern, e.split()[-1])
+        obj = self.query.get(obj_type, int(match.group('id')))
 
         if name:
             assert obj.getName().val == 'name'
