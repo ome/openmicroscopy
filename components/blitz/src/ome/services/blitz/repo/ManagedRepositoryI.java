@@ -34,9 +34,12 @@ import java.util.Set;
 
 import loci.formats.FormatReader;
 
+import ome.api.IAdmin;
+import ome.api.IUpdate;
 import ome.formats.importer.ImportConfig;
 import ome.formats.importer.ImportContainer;
 import ome.model.core.OriginalFile;
+import ome.model.meta.Experimenter;
 import ome.services.blitz.gateway.services.util.ServiceUtilities;
 import ome.services.blitz.repo.path.ClientFilePathTransformer;
 import ome.services.blitz.repo.path.FilePathNamingValidator;
@@ -81,6 +84,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Collections2;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
@@ -678,10 +682,20 @@ public class ManagedRepositoryI extends PublicRepositoryI
             boolean parents, Session s, ServiceFactory sf, SqlAction sql,
             ome.system.EventContext effectiveEventContext) throws ServerError {
 
+        final IAdmin adminService = sf.getAdminService();
         final EventContext ec = IceMapper.convert(effectiveEventContext);
         final String expanded = expandTemplate(template, ec);
         final FsFile rootOwnedPath = splitPath(expanded).getKey();
         final List<CheckedPath> pathsToFix = new ArrayList<CheckedPath>();
+        final List<CheckedPath> pathsForRoot;
+
+        /* if running as root then the paths must be root-owned */
+        final long rootId = adminService.getSecurityRoles().getRootId();
+        if (adminService.getEventContext().getCurrentUserId() == rootId) {
+            pathsForRoot = ImmutableList.copyOf(paths);
+        } else {
+            pathsForRoot = ImmutableList.of();
+        }
 
         for (int i = 0; i < paths.size(); i++) {
 
@@ -700,9 +714,22 @@ public class ManagedRepositoryI extends PublicRepositoryI
 
             pathsToFix.add(checked);
         }
-        
+
         super.makeCheckedDirs(paths, parents, s, sf, sql, effectiveEventContext);
-        
+
+        /* ensure that root segment of the template path is wholly root-owned */
+        if (!pathsForRoot.isEmpty()) {
+            final Experimenter rootUser = sf.getQueryService().find(Experimenter.class, rootId);
+            final IUpdate updateService = sf.getUpdateService();
+            for (final CheckedPath pathForRoot : pathsForRoot) {
+                final OriginalFile directory = repositoryDao.findRepoFile(sf, sql, getRepoUuid(), pathForRoot, null);
+                if (directory.getDetails().getOwner().getId() != rootId) {
+                    directory.getDetails().setOwner(rootUser);
+                    updateService.saveObject(directory);
+                }
+            }
+        }
+
         // Now that we know that these are the right directories for
         // the current user, we make sure that the directories are in
         // the user group.
