@@ -329,6 +329,9 @@ public class BasicEventContext extends SimpleEventContext {
     // Other
     // =========================================================================
 
+    /**
+     * Never returns {@link Permissions.DUMMY}.
+     */
     public Permissions getPermissionsForGroup(Long group) {
         if (group == null || groupPermissionsMap == null) {
             return null;
