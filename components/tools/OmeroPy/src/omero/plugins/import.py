@@ -82,7 +82,7 @@ class ImportControl(BaseControl):
             "---errs", nargs="?",
             help="File for storing the standard err of the Java process")
         parser.add_argument(
-            "--clientdir", type="str",
+            "--clientdir", type=str,
             help="Path the the directory containing the client JARs. "
             " Default: lib/client")
 
