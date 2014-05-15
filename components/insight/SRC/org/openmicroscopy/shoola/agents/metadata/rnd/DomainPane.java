@@ -67,6 +67,7 @@ import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.ViewedByItem;
 import org.openmicroscopy.shoola.agents.util.ui.ChannelButton;
+import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.ui.ColorListRenderer;
 import org.openmicroscopy.shoola.util.ui.SeparatorPane;
@@ -1028,10 +1029,11 @@ public class DomainPane
      * Builds and lays out the images as seen by other experimenters.
      *  
      * @param results The thumbnails to lay out.
+     * @param activeRndDef The rendering setting which is currently used
      */
-    void displayViewedBy(List<ViewedByItem> results)
+    void displayViewedBy(List<ViewedByItem> results, RndProxyDef activeRndDef)
     {
-    	graphicsPane.displayViewedBy(results);
+    	graphicsPane.displayViewedBy(results, activeRndDef);
     }
     
     /**

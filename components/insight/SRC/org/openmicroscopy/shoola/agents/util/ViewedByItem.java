@@ -61,7 +61,7 @@ import pojos.ExperimenterData;
 public class ViewedByItem extends JLabel implements ActionListener {
 
     /** The maximum width or height of the icon. */
-    public static final int MAX_ICON_SIZE = 32;
+    public static final int MAX_ICON_SIZE = 82;
 
     /** Bound property indicating to apply the rendering settings. */
     public static final String VIEWED_BY_PROPERTY = "viewedBy";

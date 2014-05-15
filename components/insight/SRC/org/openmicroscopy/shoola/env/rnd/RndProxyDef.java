@@ -106,7 +106,7 @@ public class RndProxyDef
         channels = new HashMap<Integer, ChannelBindingsProxy>();
         name = "";
     }
-
+    
     /**
      * Sets the name associated to the rendering def. 
      * 
@@ -341,6 +341,6 @@ public class RndProxyDef
      *
      * @return See above.
      */
-    RenderingDef getData() { return data; }
+    public RenderingDef getData() { return data; }
 
 }

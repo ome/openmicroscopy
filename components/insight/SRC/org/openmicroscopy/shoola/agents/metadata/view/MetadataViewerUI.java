@@ -117,11 +117,10 @@ class MetadataViewerUI
 	 */
 	private Point						location;
 	
-	/** The menu displaying the user who viewed the image. */
-	private JPopupMenu					viewedByMenu;
-	
 	/** The item used to display the thumbnails. */
 	private JMenuItem					thumbnailsMenuItem;
+	
+	private List<ViewedByItem> viewedByItems = new ArrayList<ViewedByItem>();
 	
 	/** 
      * Returns the message corresponding to the <code>DataObject</code>.
@@ -206,7 +205,7 @@ class MetadataViewerUI
 				model.getRefObjectName());
 		uiDelegate.revalidate();
 		uiDelegate.repaint();
-		viewedByMenu = null;
+		viewedByItems.clear();
 	}
 	
 	/**
@@ -246,73 +245,21 @@ class MetadataViewerUI
      */
 	void viewedBy(Component source, Point location)
 	{
-		if (viewedByMenu == null) {
+		if (viewedByItems.isEmpty()) {
 			Map m = model.getViewedBy();
-			viewedByMenu = new JPopupMenu();
-			ViewerSorter sorter = new ViewerSorter();
-			List list = sorter.sort(m.keySet());
-			Iterator i = list.iterator();
+			Iterator i = m.keySet().iterator();
 			ViewedByItem item ;
 			ExperimenterData exp;
 			while (i.hasNext()) {
 				exp = (ExperimenterData) i.next();
-				item = new ViewedByItem(exp, (RndProxyDef) m.get(exp));
+				ImageData img = (ImageData)model.getRefObject();
+				boolean isOwnerSetting = img.getOwner().getId()==exp.getId();
+				item = new ViewedByItem(exp, (RndProxyDef) m.get(exp), isOwnerSetting);
 				item.addPropertyChangeListener(
 						ViewedByItem.VIEWED_BY_PROPERTY, this);
-				viewedByMenu.add(item);
-			}
-			if (list.size() == 0) {
-				thumbnailsMenuItem = new JMenuItem("Not viewed");
-				thumbnailsMenuItem.setToolTipText("No other users " +
-						"viewed the image.");
-			} else {
-				IconManager icons = IconManager.getInstance();
-				thumbnailsMenuItem = new JMenuItem("Show thumbnails");
-				thumbnailsMenuItem.setIcon(icons.getIcon(
-						IconManager.PREVIEW_THUMBNAILS_32));
-				thumbnailsMenuItem.addActionListener(new ActionListener() {
-					
-					public void actionPerformed(ActionEvent e)
-					{
-						showViewedBy();
-					}
-				});
-			}
-			
-			viewedByMenu.add(thumbnailsMenuItem);
-		}
-		
-		if(source!=null && location!=null) {
-		    viewedByMenu.show(source, location.x, location.y);
-		}
-	}
-	
-	/** Displays all the thumbnails. */
-	private void showViewedBy()
-	{
-		if (viewedByMenu == null) return;
-		ViewedByItem item, itemNew;
-		Component comp;
-		BufferedImage img;
-		Component[] components = viewedByMenu.getComponents();
-		List<ViewedByItem> items = new ArrayList<ViewedByItem>();
-		for (int i = 0; i < components.length; i++) {
-			comp = components[i];
-			if (comp instanceof ViewedByItem) {
-				item = (ViewedByItem) comp;
-				img = item.getImage();
-				if (img != null) {
-					item.setImage(img);
-					itemNew = new ViewedByItem(item.getExperimenter(), 
-							item.getRndDef());
-					itemNew.setImage(img);
-					itemNew.addPropertyChangeListener(
-							ViewedByItem.VIEWED_BY_PROPERTY, this);
-					items.add(itemNew);
-				}
+				viewedByItems.add(item);
 			}
 		}
-		model.getEditor().getRenderer().loadRndSettings(true, items);
 	}
 	
 	/** 
@@ -320,34 +267,17 @@ class MetadataViewerUI
 	 * 
 	 * @param thumbnails The value to set.
 	 */
-	void setThumbnails(Map<Long, BufferedImage> thumbnails)
-	{
-		if (viewedByMenu == null) return;
-		Component[] components = viewedByMenu.getComponents();
-		Component comp;
-		ViewedByItem item, itemNew;
-		BufferedImage img;
-		List<ViewedByItem> items = new ArrayList<ViewedByItem>();
-		for (int i = 0; i < components.length; i++) {
-			comp = components[i];
-			if (comp instanceof ViewedByItem) {
-				item = (ViewedByItem) comp;
-				img = thumbnails.get(item.getExperimenterID());
-				if (img != null) {
-					item.setImage(img);
-					itemNew = new ViewedByItem(item.getExperimenter(), 
-							item.getRndDef());
-					itemNew.setImage(img);
-					itemNew.addPropertyChangeListener(
-							ViewedByItem.VIEWED_BY_PROPERTY, this);
-					items.add(itemNew);
-				}
-			}
-		}
-
-		thumbnailsMenuItem.setEnabled(items.size() > 0);
-		model.getEditor().getRenderer().loadRndSettings(true, items);
-	}
+        void setThumbnails(Map<Long, BufferedImage> thumbnails) {
+            if (viewedByItems.isEmpty())
+                return;
+            for (ViewedByItem item : viewedByItems) {
+                BufferedImage img = thumbnails.get(item.getExperimenterID());
+                if (img != null) {
+                    item.setImage(img);
+                }
+            }
+            model.getEditor().getRenderer().loadRndSettings(true, viewedByItems);
+        }
 	
 	/**
 	 * Sets the rendering settings.
