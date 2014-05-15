@@ -281,80 +281,102 @@ public class OMEROMetadataStore
      */
     public void updateReferences(Map<String, String[]> referenceCache)
     {
-    	for (String target : referenceCache.keySet())
-    	{
-    		for (String reference : referenceCache.get(target))
-    		{
-    			LSID targetLSID = new LSID(target);
-    			IObject targetObject = lsidMap.get(targetLSID);
-    			LSID referenceLSID = new LSID(reference);
-    			IObject referenceObject = lsidMap.get(
-    					new LSID(stripCustomSuffix(reference)));
-    			if (targetObject instanceof DetectorSettings)
-    			{
-    				if (referenceObject instanceof Detector)
-    				{
-    					handleReference((DetectorSettings) targetObject,
-    							(Detector) referenceObject);
-    					continue;
-    				}
-    			}
-    			else if (targetObject instanceof Image)
-    			{
-    				if (referenceObject instanceof Instrument)
-    				{
-    					handleReference((Image) targetObject,
-    							(Instrument) referenceObject);
-    					continue;
-    				}
-    				if (referenceObject instanceof Annotation)
-    				{
-    					handleReference((Image) targetObject,
-    							(Annotation) referenceObject);
-    					continue;
-    				}
+        // This function is mostly processing back-refrences. e.g. If the OME Schema
+        // has a AnnotationRef in ROI the referenceObject is Annotation and the
+        // targetObject is ROI.
+        for (String target : referenceCache.keySet())
+        {
+            for (String reference : referenceCache.get(target))
+            {
+                LSID targetLSID = new LSID(target);
+                IObject targetObject = lsidMap.get(targetLSID);
+                LSID referenceLSID = new LSID(reference);
+                IObject referenceObject = lsidMap.get(
+                        new LSID(stripCustomSuffix(reference)));
+
+                log.debug(String.format(
+                        "Updating reference handler for %s(%s) --> %s(%s).",
+                        reference, referenceObject, target, targetObject));
+
+                if (targetObject instanceof DetectorSettings)
+                {
+                    if (referenceObject instanceof Detector)
+                    {
+                        handleReference((DetectorSettings) targetObject,
+                                        (Detector) referenceObject);
+                        continue;
+                    }
+                }
+                else if (targetObject instanceof Image)
+                {
+                    if (referenceObject instanceof Instrument)
+                    {
+                        handleReference((Image) targetObject,
+                                        (Instrument) referenceObject);
+                        continue;
+                    }
+                    if (referenceObject instanceof Annotation)
+                    {
+                        handleReference((Image) targetObject,
+                                        (Annotation) referenceObject);
+                        continue;
+                    }
                     if (referenceObject instanceof Roi)
                     {
                         handleReference((Image) targetObject,
-                                (Roi) referenceObject);
+                                        (Roi) referenceObject);
                         continue;
                     }
                     if (referenceObject instanceof Experiment)
                     {
-                    	handleReference((Image) targetObject,
-                    			(Experiment) referenceObject);
-                    	continue;
-                    }
-    				if (referenceLSID.toString().contains("DatasetI"))
-    				{
-    					int colonIndex = reference.indexOf(":");
-    					long datasetId = Long.parseLong(
-    							reference.substring(colonIndex + 1));
-    					referenceObject = new Dataset(datasetId, false);
-    					handleReference((Image) targetObject,
-    							(Dataset) referenceObject);
-    					continue;
-    				}
-    			}
-    			else if (targetObject instanceof LightSource)
-    			{
-    				if (referenceObject instanceof LightSource)
-    				{
-    					handleReference((LightSource) targetObject,
-    							(LightSource) referenceObject);
-    					continue;
-    				}
-                    if (referenceObject instanceof Annotation) {
-                        handleReference((LightSource) targetObject,
-                            (Annotation) referenceObject);
+                        handleReference((Image) targetObject,
+                                        (Experiment) referenceObject);
                         continue;
                     }
-    			}
+                    if (referenceObject instanceof MicrobeamManipulation)
+                    {
+                        handleReference((Image) targetObject,
+                                        (MicrobeamManipulation) referenceObject);
+                        continue;
+                    }
+                    if (referenceLSID.toString().contains("DatasetI"))
+                    {
+                        int colonIndex = reference.indexOf(":");
+                        long datasetId = Long.parseLong(
+                                reference.substring(colonIndex + 1));
+                        referenceObject = new Dataset(datasetId, false);
+                        handleReference((Image) targetObject,
+                                        (Dataset) referenceObject);
+                        continue;
+                    }
+                }
+                else if (targetObject instanceof PlaneInfo)
+                {
+                    if (referenceObject instanceof Annotation) {
+                        handleReference((PlaneInfo) targetObject,
+                                        (Annotation) referenceObject);
+                        continue;
+                    }
+                }
+                else if (targetObject instanceof LightSource)
+                {
+                    if (referenceObject instanceof LightSource)
+                    {
+                        handleReference((LightSource) targetObject,
+                                        (LightSource) referenceObject);
+                        continue;
+                    }
+                    if (referenceObject instanceof Annotation) {
+                        handleReference((LightSource) targetObject,
+                                        (Annotation) referenceObject);
+                        continue;
+                    }
+                }
                 else if (targetObject instanceof Detector)
                 {
                     if (referenceObject instanceof Annotation) {
                         handleReference((Detector) targetObject,
-                            (Annotation) referenceObject);
+                                        (Annotation) referenceObject);
                         continue;
                     }
                 }
@@ -362,7 +384,7 @@ public class OMEROMetadataStore
                 {
                     if (referenceObject instanceof Annotation) {
                         handleReference((Dichroic) targetObject,
-                            (Annotation) referenceObject);
+                                        (Annotation) referenceObject);
                         continue;
                     }
                 }
@@ -370,7 +392,7 @@ public class OMEROMetadataStore
                 {
                     if (referenceObject instanceof Annotation) {
                         handleReference((Filter) targetObject,
-                            (Annotation) referenceObject);
+                                        (Annotation) referenceObject);
                         continue;
                     }
                 }
@@ -378,7 +400,7 @@ public class OMEROMetadataStore
                 {
                     if (referenceObject instanceof Annotation) {
                         handleReference((Instrument) targetObject,
-                            (Annotation) referenceObject);
+                                        (Annotation) referenceObject);
                         continue;
                     }
                 }
@@ -386,7 +408,7 @@ public class OMEROMetadataStore
                 {
                     if (referenceObject instanceof Annotation) {
                         handleReference((Objective) targetObject,
-                            (Annotation) referenceObject);
+                                        (Annotation) referenceObject);
                         continue;
                     }
                 }
@@ -394,36 +416,36 @@ public class OMEROMetadataStore
                 {
                     if (referenceObject instanceof Annotation) {
                         handleReference((Shape) targetObject,
-                            (Annotation) referenceObject);
+                                        (Annotation) referenceObject);
                         continue;
                     }
                 }
-    			else if (targetObject instanceof LightSettings)
-    			{
-    				if (referenceObject instanceof LightSource)
-    				{
-    					handleReference((LightSettings) targetObject,
-    							(LightSource) referenceObject);
-    					continue;
-    				}
-    			}
+                else if (targetObject instanceof LightSettings)
+                {
+                    if (referenceObject instanceof LightSource)
+                    {
+                        handleReference((LightSettings) targetObject,
+                                        (LightSource) referenceObject);
+                        continue;
+                    }
+                }
                 else if (targetObject instanceof LightPath)
                 {
                     if (referenceObject instanceof Dichroic)
                     {
                         handleReference((LightPath) targetObject,
-                                (Dichroic) referenceObject);
+                                        (Dichroic) referenceObject);
                         continue;
                     }
                     if (referenceObject instanceof Filter)
                     {
                         handleReference((LightPath) targetObject,
-                                (Filter) referenceObject, referenceLSID);
+                                        (Filter) referenceObject, referenceLSID);
                         continue;
                     }
                     if (referenceObject instanceof Annotation) {
                         handleReference((LightPath) targetObject,
-                            (Annotation) referenceObject);
+                                        (Annotation) referenceObject);
                         continue;
                     }
                 }
@@ -436,125 +458,125 @@ public class OMEROMetadataStore
                         continue;
                     }
                     if (referenceObject instanceof Annotation) {
-                        handleReference((Reagent) targetObject,
-                            (Annotation) referenceObject);
+                        handleReference((Channel) targetObject,
+                                        (Annotation) referenceObject);
                         continue;
                     }
                 }
-    			else if (targetObject instanceof LogicalChannel)
-    			{
-    				if (referenceObject instanceof Filter)
-    				{
-    					handleReference((LogicalChannel) targetObject,
-						                (Filter) referenceObject,
-						                referenceLSID);
-    					continue;
-    				}
-    				if (referenceObject instanceof FilterSet)
-    				{
-    					handleReference((LogicalChannel) targetObject,
-    							        (FilterSet) referenceObject);
-    					continue;
-    				}
-    			}
-    			else if (targetObject instanceof OTF)
-    			{
-    				if (referenceObject instanceof Objective)
-    				{
-    					handleReference((OTF) targetObject,
-    							(Objective) referenceObject);
-    					continue;
-    				}
+                else if (targetObject instanceof LogicalChannel)
+                {
+                    if (referenceObject instanceof Filter)
+                    {
+                        handleReference((LogicalChannel) targetObject,
+                                        (Filter) referenceObject,
+                                        referenceLSID);
+                        continue;
+                    }
+                    if (referenceObject instanceof FilterSet)
+                    {
+                        handleReference((LogicalChannel) targetObject,
+                                        (FilterSet) referenceObject);
+                        continue;
+                    }
+                }
+                else if (targetObject instanceof OTF)
+                {
+                    if (referenceObject instanceof Objective)
+                    {
+                        handleReference((OTF) targetObject,
+                                        (Objective) referenceObject);
+                        continue;
+                    }
                     if (referenceObject instanceof FilterSet)
                     {
                         handleReference((OTF) targetObject,
                                         (FilterSet) referenceObject);
                         continue;
                     }
-    			}
-    			else if (targetObject instanceof ObjectiveSettings)
-    			{
-    				if (referenceObject instanceof Objective)
-    				{
-    					handleReference((ObjectiveSettings) targetObject,
-    							(Objective) referenceObject);
-    					continue;
-    				}
-    			}
-    			else if (targetObject instanceof WellSample)
-    			{
-    				if (referenceObject instanceof Image)
-    				{
-    					handleReference((WellSample) targetObject,
-    							(Image) referenceObject);
-    					continue;
-    				}
-    			}
-    			else if (targetObject instanceof PlateAcquisition)
+                }
+                else if (targetObject instanceof ObjectiveSettings)
+                {
+                    if (referenceObject instanceof Objective)
+                    {
+                        handleReference((ObjectiveSettings) targetObject,
+                                        (Objective) referenceObject);
+                        continue;
+                    }
+                }
+                else if (targetObject instanceof WellSample)
+                {
+                    if (referenceObject instanceof Image)
+                    {
+                        handleReference((WellSample) targetObject,
+                                        (Image) referenceObject);
+                        continue;
+                    }
+                }
+                else if (targetObject instanceof PlateAcquisition)
                 {
                     if (referenceObject instanceof WellSample)
                     {
                         handleReference((PlateAcquisition) targetObject,
-                                (WellSample) referenceObject);
+                                        (WellSample) referenceObject);
                         continue;
                     }
                     if (referenceObject instanceof Annotation)
                     {
                         handleReference((PlateAcquisition) targetObject,
-                            (Annotation) referenceObject);
+                                        (Annotation) referenceObject);
                         continue;
                     }
                 }
-    			else if (targetObject instanceof Pixels)
-    			{
-    				if (referenceObject instanceof OriginalFile)
-    				{
-    					handleReference((Pixels) targetObject,
-    							(OriginalFile) referenceObject);
-    					continue;
-    				}
-    			}
-    			else if (targetObject instanceof FilterSet)
-    			{
-    				if (referenceObject instanceof Filter)
-    				{
-    					handleReference((FilterSet) targetObject,
-						                (Filter) referenceObject,
-						                referenceLSID);
-    					continue;
-    				}
-    				if (referenceObject instanceof Dichroic)
-    				{
-    					handleReference((FilterSet) targetObject,
-    							        (Dichroic) referenceObject);
-    					continue;
-    				}
-    			}
-    			else if (targetObject instanceof Plate)
-    			{
-    				if (referenceLSID.toString().contains("ScreenI"))
-    				{
-    					int colonIndex = reference.indexOf(":");
-    					long screenId = Long.parseLong(
-    							reference.substring(colonIndex + 1));
-    					referenceObject = new Screen(screenId, false);
-    					handleReference((Plate) targetObject,
-    							(Screen) referenceObject);
-    					continue;
-    				}
-    				if (referenceObject instanceof Screen)
-    				{
-                        handleReference((Plate) targetObject,
-                                (Screen) referenceObject);
+                else if (targetObject instanceof Pixels)
+                {
+                    if (referenceObject instanceof OriginalFile)
+                    {
+                        handleReference((Pixels) targetObject,
+                                        (OriginalFile) referenceObject);
                         continue;
-    				}
-    				if (referenceObject instanceof Annotation)
-    				{
-    					handleReference((Plate) targetObject,
-    							(Annotation) referenceObject);
-    					continue;
-    				}
-    			}
+                    }
+                }
+                else if (targetObject instanceof FilterSet)
+                {
+                    if (referenceObject instanceof Filter)
+                    {
+                        handleReference((FilterSet) targetObject,
+                                        (Filter) referenceObject,
+                                        referenceLSID);
+                        continue;
+                    }
+                    if (referenceObject instanceof Dichroic)
+                    {
+                        handleReference((FilterSet) targetObject,
+                                        (Dichroic) referenceObject);
+                        continue;
+                    }
+                }
+                else if (targetObject instanceof Plate)
+                {
+                    if (referenceLSID.toString().contains("ScreenI"))
+                    {
+                        int colonIndex = reference.indexOf(":");
+                        long screenId = Long.parseLong(
+                                reference.substring(colonIndex + 1));
+                        referenceObject = new Screen(screenId, false);
+                        handleReference((Plate) targetObject,
+                                        (Screen) referenceObject);
+                        continue;
+                    }
+                    if (referenceObject instanceof Screen)
+                    {
+                        handleReference((Plate) targetObject,
+                                        (Screen) referenceObject);
+                        continue;
+                    }
+                    if (referenceObject instanceof Annotation)
+                    {
+                        handleReference((Plate) targetObject,
+                                        (Annotation) referenceObject);
+                        continue;
+                    }
+                }
                 else if (targetObject instanceof Screen)
                 {
                     if (referenceObject instanceof Plate)
@@ -563,62 +585,77 @@ public class OMEROMetadataStore
                                         (Plate) referenceObject);
                         continue;
                     }
-										if (referenceObject instanceof Annotation) {
-												handleReference((Screen) targetObject,
-														(Annotation) referenceObject);
-												continue;
-										}
+                    if (referenceObject instanceof Annotation) {
+                            handleReference((Screen) targetObject,
+                                            (Annotation) referenceObject);
+                            continue;
+                    }
                 }
-    			else if (targetObject instanceof Well)
-    			{
-    				if (referenceObject instanceof Reagent)
-    				{
-    					handleReference((Well) targetObject,
-    							        (Reagent) referenceObject);
-    					continue;
-    				}
-    			}
+                else if (targetObject instanceof Well)
+                {
+                    if (referenceObject instanceof Reagent)
+                    {
+                        handleReference((Well) targetObject,
+                                        (Reagent) referenceObject);
+                        continue;
+                    }
+                }
                 else if (targetObject instanceof Reagent)
                 {
                     if (referenceObject instanceof Annotation) {
                         handleReference((Reagent) targetObject,
-                            (Annotation) referenceObject);
+                                        (Annotation) referenceObject);
                         continue;
                     }
                 }
-    			else if (targetObject instanceof FileAnnotation)
-    			{
-    				if (referenceObject instanceof OriginalFile)
-    				{
-    					handleReference((FileAnnotation) targetObject,
-    							(OriginalFile) referenceObject);
-    					continue;
-    				}
-    			}
-          else if (targetObject instanceof Annotation)
-          {
-            if (referenceObject instanceof Annotation)
-            {
-              handleReference((Annotation) targetObject,
-                (Annotation) referenceObject);
-              continue;
+                else if (targetObject instanceof FileAnnotation)
+                {
+                    if (referenceObject instanceof OriginalFile)
+                    {
+                        handleReference((FileAnnotation) targetObject,
+                                        (OriginalFile) referenceObject);
+                        continue;
+                    }
+                }
+                else if (targetObject instanceof Annotation)
+                {
+                    if (referenceObject instanceof Annotation)
+                    {
+                        handleReference((Annotation) targetObject,
+                                        (Annotation) referenceObject);
+                        continue;
+                    }
+                }
+                else if (targetObject instanceof MicrobeamManipulation)
+                {
+                    if (referenceObject instanceof Roi)
+                    {
+                        handleReference((MicrobeamManipulation) targetObject,
+                                        (Roi) referenceObject);
+                        continue;
+                    }
+                }
+                else if (targetObject instanceof Roi)
+                {
+                    if (referenceObject instanceof Annotation) {
+                        handleReference((Roi) targetObject,
+                                        (Annotation) referenceObject);
+                        continue;
+                    }
+                }
+                else if (targetObject instanceof PlateAcquisition)
+                {
+                    if (referenceObject instanceof Annotation) {
+                        handleReference((PlateAcquisition) targetObject,
+                                        (Annotation) referenceObject);
+                        continue;
+                    }
+                }
+                throw new ApiUsageException(String.format(
+                    "Missing reference handler for %s(%s) --> %s(%s) reference.",
+                    reference, referenceObject, target, targetObject));
             }
-          }
-					else if (targetObject instanceof MicrobeamManipulation)
-					{
-						if (referenceObject instanceof Roi)
-						{
-							handleReference((MicrobeamManipulation) targetObject,
-								(Roi) referenceObject);
-							continue;
-						}
-					}
-
-    			throw new ApiUsageException(String.format(
-    					"Missing reference handler for %s(%s) --> %s(%s) reference.",
-    					reference, referenceObject, target, targetObject));
-    		}
-    	}
+        }
     }
     
     /**
@@ -1243,6 +1280,17 @@ public class OMEROMetadataStore
      * @param target Target model object.
      * @param reference Reference model object.
      */
+    private void handleReference(Channel target, Annotation reference)
+    {
+        target.linkAnnotation(reference);
+    }
+
+    /**
+     * Handles linking a specific reference object to a target object in our
+     * object graph.
+     * @param target Target model object.
+     * @param reference Reference model object.
+     */
     private void handleReference(LogicalChannel target, FilterSet reference)
     {
     	target.setFilterSet(reference);
@@ -1433,6 +1481,17 @@ public class OMEROMetadataStore
      * @param target Target model object.
      * @param reference Reference model object.
      */
+    private void handleReference(Image target, MicrobeamManipulation reference)
+    {
+// PROBLEM
+    }
+
+    /**
+     * Handles linking a specific reference object to a target object in our
+     * object graph.
+     * @param target Target model object.
+     * @param reference Reference model object.
+     */
     private void handleReference(Screen target, Plate reference)
     {
         if (!target.linkedPlateList().contains(reference))
@@ -1444,12 +1503,12 @@ public class OMEROMetadataStore
     /**
      * Handles linking a specific reference object to a target object in our
      * object graph.
-     * @param target Target model objct.
+     * @param target Target model object.
      * @param reference Reference model object.
      */
     private void handleReference(Screen target, Annotation reference)
     {
-				target.linkAnnotation(reference);
+        target.linkAnnotation(reference);
     }
 
     /**
@@ -1463,7 +1522,6 @@ public class OMEROMetadataStore
         target.linkAnnotation(reference);
     }
 
-///
     /**
      * Handles linking a specific reference object to a target object in our
      * object graph.
@@ -1563,7 +1621,27 @@ public class OMEROMetadataStore
         target.linkAnnotation(reference);
     }
 
-///
+    /**
+     * Handles linking a specific reference object to a target object in our
+     * object graph.
+     * @param target Target model object.
+     * @param reference Reference model object.
+     */
+    private void handleReference(Roi target, Annotation reference)
+    {
+        target.linkAnnotation(reference);
+    }
+
+    /**
+     * Handles linking a specific reference object to a target object in our
+     * object graph.
+     * @param target Target model object.
+     * @param reference Reference model object.
+     */
+    private void handleReference(PlaneInfo target, Annotation reference)
+    {
+        target.linkAnnotation(reference);
+    }
 
     /**
      * Handles linking a specific reference object to a target object in our
