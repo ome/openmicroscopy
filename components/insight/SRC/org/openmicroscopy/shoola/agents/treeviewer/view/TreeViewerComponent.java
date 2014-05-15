@@ -1435,7 +1435,7 @@ class TreeViewerComponent
             } catch (Exception e) {
                 UserNotifier un =
                         TreeViewerAgent.getRegistry().getUserNotifier();
-                un.notifyInfo("Image Not valid", 
+                un.notifyInfo("Image Not Valid", 
                         "The selected image is not valid.");
                 return;
             }
@@ -1444,7 +1444,7 @@ class TreeViewerComponent
             if (ws.getId() < 0) {
                 UserNotifier un =
                         TreeViewerAgent.getRegistry().getUserNotifier();
-                un.notifyInfo("Well Not valid", 
+                un.notifyInfo("Well Not Valid", 
                         "The selected well is not valid.");
                 return;
             }
