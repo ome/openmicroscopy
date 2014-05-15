@@ -215,7 +215,7 @@ class ImportControl(BaseControl):
             "java_upload": "--upload",
             "java_logs": "--logs",
             "java_email": "--email",
-            "java_debug": "--debug",
+            "java_debug": ("--debug",),
             "java_ns": "--annotation_ns",
             "java_text": "--annotation_text",
             "java_link": "--annotation_link",
