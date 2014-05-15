@@ -244,7 +244,9 @@ public class ManageImageBinariesI extends ManageImageBinaries implements
     }
 
     private void requireFileset(String which) {
-        throw helper.cancel(new ERR(), null, which + "-requires-fileset");
+        if (rsp.filesetId == null) {
+            throw helper.cancel(new ERR(), null, which + "-requires-fileset");
+        }
     }
 
     private void processFile(String which, File file, File dest) {
