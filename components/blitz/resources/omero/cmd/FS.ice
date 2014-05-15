@@ -78,36 +78,38 @@ module omero {
          * which may be linked to an [omero::model::Image].
          *
          * This can be useful, e.g., after converting pre-OMERO-5
-         * attached original files into [omero::model::Fileset].
+         * archived original files into [omero::model::Fileset].
          *
          * The command works in several stages:
          *
-         *   1. turns attached files into a fileset if none is present;
-         *   2. deletes attached files if present;
-         *   3. deletes Pyramid files if preset.
-         *   4. deletes existing Pixel files if preset;
+         *   1. loads an [omero::model::Image] by id, failing if none present.
+         *   2. renames Pixels file to '*_bak'
+         *   3. deletes existing Pyramidfiles if present;
          *
          * This command can be run multiple times with different settings
          * to iteratively test if the migration is working.
          **/
-        class ImageBinariesRequest extends Request {
+        class ManageImageBinaries extends Request {
 
             long imageId;
-            bool deletePixels;
+            bool togglePixels;
             bool deletePyramid;
 
         };
 
         /**
-         * [Response] from a [ImageBinariesRequest] [Request].
+         * [Response] from a [ManageImageBinaries] [Request].
          * If no action is requested, then the fields of this
          * instance can be examined to see what would be done
          * if requested.
          */
-        class ImageBinariesResponse extends Response {
+        class ManageImageBinariesResponse extends Response {
 
             omero::RLong filesetId;
-            omero::api::LongList attachedFiles;
+            omero::api::LongList archivedFiles;
+            bool pixelsPresent;
+            bool pyramidPresent;
+            long archivedSize;
             long pixelSize;
             long pyramidSize;
             long thumbnailSize;
