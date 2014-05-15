@@ -172,21 +172,17 @@ public class ManagedRepositoryI extends PublicRepositoryI
      * Split a template path into the root- and user-owned segments
      * @param templatePath a template path
      * @return the root- and user-owned segments
-     * @throws ApiUsageException if there is not a <q>//</q> with directories on each side
+     * @throws ApiUsageException if there are no user-owned components
      */
     private static Map.Entry<FsFile, FsFile> splitPath(String templatePath) throws omero.ApiUsageException {
-        final int splitPoint = templatePath.lastIndexOf("//");
+        int splitPoint = templatePath.lastIndexOf("//");
         if (splitPoint < 0) {
-            throw new omero.ApiUsageException(null, null, "must separate root- and user-owned directories using //");
+            splitPoint = 0;
         }
 
         final FsFile rootPath = new FsFile(templatePath.substring(0, splitPoint));
-        if (FsFile.emptyPath.equals(rootPath)) {
-            throw new omero.ApiUsageException(null, null,
-                    "no root-owned directories in managed repository template path");
-        }
-
         final FsFile userPath = new FsFile(templatePath.substring(splitPoint));
+
         if (FsFile.emptyPath.equals(userPath)) {
             throw new omero.ApiUsageException(null, null,
                     "no user-owned directories in managed repository template path");
@@ -517,9 +513,11 @@ public class ManagedRepositoryI extends PublicRepositoryI
      * The full path must not already exist, although a prefix of it may.
      */
     protected void createTemplateDir(FsFile rootOwnedPath, FsFile userOwnedPath, Ice.Current curr) throws ServerError {
-        final Current rootCurr = sudo(curr, rootSessionUuid);
-        rootCurr.ctx.put(omero.constants.GROUP.value, Long.toString(userGroupId));
-        makeDir(rootOwnedPath.toString(), true, rootCurr);
+        if (!rootOwnedPath.getComponents().isEmpty()) {
+            final Current rootCurr = sudo(curr, rootSessionUuid);
+            rootCurr.ctx.put(omero.constants.GROUP.value, Long.toString(userGroupId));
+            makeDir(rootOwnedPath.toString(), true, rootCurr);
+        }
 
         final FsFile relPath = FsFile.concatenate(rootOwnedPath, userOwnedPath);
 
