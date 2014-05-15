@@ -441,7 +441,11 @@ public class ManagedRepositoryI extends PublicRepositoryI
                     final FilesetVersionInfo versionInfo = ((UploadJob) job).getVersionInfo(__current);
                     final String readerName = versionInfo.getBioformatsReader(__current).getValue();
                     potentialReaderClass = Class.forName(readerName);
-                } catch (Exception e) { // Class cast, Null pointer, etc.
+                } catch (NullPointerException npe) {
+                    log.debug("No info provided for reader class");
+                    continue;
+                } catch (Exception e) {
+                    log.warn("Error getting reader class", e);
                     continue;
                 }
                 if (FormatReader.class.isAssignableFrom(potentialReaderClass)) {
