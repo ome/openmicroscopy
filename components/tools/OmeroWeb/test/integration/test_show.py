@@ -538,36 +538,6 @@ def well_by_name_path_request(
     }
 
 
-@pytest.fixture(scope='function')
-def screen_plate_run_well_by_name_path_request(
-        request, screen_plate_run_well, request_factory, path, well_name):
-    """
-    Returns a simple GET request object with the 'path' query string
-    variable set in the new ("well.key=value") form with a PlateAcquisition
-    'run'.
-    """
-    plate, = screen_plate_run_well.linkedPlateList()
-    well_a, well_b = sorted(plate.copyWells(), cmp_well_column)
-    ws, = well_a.copyWellSamples()
-    plate_acquisition = ws.plateAcquisition
-    as_string = 'plate.name=%s|well.name=%s' % (plate.name.val, well_name)
-    initially_select = [
-        'acquisition-%d' % plate_acquisition.id.val,
-        'well-%d' % well_a.id.val
-    ]
-    initially_open = [
-        'screen-%d' % screen_plate_run_well.id.val,
-        'plate-%d' % plate.id.val,
-        'acquisition-%d' % plate_acquisition.id.val,
-        'well-%d' % well_a.id.val
-    ]
-    return {
-        'request': request_factory.get(path, data={'path': as_string}),
-        'initially_select': initially_select,
-        'initially_open': initially_open
-    }
-
-
 @pytest.fixture(scope='module', params=[
     'plate.name=%(plate_name)s|well.name=%(well_name)s',
     'run=%(plate_acquisition_id)s|well.name=%(well_name)s'
