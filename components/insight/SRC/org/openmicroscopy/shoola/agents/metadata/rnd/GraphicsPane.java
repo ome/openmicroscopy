@@ -35,6 +35,7 @@ import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JComponent;
@@ -52,6 +53,7 @@ import org.jdesktop.swingx.JXTaskPane;
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.actions.ManageRndSettingsAction;
 import org.openmicroscopy.shoola.agents.util.ViewedByItem;
+import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.slider.TextualTwoKnobsSlider;
 import org.openmicroscopy.shoola.util.ui.slider.TwoKnobsSlider;
@@ -126,6 +128,8 @@ class GraphicsPane
     /** The preview tool bar. */
     private PreviewToolBar previewToolBar;
 
+    private List<ViewedByItem> viewedByItems;
+    
     /**
      * Formats the specified value.
      * 
@@ -483,29 +487,34 @@ class GraphicsPane
      */
     void displayViewedBy(List<ViewedByItem> results)
     {
-        if (results == null) return;
+        if (results == null) 
+            return;
+        
+        this.viewedByItems = results;
+        
         JPanel p = new JPanel();
         p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
         p.setBackground(UIUtilities.BACKGROUND_COLOR);
-        Iterator<ViewedByItem> i = results.iterator();
+        Iterator<ViewedByItem> i = viewedByItems.iterator();
         JPanel row = null;
         int index = 0;
         ViewedByItem item;
         int maxPerRow = 2;
         while (i.hasNext()) {
             item = i.next();
+            item.addPropertyChangeListener(this);
             if (index == 0) {
                 row = new JPanel();
                 row.setBackground(UIUtilities.BACKGROUND_COLOR);
                 row.setLayout(new FlowLayout(FlowLayout.LEFT));
-                row.add(item);
+                row.add(createViewedByPanel(item));
                 index++;
             } else if (index == maxPerRow) {
-                row.add(item);
+                row.add(createViewedByPanel(item));
                 p.add(row);
                 index = 0;
             } else {
-                row.add(item);
+                row.add(createViewedByPanel(item));
                 index++;
             }
         }
@@ -516,6 +525,25 @@ class GraphicsPane
         viewedBy.add(content);
     }
 
+    private JPanel createViewedByPanel(ViewedByItem item) {
+        JPanel viewedByPanel = new JPanel();
+        viewedByPanel.setBackground(UIUtilities.BACKGROUND_COLOR);
+        viewedByPanel.setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
+        viewedByPanel.add(item);
+        return viewedByPanel;
+    }
+    
+    void highlight(RndProxyDef def) {
+        for(ViewedByItem item : viewedByItems) {
+            if(item.getRndDef()==def) {
+                ((JPanel)item.getParent()).setBorder(BorderFactory.createLineBorder(UIUtilities.STEELBLUE, 2));
+            }
+            else {
+                ((JPanel)item.getParent()).setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
+            }
+        }
+    }
+    
     /**
      * Returns the slider used to set the codomain interval.
      * 
@@ -600,6 +628,10 @@ class GraphicsPane
                     onCurveChange();
                 }
             }
+        }
+        if(ViewedByItem.VIEWED_BY_PROPERTY.equals(name)) {
+            RndProxyDef def = (RndProxyDef)evt.getNewValue();
+            highlight(def);
         }
     }
 
