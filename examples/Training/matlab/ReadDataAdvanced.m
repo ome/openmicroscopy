@@ -14,13 +14,11 @@
 % You should have received a copy of the GNU General Public License along
 % with this program; if not, write to the Free Software Foundation, Inc.,
 % 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-% Information to edit
-datasetName = 'myDataset';
-tagNs = 'training.ns';
-tagName = 'myTagName';
 
-% Load Data
+
 try
+    % Initialize a client and a session using the ice.config file
+    % See ConnectToOMERO for alternative ways to initialize a session
     [client, session] = loadOmero();
     p = parseOmeroProperties(client);
     eventContext = session.getAdminService().getEventContext();
@@ -29,6 +27,11 @@ try
     fprintf(1, msg, char(eventContext.userName), eventContext.userId,...
         char(eventContext.groupName), eventContext.groupId);
     
+    % Information to edit
+    datasetName = 'myDataset';
+    tagNs = 'training.ns';
+    tagName = 'myTagName';
+
     %First create datasets
     n = 2;
     for i = 1 : n,

@@ -20,7 +20,8 @@
 % It is possible to delete Projects, datasets, images, ROIs etc and objects
 % linked to them depending on the specified options
 try
-    disp('Creating connection');
+    % Initialize a client and a session using the ice.config file
+    % See ConnectToOMERO for alternative ways to initialize a session
     [client, session] = loadOmero();
     p = parseOmeroProperties(client);
     eventContext = session.getAdminService().getEventContext();
