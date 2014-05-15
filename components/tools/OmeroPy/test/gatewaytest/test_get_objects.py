@@ -14,7 +14,6 @@
 
 """
 
-from omero.rtypes import wrap
 import omero
 import omero_ext.uuid as uuid
 import time
