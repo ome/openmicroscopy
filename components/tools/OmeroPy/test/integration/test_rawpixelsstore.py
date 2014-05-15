@@ -214,3 +214,69 @@ class TestRPS(lib.ITest):
 
         finally:
             rps.close()
+
+
+class TestTiles(lib.ITest):
+
+    def testTiles(self):
+        from omero.model import PixelsI
+        from omero.sys import ParametersI
+        from omero.util.tiles import RPSTileLoop
+        from omero.util.tiles import TileLoopIteration
+        from numpy import fromfunction
+
+        sizeX = 4096
+        sizeY = 4096
+        sizeZ = 1
+        sizeC = 1
+        sizeT = 1
+        tileWidth = 1024
+        tileHeight = 1024
+        imageName = "testStitchBig4K-1Ktiles"
+        description = None
+        tile_max = 255
+
+        pixelsService = self.client.sf.getPixelsService()
+        queryService = self.client.sf.getQueryService()
+
+        query = "from PixelsType as p where p.value='int8'"
+        pixelsType = queryService.findByQuery(query, None)
+        channelList = range(sizeC)
+        iId = pixelsService.createImage(
+            sizeX, sizeY, sizeZ, sizeT,
+            channelList, pixelsType, imageName, description)
+
+        image = queryService.findByQuery(
+            "select i from Image i join fetch i.pixels where i.id = :id",
+            ParametersI().addId(iId))
+        pid = image.getPrimaryPixels().getId().getValue()
+
+        def f(x, y):
+            """
+            create some fake pixel data tile (2D numpy array)
+            """
+            return (x * y)/(1 + x + y)
+
+        def mktile(w, h):
+            tile = fromfunction(f, (w, h))
+            tile = tile.astype(int)
+            tile[tile > tile_max] = tile_max
+            return list(tile.flatten())
+
+        tile = fromfunction(f, (tileWidth, tileHeight)).astype(int)
+        tile_min = float(tile.min())
+        tile_max = min(tile_max, float(tile.max()))
+
+        class Iteration(TileLoopIteration):
+
+            def run(self, data, z, c, t, x, y,
+                    tileWidth, tileHeight, tileCount):
+                tile2d = mktile(tileWidth, tileHeight)
+                data.setTile(tile2d, z, c, t, x, y, tileWidth, tileHeight)
+
+        loop = RPSTileLoop(self.client.sf, PixelsI(pid, False))
+        loop.forEachTile(256, 256, Iteration())
+
+        c = 0
+        pixelsService.setChannelGlobalMinMax(
+            pid, c, tile_min, tile_max)
