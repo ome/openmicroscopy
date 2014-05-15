@@ -82,6 +82,11 @@ class FsControl(BaseControl):
             "--check", action="store_true",
             help="checks each fileset for validity")
 
+        for x in (archived, sets):
+            x.add_argument(
+                "--extended", action="store_true",
+                help="provide more details for each (slow)")
+
     def _table(self, args):
         """
         """
@@ -90,6 +95,27 @@ class FsControl(BaseControl):
         if args.style:
             tb.set_style(args.style)
         return tb
+
+    def _extended_info(self, client, row, values):
+
+        from omero.cmd import ManageImageBinaries
+        from omero.util.text import filesizeformat
+
+        mib = ManageImageBinaries()
+        mib.imageId = row[0]
+        cb = client.submit(mib)
+        try:
+            rsp = cb.getResponse()
+        finally:
+            cb.close(True)
+        if rsp.pixelsPresent:
+            values.append(filesizeformat(rsp.pixelSize))
+        elif rsp.pixelSize == 0:
+            values.append(filesizeformat(0))
+        else:
+            v = "%s (bak)" % filesizeformat(rsp.pixelSize)
+            values.append(v)
+        values.append(filesizeformat(rsp.pyramidSize))
 
     def archived(self, args):
         """List images with archived files.
@@ -104,6 +130,7 @@ Examples:
     bin/omero fs archived --order=newest   # Default
     bin/omero fs archived --order=largest  # Most used space
     bin/omero fs archived --limit=500      # Longer listings
+    bin/omero fs archived --extended       # More details
         """
 
         from omero.rtypes import unwrap
@@ -133,7 +160,6 @@ Examples:
         count = unwrap(service.projection(
             "select count(i) " + query1,
             None, {"omero.group": "-1"}))[0][0]
-        print count
         rows = unwrap(service.projection(
             select + query1 + query2 + query3,
             ParametersI().page(args.offset, args.limit),
@@ -146,11 +172,18 @@ Examples:
             bytes = row[4]
             row[4] = filesizeformat(bytes)
 
+        cols = ["Image", "Name", "FS", "# Files", "Size"]
+        if args.extended:
+            cols.extend(["Pixels", "Pyramid"])
+
         tb = self._table(args)
         tb.page(args.offset, args.limit, count)
-        tb.cols(["Image", "Name", "FS", "# Files", "Size"])
+        tb.cols(cols)
         for idx, row in enumerate(rows):
-            tb.row(idx, *row)
+            values = list(row)
+            if args.extended:
+                self._extended_info(client, row, values)
+            tb.row(idx, *tuple(values))
         self.ctx.out(str(tb.build()))
 
     def repos(self, args):
