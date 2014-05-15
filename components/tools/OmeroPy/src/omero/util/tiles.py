@@ -178,8 +178,9 @@ class RPSTileLoop(TileLoop):
             raise omero.ClientError("pixels instance must be managed!")
         elif not self.pixels.loaded:
             try:
-                self.pixels = getSession().getPixelsService().retrievePixDescription(self.pixels.id.val)
-            except:
+                self.pixels = self.getSession().getPixelsService().retrievePixDescription(self.pixels.id.val)
+            except Exception, e:
+                import omero
                 raise omero.ClientError("Failed to load %s\n%s" % (self.pixels.id.val, e))
 
         sizeX = self.pixels.getSizeX().getValue()
