@@ -376,7 +376,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
         // and return the process.
 
         final ManagedImportProcessI proc = new ManagedImportProcessI(this,
-                managedFs, location, settings, __current, uploadOnly);
+                managedFs, location, settings, __current);
         processes.addProcess(proc);
         return proc.getProxy();
     }
