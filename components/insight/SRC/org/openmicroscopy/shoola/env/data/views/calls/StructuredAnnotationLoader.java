@@ -92,7 +92,7 @@ public class StructuredAnnotationLoader
     		final List<Long> rootIDs, final Class<?> annotationType,
     		final List<String> nsInclude, final List<String> nsExlcude)
     {
-        return new BatchCall("Loading Specified annotation") {
+        return new BatchCall("Loading Specified Annotation") {
             public void doCall() throws Exception
             {
             	OmeroMetadataService os = context.getMetadataService();
@@ -115,7 +115,7 @@ public class StructuredAnnotationLoader
     private BatchCall loadAnnotations(final Class annotationType,
     		final long userID)
     {
-        return new BatchCall("Loading Existing annotations") {
+        return new BatchCall("Loading Existing Annotations") {
             public void doCall() throws Exception
             {
                 OmeroMetadataService os = context.getMetadataService();
@@ -136,7 +136,7 @@ public class StructuredAnnotationLoader
     private BatchCall loadAnnotations(final List<SecurityContext> ctx,
     		final Class annotationType, final long userID)
     {
-        return new BatchCall("Loading Existing annotations") {
+        return new BatchCall("Loading Existing Annotations") {
             public void doCall() throws Exception
             {
                 OmeroMetadataService os = context.getMetadataService();
@@ -206,7 +206,7 @@ public class StructuredAnnotationLoader
      */
     private BatchCall loadStructuredData(final Object object, final long userID)
     {
-        return new BatchCall("Loading Structured data") {
+        return new BatchCall("Loading Structured Data") {
             public void doCall() throws Exception
             {
             	OmeroMetadataService os = context.getMetadataService();
@@ -229,7 +229,7 @@ public class StructuredAnnotationLoader
     private BatchCall loadStructuredData(final List<DataObject> data,
     	final long userID, final boolean viewed)
     {
-        return new BatchCall("Loading Structured data") {
+        return new BatchCall("Loading Structured Data") {
             public void doCall() throws Exception
             {
             	OmeroMetadataService os = context.getMetadataService();
