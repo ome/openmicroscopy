@@ -24,25 +24,25 @@ class TileData(object):
 
     def getTile(self, z, c, t, x, y, w, h):
         """
-        z: int
-        c: int
-        t: int
-        y: int
-        w: int
-        h: int
-        return: byte[]
+        :param z: int
+        :param c: int
+        :param t: int
+        :param y: int
+        :param w: int
+        :param h: int
+        :returns: byte[]
         """
         raise NotImplementedError()
 
     def setTile(self, buffer, z, c, t, x, y, w, h):
         """
         buffer: byte[]
-        z: int
-        c: int
-        t: int
-        y: int
-        w: int
-        h: int
+        :param z: int
+        :param c: int
+        :param t: int
+        :param y: int
+        :param w: int
+        :param h: int
         """
         raise NotImplementedError();
 
@@ -57,7 +57,7 @@ class TileLoop(object):
         Subclasses must provide a fresh instance of {@link TileData}.
         The instance will be closed after the run of forEachTile.
 
-        returns: TileData
+        :returns: TileData
         """
         raise NotImplementedError()
 
@@ -66,19 +66,19 @@ class TileLoop(object):
         """
         Iterates over every tile in a given Pixels object based on the
         over arching dimensions and a requested maximum tile width and height.
-        @param sizeX int
-        @param sizeY int
-        @param sizeZ int
-        @param sizeC int
-        @param sizeT int
-        @param iteration Invoker to call for each tile.
-        @param pixel Pixel instance
-        @param tileWidth <b>Maximum</b> width of the tile requested. The tile
+        :param sizeX: int
+        :param sizeY: int
+        :param sizeZ: int
+        :param sizeC: int
+        :param sizeT: int
+        :param iteration: Invoker to call for each tile.
+        :param pixel: Pixel instance
+        :param tileWidth: <b>Maximum</b> width of the tile requested. The tile
         request itself will be smaller than the original tile width requested if
         <code>x + tileWidth > sizeX</code>.
-        @param tileHeight <b>Maximum</b> height of the tile requested. The tile
+        :param tileHeight: <b>Maximum</b> height of the tile requested. The tile
         request itself will be smaller if <code>y + tileHeight > sizeY</code>.
-        @return The total number of tiles iterated over.
+        :returns: The total number of tiles iterated over.
         """
 
         data = self.createData()
@@ -169,12 +169,12 @@ class RPSTileLoop(TileLoop):
         """
         Iterates over every tile in a given Pixels object based on the
         over arching dimensions and a requested maximum tile width and height.
-        @param tileWidth <b>Maximum</b> width of the tile requested. The tile
+        :param tileWidth: <b>Maximum</b> width of the tile requested. The tile
         request itself will be smaller than the original tile width requested if
         <code>x + tileWidth > sizeX</code>.
-        @param tileHeight <b>Maximum</b> height of the tile requested. The tile
+        :param tileHeight: <b>Maximum</b> height of the tile requested. The tile
         request itself will be smaller if <code>y + tileHeight > sizeY</code>.
-        @param iteration Invoker to call for each tile.
+        :param iteration: Invoker to call for each tile.
         @return The total number of tiles iterated over.
         """
 
