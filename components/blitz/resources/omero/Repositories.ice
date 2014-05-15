@@ -432,12 +432,12 @@ module omero {
         ["ami"] interface ManagedRepository extends Repository {
 
             /**
-             * Returns an [ImportProcess*] which can be used to upload files.
-             * On [ImportProcess::verifyUpload], an [omero::cmd::Handle*] will be
+             * Returns an [ImportProcess] which can be used to upload files.
+             * On [ImportProcess::verifyUpload], an [omero::cmd::Handle] will be
              * returned which can be watched for knowing when the server-side import
              * is complete.
              *
-             * Once the upload is complete, the [ImportProcess*] can and must be closed.
+             * Once the upload is complete, the [ImportProcess] can and must be closed.
              * Once [omero::cmd::Handle::getResponse] returns a non-null value, the
              * handle instance can and must be closed.
              **/
