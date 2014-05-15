@@ -39,25 +39,52 @@ import omero.cmd.ERR;
 import omero.cmd.HandleI.Cancel;
 import omero.cmd.Helper;
 import omero.cmd.IRequest;
-import omero.cmd.ImageBinariesRequest;
-import omero.cmd.ImageBinariesResponse;
+import omero.cmd.ManageImageBinaries;
+import omero.cmd.ManageImageBinariesResponse;
 import omero.cmd.Response;
 
 /**
  * Workflow for converting attached original images into OMERO5+ filesets. Input
  * is an Image ID and which of the various workflow steps ("deletePixels", etc)
  * will be performed. In any case, a the image will be loaded and various metrics
- * of the used space stored in the {@link ImageBinariesResponse} instance.
+ * of the used space stored in the {@link ManageImageBinariesResponse} instance.
  *
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 5.0.2
  */
-public class ImageBinariesRequestI extends ImageBinariesRequest implements
+public class ManageImageBinariesI extends ManageImageBinaries implements
         IRequest {
+
+    static class PixelFiles {
+        final File pixels;
+        final File backup;
+        final File pyramid;
+        PixelFiles(String path) {
+            pixels = new File(path);
+            backup = new File(path + "_bak");
+            pyramid = new File(path + "_pyramid");
+        }
+        public void update(ManageImageBinariesResponse rsp) {
+            if (pixels.exists()) {
+                rsp.pixelsPresent = true;
+                rsp.pixelSize = pixels.length();
+            } else {
+                rsp.pixelsPresent = false;
+                if (backup.exists()) {
+                    rsp.pixelSize = backup.length();
+                }
+            }
+            rsp.pyramidPresent = false;
+            if (pyramid.exists()) {
+                rsp.pyramidPresent = true;
+                rsp.pyramidSize = pyramid.length();
+            }
+        }
+    }
 
     private static final long serialVersionUID = -1L;
 
-    private final ImageBinariesResponse rsp = new ImageBinariesResponse();
+    private final ManageImageBinariesResponse rsp = new ManageImageBinariesResponse();
 
     private final PixelsService pixelsService;
 
@@ -65,13 +92,11 @@ public class ImageBinariesRequestI extends ImageBinariesRequest implements
 
     private Helper helper;
 
-    private File pixelsFile;
-
-    private File pyramidFile;
+    private PixelFiles files;
 
     private List<File> thumbnailFiles = new ArrayList<File>();
 
-    public ImageBinariesRequestI(PixelsService pixelsService,
+    public ManageImageBinariesI(PixelsService pixelsService,
             ACLVoter voter) {
         this.pixelsService = pixelsService;
         this.voter = voter;
@@ -99,7 +124,7 @@ public class ImageBinariesRequestI extends ImageBinariesRequest implements
         case 1: findAttached(); break;
         case 2: findBinary(); break;
         case 3: findFileset(); break;
-        case 4: deletePixels(); break;
+        case 4: togglePixels(); break;
         case 5: deletePyramid(); break;
         default:
             throw helper.cancel(new ERR(), null, "unknown-step", "step" , ""+step);
@@ -148,9 +173,14 @@ public class ImageBinariesRequestI extends ImageBinariesRequest implements
             "select o from Image i join i.pixels p " +
             "join p.pixelsFileMaps m join m.parent o " +
             "where i.id = :id", new Parameters().addId(imageId));
-        rsp.attachedFiles = new ArrayList<Long>();
+        rsp.archivedFiles = new ArrayList<Long>();
         for (IObject obj : rv) {
-            rsp.attachedFiles.add(obj.getId());
+            long id = obj.getId();
+            rsp.archivedFiles.add(id);
+            File f = new File(pixelsService.getFilesPath(id));
+            if (f.exists()) {
+                rsp.archivedSize += f.length();
+            }
         }
     }
 
@@ -166,16 +196,9 @@ public class ImageBinariesRequestI extends ImageBinariesRequest implements
                 "select tb from Thumbnail tb where " +
                 "tb.pixels.id = :id", new Parameters().addId(pixels.getId()));
 
-        String path;
-        path = pixelsService.getPixelsPath(pixels.getId());
-        pixelsFile = new File(path);
-        if (pixelsFile.exists()) {
-            rsp.pixelSize = pixelsFile.length();
-        }
-        pyramidFile = new File(path + "_pyramid");
-        if (pyramidFile.exists()) {
-            rsp.pyramidSize = pyramidFile.length();
-        }
+        String path = pixelsService.getPixelsPath(pixels.getId());
+        files = new PixelFiles(path);
+        files.update(rsp);
         for (Thumbnail tb: thumbs) {
             path = pixelsService.getThumbnailPath(tb.getId());
             File thumbnailFile = new File(path);
@@ -204,19 +227,19 @@ public class ImageBinariesRequestI extends ImageBinariesRequest implements
 
     }
 
-    private void deletePixels() {
-        if (deletePixels) {
+    private void togglePixels() {
+        if (togglePixels) {
             requireFileset("pixels");
-            deleteFile("pixels", pixelsFile);
-            rsp.pixelSize = pixelsFile.length();
+            processFile("pixels-move", files.pixels, files.backup);
+            files.update(rsp);
         }
     }
 
     private void deletePyramid() {
         if (deletePyramid) {
             requireFileset("pyramid");
-            deleteFile("pyramid", pyramidFile);
-            rsp.pyramidSize = pyramidFile.length();
+            processFile("pyramid", files.pyramid, null);
+            files.update(rsp);
         }
     }
 
@@ -224,7 +247,7 @@ public class ImageBinariesRequestI extends ImageBinariesRequest implements
         throw helper.cancel(new ERR(), null, which + "-requires-fileset");
     }
 
-    private void deleteFile(String which, File file) {
+    private void processFile(String which, File file, File dest) {
 
         if (!file.exists()) {
             return; // Nothing to do
@@ -235,9 +258,15 @@ public class ImageBinariesRequestI extends ImageBinariesRequest implements
         if (!voter.allowDelete(image, image.getDetails())) {
             throw helper.cancel(new ERR(), null, which + "-delete-disallowed");
         }
-        if (!file.delete()) {
-            // TODO: should we schedule for deleteOnExit here?
-            throw helper.cancel(new ERR(), null, which + "-delete-false");
+        if (dest != null) {
+            if (!file.renameTo(dest)) {
+                throw helper.cancel(new ERR(), null, which + "-delete-false");
+            }
+        } else {
+            if (!file.delete()) {
+                // TODO: should we schedule for deleteOnExit here?
+                throw helper.cancel(new ERR(), null, which + "-delete-false");
+            }
         }
     }
 }

@@ -44,10 +44,10 @@ from omero.util.temp_files import create_path
 pytestmark = pytest.mark.fs_suite
 
 
-class TestReimportAttachedFiles(lib.ITest):
+class TestReimportArchivedFiles(lib.ITest):
 
     def setup_method(self, method):
-        super(TestReimportAttachedFiles, self).setup_method(method)
+        super(TestReimportArchivedFiles, self).setup_method(method)
         self.pixels = self.client.sf.getPixelsService()
         self.query = self.client.sf.getQueryService()
         self.update = self.client.sf.getUpdateService()
@@ -122,7 +122,6 @@ class TestReimportAttachedFiles(lib.ITest):
     def createSynthetic(self):
         """ Create a image with archived files (i.e. pre-FS) """
 
-        from omero.rtypes import unwrap
         from omero.sys import ParametersI
 
         # Produce an FS image as our template
@@ -144,13 +143,13 @@ class TestReimportAttachedFiles(lib.ITest):
         finally:
             self.delete("/Fileset", orig_fs)
 
-    def attachedFiles(self, img_obj):
+    def archivedFiles(self, img_obj):
         return \
             self.client.sf.getQueryService().findAllByQuery((
                 "select o from Image i join i.pixels p "
                 "join p.pixelsFileMaps m join m.parent o "
-                "where i.id = :id"), ParametersI().addId(
-                    img_obj.id.val))
+                "where i.id = :id"),
+                ParametersI().addId(img_obj.id.val))
 
     def startUpload(self, files):
         mrepo = self.client.getManagedRepository()
@@ -182,28 +181,25 @@ class TestReimportAttachedFiles(lib.ITest):
 
     def linkImageToFileset(self, new_img, fs):
         new_img = self.client.sf.getQueryService().get(
-            "Image", new_img.id.val, {"omero.group":"-1"})
+            "Image", new_img.id.val, {"omero.group": "-1"})
         new_img.setFileset(fs.proxy())
         self.client.sf.getUpdateService().saveObject(new_img)
 
     def imageBinaries(self, imageId,
-                      deletePixels=False,
+                      togglePixels=False,
                       deletePyramid=False):
 
         import omero
-        req = omero.cmd.ImageBinariesRequest()
+        req = omero.cmd.ManageImageBinaries()
         req.imageId = imageId
-        req.deletePixels = deletePixels
+        req.togglePixels = togglePixels
         req.deletePyramid = deletePyramid
         return self.submit(req)
 
-    def assertImageBinaries(self, rsp,
-                            lenAttached=2,
-                            pixelSize=256,
-                            pyramidSize=0,
-                            thumbnailSize=0):
+    def assertManageImageBinaries(self, rsp, lenArchived=2, pixelSize=256,
+                              pyramidSize=0, thumbnailSize=0):
 
-        assert lenAttached == len(rsp.attachedFiles)
+        assert lenArchived == len(rsp.archivedFiles)
         assert pixelSize == rsp.pixelSize
         assert pyramidSize == rsp.pyramidSize
         assert thumbnailSize == rsp.thumbnailSize
@@ -227,9 +223,9 @@ class TestReimportAttachedFiles(lib.ITest):
 
         new_img = self.createSynthetic()
         binaries = self.imageBinaries(new_img.id.val)
-        self.assertImageBinaries(binaries)
+        self.assertManageImageBinaries(binaries)
 
-        files = self.attachedFiles(new_img)
+        files = self.archivedFiles(new_img)
         files.insert(0, readme_obj)
         proc = self.startUpload(files)
         handle = self.uploadFileset(proc, files)
@@ -242,19 +238,19 @@ class TestReimportAttachedFiles(lib.ITest):
                 "where fs.id = :id"), ParametersI().addId(fs.id.val))
             used = fs.copyUsedFiles()
             fs.clearUsedFiles()
-            for idx in range(1,3):  # omit readme
+            for idx in range(1, 3):  # omit readme
                 fs.addFilesetEntry(used[idx])
                 used[idx].originalFile.unload()
             self.client.sf.getUpdateService().saveObject(fs)
             for file in files:
                 self.delete("/OriginalFile", file)
             binaries = self.imageBinaries(new_img.id.val)
-            self.assertImageBinaries(binaries, lenAttached=0)
+            self.assertManageImageBinaries(binaries, lenArchived=0)
         finally:
             handle.close()
 
-        binaries = self.imageBinaries(new_img.id.val,
-                                      deletePixels=True)
-        self.assertImageBinaries(binaries,
-                                 lenAttached=0,
-                                 pixelSize=0)
+        binaries = self.imageBinaries(
+            new_img.id.val, togglePixels=True)
+
+        self.assertManageImageBinaries(
+            binaries, lenArchived=0, pixelSize=0)

@@ -29,7 +29,7 @@ import ome.tools.hibernate.ExtendedMetadata;
 import omero.cmd.basic.DoAllI;
 import omero.cmd.basic.ListRequestsI;
 import omero.cmd.basic.TimingI;
-import omero.cmd.fs.ImageBinariesRequestI;
+import omero.cmd.fs.ManageImageBinariesI;
 import omero.cmd.fs.OriginalMetadataRequestI;
 import omero.cmd.graphs.ChgrpI;
 import omero.cmd.graphs.ChmodI;
@@ -156,11 +156,11 @@ public class RequestObjectFactoryRegistry extends
                         return new OriginalMetadataRequestI(pixelsService);
                     }
                 });
-        factories.put(ImageBinariesRequestI.ice_staticId(),
-                new ObjectFactory(ImageBinariesRequestI.ice_staticId()) {
+        factories.put(ManageImageBinariesI.ice_staticId(),
+                new ObjectFactory(ManageImageBinariesI.ice_staticId()) {
                     @Override
                     public Ice.Object create(String name) {
-                        return new ImageBinariesRequestI(pixelsService, voter);
+                        return new ManageImageBinariesI(pixelsService, voter);
                     }
                 });
         return factories;
