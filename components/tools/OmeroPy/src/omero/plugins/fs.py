@@ -221,7 +221,7 @@ Examples:
         tb.cols(["Id", "UUID", "Type", "Path"])
         for idx, pair in enumerate(repos):
             desc, prx = pair
-            path = "/".join([desc.path.val, desc.name.val])
+            path = "".join([desc.path.val, desc.name.val])
 
             type = "Public"
             is_mrepo = MRepo.checkedCast(prx)
