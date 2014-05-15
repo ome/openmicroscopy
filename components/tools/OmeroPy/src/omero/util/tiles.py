@@ -44,10 +44,10 @@ class TileData(object):
         :param w: int
         :param h: int
         """
-        raise NotImplementedError();
+        raise NotImplementedError()
 
     def close(self):
-        raise NotImplementedError();
+        raise NotImplementedError()
 
 
 class TileLoop(object):
@@ -100,7 +100,7 @@ class TileLoop(object):
                                 w = tileWidth
 
                                 if (w + x > sizeX):
-                                    w = sizeX - x;
+                                    w = sizeX - x
 
                                 h = tileHeight
                                 if (h + y > sizeY):
@@ -108,7 +108,7 @@ class TileLoop(object):
 
                                 iteration.run(data, z, c, t, x, y, w, h, tileCount)
                                 tileCount += 1
-            return tileCount;
+            return tileCount
 
         finally:
             data.close()
@@ -194,4 +194,4 @@ class RPSTileLoop(TileLoop):
         sizeC = self.pixels.getSizeC().getValue()
         sizeT = self.pixels.getSizeT().getValue()
 
-        return TileLoop.forEachTile(self, sizeX, sizeY, sizeZ, sizeC, sizeT, tileWidth, tileHeight, iteration);
+        return TileLoop.forEachTile(self, sizeX, sizeY, sizeZ, sizeC, sizeT, tileWidth, tileHeight, iteration)
