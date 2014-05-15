@@ -196,10 +196,15 @@ class TestReimportArchivedFiles(lib.ITest):
         req.deletePyramid = deletePyramid
         return self.submit(req)
 
-    def assertManageImageBinaries(self, rsp, lenArchived=2, pixelSize=256,
-                              pyramidSize=0, thumbnailSize=0):
+    def assertManageImageBinaries(self, rsp, lenArchived=2,
+                                  pixelSize=256, archivedSize=0,
+                                  pyramidSize=0, thumbnailSize=0,
+                                  pixelsPresent=True, pyramidPresent=False):
 
         assert lenArchived == len(rsp.archivedFiles)
+        assert pixelsPresent == rsp.pixelsPresent
+        assert pyramidPresent == rsp.pyramidPresent
+        assert archivedSize == rsp.archivedSize
         assert pixelSize == rsp.pixelSize
         assert pyramidSize == rsp.pyramidSize
         assert thumbnailSize == rsp.thumbnailSize
@@ -253,4 +258,4 @@ class TestReimportArchivedFiles(lib.ITest):
             new_img.id.val, togglePixels=True)
 
         self.assertManageImageBinaries(
-            binaries, lenArchived=0, pixelSize=0)
+            binaries, lenArchived=0, pixelsPresent=False)
