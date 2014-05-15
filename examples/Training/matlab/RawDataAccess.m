@@ -18,6 +18,8 @@
 % Raw Data access
 
 try
+    % Initialize a client and a session using the ice.config file
+    % See ConnectToOMERO for alternative ways to initialize a session
     [client, session] = loadOmero();
     p = parseOmeroProperties(client);
     eventContext = session.getAdminService().getEventContext();

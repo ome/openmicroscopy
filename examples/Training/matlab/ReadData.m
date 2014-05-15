@@ -15,8 +15,9 @@
 % with this program; if not, write to the Free Software Foundation, Inc.,
 % 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-% Load Data
 try
+    % Initialize a client and a session using the ice.config file
+    % See ConnectToOMERO for alternative ways to initialize a session
     [client, session] = loadOmero();
     p = parseOmeroProperties(client);
     eventContext = session.getAdminService().getEventContext();
@@ -30,9 +31,9 @@ try
     imageId = p.imageid;
     plateId = p.plateid;
     
-    % Retrieve the projects owned by user currently logged in.
+    % Retrieve all the unloaded projects owned by session owner.
     % If a project contains datasets, the datasets will automatically be
-    % loaded.
+    % loaded but not the images.
     disp('Listing projects')
     projects = getProjects(session, [], false);
     fprintf(1, 'Found %g projects\n', numel(projects));
@@ -42,19 +43,23 @@ try
     end
     fprintf(1, '\n');
     
-    % Retrieve the datasets owned by the user currently logged in.
+    % Retrieve all the unloaded datasets owned by the session owner.
+    % If the datasets contain images, the images will no be loaded.
     disp('Listing datasets')
     datasets = getDatasets(session, [], false);
     fprintf(1, 'Found %g datasets\n', numel(datasets));
     fprintf(1, '\n');
     
-    % Retrieve the images contained in a given dataset.
+    % Retrieve a dataset specified by an input identifier
+    % If the dataset contains images, the images will be loaded
     disp('Listing images')
     dataset = getDatasets(session, datasetId);
     assert(~isempty(dataset), 'OMERO:ReadData', 'Dataset Id not valid');
     images = toMatlabList(dataset.linkedImageList); % The images in the dataset.
     fprintf(1, 'Found %g images in dataset %g using getDatasets()\n',...
         numel(images), datasetId);
+    
+    % Retrieve all the images contained in a given dataset.
     images2 = getImages(session, 'dataset', datasetId);
     fprintf(1, 'Found %g images in dataset %g using getImages()\n',...
         numel(images2), datasetId);

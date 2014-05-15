@@ -18,8 +18,9 @@
 
 % To learn about the model see  http://www.ome-xml.org/wiki/ROI/2010-04.
 % Note that annotation can be linked to ROI.
-% ROIs
 try
+    % Initialize a client and a session using the ice.config file
+    % See ConnectToOMERO for alternative ways to initialize a session
     [client, session] = loadOmero();
     p = parseOmeroProperties(client);
     eventContext = session.getAdminService().getEventContext();

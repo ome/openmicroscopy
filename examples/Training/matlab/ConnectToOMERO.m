@@ -68,8 +68,10 @@ try
         assert(groupId == adminService.getEventContext().groupId);
     end
     
-    %% Unsecure client
+    %% Unencrypted session
     % Create an unsecure client and session
+    % Use this session to speed up data transfer since there will be no
+    % encryption
     unsecureClient = client.createClient(false);
     sessionUnencrypted = unsecureClient.getSession();
     fprintf(1, 'Created encryted session for user %s (id: %g)\n',...
