@@ -64,8 +64,13 @@ class TileLoop(object):
     def forEachTile(self, sizeX, sizeY, sizeZ, sizeC, sizeT,\
                            tileWidth, tileHeight, iteration):
         """
-        Iterates over every tile in a given pixel based on the
+        Iterates over every tile in a given Pixels object based on the
         over arching dimensions and a requested maximum tile width and height.
+        @param sizeX int
+        @param sizeY int
+        @param sizeZ int
+        @param sizeC int
+        @param sizeT int
         @param iteration Invoker to call for each tile.
         @param pixel Pixel instance
         @param tileWidth <b>Maximum</b> width of the tile requested. The tile
@@ -162,15 +167,14 @@ class RPSTileLoop(TileLoop):
 
     def forEachTile(self, tileWidth, tileHeight, iteration):
         """
-        Iterates over every tile in a given pixel based on the
+        Iterates over every tile in a given Pixels object based on the
         over arching dimensions and a requested maximum tile width and height.
-        @param iteration Invoker to call for each tile.
-        @param pixel Pixel instance
         @param tileWidth <b>Maximum</b> width of the tile requested. The tile
         request itself will be smaller than the original tile width requested if
         <code>x + tileWidth > sizeX</code>.
         @param tileHeight <b>Maximum</b> height of the tile requested. The tile
         request itself will be smaller if <code>y + tileHeight > sizeY</code>.
+        @param iteration Invoker to call for each tile.
         @return The total number of tiles iterated over.
         """
 
