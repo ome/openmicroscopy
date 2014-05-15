@@ -51,13 +51,16 @@ class FsControl(BaseControl):
         parser.add_login_arguments()
         sub = parser.sub()
 
-        archived = parser.add(sub, self.archived, self.archived.__doc__)
-        archived.add_style_argument()
-        archived.add_limit_arguments()
-        archived.add_argument(
+        images = parser.add(sub, self.images, self.images.__doc__)
+        images.add_style_argument()
+        images.add_limit_arguments()
+        images.add_argument(
             "--order", default="newest",
             choices=("newest", "oldest", "largest"),
             help="order of the rows returned")
+        images.add_argument(
+            "--archived", action="store_true",
+            help="list only images with archived data")
 
         repos = parser.add(sub, self.repos, self.repos.__doc__)
         repos.add_style_argument()
@@ -82,7 +85,7 @@ class FsControl(BaseControl):
             "--check", action="store_true",
             help="checks each fileset for validity")
 
-        for x in (archived, sets):
+        for x in (images, sets):
             x.add_argument(
                 "--extended", action="store_true",
                 help="provide more details for each (slow)")
@@ -117,8 +120,8 @@ class FsControl(BaseControl):
             values.append(v)
         values.append(filesizeformat(rsp.pyramidSize))
 
-    def archived(self, args):
-        """List images with archived files.
+    def images(self, args):
+        """List images, filtering for archives, etc.
 
 This command is useful for showing pre-FS (i.e. OMERO 4.4
 and before) images which have original data archived with
@@ -127,10 +130,11 @@ filesets.
 
 Examples:
 
-    bin/omero fs archived --order=newest   # Default
-    bin/omero fs archived --order=largest  # Most used space
-    bin/omero fs archived --limit=500      # Longer listings
-    bin/omero fs archived --extended       # More details
+    bin/omero fs images --archived       # List only OMERO4 images
+    bin/omero fs images --order=newest   # Default
+    bin/omero fs images --order=largest  # Most used space
+    bin/omero fs images --limit=500      # Longer listings
+    bin/omero fs images --extended       # More details
         """
 
         from omero.rtypes import unwrap
@@ -142,8 +146,9 @@ Examples:
             "count(f.id), sum(f.size) ")
         query1 = (
             "from Image i join i.pixels p "
-            "join p.pixelsFileMaps m join m.parent f "
-            "left outer join i.fileset as fs ")
+            "%sjoin p.pixelsFileMaps m join m.parent f "
+            "left outer join i.fileset as fs ") % \
+                (not args.archived and "left outer " or "")
         query2 = (
             "group by i.id, i.name, fs.id ")
 
