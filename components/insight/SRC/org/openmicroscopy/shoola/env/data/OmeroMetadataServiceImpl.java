@@ -932,7 +932,7 @@ class OmeroMetadataServiceImpl
 		}
 		Map<Long, Collection<AnnotationData>> filesetMap =
 		        new HashMap<Long, Collection<AnnotationData>>();
-		if (fids.size() > 0) {
+		if (!fids.isEmpty()) {
 		    filesetMap = loadAnnotations(ctx, FilesetData.class, fids,
                     TextualAnnotationData.class,
                     Arrays.asList(AnnotationData.FILE_TRANSFER_NS), null);
@@ -962,7 +962,7 @@ class OmeroMetadataServiceImpl
                 }
                
             }
-            if (annotationIds.size() > 0) {
+            if (CollectionUtils.isNotEmpty(annotationIds)) {
                 linkMap = gateway.findAnnotationLinks(ctx, klass, ids,
                         annotationIds, userID);
             }
