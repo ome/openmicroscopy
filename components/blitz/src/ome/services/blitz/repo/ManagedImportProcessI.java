@@ -134,40 +134,11 @@ public class ManagedImportProcessI extends AbstractCloseableAmdServant
     private HandlePrx handle;
 
     /**
-     * Whether this instance will be used for an actual upload, or if
-     * the intent is solely to upload the files into a fileset server-side.
-     */
-    private boolean uploadOnly;
-
-    /**
      * Create and register a servant for servicing the import process
      * within a managed repository.
-     *
-     * @param repo
-     * @param fs
-     * @param location
-     * @param settings
-     * @param __current
      */
     public ManagedImportProcessI(ManagedRepositoryI repo, Fileset fs,
             ImportLocation location, ImportSettings settings, Current __current)
-                throws ServerError {
-        this(repo, fs, location, settings, __current, false);
-    }
-
-    /**
-     * Create and register a servant for servicing the import process
-     * within a managed repository.
-     *
-     * @param repo
-     * @param fs
-     * @param location
-     * @param settings
-     * @param __current
-     */
-    public ManagedImportProcessI(ManagedRepositoryI repo, Fileset fs,
-            ImportLocation location, ImportSettings settings, Current __current,
-            boolean uploadOnly)
                 throws ServerError {
         super(null, null);
         this.repo = repo;
@@ -176,7 +147,6 @@ public class ManagedImportProcessI extends AbstractCloseableAmdServant
         this.location = location;
         this.current = __current;
         this.proxy = registerProxy(__current);
-        this.uploadOnly = uploadOnly;
         setApplicationContext(repo.context);
         // TODO: The above could be moved to SessionI.internalServantConfig as
         // long as we're careful to remove all other, redundant calls to setAC.
@@ -299,10 +269,6 @@ public class ManagedImportProcessI extends AbstractCloseableAmdServant
         FilesetJobLink link = fs.getFilesetJobLink(0);
         repo.repositoryDao.updateJob(link.getChild(),
                 "Finished", "Finished", this.current);
-
-        if (uploadOnly) {
-            return null;
-        }
 
         // Now move on to the metadata import.
         link = fs.getFilesetJobLink(1);
