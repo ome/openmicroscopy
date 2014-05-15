@@ -179,6 +179,7 @@ class RPSTileLoop(TileLoop):
         """
 
         if self.pixels is None or self.pixels.id is None:
+            import omero
             raise omero.ClientError("pixels instance must be managed!")
         elif not self.pixels.loaded:
             try:
