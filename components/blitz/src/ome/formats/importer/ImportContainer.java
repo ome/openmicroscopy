@@ -278,7 +278,7 @@ public class ImportContainer
 
     public void fillData(ImportSettings settings, Fileset fs,
             ClientFilePathTransformer sanitizer, FileTransfer transfer) throws IOException {
-        fillData(config, settings, fs, sanitizer, null);
+        fillData(config, settings, fs, sanitizer, transfer);
     }
 
     public void fillData(ImportConfig config, ImportSettings settings, Fileset fs,
