@@ -304,7 +304,7 @@ class MetadataViewerUI
 				if (img != null) {
 					item.setImage(img);
 					itemNew = new ViewedByItem(item.getExperimenter(), 
-							item.getRndDef(), false);
+							item.getRndDef());
 					itemNew.setImage(img);
 					itemNew.addPropertyChangeListener(
 							ViewedByItem.VIEWED_BY_PROPERTY, this);
@@ -336,7 +336,7 @@ class MetadataViewerUI
 				if (img != null) {
 					item.setImage(img);
 					itemNew = new ViewedByItem(item.getExperimenter(), 
-							item.getRndDef(), false);
+							item.getRndDef());
 					itemNew.setImage(img);
 					itemNew.addPropertyChangeListener(
 							ViewedByItem.VIEWED_BY_PROPERTY, this);
