@@ -104,13 +104,22 @@ class FsControl(BaseControl):
         from omero.cmd import ManageImageBinaries
         from omero.util.text import filesizeformat
 
-        mib = ManageImageBinaries()
-        mib.imageId = row[0]
-        cb = client.submit(mib)
+        rsp = None
         try:
-            rsp = cb.getResponse()
-        finally:
-            cb.close(True)
+            mib = ManageImageBinaries()
+            mib.imageId = row[0]
+            cb = client.submit(mib)
+            try:
+                rsp = cb.getResponse()
+            finally:
+                cb.close(True)
+        except Exception, e:
+            self.ctx.dbg("Error on MIB: %s" % e)
+
+        if rsp is None:
+            values.extend(["ERR", "ERR"])
+            return  # Early exit!
+
         if rsp.pixelsPresent:
             values.append(filesizeformat(rsp.pixelSize))
         elif rsp.pixelSize == 0:
@@ -148,7 +157,7 @@ Examples:
             "from Image i join i.pixels p "
             "%sjoin p.pixelsFileMaps m join m.parent f "
             "left outer join i.fileset as fs ") % \
-                (not args.archived and "left outer " or "")
+            (not args.archived and "left outer " or "")
         query2 = (
             "group by i.id, i.name, fs.id ")
 
