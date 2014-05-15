@@ -51,6 +51,7 @@ import org.jdesktop.swingx.JXTaskPane;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
+import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.actions.ManageRndSettingsAction;
 import org.openmicroscopy.shoola.agents.util.ViewedByItem;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
@@ -484,8 +485,9 @@ class GraphicsPane
      * Builds and lays out the images as seen by other experimenters.
      *  
      * @param results The thumbnails to lay out.
+     * @param activeRndDef The rendering setting which is currently used
      */
-    void displayViewedBy(List<ViewedByItem> results)
+    void displayViewedBy(List<ViewedByItem> results, RndProxyDef activeRndDef)
     {
         if (results == null) 
             return;
@@ -519,6 +521,11 @@ class GraphicsPane
             }
         }
         if (index > 0) p.add(row);
+        
+        if(activeRndDef!=null) {
+            highlight(activeRndDef);
+        }
+        
         viewedBy.removeAll();
         JPanel content = UIUtilities.buildComponentPanel(p);
         content.setBackground(UIUtilities.BACKGROUND_COLOR);
@@ -535,7 +542,7 @@ class GraphicsPane
     
     void highlight(RndProxyDef def) {
         for(ViewedByItem item : viewedByItems) {
-            if(item.getRndDef()==def) {
+            if(item.getRndDef().getData().getId()==def.getData().getId()) {
                 ((JPanel)item.getParent()).setBorder(BorderFactory.createLineBorder(UIUtilities.STEELBLUE, 2));
             }
             else {

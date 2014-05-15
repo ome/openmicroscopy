@@ -37,6 +37,7 @@ import javax.swing.JPanel;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.openmicroscopy.shoola.agents.util.ViewedByItem;
+import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -274,7 +275,7 @@ class RendererUI
     {
         if (CollectionUtils.isEmpty(results)) return;
         DomainPane pane = (DomainPane) controlPanes.get(DOMAIN);
-        pane.displayViewedBy(results);
+        pane.displayViewedBy(results, model.getInitialRndSettings());
     }
 
     /**
