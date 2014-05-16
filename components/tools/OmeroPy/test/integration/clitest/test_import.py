@@ -89,7 +89,7 @@ class TestImport(CLITest):
         return self.query.get(obj_type, int(match.group('id')))
 
     def get_linked_annotation(self, oid):
-        """Retrieve the comment annotation linked to the object"""
+        """Retrieve the comment annotation linked to the image"""
 
         params = omero.sys.ParametersI()
         params.addId(oid)
@@ -97,6 +97,17 @@ class TestImport(CLITest):
         query += " where exists ("
         query += " select aal from ImageAnnotationLink as aal"
         query += " where aal.child=t.id and aal.parent.id=:id) "
+        return self.query.findByQuery(query, params)
+
+    def get_parent(self, obj_type, oid, parent_type):
+        """Retrieve the parent linked to the object"""
+
+        params = omero.sys.ParametersI()
+        params.addId(oid)
+        query = "select d from %s as d" % parent_type
+        query += " where exists ("
+        query += " select l from %s%sLink as l" % (parent_type, obj_type)
+        query += " where l.child.id=:id and l.parent=d.id) "
         return self.query.findByQuery(query, params)
 
     def testHelp(self):
@@ -166,3 +177,46 @@ class TestImport(CLITest):
 
         assert annotation
         assert annotation.id.val == comment.id.val
+
+    def testDataset(self, tmpdir, capfd):
+
+        fakefile = tmpdir.join("test.fake")
+        fakefile.write('')
+
+        dataset = omero.model.DatasetI()
+        dataset.name = rstring('dataset')
+        dataset = self.update.saveAndReturnObject(dataset)
+
+        self.args += [str(fakefile)]
+        self.args += ['-d', '%s' % dataset.id.val]
+
+        # Invoke CLI import command and retrieve stdout/stderr
+        self.cli.invoke(self.args, strict=True)
+        o, e = capfd.readouterr()
+        obj = self.get_object(e, 'Image')
+        d = self.get_parent('Image', obj.id.val, 'Dataset')
+
+        assert d
+        assert d.id.val == dataset.id.val
+
+    def testScreen(self, tmpdir, capfd):
+
+        fakefile = tmpdir.join("SPW&plates=1&plateRows=1&plateCols=1&"
+                               "fields=1&plateAcqs=1.fake")
+        fakefile.write('')
+
+        screen = omero.model.ScreenI()
+        screen.name = rstring('screen')
+        screen = self.update.saveAndReturnObject(screen)
+
+        self.args += [str(fakefile)]
+        self.args += ['-r', '%s' % screen.id.val]
+
+        # Invoke CLI import command and retrieve stdout/stderr
+        self.cli.invoke(self.args, strict=True)
+        o, e = capfd.readouterr()
+        obj = self.get_object(e, 'Plate')
+        s = self.get_parent('Plate', obj.id.val, 'Screen')
+
+        assert s
+        assert s[0].id.val == screen.id.val            
