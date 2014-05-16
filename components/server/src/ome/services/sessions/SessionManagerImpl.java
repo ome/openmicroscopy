@@ -282,16 +282,20 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
             // oh well
         }
 
-        List rv;
+        List<Object> rv;
+        Map<String, String> sysContext = new HashMap<String, String>();
+        sysContext.put("omero.group", Long.toString(roles.getSystemGroupId()));
+        // No reason to perform this in any group other than system.
         if (readOnly) {
-            rv = (List) executor.execute(this.asroot, new Executor.SimpleWork(
+            rv = (List<Object>) executor.execute(sysContext, this.asroot,
+                    new Executor.SimpleWork(
                     this, "read-only createSession") {
                 @Transactional(readOnly = true)
                 public Object doWork(org.hibernate.Session __s,
                         ServiceFactory sf) {
                     Principal p = checkPrincipalNameAndDefaultGroup(sf,
                             principal);
-                    long userId = executeLookupUser(sf, p);
+                    executeLookupUser(sf, p);
                     // Not performed! Session s = executeUpdate(sf, oldsession,
                     // userId);
                     Session s = oldsession;
@@ -299,7 +303,8 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
                 }
             });
         } else {
-            rv = (List) executor.execute(this.asroot, new Executor.SimpleWork(
+            rv = (List<Object>) executor.execute(sysContext, this.asroot,
+                    new Executor.SimpleWork(
                     this, "createSession") {
                 @Transactional(readOnly = false)
                 public Object doWork(org.hibernate.Session __s,
