@@ -234,7 +234,7 @@ class TestTiles(lib.ITest):
         tileHeight = 1024
         imageName = "testStitchBig4K-1Ktiles"
         description = None
-        tile_max = 255
+        tile_max = float(255)
 
         pixelsService = self.client.sf.getPixelsService()
         queryService = self.client.sf.getQueryService()
