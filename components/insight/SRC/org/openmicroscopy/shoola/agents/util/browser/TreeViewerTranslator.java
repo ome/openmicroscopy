@@ -421,6 +421,11 @@ public class TreeViewerTranslator
                     results.add(child);
                 }
             }
+            
+            if (ho instanceof GroupData) {
+                child = transformGroup((GroupData) ho, false);
+                results.add(child);
+            }
         }
         return results;
     }
@@ -727,10 +732,23 @@ public class TreeViewerTranslator
      */
     public static TreeImageSet transformGroup(GroupData group)
     {
+        return transformGroup(group, true);
+    }
+    
+    /**
+     * Transforms the specified group into its corresponding UI entity.
+     * 
+     * @param group The group to transform
+     * @param withExperimenters If <code>true</code> the group's Experimenters are added to the Group node;
+     *                          otherwise just the Group node is created
+     * @return See above.
+     */
+    public static TreeImageSet transformGroup(GroupData group, boolean withExperimenters)
+    {
         if (group == null) return null;
         TreeImageSet n = new TreeImageSet(group);
         Collection l = group.getExperimenters();
-        if (l != null && l.size() > 0) {
+        if (withExperimenters && CollectionUtils.isNotEmpty(l)) {
             n.setChildrenLoaded(Boolean.valueOf(true));
             Iterator j = l.iterator();
             while (j.hasNext()) 
