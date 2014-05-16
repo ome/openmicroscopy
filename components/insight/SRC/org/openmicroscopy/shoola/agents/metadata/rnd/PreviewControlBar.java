@@ -38,7 +38,6 @@ import javax.swing.JToolBar;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.metadata.actions.ManageRndSettingsAction;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
@@ -129,12 +128,6 @@ class PreviewControlBar
         formatButton(b);
         bar.add(b);
         bar.add(Box.createHorizontalStrut(SPACE));
-        ManageRndSettingsAction a = (ManageRndSettingsAction)
-        	control.getAction(RendererControl.RND_OWNER);
-        b = new JButton(a);
-        formatButton(b);
-        b.addMouseListener(a);
-        bar.add(b);
         if (model.isGeneralIndex()) {
         	bar.add(Box.createHorizontalStrut(SPACE));
             b = new JButton(control.getAction(RendererControl.APPLY_TO_ALL));

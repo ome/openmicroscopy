@@ -51,8 +51,6 @@ import org.jdesktop.swingx.JXTaskPane;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
-import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
-import org.openmicroscopy.shoola.agents.metadata.actions.ManageRndSettingsAction;
 import org.openmicroscopy.shoola.agents.util.ViewedByItem;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -83,6 +81,9 @@ class GraphicsPane
      * (resp. removed) to (resp. from) the maximum (resp. the minimum).
      */
     static final double RATIO = 0.2;
+    
+    /** The title of the viewedby taskpane */
+    static final String VIEWEDBY_TITLE = "Viewed By";
 
     /** Slider to select a sub-interval of [0, 255]. */
     private TwoKnobsSlider codomainSlider;
@@ -172,7 +173,7 @@ class GraphicsPane
         viewedBy = new JXTaskPane();
         Font font = viewedBy.getFont();
         viewedBy.setFont(font.deriveFont(font.getSize2D()-2));
-        viewedBy.setTitle(ManageRndSettingsAction.NAME_OWNER);
+        viewedBy.setTitle(VIEWEDBY_TITLE);
         viewedBy.setIcon(icons.getIcon(IconManager.RND_OWNER));
         controlsBar = new PreviewControlBar(controller, model);
         uiDelegate = new GraphicsPaneUI(this, model);

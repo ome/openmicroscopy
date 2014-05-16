@@ -1116,8 +1116,6 @@ class RendererComponent
 	 */
 	public void loadRndSettings(boolean loading, List<ViewedByItem> results)
 	{
-		Action a = controller.getAction(RendererControl.RND_OWNER);
-		a.setEnabled(loading);
 		view.displayViewedBy(results);
 	}
 
