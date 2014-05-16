@@ -282,7 +282,9 @@ class MetadataViewerUI
         }
         
         viewedByMenu.add(thumbnailsMenuItem);
-		viewedByMenu.show(source, location.x, location.y);
+		if (source != null && source.isVisible()) {
+		    viewedByMenu.show(source, location.x, location.y);
+		}
 	}
 	
 	/** Displays all the thumbnails. */
