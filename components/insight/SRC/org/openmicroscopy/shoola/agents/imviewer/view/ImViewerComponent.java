@@ -767,6 +767,14 @@ class ImViewerComponent
 	 */
 	public boolean isZoomFitToWindow() { return model.isZoomFitToWindow(); }
 
+	/**
+         * Implemented as specified by the {@link ImViewer} interface.
+         * @see ImViewer#isRendererLoaded()
+         */
+	public boolean isRendererLoaded() {
+	    return model.isRendererLoaded();
+	}
+	
 	/** 
 	 * Implemented as specified by the {@link ImViewer} interface.
 	 * @see ImViewer#setColorModel(int)
@@ -3331,10 +3339,6 @@ class ImViewerComponent
     	if (tiles == null) return;
     	//invalidate images.
     	Dimension d = model.getTileSize();
-    	if (d == null) {
-    	    // i. e. the Renderer has not been loaded yet
-    	    return;
-    	}
     	int width = d.width;
     	int height = d.height;
     	int cs = region.x/width;
