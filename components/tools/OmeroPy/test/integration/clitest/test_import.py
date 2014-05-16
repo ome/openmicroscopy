@@ -79,6 +79,26 @@ class TestImport(CLITest):
         client_dir = dist_dir / "lib" / "client"
         self.args += ["--clientdir", client_dir]
 
+    def get_object(self, err, obj_type):
+        """Retrieve the created object by parsing the stderr output"""
+        pattern = re.compile('^%s:(?P<id>\d+)$' % obj_type)
+        for line in reversed(err.split('\n')):
+            match = re.match(pattern, line)
+            if match:
+                break
+        return self.query.get(obj_type, int(match.group('id')))
+
+    def get_linked_annotation(self, oid):
+        """Retrieve the comment annotation linked to the object"""
+
+        params = omero.sys.ParametersI()
+        params.addId(oid)
+        query = "select t from TextAnnotation as t"
+        query += " where exists ("
+        query += " select aal from ImageAnnotationLink as aal"
+        query += " where aal.child=t.id and aal.parent.id=:id) "
+        return self.query.findByQuery(query, params)
+
     def testHelp(self):
         self.args += ["-h"]
         self.cli.invoke(self.args, strict=True)
@@ -101,14 +121,7 @@ class TestImport(CLITest):
         # Invoke CLI import command and retrieve stdout/stderr
         self.cli.invoke(self.args, strict=True)
         o, e = capfd.readouterr()
-
-        # Retrieve the created object
-        pattern = re.compile('^%s:(?P<id>\d+)$' % fixture.obj_type)
-        for line in reversed(e.split('\n')):
-            match = re.match(pattern, line)
-            if match:
-                break
-        obj = self.query.get(fixture.obj_type, int(match.group('id')))
+        obj = self.get_object(e, fixture.obj_type)
 
         if fixture.name_arg:
             assert obj.getName().val == 'name'
@@ -126,23 +139,8 @@ class TestImport(CLITest):
         # Invoke CLI import command and retrieve stdout/stderr
         self.cli.invoke(self.args, strict=True)
         o, e = capfd.readouterr()
-
-        # Retrieve the created object
-        pattern = re.compile('^Image:(?P<id>\d+)$')
-        for line in reversed(e.split('\n')):
-            match = re.match(pattern, line)
-            if match:
-                break
-        obj = self.query.get('Image', int(match.group('id')))
-
-        # Check annotation
-        params = omero.sys.ParametersI()
-        params.addId(obj.id.val)
-        query = "select t from TextAnnotation as t"
-        query += " where exists ("
-        query += " select aal from ImageAnnotationLink as aal"
-        query += " where aal.child=t.id and aal.parent.id=:id) "
-        annotation = self.query.findByQuery(query, params)
+        obj = self.get_object(e, 'Image')
+        annotation = self.get_linked_annotation(obj.id.val)
 
         assert annotation
         assert annotation.textValue.val == 'annotation_text'
@@ -163,23 +161,8 @@ class TestImport(CLITest):
         # Invoke CLI import command and retrieve stdout/stderr
         self.cli.invoke(self.args, strict=True)
         o, e = capfd.readouterr()
-
-        # Retrieve the created object
-        pattern = re.compile('^Image:(?P<id>\d+)$')
-        for line in reversed(e.split('\n')):
-            match = re.match(pattern, line)
-            if match:
-                break
-        obj = self.query.get('Image', int(match.group('id')))
-
-        # Check annotation
-        params = omero.sys.ParametersI()
-        params.addId(obj.id.val)
-        query = "select t from TextAnnotation as t"
-        query += " where exists ("
-        query += " select aal from ImageAnnotationLink as aal"
-        query += " where aal.child=t.id and aal.parent.id=:id) "
-        annotation = self.query.findByQuery(query, params)
+        obj = self.get_object(e, 'Image')
+        annotation = self.get_linked_annotation(obj.id.val)
 
         assert annotation
         assert annotation.id.val == comment.id.val
