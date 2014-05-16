@@ -99,16 +99,27 @@ class TestImport(CLITest):
         query += " where aal.child=t.id and aal.parent.id=:id) "
         return self.query.findByQuery(query, params)
 
-    def get_parent(self, obj_type, oid, parent_type):
-        """Retrieve the parent linked to the object"""
+    def get_dataset(self, iid):
+        """Retrieve the parent dataset linked to the image"""
 
         params = omero.sys.ParametersI()
-        params.addId(oid)
-        query = "select d from %s as d" % parent_type
+        params.addId(iid)
+        query = "select d from Dataset as d"
         query += " where exists ("
-        query += " select l from %s%sLink as l" % (parent_type, obj_type)
+        query += " select l from DatasetImageLink as l"
         query += " where l.child.id=:id and l.parent=d.id) "
         return self.query.findByQuery(query, params)
+
+    def get_screens(self, pid):
+        """Retrieve the screens linked to the plate"""
+
+        params = omero.sys.ParametersI()
+        params.addId(pid)
+        query = "select d from Screen as d"
+        query += " where exists ("
+        query += " select l from ScreenPlateLink as l"
+        query += " where l.child.id=:id and l.parent=d.id) "
+        return self.query.findAllByQuery(query, params)
 
     def testHelp(self):
         self.args += ["-h"]
@@ -194,7 +205,7 @@ class TestImport(CLITest):
         self.cli.invoke(self.args, strict=True)
         o, e = capfd.readouterr()
         obj = self.get_object(e, 'Image')
-        d = self.get_parent('Image', obj.id.val, 'Dataset')
+        d = self.get_dataset(obj.id.val)
 
         assert d
         assert d.id.val == dataset.id.val
@@ -216,7 +227,7 @@ class TestImport(CLITest):
         self.cli.invoke(self.args, strict=True)
         o, e = capfd.readouterr()
         obj = self.get_object(e, 'Plate')
-        s = self.get_parent('Plate', obj.id.val, 'Screen')
+        screens = self.get_screens(obj.id.val)
 
-        assert s
-        assert s[0].id.val == screen.id.val            
+        assert screens
+        assert screen.id.val in [s.id.val for s in screens]
