@@ -264,8 +264,8 @@ class ITest(object):
             client = self.client
         if name is None:
             name = "importMIF"
+        append = ""
         if kwargs:
-            append = ""
             for k, v in kwargs.items():
                 append += "&%s=%s" % (k, v)
 
