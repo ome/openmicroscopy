@@ -1261,6 +1261,12 @@ public interface ImViewer
 	boolean isCompressed();
 
 	/**
+         * Checks if the {@link Renderer} is loaded
+         * @return <code>true</code> if the Renderer is loaded, <code>false</code> otherwise
+         */
+	boolean isRendererLoaded();
+	
+	/**
 	 * Returns the security context.
 	 * 
 	 * @return See above.
