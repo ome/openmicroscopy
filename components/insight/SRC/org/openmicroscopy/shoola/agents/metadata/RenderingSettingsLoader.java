@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.metadata.RenderingSettingsLoader 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -33,14 +33,13 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 //Third-party libraries
-
 import org.apache.commons.collections.CollectionUtils;
+
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
-
 import pojos.DataObject;
 
 /** 

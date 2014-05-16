@@ -1103,7 +1103,7 @@ class RendererComponent
 	
 	/** 
 	 * Implemented as specified by the {@link Renderer} interface.
-	 * @see Renderer#retrieveRelatedSettings(Component, Point)
+	 * @see Renderer#retrieveRelatedSettings()
 	 */
 	public void retrieveRelatedSettings()
 	{

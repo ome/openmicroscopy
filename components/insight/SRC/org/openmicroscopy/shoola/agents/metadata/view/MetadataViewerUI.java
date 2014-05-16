@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.metadata.view.MetadataViewerUI 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -22,14 +22,9 @@
  */
 package org.openmicroscopy.shoola.agents.metadata.view;
 
-
 //Java imports
 import java.awt.BorderLayout;
-import java.awt.Component;
 import java.awt.Container;
-import java.awt.Point;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -39,18 +34,14 @@ import java.util.List;
 import java.util.Map;
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
-import javax.swing.JMenuItem;
 import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
 import javax.swing.JSplitPane;
-
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.util.ViewedByItem;
-import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
@@ -93,36 +84,23 @@ class MetadataViewerUI
     private static final String		DESCRIPTION = "Add comments, tags, etc., " +
     		"to the selected items.";
     
-	/** Reference to the Control. */
-	private MetadataViewerControl 		controller;
+    /** Reference to the Control. */
+    @SuppressWarnings("unused")
+    private MetadataViewerControl 		controller;
 
-	/** Reference to the Model. */
-	private MetadataViewerModel   		model;
+    /** Reference to the Model. */
+    private MetadataViewerModel   		model;
 	
-	/** The component hosting the UI components. */
-	private JPanel						uiDelegate;
+    /** The component hosting the UI components. */
+    private JPanel						uiDelegate;
 	
-	/** The header of the component. */
-	private TitlePanel 					titlePanel;
+    /** The header of the component. */
+    private TitlePanel 					titlePanel;
 	
-	/** 
-	 * The source invoking the menu displaying the list of users
-	 * who viewed the image. 
-	 */
-	private Component					source;
+    /** The current ViewedByItems */
+    private List<ViewedByItem> viewedByItems = new ArrayList<ViewedByItem>();
 	
-	/** 
-	 * The location where to pop up the  menu displaying the list of users
-	 * who viewed the image. 
-	 */
-	private Point						location;
-	
-	/** The item used to display the thumbnails. */
-	private JMenuItem					thumbnailsMenuItem;
-	
-	private List<ViewedByItem> viewedByItems = new ArrayList<ViewedByItem>();
-	
-	/** 
+    /** 
      * Returns the message corresponding to the <code>DataObject</code>.
      * 
      * @return See above
@@ -136,7 +114,7 @@ class MetadataViewerUI
         return "";
     }
     
-	/** Builds and lays out the GUI. */
+    /** Builds and lays out the GUI. */
     private void buildGUI()
     {
     	IconManager icons = IconManager.getInstance();
@@ -225,25 +203,10 @@ class MetadataViewerUI
 		model.getEditor().onChannelColorChanged(index);
 	}
 	
-	/**
-	 * Sets the location and the source where to pop up the menu.
-	 * 
-	 * @param source	The source to set.
-	 * @param location	The location to set.
-	 */
-	void setLocationAndSource(Component source, Point location)
-	{
-		this.source = source;
-		this.location = location;
-	}
-	
 	/** 
-	 * Displays the menu displaying the list of users who viewed the image.
-	 * 
-	 * @param source The component invoking the loading.
-     * @param location The location of the mouse pressed.
-     */
-	void viewedBy(Component source, Point location)
+	 * Creates the ViewedByItems
+        */
+	void createViewedByItems()
 	{
 		if (viewedByItems.isEmpty()) {
 			Map m = model.getViewedBy();
@@ -289,8 +252,8 @@ class MetadataViewerUI
 				evt.getPropertyName()))
 			model.applyRenderingSettings(
 					(RndProxyDef) evt.getNewValue());
-
 	}
+	
 	/**
 	 * Overridden so the pack method is not invoked and the component is
 	 * not displayed on screen.
