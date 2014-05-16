@@ -25,6 +25,7 @@ ImportControl = plugin.ImportControl
 from test.integration.clitest.cli import CLITest
 import pytest
 import re
+import omero
 
 
 class NamingFixture(object):
@@ -112,3 +113,36 @@ class TestImport(CLITest):
             assert obj.getName().val == 'name'
         if fixture.description_arg:
             assert obj.getDescription().val == 'description'
+
+    def testAnnotationText(self, tmpdir, capfd):
+
+        fakefile = tmpdir.join("test.fake")
+        fakefile.write('')
+        self.args += [str(fakefile)]
+        self.args += ['--annotation_ns', 'annotation_ns']
+        self.args += ['--annotation_text', 'annotation_text']
+
+        # Invoke CLI import command and retrieve stdout/stderr
+        self.cli.invoke(self.args, strict=True)
+        o, e = capfd.readouterr()
+
+        # Retrieve the created object
+        pattern = re.compile('^Image:(?P<id>\d+)$')
+        for line in reversed(e.split('\n')):
+            match = re.match(pattern, line)
+            if match:
+                break
+        obj = self.query.get('Image', int(match.group('id')))
+
+        # Check annotation
+        params = omero.sys.ParametersI()
+        params.addId(obj.id.val)
+        query = "select t from TextAnnotation as t"
+        query += " where exists ("
+        query += " select aal from ImageAnnotationLink as aal"
+        query += " where aal.child=t.id and aal.parent.id=:id) "
+        tag = self.query.findByQuery(query, params)
+
+        assert tag
+        assert tag.textValue.val == 'annotation_text'
+        assert tag.ns.val == 'annotation_ns'
