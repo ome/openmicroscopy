@@ -153,11 +153,12 @@ Examples:
         select = (
             "select i.id, i.name, fs.id,"
             "count(f.id), sum(f.size) ")
+        archived = (not args.archived and "left outer " or "")
         query1 = (
             "from Image i join i.pixels p "
-            "%sjoin p.pixelsFileMaps m join m.parent f "
+            "%sjoin p.pixelsFileMaps m %sjoin m.parent f "
             "left outer join i.fileset as fs ") % \
-            (not args.archived and "left outer " or "")
+            (archived, archived)
         query2 = (
             "group by i.id, i.name, fs.id ")
 
