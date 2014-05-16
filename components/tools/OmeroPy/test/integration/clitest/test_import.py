@@ -26,6 +26,7 @@ from test.integration.clitest.cli import CLITest
 import pytest
 import re
 import omero
+from omero.rtypes import rstring
 
 
 class NamingFixture(object):
@@ -141,8 +142,44 @@ class TestImport(CLITest):
         query += " where exists ("
         query += " select aal from ImageAnnotationLink as aal"
         query += " where aal.child=t.id and aal.parent.id=:id) "
-        tag = self.query.findByQuery(query, params)
+        annotation = self.query.findByQuery(query, params)
 
-        assert tag
-        assert tag.textValue.val == 'annotation_text'
-        assert tag.ns.val == 'annotation_ns'
+        assert annotation
+        assert annotation.textValue.val == 'annotation_text'
+        assert annotation.ns.val == 'annotation_ns'
+
+    def testAnnotationLink(self, tmpdir, capfd):
+
+        fakefile = tmpdir.join("test.fake")
+        fakefile.write('')
+
+        comment = omero.model.CommentAnnotationI()
+        comment.textValue = rstring('test')
+        comment = self.update.saveAndReturnObject(comment)
+
+        self.args += [str(fakefile)]
+        self.args += ['--annotation_link', '%s' % comment.id.val]
+
+        # Invoke CLI import command and retrieve stdout/stderr
+        self.cli.invoke(self.args, strict=True)
+        o, e = capfd.readouterr()
+
+        # Retrieve the created object
+        pattern = re.compile('^Image:(?P<id>\d+)$')
+        for line in reversed(e.split('\n')):
+            match = re.match(pattern, line)
+            if match:
+                break
+        obj = self.query.get('Image', int(match.group('id')))
+
+        # Check annotation
+        params = omero.sys.ParametersI()
+        params.addId(obj.id.val)
+        query = "select t from TextAnnotation as t"
+        query += " where exists ("
+        query += " select aal from ImageAnnotationLink as aal"
+        query += " where aal.child=t.id and aal.parent.id=:id) "
+        annotation = self.query.findByQuery(query, params)
+
+        assert annotation
+        assert annotation.id.val == comment.id.val
