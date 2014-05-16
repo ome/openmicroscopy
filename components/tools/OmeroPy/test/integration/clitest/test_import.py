@@ -102,7 +102,10 @@ class TestImport(CLITest):
 
         # Retrieve the created object
         pattern = re.compile('^%s:(?P<id>\d+)$' % fixture.obj_type)
-        match = re.match(pattern, e.split()[-1])
+        for line in reversed(e.split('\n')):
+            match = re.match(pattern, line)
+            if match:
+                break
         obj = self.query.get(fixture.obj_type, int(match.group('id')))
 
         if fixture.name_arg:
