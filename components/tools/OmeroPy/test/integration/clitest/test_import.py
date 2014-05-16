@@ -122,11 +122,13 @@ class TestImport(CLITest):
         return self.query.findAllByQuery(query, params)
 
     def testHelp(self):
+        """Test help command"""
         self.args += ["-h"]
         self.cli.invoke(self.args, strict=True)
 
     @pytest.mark.parametrize("fixture", NFS)
     def testNamingArguments(self, fixture, tmpdir, capfd):
+        """Test naming arguments for the imported image/plate"""
 
         if fixture.obj_type == 'Image':
             fakefile = tmpdir.join("test.fake")
@@ -151,6 +153,7 @@ class TestImport(CLITest):
             assert obj.getDescription().val == 'description'
 
     def testAnnotationText(self, tmpdir, capfd):
+        """Test argument creating a comment annotation linked to the import"""
 
         fakefile = tmpdir.join("test.fake")
         fakefile.write('')
@@ -169,6 +172,7 @@ class TestImport(CLITest):
         assert annotation.ns.val == 'annotation_ns'
 
     def testAnnotationLink(self, tmpdir, capfd):
+        """Test argument linking imported image to a comment annotation"""
 
         fakefile = tmpdir.join("test.fake")
         fakefile.write('')
@@ -190,6 +194,7 @@ class TestImport(CLITest):
         assert annotation.id.val == comment.id.val
 
     def testDataset(self, tmpdir, capfd):
+        """Test argument linking imported image to a dataset"""
 
         fakefile = tmpdir.join("test.fake")
         fakefile.write('')
@@ -211,6 +216,7 @@ class TestImport(CLITest):
         assert d.id.val == dataset.id.val
 
     def testScreen(self, tmpdir, capfd):
+        """Test argument linking imported plate to a screen"""
 
         fakefile = tmpdir.join("SPW&plates=1&plateRows=1&plateCols=1&"
                                "fields=1&plateAcqs=1.fake")
