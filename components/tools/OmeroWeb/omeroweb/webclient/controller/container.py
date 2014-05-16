@@ -301,7 +301,10 @@ class BaseContainer(BaseController):
     def loadTagsRecursive(self, eid=None, offset=None, limit=1000):
         if eid is not None:
             if eid == -1:       # Load data for all users
-                eid = None
+                if self.canUseOthersAnns():
+                    eid = None
+                else:
+                    eid = self.conn.getEventContext().userId
             else:
                 self.experimenter = self.conn.getObject("Experimenter", eid)
         else:
