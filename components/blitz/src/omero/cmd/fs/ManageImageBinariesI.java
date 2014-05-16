@@ -46,7 +46,7 @@ import omero.cmd.Response;
 /**
  * Workflow for converting attached original images into OMERO5+ filesets. Input
  * is an Image ID and which of the various workflow steps ("deletePixels", etc)
- * will be performed. In any case, a the image will be loaded and various metrics
+ * will be performed. In any case, the image will be loaded and various metrics
  * of the used space stored in the {@link ManageImageBinariesResponse} instance.
  *
  * @author Josh Moore, josh at glencoesoftware.com
