@@ -256,13 +256,6 @@
   License File: lgpl-v2.1.txt
 
 
-  Artifacts:    hsqldb.jar
-  Project:      HSQLDB is Java database applications.
-  Web Site:     http://hsqldb.org/
-  License:      BSD
-  License File: hsqldb.txt
-
-
   Artifacts:    ice-*.jar
   Project:      Internet Communications Engine (Ice). A modern object-oriented
                 middleware with support for C++, .NET, Java, Python, Ruby, and PHP
