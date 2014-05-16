@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.metadata.view.MetadataViewerComponent 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -1068,7 +1068,7 @@ class MetadataViewerComponent
 
 	/**
 	 * Implemented as specified by the {@link MetadataViewer} interface.
-	 * @see MetadataViewer#loadViewedBy(Component, Point)
+	 * @see MetadataViewer#loadViewedBy()
 	 */
 	public void loadViewedBy()
 	{
@@ -1085,12 +1085,12 @@ class MetadataViewerComponent
 	
 	/**
 	 * Implemented as specified by the {@link MetadataViewer} interface.
-	 * @see MetadataViewer#setViewedBy(Map, Component, Point)
+	 * @see MetadataViewer#setViewedBy(Map)
 	 */
 	public void setViewedBy(Map result)
 	{
 		model.setViewedBy(result);
-		view.viewedBy(null, null);
+		view.createViewedByItems();
 		model.fireThumbnailsLoading();
 	}
 	

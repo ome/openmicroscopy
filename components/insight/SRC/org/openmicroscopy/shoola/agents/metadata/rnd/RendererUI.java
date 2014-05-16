@@ -36,10 +36,10 @@ import javax.swing.JPanel;
 //Third-party libraries
 
 import org.apache.commons.collections.CollectionUtils;
-import org.openmicroscopy.shoola.agents.util.ViewedByItem;
-import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.agents.util.ViewedByItem;
+import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 
 /**
  * The {@link Renderer} view. Provides a menu bar, a status bar and a 

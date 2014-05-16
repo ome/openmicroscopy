@@ -598,8 +598,6 @@ public interface MetadataViewer
 	/**
 	 * Sets the settings linked to a given image.
 	 * 
-	 * @param source The component invoking the loading.
-     * @param location The location of the mouse pressed.
 	 */
 	void setViewedBy(Map result);
 	

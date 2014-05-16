@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.metadata.rnd.GraphicsPane 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -129,6 +129,7 @@ class GraphicsPane
     /** The preview tool bar. */
     private PreviewToolBar previewToolBar;
 
+    /** The items shown in the viewedBy taskpane */
     private List<ViewedByItem> viewedByItems;
     
     /**
@@ -532,6 +533,10 @@ class GraphicsPane
         viewedBy.add(content);
     }
 
+    /**
+     * Wraps the ViewedByItem in a JPanel with empty border acting as inset
+     * @param item The ViewedByItem
+     */
     private JPanel createViewedByPanel(ViewedByItem item) {
         JPanel viewedByPanel = new JPanel();
         viewedByPanel.setBackground(UIUtilities.BACKGROUND_COLOR);
@@ -540,6 +545,11 @@ class GraphicsPane
         return viewedByPanel;
     }
     
+    /**
+     * Draws a border around the ViewedByItem whichs represents
+     * the given RndProxyDef
+     * @param def The RndProxyDef to highlight
+     */
     void highlight(RndProxyDef def) {
         for(ViewedByItem item : viewedByItems) {
             if(item.getRndDef().getData().getId()==def.getData().getId()) {
