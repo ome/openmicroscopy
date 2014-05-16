@@ -5977,8 +5977,8 @@ class _ImageWrapper (BlitzObjectWrapper):
         ctx = self._conn.SERVICE_OPTS.copy()
 
         ctx.setOmeroGroup(self.details.group.id.val)
-        if self._conn.canBeAdmin():
-            ctx.setOmeroUser(self.details.owner.id.val)
+        #if self._conn.canBeAdmin():
+        #    ctx.setOmeroUser(self.details.owner.id.val)
         re.lookupPixels(pid, ctx)
         if rdid is None:
             rdid = self._getRDef()
