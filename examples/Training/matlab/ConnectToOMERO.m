@@ -1,4 +1,4 @@
-% Copyright (C) 2011-2013 University of Dundee & Open Microscopy Environment.
+% Copyright (C) 2011-2014 University of Dundee & Open Microscopy Environment.
 % All rights reserved.
 %
 % This program is free software; you can redistribute it and/or modify
@@ -17,20 +17,20 @@
 
 
 try
-    % Connect to a server
+    %% Connect to a server
     % Use the ice.config file defined in the path
     client = loadOmero();
-    hostname = char(client.getProperty('omero.host'));
-    fprintf(1, 'Created connection to %s\n', hostname);
+    p = parseOmeroProperties(client);
+    fprintf(1, 'Created connection to %s\n', p.hostname);
     
     % Alternate ways to create clients
     % client = loadOmero(hostname);
     % client = loadOmero('path/to/ice.config');
     
     % Information to edit
-    username = char(client.getProperty('omero.user'));
-    password = char(client.getProperty('omero.pass'));
-    
+    username = p.username;
+    password = p.password;
+   
     % Create OMERO session
     session = client.createSession(username, password);
     adminService = session.getAdminService();
@@ -52,11 +52,12 @@ try
     stop(t);
     delete(t);
     
+    %% Admin service
     % List groups the user is member of
     user = adminService.getExperimenter(userId);
     groupIds = toMatlabList(adminService.getMemberOfGroupIds(user), 'double');
     
-    % switch between groups the user is member of
+    % Switch between groups the user is member of
     for groupId = groupIds'
         group = adminService.getGroup(groupId);
         fprintf(1, 'Switching to group %s (id: %g)\n',...
@@ -67,10 +68,21 @@ try
         assert(groupId == adminService.getEventContext().groupId);
     end
     
+    %% Unencrypted session
+    % Create an unsecure client and session
+    % Use this session to speed up data transfer since there will be no
+    % encryption
+    unsecureClient = client.createClient(false);
+    sessionUnencrypted = unsecureClient.getSession();
+    fprintf(1, 'Created encryted session for user %s (id: %g)\n',...
+        userName, userId);
+    
 catch err
     client.closeSession();
+    unsecureClient.closeSession();
     throw(err);
 end
 
-% Close the session
+% Close the sessions
 client.closeSession();
+unsecureClient.closeSession();
