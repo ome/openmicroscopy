@@ -67,6 +67,9 @@ NFS = (
     NF("Plate", "--plate_name", "--description"),
     NF("Plate", "--plate_name", "--plate_description"),
 )
+xstr = lambda s: s or ""
+NFS_names = ['%s%s%s' % (x.obj_type, xstr(x.name_arg),
+             xstr(x.description_arg)) for x in NFS]
 
 
 class TestImport(CLITest):
@@ -126,7 +129,7 @@ class TestImport(CLITest):
         self.args += ["-h"]
         self.cli.invoke(self.args, strict=True)
 
-    @pytest.mark.parametrize("fixture", NFS)
+    @pytest.mark.parametrize("fixture", NFS, ids=NFS_names)
     def testNamingArguments(self, fixture, tmpdir, capfd):
         """Test naming arguments for the imported image/plate"""
 
