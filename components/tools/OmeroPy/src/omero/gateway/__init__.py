@@ -7567,6 +7567,23 @@ class _ImageWrapper (BlitzObjectWrapper):
         self._re.saveCurrentSettings(ctx)
         return True
 
+    @assert_re()
+    def resetDefaults(self):
+        if not self.canAnnotate():
+            return False
+        ns = self._conn.CONFIG.IMG_ROPTSNS
+        if ns:
+            opts = self._collectRenderOptions()
+            self.removeAnnotations(ns)
+            ann = omero.gateway.CommentAnnotationWrapper()
+            ann.setNs(ns)
+            ann.setValue('&'.join(['='.join(map(str, x)) for x in opts.items()]))
+            self.linkAnnotation(ann)
+        ctx = self._conn.SERVICE_OPTS.copy()
+        ctx.setOmeroGroup(self.details.group.id.val)
+        self._re.resetDefaults(ctx)
+        return True
+
     def countArchivedFiles (self):
         """
         Returns the number of Original 'archived' Files linked to primary pixels.
