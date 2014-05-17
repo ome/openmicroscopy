@@ -70,6 +70,7 @@ NFS = (
 xstr = lambda s: s or ""
 NFS_names = ['%s%s%s' % (x.obj_type, xstr(x.name_arg),
              xstr(x.description_arg)) for x in NFS]
+debug_levels = ['ALL', 'TRACE',  'DEBUG', 'INFO', 'WARN', 'ERROR']
 
 
 class TestImport(CLITest):
@@ -123,6 +124,21 @@ class TestImport(CLITest):
         query += " select l from ScreenPlateLink as l"
         query += " where l.child.id=:id and l.parent=d.id) "
         return self.query.findAllByQuery(query, params)
+
+    def parse_debug_levels(self, out):
+        """Parse the debug levels from the stdout"""
+
+        levels = []
+        # First two lines are logging of ome.formats.importer.ImportConfig
+        # INFO level and are always output
+        for line in out.split('\n')[2:]:
+            splitline = line.split()
+            # For some reason the ome.system.UpgradeCheck logging is always
+            # output independently of the debug level
+            if len(splitline) > 3 and splitline[2] in debug_levels and \
+                    not splitline[3] == 'ome.system.UpgradeCheck':
+                levels.append(splitline[2])
+        return levels
 
     def testHelp(self):
         """Test help command"""
@@ -196,7 +212,7 @@ class TestImport(CLITest):
         assert annotation
         assert annotation.id.val == comment.id.val
 
-    def testDataset(self, tmpdir, capfd):
+    def testDatasetArgument(self, tmpdir, capfd):
         """Test argument linking imported image to a dataset"""
 
         fakefile = tmpdir.join("test.fake")
@@ -218,7 +234,7 @@ class TestImport(CLITest):
         assert d
         assert d.id.val == dataset.id.val
 
-    def testScreen(self, tmpdir, capfd):
+    def testScreenArgument(self, tmpdir, capfd):
         """Test argument linking imported plate to a screen"""
 
         fakefile = tmpdir.join("SPW&plates=1&plateRows=1&plateCols=1&"
@@ -240,3 +256,21 @@ class TestImport(CLITest):
 
         assert screens
         assert screen.id.val in [s.id.val for s in screens]
+
+    @pytest.mark.parametrize("level", debug_levels)
+    @pytest.mark.parametrize("prefix", [None, '--'])
+    def testDebugArgument(self, tmpdir, capfd, level, prefix):
+        """Test debug argument"""
+
+        fakefile = tmpdir.join("test.fake")
+        fakefile.write('')
+
+        self.args += [str(fakefile)]
+        if prefix:
+            self.args += [prefix]
+        self.args += ['--debug=%s' % level]
+        # Invoke CLI import command and retrieve stdout/stderr
+        self.cli.invoke(self.args, strict=True)
+        o, e = capfd.readouterr()
+        levels = self.parse_debug_levels(o)
+        assert set(levels) <= set(debug_levels[debug_levels.index(level):])
