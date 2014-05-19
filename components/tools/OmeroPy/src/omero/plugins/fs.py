@@ -51,13 +51,16 @@ class FsControl(BaseControl):
         parser.add_login_arguments()
         sub = parser.sub()
 
-        archived = parser.add(sub, self.archived, self.archived.__doc__)
-        archived.add_style_argument()
-        archived.add_limit_arguments()
-        archived.add_argument(
+        images = parser.add(sub, self.images, self.images.__doc__)
+        images.add_style_argument()
+        images.add_limit_arguments()
+        images.add_argument(
             "--order", default="newest",
             choices=("newest", "oldest", "largest"),
             help="order of the rows returned")
+        images.add_argument(
+            "--archived", action="store_true",
+            help="list only images with archived data")
 
         repos = parser.add(sub, self.repos, self.repos.__doc__)
         repos.add_style_argument()
@@ -82,6 +85,11 @@ class FsControl(BaseControl):
             "--check", action="store_true",
             help="checks each fileset for validity")
 
+        for x in (images, sets):
+            x.add_argument(
+                "--extended", action="store_true",
+                help="provide more details for each (slow)")
+
     def _table(self, args):
         """
         """
@@ -91,8 +99,38 @@ class FsControl(BaseControl):
             tb.set_style(args.style)
         return tb
 
-    def archived(self, args):
-        """List images with archived files.
+    def _extended_info(self, client, row, values):
+
+        from omero.cmd import ManageImageBinaries
+        from omero.util.text import filesizeformat
+
+        rsp = None
+        try:
+            mib = ManageImageBinaries()
+            mib.imageId = row[0]
+            cb = client.submit(mib)
+            try:
+                rsp = cb.getResponse()
+            finally:
+                cb.close(True)
+        except Exception, e:
+            self.ctx.dbg("Error on MIB: %s" % e)
+
+        if rsp is None:
+            values.extend(["ERR", "ERR"])
+            return  # Early exit!
+
+        if rsp.pixelsPresent:
+            values.append(filesizeformat(rsp.pixelSize))
+        elif rsp.pixelSize == 0:
+            values.append(filesizeformat(0))
+        else:
+            v = "%s (bak)" % filesizeformat(rsp.pixelSize)
+            values.append(v)
+        values.append(filesizeformat(rsp.pyramidSize))
+
+    def images(self, args):
+        """List images, filtering for archives, etc.
 
 This command is useful for showing pre-FS (i.e. OMERO 4.4
 and before) images which have original data archived with
@@ -101,9 +139,11 @@ filesets.
 
 Examples:
 
-    bin/omero fs archived --order=newest   # Default
-    bin/omero fs archived --order=largest  # Most used space
-    bin/omero fs archived --limit=500      # Longer listings
+    bin/omero fs images --archived       # List only OMERO4 images
+    bin/omero fs images --order=newest   # Default
+    bin/omero fs images --order=largest  # Most used space
+    bin/omero fs images --limit=500      # Longer listings
+    bin/omero fs images --extended       # More details
         """
 
         from omero.rtypes import unwrap
@@ -112,11 +152,16 @@ Examples:
 
         select = (
             "select i.id, i.name, fs.id,"
-            "count(f.id), sum(f.size) ")
+            "count(f1.id)+count(f2.id), "
+            "sum(coalesce(f1.size,0) + coalesce(f2.size, 0)) ")
+        archived = (not args.archived and "left outer " or "")
         query1 = (
             "from Image i join i.pixels p "
-            "join p.pixelsFileMaps m join m.parent f "
-            "left outer join i.fileset as fs ")
+            "%sjoin p.pixelsFileMaps m %sjoin m.parent f1 "
+            "left outer join i.fileset as fs "
+            "left outer join fs.usedFiles as uf "
+            "left outer join uf.originalFile as f2 ") % \
+            (archived, archived)
         query2 = (
             "group by i.id, i.name, fs.id ")
 
@@ -125,7 +170,8 @@ Examples:
         elif args.order == "oldest":
             query3 = "order by i.id asc"
         elif args.order == "largest":
-            query3 = "order by sum(f.size) desc"
+            query3 = "order by "
+            query3 += "sum(coalesce(f1.size,0) + coalesce(f2.size, 0)) desc"
 
         client = self.ctx.conn(args)
         service = client.sf.getQueryService()
@@ -133,7 +179,6 @@ Examples:
         count = unwrap(service.projection(
             "select count(i) " + query1,
             None, {"omero.group": "-1"}))[0][0]
-        print count
         rows = unwrap(service.projection(
             select + query1 + query2 + query3,
             ParametersI().page(args.offset, args.limit),
@@ -146,11 +191,18 @@ Examples:
             bytes = row[4]
             row[4] = filesizeformat(bytes)
 
+        cols = ["Image", "Name", "FS", "# Files", "Size"]
+        if args.extended:
+            cols.extend(["Pixels", "Pyramid"])
+
         tb = self._table(args)
         tb.page(args.offset, args.limit, count)
-        tb.cols(["Image", "Name", "FS", "# Files", "Size"])
+        tb.cols(cols)
         for idx, row in enumerate(rows):
-            tb.row(idx, *row)
+            values = list(row)
+            if args.extended:
+                self._extended_info(client, row, values)
+            tb.row(idx, *tuple(values))
         self.ctx.out(str(tb.build()))
 
     def repos(self, args):
@@ -183,7 +235,7 @@ Examples:
         tb.cols(["Id", "UUID", "Type", "Path"])
         for idx, pair in enumerate(repos):
             desc, prx = pair
-            path = "/".join([desc.path.val, desc.name.val])
+            path = "".join([desc.path.val, desc.name.val])
 
             type = "Public"
             is_mrepo = MRepo.checkedCast(prx)
