@@ -152,12 +152,15 @@ Examples:
 
         select = (
             "select i.id, i.name, fs.id,"
-            "count(f.id), sum(f.size) ")
+            "count(f1.id)+count(f2.id), "
+            "sum(coalesce(f1.size,0) + coalesce(f2.size, 0)) ")
         archived = (not args.archived and "left outer " or "")
         query1 = (
             "from Image i join i.pixels p "
-            "%sjoin p.pixelsFileMaps m %sjoin m.parent f "
-            "left outer join i.fileset as fs ") % \
+            "%sjoin p.pixelsFileMaps m %sjoin m.parent f1 "
+            "left outer join i.fileset as fs "
+            "left outer join fs.usedFiles as uf "
+            "left outer join uf.originalFile as f2 ") % \
             (archived, archived)
         query2 = (
             "group by i.id, i.name, fs.id ")
@@ -167,7 +170,8 @@ Examples:
         elif args.order == "oldest":
             query3 = "order by i.id asc"
         elif args.order == "largest":
-            query3 = "order by sum(f.size) desc"
+            query3 = "order by "
+            query3 += "sum(coalesce(f1.size,0) + coalesce(f2.size, 0)) desc"
 
         client = self.ctx.conn(args)
         service = client.sf.getQueryService()
