@@ -101,7 +101,9 @@ public abstract class EventLogLoader implements Iterator<EventLog>,
 
     /**
      * Build a query string based on the current {@link #excludes} {@link List}.
-     * The query expects a single :id parameter to be set on execution.
+     * The query expects a single :id parameter to be set on execution. The
+     * {@link #excludes} list is used to filter out unwanted {@link EventLog}
+     * instances.
      */
     private void initQueryString() {
         List<String> copy = excludes; // Instead of synchronizing
@@ -220,8 +222,7 @@ public abstract class EventLogLoader implements Iterator<EventLog>,
     /**
      * Returns the {@link EventLog} with the next id after the given argument or
      * null if none exists. This method will only return "true" {@link EventLog}
-     * instances, with a valid id. The {@link #excludes} list is used to filter
-     * out unwanted {@link EventLog} isntances.
+     * instances, with a valid id.
      */
     public final EventLog nextEventLog(long id) {
         if (query == null) {
