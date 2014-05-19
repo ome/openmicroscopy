@@ -202,7 +202,7 @@ public abstract class EventLogLoader implements Iterator<EventLog>,
         qb.select("el");
         qb.from("EventLog", "el");
         qb.where();
-        qb.and("el.id > " + id);
+        qb.and("el.id > :id");
         if (copy != null) {
             for (String exclude : copy) {
                 qb.and("el.entityType != '" + exclude + "'");
@@ -210,8 +210,9 @@ public abstract class EventLogLoader implements Iterator<EventLog>,
         }
         qb.order("id", true);
         String query = qb.queryString();
+        Parameters params = new Parameters().page(0, 1).addId(id);
 
-        return queryService.findByQuery(query, new Parameters().page(0, 1));
+        return queryService.findByQuery(query, params);
     }
 
     public final EventLog lastEventLog() {
