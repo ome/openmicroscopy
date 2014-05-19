@@ -86,10 +86,37 @@ public abstract class EventLogLoader implements Iterator<EventLog>,
     protected List<String> excludes = Collections.emptyList();
 
     /**
+     * Query string to be kept in sync with {@link #excludes}.
+     * @see #initQueryString()
+     */
+    protected String query;
+
+    /**
      * Spring injector
      */
     public void setExcludes(String[] excludes) {
         this.excludes = Collections.unmodifiableList(Arrays.asList(excludes));
+        initQueryString();
+    }
+
+    /**
+     * Build a query string based on the current {@link #excludes} {@link List}.
+     * The query expects a single :id parameter to be set on execution.
+     */
+    private void initQueryString() {
+        List<String> copy = excludes; // Instead of synchronizing
+        QueryBuilder qb = new QueryBuilder();
+        qb.select("el");
+        qb.from("EventLog", "el");
+        qb.where();
+        qb.and("el.id > :id");
+        if (copy != null) {
+            for (String exclude : copy) {
+                qb.and("el.entityType != '" + exclude + "'");
+            }
+        }
+        qb.order("id", true);
+        query = qb.queryString();
     }
 
     protected IQuery queryService;
@@ -197,21 +224,10 @@ public abstract class EventLogLoader implements Iterator<EventLog>,
      * out unwanted {@link EventLog} isntances.
      */
     public final EventLog nextEventLog(long id) {
-        List<String> copy = excludes; // Instead of synchronizing
-        QueryBuilder qb = new QueryBuilder();
-        qb.select("el");
-        qb.from("EventLog", "el");
-        qb.where();
-        qb.and("el.id > :id");
-        if (copy != null) {
-            for (String exclude : copy) {
-                qb.and("el.entityType != '" + exclude + "'");
-            }
+        if (query == null) {
+            initQueryString();
         }
-        qb.order("id", true);
-        String query = qb.queryString();
         Parameters params = new Parameters().page(0, 1).addId(id);
-
         return queryService.findByQuery(query, params);
     }
 
