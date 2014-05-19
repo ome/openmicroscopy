@@ -52,10 +52,10 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     </description>
 
-    <property name="gitmatch" value="v.[0-9]*.[0-9]*.[0-9]*"/>
     <property name="import.dir" value="${basedir}/components/antlib/resources"/>
-    <import file="${import.dir}/global.xml"/>
     <import file="${import.dir}/gitversion.xml" optional="true"/>
+    <import file="${import.dir}/global.xml"/>
+    <import file="${import.dir}/version.xml"/>
 
     <target name="init" depends="check-bioformats,check-ivy,check-scons,check-ice">
         <mkdir dir="${blitz.comp}/generated"/>
@@ -1056,65 +1056,6 @@ omero.version=${omero.version}
             </exec>
         </sequential>
     </macrodef>
-
-    <macrodef name="gitdescribe">
-        <attribute name="regexp" default="^(v.)?(.*?)(-[0-9]+)?((-)g(.*?))?$"/>
-        <attribute name="select" default="\2"/>
-        <attribute name="match" default="${gitmatch}"/>
-        <sequential>
-        <trycatch>
-            <try>
-                <git command="describe" output="fullversion" failonerror="true">
-                    <args>
-                        <arg value="--match"/>
-                        <arg value="@{match}"/>
-                        <arg line="--dirty"/>
-                    </args>
-                </git>
-                <propertyregex property="version.describe" input="${fullversion}" regexp="@{regexp}" select="@{select}"/>
-            </try>
-            <catch>
-                <echo>UNKNOWN</echo>
-            </catch>
-        </trycatch>
-        </sequential>
-    </macrodef>
-
-    <target name="version-embed" if="omero.plainversion">
-        <echo>${omero.plainversion}-ice${versions.ice_lib}</echo>
-    </target>
-
-    <target name="version-git" unless="omero.plainversion">
-        <gitdescribe select="\2\3\5\6">
-        </gitdescribe>
-        <echo>${version.describe}-ice${versions.ice_lib}</echo>
-    </target>
-
-    <target name="version" depends="version-embed,version-git"/>
-
-    <target name="plainversion-embed" if="omero.plainversion">
-        <echo>${omero.plainversion}</echo>
-    </target>
-
-    <target name="plainversion-git" unless="omero.plainversion">
-        <gitdescribe select="\2\3\5\6">
-        </gitdescribe>
-        <echo>${version.describe}</echo>
-    </target>
-
-    <target name="plainversion" depends="plainversion-embed,plainversion-git"/>
-
-    <target name="shortversion-embed" if="omero.shortversion">
-        <echo>${omero.shortversion}</echo>
-    </target>
-
-    <target name="shortversion-git" unless="omero.shortversion">
-        <gitdescribe select="\2">
-        </gitdescribe>
-        <echo>${version.describe}</echo>
-    </target>
-
-    <target name="shortversion" depends="shortversion-embed,shortversion-git"/>
 
     <target name="print-mem">
         <echo>

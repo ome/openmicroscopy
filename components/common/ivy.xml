@@ -1,4 +1,4 @@
-<ivy-module version="1.0">
+<ivy-module version="1.0" xmlns:m="http://ant.apache.org/ivy/maven">
   <info
       organisation="omero"
       module="common"
@@ -10,11 +10,14 @@
   </configurations>
   <publications>
     <artifact name="common" type="jar"/>
+    <artifact name="common" type="pom"/>
+    <artifact name="common" type="source" ext="jar" m:classifier="sources"/>
+    <artifact name="common" type="javadoc" ext="jar" m:classifier="javadoc"/>
   </publications>
   <dependencies defaultconfmapping="build,client,server->default">
     <!-- Internal -->
     <dependency name="model-${omero.db.profile}" rev="${omero.version}" changing="true" conf="build->build;client->client;server->server"/>
     <!-- Other -->
-    <dependency org="com.google" name="guava-jdk5" rev="${versions.guava}"/>
+    <dependency org="com.google.guava" name="guava" rev="${versions.guava}"/>
   </dependencies>
 </ivy-module>
