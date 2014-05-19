@@ -1639,8 +1639,8 @@ def copy_image_rdef_json (request, conn=None, **kwargs):
 @jsonp
 def reset_image_rdef_json (request, iid, conn=None, **kwargs):
     """
-    Try to remove all rendering defs the logged in user has for this image.
-
+    Reset rendering defs default for this image. Do not delete other related settings.
+    
     @param request:     http request
     @param iid:         Image ID
     @param conn:        L{omero.gateway.BlitzGateway}
@@ -1649,7 +1649,7 @@ def reset_image_rdef_json (request, iid, conn=None, **kwargs):
 
     img = conn.getObject("Image", iid)
 
-    if img is not None and img.resetRDefs():
+    if img is not None and img.resetDefaults():
         user_id = conn.getEventContext().userId
         server_id = request.session['connector'].server_id
         webgateway_cache.invalidateObject(server_id, user_id, img)

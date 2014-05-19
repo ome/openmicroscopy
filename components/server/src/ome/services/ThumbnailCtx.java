@@ -1,7 +1,7 @@
 /*
  *   $Id$
  *
- *   Copyright 2010-2013 University of Dundee. All rights reserved.
+ *   Copyright 2010-2014 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -28,7 +28,6 @@ import ome.api.IQuery;
 import ome.api.IRenderingSettings;
 import ome.api.IUpdate;
 import ome.conditions.ApiUsageException;
-import ome.conditions.InternalException;
 import ome.conditions.ResourceError;
 import ome.conditions.ValidationException;
 import ome.io.nio.ThumbnailService;
@@ -39,7 +38,6 @@ import ome.model.display.RenderingDef;
 import ome.model.display.Thumbnail;
 import ome.model.internal.Details;
 import ome.model.internal.Permissions;
-import ome.model.meta.Session;
 import ome.parameters.Parameters;
 import ome.security.SecuritySystem;
 import ome.system.EventContext;
@@ -318,6 +316,20 @@ public class ThumbnailCtx
     public void loadAndPrepareMetadata(Set<Long> pixelsIds,
                                        Dimension dimensions)
     {
+        loadAndPrepareMetadata(pixelsIds, dimensions, true);
+    }
+
+    /**
+     * Bulk loads and prepares metadata for a group of pixels sets. Calling
+     * this method guarantees that metadata are available, creating them if
+     * they are not.
+     * @param pixelsIds Pixels IDs to prepare metadata for.
+     * @param dimensions X-Y dimensions of the thumbnails requested.
+     */
+    public void loadAndPrepareMetadata(Set<Long> pixelsIds,
+                                       Dimension dimensions,
+                                       boolean createMissing)
+    {
         // Now we're going to attempt to efficiently retrieve the thumbnail
         // metadata based on our dimension pools above. To save significant
         // time later we're also going to pre-create thumbnail metadata where
@@ -326,7 +338,10 @@ public class ThumbnailCtx
             new HashMap<Dimension, Set<Long>>();
         dimensionPools.put(dimensions, pixelsIds);
         loadMetadataByDimensionPool(dimensionPools);
-        createMissingThumbnailMetadata(dimensionPools);
+        if (createMissing)
+        {
+                createMissingThumbnailMetadata(dimensionPools);
+        }
     }
 
     /**
@@ -343,10 +358,18 @@ public class ThumbnailCtx
         StopWatch s1 = new Slf4JStopWatch("omero.loadAllMetadata");
         List<Thumbnail> toReturn = queryService.findAllByQuery(
                 "select t from Thumbnail as t " +
-                "join t.pixels " +
+                "join t.pixels p " +
                 "join fetch t.details.updateEvent " +
                 "where t.details.owner.id = :o_id " +
-                "and t.pixels.id = :id", params);
+                "and p.id = :id", params);
+        if (toReturn.isEmpty()) {
+            toReturn = queryService.findAllByQuery(
+                    "select t from Thumbnail as t " +
+                    "join t.pixels p " +
+                    "join fetch t.details.updateEvent " +
+                    "where t.details.owner.id = p.details.owner.id " +
+                    "and p.id = :id", params);
+        }
         s1.stop();
         return toReturn;
     }
@@ -480,6 +503,9 @@ public class ThumbnailCtx
             log.debug("Thumb time: " + metadataLastUpdated);
             log.debug("Settings time: " + settingsLastUpdated);
         }
+        if (metadataLastUpdated == null) {
+           return true;
+        }
         return settingsLastUpdated.after(metadataLastUpdated);
     }
 
@@ -492,6 +518,9 @@ public class ThumbnailCtx
     public boolean isThumbnailCached(long pixelsId)
     {
         Thumbnail metadata = pixelsIdMetadataMap.get(pixelsId);
+        if (metadata == null) {
+            return false;
+        }
         try
         {
             boolean dirtyMetadata = dirtyMetadata(pixelsId);
@@ -520,20 +549,31 @@ public class ThumbnailCtx
             }
             else if (thumbnailExists && !isMyMetadata)
             {
+                //we need thumbnail for new settings. User creating his own
+                if (sessionUserId == userId && userId != metadataOwnerId) {
+                    return false;
+                }
+                //session user updating someone else thumbnail if allowed
+                if (userId == metadataOwnerId && sessionUserId != userId) {
+                    return false;
+                }
                 log.warn(String.format(
                         "Thumbnail metadata is dirty for Pixels Id:%d and " +
-                        "the metadata is owned User id:%d which is not us " +
+                        "the metadata is owned User id:%d which is not " +
                         "User id:%d. Ignoring this and returning the cached " +
-                        "thumbnail.", pixelsId, metadataOwnerId, sessionUserId));
+                        "thumbnail.", pixelsId, metadataOwnerId, userId));
                 return true;
             }
             else if (thumbnailExists && isExtendedGraphCritical)
             {
+                if (dirtyMetadata && userId == metadataOwnerId) {
+                    return false;
+                 }
                 log.warn(String.format(
                         "Thumbnail metadata is dirty for Pixels Id:%d and " +
                         "graph is critical for User id:%d. Ignoring this " +
-                        "and returning the cached thumbnail.",
-                        pixelsId, userId));
+                        "and returning the cached thumbnail.owner %d dirty %d",
+                        pixelsId, userId, metadataOwnerId, dirtyMetadata));
                 return true;
             }
         }
@@ -653,7 +693,9 @@ public class ThumbnailCtx
                             "not exist or the user id:%d has insufficient " +
                             "permissions to retrieve it.", pixelsId, userId));
                 }
-                if (pixelsOwner != userId)
+                if (pixelsOwner != userId &&
+                        !(ec.getLeaderOfGroupsList().contains(userId) ||
+                                ec.isCurrentUserAdmin()))
                 {
                     return true;
                 }
@@ -757,6 +799,17 @@ public class ThumbnailCtx
                 "where r.details.owner.id = :id and r.pixels.id in (:ids) " +
                 "order by r.details.updateEvent.time asc",
                 new Parameters().addId(userId).addIds(pixelsIds));
+        if (toReturn.isEmpty()) {
+            toReturn = queryService.findAllByQuery(
+                    "select r from RenderingDef as r " +
+                    "join fetch r.pixels as p " +
+                    "join fetch r.details.updateEvent " +
+                    "join p.details.updateEvent " +
+                    "where r.details.owner.id = p.details.owner.id " +
+                    "and r.pixels.id in (:ids) " +
+                    "order by r.details.updateEvent.time asc",
+                    new Parameters().addId(userId).addIds(pixelsIds));
+        }
         s1.stop();
         return toReturn;
     }
@@ -780,6 +833,17 @@ public class ThumbnailCtx
                 "and r.pixels.image.id in (:ids) " +
                 "order by r.details.updateEvent.time asc",
                 new Parameters().addId(userId).addIds(imageIds));
+        if (toReturn.isEmpty()) {
+            toReturn = queryService.findAllByQuery(
+                    "select r from RenderingDef as r " +
+                    "join fetch r.pixels as p " +
+                    "join fetch r.details.updateEvent " +
+                    "join fetch p.details.updateEvent " +
+                    "where r.details.owner.id = p.details.owner.id " +
+                    "and r.pixels.image.id in (:ids) " +
+                    "order by r.details.updateEvent.time asc",
+                    new Parameters().addId(userId).addIds(imageIds));
+        }
         s1.stop();
         return toReturn;
     }
@@ -794,6 +858,7 @@ public class ThumbnailCtx
     {
         StopWatch s1 = new Slf4JStopWatch(
                 "omero.bulkLoadOwnerRenderingSettings");
+        // Why doesn't this first try by userId?
         List<RenderingDef> toReturn = queryService.findAllByQuery(
                 "select r from RenderingDef as r " +
                 "join fetch r.pixels as p " +
@@ -825,11 +890,21 @@ public class ThumbnailCtx
         StopWatch s1 = new Slf4JStopWatch("omero.bulkLoadMetadata");
         List<Thumbnail> toReturn = queryService.findAllByQuery(
                 "select t from Thumbnail as t " +
-                "join t.pixels " +
+                "join t.pixels p " +
                 "join fetch t.details.updateEvent " +
                 "where t.sizeX = :x and t.sizeY = :y " +
                 "and t.details.owner.id = :o_id " +
-                "and t.pixels.id in (:ids)", params);
+                "and p.id in (:ids)", params);
+        if (toReturn.isEmpty()) {
+            toReturn = queryService.findAllByQuery(
+                    "select t from Thumbnail as t " +
+                    "join t.pixels p " +
+                    "join fetch t.details.updateEvent " +
+                    "where t.sizeX = :x and t.sizeY = :y " +
+                    "and t.details.owner.id = p.details.owner.id " +
+                    "and p.id in (:ids)", params);
+
+        }
         s1.stop();
         return toReturn;
     }
@@ -850,6 +925,7 @@ public class ThumbnailCtx
         params.addInteger("y", (int) dimensions.getHeight());
         params.addIds(pixelsIds);
         StopWatch s1 = new Slf4JStopWatch("omero.bulkLoadOwnerMetadata");
+        // Why is does this not try userId first?
         List<Thumbnail> toReturn = queryService.findAllByQuery(
                 "select t from Thumbnail as t " +
                 "join t.pixels as p " +
