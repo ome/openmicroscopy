@@ -1009,7 +1009,7 @@ jQuery._WeblitzViewport = function (container, server, options) {
   this.setQuery = function (query) {
     if (query.c) {
       var chs = query.c.split(',');
-      for (var j in chs) {
+      for (j=0; j<chs.length; j++) {
         var t = chs[j].split('|');
         var idx;
         if (t[0].substring(0,1) == '-') {
