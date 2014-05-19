@@ -62,9 +62,17 @@ public class ImportContainer
     private List<Annotation> customAnnotationList;
     private IObject target;
     private String checksumAlgorithm;
+    private ImportConfig config;
 
     public ImportContainer(File file, IObject target, Double[] userPixels,
             String reader, String[] usedFiles, Boolean isSPW) {
+        this(null, file, target, userPixels, reader, usedFiles, isSPW);
+    }
+
+    public ImportContainer(ImportConfig config,
+            File file, IObject target, Double[] userPixels,
+            String reader, String[] usedFiles, Boolean isSPW) {
+        this.config = config;
         this.file = file;
         this.target = target;
         this.userPixels = userPixels;
@@ -265,6 +273,16 @@ public class ImportContainer
         this.checksumAlgorithm = ca;
     }
 
+    public void fillData(ImportSettings settings, Fileset fs,
+            ClientFilePathTransformer sanitizer) throws IOException {
+        fillData(config, settings, fs, sanitizer, null);
+    }
+
+    public void fillData(ImportSettings settings, Fileset fs,
+            ClientFilePathTransformer sanitizer, FileTransfer transfer) throws IOException {
+        fillData(config, settings, fs, sanitizer, transfer);
+    }
+
     public void fillData(ImportConfig config, ImportSettings settings, Fileset fs,
             ClientFilePathTransformer sanitizer) throws IOException {
         fillData(config, settings, fs, sanitizer, null);
@@ -272,6 +290,10 @@ public class ImportContainer
 
     public void fillData(ImportConfig config, ImportSettings settings, Fileset fs,
             ClientFilePathTransformer sanitizer, FileTransfer transfer) throws IOException {
+
+        if (config == null) {
+            config = new ImportConfig(); // Lazily load
+        }
 
         // TODO: These should possible be a separate option like
         // ImportUserSettings rather than mis-using ImportContainer.

@@ -29,6 +29,7 @@ import sys
 from omero.cli import BaseControl, CLI
 import omero.java
 from omero_ext.argparse import SUPPRESS
+from path import path
 
 START_CLASS = "ome.formats.importer.cli.CommandLineImporter"
 TEST_CLASS = "ome.formats.test.util.TestEngine"
@@ -55,6 +56,8 @@ Examples:
   $ bin/omero import foo.tiff -- --debug=ALL
   # Display used files for importing foo.tiff
   $ bin/omero import foo.tiff -f
+  # Limit debugging output
+  $ bin/omero import -- --debug=ERROR foo.tiff
 
 For additional information, see:
 http://www.openmicroscopy.org/site/support/omero5/users/\
@@ -79,15 +82,20 @@ class ImportControl(BaseControl):
         parser.add_argument(
             "---errs", nargs="?",
             help="File for storing the standard err of the Java process")
+        parser.add_argument(
+            "--clientdir", type=str,
+            help="Path to the directory containing the client JARs. "
+            " Default: lib/client")
+
         # The following arguments are strictly passed to Java
         name_group = parser.add_argument_group(
             'Naming arguments', 'Optional arguments passed strictly to Java.')
         name_group.add_argument(
-            "-n", "--name", dest="java_n",
+            "-n", "--name", dest="java_name",
             help="Image or plate name to use (**)",
             metavar="NAME")
         name_group.add_argument(
-            "-x", "--description", dest="java_x",
+            "-x", "--description", dest="java_description",
             help="Image or plate description to use (**)",
             metavar="DESCRIPTION")
 
@@ -156,7 +164,10 @@ class ImportControl(BaseControl):
 
     def importer(self, args):
 
-        client_dir = self.ctx.dir / "lib" / "client"
+        if args.clientdir:
+            client_dir = path(args.clientdir)
+        else:
+            client_dir = self.ctx.dir / "lib" / "client"
         etc_dir = self.ctx.dir / "etc"
         xml_file = etc_dir / "logback-cli.xml"
         logback = "-Dlogback.configurationFile=%s" % xml_file
@@ -196,16 +207,15 @@ class ImportControl(BaseControl):
             "java_l": "-l",
             "java_d": "-d",
             "java_r": "-r",
-            "java_r": "-r",
-            "java_n": "-n",
-            "java_x": "-x",
-            "java_plate_name": "--plate_name",
-            "java_plate_description": "--plate_description",
+            "java_name": ("--name",),
+            "java_description": ("--description",),
+            "java_plate_name": ("--plate_name",),
+            "java_plate_description": ("--plate_description",),
             "java_report": "--report",
             "java_upload": "--upload",
             "java_logs": "--logs",
             "java_email": "--email",
-            "java_debug": "--debug",
+            "java_debug": ("--debug",),
             "java_ns": "--annotation_ns",
             "java_text": "--annotation_text",
             "java_link": "--annotation_link",
@@ -214,9 +224,14 @@ class ImportControl(BaseControl):
         for attr_name, arg_name in java_args.items():
             arg_value = getattr(args, attr_name)
             if arg_value:
-                login_args.append(arg_name)
-                if isinstance(arg_value, (str, unicode)):
-                    login_args.append(arg_value)
+                if isinstance(arg_name, tuple):
+                    arg_name = arg_name[0]
+                    login_args.append("%s=%s" %
+                                      (arg_name, arg_value))
+                else:
+                    login_args.append(arg_name)
+                    if isinstance(arg_value, (str, unicode)):
+                        login_args.append(arg_value)
 
         a = self.COMMAND + login_args + args.path
         p = omero.java.popen(
