@@ -59,7 +59,7 @@ public class AttributeSet {
                         try {
                             multiProperties.put(key, new String((byte[]) object));
                         } catch (Exception e) {
-                            log.warn("Error trying to parse byte[] for {}: lenght={}",
+                            log.warn("Error trying to parse byte[] for {}: length={}",
                                     key, ((byte[]) object).length);
                         }
                     } else {
