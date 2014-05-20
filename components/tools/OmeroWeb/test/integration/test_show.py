@@ -199,7 +199,7 @@ def screen_plate_run_well(request, itest, update_service):
     screen.name = rstring(itest.uuid())
     plate = PlateI()
     plate.name = rstring(itest.uuid())
-    # Well A10 (will have a WellSample)
+    # Well A10 (will have two WellSamples)
     well_a = WellI()
     well_a.row = rint(0)
     well_a.column = rint(9)
@@ -207,13 +207,18 @@ def screen_plate_run_well(request, itest, update_service):
     well_b = WellI()
     well_b.row = rint(0)
     well_b.column = rint(10)
-    ws = WellSampleI()
-    image = itest.new_image(name=itest.uuid())
+    ws_a = WellSampleI()
+    image_a = itest.new_image(name=itest.uuid())
+    ws_a.image = image_a
+    ws_b = WellSampleI()
+    image_b = itest.new_image(name=itest.uuid())
+    ws_b.image = image_b
     plate_acquisition = PlateAcquisitionI()
     plate_acquisition.plate = plate
-    ws.image = image
-    ws.plateAcquisition = plate_acquisition
-    well_a.addWellSample(ws)
+    ws_a.plateAcquisition = plate_acquisition
+    ws_b.plateAcquisition = plate_acquisition
+    well_a.addWellSample(ws_a)
+    well_a.addWellSample(ws_b)
     plate.addWell(well_a)
     plate.addWell(well_b)
     screen.linkPlate(plate)
@@ -419,8 +424,8 @@ def screen_plate_run_well_show_request(
     wells = sorted(plate.copyWells(), cmp_well_column)
     # Only the first Well has a WellSample and is linked to the
     # PlateAcquisition.
-    ws, = wells[0].copyWellSamples()
-    plate_acquisition = ws.plateAcquisition
+    ws_a, ws_b = wells[0].copyWellSamples()
+    plate_acquisition = ws_a.plateAcquisition
     as_string = 'well-%d' % wells[well_index].id.val
     initially_select = [
         'acquisition-%d' % plate_acquisition.id.val,
@@ -557,8 +562,8 @@ def screen_plate_run_well_by_name_path_request(
     """
     plate, = screen_plate_run_well.linkedPlateList()
     well_a, well_b = sorted(plate.copyWells(), cmp_well_column)
-    ws, = well_a.copyWellSamples()
-    plate_acquisition = ws.plateAcquisition
+    ws_a, ws_b = well_a.copyWellSamples()
+    plate_acquisition = ws_a.plateAcquisition
     as_string = as_string_well_by_name % {
         'plate_acquisition_id': plate_acquisition.id.val,
         'plate_name': plate.name.val,
@@ -591,8 +596,8 @@ def screen_plate_run_illegal_run_request(
     """
     plate, = screen_plate_run_well.linkedPlateList()
     well_a, well_b = sorted(plate.copyWells(), cmp_well_column)
-    ws, = well_a.copyWellSamples()
-    plate_acquisition = ws.plateAcquisition
+    ws_a, ws_b = well_a.copyWellSamples()
+    plate_acquisition = ws_a.plateAcquisition
     as_string = 'plate.name-%s|run.name-Run%d' % (
         plate.name.val, plate_acquisition.id.val
     )
@@ -805,8 +810,8 @@ class TestShow(object):
         plate, = screen_plate_run_well.linkedPlateList()
         well_a, well_b = \
             sorted(plate.copyWells(), cmp_well_column)
-        ws, = well_a.copyWellSamples()
-        plate_acquisition = ws.plateAcquisition
+        ws_a, ws_b, = well_a.copyWellSamples()
+        plate_acquisition = ws_a.plateAcquisition
         first_selected = show.first_selected
         assert first_selected is not None
         assert isinstance(first_selected, PlateAcquisitionWrapper)
@@ -920,8 +925,8 @@ class TestShow(object):
         plate, = screen_plate_run_well.linkedPlateList()
         well_a, well_b = \
             sorted(plate.copyWells(), cmp_well_column)
-        ws, = well_a.copyWellSamples()
-        plate_acquisition = ws.plateAcquisition
+        ws_a, ws_b = well_a.copyWellSamples()
+        plate_acquisition = ws_a.plateAcquisition
         first_selected = show.first_selected
         assert first_selected is not None
         assert isinstance(first_selected, PlateAcquisitionWrapper)
