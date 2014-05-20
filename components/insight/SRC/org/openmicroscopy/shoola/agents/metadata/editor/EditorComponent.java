@@ -506,7 +506,7 @@ class EditorComponent
     }
 
     public void handleFileAnnotationRemoveCheck(final FileAnnotationCheckResult result) {
-        if (!result.getSingleParentAnnotations().isEmpty()) {
+        if (!result.getDeleteCandidates().isEmpty()) {
             
             JFrame f = MetadataViewerAgent.getRegistry().getTaskBar()
                     .getFrame();
@@ -516,8 +516,8 @@ class EditorComponent
                 
                 @Override
                 public void propertyChange(PropertyChangeEvent arg0) {
-                    if(arg0.getPropertyName().equals(FileAttachmentWarningDialog.DELETE_PROPERTY)) {
-                        for (FileAnnotationData fd : result.getSingleParentAnnotations()) {
+                    if (arg0.getPropertyName().equals(FileAttachmentWarningDialog.DELETE_PROPERTY)) {
+                        for (FileAnnotationData fd : result.getDeleteCandidates()) {
                           view.deleteAnnotation(fd);
                         }
                         for (FileAnnotationData fd : result.getAllAnnotations()) {
