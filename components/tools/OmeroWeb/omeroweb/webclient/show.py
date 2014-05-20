@@ -235,7 +235,7 @@ class Show(object):
                     )
                 if object_type == 'acquisition':
                     db_row, = query_service.projection(
-                        'select w.id from Well as w '
+                        'select distinct w.id from Well as w '
                         'join w.wellSamples as ws '
                         'where w.row = :row and w.column = :column '
                         'and ws.plateAcquisition.id = :id',
