@@ -263,28 +263,7 @@ class MetadataViewerUI
                     ViewedByItem.VIEWED_BY_PROPERTY, this);
             viewedByMenu.add(item);
         }
-        if (list.size() == 0) {
-            thumbnailsMenuItem = new JMenuItem("No settings saved");
-            thumbnailsMenuItem.setToolTipText("No other users " +
-                    "saved the rendering settings.");
-        } else {
-            IconManager icons = IconManager.getInstance();
-            thumbnailsMenuItem = new JMenuItem("Show thumbnails");
-            thumbnailsMenuItem.setIcon(icons.getIcon(
-                    IconManager.PREVIEW_THUMBNAILS_32));
-            thumbnailsMenuItem.addActionListener(new ActionListener() {
-                
-                public void actionPerformed(ActionEvent e)
-                {
-                    showViewedBy();
-                }
-            });
-        }
-        
-        viewedByMenu.add(thumbnailsMenuItem);
-		if (source != null && source.isVisible()) {
-		    viewedByMenu.show(source, location.x, location.y);
-		}
+        showViewedBy();
 	}
 	
 	/** Displays all the thumbnails. */
@@ -345,7 +324,6 @@ class MetadataViewerUI
 			}
 		}
 		if (items != null) showViewedBy();
-		thumbnailsMenuItem.setEnabled(items.size() > 0);
 		model.getEditor().getRenderer().loadRndSettings(true, null);
 	}
 	
