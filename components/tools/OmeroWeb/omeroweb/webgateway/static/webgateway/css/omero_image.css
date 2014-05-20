@@ -234,7 +234,7 @@ hr {
   display: none;
   position: absolute;
   background-color: #eee;
-  z-index: 10;
+  z-index: 50;
   border: solid 1px #bbb;
 }
 
