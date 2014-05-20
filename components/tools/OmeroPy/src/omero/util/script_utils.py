@@ -1103,11 +1103,7 @@ def parseInputs(client, session=None, processFn=IdentityFn):
             "argument `session' is no longer required and may be removed from future versions of OMERO",
             DeprecationWarning
         )
-    inputKeys = client.getInputKeys();
-    commandArgs = {};
-    for key in inputKeys:
-        commandArgs[key]=client.getInput(key).getValue();
-    return processFn(commandArgs);
+    return processFn(client.getInputs(unwrap=True))
 
 
 def getROIFromImage(iROIService, imageId, namespace=None):
