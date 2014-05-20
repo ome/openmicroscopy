@@ -47,7 +47,7 @@ public class ProcessorCallbackI extends AbstractAmdServant
 
     private final ServiceFactoryI sf;
 
-    private final ResultHolder<String> holder;
+    private final ResultHolder<ProcessorPrx> holder;
 
     private final AtomicInteger responses = new AtomicInteger(0);
 
@@ -58,7 +58,7 @@ public class ProcessorCallbackI extends AbstractAmdServant
      * {@link ResultHolder} instance.
      */
     public ProcessorCallbackI(ServiceFactoryI sf) {
-        this(sf, new ResultHolder<String>(5 * 1000), null);
+        this(sf, new ResultHolder<ProcessorPrx>(5 * 1000), null);
     }
 
     /**
@@ -72,7 +72,7 @@ public class ProcessorCallbackI extends AbstractAmdServant
      * @param job
      *            Can be null.
      */
-    public ProcessorCallbackI(ServiceFactoryI sf, ResultHolder<String> holder,
+    public ProcessorCallbackI(ServiceFactoryI sf, ResultHolder<ProcessorPrx> holder,
             Job job) {
         super(null, null);
         this.sf = sf;
@@ -130,10 +130,7 @@ public class ProcessorCallbackI extends AbstractAmdServant
                             .getCurrentGroupId(), false),
                             this.job, cbPrx);
             sf.topicManager.onApplicationEvent(msg);
-            String server = holder.get();
-            Ice.ObjectPrx p = sf.adapter.getCommunicator()
-                    .stringToProxy(server);
-            return ProcessorPrxHelper.uncheckedCast(p);
+            return holder.get();
         } finally {
             sf.unregisterServant(acceptId);
         }
@@ -146,6 +143,7 @@ public class ProcessorCallbackI extends AbstractAmdServant
             String procConn, Current __current) {
 
         responses.incrementAndGet();
+        Exception exc = null;
         String reason = "because false returned";
 
         if (accepted) {
@@ -159,17 +157,29 @@ public class ProcessorCallbackI extends AbstractAmdServant
                 if (procEc.isCurrentUserAdmin()
                         || procEc.getCurrentUserId().equals(
                                 ec.getCurrentUserId())) {
-                    this.holder.set(procConn);
+                    Ice.ObjectPrx p = sf.adapter.getCommunicator()
+                            .stringToProxy(procConn);
+                    this.holder.set(ProcessorPrxHelper.checkedCast(p));
+                    return;  // EARLY EXIT
                 } else {
                     reason = "since disallowed";
                 }
+            } catch (Ice.ObjectNotExistException onee) {
+                exc = onee;
+                reason = "due to ObjectNotExistException: " + procConn;
             } catch (Exception e) {
+                exc = e;
                 reason = "due to exception: " + e.getMessage();
             }
         }
 
-        log.debug(String.format("Processor with session %s rejected %s",
-                sessionUuid, reason));
+        String msg = String.format("Processor with session %s rejected %s",
+                sessionUuid, reason);
+        if (exc != null) {
+            log.warn(msg, exc);
+        } else {
+            log.debug(msg);
+        }
         this.holder.set(null);
 
     }

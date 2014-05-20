@@ -411,7 +411,7 @@ public class SharedResourcesI extends AbstractCloseableAmdServant implements
 
         // Okay. All's valid.
         final Job job = (Job) mapper.map(savedJob);
-        ResultHolder<String> holder = new ResultHolder<String>(seconds*1000);
+        ResultHolder<ProcessorPrx> holder = new ResultHolder<ProcessorPrx>(seconds*1000);
         ProcessorCallbackI callback = new ProcessorCallbackI(sf, holder, job);
         ProcessorPrx server = callback.activateAndWait(current);
 
