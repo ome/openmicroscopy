@@ -228,20 +228,20 @@ class Show(object):
                 params.map['column'] = rint(column)
                 params.addId(parent.id)
                 if object_type == 'plate':
-                    row, = query_service.projection(
+                    db_row, = query_service.projection(
                         'select w.id from Well as w '
                         'where w.row = :row and w.column = :column '
                         'and w.plate.id = :id', params, self.conn.SERVICE_OPTS
                     )
                 if object_type == 'acquisition':
-                    row, = query_service.projection(
+                    db_row, = query_service.projection(
                         'select w.id from Well as w '
                         'join w.wellSamples as ws '
                         'where w.row = :row and w.column = :column '
                         'and ws.plateAcquisition.id = :id',
                         params, self.conn.SERVICE_OPTS
                     )
-                well_id, = row
+                well_id, = db_row
                 return self.conn.getObject(
                     'Well', well_id.val
                 )
