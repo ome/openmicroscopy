@@ -29,7 +29,7 @@
         <a href="#">{% if manager.experimenter %}{{ manager.experimenter.getFullName }}{% else %}{% setting UI_MENU_DROPDOWN.ALL %}{% endif %}</a>
         <ul>
             {% for c in projects %}
-            <li id='project-{{ c.id }}' rel="project{% if not c.isOwned %}-locked{% endif %}" class="{{ c.getPermsCss }}">
+            <li id='project-{{ c.id }}' rel="project{% if not c.isOwned %}-locked{% endif %}" class="{{ c.permsCss }}">
 				<a href="#">{{ c.name|default:"Project"|truncatebefor:"35" }} {% if c.childCount %}
 					<span class="children_count" id="counter-project-{{ c.id }}">{{ c.childCount }}</span>{% endif %}
 				</a>
