@@ -475,16 +475,18 @@ class ToolBar
 		linkButton = new JButton(icons.getIcon(IconManager.LINK));
 		linkButton.addMouseListener(new MouseAdapter() {
 			
-			/**
-			 * Launches the dialog when the user releases the mouse.
-			 * MouseAdapter#mouseReleased(MouseEvent)
-			 */
-			public void mouseReleased(MouseEvent e)
-			{
-				location = e.getPoint();
-				component = (Component) e.getSource();
-				createLinkMenu().show(component, location.x, location.y);
-			}
+                    /**
+                     * Launches the dialog when the user releases the mouse.
+                     * MouseAdapter#mouseReleased(MouseEvent)
+                     */
+                    public void mouseReleased(MouseEvent e) {
+                        if (linkButton.isEnabled()) {
+                            location = e.getPoint();
+                            component = (Component) e.getSource();
+                            createLinkMenu().show(component, location.x, location.y);
+                        }
+                    }
+                    
 		});
 		
 		UIUtilities.unifiedButtonLookAndFeel(linkButton);
@@ -540,6 +542,14 @@ class ToolBar
     	*/
     	//bar.add(scriptsButton);
     	return bar;
+    }
+    
+    /**
+     * Enables or disables the Show File path button
+     * @param b <code>true</code> enables the button; disables the button otherwise
+     */
+    public void enableFilePathButton(boolean b) {
+        linkButton.setEnabled(b);
     }
     
     /** Builds and lays out the UI. */
