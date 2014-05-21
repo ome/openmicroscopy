@@ -482,12 +482,31 @@ namespace omero {
             try {
                 std::map<string, string> ctx = getImplicitContext()->getContext();
                 ctx[omero::constants::AGENT] = __agent;
-                prx = getRouter(__ic)->createSession(username, password);
+                Glacier2::RouterPrx rtr = getRouter(__ic);
+                prx = rtr->createSession(username, password);
 
                 // Register the default client callback.
                 Ice::Identity id = Ice::Identity();
                 id.name = __uuid;
                 id.category = getRouter(__ic)->getCategoryForClient();
+
+                // see ticket:8266
+                int sz = id.category.length();
+                if (id.category[sz-1] == '\\' && id.category[sz-2] != '\\') {
+                    stringstream bad;
+                    bad << "bad category: " << id.category;
+                    __ic->getLogger()->warning(bad.str());
+                    try {
+                        rtr->destroySession();
+                    } catch (Glacier2::SessionNotExistException snee) {
+                        // just created; highly unlikely.
+                    }
+                    omero::WrappedCreateSessionException exc;
+                    exc.concurrency = true; // white lie
+                    exc.type = "local";
+                    exc.reason = bad.str();
+                    throw exc;
+                }
 
                 __oa = __ic->createObjectAdapterWithRouter("omero.ClientCallback", getRouter(__ic));
                 __oa->activate();
