@@ -66,11 +66,13 @@ CREATE FUNCTION is_too_many_group_ids(VARIADIC group_ids BIGINT[]) RETURNS BOOLE
         user_group  BIGINT;
         other_group BIGINT;
         curr_group  BIGINT;
+        index       BIGINT;
 
     BEGIN
         SELECT id INTO user_group FROM experimentergroup WHERE name = 'user';
 
-        FOREACH curr_group IN ARRAY group_ids LOOP
+        FOR index IN 1 .. array_upper(group_ids, 1) LOOP
+            curr_group := group_ids[index];
             CONTINUE WHEN user_group = curr_group;
             IF other_group IS NULL THEN
                 other_group := curr_group;
