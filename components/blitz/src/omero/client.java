@@ -711,13 +711,28 @@ public class client {
                 Glacier2.RouterPrx rtr = getRouter(__ic);
                 prx = rtr.createSession(username, password, ctx);
 
-                // Create the adapter.
-                __oa = __ic.createObjectAdapterWithRouter("omero.ClientCallback", rtr);
-                __oa.activate();
-
                 Ice.Identity id = new Ice.Identity();
                 id.name = __uuid;
                 id.category = rtr.getCategoryForClient();
+
+                // see ticket:8266
+                if (id.category.endsWith("\\") && !id.category.endsWith("\\\\")) {
+                    __ic.getLogger().warning("bad category: " + id.category);
+                    try {
+                        rtr.destroySession();
+                    } catch (Glacier2.SessionNotExistException snee) {
+                        // just created; highly unlikely.
+                    }
+                    omero.WrappedCreateSessionException exc = new omero.WrappedCreateSessionException();
+                    exc.concurrency = true; // white lie
+                    exc.type = "local";
+                    exc.reason = "bad category: " + id.category;
+                    throw exc;
+                }
+
+                // Create the adapter.
+                __oa = __ic.createObjectAdapterWithRouter("omero.ClientCallback", rtr);
+                __oa.activate();
 
                 __cb = new CallbackI(id, this.__ic, this.__oa);
                 __oa.add(__cb, id);
