@@ -528,7 +528,9 @@ class BaseClient(object):
                     id.category = rtr.getCategoryForClient()
 
                     # see ticket:8266
-                    if id.category[-1] == "\\" and id.category[-2] != "\\":
+                    id_test = self.__ic.identityToString(id)
+                    id_test = self.__ic.stringToIdentity(id_test)
+                    if not id_test.category:
                         self.__logger.warn("bad category: %s" % id.category)
                         rtr.destroySession()
                         exc = omero.WrappedCreateSessionException()

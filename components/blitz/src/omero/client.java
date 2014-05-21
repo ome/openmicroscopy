@@ -716,7 +716,9 @@ public class client {
                 id.category = rtr.getCategoryForClient();
 
                 // see ticket:8266
-                if (id.category.endsWith("\\") && !id.category.endsWith("\\\\")) {
+                String id_test_s = __ic.identityToString(id);
+                Ice.Identity id_test = __ic.stringToIdentity(id_test_s);
+                if (id_test.category == null || id_test.category.length() == 0) {
                     __ic.getLogger().warning("bad category: " + id.category);
                     try {
                         rtr.destroySession();
