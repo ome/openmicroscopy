@@ -103,9 +103,11 @@ class TestInputs(lib.ITest):
         impl = omero.processor.usermode_processor(self.root)
 
         # see #8266 - check for ending slash
-        cat = impl.prx.ice_getIdentity().category
-        if cat[-1] == "//":
-            assert not cat[-2] == "//"
+        ic = impl.prx.ice_getCommunicator()
+        id1 = impl.prx.ice_getIdentity()
+        id2 = ic.identityToString(id1)
+        id3 = ic.stringToIdentity(id2)
+        assert id3.category
 
         try:
             process = scripts.runScript(id, input, None)
