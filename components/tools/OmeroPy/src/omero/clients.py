@@ -523,18 +523,27 @@ class BaseClient(object):
                     rtr = self.getRouter(self.__ic)
                     prx = rtr.createSession(username, password, ctx)
 
+                    id = Ice.Identity()
+                    id.name = self.__uuid
+                    id.category = rtr.getCategoryForClient()
+
+                    # see ticket:8266
+                    if id.category[-1] == "\\" and id.category[-2] != "\\":
+                        self.__logger.warn("bad category: %s" % id.category)
+                        rtr.destroySession()
+                        exc = omero.WrappedCreateSessionException()
+                        exc.concurrency = True  # white lie
+                        exc.type = "local"
+                        exc.reason = "bad category: %s" % id.category
+                        raise exc
+
                     # Create the adapter
                     self.__oa = self.__ic.createObjectAdapterWithRouter( \
                             "omero.ClientCallback", rtr)
                     self.__oa.activate()
 
-                    id = Ice.Identity()
-                    id.name = self.__uuid
-                    id.category = rtr.getCategoryForClient()
-
                     self.__cb = BaseClient.CallbackI(self.__ic, self.__oa, id)
                     self.__oa.add(self.__cb, id)
-
 
                     break
                 except omero.WrappedCreateSessionException, wrapped:
