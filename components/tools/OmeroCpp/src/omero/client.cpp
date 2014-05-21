@@ -491,8 +491,9 @@ namespace omero {
                 id.category = getRouter(__ic)->getCategoryForClient();
 
                 // see ticket:8266
-                int sz = id.category.length();
-                if (id.category[sz-1] == '\\' && id.category[sz-2] != '\\') {
+                std::string id_test_s = __ic->identityToString(id);
+                Ice::Identity id_test = __ic->stringToIdentity(id_test_s);
+                if (id_test.category.empty()) {
                     stringstream bad;
                     bad << "bad category: " << id.category;
                     __ic->getLogger()->warning(bad.str());
