@@ -827,6 +827,14 @@
     syncRDCW();
   }
 
+  function show_image_link() {
+    var link = location.href.substring(0,location.href.length - location.search.length);
+    link = link.replace(/(.*?\/)\d+(?:\/\d+)?(?:\/)#?$/,'$1');
+    link = link + viewport.getCurrentImgUrlPath() +'?'+ viewport.getQuery(true)
+    $('#curr-link input').attr('value', link);
+    return false;
+  }
+
   function show_tooltip(self, ttid) {
     var pos = $(self).parents('div').offset();
     pos.top += $(self).parents('div').height();
@@ -1159,7 +1167,7 @@
           </div>
           <div class="even row">
                       <a href="#" onmouseover="this.href=viewport.getUrl('img_detail')"
-               onclick="$('#curr-link input').attr('value', location.href.substring(0,location.href.length - location.search.length).replace(/(.*?\/)\d+(?:\/\d+)?(?:\/)?$/,'$1') + viewport.getCurrentImgUrlPath() +'?'+ viewport.getQuery(true));
+                      onclick="show_image_link();
                         show_tooltip(this, 'curr-link'); return false;">
                 Image Link
             </a><br />
