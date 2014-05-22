@@ -842,7 +842,8 @@ class ProcessorI(omero.grid.Processor, omero.util.Servant):
             id = self.internal_session().ice_getIdentity().name
             cb = cb.ice_oneway()
             cb = omero.grid.ProcessorCallbackPrx.uncheckedCast(cb)
-            cb.isAccepted(valid, id, str(self.prx))
+            prx = omero.grid.ProcessorPrx.uncheckedCast(self.prx)
+            cb.isAccepted(valid, id, prx)
         except Exception, e:
             self.logger.warn("callback failed on willAccept: %s Exception:%s", cb, e)
 
