@@ -497,11 +497,15 @@ namespace omero {
                     stringstream bad;
                     bad << "bad category: " << id.category;
                     __ic->getLogger()->warning(bad.str());
-                    try {
-                        rtr->destroySession();
-                    } catch (Glacier2::SessionNotExistException snee) {
-                        // just created; highly unlikely.
+                    // Attempt cleanup
+                    omero::api::ServiceFactoryPrx sf = omero::api::ServiceFactoryPrx::uncheckedCast(prx);
+                    if (sf) {
+                        // Since we don't know if the client had already
+                        // been used, safest to detach and allow this
+                        // session to timeout.
+                        sf->detachOnDestroy();
                     }
+                    rtr->destroySession(); // possibly throws
                     omero::WrappedCreateSessionException exc;
                     exc.concurrency = true; // white lie
                     exc.type = "local";
