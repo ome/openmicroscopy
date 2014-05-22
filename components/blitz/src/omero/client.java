@@ -720,10 +720,18 @@ public class client {
                 Ice.Identity id_test = __ic.stringToIdentity(id_test_s);
                 if (id_test.category == null || id_test.category.length() == 0) {
                     __ic.getLogger().warning("bad category: " + id.category);
+                    // Attempt cleanup
+                    ServiceFactoryPrx sf = ServiceFactoryPrxHelper.uncheckedCast(prx);
+                    if (sf != null) {
+                        // Since we don't know if the client had already
+                        // been used, safest to detach and allow this
+                        // session to timeout.
+                        sf.detachOnDestroy();
+                    }
                     try {
                         rtr.destroySession();
                     } catch (Glacier2.SessionNotExistException snee) {
-                        // just created; highly unlikely.
+                        throw new RuntimeException("Failed on 8266 cleanup", snee);
                     }
                     omero.WrappedCreateSessionException exc = new omero.WrappedCreateSessionException();
                     exc.concurrency = true; // white lie

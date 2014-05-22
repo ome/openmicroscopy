@@ -532,7 +532,14 @@ class BaseClient(object):
                     id_test = self.__ic.stringToIdentity(id_test)
                     if not id_test.category:
                         self.__logger.warn("bad category: %s" % id.category)
-                        rtr.destroySession()
+                        # Attempt cleanup
+                        sf = omero.api.ServiceFactoryPrx.uncheckedCast(prx)
+                        if sf:
+                            # Since we don't know if the client had already
+                            # been used, safest to detach and allow this
+                            # session to timeout.
+                            sf.detachOnDestroy()
+                        rtr.destroySession()  # possibly throws
                         exc = omero.WrappedCreateSessionException()
                         exc.concurrency = True  # white lie
                         exc.type = "local"
