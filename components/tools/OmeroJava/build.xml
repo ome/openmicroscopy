@@ -57,33 +57,21 @@
             </fileset>
             <fileset dir="${blitz.comp}/target/classes">
                 <include name="ome/formats/**/*.class"/>
-                <include name="pojos/*.class"/>
+                <include name="ome/services/**/*.class"/>
                 <include name="omero/**/*.class"/>
+                <include name="pojos/*.class"/>
                 <exclude name="omero/**/_*Tie.class"/>
                 <exclude name="omero/_*Del*.class"/>
+                <exclude name="omero/internal/**"/>
                 <exclude name="omero/model/_*Del*.class"/>
                 <exclude name="omero/sys/_*Del*.class"/>
-                <!--
-                <exclude name="omero/sys/_*DelD.class"/>
-                <exclude name="omero/sys/_*DelD$*.class"/>
-                -->
-                <exclude name="omero/internal/**"/>
             </fileset>
             <fileset dir="${common.comp}/target/classes">
-                <include name="ome/system/UpgradeCheck.class"/>
-                <include name="ome/system/OmeroContext.class"/>
+                <include name="ome/system/*.class"/>
                 <include name="ome/util/checksum/*.class"/>
             </fileset>
             <fileset dir="${model.comp}/target/classes">
                 <include name="ome/model/**/*.class"/>
-                <!-- Possible only need the following, but adding util
-                classes for now
-                 <include name="ome/util/Filterable.class"/>
-                 <include name="ome/util/Filter.class"/>
-                 <include name="ome/util/ModelMapper.class"/>
-                 <include name="ome/util/ReverseModelMapper.class"/>
-                 <include name="ome/util/Utils.class"/>
-                -->
                 <include name="ome/util/*.class"/>
                 <include name="ome/conditions/**/*.class"/>
             </fileset>
