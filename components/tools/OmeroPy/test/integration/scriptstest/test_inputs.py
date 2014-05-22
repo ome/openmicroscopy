@@ -101,14 +101,6 @@ class TestInputs(lib.ITest):
             "/tests/inputs_py/%s.py" % self.uuid(), sendfile)
         input = {"a": rint(100)}
         impl = omero.processor.usermode_processor(self.root)
-
-        # see #8266 - check for ending slash
-        ic = impl.prx.ice_getCommunicator()
-        id1 = impl.prx.ice_getIdentity()
-        id2 = ic.identityToString(id1)
-        id3 = ic.stringToIdentity(id2)
-        assert id3.category
-
         try:
             process = scripts.runScript(id, input, None)
             cb = omero.scripts.ProcessCallbackI(self.root, process)

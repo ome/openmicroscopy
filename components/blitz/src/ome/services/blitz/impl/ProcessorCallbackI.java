@@ -138,8 +138,19 @@ public class ProcessorCallbackI extends AbstractAmdServant
 
     /**
      * Callback method called by the remote processor instance.
+     * See ticket 8266 for reasons this method should not be used.
      */
+    @Deprecated
     public void isAccepted(boolean accepted, String sessionUuid,
+            String procConn, Current __current) {
+        isProxyAccepted(accepted, sessionUuid, ProcessorPrxHelper.checkedCast(
+            sf.adapter.getCommunicator().stringToProxy(procConn)), __current);
+    }
+
+    /**
+     * Callback method called by the remote processor instance.
+     */
+    public void isProxyAccepted(boolean accepted, String sessionUuid,
             ProcessorPrx procProxy, Current __current) {
 
         responses.incrementAndGet();
