@@ -482,36 +482,12 @@ namespace omero {
             try {
                 std::map<string, string> ctx = getImplicitContext()->getContext();
                 ctx[omero::constants::AGENT] = __agent;
-                Glacier2::RouterPrx rtr = getRouter(__ic);
-                prx = rtr->createSession(username, password);
+                prx = getRouter(__ic)->createSession(username, password);
 
                 // Register the default client callback.
                 Ice::Identity id = Ice::Identity();
                 id.name = __uuid;
                 id.category = getRouter(__ic)->getCategoryForClient();
-
-                // see ticket:8266
-                std::string id_test_s = __ic->identityToString(id);
-                Ice::Identity id_test = __ic->stringToIdentity(id_test_s);
-                if (id_test.category.empty()) {
-                    stringstream bad;
-                    bad << "bad category: " << id.category;
-                    __ic->getLogger()->warning(bad.str());
-                    // Attempt cleanup
-                    omero::api::ServiceFactoryPrx sf = omero::api::ServiceFactoryPrx::uncheckedCast(prx);
-                    if (sf) {
-                        // Since we don't know if the client had already
-                        // been used, safest to detach and allow this
-                        // session to timeout.
-                        sf->detachOnDestroy();
-                    }
-                    rtr->destroySession(); // possibly throws
-                    omero::WrappedCreateSessionException exc;
-                    exc.concurrency = true; // white lie
-                    exc.type = "local";
-                    exc.reason = bad.str();
-                    throw exc;
-                }
 
                 __oa = __ic->createObjectAdapterWithRouter("omero.ClientCallback", getRouter(__ic));
                 __oa->activate();
