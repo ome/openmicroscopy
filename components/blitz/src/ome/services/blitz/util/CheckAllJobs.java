@@ -129,8 +129,13 @@ public class CheckAllJobs extends OnContextRefreshedEventListener {
         private final List<Long> openJobs = new ArrayList<Long>();
 
         public void isAccepted(boolean accepted, String sessionUuid,
-                ProcessorPrx procProxy, Current __current) {
+                String proxyConn, Current __current) {
             log.error("isAccepted should not have been called");
+        }
+
+        public void isProxyAccepted(boolean accepted, String sessionUuid,
+                ProcessorPrx procProxy, Current __current) {
+            log.error("isProxyAccepted should not have been called");
         }
 
         public void responseRunning(List<Long> jobIds, Current __current) {

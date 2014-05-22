@@ -843,7 +843,7 @@ class ProcessorI(omero.grid.Processor, omero.util.Servant):
             cb = cb.ice_oneway()
             cb = omero.grid.ProcessorCallbackPrx.uncheckedCast(cb)
             prx = omero.grid.ProcessorPrx.uncheckedCast(self.prx)
-            cb.isAccepted(valid, id, prx)
+            cb.isProxyAccepted(valid, id, prx)
         except Exception, e:
             self.logger.warn("callback failed on willAccept: %s Exception:%s", cb, e)
 

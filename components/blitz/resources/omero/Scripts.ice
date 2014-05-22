@@ -557,7 +557,8 @@ module omero {
          * to query whether or not a processor will accept a certain operation.
          **/
         interface ProcessorCallback {
-            void isAccepted(bool accepted, string sessionUuid, Processor* procProxy);
+            void isAccepted(bool accepted, string sessionUuid, string procConn);
+            void isProxyAccepted(bool accepted, string sessionUuid, Processor* procProxy);
             void responseRunning(omero::api::LongList jobIds);
         };
 
