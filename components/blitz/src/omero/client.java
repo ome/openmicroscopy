@@ -711,38 +711,13 @@ public class client {
                 Glacier2.RouterPrx rtr = getRouter(__ic);
                 prx = rtr.createSession(username, password, ctx);
 
-                Ice.Identity id = new Ice.Identity();
-                id.name = __uuid;
-                id.category = rtr.getCategoryForClient();
-
-                // see ticket:8266
-                String id_test_s = __ic.identityToString(id);
-                Ice.Identity id_test = __ic.stringToIdentity(id_test_s);
-                if (id_test.category == null || id_test.category.length() == 0) {
-                    __ic.getLogger().warning("bad category: " + id.category);
-                    // Attempt cleanup
-                    ServiceFactoryPrx sf = ServiceFactoryPrxHelper.uncheckedCast(prx);
-                    if (sf != null) {
-                        // Since we don't know if the client had already
-                        // been used, safest to detach and allow this
-                        // session to timeout.
-                        sf.detachOnDestroy();
-                    }
-                    try {
-                        rtr.destroySession();
-                    } catch (Glacier2.SessionNotExistException snee) {
-                        throw new RuntimeException("Failed on 8266 cleanup", snee);
-                    }
-                    omero.WrappedCreateSessionException exc = new omero.WrappedCreateSessionException();
-                    exc.concurrency = true; // white lie
-                    exc.type = "local";
-                    exc.reason = "bad category: " + id.category;
-                    throw exc;
-                }
-
                 // Create the adapter.
                 __oa = __ic.createObjectAdapterWithRouter("omero.ClientCallback", rtr);
                 __oa.activate();
+
+                Ice.Identity id = new Ice.Identity();
+                id.name = __uuid;
+                id.category = rtr.getCategoryForClient();
 
                 __cb = new CallbackI(id, this.__ic, this.__oa);
                 __oa.add(__cb, id);
