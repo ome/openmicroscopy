@@ -19,6 +19,7 @@ import omero.constants.categories.PROCESSORCALLBACK;
 import omero.constants.topics.PROCESSORACCEPTS;
 import omero.grid.ProcessorCallbackPrx;
 import omero.grid.ProcessorCallbackPrxHelper;
+import omero.grid.ProcessorPrx;
 import omero.grid.ProcessorPrxHelper;
 import omero.grid._ProcessorCallbackDisp;
 
@@ -128,7 +129,7 @@ public class CheckAllJobs extends OnContextRefreshedEventListener {
         private final List<Long> openJobs = new ArrayList<Long>();
 
         public void isAccepted(boolean accepted, String sessionUuid,
-                String processorConn, Current __current) {
+                ProcessorPrx procProxy, Current __current) {
             log.error("isAccepted should not have been called");
         }
 

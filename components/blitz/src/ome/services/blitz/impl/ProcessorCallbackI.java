@@ -140,16 +140,17 @@ public class ProcessorCallbackI extends AbstractAmdServant
      * Callback method called by the remote processor instance.
      */
     public void isAccepted(boolean accepted, String sessionUuid,
-            String procConn, Current __current) {
+            ProcessorPrx procProxy, Current __current) {
 
         responses.incrementAndGet();
         Exception exc = null;
         String reason = "because false returned";
 
         if (accepted) {
+            String procLog = sf.adapter.getCommunicator().proxyToString(procProxy);
             log.debug(String.format(
                     "Processor with session %s returned %s accepted",
-                    sessionUuid, procConn, accepted));
+                    sessionUuid, procLog, accepted));
             try {
                 EventContext procEc = sf.sessionManager
                         .getEventContext(new Principal(sessionUuid));
@@ -157,16 +158,14 @@ public class ProcessorCallbackI extends AbstractAmdServant
                 if (procEc.isCurrentUserAdmin()
                         || procEc.getCurrentUserId().equals(
                                 ec.getCurrentUserId())) {
-                    Ice.ObjectPrx p = sf.adapter.getCommunicator()
-                            .stringToProxy(procConn);
-                    this.holder.set(ProcessorPrxHelper.checkedCast(p));
+                    this.holder.set(ProcessorPrxHelper.checkedCast(procProxy));
                     return;  // EARLY EXIT
                 } else {
                     reason = "since disallowed";
                 }
             } catch (Ice.ObjectNotExistException onee) {
                 exc = onee;
-                reason = "due to ObjectNotExistException: " + procConn;
+                reason = "due to ObjectNotExistException: " + procLog;
             } catch (Exception e) {
                 exc = e;
                 reason = "due to exception: " + e.getMessage();
