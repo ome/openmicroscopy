@@ -76,7 +76,7 @@ from omeroweb.feedback.views import handlerInternalError
 
 from omeroweb.webclient.decorators import login_required
 from omeroweb.webclient.decorators import render_response
-from omeroweb.webclient.show import Show
+from omeroweb.webclient.show import Show, IncorrectMenuError
 from omeroweb.connector import Connector
 from omeroweb.decorators import ConnCleaningHttpResponse
 
@@ -313,7 +313,10 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
     show = Show(conn, request, menu)
     # Constructor does no loading.  Show.first_selected must be called first
     # in order to set up our initial state correctly.
-    first_sel = show.first_selected
+    try:
+        first_sel = show.first_selected
+    except IncorrectMenuError, e:
+        return HttpResponseRedirect(e.uri)
     init = {
         'initially_open': show.initially_open,
         'initially_select': show.initially_select
@@ -460,10 +463,29 @@ def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_ty
                     form_well_index = WellIndexForm(initial={'index':index, 'range':fields})
                     if index == 0:
                         index = fields[0]
-                show = request.REQUEST.get('show', None)
-                if show is not None:
-                    select_wells = [w.split("-")[1] for w in show.split("|") if w.startswith("well-")]
-                    context['select_wells'] = ",".join(select_wells)
+
+                # We don't know what our menu is so we're setting it to None.
+                # Should only raise an exception below if we've been asked to
+                # show some tags which we don't care about anyway in this
+                # context.
+                show = Show(conn, request, None)
+                # Constructor does no loading.  Show.first_selected must be
+                # called first in order to set up our initial state correctly.
+                try:
+                    first_selected = show.first_selected
+                    if first_selected is not None:
+                        wells_to_select = list()
+                        paths = show.initially_open + show.initially_select
+                        for path in paths:
+                            m = Show.PATH_REGEX.match(path)
+                            if m is None:
+                                continue
+                            if m.group('object_type') == 'well':
+                                wells_to_select.append(m.group('value'))
+                        context['select_wells'] = ','.join(wells_to_select)
+                except IncorrectMenuError, e:
+                    pass
+
                 context['baseurl'] = reverse('webgateway').rstrip('/')
                 context['form_well_index'] = form_well_index
                 template = "webclient/data/plate.html"

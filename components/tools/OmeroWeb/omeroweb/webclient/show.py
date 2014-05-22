@@ -24,8 +24,25 @@ Generic functionality for handling particular links and "showing" objects
 in the OMERO.web tree view.
 """
 
-from django.http import HttpResponseRedirect
+import omero
+import re
+
+from omero.rtypes import rint
 from django.core.urlresolvers import reverse
+
+
+class IncorrectMenuError(Exception):
+    """Exception to signal that we are on the wrong menu."""
+
+    def __init__(self, uri):
+        """
+        Constructs a new Exception instance.
+
+        @param uri URI to redirect to.
+        @type uri String
+        """
+        super(Exception, self).__init__()
+        self.uri = uri
 
 
 class Show(object):
@@ -39,15 +56,24 @@ class Show(object):
     # List of prefixes that are at the top level of the tree
     TOP_LEVEL_PREFIXES = ('project', 'screen')
 
-    # List of supported prefixes for the "path" query string variable
-    SUPPORTED_PATH_PREFIXES = (
-        'project', 'dataset', 'image', 'screen', 'plate', 'tag'
-    )
-
-    # List of supported prefixes for the "show" query string variable
-    SUPPORTED_SHOW_PREFIXES = (
+    # List of supported object types
+    SUPPORTED_OBJECT_TYPES = (
         'project', 'dataset', 'image', 'screen', 'plate', 'tag',
         'acquisition', 'run', 'well'
+    )
+
+    # Regular expression which declares the format for a "path" used either
+    # in the "path" or "show" query string.  No modifications should be made
+    # to this regex without corresponding unit tests in
+    # "tests/unit/test_show.py".
+    PATH_REGEX = re.compile(
+        r'(?P<object_type>\w+)\.?(?P<key>\w+)?[-=](?P<value>[^\|]*)\|?'
+    )
+
+    # Regular expression for matching Well names
+    WELL_REGEX = re.compile(
+        '^(?:(?P<alpha_row>[a-zA-Z]+)(?P<digit_column>\d+))|'
+        '(?:(?P<digit_row>\d+)(?P<alpha_column>[a-zA-Z]+))$'
     )
 
     def __init__(self, conn, request, menu):
@@ -84,39 +110,163 @@ class Show(object):
         self.request = request
         self.menu = menu
 
-        # E.g. backwards compatible support for
-        # path=project=51|dataset=502|image=607 (select the image)
-        path = self.request.REQUEST.get('path', '')
-        i = path.split("|")[-1]
-        if i.split("=")[0] in self.SUPPORTED_PATH_PREFIXES:
-            # Backwards compatible with image=607 etc
-            self._initially_select.append(str(i).replace("=", '-'))
+        path = self.request.REQUEST.get('path', '').split('|')[-1]
+        self._add_if_supported(path)
 
-        # Now we support show=image-607|image-123  (multi-objects selected)
         show = self.request.REQUEST.get('show', '')
-        for i in show.split("|"):
-            if i.split("-")[0] in self.SUPPORTED_SHOW_PREFIXES:
-                # 'run' is an alternative for 'acquisition'
-                i = i.replace('run', 'acquisition')
-                self._initially_select.append(str(i))
+        for path in show.split('|'):
+            self._add_if_supported(path)
 
-    def _load_first_selected(self, first_obj, first_id):
+    def _add_if_supported(self, path):
+        """Adds a path to the initially selected list if it is supported."""
+        m = self.PATH_REGEX.match(path)
+        if m is None:
+            return
+        object_type = m.group('object_type')
+        key = m.group('key')
+        value = m.group('value')
+        if key is None:
+            key = 'id'
+        if object_type in self.SUPPORTED_OBJECT_TYPES:
+            # 'run' is an alternative for 'acquisition'
+            object_type = object_type.replace('run', 'acquisition')
+            self._initially_select.append(
+                '%s.%s-%s' % (object_type, key, value)
+            )
+
+    def _load_tag(self, attributes):
         """
-        Loads the first selected object from the server.
+        Loads a Tag based on a certain set of attributes from the server.
+
+        @param attributes Set of attributes to filter on.
+        @type attributes L{dict}
+        """
+        # Tags have an "Annotation" suffix added to the object name so
+        # need to be loaded differently.
+        return next(self.conn.getObjects(
+            "TagAnnotation", attributes=attributes
+        ))
+
+    def get_well_row_column(self, well):
+        """
+        Retrieves a tuple of row and column as L{int} for a given Well name
+        ("A1" or "1A") string.
+
+        @param well Well name string to retrieve the row and column tuple for.
+        @type well L{str}
+        """
+        m = self.WELL_REGEX.match(well)
+        if m is None:
+            return None
+        # We are using an algorithm that expects alpha columns and digit
+        # rows (like a spreadsheet).  is_reversed will be True if those
+        # conditions are not met, signifying that the row and column
+        # calculated needs to be reversed before returning.
+        is_reversed = False
+        if m.group('alpha_row') is not None:
+            a = m.group('alpha_row').upper()
+            b = m.group('digit_column')
+            is_reversed = True
+        else:
+            a = m.group('alpha_column').upper()
+            b = m.group('digit_row')
+
+        # Convert base26 column string to number.  Adapted from XlsxWriter:
+        #   * https://github.com/jmcnamara/XlsxWriter
+        #     * xlsxwriter/utility.py
+        n = 0
+        column = 0
+        for character in reversed(a):
+            column += (ord(character) - ord('A') + 1) * (26 ** n)
+            n += 1
+
+        # Convert 1-index to zero-index
+        row = int(b) - 1
+        column -= 1
+
+        if is_reversed:
+            return column, row
+        return row, column
+
+    def _load_well(self, attributes):
+        """
+        Loads a Well based on a certain set of attributes from the server.
+
+        @param attributes Set of attributes to filter on.
+        @type attributes L{dict}
+        """
+        if 'id' in attributes:
+            return self.conn.getObject('Well', attributes=attributes)
+        if 'name' in attributes:
+            row, column = self.get_well_row_column(attributes['name'])
+            path = self.request.REQUEST.get('path', '')
+            for m in self.PATH_REGEX.finditer(path):
+                object_type = m.group('object_type')
+                # May have 'run' here rather than 'acquisition' because
+                # the path will not have been validated and replaced.
+                if object_type not in ('plate', 'run', 'acquisition'):
+                    continue
+                # 'run' is an alternative for 'acquisition'
+                object_type = object_type.replace('run', 'acquisition')
+
+                # Try and load the potential parent first
+                key = m.group('key')
+                value = m.group('value')
+                if key is None:
+                    key = 'id'
+                if key == 'id':
+                    value = long(value)
+                parent_attributes = {key: value}
+                parent, = self.conn.getObjects(
+                    object_type, attributes=parent_attributes
+                )
+
+                # Now use the parent to try and locate the Well
+                query_service = self.conn.getQueryService()
+                params = omero.sys.ParametersI()
+                params.map['row'] = rint(row)
+                params.map['column'] = rint(column)
+                params.addId(parent.id)
+                if object_type == 'plate':
+                    db_row, = query_service.projection(
+                        'select w.id from Well as w '
+                        'where w.row = :row and w.column = :column '
+                        'and w.plate.id = :id', params, self.conn.SERVICE_OPTS
+                    )
+                if object_type == 'acquisition':
+                    db_row, = query_service.projection(
+                        'select distinct w.id from Well as w '
+                        'join w.wellSamples as ws '
+                        'where w.row = :row and w.column = :column '
+                        'and ws.plateAcquisition.id = :id',
+                        params, self.conn.SERVICE_OPTS
+                    )
+                well_id, = db_row
+                return self.conn.getObject(
+                    'Well', well_id.val
+                )
+
+    def _load_first_selected(self, first_obj, attributes):
+        """
+        Loads the first selected object from the server.  Will raise
+        L{IncorrectMenuError} if the initialized menu was incorrect for
+        the loaded objects.
 
         @param first_obj Type of the first selected object.
         @type first_obj String
-        @param first_id ID of the first selected object.
-        @type first_id Long
+        @param attributes Set of attributes to filter on.
+        @type attributes L{dict}
         """
         first_selected = None
         if first_obj == "tag":
-            # Tags have an "Annotation" suffix added to the object name so
-            # need to be loaded differently.
-            first_selected = self.conn.getObject("TagAnnotation", first_id)
+            first_selected = self._load_tag(attributes)
+        elif first_obj == "well":
+            first_selected = self._load_well(attributes)
         else:
-            # All other objects can be loaded by prefix and id.
-            first_selected = self.conn.getObject(first_obj, first_id)
+            # All other objects can be loaded by type and attributes.
+            first_selected, = self.conn.getObjects(
+                first_obj, attributes=attributes
+            )
 
         if first_obj == "well":
             # Wells aren't in the tree, so we need to look up the parent
@@ -130,14 +280,29 @@ class Show(object):
                 parent_node = well_sample.getPlateAcquisition()
                 parent_type = "acquisition"
             if parent_node is None:
-                # No PlateAcquisition for this well, use Plate instead
-                parent_node = first_selected.getParent()
-                parent_type = "plate"
-            first_selected = parent_node
+                # No WellSample for this well, try and retrieve the
+                # PlateAcquisition from the parent Plate.
+                plate = first_selected.getParent()
+                try:
+                    parent_node, = plate.listPlateAcquisitions()
+                    parent_type = "acquisition"
+                except ValueError:
+                    # No PlateAcquisition for this well, use Plate instead
+                    parent_node = plate
+                    parent_type = "plate"
+            # Tree hierarchy open to first selected "real" object available
+            # in the tree.
             self._initially_open = [
-                "%s-%s" % (parent_type, parent_node.getId())
+                "%s-%s" % (parent_type, parent_node.getId()),
+                "%s-%s" % (first_obj, first_selected.getId())
             ]
-            self._initially_select = self._initially_open[:]
+            first_selected = parent_node
+        else:
+            # Tree hierarchy open to first selected object.
+            self._initially_open = [
+                '%s-%s' % (first_obj, first_selected.getId())
+            ]
+        self._initially_select = self._initially_open[:]
         self._initially_open_owner = first_selected.details.owner.id.val
         return first_selected
 
@@ -147,20 +312,26 @@ class Show(object):
             return None
 
         # tree hierarchy open to first selected object
-        self._initially_open = [self._initially_select[0]]
-        first_obj, first_id = self._initially_open[0].split("-", 1)
+        m = self.PATH_REGEX.match(self._initially_select[0])
+        if m is None:
+            return None
+        first_obj = m.group('object_type')
         # if we're showing a tag, make sure we're on the tags page...
         if first_obj == "tag" and self.menu != "usertags":
-            return HttpResponseRedirect(
+            raise IncorrectMenuError(
                 reverse(viewname="load_template", args=['usertags']) +
                 "?show=" + self._initially_select[0]
             )
         first_selected = None
         try:
-            first_id = long(first_id)
+            key = m.group('key')
+            value = m.group('value')
+            if key == 'id':
+                value = long(value)
+            attributes = {key: value}
             # Set context to 'cross-group'
             self.conn.SERVICE_OPTS.setOmeroGroup('-1')
-            first_selected = self._load_first_selected(first_obj, first_id)
+            first_selected = self._load_first_selected(first_obj, attributes)
         except:
             pass
         if first_obj not in self.TOP_LEVEL_PREFIXES:
@@ -175,7 +346,8 @@ class Show(object):
                             0, "%s-%s" % (p.OMERO_CLASS.lower(), p.getId())
                         )
                         self._initially_open_owner = p.details.owner.id.val
-                if self._initially_open[0].split("-")[0] == 'image':
+                m = self.PATH_REGEX.match(self._initially_open[0])
+                if m.group('object_type') == 'image':
                     self._initially_open.insert(0, "orphaned-0")
         return first_selected
 
@@ -185,6 +357,8 @@ class Show(object):
         Retrieves the first selected object.  The first time this method is
         invoked on the instance the actual retrieval is performed.  All other
         invocations retrieve the same instance without server interaction.
+        Will raise L{IncorrectMenuError} if the initialized menu was
+        incorrect for the loaded objects.
         """
         if self._first_selected is None:
             self._first_selected = self._find_first_selected()
