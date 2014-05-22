@@ -828,9 +828,12 @@
   }
 
   function show_image_link() {
-    var link = location.href.substring(0,location.href.length - location.search.length);
+    var link = location.href;
+    if (location.search.length > 0) {
+      link = location.href.split(location.search)[0];   // handle trailing #
+    }
     link = link.replace(/(.*?\/)\d+(?:\/\d+)?(?:\/)#?$/,'$1');
-    link = link + viewport.getCurrentImgUrlPath() +'?'+ viewport.getQuery(true)
+    link = link + viewport.getCurrentImgUrlPath() +'?'+ viewport.getQuery(true);
     $('#curr-link input').attr('value', link);
     return false;
   }
