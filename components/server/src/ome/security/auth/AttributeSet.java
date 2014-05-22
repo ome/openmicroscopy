@@ -13,11 +13,15 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.ldap.core.DirContextAdapter;
+
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.SetMultimap;
 
 /**
  * Specialized handling of all the attributes, multi or single valued.
@@ -27,9 +31,11 @@ import org.springframework.ldap.core.DirContextAdapter;
  */
 public class AttributeSet {
 
+    Logger log = LoggerFactory.getLogger(AttributeSet.class);
+
     private final Map<String, String> singleProperties = new HashMap<String, String>();
 
-    private final Map<String, Set<String>> multiProperties = new HashMap<String, Set<String>>();
+    private final SetMultimap<String, String> multiProperties = HashMultimap.create();
 
     public AttributeSet(DirContextAdapter ctx) {
         NamingEnumeration<String> ids = ctx.getAttributes().getIDs();
@@ -43,7 +49,23 @@ public class AttributeSet {
                 if (size(key) > 0) {
                     throw new IllegalStateException("Duplicate key: " + key);
                 }
-                multiProperties.put(key, ctx.getAttributeSortedStringSet(id));
+                Object[] objects = ctx.getObjectAttributes(id);
+                for (Object object : objects) {
+                    if (object == null) {
+                        continue;
+                    } else if (object instanceof String) {
+                        multiProperties.put(key, (String) object);
+                    } else if (object instanceof byte[]) {
+                        try {
+                            multiProperties.put(key, new String((byte[]) object));
+                        } catch (Exception e) {
+                            log.warn("Error trying to parse byte[] for {}: length={}",
+                                    key, ((byte[]) object).length);
+                        }
+                    } else {
+                        multiProperties.put(key, object.toString());
+                    }
+                }
             } else {
                 if (size(key) > 0) {
                     throw new IllegalStateException("Duplicate key: " + key);
