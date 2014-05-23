@@ -120,16 +120,14 @@ public class NetworkChecker {
             long elapsed = System.currentTimeMillis() - lastCheck.get();
             if (elapsed <= 5000) {
                 boolean last = lastValue.get();
-                log("Cached networkup: %s", last);
                 return last;
             }
         }
-        long start = System.currentTimeMillis();
+        //long start = System.currentTimeMillis();
         boolean newValue = _isNetworkup();
         long stop = System.currentTimeMillis();
-        long elapsed = stop - start;
-        log("Network status: %s (in %s ms.) use cached value: %s", newValue,
-                elapsed, useCachedValue);
+        //long elapsed = stop - start;
+        //log("Network status: %s (in %s ms.) use cached value: %s", newValue, elapsed, useCachedValue);
         lastValue.set(newValue);
         lastCheck.set(stop);
         return newValue;
@@ -186,7 +184,6 @@ public class NetworkChecker {
                 count++;
             }
         }
-        log("Count: %s  %s", count, interfacesCount);
         if (count >= interfacesCount) {
             networkup = true;
         } else {
