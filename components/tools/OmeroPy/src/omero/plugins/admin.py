@@ -362,7 +362,8 @@ present, the user will enter a console""")
                 help="Service Log On As user password. If none given, the"
                 " value of omero.windows.pass will be used. (Windows-only)")
 
-        for name in ("start", "startasync", "deploy", "restart", "restartasync"):
+        for name in ("start", "startasync", "deploy", "restart",
+                     "restartasync"):
             self.actions[name].add_argument(
                 "file", nargs="?",
                 help="Application descriptor. If not provided, a default"
@@ -451,7 +452,7 @@ present, the user will enter a console""")
                         win32security.LsaClose(policy_handle)
                     except pywintypes.error, details:
                         self.ctx.die(200, "Error during service user set up:"
-                                          " (%s) %s" % (details[0], details[2]))
+                                     " (%s) %s" % (details[0], details[2]))
                     if not pasw:
                         try:
                             pasw = config.as_map()["omero.windows.pass"]
