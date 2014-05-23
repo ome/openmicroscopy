@@ -50,7 +50,7 @@ public class SendEmailRequestI extends SendEmailRequest implements
 	private String [] ccrecipients = null;
 	private String [] bccrecipients = null;
 	
-	protected final MailUtil mailUtil;
+	private final MailUtil mailUtil;
     
 	private Helper helper;
 	
@@ -72,7 +72,7 @@ public class SendEmailRequestI extends SendEmailRequest implements
 	public void init(Helper helper) {
 		this.helper = helper;
 		
-		this.sender = helper.getServiceFactory().getConfigService().getConfigValue("omero.mail.from");
+		this.sender = mailUtil.getSender();
 		if (this.sender.length() < 1) 
 			throw helper.cancel(new ERR(), null, "no-sender");
 		if (subject.length() < 1) 

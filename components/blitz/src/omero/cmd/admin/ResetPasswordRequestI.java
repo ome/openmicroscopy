@@ -40,8 +40,8 @@ public class ResetPasswordRequestI extends ResetPasswordRequest implements
 	
 	private Experimenter e = null;
 	
-	protected final MailUtil mailUtil;
-	protected final PasswordUtil passwordUtil;
+	private final MailUtil mailUtil;
+	private final PasswordUtil passwordUtil;
     
 	private Helper helper;
 	
@@ -62,7 +62,7 @@ public class ResetPasswordRequestI extends ResetPasswordRequest implements
 
 	public void init(Helper helper) {
 		this.helper = helper;
-		this.sender = helper.getServiceFactory().getConfigService().getConfigValue("omero.mail.from");
+		this.sender = mailUtil.getSender();
 		
 		if (omename == null) 
 			throw helper.cancel(new ERR(), null, "no-omename");

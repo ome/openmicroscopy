@@ -1,6 +1,5 @@
 package ome.services.util;
 
-import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
 import org.slf4j.Logger;
@@ -15,12 +14,18 @@ public class MailUtil {
 	
 	private static final long serialVersionUID = -1L;
 
+	protected final String sender;
 	protected final JavaMailSender mailSender;
 
-	public MailUtil(JavaMailSender mailSender) {
+	public MailUtil(String sender, JavaMailSender mailSender) {
+		this.sender = sender;
 		this.mailSender = mailSender;
 	}
 	
+	public String getSender() {
+		return sender;
+	}
+
 	public void sendEmail(final String from, final String to,
 			final String topic, final String body, final boolean html,
 			final String [] ccrecipients, final String [] bccrecipients) {
@@ -29,9 +34,9 @@ public class MailUtil {
 			public void prepare(MimeMessage mimeMessage) throws Exception {
 				
 				MimeMessageHelper message = new MimeMessageHelper(mimeMessage);
-				message.setFrom(new InternetAddress(from));
+				message.setFrom(from);
 				message.setSubject(topic);
-				message.setTo(new InternetAddress(to));
+				message.setTo(to);
 				if (null != ccrecipients && ccrecipients.length > 0) message.setCc(ccrecipients);
 				if (null != bccrecipients && bccrecipients.length > 0) message.setCc(bccrecipients);
 				message.setText(body, html);

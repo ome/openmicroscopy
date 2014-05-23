@@ -60,9 +60,9 @@ public class RequestObjectFactoryRegistry extends
 
     private final ThumbnailService thumbnailService;
 
-    protected final MailUtil mailUtil;
+    private final MailUtil mailUtil;
 
-    protected final PasswordUtil passwordUtil;
+    private final PasswordUtil passwordUtil;
 
     private/* final */OmeroContext ctx;
 
