@@ -410,11 +410,12 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
     request.session['user_id'] = user_id
 
     myGroups = list(conn.getGroupsMemberOf())
+    myGroups.sort(key=lambda x: x.getName().lower())
     if conn.isAdmin():  # Admin can see all groups
         groups = [g for g in conn.getObjects("ExperimenterGroup") if g.getName() not in ("user", "guest")]
+        groups.sort(key=lambda x: x.getName().lower())
     else:
         groups = myGroups
-    myGroups.sort(key=lambda x: x.getName().lower())
     new_container_form = ContainerForm()
 
     context = {'init':init, 'myGroups':myGroups, 'new_container_form':new_container_form, 'global_search_form':global_search_form}
