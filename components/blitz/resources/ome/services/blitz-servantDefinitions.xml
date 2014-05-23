@@ -369,6 +369,7 @@
       <constructor-arg ref="/OMERO/Thumbs"/>
       <constructor-arg ref="mailUtil"/>
       <constructor-arg ref="passwordUtil"/>
+      <constructor-arg ref="securitySystem"/>
       <property name="iceCommunicator" ref="Ice.Communicator"/>
   </bean>
 

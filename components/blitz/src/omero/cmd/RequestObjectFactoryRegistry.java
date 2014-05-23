@@ -18,6 +18,7 @@ import ome.io.nio.PixelsService;
 import ome.io.nio.ThumbnailService;
 import ome.security.ACLVoter;
 import ome.security.ChmodStrategy;
+import ome.security.SecuritySystem;
 import ome.security.auth.PasswordUtil;
 import ome.services.chgrp.ChgrpStepFactory;
 import ome.services.chown.ChownStepFactory;
@@ -63,7 +64,9 @@ public class RequestObjectFactoryRegistry extends
     private final MailUtil mailUtil;
 
     private final PasswordUtil passwordUtil;
-
+    
+    private final SecuritySystem sec;
+    
     private/* final */OmeroContext ctx;
 
     public RequestObjectFactoryRegistry(ExtendedMetadata em,
@@ -72,7 +75,8 @@ public class RequestObjectFactoryRegistry extends
             PixelsService pixelsService,
             ThumbnailService thumbnailService,
             MailUtil mailUtil,
-            PasswordUtil passwordUtil) {
+            PasswordUtil passwordUtil,
+            SecuritySystem sec) {
 
         this.em = em;
         this.voter = voter;
@@ -81,6 +85,7 @@ public class RequestObjectFactoryRegistry extends
         this.thumbnailService = thumbnailService;
         this.mailUtil = mailUtil;
         this.passwordUtil = passwordUtil;
+        this.sec = sec;
     }
 
     public void setApplicationContext(ApplicationContext ctx)
@@ -195,7 +200,7 @@ public class RequestObjectFactoryRegistry extends
                 new ObjectFactory(ResetPasswordRequestI.ice_staticId()) {
                     @Override
                     public Ice.Object create(String name) {
-                    	return new ResetPasswordRequestI(mailUtil, passwordUtil);
+                    	return new ResetPasswordRequestI(mailUtil, passwordUtil, sec);
                     }
                 });
         return factories;
