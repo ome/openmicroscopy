@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import ome.security.SecuritySystem;
+import ome.security.auth.PasswordProvider;
 import ome.security.auth.PasswordUtil;
 import ome.services.blitz.test.AbstractServantTest;
 import ome.services.util.Executor;
@@ -88,7 +89,8 @@ public class ResetPasswordRequestTest extends AbstractServantTest {
 		ResetPasswordRequestI req = new ResetPasswordRequestI(
 				(MailUtil) user.ctx.getBean("mailUtil"),
 				(PasswordUtil) user.ctx.getBean("passwordUtil"),
-				(SecuritySystem) user.ctx.getBean("securitySystem"));
+				(SecuritySystem) user.ctx.getBean("securitySystem"),
+				(PasswordProvider) user.ctx.getBean("passwordProvider"));
 		req.omename = "test";
 		req.email = "user@mail";
 		

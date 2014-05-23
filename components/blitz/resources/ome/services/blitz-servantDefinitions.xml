@@ -370,6 +370,7 @@
       <constructor-arg ref="mailUtil"/>
       <constructor-arg ref="passwordUtil"/>
       <constructor-arg ref="securitySystem"/>
+      <constructor-arg ref="passwordProvider"/>
       <property name="iceCommunicator" ref="Ice.Communicator"/>
   </bean>
 

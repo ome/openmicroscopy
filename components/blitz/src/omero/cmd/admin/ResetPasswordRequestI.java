@@ -13,10 +13,13 @@ import org.springframework.mail.MailException;
 import ome.api.IQuery;
 import ome.conditions.ApiUsageException;
 import ome.conditions.AuthenticationException;
+import ome.conditions.SecurityViolation;
 import ome.model.meta.Experimenter;
 import ome.parameters.Parameters;
 import ome.security.AdminAction;
 import ome.security.SecuritySystem;
+import ome.security.auth.PasswordChangeException;
+import ome.security.auth.PasswordProvider;
 import ome.security.auth.PasswordUtil;
 import ome.services.util.MailUtil;
 import omero.cmd.HandleI.Cancel;
@@ -42,13 +45,16 @@ public class ResetPasswordRequestI extends ResetPasswordRequest implements
 	private final MailUtil mailUtil;
 	private final PasswordUtil passwordUtil;
     private final SecuritySystem sec;
+    private final PasswordProvider passwordProvider;
     
 	private Helper helper;
 	
-	public ResetPasswordRequestI(MailUtil mailUtil, PasswordUtil passwordUtil, SecuritySystem sec) {
+	public ResetPasswordRequestI(MailUtil mailUtil, PasswordUtil passwordUtil,
+			SecuritySystem sec, PasswordProvider passwordProvider) {
 		this.mailUtil = mailUtil;
 		this.passwordUtil = passwordUtil;
 		this.sec = sec;
+		this.passwordProvider = passwordProvider;
 	}
 	
 	//
@@ -105,45 +111,53 @@ public class ResetPasswordRequestI extends ResetPasswordRequest implements
 	
 	private boolean resetPassword() {
 
-		sec.runAsAdmin(new AdminAction() {
-            public void runAsAdmin() {
-            	Experimenter e = null;
-            	try {
-                	e = helper.getServiceFactory().getAdminService().lookupExperimenter(omename);
-                } catch (ApiUsageException ex) {
-                	throw helper.cancel(new ERR(), null, "unknown-user", "ApiUsageException",
-                			String.format(ex.getMessage()));
-                }
-                if (e.getEmail() == null)
-                	throw helper.cancel(new ERR(), null, "unknown-email", "ApiUsageException",
-                			String.format("User has no email address."));
-                else if (!e.getEmail().equals(email))
-                	throw helper.cancel(new ERR(), null, "not-match", "ApiUsageException",
-                			String.format("Email address does not match."));
-                else if (isDnById(e.getId()))
-                	throw helper.cancel(new ERR(), null, "ldap-user", "ApiUsageException",
-                			String.format("User is authenticated by LDAP server "
-                					+ "you cannot reset this password."));
-                else {
-                	final String newPassword = passwordUtil.generateRandomPasswd();
-                	helper.getServiceFactory().getAdminService().changeUserPassword(e.getOmeName(), newPassword);
-                    
-                	String subject = "OMERO - Reset password";
-                    String body = "Dear " + e.getFirstName() + " " + e.getLastName() + " ("
-                            + e.getOmeName() + ")" + " your new password is: "
-                            + newPassword;
-                    
-                    try {
-                    	mailUtil.sendEmail(sender, e.getEmail(), subject, body, false, null, null);
-            		} catch (MailException me) {
-            			log.error(me.getMessage());
-            			throw helper.cancel(new ERR(), null, "mail-send-failed", "MailException",
-                                String.format(me.getMessage()));
-                    }
-                    
-                }
+		Experimenter e = null;
+    	try {
+        	e = helper.getServiceFactory().getAdminService().lookupExperimenter(omename);
+        } catch (ApiUsageException ex) {
+        	throw helper.cancel(new ERR(), null, "unknown-user", "ApiUsageException",
+        			String.format(ex.getMessage()));
+        }
+        if (e.getEmail() == null)
+        	throw helper.cancel(new ERR(), null, "unknown-email", "ApiUsageException",
+        			String.format("User has no email address."));
+        else if (!e.getEmail().equals(email))
+        	throw helper.cancel(new ERR(), null, "not-match", "ApiUsageException",
+        			String.format("Email address does not match."));
+        else if (isDnById(e.getId()))
+        	throw helper.cancel(new ERR(), null, "ldap-user", "ApiUsageException",
+        			String.format("User is authenticated by LDAP server "
+        					+ "you cannot reset this password."));
+        else {
+        	final String newPassword = passwordUtil.generateRandomPasswd();
+        	// FIXME
+        	// workaround as sec.runAsAdmin doesn't execute with the root context
+        	// helper.getServiceFactory().getAdminService().changeUserPassword(e.getOmeName(), newPassword);
+        	try {
+        		passwordProvider.changePassword(e.getOmeName(), newPassword);
+                log.info("Changed password for user: " + e.getOmeName());
+            } catch (PasswordChangeException pce) {
+            	log.error(pce.getMessage());
+    			throw helper.cancel(new ERR(), null, "password-change-failed", "PasswordChangeException",
+                        String.format(pce.getMessage()));
             }
-        });
+        	
+        	
+            
+        	String subject = "OMERO - Reset password";
+            String body = "Dear " + e.getFirstName() + " " + e.getLastName() + " ("
+                    + e.getOmeName() + ")" + " your new password is: "
+                    + newPassword;
+            
+            try {
+            	mailUtil.sendEmail(sender, e.getEmail(), subject, body, false, null, null);
+    		} catch (MailException me) {
+    			log.error(me.getMessage());
+    			throw helper.cancel(new ERR(), null, "mail-send-failed", "MailException",
+                        String.format(me.getMessage()));
+            }
+            
+        }
 		
         return true;
         
