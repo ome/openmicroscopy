@@ -648,7 +648,6 @@ present, the user will enter a console""")
             else:
                 command = """icegridnode.exe "%s" --deploy "%s"\
                 """ % (self._icecfg(), descript)
-                print command
         else:
             command = """icegridnode --deamon --pidfile %s --nochdir %s\
                 --deploy %s""" % (self._pid(), self._icecfg(), descript)
