@@ -42,6 +42,7 @@ import omeroweb.webclient.views
 
 from time import time
 
+from omero_version import build_year
 from omero_version import omero_version
 
 from django.conf import settings
@@ -346,13 +347,13 @@ def forgotten_password(request, **kwargs):
                         handle.close()
                     error = "Password was reset. Check your mailbox."
                     form = None
-                except Exception:
+                except Exception, exp:
                     logger.error(traceback.format_exc())
-                    error = "Internal server error, please contact administrator."
+                    error = exp[0].parameters[exp[0].parameters.keys()[0]]
     else:
         form = ForgottonPasswordForm()
     
-    context = {'error':error, 'form':form}    
+    context = {'error':error, 'form':form, 'build_year':build_year}    
     t = template_loader.get_template(template)
     c = Context(request, context)
     rsp = t.render(c)
