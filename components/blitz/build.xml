@@ -241,5 +241,11 @@
             </fileset>
         </do-checkstyle>
     </target>
+	
+	<target name="gateway" description="Builds the gateway jar" depends="compile">
+    	<jar destfile="${target.dir}/gateway.jar">
+    		<fileset dir="${classes.dir}" includes="ome/,omero/,pojos/" />
+    	</jar>
+	</target>
 
 </project>
