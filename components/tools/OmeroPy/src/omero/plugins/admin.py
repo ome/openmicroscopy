@@ -650,8 +650,10 @@ present, the user will enter a console""")
                 command = """icegridnode.exe "%s" --deploy "%s"\
                 """ % (self._icecfg(), descript)
         else:
-            command = """icegridnode --deamon --pidfile %s --nochdir %s\
-                --deploy %s""" % (self._pid(), self._icecfg(), descript)
+            command = [
+                "icegridnode", "--daemon", "--pidfile", str(self._pid()),
+                "--nochdir", self._icecfg(), "--deploy", str(descript)
+                ] + args.targets
 
         if command is not None:
             self.ctx.rv = self.ctx.call(command)
