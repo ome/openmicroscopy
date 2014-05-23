@@ -75,6 +75,7 @@ import omero.model.Pixels;
 import omero.model.Screen;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -270,7 +271,14 @@ public class ImportLibrary implements IObservable
                     importImage(ic,index,numDone,containers.size());
                     numDone++;
                 } catch (Throwable t) {
-                    log.error("Error on import", t);
+                    String message = "Error on import";
+                    if (t instanceof ServerError) {
+                        final ServerError se = (ServerError) t;
+                        if (StringUtils.isNotBlank(se.message)) {
+                            message += ": " + se.message;
+                        }
+                    }
+                    log.error(message, t);
                     if (!config.contOnError.get()) {
                         log.info("Exiting on error");
                         return false;

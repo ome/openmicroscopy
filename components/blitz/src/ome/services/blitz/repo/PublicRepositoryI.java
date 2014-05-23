@@ -30,6 +30,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -80,7 +81,6 @@ import omero.InternalException;
 import omero.RLong;
 import omero.RMap;
 import omero.RType;
-import omero.ResourceError;
 import omero.SecurityViolation;
 import omero.ServerError;
 import omero.ValidationException;
@@ -127,6 +127,12 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
 
     }
 
+    /** key for finding the real session UUID under sudo */
+    static final String SUDO_REAL_SESSIONUUID = "omero.internal.sudo.real:" + omero.constants.SESSIONUUID.value;
+
+    /** key for finding the real group name under sudo */
+    static final String SUDO_REAL_GROUP_NAME = "omero.internal.sudo.real:" + omero.constants.GROUP.value;
+
     private final static Logger log = LoggerFactory.getLogger(PublicRepositoryI.class);
 
     private final static IOFileFilter DEFAULT_SKIP =
@@ -162,7 +168,7 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
     public PublicRepositoryI(RepositoryDao repositoryDao,
             ChecksumProviderFactory checksumProviderFactory,
             String checksumAlgorithmSupported,
-            String pathRules) throws Exception {
+            String pathRules) throws ServerError {
         this.repositoryDao = repositoryDao;
         this.checksumProviderFactory = checksumProviderFactory;
         this.repoUuid = null;
@@ -549,6 +555,21 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
     }
 
     /**
+     * Provide a {@link Ice.Current} like the given one, except with the request context session UUID replaced.
+     * @param current an {@link Ice.Current} instance
+     * @param sessionUuid a new session UUID for the instance
+     * @return a new {@link Ice.Current} instance like the given one but with the new session UUID
+     */
+    protected Current sudo(Current current, String sessionUuid) {
+        final Current sudoCurrent =  makeAdjustedCurrent(current);
+        sudoCurrent.ctx = new HashMap<String, String>(current.ctx);
+        sudoCurrent.ctx.put(SUDO_REAL_SESSIONUUID, current.ctx.get(omero.constants.SESSIONUUID.value));
+        sudoCurrent.ctx.put(SUDO_REAL_GROUP_NAME, current.ctx.get(omero.constants.GROUP.value));
+        sudoCurrent.ctx.put(omero.constants.SESSIONUUID.value, sessionUuid);
+        return sudoCurrent;
+    }
+
+    /**
      * Create, initialize, and register an {@link RepoRawFileStoreI}
      * with the proper setting (read or write).
      *
@@ -670,7 +691,8 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
     }
 
     public void makeDir(CheckedPath checked, boolean parents,
-            Session s, ServiceFactory sf, SqlAction sql) throws ServerError {
+            Session s, ServiceFactory sf, SqlAction sql,
+            ome.system.EventContext effectiveEventContext) throws ServerError {
 
         final LinkedList<CheckedPath> paths = new LinkedList<CheckedPath>();
         while (!checked.isRoot) {
@@ -690,7 +712,7 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
             }
         }
 
-        makeCheckedDirs(paths, parents, s, sf, sql);
+        makeCheckedDirs(paths, parents, s, sf, sql, effectiveEventContext);
 
     }
 
@@ -699,14 +721,13 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
      * the listed of {@link CheckedPath} instances before allowing the creation
      * of directories.
      *
-     * @param paths Not null, not empty.
+     * @param paths Not null, not empty. (Will be emptied by this method.)
      * @param parents "mkdir -p" like flag.
      * @param __current
      */
     protected void makeCheckedDirs(final LinkedList<CheckedPath> paths,
-            boolean parents, Session s, ServiceFactory sf, SqlAction sql)
-                    throws ResourceError,
-            ServerError {
+            boolean parents, Session s, ServiceFactory sf, SqlAction sql,
+            ome.system.EventContext effectiveEventContext) throws ServerError {
 
         CheckedPath checked;
 

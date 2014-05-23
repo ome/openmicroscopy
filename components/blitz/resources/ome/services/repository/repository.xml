@@ -48,6 +48,6 @@
   <bean id="Ice.Communicator" factory-bean="internalRepositoryConfig" factory-method="getCommunicator"/>
   <bean id="Ice.ObjectAdapter" factory-bean="internalRepositoryConfig" factory-method="getObjectAdapter"/>
   <bean id="Ice.Registry" factory-bean="internalRepositoryConfig" factory-method="getRegistry"/>
-  <bean id="publiRepository" factory-bean="internalRepository" factory-method="getProxy"/>
+  <bean id="publicRepository" factory-bean="internalRepository" factory-method="getProxy"/>
 
 </beans>
