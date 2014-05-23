@@ -5429,20 +5429,27 @@ class _PixelsWrapper (BlitzObjectWrapper):
 
     def getPixelsType (self):
         """
-        This simply wraps the PixelsType object in a BlitzObjectWrapper.
-        Shouldn't be needed when this is done automatically
+        This simply wraps the omero::model::PixelsType object in a
+        BlitzObjectWrapper. Shouldn't be needed when this is done automatically.
+
+        It has the methods `getValue' and `getBitSize'.
         """
         return BlitzObjectWrapper(self._conn, self._obj.getPixelsType())
 
     def copyPlaneInfo (self, theC=None, theT=None, theZ=None):
         """
-        Loads plane infos and returns sequence of omero.model.PlaneInfo objects wrapped in BlitzObjectWrappers
-        ordered by planeInfo.deltaT.
+        Loads plane infos and returns sequence of omero.model.PlaneInfo objects
+        wrapped in BlitzObjectWrappers ordered by planeInfo.deltaT.
         Set of plane infos can be filtered by C, T or Z
 
         @param theC:    Filter plane infos by Channel index
+        @type  theC:    int or None
         @param theT:    Filter plane infos by Time index
+        @type  theT:    int or None
         @param theZ:    Filter plane infos by Z index
+        @type  theT:    int or None
+
+        @return:  Generator of PlaneInfo wrapped in BlitzObjectWrappers
         """
 
         params = omero.sys.Parameters()
@@ -7369,10 +7376,10 @@ class _ImageWrapper (BlitzObjectWrapper):
     @assert_pixels
     def getPixelsType (self):
         """
-        Gets the physical size X of pixels in microns
+        Gets name of pixel data type.
 
-        @return:    Size of pixel in x or O
-        @rtype:     float
+        @return:    name of the image precision, e.g., float, uint8, etc.
+        @rtype:     String
         """
         rv = self._obj.getPrimaryPixels().getPixelsType().value
         return rv is not None and rv.val or 'unknown'
