@@ -309,7 +309,11 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
         <antcall target="copy-etc" inheritRefs="true" inheritAll="true"/>
         <antcall target="update-version" inheritRefs="true" inheritAll="true"/>
     </target>
-
+	
+	<target name="build-gateway" description="Build the Omero Java Gateway" depends="init">
+		<iterate buildpathref="OmeroGateway.buildpath" target="build-gateway"/>
+ 	</target>
+ 	
     <target name="build-vm" description="Build a virtual image">
         <exec executable="bash" dir="docs/install/VM">
             <arg line="omerovm.sh"/>
@@ -483,7 +487,12 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
         <zip destfile="${omero.home}/target/OMERO.matlab-${omero.version}.zip">
             <zipfileset dir="components/tools/OmeroM/target/matlab/" prefix="OMERO.matlab-${omero.version}" includes="**/*"/>
         </zip>
-
+        
+        <iterate buildpathref="OmeroGateway.buildpath" target="release-gateway"/>
+        <copy todir="target">
+        	<fileset dir="components/blitz/target" includes="OMERO.gateway-*.zip"/>
+        </copy>
+        
 	<copy todir="target">
             <fileset dir="components/tools/OmeroPy/dist" includes="*.egg"/>
             <fileset dir="components/tools/OmeroFS/dist" includes="*.egg"/>
@@ -1126,4 +1135,5 @@ omero.version=${omero.version}
             javadoc.maxmem.default=${javadoc.maxmem.default}
         </echo>
     </target>
+
 </project>
