@@ -57,28 +57,28 @@ public class DataSink
 {
 
 	/** Identifies the type used to store pixel values. */
-	static final String INT_8 = "int8";
+	static final String INT_8 = PixelsData.INT8_TYPE;
 
 	/** Identifies the type used to store pixel values. */
-	static final String UINT_8 = "uint8";
+	static final String UINT_8 = PixelsData.UINT8_TYPE;
 
 	/** Identifies the type used to store pixel values. */
-	static final String INT_16 = "int16";
+	static final String INT_16 = PixelsData.INT16_TYPE;
 
 	/** Identifies the type used to store pixel values. */
-	static final String UINT_16 = "uint16";
+	static final String UINT_16 = PixelsData.UINT16_TYPE;
 
 	/** Identifies the type used to store pixel values. */
-	static final String INT_32 = "int32";
+	static final String INT_32 = PixelsData.INT32_TYPE;
 
 	/** Identifies the type used to store pixel values. */
-	static final String UINT_32 = "uint32";
+	static final String UINT_32 = PixelsData.UINT32_TYPE;
 
 	/** Identifies the type used to store pixel values. */
-	static final String FLOAT = "float";
+	static final String FLOAT = PixelsData.FLOAT_TYPE;
 
 	/** Identifies the type used to store pixel values. */
-	static final String DOUBLE = "double";
+	static final String DOUBLE = PixelsData.DOUBLE_TYPE;
 
 	/**
 	 * Factory method to create a new <code>DataSink</code> to handle
