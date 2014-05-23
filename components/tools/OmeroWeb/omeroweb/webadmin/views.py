@@ -332,9 +332,6 @@ def forgotten_password(request, **kwargs):
             server_id = request.REQUEST.get('server')
             try:
                 conn = getGuestConnection(server_id)
-                if not conn.isForgottenPasswordSet():
-                    error = "This server cannot reset password. Please contact your administrator."
-                    conn = None
             except Exception:
                 logger.error(traceback.format_exc())
                 error = "Internal server error, please contact administrator."
