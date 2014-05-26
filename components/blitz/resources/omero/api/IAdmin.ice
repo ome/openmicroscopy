@@ -97,6 +97,7 @@ module omero {
                 idempotent void changeUserPassword(string omeName, omero::RString newPassword) throws ServerError;
                 idempotent void synchronizeLoginCache() throws ServerError;
                 void changeExpiredCredentials(string name, string oldCred, string newCred) throws ServerError;
+                ["deprecated:reportForgottenPassword() is deprecated. use omero::cmd::ResetPasswordRequest() instead."]
                 void reportForgottenPassword(string name, string email) throws ServerError;
 
                 // Security Context

@@ -553,7 +553,9 @@ public interface IAdmin extends ServiceInterface {
      * @param email
      * @throws AuthenticationException
      *             when name and email do not match
+     * @deprecated
      */
+    @Deprecated
     void reportForgottenPassword(String name, String email)
             throws AuthenticationException;
 
