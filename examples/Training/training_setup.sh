@@ -13,7 +13,7 @@ USER_PASSWORD=${USER_PASSWORD:-ome}
 
 # Create training user and group
 bin/omero login root@$HOSTNAME:$PORT -w $ROOT_PASSWORD
-bin/omero group add training_group --ignore-existing 
+bin/omero group add training_group --ignore-existing
 bin/omero user add training_user training_user training_user training_group --ignore-existing -P ome
 bin/omero logout
 
@@ -23,21 +23,23 @@ touch "SPW&plates=1&plateRows=1&plateCols=1&fields=1&plateAcqs=1.fake"
 
 # Create training user and group
 bin/omero login $USER_NAME@$HOSTNAME:$PORT -w $USER_PASSWORD
+nProjects=1
+nDatasets=2
 echo "Creating projects and datasets"
-for project_id in 1
+for (( i=1; i<=$nProjects; i++ ))
 do
-  project=$(bin/omero obj new Project name='project ${project_id}')
-  for dataset_id in 1
+  project=$(bin/omero obj new Project name='Project '$i)
+  for (( j=1; j<=$nDatasets; i++ ))
   do
-    dataset=$(bin/omero obj new Dataset name='dataset ${dataset_id}')
+    dataset=$(bin/omero obj new Dataset name='Dataset '$i-$j)
     bin/omero obj new ProjectDatasetLink parent=$project child=$dataset
-    echo "Importing image into dataset $dataset_id"  
+    echo "Importing image into dataset"
     imageid=$(bin/omero import -d $dataset test.fake --debug ERROR)
   done
 done
 
 # Import plate
-echo "Importing SPW file"  
+echo "Importing SPW file"
 plateid=$(bin/omero import "SPW&plates=1&plateRows=1&plateCols=1&fields=1&plateAcqs=1.fake")
 
 # Logout
