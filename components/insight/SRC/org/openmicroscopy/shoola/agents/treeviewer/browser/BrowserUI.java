@@ -1752,8 +1752,6 @@ class BrowserUI
 					if (!children.isEmpty()) {
 						if (node.getUserObject() instanceof ExperimenterData) {
 						    List<Object> sets = new ArrayList<Object>();
-						    //sets.addAll(sorter.sort(children));
-							//sort the smart folder
 						    List<Object> toSort = new ArrayList<Object>();
 							Iterator k = children.iterator();
 							while (k.hasNext()) {
