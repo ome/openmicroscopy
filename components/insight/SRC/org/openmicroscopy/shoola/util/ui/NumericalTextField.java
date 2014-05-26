@@ -37,6 +37,8 @@ import javax.swing.event.DocumentListener;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.PlainDocument;
 
+import org.apache.commons.lang.StringUtils;
+
 //Third-party libraries
 
 //Application-internal dependencies
@@ -86,27 +88,32 @@ public class NumericalTextField
     /** The accepted characters. */
     private String accepted;
 
-    /** Checks if the value is value.*/
-    private void checkValue()
+    /**
+     * Checks if the value is correct.
+     *
+     * @return See above.
+     */
+    private String checkValue()
     {
         String str = getText();
         try {
             if (Integer.class.equals(numberType)) {
                 int val = Integer.parseInt(str);
                 int m = (int) getMinimum();
-                if (val < m) setText(""+m);
+                if (val < m) return ""+m;
             } else if (Double.class.equals(numberType)) {
                 double val = Double.parseDouble(str);
-                if (val < getMinimum()) setText(""+getMinimum());
+                if (val < getMinimum()) return ""+getMinimum();
             } else if (Long.class.equals(numberType)) {
                 long val = Long.parseLong(str);
                 long m = (long) getMinimum();
-                if (val < m) setText(""+m);
+                if (val < m) return ""+m;
             } else if (Float.class.equals(numberType)) {
                 float val = Float.parseFloat(str);
-                if (val < getMinimum()) setText(""+getMinimum());
+                if (val < getMinimum()) return ""+getMinimum();
             }
         } catch(NumberFormatException nfe) {}
+        return str;
     }
 
     /**
@@ -173,7 +180,13 @@ public class NumericalTextField
              */
             public void keyPressed(KeyEvent e)
             {
-                if (e.getKeyCode() == KeyEvent.VK_ENTER) checkValue();
+                if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                    String s = getText();
+                    String v = checkValue();
+                    if (v != null && !v.equals(s)) {
+                        setText(v);
+                    }
+                }
             }
         });
         numberType = type;
@@ -274,15 +287,18 @@ public class NumericalTextField
     }
 
     /**
-     * Returns the value as a number.
+     * Returns the value as a number. Make sure the minimum value is
+     * returned if the value entered is not correct.
      *
      * @return See above.
      */
     public Number getValueAsNumber()
     {
         String str = getText();
-        if (str == null || str.trim().length() == 0) return null;
-        checkValue();
+        if (StringUtils.isBlank(str)) {
+            return null;
+        }
+        str = checkValue();
         if (Integer.class.equals(numberType))
             return Integer.parseInt(str);
         else if (Double.class.equals(numberType))
@@ -318,7 +334,10 @@ public class NumericalTextField
             s += "0";
             setText(s);
         }
-        checkValue();
+        String v = checkValue();
+        if (v != null && !v.equals(s)) {
+            setText(v);
+        }
     }
 
     /**
