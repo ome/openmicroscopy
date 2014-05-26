@@ -572,7 +572,7 @@ class BrowserModel
 		Set<ImageDisplay> oldValue = null;
 		if (selectedDisplays != null)
 			oldValue = new HashSet<ImageDisplay>(selectedDisplays);
-		if (nodes == null || nodes.isEmpty()) {
+		if (CollectionUtils.isEmpty(nodes)) {
 			if (selectedDisplays != null) selectedDisplays.clear();
 			setNodesColor(null, oldValue);
 			return;
@@ -582,10 +582,12 @@ class BrowserModel
 		List<ImageDisplay> found = finder.getFoundNodes();
 		if (CollectionUtils.isEmpty(found)) {
 			Collection<ImageDisplay> selected = getSelectedDisplays();
-			if (CollectionUtils.isEmpty(selected)) {
-				setNodesColor(null, getRootNodes());
-			}
 			setSelectedDisplay(null, false, false);
+			//Check again
+			selected = getSelectedDisplays();
+            if (CollectionUtils.isEmpty(selected)) {
+                setNodesColor(null, getRootNodes());
+            }
 			return;
 		}
 
