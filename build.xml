@@ -489,7 +489,7 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
         </zip>
         
         <iterate buildpathref="OmeroGateway.buildpath" target="release-gateway"/>
-        <copy todir="target">
+        <copy todir="${omero.home}/target">
         	<fileset dir="components/blitz/target" includes="OMERO.gateway-*.zip"/>
         </copy>
         
