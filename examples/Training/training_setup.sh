@@ -29,7 +29,7 @@ echo "Creating projects and datasets"
 for (( i=1; i<=$nProjects; i++ ))
 do
   project=$(bin/omero obj new Project name='Project '$i)
-  for (( j=1; j<=$nDatasets; i++ ))
+  for (( j=1; j<=$nDatasets; j++ ))
   do
     dataset=$(bin/omero obj new Dataset name='Dataset '$i-$j)
     bin/omero obj new ProjectDatasetLink parent=$project child=$dataset
