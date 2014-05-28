@@ -120,34 +120,50 @@ public class SendEmailRequestI extends SendEmailRequest implements
 	}
 	
 	private String [] parseRecipients(){
+		
+		/*Depends on which parameters are set variants of the following query
+		 * should be executed:
+		 * 
+		 * select distinct e from Experimenter as e 
+		 * join fetch e.groupExperimenterMap as map 
+		 * join fetch map.parent g 
+		 * where e.email is not null	// not query empty email
+		 * and g.id = :active 			// active users by default, all = false
+		 * and e.id in 					// groupIds
+		 * 		(select m.child from GroupExperimenterMap m where m.parent.id in (:gids) )
+		 * or e.id in (:eids)			// userIds
+		 * 
+		 * email must be at least 5 carachters a@b.xx
+		 */
+	       
+	    Parameters p = new Parameters();
+			
 		StringBuffer sql = new StringBuffer();
+
 		sql.append("select distinct e from Experimenter e "
 				+ "left outer join fetch e.groupExperimenterMap m "
-				+ "left outer join fetch m.parent g ");
+				+ "left outer join fetch m.parent g "
+				+ "where e.email is not null ");
 
-		Parameters p = new Parameters();
-		if (groupIds.size() > 0 && userIds.size() > 0) {
-			sql.append(" where (g.id in (:gids) or e.id in (:eids)) ");
-			p.addSet("gids", new HashSet<Long>(groupIds));
-			p.addSet("eids", new HashSet<Long>(userIds));
-		} else {
-			if (groupIds.size() > 0) {
-				sql.append(" where g.id in (:gids) ");
-				p.addSet("gids", new HashSet<Long>(groupIds));
-			}
-			if (userIds.size() > 0) {
-				sql.append("where e.id in (:eids) ");
-				p.addSet("eids", new HashSet<Long>(userIds));
-			}
+		if (!inactive) {
+			sql.append(" and g.id = :active ");
+			p.addLong("active", helper.getServiceFactory().getAdminService()
+						.getSecurityRoles().getUserGroupId());
 		}
 		
-		if (activeonly) {
-			if (groupIds.size() == 0 && userIds.size() == 0) sql.append(" where ");
+		if (groupIds.size() > 0 && userIds.size() > 0) {
+			sql.append(" and e.id in ");
+			sql.append(" (select m.child from GroupExperimenterMap m "
+						+ " where m.parent.id = (:gids) )");
+			p.addSet("gids", new HashSet<Long>(groupIds));
+		}
+		
+		if (userIds.size() > 0) {
+			if (groupIds.size() > 0) sql.append(" or ");
 			else sql.append(" and ");
 			
-			sql.append(" g.id = :active ");
-			p.addLong("active", helper.getServiceFactory().getAdminService()
-					.getSecurityRoles().getUserGroupId());
+			sql.append(" e.id in (:eids)");
+			p.addSet("eids", new HashSet<Long>(userIds));
 		}
 
 		IQuery iquery = helper.getServiceFactory().getQueryService();
@@ -156,7 +172,7 @@ public class SendEmailRequestI extends SendEmailRequest implements
 		
 		Set<String> recipients = new HashSet<String>();
 		for (final Experimenter e : exps) {
-			if (e.getEmail() != null) {
+			if (e.getEmail() != null && e.getEmail().length() > 5) {
 				recipients.add(e.getEmail());
 			}
 		}

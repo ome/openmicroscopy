@@ -25,7 +25,7 @@ module omero {
 			omero::sys::LongList groupIds;
 			omero::api::StringSet cc;
 			omero::api::StringSet bcc;
-			bool activeonly;
+			bool inactive;
 		};
 
 		class SendEmailResponse extends Response {
