@@ -1172,6 +1172,8 @@ class MetadataViewerComponent
 			
 			if (imageID >= 0 && model.canAnnotate()) {
 				firePropertyChange(RENDER_THUMBNAIL_PROPERTY, -1, imageID);
+				// reload the viewedby thumbnails after new rendering settings were applied
+				model.fireThumbnailsLoading(); 
 			}
 		}
 	}
