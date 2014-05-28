@@ -74,18 +74,10 @@ class AnnotationPermissions(lib.ITest):
 
     def chmodGroupAs(self, user, perms):
         client = self.clients[user]
-        if True:  # Note: deprecated
-            client.sf.getAdminService().changePermissions(
-                self.group, omero.model.PermissionsI(perms))
-        else:
-            from omero.gateway import BlitzGateway
-            from omero.cmd import ERR
-            gateway = BlitzGateway(client_obj=client)
-            handle = gateway.chmodGroup(self.group.id.val, perms)
-            cb = gateway._waitOnCmd(handle)
-            rsp = cb.getResponse()
-            if isinstance(rsp, ERR):
-                raise Exception(rsp)
+        # Using the deprecated method since
+        # it was using a specific group context.
+        client.sf.getAdminService().changePermissions(
+            self.group, omero.model.PermissionsI(perms))
 
     def createProjectAs(self, user):
         """ Adds a Project. """
