@@ -35,7 +35,6 @@ import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JComponent;
@@ -83,7 +82,7 @@ class GraphicsPane
     static final double RATIO = 0.2;
     
     /** The title of the viewedby taskpane */
-    static final String VIEWEDBY_TITLE = "Viewed By";
+    static final String VIEWEDBY_TITLE = "Saved by";
 
     /** Slider to select a sub-interval of [0, 255]. */
     private TwoKnobsSlider codomainSlider;
@@ -130,7 +129,7 @@ class GraphicsPane
     /** The preview tool bar. */
     private PreviewToolBar previewToolBar;
 
-    /** The items shown in the viewedBy taskpane */
+    /** The items shown in the 'saved by' taskpane */
     private List<ViewedByItem> viewedByItems;
     
     /**
@@ -553,7 +552,7 @@ class GraphicsPane
      */
     void highlight(RndProxyDef def) {
         for(ViewedByItem item : viewedByItems) {
-            if(item.getRndDef().getData().getId()==def.getData().getId()) {
+            if(item.getRndDef().getData().getId().getValue()==def.getData().getId().getValue()) {
                 ((JPanel)item.getParent()).setBorder(BorderFactory.createLineBorder(UIUtilities.STEELBLUE, 2));
             }
             else {

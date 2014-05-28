@@ -971,7 +971,9 @@ class MetadataViewerModel
 	void applyRenderingSettings(RndProxyDef rndDef)
 	{
 		Renderer rnd = getEditor().getRenderer();
-		if (rnd != null) rnd.resetSettings(rndDef, true);
+		if (rnd != null) { 
+		    rnd.resetSettings(rndDef, true);
+		}
 	}
 	
 	/**
