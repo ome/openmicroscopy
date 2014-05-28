@@ -25,8 +25,6 @@ package org.openmicroscopy.shoola.agents.util;
 //Java imports
 import java.awt.Color;
 import java.awt.Font;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
@@ -57,7 +55,7 @@ import pojos.ExperimenterData;
  * @version 3.0 <small> (<b>Internal version:</b> $Revision: $Date: $) </small>
  * @since 3.0-Beta4
  */
-public class ViewedByItem extends JLabel implements ActionListener {
+public class ViewedByItem extends JLabel {
 
     /** The maximum width or height of the icon. */
     public static final int MAX_ICON_SIZE = 82;
@@ -176,15 +174,6 @@ public class ViewedByItem extends JLabel implements ActionListener {
 
         revalidate();
         repaint();
-    }
-
-    /**
-     * Selects the rendering settings.
-     * 
-     * @see ActionListener#actionPerformed(ActionEvent)
-     */
-    public void actionPerformed(ActionEvent e) {
-        firePropertyChange(VIEWED_BY_PROPERTY, null, rndDef);
     }
 
 }

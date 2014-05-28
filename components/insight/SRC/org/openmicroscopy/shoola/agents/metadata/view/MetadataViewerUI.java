@@ -249,9 +249,10 @@ class MetadataViewerUI
 	public void propertyChange(PropertyChangeEvent evt)
 	{
 		if (ViewedByItem.VIEWED_BY_PROPERTY.equals(
-				evt.getPropertyName()))
+				evt.getPropertyName())) {
 			model.applyRenderingSettings(
 					(RndProxyDef) evt.getNewValue());
+		}
 	}
 	
 	/**

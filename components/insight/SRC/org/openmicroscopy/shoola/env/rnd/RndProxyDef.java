@@ -106,7 +106,7 @@ public class RndProxyDef
         channels = new HashMap<Integer, ChannelBindingsProxy>();
         name = "";
     }
-    
+
     /**
      * Sets the name associated to the rendering def. 
      * 

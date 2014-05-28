@@ -597,7 +597,8 @@ public interface MetadataViewer
 	
 	/**
 	 * Sets the settings linked to a given image.
-	 * 
+         *
+	 * @param The map containing the rendering definitions
 	 */
 	void setViewedBy(Map result);
 	
