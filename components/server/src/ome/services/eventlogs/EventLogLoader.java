@@ -86,10 +86,39 @@ public abstract class EventLogLoader implements Iterator<EventLog>,
     protected List<String> excludes = Collections.emptyList();
 
     /**
+     * Query string to be kept in sync with {@link #excludes}.
+     * @see #initQueryString()
+     */
+    protected String query;
+
+    /**
      * Spring injector
      */
     public void setExcludes(String[] excludes) {
         this.excludes = Collections.unmodifiableList(Arrays.asList(excludes));
+        initQueryString();
+    }
+
+    /**
+     * Build a query string based on the current {@link #excludes} {@link List}.
+     * The query expects a single :id parameter to be set on execution. The
+     * {@link #excludes} list is used to filter out unwanted {@link EventLog}
+     * instances.
+     */
+    private void initQueryString() {
+        List<String> copy = excludes; // Instead of synchronizing
+        QueryBuilder qb = new QueryBuilder();
+        qb.select("el");
+        qb.from("EventLog", "el");
+        qb.where();
+        qb.and("el.id > :id");
+        if (copy != null) {
+            for (String exclude : copy) {
+                qb.and("el.entityType != '" + exclude + "'");
+            }
+        }
+        qb.order("id", true);
+        query = qb.queryString();
     }
 
     protected IQuery queryService;
@@ -193,25 +222,14 @@ public abstract class EventLogLoader implements Iterator<EventLog>,
     /**
      * Returns the {@link EventLog} with the next id after the given argument or
      * null if none exists. This method will only return "true" {@link EventLog}
-     * instances, with a valid id. The {@link #excludes} list is used to filter
-     * out unwanted {@link EventLog} isntances.
+     * instances, with a valid id.
      */
     public final EventLog nextEventLog(long id) {
-        List<String> copy = excludes; // Instead of synchronizing
-        QueryBuilder qb = new QueryBuilder();
-        qb.select("el");
-        qb.from("EventLog", "el");
-        qb.where();
-        qb.and("el.id > " + id);
-        if (copy != null) {
-            for (String exclude : copy) {
-                qb.and("el.entityType != '" + exclude + "'");
-            }
+        if (query == null) {
+            initQueryString();
         }
-        qb.order("id", true);
-        String query = qb.queryString();
-
-        return queryService.findByQuery(query, new Parameters().page(0, 1));
+        Parameters params = new Parameters().page(0, 1).addId(id);
+        return queryService.findByQuery(query, params);
     }
 
     public final EventLog lastEventLog() {

@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.dataBrowser.actions.ManageRndSettingsAction 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -46,7 +46,7 @@ import pojos.PlateAcquisitionData;
 import pojos.PlateData;
 import pojos.WellSampleData;
 
-/** 
+/**
  * Copies, pastes or resets the rendering settings depending on the
  * specified index.
  *
@@ -58,8 +58,8 @@ import pojos.WellSampleData;
  * @since OME3.0
  */
 public class ManageRndSettingsAction
-	extends DataBrowserAction
-	implements PropertyChangeListener
+    extends DataBrowserAction
+    implements PropertyChangeListener
 {
 
     /** Identified the copy action. */
@@ -78,21 +78,21 @@ public class ManageRndSettingsAction
     public static final int SET_OWNER = 4;
 
     /** The default name of the action if the index is {@link #COPY}. */
-    private static final String NAME_COPY = "Copy Settings";
+    private static final String NAME_COPY = "Copy";
 
     /** The description of the action if the index is {@link #COPY}. */
     private static final String DESCRIPTION_COPY =
             "Copy the rendering settings.";
 
     /** The default name of the action if the index is {@link #PASTE}. */
-    private static final String NAME_PASTE = "Paste Settings";
+    private static final String NAME_PASTE = "Paste";
 
     /** The description of the action if the index is {@link #PASTE}. */
     private static final String DESCRIPTION_PASTE =
             "Paste the rendering settings.";
 
     /** The default name of the action if the index is {@link #RESET}. */
-    private static final String NAME_RESET = "Reset Default Settings";
+    private static final String NAME_RESET = "Reset Default";
 
     /** The description of the action if the index is {@link #RESET}. */
     private static final String DESCRIPTION_RESET =
@@ -103,16 +103,15 @@ public class ManageRndSettingsAction
 
     /** The description of the action if the index is {@link #SET_MIN_MAX}. */
     private static final String DESCRIPTION_SET_MIN_MAX =
-            "Set the Pixels Intensity interval to min/max <br>" +
-                    "for all channels.";
+            "Set the Pixels Intensity interval to min/max for all channels.";
 
     /** The name of the action if the index is {@link #SET_OWNER}. */
-    private static final String NAME_SET_OWNER= "Set Owner's Settings";
+    private static final String NAME_SET_OWNER = "Set Owner's";
 
     /** 
      * The description of the action if the index is {@link #SET_OWNER}.
      */
-    private static final String DESCRIPTION_SET_OWNER  =
+    private static final String DESCRIPTION_SET_OWNER =
             "Set the Owner's rendering settings.";
 
     /** Helper reference to the icons manager. */
@@ -123,7 +122,7 @@ public class ManageRndSettingsAction
 
     /**
      * Checks if the passed index is supported.
-     * 
+     *
      * @param value The value to control.
      */
     private void checkIndex(int value)
@@ -160,7 +159,7 @@ public class ManageRndSettingsAction
             putValue(Action.SHORT_DESCRIPTION,
                     UIUtilities.formatToolTipText(
                             DESCRIPTION_SET_OWNER));
-            putValue(Action.SMALL_ICON, 
+            putValue(Action.SMALL_ICON,
                     icons.getIcon(IconManager.RND_OWNER));
             break;
         default:
@@ -214,7 +213,7 @@ public class ManageRndSettingsAction
                     ho instanceof PlateAcquisitionData))
                 setEnabled(false);
             else {
-                if (ho instanceof PlateData || 
+                if (ho instanceof PlateData ||
                         ho instanceof ImageData || ho instanceof DatasetData ||
                         ho instanceof PlateAcquisitionData) {
                     i = selected.iterator();
@@ -264,7 +263,7 @@ public class ManageRndSettingsAction
 
     /**
      * Creates a new instance.
-     * 
+     *
      * @param model Reference to the Model. Mustn't be <code>null</code>.
      * @param index	One of the management constants defined by this class.
      */
@@ -314,9 +313,9 @@ public class ManageRndSettingsAction
                 DataBrowser.RND_SETTINGS_TO_COPY_PROPERTY.equals(name) ||
                 Browser.SELECTED_DATA_BROWSER_NODE_DISPLAY_PROPERTY.equals(
                         name) ||
-                Browser.SELECTED_DATA_BROWSER_NODES_DISPLAY_PROPERTY.equals(
+                        Browser.SELECTED_DATA_BROWSER_NODES_DISPLAY_PROPERTY.equals(
                                 name) ||
-                DataBrowser.SELECTION_UPDATED_PROPERTY.equals(name)) {
+                                DataBrowser.SELECTION_UPDATED_PROPERTY.equals(name)) {
             Browser browser = model.getBrowser();
             if (browser != null)
                 onDisplayChange(browser.getLastSelectedDisplay());

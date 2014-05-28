@@ -2,22 +2,31 @@
 # -*- coding: utf-8 -*-
 
 #
-# Copyright (C) 2011-2013 Glencoe Software, Inc. All Rights Reserved.
+# Copyright (C) 2011-2014 Glencoe Software, Inc. All Rights Reserved.
 # Use is subject to license terms supplied in LICENSE.txt
 #
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 """
    Tests for the stateful Exporter service.
+
 """
 
 import omero
 import test.integration.library as lib
 import pytest
-
-from omero.rtypes import rstring, rlong, rint
-from omero.util.concurrency import get_event
-from omero.util.tiles import *
-from binascii import hexlify as hex
 
 
 class TestExporter(lib.ITest):
@@ -38,18 +47,18 @@ class TestExporter(lib.ITest):
         as a smoke test.
         """
         pix_ids = self.import_image()
-        image_id = self.client.sf.getQueryService().projection(\
-                "select i.id from Image i join i.pixels p where p.id = :id",
-                omero.sys.ParametersI().addId(pix_ids[0]))[0][0].val
+        image_id = self.client.sf.getQueryService().projection(
+            "select i.id from Image i join i.pixels p where p.id = :id",
+            omero.sys.ParametersI().addId(pix_ids[0]))[0][0].val
         exporter = self.client.sf.createExporter()
         exporter.addImage(image_id)
         length = exporter.generateTiff()
         offset = 0
         while True:
-            rv = exporter.read(offset, 1000*1000)
+            rv = exporter.read(offset, 1000 * 1000)
             if not rv:
                 break
-            rv = rv[:min(1000*1000, length - offset)]
+            rv = rv[:min(1000 * 1000, length - offset)]
             offset += len(rv)
 
     def test6713(self):
@@ -61,4 +70,3 @@ class TestExporter(lib.ITest):
         exporter.addImage(pix.getImage().id.val)
         with pytest.raises(omero.ApiUsageException):
             exporter.generateTiff()
-

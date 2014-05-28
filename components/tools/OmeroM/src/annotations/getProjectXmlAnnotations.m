@@ -15,17 +15,22 @@ function xas = getProjectXmlAnnotations(session, ids, varargin)
 %    xas = getProjectXmlAnnotations(session,  ids, 'exclude', exclude)
 %    excludes xml annotations with the input namespace.
 %
+%    xas = getProjectXmlAnnotations(session, ids, 'owner', ownerid)
+%    returns the xml annotations owned by the user specified by ownerid.
+%    Use -1 to return the xml annotations owned by all users.
+%
 %    Examples:
 %
 %        xas = getProjectXmlAnnotations(session, ids)
 %        xas = getProjectXmlAnnotations(session, projects)
 %        xas = getProjectXmlAnnotations(session, ids, 'include', include)
 %        xas = getProjectXmlAnnotations(session, ids, 'exclude', exclude)
+%        xas = getProjectXmlAnnotations(session, ids, 'owner', -1)
 %
 % See also: GETOBJECTANNOTATIONS, GETPROJECTCOMMENTANNOTATIONS,
 % GETPROJECTTAGANNOTATIONS, GETPROJECTFILEANNOTATIONS
 
-% Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
+% Copyright (C) 2013-2014 University of Dundee & Open Microscopy Environment.
 % All rights reserved.
 %
 % This program is free software; you can redistribute it and/or modify

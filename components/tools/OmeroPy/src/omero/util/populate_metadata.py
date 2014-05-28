@@ -5,7 +5,7 @@ Populate bulk metadata tables from delimited text files.
 """
 
 #
-#  Copyright (C) 2011 University of Dundee. All rights reserved.
+#  Copyright (C) 2011-2014 University of Dundee. All rights reserved.
 #
 #
 #  This program is free software; you can redistribute it and/or modify
@@ -339,12 +339,8 @@ class ParsingContext(object):
                 widths.append(None)
         return widths
 
-    def parse(self):
-        data = open(self.file, 'U')
-        try:
-            rows = list(csv.reader(data, delimiter=','))
-        finally:
-            data.close()
+    def parse_from_handle(self, data):
+        rows = list(csv.reader(data, delimiter=','))
         log.debug('Header: %r' % rows[0])
         header_resolver = HeaderResolver(self.target_object, rows[0])
         self.columns = header_resolver.create_columns()
@@ -360,6 +356,13 @@ class ParsingContext(object):
         #    for column in self.columns:
         #        values.append(column.values[i])
         #    log.debug('Row: %r' % values)
+
+    def parse(self):
+        data = open(self.file, 'U')
+        try:
+            return self.parse_from_handle(data)
+        finally:
+            data.close()
 
     def populate(self, rows):
         value = None
@@ -439,10 +442,11 @@ class ParsingContext(object):
 
     def write_to_omero(self):
         sf = self.client.getSession()
+        group = str(self.value_resolver.target_object.details.group.id.val)
         sr = sf.sharedResources()
         update_service = sf.getUpdateService()
         name = 'bulk_annotations'
-        table = sr.newTable(1, name)
+        table = sr.newTable(1, name, {'omero.group': group})
         if table is None:
             raise MetadataError(
                 "Unable to create table: %s" % name)
@@ -461,7 +465,6 @@ class ParsingContext(object):
         link = self.create_annotation_link()
         link.parent = self.target_object
         link.child = file_annotation
-        group = str(self.value_resolver.target_object.details.group.id.val)
         update_service.saveObject(link, {'omero.group': group})
 
 def parse_target_object(target_object):

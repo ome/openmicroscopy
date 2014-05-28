@@ -248,7 +248,8 @@ public interface RepositoryDao {
     /**
      * Create a number of directories in a single transaction, using the
      * {@link PublicRepositoryI} instance as a callback for implementation
-     * specific logic.
+     * specific logic. Applies the <q>real user</q>'s event context when
+     * within a {@link PublicRepositoryI#sudo(Current, String)}.
      */
     void makeDirs(PublicRepositoryI repo, List<CheckedPath> dirs, boolean parents,
             Ice.Current c) throws ServerError;

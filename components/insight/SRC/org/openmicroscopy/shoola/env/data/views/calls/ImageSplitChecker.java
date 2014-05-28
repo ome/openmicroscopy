@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.data.views.calls.ImageSplitChecker
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
+ *  Copyright (C) 2013-2014 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
  *
  *
@@ -35,11 +35,10 @@ import java.util.Map.Entry;
 
 //Third-party libraries
 
-
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.data.OmeroDataService;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
-import org.openmicroscopy.shoola.env.data.model.MIFResultObject;
+import org.openmicroscopy.shoola.env.data.OmeroDataService;
+import org.openmicroscopy.shoola.env.data.model.ImageCheckerResult;
 import org.openmicroscopy.shoola.env.data.model.ThumbnailData;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
@@ -47,10 +46,13 @@ import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
+import org.openmicroscopy.shoola.env.data.DSAccessException;
+import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
+import org.openmicroscopy.shoola.env.data.model.MIFResultObject;
 
 import pojos.DataObject;
+import pojos.DatasetData;
 import pojos.ImageData;
-import pojos.PixelsData;
 
 /**
  * Checks if the images in the specified containers are split between
@@ -64,7 +66,7 @@ public class ImageSplitChecker
 	extends BatchCallTree
 {
 	/** Result of the call. */
-	private Object result;
+	private ImageCheckerResult result = new ImageCheckerResult();
 
 	/** Loads the specified tree. */
 	private BatchCall loadCall;
@@ -132,14 +134,15 @@ public class ImageSplitChecker
 				Entry<SecurityContext, List<DataObject>> e;
 				Iterator<Entry<SecurityContext, List<DataObject>>> i =
 						objects.entrySet().iterator();
-				List<MIFResultObject> list = new ArrayList<MIFResultObject>();
 				Iterator<DataObject> j;
 				List<Long> ids;
 				DataObject uo;
 				Map<Long, Map<Boolean, List<ImageData>>> r;
 				MIFResultObject mif;
 				List<ImageData> images;
+				List<ImageData> linkCheckImages = new ArrayList<ImageData>();
 				while (i.hasNext()) {
+				        linkCheckImages.clear();;
 					e = i.next();
 					j = e.getValue().iterator();
 					ids = new ArrayList<Long>();
@@ -148,6 +151,10 @@ public class ImageSplitChecker
 						uo = j.next();
 						klass = uo.getClass();
 						ids.add(uo.getId());
+						if(uo instanceof ImageData) {
+							ImageData img = (ImageData)uo;
+							linkCheckImages.add(img);
+						}
 					}
 					r = svc.getImagesBySplitFilesets(e.getKey(),
 							klass, ids);
@@ -156,15 +163,55 @@ public class ImageSplitChecker
 						//load the thumbnails for a limited number of images.
 						images = mif.getImages();
 						mif.setThumbnails(loadThumbails(e.getKey(), images));
-						list.add(mif);
+						result.getMifResults().add(mif);
 					}
-						
+					
+					if(!linkCheckImages.isEmpty()) {
+					    loadDatasetLinks(e.getKey(), linkCheckImages);
+					}
 				}
-				result = list;
 			}
 		};
 	} 
 	
+	/**
+	 * Loads the datasets the given images are linked to
+	 * @param ctx The security context to use for the query
+	 * @param imgs The images 
+	 */
+        private void loadDatasetLinks(SecurityContext ctx, List<ImageData> imgs) {
+            try {
+                List<Long> imgIds = new ArrayList<Long>();
+                for(ImageData img : imgs) {
+                    imgIds.add(img.getId());
+                }
+                
+                OmeroDataService svc = context.getDataService();
+                Map<Long, List<DatasetData>> queryResult = svc.findDatasetsByImageId(ctx, imgIds);
+
+                for(Long imgId: queryResult.keySet()) {
+                    List<DatasetData> ds = queryResult.get(imgId);
+                    ImageData img = null;
+                    for(ImageData tmp : imgs) {
+                        if(tmp.getId()==imgId) {
+                            img = tmp;
+                            break;
+                        }
+                    }
+                    if(img!=null) {
+                        result.addDatasets(img, ds);
+                    }
+                }
+                
+            } catch (DSOutOfServiceException e) {
+                context.getLogger().error(this,
+                        "Cannot retrieve datasets: " + e.getMessage());
+            } catch (DSAccessException e) {
+                context.getLogger().error(this,
+                        "Cannot retrieve datasets: " + e.getMessage());
+            }
+        }
+        
 	/**
 	 * Adds the {@link #loadCall} to the computation tree.
 	 * 

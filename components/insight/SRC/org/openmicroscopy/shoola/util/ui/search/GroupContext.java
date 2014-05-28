@@ -40,7 +40,9 @@ import pojos.GroupData;
  */
 class GroupContext
 {
-
+        /** ID indicating all groups should be included in the search */
+        public static final int ALL_GROUPS_ID = Integer.MAX_VALUE;
+        
 	/** The group to handle.*/
 	private String group;
 	

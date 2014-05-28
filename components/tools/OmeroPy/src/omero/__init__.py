@@ -38,7 +38,7 @@ try:
         --------------
         VERSION=%s
         PYTHONPATH=%s
-        """ % (".".join(compat), ".".join(vers), omero_version, \
+        """ % (".".join(compat), ".".join(vers), omero_version,
                os.path.pathsep.join(_sys.path))
         raise Exception(msg)
 finally:
@@ -50,18 +50,22 @@ finally:
 
 __import_style__ = None
 
+
 def client_wrapper(*args, **kwargs):
     """
-    Returns an instance of L{omero.gateway.BlitzGateway} created with all arguments passed to this method
+    Returns an instance of L{omero.gateway.BlitzGateway} created with all
+    arguments passed to this method
 
     @return:    See above
     """
     import omero.gateway
     return omero.gateway.BlitzGateway(*args, **kwargs)
 
+
 def client(*args, **kwargs):
     import omero.clients
     return omero.clients.BaseClient(*args, **kwargs)
+
 
 class ClientError(Exception):
     """
@@ -69,11 +73,38 @@ class ClientError(Exception):
     """
     pass
 
+
+class CmdError(ClientError):
+    """
+    Thrown by omero.client.waitOnCmd() when
+    failonerror is True and an omero.cmd.ERR
+    is returned. The only argument
+    """
+
+    def __init__(self, err, *args, **kwargs):
+        ClientError.__init__(self, *args, **kwargs)
+        self.err = err
+
+
 class UnloadedEntityException(ClientError):
     pass
 
+
 class UnloadedCollectionException(ClientError):
     pass
+
+
+def proxy_to_instance(proxy_string):
+    import omero
+    parts = proxy_string.split(":")
+    kls = parts[0]
+    if not kls.endswith("I"):
+        kls += "I"
+    kls = getattr(omero.model, kls, None)
+    if kls is None:
+        raise ClientError(("Invalid proxy string: %s. "
+                          "Correct format is Class:ID") % proxy_string)
+    return kls(proxy_string)
 
 #
 # Workaround for warning messages produced in

@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.treeviewer.ImageChecker
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
+ *  Copyright (C) 2013-2014 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
  *
  *
@@ -32,6 +32,7 @@ import java.util.Map;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
+import org.openmicroscopy.shoola.env.data.model.ImageCheckerResult;
 import org.openmicroscopy.shoola.env.data.model.MIFResultObject;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
@@ -115,7 +116,7 @@ public class ImageChecker
     public void handleResult(Object result)
     {
     	if (viewer.getState() == Browser.DISCARDED) return;  //Async cancel.
-    	viewer.handleSplitImage((List<MIFResultObject>) result,
+    	viewer.handleSplitImage((ImageCheckerResult) result,
     			action, index);
     }
 }

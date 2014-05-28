@@ -13,7 +13,7 @@ Module documentation
 /*
  *   $Id$
  *
- *   Copyright 2010 Glencoe Software, Inc. All rights reserved.
+ *   Copyright 2010-2014 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 """
@@ -22,6 +22,7 @@ import Ice
 import logging
 import threading
 import omero.clients as base
+
 
 class MockCommunicator(object):
 
@@ -55,7 +56,7 @@ class MockClient(base.BaseClient):
         Replicating a good deal of the __init__ setup, since the method
         is too complicated at the moment to just invoke.
         """
-        self._BaseClient__agent = "t_clients" #: See setAgent
+        self._BaseClient__agent = "t_clients"  #: See setAgent
         self._BaseClient__insecure = False
         self._BaseClient__previous = None
         self._BaseClient__ic = MockCommunicator()
@@ -67,7 +68,7 @@ class MockClient(base.BaseClient):
 
         # Logging
         self._BaseClient__logger = logging.getLogger("omero.client")
-        logging.basicConfig() # Does nothing if already configured
+        logging.basicConfig()  # Does nothing if already configured
 
     def createSession(self):
         """bit of a cop out"""
@@ -136,5 +137,3 @@ class TestKeepAlive(object):
         self.mc.assertResources()
         self.mc.enableKeepAlive(-1)
         self.mc.assertNoResources()
-
-

@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.rnd.RenderingServiceException
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -51,6 +51,12 @@ public class RenderingServiceException
 
     /** Indicates that the error occurred due to a connection failure.*/
     public static final int CONNECTION = 1;
+
+    /**
+     * Indicates that the error occurred due to an operation not being
+     * supported.
+     */
+    public static final int OPERATION_NOT_SUPPORTED = 2;
 
     /** The index of the exception.*/
     private int index = 0;

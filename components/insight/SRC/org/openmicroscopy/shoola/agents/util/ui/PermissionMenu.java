@@ -52,7 +52,7 @@ public class PermissionMenu
 	/**
 	 * The term used to remove links.
 	 */
-	public static final String UNLINK = "Remove";
+	public static final String REMOVE = "Remove";
 	
 	/**
 	 * The term used to remove links.

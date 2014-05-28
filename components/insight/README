@@ -38,8 +38,6 @@
           resources to build platform-specific distributions.
     + SRC: Contains the application source files.
     + TEST: The test code.
-    + CodeTemplate: This file describes the coding style that all source files
-          must conform to.
     + README: This file.
 
 
@@ -66,19 +64,28 @@
   file under the build directory. However, there are some dependencies to
   satisfy before; these are clearly documented in the build.xml file itself.
 
+
+
+  Developing OMERO.insight
+  ------------------------
+
+  See http://www.openmicroscopy.org/site/support/omero5/developers/index.html#insight
+
+
+
   Licensing
   ---------
 
-  This software is licensed under the terms of the GNU General Public 
-  License (GPL), a copy of which may be found in the gpl.txt file under the
-  'legal' directory. The README file in that directory states which other
-  licenses apply to third-party artifacts used by our software.
+  This software is licensed under the terms of the GNU General Public
+  License (GPL), the full text of which can be found in /lib/licenses/gpl.txt or
+  the top level LICENSE.txt. See /lib/licenses/README and
+  http://www.openmicroscopy.org/site/about/licensing-attribution for further details.
 
 
 
   Copyright
   ---------
 
-  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
 
 

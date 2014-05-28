@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.util.finder.AdvancedFinder 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -164,6 +164,8 @@ public class AdvancedFinder
 				return SearchDataContext.DESCRIPTION;
 			case SearchContext.CUSTOMIZED:
 				return SearchDataContext.CUSTOMIZED;
+			case SearchContext.ID:
+			        return SearchDataContext.ID;
 			default:
 				return null;
 		}
@@ -214,6 +216,8 @@ public class AdvancedFinder
 				return NAME_TIME;
 			case SearchDataContext.CUSTOMIZED:
 				return NAME_CUSTOMIZED;
+			case SearchDataContext.ID:
+			        return NAME_ID;
 			default:
 				return null;
 		}
@@ -553,8 +557,8 @@ public class AdvancedFinder
 					if (value instanceof Integer) {
 						v = (Integer) value;
 						if (v < 0)
-							l = UIUtilities.setTextFont(term+": Not supported."
-									+" Refine criteria");
+							l = UIUtilities.setTextFont(term+": Unable to perform search,"
+									+" please refine criteria");
 						else 
 							l = UIUtilities.setTextFont(term+": " +
 									"Too many results.");

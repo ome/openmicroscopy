@@ -25,6 +25,8 @@
 
 """
 
+import Ice
+
 import pytest
 
 import test.integration.library as lib
@@ -248,3 +250,357 @@ class TestThumbnailPerms(lib.ITest):
         """
         group = self.new_group(perms="rw----")
         self.assert10618(group, self.root, True)
+
+    def test12145ShareSettingsThumbs(self):
+        """
+        Rendering settings should be shared when possible.
+        Rather than regenerating the min/max per viewer,
+        these should be used unless requested otherwise.
+        """
+        group = self.new_group(perms="rwra--")
+        owner = self.new_client(group=group)
+        other = self.new_client(group=group)
+
+        def assert_exists(for_owner, for_other):
+            for sf, exists in ((owner.sf, for_owner), (other.sf, for_other)):
+                if exists:
+                    id = sf.getAdminService().getEventContext().userId
+                    rnd = sf.getPixelsService().retrieveRndSettingsFor(pixels, id)
+                    assert rnd is not None
+                else:
+                    id = sf.getAdminService().getEventContext().userId
+                    rnd = sf.getPixelsService().retrieveRndSettingsFor(pixels, id)
+                    assert rnd is None
+
+        # creation generates a first rendering image
+        image = self.createTestImage(session=owner.sf)
+        pixels = image.getPrimaryPixels().getId().getValue()
+
+        owner_prx = owner.sf.createThumbnailStore()
+        other_prx = other.sf.createThumbnailStore()
+
+        # Before thumbnailing there should be no rendering settings
+        assert_exists(True, False)
+
+        owner_tb = owner_prx.getThumbnailByLongestSideSet(rint(16), [pixels])
+        assert owner_tb[pixels] != ''
+
+        other_tb = other_prx.getThumbnailByLongestSideSet(rint(16), [pixels])
+        assert other_tb[pixels] != ''
+
+        # After thumbnailing there should be no rendering settings
+        assert_exists(True, False)
+
+    def test12145ShareSettingsThumbsReadOnly(self):
+        """
+        Rendering settings should be shared when possible.
+        Rather than regenerating the min/max per viewer,
+        these should be used unless requested otherwise.
+        """
+        group = self.new_group(perms="rwr---")
+        groupOwner = self.new_user(group=group, admin=True)
+        owner = self.new_client(group=group)
+        other = self.new_client(user=groupOwner, group=group)
+
+        def assert_exists(for_owner, for_other):
+            for sf, exists in ((owner.sf, for_owner), (other.sf, for_other)):
+                if exists:
+                    id = sf.getAdminService().getEventContext().userId
+                    rnd = sf.getPixelsService().retrieveRndSettingsFor(pixels, id)
+                    assert rnd is not None
+                else:
+                    id = sf.getAdminService().getEventContext().userId
+                    rnd = sf.getPixelsService().retrieveRndSettingsFor(pixels, id)
+                    assert rnd is None
+
+        # creation generates a first rendering image
+        image = self.createTestImage(session=owner.sf)
+        pixels = image.getPrimaryPixels().getId().getValue()
+
+        owner_prx = owner.sf.createThumbnailStore()
+        other_prx = other.sf.createThumbnailStore()
+
+        # Before thumbnailing there should be no rendering settings
+        assert_exists(True, False)
+
+        owner_tb = owner_prx.getThumbnailByLongestSideSet(rint(16), [pixels])
+        assert owner_tb[pixels] != ''
+
+        other_tb = other_prx.getThumbnailByLongestSideSet(rint(16), [pixels])
+        assert other_tb[pixels] != ''
+
+        # After thumbnailing there should be no rendering settings
+        assert_exists(True, False)
+
+    @pytest.mark.parametrize("method", ("saveCurrent", "saveAs", "request", "resetDefault", "resetDefaultNoSave"))
+    @pytest.mark.parametrize("perms", ("readOnly", "readAnnotate", "readWrite"))
+    @pytest.mark.parametrize("roles", ("owner", "admin"))
+    def test12145ShareSettingsRnd(self, method, perms, roles):
+        """
+        Rendering settings should be shared when possible.
+        Rather than regenerating the min/max per viewer,
+        these should be used unless requested otherwise.
+        """
+        if perms == "readOnly":
+            group = self.new_group(perms="rwr---")
+            owner = self.new_client(group=group)
+            if roles == "owner":
+                user = self.new_user(group=group, admin=True)
+                other = self.new_client(user=user, group=group)
+            elif roles == "admin":
+                user = self.new_user(group=group, system=True)
+                other = self.new_client(user=user, group=group)
+        elif perms == "readAnnotate":
+            group = self.new_group(perms="rwra--")
+            owner = self.new_client(group=group)
+            if roles == "owner":
+                user = self.new_user(group=group, admin=True)
+                other = self.new_client(user=user, group=group)
+            elif roles == "admin":
+                user = self.new_user(group=group, system=True)
+                other = self.new_client(user=user, group=group)
+        elif perms == "readWrite":
+            group = self.new_group(perms="rwrw--")
+            owner = self.new_client(group=group)
+            other = self.new_client(group=group)
+
+        # creation generates a first rendering image
+        image = self.createTestImage(session=owner.sf)
+        pixels = image.getPrimaryPixels().getId().getValue()
+
+        def assert_rdef(sf=None, prx=None):
+            if prx is None:
+                prx = sf.createRenderingEngine()
+            prx.lookupPixels(pixels)
+            assert prx.lookupRenderingDef(pixels)
+            return prx, prx.getRenderingDefId()
+
+        # The owner has a rdef, and other
+        # users see the same value
+        a_prx, a_rdef = assert_rdef(owner.sf)
+        b_prx, b_rdef = assert_rdef(other.sf)
+        assert a_rdef == b_rdef
+
+        if method == "saveCurrent":
+            # If the other users try to save with
+            # that prx though, they'll create a new rdef
+            b_prx.saveCurrentSettings()
+            c_rdef = b_prx.getRenderingDefId()
+            assert c_rdef != b_rdef
+
+        elif method == "saveAs":
+            # But other users can create new rdefs
+            # with new ids using the new method
+            try:
+                c_rdef = b_prx.saveAsNewSettings()
+                ignore, d_rdef = assert_rdef(prx=b_prx)
+                assert a_rdef != c_rdef
+                assert c_rdef == d_rdef
+            except Ice.OperationNotExistException:
+                # Not supported by this server
+                pass
+
+        elif method == "request":
+            # If a user explicitly requests a rdef
+            # then it will *not* saveAs and the rdefs
+            # should match.
+            b_prx.loadRenderingDef(b_rdef)
+            try:
+                b_prx.saveCurrentSettings()
+            except omero.SecurityViolation:
+                pass  # You can't do this!
+            c_rdef = b_prx.getRenderingDefId()
+            assert c_rdef == b_rdef
+
+        elif method == "resetDefault":
+            # If the other users try to save with
+            # that prx though, they'll create a new rdef
+            b_prx.load()
+            b_prx.resetDefaults()
+            c_rdef = b_prx.getRenderingDefId()
+            b_prx.close()
+            assert c_rdef != b_rdef
+
+        elif method == "resetDefaultNoSave":
+            # If the other users try to save with
+            # that prx though, they'll create a new rdef
+            b_prx.load()
+            b_prx.resetDefaultsNoSave()        
+            c_rdef = b_prx.getRenderingDefId()
+            b_prx.close()
+            assert c_rdef == b_rdef
+
+        # But they won't have a thumbnail generated
+        tb = other.sf.createThumbnailStore()
+        tb.setPixelsId(pixels)
+        tb.setRenderingDefId(c_rdef)
+        assert not tb.thumbnailExists(rint(96), rint(96))
+
+    @pytest.mark.parametrize("roles", ("owner", "admin"))
+    @pytest.mark.parametrize("perms", ("readOnly", "readAnnotate", "readWrite"))
+    def test12145ShareSettingsGetThumbnail(self, perms, roles):
+        """
+        Check that a new thumbnail is created when new
+        settings are created.
+        """
+        if perms == "readOnly":
+            group = self.new_group(perms="rwr---")
+            owner = self.new_client(group=group)
+            if roles == "owner":
+                user = self.new_user(group=group, admin=True)
+                other = self.new_client(user=user, group=group)
+            elif roles == "admin":
+                user = self.new_user(group=group, system=True)
+                other = self.new_client(user=user, group=group)
+        elif perms == "readAnnotate":
+            group = self.new_group(perms="rwra--")
+            owner = self.new_client(group=group)
+            if roles == "owner":
+                user = self.new_user(group=group, admin=True)
+                other = self.new_client(user=user, group=group)
+            elif roles == "admin":
+                user = self.new_user(group=group, system=True)
+                other = self.new_client(user=user, group=group)
+        elif perms == "readWrite":
+            group = self.new_group(perms="rwrw--")
+            owner = self.new_client(group=group)
+            other = self.new_client(group=group)
+                
+        # creation generates a first rendering image
+        image = self.createTestImage(session=owner.sf)
+        pixels = image.getPrimaryPixels().getId().getValue()
+        # create thumbnail for image owner 16x16
+        tb = owner.sf.createThumbnailStore()
+        tb.setPixelsId(pixels)
+        tb.getThumbnail(rint(16), rint(16))
+        assert tb.thumbnailExists(rint(16), rint(16))
+
+        def assert_rdef(sf=None, prx=None):
+            if prx is None:
+                prx = sf.createRenderingEngine()
+            prx.lookupPixels(pixels)
+            assert prx.lookupRenderingDef(pixels)
+            return prx, prx.getRenderingDefId()
+
+        # The owner has a rdef, and other
+        # users see the same value
+        a_prx, a_rdef = assert_rdef(owner.sf)
+        b_prx, b_rdef = assert_rdef(other.sf)
+        assert a_rdef == b_rdef
+
+        # save settings for group onwer.
+        b_prx.saveCurrentSettings()
+
+        # retrieve thumbnail and check that it is created.
+        tb = other.sf.createThumbnailStore()
+        tb.setPixelsId(pixels)
+        tb.getThumbnail(rint(16), rint(16))
+        query = other.sf.getQueryService()
+        p = omero.sys.Parameters()
+        p.map = {}
+        p.map["oid"] = omero.rtypes.rlong(other.sf.getAdminService().getEventContext().userId)
+        p.map["pid"] = omero.rtypes.rlong(pixels)
+        thumbs = query.findAllByQuery(
+            "select t from Thumbnail t join t.pixels p where t.details.owner.id = :oid and p.id = :pid", p)
+        #check that one has been created for the group owner.
+        assert 1 == len(thumbs)
+        #check that a thum
+        tb.close()
+
+    @pytest.mark.parametrize("roles", ("owner", "admin"))
+    @pytest.mark.parametrize("perms", ("readOnly", "readAnnotate", "readWrite"))
+    def test12145ShareSettingsSetRnd(self, perms, roles):
+        """
+        Check that a new thumbnail is created when new
+        settings are created.
+        """
+        if perms == "readOnly":
+            group = self.new_group(perms="rwr---")
+            owner = self.new_client(group=group)
+            if roles == "owner":
+                user = self.new_user(group=group, admin=True)
+                other = self.new_client(user=user, group=group)
+            elif roles == "admin":
+                user = self.new_user(group=group, system=True)
+                other = self.new_client(user=user, group=group)
+        elif perms == "readAnnotate":
+            group = self.new_group(perms="rwra--")
+            owner = self.new_client(group=group)
+            if roles == "owner":
+                user = self.new_user(group=group, admin=True)
+                other = self.new_client(user=user, group=group)
+            elif roles == "admin":
+                user = self.new_user(group=group, system=True)
+                other = self.new_client(user=user, group=group)
+        elif perms == "readWrite":
+            group = self.new_group(perms="rwrw--")
+            owner = self.new_client(group=group)
+            other = self.new_client(group=group)
+                
+        # creation generates a first rendering image
+        image = self.createTestImage(session=owner.sf)
+        pixels = image.getPrimaryPixels().getId().getValue()
+        # create thumbnail for image owner 16x16
+        tb = owner.sf.createThumbnailStore()
+        tb.setPixelsId(pixels)
+        tb.getThumbnail(rint(16), rint(16))
+        assert tb.thumbnailExists(rint(16), rint(16))
+
+        # get thumbnail version
+        query =  owner.sf.getQueryService()
+        p = omero.sys.Parameters()
+        p.map = {}
+        p.map["oid"] = omero.rtypes.rlong(owner.sf.getAdminService().getEventContext().userId)
+        p.map["pid"] = omero.rtypes.rlong(pixels)
+        thumbs = query.findAllByQuery(
+            "select t from Thumbnail t join t.pixels p where t.details.owner.id = :oid and p.id = :pid", p)
+        assert 1 == len(thumbs)
+        v_thumb = thumbs[0].getVersion().getValue()
+        
+        def assert_rdef(sf=None, prx=None):
+            if prx is None:
+                prx = sf.createRenderingEngine()
+            prx.lookupPixels(pixels)
+            assert prx.lookupRenderingDef(pixels)
+            return prx, prx.getRenderingDefId()
+
+        ownerId = owner.sf.getAdminService().getEventContext().userId
+        # Make sure the rendering settings are updated.
+        a_prx, a_rdef = assert_rdef(owner.sf)
+        settings = owner.sf.getPixelsService().loadRndSettings(a_rdef)
+        v_def = settings.getVersion().getValue()
+        a_prx.load()
+        a_prx.setActive(0, True);
+        a_prx.saveCurrentSettings()
+        a_rdef = a_prx.getRenderingDefId()
+        settings = owner.sf.getPixelsService().loadRndSettings(a_rdef)
+        v_def_new = settings.getVersion().getValue()
+        assert v_def_new == v_def+1
+        assert settings.getDetails().getOwner().getId().getValue() == ownerId
+
+        # retrieve thumbnail and check that it is not created.
+        tb = other.sf.createThumbnailStore()
+        tb.setPixelsId(pixels)
+        tb.setRenderingDefId(a_rdef)
+        tb.getThumbnail(rint(16), rint(16))
+        query = other.sf.getQueryService()
+        p = omero.sys.Parameters()
+        p.map = {}
+        p.map["oid"] = omero.rtypes.rlong(other.sf.getAdminService().getEventContext().userId)
+        p.map["pid"] = omero.rtypes.rlong(pixels)
+        thumbs = query.findAllByQuery(
+            "select t from Thumbnail t join t.pixels p where t.details.owner.id = :oid and p.id = :pid", p)
+        #check that one has been created for the group owner.
+        assert 0 == len(thumbs)
+        #check that a thum
+        tb.close()
+        query = owner.sf.getQueryService()
+        p = omero.sys.Parameters()
+        p.map = {}
+        p.map["pid"] = omero.rtypes.rlong(pixels)
+        thumbs = query.findAllByQuery(
+            "select t from Thumbnail t join t.pixels p where p.id = :pid", p)
+        assert 1 == len(thumbs)
+        v_thumb_new = thumbs[0].getVersion().getValue()
+        assert v_thumb_new == v_thumb+1
+

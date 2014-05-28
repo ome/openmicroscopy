@@ -21,7 +21,10 @@ import static omero.rtypes.rset;
 import static omero.rtypes.rstring;
 import static omero.rtypes.rtime;
 import static omero.rtypes.rtype;
-import static org.testng.Assert.*;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNull;
+import static org.testng.Assert.assertTrue;
+import static org.testng.Assert.fail;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -31,9 +34,14 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import omero.ClientError;
+import omero.RList;
 import omero.RLong;
+import omero.RMap;
+import omero.RSet;
+import omero.RString;
 import omero.RType;
 import omero.grid.JobParams;
 import omero.model.ImageI;
@@ -273,4 +281,68 @@ public class RTypesTest{
 
     }
 
+    @Test
+    public void testWrapRListString() {
+        List<String> input = Arrays.asList("A", "B");
+        RList rlist = (RList) omero.rtypes.wrap(input);
+        assertEquals(2, rlist.getValue().size());
+        assertEquals("A", ((RString) rlist.getValue().get(0)).getValue());
+        assertEquals("B", ((RString) rlist.getValue().get(1)).getValue());
+    }
+ 
+    @SuppressWarnings("unchecked")
+    @Test
+    public void testWrapUnwrapMap() {
+        Map<String, Object> input = new HashMap<String, Object>();
+        input.put("int", new Integer(0));
+        input.put("float", new Float(0.0f));
+        RMap output = (RMap) omero.rtypes.wrap(input);
+        Map<String, Object> test = (Map<String, Object>) omero.rtypes.unwrap(output);
+        assertEquals(new Integer(0), test.get("int"));
+        assertEquals(new Float(0.0f), test.get("float"));
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    public void testMoreComplexeWrapping() {
+        // Create a bunch of wacky structures
+        Map<String, List<Map<String, Set<Object>>>> wow
+            = new HashMap<String, List<Map<String, Set<Object>>>>();
+        List<Map<String, Set<Object>>> list = new ArrayList<Map<String, Set<Object>>>();
+        Map<String, Set<Object>> map1 = new HashMap<String, Set<Object>>();
+        Set<Object> set = new HashSet<Object>();
+
+        // Now put everything in everything
+        set.add(new Integer(3));
+        set.add(new Double(0.0d));
+        set.add(new Timestamp(0l));
+        set.add(new Long(0L));
+        set.add(new String("string"));
+        /*
+        Due to the key semantics of hash sets, placing these in the set
+        leads to stackoverflow semantics. A IdentityHashSet is needed.
+        set.add(map1);
+        set.add(list);
+        set.add(wow);
+        */
+        set.add(new Object[]{ list, map1, set});
+        
+        map1.put("set", set);
+        map1.put("set2", set);
+
+        list.add(map1);
+        wow.put("list", list);
+
+        RMap mapOut = (RMap) omero.rtypes.wrap(wow);
+        RList listOut = (RList) mapOut.getValue().get("list");
+        RMap map1Out = (RMap) listOut.getValue().get(0);
+        RSet setOut = (RSet) map1Out.getValue().get("set");
+        set = (Set<Object>) omero.rtypes.unwrap(setOut);
+
+        wow = (Map<String, List<Map<String, Set<Object>>>>) omero.rtypes.unwrap(mapOut);
+        list = wow.get("list");
+        map1 = list.get(0);
+        set = map1.get("set");
+        assertTrue(set.contains(new Integer(3)));
+    }
 }

@@ -1,4 +1,4 @@
-% Copyright (C) 2011-2013 University of Dundee & Open Microscopy Environment.
+% Copyright (C) 2011-2014 University of Dundee & Open Microscopy Environment.
 % All rights reserved.
 %
 % This program is free software; you can redistribute it and/or modify
@@ -18,15 +18,18 @@
 % Crate a new synthetic image and upload it to the server
 
 try
-    % Create a connection
+    % Initialize a client and a session using the ice.config file
+    % See ConnectToOMERO for alternative ways to initialize a session
     [client, session] = loadOmero();
-    fprintf(1, 'Created connection to %s\n', char(client.getProperty('omero.host')));
-    fprintf(1, 'Created session for user %s using group %s\n',...
-        char(session.getAdminService().getEventContext().userName),...
-        char(session.getAdminService().getEventContext().groupName));
+    p = parseOmeroProperties(client);
+    eventContext = session.getAdminService().getEventContext();
+    fprintf(1, 'Created connection to %s\n', p.hostname);
+    msg = 'Created session for user %s (id: %g) using group %s (id: %g)\n';
+    fprintf(1, msg, char(eventContext.userName), eventContext.userId,...
+        char(eventContext.groupName), eventContext.groupId);
     
     % Information to edit
-    datasetId = str2double(client.getProperty('dataset.id'));
+    datasetId = p.datasetid;
     
     % Read the dimensions
     sizeX = 200;
@@ -55,6 +58,17 @@ try
     disp('Checking the created image');
     imageNew = getImages(session, idNew.getValue());
     assert(~isempty(imageNew), 'OMERO:CreateImage', 'Image Id not valid');
+    
+    % Set channel properties
+    disp('Adding metadata to the channels')
+    channels = loadChannels(session, imageNew);
+    for i = 1: numel(channels)
+        channelName = ['Channel ' num2str(i)'];
+        emissionWave = 550;
+        channels(i).getLogicalChannel().setName(rstring(channelName));
+        channels(i).getLogicalChannel().setEmissionWave(rint(emissionWave));
+    end
+    session.getUpdateService().saveArray(toJavaList(channels));
     
     % load the dataset
     fprintf(1, 'Reading dataset: %g\n', datasetId);

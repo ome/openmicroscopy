@@ -28,6 +28,8 @@
 #include <omero/model/IObject.h>
 #include <omero/model/SessionI.h>
 #include <omero/util/uuid.h>
+#include <omero/ObjectFactory.h>
+#include <omero/model/ObjectFactory.h>
 
 using namespace std;
 
@@ -181,6 +183,7 @@ namespace omero {
 
         // Register Object Factory
         omero::registerObjectFactory(__ic, this);
+        omero::model::registerObjectFactory(__ic);
         omero::rtypes::registerObjectFactory(__ic);
 
         // Define our unique identifier (used during close/detach)

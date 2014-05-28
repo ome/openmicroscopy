@@ -58,7 +58,6 @@ def java_omero(args):
     command.append(BUILD_PY)
     command.extend( calculate_memory_args() )
     command.extend(["omero"])
-    command.extend(choose_omero_version())
     if isinstance(args,str):
         command.append(args)
     else:
@@ -70,76 +69,6 @@ def find_java():
 
 def calculate_memory_args():
     return "-Xmx600M -XX:MaxPermSize=256m".split(" ")
-
-def choose_omero_version():
-    """
-    Returns an array specifying the build parameter for
-    ant. Returned as an array so that an empty value can
-    be extended into the build command.
-
-    If BUILD_NUMER is set, then "-Domero.version=${omero.version}-b${BUILD_NUMBER}"
-    otherwise nothing.
-    """
-
-    omero_build = os.environ.get("BUILD_NUMBER", "")
-    if omero_build:
-        omero_build = "-b%s" % omero_build
-
-    command = [ find_java(), "omero",BUILD_PY,"-q","version" ]
-    err = ""
-    try:
-        p = popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        omero_version, err = p.communicate()
-        omero_version = omero_version.split()[1]
-
-        # If we're not on hudson, then we don't want to force
-        # users to deal with rebuilding after each commit.
-        # Instead, drop everything except for "-DEV"
-        #
-        # See gh-67 for the discussion.
-        if not omero_build:
-            omero_version = re.sub("([-]DEV)?-\d+-[a-f0-9]+(-dirty)?",\
-                    "-DEV", omero_version)
-    except:
-        print "Error getting version for BUILD_NUMBER=%s" % omero_build
-        if err:
-            print err
-        sys.exit(1)
-
-    command = [ find_java(), "omero",BUILD_PY,"-q","plainversion" ]
-    err = ""
-    try:
-        p = popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        omero_plain_version, err = p.communicate()
-        omero_plain_version = omero_plain_version.split()[1]
-        if not omero_build:
-            omero_plain_version = re.sub("([-]DEV)?-\d+-[a-f0-9]+(-dirty)?",\
-                    "-DEV", omero_plain_version)
-    except:
-        print "Error getting plain version for BUILD_NUMBER=%s" % omero_build
-        if err:
-            print err
-        sys.exit(1)
-
-    command = [ find_java(), "omero",BUILD_PY,"-q","shortversion" ]
-    err = ""
-    try:
-        p = popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        omero_short_version, err = p.communicate()
-        omero_short_version = omero_short_version.split()[1]
-        if not omero_build:
-            omero_short_version = re.sub("([-]DEV)?-\d+-[a-f0-9]+(-dirty)?",\
-                    "-DEV", omero_short_version)
-    except:
-        print "Error getting short version for BUILD_NUMBER=%s" % omero_build
-        if err:
-            print err
-        sys.exit(1)
-
-    return [ "-Domero.version=%s%s" % (omero_version, omero_build),
-             "-Domero.plainversion=%s" % (omero_plain_version),
-             "-Domero.shortversion=%s" % (omero_short_version) ]
-
 
 def handle_tools(args):
     _ = os.path.sep.join

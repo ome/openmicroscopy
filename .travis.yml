@@ -1,8 +1,8 @@
 language: java
 
 env:
-    - BUILD=py BUILD_TARGET="build-default" TEST_TARGET="-py test -Dtest.with.fail=true"
-    - BUILD=java BUILD_TARGET="build-default test-compile" TEST_TARGET="-p"
+    - BUILD="build-python"
+    - BUILD="build-java"
 
 matrix:
       fast_finish: true
@@ -18,15 +18,12 @@ before_install:
     - git config github.token 3bc7fc530b01081559eb911f59ccfec7f4fb2592
     - git config --global user.email snoopycrimecop@gmail.com
     - git config --global user.name 'Snoopy Crime Cop'
-    - sudo pip install scc
+    - sudo pip install scc pytest
     - scc travis-merge
-    - if [[ $BUILD == 'py' ]]; then sudo pip install flake8; fi
-    - if [[ $BUILD == 'py' ]]; then flake8 -v components/tools/OmeroPy/src/omero/plugins;  fi
-    - if [[ $BUILD == 'py' ]]; then flake8 -v components/tools/OmeroPy/test/integration/clitest;  fi
-    - if [[ $BUILD == 'py' ]]; then flake8 -v components/tools/OmeroPy/test/unit/clitest;  fi
+    - if [[ $BUILD == 'build-python' ]]; then sudo pip install flake8; fi
 
-install: python build.py $BUILD_TARGET
+install:
 
 # Running python tests as script, since there's no compile step.
 script:
-    - python build.py $TEST_TARGET
+    - ./components/tools/travis-build $BUILD

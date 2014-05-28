@@ -1,21 +1,16 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from django.http import HttpResponseRedirect, HttpResponse
-from django.core.urlresolvers import reverse
+from django.http import HttpResponse, Http404
 from django.shortcuts import render_to_response
 from omeroweb.webgateway import views as webgateway_views
-from omeroweb.connector import Server
 
 from omeroweb.webclient.decorators import login_required, render_response
-from omeroweb.connector import Connector
 
 from cStringIO import StringIO
 
-import settings
 import logging
-import traceback
 import omero
-from omero.rtypes import rint, rstring
+from omero.rtypes import rstring
 import omero.gateway
 import random
 
@@ -41,6 +36,11 @@ def dataset(request, datasetId, conn=None, **kwargs):
 
 @login_required()    # wrapper handles login (or redirects to webclient login). Connection passed in **kwargs
 def index(request, conn=None, **kwargs):
+
+    params = omero.sys.ParametersI()
+    # limit the number of objects we retrieve
+    params.page(0, 10)
+
     # use Image IDs from request...
     if request.REQUEST.get("Image", None):
         imageIds = request.REQUEST.get("Image", None)
@@ -48,18 +48,18 @@ def index(request, conn=None, **kwargs):
         images = list(conn.getObjects("Image", ids))
     else:
         # OR find a random image and dataset to display & can be used in links to other pages
-        all_images = list(conn.getObjects("Image"))
-        img = random.choice(all_images)
+        some_images = list(conn.getObjects("Image", params=params))
+        img = random.choice(some_images)
         images = [img]
     
-    imgIds = ",".join([str(img.getId()) for img in images])
+    imgIds = ",".join([str(img2.getId()) for img2 in images])
     
     # get a random dataset (making sure we get one that has some images in it)
-    all_datasets = list(conn.getObjects("Dataset"))
-    dataset = random.choice(all_datasets)
+    some_datasets = list(conn.getObjects("Dataset", params=params))
+    dataset = random.choice(some_datasets)
     attempts = 0
     while (dataset.countChildren() == 0 and attempts < 10):
-        dataset = random.choice(all_datasets)
+        dataset = random.choice(some_datasets)
         attempts += 1
 
     return render_to_response('webtest/index.html', {'images': images, 'imgIds': imgIds, 'dataset': dataset})
@@ -160,8 +160,6 @@ def render_channel_overlay (request, conn=None, **kwargs):
     blue = request.REQUEST.get('blue', None)
 
     # kinda like split-view: we want to get single-channel images...
-    # red...
-    redImg = None
 
     def translate(image, deltaX, deltaY):
 
@@ -261,7 +259,6 @@ def add_annotations (request, conn=None, **kwargs):
     if ns != None:
         ann.setNs(rstring( str(ns) ))
     ann = updateService.saveAndReturnObject(ann)
-    annId = ann.getId().getValue()
     
     images = []
     for iId in imageIds:
@@ -456,9 +453,6 @@ def dataset_split_view (request, datasetId, conn=None, **kwargs):
 
     if channels is None:
         return HttpResponse("<p class='center_message'>No Images in Dataset<p>")
-
-    indexes = range(1, len(channels)+1)
-    c_string = ",".join(["-%s" % str(c) for c in indexes])     # E.g. -1,-2,-3,-4
 
     leftFlags = []
     rightFlags = []

@@ -23,12 +23,11 @@
 # Version: 1.0
 #
 
-import string
 import datetime
 import time
 
-from omero.rtypes import *
-from omero.model import ImageI, DatasetI, ProjectI
+import omero
+from omero.rtypes import rtime
 
 from webclient.controller import BaseController
 

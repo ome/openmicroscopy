@@ -1,0 +1,91 @@
+version: 1
+dn: ou=multipleGroups,o=eg
+objectclass: organizationalUnit
+objectClass: top
+ou: multipleGroups
+
+dn: ou=groups,ou=multipleGroups,o=eg
+objectclass: organizationalUnit
+objectClass: top
+ou: groups
+
+dn: cn=jrslab,ou=groups,ou=multipleGroups,o=eg
+objectClass: posixGroup
+objectClass: top
+objectClass: groupManagers
+cn: jrslab
+description: Domain Unix group
+displayName: jrslab
+gidNumber: 1014
+
+dn: cn=omedev,ou=groups,ou=multipleGroups,o=eg
+objectClass: top
+objectClass: posixGroup
+objectClass: groupOfNames
+objectClass: sambaGroupMapping
+objectClass: sambaShareGroups
+objectClass: groupManagers
+cn: omedev
+description: Domain Unix group
+displayName: omedev
+gidNumber: 1501
+manager: cn=cxallan,ou=edir,ou=people,ou=multipleGroups,o=eg
+memberUid: atarkowska
+memberUid: cxallan
+memberUid: jmoore
+memberUid: wmoore
+memberUid: ajpatterson
+memberUid: dzmacdonald
+memberUid: jburel
+memberUid: bwzloranger
+memberUid: cblackburn
+memberUid: cneves-x
+memberUid: mlinkert-x
+memberUid: crueden-x
+memberUid: jrswedlow
+memberUid: bjones-x
+sambaGroupType: 2
+sambaSID: S-1-5-21-1279830386-3947966166-4038294555-4003
+member: cn=atarkowska,ou=edir,ou=people,ou=multipleGroups,o=eg
+member: cn=cxallan,ou=edir,ou=people,ou=multipleGroups,o=eg
+member: cn=test1,ou=notedir,ou=people,ou=multipleGroups,o=eg
+member: cn=wmoore,ou=edir,ou=people,ou=multipleGroups,o=eg
+member: cn=ajpatterson,ou=edir,ou=people,ou=multipleGroups,o=eg
+member: cn=dzmacdonald,ou=edir,ou=people,ou=multipleGroups,o=eg
+member: cn=jburel,ou=edir,ou=people,ou=multipleGroups,o=eg
+member: cn=bwzloranger,ou=edir,ou=people,ou=multipleGroups,o=eg
+member: cn=cblackburn,ou=edir,ou=people,ou=multipleGroups,o=eg
+member: cn=cneves-x,ou=other,ou=people,ou=multipleGroups,o=eg
+member: cn=mlinkert-x,ou=other,ou=people,ou=multipleGroups,o=eg
+member: cn=crueden-x,ou=other,ou=people,ou=multipleGroups,o=eg
+member: cn=jrswedlow,ou=edir,ou=people,ou=multipleGroups,o=eg
+member: cn=bjones-x,ou=other,ou=people,ou=multipleGroups,o=eg
+
+dn: ou=people,ou=multipleGroups,o=eg
+objectClass: top
+objectClass: organizationalUnit
+ou: people
+
+dn: ou=notedir,ou=people,ou=multipleGroups,o=eg
+objectClass: top
+objectClass: organizationalUnit
+ou: notedir
+
+dn: cn=test1,ou=notedir,ou=people,ou=multipleGroups,o=eg
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: sambaAccount
+objectClass: top
+objectClass: radiusProfile
+cn: test1
+gecos: Josh Moore (JS) j.moore@example.com
+givenName: Josh
+homeDirectory: /homes/jmoore
+loginShell: /bin/bash
+mail: josh@example.com
+sn: jmoore
+uid: jmoore
+uidNumber: 5226
+userPassword: password

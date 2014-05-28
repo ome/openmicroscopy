@@ -145,6 +145,12 @@ class ProcessI(omero.grid.Process, omero.util.SimpleServant):
             "PATH",
             "PYTHONPATH",
         )
+
+        # Since we know the location of our OMERO, we're going to
+        # force the value for OMERO_HOME. This is useful in scripts
+        # which want to be able to find their location.
+        self.env.set("OMERO_HOME", self.omero_home)
+
         # WORKAROUND
         # Currently duplicating the logic here as in the PYTHONPATH
         # setting of the grid application descriptor (see etc/grid/*.xml)
@@ -836,7 +842,8 @@ class ProcessorI(omero.grid.Processor, omero.util.Servant):
             id = self.internal_session().ice_getIdentity().name
             cb = cb.ice_oneway()
             cb = omero.grid.ProcessorCallbackPrx.uncheckedCast(cb)
-            cb.isAccepted(valid, id, str(self.prx))
+            prx = omero.grid.ProcessorPrx.uncheckedCast(self.prx)
+            cb.isProxyAccepted(valid, id, prx)
         except Exception, e:
             self.logger.warn("callback failed on willAccept: %s Exception:%s", cb, e)
 

@@ -58,6 +58,8 @@ import javax.swing.tree.TreePath;
 
 //Third-party libraries
 import info.clearthought.layout.TableLayout;
+
+import org.apache.commons.collections.CollectionUtils;
 import org.jdesktop.swingx.JXBusyLabel;
 
 //Application-internal dependencies
@@ -494,13 +496,14 @@ public class MoveGroupSelectionDialog
         TreeImageSet root = new TreeImageSet("");
         treeDisplay.setModel(new DefaultTreeModel(root));
         treeDisplay.addTreeSelectionListener(this);
-		if (targets == null || targets.size() == 0) {
+		if (CollectionUtils.isEmpty(targets)) {
 			buildNoContentPane();
 			return;
 		}
 		Set<TreeImageDisplay> 
-		nodes = TreeViewerTranslator.transformHierarchy(targets);
-		List<TreeImageDisplay> transformedNodes = 
+		nodes = TreeViewerTranslator.transformHierarchy(
+		        new ArrayList<Object>(targets));
+		List<TreeImageDisplay> transformedNodes =
 			prepareSortedList(sorter.sort(nodes));
 		if (transformedNodes.size() == 0) {
 			buildNoContentPane();

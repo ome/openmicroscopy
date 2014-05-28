@@ -4,12 +4,12 @@
 /*
  *   $Id$
  *
- *   Copyright 2010 Glencoe Software, Inc. All rights reserved.
+ *   Copyright 2010-2014 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 """
 
-import omero_ext.uuid as uuid # see ticket:3774
+import omero_ext.uuid as uuid  # see ticket:3774
 
 DUMMY = object()
 
@@ -39,5 +39,3 @@ class TestExt(object):
                 assert None == U._uuid_generate_random
                 assert None == U._uuid_generate_time
         assert uuid.uuid4()
-
-

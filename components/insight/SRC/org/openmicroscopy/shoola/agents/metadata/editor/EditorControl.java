@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.metadata.editor.EditorControl 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -37,6 +37,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -44,8 +45,10 @@ import java.util.Set;
 import java.util.Map.Entry;
 
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JTabbedPane;
+import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileFilter;
@@ -213,8 +216,8 @@ class EditorControl
 	/** Action ID to view the image.*/
 	static final int	VIEW_IMAGE_IN_IJ = 23;
 
-	/** Action ID to load the file path.*/
-	static final int FILE_PATH = 24;
+	/** Action ID to load the file path triggered by click on toolbar popup.*/
+	static final int FILE_PATH_TOOLBAR = 24;
 
 	/** Action id indicating to remove other annotations. */
 	static final int REMOVE_OTHER_ANNOTATIONS = 25;
@@ -222,6 +225,9 @@ class EditorControl
 	/** Action ID to download the metadata files. */
 	static final int DOWNLOAD_METADATA = 26;
 
+	/** Action ID to load the file path triggered by click on inplace import icon.*/
+        static final int FILE_PATH_INPLACE_ICON = 27;
+        
 	
     /** Reference to the Model. */
     private Editor		model;
@@ -615,8 +621,13 @@ class EditorControl
 	 */
 	FigureDialog getFigureDialog() { return figureDialog; }
 	
-	/** Loads the file set linked to the image.*/
-	void loadFileset() { model.loadFileset(); }
+	/** Loads the file set linked to the image.
+	 *
+	 * @param trigger The action which triggered the loading,
+	 * see {@link EditorControl#FILE_PATH_TOOLBAR}
+	 * or {@link EditorControl#FILE_PATH_INPLACE_ICON}
+	 * */
+	void loadFileset(int trigger) { model.loadFileset(trigger); }
 	
 	/**
 	 * Reacts to state changes in the {@link ImViewer}.
@@ -660,10 +671,14 @@ class EditorControl
 			Object object = evt.getNewValue();
 			if (object instanceof DocComponent) {
 				DocComponent doc = (DocComponent) object;
+				
 				Object data = doc.getData();
-				if (data instanceof File) view.removeAttachedFile(data);
-				else if (data instanceof FileAnnotationData)
-					view.removeAttachedFile(data);
+				
+				
+				if (data instanceof FileAnnotationData) {
+				    model.removeFileAnnotations(Collections.singletonList((FileAnnotationData)data));
+				}
+				
 				else if (data instanceof TagAnnotationData ||
 						data instanceof TermAnnotationData ||
 						data instanceof XMLAnnotationData ||
@@ -672,20 +687,11 @@ class EditorControl
 						data instanceof BooleanAnnotationData)
 					view.removeObject((DataObject) data);
 			} 
-		} else if (AnnotationUI.DELETE_ANNOTATION_PROPERTY.equals(name)) {
-			Object object = evt.getNewValue();
-			if (object instanceof DocComponent) {
-				DocComponent doc = (DocComponent) object;
-				Object data = doc.getData();
-				if (data instanceof FileAnnotationData) {
-					view.deleteAnnotation((FileAnnotationData) data);
-					view.removeAttachedFile(data);
-				}
-			} else if (object instanceof TextualAnnotationComponent) {
-				TextualAnnotationComponent doc = 
-					(TextualAnnotationComponent) object;
-				view.removeObject(doc.getData());
-			}
+			else if (object instanceof TextualAnnotationComponent) {
+                            TextualAnnotationComponent doc = 
+                                    (TextualAnnotationComponent) object;
+                            view.removeObject(doc.getData());
+                    }
 		} else if (AnnotationUI.EDIT_TAG_PROPERTY.equals(name)) {
 			Object object = evt.getNewValue();
 			if (object instanceof DocComponent) {
@@ -920,9 +926,14 @@ class EditorControl
 					MetadataViewerAgent.getRegistry().getEventBus().post(event);
 				}
 				break;
-			case FILE_PATH:
-				if (view.getFileset() != null) view.displayFileset();
-				else loadFileset();
+			case FILE_PATH_TOOLBAR:
+			case FILE_PATH_INPLACE_ICON:
+				if (view.getFileset() != null) {
+				    view.displayFileset(index);
+				} 
+				else {
+				    loadFileset(index);
+				}
 				break;
 			case DOWNLOAD_METADATA:
 				downloadMetadata();

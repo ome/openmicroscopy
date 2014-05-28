@@ -136,8 +136,11 @@ class ScriptControl(BaseControl):
         enable.add_argument(
             "--mimetype", default=MIMETYPE,
             help="Use a mimetype other than the default (%(default)s)")
+        replace = parser.add(
+            sub, self.replace,
+            help="Replace an existing script with a new value")
 
-        for x in (launch, params, cat, disable, enable, edit):
+        for x in (launch, params, cat, disable, enable, edit, replace):
             x.add_argument(
                 "original_file",
                 help="Id or path of a script file stored in OMERO")
@@ -173,12 +176,6 @@ class ScriptControl(BaseControl):
         upload.add_argument(
             "file", help="Local script file to upload to OMERO")
 
-        replace = parser.add(
-            sub, self.replace,
-            help="Replace an existing script with a new value")
-        replace.add_argument(
-            "id", type=long,
-            help="Id of the original file which is to be replaced")
         replace.add_argument(
             "file",
             help="Local script which should overwrite the existing one")
@@ -486,8 +483,10 @@ class ScriptControl(BaseControl):
 
         try:
             job_params = svc.getParams(script_id)
+        except omero.ValidationException, ve:
+            self.ctx.die(454, "ValidationException: %s" % ve.message)
         except omero.ResourceError, re:
-            self.ctx.die(455, "Could not get params: %s" % re.message)
+            self.ctx.die(455, "ResourceError: %s" % re.message)
 
         if job_params:
             self.ctx.out("")
@@ -624,7 +623,6 @@ http://stackoverflow.com/questions/3471461/raw-input-and-timeout/3911560
             impl.cleanup()
 
     def upload(self, args):
-
         p = path(args.file)
         if not p.exists():
             self.ctx.die(502, "File does not exist: %s" % p.abspath())
@@ -647,23 +645,26 @@ http://stackoverflow.com/questions/3471461/raw-input-and-timeout/3911560
         else:
             id = scriptSvc.uploadScript(args.file, p.text())
 
-        self.ctx.out("Uploaded %sscript as original file #%s"
-                     % ((args.official and "official " or ""), id))
+        self.ctx.err("Uploaded %sscript"
+                     % (args.official and "official " or ""))
+        self.ctx.out("OriginalFile:%s" % id)
         self.ctx.set("script.file.id", id)
 
     def replace(self, args):
-        ofile = args.id
-        fpath = args.file
-
+        import omero
         client = self.ctx.conn(args)
-        ofile = client.sf.getQueryService().get("OriginalFile", ofile)
-        # client.upload(fpath, ofile=ofile)
+        script_id, ofile = self._file(args, client)
+        fpath = args.file
 
         file = open(fpath)
         scriptText = file.read()
         file.close()
         scriptSvc = client.sf.getScriptService()
-        scriptSvc.editScript(ofile, scriptText)
+
+        try:
+            scriptSvc.editScript(ofile, scriptText)
+        except omero.SecurityViolation, sv:
+            self.ctx.die(200, sv.message)
 
     def delete(self, args):
         ofile = args.id

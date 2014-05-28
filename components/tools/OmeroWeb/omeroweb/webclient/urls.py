@@ -23,9 +23,7 @@
 # Version: 1.0
 #
 
-import os.path
-
-from django.conf.urls import *
+from django.conf.urls import url, patterns
 from django.views.generic import TemplateView
 
 from omeroweb.webclient import views

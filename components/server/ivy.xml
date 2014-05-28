@@ -1,4 +1,4 @@
-<ivy-module version="1.0">
+<ivy-module version="1.0" xmlns:m="http://ant.apache.org/ivy/maven">
   <info
       organisation="omero"
       module="server"
@@ -9,6 +9,9 @@
   </configurations>
   <publications>
     <artifact name="server" type="jar"/>
+    <artifact name="server" type="pom"/>
+    <artifact name="server" type="source" ext="jar" m:classifier="sources"/>
+    <artifact name="server" type="javadoc" ext="jar" m:classifier="javadoc"/>
   </publications>
   <dependencies defaultconfmapping="build,server->default">
     <!-- Internal -->
@@ -16,7 +19,7 @@
     <dependency name="romio" rev="${omero.version}" changing="true" conf="build->build;server->server"/>
     <dependency name="rendering" rev="${omero.version}" changing="true" conf="build->build;server->server"/>
     <dependency org="ome" name="bio-formats" rev="${omero.version}" conf="build->build;server->runtime"/><!-- for DBEnumCheck -->
-    <dependency org="java-image-scaling" name="java-image-scaling" rev="${versions.java-image-scaling}"/>
+    <dependency org="com.mortennobel" name="java-image-scaling" rev="${versions.java-image-scaling}"/>
     <!-- Ice -->
     <dependency org="omero" name="omero-shares" rev="${versions.ice}"/>
     <dependency org="zeroc" name="ice" rev="${versions.ice}"/>
@@ -27,31 +30,31 @@
     <dependency org="zeroc" name="ice-freeze" rev="${versions.ice}"/>
     <!-- j2ee replacements : jta, jndi, etc. -->
     <dependency org="geronimo-spec" name="geronimo-spec-jta" rev="1.0.1B-rc4"/>
-    <dependency org="btm" name="btm" rev="${versions.btm}"/>
+    <dependency org="org.codehaus.btm" name="btm" rev="${versions.btm}"/>
     <!-- Public -->
     <dependency org="batik" name="batik-all" rev="${versions.batik}"/>
     <dependency org="commons-lang" name="commons-lang" rev="${versions.commons-lang}"/>
     <dependency org="commons-beanutils" name="commons-beanutils" rev="${versions.commons-beanutils}"/>
     <dependency org="commons-codec" name="commons-codec" rev="${versions.commons-codec}"/>
     <dependency org="commons-pool" name="commons-pool" rev="${versions.commons-pool}"/>
-    <dependency org="net/sf/ehcache" name="ehcache-core" rev="${versions.ehcache}"/>
+    <dependency org="net.sf.ehcache" name="ehcache-core" rev="${versions.ehcache}"/>
     <dependency org="backport-util-concurrent" name="backport-util-concurrent" rev="${versions.backport}"/>
-    <dependency org="jamon" name="jamon" rev="${versions.jamon}"/>
+    <dependency org="com.jamonapi" name="jamon" rev="${versions.jamon}"/>
     <dependency org="quartz" name="quartz" rev="${versions.quartz}"/>
     <dependency org="xerces" name="xercesImpl" rev="${versions.xercesImpl}"/>
     <dependency org="xml-apis" name="xml-apis" rev="${versions.xml-apis}"/>
     <dependency org="xml-apis" name="xml-apis-ext" rev="${versions.xml-apis}"/>
-    <dependency org="mail" name="mail" rev="${versions.mail}"/>
-    <dependency org="activation" name="activation" rev="${versions.activation}"/>
-    <dependency org="PDFBox" name="PDFBox" rev="${versions.PDFBox}"/>
-    <dependency org="FontBox" name="FontBox" rev="${versions.FontBox}"/>
+    <dependency org="javax.mail" name="mail" rev="${versions.mail}"/>
+    <dependency org="javax.activation" name="activation" rev="${versions.activation}"/>
+    <dependency org="pdfbox" name="pdfbox" rev="${versions.pdfbox}"/><!--now org.apache.pdfbox -->
+    <dependency org="org.fontbox" name="fontbox" rev="${versions.fontbox}"/>
     <!-- spring -->
-    <dependency org="org.springframework" name="com.springsource.org.aopalliance" rev="1.0.0"/>
+    <dependency org="org.aopalliance" name="com.springsource.org.aopalliance" rev="1.0.0"/>
     <dependency org="org.springframework" name="org.springframework.aop" rev="${versions.spring}"/>
     <dependency org="org.springframework" name="org.springframework.context.support" rev="${versions.spring}"/>
-    <dependency org="spring" name="spring-security-core" rev="${versions.spring-security}"/>
-    <dependency org="spring" name="spring-security-config" rev="${versions.spring-security}"/>
-    <dependency org="spring" name="spring-security-ldap" rev="${versions.spring-security}"/>
-    <dependency org="spring" name="spring-ldap" rev="${versions.spring-ldap}-all"/>
+    <dependency org="org.springframework.security" name="spring-security-core" rev="${versions.spring-security}"/>
+    <dependency org="org.springframework.security" name="spring-security-config" rev="${versions.spring-security}"/>
+    <dependency org="org.springframework.security" name="spring-security-ldap" rev="${versions.spring-security}"/>
+    <dependency org="org.springframework.ldap" name="spring-ldap" rev="${versions.spring-ldap}-all"/>
   </dependencies>
 </ivy-module>

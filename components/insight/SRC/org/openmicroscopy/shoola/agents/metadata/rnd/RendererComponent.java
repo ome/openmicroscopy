@@ -143,6 +143,13 @@ class RendererComponent
 		UserNotifier un = MetadataViewerAgent.getRegistry().getUserNotifier();
 		if (e instanceof RenderingServiceException) {
 			RenderingServiceException ex = (RenderingServiceException) e;
+			switch (ex.getIndex()) {
+            case RenderingServiceException.CONNECTION:
+                return;
+            case RenderingServiceException.OPERATION_NOT_SUPPORTED:
+                un.notifyInfo("Image", "Operation not Supported");
+                return;
+            }
 			if (ex.getIndex() == RenderingServiceException.CONNECTION)
 				return;
 		}

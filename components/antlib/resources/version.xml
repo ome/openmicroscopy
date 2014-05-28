@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project name="version" default="version" basedir=".">
+<!--
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#
+# Copyright 2014 Glencoe Software, Inc. All rights reserved.
+# Use is subject to license terms supplied in LICENSE.txt
+#
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Written by:  Josh Moore, josh at glencoesoftware.com
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+-->
+    <description>
+        Provides git-based version strings. These can be overwritten on the
+        command-line by setting the following properties:
+
+        omero.version           5.0.0-ice35-b10, etc.
+        omero.plainversion      e.g. 5.0.0-SNAPSHOT
+        omero.shortversion      e.g. 5.0.0
+
+        The omero.v namespace is for properties internal to this build file
+        and should not be modified.
+    </description>
+
+    <property name="gitmatch" value="v.[0-9]*.[0-9]*.[0-9]*"/>
+    <property name="omero.v.regexp" value="^(v.)?(.*?)(-[0-9]+)?((-)g(.*?))?$"/>
+
+    <!-- Unset from etc/local.properties -->
+    <if>
+        <equals arg1="${omero.version}" arg2="UNKNOWN"/>
+        <then>
+            <var name="omero.version" unset="true"/>
+        </then>
+    </if>
+
+    <macrodef name="omero_v_was_preset">
+        <attribute name="property"/>
+        <sequential>
+            <if>
+                <isset property="@{property}"/>
+                <then>
+                    <property name="@{property}.source" value="preset"/>
+                </then>
+            </if>
+        </sequential>
+    </macrodef>
+
+    <trycatch>
+        <try>
+            <!-- *EITHER* these values are preset -->
+            <omero_v_was_preset property="omero.version"/>
+            <omero_v_was_preset property="omero.plainversion"/>
+            <omero_v_was_preset property="omero.shortversion"/>
+
+            <!-- *OR* they'll be set by git -->
+            <git command="describe" output="omero.v.git" failonerror="true">
+                <args>
+                    <arg value="--match"/>
+                    <arg value="${gitmatch}"/>
+                    <arg line="--dirty"/>
+                </args>
+            </git>
+            <propertyregex property="omero.shortversion"
+                input="${omero.v.git}" regexp="${omero.v.regexp}" select="\2"/>
+            <propertyregex property="omero.plainversion"
+                input="${omero.v.git}" regexp="${omero.v.regexp}" select="\2\3\5\6"/>
+            <property name="ant.script.dir" value="${import.dir}/../scripts"/>
+            <exec executable = "python" dir = "${ant.script.dir}"
+                outputproperty = "omero.version"
+                failonerror = "true">
+                <arg value = "parse_version" />
+                <arg value = "${omero.plainversion}-ice${versions.ice_lib}"/>
+            </exec>
+            <property name="omero.version.source" value="git"/>
+            <property name="omero.plainversion.source" value="git"/>
+            <property name="omero.shortversion.source" value="git"/>
+        </try>
+        <catch>
+            <!-- *OR* we'll finally fall back to UNKNOWN -->
+            <property name="omero.plainversion" value="UNKNOWN"/>
+            <property name="omero.shortversion" value="UNKNOWN"/>
+
+            <!-- And compose omero.version from those -->
+            <property name="omero.version" value="${omero.plainversion}-ice${versions.ice_lib}"/>
+
+            <property name="omero.plainversion.source" value="ant"/>
+            <property name="omero.shortversion.source" value="ant"/>
+            <property name="omero.version.source" value="ant"/>
+        </catch>
+    </trycatch>
+
+    <target name="version-info">
+        <echo>Git describe output:    ${omero.v.git}</echo>
+        <echo>Official:               ${omero.version} (${omero.version.source})</echo>
+        <echo>Plain:                  ${omero.plainversion} (${omero.plainversion.source})</echo>
+        <echo>Short:                  ${omero.shortversion} (${omero.shortversion.source})</echo>
+    </target>
+
+</project>

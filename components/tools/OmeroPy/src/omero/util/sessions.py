@@ -1,11 +1,26 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+
+#
+# Copyright (C) 2010-2014 Glencoe Software, Inc.
+# All rights reserved.
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
 """
-   Library for managing user sessions.
-
-   Copyright 2010 Glencoe Software, Inc. All rights reserved.
-   Use is subject to license terms supplied in LICENSE.txt
-
+Library for managing user sessions.
 """
 
 """
@@ -69,7 +84,7 @@ class SessionsStore(object):
                 for sess in name.files():
                     print "    %s" % sess
 
-    def add(self, host, name, id, props):
+    def add(self, host, name, id, props, sudo=None):
         """
         Stores a file containing the properties at
         REPO/host/name/id
@@ -78,6 +93,8 @@ class SessionsStore(object):
         props["omero.host"] = host
         props["omero.user"] = name
         props["omero.sess"] = id
+        if sudo is not None:
+            props["omero.sudo"] = sudo
 
         lines = []
         for k,v in props.items():
@@ -278,7 +295,7 @@ class SessionsStore(object):
         props = self.get(server, name, sess)
         return self.create(sess, sess, props, new = False, set_current = set_current)
 
-    def create(self, name, pasw, props, new = True, set_current = True):
+    def create(self, name, pasw, props, new=True, set_current=True, sudo=None):
         """
         Creates a new omero.client object, and returns:
         (cilent, session_id, timeToIdle, timeToLive)
@@ -288,7 +305,18 @@ class SessionsStore(object):
         host = props["omero.host"]
         client = omero.client(props)
         client.setAgent("OMERO.sessions")
-        sf = client.createSession(name, pasw)
+
+        if sudo is not None:
+            sf = client.createSession(sudo, pasw)
+            principal = omero.sys.Principal()
+            principal.name = name
+            principal.eventType = "User"
+            sess = sf.getSessionService().createSessionWithTimeouts(principal, 0, 0)
+            client.closeSession()
+            sf = client.joinSession(sess.getUuid().getValue())
+        else:
+            sf = client.createSession(name, pasw)
+
         ec = sf.getAdminService().getEventContext()
         uuid = sf.ice_getIdentity().name
         sf.detachOnDestroy()
@@ -296,7 +324,7 @@ class SessionsStore(object):
         timeToIdle = sess.getTimeToIdle().getValue()
         timeToLive = sess.getTimeToLive().getValue()
         if new:
-            self.add(host, ec.userName, uuid, props)
+            self.add(host, ec.userName, uuid, props, sudo=sudo)
         if set_current:
             self.set_current(host, ec.userName, uuid)
 

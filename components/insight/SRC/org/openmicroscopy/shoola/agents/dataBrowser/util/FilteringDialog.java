@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.dataBrowser.util.FilteringDialog 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -55,7 +55,9 @@ import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
+import javax.swing.JSpinner;
 import javax.swing.JTextField;
+import javax.swing.SpinnerNumberModel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
@@ -121,26 +123,26 @@ public class FilteringDialog
 	/** Action id indicating to load the tags. */
 	private static final int	LOAD_TAGS = 2;
 	
-	/** ID to filter by higher rate. */
-	private static final int	HIGHER_RATING = 0;
+	/** ID to filter by 'greater or equal than' comparison. */
+	private static final int	GREATER_EQUAL = 0;
 	
-	/** ID to filter by lower rate. */
-	private static final int	LOWER_RATING = 1;
+	/** ID to filter by 'lower or equal than' comparison. */
+	private static final int	LOWER_EQUAL = 1;
 	
-	/** ID to filter by the exact rate. */
-	private static final int	EXACT_RATING = 2;
+	/** ID to filter by the exact match. */
+	private static final int	EQUAL = 2;
 	
 	/** The maximum number of options. */
 	private static final int	MAX = 2;
 	
-	/** Store the rating options. */
-	private static final String[]	RATING;
+	/** Holds the different comparison options: {@link #GREATER_EQUAL}, {@link #LOWER_EQUAL} and {@link #EQUAL} */
+	private static final String[]	COMPARISON_OPTIONS;
 	
 	static {
-		RATING = new String[MAX+1];
-		RATING[HIGHER_RATING] = "greater or equal to";
-		RATING[LOWER_RATING] = "lower or equal to";
-		RATING[EXACT_RATING] = "equal to";
+		COMPARISON_OPTIONS = new String[MAX+1];
+		COMPARISON_OPTIONS[GREATER_EQUAL] = "greater or equal to";
+		COMPARISON_OPTIONS[LOWER_EQUAL] = "lower or equal to";
+		COMPARISON_OPTIONS[EQUAL] = "equal to";
 	}
 	
 	/** The component to select the rating. */
@@ -158,8 +160,14 @@ public class FilteringDialog
 	/** The component to select a time interval. */
 	private JCheckBox		calendarBox;
 	
-	/** Used to select one the rating options. */
+	/** The component to select the number of ROIs. */
+	private JCheckBox              roiBox;
+	
+	/** Used to select the rating comparison option. */
 	private JComboBox		ratingOptions;
+	
+	/** Used to select the ROI number comparison option. */
+	private JComboBox      roiOptions;
 	
 	/** Date used to specify the beginning of the time interval. */
 	private JXDatePicker	fromDate;
@@ -169,6 +177,9 @@ public class FilteringDialog
 	
 	/** The rating component. */
 	private RatingComponent	rating;
+	
+	/** Spinner to select the number of ROIs */
+	private JSpinner roiSpinner;
 	
 	/** The field area to collect the tags. */
 	private JTextField		tagsArea;
@@ -354,8 +365,11 @@ public class FilteringDialog
 				loadTagsButton.setEnabled(tagsBox.isSelected());
 			}
 		});
-		ratingOptions = new JComboBox(RATING);
+		roiBox = new JCheckBox("ROIs");
+		ratingOptions = new JComboBox(COMPARISON_OPTIONS);
+		roiOptions = new JComboBox(COMPARISON_OPTIONS);
 		rating = new RatingComponent(5, RatingComponent.HIGH_SIZE);
+		roiSpinner = new JSpinner(new SpinnerNumberModel(1, 0, Integer.MAX_VALUE, 1));
 		fromDate = UIUtilities.createDatePicker(false);
 		toDate = UIUtilities.createDatePicker(false);
 		IconManager icons = IconManager.getInstance();
@@ -410,22 +424,34 @@ public class FilteringDialog
 	private void filter()
 	{
 		FilterContext context = new FilterContext();
-		boolean filter = false;
 		if (ratingBox.isSelected()) {
 			int index = -1;
 			switch (ratingOptions.getSelectedIndex()) {
-				case HIGHER_RATING:
-					index = FilterContext.HIGHER;
+				case GREATER_EQUAL:
+					index = FilterContext.GREATER_EQUAL;
 					break;
-				case LOWER_RATING:
-					index = FilterContext.LOWER;
+				case LOWER_EQUAL:
+					index = FilterContext.LOWER_EQUAL;
 					break;
-				case EXACT_RATING:
+				case EQUAL:
 					index = FilterContext.EQUAL;
 			};
-			filter = true;
 			context.setRate(index, rating.getCurrentValue());
 		}
+		if (roiBox.isSelected()) {
+                    int index = -1;
+                    switch (roiOptions.getSelectedIndex()) {
+                            case GREATER_EQUAL:
+                                    index = FilterContext.GREATER_EQUAL;
+                                    break;
+                            case LOWER_EQUAL:
+                                    index = FilterContext.LOWER_EQUAL;
+                                    break;
+                            case EQUAL:
+                                    index = FilterContext.EQUAL;
+                    };
+                    context.setRois(index, ((Number)roiSpinner.getValue()).intValue());
+                }
 		if (calendarBox.isSelected()) {
 			Date d = fromDate.getDate();
 			Timestamp start = null;
@@ -434,14 +460,12 @@ public class FilteringDialog
 			d = toDate.getDate();
 			if (d != null) end = new Timestamp(d.getTime());
 			context.setTimeInterval(start, end);
-			filter = true;
 		}
 		if (tagsBox.isSelected()) {
 			List<String> l = SearchUtil.splitTerms(tagsArea.getText(), 
 					SearchUtil.COMMA_SEPARATOR);
 			if (l != null && l.size() > 0) {
 				context.addAnnotationType(TagAnnotationData.class, l);
-				filter = true;
 			}
 		}
 		if (commentsBox.isSelected()) {
@@ -449,7 +473,6 @@ public class FilteringDialog
 					SearchUtil.COMMA_SEPARATOR);
 			if (l != null && l.size() > 0) {
 				context.addAnnotationType(TextualAnnotationData.class, l);
-				filter = true;
 			}
 		}
 		if (nameBox.isSelected()) {
@@ -457,13 +480,23 @@ public class FilteringDialog
 					SearchUtil.COMMA_SEPARATOR);
 			if (l != null && l.size() > 0) {
 				context.addName(l);
-				filter = true;
 			}
 		}
-		//Get the text to filter by
-		if (filter)
-			firePropertyChange(FILTER_PROPERTY, null, context);
+		firePropertyChange(FILTER_PROPERTY, null, context);
 		setVisible(false);
+	}
+	
+	/**
+	 * Builds and lays out the components used to select the number of ROIs.
+	 * 
+	 * @return See above.
+	 */
+	private JPanel buildRoiPane() {
+                JPanel p = new JPanel();
+                p.add(roiBox);
+                p.add(roiOptions);
+                p.add(roiSpinner);
+                return UIUtilities.buildComponentPanel(p, 0, 0);
 	}
 	
 	/**
@@ -571,6 +604,8 @@ public class FilteringDialog
 		p.add(new JSeparator(JSeparator.HORIZONTAL));
 		p.add(buildRatingPane());
 		p.add(new JSeparator(JSeparator.HORIZONTAL));
+		p.add(buildRoiPane());
+		p.add(new JSeparator(JSeparator.HORIZONTAL));
 		p.add(buildCalendarPane());
 		p.add(new JSeparator(JSeparator.HORIZONTAL));
 		return p;
@@ -649,6 +684,38 @@ public class FilteringDialog
 	{
 		rating.setValue(value);
 		ratingBox.setSelected(true);
+	}
+	
+	/**
+	* Set the state of the dialog to reflect
+	* filtering for images with ROIs
+	*/
+	public void setHasROIs() {
+	    roiSpinner.setValue(1);
+	    roiBox.setSelected(true);
+	    roiOptions.setSelectedIndex(GREATER_EQUAL);
+	}
+	
+	/**
+	* Set the state of the dialog to reflect
+	* filtering for images without ROIs
+	*/
+	public void setNoROIs() {
+            roiSpinner.setValue(0);
+            roiBox.setSelected(true);
+            roiOptions.setSelectedIndex(EQUAL);
+        }
+	
+	/**
+	 * Unselects all checkboxes
+	 */
+	public void unselectAll() {
+	    calendarBox.setSelected(false);
+	    commentsBox.setSelected(false);
+	    nameBox.setSelected(false);
+	    ratingBox.setSelected(false);
+	    roiBox.setSelected(false);
+	    tagsBox.setSelected(false);
 	}
 	
 	/**

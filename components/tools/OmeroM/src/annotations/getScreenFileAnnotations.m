@@ -14,17 +14,22 @@ function fas = getScreenFileAnnotations(session, ids, varargin)
 %    fas = getScreenFileAnnotations(session,  ids, 'exclude', exclude)
 %    excludes file annotations with the input namespace.
 %
+%    fas = getScreenFileAnnotations(session, ids, 'owner', ownerid)
+%    returns the file annotations owned by the user specified by ownerid.
+%    Use -1 to return the file annotations owned by all users.
+%
 %    Examples:
 %
 %        fas = getScreenFileAnnotations(session, ids)
 %        fas = getScreenFileAnnotations(session, screens)
 %        fas = getScreenFileAnnotations(session, ids, 'include', include)
 %        fas = getScreenFileAnnotations(session, ids, 'exclude', exclude)
+%        fas = getScreenFileAnnotations(session, ids, 'owner', -1)
 %
 % See also: GETOBJECTANNOTATIONS, GETSCREENCOMMENTANNOTATIONS,
 % GETSCREENTAGANNOTATIONS, GETSCREENXMLANNOTATIONS
 
-% Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
+% Copyright (C) 2013-2014 University of Dundee & Open Microscopy Environment.
 % All rights reserved.
 %
 % This program is free software; you can redistribute it and/or modify

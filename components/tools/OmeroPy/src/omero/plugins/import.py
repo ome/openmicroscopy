@@ -1,10 +1,26 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+
+#
+# Copyright (C) 2009-2014 Glencoe Software, Inc. All Rights Reserved.
+# Use is subject to license terms supplied in LICENSE.txt
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
 """
    Startup plugin for command-line importer.
-
-   Copyright 2009 Glencoe Software, Inc. All rights reserved.
-   Use is subject to license terms supplied in LICENSE.txt
 
 """
 
@@ -12,6 +28,8 @@ import os
 import sys
 from omero.cli import BaseControl, CLI
 import omero.java
+from omero_ext.argparse import SUPPRESS
+from path import path
 
 START_CLASS = "ome.formats.importer.cli.CommandLineImporter"
 TEST_CLASS = "ome.formats.test.util.TestEngine"
@@ -38,6 +56,8 @@ Examples:
   $ bin/omero import foo.tiff -- --debug=ALL
   # Display used files for importing foo.tiff
   $ bin/omero import foo.tiff -f
+  # Limit debugging output
+  $ bin/omero import -- --debug=ERROR foo.tiff
 
 For additional information, see:
 http://www.openmicroscopy.org/site/support/omero5/users/\
@@ -62,26 +82,31 @@ class ImportControl(BaseControl):
         parser.add_argument(
             "---errs", nargs="?",
             help="File for storing the standard err of the Java process")
+        parser.add_argument(
+            "--clientdir", type=str,
+            help="Path to the directory containing the client JARs. "
+            " Default: lib/client")
+
         # The following arguments are strictly passed to Java
         name_group = parser.add_argument_group(
-            'Naming arguments', 'Optional arguments passed strictly to Java. '
-            'Only image OR plate arguments should be set')
+            'Naming arguments', 'Optional arguments passed strictly to Java.')
         name_group.add_argument(
-            "-n", dest="java_n",
-            help="Image name to use (**)",
-            metavar="IMAGE_NAME")
+            "-n", "--name", dest="java_name",
+            help="Image or plate name to use (**)",
+            metavar="NAME")
         name_group.add_argument(
-            "-x", dest="java_x",
-            help="Image description to use (**)",
-            metavar="IMAGE_DESCRIPTION")
-        name_group.add_argument(
+            "-x", "--description", dest="java_description",
+            help="Image or plate description to use (**)",
+            metavar="DESCRIPTION")
+
+        # DEPRECATED OPTIONS
+        deprecated_name_group = parser.add_argument_group()
+        deprecated_name_group.add_argument(
             "--plate_name", dest="java_plate_name",
-            help="Plate name to use (**)",
-            metavar="PLATE_NAME")
-        name_group.add_argument(
+            help=SUPPRESS)
+        deprecated_name_group.add_argument(
             "--plate_description", dest="java_plate_description",
-            help="Plate description to use (**)",
-            metavar="PLATE_DESCRIPTION")
+            help=SUPPRESS)
 
         java_group = parser.add_argument_group(
             'Java arguments', 'Optional arguments passed strictly to Java')
@@ -134,11 +159,15 @@ class ImportControl(BaseControl):
         parser.add_argument(
             "path", nargs="*",
             help="Path to be passed to the Java process")
+
         parser.set_defaults(func=self.importer)
 
     def importer(self, args):
 
-        client_dir = self.ctx.dir / "lib" / "client"
+        if args.clientdir:
+            client_dir = path(args.clientdir)
+        else:
+            client_dir = self.ctx.dir / "lib" / "client"
         etc_dir = self.ctx.dir / "etc"
         xml_file = etc_dir / "logback-cli.xml"
         logback = "-Dlogback.configurationFile=%s" % xml_file
@@ -178,16 +207,15 @@ class ImportControl(BaseControl):
             "java_l": "-l",
             "java_d": "-d",
             "java_r": "-r",
-            "java_r": "-r",
-            "java_n": "-n",
-            "java_x": "-x",
-            "java_plate_name": "--plate_name",
-            "java_plate_description": "--plate_description",
+            "java_name": ("--name",),
+            "java_description": ("--description",),
+            "java_plate_name": ("--plate_name",),
+            "java_plate_description": ("--plate_description",),
             "java_report": "--report",
             "java_upload": "--upload",
             "java_logs": "--logs",
             "java_email": "--email",
-            "java_debug": "--debug",
+            "java_debug": ("--debug",),
             "java_ns": "--annotation_ns",
             "java_text": "--annotation_text",
             "java_link": "--annotation_link",
@@ -196,9 +224,14 @@ class ImportControl(BaseControl):
         for attr_name, arg_name in java_args.items():
             arg_value = getattr(args, attr_name)
             if arg_value:
-                login_args.append(arg_name)
-                if isinstance(arg_value, (str, unicode)):
-                    login_args.append(arg_value)
+                if isinstance(arg_name, tuple):
+                    arg_name = arg_name[0]
+                    login_args.append("%s=%s" %
+                                      (arg_name, arg_value))
+                else:
+                    login_args.append(arg_name)
+                    if isinstance(arg_value, (str, unicode)):
+                        login_args.append(arg_value)
 
         a = self.COMMAND + login_args + args.path
         p = omero.java.popen(
