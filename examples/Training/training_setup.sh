@@ -7,7 +7,7 @@ set -x
 
 HOSTNAME=${HOSTNAME:-localhost}
 PORT=${PORT:-4064}
-ROOT_PASSWORD=${ROOT_PASSWORD:-ome}
+ROOT_PASSWORD=${ROOT_PASSWORD:-omero}
 USER_NAME=${USER_NAME:-training_user}
 USER_PASSWORD=${USER_PASSWORD:-ome}
 
@@ -19,7 +19,6 @@ bin/omero logout
 
 # Create fake files
 touch test.fake
-touch "SPW&plates=1&plateRows=1&plateCols=1&fields=1&plateAcqs=1.fake"
 
 # Create training user and group
 bin/omero login $USER_NAME@$HOSTNAME:$PORT -w $USER_PASSWORD
@@ -34,13 +33,21 @@ do
     dataset=$(bin/omero obj new Dataset name='Dataset '$i-$j)
     bin/omero obj new ProjectDatasetLink parent=$project child=$dataset
     echo "Importing image into dataset"
-    imageid=$(bin/omero import -d $dataset test.fake --debug ERROR)
+    bin/omero import -d $dataset test.fake --debug ERROR
   done
 done
 
+# Import Image
+echo "Importing image file"
+touch "test&sizeT=10&sizeZ=5&sizeC=3.fake"
+bin/omero import "test&sizeT=10&sizeZ=5&sizeC=3.fake" > image_import.log 2>&1
+imageid=$(sed -n -e 's/^Image://p' image_import.log)
+
 # Import plate
 echo "Importing SPW file"
-plateid=$(bin/omero import "SPW&plates=1&plateRows=1&plateCols=1&fields=1&plateAcqs=1.fake")
+touch "SPW&plates=1&plateRows=1&plateCols=1&fields=1&plateAcqs=1.fake"
+bin/omero import "SPW&plates=1&plateRows=1&plateCols=1&fields=1&plateAcqs=1.fake" > plate_import.log 2>&1
+plateid=$(sed -n -e 's/^Plate://p' plate_import.log)
 
 # Logout
 bin/omero logout
