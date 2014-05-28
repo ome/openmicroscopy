@@ -813,6 +813,20 @@ class BaseClient(object):
         finally:
             prx.close()
 
+    def submit(self, req, loops=10, ms=500, failonerror=True, ctx=None):
+        handle = self.getSession().submit(req, ctx)
+        return self.waitOnCmd(
+            handle, loops=loops, ms=ms, failonerror=failonerror)
+
+    def waitOnCmd(self, handle, loops=10, ms=500, failonerror=True):
+        callback = omero.callbacks.CmdCallbackI(self, handle)
+        callback.loop(loops, ms)  # Throw LockTimeout
+        rsp = callback.getResponse()
+        if isinstance(rsp, omero.cmd.ERR):
+            if failonerror:
+                raise omero.CmdError(rsp)
+        return callback
+
     def getStatefulServices(self):
         """
         Returns all active StatefulServiceInterface proxies. This can

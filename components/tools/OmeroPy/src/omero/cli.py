@@ -160,12 +160,19 @@ class Parser(ArgumentParser):
         parser.set_defaults(func=func, **kwargs)
         return parser
 
+    def add_limit_arguments(self):
+        self.add_argument(
+            "--limit", help="maximum number of return values (default=25)", type=int,
+            default=25)
+        self.add_argument(
+            "--offset", help="number of entries to skip (default=0)", type=int, default=0)
+
     def add_style_argument(self):
         from omero.util.text import find_style
         from omero.util.text import list_styles
         self.add_argument(
             "--style", help=
-            "Use alternative output style",
+            "use alternative output style (default=sql)",
             choices=list_styles())
 
     def add_login_arguments(self):
@@ -443,6 +450,26 @@ class Context:
 
 #####################################################
 #
+
+
+def admin_only(func):
+    """
+    Checks that the current user is an admin or throws an exception.
+    """
+    def _check_admin(*args, **kwargs):
+        args = list(args)
+        self = args[0]
+        plugin_args = args[1]
+        client = self.ctx.conn(plugin_args)
+        ec = client.sf.getAdminService().getEventContext()
+        if not ec.isAdmin:
+            self.ctx.die(111, "Admins only!")
+
+    from omero.util.decorators import wraps
+    _check_admin = wraps(func)(_check_admin)
+    return _check_admin
+
+
 class BaseControl(object):
     """Controls get registered with a CLI instance on loadplugins().
 
@@ -1205,12 +1232,8 @@ def argv(args=sys.argv):
                 for g in glob.glob(p):
                     cli._plugin_paths.append(g)
 
-        class PluginLoader(Thread):
-            def run(self):
-                cli.loadplugins()
-	# Disabling background loading
-	# until 2.4 hangs are fixed
-        PluginLoader().run() # start()
+        # For argparse dispatch, this cannot be done lazily
+        cli.loadplugins()
 
         if len(args) > 1:
             cli.invoke(args[1:])
