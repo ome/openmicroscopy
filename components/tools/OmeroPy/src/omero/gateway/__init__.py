@@ -5984,8 +5984,8 @@ class _ImageWrapper (BlitzObjectWrapper):
         ctx = self._conn.SERVICE_OPTS.copy()
 
         ctx.setOmeroGroup(self.details.group.id.val)
-        if self._conn.canBeAdmin():
-            ctx.setOmeroUser(self.details.owner.id.val)
+        #if self._conn.canBeAdmin():
+        #    ctx.setOmeroUser(self.details.owner.id.val)
         re.lookupPixels(pid, ctx)
         if rdid is None:
             rdid = self._getRDef()
@@ -6249,8 +6249,6 @@ class _ImageWrapper (BlitzObjectWrapper):
 
         ctx = self._conn.SERVICE_OPTS.copy()
         ctx.setOmeroGroup(self.details.group.id.val)
-        if self._conn.canBeAdmin():
-            ctx.setOmeroUser(self.details.owner.id.val)
         has_rendering_settings = tb.setPixelsId(pid, ctx)
         logger.debug("tb.setPixelsId(%d) = %s " % (pid, str(has_rendering_settings)))
         if rdid is not None:
@@ -6262,6 +6260,8 @@ class _ImageWrapper (BlitzObjectWrapper):
                 rdid = None
         if rdid is None:
             if not has_rendering_settings:
+                if self._conn.canBeAdmin():
+                   ctx.setOmeroUser(self.details.owner.id.val)
                 try:
                     tb.resetDefaults(ctx)      # E.g. May throw Missing Pyramid Exception
                 except omero.ConcurrencyException, ce:
@@ -7570,6 +7570,23 @@ class _ImageWrapper (BlitzObjectWrapper):
         ctx = self._conn.SERVICE_OPTS.copy()
         ctx.setOmeroGroup(self.details.group.id.val)
         self._re.saveCurrentSettings(ctx)
+        return True
+
+    @assert_re()
+    def resetDefaults(self):
+        if not self.canAnnotate():
+            return False
+        ns = self._conn.CONFIG.IMG_ROPTSNS
+        if ns:
+            opts = self._collectRenderOptions()
+            self.removeAnnotations(ns)
+            ann = omero.gateway.CommentAnnotationWrapper()
+            ann.setNs(ns)
+            ann.setValue('&'.join(['='.join(map(str, x)) for x in opts.items()]))
+            self.linkAnnotation(ann)
+        ctx = self._conn.SERVICE_OPTS.copy()
+        ctx.setOmeroGroup(self.details.group.id.val)
+        self._re.resetDefaults(ctx)
         return True
 
     def countArchivedFiles (self):

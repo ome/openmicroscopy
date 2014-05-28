@@ -68,8 +68,10 @@ module omero {
                 void updateCodomainMap(omero::romio::CodomainMapContext mapCtx) throws ServerError;
                 void removeCodomainMap(omero::romio::CodomainMapContext mapCtx) throws ServerError;
                 void saveCurrentSettings() throws ServerError;
-                void resetDefaults() throws ServerError;
-                void resetDefaultsNoSave() throws ServerError;
+                long saveAsNewSettings() throws ServerError;
+                ["deprecated:resetDefaults() is deprecated"] void resetDefaults() throws ServerError;
+                ["deprecated:resetDefaultsNoSave() is deprecated"] void resetDefaultsNoSave() throws ServerError;
+                long resetDefaultsSettings(bool save) throws ServerError;
                 void setCompressionLevel(float percentage) throws ServerError;
                 float getCompressionLevel() throws ServerError;
                 bool isPixelsTypeSigned() throws ServerError;

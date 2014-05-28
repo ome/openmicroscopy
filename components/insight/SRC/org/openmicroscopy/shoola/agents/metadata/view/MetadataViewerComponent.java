@@ -1074,9 +1074,7 @@ class MetadataViewerComponent
 	{
 		Object ref = model.getRefObject();
 		if (ref instanceof ImageData || ref instanceof WellSampleData) {
-			if (model.getViewedBy() != null)
-			    setViewedBy(model.getViewedBy(), source, location);
-			else model.fireViewedByLoading(source, location);
+		    model.fireViewedByLoading(source, location);
 		}
 	}
 	
@@ -1125,6 +1123,9 @@ class MetadataViewerComponent
 	{
 		//Previewed the image.
 		Renderer rnd = model.getEditor().getRenderer();
+		if (rnd != null) {
+		    model.fireThumbnailsLoading();
+		}
 		if (rnd != null && getRndIndex() == RND_GENERAL) {
 			//save settings 
 			long imageID = -1;

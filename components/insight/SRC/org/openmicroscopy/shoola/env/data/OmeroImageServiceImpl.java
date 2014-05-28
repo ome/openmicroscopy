@@ -2,10 +2,10 @@
  * org.openmicroscopy.shoola.env.data.OmeroImageServiceImpl
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -122,10 +122,6 @@ import pojos.WorkflowData;
 * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
 * @author	Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
 * 	<a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
-* @version 3.0
-* <small>
-* (<b>Internal version:</b> $Revision: $ $Date: $)
-* </small>
 * @since OME3.0
 */
 class OmeroImageServiceImpl
@@ -1905,5 +1901,18 @@ class OmeroImageServiceImpl
 		if (def == null) return -1L;
 		return def.getId().getValue();
 	}
+
+	/**
+	 * Implemented as specified by {@link OmeroDataService}.
+	 * @see OmeroImageService#getRenderingDef(SecurityContext, long)
+	 */
+	public RndProxyDef getSettings(SecurityContext ctx, long rndID)
+        throws DSOutOfServiceException, DSAccessException
+    {
+	    if (rndID < 0) return null;
+	    RenderingDef def = gateway.getRenderingDef(ctx, rndID);
+        if (def == null) return null;
+        return PixelsServicesFactory.convert(def);
+    }
 
 }
