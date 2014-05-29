@@ -141,15 +141,9 @@ class render_response(omeroweb.decorators.render_response):
             except:
                 # assume we've been passed a url
                 l["link"] = link_id
-            # if attrs options, do a little sanity checking
+            # simply add optional attrs dict
             if len(tl) > 2:
-                attrs = {}
-                try:
-                    for k, v in tl[2].items():
-                        attrs[str(k)] = str(v)
-                except:
-                    pass
-                l['attrs'] = attrs
+                l['attrs'] = tl[2]
             links.append(l)
         context['ome']['top_links'] = links
 
