@@ -333,7 +333,7 @@ class BrowserModel
 	    rollOverNode = node;
 	    firePropertyChange(ROLL_OVER_PROPERTY, previousNode, node);
 	}
-	
+
 	/**
 	 * Implemented as specified by the {@link Browser} interface.
 	 * @see Browser#getRootNodes()
@@ -341,10 +341,10 @@ class BrowserModel
 	public Collection<ImageDisplay> getRootNodes()
 	{
 	    NodesFinder finder = new NodesFinder();
-        accept(finder);
+	    accept(finder);
 	    return finder.getFoundNodes();
 	}
-	
+
 	/**
 	 * Implemented as specified by the {@link Browser} interface.
 	 * @see Browser#getSelectedDisplays()
