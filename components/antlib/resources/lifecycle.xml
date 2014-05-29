@@ -443,6 +443,10 @@ omero.version=${omero.version}
         <!-- empty by default -->
     </target>
 
+    <target name="artifactory" depends="install">
+        <publishArtifact resolver="artifactory-publish"/>
+    </target>
+
     <target name="clean">
         <delete dir="${target.dir}"/>
     </target>
