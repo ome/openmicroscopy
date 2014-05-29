@@ -104,24 +104,32 @@ public class NumericalTextField
                 int val = Integer.parseInt(str);
                 if (val < m) return ""+m;
             } else if (Double.class.equals(numberType)) {
+                Double min = getMinimum();
                 if (StringUtils.isBlank(str)) {
-                    return ""+getMinimum();
+                    return ""+min;
                 }
                 double val = Double.parseDouble(str);
-                if (val < getMinimum()) return ""+getMinimum();
+                if (val < min && !min.equals(Double.MIN_VALUE)) {
+                    return ""+min;
+                }
             } else if (Long.class.equals(numberType)) {
+                Long min = new Long((long) getMinimum());
                 if (StringUtils.isBlank(str)) {
-                    return ""+getMinimum();
+                    return ""+min;
                 }
                 long val = Long.parseLong(str);
-                long m = (long) getMinimum();
-                if (val < m) return ""+m;
+                if (val < min && !min.equals(Long.MIN_VALUE)) {
+                    return ""+min;
+                }
             } else if (Float.class.equals(numberType)) {
+                Float min = new Float(getMinimum());
                 if (StringUtils.isBlank(str)) {
-                    return ""+getMinimum();
+                    return ""+min;
                 }
                 float val = Float.parseFloat(str);
-                if (val < getMinimum()) return ""+getMinimum();
+                if (val < min && !min.equals(Float.MIN_VALUE)) {
+                    return ""+min;
+                }
             }
         } catch(NumberFormatException nfe) {}
         return str;
@@ -174,7 +182,7 @@ public class NumericalTextField
      * @param max The maximum value of the text field.
      * @param type The number type.
      */
-    public NumericalTextField(double min, double max, Class type)
+    public NumericalTextField(double min, double max, Class<?> type)
     {
         document = new NumericalPlainDocument(min, max);
         setHorizontalAlignment(JTextField.RIGHT);
@@ -244,7 +252,7 @@ public class NumericalTextField
      *
      * @param numberType The value to set.
      */
-    public void setNumberType(Class numberType)
+    public void setNumberType(Class<?> numberType)
     {
         if (numberType == null)
             numberType = Integer.class;
@@ -253,6 +261,16 @@ public class NumericalTextField
                 numberType.equals(Long.class)) accepted = NUMERIC;
         else accepted = FLOAT;
         setNegativeAccepted(negativeAccepted);
+        if (numberType.equals(Double.class)) {
+            setMinimum(0.0);
+            setMaximum(Double.MAX_VALUE);
+        } else if (numberType.equals(Float.class)) {
+            setMinimum(0.0);
+            setMaximum(Float.MAX_VALUE);
+        } else if (numberType.equals(Long.class)) {
+            setMinimum(0.0);
+            setMaximum(Long.MAX_VALUE);
+        }
     }
 
     /**
@@ -345,9 +363,7 @@ public class NumericalTextField
             s += "0";
             setText(s);
         }
-        System.err.println(s);
         String v = checkValue();
-        System.err.println("value: "+v);
         if (v != null && !v.equals(s)) {
             setText(v);
         }
