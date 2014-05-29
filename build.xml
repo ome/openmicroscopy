@@ -90,6 +90,9 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
         <ivy:buildlist reference="all.buildpath" settingsRef="ivy.toplevel">
             <fileset dir="${omero.home}/components" includes="*/build.xml" excludes="**/tools/**, **/tests/**"/>
         </ivy:buildlist>
+        <ivy:buildlist reference="nobf.buildpath" settingsRef="ivy.toplevel">
+            <fileset dir="${omero.home}/components" includes="*/build.xml" excludes="**/tools/**, **/tests/**, **/bioformats/**"/>
+        </ivy:buildlist>
         <ivy:buildlist reference="blitzserver.buildpath" settingsRef="ivy.toplevel">
             <fileset dir="${omero.home}/components/blitz/" includes="build.xml"/>
             <fileset dir="${omero.home}/components/common/" includes="build.xml"/>
@@ -779,8 +782,8 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
     </target>
 
     <target name="release-hudson" depends="check-ivy"
-    	 description="Saves to the hudson repository for dependent builds">
-        <iterate buildpathref="all.buildpath" target="artifactory"/>
+            description="Saves to the hudson repository for dependent builds">
+        <iterate buildpathref="nobf.buildpath" target="artifactory"/>
     </target>
 
     <target name="release-nsis" description="Creates a Windows installer with NSIS">
