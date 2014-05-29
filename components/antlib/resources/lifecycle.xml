@@ -443,7 +443,7 @@ omero.version=${omero.version}
         <!-- empty by default -->
     </target>
 
-    <target name="artifactory" depends="install">
+    <target name="artifactory" depends="prepare">
         <publishArtifact resolver="artifactory-publish"/>
     </target>
 
