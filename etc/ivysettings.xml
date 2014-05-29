@@ -19,6 +19,9 @@
 
   <settings defaultResolver="${omero.resolver}"/>
 
+  <credentials host="artifacts.openmicroscopy.org" realm="Artifactory Realm"
+	username="hudson" passwd="${artifactory.password}"/>
+
   <caches default="local" defaultCacheDir="${ivy.settings.dir}/../lib/cache">
       <!-- local is intended for all products built from this repository,
            while maven is for any stable, unchanging jar that is being
@@ -94,6 +97,13 @@
         <ivy pattern="${user.home}/.hudson/repository/[organisation]/[module]/ivys/ivy-[revision].xml"/>
         <artifact pattern="${user.home}/.hudson/repository/[organisation]/[module]/[type]s/[artifact]-[revision].[ext]"/>
     </filesystem>
+
+    <url name="artifactory-publish">
+        <!-- You can use  m2compatible="true" instead of specifying your own pattern -->
+        <artifact pattern=
+          "http://artifacts.openmicroscopy.org/artifactory/ome.staging/[organization]/[module]/[revision]/[artifact]-[revision].[ext]"/>
+        <ivy pattern="http://artifacts.openmicroscopy.org/artifactory/ome.staging/[organization]/[module]/[revision]/ivy-[revision].xml" />
+    </url>
 
   </resolvers>
 

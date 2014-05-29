@@ -778,23 +778,9 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
         </replace>
     </target>
 
-    <target name="release-hudson" depends="check-ivy" description="Saves to the hudson repository for dependent builds">
-        <ivy:resolve settingsRef="ivy.toplevel"
-            file="${omero.home}/ivy.xml" type="zip" log="quiet"/>
-        <ivy:publish settingsRef="ivy.toplevel"
-            artifactspattern="${omero.home}/OMERO.server-${omero.version}.zip"
-            srcivypattern="${omero.home}/ivy.xml"
-            resolver="test-resolver"
-            pubrevision="${omero.version}"
-            pubdate="${now}"
-            status="integration"
-            overwrite="true"/>
-            <!-- This causes the ivy file to be modified -->
-            <!--forcedeliver="true"-->
-        <ivy:install settingsRef="ivy.toplevel"
-            organisation="omero" module="main" revision="${omero.version}"
-            from="omero-resolver" to="hudson-repository"
-            transitive="true" overwrite="true"/>
+    <target name="release-hudson" depends="check-ivy"
+    	 description="Saves to the hudson repository for dependent builds">
+        <iterate buildpathref="all.buildpath" target="artifactory"/>
     </target>
 
     <target name="release-nsis" description="Creates a Windows installer with NSIS">
