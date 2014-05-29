@@ -2271,6 +2271,14 @@ class ImViewerComponent
 
 	/** 
 	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see ImViewer#reloadRenderingThumbs()
+	 */
+	public void reloadRenderingThumbs() {
+	    model.reloadRenderingThumbds();
+	}
+	
+	/** 
+	 * Implemented as specified by the {@link ImViewer} interface.
 	 * @see ImViewer#hasSettingsToPaste()
 	 */
 	public boolean hasSettingsToPaste()
