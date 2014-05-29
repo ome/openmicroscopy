@@ -28,6 +28,7 @@
     <property name="import.dir"       value="${up-one}/antlib/resources"/>
     <property name="importer.name" value="OMERO.importer"/>
     <import file="${import.dir}/global.xml"/>
+    <import file="${import.dir}/version.xml"/>
     <import file="${import.dir}/lifecycle.xml"/>
 
     <import file="../common.xml"/>
