@@ -1333,7 +1333,7 @@ class BrowserUI
 				bottom.add(object);
 			else if (object instanceof SmartFolder ||
 			        object instanceof TreeFileSet)
-				bottom.add(object);
+				bottom2.add(object);
 		}
 		List<TreeImageDisplay> all = new ArrayList<TreeImageDisplay>();
 		if (top.size() > 0) all.addAll(top);
