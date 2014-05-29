@@ -149,7 +149,7 @@ compress('%s.zip' % target, target)
 # Create the composite Linux client build
 #
 target_artifacts = list()
-target_artifacts += find("%s-%s.zip" % (INSIGHT, VERSION))
+target_artifacts += find(INSIGHT + "*linux.zip")
 target = '%s.linux' % TARGET_PREFIX
 
 os.makedirs(target)
