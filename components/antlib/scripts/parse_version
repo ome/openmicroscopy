@@ -1,0 +1,126 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+#
+# Copyright (C) 2014 Glencoe Software, Inc. All Rights Reserved.
+# Use is subject to license terms supplied in LICENSE.txt
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+"""
+Helper script to simpliy version.xml
+"""
+
+import os
+import re
+import sys
+
+
+def choose_omero_version(omero_version):
+    """
+    Returns an array specifying the build parameter for
+    ant. Returned as an array so that an empty value can
+    be extended into the build command.
+
+    If BUILD_NUMER is set, then
+    "-Domero.version=${omero.version}-b${BUILD_NUMBER}"
+    otherwise nothing.
+    """
+
+    omero_build = os.environ.get("BUILD_NUMBER", "")
+    use_snapshot = os.environ.get("USE_SNAPSHOT", "")
+
+    err = ""
+    try:
+        if use_snapshot or not omero_build:
+            omero_build = ""  # Unset on use_snapshot
+            try:
+                omero_version = snapshot_logic(omero_version)
+            except:
+                pass
+        elif omero_build:
+            omero_build = "-b%s" % omero_build
+
+        return "%s%s" % (omero_version, omero_build)
+
+    except:
+        print "Error getting version for BUILD_NUMBER=%s" % omero_build
+        if err:
+            print err
+        sys.exit(1)
+
+
+def snapshot_logic(omero_version):
+    """
+    If we're not on hudson, then we don't want to force
+    users to deal with rebuilding after each commit.
+    Instead, drop everything except for "-DEV"
+
+    See gh-67 for the discussion.
+    """
+    m = re.match((
+        "^"
+        "(?P<BASE>.*?)"
+        "(?P<STRIP>([-]DEV)?-\d+-[a-f0-9]+?(-dirty)?)"
+        "(?P<ICE>-ice[0-9]+)?"
+        "$"), omero_version)
+    if m:
+        # Non-tag version
+        base = incr_version(m.group("BASE"))
+        omero_version = "%s%s-SNAPSHOT" % (
+            base, m.group("ICE"))
+    else:
+        return omero_version
+    return omero_version
+
+
+def incr_version(omero_version):
+    """
+    For maven-compatibility, we take "SNAPSHOT" of the _next_ version
+    """
+    try:
+        # First we try to use distutils
+        from distutils.version import LooseVersion
+        version = LooseVersion(omero_version).version
+        # Find the last index which is an int
+        for idx in range(len(version)-1, 0, -1):
+            val = version[idx]
+            if isinstance(val, int):
+                version[idx] += 1
+                break
+
+        last_int = False
+        new_vers = ""
+        for val in version:
+            if isinstance(val, int):
+                if last_int:
+                    new_vers += "."
+                else:
+                    last_int = True
+            else:
+                last_int = False
+            new_vers += str(val)
+        omero_version = new_vers
+    except:
+        # But if that doesn't work, we brute force with regex
+        m = re.match("^([^\d]*\d+[.]\d+[.])(\d+)-SNAPSHOT$", omero_version)
+        if m:
+            next = int(m.group(2)) + 1
+            omero_version = "%s%s-SNAPSHOT" % (m.group(1), next)
+    return omero_version
+
+
+if __name__ == "__main__":
+    print choose_omero_version(sys.argv[1]),
