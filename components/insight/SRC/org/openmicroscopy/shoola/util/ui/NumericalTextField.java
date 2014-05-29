@@ -97,17 +97,29 @@ public class NumericalTextField
         String str = getText();
         try {
             if (Integer.class.equals(numberType)) {
-                int val = Integer.parseInt(str);
                 int m = (int) getMinimum();
+                if (StringUtils.isBlank(str)) {
+                    return ""+m;
+                }
+                int val = Integer.parseInt(str);
                 if (val < m) return ""+m;
             } else if (Double.class.equals(numberType)) {
+                if (StringUtils.isBlank(str)) {
+                    return ""+getMinimum();
+                }
                 double val = Double.parseDouble(str);
                 if (val < getMinimum()) return ""+getMinimum();
             } else if (Long.class.equals(numberType)) {
+                if (StringUtils.isBlank(str)) {
+                    return ""+getMinimum();
+                }
                 long val = Long.parseLong(str);
                 long m = (long) getMinimum();
                 if (val < m) return ""+m;
             } else if (Float.class.equals(numberType)) {
+                if (StringUtils.isBlank(str)) {
+                    return ""+getMinimum();
+                }
                 float val = Float.parseFloat(str);
                 if (val < getMinimum()) return ""+getMinimum();
             }
@@ -333,7 +345,9 @@ public class NumericalTextField
             s += "0";
             setText(s);
         }
+        System.err.println(s);
         String v = checkValue();
+        System.err.println("value: "+v);
         if (v != null && !v.equals(s)) {
             setText(v);
         }
