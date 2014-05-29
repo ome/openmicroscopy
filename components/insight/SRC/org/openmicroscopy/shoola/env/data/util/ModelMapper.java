@@ -2,10 +2,10 @@
  * org.openmicroscopy.shoola.env.data.util.ModelMapper
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -32,7 +32,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+
+
 //Third-party libraries
+import org.apache.commons.lang.StringUtils;
 
 
 //Application-internal dependencies
@@ -499,7 +502,7 @@ public class ModelMapper
     		annotation.setDescription(omero.rtypes.rstring(
     				((TagAnnotationData) data).getTagDescription()));
     		String ns = data.getNameSpace();
-    		if (ns != null && ns.length() > 0) {
+    		if (StringUtils.isNotEmpty(ns)) {
     			annotation.setNs(omero.rtypes.rstring(ns));
     		}
     	} else if (data instanceof BooleanAnnotationData) {

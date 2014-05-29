@@ -2,10 +2,10 @@
  * org.openmicroscopy.shoola.agents.metadata.TagsLoader 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -32,7 +32,6 @@ import java.util.Collection;
 import org.openmicroscopy.shoola.agents.metadata.editor.Editor;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
-import pojos.TagAnnotationData;
 
 /** 
  * Loads the existing tags.
@@ -44,24 +43,21 @@ import pojos.TagAnnotationData;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since OME3.0
  */
-public class TagsLoader 
-	extends EditorLoader
+public class TagsLoader
+    extends EditorLoader
 {
 
     /** Handle to the asynchronous call so that we can cancel it. */
-    private CallHandle	handle;
-    
+    private CallHandle handle;
+
     /**
      * Flag indicating to load all annotations available or 
      * to only load the user's annotation.
      */
     private boolean loadAll;
-    
+
     /**	
      * Creates a new instance.
      * 
@@ -69,41 +65,41 @@ public class TagsLoader
      *               Mustn't be <code>null</code>.
      * @param ctx The security context.
      * @param loadAll Pass <code>true</code> indicating to load all
-     * 						annotations available if the user can annotate,
-     *                    <code>false</code> to only load the user's annotation.
+     *                annotations available if the user can annotate,
+     *                <code>false</code> to only load the user's annotation.
      */
     public TagsLoader(Editor viewer, SecurityContext ctx, boolean loadAll)
     {
-    	super(viewer, ctx);
-    	this.loadAll = loadAll;
+        super(viewer, ctx);
+        this.loadAll = loadAll;
     }
-    
-	/** 
-	 * Loads the tags. 
-	 * @see EditorLoader#cancel()
-	 */
-	public void load()
-	{
-		long userID = getCurrentUser();
-		if (loadAll) userID = -1;
-		handle = mhView.loadExistingAnnotations(ctx, TagAnnotationData.class,
-				userID, this);
-	}
-	
-	/** 
-	 * Cancels the data loading. 
-	 * @see EditorLoader#cancel()
-	 */
-	public void cancel() { handle.cancel(); }
-	
-	/**
+
+    /** 
+     * Loads the tags. 
+     * @see EditorLoader#cancel()
+     */
+    public void load()
+    {
+        long userID = getCurrentUser();
+        if (loadAll) userID = -1;
+        handle = dmView.loadTags(ctx, -1L, false, true, userID,
+                ctx.getGroupID(), this);
+    }
+
+    /** 
+     * Cancels the data loading.
+     * @see EditorLoader#cancel()
+     */
+    public void cancel() { handle.cancel(); }
+
+    /**
      * Feeds the result back to the viewer.
      * @see EditorLoader#handleResult(Object)
      */
-    public void handleResult(Object result) 
+    public void handleResult(Object result)
     {
-    	//if (viewer.getState() == MetadataViewer.DISCARDED) return;  //Async cancel.
-    	viewer.setExistingTags((Collection) result);
+        //if (viewer.getState() == MetadataViewer.DISCARDED) return;  //Async cancel.
+        viewer.setExistingTags((Collection) result);
     } 
-	
+
 }

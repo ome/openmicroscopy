@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.util.SelectionWizard 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -25,11 +25,14 @@ package org.openmicroscopy.shoola.agents.util;
 
 //Java imports
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.beans.PropertyChangeEvent;
@@ -39,10 +42,14 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+
 import javax.swing.BorderFactory;
+import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.Icon;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -52,9 +59,10 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
 
+import org.apache.commons.collections.CollectionUtils;
 //Third-party libraries
-
 import org.apache.commons.lang.StringUtils;
+
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
@@ -65,7 +73,7 @@ import pojos.ExperimenterData;
 import pojos.GroupData;
 import pojos.TagAnnotationData;
 
-/** 
+/**
  * A modal dialog to select collection of objects.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
@@ -76,8 +84,9 @@ import pojos.TagAnnotationData;
  * @since OME3.0
  */
 public class SelectionWizard
-	extends JDialog 
-	implements ActionListener, DocumentListener, PropertyChangeListener
+    extends JDialog
+    implements ActionListener, DocumentListener, FocusListener,
+    PropertyChangeListener
 {
 
     /** Bound property indicating the selected items. */
@@ -85,6 +94,12 @@ public class SelectionWizard
 
     /** Bound property indicating to cancel the selection. */
     public static final String CANCEL_SELECTION_PROPERTY = "cancelSelection";
+
+    /** The default text for the tag.*/
+    private static final String DEFAULT_TEXT = "Tag";
+
+    /** The default text for the tag's description.*/
+    private static final String DEFAULT_DESCRIPTION = "Description";
 
     /** Action command ID to Accept the current field selection. */
     private static final int ACCEPT = 0;
@@ -99,7 +114,7 @@ public class SelectionWizard
     private static final int ADD_NEW = 3;
 
     /** The default size. */
-    private static final Dimension DEFAULT_SIZE = new Dimension(500, 500);
+    private static final Dimension DEFAULT_SIZE = new Dimension(700, 700);
 
     /** The button to accept the current selection. */
     private JButton acceptButton;
@@ -116,11 +131,122 @@ public class SelectionWizard
     /** Button to add new tag to the selection. */
     private JButton addNewButton;
 
-    /** The component used to add new objects. */
+    /** The component used to add a new object. */
     private JTextField addField;
 
+    /** The component used to add a new description to the object. */
+    private JTextField descriptionField;
+    
     /** The component displaying the selection. */
     private SelectionWizardUI uiDelegate;
+
+    /** The original color of a text field.*/
+    private Color originalColor;
+
+    /** The label displaying the message indicating what will be added.*/
+    private JLabel addLabel;
+
+    /** Sets the controls.*/
+    private void setControls()
+    {
+        String text = addField.getText();
+        addNewButton.setEnabled(StringUtils.isNotBlank(text) &&
+                !DEFAULT_TEXT.equals(text));
+    }
+
+    /**
+     * Sets the default text for the specified field.
+     *
+     * @param field The field to handle.
+     * @param text The text to display.
+     */
+    private void setTextFieldDefault(JTextField field, String text)
+    {
+        field.getDocument().removeDocumentListener(this);
+        if (text == null) {
+            field.setText("");
+            field.setForeground(originalColor);
+        } else {
+            field.setText(text);
+            field.setForeground(Color.LIGHT_GRAY);
+        }
+        field.getDocument().addDocumentListener(this);
+        setControls();
+    }
+    
+    /**
+     * Creates the filtering controls.
+     *
+     * @return See above.
+     */
+    private JPanel createFilteringControl()
+    {
+        JPanel p = new JPanel();
+        p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
+        p.add(new JLabel("Filter by"));
+        String txt = null;
+        if (TagAnnotationData.class.equals(type)) {
+            txt = "tag";
+        } else if (TagAnnotationData.class.equals(type)) {
+            txt = "attachment";
+        }
+        String[] values = new String[2];
+        StringBuilder builder = new StringBuilder();
+        builder.append("start of ");
+        if (txt != null) {
+            builder.append(txt);
+            builder.append(" ");
+        }
+        builder.append("name");
+        values[0] = builder.toString();
+
+        builder = new StringBuilder();
+        builder.append("anywhere in ");
+        if (txt != null) {
+            builder.append(txt);
+            builder.append(" ");
+        }
+        builder.append("name");
+        values[1] = builder.toString();
+        JComboBox box = new JComboBox(values);
+        int selected = 0;
+        if (uiDelegate.isFilterAnywhere()) selected = 1;
+        box.setSelectedIndex(selected);
+        box.addActionListener(new ActionListener() {
+            
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JComboBox src = (JComboBox) e.getSource();
+                uiDelegate.setFilterAnywhere(src.getSelectedIndex() == 1);
+            }
+        });
+        JPanel rows = new JPanel();
+        rows.setLayout(new BoxLayout(rows, BoxLayout.Y_AXIS));
+        p.add(box);
+        rows.add(p);
+        if (!ExperimenterData.class.equals(type)) {
+          //Filter by owner
+            p = new JPanel();
+            p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
+            p.add(new JLabel("Filter by owner"));
+            values = new String[3];
+            values[SelectionWizardUI.ALL] = "All";
+            values[SelectionWizardUI.CURRENT] = "Owned by me";
+            values[SelectionWizardUI.OTHERS] = "Owned by others";
+            box = new JComboBox(values);
+            box.addActionListener(new ActionListener() {
+                
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    JComboBox src = (JComboBox) e.getSource();
+                    uiDelegate.setOwnerIndex(src.getSelectedIndex());
+                }
+            });
+            p.add(box);
+            rows.add(p);
+        }
+        return UIUtilities.buildComponentPanel(rows);
+    }
 
     /** 
      * Initializes the components composing the display.
@@ -129,8 +255,9 @@ public class SelectionWizard
      */
     private void initComponents()
     {
-        acceptButton = new JButton("Accept");
-        acceptButton.setToolTipText("Accept the selection.");
+        addLabel = UIUtilities.setTextFont("");
+        acceptButton = new JButton("Save");
+        acceptButton.setToolTipText("Save the selection.");
         cancelButton = new JButton("Cancel");
         cancelButton.setToolTipText("Cancel the selection.");
         resetButton = new JButton("Reset");
@@ -138,7 +265,7 @@ public class SelectionWizard
 
         addNewButton = new JButton("Add");
         addNewButton.setEnabled(false);
-        addNewButton.setToolTipText("Add the new elements to the selection.");
+        addNewButton.setToolTipText("Add to the selection.");
         addNewButton.setActionCommand(""+ADD_NEW);
         addNewButton.addActionListener(this);
 
@@ -153,17 +280,38 @@ public class SelectionWizard
 
 
         //Field creation
-        addField = new JTextField(20);
+        addField = new JTextField(10);
+        addField.setToolTipText("Tag Name");
+        originalColor = addField.getForeground();
+        setTextFieldDefault(addField, DEFAULT_TEXT);
         addField.addKeyListener(new KeyAdapter() {
             public void keyPressed(KeyEvent e)
             {
                 switch (e.getKeyCode()) {
                 case KeyEvent.VK_ENTER:
-                    addNewObjects();
+                    if (addField.isFocusOwner()) {
+                        addNewObjects();
+                    }
                 }
             }
         });
+        descriptionField = new JTextField(15);
+        descriptionField.setToolTipText("Tag Description");
+        setTextFieldDefault(descriptionField, DEFAULT_DESCRIPTION);
         addField.getDocument().addDocumentListener(this);
+        addField.addFocusListener(this);
+        descriptionField.addFocusListener(this);
+        descriptionField.addKeyListener(new KeyAdapter() {
+            public void keyPressed(KeyEvent e)
+            {
+                switch (e.getKeyCode()) {
+                case KeyEvent.VK_ENTER:
+                    if (descriptionField.isFocusOwner()) {
+                        addNewObjects();
+                    }
+                }
+            }
+        });
     }
 
     /** Closes and disposes. */
@@ -204,16 +352,14 @@ public class SelectionWizard
     {
         Container c = getContentPane();
         c.setLayout(new BorderLayout());
-
-        if (!addCreation || !TagAnnotationData.class.equals(type)) 
-            c.add(uiDelegate, BorderLayout.CENTER);
-        else {
-            JPanel container = new JPanel();
-            container.setLayout(new BoxLayout(container, BoxLayout.Y_AXIS));
-            container.add(uiDelegate);
+        JPanel container = new JPanel();
+        container.setLayout(new BoxLayout(container, BoxLayout.Y_AXIS));
+        container.add(uiDelegate);
+        container.add(createFilteringControl());
+        if (addCreation && TagAnnotationData.class.equals(type)) {
             container.add(createAdditionPane());
-            c.add(container, BorderLayout.CENTER);
         }
+        c.add(container, BorderLayout.CENTER);
         c.add(createControlsPane(), BorderLayout.SOUTH);
     }
 
@@ -227,12 +373,31 @@ public class SelectionWizard
         JPanel controlPanel = new JPanel();
         controlPanel.setOpaque(false);
         controlPanel.setLayout(new FlowLayout());
-        controlPanel.add(resetButton);
         controlPanel.add(acceptButton);
         controlPanel.add(cancelButton);
+        controlPanel.add(resetButton);
         return UIUtilities.buildComponentPanelRight(controlPanel);
     }
 
+    /**
+     * Modifies the text of the component displaying the <code>Add</code>
+     * component.
+     */
+    private void formatAddLabelText()
+    {
+        String s = "";
+        Collection<DataObject> list = uiDelegate.getAvailableSelectedNodes();
+        if (CollectionUtils.isNotEmpty(list)) {
+            DataObject data = list.iterator().next();
+            if (data instanceof TagAnnotationData) {
+                s = String.format(" in %s Tag set",
+                        ((TagAnnotationData) data).getTagValue());
+            }
+        }
+        String tip = String.format(
+                "Add a new tag%s and select it immediately:", s);
+        addLabel.setText(tip);
+    }
 
     /**
      * Builds and lays out the component to add new objects to the selection.
@@ -243,21 +408,15 @@ public class SelectionWizard
     {
         JPanel p = new JPanel();
         p.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-        String text = null;
-        String tip = null;
         p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
         if (TagAnnotationData.class.equals(type)) {
-            tip = "Enter the new Tags, use comma to separate them.";
-            text = "New Tag: ";
-        }
-        if (tip != null) {
-            p.add(UIUtilities.buildComponentPanel(new JLabel(tip)));
-        }
-        if (text != null) {
+            formatAddLabelText();
+            p.add(UIUtilities.buildComponentPanel(addLabel));
             JPanel pane = new JPanel();
             pane.setLayout(new BoxLayout(pane, BoxLayout.X_AXIS));
-            pane.add(UIUtilities.setTextFont(text));
             pane.add(addField);
+            pane.add(Box.createHorizontalStrut(5));
+            pane.add(descriptionField);
             pane.add(addNewButton);
             p.add(pane);
         }
@@ -273,14 +432,33 @@ public class SelectionWizard
             String[] names = text.split(SearchUtil.COMMA_SEPARATOR);
             List<DataObject> objects = new ArrayList<DataObject>();
             String v;
+            String description = descriptionField.getText();
+            if (DEFAULT_DESCRIPTION.equals(description)) {
+                description = null;
+            }
+            Set<DataObject> parents = uiDelegate.getAvailableSelectedNodes();
             for (int i = 0; i < names.length; i++) {
                 v = names[i];
-                if (v != null && v.trim().length() != 0) {
-                    objects.add(new TagAnnotationData(v.trim()));
+                TagAnnotationData tag;
+                if (StringUtils.isNotBlank(v)) {
+                    tag = new TagAnnotationData(v.trim());
+                    if (description != null) {
+                        tag.setTagDescription(description);
+                    }
+                    if (CollectionUtils.isNotEmpty(parents)) {
+                        tag.setDataObjects(parents);
+                    }
+                    objects.add(tag);
                 }
             }
-            uiDelegate.addObjects(objects);
-            addField.setText("");
+            boolean reset = uiDelegate.addObjects(objects);
+            if (reset) {
+                addField.setCaretPosition(0);
+                setTextFieldDefault(addField, DEFAULT_TEXT);
+                descriptionField.setCaretPosition(0);
+                setTextFieldDefault(descriptionField, DEFAULT_DESCRIPTION);
+                acceptButton.requestFocus();
+            }
         }
     }
 
@@ -349,7 +527,7 @@ public class SelectionWizard
     {
         super(owner);
         setModal(true);
-        uiDelegate = new SelectionWizardUI(available, selected, type, user);
+        uiDelegate = new SelectionWizardUI(this, available, selected, type, user);
         uiDelegate.addPropertyChangeListener(this);
         this.type = type;
         initComponents();
@@ -442,22 +620,18 @@ public class SelectionWizard
      * Sets the enabled flag of the {@link #addNewButton}.
      * @see DocumentListener#insertUpdate(DocumentEvent)
      */
-    public void insertUpdate(DocumentEvent e)
-    {
-        String text = addField.getText();
-        addNewButton.setEnabled(!StringUtils.isEmpty(text));
-    }
+    public void insertUpdate(DocumentEvent e) { setControls(); }
 
     /**
      * Sets the enabled flag of the {@link #addNewButton}.
      * @see DocumentListener#removeUpdate(DocumentEvent)
      */
-    public void removeUpdate(DocumentEvent e)
-    {
-        String text = addField.getText();
-        addNewButton.setEnabled(!StringUtils.isEmpty(text));
-    }
+    public void removeUpdate(DocumentEvent e) { setControls(); }
 
+    /**
+     * Sets the controls.
+     * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
+     */
     public void propertyChange(PropertyChangeEvent evt)
     {
         String name = evt.getPropertyName();
@@ -465,6 +639,50 @@ public class SelectionWizard
             Boolean b = (Boolean) evt.getNewValue();
             acceptButton.setEnabled(b.booleanValue());
             resetButton.setEnabled(b.booleanValue());
+            acceptButton.requestFocus();
+        } else if (SelectionWizardUI.AVAILABLE_SELECTION_CHANGE.equals(name)) {
+            formatAddLabelText();
+        }
+    }
+
+    /**
+     * Resets the values when losing the focus
+     * @see FocusListener#focusLost(FocusEvent)
+     */
+    public void focusLost(FocusEvent evt) {
+        Object src = evt.getSource();
+        if (src == addField) {
+            String value = addField.getText();
+            if (StringUtils.isBlank(value)) {
+                setTextFieldDefault(addField, DEFAULT_TEXT);
+            }
+        } else if (src == descriptionField) {
+            String value = descriptionField.getText();
+            if (StringUtils.isBlank(value)) {
+                setTextFieldDefault(descriptionField, DEFAULT_DESCRIPTION);
+            }
+        }
+    }
+
+    /**
+     * Resets the values when losing the focus
+     * @see FocusListener#focusGained(FocusEvent)
+     */
+    public void focusGained(FocusEvent evt)
+    {
+        Object src = evt.getSource();
+        if (src == addField) {
+            String value = addField.getText();
+            if (DEFAULT_TEXT.equals(value)) {
+                addField.setCaretPosition(0);
+                setTextFieldDefault(addField, null);
+            }
+        } else if (src == descriptionField) {
+            String value = descriptionField.getText();
+            if (DEFAULT_DESCRIPTION.equals(value)) {
+                descriptionField.setCaretPosition(0);
+                setTextFieldDefault(descriptionField, null);
+            }
         }
     }
 
