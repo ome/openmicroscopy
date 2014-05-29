@@ -30,8 +30,10 @@ import java.awt.event.ActionListener;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -40,13 +42,17 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
 
+
 //Third-party libraries
 import info.clearthought.layout.TableLayout;
+
+import org.apache.commons.lang.ArrayUtils;
 import org.jdesktop.swingx.JXBusyLabel;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.SeparatorPane;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
 import pojos.GroupData;
 
 /** 
@@ -111,6 +117,9 @@ public class SearchComponent
 	
 	/** Identifies the text for searching for time. */
 	public static final String		NAME_CUSTOMIZED = "Custom"; 
+	
+        /** Identifies the text for searching for ID. */
+        public static final String              NAME_ID = "ID"; 
 	
 	/** Identifies the text to filter by ROIs. */
         public static final String              HAS_ROIS_TEXT = "Has ROIs";
@@ -309,7 +318,10 @@ public class SearchComponent
 	private void setDefaultContext()
 	{
 		nodes = new ArrayList<SearchObject>();
-    	SearchObject node = new SearchObject(SearchContext.NAME, 
+		
+	SearchObject node = new SearchObject(SearchContext.ID, null, NAME_ID);
+	nodes.add(node);
+    	node = new SearchObject(SearchContext.NAME, 
 				null, NAME_TEXT);
     	nodes.add(node);
     	node = new SearchObject(SearchContext.DESCRIPTION, 
@@ -436,43 +448,58 @@ public class SearchComponent
 		firePropertyChange(NODES_EXPANDED_PROPERTY,Boolean.FALSE, Boolean.TRUE);
 	}
 	
-	/** Fires a property change to search. */
-	void search()
-	{
-		//Terms cannot be null
-		String[] some = uiDelegate.getSome();
-		String[] must = uiDelegate.getMust();
-		String[] none = uiDelegate.getNone();
-		List<Integer> scope = uiDelegate.getScope();
-		SearchContext ctx = new SearchContext(some, must, none, scope);
-		int index = uiDelegate.getSelectedDate();
-		Timestamp start, end;
-		
-		switch (index) {
-			case SearchContext.RANGE:
-				start = uiDelegate.getFromDate();
-				end = uiDelegate.getToDate();
-				if (start != null && end != null && start.after(end)) 
-					ctx.setTime(end, start);
-				else ctx.setTime(start, end);
-				break;
-			default:
-				ctx.setTime(index);
-		}
-		ctx.setOwnerSearchContext(uiDelegate.getOwnerSearchContext());
-		ctx.setAnnotatorSearchContext(uiDelegate.getAnnotatorSearchContext());
-		ctx.setOwners(uiDelegate.getOwners());
-		ctx.setGroups(uiDelegate.getSelectedGroups());
-		ctx.setAnnotators(uiDelegate.getAnnotators());
-		ctx.setCaseSensitive(uiDelegate.isCaseSensitive());
-		ctx.setType(uiDelegate.getType());
-		ctx.setAttachmentType(uiDelegate.getAttachment());
-		ctx.setTimeType(uiDelegate.getTimeIndex());
-		ctx.setExcludedOwners(uiDelegate.getExcludedOwners());
-		ctx.setExcludedAnnotators(uiDelegate.getExcludedAnnotators());
-		ctx.setGroups(uiDelegate.getSelectedGroups());
-		firePropertyChange(SEARCH_PROPERTY, null, ctx);
-	}
+        /** Fires a property change to search. */
+        void search() {
+            
+            List<Integer> scope = uiDelegate.getScope();
+            SearchContext ctx;
+    
+            if (scope.contains(SearchContext.ID)) {
+                // create search context with search by ID only
+                ctx = new SearchContext(uiDelegate.getSome(), ArrayUtils.EMPTY_STRING_ARRAY,
+                        ArrayUtils.EMPTY_STRING_ARRAY,
+                        Collections.singletonList(SearchContext.ID));
+            } else {
+                // Terms cannot be null
+                String[] some = uiDelegate.getSome();
+                String[] must = uiDelegate.getMust();
+                String[] none = uiDelegate.getNone();
+                ctx = new SearchContext(some, must, none, scope);
+    
+                int index = uiDelegate.getSelectedDate();
+                Timestamp start, end;
+    
+                switch (index) {
+                    case SearchContext.RANGE:
+                        start = uiDelegate.getFromDate();
+                        end = uiDelegate.getToDate();
+                        if (start != null && end != null && start.after(end))
+                            ctx.setTime(end, start);
+                        else
+                            ctx.setTime(start, end);
+                        break;
+                    default:
+                        ctx.setTime(index);
+                }
+                ctx.setOwnerSearchContext(uiDelegate.getOwnerSearchContext());
+                ctx.setAnnotatorSearchContext(uiDelegate
+                        .getAnnotatorSearchContext());
+                ctx.setOwners(uiDelegate.getOwners());
+                ctx.setGroups(uiDelegate.getSelectedGroups());
+                ctx.setAnnotators(uiDelegate.getAnnotators());
+                ctx.setCaseSensitive(uiDelegate.isCaseSensitive());
+                ctx.setAttachmentType(uiDelegate.getAttachment());
+                ctx.setTimeType(uiDelegate.getTimeIndex());
+                ctx.setExcludedOwners(uiDelegate.getExcludedOwners());
+                ctx.setExcludedAnnotators(uiDelegate.getExcludedAnnotators());
+                ctx.setGroups(uiDelegate.getSelectedGroups());
+            }
+            
+            ctx.setType(uiDelegate.getType());
+            ctx.setGroups(uiDelegate.getSelectedGroups());
+            
+            firePropertyChange(SEARCH_PROPERTY, null, ctx);
+        }
 	
 	/**
 	 * Returns the list of possible groups.
