@@ -311,6 +311,7 @@ public class ImViewerAgent
             if (view != null && view.getPixelsID() != id) {
                 view.pasteRenderingSettings();
             }
+            view.reloadRenderingThumbs();
         }
     }
     /**
