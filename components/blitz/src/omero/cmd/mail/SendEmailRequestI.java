@@ -137,7 +137,7 @@ public class SendEmailRequestI extends SendEmailRequest implements
 		 */
 	       
 	    Parameters p = new Parameters();
-			
+
 		StringBuffer sql = new StringBuffer();
 
 		sql.append("select distinct e from Experimenter e "
@@ -151,10 +151,10 @@ public class SendEmailRequestI extends SendEmailRequest implements
 						.getSecurityRoles().getUserGroupId());
 		}
 		
-		if (groupIds.size() > 0 && userIds.size() > 0) {
+		if (groupIds.size() > 0) {
 			sql.append(" and e.id in ");
 			sql.append(" (select m.child from GroupExperimenterMap m "
-						+ " where m.parent.id = (:gids) )");
+						+ " where m.parent.id in (:gids) )");
 			p.addSet("gids", new HashSet<Long>(groupIds));
 		}
 		
