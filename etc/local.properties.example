@@ -25,6 +25,7 @@ javac.debuglevel=lines,vars,source
 javac.maxmem=1050m
 javadoc.maxmem=1050m
 exe4j.home=/opt/exe4j
+artifactory.repository=ome.staging
 
 # Which version of Ice this build of OMERO is
 # compatible with. If "auto" is set (the default)
