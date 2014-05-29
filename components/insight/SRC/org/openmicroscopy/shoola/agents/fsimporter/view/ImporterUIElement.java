@@ -402,6 +402,7 @@ class ImporterUIElement
 			c = new FileImportComponent(f, importable.isFolderAsContainer(),
 					!controller.isMaster(), importable.getGroup(),
 					importable.getUser(), single);
+			c.setArchived(importable.isArchived());
 			c.setLocation(importable.getParent(), importable.getDataset(), 
 					importable.getRefNode());
 			c.setType(type);

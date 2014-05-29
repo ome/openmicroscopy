@@ -11,11 +11,11 @@
 
 import omero
 import pytest
+import threading
 import test.integration.library as lib
 
-from omero.rtypes import rstring, rlong, rint
-from omero.util.concurrency import get_event
-from omero.util.tiles import *
+from omero.util.tiles import TileLoopIteration
+from omero.util.tiles import RPSTileLoop
 from binascii import hexlify as hex
 
 
@@ -90,9 +90,9 @@ class TestRPS(lib.ITest):
             # First execution should certainly fail
             try:
                 rps.setPixelsId(pix.id.val, True)
-                fail("Should throw!")
+                assert False, "Should throw!"
             except omero.MissingPyramidException, mpm:
-                assert pix.id.val ==  mpm.pixelsID
+                assert pix.id.val == mpm.pixelsID
 
             # Eventually, however, it should be generated
             i = 10
@@ -102,11 +102,11 @@ class TestRPS(lib.ITest):
                     rps.setPixelsId(pix.id.val, True)
                     success = True
                 except omero.MissingPyramidException, mpm:
-                    assert pix.id.val ==  mpm.pixelsID
+                    assert pix.id.val == mpm.pixelsID
                     backOff = mpm.backOff/1000
                     event = concurrency.get_event("testRomio")
-                    event.wait(backOff) # seconds
-                i -=1
+                    event.wait(backOff)  # seconds
+                i -= 1
             assert success
         finally:
             rps.close()
@@ -117,7 +117,7 @@ class TestRPS(lib.ITest):
         Here we try the above but pass omero.group:-1
         to see if we can cause an exception.
         """
-        all_context = {"omero.group":"-1"}
+        all_context = {"omero.group": "-1"}
 
         from omero.util import concurrency
         pix = self.missing_pyramid(self.root)
@@ -126,9 +126,9 @@ class TestRPS(lib.ITest):
             # First execution should certainly fail
             try:
                 rps.setPixelsId(pix.id.val, True, all_context)
-                fail("Should throw!")
+                assert False, "Should throw!"
             except omero.MissingPyramidException, mpm:
-                assert pix.id.val ==  mpm.pixelsID
+                assert pix.id.val == mpm.pixelsID
 
             # Eventually, however, it should be generated
             i = 10
@@ -138,12 +138,79 @@ class TestRPS(lib.ITest):
                     rps.setPixelsId(pix.id.val, True, all_context)
                     success = True
                 except omero.MissingPyramidException, mpm:
-                    assert pix.id.val ==  mpm.pixelsID
+                    assert pix.id.val == mpm.pixelsID
                     backOff = mpm.backOff/1000
                     event = concurrency.get_event("testRomio")
-                    event.wait(backOff) # seconds
-                i -=1
+                    event.wait(backOff)  # seconds
+                i -= 1
             assert success
         finally:
             rps.close()
 
+    @pytest.mark.long_running
+    def testPyramidConcurrentAccess(self):
+        """
+        See ticket:11709
+        """
+        all_context = {"omero.group": "-1"}
+
+        from omero.util import concurrency
+        pix = self.missing_pyramid(self.root)
+        rps = self.root.sf.createRawPixelsStore(all_context)
+        try:
+            # First execution should certainly fail
+            try:
+                rps.setPixelsId(pix.id.val, True, all_context)
+                assert False, "Should throw!"
+            except omero.MissingPyramidException, mpm:
+                assert pix.id.val == mpm.pixelsID
+
+            # Eventually, however, it should be generated
+            i = 10
+            success = False
+            while i > 0 and not success:
+                try:
+                    rps.setPixelsId(pix.id.val, True, all_context)
+                    success = True
+                except omero.MissingPyramidException, mpm:
+                    assert pix.id.val == mpm.pixelsID
+                    backOff = mpm.backOff/1000
+                    event = concurrency.get_event("testRomio")
+                    event.wait(backOff)  # seconds
+                i -= 1
+            assert success
+
+            # Once it's generated, we should be able to concurrencly
+            # access the file without exceptions
+            event = concurrency.get_event("concurrenct_pyramids")
+            root_sf = self.root.sf
+            class T(threading.Thread):
+                def run(self):
+                    self.success = 0
+                    self.failure = 0
+                    while not event.isSet() and self.success < 10:
+                        self.rps = root_sf.createRawPixelsStore(all_context)
+                        try:
+                            self.rps.setPixelsId(pix.id.val, True, all_context)
+                            self.success += 1
+                        except:
+                            self.failure += 1
+                            raise
+                        finally:
+                            self.rps.close()
+
+            threads = [T() for x in range(10)]
+            for t in threads:
+                t.start()
+            event.wait(10)  # 10 seconds
+            event.set()
+            for t in threads:
+                t.join()
+
+            total_successes = sum([t.success for t in threads])
+            total_failures = sum([t.failure for t in threads])
+            assert total_successes
+            assert not total_failures
+
+        finally:
+            rps.close()

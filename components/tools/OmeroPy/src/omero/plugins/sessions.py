@@ -185,8 +185,8 @@ class SessionsControl(BaseControl):
         # If these are set and different from the current
         # connection, then a new one may be created.
         #
-        server = getattr(args, "connection", None)  # May be called by another
-                                                    # plugin
+        # May be called by another plugin
+        server = getattr(args, "connection", None)
         name = None
         port = None
 
@@ -451,10 +451,10 @@ class SessionsControl(BaseControl):
         s = store.contents()
         previous = store.get_current()
 
-        #fmt = "%-16.16s\t%-12.12s\t%-12.12s\t%-40.40s\t%-30.30s\t%s"
-        #self.ctx.out(fmt % ("Server","User","Group", "Session","Active",
+        # fmt = "%-16.16s\t%-12.12s\t%-12.12s\t%-40.40s\t%-30.30s\t%s"
+        # self.ctx.out(fmt % ("Server","User","Group", "Session","Active",
         # "Started"))
-        #self.ctx.out("-"*136)
+        # self.ctx.out("-"*136)
         headers = ("Server", "User", "Group", "Session", "Active", "Started")
         results = dict([(x, []) for x in headers])
         for server, names in s.items():

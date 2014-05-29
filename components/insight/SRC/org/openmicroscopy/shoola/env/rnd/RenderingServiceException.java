@@ -2,10 +2,10 @@
  * org.openmicroscopy.shoola.env.rnd.RenderingServiceException
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -24,8 +24,6 @@
 package org.openmicroscopy.shoola.env.rnd;
 
 
-
-
 //Java imports
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -37,50 +35,48 @@ import java.io.StringWriter;
 /** 
  * Reports an error occurred while trying to render a plane.
  *
- * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
- * @author	Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:a.falconi@dundee.ac.uk">a.falconi@dundee.ac.uk</a>
- * @author	Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
+ * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
+ *         <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+ * @author Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
+ *         <a href="mailto:a.falconi@dundee.ac.uk">a.falconi@dundee.ac.uk</a>
+ * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
+ *         <a href="mailto:donald@lifesci.dundee.ac.uk">
+ *         donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $ $Date: $)
- * </small>
  * @since OME2.2
  */
 public class RenderingServiceException
     extends Exception
 {
-	
-	/** Indicates that the error occurred due to a connection failure.*/
-	public static final int CONNECTION = 1;
-	
-	/** The index of the exception.*/
-	private int index = 0;
-	
+
+    /** Indicates that the error occurred due to a connection failure.*/
+    public static final int CONNECTION = 1;
+
+    /** The index of the exception.*/
+    private int index = 0;
+
     /** Creates a new exception. */
     public RenderingServiceException() { super(); }
 
     /**
      * Constructs a new exception with the specified detail message.
      * 
-     * @param message   Short explanation of the problem.
+     * @param message Short explanation of the problem.
      */
     public RenderingServiceException(String message) { super(message); }
 
     /**
      * Constructs a new exception with the specified cause.
      * 
-     * @param cause     The exception that caused this one to be risen.
+     * @param cause The exception that caused this one to be risen.
      */
     public RenderingServiceException(Throwable cause) { super(cause); }
 
     /**
      * Constructs a new exception with the specified detail message and cause.
      * 
-     * @param message   Short explanation of the problem.
-     * @param cause     The exception that caused this one to be risen.
+     * @param message Short explanation of the problem.
+     * @param cause The exception that caused this one to be risen.
      */
     public RenderingServiceException(String message, Throwable cause)
     {
@@ -92,27 +88,27 @@ public class RenderingServiceException
      * 
      * @return See above.
      */
-	public String getExtendedMessage()
-	{
-		StringWriter sw = new StringWriter();
+    public String getExtendedMessage()
+    {
+        StringWriter sw = new StringWriter();
         PrintWriter pw = new PrintWriter(sw);
         printStackTrace(pw);
         return sw.toString();
-	}
-	
-	/**
-	 * Sets the index indicating if the error occurred due to a network 
-	 * failure.
-	 * 
-	 * @param index The value to set.
-	 */
-	public void setIndex(int index) { this.index = index; }
-	
-	/**
-	 * Returns the index.
-	 * 
-	 * @return See above.
-	 */
-	public int getIndex() { return index; }
-	
+    }
+
+    /**
+     * Sets the index indicating if the error occurred due to a network 
+     * failure.
+     * 
+     * @param index The value to set.
+     */
+    public void setIndex(int index) { this.index = index; }
+
+    /**
+     * Returns the index.
+     * 
+     * @return See above.
+     */
+    public int getIndex() { return index; }
+
 }

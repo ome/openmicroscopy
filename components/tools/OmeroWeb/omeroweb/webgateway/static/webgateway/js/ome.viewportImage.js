@@ -390,7 +390,7 @@ jQuery.fn.viewportImage = function(options) {
         return viewerBean;
     };
     
-    this.setUpTiles = function (imagewidth, imageheight, xtilesize, ytilesize, init_zoom, levels, href, thref, init_cx, init_cy, zoomLevelScaling) {
+    this.setUpTiles = function (imagewidth, imageheight, xtilesize, ytilesize, init_zoom, levels, hrefProvider, thref, init_cx, init_cy, zoomLevelScaling) {
         InfoControl.prototype.viewerZoomed = function(e) {
             if (this.dom_info) {
                 var scale = e.scale * 100;
@@ -405,6 +405,7 @@ jQuery.fn.viewportImage = function(options) {
                 imagewidth, imageheight, xtilesize, ytilesize, levels);
         var myProvider = new PanoJS.TileUrlProvider('','','');
         myProvider.assembleUrl = function(xIndex, yIndex, zoom) {
+            var href = hrefProvider();
             return href+'&'+myPyramid.tile_filename( zoom, xIndex, yIndex );
             //return MY_URL + '/' + MY_PREFIX + myPyramid.tile_filename( zoom, xIndex, yIndex );
         };
@@ -515,6 +516,13 @@ jQuery.fn.viewportImage = function(options) {
             viewerBean.update_url();
         }
         cur_zoom = viewerBean.zoomLevel;
+    };
+
+    // Simply causes all tiles to refresh their src
+    this.refreshTiles = function () {
+        if (viewerBean) {
+            viewerBean.positionTiles();
+        }
     };
     
     this.destroyTiles = function () {

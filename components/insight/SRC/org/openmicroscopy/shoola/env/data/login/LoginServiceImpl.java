@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.data.login.LoginServiceImpl
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -34,10 +34,10 @@ import javax.swing.JFrame;
 import Glacier2.PermissionDeniedException;
 import Ice.ConnectionRefusedException;
 import Ice.DNSException;
+import org.apache.commons.lang.StringUtils;
 
 //Application-internal dependencies
 import omero.SecurityViolation;
-
 import org.openmicroscopy.shoola.env.Container;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
@@ -59,15 +59,12 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * the service's logic.  The {@link LoginManager} should be used to decorate an
  * instance of this class to obtain a thread-safe service.
  *
- * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
+ * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author  <br>Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:a.falconi@dundee.ac.uk">
  * 					a.falconi@dundee.ac.uk</a>
  * @version 2.2
- * <small>
- * (<b>Internal version:</b> $Revision$ $Date$)
- * </small>
  * @since OME2.2
  */
 public class LoginServiceImpl
@@ -76,28 +73,28 @@ public class LoginServiceImpl
 
     /** 
      * Holds one of the state flags defined by the {@link LoginService}
-     * interface to indicate the current state of the service. 
+     * interface to indicate the current state of the service.
      */
-    private int             state;
+    private int state;
 
     /** Reference to the runtime environment. */
-    private Container       container;
-    
+    private Container container;
+
     /** 
      * The timer used to establish a valid link to an <code>OMERO</code>
      * server.
      */
-    private Timer 			timer;
-    
+    private Timer timer;
+
     /** Flag indicating if the attempt to connect has started. */
-    private boolean 		connAttempt;
-    
+    private boolean connAttempt;
+
     /** The index set if an error occurred while trying to connect. */
-    private int				failureIndex;
-  
+    private int failureIndex;
+
     /** Allows to easily access the service's configuration. */
-    protected LoginConfig   config;
-    
+    protected LoginConfig config;
+
     /**
      * Suspends execution for as many milliseconds as specified by the
      * service's configuration.
@@ -108,9 +105,9 @@ public class LoginServiceImpl
             Thread.sleep(config.getRetryInterval());
         } catch (InterruptedException e) {}
     }
- 
+
     /**
-     * Attempts to log onto <i>OMERO</i> using the current user's 
+     * Attempts to log onto <i>OMERO</i> using the current user's
      * credentials.
      * Failure or success is reported to the Log Service.
      * 
@@ -140,7 +137,7 @@ public class LoginServiceImpl
             if (!factory.isCompatible()) 
             	return INCOMPATIBLE;
             if (factory.isConnected() && connAttempt) {
-				//Log success.
+                //Log success.
                 LogMessage msg = new LogMessage();
                 msg.println("Logged onto OMERO at: "+uc.getHostName());
                 msg.println(uc);
@@ -149,45 +146,45 @@ public class LoginServiceImpl
                 timer.cancel();
                 return CONNECTED;
             }
-			if (!connAttempt) {
-				timer.cancel();
-	            //Log success.
-	            LogMessage msg = new LogMessage();
-	            msg.println("Cannot connect OMERO at: "+uc.getHostName());
-	            msg.println(uc);
-	            Logger logger = container.getRegistry().getLogger();
-	            logger.info(this, msg);
-				return TIMEOUT;
-			}
-			timer.cancel();
-			LogMessage msg = new LogMessage();
+            if (!connAttempt) {
+                timer.cancel();
+                //Log success.
+                LogMessage msg = new LogMessage();
+                msg.println("Cannot connect OMERO at: "+uc.getHostName());
+                msg.println(uc);
+                Logger logger = container.getRegistry().getLogger();
+                logger.info(this, msg);
+                return TIMEOUT;
+            }
+            timer.cancel();
+            LogMessage msg = new LogMessage();
             msg.println("Cannot connect OMERO at: "+uc.getHostName());
             msg.println(uc);
             Logger logger = container.getRegistry().getLogger();
             logger.info(this, msg);
             return NOT_CONNECTED;
         } catch (Exception exception) {  //Log failure.
-        	if (exception instanceof DSOutOfServiceException) {
-        		Throwable cause = exception.getCause();
-        		if (cause instanceof ConnectionRefusedException) {
-        			failureIndex = CONNECTION_INDEX;
-        		} else if (cause instanceof DNSException) {
-        			failureIndex = DNS_INDEX;
-        		} else if (cause instanceof PermissionDeniedException) {
-        			failureIndex = PERMISSION_INDEX;
-        		} else if (cause instanceof Ice.FileException) {
-        			failureIndex = CONFIGURATION_INDEX;
-        		} else if (cause instanceof DSOutOfServiceException) {
-        			if (cause.getCause() instanceof SecurityViolation)
-        				failureIndex = ACTIVE_INDEX;
-        		}
-        	} else failureIndex = SYSTEM_FAILURE_INDEX;
-        	LogMessage msg = new LogMessage();
+            if (exception instanceof DSOutOfServiceException) {
+                Throwable cause = exception.getCause();
+                if (cause instanceof ConnectionRefusedException) {
+                    failureIndex = CONNECTION_INDEX;
+                } else if (cause instanceof DNSException) {
+                    failureIndex = DNS_INDEX;
+                } else if (cause instanceof PermissionDeniedException) {
+                    failureIndex = PERMISSION_INDEX;
+                } else if (cause instanceof Ice.FileException) {
+                    failureIndex = CONFIGURATION_INDEX;
+                } else if (cause instanceof DSOutOfServiceException) {
+                    if (cause.getCause() instanceof SecurityViolation)
+                        failureIndex = ACTIVE_INDEX;
+                }
+            } else failureIndex = SYSTEM_FAILURE_INDEX;
+            LogMessage msg = new LogMessage();
             msg.println("Failed to log onto OMERO.");
             msg.println("Reason: "+exception.getMessage());
             if (uc != null) {
-            	msg.println("OMERO address: "+uc.getHostName());
-            	msg.println(uc);
+                msg.println("OMERO address: "+uc.getHostName());
+                msg.println(uc);
             }
             msg.print(exception);
             Logger logger = container.getRegistry().getLogger();
@@ -195,7 +192,7 @@ public class LoginServiceImpl
         }
         return NOT_CONNECTED;
     }
-    
+
     /**
      * Brings up a login dialog to let the user enter their credentials.
      * The dialog will then call the <code>login</code> method passing
@@ -203,7 +200,6 @@ public class LoginServiceImpl
      */
     protected void askForCredentials()
     {
-    	
     }
     //NOTE: This method is protected so that subclasses can get rid of the
     //dependencies on Swing.  This is useful in test mode.
@@ -227,9 +223,9 @@ public class LoginServiceImpl
         connAttempt = true;
         failureIndex = 0;
     }
-    
+
     /**
-     * Implemented as specified by the {@link LoginService} interface. 
+     * Implemented as specified by the {@link LoginService} interface.
      * @see LoginService#getState()
      */
     public int getState() { return state; }
@@ -258,14 +254,12 @@ public class LoginServiceImpl
      */
     public int login(UserCredentials uc)
     {
-    	if (uc == null) return NOT_CONNECTED;
-    	String name = uc.getUserName();
-    	if (name == null || name.trim().length() == 0)
-    		return NOT_CONNECTED;
-    	String password = uc.getPassword();
-    	if (password == null || password.trim().length() == 0)
-    		return NOT_CONNECTED;
-    	
+        if (uc == null) return NOT_CONNECTED;
+        String name = uc.getUserName();
+        if (StringUtils.isBlank(name)) return NOT_CONNECTED;
+        String password = uc.getPassword();
+        if (StringUtils.isBlank(password)) return NOT_CONNECTED;
+
         state = ATTEMPTING_LOGIN;
         config.setCredentials(uc);
         int succeeded = attempt();
@@ -302,68 +296,68 @@ public class LoginServiceImpl
      */
     public void notifyLoginFailure()
     {
-    	JFrame f = container.getRegistry().getTaskBar().getFrame();
-		String text = "";
-    	switch (failureIndex) {
-			case LoginService.DNS_INDEX:
-				text = "Please check the server address\nor try again later.";
-				break;
-			case LoginService.CONNECTION_INDEX:
-				text = "Please check the port\nor try again later.";
-				break;
-			case LoginService.ACTIVE_INDEX:
-				text = "Your user account is no longer active.\nPlease" +
-				" contact your administrator.";
-				break;
-			case LoginService.CONFIGURATION_INDEX:
-				text = "Please unset ICE_CONFIG.";
-				break;
-			case LoginService.SYSTEM_FAILURE_INDEX:
-				text = "Error: System Failure.";
-				break;
-			case LoginService.PERMISSION_INDEX:
-				default:
-				text = "Please check your user name\nand/or password " +
-						"or try again later.";
-		}
-    	NotificationDialog dialog = new NotificationDialog(
-                f, "Login Failure", "Failed to log onto OMERO.\n"+text, 
+        JFrame f = container.getRegistry().getTaskBar().getFrame();
+        String text = "";
+        switch (failureIndex) {
+        case LoginService.DNS_INDEX:
+            text = "Please check the server address\nor try again later.";
+            break;
+        case LoginService.CONNECTION_INDEX:
+            text = "Please check the port\nor try again later.";
+            break;
+        case LoginService.ACTIVE_INDEX:
+            text = "Your user account is no longer active.\nPlease" +
+                    " contact your administrator.";
+            break;
+        case LoginService.CONFIGURATION_INDEX:
+            text = "Please unset ICE_CONFIG.";
+            break;
+        case LoginService.SYSTEM_FAILURE_INDEX:
+            text = "Error: System Failure.";
+            break;
+        case LoginService.PERMISSION_INDEX:
+        default:
+            text = "Please check your user name\nand/or password " +
+                    "or try again later.";
+        }
+        NotificationDialog dialog = new NotificationDialog(
+                f, "Login Failure", "Failed to log onto OMERO.\n"+text,
                 IconManager.getDefaultErrorIcon());
-		dialog.pack();  
-		UIUtilities.centerAndShow(dialog);
-	}
+        dialog.pack();  
+        UIUtilities.centerAndShow(dialog);
+    }
 
     /**
      * Implemented as specified by the {@link LoginService} interface.
      * @see LoginService#notifyLoginTimeout()
      */
     public void notifyLoginTimeout()
-    { 
-    	JFrame f = container.getRegistry().getTaskBar().getFrame();
-    	//Need to do it that way to keep focus on login dialog
-    	NotificationDialog dialog = new NotificationDialog(
+    {
+        JFrame f = container.getRegistry().getTaskBar().getFrame();
+        //Need to do it that way to keep focus on login dialog
+        NotificationDialog dialog = new NotificationDialog(
                 f, "Login Failure", "Failed to log onto OMERO.\n" +
                 "The server entered is not responding.\n"+
-                "Please check the server address or try again later.", 
+                "Please check the server address or try again later.",
                 IconManager.getDefaultErrorIcon());
-		dialog.pack();  
-		UIUtilities.centerAndShow(dialog);
-	}
-	
-    /** Helper inner class. */
-	class LoginTask 
-		extends TimerTask {
-    	
-		/** 
-		 * Sets the {@link #connAttempt} flag.
-		 * @see TimerTask#run()
-		 */
-    	public void run() {
-    		Toolkit.getDefaultToolkit().beep();
-    		connAttempt = false;
-			timer.cancel();
-    		
-    	}
+        dialog.pack();
+        UIUtilities.centerAndShow(dialog);
     }
-	
+
+    /** Helper inner class. */
+    class LoginTask 
+    extends TimerTask {
+
+        /** 
+         * Sets the {@link #connAttempt} flag.
+         * @see TimerTask#run()
+         */
+        public void run() {
+            Toolkit.getDefaultToolkit().beep();
+            connAttempt = false;
+            timer.cancel();
+
+        }
+    }
+
 }

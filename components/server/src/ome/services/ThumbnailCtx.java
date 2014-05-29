@@ -754,7 +754,8 @@ public class ThumbnailCtx
                 "join fetch r.pixels as p " +
                 "join fetch r.details.updateEvent " +
                 "join p.details.updateEvent " +
-                "where r.details.owner.id = :id and r.pixels.id in (:ids)",
+                "where r.details.owner.id = :id and r.pixels.id in (:ids) " +
+                "order by r.details.updateEvent.time asc",
                 new Parameters().addId(userId).addIds(pixelsIds));
         s1.stop();
         return toReturn;
@@ -776,7 +777,8 @@ public class ThumbnailCtx
                 "join fetch r.details.updateEvent " +
                 "join fetch p.details.updateEvent " +
                 "where r.details.owner.id = :id " +
-                "and r.pixels.image.id in (:ids)",
+                "and r.pixels.image.id in (:ids) " +
+                "order by r.details.updateEvent.time asc",
                 new Parameters().addId(userId).addIds(imageIds));
         s1.stop();
         return toReturn;
@@ -798,7 +800,8 @@ public class ThumbnailCtx
                 "join fetch r.details.updateEvent " +
                 "join fetch p.details.updateEvent " +
                 "where r.details.owner.id = p.details.owner.id " +
-                "and r.pixels.id in (:ids)",
+                "and r.pixels.id in (:ids) " +
+                "order by r.details.updateEvent.time asc",
                 new Parameters().addIds(pixelsIds));
         s1.stop();
         return toReturn;

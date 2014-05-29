@@ -52,6 +52,7 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     </description>
 
+    <property name="gitmatch" value="v.[0-9]*.[0-9]*.[0-9]*"/>
     <property name="import.dir" value="${basedir}/components/antlib/resources"/>
     <import file="${import.dir}/global.xml"/>
     <import file="${import.dir}/version.xml"/>
@@ -647,6 +648,7 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
                     <exclude name="**/*sources*.jar"/>
                     <exclude name="repository/omero/**"/>
                     <exclude name="repository/omero-tools/**"/>
+                    <exclude name="cache/omero/omero_client/jars/**"/>
                 </fileset>
             </classpath>
 
@@ -860,7 +862,7 @@ omero.version=${omero.version}
             <jar_update_if destfile="${dist.dir}/lib/client/OmeroImporter.jar" sign="false">
                 <fileset dir="${dist.dir}/etc" includes="omero.properties"/>
             </jar_update_if>
-            <jar_update_if destfile="${dist.dir}/lib/insight/blitz.jar" sign="true">
+            <jar_update_if destfile="${dist.dir}/lib/insight/blitz.jar" sign="false">
                 <fileset dir="${dist.dir}/etc" includes="omero.properties"/>
             </jar_update_if>
         </then>
@@ -910,7 +912,6 @@ omero.version=${omero.version}
         </copy>
         <copy file="components/insight/OUT/dist/omero.insight.jar" tofile="${dist.dir}/lib/insight/omero.insight.jar"/>
         <copy file="components/insight/SRC/org/openmicroscopy/shoola/env/ui/graphx/omeabout-bk.png" tofile="${dist.dir}/lib/insight/ome.png"/>
-        <antcall target="webstart-sign" inheritAll="true" inheritRefs="true"/>
     </target>
 
     <target name="hot-blitz" depends="init" description="Re-launch running server with new blitz.jar">
@@ -939,6 +940,12 @@ omero.version=${omero.version}
         <property name="targets" value="install"/>
         <hotdeploy component="${server.comp}" targets="${targets}"/>
     </target>
+
+    <target name="hot-bioformats" depends="init" description="Re-launch running bioformats with new bioformats.jar">
+        <property name="targets" value="dist"/>
+        <hotdeploy component="${basedir}/components/bioformats" targets="${targets}"/>
+    </target>
+
 
     <macrodef name="hotdeploy">
         <attribute name="targets"/>
@@ -980,10 +987,6 @@ omero.version=${omero.version}
             </exec>
         </sequential>
     </macrodef>
-
-    <target name="version">
-        <echo>${omero.version}</echo>
-    </target>
 
     <target name="print-mem">
         <echo>

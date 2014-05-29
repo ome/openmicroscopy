@@ -108,7 +108,7 @@ class render_response(omeroweb.decorators.render_response):
             return
         conn = kwargs['conn']
 
-        context['ome'] = {}
+        context.setdefault('ome', {})   # don't overwrite existing ome
         context['ome']['eventContext'] = conn.getEventContext
         context['ome']['user'] = conn.getUser
         context['ome']['basket_counter'] = request.session.get('basket_counter', 0)

@@ -2,10 +2,10 @@
  * org.openmicroscopy.shoola.env.ui.DownloadArchivedActivity 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -25,14 +25,16 @@ package org.openmicroscopy.shoola.env.ui;
 
 
 //Java imports
-
-//Third-party libraries
-
-//Application-internal dependencies
 import java.io.File;
 import java.util.Iterator;
 import java.util.List;
 
+//Third-party libraries
+
+//Application-internal dependencies
+
+
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.openmicroscopy.shoola.env.config.Registry;
@@ -128,7 +130,7 @@ public class DownloadArchivedActivity
 	{
 		List<File> files = (List<File>) result;
 		//Handle no file returned.
-		if (files.size() == 0) {
+		if (CollectionUtils.isEmpty(files)) {
 			type.setText(DESCRIPTION_NO_ARCHIVED);
 			messageLabel.setText(OPTION_NO_ARCHIVED);
 			return;

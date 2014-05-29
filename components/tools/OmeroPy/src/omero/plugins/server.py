@@ -26,8 +26,8 @@ class ServerControl(BaseControl):
         sub = parser.sub()
         parser.add(sub, self.blitz, help="Start OMERO.blitz")
         parser.add(sub, self.indexer, help="Start OMERO.indexer")
-        #web = parser.add(sub, self.web, help = "Start OMERO.web")
-        #web.add_argument("arg", nargs="*")
+        # web = parser.add(sub, self.web, help = "Start OMERO.web")
+        # web.add_argument("arg", nargs="*")
 
     def _prop(self, data, key):
         return data.properties.getProperty("omero."+key)
@@ -77,7 +77,7 @@ class ServerControl(BaseControl):
         omero.java.run(pre+["-jar", blitz_jar, "ome.fulltext"]+post,
                        debug=debug, xargs=xargs, use_exec=True)
 
-    #def web(self, args):
+    # def web(self, args):
     #    sys.stderr.write("Starting django... \n")
     #    omero_web = self.ctx.dir / "lib" / "python" / "omeroweb"
     #    os.chdir(str(omero_web))

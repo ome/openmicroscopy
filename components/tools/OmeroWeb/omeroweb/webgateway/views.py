@@ -1595,11 +1595,19 @@ def full_viewer (request, iid, conn=None, **kwargs):
             raise Http404
         d = {'blitzcon': conn,
              'image': image,
+             'parents': image.getAncestry(),
              'opts': rid,
              'roiCount': image.getROICount(),
              'viewport_server': kwargs.get('viewport_server', reverse('webgateway')),
              'object': 'image:%i' % int(iid)}
-
+        if len(d['parents']) > 1 and isinstance(d['parents'][1], omero.gateway.WellWrapper):
+            # The following calls are needed as the Well children collections have
+            # been loaded with only the one child object, and we need all the
+            # existing children (fields)
+            d['parents'][1].__loadedHotSwap__()
+            d['parents'][1].__reset__()
+            d['wellFields'] = [d['parents'][1].getImage(x).id\
+                                 for x in range(d['parents'][1].countWellSample())]
         template = kwargs.get('template', "webgateway/viewport/omero_image.html")
         t = template_loader.get_template(template)
         c = Context(request,d)

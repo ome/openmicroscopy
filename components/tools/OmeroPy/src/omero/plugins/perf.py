@@ -49,8 +49,8 @@ class PerfControl(BaseControl):
             ctx = perf_test.Context(None, client=client)
             self.ctx.out("Saving performance results to %s" % ctx.dir)
             ctx.add_reporter(perf_test.CsvReporter(ctx.dir))
-            #ctx.add_reporter(perf_test.HdfReporter(ctx.dir))
-            #ctx.add_reporter(perf_test.PlotReporter())
+            # ctx.add_reporter(perf_test.HdfReporter(ctx.dir))
+            # ctx.add_reporter(perf_test.PlotReporter())
             handler = perf_test.PerfHandler(ctx)
             perf_test.handle(handler, args.file)
 

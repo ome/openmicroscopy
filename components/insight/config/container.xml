@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+<!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  *                     OMERO.insight MASTER CONFIGURATION FILE
  *
  * This file specifies the configuration settings for the OMERO.insight runtime 
@@ -9,19 +9,19 @@
  *
  * + Services: The runtime services provided by the Container.
  * + Agents: The UI components that will be loaded at runtime.
- * + Resources: Icons and fonts used by the widgets that are part of the 
+ * + Resources: Icons and fonts used by the widgets that are part of the
  *              Container.
  * + Look and Feel: The L&F to use for the whole application.
  *
  *
  * Note that the only entry that needs to be edited *before* launching 
- * OMERO.insight is the URL of the OMERO Data Server (OMERODS) in the Services 
- * group. All other entries can optionally be edited to tweak runtime behavior, 
+ * OMERO.insight is the URL of the OMERO Data Server (OMERODS) in the Services
+ * group. All other entries can optionally be edited to tweak runtime behavior,
  * but can in most cases be safely ignored.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
 
 <container>
-   
+
   <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
    * 
    * SERVICES
@@ -29,10 +29,10 @@
    * The runtime services provided by the Container.All entries can 
    * optionally be edited to tweak runtime behavior.
    * 
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~--> 
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
   <services>
    <!-- OMERO Data Server (OMERO) configuration.
-         This entry specifies the hostName and the port to use to connect to 
+         This entry specifies the hostName and the port to use to connect to
          OMERO using blitz
     -->
     <structuredEntry name="/services/OMERODS" type="OMERODS">
@@ -52,12 +52,12 @@
     i.e. TreeViewerAgent = 0, EditorAgent = 1, ImporterAgent = 2
     The default value is 0.-->
     <entry name="/application/entryPoint" type="integer">0</entry>
-    
+
     <!-- the value corresponding to a given hierarchy
     i.e. Project/Dataset = 0, HCS = 1, Tags = 2, Attachments = 3
     The default value is 0.-->
     <entry name="/application/entryPointHierarchy" type="integer">0</entry>
-    
+
     <!-- default fs directory -->
     <entry name="/services/FS/defaultDirectory"></entry>
     
@@ -65,26 +65,30 @@
          to restore a valid link to OMERO server in the background. 
          Non-positive values will be ignored and the internal default will
          be used instead. -->
-         
-    
     <entry name="/services/LOGIN/omeds/max-retry" type="integer">10</entry>
     <!-- The interval, in milliseconds, between each attempt.
          Non-positive values will be ignored and the internal default will
          be used instead. -->
     <entry name="/services/LOGIN/omeds/retry-interval"
            type="integer">500</entry>
+
     <!-- The interval, in milliseconds, between each attempt.
          Non-positive values will be ignored and the internal default will
          be used instead. -->
-    <entry name="/services/LOGIN/omeds/timeout"
-           type="integer">120000</entry>    
-            
+    <entry name="/services/LOGIN/omeds/timeout" type="integer">120000</entry>
+
+    <!-- The interval, in milliseconds, between each time we check if the
+         network is up.
+         Non-positive values will be ignored and the internal default will
+         be used instead. -->
+    <entry name="/services/NETWORK/timeout" type="integer">300000</entry>
+
     <!-- Name of the omero folder. -->
     <entry name="/services/OMERO/home">omero</entry>
-    
+
     <!-- Name of the omero folder. -->
     <entry name="/services/OMERO/files/home">filesOmero</entry>
-    
+
     <!-- Log Service configuration.
     -->
     <!-- Enables/disables the Log Service. -->
@@ -94,36 +98,36 @@
     <entry name="/services/LOG/dir">log</entry>
     <!-- The name of the log file -->
     <entry name="/services/LOG/file">omeroinsight.log</entry>
-    
+
     <!-- Enables/disables the Caching Service. -->
     <entry name="/services/CACHE/on" type="boolean">true</entry>
-    
+
     <!-- Maximum number of thumbnails retrieved asynchronously. -->
     <entry name="/services/Thumbnailing/fetchSz" type="integer">50</entry>
-    
+
      <!-- Factor by which the maximum number of thumbnails to fetch
-	 is multiplied by when the connection's speed is Low. 
-	 -->
+    is multiplied by when the connection's speed is Low. 
+    -->
     <entry name="/services/Thumbnailing/fetchLowSpeed" type="double">0.25</entry>
-    
+
     <!-- Factor by which the maximum number of thumbnails to fetch
-	 is multiplied by when the connection's speed is Medium. 
-	 -->
+    is multiplied by when the connection's speed is Medium.
+    -->
     <entry name="/services/Thumbnailing/fetchMediumSpeed" type="double">0.5</entry>
     
     
     <!-- Rendering Engine configuration.
          NOTE: All the following entries for the Rendering Engine will
-     		be removed as soon as we move the engine to the server. 
+         be removed as soon as we move the engine to the server.
     -->
-    <!-- The number of rendering engines to start when viewing a 
+    <!-- The number of rendering engines to start when viewing a
          big image. -->
     <entry name="/services/RE/worker" type="integer">4</entry>
-    
+
     <!-- The time after which the rendering is shut down (not the viewer)
     if not active. The value is in milliseconds. Default = 5mins -->
     <entry name="/services/RE/timeout" type="long">300000</entry>
-    
+
     <!-- Maximum size, in Mb, of the image cache in the Rendering Engine.
           This is a per-image cache which stores planes that have already
           been rendered and are still valid with respect to the current
@@ -155,23 +159,22 @@
     <!-- How many Kb should be fetched at a time when retrieving a stack.
      	   Experimental, affects performance and responsiveness.
          Don't modify this unless you know what you're doing. -->
-    <entry name="/services/RE/stackBlockSz" type="integer">4096</entry> 
-          
+    <entry name="/services/RE/stackBlockSz" type="integer">4096</entry>
+
     <entry name="/services/RE/compressionMedium" type="float">0.85</entry>
     <entry name="/services/RE/compressionLow" type="float">0.50</entry>
     <!-- Debugger configuration.
          This entry specifies the name of the server and 
          and e-mail address to submit comment.
     -->
-<entry name="/services/DEBUGGER/hostnameToken">http://qa.openmicroscopy.org.uk/qa/initial/</entry>
-<entry name="/services/DEBUGGER/hostnameProcessing">http://qa.openmicroscopy.org.uk/qa/upload_processing/</entry>
-<entry name="/services/DEBUGGER/applicationNameBug">4</entry>
-<entry name="/services/DEBUGGER/applicationNameComment">3</entry>
-<entry name="/services/DEBUGGER/postTimeout" type="integer">2000</entry>
-<entry name="/services/DEBUGGER/emailAddress">qa@openmicroscopy.org.uk</entry>
+    <entry name="/services/DEBUGGER/hostnameToken">http://qa.openmicroscopy.org.uk/qa/initial/</entry>
+    <entry name="/services/DEBUGGER/hostnameProcessing">http://qa.openmicroscopy.org.uk/qa/upload_processing/</entry>
+    <entry name="/services/DEBUGGER/applicationNameBug">4</entry>
+    <entry name="/services/DEBUGGER/applicationNameComment">3</entry>
+    <entry name="/services/DEBUGGER/postTimeout" type="integer">2000</entry>
+    <entry name="/services/DEBUGGER/emailAddress">qa@openmicroscopy.org.uk</entry>
   </services>
-  
-  
+
   <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
    * 
    * AGENTS
@@ -185,7 +188,7 @@
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
   <agents>
     <structuredEntry name="/agents" type="agents">
-      
+
       <!-- NOTE FOR DEVELOPERS
            Add an agent tag for each of your Agents.
            The name tag specifies the human-readable name of the Agent.
@@ -221,8 +224,8 @@
         <class>org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent</class>
         <config>metadataViewer.xml</config>
     </agent>
-    	<agent>
-        <name>Data Browser</name> 
+    <agent>
+        <name>Data Browser</name>
         <active>true</active>
         <class>org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent</class>
         <config>dataBrowser.xml</config>
@@ -243,8 +246,7 @@
     </agent>
     </structuredEntry>
   </agents>
-  
-  
+
   <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
    * 
    * RESOURCES
@@ -253,7 +255,7 @@
    * The iconFactories shouldn't be edited by system administrators, they're
    * only useful to developers.  The fonts family, size, and style can instead
    * be tweaked if needed.
-   * 
+   *
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
   <resources>
     <iconFactories>
@@ -262,7 +264,7 @@
            It is turned into an instance of: 
               org.openmicroscopy.shoola.env.config.IconFactory
            This object can then be used to retrieve any image file within
-           the directory pointed by the location tag. 
+           the directory pointed by the location tag
       -->
       <structuredEntry name="/resources/icons/DefaultFactory" type="icons">
         <!-- The location tag specifies the FQN of the package that contains
@@ -274,7 +276,7 @@
       <!-- NOTE FOR DEVELOPERS
            This type of entry can be used in agents' configuration files too.
            It is turned into an instance of java.awt.Font. 
-      --> 
+      -->
       <structuredEntry name="/resources/fonts/Titles" type="font">
         <family>SansSerif</family>
         <size>12</size>
@@ -282,8 +284,7 @@
       </structuredEntry>
     </fonts>
   </resources>
-  
-  
+
   <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
    * 
    * LOOK & FEEL
@@ -304,7 +305,7 @@
        documents accompanying the L&F.
   -->
   <entry name="LookAndFeel">system</entry>
-  
+
   <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
    * Information related to the version of the software, name of the software,
    * etc.
@@ -315,7 +316,7 @@
     <entry name="AboutFile">about.xml</entry>
     <entry name="HelpOnLine">http://help.openmicroscopy.org/</entry>
     <entry name="Forum">http://www.openmicroscopy.org.uk/community/</entry>
-    
+
   <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
    * Information indicating if the binary data are available. This should only
    * be set to false when testing DB upgrade for example.
@@ -327,7 +328,7 @@
    * 1: indicate to display the user's data. Default value
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
    <entry name="DataDisplay" type="integer">1</entry>
-<!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
    * Information indicating the dependencies when the client is used as a plugin
    * e.g. as an ImageJ plugin.
    * The id: 
@@ -336,7 +337,6 @@
    * in the imageJ viewer.
    * 2 identifies Knime. This means that the application is used
    * as an KNIME node
-   
    * The plugin tag has the following children:
    * id: The identifier of the plugin
    * dependencies: value should be separated by a comma e.g. a.jar,b.jar
@@ -346,18 +346,18 @@
    * info:  Where to download the dependencies from.
    * name: Name of the application, Used to display informative message.
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
-<plugins>
-   <structuredEntry name="/plugins" type="plugins">
+  <plugins>
+    <structuredEntry name="/plugins" type="plugins">
     <!-- The identifier of the plugin.-->
-   <plugin>
-   <id>1</id>
-   <!-- The dependencies will be ignored if used as an ImageJ2 or Fiji plugin-->
-   <dependencies>loci_tools.jar</dependencies>
-   <conjunction>or</conjunction>
-   <directory>plugins</directory>
-   <info>http://www.openmicroscopy.org/site/products/bio-formats/downloads</info>
-   <name>imageJ</name>
-   </plugin>
+    <plugin>
+      <id>1</id>
+      <!-- The dependencies will be ignored if used as an ImageJ2 or Fiji plugin-->
+      <dependencies>loci_tools.jar</dependencies>
+      <conjunction>or</conjunction>
+      <directory>plugins</directory>
+      <info>http://www.openmicroscopy.org/site/products/bio-formats/downloads</info>
+      <name>imageJ</name>
+    </plugin>
   </structuredEntry>
-</plugins>
+  </plugins>
 </container>

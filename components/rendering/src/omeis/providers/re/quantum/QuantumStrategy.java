@@ -1,7 +1,7 @@
 /*
  * omeis.providers.re.quantum.QuantumStrategy
  *
- *   Copyright 2006 University of Dundee. All rights reserved.
+ *   Copyright 2006-2013 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -143,7 +143,7 @@ public abstract class QuantumStrategy {
      * Controls if the specified interval is valid depending on the pixel type.
      * 
      * The min value and max value could be out of pixel type range b/c of an
-     * error occurred in stats calculations.
+     * error occurred during the calculations of the statistics.
      * 
      * @param min
      *            The lower bound of the interval.
@@ -154,26 +154,26 @@ public abstract class QuantumStrategy {
         boolean b = false;
         if (min <= max) {
             double range = max - min;
-            if (PlaneFactory.in(type, 
+            if (PlaneFactory.in(type,
             		new String[] { PlaneFactory.INT8, PlaneFactory.UINT8 })) {
                 if (range < 0x100) {
                     b = true;
                 }
             } else if (PlaneFactory
-                    .in(type, new String[] { PlaneFactory.INT16, 
+                    .in(type, new String[] { PlaneFactory.INT16,
                     		PlaneFactory.UINT16 })) {
                 if (range < 0x10000) {
                     b = true;
                 }
             } else if (PlaneFactory
-                    .in(type, new String[] { PlaneFactory.INT32, 
-                    		PlaneFactory.UINT32 })) {
+                    .in(type, new String[] { PlaneFactory.INT32,
+                            PlaneFactory.UINT32 })) {
                 if (range < 0x100000000L) {
                     b = true;
                 }
             } else if (PlaneFactory
-                    .in(type, new String[] { PlaneFactory.FLOAT_TYPE,  
-                    		PlaneFactory.DOUBLE_TYPE })) {
+                    .in(type, new String[] { PlaneFactory.FLOAT_TYPE,
+                            PlaneFactory.DOUBLE_TYPE })) {
                 b = true;
             }
         }
@@ -184,73 +184,72 @@ public abstract class QuantumStrategy {
     }
 
     /** 
-     * Initializes the minimum (resp. value) used to 
-     * build a LUT depending on the pixels type.
+     * Initializes the minimum and maximum used to build a LUT depending on the
+     * pixels type.
      * 
      * @param withRange Pass <code>true</code> to indicate that the range
-     * 			        has to be taken into account, 
-     *                  <code>false</code> otherwise.
+     *                  has to be taken into account, <code>false</code>
+     *                  otherwise.
      */
     private void initPixelsRange(boolean withRange)
     {
-    	double range;
-    	String typeAsString = type.getValue();
-    	if (PlaneFactory.INT8.equals(typeAsString)) {
-    		pixelsTypeMin = -128;
-    		pixelsTypeMax = 127;
-    	} else if (PlaneFactory.UINT8.equals(typeAsString)) {
-    		pixelsTypeMin = 0;
-    		pixelsTypeMax = 255;
-    	} else if (PlaneFactory.INT16.equals(typeAsString)) {
-    		pixelsTypeMin = -32768;
-    		pixelsTypeMax = 32767;
-    	} else if (PlaneFactory.UINT16.equals(typeAsString)) {
-    		pixelsTypeMin = 0;
-    		pixelsTypeMax = 65535;
-    	} else if (PlaneFactory.INT32.equals(typeAsString)) {
-    		if (withRange) {
-    			range = globalMax - globalMin;
-        		if (range < 0x10000) { 
-        			pixelsTypeMin = -32768;
-            		pixelsTypeMax = 32767;
+        double range;
+        String typeAsString = type.getValue();
+        if (PlaneFactory.INT8.equals(typeAsString)) {
+            pixelsTypeMin = -128;
+            pixelsTypeMax = 127;
+        } else if (PlaneFactory.UINT8.equals(typeAsString)) {
+            pixelsTypeMin = 0;
+            pixelsTypeMax = 255;
+        } else if (PlaneFactory.INT16.equals(typeAsString)) {
+            pixelsTypeMin = -32768;
+            pixelsTypeMax = 32767;
+        } else if (PlaneFactory.UINT16.equals(typeAsString)) {
+            pixelsTypeMin = 0;
+            pixelsTypeMax = 65535;
+        } else if (PlaneFactory.INT32.equals(typeAsString)) {
+            if (withRange) {
+                range = globalMax - globalMin;
+                if (range < 0x10000) { 
+                    pixelsTypeMin = -32768;
+                    pixelsTypeMax = 32767;
                 }
-    		} else {
-    			pixelsTypeMin = -32768;
-        		pixelsTypeMax = 32767;
-    		}
-    	} else if (PlaneFactory.UINT32.equals(typeAsString)) {
-    		if (withRange) {
-    			range = globalMax - globalMin;
-        		if (range < 0x10000) { 
-        			pixelsTypeMin = 0;
-            		pixelsTypeMax = 65535;
+            } else {
+                pixelsTypeMin = -32768;
+                pixelsTypeMax = 32767;
+            }
+        } else if (PlaneFactory.UINT32.equals(typeAsString)) {
+            if (withRange) {
+                range = globalMax - globalMin;
+                if (range < 0x10000) { 
+                    pixelsTypeMin = 0;
+                    pixelsTypeMax = 65535;
                 }
-    		} else {
-    			pixelsTypeMin = 0;
-        		pixelsTypeMax = 65535;
-    		}
-    		
-    	} else if (PlaneFactory.FLOAT_TYPE.equals(typeAsString) ||
-    			PlaneFactory.DOUBLE_TYPE.equals(typeAsString)) {
-    		if (withRange) {
-    			range = globalMax - globalMin;
-        		if (range < 0x10000 && globalMin > -1) { 
-        			pixelsTypeMin = 0;
-            		pixelsTypeMax = 65535;
+            } else {
+                pixelsTypeMin = 0;
+                pixelsTypeMax = 65535;
+            }
+
+        } else if (PlaneFactory.FLOAT_TYPE.equals(typeAsString) ||
+                PlaneFactory.DOUBLE_TYPE.equals(typeAsString)) {
+            if (withRange) {
+                range = globalMax - globalMin;
+                if (range < 0x10000 && globalMin > -1) { 
+                    pixelsTypeMin = 0;
+                    pixelsTypeMax = 65535;
                 }
-        		if (range < 0x10000 && globalMin < 0) { 
-        			pixelsTypeMin = -32768;
-            		pixelsTypeMax = 32767;
+                if (range < 0x10000 && globalMin < 0) { 
+                    pixelsTypeMin = -32768;
+                    pixelsTypeMax = 32767;
                 }
-    		} else {
-    			//b/c we don't know if it is signed or not
-    			pixelsTypeMin = 0;
-        		pixelsTypeMax = 32767; 
-    		}
-    		
-    	} 
+            } else {
+                //b/c we don't know if it is signed or not
+                pixelsTypeMin = 0;
+                pixelsTypeMax = 32767;
+            }
+        }
     }
-    
+
     /**
      * Creates a new instance.
      * 
@@ -285,11 +284,13 @@ public abstract class QuantumStrategy {
      */
     public void setExtent(double globalMin, double globalMax)
     {
-    	originalGlobalMin = globalMin;
-    	originalGlobalMax = globalMax;
-    	initPixelsRange(false);
-    	if (Double.isInfinite(globalMax)) globalMax = pixelsTypeMax;
-    	if (Double.isInfinite(globalMin)) globalMin = pixelsTypeMin;
+        originalGlobalMin = globalMin;
+        originalGlobalMax = globalMax;
+        initPixelsRange(false);
+        if (Double.isInfinite(globalMax) || globalMax > pixelsTypeMax)
+            globalMax = pixelsTypeMax;
+        if (Double.isInfinite(globalMin) || globalMin < pixelsTypeMin)
+            globalMin = pixelsTypeMin;
         verifyInterval(globalMin, globalMax);
         this.globalMin = globalMin;
         this.globalMax = globalMax;
@@ -307,17 +308,9 @@ public abstract class QuantumStrategy {
      *            The upper bound of the interval.
      */
     public void setWindow(double start, double end) {
-    	/*
-        if (start < globalMin) {
-            throw new IllegalArgumentException("'" + start
-                    + " less than global minimum: '" + globalMin + "'");
-        }
-        if (globalMax < end) {
-            throw new IllegalArgumentException("'" + end
-                    + " greater than global maximum: '" + globalMax + "'");
-        }
-        */
         verifyInterval(start, end);
+        if (start < pixelsTypeMin) start = pixelsTypeMin;
+        if (end > pixelsTypeMax) end = pixelsTypeMax;
         windowStart = start;
         windowEnd = end;
         onWindowChange();
@@ -359,7 +352,7 @@ public abstract class QuantumStrategy {
     }
 
     /**
-     * Sets the quantum map. 
+     * Sets the quantum map.
      * 
      * @param qMap The value to set.
      */
@@ -420,24 +413,21 @@ public abstract class QuantumStrategy {
      * @return See above.
      */
     public double getOriginalGlobalMin() { return originalGlobalMin; }
-    
+
     /**
      * Returns the original maximum of all minima.
      * 
      * @return See above.
      */
     public double getOriginalGlobalMax() { return originalGlobalMax; }
-    
-    
+
     /**
      * Returns the lower bound of the pixels range or <code>0</code>
      * if the value couldn't be set.
      * 
      * @return See above.
      */
-    public double getPixelsTypeMin() {
-    	return pixelsTypeMin;
-    }
+    public double getPixelsTypeMin() { return pixelsTypeMin; }
     
     /**
      * Returns the upper bound of the pixels range or <code>0</code>
@@ -445,27 +435,21 @@ public abstract class QuantumStrategy {
      * 
      * @return See above.
      */
-    public double getPixelsTypeMax() {
-    	return pixelsTypeMax;
-    }
-    
+    public double getPixelsTypeMax() { return pixelsTypeMax; }
+
     /**
      * Returns the lower bound of the input interval.
      * 
      * @return See above.
      */
-    public double getWindowStart() {
-        return windowStart;
-    }
+    public double getWindowStart() { return windowStart; }
 
     /**
      * Returns the upper bound of the input interval.
      * 
      * @return See above.
      */
-    public double getWindowEnd() {
-        return windowEnd;
-    }
+    public double getWindowEnd() { return windowEnd; }
 
     /**
      * Notifies when the input interval has changed or the mapping strategy has

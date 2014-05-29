@@ -665,6 +665,10 @@ class OmeroImageServiceImpl
 		}
 	}
 
+	/** 
+	 * Implemented as specified by {@link OmeroImageService}.
+	 * @see OmeroImageService#isAlive(SecurityContext)
+	 */
 	public boolean isAlive(SecurityContext ctx) throws DSOutOfServiceException
 	{
 	    return null != gateway.getConnector(ctx, true, true);
@@ -797,26 +801,25 @@ class OmeroImageServiceImpl
 	}
 	
 	/** 
-	 * Implemented as specified by {@link OmeroImageService}. 
+	 * Implemented as specified by {@link OmeroImageService}.
 	 * @see OmeroImageService#reloadRenderingService(SecurityContext, long)
 	 */
 	public RenderingControl reloadRenderingService(SecurityContext ctx,
 		long pixelsID)
 		throws RenderingServiceException
 	{
-		RenderingControl proxy = 
-			PixelsServicesFactory.getRenderingControl(context, 
+		RenderingControl proxy =
+			PixelsServicesFactory.getRenderingControl(context,
 					Long.valueOf(pixelsID), false);
 		if (proxy == null) return null;
 		try {
 			int number = getNumberOfRenderingEngines(ctx, pixelsID);
 			List<RenderingEnginePrx>
 			proxies = new ArrayList<RenderingEnginePrx>(number);
-			gateway.removeREService(ctx, pixelsID);
 			for (int i = 0; i < number; i++) {
 				proxies.add(gateway.createRenderingEngine(ctx, pixelsID));
 			}
-			return PixelsServicesFactory.reloadRenderingControl(context, 
+			return PixelsServicesFactory.reloadRenderingControl(context,
 					pixelsID, proxies);
 		} catch (Exception e) {
 			throw new RenderingServiceException("Cannot restart the " +
@@ -1740,7 +1743,7 @@ class OmeroImageServiceImpl
 	}
 	
 	/** 
-	 * Implemented as specified by {@link OmeroImageService}. 
+	 * Implemented as specified by {@link OmeroImageService}.
 	 * @see OmeroImageService#runScript(SecurityContext, ScriptObject)
 	 */
 	public ScriptCallback runScript(SecurityContext ctx, ScriptObject script)
@@ -1748,6 +1751,9 @@ class OmeroImageServiceImpl
 	{
 		if (script == null) 
 			throw new IllegalArgumentException("No script to run.");
+		if (!script.allRequiredValuesPopulated())
+		    throw new ProcessException("No all required parameters have been" +
+		    		" filled.");
 		return gateway.runScript(ctx, script);
 	}
 	

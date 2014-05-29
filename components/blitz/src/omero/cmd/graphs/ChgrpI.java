@@ -7,6 +7,8 @@
 
 package omero.cmd.graphs;
 
+import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -22,6 +24,7 @@ import ome.services.chgrp.ChgrpStepFactory;
 import ome.services.graphs.GraphException;
 import ome.services.graphs.GraphSpec;
 import ome.services.graphs.GraphState;
+import ome.services.messages.EventLogMessage;
 import ome.system.EventContext;
 import ome.system.ServiceFactory;
 import ome.tools.hibernate.HibernateUtils;
@@ -139,6 +142,7 @@ public class ChgrpI extends Chgrp implements IRequest {
 
     }
 
+    @SuppressWarnings("deprecation")
     public Object step(int i) throws Cancel {
         helper.assertStep(i);
 
@@ -150,6 +154,20 @@ public class ChgrpI extends Chgrp implements IRequest {
                 Session s = helper.getSession();
                 IObject obj = spec.load(s);
                 s.refresh(obj);
+
+                EventLogMessage elm = new EventLogMessage(this, "CHGRP",
+                        obj.getClass(),
+                        Arrays.asList(Long.valueOf(this.id)));
+
+                try {
+                    helper.getServiceFactory()
+                        .getContext().publishMessage(elm);
+                } catch (Throwable t) {
+                    GraphException de = new GraphException("EventLogMessage failed.");
+                    de.initCause(t);
+                    throw de;
+                }
+
                 return null;
             } else {
                 return state.execute(i);

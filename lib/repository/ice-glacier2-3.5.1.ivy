@@ -1,12 +1,12 @@
 <ivy-module version="1.0">
   <info
     organisation="zeroc"
-    module="ice"
+    module="ice-glacier2"
     status="integration"
-    revision="3.5.0"
+    revision="3.5.1"
   />
   <publications>
-    <artifact name="ice" type="jar"/>
+    <artifact name="ice-glacier2" type="jar"/>
   </publications>
 </ivy-module>
 

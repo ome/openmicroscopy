@@ -125,7 +125,7 @@ class MyCLI(CLI):
         else:
             group = "mygroup"  # For use via IAdmin.EventContext
 
-        #props = {"omero.group":group, "omero.port":port}
+        # props = {"omero.group":group, "omero.port":port}
         return_tuple = (MyClient(name, group, {"omero.host": host}), sess, 0,
                         0)
         add_tuple = (host, name, sess, props)

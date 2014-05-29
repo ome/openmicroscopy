@@ -1159,6 +1159,17 @@
                 {% endifnotequal %}
           </div>
 {% endblock roi_buttons %}
+{% block well_fields %}
+  {% if wellFields %}
+          <div class="odd row">
+            <select id="wblitz-wellfields" onchange="viewport.load($(this).val())">
+            {% for f in wellFields %}
+              <option{% ifequal f image.id %} selected="selected"{% endifequal %} value="{{ f }}">Field #{{ forloop.counter }}</option>
+            {% endfor %}
+            </select>
+          </div>
+  {% endif %}
+{% endblock well_fields %}
           {% block current_image_tools %}{% endblock %}
         </div>
             
