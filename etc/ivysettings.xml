@@ -13,14 +13,14 @@
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 -->
 
-  <properties file="${ivy.settings.dir}/local.properties.example"/>
   <properties file="${ivy.settings.dir}/local.properties"/>
+  <properties file="${ivy.settings.dir}/local.properties.example"/>
   <properties file="${ivy.settings.dir}/../target/omero.version"/>
 
   <settings defaultResolver="${omero.resolver}"/>
 
   <credentials host="artifacts.openmicroscopy.org" realm="Artifactory Realm"
-	username="hudson" passwd="${artifactory.password}"/>
+            username="hudson" passwd="${artifactory.password}"/>
 
   <caches default="local" defaultCacheDir="${ivy.settings.dir}/../lib/cache">
       <!-- local is intended for all products built from this repository,
@@ -99,10 +99,8 @@
     </filesystem>
 
     <url name="artifactory-publish">
-        <!-- You can use  m2compatible="true" instead of specifying your own pattern -->
-        <artifact pattern=
-          "http://artifacts.openmicroscopy.org/artifactory/ome.staging/[organization]/[module]/[revision]/[artifact]-[revision].[ext]"/>
-        <ivy pattern="http://artifacts.openmicroscopy.org/artifactory/ome.staging/[organization]/[module]/[revision]/ivy-[revision].xml" />
+        <artifact pattern="http://artifacts.openmicroscopy.org/artifactory/${artifactory.repository}/[organization]/[module]/[revision]/[artifact]-[revision].[ext]"/>
+        <ivy pattern="http://artifacts.openmicroscopy.org/artifactory/${artifactory.repository}/[organization]/[module]/[revision]/ivy-[revision].xml" />
     </url>
 
   </resolvers>
