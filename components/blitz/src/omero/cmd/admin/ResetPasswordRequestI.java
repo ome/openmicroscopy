@@ -1,22 +1,20 @@
+/*
+ *  $Id$
+ *  
+ *   Copyright 2014 University of Dundee. All rights reserved.
+ *   Use is subject to license terms supplied in LICENSE.txt
+ */
+
 package omero.cmd.admin;
 
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.mail.MailException;
 
-import ome.api.IQuery;
 import ome.conditions.ApiUsageException;
-import ome.conditions.AuthenticationException;
-import ome.conditions.SecurityViolation;
 import ome.model.meta.Experimenter;
-import ome.parameters.Parameters;
-import ome.security.AdminAction;
 import ome.security.SecuritySystem;
 import ome.security.auth.PasswordChangeException;
 import ome.security.auth.PasswordProvider;
@@ -30,6 +28,12 @@ import omero.cmd.Response;
 import omero.cmd.ResetPasswordRequest;
 import omero.cmd.ResetPasswordResponse;
 
+/**
+ * Reset password.
+ *
+ * @author Aleksandra Tarkowska, A (dot) Tarkowska at dundee.ac.uk
+ * @since 5.1.0
+ */
 
 public class ResetPasswordRequestI extends ResetPasswordRequest implements
 		IRequest {

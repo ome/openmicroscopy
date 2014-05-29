@@ -1,3 +1,10 @@
+/*
+ *  $Id$
+ *  
+ *   Copyright 2014 University of Dundee. All rights reserved.
+ *   Use is subject to license terms supplied in LICENSE.txt
+ */
+
 package ome.services.util;
 
 import javax.mail.internet.MimeMessage;
@@ -7,6 +14,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.mail.javamail.MimeMessagePreparator;
+
+/**
+ * Mail util
+ *
+ * @author Aleksandra Tarkowska, A (dot) Tarkowska at dundee.ac.uk
+ * @since 5.1.0
+ */
 
 public class MailUtil {
 	

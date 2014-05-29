@@ -36,6 +36,7 @@ import ome.model.meta.Experimenter;
  * @author Aleksandra Tarkowska, A (dot) Tarkowska at dundee.ac.uk
  * @since 5.1.0
  */
+
 public class SendEmailRequestI extends SendEmailRequest implements
 		IRequest {
 
