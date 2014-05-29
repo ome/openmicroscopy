@@ -37,9 +37,8 @@ import javax.swing.event.DocumentListener;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.PlainDocument;
 
-import org.apache.commons.lang.StringUtils;
-
 //Third-party libraries
+import org.apache.commons.lang.StringUtils;
 
 //Application-internal dependencies
 
