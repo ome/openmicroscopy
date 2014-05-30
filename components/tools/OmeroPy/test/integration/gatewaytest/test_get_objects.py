@@ -19,6 +19,9 @@ import omero_ext.uuid as uuid
 import time
 import pytest
 
+from omero.rtypes import wrap
+
+
 class TestDeleteObject (object):
     
     def testDeleteAnnotation(self, author_testimg_generated):
