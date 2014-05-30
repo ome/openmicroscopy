@@ -63,7 +63,7 @@ try
         channelName = ['Channel ' num2str(i)'];
         emissionWave = 550;
         channels(i).getLogicalChannel().setName(rstring(channelName));
-        channels(i).getLogicalChannel().setEmissionWave(rfloat(emissionWave));
+        channels(i).getLogicalChannel().setEmissionWave(rdouble(emissionWave));
     end
     session.getUpdateService().saveArray(toJavaList(channels));
     
