@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.iviewer.view.ImViewerControl
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -1115,7 +1115,7 @@ class ImViewerControl
 	public void componentResized(ComponentEvent e) 
 	{ 
 		//Review that code.
-		if (model.isBigImage()) {
+		if (model.isBigImage() && model.isRendererLoaded() ) {
 			model.loadTiles(null);
 		} else {
 			if (model.isZoomFitToWindow()) 
