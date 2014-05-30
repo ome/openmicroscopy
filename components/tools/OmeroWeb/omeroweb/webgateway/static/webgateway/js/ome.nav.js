@@ -122,6 +122,7 @@ $(document).ready(function()
         })
         .bind("dragstop", function(event, ui) {
             $(this).css("left", "0px");
+            $("#left_panel").trigger('resize');
         });
         
         // Right
