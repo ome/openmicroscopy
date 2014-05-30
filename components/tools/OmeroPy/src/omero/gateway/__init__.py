@@ -2551,7 +2551,7 @@ class _BlitzGateway (object):
         if result is not None:
             return wrapper(self, result)
 
-    def getObjects (self, obj_type, ids=None, params=None, attributes=None):
+    def getObjects (self, obj_type, ids=None, params=None, attributes=None, respect_order=False):
         """
         Retrieve Objects by type E.g. "Image"
         Returns generator of appropriate L{BlitzObjectWrapper} type. E.g. L{ImageWrapper}.
@@ -2564,10 +2564,17 @@ class _BlitzGateway (object):
         @type ids:          List of Long
         @param params:      omero.sys.Parameters, can be used for pagination, filtering etc.
         @param attributes:  Map of key-value pairs to filter results by. Key must be attribute of obj_type. E.g. 'name', 'ns'
+        @param respect_order:   Returned items will be ordered according to the order of ids
         @return:            Generator of L{BlitzObjectWrapper} subclasses
         """
         query, params, wrapper = self.buildQuery(obj_type, ids, params, attributes)
         result = self.getQueryService().findAllByQuery(query, params, self.SERVICE_OPTS)
+        if respect_order and ids is not None:
+            idMap = {}
+            for r in result:
+                idMap[r.id.val] = r
+            ids = unwrap(ids)       # in case we had a list of rlongs
+            result = [idMap.get(i) for i in ids if i in idMap]
         for r in result:
             yield wrapper(self, r)
 

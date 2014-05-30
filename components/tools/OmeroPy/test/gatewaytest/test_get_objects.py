@@ -512,3 +512,35 @@ class TestGetObject (object):
                 client._waitOnCmd(handle)
             finally:
                 handle.close()
+
+    def testOrderById (self, gatewaywrapper):
+        gatewaywrapper.loginAsUser()
+        imageIds = list()
+        for i in range(0,3):
+            iid = gatewaywrapper.createTestImage("%s-testOrderById" % i).getId()
+            imageIds.append(iid)
+
+        images = gatewaywrapper.gateway.getObjects("Image", imageIds, respect_order=True)
+        resultIds = [i.id for i in images]
+        assert imageIds == resultIds, "Images not ordered by ID"
+        imageIds.reverse()
+        reverseImages = gatewaywrapper.gateway.getObjects("Image", imageIds, respect_order=True)
+        reverseIds = [i.id for i in reverseImages]
+        assert imageIds == reverseIds, "Images not ordered by ID"
+        wrappedIds = [wrap(i) for i in imageIds]
+        reverseImages = gatewaywrapper.gateway.getObjects("Image", wrappedIds, respect_order=True)
+        reverseIds = [i.id for i in reverseImages]
+        assert imageIds == reverseIds, "fails when IDs is list of rlongs"
+        invalidIds = imageIds[:]
+        invalidIds[1] = 0
+        reverseImages = gatewaywrapper.gateway.getObjects("Image", invalidIds, respect_order=True)
+        reverseIds = [i.id for i in reverseImages]
+        assert len(imageIds)-1 == len(reverseIds), "One image not found by ID: 0"
+
+        # Delete to clean up
+        handle = gatewaywrapper.gateway.deleteObjects('Image', imageIds, deleteAnns=True)
+        try:
+            gatewaywrapper.gateway._waitOnCmd(handle)
+        finally:
+            handle.close()
+
