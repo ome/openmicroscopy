@@ -390,22 +390,21 @@ OME.truncateNames = (function(){
         // get the panel width, and number of chars that will fit
         var lp_width = $("#left_panel").width() - 20;  // margin
         // Go through all images, truncating names...
-        // When we find matching size for a name length, cache it
-        var lookup = {};
+        // When we find matching size for a name length, save it...
+        var maxChars;
         $('.jstree li[rel^="image"] a').each(function(){
             var $this = $(this),
                 ofs = $this.offset(),
                 name = $this.attr('data-name'),
                 truncatedName,
                 chars = name.length;
-            // if we know a suitable cut-off for name of this length...
-            if (lookup[name.length]) {
-                chars = lookup[name.length];
-                truncatedName = name.slice(-chars);
-                if (chars < name.length) truncatedName = "..." + truncatedName;
+            // if we know maxChars and we're longer than that...
+            if (maxChars && name.length > maxChars) {
+                chars = maxChars;
+                truncatedName = "..." + name.slice(-chars);
                 $this.html(insHtml + truncatedName);
             } else {
-                // Trim the full name until it fits!
+                // if needed, trim the full name until it fits and save maxChars
                 $this.html(insHtml + name);
                 var w = $this.width() + ofs.left;
                 while (w > lp_width && chars > 2) {
@@ -413,9 +412,8 @@ OME.truncateNames = (function(){
                     truncatedName = "..." + name.slice(-chars);
                     $this.html(insHtml + truncatedName);
                     w = $this.width() + ofs.left;
+                    maxChars = chars;
                 }
-                // save for later
-                lookup[name.length] = chars;
             }
         });
     };
