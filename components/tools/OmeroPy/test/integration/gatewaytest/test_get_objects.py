@@ -18,6 +18,9 @@ import omero
 import omero_ext.uuid as uuid
 import time
 
+from omero.rtypes import wrap
+
+
 class TestDeleteObject (object):
     
     def testDeleteAnnotation(self, author_testimg_generated):
