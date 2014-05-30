@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.util.ui.PermissionsPane 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -45,7 +45,6 @@ import javax.swing.JRadioButton;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
-import org.openmicroscopy.shoola.env.ui.AbstractIconManager;
 import org.openmicroscopy.shoola.env.ui.RefWindow;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -79,9 +78,8 @@ public class PermissionsPane
 	private static final String WARNING_TITLE = "Permissions Downgrade";
 		
 	/** Warning message. */
-	private static final String WARNING = "Changing group to Private " +
-			"will remove\nany Annotations etc added under Read-Annotate " +
-			"permissions.";
+	private static final String WARNING = " Changing group to Private may fail if links"
+	        + " have been\n created under Read-Annotate permissions.";
 	
 	/** Indicate that the group has <code>RWRA--</code>. */
     //private JRadioButton		collaborativeGroupBox;
