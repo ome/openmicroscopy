@@ -22,7 +22,7 @@ from omero.rtypes import wrap
 
 
 class TestDeleteObject (object):
-    
+
     def testDeleteAnnotation(self, author_testimg_generated):
         image = author_testimg_generated
         gateway = image._conn
@@ -58,7 +58,7 @@ class TestDeleteObject (object):
         tag.setValue("Test Tag")
         tag = image.linkAnnotation(tag)
 
-        # check the Comment 
+        # check the Comment
         assert gatewaywrapper.gateway.getObject("Annotation", ann.id) != None
         assert gatewaywrapper.gateway.getObject("Annotation", tag.id) != None
 
@@ -129,7 +129,7 @@ class TestFindObject (object):
                                                                      "ns":find_ns})
         for t in find_tag:
             gatewaywrapper.gateway.deleteObjectDirect(t._obj)
-        
+
         # create Tag
         tag = omero.gateway.TagAnnotationWrapper(gatewaywrapper.gateway)
         tag.setNs(find_ns)
@@ -263,12 +263,12 @@ class TestGetObject (object):
         # params limit query by owner
         params = omero.sys.Parameters()
         params.theFilter = omero.sys.Filter()
-        
+
         # should be no Projects owned by root (in the current group)
         params.theFilter.ownerId = omero.rtypes.rlong(0) # owned by 'root'
         pros = gatewaywrapper.gateway.getObjects("Project", None, params)
         assert len(list(pros)) ==  0, "Should be no Projects owned by root"
-        
+
         # filter by current user should get same as above.
         params.theFilter.ownerId = omero.rtypes.rlong(gatewaywrapper.gateway.getEventContext().userId) # owned by 'author'
         pros = list( gatewaywrapper.gateway.getObjects("Project", None, params) )
@@ -284,7 +284,7 @@ class TestGetObject (object):
         # experimenters
         # experimenters = list( gatewaywrapper.gateway.listExperimenters() ) # removed from blitz gateway
         exps = list( gatewaywrapper.gateway.getObjects("Experimenter") )  # all experimenters
-        
+
         #self.assertEqual(len(exps), len(experimenters))  # check unordered lists are the same length & ids
         #eIds = [e.getId() for e in experimenters]
         for e in exps:
@@ -297,7 +297,7 @@ class TestGetObject (object):
         #assert len(allBarOne)+1 ==  len(exps)
         #for e in allBarOne:
         #    assert e.getId() in eIds
-            
+
         # groups
         #groups = list( gatewaywrapper.gateway.listGroups() )     # now removed from blitz gateway.
         gps = list( gatewaywrapper.gateway.getObjects("ExperimenterGroup") )
@@ -307,7 +307,7 @@ class TestGetObject (object):
         #gIds = [g.getId() for g in gps]
         #for g in groups:
         #    assert g.getId() in gIds
-        
+
         # uses gateway.getObjects("ExperimenterGroup") - check this doesn't throw
         colleagues = gatewaywrapper.gateway.listColleagues()
         for e in colleagues:
@@ -329,7 +329,7 @@ class TestGetObject (object):
         findExp = gatewaywrapper.gateway.getObject("Experimenter", attributes={'omeName': gatewaywrapper.USER.name})
         exp = gatewaywrapper.gateway.getObject("Experimenter", findExp.id) # uses iQuery
         assert exp.omeName ==  findExp.omeName
-        
+
         # check groupExperimenterMap loaded for exp
         groupIds = []
         for groupExpMap in exp.copyGroupExperimenterMap():
@@ -337,7 +337,7 @@ class TestGetObject (object):
             groupIds.append(groupExpMap.parent.id.val)
         #for groupExpMap in experimenter.copyGroupExperimenterMap():
         #    assert findExp.id ==  groupExpMap.child.id.val
-            
+
         groupGen = gatewaywrapper.gateway.getObjects("ExperimenterGroup", groupIds)
         #gGen = gatewaywrapper.gateway.getExperimenterGroups(groupIds)  # removed from blitz gateway
         groups = list(groupGen)
@@ -353,7 +353,7 @@ class TestGetObject (object):
         dataset = gatewaywrapper.getTestDataset()
         ns = "omero.gateway.test.get_objects.test_get_annotations_comment"
         ns_tag = "omero.gateway.test.get_objects.test_get_annotations_tag"
-        
+
         # create Comment
         ann = omero.gateway.CommentAnnotationWrapper(gatewaywrapper.gateway)
         ann.setNs(ns)
@@ -365,12 +365,12 @@ class TestGetObject (object):
         tag.setValue("Test Tag")
         tag = obj.linkAnnotation(tag)
         dataset.linkAnnotation(tag)
-        
-        # get the Comment 
+
+        # get the Comment
         annotation = gatewaywrapper.gateway.getObject("CommentAnnotation", ann.id)
         assert "Test Comment" ==  annotation.textValue
         assert ann.OMERO_TYPE ==  annotation.OMERO_TYPE
-        
+
         # test getObject throws exception if more than 1 returned
         threw = True
         try:
@@ -387,20 +387,20 @@ class TestGetObject (object):
         assert anns[0].ns in [ns, ns_tag]
         assert anns[1].ns in [ns, ns_tag]
         assert anns[0].OMERO_TYPE !=  anns[1].OMERO_TYPE
-        
-        
+
+
         # get all available annotation links on the image
         annLinks = gatewaywrapper.gateway.getAnnotationLinks("Image")
         for al in annLinks:
             assert isinstance(al.getAnnotation(), omero.gateway.AnnotationWrapper)
             assert al.parent.__class__ ==  omero.model.ImageI
-            
+
         # get selected links - On image only
         annLinks = gatewaywrapper.gateway.getAnnotationLinks("Image", parent_ids=[obj.getId()])
         for al in annLinks:
             assert obj.getId() ==  al.parent.id.val
             assert al.parent.__class__ == omero.model.ImageI
-            
+
         # get selected links - On image only
         annLinks = gatewaywrapper.gateway.getAnnotationLinks("Image", parent_ids=[obj.getId()])
         for al in annLinks:
@@ -410,7 +410,7 @@ class TestGetObject (object):
         # compare with getObjectsByAnnotations
         annImages = list( gatewaywrapper.gateway.getObjectsByAnnotations('Image', [tag.getId()]) )
         assert obj.getId() in [i.getId() for i in annImages]
-            
+
         # params limit query by owner
         params = omero.sys.Parameters()
         params.theFilter = omero.sys.Filter()
@@ -425,12 +425,12 @@ class TestGetObject (object):
         annLinks = gatewaywrapper.gateway.getAnnotationLinks("Image", parent_ids=[obj.getId()], params=params)
         for al in annLinks:
             assert al.getOwnerOmeName() ==  omeName
-            
+
         # all links on Image with specific ns
         annLinks = gatewaywrapper.gateway.getAnnotationLinks("Image", ns=ns)
         for al in annLinks:
             assert al.getAnnotation().ns ==  ns
-            
+
         # get all uses of the Tag - have to check various types separately
         annList = list( gatewaywrapper.gateway.getAnnotationLinks("Image", ann_ids=[tag.id]) )
         assert len(annList) ==  1
@@ -440,21 +440,21 @@ class TestGetObject (object):
         assert len(annList) ==  1
         for al in annList:
             assert al.getAnnotation().id ==  tag.id
-            
+
         # remove annotations
         obj.removeAnnotations(ns)
         dataset.unlinkAnnotations(ns_tag)  # unlink tag
         obj.removeAnnotations(ns_tag)      # delete tag
-        
-        
+
+
     def testGetImage (self, gatewaywrapper, author_testimg_tiny):
         testImage = author_testimg_tiny
         # This should return image wrapper
         image = gatewaywrapper.gateway.getObject("Image", testImage.id)
         pr = image.getProject()
         ds = image.getDataset()
-        
-        # test a few methods that involve lazy loading, rendering etc. 
+
+        # test a few methods that involve lazy loading, rendering etc.
         assert image.getSizeZ() ==  testImage.getSizeZ()
         assert image.getSizeY() ==  testImage.getSizeY()
         image.isGreyscaleRenderingModel()       # loads rendering engine
@@ -462,8 +462,8 @@ class TestGetObject (object):
         assert image._re.getDefaultZ() ==  testImage._re.getDefaultZ()
         assert image._re.getDefaultT() ==  testImage._re.getDefaultT()
         assert image.getOwnerOmeName ==  testImage.getOwnerOmeName
-        
-        
+
+
     def testGetProject (self, gatewaywrapper):
         gatewaywrapper.loginAsAuthor()
         testProj = gatewaywrapper.getTestProject()
@@ -480,7 +480,7 @@ class TestGetObject (object):
         # This should return image wrapper
         pr = image.getProject()
         ds = image.getDataset()
-        
+
         assert ds ==  image.getParent()
         assert image.listParents()[0] ==  image.getParent()
         assert ds ==  image.getParent(withlinks=True)[0]
@@ -492,22 +492,22 @@ class TestGetObject (object):
     def testListOrphans(self, gatewaywrapper):
         gatewaywrapper.loginAsUser()
         eid = gatewaywrapper.gateway.getUserId()
-        
+
         imageList = list()
         for i in range(0,5):
             imageList.append(gatewaywrapper.createTestImage(imageName=(str(uuid.uuid1()))).getName())
-        
+
         findImages = list(gatewaywrapper.gateway.listOrphans("Image"))
         assert len(findImages) == 5, "Did not find orphaned images"
-        
+
         for p in findImages:
             assert p.getName() in imageList, "All images should have queried name"
-        
+
         params = omero.sys.ParametersI()
         params.page(1, 3)
         findImagesInPage = list(gatewaywrapper.gateway.listOrphans("Image", eid=eid, params=params))
         assert len(findImagesInPage) == 3, "Did not find orphaned images in page"
-        
+
         for p in findImages:
             client = p._conn
             handle = client.deleteObjects('Image', [p.getId()], deleteAnns=True)
