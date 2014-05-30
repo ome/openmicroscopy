@@ -727,6 +727,7 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
     <target name="release-hudson" depends="check-ivy"
             description="Saves to the hudson repository for dependent builds">
         <iterate buildpathref="nobf.buildpath" target="artifactory"/>
+        <iterate buildpathref="OmeroImporter.buildpath" target="artifactory"/>
     </target>
 
     <target name="release-nsis" description="Creates a Windows installer with NSIS">
