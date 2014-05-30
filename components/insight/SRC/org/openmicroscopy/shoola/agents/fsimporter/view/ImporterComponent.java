@@ -143,7 +143,10 @@ class ImporterComponent
 				if (element.isUploadComplete()) {
 					element = view.getElementToStartImportFor();
 					if (element != null && startUpload) {
-						importData(element);
+					    // have to set uploadStarted flag immediately, otherwise it
+					    // might be too late and the file gets imported twice
+					    element.setUploadStarted(true);
+					    importData(element);
 					}
 				}
 			}
