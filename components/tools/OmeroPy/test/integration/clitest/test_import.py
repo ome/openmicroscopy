@@ -307,6 +307,7 @@ class TestImport(CLITest):
         obj = self.get_object(e, 'Image', query=client.sf.getQueryService())
         assert obj.details.owner.id.val == user.id.val
 
+    @pytest.mark.xfail(reason="See ticket #12288")
     def testImportAsRootMultiGroup(self, tmpdir, capfd):
         """Test import using sudo argument"""
 
