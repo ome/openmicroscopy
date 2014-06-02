@@ -173,20 +173,23 @@ public class FullTextIndexer extends SimpleWork {
         int count = 1;
         int perbatch = 0;
         long start = System.currentTimeMillis();
+        Timer.Context timer = null;
         do {
 
-            if (loader instanceof PersistentEventLogLoader) {
-                if (batchTimer.getCount() % reportingLoops == 0) {
-                    float done = getSqlAction().getEventLogPercent(
-                        ((PersistentEventLogLoader) loader).getKey());
-                    completeSlow.update((int) done);
+            if (metrics != null) {
+                if (loader instanceof PersistentEventLogLoader) {
+                    if (batchTimer.getCount() % reportingLoops == 0) {
+                        float done = getSqlAction().getEventLogPercent(
+                            ((PersistentEventLogLoader) loader).getKey());
+                        completeSlow.update((int) done);
+                    }
+                    long lastId = loader.lastEventLog().getId();
+                    long currId = ((PersistentEventLogLoader) loader).getCurrentId();
+                    completeFast.update((int)(100.0*currId/lastId));
                 }
-                long lastId = loader.lastEventLog().getId();
-                long currId = ((PersistentEventLogLoader) loader).getCurrentId();
-                completeFast.update((int)(100.0*currId/lastId));
+                timer = batchTimer.time();
             }
 
-            Timer.Context ctx = batchTimer.time();
             try {
 
                     // ticket:1254 -
@@ -205,7 +208,9 @@ public class FullTextIndexer extends SimpleWork {
                     fullTextSession.setCacheMode(CacheMode.IGNORE);
                     perbatch = doIndexingWithWorldRead(sf, fullTextSession);
             } finally {
-                ctx.stop();
+                if (timer != null) {
+                    timer.stop();
+                }
                 count++;
             }
         } while (doMore(count));
