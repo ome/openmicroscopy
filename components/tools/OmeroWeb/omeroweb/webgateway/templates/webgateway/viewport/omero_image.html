@@ -827,6 +827,17 @@
     syncRDCW();
   }
 
+  function show_image_link() {
+    var link = location.href;
+    if (location.search.length > 0) {
+      link = location.href.split(location.search)[0];   // handle trailing #
+    }
+    link = link.replace(/(.*?\/)\d+(?:\/\d+)?(?:\/)#?$/,'$1');
+    link = link + viewport.getCurrentImgUrlPath() +'?'+ viewport.getQuery(true);
+    $('#curr-link input').attr('value', link);
+    return false;
+  }
+
   function show_tooltip(self, ttid) {
     var pos = $(self).parents('div').offset();
     pos.top += $(self).parents('div').height();
@@ -1159,7 +1170,7 @@
           </div>
           <div class="even row">
                       <a href="#" onmouseover="this.href=viewport.getUrl('img_detail')"
-               onclick="$('#curr-link input').attr('value', location.href.substring(0,location.href.length - location.search.length).replace(/(.*?\/)\d+(?:\/\d+)?(?:\/)?$/,'$1') + viewport.getCurrentImgUrlPath() +'?'+ viewport.getQuery(true));
+                      onclick="show_image_link();
                         show_tooltip(this, 'curr-link'); return false;">
                 Image Link
             </a><br />
@@ -1168,8 +1179,8 @@
           <div id="roi_controls">
                 <h1>ROI Count: {{ roiCount }}</h1>
                 {% ifnotequal roiCount 0 %}
-                    <a href="#" onclick="show_rois()">Show ROIs</a> |
-                    <a href="#" onclick="hide_rois()">Hide</a>
+                    <a href="#" onclick="show_rois(); return false;">Show ROIs</a> |
+                    <a href="#" onclick="hide_rois(); return false;">Hide</a>
                 {% endifnotequal %}
           </div>
 {% endblock roi_buttons %}
