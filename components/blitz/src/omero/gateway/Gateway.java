@@ -41,6 +41,7 @@ import org.apache.commons.lang.StringUtils;
 import java.util.Set;
 
 import ome.formats.OMEROMetadataStoreClient;
+import ome.formats.importer.IObserver;
 import ome.util.checksum.ChecksumProvider;
 import ome.util.checksum.ChecksumProviderFactory;
 import ome.util.checksum.ChecksumProviderFactoryImpl;
@@ -118,6 +119,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 
 import pojos.DataObject;
+import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.FilesetData;
 import pojos.GroupData;
@@ -1281,6 +1283,11 @@ public class Gateway extends ConnectionManager {
             } finally {
                 if (store != null) c.close(store);
             }
+    }
+    
+    public void importFile(SecurityContext ctx, File file, DatasetData ds, IObserver observer, ExperimenterData user) throws ImportException, DSAccessException, DSOutOfServiceException {
+        SimpleImporter importer = new SimpleImporter(this);
+        importer.importFile(ctx, file, ds, observer, user);
     }
     
     /**

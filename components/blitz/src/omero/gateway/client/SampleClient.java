@@ -26,12 +26,17 @@ import java.io.InputStreamReader;
 import java.util.Iterator;
 import java.util.Set;
 
+import ome.formats.importer.IObservable;
+import ome.formats.importer.IObserver;
+import ome.formats.importer.ImportEvent;
 import omero.gateway.Gateway;
 import omero.gateway.exception.DSAccessException;
 import omero.gateway.exception.DSOutOfServiceException;
+import omero.gateway.exception.ImportException;
 import omero.gateway.model.ExportFormat;
 import omero.gateway.model.SecurityContext;
 import omero.gateway.model.UserCredentials;
+import omero.model.Dataset;
 import omero.model.IObject;
 import omero.model.Image;
 import omero.sys.ParametersI;
@@ -52,6 +57,8 @@ public class SampleClient {
     final static String DEFAULT_HOST = "localhost";
 
     final static int DEFAULT_PORT = 4064;
+    
+    final static float COMPRESSION = 0.8f;
 
     public static void main(String[] args) {
 
@@ -60,7 +67,7 @@ public class SampleClient {
         Gateway gw = new Gateway();
 
         try {
-            ExperimenterData user = gw.connect(uc, "SampleClient", .8f);
+            ExperimenterData user = gw.connect(uc, "SampleClient", COMPRESSION);
 
             String serverVersion = gw.getServerVersion();
             System.out.println("Connection established, Server version: "
@@ -86,21 +93,35 @@ public class SampleClient {
             Set data = gw.loadContainerHierarchy(ctx, DatasetData.class, null,
                     param);
             System.out.println("Has access to " + data.size() + " datasets:");
+            listContainerHierarchy(data);
 
-            Iterator dsIt = data.iterator();
-            while (dsIt.hasNext()) {
-                DatasetData ds = (DatasetData) dsIt.next();
-                System.out.println(" * " + ds.getName());
-                Set images = ds.getImages();
-                Iterator imgIt = images.iterator();
-                while (imgIt.hasNext()) {
-                    ImageData img = (ImageData) imgIt.next();
-                    System.out.println("\t - " + img.getName() + " (id="
-                            + img.getId() + ")");
+            String tmp = readLine("Import image file, enter full path: ");
+            File file = new File(tmp);
+
+            tmp = readLine("Import into Dataset, enter ID: ");
+            long dsId = Long.parseLong(tmp);
+            
+            IObject obj = gw.findIObject(ctx, Dataset.class.getName(), dsId);
+            DatasetData ds = (DatasetData) PojoMapper.asDataObject(obj);
+            
+            ImportObserver obs = new ImportObserver();
+            gw.importFile(ctx, file, ds, obs, user);
+            
+            System.out.println("Waiting for import to complete...");
+            while(!obs.isDone()) {
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
                 }
             }
-
-            String tmp = readLine("Export image ID: ");
+            System.out.println("...ok.");
+            
+            data = gw.loadContainerHierarchy(ctx, DatasetData.class, null,
+                    param);
+            System.out.println("Datasets reloaded:");
+            listContainerHierarchy(data);
+            
+            tmp = readLine("Export image, enter ID: ");
             long imgID;
             try {
                 imgID = Long.parseLong(tmp);
@@ -109,9 +130,8 @@ public class SampleClient {
                 return;
             }
 
-            IObject obj = gw.findIObject(ctx, Image.class.getName(), imgID);
+            obj = gw.findIObject(ctx, Image.class.getName(), imgID);
             ImageData img = (ImageData) PojoMapper.asDataObject(obj);
-            System.out.println("Received image " + img.getName());
 
             File f = new File(System.getProperty("user.home") + "/"
                     + img.getName() + ".ome.tiff");
@@ -125,12 +145,35 @@ public class SampleClient {
         } catch (DSAccessException e) {
             System.err.println("Connection failed!");
             e.printStackTrace();
+        } catch (ImportException e1) {
+            System.err.println("Import failed!");
+            e1.printStackTrace();
         } finally {
             gw.disconnect();
             System.out.println("Connection closed.");
         }
     }
 
+    /**
+     * Just iterates through the datasets and prints the names/ids 
+     * on System.out
+     * @param data
+     */
+    private static void listContainerHierarchy(Set data) {
+        Iterator dsIt = data.iterator();
+        while (dsIt.hasNext()) {
+            DatasetData ds = (DatasetData) dsIt.next();
+            System.out.println(" * " + ds.getName()+" ("+ds.getId()+")");
+            Set images = ds.getImages();
+            Iterator imgIt = images.iterator();
+            while (imgIt.hasNext()) {
+                ImageData img = (ImageData) imgIt.next();
+                System.out.println("\t - " + img.getName() + " (id="
+                        + img.getId() + ")");
+            }
+        }
+    }
+    
     /**
      * Asks the user to type in his credentials
      * 
@@ -198,4 +241,22 @@ public class SampleClient {
         return readLine(format, args).toCharArray();
     }
 
+    /**
+     * A simple IObserver implementation checking for IMPORT_DONE event 
+     */
+    static class ImportObserver implements IObserver {
+
+        boolean done = false;
+        
+        @Override
+        public void update(IObservable observable, ImportEvent event) {
+            if(event instanceof ImportEvent.IMPORT_DONE) {
+                done = true;
+            }
+        }
+        
+        boolean isDone() {
+            return done;
+        }
+    }
 }

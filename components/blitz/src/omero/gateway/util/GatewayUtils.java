@@ -21,8 +21,12 @@ package omero.gateway.util;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.sql.Timestamp;
+import java.text.DateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import omero.model.Annotation;
 import omero.model.BooleanAnnotation;
@@ -158,7 +162,44 @@ public abstract class GatewayUtils {
         WILD_CARDS.add("~");
     }
     
+    /** The pattern to format date. */
+    public static final String                          WDMY_FORMAT = 
+                                                                                        "E dd MMM yyyy, HH:mm:ss";
 
+    /** The pattern to format date. */
+    public static final String                          D_M_Y_FORMAT = "dd-MM-yyyy";
+
+    /**
+     * Formats as a <code>String</code> the specified time.
+     * format: E dd MMM yyyy, HH:mm:ss
+     * 
+     * @param time The timestamp to format.
+     * @param pattern The format pattern
+     * @return Returns the stringified version of the passed timestamp.
+     */
+    public static String formatDate(Timestamp time, String pattern) 
+    {
+        if (time == null) time = getDefaultTimestamp();
+        if (pattern == null || pattern.length() == 0) 
+                pattern = WDMY_FORMAT;
+        DateFormat df;
+        if (WDMY_FORMAT.equals(pattern))
+                df = DateFormat.getDateTimeInstance(
+                                DateFormat.FULL, DateFormat.LONG, Locale.getDefault());
+        else df = 
+                DateFormat.getDateInstance(DateFormat.SHORT, Locale.getDefault());
+        return df.format(time);
+    }
+    
+    /**
+     * Creates a default timestamp.
+     * 
+     * @return See above.
+     */
+    public static Timestamp getDefaultTimestamp()
+    {
+        return new Timestamp(new Date().getTime());
+    }
     
     
     /**
