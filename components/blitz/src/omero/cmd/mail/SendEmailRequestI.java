@@ -85,14 +85,19 @@ public class SendEmailRequestI extends SendEmailRequest implements
 		this.recipients = parseRecipients();
 		this.ccrecipients = parseCCRecipients();
 		this.bccrecipients = parseBccRecipients();
+		
 		if (rsp.invalidusers.isEmpty() && this.recipients.length < 1)
 			throw helper.cancel(new ERR(), null, "no-recipiest");
-
-		this.helper.setSteps(this.recipients.length);
+		
+		this.helper.setSteps(this.recipients.length+1);
 	}
 
 	public Object step(int step) throws Cancel {
 		helper.assertStep(step);
+
+		// early exist
+		if (this.recipients.length < 1)
+			return null;
 		
 		try {
 			mailUtil.sendEmail(this.sender, this.recipients[step], 
