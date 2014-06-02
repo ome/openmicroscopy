@@ -340,6 +340,18 @@ public interface SqlAction {
 
     long selectCurrentEventLog(String key);
 
+    /**
+     * Returns the percent (e.g. 0-100%) as calculated by the number of rows
+     * represented as completed by the configuration table row of this key
+     * divided by the total number of rows in the event log. Since this
+     * method executes 2 counts over the event log table, it can take a
+     * significant amount of time.
+     *
+     * @param key
+     * @return
+     */
+    float getEventLogPercent(String key);
+
     void setCurrentEventLog(long id, String key);
 
     void delCurrentEventLog(String key);
@@ -865,6 +877,12 @@ public interface SqlAction {
             String value = _jdbc().queryForObject(
                 _lookup("log_loader_query"), String.class, key); //$NON-NLS-1$
             return Long.valueOf(value);
+        }
+
+        public float getEventLogPercent(String key) {
+            Float value = _jdbc().queryForObject(
+                _lookup("log_loader_percent"), Float.class, key); //$NON-NLS-1$
+            return value;
         }
 
         public void setCurrentEventLog(long id, String key) {
