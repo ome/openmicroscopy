@@ -2872,7 +2872,7 @@ class ImViewerModel
 	{
 		loaders.remove(BIRD_EYE_VIEW);
 		getBrowser().setBirdEyeView(image);
-		if(scaled) {
+		if (scaled) {
 		    fireBirdEyeViewRetrieval(false);
 		}
 	}
