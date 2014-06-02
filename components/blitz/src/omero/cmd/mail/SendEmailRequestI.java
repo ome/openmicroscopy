@@ -48,9 +48,9 @@ public class SendEmailRequestI extends SendEmailRequest implements
 	private final SendEmailResponse rsp = new SendEmailResponse();
 
 	private String sender = null;
-	private String [] recipients = null;
-	private String [] ccrecipients = null;
-	private String [] bccrecipients = null;
+	private ArrayList<String> recipients = new ArrayList<String>();
+	private ArrayList<String> ccrecipients = new ArrayList<String>();
+	private ArrayList<String> bccrecipients = new ArrayList<String>();
 	
 	private final MailUtil mailUtil;
     
@@ -86,21 +86,25 @@ public class SendEmailRequestI extends SendEmailRequest implements
 		this.ccrecipients = parseCCRecipients();
 		this.bccrecipients = parseBccRecipients();
 		
-		if (rsp.invalidusers.isEmpty() && this.recipients.length < 1)
+		if (rsp.invalidusers.isEmpty() && this.recipients.isEmpty())
 			throw helper.cancel(new ERR(), null, "no-recipiest");
 		
-		this.helper.setSteps(this.recipients.length+1);
+		if (this.recipients.isEmpty()) this.helper.setSteps(1);
+		else this.helper.setSteps(this.recipients.size());
 	}
 
 	public Object step(int step) throws Cancel {
 		helper.assertStep(step);
 
 		// early exist
-		if (this.recipients.length < 1)
+		try {
+			this.recipients.get(step);
+		} catch ( IndexOutOfBoundsException e ) {
 			return null;
+		}
 		
 		try {
-			mailUtil.sendEmail(this.sender, this.recipients[step], 
+			mailUtil.sendEmail(this.sender, this.recipients.get(step), 
 					subject, body, html, this.ccrecipients, this.bccrecipients);
 		} catch (MailException me) {
 			log.error(me.getMessage());
@@ -126,7 +130,7 @@ public class SendEmailRequestI extends SendEmailRequest implements
 		return helper.getResponse();
 	}
 	
-	private String [] parseRecipients(){
+	private ArrayList<String> parseRecipients(){
 		
 		/* Depends on which parameters are set variants of the following query
 		 * should be executed:
@@ -134,11 +138,12 @@ public class SendEmailRequestI extends SendEmailRequest implements
 		 * select distinct e from Experimenter as e 
 		 * join fetch e.groupExperimenterMap as map 
 		 * join fetch map.parent g 
-		 * where e.email is not null	// not query empty email
-		 * and g.id = :active 			// active users by default, all = false
-		 * and e.id in 					// groupIds
+		 * where 1=1				// hack to avoid plenty of if statement 
+		 * 								in conditions below
+		 * and g.id = :active 		// active users by default, all = false
+		 * and e.id in 				// groupIds
 		 * 		(select m.child from GroupExperimenterMap m where m.parent.id in (:gids) )
-		 * or e.id in (:eids)			// userIds
+		 * or e.id in (:eids)		// userIds
 		 * 
 		 * email must be at least 5 carachters a@b.xx
 		 */
@@ -153,7 +158,7 @@ public class SendEmailRequestI extends SendEmailRequest implements
 		sql.append("select distinct e from Experimenter e "
 				+ "left outer join fetch e.groupExperimenterMap m "
 				+ "left outer join fetch m.parent g "
-				+ "where 1=1 "); //hack to avoid many if statement in the conditions below
+				+ "where 1=1 "); 
 
 		if (!inactive) {
 			sql.append(" and g.id = :active ");
@@ -188,27 +193,27 @@ public class SendEmailRequestI extends SendEmailRequest implements
 				rsp.invalidusers.add(e.getOmeName());
 			}
 		}
-		return recipients.toArray(new String[recipients.size()]);
+		return new ArrayList<String>(recipients);
 	}
 	
-	private String [] parseCCRecipients(){
+	private ArrayList<String> parseCCRecipients(){
 		Set<String> ccrecipients = new HashSet<String>();
 		for (final String e : cc) {
 			if (e.length() > 5) {
 				ccrecipients.add(e);
 			}
 		}
-		return ccrecipients.toArray(new String[ccrecipients.size()]);
+		return new ArrayList<String>(ccrecipients);
 	}
 	
-	private String [] parseBccRecipients(){
+	private ArrayList<String> parseBccRecipients(){
 		Set<String> bccrecipients = new HashSet<String>();
 		for (final String e : bcc) {
 			if (e.length() > 5) {
 				bccrecipients.add(e);
 			}
 		}
-		return bccrecipients.toArray(new String[bccrecipients.size()]);
+		return new ArrayList<String>(bccrecipients);
 	}
 
 }

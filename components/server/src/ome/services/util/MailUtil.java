@@ -7,6 +7,8 @@
 
 package ome.services.util;
 
+import java.util.ArrayList;
+
 import javax.mail.internet.MimeMessage;
 
 import org.slf4j.Logger;
@@ -42,7 +44,7 @@ public class MailUtil {
 
 	public void sendEmail(final String from, final String to,
 			final String topic, final String body, final boolean html,
-			final String [] ccrecipients, final String [] bccrecipients) {
+			final ArrayList<String> ccrecipients, final ArrayList<String> bccrecipients) {
 		
 		MimeMessagePreparator preparator = new MimeMessagePreparator() {
 			public void prepare(MimeMessage mimeMessage) throws Exception {
@@ -51,8 +53,8 @@ public class MailUtil {
 				message.setFrom(from);
 				message.setSubject(topic);
 				message.setTo(to);
-				if (null != ccrecipients && ccrecipients.length > 0) message.setCc(ccrecipients);
-				if (null != bccrecipients && bccrecipients.length > 0) message.setCc(bccrecipients);
+				if (null != ccrecipients && !ccrecipients.isEmpty()) message.setCc(ccrecipients.toArray(new String[ccrecipients.size()]));
+				if (null != bccrecipients && !bccrecipients.isEmpty()) message.setCc(bccrecipients.toArray(new String[bccrecipients.size()]));
 				message.setText(body, html);
 			}
 
