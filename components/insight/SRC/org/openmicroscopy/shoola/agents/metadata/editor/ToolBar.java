@@ -473,7 +473,6 @@ class ToolBar
 	    	viewButton.addActionListener(controller);
 		}
 		linkButton = new JButton(icons.getIcon(IconManager.LINK));
-		linkButton.setEnabled(false);
 		linkButton.addMouseListener(new MouseAdapter() {
 		    
                     /**
@@ -550,6 +549,9 @@ class ToolBar
      * @param b <code>true</code> enables the button; disables the button otherwise
      */
     public void enableFilePathButton(boolean b) {
+        if(!model.isSingleMode() || model.getImage() == null) {
+            b = false;
+        }
         linkButton.setEnabled(b);
     }
     
@@ -745,6 +747,9 @@ class ToolBar
 			scriptsButton.setEnabled(false);
 			return;
 		}
+                if (!(ref instanceof ImageData)) {
+                    linkButton.setEnabled(false);
+                }
 		viewButton.setEnabled(false);
     	exportAsOmeTiffButton.setEnabled(false);
     	if (pathButton != null) pathButton.setEnabled(false);
