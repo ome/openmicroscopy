@@ -473,8 +473,9 @@ class ToolBar
 	    	viewButton.addActionListener(controller);
 		}
 		linkButton = new JButton(icons.getIcon(IconManager.LINK));
+		linkButton.setEnabled(false);
 		linkButton.addMouseListener(new MouseAdapter() {
-			
+		    
                     /**
                      * Launches the dialog when the user releases the mouse.
                      * MouseAdapter#mouseReleased(MouseEvent)
