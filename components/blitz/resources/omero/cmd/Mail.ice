@@ -13,10 +13,14 @@
 #include <omero/System.ice>
 #include <omero/cmd/API.ice>
 
+/*
+ * Allows to send email to omero users
+ */
+
 module omero {
 
     module cmd {
-		
+ 
 		class SendEmailRequest extends Request {
 			string subject;
 			string body;
@@ -29,6 +33,7 @@ module omero {
 		};
 
 		class SendEmailResponse extends Response {
+			omero::api::StringSet invalidusers;
         };
         
     };

@@ -7,6 +7,7 @@
 
 package omero.cmd.mail;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -84,9 +85,9 @@ public class SendEmailRequestI extends SendEmailRequest implements
 		this.recipients = parseRecipients();
 		this.ccrecipients = parseCCRecipients();
 		this.bccrecipients = parseBccRecipients();
-		if (this.recipients.length < 1)
+		if (rsp.invalidusers.isEmpty() && this.recipients.length < 1)
 			throw helper.cancel(new ERR(), null, "no-recipiest");
-		
+
 		this.helper.setSteps(this.recipients.length);
 	}
 
@@ -122,7 +123,7 @@ public class SendEmailRequestI extends SendEmailRequest implements
 	
 	private String [] parseRecipients(){
 		
-		/*Depends on which parameters are set variants of the following query
+		/* Depends on which parameters are set variants of the following query
 		 * should be executed:
 		 * 
 		 * select distinct e from Experimenter as e 
@@ -136,7 +137,10 @@ public class SendEmailRequestI extends SendEmailRequest implements
 		 * 
 		 * email must be at least 5 carachters a@b.xx
 		 */
-	       
+	    
+		rsp.invalidusers = new ArrayList<String>();
+		
+		
 	    Parameters p = new Parameters();
 
 		StringBuffer sql = new StringBuffer();
@@ -144,7 +148,7 @@ public class SendEmailRequestI extends SendEmailRequest implements
 		sql.append("select distinct e from Experimenter e "
 				+ "left outer join fetch e.groupExperimenterMap m "
 				+ "left outer join fetch m.parent g "
-				+ "where e.email is not null ");
+				+ "where 1=1 "); //hack to avoid many if statement in the conditions below
 
 		if (!inactive) {
 			sql.append(" and g.id = :active ");
@@ -175,6 +179,8 @@ public class SendEmailRequestI extends SendEmailRequest implements
 		for (final Experimenter e : exps) {
 			if (e.getEmail() != null && e.getEmail().length() > 5) {
 				recipients.add(e.getEmail());
+			} else {
+				rsp.invalidusers.add(e.getOmeName());
 			}
 		}
 		return recipients.toArray(new String[recipients.size()]);
