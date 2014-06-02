@@ -25,6 +25,8 @@ import ome.model.meta.EventLog;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.security.basic.CurrentDetails;
+import ome.services.metrics.Metrics;
+import ome.services.metrics.Timer;
 import ome.services.sessions.SessionManager;
 import ome.services.util.ExecutionThread;
 import ome.services.util.Executor;
@@ -67,6 +69,10 @@ public class PixelDataThread extends ExecutionThread implements ApplicationListe
      */
     private final boolean performProcessing;
 
+    private Metrics metrics = null;
+
+    private Timer batchTimer = null;
+
     /**
      * Uses default {@link Principal} for processing
      */
@@ -108,6 +114,11 @@ public class PixelDataThread extends ExecutionThread implements ApplicationListe
         this.numThreads = numThreads;
     }
 
+    public void setMetrics(Metrics metrics) {
+        this.metrics = metrics;
+        batchTimer = this.metrics.timer(this, "batch");
+    }
+
     /**
      * Called by Spring on creation. Currently a no-op.
      */
@@ -130,7 +141,7 @@ public class PixelDataThread extends ExecutionThread implements ApplicationListe
 
             // Single-threaded simplification
             if (numThreads == 1) {
-                executor.execute(getPrincipal(), work);
+                go();
                 return;
             }
 
@@ -143,7 +154,7 @@ public class PixelDataThread extends ExecutionThread implements ApplicationListe
                     public Object call()
                         throws Exception
                     {
-                        return executor.execute(getPrincipal(), work);
+                        return go();
                     }
                 });
             }
@@ -161,6 +172,20 @@ public class PixelDataThread extends ExecutionThread implements ApplicationListe
                 log.error("Interrupted exception during multiple thread handling." +
 				        "Other threads may not have been successfully completed.",
                         ie); // slf4j migration: fatal() to error()
+            }
+        }
+    }
+
+    private Object go() {
+        Timer.Context timer = null;
+        if (batchTimer != null) {
+            timer = batchTimer.time();
+        }
+        try {
+             return executor.execute(getPrincipal(), work);
+        } finally {
+            if (timer != null) {
+                timer.stop();
             }
         }
     }
