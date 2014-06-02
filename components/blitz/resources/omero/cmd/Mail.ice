@@ -33,7 +33,7 @@ module omero {
 		};
 
 		class SendEmailResponse extends Response {
-			omero::api::StringSet invalidusers;
+			omero::api::LongList invalidusers;
         };
         
     };

@@ -148,7 +148,7 @@ public class SendEmailRequestI extends SendEmailRequest implements
 		 * email must be at least 5 carachters a@b.xx
 		 */
 	    
-		rsp.invalidusers = new ArrayList<String>();
+		rsp.invalidusers = new ArrayList<Long>();
 		
 		
 	    Parameters p = new Parameters();
@@ -190,7 +190,7 @@ public class SendEmailRequestI extends SendEmailRequest implements
 			if (e.getEmail() != null && e.getEmail().length() > 5) {
 				recipients.add(e.getEmail());
 			} else {
-				rsp.invalidusers.add(e.getOmeName());
+				rsp.invalidusers.add(e.getId());
 			}
 		}
 		return new ArrayList<String>(recipients);
