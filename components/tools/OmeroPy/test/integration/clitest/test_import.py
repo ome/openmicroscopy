@@ -308,6 +308,29 @@ class TestImport(CLITest):
         assert obj.details.owner.id.val == user.id.val
 
     @pytest.mark.xfail(reason="See ticket #12288")
+    def testImportMultiGroup(self, tmpdir, capfd):
+        """Test import using sudo argument"""
+
+        # Create new client/user belonging in 2 groups and fake file
+        group1 = self.new_group()
+        user = self.new_user(group=group1)
+        group2 = self.new_group([user])
+        fakefile = tmpdir.join("test.fake")
+        fakefile.write('')
+
+        # Create argument list using sudo
+        self.args += ["-g", group2.name.val]
+        self.args += [str(fakefile)]
+
+        # Invoke CLI import command and retrieve stdout/stderr
+        self.cli.invoke(self.args, strict=True)
+        o, e = capfd.readouterr()
+        client = self.new_client(user=user, group=group2)
+        obj = self.get_object(e, 'Image', query=client.sf.getQueryService())
+        assert obj.details.owner.id.val == user.id.val
+        assert obj.details.group.id.val == group2.id.val
+
+    @pytest.mark.xfail(reason="See ticket #12288")
     def testImportAsRootMultiGroup(self, tmpdir, capfd):
         """Test import using sudo argument"""
 
