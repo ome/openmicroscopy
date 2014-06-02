@@ -597,15 +597,6 @@ def load_searching(request, form=None, conn=None, **kwargs):
         # simply display the search home page.
         template = "webclient/search/search.html"
 
-    # batch query for searching wells in plates
-    batch_query = request.REQUEST.get('batch_query')
-    if batch_query is not None:
-        delimiter = request.REQUEST.get('delimiter')
-        delimiter = delimiter.decode("string_escape")
-        batch_query = batch_query.split("\n")
-        batch_query = [query.split(delimiter) for query in batch_query]
-        template = "webclient/search/search_details.html"
-        manager.batch_search(batch_query)
 
     context = {'manager':manager, 'foundById': foundById}
     context['template'] = template

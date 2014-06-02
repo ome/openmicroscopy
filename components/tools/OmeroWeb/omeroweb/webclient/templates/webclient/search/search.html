@@ -127,28 +127,6 @@
             {% endif %}
 
 
-                $("#batch_search_button").click(function() {
-                    var batch_query = $("textarea[name='batch_query']").val();
-                    if (batch_query == "") {
-                        alert("No query entered");
-                        return false;
-                    }
-                    var delimiter = $("input[name='delimiter']:checked").val();
-                    var lines = batch_query.split('\n');
-                    var regex = new RegExp("\\w+D\\d+D\\d+".replace(/D/g, delimiter));
-                    for (var i=0; i<lines.length; i++) {
-                        if (!regex.test(lines[i])) {
-                            alert("Format error at line " + i + ": \n\"" + lines[i] + "\"\n\nDid you select the correct delimiter?");
-                            return false;
-                        }
-                    }
-                    var data = $("#batch_searching_form").serialize();
-                    $("div#content_details").html('<p>{% trans "Loading data... please wait" %} <img src ="{% static "webgateway/img/spinner.gif" %}"/></p>');
-                    $("div#content_details").load('{% url 'load_searching' %}', data);
-                    $("#filtersearch").show();
-                    OME.table_selection_changed()
-                    return false;
-                });
                 OME.table_selection_changed();     // clear selection (hides acquisition & preview tabs)
         })
     </script>
@@ -214,57 +192,8 @@
 			        <input id="search_button" type="submit" value="Search" />
 					 
 	    </form>    
-		
-		
-		
-		
-		
-		
-		
-	    </p>
-	    <div>
-	        <h2>{% trans "Batch searching" %}</h2>
-			
-			{% comment %}
-	        <p>{% trans "The batch searching feature enables you to search for multiple images stored on the server." %}</p>
-			{% endcomment %}
-	    </div>
-	    <p>
-			
-	    <form id="batch_searching_form" class="standard_form">
-	        
-			<label for="batch_query">{% trans "Search for" %}</label>
-            <textarea name="batch_query" cols="30" rows="5" wrap="hard"></textarea>
-            <span class="searching_info"
-                title="Batch search - <small>Each line of the textbox should consist of exactly 3 elements(/columns).
-                    The elements should contain the following information in order: plate name, row, column.
-                    The columns are separated by a delimiter which can be selected below the textbox.<br/><br/>
-+</small><b>Example search:</b><small><pre>
-+Foo    0    0
-+Bar    2    3
-+</pre> The above searches for images in two wells.
 
-                    The first well is located in row 0, column 0 (=well A01) of a plate with name Foo.
-                    The second well is located in row 2, column 3 (=well C04) of a plate with name Bar.</small>">
-			    <img src="{% static "webgateway/img/help16.png" %}" />
-			</span>
-					
-					
-					
-	        {% trans "Delimiter:" %}
-	        <input type="radio" name="delimiter" value="," />
-	        {% trans "comma (,)"  %}
-	        <input type="radio" name="delimiter" value=";" />
-	        {% trans "semi-colon (;)" %}
-	        <input type="radio" name="delimiter" value="\t" checked="yes" />
-	        {% trans "horizontal tab" %}
-	        <input type="radio" name="delimiter" value="|" />
-	        {% trans "vertical bar (|)" %}
-	        <br/>
-			
-			<input id="batch_search_button" type="submit" value="Search"/>
-	    </form>
-	</div>
+    </div>
 </div>
 
 {% endblock %}
