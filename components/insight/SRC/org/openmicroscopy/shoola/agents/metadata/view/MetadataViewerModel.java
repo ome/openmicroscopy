@@ -931,6 +931,11 @@ class MetadataViewerModel
 		else if (refObject instanceof WellSampleData) 
 			img = ((WellSampleData) refObject).getImage();
 		if (img == null) return;
+                Renderer rnd = getEditor().getRenderer();
+                if (rnd == null) {
+                    // nothing to do if the renderer has not been set yet
+                    return;
+                }
 		getEditor().getRenderer().loadRndSettings(false, null);
 		loaderID++;
 		ctx = retrieveContext(img);
