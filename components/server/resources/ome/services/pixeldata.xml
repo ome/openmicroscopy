@@ -92,6 +92,9 @@
   </bean>
 
   <!-- Workaround for session mgr dependency#5216-->
-  <bean id="dbPatchCheck" class="java.lang.Object"/>
+ 
+ <bean id="dbPatchCheck" class="java.lang.Object"/>
+
+ <bean id="metrics" class="ome.services.metrics.Metrics"/>
 
 </beans>
