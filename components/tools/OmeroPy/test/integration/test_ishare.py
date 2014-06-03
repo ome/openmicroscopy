@@ -13,12 +13,7 @@ import time
 import test.integration.library as lib
 import pytest
 import omero
-from omero_model_PixelsI import PixelsI
 from omero_model_ImageI import ImageI
-from omero_model_DatasetI import DatasetI
-from omero_model_ExperimenterI import ExperimenterI
-from omero_model_ExperimenterGroupI import ExperimenterGroupI
-from omero_model_GroupExperimenterMapI import GroupExperimenterMapI
 from omero_model_DatasetImageLinkI import DatasetImageLinkI
 from omero.rtypes import rtime, rlong, rstring, rlist
 
@@ -417,7 +412,6 @@ class TestIShare(lib.ITest):
 
         owned = share1.getOwnShares(False)
         assert 1 ==  len(owned)
-        return (client_share1, sid, expiration)
 
     def test1201b(self):
         share = self.client.sf.getShareService()
@@ -980,13 +974,13 @@ class TestIShare(lib.ITest):
         query = client.sf.getQueryService()
 
         share_from_ishare = share.getShare(sid)
-        assert success ==  (share_from_ishare is not None)
+        assert success == (share_from_ishare is not None)
 
         # For the moment, preventing all non-IShare download.
         share_from_iquery = query.get("Share", sid)
         assert not share_from_iquery.isLoaded()
 
     def assertExpiration(self, expiration, share):
-        assert expiration ==  (share.started.val+share.timeToLive.val)
+        assert expiration == (share.started.val+share.timeToLive.val)
 
 
