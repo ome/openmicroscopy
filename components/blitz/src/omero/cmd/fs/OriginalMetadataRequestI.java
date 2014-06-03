@@ -195,10 +195,14 @@ public class OriginalMetadataRequestI extends OriginalMetadataRequest implements
 
 		final IceMapper mapper = new IceMapper();
 		for (Entry<String, Object> entry : table.entrySet()) {
+			String key = entry.getKey();
+			Object val = entry.getValue();
 			try {
-				rv.put(entry.getKey(), mapper.toRType(entry.getValue()));
+				rv.put(key, mapper.toRType(val));
 			} catch (Exception e) {
-				String msg = "Could not convert to rtype " + entry.getValue();
+				String msg = String.format("Could not convert to rtype: " +
+					"key=%s, value=%s, type=%s ", key, val,
+					(val == null ? "null" : val.getClass()));
 				if (helper == null) {
 					// from command-line
 					System.err.println(msg);
