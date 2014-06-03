@@ -177,6 +177,7 @@ public class FullTextIndexer extends SimpleWork {
         do {
 
             if (metrics != null) {
+                timer = batchTimer.time();
                 if (loader instanceof PersistentEventLogLoader) {
                     if (batchTimer.getCount() % reportingLoops == 0) {
                         float done = getSqlAction().getEventLogPercent(
@@ -187,7 +188,6 @@ public class FullTextIndexer extends SimpleWork {
                     long currId = ((PersistentEventLogLoader) loader).getCurrentId();
                     completeFast.update((int)(100.0*currId/lastId));
                 }
-                timer = batchTimer.time();
             }
 
             try {
