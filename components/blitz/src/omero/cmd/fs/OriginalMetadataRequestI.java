@@ -32,6 +32,7 @@ import java.util.regex.Pattern;
 import java.util.TreeMap;
 
 import loci.formats.IFormatReader;
+import loci.formats.in.DeltavisionReader;
 import ome.api.IQuery;
 import ome.io.nio.PixelsService;
 import ome.model.annotations.FileAnnotation;
@@ -198,7 +199,18 @@ public class OriginalMetadataRequestI extends OriginalMetadataRequest implements
 			String key = entry.getKey();
 			Object val = entry.getValue();
 			try {
-				rv.put(key, mapper.toRType(val));
+				if (val instanceof Short) {
+					// Likely could be handled in toRType
+					rv.put(key, mapper.toRType(((Short) val).intValue()));
+				} else if (val instanceof DeltavisionReader.DVExtHdrFields) {
+					// interface is needed for detecting such collections.
+					Map<String, Object> m2 = ((DeltavisionReader.DVExtHdrFields) val).asMap();
+					for (Entry<String, Object> entry2 : m2.entrySet()) {
+						rv.put(entry2.getKey(), mapper.toRType(entry2.getValue()));
+					}
+				} else {
+					rv.put(key, mapper.toRType(val));
+				}
 			} catch (Exception e) {
 				String msg = String.format("Could not convert to rtype: " +
 					"key=%s, value=%s, type=%s ", key, val,
