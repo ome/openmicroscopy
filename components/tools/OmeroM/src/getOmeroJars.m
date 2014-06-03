@@ -29,8 +29,8 @@ function jarList = getOmeroJars()
 libpath = fullfile(findOmero(), 'libs');
 
 % Create a cell array with the dependency jars
-guavajdk5_jar = fullfile(libpath, 'guava-jdk5.jar');
-jarList = {guavajdk5_jar};
+guava_jar = fullfile(libpath, 'guava.jar');
+jarList = {guava_jar};
 
 % For recent versions of MATLAB, some JAR dependencies are  shipped with
 % the external Java libraries:

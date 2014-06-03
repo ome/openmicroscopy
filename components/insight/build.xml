@@ -30,6 +30,7 @@
 
     <property name="import.dir" value="${basedir}/../antlib/resources"/>
     <import file="${import.dir}/global.xml"/>
+    <import file="${import.dir}/version.xml"/>
     <import file="${import.dir}/lifecycle.xml"/>
 
     <macrodef name="insightBuild">
@@ -47,7 +48,7 @@
         <mkdir dir="${target.dir}/libs/test"/>
         <mkdir dir="${target.dir}/libs/runtime"/>
         <ivy:retrieve settingsRef="ivy.${ant.project.name}"
-            pattern="${deps.lib.dir}/runtime/[artifact].[ext]"
+            pattern="${deps.lib.dir}/runtime/[artifact](-[classifier]).[ext]"
             conf="client" log="quiet" sync="false" symlink="true"/>
         <insightBuild target="jar"/>
     </target>
