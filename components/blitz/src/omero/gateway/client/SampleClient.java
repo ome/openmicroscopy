@@ -250,6 +250,7 @@ public class SampleClient {
         
         @Override
         public void update(IObservable observable, ImportEvent event) {
+            System.out.println("Received importer update event: "+event);
             if(event instanceof ImportEvent.IMPORT_DONE) {
                 done = true;
             }
