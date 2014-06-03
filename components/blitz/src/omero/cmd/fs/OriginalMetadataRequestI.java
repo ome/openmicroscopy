@@ -198,7 +198,7 @@ public class OriginalMetadataRequestI extends OriginalMetadataRequest implements
 			try {
 				rv.put(entry.getKey(), mapper.toRType(entry.getValue()));
 			} catch (Exception e) {
-				String msg = "Count not convert to rtype " + entry.getValue();
+				String msg = "Could not convert to rtype " + entry.getValue();
 				if (helper == null) {
 					// from command-line
 					System.err.println(msg);
