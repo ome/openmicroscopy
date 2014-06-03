@@ -254,10 +254,12 @@
 			<fileset dir="${target.dir}/libs" includes="*"/>
 		</copy>
 		<zip destfile="${target.dir}/OMERO.gateway-${omero.version}.zip">
-			<zipfileset dir="${target.dir}/gateway" 
+			<!-- <zipfileset dir="${target.dir}/gateway" 
 				includes="**/common.jar,**/commons-lang.jar,**/omero-gateway.jar,
 				**/guava-jdk5.jar,**/ice.jar,**/ice-glacier2.jar,**/logback-classic.jar,
-				**/logback-core.jar,**/model-psql.jar,**/slf4j-api.jar"/>
+				**/logback-core.jar,**/model-psql.jar,**/slf4j-api.jar"/> -->
+			<zipfileset dir="${target.dir}/gateway" 
+			                includes="*" excludes="**/test"/>
 		</zip>
 	</target>
 
