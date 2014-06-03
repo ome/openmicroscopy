@@ -634,6 +634,9 @@ class TreeViewerComponent
 				}
 			} else {
 				db = handleDiscardedBrowser(display);
+				if (visible) {
+				    view.removeAllFromWorkingPane();
+				}
 			}
 			if (db != null) db.setSelectedNodes(null, null);
 			return;

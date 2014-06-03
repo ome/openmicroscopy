@@ -330,13 +330,18 @@ class BrowserModel
 	    rollOverNode = node;
 	    firePropertyChange(ROLL_OVER_PROPERTY, previousNode, node);
 	}
-	
+
 	/**
 	 * Implemented as specified by the {@link Browser} interface.
 	 * @see Browser#getRootNodes()
 	 */
-	public Collection<ImageDisplay> getRootNodes() { return rootDisplay.getChildrenDisplay(); }
-	
+	public Collection<ImageDisplay> getRootNodes()
+	{
+	    NodesFinder finder = new NodesFinder();
+	    accept(finder);
+	    return finder.getFoundNodes();
+	}
+
 	/**
 	 * Implemented as specified by the {@link Browser} interface.
 	 * @see Browser#getSelectedDisplays()
@@ -572,7 +577,7 @@ class BrowserModel
 		Set<ImageDisplay> oldValue = null;
 		if (selectedDisplays != null)
 			oldValue = new HashSet<ImageDisplay>(selectedDisplays);
-		if (nodes == null || nodes.isEmpty()) {
+		if (CollectionUtils.isEmpty(nodes)) {
 			if (selectedDisplays != null) selectedDisplays.clear();
 			setNodesColor(null, oldValue);
 			return;
@@ -581,11 +586,12 @@ class BrowserModel
 		accept(finder);
 		List<ImageDisplay> found = finder.getFoundNodes();
 		if (CollectionUtils.isEmpty(found)) {
-			Collection<ImageDisplay> selected = getSelectedDisplays();
-			if (CollectionUtils.isEmpty(selected)) {
-				setNodesColor(null, getRootNodes());
-			}
 			setSelectedDisplay(null, false, false);
+			//Check again
+			Collection<ImageDisplay> selected = getSelectedDisplays();
+            if (CollectionUtils.isEmpty(selected)) {
+                setNodesColor(null, getRootNodes());
+            }
 			return;
 		}
 
@@ -826,7 +832,7 @@ class BrowserModel
 	 */
 	public void setSelectedDisplays(List<ImageDisplay> nodes)
 	{
-		if (nodes == null || nodes.size() == 0) return;
+		if (CollectionUtils.isEmpty(nodes)) return;
 		if (nodes.size() == 1) {
 			setSelectedDisplay(nodes.get(0), false, true);
 		} else {
