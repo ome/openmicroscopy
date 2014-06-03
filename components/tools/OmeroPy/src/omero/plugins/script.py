@@ -527,6 +527,7 @@ class ScriptControl(BaseControl):
                             proto_value = None
 
                         self.ctx.out("    Subtype: %s" % proto_value)
+
                     # ticket:11472 - string min/max need quoting
                     def min_max(x):
                         if x:
@@ -537,6 +538,7 @@ class ScriptControl(BaseControl):
                             else:
                                 return x.val
                         return ""
+
                     self.ctx.out("    Min: %s" % min_max(v.min))
                     self.ctx.out("    Max: %s" % min_max(v.max))
                     values = omero.rtypes.unwrap(v.values)
