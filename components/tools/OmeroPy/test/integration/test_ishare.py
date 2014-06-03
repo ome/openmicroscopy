@@ -370,29 +370,30 @@ class TestIShare(lib.ITest):
         except omero.SecurityViolation:
             assert False, "Pixels was not in share"
 
-    @pytest.mark.xfail(reason="See ticket #11537")
     def test1201(self):
-        uuid = self.root.sf.getAdminService().getEventContext().sessionUuid
-        share = self.client.sf.getShareService()
-        update = self.root.sf.getUpdateService()
-        admin = self.root.sf.getAdminService()
+        admin = self.client.sf.getAdminService()
 
         ### create two users in one group
-        client_share1, user1 = self.new_client_and_user()
-        share1 = client_share1.sf.getShareService()
+        group = self.new_group()
+        client_user1, user1 = self.new_client_and_user(group)
+        client_user2, user2 = self.new_client_and_user(group)
+        assert admin.getMemberOfGroupIds(user1) == admin.getMemberOfGroupIds(user2)
 
-        client_share2, test_user = self.new_client_and_user()
+        share1 = client_user1.sf.getShareService()
+
         # create share
         description = "my description"
         timeout = None
         objects = []
-        experimenters = [test_user]
+        experimenters = [user2]
         guests = ["ident@emaildomain.com"]
         enabled = True
-        sid = share1.createShare(description, timeout, objects,experimenters, guests, enabled)
+        sid = share1.createShare(description, timeout, objects, experimenters, guests, enabled)
+        self.assertAccess(client_user1, sid)
+        self.assertAccess(client_user2, sid)
 
-        #re - login as user1
-        share2 = client_share2.sf.getShareService()
+        #re - login as user2
+        share2 = client_user2.sf.getShareService()
 
         new_description = "new description"
         share1.setDescription(sid, new_description)
