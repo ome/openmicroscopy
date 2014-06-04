@@ -773,7 +773,9 @@ present, the user will enter a console""")
     @with_config
     def memory(self, args, config):
         from omero.install.memory import adjust_settings
-        adjust_settings(config)
+        rv = adjust_settings(config)
+        for k, v in sorted(rv.items()):
+            self.ctx.out("%s=%s" % (k, v))
         config.save()
 
     @with_config
