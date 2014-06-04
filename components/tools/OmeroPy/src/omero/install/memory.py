@@ -60,16 +60,21 @@ class Settings(object):
     """
 
     def __init__(self, settings_map=None, default_map=None):
+        self.settings_map = settings_map
+        self.default_map = default_map
         for name, default in (
                 ("perm_gen", "128m"),
                 ("heap_dump", "off"),
                 ("heap_size", "512m")):
-            if settings_map and name in settings_map:
-                setattr(self, name, settings_map[name])
-            elif default_map and name in default_map:
-                setattr(self, name, default_map[name])
-            else:
-                setattr(self, name, default)
+            setattr(self, name, self.lookup(name, default))
+
+    def lookup(self, name, default=None):
+        if self.settings_map and name in self.settings_map:
+            return self.settings_map[name]
+        elif self.default_map and name in self.default_map:
+            return self.default_map[name]
+        else:
+            return default
 
 
 class Strategy(object):
