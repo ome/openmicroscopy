@@ -29,6 +29,7 @@ import pytest
 from omero.config import ConfigXml, xml
 
 from omero.install.memory import HardCodedStrategy
+from omero.install.memory import PercentStrategy
 from omero.install.memory import Settings
 from omero.install.memory import Strategy
 from omero.install.memory import strip_prefix
@@ -138,3 +139,9 @@ class TestStrategy(object):
         strategy = HardCodedStrategy("blitz")
         settings = strategy.get_memory_settings()
         assert "-Xmx512m -XX:MaxPermSize=128m" == settings
+
+    def test_percent_usage(self):
+        strategy = PercentStrategy("blitz")
+        table = list(strategy.usage_table(15, 16))[0]
+        assert table[0] == 2**15
+        assert table[1] == 2**15*40/100
