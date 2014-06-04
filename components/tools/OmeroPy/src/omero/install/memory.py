@@ -70,3 +70,66 @@ class Settings(object):
                 setattr(self, name, default_map[name])
             else:
                 setattr(self, name, default)
+
+
+class Strategy(object):
+    """
+    Strategy for calculating memory settings. Primary
+    class of the memory module.
+    """
+
+    def __init__(self, settings_map=None, default_map=None):
+        self.settings = Settings(settings_map, default_map)
+        if type(self) == Strategy:
+            raise Exception("Must subclass!")
+
+    def get_heap_size(self):
+        sz = self.settings.heap_size
+        if sz.startswith("-X"):
+            return sz
+        else:
+            return "-Xmx%s" % sz
+
+    def get_heap_dump(self):
+        hd = self.settings.heap_dump
+        if hd == "off":
+            return ""
+        elif hd in ("on", "cwd"):
+            return "-XX:+HeapDumpOnOutOfMemoryError"
+        elif hd in ("tmp",):
+            import tempfile
+            tmp = tempfile.gettempdir()
+            return ("-XX:+HeapDumpOnOutOfMemoryError "
+                    "-XX:HeapDumpPath=%s") % tmp
+
+    def get_perm_gen(self):
+        pg = self.settings.perm_gen
+        if pg.startswith("-XX"):
+            return pg
+        else:
+            return "-XX:MaxPermSize=%s" % pg
+
+    def get_memory_settings(self):
+        values = [
+            self.get_heap_size(),
+            self.get_heap_dump(),
+            self.get_perm_gen(),
+        ]
+        return " ".join([x for x in values if x])
+
+
+class HardCodedStrategy(Strategy):
+    """
+    Simplest strategy which assumes all values have
+    been set and simply uses them or their defaults.
+    """
+    pass
+
+
+def adjust_settings(config, strategy=None):
+    """
+    Takes an omero.config.ConfigXml object and adjusts
+    the memory settings. Primary entry point to the
+    memory module.
+    """
+    pass

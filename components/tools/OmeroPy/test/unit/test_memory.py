@@ -28,7 +28,9 @@ import pytest
 
 from omero.config import ConfigXml, xml
 
+from omero.install.memory import HardCodedStrategy
 from omero.install.memory import Settings
+from omero.install.memory import Strategy
 from omero.install.memory import strip_prefix
 
 from omero.util.temp_files import create_path
@@ -124,3 +126,15 @@ class TestSettings(object):
         assert s.perm_gen == "aaa"
         assert s.heap_dump == "bbb"
         assert s.heap_size == "ccc"
+
+
+class TestStrategy(object):
+
+    def test_no_instantiate(self):
+        with pytest.raises(Exception):
+            Strategy()
+
+    def test_hard_coded(self):
+        strategy = HardCodedStrategy()
+        settings = strategy.get_memory_settings()
+        assert "-Xmx512m -XX:MaxPermSize=128m" == settings
