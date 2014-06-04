@@ -78,7 +78,12 @@ class Strategy(object):
     class of the memory module.
     """
 
-    def __init__(self, settings_map=None, default_map=None):
+    def __init__(self, name, settings_map=None, default_map=None):
+        """
+        'name' argument should likely be one of:
+        ('blitz', 'indexer', 'pixeldata', 'repository')
+        """
+        self.name = name
         self.settings = Settings(settings_map, default_map)
         if type(self) == Strategy:
             raise Exception("Must subclass!")
