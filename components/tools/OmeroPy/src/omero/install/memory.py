@@ -95,7 +95,7 @@ class Strategy(object):
 
     def get_heap_size(self):
         sz = self.settings.heap_size
-        if sz.startswith("-X"):
+        if str(sz).startswith("-X"):
             return sz
         else:
             return "-Xmx%s" % sz
@@ -114,7 +114,7 @@ class Strategy(object):
 
     def get_perm_gen(self):
         pg = self.settings.perm_gen
-        if pg.startswith("-XX"):
+        if str(pg).startswith("-XX"):
             return pg
         else:
             return "-XX:MaxPermSize=%s" % pg
