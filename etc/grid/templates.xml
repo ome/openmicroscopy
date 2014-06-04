@@ -345,22 +345,6 @@
       Python Servers
     -->
 
-    <!--<server-template id="WebTemplate"> 
-      <parameter name="act" default="always"/>
-      <server id="Web" exe="${PYTHON}" activation="${act}" pwd="${OMEROPY_HOME}omeroweb"> 
-        <option>manage.py</option> 
-        <option>runserver</option> 
-        <option>noreload</option> 
-        <option>0.0.0.0:8000</option>
-        <env>${PYTHONPATH}</env> 
-        <adapter name="WebAdapter" register-process="true" endpoints="tcp" server-lifetime="false"/>
-        <properties>
-            <properties refid="SingleThreaded"/>
-            <properties refid="Profile"/>
-        </properties> 
-      </server> 
-    </server-template>-->
-
     <server-template id="ProcessorTemplate">
       <parameter name="index"/>
       <parameter name="dir"/>
@@ -484,20 +468,6 @@
           <!-- By adding an omero.fstest.config property, the behavior of the
           DropBox sever will change! -->
           <property name="omero.fstest.config" value="${OMERO_ETC}testdropbox.config"/>
-        </properties>
-      </server>
-    </server-template>
-
-    <server-template id="ShellTemplate">
-      <parameter name="id"/>
-      <parameter name="exe" default="${PYTHON}"/>
-      <parameter name="act" default="always"/>
-      <server id="${id}" exe="${exe}" activation="${act}">
-        <option>lib/python/shellserver.py</option>
-        <option>${id}</option>
-        <adapter name="${id}Adapter" endpoints="tcp"/>
-        <properties>
-          <properties refid="Profile"/>
         </properties>
       </server>
     </server-template>
