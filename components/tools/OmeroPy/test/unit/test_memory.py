@@ -132,9 +132,9 @@ class TestStrategy(object):
 
     def test_no_instantiate(self):
         with pytest.raises(Exception):
-            Strategy()
+            Strategy("blitz")
 
     def test_hard_coded(self):
-        strategy = HardCodedStrategy()
+        strategy = HardCodedStrategy("blitz")
         settings = strategy.get_memory_settings()
         assert "-Xmx512m -XX:MaxPermSize=128m" == settings
