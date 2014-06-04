@@ -147,6 +147,10 @@ already be running. This may automatically restart some server components.""")
             "Run a set of checks on the current, preferably active server")
 
         Action(
+            "memory",
+            "Reset memory usage values based on the current system")
+
+        Action(
             "waitup",
             "Used by start after calling startasync to wait on status==0",
             wait=True)
@@ -453,7 +457,7 @@ present, the user will enter a console""")
         First checks for a valid installation, then checks the grid,
         then registers the action: "node HOST start"
         """
-
+        self.memory(args, config)
         self.check_access(config=config)
         self.checkice()
         self.check_node(args)
@@ -577,6 +581,7 @@ present, the user will enter a console""")
 
     @with_config
     def deploy(self, args, config):
+        self.memory(args, config)
         self.check_access()
         self.checkice()
         descript = self._descript(args)
@@ -764,6 +769,12 @@ present, the user will enter a console""")
         fixpyramids(data_dir=args.data_dir, dry_run=args.dry_run,
                     query_service=client.sf.getQueryService(),
                     config_service=client.sf.getConfigService())
+
+    @with_config
+    def memory(self, args, config):
+        from omero.install.memory import adjust_settings
+        adjust_settings(config)
+        config.save()
 
     @with_config
     def diagnostics(self, args, config):
