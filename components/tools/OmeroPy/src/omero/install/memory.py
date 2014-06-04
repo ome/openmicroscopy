@@ -53,6 +53,14 @@ def strip_prefix(map, prefix=("omero", "mem")):
         __strip_prefix(k, v, prefix, rv)
     return rv
 
+class StrategyRegistry(dict):
+
+    def __init__(self, *args, **kwargs):
+        super(dict, self).__init__(*args, **kwargs)
+
+
+STRATEGY_REGISTRY = StrategyRegistry()
+
 
 class Settings(object):
     """
@@ -63,6 +71,7 @@ class Settings(object):
         self.settings_map = settings_map
         self.default_map = default_map
         for name, default in (
+                ("strategy", PercentStrategy),
                 ("perm_gen", "128m"),
                 ("heap_dump", "off"),
                 ("heap_size", "512m")):
@@ -76,6 +85,9 @@ class Settings(object):
         else:
             return default
 
+    def get_strategy(self):
+        return STRATEGY_REGISTRY.get(self.strategy, self.strategy)
+
 
 class Strategy(object):
     """
@@ -83,13 +95,15 @@ class Strategy(object):
     class of the memory module.
     """
 
-    def __init__(self, name, settings_map=None, default_map=None):
+    def __init__(self, name, settings=None):
         """
         'name' argument should likely be one of:
         ('blitz', 'indexer', 'pixeldata', 'repository')
         """
+        if settings is None:
+            settings = Settings()
         self.name = name
-        self.settings = Settings(settings_map, default_map)
+        self.settings = settings
         if type(self) == Strategy:
             raise Exception("Must subclass!")
 
@@ -133,7 +147,6 @@ class HardCodedStrategy(Strategy):
     Simplest strategy which assumes all values have
     been set and simply uses them or their defaults.
     """
-    pass
 
 
 class PercentStrategy(Strategy):
@@ -149,8 +162,8 @@ class PercentStrategy(Strategy):
         "other": 1,
     }
 
-    def __init__(self, name, settings_map=None, default_map=None):
-        super(PercentStrategy, self).__init__(name, settings_map, default_map)
+    def __init__(self, name, settings=None):
+        super(PercentStrategy, self).__init__(name, settings)
         self.settings.heap_size = self.calculate_heap_size()
 
     def calculate_heap_size(self, method=None):
@@ -179,19 +192,33 @@ class PercentStrategy(Strategy):
             yield total, self.calculate_heap_size(method)
 
 
-def adjust_settings(config, StrategyType=None):
+STRATEGY_REGISTRY["hardcoded"] = HardCodedStrategy
+STRATEGY_REGISTRY["percent"] = PercentStrategy
+
+
+def adjust_settings(config,
+                    blitz=None, indexer=None,
+                    pixeldata=None, repository=None):
     """
     Takes an omero.config.ConfigXml object and adjusts
     the memory settings. Primary entry point to the
     memory module.
     """
-    if StrategyType is None:
-        StrategyType = PercentStrategy
-    rv = []
+    rv = dict()
     m = config.as_map()
-    for name in ("blitz", "indexer", "pixeldata", "repository"):
+    loop = (("blitz", blitz), ("indexer", indexer),
+            ("pixeldata", pixeldata), ("repository", repository))
+
+    for name, StrategyType in loop:
         prefix = "omero.mem.%s" % name
-        settings = strip_prefix(m, prefix=prefix)
+        specific = strip_prefix(m, prefix=prefix)
         defaults = strip_prefix(m, prefix="omero.mem")
-        strategy = StrategyType(name, settings, defaults)
-        config["%s.option" % prefix] = strategy.get_memory_settings()
+        settings = Settings(specific, defaults)
+        if StrategyType is None:
+            StrategyType = settings.get_strategy()
+
+        strategy = StrategyType(name, settings)
+        for x in (config, rv):
+            x["%s.option" % prefix] = strategy.get_memory_settings()
+            x["%s.option" % prefix] = strategy.get_memory_settings()
+    return rv
