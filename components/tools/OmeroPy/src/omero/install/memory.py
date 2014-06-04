@@ -136,6 +136,49 @@ class HardCodedStrategy(Strategy):
     pass
 
 
+class PercentStrategy(Strategy):
+    """
+    Strategy based on a percent of available memory.
+    """
+
+    PERCENT_DEFAULTS = {
+        "blitz": 40,
+        "pixeldata": 20,
+        "indexer": 10,
+        "repository": 10,
+        "other": 1,
+    }
+
+    def __init__(self, name, settings_map=None, default_map=None):
+        super(PercentStrategy, self).__init__(name, settings_map, default_map)
+        self.settings.heap_size = self.calculate_heap_size()
+
+    def calculate_heap_size(self, method=None):
+        """
+        Re-calculates the appropriate heap size based on some metric
+        and sets the value in the settings.
+        """
+        if method is None:
+            method = self.system_memory_mb
+        available, total = method()
+        other = self.PERCENT_DEFAULTS.get("other", "1")
+        default = self.PERCENT_DEFAULTS.get(self.name, other)
+        percent = self.settings.lookup("percent", default)
+        return total * percent / 100
+
+    def system_memory_mb(self):
+        """
+        Returns a tuple, in MB, of available and total memory.
+        """
+        return (4000, 8000)  # FIXME
+
+    def usage_table(self, min=10, max=20):
+        total_mb = [2**x for x in range(min, max)]
+        for total in total_mb:
+            method = lambda: (total, total)
+            yield total, self.calculate_heap_size(method)
+
+
 def adjust_settings(config, strategy=None):
     """
     Takes an omero.config.ConfigXml object and adjusts
