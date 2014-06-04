@@ -179,10 +179,19 @@ class PercentStrategy(Strategy):
             yield total, self.calculate_heap_size(method)
 
 
-def adjust_settings(config, strategy=None):
+def adjust_settings(config, StrategyType=None):
     """
     Takes an omero.config.ConfigXml object and adjusts
     the memory settings. Primary entry point to the
     memory module.
     """
-    pass
+    if StrategyType is None:
+        StrategyType = PercentStrategy
+    rv = []
+    m = config.as_map()
+    for name in ("blitz", "indexer", "pixeldata", "repository"):
+        prefix = "omero.mem.%s" % name
+        settings = strip_prefix(m, prefix=prefix)
+        defaults = strip_prefix(m, prefix="omero.mem")
+        strategy = StrategyType(name, settings, defaults)
+        config["%s.option" % prefix] = strategy.get_memory_settings()
