@@ -28,6 +28,7 @@ import pytest
 
 from omero.config import ConfigXml, xml
 
+from omero.install.memory import adjust_settings
 from omero.install.memory import HardCodedStrategy
 from omero.install.memory import PercentStrategy
 from omero.install.memory import Settings
@@ -145,3 +146,37 @@ class TestStrategy(object):
         table = list(strategy.usage_table(15, 16))[0]
         assert table[0] == 2**15
         assert table[1] == 2**15*40/100
+
+
+class AdjustFixture(object):
+
+    def __init__(self, input, output, **kwargs):
+        self.input = input
+        self.output = output
+        self.kwargs = kwargs
+
+    def validate(self, rv):
+        for k, v in self.output.items():
+            assert k in rv
+            assert v == rv[k]
+
+
+import json
+f = open(__file__[:-3] + ".json", "r")
+data = json.load(f)
+AFS = []
+for x in data:
+    AFS.append(AdjustFixture(x["input"], x["output"]))
+
+
+class TestAdjustStrategy(object):
+
+    @pytest.mark.parametrize("fixture", AFS)
+    def test_adjust(self, fixture):
+        p = write_config(fixture.input)
+        config = ConfigXml(filename=str(p), env_config="default")
+        try:
+            rv = adjust_settings(config, **fixture.kwargs)
+            fixture.validate(rv)
+        finally:
+            config.close()
