@@ -29,8 +29,8 @@ import omero.cmd.ResetPasswordRequest;
 import omero.cmd.ResetPasswordResponse;
 
 /**
- * Reset password.
- *
+ * Callback interface allowing to reset password for the given user.
+ * 
  * @author Aleksandra Tarkowska, A (dot) Tarkowska at dundee.ac.uk
  * @since 5.1.0
  */
