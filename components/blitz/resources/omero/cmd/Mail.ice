@@ -14,13 +14,31 @@
 #include <omero/cmd/API.ice>
 
 /*
- * Allows to send email to omero users
+ * Callback interface allowing to send email using JavaMailSender, supporting
+ * MIME messages through preparation callbacks.
  */
 
 module omero {
 
     module cmd {
  
+ 		/**
+         * Requests an email to be send to all users of the omero
+         * determines inactive users, an active members of given groups
+         * and/or specific users.
+         * 
+         * examples:
+         *  - omero.cmd.SendEmailRequest(subject, body)
+         * 		sends message to everyone who has email set 
+         * 		and is an active user
+         *  - omero.cmd.SendEmailRequest(subject, body, inactive)
+         * 		sends message to everyone who has email set,
+         *		even inactive users
+         *  - omero.cmd.SendEmailRequest(subject, body, groupIds=[...], 
+         *												userIds=[...] )
+         * 		sends email to active members of given groups and selected users 
+	     * 	- CC and BCC parameters: cc=[...], bcc=[...]
+         **/
 		class SendEmailRequest extends Request {
 			string subject;
 			string body;
@@ -32,6 +50,11 @@ module omero {
 			bool inactive;
 		};
 
+        /**
+         * Successful response for [SendEmailRequest]. Contains
+         * a list of invalid users that has no email address set.
+         * If no recipients or invalid users found, an [ERR] will be returned.
+         **/
 		class SendEmailResponse extends Response {
 			omero::api::LongList invalidusers;
         };
