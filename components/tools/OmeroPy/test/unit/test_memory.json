@@ -1,0 +1,41 @@
+[
+    {
+        "name": "global-hardcoded-defaults",
+        "input": {
+            "omero.mem.strategy": "hardcoded"
+        },
+        "output": {
+            "omero.mem.blitz.option": "-Xmx512m -XX:MaxPermSize=128m"
+        }
+    },
+    {
+        "name": "global-hardcoded-1g",
+        "input": {
+            "omero.mem.strategy": "hardcoded",
+            "omero.mem.heap_size": "1G"
+        },
+        "output": {
+            "omero.mem.blitz.option": "-Xmx1G -XX:MaxPermSize=128m"
+        }
+    },
+    {
+        "name": "global-hardcoded-heapdump",
+        "input": {
+            "omero.mem.strategy": "hardcoded",
+            "omero.mem.heap_dump": "on"
+        },
+        "output": {
+            "omero.mem.blitz.option": "-Xmx512m -XX:+HeapDumpOnOutOfMemoryError -XX:MaxPermSize=128m"
+        }
+    },
+    {
+        "name": "global-hardcoded-permgen",
+        "input": {
+            "omero.mem.strategy": "hardcoded",
+            "omero.mem.perm_gen": "1G"
+        },
+        "output": {
+            "omero.mem.blitz.option": "-Xmx512m -XX:MaxPermSize=1G"
+        }
+    }
+]
