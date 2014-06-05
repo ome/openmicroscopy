@@ -26,6 +26,7 @@ Test of the automatic memory setting logic for OMERO startup.
 
 import pytest
 
+
 from omero.config import ConfigXml, xml
 
 from omero.install.memory import adjust_settings
@@ -38,8 +39,11 @@ from omero.install.memory import usage_charts
 
 from omero.util.temp_files import create_path
 
+from path import path
+
 from xml.etree.ElementTree import SubElement
 from xml.etree.ElementTree import tostring
+from xml.etree.ElementTree import XML
 
 from test.unit.test_config import initial
 
@@ -140,11 +144,10 @@ class TestStrategy(object):
     def test_hard_coded(self):
         strategy = ManualStrategy("blitz")
         settings = strategy.get_memory_settings()
-        assert settings == {
-            "generated_heap": "-Xmx512m",
-            "generated_dump": "-XX:-HeapDumpOnOutOfMemoryError",
-            "generated_perm": "-XX:MaxPermSize=128m",
-        }
+        assert settings == [
+            "-Xmx512m",
+            "-XX:MaxPermSize=128m",
+        ]
 
     def test_percent_usage(self):
         strategy = PercentStrategy("blitz")
@@ -163,7 +166,9 @@ class AdjustFixture(object):
     def validate(self, rv):
         for k, v in self.output.items():
             assert k in rv
-            assert v == rv[k]
+            found = rv[k]
+            settings = found.pop(0)
+            assert v == found
 
 
 import json
@@ -174,14 +179,24 @@ for x in data:
     AFS.append(AdjustFixture(x["input"], x["output"]))
 
 
+def template_xml():
+    templates = path(__file__) / ".." / ".." / ".."
+    templates = templates / ".." / ".." / ".."
+    templates = templates / "etc" / "grid" / "templates.xml"
+    templates = templates.abspath()
+    return XML(templates.text())
+
+
 class TestAdjustStrategy(object):
+
 
     @pytest.mark.parametrize("fixture", AFS)
     def test_adjust(self, fixture):
         p = write_config(fixture.input)
+        xml = template_xml()
         config = ConfigXml(filename=str(p), env_config="default")
         try:
-            rv = adjust_settings(config, **fixture.kwargs)
+            rv = adjust_settings(config, xml, **fixture.kwargs)
             fixture.validate(rv)
         finally:
             config.close()

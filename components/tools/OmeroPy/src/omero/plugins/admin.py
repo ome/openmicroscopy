@@ -780,9 +780,12 @@ present, the user will enter a console""")
         config2 = omero.config.ConfigXml(str(generated))
         template_xml = XML(templates.text())
         rv = adjust_settings(config, template_xml)
-        for k, v in sorted(rv.items()):
-            if verbose:
-                self.ctx.out("%s=%s" % (k, v))
+        if verbose:
+            self.ctx.out("Memory settings:")
+            self.ctx.out("================")
+            for k, v in sorted(rv.items()):
+                sb = " ".join([str(x) for x in v])
+                self.ctx.out("%s=%s" % (k, sb))
         def clear_tail(elem):
             elem.tail = ""
             if elem.text is not None and not elem.text.strip():
@@ -790,7 +793,6 @@ present, the user will enter a console""")
             for child in elem.getchildren():
                 clear_tail(child)
         clear_tail(template_xml)
-        import pdb; pdb.set_trace()
         config2.write_element(template_xml)
         config2.XML = None  # Prevent re-saving
         config2.close()

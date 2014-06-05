@@ -56,7 +56,7 @@ class PyTest(TestCommand):
         if self.test_failfast:
             self.test_args.extend(['-x'])
         if self.test_verbose:
-            self.test_args.extend(['-v'])
+            self.test_args.extend(['-v', "-s"])
         if self.test_quiet:
             self.test_args.extend(['-q'])
         if self.junitxml is not None:

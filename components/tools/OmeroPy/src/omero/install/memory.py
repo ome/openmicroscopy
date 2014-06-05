@@ -73,10 +73,12 @@ class Settings(object):
     """
 
     def __init__(self, settings_map=None, default_map=None):
+        self.sources = dict()
         self.settings_map = settings_map
         self.default_map = default_map
         for name, default in (
                 ("strategy", AdaptiveStrategy),
+                ("append", ""),
                 ("perm_gen", "128m"),
                 ("heap_dump", "off"),
                 ("heap_size", "512m"),
@@ -84,16 +86,30 @@ class Settings(object):
         ):
             setattr(self, name, self.lookup(name, default))
 
+        if default_map is not None:
+            self.collapsed = dict(default_map)
+        else:
+            self.collapsed = dict()
+        if settings_map is not None:
+            for k, v in settings_map.items():
+                self.collapsed[k] = v
+
     def lookup(self, name, default=None):
         if self.settings_map and name in self.settings_map:
+            self.sources[name] = "server"
             return self.settings_map[name]
         elif self.default_map and name in self.default_map:
+            self.sources[name] = "global"
             return self.default_map[name]
         else:
+            self.sources[name] = "default"
             return default
 
     def get_strategy(self):
         return STRATEGY_REGISTRY.get(self.strategy, self.strategy)
+
+    def __str__(self):
+        return 'Settings(%s)' % self.collapsed
 
 
 class Strategy(object):
@@ -124,7 +140,7 @@ class Strategy(object):
     def get_heap_dump(self):
         hd = self.settings.heap_dump
         if hd == "off":
-            return "-XX:-HeapDumpOnOutOfMemoryError"
+            return ""
         elif hd in ("on", "cwd"):
             return "-XX:+HeapDumpOnOutOfMemoryError"
         elif hd in ("tmp",):
@@ -140,13 +156,17 @@ class Strategy(object):
         else:
             return "-XX:MaxPermSize=%s" % pg
 
+    def get_append(self):
+        return self.settings.append
+
     def get_memory_settings(self):
-        values = {
-            "generated_heap": self.get_heap_size(),
-            "generated_dump": self.get_heap_dump(),
-            "generated_perm": self.get_perm_gen(),
-        }
-        return values
+        values = [
+            self.get_heap_size(),
+            self.get_heap_dump(),
+            self.get_perm_gen(),
+            self.get_append(),
+        ]
+        return [x for x in values if x]
 
 
 class ManualStrategy(Strategy):
@@ -318,6 +338,7 @@ def adjust_settings(config, template_xml,
     """
 
     from xml.etree.ElementTree import Element
+    from collections import defaultdict
 
     options = dict()
     for template in template_xml.findall("server-template"):
@@ -327,7 +348,7 @@ def adjust_settings(config, template_xml,
                 if o.startswith("MEMORY:"):
                     options[o[7:]] = (server, option)
 
-    rv = dict()
+    rv = defaultdict(list)
     m = config.as_map()
     loop = (("blitz", blitz), ("indexer", indexer),
             ("pixeldata", pixeldata), ("repository", repository))
@@ -337,15 +358,19 @@ def adjust_settings(config, template_xml,
         specific = strip_prefix(m, prefix=prefix)
         defaults = strip_prefix(m, prefix="omero.mem")
         settings = Settings(specific, defaults)
+        rv[name].append(settings)
         if StrategyType is None:
             StrategyType = settings.get_strategy()
+
+        if not callable(StrategyType):
+            raise Exception("Bad strategy: %s" % StrategyType)
 
         strategy = StrategyType(name, settings)
         settings = strategy.get_memory_settings()
         server, option = options[name]
         idx = 0
-        for k, v in settings.items():
-            rv["%s.%s" % (prefix, k)] = v
+        for v in settings:
+            rv[name].append(v)
             if idx == 1:
                 option.text = v
             else:
