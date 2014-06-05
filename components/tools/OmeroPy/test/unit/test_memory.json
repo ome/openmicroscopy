@@ -5,9 +5,10 @@
             "omero.mem.strategy": "manual"
         },
         "output": {
-            "omero.mem.blitz.generated_heap": "-Xmx512m",
-            "omero.mem.blitz.generated_dump": "-XX:-HeapDumpOnOutOfMemoryError",
-            "omero.mem.blitz.generated_perm": "-XX:MaxPermSize=128m"
+            "blitz" : [
+                "-Xmx512m",
+                "-XX:MaxPermSize=128m"
+            ]
         }
     },
     {
@@ -17,9 +18,10 @@
             "omero.mem.heap_size": "1G"
         },
         "output": {
-            "omero.mem.blitz.generated_heap": "-Xmx1G",
-            "omero.mem.blitz.generated_dump": "-XX:-HeapDumpOnOutOfMemoryError",
-            "omero.mem.blitz.generated_perm": "-XX:MaxPermSize=128m"
+            "blitz" : [
+                "-Xmx1G",
+                "-XX:MaxPermSize=128m"
+            ]
         }
     },
     {
@@ -29,9 +31,11 @@
             "omero.mem.heap_dump": "on"
         },
         "output": {
-            "omero.mem.blitz.generated_heap": "-Xmx512m",
-            "omero.mem.blitz.generated_dump": "-XX:+HeapDumpOnOutOfMemoryError",
-            "omero.mem.blitz.generated_perm": "-XX:MaxPermSize=128m"
+            "blitz" : [
+                "-Xmx512m",
+                "-XX:+HeapDumpOnOutOfMemoryError",
+                "-XX:MaxPermSize=128m"
+            ]
         }
     },
     {
@@ -41,9 +45,10 @@
             "omero.mem.perm_gen": "1G"
         },
         "output": {
-            "omero.mem.blitz.generated_heap": "-Xmx512m",
-            "omero.mem.blitz.generated_dump": "-XX:-HeapDumpOnOutOfMemoryError",
-            "omero.mem.blitz.generated_perm": "-XX:MaxPermSize=1G"
+            "blitz" : [
+                "-Xmx512m",
+                "-XX:MaxPermSize=1G"
+            ]
         }
     },
     {
@@ -53,9 +58,38 @@
             "omero.mem.mem_total": "4000"
         },
         "output": {
-            "omero.mem.blitz.generated_heap": "-Xmx1600m",
-            "omero.mem.blitz.generated_dump": "-XX:-HeapDumpOnOutOfMemoryError",
-            "omero.mem.blitz.generated_perm": "-XX:MaxPermSize=128m"
+            "blitz" : [
+                "-Xmx1600m",
+                "-XX:MaxPermSize=128m"
+            ]
+        }
+    },
+    {
+        "name": "global-manual-append",
+        "input": {
+            "omero.mem.strategy": "manual",
+            "omero.mem.append": "foo"
+        },
+        "output": {
+            "blitz" : [
+                "-Xmx512m",
+                "-XX:MaxPermSize=128m",
+                "foo"
+            ]
+        }
+    },
+    {
+        "name": "global-percent",
+        "input": {
+            "omero.mem.mem_total": "8000",
+            "omero.mem.strategy": "percent",
+            "omero.mem.percent": "50"
+        },
+        "output": {
+            "blitz" : [
+                "-Xmx4000m",
+                "-XX:MaxPermSize=128m"
+            ]
         }
     }
 ]
