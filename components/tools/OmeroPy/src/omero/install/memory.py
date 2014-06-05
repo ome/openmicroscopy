@@ -74,7 +74,9 @@ class Settings(object):
                 ("strategy", PercentStrategy),
                 ("perm_gen", "128m"),
                 ("heap_dump", "off"),
-                ("heap_size", "512m")):
+                ("heap_size", "512m"),
+                ("append", ""),
+                ):
             setattr(self, name, self.lookup(name, default))
 
     def lookup(self, name, default=None):
@@ -133,11 +135,15 @@ class Strategy(object):
         else:
             return "-XX:MaxPermSize=%s" % pg
 
+    def get_append(self):
+        return self.settings.append
+
     def get_memory_settings(self):
         values = [
             self.get_heap_size(),
             self.get_heap_dump(),
             self.get_perm_gen(),
+            self.get_append(),
         ]
         return " ".join([x for x in values if x])
 
