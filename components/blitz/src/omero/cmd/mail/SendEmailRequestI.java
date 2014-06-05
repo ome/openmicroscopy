@@ -32,8 +32,9 @@ import ome.model.meta.Experimenter;
 
 
 /**
- * Send Email.
- *
+ * Callback interface allowing to send email using JavaMailSender, supporting
+ * MIME messages through preparation callbacks.
+ * 
  * @author Aleksandra Tarkowska, A (dot) Tarkowska at dundee.ac.uk
  * @since 5.1.0
  */
