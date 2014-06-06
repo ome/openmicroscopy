@@ -316,7 +316,15 @@ CUSTOM_SETTINGS_MAPPINGS = {
     "omero.web.pipeline_css_compressor": ["PIPELINE_CSS_COMPRESSOR", None, identity],
     # STATICFILES_STORAGE see http://django-pipeline.readthedocs.org/en/latest/storages.html
     "omero.web.pipeline_staticfile_storage": ["STATICFILES_STORAGE", "pipeline.storage.PipelineStorage", str],
-
+    
+    # Local time zone for this installation. Choices can be found here:
+    # http://www.postgresql.org/docs/8.1/static/datetime-keywords.html#DATETIME-TIMEZONE-SET-TABLE
+    # although not all variations may be possible on all operating systems.
+    # If running in a Windows environment this must be set to the same as your
+    # system time zone.
+    "omero.web.time_zone": ["TIME_ZONE", "Europe/London", str],
+    
+    "omero.web.first_day_of_week": ["FIRST_DAY_OF_WEEK", 0, int],
 }
 
 # DEVELOPMENT_SETTINGS_MAPPINGS - WARNING: For each setting developer MUST open
@@ -386,14 +394,6 @@ def report_settings(module):
 report_settings(sys.modules[__name__])
 
 SITE_ID = 1
-
-# Local time zone for this installation. Choices can be found here:
-# http://www.postgresql.org/docs/8.1/static/datetime-keywords.html#DATETIME-TIMEZONE-SET-TABLE
-# although not all variations may be possible on all operating systems.
-# If running in a Windows environment this must be set to the same as your
-# system time zone.
-TIME_ZONE = 'Europe/London'
-FIRST_DAY_OF_WEEK = 0     # 0-Monday, ... 6-Sunday
 
 # LANGUAGE_CODE: A string representing the language code for this installation. This should be
 # in standard language format. For example, U.S. English is "en-us".
