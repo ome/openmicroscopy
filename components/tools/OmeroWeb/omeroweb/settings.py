@@ -317,9 +317,8 @@ CUSTOM_SETTINGS_MAPPINGS = {
     # STATICFILES_STORAGE see http://django-pipeline.readthedocs.org/en/latest/storages.html
     "omero.web.pipeline_staticfile_storage": ["STATICFILES_STORAGE", "pipeline.storage.PipelineStorage", str],
     
-    # Local time zone for this installation. Choices can be found here:
-    # http://www.postgresql.org/docs/8.1/static/datetime-keywords.html#DATETIME-TIMEZONE-SET-TABLE
-    # although not all variations may be possible on all operating systems.
+    # Local time zone for this installation. More details about timezone support
+    # in https://docs.djangoproject.com/en/1.6/ref/settings/#time-zone
     # If running in a Windows environment this must be set to the same as your
     # system time zone.
     "omero.web.time_zone": ["TIME_ZONE", "Europe/London", str],
