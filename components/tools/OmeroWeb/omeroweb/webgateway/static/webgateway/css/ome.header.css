@@ -1121,16 +1121,14 @@ li.menu_back a {
 #trayhandle_left {
     position:absolute;
     top:0px; left:0px; bottom:0px;
-    width:5px;
+    width: 1px;
 	z-index:9999;
-    background:transparent url(../img/drag_handle_5.png) no-repeat left center scroll;
 }
 #trayhandle_right {
     position:absolute;
     top:0px; right:0px; bottom:0px;
-    width:5px;
+    width: 1px;
 	z-index:9999;
-    background:transparent url(../img/drag_handle_5.png) no-repeat left center scroll;
 }
 #center_container {
     position:absolute;
@@ -1197,21 +1195,31 @@ li.menu_back a {
     background:transparent url(../img/tray_collapse_right.png) center center no-repeat scroll;
 }
 
+.dragHandle {
+    background: url("../img/drag_handle_5.png") center center no-repeat scroll;
+    /* and now for browsers that support background opacity... */
+    background: url("../img/drag_handle_5.png") no-repeat scroll center center rgba(250, 250, 250, 0.5);
+    position: absolute;
+    top: 50%;
+    width: 15px;
+    height: 25px;
+}
+
 #dragLeft {
     cursor: col-resize;
     position:absolute;
-    bottom:20px;
-    top: 0px;
-    left: 0px;
-    right: 0px;
+    bottom: 0;
+    top: 0;
+    left: 0;
+    right: 0;
 }
 #dragRight {
     cursor: col-resize;
     position:absolute;
-    bottom: 20px;
-    top: 0px;
-    left: 0px;
-    right: 0px;
+    bottom: 0;
+    top: 0;
+    left: 0;
+    right: 0;
 }
 
 
