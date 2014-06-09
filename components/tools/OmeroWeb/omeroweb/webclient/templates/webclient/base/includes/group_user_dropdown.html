@@ -27,75 +27,25 @@
 
         var $groupList = $("#groupList"),
             $listViewPort = $("#listViewPort"),
-            list_style = $groupList.get(0).style,
-            listH = $groupList.height(),
-            DROPDOWN_HEIGHT = $(document).height()-110;
+            $usersList = $(".usersList");
 
-        $listViewPort.css({'height': DROPDOWN_HEIGHT+'px'});
-
-        var bigList = (listH > DROPDOWN_HEIGHT);
-        if (bigList) {
-            $("#scrollMsg").show();
-            $("#groupList>li>ul").css({"top": '0px'});
-            $("#groupList>li").css({"position":"static"});
-        }
-
-        $('body').click(function(event) {
-            //if (event.target.id != 'groupsUsersButton') {
+        // Button toggles visibility of group chooser dropdown
+        $("#groupsUsersButton").click(function(){
+            if ($groupList.css('visibility') == "visible") {
                 $groupList.css('visibility', 'hidden');
                 $listViewPort.css('visibility', 'hidden');
-            //}
-        });
-        // Loading Scripts with AJAX for drop-down menu, (only the first time we click)
-        // based on example at http://css-tricks.com/2282-simple-jquery-dropdowns/
-        $("#groupsUsersButton").click(function(e){
-            // show menu
-            $groupList.css('visibility', 'visible');
-            if (bigList) {
+            } else {
+                $groupList.css('visibility', 'visible');
                 $listViewPort.css('visibility', 'visible');
-            }
-            list_style.top = '0px';
-            return false;
-        });
-        // on hover-out, hide drop-down menus
-        if (bigList) {
-            $listViewPort.hover(function(){}, function(){
-                $groupList.css('visibility', 'hidden');
-                $listViewPort.css('visibility', 'hidden');
-            });
-        } else {
-            $groupList.hover(function(){}, function(){
-                $groupList.css('visibility', 'hidden');
-                $listViewPort.css('visibility', 'hidden');
-            });
-        }
-
-        $groupList.children("li").hover(function(){
-            if (bigList) {
-                var $this = $(this);
-                var liOffset = $this.offset().top - $this.parent().offset().top;
-                
-                var $ul = $this.children('ul');
-                var h = $ul.height();
-                var bottom = liOffset + h;
-                var bottomOff = bottom-listH;
-                if (bottomOff > 0) {
-                    liOffset = liOffset - bottomOff;
-                }
-                $ul.css('top', liOffset +'px');
+                $usersList.css('visibility', 'visible').hide();
             }
         });
 
-        var vp = document.getElementById("listViewPort");
-        var $scrollMsg = $("#scrollMsg"),
-            scrollInterval;
-        $scrollMsg.hover(function(){
-            scrollInterval = setInterval(function(){
-                var currentScroll = vp.scrollTop;
-                vp.scrollTop = currentScroll + 2;
-            }, 20);
-        }, function(){
-            clearInterval(scrollInterval);
+        // When hover or click on a Group, show Users...
+        $( "#groupList" ).on( "mouseenter click", "li a", function(event) {
+            var gid = $(this).attr("data-gid");
+            $usersList.hide();
+            $("#groupMembers-" + gid).show();
         });
 
     });
@@ -123,16 +73,13 @@
             <span>{{ active_group.name }}</span><span>{{ active_user.getFullName }}</span>
         </div>
 
-        <div id="listViewPort" style="overflow-y:scroll; z-index:999; background: white; visibility: hidden">
+        <div id="listViewPort" class="dropdown">
 
-            <div id="scrollMsg" style="position:fixed; bottom:0px; width:350px; left:0px; height:50px; background: #eee; z-index:500; display:none">
-                <h1 style="color: #bbb; text-align:center">SCROLL DOWN<br/>FOR MORE</h1>
-            </div>
 
-        <ul id="groupList" class="submenu dropdown">
+        <ul id="groupList" class="submenu" style="box-shadow:0 0 0 white; top:0; bottom:0; overflow-y: scroll; overflow-x: hidden">
             {% for grp in groups %}
                 <li title="Click to switch Group" {% ifequal grp.id eContext.context.groupId %}class="current_group"{% endifequal %}>
-                    <a href="{% url 'change_active_group' %}?active_group={{grp.id}}&url={{ current_url }}" class="switch_to_group">
+                    <a href="#" data-gid="{{ grp.id }}">
                         <img
                         {% if grp.getDetails.getPermissions.isGroupWrite %} src="{% static 'webclient/image/group_green16.png' %}"
                         {% else %}
@@ -146,20 +93,26 @@
                         {% endif %} />
                         {{ grp.getName }}
                     </a>
-                    <ul title="Switch to this Group and User" style="top:0px">
+                </li>
+            {% endfor %}
+        </ul>
+
+
+        {% for grp in groups %}
+                    <ul title="Switch to this Group and User" class="usersList" id="groupMembers-{{ grp.id }}" style="top:0px">
                         {% if grp.all %}
-							<li>
-	                            {% ifequal grp.id active_group.id %}
-	                            <a href="{{ current_url }}?experimenter=-1">
-	                                <!-- otherwise we switch group too -->
-	                            {% else %}
-	                            <a href="{% url 'change_active_group' %}?active_group={{grp.id}}&url={{ current_url }}?experimenter=-1">
-	                            {% endifequal %}
-	                                {% setting UI_MENU_DROPDOWN.ALL %}
-	                            </a>
-	                        </li>
-						{% endif %}
-						
+                            <li>
+                                {% ifequal grp.id active_group.id %}
+                                <a href="{{ current_url }}?experimenter=-1">
+                                    <!-- otherwise we switch group too -->
+                                {% else %}
+                                <a href="{% url 'change_active_group' %}?active_group={{grp.id}}&url={{ current_url }}?experimenter=-1">
+                                {% endifequal %}
+                                    {% setting UI_MENU_DROPDOWN.ALL %}
+                                </a>
+                            </li>
+                        {% endif %}
+                        
                         {% if grp.leaders %}
                             <li class="non_selectable"><strong>{% setting UI_MENU_DROPDOWN.LEADERS %}</strong></li>
                             {% for user in grp.leaders %}
@@ -192,10 +145,9 @@
                             {% endfor %}
                         {% endif %}
                     </ul>
+        {% endfor %}
 
-                </li>
-            {% endfor %}
-        </ul>
+
         </div>
     </li>
 </ul>

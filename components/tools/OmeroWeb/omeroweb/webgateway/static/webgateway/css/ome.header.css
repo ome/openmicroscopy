@@ -340,7 +340,19 @@
 		}
 		
 		#listViewPort {
-		    position:fixed; overflow:hidden; width:350px; top:70px; z-index:50;
+		    height: 450px;
+		    width: 370px;
+		}
+
+		.usersList {
+			position: absolute;
+			top: 0;
+			left: 180px !important;
+			width: 180px !important;
+			box-shadow: 0 0 0 white !important;
+			bottom: 0;
+			overflow-y: scroll;
+			overflow-x: hidden;
 		}
 	
 
@@ -1079,10 +1091,12 @@ li.menu_back a {
 }
 
 #left_panel {
-    left:0px; top:0px; bottom:0px;right:0px;
+    left:0px;
+    top:33px;
+    bottom:0px;
+    right:0px;
     width:350px;
     border-left: none;
-//	min-width:300px;
 	overflow:hidden;
 }
 
@@ -1090,13 +1104,13 @@ li.menu_back a {
 
 	.left_panel_inner {
 	     position: absolute;
-	     left:0px; right:0px; bottom:0px; top:33px;
+	     left:0px; right:0px;
 	     overflow: auto;
 		 border-right:solid 1px hsl(210,10%,85%);
 	 }
 	 
 	 #history_calendar .left_panel_inner { 
-	 	top:63px;
+]
 	 }
 	 
 	 
