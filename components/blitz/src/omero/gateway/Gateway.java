@@ -36,8 +36,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
+
 import java.util.Set;
 
 import ome.formats.OMEROMetadataStoreClient;
@@ -90,11 +92,13 @@ import omero.gateway.exception.RenderingServiceException;
 import omero.gateway.model.ExportFormat;
 import omero.gateway.model.SearchDataContext;
 import omero.gateway.model.SecurityContext;
+import omero.gateway.util.ModelMapper;
 import omero.grid.ProcessCallbackI;
 import omero.grid.ScriptProcessPrx;
 import omero.grid.SharedResourcesPrx;
 import omero.model.ChecksumAlgorithm;
 import omero.model.ChecksumAlgorithmI;
+import omero.model.Dataset;
 import omero.model.Details;
 import omero.model.DetailsI;
 import omero.model.ExperimenterGroup;
@@ -106,17 +110,22 @@ import omero.model.ImageI;
 import omero.model.Line;
 import omero.model.OriginalFile;
 import omero.model.OriginalFileI;
+import omero.model.Plate;
+import omero.model.PlateAcquisition;
 import omero.model.Polyline;
+import omero.model.Project;
 import omero.model.RenderingDef;
 import omero.model.Roi;
+import omero.model.Screen;
 import omero.model.Shape;
+import omero.model.WellSample;
 import omero.model.enums.ChecksumAlgorithmSHA1160;
 import omero.sys.Parameters;
 import omero.sys.ParametersI;
 import omero.sys.Roles;
 
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang.StringUtils;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
 
 import pojos.DataObject;
 import pojos.DatasetData;
@@ -124,9 +133,14 @@ import pojos.ExperimenterData;
 import pojos.FilesetData;
 import pojos.GroupData;
 import pojos.ImageData;
+import pojos.PlateAcquisitionData;
+import pojos.PlateData;
+import pojos.ProjectData;
 import pojos.ROICoordinate;
 import pojos.ROIData;
+import pojos.ScreenData;
 import pojos.ShapeData;
+import pojos.WellSampleData;
 import pojos.util.PojoMapper;
 
 @SuppressWarnings("unchecked")
@@ -2577,6 +2591,98 @@ public class Gateway extends ConnectionManager {
                     + "the specified children");
         }
         return new ArrayList();
+    }
+    
+    /**
+     * Returns the annotations links.
+     *
+     * @param ctx The security context.
+ * @param node The type of node to handle.
+ * @param nodeIDs The id of the nodes if any.
+ * @param children The collection of annotations' identifiers
+ * @param userID The user's identifier or <code>-1</code>.
+     * @return See above.
+     * @throws DSOutOfServiceException If the connection is broken, or logged in
+ * @throws DSAccessException If an error occurred while trying to
+ *                           retrieve data from OMERO service.
+     */
+    public Multimap<Long, IObject> findAnnotationLinks(SecurityContext ctx,
+            Class<?> node, List<Long> nodeIDs,
+        List<Long> children, long userID)
+    throws DSOutOfServiceException, DSAccessException
+{
+    Connector c = getConnector(ctx, true, false);
+    Multimap<Long, IObject> map = ArrayListMultimap.create();
+    try {
+        IQueryPrx service = c.getQueryService();
+        String table = getAnnotationTableLink(node);
+        if (table == null) return null;
+        StringBuffer sb = new StringBuffer();
+        sb.append("select link from "+table+" as link ");
+        sb.append("left outer join fetch link.child child ");
+        sb.append("left outer join fetch link.parent parent ");
+        sb.append("left outer join fetch parent.details.owner ");
+        sb.append("left outer join fetch child.details.owner ");
+        sb.append("left outer join fetch link.details.owner ");
+        sb.append("where link.child.id in (:childIDs)");
+
+        ParametersI param = new ParametersI();
+        param.addLongs("childIDs", children);
+        sb.append(" and link.parent.id in (:parentIDs)");
+        param.addLongs("parentIDs", nodeIDs);
+        if (userID >= 0) {
+            sb.append(" and link.details.owner.id = :userID");
+            param.map.put("userID", omero.rtypes.rlong(userID));
+        }
+        List<IObject> list = service.findAllByQuery(sb.toString(), param);
+        if (CollectionUtils.isNotEmpty(list)) {
+            Iterator<IObject> j = list.iterator();
+            IObject link;
+            while (j.hasNext()) {
+                link = (IObject) j.next();
+                IObject p = ModelMapper.getParentFromLink(link);
+                map.put(p.getId().getValue(), link);
+            }
+        }
+        return map;
+    } catch (Throwable t) {
+        handleException(t, "Cannot retrieve the requested link for "+
+        "the specified children");
+    }
+    return map;
+}
+    
+    /**
+     * Determines the table name corresponding to the specified class.
+     *
+     * @param klass The class to analyze.
+     * @return See above.
+     */
+    private String getAnnotationTableLink(Class klass)
+    {
+            String table = null;
+            if (Dataset.class.equals(klass) ||
+                    DatasetData.class.equals(klass))
+                    table = "DatasetAnnotationLink";
+            else if (Project.class.equals(klass) ||
+                            ProjectData.class.equals(klass))
+                    table = "ProjectAnnotationLink";
+            else if (Image.class.equals(klass) ||
+                            ImageData.class.equals(klass)) table = "ImageAnnotationLink";
+            else if (Screen.class.equals(klass) ||
+                            ScreenData.class.equals(klass))
+                    table = "ScreenAnnotationLink";
+            else if (Plate.class.equals(klass) ||
+                            PlateData.class.equals(klass))
+                    table = "PlateAnnotationLink";
+            else if (PlateAcquisition.class.equals(klass) ||
+                            PlateAcquisitionData.class.equals(klass))
+                    table = "PlateAcquisitionAnnotationLink";
+            else if (WellSample.class.equals(klass) ||
+                            WellSampleData.class.equals(klass))
+                    table = "ScreenAnnotationLink";
+            else table = "AnnotationAnnotationLink";
+            return table;
     }
 
     /**

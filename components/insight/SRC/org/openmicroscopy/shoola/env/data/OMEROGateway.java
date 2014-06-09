@@ -2410,45 +2410,14 @@ class OMEROGateway
             List<Long> children, long userID)
         throws DSOutOfServiceException, DSAccessException
     {
-        Connector c = getConnector(ctx, true, false);
-        Multimap<Long, IObject> map = ArrayListMultimap.create();
         try {
-            IQueryPrx service = c.getQueryService();
-            String table = getAnnotationTableLink(node);
-            if (table == null) return null;
-            StringBuffer sb = new StringBuffer();
-            sb.append("select link from "+table+" as link ");
-            sb.append("left outer join fetch link.child child ");
-            sb.append("left outer join fetch link.parent parent ");
-            sb.append("left outer join fetch parent.details.owner ");
-            sb.append("left outer join fetch child.details.owner ");
-            sb.append("left outer join fetch link.details.owner ");
-            sb.append("where link.child.id in (:childIDs)");
-
-            ParametersI param = new ParametersI();
-            param.addLongs("childIDs", children);
-            sb.append(" and link.parent.id in (:parentIDs)");
-            param.addLongs("parentIDs", nodeIDs);
-            if (userID >= 0) {
-                sb.append(" and link.details.owner.id = :userID");
-                param.map.put("userID", omero.rtypes.rlong(userID));
-            }
-            List<IObject> list = service.findAllByQuery(sb.toString(), param);
-            if (CollectionUtils.isNotEmpty(list)) {
-                Iterator<IObject> j = list.iterator();
-                IObject link;
-                while (j.hasNext()) {
-                    link = (IObject) j.next();
-                    IObject p = ModelMapper.getParentFromLink(link);
-                    map.put(p.getId().getValue(), link);
-                }
-            }
-            return map;
-        } catch (Throwable t) {
-            handleException(t, "Cannot retrieve the requested link for "+
-            "the specified children");
+            return gateway
+                    .findAnnotationLinks(ctx, node, nodeIDs, children, userID);
+        } catch (omero.gateway.exception.DSOutOfServiceException e) {
+            throw new DSOutOfServiceException(e);
+        } catch (omero.gateway.exception.DSAccessException e) {
+            throw new DSAccessException(e);
         }
-        return map;
     }
 	
 	/**
@@ -6615,9 +6584,8 @@ class OMEROGateway
     RenderingDef getRenderingDef(SecurityContext ctx, long rndID)
         throws DSOutOfServiceException, DSAccessException
     {
-        Connector c = getConnector(ctx, true, false);
         try {
-            IPixelsPrx service = c.getPixelsService();
+            IPixelsPrx service = gateway.getPixelsService(ctx);
             return service.loadRndSettings(rndID);
         } catch (Exception e) {
             handleException(e, "Cannot retrieve the rendering settings");
