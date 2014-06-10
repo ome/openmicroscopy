@@ -37,15 +37,5 @@
         "output": {
             "omero.mem.blitz.option": "-Xmx512m -XX:MaxPermSize=1G"
         }
-    },
-    {
-        "name": "global-hardcoded-append",
-        "input": {
-            "omero.mem.strategy": "hardcoded",
-            "omero.mem.append": "foo"
-        },
-        "output": {
-            "omero.mem.blitz.option": "-Xmx512m -XX:MaxPermSize=128m foo"
-        }
     }
 ]
