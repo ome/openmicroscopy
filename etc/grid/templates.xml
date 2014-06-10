@@ -169,7 +169,9 @@
       <parameter name="jmxhost" default=""/>
       <parameter name="jmxport" default="3001"/>
       <server id="Blitz-${index}" exe="${JAVA}" activation="always" pwd="${OMERO_HOME}">
-        <option>${omero.mem.blitz.option}</option>
+        <option>${omero.mem.blitz.generated_heap}</option>
+        <option>${omero.mem.blitz.generated_dump}</option>
+        <option>${omero.mem.blitz.generated_perm}</option>
         <target name="debug">
             <option>-Xdebug</option>
             <option>-Xrunjdwp:server=y,transport=dt_socket,address=8787,suspend=y</option>
@@ -229,7 +231,9 @@
       <parameter name="index"/>
       <parameter name="config" default="default"/>
       <server id="Indexer-${index}" exe="${JAVA}" activation="always" pwd="${OMERO_HOME}">
-        <option>${omero.mem.indexer.option}</option>
+        <option>${omero.mem.indexer.generated_heap}</option>
+        <option>${omero.mem.indexer.generated_dump}</option>
+        <option>${omero.mem.indexer.generated_perm}</option>
         <option>-Djava.awt.headless=true</option>
         <option>-Dlogback.configurationFile=${OMERO_ETC}logback-indexing.xml</option>
         <option>-Domero.logfile=${OMERO_LOGFILE}</option>
@@ -253,7 +257,9 @@
       <parameter name="dir"/>
       <parameter name="config" default="default"/>
       <server id="PixelData-${index}" exe="${JAVA}" activation="always" pwd="${OMERO_HOME}">
-        <option>${omero.mem.pixeldata.option}</option>
+        <option>${omero.mem.pixeldata.generated_heap}</option>
+        <option>${omero.mem.pixeldata.generated_dump}</option>
+        <option>${omero.mem.pixeldata.generated_perm}</option>
         <option>-Djava.awt.headless=true</option>
         <option>-Dlogback.configurationFile=${OMERO_ETC}logback-indexing.xml</option>
         <option>-Domero.logfile=${OMERO_LOGFILE}</option>
@@ -278,7 +284,9 @@
       <parameter name="dir"/>
       <parameter name="config" default="default"/>
       <server id="Repository-${index}" exe="${JAVA}" activation="always" pwd="${OMERO_HOME}">
-        <option>${omero.mem.repository.option}</option>
+        <option>${omero.mem.repository.generated_heap}</option>
+        <option>${omero.mem.repository.generated_dump}</option>
+        <option>${omero.mem.repository.generated_perm}</option>
         <option>-Djava.awt.headless=true</option>
         <option>-Dlogback.configurationFile=${OMERO_ETC}logback.xml</option>
         <option>-Domero.logfile=${OMERO_LOGFILE}</option>

@@ -139,7 +139,11 @@ class TestStrategy(object):
     def test_hard_coded(self):
         strategy = HardCodedStrategy("blitz")
         settings = strategy.get_memory_settings()
-        assert "-Xmx512m -XX:MaxPermSize=128m" == settings
+        assert settings == {
+            "generated_heap": "-Xmx512m",
+            "generated_dump": "",
+            "generated_perm": "-XX:MaxPermSize=128m",
+        }
 
     def test_percent_usage(self):
         strategy = PercentStrategy("blitz")
