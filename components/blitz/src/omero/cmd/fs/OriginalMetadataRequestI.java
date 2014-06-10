@@ -202,12 +202,6 @@ public class OriginalMetadataRequestI extends OriginalMetadataRequest implements
 				if (val instanceof Short) {
 					// Likely could be handled in toRType
 					rv.put(key, mapper.toRType(((Short) val).intValue()));
-				} else if (val instanceof DeltavisionReader.DVExtHdrFields) {
-					// interface is needed for detecting such collections.
-					Map<String, Object> m2 = ((DeltavisionReader.DVExtHdrFields) val).asMap();
-					for (Entry<String, Object> entry2 : m2.entrySet()) {
-						rv.put(entry2.getKey(), mapper.toRType(entry2.getValue()));
-					}
 				} else {
 					rv.put(key, mapper.toRType(val));
 				}
