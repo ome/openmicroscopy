@@ -5510,8 +5510,8 @@ class _PixelsWrapper (BlitzObjectWrapper):
                 "uint16":['H',numpy.uint16],
                 "int32":['i',numpy.int32],
                 "uint32":['I',numpy.uint32],
-                "float":['f',numpy.float],
-                "double":['d', numpy.double]}
+                "float":['f',numpy.float32],
+                "double":['d', numpy.float64]}
 
         rawPixelsStore = self._prepareRawPixelsStore()
         sizeX = self.sizeX
