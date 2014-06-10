@@ -92,8 +92,35 @@
 
 
         <ul id="groupList" class="submenu" style="box-shadow:0 0 0 white; top:0; bottom:0; overflow-y: scroll; overflow-x: hidden; position: relative; float: left">
+
+        {% if ome.eventContext.isAdmin %}
+            <li class="non_selectable"><strong>My Groups</strong></li>
+        {% endif %}
+
+        {% for grp in myGroups %}
+            <li {% ifequal grp.id eContext.context.groupId %}class="current_group"{% endifequal %}>
+                <a href="#" data-gid="{{ grp.id }}">
+                    <img
+                    {% if grp.getDetails.getPermissions.isGroupWrite %} src="{% static 'webclient/image/group_green16.png' %}"
+                    {% else %}
+                        {% if grp.getDetails.getPermissions.isGroupAnnotate %} src="{% static "webclient/image/group_orange16.png" %}"
+                        {% else %}
+                            {% if grp.details.permissions.isGroupRead %} src="{% static "webclient/image/group_red16.png" %}"
+                            {% else %}
+                                src="{% static "webclient/image/personal16.png" %}"
+                            {% endif %}
+                        {% endif %}
+                    {% endif %} />
+                    {{ grp.getName }}
+                </a>
+            </li>
+        {% endfor %}
+
+        {% if ome.eventContext.isAdmin %}
+            <li class="non_selectable"><strong>ALL Groups</strong></li>
+
             {% for grp in groups %}
-                <li title="Click to switch Group" {% ifequal grp.id eContext.context.groupId %}class="current_group"{% endifequal %}>
+                <li {% ifequal grp.id eContext.context.groupId %}class="current_group"{% endifequal %}>
                     <a href="#" data-gid="{{ grp.id }}">
                         <img
                         {% if grp.getDetails.getPermissions.isGroupWrite %} src="{% static 'webclient/image/group_green16.png' %}"
@@ -110,6 +137,7 @@
                     </a>
                 </li>
             {% endfor %}
+        {% endif %}
         </ul>
 
 
