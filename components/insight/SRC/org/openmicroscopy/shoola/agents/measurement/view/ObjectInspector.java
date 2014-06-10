@@ -38,8 +38,6 @@ import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.table.TableCellEditor;
 
-import ome.tools.StringUtils;
-
 import org.jhotdraw.draw.AttributeKey;
 import org.jhotdraw.draw.TextHolderFigure;
 import org.openmicroscopy.shoola.agents.measurement.IconManager;
