@@ -1,8 +1,8 @@
 [
     {
-        "name": "global-hardcoded-defaults",
+        "name": "global-manual-defaults",
         "input": {
-            "omero.mem.strategy": "hardcoded"
+            "omero.mem.strategy": "manual"
         },
         "output": {
             "omero.mem.blitz.generated_heap": "-Xmx512m",
@@ -11,9 +11,9 @@
         }
     },
     {
-        "name": "global-hardcoded-1g",
+        "name": "global-manual-1g",
         "input": {
-            "omero.mem.strategy": "hardcoded",
+            "omero.mem.strategy": "manual",
             "omero.mem.heap_size": "1G"
         },
         "output": {
@@ -23,9 +23,9 @@
         }
     },
     {
-        "name": "global-hardcoded-heapdump",
+        "name": "global-manual-heapdump",
         "input": {
-            "omero.mem.strategy": "hardcoded",
+            "omero.mem.strategy": "manual",
             "omero.mem.heap_dump": "on"
         },
         "output": {
@@ -35,9 +35,9 @@
         }
     },
     {
-        "name": "global-hardcoded-permgen",
+        "name": "global-manual-permgen",
         "input": {
-            "omero.mem.strategy": "hardcoded",
+            "omero.mem.strategy": "manual",
             "omero.mem.perm_gen": "1G"
         },
         "output": {

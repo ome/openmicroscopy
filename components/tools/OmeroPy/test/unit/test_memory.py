@@ -29,7 +29,7 @@ import pytest
 from omero.config import ConfigXml, xml
 
 from omero.install.memory import adjust_settings
-from omero.install.memory import HardCodedStrategy
+from omero.install.memory import ManualStrategy
 from omero.install.memory import PercentStrategy
 from omero.install.memory import Settings
 from omero.install.memory import Strategy
@@ -137,7 +137,7 @@ class TestStrategy(object):
             Strategy("blitz")
 
     def test_hard_coded(self):
-        strategy = HardCodedStrategy("blitz")
+        strategy = ManualStrategy("blitz")
         settings = strategy.get_memory_settings()
         assert settings == {
             "generated_heap": "-Xmx512m",
