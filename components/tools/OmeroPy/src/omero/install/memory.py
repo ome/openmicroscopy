@@ -145,7 +145,7 @@ class Strategy(object):
         return values
 
 
-class HardCodedStrategy(Strategy):
+class ManualStrategy(Strategy):
     """
     Simplest strategy which assumes all values have
     been set and simply uses them or their defaults.
@@ -247,7 +247,7 @@ class PercentStrategy(Strategy):
             yield total, self.calculate_heap_size(method)
 
 
-STRATEGY_REGISTRY["hardcoded"] = HardCodedStrategy
+STRATEGY_REGISTRY["manual"] = ManualStrategy
 STRATEGY_REGISTRY["percent"] = PercentStrategy
 
 
