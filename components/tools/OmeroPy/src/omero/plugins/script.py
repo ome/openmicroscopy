@@ -527,8 +527,20 @@ class ScriptControl(BaseControl):
                             proto_value = None
 
                         self.ctx.out("    Subtype: %s" % proto_value)
-                    self.ctx.out("    Min: %s" % (v.min and v.min.val or ""))
-                    self.ctx.out("    Max: %s" % (v.max and v.max.val or ""))
+
+                    # ticket:11472 - string min/max need quoting
+                    def min_max(x):
+                        if x:
+                            if x.val is None:
+                                return ""
+                            elif isinstance(x, omero.RString):
+                                return "'%s'" % x.val
+                            else:
+                                return x.val
+                        return ""
+
+                    self.ctx.out("    Min: %s" % min_max(v.min))
+                    self.ctx.out("    Max: %s" % min_max(v.max))
                     values = omero.rtypes.unwrap(v.values)
                     self.ctx.out("    Values: %s"
                                  % (values and ", ".join(values) or ""))
