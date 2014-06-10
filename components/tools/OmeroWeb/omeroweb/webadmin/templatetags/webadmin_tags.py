@@ -71,6 +71,10 @@ def webadmin_options():
 
     options = {'email': False}
 
+    # TODO Remove DEVELOPMENT SETTING when feature finalised
+    if not settings.WEBADMIN_ENABLE_EMAIL:
+        return options
+
     # Check that the appropriate web settings are available
     if (settings.SERVER_EMAIL or settings.EMAIL_HOST or
         settings.EMAIL_PORT):
