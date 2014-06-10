@@ -24,6 +24,9 @@ Automatic configuration of memory settings for Java servers.
 """
 
 from types import StringType
+import logging
+
+LOGGER = logging.getLogger("omero.install.memory")
 
 
 def strip_prefix(map, prefix=("omero", "mem")):
@@ -189,7 +192,59 @@ class PercentStrategy(Strategy):
         """
         Returns a tuple, in MB, of available and total memory.
         """
-        return (4000, 8000)  # FIXME
+        pymem = self._system_memory_mb_psutil()
+        if pymem:
+            return pymem
+        return self._system_memory_mb_java()
+
+    def _system_memory_mb_psutil(self):
+        try:
+            import psutil
+            pymem = psutil.virtual_memory()
+            return (pymem.free/1000000, pymem.total/1000000)
+        except ImportError:
+            LOGGER.debug("No psutil installed")
+            return None
+
+    def _system_memory_mb_java(self):
+        import omero.cli
+        import subprocess
+        import omero.java
+
+        # Copied from db.py. Needs better dir detection
+        cwd = omero.cli.CLI().dir
+        server_jar = cwd / "lib" / "server" / "server.jar"
+        cmd = ["ome.services.util.JvmSettingsCheck", "--psutil"]
+        p = omero.java.popen(["-cp", str(server_jar)] + cmd)
+        o, e = p.communicate()
+
+        if p.poll() != 0:
+            LOGGER.warn("Failed to invoke java:\nout:%s\nerr:%s",
+                        o, e)
+
+        rv = dict()
+        for line in o.split("\n"):
+            line = line.strip()
+            if not line:
+                continue
+            parts = line.split(":")
+            if len(parts) == 1:
+                parts.append("")
+            rv[parts[0]] = parts[1]
+
+        try:
+            free = long(rv["Free"]) / 1000000
+        except:
+            LOGGER.warn("Failed to parse Free from %s", rv)
+            free = 2000
+
+        try:
+            total = long(rv["Total"]) / 1000000
+        except:
+            LOGGER.warn("Failed to parse Total from %s", rv)
+            total = 4000
+
+        return (free, total)
 
     def usage_table(self, min=10, max=20):
         total_mb = [2**x for x in range(min, max)]
