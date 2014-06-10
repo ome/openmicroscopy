@@ -137,12 +137,12 @@ class Strategy(object):
             return "-XX:MaxPermSize=%s" % pg
 
     def get_memory_settings(self):
-        values = [
-            self.get_heap_size(),
-            self.get_heap_dump(),
-            self.get_perm_gen(),
-        ]
-        return " ".join([x for x in values if x])
+        values = {
+            "generated_heap": self.get_heap_size(),
+            "generated_dump": self.get_heap_dump(),
+            "generated_perm": self.get_perm_gen(),
+        }
+        return values
 
 
 class HardCodedStrategy(Strategy):
@@ -273,7 +273,8 @@ def adjust_settings(config,
             StrategyType = settings.get_strategy()
 
         strategy = StrategyType(name, settings)
+        settings = strategy.get_memory_settings()
         for x in (config, rv):
-            x["%s.option" % prefix] = strategy.get_memory_settings()
-            x["%s.option" % prefix] = strategy.get_memory_settings()
+            for k, v in settings.items():
+                x["%s.%s" % (prefix, k)] = v
     return rv
