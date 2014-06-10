@@ -172,11 +172,11 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
                 slice2java (${ice.slice2java}) version = ${executable.ice.version}
                 Expected version = ${ice.compatibility}
 
-                If you would like to configure which Ice to use, set
-                ice.compatibility=3.3, ice.compatibility=3.4, or
+                If you would like to configure which Ice to use,
+                set ice.compatibility=3.4 or
                 ice.compatibility=3.5 in your etc/local.properties
                 file or on the command- line:
-                  ./build.py -Dice.compatibility=3.3
+                  ./build.py -Dice.compatibility=3.5
 
             </fail></then>
         </if>
