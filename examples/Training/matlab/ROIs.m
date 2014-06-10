@@ -1,4 +1,4 @@
-% Copyright (C) 2011-2013 University of Dundee & Open Microscopy Environment.
+% Copyright (C) 2011-2014 University of Dundee & Open Microscopy Environment.
 % All rights reserved.
 %
 % This program is free software; you can redistribute it and/or modify
@@ -18,16 +18,19 @@
 
 % To learn about the model see  http://www.ome-xml.org/wiki/ROI/2010-04.
 % Note that annotation can be linked to ROI.
-% ROIs
 try
+    % Initialize a client and a session using the ice.config file
+    % See ConnectToOMERO for alternative ways to initialize a session
     [client, session] = loadOmero();
-    fprintf(1, 'Created connection to %s\n', char(client.getProperty('omero.host')));
-    fprintf(1, 'Created session for user %s using group %s\n',...
-        char(session.getAdminService().getEventContext().userName),...
-        char(session.getAdminService().getEventContext().groupName));
-    
+    p = parseOmeroProperties(client);
+    eventContext = session.getAdminService().getEventContext();
+    fprintf(1, 'Created connection to %s\n', p.hostname);
+    msg = 'Created session for user %s (id: %g) using group %s (id: %g)\n';
+    fprintf(1, msg, char(eventContext.userName), eventContext.userId,...
+        char(eventContext.groupName), eventContext.groupId);
+  
     % Information to edit
-    imageId = str2double(client.getProperty('image.id'));
+    imageId = p.imageid;
     
     % Load image
     image = getImages(session, imageId);
