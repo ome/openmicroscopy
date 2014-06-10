@@ -340,19 +340,17 @@
 		}
 		
 		#listViewPort {
-		    height: 450px;
-		    width: 370px;
+		    /*height: 450px;*/
+		    width: 360px;
 		}
 
 		.usersList {
-			position: absolute;
-			top: 0;
-			left: 180px !important;
+			position: relative !important;
 			width: 180px !important;
 			box-shadow: 0 0 0 white !important;
-			bottom: 0;
 			overflow-y: scroll;
 			overflow-x: hidden;
+			float: right;
 		}
 	
 
@@ -1104,7 +1102,9 @@ li.menu_back a {
 
 	.left_panel_inner {
 	     position: absolute;
-	     left:0px; right:0px;
+	     left:0;
+	     right:0;
+	     bottom:0;
 	     overflow: auto;
 		 border-right:solid 1px hsl(210,10%,85%);
 	 }
