@@ -167,7 +167,7 @@ class PercentStrategy(Strategy):
 
     def __init__(self, name, settings=None):
         super(PercentStrategy, self).__init__(name, settings)
-        self.settings.heap_size = self.calculate_heap_size()
+        self.settings.heap_size = "%sm" % self.calculate_heap_size()
 
     def calculate_heap_size(self, method=None):
         """
