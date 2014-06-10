@@ -1,4 +1,5 @@
 {% extends "webgateway/core_html.html" %}
+{% load tz %}
 {% load i18n %}
 
 {% comment %}
@@ -36,7 +37,7 @@
     
 	{% include "webgateway/base/includes/script_src_jquery.html" %}
 	<script src="{% static 'webclient/javascript/jquery.infieldlabel.js' %}" type="text/javascript"></script>
-	
+
 {% endblock %}
 
 

@@ -1,9 +1,9 @@
 {% extends "webgateway/core_html.html" %}
+{% load tz %}
 {% load i18n %}
 {% load common_tags %}
 {% load common_filters %}
 {% load wikitags %}
-
 
 {% comment %}
 <!--
@@ -225,11 +225,11 @@
                 {% endif %}
                 <tr>
                     <th>Acquisition Date:</th>
-                    <td id='acqu_date'>{{ manager.image.getDate|date:"Y-m-d H:i:s" }}</td> <!-- TODO: Insight is m/d/yy h:min AM/PM -->
+                    <td id='acqu_date'>{{ manager.image.getDate|localtime|date:"Y-m-d H:i:s" }}</td> <!-- TODO: Insight is m/d/yy h:min AM/PM -->
                 </tr>
                 <tr>
                     <th>Imported Date:</th>
-                    <td id='import_date'>{{ manager.image.creationEventDate|date:"Y-m-d H:i:s" }}</td>
+                    <td id='import_date'>{{ manager.image.creationEventDate|localtime|date:"Y-m-d H:i:s" }}</td>
                 </tr>
                 <tr>
                     <th>Dimensions (XY):</th>
@@ -290,11 +290,11 @@
                     </tr>
                     <tr>
                         <th>Creation Date:</th>
-                        <td id='creation_date'>{{ manager.share.getStartDate|date:"Y-m-d H:i:s" }}</td>
+                        <td id='creation_date'>{{ manager.share.getStartDate|localtime|date:"Y-m-d H:i:s" }}</td>
                     </tr> 
                     <tr>
                         <th>Expiry Date:</th>
-                        <td id='creation_date'>{{ manager.share.getExpireDate|date:"Y-m-d H:i:s" }}</td>
+                        <td id='creation_date'>{{ manager.share.getExpireDate|localtime|date:"Y-m-d H:i:s" }}</td>
                     </tr>                   
                     <tr>
                         <th>Share Count:</th>

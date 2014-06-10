@@ -1,3 +1,4 @@
+{% load tz %}
 {% load i18n %}
 {% load common_filters %}
 
@@ -193,7 +194,7 @@
 						
 						
 						<!-- I need to put this back in -->
-						<!--{{ j.start_time|date:"H:i" }}-->
+						<!--{{ j.start_time|localtime|date:"H:i" }}-->
 						
 						<!-- Out until there is a better way of displaying -->
 						<!--<span class="status">{{ j.status }}</span>-->

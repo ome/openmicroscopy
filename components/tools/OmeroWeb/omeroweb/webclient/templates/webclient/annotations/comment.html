@@ -1,3 +1,4 @@
+{% load tz %}
 {% load i18n %}
 {% load common_filters %}
 {% load wikitags %}
@@ -39,7 +40,7 @@
         <div class="ann_comment_header">
             <strong>{{ tann.getOwner.getFullName }}</strong> 
             {% trans "at" %} 
-            {{ tann.creationEventDate|date:"Y-m-d H:i:s" }}
+            {{ tann.creationEventDate|localtime|date:"Y-m-d H:i:s" }}
         </div>
     
         {% if tann.canDelete %}

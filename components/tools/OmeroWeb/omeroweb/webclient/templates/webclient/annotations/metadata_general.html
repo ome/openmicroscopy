@@ -1,9 +1,7 @@
-
-
+{% load tz %}
 {% load i18n %}
 {% load common_filters %}
 {% load common_tags %}
-
 
 {% comment %}
 <!--
@@ -563,7 +561,7 @@
                     </tr>
                     <tr>
                         <th>Creation Date:</th>
-                        <td id='creation_date'>{{ manager.dataset.getDate|date:"Y-m-d H:i:s" }}</td>
+                        <td id='creation_date'>{{ manager.dataset.getDate|localtime|date:"Y-m-d H:i:s" }}</td>
                     </tr>                    
                 </table>
                 {% else %}
@@ -595,7 +593,7 @@
                         </tr>
                         <tr>
                             <th>Creation Date:</th>
-                            <td id='creation_date'>{{ manager.project.getDate|date:"Y-m-d H:i:s" }}</td>
+                            <td id='creation_date'>{{ manager.project.getDate|localtime|date:"Y-m-d H:i:s" }}</td>
                         </tr>
                     </table>
                     {% endif %}
@@ -676,7 +674,7 @@
                     </tr>
                     <tr>
                         <th>Creation Date:</th>
-                        <td id='creation_date'>{{ manager.acquisition.getDate|date:"Y-m-d H:i:s" }}</td>
+                        <td id='creation_date'>{{ manager.acquisition.getDate|localtime|date:"Y-m-d H:i:s" }}</td>
                     </tr>
                 </table>
                 {% else %}
@@ -709,7 +707,7 @@
                         </tr>
                         <tr>
                             <th>Creation Date:</th>
-                            <td id='creation_date'>{{ manager.plate.getDate|date:"Y-m-d H:i:s" }}</td>
+                            <td id='creation_date'>{{ manager.plate.getDate|localtime|date:"Y-m-d H:i:s" }}</td>
                         </tr>
                         <!--{% comment %}
                         <tr>
@@ -747,7 +745,7 @@
                             </tr>
                             <tr>
                                 <th>Creation Date:</th>
-                                <td id='creation_date'>{{ manager.screen.getDate|date:"Y-m-d H:i:s" }}</td>
+                                <td id='creation_date'>{{ manager.screen.getDate|localtime|date:"Y-m-d H:i:s" }}</td>
                             </tr>                    
                             <tr>
                                 <th>Screen Count:</th>
@@ -879,7 +877,7 @@
                                 <span class="tooltip_html" style='display:none'>{% if ann.ns %}<b>Namespace:</b> {{ ann.ns }}<br />{% endif %}
                                     {% if ann.description %}<b>Description:</b> {{ ann.description }}<br />{% endif %}
                                     <b>Owner:</b> {{ ann.getOwner.getFullName }}<br />
-                                    <b>Date:</b> {{ ann.creationEventDate|date:"Y-m-d H:i:s" }}</span>
+                                    <b>Date:</b> {{ ann.creationEventDate|localtime|date:"Y-m-d H:i:s" }}</span>
                             </td>
                         </tr>
                         {% endfor %}
@@ -891,7 +889,7 @@
                                 <span class="tooltip_html" style='display:none'>{% if ann.ns %}<b>Namespace:</b> {{ ann.ns }}<br />{% endif %}
                                     {% if ann.description %}<b>Description:</b> {{ ann.description }}<br />{% endif %}
                                     <b>Owner:</b> {{ ann.getOwner.getFullName }}<br />
-                                    <b>Date:</b> {{ ann.creationEventDate|date:"Y-m-d H:i:s" }}</span>
+                                    <b>Date:</b> {{ ann.creationEventDate|localtime|date:"Y-m-d H:i:s" }}</span>
                             </td>
                         </tr>
                         {% endfor %}
@@ -902,7 +900,7 @@
                                 <span class="tooltip_html" style='display:none'>{% if ann.ns %}<b>Namespace:</b> {{ ann.ns }}<br />{% endif %}
                                     {% if ann.description %}<b>Description:</b> {{ ann.description }}<br />{% endif %}
                                     <b>Owner:</b> {{ ann.getOwner.getFullName }}<br />
-                                    <b>Date:</b> {{ ann.creationEventDate|date:"Y-m-d H:i:s" }}</span>
+                                    <b>Date:</b> {{ ann.creationEventDate|localtime|date:"Y-m-d H:i:s" }}</span>
                             </td>
                         </tr>
                         {% endfor %}
@@ -913,7 +911,7 @@
                                 <span class="tooltip_html" style='display:none'>{% if ann.ns %}<b>Namespace:</b> {{ ann.ns }}<br />{% endif %}
                                     {% if ann.description %}<b>Description:</b> {{ ann.description }}<br />{% endif %}
                                     <b>Owner:</b> {{ ann.getOwner.getFullName }}<br />
-                                    <b>Date:</b> {{ ann.creationEventDate|date:"Y-m-d H:i:s" }}</span>
+                                    <b>Date:</b> {{ ann.creationEventDate|localtime|date:"Y-m-d H:i:s" }}</span>
                             </td>
                         </tr>
                         {% endfor %}
@@ -924,7 +922,7 @@
                                 <span class="tooltip_html" style='display:none'>{% if ann.ns %}<b>Namespace:</b> {{ ann.ns }}<br />{% endif %}
                                     {% if ann.description %}<b>Description:</b> {{ ann.description }}<br />{% endif %}
                                     <b>Owner:</b> {{ ann.getOwner.getFullName }}<br />
-                                    <b>Date:</b> {{ ann.creationEventDate|date:"Y-m-d H:i:s" }}</span>
+                                    <b>Date:</b> {{ ann.creationEventDate|localtime|date:"Y-m-d H:i:s" }}</span>
                             </td>
                         </tr>
                         {% endfor %}
@@ -935,7 +933,7 @@
                                 <span class="tooltip_html" style='display:none'>{% if ann.ns %}<b>Namespace:</b> {{ ann.ns }}<br />{% endif %}
                                     {% if ann.description %}<b>Description:</b> {{ ann.description }}<br />{% endif %}
                                     <b>Owner:</b> {{ ann.getOwner.getFullName }}<br />
-                                    <b>Date:</b> {{ ann.creationEventDate|date:"Y-m-d H:i:s" }}</span>
+                                    <b>Date:</b> {{ ann.creationEventDate|localtime|date:"Y-m-d H:i:s" }}</span>
                             </td>
                         </tr>
                         {% endfor %}
@@ -1042,7 +1040,7 @@
                     </tr>
                     <tr>
                         <th>Creation Date:</th>
-                        <td id='creation_date'>{{ manager.tag.getDate|date:"Y-m-d H:i:s" }}</td>
+                        <td id='creation_date'>{{ manager.tag.getDate|localtime|date:"Y-m-d H:i:s" }}</td>
                     </tr>
                     <tr>
                         <th>Image Count:</th>
