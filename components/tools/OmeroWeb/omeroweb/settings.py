@@ -321,10 +321,11 @@ CUSTOM_SETTINGS_MAPPINGS = {
     # in https://docs.djangoproject.com/en/1.6/ref/settings/#time-zone
     # If running in a Windows environment this must be set to the same as your
     # system time zone.
-    "omero.web.time_zone": ["TIME_ZONE", "Europe/London", str],
-    
+    "omero.web.time_zone": ["TIME_ZONE", None, leave_none_unset],
+    "omero.web.use_tz": ["USE_TZ", "true", parse_boolean],
     "omero.web.first_day_of_week": ["FIRST_DAY_OF_WEEK", 0, int],
 }
+
 
 # DEVELOPMENT_SETTINGS_MAPPINGS - WARNING: For each setting developer MUST open
 # a ticket that needs to be resolved before a release either by moving the
@@ -416,6 +417,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
     #'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
+    'omeroweb.webgateway.middleware.TimezoneMiddleware',
 )
 
 
@@ -652,3 +654,5 @@ def load_server_list():
         Server(host=unicode(s[0]), port=int(s[1]), server=server)
     Server.freeze()
 load_server_list()
+
+FIRST_DAY_OF_WEEK = 0 and FIRST_DAY_OF_WEEK not in [0,1,2,3,4,5,6] or FIRST_DAY_OF_WEEK
