@@ -39,12 +39,12 @@
       <property name="omero.example" value="my_value"/>
     </properties>
 
+    <include file="config.xml"/>
     <!--
       Templates can be found in the same directory as this file, and are included here
       in their entirety except for the outermost <icegrid/> element.
     -->
     <include file="templates.xml"/>
-    <include file="config.xml"/>
 
     <node name="master">
       <server-instance template="Glacier2Template"

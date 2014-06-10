@@ -259,6 +259,7 @@ class ConfigXml(object):
         # First step is to add a new self.INTERNAL block to it
         # which has self.DEFAULT set to the current default,
         # and then copies all the values from that profile.
+        variables = list()
         default = self.env_config.for_save(self)
         internal = SubElement(icegrid, "properties", id=self.INTERNAL)
         SubElement(internal, "property", name=self.DEFAULT, value=default)
@@ -268,6 +269,7 @@ class ConfigXml(object):
             for x in to_copy.getchildren():
                 if x.get("name") != self.DEFAULT and x.get("name") != self.KEY:
                     SubElement(internal, "property", x.attrib)
+                    variables.append(x)
         else:
             # Doesn't exist, create it
             properties = SubElement(icegrid, "properties", id=default)
@@ -277,6 +279,9 @@ class ConfigXml(object):
         for k, p in prop_list:
             self.clear_text(p)
             icegrid.append(p)
+        # And make variables of all the active properties
+        for variable in variables:
+            SubElement(icegrid, "variable", variable.attrib)
 
         temp_file = path.path(self.filename + ".temp")
         try:
