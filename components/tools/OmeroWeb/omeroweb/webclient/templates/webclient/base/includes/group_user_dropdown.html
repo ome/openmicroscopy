@@ -27,25 +27,40 @@
 
         var $groupList = $("#groupList"),
             $listViewPort = $("#listViewPort"),
-            $usersList = $(".usersList");
+            $usersList = $(".usersList"),
+            DROPDOWN_HEIGHT = $(document).height()-110;
+
+        // prepare lists for show/hide
+        $groupList.css('max-height', DROPDOWN_HEIGHT + 'px');
+        $usersList.css('max-height', DROPDOWN_HEIGHT + 'px');
+        $groupList.css('visibility', 'visible');
+        $listViewPort.css('visibility', 'visible').hide();
+        $usersList.css('visibility', 'visible').hide();
 
         // Button toggles visibility of group chooser dropdown
-        $("#groupsUsersButton").click(function(){
-            if ($groupList.css('visibility') == "visible") {
-                $groupList.css('visibility', 'hidden');
-                $listViewPort.css('visibility', 'hidden');
+        $("#groupsUsersButton").click(function(event){
+            event.preventDefault();
+
+            if ($listViewPort.is(":visible")) {
+                $listViewPort.hide();
             } else {
-                $groupList.css('visibility', 'visible');
-                $listViewPort.css('visibility', 'visible');
-                $usersList.css('visibility', 'visible').hide();
+                $listViewPort.show();
             }
+            return false;
         });
 
         // When hover or click on a Group, show Users...
         $( "#groupList" ).on( "mouseenter click", "li a", function(event) {
+            event.preventDefault();
             var gid = $(this).attr("data-gid");
             $usersList.hide();
             $("#groupMembers-" + gid).show();
+            return false;
+        });
+
+        // Any clicks that bubble up to body hide list...
+        $('body').click(function(event) {
+            $listViewPort.hide();
         });
 
     });
@@ -76,7 +91,7 @@
         <div id="listViewPort" class="dropdown">
 
 
-        <ul id="groupList" class="submenu" style="box-shadow:0 0 0 white; top:0; bottom:0; overflow-y: scroll; overflow-x: hidden">
+        <ul id="groupList" class="submenu" style="box-shadow:0 0 0 white; top:0; bottom:0; overflow-y: scroll; overflow-x: hidden; position: relative; float: left">
             {% for grp in groups %}
                 <li title="Click to switch Group" {% ifequal grp.id eContext.context.groupId %}class="current_group"{% endifequal %}>
                     <a href="#" data-gid="{{ grp.id }}">
@@ -147,6 +162,7 @@
                     </ul>
         {% endfor %}
 
+        <div style="clear:both"></div>
 
         </div>
     </li>
