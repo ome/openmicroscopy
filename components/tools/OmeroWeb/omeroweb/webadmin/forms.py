@@ -298,6 +298,15 @@ class EmailForm(forms.Form):
     #Define these as None just so I can order them
     everyone = forms.BooleanField(required=False, label='All Users')
 
+    experimenters = forms.TypedMultipleChoiceField(
+        required=False,
+        coerce=int
+    )
+    groups = forms.TypedMultipleChoiceField(
+        required=False,
+        coerce=int
+    )
+
     # TODO CC isn't really CC. Maybe change label or change functionality
     cc = MultiEmailField(required=False)
     subject = forms.CharField(max_length=100, required=True)
@@ -309,22 +318,34 @@ class EmailForm(forms.Form):
 
     def __init__(self, experimenters, groups, conn, request, *args, **kwargs):
         super(EmailForm, self).__init__(*args, **kwargs)
+        # Process Experimenters/Groups into choices (lists of tuples)
+        self.fields['experimenters'].choices = \
+            [(experimenter.id, experimenter.firstName + \
+             ' ' + experimenter.lastName + ' (' + experimenter.omeName + ')' + \
+             (' - Inactive' if not experimenter.isActive() else '')) \
+             for experimenter in experimenters]
 
-        self.fields['experimenters'] = ExperimenterModelMultipleChoiceField(
-            queryset=experimenters,
-            label='Users',
-            required=False
-        )
+        self.fields['groups'].choices = [(group.id, group.name) \
+            for group in groups]
 
-        self.fields['groups'] = GroupModelMultipleChoiceField(
-            queryset=groups,
-            label='Groups',
-            required=False,
-        )
+        # TODO If these are adapted to support inactive users for experimenters
+        # and not show the permissions for groups, can use these:
+
+        # self.fields['experimenters'] = ExperimenterModelMultipleChoiceField(
+        #     queryset=experimenters,
+        #     label='Users',
+        #     required=False
+        # )
+
+        # self.fields['groups'] = GroupModelMultipleChoiceField(
+        #     queryset=groups,
+        #     label='Groups',
+        #     required=False,
+        # )
 
         # Order the form fields
-        self.fields.keyOrder = ['everyone', 'experimenters', 'groups', 'cc',
-                                'subject', 'message', 'inactive']
+        # self.fields.keyOrder = ['everyone', 'experimenters', 'groups', 'cc',
+        #                         'subject', 'message', 'inactive']
 
         self.conn = conn
         self.request = request
