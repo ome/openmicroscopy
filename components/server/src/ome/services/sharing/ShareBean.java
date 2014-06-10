@@ -831,10 +831,20 @@ public class ShareBean extends AbstractLevel2Service implements LocalShare {
         return new HashSet<Session>(list);
     }
 
-    protected Share shareToSession(ShareData data) {
-        Share share = iQuery.findByQuery("select sh from Share sh "
-                + "join fetch sh.owner where sh.id = :id ", new Parameters()
-                .addId(data.id));
+    protected Share shareToSession(final ShareData data) {
+        Share share = iQuery.execute(new HibernateCallback<Share>() {
+            public Share doInHibernate(org.hibernate.Session arg0)
+                    throws HibernateException, SQLException {
+                resetReadFilter(arg0);
+                return (Share) arg0
+                        .createQuery(
+                                "select sh from Share sh "
+                                        + "join fetch sh.owner "
+                                        + "where sh.id = :id")
+                        .setParameter("id", data.id).uniqueResult();
+            }
+        });
+
         if (share != null) {
             share.putAt("#2733", "ALLOW");
         }
