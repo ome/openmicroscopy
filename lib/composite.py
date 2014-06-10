@@ -5,7 +5,7 @@
 Creates composite builds from the various client build artifacts/platforms.
 """
 
-# Copyright (C) 2009-2013 University of Dundee
+# Copyright (C) 2009-2014 University of Dundee
 
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
