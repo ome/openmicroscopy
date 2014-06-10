@@ -38,6 +38,8 @@ import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.table.TableCellEditor;
 
+import ome.tools.StringUtils;
+
 import org.jhotdraw.draw.AttributeKey;
 import org.jhotdraw.draw.TextHolderFigure;
 import org.openmicroscopy.shoola.agents.measurement.IconManager;
@@ -198,17 +200,17 @@ class ObjectInspector
                     ((TextHolderFigure) figure).setText(text);
                 }
             } else if (attr.equals(MeasurementAttributes.FONT_SIZE)) {
-                double d = Double.parseDouble(text);
+                double d = parseDouble(text);
                 figure.setAttribute(MeasurementAttributes.FONT_SIZE, d);
                figure.changed();
             }
             else if (attr.equals(MeasurementAttributes.STROKE_WIDTH)) {
-                double d = Double.parseDouble(text);
+                double d = parseDouble(text);
                 figure.setAttribute(MeasurementAttributes.STROKE_WIDTH, d);
             }
             else if (attr.equals(MeasurementAttributes.WIDTH)) {
                 try {
-                    double d = Double.parseDouble(text);
+                    double d = parseDouble(text);
                     setFigureDimension(figure, MeasurementAttributes.WIDTH, d);
                     if (isScaleProportionally()) {
                         setFigureDimension(figure, MeasurementAttributes.HEIGHT, d);
@@ -217,7 +219,7 @@ class ObjectInspector
                 }
             } else if (attr.equals(MeasurementAttributes.HEIGHT)) {
                 try {
-                    double d = Double.parseDouble(text);
+                    double d = parseDouble(text);
                     setFigureDimension(figure, MeasurementAttributes.HEIGHT, d);
                     if (isScaleProportionally()) {
                         setFigureDimension(figure, MeasurementAttributes.WIDTH, d);
@@ -226,6 +228,27 @@ class ObjectInspector
                 }
             }
             model.getDrawingView().repaint();
+        }
+        
+        /**
+         * Safe method to parse text into double value
+         * 
+         * @param text
+         *            The text to convert to double
+         * @return The parsed double value or 1 if input is invalid or < 1
+         */
+        private double parseDouble(String text) {
+            double result = 1;
+            if (text != null && text.trim().length() > 0) {
+                try {
+                    result = Double.parseDouble(text);
+                } catch (NumberFormatException e) {
+                }
+                if (result < 1) {
+                    result = 1;
+                }
+            }
+            return result;
         }
 	
 	private void setFigureDimension(ROIFigure figure, AttributeKey key,
