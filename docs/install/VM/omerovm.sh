@@ -134,7 +134,7 @@ function createvm ()
 {
 		$VBOX list vms | grep "$VMNAME" || {
 		VBoxManage clonehd "$OMERO_BASE_IMAGE" "$HARDDISKS$VMNAME.vdi"
-		VBoxManage createvm --name "$VMNAME" --register --ostype "Debian"
+		VBoxManage createvm --name "$VMNAME" --register --ostype "Debian_64"
 		VBoxManage storagectl "$VMNAME" --name "SATA CONTROLLER" --add sata
 		VBoxManage storageattach "$VMNAME" --storagectl "SATA CONTROLLER" --port 0 --device 0 --type hdd --medium $HARDDISKS$VMNAME.vdi
 			
