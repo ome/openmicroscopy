@@ -20,7 +20,7 @@
   <settings defaultResolver="${omero.resolver}"/>
 
   <credentials host="artifacts.openmicroscopy.org" realm="Artifactory Realm"
-            username="hudson" passwd="${artifactory.password}"/>
+        username="${artifactory.username}" passwd="${artifactory.password}"/>
 
   <caches default="local" defaultCacheDir="${ivy.settings.dir}/../lib/cache">
       <!-- local is intended for all products built from this repository,
