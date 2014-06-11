@@ -373,15 +373,14 @@ class TestIShare(lib.ITest):
     def test1201(self):
         admin = self.client.sf.getAdminService()
 
-        ### create two users in one group
+        # create two users in one group
         group = self.new_group()
         client_user1, user1 = self.new_client_and_user(group)
         client_user2, user2 = self.new_client_and_user(group)
         assert admin.getMemberOfGroupIds(user1) == admin.getMemberOfGroupIds(user2)
 
-        share1 = client_user1.sf.getShareService()
-
         # create share
+        share1 = client_user1.sf.getShareService()
         description = "my description"
         timeout = None
         objects = []
@@ -389,30 +388,31 @@ class TestIShare(lib.ITest):
         guests = ["ident@emaildomain.com"]
         enabled = True
         sid = share1.createShare(description, timeout, objects, experimenters, guests, enabled)
+
+        # check that owner and member can access share
         self.assertAccess(client_user1, sid)
         self.assertAccess(client_user2, sid)
 
-        #re - login as user2
         share2 = client_user2.sf.getShareService()
-
         new_description = "new description"
         share1.setDescription(sid, new_description)
-        try:
-            assert share2.getShare(sid).message.val ==  new_description
-        except omero.ValidationException, ve:
-            pass # This user can't see the share
 
-        assert share1.getShare(sid).message.val ==  new_description
+        try:
+            assert share2.getShare(sid).message.val == new_description
+        except omero.ValidationException, ve:
+            pass  # This user can't see the share
+
+        assert share1.getShare(sid).message.val == new_description
 
         expiration = long(time.time()*1000)+86400
         share1.setExpiration(sid, rtime(expiration))
         self.assertExpiration(expiration, share1.getShare(sid))
 
         share1.setActive(sid, False)
-        assert share1.getShare(sid).active.val == False
+        assert share1.getShare(sid).active.val is False
 
         owned = share1.getOwnShares(False)
-        assert 1 ==  len(owned)
+        assert 1 == len(owned)
 
     def test1201b(self):
         share = self.client.sf.getShareService()
