@@ -60,6 +60,9 @@
       <server-instance template="ProcessorTemplate" index="0" dir=""/><!-- assumes legacy -->
       <server-instance template="TablesTemplate" index="0" dir=""/><!-- assumes legacy -->
       <server-instance template="TestDropBoxTemplate"/>
+      <!--
+      <server-instance template="ProcessorTemplate" index="1" dir=""
+          impl="omero.processor.DockerProcessorI"/>--><!-- assumes legacy -->
     </node>
 
     <target name="repo">

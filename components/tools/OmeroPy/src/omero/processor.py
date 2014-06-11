@@ -24,6 +24,7 @@ import omero.util.concurrency
 
 import omero_ext.uuid as uuid  # see ticket:3774
 
+from omero.sys import ParametersI
 from omero.util import load_dotted_class
 from omero.util.temp_files import create_path, remove_path
 from omero.util.decorators import remoted, perf, locked
@@ -100,7 +101,8 @@ class ProcessI(omero.grid.Process, omero.util.SimpleServant):
     def __init__(self, ctx, interpreter, properties, params, iskill=False,
                  Popen=subprocess.Popen,
                  callback_cast=omero.grid.ProcessCallbackPrx.uncheckedCast,
-                 omero_home=path.getcwd()):
+                 omero_home=path.getcwd(),
+                 secure_props=None):
         """
         Popen and callback_Cast are primarily for testing.
         """
@@ -108,6 +110,7 @@ class ProcessI(omero.grid.Process, omero.util.SimpleServant):
         self.omero_home = omero_home          #: Location for OMERO_HOME/lib/python
         self.interpreter = interpreter        #: Executable which will be used on the script
         self.properties = properties          #: Properties used to create an Ice.Config
+        self.secure_props = secure_props      #: Properties used by subclasses for connecting.
         self.params = params                  #: JobParams for this script. Possibly None if a ParseJob
         self.iskill = iskill                  #: Whether or not, cleanup should kill the session
         self.Popen = Popen                    #: Function which should be used for creating processes
@@ -665,6 +668,55 @@ class ProcessI(omero.grid.Process, omero.util.SimpleServant):
         return "<proc:%s,rc=%s,uuid=%s>" % (self.pid, (self.rcode is None and "-" or self.rcode), self.uuid)
 
 
+class DockerProcessI(ProcessI):
+
+    def make_config(self):
+        """
+        Rewrite the config so that docker containers
+        can connect to OMERO.
+
+        TODO: this needs a better workaround.
+        """
+        router = self.properties["Ice.Default.Router"]
+        host = self.secure_props.get("omero.process.docker.host", "172.17.42.1")
+        router = router.replace("localhost", host)
+        self.properties["Ice.Default.Router"] = router
+        ProcessI.make_config(self)
+
+    def command(self):
+        """
+        Overrides ProcessI to call docker.
+        """
+        self.properties["working.dir"] = self.dir
+        secure = dict(self.secure_props)
+        secure["working.dir"] = self.dir
+        self.script_path.rename("%s.run" % self.script_path)
+        self.script_path.write_text(
+            """if True:
+
+            import sys
+            import docker
+
+            client = docker.Client(
+                base_url='%(omero.process.docker.url)s',
+                version='%(omero.process.docker.version)s')
+
+            container = client.create_container(
+                '%(omero.process.docker.image)s',
+                volumes=['/omero-process'], detach=False)
+
+            client.start(container,
+                binds={'%(working.dir)s': '/omero-process'})
+
+            rc = client.wait(container)
+
+            print >>sys.stdout, client.logs(container, stderr=False, stdout=True),
+            print >>sys.stderr, client.logs(container, stderr=True, stdout=False),
+
+            sys.exit(rc)""" % secure)
+        return ProcessI.command(self)
+
+
 class MATLABProcessI(ProcessI):
 
     def make_files(self):
@@ -701,11 +753,12 @@ class UseSessionHolder(object):
     def cleanup(self):
         pass
 
+
 class ProcessorI(omero.grid.Processor, omero.util.Servant):
 
-    def __init__(self, ctx, needs_session = True,
-                 use_session = None, accepts_list = None, cfg = None,
-                 omero_home = path.getcwd(), category = None):
+    def __init__(self, ctx, needs_session=True,
+                 use_session=None, accepts_list=None, cfg=None,
+                 omero_home=path.getcwd(), category=None):
 
         if accepts_list is None: accepts_list = []
 
@@ -785,6 +838,7 @@ class ProcessorI(omero.grid.Processor, omero.util.Servant):
         session.sharedResources().addProcessor(prx)
 
     def lookup(self, job):
+
         sf = self.internal_session()
         gid = job.details.group.id.val
         handle = WithGroup(sf.createJobHandle(), gid)
@@ -806,6 +860,7 @@ class ProcessorI(omero.grid.Processor, omero.util.Servant):
     @remoted
     def willAccept(self, userContext, groupContext, scriptContext, cb, current = None):
 
+        valid = False
         userID = None
         if userContext != None:
             userID = userContext.id.val
@@ -826,9 +881,7 @@ class ProcessorI(omero.grid.Processor, omero.util.Servant):
             except:
                 self.logger.error("File lookup failed: user=%s, group=%s, script=%s",\
                     userID, groupID, scriptID, exc_info=1)
-                return # EARlY EXIT !
         else:
-            valid = False
             for x in self.accepts_list:
                 if isinstance(x, omero.model.Experimenter) and x.id.val == userID:
                     valid = True
@@ -837,6 +890,10 @@ class ProcessorI(omero.grid.Processor, omero.util.Servant):
 
         self.logger.debug("Accepts called on: user:%s group:%s scriptjob:%s - Valid: %s",
             userID, groupID, scriptID, valid)
+
+        return self.handleAccept(valid, cb)
+
+    def handleAccept(self, valid, cb):
 
         try:
             id = self.internal_session().ice_getIdentity().name
@@ -934,17 +991,26 @@ class ProcessorI(omero.grid.Processor, omero.util.Servant):
                     errors = "Invalid parameters:\n%s" % errors
                     raise omero.ValidationException(None, None, errors)
 
+            secure_props = dict()
+            cfg = self.ctx.getSession().getConfigService()
+            for x in ("image", "url", "version"):
+                key = "omero.process.docker.%s" % x
+                secure_props[key] = cfg.getConfigValue(key)
+
             properties["omero.job"] = str(job.id.val)
             properties["omero.user"] = session
             properties["omero.pass"] = session
             properties["Ice.Default.Router"] = client.getProperty("Ice.Default.Router")
 
             launcher, ProcessClass = self.find_launcher(current)
-            process = ProcessClass(self.ctx, launcher, properties, params, iskill, omero_home = self.omero_home)
+
+            process = ProcessClass(self.ctx, launcher, dict(properties), params, iskill,
+                                   omero_home=self.omero_home,
+                                   secure_props=dict(secure_props))
             self.resources.add(process)
 
             # client.download(file, str(process.script_path))
-            scriptText = sf.getScriptService().getScriptText(file.id.val)
+            scriptText = sf.getScriptService().getScriptText(file.id.val, {"omero.group": "-1"})
             process.script_path.write_bytes(scriptText)
 
             self.logger.info("Downloaded file: %s" % file.id.val)
@@ -981,22 +1047,77 @@ class ProcessorI(omero.grid.Processor, omero.util.Servant):
 
         self.logger.info("Using launcher: %s", launcher)
         self.logger.info("Using process: %s", process_class)
+        ProcessClass = self.load_class(process_class, ProcessI)
+        return launcher, ProcessClass
 
+    @staticmethod
+    def load_class(class_name, default):
         # Imports in omero.util don't work well for this class
         # Handling classes from this module specially.
         internal = False
-        parts = process_class.split(".")
+        parts = class_name.split(".")
         if len(parts) == 3:
             if parts[0:2] == ("omero", "processor"):
                 internal = True
 
-        if not process_class:
-            ProcessClass = ProcessI
+        if not class_name:
+            return default
         elif internal:
-            ProcessClass = globals()[parts[-1]]
+            return globals()[parts[-1]]
         else:
-            ProcessClass = load_dotted_class(process_class)
-        return launcher, ProcessClass
+            return load_dotted_class(class_name)
+
+
+class DockerProcessorI(ProcessorI):
+
+    def lookup(self, job):
+        sf = self.internal_session()
+        gid = job.details.group.id.val
+        handle = WithGroup(sf.createJobHandle(), gid)
+        handle.attach(job.id.val)
+        if handle.jobFinished():
+            handle.close()
+            raise omero.ApiUsageException("Job already finished.")
+
+        query = WithGroup(sf.getQueryService(), gid)
+        file = query.findByQuery((
+            "select o from Job j "
+            "join j.originalFileLinks links "
+            "join links.child o "
+            "where j.id = :id"),
+            ParametersI().addId(job.id.val))
+        return file, handle
+
+    @remoted
+    def willAccept(self, userContext, groupContext, scriptContext, cb, current=None):
+        """
+        Accept any Python scripts.
+        """
+
+        valid = False
+        scriptID = None
+        if scriptContext != None:
+            scriptID = scriptContext.id.val
+
+        if scriptID:
+            try:
+                file, handle = self.lookup(scriptContext)
+                if (file is not None) and file.mimetype.val == "text/x-python":
+                    valid = True
+            except:
+                self.logger.error("File lookup failed: script=%s",\
+                    scriptID, exc_info=1)
+
+        self.logger.debug("Accepts called on docker: scriptjob:%s - Valid: %s",
+            scriptID, valid)
+
+        return self.handleAccept(valid, cb)
+
+    def find_launcher(self, current):
+        """
+        Only handle Python processing.
+        """
+        return sys.executable, DockerProcessI
 
 
 def usermode_processor(client, serverid = "UsermodeProcessor",\
