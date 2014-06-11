@@ -24,6 +24,7 @@ import ome.security.auth.PasswordUtil;
 import ome.services.chgrp.ChgrpStepFactory;
 import ome.services.chown.ChownStepFactory;
 import ome.services.delete.Deletion;
+import ome.services.graphs.GraphException;
 import ome.services.util.MailUtil;
 import ome.system.OmeroContext;
 import ome.system.Roles;
@@ -35,9 +36,11 @@ import omero.cmd.basic.TimingI;
 import omero.cmd.fs.ManageImageBinariesI;
 import omero.cmd.fs.OriginalMetadataRequestI;
 import omero.cmd.graphs.ChgrpI;
+import omero.cmd.graphs.ChgrpNewI;
 import omero.cmd.graphs.ChmodI;
 import omero.cmd.graphs.ChownI;
 import omero.cmd.graphs.DeleteI;
+import omero.cmd.graphs.DeleteNewI;
 import omero.cmd.graphs.DiskUsageI;
 import omero.cmd.graphs.GraphSpecListI;
 import omero.cmd.mail.SendEmailRequestI;
@@ -144,6 +147,18 @@ public class RequestObjectFactoryRegistry extends
                     }
 
                 });
+        factories.put(ChgrpNewI.ice_staticId(),
+                new ObjectFactory(ChgrpNewI.ice_staticId()) {
+                    @Override
+                    public Ice.Object create(String name) {
+                        try {
+                            return new ChgrpNewI();
+                        } catch (GraphException e) {
+                            throw new RuntimeException("failed to construct chgrp operation", e);
+                        }
+                    }
+
+                });
         factories.put(ChmodI.ice_staticId(),
                 new ObjectFactory(ChmodI.ice_staticId()) {
                     @Override
@@ -172,6 +187,18 @@ public class RequestObjectFactoryRegistry extends
                         Deletion d = ctx.getBean(Deletion.class.getName(), Deletion.class);
                         return new DeleteI(ic, d);
                     }
+                });
+        factories.put(DeleteNewI.ice_staticId(),
+                new ObjectFactory(DeleteNewI.ice_staticId()) {
+                    @Override
+                    public Ice.Object create(String name) {
+                        try {
+                            return new DeleteNewI();
+                        } catch (GraphException e) {
+                            throw new RuntimeException("failed to construct delete operation", e);
+                        }
+                    }
+
                 });
         factories.put(OriginalMetadataRequestI.ice_staticId(),
                 new ObjectFactory(OriginalMetadataRequestI.ice_staticId()) {
