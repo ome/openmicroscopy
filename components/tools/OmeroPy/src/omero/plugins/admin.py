@@ -350,8 +350,9 @@ present, the user will enter a console""")
 
         for name in ("start", "startasync"):
             self.actions[name].add_argument(
-                "--service", action="store_true",
-                help="Install Windows service."
+                "-s", "--service", action="store_true",
+                help="Start server in debug mode (JDWP enabled;"
+                     " no Windows service)"
             )
             self.actions[name].add_argument(
                 "-u", "--user",
@@ -640,20 +641,22 @@ present, the user will enter a console""")
         command = None
         descript = self._descript(args)
 
+        if args.debug and "debug" not in vars(args.targets):
+            args.targets.append("debug")
+
         if self._isWindows():
             user = args.user
             pasw = args.password
             svc_name = "OMERO.%s" % args.node
-            if args.service:
-                self._start_service(config, descript, svc_name, pasw, user)
+            if args.debug:
+                command = """icegridnode.exe "%s" --deploy "%s" %s\
+                """ % (self._icecfg(), descript, args.targets)
             else:
-                command = """icegridnode.exe "%s" --deploy "%s"\
-                """ % (self._icecfg(), descript)
+                self._start_service(config, descript, svc_name, pasw, user)
         else:
-            command = [
-                "icegridnode", "--daemon", "--pidfile", str(self._pid()),
-                "--nochdir", self._icecfg(), "--deploy", str(descript)
-                ] + args.targets
+            command = ["icegridnode", "--daemon", "--pidfile",
+                       str(self._pid()), "--nochdir", self._icecfg(),
+                       "--deploy", str(descript)] + args.targets
 
         if command is not None:
             self.ctx.rv = self.ctx.call(command)
