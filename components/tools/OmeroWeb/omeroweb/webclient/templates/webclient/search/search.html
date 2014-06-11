@@ -89,11 +89,43 @@
                 });
 
                 $("#searching_form").ajaxForm({
-                    beforeSubmit: function() {
-                        // TODO: validation (see commented-out below)
+                    beforeSubmit: function(fields) {
+
+                        // check we have some search query...
+                        var $query = $("input[name='query']"); 
+                        if ($query.val().length <= 0) {
+                            alert("Search must contains some text.");
+                            return false;
+                        } else if ($query.val().length <= 1 && $query.val().indexOf("*") < 1) {
+                            alert("Wildcard searches (*) must contain more than a single wildcard.");
+                            return false;
+                        }
+
+                        // check dates
+                        var startdateinput = $("input[name='startdateinput']");
+                        var enddateinput = $("input[name='enddateinput']");
+                        if(enddateinput.val()!=null && enddateinput.val()!="") {
+                            // check if start date is before, otherwise we have problem
+                            var start = startdateinput.val();
+                            var end = enddateinput.val();
+                            if (start==null || start=="") {
+                                alert("Choose start date for range");
+                                return false;
+                            }
+                            if (start > end) {
+                                alert("Start date is after End date");
+                                return false;
+                            }
+                        }
+
+                        // show 'loading...'
+                        $("div#content_details").html('<p>{% trans "Loading data... please wait" %} <img src ="{% static "webgateway/img/spinner.gif" %}"/></p>');
+                        $("#filtersearch").hide().find('input').val("");    // hide and clear filter
                     },
                     success: function(html) {
                         $("div#content_details").html(html);
+                        $("#filtersearch").show();
+                        OME.table_selection_changed();      // clear right panel
                     }
                 });
 
@@ -101,70 +133,6 @@
                     // query field is already populated with init.query
                     $("#searching_form").submit();
                 {% endif %}
-
-                
-                // $("#search_button").click(function() { 
-                //     var url = null;
-                //     var query = $("input[name='query']"); 
-                //     if (query.val().length <= 0) {
-                //         alert("Search must contains some text.");
-                //         return false;
-                //     } else if (query.val().length <= 1 && query.val().indexOf("*") < 1) {
-                //         alert("Wildcard searches (*) must contain more than a single wildcard.");
-                //         return false;
-                //     } else {
-                //         url = query.serialize();
-                //     }
-                    
-                //     var startdateinput = $("input[name='startdateinput']");
-                //     if(startdateinput.val()!=null && startdateinput.val()!="") {
-                //         url = url + "&startdateinput="+startdateinput.val();
-                //     }
-                //     var enddateinput = $("input[name='enddateinput']");
-                //     if(enddateinput.val()!=null && enddateinput.val()!="") {
-                //         // check if start date is before, otherwise we have problem
-                //         var start = startdateinput.val();
-                //         var end = enddateinput.val();
-                //         if (start==null || start=="") {
-                //             alert("Choose start date for range");
-                //             return false;
-                //         }
-                //         if (start > end) {
-                //             alert("Start date is after End date");
-                //             return false;
-                //         }
-                //         url = url + "&enddateinput="+end;
-                //     }
-                //     $("input[name='datatype']:checked").each(function(){
-                //         if(url != null ) {
-                //             url = url+"&"+this.value+"=on";
-                //         } else {
-                //             url = this.value+"=on";
-                //         }
-                //     });
-                //     $("input[name='field']:checked").each(function(){
-                //         if(url != null ) {
-                //             url = url+"&"+this.value+"=on";
-                //         } else {
-                //             url = this.value+"=on";
-                //         }
-                //     });
-                //     $("div#content_details").html('<p>{% trans "Loading data... please wait" %} <img src ="{% static "webgateway/img/spinner.gif" %}"/></p>');
-                //     $("div#content_details").load('{% url 'load_searching' "form" %}?'+url);
-                //     $("#filtersearch").show();
-                //     OME.table_selection_changed();
-                //     return false;
-                // });
-
-
-            // {% if init.query %}
-            //     $("div#content_details").load('{% url 'load_searching' "form" %}?query={{ init.query|iriencode }}');
-            //     $("#filtersearch").show();
-            //     OME.table_selection_changed();
-            //     var query_string = "{{ init.query }}";
-            //     query_string = query_string.replace("%20", " ");
-            //     $("input[name='query']").val(query_string);
-            // {% endif %}
 
 
                 OME.table_selection_changed();     // clear selection (hides acquisition & preview tabs)
@@ -229,8 +197,8 @@
                  
                         <ul class="criteria">
                             <li><input type="checkbox" name="field" value="id" CHECKED />{% trans "ID" %}</li>
-                            <li><input type="checkbox" name="field" value="name" CHECKED />{% trans "Images" %}</li>
-                            <li><input type="checkbox" name="field" value="description" CHECKED />{% trans "Datasets" %}</li>
+                            <li><input type="checkbox" name="field" value="name" CHECKED />{% trans "Name" %}</li>
+                            <li><input type="checkbox" name="field" value="description" CHECKED />{% trans "Description" %}</li>
                             <li><input type="checkbox" name="field" value="tag" CHECKED />{% trans "Tags" %}</li>
                             <li><input type="checkbox" name="field" value="annotation" CHECKED />{% trans "Attachments" %}</li>
                         </ul>
