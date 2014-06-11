@@ -2274,7 +2274,7 @@ class ImViewerComponent
 	 * @see ImViewer#reloadRenderingThumbs()
 	 */
 	public void reloadRenderingThumbs() {
-	    model.reloadRenderingThumbds();
+	    model.reloadRenderingThumbs();
 	}
 	
 	/** 
