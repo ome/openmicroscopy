@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+#
+# Copyright (C) 2014 University of Dundee & Open Microscopy Environment.
+# All rights reserved.
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+#
+-->
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                           http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+                           http://www.springframework.org/schema/util
+                           http://www.springframework.org/schema/util/spring-util-2.0.xsd">
+
+    <bean id="graphPolicyRule" class="ome.services.graphs.GraphPolicyRule" abstract="true"/>
+
+<!--
+
+    Key for rule specifications:
+
+        In square brackets, what action to take on the object:
+            E = exclude: do not operate on, unlink from target objects
+            I = include: operate on
+            D = delete
+            O = outside: do not operate on, do not even unlink from target objects
+            * = process: apply rule set to the object's relationships
+
+        In curly braces, the orphan status of the object:
+            i = irrelevant: don't care about orphan status
+            r = relevant: care about orphan status but don't know it
+            o = orphan: it is an orphan
+            a = attached: it is not an orphan
+        This may be present alongside [E] only. Orphan status is processed for excluded objects only.
+
+        For the equals signs:
+            == is not nullable
+            =? is nullable
+            =  is either of the above
+
+    Rules are executed in the order in which they are listed.
+
+-->
+
+    <util:list id="chgrpRules" value-type="ome.services.graphs.GraphPolicyRule">
+        <bean parent="graphPolicyRule" p:matches="G:IGlobal[E]" p:changes="G:[O]"/>
+        <bean parent="graphPolicyRule" p:matches="[I] =? X:!ILink[E]{o}" p:changes="X:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="L:ILink[!I].parent = [I], L.child = C:[E]{o}" p:changes="C:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="[I] == X:[ED]" p:changes="X:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="!ILink[E]{r} = X:[E]{i}" p:changes="X:{r}"/>
+        <bean parent="graphPolicyRule" p:matches="!ILink[I] = X:[E]{i}" p:changes="X:{r}"/>
+        <bean parent="graphPolicyRule" p:matches="L:ILink[!O]" p:changes="L:[*]"/>
+        <bean parent="graphPolicyRule" p:matches="L:ILink[!I].parent = [I], L.child = [I]" p:changes="L:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="L:ILink[E].parent = [E], L.child = [I]" p:changes="L:[D]"/>
+        <bean parent="graphPolicyRule" p:matches="L:ILink.parent = [I], L.child = C:[D] " p:changes="C:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="L:ILink.parent = [I], L.child = C:[E]{i}" p:changes="C:{r}"/>
+        <bean parent="graphPolicyRule" p:matches="X:[E]{ia} == [DI]" p:changes="X:[D]"/>
+        <bean parent="graphPolicyRule" p:matches="Image[I].pixels = P:[ED]" p:changes="P:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="Fileset[I] = I:Image[ED].fileset" p:changes="I:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="F:Fileset[ED] = Image[I].fileset" p:changes="F:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="Fileset[D] = I:Image[E].fileset" p:changes="I:[D]"/>
+        <bean parent="graphPolicyRule" p:matches="F:Fileset[E] = Image[D].fileset" p:changes="F:[D]"/>
+        <bean parent="graphPolicyRule" p:matches="Fileset[I] = E:FilesetEntry[ED].fileset" p:changes="E:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="Pixels[I].channels = C:Channel[ED]" p:changes="C:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="Pixels[I].settings = RD:RenderingDef[ED]" p:changes="RD:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="Pixels[I].thumbnails = T:Thumbnail[ED]" p:changes="T:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="Pixels[I].planeInfo = PI:PlaneInfo[ED]" p:changes="PI:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="CB:ChannelBinding[!I].renderingDef = RD[I]" p:changes="CB:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="Plate[I].plateAcquisitions = PA:PlateAcquisition[ED]" p:changes="PA:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="Plate[I].wells = W:Well[ED]" p:changes="W:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="Well[I].wellSamples = WS:WellSample[ED]" p:changes="WS:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="Roi[I].shapes = S:Shape[ED]" p:changes="S:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="Instrument[I].filter = F:Filter[ED]" p:changes="F:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="L:ILink.parent = [E], L.child = C:[E]{r}" p:changes="C:{a}"/>
+        <bean parent="graphPolicyRule" p:matches="!ILink[E]{ia} = X:[E]{r}" p:changes="X:{a}"/>
+        <bean parent="graphPolicyRule" p:matches="X:[E]{r} == [E]{a}" p:changes="X:{a}"/>
+        <bean parent="graphPolicyRule" p:matches="L:ILink[E].parent = [I], L.child = [E]{a}" p:changes="L:[D]"/>
+    </util:list>
+
+    <util:list id="deleteRules" value-type="ome.services.graphs.GraphPolicyRule">
+        <bean parent="graphPolicyRule" p:matches="[DI] =? X:!ILink[E]{o}" p:changes="X:[D]"/>
+        <bean parent="graphPolicyRule" p:matches="L:ILink.parent = [DI], L.child = C:[E]{o}" p:changes="C:[D]"/>
+        <bean parent="graphPolicyRule" p:matches="L:ILink[!O]" p:changes="L:[*]"/>
+        <bean parent="graphPolicyRule" p:matches="!ILink[DI] == X:!IGlobal[E]" p:changes="X:[D]"/>
+        <bean parent="graphPolicyRule" p:matches="!ILink[DI] = X:[E]{i}" p:changes="X:{r}"/>
+        <bean parent="graphPolicyRule" p:matches="!ILink[E]{r} = X:[E]{i}" p:changes="X:{r}"/>
+        <bean parent="graphPolicyRule" p:matches="G:IGlobal[E]" p:changes="G:[O]"/>
+        <bean parent="graphPolicyRule" p:matches="L:ILink.parent = [DI], L.child = C:[E]{i}" p:changes="C:{r}"/>
+        <bean parent="graphPolicyRule" p:matches="X:[E] == [DI]" p:changes="X:[D]"/>
+        <bean parent="graphPolicyRule" p:matches="F:Fileset[E].images = Image[DI]" p:changes="F:[D]"/>
+        <bean parent="graphPolicyRule" p:matches="Fileset[DI] = I:Image[E].fileset" p:changes="I:[D]"/>
+        <bean parent="graphPolicyRule" p:matches="L:ILink.parent = [E], L.child = C:[E]{r}" p:changes="C:{a}"/>
+        <bean parent="graphPolicyRule" p:matches="!ILink[E]{ia} = X:[E]{r}" p:changes="X:{a}"/>
+        <bean parent="graphPolicyRule" p:matches="X:[E]{r} == [E]{a}" p:changes="X:{a}"/>
+    </util:list>
+
+</beans>
