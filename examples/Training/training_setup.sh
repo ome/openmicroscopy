@@ -8,13 +8,15 @@ set -x
 HOSTNAME=${HOSTNAME:-localhost}
 PORT=${PORT:-4064}
 ROOT_PASSWORD=${ROOT_PASSWORD:-omero}
+GROUP_NAME=${GROUP_NAME:-training_group}
 USER_NAME=${USER_NAME:-training_user}
 USER_PASSWORD=${USER_PASSWORD:-ome}
+CONFIG_FILENAME=${CONFIG_FILENAME:-training_ice.config}
 
 # Create training user and group
 bin/omero login root@$HOSTNAME:$PORT -w $ROOT_PASSWORD
-bin/omero group add training_group --ignore-existing
-bin/omero user add training_user training_user training_user training_group --ignore-existing -P ome
+bin/omero group add $GROUP_NAME --ignore-existing
+bin/omero user add $USER_NAME $USER_NAME $USER_NAME $GROUP_NAME --ignore-existing -P $USER_PASSWORD
 bin/omero logout
 
 # Create fake files
@@ -53,14 +55,14 @@ plateid=$(sed -n -e 's/^Plate://p' plate_import.log)
 bin/omero logout
 
 # Create ice.config file
-echo "omero.host=$HOSTNAME" > training_ice.config
-echo "omero.port=$PORT" >> training_ice.config
-echo "omero.user=$USER_NAME" >> training_ice.config
-echo "omero.pass=$USER_PASSWORD" >> training_ice.config
-echo "omero.projectid=${project##*:}" >> training_ice.config
-echo "omero.datasetid=${dataset##*:}" >> training_ice.config
-echo "omero.imageid=${imageid}" >> training_ice.config
-echo "omero.plateid=${plateid}" >> training_ice.config
+echo "omero.host=$HOSTNAME" > $CONFIG_FILENAME
+echo "omero.port=$PORT" >> $CONFIG_FILENAME
+echo "omero.user=$USER_NAME" >> $CONFIG_FILENAME
+echo "omero.pass=$USER_PASSWORD" >> $CONFIG_FILENAME
+echo "omero.projectid=${project##*:}" >> $CONFIG_FILENAME
+echo "omero.datasetid=${dataset##*:}" >> $CONFIG_FILENAME
+echo "omero.imageid=${imageid}" >> $CONFIG_FILENAME
+echo "omero.plateid=${plateid}" >> $CONFIG_FILENAME
 
 # Remove fake file
 rm *.fake
