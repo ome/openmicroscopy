@@ -25,6 +25,9 @@ javac.debuglevel=lines,vars,source
 javac.maxmem=1050m
 javadoc.maxmem=1050m
 exe4j.home=/opt/exe4j
+
+artifactory.username=hudson
+artifactory.username=SECRET
 artifactory.repository=ome.staging
 
 # Which version of Ice this build of OMERO is
