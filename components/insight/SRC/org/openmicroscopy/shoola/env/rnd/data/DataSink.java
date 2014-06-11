@@ -192,7 +192,7 @@ public class DataSink
      *                              plane data from the pixels source.
      */
     private Plane2D createPlane(SecurityContext ctx, int z, int t, int w,
-            BytesConverter strategy)
+            BytesConverter strategy, boolean close)
             throws DataSourceException
     {
         //Retrieve data
@@ -208,10 +208,15 @@ public class DataSink
                 store = service.createPixelsStore(ctx);
                 store.setPixelsId(source.getId(), false);
             }
-            data = store.getPlane(z, t, w);
+            data = store.getPlane(z, w, t);
         } catch (Exception e) {
-            String p = "("+z+", "+t+", "+w+")";
+            String p = "("+z+", "+w+", "+t+")";
             throw new DataSourceException("Cannot retrieve the plane "+p, e);
+        } finally {
+            if (close) {
+                context.getDataService().closeService(ctx, store);
+                store = null;
+            }
         }
         ReadOnlyByteArray array = new ReadOnlyByteArray(data, 0, data.length);
         plane = new Plane2D(array, source.getSizeX(), source.getSizeY(), 
@@ -235,9 +240,27 @@ public class DataSink
     public Plane2D getPlane(SecurityContext ctx, int z, int t, int w)
             throws DataSourceException
     {
-        return createPlane(ctx, z, t, w, strategy);
+        return createPlane(ctx, z, t, w, strategy, true);
     }
 
+    /**
+     * Extracts a 2D plane from the pixels set this object is working for.
+     *
+     * @param ctx The security context.
+     * @param z The z-section at which data is to be fetched.
+     * @param t The timepoint at which data is to be fetched.
+     * @param w The wavelength at which data is to be fetched.
+     * @return A plane 2D object that encapsulates the actual plane pixels.
+     * @throws DataSourceException If an error occurs while retrieving the
+     *                              plane data from the pixels source.
+     */
+    public Plane2D getPlane(SecurityContext ctx, int z, int t, int w, boolean
+            close)
+            throws DataSourceException
+    {
+        return createPlane(ctx, z, t, w, strategy, close);
+    }
+    
     /**
      * Returns <code>true</code> if a data source has already been created
      * for the specified pixels set, <code>false</code> otherwise.
