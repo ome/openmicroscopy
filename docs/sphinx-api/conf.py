@@ -37,6 +37,7 @@ project = u'OmeroPy API'
 # |version| and |release|, also used in various other places throughout the
 # built documents.
 #
+version = os.environ.get('OMERO_RELEASE', 'UNKNOWN')
 release = os.environ.get('OMERO_RELEASE', 'UNKNOWN')
 
 # -- Options for HTML output ---------------------------------------------------
