@@ -24,6 +24,7 @@ package org.openmicroscopy.shoola.agents.metadata.view;
 
 //Java imports
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Container;
 import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeEvent;
@@ -32,6 +33,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
@@ -39,12 +41,14 @@ import javax.swing.JSplitPane;
 
 //Third-party libraries
 
+
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.util.ViewedByItem;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
+
 import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.ImageData;
@@ -202,28 +206,31 @@ class MetadataViewerUI
 	{
 		model.getEditor().onChannelColorChanged(index);
 	}
-	
-	/** 
-	 * Creates the ViewedByItems
-        */
-	void createViewedByItems()
-	{
-		if (viewedByItems.isEmpty()) {
-			Map m = model.getViewedBy();
-			Iterator i = m.keySet().iterator();
-			ViewedByItem item ;
-			ExperimenterData exp;
-			while (i.hasNext()) {
-				exp = (ExperimenterData) i.next();
-				ImageData img = (ImageData)model.getRefObject();
-				boolean isOwnerSetting = img.getOwner().getId()==exp.getId();
-				item = new ViewedByItem(exp, (RndProxyDef) m.get(exp), isOwnerSetting);
-				item.addPropertyChangeListener(
-						ViewedByItem.VIEWED_BY_PROPERTY, this);
-				viewedByItems.add(item);
-			}
-		}
-	}
+    
+        /**
+         * Creates the ViewedByItems
+         */
+        void createViewedByItems() {
+    
+            viewedByItems.clear();
+    
+            Map m = model.getViewedBy();
+            Iterator i = m.keySet().iterator();
+            ViewedByItem item;
+            ExperimenterData exp;
+            while (i.hasNext()) {
+                exp = (ExperimenterData) i.next();
+                ImageData img = (ImageData) model.getRefObject();
+                boolean isOwnerSetting = img.getOwner().getId() == exp.getId();
+                item = new ViewedByItem(exp, (RndProxyDef) m.get(exp),
+                        isOwnerSetting);
+                item.addPropertyChangeListener(ViewedByItem.VIEWED_BY_PROPERTY,
+                        this);
+                viewedByItems.add(item);
+            }
+            
+            model.getEditor().getRenderer().loadRndSettings(true, null);
+        }
 	
 	/** 
 	 * Sets the thumbnails.
@@ -239,7 +246,7 @@ class MetadataViewerUI
                     item.setImage(img);
                 }
             }
-            model.getEditor().getRenderer().loadRndSettings(true, viewedByItems);
+            model.getEditor().getRenderer().loadRndSettings(false, viewedByItems);
         }
 	
 	/**

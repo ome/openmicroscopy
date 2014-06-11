@@ -490,8 +490,10 @@ class GraphicsPane
      */
     void displayViewedBy(List<ViewedByItem> results, RndProxyDef activeRndDef)
     {
-        if (results == null) 
+        if (results == null) {
+            viewedBy.removeAll();
             return;
+        }
         
         this.viewedByItems = results;
         

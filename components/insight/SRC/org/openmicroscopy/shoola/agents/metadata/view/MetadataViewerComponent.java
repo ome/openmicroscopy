@@ -38,15 +38,18 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+
 import javax.swing.Icon;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
+
 
 //Third-party libraries
 import org.apache.commons.collections.CollectionUtils;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.iviewer.RndSettingsSaved;
+import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.RenderingControlLoader;
@@ -1074,14 +1077,10 @@ class MetadataViewerComponent
 	{
 		Object ref = model.getRefObject();
 		if (ref instanceof ImageData || ref instanceof WellSampleData) {
-			if (model.getViewedBy() != null) {
-			    setViewedBy(model.getViewedBy());
-			}
-			else { 
-			    model.fireViewedByLoading();
-			}
+		    model.fireViewedByLoading();
 		}
 	}
+	
 	
 	/**
 	 * Implemented as specified by the {@link MetadataViewer} interface.
@@ -1173,7 +1172,7 @@ class MetadataViewerComponent
 			if (imageID >= 0 && model.canAnnotate()) {
 				firePropertyChange(RENDER_THUMBNAIL_PROPERTY, -1, imageID);
 				// reload the viewedby thumbnails after new rendering settings were applied
-				model.fireThumbnailsLoading(); 
+				model.fireViewedByLoading();
 			}
 		}
 	}
