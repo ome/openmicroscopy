@@ -308,10 +308,12 @@ public class ImViewerAgent
         long id = evt.getRefPixelsID();
         while (i.hasNext()) {
             view = ImViewerFactory.getImageViewerFromImage(null, i.next());
-            if (view != null && view.getPixelsID() != id) {
-                view.pasteRenderingSettings();
-            }
-            view.reloadRenderingThumbs();
+            if (view != null ) {
+                if (view.getPixelsID() != id) {
+                    view.pasteRenderingSettings();
+                }
+                view.reloadRenderingThumbs();
+            }     
         }
     }
     /**
