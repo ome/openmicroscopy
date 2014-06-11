@@ -1,15 +1,13 @@
 /*
- *   Copyright 2008 Glencoe Software, Inc. All rights reserved.
+ *   Copyright 2008 - 2014 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
 package ome.services.sharing;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -55,6 +53,7 @@ import ome.services.sharing.data.ShareItem;
 import ome.system.OmeroContext;
 import ome.tools.hibernate.QueryBuilder;
 import ome.tools.hibernate.SessionFactory;
+import ome.util.SqlAction;
 
 import org.hibernate.Query;
 import org.hibernate.Session;
@@ -82,6 +81,8 @@ public class BlobShareStore extends ShareStore implements
 
     protected OmeroContext ctx;
 
+    protected SqlAction sqlAction;
+
     /**
      * Because there is a cyclical dependency SF->ACLVoter->BlobStore->SF we
      * have to lazy-load the session factory via the context.
@@ -89,6 +90,10 @@ public class BlobShareStore extends ShareStore implements
     public void setApplicationContext(ApplicationContext applicationContext)
             throws BeansException {
         this.ctx = (OmeroContext) applicationContext;
+    }
+
+    public void setSqlAction(SqlAction sqlAction) {
+        this.sqlAction = sqlAction;
     }
 
     // Initialization/Destruction
@@ -388,16 +393,7 @@ public class BlobShareStore extends ShareStore implements
      */
     @SuppressWarnings("unchecked")
     private Map<Long, byte[]> data(List<Long> ids) {
-        Session session = session();
-        Query q = session
-                .createQuery("select id, data from Share where id in (:ids)");
-        q.setParameterList("ids", ids);
-        List<Object[]> data = q.list();
-        Map<Long, byte[]> rv = new HashMap<Long, byte[]>();
-        for (Object[] objects : data) {
-            rv.put((Long) objects[0], (byte[]) objects[1]);
-        }
-        return rv;
+        return sqlAction.getShareData(ids);
     }
 
     private Session session() {

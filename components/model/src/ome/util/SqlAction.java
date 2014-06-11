@@ -1,7 +1,7 @@
 /*
  *   $Id$
  *
- *   Copyright 2010 Glencoe Software, Inc. All rights reserved.
+ *   Copyright 2010 - 2014 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -403,6 +403,8 @@ public interface SqlAction {
     void rollbackSavepoint(String savepoint);
 
     void deferConstraints();
+    
+    Map<Long, byte[]> getShareData(List<Long> ids);
 
     //
     // Previously PgArrayHelper
@@ -932,6 +934,30 @@ public interface SqlAction {
                         experimenterID, null, dn);
             }
 
+        }
+
+        public Map<Long, byte[]> getShareData(List<Long> ids) {
+            final Map<Long, byte[]> rv = new HashMap<Long, byte[]>();
+            if (ids == null || ids.isEmpty()) {
+                return rv;
+            }
+
+            final Map<String, List<Long>> params = new HashMap<String, List<Long>>();
+            params.put("ids", ids);
+
+            RowMapper<Object> mapper = new RowMapper<Object>() {
+                @Override
+                public Object mapRow(ResultSet arg0, int arg1)
+                        throws SQLException {
+                    Long id = arg0.getLong(1);
+                    byte[] data = arg0.getBytes(2);
+                    rv.put(id, data);
+                    return null;
+                }
+            };
+            _jdbc().query(_lookup("get_group_ids"), //$NON-NLS-1$
+                    mapper, params);
+            return rv;
         }
     }
 
