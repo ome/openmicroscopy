@@ -1,7 +1,7 @@
 /*
  *   $Id$
  *
- *   Copyright 2008 Glencoe Software, Inc. All rights reserved.
+ *   Copyright 2008 - 2014 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -811,7 +811,7 @@ public class ShareBean extends AbstractLevel2Service implements LocalShare {
          * Set<Session> sessions = new HashSet<Session>(); for (ShareData data :
          * datas) { sessions.add(shareToSession(data)); } return sessions;
          */
-        Set<Long> ids = new HashSet<Long>();
+        final Set<Long> ids = new HashSet<Long>();
         for (ShareData data : datas) {
             ids.add(data.id);
         }
@@ -819,12 +819,24 @@ public class ShareBean extends AbstractLevel2Service implements LocalShare {
             return Collections.emptySet();
         }
 
-        List<Session> list = iQuery.findAllByQuery(
-                "select sh from Session sh "
-                        + "join fetch sh.owner where sh.id in (:ids) ",
-                new Parameters().addIds(ids));
+        List<Session> list = iQuery
+                .execute(new HibernateCallback<List<Session>>() {
+                    public List<Session> doInHibernate(
+                            org.hibernate.Session arg0)
+                            throws HibernateException, SQLException {
+                        BasicSecuritySystem bss = (BasicSecuritySystem) sec;
+                        bss.disableReadFilter(arg0);
+                        List<Session> list = (List<Session>) arg0
+                                .createQuery(
+                                        "select sh from Session sh "
+                                                + "join fetch sh.owner where sh.id in (:ids) ")
+                                .setParameterList("ids", ids).list();
+                        bss.enableReadFilter(arg0);
+                        return list;
+                    }
+                });
         for (Session session : list) {
-            if (session!= null) {
+            if (session != null) {
                 session.putAt("#2733", "ALLOW");
             }
         }
@@ -835,13 +847,16 @@ public class ShareBean extends AbstractLevel2Service implements LocalShare {
         Share share = iQuery.execute(new HibernateCallback<Share>() {
             public Share doInHibernate(org.hibernate.Session arg0)
                     throws HibernateException, SQLException {
-                resetReadFilter(arg0);
-                return (Share) arg0
+                BasicSecuritySystem bss = (BasicSecuritySystem) sec;
+                bss.disableReadFilter(arg0);
+                Share share = (Share) arg0
                         .createQuery(
                                 "select sh from Share sh "
                                         + "join fetch sh.owner "
                                         + "where sh.id = :id")
                         .setParameter("id", data.id).uniqueResult();
+                bss.enableReadFilter(arg0);
+                return share;
             }
         });
 
