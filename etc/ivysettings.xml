@@ -41,7 +41,7 @@
     <chain name="omero-resolver" returnFirst="true">
 
       <!-- Build-internal repositories -->
-      <filesystem name="main" checkmodified="true" changingMatcher="regexp" changingPattern=".*DEV.*" cache="local">
+      <filesystem name="main" checkmodified="true" changingMatcher="regexp" changingPattern=".*SNAPSHOT.*" cache="local">
         <artifact pattern="${ivy.settings.dir}/../target/repository/[organisation]/[module]/[revision]/[artifact]-[revision](-[classifier]).[ext]" />
         <ivy pattern="${ivy.settings.dir}/../target/repository/[organisation]/[module]/[revision]/[module]-[revision](-[classifier]).ivy"/>
       </filesystem>
@@ -49,11 +49,11 @@
         <artifact pattern="${ivy.settings.dir}/../lib/repository/[artifact]-[revision].[type]" />
         <ivy pattern="${ivy.settings.dir}/../lib/repository/[module]-[revision].ivy"/>
       </filesystem>
-      <filesystem name="test" checkmodified="true" changingMatcher="regexp" changingPattern=".*DEV.*" cache="local">
+      <filesystem name="test" checkmodified="true" changingMatcher="regexp" changingPattern=".*SNAPSHOT.*" cache="local">
         <artifact pattern="${ivy.settings.dir}/../target/test-repository/[artifact]-[revision].[type]" />
         <ivy pattern="${ivy.settings.dir}/../target/test-repository/[module]-[revision].ivy"/>
       </filesystem>
-      <filesystem name="bio-formats" checkmodified="true" changingMatcher="regexp" changingPattern=".*DEV.*" cache="local">
+      <filesystem name="bio-formats" checkmodified="true" changingMatcher="regexp" changingPattern=".*SNAPSHOT.*" cache="local">
         <artifact pattern="${ivy.settings.dir}/../components/bioformats/jar/[artifact]-[revision].[type]" />
         <ivy pattern="${ivy.settings.dir}/../components/bioformats/jar/[module]-[revision].ivy"/>
       </filesystem>
@@ -85,7 +85,7 @@
 
    <!-- Resolver for all the test jars which should not be shipped -->
     <chain name="test-resolver" returnFirst="true">
-      <filesystem name="test" checkmodified="true" changingMatcher="regexp" changingPattern=".*DEV.*" cache="local">
+      <filesystem name="test" checkmodified="true" changingMatcher="regexp" changingPattern=".*SNAPSHOT.*" cache="local">
         <artifact pattern="${ivy.settings.dir}/../target/test-repository/[artifact]-[revision].[type]" />
         <ivy pattern="${ivy.settings.dir}/../target/test-repository/[module]-[revision].ivy"/>
       </filesystem>
