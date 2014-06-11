@@ -37,6 +37,7 @@ import javax.swing.filechooser.FileFilter;
 //Third-party libraries
 import com.sun.opengl.util.texture.TextureData;
 
+import omero.api.RawPixelsStorePrx;
 import omero.api.ThumbnailStorePrx;
 //Application-internal dependencies
 import omero.constants.projection.ProjectionType;
@@ -907,4 +908,19 @@ public interface OmeroImageService
      */
 	RndProxyDef getSettings(SecurityContext ctx, long rndID)
         throws DSOutOfServiceException, DSAccessException;
+
+	/**
+     * Creates a pixels store for the specified security context.
+     * This method has to be used with care. The stateful service must be closed
+     * when the work is complete.
+     *
+     * @param ctx The context to handle.
+     * @return See above.
+     * @throws DSOutOfServiceException If the connection is broken, or logged
+     *                                  in.
+     * @throws DSAccessException If an error occurred while trying to
+     *                                  retrieve data from OMEDS service.
+     */
+	RawPixelsStorePrx createPixelsStore(SecurityContext ctx)
+            throws DSAccessException, DSOutOfServiceException;
 }
