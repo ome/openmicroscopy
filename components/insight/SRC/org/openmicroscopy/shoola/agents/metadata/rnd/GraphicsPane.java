@@ -33,6 +33,8 @@ import java.awt.Insets;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import javax.swing.BorderFactory;
@@ -494,8 +496,9 @@ class GraphicsPane
             viewedBy.removeAll();
             return;
         }
-        
+         
         this.viewedByItems = results;
+        Collections.sort(this.viewedByItems, new ViewedByItemComparator());
         
         JPanel p = new JPanel();
         p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
@@ -654,4 +657,18 @@ class GraphicsPane
         }
     }
 
+    /**
+     * Comparator which sorts the ViewedByItems by its
+     * experimenter's last name
+     */
+    class ViewedByItemComparator implements Comparator<ViewedByItem> {
+
+        @Override
+        public int compare(ViewedByItem o1, ViewedByItem o2) {
+            String name1 = o1.getExperimenter().getLastName() != null ? o1.getExperimenter().getLastName() : "";
+            String name2 = o2.getExperimenter().getLastName() != null ? o2.getExperimenter().getLastName() : "";
+            return name1.compareToIgnoreCase(name2);
+        }
+        
+    }
 }
