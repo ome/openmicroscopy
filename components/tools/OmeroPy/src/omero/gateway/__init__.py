@@ -36,6 +36,7 @@ import traceback
 import time
 import array
 import math
+import re
 from decimal import Decimal
 
 from gettext import gettext as _
@@ -3487,20 +3488,17 @@ class _BlitzGateway (object):
                 details.setOwner(omero.model.ExperimenterI(ownedBy, False))
                 search.onlyOwnedBy(details)
 
-        must = []
+        some = []
 
         if fields:
             fields = [str(f) for f in fields]
-            # for each term, it MUST appear in one of the fiels, E.g. [“name:GFP description:GFP”, “name:H2B description:H2B"]
-            # for token in text.split(" "):
-            #     must.append((":" + token + " ").join(fields) + ":" + token)
-
-            # prepend search query with field. E.g. ['name:"GFP H2B"', 'description:"GFP H2B"']
-            for f in fields:
-                must.append(f + ':"' + text + '"')
+            # for each token, prepend with field name, E.g. [“name:GFP description:GFP”, “name:H2B description:H2B"]
+            tokens = re.findall(r"[\w\*\?]+", text)   # split words and *? (removes non-alpha-numeric)
+            for token in tokens:
+                some.append((":" + token + " ").join(fields) + ":" + token)
 
         else:
-            must.append(text)
+            some.append(text)
 
         try:
             if created:
@@ -3511,8 +3509,7 @@ class _BlitzGateway (object):
             for t in types:
                 def actualSearch ():
                     search.onlyType(t().OMERO_CLASS, ctx)
-                    search.bySomeMustNone(must, [], [])
-                    # search.byFullText(text, ctx)
+                    search.bySomeMustNone(some, [], [])
                 timeit(actualSearch)()
                 # get results
                 def searchProcessing ():
