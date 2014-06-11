@@ -559,17 +559,10 @@ def load_searching(request, form=None, conn=None, **kwargs):
         query_search = request.REQUEST.get('query').replace("+", " ")
         template = "webclient/search/search_details.html"
 
-        onlyTypes = list()
-        if request.REQUEST.get('projects') is not None and request.REQUEST.get('projects') == 'on':
-            onlyTypes.append('projects')
-        if request.REQUEST.get('datasets') is not None and request.REQUEST.get('datasets') == 'on':
-            onlyTypes.append('datasets')
-        if request.REQUEST.get('images') is not None and request.REQUEST.get('images') == 'on':
-            onlyTypes.append('images')
-        if request.REQUEST.get('plates') is not None and request.REQUEST.get('plates') == 'on':
-            onlyTypes.append('plates')
-        if request.REQUEST.get('screens') is not None and request.REQUEST.get('screens') == 'on':
-            onlyTypes.append('screens')
+        onlyTypes = request.REQUEST.getlist("datatype")
+        fields = request.REQUEST.getlist("field")
+        searchGroup = request.REQUEST.get('searchGroup', None)
+        ownedBy = request.REQUEST.get('ownedBy', None)
 
         startdate = request.REQUEST.get('startdateinput', None)
         startdate = startdate is not None and smart_str(startdate) or None
@@ -586,7 +579,7 @@ def load_searching(request, form=None, conn=None, **kwargs):
             onlyTypes = ['images']
 
         # search is carried out and results are stored in manager.containers.images etc.
-        manager.search(query_search, onlyTypes, date)
+        manager.search(query_search, onlyTypes, fields, searchGroup, ownedBy, date)
 
         try:
             searchById = long(query_search)
