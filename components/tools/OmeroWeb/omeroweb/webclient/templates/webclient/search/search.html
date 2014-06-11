@@ -95,7 +95,13 @@
                     success: function(html) {
                         $("div#content_details").html(html);
                     }
-                })
+                });
+
+                {% if init.query %}
+                    // query field is already populated with init.query
+                    $("#searching_form").submit();
+                {% endif %}
+
                 
                 // $("#search_button").click(function() { 
                 //     var url = null;
@@ -151,14 +157,14 @@
                 // });
 
 
-            {% if init.query %}
-                $("div#content_details").load('{% url 'load_searching' "form" %}?query={{ init.query|iriencode }}');
-                $("#filtersearch").show();
-                OME.table_selection_changed();
-                var query_string = "{{ init.query }}";
-                query_string = query_string.replace("%20", " ");
-                $("input[name='query']").val(query_string);
-            {% endif %}
+            // {% if init.query %}
+            //     $("div#content_details").load('{% url 'load_searching' "form" %}?query={{ init.query|iriencode }}');
+            //     $("#filtersearch").show();
+            //     OME.table_selection_changed();
+            //     var query_string = "{{ init.query }}";
+            //     query_string = query_string.replace("%20", " ");
+            //     $("input[name='query']").val(query_string);
+            // {% endif %}
 
 
                 OME.table_selection_changed();     // clear selection (hides acquisition & preview tabs)
@@ -193,7 +199,7 @@
 					<h2>{% trans "General Search" %}</h2>
 					
 						<label for="query">{% trans "Search for" %}:</label>
-						<input class="search" type="text" name="query" value="{{ manager.criteria.query }}" size="35"/>
+						<input class="search" type="text" name="query" value="{{ init.query }}" size="35"/>
 	                    <span class="searching_info"
 	                        title="Searching - <small>Performs a single character wildcard search use the <b>'?'</b> symbol.
 	                            The single character wildcard search looks for terms that match that with the single character replaced.
