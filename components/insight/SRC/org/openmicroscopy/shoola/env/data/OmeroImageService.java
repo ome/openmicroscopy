@@ -37,9 +37,10 @@ import javax.swing.filechooser.FileFilter;
 //Third-party libraries
 import com.sun.opengl.util.texture.TextureData;
 
+
+//Application-internal dependencies
 import omero.api.RawPixelsStorePrx;
 import omero.api.ThumbnailStorePrx;
-//Application-internal dependencies
 import omero.constants.projection.ProjectionType;
 import omero.romio.PlaneDef;
 import org.openmicroscopy.shoola.env.data.model.ImportableFile;
