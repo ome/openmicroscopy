@@ -1223,7 +1223,7 @@ def annotate_comment(request, conn=None, **kwargs):
         return HttpResponse(str(form_multi.errors))      # TODO: handle invalid form error
 
 
-@login_required(setGroupContext=True)
+@login_required()
 @render_response()
 def annotate_tags(request, conn=None, **kwargs):
     """ This handles creation AND submission of Tags form, adding new AND/OR existing tags to one or more objects """
@@ -1241,6 +1241,8 @@ def annotate_tags(request, conn=None, **kwargs):
             if len(selected[t]) > 0:
                 o_type = t[:-1]         # "images" -> "image"
                 o_id = selected[t][0]
+                objWrapper = oids[o_type][0]
+                conn.SERVICE_OPTS.setOmeroGroup(objWrapper.getDetails().group.id.val)
                 break
         if o_type in ("dataset", "project", "image", "screen", "plate", "acquisition", "well","comment", "file", "tag", "tagset"):
             if o_type == 'tagset': o_type = 'tag' # TODO: this should be handled by the BaseContainer
@@ -1266,6 +1268,11 @@ def annotate_tags(request, conn=None, **kwargs):
     else:
         manager = BaseContainer(conn)
         selected_tags = []
+        # Use the first object we find to set context (assume all objects are in same group!)
+        for obs in oids.values():
+            if len(obs) > 0:
+                conn.SERVICE_OPTS.setOmeroGroup(obs[0].getDetails().group.id.val)
+                break
 
     initial = {'selected':selected, 'images':oids['image'], 'datasets': oids['dataset'], 'projects':oids['project'],
             'screens':oids['screen'], 'plates':oids['plate'], 'acquisitions':oids['acquisition'], 'wells':oids['well']}
