@@ -29,6 +29,8 @@ package org.openmicroscopy.shoola.env.rnd.data;
 //Third-party libraries
 
 //Application-internal dependencies
+import omero.api.RawPixelsStorePrx;
+
 import org.openmicroscopy.shoola.env.cache.CacheService;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
@@ -111,6 +113,9 @@ public class DataSink
     /** The id of the cache. */
     private int cacheID;
 
+    /** The pixels store for that pixels set.*/
+    private RawPixelsStorePrx store;
+
     /**
      * Creates a new instance.
      *
@@ -124,6 +129,7 @@ public class DataSink
         this.context = context;
         String type = source.getPixelType();
         bytesPerPixels = getBytesPerPixels(type);
+        
         int maxEntries =
                 cacheSize/(source.getSizeX()*source.getSizeY()*bytesPerPixels);
         cacheID = context.getCacheService().createCache(
@@ -196,8 +202,13 @@ public class DataSink
         if (plane != null) return plane;
         byte[] data = null; 
         try {
-            OmeroImageService service = context.getImageService();
-            data = service.getPlane(ctx, source.getId(), z, t, w);
+            //initializes if null.
+            if (store == null) {
+                OmeroImageService service = context.getImageService();
+                store = service.createPixelsStore(ctx);
+                store.setPixelsId(source.getId(), false);
+            }
+            data = store.getPlane(z, t, w);
         } catch (Exception e) {
             String p = "("+z+", "+t+", "+w+")";
             throw new DataSourceException("Cannot retrieve the plane "+p, e);
