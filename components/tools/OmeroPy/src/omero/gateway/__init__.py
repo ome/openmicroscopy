@@ -3451,7 +3451,7 @@ class _BlitzGateway (object):
     ###################
     # Searching stuff #
 
-    def searchObjects(self, obj_types, text, created=None):
+    def searchObjects(self, obj_types, text, created=None, fields=None, batchSize=1000, page=0, searchGroup=None, ownedBy=None):
         """
         Search objects of type "Project", "Dataset", "Image", "Screen", "Plate"
         Returns a list of results
@@ -3474,6 +3474,34 @@ class _BlitzGateway (object):
                 return KNOWN_WRAPPERS.get(obj_type.lower(), None)
             types = [getWrapper(o) for o in obj_types]
         search = self.createSearchService()
+
+        search.setBatchSize(batchSize)
+
+        ctx = self.SERVICE_OPTS.copy()
+        if searchGroup is not None:
+            ctx.setOmeroGroup(searchGroup)
+        if ownedBy is not None:
+            ownedBy = long(ownedBy)
+            if ownedBy >= 0:
+                details = omero.model.DetailsI()
+                details.setOwner(omero.model.ExperimenterI(ownedBy, False))
+                search.onlyOwnedBy(details)
+
+        must = []
+
+        if fields:
+            fields = [str(f) for f in fields]
+            # for each term, it MUST appear in one of the fiels, E.g. [“name:GFP description:GFP”, “name:H2B description:H2B"]
+            # for token in text.split(" "):
+            #     must.append((":" + token + " ").join(fields) + ":" + token)
+
+            # prepend search query with field. E.g. ['name:"GFP H2B"', 'description:"GFP H2B"']
+            for f in fields:
+                must.append(f + ':"' + text + '"')
+
+        else:
+            must.append(text)
+
         try:
             if created:
                 search.onlyCreatedBetween(created[0], created[1]);
@@ -3482,13 +3510,22 @@ class _BlitzGateway (object):
             rv = []
             for t in types:
                 def actualSearch ():
-                    search.onlyType(t().OMERO_CLASS, self.SERVICE_OPTS)
-                    search.byFullText(text, self.SERVICE_OPTS)
+                    search.onlyType(t().OMERO_CLASS, ctx)
+                    search.bySomeMustNone(must, [], [])
+                    # search.byFullText(text, ctx)
                 timeit(actualSearch)()
-                if search.hasNext(self.SERVICE_OPTS):
-                    def searchProcessing ():
-                        rv.extend(map(lambda x: t(self, x), search.results()))
-                    timeit(searchProcessing)()
+                # get results
+                def searchProcessing ():
+                    return search.results()
+                p = 0
+                # we do pagination by loading until the required page
+                while search.hasNext(ctx):
+                    results = timeit(searchProcessing)()
+                    if p == page:
+                        rv.extend(map(lambda x: t(self, x), results))
+                        break;
+                    p += 1
+
         finally:
             search.close()
         return rv
