@@ -1644,10 +1644,6 @@
         #startdateinput, #enddateinput {
             width:30% !important;
         }
-    
-        #criteria {
-            float:left;
-        }
 
         .criteria {
             overflow:hidden;
