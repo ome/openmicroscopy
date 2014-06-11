@@ -914,10 +914,6 @@ class MetadataViewerModel
 			}
 		}
 		this.viewedBy = m;
-		Renderer rnd = getEditor().getRenderer();
-		if (rnd != null) {
-		    rnd.loadRndSettings(true, null);
-		}
 	}
 	
 	/**
