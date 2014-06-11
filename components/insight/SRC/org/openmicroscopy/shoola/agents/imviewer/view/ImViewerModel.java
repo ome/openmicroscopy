@@ -558,7 +558,7 @@ class ImViewerModel
 	/**
    	 * Reloads the 'saved by' thumbnails of the the rendering panel
     	 */
-	void reloadRenderingThumbds() {
+	void reloadRenderingThumbs() {
 	    metadataViewer.loadViewedBy();
 	}
 	
