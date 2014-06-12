@@ -332,7 +332,7 @@ class TestImport(CLITest):
         assert obj.details.owner.id.val == user.id.val
         assert obj.details.group.id.val == group2.id.val
 
-    @pytest.mark.xfail(reason="See ticket #12288")
+   # @pytest.mark.xfail(reason="See ticket #12288")
     def testImportAsRootMultiGroup(self, tmpdir, capfd):
         """Test import using sudo argument"""
 
