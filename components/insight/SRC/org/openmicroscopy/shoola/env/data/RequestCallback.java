@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.data.RequestCallback 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2012 University of Dundee & Open Microscopy Environment.
+ *  Copyright (C) 2006-2014 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
  *
  *
@@ -29,6 +29,7 @@ import java.util.List;
 
 //Third-party libraries
 
+
 //Application-internal dependencies
 import omero.ServerError;
 import omero.client;
@@ -39,7 +40,9 @@ import omero.cmd.HandlePrx;
 import omero.cmd.OK;
 import omero.cmd.Response;
 import omero.cmd.Status;
+
 import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
+
 import Ice.Current;
 
 /** 
@@ -96,6 +99,20 @@ public class RequestCallback
 		super(client, process);
 	}
 	
+	/**
+         * Creates a new instance.
+         * 
+         * @param client Reference to the client.
+         * @param process The process to handle.
+         * @throws ServerError Thrown if an error occurred while initializing the
+         *                                         call-back.
+         */
+        RequestCallback(CmdCallbackI ccb)
+                throws ServerError
+        {
+                super(ccb);
+        }
+        
 	/**
 	 * Sets the adapter. 
 	 * 

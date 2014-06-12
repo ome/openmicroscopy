@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.env.data.DSOutOfServiceException
+ * org.openmicroscopy.shoola.env.data.DSAccessException
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
@@ -21,12 +21,16 @@
  *------------------------------------------------------------------------------
  */
 
-package org.openmicroscopy.shoola.env.data;
+package omero.gateway.exception;
+
+//Java imports
+
+//Third-party libraries
+
+//Application-internal dependencies
 
 /** 
- * Reports an error occurred while trying to access the OMEDS service.
- * Such an error can posted in the following case:
- * <i>broken connection</i>, <i>expired session</i> or <i>not logged in</i>.
+ * Reports an error occurred while trying to pull out data from the server.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -39,19 +43,16 @@ package org.openmicroscopy.shoola.env.data;
  * </small>
  * @since OME2.2
  */
-public class DSOutOfServiceException
+public class DSAccessException
 	extends Exception
 {
-        public DSOutOfServiceException(omero.gateway.exception.DSOutOfServiceException gatewayException) {
-            super(gatewayException.getMessage(), gatewayException.getCause());
-        }
-	
+
 	/**
 	 * Constructs a new exception with the specified detail message.
 	 * 
 	 * @param message	Short explanation of the problem.
 	 */
-	public DSOutOfServiceException(String message)
+	public DSAccessException(String message)
 	{
 		super(message);
 	}
@@ -62,7 +63,7 @@ public class DSOutOfServiceException
 	 * @param message	Short explanation of the problem.
 	 * @param cause		The exception that caused this one to be risen.
 	 */
-	public DSOutOfServiceException(String message, Throwable cause) 
+	public DSAccessException(String message, Throwable cause) 
 	{
 		super(message, cause);
 	}

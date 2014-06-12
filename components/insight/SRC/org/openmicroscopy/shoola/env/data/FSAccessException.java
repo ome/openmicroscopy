@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.data.FSAccessException 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -22,12 +22,6 @@
  */
 package org.openmicroscopy.shoola.env.data;
 
-//Java imports
-
-//Third-party libraries
-
-//Application-internal dependencies
-
 /** 
  * Reports an error occurred while trying to interact w/ the File System.
  *
@@ -43,73 +37,19 @@ package org.openmicroscopy.shoola.env.data;
  * @since 3.0-Beta4
  */
 public class FSAccessException 
-	extends Exception
+	extends omero.gateway.exception.FSAccessException
 {
 
-	/** Indicates that the pyramid is not ready.*/
-	public static final int PYRAMID = 1;
-	
-	/** Indicates that the pyramid is not ready file is locked.*/
-	public static final int LOCKED = 0;
-	
-	/** One of the constants defined by this class.*/
-	private int index;
-	
-	/** The time to wait before the pyramid is ready.*/
-	private Long backOffTime;
-	
-	/**
-	 * Constructs a new exception with the specified detail message.
-	 * 
-	 * @param message	Short explanation of the problem.
-	 */
-	public FSAccessException(String message)
-	{
-		super(message);
-		index = LOCKED;
-	}
-	
-	/**
-	 * Constructs a new exception with the specified detail message and cause.
-	 * 
-	 * @param message	Short explanation of the problem.
-	 * @param cause		The exception that caused this one to be risen.
-	 */
-	public FSAccessException(String message, Throwable cause) 
-	{
-		super(message, cause);
-	}
-	
-	/**
-	 * Sets the index, one of the constants defined by this class.
-	 * 
-	 * @param index The value to set.
-	 */
-	public void setIndex(int index) { this.index = index; }
-	
-	/**
-	 * Returns the index, one of the constants defined by this class.
-	 * 
-	 * @return See above.
-	 */
-	public int getIndex() { return index; }
-	
-	/**
-	 * Sets the time to wait before the pyramid is ready.
-	 * 
-	 * @param backOfftime The value to set.
-	 */
-	public void setBackOffTime(Long backOfftime)
-	{ 
-		this.backOffTime = backOfftime;
-	}
-	
-	/**
-	 * Returns the time to wait before the pyramid is ready.
-	 * 
-	 * @return See above.
-	 */
-	public Long getBackOffTime() { return backOffTime; }
-	
+    public FSAccessException(omero.gateway.exception.FSAccessException fsException) {
+        super(fsException.getMessage(), fsException.getCause());
+    }
+    
+    public FSAccessException(String message, Throwable cause) {
+        super(message, cause);
+    }
+
+    public FSAccessException(String message) {
+        super(message);
+    }
 
 }

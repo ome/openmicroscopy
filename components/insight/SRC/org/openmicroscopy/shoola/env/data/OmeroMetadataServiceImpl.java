@@ -90,7 +90,6 @@ import org.openmicroscopy.shoola.env.data.model.TableResult;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.data.util.FilterContext;
 import org.openmicroscopy.shoola.env.data.util.ModelMapper;
-import org.openmicroscopy.shoola.env.data.util.PojoMapper;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
 
@@ -115,6 +114,7 @@ import pojos.TagAnnotationData;
 import pojos.TermAnnotationData;
 import pojos.TextualAnnotationData;
 import pojos.XMLAnnotationData;
+import pojos.util.PojoMapper;
 
 /** 
  * Implementation of the {@link OmeroMetadataService} I/F.
@@ -536,7 +536,8 @@ class OmeroMetadataServiceImpl
                             PojoMapper.asDataObject(link.getChild()));
                 }
             }
-			annotations.addAll(PojoMapper.asDataObjects(r));
+			annotations.addAll((Set)PojoMapper.asDataObjects(r));
+
 		}
 		return annotations;
     }

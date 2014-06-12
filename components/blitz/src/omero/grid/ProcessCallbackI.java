@@ -1,7 +1,7 @@
 /*
  *   $Id$
  *
- *   Copyright 2010 Glencoe Software, Inc. All rights reserved.
+ *   Copyright 2010-2014 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -41,7 +41,7 @@ public class ProcessCallbackI extends _ProcessCallbackDisp {
      * freely. The object will not be nulled, but may be closed server-side.
      */
     protected final ProcessPrx process;
-
+    
     public ProcessCallbackI(omero.client client, ProcessPrx process)
     throws ServerError {
         this(client, process, true);
@@ -57,6 +57,13 @@ public class ProcessCallbackI extends _ProcessCallbackDisp {
         this(adapter, category, process, true);
     }
 
+    public ProcessCallbackI(ProcessCallbackI p) {
+        this.adapter = p.adapter;
+        this.poll = p.poll;
+        this.process = p.process;
+        this.id = p.id;
+    }
+            
     public ProcessCallbackI(Ice.ObjectAdapter adapter, String category,
             ProcessPrx process, boolean poll)
         throws ServerError {
@@ -123,4 +130,10 @@ public class ProcessCallbackI extends _ProcessCallbackDisp {
     public void close() {
          adapter.remove(id); // OK ADAPTER USAGE
      }
+
+    public ProcessPrx getProcess() {
+        return process;
+    }
+    
+    
 }

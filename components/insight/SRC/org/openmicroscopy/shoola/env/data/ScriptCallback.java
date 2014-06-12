@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.data.ScriptCallback 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -91,6 +91,12 @@ public class ScriptCallback
 		this.scriptID = scriptID;
 		results = null;
 	}
+	
+        public ScriptCallback(long scriptID, ProcessCallbackI p) throws ServerError {
+            super(p);
+            this.scriptID = scriptID;
+            results = null;
+        }
 	
 	/**
 	 * Sets the adapter. 

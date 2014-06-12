@@ -40,12 +40,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
+
 import javax.imageio.ImageIO;
 import javax.swing.filechooser.FileFilter;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
+
 
 //Third-party libraries
 import loci.common.RandomAccessInputStream;
@@ -55,11 +57,13 @@ import loci.formats.tiff.TiffSaver;
 
 import com.sun.opengl.util.texture.TextureData;
 
+
 //Application-internal dependencies
 import ome.formats.importer.ImportCandidates;
 import ome.formats.importer.ImportContainer;
 import omero.api.RenderingEnginePrx;
 import omero.api.ThumbnailStorePrx;
+import omero.gateway.model.ExportFormat;
 import omero.model.Annotation;
 import omero.model.Channel;
 import omero.model.Dataset;
@@ -90,7 +94,6 @@ import org.openmicroscopy.shoola.env.data.model.FigureParam;
 import org.openmicroscopy.shoola.env.data.model.SaveAsParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.data.util.ModelMapper;
-import org.openmicroscopy.shoola.env.data.util.PojoMapper;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.util.StatusLabel;
 import org.openmicroscopy.shoola.env.data.util.Target;
@@ -103,6 +106,7 @@ import org.openmicroscopy.shoola.util.filter.file.OMETIFFFilter;
 import org.openmicroscopy.shoola.util.filter.file.XMLFilter;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.image.io.WriterImage;
+
 import pojos.ChannelData;
 import pojos.DataObject;
 import pojos.DatasetData;
@@ -114,6 +118,7 @@ import pojos.ROIData;
 import pojos.ScreenData;
 import pojos.TagAnnotationData;
 import pojos.WorkflowData;
+import pojos.util.PojoMapper;
 
 /** 
 * Implementation of the {@link OmeroImageService} I/F.
@@ -148,7 +153,7 @@ class OmeroImageServiceImpl
 	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	private int getNumberOfRenderingEngines(SecurityContext ctx, long pixelsID)
+	private int getNumberOfRenderingEngines(omero.gateway.model.SecurityContext ctx, long pixelsID)
 			throws DSOutOfServiceException, DSAccessException
 	{
 		int number = 1;
@@ -530,7 +535,7 @@ class OmeroImageServiceImpl
 	 */
 	public boolean isAlive(SecurityContext ctx) throws DSOutOfServiceException
 	{
-	    return null != gateway.getConnector(ctx, true, true);
+	    return gateway.isServerRunning(ctx);
 	}
 
 	/** 
@@ -663,7 +668,7 @@ class OmeroImageServiceImpl
 	 * Implemented as specified by {@link OmeroImageService}.
 	 * @see OmeroImageService#reloadRenderingService(SecurityContext, long)
 	 */
-	public RenderingControl reloadRenderingService(SecurityContext ctx,
+	public RenderingControl reloadRenderingService(omero.gateway.model.SecurityContext ctx,
 		long pixelsID)
 		throws RenderingServiceException
 	{
@@ -1423,7 +1428,7 @@ class OmeroImageServiceImpl
 	 * @see OmeroImageService#exportImageAsOMEObject(SecurityContext, int, long,
 	 * File, Target)
 	 */
-	public Object exportImageAsOMEFormat(SecurityContext ctx, int index,
+	public Object exportImageAsOMEFormat(SecurityContext ctx, ExportFormat format,
 			long imageID, File file, Target target)
 			throws DSOutOfServiceException, DSAccessException
 	{
@@ -1434,8 +1439,8 @@ class OmeroImageServiceImpl
 		//To be modified
 		//check file name and index.
 		String path = file.getAbsolutePath();
-		switch (index) {
-			case EXPORT_AS_OMETIFF:
+		switch (format) {
+			case OME_TIFF:
 				if (!(path.endsWith(OMETIFFFilter.OME_TIFF)||
 						path.endsWith(OMETIFFFilter.OME_TIF))) {
 					path += "."+OMETIFFFilter.OME_TIFF;
@@ -1443,14 +1448,14 @@ class OmeroImageServiceImpl
 					file = new File(path);
 				}
 				break;
-			case EXPORT_AS_OME_XML:
+			case OME_XML:
 				if (!(path.endsWith(XMLFilter.OME_XML))) {
 					path += "."+XMLFilter.OME_XML;
 					file.delete();
 					file = new File(path);
 				}
 		}
-		File f = gateway.exportImageAsOMEObject(ctx, index, file, imageID);
+		File f = gateway.exportImageAsOMEObject(ctx, format, file, imageID);
 		if (target == null) return f;
 		//Apply the transformations
 		List<InputStream> transforms = target.getTransforms();
@@ -1473,7 +1478,7 @@ class OmeroImageServiceImpl
 			File inputXML = File.createTempFile(RandomStringUtils.random(10),
 					ext);
 			files.add(inputXML);
-			if (index == EXPORT_AS_OMETIFF) {
+			if (format == ExportFormat.OME_TIFF) {
 				tmp = File.createTempFile(RandomStringUtils.random(10),
 						"."+OMETIFFFilter.OME_TIFF);
 				files.add(tmp);
@@ -1502,7 +1507,7 @@ class OmeroImageServiceImpl
 			file.delete();
 			//Copy the result
 			r = new File(path);
-			if (index == EXPORT_AS_OME_XML)
+			if (format == ExportFormat.OME_TIFF)
 				FileUtils.copyFile(inputXML, r);
 			else {
 				FileUtils.copyFile(tmp, r);
@@ -1883,10 +1888,11 @@ class OmeroImageServiceImpl
 	public ThumbnailStorePrx createThumbnailStore(SecurityContext ctx)
 			throws DSAccessException, DSOutOfServiceException
 	{
-		if (ctx == null) return null;
-		Connector c = gateway.getConnector(ctx, true, false);
-		// Pass close responsiblity off to the caller.
-		return c.getThumbnailService();
+            if (ctx == null)
+                return null;
+            // Pass close responsiblity off to the caller.
+            return gateway.getThumbnailService(ctx);
+
 	}
 	
 	/**

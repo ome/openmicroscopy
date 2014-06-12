@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Glencoe Software, Inc. All rights reserved.
+ * Copyright (C) 2014 Glencoe Software, Inc. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -102,6 +102,10 @@ public class CmdCallbackI extends _CmdCallbackDisp {
      */
     protected final HandlePrx handle;
 
+    public CmdCallbackI(CmdCallbackI ccb) throws ServerError {
+        this(ccb.adapter, ccb.id.category, ccb.handle);
+    }
+    
     public CmdCallbackI(omero.client client, HandlePrx handle)
     throws ServerError {
         this(client.getAdapter(), client.getCategory(), handle);

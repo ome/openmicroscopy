@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.data.login.UserCredentials
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -47,7 +47,7 @@ import pojos.GroupData;
  * </small>
  * @since OME2.2
  */
-public class UserCredentials
+public class UserCredentials extends omero.gateway.model.UserCredentials
 {
     
 	/** Identifies a high speed connection. */
@@ -58,35 +58,9 @@ public class UserCredentials
 	
 	/** Identifies a low speed connection. */
 	public static final int LOW = 2;
-	
-    /**
-     * The <i>OMERO</i> login name of the user.
-     * This is the <code>OME Name</code> that was assigned to the user when
-     * it was created in the DB.
-     */
-    private String  userName;
-    
-    /**
-     * The <i>OMERO</i> login password of the user.
-     * This is the password that was chosen for the user when it was created
-     * in the DB.
-     */
-    private String  password;
-    
-    /** The name of the <i>OMERO</i> server. */
-    private String  hostName;
-    
+
     /** The connection speed level. */
     private int 	speedLevel;
-    
-    /** The value of the port. */
-    private int 	port;
-    
-    /** The selected group or <code>-1</code>. */
-    private long 	group;
-    
-    /** Flag indicating to encrypt or not the data transfer. */
-    private boolean encrypted;
     
 	/** Indicates that the experimenter to handle is an administrator. */
 	private Boolean administrator;
@@ -140,11 +114,11 @@ public class UserCredentials
     {
     	checkSpeedLevel(speedLevel);
     	this.speedLevel = speedLevel;
-        this.userName = userName;
-        this.password = password;
-        this.hostName = hostName;
-        port = -1;
-        group = -1L;
+        super.setUserName(userName);
+        super.setPassword(password);
+        super.setHostName(hostName);
+        super.setPort(-1);
+        super.setGroup(-1L);
         owner = null;
         administrator = null;
     }
@@ -167,42 +141,6 @@ public class UserCredentials
     }
     
     /**
-     * Sets the group.
-     * 
-     * @param group The value to set.
-     */
-    public void setGroup(long group) { this.group = group; }
-    
-    /**
-     * Returns the group or <code>-1</code>.
-     * 
-     * @return See above.
-     */
-    public long getGroup() { return group; }
-    
-    /**
-     * Sets the port.
-     * 
-     * @param port The value to set.
-     */
-    public void setPort(int port) { this.port = port; }
-    
-    /**
-     * Sets the flag indicating if the data transfer is encrypted or not.
-     * 
-     * @param encrypted The value to set.
-     */
-    public void setEncrypted(boolean encrypted) { this.encrypted = encrypted; }
-    
-    /**
-     * Returns <code>true</code> if the data transfer is encrypted,
-     * <code>false</code> otherwise.
-     * 
-     * @return See above.
-     */
-    public boolean isEncrypted() { return encrypted; }
-    
-    /**
      * Resets the password.
      * 
      * @param password The <i>OMERO</i> login password of the user.
@@ -211,46 +149,9 @@ public class UserCredentials
     {
     	 if (password == null || password.trim().length() == 0)
              throw new IllegalArgumentException("Please specify a password.");
-    	 this.password = password;
+    	super.setPassword(password);
     }
-    
-    /**
-     * Returns the port used, if <code>-1</code>, the port is the value set
-     * in the configuration file
-     * 
-     * @return See above.
-     */
-    public int getPort() { return port; }
-    
-    /**
-     * Returns the name of the <i>OMERO</i> server.
-     * 
-     * @return See above.
-     */
-    public String getHostName() { return hostName; }
-    
-    /**
-     * Returns the <i>OMERO</i> login name of the user.
-     * This is the <code>OME Name</code> that was assigned to the user when
-     * it was created in the DB.
-     * This field is always a non-<code>null</code> string with a positive
-     * length.
-     * 
-     * @return See above.
-     */
-    public String getUserName() { return userName; }
 
-    /**
-     * Returns the <i>OMERO</i> login password of the user.
-     * This is the password that was chosen for the user when it was created
-     * in the DB.
-     * This field is always a non-<code>null</code> string with a positive
-     * length.
-     * 
-     * @return See above.
-     */
-    public String getPassword() { return password; }
-    
     /**
      * Returns the selected connection speed.
      * 
@@ -372,9 +273,9 @@ public class UserCredentials
     public String toString()
     {
         StringBuffer buf = new StringBuffer("User Name: ");
-        buf.append(userName);
+        buf.append(super.getUserName());
         buf.append(" -- Password: ");
-        for (int i = 0; i < password.length(); ++i) buf.append('*');
+        for (int i = 0; i < super.getPassword().length(); ++i) buf.append('*');
         return buf.toString();
     }
     

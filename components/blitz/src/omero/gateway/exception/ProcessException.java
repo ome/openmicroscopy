@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.env.data.DSOutOfServiceException
+ * org.openmicroscopy.shoola.env.data.ProcessException 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
@@ -20,38 +20,42 @@
  *
  *------------------------------------------------------------------------------
  */
+package omero.gateway.exception;
 
-package org.openmicroscopy.shoola.env.data;
+
+//Java imports
+
+//Third-party libraries
+
+//Application-internal dependencies
+import omero.ResourceError;
 
 /** 
- * Reports an error occurred while trying to access the OMEDS service.
- * Such an error can posted in the following case:
- * <i>broken connection</i>, <i>expired session</i> or <i>not logged in</i>.
+ * Reports an error occurred while trying to run a script.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
- * @author  <br>Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:a.falconi@dundee.ac.uk">
- * 					a.falconi@dundee.ac.uk</a>
- * @version 2.2 
+ * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+ * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
+ * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
+ * @version 3.0
  * <small>
- * (<b>Internal version:</b> $Revision$ $Date$)
+ * (<b>Internal version:</b> $Revision: $Date: $)
  * </small>
- * @since OME2.2
+ * @since 3.0-Beta4
  */
-public class DSOutOfServiceException
+public class ProcessException 
 	extends Exception
 {
-        public DSOutOfServiceException(omero.gateway.exception.DSOutOfServiceException gatewayException) {
-            super(gatewayException.getMessage(), gatewayException.getCause());
-        }
+
+	/** Indicates that no processor available to run the script.*/
+	public static final int NO_PROCESSOR = 0;
 	
 	/**
 	 * Constructs a new exception with the specified detail message.
 	 * 
 	 * @param message	Short explanation of the problem.
 	 */
-	public DSOutOfServiceException(String message)
+	public ProcessException(String message)
 	{
 		super(message);
 	}
@@ -62,9 +66,27 @@ public class DSOutOfServiceException
 	 * @param message	Short explanation of the problem.
 	 * @param cause		The exception that caused this one to be risen.
 	 */
-	public DSOutOfServiceException(String message, Throwable cause) 
+	public ProcessException(String message, Throwable cause) 
 	{
 		super(message, cause);
 	}
 
+	/**
+	 * Returns one of the constant defined by this class.
+	 * 
+	 * @return See above.
+	 */
+	public int getStatus()
+	{
+		Throwable cause = getCause();
+		if (cause instanceof ResourceError) {
+			ResourceError error = (ResourceError) cause;
+			String message = error.message;
+			if (message != null && message.toLowerCase().contains(
+					"no processor available"))
+				return NO_PROCESSOR;
+		}
+		return -1;
+	}
+	
 }

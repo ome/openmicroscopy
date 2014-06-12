@@ -46,8 +46,10 @@ import javax.swing.JFrame;
 
 //Third-party libraries
 
+
 //Application-internal dependencies
 import omero.client;
+
 import org.openmicroscopy.shoola.env.Agent;
 import org.openmicroscopy.shoola.env.Container;
 import org.openmicroscopy.shoola.env.Environment;
@@ -75,6 +77,7 @@ import org.openmicroscopy.shoola.util.ui.NotificationDialog;
 import org.openmicroscopy.shoola.util.ui.ShutDownDialog;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.file.IOUtil;
+
 import pojos.ExperimenterData;
 import pojos.GroupData;
 
@@ -152,8 +155,6 @@ public class DataServicesFactory
 	/** The Administration service adapter. */
 	private AdminService				admin;
 	
-    /** Keeps the client's session alive. */
-	private ScheduledThreadPoolExecutor	executor;
 	
     /** The fs properties. */
     private Properties 					fsConfig;
@@ -293,6 +294,8 @@ public class DataServicesFactory
         	int c2 = Integer.parseInt(valuesClient[1]);
         	if (s1 < c1) return false;
         	if (s2 != c2) return false;
+        	// TODO: This would allow a 4.1.0 client to connect to a 5.1.0 server,
+                // but not a 5.0.0 client to a 5.1.0 server. Is this really intended?
 		} catch (Exception e) {
 			//Record error
 			LogMessage msg = new LogMessage();
@@ -367,7 +370,7 @@ public class DataServicesFactory
     {
         if (connectionDialog instanceof ShutDownDialog) {
             ShutDownDialog d = (ShutDownDialog) connectionDialog;
-            d.setChecker(omeroGateway.getChecker());
+            d.setGateway(omeroGateway.getGateway());
             d.setCheckupTime(5);
         }
         connectionDialog.setModal(false);
@@ -402,20 +405,20 @@ public class DataServicesFactory
     {
         JFrame f = registry.getTaskBar().getFrame();
         String message;
-        Map<SecurityContext, Set<Long>> l =
+        Map<omero.gateway.model.SecurityContext, Set<Long>> l =
                 omeroGateway.getRenderingEngines();
         boolean b = omeroGateway.joinSession();
         if (b) {
             //reactivate the rendering engine. Need to review that
-            Iterator<Entry<SecurityContext, Set<Long>>> i =
+            Iterator<Entry<omero.gateway.model.SecurityContext, Set<Long>>> i =
                     l.entrySet().iterator();
             OmeroImageService svc = registry.getImageService();
             Long id;
-            Entry<SecurityContext, Set<Long>> entry;
-            Map<SecurityContext, List<Long>> 
-            failures = new HashMap<SecurityContext, List<Long>>();
+            Entry<omero.gateway.model.SecurityContext, Set<Long>> entry;
+            Map<omero.gateway.model.SecurityContext, List<Long>> 
+            failures = new HashMap<omero.gateway.model.SecurityContext, List<Long>>();
             Iterator<Long> j;
-            SecurityContext ctx;
+            omero.gateway.model.SecurityContext ctx;
             List<Long> failure;
             RenderingControl p;
             while (i.hasNext()) {
@@ -584,47 +587,38 @@ public class DataServicesFactory
 	    
 		if (uc == null)
             throw new NullPointerException("No user credentials.");
-		String name = (String) 
+		String clientName = (String) 
 		 container.getRegistry().lookup(LookupNames.MASTER);
-		if (name == null) name = LookupNames.MASTER_INSIGHT;
-		client client = omeroGateway.createSession(uc.getUserName(),
-				uc.getPassword(), uc.getHostName(), uc.isEncrypted(), name,
-				uc.getPort());
-		if (client == null || singleton == null) {
-			omeroGateway.logout();
-        	return;
-		}
-		//check client server version
-		compatible = true;
-        //Register into log file.
-        Object v = container.getRegistry().lookup(LookupNames.VERSION);
-    	String clientVersion = "";
-    	if (v != null && v instanceof String)
-    		clientVersion = (String) v;
-    	
-        //Check if client and server are compatible.
+		if (clientName == null) clientName = LookupNames.MASTER_INSIGHT;
+		
+		
+            Object v = container.getRegistry().lookup(LookupNames.VERSION);
+            String clientVersion = "";
+            if (v != null && v instanceof String)
+                clientVersion = (String) v;
+            
+        
+        ExperimenterData exp = omeroGateway.connect(uc, clientName, determineCompression(uc.getSpeedLevel()));
         String version = omeroGateway.getServerVersion();
-        Boolean check = checkClientServerCompatibility(version, clientVersion);
-        if (check == null) {
-        	compatible = false;
-        	omeroGateway.logout();
-        	return;
+        
+        Boolean versionCheck = checkClientServerCompatibility(version, clientVersion);
+        if(versionCheck == null) {
+            return;
         }
-        if (!check.booleanValue()) {
-        	compatible = false;
-        	notifyIncompatibility(clientVersion, version, uc.getHostName());
-        	omeroGateway.logout();
-        	return;
+        else {
+            compatible = versionCheck.booleanValue();
+	}
+	
+        if(!compatible) {
+            notifyIncompatibility(clientVersion, version, uc.getHostName());
+            return;
         }
         
-        ExperimenterData exp = omeroGateway.login(client, uc.getUserName(), 
-        		uc.getHostName(), determineCompression(uc.getSpeedLevel()),
-        		uc.getGroup(), uc.getPort());
         //Post an event to indicate that the user is connected.
         EventBus bus = container.getRegistry().getEventBus();
         bus.post(new ConnectedEvent());
         //Post an event to notify 
-        compatible = true;
+        
         //Register into log file.
         Map<String, String> info = ProxyUtil.collectOsInfoAndJavaVersion();
         LogMessage msg = new LogMessage();
@@ -638,10 +632,6 @@ public class DataServicesFactory
 		}
         registry.getLogger().info(this, msg);
         
-        KeepClientAlive kca = new KeepClientAlive(container, omeroGateway);
-        executor = new ScheduledThreadPoolExecutor(1);
-        executor.scheduleWithFixedDelay(kca, 60, 60, TimeUnit.SECONDS);
-        
         //String ldap = omeroGateway.lookupLdapAuthExperimenter(exp.getId());
         //registry.bind(LookupNames.USER_AUTHENTICATION, ldap);
         registry.bind(LookupNames.CURRENT_USER_DETAILS, exp);
@@ -649,46 +639,27 @@ public class DataServicesFactory
         		isFastConnection(uc.getSpeedLevel()));
         
         Collection<GroupData> groups;
-        Set<GroupData> available;
         List<ExperimenterData> exps = new ArrayList<ExperimenterData>();
         try {
-            GroupData defaultGroup = null;
-            long gid = exp.getDefaultGroup().getId();
+                long gid = exp.getDefaultGroup().getId();
         	SecurityContext ctx = new SecurityContext(gid);
-        	groups = omeroGateway.getAvailableGroups(ctx, exp);
+        	
+        	groups = omeroGateway.getAvailableGroups(ctx, exp, false);
+        	registry.bind(LookupNames.USER_GROUP_DETAILS, groups);
+        	
         	registry.bind(LookupNames.SYSTEM_ROLES,
                     omeroGateway.getSystemRoles(ctx));
+        	
         	//Check if the current experimenter is an administrator 
-        	Iterator<GroupData> i = groups.iterator();
-        	GroupData g;
-        	available = new HashSet<GroupData>();
-        	while (i.hasNext()) {
-        		g = i.next();
-        		if (gid == g.getId()) defaultGroup = g;
-        		if (!admin.isSecuritySystemGroup(g.getId())) {
-        			available.add(g);
-        		} else {
-        			if (admin.isSecuritySystemGroup(g.getId(),
-        			        GroupData.SYSTEM)) {
-        				available.add(g);
-        				uc.setAdministrator(true);
-        			}
-        		}
-        	}
-        	//to be on the safe side.
-        	if (available.size() ==  0) {
-        	    //group with loaded users.
-        	    if (defaultGroup != null) available.add(defaultGroup);
-        	    else available.add(exp.getDefaultGroup());
-        	}
-        	registry.bind(LookupNames.USER_GROUP_DETAILS, available);
+        	uc.setAdministrator(omeroGateway.isAdministrator(ctx, exp));
+        	
         	List<Long> ids = new ArrayList<Long>();
-        	i = available.iterator();
+        	Iterator<GroupData> i = groups.iterator();
         	Set set;
         	Iterator j;
         	ExperimenterData e;
         	while (i.hasNext()) {
-        		g = (GroupData) i.next();
+        	    GroupData g = (GroupData) i.next();
         		set = g.getExperimenters();
         		j = set.iterator();
         		while (j.hasNext()) {
@@ -716,7 +687,7 @@ public class DataServicesFactory
 				reg = agentInfo.getRegistry();
 				//reg.bind(LookupNames.USER_AUTHENTICATION, ldap);
 				reg.bind(LookupNames.CURRENT_USER_DETAILS, exp);
-				reg.bind(LookupNames.USER_GROUP_DETAILS, available);
+				reg.bind(LookupNames.USER_GROUP_DETAILS, groups);
 				reg.bind(LookupNames.USERS_DETAILS, exps);
 				reg.bind(LookupNames.USER_ADMINISTRATOR, uc.isAdministrator());
 				reg.bind(LookupNames.CONNECTION_SPEED, 
@@ -756,10 +727,7 @@ public class DataServicesFactory
 		omeroGateway.logout();
 		DataServicesFactory.registry.getCacheService().clearAllCaches();
 		PixelsServicesFactory.shutDownRenderingControls(container.getRegistry());
-		 
-        if (executor != null) executor.shutdown();
         singleton = null;
-        executor = null;
         omeroGateway = null;
     }
 	

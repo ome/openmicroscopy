@@ -73,6 +73,7 @@
 	<property name="OmeroPy.comp"     value="${tools.comp}/OmeroPy"/>
 	<property name="OmeroFs.comp"     value="${tools.comp}/OmeroFS"/>
 	<property name="OmeroMatlab.comp"     value="${tools.comp}/OmeroM"/>
+	<property name="OmeroGateway.comp"     value="${blitz.comp}"/>
 	<property name="uiLibrary.comp"     value="${tests.comp}/ui/library/java"/>
 	<property name="tests.comp"     value="${components.dir}/tests"/>
 
@@ -108,6 +109,9 @@
 	<path id="OmeroMatlab.buildpath">
 	  <pathelement location="${OmeroMatlab.comp}/build.xml"/>
 	</path>
+	<path id="OmeroGateway.buildpath">
+          <pathelement location="${OmeroGateway.comp}/build.xml"/>
+        </path>
 	<path id="OmeroPy.buildpath">
 	  <pathelement location="${OmeroPy.comp}/build.xml"/>
 	</path>

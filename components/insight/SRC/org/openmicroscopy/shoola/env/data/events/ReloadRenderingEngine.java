@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.data.events.ReloadRenderingEngine 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2011 University of Dundee & Open Microscopy Environment.
+ *  Copyright (C) 2006-2014 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
  *
  *
@@ -34,7 +34,7 @@ import java.util.Map;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+import omero.gateway.model.SecurityContext;
 import org.openmicroscopy.shoola.env.event.RequestEvent;
 
 /** 

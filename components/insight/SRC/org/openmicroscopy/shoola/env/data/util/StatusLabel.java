@@ -58,6 +58,8 @@ import pojos.DataObject;
 import pojos.FilesetData;
 import pojos.PixelsData;
 
+import pojos.util.PojoMapper;
+
 /**
  * Component displaying the status of a specific import.
  *
@@ -642,7 +644,7 @@ public class StatusLabel
             step = 6;
             processingBar.setValue(step);
             processingBar.setString(STEPS.get(step));
-            pixels = (Set<PixelsData>) PojoMapper.asDataObjects(
+            pixels = (Set<PixelsData>) (Set) PojoMapper.asDataObjects(
                     ((ImportEvent.IMPORT_DONE) event).pixels);
             firePropertyChange(IMPORT_DONE_PROPERTY, null, this);
         } else if (event instanceof ImportCandidates.SCANNING) {

@@ -28,7 +28,6 @@ package org.openmicroscopy.shoola.env.data;
 import java.io.File;
 import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -39,6 +38,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 //Application-internal dependencies
+import omero.api.StatefulServiceInterfacePrx;
 import omero.cmd.Delete;
 import omero.cmd.Request;
 import omero.model.Annotation;
@@ -65,6 +65,7 @@ import omero.model.TagAnnotation;
 import omero.sys.Parameters;
 import omero.sys.ParametersI;
 
+//Third-party libraries
 import org.apache.commons.collections.CollectionUtils;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.AgentInfo;
@@ -72,7 +73,6 @@ import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.model.DeletableObject;
 import org.openmicroscopy.shoola.env.data.util.ModelMapper;
-import org.openmicroscopy.shoola.env.data.util.PojoMapper;
 import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.log.LogMessage;
@@ -92,8 +92,7 @@ import pojos.ScreenData;
 import pojos.TagAnnotationData;
 import pojos.WellData;
 import pojos.WellSampleData;
-//Third-party libraries
-import omero.api.StatefulServiceInterfacePrx;
+import pojos.util.PojoMapper;
 
 /**
  * Implementation of the {@link OmeroDataService} I/F.
@@ -339,11 +338,6 @@ class OmeroDataServiceImpl
 			}
 			if (links.size() > 0)
 				gateway.createObjects(ctx, links);
-		}
-		try {
-			gateway.shutDownDerivedConnector(ctx);
-		} catch (Exception e) {
-			context.getLogger().info(this, "Cannot shut down the connectors.");
 		}
 
 		return PojoMapper.asDataObject(created);
