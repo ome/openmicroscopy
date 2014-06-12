@@ -55,14 +55,14 @@ plateid=$(sed -n -e 's/^Plate://p' plate_import.log)
 bin/omero logout
 
 # Create ice.config file
-echo "omero.host=$HOSTNAME" > $CONFIG_FILENAME
-echo "omero.port=$PORT" >> $CONFIG_FILENAME
-echo "omero.user=$USER_NAME" >> $CONFIG_FILENAME
-echo "omero.pass=$USER_PASSWORD" >> $CONFIG_FILENAME
-echo "omero.projectid=${project##*:}" >> $CONFIG_FILENAME
-echo "omero.datasetid=${dataset##*:}" >> $CONFIG_FILENAME
-echo "omero.imageid=${imageid}" >> $CONFIG_FILENAME
-echo "omero.plateid=${plateid}" >> $CONFIG_FILENAME
+echo "omero.host=$HOSTNAME" > "$CONFIG_FILENAME"
+echo "omero.port=$PORT" >> "$CONFIG_FILENAME"
+echo "omero.user=$USER_NAME" >> "$CONFIG_FILENAME"
+echo "omero.pass=$USER_PASSWORD" >> "$CONFIG_FILENAME"
+echo "omero.projectid=${project##*:}" >> "$CONFIG_FILENAME"
+echo "omero.datasetid=${dataset##*:}" >> "$CONFIG_FILENAME"
+echo "omero.imageid=${imageid}" >> "$CONFIG_FILENAME"
+echo "omero.plateid=${plateid}" >> "$CONFIG_FILENAME"
 
 # Remove fake file
 rm *.fake
