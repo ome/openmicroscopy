@@ -413,6 +413,7 @@ class TestIShare(lib.ITest):
 
         owned = share1.getOwnShares(False)
         assert 1 == len(owned)
+        return client_user1, sid, expiration
 
     def test1201b(self):
         share = self.client.sf.getShareService()
@@ -726,23 +727,23 @@ class TestIShare(lib.ITest):
         accessed again.
         """
         client, sid, expiration = self.test1201()
-        adminService = client.sf.getAdminService()
-        shareService = client.sf.getShareService()
-        sessionService = client.sf.getSessionService()
+        admin = client.sf.getAdminService()
+        share = client.sf.getShareService()
+        session = client.sf.getSessionService()
 
         # Regular reloading
-        shareService.setActive(sid, True)
-        shareService.activate(sid)
-        adminService.getEventContext() # Refreshes
-        shareService.deactivate()
-        adminService.getEventContext() # Refreshes
-        self.assertExpiration(expiration, shareService.getShare(sid))
+        share.setActive(sid, True)
+        share.activate(sid)
+        admin.getEventContext()  # Refreshes
+        share.deactivate()
+        admin.getEventContext()  # Refreshes
+        self.assertExpiration(expiration, share.getShare(sid))
 
         # Forced closing
-        assert -2 ==  sessionService.closeSession(shareService.getShare(sid))
-        shareService.activate(sid)
-        adminService.getEventContext() # Refreshes
-        self.assertExpiration(expiration, shareService.getShare(sid))
+        assert -2 == session.closeSession(share.getShare(sid))
+        share.activate(sid)
+        admin.getEventContext()  # Refreshes
+        self.assertExpiration(expiration, share.getShare(sid))
 
     def test2513(self):
         """
