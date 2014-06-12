@@ -403,7 +403,14 @@ public interface SqlAction {
     void rollbackSavepoint(String savepoint);
 
     void deferConstraints();
-    
+
+    /**
+     * Returns a map of Share ID to Share data blob.
+     *
+     * @param ids
+     *            IDs of Shares for which data blobs are to be returned.
+     * @return map of ID to data blob.
+     */
     Map<Long, byte[]> getShareData(List<Long> ids);
 
     //
@@ -955,7 +962,7 @@ public interface SqlAction {
                     return null;
                 }
             };
-            _jdbc().query(_lookup("get_group_ids"), //$NON-NLS-1$
+            _jdbc().query(_lookup("share_data"), //$NON-NLS-1$
                     mapper, params);
             return rv;
         }
