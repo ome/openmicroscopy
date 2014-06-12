@@ -23,7 +23,7 @@
 <form id="search" action="{% url 'load_template' 'search' %}" method="post" title="Search for Images">
 
     <div id="top_search_field">
-        <label class="inline_label" for="id_search_query">Search:</label>
+        <label class="inline_label" for="id_search_query">Search or ID:</label>
         {{ global_search_form.search_query }}
         <input type="submit" value="Go" />
     </div>

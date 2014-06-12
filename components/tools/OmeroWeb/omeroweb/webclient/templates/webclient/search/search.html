@@ -196,11 +196,15 @@
                         <label>Using Fields:</label>
                  
                         <ul class="criteria">
-                            <li><input type="checkbox" name="field" value="id" CHECKED />{% trans "ID" %}</li>
                             <li><input type="checkbox" name="field" value="name" CHECKED />{% trans "Name" %}</li>
                             <li><input type="checkbox" name="field" value="description" CHECKED />{% trans "Description" %}</li>
-                            <li><input type="checkbox" name="field" value="tag" CHECKED />{% trans "Tags" %}</li>
-                            <li><input type="checkbox" name="field" value="annotation" CHECKED />{% trans "Attachments" %}</li>
+                            <li>
+                                <input type="checkbox" name="field" value="all" CHECKED />{% trans "All" %}
+                                <span class="searching_info"
+                                title="All fields: Includes file attachments, tags, comments, owner etc">
+                             <img src="{% static "webgateway/img/help16.png" %}" />
+                        </span>
+                            </li>
                         </ul>
 
                         <hr>
