@@ -2228,9 +2228,13 @@ class ImViewerModel
 	 */
 	boolean isOriginalPlane()
 	{
-		if (originalDef.getDefaultZ() != getDefaultZ()) return false;
-		if (originalDef.getDefaultT() != getDefaultT()) return false;
-		return true;
+            if (originalDef != null) {
+                if (originalDef.getDefaultZ() != getDefaultZ())
+                    return false;
+                if (originalDef.getDefaultT() != getDefaultT())
+                    return false;
+            }
+            return true;
 	}
 	
 	/**
