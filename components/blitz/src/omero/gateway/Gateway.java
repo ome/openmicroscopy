@@ -1299,6 +1299,10 @@ public class Gateway extends ConnectionManager {
             }
     }
     
+    public void importFile(SecurityContext ctx, File file, DatasetData ds, IObserver observer) throws ImportException, DSAccessException, DSOutOfServiceException {
+        this.importFile(ctx, file, ds, observer, null);
+    }
+    
     public void importFile(SecurityContext ctx, File file, DatasetData ds, IObserver observer, ExperimenterData user) throws ImportException, DSAccessException, DSOutOfServiceException {
         SimpleImporter importer = new SimpleImporter(this);
         importer.importFile(ctx, file, ds, observer, user);

@@ -105,7 +105,7 @@ public class SampleClient {
             DatasetData ds = (DatasetData) PojoMapper.asDataObject(obj);
             
             ImportObserver obs = new ImportObserver();
-            gw.importFile(ctx, file, ds, obs, user);
+            gw.importFile(ctx, file, ds, obs);
             
             System.out.println("Waiting for import to complete...");
             while(!obs.isDone()) {

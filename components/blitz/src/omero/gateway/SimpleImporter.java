@@ -97,7 +97,8 @@ public class SimpleImporter {
 
         OMEROMetadataStoreClient omsc = null;
         OMEROWrapper reader = null;
-        omsc = gateway.getImportStore(ctx, user.getUserName());
+        String username = user != null ? user.getUserName() : null;
+        omsc = gateway.getImportStore(ctx, username);
         reader = new OMEROWrapper(config);
         ImportLibrary library = new ImportLibrary(omsc, reader);
         library.addObserver(observer);
@@ -151,7 +152,7 @@ public class SimpleImporter {
             } catch (Exception ex) {
             }
             try {
-                gateway.closeImport(ctx, user.getUserName());
+                gateway.closeImport(ctx, username);
             } catch (Throwable e) {
                 e.printStackTrace();
             }
