@@ -1,10 +1,10 @@
-.. OmeroPy API documentation master file, created by
+.. OMERO.py API documentation master file, created by
    sphinx-quickstart on Mon Jul 23 12:22:32 2012.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-OmeroPy |release| API documentation
-===================================
+OMERO.py |release| API documentation
+====================================
 
 Contents:
 

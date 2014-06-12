@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# OmeroPy API documentation build configuration file, created by
+# OMERO.py API documentation build configuration file, created by
 # sphinx-quickstart on Mon Jul 23 12:22:32 2012.
 #
 # This file is execfile()d with the current directory set to its containing dir.
@@ -31,7 +31,9 @@ from conf import *
 extensions += ['sphinx.ext.autodoc', 'sphinx.ext.autosummary', 'sphinx.ext.todo', 'sphinx.ext.coverage', 'sphinx.ext.pngmath']
 
 # General information about the project.
-project = u'OmeroPy API'
+project = u'OMERO.py API'
+targetname = 'OmeroPyAPI'
+title = project + u' Documentation'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -50,7 +52,7 @@ html_logo = '../sphinx/common/images/ome-tight.svg'
 source_suffix = '.rst'
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'OmeroPyAPIdoc'
+htmlhelp_basename = project+ ' doc'
 
 # Add any paths that contain custom themes here, relative to this directory.
 html_theme_path = ['../sphinx/common/themes']
@@ -71,8 +73,7 @@ latex_elements = {
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-  ('index', 'OmeroPyAPI.tex', u'OmeroPy API Documentation',
-   u'OME Consortium', 'manual'),
+  ('index', targetname + '.tex', title, author, 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -101,8 +102,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'omeropyapi', u'OmeroPy API Documentation',
-     [u'OME Consortium'], 1)
+    ('index', 'omeropyapi', title, author, 1)
 ]
 
 # If true, show URL addresses after external links.
@@ -115,9 +115,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-  ('index', 'OmeroPyAPI', u'OmeroPy API Documentation',
-   u'OME Consortium', 'OmeroPyAPI', 'One line description of project.',
-   'Miscellaneous'),
+  ('index', targetname, title, author, targetname,
+   'One line description of project.', 'Miscellaneous'),
 ]
 
 # Documents to append as an appendix to all manuals.
