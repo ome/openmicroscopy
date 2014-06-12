@@ -126,7 +126,7 @@ class TestTree(object):
         expected = {
             'id': 1L,
             'isOwned': True,
-            'name': '2014-05-08 11:37:02 - 2014-05-08 11:38:30',
+            'name': '2014-05-08 10:37:02 - 2014-05-08 10:38:30',
             'permsCss': 'canEdit canAnnotate canLink canDelete canChgrp'
         }
 
