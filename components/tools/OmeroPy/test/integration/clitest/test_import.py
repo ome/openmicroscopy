@@ -81,18 +81,11 @@ class TestImport(CLITest):
         self.args += ["import"]
         self.add_client_dir()
 
-    def set_args(self):
-        host = self.root.getProperty("omero.host")
-        port = self.root.getProperty("omero.port")
-        self.args = ["import", "-w", 'ome']
-        self.args += ["-s", host, "-p",  port]
-        self.add_client_dir()
-
-    def set_sudo_args(self):
+    def set_conn_args(self):
         passwd = self.root.getProperty("omero.rootpass")
         host = self.root.getProperty("omero.host")
         port = self.root.getProperty("omero.port")
-        self.args = ["import", "--sudo", "root", "-w", passwd]
+        self.args = ["import", "-w", passwd]
         self.args += ["-s", host, "-p",  port]
         self.add_client_dir()
 
@@ -305,7 +298,8 @@ class TestImport(CLITest):
         fakefile.write('')
 
         # Create argument list using sudo
-        self.set_sudo_args()
+        self.set_conn_args()
+        self.args += ['--sudo', 'root']
         self.args += ["-u", user.omeName.val]
         self.args += [str(fakefile)]
 
@@ -325,8 +319,8 @@ class TestImport(CLITest):
         fakefile = tmpdir.join("test.fake")
         fakefile.write('')
 
-        # Create argument list using sudo
-        self.set_args()
+        # Create argument list
+        self.set_conn_args()
         self.args += ["-u", user.omeName.val]
         self.args += ["-g", group2.name.val]
         self.args += [str(fakefile)]
@@ -350,7 +344,8 @@ class TestImport(CLITest):
         fakefile.write('')
 
         # Create argument list using sudo
-        self.set_sudo_args()
+        self.set_conn_args()
+        self.args += ['--sudo', 'root']
         self.args += ["-u", user.omeName.val, "-g", group2.name.val]
         self.args += [str(fakefile)]
 
