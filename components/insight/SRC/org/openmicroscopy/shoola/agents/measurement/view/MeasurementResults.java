@@ -467,7 +467,6 @@ class MeasurementResults
 					else value = key.get(shape);
 					if (value instanceof List)
 					{
-					    System.err.println(value+" "+key);
 						List valueArray = (List) value;
 						row.addElement(new ArrayList(valueArray));
 					}
