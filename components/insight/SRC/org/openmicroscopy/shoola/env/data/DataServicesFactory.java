@@ -644,7 +644,7 @@ public class DataServicesFactory
                 long gid = exp.getDefaultGroup().getId();
         	SecurityContext ctx = new SecurityContext(gid);
         	
-        	groups = omeroGateway.getAvailableGroups(ctx, exp, true);
+        	groups = omeroGateway.getAvailableGroups(ctx, exp, false);
         	registry.bind(LookupNames.USER_GROUP_DETAILS, groups);
         	
         	registry.bind(LookupNames.SYSTEM_ROLES,
