@@ -86,8 +86,8 @@ def marshal_plate_acquisition(conn, row):
     if name is not None:
         plate_acquisition['name'] = name.val
     elif start_time is not None and end_time is not None:
-        start_time = datetime.fromtimestamp(start_time.val / 1000.0)
-        end_time = datetime.fromtimestamp(end_time.val / 1000.0)
+        start_time = datetime.utcfromtimestamp(start_time.val / 1000.0)
+        end_time = datetime.utcfromtimestamp(end_time.val / 1000.0)
         plate_acquisition['name'] = '%s - %s' % (start_time, end_time)
     else:
         plate_acquisition['name'] = 'Run %d' % pa_id.val
