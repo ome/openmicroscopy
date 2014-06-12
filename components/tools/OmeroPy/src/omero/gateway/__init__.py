@@ -3490,15 +3490,40 @@ class _BlitzGateway (object):
 
         some = []
 
-        if fields:
+        # If we are searching by restricted fields:
+        print fields
+        if fields and 'all' not in fields:
             fields = [str(f) for f in fields]
-            # for each token, prepend with field name, E.g. [“name:GFP description:GFP”, “name:H2B description:H2B"]
-            tokens = re.findall(r"[\w\*\?]+", text)   # split words and *? (removes non-alpha-numeric)
-            for token in tokens:
-                some.append((":" + token + " ").join(fields) + ":" + token)
+            # # for each token, E.g. GFP H2B, prepend with field name, E.g. name, description
+            # 'name:GFP description:GFP name:H2B description:H2B'
+            # But don't split up "quoted phrase". E.g. 'search for "quoted phrase"' with field name
+            # 'name:search name:for name:"quoted phrase"'
+            # First, to preserve quoted phrases we split by "
+            phrases = text.split('"')
+            # for phrases not in quotes, split by whitespace
+            tokens = []
+            for i, p in enumerate(phrases):
+                if len(p) == 0:
+                    continue
+                if i%2 == 0:    # even: outside quotes
+                    tokens.extend(p.split(" "))
+                else:
+                    tokens.append(p)
 
-        else:
-            some.append(text)
+            print 'fields:', fields, 'tokens:', tokens
+            # for each set of tokens, prepend with each field
+            fieldqueries = []
+            for f in fields:
+                for t in tokens:
+                    if len(t) > 0:
+                        fieldqueries.append('%s:"%s"' % (f, t))
+
+            text = " ".join(fieldqueries)
+
+            # TODO: remove non alpha-numeric characters
+            # tokens = re.findall(r"[\w\*\?]+", text)   # split words and *? (removes non-alpha-numeric)
+            # for token in tokens:
+            #     some.append((":" + token + " ").join(fields) + ":" + token)
 
         try:
             if created:
@@ -3509,7 +3534,8 @@ class _BlitzGateway (object):
             for t in types:
                 def actualSearch ():
                     search.onlyType(t().OMERO_CLASS, ctx)
-                    search.bySomeMustNone(some, [], [])
+                    # search.bySomeMustNone(some, [], [])
+                    search.byFullText(text)
                 timeit(actualSearch)()
                 # get results
                 def searchProcessing ():
