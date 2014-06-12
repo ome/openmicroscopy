@@ -482,7 +482,14 @@ omero.version=${omero.version}
     </target>
 
     <target name="artifactory" depends="prepare">
-        <publishArtifact resolver="artifactory-publish" publishivy="false"/>
+        <ivy:settings id="ivy.${ant.project.name}.artifactory" file="${etc.dir}/ivysettings.xml"/>
+        <ivy:resolve file="ivy.xml" type="jar,egg" conf="client" settingsRef="ivy.${ant.project.name}.artifactory" log="quiet"/>
+        <publishArtifact
+            resolver="artifactory-publish"
+            settingsRef="ivy.${ant.project.name}.artifactory"
+            haltonmissing="false"
+            publishivy="false"
+            conf="client"/>
     </target>
 
     <target name="clean">

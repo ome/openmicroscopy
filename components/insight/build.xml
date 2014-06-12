@@ -67,10 +67,6 @@
         <publishArtifact haltonmissing="false"/>
     </target>
 
-    <target name="artifactory" depends="prepare">
-        <publishArtifact resolver="artifactory-publish" haltonmissing="false" publishivy="false"/>
-    </target>
-
     <target name="zips" depends="prepare">
         <insightBuild target="dist"/>
         <antcall target="copy-zips" inheritAll="true" inheritRefs="true"/>
