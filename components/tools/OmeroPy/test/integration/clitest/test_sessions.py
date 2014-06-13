@@ -32,7 +32,7 @@ class TestSessions(CLITest):
         super(TestSessions, self).setup_method(method)
         self.args += ["sessions"]
 
-    def set_conn_args(self, user):
+    def set_login_args(self, user):
         passwd = self.root.getProperty("omero.rootpass")
         host = self.root.getProperty("omero.host")
         port = self.root.getProperty("omero.port")
@@ -54,7 +54,7 @@ class TestSessions(CLITest):
     # ========================================================================
     def testLoginAsRoot(self):
         user = self.new_user()
-        self.set_conn_args(user)
+        self.set_login_args(user)
         self.args += ["--sudo", "root"]
         self.cli.invoke(self.args, strict=True)
         ec = self.cli.controls["sessions"].ctx._event_context
@@ -66,7 +66,7 @@ class TestSessions(CLITest):
         grp_admin = self.new_user(group=group, admin=True)
         admin = grp_admin.omeName.val
         user = self.new_user(group=group)
-        self.set_conn_args(user)
+        self.set_login_args(user)
         self.args += ["--sudo", admin]
         self.cli.invoke(self.args, strict=True)
         ec = self.cli.controls["sessions"].ctx._event_context
@@ -79,7 +79,7 @@ class TestSessions(CLITest):
         client, user = self.new_client_and_user(group=group1)
         group2 = self.new_group([user])
 
-        self.set_conn_args(user)
+        self.set_login_args(user)
         if with_sudo:
             self.args += ["--sudo", "root"]
         if with_group:
@@ -91,3 +91,20 @@ class TestSessions(CLITest):
             assert ec.groupName == group2.name.val
         else:
             assert ec.groupName == group1.name.val
+
+    # Group subcommand
+    # ========================================================================
+    def testGroup(self):
+        group1 = self.new_group()
+        client, user = self.new_client_and_user(group=group1)
+        group2 = self.new_group([user])
+
+        self.set_login_args(user)
+        self.cli.invoke(self.args, strict=True)
+        ec = self.cli.controls["sessions"].ctx._event_context
+        assert ec.groupName == group1.name.val
+
+        self.args = ["sessions", "group", group2.name.val]
+        self.cli.invoke(self.args, strict=True)
+        ec = self.cli.controls["sessions"].ctx._event_context
+        assert ec.groupName == group2.name.val
