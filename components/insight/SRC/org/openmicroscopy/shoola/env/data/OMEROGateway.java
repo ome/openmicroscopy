@@ -47,6 +47,7 @@ import java.util.Set;
 import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+
 //Third-party libraries
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
@@ -90,7 +91,6 @@ import ome.formats.importer.ImportLibrary;
 import ome.formats.importer.OMEROWrapper;
 import ome.formats.importer.util.ProportionalTimeEstimatorImpl;
 import ome.formats.importer.util.TimeEstimator;
-
 import ome.system.UpgradeCheck;
 import ome.util.checksum.ChecksumProvider;
 import ome.util.checksum.ChecksumProviderFactory;
@@ -211,6 +211,7 @@ import omero.model.TermAnnotationI;
 import omero.model.TimestampAnnotation;
 import omero.model.TimestampAnnotationI;
 import omero.model.Well;
+import omero.model.WellI;
 import omero.model.WellSample;
 import omero.model.enums.ChecksumAlgorithmSHA1160;
 import omero.model.XmlAnnotation;
@@ -1609,7 +1610,7 @@ class OMEROGateway
 	 */
 	private String convertTypeForSearch(Class nodeType)
 	{
-		if (nodeType.equals(Image.class))
+		if (nodeType.equals(Image.class) || nodeType.equals(ImageData.class))
 			return ImageI.class.getName();
 		else if (nodeType.equals(TagAnnotation.class) ||
 				nodeType.equals(TagAnnotationData.class))
@@ -1629,6 +1630,21 @@ class OMEROGateway
 		else if (nodeType.equals(TimestampAnnotation.class) ||
 				nodeType.equals(TimeAnnotationData.class))
 			return TimestampAnnotationI.class.getName();
+		else if (nodeType.equals(Dataset.class) ||
+                        nodeType.equals(DatasetData.class))
+                    return DatasetI.class.getName();
+		else if (nodeType.equals(Project.class) ||
+                        nodeType.equals(ProjectData.class))
+                    return ProjectI.class.getName();
+		else if (nodeType.equals(Screen.class) ||
+                        nodeType.equals(ScreenData.class))
+                    return ScreenI.class.getName();
+		else if (nodeType.equals(Well.class) ||
+                        nodeType.equals(WellData.class))
+                    return WellI.class.getName();
+		else if (nodeType.equals(Plate.class) ||
+                        nodeType.equals(PlateData.class))
+                    return PlateI.class.getName();
 		throw new IllegalArgumentException("type not supported");
 	}
 
@@ -4922,6 +4938,164 @@ class OMEROGateway
 	}
 
 	/**
+         * Searches for data.
+         *
+         * @param ctx The security context.
+         * @param context The context of search.
+         * @return The found objects.
+         * @throws DSOutOfServiceException  If the connection is broken, or logged
+         *                                  in.
+         * @throws DSAccessException        If an error occurred while trying to
+         *                                  retrieve data from OMEDS service.
+         */
+        Object performFulltextSearch(SecurityContext ctx, SearchDataContext context)
+                throws DSOutOfServiceException, DSAccessException {
+    
+            Map<Integer, List<Object>> results = new HashMap<Integer, List<Object>>();
+    
+            Connector c = getConnector(ctx, true, false);
+            SearchPrx service = null;
+            service = c.getSearchService();
+            
+            for (Class type : context.getTypes()) {
+                try {
+                    // set general paramters
+                    service.clearQueries();
+                    service.setAllowLeadingWildcard(true);
+                    service.setCaseSentivice(context.isCaseSensitive());
+                    String searchForClass = convertTypeForSearch(type);
+                    service.onlyType(searchForClass);
+                    
+                    // set the time
+                    Timestamp start = context.getStart();
+                    Timestamp end = context.getEnd();
+                    if (start != null || end != null) {
+                        switch (context.getTimeIndex()) {
+                            case SearchDataContext.CREATION_TIME:
+                                if (start != null && end != null)
+                                    service.onlyCreatedBetween(
+                                            omero.rtypes.rtime(start.getTime()),
+                                            omero.rtypes.rtime(end.getTime()));
+                                else if (start != null && end == null)
+                                    service.onlyCreatedBetween(
+                                            omero.rtypes.rtime(start.getTime()),
+                                            null);
+                                else if (start == null && end != null)
+                                    service.onlyCreatedBetween(null,
+                                            omero.rtypes.rtime(end.getTime()));
+                                break;
+                            case SearchDataContext.MODIFICATION_TIME:
+                                if (start != null && end != null)
+                                    service.onlyModifiedBetween(
+                                            omero.rtypes.rtime(start.getTime()),
+                                            omero.rtypes.rtime(end.getTime()));
+                                else if (start != null && end == null)
+                                    service.onlyModifiedBetween(
+                                            omero.rtypes.rtime(start.getTime()),
+                                            null);
+                                else if (start == null && end != null)
+                                    service.onlyModifiedBetween(null,
+                                            omero.rtypes.rtime(end.getTime()));
+                                break;
+                            case SearchDataContext.ANNOTATION_TIME:
+                                if (start != null && end != null)
+                                    service.onlyAnnotatedBetween(
+                                            omero.rtypes.rtime(start.getTime()),
+                                            omero.rtypes.rtime(end.getTime()));
+                                else if (start != null && end == null)
+                                    service.onlyAnnotatedBetween(
+                                            omero.rtypes.rtime(start.getTime()),
+                                            null);
+                                else if (start == null && end != null)
+                                    service.onlyAnnotatedBetween(null,
+                                            omero.rtypes.rtime(end.getTime()));
+                        }
+                    }
+    
+                    // set the owner
+                    List<ExperimenterData> users = context.getOwners();
+                    Iterator i;
+                    ExperimenterData exp;
+                    Details d;
+                    List<Details> owners = new ArrayList<Details>();
+                    if (users != null && users.size() > 0) {
+                        i = users.iterator();
+                        while (i.hasNext()) {
+                            exp = (ExperimenterData) i.next();
+                            d = new DetailsI();
+                            d.setOwner(exp.asExperimenter());
+                            owners.add(d);
+                        }
+                    }
+    
+                    // set the search terms
+                    List<String> searchTerms = prepareTextSearch(context.getSome(),
+                            service);
+    
+                    StringBuilder queryString = new StringBuilder();
+    
+                    Iterator<Integer> it = context.getScope().iterator();
+                    while (it.hasNext()) {
+                        Integer scopeId = it.next();
+    
+                        List<Object> scopeResults = results.get(scopeId);
+                        if(scopeResults==null) {
+                            scopeResults = new ArrayList<Object>();
+                            results.put(scopeId, scopeResults);
+                        }
+    
+                        List<String> terms;
+                        if (scopeId == SearchDataContext.TAGS) {
+                            terms = formatText(searchTerms, "tag");
+                        } else if (scopeId == SearchDataContext.NAME) {
+                            terms = formatText(searchTerms, "name");
+                        } else if (scopeId == SearchDataContext.DESCRIPTION) {
+                            terms = formatText(searchTerms,
+                                    "description");
+                        } else if (scopeId == SearchDataContext.FILE_ANNOTATION) {
+                            terms = formatText(searchTerms, "file.name");
+                            terms.addAll(formatText(searchTerms,
+                                    "file.contents"));
+                        } else if (scopeId == SearchDataContext.TEXT_ANNOTATION) {
+                            terms = formatText(searchTerms,
+                                    "annotation", "NOT", "tag");
+                        } else if (scopeId == SearchDataContext.URL_ANNOTATION) {
+                            terms = formatText(searchTerms, "url");
+                        } else if (scopeId == SearchDataContext.ID) {
+                            terms = formatText(searchTerms, "id");
+                        } else {
+                            terms = formatText(searchTerms, "");
+                        }
+                        
+                        for(String term : terms) {
+                            queryString.append(term+" ");
+                        }
+                        
+                        service.byFullText(queryString.toString());
+    
+                        Object size = handleSearchResult(
+                                convertTypeForSearch(type), scopeResults,
+                                service);
+                        
+                        if(size instanceof Integer) {
+                            System.out.println("Something's wrong here.");
+                        }
+                    }
+    
+                    service.clearQueries();
+    
+                } catch (Throwable e) {
+                    handleException(e, "Cannot perform the search.");
+                } 
+            }
+    
+            if (service != null)
+                c.close(service);
+            
+            return results;
+        }
+
+	/**
 	 * Searches for data.
 	 *
 	 * @param ctx The security context.
@@ -5073,10 +5247,10 @@ class OMEROGateway
 				}
 				owner = owners.iterator();
 				//if (fSome != null) {
-				//while (owner.hasNext()) {
-					//d = owner.next();
-					//service.onlyOwnedBy(d);
-					service.bySomeMustNone(fSome, fMust, fNone);
+                                //while (owner.hasNext()) {
+                                        //d = owner.next();
+                                        //service.onlyOwnedBy(d);
+                                        service.bySomeMustNone(fSome, fMust, fNone);
 					size = handleSearchResult(
 							convertTypeForSearch(Image.class), rType,
 							service);
