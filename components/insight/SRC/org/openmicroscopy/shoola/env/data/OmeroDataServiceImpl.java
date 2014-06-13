@@ -609,7 +609,9 @@ class OmeroDataServiceImpl
 					gateway.searchByTime(ctx, context));
 			return results;
 		}
-		Object result = gateway.performSearch(ctx, context);
+		//Object result = gateway.performSearch(ctx, context);
+		Object result = gateway.performFulltextSearch(ctx, context);
+		
 		//Should returns a search context for the moment.
 		//collection of images only.
 		Map m = (Map) result;
