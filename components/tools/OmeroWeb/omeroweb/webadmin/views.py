@@ -870,7 +870,7 @@ def load_drivespace(request, conn=None, **kwargs):
     rv = usersData(conn, offset)
     return HttpJsonResponse(rv)
 
-@login_required()
+@login_required(isAdmin=True)
 @render_response_admin()
 def email(request, conn=None, **kwargs):
     """
