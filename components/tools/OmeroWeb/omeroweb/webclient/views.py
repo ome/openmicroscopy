@@ -73,6 +73,7 @@ from omeroweb.feedback.views import handlerInternalError
 from omeroweb.http import HttpJsonResponse
 from omeroweb.webclient.decorators import login_required
 from omeroweb.webclient.decorators import render_response
+from omeroweb.webclient.show import Show, IncorrectMenuError
 from omeroweb.connector import Connector
 from omeroweb.decorators import ConnCleaningHttpResponse, parse_url, get_client_ip
 
@@ -309,57 +310,19 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
         template = "webclient/%s/%s.html" % (menu,menu)
 
     #tree support
-    init = {'initially_open':None, 'initially_select': []}
-    first_sel = None
-    initially_open_owner = None
-    # E.g. backwards compatible support for path=project=51|dataset=502|image=607 (select the image)
-    path = request.REQUEST.get('path', '')
-    i = path.split("|")[-1]
-    if i.split("=")[0] in ('project', 'dataset', 'image', 'screen', 'plate', 'tag'):
-        init['initially_select'].append(str(i).replace("=",'-'))  # Backwards compatible with image=607 etc
-    # Now we support show=image-607|image-123  (multi-objects selected)
-    show = request.REQUEST.get('show', '')
-    for i in show.split("|"):
-        if i.split("-")[0] in ('project', 'dataset', 'image', 'screen', 'plate', 'tag', 'acquisition', 'run', 'well'):
-            i = i.replace('run', 'acquisition')   # alternatives for 'acquisition'
-            init['initially_select'].append(str(i))
-    if len(init['initially_select']) > 0:
-        # tree hierarchy open to first selected object
-        init['initially_open'] = [ init['initially_select'][0] ]
-        first_obj, first_id = init['initially_open'][0].split("-",1)
-        # if we're showing a tag, make sure we're on the tags page...
-        if first_obj == "tag" and menu != "usertags":
-            return HttpResponseRedirect(reverse(viewname="load_template", args=['usertags']) + "?show=" + init['initially_select'][0])
-        try:
-            conn.SERVICE_OPTS.setOmeroGroup('-1')   # set context to 'cross-group'
-            if first_obj == "tag":
-                first_sel = conn.getObject("TagAnnotation", long(first_id))
-            else:
-                first_sel = conn.getObject(first_obj, long(first_id))
-                initially_open_owner = first_sel.details.owner.id.val
-                # Wells aren't in the tree, so we need parent...
-                if first_obj == "well":
-                    parentNode = first_sel.getWellSample().getPlateAcquisition()
-                    ptype = "acquisition"
-                    if parentNode is None:      # No Acquisition for this well...
-                        parentNode = first_sel.getParent()  #...use Plate instead
-                        ptype = "plate"
-                    first_sel = parentNode
-                    init['initially_open'] = ["%s-%s" % (ptype, parentNode.getId())]
-                    init['initially_select'] = init['initially_open'][:]
-        except:
-            pass    # invalid id
-        if first_obj not in ("project", "screen"):
-            # need to see if first item has parents
-            if first_sel is not None:
-                for p in first_sel.getAncestry():
-                    if first_obj == "tag":  # parents of tags must be tags (no OMERO_CLASS)
-                        init['initially_open'].insert(0, "tag-%s" % p.getId())
-                    else:
-                        init['initially_open'].insert(0, "%s-%s" % (p.OMERO_CLASS.lower(), p.getId()))
-                        initially_open_owner = p.details.owner.id.val
-                if init['initially_open'][0].split("-")[0] == 'image':
-                    init['initially_open'].insert(0, "orphaned-0")
+    show = Show(conn, request, menu)
+    # Constructor does no loading.  Show.first_selected must be called first
+    # in order to set up our initial state correctly.
+    try:
+        first_sel = show.first_selected
+    except IncorrectMenuError, e:
+        return HttpResponseRedirect(e.uri)
+    init = {
+        'initially_open': show.initially_open,
+        'initially_select': show.initially_select
+    }
+    initially_open_owner = show.initially_open_owner
+
     # need to be sure that tree will be correct omero.group
     if first_sel is not None:
         switch_active_group(request, first_sel.details.group.id.val)
@@ -502,10 +465,29 @@ def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_ty
                     form_well_index = WellIndexForm(initial={'index':index, 'range':fields})
                     if index == 0:
                         index = fields[0]
-                show = request.REQUEST.get('show', None)
-                if show is not None:
-                    select_wells = [w.split("-")[1] for w in show.split("|") if w.startswith("well-")]
-                    context['select_wells'] = ",".join(select_wells)
+
+                # We don't know what our menu is so we're setting it to None.
+                # Should only raise an exception below if we've been asked to
+                # show some tags which we don't care about anyway in this
+                # context.
+                show = Show(conn, request, None)
+                # Constructor does no loading.  Show.first_selected must be
+                # called first in order to set up our initial state correctly.
+                try:
+                    first_selected = show.first_selected
+                    if first_selected is not None:
+                        wells_to_select = list()
+                        paths = show.initially_open + show.initially_select
+                        for path in paths:
+                            m = Show.PATH_REGEX.match(path)
+                            if m is None:
+                                continue
+                            if m.group('object_type') == 'well':
+                                wells_to_select.append(m.group('value'))
+                        context['select_wells'] = ','.join(wells_to_select)
+                except IncorrectMenuError, e:
+                    pass
+
                 context['baseurl'] = reverse('webgateway').rstrip('/')
                 context['form_well_index'] = form_well_index
                 template = "webclient/data/plate.html"
