@@ -115,9 +115,6 @@ public class GraphPathBean extends OnContextRefreshedEventListener {
     /* how nullable properties are */
     private final HashMap<Entry<String, String>, PropertyKind> propertyKinds = new HashMap<Entry<String, String>, PropertyKind>();
 
-    /* additional not-nullable properties */
-    private Set<String> additionalNotNullable = Collections.emptySet();
-
     /* which properties are accessible */
     private final Set<Entry<String, String>> accessibleProperties = new HashSet<Entry<String, String>>();
 
@@ -132,18 +129,6 @@ public class GraphPathBean extends OnContextRefreshedEventListener {
             final ApplicationContext context = event.getApplicationContext();
             final SessionFactoryImplementor sessionFactory = context.getBean("sessionFactory", SessionFactoryImplementor.class);
             initialize(sessionFactory);
-        }
-    }
-
-    /**
-     * Allow specification through Spring of additional not-nullable properties.
-     * @param properties not-nullable properties as <q>Class.property</q> strings
-     */
-    public void setAdditionalNotNullable(Collection<String> properties) {
-        if (properties == null) {
-            additionalNotNullable = Collections.emptySet();
-        } else {
-            additionalNotNullable = ImmutableSet.copyOf(properties);
         }
     }
 
@@ -433,12 +418,7 @@ public class GraphPathBean extends OnContextRefreshedEventListener {
      * @return the kind of property it is
      */
     public PropertyKind getPropertyKind(String className, String propertyName) {
-        final PropertyKind kind = propertyKinds.get(Maps.immutableEntry(className, propertyName));
-        if (kind == PropertyKind.OPTIONAL && additionalNotNullable.contains(className + '.' + propertyName)) {
-            return PropertyKind.REQUIRED;
-        } else {
-            return kind;
-        }
+        return propertyKinds.get(Maps.immutableEntry(className, propertyName));
     }
 
     /**

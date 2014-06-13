@@ -41,13 +41,6 @@
     The graph path bean reflects upon the Hibernate model object mapping
     and provides information that assists in traversing it.
     </description>
-    <property name="additionalNotNullable">
-      <!-- not null is set in psql-footer.vm -->
-      <list>
-        <value>ome.model.meta.Event.experimenterGroup</value>
-        <value>ome.model.meta.Event.type</value>
-      </list>
-    </property>
   </bean>
 
   <bean id="hibernateProperties"
