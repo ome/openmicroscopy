@@ -306,7 +306,7 @@ class GraphPane
 		LinePlot plot = new LinePlot(title, channelNames, data, 
 			channelColours, channelMinValue(), channelMaxValue());
 		plot.setYAxisName("Intensity");
-		plot.setXAxisName("Pixel");
+		plot.setXAxisName("Points");
 		return plot;
 	}
 	
