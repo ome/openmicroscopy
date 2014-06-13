@@ -825,13 +825,18 @@ public class ShareBean extends AbstractLevel2Service implements LocalShare {
                             org.hibernate.Session arg0)
                             throws HibernateException, SQLException {
                         BasicSecuritySystem bss = (BasicSecuritySystem) sec;
-                        bss.disableReadFilter(arg0);
-                        List<Session> list = (List<Session>) arg0
-                                .createQuery(
-                                        "select sh from Session sh "
-                                                + "join fetch sh.owner where sh.id in (:ids) ")
-                                .setParameterList("ids", ids).list();
-                        bss.enableReadFilter(arg0);
+                        List<Session> list = Collections.emptyList();
+                        try {
+                            bss.disableReadFilter(arg0);
+                            list = (List<Session>) arg0
+                                    .createQuery(
+                                            "select sh from Session sh "
+                                                    + "join fetch sh.owner "
+                                                    + "where sh.id in (:ids) ")
+                                    .setParameterList("ids", ids).list();
+                        } finally {
+                            bss.enableReadFilter(arg0);
+                        }
                         return list;
                     }
                 });
@@ -848,14 +853,18 @@ public class ShareBean extends AbstractLevel2Service implements LocalShare {
             public Share doInHibernate(org.hibernate.Session arg0)
                     throws HibernateException, SQLException {
                 BasicSecuritySystem bss = (BasicSecuritySystem) sec;
-                bss.disableReadFilter(arg0);
-                Share share = (Share) arg0
-                        .createQuery(
-                                "select sh from Share sh "
-                                        + "join fetch sh.owner "
-                                        + "where sh.id = :id")
-                        .setParameter("id", data.id).uniqueResult();
-                bss.enableReadFilter(arg0);
+                Share share;
+                try {
+                    bss.disableReadFilter(arg0);
+                    share = (Share) arg0
+                            .createQuery(
+                                    "select sh from Share sh "
+                                            + "join fetch sh.owner "
+                                            + "where sh.id = :id")
+                            .setParameter("id", data.id).uniqueResult();
+                } finally {
+                    bss.enableReadFilter(arg0);
+                }
                 return share;
             }
         });
