@@ -198,8 +198,14 @@ class WebControl(BaseControl):
                     "HTTPPORT": port,
                     "FASTCGI_PASS": fastcgi_pass,
                     }
+                if hasattr(settings, 'STATIC_URL') and len(settings.STATIC_URL) > 0:
+                    if settings.STATIC_URL.endswith('/'):
+                        d["STATIC_URL"] = settings.STATIC_URL[:-1]
+                    else:
+                        d["STATIC_URL"] = settings.STATIC_URL
                 if hasattr(settings, 'FORCE_SCRIPT_NAME') \
                         and len(settings.FORCE_SCRIPT_NAME) > 0:
+                    d["FORCE_SCRIPT_NAME"] = settings.FORCE_SCRIPT_NAME
                     d["FASTCGI_PATH_SCRIPT_INFO"] = \
                         "fastcgi_split_path_info ^(%s)(.*)$;\n" \
                         "            " \
@@ -208,6 +214,7 @@ class WebControl(BaseControl):
                         "fastcgi_param SCRIPT_INFO $fastcgi_script_name;\n" \
                         % (settings.FORCE_SCRIPT_NAME)
                 else:
+                    d["FORCE_SCRIPT_NAME"] = "/"
                     d["FASTCGI_PATH_SCRIPT_INFO"] = \
                         "fastcgi_param PATH_INFO $fastcgi_script_name;\n"
                 self.ctx.out(c % d)
@@ -293,8 +300,8 @@ FastCGIExternalServer "%(ROOT)s/var/omero.fcgi" %(FASTCGI_EXTERNAL)s
     Allow from all
 </Directory>
 
-Alias /static %(STATIC)s
-Alias /omero "%(ROOT)s/var/omero.fcgi/"
+Alias %(STATIC_URL)s %(STATIC)s
+Alias %(FORCE_SCRIPT_NAME)s "%(ROOT)s/var/omero.fcgi/"
 """
                 d = {
                     "ROOT": self.ctx.dir,
@@ -305,6 +312,17 @@ Alias /omero "%(ROOT)s/var/omero.fcgi/"
                     "FASTCGI_EXTERNAL": fastcgi_external,
                     "NOW": str(datetime.now()),
                     }
+                if hasattr(settings, 'STATIC_URL') \
+                        and len(settings.STATIC_URL) > 0:
+                    if settings.STATIC_URL.endswith('/'):
+                        d["STATIC_URL"] = settings.STATIC_URL[:-1]
+                    else:
+                        d["STATIC_URL"] = settings.STATIC_URL
+                if hasattr(settings, 'FORCE_SCRIPT_NAME') \
+                        and len(settings.FORCE_SCRIPT_NAME) > 0:
+                    d["FORCE_SCRIPT_NAME"] = settings.FORCE_SCRIPT_NAME
+                else:
+                    d["FORCE_SCRIPT_NAME"] = "/"
                 self.ctx.out(stanza % d)
 
     def syncmedia(self, args):

@@ -3,11 +3,11 @@
         server_name  $hostname;
 
          # weblitz django apps serve media from here
-        location /static {
+        location %(STATIC_URL)s {
             alias %(OMEROWEBROOT)s/static;
         }
 
-        location / {
+        location %(FORCE_SCRIPT_NAME)s {
             if (-f %(ROOT)s/var/maintenance.html) {
                error_page 503 /maintenance.html;
                return 503;
