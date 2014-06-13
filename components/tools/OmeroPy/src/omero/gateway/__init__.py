@@ -3488,48 +3488,44 @@ class _BlitzGateway (object):
                 details.setOwner(omero.model.ExperimenterI(ownedBy, False))
                 search.onlyOwnedBy(details)
 
-        some = []
 
-        # If we are searching by restricted fields:
-        print fields
-        if fields and 'all' not in fields:
-            fields = [str(f) for f in fields]
-            # # for each token, E.g. GFP H2B, prepend with field name, E.g. name, description
-            # 'name:GFP description:GFP name:H2B description:H2B'
-            # But don't split up "quoted phrase". E.g. 'search for "quoted phrase"' with field name
-            # 'name:search name:for name:"quoted phrase"'
-            # First, to preserve quoted phrases we split by "
-            phrases = text.split('"')
-            # for phrases not in quotes, split by whitespace
-            tokens = []
-            for i, p in enumerate(phrases):
-                if len(p) == 0:
-                    continue
-                if i%2 == 0:    # even: outside quotes
-                    tokens.extend(p.split(" "))
-                else:
-                    tokens.append(p)
+        fields = [str(f) for f in fields]
+        # # for each phrase or token, we strip out all non alpha-numeric
+        # except when inside double quotes. 
+        # To preserve quoted phrases we split by "
+        phrases = text.split('"')
+        tokens = []
+        for i, p in enumerate(phrases):
+            if len(p) == 0:
+                continue
+            if i%2 == 0:    # even: outside quotes - strip everything
+                tks = re.findall(r"[\w\*\?]+", p)
+                for t in tks:
+                    # Need to enable wildcards for leading * or ? not in quotes
+                    if t[0] in ("*","?"):
+                        search.setAllowLeadingWildcard(True)
+                        break
+                tokens.extend(tks)
+            else:
+                tokens.append('"%s"' % p)   # wrap back into "double quotes"
 
-            print 'fields:', fields, 'tokens:', tokens
-            # for each set of tokens, prepend with each field
+
+        # if we have fields, prepend each token with field:token
+        if fields:
             fieldqueries = []
             for f in fields:
                 for t in tokens:
                     if len(t) > 0:
-                        fieldqueries.append('%s:"%s"' % (f, t))
-
+                        fieldqueries.append('%s:%s' % (f, t))
             text = " ".join(fieldqueries)
+        else:
+            text = " ".join(tokens)
 
-            # TODO: remove non alpha-numeric characters
-            # tokens = re.findall(r"[\w\*\?]+", text)   # split words and *? (removes non-alpha-numeric)
-            # for token in tokens:
-            #     some.append((":" + token + " ").join(fields) + ":" + token)
+        logger.debug("Searching for: '%s'" % text);
 
         try:
             if created:
                 search.onlyCreatedBetween(created[0], created[1]);
-            if text[0] in ('?','*'):
-                search.setAllowLeadingWildcard(True)
             rv = []
             for t in types:
                 def actualSearch ():
