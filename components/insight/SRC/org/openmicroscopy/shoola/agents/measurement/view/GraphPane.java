@@ -2,10 +2,10 @@
  * org.openmicroscopy.shoola.agents.measurement.view.GraphPane 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.agents.measurement.view;
 //Java imports
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Point;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
@@ -49,12 +50,14 @@ import org.openmicroscopy.shoola.agents.measurement.IconManager;
 import org.openmicroscopy.shoola.agents.measurement.util.TabPaneInterface;
 import org.openmicroscopy.shoola.agents.measurement.util.model.AnalysisStatsWrapper;
 import org.openmicroscopy.shoola.agents.measurement.util.model.AnalysisStatsWrapper.StatsType;
+import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureBezierFigure;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureLineFigure;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureTextFigure;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
+import org.openmicroscopy.shoola.util.roi.model.util.MeasurementUnits;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.graphutils.HistogramPlot;
 import org.openmicroscopy.shoola.util.ui.graphutils.LinePlot;
@@ -69,9 +72,6 @@ import pojos.ChannelData;
  * @author	Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since OME3.0
  */
 class GraphPane
@@ -295,7 +295,8 @@ class GraphPane
 	 * @return See above.
 	 */
 	private LinePlot drawLineplot(String title,  List<String> channelNames, 
-			List<double[][]> data, List<Color> channelColours)
+			List<double[][]> data, List<Color> channelColours,
+			Map<Integer, List<String>> locations)
 	{
 		if (channelNames.size() == 0 || data.size() == 0 || 
 			channelColours.size() == 0)
@@ -305,6 +306,7 @@ class GraphPane
 			return null;
 		LinePlot plot = new LinePlot(title, channelNames, data, 
 			channelColours, channelMinValue(), channelMaxValue());
+		plot.addLocations(locations);
 		plot.setYAxisName("Intensity");
 		plot.setXAxisName("Points");
 		return plot;
@@ -355,6 +357,8 @@ class GraphPane
 		List<ChannelData> metadata = model.getMetadata();
 		Iterator<ChannelData> j = metadata.iterator();
 		double[] values;
+		Map<Integer, List<String>> locations = new HashMap<Integer, List<String>>();
+		List<String> points = formatPoints(shape.getFigure().getPoints());
 		while (j.hasNext()) {
 			cData = j.next();
 			channel = cData.getIndex();
@@ -372,6 +376,7 @@ class GraphPane
 					channelData.add(values);
 					
 					if (lineProfileFigure(shape)) {
+					    locations.put(channel, points);
 						dataXY = new double[2][values.length];
 						for (int i = 0 ; i < values.length ; i++)
 						{
@@ -392,7 +397,7 @@ class GraphPane
 		histogramChart = null;
 		if (lineProfileFigure(shape))
 			lineProfileChart = drawLineplot("Line Profile", 
-					channelName, channelXYData, channelColour);
+					channelName, channelXYData, channelColour, locations);
 		histogramChart = drawHistogram("Histogram", channelName, 
 				channelData, channelColour, 1001);
 			
@@ -411,7 +416,34 @@ class GraphPane
 		mainPanel.validate();
 		mainPanel.repaint();
 	}
-	
+
+	/**
+	 * Formats the text associated to the specified points.
+	 *
+	 * @param points
+	 * @return See above.
+	 */
+	private List<String> formatPoints(List<Point> points)
+	{
+	    List<String> values = new ArrayList<String>();
+	    Iterator<Point> i = points.iterator();
+	    Point p;
+	    StringBuilder b;
+	    MeasurementUnits units = model.getMeasurementUnits();
+	    double sx = units.getMicronsPixelX();
+	    double sy = units.getMicronsPixelX();
+	    while (i.hasNext()) {
+            p = i.next();
+            b = new StringBuilder();
+            b.append("("+p.x+", "+p.y+")"+UIUtilities.PIXELS_SYMBOL);
+            b.append("\n");
+            b.append("("+UIUtilities.twoDecimalPlaces(p.x*sx)+", "+
+            UIUtilities.twoDecimalPlaces(p.y*sy)+ ")"+EditorUtil.MICRONS_NO_BRACKET);
+            values.add(b.toString());
+        }
+	    return values;
+	}
+
 	/** Indicates the selected plane.*/
 	private void formatPlane()
 	{
