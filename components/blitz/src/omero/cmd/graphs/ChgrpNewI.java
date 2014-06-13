@@ -50,8 +50,8 @@ public class ChgrpNewI extends ChgrpNew implements IRequest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ChgrpNewI.class);
     private static final ImmutableMap<String, String> ALL_GROUPS_CONTEXT = ImmutableMap.of(Login.OMERO_GROUP, "-1");
-    private static final IceMapper ICE_MAPPER = new IceMapper();
 
+    private final IceMapper iceMapper = new IceMapper();
     private final GraphPathBean graphPathBean;
     private final GraphPolicy graphPolicy;
  
@@ -86,7 +86,7 @@ public class ChgrpNewI extends ChgrpNew implements IRequest {
         try {
             switch (step) {
             case 0:
-                return graphTraversal.planOperation(helper.getSession(), ICE_MAPPER.reverse(targetObjects));
+                return graphTraversal.planOperation(helper.getSession(), iceMapper.reverse(targetObjects));
             case 1:
                 graphTraversal.unlinkTargets();
                 return null;
@@ -110,8 +110,8 @@ public class ChgrpNewI extends ChgrpNew implements IRequest {
         helper.assertResponse(step);
         if (step == 0) {
             final Entry<Collection<IObject>, Collection<IObject>> result = (Entry<Collection<IObject>, Collection<IObject>>) object;
-            final ImmutableList<omero.model.IObject> movedObjects = ImmutableList.copyOf(ICE_MAPPER.map(result.getKey()));
-            final ImmutableList<omero.model.IObject> deletedObjects = ImmutableList.copyOf(ICE_MAPPER.map(result.getValue()));
+            final ImmutableList<omero.model.IObject> movedObjects = ImmutableList.copyOf(iceMapper.map(result.getKey()));
+            final ImmutableList<omero.model.IObject> deletedObjects = ImmutableList.copyOf(iceMapper.map(result.getValue()));
             final ChgrpNewResponse response = new ChgrpNewResponse(movedObjects, deletedObjects);
             helper.setResponseIfNull(response);
             LOGGER.info("in chgrp to " + groupId + " of " + targetObjects.size() +
