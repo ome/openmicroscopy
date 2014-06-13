@@ -590,9 +590,9 @@
         containingEvent int8,
         external_id int8 unique,
         experimenter int8 not null,
-        experimenterGroup int8,
+        experimenterGroup int8 not null,
         "session" int8 not null,
-        type int8,
+        type int8 not null,
         primary key (id)
     );;
 

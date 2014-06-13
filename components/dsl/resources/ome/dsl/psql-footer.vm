@@ -357,6 +357,12 @@ insert into dbpatch (currentVersion, currentPatch, previousVersion, previousPatc
              values ('@DBVERSION@',  @DBPATCH@,    '@DBVERSION@',   0,             'Initializing');
 
 --
+-- Temporarily make event columns nullable; restored below.
+--
+alter table event alter column "type" drop not null;
+alter table event alter column experimentergroup drop not null;
+
+--
 -- Here we will create the root account and the necessary groups
 --
 insert into experimenter (id,permissions,version,omename,firstname,lastname)
