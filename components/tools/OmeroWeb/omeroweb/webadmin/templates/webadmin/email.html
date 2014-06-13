@@ -96,7 +96,7 @@
         {% endfor %}
         <br />
 
-        <div>Note: If 'Include inactive users' is checked then any inactive users in the list of users to be emailed will also receive an email. If it is not checked, inactive users selected though 'All' or 'Groups' will be silently ignored. Explicitly selecting inactive users in the user list and not selecting 'Include inactive users' will result in an error. </div>
+        <div>Note: Checking 'Include inactive users' enables sending email to inactive users. If unchecked, email sent to groups will ignore inactive users and selecting an inactive user as a recipient directly will throw an error.</div>
   
         <input type="submit" value="{% trans 'Send' %}" />
 
