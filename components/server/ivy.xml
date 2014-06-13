@@ -34,9 +34,6 @@
     <dependency org="org.codehaus.btm" name="btm" rev="${versions.btm}"/>
     <!-- Public -->
     <dependency org="batik" name="batik-all" rev="${versions.batik}"/>
-    <dependency org="com.codahale.metrics" name="metrics-core" rev="${versions.metrics}"/>
-    <dependency org="com.codahale.metrics" name="metrics-jvm" rev="${versions.metrics}"/>
-    <dependency org="com.codahale.metrics" name="metrics-logback" rev="${versions.metrics}"/>
     <dependency org="commons-lang" name="commons-lang" rev="${versions.commons-lang}"/>
     <dependency org="commons-beanutils" name="commons-beanutils" rev="${versions.commons-beanutils}"/>
     <dependency org="commons-codec" name="commons-codec" rev="${versions.commons-codec}"/>

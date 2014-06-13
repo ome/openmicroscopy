@@ -22,4 +22,4 @@
  * Currently the metrics package is a thin layer on top of
  * <a href="https://github.com/codahale/metrics">Yammer Metrics</a>.
  */
-package ome.services.metrics;
+package ome.system.metrics;

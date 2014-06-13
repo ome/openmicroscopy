@@ -75,6 +75,6 @@
      <constructor-arg index="2" value="server"/>
   </bean>
 
-  <bean id="metrics" class="ome.services.metrics.Metrics"/>
+  <bean id="metrics" class="ome.system.metrics.Metrics"/>
 
 </beans>

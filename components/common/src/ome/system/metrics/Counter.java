@@ -16,17 +16,17 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-package ome.services.metrics;
+package ome.system.metrics;
 
 
 /**
  * Thin wrapper around {@link com.codahale.metrics.Counter}
  */
 public class Counter {
-    
-    
+
+
     private final com.codahale.metrics.Counter c;
-    
+
     public Counter(com.codahale.metrics.Counter c) {
         this.c = c;
     }
