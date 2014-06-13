@@ -45,6 +45,7 @@ import org.apache.commons.io.filefilter.IOFileFilter;
 import org.apache.commons.io.filefilter.NameFileFilter;
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.Session;
+import org.postgresql.util.PSQLException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
@@ -749,9 +750,34 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
                 assertFindDir(checked, s, sf, sql);
 
             } else {
-                // This will fail if the file already exists in
-                repositoryDao.register(repoUuid, checked,
-                        DIRECTORY_MIMETYPE, sf, sql);
+                // This will fail if the directory already exists
+                try {
+                    repositoryDao.register(repoUuid, checked,
+                            DIRECTORY_MIMETYPE, sf, sql);
+                } catch (ValidationException ve) {
+                    if (ve.getCause() instanceof PSQLException) {
+                        // Could have collided with another thread also creating the directory.
+                        // See Trac #11096 regarding originalfile table uniqueness of columns repo, path, name.
+                        try {
+                            // Give the other thread time to complete registration.
+                            Thread.sleep(1000);
+                        } catch (InterruptedException ie) {
+                            // really don't care
+                        }
+                        if (checked.exists()) {
+                            // The path now exists! It did not a moment ago.
+                            // We are not going to rethrow the validation exception,
+                            // so we otherwise note that something unexpected did occur.
+                            log.warn("retrying after exception in registering directory " + checked + ": " + ve.getCause());
+                            // Another thread may have succeeded where this one failed,
+                            // so try this directory again.
+                            paths.add(0, checked);
+                            continue;
+                        }
+                    }
+                    // We cannot recover from the validation exception.
+                    throw ve;
+                }
             }
 
         }
