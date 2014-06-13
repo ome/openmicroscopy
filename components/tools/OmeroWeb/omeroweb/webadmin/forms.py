@@ -300,7 +300,8 @@ class EmailForm(forms.Form):
 
     experimenters = forms.TypedMultipleChoiceField(
         required=False,
-        coerce=int
+        coerce=int,
+        label='Users'
     )
     groups = forms.TypedMultipleChoiceField(
         required=False,
@@ -361,9 +362,9 @@ class EmailForm(forms.Form):
 
         # If nobody addressed, throw an error
         if not cc and not everyone and not experimenters and not groups:
-            raise forms.ValidationError("At least one addressee must be"
+            raise forms.ValidationError("At least one addressee must be "
                                         "specified in one or more of 'all',"
-                                        " 'name', 'group' or 'cc'")
+                                        " 'user', 'group' or 'cc'")
 
 
         # Email resolution should be done in clean so that an error can
