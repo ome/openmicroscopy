@@ -54,6 +54,8 @@ class TestSessions(CLITest):
         args = ["sessions", "login", "--sudo", "root", "-w", passwd]
         args += ["%s@%s:%s" % (user.omeName.val, host, port)]
         self.cli.invoke(args, strict=True)
+        ec = self.cli.controls["sessions"].ctx._event_context
+        assert ec.userName == user.omeName.val
 
     @pytest.mark.xfail(reason="NYI")  # This must be implemented
     def testLoginAsGroupAdmin(self, capsys):
