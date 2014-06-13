@@ -46,7 +46,7 @@ class TestSessions(CLITest):
 
     # Login subcommand
     # ========================================================================
-    def testLoginAsRoot(self, capsys):
+    def testLoginAsRoot(self):
         user = self.new_user()
         passwd = self.root.getProperty("omero.rootpass")
         host = self.root.getProperty("omero.host")
@@ -58,7 +58,7 @@ class TestSessions(CLITest):
         assert ec.userName == user.omeName.val
 
     @pytest.mark.xfail(reason="NYI")  # This must be implemented
-    def testLoginAsGroupAdmin(self, capsys):
+    def testLoginAsGroupAdmin(self):
         group = self.new_group()
         grp_admin = self.new_user(group=group, admin=True)
         admin = grp_admin.omeName.val
