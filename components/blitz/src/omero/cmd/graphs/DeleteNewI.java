@@ -49,8 +49,8 @@ public class DeleteNewI extends DeleteNew implements IRequest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DeleteNewI.class);
     private static final ImmutableMap<String, String> ALL_GROUPS_CONTEXT = ImmutableMap.of(Login.OMERO_GROUP, "-1");
-    private static final IceMapper ICE_MAPPER = new IceMapper();
 
+    private final IceMapper iceMapper = new IceMapper();
     private final GraphPathBean graphPathBean;
     private final GraphPolicy graphPolicy;
 
@@ -85,7 +85,7 @@ public class DeleteNewI extends DeleteNew implements IRequest {
         try {
             switch (step) {
             case 0:
-                return graphTraversal.planOperation(helper.getSession(), ICE_MAPPER.reverse(targetObjects));
+                return graphTraversal.planOperation(helper.getSession(), iceMapper.reverse(targetObjects));
             case 1:
                 graphTraversal.unlinkTargets();
                 return null;
@@ -110,8 +110,8 @@ public class DeleteNewI extends DeleteNew implements IRequest {
         if (step == 0) {
             final Entry<Collection<IObject>, Collection<IObject>> result = (Entry<Collection<IObject>, Collection<IObject>>) object;
             final ImmutableList.Builder<omero.model.IObject> deletedObjectsBuilder = ImmutableList.builder();
-            deletedObjectsBuilder.addAll(ICE_MAPPER.map(result.getKey()));
-            deletedObjectsBuilder.addAll(ICE_MAPPER.map(result.getValue()));
+            deletedObjectsBuilder.addAll(iceMapper.map(result.getKey()));
+            deletedObjectsBuilder.addAll(iceMapper.map(result.getValue()));
             final DeleteNewResponse response = new DeleteNewResponse(deletedObjectsBuilder.build());
             helper.setResponseIfNull(response);
             LOGGER.info("in delete of " + targetObjects.size() + ", deleted " + response.deletedObjects.size() + " in total");
