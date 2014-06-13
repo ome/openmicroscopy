@@ -27,13 +27,12 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import ome.model.IObject;
-import ome.model.meta.ExperimenterGroup;
 import ome.services.graphs.GraphPathBean;
 import ome.services.graphs.GraphPolicy;
 import ome.services.graphs.GraphTraversal;
 import ome.system.Login;
-import omero.cmd.ChgrpNew;
-import omero.cmd.ChgrpNewResponse;
+import omero.cmd.Delete2;
+import omero.cmd.Delete2Response;
 import omero.cmd.HandleI.Cancel;
 import omero.cmd.ERR;
 import omero.cmd.Helper;
@@ -42,28 +41,28 @@ import omero.cmd.Response;
 import omero.util.IceMapper;
 
 /**
- * An experimental Chgrp for exercising the {@link ome.services.graphs.GraphPathBean} from clients.
+ * An experimental Delete for exercising the {@link ome.services.graphs.GraphPathBean} from clients.
  * @author m.t.b.carroll@dundee.ac.uk
  * @since 5.0.x TODO
  */
-public class ChgrpNewI extends ChgrpNew implements IRequest {
+public class Delete2I extends Delete2 implements IRequest {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ChgrpNewI.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(Delete2I.class);
     private static final ImmutableMap<String, String> ALL_GROUPS_CONTEXT = ImmutableMap.of(Login.OMERO_GROUP, "-1");
 
     private final IceMapper iceMapper = new IceMapper();
     private final GraphPathBean graphPathBean;
     private final GraphPolicy graphPolicy;
- 
+
     private Helper helper;
     private GraphTraversal graphTraversal;
 
     /**
-     * Construct a new <q>chgrp</q> request; called from {@link GraphRequestFactory#getRequest(Class)}.
+     * Construct a new <q>delete</q> request; called from {@link GraphRequestFactory#getRequest(Class)}.
      * @param graphPathBean the graph path bean to use
-     * @param graphPolicy the graph policy to apply for chgrp
+     * @param graphPolicy the graph policy to apply for delete
      */
-    public ChgrpNewI(GraphPathBean graphPathBean, GraphPolicy graphPolicy) {
+    public Delete2I(GraphPathBean graphPathBean, GraphPolicy graphPolicy) {
         this.graphPathBean = graphPathBean;
         this.graphPolicy = graphPolicy;
     }
@@ -110,12 +109,12 @@ public class ChgrpNewI extends ChgrpNew implements IRequest {
         helper.assertResponse(step);
         if (step == 0) {
             final Entry<Collection<IObject>, Collection<IObject>> result = (Entry<Collection<IObject>, Collection<IObject>>) object;
-            final ImmutableList<omero.model.IObject> movedObjects = ImmutableList.copyOf(iceMapper.map(result.getKey()));
-            final ImmutableList<omero.model.IObject> deletedObjects = ImmutableList.copyOf(iceMapper.map(result.getValue()));
-            final ChgrpNewResponse response = new ChgrpNewResponse(movedObjects, deletedObjects);
+            final ImmutableList.Builder<omero.model.IObject> deletedObjectsBuilder = ImmutableList.builder();
+            deletedObjectsBuilder.addAll(iceMapper.map(result.getKey()));
+            deletedObjectsBuilder.addAll(iceMapper.map(result.getValue()));
+            final Delete2Response response = new Delete2Response(deletedObjectsBuilder.build());
             helper.setResponseIfNull(response);
-            LOGGER.info("in chgrp to " + groupId + " of " + targetObjects.size() +
-                    ", moved " + response.includedObjects.size() + " and deleted " + response.deletedObjects.size() + " in total");
+            LOGGER.info("in delete of " + targetObjects.size() + ", deleted " + response.deletedObjects.size() + " in total");
         }
     }
 
@@ -125,7 +124,7 @@ public class ChgrpNewI extends ChgrpNew implements IRequest {
     }
 
     /**
-     * A <q>chgrp</q> processor that updates model objects' group.
+     * A <q>delete</q> processor that deletes model objects.
      * @author m.t.b.carroll@dundee.ac.uk
      * @since 5.0.x TODO
      */
@@ -137,9 +136,7 @@ public class ChgrpNewI extends ChgrpNew implements IRequest {
 
         @Override
         public void processInstances(String className, Collection<Long> ids) {
-            final ExperimenterGroup group = (ExperimenterGroup) session.load(ExperimenterGroup.class, groupId);
-            final String update = "UPDATE " + className + " SET details.group = :group WHERE id IN (:ids)";
-            session.createQuery(update).setParameter("group", group).setParameterList("ids", ids).executeUpdate();
+            deleteInstances(className, ids);
         }
     }
 }

@@ -357,8 +357,8 @@
       <constructor-arg ref="graphPathBean"/>
       <constructor-arg>
           <map>
-              <entry key="omero.cmd.graphs.ChgrpNewI" value-ref="chgrpRules"/>
-              <entry key="omero.cmd.graphs.DeleteNewI" value-ref="deleteRules"/>
+              <entry key="omero.cmd.graphs.Chgrp2I" value-ref="chgrpRules"/>
+              <entry key="omero.cmd.graphs.Delete2I" value-ref="deleteRules"/>
           </map>
       </constructor-arg>
   </bean>
