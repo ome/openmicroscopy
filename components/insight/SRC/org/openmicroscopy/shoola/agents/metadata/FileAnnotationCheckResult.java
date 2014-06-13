@@ -121,7 +121,7 @@ public class FileAnnotationCheckResult {
         for (DataObject b : collB) {
             boolean contains = false;
             for (DataObject a : collA) {
-                if (a.getId() == b.getId()) {
+                if (a.getClass().equals(b.getClass()) && a.getId() == b.getId()) {
                     contains = true;
                     break;
                 }
