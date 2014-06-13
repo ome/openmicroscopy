@@ -30,11 +30,11 @@ import omero.cmd.basic.TimingI;
 import omero.cmd.fs.ManageImageBinariesI;
 import omero.cmd.fs.OriginalMetadataRequestI;
 import omero.cmd.graphs.ChgrpI;
-import omero.cmd.graphs.ChgrpNewI;
+import omero.cmd.graphs.Chgrp2I;
 import omero.cmd.graphs.ChmodI;
 import omero.cmd.graphs.ChownI;
 import omero.cmd.graphs.DeleteI;
-import omero.cmd.graphs.DeleteNewI;
+import omero.cmd.graphs.Delete2I;
 import omero.cmd.graphs.GraphRequestFactory;
 import omero.cmd.graphs.GraphSpecListI;
 
@@ -124,11 +124,11 @@ public class RequestObjectFactoryRegistry extends
                     }
 
                 });
-        factories.put(ChgrpNewI.ice_staticId(),
-                new ObjectFactory(ChgrpNewI.ice_staticId()) {
+        factories.put(Chgrp2I.ice_staticId(),
+                new ObjectFactory(Chgrp2I.ice_staticId()) {
                     @Override
                     public Ice.Object create(String name) {
-                        return graphRequestFactory.getRequest(ChgrpNewI.class);
+                        return graphRequestFactory.getRequest(Chgrp2I.class);
                     }
 
                 });
@@ -161,11 +161,11 @@ public class RequestObjectFactoryRegistry extends
                         return new DeleteI(ic, d);
                     }
                 });
-        factories.put(DeleteNewI.ice_staticId(),
-                new ObjectFactory(DeleteNewI.ice_staticId()) {
+        factories.put(Delete2I.ice_staticId(),
+                new ObjectFactory(Delete2I.ice_staticId()) {
                     @Override
                     public Ice.Object create(String name) {
-                        return graphRequestFactory.getRequest(DeleteNewI.class);
+                        return graphRequestFactory.getRequest(Delete2I.class);
                     }
 
                 });

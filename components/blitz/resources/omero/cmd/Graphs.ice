@@ -138,21 +138,21 @@ module omero {
 
         };
 
-        class ChgrpNew extends Request {
+        class Chgrp2 extends Request {
             long groupId;
             omero::api::IObjectList targetObjects;
         };
 
-        class ChgrpNewResponse extends OK {
+        class Chgrp2Response extends OK {
             omero::api::IObjectList includedObjects;
             omero::api::IObjectList deletedObjects;
         };
 
-        class DeleteNew extends Request {
+        class Delete2 extends Request {
             omero::api::IObjectList targetObjects;
         };
 
-        class DeleteNewResponse extends OK {
+        class Delete2Response extends OK {
             omero::api::IObjectList deletedObjects;
         };
     };
