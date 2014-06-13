@@ -27,11 +27,10 @@ subcommands = ['help', 'login', 'logout', 'group',
                'list', 'keepalive', 'clear', 'file']
 
 
-class TestLoginAsRoot(CLITest):
+class TestSessions(CLITest):
 
     def setup_method(self, method):
-        super(TestLoginAsRoot, self).setup_method(method)
-        self.cli.register("sessions", SessionsControl, "TEST")
+        super(TestSessions, self).setup_method(method)
         self.args += ["sessions"]
 
     # Help subcommands
