@@ -25,14 +25,14 @@ import ome.model.meta.EventLog;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.security.basic.CurrentDetails;
-import ome.services.metrics.Metrics;
-import ome.services.metrics.Timer;
 import ome.services.sessions.SessionManager;
 import ome.services.util.ExecutionThread;
 import ome.services.util.Executor;
 import ome.system.EventContext;
 import ome.system.Principal;
 import ome.system.ServiceFactory;
+import ome.system.metrics.Metrics;
+import ome.system.metrics.Timer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,7 +41,7 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * 
+ *
  * @author Josh Moore, josh at glencoesoftware.com
  * @since Beta4.3
  */

@@ -16,7 +16,7 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-package ome.services.metrics;
+package ome.system.metrics;
 
 import static com.codahale.metrics.MetricRegistry.name;
 
@@ -52,7 +52,7 @@ public class Metrics implements InitializingBean {
     private static Logger log = LoggerFactory.getLogger(Metrics.class);
 
     private MetricRegistry registry = new MetricRegistry();
-    
+
     private boolean slf4jReporter = false;
 
     private boolean jmxReporter = true;
@@ -60,7 +60,7 @@ public class Metrics implements InitializingBean {
     private boolean jvmInstrumentation = true;
 
     private boolean logbackInstrumentation = true;
-    
+
     private Collection<String> beginsWith = null;
 
     public void setSlf4jReporter(boolean activate) {
@@ -93,7 +93,7 @@ public class Metrics implements InitializingBean {
         if (slf4jReporter) {
             final Slf4jReporter reporter = Slf4jReporter.forRegistry(registry)
                 .filter(filter())
-                .outputTo(LoggerFactory.getLogger("ome.services.metrics"))
+                .outputTo(LoggerFactory.getLogger("ome.system.metrics"))
                 .convertRatesTo(TimeUnit.SECONDS)
                 .convertDurationsTo(TimeUnit.MILLISECONDS)
                 .build();
@@ -104,7 +104,7 @@ public class Metrics implements InitializingBean {
             final JmxReporter jmx = JmxReporter.forRegistry(registry).build();
             jmx.start();
         }
-        
+
         if (jvmInstrumentation) {
             BufferPoolMetricSet bufferPoolMetrics = new BufferPoolMetricSet(ManagementFactory.getPlatformMBeanServer());
             registerAll("jvm.buffers", bufferPoolMetrics, registry);
