@@ -19,7 +19,6 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-from omero.plugins.sessions import SessionsControl
 from test.integration.clitest.cli import CLITest
 import pytest
 
@@ -70,3 +69,27 @@ class TestSessions(CLITest):
         self.cli.invoke(args, strict=True)
         ec = self.cli.controls["sessions"].ctx._event_context
         assert ec.userName == user.omeName.val
+
+    @pytest.mark.parametrize('with_sudo', [True, False])
+    @pytest.mark.parametrize('with_group', [True, False])
+    def testLoginMultiGroup(self, with_sudo, with_group):
+        group1 = self.new_group()
+        client, user = self.new_client_and_user(group=group1)
+        group2 = self.new_group([user])
+
+        passwd = self.root.getProperty("omero.rootpass")
+        host = self.root.getProperty("omero.host")
+        port = self.root.getProperty("omero.port")
+        args = ["sessions", "login", "-w", passwd]
+        args += ["%s@%s:%s" % (user.omeName.val, host, port)]
+        if with_sudo:
+            args += ["--sudo", "root"]
+        if with_group:
+            args += ["-g", group2.name.val]
+        self.cli.invoke(args, strict=True)
+        ec = self.cli.controls["sessions"].ctx._event_context
+        assert ec.userName == user.omeName.val
+        if with_group:
+            assert ec.groupName == group2.name.val
+        else:
+            assert ec.groupName == group1.name.val
