@@ -706,22 +706,16 @@ public class SearchPanel
 	 * 
 	 * @return See above.
 	 */
-	private JPanel buildScope()
+	private JPanel buildFields()
 	{
-		JPanel p = new JPanel();
-		p.setBackground(UIUtilities.BACKGROUND_COLOR);
-		p.setLayout(new GridBagLayout());
-        GridBagConstraints c = new GridBagConstraints();
-        c.anchor = GridBagConstraints.WEST;
-        c.fill = GridBagConstraints.HORIZONTAL;
-        c.gridy = 0;
-        layoutGroup();
-        p.add(groupRow, c);
-        groupRow.setVisible(model.getGroups().size() > 1);
+		
         List<SearchObject> nodes = model.getNodes();
 		SearchObject n;
 		int m = nodes.size();
 		JCheckBox box;
+		JPanel p = new JPanel();
+		p.setBackground(UIUtilities.BACKGROUND_COLOR);
+		GridBagConstraints c = new GridBagConstraints();
 		c.weightx = 1.0;
 		c.gridy = 1;
 		List<Integer> ctxNodes = null;
@@ -768,6 +762,25 @@ public class SearchPanel
 	}
 
 	/** 
+         * Builds and lays out the component displaying the various options.
+         * 
+         * @return See above.
+         */
+        private JPanel buildScope()
+        {
+            JPanel p = new JPanel();
+            p.setBackground(UIUtilities.BACKGROUND_COLOR);
+            p.setLayout(new GridBagLayout());
+            GridBagConstraints c = new GridBagConstraints();
+            c.anchor = GridBagConstraints.WEST;
+            c.fill = GridBagConstraints.HORIZONTAL;
+            c.gridy = 0;
+            layoutGroup();
+            p.add(groupRow, c);
+            return p;
+        }
+        
+	/** 
 	 * Builds and lays out the component displaying the various types.
 	 * 
 	 * @return See above.
@@ -798,7 +811,7 @@ public class SearchPanel
 				n = nodes.get(i);
 				box = new JCheckBox(n.getDescription());
 				box.setBackground(UIUtilities.BACKGROUND_COLOR);
-				if (i == 0) box.setSelected(true);
+				box.setSelected(true);
 				p.add(box, c);
 				types.put(n.getIndex(), box);
 			}
@@ -1068,7 +1081,6 @@ public class SearchPanel
 	/** Builds and lays out the UI. */
 	private void buildGUI()
 	{
-		buildType();
 		setBorder(null);
 		setLayout(new GridBagLayout());
 		GridBagConstraints c = new GridBagConstraints();
@@ -1080,18 +1092,33 @@ public class SearchPanel
 		c.gridwidth = GridBagConstraints.REMAINDER;
 		c.weightx = 1.0;
 		setBackground(UIUtilities.BACKGROUND_COLOR);
+		
 		add(buildSearchFor(), c);//, "0, 0");
+		
 		SeparatorPane sep = new SeparatorPane();
 		sep.setBackground(UIUtilities.BACKGROUND_COLOR);
 		c.gridy++;
 		add(sep, c);//, "0, 1");
-		JXTaskPane pane = UIUtilities.createTaskPane(SCOPE_TITLE, null); 
+		
+		JXTaskPane pane = UIUtilities.createTaskPane("Search for", null); 
+                pane.setCollapsed(true);
+                pane.add(buildType());
+                c.gridy++;
+                add(pane, c);//, "0, 2")
+                
+		pane = UIUtilities.createTaskPane("Using Fields" , null); 
 		pane.setCollapsed(false);
-		pane.add(buildScope());
+		pane.add(buildFields());
 		c.gridy++;
 		add(pane, c);//, "0, 2");
-		//add(UIUtilities.buildTaskPane(buildUsers(), USER_TITLE, true), "0, 3");
-		datePane = UIUtilities.createTaskPane(DATE_TITLE, null); 
+		
+		pane = UIUtilities.createTaskPane("Scope" , null); 
+                pane.setCollapsed(false);
+                pane.add(buildScope());
+                c.gridy++;
+                add(pane, c);//, "0, 2");
+		
+		datePane = UIUtilities.createTaskPane("Date", null); 
 		datePane.add(buildDate());
 		c.gridy++;
 		add(datePane, c);//, "0, 4");

@@ -43,6 +43,7 @@ import javax.swing.JPanel;
 import javax.swing.JSeparator;
 
 
+
 //Third-party libraries
 import info.clearthought.layout.TableLayout;
 
@@ -53,7 +54,13 @@ import org.jdesktop.swingx.JXBusyLabel;
 import org.openmicroscopy.shoola.util.ui.SeparatorPane;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
+import pojos.DatasetData;
 import pojos.GroupData;
+import pojos.ImageData;
+import pojos.PlateData;
+import pojos.ProjectData;
+import pojos.ScreenData;
+import pojos.WellData;
 
 /** 
  * Component with advanced search options.
@@ -339,12 +346,19 @@ public class SearchComponent
     	nodes.add(node);
     	
     	types = new ArrayList<SearchObject>();
-    	node = new SearchObject(SearchContext.IMAGES, null, "Image");
-    	types.add(node);
     	node = new SearchObject(SearchContext.DATASETS, null, "Dataset");
     	types.add(node);
     	node = new SearchObject(SearchContext.PROJECTS, null, "Project");
     	types.add(node);
+    	node = new SearchObject(SearchContext.IMAGES, null, "Image");
+        types.add(node);
+        node = new SearchObject(SearchContext.SCREENS, null, "Screen");
+        types.add(node);
+        node = new SearchObject(SearchContext.PLATES, null, "Plate");
+        types.add(node);
+        node = new SearchObject(SearchContext.WELLS, null, "Well");
+        types.add(node);
+        
 	}
 	
 	/**
