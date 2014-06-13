@@ -349,7 +349,18 @@
       <constructor-arg ref="passwordUtil"/>
       <constructor-arg ref="securitySystem"/>
       <constructor-arg ref="passwordProvider"/>
+      <constructor-arg ref="graphRequestFactory"/>
       <property name="iceCommunicator" ref="Ice.Communicator"/>
+  </bean>
+
+  <bean id="graphRequestFactory" class="omero.cmd.graphs.GraphRequestFactory">
+      <constructor-arg ref="graphPathBean"/>
+      <constructor-arg>
+          <map>
+              <entry key="omero.cmd.graphs.ChgrpNewI" value-ref="chgrpRules"/>
+              <entry key="omero.cmd.graphs.DeleteNewI" value-ref="deleteRules"/>
+          </map>
+      </constructor-arg>
   </bean>
 
   <bean class="ome.services.blitz.impl.commands.RequestObjectFactoryRegistry"

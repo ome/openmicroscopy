@@ -42,6 +42,7 @@ import omero.cmd.graphs.ChownI;
 import omero.cmd.graphs.DeleteI;
 import omero.cmd.graphs.DeleteNewI;
 import omero.cmd.graphs.DiskUsageI;
+import omero.cmd.graphs.GraphRequestFactory;
 import omero.cmd.graphs.GraphSpecListI;
 import omero.cmd.mail.SendEmailRequestI;
 
@@ -73,6 +74,8 @@ public class RequestObjectFactoryRegistry extends
     
     private final PasswordProvider passwordProvider;
     
+    private final GraphRequestFactory graphRequestFactory;
+
     private/* final */OmeroContext ctx;
 
     public RequestObjectFactoryRegistry(ExtendedMetadata em,
@@ -83,7 +86,8 @@ public class RequestObjectFactoryRegistry extends
             MailUtil mailUtil,
             PasswordUtil passwordUtil,
             SecuritySystem sec,
-            PasswordProvider passwordProvider) {
+            PasswordProvider passwordProvider,
+            GraphRequestFactory graphRequestFactory) {
 
         this.em = em;
         this.voter = voter;
@@ -94,6 +98,7 @@ public class RequestObjectFactoryRegistry extends
         this.passwordUtil = passwordUtil;
         this.sec = sec;
         this.passwordProvider = passwordProvider;
+        this.graphRequestFactory = graphRequestFactory;
     }
 
     public void setApplicationContext(ApplicationContext ctx)
@@ -151,11 +156,7 @@ public class RequestObjectFactoryRegistry extends
                 new ObjectFactory(ChgrpNewI.ice_staticId()) {
                     @Override
                     public Ice.Object create(String name) {
-                        try {
-                            return new ChgrpNewI();
-                        } catch (GraphException e) {
-                            throw new RuntimeException("failed to construct chgrp operation", e);
-                        }
+                        return graphRequestFactory.getRequest(ChgrpNewI.class);
                     }
 
                 });
@@ -192,11 +193,7 @@ public class RequestObjectFactoryRegistry extends
                 new ObjectFactory(DeleteNewI.ice_staticId()) {
                     @Override
                     public Ice.Object create(String name) {
-                        try {
-                            return new DeleteNewI();
-                        } catch (GraphException e) {
-                            throw new RuntimeException("failed to construct delete operation", e);
-                        }
+                        return graphRequestFactory.getRequest(DeleteNewI.class);
                     }
 
                 });

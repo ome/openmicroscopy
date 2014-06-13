@@ -33,7 +33,6 @@ import org.hibernate.Hibernate;
 import org.hibernate.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -44,10 +43,8 @@ import ome.model.meta.ExperimenterGroup;
 import ome.services.graphs.GraphException;
 import ome.services.graphs.GraphPathBean;
 import ome.services.graphs.GraphPolicy;
-import ome.services.graphs.GraphPolicyRule;
 import ome.services.graphs.GraphTraversal;
 import ome.system.Login;
-import ome.system.OmeroContext;
 import omero.cmd.ChgrpNew;
 import omero.cmd.ChgrpNewResponse;
 import omero.cmd.HandleI.Cancel;
@@ -68,23 +65,20 @@ public class ChgrpNewI extends ChgrpNew implements IRequest {
     private static final ImmutableMap<String, String> ALL_GROUPS_CONTEXT = ImmutableMap.of(Login.OMERO_GROUP, "-1");
     private static final IceMapper ICE_MAPPER = new IceMapper();
 
-    private static GraphPathBean graphPathBean = null;
-    private static GraphPolicy graphPolicy = null;
+    private final GraphPathBean graphPathBean;
+    private final GraphPolicy graphPolicy;
  
     private Helper helper;
     private GraphTraversal graphTraversal;
 
-    public ChgrpNewI() throws GraphException {
-        synchronized (ChgrpNewI.class) {
-            if (graphPolicy == null) {
-                final ClassPathXmlApplicationContext policyRuleContext =
-                        new ClassPathXmlApplicationContext("classpath:ome/services/graph-rules.xml");
-                final OmeroContext omeroContext = OmeroContext.getManagedServerContext();
-                final List<GraphPolicyRule> rules = policyRuleContext.getBean("chgrpRules", List.class);
-                graphPathBean = omeroContext.getBean("graphPathBean", GraphPathBean.class);
-                graphPolicy = GraphPolicyRule.parseRules(graphPathBean, rules);
-            }
-        }
+    /**
+     * Construct a new <q>chgrp</q> request; called from {@link GraphRequestFactory#getRequest(Class)}.
+     * @param graphPathBean the graph path bean to use
+     * @param graphPolicy the graph policy to apply for chgrp
+     */
+    public ChgrpNewI(GraphPathBean graphPathBean, GraphPolicy graphPolicy) {
+        this.graphPathBean = graphPathBean;
+        this.graphPolicy = graphPolicy;
     }
 
     @Override
