@@ -25,8 +25,8 @@
            downloaded -->
       <cache name="local" basedir="${ivy.settings.dir}/../lib/cache"/>
       <cache name="maven" basedir="${user.home}/.m2/repository/"
-        artifactPattern="[orgPath]/[module]/[revision]/[module]-[revision].[ext]"
-        ivyPattern="[orgPath]/[module]/[revision]/[module]-[revision].ivy"
+        artifactPattern="[orgPath]/[module]/[revision]/[artifact]-[revision].[ext]"
+        ivyPattern="[orgPath]/[module]/[revision]/[artifact]-[revision].xml"
         lockStrategy="artifact-lock"
         defaultTTL="0ms"/>
   </caches>
