@@ -32,6 +32,13 @@ class TestSessions(CLITest):
         super(TestSessions, self).setup_method(method)
         self.args += ["sessions"]
 
+    def set_conn_args(self, user):
+        passwd = self.root.getProperty("omero.rootpass")
+        host = self.root.getProperty("omero.host")
+        port = self.root.getProperty("omero.port")
+        self.args = ["sessions", "login", "-w", passwd]
+        self.args += ["%s@%s:%s" % (user.omeName.val, host, port)]
+
     # Help subcommands
     # ========================================================================
     def testHelp(self):
@@ -47,12 +54,9 @@ class TestSessions(CLITest):
     # ========================================================================
     def testLoginAsRoot(self):
         user = self.new_user()
-        passwd = self.root.getProperty("omero.rootpass")
-        host = self.root.getProperty("omero.host")
-        port = self.root.getProperty("omero.port")
-        args = ["sessions", "login", "--sudo", "root", "-w", passwd]
-        args += ["%s@%s:%s" % (user.omeName.val, host, port)]
-        self.cli.invoke(args, strict=True)
+        self.set_conn_args(user)
+        self.args += ["--sudo", "root"]
+        self.cli.invoke(self.args, strict=True)
         ec = self.cli.controls["sessions"].ctx._event_context
         assert ec.userName == user.omeName.val
 
@@ -62,11 +66,9 @@ class TestSessions(CLITest):
         grp_admin = self.new_user(group=group, admin=True)
         admin = grp_admin.omeName.val
         user = self.new_user(group=group)
-        host = self.root.getProperty("omero.host")
-        port = self.root.getProperty("omero.port")
-        args = ["sessions", "login", "--sudo", admin, "-w", "ignore"]
-        args += ["%s@%s:%s" % (user.omeName.val, host, port)]
-        self.cli.invoke(args, strict=True)
+        self.set_conn_args(user)
+        self.args += ["--sudo", admin]
+        self.cli.invoke(self.args, strict=True)
         ec = self.cli.controls["sessions"].ctx._event_context
         assert ec.userName == user.omeName.val
 
@@ -77,16 +79,12 @@ class TestSessions(CLITest):
         client, user = self.new_client_and_user(group=group1)
         group2 = self.new_group([user])
 
-        passwd = self.root.getProperty("omero.rootpass")
-        host = self.root.getProperty("omero.host")
-        port = self.root.getProperty("omero.port")
-        args = ["sessions", "login", "-w", passwd]
-        args += ["%s@%s:%s" % (user.omeName.val, host, port)]
+        self.set_conn_args(user)
         if with_sudo:
-            args += ["--sudo", "root"]
+            self.args += ["--sudo", "root"]
         if with_group:
-            args += ["-g", group2.name.val]
-        self.cli.invoke(args, strict=True)
+            self.args += ["-g", group2.name.val]
+        self.cli.invoke(self.args, strict=True)
         ec = self.cli.controls["sessions"].ctx._event_context
         assert ec.userName == user.omeName.val
         if with_group:
