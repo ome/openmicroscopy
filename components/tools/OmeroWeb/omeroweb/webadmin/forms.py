@@ -470,6 +470,6 @@ class EmailForm(forms.Form):
         # Print message failures
         if failed_addresses:
             messages.warning(self.request,
-                             "%s messages failed to: %s" % (failed_count,
-                                                        failed_addresses))
+                             "%s messages failed to: %s" %
+                             (failed_count, ', '.join(failed_addresses)))
 
