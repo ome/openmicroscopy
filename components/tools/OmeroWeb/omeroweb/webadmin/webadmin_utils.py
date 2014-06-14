@@ -89,7 +89,17 @@ def resolveExperimenters(conn, everyone=False, group_ids=None,
         # It would be possible to use the query service to only get
         # experimenters with email addresses, but it's not really worth it
         experimenters = conn.getObjects('Experimenter')
-        return experimenters, []
+
+        experimenters_active = []
+        experimenters_inactive = []
+
+        for experimenter in experimenters:
+            if experimenter.isActive():
+                experimenters_active.append(experimenter)
+            else:
+                experimenters_inactive.append(experimenter)
+
+        return experimenters_active, experimenters_inactive
 
     # TODO Should use BlitzSet to give a set with key from id
     experimenters = {}
