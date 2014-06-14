@@ -462,7 +462,10 @@ class EmailForm(forms.Form):
                 failed_count += 1
                 logger.error("Email \"%s\" to %s failed" % (subject, address))
 
-        messages.success(self.request, "%s messages sent" % sent_count)
+        if sent_count > 0:
+            messages.success(self.request, "%s message%s sent" % (sent_count, 's' if sent_count > 1 else ''))
+        else:
+            messages.warning(self.request, "No messages sent")
 
         # Print message failures
         if failed_addresses:
