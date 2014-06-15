@@ -47,6 +47,7 @@ public class Main {
     static IQuery rawQuery;
     static SessionManager manager;
     static FullTextBridge bridge;
+    static PersistentEventLogLoader loader;
 
     // Setup
 
@@ -66,6 +67,7 @@ public class Main {
         rawQuery = (IQuery) context.getBean("internal-ome.api.IQuery");
         manager = (SessionManager) context.getBean("sessionManager");
         bridge = (FullTextBridge) context.getBean("fullTextBridge");
+        loader =  (PersistentEventLogLoader) context.getBean("eventLogLoader");
         String excludesStr = context.getProperty("omero.search.excludes");
         if (excludesStr != null) {
             excludes = excludesStr.split(",");
@@ -188,10 +190,6 @@ public class Main {
             newValue = Long.valueOf(args[1]);
         }
 
-        final PersistentEventLogLoader loader =
-                context.getBean("persistentEventLogLoader",
-                        PersistentEventLogLoader.class);
-
         oldValue = loader.getCurrentId();
         loader.setCurrentId(newValue);
         System.out.println("=================================================");
@@ -206,10 +204,6 @@ public class Main {
      */
     public static void sequential(boolean dryrun, String[] args) {
         init();
-        final PersistentEventLogLoader loader =
-                context.getBean("persistentEventLogLoader",
-                        PersistentEventLogLoader.class);
-
         final FullTextThread ftt = createFullTextThread(loader, dryrun);
 
         long loops = 0;
