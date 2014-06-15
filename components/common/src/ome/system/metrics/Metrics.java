@@ -21,6 +21,7 @@ package ome.system.metrics;
 import static com.codahale.metrics.MetricRegistry.name;
 
 import java.lang.management.ManagementFactory;
+import java.net.InetSocketAddress;
 import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -37,6 +38,8 @@ import com.codahale.metrics.MetricFilter;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.MetricSet;
 import com.codahale.metrics.Slf4jReporter;
+import com.codahale.metrics.graphite.Graphite;
+import com.codahale.metrics.graphite.GraphiteReporter;
 import com.codahale.metrics.jvm.BufferPoolMetricSet;
 import com.codahale.metrics.jvm.FileDescriptorRatioGauge;
 import com.codahale.metrics.jvm.GarbageCollectorMetricSet;
@@ -61,6 +64,8 @@ public class Metrics implements InitializingBean {
 
     private boolean logbackInstrumentation = true;
 
+    private String graphiteAddress = null;
+
     private Collection<String> beginsWith = null;
 
     public void setSlf4jReporter(boolean activate) {
@@ -69,6 +74,10 @@ public class Metrics implements InitializingBean {
 
     public void setBeginsWith(Collection<String> prefixes) {
         this.beginsWith = prefixes;
+    }
+
+    public void setGraphiteAddress(String address) {
+        this.graphiteAddress = address;
     }
 
     private MetricFilter filter() {
@@ -126,6 +135,17 @@ public class Metrics implements InitializingBean {
             } catch (Exception e) {
                 log.error("Failed to instrumentation logback", e);
             }
+        }
+
+        if (graphiteAddress != null && !graphiteAddress.isEmpty()) {
+            final Graphite graphite = new Graphite(new InetSocketAddress(graphiteAddress, 2003));
+            final GraphiteReporter reporter = GraphiteReporter.forRegistry(registry)
+                .prefixedWith(System.getProperty("Ice.Admin.ServerId", "OMERO"))
+                .convertRatesTo(TimeUnit.SECONDS)
+                .convertDurationsTo(TimeUnit.MILLISECONDS)
+                .filter(MetricFilter.ALL)
+                .build(graphite);
+                reporter.start(1, TimeUnit.MINUTES);
         }
     }
 
