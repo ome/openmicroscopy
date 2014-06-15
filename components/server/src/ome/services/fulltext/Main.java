@@ -107,7 +107,9 @@ public class Main {
             } else if ("reset".equals(args[0])) {
                 reset(args);
             } else if ("dryrun".equals(args[0])) {
-                dryrun(args);
+                sequential(true, args);
+            } else if ("sequential".equals(args[0])) {
+                sequential(false, args);
             } else if ("standalone".equals(args[0])) {
                 standalone(args);
             } else if ("events".equals(args[0])) {
@@ -202,13 +204,13 @@ public class Main {
      * Uses a {@link PersistentEventLogLoader} and cycles through all
      * the remaining logs.
      */
-    public static void dryrun(String[] args) {
+    public static void sequential(boolean dryrun, String[] args) {
         init();
         final PersistentEventLogLoader loader =
                 context.getBean("persistentEventLogLoader",
                         PersistentEventLogLoader.class);
 
-        final FullTextThread ftt = createFullTextThread(loader, true);
+        final FullTextThread ftt = createFullTextThread(loader, dryrun);
 
         long loops = 0;
         long current = current(loader);
