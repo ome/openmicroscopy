@@ -192,6 +192,9 @@ LIMITATION: omero.db.pass values do not currently get passed to the Java
             "--events", action="store_true",
             help="Reindexes all non-excluded event logs chronologically")
         group.add_argument(
+            "--reset", default=None,
+            help="Reset the index counter")
+        group.add_argument(
             "--class", nargs="+",
             help="Reindexes the given classes sequentially")
 
@@ -1254,6 +1257,9 @@ OMERO Diagnostics %s
 
         if args.full:
             cmd.append("full")
+        elif args.reset is not None:
+            cmd.append("reset")
+            cmd.append(args.reset)
         elif args.events:
             cmd.append("events")
         elif getattr(args, "class"):
