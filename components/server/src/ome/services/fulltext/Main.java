@@ -7,22 +7,18 @@
 
 package ome.services.fulltext;
 
-import java.io.File;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
 import ome.api.IQuery;
+import ome.services.eventlogs.AllEntitiesPseudoLogLoader;
+import ome.services.eventlogs.AllEventsLogLoader;
+import ome.services.eventlogs.EventLogLoader;
 import ome.services.sessions.SessionManager;
 import ome.services.util.Executor;
 import ome.system.OmeroContext;
-import ome.services.eventlogs.*;
 
 import org.hibernate.SessionFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.util.ResourceUtils;
 
 /**
  * Commandline entry-point for various full text actions. Commands include:
@@ -48,7 +44,7 @@ public class Main {
     // Setup
 
     public static void init() {
-        context = OmeroContext.getManagedServerContext();
+        context = OmeroContext.getInstance("ome.fulltext");
         executor = (Executor) context.getBean("executor");
         factory = (SessionFactory) context.getBean("sessionFactory");
         rawQuery = (IQuery) context.getBean("internal-ome.api.IQuery");
@@ -86,11 +82,17 @@ public class Main {
         try {
             if (args == null || args.length == 0) {
                 usage();
+            } else if ("reset".equals(args[0])) {
+                init();
+                reset(args);
             } else if ("standalone".equals(args[0])) {
+                init();
                 standalone(args);
             } else if ("events".equals(args[0])) {
+                init();
                 indexAllEvents();
             } else if ("full".equals(args[0])) {
+                init();
                 indexFullDb();
             } else if ("reindex".equals(args[0])) {
                 if (args.length < 2) {
@@ -100,6 +102,7 @@ public class Main {
                 for (int i = 1; i < args.length; i++) {
                     set.add(args[i]);
                 }
+                init();
                 indexByClass(set);
             } else {
                 usage();
@@ -116,7 +119,6 @@ public class Main {
     }
 
     public static void indexFullDb() {
-        init();
         final AllEntitiesPseudoLogLoader loader = new AllEntitiesPseudoLogLoader();
         loader.setQueryService(rawQuery);
         loader.setExcludes(excludes);
@@ -128,7 +130,6 @@ public class Main {
     }
 
     public static void indexByClass(Set<String> set) {
-        init();
         final AllEntitiesPseudoLogLoader loader = new AllEntitiesPseudoLogLoader();
         loader.setQueryService(rawQuery);
         loader.setClasses(set);
@@ -139,7 +140,6 @@ public class Main {
     }
 
     public static void indexAllEvents() {
-        init();
         final AllEventsLogLoader loader = new AllEventsLogLoader();
         loader.setExcludes(excludes);
         loader.setQueryService(rawQuery);
@@ -148,6 +148,31 @@ public class Main {
         while (loader.more() > 0) {
             ftt.run();
         }
+    }
+
+    /**
+     * Can be used to reset the value that the {@link PersistentEventLogLoader}
+     * would read if started now.
+     */
+    public static void reset(String[] args) {
+        long oldValue = -1;
+        long newValue = 0;
+        if (args == null || args.length != 2) {
+            System.out.println("Using 0 as reset target");
+        } else {
+            newValue = Long.valueOf(args[1]);
+        }
+
+        final PersistentEventLogLoader loader =
+                context.getBean("persistentEventLogLoader",
+                        PersistentEventLogLoader.class);
+
+        oldValue = loader.getCurrentId();
+        loader.setCurrentId(newValue);
+        System.out.println("=================================================");
+        System.out.println(String.format("Value reset to %s. Was %s",
+                newValue, oldValue));
+        System.out.println("=================================================");
     }
 
     /**
