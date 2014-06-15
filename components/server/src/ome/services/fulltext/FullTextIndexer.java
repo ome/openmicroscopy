@@ -87,7 +87,9 @@ public class FullTextIndexer extends SimpleWork {
 
         @Override
         void log(Logger log) {
-            log.info(String.format("Purged: %s:Id_%d", type, id));
+            if (log.isDebugEnabled()) {
+                log.debug(String.format("Purged: %s:Id_%d", type, id));
+            }
         }
     }
 
@@ -247,9 +249,8 @@ public class FullTextIndexer extends SimpleWork {
                         if (obj == null) {
                             // This object was deleted before the indexer caught up with
                             // the INSERT/UDPDATE log. Though this isn't a problem itself,
-                            // this does mean that the indexer is likely going too slow and
-                            // therefore this is at WARN.
-                            log.warn(String.format("Null returned! Purging "
+                            // this does mean that the indexer is likely going too slow.
+                            log.debug(String.format("Null returned! Purging "
                                     + "since cannot index %s:Id_%s for %s", type
                                     .getName(), id, eventLog));
                             action = new Purge(type, id);
