@@ -7,16 +7,14 @@
 
 package ome.services.fulltext;
 
-import ome.api.ITypes;
 import ome.conditions.InternalException;
 import ome.model.IEnum;
 import ome.model.meta.EventLog;
-import ome.util.SqlAction;
+import ome.services.eventlogs.EventLogLoader;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.dao.DataAccessException;
-import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.context.ApplicationEvent;
 
 /**
  * {@link EventLogLoader} implementation which keeps tracks of the last
@@ -41,6 +39,22 @@ public class PersistentEventLogLoader extends ome.services.eventlogs.PersistentE
             for (IEnum e : queryService.findAll(cls, null)) {
                 addEventLog(cls, e.getId());
             }
+        }
+    }
+
+    @Override
+    public void onApplicationEvent(ApplicationEvent event) {
+        if (event instanceof FullTextFailure) {
+            FullTextFailure failure = (FullTextFailure) event;
+            if (failure.wasSource(this)) {
+                String msg = "FullTextIndexer stuck! "
+                    + "Failed to index EventLog: " + failure.log;
+                log.error(msg, failure.throwable);
+                rollback(failure.log);
+                throw new InternalException(msg);
+            }
+        } else {
+            super.onApplicationEvent(event);
         }
     }
 
