@@ -22,6 +22,8 @@ import ome.system.ServiceFactory;
 
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.quartz.Scheduler;
+import org.quartz.SchedulerException;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -50,6 +52,14 @@ public class Main {
 
     public static void init() {
         context = OmeroContext.getInstance("ome.fulltext");
+        try {
+            // Now that we're using the fulltext context we need
+            // to disable the regular processing, otherwise there
+            // are conflicts.
+            context.getBean("scheduler", Scheduler.class).pauseAll();
+        } catch (SchedulerException se) {
+            throw new RuntimeException(se);
+        }
         uuid = context.getBean("uuid", String.class);
         executor = (Executor) context.getBean("executor");
         factory = (SessionFactory) context.getBean("sessionFactory");
@@ -95,19 +105,14 @@ public class Main {
             if (args == null || args.length == 0) {
                 usage();
             } else if ("reset".equals(args[0])) {
-                init();
                 reset(args);
             } else if ("dryrun".equals(args[0])) {
-                init();
                 dryrun(args);
             } else if ("standalone".equals(args[0])) {
-                init();
                 standalone(args);
             } else if ("events".equals(args[0])) {
-                init();
                 indexAllEvents();
             } else if ("full".equals(args[0])) {
-                init();
                 indexFullDb();
             } else if ("reindex".equals(args[0])) {
                 if (args.length < 2) {
@@ -117,7 +122,6 @@ public class Main {
                 for (int i = 1; i < args.length; i++) {
                     set.add(args[i]);
                 }
-                init();
                 indexByClass(set);
             } else {
                 usage();
@@ -134,6 +138,7 @@ public class Main {
     }
 
     public static void indexFullDb() {
+        init();
         final AllEntitiesPseudoLogLoader loader = new AllEntitiesPseudoLogLoader();
         loader.setQueryService(rawQuery);
         loader.setExcludes(excludes);
@@ -145,6 +150,7 @@ public class Main {
     }
 
     public static void indexByClass(Set<String> set) {
+        init();
         final AllEntitiesPseudoLogLoader loader = new AllEntitiesPseudoLogLoader();
         loader.setQueryService(rawQuery);
         loader.setClasses(set);
@@ -155,6 +161,7 @@ public class Main {
     }
 
     public static void indexAllEvents() {
+        init();
         final AllEventsLogLoader loader = new AllEventsLogLoader();
         loader.setExcludes(excludes);
         loader.setQueryService(rawQuery);
@@ -170,6 +177,7 @@ public class Main {
      * would read if started now.
      */
     public static void reset(String[] args) {
+        init();
         long oldValue = -1;
         long newValue = 0;
         if (args == null || args.length != 2) {
@@ -195,7 +203,7 @@ public class Main {
      * the remaining logs.
      */
     public static void dryrun(String[] args) {
-
+        init();
         final PersistentEventLogLoader loader =
                 context.getBean("persistentEventLogLoader",
                         PersistentEventLogLoader.class);
