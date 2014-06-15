@@ -195,6 +195,10 @@ LIMITATION: omero.db.pass values do not currently get passed to the Java
             "--reset", default=None,
             help="Reset the index counter")
         group.add_argument(
+            "--dryrun", action="store_true",
+            help=("Run through all events, incrementing the counter. "
+                  "NO INDEXING OCCURS"))
+        group.add_argument(
             "--class", nargs="+",
             help="Reindexes the given classes sequentially")
 
@@ -1257,6 +1261,8 @@ OMERO Diagnostics %s
 
         if args.full:
             cmd.append("full")
+        elif args.dryrun:
+            cmd.append("dryrun")
         elif args.reset is not None:
             cmd.append("reset")
             cmd.append(args.reset)
