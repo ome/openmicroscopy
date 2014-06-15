@@ -199,6 +199,9 @@ LIMITATION: omero.db.pass values do not currently get passed to the Java
             help=("Run through all events, incrementing the counter. "
                   "NO INDEXING OCCURS"))
         group.add_argument(
+            "--sequential", action="store_true",
+            help=("Run through all events as would happen in the background"))
+        group.add_argument(
             "--class", nargs="+",
             help="Reindexes the given classes sequentially")
 
@@ -1263,6 +1266,8 @@ OMERO Diagnostics %s
             cmd.append("full")
         elif args.dryrun:
             cmd.append("dryrun")
+        elif args.sequential:
+            cmd.append("sequential")
         elif args.reset is not None:
             cmd.append("reset")
             cmd.append(args.reset)
