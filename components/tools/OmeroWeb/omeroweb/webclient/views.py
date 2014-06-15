@@ -576,7 +576,7 @@ def load_searching(request, form=None, conn=None, **kwargs):
 
         # by default, if user has not specified any types:
         if len(onlyTypes) == 0:
-            onlyTypes = ['images']
+            onlyTypes = ['image']
 
         # search is carried out and results are stored in manager.containers.images etc.
         manager.search(query_search, onlyTypes, fields, searchGroup, ownedBy, date)
@@ -584,7 +584,6 @@ def load_searching(request, form=None, conn=None, **kwargs):
         try:
             searchById = long(query_search)
             for t in onlyTypes:
-                t = t[0:-1] # remove 's'
                 if t in ('project', 'dataset', 'image', 'screen', 'plate'):
                     obj = conn.getObject(t, searchById)
                     if obj is not None:

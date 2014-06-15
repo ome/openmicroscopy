@@ -57,12 +57,11 @@ class BaseSearch(BaseController):
                 d1 = datetime.datetime.strptime(p[0]+" 00:00:00", "%Y-%m-%d %H:%M:%S")
 
         def doSearch(searchType):
-            """ E.g. searchType is 'images' """
-            objType = searchType[0:-1]  # remove 's'
-            obj_list = list(self.conn.searchObjects([objType], query, created, fields=fields, searchGroup=searchGroup, ownedBy=ownedBy))
+            """ E.g. searchType is 'image' """
+            obj_list = list(self.conn.searchObjects([searchType], query, created, fields=fields, searchGroup=searchGroup, ownedBy=ownedBy))
                 
             obj_ids = [o.id for o in obj_list]
-            im_annotation_counter = self.conn.getCollectionCount(objType.title(), "annotationLinks", obj_ids)
+            im_annotation_counter = self.conn.getCollectionCount(searchType.title(), "annotationLinks", obj_ids)
 
             im_list_with_counters = []
             for o in obj_list:
@@ -75,7 +74,7 @@ class BaseSearch(BaseController):
 
         for dt in onlyTypes:
             dt = str(dt)
-            if dt in ['projects', 'datasets', 'images', 'screens', 'plates']:
+            if dt in ['project', 'dataset', 'image', 'screen', 'plate']:
                 self.containers[dt] = doSearch(dt)
                 resultCount += len(self.containers[dt])
 

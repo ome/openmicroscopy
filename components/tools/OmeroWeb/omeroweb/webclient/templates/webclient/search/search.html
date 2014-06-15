@@ -92,11 +92,12 @@
                     beforeSubmit: function(fields) {
 
                         // check we have some search query...
-                        var $query = $("input[name='query']"); 
-                        if ($query.val().length <= 0) {
+                        var $query = $("input[name='query']"),
+                            q = $.trim($query.val());
+                        if (q.length <= 0) {
                             alert("Search must contains some text.");
                             return false;
-                        } else if ($query.val().length <= 1 && $query.val().indexOf("*") < 1) {
+                        } else if (q.length <= 1 && q.indexOf("*") < 1) {
                             alert("Wildcard searches (*) must contain more than a single wildcard.");
                             return false;
                         }
@@ -184,26 +185,29 @@
 	               	 	<label id="criteria">Search for:</label>
 	             
 	                    <ul class="criteria">
-	                        <li><input type="checkbox" name="datatype" value="images" CHECKED />{% trans "Images" %}</li>
-	                        <li><input type="checkbox" name="datatype" value="datasets" CHECKED />{% trans "Datasets" %}</li>
-	                        <li><input type="checkbox" name="datatype" value="projects" CHECKED />{% trans "Projects" %}</li>
-	                        <li><input type="checkbox" name="datatype" value="plates" CHECKED />{% trans "Plates" %}</li>
-	                        <li><input type="checkbox" name="datatype" value="screens" CHECKED />{% trans "Screens" %}</li>
+	                        <li><input type="checkbox" name="datatype" value="image" CHECKED />{% trans "Images" %}</li>
+	                        <li><input type="checkbox" name="datatype" value="dataset" CHECKED />{% trans "Datasets" %}</li>
+	                        <li><input type="checkbox" name="datatype" value="project" CHECKED />{% trans "Projects" %}</li>
+	                        <li><input type="checkbox" name="datatype" value="plate" CHECKED />{% trans "Plates" %}</li>
+	                        <li><input type="checkbox" name="datatype" value="screen" CHECKED />{% trans "Screens" %}</li>
 	                    </ul>
 
                         <hr>
 
-                        <label>Using Fields:</label>
+                        <label style="white-space:nowrap;">
+                            Fields:
+                            <span class="searching_info" title="Search by specified fields.<br>If none chosen, we search across all fields">
+                                <img src="{% static "webgateway/img/help16.png" %}" />
+                            </span>
+                        </label>
                  
                         <ul class="criteria">
-                            <li><input type="checkbox" name="field" value="name" CHECKED />{% trans "Name" %}</li>
-                            <li><input type="checkbox" name="field" value="description" CHECKED />{% trans "Description" %}</li>
-                            <li>
-                                <input type="checkbox" name="field" value="all" CHECKED />{% trans "All" %}
-                                <span class="searching_info"
-                                title="All fields: Includes file attachments, tags, comments, owner etc">
-                             <img src="{% static "webgateway/img/help16.png" %}" />
-                        </span>
+                            <li><input type="checkbox" name="field" value="name" />{% trans "Name" %}</li>
+                            <li><input type="checkbox" name="field" value="description" />{% trans "Description" %}</li>
+                            <li style="white-space:nowrap;">
+                                <input type="checkbox" name="field" value="annotation" />{% trans "Attachments" %}<span class="searching_info" title="Includes file attachments, tags, comments etc">
+                                   <img src="{% static "webgateway/img/help16.png" %}" />
+                                </span>
                             </li>
                         </ul>
 
