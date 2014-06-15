@@ -28,11 +28,10 @@ import ome.model.IObject;
 import ome.model.meta.EventLog;
 import ome.services.eventlogs.EventLogLoader;
 import ome.services.util.Executor.SimpleWork;
-import ome.system.metrics.Counter;
+import ome.system.ServiceFactory;
 import ome.system.metrics.Histogram;
 import ome.system.metrics.Metrics;
 import ome.system.metrics.Timer;
-import ome.system.ServiceFactory;
 import ome.tools.hibernate.QueryBuilder;
 import ome.util.SqlAction;
 
@@ -130,6 +129,8 @@ public class FullTextIndexer extends SimpleWork {
      */
     protected int reportingLoops = DEFAULT_REPORTING_LOOPS;
 
+    protected boolean dryRun = false;
+
     /**
      * Spring injector. Sets the number of indexing runs will be made if there
      * is a substantial backlog.
@@ -137,6 +138,10 @@ public class FullTextIndexer extends SimpleWork {
     public void setRepetitions(int reps) {
         this.reps = reps;
         ;
+    }
+
+    public void setDryRun(boolean dryRun) {
+        this.dryRun = dryRun;
     }
 
     public void setMetrics(Metrics metrics) {
@@ -235,6 +240,11 @@ public class FullTextIndexer extends SimpleWork {
         int count = 0;
 
         for (EventLog eventLog : loader) {
+
+            if (dryRun) {
+                continue;
+            }
+
             if (eventLog != null) {
                 String act = eventLog.getAction();
                 Class type = asClassOrNull(eventLog.getEntityType());

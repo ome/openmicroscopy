@@ -17,8 +17,12 @@ import ome.services.eventlogs.EventLogLoader;
 import ome.services.sessions.SessionManager;
 import ome.services.util.Executor;
 import ome.system.OmeroContext;
+import ome.system.Principal;
+import ome.system.ServiceFactory;
 
+import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Commandline entry-point for various full text actions. Commands include:
@@ -33,6 +37,7 @@ import org.hibernate.SessionFactory;
 
 public class Main {
 
+    static String uuid;
     static String[] excludes;
     static OmeroContext context;
     static Executor executor;
@@ -45,6 +50,7 @@ public class Main {
 
     public static void init() {
         context = OmeroContext.getInstance("ome.fulltext");
+        uuid = context.getBean("uuid", String.class);
         executor = (Executor) context.getBean("executor");
         factory = (SessionFactory) context.getBean("sessionFactory");
         rawQuery = (IQuery) context.getBean("internal-ome.api.IQuery");
@@ -59,7 +65,13 @@ public class Main {
     }
 
     protected static FullTextThread createFullTextThread(EventLogLoader loader) {
+        return createFullTextThread(loader, false);
+    }
+
+    protected static FullTextThread createFullTextThread(EventLogLoader loader,
+            boolean dryRun) {
         final FullTextIndexer fti = new FullTextIndexer(loader);
+        fti.setDryRun(dryRun);
         final FullTextThread ftt = new FullTextThread(manager, executor, fti,
                 bridge);
         return ftt;
@@ -85,6 +97,9 @@ public class Main {
             } else if ("reset".equals(args[0])) {
                 init();
                 reset(args);
+            } else if ("dryrun".equals(args[0])) {
+                init();
+                dryrun(args);
             } else if ("standalone".equals(args[0])) {
                 init();
                 standalone(args);
@@ -176,6 +191,37 @@ public class Main {
     }
 
     /**
+     * Uses a {@link PersistentEventLogLoader} and cycles through all
+     * the remaining logs.
+     */
+    public static void dryrun(String[] args) {
+
+        final PersistentEventLogLoader loader =
+                context.getBean("persistentEventLogLoader",
+                        PersistentEventLogLoader.class);
+
+        final FullTextThread ftt = createFullTextThread(loader, true);
+
+        long loops = 0;
+        long current = current(loader);
+        while (true) {
+            // Quartz usually would wait 3 seconds here.
+            loops++;
+            ftt.run();
+            long newCurrent = current(loader);
+            if (newCurrent == current) {
+                break;
+            } else {
+                current = newCurrent;
+            }
+        }
+        System.out.println("=================================================");
+        System.out.println(String.format(
+                "Done in %s loops. Now at: %s", loops, current));
+        System.out.println("=================================================");
+    }
+
+    /**
      * Starts up and simply waits until told by the grid to disconnect.
      */
     public static void standalone(String[] args) {
@@ -195,4 +241,14 @@ public class Main {
         }
     }
 
+    private static long current(final PersistentEventLogLoader loader) {
+        Principal p = new Principal(uuid);
+        return (Long) executor.execute(p, new Executor.SimpleWork(loader, "more"){
+            @Override
+            @Transactional(readOnly=true)
+            public Object doWork(Session session, ServiceFactory sf) {
+                return loader.getCurrentId();
+            }
+        });
+    }
 }

@@ -182,4 +182,5 @@ public class FullTextThread extends ExecutionThread {
             DetailsFieldBridge.unlock();
         }
     }
+
 }
