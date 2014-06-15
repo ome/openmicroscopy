@@ -20,14 +20,15 @@
 package ome.services.fulltext;
 
 
-import ome.conditions.InternalException;
 import ome.model.IAnnotated;
 import ome.model.IGlobal;
 import ome.model.IMutable;
 import ome.model.IObject;
 import ome.model.meta.EventLog;
 import ome.services.eventlogs.EventLogLoader;
+import ome.services.eventlogs.PersistentEventLogLoader;
 import ome.services.util.Executor.SimpleWork;
+import ome.system.OmeroContext;
 import ome.system.ServiceFactory;
 import ome.system.metrics.Histogram;
 import ome.system.metrics.Metrics;
@@ -42,6 +43,8 @@ import org.hibernate.search.FullTextSession;
 import org.hibernate.search.Search;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -53,7 +56,7 @@ import org.springframework.transaction.annotation.Transactional;
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta3
  */
-public class FullTextIndexer extends SimpleWork {
+public class FullTextIndexer extends SimpleWork implements ApplicationContextAware {
 
     private final static Logger log = LoggerFactory.getLogger(FullTextIndexer.class);
 
@@ -131,6 +134,8 @@ public class FullTextIndexer extends SimpleWork {
 
     protected boolean dryRun = false;
 
+    protected OmeroContext context = null;
+
     /**
      * Spring injector. Sets the number of indexing runs will be made if there
      * is a substantial backlog.
@@ -142,6 +147,10 @@ public class FullTextIndexer extends SimpleWork {
 
     public void setDryRun(boolean dryRun) {
         this.dryRun = dryRun;
+    }
+
+    public void setApplicationContext(ApplicationContext ctx) {
+        this.context = (OmeroContext) ctx;
     }
 
     public void setMetrics(Metrics metrics) {
@@ -246,54 +255,60 @@ public class FullTextIndexer extends SimpleWork {
             }
 
             if (eventLog != null) {
-                String act = eventLog.getAction();
-                Class type = asClassOrNull(eventLog.getEntityType());
-                if (type != null) {
-                    long id = eventLog.getEntityId();
-
-                    Action action = null;
-                    if ("DELETE".equals(act)) {
-                        action = new Purge(type, id);
-                    } else if ("REINDEX".equals(act) || "UPDATE".equals(act) || "INSERT".equals(act)) {
-                        IObject obj = get(session, type, id);
-                        if (obj == null) {
-                            // This object was deleted before the indexer caught up with
-                            // the INSERT/UDPDATE log. Though this isn't a problem itself,
-                            // this does mean that the indexer is likely going too slow.
-                            log.debug(String.format("Null returned! Purging "
-                                    + "since cannot index %s:Id_%s for %s", type
-                                    .getName(), id, eventLog));
-                            action = new Purge(type, id);
-                        } else {
-                            action = new Index(obj);
-                        }
-                    } else {
-                        // Likely CHGRP-VALIDATION, PIXELDATA or similar.
-                        if (log.isDebugEnabled()) {
-                            log.debug("Unknown action type: " + act);
-                        }
-                    }
-
-                    if (action != null) {
-                        try {
-                            action.go(session);
-                            count++;
-                        } catch (Exception e) {
-                            String msg = "FullTextIndexer stuck! "
-                                    + "Failed to index EventLog: " + eventLog;
-                            log.error(msg, e);
-                            loader.rollback(eventLog);
-                            throw new InternalException(msg);
-                        }
-                        action.log(log);
-                    }
-                }
+                handleEventLog(session, eventLog);
+                count++;
             }
             session.flush();
             parserSession.closeParsedFiles();
 
         }
         return count;
+    }
+
+    protected void handleEventLog(FullTextSession session, EventLog eventLog) {
+        String act = eventLog.getAction();
+        Class type = asClassOrNull(eventLog.getEntityType());
+        if (type != null) {
+            long id = eventLog.getEntityId();
+
+            Action action = null;
+            if ("DELETE".equals(act)) {
+                action = new Purge(type, id);
+            } else if ("REINDEX".equals(act) || "UPDATE".equals(act) || "INSERT".equals(act)) {
+                IObject obj = get(session, type, id);
+                if (obj == null) {
+                    // This object was deleted before the indexer caught up with
+                    // the INSERT/UDPDATE log. Though this isn't a problem itself,
+                    // this does mean that the indexer is likely going too slow.
+                    log.debug(String.format("Null returned! Purging "
+                            + "since cannot index %s:Id_%s for %s", type
+                            .getName(), id, eventLog));
+                    action = new Purge(type, id);
+                } else {
+                    action = new Index(obj);
+                }
+            } else {
+                // Likely CHGRP-VALIDATION, PIXELDATA or similar.
+                if (log.isDebugEnabled()) {
+                    log.debug("Unknown action type: " + act);
+                }
+            }
+
+            if (action != null) {
+                try {
+                    action.go(session);
+                } catch (Exception e) {
+                    try {
+                        this.context.publishMessage(new FullTextFailure(loader, eventLog, e));
+                    } catch (RuntimeException re) {
+                        throw re;
+                    } catch (Throwable e1) {
+                        throw new RuntimeException(e1);
+                    }
+                }
+                action.log(log);
+            }
+        }
     }
 
     /**
