@@ -394,9 +394,12 @@ public class EventLogQueue extends PersistentEventLogLoader {
     protected List<Object[]> lookup() {
         final Timer.Context ctx = lookupTime.time();
         try {
+            final long current = getCurrentId();
             List<Object[]> rv = sql.getEventLogPartitions(types, actions,
-                    getCurrentId(), max);
-            log.debug("looked up object count:" + rv.size());
+                    current, max);
+            log.debug(String.format("objects found searching " +
+                    "from %s (max: %s): %s",
+                    current, max, rv.size()));
             return rv;
         } finally {
             ctx.stop();
