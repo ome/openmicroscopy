@@ -22,13 +22,9 @@ package ome.system.metrics;
 /**
  * No-op version of {@link Metrics}
  */
-public class NullMetrics extends Metrics {
-    
-    private static class NullHistogram extends Histogram {
+public class NullMetrics implements Metrics {
 
-        public NullHistogram() {
-            super(null);
-        }
+    private static class NullHistogram implements Histogram {
 
         @Override
         public void update(int done) {
@@ -36,11 +32,7 @@ public class NullMetrics extends Metrics {
         }
     }
 
-    private static class NullTimerContext extends Timer.Context {
-
-        public NullTimerContext() {
-            super(null);
-        }
+    private static class NullTimerContext implements Timer.Context {
 
         @Override
         public long stop() {
@@ -48,12 +40,11 @@ public class NullMetrics extends Metrics {
         }
     }
 
-    private static class NullTimer extends Timer {
+    private static class NullTimer implements Timer {
 
         private final NullTimerContext c;
 
         public NullTimer(NullTimerContext c) {
-            super(null);
             this.c = c;
         }
 
@@ -61,14 +52,15 @@ public class NullMetrics extends Metrics {
         public Context time() {
             return c;
         }
+
+        @Override
+        public long getCount() {
+            return -1;
+        }
     }
 
-    private static class NullCounter extends Counter {
-        
-        public NullCounter() {
-            super(null);
-        }
-        
+    private static class NullCounter implements Counter {
+
         @Override
         public void inc() {
             // no-op

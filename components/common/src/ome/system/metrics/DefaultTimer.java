@@ -20,23 +20,44 @@ package ome.system.metrics;
 
 
 /**
- * Thin wrapper around {@link com.codahale.metrics.Counter}
+ * Thin wrapper around {@link com.codahale.metrics.Timer}
  */
-public interface Counter {
+public class DefaultTimer implements Timer {
 
     /**
-     * @see com.codahale.metrics.Counter#inc
+     * @see com.codahale.metrics.Timer.Context
      */
-    void inc();
+    public static class Context implements Timer.Context {
+
+        private final com.codahale.metrics.Timer.Context c;
+
+        public Context(com.codahale.metrics.Timer.Context c) {
+            this.c = c;
+        }
+
+        public long stop() {
+            return this.c.stop();
+        }
+
+    }
+
+    private final com.codahale.metrics.Timer t;
+
+    public DefaultTimer(com.codahale.metrics.Timer t) {
+        this.t = t;
+    }
 
     /**
-     * @see com.codahale.metrics.Counter#getCount()
+     * @see com.codahale.metrics.Timer#time
      */
-    long getCount();
+    public Timer.Context time() {
+        return new Context(t.time());
+    }
 
     /**
-     * @see com.codahale.metrics.Counter#dec()}
+     * @see com.codahale.metrics.Timer#getCount()
      */
-    void dec();
-
+    public long getCount() {
+        return this.t.getCount();
+    }
 }
