@@ -14,6 +14,7 @@ import ome.api.IQuery;
 import ome.services.eventlogs.AllEntitiesPseudoLogLoader;
 import ome.services.eventlogs.AllEventsLogLoader;
 import ome.services.eventlogs.EventLogLoader;
+import ome.services.eventlogs.PersistentEventLogLoader;
 import ome.services.sessions.SessionManager;
 import ome.services.util.Executor;
 import ome.system.OmeroContext;
@@ -249,7 +250,7 @@ public class Main {
         Principal p = new Principal(uuid);
         return (Long) executor.execute(p, new Executor.SimpleWork(loader, "more"){
             @Override
-            @Transactional(readOnly=true)
+            @Transactional(readOnly=false)
             public Object doWork(Session session, ServiceFactory sf) {
                 return loader.getCurrentId();
             }
