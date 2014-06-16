@@ -3516,7 +3516,10 @@ class _BlitzGateway (object):
             for f in fields:
                 for t in tokens:
                     if len(t) > 0:
-                        fieldqueries.append('%s:%s' % (f, t))
+                        if t not in ("AND", "OR"):
+                            fieldqueries.append('%s:%s' % (f, t))
+                        else:
+                            fieldqueries.append(t)
             text = " ".join(fieldqueries)
         else:
             text = " ".join(tokens)
