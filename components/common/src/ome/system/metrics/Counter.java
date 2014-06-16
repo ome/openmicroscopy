@@ -45,4 +45,11 @@ public class Counter {
         return c.getCount();
     }
 
+    /**
+     * @see com.codahale.metrics.Counter#dec()}
+     */
+    public void dec() {
+        c.dec();
+    }
+
 }

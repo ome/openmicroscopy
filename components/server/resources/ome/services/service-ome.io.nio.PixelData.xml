@@ -21,12 +21,12 @@
 
   <bean id="pixelDataThread" class="ome.services.pixeldata.PixelDataThread"
     init-method="start" destroy-method="stop">
-    <constructor-arg ref="sessionManager"/>
-    <constructor-arg ref="executor"/>
-    <constructor-arg ref="pixelDataHandler"/>
-    <constructor-arg ref="uuid"/>
-    <constructor-arg value="${omero.pixeldata.threads}"/>
-    <property name="metrics" ref="metrics"/>
+    <constructor-arg index="0" ref="sessionManager"/>
+    <constructor-arg index="1" ref="executor"/>
+    <constructor-arg index="2" ref="pixelDataHandler"/>
+    <constructor-arg index="3" ref="uuid"/>
+    <constructor-arg index="4" value="${omero.pixeldata.threads}"/>
+    <constructor-arg index="5" ref="metrics"/>
   </bean>
 
   <bean id="pixelDataHandler" class="ome.services.pixeldata.PixelDataHandler">
