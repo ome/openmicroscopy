@@ -198,7 +198,8 @@ class WebControl(BaseControl):
                     "HTTPPORT": port,
                     "FASTCGI_PASS": fastcgi_pass,
                     }
-                if hasattr(settings, 'STATIC_URL') and len(settings.STATIC_URL) > 0:
+                if hasattr(settings, 'STATIC_URL') \
+                        and len(settings.STATIC_URL) > 0:
                     if settings.STATIC_URL.endswith('/'):
                         d["STATIC_URL"] = settings.STATIC_URL[:-1]
                     else:
