@@ -47,8 +47,8 @@
                 var $ownedBy = $("select[name='ownedBy']");
 
                 var selectUsersFromGroup = function(groupId) {
-                    $ownedBy.hide();
-                    $("#searchByGroupMember-" + groupId).show();
+                    $ownedBy.attr("disabled", "disabled").hide();
+                    $("#searchByGroupMember-" + groupId).removeAttr('disabled').show();
                 }
 
                 // Choose group, then pick a user from that group
@@ -64,16 +64,36 @@
 
                 $("#filtersearch label").inFieldLabels();
 
-                $('#startdateinput, #enddateinput').datepicker({
-                    changeMonth: true, 
+
+                // Init date-pickers...
+                $('#startdateinput').datepicker({
+                    changeMonth: true,
                     changeYear: true,
-                    firstDay: 1, 
-                    dateFormat: 'yy-mm-dd', 
+                    firstDay: 1,
+                    dateFormat: 'yy-mm-dd',
                     beforeShow: function(input, inst) {
                         // z-index is set to 1 on 'show' - need to reset if AFTER show
                         setTimeout(function(){
                             $("#ui-datepicker-div").css('z-index','50');
                         }, 10);
+                    },
+                    onClose: function( selectedDate ) {
+                        $( "#enddateinput" ).datepicker( "option", "minDate", selectedDate );
+                    }
+                });
+                $('#enddateinput').datepicker({
+                    changeMonth: true,
+                    changeYear: true,
+                    firstDay: 1,
+                    dateFormat: 'yy-mm-dd',
+                    beforeShow: function(input, inst) {
+                        // z-index is set to 1 on 'show' - need to reset if AFTER show
+                        setTimeout(function(){
+                            $("#ui-datepicker-div").css('z-index','50');
+                        }, 10);
+                    },
+                    onClose: function( selectedDate ) {
+                        $( "#startdateinput" ).datepicker( "option", "maxDate", selectedDate );
                     }
                 });
                 
@@ -205,7 +225,7 @@
                             <li><input type="checkbox" name="field" value="name" />{% trans "Name" %}</li>
                             <li><input type="checkbox" name="field" value="description" />{% trans "Description" %}</li>
                             <li style="white-space:nowrap;">
-                                <input type="checkbox" name="field" value="annotation" />{% trans "Attachments" %}<span class="searching_info" title="Includes file attachments, tags, comments etc">
+                                <input type="checkbox" name="field" value="annotation" />{% trans "Annotations" %}<span class="searching_info" title="Includes file attachments, tags, comments etc">
                                    <img src="{% static "webgateway/img/help16.png" %}" />
                                 </span>
                             </li>
