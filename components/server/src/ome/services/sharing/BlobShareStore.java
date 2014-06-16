@@ -241,7 +241,7 @@ public class BlobShareStore extends ShareStore implements
             imgID = cache.get(osID);
         } else {
             imgID = (Long) s.createQuery(
-                "select id from Image where objectivesettings.id = ?")
+                "select id from Image where objectiveSettings.id = ?")
                 .setParameter(0, osID).uniqueResult();
             cache.put(osID, imgID);
         }
@@ -365,6 +365,11 @@ public class BlobShareStore extends ShareStore implements
         			}
         		}
         	}
+        } else if (ObjectiveSettings.class.isAssignableFrom(kls)) {
+            ObjectiveSettings obj = (ObjectiveSettings) s.get(
+                    ObjectiveSettings.class, objId);
+            return imagesContainsObjectiveSettings(s, images, obj,
+                    obToImageCache);
         }
         
         return false;
