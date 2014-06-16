@@ -22,19 +22,11 @@ package ome.system.metrics;
 /**
  * Thin wrapper around {@link com.codahale.metrics.Histogram}
  */
-public class Histogram {
-
-    private final com.codahale.metrics.Histogram h;
-
-    public Histogram(com.codahale.metrics.Histogram h) {
-        this.h = h;
-    }
+public interface Histogram {
 
     /**
      * @see com.codahale.metrics.Histogram#update(int)
      */
-    public void update(int done) {
-        this.h.update(done);
-    }
+    void update(int done);
 
 }

@@ -77,7 +77,7 @@
 
   <alias name="${omero.metrics.blitz_impl}" alias="metrics"/>
 
-  <bean id="defaultMetrics" class="ome.system.metrics.Metrics">
+  <bean id="defaultMetrics" class="ome.system.metrics.DefaultMetrics">
     <property name="graphiteAddress" value="${omero.metrics.graphite"/>
   </bean>
 

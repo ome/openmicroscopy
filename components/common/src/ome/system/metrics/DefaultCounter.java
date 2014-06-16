@@ -20,14 +20,36 @@ package ome.system.metrics;
 
 
 /**
- * Thin-interface around {@link com.codahale.metrics.Metrics}.
+ * Thin wrapper around {@link com.codahale.metrics.Counter}
  */
-public interface Metrics {
+public class DefaultCounter implements Counter {
 
-    Counter counter(Object obj, String name);
 
-    Timer timer(Object obj, String name);
+    private final com.codahale.metrics.Counter c;
 
-    Histogram histogram(Object obj, String name);
+    public DefaultCounter(com.codahale.metrics.Counter c) {
+        this.c = c;
+    }
+
+    /**
+     * @see com.codahale.metrics.Counter#inc
+     */
+    public void inc() {
+        c.inc();
+    }
+
+    /**
+     * @see com.codahale.metrics.Counter#getCount()
+     */
+    public long getCount() {
+        return c.getCount();
+    }
+
+    /**
+     * @see com.codahale.metrics.Counter#dec()}
+     */
+    public void dec() {
+        c.dec();
+    }
 
 }
