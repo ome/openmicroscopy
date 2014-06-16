@@ -203,6 +203,7 @@ public class PixelDataThread extends ExecutionThread implements ApplicationListe
      */
     public void stop() {
         log.info("Shutting down PixelDataThread");
+        ((PixelDataHandler) this.work).loader.setStop(true);
     }
 
     public void onApplicationEvent(final MissingPyramidMessage mpm) {
