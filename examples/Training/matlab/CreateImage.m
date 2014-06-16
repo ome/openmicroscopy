@@ -18,15 +18,18 @@
 % Crate a new synthetic image and upload it to the server
 
 try
-    % Create a connection
+    % Initialize a client and a session using the ice.config file
+    % See ConnectToOMERO for alternative ways to initialize a session
     [client, session] = loadOmero();
-    fprintf(1, 'Created connection to %s\n', char(client.getProperty('omero.host')));
-    fprintf(1, 'Created session for user %s using group %s\n',...
-        char(session.getAdminService().getEventContext().userName),...
-        char(session.getAdminService().getEventContext().groupName));
+    p = parseOmeroProperties(client);
+    eventContext = session.getAdminService().getEventContext();
+    fprintf(1, 'Created connection to %s\n', p.hostname);
+    msg = 'Created session for user %s (id: %g) using group %s (id: %g)\n';
+    fprintf(1, msg, char(eventContext.userName), eventContext.userId,...
+        char(eventContext.groupName), eventContext.groupId);
     
     % Information to edit
-    datasetId = str2double(client.getProperty('dataset.id'));
+    datasetId = p.datasetid;
     
     % Read the dimensions
     sizeX = 200;
@@ -63,7 +66,7 @@ try
         channelName = ['Channel ' num2str(i)'];
         emissionWave = 550;
         channels(i).getLogicalChannel().setName(rstring(channelName));
-        channels(i).getLogicalChannel().setEmissionWave(rfloat(emissionWave));
+        channels(i).getLogicalChannel().setEmissionWave(rdouble(emissionWave));
     end
     session.getUpdateService().saveArray(toJavaList(channels));
     

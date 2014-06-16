@@ -19,19 +19,20 @@ def monitorPackage():
     # At the moment a limited subset of platforms is checked for:
     #     * Mac OS 10.5 or higher
     #     * Linux kernel 2.6 then .13 or higher or kernel 3.x.y
-    #     * Windows: XP, 2003Server, Vista, and 7
+    #     * Windows: XP, 2003Server, 2008Server, Vista, and 7
     #
     # Some fine-tuning may need to be applied, some additional Windows platforms added.
     # If any platform-specific stuff in the imported library fails an exception will be
     # raised, a further sanity check.
     #
     # Currently supported platforms
-    supported = { 
-                  'MACOS_10_5+'            : 'fsMac-10-5-Monitor', 
-                  'LINUX_2_6_13+pyinotify' : 'fsPyinotifyMonitor', 
-                  'WIN_XP'                 : 'fsWin-XP-Monitor', 
-                  'WIN_2003Server'         : 'fsWin-XP-Monitor', 
-                  'WIN_Vista'              : 'fsWin-XP-Monitor', 
+    supported = {
+                  'MACOS_10_5+'            : 'fsMac-10-5-Monitor',
+                  'LINUX_2_6_13+pyinotify' : 'fsPyinotifyMonitor',
+                  'WIN_XP'                 : 'fsWin-XP-Monitor',
+                  'WIN_2003Server'         : 'fsWin-XP-Monitor',
+                  'WIN_2008Server'         : 'fsWin-XP-Monitor',
+                  'WIN_Vista'              : 'fsWin-XP-Monitor',
                   'WIN_7'                  : 'fsWin-XP-Monitor',
                 }
     
@@ -79,12 +80,14 @@ def monitorPackage():
             current = 'WIN_XP'
         elif version[1] == '2003Server':
             current = 'WIN_2003Server'
+        elif version[1] == '2008Server':
+            current = 'WIN_2008Server'
         elif version[1] == 'Vista':
             current = 'WIN_Vista'
         elif version[1] == '7':
             current = 'WIN_7'
         else:
-            errorString = "Windows XP, Vista, 7 or 2003Server required. You have: %s" % platform.platform()
+            errorString = "Windows XP, Vista, 7, 2003Server or 2008Server required. You have: %s" % platform.platform()
 
     # Unknown OS.
     else:

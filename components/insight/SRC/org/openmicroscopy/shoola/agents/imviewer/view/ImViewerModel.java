@@ -622,6 +622,14 @@ class ImViewerModel
 	}
 	
 	/**
+	 * Checks if the {@link Renderer} is loaded
+	 * @return <code>true</code> if the Renderer is loaded, <code>false</code> otherwise
+	 */
+	boolean isRendererLoaded() {
+	    return metadataViewer.getRenderer() != null;
+	}
+	
+	/**
 	 * Returns the current user's details.
 	 * 
 	 * @return See above.
@@ -2220,9 +2228,13 @@ class ImViewerModel
 	 */
 	boolean isOriginalPlane()
 	{
-		if (originalDef.getDefaultZ() != getDefaultZ()) return false;
-		if (originalDef.getDefaultT() != getDefaultT()) return false;
-		return true;
+            if (originalDef != null) {
+                if (originalDef.getDefaultZ() != getDefaultZ())
+                    return false;
+                if (originalDef.getDefaultT() != getDefaultT())
+                    return false;
+            }
+            return true;
 	}
 	
 	/**

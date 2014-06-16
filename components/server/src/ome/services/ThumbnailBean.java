@@ -806,10 +806,23 @@ public class ThumbnailBean extends AbstractLevel2Service
             // the rendering settings. FIXME: This should be
             // implemented using IUpdate.touch() or similar once that
             // functionality exists.
-            thumbnailMetadata.setVersion(thumbnailMetadata.getVersion() + 1);
-            Pixels unloadedPixels = new Pixels(pixels.getId(), false);
-            thumbnailMetadata.setPixels(unloadedPixels);
-            dirtyMetadata = true;
+            
+            //Check first if the thumbnail is the one of the settings owner
+            Long ownerId = thumbnailMetadata.getDetails().getOwner().getId();
+            Long rndOwnerId = settings.getDetails().getOwner().getId();
+            if (rndOwnerId.equals(ownerId)) {
+                thumbnailMetadata.setVersion(thumbnailMetadata.getVersion() + 1);
+                Pixels unloadedPixels = new Pixels(pixels.getId(), false);
+                thumbnailMetadata.setPixels(unloadedPixels);
+                dirtyMetadata = true;
+            } else {
+                //new one for owner of the settings.
+                Dimension d = new Dimension(thumbnailMetadata.getSizeX(),
+                        thumbnailMetadata.getSizeY());
+                thumbnailMetadata = ctx.createThumbnailMetadata(pixels, d);
+                thumbnailMetadata = iUpdate.saveAndReturnObject(thumbnailMetadata);
+                dirtyMetadata = false;
+            }
         }
         // dirtyMetadata is left false here because we may be creating a
         // thumbnail for the first time and the Thumbnail object has just been
@@ -1237,7 +1250,7 @@ public class ThumbnailBean extends AbstractLevel2Service
 
         Set<Long> pixelsIds = new HashSet<Long>();
         pixelsIds.add(pixelsId);
-        ctx.loadAndPrepareMetadata(pixelsIds, dimensions);
+        ctx.loadAndPrepareMetadata(pixelsIds, dimensions, false);
         // Ensure that we do not have "dirty" pixels or rendering settings
         // left around in the Hibernate session cache.
         iQuery.clear();

@@ -40,6 +40,8 @@ public abstract class AbstractFileTransfer implements FileTransfer {
 
     /**
      * Enum of well-known {@link FileTransfer} names.
+     * Note: these values are also in use in the fs.py
+     * CLI plugin.
      */
     public enum Transfers {
         ln(HardlinkFileTransfer.class),

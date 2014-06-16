@@ -144,7 +144,7 @@ class ExperimenterPane
 		groupOwner.setToolTipText("Select an existing user as owner");
 		groupOwner.setVisible(passwordRequired);
 		if (available == null && selected == null) return;
-		selectionComponent = new SelectionWizardUI(available, selected,
+		selectionComponent = new SelectionWizardUI(null, available, selected,
 				GroupData.class, TreeViewerAgent.getUserDetails());
 		selectionComponent.addPropertyChangeListener(this);
 		addPropertyChangeListener(this);

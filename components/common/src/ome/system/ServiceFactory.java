@@ -33,7 +33,6 @@ import ome.api.Search;
 import ome.api.ServiceInterface;
 import ome.api.ThumbnailStore;
 import ome.conditions.ApiUsageException;
-import ome.model.internal.Permissions;
 import ome.model.meta.Session;
 import omeis.providers.re.RenderingEngine;
 
@@ -304,7 +303,7 @@ public class ServiceFactory {
         try {
             si = (SessionInitializer) this.ctx.getBean("init");
         } catch (Exception e) {
-            throw new ApiUsageException("This ServiceFactory is not configured"
+            throw new ApiUsageException("This ServiceFactory is not configured "
                     + "for sessions");
         }
         return si;

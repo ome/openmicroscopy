@@ -1,4 +1,4 @@
-<ivy-module version="1.0">
+<ivy-module version="1.0" xmlns:m="http://ant.apache.org/ivy/maven">
   <info
       organisation="omero"
       module="insight"
@@ -6,20 +6,24 @@
   <configurations>
     <conf name="build"/>
     <conf name="client"/>
+    <conf name="release"/>
   </configurations>
   <publications>
     <artifact name="insight" type="jar"/>
-    <artifact name="insight" type="zip"/>
-    <artifact name="insight-win" type="zip"/>
-    <artifact name="insight-win-openGL" type="zip"/>
-    <artifact name="insight-win64-openGL" type="zip"/>
-    <artifact name="insight-mac" type="zip"/>
-    <artifact name="insight-mac-openGL" type="zip"/>
-    <artifact name="editor-mac" type="zip"/>
-    <artifact name="editor-win" type="zip"/>
-    <artifact name="insight-ij" type="zip"/>
-    <artifact name="importer-mac" type="zip"/>
-    <artifact name="importer-win" type="zip"/>
+    <artifact name="insight" type="pom"/>
+    <artifact name="insight" type="source" ext="jar" m:classifier="sources"/>
+    <artifact name="insight" type="javadoc" ext="jar" m:classifier="javadoc"/>
+    <artifact name="insight" type="zip" conf="release"/>
+    <artifact name="insight-win" type="zip" conf="release"/>
+    <artifact name="insight-win-openGL" type="zip" conf="release"/>
+    <artifact name="insight-win64-openGL" type="zip" conf="release"/>
+    <artifact name="insight-mac" type="zip" conf="release"/>
+    <artifact name="insight-mac-openGL" type="zip" conf="release"/>
+    <artifact name="editor-mac" type="zip" conf="release"/>
+    <artifact name="editor-win" type="zip" conf="release"/>
+    <artifact name="insight-ij" type="zip" conf="release"/>
+    <artifact name="importer-mac" type="zip" conf="release"/>
+    <artifact name="importer-win" type="zip" conf="release"/>
   </publications>
   <dependencies defaultconfmapping="build,client->default">
     <!-- Internal -->
@@ -32,20 +36,20 @@
     <!-- From classpath -->
     <dependency org="insight" name="ai_path" rev="${versions.ai_path}"/>
     <dependency org="insight" name="axis" rev="${versions.axis}"/>
-    <dependency org="insight" name="backport-util-concurrent" rev="${versions.backport}"/>
+    <dependency org="backport-util-concurrent" name="backport-util-concurrent" rev="${versions.backport}"/>
     <dependency org="insight" name="commons-collections" rev="${versions.commons-collections}"/>
     <dependency org="insight" name="commons-digester" rev="${versions.commons-digester}"/>
     <dependency org="insight" name="commons-discovery" rev="${versions.commons-discovery}"/>
     <dependency org="insight" name="commons-httpclient" rev="${versions.commons-httpclient}"/>
     <dependency org="insight" name="commons-io" rev="${versions.commons-io}"/>
     <dependency org="insight" name="commons-lang" rev="${versions.commons-lang}"/>
-    <dependency org="insight" name="commons-logging" rev="${versions.commons-logging}"/>
+    <dependency org="insight" name="commons-logging" rev="${versi:ons.commons-logging}"/>
     <dependency org="insight" name="commons-validator" rev="${versions.commons-validator}"/>
     <dependency org="insight" name="commons-logging" rev="${versions.commons-logging}"/>
     <dependency org="insight" name="ehcache-core" rev="${versions.ehcache}"/>
     <dependency org="insight" name="gicentreUtils" rev="${versions.gicentreUtils}"/>
     <dependency org="insight" name="gluegen-rt" rev="${versions.jogl}"/>
-    <dependency org="insight" name="guava-jdk5" rev="${versions.guava}"/>
+    <dependency org="com.google.guava" name="guava" rev="${versions.guava}"/>
     <dependency org="insight" name="ij" rev="${versions.ij}"/>
     <dependency org="insight" name="jaxrpc" rev="${versions.jaxrpc}"/>
     <dependency org="insight" name="jcommon" rev="${versions.jcommon}"/>
@@ -58,15 +62,15 @@
     <dependency org="insight" name="processing-core" rev="${versions.processing-core}"/>
     <dependency org="insight" name="processing-controlP5" rev="${versions.processing-controlP5}"/>
     <dependency org="insight" name="saaj" rev="${versions.saaj}"/>
-    <dependency org="insight" name="swingx" rev="${versions.swingx}"/>
+    <dependency org="org.swinglabs" name="swingx" rev="${versions.swingx}"/>
     <dependency org="insight" name="TableLayout" rev="${versions.TableLayout}"/>
     <dependency org="insight" name="wsdl4j" rev="${versions.wsdl4j}"/>
-    <dependency org="insight" name="java-image-scaling" rev="${versions.java-image-scaling}"/>
+    <dependency org="com.mortennobel" name="java-image-scaling" rev="${versions.java-image-scaling}"/>
     <dependency org="insight" name="jna" rev="${versions.jna}"/>
     <dependency org="insight" name="platform" rev="${versions.platform}"/>
     <dependency org="insight" name="nanoxml" rev="${versions.nanoxml}"/>
     <!-- Required for annotations in Permissions.java -->
-    <dependency org="hibernate" name="hibernate-jpa-2.0-api" rev="${versions.persistence-api}" conf="build,client->default"/>
+    <dependency org="org.hibernate.javax.persistence" name="hibernate-jpa-2.0-api" rev="${versions.persistence-api}" conf="build,client->default"/>
 
     <!-- Bioformats -->
     <dependency org="ome" name="bio-formats" rev="${omero.version}" changing="true" conf="build,client->build">
@@ -86,8 +90,8 @@
     </dependency>
 
     <!-- importer -->
-    <dependency org="importer" name="slf4j-api" rev="${versions.slf4j}"/>
-    <dependency org="importer" name="logback-classic" rev="${versions.logback}" conf="build,client->default"/>
-    <dependency org="importer" name="logback-core" rev="${versions.logback}" conf="build,client->default"/>
+    <dependency org="org.slf4j" name="slf4j-api" rev="${versions.slf4j}"/>
+    <dependency org="ch.qos.logback" name="logback-classic" rev="${versions.logback}" conf="build,client->default"/>
+    <dependency org="ch.qos.logback" name="logback-core" rev="${versions.logback}" conf="build,client->default"/>
   </dependencies>
 </ivy-module>

@@ -247,19 +247,6 @@
             </else>
         </if>
 
-        <!-- prevent direct use of ant -->
-        <if><not><isset property="build.py"/></not>
-            <then>
-                <fail> ERROR!
-
-========================================================
-Please use ./build.py which uses the ant version bundled
-with OMERO.
-========================================================
-                </fail>
-            </then>
-        </if>
-
         <!-- Now, if the memory settings have not been changed
         check the defaults passed in on the command line -->
         <if><and><not><isset property="javac.maxmem"/></not>
@@ -371,12 +358,6 @@ with OMERO.
         </if>
         <if><equals arg1="auto" arg2="${ice.compatibility}"/>
             <then>
-                <if><matches string="${executable.ice.version}" pattern="^3[.]3"/>
-                    <then>
-                        <property name="versions.ice" value="${versions.ice33}"/>
-                        <property name="versions.ice_lib" value="${versions.ice33_lib}"/>
-                    </then>
-                </if>
                 <if><matches string="${executable.ice.version}" pattern="^3[.]4"/>
                     <then>
                         <property name="versions.ice" value="${versions.ice34}"/>
@@ -390,13 +371,6 @@ with OMERO.
                     </then>
                 </if>
             </then>
-            <elseif>
-                <equals arg1="3.3" arg2="${ice.compatibility}"/>
-                <then>
-                    <property name="versions.ice" value="${versions.ice33}"/>
-                    <property name="versions.ice_lib" value="${versions.ice33_lib}"/>
-                </then>
-            </elseif>
             <elseif>
                 <equals arg1="3.4" arg2="${ice.compatibility}"/>
                 <then>
@@ -457,7 +431,7 @@ with OMERO.
             <classloader name="ivy.loader">
                 <classpath id="ivy.classpath">
                     <fileset dir="${omero.home}/lib/repository" includes="ivy*.jar"/>
-                    <fileset dir="${omero.home}/lib/repository" includes="jakarta-oro*.jar"/>
+                    <fileset dir="${omero.home}/lib/repository" includes="oro*.jar"/>
                     <pathelement location="${omero.home}/lib/"/><!-- IVY1016/* -->
                 </classpath>
             </classloader>
@@ -466,16 +440,21 @@ with OMERO.
             </sequential>
         </macrodef>
 
-	<macrodef name="publishArtifact">
-		<attribute name="pattern" default="${target.dir}/[artifact].[ext]"/>
-                <attribute name="haltonmissing" default="true"/>
-		<sequential>
-		<delete file="${target.dir}/${ivy.module}.xml"/> <!-- delete last produced ivy file to be sure a new one will be generated -->
-		<ivy:publish settingsRef="ivy.${ant.project.name}" artifactspattern="@{pattern}" resolver="${omero.resolver}"
+        <macrodef name="publishArtifact">
+            <attribute name="pattern" default="${target.dir}/[artifact](-[classifier]).[ext]"/>
+            <attribute name="haltonmissing" default="true"/>
+            <attribute name="resolver" default="${omero.resolver}"/>
+            <attribute name="publishivy" default="true"/>
+            <attribute name="settingsRef" default="ivy.${ant.project.name}"/>
+            <attribute name="conf" default="*"/>
+            <sequential>
+                <delete file="${target.dir}/${ivy.module}.xml"/> <!-- delete last produced ivy file to be sure a new one will be generated -->
+                <ivy:publish settingsRef="@{settingsRef}" artifactspattern="@{pattern}" resolver="@{resolver}"
                     pubrevision="${omero.version}" pubdate="${now}" status="integration" overwrite="true" forcedeliver="true"
-                    haltonmissing="@{haltonmissing}" warnonmissing="@{haltonmissing}"/>
-		</sequential>
-	</macrodef>
+                    haltonmissing="@{haltonmissing}" warnonmissing="@{haltonmissing}" publishivy="@{publishivy}"
+                    conf="@{conf}"/>
+            </sequential>
+        </macrodef>
 
         <macrodef name="tryEclipse">
             <attribute name="settingsRef"/>
@@ -512,7 +491,7 @@ with OMERO.
         <macrodef name="defineClasspath">
            <sequential>
             <path id="omero.compile.classpath">
-              <fileset dir="${deps.lib.dir}" />
+              <fileset dir="${deps.lib.dir}" excludes="**/*-sources.jar"/>
             </path>
             <path id="omero.classpath">
               <path location="${target.dir}/generated-classes" />

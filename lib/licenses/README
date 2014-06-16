@@ -48,14 +48,14 @@
   by OMERO.server using the following format:
 
   Artifacts:    The files our software makes use of.  The wildcard character * can
-		be appended to a sequence of characters S denoting a file name.
-		This shall mean 'all the files whose name starts with S'.  For example,
-		'ant-*' means all the files whose name starts with 'ant-'.
-		Unless otherwise specified, all artifacts are to be found under
+                be appended to a sequence of characters S denoting a file name.
+                This shall mean 'all the files whose name starts with S'.  For example,
+                'ant-*' means all the files whose name starts with 'ant-'.
+                Unless otherwise specified, all artifacts are to be found under
                 lib/repository. If specified directory pathnames are given relative to
-		the root of the git repository.
+                the root of the git repository.
   Project:      The name of the project the artifacts belong to and a brief
-		(optional) description.
+                (optional) description.
   Web Site:     The project's Web site address.
   License:      The type of license that applies to the files listed in 'Artifacts'.
   License File: The file, within this directory, that contains the license.
@@ -159,7 +159,7 @@
 
   Artifacts:    commons-*.jar
   Project:      The Jakarta Commons. The Commons is a Jakarta subproject focused on
-	        all aspects of reusable Java components.
+                all aspects of reusable Java components.
   Web Site:     http://jakarta.apache.org/commons/
   License:      Apache License, Version 2.0
   License File: apache-v2.0.txt
@@ -254,13 +254,6 @@
   Web Site:     http://hibernate.org
   License:      Lesser General Public License (LGPL) v2.1
   License File: lgpl-v2.1.txt
-
-
-  Artifacts:    hsqldb.jar
-  Project:      HSQLDB is Java database applications.
-  Web Site:     http://hsqldb.org/
-  License:      BSD
-  License File: hsqldb.txt
 
 
   Artifacts:    ice-*.jar
@@ -624,10 +617,10 @@
   License:      Apache License, Version 2.0
   License File: apache-v2.0.txt
 
-	
+
   Artifacts:    components/tools/OmeroWeb/omeroweb/webclient/static/webclient/image
-		components/tools/OmeroWeb/omeroweb/webgateway/static/webgateway/img
-		components/tools/OmeroWeb/omeroweb/webadmin/static/webadmin/image
+                components/tools/OmeroWeb/omeroweb/webgateway/static/webgateway/img
+                components/tools/OmeroWeb/omeroweb/webadmin/static/webadmin/image
   Project:      IconSweets
   Website:      http://www.iconsweets.com/
   License:      Free for Commercial and Personal Use
@@ -693,6 +686,13 @@
   Artifacts:    components/tools/OmeroWeb/omeroweb/webgateway/static/3rdparty/jquery-ui-1.8.17/*
   Project:      jQuery UI - open source library of interface components.
   Web Site:     http://jqueryui.com/
+  License:      MIT and GNU GENERAL PUBLIC LICENSE Version 2.
+  License File: jquery.txt, gpl.txt
+
+
+  Artifacts:    components/tools/OmeroWeb/omeroweb/webgateway/static/3rdparty/jquery.ui.touch-punch.min.js
+  Project:      Touch punch - Enables touch events on mobile web
+  Web Site:     http://touchpunch.furf.com/
   License:      MIT and GNU GENERAL PUBLIC LICENSE Version 2.
   License File: jquery.txt, gpl.txt
 
@@ -808,7 +808,7 @@
 
   Artifacts:    avalon-*.jar
   Project:      The Apache Avalon Framework.  We don't use this software directly,
-		but it is required by the FOP library.
+                but it is required by the FOP library.
   Web Site:     http://avalon.apache.org/
   License:      Apache Software License, Version 1.1
   License File: apache-v1.1.txt
@@ -816,8 +816,8 @@
 
   Artifacts:    bsf-*.jar
   Project:      The Bean Scripting Framework (BSF).  It provides scripting language
-		support within Java applications.  We use it to add scripting
-		capabilities to Ant.
+                support within Java applications.  We use it to add scripting
+                capabilities to Ant.
   Web Site:     http://jakarta.apache.org/bsf/
   License:      Apache Software License, Version 1.1
   License File: apache-v1.1.txt
@@ -825,8 +825,8 @@
 
   Artifacts:    fop-*.jar
   Project:      The Formatting Objects Processor (FOP).  FOP is a print formatter
-		driven by XSL formatting objects (XSL-FO).  It provides our build system
-		with pdf generation capabilities.
+                driven by XSL formatting objects (XSL-FO).  It provides our build system
+                with pdf generation capabilities.
   Web Site:     http://xml.apache.org/fop/
   License:      Apache Software License, Version 1.1
   License File: apache-v1.1.txt
@@ -834,7 +834,7 @@
 
   Artifacts:    rhino-*.jar
   Project:      The Rhino JavaScript Engine.  It provides JavaScript support to
-		the BSF library.
+                the BSF library.
   Web Site:     http://www.mozilla.org/rhino/
   License:      Netscape Public License (NPL), Version 1.1
   License File: npl-1_1.txt
@@ -863,12 +863,14 @@
   Web Site:     http://www.eclipse.org/
   License:      Common Public License (CPL) v1.0
   License File: cpl-v10.html
-  
+
+
   Artifacts:    jna.jar, platform.jar
   Project:      Java Native Access (JNA), used for calling platform specific methods.
   Web Site:     https://github.com/twall/jna
   License:      LGPL, version 2.1 (or later)
   License File: lgpl.txt
+
 
   Artifacts:    nuvola_*
   Project:      The Nuvola icon theme. It provides most of the icons in OMERO.insight.
@@ -879,7 +881,7 @@
 
   Artifacts:    openOffice_*
   Project:      Ximian.  We are using a few of their icons that they designed for
-		Open Office.
+                Open Office.
   Web Site:     http://www.novell.com/linux/ximian.html
   License:      Lesser General Public License (LGPL)
   License File: lgpl.txt

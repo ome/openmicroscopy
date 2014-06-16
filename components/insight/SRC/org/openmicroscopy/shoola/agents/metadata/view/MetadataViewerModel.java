@@ -913,8 +913,11 @@ class MetadataViewerModel
 				}
 			}
 		}
-		this.viewedBy = m; 
-		getEditor().getRenderer().loadRndSettings(true, null);
+		this.viewedBy = m;
+		Renderer rnd = getEditor().getRenderer();
+		if (rnd != null) {
+		    rnd.loadRndSettings(true, null);
+		}
 	}
 	
 	/**
@@ -944,6 +947,7 @@ class MetadataViewerModel
 	/** Starts an asynchronous retrieval of the thumbnails. */
 	void fireThumbnailsLoading()
 	{
+	    if (viewedBy == null) return;
 		ImageData image = null;
 		if (refObject instanceof ImageData) image = (ImageData) refObject;
 		else if (refObject instanceof WellSampleData)

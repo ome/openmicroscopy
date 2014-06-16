@@ -83,12 +83,7 @@ showinf -version
 
 # Install PostgreSQL and OMERO
 OMERO_PYTHONPATH=$(bin/brew --prefix omero)/lib/python
-if [ "$ICE" == "3.3" ]; then
-    bin/brew install omero --with-ice33
-    ICE_HOME=$(bin/brew --prefix zeroc-ice33)
-    export PYTHONPATH=$OMERO_PYTHONPATH:$ICE_HOME/python
-    export DYLD_LIBRARY_PATH=$ICE_HOME/lib
-elif [ "$ICE" == "3.4" ]; then
+if [ "$ICE" == "3.4" ]; then
     bin/brew install omero --with-ice34
     ICE_HOME=$(bin/brew --prefix zeroc-ice34)
     export PYTHONPATH=$OMERO_PYTHONPATH:$ICE_HOME/python

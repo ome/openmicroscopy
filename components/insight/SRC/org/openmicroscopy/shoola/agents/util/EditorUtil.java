@@ -813,17 +813,22 @@ public class EditorUtil
     public static String formatExperimenter(ExperimenterData exp)
     {
         if (exp == null) return "";
-        String s1 = exp.getFirstName();
-        String s2 = exp.getLastName();
-        if (s1.trim().length() == 0 && s2.trim().length() == 0)
-            return exp.getUserName();
-        if (s1.length() == 0) return s2;
-        if (s2.length() == 0) return s1;
-        StringBuffer buf = new StringBuffer();
-        buf.append(s1);
-        buf.append(" ");
-        buf.append(s2);
-        return buf.toString();
+        try {
+            String s1 = exp.getFirstName();
+            String s2 = exp.getLastName();
+            if (s1.trim().length() == 0 && s2.trim().length() == 0)
+                return exp.getUserName();
+            if (s1.length() == 0) return s2;
+            if (s2.length() == 0) return s1;
+            StringBuffer buf = new StringBuffer();
+            buf.append(s1);
+            buf.append(" ");
+            buf.append(s2);
+            return buf.toString();
+        } catch (Exception e) {
+            //not loaded
+        }
+        return "";
     }
 
     /**
@@ -839,18 +844,23 @@ public class EditorUtil
             boolean capitalize)
     {
         if (exp == null) return "";
-        String s1 = exp.getFirstName();
-        String s2 = exp.getLastName();
-        if (s1.trim().length() == 0 && s2.trim().length() == 0)
-            return exp.getUserName();
-        if (s1.length() == 0) return s2;
-        if (s2.length() == 0) return s1;
-        StringBuffer buf = new StringBuffer();
-        if (capitalize) buf.append(Character.toUpperCase(s1.charAt(0)));
-        else buf.append(Character.toLowerCase(s1.charAt(0)));
-        buf.append(". ");
-        buf.append(s2);
-        return buf.toString();
+        try {
+            String s1 = exp.getFirstName();
+            String s2 = exp.getLastName();
+            if (s1.trim().length() == 0 && s2.trim().length() == 0)
+                return exp.getUserName();
+            if (s1.length() == 0) return s2;
+            if (s2.length() == 0) return s1;
+            StringBuffer buf = new StringBuffer();
+            if (capitalize) buf.append(Character.toUpperCase(s1.charAt(0)));
+            else buf.append(Character.toLowerCase(s1.charAt(0)));
+            buf.append(". ");
+            buf.append(s2);
+            return buf.toString();
+        } catch (Exception e) {
+            //not loaded
+        }
+        return "";
     }
 
     /**

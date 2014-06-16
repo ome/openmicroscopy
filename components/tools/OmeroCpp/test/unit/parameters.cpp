@@ -45,7 +45,6 @@ TEST( ParametersTest, Experimenter )
     ASSERT_TRUE( p->isExperimenter() );
     ASSERT_TRUE( 1L == p->getExperimenter()->getValue() );
     p->allExps();
-    ASSERT_TRUE( 0 == p->getExperimenter() );
     ASSERT_TRUE( ! p->isExperimenter() );
 }
 
@@ -56,7 +55,7 @@ TEST( ParametersTest, ExperimenterGroup )
     ASSERT_TRUE( p->isGroup() );
     ASSERT_TRUE( 1L == p->getGroup()->getValue() );
     p->allGrps();
-    ASSERT_TRUE( 0 == p->getGroup() );
+    ASSERT_TRUE( !p->getGroup() );
 }
 
 
@@ -84,7 +83,7 @@ TEST( ParametersTest, FilterLimitOffset )
 TEST( ParametersTest, FilterUnique )
 {
     ParametersIPtr p = new ParametersI();
-    ASSERT_TRUE( 0 == p->getUnique() );
+    ASSERT_TRUE( !p->getUnique() );
     ASSERT_TRUE( p->unique()->getUnique()->getValue() );
     ASSERT_TRUE( ! p->noUnique()->getUnique()->getValue() );
 }

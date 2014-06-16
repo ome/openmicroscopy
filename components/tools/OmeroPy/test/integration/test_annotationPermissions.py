@@ -47,21 +47,21 @@ class AnnotationPermissions(lib.ITest):
 
         self.users = set(["member1", "member2", "owner", "admin"])
         # create group and users
-        group = self.new_group(perms=perms)
+        self.group = self.new_group(perms=perms)
         self.exps = {}
-        self.exps["owner"] = self.new_user(group=group, admin=True)
-        self.exps["member1"] = self.new_user(group=group)
-        self.exps["member2"] = self.new_user(group=group)
-        self.exps["admin"] = self.new_user(group=group, system=True)
+        self.exps["owner"] = self.new_user(group=self.group, admin=True)
+        self.exps["member1"] = self.new_user(group=self.group)
+        self.exps["member2"] = self.new_user(group=self.group)
+        self.exps["admin"] = self.new_user(group=self.group, system=True)
 
         # clients and services
-        self.clients = {}
+        self.clients = {"root": self.root}
         self.updateServices = {}
         self.queryServices = {}
         self.project = {}
         for user in self.users:
             self.clients[user] = self.new_client(
-                user=self.exps[user], group=group)
+                user=self.exps[user], group=self.group)
             self.updateServices[user] = self.clients[
                 user].sf.getUpdateService()
             self.queryServices[user] = self.clients[user].sf.getQueryService()
@@ -72,6 +72,13 @@ class AnnotationPermissions(lib.ITest):
         for user in self.users:
             self.clients[user].closeSession()
 
+    def chmodGroupAs(self, user, perms):
+        client = self.clients[user]
+        # Using the deprecated method since
+        # it was using a specific group context.
+        client.sf.getAdminService().changePermissions(
+            self.group, omero.model.PermissionsI(perms))
+
     def createProjectAs(self, user):
         """ Adds a Project. """
         project = ProjectI()
@@ -79,11 +86,21 @@ class AnnotationPermissions(lib.ITest):
         project = self.updateServices[user].saveAndReturnObject(project)
         return project
 
-    def addTagAs(self, user, project):
-        """ Adds and links a Tag. """
+    def makeTag(self):
         tag = TagAnnotationI()
         tag.setTextValue(rstring(self.tag_text))
         tag.setNs(rstring(self.tag_ns))
+        return tag
+
+    def createTagAs(self, user):
+        """ Create a tag linked to nothing """
+        tag = self.makeTag()
+        tag = self.updateServices[user].saveAndReturnObject(tag)
+        return tag
+
+    def addTagAs(self, user, project):
+        """ Adds and links a Tag. """
+        tag = self.makeTag()
         tag = self.updateServices[user].saveAndReturnObject(tag)
         self.linkTagAs(user, project, tag)
         return tag
@@ -344,3 +361,24 @@ class TestReadAnnotateGroup(AnnotationPermissions):
                 # Link should still be there
                 tag = self.getTagViaLinkAs(creator, self.project[creator])
                 assert tag.getTextValue().getValue() == self.tag_text
+
+
+class TestMovePrivatePermissions(AnnotationPermissions):
+
+    def setup_method(self, method):
+        AnnotationPermissions.setup_method(self, method, 'rwra--')
+
+    @pytest.mark.parametrize("admin_type", ("root", "admin"))
+    def testAddTagMakePrivate(self, admin_type):
+        """ see ticket:11479 """
+        project = self.createProjectAs("member1")
+        tag = self.createTagAs("member2")
+        self.linkTagAs("member1", project, tag)
+        with pytest.raises(omero.SecurityViolation):
+            self.chmodGroupAs(admin_type, "rw----")
+
+        for x in ("member1", "member2"):
+            # Check reading
+            self.getTagLinkAs(x, project)
+            self.getTagViaLinkAs(x, project)
+            self.getTagAs(x, tag.id.val)

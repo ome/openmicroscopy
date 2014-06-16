@@ -722,4 +722,6 @@ class ITest(object):
         return rsp
 
     def teardown_method(self, method):
+        self.root.killSession()
+        self.root = None
         self.__clients.__del__()

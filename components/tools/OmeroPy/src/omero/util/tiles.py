@@ -24,30 +24,30 @@ class TileData(object):
 
     def getTile(self, z, c, t, x, y, w, h):
         """
-        z: int
-        c: int
-        t: int
-        y: int
-        w: int
-        h: int
-        return: byte[]
+        :param z: int
+        :param c: int
+        :param t: int
+        :param y: int
+        :param w: int
+        :param h: int
+        :returns: byte[]
         """
         raise NotImplementedError()
 
     def setTile(self, buffer, z, c, t, x, y, w, h):
         """
         buffer: byte[]
-        z: int
-        c: int
-        t: int
-        y: int
-        w: int
-        h: int
+        :param z: int
+        :param c: int
+        :param t: int
+        :param y: int
+        :param w: int
+        :param h: int
         """
-        raise NotImplementedError();
+        raise NotImplementedError()
 
     def close(self):
-        raise NotImplementedError();
+        raise NotImplementedError()
 
 
 class TileLoop(object):
@@ -57,23 +57,29 @@ class TileLoop(object):
         Subclasses must provide a fresh instance of {@link TileData}.
         The instance will be closed after the run of forEachTile.
 
-        returns: TileData
+        :returns: TileData
         """
         raise NotImplementedError()
 
-    def forEachTile(self, sizeX, sizeY, sizeZ, sizeC, sizeT,\
-                           tileWidth, tileHeight, iteration):
+    def forEachTile(self, sizeX, sizeY, sizeZ, sizeC, sizeT,
+                    tileWidth, tileHeight, iteration):
         """
-        Iterates over every tile in a given pixel based on the
+        Iterates over every tile in a given Pixels object based on the
         over arching dimensions and a requested maximum tile width and height.
-        @param iteration Invoker to call for each tile.
-        @param pixel Pixel instance
-        @param tileWidth <b>Maximum</b> width of the tile requested. The tile
-        request itself will be smaller than the original tile width requested if
-        <code>x + tileWidth > sizeX</code>.
-        @param tileHeight <b>Maximum</b> height of the tile requested. The tile
-        request itself will be smaller if <code>y + tileHeight > sizeY</code>.
-        @return The total number of tiles iterated over.
+        :param sizeX: int
+        :param sizeY: int
+        :param sizeZ: int
+        :param sizeC: int
+        :param sizeT: int
+        :param iteration: Invoker to call for each tile.
+        :param pixel: Pixel instance
+        :param tileWidth: <b>Maximum</b> width of the tile requested.
+        The tile request itself will be smaller than the original tile
+        width requested if <code>x + tileWidth > sizeX</code>.
+        :param tileHeight: <b>Maximum</b> height of the tile requested.
+        The tile request itself will be smaller if
+        <code>y + tileHeight > sizeY</code>.
+        :returns: The total number of tiles iterated over.
         """
 
         data = self.createData()
@@ -86,24 +92,27 @@ class TileLoop(object):
 
                     for z in range(0, sizeZ):
 
-                        for tileOffsetY in range(0, ((sizeY + tileHeight - 1) / tileHeight)):
+                        for tileOffsetY in range(
+                                0, ((sizeY + tileHeight - 1) / tileHeight)):
 
-                            for tileOffsetX in range(0, ((sizeX + tileWidth - 1) / tileWidth)):
+                            for tileOffsetX in range(
+                                    0, ((sizeX + tileWidth - 1) / tileWidth)):
 
                                 x = tileOffsetX * tileWidth
                                 y = tileOffsetY * tileHeight
                                 w = tileWidth
 
                                 if (w + x > sizeX):
-                                    w = sizeX - x;
+                                    w = sizeX - x
 
                                 h = tileHeight
                                 if (h + y > sizeY):
                                     h = sizeY - y
 
-                                iteration.run(data, z, c, t, x, y, w, h, tileCount)
+                                iteration.run(data, z, c, t,
+                                              x, y, w, h, tileCount)
                                 tileCount += 1
-            return tileCount;
+            return tileCount
 
         finally:
             data.close()
@@ -157,30 +166,35 @@ class RPSTileLoop(TileLoop):
     def createData(self):
         rps = self.getSession().createRawPixelsStore()
         data = RPSTileData(self, rps)
-        rps.setPixelsId(self.getPixels().getId().getValue(), False) # 'false' is ignored here.
+        # 'false' is ignored here.
+        rps.setPixelsId(self.getPixels().getId().getValue(), False)
         return data
 
     def forEachTile(self, tileWidth, tileHeight, iteration):
         """
-        Iterates over every tile in a given pixel based on the
+        Iterates over every tile in a given Pixels object based on the
         over arching dimensions and a requested maximum tile width and height.
-        @param iteration Invoker to call for each tile.
-        @param pixel Pixel instance
-        @param tileWidth <b>Maximum</b> width of the tile requested. The tile
-        request itself will be smaller than the original tile width requested if
-        <code>x + tileWidth > sizeX</code>.
-        @param tileHeight <b>Maximum</b> height of the tile requested. The tile
-        request itself will be smaller if <code>y + tileHeight > sizeY</code>.
+        :param tileWidth: <b>Maximum</b> width of the tile requested. The tile
+        request itself will be smaller than the original tile width requested
+        if <code>x + tileWidth > sizeX</code>.
+        :param tileHeight: <b>Maximum</b> height of the tile requested.
+        The tile request itself will be smaller if
+        <code>y + tileHeight > sizeY</code>.
+        :param iteration: Invoker to call for each tile.
         @return The total number of tiles iterated over.
         """
 
         if self.pixels is None or self.pixels.id is None:
+            import omero
             raise omero.ClientError("pixels instance must be managed!")
         elif not self.pixels.loaded:
             try:
-                self.pixels = getSession().getPixelsService().retrievePixDescription(self.pixels.id.val)
-            except:
-                raise omero.ClientError("Failed to load %s\n%s" % (self.pixels.id.val, e))
+                srv = self.getSession().getPixelsService()
+                self.pixels = srv.retrievePixDescription(self.pixels.id.val)
+            except Exception, e:
+                import omero
+                raise omero.ClientError(
+                    "Failed to load %s\n%s" % (self.pixels.id.val, e))
 
         sizeX = self.pixels.getSizeX().getValue()
         sizeY = self.pixels.getSizeY().getValue()
@@ -188,4 +202,6 @@ class RPSTileLoop(TileLoop):
         sizeC = self.pixels.getSizeC().getValue()
         sizeT = self.pixels.getSizeT().getValue()
 
-        return TileLoop.forEachTile(self, sizeX, sizeY, sizeZ, sizeC, sizeT, tileWidth, tileHeight, iteration);
+        return TileLoop.forEachTile(
+            self, sizeX, sizeY, sizeZ, sizeC, sizeT,
+            tileWidth, tileHeight, iteration)

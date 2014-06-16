@@ -3326,6 +3326,65 @@ class OMEROGateway
 	}
 
 	/**
+	 * Returns the annotations links.
+	 *
+	 * @param ctx The security context.
+     * @param node The type of node to handle.
+     * @param nodeIDs The id of the nodes if any.
+     * @param children The collection of annotations' identifiers
+     * @param userID The user's identifier or <code>-1</code>.
+	 * @return See above.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+     * @throws DSAccessException If an error occurred while trying to
+     *                           retrieve data from OMERO service.
+	 */
+	Multimap<Long, IObject> findAnnotationLinks(SecurityContext ctx,
+	        Class<?> node, List<Long> nodeIDs,
+            List<Long> children, long userID)
+        throws DSOutOfServiceException, DSAccessException
+    {
+        Connector c = getConnector(ctx, true, false);
+        Multimap<Long, IObject> map = ArrayListMultimap.create();
+        try {
+            IQueryPrx service = c.getQueryService();
+            String table = getAnnotationTableLink(node);
+            if (table == null) return null;
+            StringBuffer sb = new StringBuffer();
+            sb.append("select link from "+table+" as link ");
+            sb.append("left outer join fetch link.child child ");
+            sb.append("left outer join fetch link.parent parent ");
+            sb.append("left outer join fetch parent.details.owner ");
+            sb.append("left outer join fetch child.details.owner ");
+            sb.append("left outer join fetch link.details.owner ");
+            sb.append("where link.child.id in (:childIDs)");
+
+            ParametersI param = new ParametersI();
+            param.addLongs("childIDs", children);
+            sb.append(" and link.parent.id in (:parentIDs)");
+            param.addLongs("parentIDs", nodeIDs);
+            if (userID >= 0) {
+                sb.append(" and link.details.owner.id = :userID");
+                param.map.put("userID", omero.rtypes.rlong(userID));
+            }
+            List<IObject> list = service.findAllByQuery(sb.toString(), param);
+            if (CollectionUtils.isNotEmpty(list)) {
+                Iterator<IObject> j = list.iterator();
+                IObject link;
+                while (j.hasNext()) {
+                    link = (IObject) j.next();
+                    IObject p = ModelMapper.getParentFromLink(link);
+                    map.put(p.getId().getValue(), link);
+                }
+            }
+            return map;
+        } catch (Throwable t) {
+            handleException(t, "Cannot retrieve the requested link for "+
+            "the specified children");
+        }
+        return map;
+    }
+	
+	/**
 	 * Finds the links if any between the specified parent and children.
 	 *
 	 * @param ctx The security context.
@@ -5003,6 +5062,10 @@ class OMEROGateway
 					fSome = formatText(some, "url");
 					fMust = formatText(must, "url");
 					fNone = formatText(none, "url");
+				} else if (key == SearchDataContext.ID) {
+    				        fSome = formatText(some, "id");
+    				        fMust = formatText(must, "id");
+    				        fNone = formatText(none, "id");
 				} else {
 					fSome = formatText(some, "");
 					fMust = formatText(must, "");
@@ -8386,5 +8449,29 @@ class OMEROGateway
             handleException(t, "Cannot load log files for " + rootType+".");
         }
         return new HashMap();
+    }
+
+    /**
+     * Retrieves the rendering settings for the specified pixels set.
+     *
+     * @param ctx The security context.
+     * @param rndID The rendering settings ID.
+     * @return See above.
+     * @throws DSOutOfServiceException If the connection is broken, or logged
+     *                                 in.
+     * @throws DSAccessException       If an error occurred while trying to
+     *                                 retrieve data from OMEDS service.
+     */
+    RenderingDef getRenderingDef(SecurityContext ctx, long rndID)
+        throws DSOutOfServiceException, DSAccessException
+    {
+        Connector c = getConnector(ctx, true, false);
+        try {
+            IPixelsPrx service = c.getPixelsService();
+            return service.loadRndSettings(rndID);
+        } catch (Exception e) {
+            handleException(e, "Cannot retrieve the rendering settings");
+        }
+        return null;
     }
 }

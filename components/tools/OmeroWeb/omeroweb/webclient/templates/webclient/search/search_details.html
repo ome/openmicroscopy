@@ -47,8 +47,8 @@
                 }
             });
             
-            
-            $("#dataTable").tablesorter( {sortList: [[1,0]]} ); 
+            // We init sorting (not cols 0 & 3) but don't sort by default
+            $("#dataTable").tablesorter({headers: { 0: { sorter: false}, 3: {sorter: false} } });
 
             $('input#id_search').quicksearch('table#dataTable tbody tr', {
                 'delay': 300,

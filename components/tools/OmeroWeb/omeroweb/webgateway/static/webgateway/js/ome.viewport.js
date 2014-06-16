@@ -855,7 +855,7 @@ jQuery._WeblitzViewport = function (container, server, options) {
     if (e1.model != e2.model) {
       return false;
     }
-    for (var i in e1.channels) {
+    for (var i=0; i<e1.channels.length; i++) {
       if (!(e1.channels[i].active == e2.channels[i].active &&
             rgbToHex(e1.channels[i].color) == rgbToHex(e2.channels[i].color) &&
             e1.channels[i].windowStart == e2.channels[i].windowStart &&
@@ -881,8 +881,8 @@ jQuery._WeblitzViewport = function (container, server, options) {
     }
     /* Trim stack to current position to dump potential redo information */
     if (channels_undo_stack_ptr == -1 || !compare_stack_entries(entry, channels_undo_stack[channels_undo_stack_ptr])) {
-    channels_undo_stack_ptr++;
-    channels_undo_stack.length = channels_undo_stack_ptr;
+      channels_undo_stack_ptr++;
+      channels_undo_stack.length = channels_undo_stack_ptr;
       channels_undo_stack.push(entry);
     }
   };
@@ -1009,7 +1009,7 @@ jQuery._WeblitzViewport = function (container, server, options) {
   this.setQuery = function (query) {
     if (query.c) {
       var chs = query.c.split(',');
-      for (var j in chs) {
+      for (j=0; j<chs.length; j++) {
         var t = chs[j].split('|');
         var idx;
         if (t[0].substring(0,1) == '-') {

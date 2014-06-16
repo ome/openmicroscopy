@@ -13,6 +13,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -23,7 +24,9 @@ import ome.annotations.RevisionNumber;
 import ome.annotations.RolesAllowed;
 import ome.api.IPixels;
 import ome.api.IRenderingSettings;
+import ome.api.IUpdate;
 import ome.api.ServiceInterface;
+import ome.api.ThumbnailStore;
 import ome.api.local.LocalCompress;
 import ome.conditions.ApiUsageException;
 import ome.conditions.InternalException;
@@ -41,6 +44,7 @@ import ome.model.display.RenderingDef;
 import ome.model.enums.Family;
 import ome.model.enums.RenderingModel;
 import ome.model.internal.Permissions;
+import ome.parameters.Parameters;
 import ome.security.SecuritySystem;
 import ome.services.util.Executor;
 import ome.system.EventContext;
@@ -157,6 +161,14 @@ public class RenderingBean implements RenderingEngine, Serializable {
     private Integer resolutionLevel;
 
     /**
+     * True when an explicit rendering def ID was passed into the
+     * server. In this case, a call to {@link #saveCurrentSettings()}
+     * will <em>not</em> redirect to {@link #saveAsNewSettings()} if
+     * the rendering def does not belong to the current user.
+     */
+    private boolean requestedRenderingDef = false;
+
+    /**
      * Compression service Bean injector.
      * 
      * @param compressionService
@@ -271,6 +283,7 @@ public class RenderingBean implements RenderingEngine, Serializable {
 
         try {
             rendDefObj = retrieveRndSettings(pixelsId);
+            requestedRenderingDef = false;
             closeRenderer();
             renderer = null;
 
@@ -319,6 +332,7 @@ public class RenderingBean implements RenderingEngine, Serializable {
 
         try {
             rendDefObj = loadRndSettings(renderingDefId);
+            requestedRenderingDef = true;
             if (rendDefObj == null) {
                 throw new ValidationException(
                         "No rendering definition exists with ID: "
@@ -661,41 +675,7 @@ public class RenderingBean implements RenderingEngine, Serializable {
      */
     @RolesAllowed("user")
     public void resetDefaults() {
-        rwl.writeLock().lock();
-
-        try {
-            errorIfNullPixels();
-            final long pixelsId = pixelsObj.getId();
-
-            // Ensure that we haven't just been called before
-            // lookupRenderingDef().
-            if (rendDefObj == null) {
-                rendDefObj = retrieveRndSettings(pixelsId);
-                if (rendDefObj != null) {
-                    // We've been called before lookupRenderingDef() or
-                    // loadRenderingDef(), report an error.
-                    errorIfInvalidState();
-                }
-                
-                rendDefObj = createNewRenderingDef(pixelsObj);
-                _resetDefaults(rendDefObj, pixelsObj);
-            } else {
-                errorIfInvalidState();
-                _resetDefaults(rendDefObj, pixelsObj);
-
-                rendDefObj = retrieveRndSettings(pixelsObj.getId());
-
-                // The above save step sets the rendDefObj instance (for which
-                // the renderer holds a reference) unloaded, which *will* cause
-                // IllegalStateExceptions if we're not careful. To compensate
-                // we will now reload the renderer.
-                // *** Ticket #848 -- Chris Allan <callan@blackcat.ca> ***
-                load();
-            }
-            
-        } finally {
-            rwl.writeLock().unlock();
-        }
+        internalReset(true);
     }
 
     /**
@@ -705,24 +685,79 @@ public class RenderingBean implements RenderingEngine, Serializable {
      */
     @RolesAllowed("user")
     public void resetDefaultsNoSave() {
+        internalReset(false);
+    }
+
+    /**
+     * Implemented as specified by the {@link RenderingEngine} interface.
+     * 
+     * @see RenderingEngine#resetDefaultsSettigns(boolean)
+     */
+    @RolesAllowed("user")
+    public long resetDefaultsSettings(boolean save) {
+        return internalReset(save);
+    }
+
+    private long internalReset(boolean save) {
+
+        if (save) { //check first that we can do it.
+            save = !requestedRenderingDef;
+        }
         rwl.writeLock().lock();
         try {
-            errorIfInvalidState();
-            ex.execute(/*ex*/null/*principal*/, new Executor.SimpleWork(this, 
-            		"resetDefaultsNoSave"){
-                @Transactional(readOnly = true)
-                public Object doWork(Session session, ServiceFactory sf) {
-                    IRenderingSettings settingsSrv = 
-                    	sf.getRenderingSettingsService();
-                    settingsSrv.resetDefaultsNoSave(rendDefObj, pixelsObj);
-                    return null;
-                }});
-            load(); //require or we are out of synch
+            if (!save) {
+                errorIfInvalidState();
+                ex.execute(/*ex*/null/*principal*/, new Executor.SimpleWork(this,
+                        "resetDefaultsNoSave"){
+                    @Transactional(readOnly = true)
+                    public Object doWork(Session session, ServiceFactory sf) {
+                        IRenderingSettings settingsSrv = 
+                            sf.getRenderingSettingsService();
+                        settingsSrv.resetDefaultsNoSave(rendDefObj, pixelsObj);
+                        return null;
+                    }});
+                load();
+            } else {
+                errorIfNullPixels();
+                final long pixelsId = pixelsObj.getId();
+                // Ensure that we haven't just been called before
+                // lookupRenderingDef().
+                if (rendDefObj == null) {
+                    rendDefObj = retrieveRndSettings(pixelsId);
+                    requestedRenderingDef = false;
+                    if (rendDefObj != null) {
+                        // We've been called before lookupRenderingDef() or
+                        // loadRenderingDef(), report an error.
+                        errorIfInvalidState();
+                    }
+                    
+                    rendDefObj = createNewRenderingDef(pixelsObj);
+                    _resetDefaults(rendDefObj, pixelsObj);
+                } else {
+                    errorIfInvalidState();
+                    //first need to check if we need a set for the owner.
+                    Long ownerId = rendDefObj.getDetails().getOwner().getId();
+                    Long sessionUserId = secSys.getEffectiveUID();
+                    if (!settingsBelongToCurrentUser()) {
+                        rendDefObj = createNewRenderingDef(pixelsObj);
+                    }
+                    _resetDefaults(rendDefObj, pixelsObj);
+
+                    rendDefObj = retrieveRndSettings(pixelsObj.getId());
+                    // The above save step sets the rendDefObj instance (for which
+                    // the renderer holds a reference) unloaded, which *will* cause
+                    // IllegalStateExceptions if we're not careful. To compensate
+                    // we will now reload the renderer.
+                    // *** Ticket #848 -- Chris Allan <callan@blackcat.ca> ***
+                    load();
+                }
+            }
+            return rendDefObj.getId();
         } finally {
             rwl.writeLock().unlock();
         }
     }
-
+    
     /**
      * Implemented as specified by the {@link RenderingEngine} interface.
      * 
@@ -745,12 +780,28 @@ public class RenderingBean implements RenderingEngine, Serializable {
 
     /**
      * Implemented as specified by the {@link RenderingEngine} interface.
+     *
+     * @see RenderingEngine#saveAsNewSettings()
+     */
+    @RolesAllowed("user")
+    @Transactional(readOnly = false)
+    public long saveAsNewSettings() {
+        return internalSave(true);
+    }
+
+    /**
+     * Implemented as specified by the {@link RenderingEngine} interface.
      * 
      * @see RenderingEngine#saveCurrentSettings()
      */
     @RolesAllowed("user")
     @Transactional(readOnly = false)
     public void saveCurrentSettings() {
+        internalSave(!requestedRenderingDef && !settingsBelongToCurrentUser());
+    }
+
+    private long internalSave(boolean saveAs) {
+
         rwl.writeLock().lock();
 
         try {
@@ -763,20 +814,23 @@ public class RenderingBean implements RenderingEngine, Serializable {
             // or similar once that functionality exists.
             RenderingDef old = rendDefObj;
             rendDefObj = createNewRenderingDef(pixelsObj);
-            rendDefObj.setId(old.getId());
+            if (!saveAs) {
+                rendDefObj.setId(old.getId());
+                rendDefObj.setVersion(old.getVersion() + 1);
+            }
             rendDefObj.setDefaultZ(old.getDefaultZ());
             rendDefObj.setDefaultT(old.getDefaultT());
             rendDefObj.setCompression(old.getCompression());
             rendDefObj.setName(old.getName());
             QuantumDef qDefNew = rendDefObj.getQuantization();
             QuantumDef qDefOld = old.getQuantization();
-            qDefNew.setId(qDefOld.getId());
+            if (!saveAs) {
+                qDefNew.setId(qDefOld.getId());
+            }
             qDefNew.setBitResolution(qDefOld.getBitResolution());
             qDefNew.setCdStart(qDefOld.getCdStart());
             qDefNew.setCdEnd(qDefOld.getCdEnd());
             
-            rendDefObj.setVersion(old.getVersion() + 1);
-
             // Unload the model object to avoid transactional headaches
             
            
@@ -784,16 +838,9 @@ public class RenderingBean implements RenderingEngine, Serializable {
                     .getModel().getId(), false);
             
             rendDefObj.setModel(unloadedModel);
+
             // Unload the family of each channel binding to avoid transactional
             // headaches.
-            /*
-            for (ChannelBinding binding : old
-                    .unmodifiableWaveRendering()) {
-                Family unloadedFamily = new Family(binding.getFamily().getId(),
-                        false);
-                binding.setFamily(unloadedFamily);
-            }
-            */
             Family family;
             int index = 0;
             ChannelBinding cb;
@@ -806,7 +853,9 @@ public class RenderingBean implements RenderingEngine, Serializable {
                 cb.setBlue(binding.getBlue());
                 cb.setRed(binding.getRed());
                 cb.setGreen(binding.getGreen());
-                cb.setId(binding.getId());
+                if (!saveAs) {
+                    cb.setId(binding.getId());
+                }
                 cb.setInputStart(binding.getInputStart());
                 cb.setInputEnd(binding.getInputEnd());
                 cb.setCoefficient(binding.getCoefficient());
@@ -816,26 +865,33 @@ public class RenderingBean implements RenderingEngine, Serializable {
             }
             
             // Actually save the rendering settings
-            ex.execute(/*ex*/null/*principal*/,
+            Long id = (Long) ex.execute(/*ex*/null/*principal*/,
                     new Executor.SimpleWork(this,"saveCurrentSettings"){
                         @Transactional(readOnly = false) // ticket:1434
                         public Object doWork(Session session, ServiceFactory sf) {
-                            IPixels pixMetaSrv = sf.getPixelsService();
-                            pixMetaSrv.saveRndSettings(rendDefObj);
-                            return null;
+                            IUpdate update = sf.getUpdateService();
+                            return update.saveAndReturnObject(rendDefObj).getId();
                         }});
-            rendDefObj = retrieveRndSettings(pixelsObj.getId());
-            
-            // Unload the linked pixels set to avoid transactional headaches on
-            // the next save.
-            Pixels unloadedPixels = new Pixels(pixelsObj.getId(), false);
-            rendDefObj.setPixels(unloadedPixels);
-            // The above save and reload step sets the rendDefObj instance
-            // (for which the renderer hold a reference) unloaded, which *will*
-            // cause IllegalStateExceptions if we're not careful. To compensate
-            // we will now reload the renderer.
-            // *** Ticket #848 -- Chris Allan <callan@blackcat.ca> ***
+
+            if (saveAs) {
+                loadRenderingDef(id);
+                // Note: no thumbnails are generated. This may be corrected
+                // in later versions.
+            } else {
+                rendDefObj = retrieveRndSettings(pixelsObj.getId());
+
+                // Unload the linked pixels set to avoid transactional headaches on
+                // the next save.
+                Pixels unloadedPixels = new Pixels(pixelsObj.getId(), false);
+                rendDefObj.setPixels(unloadedPixels);
+                // The above save and reload step sets the rendDefObj instance
+                // (for which the renderer hold a reference) unloaded, which *will*
+                // cause IllegalStateExceptions if we're not careful. To compensate
+                // we will now reload the renderer.
+                // *** Ticket #848 -- Chris Allan <callan@blackcat.ca> ***
+            }
             load();
+            return id;
         } finally {
             rwl.writeLock().unlock();
         }
@@ -1857,5 +1913,40 @@ public class RenderingBean implements RenderingEngine, Serializable {
                 return pixDataSrv.getPixelBuffer(pixelsObj, false);
             }
         });
+    }
+
+    /**
+     * Return true if the current user is the owner of the current
+     * rendering def.
+     */
+    private boolean settingsBelongToCurrentUser() {
+        return (Boolean) ex.execute(/*ex*/null/*principal*/,
+          new Executor.SimpleWork(this,"checkSettingsOwner"){
+            @Transactional(readOnly = true)
+            public Object doWork(Session session, ServiceFactory sf) {
+                List<Object[]> rv = sf.getQueryService().projection(
+                    "select o.id from RenderingDef r join r.details.owner o " +
+                    "where r.id = :id", new Parameters().addId(rendDefObj.getId()));
+                Long currentUser = getCurrentEventContext().getCurrentUserId();
+                Long ownerId = (Long) rv.get(0)[0];
+                return ownerId.equals(currentUser);
+        }});
+    }
+
+    /**
+     * Generate a thumbnail for the current rendering def
+     */
+    private void getThumbnail(final long rid) {
+        final long pid = pixelsObj.getId();
+        ex.execute(/*ex*/null/*principal*/,
+          new Executor.SimpleWork(this,"generateThumbnail"){
+            @Transactional(readOnly = false)
+            public Object doWork(Session session, ServiceFactory sf) {
+                ThumbnailStore tb = sf.createThumbnailService();
+                tb.setPixelsId(pid);
+                tb.setRenderingDefId(rid);
+                tb.getThumbnailByLongestSide(96);
+                return null;
+        }});
     }
 }

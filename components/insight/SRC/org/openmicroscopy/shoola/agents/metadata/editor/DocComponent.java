@@ -336,7 +336,7 @@ class DocComponent
 		if (annotators.size() == 0) return;
 		Iterator<ExperimenterData> i = annotators.iterator();
 		ExperimenterData annotator;
-		buf.append("<b>Added by:</b><br>");
+		buf.append("<b>Linked by:</b><br>");
 		while (i.hasNext()) {
 			annotator =  i.next();
 			buf.append(EditorUtil.formatExperimenter(annotator)+"<br>");

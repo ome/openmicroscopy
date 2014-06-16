@@ -533,6 +533,19 @@ class TestPythonImporter(AbstractRepoTest):
         proc = mrepo.importPaths(paths)
         self.assertImport(client, proc, folder)
 
+    def testReopenRawFileStoresPR2542(self):
+        client = self.new_client()
+        mrepo = self.getManagedRepo(client)
+        folder = self.create_test_dir()
+        paths = folder.files()
+
+        proc = mrepo.importPaths(paths)
+        for idx in range(len(paths)):
+            proc.getUploader(idx).close()
+        # Import should continue to work after
+        # closing the resources
+        self.assertImport(client, proc, folder)
+
     # Assure that the template functionality supports the same user
     # importing from multiple groups on a given day
     def testImportsFrom2Groups(self):

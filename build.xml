@@ -52,10 +52,10 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     </description>
 
-    <property name="gitmatch" value="v.[0-9]*.[0-9]*.[0-9]*"/>
     <property name="import.dir" value="${basedir}/components/antlib/resources"/>
-    <import file="${import.dir}/global.xml"/>
     <import file="${import.dir}/gitversion.xml" optional="true"/>
+    <import file="${import.dir}/global.xml"/>
+    <import file="${import.dir}/version.xml"/>
 
     <target name="init" depends="check-bioformats,check-ivy,check-scons,check-ice">
         <mkdir dir="${blitz.comp}/generated"/>
@@ -89,6 +89,9 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
         <installIvy/>
         <ivy:buildlist reference="all.buildpath" settingsRef="ivy.toplevel">
             <fileset dir="${omero.home}/components" includes="*/build.xml" excludes="**/tools/**, **/tests/**"/>
+        </ivy:buildlist>
+        <ivy:buildlist reference="nobf.buildpath" settingsRef="ivy.toplevel">
+            <fileset dir="${omero.home}/components" includes="*/build.xml" excludes="**/tools/**, **/tests/**, **/bioformats/**"/>
         </ivy:buildlist>
         <ivy:buildlist reference="blitzserver.buildpath" settingsRef="ivy.toplevel">
             <fileset dir="${omero.home}/components/blitz/" includes="build.xml"/>
@@ -126,6 +129,7 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
             <fileset dir="${omero.home}/examples" includes="config.log,**/*.o,**/*.class,**/*.exe"/>
         </delete>
         <ant antfile="build.xml" dir="docs/sphinx" target="clean" inheritAll="false"/>
+        <ant antfile="build.xml" dir="docs/sphinx-api" target="clean" inheritAll="false"/>
     </target>
 
     <macrodef name="setup-py-install">
@@ -172,11 +176,11 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
                 slice2java (${ice.slice2java}) version = ${executable.ice.version}
                 Expected version = ${ice.compatibility}
 
-                If you would like to configure which Ice to use, set
-                ice.compatibility=3.3, ice.compatibility=3.4, or
+                If you would like to configure which Ice to use,
+                set ice.compatibility=3.4 or
                 ice.compatibility=3.5 in your etc/local.properties
                 file or on the command- line:
-                  ./build.py -Dice.compatibility=3.3
+                  ./build.py -Dice.compatibility=3.5
 
             </fail></then>
         </if>
@@ -563,7 +567,7 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
         </emma>
     </target>
 
-    <target name="release-docs" depends="release-javadoc,release-epydoc,release-slice2html" description="Generate Docs for all components under dist/docs/api">
+    <target name="release-docs" depends="release-javadoc,release-epydoc,release-sphinx-api,release-slice2html" description="Generate Docs for all components under dist/docs/api">
         <zip destfile="${omero.home}/target/OMERO.docs-${omero.version}.zip">
             <zipfileset dir="${dist.dir}/docs" prefix="OMERO.docs-${omero.version}"/>
         </zip>
@@ -611,7 +615,7 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
        </apply>
     </target>
 
-    <target name="release-epydoc"  description="The OmeroPy API Documentation">
+    <target name="release-epydoc"  description="The OmeroPy epydoc API Documentation">
        <mkdir dir="${dist.dir}/docs/api/epydoc"/>
        <exec executable="epydoc" failonerror="true">
            <arg value="--verbose"/>
@@ -642,6 +646,20 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
       href="http://hudson.openmicroscopy.org.uk/userContent/favicon.ico">]]></replacevalue>
        </replace>
 
+    </target>
+
+    <target name="release-sphinx-api" depends="build-py"
+        description="The OmeroPy Sphinx API Documentation">
+        <mkdir dir="${dist.dir}/docs/api/python"/>
+
+        <ant antfile="build.xml" dir="docs/sphinx-api" target="clean" inheritAll="false"/>
+        <ant antfile="build.xml" dir="docs/sphinx-api" target="html" inheritAll="false">
+            <property name="omero.shortversion" value="${omero.shortversion}"/>
+        </ant>
+
+        <copy todir="${dist.dir}/docs/api/python">
+            <fileset dir="docs/sphinx-api/_build/html"/>
+        </copy>
     </target>
 
     <target name="release-javadoc" description="Generate Javadocs for all components under dist/docs/api">
@@ -763,23 +781,9 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
         </replace>
     </target>
 
-    <target name="release-hudson" depends="check-ivy" description="Saves to the hudson repository for dependent builds">
-        <ivy:resolve settingsRef="ivy.toplevel"
-            file="${omero.home}/ivy.xml" type="zip" log="quiet"/>
-        <ivy:publish settingsRef="ivy.toplevel"
-            artifactspattern="${omero.home}/OMERO.server-${omero.version}.zip"
-            srcivypattern="${omero.home}/ivy.xml"
-            resolver="test-resolver"
-            pubrevision="${omero.version}"
-            pubdate="${now}"
-            status="integration"
-            overwrite="true"/>
-            <!-- This causes the ivy file to be modified -->
-            <!--forcedeliver="true"-->
-        <ivy:install settingsRef="ivy.toplevel"
-            organisation="omero" module="main" revision="${omero.version}"
-            from="omero-resolver" to="hudson-repository"
-            transitive="true" overwrite="true"/>
+    <target name="release-hudson" depends="check-ivy"
+            description="Saves to the hudson repository for dependent builds">
+        <iterate buildpathref="nobf.buildpath" target="artifactory"/>
     </target>
 
     <target name="release-nsis" description="Creates a Windows installer with NSIS">
@@ -1056,65 +1060,6 @@ omero.version=${omero.version}
             </exec>
         </sequential>
     </macrodef>
-
-    <macrodef name="gitdescribe">
-        <attribute name="regexp" default="^(v.)?(.*?)(-[0-9]+)?((-)g(.*?))?$"/>
-        <attribute name="select" default="\2"/>
-        <attribute name="match" default="${gitmatch}"/>
-        <sequential>
-        <trycatch>
-            <try>
-                <git command="describe" output="fullversion" failonerror="true">
-                    <args>
-                        <arg value="--match"/>
-                        <arg value="@{match}"/>
-                        <arg line="--dirty"/>
-                    </args>
-                </git>
-                <propertyregex property="version.describe" input="${fullversion}" regexp="@{regexp}" select="@{select}"/>
-            </try>
-            <catch>
-                <echo>UNKNOWN</echo>
-            </catch>
-        </trycatch>
-        </sequential>
-    </macrodef>
-
-    <target name="version-embed" if="omero.plainversion">
-        <echo>${omero.plainversion}-ice${versions.ice_lib}</echo>
-    </target>
-
-    <target name="version-git" unless="omero.plainversion">
-        <gitdescribe select="\2\3\5\6">
-        </gitdescribe>
-        <echo>${version.describe}-ice${versions.ice_lib}</echo>
-    </target>
-
-    <target name="version" depends="version-embed,version-git"/>
-
-    <target name="plainversion-embed" if="omero.plainversion">
-        <echo>${omero.plainversion}</echo>
-    </target>
-
-    <target name="plainversion-git" unless="omero.plainversion">
-        <gitdescribe select="\2\3\5\6">
-        </gitdescribe>
-        <echo>${version.describe}</echo>
-    </target>
-
-    <target name="plainversion" depends="plainversion-embed,plainversion-git"/>
-
-    <target name="shortversion-embed" if="omero.shortversion">
-        <echo>${omero.shortversion}</echo>
-    </target>
-
-    <target name="shortversion-git" unless="omero.shortversion">
-        <gitdescribe select="\2">
-        </gitdescribe>
-        <echo>${version.describe}</echo>
-    </target>
-
-    <target name="shortversion" depends="shortversion-embed,shortversion-git"/>
 
     <target name="print-mem">
         <echo>

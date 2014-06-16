@@ -2551,7 +2551,7 @@ class _BlitzGateway (object):
         if result is not None:
             return wrapper(self, result)
 
-    def getObjects (self, obj_type, ids=None, params=None, attributes=None):
+    def getObjects (self, obj_type, ids=None, params=None, attributes=None, respect_order=False):
         """
         Retrieve Objects by type E.g. "Image"
         Returns generator of appropriate L{BlitzObjectWrapper} type. E.g. L{ImageWrapper}.
@@ -2564,10 +2564,17 @@ class _BlitzGateway (object):
         @type ids:          List of Long
         @param params:      omero.sys.Parameters, can be used for pagination, filtering etc.
         @param attributes:  Map of key-value pairs to filter results by. Key must be attribute of obj_type. E.g. 'name', 'ns'
+        @param respect_order:   Returned items will be ordered according to the order of ids
         @return:            Generator of L{BlitzObjectWrapper} subclasses
         """
         query, params, wrapper = self.buildQuery(obj_type, ids, params, attributes)
         result = self.getQueryService().findAllByQuery(query, params, self.SERVICE_OPTS)
+        if respect_order and ids is not None:
+            idMap = {}
+            for r in result:
+                idMap[r.id.val] = r
+            ids = unwrap(ids)       # in case we had a list of rlongs
+            result = [idMap.get(i) for i in ids if i in idMap]
         for r in result:
             yield wrapper(self, r)
 
@@ -2586,12 +2593,12 @@ class _BlitzGateway (object):
         @return:            (query, params, wrapper)
         """
 
-        if type(obj_type) is type(''):
+        if isinstance(obj_type, StringTypes):
             wrapper = KNOWN_WRAPPERS.get(obj_type.lower(), None)
             if wrapper is None:
                 raise KeyError("obj_type of %s not supported by getOjbects(). E.g. use 'Image' etc" % obj_type)
         else:
-            raise AttributeError("getObjects uses a string to define obj_type, E.g. 'Image'")
+            raise AttributeError("getObjects uses a string to define obj_type, E.g. 'Image' not %r" % obj_type)
 
         if params is None:
             params = omero.sys.Parameters()
@@ -3379,13 +3386,7 @@ class _BlitzGateway (object):
         return handle
 
     def _waitOnCmd(self, handle, loops=10, ms=500, failonerror=True):
-        callback = omero.callbacks.CmdCallbackI(self.c, handle)
-        callback.loop(loops, ms) # Throw LockTimeout
-        rsp = callback.getResponse()
-        if isinstance(rsp, omero.cmd.ERR):
-            if failonerror:
-                raise Exception(rsp) # ???
-        return callback
+        return self.c.waitOnCmd(handle, loops=loops, ms=ms, failonerror=failonerror)
 
     def chmodGroup(self, group_Id, permissions):
         """
@@ -5429,20 +5430,27 @@ class _PixelsWrapper (BlitzObjectWrapper):
 
     def getPixelsType (self):
         """
-        This simply wraps the PixelsType object in a BlitzObjectWrapper.
-        Shouldn't be needed when this is done automatically
+        This simply wraps the omero::model::PixelsType object in a
+        BlitzObjectWrapper. Shouldn't be needed when this is done automatically.
+
+        It has the methods `getValue' and `getBitSize'.
         """
         return BlitzObjectWrapper(self._conn, self._obj.getPixelsType())
 
     def copyPlaneInfo (self, theC=None, theT=None, theZ=None):
         """
-        Loads plane infos and returns sequence of omero.model.PlaneInfo objects wrapped in BlitzObjectWrappers
-        ordered by planeInfo.deltaT.
+        Loads plane infos and returns sequence of omero.model.PlaneInfo objects
+        wrapped in BlitzObjectWrappers ordered by planeInfo.deltaT.
         Set of plane infos can be filtered by C, T or Z
 
         @param theC:    Filter plane infos by Channel index
+        @type  theC:    int or None
         @param theT:    Filter plane infos by Time index
+        @type  theT:    int or None
         @param theZ:    Filter plane infos by Z index
+        @type  theT:    int or None
+
+        @return:  Generator of PlaneInfo wrapped in BlitzObjectWrappers
         """
 
         params = omero.sys.Parameters()
@@ -5502,8 +5510,8 @@ class _PixelsWrapper (BlitzObjectWrapper):
                 "uint16":['H',numpy.uint16],
                 "int32":['i',numpy.int32],
                 "uint32":['I',numpy.uint32],
-                "float":['f',numpy.float],
-                "double":['d', numpy.double]}
+                "float":['f',numpy.float32],
+                "double":['d', numpy.float64]}
 
         rawPixelsStore = self._prepareRawPixelsStore()
         sizeX = self.sizeX
@@ -5977,8 +5985,8 @@ class _ImageWrapper (BlitzObjectWrapper):
         ctx = self._conn.SERVICE_OPTS.copy()
 
         ctx.setOmeroGroup(self.details.group.id.val)
-        if self._conn.canBeAdmin():
-            ctx.setOmeroUser(self.details.owner.id.val)
+        #if self._conn.canBeAdmin():
+        #    ctx.setOmeroUser(self.details.owner.id.val)
         re.lookupPixels(pid, ctx)
         if rdid is None:
             rdid = self._getRDef()
@@ -6242,8 +6250,6 @@ class _ImageWrapper (BlitzObjectWrapper):
 
         ctx = self._conn.SERVICE_OPTS.copy()
         ctx.setOmeroGroup(self.details.group.id.val)
-        if self._conn.canBeAdmin():
-            ctx.setOmeroUser(self.details.owner.id.val)
         has_rendering_settings = tb.setPixelsId(pid, ctx)
         logger.debug("tb.setPixelsId(%d) = %s " % (pid, str(has_rendering_settings)))
         if rdid is not None:
@@ -6255,6 +6261,8 @@ class _ImageWrapper (BlitzObjectWrapper):
                 rdid = None
         if rdid is None:
             if not has_rendering_settings:
+                if self._conn.canBeAdmin():
+                   ctx.setOmeroUser(self.details.owner.id.val)
                 try:
                     tb.resetDefaults(ctx)      # E.g. May throw Missing Pyramid Exception
                 except omero.ConcurrencyException, ce:
@@ -7369,10 +7377,10 @@ class _ImageWrapper (BlitzObjectWrapper):
     @assert_pixels
     def getPixelsType (self):
         """
-        Gets the physical size X of pixels in microns
+        Gets name of pixel data type.
 
-        @return:    Size of pixel in x or O
-        @rtype:     float
+        @return:    name of the image precision, e.g., float, uint8, etc.
+        @rtype:     String
         """
         rv = self._obj.getPrimaryPixels().getPixelsType().value
         return rv is not None and rv.val or 'unknown'
@@ -7563,6 +7571,23 @@ class _ImageWrapper (BlitzObjectWrapper):
         ctx = self._conn.SERVICE_OPTS.copy()
         ctx.setOmeroGroup(self.details.group.id.val)
         self._re.saveCurrentSettings(ctx)
+        return True
+
+    @assert_re()
+    def resetDefaults(self):
+        if not self.canAnnotate():
+            return False
+        ns = self._conn.CONFIG.IMG_ROPTSNS
+        if ns:
+            opts = self._collectRenderOptions()
+            self.removeAnnotations(ns)
+            ann = omero.gateway.CommentAnnotationWrapper()
+            ann.setNs(ns)
+            ann.setValue('&'.join(['='.join(map(str, x)) for x in opts.items()]))
+            self.linkAnnotation(ann)
+        ctx = self._conn.SERVICE_OPTS.copy()
+        ctx.setOmeroGroup(self.details.group.id.val)
+        self._re.resetDefaults(ctx)
         return True
 
     def countArchivedFiles (self):

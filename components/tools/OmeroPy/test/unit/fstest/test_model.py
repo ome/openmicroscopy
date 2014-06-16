@@ -26,7 +26,6 @@ just show creation / linkage scenarios.
 """
 
 import time
-import unittest
 import omero
 import omero.all
 
@@ -34,7 +33,7 @@ from omero.rtypes import rstring as _
 from omero.rtypes import rtime
 
 
-class TestModel(unittest.TestCase):
+class TestModel(object):
 
     def mkentry(self, clientPath):
         originalFile = omero.model.OriginalFileI()
@@ -58,19 +57,20 @@ class TestModel(unittest.TestCase):
         the state of the import.
         """
 
-        # This should be passed in by the client
-        clientInfo = omero.model.FilesetVersionInfoI()
+        if False:
+            # This should be passed in by the client
+            clientInfo = omero.model.FilesetVersionInfoI()
 
-        # This will be created server-side
-        serverInfo = omero.model.FilesetVersionInfoI()
-        serverInfo.bioformatsReader = _("ExampleReader")
-        serverInfo.bioformatsVersion = _("v4.4.5 git: abc123")
-        serverInfo.omeroVersion = _("v.4.4.4 git: def456")
-        serverInfo.osName = _("Linux")
-        serverInfo.osArchitecture = _("amd64")
-        serverInfo.osVersion = _("2.6.38-8-generic")
-        # Something returned by Locale.getDefault().toString()
-        serverInfo.locale = "en_US"
+            # This will be created server-side
+            serverInfo = omero.model.FilesetVersionInfoI()
+            serverInfo.bioformatsReader = _("ExampleReader")
+            serverInfo.bioformatsVersion = _("v4.4.5 git: abc123")
+            serverInfo.omeroVersion = _("v.4.4.4 git: def456")
+            serverInfo.osName = _("Linux")
+            serverInfo.osArchitecture = _("amd64")
+            serverInfo.osVersion = _("2.6.38-8-generic")
+            # Something returned by Locale.getDefault().toString()
+            serverInfo.locale = "en_US"
 
         # Now that the basics are setup, we
         # need to link to all of the original files.
@@ -101,7 +101,3 @@ class TestModel(unittest.TestCase):
 
         fs.linkJob(job1)
         fs.linkJob(job2)
-
-
-if __name__ == '__main__':
-    unittest.main()

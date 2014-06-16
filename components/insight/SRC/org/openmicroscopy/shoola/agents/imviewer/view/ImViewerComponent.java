@@ -767,6 +767,14 @@ class ImViewerComponent
 	 */
 	public boolean isZoomFitToWindow() { return model.isZoomFitToWindow(); }
 
+	/**
+         * Implemented as specified by the {@link ImViewer} interface.
+         * @see ImViewer#isRendererLoaded()
+         */
+	public boolean isRendererLoaded() {
+	    return model.isRendererLoaded();
+	}
+	
 	/** 
 	 * Implemented as specified by the {@link ImViewer} interface.
 	 * @see ImViewer#setColorModel(int)

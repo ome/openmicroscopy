@@ -5,7 +5,7 @@
 #
 # $Id$
 #
-# Copyright 2008 Glencoe Software, Inc. All rights reserved.
+# Copyright 2008-2014 Glencoe Software, Inc. All rights reserved.
 # Use is subject to license terms supplied in LICENSE.txt
 #
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -67,6 +67,8 @@
               <constructor-arg ref="checksumProviderFactory"/>
               <constructor-arg value="${omero.checksum.supported}"/>
               <constructor-arg value="${omero.fs.repo.path_rules}"/>
+              <constructor-arg ref="uuid"/>
+              <constructor-arg ref="roles"/>
           </bean>
       </constructor-arg>
   </bean>

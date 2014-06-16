@@ -246,42 +246,24 @@ class MetadataViewerUI
      */
 	void viewedBy(Component source, Point location)
 	{
-		if (viewedByMenu == null) {
-			Map m = model.getViewedBy();
-			viewedByMenu = new JPopupMenu();
-			ViewerSorter sorter = new ViewerSorter();
-			List list = sorter.sort(m.keySet());
-			Iterator i = list.iterator();
-			ViewedByItem item ;
-			ExperimenterData exp;
-			while (i.hasNext()) {
-				exp = (ExperimenterData) i.next();
-				item = new ViewedByItem(exp, (RndProxyDef) m.get(exp));
-				item.addPropertyChangeListener(
-						ViewedByItem.VIEWED_BY_PROPERTY, this);
-				viewedByMenu.add(item);
-			}
-			if (list.size() == 0) {
-				thumbnailsMenuItem = new JMenuItem("Not viewed");
-				thumbnailsMenuItem.setToolTipText("No other users " +
-						"viewed the image.");
-			} else {
-				IconManager icons = IconManager.getInstance();
-				thumbnailsMenuItem = new JMenuItem("Show thumbnails");
-				thumbnailsMenuItem.setIcon(icons.getIcon(
-						IconManager.PREVIEW_THUMBNAILS_32));
-				thumbnailsMenuItem.addActionListener(new ActionListener() {
-					
-					public void actionPerformed(ActionEvent e)
-					{
-						showViewedBy();
-					}
-				});
-			}
-			
-			viewedByMenu.add(thumbnailsMenuItem);
-		}
-		viewedByMenu.show(source, location.x, location.y);
+	    if (viewedByMenu == null) {
+	        viewedByMenu = new JPopupMenu();
+	    }
+	    viewedByMenu.removeAll();
+	    Map m = model.getViewedBy();
+        ViewerSorter sorter = new ViewerSorter();
+        List list = sorter.sort(m.keySet());
+        Iterator i = list.iterator();
+        ViewedByItem item ;
+        ExperimenterData exp;
+        while (i.hasNext()) {
+            exp = (ExperimenterData) i.next();
+            item = new ViewedByItem(exp, (RndProxyDef) m.get(exp));
+            item.addPropertyChangeListener(
+                    ViewedByItem.VIEWED_BY_PROPERTY, this);
+            viewedByMenu.add(item);
+        }
+        showViewedBy();
 	}
 	
 	/** Displays all the thumbnails. */
@@ -341,7 +323,7 @@ class MetadataViewerUI
 				}
 			}
 		}
-		thumbnailsMenuItem.setEnabled(items.size() > 0);
+		if (items != null) showViewedBy();
 		model.getEditor().getRenderer().loadRndSettings(true, null);
 	}
 	

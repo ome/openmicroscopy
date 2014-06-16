@@ -1,4 +1,4 @@
-% Copyright (C) 2011-2013 University of Dundee & Open Microscopy Environment.
+% Copyright (C) 2011-2014 University of Dundee & Open Microscopy Environment.
 % All rights reserved.
 %
 % This program is free software; you can redistribute it and/or modify
@@ -31,16 +31,19 @@ tagName = 'example';
 tagDescription = 'tag annotation example';
 
 try
-    % Create a connection
+    % Initialize a client and a session using the ice.config file
+    % See ConnectToOMERO for alternative ways to initialize a session
     [client, session] = loadOmero();
-    fprintf(1, 'Created connection to %s\n', char(client.getProperty('omero.host')));
-    fprintf(1, 'Created session for user %s using group %s\n',...
-        char(session.getAdminService().getEventContext().userName),...
-        char(session.getAdminService().getEventContext().groupName));
-    
+    p = parseOmeroProperties(client);
+    eventContext = session.getAdminService().getEventContext();
+    fprintf(1, 'Created connection to %s\n', p.hostname);
+    msg = 'Created session for user %s (id: %g) using group %s (id: %g)\n';
+    fprintf(1, msg, char(eventContext.userName), eventContext.userId,...
+        char(eventContext.groupName), eventContext.groupId);
+  
     % Information to edit
-    imageId = str2double(client.getProperty('image.id'));
-    projectId = str2double(client.getProperty('project.id'));
+    imageId = p.imageid;
+    projectId = p.projectid;
     
     % Load image
     fprintf(1, 'Reading image: %g\n', imageId);

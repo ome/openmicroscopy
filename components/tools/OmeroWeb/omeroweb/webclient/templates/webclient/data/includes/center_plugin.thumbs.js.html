@@ -28,18 +28,6 @@
 
 $(document).ready(function() {
     
-    var showWell = false;
-    // See if the url contains ?show=well-123 OR ?show=well-123|well-567
-    var q = (location.search.length > 1 ? location.search.substring(1).split("&") : []);
-    var qKeys = {},
-        shows, well_id, $well,
-        selected_wells = $("");
-    for(var i = 0; i < q.length; i++){
-        qKeys[q[i].match(/^[^=]+/)] = q[i].replace(/^[^=]+=?/, "");
-    }
-    if (qKeys["show"] && qKeys["show"].substr(0,5) === "well-") {
-        showWell = qKeys["show"];
-    }
 
     // on change of selection in tree, update center panel
     var update_thumbnails_panel = function(event, force_update) {
@@ -47,6 +35,15 @@ $(document).ready(function() {
         // this may have been called before datatree was initialised...
         var datatree = $.jstree._focused();
         if (!datatree) return;
+
+        // See if the tree was asked to have a Well shown
+        var showWell = false;
+        var initiallySelect = datatree.get_settings().ui.initially_select;
+        for (var i = 0; i < initiallySelect.length; i++) {
+            if (initiallySelect[i].substr(0, 5) === "well-") {
+                showWell = initiallySelect[i];
+            }
+        }
         
         // we use the tree to access selected objects, since we can traverse to check parents etc...
         var selected = datatree.data.ui.selected;

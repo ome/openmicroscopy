@@ -2,10 +2,10 @@
  * org.openmicroscopy.shoola.agents.dataBrowser.browser.BrowserModel 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -62,9 +62,6 @@ import pojos.WellData;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since OME3.0
  */
 class BrowserModel
@@ -333,13 +330,18 @@ class BrowserModel
 	    rollOverNode = node;
 	    firePropertyChange(ROLL_OVER_PROPERTY, previousNode, node);
 	}
-	
+
 	/**
 	 * Implemented as specified by the {@link Browser} interface.
 	 * @see Browser#getRootNodes()
 	 */
-	public Collection<ImageDisplay> getRootNodes() { return rootDisplay.getChildrenDisplay(); }
-	
+	public Collection<ImageDisplay> getRootNodes()
+	{
+	    NodesFinder finder = new NodesFinder();
+	    accept(finder);
+	    return finder.getFoundNodes();
+	}
+
 	/**
 	 * Implemented as specified by the {@link Browser} interface.
 	 * @see Browser#getSelectedDisplays()
@@ -575,7 +577,7 @@ class BrowserModel
 		Set<ImageDisplay> oldValue = null;
 		if (selectedDisplays != null)
 			oldValue = new HashSet<ImageDisplay>(selectedDisplays);
-		if (nodes == null || nodes.isEmpty()) {
+		if (CollectionUtils.isEmpty(nodes)) {
 			if (selectedDisplays != null) selectedDisplays.clear();
 			setNodesColor(null, oldValue);
 			return;
@@ -584,11 +586,12 @@ class BrowserModel
 		accept(finder);
 		List<ImageDisplay> found = finder.getFoundNodes();
 		if (CollectionUtils.isEmpty(found)) {
-			Collection<ImageDisplay> selected = getSelectedDisplays();
-			if (CollectionUtils.isEmpty(selected)) {
-				setNodesColor(null, getRootNodes());
-			}
 			setSelectedDisplay(null, false, false);
+			//Check again
+			Collection<ImageDisplay> selected = getSelectedDisplays();
+            if (CollectionUtils.isEmpty(selected)) {
+                setNodesColor(null, getRootNodes());
+            }
 			return;
 		}
 
@@ -687,15 +690,23 @@ class BrowserModel
 	{
 		if (nodes == null) return;
 		setNodesColor(nodes, getSelectedDisplays());
-		final HashSet<ImageDisplay> previouslySelectedDisplays = new HashSet<ImageDisplay>(this.selectedDisplays);
+		final HashSet<ImageDisplay> previouslySelectedDisplays =
+		        new HashSet<ImageDisplay>(this.selectedDisplays);
 		previouslySelectedDisplays.removeAll(nodes);
-		for (final ImageDisplay previouslySelectedDisplay : previouslySelectedDisplays)
-			removeSelectedDisplay(previouslySelectedDisplay);
+		Colors colors = Colors.getInstance();
+		for (final ImageDisplay node : previouslySelectedDisplays) {
+	        node.setHighlight(colors.getDeselectedHighLight(node));
+	        selectedDisplays.remove(node);
+		}
 		boolean multiSelection = false;
+		Set<ImageDisplay> oldValue =
+                new HashSet<ImageDisplay>(selectedDisplays);
 		for (final ImageDisplay node : nodes) {
-			setSelectedDisplay(node, multiSelection, true);
+			setSelectedDisplay(node, multiSelection, false);
 			multiSelection = true;
 		}
+        firePropertyChange(SELECTED_DATA_BROWSER_NODES_DISPLAY_PROPERTY,
+                oldValue, selectedDisplays);
 	}
 	
 	/**
@@ -821,7 +832,7 @@ class BrowserModel
 	 */
 	public void setSelectedDisplays(List<ImageDisplay> nodes)
 	{
-		if (nodes == null || nodes.size() == 0) return;
+		if (CollectionUtils.isEmpty(nodes)) return;
 		if (nodes.size() == 1) {
 			setSelectedDisplay(nodes.get(0), false, true);
 		} else {

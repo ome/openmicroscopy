@@ -4,7 +4,7 @@
 
 {% comment %}
 <!--
-  Copyright (C) 2011-2013 University of Dundee & Open Microscopy Environment.
+  Copyright (C) 2011-2014 University of Dundee & Open Microscopy Environment.
   All rights reserved.
 
   This program is free software: you can redistribute it and/or modify
@@ -266,6 +266,15 @@
             {
                 var copy_paste_rdef_url = "{% url 'webgateway.views.copy_image_rdef_json' %}",
                     apply_owners_rdef_url = "{% url 'webgateway.views.apply_owners_rdef_json' %}";
+
+                // We truncate images when the left panel resizes...
+                $("#left_panel").on('resize', OME.truncateNames);
+                // and also when we load new data in the tree
+                $("#dataTree").on('load_node.jstree', function() {
+                    // wait for images to render, then truncate:
+                    setTimeout(OME.truncateNames, 30);
+                });
+
                 // Copy the selected Image ID to the 'session' (right-click menu only allows this on 'image')
                 var copyRenderingSettings = function(selected) {
                     if (selected.length == 1) {
@@ -491,12 +500,12 @@
                                     toolbar_config['paste'] = true;                // allow paste
                                 }
                             } else if(selected.attr("id").indexOf("dataset")>=0) {
-                                toolbar_config['copy'] = true;
+                                toolbar_config['cut'] = true;
                                 if (to_paste && to_paste[0].id.indexOf("image")>=0) {
                                     toolbar_config['paste'] = true;
                                 }
                                 if (selected.parent().parent().length > 0 && selected.parent().parent().attr('rel').replace("-locked", "").indexOf("experimenter") < 0) {
-                                    toolbar_config["cut"] = true;
+                                    toolbar_config["copy"] = true;
                                 }
                             } else if(selected.attr("id").indexOf("image")>=0) {
                                 toolbar_config['basket'] = true;
@@ -781,13 +790,6 @@
                                 "label"     : "Edit",
                                 "action"    : false,
                                 "submenu"   : {
-                                    "copy"  : {
-                                        "label" : "Copy Link",
-                                        "icon"  : '{% static "webclient/image/icon_basic_copy_16.png" %}',
-                                        "action": function() {
-                                            this.copy(this.get_selected());
-                                        }
-                                    },
                                     "cut"   :{
                                         "label" : "Cut Link",
                                         "icon"  : '{% static "webclient/image/icon_basic_cut_16.png" %}',
@@ -796,6 +798,13 @@
                                                 selected = this.get_selected();
                                             tree.cut(selected);     // jsTree 'cut' doesn't remove...
                                             OME.remove_nodes(this, selected);
+                                        }
+                                    },
+                                    "copy"  : {
+                                        "label" : "Copy Link",
+                                        "icon"  : '{% static "webclient/image/icon_basic_copy_16.png" %}',
+                                        "action": function() {
+                                            this.copy(this.get_selected());
                                         }
                                     },
                                     "paste": {
@@ -930,7 +939,7 @@
                                     }
                                 } else if(obj.attr("id").indexOf("dataset")>=0) {
                                     if (obj.parent().parent().attr('rel').indexOf('experimenter')>=0) {
-                                        config["ccp"]["submenu"]["cut"]["_disabled"] = true;
+                                        config["ccp"]["submenu"]["copy"]["_disabled"] = true;
                                     }
                                     if (!(to_paste && to_paste[0].id.indexOf("image")>=0)) {
                                         config["ccp"]["submenu"]["paste"]["_disabled"] = true;
@@ -1230,8 +1239,8 @@
 			
 			<li class="seperator"></li>
 			
-			<li><input id="copyButton" class="button button-disabled" type="image" src="{% static "webclient/image/icon_toolbar_copy.png" %}" alt="Copy Link" title="Copy a link to the selected object" /> </li>
 			<li><input id="cutButton" class="button button-disabled" type="image" src="{% static "webclient/image/icon_toolbar_cut.png" %}" alt="Cut Link" title="Cut Link" /> </li>
+            <li><input id="copyButton" class="button button-disabled" type="image" src="{% static "webclient/image/icon_toolbar_copy.png" %}" alt="Copy Link" title="Copy a link to the selected object" /> </li>
 			<li><input id="pasteButton" class="button button-disabled" type="image" src="{% static "webclient/image/icon_toolbar_paste.png" %}" alt="Paste Link" title="Paste the copied link" /> </li>
 			
 			<li class="seperator">

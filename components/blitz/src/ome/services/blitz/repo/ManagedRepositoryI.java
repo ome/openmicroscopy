@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -33,16 +34,19 @@ import java.util.Set;
 
 import loci.formats.FormatReader;
 
-import ome.api.local.LocalAdmin;
+import ome.api.IAdmin;
+import ome.api.IUpdate;
 import ome.formats.importer.ImportConfig;
 import ome.formats.importer.ImportContainer;
 import ome.model.core.OriginalFile;
+import ome.model.meta.Experimenter;
 import ome.services.blitz.gateway.services.util.ServiceUtilities;
 import ome.services.blitz.repo.path.ClientFilePathTransformer;
 import ome.services.blitz.repo.path.FilePathNamingValidator;
 import ome.services.blitz.repo.path.FilePathRestrictionInstance;
 import ome.services.blitz.repo.path.FsFile;
 import ome.services.blitz.util.ChecksumAlgorithmMapper;
+import ome.system.Roles;
 import ome.system.ServiceFactory;
 import ome.util.SqlAction;
 import ome.util.checksum.ChecksumProviderFactory;
@@ -80,7 +84,9 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Collections2;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 import Ice.Current;
 
@@ -126,6 +132,10 @@ public class ManagedRepositoryI extends PublicRepositoryI
 
     private final ProcessContainer processes;
 
+    private final String rootSessionUuid;
+
+    private final long userGroupId;
+
     /**
      * Creates a {@link ProcessContainer} internally that will not be managed
      * by background threads. Used primarily during testing.
@@ -134,24 +144,51 @@ public class ManagedRepositoryI extends PublicRepositoryI
      */
     public ManagedRepositoryI(String template, RepositoryDao dao) throws Exception {
         this(template, dao, new ProcessContainer(), new ChecksumProviderFactoryImpl(),
-                ALL_CHECKSUM_ALGORITHMS, FilePathRestrictionInstance.UNIX_REQUIRED.name);
+                ALL_CHECKSUM_ALGORITHMS, FilePathRestrictionInstance.UNIX_REQUIRED.name, null, new Roles());
     }
 
     public ManagedRepositoryI(String template, RepositoryDao dao,
             ProcessContainer processes,
             ChecksumProviderFactory checksumProviderFactory,
             String checksumAlgorithmSupported,
-            String pathRules) throws Exception {
+            String pathRules,
+            String rootSessionUuid,
+            Roles roles) throws ServerError {
         super(dao, checksumProviderFactory, checksumAlgorithmSupported, pathRules);
         this.template = template;
         this.processes = processes;
         this.filePathNamingValidator = new FilePathNamingValidator(this.filePathRestrictions);
+        this.rootSessionUuid = rootSessionUuid;
+        this.userGroupId = roles.getUserGroupId();
         log.info("Repository template: " + this.template);
     }
 
     @Override
     public Ice.Object tie() {
         return new _ManagedRepositoryTie(this);
+    }
+
+    /**
+     * Split a template path into the root- and user-owned segments
+     * @param templatePath a template path
+     * @return the root- and user-owned segments
+     * @throws ApiUsageException if there are no user-owned components
+     */
+    private static Map.Entry<FsFile, FsFile> splitPath(String templatePath) throws omero.ApiUsageException {
+        int splitPoint = templatePath.lastIndexOf("//");
+        if (splitPoint < 0) {
+            splitPoint = 0;
+        }
+
+        final FsFile rootPath = new FsFile(templatePath.substring(0, splitPoint));
+        final FsFile userPath = new FsFile(templatePath.substring(splitPoint));
+
+        if (FsFile.emptyPath.equals(userPath)) {
+            throw new omero.ApiUsageException(null, null,
+                    "no user-owned directories in managed repository template path");
+        }
+
+        return Maps.immutableEntry(rootPath, userPath);
     }
 
     //
@@ -184,9 +221,15 @@ public class ManagedRepositoryI extends PublicRepositoryI
         // This is the first part of the string which comes after:
         // ManagedRepository/, e.g. %user%/%year%/etc.
         final EventContext ec = repositoryDao.getEventContext(__current);
-        final FsFile relPath = new FsFile(expandTemplate(template, ec));
-        // at this point, relPath should not yet exist on the filesystem
-        createTemplateDir(relPath, __current);
+        final String templatePath = expandTemplate(template, ec);
+        final Map.Entry<FsFile, FsFile> pathSegments = splitPath(templatePath);
+        final FsFile rootOwnedPath = pathSegments.getKey();
+        final FsFile userOwnedPath = pathSegments.getValue();
+
+        // at this point, the template path should not yet exist on the filesystem
+        createTemplateDir(rootOwnedPath, userOwnedPath, __current);
+
+        final FsFile relPath = FsFile.concatenate(rootOwnedPath, userOwnedPath);
         fs.setTemplatePrefix(rstring(relPath.toString() + FsFile.separatorChar));
 
         final Class<? extends FormatReader> readerClass = getReaderClass(fs, __current);
@@ -469,14 +512,19 @@ public class ManagedRepositoryI extends PublicRepositoryI
      * starting at the top, until all the directories have been created.
      * The full path must not already exist, although a prefix of it may.
      */
-    protected void createTemplateDir(FsFile relPath, Ice.Current curr) throws ServerError {
-        final List<String> relPathComponents = relPath.getComponents();
-        final int relPathSize = relPathComponents.size();
-        if (relPathSize == 0)
-            throw new IllegalArgumentException("no template directory");
-        if (relPathSize > 1) {
-            final List<String> pathPrefix = relPathComponents.subList(0, relPathSize - 1);
-            makeDir(new FsFile(pathPrefix).toString(), true, curr);
+    protected void createTemplateDir(FsFile rootOwnedPath, FsFile userOwnedPath, Ice.Current curr) throws ServerError {
+        if (!rootOwnedPath.getComponents().isEmpty()) {
+            final Current rootCurr = sudo(curr, rootSessionUuid);
+            rootCurr.ctx.put(omero.constants.GROUP.value, Long.toString(userGroupId));
+            makeDir(rootOwnedPath.toString(), true, rootCurr);
+        }
+
+        final FsFile relPath = FsFile.concatenate(rootOwnedPath, userOwnedPath);
+
+        if (userOwnedPath.getComponents().size() > 1) {
+            final int relPathSize = relPath.getComponents().size();
+            final List<String> relPathPrefix = relPath.getComponents().subList(0, relPathSize - 1);
+            makeDir(new FsFile(relPathPrefix).toString(), true, curr);
         }
         makeDir(relPath.toString(), false, curr);
     }
@@ -608,24 +656,45 @@ public class ManagedRepositoryI extends PublicRepositoryI
     }
 
     /**
+     * @param x a collection of items, not {@code null}
+     * @param y a collection of items, not {@code null}
+     * @return if the collections have the same items in the same order, or if one is a prefix of the other
+     */
+    private static boolean isConsistentPrefixes(Iterable<?> x, Iterable<?> y) {
+        final Iterator<?> xIterator = x.iterator();
+        final Iterator<?> yIterator = y.iterator();
+        while (xIterator.hasNext() && yIterator.hasNext()) {
+            if (!xIterator.next().equals(yIterator.next())) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
      * Checks for the top-level user directory restriction before calling
      * {@link PublicRepositoryI#makeCheckedDirs(LinkedList<CheckedPath>, boolean, Current)}
      */
+    @Override
     protected void makeCheckedDirs(final LinkedList<CheckedPath> paths,
-            boolean parents, Session s, ServiceFactory sf, SqlAction sql)
-                    throws ResourceError, ServerError {
+            boolean parents, Session s, ServiceFactory sf, SqlAction sql,
+            ome.system.EventContext effectiveEventContext) throws ServerError {
 
-        final ome.system.EventContext _ec
-            = ((LocalAdmin) sf.getAdminService()).getEventContextQuiet();
-        final EventContext ec = IceMapper.convert(_ec);
+        final IAdmin adminService = sf.getAdminService();
+        final EventContext ec = IceMapper.convert(effectiveEventContext);
         final String expanded = expandTemplate(template, ec);
-        final FsFile asfsfile = new FsFile(expanded);
-        final List<String> components = asfsfile.getComponents();
+        final FsFile rootOwnedPath = splitPath(expanded).getKey();
         final List<CheckedPath> pathsToFix = new ArrayList<CheckedPath>();
+        final List<CheckedPath> pathsForRoot;
 
-        // hard-coded assumptions: the first element of the template must match
-        // user_id and the last is unique in someway (and therefore won't be
-        // handled specially.
+        /* if running as root then the paths must be root-owned */
+        final long rootId = adminService.getSecurityRoles().getRootId();
+        if (adminService.getEventContext().getCurrentUserId() == rootId) {
+            pathsForRoot = ImmutableList.copyOf(paths);
+        } else {
+            pathsForRoot = ImmutableList.of();
+        }
+
         for (int i = 0; i < paths.size(); i++) {
 
             CheckedPath checked = paths.get(i);
@@ -633,40 +702,35 @@ public class ManagedRepositoryI extends PublicRepositoryI
                 // This shouldn't happen but just in case.
                 throw new ResourceError(null, null, "Cannot re-create root!");
             }
-            
-            if (i>0 && i>(components.size()-1)) {
-                // we always check at least one path element, but after that
-                // we only need to check as far as one less than the size of
-                // the template
-                break;
-            }
 
-            if (checked.parent().isRoot) {
-                // This is a top-level directory. This must equal
-                // "%USERNAME%_%USERID%", in which case if it doesn't exist, it will
-                // be created for the user in the "user" group so that it is
-                // visible globally.
-                String userDirectory = getUserDirectoryName(ec);
-                if (!userDirectory.equals(checked.getName())) {
-                    throw new omero.ValidationException(null, null, String.format(
-                            "User-directory name mismatch! (%s<>%s)",
-                            userDirectory, checked.getName()));
-                            
-                }
+            /* check that the path is consistent with the root-owned template path directories */
+            if (!isConsistentPrefixes(rootOwnedPath.getComponents(), checked.fsFile.getComponents())) {
+                throw new omero.ValidationException(null, null,
+                        "cannot create directory \"" + checked.fsFile
+                        + "\" with template path's root-owned \"" + rootOwnedPath + "\"");
             }
 
             pathsToFix.add(checked);
         }
-        
-        super.makeCheckedDirs(paths, parents, s, sf, sql);
-        
+
+        super.makeCheckedDirs(paths, parents, s, sf, sql, effectiveEventContext);
+
+        /* ensure that root segment of the template path is wholly root-owned */
+        if (!pathsForRoot.isEmpty()) {
+            final Experimenter rootUser = sf.getQueryService().find(Experimenter.class, rootId);
+            final IUpdate updateService = sf.getUpdateService();
+            for (final CheckedPath pathForRoot : pathsForRoot) {
+                final OriginalFile directory = repositoryDao.findRepoFile(sf, sql, getRepoUuid(), pathForRoot, null);
+                if (directory.getDetails().getOwner().getId() != rootId) {
+                    directory.getDetails().setOwner(rootUser);
+                    updateService.saveObject(directory);
+                }
+            }
+        }
+
         // Now that we know that these are the right directories for
         // the current user, we make sure that the directories are in
         // the user group.
         repositoryDao.createOrFixUserDir(getRepoUuid(), pathsToFix, s, sf, sql);
-    }
-
-    protected String getUserDirectoryName(EventContext ec) {
-        return String.format("%s_%s", ec.userName, ec.userId);
     }
 }
