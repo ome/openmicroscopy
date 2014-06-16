@@ -207,10 +207,10 @@ class GroupProfile
     	JPanel p = new JPanel();
     	p.setBackground(UIUtilities.BACKGROUND_COLOR);
     	GroupData group = (GroupData) model.getRefObject();
-    	Set leaders = group.getLeaders();
+    	Set<ExperimenterData> leaders = group.getLeaders();
     	if (leaders == null || leaders.size() == 0) return p;
     	
-    	Iterator i = leaders.iterator();
+    	Iterator<ExperimenterData> i = leaders.iterator();
     	ExperimenterData exp;
     	while (i.hasNext()) {
 			exp = (ExperimenterData) i.next();
