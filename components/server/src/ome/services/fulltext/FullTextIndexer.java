@@ -25,6 +25,7 @@ import ome.model.IGlobal;
 import ome.model.IMutable;
 import ome.model.IObject;
 import ome.model.meta.EventLog;
+import ome.services.eventlogs.EventLogFailure;
 import ome.services.eventlogs.EventLogLoader;
 import ome.services.eventlogs.PersistentEventLogLoader;
 import ome.services.util.Executor.SimpleWork;
@@ -294,7 +295,7 @@ public class FullTextIndexer extends SimpleWork implements ApplicationContextAwa
                     action.go(session);
                 } catch (Exception e) {
                     try {
-                        this.context.publishMessage(new FullTextFailure(loader, eventLog, e));
+                        this.context.publishMessage(new EventLogFailure(loader, eventLog, e));
                     } catch (RuntimeException re) {
                         throw re;
                     } catch (Throwable e1) {

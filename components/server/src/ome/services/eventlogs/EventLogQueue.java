@@ -32,7 +32,6 @@ import ome.model.core.Image;
 import ome.model.meta.EventLog;
 import ome.model.screen.Plate;
 import ome.model.screen.Screen;
-import ome.services.fulltext.FullTextFailure;
 import ome.system.metrics.Counter;
 import ome.system.metrics.Metrics;
 import ome.system.metrics.NullMetrics;
@@ -49,7 +48,7 @@ import org.springframework.context.ApplicationEvent;
  * most critical. As with other implementations, {@link #hasNext()} is used for
  * loading data if necessary, while {@link #next()} simply returns an object. In
  * some cases, nulls may be returned, which consumers must contend with.
- * 
+ *
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 5.0.3
  */
@@ -75,7 +74,7 @@ public class EventLogQueue extends PersistentEventLogLoader {
 
         /**
          * Marked when {@link EventLogQueue#onApplicationEvent(ApplicationEvent)}
-         * is called with a {@link FullTextFailure}.
+         * is called with a {@link EventLogFailure}.
          */
         FAIL;
     }
@@ -85,7 +84,7 @@ public class EventLogQueue extends PersistentEventLogLoader {
      * {@link SqlAction#getEventLogPartitions(java.util.Collection, java.util.Collection, long, long)}
      * . State is mutable so that subsequent data for the same IObject can be
      * merged into a single representation.
-     * 
+     *
      * @since 5.0.3
      */
     private static class Entry {
@@ -164,7 +163,7 @@ public class EventLogQueue extends PersistentEventLogLoader {
     /**
      * Wrapper to combine {@link EventLog} and {@link Entry} instances for
      * consumption by the FullTextIndexer.
-     * 
+     *
      * @since 5.0.3
      * @TODO Unfortunately this {@link EventLog} subclass needlessly creates a
      *       Details object.
@@ -199,7 +198,7 @@ public class EventLogQueue extends PersistentEventLogLoader {
         /**
          * Intended to hide access to much of the {@link Map} interface in order
          * to simplify keeping the various collections in sync.
-         * 
+         *
          * @since 5.0.3
          */
         private class Entries {
@@ -306,7 +305,7 @@ public class EventLogQueue extends PersistentEventLogLoader {
             return entry;
         }
 
-        public void fail(FullTextFailure failure) {
+        public void fail(EventLogFailure failure) {
             WrappedEventLog wrapped = (WrappedEventLog) failure.log;
             failureQ.add(wrapped);
             wrapped.entry.fail();
@@ -357,7 +356,7 @@ public class EventLogQueue extends PersistentEventLogLoader {
 
     /**
      * Last {@link Entry} which was returned by the {@link #next()} method. If a
-     * {@link FullTextFailure} is received, then this should be marked as such.
+     * {@link EventLogFailure} is received, then this should be marked as such.
      * If {@link #next()} is called again without a failure, it can be assumed
      * that the processing was successful.
      */
@@ -427,7 +426,7 @@ public class EventLogQueue extends PersistentEventLogLoader {
     /**
      * Guarantees that the given arguments are available somewhere in the queue
      * returning true if they were newly added.
-     * 
+     *
      * @param eventLogId
      * @param type
      * @param objId
@@ -453,9 +452,8 @@ public class EventLogQueue extends PersistentEventLogLoader {
 
     @Override
     public void onApplicationEvent(ApplicationEvent arg0) {
-        if (arg0 instanceof FullTextFailure) { // TODO: should be
-                                               // eventlogfailure
-            FullTextFailure failure = (FullTextFailure) arg0;
+        if (arg0 instanceof EventLogFailure) {
+            EventLogFailure failure = (EventLogFailure) arg0;
             if (failure.wasSource(this)) {
                 if (lastReturned != failure.log) {
                     log.error("lastReturned is not failure item!");

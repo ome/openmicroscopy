@@ -17,34 +17,33 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-package ome.services.fulltext;
+package ome.services.eventlogs;
 
 
 import ome.model.meta.EventLog;
-import ome.services.eventlogs.EventLogLoader;
 import ome.util.messages.InternalMessage;
 
 /**
- * Signifies that the {@link FullTextIndexer} has failed for the given
- * {@link EventLog}. Previously, this was being handled by a try/catch
- * block within {@link FullTextIndexer#doIndexing(org.hibernate.search.FullTextSession)}
+ * Signifies that the processing of a {@link EventLog} has failed.
+ * Previously, this was being handled by a try/catch
+ * block within the processor (e.g. FullTextIndexer)
  * but in order to allow each {@link EventLogLoader} to handle the error
  * differently, this message was created.
  *
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 5.0.3
  */
-public class FullTextFailure extends InternalMessage {
+public class EventLogFailure extends InternalMessage {
 
     private static final long serialVersionUID = -6829538576297712696L;
-    
+
     public final EventLogLoader loader;
 
     public final EventLog log;
 
     public final Throwable throwable;
 
-    public FullTextFailure(EventLogLoader loader, EventLog log, Throwable t) {
+    public EventLogFailure(EventLogLoader loader, EventLog log, Throwable t) {
         super(loader);
         this.loader = loader;
         this.log = log;
