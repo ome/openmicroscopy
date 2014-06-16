@@ -1245,6 +1245,9 @@ OMERO Diagnostics %s
         logback = "-Dlogback.configurationFile=%s" % log_config_file
         classpath = [file.abspath() for file in server_dir.files("*.jar")]
         xargs = [logback, "-Xmx1024M", "-cp", os.pathsep.join(classpath)]
+        # See etc/grid/templates.xml
+        for v in (("warn", "3600000"), ("error", "86400000")):
+            xargs.append("-Domero.throttling.method_time.%s=%s" % v)
 
         cfg = config.as_map()
         config.close()  # Early close. See #9800
