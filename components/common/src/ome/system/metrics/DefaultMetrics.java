@@ -56,7 +56,7 @@ public class DefaultMetrics implements Metrics, InitializingBean {
 
     private MetricRegistry registry = new MetricRegistry();
 
-    private boolean slf4jReporter = false;
+    private int slf4jMinutes = 0;
 
     private boolean jmxReporter = true;
 
@@ -68,8 +68,8 @@ public class DefaultMetrics implements Metrics, InitializingBean {
 
     private Collection<String> beginsWith = null;
 
-    public void setSlf4jReporter(boolean activate) {
-        this.slf4jReporter = activate;
+    public void setSlf4jMinutes(int minutes) {
+        this.slf4jMinutes = minutes;
     }
 
     public void setBeginsWith(Collection<String> prefixes) {
@@ -99,14 +99,14 @@ public class DefaultMetrics implements Metrics, InitializingBean {
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        if (slf4jReporter) {
+        if (slf4jMinutes > 0) {
             final Slf4jReporter reporter = Slf4jReporter.forRegistry(registry)
                 .filter(filter())
                 .outputTo(LoggerFactory.getLogger("ome.system.metrics"))
                 .convertRatesTo(TimeUnit.SECONDS)
                 .convertDurationsTo(TimeUnit.MILLISECONDS)
                 .build();
-            reporter.start(60, TimeUnit.MINUTES);
+            reporter.start(slf4jMinutes, TimeUnit.MINUTES);
         }
 
         if (jmxReporter) {
