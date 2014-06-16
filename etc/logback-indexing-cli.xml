@@ -24,6 +24,8 @@
   <logger name="ome.services.blitz.impl.ServiceFactoryI" level="INFO"/>
   <logger name="ome.services.blitz.impl.OmeroMetadata" level="DEBUG"/>
   <logger name="ome.services.blitz.util.ShutdownSafeEhcacheManagerFactoryBean" level="WARN"/>
+  <!-- Temporary during development -->
+  <logger name="ome.services.eventlogs.EventLogQueue" level="DEBUG"/>
   <!-- Adapters are also too so is a bit verbose -->
   <logger name="ome.adapters" level="ERROR"/>
 
