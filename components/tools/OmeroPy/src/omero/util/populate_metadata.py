@@ -339,12 +339,8 @@ class ParsingContext(object):
                 widths.append(None)
         return widths
 
-    def parse(self):
-        data = open(self.file, 'U')
-        try:
-            rows = list(csv.reader(data, delimiter=','))
-        finally:
-            data.close()
+    def parse_from_handle(self, data):
+        rows = list(csv.reader(data, delimiter=','))
         log.debug('Header: %r' % rows[0])
         header_resolver = HeaderResolver(self.target_object, rows[0])
         self.columns = header_resolver.create_columns()
@@ -360,6 +356,13 @@ class ParsingContext(object):
         #    for column in self.columns:
         #        values.append(column.values[i])
         #    log.debug('Row: %r' % values)
+
+    def parse(self):
+        data = open(self.file, 'U')
+        try:
+            return self.parse_from_handle(data)
+        finally:
+            data.close()
 
     def populate(self, rows):
         value = None
