@@ -133,7 +133,7 @@ public class FileAttachmentWarningDialog extends JDialog {
             p.setAlignmentX(LEFT_ALIGNMENT);
             p.setAlignmentY(TOP_ALIGNMENT);
             
-            List<FileAnnotationData> annos = result.getSingleParentAnnotations();
+            List<FileAnnotationData> annos = result.getDeleteCandidates();
             Collections.sort(annos, new FileAnnotationDataComparator());
             for(FileAnnotationData fd :annos) {
                 JLabel label = new JLabel(attachIcon);
@@ -158,7 +158,7 @@ public class FileAttachmentWarningDialog extends JDialog {
     public FileAttachmentWarningDialog(JFrame owner, FileAnnotationCheckResult result)
     {
             super(owner);
-            if (result.getSingleParentAnnotations().isEmpty())
+            if (result.getDeleteCandidates().isEmpty())
                     throw new IllegalArgumentException("No result to display");
             this.result = result;
             initialize();

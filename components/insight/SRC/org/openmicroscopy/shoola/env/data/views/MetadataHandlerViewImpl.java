@@ -145,10 +145,10 @@ class MetadataHandlerViewImpl
 
 	/**
 	 * Implemented as specified by the view interface.
-	 * @see MetadataHandlerView#loadAnnotationParents(SecurityContext, long, AgentEventListener)
+	 * @see MetadataHandlerView#checkFileAnnotationDeletion(SecurityContext, List, List, AgentEventListener)
 	 */
-	public CallHandle loadFileAnnotationParents(SecurityContext ctx, List<FileAnnotationData> annotations, AgentEventListener observer) {
-		BatchCallTree cmd = new FileAnnotationCheckLoader(ctx, annotations);
+	public CallHandle checkFileAnnotationDeletion(SecurityContext ctx, List<FileAnnotationData> annotations, List<DataObject> referenceObjects, AgentEventListener observer) {
+		BatchCallTree cmd = new FileAnnotationCheckLoader(ctx, annotations, referenceObjects);
 		return cmd.exec(observer);
 	}
 	
