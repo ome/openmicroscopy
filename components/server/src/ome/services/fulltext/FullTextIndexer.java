@@ -32,6 +32,7 @@ import ome.system.OmeroContext;
 import ome.system.ServiceFactory;
 import ome.system.metrics.Histogram;
 import ome.system.metrics.Metrics;
+import ome.system.metrics.NullMetrics;
 import ome.system.metrics.Timer;
 import ome.tools.hibernate.QueryBuilder;
 import ome.util.SqlAction;
@@ -119,13 +120,11 @@ public class FullTextIndexer extends SimpleWork implements ApplicationContextAwa
 
     final protected ParserSession parserSession;
 
+    final protected Timer batchTimer;
+
+    final protected Histogram completeSlow, completeFast;
+
     protected int reps = 5;
-
-    protected Metrics metrics;
-
-    protected Timer batchTimer;
-
-    protected Histogram completeSlow, completeFast;
 
     /**
      * Frequency with which the percentage done should be calculated.
@@ -153,20 +152,20 @@ public class FullTextIndexer extends SimpleWork implements ApplicationContextAwa
         this.context = (OmeroContext) ctx;
     }
 
-    public void setMetrics(Metrics metrics) {
-        this.metrics = metrics;
-        this.batchTimer =
-                this.metrics.timer(this, "batch");
-        this.completeSlow=
-                this.metrics.histogram(this, "percentCompleteSlow");
-        this.completeFast =
-                this.metrics.histogram(this, "percentCompleteFast");
+    public FullTextIndexer(EventLogLoader ll) {
+        this(ll, new NullMetrics());
     }
 
-    public FullTextIndexer(EventLogLoader ll) {
+    public FullTextIndexer(EventLogLoader ll, Metrics metrics) {
         super("FullTextIndexer", "index");
         this.loader = ll;
         this.parserSession = new ParserSession();
+        this.batchTimer =
+                metrics.timer(this, "batch");
+        this.completeSlow=
+                metrics.histogram(this, "percentCompleteSlow");
+        this.completeFast =
+                metrics.histogram(this, "percentCompleteFast");
     }
 
     /**
@@ -192,18 +191,16 @@ public class FullTextIndexer extends SimpleWork implements ApplicationContextAwa
         Timer.Context timer = null;
         do {
 
-            if (metrics != null) {
-                timer = batchTimer.time();
-                if (loader instanceof PersistentEventLogLoader) {
-                    if (batchTimer.getCount() % reportingLoops == 0) {
-                        float done = getSqlAction().getEventLogPercent(
-                            ((PersistentEventLogLoader) loader).getKey());
-                        completeSlow.update((int) done);
-                    }
-                    long lastId = loader.lastEventLog().getId();
-                    long currId = ((PersistentEventLogLoader) loader).getCurrentId();
-                    completeFast.update((int)(100.0*currId/lastId));
+            timer = batchTimer.time();
+            if (loader instanceof PersistentEventLogLoader) {
+                if (batchTimer.getCount() % reportingLoops == 0) {
+                    float done = getSqlAction().getEventLogPercent(
+                        ((PersistentEventLogLoader) loader).getKey());
+                    completeSlow.update((int) done);
                 }
+                long lastId = loader.lastEventLog().getId();
+                long currId = ((PersistentEventLogLoader) loader).getCurrentId();
+                completeFast.update((int)(100.0*currId/lastId));
             }
 
             try {
@@ -224,9 +221,7 @@ public class FullTextIndexer extends SimpleWork implements ApplicationContextAwa
                     fullTextSession.setCacheMode(CacheMode.IGNORE);
                     perbatch = doIndexingWithWorldRead(sf, fullTextSession);
             } finally {
-                if (timer != null) {
-                    timer.stop();
-                }
+                timer.stop();
                 count++;
             }
         } while (doMore(count));
