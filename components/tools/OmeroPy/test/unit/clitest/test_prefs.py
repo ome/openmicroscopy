@@ -281,7 +281,7 @@ class TestPrefs(object):
         self.invoke("get omero.web.test")
         self.assertStdoutStderr(capsys, out='[]')
 
-    @pytest.mark.parametrize("data",(
+    @pytest.mark.parametrize("data", (
         ({}, ""),
         ({"a": "b"}, "a=b"),
         ({"a": "b", "a": "d"}, "a=d"),
