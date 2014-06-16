@@ -293,7 +293,11 @@ public abstract class EventLogLoader implements Iterator<EventLog>,
      * to free up the thread.
      */
     public void setStop(boolean stop) {
-        log.info("Stop called: " + stop);
+        if (stop) {
+            log.info("Shutting down EventLogLoader");
+        } else {
+            log.info("Restarting EventLogLoader");
+        }
         this.stop.set(stop);
     }
 }
