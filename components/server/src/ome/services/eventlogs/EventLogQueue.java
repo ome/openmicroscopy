@@ -354,6 +354,8 @@ public class EventLogQueue extends PersistentEventLogLoader {
 
     final private Counter nextCount;
 
+    private int batchCount;
+
     /**
      * Last {@link Entry} which was returned by the {@link #next()} method. If a
      * {@link EventLogFailure} is received, then this should be marked as such.
@@ -494,13 +496,24 @@ public class EventLogQueue extends PersistentEventLogLoader {
     // EventLogLoader overrides
     //
 
+    /**
+     * Checks if either any {@link Entry} instances are available or tries
+     * to load them if not. Conditions which will lead this to return false
+     * include: "stop" being set, the batch size being met, the current
+     * id in the database being equivalent to the newest event log.
+     */
     public boolean hasNext() {
 
         if (isStopSet()) {
             return false;
         }
 
-        // TODO: possibly pre load based on some refill percentage
+        batchCount++;
+        if (batchCount > batchSize) {
+            batchCount = 0;
+            return false;
+        }
+
         if (data.hasNext()) {
             return true;
         }
