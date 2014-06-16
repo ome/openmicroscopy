@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.metadata.editor.GroupProfile 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -20,6 +20,7 @@
  *
  *------------------------------------------------------------------------------
  */
+
 package org.openmicroscopy.shoola.agents.metadata.editor;
 
 
@@ -121,7 +122,7 @@ class GroupProfile
     	permissionsPane.addPropertyChangeListener(this);
     	namePane.setText(ref.getName());
     	descriptionPane.setText(ref.getDescription());
-    	canEdit = model.isAdministrator() && !model.isSystemGroup(ref.getId());
+    	canEdit = !model.isSystemGroup(ref.getId()) && (model.isAdministrator() || model.isGroupLeader());
     	namePane.setEditable(canEdit);
     	namePane.setEnabled(canEdit);
     	descriptionPane.setEditable(canEdit);
