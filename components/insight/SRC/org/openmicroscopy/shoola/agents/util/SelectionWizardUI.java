@@ -681,6 +681,8 @@ public class SelectionWizardUI
             TagAnnotationData t = (TagAnnotationData) item.getUserObject();
             if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(t.getNameSpace())) {
                 Set<TagAnnotationData> tags = t.getTags();
+                if (CollectionUtils.isEmpty(tags))
+                    continue;
                 for (TagAnnotationData n : tags) {
                     if (n.getId() == tag.getId()) {
                         parents.add(t);
@@ -815,6 +817,8 @@ public class SelectionWizardUI
                 if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(
                         tag.getNameSpace())) {
                     Set<TagAnnotationData> children = tag.getTags();
+                    if (CollectionUtils.isEmpty(children))
+                        continue;
                     Iterator<TagAnnotationData> j = children.iterator();
                     DataObject o;
                     while (j.hasNext()) {
