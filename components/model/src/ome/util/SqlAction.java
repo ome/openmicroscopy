@@ -348,7 +348,9 @@ public interface SqlAction {
      * significant amount of time.
      *
      * @param key
-     * @return
+             PersistentEventLogLoader key for lookup in the configuration table
+     * @return float
+     *      value between 0 and 100 of the percent completed
      */
     float getEventLogPercent(String key);
 
