@@ -69,6 +69,7 @@
                 $('#startdateinput').datepicker({
                     changeMonth: true,
                     changeYear: true,
+                    maxDate: 0,     // only allow dates in past.
                     firstDay: 1,
                     dateFormat: 'yy-mm-dd',
                     beforeShow: function(input, inst) {
@@ -79,11 +80,13 @@
                     },
                     onClose: function( selectedDate ) {
                         $( "#enddateinput" ).datepicker( "option", "minDate", selectedDate );
+                        $(this).next(".clearDate").show();
                     }
                 });
                 $('#enddateinput').datepicker({
                     changeMonth: true,
                     changeYear: true,
+                    maxDate: 0,     // only allow dates in past.
                     firstDay: 1,
                     dateFormat: 'yy-mm-dd',
                     beforeShow: function(input, inst) {
@@ -94,7 +97,19 @@
                     },
                     onClose: function( selectedDate ) {
                         $( "#startdateinput" ).datepicker( "option", "maxDate", selectedDate );
+                        if ($(this).val().length > 0) {
+                            $(this).next(".clearDate").show();
+                        }
                     }
+                });
+                // removing dates - clear fields and reset ranges.
+                $(".clearDate").hide().click(function() {
+                    $(this).hide().prev("input").val("");
+                    var end = $( "#enddateinput" ).datepicker( "getDate" ) || 0;
+                    $( "#startdateinput" ).datepicker( "option", "maxDate", end);
+                    var start = $( "#startdateinput" ).datepicker( "getDate" );
+                    $( "#enddateinput" ).datepicker( "option", "minDate", start);
+                    return false;
                 });
                 
                 $(".searching_info, #daterange").tooltip({ 
@@ -273,8 +288,19 @@
                         <hr>
 
                         <label for="startdateinput">{% trans "Date" %}:</label>
-                        <input type="text" id="startdateinput" name="startdateinput" value="{{ manager.criteria.period }}" size="12"/> -
-                        <input type="text" id="enddateinput" name="enddateinput" value="" size="12"/>
+                        <span style="position: relative">
+                            <input type="text" id="startdateinput" name="startdateinput" value="{{ manager.criteria.period }}" size="12"/>
+                            <span class="clearDate">
+                                <img src="{% static "webclient/image/icon_basic_delete.png" %}" />
+                            </span>
+                        </span>
+                        -
+                        <span style="position: relative">
+                            <input type="text" id="enddateinput" name="enddateinput" value="" size="12"/>
+                            <span class="clearDate">
+                                <img src="{% static "webclient/image/icon_basic_delete.png" %}" />
+                            </span>
+                        </span>
                         <span id="daterange" title="Date - <small>Specify a particular Creation / Import date or range of dates</small>">
                                 <img src="{% static "webgateway/img/help16.png" %}" />
                         </span>
