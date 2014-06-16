@@ -98,7 +98,7 @@
   <alias name="${omero.metrics.indexer_impl}" alias="metrics"/>
 
  <bean id="defaultMetrics" class="ome.system.metrics.DefaultMetrics">
-    <property name="slf4jReporter" value="true"/>
+    <property name="slf4jMinutes" value="${omero.metrics.slf4j_minutes}"/>
     <property name="beginsWith">
         <list><value>ome.services.pixeldata</value></list>
     </property>
