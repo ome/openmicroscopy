@@ -113,15 +113,15 @@ class PrefsControl(BaseControl):
 
         list = parser.add(
             sub, self.list,
-            "List all keys from the current profile")
+            "List all key-value pairs from the current profile")
         list.set_defaults(func=self.list)
 
         get = parser.add(
             sub, self.get,
-            "Get keys from the current profile. All by default")
+            "Get key-value pairs from the current profile. All by default")
         get.set_defaults(func=self.get)
         get.add_argument(
-            "KEY", nargs="*", help="Name of the key in the current profile")
+            "KEY", nargs="*", help="Names of keys in the current profile")
 
         set = parser.add(
             sub, self.set,
