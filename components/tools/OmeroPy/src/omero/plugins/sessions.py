@@ -533,7 +533,7 @@ class SessionsControl(BaseControl):
                     if rv is None and args.purge:
                         try:
                             self.ctx.dbg("Purging %s / %s / %s"
-                                        % (server, name, uuid))
+                                         % (server, name, uuid))
                             store.remove(server, name, uuid)
                         except IOError, ioe:
                             self.ctx.dbg("Aborting session purging. %s" % ioe)
