@@ -206,7 +206,7 @@ def cleanse(data_dir, query_service, dry_run=False, config_service=None):
         cleanser = ""
         for directory in SEARCH_DIRECTORIES:
             full_path = os.path.join(data_dir, directory)
-            if directory == 'Pixels'  and not os.path.exists(full_path):
+            if not os.path.exists(full_path):
                 print "%s does not exist. Skipping..." % full_path
                 continue
             if dry_run:
