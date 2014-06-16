@@ -535,8 +535,9 @@ class SessionsControl(BaseControl):
                             self.ctx.dbg("Purging %s / %s / %s"
                                         % (server, name, uuid))
                             store.remove(server, name, uuid)
-                        except IOError:
-                            self.ctx.out("Skipping session cleaning.")
+                        except IOError, ioe:
+                            self.ctx.dbg("Aborting session purging. %s" % ioe)
+                            break
 
                     if server == previous[0] and name == previous[1] and \
                             uuid == previous[2]:
