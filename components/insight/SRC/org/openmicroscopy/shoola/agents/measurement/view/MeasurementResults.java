@@ -279,19 +279,6 @@ class MeasurementResults
 	private void buildGUI()
 	{
 		setLayout(new BorderLayout());
-		/*
-		scrollPane = new JScrollPane(results);
-		add(scrollPane, BorderLayout.CENTER);
-		scrollPane.setVerticalScrollBar(scrollPane.createVerticalScrollBar());
-		scrollPane.setHorizontalScrollBar(
-				scrollPane.createHorizontalScrollBar());
-		JPanel panel = new JPanel();
-		//panel.setLayout(new FlowLayout());
-		panel.add(resultsWizardButton);
-		panel.add(refreshButton);
-		panel.add(saveButton);
-		add(panel, BorderLayout.SOUTH);
-		*/
 		JPanel centrePanel = new JPanel();
 		centrePanel.setLayout(new BorderLayout());
 		scrollPane = new JScrollPane(results);
@@ -315,11 +302,6 @@ class MeasurementResults
 	private void createAllFields()
 	{
 		allFields = new ArrayList<AnnotationField>();
-		/*
-		allFields.add(new AnnotationField(AnnotationKeys.TEXT,
-						AnnotationDescription.annotationDescription.get(
-							AnnotationKeys.TEXT), false)); 
-							*/
 		allFields.add(new AnnotationField(AnnotationKeys.CENTREX,
 			AnnotationDescription.annotationDescription.get(
 							AnnotationKeys.CENTREX), false)); 
@@ -369,12 +351,7 @@ class MeasurementResults
 	 */
 	private void createDefaultFields()
 	{
-		fields = new ArrayList<AnnotationField>();	
-		/*
-		fields.add(new AnnotationField(AnnotationKeys.TEXT,
-			AnnotationDescription.annotationDescription.get(
-				AnnotationKeys.TEXT), false)); 
-				*/
+		fields = new ArrayList<AnnotationField>();
 		fields.add(new AnnotationField(AnnotationKeys.CENTREX,
 			AnnotationDescription.annotationDescription.get(
 				AnnotationKeys.CENTREX), false)); 
@@ -411,7 +388,7 @@ class MeasurementResults
 	 * @param model		 Reference to the Model. Mustn't be <code>null</code>.
 	 * @param view		 Reference to the View. Mustn't be <code>null</code>.
 	 */
-	MeasurementResults(MeasurementViewerControl	controller, 
+	MeasurementResults(MeasurementViewerControl controller, 
 					MeasurementViewerModel model, MeasurementViewerUI view)
 	{
 		if (controller == null)
@@ -619,22 +596,6 @@ class MeasurementResults
 		ResultsTable()
 		{
 			super();
-			/*
-			setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-			
-			int columnWidth = 0;
-			FontMetrics metrics = getFontMetrics(getFont());
-			int w;
-			for(int i = 0 ; i < getColumnCount(); i++)
-			{
-				w =  metrics.stringWidth(getColumnName(i));
-				columnWidth = Math.max(w, COLUMNWIDTH);
-				TableColumn col;
-				col = getColumnModel().getColumn(i);
-				col.setMinWidth(columnWidth);
-				col.setPreferredWidth(columnWidth);
-			}
-			 */
 		}
 		
 		/**
