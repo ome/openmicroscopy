@@ -186,7 +186,7 @@ public class EventLogQueue extends PersistentEventLogLoader {
     /**
      * Collection of collections which must be kept in sync during additions
      * and removals. Three queues are available from which {@link Entry}
-     * instances will be "poppped": {@link #priorityQ}, {@link #regularQ},
+     * instances will be "popped": {@link #priorityQ}, {@link #regularQ},
      * and {@link #failureQ}. At the same time, an index is maintained per
      * each {@link EventLog#getEntityType() entityType} so that later log
      * items are not repeated.
@@ -428,13 +428,6 @@ public class EventLogQueue extends PersistentEventLogLoader {
     /**
      * Guarantees that the given arguments are available somewhere in the queue
      * returning true if they were newly added.
-     *
-     * @param eventLogId
-     * @param type
-     * @param objId
-     * @param action
-     * @param skipped
-     * @return
      */
     protected boolean load(Long eventLogId, String type,
             Long objId, String action,

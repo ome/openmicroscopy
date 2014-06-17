@@ -133,7 +133,7 @@ public class DefaultMetrics implements Metrics, InitializingBean {
                 metrics.start();
                 root.addAppender(metrics);
             } catch (Exception e) {
-                log.error("Failed to instrumentation logback", e);
+                log.error("Failed to instrument logback", e);
             }
         }
 

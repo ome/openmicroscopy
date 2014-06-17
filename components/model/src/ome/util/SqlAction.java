@@ -358,6 +358,7 @@ public interface SqlAction {
      * Loads up to "limit" event logs using partioning so that only the
      * <em>last</em>  event log of a particular (type, id) pair is returned.
      * The contents of the object array are:
+     * <ol>
      * <li>the id of the event log (Long)</li>
      * <li>the entity type of the event log (String)</li>
      * <li>the entity id of the event log (Long)</li>
