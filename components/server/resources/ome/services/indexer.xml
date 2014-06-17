@@ -102,7 +102,7 @@
       <property name="beginsWith">
           <list><value>ome.services.fulltext.FullTextIndexer</value></list>
       </property>
-      <property name="graphiteAddress" value="${omero.metrics.graphite"/>
+      <property name="graphiteAddress" value="${omero.metrics.graphite}"/>
   </bean>
   <alias name="${omero.metrics.indexer_impl}" alias="metrics"/>
 
