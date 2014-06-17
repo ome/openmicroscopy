@@ -120,7 +120,7 @@ class Strategy(object):
     def get_heap_dump(self):
         hd = self.settings.heap_dump
         if hd == "off":
-            return ""
+            return "-XX:-HeapDumpOnOutOfMemoryError"
         elif hd in ("on", "cwd"):
             return "-XX:+HeapDumpOnOutOfMemoryError"
         elif hd in ("tmp",):
