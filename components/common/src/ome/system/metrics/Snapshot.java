@@ -20,25 +20,34 @@ package ome.system.metrics;
 
 
 /**
- * Thin wrapper around {@link com.codahale.metrics.Histogram}
+ * Thin wrapper around {@link com.codahale.metrics.Snapshot}
  */
-public class DefaultHistogram implements Histogram {
+public interface Snapshot {
 
-    private final com.codahale.metrics.Histogram h;
+    double get75thPercentile();
 
-    public DefaultHistogram(com.codahale.metrics.Histogram h) {
-        this.h = h;
-    }
+    double get95thPercentile();
 
-    public Snapshot getSnapshot() {
-        return new DefaultSnapshot(this.h.getSnapshot());
-    }
+    double get98thPercentile();
 
-    /**
-     * @see com.codahale.metrics.Histogram#update(int)
-     */
-    public void update(int done) {
-        this.h.update(done);
-    }
+    double get999thPercentile();
+
+    double get99thPercentile();
+
+    long getMax();
+
+    double getMean();
+
+    double getMedian();
+
+    long getMin();
+
+    double getStdDev();
+
+    double getValue(double quantile);
+
+    long[] getValues();
+
+    int size();
 
 }

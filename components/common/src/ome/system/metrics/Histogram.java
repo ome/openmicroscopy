@@ -25,6 +25,11 @@ package ome.system.metrics;
 public interface Histogram {
 
     /**
+     * @see com.codahale.metrics.Histogram#getSnapshot()
+     */
+    Snapshot getSnapshot();
+
+    /**
      * @see com.codahale.metrics.Histogram#update(int)
      */
     void update(int done);
