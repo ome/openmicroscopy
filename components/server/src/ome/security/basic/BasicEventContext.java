@@ -70,7 +70,7 @@ public class BasicEventContext extends SimpleEventContext {
 
     private Map<String, String> callContext;
 
-    private Map<Long, Permissions> groupPermissions;
+    private Map<Long, Permissions> groupPermissionsMap;
 
     public BasicEventContext(Principal p, SessionStats stats) {
         if (p == null || stats == null) {
@@ -329,11 +329,14 @@ public class BasicEventContext extends SimpleEventContext {
     // Other
     // =========================================================================
 
+    /**
+     * Never returns {@link Permissions.DUMMY}.
+     */
     public Permissions getPermissionsForGroup(Long group) {
-        if (group == null || groupPermissions == null) {
+        if (group == null || groupPermissionsMap == null) {
             return null;
         }
-        return groupPermissions.get(group);
+        return groupPermissionsMap.get(group);
     }
 
     /**
@@ -346,16 +349,16 @@ public class BasicEventContext extends SimpleEventContext {
                 "DUMMY permissions passed to setPermissionsForGroup!");
         }
 
-        if (groupPermissions == null) {
-            groupPermissions = new HashMap<Long, Permissions>();
+        if (groupPermissionsMap == null) {
+            groupPermissionsMap = new HashMap<Long, Permissions>();
         }
-        return groupPermissions.put(group, perms);
+        return groupPermissionsMap.put(group, perms);
     }
 
     public void loadPermissions(org.hibernate.Session session) {
-        if (groupPermissions != null) {
+        if (groupPermissionsMap != null) {
             for (Map.Entry<Long, Permissions> entry :
-                groupPermissions.entrySet()) {
+                groupPermissionsMap.entrySet()) {
                 if (entry.getValue() == null) {
                     Long id = entry.getKey();
                     ExperimenterGroup g = (ExperimenterGroup)
