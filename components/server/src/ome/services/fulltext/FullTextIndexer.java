@@ -127,6 +127,8 @@ public class FullTextIndexer extends SimpleWork implements ApplicationContextAwa
 
     protected int reps = 5;
 
+    protected long batch;
+
     /**
      * Frequency with which the percentage done should be calculated.
      */
@@ -191,7 +193,7 @@ public class FullTextIndexer extends SimpleWork implements ApplicationContextAwa
         long start = System.currentTimeMillis();
         Timer.Context timer = null;
         do {
-
+            batch++;
             timer = batchTimer.time();
             if (loader instanceof PersistentEventLogLoader) {
                 if (batchTimer.getCount() % reportingLoops == 0) {
@@ -230,10 +232,11 @@ public class FullTextIndexer extends SimpleWork implements ApplicationContextAwa
         double perc = 100.0 * ((float) currId) / ((float) lastId);
         completeFast.update((int) perc);
         if (perbatch > 0) {
-            log.info(String.format("INDEXED %4s objects in %1s batch(es) " +
-                    "[%5s ms.]  ~%2s%% done",
-                    perbatch, (count - 1), (System.currentTimeMillis() - start),
-                    ((int) perc)));
+            log.info(String.format("INDEXED %4s objects in batch#%-6s " +
+                    "[%7d ms.]  ~%2d%% done (%d of %d)",
+                    perbatch, batch,
+                    (System.currentTimeMillis() - start),
+                    ((int) perc), currId, lastId));
         } else {
             log.debug("No objects indexed");
         }
