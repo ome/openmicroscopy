@@ -46,7 +46,8 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 //Third-party libraries
-
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
@@ -54,6 +55,8 @@ import org.openmicroscopy.shoola.agents.util.SelectionWizard;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.agents.util.ui.UserManagerDialog;
 import org.openmicroscopy.shoola.env.LookupNames;
+import org.openmicroscopy.shoola.env.data.util.AdvancedSearchResult;
+import org.openmicroscopy.shoola.env.data.util.AdvancedSearchResultCollection;
 import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
@@ -109,7 +112,7 @@ public class AdvancedFinder
 	private Collection tags;
 	
 	/** Host the result per group.*/
-	private Map<SecurityContext, Set> results;
+	private Map<SecurityContext, Collection<DataObject>> results;
 	
 	/** The total number of groups to search.*/
 	private int total;
@@ -164,8 +167,6 @@ public class AdvancedFinder
 				return SearchDataContext.DESCRIPTION;
 			case SearchContext.CUSTOMIZED:
 				return SearchDataContext.CUSTOMIZED;
-			case SearchContext.ID:
-			        return SearchDataContext.ID;
 			default:
 				return null;
 		}
@@ -216,8 +217,6 @@ public class AdvancedFinder
 				return NAME_TIME;
 			case SearchDataContext.CUSTOMIZED:
 				return NAME_CUSTOMIZED;
-			case SearchDataContext.ID:
-			        return NAME_ID;
 			default:
 				return null;
 		}
@@ -289,9 +288,7 @@ public class AdvancedFinder
 	 */
 	private void handleSearchContext(SearchContext ctx)
 	{
-		String[] some = ctx.getSome();
-		String[] must = ctx.getMust();
-		String[] none = ctx.getNone();
+		String[] terms = ctx.getTerms();
 		UserNotifier un = FinderFactory.getRegistry().getUserNotifier();
 		Timestamp start = ctx.getStartTime();
 		Timestamp end = ctx.getEndTime();
@@ -300,7 +297,7 @@ public class AdvancedFinder
 			return;
 		}
 		
-		if (some == null && must == null && none == null) {
+		if (terms.length==0) {
 			if (start == null && end == null) {
 				un.notifyInfo(TITLE, "Please enter a term to search for " +
 						"or a valid time interval.");
@@ -338,8 +335,7 @@ public class AdvancedFinder
 		fillUsersList(ctx.getAnnotatorSearchContext(), annotators, 
 						excludedAnnotators);
 		
-		SearchDataContext searchContext = new SearchDataContext(scope, types, 
-										some, must, none);
+		SearchDataContext searchContext = new SearchDataContext(scope, types, terms);
 		searchContext.setTimeInterval(start, end);
 		if (displayMode == LookupNames.EXPERIMENTER_DISPLAY)
 			searchContext.setOwners(owners);
@@ -467,7 +463,7 @@ public class AdvancedFinder
 		addPropertyChangeListener(CANCEL_SEARCH_PROPERTY, this);
 		addPropertyChangeListener(OWNER_PROPERTY, this);
 		users = new HashMap<Long, ExperimenterData>();
-		results = new HashMap<SecurityContext, Set>();
+		results = new HashMap<SecurityContext, Collection<DataObject>>();
 	}
 
 	/**
@@ -522,66 +518,11 @@ public class AdvancedFinder
 	 * Implemented as specified by {@link Finder} I/F
 	 * @see Finder#setResult(SecurityContext, Object)
 	 */
-	public void setResult(SecurityContext ctx, Object result)
+	public void setResult(SecurityContext ctx, AdvancedSearchResultCollection result)
 	{
 		setSearchEnabled(false);
-		JPanel p = new JPanel();
-		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
-		p.setBackground(UIUtilities.BACKGROUND_COLOR);
-		String group = getGroupName(ctx);
-		if (group != null && groups.size() > 1)
-			p.add(UIUtilities.setTextFont("Group: "+group));
-		Map map = (Map) result;
 
-		//Format UI component
-		Set nodes = new HashSet();
-		if (map != null) {
-			Set set = map.entrySet();
-			Entry entry;
-			Iterator i = set.iterator();
-			Set<Long> ids = new HashSet<Long>();
-			Collection r;
-			Integer key;
-			String term;
-			Iterator j;
-			DataObject data;
-			JLabel l;
-			Object value;
-			int v;
-			while (i.hasNext()) {
-				entry = (Entry) i.next();
-				key = (Integer) entry.getKey();
-				term = getScope(key);
-				if (term != null) {
-					value = entry.getValue();
-					if (value instanceof Integer) {
-						v = (Integer) value;
-						if (v < 0)
-							l = UIUtilities.setTextFont(term+": Unable to perform search,"
-									+" please refine criteria");
-						else 
-							l = UIUtilities.setTextFont(term+": " +
-									"Too many results.");
-					} else {
-						r = (Collection) value;
-						j = r.iterator();
-						while (j.hasNext()) {
-							data = (DataObject) j.next();
-							if (!ids.contains(data.getId())) {
-								nodes.add(data);
-								ids.add(data.getId());
-							}
-						}
-						l = UIUtilities.setTextFont(term+": "+r.size());
-					}
-					
-					p.add(l);
-				}
-			}
-			
-			addResult(UIUtilities.buildComponentPanel(p), results.size() == 0);
-		}
-		results.put(ctx, nodes);
+		results.put(ctx, result.getDataObjects());
 		if (results.size() == total)
 			firePropertyChange(RESULTS_FOUND_PROPERTY, null, results);
 	}
@@ -604,7 +545,7 @@ public class AdvancedFinder
 		Collection selected = new ArrayList<TagAnnotationData>();
 		Iterator i = tags.iterator();
 		TagAnnotationData tag;
-		List<String> l = getSome();
+		List<String> l = getTerms();
 		Collection available = new ArrayList<TagAnnotationData>();
 		
 		while (i.hasNext()) {

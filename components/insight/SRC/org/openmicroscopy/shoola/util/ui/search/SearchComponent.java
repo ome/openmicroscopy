@@ -125,9 +125,6 @@ public class SearchComponent
 	/** Identifies the text for searching for time. */
 	public static final String		NAME_CUSTOMIZED = "Custom"; 
 	
-        /** Identifies the text for searching for ID. */
-        public static final String              NAME_ID = "ID"; 
-	
 	/** Identifies the text to filter by ROIs. */
         public static final String              HAS_ROIS_TEXT = "Has ROIs";
         
@@ -169,12 +166,6 @@ public class SearchComponent
 	 * object. 
 	 */
 	static final int 				ANNOTATOR = 6;
-	
-	/** Action command ID indicating to display the advanced search. */
-	static final int 				ADVANCED_SEARCH = 7;
-	
-	/** Action command ID indicating to display the advanced search. */
-	static final int 				BASIC_SEARCH = 8;
 	
 	/** 
 	 * The size of the invisible components used to separate buttons
@@ -326,9 +317,7 @@ public class SearchComponent
 	{
 		nodes = new ArrayList<SearchObject>();
 		
-	SearchObject node = new SearchObject(SearchContext.ID, null, NAME_ID);
-	nodes.add(node);
-    	node = new SearchObject(SearchContext.NAME, 
+	SearchObject node = new SearchObject(SearchContext.NAME, 
 				null, NAME_TEXT);
     	nodes.add(node);
     	node = new SearchObject(SearchContext.DESCRIPTION, 
@@ -346,18 +335,18 @@ public class SearchComponent
     	nodes.add(node);
     	
     	types = new ArrayList<SearchObject>();
-    	node = new SearchObject(SearchContext.DATASETS, null, "Dataset");
+    	node = new SearchObject(SearchContext.DATASETS, null, "Datasets");
     	types.add(node);
-    	node = new SearchObject(SearchContext.PROJECTS, null, "Project");
+    	node = new SearchObject(SearchContext.PROJECTS, null, "Projects");
     	types.add(node);
-    	node = new SearchObject(SearchContext.IMAGES, null, "Image");
+    	node = new SearchObject(SearchContext.IMAGES, null, "Images");
         types.add(node);
-        node = new SearchObject(SearchContext.SCREENS, null, "Screen");
+        node = new SearchObject(SearchContext.SCREENS, null, "Screens");
         types.add(node);
-        node = new SearchObject(SearchContext.PLATES, null, "Plate");
+        node = new SearchObject(SearchContext.PLATES, null, "Plates");
         types.add(node);
-        node = new SearchObject(SearchContext.WELLS, null, "Well");
-        types.add(node);
+//        node = new SearchObject(SearchContext.WELLS, null, "Wells");
+//        types.add(node);
         
 	}
 	
@@ -413,13 +402,13 @@ public class SearchComponent
 	 * 
 	 * @return See above.
 	 */
-	protected List<String> getSome()
+	protected List<String> getTerms()
 	{ 
-		String[] some = uiDelegate.getSome();
+		String[] terms = uiDelegate.getQueryTerms();
 		List<String> l = new ArrayList<String>();
-		if (some != null) {
-			for (int i = 0; i < some.length; i++) {
-				l.add(some[i]);
+		if (terms != null) {
+			for (int i = 0; i < terms.length; i++) {
+				l.add(terms[i]);
 			}
 		}
 		return l; 
@@ -468,17 +457,10 @@ public class SearchComponent
             List<Integer> scope = uiDelegate.getScope();
             SearchContext ctx;
     
-            if (scope.contains(SearchContext.ID)) {
-                // create search context with search by ID only
-                ctx = new SearchContext(uiDelegate.getSome(), ArrayUtils.EMPTY_STRING_ARRAY,
-                        ArrayUtils.EMPTY_STRING_ARRAY,
-                        Collections.singletonList(SearchContext.ID));
-            } else {
+
                 // Terms cannot be null
-                String[] some = uiDelegate.getSome();
-                String[] must = uiDelegate.getMust();
-                String[] none = uiDelegate.getNone();
-                ctx = new SearchContext(some, must, none, scope);
+                String[] terms = uiDelegate.getQueryTerms();
+                ctx = new SearchContext(terms, scope);
     
                 int index = uiDelegate.getSelectedDate();
                 Timestamp start, end;
@@ -507,7 +489,6 @@ public class SearchComponent
                 ctx.setExcludedOwners(uiDelegate.getExcludedOwners());
                 ctx.setExcludedAnnotators(uiDelegate.getExcludedAnnotators());
                 ctx.setGroups(uiDelegate.getSelectedGroups());
-            }
             
             ctx.setType(uiDelegate.getType());
             ctx.setGroups(uiDelegate.getSelectedGroups());
@@ -619,12 +600,6 @@ public class SearchComponent
 		repaint();
 	}
 	
-	/** Requests focus on the search field. */
-	public void requestFocusOnField()
-	{
-		uiDelegate.advancedSearch(false);
-	}
-	
 	/**
 	 * Cancels or searches.
 	 * @see ActionListener#actionPerformed(ActionEvent)
@@ -655,11 +630,6 @@ public class SearchComponent
 			case HELP:
 				help();
 				break;
-			case ADVANCED_SEARCH:
-				uiDelegate.advancedSearch(true);
-				break;
-			case BASIC_SEARCH: 
-				uiDelegate.advancedSearch(false);
 		}
 	}
 

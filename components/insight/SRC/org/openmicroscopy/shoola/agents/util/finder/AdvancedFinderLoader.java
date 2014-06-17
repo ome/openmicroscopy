@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.util.finder.AdvancedFinderLoader 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -35,6 +35,8 @@ import java.util.Map.Entry;
 import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserLoader;
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
 import org.openmicroscopy.shoola.env.data.events.DSCallFeedbackEvent;
+import org.openmicroscopy.shoola.env.data.util.AdvancedSearchResult;
+import org.openmicroscopy.shoola.env.data.util.AdvancedSearchResultCollection;
 import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
@@ -95,20 +97,20 @@ public class AdvancedFinderLoader
      * Feeds the results of the search as they arrive.
      * @see FinderLoader#update(DSCallFeedbackEvent)
      */
+    @SuppressWarnings("unchecked")
     public void update(DSCallFeedbackEvent fe) 
     {
     	if (viewer.getState() == DataBrowser.DISCARDED) return;  //Async cancel.
         int percDone = fe.getPercentDone();
         if (percDone == 0) return;
-        Object r = fe.getPartialResult();
-        if (r != null) {
-        	Map m = (Map) r;
-        	Entry entry;
-        	Iterator i= m.entrySet().iterator();
+        
+        Map<SecurityContext, AdvancedSearchResultCollection> m = ( Map<SecurityContext, AdvancedSearchResultCollection>) fe.getPartialResult();
+        if (m != null) {
+                Entry<SecurityContext, AdvancedSearchResultCollection> entry;
+        	Iterator<Entry<SecurityContext, AdvancedSearchResultCollection>> i= m.entrySet().iterator();
         	while (i.hasNext()) {
-				entry = (Entry) i.next();
-				viewer.setResult((SecurityContext) entry.getKey(),
-						entry.getValue());
+				entry = i.next();
+				viewer.setResult((SecurityContext) entry.getKey(), entry.getValue());
 			}
         }
     }

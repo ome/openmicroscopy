@@ -35,13 +35,10 @@ import java.util.Set;
 
 //Third-party libraries
 
-
-
-
 //Application-internal dependencies
 import omero.api.StatefulServiceInterfacePrx;
-
 import org.openmicroscopy.shoola.env.data.model.DeletableObject;
+import org.openmicroscopy.shoola.env.data.util.AdvancedSearchResultCollection;
 import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 
@@ -353,7 +350,7 @@ public interface OmeroDataService
 	 * @throws DSAccessException        If an error occurred while trying to
 	 *                                  retrieve data from OMEDS service.
 	 */
-	public Object advancedSearchFor(SecurityContext ctx,
+	public AdvancedSearchResultCollection advancedSearchFor(SecurityContext ctx,
 			SearchDataContext context)
 		throws DSOutOfServiceException, DSAccessException;
 

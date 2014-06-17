@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.data.views.calls.ObjectFinder 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -39,6 +39,7 @@ import java.util.Map.Entry;
 
 import org.openmicroscopy.shoola.env.data.OmeroDataService;
 import org.openmicroscopy.shoola.env.data.model.DeletableObject;
+import org.openmicroscopy.shoola.env.data.util.AdvancedSearchResultCollection;
 import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
@@ -85,8 +86,7 @@ public class ObjectFinder
             public void doCall() throws Exception
             {
                 OmeroDataService os = context.getDataService();
-                Map<SecurityContext, Object> r = new HashMap<SecurityContext, 
-                Object>();
+                Map<SecurityContext, AdvancedSearchResultCollection> r = new HashMap<SecurityContext, AdvancedSearchResultCollection>();
                 r.put(ctx, os.advancedSearchFor(ctx, searchContext));
                 result = r;
             }
