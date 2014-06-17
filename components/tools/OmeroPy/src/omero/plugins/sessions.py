@@ -489,6 +489,7 @@ class SessionsControl(BaseControl):
         else:
             sf.setSecurityContext(omero.model.ExperimenterGroupI(group_id,
                                                                  False))
+            self.ctx._event_context = sf.getAdminService().getEventContext()
             self.ctx.out("Group '%s' (id=%s) switched to '%s' (id=%s)"
                          % (old_name, old_id, group_name, group_id))
 
