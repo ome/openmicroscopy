@@ -94,21 +94,8 @@ public class SearchPanel
 	/** The title of the search UI component. */
 	private static final String		SEARCH_TITLE = "Search For Images";
 	
-	/** The title of the user UI component. */
-	private static final String		USER_TITLE = "Users";
-	
-	/** The title of the date UI component. */
-	private static final String		DATE_TITLE = "Date";
-	
-	/** The title of the scope UI component. */
-	private static final String		SCOPE_TITLE = "Context";
-	
 	/** The title of the type UI component. */
 	private static final String		TYPE_TITLE = "Type";
-	
-	/** Wild card used. */
-	//private static final String		WILD_CARD = 
-	//								"(* = any string, ? = any character)";
 	
 	/** Search Tip. */
 	private static final String		SEARCH_TIP = "<html><i>Tip: " +
@@ -127,23 +114,6 @@ public class SearchPanel
 	
 	/** The number of columns of the search areas. */
 	private static final int		AREA_COLUMNS = 12;
-	
-	/** Description of the {@link #allTermsArea}. */
-	private static final String		ALL_WORDS = 
-										"<html><b>Must contain</b> " +
-										"the words</html>";
-	
-	/** Description of the {@link #exactPhraseArea}. */
-	//private static final String		EXACT_WORDS = 
-	//									"<html><b>Exact</b> phrase</html>";
-	
-	/** Description of the {@link #atLeastTermsArea}. */
-	private static final String		AT_LEAST_WORDS = 
-								"<html><b>At least one</b> of the words</html>";
-	
-	/** Description of the {@link #withoutTermsArea}. */
-	private static final String		WITHOUT_WORDS = 
-										"<html><b>Without</b> the words</html>";
 	
 	/** Possible time options. */
 	private static String[]		dateOptions;
@@ -205,18 +175,6 @@ public class SearchPanel
 	/** The terms to search for. */
 	private JTextField				fullTextArea;
 	
-	/** The terms to search for. */
-	private JTextField				allTermsArea;
-	
-	/** The terms to search for. */
-	//private JTextField				exactPhraseArea;
-	
-	/** The terms to search for. */
-	private JTextField				atLeastTermsArea;
-	
-	/** The terms to search for. */
-	private JTextField				withoutTermsArea;
-	
 	/** Date used to specify the beginning of the time interval. */
 	private JXDatePicker			fromDate;
 	
@@ -250,15 +208,6 @@ public class SearchPanel
 	/** Button to bring up the tooltips for help. */
 	private JButton					helpBasicButton;
 	
-	/** Button to bring up the tooltips for help. */
-	private JButton					helpAdvancedButton;
-	
-	/** Button to bring up the tooltips for help. */
-	private JButton					searchAdvancedButton;
-	
-	/** Button to bring up the tooltips for help. */
-	private JButton					searchBasicButton;
-	
 	/** Button indicating that the time entered is the creation time. */
 	private JRadioButton			creationTime;
 	
@@ -267,9 +216,6 @@ public class SearchPanel
 	
 	/** The possible file formats. */
 	private JComboBox				formats;
-
-	/** Flag indicating that the search is in the advanced mode. */
-	private boolean					advancedSearch;
 	
 	/** Keep tracks of the users selected. */
 	private Map<Long, String>		otherOwners;
@@ -349,7 +295,6 @@ public class SearchPanel
 		otherOwners = new LinkedHashMap<Long, String>();
 		otherOwnersPanel = new JPanel();
 		otherOwnersPanel.setBackground(UIUtilities.BACKGROUND_COLOR);
-		advancedSearch = false;
 		scopes = new HashMap<Integer, JCheckBox>(model.getNodes().size());
 		types = new HashMap<Integer, JCheckBox>(model.getTypes().size());
 		IconManager icons = IconManager.getInstance();
@@ -372,11 +317,6 @@ public class SearchPanel
             }
         });
 		
-		
-		allTermsArea = new JTextField(AREA_COLUMNS);
-		//exactPhraseArea = new JTextField(AREA_COLUMNS);
-		atLeastTermsArea = new JTextField(AREA_COLUMNS);
-		withoutTermsArea = new JTextField(AREA_COLUMNS);
 	
 		usersAsOwner = new JTextField(AREA_COLUMNS);
 		usersAsAnnotator = new JTextField(AREA_COLUMNS);
@@ -433,36 +373,12 @@ public class SearchPanel
 		
 		caseSensitive = new JCheckBox("Case sensitive");
 		areas = new LinkedHashMap<JTextField, JLabel>();
-		areas.put(atLeastTermsArea, new JLabel(AT_LEAST_WORDS));
-		areas.put(allTermsArea, new JLabel(ALL_WORDS));
-		//areas.put(exactPhraseArea, new JLabel(EXACT_WORDS));
-		areas.put(withoutTermsArea, new JLabel(WITHOUT_WORDS));
 		helpBasicButton = new JButton(icons.getIcon(IconManager.HELP));
 		helpBasicButton.setToolTipText("Search Tips.");
 		helpBasicButton.setBackground(UIUtilities.BACKGROUND_COLOR);
 		UIUtilities.unifiedButtonLookAndFeel(helpBasicButton);
 		helpBasicButton.addActionListener(model);
 		helpBasicButton.setActionCommand(""+SearchComponent.HELP);
-		helpAdvancedButton = new JButton(icons.getIcon(IconManager.HELP));
-		helpAdvancedButton.setToolTipText("Advanced search Tips.");
-		helpAdvancedButton.setBackground(UIUtilities.BACKGROUND_COLOR);
-		UIUtilities.unifiedButtonLookAndFeel(helpAdvancedButton);
-		helpAdvancedButton.addActionListener(model);
-		helpAdvancedButton.setActionCommand(""+SearchComponent.HELP);
-		
-		//
-		searchBasicButton = new JButton(icons.getIcon(IconManager.FORWARD));
-		searchBasicButton.setToolTipText("Advanced search.");
-		searchBasicButton.setBackground(UIUtilities.BACKGROUND_COLOR);
-		UIUtilities.unifiedButtonLookAndFeel(searchBasicButton);
-		searchBasicButton.addActionListener(model);
-		searchBasicButton.setActionCommand(""+SearchComponent.ADVANCED_SEARCH);
-		searchAdvancedButton = new JButton(icons.getIcon(IconManager.BACKWARD));
-		searchAdvancedButton.setToolTipText("Standard Search.");
-		searchAdvancedButton.setBackground(UIUtilities.BACKGROUND_COLOR);
-		UIUtilities.unifiedButtonLookAndFeel(searchAdvancedButton);
-		searchAdvancedButton.addActionListener(model);
-		searchAdvancedButton.setActionCommand(""+SearchComponent.BASIC_SEARCH);
 		
 
 		formats = new JComboBox(fileFormats);
@@ -495,36 +411,6 @@ public class SearchPanel
 		}
 		int dateIndex = ctx.getDateIndex();
 		if (dateIndex != -1) dates.setSelectedIndex(dateIndex);
-		String[] none = ctx.getNone();
-		StringBuffer v = new StringBuffer();
-		for (int i = 0; i < none.length; i++) {
-			v.append(SearchUtil.QUOTE_SEPARATOR);
-			v.append(none[i]);
-			v.append(SearchUtil.QUOTE_SEPARATOR);
-			if (i != (none.length-1))
-				v.append(SearchUtil.SPACE_SEPARATOR);
-		}
-		withoutTermsArea.setText(v.toString());
-		String[] must = ctx.getMust();
-		v = new StringBuffer();
-		for (int i = 0; i < must.length; i++) {
-			v.append(SearchUtil.QUOTE_SEPARATOR);
-			v.append(must[i]);
-			v.append(SearchUtil.QUOTE_SEPARATOR);
-			if (i != (must.length-1))
-				v.append(SearchUtil.SPACE_SEPARATOR);
-		}
-		allTermsArea.setText(v.toString());
-		String[] some = ctx.getSome();
-		v = new StringBuffer();
-		for (int i = 0; i < some.length; i++) {
-			v.append(SearchUtil.QUOTE_SEPARATOR);
-			v.append(some[i]);
-			v.append(SearchUtil.QUOTE_SEPARATOR);
-			if (i != (some.length-1))
-				v.append(SearchUtil.SPACE_SEPARATOR);
-		}
-		atLeastTermsArea.setText(v.toString());
 		
 		//initialize
 		setDateIndex();
@@ -727,13 +613,6 @@ public class SearchPanel
 				box = new JCheckBox(n.getDescription());
 				box.setBackground(UIUtilities.BACKGROUND_COLOR);
 				if (i == 0) {
-				    // 'ID' checkbox
-				    // if gets selected, disable all other search options (see IDBoxListener)
-				    final JCheckBox idBox = box;
-				    idBox.addActionListener(new IDBoxListener(idBox));
-				}
-				else if (i == 1) {
-				    // 'Name' checkbox, check it by default
 				    box.setSelected(true); 
 				}  
 				
@@ -849,7 +728,6 @@ public class SearchPanel
 		bar.setRollover(true);
 		bar.setBorder(null);
 		bar.add(helpBasicButton);
-		bar.add(searchBasicButton);
 		if (controls != null && controls.size() > 0) {
 			Iterator<JButton> i = controls.iterator();
 			while (i.hasNext()) {
@@ -915,8 +793,6 @@ public class SearchPanel
 		bar.setFloatable(false);
 		bar.setRollover(true);
 		bar.setBorder(null);
-		bar.add(helpAdvancedButton);
-		bar.add(searchAdvancedButton);
 		if (controls != null && controls.size() > 0) {
 			Iterator<JButton> j = controls.iterator();
 			while (j.hasNext()) {
@@ -941,8 +817,7 @@ public class SearchPanel
 			searchFor.setLayout(new BoxLayout(searchFor, BoxLayout.Y_AXIS));
 		}
 		searchFor.removeAll();
-		if (advancedSearch) searchFor.add(buildAdvancedSearchComp());
-		else searchFor.add(buildBasicSearchComp());
+		searchFor.add(buildBasicSearchComp());
 		return searchFor;
 	}
 	
@@ -1262,8 +1137,7 @@ public class SearchPanel
 			text.append(SearchUtil.SPACE_SEPARATOR);
 		}
 			
-		if (!advancedSearch) fullTextArea.setText(text.toString());
-		else atLeastTermsArea.setText(text.toString());
+		fullTextArea.setText(text.toString());
 	}
 	
 	/**
@@ -1271,58 +1145,23 @@ public class SearchPanel
 	 * 
 	 * @return See above.
 	 */
-	String[] getSome()
+	String[] getQueryTerms()
 	{
 		String text;
-		if (!advancedSearch) {
 			text = fullTextArea.getText();
 			if (text != null && text.trim().length() > 0) {
 				List<String> l = SearchUtil.splitTerms(text);
 				if (l.size() > 0) 
 					return l.toArray(new String[] {});
 			}
-		}
-		text = atLeastTermsArea.getText();
+		
 		List<String> l = SearchUtil.splitTerms(text);
 
-		/*
-		text = exactPhraseArea.getText();
-		if (text != null)
-			l.addAll(SearchUtil.splitTerms(text.trim()));
-			*/
 		if (l.size() > 0)
 			return l.toArray(new String[] {});
 		return null;
 	}
 	
-	/**
-	 * Returns the terms that must be in the document.
-	 * 
-	 * @return See above.
-	 */
-	String[] getMust()
-	{
-		String text = allTermsArea.getText();
-		List<String> l = SearchUtil.splitTerms(text);
-		if (l.size() > 0) 
-			return l.toArray(new String[] {});
-			
-		return null;
-	}
-	
-	/**
-	 * Returns the terms that cannot be in the document.
-	 * 
-	 * @return See above.
-	 */
-	String[] getNone()
-	{
-		String text = withoutTermsArea.getText();
-		List<String> l = SearchUtil.splitTerms(text);
-		if (l.size() > 0) 
-			return l.toArray(new String[] {});
-		return null;
-	}
 	
 	/**
 	 * Returns the context of the search for users.
@@ -1450,28 +1289,6 @@ public class SearchPanel
 	{
 		return getExcludedUsers(usersAsOwner);
 	}
-
-	/**
-	 * Displays the Advanced Search component if the passed value is 
-	 * <code>true</code>, the Basic component is false.
-	 * 
-	 * @param advancedSearch 	Pass <code>true</code> to display the 
-	 * 							Advanced search, <code>false</code> to display
-	 * 							the Basic search.
-	 */
-	void advancedSearch(boolean advancedSearch)
-	{
-		this.advancedSearch = advancedSearch;
-		if (advancedSearch) fullTextArea.setEnabled(false);
-		else fullTextArea.setEnabled(true);
-		
-		buildSearchFor();
-		if (advancedSearch) atLeastTermsArea.requestFocus();
-		else fullTextArea.requestFocus();
-		
-		revalidate();
-		repaint();
-	}
 	
 	/**
 	 * Returns the selected groups.
@@ -1501,117 +1318,5 @@ public class SearchPanel
 		layoutOtherOwners();
 		validate();
 		repaint();
-	}
-	
-	/**
-	 * Disables all other search options when the ID checkbox is selected.
-	 * Enables them again, when the ID checkbox is deselected again; also restores the
-	 * state of the checkboxes (i.e. if they were checked or unchecked) before the
-	 * user selected the ID checkbox.
-	 */
-	class IDBoxListener implements ActionListener {
-	    
-	    /** Reference to the ID checkbox */
-	    JCheckBox box;
-	    
-	    /** 
-	     * Variable for holding a certain state of all checkboxes (which are checked and
-	     * which are unchecked), where key:scope and value:checked(true)/unchecked(false)
-	     */
-	    Map<Integer, Boolean> previousState;
-	    
-	    /**
-	     * Creates a new ActionListener for the ID checkbox
-	     * @param box The JCheckbox marking the ID search scope
-	     */
-	    IDBoxListener(JCheckBox box) {
-	        this.box = box;
-	    }
-	   
-            @Override
-            public void actionPerformed(ActionEvent arg0) {
-                if (box.isSelected()) {
-                    Map<Integer, Boolean> checkMap = createIDOnlyStateMap();
-                    previousState = setContextCheckBoxStates(checkMap);
-                    setAllCheckBoxesEnabled(false);
-                    box.setEnabled(true);
-                    advancedSearch(false);
-                    searchBasicButton.setEnabled(false);
-                    fromDate.setEnabled(false);
-                    toDate.setEnabled(false);
-                    dates.setEnabled(false);
-                    creationTime.setEnabled(false);
-                    updatedTime.setEnabled(false);
-                    for (JButton b : controls) {
-                        b.setEnabled(false);
-                    }
-                }
-                else {
-                    if (previousState != null) {
-                        setContextCheckBoxStates(previousState);
-                        box.setSelected(false);
-                    }
-                    setAllCheckBoxesEnabled(true);
-                    datePane.setEnabled(true);
-                    searchBasicButton.setEnabled(true);
-                    fromDate.setEnabled(true);
-                    toDate.setEnabled(true);
-                    dates.setEnabled(true);
-                    creationTime.setEnabled(true);
-                    updatedTime.setEnabled(true);
-                    for (JButton b : controls) {
-                        b.setEnabled(true);
-                    }
-                }
-            }
-            
-            /**
-             * Sets all checkboxes to a certain state (i. e. check/unchecks them);
-             * Returns the previous state;
-             * @param states The states to apply to the checkboxes (key:scope, value:checked(true)/unchecked(false)
-             * @return The previous state of the checkboxes
-             */
-            private Map<Integer, Boolean> setContextCheckBoxStates(Map<Integer, Boolean> states) {
-                Map<Integer, Boolean> prevStatus = new HashMap<Integer, Boolean>();
-                for (Entry<Integer, Boolean> entry : states.entrySet()) {
-                    JCheckBox box = scopes.get(entry.getKey());
-                    if (box == null) {
-                        continue;
-                    }
-                    prevStatus.put(entry.getKey(), box.isSelected());
-                    box.setSelected(entry.getValue());
-                }
-                return prevStatus;
-            }
-            
-            /**
-             * Helper method: Creates a 'state map' in which only the ID checkbox is checked;
-             * By applying this state map (see {@link #setContextCheckBoxStates(Map)} only
-             * the ID checkbox will be checked, all other checkboxes will be unchecked.
-             * @return See above
-             */
-            private Map<Integer, Boolean> createIDOnlyStateMap() {
-                Map<Integer, Boolean> result = new HashMap<Integer, Boolean>();
-                for (Entry<Integer, JCheckBox> entry : scopes.entrySet()) {
-                    if (entry.getKey().intValue() == SearchContext.ID) {
-                        result.put(entry.getKey(), true);
-                    }
-                    else {
-                        result.put(entry.getKey(), false);
-                    }
-                }
-                return result;
-            }
-            
-            /**
-             * Helper method for enabling (enabled==<code>true</code>), respectively
-             * disabling(enabled==<code>false</code>) all checkboxes
-             * @param enabled
-             */
-            private void setAllCheckBoxesEnabled(boolean enabled) {
-                for (Entry<Integer, JCheckBox> entry : scopes.entrySet()) {
-                    entry.getValue().setEnabled(enabled);
-                }
-            }
 	}
 }

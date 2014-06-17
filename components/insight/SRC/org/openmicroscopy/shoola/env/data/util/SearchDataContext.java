@@ -30,6 +30,7 @@ import java.util.List;
 
 
 //Third-party libraries
+import org.apache.commons.lang.StringUtils;
 
 //Application-internal dependencies
 import pojos.ExperimenterData;
@@ -123,23 +124,8 @@ public class SearchDataContext
 	/** The types to search on. */
 	private List<Class>				types;
 	
-	/** 
-	 * Some (at least one) of these terms must be present in the document. 
-	 * May be <code>null</code>.
-	 */
-	private String[]				some;
-	
-	/**
-	 * All of these terms must be present in the document.
-	 * May be <code>null</code>.
-	 */
-	private String[]				must;
-	
-	/** 
-	 * None of these terms may be present in the document. 
-	 * May be <code>null</code>.
-	 */
-	private String[]				none;
+	/** The query terms to search for */
+	private String[] terms = new String[0];
 	
 	/** Collection of experimenters to restrict the search on.*/ 
 	private List<ExperimenterData>	owners;
@@ -171,14 +157,9 @@ public class SearchDataContext
 	 * @param none	None of these terms may be present in the document. 
 	 * 				May be <code>null</code>.
 	 */
-	public SearchDataContext(List<Integer> scope, List<Class> types, 
-							String[] some, String[] must, String[] none)
+	public SearchDataContext(List<Integer> scope, List<Class> types, String[] terms)
 	{
-		//if (some == null && must == null && none == null)
-		//	throw new IllegalArgumentException("No terms to search for.");
-		this.some = some;
-		this.must = must;
-		this.none = none;
+		this.terms = terms;
 		this.scope = scope;
 		this.types = types;
 		numberOfResults = -1;
@@ -279,28 +260,11 @@ public class SearchDataContext
 	public List<Class> getTypes() { return types; }
 	
 	/**
-	 * Returns the terms that might be present in the document. 
-	 * May be <code>null</code>.
+	 * Returns the query terms to search for
 	 * 
 	 * @return See above.
 	 */
-	public String[] getSome() { return some; }
-	
-	/**
-	 * Returns the terms that must present in the document. 
-	 * May be <code>null</code>.
-	 * 
-	 * @return See above.
-	 */
-	public String[] getMust() { return must; }
-	
-	/**
-	 * Returns the terms that cannot be present in the document. 
-	 * May be <code>null</code>.
-	 * 
-	 * @return See above.
-	 */
-	public String[] getNone() { return none; }
+	public String[] getTerms() { return terms; }
 	
 	/**
 	 * Returns <code>true</code> if the context of the search is valid i.e.
@@ -310,8 +274,7 @@ public class SearchDataContext
 	 */
 	public boolean isValid()
 	{
-		return !(none == null && must == null && some == null && start == null
-			&& end == null);
+		return terms.length>0;
 	}
 	
 	/**
@@ -435,7 +398,7 @@ public class SearchDataContext
 	 */
 	public boolean hasTextToSearch()
 	{
-		return (some != null || none != null || must != null);
+		return terms.length>0;
 	}
 	
 }

@@ -35,6 +35,7 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -70,6 +71,8 @@ import org.openmicroscopy.shoola.env.data.model.SaveAsParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.data.model.TableParameters;
 import org.openmicroscopy.shoola.env.data.model.TableResult;
+import org.openmicroscopy.shoola.env.data.util.AdvancedSearchResult;
+import org.openmicroscopy.shoola.env.data.util.AdvancedSearchResultCollection;
 import org.openmicroscopy.shoola.env.data.util.ModelMapper;
 import org.openmicroscopy.shoola.env.data.util.PojoMapper;
 import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
@@ -1602,51 +1605,6 @@ class OMEROGateway
 		return null;
 	}
 
-	/**
-	 * Converts the specified type to its corresponding type for search.
-	 *
-	 * @param nodeType The type to convert.
-	 * @return See above.
-	 */
-	private String convertTypeForSearch(Class nodeType)
-	{
-		if (nodeType.equals(Image.class) || nodeType.equals(ImageData.class))
-			return ImageI.class.getName();
-		else if (nodeType.equals(TagAnnotation.class) ||
-				nodeType.equals(TagAnnotationData.class))
-			return TagAnnotationI.class.getName();
-		else if (nodeType.equals(BooleanAnnotation.class) ||
-				nodeType.equals(BooleanAnnotationData.class))
-			return BooleanAnnotationI.class.getName();
-		else if (nodeType.equals(TermAnnotation.class) ||
-				nodeType.equals(TermAnnotationData.class))
-			return TermAnnotationI.class.getName();
-		else if (nodeType.equals(FileAnnotation.class) ||
-				nodeType.equals(FileAnnotationData.class))
-			return FileAnnotationI.class.getName();
-		else if (nodeType.equals(CommentAnnotation.class) ||
-				nodeType.equals(TextualAnnotationData.class))
-			return CommentAnnotationI.class.getName();
-		else if (nodeType.equals(TimestampAnnotation.class) ||
-				nodeType.equals(TimeAnnotationData.class))
-			return TimestampAnnotationI.class.getName();
-		else if (nodeType.equals(Dataset.class) ||
-                        nodeType.equals(DatasetData.class))
-                    return DatasetI.class.getName();
-		else if (nodeType.equals(Project.class) ||
-                        nodeType.equals(ProjectData.class))
-                    return ProjectI.class.getName();
-		else if (nodeType.equals(Screen.class) ||
-                        nodeType.equals(ScreenData.class))
-                    return ScreenI.class.getName();
-		else if (nodeType.equals(Well.class) ||
-                        nodeType.equals(WellData.class))
-                    return WellI.class.getName();
-		else if (nodeType.equals(Plate.class) ||
-                        nodeType.equals(PlateData.class))
-                    return PlateI.class.getName();
-		throw new IllegalArgumentException("type not supported");
-	}
 
 	/**
 	 * Creates a new instance.
@@ -2433,6 +2391,7 @@ class OMEROGateway
 		}
 		return new HashSet();
 	}
+	
 
 	/**
 	 * Retrieves the images imported by the current user.
@@ -4948,10 +4907,10 @@ class OMEROGateway
          * @throws DSAccessException        If an error occurred while trying to
          *                                  retrieve data from OMEDS service.
          */
-        Object performFulltextSearch(SecurityContext ctx, SearchDataContext context)
+	AdvancedSearchResultCollection performFulltextSearch(SecurityContext ctx, SearchDataContext context)
                 throws DSOutOfServiceException, DSAccessException {
     
-            Map<Integer, List<Object>> results = new HashMap<Integer, List<Object>>();
+	    AdvancedSearchResultCollection result = new AdvancedSearchResultCollection();
     
             Connector c = getConnector(ctx, true, false);
             SearchPrx service = null;
@@ -4963,7 +4922,7 @@ class OMEROGateway
                     service.clearQueries();
                     service.setAllowLeadingWildcard(true);
                     service.setCaseSentivice(context.isCaseSensitive());
-                    String searchForClass = convertTypeForSearch(type);
+                    String searchForClass = PojoMapper.convertTypeForSearch(type);
                     service.onlyType(searchForClass);
                     
                     // set the time
@@ -5029,20 +4988,13 @@ class OMEROGateway
                     }
     
                     // set the search terms
-                    List<String> searchTerms = prepareTextSearch(context.getSome(),
-                            service);
+                    List<String> searchTerms = prepareTextSearch(context.getTerms(), service);
     
                     StringBuilder queryString = new StringBuilder();
     
                     Iterator<Integer> it = context.getScope().iterator();
                     while (it.hasNext()) {
                         Integer scopeId = it.next();
-    
-                        List<Object> scopeResults = results.get(scopeId);
-                        if(scopeResults==null) {
-                            scopeResults = new ArrayList<Object>();
-                            results.put(scopeId, scopeResults);
-                        }
     
                         List<String> terms;
                         if (scopeId == SearchDataContext.TAGS) {
@@ -5073,13 +5025,23 @@ class OMEROGateway
                         
                         service.byFullText(queryString.toString());
     
-                        Object size = handleSearchResult(
-                                convertTypeForSearch(type), scopeResults,
-                                service);
-                        
-                        if(size instanceof Integer) {
-                            System.out.println("Something's wrong here.");
+                        if(service.hasNext()) {
+                            List<IObject> l = service.results();
+                            Iterator<IObject> k = l.iterator();
+                            IObject object;
+                            long id;
+                            while (k.hasNext()) {
+                                    object = k.next();
+                                    if (searchForClass.equals(object.getClass().getName())) {
+                                            id = object.getId().getValue();
+                                            AdvancedSearchResult sr = new AdvancedSearchResult(scopeId, type, id);
+                                            if (!result.contains(sr))
+                                                    result.add(sr); 
+                                    }
+                            }
                         }
+                        
+                        
                     }
     
                     service.clearQueries();
@@ -5092,7 +5054,7 @@ class OMEROGateway
             if (service != null)
                 c.close(service);
             
-            return results;
+            return result;
         }
 
 	/**
@@ -5183,9 +5145,7 @@ class OMEROGateway
 			}
 
 
-			List<String> some = prepareTextSearch(context.getSome(), service);
-			List<String> must = prepareTextSearch(context.getMust(), service);
-			List<String> none = prepareTextSearch(context.getNone(), service);
+			List<String> terms = prepareTextSearch(context.getTerms(), service);
 
 			List<String> supportedTypes = new ArrayList<String>();
 			i = types.iterator();
@@ -5202,72 +5162,41 @@ class OMEROGateway
 
 			Iterator<Details> owner;
 			i = scopes.iterator();
-			List<String> fSome = null, fMust = null, fNone = null;
-			List<String> fSomeSec = null, fMustSec = null, fNoneSec = null;
+			List<String> fTerm = null;
+			List<String> fTermSec = null;
 			service.onlyType(Image.class.getName());
 			while (i.hasNext()) {
 				key = (Integer) i.next();
 				rType = (List) results.get(key);
 				size = null;
 				if (key == SearchDataContext.TAGS) {
-					fSome = formatText(some, "tag");
-					fMust = formatText(must, "tag");
-					fNone = formatText(none, "tag");
+				    fTerm = formatText(terms, "tag");
 				} else if (key == SearchDataContext.NAME) {
-					fSome = formatText(some, "name");
-					fMust = formatText(must, "name");
-					fNone = formatText(none, "name");
+				    fTerm = formatText(terms, "name");
 				} else if (key == SearchDataContext.DESCRIPTION) {
-					fSome = formatText(some, "description");
-					fMust = formatText(must, "description");
-					fNone = formatText(none, "description");
+				    fTerm = formatText(terms, "description");
 				} else if (key == SearchDataContext.FILE_ANNOTATION) {
-					fSome = formatText(some, "file.name");
-					fMust = formatText(must, "file.name");
-					fNone = formatText(none, "file.name");
-					fSomeSec = formatText(some, "file.contents");
-					fMustSec = formatText(must, "file.contents");
-					fNoneSec = formatText(none, "file.contents");
+				    fTerm = formatText(terms, "file.name");
+				    fTermSec = formatText(terms, "file.contents");
 				} else if (key == SearchDataContext.TEXT_ANNOTATION) {
-					fSome = formatText(some, "annotation", "NOT", "tag");
-					fMust = formatText(must, "annotation", "NOT", "tag");
-					fNone = formatText(none, "annotation", "NOT", "tag");
+				    fTerm = formatText(terms, "annotation", "NOT", "tag");
 				} else if (key == SearchDataContext.URL_ANNOTATION) {
-					fSome = formatText(some, "url");
-					fMust = formatText(must, "url");
-					fNone = formatText(none, "url");
-				} else if (key == SearchDataContext.ID) {
-    				        fSome = formatText(some, "id");
-    				        fMust = formatText(must, "id");
-    				        fNone = formatText(none, "id");
+				    fTerm = formatText(terms, "url");
 				} else {
-					fSome = formatText(some, "");
-					fMust = formatText(must, "");
-					fNone = formatText(none, "");
+				    fTerm = formatText(terms, "");
 				}
 				owner = owners.iterator();
 				//if (fSome != null) {
                                 //while (owner.hasNext()) {
                                         //d = owner.next();
                                         //service.onlyOwnedBy(d);
-                                        service.bySomeMustNone(fSome, fMust, fNone);
+                                        service.bySomeMustNone(fTerm, Collections.EMPTY_LIST, Collections.EMPTY_LIST);
 					size = handleSearchResult(
-							convertTypeForSearch(Image.class), rType,
+					        PojoMapper.convertTypeForSearch(Image.class), rType,
 							service);
 					if (size instanceof Integer)
 						results.put(key, size);
 					service.clearQueries();
-					if (!(size instanceof Integer) && fSomeSec != null &&
-							fSomeSec.size() > 0) {
-						service.bySomeMustNone(fSomeSec, fMustSec,
-								fNoneSec);
-						size = handleSearchResult(
-								convertTypeForSearch(Image.class),
-								rType, service);
-						if (size instanceof Integer)
-							results.put(key, size);
-						service.clearQueries();
-					}
 				//}
 				//}
 			}
@@ -5320,7 +5249,7 @@ class OMEROGateway
 			//service.bySomeMustNone(fSome, fMust, fNone);
 			service.bySomeMustNone(t, null, null);
 			Object size = handleSearchResult(
-					convertTypeForSearch(annotationType), rType, service);
+			        PojoMapper.convertTypeForSearch(annotationType), rType, service);
 			if (size instanceof Integer) rType = new ArrayList();
 			return rType;
 		} catch (Exception e) {

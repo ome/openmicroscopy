@@ -3044,7 +3044,6 @@ class TreeViewerComponent
 		DataBrowser db = DataBrowserFactory.getSearchBrowser();
 		int newMode = view.getDisplayMode();
 		view.removeAllFromWorkingPane();
-		model.getAdvancedFinder().requestFocusOnField();
 		switch (newMode) {
 			case EXPLORER_MODE:
 				onSelectedDisplay();

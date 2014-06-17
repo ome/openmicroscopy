@@ -34,6 +34,7 @@ import java.util.List;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.data.util.AdvancedSearchResultCollection;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.search.QuickSearch;
@@ -163,7 +164,7 @@ public class QuickFinder
 	 * Implemented as specified by {@link Finder} I/F
 	 * @see Finder#setResult(SecurityContext, Object)
 	 */
-	public void setResult(SecurityContext ctx, Object result) {}
+	public void setResult(SecurityContext ctx, AdvancedSearchResultCollection result) {}
 
 	/** 
 	 * Implemented as specified by {@link Finder} I/F

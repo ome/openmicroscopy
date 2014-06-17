@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.util.ui.search;
 
 //Java imports
 import java.sql.Timestamp;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.List;
@@ -100,9 +101,6 @@ public class SearchContext
 	
 	/** Identifying the <code>Description</code> context. */
 	public static final int			CUSTOMIZED = 13;
-	
-	/** Identifying the <code>ID</code> context. */
-	public static final int                 ID = 14;
 	
 	/** Indicates not to take into account the time criteria. */
 	static final int				ANY_DATE = 0;
@@ -188,14 +186,8 @@ public class SearchContext
 	/** Indicate that the time selected is the creation time. */
 	static final int				UPDATED_TIME = 101;
 	
-	/** Collection of terms to search for. */
-	private String[]		some;
-	
-	/** Collection of terms to search for. */
-	private String[]		must;
-	
-	/** Collection of terms to search for. */
-	private String[]		none;
+	/** The query to search for. */
+	private String[]		terms;
 	
 	/** Collection of context. */
 	private List<Integer>	context;
@@ -264,12 +256,9 @@ public class SearchContext
 	 * @param none		The terms that cannot be in the document.
 	 * @param context	Collection of context.
 	 */
-	SearchContext(String[] some, String[] must, String[] none,
-				List<Integer> context)
+	SearchContext(String[] terms, List<Integer> context)
 	{
-		this.some = some;
-		this.must = must;
-		this.none = none;
+		this.terms = terms;
 		this.context = context;
 		timeType = -1;
 		attachmentType = ALL_FORMATS;
@@ -471,21 +460,7 @@ public class SearchContext
 	 * 
 	 * @return See above.
 	 */
-	public String[] getSome() { return some; }
-	
-	/**
-	 * Returns the collection of terms to search for. 
-	 * 
-	 * @return See above.
-	 */
-	public String[] getMust() { return must; }
-	
-	/**
-	 * Returns the collection of terms to search for. 
-	 * 
-	 * @return See above.
-	 */
-	public String[] getNone() { return none; }
+	public String[] getTerms() { return terms==null ? new String[0] : terms; }
 	
 	/**
 	 * Returns the collection of context.
