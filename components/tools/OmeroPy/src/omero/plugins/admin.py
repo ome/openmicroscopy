@@ -457,7 +457,7 @@ present, the user will enter a console""")
         First checks for a valid installation, then checks the grid,
         then registers the action: "node HOST start"
         """
-        self.memory(args, config)
+        self.memory(args, config, verbose=False)
         self.check_access(config=config)
         self.checkice()
         self.check_node(args)
@@ -581,7 +581,7 @@ present, the user will enter a console""")
 
     @with_config
     def deploy(self, args, config):
-        self.memory(args, config)
+        self.memory(args, config, verbose=False)
         self.check_access()
         self.checkice()
         descript = self._descript(args)
@@ -771,11 +771,12 @@ present, the user will enter a console""")
                     config_service=client.sf.getConfigService())
 
     @with_config
-    def memory(self, args, config):
+    def memory(self, args, config, verbose=True):
         from omero.install.memory import adjust_settings
         rv = adjust_settings(config)
         for k, v in sorted(rv.items()):
-            self.ctx.out("%s=%s" % (k, v))
+            if verbose:
+                self.ctx.out("%s=%s" % (k, v))
         config.save()
 
     @with_config
