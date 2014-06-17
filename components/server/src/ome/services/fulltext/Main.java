@@ -9,6 +9,7 @@ package ome.services.fulltext;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import ome.api.IQuery;
 import ome.services.eventlogs.AllEntitiesPseudoLogLoader;
@@ -20,12 +21,18 @@ import ome.services.util.Executor;
 import ome.system.OmeroContext;
 import ome.system.Principal;
 import ome.system.ServiceFactory;
+import ome.system.metrics.Metrics;
 
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
+
+import sun.misc.Signal;
+import sun.misc.SignalHandler;
 
 /**
  * Commandline entry-point for various full text actions. Commands include:
@@ -40,6 +47,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 public class Main {
 
+    private final static Logger log = LoggerFactory.getLogger(Main.class);
+
+    static AtomicBoolean shutdown = new AtomicBoolean(false);
     static String uuid;
     static String[] excludes;
     static OmeroContext context;
@@ -49,19 +59,42 @@ public class Main {
     static SessionManager manager;
     static FullTextBridge bridge;
     static PersistentEventLogLoader loader;
+    static Metrics metrics;
 
     // Setup
 
     public static void init() {
+
+        if (shutdown.get()) {
+            return; // EARLY EXIT
+        }
+
         context = OmeroContext.getInstance("ome.fulltext");
         try {
             // Now that we're using the fulltext context we need
             // to disable the regular processing, otherwise there
             // are conflicts.
-            context.getBean("scheduler", Scheduler.class).pauseAll();
+            Scheduler scheduler = context.getBean("scheduler", Scheduler.class);
+            scheduler.pauseAll();
+            System.out.println(scheduler.getCurrentlyExecutingJobs());
         } catch (SchedulerException se) {
             throw new RuntimeException(se);
         }
+
+        SignalHandler handler = new SignalHandler() {
+            public void handle(Signal sig) {
+                close(sig, null);
+            }
+        };
+
+        for (String sig : new String[]{"INT","TERM","BREAK"}) {
+            try {
+                Signal.handle(new Signal(sig), handler);
+            } catch (IllegalArgumentException iae) {
+                // Ok. BREAK will not exist on non-Windows systems, for example.
+            }
+        }
+
         uuid = context.getBean("uuid", String.class);
         executor = (Executor) context.getBean("executor");
         factory = (SessionFactory) context.getBean("sessionFactory");
@@ -69,11 +102,30 @@ public class Main {
         manager = (SessionManager) context.getBean("sessionManager");
         bridge = (FullTextBridge) context.getBean("fullTextBridge");
         loader =  (PersistentEventLogLoader) context.getBean("eventLogLoader");
+        metrics = (Metrics) context.getBean("metrics");
         String excludesStr = context.getProperty("omero.search.excludes");
         if (excludesStr != null) {
             excludes = excludesStr.split(",");
         } else {
             excludes = new String[]{};
+        }
+    }
+
+    public static void close(Signal sig, Integer rc) {
+        if (!shutdown.get()) {
+            if (sig != null) {
+                log.info(sig.getName() + ": Shutdown requested.");
+            }
+            shutdown.set(true);
+            OmeroContext copy = context;
+            context = null;
+            copy.close();
+            log.info("Done");
+            if (sig != null) {
+                System.exit(sig.getNumber());
+            } else {
+                System.exit(rc);
+            }
         }
     }
 
@@ -83,7 +135,7 @@ public class Main {
 
     protected static FullTextThread createFullTextThread(EventLogLoader loader,
             boolean dryRun) {
-        final FullTextIndexer fti = new FullTextIndexer(loader);
+        final FullTextIndexer fti = new FullTextIndexer(loader, metrics);
         fti.setDryRun(dryRun);
         final FullTextThread ftt = new FullTextThread(manager, executor, fti,
                 bridge);
@@ -135,10 +187,7 @@ public class Main {
             rc = 1;
             t.printStackTrace();
         } finally {
-            if (context != null) {
-                context.close();
-            }
-            System.exit(rc);
+            close(null, rc);
         }
     }
 
