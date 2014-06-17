@@ -26,16 +26,17 @@ Test of various things under omero.util
 
 import pytest
 
-from omero.util.text import CSVStyle
+from omero.util.text import CSVStyle, PlainStyle
 
 
 class MockTable(object):
 
-    def __init__(self, names, data, expected):
+    def __init__(self, names, data, headers, csvrows):
         self.names = names
         self.data = data
         self.length = len(data)
-        self.expected = expected
+        self.headers = headers
+        self.csvrows = csvrows
 
     def get_row(self, i):
         if i is None:
@@ -44,9 +45,11 @@ class MockTable(object):
 
 
 csv_tables = (
-    MockTable(("c1", "c2"), (("a", "b"),), ['c1,c2', 'a,b\r\n']),
-    MockTable(("c1", "c2"), (("a,b", "c"),), ['c1,c2', '"a,b",c\r\n']),
-    MockTable(("c1", "c2"), (("'a b'", "c"),), ['c1,c2', "'a b',c\r\n"]),
+    MockTable(("c1", "c2"), (("a", "b"),), ['c1,c2'], ['a,b\r\n']),
+    MockTable(("c1", "c2"), (("a,b", "c"),), ['c1,c2'], ['"a,b",c\r\n']),
+    MockTable(("c1", "c2"), (("'a b'", "c"),), ['c1,c2'], ["'a b',c\r\n"]),
+    MockTable(("c1", "c2"), (("a", "b"), ("c", "d")),
+              ['c1,c2'], ['a,b\r\n', 'c,d\r\n']),
 )
 
 
@@ -62,4 +65,10 @@ class TestCSVSTyle(object):
     def testCSVModuleParsing(self, mock_table):
         style = CSVStyle()
         output = list(style.get_rows(mock_table))
-        assert mock_table.expected == output
+        assert output == mock_table.headers + mock_table.csvrows
+
+    @pytest.mark.parametrize('mock_table', csv_tables)
+    def testPlainModuleParsing(self, mock_table):
+        style = PlainStyle()
+        output = list(style.get_rows(mock_table))
+        assert output == mock_table.csvrows
