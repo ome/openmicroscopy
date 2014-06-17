@@ -6,7 +6,7 @@
         },
         "output": {
             "omero.mem.blitz.generated_heap": "-Xmx512m",
-            "omero.mem.blitz.generated_dump": "",
+            "omero.mem.blitz.generated_dump": "-XX:-HeapDumpOnOutOfMemoryError",
             "omero.mem.blitz.generated_perm": "-XX:MaxPermSize=128m"
         }
     },
@@ -18,7 +18,7 @@
         },
         "output": {
             "omero.mem.blitz.generated_heap": "-Xmx1G",
-            "omero.mem.blitz.generated_dump": "",
+            "omero.mem.blitz.generated_dump": "-XX:-HeapDumpOnOutOfMemoryError",
             "omero.mem.blitz.generated_perm": "-XX:MaxPermSize=128m"
         }
     },
@@ -42,7 +42,7 @@
         },
         "output": {
             "omero.mem.blitz.generated_heap": "-Xmx512m",
-            "omero.mem.blitz.generated_dump": "",
+            "omero.mem.blitz.generated_dump": "-XX:-HeapDumpOnOutOfMemoryError",
             "omero.mem.blitz.generated_perm": "-XX:MaxPermSize=1G"
         }
     }

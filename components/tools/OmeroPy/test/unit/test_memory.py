@@ -141,7 +141,7 @@ class TestStrategy(object):
         settings = strategy.get_memory_settings()
         assert settings == {
             "generated_heap": "-Xmx512m",
-            "generated_dump": "",
+            "generated_dump": "-XX:-HeapDumpOnOutOfMemoryError",
             "generated_perm": "-XX:MaxPermSize=128m",
         }
 
