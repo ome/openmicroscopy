@@ -1,5 +1,5 @@
 --
--- Copyright 2006 University of Dundee. All rights reserved.
+-- Copyright 2006-2014 University of Dundee. All rights reserved.
 -- Use is subject to license terms supplied in LICENSE.txt
 --
 
@@ -1250,6 +1250,12 @@ alter table dbpatch alter message set default 'Updating';
 --
 insert into dbpatch (currentVersion, currentPatch, previousVersion, previousPatch, message)
              values ('OMERO5.0',  0,    'OMERO5.0',   0,             'Initializing');
+
+--
+-- Temporarily make event columns nullable; restored below.
+--
+alter table event alter column "type" drop not null;
+alter table event alter column experimentergroup drop not null;
 
 --
 -- Here we will create the root account and the necessary groups
