@@ -180,7 +180,7 @@ class PercentStrategy(Strategy):
         other = self.PERCENT_DEFAULTS.get("other", "1")
         default = self.PERCENT_DEFAULTS.get(self.name, other)
         percent = self.settings.lookup("percent", default)
-        return total * percent / 100
+        return total * int(percent) / 100
 
     def system_memory_mb(self):
         """
