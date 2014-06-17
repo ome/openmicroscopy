@@ -197,11 +197,9 @@ public class FullTextIndexer extends SimpleWork implements ApplicationContextAwa
                 if (batchTimer.getCount() % reportingLoops == 0) {
                     float done = getSqlAction().getEventLogPercent(
                         ((PersistentEventLogLoader) loader).getKey());
+                    log.info(String.format("%4.2s%% complete", done));
                     completeSlow.update((int) done);
                 }
-                long lastId = loader.lastEventLog().getId();
-                long currId = ((PersistentEventLogLoader) loader).getCurrentId();
-                completeFast.update((int)(100.0*currId/lastId));
             }
 
             try {
@@ -226,12 +224,20 @@ public class FullTextIndexer extends SimpleWork implements ApplicationContextAwa
                 count++;
             }
         } while (doMore(count));
+
+        long lastId = loader.lastEventLog().getId();
+        long currId = ((PersistentEventLogLoader) loader).getCurrentId();
+        double perc = 100.0 * ((float) currId) / ((float) lastId);
+        completeFast.update((int) perc);
         if (perbatch > 0) {
-            log.info(String.format("INDEXED %s objects in %s batch(es) [%s ms.]",
-                    perbatch, (count - 1), (System.currentTimeMillis() - start)));
+            log.info(String.format("INDEXED %4s objects in %1s batch(es) " +
+                    "[%5s ms.]  ~%2s%% done",
+                    perbatch, (count - 1), (System.currentTimeMillis() - start),
+                    ((int) perc)));
         } else {
             log.debug("No objects indexed");
         }
+
         return null;
     }
 
