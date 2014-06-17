@@ -68,8 +68,10 @@ tables = (
     MockTable(("c1", "c2"), (("a", "b"), ("c", "d")),
               ['c1,c2'], ['a,b\r\n', 'c,d\r\n'],
               ' c1 | c2 \n----+----\n', [' a  | b  ', ' c  | d  '],),
+    MockTable(("c1", "c2"), (("£ö", "b"),),
+            ['c1,c2'], ['£ö,b\r\n'],
+            ' c1 | c2 \n----+----\n', [' £ö | b  ']),
     )
-
 
 class TestCSVSTyle(object):
 
@@ -99,5 +101,4 @@ class TestTableBuilder(object):
         tb = TableBuilder(*mock_table.names)
         for row in mock_table.data:
             tb.row(*row)
-        print str(tb.build())
-        assert str(tb.build()) == mock_table.get_sql_table()
+        assert str(tb) == mock_table.get_sql_table()
