@@ -62,7 +62,7 @@ CREATE FUNCTION upgrade_import_logs() RETURNS void AS $$
 
     DECLARE
         import      RECORD;
-        time        TIMESTAMP WITHOUT TIME ZONE;
+        time_now    TIMESTAMP WITHOUT TIME ZONE;
         event_type  BIGINT;
         event_id    BIGINT;
         new_link_id BIGINT;
@@ -76,12 +76,12 @@ CREATE FUNCTION upgrade_import_logs() RETURNS void AS $$
              WHERE fal.parent = fjl.parent AND fal.child = a.id AND fjl.child = u.job_id
                AND a.discriminator = '/type/OriginalFile/' AND a.ns = 'openmicroscopy.org/omero/import/logFile' LOOP
 
-            SELECT clock_timestamp() INTO time;
+            SELECT clock_timestamp() INTO time_now;
             SELECT ome_nextval('seq_event') INTO event_id;
             SELECT ome_nextval('seq_joboriginalfilelink') INTO new_link_id;
 
-            INSERT INTO event (id, permissions, time, experimenter, experimentergroup, session, type)
-                SELECT event_id, a.permissions, time, a.owner_id, a.group_id, 0, event_type
+            INSERT INTO event (id, permissions, "time", experimenter, experimentergroup, session, type)
+                SELECT event_id, a.permissions, time_now, a.owner_id, a.group_id, 0, event_type
                   FROM annotation a WHERE a.id = import.annotation_id;
 
             INSERT INTO eventlog (id, action, permissions, entityid, entitytype, event)
@@ -89,8 +89,8 @@ CREATE FUNCTION upgrade_import_logs() RETURNS void AS $$
                   FROM event e WHERE e.id = event_id;
 
             INSERT INTO joboriginalfilelink (id, permissions, creation_id, update_id, owner_id, group_id, parent, child)
-                SELECT new_link_id, old.permissions, old.creation_id, old.update_id, old.owner_id, old.group_id, import.job_id, import.log_id
-                  FROM filesetannotationlink old WHERE old.id = import.old_link_id;
+                SELECT new_link_id, old_link.permissions, old_link.creation_id, old_link.update_id, old_link.owner_id, old_link.group_id, import.job_id, import.log_id
+                  FROM filesetannotationlink old_link WHERE old_link.id = import.old_link_id;
 
             UPDATE originalfile SET mimetype = 'application/omero-log-file' WHERE id = import.log_id;
 
@@ -359,11 +359,13 @@ CREATE FUNCTION is_too_many_group_ids(VARIADIC group_ids BIGINT[]) RETURNS BOOLE
         user_group  BIGINT;
         other_group BIGINT;
         curr_group  BIGINT;
+        index       BIGINT;
 
     BEGIN
         SELECT id INTO user_group FROM experimentergroup WHERE name = 'user';
 
-        FOREACH curr_group IN ARRAY group_ids LOOP
+        FOR index IN 1 .. array_upper(group_ids, 1) LOOP
+            curr_group := group_ids[index];
             CONTINUE WHEN user_group = curr_group;
             IF other_group IS NULL THEN
                 other_group := curr_group;
