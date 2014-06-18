@@ -20,6 +20,9 @@ build_java()
     ./build.py -java test -Dtest.with.fail=true
     ./build.py -f components/model/build.xml test -Dtest.with.fail=true
     ./build.py -f components/common/build.xml test -Dtest.with.fail=true
+    ./build.py -f components/rendering/build.xml test -Dtest.with.fail=true
+    ./build.py -f components/server/build.xml test -Dtest.with.fail=true
+    # Failing: dsl, romio, blitz
 }
 
 build_python()
@@ -30,6 +33,7 @@ build_python()
     flake8 -v components/tools/OmeroWeb/test
     ./build.py build-default
     ./build.py -py test -Dtest.with.fail=true
+    ./build.py -fs test -Dtest.with.fail=true
     ./build.py -web test -Dtest.with.fail=true
     # make sure all OmeroWeb Python modules can be imported
     # (this will find invalid imports that flake8 does not check for)
