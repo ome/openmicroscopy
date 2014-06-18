@@ -20,11 +20,8 @@
 package org.openmicroscopy.shoola.env.data.util;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 
-import omero.model.IObject;
 import pojos.DataObject;
 
 /**
@@ -95,4 +92,14 @@ public class AdvancedSearchResultCollection extends
         return result;
     }
 
+    @Override
+    public String toString() {
+        String s = "AdvancedSearchResultCollection [error=" + error + "]:\n";
+        for(AdvancedSearchResult r : this) {
+            s += r.toString()+"\n";
+        }
+        return s;
+    }
+
+    
 }

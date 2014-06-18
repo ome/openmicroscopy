@@ -156,4 +156,11 @@ public class AdvancedSearchResult {
         this.object = object;
     }
 
+    @Override
+    public String toString() {
+        return "AdvancedSearchResult [scopeId=" + scopeId + ", type=" + type.getSimpleName()
+                + ", objectId=" + objectId + "]";
+    }
+
+    
 }
