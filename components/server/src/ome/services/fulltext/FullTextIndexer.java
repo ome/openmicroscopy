@@ -144,7 +144,10 @@ public class FullTextIndexer extends SimpleWork implements ApplicationContextAwa
      */
     public void setRepetitions(int reps) {
         this.reps = reps;
-        ;
+    }
+
+    public void setReportingLoops(int loops) {
+        this.reportingLoops = loops;
     }
 
     public void setDryRun(boolean dryRun) {
