@@ -102,6 +102,9 @@ public class SearchContext
 	/** Identifying the <code>Description</code> context. */
 	public static final int			CUSTOMIZED = 13;
 	
+	/** Identifying the <code>Annotation</code> context. */
+	public static final int                 ANNOTATION = 14;
+	
 	/** Indicates not to take into account the time criteria. */
 	static final int				ANY_DATE = 0;
 	

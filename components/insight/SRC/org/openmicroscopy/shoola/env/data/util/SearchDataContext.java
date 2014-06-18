@@ -78,6 +78,9 @@ public class SearchDataContext
 	/** Identifying the <code>Name</code> context. */
 	public static final int			CUSTOMIZED = 7;
 	
+	/** Identifying the <code>Annotation</code> context. */
+        public static final int                 ANNOTATION = 8;
+	
 	/** Indicates to set the creation time interval. */
 	public static final int			CREATION_TIME = 0;
 	
