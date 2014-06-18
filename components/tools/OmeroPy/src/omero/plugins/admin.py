@@ -1363,9 +1363,9 @@ OMERO Diagnostics %s
 
         self.ctx.dbg(
             "Launching Java: %s, debug=%s, xargs=%s" % (cmd, debug, xargs))
-        p = omero.java.popen(
-            cmd, debug=debug, xargs=xargs, stdout=sys.stdout,
-            stderr=sys.stderr)  # FIXME. Shouldn't use std{out,err}
+        p = omero.java.run(cmd,
+                           use_exec=True, debug=debug, xargs=xargs,
+                           stdout=sys.stdout, stderr=sys.stderr)
         self.ctx.rv = p.wait()
 
     def ports(self, args):
