@@ -171,6 +171,11 @@ public class SearchComponent
 	static final int 				ANNOTATOR = 6;
 	
 	/** 
+         * Action command ID indicating to reset the date fields
+         */
+        static final int                                RESET_DATE = 7;
+        
+	/** 
 	 * The size of the invisible components used to separate buttons
 	 * horizontally.
 	 */
@@ -652,6 +657,9 @@ public class SearchComponent
 			case HELP:
 				help();
 				break;
+			case RESET_DATE:
+			        uiDelegate.resetDate();
+			        break;
 		}
 	}
 
