@@ -116,6 +116,9 @@ public class SearchComponent
 	/** Identifies the text for searching for attachments. */
 	public static final String		NAME_ATTACHMENT = "Attachments"; 
 	
+	/** Identifies the text for searching for attachments. */
+        public static final String              NAME_ANNOTATION = "Annotations"; 
+        
 	/** Identifies the text for searching for rate. */
 	public static final String		NAME_RATE = "Rate"; 
 	
@@ -320,18 +323,27 @@ public class SearchComponent
 	SearchObject node = new SearchObject(SearchContext.NAME, 
 				null, NAME_TEXT);
     	nodes.add(node);
+    	
     	node = new SearchObject(SearchContext.DESCRIPTION, 
 				null, NAME_DESCRIPTION);
     	nodes.add(node);
-    	node = new SearchObject(SearchContext.TEXT_ANNOTATION, null, 
-					NAME_COMMENTS);
-    	nodes.add(node);
-    	node = new SearchObject(SearchContext.TAGS, null, NAME_TAGS);
-    	nodes.add(node);
-    	node = new SearchObject(SearchContext.URL_ANNOTATION, null, NAME_URL);
-    	nodes.add(node);
-    	node = new SearchObject(SearchContext.FILE_ANNOTATION, null, 
-					NAME_ATTACHMENT);
+    	
+//    	node = new SearchObject(SearchContext.TEXT_ANNOTATION, null, 
+//					NAME_COMMENTS);
+//    	nodes.add(node);
+//    	
+//    	node = new SearchObject(SearchContext.TAGS, null, NAME_TAGS);
+//    	nodes.add(node);
+//    	
+//    	node = new SearchObject(SearchContext.URL_ANNOTATION, null, NAME_URL);
+//    	nodes.add(node);
+//    	
+//    	node = new SearchObject(SearchContext.FILE_ANNOTATION, null, 
+//					NAME_ATTACHMENT);
+//    	nodes.add(node);
+    	
+    	node = new SearchObject(SearchContext.ANNOTATION, null, 
+                NAME_ANNOTATION);
     	nodes.add(node);
     	
     	types = new ArrayList<SearchObject>();

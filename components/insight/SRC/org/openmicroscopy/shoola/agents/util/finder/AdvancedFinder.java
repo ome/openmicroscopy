@@ -167,6 +167,8 @@ public class AdvancedFinder
 				return SearchDataContext.DESCRIPTION;
 			case SearchContext.CUSTOMIZED:
 				return SearchDataContext.CUSTOMIZED;
+			case SearchContext.ANNOTATION:
+                            return SearchDataContext.ANNOTATION;
 			default:
 				return null;
 		}
