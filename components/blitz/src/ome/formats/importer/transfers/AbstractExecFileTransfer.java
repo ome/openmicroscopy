@@ -19,8 +19,11 @@
 
 package ome.formats.importer.transfers;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.StringWriter;
 import java.util.UUID;
 
 import org.apache.commons.io.FileUtils;
@@ -37,6 +40,8 @@ import omero.model.OriginalFile;
  * @since 5.0
  */
 public abstract class AbstractExecFileTransfer extends AbstractFileTransfer {
+
+    private static String SEPARATOR = System.getProperty("line.separator");
 
     /**
      * "Transfer" files by soft-linking them into place. This method is likely
@@ -133,8 +138,29 @@ public abstract class AbstractExecFileTransfer extends AbstractFileTransfer {
             }
         }
         if (rcode == null || rcode.intValue() != 0) {
-            log.error("transfer process returned {}", rcode);
-            throw new RuntimeException("transfer process returned " + rcode);
+            StringWriter sw = new StringWriter();
+            sw.append("transfer process returned: ");
+            sw.append(Integer.toString(rcode));
+            sw.append("\n");
+            sw.append("command:");
+            for (String arg : pb.command()) {
+                sw.append(" ");
+                sw.append(arg);
+            }
+            sw.append("\n");
+            sw.append("output:");
+            sw.append("\n---------------------------------------------------\n");
+            String line = "";
+            BufferedReader br = new BufferedReader(
+                   new InputStreamReader(process.getInputStream()));
+            while ( (line = br.readLine()) != null) {
+               sw.append(line);
+               sw.append(SEPARATOR);
+            }
+            sw.append("\n---------------------------------------------------\n");
+            String msg = sw.toString();
+            log.error(msg);
+            throw new RuntimeException(msg);
         }
     }
 
