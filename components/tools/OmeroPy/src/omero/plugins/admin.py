@@ -18,6 +18,7 @@ import os
 import sys
 import stat
 import platform
+import datetime
 import portalocker
 
 from path import path
@@ -194,8 +195,26 @@ Other commands (usually unnecessary):
   bin/omero admin reindex --foreground
 
 """).parser
+
         reindex.add_argument(
-            "--jdwp", help="Activate remote debugging")
+            "--jdwp", action="store_true",
+            help="Activate remote debugging")
+        reindex.add_argument(
+            "--mem", default="1024m",
+            help="Heap size to use")
+        reindex.add_argument(
+            "--batch", default="500",
+            help="Number of items to index before reporting status")
+        reindex.add_argument(
+            "--merge_factor", default="100",
+            help="Higher means merge less frequently. Faster but needs more RAM")
+        reindex.add_argument(
+            "--ram_buffer_size", default="1000",
+            help="Number of MBs to use for the indexing. Higher is faster.")
+        reindex.add_argument(
+            "--lock_factory", default="native",
+            help="Choose Lucene lock factory by class or 'native', 'simple', 'none'")
+
         group = reindex.add_mutually_exclusive_group()
         group.add_argument(
             "--full", action="store_true",
@@ -1259,7 +1278,7 @@ OMERO Diagnostics %s
         log_config_file = self.ctx.dir / "etc" / "logback-indexing-cli.xml"
         logback = "-Dlogback.configurationFile=%s" % log_config_file
         classpath = [file.abspath() for file in server_dir.files("*.jar")]
-        xargs = [logback, "-Xmx1024M", "-cp", os.pathsep.join(classpath)]
+        xargs = [logback, "-cp", os.pathsep.join(classpath)]
         # See etc/grid/templates.xml
         for v in (("warn", "3600000"), ("error", "86400000")):
             xargs.append("-Domero.throttling.method_time.%s=%s" % v)
@@ -1277,6 +1296,20 @@ OMERO Diagnostics %s
         for k, v in cfg.items():
             if k.startswith("omero.search"):
                 xargs.append("-D%s=%s" % (k, cfg[k]))
+
+        locks = {"native": "org.apache.lucene.store.NativeFSLockFactory",
+                 "simple": "org.apache.lucene.store.SimpleFSLockFactory",
+                 "none": "org.apache.lucene.store.NoLockFactory"}
+        lock = locks.get(args.lock_factory, args.lock_factory)
+
+        year2 = datetime.datetime.now().year + 2
+        xargs2 = ["-Xmx%s" % args.mem,
+                  "-Domero.search.cron=1 1 1 1 1 ? %s" % year2,  # Disable quartz
+                  "-Domero.search.batch=%s" % args.batch,
+                  "-Domero.search.merge_factor=%s" % args.merge_factor,
+                  "-Domero.search.ram_buffer_size=%s" % args.ram_buffer_size,
+                  "-Dorg.apache.lucene.store.FSDirectoryLockFactoryClass=%s" % lock]
+        xargs.extend(xargs2)
 
         cmd = ["ome.services.fulltext.Main"]
 
