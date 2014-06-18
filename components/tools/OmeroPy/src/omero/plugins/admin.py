@@ -160,7 +160,7 @@ already be running. This may automatically restart some server components.""")
             "reindex",
             """Re-index the Lucene index
 
-Command-line tool for re-index the database. This command must be run on the
+Command-line tool for re-indexing the database. This command must be run on the
 machine where /OMERO/FullText is located.
 
 Examples:
@@ -168,6 +168,10 @@ Examples:
           # All objects
   bin/omero admin reindex --class ome.model.core.Image                       \
           # Only images
+  bin/omero admin reindex --reset 0                                          \
+          # Reset the 'last indexed' counter. Defaults to 0
+  bin/omero admin reindex --foreground                                       \
+          # Run indexer in the foreground. Disable the background first
   JAVA_OPTS="-Dlogback.configurationFile=stderr.xml" \
   bin/omero admin reindex --full\
   # Passing arguments to Java
@@ -199,8 +203,8 @@ LIMITATION: omero.db.pass values do not currently get passed to the Java
             help=("Run through all events, incrementing the counter. "
                   "NO INDEXING OCCURS"))
         group.add_argument(
-            "--sequential", action="store_true",
-            help=("Run through all events as would happen in the background"))
+            "--foreground", action="store_true",
+            help=("Run indexer in the foreground (suggested)"))
         group.add_argument(
             "--class", nargs="+",
             help="Reindexes the given classes sequentially")
@@ -1299,8 +1303,8 @@ OMERO Diagnostics %s
             cmd.append("full")
         elif args.dryrun:
             cmd.append("dryrun")
-        elif args.sequential:
-            cmd.append("sequential")
+        elif args.foreground:
+            cmd.append("foreground")
         elif args.reset is not None:
             cmd.append("reset")
             cmd.append(args.reset)
