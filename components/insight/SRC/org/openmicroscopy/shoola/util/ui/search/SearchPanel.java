@@ -181,6 +181,8 @@ public class SearchPanel
 	/** Date used to specify the ending of the time interval. */
 	private JXDatePicker			toDate;
 	
+	private JButton clearDate;
+	
 	/** Reference to the model .*/
 	private SearchComponent 		model;
 	
@@ -302,6 +304,14 @@ public class SearchPanel
  		fromDate.setBackground(UIUtilities.BACKGROUND_COLOR);
 		toDate = UIUtilities.createDatePicker(false);
 		toDate.setBackground(UIUtilities.BACKGROUND_COLOR);
+		
+		clearDate = new JButton(icons.getIcon(IconManager.CANCEL_22));
+		clearDate.setToolTipText("Reset the dates");
+		UIUtilities.unifiedButtonLookAndFeel(clearDate);
+		clearDate.setBackground(UIUtilities.BACKGROUND_COLOR);
+		clearDate.setActionCommand(""+SearchComponent.RESET_DATE);
+		clearDate.addActionListener(model);
+		
 		fullTextArea = new JTextField(AREA_COLUMNS);
 		fullTextArea.addKeyListener(new KeyAdapter() {
 
@@ -414,6 +424,14 @@ public class SearchPanel
 		
 		//initialize
 //		setDateIndex();
+	}
+	
+	/**
+	 * Resets the date fields
+	 */ 
+	public void resetDate() {
+	    toDate.setDate(null);
+	    fromDate.setDate(null);
 	}
 	
 	/** Lays out the selected users. */
@@ -570,6 +588,7 @@ public class SearchPanel
 		p.add(fromDate);
 		p.add(UIUtilities.setTextFont("To: "));
 		p.add(toDate);
+		p.add(clearDate);
 		return p;
 	}
 	
@@ -612,9 +631,6 @@ public class SearchPanel
 				n = nodes.get(i);
 				box = new JCheckBox(n.getDescription());
 				box.setBackground(UIUtilities.BACKGROUND_COLOR);
-				if (i == 0) {
-				    box.setSelected(true); 
-				}  
 				
 				if (i%2 == 0) {
 				    c.gridy++;
@@ -636,7 +652,7 @@ public class SearchPanel
 			}
 		}
 		c.gridy++;
-		//UIUtilities.setBoldTitledBorder(SCOPE_TITLE, p);
+		UIUtilities.setBoldTitledBorder("Fields", p);
 		return p;
 	}
 
@@ -976,12 +992,12 @@ public class SearchPanel
 		add(sep, c);//, "0, 1");
 		
 		JXTaskPane pane = UIUtilities.createTaskPane("Search for", null); 
-                pane.setCollapsed(true);
+                pane.setCollapsed(false);
                 pane.add(buildType());
                 c.gridy++;
                 add(pane, c);//, "0, 2")
                 
-		pane = UIUtilities.createTaskPane("Using Fields" , null); 
+		pane = UIUtilities.createTaskPane("Restrict to" , null); 
 		pane.setCollapsed(false);
 		pane.add(buildFields());
 		c.gridy++;
