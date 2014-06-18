@@ -161,29 +161,37 @@ already be running. This may automatically restart some server components.""")
             """Re-index the Lucene index
 
 Command-line tool for re-indexing the database. This command must be run on the
-machine where /OMERO/FullText is located.
+machine where the FullText directory is located. In most cases, you will want
+to disable the background indexer before running most of these commands.
+
+See http://www.openmicroscopy.org/site/support/omero/sysadmins/search.html
+for more information.
 
 Examples:
-  bin/omero admin reindex --full                                             \
-          # All objects
-  bin/omero admin reindex --class ome.model.core.Image                       \
-          # Only images
-  bin/omero admin reindex --reset 0                                          \
-          # Reset the 'last indexed' counter. Defaults to 0
-  bin/omero admin reindex --foreground                                       \
-          # Run indexer in the foreground. Disable the background first
-  JAVA_OPTS="-Dlogback.configurationFile=stderr.xml" \
-  bin/omero admin reindex --full\
+
+  # 1. Reset the 'last indexed' counter. Defaults to 0
+  bin/omero admin reindex --reset 0
+
+  # 2. Delete the contents of a corrupt FullText directory
+  bin/omero admin reindex --wipe
+
+  # 3. Run indexer in the foreground. Disable the background first
+  bin/omero admin reindex --foreground
+
+Other commands (usually unnecessary):
+
+  # Index all objects in the database.
+  bin/omero admin reindex --full
+
+  # Index one specific class
+  bin/omero admin reindex --class ome.model.core.Image
+
   # Passing arguments to Java
+  JAVA_OPTS="-Dlogback.configurationFile=stderr.xml" \
+  bin/omero admin reindex --foreground
 
-
-LIMITATION: omero.db.pass values do not currently get passed to the Java
-            process. You will need to all passwordless login to PostgreSQL. In
-            fact, only the following properties are passed:
-
-            omero.data.dir
-            omero.search.*
-            omero.db.* (excluding pass)
+  JAVA_OPTS="-Xdebug -Xrunjdwp:server=y,transport=dt_socket,address=8787,suspend=y" \\
+  bin/omero admin reindex --foreground
 
 """).parser
         reindex.add_argument(
