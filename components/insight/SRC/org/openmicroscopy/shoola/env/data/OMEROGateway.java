@@ -984,12 +984,25 @@ class OMEROGateway
 	 */
 	private List<String> formatText(List<String> terms, String field)
 	{
-		if (CollectionUtils.isEmpty(terms)) return null;
-		if (StringUtils.isBlank(field)) return terms;
-		List<String> formatted = new ArrayList<String>(terms.size());
-		Iterator<String> j = terms.iterator();
-		while (j.hasNext())
-			formatted.add(field+":"+j.next());
+		if (CollectionUtils.isEmpty(terms)) 
+		    return null;
+		
+		if (StringUtils.isBlank(field)) 
+		    return terms;
+		
+		List<String> formatted = new ArrayList<String>();
+		for(int i=0; i<terms.size(); i++) {
+	              String term = terms.get(i);
+	              
+	              if(term.equals("AND") && i>0 && i<terms.size()-1) {
+	                  String combined = field+":"+terms.get(i-1)+" AND "+field+":"+terms.get(i+1);
+	                  formatted.add(combined);
+	                  i++;
+	              }
+	              else if(i==terms.size()-1 || !terms.get(i+1).equals("AND")) 
+	                  formatted.add(field+":"+term);
+	          }
+		    
 
 		return formatted;
 	}
@@ -1523,7 +1536,9 @@ class OMEROGateway
 				}
 				if (value.contains(" "))
 					formatted = "\""+v.toLowerCase()+"\"";
-				else formatted = v.toLowerCase();
+				else 
+				    formatted = v.equals("AND") ? v : v.toLowerCase();
+				
 				formattedTerms.add(formatted);
 			}
 		} catch (Throwable e) {
@@ -1531,6 +1546,27 @@ class OMEROGateway
 		}
 		return formattedTerms;
 	}
+	
+//	/**
+//	 * Combines the search terms linked with an AND expression (if there
+//	 * are any)
+//	 * @param terms
+//	 * @return
+//	 */
+//	private List<String> processPreparedTextSearch(List<String> terms) {
+//	    List<String> result = new ArrayList<String>();
+//	    for(int i=0; i<terms.size(); i++) {
+//	        String term = terms.get(i);
+//	        if(term.equals("AND") && i>0 && i<terms.size()-1) {
+//	            String combined = "\""+terms.get(i-1)+" AND "+terms.get(i+1)+"\"";
+//	            result.add(combined);
+//	            i++;
+//	        }
+//	        else if(i==terms.size()-1 || !terms.get(i+1).equals("AND")) 
+//	            result.add(term);
+//	    }
+//	    return result;
+//	}
 
 	/**
 	 * Formats the terms to search for.
@@ -5067,36 +5103,87 @@ class OMEROGateway
                     // set the search terms
                     List<String> searchTerms = prepareTextSearch(context.getTerms(), service);
     
-                    StringBuilder queryString = new StringBuilder();
+                   
     
                     Iterator<Integer> it = context.getScope().iterator();
                     while (it.hasNext()) {
-                        Integer scopeId = it.next();
-    
-                        List<String> terms;
-                        if (scopeId == SearchDataContext.TAGS) {
-                            terms = formatText(searchTerms, "tag");
-                        } else if (scopeId == SearchDataContext.NAME) {
-                            terms = formatText(searchTerms, "name");
-                        } else if (scopeId == SearchDataContext.DESCRIPTION) {
-                            terms = formatText(searchTerms,
-                                    "description");
-                        } else if (scopeId == SearchDataContext.FILE_ANNOTATION) {
-                            terms = formatText(searchTerms, "file.name");
-                            terms.addAll(formatText(searchTerms,
-                                    "file.contents"));
-                        } else if (scopeId == SearchDataContext.TEXT_ANNOTATION) {
-                            terms = formatText(searchTerms,
-                                    "annotation", "NOT", "tag");
-                        } else if (scopeId == SearchDataContext.URL_ANNOTATION) {
-                            terms = formatText(searchTerms, "url");
-                        } else {
-                            terms = formatText(searchTerms, "");
+                        int scopeId = it.next();
+                        
+                        StringBuilder queryString = new StringBuilder();
+                        
+                        if (scopeId == SearchDataContext.TAGS || scopeId==SearchDataContext.ANNOTATION) {
+                            List<String> terms = formatText(searchTerms, "tag");
+                            if(queryString.length()>0) 
+                                queryString.append( " OR ");
+                            queryString.append(" ( ");
+                            for(String term : terms) 
+                                queryString.append(term+" ");
+                            queryString.append(" ) ");
+                        } 
+                        if (scopeId == SearchDataContext.NAME) {
+                            List<String> terms = formatText(searchTerms, "name");
+                            if(queryString.length()>0) 
+                                queryString.append( " OR ");
+                            queryString.append(" ( ");
+                            for(String term : terms) 
+                                queryString.append(term+" ");
+                            queryString.append(" ) ");
+                        } 
+                        if (scopeId == SearchDataContext.DESCRIPTION) {
+                            List<String> terms = formatText(searchTerms, "description");
+                            if(queryString.length()>0) 
+                                queryString.append( " OR ");
+                            queryString.append(" ( ");
+                            for(String term : terms) 
+                                queryString.append(term+" ");
+                            queryString.append(" ) ");
+                        } 
+                        if (scopeId == SearchDataContext.FILE_ANNOTATION || scopeId==SearchDataContext.ANNOTATION) {
+                            List<String> terms = formatText(searchTerms, "file.name");
+                            if(queryString.length()>0) 
+                                queryString.append( " OR ");
+                            queryString.append(" ( ");
+                            for(String term : terms) 
+                                queryString.append(term+" ");
+                            queryString.append(" ) ");
+                            
+                            terms = formatText(searchTerms, "file.contents");
+                            if(queryString.length()>0) 
+                                queryString.append( " OR ");
+                            queryString.append(" ( ");
+                            for(String term : terms) 
+                                queryString.append(term+" ");
+                            queryString.append(" ) ");
+                        } 
+                        if (scopeId == SearchDataContext.TEXT_ANNOTATION || scopeId==SearchDataContext.ANNOTATION) {
+                            List<String> terms = formatText(searchTerms, "annotation");
+                            if(queryString.length()>0) 
+                                queryString.append( " OR ");
+                            queryString.append(" ( ");
+                            for(String term : terms) 
+                                queryString.append(term+" ");
+                            queryString.append(" ) ");
+                        } 
+                        if (scopeId == SearchDataContext.URL_ANNOTATION || scopeId==SearchDataContext.ANNOTATION) {
+                            List<String> terms = formatText(searchTerms, "url");
+                            if(queryString.length()>0) 
+                                queryString.append( " OR ");
+                            queryString.append(" ( ");
+                            for(String term : terms) 
+                                queryString.append(term+" ");
+                            queryString.append(" ) ");
+                        } 
+                        if (scopeId == SearchDataContext.CUSTOMIZED) {
+                            List<String> terms = formatText(searchTerms, "");
+                            if(queryString.length()>0) 
+                                queryString.append( " OR ");
+                            queryString.append(" ( ");
+                            for(String term : terms) 
+                                queryString.append(term+" ");
+                            queryString.append(" ) ");
                         }
                         
-                        for(String term : terms) {
-                            queryString.append(term+" ");
-                        }
+                        System.out.println("Search query (scope:"+scopeId+"): "+queryString.toString());
                         
                         service.byFullText(queryString.toString());
     

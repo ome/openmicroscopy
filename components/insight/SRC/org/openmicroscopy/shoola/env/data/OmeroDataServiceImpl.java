@@ -610,11 +610,6 @@ class OmeroDataServiceImpl
 		
 		AdvancedSearchResultCollection results = new AdvancedSearchResultCollection();
 		
-		if (!context.hasTextToSearch()) {
-		    results.addAll(gateway.performByTimeSearch(ctx, context));
-		    return results;
-		}
-		
 		// If terms contain ids only, just add them to the results, 
 		// loadObjects() will remove them later if they can't be found
 		long[] ids = convertSearchTermsToIds(context.getTerms());
@@ -632,6 +627,8 @@ class OmeroDataServiceImpl
 		results.addAll(gateway.performFulltextSearch(ctx, context));
 
 		loadObjects(ctx, results);
+		
+		System.out.println(results);
 		
 		return results;
 	}
