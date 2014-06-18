@@ -462,21 +462,31 @@ public class SearchComponent
                 String[] terms = uiDelegate.getQueryTerms();
                 ctx = new SearchContext(terms, scope);
     
-                int index = uiDelegate.getSelectedDate();
-                Timestamp start, end;
+                //int index = uiDelegate.getSelectedDate();
+                //Timestamp start, end;
     
-                switch (index) {
-                    case SearchContext.RANGE:
-                        start = uiDelegate.getFromDate();
-                        end = uiDelegate.getToDate();
-                        if (start != null && end != null && start.after(end))
-                            ctx.setTime(end, start);
-                        else
-                            ctx.setTime(start, end);
-                        break;
-                    default:
-                        ctx.setTime(index);
-                }
+                Timestamp start = uiDelegate.getFromDate();
+                Timestamp end = uiDelegate.getToDate();
+                if (start != null && end != null) {
+                    if(start.after(end)) 
+                        ctx.setTime(end, start);
+                    else
+                        ctx.setTime(start, end);
+                };
+                
+//                switch (index) {
+//                    case SearchContext.RANGE:
+//                        start = uiDelegate.getFromDate();
+//                        end = uiDelegate.getToDate();
+//                        if (start != null && end != null && start.after(end))
+//                            ctx.setTime(end, start);
+//                        else
+//                            ctx.setTime(start, end);
+//                        break;
+//                    default:
+//                        ctx.setTime(index);
+//                }
+                
                 ctx.setOwnerSearchContext(uiDelegate.getOwnerSearchContext());
                 ctx.setAnnotatorSearchContext(uiDelegate
                         .getAnnotatorSearchContext());
@@ -485,7 +495,7 @@ public class SearchComponent
                 ctx.setAnnotators(uiDelegate.getAnnotators());
                 ctx.setCaseSensitive(uiDelegate.isCaseSensitive());
                 ctx.setAttachmentType(uiDelegate.getAttachment());
-                ctx.setTimeType(uiDelegate.getTimeIndex());
+                //ctx.setTimeType(uiDelegate.getTimeIndex());
                 ctx.setExcludedOwners(uiDelegate.getExcludedOwners());
                 ctx.setExcludedAnnotators(uiDelegate.getExcludedAnnotators());
                 ctx.setGroups(uiDelegate.getSelectedGroups());
@@ -614,9 +624,9 @@ public class SearchComponent
 			case SEARCH:
 				search();
 				break;
-			case DATE:
-				uiDelegate.setDateIndex();
-				break;
+//			case DATE:
+//				uiDelegate.setDateIndex();
+//				break;
 			case OWNER:
 				userIndex = OWNER;
 				firePropertyChange(OWNER_PROPERTY, Boolean.valueOf(false), 

@@ -178,7 +178,7 @@ public class AdvancedFinder
 	 * @param value The value to convert.
 	 * @return See above.
 	 */
-	private Class convertType(int value)
+	private Class<? extends DataObject> convertType(int value)
 	{
 		switch (value) {
 			case SearchContext.DATASETS: return DatasetData.class;
@@ -187,36 +187,6 @@ public class AdvancedFinder
 			case SearchContext.SCREENS: return ScreenData.class;
 			case SearchContext.PLATES: return PlateData.class;
 			case SearchContext.WELLS: return WellData.class;
-			default:
-				return null;
-		}
-	}
-	
-	/**
-	 * Returns the description associated to the passed value.
-	 * 
-	 * @param value The value to handle.
-	 * @return See above
-	 */
-	private String getScope(int value)
-	{
-		switch (value) {
-			case SearchDataContext.NAME:
-				return NAME_TEXT;
-			case SearchDataContext.DESCRIPTION:
-				return NAME_DESCRIPTION;
-			case SearchDataContext.TEXT_ANNOTATION:
-				return NAME_COMMENTS;
-			case SearchDataContext.TAGS:
-				return NAME_TAGS;
-			case SearchDataContext.URL_ANNOTATION:
-				return NAME_URL;
-			case SearchDataContext.FILE_ANNOTATION:
-				return NAME_ATTACHMENT;
-			case SearchDataContext.TIME:
-				return NAME_TIME;
-			case SearchDataContext.CUSTOMIZED:
-				return NAME_CUSTOMIZED;
 			default:
 				return null;
 		}
@@ -318,9 +288,9 @@ public class AdvancedFinder
 			v = convertScope((Integer) i.next());
 			if (v != null) scope.add(v);
 		}
-		List<Class> types = new ArrayList<Class>();
+		List<Class<? extends DataObject>> types = new ArrayList<Class<? extends DataObject>>();
 		i = ctx.getType().iterator();
-		Class k;
+		Class<? extends DataObject> k;
 		while (i.hasNext()) {
 			k = convertType((Integer) i.next());
 			if (k != null) types.add(k);
@@ -522,7 +492,7 @@ public class AdvancedFinder
 	{
 		setSearchEnabled(false);
 
-		results.put(ctx, result.getDataObjects());
+		//results.put(ctx, result.getDataObjects());
 		if (results.size() == total)
 			firePropertyChange(RESULTS_FOUND_PROPERTY, null, results);
 	}
