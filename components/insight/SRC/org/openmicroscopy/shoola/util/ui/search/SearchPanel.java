@@ -208,11 +208,11 @@ public class SearchPanel
 	/** Button to bring up the tooltips for help. */
 	private JButton					helpBasicButton;
 	
-	/** Button indicating that the time entered is the creation time. */
-	private JRadioButton			creationTime;
+//	/** Button indicating that the time entered is the creation time. */
+//	private JRadioButton			creationTime;
 	
-	/** Button indicating that the time entered is the time of update. */
-	private JRadioButton			updatedTime;
+//	/** Button indicating that the time entered is the time of update. */
+//	private JRadioButton			updatedTime;
 	
 	/** The possible file formats. */
 	private JComboBox				formats;
@@ -383,19 +383,19 @@ public class SearchPanel
 
 		formats = new JComboBox(fileFormats);
 		formats.setEnabled(false);
-		ButtonGroup group = new ButtonGroup();
-		creationTime = new JRadioButton("Created");
-		creationTime.setSelected(true);
-		creationTime.setBackground(UIUtilities.BACKGROUND_COLOR);
-		updatedTime = new JRadioButton("Updated");
-		updatedTime.setBackground(UIUtilities.BACKGROUND_COLOR);
-		group.add(creationTime);
-		group.add(updatedTime);
+//		ButtonGroup group = new ButtonGroup();
+//		creationTime = new JRadioButton("Created");
+//		creationTime.setSelected(true);
+//		creationTime.setBackground(UIUtilities.BACKGROUND_COLOR);
+//		updatedTime = new JRadioButton("Updated");
+//		updatedTime.setBackground(UIUtilities.BACKGROUND_COLOR);
+//		group.add(creationTime);
+//		group.add(updatedTime);
 		
 		SearchContext ctx = model.getSearchContext();
 		if (ctx == null) return;
-		if (ctx.getTimeType() == SearchContext.UPDATED_TIME)
-			updatedTime.setSelected(true);
+//		if (ctx.getTimeType() == SearchContext.UPDATED_TIME)
+//			updatedTime.setSelected(true);
 		List<Integer> l = ctx.getOwnerSearchContext();
 		if (l != null) {
 			othersAsOwner.setSelected(l.contains(SearchContext.OTHERS));
@@ -413,7 +413,7 @@ public class SearchPanel
 		if (dateIndex != -1) dates.setSelectedIndex(dateIndex);
 		
 		//initialize
-		setDateIndex();
+//		setDateIndex();
 	}
 	
 	/** Lays out the selected users. */
@@ -928,8 +928,8 @@ public class SearchPanel
 		JPanel content = new JPanel();
 		content.setBackground(UIUtilities.BACKGROUND_COLOR);
 		content.setLayout(new BoxLayout(content, BoxLayout.X_AXIS));
-		content.add(creationTime);
-		content.add(updatedTime);
+//		content.add(creationTime);
+//		content.add(updatedTime);
 		
 		JPanel p = new JPanel();
 		p.setBackground(UIUtilities.BACKGROUND_COLOR);
@@ -942,8 +942,8 @@ public class SearchPanel
         p.add(content, c);
         c.ipady = 0;
         c.gridy++;
-        p.add(dates, c);
-        c.gridy++;
+        //p.add(dates, c);
+       // c.gridy++;
 		p.add(buildTimeRange(), c);
 		
 		JPanel panel = UIUtilities.buildComponentPanel(p);
@@ -998,7 +998,7 @@ public class SearchPanel
 		c.gridy++;
 		add(datePane, c);//, "0, 4");
 
-		setDateIndex();
+//		setDateIndex();
 	}
 
 	/** 
@@ -1030,25 +1030,25 @@ public class SearchPanel
 		repaint();
 	}
 	
-	/** 
-	 * Enables the date fields if the selected index is 
-	 * {@link SearchContext#RANGE}. 
-	 */
-	void setDateIndex()
-	{
-		int index = dates.getSelectedIndex();
-		fromDate.setEnabled(index == SearchContext.RANGE);
-		fromDate.getEditor().setEnabled(false);
-		toDate.setEnabled(index == SearchContext.RANGE);
-		toDate.getEditor().setEnabled(false);
-	}
+//	/** 
+//	 * Enables the date fields if the selected index is 
+//	 * {@link SearchContext#RANGE}. 
+//	 */
+//	void setDateIndex()
+//	{
+//		int index = dates.getSelectedIndex();
+//		fromDate.setEnabled(index == SearchContext.RANGE);
+//		fromDate.getEditor().setEnabled(false);
+//		toDate.setEnabled(index == SearchContext.RANGE);
+//		toDate.getEditor().setEnabled(false);
+//	}
 	
-	/**
-	 * Returns the currently selected time index.
-	 * 
-	 * @return See above.
-	 */
-	int getSelectedDate() { return dates.getSelectedIndex(); }
+//	/**
+//	 * Returns the currently selected time index.
+//	 * 
+//	 * @return See above.
+//	 */
+//	int getSelectedDate() { return dates.getSelectedIndex(); }
 	
 	/**
 	 * Returns <code>true</code> if the search is case sensitive,
@@ -1258,17 +1258,17 @@ public class SearchPanel
 	 */
 	int getAttachment() { return formats.getSelectedIndex(); }
 	
-	/**
-	 * Returns the index of the time.
-	 * 
-	 * @return See above.
-	 */
-	int getTimeIndex()
-	{
-		if (creationTime.isSelected()) return SearchContext.CREATION_TIME;
-		if (updatedTime.isSelected()) return SearchContext.UPDATED_TIME;
-		return -1;
-	}
+//	/**
+//	 * Returns the index of the time.
+//	 * 
+//	 * @return See above.
+//	 */
+//	int getTimeIndex()
+//	{
+//		if (creationTime.isSelected()) return SearchContext.CREATION_TIME;
+//		if (updatedTime.isSelected()) return SearchContext.UPDATED_TIME;
+//		return -1;
+//	}
 
 	/**
 	 * Returns the collection of excluded users.
