@@ -71,6 +71,7 @@ import ome.services.blitz.util.ChecksumAlgorithmMapper;
 import ome.services.blitz.util.FindServiceFactoryMessage;
 import ome.services.blitz.util.RegisterServantMessage;
 import ome.services.util.Executor;
+import ome.services.util.SleepTimer;
 import ome.system.OmeroContext;
 import ome.system.Principal;
 import ome.system.ServiceFactory;
@@ -758,12 +759,8 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
                     if (ve.getCause() instanceof PSQLException) {
                         // Could have collided with another thread also creating the directory.
                         // See Trac #11096 regarding originalfile table uniqueness of columns repo, path, name.
-                        try {
-                            // Give the other thread time to complete registration.
-                            Thread.sleep(1000);
-                        } catch (InterruptedException ie) {
-                            // really don't care
-                        }
+                        // So, give the other thread time to complete registration.
+                        SleepTimer.sleepFor(1000);
                         if (checked.exists()) {
                             // The path now exists! It did not a moment ago.
                             // We are not going to rethrow the validation exception,
