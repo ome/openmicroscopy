@@ -29,9 +29,12 @@ import java.sql.Timestamp;
 import java.util.List;
 
 
+
 //Third-party libraries
 import org.apache.commons.lang.StringUtils;
 
+
+import pojos.DataObject;
 //Application-internal dependencies
 import pojos.ExperimenterData;
 
@@ -74,9 +77,6 @@ public class SearchDataContext
 	
 	/** Identifying the <code>Name</code> context. */
 	public static final int			CUSTOMIZED = 7;
-	
-	/** Identifying the <code>ID</code> context. */
-	public static final int                 ID = 8;
 	
 	/** Indicates to set the creation time interval. */
 	public static final int			CREATION_TIME = 0;
@@ -122,7 +122,7 @@ public class SearchDataContext
 	private List<Integer>			scope;
 	
 	/** The types to search on. */
-	private List<Class>				types;
+	private List<Class<? extends DataObject>>	types;
 	
 	/** The query terms to search for */
 	private String[] terms = new String[0];
@@ -157,7 +157,7 @@ public class SearchDataContext
 	 * @param none	None of these terms may be present in the document. 
 	 * 				May be <code>null</code>.
 	 */
-	public SearchDataContext(List<Integer> scope, List<Class> types, String[] terms)
+	public SearchDataContext(List<Integer> scope, List<Class<? extends DataObject>> types, String[] terms)
 	{
 		this.terms = terms;
 		this.scope = scope;
@@ -257,7 +257,7 @@ public class SearchDataContext
 	 * 
 	 * @return See above.
 	 */
-	public List<Class> getTypes() { return types; }
+	public List<Class<? extends DataObject>> getTypes() { return types; }
 	
 	/**
 	 * Returns the query terms to search for
@@ -274,7 +274,8 @@ public class SearchDataContext
 	 */
 	public boolean isValid()
 	{
-		return terms.length>0;
+		return !(terms.length==0 && start == null
+                        && end == null);
 	}
 	
 	/**

@@ -24,17 +24,37 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
+import omero.model.IObject;
 import pojos.DataObject;
 
+/**
+ * Holds the results of a search; a collection of
+ * {@link AdvancedSearchResult}s
+ * 
+ * @author Dominik Lindner &nbsp;&nbsp;&nbsp;&nbsp; 
+ * <a href="mailto:d.lindner@dundee.ac.uk">d.lindner@dundee.ac.uk</a>
+ * @version 5.0
+ *
+ */
 public class AdvancedSearchResultCollection extends
         ArrayList<AdvancedSearchResult> {
 
+    /** Indicates there was an error with the search */
     private boolean error = false;
 
+    /**
+     * @return <code>true</code> if there was an error with
+     * the search, <code>false</code> otherwise
+     */
     public boolean isError() {
         return error;
     }
 
+    /**
+     * Set the error flag
+     * @param error Pass <code>true</code> if there was an error with 
+     * the search, <code>false</code> otherwise
+     */
     public void setError(boolean error) {
         this.error = error;
     }
@@ -55,30 +75,23 @@ public class AdvancedSearchResultCollection extends
         return false;
     }
 
-    public List<AdvancedSearchResult> getResultsByScopeId(int scopeId) {
+   /**
+    * Get all results of a certain scope and/or type
+    * @param scopeId The scope to filter for, see {@link SearchDataContext}
+    * @param type The type to filter for, see {@link DataObject}
+    * @return
+    */
+    public List<AdvancedSearchResult> getResults(int scopeId, Class<? extends DataObject> type) {
         List<AdvancedSearchResult> result = new ArrayList<AdvancedSearchResult>();
         for (AdvancedSearchResult r : this) {
-            if (r.getScopeId() == scopeId) {
-                result.add(r);
+            if (scopeId<0 && r.getScopeId() != scopeId) {
+                continue;
             }
-        }
-        return result;
-    }
-
-    public List<AdvancedSearchResult> getResultsByType(Class<?> type) {
-        List<AdvancedSearchResult> result = new ArrayList<AdvancedSearchResult>();
-        for (AdvancedSearchResult r : this) {
-            if (r.getType().equals(type)) {
-                result.add(r);
+            if (type!=null && !r.getType().equals(type)) {
+                continue;
             }
+            result.add(r);
         }
-        return result;
-    }
-    
-    public Collection<DataObject> getDataObjects() {
-        Collection<DataObject> result = new ArrayList<DataObject>(size());
-        for(AdvancedSearchResult r : this)
-            result.add(r.getObject());
         return result;
     }
 

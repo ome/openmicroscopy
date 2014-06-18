@@ -180,12 +180,6 @@ public class SearchContext
 	/** The max number of supported formats. */
 	static final int				MAX_FORMAT = 8;
 	
-	/** Indicate that the time selected is the creation time. */
-	static final int				CREATION_TIME = 100;
-	
-	/** Indicate that the time selected is the creation time. */
-	static final int				UPDATED_TIME = 101;
-	
 	/** The query to search for. */
 	private String[]		terms;
 	
@@ -387,24 +381,6 @@ public class SearchContext
 	void setExcludedAnnotators(List<String> users)
 	{ 
 		excludedAnnotators = users;
-	}
-	
-	/**
-	 * Sets the time index. One of the following constants:
-	 * {@link #CREATION_TIME}, {@link #UPDATED_TIME}.
-	 * 
-	 * @param index The value to set.
-	 */
-	void setTimeType(int index)
-	{
-		switch (index) {
-			case CREATION_TIME:
-			case UPDATED_TIME:
-				timeType = index;
-				break;
-			default:
-				timeType = -1;
-		}
 	}
 	
 	/**
