@@ -147,7 +147,8 @@ public class Main {
     public static void usage() {
         StringBuilder sb = new StringBuilder();
         sb.append("usage: [-Dlogback.configurationFile=stderr.xml] ");
-        sb.append("ome.service.fulltext.Main [help|standalone|events|full|");
+        sb.append("ome.service.fulltext.Main [help|foreground|dryrun|reset|"
+                + "standalone|events|full|");
         sb.append("reindex class1 class2 class3 ...]\n");
         System.out.println(sb.toString());
         System.exit(-2);
@@ -162,9 +163,9 @@ public class Main {
             } else if ("reset".equals(args[0])) {
                 reset(args);
             } else if ("dryrun".equals(args[0])) {
-                sequential(true, args);
-            } else if ("sequential".equals(args[0])) {
-                sequential(false, args);
+                foreground(true, args);
+            } else if ("foreground".equals(args[0])) {
+                foreground(false, args);
             } else if ("standalone".equals(args[0])) {
                 standalone(args);
             } else if ("events".equals(args[0])) {
@@ -250,9 +251,10 @@ public class Main {
 
     /**
      * Uses a {@link PersistentEventLogLoader} and cycles through all
-     * the remaining logs.
+     * the remaining logs. Reset can be called first for a complete
+     * re-indexing.
      */
-    public static void sequential(boolean dryrun, String[] args) {
+    public static void foreground(boolean dryrun, String[] args) {
         init();
         final FullTextThread ftt = createFullTextThread(loader, dryrun);
 
