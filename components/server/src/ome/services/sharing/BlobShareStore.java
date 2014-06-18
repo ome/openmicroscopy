@@ -213,39 +213,39 @@ public class BlobShareStore extends ShareStore implements
         return images.contains(imgID);
     }
     
-    boolean imagesContainsInstrument(Session s, List<Long> images, Instrument instr, Map<Long, Long> cache) {
+    boolean imagesContainsInstrument(Session s, List<Long> images, Instrument instr, Map<Long, List<Long>> cache) {
         if (instr == null) {
             return false;
         }
         Long instrID = instr.getId();
-        Long imgID;
+        List<Long> imgIDs;
         if (cache.containsKey(instrID)) {
-            imgID = cache.get(instrID);
+            imgIDs = cache.get(instrID);
         } else {
-            imgID = (Long) s.createQuery(
+            imgIDs = (List<Long>) s.createQuery(
                 "select id from Image where instrument.id = ?")
-                .setParameter(0, instrID).uniqueResult();
-            cache.put(instrID, imgID);
+                .setParameter(0, instrID).list();
+            cache.put(instrID, imgIDs);
         }
-        return images.contains(imgID);
+        return images.containsAll(imgIDs);
     }
 
-    boolean imagesContainsObjectiveSettings(Session s, List<Long> images, ObjectiveSettings os, Map<Long, Long> cache) {
+    boolean imagesContainsObjectiveSettings(Session s, List<Long> images, ObjectiveSettings os, Map<Long, List<Long>> cache) {
         Long osID = os.getId();
         return imagesContainsObjectiveSettings(s, images, osID, cache);
     }
     
-    boolean imagesContainsObjectiveSettings(Session s, List<Long> images, long osID, Map<Long, Long> cache) {
-        Long imgID;
+    boolean imagesContainsObjectiveSettings(Session s, List<Long> images, long osID, Map<Long, List<Long>> cache) {
+        List<Long> imgIDs;
         if (cache.containsKey(osID)) {
-            imgID = cache.get(osID);
+            imgIDs = cache.get(osID);
         } else {
-            imgID = (Long) s.createQuery(
+            imgIDs = (List<Long>) s.createQuery(
                 "select id from Image where objectiveSettings.id = ?")
-                .setParameter(0, osID).uniqueResult();
-            cache.put(osID, imgID);
+                .setParameter(0, osID).list();
+            cache.put(osID, imgIDs);
         }
-        return images.contains(imgID);
+        return images.containsAll(imgIDs);
     }
     
     @Override
@@ -325,8 +325,13 @@ public class BlobShareStore extends ShareStore implements
             return true;
         }
         
-        Map<Long, Long> obToImageCache = new HashMap<Long, Long>();
-        if (Objective.class.isAssignableFrom(kls)) {
+        Map<Long, List<Long>> obToImageCache = new HashMap<Long, List<Long>>();
+        if (ObjectiveSettings.class.isAssignableFrom(kls)) {
+            ObjectiveSettings obj = (ObjectiveSettings) s.get(
+                    ObjectiveSettings.class, objId);
+            return imagesContainsObjectiveSettings(s, images, obj,
+                    obToImageCache);
+        } else if (Objective.class.isAssignableFrom(kls)) {
         	Objective obj = (Objective) s.get(Objective.class, objId);
             return imagesContainsInstrument(s, images, obj.getInstrument(), obToImageCache);
         } else if (Detector.class.isAssignableFrom(kls)) {
@@ -365,11 +370,6 @@ public class BlobShareStore extends ShareStore implements
         			}
         		}
         	}
-        } else if (ObjectiveSettings.class.isAssignableFrom(kls)) {
-            ObjectiveSettings obj = (ObjectiveSettings) s.get(
-                    ObjectiveSettings.class, objId);
-            return imagesContainsObjectiveSettings(s, images, obj,
-                    obToImageCache);
         }
         
         return false;
