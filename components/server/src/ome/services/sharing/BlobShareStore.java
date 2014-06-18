@@ -55,6 +55,7 @@ import ome.tools.hibernate.QueryBuilder;
 import ome.tools.hibernate.SessionFactory;
 import ome.util.SqlAction;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.springframework.beans.BeansException;
@@ -227,7 +228,7 @@ public class BlobShareStore extends ShareStore implements
                 .setParameter(0, instrID).list();
             cache.put(instrID, imgIDs);
         }
-        return images.containsAll(imgIDs);
+        return CollectionUtils.containsAny(images, imgIDs);
     }
 
     boolean imagesContainsObjectiveSettings(Session s, List<Long> images, ObjectiveSettings os, Map<Long, List<Long>> cache) {
@@ -245,7 +246,7 @@ public class BlobShareStore extends ShareStore implements
                 .setParameter(0, osID).list();
             cache.put(osID, imgIDs);
         }
-        return images.containsAll(imgIDs);
+        return CollectionUtils.containsAny(images, imgIDs);
     }
     
     @Override
