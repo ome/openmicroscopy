@@ -188,10 +188,11 @@ Other commands (usually unnecessary):
   bin/omero admin reindex --class ome.model.core.Image
 
   # Passing arguments to Java
-  JAVA_OPTS="-Dlogback.configurationFile=stderr.xml" \
+  JAVA_OPTS="-Dlogback.configurationFile=stderr.xml" \\
   bin/omero admin reindex --foreground
 
-  JAVA_OPTS="-Xdebug -Xrunjdwp:server=y,transport=dt_socket,address=8787,suspend=y" \\
+  JAVA_OPTS="-Xdebug -Xrunjdwp:server=y,transport=\
+dt_socket,address=8787,suspend=y" \\
   bin/omero admin reindex --foreground
 
 """).parser
@@ -207,13 +208,16 @@ Other commands (usually unnecessary):
             help="Number of items to index before reporting status")
         reindex.add_argument(
             "--merge_factor", default="100",
-            help="Higher means merge less frequently. Faster but needs more RAM")
+            help=("Higher means merge less frequently. "
+                  "Faster but needs more RAM"))
         reindex.add_argument(
             "--ram_buffer_size", default="1000",
-            help="Number of MBs to use for the indexing. Higher is faster.")
+            help=("Number of MBs to use for the indexing. "
+                  "Higher is faster."))
         reindex.add_argument(
             "--lock_factory", default="native",
-            help="Choose Lucene lock factory by class or 'native', 'simple', 'none'")
+            help=("Choose Lucene lock factory by class or "
+                  "'native', 'simple', 'none'"))
 
         group = reindex.add_mutually_exclusive_group()
         group.add_argument(
@@ -1303,12 +1307,13 @@ OMERO Diagnostics %s
         lock = locks.get(args.lock_factory, args.lock_factory)
 
         year2 = datetime.datetime.now().year + 2
+        factory_class = "org.apache.lucene.store.FSDirectoryLockFactoryClass"
         xargs2 = ["-Xmx%s" % args.mem,
-                  "-Domero.search.cron=1 1 1 1 1 ? %s" % year2,  # Disable quartz
+                  "-Domero.search.cron=1 1 1 1 1 ? %s" % year2,
                   "-Domero.search.batch=%s" % args.batch,
                   "-Domero.search.merge_factor=%s" % args.merge_factor,
                   "-Domero.search.ram_buffer_size=%s" % args.ram_buffer_size,
-                  "-Dorg.apache.lucene.store.FSDirectoryLockFactoryClass=%s" % lock]
+                  "-D%s=%s" % (factory_class, lock)]
         xargs.extend(xargs2)
 
         cmd = ["ome.services.fulltext.Main"]
