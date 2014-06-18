@@ -40,6 +40,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 
+
 //Application-internal dependencies
 import omero.cmd.Delete;
 import omero.cmd.Request;
@@ -607,32 +608,107 @@ class OmeroDataServiceImpl
 		if (!context.isValid())
 			throw new IllegalArgumentException("Search context not valid.");
 		
-		//		TODO!
-//		Map<Integer, Object> results = new HashMap<Integer, Object>();
-//		if (!context.hasTextToSearch()) {
-//			results.put(SearchDataContext.TIME,
-//					gateway.searchByTime(ctx, context));
-//			return results;
-//		}
+		AdvancedSearchResultCollection results = new AdvancedSearchResultCollection();
 		
-		AdvancedSearchResultCollection result = gateway.performFulltextSearch(ctx, context);
-
-		Iterator<AdvancedSearchResult> it = result.iterator();
-		while(it.hasNext()) {
-		    AdvancedSearchResult r = it.next();
-		    DataObject obj;
-		    if(r.getType().equals(ImageData.class)) {
-		        Set tmp =  gateway.getContainerImages(ctx, r.getType(), Collections.singletonList(r.getObjectId()), new Parameters());
-		        obj = (DataObject) tmp.iterator().next();
-		    }
-		    else {
-		        obj = PojoMapper.asDataObject(gateway.findIObject(ctx, PojoMapper.convertTypeForSearch(r.getType()), r.getObjectId()));
-		    }
-		    r.setObject(obj);
+		if (!context.hasTextToSearch()) {
+		    results.addAll(gateway.performByTimeSearch(ctx, context));
+		    return results;
 		}
 		
-		return result;
+		// If terms contain ids only, just add them to the results, 
+		// loadObjects() will remove them later if they can't be found
+		long[] ids = convertSearchTermsToIds(context.getTerms());
+		if(ids!=null) {
+		    for(long id: ids) {
+		        for(Class<? extends DataObject> type : context.getTypes()) {
+		            AdvancedSearchResult res = new AdvancedSearchResult();
+		            res.setObjectId(id);
+		            res.setType(type);
+		            results.add(res);
+		        }
+		    }
+		}
+		
+		results.addAll(gateway.performFulltextSearch(ctx, context));
+
+		loadObjects(ctx, results);
+		
+		return results;
 	}
+	
+	/**
+	 * Loads the DataObjects contained in results; removes them from results, if they can't be found.
+	 * @param ctx
+	 * @param results
+	 * @throws DSOutOfServiceException
+	 */
+        private void loadObjects(SecurityContext ctx, AdvancedSearchResultCollection results)
+                throws DSOutOfServiceException {
+            
+            Iterator<AdvancedSearchResult> it = results.iterator();
+            
+            while (it.hasNext()) {
+                AdvancedSearchResult r = it.next();
+                DataObject obj;
+    
+                if (r.getType().equals(ImageData.class)) {
+    
+                    Set tmp = null;
+                    
+                    try {
+                        tmp = gateway.getContainerImages(ctx, r.getType(),
+                                Collections.singletonList(r.getObjectId()),
+                                new Parameters());
+                    } catch (DSAccessException e) {
+                        // i. e. object cannot be found
+                    }
+    
+                    if (CollectionUtils.isEmpty(tmp)) {
+                        it.remove();
+                        continue;
+                    } else {
+                        obj = (DataObject) tmp.iterator().next();
+                    }
+                } else {
+                    
+                    IObject iobj = null;
+                    
+                    try {
+                        iobj = gateway.findIObject(ctx,
+                                PojoMapper.convertTypeForSearch(r.getType()),
+                                r.getObjectId());
+                    } catch (DSAccessException e) {
+                        // i. e. object cannot be found
+                    }
+                    
+                    if (iobj == null) {
+                        it.remove();
+                        continue;
+                    } else {
+                        obj = PojoMapper.asDataObject(iobj);
+                    }
+                }
+    
+                r.setObject(obj);
+            }
+        }
+	
+        /**
+         * Tries to convert all search terms into ids;
+         * @param terms
+         * @return The ids or null if one or multiple terms contain non numeric characters
+         */
+        private long[] convertSearchTermsToIds(String[] terms) {
+            long[] result = new long[terms.length];
+            try {
+                for (int i = 0; i < terms.length; i++) {
+                    result[i] = Long.parseLong(terms[i]);
+                }
+            } catch (NumberFormatException e) {
+                return null;
+            }
+            return result;
+        }
 
 	/**
 	 * Implemented as specified by {@link OmeroDataService}.

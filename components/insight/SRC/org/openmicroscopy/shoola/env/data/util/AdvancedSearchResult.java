@@ -19,60 +19,141 @@
 
 package org.openmicroscopy.shoola.env.data.util;
 
+import omero.model.IObject;
 import pojos.DataObject;
 
+/**
+ * Encapsulates a single object found by a search together with the search
+ * scope (name, description, etc.) it was found with.
+ * 
+ * Multiple search results are supposed to be held in an {@link AdvancedSearchResultCollection}
+ * 
+ * @author Dominik Lindner &nbsp;&nbsp;&nbsp;&nbsp; <a
+ *         href="mailto:d.lindner@dundee.ac.uk">d.lindner@dundee.ac.uk</a>
+ * @version 5.0
+ */
 public class AdvancedSearchResult {
 
-    /** The scope (name, description, ...) */
+    /** The scope (name, description, ...), see {@link SearchDataContext} */
     private int scopeId;
-    
-    /** Indicates the type (imagei, dataseti, ...) */
-    private Class<?> type;
-    
+
+    /** Indicates the type (ImageData, DatasetData, ...) see {@link DataObject} */
+    private Class<? extends DataObject> type;
+
+    /** Id of the found object */
     private long objectId;
-    
+
+    /** The found object itself */
     private DataObject object;
-    
+
+    /**
+     * Create a new instance
+     */
     public AdvancedSearchResult() {
     }
 
-    
-    public AdvancedSearchResult(int scopeId, Class<?> type, long objectId) {
+    /**
+     * Create a new instance
+     * 
+     * @param scopeId
+     *            Id of the search scope, see {@link SearchDataContext}
+     * @param type
+     *            Type of the object to search
+     * @param objectId
+     *            Id of the found object
+     */
+    public AdvancedSearchResult(int scopeId, Class<? extends DataObject> type, long objectId) {
         this.scopeId = scopeId;
         this.type = type;
         this.objectId = objectId;
     }
 
+    /**
+     * The Id of the search scope, e. g. name, description, ... see
+     * {@link SearchDataContext}
+     * 
+     * @return
+     */
     public int getScopeId() {
         return scopeId;
     }
 
+    /**
+     * Set the id of the search scope, e. g. name, description, ... see
+     * {@link SearchDataContext}
+     * 
+     * @param scopeId
+     */
     public void setScopeId(int scopeId) {
         this.scopeId = scopeId;
     }
 
-    public Class<?> getType() {
+    /**
+     * Get the type (class) of objects to search for see {@link DataObject}
+     * 
+     * @return
+     */
+    public Class<? extends DataObject> getType() {
         return type;
     }
 
-    public void setType(Class<?> type) {
+    /**
+     * Set the type (class) of objects to search for see {@link DataObject}
+     * 
+     * @param type
+     */
+    public void setType(Class<? extends DataObject> type) {
         this.type = type;
     }
 
+    /**
+     * Set the Id of the found object
+     * 
+     * @return
+     */
     public long getObjectId() {
         return objectId;
     }
 
+    /**
+     * Get the Id of the found object
+     * 
+     * @param objectId
+     */
     public void setObjectId(long objectId) {
         this.objectId = objectId;
     }
 
+    /**
+     * Get the found object
+     * 
+     * @return
+     */
     public DataObject getObject() {
         return object;
     }
 
+    /**
+     * Set the found object
+     * 
+     * @param object
+     */
     public void setObject(DataObject object) {
+        if (objectId >= 0) {
+            if (object.getId() != objectId)
+                throw new IllegalArgumentException(
+                        "objectId does not match the object!");
+            objectId = object.getId();
+        }
+        if (type != null) {
+            if (!object.getClass().equals(type))
+                throw new IllegalArgumentException("Cannot add a "
+                        + object.getClass().getSimpleName()
+                        + " to an AdvancedSearchResult intended for "
+                        + type.getSimpleName() + "!");
+            type = object.getClass();
+        }
         this.object = object;
     }
-    
+
 }

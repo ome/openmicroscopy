@@ -4895,7 +4895,84 @@ class OMEROGateway
 
 		return new HashSet();
 	}
-
+	
+        /**
+         * Searches for data.
+         * 
+         * @param ctx
+         *            The security context.
+         * @param context
+         *            The context of search.
+         * @return The found objects.
+         * @throws DSOutOfServiceException
+         *             If the connection is broken, or logged in.
+         * @throws DSAccessException
+         *             If an error occurred while trying to retrieve data from OMEDS
+         *             service.
+         */
+        AdvancedSearchResultCollection performByTimeSearch(SecurityContext ctx,
+                SearchDataContext context) throws DSOutOfServiceException,
+                DSAccessException {
+    
+            Connector c = getConnector(ctx, true, false);
+            IQueryPrx service = c.getQueryService();
+    
+            AdvancedSearchResultCollection result = new AdvancedSearchResultCollection();
+            
+            for (Class type : context.getTypes()) {
+                
+                StringBuffer buf = new StringBuffer();
+                buf.append("select obj from "+type.getSimpleName()+" as obj ");
+    
+                ParametersI param = new ParametersI();
+                param.map = new HashMap<String, RType>();
+    
+                Timestamp start = context.getStart();
+                Timestamp end = context.getEnd();
+    
+                if (start != null) {
+                    buf.append("where obj.acquisitionDate > :start ");
+                    param.map.put("start", omero.rtypes.rtime(start.getTime()));
+                    if (end != null) {
+                        param.map.put("end", omero.rtypes.rtime(end.getTime()));
+                        buf.append("and obj.acquisitionDate < :end ");
+                    }
+                } else {
+                    if (end != null) {
+                        param.map.put("end", omero.rtypes.rtime(end.getTime()));
+                        buf.append("where obj.acquisitionDate < :end ");
+                    }
+                }
+    
+                try {
+                    List<ExperimenterData> l = context.getOwners();
+                    List<Long> ids = new ArrayList<Long>();
+                    if (l != null) {
+                        Iterator<ExperimenterData> i = l.iterator();
+                        while (i.hasNext()) {
+                            ids.add(i.next().getId());
+                        }
+                    }
+                    param.addLongs("ids", ids);
+                    buf.append(" and owner.id in (:ids)");
+    
+                    List<IObject> res = service.findAllByQuery(buf.toString(), param);
+                    for(IObject obj : res) {
+                        AdvancedSearchResult r = new AdvancedSearchResult();
+                        r.setType(type);
+                        r.setObjectId(obj.getId().getValue());
+                        r.setScopeId(SearchDataContext.TIME);
+                        result.add(r);
+                    }
+                } catch (Throwable e) {
+                    handleException(e, "Cannot retrieve the images.");
+                }
+    
+            }
+    
+            return result;
+        }
+        
 	/**
          * Searches for data.
          *
@@ -4916,7 +4993,7 @@ class OMEROGateway
             SearchPrx service = null;
             service = c.getSearchService();
             
-            for (Class type : context.getTypes()) {
+            for (Class<? extends DataObject> type : context.getTypes()) {
                 try {
                     // set general paramters
                     service.clearQueries();
@@ -4971,7 +5048,7 @@ class OMEROGateway
                         }
                     }
     
-                    // set the owner
+                    // set the owner  - TODO!
                     List<ExperimenterData> users = context.getOwners();
                     Iterator i;
                     ExperimenterData exp;
@@ -5013,8 +5090,6 @@ class OMEROGateway
                                     "annotation", "NOT", "tag");
                         } else if (scopeId == SearchDataContext.URL_ANNOTATION) {
                             terms = formatText(searchTerms, "url");
-                        } else if (scopeId == SearchDataContext.ID) {
-                            terms = formatText(searchTerms, "id");
                         } else {
                             terms = formatText(searchTerms, "");
                         }
@@ -5072,7 +5147,7 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 		Map<Integer, Object> results = new HashMap<Integer, Object>();
-		List<Class> types = context.getTypes();
+		List<Class<? extends DataObject>> types = context.getTypes();
 		List<Integer> scopes = context.getScope();
 		if (CollectionUtils.isEmpty(types)) return new HashMap();
 
