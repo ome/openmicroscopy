@@ -204,6 +204,9 @@ LIMITATION: omero.db.pass values do not currently get passed to the Java
         group.add_argument(
             "--class", nargs="+",
             help="Reindexes the given classes sequentially")
+        group.add_argument(
+            "--wipe", action="store_true",
+            help="Delete the existing index files")
 
         ports = Action(
             "ports",
@@ -1265,6 +1268,33 @@ OMERO Diagnostics %s
 
         cmd = ["ome.services.fulltext.Main"]
 
+        # Python actions
+        if args.wipe:
+            omero_data_dir = cfg.get("omero.data.dir", "/OMERO")
+            self.can_access(omero_data_dir)
+            from os.path import sep
+            from glob import glob
+            pattern = sep.join([omero_data_dir, "FullText", "*"])
+            files = glob(pattern)
+            total = 0
+            self.ctx.err("Wiping %s files matching %s" % (len(files), pattern))
+            for file in files:
+                size = os.path.getsize(file)
+                total += 0
+                print file, size
+            print "Total:", size
+            yes = self.ctx.input("Enter 'y' to continue:")
+            if not yes.lower().startswith("y"):
+                return
+            else:
+                for file in files:
+                    try:
+                        os.remove(file)
+                    except:
+                        self.ctx.err("Failed to remove: %s", file)
+            return  # Early exit!
+
+        # Java actions
         if args.full:
             cmd.append("full")
         elif args.dryrun:
