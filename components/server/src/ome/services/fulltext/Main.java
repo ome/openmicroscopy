@@ -136,6 +136,7 @@ public class Main {
     protected static FullTextThread createFullTextThread(EventLogLoader loader,
             boolean dryRun) {
         final FullTextIndexer fti = new FullTextIndexer(loader, metrics);
+        fti.setApplicationContext(context);
         fti.setDryRun(dryRun);
         final FullTextThread ftt = new FullTextThread(manager, executor, fti,
                 bridge);
