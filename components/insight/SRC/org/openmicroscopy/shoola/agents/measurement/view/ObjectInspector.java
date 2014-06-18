@@ -269,7 +269,7 @@ class ObjectInspector
 		Object v = (Boolean) fieldTable.getModel().getValueAt(row, col);
 		Boolean value = Boolean.valueOf(false);
 		if (v != null) value = (Boolean) v;
-		boolean newValue = !(value.booleanValue()); 
+		boolean newValue = !(value.booleanValue());
 		fieldTable.getModel().setValueAt(Boolean.valueOf(newValue), row, col);
 		model.getDrawingView().repaint();
 	}

@@ -713,20 +713,26 @@ class MeasurementResults
 			MeasurementObject rowData = values.get(row);
 			Object value = rowData.getElement(col);
 			if (value instanceof List) {
-				List l = (List) value;
+				List<Object> l = (List<Object>) value;
 				
 				if (l.size() == 1) return l.get(0);
-				StringBuffer buffer = new StringBuffer();
-				Iterator i = l.iterator();
+				StringBuilder buffer = new StringBuilder();
+				Iterator<Object> i = l.iterator();
 				Object v;
 				double total = 0;
 				while (i.hasNext()) {
 					v = i.next();
 					if (v instanceof Number) {
-						total += ((Number) v).doubleValue();
+					    double d = ((Number) v).doubleValue();
+						total += d;
+						buffer.append(UIUtilities.formatToDecimal(d));
+						buffer.append(" ");
 					}
 				}
-				return total;
+				if (total > 0) {
+				    buffer.append("= "+UIUtilities.formatToDecimal(total));
+				}
+				return buffer.toString();
 			}
 	    	return rowData.getElement(col);
 		}
