@@ -2,10 +2,10 @@
  * org.openmicroscopy.shoola.agents.measurement.Analyser 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -111,27 +111,28 @@ public class Analyser
      */
     public void handleNullResult() 
     {
-    	UserNotifier un = registry.getUserNotifier();
-    	un.notifyInfo("Analysing data", "An error occurred while analysing " +
-    			"the data.");
+        handleException(null);
     }
     
     /**
      * Notifies the user that an error has occurred.
      * @see DSCallAdapter#handleException(Throwable) 
      */
-    public void handleException(Throwable exc) 
+    public void handleException(Throwable exc)
     {
-    	int state = viewer.getState();
-        String s = "Data Retrieval Failure: ";
-        LogMessage msg = new LogMessage();
-        msg.print("State: "+state);
-        msg.print(s);
-        msg.print(exc);
-        registry.getLogger().error(this, msg);
+        if (exc != null) {
+            int state = viewer.getState();
+            String s = "Data Retrieval Failure: ";
+            LogMessage msg = new LogMessage();
+            msg.print("State: "+state);
+            msg.print(s);
+            msg.print(exc);
+            registry.getLogger().error(this, msg);
+        }
         UserNotifier un = registry.getUserNotifier();
     	un.notifyInfo("Analysing data", "An error occurred while analysing " +
     			"the data.");
+    	viewer.setStatsShapes(null);
     }
     
     /**
