@@ -2,10 +2,10 @@
  * org.openmicroscopy.shoola.agents.measurement.view.NewIntensityResultsView 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -53,6 +53,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 
+import org.apache.commons.collections.CollectionUtils;
 //Third-party libraries
 import org.jhotdraw.draw.Figure;
 
@@ -82,9 +83,9 @@ import pojos.ChannelData;
 /** 
  * Displays the intensity results.
  *
- * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
+ * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
- * @author	Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
+ * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
  * <small>
@@ -505,7 +506,7 @@ class IntensityResultsView
 	 */
 	private boolean validFigures(Set<Figure> selectedFigures)
 	{
-		if (selectedFigures == null || selectedFigures.size() == 0)
+		if (CollectionUtils.isEmpty(selectedFigures))
 			return false;
 		for (Figure figure : selectedFigures)
 			if (figure instanceof MeasureTextFigure)
@@ -522,7 +523,8 @@ class IntensityResultsView
 			view.getDrawingView().getSelectedFigures();
 		if (!validFigures(selectedFigures))
 				return;
-		if (selectedFigures.size() == 0 || state == State.ANALYSING) return;
+		if (CollectionUtils.isEmpty(selectedFigures) ||
+		        state == State.ANALYSING) return;
 		state = State.ANALYSING;
 		List<ROIShape> shapeList = new ArrayList<ROIShape>();
 		final Set<ROIShape> alreadyInTable = getShapesInRows();
@@ -586,7 +588,8 @@ class IntensityResultsView
 	{
 		Set<Figure> selectedFigures = 
 			view.getDrawingView().getSelectedFigures();
-		if (selectedFigures.size() == 0 || state == State.ANALYSING) return;
+		if (CollectionUtils.isEmpty(selectedFigures) ||
+		        state == State.ANALYSING) return;
 		state = State.ANALYSING;
 		setControls(false);
 		List<ROIShape> shapeList = new ArrayList<ROIShape>();
