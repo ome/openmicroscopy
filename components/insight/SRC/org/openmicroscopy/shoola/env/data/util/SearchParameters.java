@@ -29,8 +29,12 @@ import java.sql.Timestamp;
 import java.util.List;
 
 
-//Third-party libraries
 
+//Third-party libraries
+import org.apache.commons.lang.StringUtils;
+
+
+import pojos.DataObject;
 //Application-internal dependencies
 import pojos.ExperimenterData;
 
@@ -47,7 +51,7 @@ import pojos.ExperimenterData;
  * </small>
  * @since OME3.0
  */
-public class SearchDataContext
+public class SearchParameters
 {
 
 	/** Identifying the <code>Annotation</code> context. */
@@ -74,8 +78,8 @@ public class SearchDataContext
 	/** Identifying the <code>Name</code> context. */
 	public static final int			CUSTOMIZED = 7;
 	
-	/** Identifying the <code>ID</code> context. */
-	public static final int                 ID = 8;
+	/** Identifying the <code>Annotation</code> context. */
+        public static final int                 ANNOTATION = 8;
 	
 	/** Indicates to set the creation time interval. */
 	public static final int			CREATION_TIME = 0;
@@ -121,25 +125,10 @@ public class SearchDataContext
 	private List<Integer>			scope;
 	
 	/** The types to search on. */
-	private List<Class>				types;
+	private List<Class<? extends DataObject>>	types;
 	
-	/** 
-	 * Some (at least one) of these terms must be present in the document. 
-	 * May be <code>null</code>.
-	 */
-	private String[]				some;
-	
-	/**
-	 * All of these terms must be present in the document.
-	 * May be <code>null</code>.
-	 */
-	private String[]				must;
-	
-	/** 
-	 * None of these terms may be present in the document. 
-	 * May be <code>null</code>.
-	 */
-	private String[]				none;
+	/** The query terms to search for */
+	private String[] terms = new String[0];
 	
 	/** Collection of experimenters to restrict the search on.*/ 
 	private List<ExperimenterData>	owners;
@@ -171,14 +160,9 @@ public class SearchDataContext
 	 * @param none	None of these terms may be present in the document. 
 	 * 				May be <code>null</code>.
 	 */
-	public SearchDataContext(List<Integer> scope, List<Class> types, 
-							String[] some, String[] must, String[] none)
+	public SearchParameters(List<Integer> scope, List<Class<? extends DataObject>> types, String[] terms)
 	{
-		//if (some == null && must == null && none == null)
-		//	throw new IllegalArgumentException("No terms to search for.");
-		this.some = some;
-		this.must = must;
-		this.none = none;
+		this.terms = terms;
 		this.scope = scope;
 		this.types = types;
 		numberOfResults = -1;
@@ -276,31 +260,14 @@ public class SearchDataContext
 	 * 
 	 * @return See above.
 	 */
-	public List<Class> getTypes() { return types; }
+	public List<Class<? extends DataObject>> getTypes() { return types; }
 	
 	/**
-	 * Returns the terms that might be present in the document. 
-	 * May be <code>null</code>.
+	 * Returns the query terms to search for
 	 * 
 	 * @return See above.
 	 */
-	public String[] getSome() { return some; }
-	
-	/**
-	 * Returns the terms that must present in the document. 
-	 * May be <code>null</code>.
-	 * 
-	 * @return See above.
-	 */
-	public String[] getMust() { return must; }
-	
-	/**
-	 * Returns the terms that cannot be present in the document. 
-	 * May be <code>null</code>.
-	 * 
-	 * @return See above.
-	 */
-	public String[] getNone() { return none; }
+	public String[] getTerms() { return terms; }
 	
 	/**
 	 * Returns <code>true</code> if the context of the search is valid i.e.
@@ -310,8 +277,8 @@ public class SearchDataContext
 	 */
 	public boolean isValid()
 	{
-		return !(none == null && must == null && some == null && start == null
-			&& end == null);
+		return !(terms.length==0 && start == null
+                        && end == null);
 	}
 	
 	/**
@@ -435,7 +402,7 @@ public class SearchDataContext
 	 */
 	public boolean hasTextToSearch()
 	{
-		return (some != null || none != null || must != null);
+		return terms.length>0;
 	}
 	
 }

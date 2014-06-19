@@ -30,12 +30,15 @@ import java.util.List;
 
 //Third-party libraries
 
+
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
+import org.openmicroscopy.shoola.env.data.util.SearchParameters;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
+
 import pojos.ExperimenterData;
 
 /** 
@@ -199,7 +202,7 @@ public interface DataHandlerView
 	 * @return A handle that can be used to cancel the call.
 	 */
 	public CallHandle advancedSearchFor(List<SecurityContext> ctx,
-			SearchDataContext context, AgentEventListener observer);
+	        SearchParameters context, AgentEventListener observer);
 
 	/**
 	 * Loads the files of a given type. The type is one the constants

@@ -38,6 +38,7 @@ import org.openmicroscopy.shoola.env.data.events.DSCallFeedbackEvent;
 import org.openmicroscopy.shoola.env.data.util.AdvancedSearchResult;
 import org.openmicroscopy.shoola.env.data.util.AdvancedSearchResultCollection;
 import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
+import org.openmicroscopy.shoola.env.data.util.SearchParameters;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 
@@ -61,7 +62,7 @@ public class AdvancedFinderLoader
 {
 
 	/** Collection of terms to search for. */
-	private SearchDataContext searchContext;
+	private SearchParameters searchContext;
 	
 	/** Handle to the asynchronous call so that we can cancel it. */
     private CallHandle handle;
@@ -76,7 +77,7 @@ public class AdvancedFinderLoader
      * 					Mustn't be <code>null</code>.
      */
     public AdvancedFinderLoader(Finder viewer, List<SecurityContext> ctx,
-    		SearchDataContext context)
+            SearchParameters context)
     {
     	super(viewer, ctx);
     	if (context == null) 
