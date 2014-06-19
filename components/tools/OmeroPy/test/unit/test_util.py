@@ -26,40 +26,80 @@ Test of various things under omero.util
 
 import pytest
 
-from omero.util.text import CSVStyle
+from omero.util.text import CSVStyle, PlainStyle, TableBuilder
 
 
 class MockTable(object):
 
-    def __init__(self, names, data, expected):
+    def __init__(self, names, data, csvheaders, csvrows, sqlheaders, sqlrows):
         self.names = names
         self.data = data
         self.length = len(data)
-        self.expected = expected
+        self.csvheaders = csvheaders
+        self.csvrows = csvrows
+        self.sqlheaders = sqlheaders
+        self.sqlrows = sqlrows
+        self.columns = 6
 
     def get_row(self, i):
         if i is None:
             return self.names
         return self.data[i]
 
+    def get_sql_table(self):
+        sql_table = self.sqlheaders + "\n".join(self.sqlrows)
+        if len(self.sqlrows) > 1:
+            sql_table += "\n(%s rows)" % len(self.sqlrows)
+        else:
+            sql_table += "\n(%s row)" % len(self.sqlrows)
+        return sql_table
 
-csv_tables = (
-    MockTable(("c1", "c2"), (("a", "b"),), ['c1,c2', 'a,b\r\n']),
-    MockTable(("c1", "c2"), (("a,b", "c"),), ['c1,c2', '"a,b",c\r\n']),
-    MockTable(("c1", "c2"), (("'a b'", "c"),), ['c1,c2', "'a b',c\r\n"]),
-)
+
+tables = (
+    MockTable(("c1", "c2"), (("a", "b"),),
+              ['c1,c2'], ['a,b\r\n'],
+              ' c1 | c2 \n----+----\n', [' a  | b  ']),
+    MockTable(("c1", "c2"), (("a,b", "c"),),
+              ['c1,c2'], ['"a,b",c\r\n'],
+              ' c1  | c2 \n-----+----\n', [' a,b | c  ']),
+    MockTable(("c1", "c2"), (("'a b'", "c"),),
+              ['c1,c2'], ["'a b',c\r\n"],
+              ' c1    | c2 \n-------+----\n', [" 'a b' | c  "],),
+    MockTable(("c1", "c2"), (("a", "b"), ("c", "d")),
+              ['c1,c2'], ['a,b\r\n', 'c,d\r\n'],
+              ' c1 | c2 \n----+----\n', [' a  | b  ', ' c  | d  '],),
+    MockTable(("c1", "c2"), (("£ö", "b"),),
+              ['c1,c2'], ['£ö,b\r\n'],
+              ' c1 | c2 \n----+----\n', [' £ö | b  ']),
+    )
 
 
 class TestCSVSTyle(object):
 
-    @pytest.mark.parametrize('mock_table', csv_tables)
+    @pytest.mark.parametrize('mock_table', tables)
     def testGetRow(self, mock_table):
         assert mock_table.get_row(None) == mock_table.names
         for i in range(mock_table.length):
             assert mock_table.get_row(i) == mock_table.data[i]
 
-    @pytest.mark.parametrize('mock_table', csv_tables)
+    @pytest.mark.parametrize('mock_table', tables)
     def testCSVModuleParsing(self, mock_table):
         style = CSVStyle()
         output = list(style.get_rows(mock_table))
-        assert mock_table.expected == output
+        assert output == mock_table.csvheaders + mock_table.csvrows
+
+    @pytest.mark.parametrize('mock_table', tables)
+    def testPlainModuleParsing(self, mock_table):
+        style = PlainStyle()
+        output = list(style.get_rows(mock_table))
+        assert output == mock_table.csvrows
+
+
+class TestTableBuilder(object):
+
+    @pytest.mark.parametrize('mock_table', tables)
+    def testStr(self, mock_table):
+        tb = TableBuilder(*mock_table.names)
+        for row in mock_table.data:
+            tb.row(*row)
+        assert str(tb) == mock_table.get_sql_table()
