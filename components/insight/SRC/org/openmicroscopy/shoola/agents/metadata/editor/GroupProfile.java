@@ -122,7 +122,7 @@ class GroupProfile
     	permissionsPane.addPropertyChangeListener(this);
     	namePane.setText(ref.getName());
     	descriptionPane.setText(ref.getDescription());
-    	canEdit = !model.isSystemGroup(ref.getId()) && (model.isAdministrator() || model.isGroupLeader());
+    	canEdit = !model.isSystemGroup(ref.getId()) && (model.isAdministrator() || model.isGroupLeader(ref));
     	namePane.setEditable(canEdit);
     	namePane.setEnabled(canEdit);
     	descriptionPane.setEditable(canEdit);
