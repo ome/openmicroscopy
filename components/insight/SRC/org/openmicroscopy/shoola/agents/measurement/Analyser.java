@@ -29,6 +29,7 @@ import java.util.Map;
 
 //Third-party libraries
 
+import org.apache.commons.collections.CollectionUtils;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.measurement.view.MeasurementViewer;
 import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
@@ -86,9 +87,9 @@ public class Analyser
 			PixelsData pixels, Collection channels, List shapes)
 	{
 		super(viewer, ctx);
-		if (channels == null || channels.size() == 0)
+		if (CollectionUtils.isEmpty(channels))
 			throw new IllegalArgumentException("No channels specified.");
-		if (shapes == null || shapes.size() == 0)
+		if (CollectionUtils.isEmpty(shapes))
 			throw new IllegalArgumentException("No shapes specified.");
 		this.pixels = pixels;
 		this.channels = channels;
