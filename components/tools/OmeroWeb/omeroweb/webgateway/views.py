@@ -256,7 +256,7 @@ def render_birds_eye_view (request, iid, size=None,
     """
     if size is None:
         size = 96       # Use cached thumbnail
-    return render_thumbnail(request, iid, w=size)
+    return render_thumbnail(request, iid, w=size, **kwargs)
 
 @login_required()
 def render_thumbnail (request, iid, w=None, h=None, conn=None, _defcb=None, **kwargs):
