@@ -40,12 +40,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+
 import javax.swing.Icon;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 
+
+
 //Third-party libraries
 import org.apache.commons.collections.CollectionUtils;
+
+
 
 //Application-internal dependencies
 import omero.model.OriginalFile;
@@ -118,6 +123,7 @@ import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.data.model.TransferableActivityParam;
 import org.openmicroscopy.shoola.env.data.model.TransferableObject;
+import org.openmicroscopy.shoola.env.data.util.AdvancedSearchResultCollection;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.ui.ActivityComponent;
@@ -125,7 +131,6 @@ import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
-
 
 import pojos.DataObject;
 import pojos.DatasetData;
@@ -3064,10 +3069,11 @@ class TreeViewerComponent
 	 * Implemented as specified by the {@link TreeViewer} interface.
 	 * @see TreeViewer#setSearchResult(Object)
 	 */
-	public void setSearchResult(Object result)
+	@SuppressWarnings("unchecked")
+    public void setSearchResult(Object result)
 	{
-		Map<SecurityContext, Collection<DataObject>>
-		results = (Map<SecurityContext, Collection<DataObject>>) result;
+		Map<SecurityContext, AdvancedSearchResultCollection>
+		results = (Map<SecurityContext, AdvancedSearchResultCollection>) result;
 		MetadataViewer metadata = model.getMetadataViewer();
 		if (metadata != null) {
 			metadata.setRootObject(null, -1, null);
@@ -3078,8 +3084,14 @@ class TreeViewerComponent
         	view.removeAllFromWorkingPane();
 			return;
 		}
+		
+		Map<SecurityContext, Collection<DataObject>> dataObjects = new HashMap<SecurityContext, Collection<DataObject>>();
+		for(Entry<SecurityContext, AdvancedSearchResultCollection> e : results.entrySet()) {
+		    dataObjects.put(e.getKey(), e.getValue().getDataObjects(-1, null));
+		}
+		
 		//Need to recycle the search browser.
-		DataBrowser db = DataBrowserFactory.getSearchBrowser(results);
+		DataBrowser db = DataBrowserFactory.getSearchBrowser(dataObjects);
 		if (db != null && view.getDisplayMode() == SEARCH_MODE) {
 			db.setExperimenter(TreeViewerAgent.getUserDetails());
 			db.addPropertyChangeListener(controller);

@@ -23,34 +23,17 @@
 package org.openmicroscopy.shoola.env.data.util;
 
 
-
 //Java imports
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.List;
 
-
-
 //Third-party libraries
-import org.apache.commons.lang.StringUtils;
 
 
 import pojos.DataObject;
 //Application-internal dependencies
-import pojos.ExperimenterData;
 
-/** 
- * Helper class hosting the context of a data search.
- *
- * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
- * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
- * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
- * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
- * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
- * @since OME3.0
- */
 public class SearchParameters
 {
 
@@ -81,40 +64,6 @@ public class SearchParameters
 	/** Identifying the <code>Annotation</code> context. */
         public static final int                 ANNOTATION = 8;
 	
-	/** Indicates to set the creation time interval. */
-	public static final int			CREATION_TIME = 0;
-	
-	/** Indicates to set the modification time interval. */
-	public static final int			MODIFICATION_TIME = 1;
-	
-	/** Indicates to set the time of annotation. */
-	public static final int			ANNOTATION_TIME = 2;
-
-	/** 
-	 * Indicates to exclude the collection of users who owned entities.
-	 */
-	public static final int			EXCLUDE_OWNER = 102;
-	
-	/** 
-	 * Indicates to exclude the collection of users who annotated entities.
-	 */
-	public static final int			EXCLUDE_ANNOTATOR = 103;
-	
-	/** One the time constants defined by this class. */
-	private int						timeIndex;
-	
-	/** 
-	 * Set to <code>true</code> if it is an union of contexts, or
-	 * <code>false</code> if it is an intersection of contexts.
-	 */
-	private boolean 				unionOfContexts;
-
-	/** 
-	 * Set to <code>true</code> if the case is taken into account, 
-	 * <code>false</code> otherwise.
-	 */
-	private boolean 				caseSensitive;
-	
 	/** The lower bound of the time interval. */
 	private Timestamp 				start;
 	
@@ -129,24 +78,12 @@ public class SearchParameters
 	
 	/** The query terms to search for */
 	private String[] terms = new String[0];
-	
-	/** Collection of experimenters to restrict the search on.*/ 
-	private List<ExperimenterData>	owners;
 
-	/** Collection of experimenters to restrict the search on.*/ 
-	private List<ExperimenterData>	annotators;
+//	/** The groupIds the search is restricted to.*/
+//	private List<Long> groupIds = new ArrayList<Long>();
 	
-	/** Collection of experimenters to restrict the search on.*/ 
-	private List<ExperimenterData>	excludedOwners;
-
-	/** Collection of experimenters to restrict the search on.*/ 
-	private List<ExperimenterData>	excludedAnnotators;
-	
-	/** The number of results returned. */
-	private int						numberOfResults;
-
-	/** The collection of groups to perform the search on.*/
-	private List<Long> groups;
+	/** The userId the search is restricted to.*/
+	private long userId = -1;
 	
 	/**
 	 * Creates a new instance.
@@ -165,61 +102,6 @@ public class SearchParameters
 		this.terms = terms;
 		this.scope = scope;
 		this.types = types;
-		numberOfResults = -1;
-		unionOfContexts = true;
-	}
-	
-	/**
-	 * Sets the groups to search into.
-	 * 
-	 * @param groups The groups.
-	 */
-	public void setGroups(List<Long> groups) { this.groups = groups; }
-	
-	/**
-	 * Returns the groups to search into.
-	 * 
-	 * @return See above.
-	 */
-	public List<Long> getGroups() { return groups; }
-	
-	
-	/** 
-	 * Sets to <code>true</code> if it is an union of contexts, or
-	 * <code>false</code> if it is an intersection of contexts.
-	 * 
-	 * @param unionOfContexts The value to set.
-	 */
-	public void setUnionOfContexts(boolean unionOfContexts)
-	{
-		this.unionOfContexts = unionOfContexts;
-	}
-	
-	/** 
-	 * Returns <code>true</code> if it is an union of contexts, or
-	 * <code>false</code> if it is an intersection of contexts.
-	 * 
-	 * @return See above.
-	 */
-	public boolean isUnionOfContexts() { return unionOfContexts; }
-	
-	/**
-	 * Returns <code>true</code> if the case is taken into account, 
-	 * <code>false</code> otherwise.
-	 * 
-	 * @return See above.
-	 */
-	public boolean isCaseSensitive() { return caseSensitive; }
-
-	/**
-	 * Sets to <code>true</code> if the case is taken into account, 
-	 * to <code>false</code> otherwise.
-	 * 
-	 * @param caseSensitive The value to set.
-	 */
-	public void setCaseSensitive(boolean caseSensitive)
-	{
-		this.caseSensitive = caseSensitive;
 	}
 	
 	/**
@@ -282,119 +164,6 @@ public class SearchParameters
 	}
 	
 	/**
-	 * Sets the time index. One of the time constants defined by this class.
-	 * 
-	 * @param index The value to set.
-	 */
-	public void setTimeIndex(int index)
-	{
-		switch (index) {
-			case CREATION_TIME:
-			case MODIFICATION_TIME:
-				timeIndex = index;
-				break;
-			default:
-				timeIndex = -1;;
-		}
-	}
-	
-	/**
-	 * Returns the time index.
-	 * 
-	 * @return See above.
-	 */
-	public int getTimeIndex() { return timeIndex; }
-	
-	/**
-	 * Returns the collection of users or <code>null</code>
-	 * if none specified.
-	 * 
-	 * @return See above.
-	 */
-	public List<ExperimenterData> getOwners() { return owners; }
-	
-	/**
-	 * Returns the collection of users or <code>null</code>
-	 * if none specified.
-	 * 
-	 * @return See above.
-	 */
-	public List<ExperimenterData> getAnnotators() { return annotators; }
-
-	/**
-	 * Returns the collection of users or <code>null</code>
-	 * if none specified.
-	 * 
-	 * @return See above.
-	 */
-	public List<ExperimenterData> getExcludedOwners() { return excludedOwners; }
-	
-	/**
-	 * Returns the collection of users or <code>null</code>
-	 * if none specified.
-	 * 
-	 * @return See above.
-	 */
-	public List<ExperimenterData> getExcludedAnnotators()
-	{ 
-		return excludedAnnotators;
-	}
-	
-	/**
-	 * Sets the collection of users who owns the data.
-	 * 
-	 * @param users The collection to set.
-	 */
-	public void setOwners(List<ExperimenterData> users) { owners = users; }
-	
-	/**
-	 * Sets the collection of users who owns the data.
-	 * 
-	 * @param users The collection to set.
-	 */
-	public void setExcludedOwners(List<ExperimenterData> users)
-	{ 
-		excludedOwners = users; 
-	}
-	
-	/**
-	 * Sets the collection of users who owns the data.
-	 * 
-	 * @param users The collection to set.
-	 */
-	public void setAnnotators(List<ExperimenterData> users)
-	{ 
-		annotators = users; 
-	}
-	
-	/**
-	 * Sets the collection of users who owns the data.
-	 * 
-	 * @param users The collection to set.
-	 */
-	public void setExcludedAnnotators(List<ExperimenterData> users)
-	{ 
-		excludedAnnotators = users; 
-	}
-	
-	/**
-	 * Sets the number of results returned.
-	 * 
-	 * @param results The value to set.
-	 */
-	public void setNumberOfResults(int results)
-	{
-		numberOfResults = results;
-	}
-	
-	/**
-	 * Returns the number of results.
-	 * 
-	 * @return See above.
-	 */
-	public int getNumberOfResults() { return numberOfResults; }
-	
-	/**
 	 * Returns <code>true</code> if text to search for,
 	 * <code>false</code> otherwise.
 	 * 
@@ -404,5 +173,21 @@ public class SearchParameters
 	{
 		return terms.length>0;
 	}
-	
+    
+//        public List<Long> getGroupIds() {
+//            return groupIds;
+//        }
+//    
+//        public void setGroupIds(List<Long> groupIds) {
+//            this.groupIds = groupIds;
+//        }
+
+        public long getUserId() {
+            return userId;
+        }
+
+        public void setUserId(long userId) {
+            this.userId = userId;
+        }
+        
 }

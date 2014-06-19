@@ -114,7 +114,7 @@ public class AdvancedFinder
 	private Collection tags;
 	
 	/** Host the result per group.*/
-	private Map<SecurityContext, Collection<DataObject>> results;
+	private Map<SecurityContext, AdvancedSearchResultCollection> results;
 	
 	/** The total number of groups to search.*/
 	private int total;
@@ -300,25 +300,10 @@ public class AdvancedFinder
 			if (k != null) types.add(k);
 		}
 		
-		List<ExperimenterData> owners = fillUsersList(ctx.getSelectedOwners());
-		List<ExperimenterData> annotators = fillUsersList(null);
-		List<ExperimenterData> excludedOwners = fillUsersList(null);
-		List<ExperimenterData> excludedAnnotators = fillUsersList(null);
-		
-		fillUsersList(ctx.getOwnerSearchContext(), owners, excludedOwners);
-		fillUsersList(ctx.getAnnotatorSearchContext(), annotators, 
-						excludedAnnotators);
-		
 		SearchParameters searchContext = new SearchParameters(scope, types, terms);
 		searchContext.setTimeInterval(start, end);
-		if (displayMode == LookupNames.EXPERIMENTER_DISPLAY)
-			searchContext.setOwners(owners);
-
-		searchContext.setAnnotators(annotators);
-		searchContext.setExcludedOwners(excludedOwners);
-		searchContext.setExcludedAnnotators(excludedAnnotators);
-		searchContext.setCaseSensitive(ctx.isCaseSensitive());
-		searchContext.setNumberOfResults(ctx.getNumberOfResults());
+		searchContext.setUserId(ctx.getSelectedOwner());
+//		searchContext.getGroupIds().addAll(ctx.getSelectedGroups());
 		
 		List<Long> groups = ctx.getSelectedGroups();
 		List<SecurityContext> l = new ArrayList<SecurityContext>();
@@ -404,7 +389,7 @@ public class AdvancedFinder
 	{
 		List<String> toAdd = new ArrayList<String>();
 		if (selected == null || selected.size() == 0) {
-			setSomeValues(toAdd);
+			setTerms(toAdd);
 			return;
 		}
 		Iterator i = selected.iterator();
@@ -418,7 +403,7 @@ public class AdvancedFinder
 						SearchUtil.QUOTE_SEPARATOR);
 			} else toAdd.add(value);
 		}	
-		setSomeValues(toAdd);
+		setTerms(toAdd);
 	}
 	
 	/** 
@@ -437,7 +422,7 @@ public class AdvancedFinder
 		addPropertyChangeListener(CANCEL_SEARCH_PROPERTY, this);
 		addPropertyChangeListener(OWNER_PROPERTY, this);
 		users = new HashMap<Long, ExperimenterData>();
-		results = new HashMap<SecurityContext, Collection<DataObject>>();
+		results = new HashMap<SecurityContext, AdvancedSearchResultCollection>();
 	}
 
 	/**
@@ -507,7 +492,7 @@ public class AdvancedFinder
                 return;
             }
     
-            // results.put(ctx, result.getDataObjects());
+            results.put(ctx, result);
             if (results.size() == total)
                 firePropertyChange(RESULTS_FOUND_PROPERTY, null, results);
 	}
@@ -617,8 +602,6 @@ public class AdvancedFinder
 				while (j.hasNext()) {
 					exp = j.next();
 					users.put(exp.getId(), exp);
-					setUserString(exp.getId(), 
-							EditorUtil.formatExperimenter(exp));
 					
 				}
 				//uiValue += value;

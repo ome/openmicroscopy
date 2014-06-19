@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.util.ui.search.GroupContext 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2012 University of Dundee & Open Microscopy Environment.
+ *  Copyright (C) 2006-2014 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
  *
  *
@@ -23,90 +23,52 @@
  */
 package org.openmicroscopy.shoola.util.ui.search;
 
-
-//Java imports
-
-//Third-party libraries
-
-import java.util.ArrayList;
-import java.util.List;
-
-
-
-
 import pojos.ExperimenterData;
-//Application-internal dependencies
-import pojos.GroupData;
 
-/** 
- * Host information about the group to search into.
- *
- * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
- * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
- * @since Beta4.4
- */
-class GroupContext
+class ExperimenterContext
 {
-        /** ID indicating all groups should be included in the search */
-        public static final int ALL_GROUPS_ID = Integer.MAX_VALUE;
-        
-	/** The group to handle.*/
-	private String group;
+        /** ID indicating all experimenters should be included in the search */
+        public static final int ALL_EXPERIMENTERS_ID = Integer.MAX_VALUE;
+    
+	/** The experimenter to handle.*/
+	private String experimenter;
 	
-	/** The identifier of the group.*/
+	/** The identifier of the experimenter.*/
 	private long id;
-	
-	private List<ExperimenterContext> experimenters = new ArrayList<ExperimenterContext>();
 	
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param group The name of the group to handle.
-	 * @param id The identifier of the group.
+	 * @param experimenter The name of the experimenter to handle.
+	 * @param id The identifier of the experimenter.
 	 */
-	GroupContext(String group, long id)
+	ExperimenterContext(String experimenter, long id)
 	{
-		this.group = group;
+		this.experimenter = experimenter;
 		this.id = id;
 	}
 	
 	/**
          * Creates a new instance.
-         * 
-         * @param group The name of the group to handle.
-         * @param id The identifier of the group.
          */
-        GroupContext(GroupData group)
+        ExperimenterContext(ExperimenterData exp)
         {
-                this.group = group.getName();
-                this.id = group.getId();
-                
-                for(Object exp : group.getExperimenters()) {
-                    this.experimenters.add(new ExperimenterContext((ExperimenterData)exp));
-                }
+                this.experimenter = exp.getFirstName()+" "+exp.getLastName();
+                this.id = exp.getId();
         }
         
 	/**
-	 * Returns the id of the group hosted by the component.
+	 * Returns the id of the experimenter hosted by the component.
 	 * 
 	 * @return See above.
 	 */
 	long getId() { return id; }
 	
-	
-    	public List<ExperimenterContext> getExperimenters() {
-            return experimenters;
-        }
-
-        public void setExperimenters(List<ExperimenterContext> experimenters) {
-            this.experimenters = experimenters;
-        }
-
-        /**
-	 * Overridden to return the name of the group.
+	/**
+	 * Overridden to return the name of the experimenter.
 	 * @see Object#toString()
 	 */
-	public String toString() { return group; }
+	public String toString() { return experimenter; }
 
         @Override
         public int hashCode() {
@@ -115,7 +77,7 @@ class GroupContext
             result = prime * result + (int) (id ^ (id >>> 32));
             return result;
         }
-
+    
         @Override
         public boolean equals(Object obj) {
             if (this == obj)
@@ -124,7 +86,7 @@ class GroupContext
                 return false;
             if (getClass() != obj.getClass())
                 return false;
-            GroupContext other = (GroupContext) obj;
+            ExperimenterContext other = (ExperimenterContext) obj;
             if (id != other.id)
                 return false;
             return true;

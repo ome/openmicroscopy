@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.util.ui.search;
 
 //Java imports
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
@@ -32,6 +33,7 @@ import java.util.List;
 
 
 //Third-party libraries
+
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -193,7 +195,7 @@ public class SearchContext
 	private List<Integer>	type;
 	
 	/** Collection of selected users. */
-	private List<Long>		selectedOwners;
+	private long		selectedOwner = -1;
 	
 	/** Collection of users to exclude. */
 	private List<String>	excludedOwners;
@@ -243,7 +245,7 @@ public class SearchContext
 	private int				attachmentType;
 	
 	/** Collection of selected groups. */
-	private List<Long>		selectedGroups;
+	private List<Long>		selectedGroups = new ArrayList<Long>();
 	
 	/**
 	 * Creates a new instance.
@@ -316,7 +318,7 @@ public class SearchContext
 	 * 
 	 * @param users The value to set.
 	 */
-	void setOwners(List<Long> users) { this.selectedOwners = users; }
+	void setSelectedOwner(long user) { this.selectedOwner = user; }
 	
 	/**
 	 * Sets the collection of selected users if any.
@@ -460,7 +462,7 @@ public class SearchContext
 	 * 
 	 * @return See above.
 	 */
-	public List<Long> getSelectedOwners() { return selectedOwners; }
+	public long getSelectedOwner() { return selectedOwner; }
 	
 	/** 
 	 * Returns the collection of selected users.
@@ -549,5 +551,5 @@ public class SearchContext
 	 * @param results The value to set.
 	 */
 	public void setNumberOfResults(int results) { numberOfResults = results; }
-	
+
 }
