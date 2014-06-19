@@ -44,17 +44,21 @@ import javax.swing.JSeparator;
 
 
 
+
 //Third-party libraries
 import info.clearthought.layout.TableLayout;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.jdesktop.swingx.JXBusyLabel;
 
+import org.openmicroscopy.shoola.agents.util.finder.FinderFactory;
+import org.openmicroscopy.shoola.env.LookupNames;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.SeparatorPane;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 import pojos.DatasetData;
+import pojos.ExperimenterData;
 import pojos.GroupData;
 import pojos.ImageData;
 import pojos.PlateData;
@@ -436,9 +440,9 @@ public class SearchComponent
 	 * 
 	 * @param values The values to add.
 	 */
-	protected void setSomeValues(List<String> values)
+	protected void setTerms(List<String> terms)
 	{
-		uiDelegate.setSomeValues(values);
+		uiDelegate.setTerms(terms);
 	}
 	
 	/**
@@ -504,25 +508,51 @@ public class SearchComponent
 //                        ctx.setTime(index);
 //                }
                 
-                ctx.setOwnerSearchContext(uiDelegate.getOwnerSearchContext());
-                ctx.setAnnotatorSearchContext(uiDelegate
-                        .getAnnotatorSearchContext());
-                ctx.setOwners(uiDelegate.getOwners());
-                ctx.setGroups(uiDelegate.getSelectedGroups());
-                ctx.setAnnotators(uiDelegate.getAnnotators());
-                ctx.setCaseSensitive(uiDelegate.isCaseSensitive());
-                ctx.setAttachmentType(uiDelegate.getAttachment());
-                //ctx.setTimeType(uiDelegate.getTimeIndex());
-                ctx.setExcludedOwners(uiDelegate.getExcludedOwners());
-                ctx.setExcludedAnnotators(uiDelegate.getExcludedAnnotators());
-                ctx.setGroups(uiDelegate.getSelectedGroups());
+                
+                ctx.setSelectedOwner(uiDelegate.getUserId());
+                ctx.getSelectedGroups().addAll(getSelectedGroups());
             
-            ctx.setType(uiDelegate.getType());
-            ctx.setGroups(uiDelegate.getSelectedGroups());
+                ctx.setType(uiDelegate.getType());
             
-            firePropertyChange(SEARCH_PROPERTY, null, ctx);
+                firePropertyChange(SEARCH_PROPERTY, null, ctx);
         }
 	
+        /**
+         * Get the selected groups; i. e. just one if a certain
+         * group was selected, or all groups of the user if 'all'
+         * was selected.
+         * @return
+         */
+        List<Long> getSelectedGroups() {
+            
+            List<Long> result = new ArrayList<Long>();
+            
+            long groupId = uiDelegate.getGroupId();
+            
+            if(groupId==GroupContext.ALL_GROUPS_ID) {
+                ExperimenterData exp = getUserDetails();
+                for(GroupData gd : exp.getGroups()) {
+                    result.add(gd.getId());
+                }
+            }
+            else {
+                 result.add(groupId);
+            }
+            
+            return result;
+        }
+        
+        /**
+         * Returns the current user's details.
+         * 
+         * @return See above.
+         */
+        private ExperimenterData getUserDetails()
+        { 
+                return (ExperimenterData) FinderFactory.getRegistry().lookup(
+                                LookupNames.CURRENT_USER_DETAILS);
+        }
+        
 	/**
 	 * Returns the list of possible groups.
 	 * 
@@ -538,7 +568,7 @@ public class SearchComponent
 		groupsContext = new ArrayList<GroupContext>();
 		while (i.hasNext()) {
 			g = i.next();
-			gc = new GroupContext(g.getName(), g.getId());
+			gc = new GroupContext(g);
 			groupsContext.add(gc);
 		}
 		return groupsContext; 
@@ -569,28 +599,6 @@ public class SearchComponent
 		busyLabel.setEnabled(b);
 		busyLabel.setBusy(b);
 		progressLabel.setText(text);
-	}
-	
-	/**
-	 * Sets the name of the selected user.
-	 * 
-	 * @param userID The id of the owner.
-	 * @param name   The string to set.
-	 */
-	public void setUserString(long userID, String name)
-	{
-		if (name == null) return;
-		name = name.trim();
-		if (name.length() == 0) return;
-		switch (userIndex) {
-			case OWNER:
-				uiDelegate.setOwnerString(userID, name);
-				break;
-			case ANNOTATOR:
-				uiDelegate.setAnnotatorString(name);
-		}
-		validate();
-		repaint();
 	}
 	
 	/**

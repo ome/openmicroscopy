@@ -5043,10 +5043,10 @@ class OMEROGateway
             
             for (Class<? extends DataObject> type : context.getTypes()) {
                 try {
-                    // set general paramters
+                    // set general parameters
                     service.clearQueries();
                     service.setAllowLeadingWildcard(true);
-                    service.setCaseSentivice(context.isCaseSensitive());
+                    service.setCaseSentivice(false);
                     String searchForClass = PojoMapper.convertTypeForSearch(type);
                     service.onlyType(searchForClass);
                     service.setBatchSize(batchSize);
@@ -5054,64 +5054,30 @@ class OMEROGateway
                     // set the time
                     Timestamp start = context.getStart();
                     Timestamp end = context.getEnd();
-                    if (start != null || end != null) {
-                        switch (context.getTimeIndex()) {
-                            case SearchDataContext.CREATION_TIME:
-                                if (start != null && end != null)
-                                    service.onlyCreatedBetween(
-                                            omero.rtypes.rtime(start.getTime()),
-                                            omero.rtypes.rtime(end.getTime()));
-                                else if (start != null && end == null)
-                                    service.onlyCreatedBetween(
-                                            omero.rtypes.rtime(start.getTime()),
-                                            null);
-                                else if (start == null && end != null)
-                                    service.onlyCreatedBetween(null,
-                                            omero.rtypes.rtime(end.getTime()));
-                                break;
-                            case SearchDataContext.MODIFICATION_TIME:
-                                if (start != null && end != null)
-                                    service.onlyModifiedBetween(
-                                            omero.rtypes.rtime(start.getTime()),
-                                            omero.rtypes.rtime(end.getTime()));
-                                else if (start != null && end == null)
-                                    service.onlyModifiedBetween(
-                                            omero.rtypes.rtime(start.getTime()),
-                                            null);
-                                else if (start == null && end != null)
-                                    service.onlyModifiedBetween(null,
-                                            omero.rtypes.rtime(end.getTime()));
-                                break;
-                            case SearchDataContext.ANNOTATION_TIME:
-                                if (start != null && end != null)
-                                    service.onlyAnnotatedBetween(
-                                            omero.rtypes.rtime(start.getTime()),
-                                            omero.rtypes.rtime(end.getTime()));
-                                else if (start != null && end == null)
-                                    service.onlyAnnotatedBetween(
-                                            omero.rtypes.rtime(start.getTime()),
-                                            null);
-                                else if (start == null && end != null)
-                                    service.onlyAnnotatedBetween(null,
-                                            omero.rtypes.rtime(end.getTime()));
-                        }
-                    }
+
+                    if (start != null && end != null)
+                        service.onlyCreatedBetween(
+                                omero.rtypes.rtime(start.getTime()),
+                                omero.rtypes.rtime(end.getTime()));
+                    else if (start != null && end == null)
+                        service.onlyCreatedBetween(
+                                omero.rtypes.rtime(start.getTime()),
+                                null);
+                    else if (start == null && end != null)
+                        service.onlyCreatedBetween(null,
+                                omero.rtypes.rtime(end.getTime()));
     
-                    // set the owner  - TODO!
-                    List<ExperimenterData> users = context.getOwners();
-                    Iterator i;
-                    ExperimenterData exp;
-                    Details d;
-                    List<Details> owners = new ArrayList<Details>();
-                    if (users != null && users.size() > 0) {
-                        i = users.iterator();
-                        while (i.hasNext()) {
-                            exp = (ExperimenterData) i.next();
-                            d = new DetailsI();
-                            d.setOwner(exp.asExperimenter());
-                            owners.add(d);
-                        }
+                    // set the owner/group restriction
+                    if(context.getUserId()>=0) {
+                        // TODO: Does not work
+                        Details ownerRestriction = new DetailsI();
+                        Experimenter exp = (Experimenter) findIObject(ctx, Experimenter.class.getName(), context.getUserId());
+                        ownerRestriction.setOwner(exp);
+                        ExperimenterGroup group = (ExperimenterGroup) findIObject(ctx, ExperimenterGroup.class.getName(), ctx.getGroupID());
+                        ownerRestriction.setGroup(group);
+                        service.onlyOwnedBy(ownerRestriction);
                     }
+                    
     
                     // set the search terms
                     List<String> searchTerms = prepareTextSearch(context.getTerms(), service);       
@@ -5122,7 +5088,7 @@ class OMEROGateway
                         
                         StringBuilder queryString = new StringBuilder();
                         
-                        if (scopeId == SearchDataContext.TAGS || scopeId==SearchParameters.ANNOTATION) {
+                        if (scopeId == SearchParameters.TAGS || scopeId==SearchParameters.ANNOTATION) {
                             List<String> terms = formatText(searchTerms, "tag");
                             if(queryString.length()>0) 
                                 queryString.append( " OR ");
@@ -5131,7 +5097,7 @@ class OMEROGateway
                                 queryString.append(term+" ");
                             queryString.append(" ) ");
                         } 
-                        if (scopeId == SearchDataContext.NAME) {
+                        if (scopeId == SearchParameters.NAME) {
                             List<String> terms = formatText(searchTerms, "name");
                             if(queryString.length()>0) 
                                 queryString.append( " OR ");
@@ -5140,7 +5106,7 @@ class OMEROGateway
                                 queryString.append(term+" ");
                             queryString.append(" ) ");
                         } 
-                        if (scopeId == SearchDataContext.DESCRIPTION) {
+                        if (scopeId == SearchParameters.DESCRIPTION) {
                             List<String> terms = formatText(searchTerms, "description");
                             if(queryString.length()>0) 
                                 queryString.append( " OR ");
@@ -5149,7 +5115,7 @@ class OMEROGateway
                                 queryString.append(term+" ");
                             queryString.append(" ) ");
                         } 
-                        if (scopeId == SearchDataContext.FILE_ANNOTATION || scopeId==SearchParameters.ANNOTATION) {
+                        if (scopeId == SearchParameters.FILE_ANNOTATION || scopeId==SearchParameters.ANNOTATION) {
                             List<String> terms = formatText(searchTerms, "file.name");
                             if(queryString.length()>0) 
                                 queryString.append( " OR ");
@@ -5166,7 +5132,7 @@ class OMEROGateway
                                 queryString.append(term+" ");
                             queryString.append(" ) ");
                         } 
-                        if (scopeId == SearchDataContext.TEXT_ANNOTATION || scopeId==SearchParameters.ANNOTATION) {
+                        if (scopeId == SearchParameters.TEXT_ANNOTATION || scopeId==SearchParameters.ANNOTATION) {
                             List<String> terms = formatText(searchTerms, "annotation");
                             if(queryString.length()>0) 
                                 queryString.append( " OR ");
@@ -5175,7 +5141,7 @@ class OMEROGateway
                                 queryString.append(term+" ");
                             queryString.append(" ) ");
                         } 
-                        if (scopeId == SearchDataContext.URL_ANNOTATION || scopeId==SearchParameters.ANNOTATION) {
+                        if (scopeId == SearchParameters.URL_ANNOTATION || scopeId==SearchParameters.ANNOTATION) {
                             List<String> terms = formatText(searchTerms, "url");
                             if(queryString.length()>0) 
                                 queryString.append( " OR ");
@@ -5184,7 +5150,7 @@ class OMEROGateway
                                 queryString.append(term+" ");
                             queryString.append(" ) ");
                         } 
-                        if (scopeId == SearchDataContext.CUSTOMIZED) {
+                        if (scopeId == SearchParameters.CUSTOMIZED) {
                             List<String> terms = formatText(searchTerms, "");
                             if(queryString.length()>0) 
                                 queryString.append( " OR ");

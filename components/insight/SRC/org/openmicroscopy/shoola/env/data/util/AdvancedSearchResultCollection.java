@@ -104,6 +104,20 @@ public class AdvancedSearchResultCollection extends
         }
         return result;
     }
+    
+    public List<DataObject> getDataObjects(int scopeId, Class<? extends DataObject> type) {
+        List<DataObject> result = new ArrayList<DataObject>();
+        for (AdvancedSearchResult r : this) {
+            if (scopeId>=0 && r.getScopeId() != scopeId) {
+                continue;
+            }
+            if (type!=null && !r.getType().equals(type)) {
+                continue;
+            }
+            result.add(r.getObject());
+        }
+        return result;
+    }
 
     @Override
     public String toString() {

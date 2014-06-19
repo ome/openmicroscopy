@@ -36,37 +36,43 @@ import java.awt.event.KeyEvent;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
+
 import javax.swing.Box;
 import javax.swing.BoxLayout;
-import javax.swing.ButtonGroup;
 import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
-import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JRadioButton;
 import javax.swing.JTextField;
 import javax.swing.JToolBar;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+
+
+
+
+
 //Third-party libraries
 import org.jdesktop.swingx.JXDatePicker;
-import org.jdesktop.swingx.JXTaskPane;
-
+import org.openmicroscopy.shoola.agents.util.finder.FinderFactory;
+import org.openmicroscopy.shoola.env.LookupNames;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.SeparatorPane;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
+import pojos.ExperimenterData;
+import pojos.GroupData;
 
 /** 
  * The Component hosting the various fields used to collect the 
@@ -84,33 +90,10 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  */
 public class SearchPanel
 	extends JPanel
-	implements ActionListener
-{
-
-	/** The title of the Advanced search UI component. */
-	private static final String		ADVANCED_SEARCH_TITLE = 
-		"Advanced Search For Images";
-	
-	/** The title of the search UI component. */
-	private static final String		SEARCH_TITLE = "Search For Images";
+{	
 	
 	/** The title of the type UI component. */
 	private static final String		TYPE_TITLE = "Type";
-	
-	/** Search Tip. */
-	private static final String		SEARCH_TIP = "<html><i>Tip: " +
-			"Use these options to look for an <br> exact phrase or to exclude" +
-			" certain words.</i></html>";
-	
-	/** Users Tip. */
-	//private static final String		USERS_TIP = "Tip: Add a minus in front " +
-	//		"of a name to exclude the user.";
-	
-	/** The type of font used for the tips. */
-	private static final int		TIP_FONT_TYPE = Font.ITALIC;
-	
-	/** The size of font used for the tips. */
-	private static final int		TIP_FONT_SIZE = 10;
 	
 	/** The number of columns of the search areas. */
 	private static final int		AREA_COLUMNS = 12;
@@ -154,21 +137,6 @@ public class SearchPanel
 		fileFormats[SearchContext.TEXT] = "Text Format (.txt)";
 	}
 
-	/** If checked the case is taken into account. */ 
-	private JCheckBox				caseSensitive;
-	
-	/** The button used to display the available owners. */
-	private JButton					ownerButton;
-	
-	/** The button used to display the available annotators. */
-	private JButton					annotatorButton;
-	
-	/** Fields with the possible users. */
-	private JTextField 				usersAsOwner;
-	
-	/** Fields with the possible users. */
-	private JTextField 				usersAsAnnotator;
-	
 	/** Possible dates. */
 	private JComboBox				dates;
 	
@@ -192,21 +160,6 @@ public class SearchPanel
 	/** Items used to defined the scope of the search. */
 	private Map<Integer, JCheckBox>	types;
 	
-	/** Button to only retrieve the current user's data. */
-	private JCheckBox				currentUserAsOwner;
-	
-	/** Button to only retrieve the current user and selected users' data. */
-	private JCheckBox				othersAsOwner;
-
-	/** Button to only retrieve the current user's data. */
-	private JCheckBox				currentUserAsAnnotator;
-	
-	/** Button to only retrieve the current user and selected users' data. */
-	private JCheckBox				othersAsAnnotator;
-	
-	/** The possible textual areas. */
-	private Map<JTextField, JLabel>	areas;
-	
 	/** Button to bring up the tooltips for help. */
 	private JButton					helpBasicButton;
 	
@@ -216,20 +169,8 @@ public class SearchPanel
 //	/** Button indicating that the time entered is the time of update. */
 //	private JRadioButton			updatedTime;
 	
-	/** The possible file formats. */
-	private JComboBox				formats;
-	
-	/** Keep tracks of the users selected. */
-	private Map<Long, String>		otherOwners;
-			
-	/** The panel hosting the selected users. */
-	private JPanel					otherOwnersPanel;
-	
 	/** The component used to perform a basic search. */
 	private JPanel					basicSearchComp;
-	
-	/** The component used to perform an advanced search. */
-	private JPanel					advancedSearchComp;
 	
 	/** The component hosting either the advanced or basic search component. */
 	private JPanel 					searchFor;
@@ -240,42 +181,15 @@ public class SearchPanel
 	/** The box displaying the groups.*/
 	private JComboBox groupsBox;
 	
-	/** The box displaying the groups.*/
-	private List<JComboBox> groupsBoxes;
-	
-	private JPanel groupRow;
-	
-	private JXTaskPane datePane;
-	
-	/**
-	 * Returns the selected groups.
-	 * 
-	 * @return See above.
-	 */
-	private Collection<GroupContext> getGroups() 
-	{
-		if (groupsBox == null) return model.getGroups();
-		GroupContext ctx = (GroupContext) groupsBox.getSelectedItem();
-		if (ctx.getId() < 0 || ctx.getId() == GroupContext.ALL_GROUPS_ID) return model.getGroups();
-		List<GroupContext> groups = new ArrayList<GroupContext>();
-		groups.add(ctx);
-		Iterator<JComboBox> i = groupsBoxes.iterator();
-		JComboBox box;
-		while (i.hasNext()) {
-			box = i.next();
-			ctx = (GroupContext) box.getSelectedItem();
-			if (ctx.getId() < 0) return model.getGroups();
-			if (!groups.contains(ctx)) groups.add(ctx);
-		}
-		return groups;
-	}
+	/** The box displaying the users.*/
+        private JComboBox usersBox;
 	
 	/**
 	 * Creates a <code>JComboBox</code> with the available groups.
 	 * 
 	 * @return See above.
 	 */
-	private JComboBox createBox()
+	private JComboBox createGroupBox()
 	{
 		List<GroupContext> groups = model.getGroups();
 		Object[] values = new Object[groups.size()+1];
@@ -292,11 +206,8 @@ public class SearchPanel
 	/** Initializes the components composing the display.  */
 	private void initComponents()
 	{
-		groupsBoxes = new ArrayList<JComboBox>();
-		groupsBox = createBox();
-		otherOwners = new LinkedHashMap<Long, String>();
-		otherOwnersPanel = new JPanel();
-		otherOwnersPanel.setBackground(UIUtilities.BACKGROUND_COLOR);
+	        usersBox = new JComboBox();
+		groupsBox = createGroupBox();
 		scopes = new HashMap<Integer, JCheckBox>(model.getNodes().size());
 		types = new HashMap<Integer, JCheckBox>(model.getTypes().size());
 		IconManager icons = IconManager.getInstance();
@@ -305,7 +216,7 @@ public class SearchPanel
 		toDate = UIUtilities.createDatePicker(false);
 		toDate.setBackground(UIUtilities.BACKGROUND_COLOR);
 		
-		clearDate = new JButton(icons.getIcon(IconManager.CANCEL_22));
+		clearDate = new JButton(icons.getIcon(IconManager.CLOSE));
 		clearDate.setToolTipText("Reset the dates");
 		UIUtilities.unifiedButtonLookAndFeel(clearDate);
 		clearDate.setBackground(UIUtilities.BACKGROUND_COLOR);
@@ -327,62 +238,11 @@ public class SearchPanel
             }
         });
 		
-	
-		usersAsOwner = new JTextField(AREA_COLUMNS);
-		usersAsAnnotator = new JTextField(AREA_COLUMNS);
-		usersAsAnnotator.setEditable(false);
-		usersAsOwner.setEditable(false);
-		
 		dates = new JComboBox(dateOptions);
 		dates.setBackground(UIUtilities.BACKGROUND_COLOR);
 		dates.addActionListener(model);
 		dates.setActionCommand(""+SearchComponent.DATE);
-		ownerButton = new JButton(icons.getIcon(IconManager.OWNER));
-		ownerButton.setToolTipText("Select the owner of the objects.");
-		ownerButton.setBackground(UIUtilities.BACKGROUND_COLOR);
-		//UIUtilities.unifiedButtonLookAndFeel(ownerButton);
-		ownerButton.addActionListener(model);
-		ownerButton.setActionCommand(""+SearchComponent.OWNER);
-		ownerButton.setEnabled(false);
-		usersAsOwner.setEnabled(false);
-		annotatorButton = new JButton(icons.getIcon(IconManager.OWNER));
-		annotatorButton.setToolTipText("Select the users who annotated the " +
-										"objects.");
-		annotatorButton.setBackground(UIUtilities.BACKGROUND_COLOR);
-		annotatorButton.setEnabled(false);
-		usersAsAnnotator.setEnabled(false);
-		UIUtilities.unifiedButtonLookAndFeel(annotatorButton);
-		annotatorButton.addActionListener(model);
-		annotatorButton.setActionCommand(""+SearchComponent.ANNOTATOR);
 		
-		currentUserAsOwner = new JCheckBox("Me");
-		currentUserAsOwner.setSelected(true);
-		currentUserAsOwner.setBackground(UIUtilities.BACKGROUND_COLOR);
-		currentUserAsAnnotator = new JCheckBox("Me");
-		currentUserAsAnnotator.setSelected(true);
-		currentUserAsAnnotator.setBackground(UIUtilities.BACKGROUND_COLOR);
-		othersAsOwner = new JCheckBox("Others");
-		othersAsOwner.setBackground(UIUtilities.BACKGROUND_COLOR);
-		othersAsAnnotator = new JCheckBox("Others");
-		othersAsAnnotator.setBackground(UIUtilities.BACKGROUND_COLOR);
-		othersAsOwner.addChangeListener(new ChangeListener() {
-		
-			public void stateChanged(ChangeEvent e) {
-				ownerButton.setEnabled(othersAsOwner.isSelected());
-				usersAsOwner.setEnabled(othersAsOwner.isSelected());
-			}
-		});
-		
-		othersAsAnnotator.addChangeListener(new ChangeListener() {
-			
-			public void stateChanged(ChangeEvent e) {
-				annotatorButton.setEnabled(othersAsAnnotator.isSelected());
-				usersAsAnnotator.setEnabled(othersAsAnnotator.isSelected());
-			}
-		});
-		
-		caseSensitive = new JCheckBox("Case sensitive");
-		areas = new LinkedHashMap<JTextField, JLabel>();
 		helpBasicButton = new JButton(icons.getIcon(IconManager.HELP));
 		helpBasicButton.setToolTipText("Search Tips.");
 		helpBasicButton.setBackground(UIUtilities.BACKGROUND_COLOR);
@@ -391,8 +251,6 @@ public class SearchPanel
 		helpBasicButton.setActionCommand(""+SearchComponent.HELP);
 		
 
-		formats = new JComboBox(fileFormats);
-		formats.setEnabled(false);
 //		ButtonGroup group = new ButtonGroup();
 //		creationTime = new JRadioButton("Created");
 //		creationTime.setSelected(true);
@@ -406,19 +264,7 @@ public class SearchPanel
 		if (ctx == null) return;
 //		if (ctx.getTimeType() == SearchContext.UPDATED_TIME)
 //			updatedTime.setSelected(true);
-		List<Integer> l = ctx.getOwnerSearchContext();
-		if (l != null) {
-			othersAsOwner.setSelected(l.contains(SearchContext.OTHERS));
-			currentUserAsOwner.setSelected(
-					l.contains(SearchContext.CURRENT_USER));
-		}
-		
-		l = ctx.getAnnotatorSearchContext();
-		if (l != null) {
-			othersAsAnnotator.setSelected(l.contains(SearchContext.OTHERS));
-			currentUserAsAnnotator.setSelected(
-					l.contains(SearchContext.CURRENT_USER));
-		}
+
 		int dateIndex = ctx.getDateIndex();
 		if (dateIndex != -1) dates.setSelectedIndex(dateIndex);
 		
@@ -432,147 +278,6 @@ public class SearchPanel
 	public void resetDate() {
 	    toDate.setDate(null);
 	    fromDate.setDate(null);
-	}
-	
-	/** Lays out the selected users. */
-	private void layoutOtherOwners()
-	{
-		otherOwnersPanel.removeAll();
-		Iterator<Long> i = otherOwners.keySet().iterator();
-		long id;
-		otherOwnersPanel.setLayout(new GridBagLayout());
-		GridBagConstraints c = new GridBagConstraints();
-		c.anchor = GridBagConstraints.FIRST_LINE_START;
-		c.fill = GridBagConstraints.HORIZONTAL;
-		c.gridy = 0;
-		JButton button;
-		JToolBar bar;
-		JLabel label;
-		IconManager icons = IconManager.getInstance();
-		Icon icon = icons.getIcon(IconManager.CLOSE);
-		while (i.hasNext()) {
-			c.gridx = 0;
-			c.weightx = 0;
-			id = i.next();
-			label = new JLabel(otherOwners.get(id));
-			label.setBackground(UIUtilities.BACKGROUND_COLOR);
-			otherOwnersPanel.add(label, c);
-			c.gridx = 1;
-			button = new JButton(icon);
-			button.setBackground(UIUtilities.BACKGROUND_COLOR);
-			UIUtilities.unifiedButtonLookAndFeel(button);
-			//button.setBorder(null);
-			button.setToolTipText("Remove the user.");
-			button.setActionCommand(""+id);
-			button.addActionListener(this);
-			bar = new JToolBar();
-			bar.setBackground(UIUtilities.BACKGROUND_COLOR);
-			bar.setFloatable(false);
-			bar.setRollover(true);
-			bar.setBorder(null);
-			bar.add(button);
-			otherOwnersPanel.add(bar, c);
-			++c.gridy;
-		}
-		otherOwnersPanel.validate();
-		otherOwnersPanel.repaint();
-	}
-	
-	/**
-	 * Sets the name of the passed user in the specified <code>TextField</code>.
-	 * 
-	 * @param name	The value to set.
-	 * @param field	The UI component to handle.
-	 */
-	private void setUserString(String name, JTextField field)
-	{
-		List<String> values = SearchUtil.splitTerms(field.getText(), 
-											SearchUtil.QUOTE_SEPARATOR);
-		String v = "";
-		int n = values.size();
-		if (n == 0)
-			v = SearchUtil.QUOTE_SEPARATOR+name+SearchUtil.QUOTE_SEPARATOR;
-		else {
-			Iterator i = values.iterator();
-			String value;
-			boolean exist = false;
-			int index = 0;
-			StringBuffer buffer = new StringBuffer();
-			while (i.hasNext()) {
-				value = (String) i.next();
-				if (!value.equals(name)) {
-					buffer.append(SearchUtil.QUOTE_SEPARATOR);
-					buffer.append(value);
-					buffer.append(SearchUtil.QUOTE_SEPARATOR);
-					if (index < n)
-						buffer.append(SearchUtil.SPACE_SEPARATOR);
-				}
-				index++;
-			}
-			v = buffer.toString();
-			if (!exist) 
-				v += SearchUtil.QUOTE_SEPARATOR+name+SearchUtil.QUOTE_SEPARATOR;
-		}
-		field.setText(v);
-	}
-	
-	/**
-	 * Retrieves the users to exclude.
-	 * 
-	 * @param field The text field to handle.
-	 * @return See above.
-	 */
-	private List<String> getExcludedUsers(JTextField field)
-	{
-		String text = field.getText();
-		if (text == null || text.length() == 0) return null;
-		if (!text.contains(SearchUtil.MINUS_SEPARATOR)) return null;
-		List<String> l = SearchUtil.splitTerms(text, 
-											SearchUtil.QUOTE_SEPARATOR);
-		int index = 0;
-		Iterator i;
-		List<String> excluded = new ArrayList<String>();
-		if (l != null) {
-			i = l.iterator();
-			String value;
-			String nextItem;
-			while (i.hasNext()) {
-				value = (String) i.next();
-				if (SearchUtil.MINUS_SEPARATOR.equals(value)) {
-					nextItem = l.get(index+1);
-					if (nextItem != null)
-						excluded.add(nextItem);
-				}
-				index++;
-			}
-		}
-		return excluded;
-	}
-	
-	/**
-	 * Retrieves the users to exclude.
-	 * 
-	 * @param field The text field to handle.
-	 * @return See above.
-	 */
-	private List<String> getUsers(JTextField field)
-	{
-		String text = field.getText();
-		if (text == null || text.length() == 0) return null;
-		List<String> l = SearchUtil.splitTerms(text, 
-										SearchUtil.QUOTE_SEPARATOR);
-		Iterator i;
-		List<String> terms = new ArrayList<String>();
-		if (l != null) {
-			i = l.iterator();
-			String value;
-			while (i.hasNext()) {
-				value = (String) i.next();
-				if (!SearchUtil.MINUS_SEPARATOR.equals(value))
-					terms.add(value);
-			}
-		}
-		return terms;
 	}
 	
 	/** 
@@ -590,20 +295,6 @@ public class SearchPanel
 		p.add(toDate);
 		p.add(clearDate);
 		return p;
-	}
-	
-	private void layoutGroup()
-	{
-		if (groupRow == null) {
-			groupRow = new JPanel();
-			groupRow.setLayout(new FlowLayout(FlowLayout.LEFT));
-			groupRow.setBackground(UIUtilities.BACKGROUND_COLOR);
-		}
-		groupRow.removeAll();
-		if (groupsBox != null) {
-			groupRow.add(new JLabel("Search in Group:"));
-			groupRow.add(groupsBox);
-		}
 	}
 	
 	/** 
@@ -652,7 +343,7 @@ public class SearchPanel
 			}
 		}
 		c.gridy++;
-		UIUtilities.setBoldTitledBorder("Fields", p);
+		UIUtilities.setBoldTitledBorder("Restrict to Fields", p);
 		return p;
 	}
 
@@ -666,14 +357,104 @@ public class SearchPanel
             JPanel p = new JPanel();
             p.setBackground(UIUtilities.BACKGROUND_COLOR);
             p.setLayout(new GridBagLayout());
+            
             GridBagConstraints c = new GridBagConstraints();
             c.anchor = GridBagConstraints.WEST;
             c.fill = GridBagConstraints.HORIZONTAL;
+            c.gridx = 0;
             c.gridy = 0;
-            layoutGroup();
-            p.add(groupRow, c);
+            
+            p.add(new JLabel("Data owned by:"), c);
+            c.gridx = 1;
+            p.add(usersBox, c);
+            
+            c.gridx = 0;
+            c.gridy++;
+            
+            p.add(new JLabel("Groups:"), c);
+            c.gridx = 1;
+            p.add(groupsBox, c);
+            
+            groupsBox.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent arg0) {
+                    updateUsersBox();
+                }
+            });
+            
+            UIUtilities.setBoldTitledBorder("Scope", p);
+            
             return p;
         }
+        
+        /**
+         * Updates the content of the usersBox depending on the current
+         * groupsBox selection
+         */
+        private void updateUsersBox() {
+            updateUsersBox(false);
+        }
+        
+        /**
+         * Updates the content of the usersBox depending on the current
+         * groupsBox selection
+         * @param reset If <code>true</code> reset the selection to 'all'
+         */
+        private void updateUsersBox(boolean reset) {
+            ExperimenterContext me = new ExperimenterContext("Me", getUserDetails().getId());
+            ExperimenterContext all = new ExperimenterContext("Anyone", ExperimenterContext.ALL_EXPERIMENTERS_ID);
+            ExperimenterContext selected = (usersBox.getSelectedIndex() != -1 && !reset) ? (ExperimenterContext) usersBox.getSelectedItem() : null;
+    
+            usersBox.removeAllItems();
+    
+            // the users to present in the combobox
+            List<ExperimenterContext> items = new ArrayList<ExperimenterContext>();
+            
+            // always add 'me' and 'all'
+            items.add(me);
+            items.add(all);
+    
+            // gather the users from the GroupContexts
+            if (groupsBox.getSelectedIndex() > -1) {
+                GroupContext groupContext = (GroupContext) groupsBox.getSelectedItem();
+                
+                List<GroupContext> groupContexts = new ArrayList<GroupContext>();
+                if (groupContext.getId()==GroupContext.ALL_GROUPS_ID) {
+                    // users from all GroupContexts must be added
+                    for(int i=0; i<groupsBox.getItemCount(); i++) {
+                        groupContext = (GroupContext) groupsBox.getItemAt(i);
+                        if(groupContext.getId()==GroupContext.ALL_GROUPS_ID) 
+                            continue;
+                        groupContexts.add(groupContext);
+                    }
+                }
+                else {
+                    // just users from the selected GroupContext must be added
+                    groupContexts.add(groupContext);
+                }
+                
+                for (GroupContext gc : groupContexts) {
+                    for (ExperimenterContext exp : gc.getExperimenters()) {
+                        if (!items.contains(exp)) {
+                            items.add(exp);
+                        }
+                    }
+                }
+            }
+    
+            for (ExperimenterContext item : items) {
+                usersBox.addItem(item);
+            }
+    
+            // restore the previous selection if there was any
+            if (selected != null && items.contains(selected)) {
+                usersBox.setSelectedItem(selected);
+            } else {
+                usersBox.setSelectedItem(all);
+            }
+        }
+        
+        
         
 	/** 
 	 * Builds and lays out the component displaying the various types.
@@ -734,7 +515,7 @@ public class SearchPanel
 	{
 		basicSearchComp = new JPanel();
 		basicSearchComp.setBackground(UIUtilities.BACKGROUND_COLOR);
-		UIUtilities.setBoldTitledBorder(SEARCH_TITLE, basicSearchComp);
+		UIUtilities.setBoldTitledBorder("Search", basicSearchComp);
 		basicSearchComp.setLayout(new BoxLayout(basicSearchComp, 
 				BoxLayout.Y_AXIS));
 		basicSearchComp.add(fullTextArea);
@@ -758,69 +539,6 @@ public class SearchPanel
 	}
 	
 	/**
-	 * Builds and lays out the Advanced search component.
-	 * 
-	 * @return See above.
-	 */
-	private JPanel buildAdvancedSearchComp()
-	{
-		advancedSearchComp = new JPanel();
-		advancedSearchComp.setBackground(UIUtilities.BACKGROUND_COLOR);
-		JPanel p = new JPanel();
-		p.setBackground(UIUtilities.BACKGROUND_COLOR);
-		UIUtilities.setBoldTitledBorder(ADVANCED_SEARCH_TITLE, 
-				advancedSearchComp);
-		p.setLayout(new GridBagLayout());
-        GridBagConstraints c = new GridBagConstraints();
-        c.anchor = GridBagConstraints.WEST;
-        c.fill = GridBagConstraints.HORIZONTAL;
-        c.insets = new Insets(3, 3, 3, 3);
-        Iterator i = areas.keySet().iterator();
-        JLabel label;
-        JTextField area;
-        while (i.hasNext()) {
-            ++c.gridy;
-            c.gridx = 0;
-            area = (JTextField) i.next();
-            area.setBackground(UIUtilities.BACKGROUND_COLOR);
-            label = areas.get(area);
-            c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
-            c.weightx = 0.0;  
-            p.add(label, c);
-            label.setLabelFor(area);
-            ++c.gridy;
-            c.gridwidth = GridBagConstraints.REMAINDER;     //end row
-            c.fill = GridBagConstraints.HORIZONTAL;
-            c.weightx = 1.0;
-            p.add(area, c);  
-        }
-        ++c.gridy;
-        c.gridx = 0;
-        c.weightx = 0.0; 
-        p.add(UIUtilities.setTextFont(SEARCH_TIP, TIP_FONT_TYPE, 
-        							TIP_FONT_SIZE), c); 
-        advancedSearchComp.setLayout(new BoxLayout(advancedSearchComp, 
-				BoxLayout.Y_AXIS));
-        advancedSearchComp.add(p);
-        
-		//Tool Bar
-        JToolBar bar = new JToolBar();
-        bar.setBackground(UIUtilities.BACKGROUND_COLOR);
-		bar.setFloatable(false);
-		bar.setRollover(true);
-		bar.setBorder(null);
-		if (controls != null && controls.size() > 0) {
-			Iterator<JButton> j = controls.iterator();
-			while (j.hasNext()) {
-				bar.add(j.next());
-			}
-		}
-		JPanel comp = UIUtilities.buildComponentPanel(bar);
-	    comp.setBackground(UIUtilities.BACKGROUND_COLOR);
-		advancedSearchComp.add(comp);
-		return advancedSearchComp;
-	}
-	/**
 	 * Builds the UI component hosting the terms to search for.
 	 * 
 	 * @return See above.
@@ -838,134 +556,24 @@ public class SearchPanel
 	}
 	
 	/**
-	 * Lays out the specified text field and button.
-	 * 
-	 * @param box		The box to lay out.
-	 * @param field		The field to lay out.
-	 * @param button	The button to lay out.
-	 * @return See above.
-	 */
-	private JPanel buildOtherUserSelection(JCheckBox box, JComponent field, 
-										JButton button)
-	{
-		JPanel p = new JPanel();
-	    p.setBackground(UIUtilities.BACKGROUND_COLOR);
-		p.setLayout(new GridBagLayout());
-		//p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
-		GridBagConstraints c = new GridBagConstraints();
-        c.anchor = GridBagConstraints.FIRST_LINE_START;
-		c.fill = GridBagConstraints.HORIZONTAL;
-        c.gridx = 0;
-        c.gridy = 0;
-        p.add(box, c);
-        c.gridx++;
-		p.add(Box.createHorizontalStrut(5), c);
-        JToolBar bar = new JToolBar();
-	    bar.setBackground(UIUtilities.BACKGROUND_COLOR);
-        bar.setFloatable(false);
-        bar.setFloatable(false);
-        bar.setRollover(true);
-        bar.setBorder(null);
-        bar.add(button);
-        c.gridx++;
-		p.add(bar, c);
-		c.gridx++;
-		p.add(Box.createHorizontalStrut(5), c);
-		c.gridx++;
-		c.gridheight = 2;
-		p.add(field, c);
-		return p;
-	}
-
-	/**
-	 * Builds the UI component hosting the users to search for.
-	 * 
-	 * @return See above.
-	 */
-	private JPanel buildUsers()
-	{	
-		JPanel usersPanel = new JPanel();
-	    usersPanel.setBackground(UIUtilities.BACKGROUND_COLOR);
-		//UIUtilities.setBoldTitledBorder(USER_TITLE, usersPanel);
-		usersPanel.setLayout(new BoxLayout(usersPanel, BoxLayout.Y_AXIS));
-		JPanel content = new JPanel();
-	    content.setBackground(UIUtilities.BACKGROUND_COLOR);
-		content.setLayout(new GridBagLayout());
-		GridBagConstraints c = new GridBagConstraints();
-        c.anchor = GridBagConstraints.WEST;
-        c.gridy = 0;
-        c.gridwidth = 2;
-        content.add(UIUtilities.setTextFont("Owned by "), c);
-        c.gridy++;
-        c.gridwidth = 1;
-        c.gridx = 0;
-        content.add(currentUserAsOwner, c);
-		c.gridy++;
-		c.ipady = 10;
-		content.add(buildOtherUserSelection(othersAsOwner, otherOwnersPanel, 
-				ownerButton), c);
-		JPanel p = UIUtilities.buildComponentPanel(content);
-		p.setBackground(UIUtilities.BACKGROUND_COLOR);
-		usersPanel.add(p);
-		//usersPanel.add(new JSeparator());
-		content = new JPanel();
-	    content.setBackground(UIUtilities.BACKGROUND_COLOR);
-		content.setLayout(new GridBagLayout());
-		c = new GridBagConstraints();
-        c.anchor = GridBagConstraints.WEST;
-        c.fill = GridBagConstraints.HORIZONTAL;
-        c.gridy = 0;
-		c.gridx = 0;
-		/* commented out 02/06
-		c.gridwidth = 2;
-		c.gridy++;
-		content.add(UIUtilities.setTextFont("Annotated by "), c);
-		c.gridy++;
-	    c.gridwidth = 1;
-        c.gridx = 0;
-        content.add(currentUserAsAnnotator, c);
-		c.gridy++;
-		content.add(buildUserSelection(othersAsAnnotator, usersAsAnnotator, 
-				annotatorButton), c);
-         */
-		p = UIUtilities.buildComponentPanel(content);
-		p.setBackground(UIUtilities.BACKGROUND_COLOR);
-		usersPanel.add(p);
-		return usersPanel;
-	}
-	
-	/**
 	 * Builds the UI component hosting the time interval.
 	 * 
 	 * @return See above.
 	 */
 	private JPanel buildDate()
 	{
-		JPanel content = new JPanel();
-		content.setBackground(UIUtilities.BACKGROUND_COLOR);
-		content.setLayout(new BoxLayout(content, BoxLayout.X_AXIS));
-//		content.add(creationTime);
-//		content.add(updatedTime);
 		
-		JPanel p = new JPanel();
-		p.setBackground(UIUtilities.BACKGROUND_COLOR);
-		p.setLayout(new GridBagLayout());
-        GridBagConstraints c = new GridBagConstraints();
-        c.anchor = GridBagConstraints.WEST;
-        c.fill = GridBagConstraints.HORIZONTAL;
-        c.gridy = 0;
-        c.ipady = 10;
-        p.add(content, c);
-        c.ipady = 0;
-        c.gridy++;
-        //p.add(dates, c);
-       // c.gridy++;
-		p.add(buildTimeRange(), c);
-		
-		JPanel panel = UIUtilities.buildComponentPanel(p);
-		panel.setBackground(UIUtilities.BACKGROUND_COLOR);
-		//UIUtilities.setBoldTitledBorder(DATE_TITLE, panel);
-		return panel;
+            JPanel p = new JPanel();
+            p.setBackground(UIUtilities.BACKGROUND_COLOR);
+            p.setLayout(new GridBagLayout());
+            GridBagConstraints c = new GridBagConstraints();
+            c.anchor = GridBagConstraints.WEST;
+            c.fill = GridBagConstraints.HORIZONTAL;
+    
+            p.add(buildTimeRange(), c);
+    
+            UIUtilities.setBoldTitledBorder("Date", p); 
+            return p;
 	}
 
 	
@@ -991,29 +599,23 @@ public class SearchPanel
 		c.gridy++;
 		add(sep, c);//, "0, 1");
 		
-		JXTaskPane pane = UIUtilities.createTaskPane("Search for", null); 
-                pane.setCollapsed(false);
-                pane.add(buildType());
+		JPanel typePanel = buildType();
                 c.gridy++;
-                add(pane, c);//, "0, 2")
+                add(typePanel, c);//, "0, 2")
                 
-		pane = UIUtilities.createTaskPane("Restrict to" , null); 
-		pane.setCollapsed(false);
-		pane.add(buildFields());
+                JPanel fieldsPanel = buildFields();
 		c.gridy++;
-		add(pane, c);//, "0, 2");
+		add(fieldsPanel, c);//, "0, 2");
 		
-		pane = UIUtilities.createTaskPane("Scope" , null); 
-                pane.setCollapsed(false);
-                pane.add(buildScope());
+                JPanel scopePanel = buildScope();
                 c.gridy++;
-                add(pane, c);//, "0, 2");
+                add(scopePanel, c);//, "0, 2");
 		
-		datePane = UIUtilities.createTaskPane("Date", null); 
-		datePane.add(buildDate());
+		JPanel datePanel = buildDate();
 		c.gridy++;
-		add(datePane, c);//, "0, 4");
+		add(datePanel, c);//, "0, 4");
 
+		updateUsersBox();
 //		setDateIndex();
 	}
 
@@ -1036,12 +638,9 @@ public class SearchPanel
 	/** Resets.*/
 	public void reset()
 	{
-		groupsBoxes.clear();
-		int n = model.getGroups().size();
-		if (n == 1) groupsBox = null;
-		else groupsBox = createBox();
-		layoutGroup();
-		groupRow.setVisible(n > 1);
+	        updateUsersBox(true);
+	        resetDate();
+	        setTerms(Collections.<String> emptyList());
 		validate();
 		repaint();
 	}
@@ -1066,13 +665,6 @@ public class SearchPanel
 //	 */
 //	int getSelectedDate() { return dates.getSelectedIndex(); }
 	
-	/**
-	 * Returns <code>true</code> if the search is case sensitive,
-	 * <code>false</code> otherwise.
-	 * 
-	 * @return See above.
-	 */
-	boolean isCaseSensitive() { return caseSensitive.isSelected(); }
 	
 	/**
 	 * Returns the start time.
@@ -1143,11 +735,11 @@ public class SearchPanel
 	 * 
 	 * @param values The values to add.
 	 */
-	void setSomeValues(List<String> values)
+	void setTerms(List<String> terms)
 	{
-		if (values == null || values.size() == 0) return;
+		if (terms == null || terms.size() == 0) return;
 		StringBuffer text = new StringBuffer();
-		Iterator<String> i = values.iterator();
+		Iterator<String> i = terms.iterator();
 		while (i.hasNext()) {
 			text.append(i.next());
 			text.append(SearchUtil.SPACE_SEPARATOR);
@@ -1178,101 +770,17 @@ public class SearchPanel
 		return null;
 	}
 	
-	
 	/**
-	 * Returns the context of the search for users.
-	 * 
-	 * @return See above.
-	 */
-	List<Integer> getOwnerSearchContext()
-	{
-		List<Integer> context = new ArrayList<Integer>();
-		if (currentUserAsOwner.isSelected())
-			context.add(SearchContext.CURRENT_USER);
-		if (othersAsOwner.isSelected())
-			context.add(SearchContext.OTHERS);
-		return context;
-	}
-	
-	/**
-	 * Returns the context of the search for users.
-	 * 
-	 * @return See above.
-	 */
-	List<Integer> getAnnotatorSearchContext()
-	{
-		List<Integer> context = new ArrayList<Integer>();
-		if (currentUserAsAnnotator.isSelected())
-			context.add(SearchContext.CURRENT_USER);
-		if (othersAsAnnotator.isSelected())
-			context.add(SearchContext.OTHERS);
-		return context;
-	}
-	
-	/**
-	 * Returns the collection of the users who own the objects.
-	 * 
-	 * @return See above.
-	 */
-	List<Long> getOwners()
-	{ 
-		List<Long> users = new ArrayList<Long>();
-		Iterator<Long> i = otherOwners.keySet().iterator();
-		while (i.hasNext())
-			users.add(i.next());
-		return users; 
-	}
-	
-	/**
-	 * Returns the collection of the users who annotated the objects.
-	 * 
-	 * @return See above.
-	 */
-	List<String> getAnnotators() { return getUsers(usersAsAnnotator); }
-	
-	/** Indicates to set the focus on the search area. */
-	void setFocusOnSearch()
-	{
-		if (areas != null) {
-			Iterator i = areas.keySet().iterator();
-			while (i.hasNext()) {
-				((JTextField) i.next()).requestFocus();
-				break;
-			}
-		}
-	}
-	
-	/**
-	 * Sets the name of the selected user.
-	 * 
-	 * @param userID The id of the selected user.
-	 * @param name   The string to set.
-	 */
-	void setOwnerString(long userID, String name)
-	{
-		if (otherOwners.containsKey(userID)) return;
-		otherOwners.put(userID, name);
-		layoutOtherOwners();
-		validate();
-		repaint();
-	}
-	
-	/**
-	 * Sets the name of the selected user.
-	 * 
-	 * @param name The string to set.
-	 */
-	void setAnnotatorString(String name)
-	{
-		setUserString(name, usersAsAnnotator);
-	}
-	
-	/**
-	 * Returns the type of files to search for.
-	 * 
-	 * @return See above.
-	 */
-	int getAttachment() { return formats.getSelectedIndex(); }
+         * Returns the current user's details.
+         * 
+         * @return See above.
+         */
+        private ExperimenterData getUserDetails()
+        { 
+                return (ExperimenterData) FinderFactory.getRegistry().lookup(
+                                LookupNames.CURRENT_USER_DETAILS);
+        }
+
 	
 //	/**
 //	 * Returns the index of the time.
@@ -1285,54 +793,23 @@ public class SearchPanel
 //		if (updatedTime.isSelected()) return SearchContext.UPDATED_TIME;
 //		return -1;
 //	}
-
-	/**
-	 * Returns the collection of excluded users.
-	 * 
-	 * @return See above.
-	 */
-	List<String> getExcludedAnnotators()
-	{
-		return getExcludedUsers(usersAsAnnotator);
+	
+	
+	long getGroupId() {
+	    long result = GroupContext.ALL_GROUPS_ID;
+	    if(groupsBox.getSelectedIndex()>=0) {
+	        GroupContext g = (GroupContext) groupsBox.getSelectedItem();
+	        result = g.getId();
+	    }
+	    return result;
 	}
 	
-	/**
-	 * Returns the collection of excluded users.
-	 * 
-	 * @return See above.
-	 */
-	List<String> getExcludedOwners()
-	{
-		return getExcludedUsers(usersAsOwner);
-	}
-	
-	/**
-	 * Returns the selected groups.
-	 * 
-	 * @return See above.
-	 */
-	List<Long> getSelectedGroups()
-	{
-		Collection<GroupContext> l = getGroups();
-		Iterator<GroupContext> i = l.iterator();
-		List<Long> ids = new ArrayList<Long>(l.size());
-		while (i.hasNext()) {
-			ids.add(i.next().getId());
-		}
-		return ids;
-	}
-	
-	/**
-	 * Removes the user from the display.
-	 * @see ActionListener#actionPerformed(ActionEvent)
-	 */
-	public void actionPerformed(ActionEvent e)
-	{
-		String s = e.getActionCommand();
-		int index = Integer.parseInt(s);
-		otherOwners.remove(Long.valueOf(index));
-		layoutOtherOwners();
-		validate();
-		repaint();
-	}
+	long getUserId() {
+            long result = -1;
+            if(usersBox.getSelectedIndex()>=0) {
+                ExperimenterContext u = (ExperimenterContext) usersBox.getSelectedItem();
+                result = u.getId()==ExperimenterContext.ALL_EXPERIMENTERS_ID ? -1 : u.getId();
+            }
+            return result;
+        }
 }
