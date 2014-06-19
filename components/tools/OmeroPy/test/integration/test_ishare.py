@@ -453,7 +453,7 @@ class TestIShare(lib.ITest):
         share_id = share.createShare(description, timeout, objects,
                                      experimenters, guests, enabled)
 
-        share.addComment(self.share_id, "comment for share %i" % share_id)
+        share.addComment(share_id, "comment for share %i" % share_id)
         assert 1 == len(share.getComments(share_id))
 
         assert 1 == share.getCommentCount([share_id])[share_id]
@@ -776,7 +776,7 @@ class TestIShare(lib.ITest):
     def test_OS_non_member(self):
         # Non-members should not be able to use this method
         # Run setup
-        img, sid = self.testOSRegularUser()
+        img, sid = self.test_OS_regular_user()
         non_member = self.new_client(perms="rw----")
         non_member_query = non_member.sf.getQueryService()
 
@@ -791,7 +791,7 @@ class TestIShare(lib.ITest):
 
     def test_OS_admin_user(self):
         # Admin should be able to log into any share
-        img, sid = self.testOSRegularUser()
+        img, sid = self.test_OS_regular_user()
         root_query = self.root.sf.getQueryService()
 
         # Try to access direct (in wrong group)
@@ -914,7 +914,7 @@ class TestIShare(lib.ITest):
         p = omero.sys.Parameters()
         p.map = {"id": rlong(long(image_id))}
         sql = "select im from Image im join fetch im.details.owner " \
-              "join fetchim.details.group where im.id=:id order by im.name"
+              "join fetch im.details.group where im.id=:id order by im.name"
         image = owner.sf.getQueryService().findAllByQuery(
             sql, p, {'omero.group': str(owner_groupId)})[0]
 
