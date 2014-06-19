@@ -19,30 +19,30 @@
 
 package ome.services.fulltext;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.sql.Statement;
 
-import ome.api.local.LocalShare;
 import ome.conditions.InternalException;
 import ome.model.IAnnotated;
 import ome.model.IGlobal;
 import ome.model.IMutable;
 import ome.model.IObject;
 import ome.model.meta.EventLog;
-import ome.services.eventlogs.*;
+import ome.services.eventlogs.EventLogLoader;
 import ome.services.util.Executor.SimpleWork;
+import ome.system.metrics.Counter;
+import ome.system.metrics.Histogram;
+import ome.system.metrics.Metrics;
+import ome.system.metrics.Timer;
 import ome.system.ServiceFactory;
 import ome.tools.hibernate.QueryBuilder;
 import ome.util.SqlAction;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.hibernate.CacheMode;
 import org.hibernate.FlushMode;
 import org.hibernate.Session;
 import org.hibernate.search.FullTextSession;
 import org.hibernate.search.Search;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -57,6 +57,11 @@ import org.springframework.transaction.annotation.Transactional;
 public class FullTextIndexer extends SimpleWork {
 
     private final static Logger log = LoggerFactory.getLogger(FullTextIndexer.class);
+
+    /**
+     * Default number of loops to wait if no external value is set.
+     */
+    public final static int DEFAULT_REPORTING_LOOPS = 100;
 
     abstract class Action {
         Class type;
@@ -112,6 +117,17 @@ public class FullTextIndexer extends SimpleWork {
 
     protected int reps = 5;
 
+    protected Metrics metrics;
+
+    protected Timer batchTimer;
+
+    protected Histogram completeSlow, completeFast;
+
+    /**
+     * Frequency with which the percentage done should be calculated.
+     */
+    protected int reportingLoops = DEFAULT_REPORTING_LOOPS;
+
     /**
      * Spring injector. Sets the number of indexing runs will be made if there
      * is a substantial backlog.
@@ -119,6 +135,16 @@ public class FullTextIndexer extends SimpleWork {
     public void setRepetitions(int reps) {
         this.reps = reps;
         ;
+    }
+
+    public void setMetrics(Metrics metrics) {
+        this.metrics = metrics;
+        this.batchTimer =
+                this.metrics.timer(this, "batch");
+        this.completeSlow=
+                this.metrics.histogram(this, "percentCompleteSlow");
+        this.completeFast =
+                this.metrics.histogram(this, "percentCompleteFast");
     }
 
     public FullTextIndexer(EventLogLoader ll) {
@@ -147,24 +173,46 @@ public class FullTextIndexer extends SimpleWork {
         int count = 1;
         int perbatch = 0;
         long start = System.currentTimeMillis();
+        Timer.Context timer = null;
         do {
 
-            // ticket:1254 -
-            // The following is non-portable and can later be refactored
-            // for a more general solution.
-            getSqlAction().deferConstraints();
+            if (metrics != null) {
+                timer = batchTimer.time();
+                if (loader instanceof PersistentEventLogLoader) {
+                    if (batchTimer.getCount() % reportingLoops == 0) {
+                        float done = getSqlAction().getEventLogPercent(
+                            ((PersistentEventLogLoader) loader).getKey());
+                        completeSlow.update((int) done);
+                    }
+                    long lastId = loader.lastEventLog().getId();
+                    long currId = ((PersistentEventLogLoader) loader).getCurrentId();
+                    completeFast.update((int)(100.0*currId/lastId));
+                }
+            }
 
-            // s.execute("set statement_timeout=10000");
-            // The Postgresql Driver does not currently support the
-            // "timeout" value on @Transactional and so if a query timeout
-            // is required, then this must be set.
+            try {
 
-            FullTextSession fullTextSession = Search
-                    .getFullTextSession(session);
-            fullTextSession.setFlushMode(FlushMode.MANUAL);
-            fullTextSession.setCacheMode(CacheMode.IGNORE);
-            perbatch = doIndexingWithWorldRead(sf, fullTextSession);
-            count++;
+                    // ticket:1254 -
+                    // The following is non-portable and can later be refactored
+                    // for a more general solution.
+                    getSqlAction().deferConstraints();
+
+                    // s.execute("set statement_timeout=10000");
+                    // The Postgresql Driver does not currently support the
+                    // "timeout" value on @Transactional and so if a query timeout
+                    // is required, then this must be set.
+
+                    FullTextSession fullTextSession = Search
+                            .getFullTextSession(session);
+                    fullTextSession.setFlushMode(FlushMode.MANUAL);
+                    fullTextSession.setCacheMode(CacheMode.IGNORE);
+                    perbatch = doIndexingWithWorldRead(sf, fullTextSession);
+            } finally {
+                if (timer != null) {
+                    timer.stop();
+                }
+                count++;
+            }
         } while (doMore(count));
         if (perbatch > 0) {
             log.info(String.format("INDEXED %s objects in %s batch(es) [%s ms.]",
