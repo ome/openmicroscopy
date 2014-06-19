@@ -45,6 +45,7 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+
 //Third-party libraries
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
@@ -58,6 +59,7 @@ import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.util.AdvancedSearchResult;
 import org.openmicroscopy.shoola.env.data.util.AdvancedSearchResultCollection;
 import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
+import org.openmicroscopy.shoola.env.data.util.SearchParameters;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.IconManager;
@@ -154,21 +156,21 @@ public class AdvancedFinder
 	{
 		switch (value) {
 			case SearchContext.TEXT_ANNOTATION:
-				return SearchDataContext.TEXT_ANNOTATION;
+				return SearchParameters.TEXT_ANNOTATION;
 			case SearchContext.TAGS:
-				return SearchDataContext.TAGS;
+				return SearchParameters.TAGS;
 			case SearchContext.URL_ANNOTATION:
-				return SearchDataContext.URL_ANNOTATION;
+				return SearchParameters.URL_ANNOTATION;
 			case SearchContext.FILE_ANNOTATION:
-				return SearchDataContext.FILE_ANNOTATION;
+				return SearchParameters.FILE_ANNOTATION;
 			case SearchContext.NAME:
-				return SearchDataContext.NAME;
+				return SearchParameters.NAME;
 			case SearchContext.DESCRIPTION:
-				return SearchDataContext.DESCRIPTION;
+				return SearchParameters.DESCRIPTION;
 			case SearchContext.CUSTOMIZED:
-				return SearchDataContext.CUSTOMIZED;
+				return SearchParameters.CUSTOMIZED;
 			case SearchContext.ANNOTATION:
-                            return SearchDataContext.ANNOTATION;
+                            return SearchParameters.ANNOTATION;
 			default:
 				return null;
 		}
@@ -307,7 +309,7 @@ public class AdvancedFinder
 		fillUsersList(ctx.getAnnotatorSearchContext(), annotators, 
 						excludedAnnotators);
 		
-		SearchDataContext searchContext = new SearchDataContext(scope, types, terms);
+		SearchParameters searchContext = new SearchParameters(scope, types, terms);
 		searchContext.setTimeInterval(start, end);
 		if (displayMode == LookupNames.EXPERIMENTER_DISPLAY)
 			searchContext.setOwners(owners);
@@ -492,11 +494,22 @@ public class AdvancedFinder
 	 */
 	public void setResult(SecurityContext ctx, AdvancedSearchResultCollection result)
 	{
-		setSearchEnabled(false);
-
-		//results.put(ctx, result.getDataObjects());
-		if (results.size() == total)
-			firePropertyChange(RESULTS_FOUND_PROPERTY, null, results);
+            setSearchEnabled(false);
+    
+            if (result.isError()) {
+                String msg;
+                if (result.getError() == AdvancedSearchResultCollection.GENERAL_ERROR)
+                    msg = "Invalid search expression";
+                else
+                    msg = "Too many results.";
+                UserNotifier un = FinderFactory.getRegistry().getUserNotifier();
+                un.notifyError("Search error", msg);
+                return;
+            }
+    
+            // results.put(ctx, result.getDataObjects());
+            if (results.size() == total)
+                firePropertyChange(RESULTS_FOUND_PROPERTY, null, results);
 	}
 	
 	/** 

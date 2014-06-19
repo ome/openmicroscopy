@@ -36,24 +36,37 @@ import pojos.DataObject;
 public class AdvancedSearchResultCollection extends
         ArrayList<AdvancedSearchResult> {
 
-    /** Indicates there was an error with the search */
-    private boolean error = false;
+    public static final int NO_ERROR = -1;
+    
+    public static final int GENERAL_ERROR = 0;
+    
+    public static final int TOO_MANY_RESULTS_ERROR = 1;
+    
+    /** Error code if there was an error with the search */
+    private int error = NO_ERROR;
 
     /**
      * @return <code>true</code> if there was an error with
      * the search, <code>false</code> otherwise
      */
     public boolean isError() {
-        return error;
+        return error!=NO_ERROR;
     }
 
     /**
-     * Set the error flag
-     * @param error Pass <code>true</code> if there was an error with 
-     * the search, <code>false</code> otherwise
+     * Set the error state
+     * @param error 
      */
-    public void setError(boolean error) {
+    public void setError(int error) {
         this.error = error;
+    }
+    
+    /**
+     * Get the error code
+     * @return
+     */
+    public int getError() {
+        return this.error;
     }
 
     @Override
