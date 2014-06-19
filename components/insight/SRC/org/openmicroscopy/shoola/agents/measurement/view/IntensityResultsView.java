@@ -380,7 +380,31 @@ class IntensityResultsView
 		setLayout(new BorderLayout());
 		add(containerPanel, BorderLayout.CENTER);
 	}
-	
+
+	/**
+	 * Returns <code>true</code> if the shape is already displayed for
+	 * the specified channel, <code>false</code> otherwise.
+	 *
+	 * @param shape The shape to add.
+	 * @param channelName The name of channel to display.
+	 */
+	private boolean isValueDisplayed(ROIShape shape, String channelName)
+	{
+	    long id = shape.getID();
+	    int z = shape.getCoord3D().getZSection();
+	    int t = shape.getCoord3D().getTimePoint();
+	    for (int i = 0; i < resultsModel.getRowCount(); i++) {
+	        ROIShape s = ((ShapeAsID) resultsModel.getValueAt(i, 0)).getShape();
+	        if (s.getID() == id && s.getCoord3D().getZSection() == z &&
+	                s.getCoord3D().getTimePoint() == t) {
+	            //check channel
+	            String v = (String) resultsModel.getValueAt(i, 3);
+	            if (v.equals(channelName))
+	                return true;
+	        }
+	    }
+	    return false;
+	}
 	/** 
 	 * Populates the table with the data. 
 	 * 
@@ -404,18 +428,20 @@ class IntensityResultsView
 		{
 			cName = channelIterator.next();
 			channel = nameMap.get(cName);
-			rowData = new Vector<Object>();
-			rowData.add(shapeID);
-			rowData.add(shape.getCoord3D().getZSection()+1);
-			rowData.add(shape.getCoord3D().getTimePoint()+1);
-			rowData.add(cName);
-			rowData.add(MeasurementAttributes.TEXT.get(shape.getFigure()));
-			rowData.add(channelMin.get(channel));
-			rowData.add(channelMax.get(channel));
-			rowData.add(channelSum.get(channel));
-			rowData.add(channelMean.get(channel));
-			rowData.add(channelStdDev.get(channel));
-			rows.add(rowData);
+			if (!isValueDisplayed(shape, cName)) {
+			    rowData = new Vector<Object>();
+	            rowData.add(shapeID);
+	            rowData.add(shape.getCoord3D().getZSection()+1);
+	            rowData.add(shape.getCoord3D().getTimePoint()+1);
+	            rowData.add(cName);
+	            rowData.add(MeasurementAttributes.TEXT.get(shape.getFigure()));
+	            rowData.add(channelMin.get(channel));
+	            rowData.add(channelMax.get(channel));
+	            rowData.add(channelSum.get(channel));
+	            rowData.add(channelMean.get(channel));
+	            rowData.add(channelStdDev.get(channel));
+	            rows.add(rowData);
+			}
 		}
 		for (Vector<Object> data : rows) {
 			resultsModel.addRow(data);
@@ -673,7 +699,6 @@ class IntensityResultsView
 	        state = State.READY;
 	        return;
 	    }
-
 	    shapeMap = new TreeMap<Coord3D, ROIShape>(new Coord3D());
 	    minStats = new TreeMap<Coord3D, Map<Integer, Double>>(new Coord3D());
 	    maxStats = new TreeMap<Coord3D, Map<Integer, Double>>(new Coord3D());
