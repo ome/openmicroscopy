@@ -25,7 +25,10 @@ package org.openmicroscopy.shoola.agents.dataBrowser.browser;
 
 
 //Java imports
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Map.Entry;
 import java.util.Set;
 
 
@@ -63,9 +66,20 @@ public class BrowserFactory
          //Create the View.  Add each visualization tree to the root display.
          RootDisplay view = new RootDisplay();
          Iterator i = topNodes.iterator();
-         while (i.hasNext())
-             view.addChildDisplay((ImageDisplay) i.next());
-
+         while (i.hasNext()) {
+             Object obj = i.next();
+             if(ImageDisplay.class.isAssignableFrom(obj.getClass())) {
+                 view.addChildDisplay((ImageDisplay) i.next());
+             }
+             if(obj instanceof HashSet) {
+                 HashSet set = (HashSet)obj;
+                 for(Object obj2 : set) {
+                     if(ImageDisplay.class.isAssignableFrom(obj2.getClass())) {
+                         view.addChildDisplay((ImageDisplay) obj2);
+                     }
+                 }
+             }
+         }
          
          //Now the Model.  In an ideal world the Model wouldn't depend on the
          //View; however right now the dependence is basically insignificant

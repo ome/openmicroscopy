@@ -30,9 +30,11 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+
 import javax.swing.JComponent;
 
 //Third-party libraries
+
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.importer.BrowseContainer;
@@ -45,6 +47,7 @@ import org.openmicroscopy.shoola.agents.events.treeviewer.DataObjectSelectionEve
 import org.openmicroscopy.shoola.agents.events.treeviewer.MoveToEvent;
 import org.openmicroscopy.shoola.agents.events.treeviewer.NodeToRefreshEvent;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
+import org.openmicroscopy.shoola.agents.treeviewer.view.SearchEvent;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewerFactory;
 import org.openmicroscopy.shoola.env.Agent;
@@ -62,6 +65,7 @@ import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.ui.ActivityProcessEvent;
 import org.openmicroscopy.shoola.env.ui.ViewObjectEvent;
+
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
@@ -470,6 +474,10 @@ public class TreeViewerAgent
     	TreeViewerFactory.onAnnotated(evt.getData(), evt.getCount());
     }
     
+    private void handleSearchEvent(SearchEvent evt) {
+        TreeViewerFactory.getTreeViewer(getUserDetails()).showSearch();
+    }
+    
     /**
      * Implemented as specified by {@link Agent}.
      * @see Agent#activate(boolean)
@@ -520,6 +528,7 @@ public class TreeViewerAgent
         bus.register(this, ReconnectedEvent.class);
         bus.register(this, MoveToEvent.class);
         bus.register(this, AnnotatedEvent.class);
+        bus.register(this, SearchEvent.class);
     }
 
     /**
@@ -578,6 +587,9 @@ public class TreeViewerAgent
 			handleMoveToEvent((MoveToEvent) e);
 		else if (e instanceof AnnotatedEvent)
 			handleAnnotatedEvent((AnnotatedEvent) e);
+		else if (e instanceof SearchEvent) {
+		        handleSearchEvent((SearchEvent) e); 
+		}
 	}
 
 }

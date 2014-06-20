@@ -43,6 +43,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -56,6 +57,7 @@ import javax.swing.JTextField;
 import javax.swing.JToolBar;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+
 
 
 
@@ -154,10 +156,10 @@ public class SearchPanel
 	/** Reference to the model .*/
 	private SearchComponent 		model;
 	
-	/** Items used to defined the scope of the search. */
+	/** Items used to defined the scope of the search (Name, Description, ...). */
 	private Map<Integer, JCheckBox>	scopes;
 	
-	/** Items used to defined the scope of the search. */
+	/** Items used to defined the scope of the search. (Images, Projects, Datasets, ...). */
 	private Map<Integer, JCheckBox>	types;
 	
 	/** Button to bring up the tooltips for help. */
@@ -639,8 +641,19 @@ public class SearchPanel
 	public void reset()
 	{
 	        updateUsersBox(true);
+	        
 	        resetDate();
+	        
 	        setTerms(Collections.<String> emptyList());
+	        
+	        for(Entry<Integer, JCheckBox> scope : scopes.entrySet()) {
+	            scope.getValue().setSelected(false);
+	        }
+	        
+	        for(Entry<Integer, JCheckBox> type : types.entrySet()) {
+                    type.getValue().setSelected(true);
+                }
+	        
 		validate();
 		repaint();
 	}
