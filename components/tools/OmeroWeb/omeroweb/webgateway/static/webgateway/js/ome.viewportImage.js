@@ -429,6 +429,7 @@ jQuery.fn.viewportImage = function(options) {
             
             PanoJS.CREATE_CONTROL_MAXIMIZE = true;
             PanoJS.PRE_CACHE_AMOUNT = 2;
+            PanoJS.USE_WHEEL_FOR_ZOOM = true;
             viewerBean = new PanoJS('weblitz-viewport-tiles', {
                 tileUrlProvider : myProvider,
                 xTileSize       : myPyramid.xtilesize,
