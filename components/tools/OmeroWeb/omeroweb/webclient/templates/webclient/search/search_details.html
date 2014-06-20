@@ -48,7 +48,7 @@
             });
             
             // We init sorting (not cols 0 & 3) but don't sort by default
-            $("#dataTable").tablesorter({headers: { 0: { sorter: false}, 3: {sorter: false} } });
+            $("#dataTable").tablesorter({headers: { 0: { sorter: false}, 4: {sorter: false} } });
 
             $('input#id_search').quicksearch('table#dataTable tbody tr', {
                 'delay': 300,
@@ -77,6 +77,7 @@
                     <th class="table_images">{% trans "Object" %}</th> 
                     <th class="table_desc">{% trans "Name" %}</th> 
                     <th class="table_date">{% trans "Date" %}</th> 
+                    <th>{% trans "Group" %}</th>
                     <th>{% trans "Link" %}</th>
                 </tr> 
             </thead>
@@ -92,8 +93,12 @@
                         <img src="{% static "webgateway/img/folder16.png" %}" alt="{{ byId.otype }}" title="{{ c.name }}"/>
                         {% endifequal %}
                     </td>
-                    <td class="desc"><a>{{ c.name|truncatebefor:"65" }}</a></td>
+                    <td class="desc">
+                        <span style="color:red">ID: {{ c.id }}</span>
+                        <a>{{ c.name|truncatebefor:"65" }}</a>
+                    </td>
                     <td class="date">{{ c.getDate }}</td>
+                    <td class="group">{{ c.getDetails.group.name.val }}</td>
                     <td><a href="{% url 'webindex' %}?show={{ byId.otype }}-{{ c.id }}" title="{% trans 'Show in hierarchy view' %}">
                         {% trans "Browse" %}
                     </a></td>
@@ -107,6 +112,7 @@
                     </td>
                     <td class="desc"><a>{{ c.name|truncatebefor:"65" }}</a></td>
                     <td class="date">{{ c.getDate }}</td>                    
+                    <td class="group">{{ c.getDetails.group.name.val }}</td>
                     <td><a href="{% url 'webindex' %}?show=project-{{ c.id }}" title="{% trans 'Show in hierarchy view' %}">
                         {% trans "Browse" %}
                     </a></td>
@@ -119,6 +125,7 @@
                     </td>
                     <td class="desc"><a>{{ c.name|truncatebefor:"65" }}</a></td>
                     <td class="date">{{ c.getDate }}</td>                    
+                    <td class="group">{{ c.getDetails.group.name.val }}</td>
                     <td><a href="{% url 'webindex' %}?show=screen-{{ c.id }}" title="{% trans 'Show in hierarchy view' %}">
                         {% trans "Browse" %}
                     </a></td>
@@ -131,6 +138,7 @@
                     </td>
                     <td class="desc"><a>{{ c.name|truncatebefor:"65" }}</a></td>
                     <td class="date">{{ c.getDate }}</td>                    
+                    <td class="group">{{ c.getDetails.group.name.val }}</td>
                     <td><a href="{% url 'webindex' %}?show=dataset-{{ c.id }}" title="{% trans 'Show in hierarchy view' %}">
                         {% trans "Browse" %}
                     </a></td>
@@ -143,6 +151,7 @@
                     </td>
                     <td class="desc"><a>{{ c.name|truncatebefor:"65" }}</a></td>
                     <td class="date">{{ c.getDate }}</td>                    
+                    <td class="group">{{ c.getDetails.group.name.val }}</td>
                     <td><a href="{% url 'webindex' %}?show=plate-{{ c.id }}" title="{% trans 'Show in hierarchy view' %}">
                         {% trans "Browse" %}
                     </a></td>
@@ -155,6 +164,7 @@
                     </td>
                     <td class="desc"><a>{{ c.name|truncatebefor:"65" }}</a></td>
                     <td class="date">{{ c.getDate }}</td>                    
+                    <td class="group">{{ c.getDetails.group.name.val }}</td>
                     <td><a href="{% url 'webindex' %}?show=image-{{ c.id }}" title="{% trans 'Show in hierarchy view' %}">
                         {% trans "Browse" %}
                     </a></td>
