@@ -27,8 +27,11 @@ package org.openmicroscopy.shoola.agents.measurement.view;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Point;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -38,19 +41,27 @@ import java.util.Map.Entry;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.Icon;
+import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.filechooser.FileFilter;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.measurement.IconManager;
+import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.agents.measurement.util.TabPaneInterface;
 import org.openmicroscopy.shoola.agents.measurement.util.model.AnalysisStatsWrapper;
 import org.openmicroscopy.shoola.agents.measurement.util.model.AnalysisStatsWrapper.StatsType;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
+import org.openmicroscopy.shoola.env.log.Logger;
+import org.openmicroscopy.shoola.env.ui.UserNotifier;
+import org.openmicroscopy.shoola.util.filter.file.JPEGFilter;
+import org.openmicroscopy.shoola.util.filter.file.PNGFilter;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureBezierFigure;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureLineFigure;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureTextFigure;
@@ -59,6 +70,8 @@ import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
 import org.openmicroscopy.shoola.util.roi.model.util.MeasurementUnits;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
+import org.openmicroscopy.shoola.util.ui.graphutils.ChartObject;
 import org.openmicroscopy.shoola.util.ui.graphutils.HistogramPlot;
 import org.openmicroscopy.shoola.util.ui.graphutils.LinePlot;
 import org.openmicroscopy.shoola.util.ui.slider.OneKnobSlider;
@@ -141,7 +154,10 @@ class GraphPane
 	
 	/** Current shape. */
 	private ROIShape shape;
-	
+
+	/** Button to save the graph as JPEG or PNG.*/
+	private JButton export;
+
 	/**
 	 * Implemented as specified by the I/F {@link TabPaneInterface}
 	 * @see TabPaneInterface#getIndex()
@@ -226,10 +242,60 @@ class GraphPane
 			view.selectFigure(shape.getFigure());
 		state = READY;
 	}
-	
+
+	/**
+	 * Saves the graph as JPEG or PNG.
+	 *
+	 * @param file The file where to save the graph
+	 * @param type The format to save into.
+	 */
+	private void saveGraph(File file, int type)
+	{
+	    try {
+	        if (lineProfileChart != null) {
+	            lineProfileChart.saveAs(file, type);
+	        } else {
+	            histogramChart.saveAs(file, type);
+	        }
+	    } catch (Exception e) {
+	        Logger logger = MeasurementAgent.getRegistry().getLogger();
+	        logger.error(this, "Cannot save the graph: "+e.toString());
+	        UserNotifier un = MeasurementAgent.getRegistry().getUserNotifier();
+	        un.notifyInfo("Save Results", "An error occurred while saving " +
+	                "the graph.\nPlease try again.");
+	    }
+	}
+
 	/** Initializes the component composing the display. */
 	private void initComponents()
 	{
+	    export = new JButton("Export...");
+	    export.setToolTipText("Export the graph as JPEG or PNG.");
+	    export.addActionListener(new ActionListener() {
+            
+            @Override
+            public void actionPerformed(ActionEvent arg0) {
+                List<FileFilter> filterList = new ArrayList<FileFilter>();
+                filterList.add(new JPEGFilter());
+                filterList.add(new PNGFilter());
+                FileChooser chooser =
+                        new FileChooser(view, FileChooser.SAVE, "Save Graph",
+                                "Save the graph as JPEG or PNG", filterList);
+                try {
+                    File f = UIUtilities.getDefaultFolder();
+                    if (f != null) chooser.setCurrentDirectory(f);
+                } catch (Exception ex) {}
+                if (chooser.showDialog() != JFileChooser.APPROVE_OPTION) return;
+                File  file = chooser.getFormattedSelectedFile();
+                FileFilter filter = chooser.getSelectedFilter();
+
+                if (filter instanceof JPEGFilter) {
+                    saveGraph(file, ChartObject.SAVE_AS_JPEG);
+                } else if (filter instanceof PNGFilter) {
+                    saveGraph(file, ChartObject.SAVE_AS_PNG);
+                }
+            }
+        });
 		zSlider = new OneKnobSlider();
 		zSlider.setOrientation(JSlider.VERTICAL);
 		zSlider.setPaintTicks(false);
@@ -268,6 +334,7 @@ class GraphPane
 		centrePanel.add(zSlider);
 		centrePanel.add(Box.createHorizontalStrut(5));
 		centrePanel.add(mainPanel);
+		centrePanel.add(export);
 		add(centrePanel);
 		add(tSlider);
 	}
