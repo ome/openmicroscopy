@@ -45,6 +45,16 @@
         $(document).ready(function() 
             {
                 
+                var highlightCurrent = function() {
+                    var userId = {{ userId }};
+                    var selected = $.grep($('#id_members').data('chosen').results_data, function(item){
+                        if (parseInt(item.value) === userId) {
+                            $("#id_owners_chzn_c_"+item.array_index).addClass('search-choice-current').find("a").first().unbind("click").remove();                            
+                            $("#id_members_chzn_c_"+item.array_index).addClass('search-choice-current').find("a").first().unbind("click").remove();                            
+                        }
+                    });
+                }
+                
                 // Since we want to disable removal of 'system' users from chosen, this hides the 'X'
                 var admins = {{ admins|jsonify|safe }};
                 var hideSystemUserX = function() {
@@ -62,12 +72,14 @@
                             if(item.selected && item.value === data.deselected) {
                                 $('#id_owners option[value='+data.deselected+']').prop('selected', false);
                                 $("#id_owners").trigger("liszt:updated");
+                                highlightCurrent();
                             }
                         });
                     }
                     hideSystemUserX();
                 });
                 
+                highlightCurrent();
                 hideSystemUserX();
                 
                 $('#id_permissions_0').click(function(){
