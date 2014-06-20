@@ -3452,7 +3452,7 @@ class _BlitzGateway (object):
     ###################
     # Searching stuff #
 
-    def searchObjects(self, obj_types, text, created=None, fields=None, batchSize=1000, page=0, searchGroup=None, ownedBy=None):
+    def searchObjects(self, obj_types, text, created=None, fields=[], batchSize=1000, page=0, searchGroup=None, ownedBy=None):
         """
         Search objects of type "Project", "Dataset", "Image", "Screen", "Plate"
         Returns a list of results
