@@ -583,6 +583,7 @@ def load_searching(request, form=None, conn=None, **kwargs):
 
         try:
             searchById = long(query_search)
+            conn.SERVICE_OPTS.setOmeroGroup(-1)
             for t in onlyTypes:
                 if t in ('project', 'dataset', 'image', 'screen', 'plate'):
                     obj = conn.getObject(t, searchById)
