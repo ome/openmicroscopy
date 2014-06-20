@@ -28,7 +28,7 @@ class HqlControl(BaseControl):
         parser.set_defaults(func=self.__call__)
         parser.add_argument("query", nargs="?", help="Single query to run")
         parser.add_argument(
-            "-q", "--quiet", action="store_true", help="No user input")
+            "--quiet", action="store_true", help="No user input")
         parser.add_argument(
             "--admin", help="Run an admin query (deprecated; use 'all')",
             default=False, action="store_true")

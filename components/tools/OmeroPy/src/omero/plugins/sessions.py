@@ -168,10 +168,6 @@ class SessionsControl(BaseControl):
             help="Timeout for session. After this many inactive seconds, the"
             " session will be closed")
         login.add_argument(
-            "-q", dest="quiet", action="store_true",
-            help="Quiet mode. Causes most warning and diagnostic messages to "
-            " be suppressed.")
-        login.add_argument(
             "connection", nargs="?",
             help="Connection string. See extended help for examples")
         self._configure_dir(login)
