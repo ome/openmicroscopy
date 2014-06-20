@@ -313,6 +313,7 @@ class Context:
             self.params = {}
         self.event = get_event(name="CLI")
         self.dir = OMERODIR
+        self.quiet = False
         self.isdebug = DEBUG # This usage will go away and default will be False
         self.topics = {"debug":"""
 
@@ -443,7 +444,8 @@ class Context:
         """
         Expects a single string as argument.
         """
-        self.safePrint(text, sys.stderr, newline)
+        if not self.quiet:
+            self.safePrint(text, sys.stderr, newline)
 
     def dbg(self, text, newline = True, level = 1):
         """
@@ -943,6 +945,8 @@ class CLI(cmd.Cmd, Context):
         args = self.parser.parse_args(args, previous_args)
         args.prog = self.parser.prog
         self.waitForPlugins()
+
+        self.quiet = getattr(args, "quiet", False)
 
         debug_str = getattr(args, "debug", "")
         debug_opts = set([x.lower() for x in debug_str.split(",")])
