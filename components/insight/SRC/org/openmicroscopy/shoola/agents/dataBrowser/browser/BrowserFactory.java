@@ -5,7 +5,7 @@
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *      This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -25,10 +25,7 @@ package org.openmicroscopy.shoola.agents.dataBrowser.browser;
 
 
 //Java imports
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Map.Entry;
 import java.util.Set;
 
 
@@ -52,7 +49,7 @@ import java.util.Set;
 public class BrowserFactory
 {
 
-	/**
+        /**
      * Creates a new {@link Browser}.
      * 
      * @param topNodes  Each node is the top node of a visualization tree.
@@ -61,25 +58,14 @@ public class BrowserFactory
      */
     public static Browser createBrowser(Set topNodes)
     {
-    	 if (topNodes == null) throw new NullPointerException("No top nodes.");
+         if (topNodes == null) throw new NullPointerException("No top nodes.");
          
          //Create the View.  Add each visualization tree to the root display.
          RootDisplay view = new RootDisplay();
          Iterator i = topNodes.iterator();
-         while (i.hasNext()) {
-             Object obj = i.next();
-             if(ImageDisplay.class.isAssignableFrom(obj.getClass())) {
-                 view.addChildDisplay((ImageDisplay) i.next());
-             }
-             if(obj instanceof HashSet) {
-                 HashSet set = (HashSet)obj;
-                 for(Object obj2 : set) {
-                     if(ImageDisplay.class.isAssignableFrom(obj2.getClass())) {
-                         view.addChildDisplay((ImageDisplay) obj2);
-                     }
-                 }
-             }
-         }
+         while (i.hasNext())
+             view.addChildDisplay((ImageDisplay) i.next());
+
          
          //Now the Model.  In an ideal world the Model wouldn't depend on the
          //View; however right now the dependence is basically insignificant
