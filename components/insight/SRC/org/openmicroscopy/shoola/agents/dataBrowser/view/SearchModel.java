@@ -81,8 +81,7 @@ class SearchModel
 			throw new IllegalArgumentException("No results.");
 		this.results = results;
 		numberOfImages = 0;
-//		Set<ImageDisplay> vis = new HashSet<ImageDisplay>();
-		Set vis = new HashSet();
+		Set<ImageDisplay> vis = new HashSet<ImageDisplay>();
 		Iterator<Entry<SecurityContext, Collection<DataObject>>> 
 		i = results.entrySet().iterator();
 		Entry<SecurityContext, Collection<DataObject>> e;
@@ -97,13 +96,11 @@ class SearchModel
 			objects = e.getValue();
 			numberOfImages += objects.size();
 			if (singleGroup) {
-				 //vis.addAll(DataBrowserTranslator.transformObjects(objects));
-			    vis.addAll(DataBrowserTranslator.transformHierarchy(objects));
+				 vis.addAll(DataBrowserTranslator.transformObjects(objects));
 			} else {
 				g = getGroup(ctx.getGroupID());
 				if (g != null && objects != null && objects.size() > 0)
-				    //vis.add(DataBrowserTranslator.transformObjects(objects, g));
-				    vis.add(DataBrowserTranslator.transformHierarchy(objects));
+				    vis.add(DataBrowserTranslator.transformObjects(objects, g));
 			}
 		}
 		browser = BrowserFactory.createBrowser(vis);
