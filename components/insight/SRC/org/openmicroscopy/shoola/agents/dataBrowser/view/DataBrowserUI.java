@@ -87,6 +87,9 @@ class DataBrowserUI
 	/** ID to select the fields view. */
 	static final int			FIELDS_VIEW = 2;
 	
+	/** ID to select the fields view. */
+        static final int                        SEARCH_VIEW = 3;
+	
 	/** ID to sort the node alphabetically. */
 	static final int			SORT_BY_NAME = 2;
 	

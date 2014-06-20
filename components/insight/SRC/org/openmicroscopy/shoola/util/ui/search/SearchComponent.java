@@ -45,14 +45,21 @@ import javax.swing.JSeparator;
 
 
 
+
+
+
+
 //Third-party libraries
 import info.clearthought.layout.TableLayout;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.jdesktop.swingx.JXBusyLabel;
-
+import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
+import org.openmicroscopy.shoola.agents.treeviewer.view.SearchEvent;
 import org.openmicroscopy.shoola.agents.util.finder.FinderFactory;
 import org.openmicroscopy.shoola.env.LookupNames;
+import org.openmicroscopy.shoola.env.event.AgentEvent;
+import org.openmicroscopy.shoola.env.event.AgentEventListener;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.SeparatorPane;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -81,7 +88,7 @@ import pojos.WellData;
  */
 public class SearchComponent
 	extends JPanel
-	implements ActionListener
+	implements ActionListener, AgentEventListener
 {
 
 	/** Identifies the text to filter by untagged data. */
@@ -379,6 +386,8 @@ public class SearchComponent
 	public SearchComponent(SearchContext context)
 	{
 		searchContext = context;
+		
+		TreeViewerAgent.getRegistry().getEventBus().register(this, SearchEvent.class);
 	}
 	
 	/** Creates a new instance. */
@@ -673,5 +682,18 @@ public class SearchComponent
 
 	/** Subclasses should override this method. */
 	protected void help() {}
+
+    @Override
+    public void eventFired(AgentEvent e) {
+        if(e instanceof SearchEvent) {
+            SearchEvent evt = (SearchEvent) e;
+            if(evt.getQuery().trim().length()>0) {
+                uiDelegate.reset();
+                uiDelegate.setTerms(Collections.singletonList(evt.getQuery()));
+                search();
+            }
+        } 
+        
+    }
 	
 }

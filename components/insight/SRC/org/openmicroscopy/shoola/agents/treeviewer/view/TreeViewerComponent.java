@@ -1136,7 +1136,6 @@ class TreeViewerComponent
 		browser.setDisplayed(!browser.isDisplayed());
 		removeEditor();
 	}
-
 	
 	/**
 	 * Implemented as specified by the {@link TreeViewer} interface.

@@ -31,6 +31,10 @@ import java.awt.Insets;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -42,6 +46,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -57,10 +62,15 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
+import javax.swing.JTextField;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.SwingConstants;
 import javax.swing.border.BevelBorder;
+
+
+
+
 
 //Third-party libraries
 import org.apache.commons.collections.CollectionUtils;
@@ -117,6 +127,10 @@ class ToolBar
 
     /** Text indicating to display the groups.*/ 
     private static final String GROUP_DISPLAY_TEXT = "Display Groups";
+    
+    private static final int SEARCHFIELD_WIDTH = 12;
+    
+    private static final String SEARCHFIELD_TEXT = "Quick Search ...";
 
     /** Reference to the control. */
     private TreeViewerControl controller;
@@ -166,6 +180,9 @@ class ToolBar
     /** Label indicating the import status.*/
     private JXBusyLabel importLabel;
 
+    /** The terms to search for. */
+    private JTextField                              searchField;
+    
     /**
      * Sets either the user display or group display.
      *
@@ -299,6 +316,10 @@ class ToolBar
         controller.setSelectedGroups(toAdd, toRemove);
     }
 
+    private void search() {
+        TreeViewerAgent.getRegistry().getEventBus().post(new SearchEvent(searchField.getText()));
+    }
+    
     /**
      * Formats the header.
      * 
@@ -731,6 +752,8 @@ class ToolBar
         JPanel p = new JPanel();
         p.setBorder(null);
         p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
+        p.add(searchField);
+        p.add(Box.createHorizontalStrut(50));
         p.add(importFailureLabel);
         p.add(Box.createHorizontalStrut(5));
         p.add(importSuccessLabel);
@@ -768,8 +791,46 @@ class ToolBar
         sorter = new ViewerSorter();
         sorter.setCaseSensitive(true);
         popupMenu = new ScrollablePopupMenu();
+        
+        searchField = initSearchField();
     }
 
+    private JTextField initSearchField() {
+        final JTextField searchField = new JTextField(SEARCHFIELD_WIDTH);
+        searchField.setText(SEARCHFIELD_TEXT);
+        
+        searchField.addKeyListener(new KeyAdapter() {
+            public void keyPressed(KeyEvent e) {
+                switch (e.getKeyCode()) {
+                    case KeyEvent.VK_ENTER:
+                        search();
+                }
+            }
+        });
+        
+        searchField.addFocusListener(new FocusListener() {
+            
+            @Override
+            public void focusLost(FocusEvent e) {
+                if(searchField.getText().trim().equals("")) {
+                    searchField.setText(SEARCHFIELD_TEXT);
+                }
+            }
+            
+            @Override
+            public void focusGained(FocusEvent e) {
+                if(searchField.getText().equals(SEARCHFIELD_TEXT)) {
+                    searchField.setText("");
+                }
+                else {
+                    searchField.selectAll();
+                }
+            }
+        });
+        
+        return searchField;
+    }
+    
     /**
      * Creates a new instance.
      * 

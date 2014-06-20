@@ -357,7 +357,7 @@ public interface TreeViewer
 	 * @param browserType The browser's type.
 	 */
 	public void displayBrowser(int browserType);
-
+	
 	/**
 	 * Brings up the editor to create a data object.
 	 * 
