@@ -670,6 +670,7 @@ def manage_group(request, action, gid=None, conn=None, **kwargs):
     else:
         return HttpResponseRedirect(reverse("wagroups"))
     
+    context['userId'] = conn.getEventContext().userId
     context['template'] = template
     return context
 
