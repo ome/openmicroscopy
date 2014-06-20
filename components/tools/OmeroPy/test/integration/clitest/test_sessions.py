@@ -59,29 +59,45 @@ class TestSessions(CLITest):
 
     # Login subcommand
     # ========================================================================
-    def testLoginStderr(self, capsys):
+    @pytest.mark.parametrize("quiet", [True, False])
+    def testLoginStderr(self, capsys, quiet):
         user = self.new_user()
         self.set_login_args(user)
+        if quiet:
+            self.args += ["-q"]
         self.cli.invoke(self.args, strict=True)
         o, e = capsys.readouterr()
         assert not o
-        assert e == 'Created ' + self.get_connection_string()
+        if quiet:
+            assert not e
+        else:
+            assert e == 'Created ' + self.get_connection_string()
 
         join_args = ["sessions", "login", self.conn_string]
+        if quiet:
+            join_args += ["-q"]
         self.cli.invoke(join_args, strict=True)
         o, e = capsys.readouterr()
         assert not o
-        assert e == 'Using ' + self.get_connection_string()
+        if quiet:
+            assert not e
+        else:
+            assert e == 'Using ' + self.get_connection_string()
 
         host = self.root.getProperty("omero.host")
         port = self.root.getProperty("omero.port")
         ec = self.cli.controls["sessions"].ctx._event_context
         join_args = ["sessions", "login", "-k", ec.sessionUuid,
                      "%s:%s" % (host, port)]
+        if quiet:
+            join_args += ["-q"]
         self.cli.invoke(join_args, strict=True)
         o, e = capsys.readouterr()
         assert not o
-        assert e == 'Joined ' + self.get_connection_string()
+        if quiet:
+            assert not e
+        else:
+            assert e == 'Joined ' + self.get_connection_string()
 
     def testLoginAsRoot(self):
         user = self.new_user()
