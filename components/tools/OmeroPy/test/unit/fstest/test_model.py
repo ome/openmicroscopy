@@ -57,24 +57,20 @@ class TestModel(object):
         the state of the import.
         """
 
-        # This should be passed in by the client
-        clientVersionInfo = {}
-
         # This will be created server-side
-        serverInfo = {
-            'bioformatsReader' : rstring("ExampleReader"),
-            'bioformatsVersion' : rstring("v4.4.5 git: abc123"),
-            'omeroVersion' : rstring("v.4.4.4 git: def456"),
-            'osName' : rstring("Linux"),
-            'osArchitecture' : rstring("amd64"),
-            'osVersion' : rstring("2.6.38-8-generic"),
-            'locale': rstring("en_US")
-        }
+        serverInfo = {}
+        serverInfo['bioformatsReader'] = rstring("ExampleReader")
+        serverInfo['bioformatsVersion'] = rstring("v4.4.5 git: abc123"),
+        serverInfo['omeroVersion'] = rstring("v.4.4.4 git: def456"),
+        serverInfo['osName'] = rstring("Linux"),
+        serverInfo['osArchitecture'] = rstring("amd64"),
+        serverInfo['osVersion'] = rstring("2.6.38-8-generic"),
+        serverInfo['locale'] = rstring("en_US")
 
         # Now that the basics are setup, we
         # need to link to all of the original files.
         fs = omero.model.FilesetI()
-        fs.addFilesetEntry(self.mkentry("main_file.txt")) # First!
+        fs.addFilesetEntry(self.mkentry("main_file.txt"))  # First!
         fs.addFilesetEntry(self.mkentry("uf1.data"))
         fs.addFilesetEntry(self.mkentry("uf2.data"))
 
@@ -86,7 +82,7 @@ class TestModel(object):
         # step, and must be completed by the clients
         # before any other activity.
         job1 = omero.model.UploadJobI()
-        job1.scheduledFor = rtime(time.time() * 1000) # Now
+        job1.scheduledFor = rtime(time.time() * 1000)  # Now
         # Set this "started" since we're expecting
         # upload to be in process.
 
