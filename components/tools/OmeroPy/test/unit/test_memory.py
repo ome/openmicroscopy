@@ -30,7 +30,6 @@ import pytest
 from omero.config import ConfigXml, xml
 
 from omero.install.memory import adjust_settings
-from omero.install.memory import AdaptiveStrategy
 from omero.install.memory import ManualStrategy
 from omero.install.memory import PercentStrategy
 from omero.install.memory import Settings
@@ -169,7 +168,7 @@ class AdjustFixture(object):
         for k, v in self.output.items():
             assert k in rv
             found = rv[k]
-            settings = found.pop(0)
+            found.pop(0)  # settings
             assert v == found, "%s.%s: %s <> %s" % (self.name, k,
                                                     v, found)
 

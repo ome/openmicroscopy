@@ -787,18 +787,19 @@ present, the user will enter a console""")
             for k, v in sorted(rv.items()):
                 sb = " ".join([str(x) for x in v])
                 self.ctx.out("%s=%s" % (k, sb))
+
         def clear_tail(elem):
             elem.tail = ""
             if elem.text is not None and not elem.text.strip():
                 elem.text = ""
             for child in elem.getchildren():
                 clear_tail(child)
+
         clear_tail(template_xml)
         config2.write_element(template_xml)
         config2.XML = None  # Prevent re-saving
         config2.close()
         config.save()
-
 
     @with_config
     def diagnostics(self, args, config):
