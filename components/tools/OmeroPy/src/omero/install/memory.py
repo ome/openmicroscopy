@@ -291,3 +291,81 @@ def adjust_settings(config,
             for k, v in settings.items():
                 x["%s.%s" % (prefix, k)] = v
     return rv
+
+
+def usage_charts(path,
+                 min=10, max=16,
+                 Strategy=PercentStrategy, name="blitz"):
+    # See http://matplotlib.org/examples/pylab_examples/anscombe.html
+
+    from pylab import array
+    from pylab import axis
+    from pylab import gca
+    from pylab import subplot
+    from pylab import plot
+    from pylab import setp
+    from pylab import savefig
+    from pylab import text
+
+    points = 10
+    x = array([2**(x/points)/1000 \
+               for x in range(min*points, max*points)])
+    y_configs = (
+        (Settings({}), 'A'),
+        (Settings({"percent": "20"}), 'B'),
+        (Settings({}), 'C'),
+        (Settings({"mem_total": "10000"}), 'D'),
+    )
+
+    def f(cfg):
+        s = Strategy(name, settings=cfg[0])
+        y = []
+        for total in x:
+            method = lambda: (total, total)
+            y.append(s.calculate_heap_size(method))
+        return y
+
+    y1 = f(y_configs[0])
+    y2 = f(y_configs[1])
+    y3 = f(y_configs[2])
+    y4 = f(y_configs[3])
+
+    axis_values = [0, 20, 2, 20]
+    tick_values = (4, 8, 12, 16)
+
+    def ticks_f():
+        setp(gca(), yticks=tick_values, xticks=tick_values)
+
+    def text_f(which):
+        cfg = y_configs[which]
+        s = cfg[0]
+        txt = "%s %sGB\n" % (
+            cfg[1], int(s.mem_total)/1000,
+        )
+        text(2, 14, txt, fontsize=20)
+
+    subplot(221)
+    plot(x, y1)
+    axis(axis_values)
+    text_f(0)
+    ticks_f()
+
+    subplot(222)
+    plot(x, y2)
+    axis(axis_values)
+    text_f(1)
+    ticks_f()
+
+    subplot(223)
+    plot(x, y3)
+    axis(axis_values)
+    text_f(2)
+    ticks_f()
+
+    subplot(224)
+    plot(x, y4)
+    axis(axis_values)
+    text_f(3)
+    ticks_f()
+
+    savefig(path)

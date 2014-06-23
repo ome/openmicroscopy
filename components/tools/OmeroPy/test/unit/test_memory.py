@@ -34,6 +34,7 @@ from omero.install.memory import PercentStrategy
 from omero.install.memory import Settings
 from omero.install.memory import Strategy
 from omero.install.memory import strip_prefix
+from omero.install.memory import usage_charts
 
 from omero.util.temp_files import create_path
 
@@ -184,3 +185,13 @@ class TestAdjustStrategy(object):
             fixture.validate(rv)
         finally:
             config.close()
+
+
+class TestChart(object):
+
+    def test_percent_chart(self):
+        try:
+            usage_charts("target/charts.png")
+        except ImportError:
+            # Requires matplotlib, etc
+            pass
