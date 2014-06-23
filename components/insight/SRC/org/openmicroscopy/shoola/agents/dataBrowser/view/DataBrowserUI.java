@@ -308,7 +308,13 @@ class DataBrowserUI
 				break;
 			case COLUMNS_VIEW:
 				ImageTableView v = model.getTableView();
-				if (v != null) v.refreshTable();
+				if (v != null) 
+				    v.refreshTable();
+				break;
+			case SEARCH_VIEW:
+			    SearchResultView srv = model.getSearchResultView();
+                            if (srv != null)
+                                srv.refreshTable();
     	}
     }
     
@@ -373,6 +379,16 @@ class DataBrowserUI
 				v.validate();
 				v.repaint();
 				add(v, BorderLayout.CENTER);
+				break;
+			case SEARCH_VIEW:
+			    selectedView = index;
+			    SearchResultView sv = model.getSearchResultView();
+			    if(sv==null) {
+			        sv = model.createSearchResultView();
+			    }
+			    sv.refreshTable();
+			    add(sv, BorderLayout.CENTER);
+                            break;
 		}
     	add(statusBar, BorderLayout.SOUTH);
     	toolBar.setSelectedViewIndex(selectedView);

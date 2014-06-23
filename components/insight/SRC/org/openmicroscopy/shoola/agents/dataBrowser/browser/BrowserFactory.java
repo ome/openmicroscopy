@@ -25,8 +25,12 @@ package org.openmicroscopy.shoola.agents.dataBrowser.browser;
 
 
 //Java imports
+import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
+
+import pojos.DataObject;
 
 
 //Third-party libraries
