@@ -416,6 +416,15 @@ public interface SqlAction {
 
     void deferConstraints();
 
+    /**
+     * Returns a map of Share ID to Share data blob.
+     *
+     * @param ids
+     *            IDs of Shares for which data blobs are to be returned.
+     * @return map of ID to data blob.
+     */
+    Map<Long, byte[]> getShareData(List<Long> ids);
+
     Integer deleteMapProperty(String table, String property, long id);
 
     //
@@ -952,6 +961,30 @@ public interface SqlAction {
                         experimenterID, null, dn);
             }
 
+        }
+
+        public Map<Long, byte[]> getShareData(List<Long> ids) {
+            final Map<Long, byte[]> rv = new HashMap<Long, byte[]>();
+            if (ids == null || ids.isEmpty()) {
+                return rv;
+            }
+
+            final Map<String, List<Long>> params = new HashMap<String, List<Long>>();
+            params.put("ids", ids);
+
+            RowMapper<Object> mapper = new RowMapper<Object>() {
+                @Override
+                public Object mapRow(ResultSet arg0, int arg1)
+                        throws SQLException {
+                    Long id = arg0.getLong(1);
+                    byte[] data = arg0.getBytes(2);
+                    rv.put(id, data);
+                    return null;
+                }
+            };
+            _jdbc().query(_lookup("share_data"), //$NON-NLS-1$
+                    mapper, params);
+            return rv;
         }
     }
 
