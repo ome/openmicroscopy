@@ -5086,79 +5086,88 @@ class OMEROGateway
                         
                         StringBuilder queryString = new StringBuilder();
                         
-                        if (scopeId == SearchParameters.TAGS || scopeId==SearchParameters.ANNOTATION) {
-                            List<String> terms = formatText(searchTerms, "tag");
-                            if(queryString.length()>0) 
-                                queryString.append( " OR ");
-                            queryString.append(" ( ");
-                            for(String term : terms) 
-                                queryString.append(term+" ");
-                            queryString.append(" ) ");
-                        } 
+//                        if (scopeId == SearchParameters.TAGS || scopeId==SearchParameters.ANNOTATION) {
+//                            List<String> terms = formatText(searchTerms, "tag");
+//                            if(queryString.length()>0) 
+//                                queryString.append( " OR ");
+//                            queryString.append(" ( ");
+//                            for(String term : terms) 
+//                                queryString.append(term+" ");
+//                            queryString.append(" ) ");
+//                        } 
                         if (scopeId == SearchParameters.NAME) {
                             List<String> terms = formatText(searchTerms, "name");
-                            if(queryString.length()>0) 
-                                queryString.append( " OR ");
-                            queryString.append(" ( ");
+//                            if(queryString.length()>0) 
+//                                queryString.append( " OR ");
+//                            queryString.append(" ( ");
                             for(String term : terms) 
                                 queryString.append(term+" ");
-                            queryString.append(" ) ");
+//                            queryString.append(" ) ");
                         } 
                         if (scopeId == SearchParameters.DESCRIPTION) {
                             List<String> terms = formatText(searchTerms, "description");
-                            if(queryString.length()>0) 
-                                queryString.append( " OR ");
-                            queryString.append(" ( ");
+//                            if(queryString.length()>0) 
+//                                queryString.append( " OR ");
+//                            queryString.append(" ( ");
                             for(String term : terms) 
                                 queryString.append(term+" ");
-                            queryString.append(" ) ");
+//                            queryString.append(" ) ");
                         } 
-                        if (scopeId == SearchParameters.FILE_ANNOTATION || scopeId==SearchParameters.ANNOTATION) {
-                            List<String> terms = formatText(searchTerms, "file.name");
-                            if(queryString.length()>0) 
-                                queryString.append( " OR ");
-                            queryString.append(" ( ");
-                            for(String term : terms) 
-                                queryString.append(term+" ");
-                            queryString.append(" ) ");
-                            
-                            terms = formatText(searchTerms, "file.contents");
-                            if(queryString.length()>0) 
-                                queryString.append( " OR ");
-                            queryString.append(" ( ");
-                            for(String term : terms) 
-                                queryString.append(term+" ");
-                            queryString.append(" ) ");
-                        } 
-                        if (scopeId == SearchParameters.TEXT_ANNOTATION || scopeId==SearchParameters.ANNOTATION) {
+//                        if (scopeId == SearchParameters.FILE_ANNOTATION || scopeId==SearchParameters.ANNOTATION) {
+//                            List<String> terms = formatText(searchTerms, "file.name");
+//                            if(queryString.length()>0) 
+//                                queryString.append( " OR ");
+//                            queryString.append(" ( ");
+//                            for(String term : terms) 
+//                                queryString.append(term+" ");
+//                            queryString.append(" ) ");
+//                            
+//                            terms = formatText(searchTerms, "file.contents");
+//                            if(queryString.length()>0) 
+//                                queryString.append( " OR ");
+//                            queryString.append(" ( ");
+//                            for(String term : terms) 
+//                                queryString.append(term+" ");
+//                            queryString.append(" ) ");
+//                        } 
+//                        if (scopeId == SearchParameters.TEXT_ANNOTATION || scopeId==SearchParameters.ANNOTATION) {
+//                            List<String> terms = formatText(searchTerms, "annotation");
+//                            if(queryString.length()>0) 
+//                                queryString.append( " OR ");
+//                            queryString.append(" ( ");
+//                            for(String term : terms) 
+//                                queryString.append(term+" ");
+//                            queryString.append(" ) ");
+//                        } 
+                        if (scopeId==SearchParameters.ANNOTATION) {
                             List<String> terms = formatText(searchTerms, "annotation");
-                            if(queryString.length()>0) 
-                                queryString.append( " OR ");
-                            queryString.append(" ( ");
+//                            if(queryString.length()>0) 
+//                                queryString.append( " OR ");
+//                            queryString.append(" ( ");
                             for(String term : terms) 
                                 queryString.append(term+" ");
-                            queryString.append(" ) ");
+//                            queryString.append(" ) ");
                         } 
-                        if (scopeId == SearchParameters.URL_ANNOTATION || scopeId==SearchParameters.ANNOTATION) {
-                            List<String> terms = formatText(searchTerms, "url");
-                            if(queryString.length()>0) 
-                                queryString.append( " OR ");
-                            queryString.append(" ( ");
-                            for(String term : terms) 
-                                queryString.append(term+" ");
-                            queryString.append(" ) ");
-                        } 
+//                        if (scopeId == SearchParameters.URL_ANNOTATION || scopeId==SearchParameters.ANNOTATION) {
+//                            List<String> terms = formatText(searchTerms, "url");
+//                            if(queryString.length()>0) 
+//                                queryString.append( " OR ");
+//                            queryString.append(" ( ");
+//                            for(String term : terms) 
+//                                queryString.append(term+" ");
+//                            queryString.append(" ) ");
+//                        } 
                         if (scopeId == SearchParameters.CUSTOMIZED) {
                             List<String> terms = formatText(searchTerms, "");
-                            if(queryString.length()>0) 
-                                queryString.append( " OR ");
-                            queryString.append(" ( ");
+//                            if(queryString.length()>0) 
+//                                queryString.append( " OR ");
+//                            queryString.append(" ( ");
                             for(String term : terms) 
                                 queryString.append(term+" ");
-                            queryString.append(" ) ");
+//                            queryString.append(" ) ");
                         }
                         
-                        System.out.println("Search query (scope:"+scopeId+"): "+queryString.toString());
+                        System.out.println("Searching for type:"+type.getSimpleName()+" in group:"+ctx.getGroupID()+" for scope:"+scopeId+" query:"+queryString.toString());
                         
                         service.byFullText(queryString.toString());
     
