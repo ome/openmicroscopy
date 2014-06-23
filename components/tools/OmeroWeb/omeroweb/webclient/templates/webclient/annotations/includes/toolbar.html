@@ -104,14 +104,14 @@
 
             {% if manager.image %}
               <li id="download-jpeg">
-                <a href="{% url 'web_render_image_download' manager.image.id %}" title="Download as JPEG">JPEG</a>
+                <a href="{% url 'web_render_image_download' manager.image.id %}" title="Download as JPEG">Save As JPEG</a>
               </li>
             {% else %}
               {% if filesetInfo %}
               <li>
                 <a href="#"
                   onClick="return OME.openPopup('{% url 'download_placeholder' %}?ids={{ link_string }}&format=jpeg');"
-                  title="Download as JPEGs (zip)">JPEG</a>
+                  title="Download as JPEGs (zip)">Save As JPEG</a>
               </li>
               {% endif %}
             {% endif %}
