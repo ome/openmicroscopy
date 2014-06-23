@@ -24,6 +24,7 @@ Automatic configuration of memory settings for Java servers.
 """
 
 from types import StringType
+
 import logging
 
 LOGGER = logging.getLogger("omero.install.memory")
@@ -56,6 +57,7 @@ def strip_prefix(map, prefix=("omero", "mem")):
         __strip_prefix(k, v, prefix, rv)
     return rv
 
+
 class StrategyRegistry(dict):
 
     def __init__(self, *args, **kwargs):
@@ -77,7 +79,9 @@ class Settings(object):
                 ("strategy", PercentStrategy),
                 ("perm_gen", "128m"),
                 ("heap_dump", "off"),
-                ("heap_size", "512m")):
+                ("heap_size", "512m"),
+                ("mem_total", "16000"),
+        ):
             setattr(self, name, self.lookup(name, default))
 
     def lookup(self, name, default=None):
@@ -177,19 +181,29 @@ class PercentStrategy(Strategy):
         if method is None:
             method = self.system_memory_mb
         available, total = method()
+
         other = self.PERCENT_DEFAULTS.get("other", "1")
         default = self.PERCENT_DEFAULTS.get(self.name, other)
         percent = self.settings.lookup("percent", default)
-        return total * int(percent) / 100
+        calculated = total * int(percent) / 100
+        return calculated
 
     def system_memory_mb(self):
         """
         Returns a tuple, in MB, of available and total memory.
         """
-        pymem = self._system_memory_mb_psutil()
-        if pymem:
-            return pymem
-        return self._system_memory_mb_java()
+
+        available, total = None, None
+        if self.settings.mem_total:
+            total = long(self.settings.mem_total)
+        else:
+            pymem = self._system_memory_mb_psutil()
+            if pymem is not None:
+                available, total = pymem
+            else:
+                available, total = self._system_memory_mb_java()
+
+        return available, total
 
     def _system_memory_mb_psutil(self):
         try:
