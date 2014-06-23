@@ -112,7 +112,6 @@ class Settings(object):
         # Otherwise, we want to update the value
         setattr(self, key, value)
         self.sources[key] = "overwrite"
-        self.settings_map[key] = value
 
     def was_set(self, key):
         return self.sources.get(key, "unknown") != "default"
@@ -193,21 +192,22 @@ class PercentStrategy(Strategy):
     Strategy based on a percent of available memory.
     """
 
-    PERCENT_DEFAULTS = {
-        "blitz": 40,
-        "pixeldata": 20,
-        "indexer": 10,
-        "repository": 10,
-        "other": 1,
-    }
+    PERCENT_DEFAULTS = (
+        ("blitz", 40),
+        ("pixeldata", 20),
+        ("indexer", 10),
+        ("repository", 10),
+        ("other", 1),
+    )
 
     def __init__(self, name, settings=None):
         super(PercentStrategy, self).__init__(name, settings)
+        self.defaults = dict(self.PERCENT_DEFAULTS)
         self.settings.heap_size = "%sm" % self.calculate_heap_size()
 
     def get_percent(self):
-        other = self.PERCENT_DEFAULTS.get("other", "1")
-        default = self.PERCENT_DEFAULTS.get(self.name, other)
+        other = self.defaults.get("other", "1")
+        default = self.defaults.get(self.name, other)
         percent = self.settings.lookup("percent", default)
         return percent
 
@@ -323,21 +323,20 @@ class AdaptiveStrategy(PercentStrategy):
         if settings is None:
             settings = Settings()
         if total <= 4000:
-            self.PERCENT_DEFAULTS["blitz"] = 25
-            self.PERCENT_DEFAULTS["pixeldata"] = 25
+            self.defaults["blitz"] = 25
+            self.defaults["pixeldata"] = 25
         elif total <= 8000:
-            self.PERCENT_DEFAULTS["blitz"] = 35
-            self.PERCENT_DEFAULTS["pixeldata"] = 25
+            self.defaults["blitz"] = 35
+            self.defaults["pixeldata"] = 25
             settings.overwrite("perm_gen", "512m")
         elif total <= 16000:
-            self.PERCENT_DEFAULTS["blitz"] = 35
-            self.PERCENT_DEFAULTS["pixeldata"] = 35
+            self.defaults["blitz"] = 35
+            self.defaults["pixeldata"] = 35
             settings.overwrite("perm_gen", "512m")
         else:
-            self.PERCENT_DEFAULTS["blitz"] = 25
-            self.PERCENT_DEFAULTS["pixeldata"] = 25
+            self.defaults["blitz"] = 25
+            self.defaults["pixeldata"] = 25
             settings.overwrite("perm_gen", "1g")
-
 
 
 STRATEGY_REGISTRY["manual"] = ManualStrategy
