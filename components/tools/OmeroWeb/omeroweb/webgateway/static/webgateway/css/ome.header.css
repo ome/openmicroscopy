@@ -65,6 +65,8 @@
 	 background:linear-gradient(top, hsl(212,8%,49%) 0%,hsl(212,8%,34%) 100%); /* W3C */ 
      behavior: url(../../3rdparty/pie/PIE.htc);
 	 font-family: Helvetica,Arial,sans-serif;
+
+	 height: 35px;
  }
 	
 	
