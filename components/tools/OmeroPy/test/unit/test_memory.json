@@ -45,5 +45,17 @@
             "omero.mem.blitz.generated_dump": "-XX:-HeapDumpOnOutOfMemoryError",
             "omero.mem.blitz.generated_perm": "-XX:MaxPermSize=1G"
         }
+    },
+    {
+        "name": "global-adaptive-4G",
+        "input": {
+            "omero.mem.strategy": "adaptive",
+            "omero.mem.mem_total": "4000"
+        },
+        "output": {
+            "omero.mem.blitz.generated_heap": "-Xmx1600m",
+            "omero.mem.blitz.generated_dump": "-XX:-HeapDumpOnOutOfMemoryError",
+            "omero.mem.blitz.generated_perm": "-XX:MaxPermSize=128m"
+        }
     }
 ]
