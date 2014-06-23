@@ -41,10 +41,9 @@
 
     <include file="config.xml"/>
     <!--
-      Templates can be found in the same directory as this file, and are included here
-      in their entirety except for the outermost <icegrid/> element.
+      Templates can be found in the same directory as this file.
+      templates.xml is parsed and included in the config.xml.
     -->
-    <include file="templates.xml"/>
 
     <node name="master">
       <server-instance template="Glacier2Template"

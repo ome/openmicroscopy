@@ -308,7 +308,7 @@ STRATEGY_REGISTRY["bigimage"] = BigImageStrategy
 STRATEGY_REGISTRY["adaptive"] = AdaptiveStrategy
 
 
-def adjust_settings(config,
+def adjust_settings(config, template_xml,
                     blitz=None, indexer=None,
                     pixeldata=None, repository=None):
     """
@@ -316,6 +316,17 @@ def adjust_settings(config,
     the memory settings. Primary entry point to the
     memory module.
     """
+
+    from xml.etree.ElementTree import Element
+
+    options = dict()
+    for template in template_xml.findall("server-template"):
+        for server in template.findall("server"):
+            for option in server.findall("option"):
+                o = option.text
+                if o.startswith("MEMORY:"):
+                    options[o[7:]] = (server, option)
+
     rv = dict()
     m = config.as_map()
     loop = (("blitz", blitz), ("indexer", indexer),
@@ -331,9 +342,17 @@ def adjust_settings(config,
 
         strategy = StrategyType(name, settings)
         settings = strategy.get_memory_settings()
-        for x in (config, rv):
-            for k, v in settings.items():
-                x["%s.%s" % (prefix, k)] = v
+        server, option = options[name]
+        idx = 0
+        for k, v in settings.items():
+            rv["%s.%s" % (prefix, k)] = v
+            if idx == 1:
+                option.text = v
+            else:
+                elem = Element("option")
+                elem.text = v
+                server.insert(idx, elem)
+            idx += 1
     return rv
 
 
