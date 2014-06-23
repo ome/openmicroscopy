@@ -216,7 +216,6 @@ class PercentStrategy(Strategy):
 
     def _system_memory_mb_java(self):
         import omero.cli
-        import subprocess
         import omero.java
 
         # Copied from db.py. Needs better dir detection
