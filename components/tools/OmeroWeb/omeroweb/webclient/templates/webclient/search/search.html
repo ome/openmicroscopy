@@ -172,7 +172,13 @@
 
 
                 OME.table_selection_changed();     // clear selection (hides acquisition & preview tabs)
-        })
+
+                $("#showSearchHints").click(function(event){
+                    event.preventDefault();
+                    $("#searchHints").toggle();
+                    return false;
+                });
+        });
     </script>
 
 {% endblock %}
@@ -201,19 +207,29 @@
 		<form id="searching_form" class="standard_form" action="{% url 'load_searching' 'form' %}">
 					
 					<h2>{% trans "General Search" %}</h2>
+
+                    <div style="font-size: 120%; float: right; position: relative; top: -15px">
+                        <a id="showSearchHints" href="#" style="text-decoration:underline">
+                            Show search hints
+
+                            <span class="searching_info" title="? Single character wildcard<br>* Multiple character wildcard<br>'AND' Results will contain both terms. E.g: GFP AND H2B">
+                                <img src="{% static "webgateway/img/help16.png" %}" />
+                            </span>
+                        </a>
+                    </div>
+
+                    <div id="searchHints" style="font-size: 120%; background: #fef69c; padding: 3px; border: solid #ddd 1px; margin-bottom: 10px; display: none">
+                        <ul>
+                            <li> <code> ? </code> Single character wildcard</li>
+                            <li> <code> * </code> Multiple character wildcard</li>
+                            <li> <code> AND </code> Results will contain both terms. E.g: GFP AND H2B</li>
+                        </ul>
+                    </div>
+
+                    <div style="clear:both"></div>
 					
-						<label for="query">{% trans "Search for" %}:</label>
+						<label for="query">{% trans "Search" %}:</label>
 						<input class="search" type="text" name="query" value="{{ init.query }}" size="35"/>
-	                    <span class="searching_info"
-	                        title="Searching - <small>Performs a single character wildcard search use the <b>'?'</b> symbol.
-	                            The single character wildcard search looks for terms that match that with the single character replaced.
-	                            To perform a multiple character wildcard search use the <b>'*'</b> symbol. <br/><br/>
-	                            For example, to search for <i>'text'</i> or <i>'test'</i> you can use the search: <b>'te?t'</b>.
-	                            Multiple character wildcard searches looks for 0 or more characters.
-	                            For example, to search for <i>'test'</i>, <i>'tests'</i> or <i>'tester'</i>, you can use the search: <b>'test*'</b>.
-	                            You can also use the wildcard searches in the middle or the beginning of a term.</small>">
-	                       	 <img src="{% static "webgateway/img/help16.png" %}" />
-	                    </span>
 	                
 	            		<hr>
 
@@ -230,8 +246,8 @@
                         <hr>
 
                         <label style="white-space:nowrap;">
-                            Fields:
-                            <span class="searching_info" title="Search by specified fields.<br>If none chosen, we search across all fields">
+                            Restrict by Field:
+                            <span class="searching_info" title="Restrict search to specified fields.<br>If none chosen, we search across all fields">
                                 <img src="{% static "webgateway/img/help16.png" %}" />
                             </span>
                         </label>
