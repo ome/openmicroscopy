@@ -1,5 +1,20 @@
 [
     {
+        "name": "global-multiple-appends",
+        "input": {
+            "omero.mem.strategy": "manual",
+            "omero.mem.append": "foo bar"
+        },
+        "output": {
+            "blitz" : [
+                "-Xmx512m",
+                "-XX:MaxPermSize=128m",
+                "foo",
+                "bar"
+            ]
+        }
+    },
+    {
         "name": "global-manual-defaults",
         "input": {
             "omero.mem.strategy": "manual"

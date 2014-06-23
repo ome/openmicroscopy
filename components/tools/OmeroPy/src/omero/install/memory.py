@@ -24,6 +24,7 @@ Automatic configuration of memory settings for Java servers.
 """
 
 from types import StringType
+from shlex import split
 
 import logging
 
@@ -171,15 +172,15 @@ class Strategy(object):
             return "-XX:MaxPermSize=%s" % pg
 
     def get_append(self):
-        return self.settings.append
+        return split(self.settings.append)
 
     def get_memory_settings(self):
         values = [
             self.get_heap_size(),
             self.get_heap_dump(),
             self.get_perm_gen(),
-            self.get_append(),
         ]
+        values += self.get_append()
         return [x for x in values if x]
 
 
