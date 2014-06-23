@@ -65,9 +65,9 @@
                     href="#"
                     onClick="return OME.openPopup('{% url 'download_placeholder' %}?ids=image-{{ manager.image.id }}&fileCount={{ fileCount }}&name={{ manager.image.name }}');"
                   {% endifequal %}
-                title="Download {{ fileCount }} Archived file{{ fileCount|pluralize:'s (zip)' }}">
-                {{ filesetInfo.count }}
-                Archived file{{ filesetInfo.count|pluralize:'s' }} ({{ filesetInfo.size|filesizeformat }})</a>
+                title="Download {{ filesetInfo.count }} original imported file{{ filesetInfo.count|pluralize:'s as zip'}} ({{ filesetInfo.size|filesizeformat }})"
+                >
+                Download</a>
             </li>
               {% endwith %}
             <!-- Here we handle multiple images (batch annotate panel) -->
@@ -82,11 +82,11 @@
                   {% else %}
                     href="#"
                     onClick="return OME.openPopup('{% url 'download_placeholder' %}?ids={{ link_string }}&fileCount={{ filesetInfo.count }}');"
-                    title="Download {{ filesetInfo.count }} files as a zip"
                   {% endifequal %}
                 {% endifequal %}
+                title="Download {{ filesetInfo.count }} original imported file{{ filesetInfo.count|pluralize:'s as zip'}} ({{ filesetInfo.size|filesizeformat }})"
                 >
-                {{ filesetInfo.count }} Archived files ({{ filesetInfo.size|filesizeformat }})</a>
+                Download</a>
             </li>
             {% endif %}
             {% if manager.image %}
