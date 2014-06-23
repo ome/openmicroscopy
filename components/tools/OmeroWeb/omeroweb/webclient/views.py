@@ -1841,12 +1841,20 @@ def download_placeholder(request):
     We construct the url and query string from request: 'url' and 'ids'.
     """
 
-    download_url = reverse('archived_files')
+    format = request.REQUEST.get('format', None)
+    if format is not None:
+        download_url = reverse('download_as')
+        zipName = 'SaveAs_%s' % format
+    else:
+        download_url = reverse('archived_files')
+        zipName = 'OriginalFileDownload'
     targetIds = request.REQUEST.get('ids')      # E.g. image-1|image-2
-    defaultName = request.REQUEST.get('name', 'OriginalFileDownload') # default zip name
+    defaultName = request.REQUEST.get('name', zipName) # default zip name
 
     query = "&".join([i.replace("-", "=") for i in targetIds.split("|")])
     download_url = download_url + "?" + query
+    if format is not None:
+        download_url = download_url + "&format=%s" % format
 
     context = {
             'template': "webclient/annotations/download_placeholder.html",
