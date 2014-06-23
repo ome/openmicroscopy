@@ -67,7 +67,7 @@
                   {% endifequal %}
                 title="Download {{ filesetInfo.count }} original imported file{{ filesetInfo.count|pluralize:'s as zip'}} ({{ filesetInfo.size|filesizeformat }})"
                 >
-                Download</a>
+                Download...</a>
             </li>
               {% endwith %}
             <!-- Here we handle multiple images (batch annotate panel) -->
@@ -86,15 +86,20 @@
                 {% endifequal %}
                 title="Download {{ filesetInfo.count }} original imported file{{ filesetInfo.count|pluralize:'s as zip'}} ({{ filesetInfo.size|filesizeformat }})"
                 >
-                Download</a>
+                Download...</a>
             </li>
             {% endif %}
             {% if manager.image %}
             <li>
                 <a id="create-ometiff" href="{% url 'ome_tiff_script' manager.image.id %}" 
-                title="Create OME-TIFF File for Download">OME-TIFF</a>
+                title="Create OME-TIFF File for Download">Export as OME-TIFF...</a>
             </li>
             <li id="download-jpeg"><a href="{% url 'web_render_image_download' manager.image.id %}" title="Download as JPEG">JPEG</a></li>
+            {% else %}
+            <li class="disabled">
+                <a id="create-ometiff" href="#" class="disabled"
+                title="Create OME-TIFF File for Download">Export as OME-TIFF...</a>
+            </li>
             {% endif %}
         </ul>
     </div>
