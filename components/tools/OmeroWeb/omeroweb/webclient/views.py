@@ -1843,7 +1843,6 @@ def download_placeholder(request):
 
     download_url = reverse('archived_files')
     targetIds = request.REQUEST.get('ids')      # E.g. image-1|image-2
-    fileCount = request.REQUEST.get('fileCount')
     defaultName = request.REQUEST.get('name', 'OriginalFileDownload') # default zip name
 
     query = "&".join([i.replace("-", "=") for i in targetIds.split("|")])

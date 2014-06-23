@@ -1694,6 +1694,91 @@ def full_viewer (request, iid, conn=None, **kwargs):
 
 
 @login_required(doConnectionCleanup=False)
+def download_as(request, iid=None, conn=None, **kwargs):
+    """
+    Downloads the image as a single jpeg/png/tiff or as a zip (if more than one image)
+    """
+    format = request.REQUEST.get('format', 'png')
+    if format not in ('jpeg', 'png', 'tiff'):
+        format = 'png'
+    if iid is None:
+        imgIds = request.REQUEST.getlist('image')
+        if len(imgIds) == 0:
+            return HttpResponseServerError("No images specified in request. Use ?image=123")
+    else:
+        imgIds = [iid]
+
+    images = list(conn.getObjects("Image", imgIds))
+    if len(images) == 0:
+        msg = "Cannot download as %s. Images (ids: %s) not found." % (format, imgIds)
+        logger.debug(msg)
+        return HttpResponseServerError(msg)
+
+    if len(images) == 1:
+        jpeg_data = images[0].renderJpeg()
+        if jpeg_data is None:
+            raise Http404
+        rsp = HttpResponse(jpeg_data, mimetype='image/jpeg')
+        rsp['Content-Length'] = len(jpeg_data)
+        rsp['Content-Disposition'] = 'attachment; filename=%s.jpg' % (images[0].getName().replace(" ","_"))
+    else:
+        import tempfile
+        temp = tempfile.NamedTemporaryFile(suffix='.download_as')
+
+        def makeImageName(originalName, extension, folder_name):
+            name = os.path.basename(originalName)
+            imgName = "%s.%s" % (name, extension)
+            imgName = os.path.join(folder_name, imgName)
+            # check we don't overwrite existing file
+            i = 1
+            name = imgName[:-(len(extension)+1)]
+            while os.path.exists(imgName):
+                imgName = "%s_(%d).%s" % (name, i, extension)
+                i += 1
+            return imgName
+
+        try:
+            temp_zip_dir = tempfile.mkdtemp()
+            logger.debug("download_as dir: %s" % temp_zip_dir)
+            try:
+                for img in images:
+                    z = t = None
+                    pilImg = img.renderImage(z, t)
+                    imgPathName = makeImageName(img.getName(), format, temp_zip_dir)
+                    pilImg.save(imgPathName)
+                # create zip
+                zip_file = zipfile.ZipFile(temp, 'w', zipfile.ZIP_DEFLATED)
+                try:
+                    a_files = os.path.join(temp_zip_dir, "*")
+                    for name in glob.glob(a_files):
+                        zip_file.write(name, os.path.basename(name))
+                finally:
+                    zip_file.close()
+            finally:
+                shutil.rmtree(temp_zip_dir, ignore_errors=True)
+
+            zipName = request.REQUEST.get('zipname', 'Download_as_%s' % format)
+            zipName = zipName.replace(" ","_")
+            if not zipName.endswith('.zip'):
+                zipName = "%s.zip" % zipName
+
+            # return the zip or single file
+            imageFile_data = FileWrapper(temp)
+            rsp = HttpResponse(imageFile_data)
+            rsp['Content-Length'] = temp.tell()
+            rsp['Content-Disposition'] = 'attachment; filename=%s' % zipName
+            temp.seek(0)
+        except Exception:
+            temp.close()
+            stack = traceback.format_exc()
+            logger.error(stack)
+            return HttpResponseServerError("Cannot download file (id:%s).\n%s" % (iid, stack))
+
+    rsp['Content-Type'] = 'application/force-download'
+    return rsp
+
+
+@login_required(doConnectionCleanup=False)
 def archived_files(request, iid=None, conn=None, **kwargs):
     """
     Downloads the archived file(s) as a single file or as a zip (if more than one file)
