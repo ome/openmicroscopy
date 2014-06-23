@@ -325,15 +325,14 @@ class AdaptiveStrategy(PercentStrategy):
         if total <= 4000:
             self.PERCENT_DEFAULTS["blitz"] = 25
             self.PERCENT_DEFAULTS["pixeldata"] = 25
-            settings.overwrite("perm_gen", "512m")
         elif total <= 8000:
             self.PERCENT_DEFAULTS["blitz"] = 35
             self.PERCENT_DEFAULTS["pixeldata"] = 25
-            settings.overwrite("perm_gen", "1g")
+            settings.overwrite("perm_gen", "512m")
         elif total <= 16000:
             self.PERCENT_DEFAULTS["blitz"] = 35
             self.PERCENT_DEFAULTS["pixeldata"] = 35
-            settings.overwrite("perm_gen", "1g")
+            settings.overwrite("perm_gen", "512m")
         else:
             self.PERCENT_DEFAULTS["blitz"] = 25
             self.PERCENT_DEFAULTS["pixeldata"] = 25

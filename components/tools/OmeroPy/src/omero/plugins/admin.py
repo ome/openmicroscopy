@@ -776,7 +776,8 @@ present, the user will enter a console""")
         from omero.install.memory import adjust_settings
         templates = self.ctx.dir / "etc" / "grid" / "templates.xml"
         generated = self.ctx.dir / "etc" / "grid" / "generated.xml"
-        generated.remove()
+        if generated.exists():
+            generated.remove()
         config2 = omero.config.ConfigXml(str(generated))
         template_xml = XML(templates.text())
         rv = adjust_settings(config, template_xml)
