@@ -60,7 +60,33 @@
         "output": {
             "blitz" : [
                 "-Xmx1600m",
-                "-XX:MaxPermSize=128m"
+                "-XX:MaxPermSize=512m"
+            ]
+        }
+    },
+    {
+        "name": "global-adaptive-8G",
+        "input": {
+            "omero.mem.strategy": "adaptive",
+            "omero.mem.mem_total": "8000"
+        },
+        "output": {
+            "blitz" : [
+                "-Xmx2000m",
+                "-XX:MaxPermSize=1g"
+            ]
+        }
+    },
+    {
+        "name": "global-adaptive-16G",
+        "input": {
+            "omero.mem.strategy": "adaptive",
+            "omero.mem.mem_total": "16000"
+        },
+        "output": {
+            "blitz" : [
+                "-Xmx5600m",
+                "-XX:MaxPermSize=1g"
             ]
         }
     },

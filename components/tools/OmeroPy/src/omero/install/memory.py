@@ -105,6 +105,18 @@ class Settings(object):
             self.sources[name] = "default"
             return default
 
+    def overwrite(self, key, value, always=False):
+        if self.was_set(key) and not always:
+            # Then we leave it as the user requested
+            return
+        # Otherwise, we want to update the value
+        setattr(self, key, value)
+        self.sources[key] = "overwrite"
+        self.settings_map[key] = value
+
+    def was_set(self, key):
+        return self.sources.get(key, "unknown") != "default"
+
     def get_strategy(self):
         return STRATEGY_REGISTRY.get(self.strategy, self.strategy)
 
@@ -308,18 +320,25 @@ class AdaptiveStrategy(PercentStrategy):
     def __init__(self, name, settings=None):
         super(AdaptiveStrategy, self).__init__(name, settings)
         available, total = self.system_memory_mb()  # mem_total is set
+        if settings is None:
+            settings = Settings()
         if total <= 4000:
             self.PERCENT_DEFAULTS["blitz"] = 25
             self.PERCENT_DEFAULTS["pixeldata"] = 25
+            settings.overwrite("perm_gen", "512m")
         elif total <= 8000:
             self.PERCENT_DEFAULTS["blitz"] = 35
             self.PERCENT_DEFAULTS["pixeldata"] = 25
+            settings.overwrite("perm_gen", "1g")
         elif total <= 16000:
             self.PERCENT_DEFAULTS["blitz"] = 35
             self.PERCENT_DEFAULTS["pixeldata"] = 35
+            settings.overwrite("perm_gen", "1g")
         else:
             self.PERCENT_DEFAULTS["blitz"] = 25
             self.PERCENT_DEFAULTS["pixeldata"] = 25
+            settings.overwrite("perm_gen", "1g")
+
 
 
 STRATEGY_REGISTRY["manual"] = ManualStrategy
